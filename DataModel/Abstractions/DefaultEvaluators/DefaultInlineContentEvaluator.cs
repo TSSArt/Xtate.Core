@@ -1,0 +1,67 @@
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Xtate.Annotations;
+
+namespace Xtate.DataModel
+{
+	[PublicAPI]
+	public class DefaultInlineContentEvaluator : IInlineContent, IObjectEvaluator, IStringEvaluator, IAncestorProvider
+	{
+		private readonly InlineContent  _inlineContent;
+		private          DataModelValue _parsedValue;
+		private          Exception?     _parsingException;
+
+		public DefaultInlineContentEvaluator(in InlineContent inlineContent)
+		{
+			Infrastructure.Assert(inlineContent.Value != null);
+
+			_inlineContent = inlineContent;
+		}
+
+	#region Interface IAncestorProvider
+
+		object? IAncestorProvider.Ancestor => _inlineContent.Ancestor;
+
+	#endregion
+
+	#region Interface IInlineContent
+
+		public string Value => _inlineContent.Value!;
+
+	#endregion
+
+	#region Interface IObjectEvaluator
+
+		public virtual ValueTask<IObject> EvaluateObject(IExecutionContext executionContext, CancellationToken token)
+		{
+			if (Value == null)
+			{
+				return new ValueTask<IObject>(DefaultObject.Null);
+			}
+
+			if (_parsingException == null && _parsedValue.IsUndefined())
+			{
+				_parsedValue = ParseToDataModel(ref _parsingException);
+				_parsedValue.MakeDeepConstant();
+			}
+
+			if (_parsingException != null)
+			{
+				Infrastructure.IgnoredException(_parsingException);
+			}
+
+			return new ValueTask<IObject>(_parsedValue.CloneAsWritable());
+		}
+
+	#endregion
+
+	#region Interface IStringEvaluator
+
+		public virtual ValueTask<string> EvaluateString(IExecutionContext executionContext, CancellationToken token) => new ValueTask<string>(Value);
+
+	#endregion
+
+		protected virtual DataModelValue ParseToDataModel(ref Exception? parseException) => Value;
+	}
+}
