@@ -45,7 +45,7 @@ namespace Xtate.Core.Test
 
 			await host.StartHostAsync();
 
-			var dataModelValue = await host.ExecuteStateMachineAsync(xml);
+			var _ = await host.ExecuteStateMachineAsync(xml);
 
 			await host.WaitAllStateMachinesAsync();
 
