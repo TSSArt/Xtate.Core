@@ -1,6 +1,6 @@
 variables:
-- name: Version
-  value: '0.0.0-$(Date:yyyyMMdd).$(Rev:.r)'
+- name: Version1
+  value: 0.0.0-$(Date:yyyyMMdd).$(Rev:r)
 - group: FeedSettings
 
 trigger:
@@ -12,6 +12,7 @@ pool:
 steps:
 - script: echo AccountFeed $(AccountFeed)
 - script: echo Version $(Version)
+- script: echo Version1 $(Version1)
 - task: DotNetCoreCLI@2
   displayName: Restore
   inputs:
@@ -23,7 +24,7 @@ steps:
   displayName: Build
   inputs:
     command: 'build'
-    arguments: '-p:Version=$(Version)'
+    arguments: '-p:Version=$(Version1)'
 
 - task: DotNetCoreCLI@2
   displayName: Pack
