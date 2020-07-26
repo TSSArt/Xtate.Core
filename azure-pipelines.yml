@@ -1,6 +1,8 @@
+name: $(Date:yyyyMMdd)$(Rev:.r)
+
 variables:
-- name: Version1
-  value: 0.0.0-$(Date:yyyyMMdd).$(Rev:r)
+- name: Version
+  value: 0.0.0-$(Build.BuildNumber)
 - group: FeedSettings
 
 trigger:
@@ -12,7 +14,6 @@ pool:
 steps:
 - script: echo AccountFeed $(AccountFeed)
 - script: echo Version $(Version)
-- script: echo Version1 $(Version1)
 - task: DotNetCoreCLI@2
   displayName: Restore
   inputs:
