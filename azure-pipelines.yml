@@ -15,7 +15,7 @@ steps:
   inputs:
     command: 'restore'
     feedsToUse: 'select'
-    vstsFeed: '$(Variable.AccountFeed)'
+    vstsFeed: '$(Variables.AccountFeed)'
 
 - task: DotNetCoreCLI@2
   displayName: Build
@@ -33,4 +33,4 @@ steps:
   displayName: Push
   inputs:
     command: push
-    publishVstsFeed: '$(Variable.AccountFeed)'
+    publishVstsFeed: '$(Variables.AccountFeed)'
