@@ -1,0 +1,36 @@
+variables:
+- name: Version
+  value: 0.0.0-$(Date:yyyyMMdd).$(Rev:.r)
+- group: FeedSettings
+
+trigger:
+- master
+
+pool:
+  vmImage: 'windows-latest'
+
+steps:
+- task: DotNetCoreCLI@2
+  displayName: Restore
+  inputs:
+    command: 'restore'
+    feedsToUse: 'select'
+    vstsFeed: '$(Variable.AccountFeed)'
+
+- task: DotNetCoreCLI@2
+  displayName: Build
+  inputs:
+    command: 'build'
+    arguments: '-p:Version=$(Version)'
+
+- task: DotNetCoreCLI@2
+  displayName: Pack
+  inputs:
+    command: pack
+    nobuild: true
+
+- task: DotNetCoreCLI@2
+  displayName: Push
+  inputs:
+    command: push
+    publishVstsFeed: '$(Variable.AccountFeed)'
