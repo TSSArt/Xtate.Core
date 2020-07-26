@@ -1,4 +1,4 @@
-name: $(Build.DefinitionName)_v0.0.$(Build.BuildId)
+name: $(Build.DefinitionName)_v$(Version)
 
 variables:
 - name: Version
