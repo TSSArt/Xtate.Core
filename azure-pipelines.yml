@@ -26,6 +26,12 @@ steps:
     arguments: '-p:Version=$(Version)'
 
 - task: DotNetCoreCLI@2
+  displayName: Test
+  inputs:
+    command: 'test'
+    arguments: '--collect "Code coverage"'
+    
+- task: DotNetCoreCLI@2
   displayName: Pack
   inputs:
     command: pack
