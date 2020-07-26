@@ -25,7 +25,7 @@ steps:
   displayName: Build
   inputs:
     command: 'build'
-    arguments: '-p:Version=$(Version1)'
+    arguments: '-p:Version=$(Version)'
 
 - task: DotNetCoreCLI@2
   displayName: Pack
