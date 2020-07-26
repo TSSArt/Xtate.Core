@@ -1,8 +1,8 @@
-name: $(Date:yyyyMMdd)$(Rev:.r)
+name: $(Build.DefinitionName)_v0.0.$(Build.BuildId)
 
 variables:
 - name: Version
-  value: 0.0.0-$(Build.BuildNumber)
+  value: 0.0.$(Build.BuildId)
 - group: FeedSettings
 
 trigger:
@@ -42,3 +42,4 @@ steps:
   inputs:
     command: push
     publishVstsFeed: '$(AccountFeed)'
+
