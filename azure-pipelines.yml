@@ -1,6 +1,6 @@
 variables:
 - name: Version
-  value: 0.0.0-$(Date:yyyyMMdd).$(Rev:.r)
+  value: '0.0.0-$(Date:yyyyMMdd).$(Rev:.r)'
 - group: FeedSettings
 
 trigger:
@@ -10,12 +10,14 @@ pool:
   vmImage: 'windows-latest'
 
 steps:
+- script: echo AccountFeed $(AccountFeed)
+- script: echo Version $(Version)
 - task: DotNetCoreCLI@2
   displayName: Restore
   inputs:
     command: 'restore'
     feedsToUse: 'select'
-    vstsFeed: '$(Variables.AccountFeed)'
+    vstsFeed: '$(AccountFeed)'
 
 - task: DotNetCoreCLI@2
   displayName: Build
@@ -33,4 +35,4 @@ steps:
   displayName: Push
   inputs:
     command: push
-    publishVstsFeed: '$(Variables.AccountFeed)'
+    publishVstsFeed: '$(AccountFeed)'
