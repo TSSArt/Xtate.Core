@@ -12,8 +12,6 @@ pool:
   vmImage: 'windows-latest'
 
 steps:
-- script: echo AccountFeed $(AccountFeed)
-- script: echo Version $(Version)
 - task: DotNetCoreCLI@2
   displayName: Restore
   inputs:
