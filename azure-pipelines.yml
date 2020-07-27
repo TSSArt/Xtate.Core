@@ -23,13 +23,13 @@ steps:
   displayName: Build
   inputs:
     command: 'build'
-    arguments: '-p:Version=$(Version)'
+    arguments: '--no-restore -p:Version=$(Version)'
 
 - task: DotNetCoreCLI@2
   displayName: Test
   inputs:
     command: 'test'
-    arguments: '--collect "Code coverage"'
+    arguments: '--no-build --collect "Code coverage"'
     
 - task: DotNetCoreCLI@2
   displayName: Pack
