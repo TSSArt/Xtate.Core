@@ -38,8 +38,14 @@ steps:
     nobuild: true
 
 - task: DotNetCoreCLI@2
-  displayName: Push
+  displayName: Push to Azure
   inputs:
     command: push
     publishVstsFeed: '$(AccountFeed)'
 
+- task: NuGetCommand@2
+  displayName: Push to NuGet.org
+  inputs:
+    command: 'push'
+    nuGetFeedType: 'external'
+    publishFeedCredentials: 'XtateFeed'
