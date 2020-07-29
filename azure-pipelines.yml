@@ -36,6 +36,8 @@ steps:
   inputs:
     command: pack
     nobuild: true
+    includesymbols: true
+    buildProperties: 'SymbolPackageFormat=snupkg'
 
 - task: DotNetCoreCLI@2
   displayName: Push to Azure
