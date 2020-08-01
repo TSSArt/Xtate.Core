@@ -35,6 +35,7 @@ namespace Xtate
 	{
 		private const string SessionIdPrefix = "#_scxml_";
 		private const string InvokeIdPrefix  = "#_";
+		private const string Location        = "location";
 
 		private static readonly XmlReaderSettings DefaultSyncXmlReaderSettings  = new XmlReaderSettings { Async = false, CloseInput = true };
 		private static readonly XmlReaderSettings DefaultAsyncXmlReaderSettings = new XmlReaderSettings { Async = true, CloseInput = true };
@@ -106,13 +107,6 @@ namespace Xtate
 										 UnhandledErrorBehaviour = _options.UnhandledErrorBehaviour,
 										 ContextRuntimeItems = _contextRuntimeItems
 								 };
-		}
-
-		private static void ValidateTrue(bool result)
-		{
-			var condition = result;
-
-			Infrastructure.Assert(condition, Resources.Assertion_ValidationFailed);
 		}
 
 		protected virtual StateMachineController CreateStateMachineController(SessionId sessionId, IStateMachine? stateMachine,
@@ -231,7 +225,7 @@ namespace Xtate
 		{
 			if (stateMachineLocation != null)
 			{
-				var obj = new DataModelObject { { "location", stateMachineLocation.ToString() } };
+				var obj = new DataModelObject { { Location, stateMachineLocation.ToString() } };
 				obj.MakeDeepConstant();
 
 				return obj;
@@ -243,32 +237,49 @@ namespace Xtate
 		private void RegisterStateMachineController(StateMachineController stateMachineController)
 		{
 			var sessionId = stateMachineController.SessionId;
-			ValidateTrue(_stateMachinesBySessionId.TryAdd(sessionId, stateMachineController));
+			var result = _stateMachinesBySessionId.TryAdd(sessionId, stateMachineController);
+
+			Infrastructure.Assert(result);
 		}
 
 		public virtual ValueTask RemoveStateMachine(SessionId sessionId)
 		{
-			ValidateTrue(_stateMachinesBySessionId.TryRemove(sessionId, out var stateMachineController));
+			var result = _stateMachinesBySessionId.TryRemove(sessionId, out var stateMachineController);
+
+			Infrastructure.Assert(result);
 
 			return stateMachineController.DisposeAsync();
+		}
+
+		public StateMachineController? FindStateMachineController(SessionId sessionId)
+		{
+			if (sessionId == null) throw new ArgumentNullException(nameof(sessionId));
+
+			return _stateMachinesBySessionId.TryGetValue(sessionId, out var controller) ? controller : null;
 		}
 
 		public void ValidateSessionId(SessionId sessionId, out StateMachineController controller)
 		{
 			if (sessionId == null) throw new ArgumentNullException(nameof(sessionId));
 
-			ValidateTrue(_stateMachinesBySessionId.TryGetValue(sessionId, out controller));
+			var result = _stateMachinesBySessionId.TryGetValue(sessionId, out controller);
+
+			Infrastructure.Assert(result);
 		}
 
 		public virtual ValueTask AddService(SessionId sessionId, InvokeId invokeId, IService service, CancellationToken token)
 		{
-			ValidateTrue(_serviceByInvokeId.TryAdd(invokeId, service));
+			var result = _serviceByInvokeId.TryAdd(invokeId, service);
+
+			Infrastructure.Assert(result);
 
 			if (service is StateMachineController stateMachineController)
 			{
 				if (_stateMachinesBySessionId.TryGetValue(sessionId, out var controller))
 				{
-					ValidateTrue(_parentServiceBySessionId.TryAdd(stateMachineController.SessionId, controller));
+					result = _parentServiceBySessionId.TryAdd(stateMachineController.SessionId, controller);
+
+					Infrastructure.Assert(result);
 				}
 			}
 
@@ -321,7 +332,7 @@ namespace Xtate
 			{
 				var targetValue = target.OriginalString;
 
-				if (targetValue == "#_parent")
+				if (targetValue == @"#_parent")
 				{
 					if (_parentServiceBySessionId.TryGetValue(sessionId, out var service))
 					{

@@ -24,6 +24,6 @@ namespace Xtate
 {
 	public interface IEventConsumer
 	{
-		ValueTask Dispatch(SessionId sessionId, IEvent evt, CancellationToken token);
+		ValueTask<bool> Dispatch(SessionId sessionId, IEvent evt, CancellationToken token);
 	}
 }
