@@ -5,9 +5,10 @@ on:
     branches: [ master ]
 
 env:
-  version: 0.1.${{ github.run_number }}
-  configuration: Release
+  VERSION: 0.1.${{ github.run_number }}
+  CONFIGURATION: Release
   NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+  NUGET_ORG_API_KEY: ${{secrets.NUGET_ORG_API_KEY}}
 
 jobs:
   build:
@@ -24,11 +25,18 @@ jobs:
     - name: Restore
       run: dotnet restore
     - name: Build
-      run: dotnet build --configuration ${{ env.configuration }} --no-restore -p:Version=${{ env.version }}
+      run: dotnet build --configuration ${{ env.CONFIGURATION }} --no-restore -p:Version=${{ env.VERSION }}
     - name: Test
-      run: dotnet test --configuration ${{ env.configuration }} --no-restore --no-build --verbosity normal
+      run: dotnet test --configuration ${{ env.CONFIGURATION }} --no-restore --no-build --verbosity normal
     - name: Pack
-      run: dotnet pack --configuration ${{ env.configuration }} --no-restore --no-build -p:PackageVersion=${{ env.version }} --include-symbols -p:SymbolPackageFormat=snupkg -o out
+      run: dotnet pack --configuration ${{ env.CONFIGURATION }} --no-restore --no-build -p:PackageVersion=${{ env.VERSION }} --include-symbols -p:SymbolPackageFormat=snupkg -o out
     - name: Publish to GitHub
       run: dotnet nuget push out\*.nupkg
+    - name: Setup NuGet.exe for use with actions
+      uses: NuGet/setup-nuget@v1.0.2
+      with:
+        nuget-api-key: ${{ env.NUGET_ORG_API_KEY }}
+        nuget-api-key-source: https://api.nuget.org/v3/index.json
+    - name: Publish to NuGet.org
+      run: nuget.exe push out\*.nupkg -NonInteractive
       
