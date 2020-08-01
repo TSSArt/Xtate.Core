@@ -37,5 +37,8 @@ jobs:
       run: dotnet nuget push out\*.nupkg
     - name: Publish to NuGet.org
       run: nuget.exe push out\*.nupkg -NonInteractive -Source https://api.nuget.org/v3/index.json -ApiKey ${{ env.NUGET_ORG_API_KEY }}
-      
-
+    - name: Github Tag
+      uses: tvdias/github-tagger@v0.0.2
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        tag: v${{ env.VERSION }}
