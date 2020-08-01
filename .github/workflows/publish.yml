@@ -1,0 +1,44 @@
+name: Publish
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+env:
+  VERSION: 0.1.${{ github.run_number }}
+  CONFIGURATION: Release
+  NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+  NUGET_ORG_API_KEY: ${{secrets.NUGET_ORG_API_KEY}}
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.302
+        source-url: https://nuget.pkg.github.com/TSSArt/index.json
+    - name: Setup NuGet.exe
+      uses: NuGet/setup-nuget@v1.0.2
+    - name: Restore
+      run: dotnet restore -v detailed
+    - name: Build
+      run: dotnet build --configuration ${{ env.CONFIGURATION }} --no-restore -p:Version=${{ env.VERSION }}
+    - name: Test
+      run: dotnet test --configuration ${{ env.CONFIGURATION }} --no-restore --no-build --verbosity normal
+    - name: Pack
+      run: dotnet pack --configuration ${{ env.CONFIGURATION }} --no-restore --no-build -p:PackageVersion=${{ env.VERSION }} --include-symbols -p:SymbolPackageFormat=snupkg -o out
+    - name: Publish to GitHub
+      run: dotnet nuget push out\*.nupkg
+    - name: Publish to NuGet.org
+      run: nuget.exe push out\*.nupkg -NonInteractive -Source https://api.nuget.org/v3/index.json -ApiKey ${{ env.NUGET_ORG_API_KEY }}
+    - name: GitHub Tag
+      uses: tvdias/github-tagger@v0.0.2
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        tag: v${{ env.VERSION }}
