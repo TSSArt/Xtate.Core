@@ -62,6 +62,6 @@ namespace Xtate.IoProcessor
 
 		protected abstract ValueTask OutgoingEvent(SessionId sessionId, IOutgoingEvent evt, CancellationToken token);
 
-		protected ValueTask IncomingEvent(SessionId sessionId, IEvent evt, CancellationToken token) => _eventConsumer.Dispatch(sessionId, evt, token);
+		protected ValueTask<bool> IncomingEvent(SessionId sessionId, IEvent evt, CancellationToken token) => _eventConsumer.Dispatch(sessionId, evt, token);
 	}
 }
