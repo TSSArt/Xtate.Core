@@ -23,6 +23,8 @@ jobs:
       with:
         dotnet-version: 3.1.302
         source-url: https://nuget.pkg.github.com/TSSArt/index.json
+    - name: Setup NuGet.exe
+      uses: NuGet/setup-nuget@v1.0.2
     - name: Restore
       run: dotnet restore
     - name: Build
@@ -33,11 +35,7 @@ jobs:
       run: dotnet pack --configuration ${{ env.CONFIGURATION }} --no-restore --no-build -p:PackageVersion=${{ env.VERSION }} --include-symbols -p:SymbolPackageFormat=snupkg -o out
     - name: Publish to GitHub
       run: dotnet nuget push out\*.nupkg
-    - name: Setup NuGet.exe for use with actions
-      uses: NuGet/setup-nuget@v1.0.2
-      with:
-        nuget-api-key: ${{ env.NUGET_ORG_API_KEY }}
-        nuget-api-key-source: https://api.nuget.org/v3/index.json
     - name: Publish to NuGet.org
-      run: nuget.exe push out\*.nupkg -NonInteractive
+      run: nuget.exe push out\*.nupkg -NonInteractive -Source https://api.nuget.org/v3/index.json -ApiKey ${{ env.NUGET_ORG_API_KEY }}
       
+
