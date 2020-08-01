@@ -1,11 +1,8 @@
-name: Build & Pack
+name: Publish
 
 on:
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
-  workflow_dispatch:
 
 jobs:
   build:
@@ -17,11 +14,11 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.1.301
+        dotnet-version: 3.1.302
     - name: Restore
       run: dotnet restore
     - name: Build
-      run: dotnet build --configuration Release --no-restore -p:Version=${{ '0.1.' + github.run_number }}
+      run: dotnet build --configuration Release --no-restore -p:Version=0.1.${{ github.run_number }}
     - name: Test
       run: dotnet test --no-restore --verbosity normal
     - name: Pack
