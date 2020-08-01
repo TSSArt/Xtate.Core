@@ -19,6 +19,7 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.302
+        source-url: https://nuget.pkg.github.com/TSSArt/index.json
     - name: Restore
       run: dotnet restore
     - name: Build
@@ -26,4 +27,7 @@ jobs:
     - name: Test
       run: dotnet test --configuration ${{ env.configuration }} --no-restore --no-build --verbosity normal
     - name: Pack
-      run: dotnet pack --configuration ${{ env.configuration }} --no-restore --no-build -p:PackageVersion=${{ env.version }} --include-symbols -p:SymbolPackageFormat=snupkg
+      run: dotnet pack --configuration ${{ env.configuration }} --no-restore --no-build -p:PackageVersion=${{ env.version }} --include-symbols -p:SymbolPackageFormat=snupkg -o out
+    - name: Publish to GitHub
+      run: dotnet nuget push out/*.nupkg
+      
