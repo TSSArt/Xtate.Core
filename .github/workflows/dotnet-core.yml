@@ -1,4 +1,4 @@
-name: ${{ '0.1.' + github.run_number }}
+name: Build & Pack
 
 on:
   push:
@@ -20,7 +20,7 @@ jobs:
     - name: Restore
       run: dotnet restore
     - name: Build
-      run: dotnet build --configuration Release --no-restore -p:Version=${{ github.workflow }}
+      run: dotnet build --configuration Release --no-restore -p:Version=${{ '0.1.' + github.run_number }}
     - name: Test
       run: dotnet test --no-restore --verbosity normal
     - name: Pack
