@@ -6,7 +6,8 @@ on:
 
 env:
   version: 0.1.${{ github.run_number }}
-  configuration: Release 
+  configuration: Release
+  NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
 jobs:
   build:
