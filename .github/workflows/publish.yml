@@ -26,7 +26,7 @@ jobs:
     - name: Setup NuGet.exe
       uses: NuGet/setup-nuget@v1.0.2
     - name: Restore
-      run: dotnet restore
+      run: dotnet restore -v detailed
     - name: Build
       run: dotnet build --configuration ${{ env.CONFIGURATION }} --no-restore -p:Version=${{ env.VERSION }}
     - name: Test
@@ -37,7 +37,7 @@ jobs:
       run: dotnet nuget push out\*.nupkg
     - name: Publish to NuGet.org
       run: nuget.exe push out\*.nupkg -NonInteractive -Source https://api.nuget.org/v3/index.json -ApiKey ${{ env.NUGET_ORG_API_KEY }}
-    - name: Github Tag
+    - name: GitHub Tag
       uses: tvdias/github-tagger@v0.0.2
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
