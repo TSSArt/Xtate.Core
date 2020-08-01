@@ -32,11 +32,18 @@ namespace Xtate
 
 	#region Interface IEventConsumer
 
-		public ValueTask Dispatch(SessionId sessionId, IEvent evt, CancellationToken token = default)
+		public async ValueTask<bool> Dispatch(SessionId sessionId, IEvent evt, CancellationToken token = default)
 		{
-			GetCurrentContext().ValidateSessionId(sessionId, out var controller);
+			var controller = GetCurrentContext().FindStateMachineController(sessionId);
 
-			return controller.Send(evt, token);
+			if (controller != null)
+			{
+				await controller.Send(evt, token).ConfigureAwait(false);
+
+				return true;
+			}
+
+			return false;
 		}
 
 	#endregion
