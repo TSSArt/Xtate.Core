@@ -9,7 +9,7 @@ env:
 
 jobs:
   trigger:
-    name: Trigger Publish of ${{ matrix.repo }}
+    name: Publish ${{ matrix.repo }}
     strategy:
       matrix:
         repo: 
@@ -27,7 +27,7 @@ jobs:
       - name: Workflow Dispatch
         uses: benc-uk/workflow-dispatch@v1
         with:
-          workflow: publish.yml
+          workflow: Publish
           token: ${{ secrets.BOT_ACTION_TOKEN }}
           repo: ${{ matrix.repo }}
           ref: master
