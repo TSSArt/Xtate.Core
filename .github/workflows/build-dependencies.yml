@@ -14,5 +14,4 @@ jobs:
     steps:
     - uses: octokit/request-action@v2.0.2
       with: 
-        route: POST repos/TSSArt/Xtate.Serialization/actions/workflows/publish.yml/dispatches
-        ref: master
+        route: POST /repos/TSSArt/Xtate.Serialization/actions/workflows/publish.yml/dispatches
