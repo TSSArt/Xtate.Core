@@ -1,7 +1,7 @@
 name: Build Dependencies
 
 on:
-  package:
+  registry_package:
   workflow_dispatch:
 
 env:
