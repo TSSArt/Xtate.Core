@@ -13,7 +13,6 @@ env:
 
 jobs:
   build:
-
     runs-on: windows-latest
 
     steps:
@@ -42,3 +41,15 @@ jobs:
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         tag: v${{ env.VERSION }}
+
+  dependencies:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: octokit/request-action@v2.0.2
+      with: 
+        route: POST /repos/:repository/actions/workflows/build-dependencies.yml/dispatches
+        repository: ${{ github.repository }}
+        ref: master
+      env: 
+        GITHUB_TOKEN: ${{ secrets.BOT_ACTION_TOKEN }}
