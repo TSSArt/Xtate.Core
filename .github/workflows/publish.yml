@@ -41,12 +41,8 @@ jobs:
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         tag: v${{ env.VERSION }}
-
-  dependencies:
-    runs-on: ubuntu-latest
-
-    steps:
     - uses: octokit/request-action@v2.0.2
+      name: Trigger Dependencies
       with: 
         route: POST /repos/:repository/actions/workflows/build-dependencies.yml/dispatches
         repository: ${{ github.repository }}
