@@ -9,34 +9,25 @@ env:
 
 jobs:
   trigger:
+    name: Trigger Publish of ${{ matrix.repo }}
+    strategy:
+      matrix:
+        repo: 
+          - TSSArt/Xtate
+          - TSSArt/Xtate.Serialization
+          - TSSArt/Xtate.DataModel.EcmaScript
+          - TSSArt/Xtate.IoProcessor.Http
+          - TSSArt/Xtate.Service.HttpClient
+          - TSSArt/Xtate.Service.SmtpClient
+          - TSSArt/Xtate.Logger.Serilog
+    
     runs-on: ubuntu-latest
-
+  
     steps:
-    - uses: octokit/request-action@v2.0.2
-      with: 
-        route: POST /repos/TSSArt/Xtate.Serialization/actions/workflows/publish.yml/dispatches
-        ref: master
-    - uses: octokit/request-action@v2.0.2
-      with: 
-        route: POST /repos/TSSArt/Xtate.DataModel.EcmaScript/actions/workflows/publish.yml/dispatches
-        ref: master
-    - uses: octokit/request-action@v2.0.2
-      with: 
-        route: POST /repos/TSSArt/Xtate.IoProcessor.Http/actions/workflows/publish.yml/dispatches
-        ref: master
-    - uses: octokit/request-action@v2.0.2
-      with: 
-        route: POST /repos/TSSArt/Xtate.Service.HttpClient/actions/workflows/publish.yml/dispatches
-        ref: master
-    - uses: octokit/request-action@v2.0.2
-      with: 
-        route: POST /repos/TSSArt/Xtate.Service.SmtpClient/actions/workflows/publish.yml/dispatches
-        ref: master
-    - uses: octokit/request-action@v2.0.2
-      with: 
-        route: POST /repos/TSSArt/Xtate.Logger.Serilog/actions/workflows/publish.yml/dispatches
-        ref: master
-    - uses: octokit/request-action@v2.0.2
-      with: 
-        route: POST /repos/TSSArt/Xtate/actions/workflows/publish.yml/dispatches
-        ref: master
+      - name: Workflow Dispatch
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: publish.yml
+          token: ${{ secrets.BOT_ACTION_TOKEN }}
+          repo: ${{ matrix.repo }}
+          ref: master
