@@ -8,16 +8,16 @@ on:
 env:
   VERSION: 0.1.${{ github.run_number }}
   CONFIGURATION: Release
-  NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-  NUGET_ORG_API_KEY: ${{secrets.NUGET_ORG_API_KEY}}
+  NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}} 
 
 jobs:
-  build:
-
+  publish:
+    name: Build & Publish
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@v2
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
@@ -32,13 +32,25 @@ jobs:
     - name: Test
       run: dotnet test --configuration ${{ env.CONFIGURATION }} --no-restore --no-build --verbosity normal
     - name: Pack
-      run: dotnet pack --configuration ${{ env.CONFIGURATION }} --no-restore --no-build -p:PackageVersion=${{ env.VERSION }} --include-symbols -p:SymbolPackageFormat=snupkg -o out
+      run: dotnet pack --configuration ${{ env.CONFIGURATION }} --no-restore --no-build -p:PackageVersion=${{ env.VERSION }} --include-symbols -p:SymbolPackageFormat=snupkg -o bin\packages
     - name: Publish to GitHub
-      run: dotnet nuget push out\*.nupkg
+      run: dotnet nuget push bin\packages\*.nupkg
     - name: Publish to NuGet.org
-      run: nuget.exe push out\*.nupkg -NonInteractive -Source https://api.nuget.org/v3/index.json -ApiKey ${{ env.NUGET_ORG_API_KEY }}
+      run: nuget.exe push bin\packages\*.nupkg -NonInteractive -Source https://api.nuget.org/v3/index.json -ApiKey ${{ secrets.NUGET_ORG_API_KEY }}
     - name: GitHub Tag
       uses: tvdias/github-tagger@v0.0.2
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         tag: v${{ env.VERSION }}
+
+  dependencies:
+    name: Trigger Dependencies
+    runs-on: ubuntu-latest
+    needs: [publish]  
+
+    steps:
+    - name: Trigger Publish Dependencies
+      uses: benc-uk/workflow-dispatch@v1
+      with:
+        workflow: Publish Dependencies
+        token: ${{ secrets.BOT_ACTION_TOKEN }}
