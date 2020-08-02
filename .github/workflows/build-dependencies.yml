@@ -16,3 +16,27 @@ jobs:
       with: 
         route: POST /repos/TSSArt/Xtate.Serialization/actions/workflows/publish.yml/dispatches
         ref: master
+    - uses: octokit/request-action@v2.0.2
+      with: 
+        route: POST /repos/TSSArt/Xtate.DataModel.EcmaScript/actions/workflows/publish.yml/dispatches
+        ref: master
+    - uses: octokit/request-action@v2.0.2
+      with: 
+        route: POST /repos/TSSArt/Xtate.IoProcessor.Http/actions/workflows/publish.yml/dispatches
+        ref: master
+    - uses: octokit/request-action@v2.0.2
+      with: 
+        route: POST /repos/TSSArt/Xtate.Service.HttpClient/actions/workflows/publish.yml/dispatches
+        ref: master
+    - uses: octokit/request-action@v2.0.2
+      with: 
+        route: POST /repos/TSSArt/Xtate.Service.SmtpClient/actions/workflows/publish.yml/dispatches
+        ref: master
+    - uses: octokit/request-action@v2.0.2
+      with: 
+        route: POST /repos/TSSArt/Xtate.Logger.Serilog/actions/workflows/publish.yml/dispatches
+        ref: master
+    - uses: octokit/request-action@v2.0.2
+      with: 
+        route: POST /repos/TSSArt/Xtate/actions/workflows/publish.yml/dispatches
+        ref: master
