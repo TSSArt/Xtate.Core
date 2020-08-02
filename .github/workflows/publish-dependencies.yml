@@ -1,4 +1,4 @@
-name: Build Dependencies
+name: Publish Dependencies
 
 on:
   registry_package:
