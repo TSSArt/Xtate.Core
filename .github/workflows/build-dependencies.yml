@@ -5,14 +5,13 @@ on:
   workflow_dispatch:
 
 env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_ACTION_TOKEN }}
 
 jobs:
   trigger:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Trigger build of Xtate.Serialization
-      uses: octokit/request-action@v2.0.2
-      with:
+    - uses: octokit/request-action@v2.0.2
+      with: 
         route: POST repos/TSSArt/Xtate.Serialization/actions/workflows/publish.yml/dispatches
