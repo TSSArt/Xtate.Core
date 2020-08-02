@@ -15,5 +15,4 @@ jobs:
     - uses: octokit/request-action@v2.0.2
       with: 
         route: POST repos/TSSArt/Xtate.Serialization/actions/workflows/publish.yml/dispatches
-        mediaType: |
-          ref: master
+        ref: master
