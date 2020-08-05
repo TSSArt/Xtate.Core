@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 // @formatter:off
@@ -161,4 +161,3 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage(category:"Design", checkId:"CA1033:Interface methods should be callable by child types", Justification = "<Pending>", Scope = "member", Target = "~P:Xtate.DataModel.DefaultDoneDataEvaluator.Xtate#IAncestorProvider#Ancestor")]
 [assembly: SuppressMessage(category:"Style", checkId:"IDE0057:Use range operator", Justification = "<Pending>", Scope = "member", Target = "~M:Xtate.Persistence.Bucket.StringKeyConverter`1.Write(System.String,System.Span{System.Byte})")]
 [assembly: SuppressMessage(category:"Style", checkId:"IDE0066:Convert switch statement to expression", Justification = "<Pending>", Scope = "member", Target = "~M:Xtate.Persistence.Encode.Decode(System.ReadOnlySpan{System.Byte})~System.Int32")]
-

@@ -1,6 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
 
-// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,7 +14,6 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
 
 #endregion
 
@@ -30,9 +28,9 @@ namespace Xtate
 	internal sealed class PreDataModelProcessor : StateMachineVisitor
 	{
 		private readonly IErrorProcessor _errorProcessor;
-		private          bool            _postProcess;
 
 		private Dictionary<ICustomAction, CustomActionDispatcher>? _customActionDispatchers;
+		private bool                                               _postProcess;
 
 		public PreDataModelProcessor(IErrorProcessor errorProcessor) => _errorProcessor = errorProcessor;
 
