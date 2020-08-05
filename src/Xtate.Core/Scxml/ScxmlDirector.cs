@@ -685,7 +685,7 @@ namespace Xtate.Scxml
 		private ICustomAction ReadCustomAction()
 		{
 			var builder = _factory.CreateCustomActionBuilder(CreateAncestor(namespaces: true, nameTable: true));
-			builder.SetXml(ReadOuterXml());
+			builder.SetXml(CurrentNamespace, CurrentName, ReadOuterXml());
 			return builder.Build();
 		}
 

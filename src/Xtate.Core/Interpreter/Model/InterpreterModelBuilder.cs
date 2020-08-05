@@ -1,4 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
+
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -15,6 +16,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // 
+
 #endregion
 
 using System;
@@ -31,6 +33,7 @@ namespace Xtate
 	internal sealed class InterpreterModelBuilder : StateMachineVisitor
 	{
 		private readonly IDataModelHandler                                  _dataModelHandler;
+		private readonly ImmutableArray<ICustomActionFactory>               _customActionProviders;
 		private readonly LinkedList<int>                                    _documentIdList;
 		private readonly List<IEntity>                                      _entities;
 		private readonly IErrorProcessor                                    _errorProcessor;
@@ -48,8 +51,9 @@ namespace Xtate
 		{
 			_stateMachine = stateMachine ?? throw new ArgumentNullException(nameof(stateMachine));
 			_dataModelHandler = dataModelHandler ?? throw new ArgumentNullException(nameof(dataModelHandler));
+			_customActionProviders = customActionProviders;
 			_errorProcessor = errorProcessor;
-			_preDataModelProcessor = new PreDataModelProcessor(errorProcessor, customActionProviders);
+			_preDataModelProcessor = new PreDataModelProcessor(errorProcessor);
 			_idMap = new Dictionary<IIdentifier, StateEntityNode>(IdentifierEqualityComparer.Instance);
 			_entities = new List<IEntity>();
 			_targetMap = new List<TransitionNode>();
@@ -72,7 +76,7 @@ namespace Xtate
 			_counter = _inParallel ? _counter + saved.counter : _counter > saved.counter ? _counter : saved.counter;
 		}
 
-		public InterpreterModel Build()
+		public async ValueTask<InterpreterModel> Build(CancellationToken token)
 		{
 			_idMap.Clear();
 			_entities.Clear();
@@ -85,6 +89,8 @@ namespace Xtate
 			_counter = 0;
 
 			var stateMachine = _stateMachine;
+
+			await _preDataModelProcessor.PreProcessStateMachine(stateMachine, _customActionProviders, token).ConfigureAwait(false);
 
 			Visit(ref stateMachine);
 
@@ -105,7 +111,7 @@ namespace Xtate
 
 		public async ValueTask<InterpreterModel> Build(ImmutableArray<IResourceLoader> resourceLoaders, CancellationToken token)
 		{
-			var model = Build();
+			var model = await Build(token).ConfigureAwait(false);
 
 			if (_externalScriptList != null)
 			{
@@ -628,7 +634,7 @@ namespace Xtate
 		{
 			if (_deepLevel == 0)
 			{
-				_preDataModelProcessor.Process(ref executableEntity);
+				_preDataModelProcessor.PostProcess(ref executableEntity);
 				_dataModelHandler.Process(ref executableEntity);
 			}
 

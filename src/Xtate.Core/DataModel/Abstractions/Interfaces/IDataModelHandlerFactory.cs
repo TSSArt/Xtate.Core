@@ -17,12 +17,12 @@
 // 
 #endregion
 
+using System.Threading.Tasks;
+
 namespace Xtate.DataModel
 {
 	public interface IDataModelHandlerFactory
 	{
-		bool CanHandle(string dataModelType);
-
-		IDataModelHandler CreateHandler(IErrorProcessor errorProcessor);
+		ValueTask<IDataModelHandler?> TryCreateHandler(string dataModelType, IErrorProcessor errorProcessor);
 	}
 }

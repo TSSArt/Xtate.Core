@@ -46,6 +46,9 @@ namespace Xtate
 		private const string StateStorageKey                  = "state";
 		private const string StateMachineDefinitionStorageKey = "smd";
 
+		private static readonly ImmutableArray<IDataModelHandlerFactory> PredefinedDataModelHandlerFactories =
+				ImmutableArray.Create(NoneDataModelHandler.Factory, RuntimeDataModelHandler.Factory, XPathDataModelHandler.Factory);
+
 		private readonly ImmutableDictionary<object, object>      _contextRuntimeItems;
 		private readonly ImmutableArray<ICustomActionFactory>     _customActionProviders;
 		private readonly ImmutableArray<IDataModelHandlerFactory> _dataModelHandlerFactories;
@@ -163,8 +166,7 @@ namespace Xtate
 
 			Infrastructure.Assert(stateMachine != null);
 
-			var dataModelHandlerFactory = GetDataModelHandlerFactory(stateMachine.DataModelType, _dataModelHandlerFactories, wrapperErrorProcessor);
-			_dataModelHandler = dataModelHandlerFactory.CreateHandler(wrapperErrorProcessor);
+			_dataModelHandler = await CreateDataModelHandler(stateMachine.DataModelType, _dataModelHandlerFactories, wrapperErrorProcessor).ConfigureAwait(false);
 
 			_stateMachineValidator.Validate(stateMachine, wrapperErrorProcessor);
 
@@ -213,15 +215,15 @@ namespace Xtate
 
 				var smdBucket = new Bucket(new InMemoryStorage(memory.Span));
 
-
-				var dataModelHandlerFactory = GetDataModelHandlerFactory(smdBucket.GetString(Key.DataModelType), _dataModelHandlerFactories, errorProcessor);
-				_dataModelHandler = dataModelHandlerFactory.CreateHandler(DefaultErrorProcessor.Instance);
+				_dataModelHandler = await CreateDataModelHandler(smdBucket.GetString(Key.DataModelType), _dataModelHandlerFactories, errorProcessor).ConfigureAwait(false);
 
 				ImmutableDictionary<int, IEntity>? entityMap = null;
 
 				if (stateMachine != null)
 				{
-					entityMap = new InterpreterModelBuilder(stateMachine, _dataModelHandler, _customActionProviders, DefaultErrorProcessor.Instance).Build().EntityMap;
+					var builder = new InterpreterModelBuilder(stateMachine, _dataModelHandler, _customActionProviders, DefaultErrorProcessor.Instance);
+					var model = await builder.Build(_stopToken).ConfigureAwait(false);
+					entityMap = model.EntityMap;
 				}
 
 				var restoredStateMachine = new StateMachineReader().Build(smdBucket, entityMap);
@@ -238,7 +240,7 @@ namespace Xtate
 				_errorProcessor.ThrowIfErrors();
 				wrapperErrorProcessor.ThrowIfErrors();
 
-				return interpreterModelBuilder.Build();
+				return await interpreterModelBuilder.Build(_stopToken).ConfigureAwait(false);
 			}
 		}
 
@@ -267,35 +269,34 @@ namespace Xtate
 			bucket.Add(Key.StateMachineDefinition, span);
 		}
 
-		private static IDataModelHandlerFactory GetDataModelHandlerFactory(string? dataModelType, ImmutableArray<IDataModelHandlerFactory> factories, IErrorProcessor errorProcessor)
+		private static async ValueTask<IDataModelHandler> CreateDataModelHandler(string? dataModelType, ImmutableArray<IDataModelHandlerFactory> factories, IErrorProcessor errorProcessor)
 		{
 			if (!factories.IsDefaultOrEmpty)
 			{
 				foreach (var factory in factories)
 				{
-					if (factory.CanHandle(dataModelType ?? NoneDataModelHandler.DataModelType))
+					var dataModelHandler = await factory.TryCreateHandler(dataModelType ?? NoneDataModelHandler.DataModelType, errorProcessor).ConfigureAwait(false);
+
+					if (dataModelHandler != null)
 					{
-						return factory;
+						return dataModelHandler;
 					}
 				}
 			}
 
-			switch (dataModelType)
+			foreach (var factory in PredefinedDataModelHandlerFactories)
 			{
-				case null:
-				case NoneDataModelHandler.DataModelType:
-					return NoneDataModelHandler.Factory;
+				var dataModelHandler = await factory.TryCreateHandler(dataModelType ?? NoneDataModelHandler.DataModelType, errorProcessor).ConfigureAwait(false);
 
-				case RuntimeDataModelHandler.DataModelType:
-					return RuntimeDataModelHandler.Factory;
-
-				case XPathDataModelHandler.DataModelType:
-					return XPathDataModelHandler.Factory;
-
-				default:
-					errorProcessor.AddError<StateMachineInterpreter>(entity: null, Res.Format(Resources.Exception_Cant_find_DataModelHandlerFactory_for_DataModel_type, dataModelType));
-					return NoneDataModelHandler.Factory;
+				if (dataModelHandler != null)
+				{
+					return dataModelHandler;
+				}
 			}
+			
+			errorProcessor.AddError<StateMachineInterpreter>(entity: null, Res.Format(Resources.Exception_Cant_find_DataModelHandlerFactory_for_DataModel_type, dataModelType));
+
+			return new NoneDataModelHandler(errorProcessor);
 		}
 
 		private ValueTask DoOperation(StateBagKey key, Func<ValueTask> func)

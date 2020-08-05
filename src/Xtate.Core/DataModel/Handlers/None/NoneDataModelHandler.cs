@@ -1,4 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
+
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -15,9 +16,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // 
+
 #endregion
 
 using System;
+using System.Threading.Tasks;
 
 namespace Xtate.DataModel.None
 {
@@ -27,7 +30,7 @@ namespace Xtate.DataModel.None
 
 		public static readonly IDataModelHandlerFactory Factory = new DataModelHandlerFactory();
 
-		private NoneDataModelHandler(IErrorProcessor errorProcessor) : base(errorProcessor) { }
+		internal NoneDataModelHandler(IErrorProcessor errorProcessor) : base(errorProcessor) { }
 
 		protected override void Visit(ref IForEach forEach) => AddErrorMessage(forEach, Resources.ErrorMesasge_ForEachNotSupportedForNone);
 
@@ -70,9 +73,8 @@ namespace Xtate.DataModel.None
 		{
 		#region Interface IDataModelHandlerFactory
 
-			public bool CanHandle(string dataModelType) => dataModelType == DataModelType;
-
-			public IDataModelHandler CreateHandler(IErrorProcessor errorProcessor) => new NoneDataModelHandler(errorProcessor);
+			public ValueTask<IDataModelHandler?> TryCreateHandler(string dataModelType, IErrorProcessor errorProcessor) =>
+					dataModelType == DataModelType ? new ValueTask<IDataModelHandler?>(new NoneDataModelHandler(errorProcessor)) : default;
 
 		#endregion
 		}

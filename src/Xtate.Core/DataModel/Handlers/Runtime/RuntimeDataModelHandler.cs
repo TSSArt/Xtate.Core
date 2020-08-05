@@ -1,4 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
+
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -15,13 +16,16 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // 
+
 #endregion
+
+using System.Threading.Tasks;
 
 namespace Xtate.DataModel.Runtime
 {
 	internal sealed class RuntimeDataModelHandler : DataModelHandlerBase
 	{
-		public const string DataModelType = "runtime";
+		private const string DataModelType = "runtime";
 
 		public static readonly IDataModelHandlerFactory Factory = new DataModelHandlerFactory();
 
@@ -43,9 +47,8 @@ namespace Xtate.DataModel.Runtime
 		{
 		#region Interface IDataModelHandlerFactory
 
-			public bool CanHandle(string dataModelType) => dataModelType == DataModelType;
-
-			public IDataModelHandler CreateHandler(IErrorProcessor errorProcessor) => new RuntimeDataModelHandler(errorProcessor);
+			public ValueTask<IDataModelHandler?> TryCreateHandler(string dataModelType, IErrorProcessor errorProcessor) =>
+					dataModelType == DataModelType ? new ValueTask<IDataModelHandler?>(new RuntimeDataModelHandler(errorProcessor)) : default;
 
 		#endregion
 		}

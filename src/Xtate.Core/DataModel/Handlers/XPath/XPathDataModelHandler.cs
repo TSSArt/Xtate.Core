@@ -19,13 +19,14 @@
 
 using System;
 using System.Collections.Immutable;
+using System.Threading.Tasks;
 using System.Xml.XPath;
 
 namespace Xtate.DataModel.XPath
 {
 	internal sealed class XPathDataModelHandler : DataModelHandlerBase
 	{
-		public const string DataModelType = "xpath";
+		private const string DataModelType = "xpath";
 
 		public static readonly IDataModelHandlerFactory Factory = new DataModelHandlerFactory();
 
@@ -221,9 +222,8 @@ namespace Xtate.DataModel.XPath
 		{
 		#region Interface IDataModelHandlerFactory
 
-			public bool CanHandle(string dataModelType) => dataModelType == DataModelType;
-
-			public IDataModelHandler CreateHandler(IErrorProcessor errorProcessor) => new XPathDataModelHandler(errorProcessor);
+			public ValueTask<IDataModelHandler?> TryCreateHandler(string dataModelType, IErrorProcessor errorProcessor) =>
+					dataModelType == DataModelType ? new ValueTask<IDataModelHandler?>(new XPathDataModelHandler(errorProcessor)) : default;
 
 		#endregion
 		}

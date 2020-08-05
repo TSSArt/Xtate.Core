@@ -41,6 +41,10 @@ namespace Xtate
 
 	#region Interface ICustomAction
 
+		public string XmlNamespace => _entity.XmlNamespace!;
+
+		public string XmlName => _entity.XmlName!;
+
 		public string Xml => _entity.Xml!;
 
 		public ImmutableArray<ILocationExpression> Locations => _entity.Locations;
@@ -53,6 +57,8 @@ namespace Xtate
 		{
 			bucket.Add(Key.TypeInfo, TypeInfo.CustomActionNode);
 			bucket.Add(Key.DocumentId, DocumentId);
+			bucket.Add(Key.Namespace, XmlNamespace);
+			bucket.Add(Key.Name, XmlName);
 			bucket.Add(Key.Content, Xml);
 			bucket.AddEntityList(Key.LocationList, Locations);
 			bucket.AddEntityList(Key.ValueList, Values);

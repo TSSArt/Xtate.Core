@@ -66,6 +66,7 @@ namespace Xtate.Persistence
 		Metadata,
 		Name,
 		NameList,
+		Namespace,
 		OnEntry,
 		OnExit,
 		Operation,

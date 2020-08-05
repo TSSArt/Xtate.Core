@@ -31,7 +31,8 @@ namespace Xtate
 
 	#region Interface IServiceFactory
 
-		bool IServiceFactory.CanHandle(Uri type, Uri? source) => FullUriComparer.Instance.Equals(type, ServiceFactoryTypeId) || FullUriComparer.Instance.Equals(type, ServiceFactoryAliasTypeId);
+		ValueTask<bool> IServiceFactory.CanHandle(Uri type, Uri? source, CancellationToken token) =>
+				new ValueTask<bool>(FullUriComparer.Instance.Equals(type, ServiceFactoryTypeId) || FullUriComparer.Instance.Equals(type, ServiceFactoryAliasTypeId));
 
 		async ValueTask<IService> IServiceFactory.StartService(Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication, CancellationToken token)
 		{

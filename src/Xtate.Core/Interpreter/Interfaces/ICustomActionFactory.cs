@@ -17,12 +17,15 @@
 // 
 #endregion
 
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace Xtate.CustomAction
 {
 	public interface ICustomActionFactory
 	{
-		bool CanHandle(string ns, string name);
+		ValueTask<bool> CanHandle(string ns, string name, CancellationToken token);
 
-		ICustomActionExecutor CreateExecutor(ICustomActionContext customActionContext);
+		ValueTask<ICustomActionExecutor> CreateExecutor(ICustomActionContext customActionContext, CancellationToken token);
 	}
 }
