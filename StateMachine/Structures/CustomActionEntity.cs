@@ -33,6 +33,10 @@ namespace Xtate
 
 	#region Interface ICustomAction
 
+		public string? XmlNamespace { get; set; }
+
+		public string? XmlName { get; set; }
+
 		public string? Xml { get; set; }
 
 		public ImmutableArray<ILocationExpression> Locations { get; set; }
@@ -46,12 +50,16 @@ namespace Xtate
 		void IVisitorEntity<CustomActionEntity, ICustomAction>.Init(ICustomAction source)
 		{
 			Ancestor = source;
+			XmlNamespace = source.XmlNamespace;
+			XmlName = source.XmlName;
 			Xml = source.Xml;
 			Locations = source.Locations;
 			Values = source.Values;
 		}
 
 		bool IVisitorEntity<CustomActionEntity, ICustomAction>.RefEquals(ref CustomActionEntity other) =>
+				ReferenceEquals(XmlNamespace, other.XmlNamespace) &&
+				ReferenceEquals(XmlName, other.XmlName) &&
 				ReferenceEquals(Xml, other.Xml) &&
 				Locations == other.Locations &&
 				Values == other.Values;

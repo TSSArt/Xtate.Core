@@ -21,6 +21,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace Xtate.CustomAction
@@ -46,11 +48,13 @@ namespace Xtate.CustomAction
 
 	#region Interface ICustomActionFactory
 
-		public bool CanHandle(string ns, string name) => ns == _namespace && _actions.ContainsKey(name);
+		public ValueTask<bool> CanHandle(string ns, string name, CancellationToken token) => new ValueTask<bool>(ns == _namespace && _actions.ContainsKey(name));
 
-		public ICustomActionExecutor CreateExecutor(ICustomActionContext customActionContext)
+		public ValueTask<ICustomActionExecutor> CreateExecutor(ICustomActionContext customActionContext, CancellationToken token)
 		{
 			if (customActionContext == null) throw new ArgumentNullException(nameof(customActionContext));
+
+			Infrastructure.Assert(_namespace == customActionContext.XmlNamespace);
 
 			using var stringReader = new StringReader(customActionContext.Xml);
 
@@ -62,7 +66,10 @@ namespace Xtate.CustomAction
 
 			xmlReader.MoveToContent();
 
-			return _actions[xmlReader.LocalName](xmlReader, customActionContext);
+			Infrastructure.Assert(xmlReader.NamespaceURI == customActionContext.XmlNamespace);
+			Infrastructure.Assert(xmlReader.LocalName == customActionContext.XmlName);
+
+			return new ValueTask<ICustomActionExecutor>(_actions[xmlReader.LocalName](xmlReader, customActionContext));
 		}
 
 	#endregion

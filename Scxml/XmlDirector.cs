@@ -45,6 +45,10 @@ namespace Xtate.Scxml
 
 		protected string Current => _current ?? _xmlReader.Value;
 
+		protected string CurrentName => _xmlReader.LocalName;
+		
+		protected string CurrentNamespace => _xmlReader.NamespaceURI;
+
 	#region Interface IXmlLineInfo
 
 		public bool HasLineInfo() => _xmlLineInfo?.HasLineInfo() ?? false;

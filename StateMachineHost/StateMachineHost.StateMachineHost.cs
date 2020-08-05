@@ -45,7 +45,7 @@ namespace Xtate
 
 			context.ValidateSessionId(sessionId, out var service);
 
-			var factory = FindServiceFactory(data.Type, data.Source);
+			var factory = await FindServiceFactory(data.Type, data.Source, token).ConfigureAwait(false);
 			var serviceCommunication = new ServiceCommunication(service, IoProcessorId, data.InvokeId);
 			var invokedService = await factory.StartService(service.StateMachineLocation, data, serviceCommunication, token).ConfigureAwait(false);
 
@@ -159,13 +159,13 @@ namespace Xtate
 
 		private StateMachineHostContext GetCurrentContext() => _context ?? throw new InvalidOperationException(Resources.Exception_IO_Processor_has_not_been_started);
 
-		private IServiceFactory FindServiceFactory(Uri type, Uri? source)
+		private async ValueTask<IServiceFactory> FindServiceFactory(Uri type, Uri? source, CancellationToken token)
 		{
 			if (!_serviceFactories.IsDefaultOrEmpty)
 			{
 				foreach (var serviceFactory in _serviceFactories)
 				{
-					if (serviceFactory.CanHandle(type, source))
+					if (await serviceFactory.CanHandle(type, source, token).ConfigureAwait(false))
 					{
 						return serviceFactory;
 					}

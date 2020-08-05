@@ -296,6 +296,8 @@ namespace Xtate.Persistence
 						? new CustomActionEntity
 						  {
 								  Ancestor = new EntityData(bucket),
+								  XmlNamespace = bucket.GetString(Key.Namespace),
+								  XmlName = bucket.GetString(Key.Name),
 								  Xml = bucket.GetString(Key.Content),
 								  Locations = bucket.RestoreList(Key.LocationList, RestoreLocationExpression),
 								  Values = bucket.RestoreList(Key.ValueList, RestoreValueExpression)

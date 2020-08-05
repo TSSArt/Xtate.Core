@@ -23,6 +23,10 @@ namespace Xtate.CustomAction
 {
 	public interface ICustomActionContext
 	{
+		string XmlNamespace { get; }
+		
+		string XmlName { get; }
+
 		string Xml { get; }
 
 		void AddValidationError<T>(string message, Exception? exception = default) where T : ICustomActionExecutor;
