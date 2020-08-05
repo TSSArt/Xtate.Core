@@ -55,6 +55,10 @@ namespace Xtate.DataModel
 
 	#region Interface ICustomAction
 
+		public string? XmlNamespace => _customAction.XmlNamespace;
+
+		public string? XmlName => _customAction.XmlName;
+
 		public string? Xml => _customAction.Xml;
 
 		public ImmutableArray<ILocationExpression> Locations => _customAction.Locations;

@@ -23,6 +23,10 @@ namespace Xtate
 {
 	public interface ICustomAction : IExecutableEntity
 	{
+		string? XmlNamespace { get; }
+		
+		string? XmlName { get; }
+
 		string? Xml { get; }
 
 		ImmutableArray<ILocationExpression> Locations { get; }

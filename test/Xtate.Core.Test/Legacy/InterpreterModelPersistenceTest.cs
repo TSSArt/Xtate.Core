@@ -149,9 +149,9 @@ namespace Xtate.Core.Test.Legacy
 		}
 
 		[TestMethod]
-		public void SaveInterpreterModelTest()
+		public async Task SaveInterpreterModelTest()
 		{
-			var model = new InterpreterModelBuilder(_allStateMachine, _dataModelHandler, customActionProviders: default, DefaultErrorProcessor.Instance).Build();
+			var model = await new InterpreterModelBuilder(_allStateMachine, _dataModelHandler, customActionProviders: default, DefaultErrorProcessor.Instance).Build(default);
 			var storeSupport = model.Root.As<IStoreSupport>();
 
 			var storage = new InMemoryStorage(false);
@@ -161,9 +161,9 @@ namespace Xtate.Core.Test.Legacy
 		}
 
 		[TestMethod]
-		public void SaveRestoreInterpreterModelWithStorageRecreateTest()
+		public async Task SaveRestoreInterpreterModelWithStorageRecreateTest()
 		{
-			var model = new InterpreterModelBuilder(_allStateMachine, _dataModelHandler, customActionProviders: default, DefaultErrorProcessor.Instance).Build();
+			var model = new InterpreterModelBuilder(_allStateMachine, _dataModelHandler, customActionProviders: default, DefaultErrorProcessor.Instance).Build(default).Result;
 			var storeSupport = model.Root.As<IStoreSupport>();
 
 			byte[] transactionLog;
@@ -182,11 +182,11 @@ namespace Xtate.Core.Test.Legacy
 				restoredStateMachine = new StateMachineReader().Build(new Bucket(newStorage));
 			}
 
-			new InterpreterModelBuilder(restoredStateMachine, _dataModelHandler, customActionProviders: default, DefaultErrorProcessor.Instance).Build();
+			await new InterpreterModelBuilder(restoredStateMachine, _dataModelHandler, customActionProviders: default, DefaultErrorProcessor.Instance).Build(default);
 		}
 
 		[TestMethod]
-		public void SaveRestoreInterpreterModelRuntimeModelTest()
+		public async Task SaveRestoreInterpreterModelRuntimeModelTest()
 		{
 			var _ = new StateMachineFluentBuilder(BuilderFactory.Instance)
 					.BeginState((Identifier) "a")
@@ -195,7 +195,7 @@ namespace Xtate.Core.Test.Legacy
 					.EndState()
 					.Build();
 
-			var model = new InterpreterModelBuilder(_allStateMachine, _dataModelHandler, customActionProviders: default, DefaultErrorProcessor.Instance).Build();
+			var model = await new InterpreterModelBuilder(_allStateMachine, _dataModelHandler, customActionProviders: default, DefaultErrorProcessor.Instance).Build(default);
 			var storeSupport = model.Root.As<IStoreSupport>();
 
 			byte[] transactionLog;
@@ -212,7 +212,7 @@ namespace Xtate.Core.Test.Legacy
 				restoredStateMachine = new StateMachineReader().Build(new Bucket(newStorage), model.EntityMap);
 			}
 
-			new InterpreterModelBuilder(restoredStateMachine, _dataModelHandler, customActionProviders: default, DefaultErrorProcessor.Instance).Build();
+			await new InterpreterModelBuilder(restoredStateMachine, _dataModelHandler, customActionProviders: default, DefaultErrorProcessor.Instance).Build(default);
 		}
 	}
 }

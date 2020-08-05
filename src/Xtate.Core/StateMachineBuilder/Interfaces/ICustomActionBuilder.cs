@@ -23,6 +23,6 @@ namespace Xtate.Builder
 	{
 		ICustomAction Build();
 
-		void SetXml(string xml);
+		void SetXml(string ns, string name, string xml);
 	}
 }
