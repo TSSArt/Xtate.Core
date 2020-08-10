@@ -30,6 +30,7 @@ namespace Xtate
 	{
 		private readonly ICustomAction   _customAction;
 		private readonly IErrorProcessor _errorProcessor;
+		private readonly IFactoryContext _factoryContext;
 
 		private ICustomActionExecutor?                       _executor;
 		private ImmutableArray<ILocationEvaluator>           _locationEvaluators;
@@ -37,10 +38,11 @@ namespace Xtate
 		private ImmutableArray<IObjectEvaluator>             _objectEvaluators;
 		private ImmutableArray<IValueExpression>.Builder?    _values;
 
-		public CustomActionDispatcher(IErrorProcessor errorProcessor, ICustomAction customAction)
+		public CustomActionDispatcher(IErrorProcessor errorProcessor, ICustomAction customAction, IFactoryContext factoryContext)
 		{
 			_errorProcessor = errorProcessor;
 			_customAction = customAction;
+			_factoryContext = factoryContext;
 
 			Infrastructure.Assert(customAction.XmlNamespace != null);
 			Infrastructure.Assert(customAction.XmlName != null);
@@ -158,9 +160,11 @@ namespace Xtate
 
 			foreach (var factory in customActionFactories)
 			{
-				if (await factory.CanHandle(XmlNamespace, XmlName, token).ConfigureAwait(false))
+				var activator = await factory.TryGetActivator(_factoryContext, XmlNamespace, XmlName, token).ConfigureAwait(false);
+
+				if (activator != null)
 				{
-					return await factory.CreateExecutor(this, token).ConfigureAwait(false);
+					return await activator.CreateExecutor(_factoryContext, this, token).ConfigureAwait(false);
 				}
 			}
 

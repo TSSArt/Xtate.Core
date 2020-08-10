@@ -22,8 +22,8 @@ using System.Threading.Tasks;
 
 namespace Xtate.CustomAction
 {
-	public interface ICustomActionFactory
+	public interface ICustomActionFactoryActivator
 	{
-		ValueTask<ICustomActionFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, string ns, string name, CancellationToken token);
+		ValueTask<ICustomActionExecutor> CreateExecutor(IFactoryContext factoryContext, ICustomActionContext customActionContext, CancellationToken token);
 	}
 }

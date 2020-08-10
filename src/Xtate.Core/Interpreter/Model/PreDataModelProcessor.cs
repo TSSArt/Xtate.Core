@@ -28,11 +28,17 @@ namespace Xtate
 	internal sealed class PreDataModelProcessor : StateMachineVisitor
 	{
 		private readonly IErrorProcessor _errorProcessor;
+		private readonly IFactoryContext _factoryContext;
 
 		private Dictionary<ICustomAction, CustomActionDispatcher>? _customActionDispatchers;
-		private bool                                               _postProcess;
 
-		public PreDataModelProcessor(IErrorProcessor errorProcessor) => _errorProcessor = errorProcessor;
+		private bool _postProcess;
+
+		public PreDataModelProcessor(IErrorProcessor errorProcessor, IFactoryContext factoryContext)
+		{
+			_errorProcessor = errorProcessor;
+			_factoryContext = factoryContext;
+		}
 
 		public async ValueTask PreProcessStateMachine(IStateMachine stateMachine, ImmutableArray<ICustomActionFactory> customActionProviders, CancellationToken token)
 		{
@@ -64,7 +70,7 @@ namespace Xtate
 
 				if (!_customActionDispatchers.ContainsKey(entity))
 				{
-					_customActionDispatchers.Add(entity, new CustomActionDispatcher(_errorProcessor, entity));
+					_customActionDispatchers.Add(entity, new CustomActionDispatcher(_errorProcessor, entity, _factoryContext));
 				}
 			}
 			else

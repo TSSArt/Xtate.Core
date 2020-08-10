@@ -24,7 +24,7 @@ using System.Threading.Tasks;
 
 namespace Xtate.Service
 {
-	public sealed class SimpleServiceFactory<TService> : IServiceFactory where TService : SimpleServiceBase, new()
+	public sealed class SimpleServiceFactory<TService> : IServiceFactory, IServiceFactoryActivator where TService : SimpleServiceBase, new()
 	{
 		public static readonly IServiceFactory Instance = new SimpleServiceFactory<TService>();
 
@@ -46,11 +46,19 @@ namespace Xtate.Service
 
 	#region Interface IServiceFactory
 
-		ValueTask<bool> IServiceFactory.CanHandle(Uri type, Uri? source, CancellationToken token) =>
-				new ValueTask<bool>(FullUriComparer.Instance.Equals(type, _type) || FullUriComparer.Instance.Equals(type, _alias));
+		public ValueTask<IServiceFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, Uri type, CancellationToken token) =>
+				new ValueTask<IServiceFactoryActivator?>(CanHandle(type) ? this : null);
 
-		ValueTask<IService> IServiceFactory.StartService(Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication, CancellationToken token)
+	#endregion
+
+	#region Interface IServiceFactoryActivator
+
+		public ValueTask<IService> StartService(IFactoryContext factoryContext, Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication, CancellationToken token)
 		{
+			if (invokeData is null) throw new ArgumentNullException(nameof(invokeData));
+
+			Infrastructure.Assert(CanHandle(invokeData.Type));
+
 			var service = new TService();
 
 			service.Start(baseUri, invokeData, serviceCommunication);
@@ -59,5 +67,7 @@ namespace Xtate.Service
 		}
 
 	#endregion
+
+		private bool CanHandle(Uri type) => FullUriComparer.Instance.Equals(type, _type) || FullUriComparer.Instance.Equals(type, _alias);
 	}
 }

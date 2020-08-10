@@ -24,18 +24,25 @@ using Xtate.Service;
 
 namespace Xtate
 {
-	public sealed partial class StateMachineHost : IServiceFactory
+	public sealed partial class StateMachineHost : IServiceFactory, IServiceFactoryActivator
 	{
 		private static readonly Uri ServiceFactoryTypeId      = new Uri("http://www.w3.org/TR/scxml/");
 		private static readonly Uri ServiceFactoryAliasTypeId = new Uri(uriString: "scxml", UriKind.Relative);
 
 	#region Interface IServiceFactory
 
-		ValueTask<bool> IServiceFactory.CanHandle(Uri type, Uri? source, CancellationToken token) =>
-				new ValueTask<bool>(FullUriComparer.Instance.Equals(type, ServiceFactoryTypeId) || FullUriComparer.Instance.Equals(type, ServiceFactoryAliasTypeId));
+		ValueTask<IServiceFactoryActivator?> IServiceFactory.TryGetActivator(IFactoryContext factoryContext, Uri type, CancellationToken token) =>
+				new ValueTask<IServiceFactoryActivator?>(CanHandle(type) ? this : null);
 
-		async ValueTask<IService> IServiceFactory.StartService(Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication, CancellationToken token)
+	#endregion
+
+	#region Interface IServiceFactoryActivator
+
+		async ValueTask<IService> IServiceFactoryActivator.StartService(IFactoryContext factoryContext, Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication,
+																		CancellationToken token)
 		{
+			Infrastructure.Assert(CanHandle(invokeData.Type));
+
 			var sessionId = SessionId.FromString(invokeData.InvokeId.Value); // using InvokeId as SessionId
 			var scxml = invokeData.RawContent ?? invokeData.Content.AsStringOrDefault();
 			var parameters = invokeData.Parameters;
@@ -49,5 +56,7 @@ namespace Xtate
 		}
 
 	#endregion
+
+		private static bool CanHandle(Uri type) => FullUriComparer.Instance.Equals(type, ServiceFactoryTypeId) || FullUriComparer.Instance.Equals(type, ServiceFactoryAliasTypeId);
 	}
 }
