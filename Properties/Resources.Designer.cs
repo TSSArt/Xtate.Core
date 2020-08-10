@@ -1168,6 +1168,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to File is more then 2GB length..
+        /// </summary>
+        internal static string Exception_File_is_more_then_2GB_length {
+            get {
+                return ResourceManager.GetString("Exception_File_is_more_then_2GB_length", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Forward entities required to restore state machine..
         /// </summary>
         internal static string Exception_Forward_entities_required_to_restore_state_machine {

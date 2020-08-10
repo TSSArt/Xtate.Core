@@ -17,13 +17,14 @@
 
 #endregion
 
-using System.Threading;
-using System.Threading.Tasks;
+using System.Collections.Immutable;
 
-namespace Xtate.CustomAction
+namespace Xtate
 {
-	public interface ICustomActionFactory
+	public interface IFactoryContext
 	{
-		ValueTask<ICustomActionFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, string ns, string name, CancellationToken token);
+		ImmutableArray<IResourceLoader> ResourceLoaders { get; }
+
+		object? this[object key] { get; set; }
 	}
 }

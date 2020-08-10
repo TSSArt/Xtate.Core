@@ -33,7 +33,6 @@ using Xtate.CustomAction;
 using Xtate.DataModel;
 using Xtate.DataModel.None;
 using Xtate.DataModel.Runtime;
-using Xtate.DataModel.XPath;
 using Xtate.Persistence;
 
 namespace Xtate
@@ -47,7 +46,7 @@ namespace Xtate
 		private const string StateMachineDefinitionStorageKey = "smd";
 
 		private static readonly ImmutableArray<IDataModelHandlerFactory> PredefinedDataModelHandlerFactories =
-				ImmutableArray.Create(NoneDataModelHandler.Factory, RuntimeDataModelHandler.Factory, XPathDataModelHandler.Factory);
+				ImmutableArray.Create(NoneDataModelHandler.Factory, RuntimeDataModelHandler.Factory);
 
 		private readonly ImmutableDictionary<object, object>      _contextRuntimeItems;
 		private readonly ImmutableArray<ICustomActionFactory>     _customActionProviders;
@@ -156,8 +155,9 @@ namespace Xtate
 		private async ValueTask<InterpreterModel> BuildInterpreterModel(IStateMachine? stateMachine)
 		{
 			var wrapperErrorProcessor = new WrapperErrorProcessor(_errorProcessor);
+			using var factoryContext = new FactoryContext(_resourceLoaders);
 
-			var interpreterModel = IsPersistingEnabled ? await TryRestoreInterpreterModel(stateMachine, wrapperErrorProcessor).ConfigureAwait(false) : null;
+			var interpreterModel = IsPersistingEnabled ? await TryRestoreInterpreterModel(stateMachine, factoryContext, wrapperErrorProcessor).ConfigureAwait(false) : null;
 
 			if (interpreterModel != null)
 			{
@@ -166,11 +166,11 @@ namespace Xtate
 
 			Infrastructure.Assert(stateMachine != null);
 
-			_dataModelHandler = await CreateDataModelHandler(stateMachine.DataModelType, _dataModelHandlerFactories, wrapperErrorProcessor).ConfigureAwait(false);
+			_dataModelHandler = await CreateDataModelHandler(stateMachine.DataModelType, _dataModelHandlerFactories, factoryContext, wrapperErrorProcessor).ConfigureAwait(false);
 
 			_stateMachineValidator.Validate(stateMachine, wrapperErrorProcessor);
 
-			var interpreterModelBuilder = new InterpreterModelBuilder(stateMachine, _dataModelHandler, _customActionProviders, wrapperErrorProcessor);
+			var interpreterModelBuilder = new InterpreterModelBuilder(stateMachine, _dataModelHandler, _customActionProviders, factoryContext, wrapperErrorProcessor);
 
 			try
 			{
@@ -190,7 +190,7 @@ namespace Xtate
 			return interpreterModel;
 		}
 
-		private async ValueTask<InterpreterModel?> TryRestoreInterpreterModel(IStateMachine? stateMachine, IErrorProcessor errorProcessor)
+		private async ValueTask<InterpreterModel?> TryRestoreInterpreterModel(IStateMachine? stateMachine, FactoryContext factoryContext, IErrorProcessor errorProcessor)
 		{
 			var storage = await _storageProvider.GetTransactionalStorage(partition: default, StateMachineDefinitionStorageKey, _stopToken).ConfigureAwait(false);
 			await using (storage.ConfigureAwait(false))
@@ -215,13 +215,13 @@ namespace Xtate
 
 				var smdBucket = new Bucket(new InMemoryStorage(memory.Span));
 
-				_dataModelHandler = await CreateDataModelHandler(smdBucket.GetString(Key.DataModelType), _dataModelHandlerFactories, errorProcessor).ConfigureAwait(false);
+				_dataModelHandler = await CreateDataModelHandler(smdBucket.GetString(Key.DataModelType), _dataModelHandlerFactories, factoryContext, errorProcessor).ConfigureAwait(false);
 
 				ImmutableDictionary<int, IEntity>? entityMap = null;
 
 				if (stateMachine != null)
 				{
-					var builder = new InterpreterModelBuilder(stateMachine, _dataModelHandler, _customActionProviders, DefaultErrorProcessor.Instance);
+					var builder = new InterpreterModelBuilder(stateMachine, _dataModelHandler, _customActionProviders, factoryContext, DefaultErrorProcessor.Instance);
 					var model = await builder.Build(_stopToken).ConfigureAwait(false);
 					entityMap = model.EntityMap;
 				}
@@ -235,7 +235,7 @@ namespace Xtate
 
 				var wrapperErrorProcessor = new WrapperErrorProcessor(_errorProcessor);
 
-				var interpreterModelBuilder = new InterpreterModelBuilder(restoredStateMachine, _dataModelHandler, _customActionProviders, wrapperErrorProcessor);
+				var interpreterModelBuilder = new InterpreterModelBuilder(restoredStateMachine, _dataModelHandler, _customActionProviders, factoryContext, wrapperErrorProcessor);
 
 				_errorProcessor.ThrowIfErrors();
 				wrapperErrorProcessor.ThrowIfErrors();
@@ -269,34 +269,49 @@ namespace Xtate
 			bucket.Add(Key.StateMachineDefinition, span);
 		}
 
-		private static async ValueTask<IDataModelHandler> CreateDataModelHandler(string? dataModelType, ImmutableArray<IDataModelHandlerFactory> factories, IErrorProcessor errorProcessor)
+		private async ValueTask<IDataModelHandler> CreateDataModelHandler(string? dataModelType, ImmutableArray<IDataModelHandlerFactory> factories, FactoryContext factoryContext,
+																		  IErrorProcessor errorProcessor)
+		{
+			dataModelType ??= NoneDataModelHandler.DataModelType;
+			var activator = await FindDataModelHandlerFactoryActivator(factoryContext, dataModelType, factories).ConfigureAwait(false);
+
+			if (activator != null)
+			{
+				return await activator.CreateHandler(factoryContext, dataModelType, errorProcessor, _stopToken).ConfigureAwait(false);
+			}
+
+			errorProcessor.AddError<StateMachineInterpreter>(entity: null, Res.Format(Resources.Exception_Cant_find_DataModelHandlerFactory_for_DataModel_type, dataModelType));
+
+			return new NoneDataModelHandler(errorProcessor);
+		}
+
+		private async ValueTask<IDataModelHandlerFactoryActivator?> FindDataModelHandlerFactoryActivator(IFactoryContext factoryContext, string dataModelType,
+																										 ImmutableArray<IDataModelHandlerFactory> factories)
 		{
 			if (!factories.IsDefaultOrEmpty)
 			{
 				foreach (var factory in factories)
 				{
-					var dataModelHandler = await factory.TryCreateHandler(dataModelType ?? NoneDataModelHandler.DataModelType, errorProcessor).ConfigureAwait(false);
+					var activator = await factory.TryGetActivator(factoryContext, dataModelType, _stopToken).ConfigureAwait(false);
 
-					if (dataModelHandler != null)
+					if (activator != null)
 					{
-						return dataModelHandler;
+						return activator;
 					}
 				}
 			}
 
 			foreach (var factory in PredefinedDataModelHandlerFactories)
 			{
-				var dataModelHandler = await factory.TryCreateHandler(dataModelType ?? NoneDataModelHandler.DataModelType, errorProcessor).ConfigureAwait(false);
+				var activator = await factory.TryGetActivator(factoryContext, dataModelType ?? NoneDataModelHandler.DataModelType, _stopToken).ConfigureAwait(false);
 
-				if (dataModelHandler != null)
+				if (activator != null)
 				{
-					return dataModelHandler;
+					return activator;
 				}
 			}
 
-			errorProcessor.AddError<StateMachineInterpreter>(entity: null, Res.Format(Resources.Exception_Cant_find_DataModelHandlerFactory_for_DataModel_type, dataModelType));
-
-			return new NoneDataModelHandler(errorProcessor);
+			return null;
 		}
 
 		private ValueTask DoOperation(StateBagKey key, Func<ValueTask> func)
@@ -1559,7 +1574,7 @@ namespace Xtate
 			{
 				var resource = await LoadData(data.Source).ConfigureAwait(false);
 
-				return DataConverter.FromContent(resource.Content, resource.ContentType);
+				return resource.Content != null ? DataConverter.FromContent(resource.Content, resource.ContentType) : default;
 			}
 
 			if (data.ExpressionEvaluator != null)

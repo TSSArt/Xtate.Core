@@ -45,13 +45,14 @@ namespace Xtate
 		private          List<(Uri Uri, IExternalScriptConsumer Consumer)>? _externalScriptList;
 		private          bool                                               _inParallel;
 
-		public InterpreterModelBuilder(IStateMachine stateMachine, IDataModelHandler dataModelHandler, ImmutableArray<ICustomActionFactory> customActionProviders, IErrorProcessor errorProcessor)
+		public InterpreterModelBuilder(IStateMachine stateMachine, IDataModelHandler dataModelHandler, ImmutableArray<ICustomActionFactory> customActionProviders, IFactoryContext factoryContext,
+									   IErrorProcessor errorProcessor)
 		{
 			_stateMachine = stateMachine ?? throw new ArgumentNullException(nameof(stateMachine));
 			_dataModelHandler = dataModelHandler ?? throw new ArgumentNullException(nameof(dataModelHandler));
 			_customActionProviders = customActionProviders;
 			_errorProcessor = errorProcessor;
-			_preDataModelProcessor = new PreDataModelProcessor(errorProcessor);
+			_preDataModelProcessor = new PreDataModelProcessor(errorProcessor, factoryContext);
 			_idMap = new Dictionary<IIdentifier, StateEntityNode>(IdentifierEqualityComparer.Instance);
 			_entities = new List<IEntity>();
 			_targetMap = new List<TransitionNode>();
@@ -159,7 +160,11 @@ namespace Xtate
 					if (resourceLoader.CanHandle(uri))
 					{
 						var resource = await resourceLoader.Request(uri, token).ConfigureAwait(false);
-						consumer.SetContent(resource.Content);
+
+						if (resource.Content != null)
+						{
+							consumer.SetContent(resource.Content);
+						}
 
 						return;
 					}

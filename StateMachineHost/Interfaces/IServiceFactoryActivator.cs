@@ -17,13 +17,14 @@
 
 #endregion
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xtate.CustomAction
+namespace Xtate.Service
 {
-	public interface ICustomActionFactory
+	public interface IServiceFactoryActivator
 	{
-		ValueTask<ICustomActionFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, string ns, string name, CancellationToken token);
+		ValueTask<IService> StartService(IFactoryContext factoryContext, Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication, CancellationToken token);
 	}
 }
