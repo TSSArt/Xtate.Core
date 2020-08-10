@@ -17,6 +17,7 @@
 
 #endregion
 
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Xtate.DataModel.Runtime
@@ -41,14 +42,27 @@ namespace Xtate.DataModel.Runtime
 			}
 		}
 
-		private class DataModelHandlerFactory : IDataModelHandlerFactory
+		private class DataModelHandlerFactory : IDataModelHandlerFactory, IDataModelHandlerFactoryActivator
 		{
 		#region Interface IDataModelHandlerFactory
 
-			public ValueTask<IDataModelHandler?> TryCreateHandler(string dataModelType, IErrorProcessor errorProcessor) =>
-					dataModelType == DataModelType ? new ValueTask<IDataModelHandler?>(new RuntimeDataModelHandler(errorProcessor)) : default;
+			public ValueTask<IDataModelHandlerFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, string dataModelType, CancellationToken token) =>
+					new ValueTask<IDataModelHandlerFactoryActivator?>(CanHandle(dataModelType) ? this : null);
 
 		#endregion
+
+		#region Interface IDataModelHandlerFactoryActivator
+
+			public ValueTask<IDataModelHandler> CreateHandler(IFactoryContext factoryContext, string dataModelType, IErrorProcessor errorProcessor, CancellationToken token)
+			{
+				Infrastructure.Assert(CanHandle(dataModelType));
+
+				return new ValueTask<IDataModelHandler>(new RuntimeDataModelHandler(errorProcessor));
+			}
+
+		#endregion
+
+			private static bool CanHandle(string dataModelType) => dataModelType == DataModelType;
 		}
 	}
 }

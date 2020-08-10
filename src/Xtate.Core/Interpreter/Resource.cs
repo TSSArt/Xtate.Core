@@ -19,6 +19,7 @@
 
 using System;
 using System.Net.Mime;
+using System.Text;
 using Xtate.Annotations;
 
 namespace Xtate
@@ -26,15 +27,57 @@ namespace Xtate
 	[PublicAPI]
 	public class Resource
 	{
-		public Resource(Uri uri, ContentType? contentType, string content)
+		private byte[]? _bytes;
+		private string? _content;
+
+		public Resource(Uri uri, ContentType? contentType = default, DateTimeOffset? modifiedDate = default, string? content = default, byte[]? bytes = default)
 		{
 			Uri = uri;
 			ContentType = contentType;
-			Content = content;
+			ModifiedDate = modifiedDate;
+			_content = content;
+			_bytes = bytes;
 		}
 
-		public Uri          Uri         { get; }
-		public ContentType? ContentType { get; }
-		public string       Content     { get; }
+		public Uri             Uri          { get; }
+		public ContentType?    ContentType  { get; }
+		public DateTimeOffset? ModifiedDate { get; }
+
+		public string? Content
+		{
+			get
+			{
+				if (_content != null)
+				{
+					return _content;
+				}
+
+				if (_bytes != null)
+				{
+					var encoding = !string.IsNullOrEmpty(ContentType?.CharSet) ? Encoding.GetEncoding(ContentType.CharSet) : Encoding.UTF8;
+
+					_content = encoding.GetString(_bytes);
+				}
+
+				return _content;
+			}
+		}
+
+		public byte[]? GetBytes()
+		{
+			if (_bytes != null)
+			{
+				return _bytes;
+			}
+
+			if (_content != null)
+			{
+				var encoding = !string.IsNullOrEmpty(ContentType?.CharSet) ? Encoding.GetEncoding(ContentType.CharSet) : Encoding.UTF8;
+
+				_bytes = encoding.GetBytes(_content);
+			}
+
+			return _bytes;
+		}
 	}
 }

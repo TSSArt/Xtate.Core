@@ -30,7 +30,7 @@ namespace Xtate
 	[PublicAPI]
 	public sealed class ResxResourceLoader : IResourceLoader
 	{
-		public static readonly IResourceLoader Instance = new ResxResourceLoader();
+		public static readonly ResxResourceLoader Instance = new ResxResourceLoader();
 
 		private static readonly XmlReaderSettings CloseInputReaderSettings = new XmlReaderSettings { CloseInput = true };
 
@@ -48,11 +48,12 @@ namespace Xtate
 			if (uri == null) throw new ArgumentNullException(nameof(uri));
 
 			var stream = GetResourceStream(uri);
+
 			await using (stream.ConfigureAwait(false))
 			{
-				using var reader = new StreamReader(stream);
-				var content = await reader.ReadToEndAsync().ConfigureAwait(false); //TODO: ReadToEndAsync replace to support CancellationToken  
-				return new Resource(uri, contentType: default, content);
+				var buffer = new byte[stream.Length];
+				await stream.ReadAsync(buffer, offset: 0, buffer.Length, token).ConfigureAwait(false);
+				return new Resource(uri, bytes: buffer);
 			}
 		}
 

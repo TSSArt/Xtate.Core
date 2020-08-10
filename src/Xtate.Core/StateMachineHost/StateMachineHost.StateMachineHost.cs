@@ -45,9 +45,10 @@ namespace Xtate
 
 			context.ValidateSessionId(sessionId, out var service);
 
-			var factory = await FindServiceFactory(data.Type, data.Source, token).ConfigureAwait(false);
+			using var factoryContext = new FactoryContext(_options.ResourceLoaders);
+			var activator = await FindServiceFactoryActivator(factoryContext, data.Type, token).ConfigureAwait(false);
 			var serviceCommunication = new ServiceCommunication(service, IoProcessorId, data.InvokeId);
-			var invokedService = await factory.StartService(service.StateMachineLocation, data, serviceCommunication, token).ConfigureAwait(false);
+			var invokedService = await activator.StartService(factoryContext, service.StateMachineLocation, data, serviceCommunication, token).ConfigureAwait(false);
 
 			await context.AddService(sessionId, data.InvokeId, invokedService, token).ConfigureAwait(false);
 
@@ -159,15 +160,17 @@ namespace Xtate
 
 		private StateMachineHostContext GetCurrentContext() => _context ?? throw new InvalidOperationException(Resources.Exception_IO_Processor_has_not_been_started);
 
-		private async ValueTask<IServiceFactory> FindServiceFactory(Uri type, Uri? source, CancellationToken token)
+		private async ValueTask<IServiceFactoryActivator> FindServiceFactoryActivator(IFactoryContext factoryContext, Uri type, CancellationToken token)
 		{
 			if (!_serviceFactories.IsDefaultOrEmpty)
 			{
 				foreach (var serviceFactory in _serviceFactories)
 				{
-					if (await serviceFactory.CanHandle(type, source, token).ConfigureAwait(false))
+					var activator = await serviceFactory.TryGetActivator(factoryContext, type, token).ConfigureAwait(false);
+
+					if (activator != null)
 					{
-						return serviceFactory;
+						return activator;
 					}
 				}
 			}

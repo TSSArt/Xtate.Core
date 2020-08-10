@@ -739,4 +739,7 @@
   <data name="ErrorMessage_attr_attribute_should_no_be_empty" xml:space="preserve">
     <value>attr attribute should no be empty.</value>
   </data>
+  <data name="Exception_File_is_more_then_2GB_length" xml:space="preserve">
+    <value>File is more then 2GB length.</value>
+  </data>
 </root>

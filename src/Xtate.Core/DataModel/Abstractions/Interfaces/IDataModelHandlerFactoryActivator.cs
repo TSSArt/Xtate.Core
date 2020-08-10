@@ -20,10 +20,10 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xtate.CustomAction
+namespace Xtate.DataModel
 {
-	public interface ICustomActionFactory
+	public interface IDataModelHandlerFactoryActivator
 	{
-		ValueTask<ICustomActionFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, string ns, string name, CancellationToken token);
+		ValueTask<IDataModelHandler> CreateHandler(IFactoryContext factoryContext, string dataModelType, IErrorProcessor errorProcessor, CancellationToken token);
 	}
 }

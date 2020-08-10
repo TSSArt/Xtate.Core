@@ -17,13 +17,17 @@
 
 #endregion
 
-using System.Threading;
-using System.Threading.Tasks;
+using System;
+using Xtate.Annotations;
 
-namespace Xtate.CustomAction
+namespace Xtate
 {
-	public interface ICustomActionFactory
+	[PublicAPI]
+	[AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+	public sealed class FactoryAttribute : Attribute
 	{
-		ValueTask<ICustomActionFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, string ns, string name, CancellationToken token);
+		public FactoryAttribute(Type factoryType) => FactoryType = factoryType;
+
+		public Type FactoryType { get; }
 	}
 }

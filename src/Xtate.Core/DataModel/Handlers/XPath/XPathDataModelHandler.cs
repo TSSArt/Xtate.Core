@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Immutable;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.XPath;
 
@@ -29,6 +30,8 @@ namespace Xtate.DataModel.XPath
 		private const string DataModelType = "xpath";
 
 		public static readonly IDataModelHandlerFactory Factory = new DataModelHandlerFactory();
+
+		public XPathDataModelHandler() : base(DefaultErrorProcessor.Instance) { }
 
 		private XPathDataModelHandler(IErrorProcessor errorProcessor) : base(errorProcessor) { }
 
@@ -218,14 +221,27 @@ namespace Xtate.DataModel.XPath
 
 		protected override void Visit(ref IScript script) => AddErrorMessage(script, Resources.ErrorMessage_Scripting_not_supported_in_XPATH_data_model);
 
-		private class DataModelHandlerFactory : IDataModelHandlerFactory
+		private class DataModelHandlerFactory : IDataModelHandlerFactory, IDataModelHandlerFactoryActivator
 		{
 		#region Interface IDataModelHandlerFactory
 
-			public ValueTask<IDataModelHandler?> TryCreateHandler(string dataModelType, IErrorProcessor errorProcessor) =>
-					dataModelType == DataModelType ? new ValueTask<IDataModelHandler?>(new XPathDataModelHandler(errorProcessor)) : default;
+			public ValueTask<IDataModelHandlerFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, string dataModelType, CancellationToken token) =>
+					new ValueTask<IDataModelHandlerFactoryActivator?>(CanHandle(dataModelType) ? this : null);
 
 		#endregion
+
+		#region Interface IDataModelHandlerFactoryActivator
+
+			public ValueTask<IDataModelHandler> CreateHandler(IFactoryContext factoryContext, string dataModelType, IErrorProcessor errorProcessor, CancellationToken token)
+			{
+				Infrastructure.Assert(CanHandle(dataModelType));
+
+				return new ValueTask<IDataModelHandler>(new XPathDataModelHandler(errorProcessor));
+			}
+
+		#endregion
+
+			private static bool CanHandle(string dataModelType) => dataModelType == DataModelType;
 		}
 	}
 }

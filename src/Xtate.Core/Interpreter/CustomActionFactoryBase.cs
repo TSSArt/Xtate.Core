@@ -27,7 +27,7 @@ using System.Xml;
 
 namespace Xtate.CustomAction
 {
-	public abstract class CustomActionFactoryBase : ICustomActionFactory
+	public abstract class CustomActionFactoryBase : ICustomActionFactory, ICustomActionFactoryActivator
 	{
 		private readonly Dictionary<string, Func<XmlReader, ICustomActionContext, ICustomActionExecutor>> _actions =
 				new Dictionary<string, Func<XmlReader, ICustomActionContext, ICustomActionExecutor>>();
@@ -48,9 +48,14 @@ namespace Xtate.CustomAction
 
 	#region Interface ICustomActionFactory
 
-		public ValueTask<bool> CanHandle(string ns, string name, CancellationToken token) => new ValueTask<bool>(ns == _namespace && _actions.ContainsKey(name));
+		public ValueTask<ICustomActionFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, string ns, string name, CancellationToken token) =>
+				new ValueTask<ICustomActionFactoryActivator?>(CanHandle(ns, name) ? this : null);
 
-		public ValueTask<ICustomActionExecutor> CreateExecutor(ICustomActionContext customActionContext, CancellationToken token)
+	#endregion
+
+	#region Interface ICustomActionFactoryActivator
+
+		public ValueTask<ICustomActionExecutor> CreateExecutor(IFactoryContext factoryContext, ICustomActionContext customActionContext, CancellationToken token)
 		{
 			if (customActionContext == null) throw new ArgumentNullException(nameof(customActionContext));
 
@@ -73,6 +78,8 @@ namespace Xtate.CustomAction
 		}
 
 	#endregion
+
+		private bool CanHandle(string ns, string name) => ns == _namespace && _actions.ContainsKey(name);
 
 		protected void Register(string name, Func<XmlReader, ICustomActionContext, ICustomActionExecutor> executorFactory)
 		{

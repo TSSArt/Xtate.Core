@@ -19,6 +19,7 @@
 
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xtate.DataModel.XPath;
 
 namespace Xtate.Core.Test
 {
@@ -59,6 +60,7 @@ namespace Xtate.Core.Test
 					";
 
 			var host = new StateMachineHostBuilder()
+					   .AddDataModelHandlerFactory(XPathDataModelHandler.Factory)
 					   .AddResourceLoader(new WebResourceLoader())
 					   .Build();
 
