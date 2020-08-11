@@ -36,7 +36,7 @@ namespace Xtate
 		[SuppressMessage(category: "ReSharper", checkId: "SuggestVarOrType_Elsewhere")]
 		public static string NormalizeSpaces(this string str)
 		{
-			if (str == null) throw new ArgumentNullException(nameof(str));
+			if (str is null) throw new ArgumentNullException(nameof(str));
 
 			if (str.Length == 0) return string.Empty;
 

@@ -80,11 +80,11 @@ namespace Xtate.DataModel
 
 		public virtual async ValueTask Execute(IExecutionContext executionContext, CancellationToken token)
 		{
-			if (executionContext == null) throw new ArgumentNullException(nameof(executionContext));
+			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
 			foreach (var (condition, actions) in Branches)
 			{
-				if (condition == null || await condition.EvaluateBoolean(executionContext, token).ConfigureAwait(false))
+				if (condition is null || await condition.EvaluateBoolean(executionContext, token).ConfigureAwait(false))
 				{
 					foreach (var action in actions)
 					{

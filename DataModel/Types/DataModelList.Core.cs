@@ -67,7 +67,7 @@ namespace Xtate
 
 		private protected DataModelList(IEnumerable<DataModelValue> values)
 		{
-			if (values == null) throw new ArgumentNullException(nameof(values));
+			if (values is null) throw new ArgumentNullException(nameof(values));
 
 			_array = values.ToArray();
 			_count = _array.Length;
@@ -178,7 +178,7 @@ namespace Xtate
 
 		public bool TryGet(string key, bool caseInsensitive, out Entry entry)
 		{
-			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (key is null) throw new ArgumentNullException(nameof(key));
 
 			if (_count > 0 && _array.Length > 0)
 			{
@@ -211,7 +211,7 @@ namespace Xtate
 
 		public void Set(string key, bool caseInsensitive, in DataModelValue value, DataModelList? metadata)
 		{
-			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (key is null) throw new ArgumentNullException(nameof(key));
 
 			CreateArgs(out var args);
 			args.Key = key;
@@ -448,7 +448,7 @@ namespace Xtate
 
 		public bool CanSet(string key, bool caseInsensitive)
 		{
-			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (key is null) throw new ArgumentNullException(nameof(key));
 
 			CreateArgs(out var args);
 			args.Key = key;
@@ -510,7 +510,7 @@ namespace Xtate
 
 		internal bool SetInternal(string key, bool caseInsensitive, in DataModelValue value, DataModelAccess access, DataModelList? metadata = default, bool throwOnDeny = true)
 		{
-			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (key is null) throw new ArgumentNullException(nameof(key));
 
 			CreateArgs(out var args);
 			args.Key = key;
@@ -614,7 +614,7 @@ namespace Xtate
 
 		private void OnChange(ChangeAction action, ref Args args)
 		{
-			if (Change == null)
+			if (Change is null)
 			{
 				return;
 			}

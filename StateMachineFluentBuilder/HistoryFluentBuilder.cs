@@ -52,7 +52,7 @@ namespace Xtate.Builder
 
 		public HistoryFluentBuilder<TOuterBuilder> SetId(IIdentifier id)
 		{
-			if (id == null) throw new ArgumentNullException(nameof(id));
+			if (id is null) throw new ArgumentNullException(nameof(id));
 
 			_builder.SetId(id);
 

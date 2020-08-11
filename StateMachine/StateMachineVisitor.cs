@@ -53,7 +53,7 @@ namespace Xtate
 
 		protected void SetRootPath(object root)
 		{
-			if (root == null) throw new ArgumentNullException(nameof(root));
+			if (root is null) throw new ArgumentNullException(nameof(root));
 
 			if (_path?.Count > 0)
 			{
@@ -135,7 +135,7 @@ namespace Xtate
 			{
 				get
 				{
-					if (ModifiedItems == null)
+					if (ModifiedItems is null)
 					{
 						return false;
 					}
@@ -191,7 +191,7 @@ namespace Xtate
 					return;
 				}
 
-				if (ModifiedItems == null)
+				if (ModifiedItems is null)
 				{
 					var empty = ImmutableArray<T>.Empty;
 					ModifiedItems = empty.ToBuilder();
@@ -211,17 +211,17 @@ namespace Xtate
 
 		protected virtual void Visit(ref IIdentifier entity)
 		{
-			if (entity == null) throw new ArgumentNullException(nameof(entity));
+			if (entity is null) throw new ArgumentNullException(nameof(entity));
 		}
 
 		protected virtual void Visit(ref IEventDescriptor entity)
 		{
-			if (entity == null) throw new ArgumentNullException(nameof(entity));
+			if (entity is null) throw new ArgumentNullException(nameof(entity));
 		}
 
 		protected virtual void Visit(ref IOutgoingEvent entity)
 		{
-			if (entity == null) throw new ArgumentNullException(nameof(entity));
+			if (entity is null) throw new ArgumentNullException(nameof(entity));
 		}
 
 		protected virtual void Visit(ref IStateMachine entity)
@@ -471,7 +471,7 @@ namespace Xtate
 
 		protected virtual void Visit(ref IExecutableEntity entity)
 		{
-			if (entity == null) throw new ArgumentNullException(nameof(entity));
+			if (entity is null) throw new ArgumentNullException(nameof(entity));
 
 			switch (entity)
 			{
@@ -545,7 +545,7 @@ namespace Xtate
 
 		protected virtual void Visit(ref IStateEntity entity)
 		{
-			if (entity == null) throw new ArgumentNullException(nameof(entity));
+			if (entity is null) throw new ArgumentNullException(nameof(entity));
 
 			switch (entity)
 			{
@@ -1189,7 +1189,7 @@ namespace Xtate
 
 		private void VisitWrapper(ref IExecutableEntity? entity)
 		{
-			if (entity == null) return;
+			if (entity is null) return;
 			Enter(entity);
 			Visit(ref entity);
 			Exit();
@@ -1197,7 +1197,7 @@ namespace Xtate
 
 		private void VisitWrapper(ref IInitial? entity)
 		{
-			if (entity == null) return;
+			if (entity is null) return;
 			Enter(entity);
 			Visit(ref entity);
 			Exit();
@@ -1205,7 +1205,7 @@ namespace Xtate
 
 		private void VisitWrapper(ref IIdentifier? entity)
 		{
-			if (entity == null) return;
+			if (entity is null) return;
 			Enter(entity);
 			Visit(ref entity);
 			Exit();
@@ -1213,7 +1213,7 @@ namespace Xtate
 
 		private void VisitWrapper(ref IStateEntity? entity)
 		{
-			if (entity == null) return;
+			if (entity is null) return;
 			Enter(entity);
 			Visit(ref entity);
 			Exit();
@@ -1221,7 +1221,7 @@ namespace Xtate
 
 		private void VisitWrapper(ref IEventDescriptor? entity)
 		{
-			if (entity == null) return;
+			if (entity is null) return;
 			Enter(entity);
 			Visit(ref entity);
 			Exit();
@@ -1229,7 +1229,7 @@ namespace Xtate
 
 		private void VisitWrapper(ref ITransition? entity)
 		{
-			if (entity == null) return;
+			if (entity is null) return;
 			Enter(entity);
 			Visit(ref entity);
 			Exit();
@@ -1237,7 +1237,7 @@ namespace Xtate
 
 		private void VisitWrapper(ref IDoneData? entity)
 		{
-			if (entity == null) return;
+			if (entity is null) return;
 			Enter(entity);
 			Visit(ref entity);
 			Exit();
@@ -1245,7 +1245,7 @@ namespace Xtate
 
 		private void VisitWrapper(ref IHistory? entity)
 		{
-			if (entity == null) return;
+			if (entity is null) return;
 			Enter(entity);
 			Visit(ref entity);
 			Exit();
@@ -1253,7 +1253,7 @@ namespace Xtate
 
 		private void VisitWrapper(ref IOnEntry? entity)
 		{
-			if (entity == null) return;
+			if (entity is null) return;
 			Enter(entity);
 			Visit(ref entity);
 			Exit();
@@ -1261,7 +1261,7 @@ namespace Xtate
 
 		private void VisitWrapper(ref IOnExit? entity)
 		{
-			if (entity == null) return;
+			if (entity is null) return;
 			Enter(entity);
 			Visit(ref entity);
 			Exit();
@@ -1269,7 +1269,7 @@ namespace Xtate
 
 		private void VisitWrapper(ref IConditionExpression? entity)
 		{
-			if (entity == null) return;
+			if (entity is null) return;
 			Enter(entity);
 			Visit(ref entity);
 			Exit();
@@ -1277,7 +1277,7 @@ namespace Xtate
 
 		private void VisitWrapper(ref ILocationExpression? entity)
 		{
-			if (entity == null) return;
+			if (entity is null) return;
 			Enter(entity);
 			Visit(ref entity);
 			Exit();
@@ -1285,7 +1285,7 @@ namespace Xtate
 
 		private void VisitWrapper(ref IValueExpression? entity)
 		{
-			if (entity == null) return;
+			if (entity is null) return;
 			Enter(entity);
 			Visit(ref entity);
 			Exit();
@@ -1293,7 +1293,7 @@ namespace Xtate
 
 		private void VisitWrapper(ref IExternalDataExpression? entity)
 		{
-			if (entity == null) return;
+			if (entity is null) return;
 			Enter(entity);
 			Visit(ref entity);
 			Exit();
@@ -1301,7 +1301,7 @@ namespace Xtate
 
 		private void VisitWrapper(ref IScriptExpression? entity)
 		{
-			if (entity == null) return;
+			if (entity is null) return;
 			Enter(entity);
 			Visit(ref entity);
 			Exit();
@@ -1309,7 +1309,7 @@ namespace Xtate
 
 		private void VisitWrapper(ref IExternalScriptExpression? entity)
 		{
-			if (entity == null) return;
+			if (entity is null) return;
 			Enter(entity);
 			Visit(ref entity);
 			Exit();
@@ -1317,7 +1317,7 @@ namespace Xtate
 
 		private void VisitWrapper(ref IOutgoingEvent? entity)
 		{
-			if (entity == null) return;
+			if (entity is null) return;
 			Enter(entity);
 			Visit(ref entity);
 			Exit();
@@ -1325,7 +1325,7 @@ namespace Xtate
 
 		private void VisitWrapper(ref IInvoke? entity)
 		{
-			if (entity == null) return;
+			if (entity is null) return;
 			Enter(entity);
 			Visit(ref entity);
 			Exit();
@@ -1333,7 +1333,7 @@ namespace Xtate
 
 		private void VisitWrapper(ref IDataModel? entity)
 		{
-			if (entity == null) return;
+			if (entity is null) return;
 			Enter(entity);
 			Visit(ref entity);
 			Exit();
@@ -1341,7 +1341,7 @@ namespace Xtate
 
 		private void VisitWrapper(ref IData? entity)
 		{
-			if (entity == null) return;
+			if (entity is null) return;
 			Enter(entity);
 			Visit(ref entity);
 			Exit();
@@ -1349,7 +1349,7 @@ namespace Xtate
 
 		private void VisitWrapper(ref IParam? entity)
 		{
-			if (entity == null) return;
+			if (entity is null) return;
 			Enter(entity);
 			Visit(ref entity);
 			Exit();
@@ -1357,7 +1357,7 @@ namespace Xtate
 
 		private void VisitWrapper(ref IContent? entity)
 		{
-			if (entity == null) return;
+			if (entity is null) return;
 			Enter(entity);
 			Visit(ref entity);
 			Exit();
@@ -1365,7 +1365,7 @@ namespace Xtate
 
 		private void VisitWrapper(ref IContentBody? entity)
 		{
-			if (entity == null) return;
+			if (entity is null) return;
 			Enter(entity);
 			Visit(ref entity);
 			Exit();
@@ -1373,7 +1373,7 @@ namespace Xtate
 
 		private void VisitWrapper(ref IInlineContent? entity)
 		{
-			if (entity == null) return;
+			if (entity is null) return;
 			Enter(entity);
 			Visit(ref entity);
 			Exit();
@@ -1381,7 +1381,7 @@ namespace Xtate
 
 		private void VisitWrapper(ref IFinalize? entity)
 		{
-			if (entity == null) return;
+			if (entity is null) return;
 			Enter(entity);
 			Visit(ref entity);
 			Exit();

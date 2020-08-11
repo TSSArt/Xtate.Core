@@ -93,7 +93,7 @@ namespace Xtate
 
 		public StateMachineHostBuilder AddResourceLoader(IResourceLoader resourceLoader)
 		{
-			if (resourceLoader == null) throw new ArgumentNullException(nameof(resourceLoader));
+			if (resourceLoader is null) throw new ArgumentNullException(nameof(resourceLoader));
 
 			(_resourceLoaders ??= ImmutableArray.CreateBuilder<IResourceLoader>()).Add(resourceLoader);
 
@@ -115,7 +115,7 @@ namespace Xtate
 
 		public StateMachineHostBuilder AddIoProcessorFactory(IIoProcessorFactory ioProcessorFactory)
 		{
-			if (ioProcessorFactory == null) throw new ArgumentNullException(nameof(ioProcessorFactory));
+			if (ioProcessorFactory is null) throw new ArgumentNullException(nameof(ioProcessorFactory));
 
 			(_ioProcessorFactories ??= ImmutableArray.CreateBuilder<IIoProcessorFactory>()).Add(ioProcessorFactory);
 
@@ -124,7 +124,7 @@ namespace Xtate
 
 		public StateMachineHostBuilder AddServiceFactory(IServiceFactory serviceFactory)
 		{
-			if (serviceFactory == null) throw new ArgumentNullException(nameof(serviceFactory));
+			if (serviceFactory is null) throw new ArgumentNullException(nameof(serviceFactory));
 
 			(_serviceFactories ??= ImmutableArray.CreateBuilder<IServiceFactory>()).Add(serviceFactory);
 
@@ -133,7 +133,7 @@ namespace Xtate
 
 		public StateMachineHostBuilder AddDataModelHandlerFactory(IDataModelHandlerFactory dataModelHandlerFactory)
 		{
-			if (dataModelHandlerFactory == null) throw new ArgumentNullException(nameof(dataModelHandlerFactory));
+			if (dataModelHandlerFactory is null) throw new ArgumentNullException(nameof(dataModelHandlerFactory));
 
 			(_dataModelHandlerFactories ??= ImmutableArray.CreateBuilder<IDataModelHandlerFactory>()).Add(dataModelHandlerFactory);
 
@@ -142,7 +142,7 @@ namespace Xtate
 
 		public StateMachineHostBuilder AddCustomActionFactory(ICustomActionFactory customActionFactory)
 		{
-			if (customActionFactory == null) throw new ArgumentNullException(nameof(customActionFactory));
+			if (customActionFactory is null) throw new ArgumentNullException(nameof(customActionFactory));
 
 			(_customActionFactories ??= ImmutableArray.CreateBuilder<ICustomActionFactory>()).Add(customActionFactory);
 
@@ -151,7 +151,7 @@ namespace Xtate
 
 		public StateMachineHostBuilder SetConfigurationValue(string key, string value)
 		{
-			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (key is null) throw new ArgumentNullException(nameof(key));
 
 			(_configuration ??= ImmutableDictionary.CreateBuilder<string, string>())[key] = value ?? throw new ArgumentNullException(nameof(value));
 

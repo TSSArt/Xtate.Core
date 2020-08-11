@@ -74,21 +74,21 @@ namespace Xtate.Builder
 
 		public void AddState(IState state)
 		{
-			if (state == null) throw new ArgumentNullException(nameof(state));
+			if (state is null) throw new ArgumentNullException(nameof(state));
 
 			(_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(state);
 		}
 
 		public void AddParallel(IParallel parallel)
 		{
-			if (parallel == null) throw new ArgumentNullException(nameof(parallel));
+			if (parallel is null) throw new ArgumentNullException(nameof(parallel));
 
 			(_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(parallel);
 		}
 
 		public void AddFinal(IFinal final)
 		{
-			if (final == null) throw new ArgumentNullException(nameof(final));
+			if (final is null) throw new ArgumentNullException(nameof(final));
 
 			(_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(final);
 		}

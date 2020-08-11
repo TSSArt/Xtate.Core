@@ -30,14 +30,14 @@ namespace Xtate
 {
 	public sealed partial class StateMachineHost : IStateMachineHost
 	{
-		private static readonly Uri                          InternalTarget = new Uri(uriString: "#_internal", UriKind.Relative);
-		private                 ImmutableArray<IIoProcessor> _ioProcessors;
+		private static readonly Uri InternalTarget = new Uri(uriString: "#_internal", UriKind.Relative);
 
+		private ImmutableArray<IIoProcessor>    _ioProcessors;
 		private ImmutableArray<IServiceFactory> _serviceFactories;
 
 	#region Interface IStateMachineHost
 
-		ImmutableArray<IIoProcessor> IStateMachineHost.GetIoProcessors() => _ioProcessors;
+		ImmutableArray<IIoProcessor> IStateMachineHost.GetIoProcessors() => !_ioProcessors.IsDefault ? _ioProcessors : ImmutableArray<IIoProcessor>.Empty;
 
 		async ValueTask IStateMachineHost.StartInvoke(SessionId sessionId, InvokeData data, CancellationToken token)
 		{
@@ -75,7 +75,7 @@ namespace Xtate
 
 		async ValueTask<SendStatus> IStateMachineHost.DispatchEvent(SessionId sessionId, IOutgoingEvent evt, bool skipDelay, CancellationToken token)
 		{
-			if (evt == null) throw new ArgumentNullException(nameof(evt));
+			if (evt is null) throw new ArgumentNullException(nameof(evt));
 
 			var context = GetCurrentContext();
 
@@ -264,12 +264,14 @@ namespace Xtate
 
 		private IIoProcessor GetIoProcessor(Uri? type, Uri? target)
 		{
-			if (_ioProcessors == null)
+			var ioProcessors = _ioProcessors;
+
+			if (ioProcessors.IsDefault)
 			{
 				throw new ProcessorException(Resources.Exception_StateMachineHost_stopped);
 			}
 
-			foreach (var ioProcessor in _ioProcessors)
+			foreach (var ioProcessor in ioProcessors)
 			{
 				if (ioProcessor.CanHandle(type, target))
 				{

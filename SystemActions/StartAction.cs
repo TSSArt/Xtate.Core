@@ -26,9 +26,10 @@ namespace Xtate.CustomAction
 {
 	public class StartAction : ICustomActionExecutor
 	{
-		private const    string             Source     = "src";
-		private const    string             SourceExpr = "srcexpr";
-		private const    string             IdLocation = "idlocation";
+		private const string Source     = "src";
+		private const string SourceExpr = "srcexpr";
+		private const string IdLocation = "idlocation";
+
 		private readonly ILocationAssigner? _idLocation;
 		private readonly Uri?               _source;
 
@@ -36,14 +37,14 @@ namespace Xtate.CustomAction
 
 		public StartAction(XmlReader xmlReader, ICustomActionContext access)
 		{
-			if (xmlReader == null) throw new ArgumentNullException(nameof(xmlReader));
-			if (access == null) throw new ArgumentNullException(nameof(access));
+			if (xmlReader is null) throw new ArgumentNullException(nameof(xmlReader));
+			if (access is null) throw new ArgumentNullException(nameof(access));
 
 			var source = xmlReader.GetAttribute(Source);
 			var sourceExpression = xmlReader.GetAttribute(SourceExpr);
 			var idLocation = xmlReader.GetAttribute(IdLocation);
 
-			if (source == null && sourceExpression == null)
+			if (source is null && sourceExpression is null)
 			{
 				access.AddValidationError<StartAction>(Resources.ErrorMessage_At_least_one_source_must_be_specified);
 			}
@@ -73,13 +74,13 @@ namespace Xtate.CustomAction
 
 		public async ValueTask Execute(IExecutionContext executionContext, CancellationToken token)
 		{
-			if (executionContext == null) throw new ArgumentNullException(nameof(executionContext));
+			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
 			var host = GetHost(executionContext);
 			var baseUri = GetBaseUri(executionContext);
 			var source = await GetSource(executionContext, token).ConfigureAwait(false);
 
-			if (source == null)
+			if (source is null)
 			{
 				throw new ProcessorException(Resources.StartAction_Execute_Source_not_specified);
 			}

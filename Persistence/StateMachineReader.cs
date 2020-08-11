@@ -54,7 +54,7 @@ namespace Xtate.Persistence
 		{
 			var documentId = bucket.GetInt32(Key.DocumentId);
 
-			if (_forwardEntities == null)
+			if (_forwardEntities is null)
 			{
 				throw new PersistenceException(Resources.Exception_Forward_entities_required_to_restore_state_machine);
 			}
@@ -342,7 +342,7 @@ namespace Xtate.Persistence
 			}
 
 			var content = bucket.GetString(Key.Content);
-			if (content == null)
+			if (content is null)
 			{
 				return new ExternalScriptExpression
 					   {

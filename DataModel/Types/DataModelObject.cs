@@ -125,7 +125,7 @@ namespace Xtate
 
 		public void Add(string key, in DataModelValue value)
 		{
-			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (key is null) throw new ArgumentNullException(nameof(key));
 
 			Add(key, value, metadata: default);
 		}

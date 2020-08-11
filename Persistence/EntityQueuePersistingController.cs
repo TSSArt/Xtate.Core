@@ -30,7 +30,7 @@ namespace Xtate.Persistence
 
 		public EntityQueuePersistingController(Bucket bucket, EntityQueue<T> entityQueue, Func<Bucket, T> creator)
 		{
-			if (creator == null) throw new ArgumentNullException(nameof(creator));
+			if (creator is null) throw new ArgumentNullException(nameof(creator));
 
 			_bucket = bucket;
 			_entityQueue = entityQueue ?? throw new ArgumentNullException(nameof(entityQueue));

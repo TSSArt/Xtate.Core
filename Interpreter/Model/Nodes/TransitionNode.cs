@@ -98,7 +98,7 @@ namespace Xtate
 
 			foreach (var node in TargetState)
 			{
-				if (node == null)
+				if (node is null)
 				{
 					return false;
 				}

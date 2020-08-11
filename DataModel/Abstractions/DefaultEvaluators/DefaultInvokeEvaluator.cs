@@ -61,8 +61,8 @@ namespace Xtate.DataModel
 
 		public virtual ValueTask Cancel(InvokeId invokeId, IExecutionContext executionContext, CancellationToken token)
 		{
-			if (executionContext == null) throw new ArgumentNullException(nameof(executionContext));
-			if (invokeId == null) throw new ArgumentNullException(nameof(invokeId));
+			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
+			if (invokeId is null) throw new ArgumentNullException(nameof(invokeId));
 
 			return executionContext.CancelInvoke(invokeId, token);
 		}
@@ -89,8 +89,8 @@ namespace Xtate.DataModel
 
 		public virtual async ValueTask<InvokeId> Start(IIdentifier stateId, IExecutionContext executionContext, CancellationToken token)
 		{
-			if (stateId == null) throw new ArgumentNullException(nameof(stateId));
-			if (executionContext == null) throw new ArgumentNullException(nameof(executionContext));
+			if (stateId is null) throw new ArgumentNullException(nameof(stateId));
+			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
 			var invokeId = InvokeId.New(stateId, _invoke.Id);
 
