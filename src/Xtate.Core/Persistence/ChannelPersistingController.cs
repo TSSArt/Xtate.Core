@@ -51,7 +51,7 @@ namespace Xtate.Persistence
 
 		public void Initialize(Bucket bucket, Func<Bucket, T> creator, SemaphoreSlim storageLock, Func<CancellationToken, ValueTask> postAction)
 		{
-			if (creator == null) throw new ArgumentNullException(nameof(creator));
+			if (creator is null) throw new ArgumentNullException(nameof(creator));
 
 			_bucket = bucket;
 			_storageLock = storageLock ?? throw new ArgumentNullException(nameof(storageLock));
@@ -154,7 +154,7 @@ namespace Xtate.Persistence
 
 			public override async ValueTask WriteAsync([NotNull] T item, CancellationToken token = default)
 			{
-				if (item == null) throw new ArgumentNullException(nameof(item));
+				if (item is null) throw new ArgumentNullException(nameof(item));
 
 				await _parent._initializedTcs.Task.WaitAsync(token).ConfigureAwait(false);
 

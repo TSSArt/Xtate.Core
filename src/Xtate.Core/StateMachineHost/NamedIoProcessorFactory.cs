@@ -56,7 +56,7 @@ namespace Xtate.IoProcessor
 
 		public async ValueTask<IIoProcessor> Create(IEventConsumer eventConsumer, CancellationToken token)
 		{
-			if (eventConsumer == null) throw new ArgumentNullException(nameof(eventConsumer));
+			if (eventConsumer is null) throw new ArgumentNullException(nameof(eventConsumer));
 
 			var processor = new NamedIoProcessor(eventConsumer, _host, _name);
 

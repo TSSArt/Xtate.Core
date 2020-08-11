@@ -177,7 +177,7 @@ namespace Xtate
 
 		private static Channel<IEvent> CreateChannel(IStateMachineOptions? options)
 		{
-			if (options == null)
+			if (options is null)
 			{
 				return System.Threading.Channels.Channel.CreateUnbounded<IEvent>(UnboundedAsynchronousChannelOptions);
 			}
@@ -317,7 +317,7 @@ namespace Xtate
 
 		protected virtual ValueTask ScheduleEvent(IOutgoingEvent evt, CancellationToken token)
 		{
-			if (evt == null) throw new ArgumentNullException(nameof(evt));
+			if (evt is null) throw new ArgumentNullException(nameof(evt));
 
 			var scheduledEvent = new ScheduledEvent(evt);
 
@@ -340,7 +340,7 @@ namespace Xtate
 
 		protected async ValueTask DelayedFire(ScheduledEvent scheduledEvent, int delayMs)
 		{
-			if (scheduledEvent == null) throw new ArgumentNullException(nameof(scheduledEvent));
+			if (scheduledEvent is null) throw new ArgumentNullException(nameof(scheduledEvent));
 
 			try
 			{
@@ -365,7 +365,7 @@ namespace Xtate
 
 		protected virtual ValueTask CancelEvent(ScheduledEvent scheduledEvent, CancellationToken token)
 		{
-			if (scheduledEvent == null) throw new ArgumentNullException(nameof(scheduledEvent));
+			if (scheduledEvent is null) throw new ArgumentNullException(nameof(scheduledEvent));
 
 			scheduledEvent.Cancel();
 

@@ -111,7 +111,7 @@ namespace Xtate.Persistence
 
 		public ReadOnlyMemory<byte> Read(ReadOnlySpan<byte> key)
 		{
-			if (_readModel == null)
+			if (_readModel is null)
 			{
 				throw new InvalidOperationException(Resources.Exception_Storage_not_available_for_read_operations);
 			}
@@ -146,7 +146,7 @@ namespace Xtate.Persistence
 
 		private void AddToReadModel(Memory<byte> key, Memory<byte> value)
 		{
-			if (_readModel == null)
+			if (_readModel is null)
 			{
 				return;
 			}
@@ -264,7 +264,7 @@ namespace Xtate.Persistence
 
 		public int GetDataSize()
 		{
-			if (_readModel == null)
+			if (_readModel is null)
 			{
 				throw new InvalidOperationException(Resources.Exception_Storage_not_available_for_read_operations);
 			}
@@ -274,7 +274,7 @@ namespace Xtate.Persistence
 
 		public void WriteDataToSpan(Span<byte> span, bool shrink = true)
 		{
-			if (_readModel == null)
+			if (_readModel is null)
 			{
 				throw new InvalidOperationException(Resources.Exception_Storage_not_available_for_read_operations);
 			}
@@ -328,7 +328,7 @@ namespace Xtate.Persistence
 
 		private void TruncateLog(bool forceDispose)
 		{
-			if (_readModel == null || forceDispose)
+			if (_readModel is null || forceDispose)
 			{
 				if (_buffers != null)
 				{

@@ -38,7 +38,7 @@ namespace Xtate
 
 		public bool CanHandle(Uri uri)
 		{
-			if (uri == null) throw new ArgumentNullException(nameof(uri));
+			if (uri is null) throw new ArgumentNullException(nameof(uri));
 
 			return !uri.IsAbsoluteUri || uri.IsFile || uri.IsUnc;
 		}
@@ -60,7 +60,7 @@ namespace Xtate
 
 			resource = new Resource(uri, modifiedDate: modifiedUtc, bytes: bytes);
 
-			if (weakReference == null)
+			if (weakReference is null)
 			{
 				weakReference = new WeakReference<Resource>(resource);
 			}

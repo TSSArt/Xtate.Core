@@ -54,7 +54,7 @@ namespace Xtate
 
 		ValueTask IIoProcessor.Dispatch(SessionId sessionId, IOutgoingEvent evt, CancellationToken token)
 		{
-			if (evt.Target == null)
+			if (evt.Target is null)
 			{
 				throw new ProcessorException(Resources.Exception_Event_Target_did_not_specified);
 			}
@@ -72,11 +72,11 @@ namespace Xtate
 
 	#endregion
 
-		private static bool CanHandleType(Uri? type) => type == null || FullUriComparer.Instance.Equals(type, IoProcessorId) || FullUriComparer.Instance.Equals(type, IoProcessorAliasId);
+		private static bool CanHandleType(Uri? type) => type is null || FullUriComparer.Instance.Equals(type, IoProcessorId) || FullUriComparer.Instance.Equals(type, IoProcessorAliasId);
 
 		private static bool CanHandleTarget(Uri? target)
 		{
-			if (target == null)
+			if (target is null)
 			{
 				return true;
 			}

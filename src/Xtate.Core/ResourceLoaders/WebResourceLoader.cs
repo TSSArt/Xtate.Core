@@ -40,14 +40,14 @@ namespace Xtate
 
 		public bool CanHandle(Uri uri)
 		{
-			if (uri == null) throw new ArgumentNullException(nameof(uri));
+			if (uri is null) throw new ArgumentNullException(nameof(uri));
 
 			return uri.IsAbsoluteUri && (uri.Scheme == "http" || uri.Scheme == "https");
 		}
 
 		public async ValueTask<Resource> Request(Uri uri, CancellationToken token)
 		{
-			if (uri == null) throw new ArgumentNullException(nameof(uri));
+			if (uri is null) throw new ArgumentNullException(nameof(uri));
 
 			using var client = new HttpClient();
 			HttpResponseMessage responseMessage;
@@ -74,7 +74,7 @@ namespace Xtate
 			var bytes = await responseMessage.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
 			resource = new Resource(uri, contentType, lastModified, bytes: bytes);
 
-			if (weakReference == null)
+			if (weakReference is null)
 			{
 				weakReference = new WeakReference<Resource>(resource);
 			}
@@ -90,7 +90,7 @@ namespace Xtate
 
 		public ValueTask<XmlReader> RequestXmlReader(Uri uri, XmlReaderSettings? readerSettings = default, XmlParserContext? parserContext = default, CancellationToken token = default)
 		{
-			if (uri == null) throw new ArgumentNullException(nameof(uri));
+			if (uri is null) throw new ArgumentNullException(nameof(uri));
 
 			try
 			{

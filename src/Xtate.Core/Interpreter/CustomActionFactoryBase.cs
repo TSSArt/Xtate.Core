@@ -38,7 +38,7 @@ namespace Xtate.CustomAction
 		{
 			var customActionProviderAttribute = GetType().GetCustomAttribute<CustomActionProviderAttribute>();
 
-			if (customActionProviderAttribute == null)
+			if (customActionProviderAttribute is null)
 			{
 				throw new InfrastructureException(Res.Format(Resources.Exception_CustomActionProviderAttributeWasNotProvided, GetType()));
 			}
@@ -57,7 +57,7 @@ namespace Xtate.CustomAction
 
 		public ValueTask<ICustomActionExecutor> CreateExecutor(IFactoryContext factoryContext, ICustomActionContext customActionContext, CancellationToken token)
 		{
-			if (customActionContext == null) throw new ArgumentNullException(nameof(customActionContext));
+			if (customActionContext is null) throw new ArgumentNullException(nameof(customActionContext));
 
 			Infrastructure.Assert(_namespace == customActionContext.XmlNamespace);
 
@@ -83,8 +83,8 @@ namespace Xtate.CustomAction
 
 		protected void Register(string name, Func<XmlReader, ICustomActionContext, ICustomActionExecutor> executorFactory)
 		{
-			if (name == null) throw new ArgumentNullException(nameof(name));
-			if (executorFactory == null) throw new ArgumentNullException(nameof(executorFactory));
+			if (name is null) throw new ArgumentNullException(nameof(name));
+			if (executorFactory is null) throw new ArgumentNullException(nameof(executorFactory));
 
 			_actions.Add(name, executorFactory);
 		}

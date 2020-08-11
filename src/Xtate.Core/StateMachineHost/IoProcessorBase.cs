@@ -35,7 +35,7 @@ namespace Xtate.IoProcessor
 
 			var ioProcessorAttribute = GetType().GetCustomAttribute<IoProcessorAttribute>(false);
 
-			if (ioProcessorAttribute == null)
+			if (ioProcessorAttribute is null)
 			{
 				throw new InfrastructureException(Res.Format(Resources.Exception_IoProcessorAttributeWasNotProvided, GetType()));
 			}

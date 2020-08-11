@@ -38,14 +38,14 @@ namespace Xtate
 
 		public bool CanHandle(Uri uri)
 		{
-			if (uri == null) throw new ArgumentNullException(nameof(uri));
+			if (uri is null) throw new ArgumentNullException(nameof(uri));
 
 			return uri.IsAbsoluteUri && (uri.Scheme == "res" || uri.Scheme == "resx");
 		}
 
 		public async ValueTask<Resource> Request(Uri uri, CancellationToken token)
 		{
-			if (uri == null) throw new ArgumentNullException(nameof(uri));
+			if (uri is null) throw new ArgumentNullException(nameof(uri));
 
 			var stream = GetResourceStream(uri);
 
@@ -59,7 +59,7 @@ namespace Xtate
 
 		public ValueTask<XmlReader> RequestXmlReader(Uri uri, XmlReaderSettings? readerSettings = default, XmlParserContext? parserContext = default, CancellationToken token = default)
 		{
-			if (uri == null) throw new ArgumentNullException(nameof(uri));
+			if (uri is null) throw new ArgumentNullException(nameof(uri));
 
 			try
 			{
@@ -91,7 +91,7 @@ namespace Xtate
 
 			var stream = assembly.GetManifestResourceStream(name);
 
-			if (stream == null)
+			if (stream is null)
 			{
 				throw new ResourceNotFoundException(Res.Format(Resources.Exception_Resource_not_found, uri));
 			}

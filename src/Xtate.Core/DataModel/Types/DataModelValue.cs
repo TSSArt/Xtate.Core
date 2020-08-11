@@ -386,9 +386,9 @@ namespace Xtate
 		public static DataModelValue FromDateTime(DateTime val)                   => val;
 		public static DataModelValue FromBoolean(bool val)                        => val;
 
-		public bool IsUndefinedOrNull() => _value == null || _value == NullValue || _value is ILazyValue val && val.Value.IsUndefinedOrNull();
+		public bool IsUndefinedOrNull() => _value is null || _value == NullValue || _value is ILazyValue val && val.Value.IsUndefinedOrNull();
 
-		public bool IsUndefined() => _value == null || _value is ILazyValue val && val.Value.IsUndefined();
+		public bool IsUndefined() => _value is null || _value is ILazyValue val && val.Value.IsUndefined();
 
 		public DataModelList AsList() =>
 				_value switch
@@ -609,7 +609,7 @@ namespace Xtate
 
 		private static DataModelValue FromObjectWithMap(object? value, ref Dictionary<object, object>? map)
 		{
-			if (value == null)
+			if (value is null)
 			{
 				return Null;
 			}

@@ -35,7 +35,7 @@ namespace Xtate
 		{
 			try
 			{
-				if (_externalCommunication == null)
+				if (_externalCommunication is null)
 				{
 					throw NoExternalCommunication();
 				}
@@ -52,7 +52,7 @@ namespace Xtate
 		{
 			try
 			{
-				if (_externalCommunication == null)
+				if (_externalCommunication is null)
 				{
 					throw NoExternalCommunication();
 				}
@@ -69,11 +69,11 @@ namespace Xtate
 
 		async ValueTask<SendStatus> IExternalCommunication.TrySendEvent(IOutgoingEvent evt, CancellationToken token)
 		{
-			if (evt == null) throw new ArgumentNullException(nameof(evt));
+			if (evt is null) throw new ArgumentNullException(nameof(evt));
 
 			try
 			{
-				if (_externalCommunication == null)
+				if (_externalCommunication is null)
 				{
 					throw NoExternalCommunication();
 				}
@@ -92,7 +92,7 @@ namespace Xtate
 		{
 			try
 			{
-				if (_externalCommunication == null)
+				if (_externalCommunication is null)
 				{
 					throw NoExternalCommunication();
 				}
@@ -130,7 +130,7 @@ namespace Xtate
 		{
 			try
 			{
-				if (_externalCommunication == null)
+				if (_externalCommunication is null)
 				{
 					throw NoExternalCommunication();
 				}

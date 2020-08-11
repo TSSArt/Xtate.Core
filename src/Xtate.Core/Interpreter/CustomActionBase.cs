@@ -39,7 +39,7 @@ namespace Xtate.CustomAction
 
 		ValueTask ICustomActionExecutor.Execute(IExecutionContext context, CancellationToken token)
 		{
-			if (context == null) throw new ArgumentNullException(nameof(context));
+			if (context is null) throw new ArgumentNullException(nameof(context));
 
 			return Execute(context, token);
 		}

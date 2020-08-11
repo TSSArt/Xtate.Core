@@ -28,7 +28,7 @@ namespace Xtate
 		[return: NotNull]
 		public static T As<T>(this object entity)
 		{
-			if (entity == null) throw new ArgumentNullException(nameof(entity));
+			if (entity is null) throw new ArgumentNullException(nameof(entity));
 
 			if (entity.Is<T>(out var result))
 			{

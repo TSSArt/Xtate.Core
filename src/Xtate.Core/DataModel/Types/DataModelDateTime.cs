@@ -62,7 +62,7 @@ namespace Xtate
 
 		public int CompareTo(object? value)
 		{
-			if (value == null) return 1;
+			if (value is null) return 1;
 
 			if (!(value is DataModelDateTime))
 			{

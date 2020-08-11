@@ -35,7 +35,7 @@ namespace Xtate.Service
 		{
 			var serviceAttribute = typeof(TService).GetCustomAttribute<SimpleServiceAttribute>();
 
-			if (serviceAttribute == null)
+			if (serviceAttribute is null)
 			{
 				throw new InfrastructureException(Res.Format(Resources.Exception_ServiceAttribute_did_not_provided_for_type, typeof(TService)));
 			}

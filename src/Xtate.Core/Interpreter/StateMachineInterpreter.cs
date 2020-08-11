@@ -139,15 +139,15 @@ namespace Xtate
 
 		public static ValueTask<DataModelValue> RunAsync(IStateMachine? stateMachine, ChannelReader<IEvent> eventChannel, in InterpreterOptions options = default)
 		{
-			if (eventChannel == null) throw new ArgumentNullException(nameof(eventChannel));
+			if (eventChannel is null) throw new ArgumentNullException(nameof(eventChannel));
 
 			return new StateMachineInterpreter(SessionId.New(), eventChannel, options).Run(stateMachine);
 		}
 
 		public static ValueTask<DataModelValue> RunAsync(SessionId sessionId, IStateMachine? stateMachine, ChannelReader<IEvent> eventChannel, in InterpreterOptions options = default)
 		{
-			if (sessionId == null) throw new ArgumentNullException(nameof(sessionId));
-			if (eventChannel == null) throw new ArgumentNullException(nameof(eventChannel));
+			if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
+			if (eventChannel is null) throw new ArgumentNullException(nameof(eventChannel));
 
 			return new StateMachineInterpreter(sessionId, eventChannel, options).Run(stateMachine);
 		}
@@ -487,7 +487,7 @@ namespace Xtate
 			_anyTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_suspendToken, _destroyToken, _stopToken);
 			await using var _ = _context.ConfigureAwait(false);
 
-			if (stateMachine == null)
+			if (stateMachine is null)
 			{
 				LogInterpreterState(StateMachineInterpreterState.Resumed);
 			}
@@ -775,7 +775,7 @@ namespace Xtate
 			{
 				var evt = await ReadExternalEventUnfiltered().ConfigureAwait(false);
 
-				if (evt.InvokeId == null)
+				if (evt.InvokeId is null)
 				{
 					return evt;
 				}
@@ -865,7 +865,7 @@ namespace Xtate
 
 		private static bool EventMatch(ImmutableArray<IEventDescriptor> eventDescriptors, IEvent? evt)
 		{
-			if (evt == null)
+			if (evt is null)
 			{
 				return eventDescriptors.IsDefaultOrEmpty;
 			}
@@ -890,7 +890,7 @@ namespace Xtate
 		{
 			var condition = transition.ConditionEvaluator;
 
-			if (condition == null)
+			if (condition is null)
 			{
 				return true;
 			}
@@ -1248,7 +1248,7 @@ namespace Xtate
 		{
 			var ancestors = GetProperAncestors(state, ancestor);
 
-			if (ancestors == null)
+			if (ancestors is null)
 			{
 				return;
 			}
@@ -1304,7 +1304,7 @@ namespace Xtate
 		{
 			var ancestors = GetProperAncestors(headState, state2: null);
 
-			if (ancestors == null)
+			if (ancestors is null)
 			{
 				return null;
 			}
@@ -1334,7 +1334,7 @@ namespace Xtate
 				(states ??= new List<StateEntityNode>()).Add(s);
 			}
 
-			return state2 == null ? states : null;
+			return state2 is null ? states : null;
 		}
 
 		private List<StateEntityNode> GetEffectiveTargetStates(TransitionNode transition)
@@ -1522,7 +1522,7 @@ namespace Xtate
 		{
 			var rootDataModel = _model.Root.DataModel;
 
-			if (rootDataModel == null)
+			if (rootDataModel is null)
 			{
 				return;
 			}

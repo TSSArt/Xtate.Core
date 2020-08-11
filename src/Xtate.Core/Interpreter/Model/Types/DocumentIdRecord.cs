@@ -38,7 +38,7 @@ namespace Xtate
 			get
 			{
 				var node = _node;
-				if (node == null)
+				if (node is null)
 				{
 					return _value;
 				}

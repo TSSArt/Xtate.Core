@@ -67,7 +67,7 @@ namespace Xtate
 
 		ILocationAssigner ICustomActionContext.RegisterLocationExpression(string expression)
 		{
-			if (expression == null) throw new ArgumentNullException(nameof(expression));
+			if (expression is null) throw new ArgumentNullException(nameof(expression));
 
 			if (_executor != null)
 			{
@@ -84,7 +84,7 @@ namespace Xtate
 
 		IExpressionEvaluator ICustomActionContext.RegisterValueExpression(string expression)
 		{
-			if (expression == null) throw new ArgumentNullException(nameof(expression));
+			if (expression is null) throw new ArgumentNullException(nameof(expression));
 
 			if (_executor != null)
 			{
@@ -118,7 +118,7 @@ namespace Xtate
 
 		public ValueTask Execute(IExecutionContext executionContext, CancellationToken token)
 		{
-			if (executionContext == null) throw new ArgumentNullException(nameof(executionContext));
+			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
 			Infrastructure.Assert(_executor != null);
 
@@ -133,7 +133,7 @@ namespace Xtate
 			{
 				var executor = await GetExecutor(customActionFactories, token).ConfigureAwait(false);
 
-				if (executor == null)
+				if (executor is null)
 				{
 					_errorProcessor.AddError<CustomActionDispatcher>(this, Resources.ErrorMessage_Custom_action_executor_can_t_be_found);
 				}
@@ -187,7 +187,7 @@ namespace Xtate
 
 			public ValueTask Assign(IExecutionContext executionContext, DataModelValue value, CancellationToken token)
 			{
-				if (executionContext == null) throw new ArgumentNullException(nameof(executionContext));
+				if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
 				Infrastructure.Assert(!_dispatcher._locationEvaluators.IsDefault);
 
@@ -221,7 +221,7 @@ namespace Xtate
 
 			public ValueTask<DataModelValue> Evaluate(IExecutionContext executionContext, CancellationToken token)
 			{
-				if (executionContext == null) throw new ArgumentNullException(nameof(executionContext));
+				if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
 				Infrastructure.Assert(!_dispatcher._objectEvaluators.IsDefault);
 

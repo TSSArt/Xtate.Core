@@ -34,7 +34,7 @@ namespace Xtate.Builder
 
 		public void AddData(IData data)
 		{
-			if (data == null) throw new ArgumentNullException(nameof(data));
+			if (data is null) throw new ArgumentNullException(nameof(data));
 
 			(_dataList ??= ImmutableArray.CreateBuilder<IData>()).Add(data);
 		}

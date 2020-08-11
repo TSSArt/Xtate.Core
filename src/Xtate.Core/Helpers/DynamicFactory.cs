@@ -47,7 +47,7 @@ namespace Xtate
 
 			var uri = GetCachedUri(key);
 
-			if (uri == null)
+			if (uri is null)
 			{
 				return default;
 			}
@@ -56,7 +56,7 @@ namespace Xtate
 
 			var assembly = ResolveAssembly(uri, loadedAssembly);
 
-			if (assembly == null)
+			if (assembly is null)
 			{
 				return default;
 			}

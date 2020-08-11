@@ -30,7 +30,7 @@ namespace Xtate.DataModel
 		public static ValueTask<DataModelValue> GetData(IValueEvaluator? contentBodyEvaluator, IObjectEvaluator? contentExpressionEvaluator, ImmutableArray<ILocationEvaluator> nameEvaluatorList,
 														ImmutableArray<DefaultParam> parameterList, IExecutionContext executionContext, CancellationToken token)
 		{
-			if (executionContext == null) throw new ArgumentNullException(nameof(executionContext));
+			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
 			if (nameEvaluatorList.IsDefaultOrEmpty && parameterList.IsDefaultOrEmpty)
 			{
@@ -43,7 +43,7 @@ namespace Xtate.DataModel
 		public static async ValueTask<DataModelValue> GetContent(IValueEvaluator? contentBodyEvaluator, IObjectEvaluator? contentExpressionEvaluator,
 																 IExecutionContext executionContext, CancellationToken token)
 		{
-			if (executionContext == null) throw new ArgumentNullException(nameof(executionContext));
+			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
 			if (contentExpressionEvaluator != null)
 			{
@@ -72,7 +72,7 @@ namespace Xtate.DataModel
 		public static async ValueTask<DataModelValue> GetParameters(ImmutableArray<ILocationEvaluator> nameEvaluatorList, ImmutableArray<DefaultParam> parameterList,
 																	IExecutionContext executionContext, CancellationToken token)
 		{
-			if (executionContext == null) throw new ArgumentNullException(nameof(executionContext));
+			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
 			if (nameEvaluatorList.IsDefaultOrEmpty && parameterList.IsDefaultOrEmpty)
 			{
@@ -124,7 +124,7 @@ namespace Xtate.DataModel
 
 		public static DataModelValue FromEvent(IEvent evt, bool caseInsensitive)
 		{
-			if (evt == null) throw new ArgumentNullException(nameof(evt));
+			if (evt is null) throw new ArgumentNullException(nameof(evt));
 
 			var eventObject = new DataModelObject(caseInsensitive)
 							  {
@@ -155,7 +155,7 @@ namespace Xtate.DataModel
 
 		public static DataModelValue FromException(Exception exception, bool caseInsensitive)
 		{
-			if (exception == null) throw new ArgumentNullException(nameof(exception));
+			if (exception is null) throw new ArgumentNullException(nameof(exception));
 
 			var exceptionData = new DataModelObject(caseInsensitive)
 								{

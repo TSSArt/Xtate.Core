@@ -39,7 +39,7 @@ namespace Xtate
 			{
 				var id = _id;
 
-				if (id == null)
+				if (id is null)
 				{
 					var newId = GenerateId();
 
@@ -76,7 +76,7 @@ namespace Xtate
 		{
 			var id = _id;
 
-			if (id == null)
+			if (id is null)
 			{
 				return base.GetHashCode();
 			}
@@ -86,7 +86,7 @@ namespace Xtate
 
 		protected static bool TryGetHashFromId(string id, out int hash)
 		{
-			if (id == null) throw new ArgumentNullException(nameof(id));
+			if (id is null) throw new ArgumentNullException(nameof(id));
 
 			var start = id.Length - 8;
 			if (start >= 0 && TryHexToInt32(id.AsSpan(start), out hash))
@@ -130,7 +130,7 @@ namespace Xtate
 				return true;
 			}
 
-			if (obj == null || _id == null || GetType() != obj.GetType())
+			if (obj is null || _id is null || GetType() != obj.GetType())
 			{
 				return false;
 			}

@@ -33,7 +33,7 @@ namespace Xtate.Persistence
 
 		public KeyListPersistingController(Bucket bucket, KeyList<T> keyList, ImmutableDictionary<int, IEntity> entityMap)
 		{
-			if (entityMap == null) throw new ArgumentNullException(nameof(entityMap));
+			if (entityMap is null) throw new ArgumentNullException(nameof(entityMap));
 			_bucket = bucket;
 			_keyList = keyList ?? throw new ArgumentNullException(nameof(keyList));
 

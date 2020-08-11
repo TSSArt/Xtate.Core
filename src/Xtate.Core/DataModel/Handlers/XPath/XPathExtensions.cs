@@ -26,7 +26,7 @@ namespace Xtate
 	{
 		public static StateMachineHostBuilder AddXPath(this StateMachineHostBuilder builder)
 		{
-			if (builder == null) throw new ArgumentNullException(nameof(builder));
+			if (builder is null) throw new ArgumentNullException(nameof(builder));
 
 			builder.AddDataModelHandlerFactory(XPathDataModelHandler.Factory);
 

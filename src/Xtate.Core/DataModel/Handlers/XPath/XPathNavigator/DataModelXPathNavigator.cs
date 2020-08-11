@@ -263,7 +263,7 @@ namespace Xtate.DataModel.XPath
 
 		private void AddSiblings(IObject valueObject, int offset, bool replace)
 		{
-			if (valueObject == null) throw new ArgumentNullException(nameof(valueObject));
+			if (valueObject is null) throw new ArgumentNullException(nameof(valueObject));
 
 			Infrastructure.Assert(NodeType == XPathNodeType.Element);
 
@@ -284,7 +284,7 @@ namespace Xtate.DataModel.XPath
 
 		private void AddChildren(IObject valueObject, bool last, bool clear)
 		{
-			if (valueObject == null) throw new ArgumentNullException(nameof(valueObject));
+			if (valueObject is null) throw new ArgumentNullException(nameof(valueObject));
 
 			Infrastructure.Assert(NodeType == XPathNodeType.Element);
 

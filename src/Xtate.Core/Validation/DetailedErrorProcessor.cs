@@ -52,7 +52,7 @@ namespace Xtate
 
 		void IErrorProcessor.AddError(ErrorItem errorItem)
 		{
-			if (errorItem == null) throw new ArgumentNullException(nameof(errorItem));
+			if (errorItem is null) throw new ArgumentNullException(nameof(errorItem));
 
 			(_errors ??= ImmutableArray.CreateBuilder<ErrorItem>()).Add(errorItem);
 		}

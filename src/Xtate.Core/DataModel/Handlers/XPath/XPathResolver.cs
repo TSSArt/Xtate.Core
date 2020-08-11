@@ -108,7 +108,7 @@ namespace Xtate.DataModel.XPath
 				}
 			}
 
-			if (ExecutionContext == null)
+			if (ExecutionContext is null)
 			{
 				return XPathEmptyIterator.Instance;
 			}

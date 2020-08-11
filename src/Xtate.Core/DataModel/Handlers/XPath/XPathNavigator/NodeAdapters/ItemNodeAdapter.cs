@@ -49,7 +49,7 @@ namespace Xtate.DataModel.XPath
 		{
 			var metadata = parentNode.Metadata;
 
-			if (metadata == null)
+			if (metadata is null)
 			{
 				node = default;
 

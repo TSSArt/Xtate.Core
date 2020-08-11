@@ -142,7 +142,7 @@ namespace Xtate.Persistence
 
 		protected override async ValueTask CancelEvent(ScheduledEvent scheduledEvent, CancellationToken token)
 		{
-			if (scheduledEvent == null) throw new ArgumentNullException(nameof(scheduledEvent));
+			if (scheduledEvent is null) throw new ArgumentNullException(nameof(scheduledEvent));
 
 			var scheduledPersistedEvent = (ScheduledPersistedEvent) scheduledEvent;
 
@@ -225,7 +225,7 @@ namespace Xtate.Persistence
 
 			public ScheduledPersistedEvent(IOutgoingEvent evt) : base(evt)
 			{
-				if (evt == null) throw new ArgumentNullException(nameof(evt));
+				if (evt is null) throw new ArgumentNullException(nameof(evt));
 
 				_fireOnUtcTicks = DateTime.UtcNow.Ticks + evt.DelayMs * TimeSpan.TicksPerMillisecond;
 			}

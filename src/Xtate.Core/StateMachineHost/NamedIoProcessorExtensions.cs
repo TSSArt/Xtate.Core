@@ -28,7 +28,7 @@ namespace Xtate
 	{
 		public static StateMachineHostBuilder AddNamedIoProcessor(this StateMachineHostBuilder builder, string name)
 		{
-			if (builder == null) throw new ArgumentNullException(nameof(builder));
+			if (builder is null) throw new ArgumentNullException(nameof(builder));
 
 			builder.AddIoProcessorFactory(new NamedIoProcessorFactory(name));
 
@@ -37,7 +37,7 @@ namespace Xtate
 
 		public static StateMachineHostBuilder AddNamedIoProcessor(this StateMachineHostBuilder builder, string host, string name)
 		{
-			if (builder == null) throw new ArgumentNullException(nameof(builder));
+			if (builder is null) throw new ArgumentNullException(nameof(builder));
 
 			builder.AddIoProcessorFactory(new NamedIoProcessorFactory(host, name));
 

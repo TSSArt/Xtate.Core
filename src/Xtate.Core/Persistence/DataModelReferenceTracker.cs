@@ -61,12 +61,12 @@ namespace Xtate.Persistence
 		{
 			if (_refIds.TryGetValue(refId, out var obj))
 			{
-				Infrastructure.Assert(baseObject == null || baseObject == obj, Resources.Assertion_ObjectsStructureMismatch);
+				Infrastructure.Assert(baseObject is null || baseObject == obj, Resources.Assertion_ObjectsStructureMismatch);
 
 				return obj;
 			}
 
-			if (baseObject == null)
+			if (baseObject is null)
 			{
 				return GetValue(refId, type);
 			}

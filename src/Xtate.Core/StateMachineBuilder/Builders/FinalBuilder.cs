@@ -40,14 +40,14 @@ namespace Xtate.Builder
 
 		public void AddOnEntry(IOnEntry onEntry)
 		{
-			if (onEntry == null) throw new ArgumentNullException(nameof(onEntry));
+			if (onEntry is null) throw new ArgumentNullException(nameof(onEntry));
 
 			(_onEntryList ??= ImmutableArray.CreateBuilder<IOnEntry>()).Add(onEntry);
 		}
 
 		public void AddOnExit(IOnExit onExit)
 		{
-			if (onExit == null) throw new ArgumentNullException(nameof(onExit));
+			if (onExit is null) throw new ArgumentNullException(nameof(onExit));
 
 			(_onExitList ??= ImmutableArray.CreateBuilder<IOnExit>()).Add(onExit);
 		}

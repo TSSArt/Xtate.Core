@@ -28,7 +28,7 @@ namespace Xtate.DataModel.XPath
 
 		public static string GetValue(DataModelList? metadata, int offset, int cursor = -1, string? key = null)
 		{
-			if (metadata == null)
+			if (metadata is null)
 			{
 				return string.Empty;
 			}

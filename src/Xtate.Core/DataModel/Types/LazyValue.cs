@@ -35,7 +35,7 @@ namespace Xtate
 			get
 			{
 				var factory = _factory;
-				if (factory == null)
+				if (factory is null)
 				{
 					return _value;
 				}
@@ -75,7 +75,7 @@ namespace Xtate
 			get
 			{
 				var factory = _factory;
-				if (factory == null)
+				if (factory is null)
 				{
 					return _value;
 				}
@@ -117,7 +117,7 @@ namespace Xtate
 			get
 			{
 				var factory = _factory;
-				if (factory == null)
+				if (factory is null)
 				{
 					return _value;
 				}

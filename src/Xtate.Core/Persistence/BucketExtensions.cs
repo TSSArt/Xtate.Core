@@ -62,7 +62,7 @@ namespace Xtate.Persistence
 			{
 				var item = factory(itemsBucket.Nested(i));
 
-				if (item == null)
+				if (item is null)
 				{
 					throw new PersistenceException(Resources.Exception_Item_can_t_be_null);
 				}
@@ -117,7 +117,7 @@ namespace Xtate.Persistence
 			bucket.TryGet(key, out string? invokeId);
 			bucket.Nested(key).TryGet(key: 1, out string? invokeUniqueId);
 
-			if (invokeId == null || invokeUniqueId == null)
+			if (invokeId is null || invokeUniqueId is null)
 			{
 				return null;
 			}
@@ -129,7 +129,7 @@ namespace Xtate.Persistence
 
 		public static DataModelValue GetDataModelValue(this in Bucket bucket, DataModelReferenceTracker tracker, DataModelValue baseValue)
 		{
-			if (tracker == null) throw new ArgumentNullException(nameof(tracker));
+			if (tracker is null) throw new ArgumentNullException(nameof(tracker));
 
 			bucket.TryGet(Key.Type, out DataModelValueType type);
 
@@ -156,7 +156,7 @@ namespace Xtate.Persistence
 
 		public static void SetDataModelValue(this in Bucket bucket, DataModelReferenceTracker tracker, DataModelValue item)
 		{
-			if (tracker == null) throw new ArgumentNullException(nameof(tracker));
+			if (tracker is null) throw new ArgumentNullException(nameof(tracker));
 
 			var type = item.Type;
 			if (type != DataModelValueType.Undefined)

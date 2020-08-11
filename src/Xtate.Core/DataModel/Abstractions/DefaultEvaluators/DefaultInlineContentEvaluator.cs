@@ -54,12 +54,12 @@ namespace Xtate.DataModel
 
 		public virtual ValueTask<IObject> EvaluateObject(IExecutionContext executionContext, CancellationToken token)
 		{
-			if (Value == null)
+			if (Value is null)
 			{
 				return new ValueTask<IObject>(DefaultObject.Null);
 			}
 
-			if (_parsingException == null && _parsedValue.IsUndefined())
+			if (_parsingException is null && _parsedValue.IsUndefined())
 			{
 				_parsedValue = ParseToDataModel(ref _parsingException);
 				_parsedValue.MakeDeepConstant();

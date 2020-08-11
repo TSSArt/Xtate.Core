@@ -103,7 +103,7 @@ namespace Xtate.Scxml
 
 		protected override void Visit(ref IState entity)
 		{
-			if (entity == null) throw new ArgumentNullException(nameof(entity));
+			if (entity is null) throw new ArgumentNullException(nameof(entity));
 
 			_writer.WriteStartElement("state");
 
@@ -119,7 +119,7 @@ namespace Xtate.Scxml
 
 		protected override void Visit(ref IParallel entity)
 		{
-			if (entity == null) throw new ArgumentNullException(nameof(entity));
+			if (entity is null) throw new ArgumentNullException(nameof(entity));
 
 			_writer.WriteStartElement("parallel");
 
@@ -135,7 +135,7 @@ namespace Xtate.Scxml
 
 		protected override void Visit(ref IHistory entity)
 		{
-			if (entity == null) throw new ArgumentNullException(nameof(entity));
+			if (entity is null) throw new ArgumentNullException(nameof(entity));
 
 			_writer.WriteStartElement("history");
 
@@ -156,7 +156,7 @@ namespace Xtate.Scxml
 
 		protected override void Visit(ref IFinal entity)
 		{
-			if (entity == null) throw new ArgumentNullException(nameof(entity));
+			if (entity is null) throw new ArgumentNullException(nameof(entity));
 
 			_writer.WriteStartElement("final");
 
@@ -172,7 +172,7 @@ namespace Xtate.Scxml
 
 		protected override void Visit(ref ITransition entity)
 		{
-			if (entity == null) throw new ArgumentNullException(nameof(entity));
+			if (entity is null) throw new ArgumentNullException(nameof(entity));
 
 			_writer.WriteStartElement("transition");
 
@@ -224,7 +224,7 @@ namespace Xtate.Scxml
 
 		protected override void Visit(ref ISend entity)
 		{
-			if (entity == null) throw new ArgumentNullException(nameof(entity));
+			if (entity is null) throw new ArgumentNullException(nameof(entity));
 
 			_writer.WriteStartElement("send");
 
@@ -294,7 +294,7 @@ namespace Xtate.Scxml
 
 		protected override void Visit(ref IScript entity)
 		{
-			if (entity == null) throw new ArgumentNullException(nameof(entity));
+			if (entity is null) throw new ArgumentNullException(nameof(entity));
 
 			_writer.WriteStartElement("script");
 
@@ -313,7 +313,7 @@ namespace Xtate.Scxml
 
 		protected override void Build(ref ICustomAction entity, ref CustomActionEntity properties)
 		{
-			if (entity == null) throw new ArgumentNullException(nameof(entity));
+			if (entity is null) throw new ArgumentNullException(nameof(entity));
 
 			if (entity.Xml != null)
 			{
@@ -323,7 +323,7 @@ namespace Xtate.Scxml
 
 		protected override void Visit(ref IRaise entity)
 		{
-			if (entity == null) throw new ArgumentNullException(nameof(entity));
+			if (entity is null) throw new ArgumentNullException(nameof(entity));
 
 			_writer.WriteStartElement("raise");
 
@@ -340,7 +340,7 @@ namespace Xtate.Scxml
 
 		protected override void Visit(ref ILog entity)
 		{
-			if (entity == null) throw new ArgumentNullException(nameof(entity));
+			if (entity is null) throw new ArgumentNullException(nameof(entity));
 
 			_writer.WriteStartElement("log");
 
@@ -359,7 +359,7 @@ namespace Xtate.Scxml
 
 		protected override void Visit(ref IIf entity)
 		{
-			if (entity == null) throw new ArgumentNullException(nameof(entity));
+			if (entity is null) throw new ArgumentNullException(nameof(entity));
 
 			_writer.WriteStartElement("if");
 
@@ -375,7 +375,7 @@ namespace Xtate.Scxml
 
 		protected override void Visit(ref IForEach entity)
 		{
-			if (entity == null) throw new ArgumentNullException(nameof(entity));
+			if (entity is null) throw new ArgumentNullException(nameof(entity));
 
 			_writer.WriteStartElement("foreach");
 
@@ -401,7 +401,7 @@ namespace Xtate.Scxml
 
 		protected override void Visit(ref IElseIf entity)
 		{
-			if (entity == null) throw new ArgumentNullException(nameof(entity));
+			if (entity is null) throw new ArgumentNullException(nameof(entity));
 
 			_writer.WriteStartElement("elseif");
 
@@ -421,7 +421,7 @@ namespace Xtate.Scxml
 
 		protected override void Visit(ref ICancel entity)
 		{
-			if (entity == null) throw new ArgumentNullException(nameof(entity));
+			if (entity is null) throw new ArgumentNullException(nameof(entity));
 
 			_writer.WriteStartElement("cancel");
 
@@ -440,7 +440,7 @@ namespace Xtate.Scxml
 
 		protected override void Visit(ref IAssign entity)
 		{
-			if (entity == null) throw new ArgumentNullException(nameof(entity));
+			if (entity is null) throw new ArgumentNullException(nameof(entity));
 
 			_writer.WriteStartElement("assign");
 
@@ -488,7 +488,7 @@ namespace Xtate.Scxml
 
 		protected override void Visit(ref IData entity)
 		{
-			if (entity == null) throw new ArgumentNullException(nameof(entity));
+			if (entity is null) throw new ArgumentNullException(nameof(entity));
 
 			_writer.WriteStartElement("data");
 
@@ -514,7 +514,7 @@ namespace Xtate.Scxml
 
 		protected override void Visit(ref IInvoke entity)
 		{
-			if (entity == null) throw new ArgumentNullException(nameof(entity));
+			if (entity is null) throw new ArgumentNullException(nameof(entity));
 
 			_writer.WriteStartElement("invoke");
 
@@ -576,7 +576,7 @@ namespace Xtate.Scxml
 
 		protected override void Visit(ref IParam entity)
 		{
-			if (entity == null) throw new ArgumentNullException(nameof(entity));
+			if (entity is null) throw new ArgumentNullException(nameof(entity));
 
 			_writer.WriteStartElement("param");
 
@@ -600,7 +600,7 @@ namespace Xtate.Scxml
 
 		protected override void Visit(ref IContent entity)
 		{
-			if (entity == null) throw new ArgumentNullException(nameof(entity));
+			if (entity is null) throw new ArgumentNullException(nameof(entity));
 
 			_writer.WriteStartElement("content");
 
@@ -616,7 +616,7 @@ namespace Xtate.Scxml
 
 		protected override void Visit(ref IContentBody entity)
 		{
-			if (entity == null) throw new ArgumentNullException(nameof(entity));
+			if (entity is null) throw new ArgumentNullException(nameof(entity));
 
 			if (entity.Value != null)
 			{
@@ -626,7 +626,7 @@ namespace Xtate.Scxml
 
 		protected override void Visit(ref IInlineContent entity)
 		{
-			if (entity == null) throw new ArgumentNullException(nameof(entity));
+			if (entity is null) throw new ArgumentNullException(nameof(entity));
 
 			if (entity.Value != null)
 			{

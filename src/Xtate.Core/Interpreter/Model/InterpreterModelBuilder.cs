@@ -186,7 +186,7 @@ namespace Xtate
 
 			base.Build(ref stateMachine, ref stateMachineProperties);
 
-			if (!stateMachineProperties.States.IsDefaultOrEmpty && stateMachineProperties.Initial == null)
+			if (!stateMachineProperties.States.IsDefaultOrEmpty && stateMachineProperties.Initial is null)
 			{
 				var initialDocId = NewDocumentIdAfter(documentId);
 				var target = ImmutableArray.Create(stateMachineProperties.States[index: 0].As<StateEntityNode>());
@@ -217,7 +217,7 @@ namespace Xtate
 
 			if (!stateProperties.States.IsDefaultOrEmpty)
 			{
-				if (stateProperties.Initial == null)
+				if (stateProperties.Initial is null)
 				{
 					var initialDocId = NewDocumentIdAfter(documentId);
 					var target = ImmutableArray.Create(stateProperties.States[index: 0].As<StateEntityNode>());
