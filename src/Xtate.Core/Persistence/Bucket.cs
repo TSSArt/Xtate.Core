@@ -146,7 +146,7 @@ namespace Xtate.Persistence
 
 		public void Add<TKey, TValue>(TKey key, TValue value) where TKey : notnull
 		{
-			if (value == null)
+			if (value is null)
 			{
 				Remove(key);
 				return;
@@ -479,14 +479,14 @@ namespace Xtate.Persistence
 		{
 			protected override int GetLength(string key)
 			{
-				if (key == null) throw new ArgumentNullException(nameof(key));
+				if (key is null) throw new ArgumentNullException(nameof(key));
 
 				return Encoding.UTF8.GetByteCount(key) + 2;
 			}
 
 			protected override void Write(string key, Span<byte> bytes)
 			{
-				if (key == null) throw new ArgumentNullException(nameof(key));
+				if (key is null) throw new ArgumentNullException(nameof(key));
 
 				bytes[0] = 7;
 				var lastByteIndex = bytes.Length - 1;
@@ -526,7 +526,7 @@ namespace Xtate.Persistence
 		{
 			public sealed override int GetLength(TValue val)
 			{
-				if (val == null) throw new ArgumentNullException(nameof(val));
+				if (val is null) throw new ArgumentNullException(nameof(val));
 
 				return GetLength(TypeConverter<TValue, TInternal>.Convert(val));
 			}
@@ -535,7 +535,7 @@ namespace Xtate.Persistence
 
 			public sealed override void Write(TValue val, Span<byte> bytes)
 			{
-				if (val == null) throw new ArgumentNullException(nameof(val));
+				if (val is null) throw new ArgumentNullException(nameof(val));
 
 				Write(TypeConverter<TValue, TInternal>.Convert(val), bytes);
 			}

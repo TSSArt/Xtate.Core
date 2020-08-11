@@ -52,7 +52,7 @@ namespace Xtate.Builder
 
 		public StateFluentBuilder<TOuterBuilder> SetId(IIdentifier id)
 		{
-			if (id == null) throw new ArgumentNullException(nameof(id));
+			if (id is null) throw new ArgumentNullException(nameof(id));
 
 			_builder.SetId(id);
 
@@ -61,7 +61,7 @@ namespace Xtate.Builder
 
 		public StateFluentBuilder<TOuterBuilder> SetInitial(params string[] initial)
 		{
-			if (initial == null) throw new ArgumentNullException(nameof(initial));
+			if (initial is null) throw new ArgumentNullException(nameof(initial));
 			if (initial.Length == 0) throw new ArgumentException(Resources.Exception_ValueCannotBeAnEmptyCollection, nameof(initial));
 
 			var builder = ImmutableArray.CreateBuilder<IIdentifier>(initial.Length);
@@ -78,7 +78,7 @@ namespace Xtate.Builder
 
 		public StateFluentBuilder<TOuterBuilder> SetInitial(params IIdentifier[] initial)
 		{
-			if (initial == null) throw new ArgumentNullException(nameof(initial));
+			if (initial is null) throw new ArgumentNullException(nameof(initial));
 			if (initial.Length == 0) throw new ArgumentException(Resources.Exception_ValueCannotBeAnEmptyCollection, nameof(initial));
 
 			_builder.SetInitial(initial.ToImmutableArray());

@@ -43,7 +43,7 @@ namespace Xtate
 			{
 				var invokeUniqueId = _invokeUniqueId;
 
-				if (invokeUniqueId == null)
+				if (invokeUniqueId is null)
 				{
 					var newInvokeUniqueId = IdGenerator.NewInvokeUniqueId(GetHashCode());
 
@@ -61,7 +61,7 @@ namespace Xtate
 			return IdGenerator.NewInvokeId(_stateId.Value, GetHashCode());
 		}
 
-		public static InvokeId New(IIdentifier stateId, string? invokeId) => invokeId == null ? new InvokeId(stateId) : new InvokeId(invokeId);
+		public static InvokeId New(IIdentifier stateId, string? invokeId) => invokeId is null ? new InvokeId(stateId) : new InvokeId(invokeId);
 
 		public static InvokeId FromString(string invokeId) => new InvokeId(invokeId);
 
@@ -83,11 +83,11 @@ namespace Xtate
 
 			public int GetHashCode(InvokeId obj)
 			{
-				if (obj == null) throw new ArgumentNullException(nameof(obj));
+				if (obj is null) throw new ArgumentNullException(nameof(obj));
 
 				var id = obj._invokeUniqueId;
 
-				if (id == null)
+				if (id is null)
 				{
 					return obj.GetHashCode();
 				}

@@ -54,7 +54,7 @@ namespace Xtate
 
 		public bool IsEventMatch(IEvent evt)
 		{
-			if (evt == null) throw new ArgumentNullException(nameof(evt));
+			if (evt is null) throw new ArgumentNullException(nameof(evt));
 
 			if (evt.NameParts.Length < _parts.Length)
 			{

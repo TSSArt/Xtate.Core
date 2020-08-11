@@ -43,7 +43,7 @@ namespace Xtate
 
 		private static ImmutableArray<IIdentifier> GetNameParts(IIdentifier id1, IIdentifier id2, string name)
 		{
-			if (name == null) throw new ArgumentNullException(nameof(name));
+			if (name is null) throw new ArgumentNullException(nameof(name));
 
 			var invokeIdPartCount = GetCount(name);
 			var parts = new IIdentifier[2 + invokeIdPartCount];
@@ -58,7 +58,7 @@ namespace Xtate
 
 		private static void SetParts(Span<IIdentifier> span, string? id)
 		{
-			if (id == null)
+			if (id is null)
 			{
 				return;
 			}
@@ -79,7 +79,7 @@ namespace Xtate
 
 		private static int GetCount(string? id)
 		{
-			if (id == null)
+			if (id is null)
 			{
 				return 0;
 			}
@@ -104,7 +104,7 @@ namespace Xtate
 
 		public static void WriteXml(XmlWriter writer, ImmutableArray<IIdentifier> nameParts)
 		{
-			if (writer == null) throw new ArgumentNullException(nameof(writer));
+			if (writer is null) throw new ArgumentNullException(nameof(writer));
 			if (nameParts.IsDefaultOrEmpty) throw new ArgumentException(Resources.Exception_ValueCantBeEmpty, nameof(nameParts));
 
 			var writeDelimiter = false;
@@ -125,7 +125,7 @@ namespace Xtate
 		{
 			if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
 
-			if (name == null) throw new ArgumentNullException(nameof(name));
+			if (name is null) throw new ArgumentNullException(nameof(name));
 
 			var length = GetCount(name);
 

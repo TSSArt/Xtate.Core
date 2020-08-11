@@ -37,7 +37,7 @@ namespace Xtate.Builder
 
 		public void AddParameter(IParam parameter)
 		{
-			if (parameter == null) throw new ArgumentNullException(nameof(parameter));
+			if (parameter is null) throw new ArgumentNullException(nameof(parameter));
 
 			(_parameters ??= ImmutableArray.CreateBuilder<IParam>()).Add(parameter);
 		}

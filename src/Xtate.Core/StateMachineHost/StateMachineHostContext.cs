@@ -253,14 +253,14 @@ namespace Xtate
 
 		public StateMachineController? FindStateMachineController(SessionId sessionId)
 		{
-			if (sessionId == null) throw new ArgumentNullException(nameof(sessionId));
+			if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
 
 			return _stateMachinesBySessionId.TryGetValue(sessionId, out var controller) ? controller : null;
 		}
 
 		public void ValidateSessionId(SessionId sessionId, out StateMachineController controller)
 		{
-			if (sessionId == null) throw new ArgumentNullException(nameof(sessionId));
+			if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
 
 			var result = _stateMachinesBySessionId.TryGetValue(sessionId, out controller);
 
@@ -308,7 +308,7 @@ namespace Xtate
 
 		public virtual ValueTask<IService?> TryRemoveService(SessionId sessionId, InvokeId invokeId)
 		{
-			if (!_serviceByInvokeId.TryRemove(invokeId, out var service) || service == null)
+			if (!_serviceByInvokeId.TryRemove(invokeId, out var service) || service is null)
 			{
 				return new ValueTask<IService?>((IService?) null);
 			}
@@ -325,8 +325,8 @@ namespace Xtate
 
 		public IService GetService(SessionId sessionId, Uri target)
 		{
-			if (sessionId == null) throw new ArgumentNullException(nameof(sessionId));
-			if (target == null) throw new ArgumentNullException(nameof(target));
+			if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
+			if (target is null) throw new ArgumentNullException(nameof(target));
 
 			if (!target.IsAbsoluteUri)
 			{

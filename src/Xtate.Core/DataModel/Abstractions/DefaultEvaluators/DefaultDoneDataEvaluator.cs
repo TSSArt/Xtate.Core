@@ -60,7 +60,7 @@ namespace Xtate.DataModel
 
 		public async ValueTask<IObject> EvaluateObject(IExecutionContext executionContext, CancellationToken token)
 		{
-			if (executionContext == null) throw new ArgumentNullException(nameof(executionContext));
+			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
 			return await DataConverter.GetData(_contentBodyEvaluator, _contentExpressionEvaluator, nameEvaluatorList: default, _parameterList, executionContext, token).ConfigureAwait(false);
 		}

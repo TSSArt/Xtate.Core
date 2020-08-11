@@ -65,7 +65,7 @@ namespace Xtate.Scxml
 
 		protected TEntity Populate<TEntity>(TEntity entity, Policy<TEntity> policy)
 		{
-			if (policy == null) throw new ArgumentNullException(nameof(policy));
+			if (policy is null) throw new ArgumentNullException(nameof(policy));
 
 			var validationContext = policy.CreateValidationContext(_xmlReader, _errorProcessor);
 
@@ -104,7 +104,7 @@ namespace Xtate.Scxml
 
 		protected static Policy<TEntity> BuildPolicy<TEntity>(Action<IPolicyBuilder<TEntity>> buildPolicy)
 		{
-			if (buildPolicy == null) throw new ArgumentNullException(nameof(buildPolicy));
+			if (buildPolicy is null) throw new ArgumentNullException(nameof(buildPolicy));
 
 			var policy = new Policy<TEntity>();
 			buildPolicy(new PolicyBuilder<TEntity>(policy));
@@ -253,7 +253,7 @@ namespace Xtate.Scxml
 
 			public void FillNameTable(XmlNameTable nameTable)
 			{
-				if (nameTable == null) throw new ArgumentNullException(nameof(nameTable));
+				if (nameTable is null) throw new ArgumentNullException(nameof(nameTable));
 
 				FillFromQualifiedName(_elements);
 				FillFromQualifiedName(_attributes);
@@ -303,7 +303,7 @@ namespace Xtate.Scxml
 
 				public ValidationContext(Policy<TEntity> policy, XmlReader xmlReader, IErrorProcessor errorProcessor)
 				{
-					if (policy == null) throw new ArgumentNullException(nameof(policy));
+					if (policy is null) throw new ArgumentNullException(nameof(policy));
 					_xmlReader = xmlReader ?? throw new ArgumentNullException(nameof(xmlReader));
 					_errorProcessor = errorProcessor;
 
@@ -436,8 +436,8 @@ namespace Xtate.Scxml
 
 			public IPolicyBuilder<TEntity> RequiredAttribute(string ns, string name, Action<TDirector, TEntity> located)
 			{
-				if (ns == null) throw new ArgumentNullException(nameof(ns));
-				if (located == null) throw new ArgumentNullException(nameof(located));
+				if (ns is null) throw new ArgumentNullException(nameof(ns));
+				if (located is null) throw new ArgumentNullException(nameof(located));
 				if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
 
 				_policy.AddAttribute(ns, name, located, AttributeType.Required);
@@ -447,8 +447,8 @@ namespace Xtate.Scxml
 
 			public IPolicyBuilder<TEntity> OptionalAttribute(string ns, string name, Action<TDirector, TEntity> located)
 			{
-				if (ns == null) throw new ArgumentNullException(nameof(ns));
-				if (located == null) throw new ArgumentNullException(nameof(located));
+				if (ns is null) throw new ArgumentNullException(nameof(ns));
+				if (located is null) throw new ArgumentNullException(nameof(located));
 				if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
 
 				_policy.AddAttribute(ns, name, located, AttributeType.Optional);
@@ -458,8 +458,8 @@ namespace Xtate.Scxml
 
 			public IPolicyBuilder<TEntity> OptionalElement(string ns, string name, Action<TDirector, TEntity> located)
 			{
-				if (ns == null) throw new ArgumentNullException(nameof(ns));
-				if (located == null) throw new ArgumentNullException(nameof(located));
+				if (ns is null) throw new ArgumentNullException(nameof(ns));
+				if (located is null) throw new ArgumentNullException(nameof(located));
 				if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
 
 				_policy.AddElement(ns, name, located, ElementType.ZeroToOne);
@@ -469,8 +469,8 @@ namespace Xtate.Scxml
 
 			public IPolicyBuilder<TEntity> SingleElement(string ns, string name, Action<TDirector, TEntity> located)
 			{
-				if (ns == null) throw new ArgumentNullException(nameof(ns));
-				if (located == null) throw new ArgumentNullException(nameof(located));
+				if (ns is null) throw new ArgumentNullException(nameof(ns));
+				if (located is null) throw new ArgumentNullException(nameof(located));
 				if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
 
 				UseRawContent(val: false);
@@ -481,8 +481,8 @@ namespace Xtate.Scxml
 
 			public IPolicyBuilder<TEntity> MultipleElements(string ns, string name, Action<TDirector, TEntity> located)
 			{
-				if (ns == null) throw new ArgumentNullException(nameof(ns));
-				if (located == null) throw new ArgumentNullException(nameof(located));
+				if (ns is null) throw new ArgumentNullException(nameof(ns));
+				if (located is null) throw new ArgumentNullException(nameof(located));
 				if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
 
 				UseRawContent(val: false);
@@ -534,7 +534,7 @@ namespace Xtate.Scxml
 					return;
 				}
 
-				if (_rawContent == null)
+				if (_rawContent is null)
 				{
 					_rawContent = val;
 

@@ -31,9 +31,9 @@ namespace Xtate
 
 		public static void AddError(this IErrorProcessor errorProcessor, Type source, object? entity, string message, Exception? exception = null)
 		{
-			if (errorProcessor == null) throw new ArgumentNullException(nameof(errorProcessor));
-			if (source == null) throw new ArgumentNullException(nameof(source));
-			if (message == null) throw new ArgumentNullException(nameof(message));
+			if (errorProcessor is null) throw new ArgumentNullException(nameof(errorProcessor));
+			if (source is null) throw new ArgumentNullException(nameof(source));
+			if (message is null) throw new ArgumentNullException(nameof(message));
 
 			if (errorProcessor.LineInfoRequired)
 			{

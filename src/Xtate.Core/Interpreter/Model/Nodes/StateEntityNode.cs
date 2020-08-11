@@ -111,8 +111,8 @@ namespace Xtate
 			private static int InternalCompare(StateEntityNode? x, StateEntityNode? y)
 			{
 				if (x == y) return 0;
-				if (y == null) return 1;
-				if (x == null) return -1;
+				if (y is null) return 1;
+				if (x is null) return -1;
 
 				return x.DocumentId.CompareTo(y.DocumentId);
 			}

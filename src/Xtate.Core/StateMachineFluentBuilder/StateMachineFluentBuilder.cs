@@ -40,7 +40,7 @@ namespace Xtate.Builder
 
 		public StateMachineFluentBuilder SetInitial(params string[] initial)
 		{
-			if (initial == null) throw new ArgumentNullException(nameof(initial));
+			if (initial is null) throw new ArgumentNullException(nameof(initial));
 			if (initial.Length == 0) throw new ArgumentException(Resources.Exception_ValueCannotBeAnEmptyCollection, nameof(initial));
 
 			var builder = ImmutableArray.CreateBuilder<IIdentifier>(initial.Length);
@@ -57,7 +57,7 @@ namespace Xtate.Builder
 
 		public StateMachineFluentBuilder SetInitial(params IIdentifier[] initial)
 		{
-			if (initial == null) throw new ArgumentNullException(nameof(initial));
+			if (initial is null) throw new ArgumentNullException(nameof(initial));
 			if (initial.Length == 0) throw new ArgumentException(Resources.Exception_ValueCannotBeAnEmptyCollection, nameof(initial));
 
 			_builder.SetInitial(initial.ToImmutableArray());

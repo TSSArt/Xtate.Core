@@ -52,7 +52,7 @@ namespace Xtate
 			{
 				var dictionary = _dictionary;
 
-				if (dictionary == null)
+				if (dictionary is null)
 				{
 					return null;
 				}
@@ -63,7 +63,7 @@ namespace Xtate
 			{
 				var dictionary = _dictionary;
 
-				if (dictionary == null)
+				if (dictionary is null)
 				{
 					_dictionary = dictionary = new Dictionary<object, object?>();
 				}

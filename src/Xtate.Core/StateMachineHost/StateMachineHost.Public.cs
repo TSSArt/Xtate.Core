@@ -114,7 +114,7 @@ namespace Xtate
 			}
 
 			var context = _context;
-			if (context == null)
+			if (context is null)
 			{
 				return;
 			}

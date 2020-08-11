@@ -39,7 +39,7 @@ namespace Xtate
 
 		private async ValueTask<StateMachineController> StartStateMachine(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters, CancellationToken token = default)
 		{
-			if (sessionId == null) throw new ArgumentNullException(nameof(sessionId));
+			if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
 			if (origin.Type == StateMachineOriginType.None) throw new ArgumentException(Resources.Exception_StateMachine_origin_missed, nameof(origin));
 
 			var context = GetCurrentContext();

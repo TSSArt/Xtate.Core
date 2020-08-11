@@ -75,7 +75,7 @@ namespace Xtate
 
 		public void Union(List<T> orderedSet)
 		{
-			if (orderedSet == null) throw new ArgumentNullException(nameof(orderedSet));
+			if (orderedSet is null) throw new ArgumentNullException(nameof(orderedSet));
 
 			foreach (var item in orderedSet)
 			{
@@ -85,7 +85,7 @@ namespace Xtate
 
 		public bool HasIntersection(List<T> orderedSet)
 		{
-			if (orderedSet == null) throw new ArgumentNullException(nameof(orderedSet));
+			if (orderedSet is null) throw new ArgumentNullException(nameof(orderedSet));
 
 			foreach (var item in orderedSet)
 			{

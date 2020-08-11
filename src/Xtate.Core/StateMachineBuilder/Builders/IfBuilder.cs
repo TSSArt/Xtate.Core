@@ -37,7 +37,7 @@ namespace Xtate.Builder
 
 		public void AddAction(IExecutableEntity action)
 		{
-			if (action == null) throw new ArgumentNullException(nameof(action));
+			if (action is null) throw new ArgumentNullException(nameof(action));
 
 			(_actions ??= ImmutableArray.CreateBuilder<IExecutableEntity>()).Add(action);
 		}
