@@ -574,11 +574,20 @@
   <data name="DefaultLogger_TraceEnteringState" xml:space="preserve">
     <value>Entering to state: [{0}]. SessionId: [{1}].</value>
   </data>
+  <data name="DefaultLogger_TraceEnteredState" xml:space="preserve">
+    <value>Entered to state: [{0}]. SessionId: [{1}].</value>
+  </data>
   <data name="DefaultLogger_TraceExitingState" xml:space="preserve">
     <value>Exiting from state: [{0}]. SessionId: [{1}].</value>
   </data>
+  <data name="DefaultLogger_TraceExitedState" xml:space="preserve">
+    <value>Exited from state: [{0}]. SessionId: [{1}].</value>
+  </data>
   <data name="DefaultLogger_TracePerformingTransition" xml:space="preserve">
     <value>Performing {0} transition to: [{1}]. Event: [{2}]. SessionId: [{3}].</value>
+  </data>
+  <data name="DefaultLogger_TracePerformedTransition" xml:space="preserve">
+    <value>Performed {0} transition to: [{1}]. Event: [{2}]. SessionId: [{3}].</value>
   </data>
   <data name="DefaultLogger_TraceProcessingEvent" xml:space="preserve">
     <value>Processing {0} event [{1}]. SendId: [{2}]. InvokeId: [{3}]. Data: [{4}]. OriginType: [{5}]. Origin: [{6}]. SessionId: [{7}].</value>

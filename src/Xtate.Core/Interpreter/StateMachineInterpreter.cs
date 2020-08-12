@@ -595,10 +595,10 @@ namespace Xtate
 		{
 			var internalEvent = _context.InternalQueue.Dequeue();
 
-			LogProcessingEvent(internalEvent);
-
 			var eventObject = DataConverter.FromEvent(internalEvent, _dataModelHandler.CaseInsensitive);
 			_context.DataModel.SetInternal(key: @"_event", _dataModelHandler.CaseInsensitive, eventObject, DataModelAccess.ReadOnly);
+
+			LogProcessingEvent(internalEvent);
 
 			var transitions = await SelectTransitions(internalEvent).ConfigureAwait(false);
 
@@ -727,10 +727,10 @@ namespace Xtate
 		{
 			var externalEvent = await ReadExternalEvent().ConfigureAwait(false);
 
-			LogProcessingEvent(externalEvent);
-
 			var eventObject = DataConverter.FromEvent(externalEvent, _dataModelHandler.CaseInsensitive);
 			_context.DataModel.SetInternal(key: @"_event", _dataModelHandler.CaseInsensitive, eventObject, DataModelAccess.ReadOnly);
+
+			LogProcessingEvent(externalEvent);
 
 			foreach (var state in _context.Configuration)
 			{
@@ -1005,6 +1005,8 @@ namespace Xtate
 				}
 
 				_context.Configuration.Delete(state);
+
+				LogExitedState(state);
 			}
 
 			Complete(StateBagKey.OnExit);
@@ -1049,6 +1051,8 @@ namespace Xtate
 
 			foreach (var state in ToSortedList(statesToEnter, StateEntityNode.EntryOrder))
 			{
+				LogEnteringState(state);
+
 				_context.Configuration.AddIfNotExists(state);
 				_context.StatesToInvoke.AddIfNotExists(state);
 
@@ -1056,8 +1060,6 @@ namespace Xtate
 				{
 					await DoOperation(StateBagKey.InitializeDataModel, state.DataModel, InitializeDataModel, state.DataModel).ConfigureAwait(false);
 				}
-
-				LogEnteringState(state);
 
 				foreach (var onEntry in state.OnEntry)
 				{
@@ -1102,6 +1104,8 @@ namespace Xtate
 						}
 					}
 				}
+
+				LogEnteredState(state);
 			}
 
 			Complete(StateBagKey.OnEntry);
@@ -1368,12 +1372,19 @@ namespace Xtate
 		{
 			foreach (var transition in transitions)
 			{
-				LogPerformingTransition(transition);
-
-				await DoOperation(StateBagKey.RunExecutableEntity, transition, RunExecutableEntity, transition.ActionEvaluators).ConfigureAwait(false);
+				await DoOperation(StateBagKey.RunExecutableEntity, transition, ExecuteTransitionContent, transition).ConfigureAwait(false);
 			}
 
 			Complete(StateBagKey.RunExecutableEntity);
+		}
+
+		private async ValueTask ExecuteTransitionContent(TransitionNode transition)
+		{
+			LogPerformingTransition(transition);
+
+			await RunExecutableEntity(transition.ActionEvaluators).ConfigureAwait(false);
+
+			LogPerformedTransition(transition);
 		}
 
 		private async ValueTask RunExecutableEntity(ImmutableArray<IExecEvaluator> action)

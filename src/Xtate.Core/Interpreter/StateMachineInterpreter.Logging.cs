@@ -33,6 +33,8 @@ namespace Xtate
 
 		string? ILoggerContext.StateMachineName => _model.Root.Name;
 
+		DataModelObject ILoggerContext.GetDataModel() => _context.DataModel.AsConstant();
+
 	#endregion
 
 		private bool IsPlatformError(Exception exception)
@@ -88,11 +90,27 @@ namespace Xtate
 			}
 		}
 
+		private void LogEnteredState(StateEntityNode state)
+		{
+			if (_logger.IsTracingEnabled)
+			{
+				_logger.TraceEnteredState(this, state.Id);
+			}
+		}
+
 		private void LogExitingState(StateEntityNode state)
 		{
 			if (_logger.IsTracingEnabled)
 			{
 				_logger.TraceExitingState(this, state.Id);
+			}
+		}
+
+		private void LogExitedState(StateEntityNode state)
+		{
+			if (_logger.IsTracingEnabled)
+			{
+				_logger.TraceExitedState(this, state.Id);
 			}
 		}
 
@@ -102,26 +120,34 @@ namespace Xtate
 			{
 				_logger.TracePerformingTransition(this, transition.Type, EventDescriptorToString(transition.EventDescriptors), TargetToString(transition.Target));
 			}
+		}
 
-			static string? TargetToString(ImmutableArray<IIdentifier> list)
+		private void LogPerformedTransition(TransitionNode transition)
+		{
+			if (_logger.IsTracingEnabled)
 			{
-				if (list.IsDefault)
-				{
-					return null;
-				}
+				_logger.TracePerformedTransition(this, transition.Type, EventDescriptorToString(transition.EventDescriptors), TargetToString(transition.Target));
+			}
+		}
 
-				return string.Join(separator: @" ", list.Select(id => id.Value));
+		private static string? TargetToString(ImmutableArray<IIdentifier> list)
+		{
+			if (list.IsDefault)
+			{
+				return null;
 			}
 
-			static string? EventDescriptorToString(ImmutableArray<IEventDescriptor> list)
-			{
-				if (list.IsDefault)
-				{
-					return null;
-				}
+			return string.Join(separator: @" ", list.Select(id => id.Value));
+		}
 
-				return string.Join(separator: @" ", list.Select(id => id.Value));
+		private static string? EventDescriptorToString(ImmutableArray<IEventDescriptor> list)
+		{
+			if (list.IsDefault)
+			{
+				return null;
 			}
+
+			return string.Join(separator: @" ", list.Select(id => id.Value));
 		}
 
 		private void LogInterpreterState(StateMachineInterpreterState state)
