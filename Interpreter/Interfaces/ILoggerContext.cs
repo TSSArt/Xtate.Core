@@ -17,12 +17,17 @@
 
 #endregion
 
+using Xtate.Annotations;
+
 namespace Xtate
 {
+	[PublicAPI]
 	public interface ILoggerContext
 	{
 		public SessionId? SessionId { get; }
 
 		public string? StateMachineName { get; }
+
+		public DataModelObject? GetDataModel();
 	}
 }

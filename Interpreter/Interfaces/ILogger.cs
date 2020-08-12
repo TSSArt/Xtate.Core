@@ -32,8 +32,11 @@ namespace Xtate
 		ValueTask LogError(ILoggerContext loggerContext, ErrorType errorType, Exception exception, string? sourceEntityId, CancellationToken token);
 		void      TraceProcessingEvent(ILoggerContext loggerContext, IEvent evt);
 		void      TraceEnteringState(ILoggerContext loggerContext, IIdentifier stateId);
+		void      TraceEnteredState(ILoggerContext loggerContext, IIdentifier stateId);
 		void      TraceExitingState(ILoggerContext loggerContext, IIdentifier stateId);
+		void      TraceExitedState(ILoggerContext loggerContext, IIdentifier stateId);
 		void      TracePerformingTransition(ILoggerContext loggerContext, TransitionType type, string? eventDescriptor, string? target);
+		void      TracePerformedTransition(ILoggerContext loggerContext, TransitionType type, string? eventDescriptor, string? target);
 		void      TraceInterpreterState(ILoggerContext loggerContext, StateMachineInterpreterState state);
 	}
 }
