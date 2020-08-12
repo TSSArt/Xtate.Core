@@ -98,6 +98,8 @@ namespace Xtate
 
 		string? ILoggerContext.StateMachineName => _stateMachineName;
 
+		DataModelObject? ILoggerContext.GetDataModel() => _dataModel?.AsConstant();
+
 	#endregion
 
 	#region Interface IStateMachineContext

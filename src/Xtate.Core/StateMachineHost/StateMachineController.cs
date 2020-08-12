@@ -140,6 +140,8 @@ namespace Xtate
 
 		public string? StateMachineName => _options?.Name;
 
+		DataModelObject? ILoggerContext.GetDataModel() => default;
+
 	#endregion
 
 	#region Interface INotifyStateChanged

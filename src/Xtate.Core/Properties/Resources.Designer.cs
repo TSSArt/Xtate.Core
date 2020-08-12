@@ -106,11 +106,29 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Entered to state: [{0}]. SessionId: [{1}]..
+        /// </summary>
+        internal static string DefaultLogger_TraceEnteredState {
+            get {
+                return ResourceManager.GetString("DefaultLogger_TraceEnteredState", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Entering to state: [{0}]. SessionId: [{1}]..
         /// </summary>
         internal static string DefaultLogger_TraceEnteringState {
             get {
                 return ResourceManager.GetString("DefaultLogger_TraceEnteringState", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exited from state: [{0}]. SessionId: [{1}]..
+        /// </summary>
+        internal static string DefaultLogger_TraceExitedState {
+            get {
+                return ResourceManager.GetString("DefaultLogger_TraceExitedState", resourceCulture);
             }
         }
         
@@ -129,6 +147,15 @@ namespace Xtate {
         internal static string DefaultLogger_TraceInterpreterState {
             get {
                 return ResourceManager.GetString("DefaultLogger_TraceInterpreterState", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Performed {0} transition to: [{1}]. Event: [{2}]. SessionId: [{3}]..
+        /// </summary>
+        internal static string DefaultLogger_TracePerformedTransition {
+            get {
+                return ResourceManager.GetString("DefaultLogger_TracePerformedTransition", resourceCulture);
             }
         }
         

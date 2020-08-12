@@ -61,14 +61,29 @@ namespace Xtate
 			Trace.TraceInformation(Resources.DefaultLogger_TraceEnteringState, stateId.Value, loggerContext?.SessionId?.Value);
 		}
 
+		public void TraceEnteredState(ILoggerContext loggerContext, IIdentifier stateId)
+		{
+			Trace.TraceInformation(Resources.DefaultLogger_TraceEnteredState, stateId.Value, loggerContext?.SessionId?.Value);
+		}
+
 		public void TraceExitingState(ILoggerContext loggerContext, IIdentifier stateId)
 		{
 			Trace.TraceInformation(Resources.DefaultLogger_TraceExitingState, stateId.Value, loggerContext?.SessionId?.Value);
 		}
 
+		public void TraceExitedState(ILoggerContext loggerContext, IIdentifier stateId)
+		{
+			Trace.TraceInformation(Resources.DefaultLogger_TraceExitedState, stateId.Value, loggerContext?.SessionId?.Value);
+		}
+
 		public void TracePerformingTransition(ILoggerContext loggerContext, TransitionType type, string? eventDescriptor, string? target)
 		{
 			Trace.TraceInformation(Resources.DefaultLogger_TracePerformingTransition, type, target, eventDescriptor, loggerContext?.SessionId?.Value);
+		}
+
+		public void TracePerformedTransition(ILoggerContext loggerContext, TransitionType type, string? eventDescriptor, string? target)
+		{
+			Trace.TraceInformation(Resources.DefaultLogger_TracePerformedTransition, type, target, eventDescriptor, loggerContext?.SessionId?.Value);
 		}
 
 		public void TraceInterpreterState(ILoggerContext loggerContext, StateMachineInterpreterState state)
