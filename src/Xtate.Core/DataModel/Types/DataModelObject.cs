@@ -113,7 +113,7 @@ namespace Xtate
 					addDelimiter = true;
 				}
 
-				sb.Append(keyValue.Key).Append("=").Append(keyValue.Value.ToString(format: null, formatProvider));
+				sb.Append(keyValue.Key).Append('=').Append(keyValue.Value.ToString(format: null, formatProvider));
 			}
 
 			sb.Append(')');
