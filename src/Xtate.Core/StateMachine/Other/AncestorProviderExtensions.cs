@@ -47,6 +47,10 @@ namespace Xtate
 			{
 				switch (entity)
 				{
+					case null:
+						value = default!;
+						return false;
+
 					case AncestorContainer container when container.Value is T val:
 						value = val;
 						return true;
