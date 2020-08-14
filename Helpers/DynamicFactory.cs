@@ -72,7 +72,7 @@ namespace Xtate
 
 			var assembly = loadedAssembly ?? cachedAssembly;
 
-			if (assembly != null && assembly != cachedAssembly)
+			if (assembly is { } && assembly != cachedAssembly)
 			{
 				_assemblyCache = assemblyCache.SetItem(uri, assembly);
 
@@ -137,7 +137,7 @@ namespace Xtate
 			{
 				var type = attribute.FactoryType;
 
-				if (type != null && typeof(TFactory).IsAssignableFrom(type))
+				if (type is { } && typeof(TFactory).IsAssignableFrom(type))
 				{
 					builder.Add((TFactory) Activator.CreateInstance(type));
 				}

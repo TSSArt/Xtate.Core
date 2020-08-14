@@ -26,7 +26,7 @@ namespace Xtate
 	[Serializable]
 	public sealed class InvokeId : LazyId
 	{
-		public static readonly IEqualityComparer<InvokeId> InvokeUniqueIdComparer = new InvokeUniqueIdEqualityComparer();
+		internal static readonly InvokeUniqueIdEqualityComparer InvokeUniqueIdComparer = new InvokeUniqueIdEqualityComparer();
 
 		private readonly IIdentifier? _stateId;
 		private          string?      _invokeUniqueId;
@@ -56,7 +56,7 @@ namespace Xtate
 
 		protected override string GenerateId()
 		{
-			Infrastructure.Assert(_stateId != null);
+			Infrastructure.NotNull(_stateId);
 
 			return IdGenerator.NewInvokeId(_stateId.Value, GetHashCode());
 		}
@@ -67,7 +67,7 @@ namespace Xtate
 
 		public static InvokeId FromString(string invokeId, string invokeUniqueId) => new InvokeId(invokeId, invokeUniqueId);
 
-		private sealed class InvokeUniqueIdEqualityComparer : IEqualityComparer<InvokeId>
+		internal sealed class InvokeUniqueIdEqualityComparer : IEqualityComparer<InvokeId>
 		{
 		#region Interface IEqualityComparer<InvokeId>
 
@@ -78,7 +78,7 @@ namespace Xtate
 					return true;
 				}
 
-				return x?._invokeUniqueId != null && y?._invokeUniqueId != null && x._invokeUniqueId == y._invokeUniqueId;
+				return x?._invokeUniqueId is { } a && y?._invokeUniqueId is { } b && a == b;
 			}
 
 			public int GetHashCode(InvokeId obj)

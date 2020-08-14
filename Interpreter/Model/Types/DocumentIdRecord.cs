@@ -58,7 +58,7 @@ namespace Xtate
 		[Pure]
 		public DocumentIdRecord After()
 		{
-			Infrastructure.Assert(_node != null);
+			Infrastructure.NotNull(_node);
 
 			return new DocumentIdRecord
 				   {

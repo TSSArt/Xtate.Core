@@ -34,6 +34,6 @@ namespace Xtate
 
 	#endregion
 
-		private static string GetSafeFragment(Uri? uri) => uri != null && uri.IsAbsoluteUri ? uri.Fragment : string.Empty;
+		private static string GetSafeFragment(Uri? uri) => uri is { } && uri.IsAbsoluteUri ? uri.Fragment : string.Empty;
 	}
 }

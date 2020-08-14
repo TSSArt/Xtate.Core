@@ -122,7 +122,7 @@ namespace Xtate
 
 		private static bool IsInternalEvent(IOutgoingEvent evt)
 		{
-			if (evt.Target != InternalTarget || evt.Type != null)
+			if (evt.Target != InternalTarget || evt.Type is { })
 			{
 				return false;
 			}
@@ -210,7 +210,7 @@ namespace Xtate
 				get => _permanentItems.TryGetValue(key, out var value) ? value : _items.TryGetValue(key, out value) ? value : null;
 				set
 				{
-					if (value != null && !_permanentItems.ContainsKey(key))
+					if (value is { } && !_permanentItems.ContainsKey(key))
 					{
 						_items[key] = value;
 					}

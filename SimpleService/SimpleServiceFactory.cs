@@ -41,7 +41,7 @@ namespace Xtate.Service
 			}
 
 			_type = new Uri(serviceAttribute.Type, UriKind.RelativeOrAbsolute);
-			_alias = serviceAttribute.Alias != null ? new Uri(serviceAttribute.Alias, UriKind.RelativeOrAbsolute) : null;
+			_alias = serviceAttribute.Alias is { } ? new Uri(serviceAttribute.Alias, UriKind.RelativeOrAbsolute) : null;
 		}
 
 	#region Interface IServiceFactory

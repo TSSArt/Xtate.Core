@@ -140,7 +140,7 @@ namespace Xtate.IoProcessor
 				memoryStream.Position = 0;
 				var responseMessage = Deserialize(memoryStream, b => new ResponseMessage(b));
 
-				if (responseMessage.Exception != null)
+				if (responseMessage.Exception is { })
 				{
 					throw new ProcessorException(Resources.Exception_Error_on_event_consumer_side, responseMessage.Exception);
 				}
@@ -166,7 +166,7 @@ namespace Xtate.IoProcessor
 					memoryStream.Position = 0;
 					var message = Deserialize(memoryStream, b => new EventMessage(b));
 
-					if (message.SessionId != null)
+					if (message.SessionId is { })
 					{
 						await _eventConsumer.Dispatch(message.SessionId, message.Event, _stopTokenSource.Token).ConfigureAwait(false);
 					}
@@ -330,7 +330,7 @@ namespace Xtate.IoProcessor
 			{
 				bucket.Add(Key.TypeInfo, TypeInfo.Message);
 
-				if (Exception != null)
+				if (Exception is { })
 				{
 					using var memoryStream = new MemoryStream();
 					new BinaryFormatter().Serialize(memoryStream, Exception);

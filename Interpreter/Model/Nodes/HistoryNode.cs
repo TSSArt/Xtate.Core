@@ -28,7 +28,7 @@ namespace Xtate
 
 		public HistoryNode(in DocumentIdRecord documentIdNode, in HistoryEntity history) : base(documentIdNode, children: null)
 		{
-			Infrastructure.Assert(history.Transition != null);
+			Infrastructure.NotNull(history.Transition);
 
 			_history = history;
 

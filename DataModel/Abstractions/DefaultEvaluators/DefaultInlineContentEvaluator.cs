@@ -33,7 +33,7 @@ namespace Xtate.DataModel
 
 		public DefaultInlineContentEvaluator(in InlineContent inlineContent)
 		{
-			Infrastructure.Assert(inlineContent.Value != null);
+			Infrastructure.NotNull(inlineContent.Value);
 
 			_inlineContent = inlineContent;
 		}
@@ -65,7 +65,7 @@ namespace Xtate.DataModel
 				_parsedValue.MakeDeepConstant();
 			}
 
-			if (_parsingException != null)
+			if (_parsingException is { })
 			{
 				Infrastructure.IgnoredException(_parsingException);
 			}

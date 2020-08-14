@@ -27,7 +27,7 @@ namespace Xtate
 
 		public LocationExpressionNode(in LocationExpression locationExpression)
 		{
-			Infrastructure.Assert(locationExpression.Expression != null);
+			Infrastructure.NotNull(locationExpression.Expression);
 
 			_locationExpression = locationExpression;
 		}

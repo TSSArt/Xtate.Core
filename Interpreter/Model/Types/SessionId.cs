@@ -33,6 +33,6 @@ namespace Xtate
 		public static SessionId New() => new SessionId();
 
 		[return: NotNullIfNotNull("val")]
-		public static SessionId? FromString(string? val) => val != null ? new SessionId(val) : null;
+		public static SessionId? FromString(string? val) => val is { } ? new SessionId(val) : null;
 	}
 }

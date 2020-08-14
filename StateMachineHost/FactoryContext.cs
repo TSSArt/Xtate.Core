@@ -33,9 +33,7 @@ namespace Xtate
 
 		public void Dispose()
 		{
-			var dictionary = _dictionary;
-
-			if (dictionary != null)
+			if (_dictionary is { } dictionary)
 			{
 				dictionary.Clear();
 				_dictionary = null;

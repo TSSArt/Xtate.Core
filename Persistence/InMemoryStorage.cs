@@ -209,7 +209,7 @@ namespace Xtate.Persistence
 		{
 			if (_buffer.Length < size)
 			{
-				if (_owner != null)
+				if (_owner is { })
 				{
 					_buffers ??= new List<(IMemoryOwner<byte> Owner, int Size)>();
 
@@ -237,11 +237,11 @@ namespace Xtate.Persistence
 			return result;
 		}
 
-		public int GetTransactionLogSize() => (_owner != null ? _owner.Memory.Length - _buffer.Length : 0) + (_buffers?.Select(b => b.Size).Sum() ?? 0);
+		public int GetTransactionLogSize() => (_owner is { } ? _owner.Memory.Length - _buffer.Length : 0) + (_buffers?.Select(b => b.Size).Sum() ?? 0);
 
 		public void WriteTransactionLogToSpan(Span<byte> span, bool truncateLog = true)
 		{
-			if (_buffers != null)
+			if (_buffers is { })
 			{
 				foreach (var (owner, size) in _buffers)
 				{
@@ -250,7 +250,7 @@ namespace Xtate.Persistence
 				}
 			}
 
-			if (_owner != null)
+			if (_owner is { })
 			{
 				var memory = _owner.Memory.Span;
 				memory.Slice(start: 0, memory.Length - _buffer.Length).CopyTo(span);
@@ -330,7 +330,7 @@ namespace Xtate.Persistence
 		{
 			if (_readModel is null || forceDispose)
 			{
-				if (_buffers != null)
+				if (_buffers is { })
 				{
 					foreach (var (owner, _) in _buffers)
 					{
@@ -346,7 +346,7 @@ namespace Xtate.Persistence
 			}
 			else
 			{
-				if (_buffers != null)
+				if (_buffers is { })
 				{
 					for (var i = 0; i < _buffers.Count; i ++)
 					{
@@ -354,7 +354,7 @@ namespace Xtate.Persistence
 					}
 				}
 
-				if (_owner != null)
+				if (_owner is { })
 				{
 					_buffers ??= new List<(IMemoryOwner<byte> Owner, int Size)>();
 

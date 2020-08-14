@@ -26,7 +26,7 @@ namespace Xtate
 	{
 		public CompoundNode(in DocumentIdRecord documentIdNode, in StateEntity state) : base(documentIdNode, state)
 		{
-			Infrastructure.Assert(base.Initial != null);
+			Infrastructure.NotNull(base.Initial);
 		}
 
 		public new InitialNode Initial => base.Initial!;

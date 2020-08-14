@@ -44,7 +44,7 @@ namespace Xtate.DataModel
 			{
 				var activator = await factory.TryGetActivator(factoryContext, dataModelType, token).ConfigureAwait(false);
 
-				if (activator != null)
+				if (activator is { })
 				{
 					return activator;
 				}
@@ -62,6 +62,6 @@ namespace Xtate.DataModel
 			return new Uri(uriString, UriKind.RelativeOrAbsolute);
 		}
 
-		protected sealed override Uri? KeyToUri(object key) => key != null ? DataModelTypeToUri((string) key) : null;
+		protected sealed override Uri? KeyToUri(object key) => key is { } ? DataModelTypeToUri((string) key) : null;
 	}
 }
