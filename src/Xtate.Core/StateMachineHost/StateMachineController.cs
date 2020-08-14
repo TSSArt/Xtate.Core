@@ -142,6 +142,8 @@ namespace Xtate
 
 		DataModelObject? ILoggerContext.GetDataModel() => default;
 
+		DataModelArray? ILoggerContext.GetActiveStates() => default;
+
 	#endregion
 
 	#region Interface INotifyStateChanged

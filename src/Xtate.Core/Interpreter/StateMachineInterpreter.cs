@@ -1632,11 +1632,11 @@ namespace Xtate
 			if (IsPersistingEnabled)
 			{
 				var storage = await _storageProvider.GetTransactionalStorage(partition: default, StateStorageKey, _stopToken).ConfigureAwait(false);
-				context = new StateMachinePersistedContext(_model.Root.Name, _sessionId, this, storage, _model.EntityMap, _logger, this, _contextRuntimeItems);
+				context = new StateMachinePersistedContext(_model.Root.Name, _sessionId, this, storage, _model.EntityMap, _logger, this, this, _contextRuntimeItems);
 			}
 			else
 			{
-				context = new StateMachineContext(_model.Root.Name, _sessionId, this, _logger, this, _contextRuntimeItems);
+				context = new StateMachineContext(_model.Root.Name, _sessionId, this, _logger, this, this, _contextRuntimeItems);
 			}
 
 			_dataModelHandler.ExecutionContextCreated(context.ExecutionContext, out _dataModelVars);
