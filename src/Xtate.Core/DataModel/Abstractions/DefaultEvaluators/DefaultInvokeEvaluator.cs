@@ -94,19 +94,19 @@ namespace Xtate.DataModel
 
 			var invokeId = InvokeId.New(stateId, _invoke.Id);
 
-			if (IdLocationEvaluator != null)
+			if (IdLocationEvaluator is { })
 			{
 				await IdLocationEvaluator.SetValue(invokeId, executionContext, token).ConfigureAwait(false);
 			}
 
-			var type = TypeExpressionEvaluator != null ? ToUri(await TypeExpressionEvaluator.EvaluateString(executionContext, token).ConfigureAwait(false)) : _invoke.Type;
-			var source = SourceExpressionEvaluator != null ? ToUri(await SourceExpressionEvaluator.EvaluateString(executionContext, token).ConfigureAwait(false)) : _invoke.Source;
+			var type = TypeExpressionEvaluator is { } ? ToUri(await TypeExpressionEvaluator.EvaluateString(executionContext, token).ConfigureAwait(false)) : _invoke.Type;
+			var source = SourceExpressionEvaluator is { } ? ToUri(await SourceExpressionEvaluator.EvaluateString(executionContext, token).ConfigureAwait(false)) : _invoke.Source;
 
 			var rawContent = ContentBodyEvaluator is IStringEvaluator rawContentEvaluator ? await rawContentEvaluator.EvaluateString(executionContext, token).ConfigureAwait(false) : null;
 			var content = await DataConverter.GetContent(ContentBodyEvaluator, ContentExpressionEvaluator, executionContext, token).ConfigureAwait(false);
 			var parameters = await DataConverter.GetParameters(NameEvaluatorList, ParameterList, executionContext, token).ConfigureAwait(false);
 
-			Infrastructure.Assert(type != null);
+			Infrastructure.NotNull(type);
 
 			var invokeData = new InvokeData(invokeId, type, source, rawContent, content, parameters);
 

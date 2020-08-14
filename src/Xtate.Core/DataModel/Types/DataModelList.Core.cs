@@ -230,7 +230,7 @@ namespace Xtate
 			args.Value = value;
 			args.Meta = new Meta(DataModelAccess.Writable, metadata);
 
-			if (key != null)
+			if (key is { })
 			{
 				args.HashKey = CreateHashKey(key);
 			}
@@ -245,7 +245,7 @@ namespace Xtate
 			args.Value = value;
 			args.Meta = new Meta(DataModelAccess.Writable, metadata);
 
-			if (key != null)
+			if (key is { })
 			{
 				args.HashKey = CreateHashKey(key);
 			}
@@ -260,7 +260,7 @@ namespace Xtate
 			args.Value = value;
 			args.Meta = new Meta(DataModelAccess.Writable, metadata);
 
-			if (key != null)
+			if (key is { })
 			{
 				args.HashKey = CreateHashKey(key);
 			}
@@ -471,7 +471,7 @@ namespace Xtate
 			args.Value = value;
 			args.Meta = new Meta(access, metadata);
 
-			if (key != null)
+			if (key is { })
 			{
 				args.HashKey = CreateHashKey(key);
 			}
@@ -490,7 +490,7 @@ namespace Xtate
 			args.Value = value;
 			args.Meta = new Meta(access, metadata);
 
-			if (key != null)
+			if (key is { })
 			{
 				args.HashKey = CreateHashKey(key);
 			}
@@ -529,7 +529,7 @@ namespace Xtate
 			args.Value = value;
 			args.Meta = new Meta(access, metadata);
 
-			if (key != null)
+			if (key is { })
 			{
 				args.HashKey = CreateHashKey(key);
 			}
@@ -759,7 +759,7 @@ namespace Xtate
 
 		private bool SetKey(ref Args args, bool caseInsensitive, DataModelAccess requestedAccess, bool throwOnDeny)
 		{
-			Infrastructure.Assert(args.Key != null);
+			Infrastructure.NotNull(args.Key);
 
 			var findArgs = args;
 			var hash = GetHashCodeForKey(args.Key);

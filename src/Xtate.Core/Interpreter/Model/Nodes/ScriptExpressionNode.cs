@@ -27,7 +27,7 @@ namespace Xtate
 
 		public ScriptExpressionNode(in ScriptExpression scriptExpression)
 		{
-			Infrastructure.Assert(scriptExpression.Expression != null);
+			Infrastructure.NotNull(scriptExpression.Expression);
 
 			_scriptExpression = scriptExpression;
 		}

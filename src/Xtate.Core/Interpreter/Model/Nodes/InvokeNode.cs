@@ -42,11 +42,11 @@ namespace Xtate
 			Finalize = invoke.Finalize?.As<FinalizeNode>();
 
 			var startInvokeEvaluator = invoke.Ancestor?.As<IStartInvokeEvaluator>();
-			Infrastructure.Assert(startInvokeEvaluator != null);
+			Infrastructure.NotNull(startInvokeEvaluator);
 			_startInvokeEvaluator = startInvokeEvaluator;
 
 			var cancelInvokeEvaluator = invoke.Ancestor?.As<ICancelInvokeEvaluator>();
-			Infrastructure.Assert(cancelInvokeEvaluator != null);
+			Infrastructure.NotNull(cancelInvokeEvaluator);
 			_cancelInvokeEvaluator = cancelInvokeEvaluator;
 		}
 
@@ -113,7 +113,7 @@ namespace Xtate
 
 		public async ValueTask Start(IExecutionContext executionContext, CancellationToken token)
 		{
-			Infrastructure.Assert(_stateId != null, Resources.Exception_StateId_not_initialized);
+			Infrastructure.NotNull(_stateId, Resources.Exception_StateId_not_initialized);
 
 			InvokeId = await _startInvokeEvaluator.Start(_stateId, executionContext, token).ConfigureAwait(false);
 		}
@@ -123,7 +123,7 @@ namespace Xtate
 			var tmpInvokeId = InvokeId;
 			InvokeId = null;
 
-			if (tmpInvokeId != null)
+			if (tmpInvokeId is { })
 			{
 				await _cancelInvokeEvaluator.Cancel(tmpInvokeId, executionContext, token).ConfigureAwait(false);
 			}

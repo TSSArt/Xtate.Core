@@ -37,7 +37,7 @@ namespace Xtate
 
 			if (errorProcessor.LineInfoRequired)
 			{
-				if (entity != null && entity.Is<IXmlLineInfo>(out var xmlLineInfo) && xmlLineInfo.HasLineInfo())
+				if (entity.Is<IXmlLineInfo>(out var xmlLineInfo) && xmlLineInfo.HasLineInfo())
 				{
 					errorProcessor.AddError(new ErrorItem(source, message, exception, xmlLineInfo.LineNumber, xmlLineInfo.LinePosition));
 

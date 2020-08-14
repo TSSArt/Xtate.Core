@@ -29,7 +29,7 @@ namespace Xtate
 
 		public ElseIfNode(in DocumentIdRecord documentIdNode, in ElseIfEntity entity)
 		{
-			Infrastructure.Assert(entity.Condition != null);
+			Infrastructure.NotNull(entity.Condition);
 
 			_documentIdNode = documentIdNode;
 			_entity = entity;

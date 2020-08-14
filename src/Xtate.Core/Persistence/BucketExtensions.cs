@@ -75,7 +75,7 @@ namespace Xtate.Persistence
 
 		public static void AddId(this in Bucket bucket, Key key, SessionId? sessionId)
 		{
-			if (sessionId != null)
+			if (sessionId is { })
 			{
 				bucket.Add(key, sessionId.Value);
 			}
@@ -83,7 +83,7 @@ namespace Xtate.Persistence
 
 		public static void AddId(this in Bucket bucket, Key key, SendId? sendId)
 		{
-			if (sendId != null)
+			if (sendId is { })
 			{
 				bucket.Add(key, sendId.Value);
 			}
@@ -91,7 +91,7 @@ namespace Xtate.Persistence
 
 		public static void AddId(this in Bucket bucket, Key key, InvokeId? invokeId)
 		{
-			if (invokeId != null)
+			if (invokeId is { })
 			{
 				bucket.Add(key, invokeId.Value);
 				bucket.Nested(key).Add(key: 1, invokeId.InvokeUniqueIdValue);

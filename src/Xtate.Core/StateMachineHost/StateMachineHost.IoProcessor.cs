@@ -34,9 +34,7 @@ namespace Xtate
 
 		public async ValueTask<bool> Dispatch(SessionId sessionId, IEvent evt, CancellationToken token = default)
 		{
-			var controller = GetCurrentContext().FindStateMachineController(sessionId);
-
-			if (controller != null)
+			if (GetCurrentContext().FindStateMachineController(sessionId) is { } controller)
 			{
 				await controller.Send(evt, token).ConfigureAwait(false);
 

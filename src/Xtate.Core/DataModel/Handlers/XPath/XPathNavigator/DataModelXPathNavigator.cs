@@ -288,9 +288,7 @@ namespace Xtate.DataModel.XPath
 
 			Infrastructure.Assert(NodeType == XPathNodeType.Element);
 
-			var list = Current.DataModelValue.AsListOrDefault();
-
-			if (list != null)
+			if (Current.DataModelValue.AsListOrDefault() is { } list)
 			{
 				if (clear)
 				{
@@ -354,7 +352,7 @@ namespace Xtate.DataModel.XPath
 			var list = Parent.DataModelValue.AsList();
 			list.TryGet(Current.ParentIndex, out var entry);
 
-			if (entry.Metadata != null)
+			if (entry.Metadata is { })
 			{
 				AddAttribute(entry.Metadata, localName, value, namespaceUri, prefix);
 			}

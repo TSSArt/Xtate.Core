@@ -39,7 +39,7 @@ namespace Xtate.Service
 			{
 				var activator = await factory.TryGetActivator(factoryContext, type, token).ConfigureAwait(false);
 
-				if (activator != null)
+				if (activator is { })
 				{
 					return activator;
 				}
@@ -52,6 +52,6 @@ namespace Xtate.Service
 
 		protected virtual Uri InvokeTypeToUri(Uri invokeType) => invokeType;
 
-		protected sealed override Uri? KeyToUri(object key) => key != null ? InvokeTypeToUri((Uri) key) : null;
+		protected sealed override Uri? KeyToUri(object key) => key is { } ? InvokeTypeToUri((Uri) key) : null;
 	}
 }

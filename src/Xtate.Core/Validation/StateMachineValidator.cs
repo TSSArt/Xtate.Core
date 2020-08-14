@@ -62,7 +62,7 @@ namespace Xtate
 					AddError(entity, Resources.ErrorMessage_AssignItemContentAndExpressionMissed);
 				}
 
-				if (entity.Expression != null && entity.InlineContent != null)
+				if (entity.Expression is { } && entity.InlineContent is { })
 				{
 					AddError(entity, Resources.ErrorMessage_AssignItemContentAndExpressionSpecified);
 				}
@@ -79,12 +79,12 @@ namespace Xtate
 					AddError(entity, Resources.ErrorMessage_CancelItemSendIdAndExpressionMissed);
 				}
 
-				if (entity.SendId != null && entity.SendIdExpression != null)
+				if (entity.SendId is { } && entity.SendIdExpression is { })
 				{
 					AddError(entity, Resources.ErrorMessage_CancelItemSendIdAndExpressionSpecified);
 				}
 
-				if (entity.SendId != null && entity.SendId.Length == 0)
+				if (entity.SendId is { Length: 0 })
 				{
 					AddError(entity, Resources.ErrorMessage_SendidAttributeCantBeEmptyInCancelElement);
 				}
@@ -161,7 +161,7 @@ namespace Xtate
 					AddError(entity, Resources.ErrorMessage_ExpressionAndBodyMissedInContent);
 				}
 
-				if (entity.Expression != null && entity.Body != null)
+				if (entity.Expression is { } && entity.Body is { })
 				{
 					AddError(entity, Resources.ErrorMessage_ExpressionAndBodySpecifiedInContent);
 				}
@@ -190,7 +190,7 @@ namespace Xtate
 					AddError(entity, Resources.ErrorMessage_Id_property_required_in_Data_element);
 				}
 
-				if (entity.InlineContent != null && entity.Expression != null || entity.InlineContent != null && entity.Source != null || entity.Source != null && entity.Expression != null)
+				if (entity.InlineContent is { } && entity.Expression is { } || entity.InlineContent is { } && entity.Source is { } || entity.Source is { } && entity.Expression is { })
 				{
 					AddError(entity, Resources.ErrorMessage_ExpressionSourceInData);
 				}
@@ -323,17 +323,17 @@ namespace Xtate
 					AddError(entity, Resources.ErrorMessage_Type_or_TypeExpression_must_be_specified_in_Invoke_element);
 				}
 
-				if (entity.Type != null && entity.TypeExpression != null)
+				if (entity.Type is { } && entity.TypeExpression is { })
 				{
 					AddError(entity, Resources.ErrorMessage_Type_and_TypeExpression_can_t_be_used_at_the_same_time_in_Invoke_element);
 				}
 
-				if (entity.Id != null && entity.IdLocation != null)
+				if (entity.Id is { } && entity.IdLocation is { })
 				{
 					AddError(entity, Resources.ErrorMessage_Id_and_IdLocation_can_t_be_used_at_the_same_time_in_Invoke_element);
 				}
 
-				if (entity.Source != null && entity.SourceExpression != null)
+				if (entity.Source is { } && entity.SourceExpression is { })
 				{
 					AddError(entity, Resources.ErrorMessage_Source_and_SourceExpression_can_t_be_used_at_the_same_time_in_Invoke_element);
 				}
@@ -355,7 +355,7 @@ namespace Xtate
 					AddError(entity, Resources.ErrorMessage_Name_attributes_required_in_Param_element);
 				}
 
-				if (entity.Expression != null && entity.Location != null)
+				if (entity.Expression is { } && entity.Location is { })
 				{
 					AddError(entity, Resources.ErrorMessage_ExpressionLocationInParam);
 				}
@@ -379,7 +379,7 @@ namespace Xtate
 			{
 				if (entity is null) throw new ArgumentNullException(nameof(entity));
 
-				if (entity.Source != null && entity.Content != null)
+				if (entity.Source is { } && entity.Content is { })
 				{
 					AddError(entity, Resources.ErrorMessage_Source_and_Body_can_t_be_used_at_the_same_time_in_Assign_element);
 				}
@@ -392,37 +392,37 @@ namespace Xtate
 			{
 				if (entity is null) throw new ArgumentNullException(nameof(entity));
 
-				if (entity.EventName != null && entity.EventExpression != null || entity.EventName != null && entity.Content != null || entity.EventExpression != null && entity.Content != null)
+				if (entity.EventName is { } && entity.EventExpression is { } || entity.EventName is { } && entity.Content is { } || entity.EventExpression is { } && entity.Content is { })
 				{
 					AddError(entity, Resources.ErrorMessage_EvenExpressionContentInSend);
 				}
 
-				if (entity.Target != null && entity.TargetExpression != null)
+				if (entity.Target is { } && entity.TargetExpression is { })
 				{
 					AddError(entity, Resources.ErrorMessage_Target_and_TargetExpression_can_t_be_used_at_the_same_time_in_Send_element);
 				}
 
-				if (entity.Type != null && entity.TypeExpression != null)
+				if (entity.Type is { } && entity.TypeExpression is { })
 				{
 					AddError(entity, Resources.ErrorMessage_Type_and_TypeExpression_can_t_be_used_at_the_same_time_in_Send_element);
 				}
 
-				if (entity.Id != null && entity.IdLocation != null)
+				if (entity.Id is { } && entity.IdLocation is { })
 				{
 					AddError(entity, Resources.ErrorMessage_Id_and_IdLocation_can_t_be_used_at_the_same_time_in_Send_element);
 				}
 
-				if (entity.DelayMs != null && entity.DelayExpression != null)
+				if (entity.DelayMs is { } && entity.DelayExpression is { })
 				{
 					AddError(entity, Resources.ErrorMessage_EventExpressionInSend);
 				}
 
-				if (!entity.NameList.IsDefaultOrEmpty && entity.Content != null)
+				if (!entity.NameList.IsDefaultOrEmpty && entity.Content is { })
 				{
 					AddError(entity, Resources.ErrorMessage_NameList_and_Content_can_t_be_used_at_the_same_time_in_Send_element);
 				}
 
-				if (!entity.Parameters.IsDefaultOrEmpty && entity.Content != null)
+				if (!entity.Parameters.IsDefaultOrEmpty && entity.Content is { })
 				{
 					AddError(entity, Resources.ErrorMessage_Parameters_and_Content_can_t_be_used_at_the_same_time_in_Send_element);
 				}
@@ -439,7 +439,7 @@ namespace Xtate
 			{
 				if (entity is null) throw new ArgumentNullException(nameof(entity));
 
-				if (entity.Initial != null && entity.States.IsDefaultOrEmpty)
+				if (entity.Initial is { } && entity.States.IsDefaultOrEmpty)
 				{
 					AddError(entity, Resources.ErrorMessage_Initial_state_property_cannot_be_used_without_any_states);
 				}
@@ -456,7 +456,7 @@ namespace Xtate
 			{
 				if (entity is null) throw new ArgumentNullException(nameof(entity));
 
-				if (entity.Initial != null && entity.States.IsDefaultOrEmpty)
+				if (entity.Initial is { } && entity.States.IsDefaultOrEmpty)
 				{
 					AddError(entity, Resources.ErrorMessage_Initial_state_property_can_be_used_only_in_complex_states);
 				}

@@ -41,11 +41,10 @@ namespace Xtate
 
 		public void ThrowIfErrors()
 		{
-			var errors = _errors;
-			_errors = null;
-
-			if (errors != null)
+			if (_errors is { } errors)
 			{
+				_errors = null;
+
 				throw new StateMachineValidationException(errors.ToImmutable(), _sessionId, _origin);
 			}
 		}

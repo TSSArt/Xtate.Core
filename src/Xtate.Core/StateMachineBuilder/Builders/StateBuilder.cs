@@ -41,9 +41,9 @@ namespace Xtate.Builder
 
 		public IState Build()
 		{
-			if (_initialId != null)
+			if (!_initialId.IsDefaultOrEmpty)
 			{
-				if (_initial != null)
+				if (_initial is { })
 				{
 					AddError(Resources.ErrorMessage_InitialAttributeAndInitialStateCantBeUsedAtTheSameTimeInStateElement);
 				}

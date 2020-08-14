@@ -39,7 +39,7 @@ namespace Xtate.CustomAction
 			{
 				var activator = await factory.TryGetActivator(factoryContext, ns, name, token).ConfigureAwait(false);
 
-				if (activator != null)
+				if (activator is { })
 				{
 					return activator;
 				}
@@ -52,6 +52,6 @@ namespace Xtate.CustomAction
 
 		protected virtual Uri CustomActionNamespaceToUri(string customActionNamespace) => new Uri(customActionNamespace, UriKind.RelativeOrAbsolute);
 
-		protected sealed override Uri? KeyToUri(object key) => key != null ? CustomActionNamespaceToUri((string) key) : null;
+		protected sealed override Uri? KeyToUri(object key) => key is { } ? CustomActionNamespaceToUri((string) key) : null;
 	}
 }

@@ -159,12 +159,12 @@ namespace Xtate
 
 			var interpreterModel = IsPersistingEnabled ? await TryRestoreInterpreterModel(stateMachine, factoryContext, wrapperErrorProcessor).ConfigureAwait(false) : null;
 
-			if (interpreterModel != null)
+			if (interpreterModel is { })
 			{
 				return interpreterModel;
 			}
 
-			Infrastructure.Assert(stateMachine != null);
+			Infrastructure.NotNull(stateMachine);
 
 			_dataModelHandler = await CreateDataModelHandler(stateMachine.DataModelType, _dataModelHandlerFactories, factoryContext, wrapperErrorProcessor).ConfigureAwait(false);
 
@@ -203,7 +203,7 @@ namespace Xtate
 				}
 
 				var storedSessionId = bucket.GetSessionId(Key.SessionId);
-				if (storedSessionId != null && storedSessionId != _sessionId)
+				if (storedSessionId is { } && storedSessionId != _sessionId)
 				{
 					throw new PersistenceException(Resources.Exception_Persisted_state_can_t_be_read__Stored_and_provided_SessionIds_does_not_match);
 				}
@@ -219,7 +219,7 @@ namespace Xtate
 
 				ImmutableDictionary<int, IEntity>? entityMap = null;
 
-				if (stateMachine != null)
+				if (stateMachine is { })
 				{
 					var builder = new InterpreterModelBuilder(stateMachine, _dataModelHandler, _customActionProviders, factoryContext, DefaultErrorProcessor.Instance);
 					var model = await builder.Build(_stopToken).ConfigureAwait(false);
@@ -228,7 +228,7 @@ namespace Xtate
 
 				var restoredStateMachine = new StateMachineReader().Build(smdBucket, entityMap);
 
-				if (stateMachine != null)
+				if (stateMachine is { })
 				{
 					//TODO: Validate stateMachine vs restoredStateMachine (number of elements should be the same and documentId should point to the same entity type)
 				}
@@ -275,7 +275,7 @@ namespace Xtate
 			dataModelType ??= NoneDataModelHandler.DataModelType;
 			var activator = await FindDataModelHandlerFactoryActivator(factoryContext, dataModelType, factories).ConfigureAwait(false);
 
-			if (activator != null)
+			if (activator is { })
 			{
 				return await activator.CreateHandler(factoryContext, dataModelType, errorProcessor, _stopToken).ConfigureAwait(false);
 			}
@@ -294,7 +294,7 @@ namespace Xtate
 				{
 					var activator = await factory.TryGetActivator(factoryContext, dataModelType, _stopToken).ConfigureAwait(false);
 
-					if (activator != null)
+					if (activator is { })
 					{
 						return activator;
 					}
@@ -305,7 +305,7 @@ namespace Xtate
 			{
 				var activator = await factory.TryGetActivator(factoryContext, dataModelType ?? NoneDataModelHandler.DataModelType, _stopToken).ConfigureAwait(false);
 
-				if (activator != null)
+				if (activator is { })
 				{
 					return activator;
 				}
@@ -736,9 +736,7 @@ namespace Xtate
 			{
 				foreach (var invoke in state.Invoke)
 				{
-					Infrastructure.Assert(invoke.InvokeId != null);
-
-					if (externalEvent.InvokeId != null && InvokeId.InvokeUniqueIdComparer.Equals(invoke.InvokeId, externalEvent.InvokeId))
+					if (InvokeId.InvokeUniqueIdComparer.Equals(invoke.InvokeId, externalEvent.InvokeId))
 					{
 						await ApplyFinalize(invoke).ConfigureAwait(false);
 					}
@@ -942,7 +940,7 @@ namespace Xtate
 
 				if (!t1Preempted)
 				{
-					if (transitionsToRemove != null)
+					if (transitionsToRemove is { })
 					{
 						foreach (var t3 in transitionsToRemove)
 						{
@@ -1056,9 +1054,9 @@ namespace Xtate
 				_context.Configuration.AddIfNotExists(state);
 				_context.StatesToInvoke.AddIfNotExists(state);
 
-				if (_model.Root.Binding == BindingType.Late && state.DataModel != null)
+				if (_model.Root.Binding == BindingType.Late && state.DataModel is { } dataModel)
 				{
-					await DoOperation(StateBagKey.InitializeDataModel, state.DataModel, InitializeDataModel, state.DataModel).ConfigureAwait(false);
+					await DoOperation(StateBagKey.InitializeDataModel, dataModel, InitializeDataModel, dataModel).ConfigureAwait(false);
 				}
 
 				foreach (var onEntry in state.OnEntry)
@@ -1088,7 +1086,7 @@ namespace Xtate
 						var grandparent = parent!.Parent;
 
 						DataModelValue doneData = default;
-						if (final.DoneData != null)
+						if (final.DoneData is { })
 						{
 							doneData = await EvaluateDoneData(final.DoneData).ConfigureAwait(false);
 						}
@@ -1166,7 +1164,7 @@ namespace Xtate
 			var statesToExit = new List<StateEntityNode>();
 			foreach (var transition in transitions)
 			{
-				if (transition.Target != null)
+				if (!transition.Target.IsDefaultOrEmpty)
 				{
 					var domain = GetTransitionDomain(transition);
 					foreach (var state in _context.Configuration)
@@ -1276,7 +1274,7 @@ namespace Xtate
 
 		private static bool IsDescendant(StateEntityNode state1, StateEntityNode? state2)
 		{
-			for (var s = state1.Parent; s != null; s = s.Parent)
+			for (var s = state1.Parent; s is { }; s = s.Parent)
 			{
 				if (s == state2)
 				{
@@ -1328,7 +1326,7 @@ namespace Xtate
 		{
 			List<StateEntityNode>? states = null;
 
-			for (var s = state1.Parent; s != null; s = s.Parent)
+			for (var s = state1.Parent; s is { }; s = s.Parent)
 			{
 				if (s == state2)
 				{
@@ -1468,22 +1466,22 @@ namespace Xtate
 
 		private async ValueTask ExecuteGlobalScript()
 		{
-			if (_model.Root.ScriptEvaluator != null)
+			if (_model.Root.ScriptEvaluator is { } scriptEvaluator)
 			{
 				try
 				{
-					await _model.Root.ScriptEvaluator.Execute(_context.ExecutionContext, _stopToken).ConfigureAwait(false);
+					await scriptEvaluator.Execute(_context.ExecutionContext, _stopToken).ConfigureAwait(false);
 				}
 				catch (Exception ex) when (IsError(ex))
 				{
-					await Error(_model.Root.ScriptEvaluator, ex).ConfigureAwait(false);
+					await Error(scriptEvaluator, ex).ConfigureAwait(false);
 				}
 			}
 		}
 
 		private async ValueTask EvaluateDoneData(FinalNode final)
 		{
-			if (final.DoneData != null)
+			if (final.DoneData is { })
 			{
 				_doneData = await EvaluateDoneData(final.DoneData).ConfigureAwait(false);
 			}
@@ -1493,7 +1491,7 @@ namespace Xtate
 		{
 			try
 			{
-				Infrastructure.Assert(invoke.InvokeId != null);
+				Infrastructure.NotNull(invoke.InvokeId);
 
 				await ForwardEvent(evt, invoke.InvokeId, _stopToken).ConfigureAwait(false);
 			}
@@ -1503,7 +1501,7 @@ namespace Xtate
 			}
 		}
 
-		private ValueTask ApplyFinalize(InvokeNode invoke) => invoke.Finalize != null ? RunExecutableEntity(invoke.Finalize.ActionEvaluators) : default;
+		private ValueTask ApplyFinalize(InvokeNode invoke) => invoke.Finalize is { } ? RunExecutableEntity(invoke.Finalize.ActionEvaluators) : default;
 
 		private async ValueTask Invoke(InvokeNode invoke)
 		{
@@ -1581,23 +1579,28 @@ namespace Xtate
 				return overrideValue;
 			}
 
-			if (data.Source != null)
+			if (data.Source is { } source)
 			{
-				var resource = await LoadData(data.Source).ConfigureAwait(false);
+				var resource = await LoadData(source).ConfigureAwait(false);
 
-				return resource.Content != null ? DataConverter.FromContent(resource.Content, resource.ContentType) : default;
+				if (resource.Content is { } content)
+				{
+					return DataConverter.FromContent(content, resource.ContentType);
+				}
+
+				return default;
 			}
 
-			if (data.ExpressionEvaluator != null)
+			if (data.ExpressionEvaluator is { } expressionEvaluator)
 			{
-				var obj = await data.ExpressionEvaluator.EvaluateObject(_context.ExecutionContext, _stopToken).ConfigureAwait(false);
+				var obj = await expressionEvaluator.EvaluateObject(_context.ExecutionContext, _stopToken).ConfigureAwait(false);
 
 				return DataModelValue.FromObject(obj.ToObject());
 			}
 
-			if (data.InlineContentEvaluator != null)
+			if (data.InlineContentEvaluator is { } inlineContentEvaluator)
 			{
-				var obj = await data.InlineContentEvaluator.EvaluateObject(_context.ExecutionContext, _stopToken).ConfigureAwait(false);
+				var obj = await inlineContentEvaluator.EvaluateObject(_context.ExecutionContext, _stopToken).ConfigureAwait(false);
 
 				return DataModelValue.FromObject(obj.ToObject());
 			}
@@ -1721,9 +1724,9 @@ namespace Xtate
 
 			public void Dispose()
 			{
-				if (_data != null)
+				if (_data is { } data)
 				{
-					ArrayPool<int>.Shared.Return(_data);
+					ArrayPool<int>.Shared.Return(data);
 
 					_data = null;
 				}

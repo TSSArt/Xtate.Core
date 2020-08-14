@@ -44,7 +44,7 @@ namespace Xtate
 		{
 			Visit(ref stateMachine);
 
-			if (_customActionDispatchers != null)
+			if (_customActionDispatchers is { })
 			{
 				foreach (var pair in _customActionDispatchers)
 				{
@@ -75,7 +75,7 @@ namespace Xtate
 			}
 			else
 			{
-				Infrastructure.Assert(_customActionDispatchers != null);
+				Infrastructure.NotNull(_customActionDispatchers);
 
 				entity = _customActionDispatchers[entity];
 			}

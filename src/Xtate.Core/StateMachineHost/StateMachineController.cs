@@ -228,9 +228,9 @@ namespace Xtate
 				options.SuspendToken = _suspendTokenSource.Token;
 			}
 
-			if (_options?.UnhandledErrorBehaviour != null)
+			if (_options?.UnhandledErrorBehaviour is { } behaviour)
 			{
-				options.UnhandledErrorBehaviour = _options.UnhandledErrorBehaviour.Value;
+				options.UnhandledErrorBehaviour = behaviour;
 			}
 		}
 

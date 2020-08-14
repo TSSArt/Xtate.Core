@@ -31,7 +31,7 @@ namespace Xtate.DataModel
 
 		public DefaultRaiseEvaluator(in RaiseEntity raise)
 		{
-			Infrastructure.Assert(raise.OutgoingEvent != null);
+			Infrastructure.NotNull(raise.OutgoingEvent);
 
 			_raise = raise;
 		}

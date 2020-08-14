@@ -78,8 +78,7 @@ namespace Xtate.Scxml
 				return entity;
 			}
 
-			var policyRawContentAction = policy.RawContentAction;
-			if (policyRawContentAction != null)
+			if (policy.RawContentAction is { } policyRawContentAction)
 			{
 				_current = _xmlReader.ReadInnerXml();
 
@@ -118,8 +117,7 @@ namespace Xtate.Scxml
 				var ns = _xmlReader.NamespaceURI;
 				var name = _xmlReader.LocalName;
 				validationContext.ValidateAttribute(ns, name);
-				var located = policy.AttributeLocated(ns, name);
-				if (located != null)
+				if (policy.AttributeLocated(ns, name) is { } located)
 				{
 					try
 					{
@@ -146,8 +144,7 @@ namespace Xtate.Scxml
 				var ns = _xmlReader.NamespaceURI;
 				var name = _xmlReader.LocalName;
 				validationContext.ValidateElement(ns, name);
-				var located = policy.ElementLocated(ns, name);
-				if (located != null)
+				if (policy.ElementLocated(ns, name) is { } located)
 				{
 					try
 					{
@@ -325,9 +322,9 @@ namespace Xtate.Scxml
 						}
 					}
 
-					_ignoreUnknownElements = policy.IgnoreUnknownElements || policy.UnknownElementAction != null;
+					_ignoreUnknownElements = policy.IgnoreUnknownElements || policy.UnknownElementAction is { };
 
-					if (policy.ElementName != null)
+					if (policy.ElementName is { })
 					{
 						if (!xmlReader.IsStartElement(policy.ElementName, policy.ElementNamespace))
 						{
@@ -338,7 +335,7 @@ namespace Xtate.Scxml
 
 				public void ValidateAttribute(string ns, string name)
 				{
-					if (_attributes != null && _attributes.TryGetValue(new QualifiedName(ns, name), out var type))
+					if (_attributes is { } && _attributes.TryGetValue(new QualifiedName(ns, name), out var type))
 					{
 						if (type == AttributeType.SysOptionalFound || type == AttributeType.SysRequiredFound)
 						{
@@ -351,7 +348,7 @@ namespace Xtate.Scxml
 
 				public void ProcessAttributesCompleted()
 				{
-					if (_attributes != null && _attributes.Any(p => p.Value == AttributeType.Required))
+					if (_attributes is { } && _attributes.Any(p => p.Value == AttributeType.Required))
 					{
 						var query = _attributes.Where(p => p.Value == AttributeType.Required).Select(p => p.Key);
 						AddError(CreateMessage(Resources.ErrorMessage_Missed_required_attributes, delimiter: @"', '", query));
@@ -360,7 +357,7 @@ namespace Xtate.Scxml
 
 				public void ValidateElement(string ns, string name)
 				{
-					if (_elements != null && _elements.TryGetValue(new QualifiedName(ns, name), out var type))
+					if (_elements is { } && _elements.TryGetValue(new QualifiedName(ns, name), out var type))
 					{
 						if (type == ElementType.SysOneFound || type == ElementType.SysZeroToOneFound)
 						{
@@ -377,7 +374,7 @@ namespace Xtate.Scxml
 
 				public void ProcessElementsCompleted()
 				{
-					if (_elements != null && _elements.Any(p => p.Value == ElementType.One || p.Value == ElementType.OneToMany))
+					if (_elements is { } && _elements.Any(p => p.Value == ElementType.One || p.Value == ElementType.OneToMany))
 					{
 						var query = _elements.Where(p => p.Value == ElementType.One || p.Value == ElementType.OneToMany).Select(p => p.Key);
 						AddError(CreateMessage(Resources.ErrorMessage_Missed_required_elements, delimiter: @">, <", query));

@@ -48,7 +48,7 @@ namespace Xtate.DataModel.XPath
 		{
 			base.Build(ref valueExpression, ref valueExpressionProperties);
 
-			if (valueExpressionProperties.Expression != null)
+			if (valueExpressionProperties.Expression is { })
 			{
 				try
 				{
@@ -91,7 +91,7 @@ namespace Xtate.DataModel.XPath
 		{
 			base.Build(ref conditionExpression, ref conditionExpressionProperties);
 
-			if (conditionExpressionProperties.Expression != null)
+			if (conditionExpressionProperties.Expression is { })
 			{
 				try
 				{
@@ -137,7 +137,7 @@ namespace Xtate.DataModel.XPath
 		{
 			base.Build(ref locationExpression, ref locationExpressionProperties);
 
-			if (locationExpressionProperties.Expression != null)
+			if (locationExpressionProperties.Expression is { })
 			{
 				try
 				{

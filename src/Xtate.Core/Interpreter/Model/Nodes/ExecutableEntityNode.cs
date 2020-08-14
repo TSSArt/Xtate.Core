@@ -31,7 +31,7 @@ namespace Xtate
 
 		protected ExecutableEntityNode(in DocumentIdRecord documentIdNode, IExecutableEntity? entity)
 		{
-			Infrastructure.Assert(entity != null);
+			Infrastructure.NotNull(entity);
 
 			_execEvaluator = entity.As<IExecEvaluator>();
 			_documentIdNode = documentIdNode;

@@ -541,7 +541,7 @@ namespace Xtate
 				val = lazyValue.Value;
 			}
 
-			return (val._value != null ? val._value.GetHashCode() : 0) + val._int64.GetHashCode();
+			return (val._value is { } ? val._value.GetHashCode() : 0) + val._int64.GetHashCode();
 		}
 
 		public static bool operator ==(DataModelValue left, DataModelValue right) => left.Equals(right);

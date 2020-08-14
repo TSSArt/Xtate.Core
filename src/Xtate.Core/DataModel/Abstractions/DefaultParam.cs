@@ -27,7 +27,7 @@ namespace Xtate.DataModel
 
 		public DefaultParam(in ParamEntity param)
 		{
-			Infrastructure.Assert(param.Name != null);
+			Infrastructure.NotNull(param.Name);
 
 			_param = param;
 			ExpressionEvaluator = param.Expression?.As<IObjectEvaluator>();

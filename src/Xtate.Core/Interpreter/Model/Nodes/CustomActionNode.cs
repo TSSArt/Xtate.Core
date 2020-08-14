@@ -28,7 +28,7 @@ namespace Xtate
 
 		public CustomActionNode(in DocumentIdRecord documentIdNode, in CustomActionEntity entity) : base(documentIdNode, (ICustomAction?) entity.Ancestor)
 		{
-			Infrastructure.Assert(entity.Xml != null);
+			Infrastructure.NotNull(entity.Xml);
 
 			_entity = entity;
 		}

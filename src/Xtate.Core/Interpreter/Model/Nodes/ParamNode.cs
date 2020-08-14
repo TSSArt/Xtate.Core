@@ -29,7 +29,7 @@ namespace Xtate
 
 		public ParamNode(in DocumentIdRecord documentIdNode, in ParamEntity param)
 		{
-			Infrastructure.Assert(param.Name != null);
+			Infrastructure.NotNull(param.Name);
 
 			_documentIdNode = documentIdNode;
 			_param = param;

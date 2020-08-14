@@ -61,9 +61,7 @@ namespace Xtate
 
 			context.ValidateSessionId(sessionId, out _);
 
-			var service = await context.TryRemoveService(sessionId, invokeId).ConfigureAwait(false);
-
-			if (service != null)
+			if (await context.TryRemoveService(sessionId, invokeId).ConfigureAwait(false) is { } service)
 			{
 				await service.Destroy(token).ConfigureAwait(false);
 
@@ -139,9 +137,7 @@ namespace Xtate
 			}
 			finally
 			{
-				var invokedService2 = await context.TryCompleteService(sessionId, invokeId).ConfigureAwait(false);
-
-				if (invokedService2 != null)
+				if (await context.TryCompleteService(sessionId, invokeId).ConfigureAwait(false) is { } invokedService2)
 				{
 					await DisposeInvokedService(invokedService2).ConfigureAwait(false);
 				}
@@ -152,7 +148,7 @@ namespace Xtate
 		{
 			context = _context;
 
-			return context != null;
+			return context is { };
 		}
 
 		private IErrorProcessor CreateErrorProcessor(SessionId sessionId, StateMachineOrigin origin) =>
@@ -168,7 +164,7 @@ namespace Xtate
 				{
 					var activator = await serviceFactory.TryGetActivator(factoryContext, type, token).ConfigureAwait(false);
 
-					if (activator != null)
+					if (activator is { })
 					{
 						return activator;
 					}

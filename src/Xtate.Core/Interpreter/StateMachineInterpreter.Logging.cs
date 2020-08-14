@@ -39,7 +39,7 @@ namespace Xtate
 
 		private bool IsPlatformError(Exception exception)
 		{
-			for (; exception != null; exception = exception.InnerException)
+			for (; exception is { }; exception = exception.InnerException)
 			{
 				if (exception is PlatformException ex && ex.SessionId == _sessionId)
 				{

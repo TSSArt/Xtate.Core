@@ -28,7 +28,7 @@ namespace Xtate
 
 		public InitialNode(in DocumentIdRecord documentIdNode, in InitialEntity initial) : base(documentIdNode, children: null)
 		{
-			Infrastructure.Assert(initial.Transition != null);
+			Infrastructure.NotNull(initial.Transition);
 
 			_initial = initial;
 			Transition = initial.Transition.As<TransitionNode>();

@@ -33,7 +33,7 @@ namespace Xtate
 
 		protected StateMachineVisitor(bool trackPath = false) => _path = trackPath ? new Stack<(object, ImmutableArray<object>)>() : null;
 
-		protected string? CurrentPath => _path != null ? string.Join(separator: @"/", _path.Reverse().Select(EntityName)) : null;
+		protected string? CurrentPath => _path is { } ? string.Join(separator: @"/", _path.Reverse().Select(EntityName)) : null;
 
 		private string EntityName((object obj, ImmutableArray<object> array) entry)
 		{
@@ -163,10 +163,10 @@ namespace Xtate
 
 			public T? this[int index]
 			{
-				get => ModifiedItems != null ? ModifiedItems[index] : _items[index];
+				get => ModifiedItems is { } ? ModifiedItems[index] : _items[index];
 				set
 				{
-					if (ModifiedItems != null)
+					if (ModifiedItems is { })
 					{
 						ModifiedItems[index] = value!;
 					}
@@ -180,7 +180,7 @@ namespace Xtate
 
 			public bool Contains(T item) => ModifiedItems?.Contains(item) ?? _items.Contains(item);
 
-			public IEnumerator<T> GetEnumerator() => ModifiedItems != null ? ModifiedItems.GetEnumerator() : ((IEnumerable<T>) _items).GetEnumerator();
+			public IEnumerator<T> GetEnumerator() => ModifiedItems is { } ? ModifiedItems.GetEnumerator() : ((IEnumerable<T>) _items).GetEnumerator();
 
 			public void Add([AllowNull] T item) => (ModifiedItems ??= _items.ToBuilder()).Add(item!);
 

@@ -52,6 +52,30 @@ namespace Xtate
 		}
 
 		[AssertionMethod]
+		public static void NotNull([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] [NotNull]
+								   object? value)
+		{
+			if (value is { })
+			{
+				return;
+			}
+
+			throw new InfrastructureException(Resources.Exception_AssertionFailed);
+		}
+
+		[AssertionMethod]
+		public static void NotNull([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] [NotNull]
+								   object? value, string message)
+		{
+			if (value is { })
+			{
+				return;
+			}
+
+			throw new InfrastructureException(message);
+		}
+
+		[AssertionMethod]
 		[DoesNotReturn]
 		public static void Fail()
 		{

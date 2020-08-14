@@ -343,7 +343,7 @@ namespace Xtate
 				while (_enumerator.MoveNext())
 				{
 					var current = _enumerator.Current;
-					if (current.Key != null)
+					if (current.Key is { })
 					{
 						Current = new KeyValuePair<string, DataModelValue>(current.Key, current.Value);
 

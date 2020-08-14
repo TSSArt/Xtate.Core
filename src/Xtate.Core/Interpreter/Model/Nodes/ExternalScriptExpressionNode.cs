@@ -30,7 +30,7 @@ namespace Xtate
 
 		public ExternalScriptExpressionNode(in ExternalScriptExpression externalScriptExpression)
 		{
-			Infrastructure.Assert(externalScriptExpression.Uri != null);
+			Infrastructure.NotNull(externalScriptExpression.Uri);
 
 			_externalScriptExpression = externalScriptExpression;
 		}

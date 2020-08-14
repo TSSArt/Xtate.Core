@@ -33,7 +33,7 @@ namespace Xtate.DataModel.XPath
 		{
 			var engine = (XPathEngine?) executionContext.RuntimeItems[Key];
 
-			Infrastructure.Assert(engine != null);
+			Infrastructure.NotNull(engine);
 
 			return engine;
 		}
@@ -89,7 +89,7 @@ namespace Xtate.DataModel.XPath
 					navigator.DeleteSelf();
 					break;
 				case XPathAssignType.AddAttribute:
-					Infrastructure.Assert(attributeName != null);
+					Infrastructure.NotNull(attributeName);
 					navigator.CreateAttribute(string.Empty, attributeName, string.Empty, valueObject.ToString());
 					break;
 				default:

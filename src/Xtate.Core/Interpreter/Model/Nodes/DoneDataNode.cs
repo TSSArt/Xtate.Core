@@ -34,7 +34,7 @@ namespace Xtate
 		{
 			_doneData = doneData;
 
-			Infrastructure.Assert(doneData.Ancestor != null);
+			Infrastructure.NotNull(doneData.Ancestor);
 
 			_doneDataEvaluator = doneData.Ancestor.As<IObjectEvaluator>();
 		}
