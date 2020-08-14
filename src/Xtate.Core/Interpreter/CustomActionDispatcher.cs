@@ -44,9 +44,9 @@ namespace Xtate
 			_customAction = customAction;
 			_factoryContext = factoryContext;
 
-			Infrastructure.Assert(customAction.XmlNamespace != null);
-			Infrastructure.Assert(customAction.XmlName != null);
-			Infrastructure.Assert(customAction.Xml != null);
+			Infrastructure.NotNull(customAction.XmlNamespace);
+			Infrastructure.NotNull(customAction.XmlName);
+			Infrastructure.NotNull(customAction.Xml);
 		}
 
 	#region Interface ICustomAction
@@ -69,7 +69,7 @@ namespace Xtate
 		{
 			if (expression is null) throw new ArgumentNullException(nameof(expression));
 
-			if (_executor != null)
+			if (_executor is { })
 			{
 				throw new InfrastructureException(Resources.Exception_Registration_should_no_occur_after_initialization);
 			}
@@ -86,7 +86,7 @@ namespace Xtate
 		{
 			if (expression is null) throw new ArgumentNullException(nameof(expression));
 
-			if (_executor != null)
+			if (_executor is { })
 			{
 				throw new InfrastructureException(Resources.Exception_Registration_should_no_occur_after_initialization);
 			}
@@ -120,7 +120,7 @@ namespace Xtate
 		{
 			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
-			Infrastructure.Assert(_executor != null);
+			Infrastructure.NotNull(_executor);
 
 			return _executor.Execute(executionContext, token);
 		}
@@ -162,7 +162,7 @@ namespace Xtate
 			{
 				var activator = await factory.TryGetActivator(_factoryContext, XmlNamespace, XmlName, token).ConfigureAwait(false);
 
-				if (activator != null)
+				if (activator is { })
 				{
 					return await activator.CreateExecutor(_factoryContext, this, token).ConfigureAwait(false);
 				}

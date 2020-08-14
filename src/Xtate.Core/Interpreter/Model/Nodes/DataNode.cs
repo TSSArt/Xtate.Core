@@ -30,7 +30,7 @@ namespace Xtate
 
 		public DataNode(in DocumentIdRecord documentIdNode, in DataEntity data)
 		{
-			Infrastructure.Assert(data.Id != null);
+			Infrastructure.NotNull(data.Id);
 
 			_documentIdNode = documentIdNode;
 			_data = data;

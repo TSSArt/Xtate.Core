@@ -33,7 +33,7 @@ namespace Xtate.DataModel
 
 		public DefaultContentBodyEvaluator(in ContentBody contentBody)
 		{
-			Infrastructure.Assert(contentBody.Value != null);
+			Infrastructure.NotNull(contentBody.Value);
 
 			_contentBody = contentBody;
 		}
@@ -65,7 +65,7 @@ namespace Xtate.DataModel
 				_parsedValue.MakeDeepConstant();
 			}
 
-			if (_parsingException != null)
+			if (_parsingException is { })
 			{
 				Infrastructure.IgnoredException(_parsingException);
 			}

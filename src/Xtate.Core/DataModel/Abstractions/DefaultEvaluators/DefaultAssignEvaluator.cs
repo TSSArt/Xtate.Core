@@ -33,7 +33,7 @@ namespace Xtate.DataModel
 		{
 			_assign = assign;
 
-			Infrastructure.Assert(assign.Location != null);
+			Infrastructure.NotNull(assign.Location);
 
 			LocationEvaluator = assign.Location.As<ILocationEvaluator>();
 			ExpressionEvaluator = assign.Expression?.As<IObjectEvaluator>();
@@ -75,12 +75,12 @@ namespace Xtate.DataModel
 
 		protected virtual ValueTask<IObject> EvaluateRightValue(IExecutionContext executionContext, CancellationToken token)
 		{
-			if (ExpressionEvaluator != null)
+			if (ExpressionEvaluator is { })
 			{
 				return ExpressionEvaluator.EvaluateObject(executionContext, token);
 			}
 
-			if (InlineContentEvaluator != null)
+			if (InlineContentEvaluator is { })
 			{
 				return InlineContentEvaluator.EvaluateObject(executionContext, token);
 			}

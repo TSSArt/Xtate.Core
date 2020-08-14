@@ -93,7 +93,7 @@ namespace Xtate.Persistence
 		{
 			var size = KeyHelper<TKey>.Converter.GetLength(key) + GetSize(_block);
 
-			for (var n = _node; n != null; n = n.Previous!)
+			for (var n = _node; n is { }; n = n.Previous!)
 			{
 				size += n.Size;
 			}
@@ -117,7 +117,7 @@ namespace Xtate.Persistence
 
 		private static Span<byte> WritePrevious(Node? node, int size, ref Span<byte> buf)
 		{
-			if (node != null)
+			if (node is { })
 			{
 				var nextBuf = WritePrevious(node.Previous, size + node.Size, ref buf);
 				node.WriteTo(nextBuf);
@@ -191,7 +191,7 @@ namespace Xtate.Persistence
 			}
 
 			value = ValueHelper<TValue>.Converter.Read(memory.Span);
-			return value != null;
+			return value is { };
 		}
 
 		public class RootType

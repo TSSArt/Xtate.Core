@@ -34,6 +34,6 @@ namespace Xtate
 		public static SendId New() => new SendId();
 
 		[return: NotNullIfNotNull("val")]
-		public static SendId? FromString(string? val) => val != null ? new SendId(val) : null;
+		public static SendId? FromString(string? val) => val is { } ? new SendId(val) : null;
 	}
 }

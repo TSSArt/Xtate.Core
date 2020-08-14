@@ -55,7 +55,7 @@ namespace Xtate
 
 			sb.Append(Message);
 
-			if (Exception != null)
+			if (Exception is { })
 			{
 				sb.Append(@"\r\n\tException ==> ").Append(Exception);
 			}

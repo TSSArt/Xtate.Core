@@ -49,22 +49,22 @@ namespace Xtate.CustomAction
 				access.AddValidationError<StartAction>(Resources.ErrorMessage_At_least_one_source_must_be_specified);
 			}
 
-			if (source != null && sourceExpression != null)
+			if (source is { } && sourceExpression is { })
 			{
 				access.AddValidationError<StartAction>(Resources.ErrorMessage_src_and_srcexpr_attributes_should_not_be_assigned_in_Start_element);
 			}
 
-			if (source != null && !Uri.TryCreate(source, UriKind.RelativeOrAbsolute, out _source))
+			if (source is { } && !Uri.TryCreate(source, UriKind.RelativeOrAbsolute, out _source))
 			{
 				access.AddValidationError<StartAction>(Resources.ErrorMessage_source__has_invalid_URI_format);
 			}
 
-			if (sourceExpression != null)
+			if (sourceExpression is { })
 			{
 				_sourceExpression = access.RegisterValueExpression(sourceExpression);
 			}
 
-			if (idLocation != null)
+			if (idLocation is { })
 			{
 				_idLocation = access.RegisterLocationExpression(idLocation);
 			}
@@ -88,7 +88,7 @@ namespace Xtate.CustomAction
 			var sessionId = SessionId.New();
 			await host.StartStateMachineAsync(sessionId, new StateMachineOrigin(source, baseUri), parameters: default, token).ConfigureAwait(false);
 
-			if (_idLocation != null)
+			if (_idLocation is { })
 			{
 				await _idLocation.Assign(executionContext, sessionId, token).ConfigureAwait(false);
 			}
@@ -103,7 +103,7 @@ namespace Xtate.CustomAction
 									  .AsObjectOrEmpty()[key: "location", caseInsensitive: false]
 									  .AsStringOrDefault();
 
-			return val != null ? new Uri(val) : null;
+			return val is { } ? new Uri(val) : null;
 		}
 
 		private static IHost GetHost(IExecutionContext executionContext)
@@ -118,12 +118,12 @@ namespace Xtate.CustomAction
 
 		private async ValueTask<Uri?> GetSource(IExecutionContext executionContext, CancellationToken token)
 		{
-			if (_source != null)
+			if (_source is { })
 			{
 				return _source;
 			}
 
-			if (_sourceExpression != null)
+			if (_sourceExpression is { })
 			{
 				var val = await _sourceExpression.Evaluate(executionContext, token).ConfigureAwait(false);
 

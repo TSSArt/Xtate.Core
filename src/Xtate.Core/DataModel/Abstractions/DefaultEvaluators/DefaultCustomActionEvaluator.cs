@@ -37,7 +37,7 @@ namespace Xtate.DataModel
 
 			var customActionDispatcher = customAction.Ancestor?.As<ICustomActionDispatcher>();
 
-			Infrastructure.Assert(customActionDispatcher != null, Resources.Assertion_CustomActionDoesNotConfigured);
+			Infrastructure.NotNull(customActionDispatcher, Resources.Assertion_CustomActionDoesNotConfigured);
 
 			var locations = customAction.Locations.AsArrayOf<ILocationExpression, ILocationEvaluator>(true);
 			var values = customAction.Values.AsArrayOf<IValueExpression, IObjectEvaluator>(true);

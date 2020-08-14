@@ -183,7 +183,7 @@ namespace Xtate
 		[return: NotNullIfNotNull("relativeUri")]
 		private static Uri? CombineUri(Uri? baseUri, Uri? relativeUri)
 		{
-			if (baseUri != null && baseUri.IsAbsoluteUri && relativeUri != null && !relativeUri.IsAbsoluteUri)
+			if (baseUri is { } && baseUri.IsAbsoluteUri && relativeUri is { } && !relativeUri.IsAbsoluteUri)
 			{
 				return new Uri(baseUri, relativeUri);
 			}
@@ -223,7 +223,7 @@ namespace Xtate
 
 		private static DataModelObject? CreateHostData(Uri? stateMachineLocation)
 		{
-			if (stateMachineLocation != null)
+			if (stateMachineLocation is { })
 			{
 				var obj = new DataModelObject { { Location, stateMachineLocation.ToString() } };
 				obj.MakeDeepConstant();
@@ -348,7 +348,7 @@ namespace Xtate
 				}
 				else if (targetValue.StartsWith(InvokeIdPrefix))
 				{
-					if (_serviceByInvokeId.TryGetValue(InvokeId.FromString(targetValue.Substring(InvokeIdPrefix.Length)), out var service) && service != null)
+					if (_serviceByInvokeId.TryGetValue(InvokeId.FromString(targetValue.Substring(InvokeIdPrefix.Length)), out var service) && service is { })
 					{
 						return service;
 					}

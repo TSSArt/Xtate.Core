@@ -111,7 +111,7 @@ namespace Xtate
 
 		private bool IsCommunicationError(Exception exception, out SendId? sendId)
 		{
-			for (; exception != null; exception = exception.InnerException)
+			for (; exception is { }; exception = exception.InnerException)
 			{
 				if (exception is CommunicationException ex && ex.SessionId == _sessionId)
 				{

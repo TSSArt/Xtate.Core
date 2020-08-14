@@ -57,21 +57,21 @@ namespace Xtate.Persistence
 
 		ValueTask<ITransactionalStorage> IStorageProvider.GetTransactionalStorage(string? partition, string key, CancellationToken token)
 		{
-			if (partition != null) throw new ArgumentException(Resources.Exception_Partition_argument_should_be_null, nameof(partition));
+			if (partition is { }) throw new ArgumentException(Resources.Exception_Partition_argument_should_be_null, nameof(partition));
 
 			return _storageProvider.GetTransactionalStorage(SessionId.Value, key, token);
 		}
 
 		ValueTask IStorageProvider.RemoveTransactionalStorage(string? partition, string key, CancellationToken token)
 		{
-			if (partition != null) throw new ArgumentException(Resources.Exception_Partition_argument_should_be_null, nameof(partition));
+			if (partition is { }) throw new ArgumentException(Resources.Exception_Partition_argument_should_be_null, nameof(partition));
 
 			return _storageProvider.RemoveTransactionalStorage(SessionId.Value, key, token);
 		}
 
 		ValueTask IStorageProvider.RemoveAllTransactionalStorage(string? partition, CancellationToken token)
 		{
-			if (partition != null) throw new ArgumentException(Resources.Exception_Partition_argument_should_be_null, nameof(partition));
+			if (partition is { }) throw new ArgumentException(Resources.Exception_Partition_argument_should_be_null, nameof(partition));
 
 			return _storageProvider.RemoveAllTransactionalStorage(SessionId.Value, token);
 		}
@@ -89,9 +89,9 @@ namespace Xtate.Persistence
 
 			_channelPersistingController.Dispose();
 
-			if (_storage != null)
+			if (_storage is { } storage)
 			{
-				await _storage.DisposeAsync().ConfigureAwait(false);
+				await storage.DisposeAsync().ConfigureAwait(false);
 			}
 
 			await base.DisposeAsync().ConfigureAwait(false);
@@ -121,15 +121,15 @@ namespace Xtate.Persistence
 			{
 				_scheduledEvents.Add(scheduledPersistedEvent);
 
-				if (_storage != null)
+				if (_storage is { } storage)
 				{
 					scheduledPersistedEvent.RecordId = _recordId ++;
 
-					var rootBucket = new Bucket(_storage).Nested(ScheduledEventsKey);
+					var rootBucket = new Bucket(storage).Nested(ScheduledEventsKey);
 					rootBucket.Add(Bucket.RootKey, _recordId);
 					scheduledPersistedEvent.Store(rootBucket.Nested(scheduledPersistedEvent.RecordId));
 
-					await _storage.CheckPoint(level: 0, token).ConfigureAwait(false);
+					await storage.CheckPoint(level: 0, token).ConfigureAwait(false);
 				}
 			}
 			finally
@@ -153,14 +153,14 @@ namespace Xtate.Persistence
 			{
 				_scheduledEvents.Remove(scheduledPersistedEvent);
 
-				if (_storage != null)
+				if (_storage is { } storage)
 				{
-					var rootBucket = new Bucket(_storage).Nested(ScheduledEventsKey);
+					var rootBucket = new Bucket(storage).Nested(ScheduledEventsKey);
 					rootBucket.RemoveSubtree(scheduledPersistedEvent.RecordId);
 
-					await _storage.CheckPoint(level: 0, token).ConfigureAwait(false);
+					await storage.CheckPoint(level: 0, token).ConfigureAwait(false);
 
-					await ShrinkScheduledEvents(_storage, token).ConfigureAwait(false);
+					await ShrinkScheduledEvents(storage, token).ConfigureAwait(false);
 				}
 			}
 			finally
@@ -270,7 +270,7 @@ namespace Xtate.Persistence
 				return new EventEntity
 					   {
 							   SendId = bucket.GetSendId(Key.SendId),
-							   NameParts = name != null ? EventName.ToParts(name) : default,
+							   NameParts = name is { } ? EventName.ToParts(name) : default,
 							   Target = bucket.GetUri(Key.Target),
 							   Type = bucket.GetUri(Key.Type),
 							   DelayMs = bucket.GetInt32(Key.DelayMs),

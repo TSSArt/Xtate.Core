@@ -45,9 +45,9 @@ namespace Xtate.Scxml
 			_writer.WriteStartElement(prefix: "", localName: "scxml", ScxmlNs);
 			_writer.WriteAttributeString(localName: "version", value: @"1.0");
 
-			if (properties.DataModelType != null)
+			if (properties.DataModelType is { } dataModelType)
 			{
-				_writer.WriteAttributeString(localName: "datamodel", properties.DataModelType);
+				_writer.WriteAttributeString(localName: "datamodel", dataModelType);
 			}
 
 			var target = properties.Initial?.Transition?.Target ?? default;
@@ -71,24 +71,24 @@ namespace Xtate.Scxml
 
 		private void WriteOptions(IStateMachineOptions options)
 		{
-			if (options.PersistenceLevel != null)
+			if (options.PersistenceLevel is { } persistenceLevel)
 			{
-				_writer.WriteAttributeString(localName: "persistence", XtateScxmlNs, options.PersistenceLevel.Value.ToString());
+				_writer.WriteAttributeString(localName: "persistence", XtateScxmlNs, persistenceLevel.ToString());
 			}
 
-			if (options.SynchronousEventProcessing != null)
+			if (options.SynchronousEventProcessing is { } synchronousEventProcessing)
 			{
-				_writer.WriteAttributeString(localName: "synchronous", XtateScxmlNs, XmlConvert.ToString(options.SynchronousEventProcessing.Value));
+				_writer.WriteAttributeString(localName: "synchronous", XtateScxmlNs, XmlConvert.ToString(synchronousEventProcessing));
 			}
 
-			if (options.ExternalQueueSize != null)
+			if (options.ExternalQueueSize is { } externalQueueSize)
 			{
-				_writer.WriteAttributeString(localName: "queueSize", XtateScxmlNs, XmlConvert.ToString(options.ExternalQueueSize.Value));
+				_writer.WriteAttributeString(localName: "queueSize", XtateScxmlNs, XmlConvert.ToString(externalQueueSize));
 			}
 
-			if (options.UnhandledErrorBehaviour != null)
+			if (options.UnhandledErrorBehaviour is { } unhandledErrorBehaviour)
 			{
-				_writer.WriteAttributeString(localName: "onError", XtateScxmlNs, options.UnhandledErrorBehaviour.Value.ToString());
+				_writer.WriteAttributeString(localName: "onError", XtateScxmlNs, unhandledErrorBehaviour.ToString());
 			}
 		}
 
@@ -107,9 +107,9 @@ namespace Xtate.Scxml
 
 			_writer.WriteStartElement("state");
 
-			if (entity.Id != null)
+			if (entity.Id is { } id)
 			{
-				_writer.WriteAttributeString(localName: "id", entity.Id.Value);
+				_writer.WriteAttributeString(localName: "id", id.Value);
 			}
 
 			base.Visit(ref entity);
@@ -123,9 +123,9 @@ namespace Xtate.Scxml
 
 			_writer.WriteStartElement("parallel");
 
-			if (entity.Id != null)
+			if (entity.Id is { } id)
 			{
-				_writer.WriteAttributeString(localName: "id", entity.Id.Value);
+				_writer.WriteAttributeString(localName: "id", id.Value);
 			}
 
 			base.Visit(ref entity);
@@ -139,9 +139,9 @@ namespace Xtate.Scxml
 
 			_writer.WriteStartElement("history");
 
-			if (entity.Id != null)
+			if (entity.Id is { } id)
 			{
-				_writer.WriteAttributeString(localName: "id", entity.Id.Value);
+				_writer.WriteAttributeString(localName: "id", id.Value);
 			}
 
 			if (entity.Type != HistoryType.Shallow)
@@ -160,9 +160,9 @@ namespace Xtate.Scxml
 
 			_writer.WriteStartElement("final");
 
-			if (entity.Id != null)
+			if (entity.Id is { } id)
 			{
-				_writer.WriteAttributeString(localName: "id", entity.Id.Value);
+				_writer.WriteAttributeString(localName: "id", id.Value);
 			}
 
 			base.Visit(ref entity);
@@ -189,7 +189,7 @@ namespace Xtate.Scxml
 			}
 
 			var condition = entity.Condition?.As<IConditionExpression>().Expression;
-			if (condition != null)
+			if (condition is { })
 			{
 				_writer.WriteAttributeString(localName: "cond", condition);
 			}
@@ -228,56 +228,55 @@ namespace Xtate.Scxml
 
 			_writer.WriteStartElement("send");
 
-			if (entity.EventName != null)
+			if (entity.EventName is { } eventName)
 			{
-				_writer.WriteAttributeString(localName: "event", entity.EventName);
+				_writer.WriteAttributeString(localName: "event", eventName);
 			}
 
-			if (entity.EventExpression?.Expression != null)
+			if (entity.EventExpression?.Expression is { } expression)
 			{
-				_writer.WriteAttributeString(localName: "eventexpr", entity.EventExpression.Expression);
+				_writer.WriteAttributeString(localName: "eventexpr", expression);
 			}
 
-			if (entity.Target != null)
+			if (entity.Target is { } target)
 			{
-				_writer.WriteAttributeString(localName: "target", entity.Target.ToString());
+				_writer.WriteAttributeString(localName: "target", target.ToString());
 			}
 
-			if (entity.TargetExpression?.Expression != null)
+			if (entity.TargetExpression?.Expression is { } targetExpression)
 			{
-				_writer.WriteAttributeString(localName: "targetexpr", entity.TargetExpression.Expression);
+				_writer.WriteAttributeString(localName: "targetexpr", targetExpression);
 			}
 
-			if (entity.Type != null)
+			if (entity.Type is { } type)
 			{
-				_writer.WriteAttributeString(localName: "type", entity.Type.ToString());
+				_writer.WriteAttributeString(localName: "type", type.ToString());
 			}
 
-			if (entity.TypeExpression?.Expression != null)
+			if (entity.TypeExpression?.Expression is { } typeExpression)
 			{
-				_writer.WriteAttributeString(localName: "typeexpr", entity.TypeExpression.Expression);
+				_writer.WriteAttributeString(localName: "typeexpr", typeExpression);
 			}
 
-			if (entity.Id != null)
+			if (entity.Id is { } id)
 			{
-				_writer.WriteAttributeString(localName: "id", entity.Id);
+				_writer.WriteAttributeString(localName: "id", id);
 			}
 
-			if (entity.IdLocation?.Expression != null)
+			if (entity.IdLocation?.Expression is { } idLocation)
 			{
-				_writer.WriteAttributeString(localName: "idlocation", entity.IdLocation.Expression);
+				_writer.WriteAttributeString(localName: "idlocation", idLocation);
 			}
 
-			if (entity.DelayMs != null)
+			if (entity.DelayMs is { } ms)
 			{
-				var ms = entity.DelayMs.Value;
 				var delayStr = ms % 1000 == 0 ? ms / 1000 + @"s" : ms + @"ms";
 				_writer.WriteAttributeString(localName: "delay", delayStr);
 			}
 
-			if (entity.DelayExpression?.Expression != null)
+			if (entity.DelayExpression?.Expression is { } delayExpression)
 			{
-				_writer.WriteAttributeString(localName: "delayexpr", entity.DelayExpression.Expression);
+				_writer.WriteAttributeString(localName: "delayexpr", delayExpression);
 			}
 
 			if (!entity.NameList.IsDefaultOrEmpty)
@@ -298,14 +297,14 @@ namespace Xtate.Scxml
 
 			_writer.WriteStartElement("script");
 
-			if (entity.Source?.Uri != null)
+			if (entity.Source?.Uri is { } source)
 			{
-				_writer.WriteAttributeString(localName: "src", entity.Source.Uri.ToString());
+				_writer.WriteAttributeString(localName: "src", source.ToString());
 			}
 
-			if (entity.Content?.Expression != null)
+			if (entity.Content?.Expression is { } content)
 			{
-				_writer.WriteRaw(entity.Content.Expression);
+				_writer.WriteRaw(content);
 			}
 
 			_writer.WriteEndElement();
@@ -315,9 +314,9 @@ namespace Xtate.Scxml
 		{
 			if (entity is null) throw new ArgumentNullException(nameof(entity));
 
-			if (entity.Xml != null)
+			if (entity.Xml is { } xml)
 			{
-				_writer.WriteRaw(entity.Xml);
+				_writer.WriteRaw(xml);
 			}
 		}
 
@@ -344,14 +343,14 @@ namespace Xtate.Scxml
 
 			_writer.WriteStartElement("log");
 
-			if (entity.Label != null)
+			if (entity.Label is { } label)
 			{
-				_writer.WriteAttributeString(localName: "label", entity.Label);
+				_writer.WriteAttributeString(localName: "label", label);
 			}
 
-			if (entity.Expression?.Expression != null)
+			if (entity.Expression?.Expression is { } expression)
 			{
-				_writer.WriteAttributeString(localName: "expr", entity.Expression.Expression);
+				_writer.WriteAttributeString(localName: "expr", expression);
 			}
 
 			_writer.WriteEndElement();
@@ -363,9 +362,9 @@ namespace Xtate.Scxml
 
 			_writer.WriteStartElement("if");
 
-			if (entity.Condition?.Expression != null)
+			if (entity.Condition?.Expression is { } condition)
 			{
-				_writer.WriteAttributeString(localName: "cond", entity.Condition.Expression);
+				_writer.WriteAttributeString(localName: "cond", condition);
 			}
 
 			base.Visit(ref entity);
@@ -379,19 +378,19 @@ namespace Xtate.Scxml
 
 			_writer.WriteStartElement("foreach");
 
-			if (entity.Array?.Expression != null)
+			if (entity.Array?.Expression is { } array)
 			{
-				_writer.WriteAttributeString(localName: "array", entity.Array.Expression);
+				_writer.WriteAttributeString(localName: "array", array);
 			}
 
-			if (entity.Item?.Expression != null)
+			if (entity.Item?.Expression is { } item)
 			{
-				_writer.WriteAttributeString(localName: "item", entity.Item.Expression);
+				_writer.WriteAttributeString(localName: "item", item);
 			}
 
-			if (entity.Index?.Expression != null)
+			if (entity.Index?.Expression is { } index)
 			{
-				_writer.WriteAttributeString(localName: "index", entity.Index.Expression);
+				_writer.WriteAttributeString(localName: "index", index);
 			}
 
 			base.Visit(ref entity);
@@ -405,9 +404,9 @@ namespace Xtate.Scxml
 
 			_writer.WriteStartElement("elseif");
 
-			if (entity.Condition?.Expression != null)
+			if (entity.Condition?.Expression is { } condition)
 			{
-				_writer.WriteAttributeString(localName: "cond", entity.Condition.Expression);
+				_writer.WriteAttributeString(localName: "cond", condition);
 			}
 
 			_writer.WriteEndElement();
@@ -425,14 +424,14 @@ namespace Xtate.Scxml
 
 			_writer.WriteStartElement("cancel");
 
-			if (entity.SendId != null)
+			if (entity.SendId is { } sendId)
 			{
-				_writer.WriteAttributeString(localName: "index", entity.SendId);
+				_writer.WriteAttributeString(localName: "sendid", sendId);
 			}
 
-			if (entity.SendIdExpression?.Expression != null)
+			if (entity.SendIdExpression?.Expression is { } senIdExpression)
 			{
-				_writer.WriteAttributeString(localName: "index", entity.SendIdExpression.Expression);
+				_writer.WriteAttributeString(localName: "sendidexpr", senIdExpression);
 			}
 
 			_writer.WriteEndElement();
@@ -444,14 +443,14 @@ namespace Xtate.Scxml
 
 			_writer.WriteStartElement("assign");
 
-			if (entity.Location?.Expression != null)
+			if (entity.Location?.Expression is { } location)
 			{
-				_writer.WriteAttributeString(localName: "location", entity.Location.Expression);
+				_writer.WriteAttributeString(localName: "location", location);
 			}
 
-			if (entity.Expression?.Expression != null)
+			if (entity.Expression?.Expression is { } expression)
 			{
-				_writer.WriteAttributeString(localName: "expr", entity.Expression.Expression);
+				_writer.WriteAttributeString(localName: "expr", expression);
 			}
 
 			base.Visit(ref entity);
@@ -492,19 +491,19 @@ namespace Xtate.Scxml
 
 			_writer.WriteStartElement("data");
 
-			if (entity.Id != null)
+			if (entity.Id is { } id)
 			{
-				_writer.WriteAttributeString(localName: "id", entity.Id);
+				_writer.WriteAttributeString(localName: "id", id);
 			}
 
-			if (entity.Source?.Uri != null)
+			if (entity.Source?.Uri is { } source)
 			{
-				_writer.WriteAttributeString(localName: "src", entity.Source.Uri.ToString());
+				_writer.WriteAttributeString(localName: "src", source.ToString());
 			}
 
-			if (entity.Expression?.Expression != null)
+			if (entity.Expression?.Expression is { } expression)
 			{
-				_writer.WriteAttributeString(localName: "expr", entity.Expression.Expression);
+				_writer.WriteAttributeString(localName: "expr", expression);
 			}
 
 			base.Visit(ref entity);
@@ -518,34 +517,34 @@ namespace Xtate.Scxml
 
 			_writer.WriteStartElement("invoke");
 
-			if (entity.Type != null)
+			if (entity.Type is { } type)
 			{
-				_writer.WriteAttributeString(localName: "type", entity.Type.ToString());
+				_writer.WriteAttributeString(localName: "type", type.ToString());
 			}
 
-			if (entity.TypeExpression?.Expression != null)
+			if (entity.TypeExpression?.Expression is { } typeExpression)
 			{
-				_writer.WriteAttributeString(localName: "typeexpr", entity.TypeExpression.Expression);
+				_writer.WriteAttributeString(localName: "typeexpr", typeExpression);
 			}
 
-			if (entity.Source != null)
+			if (entity.Source is { } source)
 			{
-				_writer.WriteAttributeString(localName: "src", entity.Source.ToString());
+				_writer.WriteAttributeString(localName: "src", source.ToString());
 			}
 
-			if (entity.SourceExpression?.Expression != null)
+			if (entity.SourceExpression?.Expression is { } sourceExpression)
 			{
-				_writer.WriteAttributeString(localName: "eventexpr", entity.SourceExpression.Expression);
+				_writer.WriteAttributeString(localName: "eventexpr", sourceExpression);
 			}
 
-			if (entity.Id != null)
+			if (entity.Id is { } id)
 			{
-				_writer.WriteAttributeString(localName: "id", entity.Id);
+				_writer.WriteAttributeString(localName: "id", id);
 			}
 
-			if (entity.IdLocation?.Expression != null)
+			if (entity.IdLocation?.Expression is { } idLocation)
 			{
-				_writer.WriteAttributeString(localName: "idlocation", entity.IdLocation.Expression);
+				_writer.WriteAttributeString(localName: "idlocation", idLocation);
 			}
 
 			if (!entity.NameList.IsDefaultOrEmpty)
@@ -580,19 +579,19 @@ namespace Xtate.Scxml
 
 			_writer.WriteStartElement("param");
 
-			if (entity.Name != null)
+			if (entity.Name is { } name)
 			{
-				_writer.WriteAttributeString(localName: "name", entity.Name);
+				_writer.WriteAttributeString(localName: "name", name);
 			}
 
-			if (entity.Expression?.Expression != null)
+			if (entity.Expression?.Expression is { } expression)
 			{
-				_writer.WriteAttributeString(localName: "expr", entity.Expression.Expression);
+				_writer.WriteAttributeString(localName: "expr", expression);
 			}
 
-			if (entity.Location?.Expression != null)
+			if (entity.Location?.Expression is { } location)
 			{
-				_writer.WriteAttributeString(localName: "location", entity.Location.Expression);
+				_writer.WriteAttributeString(localName: "location", location);
 			}
 
 			_writer.WriteEndElement();
@@ -604,9 +603,9 @@ namespace Xtate.Scxml
 
 			_writer.WriteStartElement("content");
 
-			if (entity.Expression?.Expression != null)
+			if (entity.Expression?.Expression is { } expression)
 			{
-				_writer.WriteAttributeString(localName: "expr", entity.Expression.Expression);
+				_writer.WriteAttributeString(localName: "expr", expression);
 			}
 
 			base.Visit(ref entity);
@@ -618,9 +617,9 @@ namespace Xtate.Scxml
 		{
 			if (entity is null) throw new ArgumentNullException(nameof(entity));
 
-			if (entity.Value != null)
+			if (entity.Value is { } value)
 			{
-				_writer.WriteRaw(entity.Value);
+				_writer.WriteRaw(value);
 			}
 		}
 
@@ -628,9 +627,9 @@ namespace Xtate.Scxml
 		{
 			if (entity is null) throw new ArgumentNullException(nameof(entity));
 
-			if (entity.Value != null)
+			if (entity.Value is { } value)
 			{
-				_writer.WriteRaw(entity.Value);
+				_writer.WriteRaw(value);
 			}
 		}
 

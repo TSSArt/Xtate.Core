@@ -28,7 +28,7 @@ namespace Xtate
 
 		public ExternalDataExpressionNode(in ExternalDataExpression externalDataExpression)
 		{
-			Infrastructure.Assert(externalDataExpression.Uri != null);
+			Infrastructure.NotNull(externalDataExpression.Uri);
 
 			_externalDataExpression = externalDataExpression;
 		}

@@ -34,8 +34,8 @@ namespace Xtate.DataModel
 		{
 			_forEach = forEach;
 
-			Infrastructure.Assert(forEach.Array != null);
-			Infrastructure.Assert(forEach.Item != null);
+			Infrastructure.NotNull(forEach.Array);
+			Infrastructure.NotNull(forEach.Item);
 
 			ArrayEvaluator = forEach.Array.As<IArrayEvaluator>();
 			ItemEvaluator = forEach.Item.As<ILocationEvaluator>();
@@ -68,7 +68,7 @@ namespace Xtate.DataModel
 
 				await ItemEvaluator.SetValue(instance, executionContext, token).ConfigureAwait(false);
 
-				if (IndexEvaluator != null)
+				if (IndexEvaluator is { })
 				{
 					await IndexEvaluator.SetValue(new DefaultObject(i), executionContext, token).ConfigureAwait(false);
 				}

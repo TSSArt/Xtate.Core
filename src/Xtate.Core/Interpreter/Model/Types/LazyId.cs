@@ -43,7 +43,7 @@ namespace Xtate
 				{
 					var newId = GenerateId();
 
-					Debug.Assert(newId != null && TryGetHashFromId(newId, out var hash) && hash == base.GetHashCode());
+					Debug.Assert(newId is { } && TryGetHashFromId(newId, out var hash) && hash == base.GetHashCode());
 
 					id = Interlocked.CompareExchange(ref _id, newId, comparand: null) ?? newId;
 				}

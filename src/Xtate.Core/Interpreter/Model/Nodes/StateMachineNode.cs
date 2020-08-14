@@ -30,7 +30,7 @@ namespace Xtate
 
 		public StateMachineNode(in DocumentIdRecord documentIdNode, in StateMachineEntity stateMachine) : base(documentIdNode, GetChildNodes(stateMachine.Initial, stateMachine.States))
 		{
-			Infrastructure.Assert(stateMachine.Initial != null);
+			Infrastructure.NotNull(stateMachine.Initial);
 
 			_stateMachine = stateMachine;
 			Initial = stateMachine.Initial.As<InitialNode>();

@@ -43,7 +43,7 @@ namespace Xtate.Builder
 
 		public IStateMachine Build()
 		{
-			var initial = _initialId != null ? (IInitial) new InitialEntity { Transition = new TransitionEntity { Target = _initialId } } : null;
+			var initial = !_initialId.IsDefaultOrEmpty ? (IInitial) new InitialEntity { Transition = new TransitionEntity { Target = _initialId } } : null;
 
 			var ancestor = _injectOptions ? new AncestorContainer(_options, Ancestor) : Ancestor;
 

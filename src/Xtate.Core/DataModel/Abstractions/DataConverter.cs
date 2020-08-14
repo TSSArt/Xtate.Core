@@ -45,7 +45,7 @@ namespace Xtate.DataModel
 		{
 			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
-			if (contentExpressionEvaluator != null)
+			if (contentExpressionEvaluator is { })
 			{
 				var obj = await contentExpressionEvaluator.EvaluateObject(executionContext, token).ConfigureAwait(false);
 
@@ -99,11 +99,11 @@ namespace Xtate.DataModel
 					var name = param.Name;
 					object? value = null;
 
-					if (param.ExpressionEvaluator != null)
+					if (param.ExpressionEvaluator is { })
 					{
 						value = (await param.ExpressionEvaluator.EvaluateObject(executionContext, token).ConfigureAwait(false)).ToObject();
 					}
-					else if (param.LocationEvaluator != null)
+					else if (param.LocationEvaluator is { })
 					{
 						value = await param.LocationEvaluator.GetValue(executionContext, token).ConfigureAwait(false);
 					}

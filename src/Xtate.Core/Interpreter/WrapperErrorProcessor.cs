@@ -41,9 +41,9 @@ namespace Xtate
 
 		public void ThrowIfErrors()
 		{
-			if (_error != null)
+			if (_error is { } error)
 			{
-				throw new StateMachineValidationException(ImmutableArray.Create(_error));
+				throw new StateMachineValidationException(ImmutableArray.Create(error));
 			}
 		}
 

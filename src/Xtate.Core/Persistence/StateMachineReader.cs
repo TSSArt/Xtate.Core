@@ -235,7 +235,7 @@ namespace Xtate.Persistence
 		{
 			var val = bucket.GetString(Key.Id);
 
-			return val != null ? (EventDescriptor) val : null;
+			return val is { } ? (EventDescriptor) val : null;
 		}
 
 		private static IOutgoingEvent RestoreEvent(Bucket bucket) => new EventEntity(bucket.GetString(Key.Id)) { Target = EventEntity.InternalTarget };
@@ -401,7 +401,7 @@ namespace Xtate.Persistence
 		private static IIdentifier? RestoreIdentifier(Bucket bucket)
 		{
 			var id = bucket.GetString(Key.Id);
-			return id != null ? (Identifier) id : null;
+			return id is { } ? (Identifier) id : null;
 		}
 
 		private IIf? RestoreIf(Bucket bucket) =>
