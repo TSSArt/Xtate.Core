@@ -35,6 +35,20 @@ namespace Xtate
 
 		DataModelObject ILoggerContext.GetDataModel() => _context.DataModel.AsConstant();
 
+		DataModelArray ILoggerContext.GetActiveStates()
+		{
+			var list = new DataModelArray();
+
+			foreach (var node in _context.Configuration)
+			{
+				list.Add(node.Id.Value);
+			}
+
+			list.MakeDeepConstant();
+
+			return list;
+		}
+
 	#endregion
 
 		private bool IsPlatformError(Exception exception)
