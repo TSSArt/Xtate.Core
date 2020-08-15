@@ -29,10 +29,6 @@ namespace Xtate
 	{
 	#region Interface ILoggerContext
 
-		SessionId? ILoggerContext.SessionId => _sessionId;
-
-		string? ILoggerContext.StateMachineName => _model.Root.Name;
-
 		DataModelObject ILoggerContext.GetDataModel() => _context.DataModel.AsConstant();
 
 		DataModelArray ILoggerContext.GetActiveStates()
@@ -48,6 +44,10 @@ namespace Xtate
 
 			return list;
 		}
+
+		SessionId? ILoggerContext.SessionId => _sessionId;
+
+		string? ILoggerContext.StateMachineName => _model.Root.Name;
 
 	#endregion
 
