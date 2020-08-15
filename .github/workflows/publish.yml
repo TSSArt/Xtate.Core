@@ -34,7 +34,7 @@ jobs:
     - name: Pack
       run: dotnet pack --configuration ${{ env.CONFIGURATION }} --no-restore --no-build -p:PackageVersion=${{ env.VERSION }} --include-symbols -p:SymbolPackageFormat=snupkg -o bin\packages
     - name: Publish to GitHub
-      uses: nick-invision/retry@v1.0.0
+      uses: nick-invision/retry@v1.0.4
       with:
         command: dotnet nuget push bin\packages\*.nupkg
         max_attempts: 10
