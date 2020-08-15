@@ -29,7 +29,7 @@ namespace Xtate
 		public string? StateMachineName { get; }
 
 		public DataModelObject? GetDataModel();
-		
+
 		public DataModelArray? GetActiveStates();
 	}
 }

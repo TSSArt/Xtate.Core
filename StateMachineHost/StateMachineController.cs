@@ -136,13 +136,13 @@ namespace Xtate
 
 	#region Interface ILoggerContext
 
-		public SessionId SessionId { get; }
-
-		public string? StateMachineName => _options?.Name;
-
 		DataModelObject? ILoggerContext.GetDataModel() => default;
 
 		DataModelArray? ILoggerContext.GetActiveStates() => default;
+
+		public SessionId SessionId { get; }
+
+		public string? StateMachineName => _options?.Name;
 
 	#endregion
 
