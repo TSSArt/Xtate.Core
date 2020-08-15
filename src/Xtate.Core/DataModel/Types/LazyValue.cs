@@ -34,18 +34,17 @@ namespace Xtate
 		{
 			get
 			{
-				var factory = _factory;
-				if (factory is null)
+				if (_factory is {} factory)
 				{
-					return _value;
+					var value = factory();
+
+					_factory = null;
+					_value = value;
+
+					return value;
 				}
 
-				var value = factory();
-
-				_factory = null;
-				_value = value;
-
-				return value;
+				return _value;
 			}
 		}
 
@@ -74,18 +73,17 @@ namespace Xtate
 		{
 			get
 			{
-				var factory = _factory;
-				if (factory is null)
+				if (_factory is { } factory)
 				{
-					return _value;
+					var value = factory(_arg);
+
+					_factory = null;
+					_value = value;
+
+					return value;
 				}
 
-				var value = factory(_arg);
-
-				_factory = null;
-				_value = value;
-
-				return value;
+				return _value;
 			}
 		}
 
@@ -116,18 +114,17 @@ namespace Xtate
 		{
 			get
 			{
-				var factory = _factory;
-				if (factory is null)
+				if (_factory is { } factory)
 				{
-					return _value;
+					var value = factory(_arg1, _arg2);
+
+					_factory = null;
+					_value = value;
+
+					return value;
 				}
 
-				var value = factory(_arg1, _arg2);
-
-				_factory = null;
-				_value = value;
-
-				return value;
+				return _value;
 			}
 		}
 

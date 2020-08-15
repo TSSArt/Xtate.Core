@@ -33,15 +33,15 @@ namespace Xtate.IoProcessor
 		{
 			_eventConsumer = eventConsumer ?? throw new ArgumentNullException(nameof(eventConsumer));
 
-			var ioProcessorAttribute = GetType().GetCustomAttribute<IoProcessorAttribute>(false);
-
-			if (ioProcessorAttribute is null)
+			if (GetType().GetCustomAttribute<IoProcessorAttribute>(false) is { } ioProcessorAttribute)
 			{
-				throw new InfrastructureException(Res.Format(Resources.Exception_IoProcessorAttributeWasNotProvided, GetType()));
+				IoProcessorId = new Uri(ioProcessorAttribute.Type, UriKind.RelativeOrAbsolute);
+				_ioProcessorAliasId = ioProcessorAttribute.Alias is { } ? new Uri(ioProcessorAttribute.Alias, UriKind.RelativeOrAbsolute) : null;
+
+				return;
 			}
 
-			IoProcessorId = new Uri(ioProcessorAttribute.Type, UriKind.RelativeOrAbsolute);
-			_ioProcessorAliasId = ioProcessorAttribute.Alias is { } ? new Uri(ioProcessorAttribute.Alias, UriKind.RelativeOrAbsolute) : null;
+			throw new InfrastructureException(Res.Format(Resources.Exception_IoProcessorAttributeWasNotProvided, GetType()));
 		}
 
 		protected Uri IoProcessorId { get; }
