@@ -41,14 +41,13 @@ namespace Xtate
 		{
 			get
 			{
-				var invokeUniqueId = _invokeUniqueId;
-
-				if (invokeUniqueId is null)
+				if (_invokeUniqueId is { } invokeUniqueId)
 				{
-					var newInvokeUniqueId = IdGenerator.NewInvokeUniqueId(GetHashCode());
-
-					invokeUniqueId = Interlocked.CompareExchange(ref _invokeUniqueId, newInvokeUniqueId, comparand: null) ?? newInvokeUniqueId;
+					return invokeUniqueId;
 				}
+
+				var newInvokeUniqueId = IdGenerator.NewInvokeUniqueId(GetHashCode());
+				invokeUniqueId = Interlocked.CompareExchange(ref _invokeUniqueId, newInvokeUniqueId, comparand: null) ?? newInvokeUniqueId;
 
 				return invokeUniqueId;
 			}
@@ -85,14 +84,12 @@ namespace Xtate
 			{
 				if (obj is null) throw new ArgumentNullException(nameof(obj));
 
-				var id = obj._invokeUniqueId;
-
-				if (id is null)
+				if (obj._invokeUniqueId is { } id)
 				{
-					return obj.GetHashCode();
+					return TryGetHashFromId(id, out var hash) ? hash : id.GetHashCode();
 				}
 
-				return TryGetHashFromId(id, out var hash) ? hash : id.GetHashCode();
+				return obj.GetHashCode();
 			}
 
 		#endregion

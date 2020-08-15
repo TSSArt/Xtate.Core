@@ -60,17 +60,13 @@ namespace Xtate
 
 	#region Interface IComparable
 
-		public int CompareTo(object? value)
-		{
-			if (value is null) return 1;
-
-			if (!(value is DataModelDateTime))
-			{
-				throw new ArgumentException(Resources.Exception_Argument_must_be_DataModelDateTime_type);
-			}
-
-			return Compare(this, (DataModelDateTime) value);
-		}
+		public int CompareTo(object? value) =>
+				value switch
+				{
+						null => 1,
+						DataModelDateTime dateTime => Compare(this, dateTime),
+						_ => throw new ArgumentException(Resources.Exception_Argument_must_be_DataModelDateTime_type)
+				};
 
 	#endregion
 

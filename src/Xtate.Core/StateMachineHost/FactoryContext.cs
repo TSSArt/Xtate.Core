@@ -48,25 +48,23 @@ namespace Xtate
 		{
 			get
 			{
-				var dictionary = _dictionary;
-
-				if (dictionary is null)
+				if (_dictionary is {} dictionary)
 				{
-					return null;
+					return dictionary.TryGetValue(key, out var value) ? value : null;
 				}
 
-				return dictionary.TryGetValue(key, out var value) ? value : null;
+				return null;
 			}
 			set
 			{
-				var dictionary = _dictionary;
-
-				if (dictionary is null)
+				if (_dictionary is {} dictionary)
 				{
-					_dictionary = dictionary = new Dictionary<object, object?>();
+					dictionary[key] = value;
 				}
-
-				dictionary[key] = value;
+				else
+				{
+					_dictionary = new Dictionary<object, object?> { [key] = value };
+				}
 			}
 		}
 

@@ -33,15 +33,15 @@ namespace Xtate.Service
 
 		private SimpleServiceFactory()
 		{
-			var serviceAttribute = typeof(TService).GetCustomAttribute<SimpleServiceAttribute>();
-
-			if (serviceAttribute is null)
+			if (typeof(TService).GetCustomAttribute<SimpleServiceAttribute>() is { } serviceAttribute)
 			{
-				throw new InfrastructureException(Res.Format(Resources.Exception_ServiceAttribute_did_not_provided_for_type, typeof(TService)));
+				_type = new Uri(serviceAttribute.Type, UriKind.RelativeOrAbsolute);
+				_alias = serviceAttribute.Alias is { } ? new Uri(serviceAttribute.Alias, UriKind.RelativeOrAbsolute) : null;
+
+				return;
 			}
 
-			_type = new Uri(serviceAttribute.Type, UriKind.RelativeOrAbsolute);
-			_alias = serviceAttribute.Alias is { } ? new Uri(serviceAttribute.Alias, UriKind.RelativeOrAbsolute) : null;
+			throw new InfrastructureException(Res.Format(Resources.Exception_ServiceAttribute_did_not_provided_for_type, typeof(TService)));
 		}
 
 	#region Interface IServiceFactory

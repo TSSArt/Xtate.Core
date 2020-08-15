@@ -37,21 +37,20 @@ namespace Xtate
 		{
 			get
 			{
-				var node = _node;
-				if (node is null)
+				if (_node is {} node)
 				{
-					return _value;
+					var value = node.Value;
+
+					if (value >= 0)
+					{
+						_node = null;
+						_value = value;
+					}
+
+					return value;
 				}
 
-				var value = node.Value;
-
-				if (value >= 0)
-				{
-					_node = null;
-					_value = value;
-				}
-
-				return value;
+				return _value;
 			}
 		}
 
