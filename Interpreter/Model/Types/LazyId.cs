@@ -37,16 +37,16 @@ namespace Xtate
 		{
 			get
 			{
-				var id = _id;
-
-				if (id is null)
+				if (_id is { } id)
 				{
-					var newId = GenerateId();
-
-					Debug.Assert(newId is { } && TryGetHashFromId(newId, out var hash) && hash == base.GetHashCode());
-
-					id = Interlocked.CompareExchange(ref _id, newId, comparand: null) ?? newId;
+					return id;
 				}
+
+				var newId = GenerateId();
+
+				Debug.Assert(newId is { } && TryGetHashFromId(newId, out var hash) && hash == base.GetHashCode());
+
+				id = Interlocked.CompareExchange(ref _id, newId, comparand: null) ?? newId;
 
 				return id;
 			}
@@ -74,14 +74,7 @@ namespace Xtate
 		[SuppressMessage(category: "ReSharper", checkId: "BaseObjectGetHashCodeCallInGetHashCode", Justification = "base.GetHashCode() used as designed")]
 		public override int GetHashCode()
 		{
-			var id = _id;
-
-			if (id is null)
-			{
-				return base.GetHashCode();
-			}
-
-			return TryGetHashFromId(id, out var hash) ? hash : id.GetHashCode();
+			return _id is { } id ? TryGetHashFromId(id, out var hash) ? hash : id.GetHashCode() : base.GetHashCode();
 		}
 
 		protected static bool TryGetHashFromId(string id, out int hash)

@@ -531,7 +531,7 @@ namespace Xtate.Scxml
 					return;
 				}
 
-				if (_rawContent is null)
+				if (!_rawContent.HasValue)
 				{
 					_rawContent = val;
 

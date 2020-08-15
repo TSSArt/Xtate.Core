@@ -36,14 +36,14 @@ namespace Xtate.CustomAction
 
 		protected CustomActionFactoryBase()
 		{
-			var customActionProviderAttribute = GetType().GetCustomAttribute<CustomActionProviderAttribute>();
-
-			if (customActionProviderAttribute is null)
+			if (GetType().GetCustomAttribute<CustomActionProviderAttribute>() is {} customActionProviderAttribute)
 			{
-				throw new InfrastructureException(Res.Format(Resources.Exception_CustomActionProviderAttributeWasNotProvided, GetType()));
+				_namespace = customActionProviderAttribute.Namespace;
+
+				return;
 			}
 
-			_namespace = customActionProviderAttribute.Namespace;
+			throw new InfrastructureException(Res.Format(Resources.Exception_CustomActionProviderAttributeWasNotProvided, GetType()));
 		}
 
 	#region Interface ICustomActionFactory

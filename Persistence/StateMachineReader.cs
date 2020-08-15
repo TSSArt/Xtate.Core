@@ -341,17 +341,16 @@ namespace Xtate.Persistence
 				return null;
 			}
 
-			var content = bucket.GetString(Key.Content);
-			if (content is null)
+			if (bucket.GetString(Key.Content) is { } content)
 			{
-				return new ExternalScriptExpression
-					   {
-							   Ancestor = new EntityData(bucket),
-							   Uri = bucket.GetUri(Key.Uri)
-					   };
+				return new ExternalScriptExpressionWithContent(new EntityData(bucket), bucket.GetUri(Key.Uri), content);
 			}
 
-			return new ExternalScriptExpressionWithContent(new EntityData(bucket), bucket.GetUri(Key.Uri), content);
+			return new ExternalScriptExpression
+				   {
+						   Ancestor = new EntityData(bucket),
+						   Uri = bucket.GetUri(Key.Uri)
+				   };
 		}
 
 		private IFinalize? RestoreFinalize(Bucket bucket) =>
