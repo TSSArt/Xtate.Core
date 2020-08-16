@@ -52,6 +52,6 @@ namespace Xtate.Service
 
 		protected virtual Uri InvokeTypeToUri(Uri invokeType) => invokeType;
 
-		protected sealed override Uri? KeyToUri(object key) => key is { } ? InvokeTypeToUri((Uri) key) : null;
+		protected sealed override Uri KeyToUri(object key) => InvokeTypeToUri((Uri) key);
 	}
 }

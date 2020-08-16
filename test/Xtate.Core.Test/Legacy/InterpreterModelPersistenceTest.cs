@@ -139,7 +139,7 @@ namespace Xtate.Core.Test.Legacy
 		{
 			var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Xtate.Core.Test.Legacy.test.scxml");
 
-			var xmlReader = XmlReader.Create(stream);
+			var xmlReader = XmlReader.Create(stream!);
 
 			var director = new ScxmlDirector(xmlReader, BuilderFactory.Instance, DefaultErrorProcessor.Instance, namespaceResolver: null);
 

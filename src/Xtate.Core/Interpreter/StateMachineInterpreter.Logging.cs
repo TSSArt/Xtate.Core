@@ -45,7 +45,7 @@ namespace Xtate
 			return list;
 		}
 
-		SessionId? ILoggerContext.SessionId => _sessionId;
+		SessionId ILoggerContext.SessionId => _sessionId;
 
 		string? ILoggerContext.StateMachineName => _model.Root.Name;
 
@@ -53,9 +53,9 @@ namespace Xtate
 
 		private bool IsPlatformError(Exception exception)
 		{
-			for (; exception is { }; exception = exception.InnerException)
+			for (var ex = exception; ex is { }; ex = ex.InnerException)
 			{
-				if (exception is PlatformException ex && ex.SessionId == _sessionId)
+				if (ex is PlatformException platformException && platformException.SessionId == _sessionId)
 				{
 					return true;
 				}

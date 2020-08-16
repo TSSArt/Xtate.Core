@@ -18,9 +18,11 @@
 #endregion
 
 using System;
+using Xtate.Annotations;
 
 namespace Xtate
 {
+	[PublicAPI]
 	public class LazyValue : ILazyValue
 	{
 		private Func<DataModelValue>? _factory;
@@ -55,6 +57,7 @@ namespace Xtate
 		public DataModelValue ToDataModelValue() => this;
 	}
 
+	[PublicAPI]
 	public class LazyValue<TArg> : ILazyValue
 	{
 		private readonly TArg                        _arg;
@@ -94,6 +97,7 @@ namespace Xtate
 		public DataModelValue ToDataModelValue() => this;
 	}
 
+	[PublicAPI]
 	public class LazyValue<TArg1, TArg2> : ILazyValue
 	{
 		private readonly TArg1                               _arg1;

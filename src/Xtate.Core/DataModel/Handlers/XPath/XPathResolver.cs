@@ -79,7 +79,7 @@ namespace Xtate.DataModel.XPath
 
 			compiledExpression.SetResolver(this);
 
-			return new DataModelXPathNavigator(ExecutionContext.DataModel).Evaluate(compiledExpression.XPathExpression);
+			return new DataModelXPathNavigator(ExecutionContext.DataModel).Evaluate(compiledExpression.XPathExpression)!;
 		}
 
 		public void DeclareVariable(XPathCompiledExpression compiledExpression)

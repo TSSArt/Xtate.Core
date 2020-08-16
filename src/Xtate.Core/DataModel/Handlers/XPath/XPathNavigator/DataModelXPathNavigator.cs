@@ -410,7 +410,7 @@ namespace Xtate.DataModel.XPath
 
 			public bool Equals(Node node) => ParentCursor >= 0 ? ParentCursor == node.ParentCursor : DataModelValue == node.DataModelValue;
 
-			public XPathNodeType GetNodeType()     => Adapter.GetNodeType(this);
+			public XPathNodeType GetNodeType()     => Adapter.GetNodeType();
 			public string        GetValue()        => Adapter.GetValue(this);
 			public string        GetName()         => Adapter.GetName(this);
 			public string        GetPrefix()       => Adapter.GetPrefix(this);

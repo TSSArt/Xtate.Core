@@ -99,7 +99,7 @@ namespace Xtate
 		{
 			var factoryCache = _factoryCache;
 
-			if (factoryCache.TryGetValue(assembly, out ImmutableArray<TFactory> factories))
+			if (factoryCache.TryGetValue(assembly, out var factories))
 			{
 				return factories;
 			}

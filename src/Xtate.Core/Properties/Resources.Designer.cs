@@ -1023,11 +1023,11 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Capcity should not be negative..
+        ///   Looks up a localized string similar to Capacity should not be negative..
         /// </summary>
-        internal static string Exception_Capcity_should_not_be_negative {
+        internal static string Exception_Capacity_should_not_be_negative {
             get {
-                return ResourceManager.GetString("Exception_Capcity_should_not_be_negative", resourceCulture);
+                return ResourceManager.GetString("Exception_Capacity_should_not_be_negative", resourceCulture);
             }
         }
         
@@ -1480,6 +1480,15 @@ namespace Xtate {
         internal static string Exception_Persisted_state_can_t_be_read__Unsupported_version_ {
             get {
                 return ResourceManager.GetString("Exception_Persisted_state_can_t_be_read__Unsupported_version_", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Prefix {0} can&apos;t be resolved..
+        /// </summary>
+        internal static string Exception_Prefix_cant_be_resolved {
+            get {
+                return ResourceManager.GetString("Exception_Prefix_cant_be_resolved", resourceCulture);
             }
         }
         

@@ -84,7 +84,7 @@ namespace Xtate
 			Stream stream;
 			if (_cachedFileResources.TryGetValue(path, out var weakReference) && weakReference.TryGetTarget(out var resource) && resource.ModifiedDate == modifiedUtc)
 			{
-				stream = new MemoryStream(resource.GetBytes());
+				stream = new MemoryStream(resource.GetBytes() ?? Array.Empty<byte>());
 			}
 			else
 			{

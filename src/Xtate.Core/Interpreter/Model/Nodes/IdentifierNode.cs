@@ -30,7 +30,7 @@ namespace Xtate
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _identifier;
+		object IAncestorProvider.Ancestor => _identifier;
 
 	#endregion
 
