@@ -60,7 +60,7 @@ namespace Xtate
 
 	#region Interface IObject
 
-		object? IObject.ToObject() => Value;
+		object IObject.ToObject() => Value;
 
 	#endregion
 

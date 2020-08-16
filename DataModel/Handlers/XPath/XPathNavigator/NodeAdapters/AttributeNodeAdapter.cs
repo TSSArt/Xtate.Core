@@ -23,7 +23,7 @@ namespace Xtate.DataModel.XPath
 {
 	internal class AttributeNodeAdapter : NodeAdapter
 	{
-		public override XPathNodeType GetNodeType(in DataModelXPathNavigator.Node node) => XPathNodeType.Attribute;
+		public override XPathNodeType GetNodeType() => XPathNodeType.Attribute;
 
 		public override string GetLocalName(in DataModelXPathNavigator.Node node) => node.ParentProperty ?? Infrastructure.Fail<string>();
 

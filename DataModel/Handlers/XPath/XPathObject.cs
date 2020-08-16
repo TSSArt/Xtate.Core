@@ -53,7 +53,7 @@ namespace Xtate.DataModel.XPath
 
 	#region Interface IObject
 
-		public object? ToObject() =>
+		public object ToObject() =>
 				_value switch
 				{
 						XPathNodeIterator iterator => ToArray(iterator),

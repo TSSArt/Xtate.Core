@@ -62,6 +62,6 @@ namespace Xtate.DataModel
 			return new Uri(uriString, UriKind.RelativeOrAbsolute);
 		}
 
-		protected sealed override Uri? KeyToUri(object key) => key is { } ? DataModelTypeToUri((string) key) : null;
+		protected sealed override Uri KeyToUri(object key) => DataModelTypeToUri((string) key);
 	}
 }

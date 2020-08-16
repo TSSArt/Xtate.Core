@@ -19,9 +19,11 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using Xtate.Annotations;
 
 namespace Xtate.CustomAction
 {
+	[PublicAPI]
 	public interface ICustomActionFactoryActivator
 	{
 		ValueTask<ICustomActionExecutor> CreateExecutor(IFactoryContext factoryContext, ICustomActionContext customActionContext, CancellationToken token);

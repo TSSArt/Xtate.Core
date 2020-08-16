@@ -100,8 +100,8 @@ namespace Xtate.DataModel.XPath
 
 		private static DataModelList? GetMetaData(XmlReader xmlReader)
 		{
-			var elementNs = xmlReader.NamespaceURI ?? string.Empty;
-			var elementPrefix = xmlReader.Prefix ?? string.Empty;
+			var elementNs = xmlReader.NamespaceURI;
+			var elementPrefix = xmlReader.Prefix;
 
 			if (elementNs.Length == 0 && elementPrefix.Length == 0 && !xmlReader.HasAttributes)
 			{

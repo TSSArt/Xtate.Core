@@ -74,7 +74,7 @@ namespace Xtate.Scxml
 			_namespaceResolver = namespaceResolver;
 			_factory = factory;
 			_errorProcessor = errorProcessor;
-			_nameTable = xmlReader.NameTable;
+			_nameTable = xmlReader.NameTable ?? new NameTable();
 
 			FillNameTable(_nameTable);
 		}
@@ -356,7 +356,7 @@ namespace Xtate.Scxml
 
 		private object? CreateXmlLineInfo(object? ancestor) => _errorProcessor.LineInfoRequired && HasLineInfo() ? new XmlLineInfo(LineNumber, LinePosition, ancestor) : ancestor;
 
-		private object? CreateNameTableInfo(object? ancestor) => new AncestorContainer(_nameTable, ancestor);
+		private object CreateNameTableInfo(object? ancestor) => new AncestorContainer(_nameTable, ancestor);
 
 		private object? CreateXmlNamespacesInfo(object? ancestor)
 		{
