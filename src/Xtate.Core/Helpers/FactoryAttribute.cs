@@ -28,6 +28,6 @@ namespace Xtate
 	{
 		public FactoryAttribute(Type factoryType) => FactoryType = factoryType;
 
-		public Type FactoryType { get; }
+		public Type? FactoryType { get; }
 	}
 }

@@ -25,7 +25,7 @@ namespace Xtate.DataModel.XPath
 {
 	internal class SimpleTypeNodeAdapter : NodeAdapter
 	{
-		public override XPathNodeType GetNodeType(in DataModelXPathNavigator.Node node) => XPathNodeType.Text;
+		public override XPathNodeType GetNodeType() => XPathNodeType.Text;
 
 		public override string GetValue(in DataModelXPathNavigator.Node node) =>
 				node.DataModelValue.Type switch

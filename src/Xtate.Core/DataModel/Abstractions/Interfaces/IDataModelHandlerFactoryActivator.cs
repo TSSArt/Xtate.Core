@@ -19,9 +19,11 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using Xtate.Annotations;
 
 namespace Xtate.DataModel
 {
+	[PublicAPI]
 	public interface IDataModelHandlerFactoryActivator
 	{
 		ValueTask<IDataModelHandler> CreateHandler(IFactoryContext factoryContext, string dataModelType, IErrorProcessor errorProcessor, CancellationToken token);

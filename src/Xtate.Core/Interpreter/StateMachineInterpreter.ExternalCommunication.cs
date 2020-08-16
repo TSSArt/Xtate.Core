@@ -111,11 +111,11 @@ namespace Xtate
 
 		private bool IsCommunicationError(Exception exception, out SendId? sendId)
 		{
-			for (; exception is { }; exception = exception.InnerException)
+			for (var ex = exception; ex is { }; ex = ex.InnerException)
 			{
-				if (exception is CommunicationException ex && ex.SessionId == _sessionId)
+				if (ex is CommunicationException communicationException && communicationException.SessionId == _sessionId)
 				{
-					sendId = ex.SendId;
+					sendId = communicationException.SendId;
 
 					return true;
 				}

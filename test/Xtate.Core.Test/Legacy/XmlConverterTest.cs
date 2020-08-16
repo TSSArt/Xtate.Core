@@ -35,7 +35,7 @@ namespace Xtate.Core.Test.Legacy
 															 Indent = true
 													 });
 
-			xmlWriter.WriteStartElement("v");
+			xmlWriter!.WriteStartElement("v");
 
 			//	xmlWriter.WriteAttributeString(prefix: @"xmlns", localName: @"xs", ns: null, "http://www.w3.org/2001/XMLSchema");
 			//	xmlWriter.WriteAttributeString(prefix: @"xmlns", localName: @"xsi", ns: null, "http://www.w3.org/2001/XMLSchema-instance");

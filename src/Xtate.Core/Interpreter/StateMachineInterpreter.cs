@@ -1437,7 +1437,7 @@ namespace Xtate
 					ErrorType.Execution => EventName.ErrorExecution,
 					ErrorType.Communication => EventName.ErrorCommunication,
 					ErrorType.Platform => EventName.ErrorPlatform,
-					_ => Infrastructure.UnexpectedValue<ImmutableArray<IIdentifier>>()
+					_ => throw new InfrastructureException()
 			};
 
 			var eventObject = new EventObject(EventType.Platform, nameParts, DataConverter.FromException(exception, _dataModelHandler.CaseInsensitive), sendId, invokeId: default, exception);

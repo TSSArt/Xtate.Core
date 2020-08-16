@@ -402,31 +402,31 @@ namespace Xtate.Core.Test
 		public void IConvert_ShouldThrowInvalidCastException_ForAllExceptToDateTime()
 		{
 			// assert
-			Assert.ThrowsException<InvalidCastException>(() => ((IConvertible) default(DataModelDateTime)).ToBoolean(null));
-			Assert.ThrowsException<InvalidCastException>(() => ((IConvertible) default(DataModelDateTime)).ToByte(null));
-			Assert.ThrowsException<InvalidCastException>(() => ((IConvertible) default(DataModelDateTime)).ToChar(null));
-			Assert.ThrowsException<InvalidCastException>(() => ((IConvertible) default(DataModelDateTime)).ToDecimal(null));
-			Assert.ThrowsException<InvalidCastException>(() => ((IConvertible) default(DataModelDateTime)).ToDouble(null));
-			Assert.ThrowsException<InvalidCastException>(() => ((IConvertible) default(DataModelDateTime)).ToInt16(null));
-			Assert.ThrowsException<InvalidCastException>(() => ((IConvertible) default(DataModelDateTime)).ToInt32(null));
-			Assert.ThrowsException<InvalidCastException>(() => ((IConvertible) default(DataModelDateTime)).ToInt64(null));
-			Assert.ThrowsException<InvalidCastException>(() => ((IConvertible) default(DataModelDateTime)).ToSByte(null));
-			Assert.ThrowsException<InvalidCastException>(() => ((IConvertible) default(DataModelDateTime)).ToSingle(null));
-			Assert.ThrowsException<InvalidCastException>(() => ((IConvertible) default(DataModelDateTime)).ToUInt16(null));
-			Assert.ThrowsException<InvalidCastException>(() => ((IConvertible) default(DataModelDateTime)).ToUInt32(null));
-			Assert.ThrowsException<InvalidCastException>(() => ((IConvertible) default(DataModelDateTime)).ToUInt64(null));
+			Assert.ThrowsException<InvalidCastException>(() => ((IConvertible) default(DataModelDateTime)!).ToBoolean(null));
+			Assert.ThrowsException<InvalidCastException>(() => ((IConvertible) default(DataModelDateTime)!).ToByte(null));
+			Assert.ThrowsException<InvalidCastException>(() => ((IConvertible) default(DataModelDateTime)!).ToChar(null));
+			Assert.ThrowsException<InvalidCastException>(() => ((IConvertible) default(DataModelDateTime)!).ToDecimal(null));
+			Assert.ThrowsException<InvalidCastException>(() => ((IConvertible) default(DataModelDateTime)!).ToDouble(null));
+			Assert.ThrowsException<InvalidCastException>(() => ((IConvertible) default(DataModelDateTime)!).ToInt16(null));
+			Assert.ThrowsException<InvalidCastException>(() => ((IConvertible) default(DataModelDateTime)!).ToInt32(null));
+			Assert.ThrowsException<InvalidCastException>(() => ((IConvertible) default(DataModelDateTime)!).ToInt64(null));
+			Assert.ThrowsException<InvalidCastException>(() => ((IConvertible) default(DataModelDateTime)!).ToSByte(null));
+			Assert.ThrowsException<InvalidCastException>(() => ((IConvertible) default(DataModelDateTime)!).ToSingle(null));
+			Assert.ThrowsException<InvalidCastException>(() => ((IConvertible) default(DataModelDateTime)!).ToUInt16(null));
+			Assert.ThrowsException<InvalidCastException>(() => ((IConvertible) default(DataModelDateTime)!).ToUInt32(null));
+			Assert.ThrowsException<InvalidCastException>(() => ((IConvertible) default(DataModelDateTime)!).ToUInt64(null));
 		}
 
 		[TestMethod]
 		public void IConvertToDateTime_ShouldReturnSameValue_ForToDateTime()
 		{
-			Assert.AreEqual(expected: default, ((IConvertible) default(DataModelDateTime)).ToDateTime(null));
+			Assert.AreEqual(expected: default, ((IConvertible) default(DataModelDateTime)!).ToDateTime(null));
 		}
 
 		[TestMethod]
 		public void IConvertToType_ShouldReturnSameValue_ForToDateTimeOffset()
 		{
-			Assert.AreEqual(expected: default, (DateTimeOffset) ((IConvertible) default(DataModelDateTime)).ToType(typeof(DateTimeOffset), provider: null));
+			Assert.AreEqual(expected: default, (DateTimeOffset) ((IConvertible) default(DataModelDateTime)!).ToType(typeof(DateTimeOffset), provider: null));
 		}
 
 		[TestMethod]

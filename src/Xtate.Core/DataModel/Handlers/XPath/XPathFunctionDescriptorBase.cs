@@ -32,9 +32,9 @@ namespace Xtate.DataModel.XPath
 			ReturnType = returnType;
 		}
 
-		public virtual string Namespace { get; }
+		public string Namespace { get; }
 
-		public virtual string Name { get; }
+		public string Name { get; }
 
 	#region Interface IXsltContextFunction
 

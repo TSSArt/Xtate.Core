@@ -26,7 +26,7 @@ namespace Xtate.DataModel.XPath
 {
 	internal class ElementNodeAdapter : NodeAdapter
 	{
-		public override XPathNodeType GetNodeType(in DataModelXPathNavigator.Node node) => XPathNodeType.Element;
+		public override XPathNodeType GetNodeType() => XPathNodeType.Element;
 
 		public override bool IsEmptyElement(in DataModelXPathNavigator.Node node) => !GetFirstChild(node, out _);
 

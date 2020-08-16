@@ -24,7 +24,7 @@ namespace Xtate.DataModel.XPath
 {
 	internal abstract class NodeAdapter
 	{
-		public abstract XPathNodeType GetNodeType(in DataModelXPathNavigator.Node node);
+		public abstract XPathNodeType GetNodeType();
 
 		public virtual string GetValue(in DataModelXPathNavigator.Node node) => string.Empty;
 
@@ -34,7 +34,7 @@ namespace Xtate.DataModel.XPath
 
 		public virtual string GetLocalName(in DataModelXPathNavigator.Node node) => string.Empty;
 
-		public virtual string GetName(in DataModelXPathNavigator.Node node)
+		public string GetName(in DataModelXPathNavigator.Node node)
 		{
 			var prefix = GetPrefix(node);
 

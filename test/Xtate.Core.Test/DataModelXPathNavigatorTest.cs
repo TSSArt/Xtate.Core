@@ -170,7 +170,7 @@ namespace Xtate.Core.Test
 			vNav.MoveToFirstChild();
 
 			// act
-			vNav.ReplaceChildren(new XPathObject(nNav.Evaluate("child::*")));
+			vNav.ReplaceChildren(new XPathObject(nNav.Evaluate("child::*")!));
 
 			// assert
 			Assert.AreEqual(expected: "val1", v.AsObject()["key"].AsObject()["child1"].AsString());

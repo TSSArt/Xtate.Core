@@ -93,7 +93,7 @@ namespace Xtate.Persistence
 		{
 			var size = KeyHelper<TKey>.Converter.GetLength(key) + GetSize(_block);
 
-			for (var n = _node; n is { }; n = n.Previous!)
+			for (var n = _node; n is { }; n = n.Previous)
 			{
 				size += n.Size;
 			}

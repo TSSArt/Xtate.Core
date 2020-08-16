@@ -715,8 +715,8 @@
   <data name="Exception_Destination_array_is_not_long_enough" xml:space="preserve">
     <value>Destination list is not long enough to copy all the items in the collection. Check list index and length.</value>
   </data>
-  <data name="Exception_Capcity_should_not_be_negative" xml:space="preserve">
-    <value>Capcity should not be negative.</value>
+  <data name="Exception_Capacity_should_not_be_negative" xml:space="preserve">
+    <value>Capacity should not be negative.</value>
   </data>
   <data name="Exception_Index_should_be_non_negative_and_less_then_aarray_size" xml:space="preserve">
     <value>Index should be non-negative and less then array size.</value>
@@ -750,5 +750,8 @@
   </data>
   <data name="Exception_File_is_more_then_2GB_length" xml:space="preserve">
     <value>File is more then 2GB length.</value>
+  </data>
+  <data name="Exception_Prefix_cant_be_resolved" xml:space="preserve">
+    <value>Prefix {0} can't be resolved.</value>
   </data>
 </root>
