@@ -21,11 +21,11 @@ namespace Xtate.DataModel.XPath
 {
 	internal class ItemNodeAdapter : ElementNodeAdapter
 	{
-		public override string GetLocalName(in DataModelXPathNavigator.Node node) => node.ParentProperty ?? Infrastructure.Fail<string>();
+		public override string GetLocalName(in DataModelXPathNavigator.Node node) => node.EncodedParentProperty() ?? string.Empty;
 
-		public override string GetNamespaceUri(in DataModelXPathNavigator.Node node) => XPathMetadata.GetValue(node.Metadata, XPathMetadata.ElementNamespaceOffset);
+		public override string GetNamespaceUri(in DataModelXPathNavigator.Node node) => XPathMetadata.GetValue(node.Metadata, XPathMetadata.ElementIndex, XPathMetadata.ElementNamespaceOffset);
 
-		public override string GetPrefix(in DataModelXPathNavigator.Node node) => XPathMetadata.GetValue(node.Metadata, XPathMetadata.ElementPrefixOffset);
+		public override string GetPrefix(in DataModelXPathNavigator.Node node) => XPathMetadata.GetValue(node.Metadata, XPathMetadata.ElementIndex, XPathMetadata.ElementPrefixOffset);
 
 		public override bool GetFirstAttribute(in DataModelXPathNavigator.Node node, out DataModelXPathNavigator.Node attributeNode)
 		{
@@ -58,22 +58,20 @@ namespace Xtate.DataModel.XPath
 
 			var cursor = node.ParentCursor;
 
-			var currentKey = node.ParentProperty;
-
 			while (metadata.NextEntry(ref cursor, out var entry))
 			{
-				if (entry.Key == currentKey)
+				if ((entry.Index - XPathMetadata.FirstAttributeOffset) % XPathMetadata.AttributeSegmentLength != 0)
 				{
 					continue;
 				}
 
-				currentKey = entry.Key;
-
-				var isNamespace = XPathMetadata.GetValue(parentNode.Metadata, XPathMetadata.AttributeNamespaceOffset, cursor, entry.Key) == "http://www.w3.org/2000/xmlns/";
+				var isNamespace = XPathMetadata.GetValue(metadata, entry.Index, XPathMetadata.AttributeNamespaceOffset) == XPathMetadata.XmlnsNamespace;
 				if (isNamespace == ns)
 				{
 					var adapter = ns ? AdapterFactory.NamespaceNodeAdapter : AdapterFactory.AttributeNodeAdapter;
-					node = new DataModelXPathNavigator.Node(entry.Value, adapter, cursor, entry.Index, entry.Key, metadata);
+					var localName = XPathMetadata.GetValue(metadata, entry.Index, XPathMetadata.AttributeLocalNameOffset);
+					var value = XPathMetadata.GetValue(metadata, entry.Index, XPathMetadata.AttributeValueOffset);
+					node = new DataModelXPathNavigator.Node(value, adapter, cursor, entry.Index, localName, metadata);
 
 					return true;
 				}

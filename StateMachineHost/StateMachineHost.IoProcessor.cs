@@ -52,12 +52,14 @@ namespace Xtate
 
 		ValueTask IIoProcessor.Dispatch(SessionId sessionId, IOutgoingEvent evt, CancellationToken token)
 		{
-			if (evt.Target is null)
+			var target = evt.Target;
+
+			if (target is null)
 			{
 				throw new ProcessorException(Resources.Exception_Event_Target_did_not_specified);
 			}
 
-			var service = GetCurrentContext().GetService(sessionId, new Uri(evt.Target.Fragment));
+			var service = GetCurrentContext().GetService(sessionId, target.IsAbsoluteUri ? target.Fragment : target.OriginalString);
 
 			var serviceEvent = new EventObject(EventType.External, evt, GetTarget(sessionId), IoProcessorId);
 

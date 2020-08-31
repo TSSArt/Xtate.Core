@@ -35,12 +35,14 @@ namespace Xtate
 			_documentIdNode = documentIdNode;
 			_data = data;
 
+			ResourceEvaluator = data.Source?.As<IResourceEvaluator>();
 			ExpressionEvaluator = data.Expression?.As<IObjectEvaluator>();
-			InlineContentEvaluator = data.Expression?.As<IObjectEvaluator>();
+			InlineContentEvaluator = data.InlineContent?.As<IObjectEvaluator>();
 		}
 
-		public IObjectEvaluator? ExpressionEvaluator    { get; }
-		public IObjectEvaluator? InlineContentEvaluator { get; }
+		public IResourceEvaluator? ResourceEvaluator      { get; }
+		public IObjectEvaluator?   ExpressionEvaluator    { get; }
+		public IObjectEvaluator?   InlineContentEvaluator { get; }
 
 	#region Interface IAncestorProvider
 

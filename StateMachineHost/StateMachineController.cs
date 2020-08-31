@@ -21,6 +21,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
@@ -113,6 +114,8 @@ namespace Xtate
 
 		async ValueTask IExternalCommunication.CancelEvent(SendId sendId, CancellationToken token)
 		{
+			CleanScheduledEvents();
+
 			foreach (var evt in _scheduledEvents)
 			{
 				if (evt.Event.SendId == sendId)
@@ -120,8 +123,6 @@ namespace Xtate
 					await CancelEvent(evt, token).ConfigureAwait(false);
 				}
 			}
-
-			CleanScheduledEvents();
 		}
 
 		ValueTask IExternalCommunication.StartInvoke(InvokeData invokeData, CancellationToken token) => _stateMachineHost.StartInvoke(SessionId, invokeData, token);
@@ -136,13 +137,19 @@ namespace Xtate
 
 	#region Interface ILoggerContext
 
+		public string? GetDataModelAsText() => default;
+
+		public string ConvertToText(in DataModelValue dataModelValue) => dataModelValue.ToString(CultureInfo.InvariantCulture);
+
 		DataModelObject? ILoggerContext.GetDataModel() => default;
 
-		DataModelArray? ILoggerContext.GetActiveStates() => default;
+		ImmutableArray<string> ILoggerContext.GetActiveStates() => default;
 
 		public SessionId SessionId { get; }
 
-		public string? StateMachineName => _options?.Name;
+		IStateMachine? ILoggerContext.StateMachine => _stateMachine;
+
+		string? ILoggerContext.StateMachineName => _options?.Name;
 
 	#endregion
 

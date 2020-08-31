@@ -26,47 +26,67 @@ namespace Xtate.CustomAction
 {
 	public class StartAction : ICustomActionExecutor
 	{
-		private const string Source     = "src";
-		private const string SourceExpr = "srcexpr";
-		private const string IdLocation = "idlocation";
+		private const string Url               = "url";
+		private const string UrlExpr           = "urlExpr";
+		private const string SessionId         = "sessionId";
+		private const string SessionIdExpr     = "sessionIdExpr";
+		private const string SessionIdLocation = "sessionIdLocation";
 
-		private readonly ILocationAssigner? _idLocation;
-		private readonly Uri?               _source;
-
-		private readonly IExpressionEvaluator? _sourceExpression;
+		private readonly ILocationAssigner?    _idLocation;
+		private readonly string?               _sessionId;
+		private readonly IExpressionEvaluator? _sessionIdExpression;
+		private readonly IExpressionEvaluator? _urlExpression;
+		private readonly Uri?                  _url;
 
 		public StartAction(XmlReader xmlReader, ICustomActionContext access)
 		{
 			if (xmlReader is null) throw new ArgumentNullException(nameof(xmlReader));
 			if (access is null) throw new ArgumentNullException(nameof(access));
 
-			var source = xmlReader.GetAttribute(Source);
-			var sourceExpression = xmlReader.GetAttribute(SourceExpr);
-			var idLocation = xmlReader.GetAttribute(IdLocation);
+			var url = xmlReader.GetAttribute(Url);
+			var urlExpression = xmlReader.GetAttribute(UrlExpr);
+			var sessionIdExpression = xmlReader.GetAttribute(SessionIdExpr);
+			var sessionIdLocation = xmlReader.GetAttribute(SessionIdLocation);
+			_sessionId = xmlReader.GetAttribute(SessionId);
 
-			if (source is null && sourceExpression is null)
+			if (url is null && urlExpression is null)
 			{
-				access.AddValidationError<StartAction>(Resources.ErrorMessage_At_least_one_source_must_be_specified);
+				access.AddValidationError<StartAction>(Resources.ErrorMessage_At_least_one_url_must_be_specified);
 			}
 
-			if (source is { } && sourceExpression is { })
+			if (url is { } && urlExpression is { })
 			{
-				access.AddValidationError<StartAction>(Resources.ErrorMessage_src_and_srcexpr_attributes_should_not_be_assigned_in_Start_element);
+				access.AddValidationError<StartAction>(Resources.ErrorMessage_url_and_urlExpr_attributes_should_not_be_assigned_in_Start_element);
 			}
 
-			if (source is { } && !Uri.TryCreate(source, UriKind.RelativeOrAbsolute, out _source))
+			if (url is { } && !Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out _url))
 			{
-				access.AddValidationError<StartAction>(Resources.ErrorMessage_source__has_invalid_URI_format);
+				access.AddValidationError<StartAction>(Resources.ErrorMessage_url__has_invalid_URI_format);
 			}
 
-			if (sourceExpression is { })
+			if (_sessionId is {Length: 0})
 			{
-				_sourceExpression = access.RegisterValueExpression(sourceExpression);
+				access.AddValidationError<StartAction>(Resources.ErrorMessage_SessionId_could_not_be_empty);
 			}
 
-			if (idLocation is { })
+			if (_sessionId is { } && sessionIdExpression is { })
 			{
-				_idLocation = access.RegisterLocationExpression(idLocation);
+				access.AddValidationError<StartAction>(Resources.ErrorMessage_sessionId__and__sessionIdExpr__attributes_should_not_be_assigned_in_Start_element_);
+			}
+
+			if (urlExpression is { })
+			{
+				_urlExpression = access.RegisterValueExpression(urlExpression, ExpectedValueType.String);
+			}
+
+			if (sessionIdExpression is { })
+			{
+				_sessionIdExpression = access.RegisterValueExpression(sessionIdExpression, ExpectedValueType.String);
+			}
+
+			if (sessionIdLocation is { })
+			{
+				_idLocation = access.RegisterLocationExpression(sessionIdLocation);
 			}
 		}
 
@@ -85,7 +105,13 @@ namespace Xtate.CustomAction
 				throw new ProcessorException(Resources.StartAction_Execute_Source_not_specified);
 			}
 
-			var sessionId = SessionId.New();
+			var sessionId = await GetSessionId(executionContext, token).ConfigureAwait(false);
+
+			if (_sessionId is {Length: 0})
+			{
+				throw new ProcessorException(Resources.Exception_SessionId_could_not_be_empty);
+			}
+
 			await host.StartStateMachineAsync(sessionId, new StateMachineOrigin(source, baseUri), parameters: default, token).ConfigureAwait(false);
 
 			if (_idLocation is { })
@@ -103,7 +129,7 @@ namespace Xtate.CustomAction
 									  .AsObjectOrEmpty()[key: "location", caseInsensitive: false]
 									  .AsStringOrDefault();
 
-			return val is { } ? new Uri(val) : null;
+			return val is { } ? new Uri(val, UriKind.RelativeOrAbsolute) : null;
 		}
 
 		private static IHost GetHost(IExecutionContext executionContext)
@@ -118,19 +144,36 @@ namespace Xtate.CustomAction
 
 		private async ValueTask<Uri?> GetSource(IExecutionContext executionContext, CancellationToken token)
 		{
-			if (_source is { })
+			if (_url is { })
 			{
-				return _source;
+				return _url;
 			}
 
-			if (_sourceExpression is { })
+			if (_urlExpression is { })
 			{
-				var val = await _sourceExpression.Evaluate(executionContext, token).ConfigureAwait(false);
+				var val = await _urlExpression.Evaluate(executionContext, token).ConfigureAwait(false);
 
 				return new Uri(val.AsString(), UriKind.RelativeOrAbsolute);
 			}
 
-			return null;
+			return Infrastructure.Fail<Uri>();
+		}
+
+		private async ValueTask<SessionId> GetSessionId(IExecutionContext executionContext, CancellationToken token)
+		{
+			if (_sessionId is { })
+			{
+				return Xtate.SessionId.FromString(_sessionId);
+			}
+
+			if (_sessionIdExpression is { })
+			{
+				var val = await _sessionIdExpression.Evaluate(executionContext, token).ConfigureAwait(false);
+
+				return Xtate.SessionId.FromString(val.AsString());
+			}
+
+			return Xtate.SessionId.New();
 		}
 	}
 }

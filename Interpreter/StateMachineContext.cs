@@ -76,19 +76,36 @@ namespace Xtate
 
 		public async ValueTask Send(IOutgoingEvent evt, CancellationToken token)
 		{
+			await _logger.TraceSendEvent(_loggerContext, evt, token).ConfigureAwait(false);
+
 			if (IsInternalEvent(evt) || await _externalCommunication.TrySendEvent(evt, token).ConfigureAwait(false) == SendStatus.ToInternalQueue)
 			{
 				InternalQueue.Enqueue(new EventObject(EventType.Internal, evt));
 			}
 		}
 
-		public ValueTask Cancel(SendId sendId, CancellationToken token) => _externalCommunication.CancelEvent(sendId, token);
+		public async ValueTask Cancel(SendId sendId, CancellationToken token)
+		{
+			await _logger.TraceCancelEvent(_loggerContext, sendId, token).ConfigureAwait(false);
+
+			await _externalCommunication.CancelEvent(sendId, token).ConfigureAwait(false);
+		}
 
 		public ValueTask Log(string? label, DataModelValue arguments, CancellationToken token) => _logger.ExecuteLog(_loggerContext, label, arguments, token);
 
-		public ValueTask StartInvoke(InvokeData invokeData, CancellationToken token = default) => _externalCommunication.StartInvoke(invokeData, token);
+		public async ValueTask StartInvoke(InvokeData invokeData, CancellationToken token = default)
+		{
+			await _logger.TraceStartInvoke(_loggerContext, invokeData, token).ConfigureAwait(false);
 
-		public ValueTask CancelInvoke(InvokeId invokeId, CancellationToken token) => _externalCommunication.CancelInvoke(invokeId, token);
+			await _externalCommunication.StartInvoke(invokeData, token).ConfigureAwait(false);
+		}
+
+		public async ValueTask CancelInvoke(InvokeId invokeId, CancellationToken token)
+		{
+			await _logger.TraceCancelInvoke(_loggerContext, invokeId, token).ConfigureAwait(false);
+
+			await _externalCommunication.CancelInvoke(invokeId, token).ConfigureAwait(false);
+		}
 
 		public IContextItems RuntimeItems => _runtimeItems ??= new ContextItems(_contextRuntimeItems);
 

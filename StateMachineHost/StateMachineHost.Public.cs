@@ -219,5 +219,7 @@ namespace Xtate
 
 		private async ValueTask StartStateMachineWrapper(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters) =>
 				await StartStateMachine(sessionId, origin, parameters).ConfigureAwait(false);
+
+		public ValueTask DestroyStateMachineAsync(string sessionId) => DestroyStateMachine(SessionId.FromString(sessionId));
 	}
 }

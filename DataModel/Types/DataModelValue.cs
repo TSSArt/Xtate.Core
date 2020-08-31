@@ -109,7 +109,7 @@ namespace Xtate
 
 	#region Interface IConvertible
 
-		public string ToString(IFormatProvider provider) => ToString(format: null, provider);
+		public string ToString(IFormatProvider? provider) => ToString(format: null, provider);
 
 		TypeCode IConvertible.GetTypeCode() =>
 				Type switch

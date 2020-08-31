@@ -33,7 +33,7 @@ namespace Xtate
 		ValueTask<DataModelValue> IHost.ExecuteStateMachineAsync(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters, CancellationToken token) =>
 				ExecuteStateMachine(sessionId, origin, parameters, token);
 
-		void IHost.DestroyStateMachine(SessionId sessionId) => GetCurrentContext().TriggerDestroySignal(sessionId);
+		ValueTask IHost.DestroyStateMachine(SessionId sessionId, CancellationToken token) => DestroyStateMachine(sessionId, token);
 
 	#endregion
 
@@ -82,5 +82,7 @@ namespace Xtate
 				await context.RemoveStateMachine(sessionId).ConfigureAwait(false);
 			}
 		}
+
+		private ValueTask DestroyStateMachine(SessionId sessionId, CancellationToken token = default) => GetCurrentContext().DestroyStateMachine(sessionId, token);
 	}
 }

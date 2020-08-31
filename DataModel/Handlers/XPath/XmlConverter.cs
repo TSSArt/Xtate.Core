@@ -17,14 +17,54 @@
 
 #endregion
 
+using System.Globalization;
 using System.IO;
 using System.Xml;
+using System.Xml.XPath;
 using Xtate.Scxml;
 
 namespace Xtate.DataModel.XPath
 {
 	internal static class XmlConverter
 	{
+		private static readonly XmlWriterSettings DefaultWriterSettings = new XmlWriterSettings { Indent = true, OmitXmlDeclaration = true, ConformanceLevel = ConformanceLevel.Auto };
+		private static readonly XmlReaderSettings DefaultReaderSettings = new XmlReaderSettings { ConformanceLevel = ConformanceLevel.Auto };
+
+		public static string ToXml(in DataModelValue dataModelValue)
+		{
+			using var textWriter = new StringWriter(CultureInfo.InvariantCulture);
+			using var xmlWriter = XmlWriter.Create(textWriter, DefaultWriterSettings);
+			Infrastructure.NotNull(xmlWriter);
+
+			var navigator = new DataModelXPathNavigator(dataModelValue);
+
+			WriteNode(xmlWriter, navigator);
+
+			xmlWriter.Flush();
+
+			return textWriter.ToString();
+		}
+
+		private static void WriteNode(XmlWriter xmlWriter, XPathNavigator navigator)
+		{
+			if (navigator.NodeType == XPathNodeType.Element && navigator.LocalName is {Length: 0})
+			{
+				if (navigator.HasChildren)
+				{
+					for (var moved = navigator.MoveToFirstChild(); moved; moved = navigator.MoveToNext())
+					{
+						WriteNode(xmlWriter, navigator);
+					}
+
+					navigator.MoveToParent();
+				}
+			}
+			else
+			{
+				xmlWriter.WriteNode(navigator, defattr: true);
+			}
+		}
+
 		public static DataModelValue FromXml(string xml, object? entity = null)
 		{
 			entity.Is<XmlNameTable>(out var nameTable);
@@ -43,7 +83,7 @@ namespace Xtate.DataModel.XPath
 			var context = new XmlParserContext(nameTable, namespaceManager, xmlLang: null, XmlSpace.None);
 
 			using var reader = new StringReader(xml);
-			using var xmlReader = XmlReader.Create(reader, settings: null, context);
+			using var xmlReader = XmlReader.Create(reader, DefaultReaderSettings, context);
 
 			return LoadValue(xmlReader);
 		}
@@ -59,13 +99,13 @@ namespace Xtate.DataModel.XPath
 				{
 					case XmlNodeType.Element:
 
+						var name = XmlConvert.DecodeName(xmlReader.LocalName);
 						var metadata = GetMetaData(xmlReader);
 
 						obj ??= new DataModelObject();
 
 						if (!xmlReader.IsEmptyElement)
 						{
-							var name = xmlReader.LocalName;
 							xmlReader.ReadStartElement();
 							var value = LoadValue(xmlReader);
 
@@ -73,7 +113,7 @@ namespace Xtate.DataModel.XPath
 						}
 						else
 						{
-							obj.Add(xmlReader.LocalName, string.Empty, metadata);
+							obj.Add(name, string.Empty, metadata);
 						}
 
 						break;
@@ -89,6 +129,9 @@ namespace Xtate.DataModel.XPath
 
 						return text;
 
+					case XmlNodeType.None:
+						return obj;
+
 					default:
 						Infrastructure.UnexpectedValue();
 						break;
@@ -100,52 +143,45 @@ namespace Xtate.DataModel.XPath
 
 		private static DataModelList? GetMetaData(XmlReader xmlReader)
 		{
-			var elementNs = xmlReader.NamespaceURI;
 			var elementPrefix = xmlReader.Prefix;
+			var elementNs = xmlReader.NamespaceURI;
 
-			if (elementNs.Length == 0 && elementPrefix.Length == 0 && !xmlReader.HasAttributes)
+			if (elementPrefix.Length == 0 && elementNs.Length == 0 && !xmlReader.HasAttributes)
 			{
 				return null;
 			}
 
-			var metadata = new DataModelArray();
+			var metadata = new DataModelArray { elementPrefix, elementNs };
 
-			if (elementNs.Length > 0 || elementPrefix.Length > 0)
+			if (xmlReader.HasAttributes)
 			{
-				metadata.Add(elementNs);
-			}
-
-			if (elementPrefix.Length > 0)
-			{
-				metadata.Add(elementPrefix);
-			}
-
-			if (!xmlReader.HasAttributes)
-			{
-				return metadata;
-			}
-
-			for (var ok = xmlReader.MoveToFirstAttribute(); ok; ok = xmlReader.MoveToNextAttribute())
-			{
-				var name = xmlReader.LocalName;
-
-				metadata.Add(name, xmlReader.Value, metadata: default);
-
-				var attrNs = xmlReader.NamespaceURI ?? string.Empty;
-				var attrPrefix = xmlReader.Prefix ?? string.Empty;
-
-				if (attrNs.Length > 0 || attrPrefix.Length > 0)
+				for (var ok = xmlReader.MoveToFirstAttribute(); ok; ok = xmlReader.MoveToNextAttribute())
 				{
-					metadata.Add(name, attrNs, metadata: default);
+					if (xmlReader.NamespaceURI != XPathMetadata.XmlnsNamespace)
+					{
+						metadata.Add(xmlReader.LocalName);
+						metadata.Add(xmlReader.Value);
+						metadata.Add(xmlReader.Prefix);
+						metadata.Add(xmlReader.NamespaceURI);
+					}
+					else if (xmlReader.LocalName != XPathMetadata.Xmlns)
+					{
+						metadata.Add(xmlReader.LocalName);
+						metadata.Add(xmlReader.Value);
+						metadata.Add(string.Empty);
+						metadata.Add(xmlReader.NamespaceURI);
+					}
+					else
+					{
+						metadata.Add(string.Empty);
+						metadata.Add(xmlReader.Value);
+						metadata.Add(string.Empty);
+						metadata.Add(xmlReader.NamespaceURI);
+					}
 				}
 
-				if (attrPrefix.Length > 0)
-				{
-					metadata.Add(name, attrPrefix, metadata: default);
-				}
+				xmlReader.MoveToElement();
 			}
-
-			xmlReader.MoveToElement();
 
 			return metadata;
 		}

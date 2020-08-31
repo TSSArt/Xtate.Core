@@ -323,46 +323,57 @@ namespace Xtate
 
 		public bool TryGetService(InvokeId invokeId, out IService? service) => _serviceByInvokeId.TryGetValue(invokeId, out service);
 
-		public IService GetService(SessionId sessionId, Uri target)
+		public IService GetService(SessionId sessionId, string target)
 		{
 			if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
 			if (target is null) throw new ArgumentNullException(nameof(target));
 
-			if (!target.IsAbsoluteUri)
+			if (target == @"#_parent")
 			{
-				var targetValue = target.OriginalString;
-
-				if (targetValue == @"#_parent")
+				if (_parentServiceBySessionId.TryGetValue(sessionId, out var service))
 				{
-					if (_parentServiceBySessionId.TryGetValue(sessionId, out var service))
-					{
-						return service;
-					}
+					return service;
 				}
-				else if (targetValue.StartsWith(SessionIdPrefix))
+			}
+			else if (target.StartsWith(SessionIdPrefix))
+			{
+				if (_stateMachinesBySessionId.TryGetValue(SessionId.FromString(target.Substring(SessionIdPrefix.Length)), out var service))
 				{
-					if (_stateMachinesBySessionId.TryGetValue(SessionId.FromString(targetValue.Substring(SessionIdPrefix.Length)), out var service))
-					{
-						return service;
-					}
+					return service;
 				}
-				else if (targetValue.StartsWith(InvokeIdPrefix))
+			}
+			else if (target.StartsWith(InvokeIdPrefix))
+			{
+				if (_serviceByInvokeId.TryGetValue(InvokeId.FromString(target.Substring(InvokeIdPrefix.Length)), out var service) && service is { })
 				{
-					if (_serviceByInvokeId.TryGetValue(InvokeId.FromString(targetValue.Substring(InvokeIdPrefix.Length)), out var service) && service is { })
-					{
-						return service;
-					}
+					return service;
 				}
 			}
 
 			throw new ProcessorException(Resources.Exception_Cannot_find_target);
 		}
 
-		public void TriggerDestroySignal(SessionId sessionId)
+		public async ValueTask DestroyStateMachine(SessionId sessionId, CancellationToken token)
 		{
 			if (_stateMachinesBySessionId.TryGetValue(sessionId, out var controller))
 			{
 				controller.TriggerDestroySignal();
+
+				if (!controller.Result.IsCompleted)
+				{
+					try
+					{
+						await controller.Result.WaitAsync(token).ConfigureAwait(false);
+					}
+					catch (OperationCanceledException ex) when (ex.CancellationToken == token)
+					{
+						throw;
+					}
+					catch
+					{
+						// ignored
+					}
+				}
 			}
 		}
 

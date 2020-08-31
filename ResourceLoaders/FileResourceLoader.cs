@@ -47,7 +47,7 @@ namespace Xtate
 		{
 			if (uri is null) throw new ArgumentNullException(nameof(uri));
 
-			var path = uri.LocalPath;
+			var path = uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString;
 			var modifiedUtc = new FileInfo(path).LastWriteTimeUtc;
 
 			var cachedFileResources = _cachedFileResources;
@@ -78,7 +78,7 @@ namespace Xtate
 		{
 			if (uri is null) throw new ArgumentNullException(nameof(uri));
 
-			var path = uri.LocalPath;
+			var path = uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString;
 			var modifiedUtc = new FileInfo(path).LastWriteTimeUtc;
 
 			Stream stream;

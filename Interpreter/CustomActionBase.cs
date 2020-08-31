@@ -46,10 +46,10 @@ namespace Xtate.CustomAction
 
 	#endregion
 
-		protected void RegisterArgument(string key, string? expression, string? constant = default)
+		protected void RegisterArgument(string key, ExpectedValueType expectedValueType, string? expression, object? defaultValue = default)
 		{
 			_arguments ??= new Dictionary<string, object?>();
-			_arguments.Add(key, expression is { } ? (object) _customActionContext.RegisterValueExpression(expression) : constant);
+			_arguments.Add(key, expression is { } ? _customActionContext.RegisterValueExpression(expression, expectedValueType) : defaultValue);
 		}
 
 		protected void RegisterResultLocation(string? expression)
@@ -76,12 +76,8 @@ namespace Xtate.CustomAction
 							builder.Add(pair.Key, await expressionEvaluator.Evaluate(executionContext, token).ConfigureAwait(false));
 							break;
 
-						case string str:
-							builder.Add(pair.Key, str);
-							break;
-
 						default:
-							builder.Add(pair.Key, value: default);
+							builder.Add(pair.Key, DataModelValue.FromObject(pair.Value));
 							break;
 					}
 				}

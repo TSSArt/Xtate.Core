@@ -270,33 +270,41 @@ namespace Xtate
 			}
 		}
 
+		[PublicAPI]
 		[ExcludeFromCodeCoverage]
-		[DebuggerDisplay(value: "{" + nameof(_value) + "}", Name = "[{" + nameof(_index) + "}]")]
+		[DebuggerDisplay(value: "{" + nameof(Value) + "}", Name = "[{" + nameof(Index) + "}]")]
 		private readonly struct DebugIndexValue
 		{
 			[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-			private readonly int _index;
+			private readonly Entry _entry;
+
+			public DebugIndexValue(in Entry entry) => _entry = entry;
+
+			[DebuggerBrowsable(DebuggerBrowsableState.Never)]
+			private int Index => _entry.Index;
 
 			[DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-			private readonly DataModelValue _value;
+			private DataModelValue Value => _entry.Value;
 
-			public DebugIndexValue(in Entry entry)
-			{
-				_index = entry.Index;
-				_value = entry.Value;
-			}
+			public string? Key => _entry.Key;
+
+			public DataModelList? Metadata => _entry.Metadata;
+
+			public DataModelAccess Access => _entry.Access;
 		}
 
-		[ExcludeFromCodeCoverage]
 		[PublicAPI]
+		[ExcludeFromCodeCoverage]
 		private class DebugView
 		{
-			private readonly DataModelArray _array;
+			private readonly DataModelList _dataModelList;
 
-			public DebugView(DataModelArray array) => _array = array;
+			public DebugView(DataModelList dataModelList) => _dataModelList = dataModelList;
 
 			[DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-			public DebugIndexValue[] Items => _array.Entries.Select(entry => new DebugIndexValue(entry)).ToArray();
+			public DebugIndexValue[] Items => _dataModelList.Entries.Select(entry => new DebugIndexValue(entry)).ToArray();
+
+			public DataModelList? Metadata => _dataModelList.GetMetadata();
 		}
 	}
 }

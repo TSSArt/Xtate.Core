@@ -40,7 +40,7 @@ namespace Xtate.DataModel
 			Infrastructure.NotNull(customActionDispatcher, Resources.Assertion_CustomActionDoesNotConfigured);
 
 			var locations = customAction.Locations.AsArrayOf<ILocationExpression, ILocationEvaluator>(true);
-			var values = customAction.Values.AsArrayOf<IValueExpression, IObjectEvaluator>(true);
+			var values = customAction.Values.AsArrayOf<IValueExpression, IValueEvaluator>(true);
 
 			customActionDispatcher.SetEvaluators(locations, values);
 
