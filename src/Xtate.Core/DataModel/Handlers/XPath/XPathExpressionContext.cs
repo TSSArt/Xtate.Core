@@ -31,15 +31,9 @@ namespace Xtate.DataModel.XPath
 
 		public override bool Whitespace => false;
 
-		public override IXsltContextVariable ResolveVariable(string prefix, string name)
-		{
-			return Resolver.ResolveVariable(GetNamespaceByPrefix(prefix), name);
-		}
+		public override IXsltContextVariable ResolveVariable(string prefix, string name) => Resolver.ResolveVariable(GetNamespaceByPrefix(prefix), name);
 
-		public override IXsltContextFunction ResolveFunction(string prefix, string name, XPathResultType[] _)
-		{
-			return Resolver.ResolveFunction(GetNamespaceByPrefix(prefix), name);
-		}
+		public override IXsltContextFunction ResolveFunction(string prefix, string name, XPathResultType[] _) => Resolver.ResolveFunction(GetNamespaceByPrefix(prefix), name);
 
 		public override bool PreserveWhitespace(XPathNavigator node) => false;
 
@@ -47,6 +41,7 @@ namespace Xtate.DataModel.XPath
 
 		public void SetResolver(XPathResolver resolver) => Resolver = resolver;
 
-		private string GetNamespaceByPrefix(string prefix) => LookupNamespace(prefix) is {} ns ? ns : throw new XPathDataModelException(Res.Format(Resources.Exception_Prefix_cant_be_resolved, prefix));
+		private string GetNamespaceByPrefix(string prefix) =>
+				LookupNamespace(prefix) is {} ns ? ns : throw new XPathDataModelException(Res.Format(Resources.Exception_Prefix_cant_be_resolved, prefix));
 	}
 }

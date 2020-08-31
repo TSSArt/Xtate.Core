@@ -17,19 +17,13 @@
 
 #endregion
 
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.Annotations;
-
-namespace Xtate
+namespace Xtate.CustomAction
 {
-	[PublicAPI]
-	public interface IHost
+	public enum ExpectedValueType
 	{
-		ValueTask StartStateMachineAsync(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters, CancellationToken token);
-
-		ValueTask<DataModelValue> ExecuteStateMachineAsync(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters, CancellationToken token);
-
-		ValueTask DestroyStateMachine(SessionId sessionId, CancellationToken token);
+		Any,
+		String,
+		Integer,
+		Boolean
 	}
 }

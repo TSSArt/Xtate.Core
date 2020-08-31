@@ -18,6 +18,10 @@
 #endregion
 
 using System;
+#if !NETSTANDARD2_1
+using System.Text;
+
+#endif
 
 namespace Xtate
 {
@@ -33,27 +37,33 @@ namespace Xtate
 
 #if NETSTANDARD2_1
 		public static string NewInvokeId(string id, int hash) =>
-				string.Create(46 + id.Length, (id, hash), (span, arg) =>
+				string.Create(33 + id.Length, (id, hash), (span, arg) =>
 														  {
 															  arg.id.AsSpan().CopyTo(span);
 															  span[arg.id.Length] = '.';
 															  span = span.Slice(arg.id.Length + 1);
-															  Guid.NewGuid().TryFormat(span, out var pos, format: "D");
-															  span[pos] = '-';
-															  hash.TryFormat(span.Slice(pos + 1), out pos, format: "x8");
+															  Guid.NewGuid().TryFormat(span, out var pos, format: "N");
+															  hash.TryFormat(span.Slice(pos - 8), out pos, format: "x8");
 														  });
 
 		private static string NewGuidWithHash(int hash) =>
-				string.Create(length: 45, hash, (span, h) =>
+				string.Create(length: 32, hash, (span, h) =>
 												{
-													Guid.NewGuid().TryFormat(span, out var pos, format: "D");
-													span[pos] = '-';
-													hash.TryFormat(span.Slice(pos + 1), out pos, format: "x8");
+													Guid.NewGuid().TryFormat(span, out var pos, format: "N");
+													hash.TryFormat(span.Slice(pos - 8), out pos, format: "x8");
 												});
 #else
-		public static string NewInvokeId(string id, int hash) => id + "." + Guid.NewGuid().ToString("D") + "-" + hash.ToString("x8");
+		public static string NewInvokeId(string id, int hash) =>
+				new StringBuilder(id.Length + 33)
+						.Append(id)
+						.Append('.')
+						.Append(Guid.NewGuid().ToString("N"), startIndex: 0, count: 24)
+						.Append(hash.ToString("x8")).ToString();
 
-		private static string NewGuidWithHash(int hash) => Guid.NewGuid().ToString("D") + "-" + hash.ToString("x8");
+		private static string NewGuidWithHash(int hash) =>
+				new StringBuilder(32)
+						.Append(Guid.NewGuid().ToString("N"), startIndex: 0, count: 24)
+						.Append(hash.ToString("x8")).ToString();
 #endif
 	}
 }

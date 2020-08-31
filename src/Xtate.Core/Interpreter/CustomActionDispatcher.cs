@@ -35,7 +35,7 @@ namespace Xtate
 		private ICustomActionExecutor?                       _executor;
 		private ImmutableArray<ILocationEvaluator>           _locationEvaluators;
 		private ImmutableArray<ILocationExpression>.Builder? _locations;
-		private ImmutableArray<IObjectEvaluator>             _objectEvaluators;
+		private ImmutableArray<IValueEvaluator>              _valueEvaluators;
 		private ImmutableArray<IValueExpression>.Builder?    _values;
 
 		public CustomActionDispatcher(IErrorProcessor errorProcessor, ICustomAction customAction, IFactoryContext factoryContext)
@@ -82,7 +82,7 @@ namespace Xtate
 			return locationAssigner;
 		}
 
-		IExpressionEvaluator ICustomActionContext.RegisterValueExpression(string expression)
+		IExpressionEvaluator ICustomActionContext.RegisterValueExpression(string expression, ExpectedValueType expectedValueType)
 		{
 			if (expression is null) throw new ArgumentNullException(nameof(expression));
 
@@ -93,7 +93,7 @@ namespace Xtate
 
 			_values ??= ImmutableArray.CreateBuilder<IValueExpression>();
 
-			var expressionEvaluator = new ExpressionEvaluator(this, _values.Count, expression);
+			var expressionEvaluator = new ExpressionEvaluator(this, _values.Count, expression, expectedValueType);
 			_values.Add(expressionEvaluator);
 
 			return expressionEvaluator;
@@ -110,10 +110,10 @@ namespace Xtate
 
 	#region Interface ICustomActionDispatcher
 
-		public void SetEvaluators(ImmutableArray<ILocationEvaluator> locationEvaluators, ImmutableArray<IObjectEvaluator> objectEvaluators)
+		public void SetEvaluators(ImmutableArray<ILocationEvaluator> locationEvaluators, ImmutableArray<IValueEvaluator> objectEvaluators)
 		{
 			_locationEvaluators = locationEvaluators;
-			_objectEvaluators = objectEvaluators;
+			_valueEvaluators = objectEvaluators;
 		}
 
 		public ValueTask Execute(IExecutionContext executionContext, CancellationToken token)
@@ -208,12 +208,14 @@ namespace Xtate
 		private class ExpressionEvaluator : IExpressionEvaluator, IValueExpression
 		{
 			private readonly CustomActionDispatcher _dispatcher;
+			private readonly ExpectedValueType      _expectedValueType;
 			private readonly int                    _index;
 
-			public ExpressionEvaluator(CustomActionDispatcher dispatcher, int index, string expression)
+			public ExpressionEvaluator(CustomActionDispatcher dispatcher, int index, string expression, ExpectedValueType expectedValueType)
 			{
 				_dispatcher = dispatcher;
 				_index = index;
+				_expectedValueType = expectedValueType;
 				Expression = expression;
 			}
 
@@ -223,11 +225,11 @@ namespace Xtate
 			{
 				if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
-				Infrastructure.Assert(!_dispatcher._objectEvaluators.IsDefault);
+				Infrastructure.Assert(!_dispatcher._valueEvaluators.IsDefault);
 
-				var objectEvaluator = _dispatcher._objectEvaluators[_index];
+				var valueEvaluator = _dispatcher._valueEvaluators[_index];
 
-				return Evaluate(objectEvaluator, executionContext, token);
+				return Evaluate(valueEvaluator, executionContext, token);
 			}
 
 		#endregion
@@ -238,9 +240,21 @@ namespace Xtate
 
 		#endregion
 
-			private static async ValueTask<DataModelValue> Evaluate(IObjectEvaluator objectEvaluator, IExecutionContext executionContext, CancellationToken token)
+			private async ValueTask<DataModelValue> Evaluate(IValueEvaluator objectEvaluator, IExecutionContext executionContext, CancellationToken token)
 			{
-				var obj = await objectEvaluator.EvaluateObject(executionContext, token).ConfigureAwait(false);
+				switch (_expectedValueType)
+				{
+					case ExpectedValueType.String when objectEvaluator is IStringEvaluator evaluator:
+						return await evaluator.EvaluateString(executionContext, token).ConfigureAwait(false);
+
+					case ExpectedValueType.Integer when objectEvaluator is IIntegerEvaluator evaluator:
+						return await evaluator.EvaluateInteger(executionContext, token).ConfigureAwait(false);
+
+					case ExpectedValueType.Boolean when objectEvaluator is IBooleanEvaluator evaluator:
+						return await evaluator.EvaluateBoolean(executionContext, token).ConfigureAwait(false);
+				}
+
+				var obj = await ((IObjectEvaluator) objectEvaluator).EvaluateObject(executionContext, token).ConfigureAwait(false);
 
 				return DataModelValue.FromObject(obj);
 			}
