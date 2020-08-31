@@ -35,6 +35,8 @@ namespace Xtate.DataModel.XPath
 
 		private XPathDataModelHandler(IErrorProcessor errorProcessor) : base(errorProcessor) { }
 
+		public override string ConvertToText(DataModelValue dataModelValue) => XmlConverter.ToXml(dataModelValue);
+
 		public override void ExecutionContextCreated(IExecutionContext executionContext, out ImmutableDictionary<string, string> dataModelVars)
 		{
 			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
@@ -191,6 +193,13 @@ namespace Xtate.DataModel.XPath
 			base.Build(ref inlineContent, ref inlineContentProperties);
 
 			inlineContent = new XPathInlineContentEvaluator(inlineContentProperties);
+		}
+
+		protected override void Build(ref IExternalDataExpression externalDataExpression, ref ExternalDataExpression externalDataExpressionProperties)
+		{
+			base.Build(ref externalDataExpression, ref externalDataExpressionProperties);
+
+			externalDataExpression = new XPathExternalDataExpressionEvaluator(externalDataExpressionProperties);
 		}
 
 		protected override void Build(ref IForEach forEach, ref ForEachEntity forEachProperties)

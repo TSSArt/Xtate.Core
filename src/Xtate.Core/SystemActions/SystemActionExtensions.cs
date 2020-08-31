@@ -17,19 +17,22 @@
 
 #endregion
 
-using System.Threading;
-using System.Threading.Tasks;
+using System;
 using Xtate.Annotations;
+using Xtate.CustomAction;
 
 namespace Xtate
 {
 	[PublicAPI]
-	public interface IHost
+	public static class SystemActionExtensions
 	{
-		ValueTask StartStateMachineAsync(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters, CancellationToken token);
+		public static StateMachineHostBuilder AddSystemAction(this StateMachineHostBuilder builder)
+		{
+			if (builder is null) throw new ArgumentNullException(nameof(builder));
 
-		ValueTask<DataModelValue> ExecuteStateMachineAsync(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters, CancellationToken token);
+			builder.AddCustomActionFactory(SystemActionFactory.Instance);
 
-		ValueTask DestroyStateMachine(SessionId sessionId, CancellationToken token);
+			return builder;
+		}
 	}
 }

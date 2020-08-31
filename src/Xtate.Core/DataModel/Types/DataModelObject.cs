@@ -290,25 +290,31 @@ namespace Xtate
 			}
 		}
 
+		[PublicAPI]
 		[ExcludeFromCodeCoverage]
-		[DebuggerDisplay(value: "{" + nameof(_value) + "}", Name = "{" + nameof(_key) + ",nq}")]
+		[DebuggerDisplay(value: "{" + nameof(Value) + "}", Name = "{" + nameof(Key) + ",nq}")]
 		private readonly struct DebugKeyValue
 		{
 			[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-			private readonly string? _key;
+			private readonly Entry _entry;
+
+			public DebugKeyValue(in Entry entry) => _entry = entry;
+
+			[DebuggerBrowsable(DebuggerBrowsableState.Never)]
+			private string? Key => _entry.Key;
 
 			[DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-			private readonly DataModelValue _value;
+			private DataModelValue Value => _entry.Value;
 
-			public DebugKeyValue(KeyValue keyValue)
-			{
-				_key = keyValue.Key;
-				_value = keyValue.Value;
-			}
+			public int Index => _entry.Index;
+
+			public DataModelList? Metadata => _entry.Metadata;
+
+			public DataModelAccess Access => _entry.Access;
 		}
 
-		[ExcludeFromCodeCoverage]
 		[PublicAPI]
+		[ExcludeFromCodeCoverage]
 		private class DebugView
 		{
 			private readonly DataModelList _dataModelList;
@@ -316,7 +322,9 @@ namespace Xtate
 			public DebugView(DataModelList dataModelList) => _dataModelList = dataModelList;
 
 			[DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-			public DebugKeyValue[] Items => _dataModelList.KeyValues.Select(keyValue => new DebugKeyValue(keyValue)).ToArray();
+			public DebugKeyValue[] Items => _dataModelList.Entries.Select(entry => new DebugKeyValue(entry)).ToArray();
+
+			public DataModelList? Metadata => _dataModelList.GetMetadata();
 		}
 
 		[PublicAPI]

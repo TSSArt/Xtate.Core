@@ -23,9 +23,16 @@ namespace Xtate.DataModel.XPath
 	{
 		public override bool GetFirstChild(in DataModelXPathNavigator.Node node, out DataModelXPathNavigator.Node childNode)
 		{
-			childNode = new DataModelXPathNavigator.Node(node.DataModelValue, AdapterFactory.SimpleTypeNodeAdapter);
+			if (AdapterFactory.GetSimpleTypeAdapter(node.DataModelValue) is { } adapter)
+			{
+				childNode = new DataModelXPathNavigator.Node(node.DataModelValue, adapter);
 
-			return true;
+				return true;
+			}
+
+			childNode = default;
+
+			return false;
 		}
 
 		public override bool GetNextChild(in DataModelXPathNavigator.Node parentNode, ref DataModelXPathNavigator.Node node) => false;

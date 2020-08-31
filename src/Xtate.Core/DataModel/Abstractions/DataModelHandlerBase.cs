@@ -35,6 +35,8 @@ namespace Xtate.DataModel
 			dataModelVars = ImmutableDictionary<string, string>.Empty;
 		}
 
+		public virtual string ConvertToText(DataModelValue dataModelValue) => dataModelValue.ToString(provider: null);
+
 		void IDataModelHandler.Process(ref IExecutableEntity executableEntity)
 		{
 			Visit(ref executableEntity);
@@ -177,6 +179,13 @@ namespace Xtate.DataModel
 			base.Build(ref inlineContent, ref inlineContentProperties);
 
 			inlineContent = new DefaultInlineContentEvaluator(inlineContentProperties);
+		}
+
+		protected override void Build(ref IExternalDataExpression externalDataExpression, ref ExternalDataExpression externalDataExpressionProperties)
+		{
+			base.Build(ref externalDataExpression, ref externalDataExpressionProperties);
+
+			externalDataExpression = new DefaultExternalDataExpressionEvaluator(externalDataExpressionProperties);
 		}
 	}
 }

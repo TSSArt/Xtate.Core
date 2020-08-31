@@ -54,7 +54,7 @@ namespace Xtate.DataModel
 			if (ExpressionEvaluator is { })
 			{
 				var obj = await ExpressionEvaluator.EvaluateObject(executionContext, token).ConfigureAwait(false);
-				data = DataModelValue.FromObject(obj.ToObject()).AsConstant();
+				data = DataModelValue.FromObject(obj).AsConstant();
 			}
 
 			await executionContext.Log(_log.Label, data, token).ConfigureAwait(false);

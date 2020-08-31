@@ -639,6 +639,13 @@ namespace Xtate
 			data.Update(ref list);
 		}
 
+		protected virtual void Visit(ref ImmutableArray<IValueExpression> list)
+		{
+			var data = new VisitListData<IValueExpression>(list);
+			Build(ref list, ref data.List);
+			data.Update(ref list);
+		}
+
 		protected virtual void Visit(ref ImmutableArray<ILocationExpression> list)
 		{
 			var data = new VisitListData<ILocationExpression>(list);
@@ -1039,7 +1046,16 @@ namespace Xtate
 			properties.Action = action;
 		}
 
-		protected virtual void Build(ref ICustomAction entity, ref CustomActionEntity properties) { }
+		protected virtual void Build(ref ICustomAction entity, ref CustomActionEntity properties)
+		{
+			var values = properties.Values;
+			VisitWrapper(ref values);
+			properties.Values = values;
+
+			var locations = properties.Locations;
+			VisitWrapper(ref locations);
+			properties.Locations = locations;
+		}
 
 		protected virtual void Build(ref IElse entity, ref ElseEntity properties) { }
 
@@ -1144,6 +1160,16 @@ namespace Xtate
 		}
 
 		protected virtual void Build(ref ImmutableArray<IInvoke> list, ref TrackList<IInvoke> trackList)
+		{
+			for (var i = 0; i < trackList.Count; i ++)
+			{
+				var item = trackList[i];
+				VisitWrapper(ref item);
+				trackList[i] = item;
+			}
+		}
+
+		protected virtual void Build(ref ImmutableArray<IValueExpression> list, ref TrackList<IValueExpression> trackList)
 		{
 			for (var i = 0; i < trackList.Count; i ++)
 			{
@@ -1456,6 +1482,14 @@ namespace Xtate
 		}
 
 		private void VisitWrapper(ref ImmutableArray<IInvoke> entity)
+		{
+			if (entity.IsDefault) return;
+			Enter(entity);
+			Visit(ref entity);
+			Exit();
+		}
+
+		private void VisitWrapper(ref ImmutableArray<IValueExpression> entity)
 		{
 			if (entity.IsDefault) return;
 			Enter(entity);

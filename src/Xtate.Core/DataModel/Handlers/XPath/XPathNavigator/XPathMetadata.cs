@@ -21,29 +21,29 @@ namespace Xtate.DataModel.XPath
 {
 	internal static class XPathMetadata
 	{
-		public const int ElementNamespaceOffset   = 0;
-		public const int ElementPrefixOffset      = 1;
-		public const int AttributeNamespaceOffset = 0;
-		public const int AttributePrefixOffset    = 1;
+		public const int ElementIndex             = 0;
+		public const int ElementPrefixOffset      = 0;
+		public const int ElementNamespaceOffset   = 1;
+		public const int FirstAttributeOffset     = 2;
+		public const int AttributeSegmentLength   = 4;
+		public const int AttributeLocalNameOffset = 0;
+		public const int AttributeValueOffset     = 1;
+		public const int AttributePrefixOffset    = 2;
+		public const int AttributeNamespaceOffset = 3;
 
-		public static string GetValue(DataModelList? metadata, int offset, int cursor = -1, string? key = null)
+		public const string Xmlns          = "xmlns";
+		public const string XmlnsNamespace = "http://www.w3.org/2000/xmlns/";
+
+		public static string GetValue(DataModelList? metadata, int index, int offset)
 		{
 			if (metadata is null)
 			{
 				return string.Empty;
 			}
 
-			while (metadata.NextEntry(ref cursor, out var entry))
+			if (metadata.TryGet(index + offset, out var entry))
 			{
-				if (entry.Key != key)
-				{
-					break;
-				}
-
-				if (offset -- == 0)
-				{
-					return entry.Value.AsStringOrDefault() ?? string.Empty;
-				}
+				return entry.Value.AsStringOrDefault() ?? string.Empty;
 			}
 
 			return string.Empty;

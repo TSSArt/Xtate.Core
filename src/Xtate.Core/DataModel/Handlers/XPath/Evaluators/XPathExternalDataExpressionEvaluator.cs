@@ -17,19 +17,34 @@
 
 #endregion
 
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.Annotations;
+using System;
+using System.Xml;
 
-namespace Xtate
+namespace Xtate.DataModel.XPath
 {
-	[PublicAPI]
-	public interface IHost
+	internal class XPathExternalDataExpressionEvaluator : DefaultExternalDataExpressionEvaluator
 	{
-		ValueTask StartStateMachineAsync(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters, CancellationToken token);
+		public XPathExternalDataExpressionEvaluator(in ExternalDataExpression externalDataExpression) : base(externalDataExpression) { }
 
-		ValueTask<DataModelValue> ExecuteStateMachineAsync(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters, CancellationToken token);
+		protected override DataModelValue ParseToDataModel(Resource resource, ref Exception? parseException)
+		{
+			var content = resource.Content;
 
-		ValueTask DestroyStateMachine(SessionId sessionId, CancellationToken token);
+			if (content is null)
+			{
+				return DataModelValue.Null;
+			}
+
+			try
+			{
+				return XmlConverter.FromXml(content, this);
+			}
+			catch (XmlException ex)
+			{
+				parseException = ex;
+
+				return content.NormalizeSpaces();
+			}
+		}
 	}
 }

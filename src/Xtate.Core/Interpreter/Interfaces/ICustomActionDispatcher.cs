@@ -26,7 +26,7 @@ namespace Xtate
 {
 	internal interface ICustomActionDispatcher
 	{
-		void SetEvaluators(ImmutableArray<ILocationEvaluator> locations, ImmutableArray<IObjectEvaluator> values);
+		void SetEvaluators(ImmutableArray<ILocationEvaluator> locations, ImmutableArray<IValueEvaluator> values);
 
 		ValueTask Execute(IExecutionContext executionContext, CancellationToken token);
 	}

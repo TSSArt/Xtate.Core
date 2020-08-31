@@ -32,7 +32,7 @@ namespace Xtate
 
 		public ValueTask ExecuteLog(ILoggerContext loggerContext, string? label, DataModelValue data, CancellationToken token)
 		{
-			Trace.TraceInformation(Resources.DefaultLogger_LogInfo, loggerContext.StateMachineName, loggerContext.SessionId?.Value, label, data);
+			Trace.TraceInformation(Resources.DefaultLogger_LogInfo, loggerContext.StateMachineName, loggerContext.SessionId?.Value, label, loggerContext.ConvertToText(data));
 
 			return default;
 		}
@@ -50,45 +50,89 @@ namespace Xtate
 		public bool IsTracingEnabled => false;
 #endif
 
-		public void TraceProcessingEvent(ILoggerContext loggerContext, IEvent evt)
+		public ValueTask TraceProcessingEvent(ILoggerContext loggerContext, IEvent evt, CancellationToken token)
 		{
 			Trace.TraceInformation(Resources.DefaultLogger_TraceProcessingEvent, evt.Type, EventName.ToName(evt.NameParts), evt.SendId?.Value, evt.InvokeId?.Value,
 								   evt.Data, evt.OriginType, evt.Origin, loggerContext.SessionId?.Value);
+
+			return default;
 		}
 
-		public void TraceEnteringState(ILoggerContext loggerContext, IIdentifier stateId)
+		public ValueTask TraceEnteringState(ILoggerContext loggerContext, IIdentifier stateId, CancellationToken token)
 		{
 			Trace.TraceInformation(Resources.DefaultLogger_TraceEnteringState, stateId.Value, loggerContext.SessionId?.Value);
+
+			return default;
 		}
 
-		public void TraceEnteredState(ILoggerContext loggerContext, IIdentifier stateId)
+		public ValueTask TraceEnteredState(ILoggerContext loggerContext, IIdentifier stateId, CancellationToken token)
 		{
 			Trace.TraceInformation(Resources.DefaultLogger_TraceEnteredState, stateId.Value, loggerContext.SessionId?.Value);
+
+			return default;
 		}
 
-		public void TraceExitingState(ILoggerContext loggerContext, IIdentifier stateId)
+		public ValueTask TraceExitingState(ILoggerContext loggerContext, IIdentifier stateId, CancellationToken token)
 		{
 			Trace.TraceInformation(Resources.DefaultLogger_TraceExitingState, stateId.Value, loggerContext.SessionId?.Value);
+
+			return default;
 		}
 
-		public void TraceExitedState(ILoggerContext loggerContext, IIdentifier stateId)
+		public ValueTask TraceExitedState(ILoggerContext loggerContext, IIdentifier stateId, CancellationToken token)
 		{
 			Trace.TraceInformation(Resources.DefaultLogger_TraceExitedState, stateId.Value, loggerContext.SessionId?.Value);
+
+			return default;
 		}
 
-		public void TracePerformingTransition(ILoggerContext loggerContext, TransitionType type, string? eventDescriptor, string? target)
+		public ValueTask TracePerformingTransition(ILoggerContext loggerContext, TransitionType type, string? eventDescriptor, string? target, CancellationToken token)
 		{
 			Trace.TraceInformation(Resources.DefaultLogger_TracePerformingTransition, type, target, eventDescriptor, loggerContext.SessionId?.Value);
+
+			return default;
 		}
 
-		public void TracePerformedTransition(ILoggerContext loggerContext, TransitionType type, string? eventDescriptor, string? target)
+		public ValueTask TracePerformedTransition(ILoggerContext loggerContext, TransitionType type, string? eventDescriptor, string? target, CancellationToken token)
 		{
 			Trace.TraceInformation(Resources.DefaultLogger_TracePerformedTransition, type, target, eventDescriptor, loggerContext.SessionId?.Value);
+
+			return default;
 		}
 
-		public void TraceInterpreterState(ILoggerContext loggerContext, StateMachineInterpreterState state)
+		public ValueTask TraceInterpreterState(ILoggerContext loggerContext, StateMachineInterpreterState state, CancellationToken token)
 		{
 			Trace.TraceInformation(Resources.DefaultLogger_TraceInterpreterState, state, loggerContext.SessionId?.Value);
+
+			return default;
+		}
+
+		public ValueTask TraceSendEvent(ILoggerContext loggerContext, IOutgoingEvent evt, CancellationToken token)
+		{
+			Trace.TraceInformation(Resources.DefaultLogger_TraceSendEvent, EventName.ToName(evt.NameParts), evt.SendId?.Value);
+
+			return default;
+		}
+
+		public ValueTask TraceCancelEvent(ILoggerContext loggerContext, SendId sendId, CancellationToken token)
+		{
+			Trace.TraceInformation(Resources.DefaultLogger_TraceCancelEvent, sendId.Value);
+
+			return default;
+		}
+
+		public ValueTask TraceStartInvoke(ILoggerContext loggerContext, InvokeData invokeData, CancellationToken token)
+		{
+			Trace.TraceInformation(Resources.DefaultLogger_TraceStartInvoke, invokeData.InvokeId.Value);
+
+			return default;
+		}
+
+		public ValueTask TraceCancelInvoke(ILoggerContext loggerContext, InvokeId invokeId, CancellationToken token)
+		{
+			Trace.TraceInformation(Resources.DefaultLogger_TraceCancelInvoke, invokeId.Value);
+
+			return default;
 		}
 	}
 }

@@ -29,21 +29,27 @@ namespace Xtate
 	{
 	#region Interface ILoggerContext
 
+		public string GetDataModelAsText() => _dataModelHandler.ConvertToText(_context.DataModel);
+
+		public string ConvertToText(in DataModelValue dataModelValue) => _dataModelHandler.ConvertToText(dataModelValue);
+
 		DataModelObject ILoggerContext.GetDataModel() => _context.DataModel.AsConstant();
 
-		DataModelArray ILoggerContext.GetActiveStates()
+		ImmutableArray<string> ILoggerContext.GetActiveStates()
 		{
-			var list = new DataModelArray();
+			var configuration = _context.Configuration;
 
-			foreach (var node in _context.Configuration)
+			var list = ImmutableArray.CreateBuilder<string>(configuration.Count);
+
+			foreach (var node in configuration)
 			{
 				list.Add(node.Id.Value);
 			}
 
-			list.MakeDeepConstant();
-
-			return list;
+			return list.MoveToImmutable();
 		}
+
+		IStateMachine ILoggerContext.StateMachine => _model.Root;
 
 		SessionId ILoggerContext.SessionId => _sessionId;
 
@@ -88,88 +94,30 @@ namespace Xtate
 			}
 		}
 
-		private void LogProcessingEvent(IEvent evt)
-		{
-			if (_logger.IsTracingEnabled)
-			{
-				_logger.TraceProcessingEvent(this, evt);
-			}
-		}
+		private ValueTask TraceProcessingEvent(IEvent evt) => _logger.IsTracingEnabled ? _logger.TraceProcessingEvent(this, evt, _stopToken) : default;
 
-		private void LogEnteringState(StateEntityNode state)
-		{
-			if (_logger.IsTracingEnabled)
-			{
-				_logger.TraceEnteringState(this, state.Id);
-			}
-		}
+		private ValueTask TraceEnteringState(StateEntityNode state) => _logger.IsTracingEnabled ? _logger.TraceEnteringState(this, state.Id, _stopToken) : default;
 
-		private void LogEnteredState(StateEntityNode state)
-		{
-			if (_logger.IsTracingEnabled)
-			{
-				_logger.TraceEnteredState(this, state.Id);
-			}
-		}
+		private ValueTask TraceEnteredState(StateEntityNode state) => _logger.IsTracingEnabled ? _logger.TraceEnteredState(this, state.Id, _stopToken) : default;
 
-		private void LogExitingState(StateEntityNode state)
-		{
-			if (_logger.IsTracingEnabled)
-			{
-				_logger.TraceExitingState(this, state.Id);
-			}
-		}
+		private ValueTask TraceExitingState(StateEntityNode state) => _logger.IsTracingEnabled ? _logger.TraceExitingState(this, state.Id, _stopToken) : default;
 
-		private void LogExitedState(StateEntityNode state)
-		{
-			if (_logger.IsTracingEnabled)
-			{
-				_logger.TraceExitedState(this, state.Id);
-			}
-		}
+		private ValueTask TraceExitedState(StateEntityNode state) => _logger.IsTracingEnabled ? _logger.TraceExitedState(this, state.Id, _stopToken) : default;
 
-		private void LogPerformingTransition(TransitionNode transition)
-		{
-			if (_logger.IsTracingEnabled)
-			{
-				_logger.TracePerformingTransition(this, transition.Type, EventDescriptorToString(transition.EventDescriptors), TargetToString(transition.Target));
-			}
-		}
+		private ValueTask TracePerformingTransition(TransitionNode transition) =>
+				_logger.IsTracingEnabled
+						? _logger.TracePerformingTransition(this, transition.Type, EventDescriptorToString(transition.EventDescriptors), TargetToString(transition.Target), _stopToken)
+						: default;
 
-		private void LogPerformedTransition(TransitionNode transition)
-		{
-			if (_logger.IsTracingEnabled)
-			{
-				_logger.TracePerformedTransition(this, transition.Type, EventDescriptorToString(transition.EventDescriptors), TargetToString(transition.Target));
-			}
-		}
+		private ValueTask TracePerformedTransition(TransitionNode transition) =>
+				_logger.IsTracingEnabled
+						? _logger.TracePerformedTransition(this, transition.Type, EventDescriptorToString(transition.EventDescriptors), TargetToString(transition.Target), _stopToken)
+						: default;
 
-		private static string? TargetToString(ImmutableArray<IIdentifier> list)
-		{
-			if (list.IsDefault)
-			{
-				return null;
-			}
+		private static string? TargetToString(ImmutableArray<IIdentifier> list) => !list.IsDefault ? string.Join(separator: @" ", list.Select(id => id.Value)) : null;
 
-			return string.Join(separator: @" ", list.Select(id => id.Value));
-		}
+		private static string? EventDescriptorToString(ImmutableArray<IEventDescriptor> list) => !list.IsDefault ? string.Join(separator: @" ", list.Select(id => id.Value)) : null;
 
-		private static string? EventDescriptorToString(ImmutableArray<IEventDescriptor> list)
-		{
-			if (list.IsDefault)
-			{
-				return null;
-			}
-
-			return string.Join(separator: @" ", list.Select(id => id.Value));
-		}
-
-		private void LogInterpreterState(StateMachineInterpreterState state)
-		{
-			if (_logger.IsTracingEnabled)
-			{
-				_logger.TraceInterpreterState(this, state);
-			}
-		}
+		private ValueTask TraceInterpreterState(StateMachineInterpreterState state) => _logger.IsTracingEnabled ? _logger.TraceInterpreterState(this, state, _stopToken) : default;
 	}
 }

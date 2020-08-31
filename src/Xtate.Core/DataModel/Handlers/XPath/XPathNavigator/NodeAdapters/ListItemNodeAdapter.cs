@@ -28,7 +28,7 @@ namespace Xtate.DataModel.XPath
 			var cursor = node.ParentCursor;
 
 			var ok = list.NextEntry(ref cursor, out var entry);
-			node = ok ? new DataModelXPathNavigator.Node(entry.Value, AdapterFactory.GetItemAdapter(entry.Value), cursor, entry.Index, entry.Key, entry.Metadata) : default;
+			node = ok ? new DataModelXPathNavigator.Node(entry.Value, AdapterFactory.GetItemAdapter(entry), cursor, entry.Index, entry.Key, entry.Metadata) : default;
 
 			return ok;
 		}
@@ -40,7 +40,7 @@ namespace Xtate.DataModel.XPath
 			var cursor = node.ParentCursor;
 
 			var ok = list.PreviousEntry(ref cursor, out var entry);
-			node = ok ? new DataModelXPathNavigator.Node(entry.Value, AdapterFactory.GetItemAdapter(entry.Value), cursor, entry.Index, entry.Key, entry.Metadata) : default;
+			node = ok ? new DataModelXPathNavigator.Node(entry.Value, AdapterFactory.GetItemAdapter(entry), cursor, entry.Index, entry.Key, entry.Metadata) : default;
 
 			return ok;
 		}

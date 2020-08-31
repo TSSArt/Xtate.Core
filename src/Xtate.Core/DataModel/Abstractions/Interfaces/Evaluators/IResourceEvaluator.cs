@@ -21,15 +21,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xtate.Annotations;
 
-namespace Xtate
+namespace Xtate.DataModel
 {
 	[PublicAPI]
-	public interface IHost
+	public interface IResourceEvaluator : IValueEvaluator
 	{
-		ValueTask StartStateMachineAsync(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters, CancellationToken token);
-
-		ValueTask<DataModelValue> ExecuteStateMachineAsync(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters, CancellationToken token);
-
-		ValueTask DestroyStateMachine(SessionId sessionId, CancellationToken token);
+		ValueTask<IObject> EvaluateObject(IExecutionContext executionContext, Resource resource, CancellationToken token);
 	}
 }

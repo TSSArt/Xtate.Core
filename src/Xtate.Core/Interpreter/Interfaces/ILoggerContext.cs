@@ -17,6 +17,7 @@
 
 #endregion
 
+using System.Collections.Immutable;
 using Xtate.Annotations;
 
 namespace Xtate
@@ -28,8 +29,14 @@ namespace Xtate
 
 		public string? StateMachineName { get; }
 
+		public IStateMachine? StateMachine { get; }
+
 		public DataModelObject? GetDataModel();
 
-		public DataModelArray? GetActiveStates();
+		public string? GetDataModelAsText();
+
+		public ImmutableArray<string> GetActiveStates();
+
+		public string ConvertToText(in DataModelValue dataModelValue);
 	}
 }

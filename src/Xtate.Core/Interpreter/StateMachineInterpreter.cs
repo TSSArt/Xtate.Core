@@ -429,11 +429,14 @@ namespace Xtate
 		private ValueTask NotifyExited()   => NotifyInterpreterState(StateMachineInterpreterState.Exited);
 		private ValueTask NotifyWaiting()  => NotifyInterpreterState(StateMachineInterpreterState.Waiting);
 
-		private ValueTask NotifyInterpreterState(StateMachineInterpreterState state)
+		private async ValueTask NotifyInterpreterState(StateMachineInterpreterState state)
 		{
-			LogInterpreterState(state);
+			await TraceInterpreterState(state).ConfigureAwait(false);
 
-			return _notifyStateChanged?.OnChanged(state) ?? default;
+			if (_notifyStateChanged != null)
+			{
+				await _notifyStateChanged.OnChanged(state).ConfigureAwait(false);
+			}
 		}
 
 		private async ValueTask RunSteps()
@@ -473,7 +476,7 @@ namespace Xtate
 
 		private async ValueTask<StateMachineDestroyedException> DestroyingSteps(Exception destroyException)
 		{
-			LogInterpreterState(StateMachineInterpreterState.Destroying);
+			await TraceInterpreterState(StateMachineInterpreterState.Destroying).ConfigureAwait(false);
 
 			await ExitSteps().ConfigureAwait(false);
 
@@ -489,7 +492,7 @@ namespace Xtate
 
 			if (stateMachine is null)
 			{
-				LogInterpreterState(StateMachineInterpreterState.Resumed);
+				await TraceInterpreterState(StateMachineInterpreterState.Resumed).ConfigureAwait(false);
 			}
 
 			try
@@ -498,25 +501,25 @@ namespace Xtate
 			}
 			catch (ChannelClosedException ex)
 			{
-				LogInterpreterState(StateMachineInterpreterState.QueueClosed);
+				await TraceInterpreterState(StateMachineInterpreterState.QueueClosed).ConfigureAwait(false);
 
 				throw new StateMachineQueueClosedException(Resources.Exception_State_Machine_external_queue_has_been_closed, ex);
 			}
 			catch (OperationCanceledException ex) when (ex.CancellationToken == _stopToken || ex.CancellationToken == _anyTokenSource.Token && _stopToken.IsCancellationRequested)
 			{
-				LogInterpreterState(StateMachineInterpreterState.Halted);
+				await TraceInterpreterState(StateMachineInterpreterState.Halted).ConfigureAwait(false);
 
 				throw new OperationCanceledException(Resources.Exception_State_Machine_has_been_halted, ex, _stopToken);
 			}
 			catch (StateMachineUnhandledErrorException ex) when (ex.UnhandledErrorBehaviour == UnhandledErrorBehaviour.HaltStateMachine)
 			{
-				LogInterpreterState(StateMachineInterpreterState.Halted);
+				await TraceInterpreterState(StateMachineInterpreterState.Halted).ConfigureAwait(false);
 
 				throw;
 			}
 			catch (OperationCanceledException ex) when (ex.CancellationToken == _suspendToken || ex.CancellationToken == _anyTokenSource.Token && _suspendToken.IsCancellationRequested)
 			{
-				LogInterpreterState(StateMachineInterpreterState.Suspended);
+				await TraceInterpreterState(StateMachineInterpreterState.Suspended).ConfigureAwait(false);
 
 				throw new StateMachineSuspendedException(Resources.Exception_State_Machine_has_been_suspended, ex);
 			}
@@ -598,7 +601,7 @@ namespace Xtate
 			var eventObject = DataConverter.FromEvent(internalEvent, _dataModelHandler.CaseInsensitive);
 			_context.DataModel.SetInternal(key: @"_event", _dataModelHandler.CaseInsensitive, eventObject, DataModelAccess.ReadOnly);
 
-			LogProcessingEvent(internalEvent);
+			await TraceProcessingEvent(internalEvent).ConfigureAwait(false);
 
 			var transitions = await SelectTransitions(internalEvent).ConfigureAwait(false);
 
@@ -730,7 +733,7 @@ namespace Xtate
 			var eventObject = DataConverter.FromEvent(externalEvent, _dataModelHandler.CaseInsensitive);
 			_context.DataModel.SetInternal(key: @"_event", _dataModelHandler.CaseInsensitive, eventObject, DataModelAccess.ReadOnly);
 
-			LogProcessingEvent(externalEvent);
+			await TraceProcessingEvent(externalEvent).ConfigureAwait(false);
 
 			foreach (var state in _context.Configuration)
 			{
@@ -990,7 +993,7 @@ namespace Xtate
 
 			foreach (var state in states)
 			{
-				LogExitingState(state);
+				await TraceExitingState(state).ConfigureAwait(false);
 
 				foreach (var onExit in state.OnExit)
 				{
@@ -1004,7 +1007,7 @@ namespace Xtate
 
 				_context.Configuration.Delete(state);
 
-				LogExitedState(state);
+				await TraceExitedState(state).ConfigureAwait(false);
 			}
 
 			Complete(StateBagKey.OnExit);
@@ -1049,7 +1052,7 @@ namespace Xtate
 
 			foreach (var state in ToSortedList(statesToEnter, StateEntityNode.EntryOrder))
 			{
-				LogEnteringState(state);
+				await TraceEnteringState(state).ConfigureAwait(false);
 
 				_context.Configuration.AddIfNotExists(state);
 				_context.StatesToInvoke.AddIfNotExists(state);
@@ -1103,7 +1106,7 @@ namespace Xtate
 					}
 				}
 
-				LogEnteredState(state);
+				await TraceEnteredState(state).ConfigureAwait(false);
 			}
 
 			Complete(StateBagKey.OnEntry);
@@ -1378,11 +1381,11 @@ namespace Xtate
 
 		private async ValueTask ExecuteTransitionContent(TransitionNode transition)
 		{
-			LogPerformingTransition(transition);
+			await TracePerformingTransition(transition).ConfigureAwait(false);
 
 			await RunExecutableEntity(transition.ActionEvaluators).ConfigureAwait(false);
 
-			LogPerformedTransition(transition);
+			await TracePerformedTransition(transition).ConfigureAwait(false);
 		}
 
 		private async ValueTask RunExecutableEntity(ImmutableArray<IExecEvaluator> action)
@@ -1579,16 +1582,15 @@ namespace Xtate
 				return overrideValue;
 			}
 
-			if (data.Source is { } source)
+			if (data.ResourceEvaluator is { } resourceEvaluator)
 			{
-				var resource = await LoadData(source).ConfigureAwait(false);
+				Infrastructure.NotNull(data.Source);
 
-				if (resource.Content is { } content)
-				{
-					return DataConverter.FromContent(content, resource.ContentType);
-				}
+				var resource = await LoadData(data.Source).ConfigureAwait(false);
 
-				return default;
+				var obj = await resourceEvaluator.EvaluateObject(_context.ExecutionContext, resource, _stopToken).ConfigureAwait(false);
+
+				return DataModelValue.FromObject(obj.ToObject());
 			}
 
 			if (data.ExpressionEvaluator is { } expressionEvaluator)

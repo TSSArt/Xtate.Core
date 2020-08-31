@@ -43,7 +43,7 @@ namespace Xtate
 		{
 			Infrastructure.Assert(CanHandle(invokeData.Type));
 
-			var sessionId = SessionId.FromString(invokeData.InvokeId.Value); // using InvokeId as SessionId
+			var sessionId = SessionId.New();
 			var scxml = invokeData.RawContent ?? invokeData.Content.AsStringOrDefault();
 			var parameters = invokeData.Parameters;
 			var source = invokeData.Source;

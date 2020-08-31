@@ -33,6 +33,6 @@ namespace Xtate.CustomAction
 
 		ILocationAssigner RegisterLocationExpression(string expression);
 
-		IExpressionEvaluator RegisterValueExpression(string expression);
+		IExpressionEvaluator RegisterValueExpression(string expression, ExpectedValueType expectedValueType);
 	}
 }

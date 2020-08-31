@@ -47,17 +47,37 @@ namespace Xtate.DataModel.XPath
 						_ => throw GetNotSupportedException()
 				};
 
-		public static NodeAdapter GetItemAdapter(in DataModelValue value) =>
+		public static NodeAdapter GetItemAdapter(in DataModelList.Entry entry)
+		{
+			if (entry.Key is null)
+			{
+				return SimpleTypeNodeAdapter;
+			}
+
+			return entry.Value.Type switch
+			{
+					DataModelValueType.Undefined => ItemNodeAdapter,
+					DataModelValueType.Null => ItemNodeAdapter,
+					DataModelValueType.String => SimpleTypeItemNodeAdapter,
+					DataModelValueType.Number => SimpleTypeItemNodeAdapter,
+					DataModelValueType.Boolean => SimpleTypeItemNodeAdapter,
+					DataModelValueType.DateTime => SimpleTypeItemNodeAdapter,
+					DataModelValueType.Object => ListItemNodeAdapter,
+					DataModelValueType.Array => ListItemNodeAdapter,
+					_ => throw GetNotSupportedException()
+			};
+		}
+
+		public static NodeAdapter? GetSimpleTypeAdapter(in DataModelValue value) =>
 				value.Type switch
 				{
-						DataModelValueType.Undefined => ItemNodeAdapter,
-						DataModelValueType.Null => ItemNodeAdapter,
-						DataModelValueType.String => SimpleTypeItemNodeAdapter,
-						DataModelValueType.Number => SimpleTypeItemNodeAdapter,
-						DataModelValueType.Boolean => SimpleTypeItemNodeAdapter,
-						DataModelValueType.DateTime => SimpleTypeItemNodeAdapter,
-						DataModelValueType.Object => ListItemNodeAdapter,
-						DataModelValueType.Array => ListItemNodeAdapter,
+						DataModelValueType.Undefined => null,
+						DataModelValueType.Null => null,
+						DataModelValueType.String when value.AsString().Length == 0 => null,
+						DataModelValueType.String => SimpleTypeNodeAdapter,
+						DataModelValueType.Number => SimpleTypeNodeAdapter,
+						DataModelValueType.Boolean => SimpleTypeNodeAdapter,
+						DataModelValueType.DateTime => SimpleTypeNodeAdapter,
 						_ => throw GetNotSupportedException()
 				};
 

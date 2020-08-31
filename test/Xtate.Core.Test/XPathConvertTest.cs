@@ -17,19 +17,13 @@
 
 #endregion
 
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.Annotations;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Xtate
+namespace Xtate.Core.Test
 {
-	[PublicAPI]
-	public interface IHost
+	[TestClass]
+	public class XPathConvertTest
 	{
-		ValueTask StartStateMachineAsync(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters, CancellationToken token);
-
-		ValueTask<DataModelValue> ExecuteStateMachineAsync(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters, CancellationToken token);
-
-		ValueTask DestroyStateMachine(SessionId sessionId, CancellationToken token);
+		//public void XPathConvert_XmlPar
 	}
 }

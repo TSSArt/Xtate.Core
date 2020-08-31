@@ -17,6 +17,9 @@
 
 #endregion
 
+using System.Diagnostics.CodeAnalysis;
+using System.Xml;
+using System.Xml.XPath;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Xtate.DataModel.XPath;
 
@@ -189,16 +192,13 @@ namespace Xtate.Core.Test
 											   { "item", "val1" },
 											   { "item", "val2" }
 									   },
-									   new DataModelObject
+									   new DataModelArray
 									   {
-											   { null, "namespace-uri", null },
-											   { null, "prefix", null },
-											   { "attr1", "aVal1" },
-											   { "attr2", "aVal2" },
-											   { "attr2", "attr-ns" },
-											   { "attr2", "pfx" },
-											   { "myNs", "myNamespace" },
-											   { "myNs", "http://www.w3.org/2000/xmlns/" }
+											   "prefix",
+											   "namespace-uri",
+											   "attr1", "aVal1", "", "",
+											   "attr2", "aVal2", "pfx", "attr-ns",
+											   "myNs", "myNamespace", "", "http://www.w3.org/2000/xmlns/"
 									   }
 							   }
 					   };
@@ -219,6 +219,54 @@ namespace Xtate.Core.Test
 
 			var n3 = new DataModelXPathNavigator(dataModelValue2);
 			var _ = n3.InnerXml;
+		}
+
+		[TestMethod]
+		[SuppressMessage(category: "ReSharper", checkId: "UnusedVariable")]
+		public void RenderValidXml2()
+		{
+#pragma warning disable IDE0059
+			var xpath = "string(/a)";
+			var xPathExpression = XPathExpression.Compile(xpath);
+
+			var s = "<a xmlns:ss='dsf'><ss:eee/></a>";
+
+			var t = XmlConverter.FromXml(s);
+
+			var xmlDocument = new XmlDocument();
+			xmlDocument.LoadXml(s);
+			var navigatorDoc = xmlDocument.CreateNavigator();
+
+			var navigator = new DataModelXPathNavigator(t);
+
+			var s1 = navigator.MoveToFirstChild();
+			var s1a = navigator.MoveToFirstChild();
+			var navigatorIsEmptyElement = navigator.IsEmptyElement;
+			var s2q = navigator.MoveToFirstAttribute();
+			var s2qs = navigator.MoveToNextAttribute();
+			var s2qw = navigator.MoveToParent();
+			var as2q = navigator.MoveToFirstNamespace(XPathNamespaceScope.Local);
+			var as2qs = navigator.MoveToNextNamespace(XPathNamespaceScope.Local);
+			var as2qa = navigator.MoveToNextNamespace(XPathNamespaceScope.Local);
+			var as2qw = navigator.MoveToParent();
+
+			var s2 = navigator.MoveToNext();
+			var s3 = navigator.MoveToParent();
+
+			var navigatorHasAttributes = navigator.HasAttributes;
+			var moveToFirstAttribute = navigator.MoveToFirstAttribute();
+			if (moveToFirstAttribute)
+			{
+				navigator.MoveToParent();
+			}
+
+			var moveToFirstNamespace = navigator.MoveToFirstNamespace(XPathNamespaceScope.ExcludeXml);
+			navigator.MoveToNextNamespace(XPathNamespaceScope.ExcludeXml);
+			if (moveToFirstNamespace)
+			{
+				navigator.MoveToParent();
+			}
+#pragma warning restore IDE0059
 		}
 	}
 }

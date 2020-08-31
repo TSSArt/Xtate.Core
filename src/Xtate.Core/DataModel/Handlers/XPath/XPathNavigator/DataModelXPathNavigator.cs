@@ -36,7 +36,7 @@ namespace Xtate.DataModel.XPath
 		private int    _pathLength;
 		private Node[] _pathOther = Array.Empty<Node>();
 
-		public DataModelXPathNavigator(DataModelValue root)
+		public DataModelXPathNavigator(in DataModelValue root)
 		{
 			NameTable = new NameTable();
 
@@ -65,6 +65,12 @@ namespace Xtate.DataModel.XPath
 		public override XmlNameTable NameTable { get; }
 
 		public DataModelValue DataModelValue => Current.DataModelValue;
+
+		public DataModelList? Metadata => Current.Metadata;
+
+		public override bool HasAttributes => Current.GetFirstAttribute(out _);
+
+		public override bool HasChildren => Current.GetFirstChild(out _);
 
 		private static void ClonePosition(DataModelXPathNavigator source, DataModelXPathNavigator destination)
 		{
@@ -303,7 +309,7 @@ namespace Xtate.DataModel.XPath
 			if (_pathLength > 0)
 			{
 				list = new DataModelObject();
-				if (!clear)
+				if (!clear && !Current.DataModelValue.IsUndefined())
 				{
 					list.Add(key: default, Current.DataModelValue, metadata: default);
 				}
@@ -425,6 +431,8 @@ namespace Xtate.DataModel.XPath
 			public bool GetNextAttribute(ref Node attributeNode)  => Adapter.GetNextAttribute(this, ref attributeNode);
 			public bool GetFirstNamespace(out Node namespaceNode) => Adapter.GetFirstNamespace(this, out namespaceNode);
 			public bool GetNextNamespace(ref Node namespaceNode)  => Adapter.GetNextNamespace(this, ref namespaceNode);
+
+			public string? EncodedParentProperty() => XmlConvert.EncodeLocalName(ParentProperty!);
 		}
 	}
 }

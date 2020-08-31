@@ -30,6 +30,7 @@ namespace Xtate.CustomAction
 		private SystemActionFactory()
 		{
 			Register(name: "start", (xmlReader, context) => new StartAction(xmlReader, context));
+			Register(name: "destroy", (xmlReader, context) => new DestroyAction(xmlReader, context));
 		}
 	}
 }

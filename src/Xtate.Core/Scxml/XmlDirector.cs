@@ -240,11 +240,9 @@ namespace Xtate.Scxml
 				_elements.Add(new QualifiedName(ns, name), (located, type));
 			}
 
-			public Action<TDirector, TEntity>? AttributeLocated(string ns, string name) =>
-					_attributes.TryGetValue(new QualifiedName(ns, name), out var val) ? val.located : null;
+			public Action<TDirector, TEntity>? AttributeLocated(string ns, string name) => _attributes.TryGetValue(new QualifiedName(ns, name), out var val) ? val.located : null;
 
-			public Action<TDirector, TEntity>? ElementLocated(string ns, string name) =>
-					_elements.TryGetValue(new QualifiedName(ns, name), out var val) ? val.located : UnknownElementAction;
+			public Action<TDirector, TEntity>? ElementLocated(string ns, string name) => _elements.TryGetValue(new QualifiedName(ns, name), out var val) ? val.located : UnknownElementAction;
 
 			public ValidationContext CreateValidationContext(XmlReader xmlReader, IErrorProcessor errorProcessor) => new ValidationContext(this, xmlReader, errorProcessor);
 

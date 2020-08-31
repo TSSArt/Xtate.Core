@@ -106,6 +106,24 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cancel event. SendId: [{0}]..
+        /// </summary>
+        internal static string DefaultLogger_TraceCancelEvent {
+            get {
+                return ResourceManager.GetString("DefaultLogger_TraceCancelEvent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel invoke. InvokeId: [{0}]..
+        /// </summary>
+        internal static string DefaultLogger_TraceCancelInvoke {
+            get {
+                return ResourceManager.GetString("DefaultLogger_TraceCancelInvoke", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Entered to state: [{0}]. SessionId: [{1}]..
         /// </summary>
         internal static string DefaultLogger_TraceEnteredState {
@@ -174,6 +192,24 @@ namespace Xtate {
         internal static string DefaultLogger_TraceProcessingEvent {
             get {
                 return ResourceManager.GetString("DefaultLogger_TraceProcessingEvent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Send event: [{0}]. SendId: [{1}]..
+        /// </summary>
+        internal static string DefaultLogger_TraceSendEvent {
+            get {
+                return ResourceManager.GetString("DefaultLogger_TraceSendEvent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Start invoke. InvokeId: [{0}]..
+        /// </summary>
+        internal static string DefaultLogger_TraceStartInvoke {
+            get {
+                return ResourceManager.GetString("DefaultLogger_TraceStartInvoke", resourceCulture);
             }
         }
         
@@ -286,11 +322,11 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to At least one source must be specified.
+        ///   Looks up a localized string similar to At least one attribute url or urlExpr must be specified.
         /// </summary>
-        internal static string ErrorMessage_At_least_one_source_must_be_specified {
+        internal static string ErrorMessage_At_least_one_url_must_be_specified {
             get {
-                return ResourceManager.GetString("ErrorMessage_At_least_one_source_must_be_specified", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_At_least_one_url_must_be_specified", resourceCulture);
             }
         }
         
@@ -767,11 +803,30 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to [source] has invalid URI format..
+        ///   Looks up a localized string similar to [sessionId] and [sessionIdExpr] attributes should not be assigned in Start element..
         /// </summary>
-        internal static string ErrorMessage_source__has_invalid_URI_format {
+        internal static string ErrorMessage_sessionId__and__sessionIdExpr__attributes_should_not_be_assigned_in_Start_element_ {
             get {
-                return ResourceManager.GetString("ErrorMessage_source__has_invalid_URI_format", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_sessionId__and__sessionIdExpr__attributes_should_not_be_assigned_in_" +
+                        "Start_element_", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [sessionId] or [sessionIdExpr] must be specified..
+        /// </summary>
+        internal static string ErrorMessage_sessionId__or__sessionIdExpr__must_be_specified {
+            get {
+                return ResourceManager.GetString("ErrorMessage_sessionId__or__sessionIdExpr__must_be_specified", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [sessionId] could not be empty..
+        /// </summary>
+        internal static string ErrorMessage_SessionId_could_not_be_empty {
+            get {
+                return ResourceManager.GetString("ErrorMessage_SessionId_could_not_be_empty", resourceCulture);
             }
         }
         
@@ -791,15 +846,6 @@ namespace Xtate {
             get {
                 return ResourceManager.GetString("ErrorMessage_Source_and_SourceExpression_can_t_be_used_at_the_same_time_in_Invoke" +
                         "_element", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to [src] and [srcexpr] attributes should not be assigned in Start element..
-        /// </summary>
-        internal static string ErrorMessage_src_and_srcexpr_attributes_should_not_be_assigned_in_Start_element {
-            get {
-                return ResourceManager.GetString("ErrorMessage_src_and_srcexpr_attributes_should_not_be_assigned_in_Start_element", resourceCulture);
             }
         }
         
@@ -866,6 +912,24 @@ namespace Xtate {
         internal static string ErrorMessage_Type_or_TypeExpression_must_be_specified_in_Invoke_element {
             get {
                 return ResourceManager.GetString("ErrorMessage_Type_or_TypeExpression_must_be_specified_in_Invoke_element", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [url] has invalid URI format..
+        /// </summary>
+        internal static string ErrorMessage_url__has_invalid_URI_format {
+            get {
+                return ResourceManager.GetString("ErrorMessage_url__has_invalid_URI_format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [url] and [urlExpr] attributes should not be assigned in Start element..
+        /// </summary>
+        internal static string ErrorMessage_url_and_urlExpr_attributes_should_not_be_assigned_in_Start_element {
+            get {
+                return ResourceManager.GetString("ErrorMessage_url_and_urlExpr_attributes_should_not_be_assigned_in_Start_element", resourceCulture);
             }
         }
         
@@ -1579,6 +1643,15 @@ namespace Xtate {
         internal static string Exception_ServiceAttribute_did_not_provided_for_type {
             get {
                 return ResourceManager.GetString("Exception_ServiceAttribute_did_not_provided_for_type", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SessionId could not be empty..
+        /// </summary>
+        internal static string Exception_SessionId_could_not_be_empty {
+            get {
+                return ResourceManager.GetString("Exception_SessionId_could_not_be_empty", resourceCulture);
             }
         }
         
