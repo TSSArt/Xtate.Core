@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 namespace Xtate.DataModel.XPath
@@ -28,7 +28,7 @@ namespace Xtate.DataModel.XPath
 
 		public static string GetValue(DataModelList? metadata, int offset, int cursor = -1, string? key = null)
 		{
-			if (metadata == null)
+			if (metadata is null)
 			{
 				return string.Empty;
 			}

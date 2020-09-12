@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -61,14 +61,29 @@ namespace Xtate
 			Trace.TraceInformation(Resources.DefaultLogger_TraceEnteringState, stateId.Value, loggerContext?.SessionId?.Value);
 		}
 
+		public void TraceEnteredState(ILoggerContext loggerContext, IIdentifier stateId)
+		{
+			Trace.TraceInformation(Resources.DefaultLogger_TraceEnteredState, stateId.Value, loggerContext?.SessionId?.Value);
+		}
+
 		public void TraceExitingState(ILoggerContext loggerContext, IIdentifier stateId)
 		{
 			Trace.TraceInformation(Resources.DefaultLogger_TraceExitingState, stateId.Value, loggerContext?.SessionId?.Value);
 		}
 
+		public void TraceExitedState(ILoggerContext loggerContext, IIdentifier stateId)
+		{
+			Trace.TraceInformation(Resources.DefaultLogger_TraceExitedState, stateId.Value, loggerContext?.SessionId?.Value);
+		}
+
 		public void TracePerformingTransition(ILoggerContext loggerContext, TransitionType type, string? eventDescriptor, string? target)
 		{
 			Trace.TraceInformation(Resources.DefaultLogger_TracePerformingTransition, type, target, eventDescriptor, loggerContext?.SessionId?.Value);
+		}
+
+		public void TracePerformedTransition(ILoggerContext loggerContext, TransitionType type, string? eventDescriptor, string? target)
+		{
+			Trace.TraceInformation(Resources.DefaultLogger_TracePerformedTransition, type, target, eventDescriptor, loggerContext?.SessionId?.Value);
 		}
 
 		public void TraceInterpreterState(ILoggerContext loggerContext, StateMachineInterpreterState state)

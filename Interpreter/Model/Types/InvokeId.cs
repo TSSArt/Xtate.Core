@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -26,7 +26,7 @@ namespace Xtate
 	[Serializable]
 	public sealed class InvokeId : LazyId
 	{
-		public static readonly IEqualityComparer<InvokeId> InvokeUniqueIdComparer = new InvokeUniqueIdEqualityComparer();
+		internal static readonly InvokeUniqueIdEqualityComparer InvokeUniqueIdComparer = new InvokeUniqueIdEqualityComparer();
 
 		private readonly IIdentifier? _stateId;
 		private          string?      _invokeUniqueId;
@@ -41,14 +41,13 @@ namespace Xtate
 		{
 			get
 			{
-				var invokeUniqueId = _invokeUniqueId;
-
-				if (invokeUniqueId == null)
+				if (_invokeUniqueId is { } invokeUniqueId)
 				{
-					var newInvokeUniqueId = IdGenerator.NewInvokeUniqueId(GetHashCode());
-
-					invokeUniqueId = Interlocked.CompareExchange(ref _invokeUniqueId, newInvokeUniqueId, comparand: null) ?? newInvokeUniqueId;
+					return invokeUniqueId;
 				}
+
+				var newInvokeUniqueId = IdGenerator.NewInvokeUniqueId(GetHashCode());
+				invokeUniqueId = Interlocked.CompareExchange(ref _invokeUniqueId, newInvokeUniqueId, comparand: null) ?? newInvokeUniqueId;
 
 				return invokeUniqueId;
 			}
@@ -56,18 +55,18 @@ namespace Xtate
 
 		protected override string GenerateId()
 		{
-			Infrastructure.Assert(_stateId != null);
+			Infrastructure.NotNull(_stateId);
 
 			return IdGenerator.NewInvokeId(_stateId.Value, GetHashCode());
 		}
 
-		public static InvokeId New(IIdentifier stateId, string? invokeId) => invokeId == null ? new InvokeId(stateId) : new InvokeId(invokeId);
+		public static InvokeId New(IIdentifier stateId, string? invokeId) => invokeId is null ? new InvokeId(stateId) : new InvokeId(invokeId);
 
 		public static InvokeId FromString(string invokeId) => new InvokeId(invokeId);
 
 		public static InvokeId FromString(string invokeId, string invokeUniqueId) => new InvokeId(invokeId, invokeUniqueId);
 
-		private sealed class InvokeUniqueIdEqualityComparer : IEqualityComparer<InvokeId>
+		internal sealed class InvokeUniqueIdEqualityComparer : IEqualityComparer<InvokeId>
 		{
 		#region Interface IEqualityComparer<InvokeId>
 
@@ -78,21 +77,19 @@ namespace Xtate
 					return true;
 				}
 
-				return x?._invokeUniqueId != null && y?._invokeUniqueId != null && x._invokeUniqueId == y._invokeUniqueId;
+				return x?._invokeUniqueId is { } a && y?._invokeUniqueId is { } b && a == b;
 			}
 
 			public int GetHashCode(InvokeId obj)
 			{
-				if (obj == null) throw new ArgumentNullException(nameof(obj));
+				if (obj is null) throw new ArgumentNullException(nameof(obj));
 
-				var id = obj._invokeUniqueId;
-
-				if (id == null)
+				if (obj._invokeUniqueId is { } id)
 				{
-					return obj.GetHashCode();
+					return TryGetHashFromId(id, out var hash) ? hash : id.GetHashCode();
 				}
 
-				return TryGetHashFromId(id, out var hash) ? hash : id.GetHashCode();
+				return obj.GetHashCode();
 			}
 
 		#endregion

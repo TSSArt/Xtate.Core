@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -183,7 +183,7 @@ namespace Xtate
 		[return: NotNullIfNotNull("relativeUri")]
 		private static Uri? CombineUri(Uri? baseUri, Uri? relativeUri)
 		{
-			if (baseUri != null && baseUri.IsAbsoluteUri && relativeUri != null && !relativeUri.IsAbsoluteUri)
+			if (baseUri is { } && baseUri.IsAbsoluteUri && relativeUri is { } && !relativeUri.IsAbsoluteUri)
 			{
 				return new Uri(baseUri, relativeUri);
 			}
@@ -223,7 +223,7 @@ namespace Xtate
 
 		private static DataModelObject? CreateHostData(Uri? stateMachineLocation)
 		{
-			if (stateMachineLocation != null)
+			if (stateMachineLocation is { })
 			{
 				var obj = new DataModelObject { { Location, stateMachineLocation.ToString() } };
 				obj.MakeDeepConstant();
@@ -253,14 +253,14 @@ namespace Xtate
 
 		public StateMachineController? FindStateMachineController(SessionId sessionId)
 		{
-			if (sessionId == null) throw new ArgumentNullException(nameof(sessionId));
+			if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
 
 			return _stateMachinesBySessionId.TryGetValue(sessionId, out var controller) ? controller : null;
 		}
 
 		public void ValidateSessionId(SessionId sessionId, out StateMachineController controller)
 		{
-			if (sessionId == null) throw new ArgumentNullException(nameof(sessionId));
+			if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
 
 			var result = _stateMachinesBySessionId.TryGetValue(sessionId, out controller);
 
@@ -308,7 +308,7 @@ namespace Xtate
 
 		public virtual ValueTask<IService?> TryRemoveService(SessionId sessionId, InvokeId invokeId)
 		{
-			if (!_serviceByInvokeId.TryRemove(invokeId, out var service) || service == null)
+			if (!_serviceByInvokeId.TryRemove(invokeId, out var service) || service is null)
 			{
 				return new ValueTask<IService?>((IService?) null);
 			}
@@ -325,8 +325,8 @@ namespace Xtate
 
 		public IService GetService(SessionId sessionId, Uri target)
 		{
-			if (sessionId == null) throw new ArgumentNullException(nameof(sessionId));
-			if (target == null) throw new ArgumentNullException(nameof(target));
+			if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
+			if (target is null) throw new ArgumentNullException(nameof(target));
 
 			if (!target.IsAbsoluteUri)
 			{
@@ -348,7 +348,7 @@ namespace Xtate
 				}
 				else if (targetValue.StartsWith(InvokeIdPrefix))
 				{
-					if (_serviceByInvokeId.TryGetValue(InvokeId.FromString(targetValue.Substring(InvokeIdPrefix.Length)), out var service) && service != null)
+					if (_serviceByInvokeId.TryGetValue(InvokeId.FromString(targetValue.Substring(InvokeIdPrefix.Length)), out var service) && service is { })
 					{
 						return service;
 					}

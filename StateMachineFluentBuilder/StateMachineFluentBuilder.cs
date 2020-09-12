@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -40,7 +40,7 @@ namespace Xtate.Builder
 
 		public StateMachineFluentBuilder SetInitial(params string[] initial)
 		{
-			if (initial == null) throw new ArgumentNullException(nameof(initial));
+			if (initial is null) throw new ArgumentNullException(nameof(initial));
 			if (initial.Length == 0) throw new ArgumentException(Resources.Exception_ValueCannotBeAnEmptyCollection, nameof(initial));
 
 			var builder = ImmutableArray.CreateBuilder<IIdentifier>(initial.Length);
@@ -57,7 +57,7 @@ namespace Xtate.Builder
 
 		public StateMachineFluentBuilder SetInitial(params IIdentifier[] initial)
 		{
-			if (initial == null) throw new ArgumentNullException(nameof(initial));
+			if (initial is null) throw new ArgumentNullException(nameof(initial));
 			if (initial.Length == 0) throw new ArgumentException(Resources.Exception_ValueCannotBeAnEmptyCollection, nameof(initial));
 
 			_builder.SetInitial(initial.ToImmutableArray());

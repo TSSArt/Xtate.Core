@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -30,6 +30,7 @@ namespace Xtate
 {
 	internal sealed class InterpreterModelBuilder : StateMachineVisitor
 	{
+		private readonly ImmutableArray<ICustomActionFactory>               _customActionProviders;
 		private readonly IDataModelHandler                                  _dataModelHandler;
 		private readonly LinkedList<int>                                    _documentIdList;
 		private readonly List<IEntity>                                      _entities;
@@ -44,12 +45,14 @@ namespace Xtate
 		private          List<(Uri Uri, IExternalScriptConsumer Consumer)>? _externalScriptList;
 		private          bool                                               _inParallel;
 
-		public InterpreterModelBuilder(IStateMachine stateMachine, IDataModelHandler dataModelHandler, ImmutableArray<ICustomActionFactory> customActionProviders, IErrorProcessor errorProcessor)
+		public InterpreterModelBuilder(IStateMachine stateMachine, IDataModelHandler dataModelHandler, ImmutableArray<ICustomActionFactory> customActionProviders, IFactoryContext factoryContext,
+									   IErrorProcessor errorProcessor)
 		{
 			_stateMachine = stateMachine ?? throw new ArgumentNullException(nameof(stateMachine));
 			_dataModelHandler = dataModelHandler ?? throw new ArgumentNullException(nameof(dataModelHandler));
+			_customActionProviders = customActionProviders;
 			_errorProcessor = errorProcessor;
-			_preDataModelProcessor = new PreDataModelProcessor(errorProcessor, customActionProviders);
+			_preDataModelProcessor = new PreDataModelProcessor(errorProcessor, factoryContext);
 			_idMap = new Dictionary<IIdentifier, StateEntityNode>(IdentifierEqualityComparer.Instance);
 			_entities = new List<IEntity>();
 			_targetMap = new List<TransitionNode>();
@@ -72,7 +75,7 @@ namespace Xtate
 			_counter = _inParallel ? _counter + saved.counter : _counter > saved.counter ? _counter : saved.counter;
 		}
 
-		public InterpreterModel Build()
+		public async ValueTask<InterpreterModel> Build(CancellationToken token)
 		{
 			_idMap.Clear();
 			_entities.Clear();
@@ -85,6 +88,8 @@ namespace Xtate
 			_counter = 0;
 
 			var stateMachine = _stateMachine;
+
+			await _preDataModelProcessor.PreProcessStateMachine(stateMachine, _customActionProviders, token).ConfigureAwait(false);
 
 			Visit(ref stateMachine);
 
@@ -105,9 +110,9 @@ namespace Xtate
 
 		public async ValueTask<InterpreterModel> Build(ImmutableArray<IResourceLoader> resourceLoaders, CancellationToken token)
 		{
-			var model = Build();
+			var model = await Build(token).ConfigureAwait(false);
 
-			if (_externalScriptList != null)
+			if (_externalScriptList is { })
 			{
 				await SetExternalResources(_externalScriptList, resourceLoaders, token).ConfigureAwait(false);
 			}
@@ -118,7 +123,7 @@ namespace Xtate
 		private ImmutableDictionary<int, IEntity> CreateEntityMap()
 		{
 			var id = 0;
-			for (var node = _documentIdList.First; node != null; node = node.Next)
+			for (var node = _documentIdList.First; node is { }; node = node.Next)
 			{
 				node.Value = id ++;
 			}
@@ -155,7 +160,11 @@ namespace Xtate
 					if (resourceLoader.CanHandle(uri))
 					{
 						var resource = await resourceLoader.Request(uri, token).ConfigureAwait(false);
-						consumer.SetContent(resource.Content);
+
+						if (resource.Content is { })
+						{
+							consumer.SetContent(resource.Content);
+						}
 
 						return;
 					}
@@ -177,7 +186,7 @@ namespace Xtate
 
 			base.Build(ref stateMachine, ref stateMachineProperties);
 
-			if (!stateMachineProperties.States.IsDefaultOrEmpty && stateMachineProperties.Initial == null)
+			if (!stateMachineProperties.States.IsDefaultOrEmpty && stateMachineProperties.Initial is null)
 			{
 				var initialDocId = NewDocumentIdAfter(documentId);
 				var target = ImmutableArray.Create(stateMachineProperties.States[index: 0].As<StateEntityNode>());
@@ -187,7 +196,7 @@ namespace Xtate
 
 			var stateMachineNode = new StateMachineNode(documentId, stateMachineProperties);
 
-			if (_dataModelNodeArray != null && stateMachineNode.DataModel != null)
+			if (_dataModelNodeArray is { } && stateMachineNode.DataModel is { })
 			{
 				_dataModelNodeArray.Remove(stateMachineNode.DataModel);
 			}
@@ -208,7 +217,7 @@ namespace Xtate
 
 			if (!stateProperties.States.IsDefaultOrEmpty)
 			{
-				if (stateProperties.Initial == null)
+				if (stateProperties.Initial is null)
 				{
 					var initialDocId = NewDocumentIdAfter(documentId);
 					var target = ImmutableArray.Create(stateProperties.States[index: 0].As<StateEntityNode>());
@@ -290,7 +299,7 @@ namespace Xtate
 
 			var newTransition = new TransitionNode(documentId, transitionProperties);
 
-			if (transitionProperties.Target != null)
+			if (!transitionProperties.Target.IsDefaultOrEmpty)
 			{
 				_targetMap.Add(newTransition);
 			}
@@ -628,7 +637,7 @@ namespace Xtate
 		{
 			if (_deepLevel == 0)
 			{
-				_preDataModelProcessor.Process(ref executableEntity);
+				_preDataModelProcessor.PostProcess(ref executableEntity);
 				_dataModelHandler.Process(ref executableEntity);
 			}
 

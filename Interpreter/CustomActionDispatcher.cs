@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,15 +14,13 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
 using System.Collections.Immutable;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
 using Xtate.CustomAction;
 using Xtate.DataModel;
 
@@ -30,9 +28,9 @@ namespace Xtate
 {
 	internal sealed class CustomActionDispatcher : ICustomAction, ICustomActionDispatcher, ICustomActionContext
 	{
-		private readonly CustomActionEntity                         _customAction;
-		private readonly ImmutableArray<ICustomActionFactory> _customActionFactories;
-		private readonly IErrorProcessor                      _errorProcessor;
+		private readonly ICustomAction   _customAction;
+		private readonly IErrorProcessor _errorProcessor;
+		private readonly IFactoryContext _factoryContext;
 
 		private ICustomActionExecutor?                       _executor;
 		private ImmutableArray<ILocationEvaluator>           _locationEvaluators;
@@ -40,13 +38,15 @@ namespace Xtate
 		private ImmutableArray<IObjectEvaluator>             _objectEvaluators;
 		private ImmutableArray<IValueExpression>.Builder?    _values;
 
-		public CustomActionDispatcher(ImmutableArray<ICustomActionFactory> customActionFactories, IErrorProcessor errorProcessor, in CustomActionEntity customAction)
+		public CustomActionDispatcher(IErrorProcessor errorProcessor, ICustomAction customAction, IFactoryContext factoryContext)
 		{
-			_customActionFactories = customActionFactories;
 			_errorProcessor = errorProcessor;
 			_customAction = customAction;
+			_factoryContext = factoryContext;
 
-			Infrastructure.Assert(customAction.Xml != null);
+			Infrastructure.NotNull(customAction.XmlNamespace);
+			Infrastructure.NotNull(customAction.XmlName);
+			Infrastructure.NotNull(customAction.Xml);
 		}
 
 	#region Interface ICustomAction
@@ -54,6 +54,10 @@ namespace Xtate
 		public ImmutableArray<ILocationExpression> Locations { get; private set; }
 
 		public ImmutableArray<IValueExpression> Values { get; private set; }
+
+		public string XmlNamespace => _customAction.XmlNamespace!;
+
+		public string XmlName => _customAction.XmlName!;
 
 		public string Xml => _customAction.Xml!;
 
@@ -63,9 +67,9 @@ namespace Xtate
 
 		ILocationAssigner ICustomActionContext.RegisterLocationExpression(string expression)
 		{
-			if (expression == null) throw new ArgumentNullException(nameof(expression));
+			if (expression is null) throw new ArgumentNullException(nameof(expression));
 
-			if (_executor != null)
+			if (_executor is { })
 			{
 				throw new InfrastructureException(Resources.Exception_Registration_should_no_occur_after_initialization);
 			}
@@ -80,9 +84,9 @@ namespace Xtate
 
 		IExpressionEvaluator ICustomActionContext.RegisterValueExpression(string expression)
 		{
-			if (expression == null) throw new ArgumentNullException(nameof(expression));
+			if (expression is null) throw new ArgumentNullException(nameof(expression));
 
-			if (_executor != null)
+			if (_executor is { })
 			{
 				throw new InfrastructureException(Resources.Exception_Registration_should_no_occur_after_initialization);
 			}
@@ -114,22 +118,22 @@ namespace Xtate
 
 		public ValueTask Execute(IExecutionContext executionContext, CancellationToken token)
 		{
-			if (executionContext == null) throw new ArgumentNullException(nameof(executionContext));
+			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
-			Infrastructure.Assert(_executor != null);
+			Infrastructure.NotNull(_executor);
 
 			return _executor.Execute(executionContext, token);
 		}
 
 	#endregion
 
-		public void SetupExecutor()
+		public async ValueTask SetupExecutor(ImmutableArray<ICustomActionFactory> customActionFactories, CancellationToken token)
 		{
 			try
 			{
-				var executor = GetExecutor();
+				var executor = await GetExecutor(customActionFactories, token).ConfigureAwait(false);
 
-				if (executor == null)
+				if (executor is null)
 				{
 					_errorProcessor.AddError<CustomActionDispatcher>(this, Resources.ErrorMessage_Custom_action_executor_can_t_be_found);
 				}
@@ -147,26 +151,20 @@ namespace Xtate
 			_executor ??= NoActionExecutor.Instance;
 		}
 
-		private ICustomActionExecutor? GetExecutor()
+		private async ValueTask<ICustomActionExecutor?> GetExecutor(ImmutableArray<ICustomActionFactory> customActionFactories, CancellationToken token)
 		{
-			if (_customActionFactories.IsDefaultOrEmpty)
+			if (customActionFactories.IsDefaultOrEmpty)
 			{
 				return null;
 			}
 
-			using var stringReader = new StringReader(Xml);
-			using var xmlReader = XmlReader.Create(stringReader);
-
-			xmlReader.MoveToContent();
-
-			var namespaceUri = xmlReader.NamespaceURI;
-			var name = xmlReader.LocalName;
-
-			foreach (var factory in _customActionFactories)
+			foreach (var factory in customActionFactories)
 			{
-				if (factory.CanHandle(namespaceUri, name))
+				var activator = await factory.TryGetActivator(_factoryContext, XmlNamespace, XmlName, token).ConfigureAwait(false);
+
+				if (activator is { })
 				{
-					return factory.CreateExecutor(this);
+					return await activator.CreateExecutor(_factoryContext, this, token).ConfigureAwait(false);
 				}
 			}
 
@@ -189,7 +187,7 @@ namespace Xtate
 
 			public ValueTask Assign(IExecutionContext executionContext, DataModelValue value, CancellationToken token)
 			{
-				if (executionContext == null) throw new ArgumentNullException(nameof(executionContext));
+				if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
 				Infrastructure.Assert(!_dispatcher._locationEvaluators.IsDefault);
 
@@ -223,7 +221,7 @@ namespace Xtate
 
 			public ValueTask<DataModelValue> Evaluate(IExecutionContext executionContext, CancellationToken token)
 			{
-				if (executionContext == null) throw new ArgumentNullException(nameof(executionContext));
+				if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
 				Infrastructure.Assert(!_dispatcher._objectEvaluators.IsDefault);
 

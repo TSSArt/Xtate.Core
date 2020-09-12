@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System.Collections.Immutable;
@@ -28,7 +28,7 @@ namespace Xtate
 
 		public CustomActionNode(in DocumentIdRecord documentIdNode, in CustomActionEntity entity) : base(documentIdNode, (ICustomAction?) entity.Ancestor)
 		{
-			Infrastructure.Assert(entity.Xml != null);
+			Infrastructure.NotNull(entity.Xml);
 
 			_entity = entity;
 		}
@@ -40,6 +40,10 @@ namespace Xtate
 	#endregion
 
 	#region Interface ICustomAction
+
+		public string XmlNamespace => _entity.XmlNamespace!;
+
+		public string XmlName => _entity.XmlName!;
 
 		public string Xml => _entity.Xml!;
 
@@ -53,6 +57,8 @@ namespace Xtate
 		{
 			bucket.Add(Key.TypeInfo, TypeInfo.CustomActionNode);
 			bucket.Add(Key.DocumentId, DocumentId);
+			bucket.Add(Key.Namespace, XmlNamespace);
+			bucket.Add(Key.Name, XmlName);
 			bucket.Add(Key.Content, Xml);
 			bucket.AddEntityList(Key.LocationList, Locations);
 			bucket.AddEntityList(Key.ValueList, Values);

@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -30,7 +30,7 @@ namespace Xtate
 
 		public DataNode(in DocumentIdRecord documentIdNode, in DataEntity data)
 		{
-			Infrastructure.Assert(data.Id != null);
+			Infrastructure.NotNull(data.Id);
 
 			_documentIdNode = documentIdNode;
 			_data = data;

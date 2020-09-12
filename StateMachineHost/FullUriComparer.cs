@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -34,6 +34,6 @@ namespace Xtate
 
 	#endregion
 
-		private static string GetSafeFragment(Uri? uri) => uri != null && uri.IsAbsoluteUri ? uri.Fragment : string.Empty;
+		private static string GetSafeFragment(Uri? uri) => uri is { } && uri.IsAbsoluteUri ? uri.Fragment : string.Empty;
 	}
 }

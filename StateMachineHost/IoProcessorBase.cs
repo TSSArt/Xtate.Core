@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -33,15 +33,15 @@ namespace Xtate.IoProcessor
 		{
 			_eventConsumer = eventConsumer ?? throw new ArgumentNullException(nameof(eventConsumer));
 
-			var ioProcessorAttribute = GetType().GetCustomAttribute<IoProcessorAttribute>(false);
-
-			if (ioProcessorAttribute == null)
+			if (GetType().GetCustomAttribute<IoProcessorAttribute>(false) is { } ioProcessorAttribute)
 			{
-				throw new InfrastructureException(Res.Format(Resources.Exception_IoProcessorAttributeWasNotProvided, GetType()));
+				IoProcessorId = new Uri(ioProcessorAttribute.Type, UriKind.RelativeOrAbsolute);
+				_ioProcessorAliasId = ioProcessorAttribute.Alias is { } ? new Uri(ioProcessorAttribute.Alias, UriKind.RelativeOrAbsolute) : null;
+
+				return;
 			}
 
-			IoProcessorId = new Uri(ioProcessorAttribute.Type, UriKind.RelativeOrAbsolute);
-			_ioProcessorAliasId = ioProcessorAttribute.Alias != null ? new Uri(ioProcessorAttribute.Alias, UriKind.RelativeOrAbsolute) : null;
+			throw new InfrastructureException(Res.Format(Resources.Exception_IoProcessorAttributeWasNotProvided, GetType()));
 		}
 
 		protected Uri IoProcessorId { get; }

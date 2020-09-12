@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -56,7 +56,7 @@ namespace Xtate.IoProcessor
 
 		public async ValueTask<IIoProcessor> Create(IEventConsumer eventConsumer, CancellationToken token)
 		{
-			if (eventConsumer == null) throw new ArgumentNullException(nameof(eventConsumer));
+			if (eventConsumer is null) throw new ArgumentNullException(nameof(eventConsumer));
 
 			var processor = new NamedIoProcessor(eventConsumer, _host, _name);
 

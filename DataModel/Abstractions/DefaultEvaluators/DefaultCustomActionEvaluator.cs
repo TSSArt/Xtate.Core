@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -28,7 +28,7 @@ namespace Xtate.DataModel
 	[PublicAPI]
 	public class DefaultCustomActionEvaluator : ICustomAction, IExecEvaluator, IAncestorProvider
 	{
-		private readonly CustomActionEntity            _customAction;
+		private readonly CustomActionEntity      _customAction;
 		private readonly ICustomActionDispatcher _customActionDispatcher;
 
 		public DefaultCustomActionEvaluator(in CustomActionEntity customAction)
@@ -37,7 +37,7 @@ namespace Xtate.DataModel
 
 			var customActionDispatcher = customAction.Ancestor?.As<ICustomActionDispatcher>();
 
-			Infrastructure.Assert(customActionDispatcher != null, Resources.Assertion_CustomActionDoesNotConfigured);
+			Infrastructure.NotNull(customActionDispatcher, Resources.Assertion_CustomActionDoesNotConfigured);
 
 			var locations = customAction.Locations.AsArrayOf<ILocationExpression, ILocationEvaluator>(true);
 			var values = customAction.Values.AsArrayOf<IValueExpression, IObjectEvaluator>(true);
@@ -55,6 +55,10 @@ namespace Xtate.DataModel
 
 	#region Interface ICustomAction
 
+		public string? XmlNamespace => _customAction.XmlNamespace;
+
+		public string? XmlName => _customAction.XmlName;
+
 		public string? Xml => _customAction.Xml;
 
 		public ImmutableArray<ILocationExpression> Locations => _customAction.Locations;
@@ -67,7 +71,7 @@ namespace Xtate.DataModel
 
 		public virtual ValueTask Execute(IExecutionContext executionContext, CancellationToken token)
 		{
-			if (executionContext == null) throw new ArgumentNullException(nameof(executionContext));
+			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
 			return _customActionDispatcher.Execute(executionContext, token);
 		}

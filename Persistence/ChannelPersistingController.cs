@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -51,7 +51,7 @@ namespace Xtate.Persistence
 
 		public void Initialize(Bucket bucket, Func<Bucket, T> creator, SemaphoreSlim storageLock, Func<CancellationToken, ValueTask> postAction)
 		{
-			if (creator == null) throw new ArgumentNullException(nameof(creator));
+			if (creator is null) throw new ArgumentNullException(nameof(creator));
 
 			_bucket = bucket;
 			_storageLock = storageLock ?? throw new ArgumentNullException(nameof(storageLock));
@@ -154,7 +154,7 @@ namespace Xtate.Persistence
 
 			public override async ValueTask WriteAsync([NotNull] T item, CancellationToken token = default)
 			{
-				if (item == null) throw new ArgumentNullException(nameof(item));
+				if (item is null) throw new ArgumentNullException(nameof(item));
 
 				await _parent._initializedTcs.Task.WaitAsync(token).ConfigureAwait(false);
 

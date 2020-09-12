@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -34,18 +34,17 @@ namespace Xtate
 		{
 			get
 			{
-				var factory = _factory;
-				if (factory == null)
+				if (_factory is {} factory)
 				{
-					return _value;
+					var value = factory();
+
+					_factory = null;
+					_value = value;
+
+					return value;
 				}
 
-				var value = factory();
-
-				_factory = null;
-				_value = value;
-
-				return value;
+				return _value;
 			}
 		}
 
@@ -74,18 +73,17 @@ namespace Xtate
 		{
 			get
 			{
-				var factory = _factory;
-				if (factory == null)
+				if (_factory is { } factory)
 				{
-					return _value;
+					var value = factory(_arg);
+
+					_factory = null;
+					_value = value;
+
+					return value;
 				}
 
-				var value = factory(_arg);
-
-				_factory = null;
-				_value = value;
-
-				return value;
+				return _value;
 			}
 		}
 
@@ -116,18 +114,17 @@ namespace Xtate
 		{
 			get
 			{
-				var factory = _factory;
-				if (factory == null)
+				if (_factory is { } factory)
 				{
-					return _value;
+					var value = factory(_arg1, _arg2);
+
+					_factory = null;
+					_value = value;
+
+					return value;
 				}
 
-				var value = factory(_arg1, _arg2);
-
-				_factory = null;
-				_value = value;
-
-				return value;
+				return _value;
 			}
 		}
 

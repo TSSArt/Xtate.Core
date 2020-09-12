@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -40,14 +40,14 @@ namespace Xtate.Builder
 
 		public void AddOnEntry(IOnEntry onEntry)
 		{
-			if (onEntry == null) throw new ArgumentNullException(nameof(onEntry));
+			if (onEntry is null) throw new ArgumentNullException(nameof(onEntry));
 
 			(_onEntryList ??= ImmutableArray.CreateBuilder<IOnEntry>()).Add(onEntry);
 		}
 
 		public void AddOnExit(IOnExit onExit)
 		{
-			if (onExit == null) throw new ArgumentNullException(nameof(onExit));
+			if (onExit is null) throw new ArgumentNullException(nameof(onExit));
 
 			(_onExitList ??= ImmutableArray.CreateBuilder<IOnExit>()).Add(onExit);
 		}

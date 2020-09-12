@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,14 +14,17 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
+
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Xtate.DataModel.Runtime
 {
 	internal sealed class RuntimeDataModelHandler : DataModelHandlerBase
 	{
-		public const string DataModelType = "runtime";
+		private const string DataModelType = "runtime";
 
 		public static readonly IDataModelHandlerFactory Factory = new DataModelHandlerFactory();
 
@@ -39,15 +42,27 @@ namespace Xtate.DataModel.Runtime
 			}
 		}
 
-		private class DataModelHandlerFactory : IDataModelHandlerFactory
+		private class DataModelHandlerFactory : IDataModelHandlerFactory, IDataModelHandlerFactoryActivator
 		{
 		#region Interface IDataModelHandlerFactory
 
-			public bool CanHandle(string dataModelType) => dataModelType == DataModelType;
-
-			public IDataModelHandler CreateHandler(IErrorProcessor errorProcessor) => new RuntimeDataModelHandler(errorProcessor);
+			public ValueTask<IDataModelHandlerFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, string dataModelType, CancellationToken token) =>
+					new ValueTask<IDataModelHandlerFactoryActivator?>(CanHandle(dataModelType) ? this : null);
 
 		#endregion
+
+		#region Interface IDataModelHandlerFactoryActivator
+
+			public ValueTask<IDataModelHandler> CreateHandler(IFactoryContext factoryContext, string dataModelType, IErrorProcessor errorProcessor, CancellationToken token)
+			{
+				Infrastructure.Assert(CanHandle(dataModelType));
+
+				return new ValueTask<IDataModelHandler>(new RuntimeDataModelHandler(errorProcessor));
+			}
+
+		#endregion
+
+			private static bool CanHandle(string dataModelType) => dataModelType == DataModelType;
 		}
 	}
 }

@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -33,7 +33,6 @@ using Xtate.CustomAction;
 using Xtate.DataModel;
 using Xtate.DataModel.None;
 using Xtate.DataModel.Runtime;
-using Xtate.DataModel.XPath;
 using Xtate.Persistence;
 
 namespace Xtate
@@ -45,6 +44,9 @@ namespace Xtate
 	{
 		private const string StateStorageKey                  = "state";
 		private const string StateMachineDefinitionStorageKey = "smd";
+
+		private static readonly ImmutableArray<IDataModelHandlerFactory> PredefinedDataModelHandlerFactories =
+				ImmutableArray.Create(NoneDataModelHandler.Factory, RuntimeDataModelHandler.Factory);
 
 		private readonly ImmutableDictionary<object, object>      _contextRuntimeItems;
 		private readonly ImmutableArray<ICustomActionFactory>     _customActionProviders;
@@ -137,15 +139,15 @@ namespace Xtate
 
 		public static ValueTask<DataModelValue> RunAsync(IStateMachine? stateMachine, ChannelReader<IEvent> eventChannel, in InterpreterOptions options = default)
 		{
-			if (eventChannel == null) throw new ArgumentNullException(nameof(eventChannel));
+			if (eventChannel is null) throw new ArgumentNullException(nameof(eventChannel));
 
 			return new StateMachineInterpreter(SessionId.New(), eventChannel, options).Run(stateMachine);
 		}
 
 		public static ValueTask<DataModelValue> RunAsync(SessionId sessionId, IStateMachine? stateMachine, ChannelReader<IEvent> eventChannel, in InterpreterOptions options = default)
 		{
-			if (sessionId == null) throw new ArgumentNullException(nameof(sessionId));
-			if (eventChannel == null) throw new ArgumentNullException(nameof(eventChannel));
+			if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
+			if (eventChannel is null) throw new ArgumentNullException(nameof(eventChannel));
 
 			return new StateMachineInterpreter(sessionId, eventChannel, options).Run(stateMachine);
 		}
@@ -153,22 +155,22 @@ namespace Xtate
 		private async ValueTask<InterpreterModel> BuildInterpreterModel(IStateMachine? stateMachine)
 		{
 			var wrapperErrorProcessor = new WrapperErrorProcessor(_errorProcessor);
+			using var factoryContext = new FactoryContext(_resourceLoaders);
 
-			var interpreterModel = IsPersistingEnabled ? await TryRestoreInterpreterModel(stateMachine, wrapperErrorProcessor).ConfigureAwait(false) : null;
+			var interpreterModel = IsPersistingEnabled ? await TryRestoreInterpreterModel(stateMachine, factoryContext, wrapperErrorProcessor).ConfigureAwait(false) : null;
 
-			if (interpreterModel != null)
+			if (interpreterModel is { })
 			{
 				return interpreterModel;
 			}
 
-			Infrastructure.Assert(stateMachine != null);
+			Infrastructure.NotNull(stateMachine);
 
-			var dataModelHandlerFactory = GetDataModelHandlerFactory(stateMachine.DataModelType, _dataModelHandlerFactories, wrapperErrorProcessor);
-			_dataModelHandler = dataModelHandlerFactory.CreateHandler(wrapperErrorProcessor);
+			_dataModelHandler = await CreateDataModelHandler(stateMachine.DataModelType, _dataModelHandlerFactories, factoryContext, wrapperErrorProcessor).ConfigureAwait(false);
 
 			_stateMachineValidator.Validate(stateMachine, wrapperErrorProcessor);
 
-			var interpreterModelBuilder = new InterpreterModelBuilder(stateMachine, _dataModelHandler, _customActionProviders, wrapperErrorProcessor);
+			var interpreterModelBuilder = new InterpreterModelBuilder(stateMachine, _dataModelHandler, _customActionProviders, factoryContext, wrapperErrorProcessor);
 
 			try
 			{
@@ -188,7 +190,7 @@ namespace Xtate
 			return interpreterModel;
 		}
 
-		private async ValueTask<InterpreterModel?> TryRestoreInterpreterModel(IStateMachine? stateMachine, IErrorProcessor errorProcessor)
+		private async ValueTask<InterpreterModel?> TryRestoreInterpreterModel(IStateMachine? stateMachine, FactoryContext factoryContext, IErrorProcessor errorProcessor)
 		{
 			var storage = await _storageProvider.GetTransactionalStorage(partition: default, StateMachineDefinitionStorageKey, _stopToken).ConfigureAwait(false);
 			await using (storage.ConfigureAwait(false))
@@ -201,7 +203,7 @@ namespace Xtate
 				}
 
 				var storedSessionId = bucket.GetSessionId(Key.SessionId);
-				if (storedSessionId != null && storedSessionId != _sessionId)
+				if (storedSessionId is { } && storedSessionId != _sessionId)
 				{
 					throw new PersistenceException(Resources.Exception_Persisted_state_can_t_be_read__Stored_and_provided_SessionIds_does_not_match);
 				}
@@ -213,32 +215,32 @@ namespace Xtate
 
 				var smdBucket = new Bucket(new InMemoryStorage(memory.Span));
 
-
-				var dataModelHandlerFactory = GetDataModelHandlerFactory(smdBucket.GetString(Key.DataModelType), _dataModelHandlerFactories, errorProcessor);
-				_dataModelHandler = dataModelHandlerFactory.CreateHandler(DefaultErrorProcessor.Instance);
+				_dataModelHandler = await CreateDataModelHandler(smdBucket.GetString(Key.DataModelType), _dataModelHandlerFactories, factoryContext, errorProcessor).ConfigureAwait(false);
 
 				ImmutableDictionary<int, IEntity>? entityMap = null;
 
-				if (stateMachine != null)
+				if (stateMachine is { })
 				{
-					entityMap = new InterpreterModelBuilder(stateMachine, _dataModelHandler, _customActionProviders, DefaultErrorProcessor.Instance).Build().EntityMap;
+					var builder = new InterpreterModelBuilder(stateMachine, _dataModelHandler, _customActionProviders, factoryContext, DefaultErrorProcessor.Instance);
+					var model = await builder.Build(_stopToken).ConfigureAwait(false);
+					entityMap = model.EntityMap;
 				}
 
 				var restoredStateMachine = new StateMachineReader().Build(smdBucket, entityMap);
 
-				if (stateMachine != null)
+				if (stateMachine is { })
 				{
 					//TODO: Validate stateMachine vs restoredStateMachine (number of elements should be the same and documentId should point to the same entity type)
 				}
 
 				var wrapperErrorProcessor = new WrapperErrorProcessor(_errorProcessor);
 
-				var interpreterModelBuilder = new InterpreterModelBuilder(restoredStateMachine, _dataModelHandler, _customActionProviders, wrapperErrorProcessor);
+				var interpreterModelBuilder = new InterpreterModelBuilder(restoredStateMachine, _dataModelHandler, _customActionProviders, factoryContext, wrapperErrorProcessor);
 
 				_errorProcessor.ThrowIfErrors();
 				wrapperErrorProcessor.ThrowIfErrors();
 
-				return interpreterModelBuilder.Build();
+				return await interpreterModelBuilder.Build(_stopToken).ConfigureAwait(false);
 			}
 		}
 
@@ -267,35 +269,49 @@ namespace Xtate
 			bucket.Add(Key.StateMachineDefinition, span);
 		}
 
-		private static IDataModelHandlerFactory GetDataModelHandlerFactory(string? dataModelType, ImmutableArray<IDataModelHandlerFactory> factories, IErrorProcessor errorProcessor)
+		private async ValueTask<IDataModelHandler> CreateDataModelHandler(string? dataModelType, ImmutableArray<IDataModelHandlerFactory> factories, FactoryContext factoryContext,
+																		  IErrorProcessor errorProcessor)
+		{
+			dataModelType ??= NoneDataModelHandler.DataModelType;
+			var activator = await FindDataModelHandlerFactoryActivator(factoryContext, dataModelType, factories).ConfigureAwait(false);
+
+			if (activator is { })
+			{
+				return await activator.CreateHandler(factoryContext, dataModelType, errorProcessor, _stopToken).ConfigureAwait(false);
+			}
+
+			errorProcessor.AddError<StateMachineInterpreter>(entity: null, Res.Format(Resources.Exception_Cant_find_DataModelHandlerFactory_for_DataModel_type, dataModelType));
+
+			return new NoneDataModelHandler(errorProcessor);
+		}
+
+		private async ValueTask<IDataModelHandlerFactoryActivator?> FindDataModelHandlerFactoryActivator(IFactoryContext factoryContext, string dataModelType,
+																										 ImmutableArray<IDataModelHandlerFactory> factories)
 		{
 			if (!factories.IsDefaultOrEmpty)
 			{
 				foreach (var factory in factories)
 				{
-					if (factory.CanHandle(dataModelType ?? NoneDataModelHandler.DataModelType))
+					var activator = await factory.TryGetActivator(factoryContext, dataModelType, _stopToken).ConfigureAwait(false);
+
+					if (activator is { })
 					{
-						return factory;
+						return activator;
 					}
 				}
 			}
 
-			switch (dataModelType)
+			foreach (var factory in PredefinedDataModelHandlerFactories)
 			{
-				case null:
-				case NoneDataModelHandler.DataModelType:
-					return NoneDataModelHandler.Factory;
+				var activator = await factory.TryGetActivator(factoryContext, dataModelType ?? NoneDataModelHandler.DataModelType, _stopToken).ConfigureAwait(false);
 
-				case RuntimeDataModelHandler.DataModelType:
-					return RuntimeDataModelHandler.Factory;
-
-				case XPathDataModelHandler.DataModelType:
-					return XPathDataModelHandler.Factory;
-
-				default:
-					errorProcessor.AddError<StateMachineInterpreter>(entity: null, Res.Format(Resources.Exception_Cant_find_DataModelHandlerFactory_for_DataModel_type, dataModelType));
-					return NoneDataModelHandler.Factory;
+				if (activator is { })
+				{
+					return activator;
+				}
 			}
+
+			return null;
 		}
 
 		private ValueTask DoOperation(StateBagKey key, Func<ValueTask> func)
@@ -471,7 +487,7 @@ namespace Xtate
 			_anyTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_suspendToken, _destroyToken, _stopToken);
 			await using var _ = _context.ConfigureAwait(false);
 
-			if (stateMachine == null)
+			if (stateMachine is null)
 			{
 				LogInterpreterState(StateMachineInterpreterState.Resumed);
 			}
@@ -579,10 +595,10 @@ namespace Xtate
 		{
 			var internalEvent = _context.InternalQueue.Dequeue();
 
-			LogProcessingEvent(internalEvent);
-
 			var eventObject = DataConverter.FromEvent(internalEvent, _dataModelHandler.CaseInsensitive);
 			_context.DataModel.SetInternal(key: @"_event", _dataModelHandler.CaseInsensitive, eventObject, DataModelAccess.ReadOnly);
+
+			LogProcessingEvent(internalEvent);
 
 			var transitions = await SelectTransitions(internalEvent).ConfigureAwait(false);
 
@@ -711,18 +727,16 @@ namespace Xtate
 		{
 			var externalEvent = await ReadExternalEvent().ConfigureAwait(false);
 
-			LogProcessingEvent(externalEvent);
-
 			var eventObject = DataConverter.FromEvent(externalEvent, _dataModelHandler.CaseInsensitive);
 			_context.DataModel.SetInternal(key: @"_event", _dataModelHandler.CaseInsensitive, eventObject, DataModelAccess.ReadOnly);
+
+			LogProcessingEvent(externalEvent);
 
 			foreach (var state in _context.Configuration)
 			{
 				foreach (var invoke in state.Invoke)
 				{
-					Infrastructure.Assert(invoke.InvokeId != null);
-
-					if (externalEvent.InvokeId != null && InvokeId.InvokeUniqueIdComparer.Equals(invoke.InvokeId, externalEvent.InvokeId))
+					if (InvokeId.InvokeUniqueIdComparer.Equals(invoke.InvokeId, externalEvent.InvokeId))
 					{
 						await ApplyFinalize(invoke).ConfigureAwait(false);
 					}
@@ -759,7 +773,7 @@ namespace Xtate
 			{
 				var evt = await ReadExternalEventUnfiltered().ConfigureAwait(false);
 
-				if (evt.InvokeId == null)
+				if (evt.InvokeId is null)
 				{
 					return evt;
 				}
@@ -849,7 +863,7 @@ namespace Xtate
 
 		private static bool EventMatch(ImmutableArray<IEventDescriptor> eventDescriptors, IEvent? evt)
 		{
-			if (evt == null)
+			if (evt is null)
 			{
 				return eventDescriptors.IsDefaultOrEmpty;
 			}
@@ -874,7 +888,7 @@ namespace Xtate
 		{
 			var condition = transition.ConditionEvaluator;
 
-			if (condition == null)
+			if (condition is null)
 			{
 				return true;
 			}
@@ -926,7 +940,7 @@ namespace Xtate
 
 				if (!t1Preempted)
 				{
-					if (transitionsToRemove != null)
+					if (transitionsToRemove is { })
 					{
 						foreach (var t3 in transitionsToRemove)
 						{
@@ -989,6 +1003,8 @@ namespace Xtate
 				}
 
 				_context.Configuration.Delete(state);
+
+				LogExitedState(state);
 			}
 
 			Complete(StateBagKey.OnExit);
@@ -1033,15 +1049,15 @@ namespace Xtate
 
 			foreach (var state in ToSortedList(statesToEnter, StateEntityNode.EntryOrder))
 			{
+				LogEnteringState(state);
+
 				_context.Configuration.AddIfNotExists(state);
 				_context.StatesToInvoke.AddIfNotExists(state);
 
-				if (_model.Root.Binding == BindingType.Late && state.DataModel != null)
+				if (_model.Root.Binding == BindingType.Late && state.DataModel is { } dataModel)
 				{
-					await DoOperation(StateBagKey.InitializeDataModel, state.DataModel, InitializeDataModel, state.DataModel).ConfigureAwait(false);
+					await DoOperation(StateBagKey.InitializeDataModel, dataModel, InitializeDataModel, dataModel).ConfigureAwait(false);
 				}
-
-				LogEnteringState(state);
 
 				foreach (var onEntry in state.OnEntry)
 				{
@@ -1070,7 +1086,7 @@ namespace Xtate
 						var grandparent = parent!.Parent;
 
 						DataModelValue doneData = default;
-						if (final.DoneData != null)
+						if (final.DoneData is { })
 						{
 							doneData = await EvaluateDoneData(final.DoneData).ConfigureAwait(false);
 						}
@@ -1086,6 +1102,8 @@ namespace Xtate
 						}
 					}
 				}
+
+				LogEnteredState(state);
 			}
 
 			Complete(StateBagKey.OnEntry);
@@ -1146,7 +1164,7 @@ namespace Xtate
 			var statesToExit = new List<StateEntityNode>();
 			foreach (var transition in transitions)
 			{
-				if (transition.Target != null)
+				if (!transition.Target.IsDefaultOrEmpty)
 				{
 					var domain = GetTransitionDomain(transition);
 					foreach (var state in _context.Configuration)
@@ -1232,7 +1250,7 @@ namespace Xtate
 		{
 			var ancestors = GetProperAncestors(state, ancestor);
 
-			if (ancestors == null)
+			if (ancestors is null)
 			{
 				return;
 			}
@@ -1256,7 +1274,7 @@ namespace Xtate
 
 		private static bool IsDescendant(StateEntityNode state1, StateEntityNode? state2)
 		{
-			for (var s = state1.Parent; s != null; s = s.Parent)
+			for (var s = state1.Parent; s is { }; s = s.Parent)
 			{
 				if (s == state2)
 				{
@@ -1288,7 +1306,7 @@ namespace Xtate
 		{
 			var ancestors = GetProperAncestors(headState, state2: null);
 
-			if (ancestors == null)
+			if (ancestors is null)
 			{
 				return null;
 			}
@@ -1308,7 +1326,7 @@ namespace Xtate
 		{
 			List<StateEntityNode>? states = null;
 
-			for (var s = state1.Parent; s != null; s = s.Parent)
+			for (var s = state1.Parent; s is { }; s = s.Parent)
 			{
 				if (s == state2)
 				{
@@ -1318,7 +1336,7 @@ namespace Xtate
 				(states ??= new List<StateEntityNode>()).Add(s);
 			}
 
-			return state2 == null ? states : null;
+			return state2 is null ? states : null;
 		}
 
 		private List<StateEntityNode> GetEffectiveTargetStates(TransitionNode transition)
@@ -1352,12 +1370,19 @@ namespace Xtate
 		{
 			foreach (var transition in transitions)
 			{
-				LogPerformingTransition(transition);
-
-				await DoOperation(StateBagKey.RunExecutableEntity, transition, RunExecutableEntity, transition.ActionEvaluators).ConfigureAwait(false);
+				await DoOperation(StateBagKey.RunExecutableEntity, transition, ExecuteTransitionContent, transition).ConfigureAwait(false);
 			}
 
 			Complete(StateBagKey.RunExecutableEntity);
+		}
+
+		private async ValueTask ExecuteTransitionContent(TransitionNode transition)
+		{
+			LogPerformingTransition(transition);
+
+			await RunExecutableEntity(transition.ActionEvaluators).ConfigureAwait(false);
+
+			LogPerformedTransition(transition);
 		}
 
 		private async ValueTask RunExecutableEntity(ImmutableArray<IExecEvaluator> action)
@@ -1441,22 +1466,22 @@ namespace Xtate
 
 		private async ValueTask ExecuteGlobalScript()
 		{
-			if (_model.Root.ScriptEvaluator != null)
+			if (_model.Root.ScriptEvaluator is { } scriptEvaluator)
 			{
 				try
 				{
-					await _model.Root.ScriptEvaluator.Execute(_context.ExecutionContext, _stopToken).ConfigureAwait(false);
+					await scriptEvaluator.Execute(_context.ExecutionContext, _stopToken).ConfigureAwait(false);
 				}
 				catch (Exception ex) when (IsError(ex))
 				{
-					await Error(_model.Root.ScriptEvaluator, ex).ConfigureAwait(false);
+					await Error(scriptEvaluator, ex).ConfigureAwait(false);
 				}
 			}
 		}
 
 		private async ValueTask EvaluateDoneData(FinalNode final)
 		{
-			if (final.DoneData != null)
+			if (final.DoneData is { })
 			{
 				_doneData = await EvaluateDoneData(final.DoneData).ConfigureAwait(false);
 			}
@@ -1466,7 +1491,7 @@ namespace Xtate
 		{
 			try
 			{
-				Infrastructure.Assert(invoke.InvokeId != null);
+				Infrastructure.NotNull(invoke.InvokeId);
 
 				await ForwardEvent(evt, invoke.InvokeId, _stopToken).ConfigureAwait(false);
 			}
@@ -1476,7 +1501,7 @@ namespace Xtate
 			}
 		}
 
-		private ValueTask ApplyFinalize(InvokeNode invoke) => invoke.Finalize != null ? RunExecutableEntity(invoke.Finalize.ActionEvaluators) : default;
+		private ValueTask ApplyFinalize(InvokeNode invoke) => invoke.Finalize is { } ? RunExecutableEntity(invoke.Finalize.ActionEvaluators) : default;
 
 		private async ValueTask Invoke(InvokeNode invoke)
 		{
@@ -1506,7 +1531,7 @@ namespace Xtate
 		{
 			var rootDataModel = _model.Root.DataModel;
 
-			if (rootDataModel == null)
+			if (rootDataModel is null)
 			{
 				return;
 			}
@@ -1554,23 +1579,28 @@ namespace Xtate
 				return overrideValue;
 			}
 
-			if (data.Source != null)
+			if (data.Source is { } source)
 			{
-				var resource = await LoadData(data.Source).ConfigureAwait(false);
+				var resource = await LoadData(source).ConfigureAwait(false);
 
-				return DataConverter.FromContent(resource.Content, resource.ContentType);
+				if (resource.Content is { } content)
+				{
+					return DataConverter.FromContent(content, resource.ContentType);
+				}
+
+				return default;
 			}
 
-			if (data.ExpressionEvaluator != null)
+			if (data.ExpressionEvaluator is { } expressionEvaluator)
 			{
-				var obj = await data.ExpressionEvaluator.EvaluateObject(_context.ExecutionContext, _stopToken).ConfigureAwait(false);
+				var obj = await expressionEvaluator.EvaluateObject(_context.ExecutionContext, _stopToken).ConfigureAwait(false);
 
 				return DataModelValue.FromObject(obj.ToObject());
 			}
 
-			if (data.InlineContentEvaluator != null)
+			if (data.InlineContentEvaluator is { } inlineContentEvaluator)
 			{
-				var obj = await data.InlineContentEvaluator.EvaluateObject(_context.ExecutionContext, _stopToken).ConfigureAwait(false);
+				var obj = await inlineContentEvaluator.EvaluateObject(_context.ExecutionContext, _stopToken).ConfigureAwait(false);
 
 				return DataModelValue.FromObject(obj.ToObject());
 			}
@@ -1602,11 +1632,11 @@ namespace Xtate
 			if (IsPersistingEnabled)
 			{
 				var storage = await _storageProvider.GetTransactionalStorage(partition: default, StateStorageKey, _stopToken).ConfigureAwait(false);
-				context = new StateMachinePersistedContext(_model.Root.Name, _sessionId, this, storage, _model.EntityMap, _logger, this, _contextRuntimeItems);
+				context = new StateMachinePersistedContext(_model.Root.Name, _sessionId, this, storage, _model.EntityMap, _logger, this, this, _contextRuntimeItems);
 			}
 			else
 			{
-				context = new StateMachineContext(_model.Root.Name, _sessionId, this, _logger, this, _contextRuntimeItems);
+				context = new StateMachineContext(_model.Root.Name, _sessionId, this, _logger, this, this, _contextRuntimeItems);
 			}
 
 			_dataModelHandler.ExecutionContextCreated(context.ExecutionContext, out _dataModelVars);
@@ -1694,9 +1724,9 @@ namespace Xtate
 
 			public void Dispose()
 			{
-				if (_data != null)
+				if (_data is { } data)
 				{
-					ArrayPool<int>.Shared.Return(_data);
+					ArrayPool<int>.Shared.Return(data);
 
 					_data = null;
 				}

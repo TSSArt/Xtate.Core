@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -42,12 +42,12 @@ namespace Xtate
 
 		public ValueTask SendToCreator(IOutgoingEvent evt, CancellationToken token)
 		{
-			if (evt.Type != null || evt.SendId != null || evt.DelayMs != 0)
+			if (evt.Type is { } || evt.SendId is { } || evt.DelayMs != 0)
 			{
 				throw new ProcessorException(Resources.Exception_Type__SendId__DelayMs_can_t_be_specified_for_this_event);
 			}
 
-			if (evt.Target != EventEntity.ParentTarget && evt.Target != null)
+			if (evt.Target != EventEntity.ParentTarget && evt.Target is { })
 			{
 				throw new ProcessorException(Resources.Exception_Target_should_be_equal_to___parent__or_null);
 			}

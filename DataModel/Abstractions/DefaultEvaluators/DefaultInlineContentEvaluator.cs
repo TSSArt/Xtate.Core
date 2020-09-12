@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -33,7 +33,7 @@ namespace Xtate.DataModel
 
 		public DefaultInlineContentEvaluator(in InlineContent inlineContent)
 		{
-			Infrastructure.Assert(inlineContent.Value != null);
+			Infrastructure.NotNull(inlineContent.Value);
 
 			_inlineContent = inlineContent;
 		}
@@ -54,18 +54,18 @@ namespace Xtate.DataModel
 
 		public virtual ValueTask<IObject> EvaluateObject(IExecutionContext executionContext, CancellationToken token)
 		{
-			if (Value == null)
+			if (Value is null)
 			{
 				return new ValueTask<IObject>(DefaultObject.Null);
 			}
 
-			if (_parsingException == null && _parsedValue.IsUndefined())
+			if (_parsingException is null && _parsedValue.IsUndefined())
 			{
 				_parsedValue = ParseToDataModel(ref _parsingException);
 				_parsedValue.MakeDeepConstant();
 			}
 
-			if (_parsingException != null)
+			if (_parsingException is { })
 			{
 				Infrastructure.IgnoredException(_parsingException);
 			}

@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -54,7 +54,7 @@ namespace Xtate.Persistence
 		{
 			var documentId = bucket.GetInt32(Key.DocumentId);
 
-			if (_forwardEntities == null)
+			if (_forwardEntities is null)
 			{
 				throw new PersistenceException(Resources.Exception_Forward_entities_required_to_restore_state_machine);
 			}
@@ -235,7 +235,7 @@ namespace Xtate.Persistence
 		{
 			var val = bucket.GetString(Key.Id);
 
-			return val != null ? (EventDescriptor) val : null;
+			return val is { } ? (EventDescriptor) val : null;
 		}
 
 		private static IOutgoingEvent RestoreEvent(Bucket bucket) => new EventEntity(bucket.GetString(Key.Id)) { Target = EventEntity.InternalTarget };
@@ -296,6 +296,8 @@ namespace Xtate.Persistence
 						? new CustomActionEntity
 						  {
 								  Ancestor = new EntityData(bucket),
+								  XmlNamespace = bucket.GetString(Key.Namespace),
+								  XmlName = bucket.GetString(Key.Name),
 								  Xml = bucket.GetString(Key.Content),
 								  Locations = bucket.RestoreList(Key.LocationList, RestoreLocationExpression),
 								  Values = bucket.RestoreList(Key.ValueList, RestoreValueExpression)
@@ -339,17 +341,16 @@ namespace Xtate.Persistence
 				return null;
 			}
 
-			var content = bucket.GetString(Key.Content);
-			if (content == null)
+			if (bucket.GetString(Key.Content) is { } content)
 			{
-				return new ExternalScriptExpression
-					   {
-							   Ancestor = new EntityData(bucket),
-							   Uri = bucket.GetUri(Key.Uri)
-					   };
+				return new ExternalScriptExpressionWithContent(new EntityData(bucket), bucket.GetUri(Key.Uri), content);
 			}
 
-			return new ExternalScriptExpressionWithContent(new EntityData(bucket), bucket.GetUri(Key.Uri), content);
+			return new ExternalScriptExpression
+				   {
+						   Ancestor = new EntityData(bucket),
+						   Uri = bucket.GetUri(Key.Uri)
+				   };
 		}
 
 		private IFinalize? RestoreFinalize(Bucket bucket) =>
@@ -399,7 +400,7 @@ namespace Xtate.Persistence
 		private static IIdentifier? RestoreIdentifier(Bucket bucket)
 		{
 			var id = bucket.GetString(Key.Id);
-			return id != null ? (Identifier) id : null;
+			return id is { } ? (Identifier) id : null;
 		}
 
 		private IIf? RestoreIf(Bucket bucket) =>

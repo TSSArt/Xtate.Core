@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -136,6 +136,10 @@ namespace Xtate
 
 	#region Interface ILoggerContext
 
+		DataModelObject? ILoggerContext.GetDataModel() => default;
+
+		DataModelArray? ILoggerContext.GetActiveStates() => default;
+
 		public SessionId SessionId { get; }
 
 		public string? StateMachineName => _options?.Name;
@@ -177,7 +181,7 @@ namespace Xtate
 
 		private static Channel<IEvent> CreateChannel(IStateMachineOptions? options)
 		{
-			if (options == null)
+			if (options is null)
 			{
 				return System.Threading.Channels.Channel.CreateUnbounded<IEvent>(UnboundedAsynchronousChannelOptions);
 			}
@@ -226,9 +230,9 @@ namespace Xtate
 				options.SuspendToken = _suspendTokenSource.Token;
 			}
 
-			if (_options?.UnhandledErrorBehaviour != null)
+			if (_options?.UnhandledErrorBehaviour is { } behaviour)
 			{
-				options.UnhandledErrorBehaviour = _options.UnhandledErrorBehaviour.Value;
+				options.UnhandledErrorBehaviour = behaviour;
 			}
 		}
 
@@ -317,7 +321,7 @@ namespace Xtate
 
 		protected virtual ValueTask ScheduleEvent(IOutgoingEvent evt, CancellationToken token)
 		{
-			if (evt == null) throw new ArgumentNullException(nameof(evt));
+			if (evt is null) throw new ArgumentNullException(nameof(evt));
 
 			var scheduledEvent = new ScheduledEvent(evt);
 
@@ -340,7 +344,7 @@ namespace Xtate
 
 		protected async ValueTask DelayedFire(ScheduledEvent scheduledEvent, int delayMs)
 		{
-			if (scheduledEvent == null) throw new ArgumentNullException(nameof(scheduledEvent));
+			if (scheduledEvent is null) throw new ArgumentNullException(nameof(scheduledEvent));
 
 			try
 			{
@@ -365,7 +369,7 @@ namespace Xtate
 
 		protected virtual ValueTask CancelEvent(ScheduledEvent scheduledEvent, CancellationToken token)
 		{
-			if (scheduledEvent == null) throw new ArgumentNullException(nameof(scheduledEvent));
+			if (scheduledEvent is null) throw new ArgumentNullException(nameof(scheduledEvent));
 
 			scheduledEvent.Cancel();
 

@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -61,8 +61,8 @@ namespace Xtate.DataModel
 
 		public virtual ValueTask Cancel(InvokeId invokeId, IExecutionContext executionContext, CancellationToken token)
 		{
-			if (executionContext == null) throw new ArgumentNullException(nameof(executionContext));
-			if (invokeId == null) throw new ArgumentNullException(nameof(invokeId));
+			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
+			if (invokeId is null) throw new ArgumentNullException(nameof(invokeId));
 
 			return executionContext.CancelInvoke(invokeId, token);
 		}
@@ -89,24 +89,24 @@ namespace Xtate.DataModel
 
 		public virtual async ValueTask<InvokeId> Start(IIdentifier stateId, IExecutionContext executionContext, CancellationToken token)
 		{
-			if (stateId == null) throw new ArgumentNullException(nameof(stateId));
-			if (executionContext == null) throw new ArgumentNullException(nameof(executionContext));
+			if (stateId is null) throw new ArgumentNullException(nameof(stateId));
+			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
 			var invokeId = InvokeId.New(stateId, _invoke.Id);
 
-			if (IdLocationEvaluator != null)
+			if (IdLocationEvaluator is { })
 			{
 				await IdLocationEvaluator.SetValue(invokeId, executionContext, token).ConfigureAwait(false);
 			}
 
-			var type = TypeExpressionEvaluator != null ? ToUri(await TypeExpressionEvaluator.EvaluateString(executionContext, token).ConfigureAwait(false)) : _invoke.Type;
-			var source = SourceExpressionEvaluator != null ? ToUri(await SourceExpressionEvaluator.EvaluateString(executionContext, token).ConfigureAwait(false)) : _invoke.Source;
+			var type = TypeExpressionEvaluator is { } ? ToUri(await TypeExpressionEvaluator.EvaluateString(executionContext, token).ConfigureAwait(false)) : _invoke.Type;
+			var source = SourceExpressionEvaluator is { } ? ToUri(await SourceExpressionEvaluator.EvaluateString(executionContext, token).ConfigureAwait(false)) : _invoke.Source;
 
 			var rawContent = ContentBodyEvaluator is IStringEvaluator rawContentEvaluator ? await rawContentEvaluator.EvaluateString(executionContext, token).ConfigureAwait(false) : null;
 			var content = await DataConverter.GetContent(ContentBodyEvaluator, ContentExpressionEvaluator, executionContext, token).ConfigureAwait(false);
 			var parameters = await DataConverter.GetParameters(NameEvaluatorList, ParameterList, executionContext, token).ConfigureAwait(false);
 
-			Infrastructure.Assert(type != null);
+			Infrastructure.NotNull(type);
 
 			var invokeData = new InvokeData(invokeId, type, source, rawContent, content, parameters);
 

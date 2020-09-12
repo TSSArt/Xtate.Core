@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -31,7 +31,7 @@ namespace Xtate.DataModel
 
 		public DefaultRaiseEvaluator(in RaiseEntity raise)
 		{
-			Infrastructure.Assert(raise.OutgoingEvent != null);
+			Infrastructure.NotNull(raise.OutgoingEvent);
 
 			_raise = raise;
 		}
@@ -46,7 +46,7 @@ namespace Xtate.DataModel
 
 		public virtual ValueTask Execute(IExecutionContext executionContext, CancellationToken token)
 		{
-			if (executionContext == null) throw new ArgumentNullException(nameof(executionContext));
+			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
 			return executionContext.Send(_raise.OutgoingEvent!, token);
 		}

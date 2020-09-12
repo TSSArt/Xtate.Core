@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -32,8 +32,11 @@ namespace Xtate
 		ValueTask LogError(ILoggerContext loggerContext, ErrorType errorType, Exception exception, string? sourceEntityId, CancellationToken token);
 		void      TraceProcessingEvent(ILoggerContext loggerContext, IEvent evt);
 		void      TraceEnteringState(ILoggerContext loggerContext, IIdentifier stateId);
+		void      TraceEnteredState(ILoggerContext loggerContext, IIdentifier stateId);
 		void      TraceExitingState(ILoggerContext loggerContext, IIdentifier stateId);
+		void      TraceExitedState(ILoggerContext loggerContext, IIdentifier stateId);
 		void      TracePerformingTransition(ILoggerContext loggerContext, TransitionType type, string? eventDescriptor, string? target);
+		void      TracePerformedTransition(ILoggerContext loggerContext, TransitionType type, string? eventDescriptor, string? target);
 		void      TraceInterpreterState(ILoggerContext loggerContext, StateMachineInterpreterState state);
 	}
 }

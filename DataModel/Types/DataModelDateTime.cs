@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -60,17 +60,13 @@ namespace Xtate
 
 	#region Interface IComparable
 
-		public int CompareTo(object? value)
-		{
-			if (value == null) return 1;
-
-			if (!(value is DataModelDateTime))
-			{
-				throw new ArgumentException(Resources.Exception_Argument_must_be_DataModelDateTime_type);
-			}
-
-			return Compare(this, (DataModelDateTime) value);
-		}
+		public int CompareTo(object? value) =>
+				value switch
+				{
+						null => 1,
+						DataModelDateTime dateTime => Compare(this, dateTime),
+						_ => throw new ArgumentException(Resources.Exception_Argument_must_be_DataModelDateTime_type)
+				};
 
 	#endregion
 

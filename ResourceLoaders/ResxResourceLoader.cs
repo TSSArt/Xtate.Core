@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -30,7 +30,7 @@ namespace Xtate
 	[PublicAPI]
 	public sealed class ResxResourceLoader : IResourceLoader
 	{
-		public static readonly IResourceLoader Instance = new ResxResourceLoader();
+		public static readonly ResxResourceLoader Instance = new ResxResourceLoader();
 
 		private static readonly XmlReaderSettings CloseInputReaderSettings = new XmlReaderSettings { CloseInput = true };
 
@@ -38,27 +38,28 @@ namespace Xtate
 
 		public bool CanHandle(Uri uri)
 		{
-			if (uri == null) throw new ArgumentNullException(nameof(uri));
+			if (uri is null) throw new ArgumentNullException(nameof(uri));
 
 			return uri.IsAbsoluteUri && (uri.Scheme == "res" || uri.Scheme == "resx");
 		}
 
 		public async ValueTask<Resource> Request(Uri uri, CancellationToken token)
 		{
-			if (uri == null) throw new ArgumentNullException(nameof(uri));
+			if (uri is null) throw new ArgumentNullException(nameof(uri));
 
 			var stream = GetResourceStream(uri);
+
 			await using (stream.ConfigureAwait(false))
 			{
-				using var reader = new StreamReader(stream);
-				var content = await reader.ReadToEndAsync().ConfigureAwait(false); //TODO: ReadToEndAsync replace to support CancellationToken  
-				return new Resource(uri, contentType: default, content);
+				var buffer = new byte[stream.Length];
+				await stream.ReadAsync(buffer, offset: 0, buffer.Length, token).ConfigureAwait(false);
+				return new Resource(uri, bytes: buffer);
 			}
 		}
 
 		public ValueTask<XmlReader> RequestXmlReader(Uri uri, XmlReaderSettings? readerSettings = default, XmlParserContext? parserContext = default, CancellationToken token = default)
 		{
-			if (uri == null) throw new ArgumentNullException(nameof(uri));
+			if (uri is null) throw new ArgumentNullException(nameof(uri));
 
 			try
 			{
@@ -90,7 +91,7 @@ namespace Xtate
 
 			var stream = assembly.GetManifestResourceStream(name);
 
-			if (stream == null)
+			if (stream is null)
 			{
 				throw new ResourceNotFoundException(Res.Format(Resources.Exception_Resource_not_found, uri));
 			}

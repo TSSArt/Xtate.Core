@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -33,7 +33,7 @@ namespace Xtate.Builder
 
 		public TransitionFluentBuilder(IBuilderFactory factory, TOuterBuilder outerBuilder, Action<ITransition> builtAction)
 		{
-			if (factory == null) throw new ArgumentNullException(nameof(factory));
+			if (factory is null) throw new ArgumentNullException(nameof(factory));
 
 			_builder = factory.CreateTransitionBuilder(null);
 			_outerBuilder = outerBuilder;
@@ -50,7 +50,7 @@ namespace Xtate.Builder
 
 		public TransitionFluentBuilder<TOuterBuilder> SetEvent(params IEventDescriptor[] eventsDescriptor)
 		{
-			if (eventsDescriptor == null) throw new ArgumentNullException(nameof(eventsDescriptor));
+			if (eventsDescriptor is null) throw new ArgumentNullException(nameof(eventsDescriptor));
 			if (eventsDescriptor.Length == 0) throw new ArgumentException(Resources.Exception_ValueCannotBeAnEmptyCollection, nameof(eventsDescriptor));
 
 			_builder.SetEvent(eventsDescriptor.ToImmutableArray());
@@ -83,7 +83,7 @@ namespace Xtate.Builder
 
 		public TransitionFluentBuilder<TOuterBuilder> SetTarget(params string[] target)
 		{
-			if (target == null) throw new ArgumentNullException(nameof(target));
+			if (target is null) throw new ArgumentNullException(nameof(target));
 			if (target.Length == 0) throw new ArgumentException(Resources.Exception_ValueCannotBeAnEmptyCollection, nameof(target));
 
 			var builder = ImmutableArray.CreateBuilder<IIdentifier>(target.Length);
@@ -100,7 +100,7 @@ namespace Xtate.Builder
 
 		public TransitionFluentBuilder<TOuterBuilder> SetTarget(params IIdentifier[] target)
 		{
-			if (target == null) throw new ArgumentNullException(nameof(target));
+			if (target is null) throw new ArgumentNullException(nameof(target));
 			if (target.Length == 0) throw new ArgumentException(Resources.Exception_ValueCannotBeAnEmptyCollection, nameof(target));
 
 			_builder.SetTarget(target.ToImmutableArray());

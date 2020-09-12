@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -31,13 +31,13 @@ namespace Xtate
 
 		public static void AddError(this IErrorProcessor errorProcessor, Type source, object? entity, string message, Exception? exception = null)
 		{
-			if (errorProcessor == null) throw new ArgumentNullException(nameof(errorProcessor));
-			if (source == null) throw new ArgumentNullException(nameof(source));
-			if (message == null) throw new ArgumentNullException(nameof(message));
+			if (errorProcessor is null) throw new ArgumentNullException(nameof(errorProcessor));
+			if (source is null) throw new ArgumentNullException(nameof(source));
+			if (message is null) throw new ArgumentNullException(nameof(message));
 
 			if (errorProcessor.LineInfoRequired)
 			{
-				if (entity != null && entity.Is<IXmlLineInfo>(out var xmlLineInfo) && xmlLineInfo.HasLineInfo())
+				if (entity.Is<IXmlLineInfo>(out var xmlLineInfo) && xmlLineInfo.HasLineInfo())
 				{
 					errorProcessor.AddError(new ErrorItem(source, message, exception, xmlLineInfo.LineNumber, xmlLineInfo.LinePosition));
 

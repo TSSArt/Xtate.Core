@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -386,9 +386,9 @@ namespace Xtate
 		public static DataModelValue FromDateTime(DateTime val)                   => val;
 		public static DataModelValue FromBoolean(bool val)                        => val;
 
-		public bool IsUndefinedOrNull() => _value == null || _value == NullValue || _value is ILazyValue val && val.Value.IsUndefinedOrNull();
+		public bool IsUndefinedOrNull() => _value is null || _value == NullValue || _value is ILazyValue val && val.Value.IsUndefinedOrNull();
 
-		public bool IsUndefined() => _value == null || _value is ILazyValue val && val.Value.IsUndefined();
+		public bool IsUndefined() => _value is null || _value is ILazyValue val && val.Value.IsUndefined();
 
 		public DataModelList AsList() =>
 				_value switch
@@ -541,7 +541,7 @@ namespace Xtate
 				val = lazyValue.Value;
 			}
 
-			return (val._value != null ? val._value.GetHashCode() : 0) + val._int64.GetHashCode();
+			return (val._value is { } ? val._value.GetHashCode() : 0) + val._int64.GetHashCode();
 		}
 
 		public static bool operator ==(DataModelValue left, DataModelValue right) => left.Equals(right);
@@ -609,7 +609,7 @@ namespace Xtate
 
 		private static DataModelValue FromObjectWithMap(object? value, ref Dictionary<object, object>? map)
 		{
-			if (value == null)
+			if (value is null)
 			{
 				return Null;
 			}

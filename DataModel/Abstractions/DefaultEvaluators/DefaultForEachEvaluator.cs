@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -34,8 +34,8 @@ namespace Xtate.DataModel
 		{
 			_forEach = forEach;
 
-			Infrastructure.Assert(forEach.Array != null);
-			Infrastructure.Assert(forEach.Item != null);
+			Infrastructure.NotNull(forEach.Array);
+			Infrastructure.NotNull(forEach.Item);
 
 			ArrayEvaluator = forEach.Array.As<IArrayEvaluator>();
 			ItemEvaluator = forEach.Item.As<ILocationEvaluator>();
@@ -58,7 +58,7 @@ namespace Xtate.DataModel
 
 		public virtual async ValueTask Execute(IExecutionContext executionContext, CancellationToken token)
 		{
-			if (executionContext == null) throw new ArgumentNullException(nameof(executionContext));
+			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
 			var array = await ArrayEvaluator.EvaluateArray(executionContext, token).ConfigureAwait(false);
 
@@ -68,7 +68,7 @@ namespace Xtate.DataModel
 
 				await ItemEvaluator.SetValue(instance, executionContext, token).ConfigureAwait(false);
 
-				if (IndexEvaluator != null)
+				if (IndexEvaluator is { })
 				{
 					await IndexEvaluator.SetValue(new DefaultObject(i), executionContext, token).ConfigureAwait(false);
 				}

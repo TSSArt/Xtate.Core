@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -86,9 +86,9 @@ namespace Xtate
 			{
 				unchecked
 				{
-					var hashCode = (Index * 397) ^ (Key != null ? Key.GetHashCode() : 0);
+					var hashCode = (Index * 397) ^ (Key is { } ? Key.GetHashCode() : 0);
 					hashCode = (hashCode * 397) ^ (int) Access;
-					hashCode = (hashCode * 397) ^ (Metadata != null ? Metadata.GetHashCode() : 0);
+					hashCode = (hashCode * 397) ^ (Metadata is { } ? Metadata.GetHashCode() : 0);
 					hashCode = (hashCode * 397) ^ Value.GetHashCode();
 
 					return hashCode;
@@ -121,7 +121,7 @@ namespace Xtate
 
 			public override bool Equals(object? obj) => obj is KeyValue other && Equals(other);
 
-			public override int GetHashCode() => unchecked(((Key != null ? Key.GetHashCode() : 0) * 397) ^ Value.GetHashCode());
+			public override int GetHashCode() => unchecked(((Key is { } ? Key.GetHashCode() : 0) * 397) ^ Value.GetHashCode());
 
 			public static bool operator ==(KeyValue left, KeyValue right) => left.Equals(right);
 

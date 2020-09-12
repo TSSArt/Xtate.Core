@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,26 +14,30 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
 using System.Collections.Immutable;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Xml.XPath;
 
 namespace Xtate.DataModel.XPath
 {
 	internal sealed class XPathDataModelHandler : DataModelHandlerBase
 	{
-		public const string DataModelType = "xpath";
+		private const string DataModelType = "xpath";
 
 		public static readonly IDataModelHandlerFactory Factory = new DataModelHandlerFactory();
+
+		public XPathDataModelHandler() : base(DefaultErrorProcessor.Instance) { }
 
 		private XPathDataModelHandler(IErrorProcessor errorProcessor) : base(errorProcessor) { }
 
 		public override void ExecutionContextCreated(IExecutionContext executionContext, out ImmutableDictionary<string, string> dataModelVars)
 		{
-			if (executionContext == null) throw new ArgumentNullException(nameof(executionContext));
+			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
 			base.ExecutionContextCreated(executionContext, out dataModelVars);
 
@@ -44,7 +48,7 @@ namespace Xtate.DataModel.XPath
 		{
 			base.Build(ref valueExpression, ref valueExpressionProperties);
 
-			if (valueExpressionProperties.Expression != null)
+			if (valueExpressionProperties.Expression is { })
 			{
 				try
 				{
@@ -87,7 +91,7 @@ namespace Xtate.DataModel.XPath
 		{
 			base.Build(ref conditionExpression, ref conditionExpressionProperties);
 
-			if (conditionExpressionProperties.Expression != null)
+			if (conditionExpressionProperties.Expression is { })
 			{
 				try
 				{
@@ -133,7 +137,7 @@ namespace Xtate.DataModel.XPath
 		{
 			base.Build(ref locationExpression, ref locationExpressionProperties);
 
-			if (locationExpressionProperties.Expression != null)
+			if (locationExpressionProperties.Expression is { })
 			{
 				try
 				{
@@ -217,15 +221,27 @@ namespace Xtate.DataModel.XPath
 
 		protected override void Visit(ref IScript script) => AddErrorMessage(script, Resources.ErrorMessage_Scripting_not_supported_in_XPATH_data_model);
 
-		private class DataModelHandlerFactory : IDataModelHandlerFactory
+		private class DataModelHandlerFactory : IDataModelHandlerFactory, IDataModelHandlerFactoryActivator
 		{
 		#region Interface IDataModelHandlerFactory
 
-			public bool CanHandle(string dataModelType) => dataModelType == DataModelType;
-
-			public IDataModelHandler CreateHandler(IErrorProcessor errorProcessor) => new XPathDataModelHandler(errorProcessor);
+			public ValueTask<IDataModelHandlerFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, string dataModelType, CancellationToken token) =>
+					new ValueTask<IDataModelHandlerFactoryActivator?>(CanHandle(dataModelType) ? this : null);
 
 		#endregion
+
+		#region Interface IDataModelHandlerFactoryActivator
+
+			public ValueTask<IDataModelHandler> CreateHandler(IFactoryContext factoryContext, string dataModelType, IErrorProcessor errorProcessor, CancellationToken token)
+			{
+				Infrastructure.Assert(CanHandle(dataModelType));
+
+				return new ValueTask<IDataModelHandler>(new XPathDataModelHandler(errorProcessor));
+			}
+
+		#endregion
+
+			private static bool CanHandle(string dataModelType) => dataModelType == DataModelType;
 		}
 	}
 }

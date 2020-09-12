@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,18 +14,20 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace Xtate.CustomAction
 {
-	public abstract class CustomActionFactoryBase : ICustomActionFactory
+	public abstract class CustomActionFactoryBase : ICustomActionFactory, ICustomActionFactoryActivator
 	{
 		private readonly Dictionary<string, Func<XmlReader, ICustomActionContext, ICustomActionExecutor>> _actions =
 				new Dictionary<string, Func<XmlReader, ICustomActionContext, ICustomActionExecutor>>();
@@ -34,23 +36,30 @@ namespace Xtate.CustomAction
 
 		protected CustomActionFactoryBase()
 		{
-			var customActionProviderAttribute = GetType().GetCustomAttribute<CustomActionProviderAttribute>();
-
-			if (customActionProviderAttribute == null)
+			if (GetType().GetCustomAttribute<CustomActionProviderAttribute>() is {} customActionProviderAttribute)
 			{
-				throw new InfrastructureException(Res.Format(Resources.Exception_CustomActionProviderAttributeWasNotProvided, GetType()));
+				_namespace = customActionProviderAttribute.Namespace;
+
+				return;
 			}
 
-			_namespace = customActionProviderAttribute.Namespace;
+			throw new InfrastructureException(Res.Format(Resources.Exception_CustomActionProviderAttributeWasNotProvided, GetType()));
 		}
 
 	#region Interface ICustomActionFactory
 
-		public bool CanHandle(string ns, string name) => ns == _namespace && _actions.ContainsKey(name);
+		public ValueTask<ICustomActionFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, string ns, string name, CancellationToken token) =>
+				new ValueTask<ICustomActionFactoryActivator?>(CanHandle(ns, name) ? this : null);
 
-		public ICustomActionExecutor CreateExecutor(ICustomActionContext customActionContext)
+	#endregion
+
+	#region Interface ICustomActionFactoryActivator
+
+		public ValueTask<ICustomActionExecutor> CreateExecutor(IFactoryContext factoryContext, ICustomActionContext customActionContext, CancellationToken token)
 		{
-			if (customActionContext == null) throw new ArgumentNullException(nameof(customActionContext));
+			if (customActionContext is null) throw new ArgumentNullException(nameof(customActionContext));
+
+			Infrastructure.Assert(_namespace == customActionContext.XmlNamespace);
 
 			using var stringReader = new StringReader(customActionContext.Xml);
 
@@ -62,15 +71,20 @@ namespace Xtate.CustomAction
 
 			xmlReader.MoveToContent();
 
-			return _actions[xmlReader.LocalName](xmlReader, customActionContext);
+			Infrastructure.Assert(xmlReader.NamespaceURI == customActionContext.XmlNamespace);
+			Infrastructure.Assert(xmlReader.LocalName == customActionContext.XmlName);
+
+			return new ValueTask<ICustomActionExecutor>(_actions[xmlReader.LocalName](xmlReader, customActionContext));
 		}
 
 	#endregion
 
+		private bool CanHandle(string ns, string name) => ns == _namespace && _actions.ContainsKey(name);
+
 		protected void Register(string name, Func<XmlReader, ICustomActionContext, ICustomActionExecutor> executorFactory)
 		{
-			if (name == null) throw new ArgumentNullException(nameof(name));
-			if (executorFactory == null) throw new ArgumentNullException(nameof(executorFactory));
+			if (name is null) throw new ArgumentNullException(nameof(name));
+			if (executorFactory is null) throw new ArgumentNullException(nameof(executorFactory));
 
 			_actions.Add(name, executorFactory);
 		}

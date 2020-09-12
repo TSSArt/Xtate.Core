@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -28,7 +28,7 @@ namespace Xtate
 		[return: NotNull]
 		public static T As<T>(this object entity)
 		{
-			if (entity == null) throw new ArgumentNullException(nameof(entity));
+			if (entity is null) throw new ArgumentNullException(nameof(entity));
 
 			if (entity.Is<T>(out var result))
 			{
@@ -47,6 +47,10 @@ namespace Xtate
 			{
 				switch (entity)
 				{
+					case null:
+						value = default!;
+						return false;
+
 					case AncestorContainer container when container.Value is T val:
 						value = val;
 						return true;
@@ -73,7 +77,7 @@ namespace Xtate
 				return emptyArrayIfDefault ? ImmutableArray<TDestination>.Empty : default;
 			}
 
-			return ImmutableArray.CreateRange(array, item => item != null ? item.As<TDestination>() : default!);
+			return ImmutableArray.CreateRange(array, item => item is { } ? item.As<TDestination>() : default!);
 		}
 	}
 }

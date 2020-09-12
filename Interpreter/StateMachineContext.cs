@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -26,7 +26,7 @@ using Xtate.IoProcessor;
 
 namespace Xtate
 {
-	internal class StateMachineContext : IStateMachineContext, IExecutionContext, ILoggerContext
+	internal class StateMachineContext : IStateMachineContext, IExecutionContext
 	{
 		private static readonly Uri InternalTarget = new Uri(uriString: "_internal", UriKind.Relative);
 
@@ -34,19 +34,21 @@ namespace Xtate
 		private readonly IDataModelValueProvider             _dataModelValueProvider;
 		private readonly IExternalCommunication              _externalCommunication;
 		private readonly ILogger                             _logger;
+		private readonly ILoggerContext                      _loggerContext;
 		private readonly SessionId                           _sessionId;
 		private readonly string?                             _stateMachineName;
 		private          DataModelObject?                    _dataModel;
 		private          KeyList<StateEntityNode>?           _historyValue;
 		private          IContextItems?                      _runtimeItems;
 
-		public StateMachineContext(string? stateMachineName, SessionId sessionId, IDataModelValueProvider dataModelValueProvider, ILogger logger,
+		public StateMachineContext(string? stateMachineName, SessionId sessionId, IDataModelValueProvider dataModelValueProvider, ILogger logger, ILoggerContext loggerContext,
 								   IExternalCommunication externalCommunication, ImmutableDictionary<object, object> contextRuntimeItems)
 		{
 			_stateMachineName = stateMachineName;
 			_sessionId = sessionId;
 			_dataModelValueProvider = dataModelValueProvider;
 			_logger = logger;
+			_loggerContext = loggerContext;
 			_externalCommunication = externalCommunication;
 			_contextRuntimeItems = contextRuntimeItems;
 		}
@@ -82,21 +84,13 @@ namespace Xtate
 
 		public ValueTask Cancel(SendId sendId, CancellationToken token) => _externalCommunication.CancelEvent(sendId, token);
 
-		public ValueTask Log(string? label, DataModelValue arguments, CancellationToken token) => _logger.ExecuteLog(this, label, arguments, token);
+		public ValueTask Log(string? label, DataModelValue arguments, CancellationToken token) => _logger.ExecuteLog(_loggerContext, label, arguments, token);
 
 		public ValueTask StartInvoke(InvokeData invokeData, CancellationToken token = default) => _externalCommunication.StartInvoke(invokeData, token);
 
 		public ValueTask CancelInvoke(InvokeId invokeId, CancellationToken token) => _externalCommunication.CancelInvoke(invokeId, token);
 
 		public IContextItems RuntimeItems => _runtimeItems ??= new ContextItems(_contextRuntimeItems);
-
-	#endregion
-
-	#region Interface ILoggerContext
-
-		SessionId? ILoggerContext.SessionId => _sessionId;
-
-		string? ILoggerContext.StateMachineName => _stateMachineName;
 
 	#endregion
 
@@ -120,7 +114,7 @@ namespace Xtate
 
 		private static bool IsInternalEvent(IOutgoingEvent evt)
 		{
-			if (evt.Target != InternalTarget || evt.Type != null)
+			if (evt.Target != InternalTarget || evt.Type is { })
 			{
 				return false;
 			}
@@ -208,7 +202,7 @@ namespace Xtate
 				get => _permanentItems.TryGetValue(key, out var value) ? value : _items.TryGetValue(key, out value) ? value : null;
 				set
 				{
-					if (value != null && !_permanentItems.ContainsKey(key))
+					if (value is { } && !_permanentItems.ContainsKey(key))
 					{
 						_items[key] = value;
 					}

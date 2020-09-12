@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -34,7 +34,7 @@ namespace Xtate.DataModel
 		{
 			_if = @if;
 
-			Infrastructure.Assert(@if.Condition != null);
+			Infrastructure.NotNull(@if.Condition);
 
 			var currentCondition = @if.Condition.As<IBooleanEvaluator>();
 			var currentActions = ImmutableArray.CreateBuilder<IExecEvaluator>();
@@ -46,7 +46,7 @@ namespace Xtate.DataModel
 				{
 					case IElseIf elseIf:
 						branchesBuilder.Add((currentCondition, currentActions.ToImmutable()));
-						Infrastructure.Assert(elseIf.Condition != null);
+						Infrastructure.NotNull(elseIf.Condition);
 						currentCondition = elseIf.Condition.As<IBooleanEvaluator>();
 						currentActions.Clear();
 						break;
@@ -80,11 +80,11 @@ namespace Xtate.DataModel
 
 		public virtual async ValueTask Execute(IExecutionContext executionContext, CancellationToken token)
 		{
-			if (executionContext == null) throw new ArgumentNullException(nameof(executionContext));
+			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
 			foreach (var (condition, actions) in Branches)
 			{
-				if (condition == null || await condition.EvaluateBoolean(executionContext, token).ConfigureAwait(false))
+				if (condition is null || await condition.EvaluateBoolean(executionContext, token).ConfigureAwait(false))
 				{
 					foreach (var action in actions)
 					{

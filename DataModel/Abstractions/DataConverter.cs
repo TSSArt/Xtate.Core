@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -30,7 +30,7 @@ namespace Xtate.DataModel
 		public static ValueTask<DataModelValue> GetData(IValueEvaluator? contentBodyEvaluator, IObjectEvaluator? contentExpressionEvaluator, ImmutableArray<ILocationEvaluator> nameEvaluatorList,
 														ImmutableArray<DefaultParam> parameterList, IExecutionContext executionContext, CancellationToken token)
 		{
-			if (executionContext == null) throw new ArgumentNullException(nameof(executionContext));
+			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
 			if (nameEvaluatorList.IsDefaultOrEmpty && parameterList.IsDefaultOrEmpty)
 			{
@@ -43,9 +43,9 @@ namespace Xtate.DataModel
 		public static async ValueTask<DataModelValue> GetContent(IValueEvaluator? contentBodyEvaluator, IObjectEvaluator? contentExpressionEvaluator,
 																 IExecutionContext executionContext, CancellationToken token)
 		{
-			if (executionContext == null) throw new ArgumentNullException(nameof(executionContext));
+			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
-			if (contentExpressionEvaluator != null)
+			if (contentExpressionEvaluator is { })
 			{
 				var obj = await contentExpressionEvaluator.EvaluateObject(executionContext, token).ConfigureAwait(false);
 
@@ -72,7 +72,7 @@ namespace Xtate.DataModel
 		public static async ValueTask<DataModelValue> GetParameters(ImmutableArray<ILocationEvaluator> nameEvaluatorList, ImmutableArray<DefaultParam> parameterList,
 																	IExecutionContext executionContext, CancellationToken token)
 		{
-			if (executionContext == null) throw new ArgumentNullException(nameof(executionContext));
+			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
 			if (nameEvaluatorList.IsDefaultOrEmpty && parameterList.IsDefaultOrEmpty)
 			{
@@ -99,11 +99,11 @@ namespace Xtate.DataModel
 					var name = param.Name;
 					object? value = null;
 
-					if (param.ExpressionEvaluator != null)
+					if (param.ExpressionEvaluator is { })
 					{
 						value = (await param.ExpressionEvaluator.EvaluateObject(executionContext, token).ConfigureAwait(false)).ToObject();
 					}
-					else if (param.LocationEvaluator != null)
+					else if (param.LocationEvaluator is { })
 					{
 						value = await param.LocationEvaluator.GetValue(executionContext, token).ConfigureAwait(false);
 					}
@@ -124,7 +124,7 @@ namespace Xtate.DataModel
 
 		public static DataModelValue FromEvent(IEvent evt, bool caseInsensitive)
 		{
-			if (evt == null) throw new ArgumentNullException(nameof(evt));
+			if (evt is null) throw new ArgumentNullException(nameof(evt));
 
 			var eventObject = new DataModelObject(caseInsensitive)
 							  {
@@ -155,7 +155,7 @@ namespace Xtate.DataModel
 
 		public static DataModelValue FromException(Exception exception, bool caseInsensitive)
 		{
-			if (exception == null) throw new ArgumentNullException(nameof(exception));
+			if (exception is null) throw new ArgumentNullException(nameof(exception));
 
 			var exceptionData = new DataModelObject(caseInsensitive)
 								{

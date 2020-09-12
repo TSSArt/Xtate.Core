@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -68,14 +68,14 @@ namespace Xtate.DataModel.XPath
 
 		public void LeaveScope()
 		{
-			Infrastructure.Assert(_scopeStack != null);
+			Infrastructure.NotNull(_scopeStack);
 
 			_scopeStack.Pop();
 		}
 
 		public object Evaluate(XPathCompiledExpression compiledExpression)
 		{
-			Infrastructure.Assert(ExecutionContext != null);
+			Infrastructure.NotNull(ExecutionContext);
 
 			compiledExpression.SetResolver(this);
 
@@ -84,7 +84,7 @@ namespace Xtate.DataModel.XPath
 
 		public void DeclareVariable(XPathCompiledExpression compiledExpression)
 		{
-			if (_scopeStack != null)
+			if (_scopeStack is { })
 			{
 				_scopeStack.Peek()[compiledExpression.Expression] = default;
 			}
@@ -97,7 +97,7 @@ namespace Xtate.DataModel.XPath
 		{
 			if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
 
-			if (_scopeStack != null)
+			if (_scopeStack is { })
 			{
 				foreach (var vars in _scopeStack)
 				{
@@ -108,7 +108,7 @@ namespace Xtate.DataModel.XPath
 				}
 			}
 
-			if (ExecutionContext == null)
+			if (ExecutionContext is null)
 			{
 				return XPathEmptyIterator.Instance;
 			}

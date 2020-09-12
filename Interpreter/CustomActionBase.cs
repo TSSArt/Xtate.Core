@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -39,7 +39,7 @@ namespace Xtate.CustomAction
 
 		ValueTask ICustomActionExecutor.Execute(IExecutionContext context, CancellationToken token)
 		{
-			if (context == null) throw new ArgumentNullException(nameof(context));
+			if (context is null) throw new ArgumentNullException(nameof(context));
 
 			return Execute(context, token);
 		}
@@ -49,12 +49,12 @@ namespace Xtate.CustomAction
 		protected void RegisterArgument(string key, string? expression, string? constant = default)
 		{
 			_arguments ??= new Dictionary<string, object?>();
-			_arguments.Add(key, expression != null ? (object) _customActionContext.RegisterValueExpression(expression) : constant);
+			_arguments.Add(key, expression is { } ? (object) _customActionContext.RegisterValueExpression(expression) : constant);
 		}
 
 		protected void RegisterResultLocation(string? expression)
 		{
-			if (expression != null)
+			if (expression is { })
 			{
 				_resultLocationAssigner = _customActionContext.RegisterLocationExpression(expression);
 			}
@@ -64,7 +64,7 @@ namespace Xtate.CustomAction
 		{
 			var arguments = ImmutableDictionary<string, DataModelValue>.Empty;
 
-			if (_arguments != null)
+			if (_arguments is { })
 			{
 				var builder = ImmutableDictionary.CreateBuilder<string, DataModelValue>();
 
@@ -91,7 +91,7 @@ namespace Xtate.CustomAction
 
 			var result = Evaluate(arguments);
 
-			if (_resultLocationAssigner != null)
+			if (_resultLocationAssigner is { })
 			{
 				await _resultLocationAssigner.Assign(executionContext, result, token).ConfigureAwait(false);
 			}

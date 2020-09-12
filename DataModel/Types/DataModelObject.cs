@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -113,7 +113,7 @@ namespace Xtate
 					addDelimiter = true;
 				}
 
-				sb.Append(keyValue.Key).Append("=").Append(keyValue.Value.ToString(format: null, formatProvider));
+				sb.Append(keyValue.Key).Append('=').Append(keyValue.Value.ToString(format: null, formatProvider));
 			}
 
 			sb.Append(')');
@@ -125,7 +125,7 @@ namespace Xtate
 
 		public void Add(string key, in DataModelValue value)
 		{
-			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (key is null) throw new ArgumentNullException(nameof(key));
 
 			Add(key, value, metadata: default);
 		}
@@ -343,7 +343,7 @@ namespace Xtate
 				while (_enumerator.MoveNext())
 				{
 					var current = _enumerator.Current;
-					if (current.Key != null)
+					if (current.Key is { })
 					{
 						Current = new KeyValuePair<string, DataModelValue>(current.Key, current.Value);
 

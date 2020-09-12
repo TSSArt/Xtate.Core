@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -45,6 +45,10 @@ namespace Xtate.Scxml
 
 		protected string Current => _current ?? _xmlReader.Value;
 
+		protected string CurrentName => _xmlReader.LocalName;
+
+		protected string CurrentNamespace => _xmlReader.NamespaceURI;
+
 	#region Interface IXmlLineInfo
 
 		public bool HasLineInfo() => _xmlLineInfo?.HasLineInfo() ?? false;
@@ -61,7 +65,7 @@ namespace Xtate.Scxml
 
 		protected TEntity Populate<TEntity>(TEntity entity, Policy<TEntity> policy)
 		{
-			if (policy == null) throw new ArgumentNullException(nameof(policy));
+			if (policy is null) throw new ArgumentNullException(nameof(policy));
 
 			var validationContext = policy.CreateValidationContext(_xmlReader, _errorProcessor);
 
@@ -74,8 +78,7 @@ namespace Xtate.Scxml
 				return entity;
 			}
 
-			var policyRawContentAction = policy.RawContentAction;
-			if (policyRawContentAction != null)
+			if (policy.RawContentAction is { } policyRawContentAction)
 			{
 				_current = _xmlReader.ReadInnerXml();
 
@@ -100,7 +103,7 @@ namespace Xtate.Scxml
 
 		protected static Policy<TEntity> BuildPolicy<TEntity>(Action<IPolicyBuilder<TEntity>> buildPolicy)
 		{
-			if (buildPolicy == null) throw new ArgumentNullException(nameof(buildPolicy));
+			if (buildPolicy is null) throw new ArgumentNullException(nameof(buildPolicy));
 
 			var policy = new Policy<TEntity>();
 			buildPolicy(new PolicyBuilder<TEntity>(policy));
@@ -114,8 +117,7 @@ namespace Xtate.Scxml
 				var ns = _xmlReader.NamespaceURI;
 				var name = _xmlReader.LocalName;
 				validationContext.ValidateAttribute(ns, name);
-				var located = policy.AttributeLocated(ns, name);
-				if (located != null)
+				if (policy.AttributeLocated(ns, name) is { } located)
 				{
 					try
 					{
@@ -142,8 +144,7 @@ namespace Xtate.Scxml
 				var ns = _xmlReader.NamespaceURI;
 				var name = _xmlReader.LocalName;
 				validationContext.ValidateElement(ns, name);
-				var located = policy.ElementLocated(ns, name);
-				if (located != null)
+				if (policy.ElementLocated(ns, name) is { } located)
 				{
 					try
 					{
@@ -249,7 +250,7 @@ namespace Xtate.Scxml
 
 			public void FillNameTable(XmlNameTable nameTable)
 			{
-				if (nameTable == null) throw new ArgumentNullException(nameof(nameTable));
+				if (nameTable is null) throw new ArgumentNullException(nameof(nameTable));
 
 				FillFromQualifiedName(_elements);
 				FillFromQualifiedName(_attributes);
@@ -299,7 +300,7 @@ namespace Xtate.Scxml
 
 				public ValidationContext(Policy<TEntity> policy, XmlReader xmlReader, IErrorProcessor errorProcessor)
 				{
-					if (policy == null) throw new ArgumentNullException(nameof(policy));
+					if (policy is null) throw new ArgumentNullException(nameof(policy));
 					_xmlReader = xmlReader ?? throw new ArgumentNullException(nameof(xmlReader));
 					_errorProcessor = errorProcessor;
 
@@ -321,9 +322,9 @@ namespace Xtate.Scxml
 						}
 					}
 
-					_ignoreUnknownElements = policy.IgnoreUnknownElements || policy.UnknownElementAction != null;
+					_ignoreUnknownElements = policy.IgnoreUnknownElements || policy.UnknownElementAction is { };
 
-					if (policy.ElementName != null)
+					if (policy.ElementName is { })
 					{
 						if (!xmlReader.IsStartElement(policy.ElementName, policy.ElementNamespace))
 						{
@@ -334,7 +335,7 @@ namespace Xtate.Scxml
 
 				public void ValidateAttribute(string ns, string name)
 				{
-					if (_attributes != null && _attributes.TryGetValue(new QualifiedName(ns, name), out var type))
+					if (_attributes is { } && _attributes.TryGetValue(new QualifiedName(ns, name), out var type))
 					{
 						if (type == AttributeType.SysOptionalFound || type == AttributeType.SysRequiredFound)
 						{
@@ -347,7 +348,7 @@ namespace Xtate.Scxml
 
 				public void ProcessAttributesCompleted()
 				{
-					if (_attributes != null && _attributes.Any(p => p.Value == AttributeType.Required))
+					if (_attributes is { } && _attributes.Any(p => p.Value == AttributeType.Required))
 					{
 						var query = _attributes.Where(p => p.Value == AttributeType.Required).Select(p => p.Key);
 						AddError(CreateMessage(Resources.ErrorMessage_Missed_required_attributes, delimiter: @"', '", query));
@@ -356,7 +357,7 @@ namespace Xtate.Scxml
 
 				public void ValidateElement(string ns, string name)
 				{
-					if (_elements != null && _elements.TryGetValue(new QualifiedName(ns, name), out var type))
+					if (_elements is { } && _elements.TryGetValue(new QualifiedName(ns, name), out var type))
 					{
 						if (type == ElementType.SysOneFound || type == ElementType.SysZeroToOneFound)
 						{
@@ -373,7 +374,7 @@ namespace Xtate.Scxml
 
 				public void ProcessElementsCompleted()
 				{
-					if (_elements != null && _elements.Any(p => p.Value == ElementType.One || p.Value == ElementType.OneToMany))
+					if (_elements is { } && _elements.Any(p => p.Value == ElementType.One || p.Value == ElementType.OneToMany))
 					{
 						var query = _elements.Where(p => p.Value == ElementType.One || p.Value == ElementType.OneToMany).Select(p => p.Key);
 						AddError(CreateMessage(Resources.ErrorMessage_Missed_required_elements, delimiter: @">, <", query));
@@ -432,8 +433,8 @@ namespace Xtate.Scxml
 
 			public IPolicyBuilder<TEntity> RequiredAttribute(string ns, string name, Action<TDirector, TEntity> located)
 			{
-				if (ns == null) throw new ArgumentNullException(nameof(ns));
-				if (located == null) throw new ArgumentNullException(nameof(located));
+				if (ns is null) throw new ArgumentNullException(nameof(ns));
+				if (located is null) throw new ArgumentNullException(nameof(located));
 				if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
 
 				_policy.AddAttribute(ns, name, located, AttributeType.Required);
@@ -443,8 +444,8 @@ namespace Xtate.Scxml
 
 			public IPolicyBuilder<TEntity> OptionalAttribute(string ns, string name, Action<TDirector, TEntity> located)
 			{
-				if (ns == null) throw new ArgumentNullException(nameof(ns));
-				if (located == null) throw new ArgumentNullException(nameof(located));
+				if (ns is null) throw new ArgumentNullException(nameof(ns));
+				if (located is null) throw new ArgumentNullException(nameof(located));
 				if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
 
 				_policy.AddAttribute(ns, name, located, AttributeType.Optional);
@@ -454,8 +455,8 @@ namespace Xtate.Scxml
 
 			public IPolicyBuilder<TEntity> OptionalElement(string ns, string name, Action<TDirector, TEntity> located)
 			{
-				if (ns == null) throw new ArgumentNullException(nameof(ns));
-				if (located == null) throw new ArgumentNullException(nameof(located));
+				if (ns is null) throw new ArgumentNullException(nameof(ns));
+				if (located is null) throw new ArgumentNullException(nameof(located));
 				if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
 
 				_policy.AddElement(ns, name, located, ElementType.ZeroToOne);
@@ -465,8 +466,8 @@ namespace Xtate.Scxml
 
 			public IPolicyBuilder<TEntity> SingleElement(string ns, string name, Action<TDirector, TEntity> located)
 			{
-				if (ns == null) throw new ArgumentNullException(nameof(ns));
-				if (located == null) throw new ArgumentNullException(nameof(located));
+				if (ns is null) throw new ArgumentNullException(nameof(ns));
+				if (located is null) throw new ArgumentNullException(nameof(located));
 				if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
 
 				UseRawContent(val: false);
@@ -477,8 +478,8 @@ namespace Xtate.Scxml
 
 			public IPolicyBuilder<TEntity> MultipleElements(string ns, string name, Action<TDirector, TEntity> located)
 			{
-				if (ns == null) throw new ArgumentNullException(nameof(ns));
-				if (located == null) throw new ArgumentNullException(nameof(located));
+				if (ns is null) throw new ArgumentNullException(nameof(ns));
+				if (located is null) throw new ArgumentNullException(nameof(located));
 				if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
 
 				UseRawContent(val: false);
@@ -530,7 +531,7 @@ namespace Xtate.Scxml
 					return;
 				}
 
-				if (_rawContent == null)
+				if (!_rawContent.HasValue)
 				{
 					_rawContent = val;
 

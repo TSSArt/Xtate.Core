@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -111,7 +111,7 @@ namespace Xtate.Persistence
 
 		public ReadOnlyMemory<byte> Read(ReadOnlySpan<byte> key)
 		{
-			if (_readModel == null)
+			if (_readModel is null)
 			{
 				throw new InvalidOperationException(Resources.Exception_Storage_not_available_for_read_operations);
 			}
@@ -146,7 +146,7 @@ namespace Xtate.Persistence
 
 		private void AddToReadModel(Memory<byte> key, Memory<byte> value)
 		{
-			if (_readModel == null)
+			if (_readModel is null)
 			{
 				return;
 			}
@@ -209,7 +209,7 @@ namespace Xtate.Persistence
 		{
 			if (_buffer.Length < size)
 			{
-				if (_owner != null)
+				if (_owner is { })
 				{
 					_buffers ??= new List<(IMemoryOwner<byte> Owner, int Size)>();
 
@@ -237,11 +237,11 @@ namespace Xtate.Persistence
 			return result;
 		}
 
-		public int GetTransactionLogSize() => (_owner != null ? _owner.Memory.Length - _buffer.Length : 0) + (_buffers?.Select(b => b.Size).Sum() ?? 0);
+		public int GetTransactionLogSize() => (_owner is { } ? _owner.Memory.Length - _buffer.Length : 0) + (_buffers?.Select(b => b.Size).Sum() ?? 0);
 
 		public void WriteTransactionLogToSpan(Span<byte> span, bool truncateLog = true)
 		{
-			if (_buffers != null)
+			if (_buffers is { })
 			{
 				foreach (var (owner, size) in _buffers)
 				{
@@ -250,7 +250,7 @@ namespace Xtate.Persistence
 				}
 			}
 
-			if (_owner != null)
+			if (_owner is { })
 			{
 				var memory = _owner.Memory.Span;
 				memory.Slice(start: 0, memory.Length - _buffer.Length).CopyTo(span);
@@ -264,7 +264,7 @@ namespace Xtate.Persistence
 
 		public int GetDataSize()
 		{
-			if (_readModel == null)
+			if (_readModel is null)
 			{
 				throw new InvalidOperationException(Resources.Exception_Storage_not_available_for_read_operations);
 			}
@@ -274,7 +274,7 @@ namespace Xtate.Persistence
 
 		public void WriteDataToSpan(Span<byte> span, bool shrink = true)
 		{
-			if (_readModel == null)
+			if (_readModel is null)
 			{
 				throw new InvalidOperationException(Resources.Exception_Storage_not_available_for_read_operations);
 			}
@@ -328,9 +328,9 @@ namespace Xtate.Persistence
 
 		private void TruncateLog(bool forceDispose)
 		{
-			if (_readModel == null || forceDispose)
+			if (_readModel is null || forceDispose)
 			{
-				if (_buffers != null)
+				if (_buffers is { })
 				{
 					foreach (var (owner, _) in _buffers)
 					{
@@ -346,7 +346,7 @@ namespace Xtate.Persistence
 			}
 			else
 			{
-				if (_buffers != null)
+				if (_buffers is { })
 				{
 					for (var i = 0; i < _buffers.Count; i ++)
 					{
@@ -354,7 +354,7 @@ namespace Xtate.Persistence
 					}
 				}
 
-				if (_owner != null)
+				if (_owner is { })
 				{
 					_buffers ??= new List<(IMemoryOwner<byte> Owner, int Size)>();
 

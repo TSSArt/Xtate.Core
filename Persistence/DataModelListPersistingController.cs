@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -54,7 +54,7 @@ namespace Xtate.Persistence
 				case DataModelList.ChangeAction.RemoveAt:
 				case DataModelList.ChangeAction.Reset:
 				{
-					if (!entry.Value.IsUndefined() || entry.Metadata != null)
+					if (!entry.Value.IsUndefined() || entry.Metadata is { })
 					{
 						_shrink = true;
 					}
@@ -116,7 +116,7 @@ namespace Xtate.Persistence
 						recordBucket.TryGet(Key.Access, out DataModelAccess access);
 						var key = recordBucket.GetString(Key.Key);
 
-						Infrastructure.Assert(key != null);
+						Infrastructure.NotNull(key);
 
 						_list.TryGet(key, caseInsensitive, out var baseEntry);
 
@@ -210,7 +210,7 @@ namespace Xtate.Persistence
 			_record = 0;
 
 			var metadata = _list.GetMetadata();
-			if (metadata != null)
+			if (metadata is { })
 			{
 				var recordBucket = _bucket.Nested(_record ++);
 				recordBucket.Add(Key.Operation, Key.SetMetadata);
@@ -371,7 +371,7 @@ namespace Xtate.Persistence
 				bucket.Add(Key.Access, entry.Access);
 			}
 
-			if (entry.Metadata != null)
+			if (entry.Metadata is { })
 			{
 				bucket.Nested(Key.Metadata).SetDataModelValue(_referenceTracker, entry.Metadata);
 			}

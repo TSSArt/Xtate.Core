@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -50,19 +50,19 @@ namespace Xtate
 
 			protected override void Visit(ref IAssign entity)
 			{
-				if (entity == null) throw new ArgumentNullException(nameof(entity));
+				if (entity is null) throw new ArgumentNullException(nameof(entity));
 
-				if (entity.Location == null)
+				if (entity.Location is null)
 				{
 					AddError(entity, Resources.ErrorMessage_AssignItemLocationMissed);
 				}
 
-				if (entity.Expression == null && entity.InlineContent == null)
+				if (entity.Expression is null && entity.InlineContent is null)
 				{
 					AddError(entity, Resources.ErrorMessage_AssignItemContentAndExpressionMissed);
 				}
 
-				if (entity.Expression != null && entity.InlineContent != null)
+				if (entity.Expression is { } && entity.InlineContent is { })
 				{
 					AddError(entity, Resources.ErrorMessage_AssignItemContentAndExpressionSpecified);
 				}
@@ -72,19 +72,19 @@ namespace Xtate
 
 			protected override void Visit(ref ICancel entity)
 			{
-				if (entity == null) throw new ArgumentNullException(nameof(entity));
+				if (entity is null) throw new ArgumentNullException(nameof(entity));
 
-				if (entity.SendId == null && entity.SendIdExpression == null)
+				if (entity.SendId is null && entity.SendIdExpression is null)
 				{
 					AddError(entity, Resources.ErrorMessage_CancelItemSendIdAndExpressionMissed);
 				}
 
-				if (entity.SendId != null && entity.SendIdExpression != null)
+				if (entity.SendId is { } && entity.SendIdExpression is { })
 				{
 					AddError(entity, Resources.ErrorMessage_CancelItemSendIdAndExpressionSpecified);
 				}
 
-				if (entity.SendId != null && entity.SendId.Length == 0)
+				if (entity.SendId is { Length: 0 })
 				{
 					AddError(entity, Resources.ErrorMessage_SendidAttributeCantBeEmptyInCancelElement);
 				}
@@ -94,9 +94,9 @@ namespace Xtate
 
 			protected override void Visit(ref IConditionExpression entity)
 			{
-				if (entity == null) throw new ArgumentNullException(nameof(entity));
+				if (entity is null) throw new ArgumentNullException(nameof(entity));
 
-				if (entity.Expression == null)
+				if (entity.Expression is null)
 				{
 					AddError(entity, Resources.ErrorMessage_ConditionExpressionCantBeNull);
 				}
@@ -106,9 +106,9 @@ namespace Xtate
 
 			protected override void Visit(ref ILocationExpression entity)
 			{
-				if (entity == null) throw new ArgumentNullException(nameof(entity));
+				if (entity is null) throw new ArgumentNullException(nameof(entity));
 
-				if (entity.Expression == null)
+				if (entity.Expression is null)
 				{
 					AddError(entity, Resources.ErrorMessage_Location_expression_can_t_be_null);
 				}
@@ -118,9 +118,9 @@ namespace Xtate
 
 			protected override void Visit(ref IScriptExpression entity)
 			{
-				if (entity == null) throw new ArgumentNullException(nameof(entity));
+				if (entity is null) throw new ArgumentNullException(nameof(entity));
 
-				if (entity.Expression == null)
+				if (entity.Expression is null)
 				{
 					AddError(entity, Resources.ErrorMessage_Script_expression_can_t_be_null);
 				}
@@ -130,9 +130,9 @@ namespace Xtate
 
 			protected override void Visit(ref IContentBody entity)
 			{
-				if (entity == null) throw new ArgumentNullException(nameof(entity));
+				if (entity is null) throw new ArgumentNullException(nameof(entity));
 
-				if (entity.Value == null)
+				if (entity.Value is null)
 				{
 					AddError(entity, Resources.ErrorMessage_ContentValueCantBeNull);
 				}
@@ -142,9 +142,9 @@ namespace Xtate
 
 			protected override void Visit(ref IInlineContent entity)
 			{
-				if (entity == null) throw new ArgumentNullException(nameof(entity));
+				if (entity is null) throw new ArgumentNullException(nameof(entity));
 
-				if (entity.Value == null)
+				if (entity.Value is null)
 				{
 					AddError(entity, Resources.ErrorMessage_ContentValueCantBeNull);
 				}
@@ -154,14 +154,14 @@ namespace Xtate
 
 			protected override void Visit(ref IContent entity)
 			{
-				if (entity == null) throw new ArgumentNullException(nameof(entity));
+				if (entity is null) throw new ArgumentNullException(nameof(entity));
 
-				if (entity.Expression == null && entity.Body == null)
+				if (entity.Expression is null && entity.Body is null)
 				{
 					AddError(entity, Resources.ErrorMessage_ExpressionAndBodyMissedInContent);
 				}
 
-				if (entity.Expression != null && entity.Body != null)
+				if (entity.Expression is { } && entity.Body is { })
 				{
 					AddError(entity, Resources.ErrorMessage_ExpressionAndBodySpecifiedInContent);
 				}
@@ -171,9 +171,9 @@ namespace Xtate
 
 			protected override void Visit(ref ICustomAction entity)
 			{
-				if (entity == null) throw new ArgumentNullException(nameof(entity));
+				if (entity is null) throw new ArgumentNullException(nameof(entity));
 
-				if (entity.Xml == null)
+				if (entity.Xml is null)
 				{
 					AddError(entity, Resources.ErrorMessage_XmlCannotBeNull);
 				}
@@ -183,14 +183,14 @@ namespace Xtate
 
 			protected override void Visit(ref IData entity)
 			{
-				if (entity == null) throw new ArgumentNullException(nameof(entity));
+				if (entity is null) throw new ArgumentNullException(nameof(entity));
 
 				if (string.IsNullOrEmpty(entity.Id))
 				{
 					AddError(entity, Resources.ErrorMessage_Id_property_required_in_Data_element);
 				}
 
-				if (entity.InlineContent != null && entity.Expression != null || entity.InlineContent != null && entity.Source != null || entity.Source != null && entity.Expression != null)
+				if (entity.InlineContent is { } && entity.Expression is { } || entity.InlineContent is { } && entity.Source is { } || entity.Source is { } && entity.Expression is { })
 				{
 					AddError(entity, Resources.ErrorMessage_ExpressionSourceInData);
 				}
@@ -200,9 +200,9 @@ namespace Xtate
 
 			protected override void Visit(ref IElseIf entity)
 			{
-				if (entity == null) throw new ArgumentNullException(nameof(entity));
+				if (entity is null) throw new ArgumentNullException(nameof(entity));
 
-				if (entity.Condition == null)
+				if (entity.Condition is null)
 				{
 					AddError(entity, Resources.ErrorMessage_ConditionRequiredForElseIf);
 				}
@@ -212,7 +212,7 @@ namespace Xtate
 
 			protected override void Visit(ref IFinalize entity)
 			{
-				if (entity == null) throw new ArgumentNullException(nameof(entity));
+				if (entity is null) throw new ArgumentNullException(nameof(entity));
 
 				foreach (var executableEntity in entity.Action)
 				{
@@ -232,14 +232,14 @@ namespace Xtate
 
 			protected override void Visit(ref IForEach entity)
 			{
-				if (entity == null) throw new ArgumentNullException(nameof(entity));
+				if (entity is null) throw new ArgumentNullException(nameof(entity));
 
-				if (entity.Array == null)
+				if (entity.Array is null)
 				{
 					AddError(entity, Resources.ErrorMessage_ArrayPropertyRequiredForForEach);
 				}
 
-				if (entity.Item == null)
+				if (entity.Item is null)
 				{
 					AddError(entity, Resources.ErrorMessage_ConditionRequiredForForEach);
 				}
@@ -249,9 +249,9 @@ namespace Xtate
 
 			protected override void Visit(ref IHistory entity)
 			{
-				if (entity == null) throw new ArgumentNullException(nameof(entity));
+				if (entity is null) throw new ArgumentNullException(nameof(entity));
 
-				if (entity.Transition == null)
+				if (entity.Transition is null)
 				{
 					AddError(entity, Resources.ErrorMessage_Transition_must_be_present_in_History_element);
 				}
@@ -266,9 +266,9 @@ namespace Xtate
 
 			protected override void Visit(ref IIf entity)
 			{
-				if (entity == null) throw new ArgumentNullException(nameof(entity));
+				if (entity is null) throw new ArgumentNullException(nameof(entity));
 
-				if (entity.Condition == null)
+				if (entity.Condition is null)
 				{
 					AddError(entity, Resources.ErrorMessage_onditionRequiredForIf);
 				}
@@ -304,9 +304,9 @@ namespace Xtate
 
 			protected override void Visit(ref IInitial entity)
 			{
-				if (entity == null) throw new ArgumentNullException(nameof(entity));
+				if (entity is null) throw new ArgumentNullException(nameof(entity));
 
-				if (entity.Transition == null)
+				if (entity.Transition is null)
 				{
 					AddError(entity, Resources.ErrorMessage_Transition_must_be_present_in_Initial_element);
 				}
@@ -316,24 +316,24 @@ namespace Xtate
 
 			protected override void Visit(ref IInvoke entity)
 			{
-				if (entity == null) throw new ArgumentNullException(nameof(entity));
+				if (entity is null) throw new ArgumentNullException(nameof(entity));
 
-				if (entity.Type == null && entity.TypeExpression == null)
+				if (entity.Type is null && entity.TypeExpression is null)
 				{
 					AddError(entity, Resources.ErrorMessage_Type_or_TypeExpression_must_be_specified_in_Invoke_element);
 				}
 
-				if (entity.Type != null && entity.TypeExpression != null)
+				if (entity.Type is { } && entity.TypeExpression is { })
 				{
 					AddError(entity, Resources.ErrorMessage_Type_and_TypeExpression_can_t_be_used_at_the_same_time_in_Invoke_element);
 				}
 
-				if (entity.Id != null && entity.IdLocation != null)
+				if (entity.Id is { } && entity.IdLocation is { })
 				{
 					AddError(entity, Resources.ErrorMessage_Id_and_IdLocation_can_t_be_used_at_the_same_time_in_Invoke_element);
 				}
 
-				if (entity.Source != null && entity.SourceExpression != null)
+				if (entity.Source is { } && entity.SourceExpression is { })
 				{
 					AddError(entity, Resources.ErrorMessage_Source_and_SourceExpression_can_t_be_used_at_the_same_time_in_Invoke_element);
 				}
@@ -348,14 +348,14 @@ namespace Xtate
 
 			protected override void Visit(ref IParam entity)
 			{
-				if (entity == null) throw new ArgumentNullException(nameof(entity));
+				if (entity is null) throw new ArgumentNullException(nameof(entity));
 
-				if (entity.Name == null)
+				if (entity.Name is null)
 				{
 					AddError(entity, Resources.ErrorMessage_Name_attributes_required_in_Param_element);
 				}
 
-				if (entity.Expression != null && entity.Location != null)
+				if (entity.Expression is { } && entity.Location is { })
 				{
 					AddError(entity, Resources.ErrorMessage_ExpressionLocationInParam);
 				}
@@ -365,9 +365,9 @@ namespace Xtate
 
 			protected override void Visit(ref IRaise entity)
 			{
-				if (entity == null) throw new ArgumentNullException(nameof(entity));
+				if (entity is null) throw new ArgumentNullException(nameof(entity));
 
-				if (entity.OutgoingEvent == null)
+				if (entity.OutgoingEvent is null)
 				{
 					AddError(entity, Resources.ErrorMessage_EventRequiredForRaise);
 				}
@@ -377,9 +377,9 @@ namespace Xtate
 
 			protected override void Visit(ref IScript entity)
 			{
-				if (entity == null) throw new ArgumentNullException(nameof(entity));
+				if (entity is null) throw new ArgumentNullException(nameof(entity));
 
-				if (entity.Source != null && entity.Content != null)
+				if (entity.Source is { } && entity.Content is { })
 				{
 					AddError(entity, Resources.ErrorMessage_Source_and_Body_can_t_be_used_at_the_same_time_in_Assign_element);
 				}
@@ -390,44 +390,44 @@ namespace Xtate
 			[SuppressMessage(category: "ReSharper", checkId: "CyclomaticComplexity", Justification = "OK")]
 			protected override void Visit(ref ISend entity)
 			{
-				if (entity == null) throw new ArgumentNullException(nameof(entity));
+				if (entity is null) throw new ArgumentNullException(nameof(entity));
 
-				if (entity.EventName != null && entity.EventExpression != null || entity.EventName != null && entity.Content != null || entity.EventExpression != null && entity.Content != null)
+				if (entity.EventName is { } && entity.EventExpression is { } || entity.EventName is { } && entity.Content is { } || entity.EventExpression is { } && entity.Content is { })
 				{
 					AddError(entity, Resources.ErrorMessage_EvenExpressionContentInSend);
 				}
 
-				if (entity.Target != null && entity.TargetExpression != null)
+				if (entity.Target is { } && entity.TargetExpression is { })
 				{
 					AddError(entity, Resources.ErrorMessage_Target_and_TargetExpression_can_t_be_used_at_the_same_time_in_Send_element);
 				}
 
-				if (entity.Type != null && entity.TypeExpression != null)
+				if (entity.Type is { } && entity.TypeExpression is { })
 				{
 					AddError(entity, Resources.ErrorMessage_Type_and_TypeExpression_can_t_be_used_at_the_same_time_in_Send_element);
 				}
 
-				if (entity.Id != null && entity.IdLocation != null)
+				if (entity.Id is { } && entity.IdLocation is { })
 				{
 					AddError(entity, Resources.ErrorMessage_Id_and_IdLocation_can_t_be_used_at_the_same_time_in_Send_element);
 				}
 
-				if (entity.DelayMs != null && entity.DelayExpression != null)
+				if (entity.DelayMs is { } && entity.DelayExpression is { })
 				{
 					AddError(entity, Resources.ErrorMessage_EventExpressionInSend);
 				}
 
-				if (!entity.NameList.IsDefaultOrEmpty && entity.Content != null)
+				if (!entity.NameList.IsDefaultOrEmpty && entity.Content is { })
 				{
 					AddError(entity, Resources.ErrorMessage_NameList_and_Content_can_t_be_used_at_the_same_time_in_Send_element);
 				}
 
-				if (!entity.Parameters.IsDefaultOrEmpty && entity.Content != null)
+				if (!entity.Parameters.IsDefaultOrEmpty && entity.Content is { })
 				{
 					AddError(entity, Resources.ErrorMessage_Parameters_and_Content_can_t_be_used_at_the_same_time_in_Send_element);
 				}
 
-				if (entity.EventName == null && entity.EventExpression == null && entity.Content == null)
+				if (entity.EventName is null && entity.EventExpression is null && entity.Content is null)
 				{
 					AddError(entity, Resources.ErrorMessage_Must_be_present_Event_or_EventExpression_or_Content_in_Send_element);
 				}
@@ -437,9 +437,9 @@ namespace Xtate
 
 			protected override void Visit(ref IStateMachine entity)
 			{
-				if (entity == null) throw new ArgumentNullException(nameof(entity));
+				if (entity is null) throw new ArgumentNullException(nameof(entity));
 
-				if (entity.Initial != null && entity.States.IsDefaultOrEmpty)
+				if (entity.Initial is { } && entity.States.IsDefaultOrEmpty)
 				{
 					AddError(entity, Resources.ErrorMessage_Initial_state_property_cannot_be_used_without_any_states);
 				}
@@ -454,9 +454,9 @@ namespace Xtate
 
 			protected override void Visit(ref IState entity)
 			{
-				if (entity == null) throw new ArgumentNullException(nameof(entity));
+				if (entity is null) throw new ArgumentNullException(nameof(entity));
 
-				if (entity.Initial != null && entity.States.IsDefaultOrEmpty)
+				if (entity.Initial is { } && entity.States.IsDefaultOrEmpty)
 				{
 					AddError(entity, Resources.ErrorMessage_Initial_state_property_can_be_used_only_in_complex_states);
 				}
@@ -466,9 +466,9 @@ namespace Xtate
 
 			protected override void Visit(ref ITransition entity)
 			{
-				if (entity == null) throw new ArgumentNullException(nameof(entity));
+				if (entity is null) throw new ArgumentNullException(nameof(entity));
 
-				if (entity.EventDescriptors.IsDefaultOrEmpty && entity.Condition == null && entity.Target.IsDefaultOrEmpty)
+				if (entity.EventDescriptors.IsDefaultOrEmpty && entity.Condition is null && entity.Target.IsDefaultOrEmpty)
 				{
 					AddError(entity, Resources.ErrorMessage_Must_be_present_at_least_Event_or_Condition_or_Target_in_Transition_element);
 				}

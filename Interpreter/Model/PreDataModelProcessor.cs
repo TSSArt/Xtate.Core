@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,38 +14,71 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
+using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtate.CustomAction;
 
 namespace Xtate
 {
 	internal sealed class PreDataModelProcessor : StateMachineVisitor
 	{
-		private readonly ImmutableArray<ICustomActionFactory> _customActionProviders;
-		private readonly IErrorProcessor                      _errorProcessor;
+		private readonly IErrorProcessor _errorProcessor;
+		private readonly IFactoryContext _factoryContext;
 
-		public PreDataModelProcessor(IErrorProcessor errorProcessor, ImmutableArray<ICustomActionFactory> customActionProviders)
+		private Dictionary<ICustomAction, CustomActionDispatcher>? _customActionDispatchers;
+
+		private bool _postProcess;
+
+		public PreDataModelProcessor(IErrorProcessor errorProcessor, IFactoryContext factoryContext)
 		{
 			_errorProcessor = errorProcessor;
-			_customActionProviders = customActionProviders;
+			_factoryContext = factoryContext;
 		}
 
-		public void Process(ref IExecutableEntity executableEntity)
+		public async ValueTask PreProcessStateMachine(IStateMachine stateMachine, ImmutableArray<ICustomActionFactory> customActionProviders, CancellationToken token)
+		{
+			Visit(ref stateMachine);
+
+			if (_customActionDispatchers is { })
+			{
+				foreach (var pair in _customActionDispatchers)
+				{
+					await pair.Value.SetupExecutor(customActionProviders, token).ConfigureAwait(false);
+				}
+			}
+
+			_postProcess = true;
+		}
+
+		public void PostProcess(ref IExecutableEntity executableEntity)
 		{
 			Visit(ref executableEntity);
 		}
 
-		protected override void Build(ref ICustomAction customAction, ref CustomActionEntity customActionProperties)
+		protected override void Visit(ref ICustomAction entity)
 		{
-			base.Build(ref customAction, ref customActionProperties);
+			base.Visit(ref entity);
 
-			var customActionDispatcher = new CustomActionDispatcher(_customActionProviders, _errorProcessor, customActionProperties);
-			customActionDispatcher.SetupExecutor();
+			if (!_postProcess)
+			{
+				_customActionDispatchers ??= new Dictionary<ICustomAction, CustomActionDispatcher>();
 
-			customAction = customActionDispatcher;
+				if (!_customActionDispatchers.ContainsKey(entity))
+				{
+					_customActionDispatchers.Add(entity, new CustomActionDispatcher(_errorProcessor, entity, _factoryContext));
+				}
+			}
+			else
+			{
+				Infrastructure.NotNull(_customActionDispatchers);
+
+				entity = _customActionDispatchers[entity];
+			}
 		}
 	}
 }

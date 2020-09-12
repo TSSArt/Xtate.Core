@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System.Collections;
@@ -338,7 +338,7 @@ namespace Xtate
 				{
 					++ _args.Index;
 
-					if (_args.Key != null)
+					if (_args.Key is { })
 					{
 						var result = _list.MoveNextKey(ref _args, _caseInsensitive, _hash);
 						Current = result ? _args.Value : default;
@@ -437,7 +437,7 @@ namespace Xtate
 				{
 					++ _args.Index;
 
-					if (_args.Key != null)
+					if (_args.Key is { })
 					{
 						var result = _list.MoveNextKey(ref _args, _caseInsensitive, _hash);
 						Current = result ? new KeyValue(_args.HashKey.Key, _args.Value) : default;
@@ -545,7 +545,7 @@ namespace Xtate
 				{
 					++ _args.Index;
 
-					if (_args.Key != null)
+					if (_args.Key is { })
 					{
 						var result = _list.MoveNextKey(ref _args, _caseInsensitive, _hash);
 						_current = result ? new Entry(_args.Index, _args.Key, _args.Value, _args.Meta.Access, _args.Meta.Metadata) : default;

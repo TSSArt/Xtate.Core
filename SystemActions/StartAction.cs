@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -26,9 +26,10 @@ namespace Xtate.CustomAction
 {
 	public class StartAction : ICustomActionExecutor
 	{
-		private const    string             Source     = "src";
-		private const    string             SourceExpr = "srcexpr";
-		private const    string             IdLocation = "idlocation";
+		private const string Source     = "src";
+		private const string SourceExpr = "srcexpr";
+		private const string IdLocation = "idlocation";
+
 		private readonly ILocationAssigner? _idLocation;
 		private readonly Uri?               _source;
 
@@ -36,34 +37,34 @@ namespace Xtate.CustomAction
 
 		public StartAction(XmlReader xmlReader, ICustomActionContext access)
 		{
-			if (xmlReader == null) throw new ArgumentNullException(nameof(xmlReader));
-			if (access == null) throw new ArgumentNullException(nameof(access));
+			if (xmlReader is null) throw new ArgumentNullException(nameof(xmlReader));
+			if (access is null) throw new ArgumentNullException(nameof(access));
 
 			var source = xmlReader.GetAttribute(Source);
 			var sourceExpression = xmlReader.GetAttribute(SourceExpr);
 			var idLocation = xmlReader.GetAttribute(IdLocation);
 
-			if (source == null && sourceExpression == null)
+			if (source is null && sourceExpression is null)
 			{
 				access.AddValidationError<StartAction>(Resources.ErrorMessage_At_least_one_source_must_be_specified);
 			}
 
-			if (source != null && sourceExpression != null)
+			if (source is { } && sourceExpression is { })
 			{
 				access.AddValidationError<StartAction>(Resources.ErrorMessage_src_and_srcexpr_attributes_should_not_be_assigned_in_Start_element);
 			}
 
-			if (source != null && !Uri.TryCreate(source, UriKind.RelativeOrAbsolute, out _source))
+			if (source is { } && !Uri.TryCreate(source, UriKind.RelativeOrAbsolute, out _source))
 			{
 				access.AddValidationError<StartAction>(Resources.ErrorMessage_source__has_invalid_URI_format);
 			}
 
-			if (sourceExpression != null)
+			if (sourceExpression is { })
 			{
 				_sourceExpression = access.RegisterValueExpression(sourceExpression);
 			}
 
-			if (idLocation != null)
+			if (idLocation is { })
 			{
 				_idLocation = access.RegisterLocationExpression(idLocation);
 			}
@@ -73,13 +74,13 @@ namespace Xtate.CustomAction
 
 		public async ValueTask Execute(IExecutionContext executionContext, CancellationToken token)
 		{
-			if (executionContext == null) throw new ArgumentNullException(nameof(executionContext));
+			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
 			var host = GetHost(executionContext);
 			var baseUri = GetBaseUri(executionContext);
 			var source = await GetSource(executionContext, token).ConfigureAwait(false);
 
-			if (source == null)
+			if (source is null)
 			{
 				throw new ProcessorException(Resources.StartAction_Execute_Source_not_specified);
 			}
@@ -87,7 +88,7 @@ namespace Xtate.CustomAction
 			var sessionId = SessionId.New();
 			await host.StartStateMachineAsync(sessionId, new StateMachineOrigin(source, baseUri), parameters: default, token).ConfigureAwait(false);
 
-			if (_idLocation != null)
+			if (_idLocation is { })
 			{
 				await _idLocation.Assign(executionContext, sessionId, token).ConfigureAwait(false);
 			}
@@ -102,7 +103,7 @@ namespace Xtate.CustomAction
 									  .AsObjectOrEmpty()[key: "location", caseInsensitive: false]
 									  .AsStringOrDefault();
 
-			return val != null ? new Uri(val) : null;
+			return val is { } ? new Uri(val) : null;
 		}
 
 		private static IHost GetHost(IExecutionContext executionContext)
@@ -117,12 +118,12 @@ namespace Xtate.CustomAction
 
 		private async ValueTask<Uri?> GetSource(IExecutionContext executionContext, CancellationToken token)
 		{
-			if (_source != null)
+			if (_source is { })
 			{
 				return _source;
 			}
 
-			if (_sourceExpression != null)
+			if (_sourceExpression is { })
 			{
 				var val = await _sourceExpression.Evaluate(executionContext, token).ConfigureAwait(false);
 

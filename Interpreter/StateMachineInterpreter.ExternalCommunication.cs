@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -35,7 +35,7 @@ namespace Xtate
 		{
 			try
 			{
-				if (_externalCommunication == null)
+				if (_externalCommunication is null)
 				{
 					throw NoExternalCommunication();
 				}
@@ -52,7 +52,7 @@ namespace Xtate
 		{
 			try
 			{
-				if (_externalCommunication == null)
+				if (_externalCommunication is null)
 				{
 					throw NoExternalCommunication();
 				}
@@ -69,11 +69,11 @@ namespace Xtate
 
 		async ValueTask<SendStatus> IExternalCommunication.TrySendEvent(IOutgoingEvent evt, CancellationToken token)
 		{
-			if (evt == null) throw new ArgumentNullException(nameof(evt));
+			if (evt is null) throw new ArgumentNullException(nameof(evt));
 
 			try
 			{
-				if (_externalCommunication == null)
+				if (_externalCommunication is null)
 				{
 					throw NoExternalCommunication();
 				}
@@ -92,7 +92,7 @@ namespace Xtate
 		{
 			try
 			{
-				if (_externalCommunication == null)
+				if (_externalCommunication is null)
 				{
 					throw NoExternalCommunication();
 				}
@@ -111,7 +111,7 @@ namespace Xtate
 
 		private bool IsCommunicationError(Exception exception, out SendId? sendId)
 		{
-			for (; exception != null; exception = exception.InnerException)
+			for (; exception is { }; exception = exception.InnerException)
 			{
 				if (exception is CommunicationException ex && ex.SessionId == _sessionId)
 				{
@@ -130,7 +130,7 @@ namespace Xtate
 		{
 			try
 			{
-				if (_externalCommunication == null)
+				if (_externalCommunication is null)
 				{
 					throw NoExternalCommunication();
 				}

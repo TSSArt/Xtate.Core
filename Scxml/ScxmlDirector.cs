@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -120,14 +120,14 @@ namespace Xtate.Scxml
 
 		private static IIdentifier AsIdentifier(string val)
 		{
-			if (val == null) throw new ArgumentNullException(nameof(val));
+			if (val is null) throw new ArgumentNullException(nameof(val));
 
 			return (Identifier) val;
 		}
 
 		private static IOutgoingEvent AsEvent(string val)
 		{
-			if (val == null) throw new ArgumentNullException(nameof(val));
+			if (val is null) throw new ArgumentNullException(nameof(val));
 
 			return new EventEntity(val) { Target = EventEntity.InternalTarget };
 		}
@@ -241,56 +241,56 @@ namespace Xtate.Scxml
 
 		private IValueExpression AsValueExpression(string expression)
 		{
-			if (expression == null) throw new ArgumentNullException(nameof(expression));
+			if (expression is null) throw new ArgumentNullException(nameof(expression));
 
 			return new ValueExpression { Expression = expression, Ancestor = CreateAncestor(namespaces: true, nameTable: true) };
 		}
 
 		private IScriptExpression AsScriptExpression(string expression)
 		{
-			if (expression == null) throw new ArgumentNullException(nameof(expression));
+			if (expression is null) throw new ArgumentNullException(nameof(expression));
 
 			return new ScriptExpression { Expression = expression, Ancestor = CreateAncestor(namespaces: true, nameTable: true) };
 		}
 
 		private IInlineContent AsInlineContent(string inlineContent)
 		{
-			if (inlineContent == null) throw new ArgumentNullException(nameof(inlineContent));
+			if (inlineContent is null) throw new ArgumentNullException(nameof(inlineContent));
 
 			return new InlineContent { Value = inlineContent, Ancestor = CreateAncestor(namespaces: true, nameTable: true) };
 		}
 
 		private IContentBody AsContentBody(string contentBody)
 		{
-			if (contentBody == null) throw new ArgumentNullException(nameof(contentBody));
+			if (contentBody is null) throw new ArgumentNullException(nameof(contentBody));
 
 			return new ContentBody { Value = contentBody, Ancestor = CreateAncestor(namespaces: true, nameTable: true) };
 		}
 
 		private static IExternalScriptExpression AsExternalScriptExpression(string uri)
 		{
-			if (uri == null) throw new ArgumentNullException(nameof(uri));
+			if (uri is null) throw new ArgumentNullException(nameof(uri));
 
 			return new ExternalScriptExpression { Uri = new Uri(uri, UriKind.RelativeOrAbsolute) };
 		}
 
 		private static IExternalDataExpression AsExternalDataExpression(string uri)
 		{
-			if (uri == null) throw new ArgumentNullException(nameof(uri));
+			if (uri is null) throw new ArgumentNullException(nameof(uri));
 
 			return new ExternalDataExpression { Uri = new Uri(uri, UriKind.RelativeOrAbsolute) };
 		}
 
 		private static Uri AsUri(string uri)
 		{
-			if (uri == null) throw new ArgumentNullException(nameof(uri));
+			if (uri is null) throw new ArgumentNullException(nameof(uri));
 
 			return new Uri(uri, UriKind.RelativeOrAbsolute);
 		}
 
 		private static T AsEnum<T>(string val) where T : struct
 		{
-			if (val == null) throw new ArgumentNullException(nameof(val));
+			if (val is null) throw new ArgumentNullException(nameof(val));
 
 			if (!Enum.TryParse(val, ignoreCase: true, out T result) || val.ToLowerInvariant() != val)
 			{
@@ -362,7 +362,7 @@ namespace Xtate.Scxml
 		{
 			var namespaces = _namespaceResolver?.GetNamespacesInScope(XmlNamespaceScope.ExcludeXml);
 
-			if (namespaces == null || namespaces.Count == 0 || namespaces.Count == 1 && namespaces.ContainsKey(string.Empty))
+			if (namespaces is null || namespaces.Count == 0 || namespaces.Count == 1 && namespaces.ContainsKey(string.Empty))
 			{
 				return ancestor;
 			}
@@ -685,7 +685,7 @@ namespace Xtate.Scxml
 		private ICustomAction ReadCustomAction()
 		{
 			var builder = _factory.CreateCustomActionBuilder(CreateAncestor(namespaces: true, nameTable: true));
-			builder.SetXml(ReadOuterXml());
+			builder.SetXml(CurrentNamespace, CurrentName, ReadOuterXml());
 			return builder.Build();
 		}
 

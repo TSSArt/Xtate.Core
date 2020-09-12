@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -49,49 +49,49 @@ namespace Xtate.Builder
 
 		public void AddState(IState state)
 		{
-			if (state == null) throw new ArgumentNullException(nameof(state));
+			if (state is null) throw new ArgumentNullException(nameof(state));
 
 			(_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(state);
 		}
 
 		public void AddParallel(IParallel parallel)
 		{
-			if (parallel == null) throw new ArgumentNullException(nameof(parallel));
+			if (parallel is null) throw new ArgumentNullException(nameof(parallel));
 
 			(_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(parallel);
 		}
 
 		public void AddHistory(IHistory history)
 		{
-			if (history == null) throw new ArgumentNullException(nameof(history));
+			if (history is null) throw new ArgumentNullException(nameof(history));
 
 			(_historyStates ??= ImmutableArray.CreateBuilder<IHistory>()).Add(history);
 		}
 
 		public void AddTransition(ITransition transition)
 		{
-			if (transition == null) throw new ArgumentNullException(nameof(transition));
+			if (transition is null) throw new ArgumentNullException(nameof(transition));
 
 			(_transitions ??= ImmutableArray.CreateBuilder<ITransition>()).Add(transition);
 		}
 
 		public void AddOnEntry(IOnEntry onEntry)
 		{
-			if (onEntry == null) throw new ArgumentNullException(nameof(onEntry));
+			if (onEntry is null) throw new ArgumentNullException(nameof(onEntry));
 
 			(_onEntryList ??= ImmutableArray.CreateBuilder<IOnEntry>()).Add(onEntry);
 		}
 
 		public void AddOnExit(IOnExit onExit)
 		{
-			if (onExit == null) throw new ArgumentNullException(nameof(onExit));
+			if (onExit is null) throw new ArgumentNullException(nameof(onExit));
 
 			(_onExitList ??= ImmutableArray.CreateBuilder<IOnExit>()).Add(onExit);
 		}
 
 		public void AddInvoke(IInvoke invoke)
 		{
-			if (invoke == null) throw new ArgumentNullException(nameof(invoke));
+			if (invoke is null) throw new ArgumentNullException(nameof(invoke));
 
 			(_invokeList ??= ImmutableArray.CreateBuilder<IInvoke>()).Add(invoke);
 		}

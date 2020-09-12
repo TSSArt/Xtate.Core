@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -49,11 +49,9 @@ namespace Xtate
 				_disposed = true;
 			}
 
-			var context = _context;
-			_context = null;
-
-			if (context != null)
+			if (_context is { } context)
 			{
+				_context = null;
 				await context.DisposeAsync().ConfigureAwait(false);
 			}
 
@@ -77,12 +75,12 @@ namespace Xtate
 				throw new InvalidOperationException(Resources.Exception_Another_asynchronous_operation_in_progress);
 			}
 
-			if (_context != null)
+			if (_context is { })
 			{
 				return;
 			}
 
-			var context = _options.StorageProvider != null
+			var context = _options.StorageProvider is { }
 					? new StateMachineHostPersistedContext(this, _options)
 					: new StateMachineHostContext(this, _options);
 
@@ -114,7 +112,7 @@ namespace Xtate
 			}
 
 			var context = _context;
-			if (context == null)
+			if (context is null)
 			{
 				return;
 			}
@@ -145,7 +143,7 @@ namespace Xtate
 		{
 			var context = _context;
 
-			if (context != null)
+			if (context is { })
 			{
 				await context.WaitAllAsync(token).ConfigureAwait(false);
 			}

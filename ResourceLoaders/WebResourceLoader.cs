@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,10 +14,12 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
+using System.Collections.Immutable;
+using System.Net;
 using System.Net.Http;
 using System.Net.Mime;
 using System.Threading;
@@ -30,35 +32,65 @@ namespace Xtate
 	[PublicAPI]
 	public sealed class WebResourceLoader : IResourceLoader
 	{
-		public static readonly IResourceLoader Instance = new WebResourceLoader();
+		public static readonly WebResourceLoader Instance = new WebResourceLoader();
+
+		private ImmutableDictionary<Uri, WeakReference<Resource>> _cachedWebResources = ImmutableDictionary<Uri, WeakReference<Resource>>.Empty;
 
 	#region Interface IResourceLoader
 
 		public bool CanHandle(Uri uri)
 		{
-			if (uri == null) throw new ArgumentNullException(nameof(uri));
+			if (uri is null) throw new ArgumentNullException(nameof(uri));
 
-			return uri.Scheme == "http" || uri.Scheme == "https";
+			return uri.IsAbsoluteUri && (uri.Scheme == "http" || uri.Scheme == "https");
 		}
 
 		public async ValueTask<Resource> Request(Uri uri, CancellationToken token)
 		{
-			if (uri == null) throw new ArgumentNullException(nameof(uri));
+			if (uri is null) throw new ArgumentNullException(nameof(uri));
 
 			using var client = new HttpClient();
-			using var responseMessage = await client.GetAsync(uri, token).ConfigureAwait(false);
+			HttpResponseMessage responseMessage;
+
+			var cachedWebResources = _cachedWebResources;
+			if (cachedWebResources.TryGetValue(uri, out var weakReference) && weakReference.TryGetTarget(out var resource))
+			{
+				client.DefaultRequestHeaders.IfModifiedSince = resource.ModifiedDate;
+				responseMessage = await client.GetAsync(uri, token).ConfigureAwait(false);
+				if (responseMessage.StatusCode == HttpStatusCode.NotModified)
+				{
+					return resource;
+				}
+			}
+			else
+			{
+				responseMessage = await client.GetAsync(uri, token).ConfigureAwait(false);
+			}
 
 			responseMessage.EnsureSuccessStatusCode();
 
 			var contentType = new ContentType(responseMessage.Content.Headers.ContentType.ToString());
-			var content = await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false); //TODO: ReadAsStringAsync replace to support CancellationToken
+			var lastModified = responseMessage.Content.Headers.LastModified;
+			var bytes = await responseMessage.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+			resource = new Resource(uri, contentType, lastModified, bytes: bytes);
 
-			return new Resource(uri, contentType, content);
+			if (weakReference is null)
+			{
+				weakReference = new WeakReference<Resource>(resource);
+			}
+			else
+			{
+				weakReference.SetTarget(resource);
+			}
+
+			_cachedWebResources = cachedWebResources.SetItem(uri, weakReference);
+
+			return resource;
 		}
 
 		public ValueTask<XmlReader> RequestXmlReader(Uri uri, XmlReaderSettings? readerSettings = default, XmlParserContext? parserContext = default, CancellationToken token = default)
 		{
-			if (uri == null) throw new ArgumentNullException(nameof(uri));
+			if (uri is null) throw new ArgumentNullException(nameof(uri));
 
 			try
 			{

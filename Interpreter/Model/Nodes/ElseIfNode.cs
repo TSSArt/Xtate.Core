@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -29,7 +29,7 @@ namespace Xtate
 
 		public ElseIfNode(in DocumentIdRecord documentIdNode, in ElseIfEntity entity)
 		{
-			Infrastructure.Assert(entity.Condition != null);
+			Infrastructure.NotNull(entity.Condition);
 
 			_documentIdNode = documentIdNode;
 			_entity = entity;

@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -35,7 +35,7 @@ namespace Xtate
 		{
 			_documentIdNode = documentIdNode;
 
-			if (children != null)
+			if (children is { })
 			{
 				foreach (var stateEntity in children)
 				{
@@ -72,12 +72,12 @@ namespace Xtate
 
 		protected static IEnumerable<StateEntityNode> GetChildNodes(IInitial? initial, ImmutableArray<IStateEntity> states, ImmutableArray<IHistory> historyStates = default)
 		{
-			if (initial != null)
+			if (initial is { })
 			{
 				yield return initial.As<InitialNode>();
 			}
 
-			if (states != null)
+			if (!states.IsDefaultOrEmpty)
 			{
 				foreach (var node in states)
 				{
@@ -85,7 +85,7 @@ namespace Xtate
 				}
 			}
 
-			if (historyStates != null)
+			if (!historyStates.IsDefaultOrEmpty)
 			{
 				foreach (var node in historyStates)
 				{
@@ -111,8 +111,8 @@ namespace Xtate
 			private static int InternalCompare(StateEntityNode? x, StateEntityNode? y)
 			{
 				if (x == y) return 0;
-				if (y == null) return 1;
-				if (x == null) return -1;
+				if (y is null) return 1;
+				if (x is null) return -1;
 
 				return x.DocumentId.CompareTo(y.DocumentId);
 			}

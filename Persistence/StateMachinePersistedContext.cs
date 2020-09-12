@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System.Collections.Immutable;
@@ -37,9 +37,9 @@ namespace Xtate.Persistence
 		private bool _disposed;
 
 		public StateMachinePersistedContext(string? stateMachineName, SessionId sessionId, IDataModelValueProvider dataModelValueProvider, ITransactionalStorage storage,
-											ImmutableDictionary<int, IEntity> entityMap, ILogger logger, IExternalCommunication externalCommunication,
+											ImmutableDictionary<int, IEntity> entityMap, ILogger logger, ILoggerContext loggerContext, IExternalCommunication externalCommunication,
 											ImmutableDictionary<object, object> contextRuntimeItems)
-				: base(stateMachineName, sessionId, dataModelValueProvider, logger, externalCommunication, contextRuntimeItems)
+				: base(stateMachineName, sessionId, dataModelValueProvider, logger, loggerContext, externalCommunication, contextRuntimeItems)
 		{
 			_storage = storage;
 			var bucket = new Bucket(storage);

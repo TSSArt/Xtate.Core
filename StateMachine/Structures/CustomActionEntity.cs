@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System.Collections.Immutable;
@@ -33,6 +33,10 @@ namespace Xtate
 
 	#region Interface ICustomAction
 
+		public string? XmlNamespace { get; set; }
+
+		public string? XmlName { get; set; }
+
 		public string? Xml { get; set; }
 
 		public ImmutableArray<ILocationExpression> Locations { get; set; }
@@ -46,12 +50,16 @@ namespace Xtate
 		void IVisitorEntity<CustomActionEntity, ICustomAction>.Init(ICustomAction source)
 		{
 			Ancestor = source;
+			XmlNamespace = source.XmlNamespace;
+			XmlName = source.XmlName;
 			Xml = source.Xml;
 			Locations = source.Locations;
 			Values = source.Values;
 		}
 
 		bool IVisitorEntity<CustomActionEntity, ICustomAction>.RefEquals(ref CustomActionEntity other) =>
+				ReferenceEquals(XmlNamespace, other.XmlNamespace) &&
+				ReferenceEquals(XmlName, other.XmlName) &&
 				ReferenceEquals(Xml, other.Xml) &&
 				Locations == other.Locations &&
 				Values == other.Values;

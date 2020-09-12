@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -34,9 +34,7 @@ namespace Xtate
 
 		public async ValueTask<bool> Dispatch(SessionId sessionId, IEvent evt, CancellationToken token = default)
 		{
-			var controller = GetCurrentContext().FindStateMachineController(sessionId);
-
-			if (controller != null)
+			if (GetCurrentContext().FindStateMachineController(sessionId) is { } controller)
 			{
 				await controller.Send(evt, token).ConfigureAwait(false);
 
@@ -54,7 +52,7 @@ namespace Xtate
 
 		ValueTask IIoProcessor.Dispatch(SessionId sessionId, IOutgoingEvent evt, CancellationToken token)
 		{
-			if (evt.Target == null)
+			if (evt.Target is null)
 			{
 				throw new ProcessorException(Resources.Exception_Event_Target_did_not_specified);
 			}
@@ -72,11 +70,11 @@ namespace Xtate
 
 	#endregion
 
-		private static bool CanHandleType(Uri? type) => type == null || FullUriComparer.Instance.Equals(type, IoProcessorId) || FullUriComparer.Instance.Equals(type, IoProcessorAliasId);
+		private static bool CanHandleType(Uri? type) => type is null || FullUriComparer.Instance.Equals(type, IoProcessorId) || FullUriComparer.Instance.Equals(type, IoProcessorAliasId);
 
 		private static bool CanHandleTarget(Uri? target)
 		{
-			if (target == null)
+			if (target is null)
 			{
 				return true;
 			}

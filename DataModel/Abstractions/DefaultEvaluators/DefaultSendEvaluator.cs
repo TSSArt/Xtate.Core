@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -71,20 +71,20 @@ namespace Xtate.DataModel
 
 		public virtual async ValueTask Execute(IExecutionContext executionContext, CancellationToken token)
 		{
-			if (executionContext == null) throw new ArgumentNullException(nameof(executionContext));
+			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
-			var sendId = _send.Id != null ? SendId.FromString(_send.Id) : SendId.New();
+			var sendId = _send.Id is { } ? SendId.FromString(_send.Id) : SendId.New();
 
-			if (IdLocationEvaluator != null)
+			if (IdLocationEvaluator is { })
 			{
 				await IdLocationEvaluator.SetValue(sendId, executionContext, token).ConfigureAwait(false);
 			}
 
-			var name = EventExpressionEvaluator != null ? await EventExpressionEvaluator.EvaluateString(executionContext, token).ConfigureAwait(false) : _send.EventName;
+			var name = EventExpressionEvaluator is { } ? await EventExpressionEvaluator.EvaluateString(executionContext, token).ConfigureAwait(false) : _send.EventName;
 			var data = await DataConverter.GetData(ContentBodyEvaluator, ContentExpressionEvaluator, NameEvaluatorList, ParameterList, executionContext, token).ConfigureAwait(false);
-			var type = TypeExpressionEvaluator != null ? ToUri(await TypeExpressionEvaluator.EvaluateString(executionContext, token).ConfigureAwait(false)) : _send.Type;
-			var target = TargetExpressionEvaluator != null ? ToUri(await TargetExpressionEvaluator.EvaluateString(executionContext, token).ConfigureAwait(false)) : _send.Target;
-			var delayMs = DelayExpressionEvaluator != null ? await DelayExpressionEvaluator.EvaluateInteger(executionContext, token).ConfigureAwait(false) : _send.DelayMs ?? 0;
+			var type = TypeExpressionEvaluator is { } ? ToUri(await TypeExpressionEvaluator.EvaluateString(executionContext, token).ConfigureAwait(false)) : _send.Type;
+			var target = TargetExpressionEvaluator is { } ? ToUri(await TargetExpressionEvaluator.EvaluateString(executionContext, token).ConfigureAwait(false)) : _send.Target;
+			var delayMs = DelayExpressionEvaluator is { } ? await DelayExpressionEvaluator.EvaluateInteger(executionContext, token).ConfigureAwait(false) : _send.DelayMs ?? 0;
 
 			var eventObject = new EventEntity(name)
 							  {

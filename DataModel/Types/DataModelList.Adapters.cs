@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -131,12 +131,12 @@ namespace Xtate
 
 			public override Array EnsureArray(ref Args args, int size)
 			{
-				if (args.Meta.Access != DataModelAccess.Writable || args.Meta.Metadata != null)
+				if (args.Meta.Access != DataModelAccess.Writable || args.Meta.Metadata is { })
 				{
-					return args.HashKey.Key != null ? (Array) ValueToKeyMetaValue(ref args, size) : ValueToMetaValue(ref args, size);
+					return args.HashKey.Key is { } ? (Array) ValueToKeyMetaValue(ref args, size) : ValueToMetaValue(ref args, size);
 				}
 
-				if (args.HashKey.Key != null)
+				if (args.HashKey.Key is { })
 				{
 					return ValueToKeyValue(ref args, size);
 				}
@@ -176,7 +176,7 @@ namespace Xtate
 
 			public override Array EnsureArray(ref Args args, int size)
 			{
-				if (args.Meta.Access != DataModelAccess.Writable || args.Meta.Metadata != null)
+				if (args.Meta.Access != DataModelAccess.Writable || args.Meta.Metadata is { })
 				{
 					return KeyValueToKeyMetaValue(ref args, size);
 				}
@@ -217,7 +217,7 @@ namespace Xtate
 
 			public override Array EnsureArray(ref Args args, int size)
 			{
-				if (args.HashKey.Key != null)
+				if (args.HashKey.Key is { })
 				{
 					return MetaValueToKeyMetaValue(ref args, size);
 				}

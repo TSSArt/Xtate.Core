@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -51,7 +51,7 @@ namespace Xtate.IoProcessor
 
 		public NamedIoProcessor(IEventConsumer eventConsumer, string host, string name)
 		{
-			if (host == null) throw new ArgumentNullException(nameof(host));
+			if (host is null) throw new ArgumentNullException(nameof(host));
 
 			_eventConsumer = eventConsumer ?? throw new ArgumentNullException(nameof(eventConsumer));
 			_name = name ?? throw new ArgumentNullException(nameof(name));
@@ -84,7 +84,7 @@ namespace Xtate.IoProcessor
 
 		ValueTask IIoProcessor.Dispatch(SessionId sessionId, IOutgoingEvent evt, CancellationToken token) => OutgoingEvent(sessionId, evt, token);
 
-		bool IIoProcessor.CanHandle(Uri? type, Uri? target) => type == null || FullUriComparer.Instance.Equals(type, IoProcessorId) || FullUriComparer.Instance.Equals(type, IoProcessorAliasId);
+		bool IIoProcessor.CanHandle(Uri? type, Uri? target) => type is null || FullUriComparer.Instance.Equals(type, IoProcessorId) || FullUriComparer.Instance.Equals(type, IoProcessorAliasId);
 
 		Uri IIoProcessor.Id => IoProcessorId;
 
@@ -94,7 +94,7 @@ namespace Xtate.IoProcessor
 
 		private async ValueTask OutgoingEvent(SessionId sessionId, IOutgoingEvent evt, CancellationToken token)
 		{
-			if (evt.Target == null)
+			if (evt.Target is null)
 			{
 				throw new ProcessorException(Resources.Exception_Event_Target_did_not_specified);
 			}
@@ -140,7 +140,7 @@ namespace Xtate.IoProcessor
 				memoryStream.Position = 0;
 				var responseMessage = Deserialize(memoryStream, b => new ResponseMessage(b));
 
-				if (responseMessage.Exception != null)
+				if (responseMessage.Exception is { })
 				{
 					throw new ProcessorException(Resources.Exception_Error_on_event_consumer_side, responseMessage.Exception);
 				}
@@ -166,7 +166,7 @@ namespace Xtate.IoProcessor
 					memoryStream.Position = 0;
 					var message = Deserialize(memoryStream, b => new EventMessage(b));
 
-					if (message.SessionId != null)
+					if (message.SessionId is { })
 					{
 						await _eventConsumer.Dispatch(message.SessionId, message.Event, _stopTokenSource.Token).ConfigureAwait(false);
 					}
@@ -330,7 +330,7 @@ namespace Xtate.IoProcessor
 			{
 				bucket.Add(Key.TypeInfo, TypeInfo.Message);
 
-				if (Exception != null)
+				if (Exception is { })
 				{
 					using var memoryStream = new MemoryStream();
 					new BinaryFormatter().Serialize(memoryStream, Exception);

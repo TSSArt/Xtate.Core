@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -93,7 +93,7 @@ namespace Xtate.Persistence
 		{
 			var size = KeyHelper<TKey>.Converter.GetLength(key) + GetSize(_block);
 
-			for (var n = _node; n != null; n = n.Previous!)
+			for (var n = _node; n is { }; n = n.Previous!)
 			{
 				size += n.Size;
 			}
@@ -117,7 +117,7 @@ namespace Xtate.Persistence
 
 		private static Span<byte> WritePrevious(Node? node, int size, ref Span<byte> buf)
 		{
-			if (node != null)
+			if (node is { })
 			{
 				var nextBuf = WritePrevious(node.Previous, size + node.Size, ref buf);
 				node.WriteTo(nextBuf);
@@ -146,7 +146,7 @@ namespace Xtate.Persistence
 
 		public void Add<TKey, TValue>(TKey key, TValue value) where TKey : notnull
 		{
-			if (value == null)
+			if (value is null)
 			{
 				Remove(key);
 				return;
@@ -191,7 +191,7 @@ namespace Xtate.Persistence
 			}
 
 			value = ValueHelper<TValue>.Converter.Read(memory.Span);
-			return value != null;
+			return value is { };
 		}
 
 		public class RootType
@@ -479,14 +479,14 @@ namespace Xtate.Persistence
 		{
 			protected override int GetLength(string key)
 			{
-				if (key == null) throw new ArgumentNullException(nameof(key));
+				if (key is null) throw new ArgumentNullException(nameof(key));
 
 				return Encoding.UTF8.GetByteCount(key) + 2;
 			}
 
 			protected override void Write(string key, Span<byte> bytes)
 			{
-				if (key == null) throw new ArgumentNullException(nameof(key));
+				if (key is null) throw new ArgumentNullException(nameof(key));
 
 				bytes[0] = 7;
 				var lastByteIndex = bytes.Length - 1;
@@ -526,7 +526,7 @@ namespace Xtate.Persistence
 		{
 			public sealed override int GetLength(TValue val)
 			{
-				if (val == null) throw new ArgumentNullException(nameof(val));
+				if (val is null) throw new ArgumentNullException(nameof(val));
 
 				return GetLength(TypeConverter<TValue, TInternal>.Convert(val));
 			}
@@ -535,7 +535,7 @@ namespace Xtate.Persistence
 
 			public sealed override void Write(TValue val, Span<byte> bytes)
 			{
-				if (val == null) throw new ArgumentNullException(nameof(val));
+				if (val is null) throw new ArgumentNullException(nameof(val));
 
 				Write(TypeConverter<TValue, TInternal>.Convert(val), bytes);
 			}

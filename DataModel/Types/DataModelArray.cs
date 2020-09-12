@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -50,7 +50,7 @@ namespace Xtate
 
 		public void CopyTo(DataModelValue[] array, int index)
 		{
-			if (array == null) throw new ArgumentNullException(nameof(array));
+			if (array is null) throw new ArgumentNullException(nameof(array));
 			if (index < 0 || index >= array.Length) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_Index_should_be_non_negative_and_less_then_aarray_size);
 			if (Count - index < array.Length) throw new ArgumentException(Resources.Exception_Destination_array_is_not_long_enough, nameof(array));
 

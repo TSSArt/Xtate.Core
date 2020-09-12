@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -41,18 +41,17 @@ namespace Xtate
 
 		public void ThrowIfErrors()
 		{
-			var errors = _errors;
-			_errors = null;
-
-			if (errors != null)
+			if (_errors is { } errors)
 			{
+				_errors = null;
+
 				throw new StateMachineValidationException(errors.ToImmutable(), _sessionId, _origin);
 			}
 		}
 
 		void IErrorProcessor.AddError(ErrorItem errorItem)
 		{
-			if (errorItem == null) throw new ArgumentNullException(nameof(errorItem));
+			if (errorItem is null) throw new ArgumentNullException(nameof(errorItem));
 
 			(_errors ??= ImmutableArray.CreateBuilder<ErrorItem>()).Add(errorItem);
 		}

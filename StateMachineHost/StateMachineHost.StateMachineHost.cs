@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -30,14 +30,14 @@ namespace Xtate
 {
 	public sealed partial class StateMachineHost : IStateMachineHost
 	{
-		private static readonly Uri                          InternalTarget = new Uri(uriString: "#_internal", UriKind.Relative);
-		private                 ImmutableArray<IIoProcessor> _ioProcessors;
+		private static readonly Uri InternalTarget = new Uri(uriString: "#_internal", UriKind.Relative);
 
+		private ImmutableArray<IIoProcessor>    _ioProcessors;
 		private ImmutableArray<IServiceFactory> _serviceFactories;
 
 	#region Interface IStateMachineHost
 
-		ImmutableArray<IIoProcessor> IStateMachineHost.GetIoProcessors() => _ioProcessors;
+		ImmutableArray<IIoProcessor> IStateMachineHost.GetIoProcessors() => !_ioProcessors.IsDefault ? _ioProcessors : ImmutableArray<IIoProcessor>.Empty;
 
 		async ValueTask IStateMachineHost.StartInvoke(SessionId sessionId, InvokeData data, CancellationToken token)
 		{
@@ -45,9 +45,10 @@ namespace Xtate
 
 			context.ValidateSessionId(sessionId, out var service);
 
-			var factory = FindServiceFactory(data.Type, data.Source);
+			using var factoryContext = new FactoryContext(_options.ResourceLoaders);
+			var activator = await FindServiceFactoryActivator(factoryContext, data.Type, token).ConfigureAwait(false);
 			var serviceCommunication = new ServiceCommunication(service, IoProcessorId, data.InvokeId);
-			var invokedService = await factory.StartService(service.StateMachineLocation, data, serviceCommunication, token).ConfigureAwait(false);
+			var invokedService = await activator.StartService(factoryContext, service.StateMachineLocation, data, serviceCommunication, token).ConfigureAwait(false);
 
 			await context.AddService(sessionId, data.InvokeId, invokedService, token).ConfigureAwait(false);
 
@@ -60,9 +61,7 @@ namespace Xtate
 
 			context.ValidateSessionId(sessionId, out _);
 
-			var service = await context.TryRemoveService(sessionId, invokeId).ConfigureAwait(false);
-
-			if (service != null)
+			if (await context.TryRemoveService(sessionId, invokeId).ConfigureAwait(false) is { } service)
 			{
 				await service.Destroy(token).ConfigureAwait(false);
 
@@ -74,7 +73,7 @@ namespace Xtate
 
 		async ValueTask<SendStatus> IStateMachineHost.DispatchEvent(SessionId sessionId, IOutgoingEvent evt, bool skipDelay, CancellationToken token)
 		{
-			if (evt == null) throw new ArgumentNullException(nameof(evt));
+			if (evt is null) throw new ArgumentNullException(nameof(evt));
 
 			var context = GetCurrentContext();
 
@@ -138,9 +137,7 @@ namespace Xtate
 			}
 			finally
 			{
-				var invokedService2 = await context.TryCompleteService(sessionId, invokeId).ConfigureAwait(false);
-
-				if (invokedService2 != null)
+				if (await context.TryCompleteService(sessionId, invokeId).ConfigureAwait(false) is { } invokedService2)
 				{
 					await DisposeInvokedService(invokedService2).ConfigureAwait(false);
 				}
@@ -151,7 +148,7 @@ namespace Xtate
 		{
 			context = _context;
 
-			return context != null;
+			return context is { };
 		}
 
 		private IErrorProcessor CreateErrorProcessor(SessionId sessionId, StateMachineOrigin origin) =>
@@ -159,15 +156,17 @@ namespace Xtate
 
 		private StateMachineHostContext GetCurrentContext() => _context ?? throw new InvalidOperationException(Resources.Exception_IO_Processor_has_not_been_started);
 
-		private IServiceFactory FindServiceFactory(Uri type, Uri? source)
+		private async ValueTask<IServiceFactoryActivator> FindServiceFactoryActivator(IFactoryContext factoryContext, Uri type, CancellationToken token)
 		{
 			if (!_serviceFactories.IsDefaultOrEmpty)
 			{
 				foreach (var serviceFactory in _serviceFactories)
 				{
-					if (serviceFactory.CanHandle(type, source))
+					var activator = await serviceFactory.TryGetActivator(factoryContext, type, token).ConfigureAwait(false);
+
+					if (activator is { })
 					{
-						return serviceFactory;
+						return activator;
 					}
 				}
 			}
@@ -261,12 +260,14 @@ namespace Xtate
 
 		private IIoProcessor GetIoProcessor(Uri? type, Uri? target)
 		{
-			if (_ioProcessors == null)
+			var ioProcessors = _ioProcessors;
+
+			if (ioProcessors.IsDefault)
 			{
 				throw new ProcessorException(Resources.Exception_StateMachineHost_stopped);
 			}
 
-			foreach (var ioProcessor in _ioProcessors)
+			foreach (var ioProcessor in ioProcessors)
 			{
 				if (ioProcessor.CanHandle(type, target))
 				{

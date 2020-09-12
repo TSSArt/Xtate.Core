@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -37,16 +37,16 @@ namespace Xtate
 		{
 			get
 			{
-				var id = _id;
-
-				if (id == null)
+				if (_id is { } id)
 				{
-					var newId = GenerateId();
-
-					Debug.Assert(newId != null && TryGetHashFromId(newId, out var hash) && hash == base.GetHashCode());
-
-					id = Interlocked.CompareExchange(ref _id, newId, comparand: null) ?? newId;
+					return id;
 				}
+
+				var newId = GenerateId();
+
+				Debug.Assert(newId is { } && TryGetHashFromId(newId, out var hash) && hash == base.GetHashCode());
+
+				id = Interlocked.CompareExchange(ref _id, newId, comparand: null) ?? newId;
 
 				return id;
 			}
@@ -72,21 +72,11 @@ namespace Xtate
 
 		[SuppressMessage(category: "ReSharper", checkId: "NonReadonlyMemberInGetHashCode", Justification = "_id used as designed")]
 		[SuppressMessage(category: "ReSharper", checkId: "BaseObjectGetHashCodeCallInGetHashCode", Justification = "base.GetHashCode() used as designed")]
-		public override int GetHashCode()
-		{
-			var id = _id;
-
-			if (id == null)
-			{
-				return base.GetHashCode();
-			}
-
-			return TryGetHashFromId(id, out var hash) ? hash : id.GetHashCode();
-		}
+		public override int GetHashCode() => _id is { } id ? TryGetHashFromId(id, out var hash) ? hash : id.GetHashCode() : base.GetHashCode();
 
 		protected static bool TryGetHashFromId(string id, out int hash)
 		{
-			if (id == null) throw new ArgumentNullException(nameof(id));
+			if (id is null) throw new ArgumentNullException(nameof(id));
 
 			var start = id.Length - 8;
 			if (start >= 0 && TryHexToInt32(id.AsSpan(start), out hash))
@@ -130,7 +120,7 @@ namespace Xtate
 				return true;
 			}
 
-			if (obj == null || _id == null || GetType() != obj.GetType())
+			if (obj is null || _id is null || GetType() != obj.GetType())
 			{
 				return false;
 			}

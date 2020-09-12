@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -43,7 +43,7 @@ namespace Xtate.Builder
 
 		public IStateMachine Build()
 		{
-			var initial = _initialId != null ? (IInitial) new InitialEntity { Transition = new TransitionEntity { Target = _initialId } } : null;
+			var initial = !_initialId.IsDefaultOrEmpty ? (IInitial) new InitialEntity { Transition = new TransitionEntity { Target = _initialId } } : null;
 
 			var ancestor = _injectOptions ? new AncestorContainer(_options, Ancestor) : Ancestor;
 
@@ -74,21 +74,21 @@ namespace Xtate.Builder
 
 		public void AddState(IState state)
 		{
-			if (state == null) throw new ArgumentNullException(nameof(state));
+			if (state is null) throw new ArgumentNullException(nameof(state));
 
 			(_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(state);
 		}
 
 		public void AddParallel(IParallel parallel)
 		{
-			if (parallel == null) throw new ArgumentNullException(nameof(parallel));
+			if (parallel is null) throw new ArgumentNullException(nameof(parallel));
 
 			(_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(parallel);
 		}
 
 		public void AddFinal(IFinal final)
 		{
-			if (final == null) throw new ArgumentNullException(nameof(final));
+			if (final is null) throw new ArgumentNullException(nameof(final));
 
 			(_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(final);
 		}

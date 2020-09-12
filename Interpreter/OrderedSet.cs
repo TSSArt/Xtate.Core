@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -75,7 +75,7 @@ namespace Xtate
 
 		public void Union(List<T> orderedSet)
 		{
-			if (orderedSet == null) throw new ArgumentNullException(nameof(orderedSet));
+			if (orderedSet is null) throw new ArgumentNullException(nameof(orderedSet));
 
 			foreach (var item in orderedSet)
 			{
@@ -85,7 +85,7 @@ namespace Xtate
 
 		public bool HasIntersection(List<T> orderedSet)
 		{
-			if (orderedSet == null) throw new ArgumentNullException(nameof(orderedSet));
+			if (orderedSet is null) throw new ArgumentNullException(nameof(orderedSet));
 
 			foreach (var item in orderedSet)
 			{

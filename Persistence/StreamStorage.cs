@@ -1,5 +1,5 @@
 ﻿#region Copyright © 2019-2020 Sergii Artemenko
-// 
+
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-// 
+
 #endregion
 
 using System;
@@ -56,14 +56,14 @@ namespace Xtate.Persistence
 
 		public ReadOnlyMemory<byte> Read(ReadOnlySpan<byte> key)
 		{
-			Infrastructure.Assert(_inMemoryStorage != null);
+			Infrastructure.NotNull(_inMemoryStorage);
 
 			return _inMemoryStorage.Read(key);
 		}
 
 		public void Write(ReadOnlySpan<byte> key, ReadOnlySpan<byte> value)
 		{
-			Infrastructure.Assert(_inMemoryStorage != null);
+			Infrastructure.NotNull(_inMemoryStorage);
 
 			_inMemoryStorage.Write(key, value);
 		}
@@ -72,7 +72,7 @@ namespace Xtate.Persistence
 		{
 			if (level < 0) throw new ArgumentOutOfRangeException(nameof(level));
 
-			Infrastructure.Assert(_inMemoryStorage != null);
+			Infrastructure.NotNull(_inMemoryStorage);
 
 			var transactionLogSize = _inMemoryStorage.GetTransactionLogSize();
 
@@ -361,15 +361,15 @@ namespace Xtate.Persistence
 			}
 		}
 
-		private static int GetMarkSizeLength(int mark, int? size = default) => Encode.GetEncodedLength(mark) + (size != null ? Encode.GetEncodedLength(size.Value) : 0);
+		private static int GetMarkSizeLength(int mark, int? size = default) => Encode.GetEncodedLength(mark) + (size is { } s ? Encode.GetEncodedLength(s) : 0);
 
 		private static void WriteMarkSize(Span<byte> span, int mark, int? size = default)
 		{
 			Encode.WriteEncodedValue(span, mark);
 
-			if (size != null)
+			if (size is { } s)
 			{
-				Encode.WriteEncodedValue(span.Slice(Encode.GetEncodedLength(mark)), size.Value);
+				Encode.WriteEncodedValue(span.Slice(Encode.GetEncodedLength(mark)), s);
 			}
 		}
 
