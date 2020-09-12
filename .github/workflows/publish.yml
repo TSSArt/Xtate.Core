@@ -37,9 +37,9 @@ jobs:
       uses: nick-invision/retry@v1.0.4
       with:
         command: dotnet nuget push bin\packages\*.nupkg
-        max_attempts: 10
+        max_attempts: 60
         retry_wait_seconds: 30
-        timeout_minutes: 10
+        timeout_minutes: 30
     - name: Publish to NuGet.org
       run: nuget.exe push bin\packages\*.nupkg -NonInteractive -Source https://api.nuget.org/v3/index.json -ApiKey ${{ secrets.NUGET_ORG_API_KEY }}
     - name: GitHub Tag
