@@ -109,7 +109,7 @@ namespace Xtate
 
 		public ValueTask TraceSendEvent(ILoggerContext loggerContext, IOutgoingEvent evt, CancellationToken token)
 		{
-			Trace.TraceInformation(Resources.DefaultLogger_TraceSendEvent, EventName.ToName(evt.NameParts), evt.SendId?.Value);
+			Trace.TraceInformation(Resources.DefaultLogger_TraceSendEvent, !evt.NameParts.IsDefaultOrEmpty ? EventName.ToName(evt.NameParts) : null, evt.SendId?.Value);
 
 			return default;
 		}

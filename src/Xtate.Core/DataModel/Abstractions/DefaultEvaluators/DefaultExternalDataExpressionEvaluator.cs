@@ -39,7 +39,7 @@ namespace Xtate.DataModel
 
 	#region Interface IExternalDataExpression
 
-		public Uri? Uri { get; }
+		public Uri? Uri => _externalDataExpression.Uri;
 
 	#endregion
 
