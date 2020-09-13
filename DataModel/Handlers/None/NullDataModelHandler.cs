@@ -21,27 +21,27 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xtate.DataModel.None
+namespace Xtate.DataModel.Null
 {
-	internal sealed class NoneDataModelHandler : DataModelHandlerBase
+	internal sealed class NullDataModelHandler : DataModelHandlerBase
 	{
-		public const string DataModelType = "none";
+		public const string DataModelType = "null";
 
 		public static readonly IDataModelHandlerFactory Factory = new DataModelHandlerFactory();
 
-		internal NoneDataModelHandler(IErrorProcessor errorProcessor) : base(errorProcessor) { }
+		internal NullDataModelHandler(IErrorProcessor errorProcessor) : base(errorProcessor) { }
 
-		protected override void Visit(ref IForEach forEach) => AddErrorMessage(forEach, Resources.ErrorMesasge_ForEachNotSupportedForNone);
+		protected override void Visit(ref IForEach forEach) => AddErrorMessage(forEach, Resources.ErrorMesasge_ForEachNotSupportedForNull);
 
-		protected override void Visit(ref IScript script) => AddErrorMessage(script, Resources.ErrorMesasge_ScriptingNotSupportedForNone);
+		protected override void Visit(ref IScript script) => AddErrorMessage(script, Resources.ErrorMesasge_ScriptingNotSupportedForNull);
 
-		protected override void Visit(ref IDataModel dataModel) => AddErrorMessage(dataModel, Resources.ErrorMesasge_DataModelNotSupportedForNone);
+		protected override void Visit(ref IDataModel dataModel) => AddErrorMessage(dataModel, Resources.ErrorMesasge_DataModelNotSupportedForNull);
 
-		protected override void Visit(ref IDoneData doneData) => AddErrorMessage(doneData, Resources.ErrorMesasge_DoneDataNotSupportedForNone);
+		protected override void Visit(ref IDoneData doneData) => AddErrorMessage(doneData, Resources.ErrorMesasge_DoneDataNotSupportedForNull);
 
-		protected override void Visit(ref IValueExpression expression) => AddErrorMessage(expression, Resources.ErrorMesasge_ValueExpressionNotSupportedForNone);
+		protected override void Visit(ref IValueExpression expression) => AddErrorMessage(expression, Resources.ErrorMesasge_ValueExpressionNotSupportedForNull);
 
-		protected override void Visit(ref ILocationExpression expression) => AddErrorMessage(expression, Resources.ErrorMesasge_LocationExpressionNotSupportedForNone);
+		protected override void Visit(ref ILocationExpression expression) => AddErrorMessage(expression, Resources.ErrorMesasge_LocationExpressionNotSupportedForNull);
 
 		protected override void Build(ref IConditionExpression conditionExpression, ref ConditionExpression properties)
 		{
@@ -51,7 +51,7 @@ namespace Xtate.DataModel.None
 
 			if (!expression.StartsWith(value: @"In(", StringComparison.Ordinal) || !expression.EndsWith(value: @")", StringComparison.Ordinal))
 			{
-				AddErrorMessage(conditionExpression, Resources.ErrorMesasge_IncorrectConditionExpressionForNone);
+				AddErrorMessage(conditionExpression, Resources.ErrorMesasge_IncorrectConditionExpressionForNull);
 
 				return;
 			}
@@ -60,7 +60,7 @@ namespace Xtate.DataModel.None
 
 			if (Identifier.TryCreate(state, out var inState))
 			{
-				conditionExpression = new NoneConditionExpressionEvaluator(properties, inState);
+				conditionExpression = new NullConditionExpressionEvaluator(properties, inState);
 			}
 			else
 			{
@@ -83,7 +83,7 @@ namespace Xtate.DataModel.None
 			{
 				Infrastructure.Assert(CanHandle(dataModelType));
 
-				return new ValueTask<IDataModelHandler>(new NoneDataModelHandler(errorProcessor));
+				return new ValueTask<IDataModelHandler>(new NullDataModelHandler(errorProcessor));
 			}
 
 		#endregion
