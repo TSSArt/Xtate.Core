@@ -429,26 +429,26 @@
   <data name="Assertion_CustomActionDoesNotConfigured" xml:space="preserve">
     <value>Custom action does not configured.</value>
   </data>
-  <data name="ErrorMesasge_ForEachNotSupportedForNone" xml:space="preserve">
-    <value>ForEach not supported in NONE data model.</value>
+  <data name="ErrorMesasge_ForEachNotSupportedForNull" xml:space="preserve">
+    <value>ForEach not supported in NULL data model.</value>
   </data>
-  <data name="ErrorMesasge_ScriptingNotSupportedForNone" xml:space="preserve">
-    <value>Scripting not supported in NONE data model.</value>
+  <data name="ErrorMesasge_ScriptingNotSupportedForNull" xml:space="preserve">
+    <value>Scripting not supported in NULL data model.</value>
   </data>
-  <data name="ErrorMesasge_DataModelNotSupportedForNone" xml:space="preserve">
-    <value>DataModel not supported in NONE data model.</value>
+  <data name="ErrorMesasge_DataModelNotSupportedForNull" xml:space="preserve">
+    <value>DataModel not supported in NULL data model.</value>
   </data>
-  <data name="ErrorMesasge_DoneDataNotSupportedForNone" xml:space="preserve">
-    <value>DoneData not supported in NONE data model.</value>
+  <data name="ErrorMesasge_DoneDataNotSupportedForNull" xml:space="preserve">
+    <value>DoneData not supported in NULL data model.</value>
   </data>
-  <data name="ErrorMesasge_ValueExpressionNotSupportedForNone" xml:space="preserve">
-    <value>'Value expression' not supported in NONE data model.</value>
+  <data name="ErrorMesasge_ValueExpressionNotSupportedForNull" xml:space="preserve">
+    <value>'Value expression' not supported in NULL data model.</value>
   </data>
-  <data name="ErrorMesasge_LocationExpressionNotSupportedForNone" xml:space="preserve">
-    <value>'Location expression' not supported in NONE data model.</value>
+  <data name="ErrorMesasge_LocationExpressionNotSupportedForNull" xml:space="preserve">
+    <value>'Location expression' not supported in NULL data model.</value>
   </data>
-  <data name="ErrorMesasge_IncorrectConditionExpressionForNone" xml:space="preserve">
-    <value>Incorrect format of condition expression for NONE data model.</value>
+  <data name="ErrorMesasge_IncorrectConditionExpressionForNull" xml:space="preserve">
+    <value>Incorrect format of condition expression for NULL data model.</value>
   </data>
   <data name="ErrorMesasge_IncorrectConditionExpression" xml:space="preserve">
     <value>Incorrect condition expression.</value>

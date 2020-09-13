@@ -21,14 +21,14 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xtate.DataModel.None
+namespace Xtate.DataModel.Null
 {
-	internal sealed class NoneConditionExpressionEvaluator : IConditionExpression, IBooleanEvaluator, IAncestorProvider, IDebugEntityId
+	internal sealed class NullConditionExpressionEvaluator : IConditionExpression, IBooleanEvaluator, IAncestorProvider, IDebugEntityId
 	{
 		private readonly ConditionExpression _conditionExpression;
 		private readonly IIdentifier         _inState;
 
-		public NoneConditionExpressionEvaluator(in ConditionExpression conditionExpression, IIdentifier inState)
+		public NullConditionExpressionEvaluator(in ConditionExpression conditionExpression, IIdentifier inState)
 		{
 			_conditionExpression = conditionExpression;
 			_inState = inState;
