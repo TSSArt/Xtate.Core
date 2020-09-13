@@ -214,29 +214,29 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to DataModel not supported in NONE data model..
+        ///   Looks up a localized string similar to DataModel not supported in NULL data model..
         /// </summary>
-        internal static string ErrorMesasge_DataModelNotSupportedForNone {
+        internal static string ErrorMesasge_DataModelNotSupportedForNull {
             get {
-                return ResourceManager.GetString("ErrorMesasge_DataModelNotSupportedForNone", resourceCulture);
+                return ResourceManager.GetString("ErrorMesasge_DataModelNotSupportedForNull", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to DoneData not supported in NONE data model..
+        ///   Looks up a localized string similar to DoneData not supported in NULL data model..
         /// </summary>
-        internal static string ErrorMesasge_DoneDataNotSupportedForNone {
+        internal static string ErrorMesasge_DoneDataNotSupportedForNull {
             get {
-                return ResourceManager.GetString("ErrorMesasge_DoneDataNotSupportedForNone", resourceCulture);
+                return ResourceManager.GetString("ErrorMesasge_DoneDataNotSupportedForNull", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ForEach not supported in NONE data model..
+        ///   Looks up a localized string similar to ForEach not supported in NULL data model..
         /// </summary>
-        internal static string ErrorMesasge_ForEachNotSupportedForNone {
+        internal static string ErrorMesasge_ForEachNotSupportedForNull {
             get {
-                return ResourceManager.GetString("ErrorMesasge_ForEachNotSupportedForNone", resourceCulture);
+                return ResourceManager.GetString("ErrorMesasge_ForEachNotSupportedForNull", resourceCulture);
             }
         }
         
@@ -250,38 +250,38 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Incorrect format of condition expression for NONE data model..
+        ///   Looks up a localized string similar to Incorrect format of condition expression for NULL data model..
         /// </summary>
-        internal static string ErrorMesasge_IncorrectConditionExpressionForNone {
+        internal static string ErrorMesasge_IncorrectConditionExpressionForNull {
             get {
-                return ResourceManager.GetString("ErrorMesasge_IncorrectConditionExpressionForNone", resourceCulture);
+                return ResourceManager.GetString("ErrorMesasge_IncorrectConditionExpressionForNull", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &apos;Location expression&apos; not supported in NONE data model..
+        ///   Looks up a localized string similar to &apos;Location expression&apos; not supported in NULL data model..
         /// </summary>
-        internal static string ErrorMesasge_LocationExpressionNotSupportedForNone {
+        internal static string ErrorMesasge_LocationExpressionNotSupportedForNull {
             get {
-                return ResourceManager.GetString("ErrorMesasge_LocationExpressionNotSupportedForNone", resourceCulture);
+                return ResourceManager.GetString("ErrorMesasge_LocationExpressionNotSupportedForNull", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Scripting not supported in NONE data model..
+        ///   Looks up a localized string similar to Scripting not supported in NULL data model..
         /// </summary>
-        internal static string ErrorMesasge_ScriptingNotSupportedForNone {
+        internal static string ErrorMesasge_ScriptingNotSupportedForNull {
             get {
-                return ResourceManager.GetString("ErrorMesasge_ScriptingNotSupportedForNone", resourceCulture);
+                return ResourceManager.GetString("ErrorMesasge_ScriptingNotSupportedForNull", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &apos;Value expression&apos; not supported in NONE data model..
+        ///   Looks up a localized string similar to &apos;Value expression&apos; not supported in NULL data model..
         /// </summary>
-        internal static string ErrorMesasge_ValueExpressionNotSupportedForNone {
+        internal static string ErrorMesasge_ValueExpressionNotSupportedForNull {
             get {
-                return ResourceManager.GetString("ErrorMesasge_ValueExpressionNotSupportedForNone", resourceCulture);
+                return ResourceManager.GetString("ErrorMesasge_ValueExpressionNotSupportedForNull", resourceCulture);
             }
         }
         

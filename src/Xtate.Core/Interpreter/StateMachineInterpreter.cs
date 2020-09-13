@@ -31,7 +31,7 @@ using System.Threading.Tasks;
 using Xtate.Annotations;
 using Xtate.CustomAction;
 using Xtate.DataModel;
-using Xtate.DataModel.None;
+using Xtate.DataModel.Null;
 using Xtate.DataModel.Runtime;
 using Xtate.Persistence;
 
@@ -46,7 +46,7 @@ namespace Xtate
 		private const string StateMachineDefinitionStorageKey = "smd";
 
 		private static readonly ImmutableArray<IDataModelHandlerFactory> PredefinedDataModelHandlerFactories =
-				ImmutableArray.Create(NoneDataModelHandler.Factory, RuntimeDataModelHandler.Factory);
+				ImmutableArray.Create(NullDataModelHandler.Factory, RuntimeDataModelHandler.Factory);
 
 		private readonly ImmutableDictionary<object, object>      _contextRuntimeItems;
 		private readonly ImmutableArray<ICustomActionFactory>     _customActionProviders;
@@ -272,7 +272,7 @@ namespace Xtate
 		private async ValueTask<IDataModelHandler> CreateDataModelHandler(string? dataModelType, ImmutableArray<IDataModelHandlerFactory> factories, FactoryContext factoryContext,
 																		  IErrorProcessor errorProcessor)
 		{
-			dataModelType ??= NoneDataModelHandler.DataModelType;
+			dataModelType ??= NullDataModelHandler.DataModelType;
 			var activator = await FindDataModelHandlerFactoryActivator(factoryContext, dataModelType, factories).ConfigureAwait(false);
 
 			if (activator is { })
@@ -282,7 +282,7 @@ namespace Xtate
 
 			errorProcessor.AddError<StateMachineInterpreter>(entity: null, Res.Format(Resources.Exception_Cant_find_DataModelHandlerFactory_for_DataModel_type, dataModelType));
 
-			return new NoneDataModelHandler(errorProcessor);
+			return new NullDataModelHandler(errorProcessor);
 		}
 
 		private async ValueTask<IDataModelHandlerFactoryActivator?> FindDataModelHandlerFactoryActivator(IFactoryContext factoryContext, string dataModelType,
@@ -303,7 +303,7 @@ namespace Xtate
 
 			foreach (var factory in PredefinedDataModelHandlerFactories)
 			{
-				var activator = await factory.TryGetActivator(factoryContext, dataModelType ?? NoneDataModelHandler.DataModelType, _stopToken).ConfigureAwait(false);
+				var activator = await factory.TryGetActivator(factoryContext, dataModelType ?? NullDataModelHandler.DataModelType, _stopToken).ConfigureAwait(false);
 
 				if (activator is { })
 				{
