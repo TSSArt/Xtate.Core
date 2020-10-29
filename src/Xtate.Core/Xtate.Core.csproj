@@ -3,7 +3,8 @@
   <Import Condition="'$(Version)'==''" Project="..\..\Version.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.1;netstandard2.0;net461</TargetFrameworks>
+    <TargetFrameworks>net5.0;netstandard2.0;net461</TargetFrameworks>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <Nullable>enable</Nullable>
     <RepositoryUrl>https://github.com/TSSArt/Xtate.Core</RepositoryUrl>
     <PackageId>Xtate.Core</PackageId>
@@ -15,10 +16,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Collections.Immutable" Version="1.7.1" />
-    <PackageReference Include="System.Threading.Channels" Version="4.7.1" />
+    <PackageReference Include="System.Collections.Immutable" Version="5.0.0-rc.2.20475.5" />
+    <PackageReference Include="System.Threading.Channels" Version="5.0.0-rc.2.20475.5" />
 
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.7.0">
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.8.0-5.final">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.3.0">

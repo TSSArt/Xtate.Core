@@ -33,7 +33,7 @@ namespace Xtate.DataModel
 		{
 			_script = script;
 
-			Infrastructure.Assert(script.Content is { } || script.Source is { });
+			Infrastructure.Assert(script.Content is not null || script.Source is not null);
 
 			ContentEvaluator = script.Content?.As<IExecEvaluator>();
 			SourceEvaluator = script.Source?.As<IExecEvaluator>();

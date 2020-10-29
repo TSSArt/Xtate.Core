@@ -20,19 +20,22 @@
 using System;
 using System.Buffers;
 using System.Collections.Concurrent;
-using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtate.Persistence;
+
+#if !NET461 && !NETSTANDARD2_0
+using System.Diagnostics.CodeAnalysis;
+#endif
 
 namespace Xtate.IoProcessor
 {
 	public sealed class NamedIoProcessor : IIoProcessor, IDisposable
 	{
-		private const int         BufferSize         = 4096;
+		private const int         MaxMessageSize     = 1048576;
 		private const string      PipePrefix         = "#SCXML#_";
 		private const PipeOptions DefaultPipeOptions = PipeOptions.WriteThrough | PipeOptions.Asynchronous;
 
@@ -125,7 +128,6 @@ namespace Xtate.IoProcessor
 			await using (memoryStream.ConfigureAwait(false))
 			{
 				await pipeStream.ConnectAsync(token).ConfigureAwait(false);
-				pipeStream.ReadMode = PipeTransmissionMode.Message;
 
 				var message = new EventMessage(sessionId, eventObject);
 
@@ -140,16 +142,16 @@ namespace Xtate.IoProcessor
 				memoryStream.Position = 0;
 				var responseMessage = Deserialize(memoryStream, b => new ResponseMessage(b));
 
-				if (responseMessage.Exception is { })
+				if (responseMessage.ExceptionMessage is not null)
 				{
-					throw new ProcessorException(Resources.Exception_Error_on_event_consumer_side, responseMessage.Exception);
+					throw new ProcessorException(Res.Format(Resources.Exception_Error_on_event_consumer_side, responseMessage.ExceptionMessage, responseMessage.ExceptionText));
 				}
 			}
 		}
 
 		public async ValueTask StartListener()
 		{
-			var pipeStream = new NamedPipeServerStream(_pipeName, PipeDirection.InOut, NamedPipeServerStream.MaxAllowedServerInstances, PipeTransmissionMode.Message, DefaultPipeOptions);
+			var pipeStream = new NamedPipeServerStream(_pipeName, PipeDirection.InOut, NamedPipeServerStream.MaxAllowedServerInstances, PipeTransmissionMode.Byte, DefaultPipeOptions);
 			var memoryStream = new MemoryStream();
 			await using (pipeStream.ConfigureAwait(false))
 			await using (memoryStream.ConfigureAwait(false))
@@ -166,7 +168,7 @@ namespace Xtate.IoProcessor
 					memoryStream.Position = 0;
 					var message = Deserialize(memoryStream, b => new EventMessage(b));
 
-					if (message.SessionId is { })
+					if (message.SessionId is not null)
 					{
 						await _eventConsumer.Dispatch(message.SessionId, message.Event, _stopTokenSource.Token).ConfigureAwait(false);
 					}
@@ -192,35 +194,57 @@ namespace Xtate.IoProcessor
 
 			if (fragment.StartsWith(prefix))
 			{
-				return SessionId.FromString(fragment.Substring(prefix.Length));
+				return SessionId.FromString(fragment[prefix.Length..]);
 			}
 
 			throw new ProcessorException(Resources.Exception_Target_wrong_format);
 		}
 
-		private static ValueTask SendMessage(MemoryStream memoryStream, PipeStream pipeStream, CancellationToken token)
+#if !NET461 && !NETSTANDARD2_0
+		[SuppressMessage(category: "Performance", checkId: "CA1835:Prefer the 'Memory'-based overloads for 'ReadAsync' and 'WriteAsync'", Justification = "Not available in .Net 4.6")]
+#endif
+		private static async ValueTask SendMessage(MemoryStream memoryStream, PipeStream pipeStream, CancellationToken token)
 		{
-			memoryStream.TryGetBuffer(out var buffer);
-
 			Infrastructure.Assert(pipeStream.IsConnected);
 
-			return new ValueTask(pipeStream.WriteAsync(buffer.Array, buffer.Offset, buffer.Count, token));
+			var sizeBuf = BitConverter.GetBytes((int) memoryStream.Length);
+			Debug.Assert(sizeBuf.Length == sizeof(int));
+			await pipeStream.WriteAsync(sizeBuf, offset: 0, sizeBuf.Length, token).ConfigureAwait(false);
+
+			memoryStream.TryGetBuffer(out var buffer);
+			Debug.Assert(buffer.Array is not null);
+
+			await pipeStream.WriteAsync(buffer.Array, buffer.Offset, buffer.Count, token).ConfigureAwait(false);
 		}
 
-		[SuppressMessage(category: "ReSharper", checkId: "MethodHasAsyncOverloadWithCancellation", Justification = "WriteAsync not needed for MemoryStream")]
+#if !NET461 && !NETSTANDARD2_0
+		[SuppressMessage(category: "Performance", checkId: "CA1835:Prefer the 'Memory'-based overloads for 'ReadAsync' and 'WriteAsync'", Justification = "Not available in .Net 4.6")]
+#endif
 		private static async ValueTask ReceiveMessage(PipeStream pipeStream, MemoryStream memoryStream, CancellationToken token)
 		{
-			var buffer = ArrayPool<byte>.Shared.Rent(BufferSize);
+			Infrastructure.Assert(pipeStream.IsConnected);
+
+			var sizeBuf = new byte[sizeof(int)];
+			var sizeBufReadCount = await pipeStream.ReadAsync(sizeBuf, offset: 0, sizeBuf.Length, token).ConfigureAwait(false);
+			var messageSize = BitConverter.ToInt32(sizeBuf, startIndex: 0);
+
+			if (sizeBufReadCount != sizeBuf.Length || messageSize < 0 || messageSize > MaxMessageSize)
+			{
+				throw new ProcessorException(Res.Format(Resources.NamedIoProcessor_ReceiveMessage4_Message_size_has_wrong_value_or_missed, messageSize));
+			}
+
+			var buffer = ArrayPool<byte>.Shared.Rent(messageSize);
+
 			try
 			{
-				do
+				var count = await pipeStream.ReadAsync(buffer, offset: 0, messageSize, token).ConfigureAwait(false);
+
+				if (count != messageSize)
 				{
-					Infrastructure.Assert(pipeStream.IsConnected);
+					throw new ProcessorException(Res.Format(Resources.NamedIoProcessor_ReceiveMessage4_Message_read_partially, count, messageSize));
+				}
 
-					var count = await pipeStream.ReadAsync(buffer, offset: 0, buffer.Length, token).ConfigureAwait(false);
-
-					memoryStream.Write(buffer, offset: 0, count);
-				} while (!pipeStream.IsMessageComplete);
+				memoryStream.Write(buffer, offset: 0, messageSize);
 			}
 			finally
 			{
@@ -254,9 +278,12 @@ namespace Xtate.IoProcessor
 			}
 
 			memoryStream.TryGetBuffer(out var buffer);
-			inMemoryStorage.WriteTransactionLogToSpan(buffer, truncateLog: false);
+			Debug.Assert(buffer.Array is not null);
 
-			memoryStream.Position += size;
+			var span = new Span<byte>(buffer.Array, buffer.Offset + (int) memoryStream.Position, buffer.Count);
+			inMemoryStorage.WriteTransactionLogToSpan(span, truncateLog: false);
+
+			memoryStream.Seek(size, SeekOrigin.Current);
 		}
 
 		public ValueTask CheckPipeline(CancellationToken token)
@@ -302,9 +329,14 @@ namespace Xtate.IoProcessor
 
 		private readonly struct ResponseMessage : IStoreSupport
 		{
-			public readonly Exception? Exception;
+			public readonly string? ExceptionMessage;
+			public readonly string? ExceptionText;
 
-			public ResponseMessage(Exception exception) => Exception = exception;
+			public ResponseMessage(Exception exception)
+			{
+				ExceptionMessage = exception.Message;
+				ExceptionText = exception.ToString();
+			}
 
 			public ResponseMessage(in Bucket bucket)
 			{
@@ -313,15 +345,8 @@ namespace Xtate.IoProcessor
 					throw new ArgumentException(Resources.Exception_Invalid_TypeInfo_value);
 				}
 
-				if (bucket.TryGet(Key.Expression, out var mem))
-				{
-					using var memoryStream = new MemoryStream(mem.ToArray());
-					Exception = (Exception) new BinaryFormatter().Deserialize(memoryStream);
-				}
-				else
-				{
-					Exception = null;
-				}
+				ExceptionMessage = bucket.TryGet(Key.Message, out string? message) ? message : null;
+				ExceptionText = bucket.TryGet(Key.Exception, out string? text) ? text : null;
 			}
 
 		#region Interface IStoreSupport
@@ -330,12 +355,10 @@ namespace Xtate.IoProcessor
 			{
 				bucket.Add(Key.TypeInfo, TypeInfo.Message);
 
-				if (Exception is { })
+				if (ExceptionMessage is not null)
 				{
-					using var memoryStream = new MemoryStream();
-					new BinaryFormatter().Serialize(memoryStream, Exception);
-					memoryStream.TryGetBuffer(out var buffer);
-					bucket.Add(Key.Exception, buffer);
+					bucket.Add(Key.Message, ExceptionMessage);
+					bucket.Add(Key.Exception, ExceptionText);
 				}
 			}
 

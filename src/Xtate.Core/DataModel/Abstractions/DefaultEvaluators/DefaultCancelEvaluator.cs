@@ -56,7 +56,7 @@ namespace Xtate.DataModel
 		{
 			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
-			var sendId = SendIdExpressionEvaluator is { } ? await SendIdExpressionEvaluator.EvaluateString(executionContext, token).ConfigureAwait(false) : SendId;
+			var sendId = SendIdExpressionEvaluator is not null ? await SendIdExpressionEvaluator.EvaluateString(executionContext, token).ConfigureAwait(false) : SendId;
 
 			if (string.IsNullOrEmpty(sendId))
 			{

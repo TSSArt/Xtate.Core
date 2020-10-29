@@ -73,20 +73,20 @@ namespace Xtate.DataModel
 		{
 			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
-			var sendId = _send.Id is { } ? SendId.FromString(_send.Id) : SendId.New();
+			var sendId = _send.Id is not null ? SendId.FromString(_send.Id) : SendId.New();
 
-			if (IdLocationEvaluator is { })
+			if (IdLocationEvaluator is not null)
 			{
 				await IdLocationEvaluator.SetValue(sendId, executionContext, token).ConfigureAwait(false);
 			}
 
-			var name = EventExpressionEvaluator is { } ? await EventExpressionEvaluator.EvaluateString(executionContext, token).ConfigureAwait(false) : _send.EventName;
+			var name = EventExpressionEvaluator is not null ? await EventExpressionEvaluator.EvaluateString(executionContext, token).ConfigureAwait(false) : _send.EventName;
 			var data = await DataConverter.GetData(ContentBodyEvaluator, ContentExpressionEvaluator, NameEvaluatorList, ParameterList, executionContext, token).ConfigureAwait(false);
-			var type = TypeExpressionEvaluator is { } ? ToUri(await TypeExpressionEvaluator.EvaluateString(executionContext, token).ConfigureAwait(false)) : _send.Type;
-			var target = TargetExpressionEvaluator is { } ? ToUri(await TargetExpressionEvaluator.EvaluateString(executionContext, token).ConfigureAwait(false)) : _send.Target;
-			var delayMs = DelayExpressionEvaluator is { } ? await DelayExpressionEvaluator.EvaluateInteger(executionContext, token).ConfigureAwait(false) : _send.DelayMs ?? 0;
+			var type = TypeExpressionEvaluator is not null ? ToUri(await TypeExpressionEvaluator.EvaluateString(executionContext, token).ConfigureAwait(false)) : _send.Type;
+			var target = TargetExpressionEvaluator is not null ? ToUri(await TargetExpressionEvaluator.EvaluateString(executionContext, token).ConfigureAwait(false)) : _send.Target;
+			var delayMs = DelayExpressionEvaluator is not null ? await DelayExpressionEvaluator.EvaluateInteger(executionContext, token).ConfigureAwait(false) : _send.DelayMs ?? 0;
 
-			var eventObject = new EventEntity(name)
+			var eventEntity = new EventEntity(name)
 							  {
 									  SendId = sendId,
 									  Type = type,
@@ -97,10 +97,10 @@ namespace Xtate.DataModel
 
 			if (ContentBodyEvaluator is IStringEvaluator rawContentEvaluator)
 			{
-				eventObject.RawData = await rawContentEvaluator.EvaluateString(executionContext, token).ConfigureAwait(false);
+				eventEntity.RawData = await rawContentEvaluator.EvaluateString(executionContext, token).ConfigureAwait(false);
 			}
 
-			await executionContext.Send(eventObject, token).ConfigureAwait(false);
+			await executionContext.Send(eventEntity, token).ConfigureAwait(false);
 		}
 
 	#endregion

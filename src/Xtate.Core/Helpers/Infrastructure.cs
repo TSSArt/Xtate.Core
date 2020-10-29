@@ -55,7 +55,7 @@ namespace Xtate
 		public static void NotNull([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] [NotNull]
 								   object? value)
 		{
-			if (value is { })
+			if (value is not null)
 			{
 				return;
 			}
@@ -67,7 +67,7 @@ namespace Xtate
 		public static void NotNull([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] [NotNull]
 								   object? value, string message)
 		{
-			if (value is { })
+			if (value is not null)
 			{
 				return;
 			}
@@ -111,38 +111,57 @@ namespace Xtate
 			throw new NotSupportedException();
 		}
 
+		private static void AssertUnexpectedValue(object? value, string message)
+		{
+			if (value is null)
+			{
+				Assert(condition: false, $"{message} (null)");
+
+				return;
+			}
+
+			if (value.GetType().IsValueType)
+			{
+				Assert(condition: false, $"{message} ({value.GetType().FullName}:{value})");
+
+				return;
+			}
+
+			Assert(condition: false, $"{message} ({value.GetType().FullName})");
+		}
+
 		[AssertionMethod]
 		[DoesNotReturn]
-		public static void UnexpectedValue()
+		public static void UnexpectedValue(object? value)
 		{
-			Assert(condition: false, Resources.Exception_UnexpectedValue);
+			AssertUnexpectedValue(value, Resources.Exception_UnexpectedValue);
 
 			throw new NotSupportedException();
 		}
 
 		[AssertionMethod]
 		[DoesNotReturn]
-		public static void UnexpectedValue(string message)
+		public static void UnexpectedValue(object? value, string message)
 		{
-			Assert(condition: false, message);
+			AssertUnexpectedValue(value, message);
 
 			throw new NotSupportedException();
 		}
 
 		[AssertionMethod]
 		[DoesNotReturn]
-		public static T UnexpectedValue<T>()
+		public static T UnexpectedValue<T>(object? value)
 		{
-			Assert(condition: false, Resources.Exception_UnexpectedValue);
+			AssertUnexpectedValue(value, Resources.Exception_UnexpectedValue);
 
 			throw new NotSupportedException();
 		}
 
 		[AssertionMethod]
 		[DoesNotReturn]
-		public static T UnexpectedValue<T>(string message)
+		public static T UnexpectedValue<T>(object? value, string message)
 		{
-			Assert(condition: false, message);
+			AssertUnexpectedValue(value, message);
 
 			throw new NotSupportedException();
 		}

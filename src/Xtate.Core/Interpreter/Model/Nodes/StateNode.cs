@@ -85,12 +85,12 @@ namespace Xtate
 
 		IInitial? IState.                   Initial       => Initial;
 		IDataModel? IState.                 DataModel     => DataModel;
-		ImmutableArray<IInvoke> IState.     Invoke        => ImmutableArray<IInvoke>.CastUp(Invoke);
-		ImmutableArray<IStateEntity> IState.States        => ImmutableArray<IStateEntity>.CastUp(States);
-		ImmutableArray<IHistory> IState.    HistoryStates => ImmutableArray<IHistory>.CastUp(HistoryStates);
-		ImmutableArray<ITransition> IState. Transitions   => ImmutableArray<ITransition>.CastUp(Transitions);
-		ImmutableArray<IOnEntry> IState.    OnEntry       => ImmutableArray<IOnEntry>.CastUp(OnEntry);
-		ImmutableArray<IOnExit> IState.     OnExit        => ImmutableArray<IOnExit>.CastUp(OnExit);
+		ImmutableArray<IInvoke> IState.     Invoke        => ImmutableArray<IInvoke>.CastUp(Invoke)!;
+		ImmutableArray<IStateEntity> IState.States        => ImmutableArray<IStateEntity>.CastUp(States)!;
+		ImmutableArray<IHistory> IState.    HistoryStates => ImmutableArray<IHistory>.CastUp(HistoryStates)!;
+		ImmutableArray<ITransition> IState. Transitions   => ImmutableArray<ITransition>.CastUp(Transitions)!;
+		ImmutableArray<IOnEntry> IState.    OnEntry       => ImmutableArray<IOnEntry>.CastUp(OnEntry)!;
+		ImmutableArray<IOnExit> IState.     OnExit        => ImmutableArray<IOnExit>.CastUp(OnExit)!;
 
 	#endregion
 

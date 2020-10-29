@@ -32,22 +32,22 @@ namespace Xtate.DataModel.XPath
 			_value = value switch
 			{
 					XPathObject xPathObject => xPathObject._value,
-					XPathNodeIterator _ => value,
-					string _ => value,
-					int _ => value,
-					bool _ => value,
-					_ => Infrastructure.UnexpectedValue<object>()
+					XPathNodeIterator => value,
+					string => value,
+					double => value,
+					bool => value,
+					_ => Infrastructure.UnexpectedValue<object>(value)
 			};
 		}
 
 		public XPathObjectType Type =>
 				_value switch
 				{
-						XPathNodeIterator _ => XPathObjectType.NodeSet,
-						int _ => XPathObjectType.Integer,
-						string _ => XPathObjectType.String,
-						bool _ => XPathObjectType.Boolean,
-						_ => Infrastructure.UnexpectedValue<XPathObjectType>()
+						XPathNodeIterator => XPathObjectType.NodeSet,
+						double => XPathObjectType.Number,
+						string => XPathObjectType.String,
+						bool => XPathObjectType.Boolean,
+						_ => Infrastructure.UnexpectedValue<XPathObjectType>(_value)
 				};
 
 	#region Interface IObject
@@ -67,7 +67,7 @@ namespace Xtate.DataModel.XPath
 
 			if (iterator.MoveNext() && iterator.Current is { } first)
 			{
-				return first.Value ?? string.Empty;
+				return first.Value;
 			}
 
 			return string.Empty;
@@ -78,9 +78,9 @@ namespace Xtate.DataModel.XPath
 				{
 						XPathNodeIterator iterator => XmlConvert.ToInt32(GetFirstStringValue(iterator)),
 						string val => XmlConvert.ToInt32(val),
-						int val => val,
+						double val => (int) val,
 						bool val => val ? 1 : 0,
-						_ => Infrastructure.UnexpectedValue<int>()
+						_ => Infrastructure.UnexpectedValue<int>(_value)
 				};
 
 		public string AsString() =>
@@ -88,9 +88,9 @@ namespace Xtate.DataModel.XPath
 				{
 						XPathNodeIterator iterator => GetFirstStringValue(iterator),
 						string val => val,
-						int val => XmlConvert.ToString(val),
+						double val => XmlConvert.ToString(val),
 						bool val => XmlConvert.ToString(val),
-						_ => Infrastructure.UnexpectedValue<string>()
+						_ => Infrastructure.UnexpectedValue<string>(_value)
 				};
 
 		public bool AsBoolean() =>
@@ -98,9 +98,9 @@ namespace Xtate.DataModel.XPath
 				{
 						XPathNodeIterator iterator => XmlConvert.ToBoolean(GetFirstStringValue(iterator)),
 						string val => XmlConvert.ToBoolean(val),
-						int val => val != 0,
+						double val => val != 0,
 						bool val => val,
-						_ => Infrastructure.UnexpectedValue<bool>()
+						_ => Infrastructure.UnexpectedValue<bool>(_value)
 				};
 
 		public XPathNodeIterator AsIterator() => ((XPathNodeIterator) _value).Clone();
@@ -129,7 +129,7 @@ namespace Xtate.DataModel.XPath
 						break;
 
 					default:
-						return Infrastructure.UnexpectedValue<DataModelObject>();
+						return Infrastructure.UnexpectedValue<DataModelList>(navigator.NodeType);
 				}
 			}
 
@@ -163,38 +163,38 @@ namespace Xtate.DataModel.XPath
 			return sb.ToString();
 		}
 
-		private static DataModelObject ToDataModelObject(XPathNodeIterator iterator)
+		private static DataModelList ToDataModelObject(XPathNodeIterator iterator)
 		{
-			var obj = new DataModelObject();
+			var list = new DataModelList();
 
 			foreach (DataModelXPathNavigator navigator in iterator)
 			{
 				switch (navigator.NodeType)
 				{
 					case XPathNodeType.Element:
-						obj.Add(navigator.LocalName, navigator.DataModelValue.CloneAsWritable(), navigator.Metadata?.DeepClone(DataModelAccess.Writable));
+						list.Add(navigator.LocalName, navigator.DataModelValue.CloneAsWritable(), navigator.Metadata?.DeepClone(DataModelAccess.Writable));
 						break;
 
 					case XPathNodeType.Text:
-						obj.Add(key: default, navigator.DataModelValue.CloneAsWritable(), metadata: default);
+						list.Add(key: default, navigator.DataModelValue.CloneAsWritable(), metadata: default);
 						break;
 
 					default:
-						return Infrastructure.UnexpectedValue<DataModelObject>();
+						return Infrastructure.UnexpectedValue<DataModelList>(navigator.NodeType);
 				}
 			}
 
-			return obj;
+			return list;
 		}
 
 		public static string ToString(object obj) =>
 				obj switch
 				{
 						XPathNodeIterator iterator => ToString(iterator),
-						int val => XmlConvert.ToString(val),
+						double val => XmlConvert.ToString(val),
 						string val => val,
 						bool val => XmlConvert.ToString(val),
-						_ => Infrastructure.UnexpectedValue<string>()
+						_ => Infrastructure.UnexpectedValue<string>(obj)
 				};
 
 		private static string ToString(XPathNodeIterator iterator)

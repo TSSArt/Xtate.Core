@@ -43,7 +43,7 @@ namespace Xtate.Builder
 		{
 			if (!_initialId.IsDefaultOrEmpty)
 			{
-				if (_initial is { })
+				if (_initial is not null)
 				{
 					AddError(Resources.ErrorMessage_InitialAttributeAndInitialStateCantBeUsedAtTheSameTimeInStateElement);
 				}

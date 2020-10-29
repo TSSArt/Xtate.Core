@@ -24,7 +24,7 @@ using Xtate.Annotations;
 
 namespace Xtate
 {
-	public abstract partial class DataModelList
+	public partial class DataModelList
 	{
 		[PublicAPI]
 		[SuppressMessage(category: "Design", checkId: "CA1034:Nested types should not be visible", Justification = "Wrapper")]
@@ -58,7 +58,7 @@ namespace Xtate
 
 			internal ValueEnumerator(DataModelList list)
 			{
-				_count = list._count;
+				_count = list.Count;
 				list.CreateArgs(out _args);
 				_args.Index = -1;
 				Current = default;
@@ -136,7 +136,7 @@ namespace Xtate
 
 			internal KeyValueEnumerator(DataModelList list)
 			{
-				_count = list._count;
+				_count = list.Count;
 				list.CreateArgs(out _args);
 				_args.Index = -1;
 				Current = default;
@@ -191,6 +191,80 @@ namespace Xtate
 		[PublicAPI]
 		[SuppressMessage(category: "Design", checkId: "CA1034:Nested types should not be visible", Justification = "Wrapper")]
 		[SuppressMessage(category: "Performance", checkId: "CA1815:Override equals and operator equals on value types", Justification = "No equality")]
+		public readonly struct KeyValuePairEnumerable : IEnumerable<KeyValuePair<string, DataModelValue>>
+		{
+			private readonly DataModelList _list;
+
+			internal KeyValuePairEnumerable(DataModelList list) => _list = list;
+
+		#region Interface IEnumerable
+
+			IEnumerator IEnumerable.GetEnumerator() => new KeyValuePairEnumerator(_list);
+
+		#endregion
+
+		#region Interface IEnumerable<KeyValuePair<string,DataModelValue>>
+
+			IEnumerator<KeyValuePair<string, DataModelValue>> IEnumerable<KeyValuePair<string, DataModelValue>>.GetEnumerator() => new KeyValuePairEnumerator(_list);
+
+		#endregion
+
+			public KeyValuePairEnumerator GetEnumerator() => new KeyValuePairEnumerator(_list);
+		}
+
+		[PublicAPI]
+		public struct KeyValuePairEnumerator : IEnumerator<KeyValuePair<string, DataModelValue>>
+		{
+			private KeyValueEnumerator _enumerator;
+
+			internal KeyValuePairEnumerator(DataModelList list)
+			{
+				_enumerator = list.KeyValues.GetEnumerator();
+				Current = default;
+			}
+
+		#region Interface IDisposable
+
+			public void Dispose() => _enumerator.Dispose();
+
+		#endregion
+
+		#region Interface IEnumerator
+
+			public bool MoveNext()
+			{
+				while (_enumerator.MoveNext())
+				{
+					var current = _enumerator.Current;
+					if (current.Key is not null)
+					{
+						Current = new KeyValuePair<string, DataModelValue>(current.Key, current.Value);
+
+						return true;
+					}
+				}
+
+				Current = default;
+
+				return false;
+			}
+
+			public void Reset() => _enumerator.Reset();
+
+			object IEnumerator.Current => _enumerator.Current;
+
+		#endregion
+
+		#region Interface IEnumerator<KeyValuePair<string,DataModelValue>>
+
+			public KeyValuePair<string, DataModelValue> Current { get; private set; }
+
+		#endregion
+		}
+
+		[PublicAPI]
+		[SuppressMessage(category: "Design", checkId: "CA1034:Nested types should not be visible", Justification = "Wrapper")]
+		[SuppressMessage(category: "Performance", checkId: "CA1815:Override equals and operator equals on value types", Justification = "No equality")]
 		public readonly struct EntryEnumerable : IEnumerable<Entry>
 		{
 			private readonly DataModelList _list;
@@ -221,7 +295,7 @@ namespace Xtate
 
 			internal EntryEnumerator(DataModelList list)
 			{
-				_count = list._count;
+				_count = list.Count;
 				list.CreateArgs(out _args);
 				_args.Index = -1;
 				_current = default;
@@ -334,11 +408,11 @@ namespace Xtate
 
 			public bool MoveNext()
 			{
-				if (_args.Index < _list._count)
+				if (_args.Index < _list.Count)
 				{
 					++ _args.Index;
 
-					if (_args.Key is { })
+					if (_args.Key is not null)
 					{
 						var result = _list.MoveNextKey(ref _args, _caseInsensitive, _hash);
 						Current = result ? _args.Value : default;
@@ -346,7 +420,7 @@ namespace Xtate
 						return result;
 					}
 
-					if (_args.Index < _list._count)
+					if (_args.Index < _list.Count)
 					{
 						Current = _args.Index < _args.StoredCount ? _args.Adapter.GetValueByIndex(ref _args) : default;
 
@@ -433,11 +507,11 @@ namespace Xtate
 
 			public bool MoveNext()
 			{
-				if (_args.Index < _list._count)
+				if (_args.Index < _list.Count)
 				{
 					++ _args.Index;
 
-					if (_args.Key is { })
+					if (_args.Key is not null)
 					{
 						var result = _list.MoveNextKey(ref _args, _caseInsensitive, _hash);
 						Current = result ? new KeyValue(_args.HashKey.Key, _args.Value) : default;
@@ -445,7 +519,7 @@ namespace Xtate
 						return result;
 					}
 
-					if (_args.Index < _list._count)
+					if (_args.Index < _list.Count)
 					{
 						if (_args.Index < _args.StoredCount)
 						{
@@ -541,11 +615,11 @@ namespace Xtate
 
 			public bool MoveNext()
 			{
-				if (_args.Index < _list._count)
+				if (_args.Index < _list.Count)
 				{
 					++ _args.Index;
 
-					if (_args.Key is { })
+					if (_args.Key is not null)
 					{
 						var result = _list.MoveNextKey(ref _args, _caseInsensitive, _hash);
 						_current = result ? new Entry(_args.Index, _args.Key, _args.Value, _args.Meta.Access, _args.Meta.Metadata) : default;
@@ -553,7 +627,7 @@ namespace Xtate
 						return result;
 					}
 
-					if (_args.Index < _list._count)
+					if (_args.Index < _list.Count)
 					{
 						if (_args.Index < _args.StoredCount)
 						{

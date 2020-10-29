@@ -169,7 +169,7 @@ namespace Xtate.Core.Test
 			var v = new DateTime(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, millisecond: 0, DateTimeKind.Unspecified) + TimeSpan.FromTicks(addTicks);
 
 			// act
-			DataModelDateTime.TryParse(forParse, out var d);
+			var _ = DataModelDateTime.TryParse(forParse, out var d);
 
 			// assert
 			Assert.AreEqual(v, d.ToDateTime());
@@ -185,7 +185,7 @@ namespace Xtate.Core.Test
 			var v = new DateTime(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, millisecond: 0, DateTimeKind.Unspecified) + TimeSpan.FromTicks(addTicks);
 
 			// act
-			DataModelDateTime.TryParse(forParse, out var d);
+			var _ = DataModelDateTime.TryParse(forParse, out var d);
 
 			// assert
 			Assert.AreEqual(v, d.ToDateTime());

@@ -65,11 +65,9 @@ namespace Xtate.Core.Test
 	[TestClass]
 	public class DataModelValueTest
 	{
-		private DataModelArray   _emptyDataModelArray          = null!;
-		private DataModelObject  _emptyDataModelObject         = null!;
-		private Mock<ILazyValue> _lazyValueArrayMock           = null!;
+		private DataModelList    _emptyDataModelList           = null!;
+		private Mock<ILazyValue> _lazyValueListMock            = null!;
 		private Mock<ILazyValue> _lazyValueNullMock            = null!;
-		private Mock<ILazyValue> _lazyValueObjectMock          = null!;
 		private Mock<ILazyValue> _lazyValueOfLazyValueNullMock = null!;
 
 		private static IEnumerable<Record> SimpleRecords
@@ -84,12 +82,7 @@ namespace Xtate.Core.Test
 				yield return new Record
 							 {
 									 Type = DataModelValueType.Null,
-									 Value = new DataModelValue((DataModelObject?) null)
-							 };
-				yield return new Record
-							 {
-									 Type = DataModelValueType.Null,
-									 Value = new DataModelValue((DataModelArray?) null)
+									 Value = new DataModelValue((DataModelList?) null)
 							 };
 				yield return new Record
 							 {
@@ -312,20 +305,12 @@ namespace Xtate.Core.Test
 									 ConstructorArg = new DateTimeOffset(year: 9999, month: 12, day: 31, hour: 23, minute: 59, second: 59, TimeSpan.FromMinutes(1))
 							 };
 
-				var dataModelObject = new DataModelObject();
+				var dataModelList = new DataModelList();
 				yield return new Record
 							 {
-									 Type = DataModelValueType.Object,
-									 Value = new DataModelValue(dataModelObject),
-									 ConstructorArg = dataModelObject
-							 };
-
-				var dataModelArray = new DataModelArray();
-				yield return new Record
-							 {
-									 Type = DataModelValueType.Array,
-									 Value = new DataModelValue(dataModelArray),
-									 ConstructorArg = dataModelArray
+									 Type = DataModelValueType.List,
+									 Value = new DataModelValue(dataModelList),
+									 ConstructorArg = dataModelList
 							 };
 			}
 		}
@@ -361,8 +346,7 @@ namespace Xtate.Core.Test
 					Assert.AreEqual(ctrArg, obj, M(line));
 					break;
 
-				case DataModelValueType.Object:
-				case DataModelValueType.Array:
+				case DataModelValueType.List:
 					Assert.AreSame(ctrArg, obj, M(line));
 					break;
 
@@ -435,99 +419,50 @@ namespace Xtate.Core.Test
 
 		[TestMethod]
 		[DynamicData(nameof(RecordsConstructorArgValueType), DynamicDataSourceType.Method)]
-		public void AsObject_ShouldReturnCorrectValueOrThrow(string line, object ctrArg, DataModelValue value, DataModelValueType type)
+		public void AsList_ShouldReturnCorrectValueOrThrow(string line, object ctrArg, DataModelValue value, DataModelValueType type)
 		{
 			// assert
-			if (type == DataModelValueType.Object)
+			if (type == DataModelValueType.List)
 			{
-				Assert.AreEqual(ctrArg, value.AsObject(), M(line));
+				Assert.AreEqual(ctrArg, value.AsList(), M(line));
 			}
 			else
 			{
-				Assert.ThrowsException<ArgumentException>(value.AsObject, M(line));
+				Assert.ThrowsException<ArgumentException>(value.AsList, M(line));
 			}
 		}
 
 		[TestMethod]
 		[DynamicData(nameof(RecordsConstructorArgValueType), DynamicDataSourceType.Method)]
-		public void AsNullableObject_ShouldReturnCorrectValueOrThrow(string line, object ctrArg, DataModelValue value, DataModelValueType type)
+		public void AsNullableList_ShouldReturnCorrectValueOrThrow(string line, object ctrArg, DataModelValue value, DataModelValueType type)
 		{
 			// assert
-			if (type == DataModelValueType.Object)
+			if (type == DataModelValueType.List)
 			{
-				Assert.AreSame(ctrArg, value.AsNullableObject(), M(line));
+				Assert.AreSame(ctrArg, value.AsNullableList(), M(line));
 			}
 			else if (type == DataModelValueType.Null)
 			{
-				Assert.IsNull(value.AsNullableObject(), M(line));
+				Assert.IsNull(value.AsNullableList(), M(line));
 			}
 			else
 			{
-				Assert.ThrowsException<ArgumentException>(value.AsNullableObject, M(line));
+				Assert.ThrowsException<ArgumentException>(value.AsNullableList, M(line));
 			}
 		}
 
 		[TestMethod]
 		[DynamicData(nameof(RecordsConstructorArgValueType), DynamicDataSourceType.Method)]
-		public void AsObjectOrEmpty_ShouldReturnCorrectValue(string line, object ctrArg, DataModelValue value, DataModelValueType type)
+		public void AsListOrEmpty_ShouldReturnCorrectValue(string line, object ctrArg, DataModelValue value, DataModelValueType type)
 		{
 			// assert
-			if (type == DataModelValueType.Object)
+			if (type == DataModelValueType.List)
 			{
-				Assert.AreEqual(ctrArg, value.AsObjectOrEmpty(), M(line));
+				Assert.AreEqual(ctrArg, value.AsListOrEmpty(), M(line));
 			}
 			else
 			{
-				Assert.AreSame(DataModelObject.Empty, value.AsObjectOrEmpty(), M(line));
-			}
-		}
-
-		[TestMethod]
-		[DynamicData(nameof(RecordsConstructorArgValueType), DynamicDataSourceType.Method)]
-		public void AsArray_ShouldReturnCorrectValueOrThrow(string line, object ctrArg, DataModelValue value, DataModelValueType type)
-		{
-			// assert
-			if (type == DataModelValueType.Array)
-			{
-				Assert.AreEqual(ctrArg, value.AsArray(), M(line));
-			}
-			else
-			{
-				Assert.ThrowsException<ArgumentException>(value.AsArray, M(line));
-			}
-		}
-
-		[TestMethod]
-		[DynamicData(nameof(RecordsConstructorArgValueType), DynamicDataSourceType.Method)]
-		public void AsNullableArray_ShouldReturnCorrectValueOrThrow(string line, object ctrArg, DataModelValue value, DataModelValueType type)
-		{
-			// assert
-			if (type == DataModelValueType.Array)
-			{
-				Assert.AreSame(ctrArg, value.AsNullableArray(), M(line));
-			}
-			else if (type == DataModelValueType.Null)
-			{
-				Assert.IsNull(value.AsNullableArray(), M(line));
-			}
-			else
-			{
-				Assert.ThrowsException<ArgumentException>(value.AsNullableArray, M(line));
-			}
-		}
-
-		[TestMethod]
-		[DynamicData(nameof(RecordsConstructorArgValueType), DynamicDataSourceType.Method)]
-		public void AsArrayOrEmpty_ShouldReturnCorrectValue(string line, object ctrArg, DataModelValue value, DataModelValueType type)
-		{
-			// assert
-			if (type == DataModelValueType.Array)
-			{
-				Assert.AreEqual(ctrArg, value.AsArrayOrEmpty(), M(line));
-			}
-			else
-			{
-				Assert.AreSame(DataModelArray.Empty, value.AsArrayOrEmpty(), M(line));
+				Assert.AreSame(DataModelList.Empty, value.AsListOrEmpty(), M(line));
 			}
 		}
 
@@ -613,17 +548,13 @@ namespace Xtate.Core.Test
 		[TestInitialize]
 		public void LazyValueInit()
 		{
-			_emptyDataModelObject = new DataModelObject();
-			_emptyDataModelArray = new DataModelArray();
+			_emptyDataModelList = new DataModelList();
 
 			_lazyValueNullMock = new Mock<ILazyValue>();
 			_lazyValueNullMock.Setup(lv => lv.Value).Returns(DataModelValue.Null);
 
-			_lazyValueObjectMock = new Mock<ILazyValue>();
-			_lazyValueObjectMock.Setup(lv => lv.Value).Returns(new DataModelValue(_emptyDataModelObject));
-
-			_lazyValueArrayMock = new Mock<ILazyValue>();
-			_lazyValueArrayMock.Setup(lv => lv.Value).Returns(new DataModelValue(_emptyDataModelArray));
+			_lazyValueListMock = new Mock<ILazyValue>();
+			_lazyValueListMock.Setup(lv => lv.Value).Returns(new DataModelValue(_emptyDataModelList));
 
 			_lazyValueOfLazyValueNullMock = new Mock<ILazyValue>();
 			_lazyValueOfLazyValueNullMock.Setup(lv => lv.Value).Returns(new DataModelValue(_lazyValueNullMock.Object));
@@ -721,26 +652,13 @@ namespace Xtate.Core.Test
 		public void MakeDeepConstant_ShouldMakeConstantObjectOfLazyValue()
 		{
 			// arrange
-			var v = new DataModelValue(_lazyValueObjectMock.Object);
+			var v = new DataModelValue(_lazyValueListMock.Object);
 
 			// act
 			v.MakeDeepConstant();
 
 			// assert
-			Assert.IsFalse(_emptyDataModelObject.CanSet(key: "prop", caseInsensitive: false));
-		}
-
-		[TestMethod]
-		public void MakeDeepConstant_ShouldMakeConstantArrayOfLazyValue()
-		{
-			// arrange
-			var v = new DataModelValue(_lazyValueArrayMock.Object);
-
-			// act
-			v.MakeDeepConstant();
-
-			// assert
-			Assert.IsFalse(_emptyDataModelArray.CanSet(0));
+			Assert.IsFalse(_emptyDataModelList.CanSet(key: "prop", caseInsensitive: false));
 		}
 	}
 }

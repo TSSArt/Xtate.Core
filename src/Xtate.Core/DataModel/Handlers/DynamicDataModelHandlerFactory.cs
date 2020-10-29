@@ -44,7 +44,7 @@ namespace Xtate.DataModel
 			{
 				var activator = await factory.TryGetActivator(factoryContext, dataModelType, token).ConfigureAwait(false);
 
-				if (activator is { })
+				if (activator is not null)
 				{
 					return activator;
 				}

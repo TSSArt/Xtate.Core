@@ -21,11 +21,20 @@ namespace Xtate.DataModel.XPath
 {
 	internal class ItemNodeAdapter : ElementNodeAdapter
 	{
-		public override string GetLocalName(in DataModelXPathNavigator.Node node) => node.EncodedParentProperty() ?? string.Empty;
+		public override string GetLocalName(in DataModelXPathNavigator.Node node) =>
+				UseItemNotation(node)
+						? XmlConverter.ItemElementName
+						: node.EncodedParentProperty()!;
 
-		public override string GetNamespaceUri(in DataModelXPathNavigator.Node node) => XPathMetadata.GetValue(node.Metadata, XPathMetadata.ElementIndex, XPathMetadata.ElementNamespaceOffset);
+		public override string GetNamespaceUri(in DataModelXPathNavigator.Node node) =>
+				UseItemNotation(node)
+						? XmlConverter.ItemElementNamespace
+						: XPathMetadata.GetValue(node.Metadata, XPathMetadata.ElementIndex, XPathMetadata.ElementNamespaceOffset);
 
-		public override string GetPrefix(in DataModelXPathNavigator.Node node) => XPathMetadata.GetValue(node.Metadata, XPathMetadata.ElementIndex, XPathMetadata.ElementPrefixOffset);
+		public override string GetPrefix(in DataModelXPathNavigator.Node node) =>
+				UseItemNotation(node)
+						? XmlConverter.ItemElementPrefix
+						: XPathMetadata.GetValue(node.Metadata, XPathMetadata.ElementIndex, XPathMetadata.ElementPrefixOffset);
 
 		public override bool GetFirstAttribute(in DataModelXPathNavigator.Node node, out DataModelXPathNavigator.Node attributeNode)
 		{
@@ -47,9 +56,12 @@ namespace Xtate.DataModel.XPath
 
 		private static bool GetNextAttribute(in DataModelXPathNavigator.Node parentNode, ref DataModelXPathNavigator.Node node, bool ns)
 		{
-			var metadata = parentNode.Metadata;
+			if (!ns && NextSysAttribute(parentNode, ref node))
+			{
+				return true;
+			}
 
-			if (metadata is null)
+			if (parentNode.Metadata is not { } metadata)
 			{
 				node = default;
 
@@ -81,5 +93,64 @@ namespace Xtate.DataModel.XPath
 
 			return false;
 		}
+
+		private static bool NextSysAttribute(in DataModelXPathNavigator.Node parentNode, ref DataModelXPathNavigator.Node node)
+		{
+			var useKeyAttribute = UseItemNotation(parentNode) && parentNode.ParentProperty is not null;
+			var useTypeAttribute = UseTypeAttribute(parentNode);
+
+			if (!useKeyAttribute && !useTypeAttribute)
+			{
+				return false;
+			}
+
+			if (node.ParentIndex == -1)
+			{
+				node = useKeyAttribute
+						? new DataModelXPathNavigator.Node(parentNode.ParentProperty, AdapterFactory.KeyAttributeNodeAdapter, node.ParentCursor, parentIndex: -2, node.ParentProperty)
+						: new DataModelXPathNavigator.Node(XmlConverter.GetTypeValue(parentNode.DataModelValue), AdapterFactory.TypeAttributeNodeAdapter, node.ParentCursor, parentIndex: -3,
+														   node.ParentProperty);
+
+				return true;
+			}
+
+			if (node.ParentIndex == -2 && useTypeAttribute)
+			{
+				node = new DataModelXPathNavigator.Node(XmlConverter.GetTypeValue(parentNode.DataModelValue), AdapterFactory.TypeAttributeNodeAdapter, node.ParentCursor, parentIndex: -3,
+														node.ParentProperty);
+
+				return true;
+			}
+
+			return false;
+		}
+
+		private static bool UseItemNotation(in DataModelXPathNavigator.Node node) => string.IsNullOrEmpty(node.ParentProperty) || ContainsSpecialCharacters(node.ParentProperty);
+
+		private static bool ContainsSpecialCharacters(string val)
+		{
+			foreach (var ch in val)
+			{
+				if (!char.IsLetterOrDigit(ch) && ch != '_')
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		private static bool UseTypeAttribute(in DataModelXPathNavigator.Node node) =>
+				node.DataModelValue.Type switch
+				{
+						DataModelValueType.String => false,
+						DataModelValueType.Boolean => true,
+						DataModelValueType.DateTime => true,
+						DataModelValueType.Number => true,
+						DataModelValueType.Null => true,
+						DataModelValueType.Undefined => true,
+						DataModelValueType.List => false,
+						_ => Infrastructure.UnexpectedValue<bool>(node.DataModelValue.Type)
+				};
 	}
 }

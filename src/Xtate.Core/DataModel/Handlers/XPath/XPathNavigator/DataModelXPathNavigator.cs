@@ -18,6 +18,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Xml;
 using System.Xml.XPath;
 
@@ -199,7 +200,7 @@ namespace Xtate.DataModel.XPath
 
 		public override bool IsSamePosition(XPathNavigator other)
 		{
-			if (!(other is DataModelXPathNavigator navigator))
+			if (other is not DataModelXPathNavigator navigator)
 			{
 				return false;
 			}
@@ -222,7 +223,7 @@ namespace Xtate.DataModel.XPath
 
 		public override bool MoveTo(XPathNavigator other)
 		{
-			if (!(other is DataModelXPathNavigator navigator))
+			if (other is not DataModelXPathNavigator navigator)
 			{
 				return false;
 			}
@@ -259,13 +260,13 @@ namespace Xtate.DataModel.XPath
 
 		internal void LastChild(IObject valueObject) => AddChildren(valueObject, last: true, clear: false);
 
+		internal void ReplaceChildren(IObject valueObject) => AddChildren(valueObject, last: false, clear: true);
+
 		internal void PreviousSibling(IObject valueObject) => AddSiblings(valueObject, offset: 0, replace: false);
 
 		internal void NextSibling(IObject valueObject) => AddSiblings(valueObject, offset: 1, replace: false);
 
 		internal void Replace(IObject valueObject) => AddSiblings(valueObject, offset: 0, replace: true);
-
-		internal void ReplaceChildren(IObject valueObject) => AddChildren(valueObject, last: false, clear: true);
 
 		private void AddSiblings(IObject valueObject, int offset, bool replace)
 		{
@@ -280,12 +281,21 @@ namespace Xtate.DataModel.XPath
 
 			var list = Parent.DataModelValue.AsList();
 
-			if (replace)
+			if (ShouldNormalize(Entries(list, replace ? Current.ParentIndex : -1, includeElement: default, valueObject), out var entry))
 			{
-				Parent.DataModelValue.AsList().Remove(Current.ParentIndex);
-			}
+				PopNode();
 
-			AddRange(list, valueObject, Current.ParentIndex + offset);
+				SetNewValue(entry);
+			}
+			else
+			{
+				if (replace)
+				{
+					list.Remove(Current.ParentIndex);
+				}
+
+				AddRange(list, valueObject, Current.ParentIndex + offset);
+			}
 		}
 
 		private void AddChildren(IObject valueObject, bool last, bool clear)
@@ -294,21 +304,50 @@ namespace Xtate.DataModel.XPath
 
 			Infrastructure.Assert(NodeType == XPathNodeType.Element);
 
-			if (Current.DataModelValue.AsListOrDefault() is { } list)
+			if (_pathLength == 0)
 			{
-				if (clear)
+				if (Current.DataModelValue.AsListOrDefault() is { } rootList)
 				{
-					list.Clear();
-				}
+					if (clear)
+					{
+						rootList.Clear();
+					}
 
-				AddRange(list, valueObject, last ? list.Count : 0);
+					AddRange(rootList, valueObject, last ? rootList.Count : 0);
+				}
 
 				return;
 			}
 
-			if (_pathLength > 0)
+			if (Current.DataModelValue.AsListOrDefault() is { } list)
 			{
-				list = new DataModelObject();
+				if (ShouldNormalize(Entries(clear ? DataModelList.Empty : list, excludeIndex: -1, includeElement: default, valueObject), out var entry1))
+				{
+					SetNewValue(entry1);
+				}
+				else
+				{
+					if (clear)
+					{
+						list.Clear();
+					}
+
+					AddRange(list, valueObject, last ? list.Count : 0);
+				}
+
+				return;
+			}
+
+			var includeElement = !clear ? new Element(key: default, Current.DataModelValue, Current.Metadata) : default;
+
+			if (ShouldNormalize(Entries(DataModelList.Empty, excludeIndex: -1, includeElement, valueObject), out var entry2))
+			{
+				SetNewValue(entry2);
+			}
+			else
+			{
+				list = new DataModelList();
+
 				if (!clear && !Current.DataModelValue.IsUndefined())
 				{
 					list.Add(key: default, Current.DataModelValue, metadata: default);
@@ -320,9 +359,42 @@ namespace Xtate.DataModel.XPath
 			}
 		}
 
+		private static IEnumerable<Element> Entries(DataModelList list, int excludeIndex, Element includeElement, IObject? valueObject)
+		{
+			foreach (var entry in list.Entries)
+			{
+				if (entry.Index != excludeIndex)
+				{
+					yield return new Element(entry.Key, entry.Value, entry.Metadata);
+				}
+			}
+
+			if (!includeElement.Value.IsUndefined())
+			{
+				yield return includeElement;
+			}
+
+			if (valueObject is null)
+			{
+				yield break;
+			}
+
+			if (valueObject is XPathObject { Type: XPathObjectType.NodeSet } xPathObject)
+			{
+				foreach (DataModelXPathNavigator navigator in xPathObject.AsIterator())
+				{
+					yield return new Element(navigator.LocalName, navigator.Current.DataModelValue, navigator.Current.Metadata);
+				}
+			}
+			else
+			{
+				yield return new Element(key: default, DataModelValue.FromObject(valueObject), metadata: default);
+			}
+		}
+
 		private static void AddRange(DataModelList list, IObject valueObject, int start)
 		{
-			if (valueObject is XPathObject xPathObject && xPathObject.Type == XPathObjectType.NodeSet)
+			if (valueObject is XPathObject { Type: XPathObjectType.NodeSet } xPathObject)
 			{
 				foreach (DataModelXPathNavigator navigator in xPathObject.AsIterator())
 				{
@@ -338,9 +410,59 @@ namespace Xtate.DataModel.XPath
 
 		public override void DeleteSelf()
 		{
-			if (_pathLength > 0)
+			if (_pathLength == 0)
 			{
-				Parent.DataModelValue.AsList().Remove(Current.ParentIndex);
+				return;
+			}
+
+			var list = Parent.DataModelValue.AsList();
+
+			if (ShouldNormalize(Entries(list, Current.ParentIndex, includeElement: default, valueObject: default), out var entry))
+			{
+				PopNode();
+
+				SetNewValue(entry);
+			}
+			else
+			{
+				list.Remove(Current.ParentIndex);
+			}
+		}
+
+		private static bool ShouldNormalize(IEnumerable<Element> enumerable, out Element entry)
+		{
+			using var enumerator = enumerable.GetEnumerator();
+
+			if (!enumerator.MoveNext())
+			{
+				entry = default;
+
+				return true;
+			}
+
+			entry = enumerator.Current;
+
+			return entry.Key is null && !enumerator.MoveNext();
+		}
+
+		private void SetNewValue(in Element element)
+		{
+			if (_pathLength == 0)
+			{
+				return;
+			}
+
+			var list = Parent.DataModelValue.AsList();
+
+			if (ShouldNormalize(Entries(list, Current.ParentIndex, includeElement: default, valueObject: default), out var entry))
+			{
+				PopNode();
+
+				SetNewValue(entry);
+			}
+			else
+			{
+				list.Set(Current.ParentIndex, Current.ParentProperty, element.Value, element.Metadata);
 			}
 		}
 
@@ -358,13 +480,13 @@ namespace Xtate.DataModel.XPath
 			var list = Parent.DataModelValue.AsList();
 			list.TryGet(Current.ParentIndex, out var entry);
 
-			if (entry.Metadata is { })
+			if (entry.Metadata is not null)
 			{
 				AddAttribute(entry.Metadata, localName, value, namespaceUri, prefix);
 			}
 			else
 			{
-				var metadata = new DataModelArray();
+				var metadata = new DataModelList();
 
 				AddAttribute(metadata, localName, value, namespaceUri, prefix);
 
@@ -392,6 +514,20 @@ namespace Xtate.DataModel.XPath
 			if (_pathLength > 0)
 			{
 				Parent.DataModelValue.AsList().Set(Current.ParentIndex, Current.ParentProperty, value, metadata: default);
+			}
+		}
+
+		private readonly struct Element
+		{
+			public readonly string?        Key;
+			public readonly DataModelList? Metadata;
+			public readonly DataModelValue Value;
+
+			public Element(string? key, DataModelValue value, DataModelList? metadata)
+			{
+				Key = key;
+				Value = value;
+				Metadata = metadata;
 			}
 		}
 
@@ -432,7 +568,7 @@ namespace Xtate.DataModel.XPath
 			public bool GetFirstNamespace(out Node namespaceNode) => Adapter.GetFirstNamespace(this, out namespaceNode);
 			public bool GetNextNamespace(ref Node namespaceNode)  => Adapter.GetNextNamespace(this, ref namespaceNode);
 
-			public string? EncodedParentProperty() => XmlConvert.EncodeLocalName(ParentProperty!);
+			public string? EncodedParentProperty() => XmlConvert.EncodeLocalName(ParentProperty);
 		}
 	}
 }

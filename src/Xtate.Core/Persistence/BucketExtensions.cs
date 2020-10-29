@@ -75,7 +75,7 @@ namespace Xtate.Persistence
 
 		public static void AddId(this in Bucket bucket, Key key, SessionId? sessionId)
 		{
-			if (sessionId is { })
+			if (sessionId is not null)
 			{
 				bucket.Add(key, sessionId.Value);
 			}
@@ -83,7 +83,7 @@ namespace Xtate.Persistence
 
 		public static void AddId(this in Bucket bucket, Key key, SendId? sendId)
 		{
-			if (sendId is { })
+			if (sendId is not null)
 			{
 				bucket.Add(key, sendId.Value);
 			}
@@ -91,7 +91,7 @@ namespace Xtate.Persistence
 
 		public static void AddId(this in Bucket bucket, Key key, InvokeId? invokeId)
 		{
-			if (invokeId is { })
+			if (invokeId is not null)
 			{
 				bucket.Add(key, invokeId.Value);
 				bucket.Nested(key).Add(key: 1, invokeId.InvokeUniqueIdValue);
@@ -142,19 +142,15 @@ namespace Xtate.Persistence
 				case DataModelValueType.DateTime when bucket.TryGet(Key.Item, out DataModelDateTime value): return value;
 				case DataModelValueType.Boolean when bucket.TryGet(Key.Item, out bool value): return value;
 
-				case DataModelValueType.Object when bucket.TryGet(Key.RefId, out int refId):
-					var dataModelObject = baseValue.Type == DataModelValueType.Object ? baseValue.AsObject() : null;
-					return DataModelValue.FromObject(tracker.GetValue(refId, type, dataModelObject));
+				case DataModelValueType.List when bucket.TryGet(Key.RefId, out int refId):
+					var list = baseValue.Type == DataModelValueType.List ? baseValue.AsList() : null;
+					return DataModelValue.FromObject(tracker.GetValue(refId, type, list));
 
-				case DataModelValueType.Array when bucket.TryGet(Key.RefId, out int refId):
-					var dataModelArray = baseValue.Type == DataModelValueType.Array ? baseValue.AsArray() : null;
-					return DataModelValue.FromObject(tracker.GetValue(refId, type, dataModelArray));
-
-				default: return Infrastructure.UnexpectedValue<DataModelValue>();
+				default: return Infrastructure.UnexpectedValue<DataModelValue>(type);
 			}
 		}
 
-		public static void SetDataModelValue(this in Bucket bucket, DataModelReferenceTracker tracker, DataModelValue item)
+		public static void SetDataModelValue(this in Bucket bucket, DataModelReferenceTracker tracker, in DataModelValue item)
 		{
 			if (tracker is null) throw new ArgumentNullException(nameof(tracker));
 
@@ -185,16 +181,12 @@ namespace Xtate.Persistence
 					bucket.Add(Key.Item, item.AsBoolean());
 					break;
 
-				case DataModelValueType.Object:
-					bucket.Add(Key.RefId, tracker.GetRefId(item));
-					break;
-
-				case DataModelValueType.Array:
+				case DataModelValueType.List:
 					bucket.Add(Key.RefId, tracker.GetRefId(item));
 					break;
 
 				default:
-					Infrastructure.UnexpectedValue();
+					Infrastructure.UnexpectedValue(type);
 					break;
 			}
 		}

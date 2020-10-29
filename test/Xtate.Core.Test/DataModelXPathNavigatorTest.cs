@@ -17,7 +17,6 @@
 
 #endregion
 
-using System.Diagnostics.CodeAnalysis;
 using System.Xml;
 using System.Xml.XPath;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -176,23 +175,48 @@ namespace Xtate.Core.Test
 			vNav.ReplaceChildren(new XPathObject(nNav.Evaluate("child::*")!));
 
 			// assert
-			Assert.AreEqual(expected: "val1", v.AsObject()["key"].AsObject()["child1"].AsString());
+			v.AsList().TryGet(key: "key", caseInsensitive: false, out var v1);
+			v1.Value.AsList().TryGet(key: "child1", caseInsensitive: false, out var v2);
+			Assert.AreEqual(expected: "val1", v2.Value.AsString());
+		}
+
+		[TestMethod]
+		public void ArrayTest()
+		{
+			// arrange
+			var list = new DataModelList { new DataModelList { ["key1"] = "val1" }, new DataModelList { ["key2"] = "val2" } };
+			var root = new DataModelList { ["root"] = list };
+/*			list.Add("", "empty");
+			list.Add(":#$%", "symb");
+			list.Add("b", true);
+			list.Add("n", 1.5);
+			list.Add("dttm", DateTime.UtcNow);
+			list.Add("nl", DataModelValue.Null);
+			list.Add("undef", default);
+			list.Add(null, default, default);*/
+			var nav = new DataModelXPathNavigator(root);
+
+			// act
+			var _ = (XPathNodeIterator) nav.Evaluate("/root/node()");
+
+			// assert
+			//Assert.AreEqual(expected: "e", xml);
 		}
 
 		[TestMethod]
 		public void RenderValidXml()
 		{
 			// arrange
-			var root = new DataModelObject
+			var root = new DataModelList
 					   {
 							   {
 									   "root",
-									   new DataModelObject
+									   new DataModelList
 									   {
 											   { "item", "val1" },
 											   { "item", "val2" }
 									   },
-									   new DataModelArray
+									   new DataModelList
 									   {
 											   "prefix",
 											   "namespace-uri",
@@ -222,7 +246,6 @@ namespace Xtate.Core.Test
 		}
 
 		[TestMethod]
-		[SuppressMessage(category: "ReSharper", checkId: "UnusedVariable")]
 		public void RenderValidXml2()
 		{
 #pragma warning disable IDE0059

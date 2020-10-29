@@ -24,10 +24,9 @@ namespace Xtate
 		Undefined,
 		Null,
 		String,
-		Array,
-		Object,
+		Boolean,
 		Number,
 		DateTime,
-		Boolean
+		List
 	}
 }

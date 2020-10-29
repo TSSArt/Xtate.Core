@@ -19,15 +19,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using Xtate.Annotations;
 
 namespace Xtate
 {
 	[PublicAPI]
 	[Serializable]
-	public abstract partial class DataModelList
+	public sealed partial class DataModelList
 	{
 		public delegate void ChangeHandler(ChangeAction action, in Entry entry);
 
@@ -44,10 +42,11 @@ namespace Xtate
 			Reset
 		}
 
-		private const int CaseInsensitiveBit = 0x10;
-		private const int AccessMask         = 0xF;
-		private const int AccessConstant     = (int) DataModelAccess.Constant;
-		private const int AccessReadOnly     = (int) DataModelAccess.ReadOnly;
+		private const          int           CaseInsensitiveBit = 0x10;
+		private const          int           AccessMask         = 0xF;
+		private const          int           AccessConstant     = (int) DataModelAccess.Constant;
+		private const          int           AccessReadOnly     = (int) DataModelAccess.ReadOnly;
+		public static readonly DataModelList Empty              = new DataModelList(DataModelAccess.Constant);
 
 		private static readonly ValueAdapter        ValueAdapterInstance        = new ValueAdapter();
 		private static readonly KeyValueAdapter     KeyValueAdapterInstance     = new KeyValueAdapter();
@@ -55,26 +54,18 @@ namespace Xtate
 		private static readonly KeyMetaValueAdapter KeyMetaValueAdapterInstance = new KeyMetaValueAdapter();
 
 		private Array          _array;
-		private int            _count;
 		private int            _flags;
 		private DataModelList? _metadata;
 
-		private protected DataModelList(DataModelAccess access, bool caseInsensitive = false)
+		public DataModelList() : this(DataModelAccess.Writable) { }
+
+		public DataModelList(bool caseInsensitive) : this(DataModelAccess.Writable, caseInsensitive) { }
+
+		internal DataModelList(DataModelAccess access, bool caseInsensitive = false)
 		{
 			_flags = caseInsensitive ? (int) access | CaseInsensitiveBit : (int) access;
 			_array = Array.Empty<DataModelValue>();
 		}
-
-		private protected DataModelList(IEnumerable<DataModelValue> values)
-		{
-			if (values is null) throw new ArgumentNullException(nameof(values));
-
-			_array = values.ToArray();
-			_count = _array.Length;
-		}
-
-		[SuppressMessage(category: "ReSharper", checkId: "ConvertToAutoPropertyWithPrivateSetter")]
-		public int Count => _count;
 
 		public bool CaseInsensitive => (_flags & CaseInsensitiveBit) != 0;
 
@@ -85,6 +76,34 @@ namespace Xtate
 				CreateArgs(out var args);
 
 				return args.Adapter.IsAccessAvailable();
+			}
+		}
+
+		public bool HasKeys
+		{
+			get
+			{
+				if (Count == 0 || _array.Length == 0)
+				{
+					return false;
+				}
+
+				CreateArgs(out var args);
+
+				if (args.Adapter.IsKeyAvailable())
+				{
+					for (args.Index = 0; args.Index < args.StoredCount; args.Index ++)
+					{
+						args.Adapter.ReadToArgsByIndex(ref args);
+
+						if (args.HashKey.Key is not null)
+						{
+							return true;
+						}
+					}
+				}
+
+				return false;
 			}
 		}
 
@@ -112,7 +131,7 @@ namespace Xtate
 				{
 					_flags = CaseInsensitive ? AccessConstant | CaseInsensitiveBit : AccessConstant;
 
-					if (_count > 0 && _array.Length > 0)
+					if (Count > 0 && _array.Length > 0)
 					{
 						CreateArgs(out var args);
 						for (args.Index = 0; args.Index < args.StoredCount; args.Index ++)
@@ -136,11 +155,23 @@ namespace Xtate
 
 		public KeyValueEnumerable KeyValues => new KeyValueEnumerable(this);
 
+		public KeyValuePairEnumerable KeyValuePairs => new KeyValuePairEnumerable(this);
+
 		public EntryEnumerable Entries => new EntryEnumerable(this);
 
-		private protected abstract DataModelList CreateNewInstance(DataModelAccess access);
+	#region Interface ICollection<DataModelValue>
 
-		private protected abstract DataModelList GetEmptyInstance();
+		public void Clear() => ClearItems(DataModelAccess.Writable, throwOnDeny: true);
+
+		public int Count { get; private set; }
+
+	#endregion
+
+		public DataModelList CloneAsWritable() => DeepClone(DataModelAccess.Writable);
+
+		public DataModelList CloneAsReadOnly() => DeepClone(DataModelAccess.ReadOnly);
+
+		public DataModelList AsConstant() => DeepClone(DataModelAccess.Constant);
 
 		public ValueByKeyEnumerable ListValues(string key, bool caseInsensitive) => new ValueByKeyEnumerable(this, key, caseInsensitive);
 
@@ -154,7 +185,7 @@ namespace Xtate
 		{
 			if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_Index_value_must_be_non_negative_integer);
 
-			if (index >= _count)
+			if (index >= Count)
 			{
 				entry = default;
 
@@ -180,7 +211,7 @@ namespace Xtate
 		{
 			if (key is null) throw new ArgumentNullException(nameof(key));
 
-			if (_count > 0 && _array.Length > 0)
+			if (Count > 0 && _array.Length > 0)
 			{
 				CreateArgs(out var args);
 				args.Key = key;
@@ -207,8 +238,6 @@ namespace Xtate
 			return false;
 		}
 
-		public void Clear() => ClearItems(DataModelAccess.Writable, throwOnDeny: true);
-
 		public void Set(string key, bool caseInsensitive, in DataModelValue value, DataModelList? metadata)
 		{
 			if (key is null) throw new ArgumentNullException(nameof(key));
@@ -230,7 +259,7 @@ namespace Xtate
 			args.Value = value;
 			args.Meta = new Meta(DataModelAccess.Writable, metadata);
 
-			if (key is { })
+			if (key is not null)
 			{
 				args.HashKey = CreateHashKey(key);
 			}
@@ -245,7 +274,7 @@ namespace Xtate
 			args.Value = value;
 			args.Meta = new Meta(DataModelAccess.Writable, metadata);
 
-			if (key is { })
+			if (key is not null)
 			{
 				args.HashKey = CreateHashKey(key);
 			}
@@ -260,7 +289,7 @@ namespace Xtate
 			args.Value = value;
 			args.Meta = new Meta(DataModelAccess.Writable, metadata);
 
-			if (key is { })
+			if (key is not null)
 			{
 				args.HashKey = CreateHashKey(key);
 			}
@@ -305,7 +334,7 @@ namespace Xtate
 				return true;
 			}
 
-			args.Index = _count;
+			args.Index = Count;
 
 			return false;
 		}
@@ -361,11 +390,11 @@ namespace Xtate
 
 		internal bool NextEntry(ref int cursor, out Entry entry)
 		{
-			if (cursor < _count)
+			if (cursor < Count)
 			{
 				cursor ++;
 
-				if (0 <= cursor && cursor < _count)
+				if (0 <= cursor && cursor < Count)
 				{
 					CreateArgs(out var args);
 					args.Index = cursor;
@@ -386,7 +415,7 @@ namespace Xtate
 			{
 				cursor --;
 
-				if (0 <= cursor && cursor < _count)
+				if (0 <= cursor && cursor < Count)
 				{
 					CreateArgs(out var args);
 					args.Index = cursor;
@@ -471,7 +500,7 @@ namespace Xtate
 			args.Value = value;
 			args.Meta = new Meta(access, metadata);
 
-			if (key is { })
+			if (key is not null)
 			{
 				args.HashKey = CreateHashKey(key);
 			}
@@ -490,7 +519,7 @@ namespace Xtate
 			args.Value = value;
 			args.Meta = new Meta(access, metadata);
 
-			if (key is { })
+			if (key is not null)
 			{
 				args.HashKey = CreateHashKey(key);
 			}
@@ -529,7 +558,7 @@ namespace Xtate
 			args.Value = value;
 			args.Meta = new Meta(access, metadata);
 
-			if (key is { })
+			if (key is not null)
 			{
 				args.HashKey = CreateHashKey(key);
 			}
@@ -665,10 +694,10 @@ namespace Xtate
 				return result;
 			}
 
-			EnsureTypeAndCapacity(ref args, _count + 1);
+			EnsureTypeAndCapacity(ref args, Count + 1);
 
-			args.Index = _count ++;
-			args.StoredCount = _count;
+			args.Index = Count ++;
+			args.StoredCount = Count;
 
 			args.Adapter.AssignItemByIndex(ref args);
 
@@ -691,7 +720,7 @@ namespace Xtate
 
 			Array.Clear(_array, index: 0, args.StoredCount);
 
-			_count = 0;
+			Count = 0;
 
 			return true;
 		}
@@ -705,12 +734,12 @@ namespace Xtate
 
 			OnChange(ChangeAction.RemoveAt, ref args);
 
-			if (args.Index >= _count)
+			if (args.Index >= Count)
 			{
 				return false;
 			}
 
-			_count --;
+			Count --;
 			args.StoredCount --;
 
 			if (args.Index <= args.StoredCount)
@@ -734,22 +763,22 @@ namespace Xtate
 				return result;
 			}
 
-			if (args.Index >= _count)
+			if (args.Index >= Count)
 			{
 				EnsureTypeAndCapacity(ref args, args.Index + 1);
 
-				_count = args.Index + 1;
+				Count = args.Index + 1;
 			}
 			else
 			{
-				EnsureTypeAndCapacity(ref args, _count + 1);
+				EnsureTypeAndCapacity(ref args, Count + 1);
 
-				Array.Copy(_array, args.Index, _array, args.Index + 1, _count - args.Index);
+				Array.Copy(_array, args.Index, _array, args.Index + 1, Count - args.Index);
 
-				_count ++;
+				Count ++;
 			}
 
-			args.StoredCount = _count;
+			args.StoredCount = Count;
 			args.Adapter.AssignItemByIndex(ref args);
 
 			OnChange(ChangeAction.InsertAt, ref args);
@@ -788,9 +817,9 @@ namespace Xtate
 			else
 			{
 				args.HashKey = new HashKey(hash, args.Key);
-				EnsureTypeAndCapacity(ref args, _count + 1);
-				args.Index = _count ++;
-				args.StoredCount = _count;
+				EnsureTypeAndCapacity(ref args, Count + 1);
+				args.Index = Count ++;
+				args.StoredCount = Count;
 			}
 
 			args.Adapter.AssignItemByIndex(ref args);
@@ -807,16 +836,16 @@ namespace Xtate
 				return result;
 			}
 
-			if (args.Index >= _count)
+			if (args.Index >= Count)
 			{
 				EnsureTypeAndCapacity(ref args, args.Index + 1);
 
-				_count = args.Index + 1;
-				args.StoredCount = _count;
+				Count = args.Index + 1;
+				args.StoredCount = Count;
 			}
 			else
 			{
-				EnsureTypeAndCapacity(ref args, _count);
+				EnsureTypeAndCapacity(ref args, Count);
 			}
 
 			OnChange(ChangeAction.Reset, ref args);
@@ -845,7 +874,7 @@ namespace Xtate
 				Array.Clear(_array, length, args.StoredCount - length);
 			}
 
-			_count = length;
+			Count = length;
 
 			return true;
 		}
@@ -870,7 +899,7 @@ namespace Xtate
 		private void CreateArgs(out Args args)
 		{
 			args = default;
-			args.StoredCount = Math.Min(_count, _array.Length);
+			args.StoredCount = Math.Min(Count, _array.Length);
 
 			switch (_array)
 			{
@@ -895,25 +924,25 @@ namespace Xtate
 					break;
 
 				default:
-					Infrastructure.UnexpectedValue();
+					Infrastructure.UnexpectedValue(_array);
 					break;
 			}
 		}
 
 		internal DataModelList DeepClone(DataModelAccess targetAccess)
 		{
-			Dictionary<object, object>? map = null;
+			Dictionary<object, DataModelList>? map = null;
 
 			return DeepCloneWithMap(targetAccess, ref map);
 		}
 
-		internal DataModelList DeepCloneWithMap(DataModelAccess targetAccess, ref Dictionary<object, object>? map)
+		internal DataModelList DeepCloneWithMap(DataModelAccess targetAccess, ref Dictionary<object, DataModelList>? map)
 		{
 			if (targetAccess == DataModelAccess.Constant)
 			{
-				if (_count == 0)
+				if (Count == 0)
 				{
-					return GetEmptyInstance();
+					return Empty;
 				}
 
 				if (Access == DataModelAccess.Constant)
@@ -922,18 +951,18 @@ namespace Xtate
 				}
 			}
 
-			map ??= new Dictionary<object, object>();
+			map ??= new Dictionary<object, DataModelList>();
 
 			if (map.TryGetValue(this, out var val))
 			{
-				return (DataModelList) val;
+				return val;
 			}
 
-			var clone = CreateNewInstance(targetAccess);
+			var clone = new DataModelList(targetAccess);
 
 			map[this] = clone;
 
-			if (_count == 0)
+			if (Count == 0)
 			{
 				return clone;
 			}
@@ -941,8 +970,8 @@ namespace Xtate
 			CreateArgs(out var args);
 
 			Args cloneArgs = default;
-			clone._array = args.Adapter.CreateArray(ref cloneArgs, _count);
-			clone._count = _count;
+			clone._array = args.Adapter.CreateArray(ref cloneArgs, Count);
+			clone.Count = Count;
 			clone._metadata = _metadata?.DeepCloneWithMap(targetAccess, ref map);
 
 			for (args.Index = 0; args.Index < args.StoredCount; args.Index ++)

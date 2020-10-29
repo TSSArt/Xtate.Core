@@ -69,7 +69,7 @@ namespace Xtate
 		{
 			if (expression is null) throw new ArgumentNullException(nameof(expression));
 
-			if (_executor is { })
+			if (_executor is not null)
 			{
 				throw new InfrastructureException(Resources.Exception_Registration_should_no_occur_after_initialization);
 			}
@@ -86,7 +86,7 @@ namespace Xtate
 		{
 			if (expression is null) throw new ArgumentNullException(nameof(expression));
 
-			if (_executor is { })
+			if (_executor is not null)
 			{
 				throw new InfrastructureException(Resources.Exception_Registration_should_no_occur_after_initialization);
 			}
@@ -162,7 +162,7 @@ namespace Xtate
 			{
 				var activator = await factory.TryGetActivator(_factoryContext, XmlNamespace, XmlName, token).ConfigureAwait(false);
 
-				if (activator is { })
+				if (activator is not null)
 				{
 					return await activator.CreateExecutor(_factoryContext, this, token).ConfigureAwait(false);
 				}

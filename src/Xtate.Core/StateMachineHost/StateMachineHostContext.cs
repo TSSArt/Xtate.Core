@@ -40,13 +40,13 @@ namespace Xtate
 		private static readonly XmlReaderSettings DefaultSyncXmlReaderSettings  = new XmlReaderSettings { Async = false, CloseInput = true };
 		private static readonly XmlReaderSettings DefaultAsyncXmlReaderSettings = new XmlReaderSettings { Async = true, CloseInput = true };
 
-		private readonly DataModelObject?                                        _configuration;
+		private readonly DataModelList?                                          _configuration;
 		private readonly ImmutableDictionary<object, object>?                    _contextRuntimeItems;
 		private readonly StateMachineHostOptions                                 _options;
 		private readonly ConcurrentDictionary<SessionId, IService>               _parentServiceBySessionId = new ConcurrentDictionary<SessionId, IService>();
-		private readonly ConcurrentDictionary<InvokeId, IService?>               _serviceByInvokeId        = new ConcurrentDictionary<InvokeId, IService?>();
+		private readonly ConcurrentDictionary<(SessionId, InvokeId), IService?>  _serviceByInvokeId        = new ConcurrentDictionary<(SessionId, InvokeId), IService?>();
+		private readonly ConcurrentDictionary<SessionId, StateMachineController> _stateMachineBySessionId  = new ConcurrentDictionary<SessionId, StateMachineController>();
 		private readonly IStateMachineHost                                       _stateMachineHost;
-		private readonly ConcurrentDictionary<SessionId, StateMachineController> _stateMachinesBySessionId = new ConcurrentDictionary<SessionId, StateMachineController>();
 		private readonly CancellationTokenSource                                 _stopTokenSource;
 		private readonly CancellationTokenSource                                 _suspendTokenSource;
 
@@ -64,7 +64,7 @@ namespace Xtate
 
 			if (options.Configuration?.Count > 0)
 			{
-				_configuration = new DataModelObject();
+				_configuration = new DataModelList();
 
 				foreach (var pair in options.Configuration)
 				{
@@ -183,7 +183,7 @@ namespace Xtate
 		[return: NotNullIfNotNull("relativeUri")]
 		private static Uri? CombineUri(Uri? baseUri, Uri? relativeUri)
 		{
-			if (baseUri is { } && baseUri.IsAbsoluteUri && relativeUri is { } && !relativeUri.IsAbsoluteUri)
+			if (baseUri is not null && baseUri.IsAbsoluteUri && relativeUri is not null && !relativeUri.IsAbsoluteUri)
 			{
 				return new Uri(baseUri, relativeUri);
 			}
@@ -221,14 +221,14 @@ namespace Xtate
 			return stateMachineController;
 		}
 
-		private static DataModelObject? CreateHostData(Uri? stateMachineLocation)
+		private static DataModelList? CreateHostData(Uri? stateMachineLocation)
 		{
-			if (stateMachineLocation is { })
+			if (stateMachineLocation is not null)
 			{
-				var obj = new DataModelObject { { Location, stateMachineLocation.ToString() } };
-				obj.MakeDeepConstant();
+				var list = new DataModelList { { Location, stateMachineLocation.ToString() } };
+				list.MakeDeepConstant();
 
-				return obj;
+				return list;
 			}
 
 			return null;
@@ -237,16 +237,17 @@ namespace Xtate
 		private void RegisterStateMachineController(StateMachineController stateMachineController)
 		{
 			var sessionId = stateMachineController.SessionId;
-			var result = _stateMachinesBySessionId.TryAdd(sessionId, stateMachineController);
+			var result = _stateMachineBySessionId.TryAdd(sessionId, stateMachineController);
 
 			Infrastructure.Assert(result);
 		}
 
 		public virtual ValueTask RemoveStateMachine(SessionId sessionId)
 		{
-			var result = _stateMachinesBySessionId.TryRemove(sessionId, out var stateMachineController);
+			var result = _stateMachineBySessionId.TryRemove(sessionId, out var stateMachineController);
 
 			Infrastructure.Assert(result);
+			Infrastructure.NotNull(stateMachineController);
 
 			return stateMachineController.DisposeAsync();
 		}
@@ -255,27 +256,30 @@ namespace Xtate
 		{
 			if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
 
-			return _stateMachinesBySessionId.TryGetValue(sessionId, out var controller) ? controller : null;
+			return _stateMachineBySessionId.TryGetValue(sessionId, out var controller) ? controller : null;
 		}
 
 		public void ValidateSessionId(SessionId sessionId, out StateMachineController controller)
 		{
 			if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
 
-			var result = _stateMachinesBySessionId.TryGetValue(sessionId, out controller);
+			var result = _stateMachineBySessionId.TryGetValue(sessionId, out var stateMachineController);
 
 			Infrastructure.Assert(result);
+			Infrastructure.NotNull(stateMachineController);
+
+			controller = stateMachineController;
 		}
 
 		public virtual ValueTask AddService(SessionId sessionId, InvokeId invokeId, IService service, CancellationToken token)
 		{
-			var result = _serviceByInvokeId.TryAdd(invokeId, service);
+			var result = _serviceByInvokeId.TryAdd((sessionId, invokeId), service);
 
 			Infrastructure.Assert(result);
 
 			if (service is StateMachineController stateMachineController)
 			{
-				if (_stateMachinesBySessionId.TryGetValue(sessionId, out var controller))
+				if (_stateMachineBySessionId.TryGetValue(sessionId, out var controller))
 				{
 					result = _parentServiceBySessionId.TryAdd(stateMachineController.SessionId, controller);
 
@@ -288,12 +292,12 @@ namespace Xtate
 
 		public virtual ValueTask<IService?> TryCompleteService(SessionId sessionId, InvokeId invokeId)
 		{
-			if (!_serviceByInvokeId.TryGetValue(invokeId, out var service))
+			if (!_serviceByInvokeId.TryGetValue((sessionId, invokeId), out var service))
 			{
 				return new ValueTask<IService?>((IService?) null);
 			}
 
-			if (!_serviceByInvokeId.TryUpdate(invokeId, newValue: null, service))
+			if (!_serviceByInvokeId.TryUpdate((sessionId, invokeId), newValue: null, service))
 			{
 				return new ValueTask<IService?>((IService?) null);
 			}
@@ -308,7 +312,7 @@ namespace Xtate
 
 		public virtual ValueTask<IService?> TryRemoveService(SessionId sessionId, InvokeId invokeId)
 		{
-			if (!_serviceByInvokeId.TryRemove(invokeId, out var service) || service is null)
+			if (!_serviceByInvokeId.TryRemove((sessionId, invokeId), out var service) || service is null)
 			{
 				return new ValueTask<IService?>((IService?) null);
 			}
@@ -321,7 +325,7 @@ namespace Xtate
 			return new ValueTask<IService?>(service);
 		}
 
-		public bool TryGetService(InvokeId invokeId, out IService? service) => _serviceByInvokeId.TryGetValue(invokeId, out service);
+		public bool TryGetService(SessionId sessionId, InvokeId invokeId, out IService? service) => _serviceByInvokeId.TryGetValue((sessionId, invokeId), out service);
 
 		public IService GetService(SessionId sessionId, string target)
 		{
@@ -337,14 +341,15 @@ namespace Xtate
 			}
 			else if (target.StartsWith(SessionIdPrefix))
 			{
-				if (_stateMachinesBySessionId.TryGetValue(SessionId.FromString(target.Substring(SessionIdPrefix.Length)), out var service))
+				if (_stateMachineBySessionId.TryGetValue(SessionId.FromString(target[SessionIdPrefix.Length..]), out var service))
 				{
 					return service;
 				}
 			}
 			else if (target.StartsWith(InvokeIdPrefix))
 			{
-				if (_serviceByInvokeId.TryGetValue(InvokeId.FromString(target.Substring(InvokeIdPrefix.Length)), out var service) && service is { })
+				var invokeId = InvokeId.FromString(target[InvokeIdPrefix.Length..]);
+				if (_serviceByInvokeId.TryGetValue((sessionId, invokeId), out var service) && service is not null)
 				{
 					return service;
 				}
@@ -355,7 +360,7 @@ namespace Xtate
 
 		public async ValueTask DestroyStateMachine(SessionId sessionId, CancellationToken token)
 		{
-			if (_stateMachinesBySessionId.TryGetValue(sessionId, out var controller))
+			if (_stateMachineBySessionId.TryGetValue(sessionId, out var controller))
 			{
 				controller.TriggerDestroySignal();
 
@@ -385,7 +390,7 @@ namespace Xtate
 			{
 				exit = true;
 
-				foreach (var pair in _stateMachinesBySessionId)
+				foreach (var pair in _stateMachineBySessionId)
 				{
 					var controller = pair.Value;
 					if (controller.Result.IsCompleted)

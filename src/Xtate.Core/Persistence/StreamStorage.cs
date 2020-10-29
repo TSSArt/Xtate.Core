@@ -19,7 +19,6 @@
 
 using System;
 using System.Buffers;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -131,7 +130,7 @@ namespace Xtate.Persistence
 			_disposed = true;
 		}
 
-#if NETSTANDARD2_1
+#if NET5_0
 		public async ValueTask DisposeAsync()
 		{
 			if (_disposed)
@@ -180,8 +179,6 @@ namespace Xtate.Persistence
 				   };
 		}
 
-		[SuppressMessage(category: "ReSharper", checkId: "UncatchableException", Justification = "Handle ArgumentOutOfRangeException")]
-		[SuppressMessage(category: "ReSharper", checkId: "CyclomaticComplexity", Justification = "Hard to decompose")]
 		private static async ValueTask<InMemoryStorage?> ReadStream(Stream stream, int rollbackLevel, bool shrink, CancellationToken token)
 		{
 			var total = 0;

@@ -384,12 +384,6 @@
   <data name="Exception_DataModelValue_is_not_String" xml:space="preserve">
     <value>DataModelValue is not String.</value>
   </data>
-  <data name="Exception_DataModelValue_is_not_DataModelArray" xml:space="preserve">
-    <value>DataModelValue is not DataModelArray.</value>
-  </data>
-  <data name="Exception_DataModelValue_is_not_DataModelObject" xml:space="preserve">
-    <value>DataModelValue is not DataModelObject.</value>
-  </data>
   <data name="Exception_Object_can_not_be_modified" xml:space="preserve">
     <value>Object can not be modified.</value>
   </data>
@@ -620,7 +614,8 @@
     <value>Cannot find ResourceLoader to load external resource.</value>
   </data>
   <data name="Exception_Error_on_event_consumer_side" xml:space="preserve">
-    <value>Error on event consumer side.</value>
+    <value>Error on event consumer side. Exception message: {0}.
+{1}</value>
   </data>
   <data name="Exception_Target_wrong_format" xml:space="preserve">
     <value>Target wrong format.</value>
@@ -725,7 +720,7 @@
     <value>Capacity can't be less then size of list.</value>
   </data>
   <data name="Exception_DataModelValue_is_not_DataModelElement" xml:space="preserve">
-	  <value>DataModelValue is not MetadataModelElement.</value>
+    <value>DataModelValue is not MetadataModelElement.</value>
   </data>
   <data name="Exception_Index_value_must_be_non_negative_integer" xml:space="preserve">
     <value>Index value must be non-negative integer.</value>
@@ -777,5 +772,11 @@
   </data>
   <data name="ErrorMessage_sessionId__or__sessionIdExpr__must_be_specified" xml:space="preserve">
     <value>[sessionId] or [sessionIdExpr] must be specified.</value>
+  </data>
+  <data name="NamedIoProcessor_ReceiveMessage4_Message_size_has_wrong_value_or_missed" xml:space="preserve">
+    <value>Message size has wrong value or missed. Size: {0} bytes.</value>
+  </data>
+  <data name="NamedIoProcessor_ReceiveMessage4_Message_read_partially" xml:space="preserve">
+    <value>Message read partially. {0} of {1} bytes.</value>
   </data>
 </root>

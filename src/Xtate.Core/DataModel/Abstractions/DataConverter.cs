@@ -45,18 +45,18 @@ namespace Xtate.DataModel
 		{
 			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
-			if (contentExpressionEvaluator is { })
+			if (contentExpressionEvaluator is not null)
 			{
 				var obj = await contentExpressionEvaluator.EvaluateObject(executionContext, token).ConfigureAwait(false);
 
-				return DataModelValue.FromObject(obj.ToObject()).AsConstant();
+				return DataModelValue.FromObject(obj).AsConstant();
 			}
 
 			if (contentBodyEvaluator is IObjectEvaluator objectEvaluator)
 			{
 				var obj = await objectEvaluator.EvaluateObject(executionContext, token).ConfigureAwait(false);
 
-				return DataModelValue.FromObject(obj.ToObject()).AsConstant();
+				return DataModelValue.FromObject(obj).AsConstant();
 			}
 
 			if (contentBodyEvaluator is IStringEvaluator stringEvaluator)
@@ -79,7 +79,7 @@ namespace Xtate.DataModel
 				return default;
 			}
 
-			var attributes = new DataModelObject(executionContext.DataModel.CaseInsensitive);
+			var attributes = new DataModelList(executionContext.DataModel.CaseInsensitive);
 
 			if (!nameEvaluatorList.IsDefaultOrEmpty)
 			{
@@ -97,22 +97,28 @@ namespace Xtate.DataModel
 				foreach (var param in parameterList)
 				{
 					var name = param.Name;
-					object? value = null;
-
-					if (param.ExpressionEvaluator is { })
-					{
-						value = (await param.ExpressionEvaluator.EvaluateObject(executionContext, token).ConfigureAwait(false)).ToObject();
-					}
-					else if (param.LocationEvaluator is { })
-					{
-						value = await param.LocationEvaluator.GetValue(executionContext, token).ConfigureAwait(false);
-					}
+					var value = await GetParamValue(param, executionContext, token).ConfigureAwait(false);
 
 					attributes.Add(name, DataModelValue.FromObject(value).AsConstant());
 				}
 			}
 
 			return new DataModelValue(attributes);
+		}
+
+		private static async ValueTask<IObject?> GetParamValue(DefaultParam param, IExecutionContext executionContext, CancellationToken token)
+		{
+			if (param.ExpressionEvaluator is not null)
+			{
+				return await param.ExpressionEvaluator.EvaluateObject(executionContext, token).ConfigureAwait(false);
+			}
+
+			if (param.LocationEvaluator is not null)
+			{
+				return await param.LocationEvaluator.GetValue(executionContext, token).ConfigureAwait(false);
+			}
+
+			return null;
 		}
 
 		public static DataModelValue FromContent(string content, ContentType? contentType)
@@ -126,20 +132,20 @@ namespace Xtate.DataModel
 		{
 			if (evt is null) throw new ArgumentNullException(nameof(evt));
 
-			var eventObject = new DataModelObject(caseInsensitive)
-							  {
-									  { @"name", EventName.ToName(evt.NameParts) },
-									  { @"type", GetTypeString(evt.Type) },
-									  { @"sendid", evt.SendId },
-									  { @"origin", evt.Origin?.ToString() },
-									  { @"origintype", evt.OriginType?.ToString() },
-									  { @"invokeid", evt.InvokeId },
-									  { @"data", evt.Data.AsConstant() }
-							  };
+			var eventList = new DataModelList(caseInsensitive)
+							{
+									{ @"name", EventName.ToName(evt.NameParts) },
+									{ @"type", GetTypeString(evt.Type) },
+									{ @"sendid", evt.SendId },
+									{ @"origin", evt.Origin?.ToString() },
+									{ @"origintype", evt.OriginType?.ToString() },
+									{ @"invokeid", evt.InvokeId },
+									{ @"data", evt.Data.AsConstant() }
+							};
 
-			eventObject.MakeDeepConstant();
+			eventList.MakeDeepConstant();
 
-			return new DataModelValue(eventObject);
+			return new DataModelValue(eventList);
 
 			static string GetTypeString(EventType eventType)
 			{
@@ -157,7 +163,7 @@ namespace Xtate.DataModel
 		{
 			if (exception is null) throw new ArgumentNullException(nameof(exception));
 
-			var exceptionData = new DataModelObject(caseInsensitive)
+			var exceptionData = new DataModelList(caseInsensitive)
 								{
 										{ @"message", exception.Message },
 										{ @"typeName", exception.GetType().Name },

@@ -21,7 +21,7 @@ namespace Xtate.DataModel.XPath
 {
 	internal enum XPathObjectType
 	{
-		Integer,
+		Number,
 		String,
 		Boolean,
 		NodeSet

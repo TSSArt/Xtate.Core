@@ -36,7 +36,7 @@ namespace Xtate.Service
 			if (typeof(TService).GetCustomAttribute<SimpleServiceAttribute>() is { } serviceAttribute)
 			{
 				_type = new Uri(serviceAttribute.Type, UriKind.RelativeOrAbsolute);
-				_alias = serviceAttribute.Alias is { } ? new Uri(serviceAttribute.Alias, UriKind.RelativeOrAbsolute) : null;
+				_alias = serviceAttribute.Alias is not null ? new Uri(serviceAttribute.Alias, UriKind.RelativeOrAbsolute) : null;
 
 				return;
 			}

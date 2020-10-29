@@ -141,7 +141,7 @@ namespace Xtate
 
 		public string ConvertToText(in DataModelValue dataModelValue) => dataModelValue.ToString(CultureInfo.InvariantCulture);
 
-		DataModelObject? ILoggerContext.GetDataModel() => default;
+		DataModelList? ILoggerContext.GetDataModel() => default;
 
 		ImmutableArray<string> ILoggerContext.GetActiveStates() => default;
 

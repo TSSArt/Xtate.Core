@@ -68,7 +68,7 @@ namespace Xtate.DataModel
 
 				await ItemEvaluator.SetValue(instance, executionContext, token).ConfigureAwait(false);
 
-				if (IndexEvaluator is { })
+				if (IndexEvaluator is not null)
 				{
 					await IndexEvaluator.SetValue(new DefaultObject(i), executionContext, token).ConfigureAwait(false);
 				}

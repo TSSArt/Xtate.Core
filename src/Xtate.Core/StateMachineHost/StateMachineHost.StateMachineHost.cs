@@ -69,7 +69,7 @@ namespace Xtate
 			}
 		}
 
-		bool IStateMachineHost.IsInvokeActive(SessionId sessionId, InvokeId invokeId) => IsCurrentContextExists(out var context) && context.TryGetService(invokeId, out _);
+		bool IStateMachineHost.IsInvokeActive(SessionId sessionId, InvokeId invokeId) => IsCurrentContextExists(out var context) && context.TryGetService(sessionId, invokeId, out _);
 
 		async ValueTask<SendStatus> IStateMachineHost.DispatchEvent(SessionId sessionId, IOutgoingEvent evt, bool skipDelay, CancellationToken token)
 		{
@@ -110,7 +110,7 @@ namespace Xtate
 
 			context.ValidateSessionId(sessionId, out _);
 
-			if (!context.TryGetService(invokeId, out var service))
+			if (!context.TryGetService(sessionId, invokeId, out var service))
 			{
 				throw new ProcessorException(Resources.Exception_Invalid_InvokeId);
 			}
@@ -148,7 +148,7 @@ namespace Xtate
 		{
 			context = _context;
 
-			return context is { };
+			return context is not null;
 		}
 
 		private IErrorProcessor CreateErrorProcessor(SessionId sessionId, StateMachineOrigin origin) =>
@@ -164,7 +164,7 @@ namespace Xtate
 				{
 					var activator = await serviceFactory.TryGetActivator(factoryContext, type, token).ConfigureAwait(false);
 
-					if (activator is { })
+					if (activator is not null)
 					{
 						return activator;
 					}
@@ -242,7 +242,6 @@ namespace Xtate
 			}
 		}
 
-		[SuppressMessage(category: "ReSharper", checkId: "SuspiciousTypeConversion.Global", Justification = "Disposing")]
 		private static ValueTask DisposeInvokedService(IService service)
 		{
 			if (service is IAsyncDisposable asyncDisposable)

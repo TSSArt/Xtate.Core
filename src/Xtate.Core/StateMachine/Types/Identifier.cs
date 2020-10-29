@@ -32,7 +32,7 @@ namespace Xtate
 
 	#region Interface IEquatable<IIdentifier>
 
-		public bool Equals(IIdentifier other) => Equals((object) other);
+		public bool Equals(IIdentifier? other) => Equals((object?) other);
 
 	#endregion
 

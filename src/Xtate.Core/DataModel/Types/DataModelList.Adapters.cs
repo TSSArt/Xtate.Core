@@ -21,7 +21,7 @@ using System;
 
 namespace Xtate
 {
-	public abstract partial class DataModelList
+	public partial class DataModelList
 	{
 		private abstract class AdapterBase
 		{
@@ -131,12 +131,12 @@ namespace Xtate
 
 			public override Array EnsureArray(ref Args args, int size)
 			{
-				if (args.Meta.Access != DataModelAccess.Writable || args.Meta.Metadata is { })
+				if (args.Meta.Access != DataModelAccess.Writable || args.Meta.Metadata is not null)
 				{
-					return args.HashKey.Key is { } ? (Array) ValueToKeyMetaValue(ref args, size) : ValueToMetaValue(ref args, size);
+					return args.HashKey.Key is not null ? (Array) ValueToKeyMetaValue(ref args, size) : ValueToMetaValue(ref args, size);
 				}
 
-				if (args.HashKey.Key is { })
+				if (args.HashKey.Key is not null)
 				{
 					return ValueToKeyValue(ref args, size);
 				}
@@ -176,7 +176,7 @@ namespace Xtate
 
 			public override Array EnsureArray(ref Args args, int size)
 			{
-				if (args.Meta.Access != DataModelAccess.Writable || args.Meta.Metadata is { })
+				if (args.Meta.Access != DataModelAccess.Writable || args.Meta.Metadata is not null)
 				{
 					return KeyValueToKeyMetaValue(ref args, size);
 				}
@@ -217,7 +217,7 @@ namespace Xtate
 
 			public override Array EnsureArray(ref Args args, int size)
 			{
-				if (args.HashKey.Key is { })
+				if (args.HashKey.Key is not null)
 				{
 					return MetaValueToKeyMetaValue(ref args, size);
 				}

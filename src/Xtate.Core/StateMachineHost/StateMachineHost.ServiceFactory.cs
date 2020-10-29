@@ -48,9 +48,9 @@ namespace Xtate
 			var parameters = invokeData.Parameters;
 			var source = invokeData.Source;
 
-			Infrastructure.Assert(scxml is { } || source is { });
+			Infrastructure.Assert(scxml is not null || source is not null);
 
-			var origin = scxml is { } ? new StateMachineOrigin(scxml, baseUri) : new StateMachineOrigin(source!, baseUri);
+			var origin = scxml is not null ? new StateMachineOrigin(scxml, baseUri) : new StateMachineOrigin(source!, baseUri);
 
 			return await StartStateMachine(sessionId, origin, parameters, token).ConfigureAwait(false);
 		}

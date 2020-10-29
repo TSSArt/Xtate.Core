@@ -83,40 +83,40 @@ namespace Xtate
 				{
 						DataModelDateTimeType.DateTime => TypeCode.DateTime,
 						DataModelDateTimeType.DateTimeOffset => TypeCode.Object,
-						_ => Infrastructure.UnexpectedValue<TypeCode>()
+						_ => Infrastructure.UnexpectedValue<TypeCode>(Type)
 				};
 
-		bool IConvertible.ToBoolean(IFormatProvider provider) => ToDateTime().ToBoolean(provider);
+		bool IConvertible.ToBoolean(IFormatProvider? provider) => ToDateTime().ToBoolean(provider);
 
-		byte IConvertible.ToByte(IFormatProvider provider) => ToDateTime().ToByte(provider);
+		byte IConvertible.ToByte(IFormatProvider? provider) => ToDateTime().ToByte(provider);
 
-		char IConvertible.ToChar(IFormatProvider provider) => ToDateTime().ToChar(provider);
+		char IConvertible.ToChar(IFormatProvider? provider) => ToDateTime().ToChar(provider);
 
-		DateTime IConvertible.ToDateTime(IFormatProvider provider) => ToDateTime().ToDateTime(provider);
+		DateTime IConvertible.ToDateTime(IFormatProvider? provider) => ToDateTime().ToDateTime(provider);
 
-		decimal IConvertible.ToDecimal(IFormatProvider provider) => ToDateTime().ToDecimal(provider);
+		decimal IConvertible.ToDecimal(IFormatProvider? provider) => ToDateTime().ToDecimal(provider);
 
-		double IConvertible.ToDouble(IFormatProvider provider) => ToDateTime().ToDouble(provider);
+		double IConvertible.ToDouble(IFormatProvider? provider) => ToDateTime().ToDouble(provider);
 
-		short IConvertible.ToInt16(IFormatProvider provider) => ToDateTime().ToInt16(provider);
+		short IConvertible.ToInt16(IFormatProvider? provider) => ToDateTime().ToInt16(provider);
 
-		int IConvertible.ToInt32(IFormatProvider provider) => ToDateTime().ToInt32(provider);
+		int IConvertible.ToInt32(IFormatProvider? provider) => ToDateTime().ToInt32(provider);
 
-		long IConvertible.ToInt64(IFormatProvider provider) => ToDateTime().ToInt64(provider);
+		long IConvertible.ToInt64(IFormatProvider? provider) => ToDateTime().ToInt64(provider);
 
-		sbyte IConvertible.ToSByte(IFormatProvider provider) => ToDateTime().ToSByte(provider);
+		sbyte IConvertible.ToSByte(IFormatProvider? provider) => ToDateTime().ToSByte(provider);
 
-		float IConvertible.ToSingle(IFormatProvider provider) => ToDateTime().ToSingle(provider);
+		float IConvertible.ToSingle(IFormatProvider? provider) => ToDateTime().ToSingle(provider);
 
-		ushort IConvertible.ToUInt16(IFormatProvider provider) => ToDateTime().ToUInt16(provider);
+		ushort IConvertible.ToUInt16(IFormatProvider? provider) => ToDateTime().ToUInt16(provider);
 
-		uint IConvertible.ToUInt32(IFormatProvider provider) => ToDateTime().ToUInt32(provider);
+		uint IConvertible.ToUInt32(IFormatProvider? provider) => ToDateTime().ToUInt32(provider);
 
-		ulong IConvertible.ToUInt64(IFormatProvider provider) => ToDateTime().ToUInt64(provider);
+		ulong IConvertible.ToUInt64(IFormatProvider? provider) => ToDateTime().ToUInt64(provider);
 
-		string IConvertible.ToString(IFormatProvider provider) => ToString(format: null, provider);
+		string IConvertible.ToString(IFormatProvider? provider) => ToString(format: null, provider);
 
-		object IConvertible.ToType(Type conversionType, IFormatProvider provider) => conversionType == typeof(DateTimeOffset) ? ToDateTimeOffset() : ToDateTime().ToType(conversionType, provider);
+		object IConvertible.ToType(Type conversionType, IFormatProvider? provider) => conversionType == typeof(DateTimeOffset) ? ToDateTimeOffset() : ToDateTime().ToType(conversionType, provider);
 
 	#endregion
 
@@ -133,7 +133,7 @@ namespace Xtate
 				{
 						DataModelDateTimeType.DateTime => ToDateTime().ToString(format, formatProvider),
 						DataModelDateTimeType.DateTimeOffset => ToDateTimeOffset().ToString(format, formatProvider),
-						_ => Infrastructure.UnexpectedValue<string>()
+						_ => Infrastructure.UnexpectedValue<string>(Type)
 				};
 
 	#endregion
@@ -225,7 +225,7 @@ namespace Xtate
 				{
 						DataModelDateTimeType.DateTime => ToDateTime(),
 						DataModelDateTimeType.DateTimeOffset => ToDateTimeOffset(),
-						_ => Infrastructure.UnexpectedValue<object>()
+						_ => Infrastructure.UnexpectedValue<object>(Type)
 				};
 
 		public static bool TryParse(string val, out DataModelDateTime dataModelDateTime) => TryParse(val, provider: null, DateTimeStyles.None, out dataModelDateTime);

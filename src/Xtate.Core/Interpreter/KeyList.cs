@@ -41,6 +41,6 @@ namespace Xtate
 			Changed?.Invoke(ChangedAction.Set, entity, list);
 		}
 
-		public bool TryGetValue(IEntity entity, out List<T> list) => _dic.TryGetValue(entity, out list);
+		public bool TryGetValue(IEntity entity, out List<T> list) => _dic.TryGetValue(entity, out list!);
 	}
 }

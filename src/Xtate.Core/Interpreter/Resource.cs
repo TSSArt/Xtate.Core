@@ -47,12 +47,12 @@ namespace Xtate
 		{
 			get
 			{
-				if (_content is { })
+				if (_content is not null)
 				{
 					return _content;
 				}
 
-				if (_bytes is { })
+				if (_bytes is not null)
 				{
 					var encoding = !string.IsNullOrEmpty(ContentType?.CharSet) ? Encoding.GetEncoding(ContentType.CharSet) : Encoding.UTF8;
 
@@ -65,12 +65,12 @@ namespace Xtate
 
 		public byte[]? GetBytes()
 		{
-			if (_bytes is { })
+			if (_bytes is not null)
 			{
 				return _bytes;
 			}
 
-			if (_content is { })
+			if (_content is not null)
 			{
 				var encoding = !string.IsNullOrEmpty(ContentType?.CharSet) ? Encoding.GetEncoding(ContentType.CharSet) : Encoding.UTF8;
 

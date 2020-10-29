@@ -60,7 +60,7 @@ namespace Xtate.DataModel
 				_parsedValue.MakeDeepConstant();
 			}
 
-			if (_parsingException is { })
+			if (_parsingException is not null)
 			{
 				Infrastructure.IgnoredException(_parsingException);
 			}

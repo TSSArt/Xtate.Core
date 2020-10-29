@@ -17,22 +17,18 @@
 
 #endregion
 
-using System;
-using System.Diagnostics.CodeAnalysis;
+using System.Xml.XPath;
 
-namespace Xtate
+namespace Xtate.DataModel.XPath
 {
-	[Serializable]
-	public sealed class SessionId : LazyId
+	internal class KeyAttributeNodeAdapter : NodeAdapter
 	{
-		private SessionId() { }
+		public override XPathNodeType GetNodeType() => XPathNodeType.Attribute;
 
-		private SessionId(string val) : base(val) { }
-		protected override string GenerateId() => IdGenerator.NewSessionId(GetHashCode());
+		public override string GetLocalName(in DataModelXPathNavigator.Node node) => XmlConverter.KeyAttributeName;
 
-		public static SessionId New() => new SessionId();
+		public override string GetNamespaceUri(in DataModelXPathNavigator.Node node) => XmlConverter.ItemElementNamespace;
 
-		[return: NotNullIfNotNull("val")]
-		public static SessionId? FromString(string? val) => val is not null ? new SessionId(val) : null;
+		public override string GetValue(in DataModelXPathNavigator.Node node) => node.DataModelValue.AsString();
 	}
 }

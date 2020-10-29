@@ -50,7 +50,7 @@ namespace Xtate
 						Predicate predicate => predicate(executionContext),
 						PredicateTask task => await task(executionContext).ConfigureAwait(false),
 						PredicateCancellableTask task => await task(executionContext, token).ConfigureAwait(false),
-						_ => Infrastructure.UnexpectedValue<bool>()
+						_ => Infrastructure.UnexpectedValue<bool>(_predicate)
 				};
 
 	#endregion

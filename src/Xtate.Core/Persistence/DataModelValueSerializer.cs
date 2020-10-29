@@ -17,22 +17,30 @@
 
 #endregion
 
-using System;
-using System.Diagnostics.CodeAnalysis;
+using Xtate.Annotations;
 
-namespace Xtate
+namespace Xtate.Persistence
 {
-	[Serializable]
-	public sealed class SessionId : LazyId
+	[PublicAPI]
+	public sealed class DataModelValueSerializer
 	{
-		private SessionId() { }
+		private readonly Bucket _bucket;
 
-		private SessionId(string val) : base(val) { }
-		protected override string GenerateId() => IdGenerator.NewSessionId(GetHashCode());
+		public DataModelValueSerializer(IStorage storage) => _bucket = new Bucket(storage);
 
-		public static SessionId New() => new SessionId();
+		public void Save(string key, in DataModelValue value)
+		{
+			var bucket = _bucket.Nested(key);
+			using var tracker = new DataModelReferenceTracker(bucket.Nested(Key.DataReferences));
+			bucket.SetDataModelValue(tracker, value);
+		}
 
-		[return: NotNullIfNotNull("val")]
-		public static SessionId? FromString(string? val) => val is not null ? new SessionId(val) : null;
+		public DataModelValue Load(string key)
+		{
+			var bucket = _bucket.Nested(key);
+			using var tracker = new DataModelReferenceTracker(bucket.Nested(Key.DataReferences));
+
+			return bucket.GetDataModelValue(tracker, baseValue: default);
+		}
 	}
 }

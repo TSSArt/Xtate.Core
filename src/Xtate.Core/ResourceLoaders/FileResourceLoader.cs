@@ -105,7 +105,7 @@ namespace Xtate
 
 		private static async ValueTask<byte[]> GetBytesFromFile(string path, CancellationToken token)
 		{
-#if NETSTANDARD2_1
+#if NET5_0
 			return await File.ReadAllBytesAsync(path, token).ConfigureAwait(false);
 #else
 			token.ThrowIfCancellationRequested();

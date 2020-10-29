@@ -26,9 +26,9 @@ namespace Xtate.Persistence
 	{
 		private readonly Bucket _bucket;
 
-		private readonly Dictionary<object, Entry> _objects = new Dictionary<object, Entry>();
-		private readonly Dictionary<int, object>   _refIds  = new Dictionary<int, object>();
-		private          bool                      _disposed;
+		private readonly Dictionary<DataModelList, Entry> _lists  = new Dictionary<DataModelList, Entry>();
+		private readonly Dictionary<int, DataModelList>   _refIds = new Dictionary<int, DataModelList>();
+		private          bool                             _disposed;
 
 		private int _nextRefId;
 
@@ -47,7 +47,7 @@ namespace Xtate.Persistence
 				return;
 			}
 
-			foreach (var entry in _objects.Values)
+			foreach (var entry in _lists.Values)
 			{
 				entry.Controller.Dispose();
 			}
@@ -57,84 +57,74 @@ namespace Xtate.Persistence
 
 	#endregion
 
-		public object GetValue(int refId, DataModelValueType type, object? baseObject)
+		public object GetValue(int refId, DataModelValueType type, DataModelList? baseList)
 		{
-			if (_refIds.TryGetValue(refId, out var obj))
+			if (_refIds.TryGetValue(refId, out var list))
 			{
-				Infrastructure.Assert(baseObject is null || baseObject == obj, Resources.Assertion_ObjectsStructureMismatch);
+				Infrastructure.Assert(baseList is null || baseList == list, Resources.Assertion_ObjectsStructureMismatch);
 
-				return obj;
+				return list;
 			}
 
-			if (baseObject is null)
+			if (baseList is null)
 			{
 				return GetValue(refId, type);
 			}
 
-			FillObject(refId, type, baseObject);
+			FillList(refId, type, baseList);
 
-			return baseObject;
+			return baseList;
 		}
 
-		private void FillObject(int refId, DataModelValueType type, object obj)
+		private void FillList(int refId, DataModelValueType type, DataModelList list)
 		{
 			var controller = type switch
 			{
-					DataModelValueType.Object => ObjectControllerCreator(_bucket.Nested(refId), obj),
-					DataModelValueType.Array => ArrayControllerCreator(_bucket.Nested(refId), obj),
-					_ => Infrastructure.UnexpectedValue<DataModelPersistingController>()
+					DataModelValueType.List => ListControllerCreator(_bucket.Nested(refId), list),
+					_ => Infrastructure.UnexpectedValue<DataModelPersistingController>(type)
 			};
 
-			_objects[obj] = new Entry { RefCount = null, RefId = refId, Controller = controller };
-			_refIds[refId] = obj;
+			_lists[list] = new Entry { RefCount = null, RefId = refId, Controller = controller };
+			_refIds[refId] = list;
 		}
 
-		private object GetValue(int refId, DataModelValueType type)
+		private DataModelList GetValue(int refId, DataModelValueType type)
 		{
 			var bucket = _bucket.Nested(refId);
 			bucket.TryGet(Key.Access, out DataModelAccess access);
 
 			switch (type)
 			{
-				case DataModelValueType.Object:
+				case DataModelValueType.List:
 					bucket.TryGet(Key.CaseInsensitive, out bool caseInsensitive);
-					var obj = new DataModelObject(caseInsensitive);
-					var objController = ObjectControllerCreator(bucket, obj);
-					obj.Access = access;
-					_objects[obj] = new Entry { RefCount = 0, RefId = refId, Controller = objController };
-					_refIds[refId] = obj;
+					var list = new DataModelList(caseInsensitive);
+					var listController = ListControllerCreator(bucket, list);
+					list.Access = access;
+					_lists[list] = new Entry { RefCount = 0, RefId = refId, Controller = listController };
+					_refIds[refId] = list;
 
-					return obj;
+					return list;
 
-				case DataModelValueType.Array:
-					var arr = new DataModelArray();
-					var arrController = ArrayControllerCreator(bucket, arr);
-					arr.Access = access;
-					_objects[arr] = new Entry { RefCount = 0, RefId = refId, Controller = arrController };
-					_refIds[refId] = arr;
-
-					return arr;
-
-				default: return Infrastructure.UnexpectedValue<object>();
+				default: return Infrastructure.UnexpectedValue<DataModelList>(type);
 			}
 		}
 
-		private int GetRefId(object obj, Func<Bucket, object, DataModelPersistingController> creator, bool incrementReference)
+		private int GetRefId(DataModelList list, Func<Bucket, DataModelList, DataModelPersistingController> creator, bool incrementReference)
 		{
-			if (!_objects.TryGetValue(obj, out var entry))
+			if (!_lists.TryGetValue(list, out var entry))
 			{
 				var refId = _nextRefId ++;
 				_bucket.Add(Bucket.RootKey, _nextRefId);
 				entry.RefCount = incrementReference ? 1 : 0;
 				entry.RefId = refId;
-				_refIds[refId] = obj;
-				entry.Controller = creator(_bucket.Nested(refId), obj);
-				_objects[obj] = entry;
+				_refIds[refId] = list;
+				entry.Controller = creator(_bucket.Nested(refId), list);
+				_lists[list] = entry;
 			}
 			else if (incrementReference)
 			{
 				entry.RefCount ++;
-				_objects[obj] = entry;
+				_lists[list] = entry;
 			}
 
 			return entry.RefId;
@@ -143,53 +133,45 @@ namespace Xtate.Persistence
 		public int GetRefId(in DataModelValue value) =>
 				value.Type switch
 				{
-						DataModelValueType.Object => GetRefId(value.AsObject(), ObjectControllerCreator, incrementReference: false),
-						DataModelValueType.Array => GetRefId(value.AsArray(), ArrayControllerCreator, incrementReference: false),
-						_ => Infrastructure.UnexpectedValue<int>()
+						DataModelValueType.List => GetRefId(value.AsList(), ListControllerCreator, incrementReference: false),
+						_ => Infrastructure.UnexpectedValue<int>(value.Type)
 				};
 
 		public void AddReference(in DataModelValue value)
 		{
 			switch (value.Type)
 			{
-				case DataModelValueType.Object:
-					GetRefId(value.AsObject(), ObjectControllerCreator, incrementReference: true);
-					break;
-				case DataModelValueType.Array:
-					GetRefId(value.AsArray(), ArrayControllerCreator, incrementReference: true);
+				case DataModelValueType.List:
+					GetRefId(value.AsList(), ListControllerCreator, incrementReference: true);
 					break;
 			}
 		}
 
-		private DataModelPersistingController ObjectControllerCreator(Bucket bucket, object obj) => new DataModelListPersistingController(bucket, this, (DataModelObject) obj);
-		private DataModelPersistingController ArrayControllerCreator(Bucket bucket, object obj)  => new DataModelListPersistingController(bucket, this, (DataModelArray) obj);
+		private DataModelPersistingController ListControllerCreator(Bucket bucket, DataModelList list) => new DataModelListPersistingController(bucket, this, list);
 
 		public void RemoveReference(in DataModelValue value)
 		{
 			switch (value.Type)
 			{
-				case DataModelValueType.Object:
-					Remove(value.AsObject());
-					break;
-				case DataModelValueType.Array:
-					Remove(value.AsArray());
+				case DataModelValueType.List:
+					Remove(value.AsList());
 					break;
 			}
 
-			void Remove(object obj)
+			void Remove(DataModelList list)
 			{
-				if (_objects.TryGetValue(obj, out var entry))
+				if (_lists.TryGetValue(list, out var entry))
 				{
 					if (-- entry.RefCount == 0)
 					{
 						entry.Controller.Dispose();
 						_bucket.RemoveSubtree(entry.RefId);
-						_objects.Remove(obj);
+						_lists.Remove(list);
 						_refIds.Remove(entry.RefId);
 					}
 					else
 					{
-						_objects[obj] = entry;
+						_lists[list] = entry;
 					}
 				}
 			}

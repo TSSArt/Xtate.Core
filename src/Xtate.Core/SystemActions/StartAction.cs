@@ -35,8 +35,8 @@ namespace Xtate.CustomAction
 		private readonly ILocationAssigner?    _idLocation;
 		private readonly string?               _sessionId;
 		private readonly IExpressionEvaluator? _sessionIdExpression;
-		private readonly IExpressionEvaluator? _urlExpression;
 		private readonly Uri?                  _url;
+		private readonly IExpressionEvaluator? _urlExpression;
 
 		public StartAction(XmlReader xmlReader, ICustomActionContext access)
 		{
@@ -54,12 +54,12 @@ namespace Xtate.CustomAction
 				access.AddValidationError<StartAction>(Resources.ErrorMessage_At_least_one_url_must_be_specified);
 			}
 
-			if (url is { } && urlExpression is { })
+			if (url is not null && urlExpression is not null)
 			{
 				access.AddValidationError<StartAction>(Resources.ErrorMessage_url_and_urlExpr_attributes_should_not_be_assigned_in_Start_element);
 			}
 
-			if (url is { } && !Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out _url))
+			if (url is not null && !Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out _url))
 			{
 				access.AddValidationError<StartAction>(Resources.ErrorMessage_url__has_invalid_URI_format);
 			}
@@ -69,22 +69,22 @@ namespace Xtate.CustomAction
 				access.AddValidationError<StartAction>(Resources.ErrorMessage_SessionId_could_not_be_empty);
 			}
 
-			if (_sessionId is { } && sessionIdExpression is { })
+			if (_sessionId is not null && sessionIdExpression is not null)
 			{
 				access.AddValidationError<StartAction>(Resources.ErrorMessage_sessionId__and__sessionIdExpr__attributes_should_not_be_assigned_in_Start_element_);
 			}
 
-			if (urlExpression is { })
+			if (urlExpression is not null)
 			{
 				_urlExpression = access.RegisterValueExpression(urlExpression, ExpectedValueType.String);
 			}
 
-			if (sessionIdExpression is { })
+			if (sessionIdExpression is not null)
 			{
 				_sessionIdExpression = access.RegisterValueExpression(sessionIdExpression, ExpectedValueType.String);
 			}
 
-			if (sessionIdLocation is { })
+			if (sessionIdLocation is not null)
 			{
 				_idLocation = access.RegisterLocationExpression(sessionIdLocation);
 			}
@@ -114,7 +114,7 @@ namespace Xtate.CustomAction
 
 			await host.StartStateMachineAsync(sessionId, new StateMachineOrigin(source, baseUri), parameters: default, token).ConfigureAwait(false);
 
-			if (_idLocation is { })
+			if (_idLocation is not null)
 			{
 				await _idLocation.Assign(executionContext, sessionId, token).ConfigureAwait(false);
 			}
@@ -125,11 +125,11 @@ namespace Xtate.CustomAction
 		private static Uri? GetBaseUri(IExecutionContext executionContext)
 		{
 			var val = executionContext.DataModel[key: "_x", caseInsensitive: false]
-									  .AsObjectOrEmpty()[key: "host", caseInsensitive: false]
-									  .AsObjectOrEmpty()[key: "location", caseInsensitive: false]
+									  .AsListOrEmpty()[key: "host", caseInsensitive: false]
+									  .AsListOrEmpty()[key: "location", caseInsensitive: false]
 									  .AsStringOrDefault();
 
-			return val is { } ? new Uri(val, UriKind.RelativeOrAbsolute) : null;
+			return val is not null ? new Uri(val, UriKind.RelativeOrAbsolute) : null;
 		}
 
 		private static IHost GetHost(IExecutionContext executionContext)
@@ -144,12 +144,12 @@ namespace Xtate.CustomAction
 
 		private async ValueTask<Uri?> GetSource(IExecutionContext executionContext, CancellationToken token)
 		{
-			if (_url is { })
+			if (_url is not null)
 			{
 				return _url;
 			}
 
-			if (_urlExpression is { })
+			if (_urlExpression is not null)
 			{
 				var val = await _urlExpression.Evaluate(executionContext, token).ConfigureAwait(false);
 
@@ -161,12 +161,12 @@ namespace Xtate.CustomAction
 
 		private async ValueTask<SessionId> GetSessionId(IExecutionContext executionContext, CancellationToken token)
 		{
-			if (_sessionId is { })
+			if (_sessionId is not null)
 			{
 				return Xtate.SessionId.FromString(_sessionId);
 			}
 
-			if (_sessionIdExpression is { })
+			if (_sessionIdExpression is not null)
 			{
 				var val = await _sessionIdExpression.Evaluate(executionContext, token).ConfigureAwait(false);
 

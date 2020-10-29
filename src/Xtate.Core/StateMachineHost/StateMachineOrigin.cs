@@ -56,19 +56,43 @@ namespace Xtate
 		public StateMachineOriginType Type =>
 				_val switch
 				{
-						string _ => StateMachineOriginType.Scxml,
-						Uri _ => StateMachineOriginType.Source,
-						IStateMachine _ => StateMachineOriginType.StateMachine,
+						string => StateMachineOriginType.Scxml,
+						Uri => StateMachineOriginType.Source,
+						IStateMachine => StateMachineOriginType.StateMachine,
 						null => StateMachineOriginType.None,
-						_ => Infrastructure.UnexpectedValue<StateMachineOriginType>()
+						_ => Infrastructure.UnexpectedValue<StateMachineOriginType>(_val)
 				};
 
 		public Uri? BaseUri { get; }
 
-		public string AsScxml() => (string?) _val ?? throw new ArgumentException(Resources.Exception_Value_is_not_SCXML);
+		public string AsScxml()
+		{
+			if (_val is string str)
+			{
+				return str;
+			}
 
-		public Uri AsSource() => (Uri?) _val ?? throw new ArgumentException(Resources.Exception_Value_is_not_Source);
+			throw new ArgumentException(Resources.Exception_Value_is_not_SCXML);
+		}
 
-		public IStateMachine AsStateMachine() => (IStateMachine?) _val ?? throw new ArgumentException(Resources.Exception_Value_is_not_StateMachine);
+		public Uri AsSource()
+		{
+			if (_val is Uri uri)
+			{
+				return uri;
+			}
+
+			throw new ArgumentException(Resources.Exception_Value_is_not_Source);
+		}
+
+		public IStateMachine AsStateMachine()
+		{
+			if (_val is IStateMachine stateMachine)
+			{
+				return stateMachine;
+			}
+
+			throw new ArgumentException(Resources.Exception_Value_is_not_StateMachine);
+		}
 	}
 }
