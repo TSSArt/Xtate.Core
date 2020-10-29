@@ -39,7 +39,7 @@ namespace Xtate.Service
 			{
 				var activator = await factory.TryGetActivator(factoryContext, type, token).ConfigureAwait(false);
 
-				if (activator is { })
+				if (activator is not null)
 				{
 					return activator;
 				}

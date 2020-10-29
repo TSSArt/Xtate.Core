@@ -29,13 +29,13 @@ namespace Xtate
 	[PublicAPI]
 	public abstract class StateMachineVisitor
 	{
-		private readonly Stack<(object, ImmutableArray<object>)>? _path;
+		private readonly Stack<(object, ImmutableArray<object?>)>? _path;
 
-		protected StateMachineVisitor(bool trackPath = false) => _path = trackPath ? new Stack<(object, ImmutableArray<object>)>() : null;
+		protected StateMachineVisitor(bool trackPath = false) => _path = trackPath ? new Stack<(object, ImmutableArray<object?>)>() : null;
 
-		protected string? CurrentPath => _path is { } ? string.Join(separator: @"/", _path.Reverse().Select(EntityName)) : null;
+		protected string? CurrentPath => _path is not null ? string.Join(separator: @"/", _path.Reverse().Select(EntityName)) : null;
 
-		private string EntityName((object obj, ImmutableArray<object> array) entry)
+		private string EntityName((object obj, ImmutableArray<object?> array) entry)
 		{
 			if (entry.array.IsDefault)
 			{
@@ -45,9 +45,9 @@ namespace Xtate
 			return ((Type) entry.obj).Name;
 		}
 
-		private void Enter<T>(T entity) where T : class => _path?.Push((entity, new ImmutableArray<object>()));
+		private void Enter<T>(T entity) where T : notnull => _path?.Push((entity, new ImmutableArray<object?>()));
 
-		private void Enter<T>(ImmutableArray<T> array) where T : class => _path?.Push((typeof(ImmutableArray<T>), array.CastArray<object>()));
+		private void Enter<T>(ImmutableArray<T> array) where T : notnull => _path?.Push((typeof(ImmutableArray<T>), array.CastArray<object?>()));
 
 		private void Exit() => _path?.Pop();
 
@@ -60,7 +60,7 @@ namespace Xtate
 				throw new InvalidOperationException(message: Resources.Exception_Root_path_can_be_set_only_before_visiting);
 			}
 
-			_path?.Push((root, new ImmutableArray<object>()));
+			_path?.Push((root, new ImmutableArray<object?>()));
 		}
 
 		private ref struct VisitData<TEntity, TIEntity> where TEntity : struct, IVisitorEntity<TEntity, TIEntity>, TIEntity
@@ -163,10 +163,10 @@ namespace Xtate
 
 			public T? this[int index]
 			{
-				get => ModifiedItems is { } ? ModifiedItems[index] : _items[index];
+				get => ModifiedItems is not null ? ModifiedItems[index] : _items[index];
 				set
 				{
-					if (ModifiedItems is { })
+					if (ModifiedItems is not null)
 					{
 						ModifiedItems[index] = value!;
 					}
@@ -180,7 +180,7 @@ namespace Xtate
 
 			public bool Contains(T item) => ModifiedItems?.Contains(item) ?? _items.Contains(item);
 
-			public IEnumerator<T> GetEnumerator() => ModifiedItems is { } ? ModifiedItems.GetEnumerator() : ((IEnumerable<T>) _items).GetEnumerator();
+			public IEnumerator<T> GetEnumerator() => ModifiedItems is not null ? ModifiedItems.GetEnumerator() : ((IEnumerable<T>) _items).GetEnumerator();
 
 			public void Add([AllowNull] T item) => (ModifiedItems ??= _items.ToBuilder()).Add(item!);
 

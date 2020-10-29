@@ -69,9 +69,13 @@ namespace Xtate
 
 			responseMessage.EnsureSuccessStatusCode();
 
-			var contentType = new ContentType(responseMessage.Content.Headers.ContentType.ToString());
+			var contentType = responseMessage.Content.Headers.ContentType is { } ct ? new ContentType(ct.ToString()) : new ContentType();
 			var lastModified = responseMessage.Content.Headers.LastModified;
+#if NET5_0
+			var bytes = await responseMessage.Content.ReadAsByteArrayAsync(token).ConfigureAwait(false);
+#else
 			var bytes = await responseMessage.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+#endif
 			resource = new Resource(uri, contentType, lastModified, bytes: bytes);
 
 			if (weakReference is null)

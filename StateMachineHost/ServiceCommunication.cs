@@ -42,12 +42,12 @@ namespace Xtate
 
 		public ValueTask SendToCreator(IOutgoingEvent evt, CancellationToken token)
 		{
-			if (evt.Type is { } || evt.SendId is { } || evt.DelayMs != 0)
+			if (evt.Type is not null || evt.SendId is not null || evt.DelayMs != 0)
 			{
 				throw new ProcessorException(Resources.Exception_Type__SendId__DelayMs_can_t_be_specified_for_this_event);
 			}
 
-			if (evt.Target != EventEntity.ParentTarget && evt.Target is { })
+			if (evt.Target != EventEntity.ParentTarget && evt.Target is not null)
 			{
 				throw new ProcessorException(Resources.Exception_Target_should_be_equal_to___parent__or_null);
 			}

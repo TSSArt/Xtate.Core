@@ -36,7 +36,7 @@ namespace Xtate.IoProcessor
 			if (GetType().GetCustomAttribute<IoProcessorAttribute>(false) is { } ioProcessorAttribute)
 			{
 				IoProcessorId = new Uri(ioProcessorAttribute.Type, UriKind.RelativeOrAbsolute);
-				_ioProcessorAliasId = ioProcessorAttribute.Alias is { } ? new Uri(ioProcessorAttribute.Alias, UriKind.RelativeOrAbsolute) : null;
+				_ioProcessorAliasId = ioProcessorAttribute.Alias is not null ? new Uri(ioProcessorAttribute.Alias, UriKind.RelativeOrAbsolute) : null;
 
 				return;
 			}

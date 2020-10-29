@@ -22,7 +22,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Xtate
 {
-	public abstract partial class DataModelList
+	public partial class DataModelList
 	{
 		[Serializable]
 		[SuppressMessage(category: "Design", checkId: "CA1034:Nested types should not be visible", Justification = "Internal DTO")]
@@ -86,9 +86,9 @@ namespace Xtate
 			{
 				unchecked
 				{
-					var hashCode = (Index * 397) ^ (Key is { } ? Key.GetHashCode() : 0);
+					var hashCode = (Index * 397) ^ (Key is not null ? Key.GetHashCode() : 0);
 					hashCode = (hashCode * 397) ^ (int) Access;
-					hashCode = (hashCode * 397) ^ (Metadata is { } ? Metadata.GetHashCode() : 0);
+					hashCode = (hashCode * 397) ^ (Metadata is not null ? Metadata.GetHashCode() : 0);
 					hashCode = (hashCode * 397) ^ Value.GetHashCode();
 
 					return hashCode;
@@ -121,7 +121,7 @@ namespace Xtate
 
 			public override bool Equals(object? obj) => obj is KeyValue other && Equals(other);
 
-			public override int GetHashCode() => unchecked(((Key is { } ? Key.GetHashCode() : 0) * 397) ^ Value.GetHashCode());
+			public override int GetHashCode() => unchecked(((Key is not null ? Key.GetHashCode() : 0) * 397) ^ Value.GetHashCode());
 
 			public static bool operator ==(KeyValue left, KeyValue right) => left.Equals(right);
 

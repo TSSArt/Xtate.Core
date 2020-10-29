@@ -39,7 +39,7 @@ namespace Xtate.CustomAction
 			{
 				var activator = await factory.TryGetActivator(factoryContext, ns, name, token).ConfigureAwait(false);
 
-				if (activator is { })
+				if (activator is not null)
 				{
 					return activator;
 				}

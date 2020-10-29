@@ -27,7 +27,6 @@ using Xtate.Annotations;
 namespace Xtate.Persistence
 {
 	[PublicAPI]
-	[SuppressMessage(category: "ReSharper", checkId: "SuggestVarOrType_Elsewhere", Justification = "Span<> must be explicit")]
 	internal readonly struct Bucket
 	{
 		public static readonly RootType RootKey = RootType.Instance;
@@ -93,7 +92,7 @@ namespace Xtate.Persistence
 		{
 			var size = KeyHelper<TKey>.Converter.GetLength(key) + GetSize(_block);
 
-			for (var n = _node; n is { }; n = n.Previous)
+			for (var n = _node; n is not null; n = n.Previous)
 			{
 				size += n.Size;
 			}
@@ -117,7 +116,7 @@ namespace Xtate.Persistence
 
 		private static Span<byte> WritePrevious(Node? node, int size, ref Span<byte> buf)
 		{
-			if (node is { })
+			if (node is not null)
 			{
 				var nextBuf = WritePrevious(node.Previous, size + node.Size, ref buf);
 				node.WriteTo(nextBuf);
@@ -191,7 +190,7 @@ namespace Xtate.Persistence
 			}
 
 			value = ValueHelper<TValue>.Converter.Read(memory.Span);
-			return value is { };
+			return value is not null;
 		}
 
 		public class RootType
@@ -256,26 +255,23 @@ namespace Xtate.Persistence
 			private static ConverterBase<T> GetValueConverter()
 			{
 				var type = typeof(T);
-				switch (Type.GetTypeCode(type))
+				return Type.GetTypeCode(type) switch
 				{
-					case TypeCode.Byte:
-					case TypeCode.Int16:
-					case TypeCode.Int32:
-					case TypeCode.SByte:
-					case TypeCode.UInt16:
-					case TypeCode.UInt32:
-						return new EnumIntValueConverter<T>();
-
-					case TypeCode.Double: return new DoubleValueConverter<T>();
-					case TypeCode.Boolean: return new BooleanValueConverter<T>();
-					case TypeCode.String: return new StringValueConverter<T>();
-					case TypeCode.DateTime: return new DateTimeValueConverter<T>();
-					case TypeCode.Object when type == typeof(Uri): return new UriValueConverter<T>();
-					case TypeCode.Object when type == typeof(DateTimeOffset): return new DateTimeOffsetValueConverter<T>();
-					case TypeCode.Object when type == typeof(DataModelDateTime): return new DataModelDateTimeValueConverter<T>();
-
-					default: return new UnsupportedConverter<T>(@"value");
-				}
+						TypeCode.Byte => new EnumIntValueConverter<T>(),
+						TypeCode.Int16 => new EnumIntValueConverter<T>(),
+						TypeCode.Int32 => new EnumIntValueConverter<T>(),
+						TypeCode.SByte => new EnumIntValueConverter<T>(),
+						TypeCode.UInt16 => new EnumIntValueConverter<T>(),
+						TypeCode.UInt32 => new EnumIntValueConverter<T>(),
+						TypeCode.Double => new DoubleValueConverter<T>(),
+						TypeCode.Boolean => new BooleanValueConverter<T>(),
+						TypeCode.String => new StringValueConverter<T>(),
+						TypeCode.DateTime => new DateTimeValueConverter<T>(),
+						TypeCode.Object when type == typeof(Uri) => new UriValueConverter<T>(),
+						TypeCode.Object when type == typeof(DateTimeOffset) => new DateTimeOffsetValueConverter<T>(),
+						TypeCode.Object when type == typeof(DataModelDateTime) => new DataModelDateTimeValueConverter<T>(),
+						_ => new UnsupportedConverter<T>(@"value")
+				};
 			}
 		}
 
@@ -492,7 +488,7 @@ namespace Xtate.Persistence
 				var lastByteIndex = bytes.Length - 1;
 				bytes[lastByteIndex] = 0xFF;
 				var dest = bytes.Slice(start: 1, bytes.Length - 2);
-#if NETSTANDARD2_1
+#if NET5_0
 				Encoding.UTF8.GetBytes(key, dest);
 #else
 				Encoding.UTF8.GetBytes(key).CopyTo(dest);
@@ -648,7 +644,7 @@ namespace Xtate.Persistence
 					return;
 				}
 
-#if NETSTANDARD2_1
+#if NET5_0
 				Encoding.UTF8.GetBytes(val, bytes);
 #else
 				Encoding.UTF8.GetBytes(val).CopyTo(bytes);
@@ -662,7 +658,7 @@ namespace Xtate.Persistence
 					return string.Empty;
 				}
 
-#if NETSTANDARD2_1
+#if NET5_0
 				return Encoding.UTF8.GetString(bytes);
 #else
 				return Encoding.UTF8.GetString(bytes.ToArray());

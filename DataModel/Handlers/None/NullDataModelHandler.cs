@@ -56,7 +56,7 @@ namespace Xtate.DataModel.Null
 				return;
 			}
 
-			var state = expression.Substring(startIndex: 3, expression.Length - 4).Trim();
+			var state = expression[3..^1].Trim();
 
 			if (Identifier.TryCreate(state, out var inState))
 			{

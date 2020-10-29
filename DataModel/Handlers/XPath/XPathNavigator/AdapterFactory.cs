@@ -23,15 +23,17 @@ namespace Xtate.DataModel.XPath
 {
 	internal static class AdapterFactory
 	{
-		public static readonly NodeAdapter SimpleTypeNodeAdapter = new SimpleTypeNodeAdapter();
-		public static readonly NodeAdapter XmlnsXmlNodeAdapter   = new XmlnsXmlNodeAdapter();
-		public static readonly NodeAdapter AttributeNodeAdapter  = new AttributeNodeAdapter();
-		public static readonly NodeAdapter NamespaceNodeAdapter  = new NamespaceNodeAdapter();
+		public static readonly NodeAdapter XmlnsXmlNodeAdapter      = new XmlnsXmlNodeAdapter();
+		public static readonly NodeAdapter AttributeNodeAdapter     = new AttributeNodeAdapter();
+		public static readonly NodeAdapter KeyAttributeNodeAdapter  = new KeyAttributeNodeAdapter();
+		public static readonly NodeAdapter TypeAttributeNodeAdapter = new TypeAttributeNodeAdapter();
+		public static readonly NodeAdapter NamespaceNodeAdapter     = new NamespaceNodeAdapter();
 
 		private static readonly NodeAdapter ListNodeAdapter           = new ListNodeAdapter();
 		private static readonly NodeAdapter ListItemNodeAdapter       = new ListItemNodeAdapter();
 		private static readonly NodeAdapter ItemNodeAdapter           = new ItemNodeAdapter();
 		private static readonly NodeAdapter SimpleTypeItemNodeAdapter = new SimpleTypeItemNodeAdapter();
+		private static readonly NodeAdapter SimpleTypeNodeAdapter     = new SimpleTypeNodeAdapter();
 
 		public static NodeAdapter GetDefaultAdapter(in DataModelValue value) =>
 				value.Type switch
@@ -42,18 +44,12 @@ namespace Xtate.DataModel.XPath
 						DataModelValueType.Number => SimpleTypeNodeAdapter,
 						DataModelValueType.Boolean => SimpleTypeNodeAdapter,
 						DataModelValueType.DateTime => SimpleTypeNodeAdapter,
-						DataModelValueType.Object => ListNodeAdapter,
-						DataModelValueType.Array => ListNodeAdapter,
+						DataModelValueType.List => ListNodeAdapter,
 						_ => throw GetNotSupportedException()
 				};
 
 		public static NodeAdapter GetItemAdapter(in DataModelList.Entry entry)
 		{
-			if (entry.Key is null)
-			{
-				return SimpleTypeNodeAdapter;
-			}
-
 			return entry.Value.Type switch
 			{
 					DataModelValueType.Undefined => ItemNodeAdapter,
@@ -62,8 +58,7 @@ namespace Xtate.DataModel.XPath
 					DataModelValueType.Number => SimpleTypeItemNodeAdapter,
 					DataModelValueType.Boolean => SimpleTypeItemNodeAdapter,
 					DataModelValueType.DateTime => SimpleTypeItemNodeAdapter,
-					DataModelValueType.Object => ListItemNodeAdapter,
-					DataModelValueType.Array => ListItemNodeAdapter,
+					DataModelValueType.List => ListItemNodeAdapter,
 					_ => throw GetNotSupportedException()
 			};
 		}

@@ -39,13 +39,13 @@ namespace Xtate
 
 		public async ValueTask<ICustomActionFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, string ns, string name, CancellationToken token)
 		{
-			if (_customActionFactories is { })
+			if (_customActionFactories is not null)
 			{
 				foreach (var factory in _customActionFactories)
 				{
 					var activator = await factory.TryGetActivator(factoryContext, ns, name, token).ConfigureAwait(false);
 
-					if (activator is { })
+					if (activator is not null)
 					{
 						return activator;
 					}
@@ -61,13 +61,13 @@ namespace Xtate
 
 		public async ValueTask<IDataModelHandlerFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, string dataModelType, CancellationToken token)
 		{
-			if (_dataModelHandlerFactories is { })
+			if (_dataModelHandlerFactories is not null)
 			{
 				foreach (var factory in _dataModelHandlerFactories)
 				{
 					var activator = await factory.TryGetActivator(factoryContext, dataModelType, token).ConfigureAwait(false);
 
-					if (activator is { })
+					if (activator is not null)
 					{
 						return activator;
 					}
@@ -83,13 +83,13 @@ namespace Xtate
 
 		public async ValueTask<IServiceFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, Uri type, CancellationToken token)
 		{
-			if (_serviceFactories is { })
+			if (_serviceFactories is not null)
 			{
 				foreach (var factory in _serviceFactories)
 				{
 					var activator = await factory.TryGetActivator(factoryContext, type, token).ConfigureAwait(false);
 
-					if (activator is { })
+					if (activator is not null)
 					{
 						return activator;
 					}

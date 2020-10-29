@@ -45,7 +45,7 @@ namespace Xtate.CustomAction
 				access.AddValidationError<StartAction>(Resources.ErrorMessage_SessionId_could_not_be_empty);
 			}
 
-			if (_sessionId is { } && sessionIdExpression is { })
+			if (_sessionId is not null && sessionIdExpression is not null)
 			{
 				access.AddValidationError<StartAction>(Resources.ErrorMessage_sessionId__and__sessionIdExpr__attributes_should_not_be_assigned_in_Start_element_);
 			}
@@ -55,7 +55,7 @@ namespace Xtate.CustomAction
 				access.AddValidationError<StartAction>(Resources.ErrorMessage_sessionId__or__sessionIdExpr__must_be_specified);
 			}
 
-			if (sessionIdExpression is { })
+			if (sessionIdExpression is not null)
 			{
 				_sessionIdExpression = access.RegisterValueExpression(sessionIdExpression, ExpectedValueType.String);
 			}
@@ -92,12 +92,12 @@ namespace Xtate.CustomAction
 
 		private async ValueTask<string> GetSessionId(IExecutionContext executionContext, CancellationToken token)
 		{
-			if (_sessionId is { })
+			if (_sessionId is not null)
 			{
 				return _sessionId;
 			}
 
-			if (_sessionIdExpression is { })
+			if (_sessionIdExpression is not null)
 			{
 				var val = await _sessionIdExpression.Evaluate(executionContext, token).ConfigureAwait(false);
 

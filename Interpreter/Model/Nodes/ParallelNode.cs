@@ -81,12 +81,12 @@ namespace Xtate
 		public override IIdentifier Id { get; }
 
 		IDataModel? IParallel.                 DataModel     => DataModel;
-		ImmutableArray<IInvoke> IParallel.     Invoke        => ImmutableArray<IInvoke>.CastUp(Invoke);
-		ImmutableArray<IStateEntity> IParallel.States        => ImmutableArray<IStateEntity>.CastUp(States);
-		ImmutableArray<IHistory> IParallel.    HistoryStates => ImmutableArray<IHistory>.CastUp(HistoryStates);
-		ImmutableArray<ITransition> IParallel. Transitions   => ImmutableArray<ITransition>.CastUp(Transitions);
-		ImmutableArray<IOnEntry> IParallel.    OnEntry       => ImmutableArray<IOnEntry>.CastUp(OnEntry);
-		ImmutableArray<IOnExit> IParallel.     OnExit        => ImmutableArray<IOnExit>.CastUp(OnExit);
+		ImmutableArray<IInvoke> IParallel.     Invoke        => ImmutableArray<IInvoke>.CastUp(Invoke)!;
+		ImmutableArray<IStateEntity> IParallel.States        => ImmutableArray<IStateEntity>.CastUp(States)!;
+		ImmutableArray<IHistory> IParallel.    HistoryStates => ImmutableArray<IHistory>.CastUp(HistoryStates)!;
+		ImmutableArray<ITransition> IParallel. Transitions   => ImmutableArray<ITransition>.CastUp(Transitions)!;
+		ImmutableArray<IOnEntry> IParallel.    OnEntry       => ImmutableArray<IOnEntry>.CastUp(OnEntry)!;
+		ImmutableArray<IOnExit> IParallel.     OnExit        => ImmutableArray<IOnExit>.CastUp(OnExit)!;
 
 	#endregion
 

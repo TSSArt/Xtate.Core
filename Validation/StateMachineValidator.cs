@@ -18,7 +18,6 @@
 #endregion
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Xtate
 {
@@ -62,7 +61,7 @@ namespace Xtate
 					AddError(entity, Resources.ErrorMessage_AssignItemContentAndExpressionMissed);
 				}
 
-				if (entity.Expression is { } && entity.InlineContent is { })
+				if (entity.Expression is not null && entity.InlineContent is not null)
 				{
 					AddError(entity, Resources.ErrorMessage_AssignItemContentAndExpressionSpecified);
 				}
@@ -79,7 +78,7 @@ namespace Xtate
 					AddError(entity, Resources.ErrorMessage_CancelItemSendIdAndExpressionMissed);
 				}
 
-				if (entity.SendId is { } && entity.SendIdExpression is { })
+				if (entity.SendId is not null && entity.SendIdExpression is not null)
 				{
 					AddError(entity, Resources.ErrorMessage_CancelItemSendIdAndExpressionSpecified);
 				}
@@ -161,7 +160,7 @@ namespace Xtate
 					AddError(entity, Resources.ErrorMessage_ExpressionAndBodyMissedInContent);
 				}
 
-				if (entity.Expression is { } && entity.Body is { })
+				if (entity.Expression is not null && entity.Body is not null)
 				{
 					AddError(entity, Resources.ErrorMessage_ExpressionAndBodySpecifiedInContent);
 				}
@@ -190,7 +189,8 @@ namespace Xtate
 					AddError(entity, Resources.ErrorMessage_Id_property_required_in_Data_element);
 				}
 
-				if (entity.InlineContent is { } && entity.Expression is { } || entity.InlineContent is { } && entity.Source is { } || entity.Source is { } && entity.Expression is { })
+				if (entity.InlineContent is not null && entity.Expression is not null || entity.InlineContent is not null && entity.Source is not null ||
+					entity.Source is not null && entity.Expression is not null)
 				{
 					AddError(entity, Resources.ErrorMessage_ExpressionSourceInData);
 				}
@@ -279,7 +279,7 @@ namespace Xtate
 				{
 					switch (op)
 					{
-						case IElseIf _:
+						case IElseIf:
 							if (!condition)
 							{
 								AddError(op, Resources.ErrorMessage_ElseifCannotFollowElse);
@@ -287,7 +287,7 @@ namespace Xtate
 
 							break;
 
-						case IElse _:
+						case IElse:
 							if (!condition)
 							{
 								AddError(op, Resources.ErrorMessage_ElseCanBeUsedOnlyOnce);
@@ -323,17 +323,17 @@ namespace Xtate
 					AddError(entity, Resources.ErrorMessage_Type_or_TypeExpression_must_be_specified_in_Invoke_element);
 				}
 
-				if (entity.Type is { } && entity.TypeExpression is { })
+				if (entity.Type is not null && entity.TypeExpression is not null)
 				{
 					AddError(entity, Resources.ErrorMessage_Type_and_TypeExpression_can_t_be_used_at_the_same_time_in_Invoke_element);
 				}
 
-				if (entity.Id is { } && entity.IdLocation is { })
+				if (entity.Id is not null && entity.IdLocation is not null)
 				{
 					AddError(entity, Resources.ErrorMessage_Id_and_IdLocation_can_t_be_used_at_the_same_time_in_Invoke_element);
 				}
 
-				if (entity.Source is { } && entity.SourceExpression is { })
+				if (entity.Source is not null && entity.SourceExpression is not null)
 				{
 					AddError(entity, Resources.ErrorMessage_Source_and_SourceExpression_can_t_be_used_at_the_same_time_in_Invoke_element);
 				}
@@ -355,7 +355,7 @@ namespace Xtate
 					AddError(entity, Resources.ErrorMessage_Name_attributes_required_in_Param_element);
 				}
 
-				if (entity.Expression is { } && entity.Location is { })
+				if (entity.Expression is not null && entity.Location is not null)
 				{
 					AddError(entity, Resources.ErrorMessage_ExpressionLocationInParam);
 				}
@@ -379,7 +379,7 @@ namespace Xtate
 			{
 				if (entity is null) throw new ArgumentNullException(nameof(entity));
 
-				if (entity.Source is { } && entity.Content is { })
+				if (entity.Source is not null && entity.Content is not null)
 				{
 					AddError(entity, Resources.ErrorMessage_Source_and_Body_can_t_be_used_at_the_same_time_in_Assign_element);
 				}
@@ -387,42 +387,43 @@ namespace Xtate
 				base.Visit(ref entity);
 			}
 
-			[SuppressMessage(category: "ReSharper", checkId: "CyclomaticComplexity", Justification = "OK")]
 			protected override void Visit(ref ISend entity)
 			{
 				if (entity is null) throw new ArgumentNullException(nameof(entity));
 
-				if (entity.EventName is { } && entity.EventExpression is { } || entity.EventName is { } && entity.Content is { } || entity.EventExpression is { } && entity.Content is { })
+				if (entity.EventName is not null && entity.EventExpression is not null ||
+					entity.EventName is not null && entity.Content is not null ||
+					entity.EventExpression is not null && entity.Content is not null)
 				{
 					AddError(entity, Resources.ErrorMessage_EvenExpressionContentInSend);
 				}
 
-				if (entity.Target is { } && entity.TargetExpression is { })
+				if (entity.Target is not null && entity.TargetExpression is not null)
 				{
 					AddError(entity, Resources.ErrorMessage_Target_and_TargetExpression_can_t_be_used_at_the_same_time_in_Send_element);
 				}
 
-				if (entity.Type is { } && entity.TypeExpression is { })
+				if (entity.Type is not null && entity.TypeExpression is not null)
 				{
 					AddError(entity, Resources.ErrorMessage_Type_and_TypeExpression_can_t_be_used_at_the_same_time_in_Send_element);
 				}
 
-				if (entity.Id is { } && entity.IdLocation is { })
+				if (entity.Id is not null && entity.IdLocation is not null)
 				{
 					AddError(entity, Resources.ErrorMessage_Id_and_IdLocation_can_t_be_used_at_the_same_time_in_Send_element);
 				}
 
-				if (entity.DelayMs is { } && entity.DelayExpression is { })
+				if (entity.DelayMs is not null && entity.DelayExpression is not null)
 				{
 					AddError(entity, Resources.ErrorMessage_EventExpressionInSend);
 				}
 
-				if (!entity.NameList.IsDefaultOrEmpty && entity.Content is { })
+				if (!entity.NameList.IsDefaultOrEmpty && entity.Content is not null)
 				{
 					AddError(entity, Resources.ErrorMessage_NameList_and_Content_can_t_be_used_at_the_same_time_in_Send_element);
 				}
 
-				if (!entity.Parameters.IsDefaultOrEmpty && entity.Content is { })
+				if (!entity.Parameters.IsDefaultOrEmpty && entity.Content is not null)
 				{
 					AddError(entity, Resources.ErrorMessage_Parameters_and_Content_can_t_be_used_at_the_same_time_in_Send_element);
 				}
@@ -439,7 +440,7 @@ namespace Xtate
 			{
 				if (entity is null) throw new ArgumentNullException(nameof(entity));
 
-				if (entity.Initial is { } && entity.States.IsDefaultOrEmpty)
+				if (entity.Initial is not null && entity.States.IsDefaultOrEmpty)
 				{
 					AddError(entity, Resources.ErrorMessage_Initial_state_property_cannot_be_used_without_any_states);
 				}
@@ -456,7 +457,7 @@ namespace Xtate
 			{
 				if (entity is null) throw new ArgumentNullException(nameof(entity));
 
-				if (entity.Initial is { } && entity.States.IsDefaultOrEmpty)
+				if (entity.Initial is not null && entity.States.IsDefaultOrEmpty)
 				{
 					AddError(entity, Resources.ErrorMessage_Initial_state_property_can_be_used_only_in_complex_states);
 				}

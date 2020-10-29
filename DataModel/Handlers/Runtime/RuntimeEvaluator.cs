@@ -48,7 +48,7 @@ namespace Xtate
 						Evaluator evaluator => new DefaultObject(evaluator(executionContext)),
 						EvaluatorTask task => new DefaultObject(await task(executionContext).ConfigureAwait(false)),
 						EvaluatorCancellableTask task => new DefaultObject(await task(executionContext, token).ConfigureAwait(false)),
-						_ => Infrastructure.UnexpectedValue<IObject>()
+						_ => Infrastructure.UnexpectedValue<IObject>(_evaluator)
 				};
 
 	#endregion

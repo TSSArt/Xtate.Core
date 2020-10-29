@@ -72,11 +72,11 @@ namespace Xtate
 
 			var assembly = loadedAssembly ?? cachedAssembly;
 
-			if (assembly is { } && assembly != cachedAssembly)
+			if (assembly is not null && assembly != cachedAssembly)
 			{
 				_assemblyCache = assemblyCache.SetItem(uri, assembly);
 
-				ClearFactoryCache(cachedAssembly);
+				ClearFactoryCache(cachedAssembly!);
 			}
 
 			return assembly;
@@ -137,9 +137,11 @@ namespace Xtate
 			{
 				var type = attribute.FactoryType;
 
-				if (type is { } && typeof(TFactory).IsAssignableFrom(type))
+				if (type is not null && typeof(TFactory).IsAssignableFrom(type))
 				{
-					builder.Add((TFactory) Activator.CreateInstance(type));
+					var instance = Activator.CreateInstance(type);
+					Infrastructure.NotNull(instance);
+					builder.Add((TFactory) instance);
 				}
 			}
 
@@ -177,8 +179,8 @@ namespace Xtate
 		{
 			try
 			{
-				Assembly assembly;
-				if (!(factoryContext[CacheKey] is Dictionary<Uri, Assembly> cache))
+				Assembly? assembly;
+				if (factoryContext[CacheKey] is not Dictionary<Uri, Assembly> cache)
 				{
 					assembly = await LoadAssembly(factoryContext.ResourceLoaders, uri, token).ConfigureAwait(false);
 					factoryContext[CacheKey] = new Dictionary<Uri, Assembly> { { uri, assembly } };
@@ -216,7 +218,9 @@ namespace Xtate
 					{
 						var resource = await resourceLoader.Request(uri, token).ConfigureAwait(false);
 
-						return Assembly.Load(resource.GetBytes());
+						var bytes = resource.GetBytes();
+						Infrastructure.NotNull(bytes);
+						return Assembly.Load(bytes);
 					}
 				}
 			}

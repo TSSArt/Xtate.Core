@@ -112,7 +112,7 @@ namespace Xtate
 		{
 			var model = await Build(token).ConfigureAwait(false);
 
-			if (_externalScriptList is { })
+			if (_externalScriptList is not null)
 			{
 				await SetExternalResources(_externalScriptList, resourceLoaders, token).ConfigureAwait(false);
 			}
@@ -123,7 +123,7 @@ namespace Xtate
 		private ImmutableDictionary<int, IEntity> CreateEntityMap()
 		{
 			var id = 0;
-			for (var node = _documentIdList.First; node is { }; node = node.Next)
+			for (var node = _documentIdList.First; node is not null; node = node.Next)
 			{
 				node.Value = id ++;
 			}
@@ -161,7 +161,7 @@ namespace Xtate
 					{
 						var resource = await resourceLoader.Request(uri, token).ConfigureAwait(false);
 
-						if (resource.Content is { })
+						if (resource.Content is not null)
 						{
 							consumer.SetContent(resource.Content);
 						}
@@ -196,7 +196,7 @@ namespace Xtate
 
 			var stateMachineNode = new StateMachineNode(documentId, stateMachineProperties);
 
-			if (_dataModelNodeArray is { } && stateMachineNode.DataModel is { })
+			if (_dataModelNodeArray is not null && stateMachineNode.DataModel is not null)
 			{
 				_dataModelNodeArray.Remove(stateMachineNode.DataModel);
 			}

@@ -18,7 +18,7 @@
 #endregion
 
 using System;
-#if !NETSTANDARD2_1
+#if !NET5_0
 using System.Text;
 
 #endif
@@ -35,7 +35,7 @@ namespace Xtate
 
 		public static string NewId(int hash) => NewGuidWithHash(hash);
 
-#if NETSTANDARD2_1
+#if NET5_0
 		public static string NewInvokeId(string id, int hash) =>
 				string.Create(33 + id.Length, (id, hash), (span, arg) =>
 														  {

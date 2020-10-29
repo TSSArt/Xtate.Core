@@ -59,9 +59,12 @@ namespace Xtate
 		{
 			Infrastructure.NotNull(_node);
 
+			var list = _node.List;
+			Infrastructure.NotNull(list);
+
 			return new DocumentIdRecord
 				   {
-						   _node = _node.List.AddAfter(_node, value: -1),
+						   _node = list.AddAfter(_node, value: -1),
 						   _value = -1
 				   };
 		}

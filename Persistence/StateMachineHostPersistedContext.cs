@@ -362,7 +362,7 @@ namespace Xtate.Persistence
 					{
 						var invokedService = new InvokedServiceMeta(bucket) { RecordId = i };
 
-						if (invokedService.SessionId is { })
+						if (invokedService.SessionId is not null)
 						{
 							var stateMachine = _stateMachines[invokedService.SessionId];
 							Infrastructure.NotNull(stateMachine.Controller);
@@ -392,7 +392,7 @@ namespace Xtate.Persistence
 				SessionId = sessionId;
 				Location = stateMachineLocation;
 
-				if (options is { })
+				if (options is not null)
 				{
 					PersistenceLevel = options.PersistenceLevel;
 					SynchronousEventProcessing = options.SynchronousEventProcessing;

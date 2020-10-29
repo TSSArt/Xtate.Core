@@ -19,7 +19,6 @@
 
 using System;
 using System.Buffers;
-using System.Diagnostics.CodeAnalysis;
 using System.Xml.XPath;
 
 namespace Xtate.DataModel.XPath
@@ -39,7 +38,6 @@ namespace Xtate.DataModel.XPath
 			return GetNextChild(node, ref childNode);
 		}
 
-		[SuppressMessage(category: "ReSharper", checkId: "SuggestVarOrType_Elsewhere")]
 		public override string GetValue(in DataModelXPathNavigator.Node node)
 		{
 			var bufferSize = GetBufferSizeForValue(node);

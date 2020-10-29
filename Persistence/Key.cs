@@ -64,6 +64,7 @@ namespace Xtate.Persistence
 		Location,
 		LocationList,
 		Metadata,
+		Message,
 		Name,
 		NameList,
 		Namespace,

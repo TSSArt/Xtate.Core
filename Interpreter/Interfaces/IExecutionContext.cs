@@ -26,7 +26,7 @@ namespace Xtate
 	{
 		IContextItems RuntimeItems { get; }
 
-		DataModelObject DataModel { get; }
+		DataModelList DataModel { get; }
 
 		bool InState(IIdentifier id);
 

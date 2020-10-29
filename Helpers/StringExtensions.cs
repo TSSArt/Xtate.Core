@@ -19,7 +19,6 @@
 
 using System;
 using System.Buffers;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Xtate
 {
@@ -33,7 +32,6 @@ namespace Xtate
 		/// <param name="str">String to normalize whitespaces</param>
 		/// <returns>Normalized string</returns>
 		/// <exception cref="ArgumentNullException"></exception>
-		[SuppressMessage(category: "ReSharper", checkId: "SuggestVarOrType_Elsewhere")]
 		public static string NormalizeSpaces(this string str)
 		{
 			if (str is null) throw new ArgumentNullException(nameof(str));

@@ -20,32 +20,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Dynamic;
-using System.Globalization;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
-using Xtate.Annotations;
 
 namespace Xtate
 {
-	[PublicAPI]
-	[DebuggerTypeProxy(typeof(DebugView))]
-	[DebuggerDisplay(value: "Count = {" + nameof(Count) + "}")]
-	[Serializable]
-	public sealed class DataModelArray : DataModelList, IDynamicMetaObjectProvider, IList<DataModelValue>, IFormattable
+	public partial class DataModelList : IList<DataModelValue>
 	{
-		public static readonly DataModelArray Empty = new DataModelArray(DataModelAccess.Constant);
-
-		public DataModelArray() : this(DataModelAccess.Writable) { }
-
-		internal DataModelArray(bool isReadOnly) : this(isReadOnly ? DataModelAccess.ReadOnly : DataModelAccess.Writable) { }
-
-		private DataModelArray(DataModelAccess access) : base(access) { }
-
 	#region Interface ICollection<DataModelValue>
 
 		public void CopyTo(DataModelValue[] array, int index)
@@ -68,16 +47,10 @@ namespace Xtate
 		{
 			var index = GetIndex(item);
 
-			return index >= 0 && base.Remove(index);
+			return index >= 0 && Remove(index);
 		}
 
 		bool ICollection<DataModelValue>.IsReadOnly => Access != DataModelAccess.Writable;
-
-	#endregion
-
-	#region Interface IDynamicMetaObjectProvider
-
-		DynamicMetaObject IDynamicMetaObjectProvider.GetMetaObject(Expression parameter) => new MetaObject(parameter, this, Dynamic.CreateMetaObject);
 
 	#endregion
 
@@ -90,40 +63,6 @@ namespace Xtate
 	#region Interface IEnumerable<DataModelValue>
 
 		IEnumerator<DataModelValue> IEnumerable<DataModelValue>.GetEnumerator() => new ValueEnumerator(this);
-
-	#endregion
-
-	#region Interface IFormattable
-
-		public string ToString(string? format, IFormatProvider? formatProvider)
-		{
-			if (Count == 0)
-			{
-				return "[]";
-			}
-
-			var sb = new StringBuilder();
-			var addDelimiter = false;
-
-			sb.Append('[');
-			foreach (var value in Values)
-			{
-				if (addDelimiter)
-				{
-					sb.Append(',');
-				}
-				else
-				{
-					addDelimiter = true;
-				}
-
-				sb.Append(value.ToString(format: null, formatProvider));
-			}
-
-			sb.Append(']');
-
-			return sb.ToString();
-		}
 
 	#endregion
 
@@ -145,17 +84,11 @@ namespace Xtate
 
 		public void Insert(int index, DataModelValue item) => Insert(index, key: default, item, metadata: default);
 
-		public void RemoveAt(int index) => base.Remove(index);
+		public void RemoveAt(int index) => Remove(index);
 
 	#endregion
 
-		private protected override DataModelList CreateNewInstance(DataModelAccess access) => new DataModelArray(access);
-
-		private protected override DataModelList GetEmptyInstance() => Empty;
-
 		public ValueEnumerator GetEnumerator() => new ValueEnumerator(this);
-
-		public override string ToString() => ToString(format: null, formatProvider: null);
 
 		private int GetIndex(in DataModelValue value)
 		{
@@ -168,143 +101,6 @@ namespace Xtate
 			}
 
 			return -1;
-		}
-
-		public DataModelArray CloneAsWritable() => (DataModelArray) DeepClone(DataModelAccess.Writable);
-
-		public DataModelArray CloneAsReadOnly() => (DataModelArray) DeepClone(DataModelAccess.ReadOnly);
-
-		public DataModelArray AsConstant() => (DataModelArray) DeepClone(DataModelAccess.Constant);
-
-		internal class Dynamic : DynamicObject
-		{
-			private static readonly IDynamicMetaObjectProvider Instance = new Dynamic(default!);
-
-			private static readonly ConstructorInfo ConstructorInfo = typeof(Dynamic).GetConstructor(new[] { typeof(DataModelArray) })!;
-
-			private readonly DataModelArray _array;
-
-			public Dynamic(DataModelArray array) => _array = array;
-
-			public static DynamicMetaObject CreateMetaObject(Expression expression)
-			{
-				var newExpression = Expression.New(ConstructorInfo, Expression.Convert(expression, typeof(DataModelArray)));
-				return Instance.GetMetaObject(newExpression);
-			}
-
-			public override bool TryGetMember(GetMemberBinder binder, out object? result)
-			{
-				if (string.Equals(binder.Name, b: @"length", binder.IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
-				{
-					result = _array.Count;
-
-					return true;
-				}
-
-				result = null;
-
-				return false;
-			}
-
-			public override bool TrySetMember(SetMemberBinder binder, object value)
-			{
-				if (string.Equals(binder.Name, b: @"length", binder.IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal) && value is IConvertible convertible)
-				{
-					_array.SetLength(convertible.ToInt32(NumberFormatInfo.InvariantInfo));
-
-					return true;
-				}
-
-				return false;
-			}
-
-			public override bool TryGetIndex(GetIndexBinder binder, object[] indexes, out object? result)
-			{
-				var arg = indexes.Length == 1 ? indexes[0] : null;
-
-				if (arg is IConvertible convertible)
-				{
-					result = _array[convertible.ToInt32(NumberFormatInfo.InvariantInfo)].ToObject();
-
-					return true;
-				}
-
-				result = null;
-
-				return false;
-			}
-
-			public override bool TrySetIndex(SetIndexBinder binder, object[] indexes, object value)
-			{
-				var arg = indexes.Length == 1 ? indexes[0] : null;
-
-				if (arg is IConvertible convertible)
-				{
-					_array[convertible.ToInt32(NumberFormatInfo.InvariantInfo)] = DataModelValue.FromObject(value);
-
-					return true;
-				}
-
-				return false;
-			}
-
-			public override bool TryConvert(ConvertBinder binder, out object? result)
-			{
-				if (binder.Type == typeof(DataModelList) || binder.Type == typeof(DataModelArray))
-				{
-					result = _array;
-
-					return true;
-				}
-
-				if (binder.Type == typeof(DataModelValue))
-				{
-					result = new DataModelValue(_array);
-
-					return true;
-				}
-
-				result = null;
-
-				return false;
-			}
-		}
-
-		[PublicAPI]
-		[ExcludeFromCodeCoverage]
-		[DebuggerDisplay(value: "{" + nameof(Value) + "}", Name = "[{" + nameof(Index) + "}]")]
-		private readonly struct DebugIndexValue
-		{
-			[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-			private readonly Entry _entry;
-
-			public DebugIndexValue(in Entry entry) => _entry = entry;
-
-			[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-			private int Index => _entry.Index;
-
-			[DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-			private DataModelValue Value => _entry.Value;
-
-			public string? Key => _entry.Key;
-
-			public DataModelList? Metadata => _entry.Metadata;
-
-			public DataModelAccess Access => _entry.Access;
-		}
-
-		[PublicAPI]
-		[ExcludeFromCodeCoverage]
-		private class DebugView
-		{
-			private readonly DataModelList _dataModelList;
-
-			public DebugView(DataModelList dataModelList) => _dataModelList = dataModelList;
-
-			[DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-			public DebugIndexValue[] Items => _dataModelList.Entries.Select(entry => new DebugIndexValue(entry)).ToArray();
-
-			public DataModelList? Metadata => _dataModelList.GetMetadata();
 		}
 	}
 }
