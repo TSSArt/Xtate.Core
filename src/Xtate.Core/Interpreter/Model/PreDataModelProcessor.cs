@@ -44,7 +44,7 @@ namespace Xtate
 		{
 			Visit(ref stateMachine);
 
-			if (_customActionDispatchers is { })
+			if (_customActionDispatchers is not null)
 			{
 				foreach (var pair in _customActionDispatchers)
 				{

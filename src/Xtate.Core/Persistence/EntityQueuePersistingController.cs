@@ -18,6 +18,7 @@
 #endregion
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Xtate.Persistence
 {
@@ -55,14 +56,14 @@ namespace Xtate.Persistence
 
 	#endregion
 
-		private void OnChanged(EntityQueue<T>.ChangedAction action, T entity)
+		private void OnChanged(EntityQueue<T>.ChangedAction action, [AllowNull] T entity)
 		{
 			switch (action)
 			{
 				case EntityQueue<T>.ChangedAction.Enqueue:
 					var bucket = _bucket.Nested(_tailIndex ++);
 					_bucket.Add(Key.Tail, _tailIndex);
-					entity.As<IStoreSupport>().Store(bucket);
+					entity!.As<IStoreSupport>().Store(bucket);
 					break;
 
 				case EntityQueue<T>.ChangedAction.Dequeue:

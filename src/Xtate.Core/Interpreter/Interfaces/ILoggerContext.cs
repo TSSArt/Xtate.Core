@@ -31,7 +31,7 @@ namespace Xtate
 
 		public IStateMachine? StateMachine { get; }
 
-		public DataModelObject? GetDataModel();
+		public DataModelList? GetDataModel();
 
 		public string? GetDataModelAsText();
 

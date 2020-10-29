@@ -49,12 +49,12 @@ namespace Xtate.CustomAction
 		protected void RegisterArgument(string key, ExpectedValueType expectedValueType, string? expression, object? defaultValue = default)
 		{
 			_arguments ??= new Dictionary<string, object?>();
-			_arguments.Add(key, expression is { } ? _customActionContext.RegisterValueExpression(expression, expectedValueType) : defaultValue);
+			_arguments.Add(key, expression is not null ? _customActionContext.RegisterValueExpression(expression, expectedValueType) : defaultValue);
 		}
 
 		protected void RegisterResultLocation(string? expression)
 		{
-			if (expression is { })
+			if (expression is not null)
 			{
 				_resultLocationAssigner = _customActionContext.RegisterLocationExpression(expression);
 			}
@@ -64,7 +64,7 @@ namespace Xtate.CustomAction
 		{
 			var arguments = ImmutableDictionary<string, DataModelValue>.Empty;
 
-			if (_arguments is { })
+			if (_arguments is not null)
 			{
 				var builder = ImmutableDictionary.CreateBuilder<string, DataModelValue>();
 
@@ -85,13 +85,15 @@ namespace Xtate.CustomAction
 				arguments = builder.ToImmutable();
 			}
 
-			var result = Evaluate(arguments);
+			var result = await EvaluateAsync(arguments, token).ConfigureAwait(false);
 
-			if (_resultLocationAssigner is { })
+			if (_resultLocationAssigner is not null)
 			{
 				await _resultLocationAssigner.Assign(executionContext, result, token).ConfigureAwait(false);
 			}
 		}
+
+		protected virtual ValueTask<DataModelValue> EvaluateAsync(IReadOnlyDictionary<string, DataModelValue> arguments, CancellationToken token) => new ValueTask<DataModelValue>(Evaluate(arguments));
 
 		protected virtual DataModelValue Evaluate(IReadOnlyDictionary<string, DataModelValue> arguments) => throw new NotSupportedException(Resources.Exception_CustomActionDoesNotSupported);
 	}

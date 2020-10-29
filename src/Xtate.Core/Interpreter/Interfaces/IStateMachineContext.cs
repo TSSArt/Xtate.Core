@@ -26,7 +26,7 @@ namespace Xtate
 		IPersistenceContext         PersistenceContext { get; }
 		IExecutionContext           ExecutionContext   { get; }
 		EntityQueue<IEvent>         InternalQueue      { get; }
-		DataModelObject             DataModel          { get; }
+		DataModelList               DataModel          { get; }
 		OrderedSet<StateEntityNode> Configuration      { get; }
 		OrderedSet<StateEntityNode> StatesToInvoke     { get; }
 		KeyList<StateEntityNode>    HistoryValue       { get; }

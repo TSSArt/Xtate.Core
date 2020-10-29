@@ -37,7 +37,7 @@ namespace Xtate
 		private readonly ILoggerContext                      _loggerContext;
 		private readonly SessionId                           _sessionId;
 		private readonly string?                             _stateMachineName;
-		private          DataModelObject?                    _dataModel;
+		private          DataModelList?                      _dataModel;
 		private          KeyList<StateEntityNode>?           _historyValue;
 		private          IContextItems?                      _runtimeItems;
 
@@ -113,7 +113,7 @@ namespace Xtate
 
 	#region Interface IStateMachineContext
 
-		public DataModelObject DataModel => _dataModel ??= CreateDataModel();
+		public DataModelList DataModel => _dataModel ??= CreateDataModel();
 
 		public OrderedSet<StateEntityNode> Configuration { get; } = new OrderedSet<StateEntityNode>();
 
@@ -131,7 +131,7 @@ namespace Xtate
 
 		private static bool IsInternalEvent(IOutgoingEvent evt)
 		{
-			if (evt.Target != InternalTarget || evt.Type is { })
+			if (evt.Target != InternalTarget || evt.Type is not null)
 			{
 				return false;
 			}
@@ -144,12 +144,12 @@ namespace Xtate
 			return true;
 		}
 
-		private DataModelObject CreateDataModel()
+		private DataModelList CreateDataModel()
 		{
 			var platformLazy = new LazyValue<StateMachineContext>(GetPlatform, this);
 			var ioProcessorsLazy = new LazyValue<StateMachineContext>(GetIoProcessors, this);
 
-			var dataModel = new DataModelObject(isReadOnly: false, _dataModelValueProvider.CaseInsensitive);
+			var dataModel = new DataModelList(_dataModelValueProvider.CaseInsensitive);
 
 			dataModel.AddInternal(key: @"_name", _stateMachineName, DataModelAccess.ReadOnly);
 			dataModel.AddInternal(key: @"_sessionid", _sessionId, DataModelAccess.Constant);
@@ -163,15 +163,15 @@ namespace Xtate
 			{
 				var valueProvider = context._dataModelValueProvider;
 
-				var obj = new DataModelObject(isReadOnly: true, context._dataModelValueProvider.CaseInsensitive);
+				var list = new DataModelList(DataModelAccess.ReadOnly, context._dataModelValueProvider.CaseInsensitive);
 
-				obj.AddInternal(key: @"interpreter", valueProvider.Interpreter, DataModelAccess.Constant);
-				obj.AddInternal(key: @"datamodel", valueProvider.DataModelHandler, DataModelAccess.Constant);
-				obj.AddInternal(key: @"configuration", valueProvider.Configuration, DataModelAccess.Constant);
-				obj.AddInternal(key: @"host", valueProvider.Host, DataModelAccess.Constant);
-				obj.AddInternal(key: @"args", valueProvider.Arguments, DataModelAccess.ReadOnly);
+				list.AddInternal(key: @"interpreter", valueProvider.Interpreter, DataModelAccess.Constant);
+				list.AddInternal(key: @"datamodel", valueProvider.DataModelHandler, DataModelAccess.Constant);
+				list.AddInternal(key: @"configuration", valueProvider.Configuration, DataModelAccess.Constant);
+				list.AddInternal(key: @"host", valueProvider.Host, DataModelAccess.Constant);
+				list.AddInternal(key: @"args", valueProvider.Arguments, DataModelAccess.ReadOnly);
 
-				return obj;
+				return list;
 			}
 
 			static DataModelValue GetIoProcessors(StateMachineContext context)
@@ -180,26 +180,26 @@ namespace Xtate
 
 				if (ioProcessors.IsDefaultOrEmpty)
 				{
-					return DataModelObject.Empty;
+					return DataModelList.Empty;
 				}
 
-				var obj = new DataModelObject(isReadOnly: false, context._dataModelValueProvider.CaseInsensitive);
+				var list = new DataModelList(context._dataModelValueProvider.CaseInsensitive);
 
 				foreach (var ioProcessor in ioProcessors)
 				{
 					var locationLazy = new LazyValue<IIoProcessor, SessionId>(GetLocation, ioProcessor, context._sessionId);
 
-					var entry = new DataModelObject(isReadOnly: false, context._dataModelValueProvider.CaseInsensitive)
+					var entry = new DataModelList(context._dataModelValueProvider.CaseInsensitive)
 								{
 										{ @"location", locationLazy }
 								};
 
-					obj.Add(ioProcessor.Id.ToString(), entry);
+					list.Add(ioProcessor.Id.ToString(), entry);
 				}
 
-				obj.MakeDeepConstant();
+				list.MakeDeepConstant();
 
-				return obj;
+				return list;
 			}
 
 			static DataModelValue GetLocation(IIoProcessor ioProcessor, SessionId sessionId) => new DataModelValue(ioProcessor.GetTarget(sessionId).ToString());
@@ -219,7 +219,7 @@ namespace Xtate
 				get => _permanentItems.TryGetValue(key, out var value) ? value : _items.TryGetValue(key, out value) ? value : null;
 				set
 				{
-					if (value is { } && !_permanentItems.ContainsKey(key))
+					if (value is not null && !_permanentItems.ContainsKey(key))
 					{
 						_items[key] = value;
 					}

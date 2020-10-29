@@ -33,7 +33,7 @@ namespace Xtate
 
 		public string ConvertToText(in DataModelValue dataModelValue) => _dataModelHandler.ConvertToText(dataModelValue);
 
-		DataModelObject ILoggerContext.GetDataModel() => _context.DataModel.AsConstant();
+		DataModelList ILoggerContext.GetDataModel() => _context.DataModel.AsConstant();
 
 		ImmutableArray<string> ILoggerContext.GetActiveStates()
 		{
@@ -59,7 +59,7 @@ namespace Xtate
 
 		private bool IsPlatformError(Exception exception)
 		{
-			for (var ex = exception; ex is { }; ex = ex.InnerException)
+			for (var ex = exception; ex is not null; ex = ex.InnerException)
 			{
 				if (ex is PlatformException platformException && platformException.SessionId == _sessionId)
 				{

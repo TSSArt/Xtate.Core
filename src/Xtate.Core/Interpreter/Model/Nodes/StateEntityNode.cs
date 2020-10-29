@@ -35,7 +35,7 @@ namespace Xtate
 		{
 			_documentIdNode = documentIdNode;
 
-			if (children is { })
+			if (children is not null)
 			{
 				foreach (var stateEntity in children)
 				{
@@ -72,7 +72,7 @@ namespace Xtate
 
 		protected static IEnumerable<StateEntityNode> GetChildNodes(IInitial? initial, ImmutableArray<IStateEntity> states, ImmutableArray<IHistory> historyStates = default)
 		{
-			if (initial is { })
+			if (initial is not null)
 			{
 				yield return initial.As<InitialNode>();
 			}

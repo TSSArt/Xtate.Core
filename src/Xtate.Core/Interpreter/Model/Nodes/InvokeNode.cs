@@ -123,7 +123,7 @@ namespace Xtate
 			var tmpInvokeId = InvokeId;
 			InvokeId = null;
 
-			if (tmpInvokeId is { })
+			if (tmpInvokeId is not null)
 			{
 				await _cancelInvokeEvaluator.Cancel(tmpInvokeId, executionContext, token).ConfigureAwait(false);
 			}

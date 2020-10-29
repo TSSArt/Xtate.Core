@@ -39,7 +39,7 @@ namespace Xtate.Core.Test.Legacy
 
 	#region Interface IArrayEvaluator
 
-		public ValueTask<IObject[]> EvaluateArray(IExecutionContext executionContext, CancellationToken token) => new ValueTask<IObject[]>(new IObject[0]);
+		public ValueTask<IObject[]> EvaluateArray(IExecutionContext executionContext, CancellationToken token) => new ValueTask<IObject[]>(Array.Empty<IObject>());
 
 	#endregion
 
@@ -163,7 +163,7 @@ namespace Xtate.Core.Test.Legacy
 		[TestMethod]
 		public async Task SaveRestoreInterpreterModelWithStorageRecreateTest()
 		{
-			var model = new InterpreterModelBuilder(_allStateMachine, _dataModelHandler, customActionProviders: default, default!, DefaultErrorProcessor.Instance).Build(default).Result;
+			var model = new InterpreterModelBuilder(_allStateMachine, _dataModelHandler, customActionProviders: default, default!, DefaultErrorProcessor.Instance).Build(default).AsTask().Result;
 			var storeSupport = model.Root.As<IStoreSupport>();
 
 			byte[] transactionLog;

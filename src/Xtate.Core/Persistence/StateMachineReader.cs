@@ -19,7 +19,6 @@
 
 using System;
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 using Xtate.DataModel;
 
 namespace Xtate.Persistence
@@ -37,9 +36,11 @@ namespace Xtate.Persistence
 
 		private static bool Exist(Bucket bucket, TypeInfo typeInfo)
 		{
+			var typeInfoVal = typeInfo;
+
 			if (bucket.TryGet(Key.TypeInfo, out TypeInfo storedTypeInfo))
 			{
-				if (storedTypeInfo != typeInfo)
+				if (storedTypeInfo != typeInfoVal)
 				{
 					throw new PersistenceException(Resources.Exception_Unexpected_TypeInfo_value);
 				}
@@ -64,7 +65,7 @@ namespace Xtate.Persistence
 				throw new PersistenceException(Resources.Exception_Forward_entity_can_not_be_found);
 			}
 
-			if (!(entity is IExecutableEntity executableEntity))
+			if (entity is not IExecutableEntity executableEntity)
 			{
 				throw new PersistenceException(Resources.Exception_Forward_entity_has_incorrect_type);
 			}
@@ -235,12 +236,11 @@ namespace Xtate.Persistence
 		{
 			var val = bucket.GetString(Key.Id);
 
-			return val is { } ? (EventDescriptor) val : null;
+			return val is not null ? (EventDescriptor) val : null;
 		}
 
 		private static IOutgoingEvent RestoreEvent(Bucket bucket) => new EventEntity(bucket.GetString(Key.Id)) { Target = EventEntity.InternalTarget };
 
-		[SuppressMessage(category: "ReSharper", checkId: "CyclomaticComplexity", Justification = "OK")]
 		private IExecutableEntity RestoreExecutableEntity(Bucket bucket)
 		{
 			var typeInfo = bucket.Get<TypeInfo>(Key.TypeInfo);
@@ -400,7 +400,7 @@ namespace Xtate.Persistence
 		private static IIdentifier? RestoreIdentifier(Bucket bucket)
 		{
 			var id = bucket.GetString(Key.Id);
-			return id is { } ? (Identifier) id : null;
+			return id is not null ? (Identifier) id : null;
 		}
 
 		private IIf? RestoreIf(Bucket bucket) =>

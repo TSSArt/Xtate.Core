@@ -21,7 +21,6 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -93,10 +92,10 @@ namespace Xtate
 			_stateMachineValidator = StateMachineValidator.Instance;
 			_dataModelVars = ImmutableDictionary<string, string>.Empty;
 			_unhandledErrorBehaviour = options.UnhandledErrorBehaviour;
-			Interpreter = new DataModelValue(new LazyValue(CreateInterpreterObject));
-			DataModelHandler = new DataModelValue(new LazyValue(CreateDataModelHandlerObject));
-			Configuration = new DataModelValue(options.Configuration?.AsConstant() ?? DataModelObject.Empty);
-			Host = new DataModelValue(options.Host?.AsConstant() ?? DataModelObject.Empty);
+			Interpreter = new DataModelValue(new LazyValue(CreateInterpreterList));
+			DataModelHandler = new DataModelValue(new LazyValue(CreateDataModelHandlerList));
+			Configuration = new DataModelValue(options.Configuration?.AsConstant() ?? DataModelList.Empty);
+			Host = new DataModelValue(options.Host?.AsConstant() ?? DataModelList.Empty);
 			Arguments = options.Arguments.AsConstant();
 
 			_anyTokenSource = null!;
@@ -159,7 +158,7 @@ namespace Xtate
 
 			var interpreterModel = IsPersistingEnabled ? await TryRestoreInterpreterModel(stateMachine, factoryContext, wrapperErrorProcessor).ConfigureAwait(false) : null;
 
-			if (interpreterModel is { })
+			if (interpreterModel is not null)
 			{
 				return interpreterModel;
 			}
@@ -203,7 +202,7 @@ namespace Xtate
 				}
 
 				var storedSessionId = bucket.GetSessionId(Key.SessionId);
-				if (storedSessionId is { } && storedSessionId != _sessionId)
+				if (storedSessionId is not null && storedSessionId != _sessionId)
 				{
 					throw new PersistenceException(Resources.Exception_Persisted_state_can_t_be_read__Stored_and_provided_SessionIds_does_not_match);
 				}
@@ -219,7 +218,7 @@ namespace Xtate
 
 				ImmutableDictionary<int, IEntity>? entityMap = null;
 
-				if (stateMachine is { })
+				if (stateMachine is not null)
 				{
 					var builder = new InterpreterModelBuilder(stateMachine, _dataModelHandler, _customActionProviders, factoryContext, DefaultErrorProcessor.Instance);
 					var model = await builder.Build(_stopToken).ConfigureAwait(false);
@@ -228,7 +227,7 @@ namespace Xtate
 
 				var restoredStateMachine = new StateMachineReader().Build(smdBucket, entityMap);
 
-				if (stateMachine is { })
+				if (stateMachine is not null)
 				{
 					//TODO: Validate stateMachine vs restoredStateMachine (number of elements should be the same and documentId should point to the same entity type)
 				}
@@ -255,7 +254,6 @@ namespace Xtate
 			}
 		}
 
-		[SuppressMessage(category: "ReSharper", checkId: "SuggestVarOrType_Elsewhere", Justification = "Span<> must be explicit")]
 		private void SaveToStorage(IStoreSupport root, Bucket bucket)
 		{
 			var memoryStorage = new InMemoryStorage();
@@ -275,7 +273,7 @@ namespace Xtate
 			dataModelType ??= NullDataModelHandler.DataModelType;
 			var activator = await FindDataModelHandlerFactoryActivator(factoryContext, dataModelType, factories).ConfigureAwait(false);
 
-			if (activator is { })
+			if (activator is not null)
 			{
 				return await activator.CreateHandler(factoryContext, dataModelType, errorProcessor, _stopToken).ConfigureAwait(false);
 			}
@@ -294,7 +292,7 @@ namespace Xtate
 				{
 					var activator = await factory.TryGetActivator(factoryContext, dataModelType, _stopToken).ConfigureAwait(false);
 
-					if (activator is { })
+					if (activator is not null)
 					{
 						return activator;
 					}
@@ -305,7 +303,7 @@ namespace Xtate
 			{
 				var activator = await factory.TryGetActivator(factoryContext, dataModelType ?? NullDataModelHandler.DataModelType, _stopToken).ConfigureAwait(false);
 
-				if (activator is { })
+				if (activator is not null)
 				{
 					return activator;
 				}
@@ -433,7 +431,7 @@ namespace Xtate
 		{
 			await TraceInterpreterState(state).ConfigureAwait(false);
 
-			if (_notifyStateChanged != null)
+			if (_notifyStateChanged is not null)
 			{
 				await _notifyStateChanged.OnChanged(state).ConfigureAwait(false);
 			}
@@ -598,8 +596,8 @@ namespace Xtate
 		{
 			var internalEvent = _context.InternalQueue.Dequeue();
 
-			var eventObject = DataConverter.FromEvent(internalEvent, _dataModelHandler.CaseInsensitive);
-			_context.DataModel.SetInternal(key: @"_event", _dataModelHandler.CaseInsensitive, eventObject, DataModelAccess.ReadOnly);
+			var evt = DataConverter.FromEvent(internalEvent, _dataModelHandler.CaseInsensitive);
+			_context.DataModel.SetInternal(key: @"_event", _dataModelHandler.CaseInsensitive, evt, DataModelAccess.ReadOnly);
 
 			await TraceProcessingEvent(internalEvent).ConfigureAwait(false);
 
@@ -628,7 +626,7 @@ namespace Xtate
 					throw new StateMachineUnhandledErrorException(Resources.Exception_Unhandled_exception, exception, _unhandledErrorBehaviour);
 
 				default:
-					Infrastructure.UnexpectedValue();
+					Infrastructure.UnexpectedValue(_unhandledErrorBehaviour);
 					break;
 			}
 		}
@@ -730,8 +728,8 @@ namespace Xtate
 		{
 			var externalEvent = await ReadExternalEvent().ConfigureAwait(false);
 
-			var eventObject = DataConverter.FromEvent(externalEvent, _dataModelHandler.CaseInsensitive);
-			_context.DataModel.SetInternal(key: @"_event", _dataModelHandler.CaseInsensitive, eventObject, DataModelAccess.ReadOnly);
+			var evt = DataConverter.FromEvent(externalEvent, _dataModelHandler.CaseInsensitive);
+			_context.DataModel.SetInternal(key: @"_event", _dataModelHandler.CaseInsensitive, evt, DataModelAccess.ReadOnly);
 
 			await TraceProcessingEvent(externalEvent).ConfigureAwait(false);
 
@@ -943,7 +941,7 @@ namespace Xtate
 
 				if (!t1Preempted)
 				{
-					if (transitionsToRemove is { })
+					if (transitionsToRemove is not null)
 					{
 						foreach (var t3 in transitionsToRemove)
 						{
@@ -1089,7 +1087,7 @@ namespace Xtate
 						var grandparent = parent!.Parent;
 
 						DataModelValue doneData = default;
-						if (final.DoneData is { })
+						if (final.DoneData is not null)
 						{
 							doneData = await EvaluateDoneData(final.DoneData).ConfigureAwait(false);
 						}
@@ -1277,7 +1275,7 @@ namespace Xtate
 
 		private static bool IsDescendant(StateEntityNode state1, StateEntityNode? state2)
 		{
-			for (var s = state1.Parent; s is { }; s = s.Parent)
+			for (var s = state1.Parent; s is not null; s = s.Parent)
 			{
 				if (s == state2)
 				{
@@ -1329,7 +1327,7 @@ namespace Xtate
 		{
 			List<StateEntityNode>? states = null;
 
-			for (var s = state1.Parent; s is { }; s = s.Parent)
+			for (var s = state1.Parent; s is not null; s = s.Parent)
 			{
 				if (s == state2)
 				{
@@ -1484,7 +1482,7 @@ namespace Xtate
 
 		private async ValueTask EvaluateDoneData(FinalNode final)
 		{
-			if (final.DoneData is { })
+			if (final.DoneData is not null)
 			{
 				_doneData = await EvaluateDoneData(final.DoneData).ConfigureAwait(false);
 			}
@@ -1504,7 +1502,7 @@ namespace Xtate
 			}
 		}
 
-		private ValueTask ApplyFinalize(InvokeNode invoke) => invoke.Finalize is { } ? RunExecutableEntity(invoke.Finalize.ActionEvaluators) : default;
+		private ValueTask ApplyFinalize(InvokeNode invoke) => invoke.Finalize is not null ? RunExecutableEntity(invoke.Finalize.ActionEvaluators) : default;
 
 		private async ValueTask Invoke(InvokeNode invoke)
 		{
@@ -1539,14 +1537,14 @@ namespace Xtate
 				return;
 			}
 
-			if (Arguments.Type != DataModelValueType.Object)
+			if (Arguments.Type != DataModelValueType.List)
 			{
 				await InitializeDataModel(rootDataModel).ConfigureAwait(false);
 
 				return;
 			}
 
-			var dictionary = Arguments.AsObject();
+			var dictionary = Arguments.AsList();
 			var caseInsensitive = _dataModelHandler.CaseInsensitive;
 
 			foreach (var node in rootDataModel.Data)
@@ -1590,21 +1588,21 @@ namespace Xtate
 
 				var obj = await resourceEvaluator.EvaluateObject(_context.ExecutionContext, resource, _stopToken).ConfigureAwait(false);
 
-				return DataModelValue.FromObject(obj.ToObject());
+				return DataModelValue.FromObject(obj);
 			}
 
 			if (data.ExpressionEvaluator is { } expressionEvaluator)
 			{
 				var obj = await expressionEvaluator.EvaluateObject(_context.ExecutionContext, _stopToken).ConfigureAwait(false);
 
-				return DataModelValue.FromObject(obj.ToObject());
+				return DataModelValue.FromObject(obj);
 			}
 
 			if (data.InlineContentEvaluator is { } inlineContentEvaluator)
 			{
 				var obj = await inlineContentEvaluator.EvaluateObject(_context.ExecutionContext, _stopToken).ConfigureAwait(false);
 
-				return DataModelValue.FromObject(obj.ToObject());
+				return DataModelValue.FromObject(obj);
 			}
 
 			return default;
@@ -1646,38 +1644,38 @@ namespace Xtate
 			return context;
 		}
 
-		private DataModelValue CreateInterpreterObject()
+		private DataModelValue CreateInterpreterList()
 		{
 			var type = typeof(StateMachineInterpreter);
 			var version = type.Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
 
-			var interpreterObject = new DataModelObject(isReadOnly: false, _dataModelHandler.CaseInsensitive)
-									{
-											{ @"name", type.FullName },
-											{ @"version", version }
-									};
+			var interpreterList = new DataModelList(_dataModelHandler.CaseInsensitive)
+								  {
+										  { @"name", type.FullName },
+										  { @"version", version }
+								  };
 
-			interpreterObject.MakeDeepConstant();
+			interpreterList.MakeDeepConstant();
 
-			return new DataModelValue(interpreterObject);
+			return new DataModelValue(interpreterList);
 		}
 
-		private DataModelValue CreateDataModelHandlerObject()
+		private DataModelValue CreateDataModelHandlerList()
 		{
 			var type = _dataModelHandler.GetType();
 			var version = type.Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
 
-			var dataModelHandlerObject = new DataModelObject(isReadOnly: false, _dataModelHandler.CaseInsensitive)
-										 {
-												 { @"name", type.FullName },
-												 { @"assembly", type.Assembly.GetName().Name },
-												 { @"version", version },
-												 { @"vars", DataModelValue.FromObject(_dataModelVars) }
-										 };
+			var dataModelHandlerList = new DataModelList(_dataModelHandler.CaseInsensitive)
+									   {
+											   { @"name", type.FullName },
+											   { @"assembly", type.Assembly.GetName().Name },
+											   { @"version", version },
+											   { @"vars", DataModelValue.FromObject(_dataModelVars) }
+									   };
 
-			dataModelHandlerObject.MakeDeepConstant();
+			dataModelHandlerList.MakeDeepConstant();
 
-			return new DataModelValue(dataModelHandlerObject);
+			return new DataModelValue(dataModelHandlerList);
 		}
 
 		private enum StateBagKey

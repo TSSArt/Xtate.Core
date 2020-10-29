@@ -61,9 +61,9 @@ namespace Xtate
 
 			var service = GetCurrentContext().GetService(sessionId, target.IsAbsoluteUri ? target.Fragment : target.OriginalString);
 
-			var serviceEvent = new EventObject(EventType.External, evt, GetTarget(sessionId), IoProcessorId);
+			var eventObject = new EventObject(EventType.External, evt, GetTarget(sessionId), IoProcessorId);
 
-			return service.Send(serviceEvent, token);
+			return service.Send(eventObject, token);
 		}
 
 		bool IIoProcessor.CanHandle(Uri? type, Uri? target) => CanHandleType(type) && CanHandleTarget(target);

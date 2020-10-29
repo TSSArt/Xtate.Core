@@ -1141,15 +1141,6 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to DataModelValue is not DataModelArray..
-        /// </summary>
-        internal static string Exception_DataModelValue_is_not_DataModelArray {
-            get {
-                return ResourceManager.GetString("Exception_DataModelValue_is_not_DataModelArray", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to DataModelValue is not MetadataModelElement..
         /// </summary>
         internal static string Exception_DataModelValue_is_not_DataModelElement {
@@ -1164,15 +1155,6 @@ namespace Xtate {
         internal static string Exception_DataModelValue_is_not_DataModelList {
             get {
                 return ResourceManager.GetString("Exception_DataModelValue_is_not_DataModelList", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to DataModelValue is not DataModelObject..
-        /// </summary>
-        internal static string Exception_DataModelValue_is_not_DataModelObject {
-            get {
-                return ResourceManager.GetString("Exception_DataModelValue_is_not_DataModelObject", resourceCulture);
             }
         }
         
@@ -1222,7 +1204,8 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Error on event consumer side..
+        ///   Looks up a localized string similar to Error on event consumer side. Exception message: {0}.
+        ///{1}.
         /// </summary>
         internal static string Exception_Error_on_event_consumer_side {
             get {
@@ -2040,6 +2023,24 @@ namespace Xtate {
         internal static string Exception_ValueCantBeEmpty {
             get {
                 return ResourceManager.GetString("Exception_ValueCantBeEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Message read partially. {0} of {1} bytes..
+        /// </summary>
+        internal static string NamedIoProcessor_ReceiveMessage4_Message_read_partially {
+            get {
+                return ResourceManager.GetString("NamedIoProcessor_ReceiveMessage4_Message_read_partially", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Message size has wrong value or missed. Size: {0} bytes..
+        /// </summary>
+        internal static string NamedIoProcessor_ReceiveMessage4_Message_size_has_wrong_value_or_missed {
+            get {
+                return ResourceManager.GetString("NamedIoProcessor_ReceiveMessage4_Message_size_has_wrong_value_or_missed", resourceCulture);
             }
         }
         

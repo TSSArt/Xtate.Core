@@ -57,21 +57,21 @@ namespace Xtate.Persistence
 
 		ValueTask<ITransactionalStorage> IStorageProvider.GetTransactionalStorage(string? partition, string key, CancellationToken token)
 		{
-			if (partition is { }) throw new ArgumentException(Resources.Exception_Partition_argument_should_be_null, nameof(partition));
+			if (partition is not null) throw new ArgumentException(Resources.Exception_Partition_argument_should_be_null, nameof(partition));
 
 			return _storageProvider.GetTransactionalStorage(SessionId.Value, key, token);
 		}
 
 		ValueTask IStorageProvider.RemoveTransactionalStorage(string? partition, string key, CancellationToken token)
 		{
-			if (partition is { }) throw new ArgumentException(Resources.Exception_Partition_argument_should_be_null, nameof(partition));
+			if (partition is not null) throw new ArgumentException(Resources.Exception_Partition_argument_should_be_null, nameof(partition));
 
 			return _storageProvider.RemoveTransactionalStorage(SessionId.Value, key, token);
 		}
 
 		ValueTask IStorageProvider.RemoveAllTransactionalStorage(string? partition, CancellationToken token)
 		{
-			if (partition is { }) throw new ArgumentException(Resources.Exception_Partition_argument_should_be_null, nameof(partition));
+			if (partition is not null) throw new ArgumentException(Resources.Exception_Partition_argument_should_be_null, nameof(partition));
 
 			return _storageProvider.RemoveAllTransactionalStorage(SessionId.Value, token);
 		}
@@ -270,7 +270,7 @@ namespace Xtate.Persistence
 				return new EventEntity
 					   {
 							   SendId = bucket.GetSendId(Key.SendId),
-							   NameParts = name is { } ? EventName.ToParts(name) : default,
+							   NameParts = name is not null ? EventName.ToParts(name) : default,
 							   Target = bucket.GetUri(Key.Target),
 							   Type = bucket.GetUri(Key.Type),
 							   DelayMs = bucket.GetInt32(Key.DelayMs),

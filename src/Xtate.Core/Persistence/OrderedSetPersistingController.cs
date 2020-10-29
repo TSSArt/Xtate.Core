@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Xtate.Persistence
 {
@@ -85,14 +86,14 @@ namespace Xtate.Persistence
 
 	#endregion
 
-		private void OnChanged(OrderedSet<T>.ChangedAction action, T item)
+		private void OnChanged(OrderedSet<T>.ChangedAction action, [AllowNull] T item)
 		{
 			switch (action)
 			{
 				case OrderedSet<T>.ChangedAction.Add:
 				{
 					var bucket = _bucket.Nested(_record ++);
-					bucket.Add(Keys.DocumentId, item.As<IDocumentId>().DocumentId);
+					bucket.Add(Keys.DocumentId, item!.As<IDocumentId>().DocumentId);
 					bucket.Add(Keys.Operation, Keys.Added);
 					break;
 				}
@@ -111,7 +112,7 @@ namespace Xtate.Persistence
 					else
 					{
 						var bucket = _bucket.Nested(_record ++);
-						bucket.Add(Keys.DocumentId, item.As<IDocumentId>().DocumentId);
+						bucket.Add(Keys.DocumentId, item!.As<IDocumentId>().DocumentId);
 						bucket.Add(Keys.Operation, Keys.Deleted);
 					}
 

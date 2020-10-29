@@ -61,8 +61,8 @@ namespace Xtate
 
 		public override IIdentifier Id { get; }
 
-		ImmutableArray<IOnEntry> IFinal.OnEntry  => ImmutableArray<IOnEntry>.CastUp(OnEntry);
-		ImmutableArray<IOnExit> IFinal. OnExit   => ImmutableArray<IOnExit>.CastUp(OnExit);
+		ImmutableArray<IOnEntry> IFinal.OnEntry  => ImmutableArray<IOnEntry>.CastUp(OnEntry)!;
+		ImmutableArray<IOnExit> IFinal. OnExit   => ImmutableArray<IOnExit>.CastUp(OnExit)!;
 		IDoneData? IFinal.              DoneData => DoneData;
 
 	#endregion

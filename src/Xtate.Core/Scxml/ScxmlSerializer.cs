@@ -189,7 +189,7 @@ namespace Xtate.Scxml
 			}
 
 			var condition = entity.Condition?.As<IConditionExpression>().Expression;
-			if (condition is { })
+			if (condition is not null)
 			{
 				_writer.WriteAttributeString(localName: "cond", condition);
 			}

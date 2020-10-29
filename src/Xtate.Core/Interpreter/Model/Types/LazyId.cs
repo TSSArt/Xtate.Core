@@ -19,7 +19,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 
 namespace Xtate
@@ -44,7 +43,7 @@ namespace Xtate
 
 				var newId = GenerateId();
 
-				Debug.Assert(newId is { } && TryGetHashFromId(newId, out var hash) && hash == base.GetHashCode());
+				Debug.Assert(TryGetHashFromId(newId, out var hash) && hash == base.GetHashCode());
 
 				id = Interlocked.CompareExchange(ref _id, newId, comparand: null) ?? newId;
 
@@ -70,8 +69,6 @@ namespace Xtate
 
 		protected abstract string GenerateId();
 
-		[SuppressMessage(category: "ReSharper", checkId: "NonReadonlyMemberInGetHashCode", Justification = "_id used as designed")]
-		[SuppressMessage(category: "ReSharper", checkId: "BaseObjectGetHashCodeCallInGetHashCode", Justification = "base.GetHashCode() used as designed")]
 		public override int GetHashCode() => _id is { } id ? TryGetHashFromId(id, out var hash) ? hash : id.GetHashCode() : base.GetHashCode();
 
 		protected static bool TryGetHashFromId(string id, out int hash)

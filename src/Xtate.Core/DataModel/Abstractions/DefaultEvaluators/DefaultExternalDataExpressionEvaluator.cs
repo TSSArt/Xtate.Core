@@ -50,7 +50,7 @@ namespace Xtate.DataModel
 			Exception? parsingException = null;
 			var parsedValue = ParseToDataModel(resource, ref parsingException);
 
-			if (parsingException is { })
+			if (parsingException is not null)
 			{
 				Infrastructure.IgnoredException(parsingException);
 			}

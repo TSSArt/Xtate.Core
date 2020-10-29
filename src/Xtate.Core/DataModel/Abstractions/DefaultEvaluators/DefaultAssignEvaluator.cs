@@ -75,12 +75,12 @@ namespace Xtate.DataModel
 
 		protected virtual ValueTask<IObject> EvaluateRightValue(IExecutionContext executionContext, CancellationToken token)
 		{
-			if (ExpressionEvaluator is { })
+			if (ExpressionEvaluator is not null)
 			{
 				return ExpressionEvaluator.EvaluateObject(executionContext, token);
 			}
 
-			if (InlineContentEvaluator is { })
+			if (InlineContentEvaluator is not null)
 			{
 				return InlineContentEvaluator.EvaluateObject(executionContext, token);
 			}

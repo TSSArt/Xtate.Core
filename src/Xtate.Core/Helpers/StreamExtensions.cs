@@ -20,7 +20,7 @@
 using System.IO;
 using System.Runtime.CompilerServices;
 using Xtate.Annotations;
-#if !NETSTANDARD2_1
+#if !NET5_0
 using System.Threading.Tasks;
 
 #endif
@@ -45,7 +45,7 @@ namespace Xtate
 			_continueOnCapturedContext = continueOnCapturedContext;
 		}
 
-#if NETSTANDARD2_1
+#if NET5_0
 		public ConfiguredValueTaskAwaitable DisposeAsync() => _stream.DisposeAsync().ConfigureAwait(_continueOnCapturedContext);
 #else
 		public ConfiguredValueTaskAwaitable DisposeAsync()

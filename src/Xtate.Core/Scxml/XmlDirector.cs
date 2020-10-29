@@ -320,20 +320,20 @@ namespace Xtate.Scxml
 						}
 					}
 
-					_ignoreUnknownElements = policy.IgnoreUnknownElements || policy.UnknownElementAction is { };
+					_ignoreUnknownElements = policy.IgnoreUnknownElements || policy.UnknownElementAction is not null;
 
-					if (policy.ElementName is { })
+					if (policy.ElementName is not null && policy.ElementNamespace is not null)
 					{
 						if (!xmlReader.IsStartElement(policy.ElementName, policy.ElementNamespace))
 						{
-							AddError(CreateMessage(Resources.ErrorMessage_ExpectedElementNotFound, policy.ElementNamespace!, policy.ElementName));
+							AddError(CreateMessage(Resources.ErrorMessage_ExpectedElementNotFound, policy.ElementNamespace, policy.ElementName));
 						}
 					}
 				}
 
 				public void ValidateAttribute(string ns, string name)
 				{
-					if (_attributes is { } && _attributes.TryGetValue(new QualifiedName(ns, name), out var type))
+					if (_attributes is not null && _attributes.TryGetValue(new QualifiedName(ns, name), out var type))
 					{
 						if (type == AttributeType.SysOptionalFound || type == AttributeType.SysRequiredFound)
 						{
@@ -346,7 +346,7 @@ namespace Xtate.Scxml
 
 				public void ProcessAttributesCompleted()
 				{
-					if (_attributes is { } && _attributes.Any(p => p.Value == AttributeType.Required))
+					if (_attributes is not null && _attributes.Any(p => p.Value == AttributeType.Required))
 					{
 						var query = _attributes.Where(p => p.Value == AttributeType.Required).Select(p => p.Key);
 						AddError(CreateMessage(Resources.ErrorMessage_Missed_required_attributes, delimiter: @"', '", query));
@@ -355,7 +355,7 @@ namespace Xtate.Scxml
 
 				public void ValidateElement(string ns, string name)
 				{
-					if (_elements is { } && _elements.TryGetValue(new QualifiedName(ns, name), out var type))
+					if (_elements is not null && _elements.TryGetValue(new QualifiedName(ns, name), out var type))
 					{
 						if (type == ElementType.SysOneFound || type == ElementType.SysZeroToOneFound)
 						{
@@ -372,7 +372,7 @@ namespace Xtate.Scxml
 
 				public void ProcessElementsCompleted()
 				{
-					if (_elements is { } && _elements.Any(p => p.Value == ElementType.One || p.Value == ElementType.OneToMany))
+					if (_elements is not null && _elements.Any(p => p.Value == ElementType.One || p.Value == ElementType.OneToMany))
 					{
 						var query = _elements.Where(p => p.Value == ElementType.One || p.Value == ElementType.OneToMany).Select(p => p.Key);
 						AddError(CreateMessage(Resources.ErrorMessage_Missed_required_elements, delimiter: @">, <", query));

@@ -75,12 +75,12 @@ namespace Xtate
 				throw new InvalidOperationException(Resources.Exception_Another_asynchronous_operation_in_progress);
 			}
 
-			if (_context is { })
+			if (_context is not null)
 			{
 				return;
 			}
 
-			var context = _options.StorageProvider is { }
+			var context = _options.StorageProvider is not null
 					? new StateMachineHostPersistedContext(this, _options)
 					: new StateMachineHostContext(this, _options);
 
@@ -143,7 +143,7 @@ namespace Xtate
 		{
 			var context = _context;
 
-			if (context is { })
+			if (context is not null)
 			{
 				await context.WaitAllAsync(token).ConfigureAwait(false);
 			}

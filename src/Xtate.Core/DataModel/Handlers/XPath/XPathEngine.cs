@@ -17,6 +17,8 @@
 
 #endregion
 
+using System;
+using System.Globalization;
 using System.Xml.XPath;
 
 namespace Xtate.DataModel.XPath
@@ -44,7 +46,7 @@ namespace Xtate.DataModel.XPath
 		{
 			var result = _resolver.Evaluate(compiledLeftExpression);
 
-			if (!(result is XPathNodeIterator iterator))
+			if (result is not XPathNodeIterator iterator)
 			{
 				return;
 			}
@@ -90,10 +92,11 @@ namespace Xtate.DataModel.XPath
 					break;
 				case XPathAssignType.AddAttribute:
 					Infrastructure.NotNull(attributeName);
-					navigator.CreateAttribute(string.Empty, attributeName, string.Empty, valueObject.ToString());
+					var value = Convert.ToString(valueObject.ToObject(), CultureInfo.InvariantCulture);
+					navigator.CreateAttribute(string.Empty, attributeName, string.Empty, value ?? string.Empty);
 					break;
 				default:
-					Infrastructure.UnexpectedValue();
+					Infrastructure.UnexpectedValue(assignType);
 					break;
 			}
 		}

@@ -51,7 +51,7 @@ namespace Xtate
 			}
 
 			var name = bucket.GetString(Key.Name);
-			NameParts = name is { } ? EventName.ToParts(name) : default;
+			NameParts = name is not null ? EventName.ToParts(name) : default;
 			Type = bucket.Get<EventType>(Key.Type);
 			SendId = bucket.GetSendId(Key.SendId);
 			Origin = bucket.GetUri(Key.Origin);

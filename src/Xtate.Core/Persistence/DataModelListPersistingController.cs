@@ -54,7 +54,7 @@ namespace Xtate.Persistence
 				case DataModelList.ChangeAction.RemoveAt:
 				case DataModelList.ChangeAction.Reset:
 				{
-					if (!entry.Value.IsUndefined() || entry.Metadata is { })
+					if (!entry.Value.IsUndefined() || entry.Metadata is not null)
 					{
 						_shrink = true;
 					}
@@ -86,7 +86,7 @@ namespace Xtate.Persistence
 
 				case DataModelList.ChangeAction.SetMetadata: break;
 				default:
-					Infrastructure.UnexpectedValue();
+					Infrastructure.UnexpectedValue(action);
 					break;
 			}
 		}
@@ -185,7 +185,7 @@ namespace Xtate.Persistence
 						break;
 					}
 					default:
-						Infrastructure.UnexpectedValue();
+						Infrastructure.UnexpectedValue(operation);
 						break;
 				}
 
@@ -210,7 +210,7 @@ namespace Xtate.Persistence
 			_record = 0;
 
 			var metadata = _list.GetMetadata();
-			if (metadata is { })
+			if (metadata is not null)
 			{
 				var recordBucket = _bucket.Nested(_record ++);
 				recordBucket.Add(Key.Operation, Key.SetMetadata);
@@ -371,7 +371,7 @@ namespace Xtate.Persistence
 				bucket.Add(Key.Access, entry.Access);
 			}
 
-			if (entry.Metadata is { })
+			if (entry.Metadata is not null)
 			{
 				bucket.Nested(Key.Metadata).SetDataModelValue(_referenceTracker, entry.Metadata);
 			}
