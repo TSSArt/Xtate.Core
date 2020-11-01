@@ -25,7 +25,6 @@ namespace Xtate.DataModel.XPath
 	{
 		public static readonly NodeAdapter XmlnsXmlNodeAdapter      = new XmlnsXmlNodeAdapter();
 		public static readonly NodeAdapter AttributeNodeAdapter     = new AttributeNodeAdapter();
-		public static readonly NodeAdapter KeyAttributeNodeAdapter  = new KeyAttributeNodeAdapter();
 		public static readonly NodeAdapter TypeAttributeNodeAdapter = new TypeAttributeNodeAdapter();
 		public static readonly NodeAdapter NamespaceNodeAdapter     = new NamespaceNodeAdapter();
 
