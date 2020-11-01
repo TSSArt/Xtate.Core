@@ -101,7 +101,7 @@ namespace Xtate.Core.Test
 
 			await host.StartHostAsync();
 
-			var result = await host.ExecuteStateMachineAsync(xml);
+			var _ = await host.ExecuteStateMachineAsync(xml);
 
 			await host.WaitAllStateMachinesAsync();
 

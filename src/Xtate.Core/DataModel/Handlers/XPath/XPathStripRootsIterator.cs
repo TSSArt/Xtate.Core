@@ -31,7 +31,7 @@ namespace Xtate.DataModel.XPath
 
 		public override XPathNodeIterator Clone() => new XPathStripRootsIterator(_iterator);
 
-		public override XPathNavigator Current => _current;
+		public override XPathNavigator? Current => _current;
 
 		public override int CurrentPosition => _position;
 
@@ -48,11 +48,13 @@ namespace Xtate.DataModel.XPath
 			{
 				var navigator = _iterator.Current;
 				
-				if (navigator.HasChildren)
+				if (navigator?.HasChildren == true)
 				{
 					_current = navigator.Clone();
 					var moveToFirstChild = _current.MoveToFirstChild();
+					
 					Infrastructure.Assert(moveToFirstChild);
+					
 					_position ++;
 
 					return true;
