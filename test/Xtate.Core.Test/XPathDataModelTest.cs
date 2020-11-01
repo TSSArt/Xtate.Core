@@ -72,5 +72,40 @@ namespace Xtate.Core.Test
 
 			await host.StopHostAsync();
 		}
+
+		[TestMethod]
+		public async Task M2()
+		{
+			const string xml = @"<scxml version='1.0' xmlns='http://www.w3.org/2005/07/scxml' datamodel='xpath'>
+<datamodel>
+  <data id='src'>
+    textValue
+  </data>
+  <data id='dst'/>
+</datamodel>
+<final>
+  <onentry>
+    <assign location='dst' expr='$src'/>
+  </onentry>
+  <donedata>
+	<param name='result' expr='$dst'/>
+  </donedata>
+</final>
+</scxml>
+					";
+
+			var host = new StateMachineHostBuilder()
+					   .AddDataModelHandlerFactory(XPathDataModelHandler.Factory)
+					   .AddResourceLoader(new WebResourceLoader())
+					   .Build();
+
+			await host.StartHostAsync();
+
+			var result = await host.ExecuteStateMachineAsync(xml);
+
+			await host.WaitAllStateMachinesAsync();
+
+			await host.StopHostAsync();
+		}
 	}
 }

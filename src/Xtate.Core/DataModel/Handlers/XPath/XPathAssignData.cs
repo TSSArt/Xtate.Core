@@ -17,18 +17,18 @@
 
 #endregion
 
-using System.Xml.XPath;
-
 namespace Xtate.DataModel.XPath
 {
-	internal class KeyAttributeNodeAdapter : NodeAdapter
+	internal sealed record XPathAssignData
 	{
-		public override XPathNodeType GetNodeType() => XPathNodeType.Attribute;
+		public XPathAssignData(XPathAssignType assignType, string? attributeName)
+		{
+			AssignType = assignType;
+			AssignAttributeName = attributeName;
+		}
 
-		public override string GetLocalName(in DataModelXPathNavigator.Node node) => XmlConverter.KeyAttributeName;
+		public XPathAssignType AssignType { get; }
 
-		public override string GetNamespaceUri(in DataModelXPathNavigator.Node node) => XmlConverter.ItemElementNamespace;
-
-		public override string GetValue(in DataModelXPathNavigator.Node node) => node.DataModelValue.AsString();
+		public string? AssignAttributeName { get; }
 	}
 }

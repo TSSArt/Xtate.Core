@@ -43,14 +43,14 @@ namespace Xtate.DataModel.XPath
 
 		public void DeclareLocalVariable(IExecutionContext executionContext) => executionContext.Engine().DeclareVariable(_compiledExpression);
 
-		public ValueTask SetValue(IObject value, IExecutionContext executionContext, CancellationToken token)
+		public ValueTask SetValue(IObject value, object? customData, IExecutionContext executionContext, CancellationToken token)
 		{
-			executionContext.Engine().Assign(_compiledExpression, value);
+			executionContext.Engine().Assign(_compiledExpression, (XPathAssignData?)customData, value);
 
 			return default;
 		}
 
-		public ValueTask<IObject> GetValue(IExecutionContext executionContext, CancellationToken token) => new ValueTask<IObject>(executionContext.Engine().EvalObject(_compiledExpression));
+		public ValueTask<IObject> GetValue(IExecutionContext executionContext, CancellationToken token) => new ValueTask<IObject>(executionContext.Engine().EvalObject(_compiledExpression, stripRoots: true));
 
 		public string GetName(IExecutionContext executionContext) => executionContext.Engine().GetName(_compiledExpression);
 

@@ -28,11 +28,11 @@ namespace Xtate.DataModel.XPath
 {
 	internal static class XmlConverter
 	{
-		public const string TypeAttributeName    = @"type";
-		public const string KeyAttributeName     = @"key";
-		public const string ItemElementName      = @"item";
-		public const string ItemElementNamespace = @"http://xtate.net/xpath";
-		public const string ItemElementPrefix    = @"x";
+		public const string TypeAttributeName     = @"type";
+		public const string NoKeyElementName      = @"item";
+		public const string EmptyKeyElementName   = @"empty";
+		public const string XPathElementNamespace = @"http://xtate.net/xpath";
+		public const string XPathElementPrefix    = @"x";
 
 		private const string BoolTypeValue      = @"bool";
 		private const string DatetimeTypeValue  = @"datetime";
@@ -112,9 +112,14 @@ namespace Xtate.DataModel.XPath
 				{
 					case XmlNodeType.Element:
 
-						var key = xmlReader.IsStartElement(ItemElementName, ItemElementNamespace)
-								? xmlReader.GetAttribute(KeyAttributeName, ItemElementNamespace)
-								: XmlConvert.DecodeName(xmlReader.LocalName);
+						var key = xmlReader.NamespaceURI != XPathElementNamespace
+								? XmlConvert.DecodeName(xmlReader.LocalName)
+								: xmlReader.LocalName switch
+								{
+										NoKeyElementName => null,
+										EmptyKeyElementName => string.Empty,
+										_ => XmlConvert.DecodeName(xmlReader.LocalName)
+								};
 
 						var metadata = GetMetaData(xmlReader);
 
@@ -122,7 +127,7 @@ namespace Xtate.DataModel.XPath
 
 						if (!xmlReader.IsEmptyElement)
 						{
-							var type = xmlReader.GetAttribute(TypeAttributeName, ItemElementNamespace);
+							var type = xmlReader.GetAttribute(TypeAttributeName, XPathElementNamespace);
 
 							xmlReader.ReadStartElement();
 							var value = LoadValue(xmlReader);
@@ -131,7 +136,7 @@ namespace Xtate.DataModel.XPath
 						}
 						else
 						{
-							var type = xmlReader.GetAttribute(TypeAttributeName, ItemElementNamespace);
+							var type = xmlReader.GetAttribute(TypeAttributeName, XPathElementNamespace);
 
 							list.Add(key, ToType(string.Empty, type), metadata);
 						}

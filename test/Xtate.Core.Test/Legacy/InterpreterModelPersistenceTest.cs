@@ -71,7 +71,7 @@ namespace Xtate.Core.Test.Legacy
 
 		public void DeclareLocalVariable(IExecutionContext executionContext) { }
 
-		public ValueTask SetValue(IObject value, IExecutionContext executionContext, CancellationToken token) => default;
+		public ValueTask SetValue(IObject value, object? customData, IExecutionContext executionContext, CancellationToken token) => default;
 
 		public ValueTask<IObject> GetValue(IExecutionContext executionContext, CancellationToken token) => new ValueTask<IObject>((IObject) null!);
 

@@ -281,11 +281,11 @@ namespace Xtate.DataModel.XPath
 
 			var list = Parent.DataModelValue.AsList();
 
-			if (ShouldNormalize(Entries(list, replace ? Current.ParentIndex : -1, includeElement: default, valueObject), out var entry))
+			if (ShouldNormalize(Entries(list, replace ? Current.ParentIndex : -1, includeElement: default, valueObject), out var value))
 			{
 				PopNode();
 
-				SetNewValue(entry);
+				SetNewValue(value);
 			}
 			else
 			{
@@ -321,9 +321,9 @@ namespace Xtate.DataModel.XPath
 
 			if (Current.DataModelValue.AsListOrDefault() is { } list)
 			{
-				if (ShouldNormalize(Entries(clear ? DataModelList.Empty : list, excludeIndex: -1, includeElement: default, valueObject), out var entry1))
+				if (ShouldNormalize(Entries(clear ? DataModelList.Empty : list, excludeIndex: -1, includeElement: default, valueObject), out var value1))
 				{
-					SetNewValue(entry1);
+					SetNewValue(value1);
 				}
 				else
 				{
@@ -338,11 +338,11 @@ namespace Xtate.DataModel.XPath
 				return;
 			}
 
-			var includeElement = !clear ? new Element(key: default, Current.DataModelValue, Current.Metadata) : default;
+			var includeElement = !clear ? new Element(key: default, Current.DataModelValue) : default;
 
-			if (ShouldNormalize(Entries(DataModelList.Empty, excludeIndex: -1, includeElement, valueObject), out var entry2))
+			if (ShouldNormalize(Entries(DataModelList.Empty, excludeIndex: -1, includeElement, valueObject), out var value2))
 			{
-				SetNewValue(entry2);
+				SetNewValue(value2);
 			}
 			else
 			{
@@ -365,7 +365,7 @@ namespace Xtate.DataModel.XPath
 			{
 				if (entry.Index != excludeIndex)
 				{
-					yield return new Element(entry.Key, entry.Value, entry.Metadata);
+					yield return new Element(entry.Key, entry.Value);
 				}
 			}
 
@@ -383,12 +383,14 @@ namespace Xtate.DataModel.XPath
 			{
 				foreach (DataModelXPathNavigator navigator in xPathObject.AsIterator())
 				{
-					yield return new Element(navigator.LocalName, navigator.Current.DataModelValue, navigator.Current.Metadata);
+					var key = navigator.NodeType == XPathNodeType.Element ? navigator.LocalName : default;
+
+					yield return new Element(key, navigator.Current.DataModelValue);
 				}
 			}
 			else
 			{
-				yield return new Element(key: default, DataModelValue.FromObject(valueObject), metadata: default);
+				yield return new Element(key: default, DataModelValue.FromObject(valueObject));
 			}
 		}
 
@@ -417,11 +419,11 @@ namespace Xtate.DataModel.XPath
 
 			var list = Parent.DataModelValue.AsList();
 
-			if (ShouldNormalize(Entries(list, Current.ParentIndex, includeElement: default, valueObject: default), out var entry))
+			if (ShouldNormalize(Entries(list, Current.ParentIndex, includeElement: default, valueObject: default), out var value))
 			{
 				PopNode();
 
-				SetNewValue(entry);
+				SetNewValue(value);
 			}
 			else
 			{
@@ -429,23 +431,32 @@ namespace Xtate.DataModel.XPath
 			}
 		}
 
-		private static bool ShouldNormalize(IEnumerable<Element> enumerable, out Element entry)
+		private static bool ShouldNormalize(IEnumerable<Element> enumerable, out DataModelValue value)
 		{
 			using var enumerator = enumerable.GetEnumerator();
 
 			if (!enumerator.MoveNext())
 			{
-				entry = default;
+				value = default;
 
 				return true;
 			}
 
-			entry = enumerator.Current;
+			var element = enumerator.Current;
 
-			return entry.Key is null && !enumerator.MoveNext();
+			if (element.Key is null && element.Value.Type != DataModelValueType.List && !enumerator.MoveNext())
+			{
+				value = element.Value;
+
+				return true;
+			}
+
+			value = default;
+
+			return false;
 		}
 
-		private void SetNewValue(in Element element)
+		private void SetNewValue(in DataModelValue value)
 		{
 			if (_pathLength == 0)
 			{
@@ -454,15 +465,16 @@ namespace Xtate.DataModel.XPath
 
 			var list = Parent.DataModelValue.AsList();
 
-			if (ShouldNormalize(Entries(list, Current.ParentIndex, includeElement: default, valueObject: default), out var entry))
+			var includeElement = new Element(Current.ParentProperty, value);
+			if (ShouldNormalize(Entries(list, Current.ParentIndex, includeElement, valueObject: default), out var value1))
 			{
 				PopNode();
 
-				SetNewValue(entry);
+				SetNewValue(value1);
 			}
 			else
 			{
-				list.Set(Current.ParentIndex, Current.ParentProperty, element.Value, element.Metadata);
+				list.Set(Current.ParentIndex, Current.ParentProperty, value, Current.Metadata);
 			}
 		}
 
@@ -520,14 +532,12 @@ namespace Xtate.DataModel.XPath
 		private readonly struct Element
 		{
 			public readonly string?        Key;
-			public readonly DataModelList? Metadata;
 			public readonly DataModelValue Value;
 
-			public Element(string? key, DataModelValue value, DataModelList? metadata)
+			public Element(string? key, in DataModelValue value)
 			{
 				Key = key;
 				Value = value;
-				Metadata = metadata;
 			}
 		}
 
@@ -567,8 +577,6 @@ namespace Xtate.DataModel.XPath
 			public bool GetNextAttribute(ref Node attributeNode)  => Adapter.GetNextAttribute(this, ref attributeNode);
 			public bool GetFirstNamespace(out Node namespaceNode) => Adapter.GetFirstNamespace(this, out namespaceNode);
 			public bool GetNextNamespace(ref Node namespaceNode)  => Adapter.GetNextNamespace(this, ref namespaceNode);
-
-			public string? EncodedParentProperty() => XmlConvert.EncodeLocalName(ParentProperty);
 		}
 	}
 }
