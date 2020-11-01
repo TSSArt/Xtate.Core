@@ -27,7 +27,7 @@ namespace Xtate.DataModel.XPath
 
 		public override string GetLocalName(in DataModelXPathNavigator.Node node) => XmlConverter.TypeAttributeName;
 
-		public override string GetNamespaceUri(in DataModelXPathNavigator.Node node) => XmlConverter.ItemElementNamespace;
+		public override string GetNamespaceUri(in DataModelXPathNavigator.Node node) => XmlConverter.XPathElementNamespace;
 
 		public override string GetValue(in DataModelXPathNavigator.Node node) => node.DataModelValue.AsString();
 	}

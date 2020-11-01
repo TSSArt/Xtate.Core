@@ -40,9 +40,19 @@ namespace Xtate.DataModel.XPath
 			return engine;
 		}
 
-		public XPathObject EvalObject(XPathCompiledExpression compiledExpression) => new XPathObject(_resolver.Evaluate(compiledExpression));
+		public XPathObject EvalObject(XPathCompiledExpression compiledExpression, bool stripRoots)
+		{
+			var value = _resolver.Evaluate(compiledExpression);
 
-		public void Assign(XPathCompiledExpression compiledLeftExpression, IObject rightValue)
+			if (stripRoots && value is XPathNodeIterator iterator)
+			{
+				value = new XPathStripRootsIterator(iterator);
+			}
+
+			return new XPathObject(value);
+		}
+
+		public void Assign(XPathCompiledExpression compiledLeftExpression, XPathAssignData? assignData, IObject rightValue)
 		{
 			var result = _resolver.Evaluate(compiledLeftExpression);
 
@@ -53,14 +63,13 @@ namespace Xtate.DataModel.XPath
 
 			foreach (DataModelXPathNavigator navigator in iterator)
 			{
-				switch (rightValue)
+				if (assignData != null)
 				{
-					case XPathAssignObject assignObject:
-						Assign(navigator, assignObject.AssignType, assignObject.AssignAttributeName, assignObject);
-						break;
-					default:
-						Assign(navigator, XPathAssignType.ReplaceChildren, attributeName: default, rightValue);
-						break;
+					Assign(navigator, assignData.AssignType, assignData.AssignAttributeName, rightValue);
+				}
+				else
+				{
+					Assign(navigator, XPathAssignType.ReplaceChildren, attributeName: default, rightValue);
 				}
 			}
 		}

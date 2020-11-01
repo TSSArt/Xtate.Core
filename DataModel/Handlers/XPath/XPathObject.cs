@@ -31,7 +31,6 @@ namespace Xtate.DataModel.XPath
 		{
 			_value = value switch
 			{
-					XPathObject xPathObject => xPathObject._value,
 					XPathNodeIterator => value,
 					string => value,
 					double => value,
