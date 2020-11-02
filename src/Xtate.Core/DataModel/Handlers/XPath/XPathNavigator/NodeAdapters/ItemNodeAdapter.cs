@@ -17,35 +17,19 @@
 
 #endregion
 
-using System.Xml;
-
 namespace Xtate.DataModel.XPath
 {
 	internal class ItemNodeAdapter : ElementNodeAdapter
 	{
-		public override string GetLocalName(in DataModelXPathNavigator.Node node) =>
-				node.ParentProperty switch
-				{
-						null => XmlConverter.NoKeyElementName,
-						{ Length: 0 } => XmlConverter.EmptyKeyElementName,
-						_ => XmlConvert.EncodeLocalName(node.ParentProperty)
-				};
+		public override string GetLocalName(in DataModelXPathNavigator.Node node) => XmlConverter.KeyToLocalName(node.ParentProperty);
 
 		public override string GetNamespaceUri(in DataModelXPathNavigator.Node node) =>
-				node.ParentProperty switch
-				{
-						null => XmlConverter.XPathElementNamespace,
-						{ Length: 0 } => XmlConverter.XPathElementNamespace,
-						_ => XPathMetadata.GetValue(node.Metadata, XPathMetadata.ElementIndex, XPathMetadata.ElementNamespaceOffset)
-				};
+				XmlConverter.KeyToNamespaceOrDefault(node.ParentProperty) ??
+				XPathMetadata.GetValue(node.Metadata, XPathMetadata.ElementIndex, XPathMetadata.ElementNamespaceOffset);
 
 		public override string GetPrefix(in DataModelXPathNavigator.Node node) =>
-				node.ParentProperty switch
-				{
-						null => XmlConverter.XPathElementPrefix,
-						{ Length: 0 } => XmlConverter.XPathElementPrefix,
-						_ => XPathMetadata.GetValue(node.Metadata, XPathMetadata.ElementIndex, XPathMetadata.ElementPrefixOffset)
-				};
+				XmlConverter.KeyToPrefixOrDefault(node.ParentProperty) ??
+				XPathMetadata.GetValue(node.Metadata, XPathMetadata.ElementIndex, XPathMetadata.ElementPrefixOffset);
 
 		public override bool GetFirstAttribute(in DataModelXPathNavigator.Node node, out DataModelXPathNavigator.Node attributeNode)
 		{

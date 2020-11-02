@@ -400,13 +400,26 @@ namespace Xtate.DataModel.XPath
 			{
 				foreach (DataModelXPathNavigator navigator in xPathObject.AsIterator())
 				{
+					var key = XmlConverter.NsNameToKey(navigator.NamespaceURI, navigator.LocalName);
 					var metadata = new DataModelValue(navigator.Current.Metadata).CloneAsWritable().AsListOrDefault();
-					list.Insert(start ++, navigator.LocalName, navigator.Current.DataModelValue.CloneAsWritable(), metadata);
+					list.Insert(start ++, key, navigator.Current.DataModelValue.CloneAsWritable(), metadata);
+				}
+
+				return;
+			}
+
+			var value = DataModelValue.FromObject(valueObject);
+
+			if (value.AsListOrDefault() is { } arr)
+			{
+				foreach (var entry in arr.Entries)
+				{
+					list.Insert(start ++, entry.Key, entry.Value.CloneAsWritable(), entry.Metadata?.CloneAsWritable());
 				}
 			}
 			else
 			{
-				list.Insert(start, key: default, DataModelValue.FromObject(valueObject), metadata: default);
+				list.Insert(start, key: default, value, metadata: default);
 			}
 		}
 
