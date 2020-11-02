@@ -29,16 +29,16 @@ namespace Xtate.DataModel.XPath
 	internal static class XmlConverter
 	{
 		public const string TypeAttributeName     = @"type";
-		public const string NoKeyElementName      = @"item";
-		public const string EmptyKeyElementName   = @"empty";
 		public const string XPathElementNamespace = @"http://xtate.net/xpath";
-		public const string XPathElementPrefix    = @"x";
 
-		private const string BoolTypeValue      = @"bool";
-		private const string DatetimeTypeValue  = @"datetime";
-		private const string NumberTypeValue    = @"number";
-		private const string NullTypeValue      = @"null";
-		private const string UndefinedTypeValue = @"undefined";
+		private const string NoKeyElementName    = @"item";
+		private const string EmptyKeyElementName = @"empty";
+		private const string XPathElementPrefix  = @"x";
+		private const string BoolTypeValue       = @"bool";
+		private const string DatetimeTypeValue   = @"datetime";
+		private const string NumberTypeValue     = @"number";
+		private const string NullTypeValue       = @"null";
+		private const string UndefinedTypeValue  = @"undefined";
 
 		private static readonly XmlWriterSettings DefaultWriterSettings = new XmlWriterSettings { Indent = true, OmitXmlDeclaration = true, ConformanceLevel = ConformanceLevel.Auto };
 		private static readonly XmlReaderSettings DefaultReaderSettings = new XmlReaderSettings { ConformanceLevel = ConformanceLevel.Auto };
@@ -60,7 +60,7 @@ namespace Xtate.DataModel.XPath
 
 		private static void WriteNode(XmlWriter xmlWriter, XPathNavigator navigator)
 		{
-			if (navigator.NodeType == XPathNodeType.Element && navigator.LocalName is {Length: 0})
+			if (navigator.NodeType == XPathNodeType.Element && navigator.LocalName is { Length: 0 })
 			{
 				if (navigator.HasChildren)
 				{
@@ -101,6 +101,40 @@ namespace Xtate.DataModel.XPath
 			return LoadValue(xmlReader);
 		}
 
+		public static string? NsNameToKey(string namespaceURI, string localName) =>
+				namespaceURI != XPathElementNamespace
+						? XmlConvert.DecodeName(localName)
+						: localName switch
+						{
+								NoKeyElementName => null,
+								EmptyKeyElementName => string.Empty,
+								_ => XmlConvert.DecodeName(localName)
+						};
+
+		public static string KeyToLocalName(string? key) =>
+				key switch
+				{
+						null => NoKeyElementName,
+						{ Length: 0 } => EmptyKeyElementName,
+						_ => XmlConvert.EncodeLocalName(key)
+				};
+
+		public static string? KeyToNamespaceOrDefault(string? key) =>
+				key switch
+				{
+						null => XPathElementNamespace,
+						{ Length: 0 } => XPathElementNamespace,
+						_ => null
+				};
+
+		public static string? KeyToPrefixOrDefault(string? key) =>
+				key switch
+				{
+						null => XPathElementPrefix,
+						{ Length: 0 } => XPathElementPrefix,
+						_ => null
+				};
+
 		private static DataModelValue LoadValue(XmlReader xmlReader)
 		{
 			DataModelList? list = null;
@@ -112,14 +146,7 @@ namespace Xtate.DataModel.XPath
 				{
 					case XmlNodeType.Element:
 
-						var key = xmlReader.NamespaceURI != XPathElementNamespace
-								? XmlConvert.DecodeName(xmlReader.LocalName)
-								: xmlReader.LocalName switch
-								{
-										NoKeyElementName => null,
-										EmptyKeyElementName => string.Empty,
-										_ => XmlConvert.DecodeName(xmlReader.LocalName)
-								};
+						var key = NsNameToKey(xmlReader.NamespaceURI, xmlReader.LocalName);
 
 						var metadata = GetMetaData(xmlReader);
 

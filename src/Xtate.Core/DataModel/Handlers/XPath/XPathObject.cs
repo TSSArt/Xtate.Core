@@ -171,7 +171,8 @@ namespace Xtate.DataModel.XPath
 				switch (navigator.NodeType)
 				{
 					case XPathNodeType.Element:
-						list.Add(navigator.LocalName, navigator.DataModelValue.CloneAsWritable(), navigator.Metadata?.DeepClone(DataModelAccess.Writable));
+						var key = XmlConverter.NsNameToKey(navigator.NamespaceURI, navigator.LocalName);
+						list.Add(key, navigator.DataModelValue.CloneAsWritable(), navigator.Metadata?.DeepClone(DataModelAccess.Writable));
 						break;
 
 					case XPathNodeType.Text:
