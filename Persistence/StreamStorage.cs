@@ -220,18 +220,21 @@ namespace Xtate.Persistence
 					}
 
 					var levelLength = Encode.GetLength(byteMark);
+
 					if (levelLength > 1 && await stream.ReadAsync(buf, memoryOffset + 1, levelLength - 1, token).ConfigureAwait(false) < levelLength - 1)
 					{
 						throw GetIncorrectDataFormatException();
 					}
 
 					var level = Encode.Decode(buf.AsSpan(memoryOffset, levelLength));
+
 					if (await stream.ReadAsync(buf, memoryOffset, count: 1, token).ConfigureAwait(false) < 1)
 					{
 						throw GetIncorrectDataFormatException();
 					}
 
 					var sizeLength = Encode.GetLength(buf[memoryOffset]);
+
 					if (sizeLength > 1 && await stream.ReadAsync(buf, memoryOffset + 1, sizeLength - 1, token).ConfigureAwait(false) < sizeLength - 1)
 					{
 						throw GetIncorrectDataFormatException();
