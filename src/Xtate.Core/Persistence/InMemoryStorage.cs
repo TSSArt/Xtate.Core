@@ -305,6 +305,8 @@ namespace Xtate.Persistence
 				Encode.WriteEncodedValue(valueLenSpan, pair.Value.Length);
 				pair.Value.Span.CopyTo(valueSpan);
 
+				span = span.Slice(keyLengthLength + pair.Key.Length + valueLengthLength + pair.Value.Length);
+
 				if (shrink)
 				{
 					var key = newBaseline.Slice(start: 0, pair.Key.Length);

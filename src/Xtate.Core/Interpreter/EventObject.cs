@@ -61,7 +61,7 @@ namespace Xtate
 			if (bucket.TryGet(Key.Data, out bool data) && data)
 			{
 				using var tracker = new DataModelReferenceTracker(bucket.Nested(Key.DataReferences));
-				Data = bucket.Nested(Key.DataValue).GetDataModelValue(tracker, baseValue: default).AsConstant();
+				Data = bucket.GetDataModelValue(tracker, baseValue: default).AsConstant();
 			}
 		}
 
@@ -105,7 +105,7 @@ namespace Xtate
 			{
 				bucket.Add(Key.Data, value: true);
 				using var tracker = new DataModelReferenceTracker(bucket.Nested(Key.DataReferences));
-				bucket.Nested(Key.DataValue).SetDataModelValue(tracker, Data);
+				bucket.SetDataModelValue(tracker, Data);
 			}
 		}
 
