@@ -125,16 +125,48 @@ namespace Xtate
 			private string IndexKey => _entry.Key ?? "[" + _entry.Index + "]";
 
 			[UsedImplicitly]
-			public string? Key => _entry.Key;
+			public ItemInfo __ItemInfo__ => new ItemInfo(_entry);
+		}
 
-			[UsedImplicitly]
-			public int Index => _entry.Index;
+		[ExcludeFromCodeCoverage]
+		[DebuggerDisplay(value: "Index = {" + nameof(Index) + "}, Access = {" + nameof(Access) + "}, Metadata = {" + nameof(MetadataNote) + ",nq}")]
+		private readonly struct ItemInfo
+		{
+			[DebuggerBrowsable(DebuggerBrowsableState.Never)]
+			private readonly Entry _entry;
+
+			public ItemInfo(in Entry entry) => _entry = entry;
+
+			[DebuggerBrowsable(DebuggerBrowsableState.Never)]
+			private int Index => _entry.Index;
+
+			[DebuggerBrowsable(DebuggerBrowsableState.Never)]
+			private DataModelAccess Access => _entry.Access;
+
+			[DebuggerBrowsable(DebuggerBrowsableState.Never)]
+			private string MetadataNote => _entry.Metadata is not null ? "{...}" : "null";
 
 			[UsedImplicitly]
 			public DataModelList? Metadata => _entry.Metadata;
+		}
+
+		[ExcludeFromCodeCoverage]
+		[DebuggerDisplay(value: "Access = {" + nameof(Access) + "}, Metadata = {" + nameof(MetadataNote) + ",nq}")]
+		private readonly struct ListInfo
+		{
+			[DebuggerBrowsable(DebuggerBrowsableState.Never)]
+			private readonly DataModelList _dataModelList;
+
+			public ListInfo(DataModelList dataModelList) => _dataModelList = dataModelList;
+
+			[DebuggerBrowsable(DebuggerBrowsableState.Never)]
+			private string MetadataNote => _dataModelList.GetMetadata() is not null ? "{...}" : "null";
+
+			[DebuggerBrowsable(DebuggerBrowsableState.Never)]
+			private DataModelAccess Access => _dataModelList.Access;
 
 			[UsedImplicitly]
-			public DataModelAccess Access => _entry.Access;
+			public DataModelList? Metadata => _dataModelList.GetMetadata();
 		}
 
 		[ExcludeFromCodeCoverage]
@@ -144,10 +176,12 @@ namespace Xtate
 
 			public DebugView(DataModelList dataModelList) => _dataModelList = dataModelList;
 
+			[UsedImplicitly]
 			[DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
 			public DebugIndexKeyValue[] Items => _dataModelList.Entries.Select(entry => new DebugIndexKeyValue(entry)).ToArray();
 
-			public DataModelList? Metadata => _dataModelList.GetMetadata();
+			[UsedImplicitly]
+			public ListInfo __ListInfo__ => new ListInfo(_dataModelList);
 		}
 	}
 }
