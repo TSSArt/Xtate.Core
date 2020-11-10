@@ -20,11 +20,10 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xtate.Service
+namespace Xtate
 {
-	public interface IService : IEventDispatcher
+	public interface IEventDispatcher
 	{
-		Task<DataModelValue> Result { get; }
-		ValueTask            Destroy(CancellationToken token);
+		ValueTask Send(IEvent evt, CancellationToken token = default);
 	}
 }

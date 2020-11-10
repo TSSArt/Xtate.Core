@@ -78,9 +78,13 @@ namespace Xtate.Service
 
 	#endregion
 
-	#region Interface IService
+	#region Interface IEventDispatcher
 
-		ValueTask IService.Send(IEvent evt, CancellationToken token) => default;
+		ValueTask IEventDispatcher.Send(IEvent evt, CancellationToken token) => default;
+
+	#endregion
+
+	#region Interface IService
 
 		ValueTask IService.Destroy(CancellationToken token)
 		{

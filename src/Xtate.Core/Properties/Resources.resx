@@ -779,4 +779,7 @@
   <data name="NamedIoProcessor_ReceiveMessage4_Message_read_partially" xml:space="preserve">
     <value>Message read partially. {0} of {1} bytes.</value>
   </data>
+  <data name="Exception_Event_dispatcher_not_found" xml:space="preserve">
+    <value>Event dispatcher not found.</value>
+  </data>
 </root>

@@ -18,6 +18,7 @@
 #endregion
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -62,6 +63,6 @@ namespace Xtate.IoProcessor
 
 		protected abstract ValueTask OutgoingEvent(SessionId sessionId, IOutgoingEvent evt, CancellationToken token);
 
-		protected ValueTask<bool> IncomingEvent(SessionId sessionId, IEvent evt, CancellationToken token) => _eventConsumer.Dispatch(sessionId, evt, token);
+		protected bool TryGetEventDispatcher(SessionId sessionId, [NotNullWhen(true)] out IEventDispatcher? eventDispatcher) => _eventConsumer.TryGetEventDispatcher(sessionId, out eventDispatcher);
 	}
 }
