@@ -111,7 +111,14 @@ namespace Xtate.IoProcessor
 
 			if (isLoopback && InProcConsumers.TryGetValue(name, out var eventConsumer))
 			{
-				await eventConsumer.Dispatch(targetSessionId, eventObject, token).ConfigureAwait(false);
+				if (eventConsumer.TryGetEventDispatcher(targetSessionId, out var eventDispatcher))
+				{
+					await eventDispatcher.Send(eventObject, token).ConfigureAwait(false);
+				}
+				else
+				{
+					throw new ProcessorException(Resources.Exception_Event_dispatcher_not_found);
+				}
 			}
 			else
 			{
@@ -142,9 +149,21 @@ namespace Xtate.IoProcessor
 				memoryStream.Position = 0;
 				var responseMessage = Deserialize(memoryStream, b => new ResponseMessage(b));
 
-				if (responseMessage.ExceptionMessage is not null)
+				switch (responseMessage.ErrorType)
 				{
-					throw new ProcessorException(Res.Format(Resources.Exception_Error_on_event_consumer_side, responseMessage.ExceptionMessage, responseMessage.ExceptionText));
+					case ErrorType.None:
+						break;
+
+					case ErrorType.Exception:
+						throw new ProcessorException(Res.Format(Resources.Exception_Error_on_event_consumer_side, responseMessage.ExceptionMessage, responseMessage.ExceptionText));
+
+					case ErrorType.EventDispatcherNotFound:
+						throw new ProcessorException(Resources.Exception_Event_dispatcher_not_found);
+
+					default:
+						Infrastructure.UnexpectedValue(responseMessage.ErrorType);
+
+						break;
 				}
 			}
 		}
@@ -168,9 +187,16 @@ namespace Xtate.IoProcessor
 					memoryStream.Position = 0;
 					var message = Deserialize(memoryStream, b => new EventMessage(b));
 
-					if (message.SessionId is not null)
+					if (message.SessionId is { } sessionId)
 					{
-						await _eventConsumer.Dispatch(message.SessionId, message.Event, _stopTokenSource.Token).ConfigureAwait(false);
+						if (_eventConsumer.TryGetEventDispatcher(sessionId, out var eventDispatcher))
+						{
+							await eventDispatcher.Send(message.Event, _stopTokenSource.Token).ConfigureAwait(false);
+						}
+						else
+						{
+							responseMessage = new ResponseMessage(ErrorType.EventDispatcherNotFound);
+						}
 					}
 				}
 				catch (Exception ex)
@@ -327,13 +353,29 @@ namespace Xtate.IoProcessor
 		#endregion
 		}
 
+		private enum ErrorType
+		{
+			None                    = 0,
+			Exception               = 1,
+			EventDispatcherNotFound = 2
+		}
+
 		private readonly struct ResponseMessage : IStoreSupport
 		{
-			public readonly string? ExceptionMessage;
-			public readonly string? ExceptionText;
+			public readonly ErrorType ErrorType;
+			public readonly string?   ExceptionMessage;
+			public readonly string?   ExceptionText;
+
+			public ResponseMessage(ErrorType errorType)
+			{
+				ErrorType = errorType;
+				ExceptionMessage = null;
+				ExceptionText = null;
+			}
 
 			public ResponseMessage(Exception exception)
 			{
+				ErrorType = ErrorType.Exception;
 				ExceptionMessage = exception.Message;
 				ExceptionText = exception.ToString();
 			}
@@ -345,6 +387,7 @@ namespace Xtate.IoProcessor
 					throw new ArgumentException(Resources.Exception_Invalid_TypeInfo_value);
 				}
 
+				ErrorType = bucket.TryGet(Key.Type, out ErrorType errorType) ? errorType : ErrorType.None;
 				ExceptionMessage = bucket.TryGet(Key.Message, out string? message) ? message : null;
 				ExceptionText = bucket.TryGet(Key.Exception, out string? text) ? text : null;
 			}
@@ -355,8 +398,9 @@ namespace Xtate.IoProcessor
 			{
 				bucket.Add(Key.TypeInfo, TypeInfo.Message);
 
-				if (ExceptionMessage is not null)
+				if (ErrorType != ErrorType.None)
 				{
+					bucket.Add(Key.Type, ErrorType);
 					bucket.Add(Key.Message, ExceptionMessage);
 					bucket.Add(Key.Exception, ExceptionText);
 				}

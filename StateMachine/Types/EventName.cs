@@ -21,17 +21,20 @@ using System;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Xml;
+using Xtate.Annotations;
 
 namespace Xtate
 {
+	[PublicAPI]
 	public static class EventName
 	{
 		private const char Dot = '.';
 
-		private static readonly IIdentifier DoneIdentifier   = (Identifier) @"done";
-		private static readonly IIdentifier StateIdentifier  = (Identifier) @"state";
-		private static readonly IIdentifier ErrorIdentifier  = (Identifier) @"error";
-		private static readonly IIdentifier InvokeIdentifier = (Identifier) @"invoke";
+		private static readonly IIdentifier DoneIdentifier     = (Identifier) @"done";
+		private static readonly IIdentifier StateIdentifier    = (Identifier) @"state";
+		private static readonly IIdentifier ErrorIdentifier    = (Identifier) @"error";
+		private static readonly IIdentifier InvokeIdentifier   = (Identifier) @"invoke";
+		private static readonly IIdentifier PlatformIdentifier = (Identifier) @"platform";
 
 		public static readonly ImmutableArray<IIdentifier> ErrorExecution     = ImmutableArray.Create(ErrorIdentifier, (Identifier) @"execution");
 		public static readonly ImmutableArray<IIdentifier> ErrorCommunication = ImmutableArray.Create(ErrorIdentifier, (Identifier) @"communication");
@@ -93,6 +96,21 @@ namespace Xtate
 			}
 
 			return count;
+		}
+
+		public static ImmutableArray<IIdentifier> GetErrorPlatform(string suffix)
+		{
+			if (suffix is null) throw new ArgumentNullException(nameof(suffix));
+
+			var suffixPartCount = GetCount(suffix);
+			var parts = new IIdentifier[2 + suffixPartCount];
+
+			parts[0] = ErrorIdentifier;
+			parts[1] = PlatformIdentifier;
+
+			SetParts(parts.AsSpan(start: 2, suffixPartCount), suffix);
+
+			return ImmutableArray.Create(parts);
 		}
 
 		public static string ToName(ImmutableArray<IIdentifier> nameParts)
