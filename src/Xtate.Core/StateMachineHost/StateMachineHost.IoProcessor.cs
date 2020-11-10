@@ -18,6 +18,7 @@
 #endregion
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtate.IoProcessor;
@@ -32,14 +33,16 @@ namespace Xtate
 
 	#region Interface IEventConsumer
 
-		public async ValueTask<bool> Dispatch(SessionId sessionId, IEvent evt, CancellationToken token = default)
+		public bool TryGetEventDispatcher(SessionId sessionId, [NotNullWhen(true)] out IEventDispatcher? eventDispatcher)
 		{
 			if (GetCurrentContext().FindStateMachineController(sessionId) is { } controller)
 			{
-				await controller.Send(evt, token).ConfigureAwait(false);
+				eventDispatcher = controller;
 
 				return true;
 			}
+
+			eventDispatcher = null;
 
 			return false;
 		}

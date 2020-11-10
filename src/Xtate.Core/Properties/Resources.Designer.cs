@@ -1223,6 +1223,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Event dispatcher not found..
+        /// </summary>
+        internal static string Exception_Event_dispatcher_not_found {
+            get {
+                return ResourceManager.GetString("Exception_Event_dispatcher_not_found", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Event Target did not specified..
         /// </summary>
         internal static string Exception_Event_Target_did_not_specified {
