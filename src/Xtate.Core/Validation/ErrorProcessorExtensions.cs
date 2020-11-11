@@ -44,7 +44,7 @@ namespace Xtate
 					return;
 				}
 
-				if (exception is XmlException xmlException && xmlException.LineNumber > 0)
+				if (exception is XmlException { LineNumber: > 0 } xmlException)
 				{
 					errorProcessor.AddError(new ErrorItem(source, message, exception, xmlException.LineNumber, xmlException.LinePosition));
 

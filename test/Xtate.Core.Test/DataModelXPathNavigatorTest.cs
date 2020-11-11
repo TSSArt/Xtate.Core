@@ -187,7 +187,7 @@ namespace Xtate.Core.Test
 			var list = new DataModelList { new DataModelList { ["key1"] = "val1" }, new DataModelList { ["key2"] = "val2" } };
 			var root = new DataModelList { ["root"] = list };
 /*			list.Add("", "empty");
-			list.Add(":#$%", "symb");
+			list.Add(":#$%", "symbol");
 			list.Add("b", true);
 			list.Add("n", 1.5);
 			list.Add("dttm", DateTime.UtcNow);
