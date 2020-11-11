@@ -111,7 +111,7 @@ namespace Xtate.Persistence
 			BinaryPrimitives.WriteUInt64LittleEndian(nextBuf, _block);
 			KeyHelper<TKey>.Converter.Write(key, nextBuf.Slice(size, len));
 
-			return buf.Slice(start: 0, length);
+			return buf[..length];
 		}
 
 		private static Span<byte> WritePrevious(Node? node, int size, ref Span<byte> buf)
@@ -120,7 +120,7 @@ namespace Xtate.Persistence
 			{
 				var nextBuf = WritePrevious(node.Previous, size + node.Size, ref buf);
 				node.WriteTo(nextBuf);
-				return nextBuf.Slice(node.Size);
+				return nextBuf[node.Size..];
 			}
 
 			if (buf.Length < size)
@@ -312,7 +312,7 @@ namespace Xtate.Persistence
 				if (length > 8)
 				{
 					_bytes = new byte[length - 8];
-					span.Slice(8).CopyTo(_bytes.AsSpan());
+					span[8..].CopyTo(_bytes.AsSpan());
 					length = 8;
 				}
 
@@ -342,7 +342,7 @@ namespace Xtate.Persistence
 				WriteBlock(_block1, ref index, buf);
 				WriteBlock(_block2, ref index, buf);
 
-				_bytes?.AsSpan().CopyTo(buf.Slice(index));
+				_bytes?.AsSpan().CopyTo(buf[index..]);
 			}
 		}
 
@@ -487,7 +487,7 @@ namespace Xtate.Persistence
 				bytes[0] = 7;
 				var lastByteIndex = bytes.Length - 1;
 				bytes[lastByteIndex] = 0xFF;
-				var dest = bytes.Slice(start: 1, bytes.Length - 2);
+				var dest = bytes[1..^1];
 #if NET5_0
 				Encoding.UTF8.GetBytes(key, dest);
 #else
@@ -621,13 +621,13 @@ namespace Xtate.Persistence
 			protected override void Write(DateTimeOffset val, Span<byte> bytes)
 			{
 				BinaryPrimitives.WriteInt64LittleEndian(bytes, val.Ticks);
-				BinaryPrimitives.WriteInt16LittleEndian(bytes.Slice(8), (short) (val.Offset.Ticks / TimeSpan.TicksPerMinute));
+				BinaryPrimitives.WriteInt16LittleEndian(bytes[8..], (short) (val.Offset.Ticks / TimeSpan.TicksPerMinute));
 			}
 
 			protected override DateTimeOffset Get(ReadOnlySpan<byte> bytes)
 			{
 				var ticks = BinaryPrimitives.ReadInt64LittleEndian(bytes);
-				var offsetMinutes = BinaryPrimitives.ReadInt16LittleEndian(bytes.Slice(8));
+				var offsetMinutes = BinaryPrimitives.ReadInt16LittleEndian(bytes[8..]);
 				return new DateTimeOffset(ticks, new TimeSpan(hours: 0, offsetMinutes, seconds: 0));
 			}
 		}

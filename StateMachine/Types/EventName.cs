@@ -72,12 +72,12 @@ namespace Xtate
 
 			while ((pos2 = id.IndexOf(Dot, pos)) >= 0)
 			{
-				span[index ++] = (Identifier) id.Substring(pos, pos2 - pos);
+				span[index ++] = (Identifier) id[pos..pos2];
 
 				pos = pos2 + 1;
 			}
 
-			span[index] = (Identifier) id.Substring(pos);
+			span[index] = (Identifier) id[pos..];
 		}
 
 		private static int GetCount(string? id)

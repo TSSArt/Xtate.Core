@@ -369,7 +369,7 @@ namespace Xtate.Persistence
 
 			if (size is { } s)
 			{
-				Encode.WriteEncodedValue(span.Slice(Encode.GetEncodedLength(mark)), s);
+				Encode.WriteEncodedValue(span[Encode.GetEncodedLength(mark)..], s);
 			}
 		}
 

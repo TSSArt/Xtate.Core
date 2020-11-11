@@ -40,12 +40,12 @@ namespace Xtate.Persistence
 			if (!baseline.IsEmpty)
 			{
 				_baselineOwner = MemoryPool<byte>.Shared.Rent(baseline.Length);
-				var memory = _baselineOwner.Memory.Slice(start: 0, baseline.Length);
+				var memory = _baselineOwner.Memory[..baseline.Length];
 				baseline.CopyTo(memory.Span);
 				while (!baseline.IsEmpty)
 				{
 					var keyLengthLength = Encode.GetLength(baseline[0]);
-					var keyLength = Encode.Decode(baseline.Slice(start: 0, keyLengthLength));
+					var keyLength = Encode.Decode(baseline[..keyLengthLength]);
 					var key = memory.Slice(keyLengthLength, keyLength);
 
 					var valueLengthLength = Encode.GetLength(baseline[keyLengthLength + keyLength]);
@@ -55,8 +55,8 @@ namespace Xtate.Persistence
 					AddToReadModel(key, value);
 
 					var rowSize = keyLengthLength + keyLength + valueLengthLength + valueLength;
-					baseline = baseline.Slice(rowSize);
-					memory = memory.Slice(rowSize);
+					baseline = baseline[rowSize..];
+					memory = memory[rowSize..];
 				}
 			}
 		}
@@ -96,7 +96,7 @@ namespace Xtate.Persistence
 
 			var memory = AllocateBuffer(key.Length + value.Length + keyLengthLength + valueLengthLength);
 
-			var keyLenMemory = memory.Slice(start: 0, keyLengthLength);
+			var keyLenMemory = memory[..keyLengthLength];
 			var keyMemory = memory.Slice(keyLengthLength, key.Length);
 			var valueLenMemory = memory.Slice(keyLengthLength + key.Length, valueLengthLength);
 			var valueMemory = memory.Slice(keyLengthLength + key.Length + valueLengthLength, value.Length);
@@ -199,7 +199,7 @@ namespace Xtate.Persistence
 
 				span[i] ++;
 
-				return to.Slice(start: 0, i + 1);
+				return to[..(i + 1)];
 			}
 
 			return Memory<byte>.Empty;
@@ -227,11 +227,11 @@ namespace Xtate.Persistence
 				_buffer = _owner.Memory;
 			}
 
-			var result = _buffer.Slice(start: 0, size);
+			var result = _buffer[..size];
 
 			if (!shared)
 			{
-				_buffer = _buffer.Slice(size);
+				_buffer = _buffer[size..];
 			}
 
 			return result;
@@ -245,15 +245,15 @@ namespace Xtate.Persistence
 			{
 				foreach (var (owner, size) in _buffers)
 				{
-					owner.Memory.Slice(start: 0, size).Span.CopyTo(span);
-					span = span.Slice(size);
+					owner.Memory[..size].Span.CopyTo(span);
+					span = span[size..];
 				}
 			}
 
 			if (_owner is not null)
 			{
 				var memory = _owner.Memory.Span;
-				memory.Slice(start: 0, memory.Length - _buffer.Length).CopyTo(span);
+				memory[..^_buffer.Length].CopyTo(span);
 			}
 
 			if (truncateLog)
@@ -292,7 +292,7 @@ namespace Xtate.Persistence
 			foreach (var pair in _readModel)
 			{
 				var keyLengthLength = Encode.GetEncodedLength(pair.Key.Length);
-				var keyLenSpan = span.Slice(start: 0, keyLengthLength);
+				var keyLenSpan = span[..keyLengthLength];
 				var keySpan = span.Slice(keyLengthLength, pair.Key.Length);
 
 				Encode.WriteEncodedValue(keyLenSpan, pair.Key.Length);
@@ -305,16 +305,16 @@ namespace Xtate.Persistence
 				Encode.WriteEncodedValue(valueLenSpan, pair.Value.Length);
 				pair.Value.Span.CopyTo(valueSpan);
 
-				span = span.Slice(keyLengthLength + pair.Key.Length + valueLengthLength + pair.Value.Length);
+				span = span[(keyLengthLength + pair.Key.Length + valueLengthLength + pair.Value.Length)..];
 
 				if (shrink)
 				{
-					var key = newBaseline.Slice(start: 0, pair.Key.Length);
+					var key = newBaseline[..pair.Key.Length];
 					var value = newBaseline.Slice(pair.Key.Length, pair.Value.Length);
 					pair.Key.CopyTo(key);
 					pair.Value.CopyTo(value);
 					newReadModel!.Add(new Entry(key, value));
-					newBaseline = newBaseline.Slice(pair.Key.Length + pair.Value.Length);
+					newBaseline = newBaseline[(pair.Key.Length + pair.Value.Length)..];
 				}
 			}
 

@@ -54,7 +54,7 @@ namespace Xtate.DataModel.XPath
 
 				var length = WriteValueToSpan(node, buf);
 
-				return buf.Slice(start: 0, length).ToString();
+				return buf[..length].ToString();
 			}
 
 			var array = ArrayPool<char>.Shared.Rent(bufferSize);
@@ -90,7 +90,7 @@ namespace Xtate.DataModel.XPath
 			for (var ok = GetFirstChild(node, out var child); ok; ok = GetNextChild(node, ref child))
 			{
 				var length = child.Adapter.WriteValueToSpan(child, buf);
-				buf = buf.Slice(length);
+				buf = buf[length..];
 				count += length;
 			}
 
