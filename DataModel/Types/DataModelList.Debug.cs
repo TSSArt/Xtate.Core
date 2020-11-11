@@ -26,7 +26,9 @@ using Xtate.Annotations;
 
 namespace Xtate
 {
-	public partial class DataModelList
+	[DebuggerTypeProxy(typeof(DebugView))]
+	[DebuggerDisplay(value: "Count = {" + nameof(Count) + "}")]
+	public partial class DataModelList : IFormattable
 	{
 	#region Interface IFormattable
 
