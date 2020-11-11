@@ -37,7 +37,6 @@ namespace Xtate.Persistence
 		DataModel,
 		DataModelType,
 		DataReferences,
-		DataValue,
 		DelayExpression,
 		DelayMs,
 		DocumentId,

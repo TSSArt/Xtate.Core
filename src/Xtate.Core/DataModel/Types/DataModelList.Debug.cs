@@ -26,9 +26,7 @@ using Xtate.Annotations;
 
 namespace Xtate
 {
-	[DebuggerTypeProxy(typeof(DebugView))]
-	[DebuggerDisplay(value: "Count = {" + nameof(Count) + "}")]
-	public partial class DataModelList : IFormattable
+	public partial class DataModelList
 	{
 	#region Interface IFormattable
 
@@ -49,7 +47,7 @@ namespace Xtate
 
 		private string ToStringAsObject(IFormatProvider? formatProvider)
 		{
-			if (Count == 0)
+			if (_count == 0)
 			{
 				return "()";
 			}
@@ -79,7 +77,7 @@ namespace Xtate
 
 		private string ToStringAsArray(IFormatProvider? formatProvider)
 		{
-			if (Count == 0)
+			if (_count == 0)
 			{
 				return "[]";
 			}

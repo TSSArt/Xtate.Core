@@ -58,7 +58,7 @@ namespace Xtate
 
 			internal ValueEnumerator(DataModelList list)
 			{
-				_count = list.Count;
+				_count = list._count;
 				list.CreateArgs(out _args);
 				_args.Index = -1;
 				Current = default;
@@ -136,7 +136,7 @@ namespace Xtate
 
 			internal KeyValueEnumerator(DataModelList list)
 			{
-				_count = list.Count;
+				_count = list._count;
 				list.CreateArgs(out _args);
 				_args.Index = -1;
 				Current = default;
@@ -295,7 +295,7 @@ namespace Xtate
 
 			internal EntryEnumerator(DataModelList list)
 			{
-				_count = list.Count;
+				_count = list._count;
 				list.CreateArgs(out _args);
 				_args.Index = -1;
 				_current = default;
@@ -408,7 +408,7 @@ namespace Xtate
 
 			public bool MoveNext()
 			{
-				if (_args.Index < _list.Count)
+				if (_args.Index < _list._count)
 				{
 					++ _args.Index;
 
@@ -420,7 +420,7 @@ namespace Xtate
 						return result;
 					}
 
-					if (_args.Index < _list.Count)
+					if (_args.Index < _list._count)
 					{
 						Current = _args.Index < _args.StoredCount ? _args.Adapter.GetValueByIndex(ref _args) : default;
 
@@ -507,7 +507,7 @@ namespace Xtate
 
 			public bool MoveNext()
 			{
-				if (_args.Index < _list.Count)
+				if (_args.Index < _list._count)
 				{
 					++ _args.Index;
 
@@ -519,7 +519,7 @@ namespace Xtate
 						return result;
 					}
 
-					if (_args.Index < _list.Count)
+					if (_args.Index < _list._count)
 					{
 						if (_args.Index < _args.StoredCount)
 						{
@@ -615,7 +615,7 @@ namespace Xtate
 
 			public bool MoveNext()
 			{
-				if (_args.Index < _list.Count)
+				if (_args.Index < _list._count)
 				{
 					++ _args.Index;
 
@@ -627,7 +627,7 @@ namespace Xtate
 						return result;
 					}
 
-					if (_args.Index < _list.Count)
+					if (_args.Index < _list._count)
 					{
 						if (_args.Index < _args.StoredCount)
 						{

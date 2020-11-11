@@ -820,7 +820,7 @@ namespace Xtate
 
 				_context.Configuration.Delete(state);
 
-				if (state is FinalNode final && final.Parent is StateMachineNode)
+				if (state is FinalNode { Parent: StateMachineNode } final)
 				{
 					await DoOperation(StateBagKey.ReturnDoneEvent, state, EvaluateDoneData, final).ConfigureAwait(false);
 				}

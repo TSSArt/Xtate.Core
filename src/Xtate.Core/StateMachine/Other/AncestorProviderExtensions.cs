@@ -51,7 +51,7 @@ namespace Xtate
 						value = default!;
 						return false;
 
-					case AncestorContainer container when container.Value is T val:
+					case AncestorContainer { Value: T val }:
 						value = val;
 						return true;
 

@@ -26,10 +26,7 @@ using System.IO.Pipes;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtate.Persistence;
-
-#if !NET461 && !NETSTANDARD2_0
 using System.Diagnostics.CodeAnalysis;
-#endif
 
 namespace Xtate.IoProcessor
 {
@@ -246,6 +243,7 @@ namespace Xtate.IoProcessor
 #if !NET461 && !NETSTANDARD2_0
 		[SuppressMessage(category: "Performance", checkId: "CA1835:Prefer the 'Memory'-based overloads for 'ReadAsync' and 'WriteAsync'", Justification = "Not available in .Net 4.6")]
 #endif
+		[SuppressMessage(category: "ReSharper", checkId: "MethodHasAsyncOverloadWithCancellation")]
 		private static async ValueTask ReceiveMessage(PipeStream pipeStream, MemoryStream memoryStream, CancellationToken token)
 		{
 			Infrastructure.Assert(pipeStream.IsConnected);
