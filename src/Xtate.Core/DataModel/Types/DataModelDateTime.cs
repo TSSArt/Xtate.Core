@@ -45,7 +45,7 @@ namespace Xtate
 		private DataModelDateTime(in ReadOnlySpan<byte> span)
 		{
 			_data = BinaryPrimitives.ReadUInt64LittleEndian(span);
-			_offset = BinaryPrimitives.ReadInt16LittleEndian(span.Slice(8));
+			_offset = BinaryPrimitives.ReadInt16LittleEndian(span[8..]);
 		}
 
 		private DataModelDateTime(long utcTicks, TimeSpan offset, DateTimeKind kind)
@@ -165,7 +165,7 @@ namespace Xtate
 		public void WriteTo(in Span<byte> span)
 		{
 			BinaryPrimitives.WriteUInt64LittleEndian(span, _data);
-			BinaryPrimitives.WriteInt16LittleEndian(span.Slice(8), _offset);
+			BinaryPrimitives.WriteInt16LittleEndian(span[8..], _offset);
 		}
 
 		public static DataModelDateTime ReadFrom(in ReadOnlySpan<byte> span) => new DataModelDateTime(span);

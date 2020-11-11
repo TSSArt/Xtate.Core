@@ -41,16 +41,16 @@ namespace Xtate
 														  {
 															  arg.id.AsSpan().CopyTo(span);
 															  span[arg.id.Length] = '.';
-															  span = span.Slice(arg.id.Length + 1);
+															  span = span[(arg.id.Length + 1)..];
 															  Guid.NewGuid().TryFormat(span, out var pos, format: "N");
-															  hash.TryFormat(span.Slice(pos - 8), out pos, format: "x8");
+															  hash.TryFormat(span[(pos - 8)..], out pos, format: "x8");
 														  });
 
 		private static string NewGuidWithHash(int hash) =>
-				string.Create(length: 32, hash, (span, h) =>
+				string.Create(length: 32, hash, (span, _) =>
 												{
 													Guid.NewGuid().TryFormat(span, out var pos, format: "N");
-													hash.TryFormat(span.Slice(pos - 8), out pos, format: "x8");
+													hash.TryFormat(span[(pos - 8)..], out pos, format: "x8");
 												});
 #else
 		public static string NewInvokeId(string id, int hash) =>

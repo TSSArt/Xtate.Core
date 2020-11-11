@@ -48,7 +48,7 @@ namespace Xtate.Persistence
 				var list = new List<T>(bytes.Length / 4);
 				for (var i = 0; i < list.Count; i ++)
 				{
-					var itemDocumentId = BinaryPrimitives.ReadInt32LittleEndian(bytes.Slice(i * 4, length: 4).Span);
+					var itemDocumentId = BinaryPrimitives.ReadInt32LittleEndian(bytes[(i * 4)..].Span);
 					list.Add(entityMap[itemDocumentId].As<T>());
 				}
 
@@ -78,7 +78,7 @@ namespace Xtate.Persistence
 			Span<byte> bytes = stackalloc byte[list.Count * 4];
 			for (var i = 0; i < list.Count; i ++)
 			{
-				BinaryPrimitives.WriteInt32LittleEndian(bytes.Slice(i * 4, length: 4), list[i].As<IDocumentId>().DocumentId);
+				BinaryPrimitives.WriteInt32LittleEndian(bytes[(i * 4)..], list[i].As<IDocumentId>().DocumentId);
 			}
 
 			var documentId = entity.As<IDocumentId>().DocumentId;
