@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Xtate.Annotations;
 
 namespace Xtate
@@ -54,6 +55,7 @@ namespace Xtate
 		private static readonly KeyMetaValueAdapter KeyMetaValueAdapterInstance = new KeyMetaValueAdapter();
 
 		private Array          _array;
+		private int            _count;
 		private int            _flags;
 		private DataModelList? _metadata;
 
@@ -83,7 +85,7 @@ namespace Xtate
 		{
 			get
 			{
-				if (Count == 0 || _array.Length == 0)
+				if (_count == 0 || _array.Length == 0)
 				{
 					return false;
 				}
@@ -131,7 +133,7 @@ namespace Xtate
 				{
 					_flags = CaseInsensitive ? AccessConstant | CaseInsensitiveBit : AccessConstant;
 
-					if (Count > 0 && _array.Length > 0)
+					if (_count > 0 && _array.Length > 0)
 					{
 						CreateArgs(out var args);
 						for (args.Index = 0; args.Index < args.StoredCount; args.Index ++)
@@ -163,7 +165,8 @@ namespace Xtate
 
 		public void Clear() => ClearItems(DataModelAccess.Writable, throwOnDeny: true);
 
-		public int Count { get; private set; }
+		[SuppressMessage(category: "ReSharper", checkId: "ConvertToAutoPropertyWithPrivateSetter")]
+		public int Count => _count;
 
 	#endregion
 
@@ -185,7 +188,7 @@ namespace Xtate
 		{
 			if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_Index_value_must_be_non_negative_integer);
 
-			if (index >= Count)
+			if (index >= _count)
 			{
 				entry = default;
 
@@ -211,7 +214,7 @@ namespace Xtate
 		{
 			if (key is null) throw new ArgumentNullException(nameof(key));
 
-			if (Count > 0 && _array.Length > 0)
+			if (_count > 0 && _array.Length > 0)
 			{
 				CreateArgs(out var args);
 				args.Key = key;
@@ -334,7 +337,7 @@ namespace Xtate
 				return true;
 			}
 
-			args.Index = Count;
+			args.Index = _count;
 
 			return false;
 		}
@@ -390,11 +393,11 @@ namespace Xtate
 
 		internal bool NextEntry(ref int cursor, out Entry entry)
 		{
-			if (cursor < Count)
+			if (cursor < _count)
 			{
 				cursor ++;
 
-				if (0 <= cursor && cursor < Count)
+				if (0 <= cursor && cursor < _count)
 				{
 					CreateArgs(out var args);
 					args.Index = cursor;
@@ -415,7 +418,7 @@ namespace Xtate
 			{
 				cursor --;
 
-				if (0 <= cursor && cursor < Count)
+				if (0 <= cursor && cursor < _count)
 				{
 					CreateArgs(out var args);
 					args.Index = cursor;
@@ -694,10 +697,10 @@ namespace Xtate
 				return result;
 			}
 
-			EnsureTypeAndCapacity(ref args, Count + 1);
+			EnsureTypeAndCapacity(ref args, _count + 1);
 
-			args.Index = Count ++;
-			args.StoredCount = Count;
+			args.Index = _count ++;
+			args.StoredCount = _count;
 
 			args.Adapter.AssignItemByIndex(ref args);
 
@@ -720,7 +723,7 @@ namespace Xtate
 
 			Array.Clear(_array, index: 0, args.StoredCount);
 
-			Count = 0;
+			_count = 0;
 
 			return true;
 		}
@@ -734,12 +737,12 @@ namespace Xtate
 
 			OnChange(ChangeAction.RemoveAt, ref args);
 
-			if (args.Index >= Count)
+			if (args.Index >= _count)
 			{
 				return false;
 			}
 
-			Count --;
+			_count --;
 			args.StoredCount --;
 
 			if (args.Index <= args.StoredCount)
@@ -763,22 +766,22 @@ namespace Xtate
 				return result;
 			}
 
-			if (args.Index >= Count)
+			if (args.Index >= _count)
 			{
 				EnsureTypeAndCapacity(ref args, args.Index + 1);
 
-				Count = args.Index + 1;
+				_count = args.Index + 1;
 			}
 			else
 			{
-				EnsureTypeAndCapacity(ref args, Count + 1);
+				EnsureTypeAndCapacity(ref args, _count + 1);
 
-				Array.Copy(_array, args.Index, _array, args.Index + 1, Count - args.Index);
+				Array.Copy(_array, args.Index, _array, args.Index + 1, _count - args.Index);
 
-				Count ++;
+				_count ++;
 			}
 
-			args.StoredCount = Count;
+			args.StoredCount = _count;
 			args.Adapter.AssignItemByIndex(ref args);
 
 			OnChange(ChangeAction.InsertAt, ref args);
@@ -817,9 +820,9 @@ namespace Xtate
 			else
 			{
 				args.HashKey = new HashKey(hash, args.Key);
-				EnsureTypeAndCapacity(ref args, Count + 1);
-				args.Index = Count ++;
-				args.StoredCount = Count;
+				EnsureTypeAndCapacity(ref args, _count + 1);
+				args.Index = _count ++;
+				args.StoredCount = _count;
 			}
 
 			args.Adapter.AssignItemByIndex(ref args);
@@ -836,16 +839,16 @@ namespace Xtate
 				return result;
 			}
 
-			if (args.Index >= Count)
+			if (args.Index >= _count)
 			{
 				EnsureTypeAndCapacity(ref args, args.Index + 1);
 
-				Count = args.Index + 1;
-				args.StoredCount = Count;
+				_count = args.Index + 1;
+				args.StoredCount = _count;
 			}
 			else
 			{
-				EnsureTypeAndCapacity(ref args, Count);
+				EnsureTypeAndCapacity(ref args, _count);
 			}
 
 			OnChange(ChangeAction.Reset, ref args);
@@ -874,7 +877,7 @@ namespace Xtate
 				Array.Clear(_array, length, args.StoredCount - length);
 			}
 
-			Count = length;
+			_count = length;
 
 			return true;
 		}
@@ -899,7 +902,7 @@ namespace Xtate
 		private void CreateArgs(out Args args)
 		{
 			args = default;
-			args.StoredCount = Math.Min(Count, _array.Length);
+			args.StoredCount = Math.Min(_count, _array.Length);
 
 			switch (_array)
 			{
@@ -940,7 +943,7 @@ namespace Xtate
 		{
 			if (targetAccess == DataModelAccess.Constant)
 			{
-				if (Count == 0)
+				if (_count == 0)
 				{
 					return Empty;
 				}
@@ -962,7 +965,7 @@ namespace Xtate
 
 			map[this] = clone;
 
-			if (Count == 0)
+			if (_count == 0)
 			{
 				return clone;
 			}
@@ -970,8 +973,8 @@ namespace Xtate
 			CreateArgs(out var args);
 
 			Args cloneArgs = default;
-			clone._array = args.Adapter.CreateArray(ref cloneArgs, Count);
-			clone.Count = Count;
+			clone._array = args.Adapter.CreateArray(ref cloneArgs, _count);
+			clone._count = _count;
 			clone._metadata = _metadata?.DeepCloneWithMap(targetAccess, ref map);
 
 			for (args.Index = 0; args.Index < args.StoredCount; args.Index ++)

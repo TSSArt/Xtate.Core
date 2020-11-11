@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Xml;
 using Xtate.Annotations;
@@ -69,6 +70,7 @@ namespace Xtate.Scxml
 		private readonly XmlNameTable                           _nameTable;
 		private          List<ImmutableArray<PrefixNamespace>>? _nsCache;
 
+		[SuppressMessage(category: "ReSharper", checkId: "ConstantNullCoalescingCondition")]
 		public ScxmlDirector(XmlReader xmlReader, IBuilderFactory factory, IErrorProcessor errorProcessor, IXmlNamespaceResolver? namespaceResolver) : base(xmlReader, errorProcessor)
 		{
 			_namespaceResolver = namespaceResolver;

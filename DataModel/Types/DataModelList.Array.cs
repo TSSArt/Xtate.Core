@@ -31,7 +31,7 @@ namespace Xtate
 		{
 			if (array is null) throw new ArgumentNullException(nameof(array));
 			if (index < 0 || index >= array.Length) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_Index_should_be_non_negative_and_less_then_aarray_size);
-			if (Count - index < array.Length) throw new ArgumentException(Resources.Exception_Destination_array_is_not_long_enough, nameof(array));
+			if (_count - index < array.Length) throw new ArgumentException(Resources.Exception_Destination_array_is_not_long_enough, nameof(array));
 
 			foreach (var value in Values)
 			{
@@ -89,6 +89,42 @@ namespace Xtate
 	#endregion
 
 		public ValueEnumerator GetEnumerator() => new ValueEnumerator(this);
+
+		public DataModelValue[] Slice(int start, int length)
+		{
+			if (start < 0 || start > _count)
+				throw new ArgumentOutOfRangeException(nameof(start));
+
+			if (length < 0 || length > _count - start)
+				throw new ArgumentOutOfRangeException(nameof(length));
+
+			if (length == 0)
+			{
+				return Array.Empty<DataModelValue>();
+			}
+
+			var array = new DataModelValue[length];
+			var index = 0;
+
+			foreach (var value in Values)
+			{
+				if (start > 0)
+				{
+					start --;
+
+					continue;
+				}
+
+				array[index ++] = value;
+
+				if (index == length)
+				{
+					break;
+				}
+			}
+
+			return array;
+		}
 
 		private int GetIndex(in DataModelValue value)
 		{

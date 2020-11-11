@@ -19,6 +19,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 
 namespace Xtate
@@ -69,6 +70,8 @@ namespace Xtate
 
 		protected abstract string GenerateId();
 
+		[SuppressMessage(category: "ReSharper", checkId: "BaseObjectGetHashCodeCallInGetHashCode")]
+		[SuppressMessage(category: "ReSharper", checkId: "NonReadonlyMemberInGetHashCode")]
 		public override int GetHashCode() => _id is { } id ? TryGetHashFromId(id, out var hash) ? hash : id.GetHashCode() : base.GetHashCode();
 
 		protected static bool TryGetHashFromId(string id, out int hash)

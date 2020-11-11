@@ -74,7 +74,7 @@ namespace Xtate
 				{
 					if (IsName(GetLength))
 					{
-						result = _list.Count;
+						result = _list._count;
 
 						return true;
 					}
