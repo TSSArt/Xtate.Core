@@ -95,7 +95,7 @@ namespace Xtate
 				buf[count ++] = ch;
 			}
 
-			return str.Length == count && !normalized ? str : buf.Slice(start: 0, count).ToString();
+			return str.Length == count && !normalized ? str : buf[..count].ToString();
 		}
 	}
 }

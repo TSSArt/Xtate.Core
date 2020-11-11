@@ -315,13 +315,13 @@ namespace Xtate.Scxml
 			const string ms = "ms";
 			if (val.EndsWith(ms, StringComparison.Ordinal))
 			{
-				return int.Parse(val.Substring(startIndex: 0, val.Length - ms.Length), NumberFormatInfo.InvariantInfo);
+				return int.Parse(val[..^ms.Length], NumberFormatInfo.InvariantInfo);
 			}
 
 			const string s = "s";
 			if (val.EndsWith(s, StringComparison.Ordinal))
 			{
-				return int.Parse(val.Substring(startIndex: 0, val.Length - s.Length), NumberFormatInfo.InvariantInfo) * 1000;
+				return int.Parse(val[..^s.Length], NumberFormatInfo.InvariantInfo) * 1000;
 			}
 
 			throw new ArgumentException(Resources.Exception_DelayParsingError);
@@ -431,7 +431,7 @@ namespace Xtate.Scxml
 
 		private static void StateMachineBuildPolicy(IPolicyBuilder<IStateMachineBuilder> pb) =>
 				pb.ValidateElementName(ScxmlNs, name: "scxml")
-				  .RequiredAttribute(name: "version", (dr, b) => CheckScxmlVersion(dr.Current))
+				  .RequiredAttribute(name: "version", (dr, _) => CheckScxmlVersion(dr.Current))
 				  .OptionalAttribute(name: "initial", (dr, b) => b.SetInitial(AsIdentifierList(dr.Current)))
 				  .OptionalAttribute(name: "datamodel", (dr, b) => b.SetDataModelType(dr.Current))
 				  .OptionalAttribute(name: "binding", (dr, b) => b.SetBindingType(AsEnum<BindingType>(dr.Current)))
