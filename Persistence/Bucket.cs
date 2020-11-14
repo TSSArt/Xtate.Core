@@ -488,10 +488,10 @@ namespace Xtate.Persistence
 				var lastByteIndex = bytes.Length - 1;
 				bytes[lastByteIndex] = 0xFF;
 				var dest = bytes[1..^1];
-#if NET5_0
-				Encoding.UTF8.GetBytes(key, dest);
-#else
+#if NET461 || NETSTANDARD2_0
 				Encoding.UTF8.GetBytes(key).CopyTo(dest);
+#else
+				Encoding.UTF8.GetBytes(key, dest);
 #endif
 			}
 		}
@@ -644,10 +644,10 @@ namespace Xtate.Persistence
 					return;
 				}
 
-#if NET5_0
-				Encoding.UTF8.GetBytes(val, bytes);
-#else
+#if NET461 || NETSTANDARD2_0
 				Encoding.UTF8.GetBytes(val).CopyTo(bytes);
+#else
+				Encoding.UTF8.GetBytes(val, bytes);
 #endif
 			}
 
@@ -658,10 +658,10 @@ namespace Xtate.Persistence
 					return string.Empty;
 				}
 
-#if NET5_0
-				return Encoding.UTF8.GetString(bytes);
-#else
+#if NET461 || NETSTANDARD2_0
 				return Encoding.UTF8.GetString(bytes.ToArray());
+#else
+				return Encoding.UTF8.GetString(bytes);
 #endif
 			}
 		}

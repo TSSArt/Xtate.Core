@@ -21,7 +21,7 @@ using System;
 
 namespace Xtate.IoProcessor
 {
-	[AttributeUsage(AttributeTargets.Class)]
+	[AttributeUsage(AttributeTargets.Class, Inherited = false)]
 	public sealed class IoProcessorAttribute : Attribute
 	{
 		public IoProcessorAttribute(string type)

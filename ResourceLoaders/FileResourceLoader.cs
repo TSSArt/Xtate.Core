@@ -105,9 +105,7 @@ namespace Xtate
 
 		private static async ValueTask<byte[]> GetBytesFromFile(string path, CancellationToken token)
 		{
-#if NET5_0
-			return await File.ReadAllBytesAsync(path, token).ConfigureAwait(false);
-#else
+#if NET461 || NETSTANDARD2_0
 			token.ThrowIfCancellationRequested();
 
 			using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 1, FileOptions.Asynchronous | FileOptions.SequentialScan);
@@ -115,6 +113,8 @@ namespace Xtate
 			await stream.ReadAsync(bytes, offset: 0, (int) stream.Length, token).ConfigureAwait(false);
 
 			return bytes;
+#else
+			return await File.ReadAllBytesAsync(path, token).ConfigureAwait(false);
 #endif
 		}
 	}

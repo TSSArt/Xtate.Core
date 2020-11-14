@@ -21,7 +21,7 @@ using System;
 
 namespace Xtate.CustomAction
 {
-	[AttributeUsage(AttributeTargets.Class)]
+	[AttributeUsage(AttributeTargets.Class, Inherited = false)]
 	public sealed class CustomActionProviderAttribute : Attribute
 	{
 		public CustomActionProviderAttribute(string @namespace)

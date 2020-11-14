@@ -18,7 +18,7 @@
 #endregion
 
 using System;
-#if !NET5_0
+#if NET461 || NETSTANDARD2_0
 using System.Text;
 
 #endif
@@ -35,7 +35,19 @@ namespace Xtate
 
 		public static string NewId(int hash) => NewGuidWithHash(hash);
 
-#if NET5_0
+#if NET461 || NETSTANDARD2_0
+		public static string NewInvokeId(string id, int hash) =>
+				new StringBuilder(id.Length + 33)
+						.Append(id)
+						.Append('.')
+						.Append(Guid.NewGuid().ToString("N"), startIndex: 0, count: 24)
+						.Append(hash.ToString("x8")).ToString();
+
+		private static string NewGuidWithHash(int hash) =>
+				new StringBuilder(32)
+						.Append(Guid.NewGuid().ToString("N"), startIndex: 0, count: 24)
+						.Append(hash.ToString("x8")).ToString();
+#else
 		public static string NewInvokeId(string id, int hash) =>
 				string.Create(33 + id.Length, (id, hash), (span, arg) =>
 														  {
@@ -52,18 +64,6 @@ namespace Xtate
 													Guid.NewGuid().TryFormat(span, out var pos, format: "N");
 													hash.TryFormat(span[(pos - 8)..], out pos, format: "x8");
 												});
-#else
-		public static string NewInvokeId(string id, int hash) =>
-				new StringBuilder(id.Length + 33)
-						.Append(id)
-						.Append('.')
-						.Append(Guid.NewGuid().ToString("N"), startIndex: 0, count: 24)
-						.Append(hash.ToString("x8")).ToString();
-
-		private static string NewGuidWithHash(int hash) =>
-				new StringBuilder(32)
-						.Append(Guid.NewGuid().ToString("N"), startIndex: 0, count: 24)
-						.Append(hash.ToString("x8")).ToString();
 #endif
 	}
 }
