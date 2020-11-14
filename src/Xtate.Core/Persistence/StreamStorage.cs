@@ -130,7 +130,21 @@ namespace Xtate.Persistence
 			_disposed = true;
 		}
 
-#if NET5_0
+#if NET461 || NETSTANDARD2_0
+		public ValueTask DisposeAsync()
+		{
+			try
+			{
+				Dispose();
+
+				return default;
+			}
+			catch (Exception ex)
+			{
+				return new ValueTask(Task.FromException(ex));
+			}
+		}
+#else
 		public async ValueTask DisposeAsync()
 		{
 			if (_disposed)
@@ -146,20 +160,6 @@ namespace Xtate.Persistence
 			_inMemoryStorage?.Dispose();
 
 			_disposed = true;
-		}
-#else
-		public ValueTask DisposeAsync()
-		{
-			try
-			{
-				Dispose();
-
-				return default;
-			}
-			catch (Exception ex)
-			{
-				return new ValueTask(Task.FromException(ex));
-			}
 		}
 #endif
 
