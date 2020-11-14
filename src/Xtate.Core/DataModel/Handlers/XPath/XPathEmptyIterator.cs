@@ -23,7 +23,7 @@ namespace Xtate.DataModel.XPath
 {
 	internal class XPathEmptyIterator : XPathNodeIterator
 	{
-		public static readonly XPathEmptyIterator Instance = new XPathEmptyIterator();
+		public static XPathNodeIterator Instance { get; } = new XPathEmptyIterator();
 
 		public override XPathNavigator Current => default!;
 

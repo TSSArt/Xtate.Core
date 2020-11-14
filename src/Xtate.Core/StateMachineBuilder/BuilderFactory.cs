@@ -25,7 +25,7 @@ namespace Xtate.Builder
 	[PublicAPI]
 	public class BuilderFactory : IBuilderFactory
 	{
-		public static readonly IBuilderFactory Instance = new BuilderFactory(DefaultErrorProcessor.Instance);
+		public static IBuilderFactory Instance { get; } = new BuilderFactory(DefaultErrorProcessor.Instance);
 
 		private readonly IErrorProcessor _errorProcessor;
 

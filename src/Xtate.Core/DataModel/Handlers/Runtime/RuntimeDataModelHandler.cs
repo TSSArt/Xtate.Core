@@ -26,7 +26,7 @@ namespace Xtate.DataModel.Runtime
 	{
 		private const string DataModelType = "runtime";
 
-		public static readonly IDataModelHandlerFactory Factory = new DataModelHandlerFactory();
+		public static IDataModelHandlerFactory Factory { get; } = new DataModelHandlerFactory();
 
 		private RuntimeDataModelHandler(IErrorProcessor errorProcessor) : base(errorProcessor) { }
 

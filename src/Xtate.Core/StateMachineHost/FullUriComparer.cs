@@ -24,7 +24,7 @@ namespace Xtate
 {
 	internal class FullUriComparer : IEqualityComparer<Uri>
 	{
-		public static readonly FullUriComparer Instance = new FullUriComparer();
+		public static IEqualityComparer<Uri> Instance { get; } = new FullUriComparer();
 
 	#region Interface IEqualityComparer<Uri>
 
