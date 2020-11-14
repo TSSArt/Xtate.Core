@@ -126,9 +126,7 @@ namespace Xtate.Persistence
 
 		private static bool ReadModelTryGetValue(SortedSet<Entry> readModel, Entry equalEntry, out Entry actualEntry)
 		{
-#if NET5_0
-			return readModel.TryGetValue(equalEntry, out actualEntry);
-#else
+#if NET461 || NETSTANDARD2_0
 			foreach (var entry in readModel.GetViewBetween(equalEntry, equalEntry))
 			{
 				actualEntry = entry;
@@ -139,6 +137,8 @@ namespace Xtate.Persistence
 			actualEntry = default;
 
 			return false;
+#else
+			return readModel.TryGetValue(equalEntry, out actualEntry);
 #endif
 		}
 

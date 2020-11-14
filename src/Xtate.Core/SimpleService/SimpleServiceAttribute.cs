@@ -21,7 +21,7 @@ using System;
 
 namespace Xtate.Service
 {
-	[AttributeUsage(AttributeTargets.Class)]
+	[AttributeUsage(AttributeTargets.Class, Inherited = false)]
 	public sealed class SimpleServiceAttribute : Attribute
 	{
 		public SimpleServiceAttribute(string type)
