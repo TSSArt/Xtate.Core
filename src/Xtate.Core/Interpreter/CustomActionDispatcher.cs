@@ -262,7 +262,7 @@ namespace Xtate
 
 		private class NoActionExecutor : ICustomActionExecutor
 		{
-			public static readonly ICustomActionExecutor Instance = new NoActionExecutor();
+			public static ICustomActionExecutor Instance { get; } = new NoActionExecutor();
 
 		#region Interface ICustomActionExecutor
 

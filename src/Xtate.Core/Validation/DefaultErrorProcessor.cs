@@ -24,7 +24,7 @@ namespace Xtate
 {
 	public sealed class DefaultErrorProcessor : IErrorProcessor
 	{
-		public static readonly IErrorProcessor Instance = new DefaultErrorProcessor();
+		public static IErrorProcessor Instance { get; } = new DefaultErrorProcessor();
 
 		private DefaultErrorProcessor() { }
 

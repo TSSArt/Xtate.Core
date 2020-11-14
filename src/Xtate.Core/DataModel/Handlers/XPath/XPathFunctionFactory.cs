@@ -22,9 +22,9 @@ using System.Xml.Xsl;
 
 namespace Xtate.DataModel.XPath
 {
-	internal class XPathFunctionFactory
+	internal class XPathFunctionFactory : IXPathFunctionFactory
 	{
-		public static readonly XPathFunctionFactory Instance = new XPathFunctionFactory();
+		public static IXPathFunctionFactory Instance { get; } = new XPathFunctionFactory();
 
 		private readonly Dictionary<(string Namespace, string Name), IXsltContextFunction> _functionDescriptors = new Dictionary<(string Namespace, string Name), IXsltContextFunction>();
 

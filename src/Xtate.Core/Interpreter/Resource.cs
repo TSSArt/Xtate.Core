@@ -18,6 +18,7 @@
 #endregion
 
 using System;
+using System.IO;
 using System.Net.Mime;
 using System.Text;
 using Xtate.Annotations;
@@ -56,7 +57,10 @@ namespace Xtate
 				{
 					var encoding = !string.IsNullOrEmpty(ContentType?.CharSet) ? Encoding.GetEncoding(ContentType.CharSet) : Encoding.UTF8;
 
-					_content = encoding.GetString(_bytes);
+					using var stream = new MemoryStream(_bytes);
+					using var reader = new StreamReader(stream, encoding, detectEncodingFromByteOrderMarks: true);
+
+					_content = reader.ReadToEnd();
 				}
 
 				return _content;

@@ -17,34 +17,12 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
+using System.Xml.Xsl;
 
-namespace Xtate
+namespace Xtate.DataModel.XPath
 {
-	internal sealed class IdentifierEqualityComparer : IEqualityComparer<IIdentifier>
+	internal interface IXPathFunctionFactory
 	{
-		public static IEqualityComparer<IIdentifier> Instance { get; } = new IdentifierEqualityComparer();
-
-	#region Interface IEqualityComparer<IIdentifier>
-
-		public bool Equals(IIdentifier? x, IIdentifier? y)
-		{
-			if (ReferenceEquals(x, y))
-			{
-				return true;
-			}
-
-			if (x is null || y is null)
-			{
-				return false;
-			}
-
-			return x.As<IEquatable<IIdentifier>>().Equals(y.As<IEquatable<IIdentifier>>());
-		}
-
-		public int GetHashCode(IIdentifier obj) => obj.As<IEquatable<IIdentifier>>().GetHashCode();
-
-	#endregion
+		IXsltContextFunction ResolveFunction(string ns, string name);
 	}
 }

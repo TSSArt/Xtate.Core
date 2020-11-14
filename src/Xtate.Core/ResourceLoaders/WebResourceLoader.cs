@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Immutable;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Mime;
@@ -32,7 +33,7 @@ namespace Xtate
 	[PublicAPI]
 	public sealed class WebResourceLoader : IResourceLoader
 	{
-		public static readonly WebResourceLoader Instance = new WebResourceLoader();
+		public static IResourceLoader Instance { get; } = new WebResourceLoader();
 
 		private ImmutableDictionary<Uri, WeakReference<Resource>> _cachedWebResources = ImmutableDictionary<Uri, WeakReference<Resource>>.Empty;
 
@@ -69,14 +70,36 @@ namespace Xtate
 
 			responseMessage.EnsureSuccessStatusCode();
 
-			var contentType = responseMessage.Content.Headers.ContentType is { } ct ? new ContentType(ct.ToString()) : new ContentType();
-			var lastModified = responseMessage.Content.Headers.LastModified;
+			var content = responseMessage.Content;
+			var headers = content.Headers;
+			var contentType = headers.ContentType is { } ct ? new ContentType(ct.ToString()) : new ContentType();
+			var lastModified = headers.LastModified;
+
 #if NET461 || NETSTANDARD2_0
-			var bytes = await responseMessage.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+			var stream = await content.ReadAsStreamAsync().ConfigureAwait(false);
 #else
-			var bytes = await responseMessage.Content.ReadAsByteArrayAsync(token).ConfigureAwait(false);
+			var stream = await content.ReadAsStreamAsync(token).ConfigureAwait(false);
 #endif
-			resource = new Resource(uri, contentType, lastModified, bytes: bytes);
+
+			await using (stream.ConfigureAwait(false))
+			{
+				if (headers.ContentLength is { } longLen && longLen < int.MaxValue)
+				{
+					var count = (int) longLen;
+					var bytes = new byte[count];
+					await stream.ReadAsync(bytes, offset: 0, count, token).ConfigureAwait(false);
+					resource = new Resource(uri, contentType, lastModified, bytes: bytes);
+				}
+				else
+				{
+					var memStream = new MemoryStream();
+					await using (memStream.ConfigureAwait(false))
+					{
+						await stream.CopyToAsync(memStream, bufferSize: 4096, token).ConfigureAwait(false);
+						resource = new Resource(uri, contentType, lastModified, bytes: memStream.ToArray());
+					}
+				}
+			}
 
 			if (weakReference is null)
 			{

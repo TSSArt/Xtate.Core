@@ -30,7 +30,7 @@ namespace Xtate
 	[PublicAPI]
 	public sealed class ResxResourceLoader : IResourceLoader
 	{
-		public static readonly ResxResourceLoader Instance = new ResxResourceLoader();
+		public static IResourceLoader Instance { get; } = new ResxResourceLoader();
 
 		private static readonly XmlReaderSettings CloseInputReaderSettings = new XmlReaderSettings { CloseInput = true };
 

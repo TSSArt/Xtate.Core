@@ -23,7 +23,7 @@ namespace Xtate
 {
 	public class StateMachineValidator : IStateMachineValidator
 	{
-		public static readonly IStateMachineValidator Instance = new StateMachineValidator();
+		public static IStateMachineValidator Instance { get; } = new StateMachineValidator();
 
 	#region Interface IStateMachineValidator
 

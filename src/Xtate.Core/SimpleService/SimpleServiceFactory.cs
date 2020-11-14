@@ -26,7 +26,7 @@ namespace Xtate.Service
 {
 	public sealed class SimpleServiceFactory<TService> : IServiceFactory, IServiceFactoryActivator where TService : SimpleServiceBase, new()
 	{
-		public static readonly IServiceFactory Instance = new SimpleServiceFactory<TService>();
+		public static IServiceFactory Instance { get; } = new SimpleServiceFactory<TService>();
 
 		private readonly Uri? _alias;
 		private readonly Uri  _type;

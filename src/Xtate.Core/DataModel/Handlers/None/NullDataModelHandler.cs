@@ -27,7 +27,7 @@ namespace Xtate.DataModel.Null
 	{
 		public const string DataModelType = "null";
 
-		public static readonly IDataModelHandlerFactory Factory = new DataModelHandlerFactory();
+		public static IDataModelHandlerFactory Factory { get; } = new DataModelHandlerFactory();
 
 		internal NullDataModelHandler(IErrorProcessor errorProcessor) : base(errorProcessor) { }
 

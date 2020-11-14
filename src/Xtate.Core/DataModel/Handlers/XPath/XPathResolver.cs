@@ -26,11 +26,11 @@ namespace Xtate.DataModel.XPath
 {
 	internal class XPathResolver
 	{
-		private readonly XPathFunctionFactory                      _functionFactory;
+		private readonly IXPathFunctionFactory                     _functionFactory;
 		private          Stack<DataModelList>?                     _scopeStack;
 		private          Dictionary<string, IXsltContextVariable>? _varDescriptors;
 
-		public XPathResolver(XPathFunctionFactory functionFactory, IExecutionContext? executionContext = null)
+		public XPathResolver(IXPathFunctionFactory functionFactory, IExecutionContext? executionContext = null)
 		{
 			_functionFactory = functionFactory;
 			ExecutionContext = executionContext;
