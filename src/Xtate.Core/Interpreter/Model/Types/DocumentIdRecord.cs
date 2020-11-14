@@ -37,7 +37,7 @@ namespace Xtate
 		{
 			get
 			{
-				if (_node is {} node)
+				if (_node is { } node)
 				{
 					var value = node.Value;
 

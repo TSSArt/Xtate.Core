@@ -88,15 +88,12 @@ namespace Xtate
 
 	#endregion
 
-		public ValueEnumerator GetEnumerator() => new ValueEnumerator(this);
+		public ValueEnumerator GetEnumerator() => new(this);
 
 		public DataModelValue[] Slice(int start, int length)
 		{
-			if (start < 0 || start > _count)
-				throw new ArgumentOutOfRangeException(nameof(start));
-
-			if (length < 0 || length > _count - start)
-				throw new ArgumentOutOfRangeException(nameof(length));
+			if (start < 0 || start > _count) throw new ArgumentOutOfRangeException(nameof(start));
+			if (length < 0 || length > _count - start) throw new ArgumentOutOfRangeException(nameof(length));
 
 			if (length == 0)
 			{

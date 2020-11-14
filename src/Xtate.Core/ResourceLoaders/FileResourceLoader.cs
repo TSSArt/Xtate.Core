@@ -30,9 +30,9 @@ namespace Xtate
 	[PublicAPI]
 	public sealed class FileResourceLoader : IResourceLoader
 	{
-		public static IResourceLoader Instance { get; } = new FileResourceLoader();
-
 		private ImmutableDictionary<string, WeakReference<Resource>> _cachedFileResources = ImmutableDictionary<string, WeakReference<Resource>>.Empty;
+
+		public static IResourceLoader Instance { get; } = new FileResourceLoader();
 
 	#region Interface IResourceLoader
 

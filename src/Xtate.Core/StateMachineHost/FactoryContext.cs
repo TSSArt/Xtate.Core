@@ -48,7 +48,7 @@ namespace Xtate
 		{
 			get
 			{
-				if (_dictionary is {} dictionary)
+				if (_dictionary is { } dictionary)
 				{
 					return dictionary.TryGetValue(key, out var value) ? value : null;
 				}
@@ -57,7 +57,7 @@ namespace Xtate
 			}
 			set
 			{
-				if (_dictionary is {} dictionary)
+				if (_dictionary is { } dictionary)
 				{
 					dictionary[key] = value;
 				}

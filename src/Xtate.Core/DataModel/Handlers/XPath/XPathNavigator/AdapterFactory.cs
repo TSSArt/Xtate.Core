@@ -75,6 +75,6 @@ namespace Xtate.DataModel.XPath
 						_ => throw GetNotSupportedException()
 				};
 
-		private static NotSupportedException GetNotSupportedException() => new NotSupportedException();
+		private static NotSupportedException GetNotSupportedException() => new();
 	}
 }

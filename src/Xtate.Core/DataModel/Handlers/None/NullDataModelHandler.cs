@@ -27,9 +27,9 @@ namespace Xtate.DataModel.Null
 	{
 		public const string DataModelType = "null";
 
-		public static IDataModelHandlerFactory Factory { get; } = new DataModelHandlerFactory();
-
 		internal NullDataModelHandler(IErrorProcessor errorProcessor) : base(errorProcessor) { }
+
+		public static IDataModelHandlerFactory Factory { get; } = new DataModelHandlerFactory();
 
 		protected override void Visit(ref IForEach forEach) => AddErrorMessage(forEach, Resources.ErrorMesasge_ForEachNotSupportedForNull);
 
@@ -73,7 +73,7 @@ namespace Xtate.DataModel.Null
 		#region Interface IDataModelHandlerFactory
 
 			public ValueTask<IDataModelHandlerFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, string dataModelType, CancellationToken token) =>
-					new ValueTask<IDataModelHandlerFactoryActivator?>(CanHandle(dataModelType) ? this : null);
+					new(CanHandle(dataModelType) ? this : null);
 
 		#endregion
 

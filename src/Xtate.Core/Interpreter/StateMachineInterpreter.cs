@@ -1734,7 +1734,7 @@ namespace Xtate
 
 		#endregion
 
-			public static LiveLockDetector Create() => new LiveLockDetector { _index = -1 };
+			public static LiveLockDetector Create() => new() { _index = -1 };
 
 			public void Iteration(int internalQueueCount)
 			{

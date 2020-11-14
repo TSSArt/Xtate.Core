@@ -29,8 +29,8 @@ namespace Xtate.Core.Test
 	{
 		private const long DefaultTicks = 100 * TimeSpan.TicksPerDay;
 
-		private static readonly TimeSpan PositiveOffset = new TimeSpan(hours: 1, minutes: 0, seconds: 0);
-		private static readonly TimeSpan NegativeOffset = new TimeSpan(hours: -1, minutes: 0, seconds: 0);
+		private static readonly TimeSpan PositiveOffset = new(hours: 1, minutes: 0, seconds: 0);
+		private static readonly TimeSpan NegativeOffset = new(hours: -1, minutes: 0, seconds: 0);
 
 		private static readonly DataModelDateTime DateTimeWithUnspecifiedKind      = new DateTime(DefaultTicks, DateTimeKind.Unspecified);
 		private static readonly DataModelDateTime DateTimeWithUtcKind              = new DateTime(DefaultTicks, DateTimeKind.Utc);

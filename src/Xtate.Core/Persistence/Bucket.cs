@@ -195,7 +195,7 @@ namespace Xtate.Persistence
 
 		public class RootType
 		{
-			public static readonly RootType Instance = new RootType();
+			public static readonly RootType Instance = new();
 
 			private RootType() { }
 		}
@@ -509,7 +509,7 @@ namespace Xtate.Persistence
 
 			public UnsupportedConverter(string type) => _type = type;
 
-			private NotSupportedException GetNotSupportedException() => new NotSupportedException(Res.Format(Resources.Exception_UnsupportedType, _type, typeof(T)));
+			private NotSupportedException GetNotSupportedException() => new(Res.Format(Resources.Exception_UnsupportedType, _type, typeof(T)));
 
 			public override int GetLength(T key) => throw GetNotSupportedException();
 
@@ -681,7 +681,7 @@ namespace Xtate.Persistence
 
 			protected override void Write(Uri val, Span<byte> bytes) => StringConverter.Write(val.ToString(), bytes);
 
-			protected override Uri Get(ReadOnlySpan<byte> bytes) => new Uri(StringConverter.Get(bytes), UriKind.RelativeOrAbsolute);
+			protected override Uri Get(ReadOnlySpan<byte> bytes) => new(StringConverter.Get(bytes), UriKind.RelativeOrAbsolute);
 		}
 	}
 }

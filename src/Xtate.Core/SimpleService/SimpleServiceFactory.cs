@@ -26,8 +26,6 @@ namespace Xtate.Service
 {
 	public sealed class SimpleServiceFactory<TService> : IServiceFactory, IServiceFactoryActivator where TService : SimpleServiceBase, new()
 	{
-		public static IServiceFactory Instance { get; } = new SimpleServiceFactory<TService>();
-
 		private readonly Uri? _alias;
 		private readonly Uri  _type;
 
@@ -44,10 +42,11 @@ namespace Xtate.Service
 			throw new InfrastructureException(Res.Format(Resources.Exception_ServiceAttribute_did_not_provided_for_type, typeof(TService)));
 		}
 
+		public static IServiceFactory Instance { get; } = new SimpleServiceFactory<TService>();
+
 	#region Interface IServiceFactory
 
-		public ValueTask<IServiceFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, Uri type, CancellationToken token) =>
-				new ValueTask<IServiceFactoryActivator?>(CanHandle(type) ? this : null);
+		public ValueTask<IServiceFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, Uri type, CancellationToken token) => new(CanHandle(type) ? this : null);
 
 	#endregion
 

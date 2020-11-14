@@ -83,11 +83,11 @@ namespace Xtate.Builder
 			return this;
 		}
 
-		public StateFluentBuilder<StateMachineFluentBuilder> BeginState() => new StateFluentBuilder<StateMachineFluentBuilder>(_factory, this, _builder.AddState);
+		public StateFluentBuilder<StateMachineFluentBuilder> BeginState() => new(_factory, this, _builder.AddState);
 
-		public ParallelFluentBuilder<StateMachineFluentBuilder> BeginParallel() => new ParallelFluentBuilder<StateMachineFluentBuilder>(_factory, this, _builder.AddParallel);
+		public ParallelFluentBuilder<StateMachineFluentBuilder> BeginParallel() => new(_factory, this, _builder.AddParallel);
 
-		public FinalFluentBuilder<StateMachineFluentBuilder> BeginFinal() => new FinalFluentBuilder<StateMachineFluentBuilder>(_factory, this, _builder.AddFinal);
+		public FinalFluentBuilder<StateMachineFluentBuilder> BeginFinal() => new(_factory, this, _builder.AddFinal);
 
 		public StateFluentBuilder<StateMachineFluentBuilder> BeginState(string id) => BeginState((Identifier) id);
 

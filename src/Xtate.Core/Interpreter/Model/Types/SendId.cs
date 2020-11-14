@@ -31,7 +31,7 @@ namespace Xtate
 
 		protected override string GenerateId() => IdGenerator.NewSendId(GetHashCode());
 
-		public static SendId New() => new SendId();
+		public static SendId New() => new();
 
 		[return: NotNullIfNotNull("val")]
 		public static SendId? FromString(string? val) => val is not null ? new SendId(val) : null;

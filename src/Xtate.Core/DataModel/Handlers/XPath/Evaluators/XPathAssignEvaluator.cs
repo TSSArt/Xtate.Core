@@ -44,42 +44,42 @@ namespace Xtate.DataModel.XPath
 					assignType = XPathAssignType.ReplaceChildren;
 
 					return true;
-				
+
 				case "firstchild":
 					assignType = XPathAssignType.FirstChild;
 
 					return true;
-				
+
 				case "lastchild":
 					assignType = XPathAssignType.LastChild;
 
 					return true;
-				
+
 				case "previoussibling":
 					assignType = XPathAssignType.PreviousSibling;
 
 					return true;
-				
+
 				case "nextsibling":
 					assignType = XPathAssignType.NextSibling;
 
 					return true;
-				
+
 				case "replace":
 					assignType = XPathAssignType.Replace;
 
 					return true;
-				
+
 				case "delete":
 					assignType = XPathAssignType.Delete;
 
 					return true;
-				
+
 				case "addattribute":
 					assignType = XPathAssignType.AddAttribute;
 
 					return true;
-				
+
 				default:
 					assignType = default;
 

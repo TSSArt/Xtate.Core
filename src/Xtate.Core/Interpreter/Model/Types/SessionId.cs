@@ -30,7 +30,7 @@ namespace Xtate
 		private SessionId(string val) : base(val) { }
 		protected override string GenerateId() => IdGenerator.NewSessionId(GetHashCode());
 
-		public static SessionId New() => new SessionId();
+		public static SessionId New() => new();
 
 		[return: NotNullIfNotNull("val")]
 		public static SessionId? FromString(string? val) => val is not null ? new SessionId(val) : null;

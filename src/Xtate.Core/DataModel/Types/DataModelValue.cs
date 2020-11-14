@@ -43,7 +43,7 @@ namespace Xtate
 		private static readonly object NumberValue  = new Marker(DataModelValueType.Number);
 		private static readonly object BooleanValue = new Marker(DataModelValueType.Boolean);
 
-		public static readonly DataModelValue Null = new DataModelValue((string?) null);
+		public static readonly DataModelValue Null = new((string?) null);
 
 		private readonly long    _int64;
 		private readonly object? _value;
@@ -364,13 +364,13 @@ namespace Xtate
 
 	#endregion
 
-		public static implicit operator DataModelValue(DataModelList? val)    => new DataModelValue(val);
-		public static implicit operator DataModelValue(string? val)           => new DataModelValue(val);
-		public static implicit operator DataModelValue(double val)            => new DataModelValue(val);
-		public static implicit operator DataModelValue(DataModelDateTime val) => new DataModelValue(val);
-		public static implicit operator DataModelValue(DateTimeOffset val)    => new DataModelValue(val);
-		public static implicit operator DataModelValue(DateTime val)          => new DataModelValue(val);
-		public static implicit operator DataModelValue(bool val)              => new DataModelValue(val);
+		public static implicit operator DataModelValue(DataModelList? val)    => new(val);
+		public static implicit operator DataModelValue(string? val)           => new(val);
+		public static implicit operator DataModelValue(double val)            => new(val);
+		public static implicit operator DataModelValue(DataModelDateTime val) => new(val);
+		public static implicit operator DataModelValue(DateTimeOffset val)    => new(val);
+		public static implicit operator DataModelValue(DateTime val)          => new(val);
+		public static implicit operator DataModelValue(bool val)              => new(val);
 
 		public static DataModelValue FromDataModelList(DataModelList? val)        => val;
 		public static DataModelValue FromString(string? val)                      => val;

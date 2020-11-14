@@ -39,9 +39,9 @@ namespace System
 
 		private Index(int value) => _value = value;
 
-		public static Index Start => new Index(0);
+		public static Index Start => new(0);
 
-		public static Index End => new Index(~0);
+		public static Index End => new(~0);
 
 		public int Value => _value < 0 ? ~_value : _value;
 
@@ -95,7 +95,7 @@ namespace System
 
 		public Index End { get; }
 
-		public static Range All => new Range(Index.Start, Index.End);
+		public static Range All => new(Index.Start, Index.End);
 
 	#region Interface IEquatable<Range>
 
@@ -109,9 +109,9 @@ namespace System
 
 		public override string ToString() => Start + ".." + End;
 
-		public static Range StartAt(Index start) => new Range(start, Index.End);
+		public static Range StartAt(Index start) => new(start, Index.End);
 
-		public static Range EndAt(Index end) => new Range(Index.Start, end);
+		public static Range EndAt(Index end) => new(Index.Start, end);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public (int Offset, int Length) GetOffsetAndLength(int length)

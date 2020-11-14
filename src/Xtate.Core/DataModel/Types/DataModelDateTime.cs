@@ -168,7 +168,7 @@ namespace Xtate
 			BinaryPrimitives.WriteInt16LittleEndian(span[8..], _offset);
 		}
 
-		public static DataModelDateTime ReadFrom(in ReadOnlySpan<byte> span) => new DataModelDateTime(span);
+		public static DataModelDateTime ReadFrom(in ReadOnlySpan<byte> span) => new(span);
 
 		private static int Compare(in DataModelDateTime t1, in DataModelDateTime t2)
 		{
@@ -196,9 +196,9 @@ namespace Xtate
 
 		public static implicit operator DataModelDateTime(DateTimeOffset dateTimeOffset) => FromDateTimeOffset(dateTimeOffset);
 
-		public static DataModelDateTime FromDateTime(DateTime dateTime) => new DataModelDateTime(dateTime.Ticks, TimeSpan.Zero, dateTime.Kind);
+		public static DataModelDateTime FromDateTime(DateTime dateTime) => new(dateTime.Ticks, TimeSpan.Zero, dateTime.Kind);
 
-		public static DataModelDateTime FromDateTimeOffset(DateTimeOffset dateTimeOffset) => new DataModelDateTime(dateTimeOffset.UtcTicks, dateTimeOffset.Offset, DateTimeKind.Local);
+		public static DataModelDateTime FromDateTimeOffset(DateTimeOffset dateTimeOffset) => new(dateTimeOffset.UtcTicks, dateTimeOffset.Offset, DateTimeKind.Local);
 
 		public string ToString(string format) => ToString(format, formatProvider: null);
 

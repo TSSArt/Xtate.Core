@@ -30,7 +30,7 @@ namespace Xtate
 			Set
 		}
 
-		private readonly Dictionary<IEntity, List<T>> _dic = new Dictionary<IEntity, List<T>>();
+		private readonly Dictionary<IEntity, List<T>> _dic = new();
 
 		public event ChangeHandler? Changed;
 

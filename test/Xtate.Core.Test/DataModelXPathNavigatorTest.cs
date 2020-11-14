@@ -17,6 +17,7 @@
 
 #endregion
 
+using System.Diagnostics.CodeAnalysis;
 using System.Xml;
 using System.Xml.XPath;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -197,7 +198,7 @@ namespace Xtate.Core.Test
 			var nav = new DataModelXPathNavigator(root);
 
 			// act
-			var _ = (XPathNodeIterator) nav.Evaluate("/root/node()");
+			var _ = (XPathNodeIterator?) nav.Evaluate("/root/node()");
 
 			// assert
 			//Assert.AreEqual(expected: "e", xml);
@@ -246,13 +247,14 @@ namespace Xtate.Core.Test
 		}
 
 		[TestMethod]
+		[SuppressMessage(category: "ReSharper", checkId: "UnusedVariable")]
 		public void RenderValidXml2()
 		{
 #pragma warning disable IDE0059
-			var xpath = "string(/a)";
+			const string xpath = "string(/a)";
 			var xPathExpression = XPathExpression.Compile(xpath);
 
-			var s = "<a xmlns:ss='dsf'><ss:eee/></a>";
+			const string s = "<a xmlns:ss='dsf'><ss:eee/></a>";
 
 			var t = XmlConverter.FromXml(s);
 

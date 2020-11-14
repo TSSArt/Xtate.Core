@@ -27,8 +27,8 @@ namespace Xtate.Service
 	[PublicAPI]
 	public abstract class SimpleServiceBase : IService, IAsyncDisposable, IDisposable
 	{
-		private readonly TaskCompletionSource<DataModelValue> _completedTcs = new TaskCompletionSource<DataModelValue>();
-		private readonly CancellationTokenSource              _tokenSource  = new CancellationTokenSource();
+		private readonly TaskCompletionSource<DataModelValue> _completedTcs = new();
+		private readonly CancellationTokenSource              _tokenSource  = new();
 
 		private bool        _disposed;
 		private InvokeData? _invokeData;
@@ -41,13 +41,11 @@ namespace Xtate.Service
 
 		protected Uri?                  BaseUri              { get; private set; }
 		protected IServiceCommunication ServiceCommunication { get; private set; }
-
-		protected Uri?           Source     => _invokeData?.Source;
-		protected string?        RawContent => _invokeData?.RawContent;
-		protected DataModelValue Content    => _invokeData?.Content ?? default;
-		protected DataModelValue Parameters => _invokeData?.Parameters ?? default;
-
-		protected CancellationToken StopToken => _tokenSource.Token;
+		protected Uri?                  Source               => _invokeData?.Source;
+		protected string?               RawContent           => _invokeData?.RawContent;
+		protected DataModelValue        Content              => _invokeData?.Content ?? default;
+		protected DataModelValue        Parameters           => _invokeData?.Parameters ?? default;
+		protected CancellationToken     StopToken            => _tokenSource.Token;
 
 	#region Interface IAsyncDisposable
 

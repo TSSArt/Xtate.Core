@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Xml.XPath;
 using System.Xml.Xsl;
 
@@ -89,6 +90,7 @@ namespace Xtate.DataModel.XPath
 			}
 		}
 
+		[SuppressMessage(category: "ReSharper", checkId: "MemberCanBeMadeStatic.Global")]
 		public string GetName(XPathCompiledExpression compiledExpression) => compiledExpression.Expression;
 
 		public XPathNodeIterator GetVariable(string name)
