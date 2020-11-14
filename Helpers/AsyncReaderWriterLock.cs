@@ -27,9 +27,10 @@ namespace Xtate
 	[PublicAPI]
 	public sealed class AsyncReaderWriterLock : IDisposable
 	{
-		private readonly SemaphoreSlim _readSemaphore  = new SemaphoreSlim(initialCount: 1, maxCount: 1);
-		private readonly SemaphoreSlim _writeSemaphore = new SemaphoreSlim(initialCount: 1, maxCount: 1);
-		private          int           _readerCount;
+		private readonly SemaphoreSlim _readSemaphore  = new(initialCount: 1, maxCount: 1);
+		private readonly SemaphoreSlim _writeSemaphore = new(initialCount: 1, maxCount: 1);
+
+		private int _readerCount;
 
 	#region Interface IDisposable
 

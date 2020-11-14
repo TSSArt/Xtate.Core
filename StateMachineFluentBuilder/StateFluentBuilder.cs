@@ -130,15 +130,15 @@ namespace Xtate.Builder
 
 		public StateFluentBuilder<TOuterBuilder> AddOnExit(ExecutableCancellableTask task) => AddOnExit(new RuntimeAction(task));
 
-		public InitialFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginInitial() => new InitialFluentBuilder<StateFluentBuilder<TOuterBuilder>>(_factory, this, _builder.SetInitial);
+		public InitialFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginInitial() => new(_factory, this, _builder.SetInitial);
 
-		public StateFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginState() => new StateFluentBuilder<StateFluentBuilder<TOuterBuilder>>(_factory, this, _builder.AddState);
+		public StateFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginState() => new(_factory, this, _builder.AddState);
 
-		public ParallelFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginParallel() => new ParallelFluentBuilder<StateFluentBuilder<TOuterBuilder>>(_factory, this, _builder.AddParallel);
+		public ParallelFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginParallel() => new(_factory, this, _builder.AddParallel);
 
-		public FinalFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginFinal() => new FinalFluentBuilder<StateFluentBuilder<TOuterBuilder>>(_factory, this, _builder.AddFinal);
+		public FinalFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginFinal() => new(_factory, this, _builder.AddFinal);
 
-		public HistoryFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginHistory() => new HistoryFluentBuilder<StateFluentBuilder<TOuterBuilder>>(_factory, this, _builder.AddHistory);
+		public HistoryFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginHistory() => new(_factory, this, _builder.AddHistory);
 
 		public StateFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginState(string id) => BeginState((Identifier) id);
 
@@ -160,7 +160,7 @@ namespace Xtate.Builder
 		public HistoryFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginHistory(IIdentifier id) =>
 				new HistoryFluentBuilder<StateFluentBuilder<TOuterBuilder>>(_factory, this, _builder.AddHistory).SetId(id);
 
-		public TransitionFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginTransition() => new TransitionFluentBuilder<StateFluentBuilder<TOuterBuilder>>(_factory, this, _builder.AddTransition);
+		public TransitionFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginTransition() => new(_factory, this, _builder.AddTransition);
 
 		public StateFluentBuilder<TOuterBuilder> AddTransition(EventDescriptor eventDescriptor, string target) => AddTransition(eventDescriptor, (Identifier) target);
 

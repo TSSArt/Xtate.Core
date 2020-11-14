@@ -163,20 +163,19 @@ namespace Xtate.Persistence
 		}
 #endif
 
-		public static async ValueTask<StreamStorage> CreateAsync(Stream stream, bool disposeStream = true, CancellationToken token = default) =>
-				new StreamStorage(stream, disposeStream)
-				{
-						_inMemoryStorage = await ReadStream(stream, int.MaxValue, shrink: false, token).ConfigureAwait(false)
-				};
+		public static async ValueTask<StreamStorage> CreateAsync(Stream stream, bool disposeStream = true, CancellationToken token = default)
+		{
+			if (stream is null) throw new ArgumentNullException(nameof(stream));
+
+			return new StreamStorage(stream, disposeStream) { _inMemoryStorage = await ReadStream(stream, int.MaxValue, shrink: false, token).ConfigureAwait(false) };
+		}
 
 		public static async ValueTask<StreamStorage> CreateWithRollbackAsync(Stream stream, int rollbackLevel, bool disposeStream = true, CancellationToken token = default)
 		{
+			if (stream is null) throw new ArgumentNullException(nameof(stream));
 			if (rollbackLevel < 0) throw new ArgumentOutOfRangeException(nameof(rollbackLevel));
 
-			return new StreamStorage(stream, disposeStream)
-				   {
-						   _inMemoryStorage = await ReadStream(stream, rollbackLevel, shrink: false, token).ConfigureAwait(false)
-				   };
+			return new StreamStorage(stream, disposeStream) { _inMemoryStorage = await ReadStream(stream, rollbackLevel, shrink: false, token).ConfigureAwait(false) };
 		}
 
 		private static async ValueTask<InMemoryStorage?> ReadStream(Stream stream, int rollbackLevel, bool shrink, CancellationToken token)
@@ -373,6 +372,6 @@ namespace Xtate.Persistence
 			}
 		}
 
-		private static PersistenceException GetIncorrectDataFormatException(Exception? ex = default) => new PersistenceException(Resources.Exception_Incorrect_data_format, ex);
+		private static PersistenceException GetIncorrectDataFormatException(Exception? ex = default) => new(Resources.Exception_Incorrect_data_format, ex);
 	}
 }

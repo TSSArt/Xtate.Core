@@ -28,7 +28,7 @@ namespace Xtate.Persistence
 	{
 		private readonly Bucket               _bucket;
 		private readonly KeyList<T>           _keyList;
-		private readonly Dictionary<int, int> _records = new Dictionary<int, int>();
+		private readonly Dictionary<int, int> _records = new();
 
 		public KeyListPersistingController(Bucket bucket, KeyList<T> keyList, ImmutableDictionary<int, IEntity> entityMap)
 		{

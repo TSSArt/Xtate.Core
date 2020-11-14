@@ -47,12 +47,12 @@ namespace Xtate
 		private const          int           AccessMask         = 0xF;
 		private const          int           AccessConstant     = (int) DataModelAccess.Constant;
 		private const          int           AccessReadOnly     = (int) DataModelAccess.ReadOnly;
-		public static readonly DataModelList Empty              = new DataModelList(DataModelAccess.Constant);
+		public static readonly DataModelList Empty              = new(DataModelAccess.Constant);
 
-		private static readonly ValueAdapter        ValueAdapterInstance        = new ValueAdapter();
-		private static readonly KeyValueAdapter     KeyValueAdapterInstance     = new KeyValueAdapter();
-		private static readonly MetaValueAdapter    MetaValueAdapterInstance    = new MetaValueAdapter();
-		private static readonly KeyMetaValueAdapter KeyMetaValueAdapterInstance = new KeyMetaValueAdapter();
+		private static readonly ValueAdapter        ValueAdapterInstance        = new();
+		private static readonly KeyValueAdapter     KeyValueAdapterInstance     = new();
+		private static readonly MetaValueAdapter    MetaValueAdapterInstance    = new();
+		private static readonly KeyMetaValueAdapter KeyMetaValueAdapterInstance = new();
 
 		private Array          _array;
 		private int            _count;
@@ -153,13 +153,13 @@ namespace Xtate
 			}
 		}
 
-		public ValueEnumerable Values => new ValueEnumerable(this);
+		public ValueEnumerable Values => new(this);
 
-		public KeyValueEnumerable KeyValues => new KeyValueEnumerable(this);
+		public KeyValueEnumerable KeyValues => new(this);
 
-		public KeyValuePairEnumerable KeyValuePairs => new KeyValuePairEnumerable(this);
+		public KeyValuePairEnumerable KeyValuePairs => new(this);
 
-		public EntryEnumerable Entries => new EntryEnumerable(this);
+		public EntryEnumerable Entries => new(this);
 
 	#region Interface ICollection<DataModelValue>
 
@@ -176,11 +176,11 @@ namespace Xtate
 
 		public DataModelList AsConstant() => DeepClone(DataModelAccess.Constant);
 
-		public ValueByKeyEnumerable ListValues(string key, bool caseInsensitive) => new ValueByKeyEnumerable(this, key, caseInsensitive);
+		public ValueByKeyEnumerable ListValues(string key, bool caseInsensitive) => new(this, key, caseInsensitive);
 
-		public KeyValueByKeyEnumerable ListKeyValues(string key, bool caseInsensitive) => new KeyValueByKeyEnumerable(this, key, caseInsensitive);
+		public KeyValueByKeyEnumerable ListKeyValues(string key, bool caseInsensitive) => new(this, key, caseInsensitive);
 
-		public EntryByKeyEnumerable ListEntries(string key, bool caseInsensitive) => new EntryByKeyEnumerable(this, key, caseInsensitive);
+		public EntryByKeyEnumerable ListEntries(string key, bool caseInsensitive) => new(this, key, caseInsensitive);
 
 		public DataModelList? GetMetadata() => _metadata;
 
@@ -578,7 +578,7 @@ namespace Xtate
 
 		internal bool SetMetadataInternal(DataModelList? metadata, bool throwOnDeny = true) => SetMetadata(metadata, DataModelAccess.ReadOnly, throwOnDeny);
 
-		private HashKey CreateHashKey(string key) => new HashKey(GetHashCodeForKey(key), key);
+		private HashKey CreateHashKey(string key) => new(GetHashCodeForKey(key), key);
 
 		private int GetHashCodeForKey(string key) => (CaseInsensitive ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal).GetHashCode(key);
 

@@ -93,7 +93,7 @@ namespace Xtate.CustomAction
 			}
 		}
 
-		protected virtual ValueTask<DataModelValue> EvaluateAsync(IReadOnlyDictionary<string, DataModelValue> arguments, CancellationToken token) => new ValueTask<DataModelValue>(Evaluate(arguments));
+		protected virtual ValueTask<DataModelValue> EvaluateAsync(IReadOnlyDictionary<string, DataModelValue> arguments, CancellationToken token) => new(Evaluate(arguments));
 
 		protected virtual DataModelValue Evaluate(IReadOnlyDictionary<string, DataModelValue> arguments) => throw new NotSupportedException(Resources.Exception_CustomActionDoesNotSupported);
 	}

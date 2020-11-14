@@ -125,7 +125,8 @@ namespace Xtate
 			private string IndexKey => _entry.Key ?? "[" + _entry.Index + "]";
 
 			[UsedImplicitly]
-			public ItemInfo __ItemInfo__ => new ItemInfo(_entry);
+			[SuppressMessage(category: "ReSharper", checkId: "InconsistentNaming")]
+			public ItemInfo __ItemInfo__ => new(_entry);
 		}
 
 		[ExcludeFromCodeCoverage]
@@ -181,7 +182,8 @@ namespace Xtate
 			public DebugIndexKeyValue[] Items => _dataModelList.Entries.Select(entry => new DebugIndexKeyValue(entry)).ToArray();
 
 			[UsedImplicitly]
-			public ListInfo __ListInfo__ => new ListInfo(_dataModelList);
+			[SuppressMessage(category: "ReSharper", checkId: "InconsistentNaming")]
+			public ListInfo __ListInfo__ => new(_dataModelList);
 		}
 	}
 }

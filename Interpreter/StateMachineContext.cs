@@ -28,7 +28,7 @@ namespace Xtate
 {
 	internal class StateMachineContext : IStateMachineContext, IExecutionContext
 	{
-		private static readonly Uri InternalTarget = new Uri(uriString: "_internal", UriKind.Relative);
+		private static readonly Uri InternalTarget = new(uriString: "_internal", UriKind.Relative);
 
 		private readonly ImmutableDictionary<object, object> _contextRuntimeItems;
 		private readonly IDataModelValueProvider             _dataModelValueProvider;
@@ -115,15 +115,15 @@ namespace Xtate
 
 		public DataModelList DataModel => _dataModel ??= CreateDataModel();
 
-		public OrderedSet<StateEntityNode> Configuration { get; } = new OrderedSet<StateEntityNode>();
+		public OrderedSet<StateEntityNode> Configuration { get; } = new();
 
 		public IExecutionContext ExecutionContext => this;
 
 		public KeyList<StateEntityNode> HistoryValue => _historyValue ??= new KeyList<StateEntityNode>();
 
-		public EntityQueue<IEvent> InternalQueue { get; } = new EntityQueue<IEvent>();
+		public EntityQueue<IEvent> InternalQueue { get; } = new();
 
-		public OrderedSet<StateEntityNode> StatesToInvoke { get; } = new OrderedSet<StateEntityNode>();
+		public OrderedSet<StateEntityNode> StatesToInvoke { get; } = new();
 
 		public virtual IPersistenceContext PersistenceContext => throw new NotSupportedException();
 
@@ -202,12 +202,12 @@ namespace Xtate
 				return list;
 			}
 
-			static DataModelValue GetLocation(IIoProcessor ioProcessor, SessionId sessionId) => new DataModelValue(ioProcessor.GetTarget(sessionId).ToString());
+			static DataModelValue GetLocation(IIoProcessor ioProcessor, SessionId sessionId) => new(ioProcessor.GetTarget(sessionId).ToString());
 		}
 
 		private class ContextItems : IContextItems
 		{
-			private readonly Dictionary<object, object>          _items = new Dictionary<object, object>();
+			private readonly Dictionary<object, object>          _items = new();
 			private readonly ImmutableDictionary<object, object> _permanentItems;
 
 			public ContextItems(ImmutableDictionary<object, object> permanentItems) => _permanentItems = permanentItems;

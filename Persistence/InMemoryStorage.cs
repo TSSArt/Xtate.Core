@@ -142,7 +142,7 @@ namespace Xtate.Persistence
 #endif
 		}
 
-		private static SortedSet<Entry> CreateReadModel() => new SortedSet<Entry>();
+		private static SortedSet<Entry> CreateReadModel() => new();
 
 		private void AddToReadModel(Memory<byte> key, Memory<byte> value)
 		{

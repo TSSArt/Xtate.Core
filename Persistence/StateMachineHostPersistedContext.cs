@@ -34,12 +34,12 @@ namespace Xtate.Persistence
 		private readonly Uri?     _baseUri;
 		private readonly TimeSpan _idlePeriod;
 
-		private readonly Dictionary<(SessionId SessionId, InvokeId InvokeId), InvokedServiceMeta> _invokedServices = new Dictionary<(SessionId SessionId, InvokeId InvokeId), InvokedServiceMeta>();
+		private readonly Dictionary<(SessionId SessionId, InvokeId InvokeId), InvokedServiceMeta> _invokedServices = new();
 
-		private readonly SemaphoreSlim                           _lockInvokedServices = new SemaphoreSlim(initialCount: 1, maxCount: 1);
-		private readonly SemaphoreSlim                           _lockStateMachines   = new SemaphoreSlim(initialCount: 1, maxCount: 1);
+		private readonly SemaphoreSlim                           _lockInvokedServices = new(initialCount: 1, maxCount: 1);
+		private readonly SemaphoreSlim                           _lockStateMachines   = new(initialCount: 1, maxCount: 1);
 		private readonly IStateMachineHost                       _stateMachineHost;
-		private readonly Dictionary<SessionId, StateMachineMeta> _stateMachines = new Dictionary<SessionId, StateMachineMeta>();
+		private readonly Dictionary<SessionId, StateMachineMeta> _stateMachines = new();
 		private readonly IStorageProvider                        _storageProvider;
 		private          bool                                    _disposed;
 		private          int                                     _invokedServiceRecordId;

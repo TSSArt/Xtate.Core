@@ -37,15 +37,15 @@ namespace Xtate
 		private const string InvokeIdPrefix  = "#_";
 		private const string Location        = "location";
 
-		private static readonly XmlReaderSettings DefaultSyncXmlReaderSettings  = new XmlReaderSettings { Async = false, CloseInput = true };
-		private static readonly XmlReaderSettings DefaultAsyncXmlReaderSettings = new XmlReaderSettings { Async = true, CloseInput = true };
+		private static readonly XmlReaderSettings DefaultSyncXmlReaderSettings  = new() { Async = false, CloseInput = true };
+		private static readonly XmlReaderSettings DefaultAsyncXmlReaderSettings = new() { Async = true, CloseInput = true };
 
 		private readonly DataModelList?                                          _configuration;
 		private readonly ImmutableDictionary<object, object>?                    _contextRuntimeItems;
 		private readonly StateMachineHostOptions                                 _options;
-		private readonly ConcurrentDictionary<SessionId, IService>               _parentServiceBySessionId = new ConcurrentDictionary<SessionId, IService>();
-		private readonly ConcurrentDictionary<(SessionId, InvokeId), IService?>  _serviceByInvokeId        = new ConcurrentDictionary<(SessionId, InvokeId), IService?>();
-		private readonly ConcurrentDictionary<SessionId, StateMachineController> _stateMachineBySessionId  = new ConcurrentDictionary<SessionId, StateMachineController>();
+		private readonly ConcurrentDictionary<SessionId, IService>               _parentServiceBySessionId = new();
+		private readonly ConcurrentDictionary<(SessionId, InvokeId), IService?>  _serviceByInvokeId        = new();
+		private readonly ConcurrentDictionary<SessionId, StateMachineController> _stateMachineBySessionId  = new();
 		private readonly IStateMachineHost                                       _stateMachineHost;
 		private readonly CancellationTokenSource                                 _stopTokenSource;
 		private readonly CancellationTokenSource                                 _suspendTokenSource;
@@ -112,7 +112,7 @@ namespace Xtate
 		protected virtual StateMachineController CreateStateMachineController(SessionId sessionId, IStateMachine? stateMachine,
 																			  IStateMachineOptions? stateMachineOptions,
 																			  Uri? stateMachineLocation, in InterpreterOptions defaultOptions) =>
-				new StateMachineController(sessionId, stateMachineOptions, stateMachine, stateMachineLocation, _stateMachineHost, _options.SuspendIdlePeriod, defaultOptions);
+				new(sessionId, stateMachineOptions, stateMachine, stateMachineLocation, _stateMachineHost, _options.SuspendIdlePeriod, defaultOptions);
 
 		private static XmlReaderSettings GetXmlReaderSettings(bool useAsync = false) => useAsync ? DefaultAsyncXmlReaderSettings : DefaultSyncXmlReaderSettings;
 

@@ -47,8 +47,7 @@ namespace Xtate.Builder
 			return _outerBuilder;
 		}
 
-		public TransitionFluentBuilder<InitialFluentBuilder<TOuterBuilder>> BeginTransition() =>
-				new TransitionFluentBuilder<InitialFluentBuilder<TOuterBuilder>>(_factory, this, _builder.SetTransition);
+		public TransitionFluentBuilder<InitialFluentBuilder<TOuterBuilder>> BeginTransition() => new(_factory, this, _builder.SetTransition);
 
 		public InitialFluentBuilder<TOuterBuilder> AddTransition(string target) => AddTransition((Identifier) target);
 

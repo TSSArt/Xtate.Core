@@ -26,7 +26,7 @@ namespace Xtate
 	[Serializable]
 	public sealed class InvokeId : LazyId
 	{
-		internal static readonly InvokeUniqueIdEqualityComparer InvokeUniqueIdComparer = new InvokeUniqueIdEqualityComparer();
+		internal static readonly IEqualityComparer<InvokeId> InvokeUniqueIdComparer = new InvokeUniqueIdEqualityComparer();
 
 		private readonly IIdentifier? _stateId;
 		private          string?      _invokeUniqueId;
@@ -62,9 +62,9 @@ namespace Xtate
 
 		public static InvokeId New(IIdentifier stateId, string? invokeId) => invokeId is null ? new InvokeId(stateId) : new InvokeId(invokeId);
 
-		public static InvokeId FromString(string invokeId) => new InvokeId(invokeId);
+		public static InvokeId FromString(string invokeId) => new(invokeId);
 
-		public static InvokeId FromString(string invokeId, string invokeUniqueId) => new InvokeId(invokeId, invokeUniqueId);
+		public static InvokeId FromString(string invokeId, string invokeUniqueId) => new(invokeId, invokeUniqueId);
 
 		internal sealed class InvokeUniqueIdEqualityComparer : IEqualityComparer<InvokeId>
 		{

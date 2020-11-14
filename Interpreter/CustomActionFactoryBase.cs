@@ -29,14 +29,13 @@ namespace Xtate.CustomAction
 {
 	public abstract class CustomActionFactoryBase : ICustomActionFactory, ICustomActionFactoryActivator
 	{
-		private readonly Dictionary<string, Func<XmlReader, ICustomActionContext, ICustomActionExecutor>> _actions =
-				new Dictionary<string, Func<XmlReader, ICustomActionContext, ICustomActionExecutor>>();
+		private readonly Dictionary<string, Func<XmlReader, ICustomActionContext, ICustomActionExecutor>> _actions = new();
 
 		private readonly string _namespace;
 
 		protected CustomActionFactoryBase()
 		{
-			if (GetType().GetCustomAttribute<CustomActionProviderAttribute>() is {} customActionProviderAttribute)
+			if (GetType().GetCustomAttribute<CustomActionProviderAttribute>() is { } customActionProviderAttribute)
 			{
 				_namespace = customActionProviderAttribute.Namespace;
 
@@ -48,8 +47,7 @@ namespace Xtate.CustomAction
 
 	#region Interface ICustomActionFactory
 
-		public ValueTask<ICustomActionFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, string ns, string name, CancellationToken token) =>
-				new ValueTask<ICustomActionFactoryActivator?>(CanHandle(ns, name) ? this : null);
+		public ValueTask<ICustomActionFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, string ns, string name, CancellationToken token) => new(CanHandle(ns, name) ? this : null);
 
 	#endregion
 

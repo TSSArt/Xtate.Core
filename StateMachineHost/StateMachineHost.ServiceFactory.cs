@@ -26,13 +26,12 @@ namespace Xtate
 {
 	public sealed partial class StateMachineHost : IServiceFactory, IServiceFactoryActivator
 	{
-		private static readonly Uri ServiceFactoryTypeId      = new Uri("http://www.w3.org/TR/scxml/");
-		private static readonly Uri ServiceFactoryAliasTypeId = new Uri(uriString: "scxml", UriKind.Relative);
+		private static readonly Uri ServiceFactoryTypeId      = new("http://www.w3.org/TR/scxml/");
+		private static readonly Uri ServiceFactoryAliasTypeId = new(uriString: "scxml", UriKind.Relative);
 
 	#region Interface IServiceFactory
 
-		ValueTask<IServiceFactoryActivator?> IServiceFactory.TryGetActivator(IFactoryContext factoryContext, Uri type, CancellationToken token) =>
-				new ValueTask<IServiceFactoryActivator?>(CanHandle(type) ? this : null);
+		ValueTask<IServiceFactoryActivator?> IServiceFactory.TryGetActivator(IFactoryContext factoryContext, Uri type, CancellationToken token) => new(CanHandle(type) ? this : null);
 
 	#endregion
 

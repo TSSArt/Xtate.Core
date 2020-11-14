@@ -30,11 +30,11 @@ namespace Xtate.DataModel.XPath
 	{
 		private const string DataModelType = "xpath";
 
-		public static IDataModelHandlerFactory Factory { get; } = new DataModelHandlerFactory();
-
 		internal XPathDataModelHandler() : base(DefaultErrorProcessor.Instance) { }
 
 		private XPathDataModelHandler(IErrorProcessor errorProcessor) : base(errorProcessor) { }
+
+		public static IDataModelHandlerFactory Factory { get; } = new DataModelHandlerFactory();
 
 		public override string ConvertToText(DataModelValue dataModelValue) => XmlConverter.ToXml(dataModelValue);
 
@@ -257,7 +257,7 @@ namespace Xtate.DataModel.XPath
 		#region Interface IDataModelHandlerFactory
 
 			public ValueTask<IDataModelHandlerFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, string dataModelType, CancellationToken token) =>
-					new ValueTask<IDataModelHandlerFactoryActivator?>(CanHandle(dataModelType) ? this : null);
+					new(CanHandle(dataModelType) ? this : null);
 
 		#endregion
 
