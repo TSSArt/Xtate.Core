@@ -42,7 +42,7 @@ namespace Xtate.DataModel.Null
 
 	#region Interface IBooleanEvaluator
 
-		ValueTask<bool> IBooleanEvaluator.EvaluateBoolean(IExecutionContext executionContext, CancellationToken token) => new ValueTask<bool>(executionContext.InState(_inState));
+		ValueTask<bool> IBooleanEvaluator.EvaluateBoolean(IExecutionContext executionContext, CancellationToken token) => new(executionContext.InState(_inState));
 
 	#endregion
 

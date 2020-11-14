@@ -216,11 +216,9 @@ namespace Xtate.Scxml
 
 		protected class Policy<TEntity>
 		{
-			private readonly Dictionary<QualifiedName, (Action<TDirector, TEntity> located, AttributeType type)> _attributes =
-					new Dictionary<QualifiedName, (Action<TDirector, TEntity> located, AttributeType type)>();
+			private readonly Dictionary<QualifiedName, (Action<TDirector, TEntity> located, AttributeType type)> _attributes = new();
 
-			private readonly Dictionary<QualifiedName, (Action<TDirector, TEntity> located, ElementType type)> _elements =
-					new Dictionary<QualifiedName, (Action<TDirector, TEntity> located, ElementType type)>();
+			private readonly Dictionary<QualifiedName, (Action<TDirector, TEntity> located, ElementType type)> _elements = new();
 
 			public Action<TDirector, TEntity>? RawContentAction { get; set; }
 
@@ -244,7 +242,7 @@ namespace Xtate.Scxml
 
 			public Action<TDirector, TEntity>? ElementLocated(string ns, string name) => _elements.TryGetValue(new QualifiedName(ns, name), out var val) ? val.located : UnknownElementAction;
 
-			public ValidationContext CreateValidationContext(XmlReader xmlReader, IErrorProcessor errorProcessor) => new ValidationContext(this, xmlReader, errorProcessor);
+			public ValidationContext CreateValidationContext(XmlReader xmlReader, IErrorProcessor errorProcessor) => new(this, xmlReader, errorProcessor);
 
 			public void FillNameTable(XmlNameTable nameTable)
 			{

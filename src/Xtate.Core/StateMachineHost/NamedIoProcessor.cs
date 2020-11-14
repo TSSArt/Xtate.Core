@@ -21,12 +21,12 @@ using System;
 using System.Buffers;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Pipes;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtate.Persistence;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Xtate.IoProcessor
 {
@@ -36,10 +36,10 @@ namespace Xtate.IoProcessor
 		private const string      PipePrefix         = "#SCXML#_";
 		private const PipeOptions DefaultPipeOptions = PipeOptions.WriteThrough | PipeOptions.Asynchronous;
 
-		private static readonly Uri IoProcessorId      = new Uri("http://www.w3.org/TR/scxml/#SCXMLEventProcessor");
-		private static readonly Uri IoProcessorAliasId = new Uri(uriString: "scxml", UriKind.Relative);
+		private static readonly Uri IoProcessorId      = new("http://www.w3.org/TR/scxml/#SCXMLEventProcessor");
+		private static readonly Uri IoProcessorAliasId = new(uriString: "scxml", UriKind.Relative);
 
-		private static readonly ConcurrentDictionary<string, IEventConsumer> InProcConsumers = new ConcurrentDictionary<string, IEventConsumer>();
+		private static readonly ConcurrentDictionary<string, IEventConsumer> InProcConsumers = new();
 
 		private readonly Uri            _baseUri;
 		private readonly IEventConsumer _eventConsumer;
@@ -47,7 +47,7 @@ namespace Xtate.IoProcessor
 		private readonly string         _name;
 		private readonly string         _pipeName;
 
-		private readonly CancellationTokenSource _stopTokenSource = new CancellationTokenSource();
+		private readonly CancellationTokenSource _stopTokenSource = new();
 
 		public NamedIoProcessor(IEventConsumer eventConsumer, string host, string name)
 		{
@@ -90,7 +90,7 @@ namespace Xtate.IoProcessor
 
 	#endregion
 
-		private Uri GetTarget(SessionId sessionId, bool isLoopback = false) => new Uri(isLoopback ? _loopbackBaseUri : _baseUri, "#_scxml_" + sessionId.Value);
+		private Uri GetTarget(SessionId sessionId, bool isLoopback = false) => new(isLoopback ? _loopbackBaseUri : _baseUri, "#_scxml_" + sessionId.Value);
 
 		private async ValueTask OutgoingEvent(SessionId sessionId, IOutgoingEvent evt, CancellationToken token)
 		{

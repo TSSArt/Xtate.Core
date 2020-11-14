@@ -33,20 +33,20 @@ namespace Xtate
 {
 	internal class StateMachineController : IService, IExternalCommunication, INotifyStateChanged, ILoggerContext, IAsyncDisposable
 	{
-		private static readonly UnboundedChannelOptions UnboundedSynchronousChannelOptions  = new UnboundedChannelOptions { SingleReader = true, AllowSynchronousContinuations = true };
-		private static readonly UnboundedChannelOptions UnboundedAsynchronousChannelOptions = new UnboundedChannelOptions { SingleReader = true, AllowSynchronousContinuations = false };
+		private static readonly UnboundedChannelOptions UnboundedSynchronousChannelOptions  = new() { SingleReader = true, AllowSynchronousContinuations = true };
+		private static readonly UnboundedChannelOptions UnboundedAsynchronousChannelOptions = new() { SingleReader = true, AllowSynchronousContinuations = false };
 
-		private readonly TaskCompletionSource<int>            _acceptedTcs  = new TaskCompletionSource<int>();
-		private readonly TaskCompletionSource<DataModelValue> _completedTcs = new TaskCompletionSource<DataModelValue>();
+		private readonly TaskCompletionSource<int>            _acceptedTcs  = new();
+		private readonly TaskCompletionSource<DataModelValue> _completedTcs = new();
 		private readonly InterpreterOptions                   _defaultOptions;
 		private readonly CancellationTokenSource              _destroyTokenSource;
 		private readonly TimeSpan                             _idlePeriod;
 		private readonly ILogger                              _logger;
 		private readonly IStateMachineOptions?                _options;
-		private readonly HashSet<ScheduledEvent>              _scheduledEvents = new HashSet<ScheduledEvent>();
+		private readonly HashSet<ScheduledEvent>              _scheduledEvents = new();
 		private readonly IStateMachine?                       _stateMachine;
 		private readonly IStateMachineHost                    _stateMachineHost;
-		private readonly ConcurrentQueue<ScheduledEvent>      _toDelete = new ConcurrentQueue<ScheduledEvent>();
+		private readonly ConcurrentQueue<ScheduledEvent>      _toDelete = new();
 
 		private bool                     _disposed;
 		private CancellationTokenSource? _suspendOnIdleTokenSource;
@@ -91,6 +91,12 @@ namespace Xtate
 
 			return default;
 		}
+
+	#endregion
+
+	#region Interface IEventDispatcher
+
+		public ValueTask Send(IEvent evt, CancellationToken token) => Channel.Writer.WriteAsync(evt, token);
 
 	#endregion
 
@@ -172,8 +178,6 @@ namespace Xtate
 	#endregion
 
 	#region Interface IService
-
-		public ValueTask Send(IEvent evt, CancellationToken token) => Channel.Writer.WriteAsync(evt, token);
 
 		ValueTask IService.Destroy(CancellationToken token)
 		{
@@ -387,7 +391,7 @@ namespace Xtate
 
 		protected class ScheduledEvent
 		{
-			private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+			private readonly CancellationTokenSource _cancellationTokenSource = new();
 
 			public ScheduledEvent(IOutgoingEvent evt) => Event = evt;
 

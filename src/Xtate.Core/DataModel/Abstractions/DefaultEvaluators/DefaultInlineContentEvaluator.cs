@@ -72,7 +72,7 @@ namespace Xtate.DataModel
 
 	#region Interface IStringEvaluator
 
-		public virtual ValueTask<string> EvaluateString(IExecutionContext executionContext, CancellationToken token) => new ValueTask<string>(Value);
+		public virtual ValueTask<string> EvaluateString(IExecutionContext executionContext, CancellationToken token) => new(Value);
 
 	#endregion
 

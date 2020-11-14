@@ -68,8 +68,7 @@ namespace Xtate.Builder
 			return this;
 		}
 
-		public TransitionFluentBuilder<HistoryFluentBuilder<TOuterBuilder>> BeginTransition() =>
-				new TransitionFluentBuilder<HistoryFluentBuilder<TOuterBuilder>>(_factory, this, _builder.SetTransition);
+		public TransitionFluentBuilder<HistoryFluentBuilder<TOuterBuilder>> BeginTransition() => new(_factory, this, _builder.SetTransition);
 
 		public HistoryFluentBuilder<TOuterBuilder> AddTransition(string target) => AddTransition((Identifier) target);
 

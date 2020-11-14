@@ -24,21 +24,16 @@ namespace Xtate.DataModel.XPath
 {
 	internal class XPathFunctionFactory : IXPathFunctionFactory
 	{
-		public static IXPathFunctionFactory Instance { get; } = new XPathFunctionFactory();
-
-		private readonly Dictionary<(string Namespace, string Name), IXsltContextFunction> _functionDescriptors = new Dictionary<(string Namespace, string Name), IXsltContextFunction>();
+		private readonly Dictionary<(string Namespace, string Name), IXsltContextFunction> _functionDescriptors = new();
 
 		private XPathFunctionFactory()
 		{
 			RegisterFunction<InFunction>();
 		}
 
-		private void RegisterFunction<T>() where T : XPathFunctionDescriptorBase, new()
-		{
-			var descriptor = new T();
+		public static IXPathFunctionFactory Instance { get; } = new XPathFunctionFactory();
 
-			_functionDescriptors.Add((descriptor.Namespace, descriptor.Name), descriptor);
-		}
+	#region Interface IXPathFunctionFactory
 
 		public IXsltContextFunction ResolveFunction(string ns, string name)
 		{
@@ -48,6 +43,15 @@ namespace Xtate.DataModel.XPath
 			}
 
 			throw new XPathDataModelException(Res.Format(Resources.Exception_Unknown_XPath_function, ns, name));
+		}
+
+	#endregion
+
+		private void RegisterFunction<T>() where T : XPathFunctionDescriptorBase, new()
+		{
+			var descriptor = new T();
+
+			_functionDescriptors.Add((descriptor.Namespace, descriptor.Name), descriptor);
 		}
 	}
 }

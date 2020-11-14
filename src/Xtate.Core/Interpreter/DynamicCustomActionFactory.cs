@@ -50,7 +50,7 @@ namespace Xtate.CustomAction
 
 	#endregion
 
-		protected virtual Uri CustomActionNamespaceToUri(string customActionNamespace) => new Uri(customActionNamespace, UriKind.RelativeOrAbsolute);
+		protected virtual Uri CustomActionNamespaceToUri(string customActionNamespace) => new(customActionNamespace, UriKind.RelativeOrAbsolute);
 
 		protected sealed override Uri KeyToUri(object key) => CustomActionNamespaceToUri((string) key);
 	}

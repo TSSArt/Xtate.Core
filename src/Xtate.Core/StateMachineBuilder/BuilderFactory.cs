@@ -25,11 +25,11 @@ namespace Xtate.Builder
 	[PublicAPI]
 	public class BuilderFactory : IBuilderFactory
 	{
-		public static IBuilderFactory Instance { get; } = new BuilderFactory(DefaultErrorProcessor.Instance);
-
 		private readonly IErrorProcessor _errorProcessor;
 
 		public BuilderFactory(IErrorProcessor errorProcessor) => _errorProcessor = errorProcessor ?? throw new ArgumentNullException(nameof(errorProcessor));
+
+		public static IBuilderFactory Instance { get; } = new BuilderFactory(DefaultErrorProcessor.Instance);
 
 	#region Interface IBuilderFactory
 

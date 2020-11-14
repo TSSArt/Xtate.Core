@@ -117,6 +117,6 @@ namespace Xtate.DataModel
 
 	#endregion
 
-		private static Uri ToUri(string uri) => new Uri(uri, UriKind.RelativeOrAbsolute);
+		private static Uri ToUri(string uri) => new(uri, UriKind.RelativeOrAbsolute);
 	}
 }

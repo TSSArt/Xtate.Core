@@ -25,7 +25,7 @@ namespace Xtate.DataModel.XPath
 {
 	internal class XPathCompiledExpression
 	{
-		private static readonly XPathResolver ParseExpressionResolver = new XPathResolver(XPathFunctionFactory.Instance);
+		private static readonly XPathResolver ParseExpressionResolver = new(XPathFunctionFactory.Instance);
 
 		private readonly XPathExpressionContext _context;
 

@@ -176,7 +176,7 @@ namespace Xtate
 
 		private void RegisterEntity(IEntity entity) => _entities.Add(entity);
 
-		private DocumentIdRecord NewDocumentId() => new DocumentIdRecord(_documentIdList);
+		private DocumentIdRecord NewDocumentId() => new(_documentIdList);
 
 		private static DocumentIdRecord NewDocumentIdAfter(in DocumentIdRecord previous) => previous.After();
 

@@ -40,8 +40,8 @@ namespace Xtate.DataModel.XPath
 		private const string NullTypeValue       = @"null";
 		private const string UndefinedTypeValue  = @"undefined";
 
-		private static readonly XmlWriterSettings DefaultWriterSettings = new XmlWriterSettings { Indent = true, OmitXmlDeclaration = true, ConformanceLevel = ConformanceLevel.Auto };
-		private static readonly XmlReaderSettings DefaultReaderSettings = new XmlReaderSettings { ConformanceLevel = ConformanceLevel.Auto };
+		private static readonly XmlWriterSettings DefaultWriterSettings = new() { Indent = true, OmitXmlDeclaration = true, ConformanceLevel = ConformanceLevel.Auto };
+		private static readonly XmlReaderSettings DefaultReaderSettings = new() { ConformanceLevel = ConformanceLevel.Auto };
 
 		public static string ToXml(in DataModelValue dataModelValue)
 		{
@@ -114,9 +114,8 @@ namespace Xtate.DataModel.XPath
 		public static string KeyToLocalName(string? key) =>
 				key switch
 				{
-						null => NoKeyElementName,
 						{ Length: 0 } => EmptyKeyElementName,
-						_ => XmlConvert.EncodeLocalName(key)
+						_ => key is not null ? XmlConvert.EncodeLocalName(key)! : NoKeyElementName
 				};
 
 		public static string? KeyToNamespaceOrDefault(string? key) =>

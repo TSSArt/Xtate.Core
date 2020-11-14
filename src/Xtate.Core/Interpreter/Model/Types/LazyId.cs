@@ -54,7 +54,7 @@ namespace Xtate
 
 	#region Interface ILazyValue
 
-		DataModelValue ILazyValue.Value => new DataModelValue(Value);
+		DataModelValue ILazyValue.Value => new(Value);
 
 	#endregion
 
@@ -64,7 +64,7 @@ namespace Xtate
 
 	#endregion
 
-		public static implicit operator DataModelValue(LazyId? lazyId) => new DataModelValue(lazyId);
+		public static implicit operator DataModelValue(LazyId? lazyId) => new(lazyId);
 
 		public DataModelValue ToDataModelValue() => this;
 

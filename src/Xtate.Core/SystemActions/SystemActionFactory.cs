@@ -25,12 +25,12 @@ namespace Xtate.CustomAction
 	[CustomActionProvider("http://xtate.net/scxml/system")]
 	public class SystemActionFactory : CustomActionFactoryBase
 	{
-		public static ICustomActionFactory Instance { get; } = new SystemActionFactory();
-
 		private SystemActionFactory()
 		{
 			Register(name: "start", (xmlReader, context) => new StartAction(xmlReader, context));
 			Register(name: "destroy", (xmlReader, context) => new DestroyAction(xmlReader, context));
 		}
+
+		public static ICustomActionFactory Instance { get; } = new SystemActionFactory();
 	}
 }

@@ -36,7 +36,7 @@ namespace Xtate
 		{
 			get
 			{
-				if (_factory is {} factory)
+				if (_factory is { } factory)
 				{
 					var value = factory();
 
@@ -52,7 +52,7 @@ namespace Xtate
 
 	#endregion
 
-		public static implicit operator DataModelValue(LazyValue lazyValue) => new DataModelValue(lazyValue);
+		public static implicit operator DataModelValue(LazyValue lazyValue) => new(lazyValue);
 
 		public DataModelValue ToDataModelValue() => this;
 	}
@@ -92,7 +92,7 @@ namespace Xtate
 
 	#endregion
 
-		public static implicit operator DataModelValue(LazyValue<TArg> lazyValue) => new DataModelValue(lazyValue);
+		public static implicit operator DataModelValue(LazyValue<TArg> lazyValue) => new(lazyValue);
 
 		public DataModelValue ToDataModelValue() => this;
 	}
@@ -134,7 +134,7 @@ namespace Xtate
 
 	#endregion
 
-		public static implicit operator DataModelValue(LazyValue<TArg1, TArg2> lazyValue) => new DataModelValue(lazyValue);
+		public static implicit operator DataModelValue(LazyValue<TArg1, TArg2> lazyValue) => new(lazyValue);
 
 		public DataModelValue ToDataModelValue() => this;
 	}

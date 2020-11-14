@@ -28,7 +28,7 @@ namespace Xtate.Persistence
 	internal sealed class ChannelPersistingController<T> : Channel<T>, IDisposable
 	{
 		private readonly Channel<T>                          _baseChannel;
-		private readonly TaskCompletionSource<int>           _initializedTcs = new TaskCompletionSource<int>();
+		private readonly TaskCompletionSource<int>           _initializedTcs = new();
 		private          Bucket                              _bucket;
 		private          int                                 _headIndex;
 		private          Func<CancellationToken, ValueTask>? _postAction;

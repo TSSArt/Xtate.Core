@@ -39,13 +39,13 @@ namespace Xtate.Core.Test.Legacy
 
 	#region Interface IArrayEvaluator
 
-		public ValueTask<IObject[]> EvaluateArray(IExecutionContext executionContext, CancellationToken token) => new ValueTask<IObject[]>(Array.Empty<IObject>());
+		public ValueTask<IObject[]> EvaluateArray(IExecutionContext executionContext, CancellationToken token) => new(Array.Empty<IObject>());
 
 	#endregion
 
 	#region Interface IBooleanEvaluator
 
-		public ValueTask<bool> EvaluateBoolean(IExecutionContext executionContext, CancellationToken token) => new ValueTask<bool>(false);
+		public ValueTask<bool> EvaluateBoolean(IExecutionContext executionContext, CancellationToken token) => new(false);
 
 	#endregion
 
@@ -63,7 +63,7 @@ namespace Xtate.Core.Test.Legacy
 
 	#region Interface IIntegerEvaluator
 
-		public ValueTask<int> EvaluateInteger(IExecutionContext executionContext, CancellationToken token) => new ValueTask<int>(0);
+		public ValueTask<int> EvaluateInteger(IExecutionContext executionContext, CancellationToken token) => new(0);
 
 	#endregion
 
@@ -73,7 +73,7 @@ namespace Xtate.Core.Test.Legacy
 
 		public ValueTask SetValue(IObject value, object? customData, IExecutionContext executionContext, CancellationToken token) => default;
 
-		public ValueTask<IObject> GetValue(IExecutionContext executionContext, CancellationToken token) => new ValueTask<IObject>((IObject) null!);
+		public ValueTask<IObject> GetValue(IExecutionContext executionContext, CancellationToken token) => new((IObject) null!);
 
 		public string GetName(IExecutionContext executionContext) => "?";
 
@@ -81,13 +81,13 @@ namespace Xtate.Core.Test.Legacy
 
 	#region Interface IObjectEvaluator
 
-		public ValueTask<IObject> EvaluateObject(IExecutionContext executionContext, CancellationToken token) => new ValueTask<IObject>((IObject) null!);
+		public ValueTask<IObject> EvaluateObject(IExecutionContext executionContext, CancellationToken token) => new((IObject) null!);
 
 	#endregion
 
 	#region Interface IStringEvaluator
 
-		public ValueTask<string> EvaluateString(IExecutionContext executionContext, CancellationToken token) => new ValueTask<string>("");
+		public ValueTask<string> EvaluateString(IExecutionContext executionContext, CancellationToken token) => new("");
 
 	#endregion
 
@@ -190,8 +190,8 @@ namespace Xtate.Core.Test.Legacy
 		{
 			var _ = new StateMachineFluentBuilder(BuilderFactory.Instance)
 					.BeginState((Identifier) "a")
-					.AddTransition(context => true, (Identifier) "a")
-					.AddOnEntry(context => Console.WriteLine(@"OnEntry"))
+					.AddTransition(_ => true, (Identifier) "a")
+					.AddOnEntry(_ => Console.WriteLine(@"OnEntry"))
 					.EndState()
 					.Build();
 

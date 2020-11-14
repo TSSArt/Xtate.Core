@@ -31,7 +31,7 @@ namespace Xtate.Persistence
 
 	#region Interface IStorageProvider
 
-		public ValueTask<ITransactionalStorage> GetTransactionalStorage(string? partition, string key, CancellationToken token) => new ValueTask<ITransactionalStorage>(TransactionalStorageInstance);
+		public ValueTask<ITransactionalStorage> GetTransactionalStorage(string? partition, string key, CancellationToken token) => new(TransactionalStorageInstance);
 
 		public ValueTask RemoveTransactionalStorage(string? partition, string key, CancellationToken token) => default;
 

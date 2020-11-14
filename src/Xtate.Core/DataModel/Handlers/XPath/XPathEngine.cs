@@ -25,7 +25,7 @@ namespace Xtate.DataModel.XPath
 {
 	internal class XPathEngine
 	{
-		public static readonly object Key = new object();
+		public static readonly object Key = new();
 
 		private readonly XPathResolver _resolver;
 

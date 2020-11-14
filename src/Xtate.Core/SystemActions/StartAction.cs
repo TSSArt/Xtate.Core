@@ -64,7 +64,7 @@ namespace Xtate.CustomAction
 				access.AddValidationError<StartAction>(Resources.ErrorMessage_url__has_invalid_URI_format);
 			}
 
-			if (_sessionId is {Length: 0})
+			if (_sessionId is { Length: 0 })
 			{
 				access.AddValidationError<StartAction>(Resources.ErrorMessage_SessionId_could_not_be_empty);
 			}
@@ -107,7 +107,7 @@ namespace Xtate.CustomAction
 
 			var sessionId = await GetSessionId(executionContext, token).ConfigureAwait(false);
 
-			if (_sessionId is {Length: 0})
+			if (_sessionId is { Length: 0 })
 			{
 				throw new ProcessorException(Resources.Exception_SessionId_could_not_be_empty);
 			}

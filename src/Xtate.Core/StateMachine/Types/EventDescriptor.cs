@@ -76,8 +76,8 @@ namespace Xtate
 
 	#endregion
 
-		public static explicit operator EventDescriptor(string val) => new EventDescriptor(val);
+		public static explicit operator EventDescriptor(string val) => new(val);
 
-		public static EventDescriptor FromString(string val) => new EventDescriptor(val);
+		public static EventDescriptor FromString(string val) => new(val);
 	}
 }

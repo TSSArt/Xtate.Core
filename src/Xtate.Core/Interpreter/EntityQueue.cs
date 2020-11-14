@@ -32,7 +32,7 @@ namespace Xtate
 			Dequeue
 		}
 
-		private readonly Queue<T> _queue = new Queue<T>();
+		private readonly Queue<T> _queue = new();
 
 		public int Count => _queue.Count;
 

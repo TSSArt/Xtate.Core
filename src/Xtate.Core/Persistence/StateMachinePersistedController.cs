@@ -32,9 +32,9 @@ namespace Xtate.Persistence
 		private const    int                                 ScheduledEventsKey = 1;
 		private readonly ChannelPersistingController<IEvent> _channelPersistingController;
 
-		private readonly HashSet<ScheduledPersistedEvent> _scheduledEvents = new HashSet<ScheduledPersistedEvent>();
+		private readonly HashSet<ScheduledPersistedEvent> _scheduledEvents = new();
 		private readonly CancellationToken                _stopToken;
-		private readonly SemaphoreSlim                    _storageLock = new SemaphoreSlim(initialCount: 0, maxCount: 1);
+		private readonly SemaphoreSlim                    _storageLock = new(initialCount: 0, maxCount: 1);
 		private readonly IStorageProvider                 _storageProvider;
 
 		private bool                   _disposed;
@@ -195,7 +195,7 @@ namespace Xtate.Persistence
 			await storage.Shrink(token).ConfigureAwait(false);
 		}
 
-		private void LoadScheduledEvents(ITransactionalStorage storage)
+		private void LoadScheduledEvents(IStorage storage)
 		{
 			var bucket = new Bucket(storage).Nested(ScheduledEventsKey);
 
@@ -237,7 +237,7 @@ namespace Xtate.Persistence
 
 			public int RecordId { get; set; }
 
-			public DateTime FireOnUtc => new DateTime(_fireOnUtcTicks, DateTimeKind.Utc);
+			public DateTime FireOnUtc => new(_fireOnUtcTicks, DateTimeKind.Utc);
 
 		#region Interface IStoreSupport
 

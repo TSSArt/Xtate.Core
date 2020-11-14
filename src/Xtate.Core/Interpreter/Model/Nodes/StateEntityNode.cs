@@ -68,7 +68,7 @@ namespace Xtate
 
 	#endregion
 
-		private NotSupportedException GetNotSupportedException() => new NotSupportedException(Res.Format(Resources.Exception_Specified_method_is_not_supported_in_type, GetType().Name));
+		private NotSupportedException GetNotSupportedException() => new(Res.Format(Resources.Exception_Specified_method_is_not_supported_in_type, GetType().Name));
 
 		protected static IEnumerable<StateEntityNode> GetChildNodes(IInitial? initial, ImmutableArray<IStateEntity> states, ImmutableArray<IHistory> historyStates = default)
 		{

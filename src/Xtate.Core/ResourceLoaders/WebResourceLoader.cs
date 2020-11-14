@@ -33,9 +33,9 @@ namespace Xtate
 	[PublicAPI]
 	public sealed class WebResourceLoader : IResourceLoader
 	{
-		public static IResourceLoader Instance { get; } = new WebResourceLoader();
-
 		private ImmutableDictionary<Uri, WeakReference<Resource>> _cachedWebResources = ImmutableDictionary<Uri, WeakReference<Resource>>.Empty;
+
+		public static IResourceLoader Instance { get; } = new WebResourceLoader();
 
 	#region Interface IResourceLoader
 

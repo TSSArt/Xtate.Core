@@ -85,11 +85,11 @@ namespace Xtate.Builder
 
 		public ParallelFluentBuilder<TOuterBuilder> AddOnExit(ExecutableCancellableTask task) => AddOnExit(new RuntimeAction(task));
 
-		public StateFluentBuilder<ParallelFluentBuilder<TOuterBuilder>> BeginState() => new StateFluentBuilder<ParallelFluentBuilder<TOuterBuilder>>(_factory, this, _builder.AddState);
+		public StateFluentBuilder<ParallelFluentBuilder<TOuterBuilder>> BeginState() => new(_factory, this, _builder.AddState);
 
-		public ParallelFluentBuilder<ParallelFluentBuilder<TOuterBuilder>> BeginParallel() => new ParallelFluentBuilder<ParallelFluentBuilder<TOuterBuilder>>(_factory, this, _builder.AddParallel);
+		public ParallelFluentBuilder<ParallelFluentBuilder<TOuterBuilder>> BeginParallel() => new(_factory, this, _builder.AddParallel);
 
-		public HistoryFluentBuilder<ParallelFluentBuilder<TOuterBuilder>> BeginHistory() => new HistoryFluentBuilder<ParallelFluentBuilder<TOuterBuilder>>(_factory, this, _builder.AddHistory);
+		public HistoryFluentBuilder<ParallelFluentBuilder<TOuterBuilder>> BeginHistory() => new(_factory, this, _builder.AddHistory);
 
 		public StateFluentBuilder<ParallelFluentBuilder<TOuterBuilder>> BeginState(string id) => BeginState((Identifier) id);
 
@@ -106,8 +106,7 @@ namespace Xtate.Builder
 		public HistoryFluentBuilder<ParallelFluentBuilder<TOuterBuilder>> BeginHistory(IIdentifier id) =>
 				new HistoryFluentBuilder<ParallelFluentBuilder<TOuterBuilder>>(_factory, this, _builder.AddHistory).SetId(id);
 
-		public TransitionFluentBuilder<ParallelFluentBuilder<TOuterBuilder>> BeginTransition() =>
-				new TransitionFluentBuilder<ParallelFluentBuilder<TOuterBuilder>>(_factory, this, _builder.AddTransition);
+		public TransitionFluentBuilder<ParallelFluentBuilder<TOuterBuilder>> BeginTransition() => new(_factory, this, _builder.AddTransition);
 
 		public ParallelFluentBuilder<TOuterBuilder> AddTransition(EventDescriptor eventDescriptor, string target) => AddTransition(eventDescriptor, (Identifier) target);
 

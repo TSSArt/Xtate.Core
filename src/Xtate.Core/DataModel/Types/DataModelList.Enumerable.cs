@@ -47,7 +47,7 @@ namespace Xtate
 
 		#endregion
 
-			public ValueEnumerator GetEnumerator() => new ValueEnumerator(_list);
+			public ValueEnumerator GetEnumerator() => new(_list);
 		}
 
 		[PublicAPI]
@@ -125,7 +125,7 @@ namespace Xtate
 
 		#endregion
 
-			public KeyValueEnumerator GetEnumerator() => new KeyValueEnumerator(_list);
+			public KeyValueEnumerator GetEnumerator() => new(_list);
 		}
 
 		[PublicAPI]
@@ -209,7 +209,7 @@ namespace Xtate
 
 		#endregion
 
-			public KeyValuePairEnumerator GetEnumerator() => new KeyValuePairEnumerator(_list);
+			public KeyValuePairEnumerator GetEnumerator() => new(_list);
 		}
 
 		[PublicAPI]
@@ -283,7 +283,7 @@ namespace Xtate
 
 		#endregion
 
-			public EntryEnumerator GetEnumerator() => new EntryEnumerator(_list);
+			public EntryEnumerator GetEnumerator() => new(_list);
 		}
 
 		[PublicAPI]
@@ -374,7 +374,7 @@ namespace Xtate
 
 		#endregion
 
-			public ValueByKeyEnumerator GetEnumerator() => new ValueByKeyEnumerator(_list, _key, _caseInsensitive);
+			public ValueByKeyEnumerator GetEnumerator() => new(_list, _key, _caseInsensitive);
 		}
 
 		[PublicAPI]
@@ -474,7 +474,7 @@ namespace Xtate
 
 		#endregion
 
-			public KeyValueByKeyEnumerator GetEnumerator() => new KeyValueByKeyEnumerator(_list, _key, _caseInsensitive);
+			public KeyValueByKeyEnumerator GetEnumerator() => new(_list, _key, _caseInsensitive);
 		}
 
 		[PublicAPI]
@@ -581,7 +581,7 @@ namespace Xtate
 
 		#endregion
 
-			public EntryByKeyEnumerator GetEnumerator() => new EntryByKeyEnumerator(_list, _key, _caseInsensitive);
+			public EntryByKeyEnumerator GetEnumerator() => new(_list, _key, _caseInsensitive);
 		}
 
 		[PublicAPI]

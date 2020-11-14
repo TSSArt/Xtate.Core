@@ -24,16 +24,16 @@ namespace Xtate.DataModel.XPath
 	internal class XPathStripRootsIterator : XPathNodeIterator
 	{
 		private readonly XPathNodeIterator _iterator;
-		private          int               _position;
 		private          XPathNavigator?   _current;
+		private          int               _position;
 
 		public XPathStripRootsIterator(XPathNodeIterator iterator) => _iterator = iterator.Clone();
-
-		public override XPathNodeIterator Clone() => new XPathStripRootsIterator(_iterator);
 
 		public override XPathNavigator? Current => _current;
 
 		public override int CurrentPosition => _position;
+
+		public override XPathNodeIterator Clone() => new XPathStripRootsIterator(_iterator);
 
 		public override bool MoveNext()
 		{
@@ -47,14 +47,14 @@ namespace Xtate.DataModel.XPath
 			while (_iterator.MoveNext())
 			{
 				var navigator = _iterator.Current;
-				
+
 				if (navigator?.HasChildren == true)
 				{
 					_current = navigator.Clone();
 					var moveToFirstChild = _current.MoveToFirstChild();
-					
+
 					Infrastructure.Assert(moveToFirstChild);
-					
+
 					_position ++;
 
 					return true;
