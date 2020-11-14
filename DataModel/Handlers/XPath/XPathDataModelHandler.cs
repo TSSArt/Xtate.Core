@@ -30,9 +30,9 @@ namespace Xtate.DataModel.XPath
 	{
 		private const string DataModelType = "xpath";
 
-		public static readonly IDataModelHandlerFactory Factory = new DataModelHandlerFactory();
+		public static IDataModelHandlerFactory Factory { get; } = new DataModelHandlerFactory();
 
-		public XPathDataModelHandler() : base(DefaultErrorProcessor.Instance) { }
+		internal XPathDataModelHandler() : base(DefaultErrorProcessor.Instance) { }
 
 		private XPathDataModelHandler(IErrorProcessor errorProcessor) : base(errorProcessor) { }
 

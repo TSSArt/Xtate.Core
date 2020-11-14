@@ -25,7 +25,7 @@ namespace Xtate.CustomAction
 	[CustomActionProvider("http://xtate.net/scxml/system")]
 	public class SystemActionFactory : CustomActionFactoryBase
 	{
-		public static readonly ICustomActionFactory Instance = new SystemActionFactory();
+		public static ICustomActionFactory Instance { get; } = new SystemActionFactory();
 
 		private SystemActionFactory()
 		{

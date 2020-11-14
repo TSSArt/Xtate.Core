@@ -26,7 +26,7 @@ namespace Xtate
 {
 	internal sealed class DefaultLogger : ILogger
 	{
-		public static readonly ILogger Instance = new DefaultLogger();
+		public static ILogger Instance { get; } = new DefaultLogger();
 
 		private DefaultLogger() { }
 

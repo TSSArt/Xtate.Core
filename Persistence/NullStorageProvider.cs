@@ -23,33 +23,15 @@ using System.Threading.Tasks;
 
 namespace Xtate.Persistence
 {
-	internal sealed class NullStorageProvider : IStorageProvider, ITransactionalStorage
+	internal sealed class NullStorageProvider : IStorageProvider
 	{
-		public static readonly NullStorageProvider Instance = new NullStorageProvider();
+		private static readonly ITransactionalStorage TransactionalStorageInstance = new TransactionalStorage();
 
-	#region Interface IAsyncDisposable
-
-		public ValueTask DisposeAsync() => default;
-
-	#endregion
-
-	#region Interface IDisposable
-
-		public void Dispose() { }
-
-	#endregion
-
-	#region Interface IStorage
-
-		public void Write(ReadOnlySpan<byte> key, ReadOnlySpan<byte> value) { }
-
-		public ReadOnlyMemory<byte> Read(ReadOnlySpan<byte> key) => ReadOnlyMemory<byte>.Empty;
-
-	#endregion
+		public static IStorageProvider Instance { get; } = new NullStorageProvider();
 
 	#region Interface IStorageProvider
 
-		public ValueTask<ITransactionalStorage> GetTransactionalStorage(string? partition, string key, CancellationToken token) => new ValueTask<ITransactionalStorage>(Instance);
+		public ValueTask<ITransactionalStorage> GetTransactionalStorage(string? partition, string key, CancellationToken token) => new ValueTask<ITransactionalStorage>(TransactionalStorageInstance);
 
 		public ValueTask RemoveTransactionalStorage(string? partition, string key, CancellationToken token) => default;
 
@@ -57,12 +39,35 @@ namespace Xtate.Persistence
 
 	#endregion
 
-	#region Interface ITransactionalStorage
+		private class TransactionalStorage : ITransactionalStorage
+		{
+		#region Interface IAsyncDisposable
 
-		public ValueTask CheckPoint(int level, CancellationToken token) => default;
+			public ValueTask DisposeAsync() => default;
 
-		public ValueTask Shrink(CancellationToken token) => default;
+		#endregion
 
-	#endregion
+		#region Interface IDisposable
+
+			public void Dispose() { }
+
+		#endregion
+
+		#region Interface IStorage
+
+			public void Write(ReadOnlySpan<byte> key, ReadOnlySpan<byte> value) { }
+
+			public ReadOnlyMemory<byte> Read(ReadOnlySpan<byte> key) => ReadOnlyMemory<byte>.Empty;
+
+		#endregion
+
+		#region Interface ITransactionalStorage
+
+			public ValueTask CheckPoint(int level, CancellationToken token) => default;
+
+			public ValueTask Shrink(CancellationToken token) => default;
+
+		#endregion
+		}
 	}
 }
