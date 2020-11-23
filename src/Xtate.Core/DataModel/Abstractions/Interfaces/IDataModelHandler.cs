@@ -23,6 +23,8 @@ namespace Xtate.DataModel
 {
 	public interface IDataModelHandler
 	{
+		ITypeInfo TypeInfo { get; }
+
 		bool CaseInsensitive { get; }
 
 		void Process(ref IExecutableEntity executableEntity);

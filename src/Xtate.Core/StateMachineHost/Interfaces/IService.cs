@@ -25,6 +25,7 @@ namespace Xtate.Service
 	public interface IService : IEventDispatcher
 	{
 		Task<DataModelValue> Result { get; }
-		ValueTask            Destroy(CancellationToken token);
+
+		ValueTask Destroy(CancellationToken token);
 	}
 }
