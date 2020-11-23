@@ -22,18 +22,21 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 using Xtate.Annotations;
 
 namespace Xtate.CustomAction
 {
 	[PublicAPI]
-	public class CustomActionBase : ICustomActionExecutor
+	public abstract class CustomActionBase : ICustomActionExecutor
 	{
-		private readonly ICustomActionContext         _customActionContext;
-		private          Dictionary<string, object?>? _arguments;
-		private          ILocationAssigner?           _resultLocationAssigner;
+		private Dictionary<string, object?>? _arguments;
+		private ICustomActionContext?        _customActionContext;
+		private ILocationAssigner?           _resultLocationAssigner;
 
-		protected CustomActionBase(ICustomActionContext customActionContext) => _customActionContext = customActionContext ?? throw new ArgumentNullException(nameof(customActionContext));
+		protected CustomActionBase() { }
+
+		protected CustomActionBase(ICustomActionContext customActionContext) => _customActionContext = customActionContext;
 
 	#region Interface ICustomActionExecutor
 
@@ -48,12 +51,16 @@ namespace Xtate.CustomAction
 
 		protected void RegisterArgument(string key, ExpectedValueType expectedValueType, string? expression, object? defaultValue = default)
 		{
+			Infrastructure.NotNull(_customActionContext);
+
 			_arguments ??= new Dictionary<string, object?>();
 			_arguments.Add(key, expression is not null ? _customActionContext.RegisterValueExpression(expression, expectedValueType) : defaultValue);
 		}
 
 		protected void RegisterResultLocation(string? expression)
 		{
+			Infrastructure.NotNull(_customActionContext);
+
 			if (expression is not null)
 			{
 				_resultLocationAssigner = _customActionContext.RegisterLocationExpression(expression);
@@ -92,6 +99,18 @@ namespace Xtate.CustomAction
 				await _resultLocationAssigner.Assign(executionContext, result, token).ConfigureAwait(false);
 			}
 		}
+
+		internal void SetContextAndInitialize(ICustomActionContext customActionContext, XmlReader xmlReader)
+		{
+			if (_customActionContext is null)
+			{
+				_customActionContext = customActionContext;
+
+				Initialize(xmlReader);
+			}
+		}
+
+		protected virtual void Initialize(XmlReader xmlReader) { }
 
 		protected virtual ValueTask<DataModelValue> EvaluateAsync(IReadOnlyDictionary<string, DataModelValue> arguments, CancellationToken token) => new(Evaluate(arguments));
 

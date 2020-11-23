@@ -59,6 +59,8 @@ namespace Xtate.DataModel
 
 		public virtual bool CaseInsensitive => false;
 
+		public abstract ITypeInfo TypeInfo { get; }
+
 	#endregion
 
 		protected void AddErrorMessage(object? entity, string message, Exception? exception = default) => _errorProcessor.AddError(GetType(), entity, message, exception);

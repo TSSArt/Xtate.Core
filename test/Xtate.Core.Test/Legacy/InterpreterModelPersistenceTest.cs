@@ -102,6 +102,8 @@ namespace Xtate.Core.Test.Legacy
 	{
 		public TestDataModelHandler() : base(DefaultErrorProcessor.Instance) { }
 
+		public override ITypeInfo TypeInfo => TypeInfo<TestDataModelHandler>.Instance;
+
 		protected override void Visit(ref IValueExpression expression)
 		{
 			expression = new Evaluator(expression.Expression);

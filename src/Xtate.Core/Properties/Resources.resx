@@ -153,12 +153,6 @@
   <data name="ErrorMessage_RuntimeActionAndPredicateOnlyAllowed" xml:space="preserve">
     <value>RuntimeAction and RuntimePredicate objects only allowed as action and condition in 'runtime' data model.</value>
   </data>
-  <data name="Exception_IoProcessorAttributeWasNotProvided" xml:space="preserve">
-    <value>IoProcessorAttribute was not provided for type {0}.</value>
-  </data>
-  <data name="Exception_CustomActionProviderAttributeWasNotProvided" xml:space="preserve">
-    <value>CustomActionProviderAttribute was not provided for type {0}.</value>
-  </data>
   <data name="Exception_CustomActionDoesNotSupported" xml:space="preserve">
     <value>Custom action does not supported.</value>
   </data>
@@ -585,9 +579,6 @@
   </data>
   <data name="DefaultLogger_TraceProcessingEvent" xml:space="preserve">
     <value>Processing {0} event [{1}]. SendId: [{2}]. InvokeId: [{3}]. Data: [{4}]. OriginType: [{5}]. Origin: [{6}]. SessionId: [{7}].</value>
-  </data>
-  <data name="Exception_ServiceAttribute_did_not_provided_for_type" xml:space="preserve">
-    <value>ServiceAttribute did not provided for type {0}</value>
   </data>
   <data name="Exception_StateMachineValidationException_Message" xml:space="preserve">
     <value>Message #{0} of {1}: {2}</value>

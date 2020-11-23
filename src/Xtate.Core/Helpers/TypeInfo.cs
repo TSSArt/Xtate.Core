@@ -17,24 +17,40 @@
 
 #endregion
 
-using System;
+using System.Reflection;
 using Xtate.Annotations;
 
-namespace Xtate.CustomAction
+namespace Xtate
 {
 	[PublicAPI]
-	public class SystemActionFactory : CustomActionFactoryBase
+	public interface ITypeInfo
 	{
-		private const string Namespace = "http://xtate.net/scxml/system";
+		public string FullTypeName    { get; }
+		public string AssemblyName    { get; }
+		public string AssemblyVersion { get; }
+	}
 
-		public static ICustomActionFactory Instance { get; } = new SystemActionFactory();
-
-		protected override void Register(ICustomActionCatalog catalog)
+	[PublicAPI]
+	public class TypeInfo<T> : ITypeInfo
+	{
+		private TypeInfo()
 		{
-			if (catalog is null) throw new ArgumentNullException(nameof(catalog));
+			var type = typeof(T);
+			var assembly = type.Assembly;
 
-			catalog.Register(Namespace, name: "start", (context, reader) => new StartAction(context, reader));
-			catalog.Register(Namespace, name: "destroy", (context, reader) => new DestroyAction(context, reader));
+			FullTypeName = type.FullName ?? string.Empty;
+			AssemblyName = assembly.GetName().Name ?? string.Empty;
+			AssemblyVersion = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? string.Empty;
 		}
+
+		public static ITypeInfo Instance { get; } = new TypeInfo<T>();
+
+	#region Interface ITypeInfo
+
+		public string FullTypeName    { get; }
+		public string AssemblyName    { get; }
+		public string AssemblyVersion { get; }
+
+	#endregion
 	}
 }

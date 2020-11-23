@@ -31,6 +31,8 @@ namespace Xtate.DataModel.Null
 
 		public static IDataModelHandlerFactory Factory { get; } = new DataModelHandlerFactory();
 
+		public override ITypeInfo TypeInfo => TypeInfo<NullDataModelHandler>.Instance;
+
 		protected override void Visit(ref IForEach forEach) => AddErrorMessage(forEach, Resources.ErrorMesasge_ForEachNotSupportedForNull);
 
 		protected override void Visit(ref IScript script) => AddErrorMessage(script, Resources.ErrorMesasge_ScriptingNotSupportedForNull);
@@ -68,14 +70,21 @@ namespace Xtate.DataModel.Null
 			}
 		}
 
-		private class DataModelHandlerFactory : IDataModelHandlerFactory, IDataModelHandlerFactoryActivator
+		private static bool CanHandle(string dataModelType) => dataModelType == DataModelType;
+
+		private class DataModelHandlerFactory : IDataModelHandlerFactory
 		{
 		#region Interface IDataModelHandlerFactory
 
 			public ValueTask<IDataModelHandlerFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, string dataModelType, CancellationToken token) =>
-					new(CanHandle(dataModelType) ? this : null);
+					new(CanHandle(dataModelType) ? DataModelHandlerFactoryActivator.Instance : null);
 
 		#endregion
+		}
+
+		private class DataModelHandlerFactoryActivator : IDataModelHandlerFactoryActivator
+		{
+			public static IDataModelHandlerFactoryActivator Instance { get; } = new DataModelHandlerFactoryActivator();
 
 		#region Interface IDataModelHandlerFactoryActivator
 
@@ -87,8 +96,6 @@ namespace Xtate.DataModel.Null
 			}
 
 		#endregion
-
-			private static bool CanHandle(string dataModelType) => dataModelType == DataModelType;
 		}
 	}
 }

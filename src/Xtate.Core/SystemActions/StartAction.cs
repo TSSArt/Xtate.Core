@@ -38,10 +38,10 @@ namespace Xtate.CustomAction
 		private readonly Uri?                  _url;
 		private readonly IExpressionEvaluator? _urlExpression;
 
-		public StartAction(XmlReader xmlReader, ICustomActionContext access)
+		public StartAction(ICustomActionContext access, XmlReader xmlReader)
 		{
-			if (xmlReader is null) throw new ArgumentNullException(nameof(xmlReader));
 			if (access is null) throw new ArgumentNullException(nameof(access));
+			if (xmlReader is null) throw new ArgumentNullException(nameof(xmlReader));
 
 			var url = xmlReader.GetAttribute(Url);
 			var urlExpression = xmlReader.GetAttribute(UrlExpr);

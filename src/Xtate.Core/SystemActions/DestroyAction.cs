@@ -32,10 +32,10 @@ namespace Xtate.CustomAction
 		private readonly string?               _sessionId;
 		private readonly IExpressionEvaluator? _sessionIdExpression;
 
-		public DestroyAction(XmlReader xmlReader, ICustomActionContext access)
+		public DestroyAction(ICustomActionContext access, XmlReader xmlReader)
 		{
-			if (xmlReader is null) throw new ArgumentNullException(nameof(xmlReader));
 			if (access is null) throw new ArgumentNullException(nameof(access));
+			if (xmlReader is null) throw new ArgumentNullException(nameof(xmlReader));
 
 			var sessionIdExpression = xmlReader.GetAttribute(SessionIdExpr);
 			_sessionId = xmlReader.GetAttribute(SessionId);

@@ -25,7 +25,7 @@ using Xtate.Annotations;
 namespace Xtate.Service
 {
 	[PublicAPI]
-	public abstract class SimpleServiceBase : IService, IAsyncDisposable, IDisposable
+	public abstract class ServiceBase : IService, IAsyncDisposable, IDisposable
 	{
 		private readonly TaskCompletionSource<DataModelValue> _completedTcs = new();
 		private readonly CancellationTokenSource              _tokenSource  = new();
@@ -33,7 +33,7 @@ namespace Xtate.Service
 		private bool        _disposed;
 		private InvokeData? _invokeData;
 
-		protected SimpleServiceBase()
+		protected ServiceBase()
 		{
 			_invokeData = null!;
 			ServiceCommunication = null!;

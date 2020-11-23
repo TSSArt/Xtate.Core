@@ -1123,15 +1123,6 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to CustomActionProviderAttribute was not provided for type {0}..
-        /// </summary>
-        internal static string Exception_CustomActionProviderAttributeWasNotProvided {
-            get {
-                return ResourceManager.GetString("Exception_CustomActionProviderAttributeWasNotProvided", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to DataModelValue is not Boolean..
         /// </summary>
         internal static string Exception_DataModelValue_is_not_Boolean {
@@ -1404,15 +1395,6 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to IoProcessorAttribute was not provided for type {0}..
-        /// </summary>
-        internal static string Exception_IoProcessorAttributeWasNotProvided {
-            get {
-                return ResourceManager.GetString("Exception_IoProcessorAttributeWasNotProvided", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Item can&apos;t be null..
         /// </summary>
         internal static string Exception_Item_can_t_be_null {
@@ -1626,15 +1608,6 @@ namespace Xtate {
         internal static string Exception_SendIdIsEmpty {
             get {
                 return ResourceManager.GetString("Exception_SendIdIsEmpty", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to ServiceAttribute did not provided for type {0}.
-        /// </summary>
-        internal static string Exception_ServiceAttribute_did_not_provided_for_type {
-            get {
-                return ResourceManager.GetString("Exception_ServiceAttribute_did_not_provided_for_type", resourceCulture);
             }
         }
         

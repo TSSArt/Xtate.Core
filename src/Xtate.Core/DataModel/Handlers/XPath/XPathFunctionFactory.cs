@@ -28,7 +28,7 @@ namespace Xtate.DataModel.XPath
 
 		private XPathFunctionFactory()
 		{
-			RegisterFunction<InFunction>();
+			RegisterFunction(new InFunction());
 		}
 
 		public static IXPathFunctionFactory Instance { get; } = new XPathFunctionFactory();
@@ -47,10 +47,8 @@ namespace Xtate.DataModel.XPath
 
 	#endregion
 
-		private void RegisterFunction<T>() where T : XPathFunctionDescriptorBase, new()
+		private void RegisterFunction(XPathFunctionDescriptorBase descriptor)
 		{
-			var descriptor = new T();
-
 			_functionDescriptors.Add((descriptor.Namespace, descriptor.Name), descriptor);
 		}
 	}

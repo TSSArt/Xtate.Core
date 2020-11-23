@@ -36,6 +36,8 @@ namespace Xtate.DataModel.XPath
 
 		public static IDataModelHandlerFactory Factory { get; } = new DataModelHandlerFactory();
 
+		public override ITypeInfo TypeInfo => TypeInfo<XPathDataModelHandler>.Instance;
+
 		public override string ConvertToText(DataModelValue dataModelValue) => XmlConverter.ToXml(dataModelValue);
 
 		public override void ExecutionContextCreated(IExecutionContext executionContext, out ImmutableDictionary<string, string> dataModelVars)
@@ -252,14 +254,21 @@ namespace Xtate.DataModel.XPath
 
 		protected override void Visit(ref IScript script) => AddErrorMessage(script, Resources.ErrorMessage_Scripting_not_supported_in_XPATH_data_model);
 
-		private class DataModelHandlerFactory : IDataModelHandlerFactory, IDataModelHandlerFactoryActivator
+		private static bool CanHandle(string dataModelType) => dataModelType == DataModelType;
+
+		private class DataModelHandlerFactory : IDataModelHandlerFactory
 		{
 		#region Interface IDataModelHandlerFactory
 
 			public ValueTask<IDataModelHandlerFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, string dataModelType, CancellationToken token) =>
-					new(CanHandle(dataModelType) ? this : null);
+					new(CanHandle(dataModelType) ? DataModelHandlerFactoryActivator.Instance : null);
 
 		#endregion
+		}
+
+		private class DataModelHandlerFactoryActivator : IDataModelHandlerFactoryActivator
+		{
+			public static IDataModelHandlerFactoryActivator Instance { get; } = new DataModelHandlerFactoryActivator();
 
 		#region Interface IDataModelHandlerFactoryActivator
 
@@ -271,8 +280,6 @@ namespace Xtate.DataModel.XPath
 			}
 
 		#endregion
-
-			private static bool CanHandle(string dataModelType) => dataModelType == DataModelType;
 		}
 	}
 }
