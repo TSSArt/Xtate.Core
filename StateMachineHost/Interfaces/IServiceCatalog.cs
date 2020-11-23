@@ -18,21 +18,26 @@
 #endregion
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Xtate.Annotations;
 
 namespace Xtate.Service
 {
-	[AttributeUsage(AttributeTargets.Class, Inherited = false)]
-	public sealed class SimpleServiceAttribute : Attribute
+	[PublicAPI]
+	public interface IServiceCatalog
 	{
-		public SimpleServiceAttribute(string type)
-		{
-			if (string.IsNullOrEmpty(type)) throw new ArgumentException(Resources.Exception_Value_cannot_be_null_or_empty_, nameof(type));
+		public delegate ServiceBase Creator();
 
-			Type = type;
-		}
+		public delegate IService ServiceCreator(Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication);
 
-		public string Type { get; }
+		public delegate ValueTask<IService> ServiceCreatorAsync(IFactoryContext factoryContext, Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication,
+																CancellationToken token);
 
-		public string? Alias { get; set; }
+		void Register(string type, Creator creator);
+
+		void Register(string type, ServiceCreator creator);
+
+		void Register(string type, ServiceCreatorAsync creator);
 	}
 }

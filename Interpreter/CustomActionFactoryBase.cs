@@ -20,71 +20,131 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 
 namespace Xtate.CustomAction
 {
-	public abstract class CustomActionFactoryBase : ICustomActionFactory, ICustomActionFactoryActivator
+	public abstract class CustomActionFactoryBase : ICustomActionFactory
 	{
-		private readonly Dictionary<string, Func<XmlReader, ICustomActionContext, ICustomActionExecutor>> _actions = new();
-
-		private readonly string _namespace;
-
-		protected CustomActionFactoryBase()
-		{
-			if (GetType().GetCustomAttribute<CustomActionProviderAttribute>() is { } customActionProviderAttribute)
-			{
-				_namespace = customActionProviderAttribute.Namespace;
-
-				return;
-			}
-
-			throw new InfrastructureException(Res.Format(Resources.Exception_CustomActionProviderAttributeWasNotProvided, GetType()));
-		}
+		private Activator? _activator;
 
 	#region Interface ICustomActionFactory
 
-		public ValueTask<ICustomActionFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, string ns, string name, CancellationToken token) => new(CanHandle(ns, name) ? this : null);
-
-	#endregion
-
-	#region Interface ICustomActionFactoryActivator
-
-		public ValueTask<ICustomActionExecutor> CreateExecutor(IFactoryContext factoryContext, ICustomActionContext customActionContext, CancellationToken token)
+		ValueTask<ICustomActionFactoryActivator?> ICustomActionFactory.TryGetActivator(IFactoryContext factoryContext, string ns, string name, CancellationToken token)
 		{
-			if (customActionContext is null) throw new ArgumentNullException(nameof(customActionContext));
+			_activator ??= CreateActivator();
 
-			Infrastructure.Assert(_namespace == customActionContext.XmlNamespace);
-
-			using var stringReader = new StringReader(customActionContext.Xml);
-
-			var nameTable = new NameTable();
-			var nsManager = new XmlNamespaceManager(nameTable);
-			var context = new XmlParserContext(nameTable, nsManager, xmlLang: null, xmlSpace: default);
-
-			using var xmlReader = XmlReader.Create(stringReader, settings: null, context);
-
-			xmlReader.MoveToContent();
-
-			Infrastructure.Assert(xmlReader.NamespaceURI == customActionContext.XmlNamespace);
-			Infrastructure.Assert(xmlReader.LocalName == customActionContext.XmlName);
-
-			return new ValueTask<ICustomActionExecutor>(_actions[xmlReader.LocalName](xmlReader, customActionContext));
+			return new ValueTask<ICustomActionFactoryActivator?>(_activator.CanHandle(ns, name) ? _activator : null);
 		}
 
 	#endregion
 
-		private bool CanHandle(string ns, string name) => ns == _namespace && _actions.ContainsKey(name);
-
-		protected void Register(string name, Func<XmlReader, ICustomActionContext, ICustomActionExecutor> executorFactory)
+		private Activator CreateActivator()
 		{
-			if (name is null) throw new ArgumentNullException(nameof(name));
-			if (executorFactory is null) throw new ArgumentNullException(nameof(executorFactory));
+			var catalog = new Catalog();
 
-			_actions.Add(name, executorFactory);
+			Register(catalog);
+
+			return new Activator(catalog);
+		}
+
+		protected abstract void Register(ICustomActionCatalog catalog);
+
+		private class Catalog : ICustomActionCatalog
+		{
+			private readonly Dictionary<(string ns, string name), Delegate> _creators = new();
+
+		#region Interface ICustomActionCatalog
+
+			public void Register(string ns, string name, ICustomActionCatalog.Creator creator)
+			{
+				if (ns is null) throw new ArgumentNullException(nameof(ns));
+				if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
+				if (creator is null) throw new ArgumentNullException(nameof(creator));
+
+				_creators.Add((ns, name), creator);
+			}
+
+			public void Register(string ns, string name, ICustomActionCatalog.ExecutorCreator creator)
+			{
+				if (ns is null) throw new ArgumentNullException(nameof(ns));
+				if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
+				if (creator is null) throw new ArgumentNullException(nameof(creator));
+
+				_creators.Add((ns, name), creator);
+			}
+
+			public void Register(string ns, string name, ICustomActionCatalog.ExecutorCreatorAsync creator)
+			{
+				if (ns is null) throw new ArgumentNullException(nameof(ns));
+				if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
+				if (creator is null) throw new ArgumentNullException(nameof(creator));
+
+				_creators.Add((ns, name), creator);
+			}
+
+		#endregion
+
+			public bool CanHandle(string ns, string name) => _creators.ContainsKey((ns, name));
+
+			public ValueTask<ICustomActionExecutor> CreateExecutor(string ns, string name, IFactoryContext factoryContext, ICustomActionContext context, XmlReader reader, CancellationToken token)
+			{
+				switch (_creators[(ns, name)])
+				{
+					case ICustomActionCatalog.Creator creator:
+						var executor = creator();
+						executor.SetContextAndInitialize(context, reader);
+
+						return new ValueTask<ICustomActionExecutor>(executor);
+
+					case ICustomActionCatalog.ExecutorCreator creator:
+						return new ValueTask<ICustomActionExecutor>(creator(context, reader));
+
+					case ICustomActionCatalog.ExecutorCreatorAsync creator:
+						return creator(factoryContext, context, reader, token);
+
+					default:
+						return Infrastructure.UnexpectedValue<ValueTask<ICustomActionExecutor>>(_creators[(ns, name)]?.GetType());
+				}
+			}
+		}
+
+		private class Activator : ICustomActionFactoryActivator
+		{
+			private readonly Catalog _catalog;
+
+			public Activator(Catalog catalog) => _catalog = catalog;
+
+		#region Interface ICustomActionFactoryActivator
+
+			public ValueTask<ICustomActionExecutor> CreateExecutor(IFactoryContext factoryContext, ICustomActionContext customActionContext, CancellationToken token)
+			{
+				if (customActionContext is null) throw new ArgumentNullException(nameof(customActionContext));
+
+				using var stringReader = new StringReader(customActionContext.Xml);
+
+				var nameTable = new NameTable();
+				var nsManager = new XmlNamespaceManager(nameTable);
+				var context = new XmlParserContext(nameTable, nsManager, xmlLang: null, xmlSpace: default);
+
+				using var xmlReader = XmlReader.Create(stringReader, settings: null, context);
+
+				xmlReader.MoveToContent();
+
+				var ns = customActionContext.XmlNamespace;
+				var name = customActionContext.XmlName;
+
+				Infrastructure.Assert(xmlReader.NamespaceURI == ns);
+				Infrastructure.Assert(xmlReader.LocalName == name);
+
+				return _catalog.CreateExecutor(ns, name, factoryContext, customActionContext, xmlReader, token);
+			}
+
+		#endregion
+
+			public bool CanHandle(string ns, string name) => _catalog.CanHandle(ns, name);
 		}
 	}
 }

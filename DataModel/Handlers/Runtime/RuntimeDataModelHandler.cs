@@ -28,6 +28,8 @@ namespace Xtate.DataModel.Runtime
 
 		private RuntimeDataModelHandler(IErrorProcessor errorProcessor) : base(errorProcessor) { }
 
+		public override ITypeInfo TypeInfo => TypeInfo<RuntimeDataModelHandler>.Instance;
+
 		public static IDataModelHandlerFactory Factory { get; } = new DataModelHandlerFactory();
 
 		protected override void Visit(ref IScript script) => AddErrorMessage(script, Resources.ErrorMessage_ScriptingNotSupportedInRuntimeDataModel);
@@ -42,14 +44,21 @@ namespace Xtate.DataModel.Runtime
 			}
 		}
 
-		private class DataModelHandlerFactory : IDataModelHandlerFactory, IDataModelHandlerFactoryActivator
+		private static bool CanHandle(string dataModelType) => dataModelType == DataModelType;
+
+		private class DataModelHandlerFactory : IDataModelHandlerFactory
 		{
 		#region Interface IDataModelHandlerFactory
 
 			public ValueTask<IDataModelHandlerFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, string dataModelType, CancellationToken token) =>
-					new(CanHandle(dataModelType) ? this : null);
+					new(CanHandle(dataModelType) ? DataModelHandlerFactoryActivator.Instance : null);
 
 		#endregion
+		}
+
+		private class DataModelHandlerFactoryActivator : IDataModelHandlerFactoryActivator
+		{
+			public static IDataModelHandlerFactoryActivator Instance { get; } = new DataModelHandlerFactoryActivator();
 
 		#region Interface IDataModelHandlerFactoryActivator
 
@@ -61,8 +70,6 @@ namespace Xtate.DataModel.Runtime
 			}
 
 		#endregion
-
-			private static bool CanHandle(string dataModelType) => dataModelType == DataModelType;
 		}
 	}
 }

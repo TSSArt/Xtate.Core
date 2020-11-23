@@ -19,7 +19,6 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -30,19 +29,15 @@ namespace Xtate.IoProcessor
 		private readonly IEventConsumer _eventConsumer;
 		private readonly Uri?           _ioProcessorAliasId;
 
-		protected IoProcessorBase(IEventConsumer eventConsumer)
+		protected IoProcessorBase(IEventConsumer eventConsumer, string ioProcessorId, string? ioProcessorAlias = default)
 		{
+			if (string.IsNullOrEmpty(ioProcessorId)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(ioProcessorId));
+			if (ioProcessorAlias is { Length: 0 }) throw new ArgumentException(Resources.Exception_ValueCantBeEmpty, nameof(ioProcessorAlias));
+
 			_eventConsumer = eventConsumer ?? throw new ArgumentNullException(nameof(eventConsumer));
 
-			if (GetType().GetCustomAttribute<IoProcessorAttribute>(false) is { } ioProcessorAttribute)
-			{
-				IoProcessorId = new Uri(ioProcessorAttribute.Type, UriKind.RelativeOrAbsolute);
-				_ioProcessorAliasId = ioProcessorAttribute.Alias is not null ? new Uri(ioProcessorAttribute.Alias, UriKind.RelativeOrAbsolute) : null;
-
-				return;
-			}
-
-			throw new InfrastructureException(Res.Format(Resources.Exception_IoProcessorAttributeWasNotProvided, GetType()));
+			IoProcessorId = new Uri(ioProcessorId, UriKind.RelativeOrAbsolute);
+			_ioProcessorAliasId = ioProcessorAlias is not null ? new Uri(ioProcessorAlias, UriKind.RelativeOrAbsolute) : null;
 		}
 
 		protected Uri IoProcessorId { get; }

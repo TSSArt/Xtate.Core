@@ -17,22 +17,26 @@
 
 #endregion
 
-using System;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Xml;
+using Xtate.Annotations;
 
-namespace Xtate.IoProcessor
+namespace Xtate.CustomAction
 {
-	[AttributeUsage(AttributeTargets.Class, Inherited = false)]
-	public sealed class IoProcessorAttribute : Attribute
+	[PublicAPI]
+	public interface ICustomActionCatalog
 	{
-		public IoProcessorAttribute(string type)
-		{
-			if (string.IsNullOrEmpty(type)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(type));
+		public delegate CustomActionBase Creator();
 
-			Type = type;
-		}
+		public delegate ICustomActionExecutor ExecutorCreator(ICustomActionContext context, XmlReader reader);
 
-		public string Type { get; }
+		public delegate ValueTask<ICustomActionExecutor> ExecutorCreatorAsync(IFactoryContext factoryContext, ICustomActionContext customActionContext, XmlReader reader, CancellationToken token);
 
-		public string? Alias { get; set; }
+		void Register(string ns, string name, Creator creator);
+
+		void Register(string ns, string name, ExecutorCreator creator);
+
+		void Register(string ns, string name, ExecutorCreatorAsync creator);
 	}
 }

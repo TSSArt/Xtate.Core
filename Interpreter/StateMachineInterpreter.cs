@@ -23,7 +23,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
@@ -1646,13 +1645,12 @@ namespace Xtate
 
 		private DataModelValue CreateInterpreterList()
 		{
-			var type = typeof(StateMachineInterpreter);
-			var version = type.Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+			var typeInfo = TypeInfo<StateMachineInterpreter>.Instance;
 
 			var interpreterList = new DataModelList(_dataModelHandler.CaseInsensitive)
 								  {
-										  { @"name", type.FullName },
-										  { @"version", version }
+										  { @"name", typeInfo.FullTypeName },
+										  { @"version", typeInfo.AssemblyVersion }
 								  };
 
 			interpreterList.MakeDeepConstant();
@@ -1662,14 +1660,13 @@ namespace Xtate
 
 		private DataModelValue CreateDataModelHandlerList()
 		{
-			var type = _dataModelHandler.GetType();
-			var version = type.Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+			var typeInfo = _dataModelHandler.TypeInfo;
 
 			var dataModelHandlerList = new DataModelList(_dataModelHandler.CaseInsensitive)
 									   {
-											   { @"name", type.FullName },
-											   { @"assembly", type.Assembly.GetName().Name },
-											   { @"version", version },
+											   { @"name", typeInfo.FullTypeName },
+											   { @"assembly", typeInfo.AssemblyName },
+											   { @"version", typeInfo.AssemblyVersion },
 											   { @"vars", DataModelValue.FromObject(_dataModelVars) }
 									   };
 
