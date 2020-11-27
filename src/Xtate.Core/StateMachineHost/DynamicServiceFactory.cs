@@ -27,7 +27,7 @@ namespace Xtate.Service
 	[PublicAPI]
 	public class DynamicServiceFactory : DynamicFactory<IServiceFactory>, IServiceFactory
 	{
-		public DynamicServiceFactory(bool throwOnError) : base(throwOnError) { }
+		public DynamicServiceFactory(bool throwOnError = true) : base(throwOnError) { }
 
 	#region Interface IServiceFactory
 

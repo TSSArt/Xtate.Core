@@ -79,15 +79,6 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Validation failed. Result of operation must be true..
-        /// </summary>
-        internal static string Assertion_ValidationFailed {
-            get {
-                return ResourceManager.GetString("Assertion_ValidationFailed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Type: [{0}]. Name: [{1}]. SessionId: [{2}]. SourceEntityId: [{3}]. Exception: {4}.
         /// </summary>
         internal static string DefaultLogger_LogError {
@@ -805,10 +796,10 @@ namespace Xtate {
         /// <summary>
         ///   Looks up a localized string similar to [sessionId] and [sessionIdExpr] attributes should not be assigned in Start element..
         /// </summary>
-        internal static string ErrorMessage_sessionId__and__sessionIdExpr__attributes_should_not_be_assigned_in_Start_element_ {
+        internal static string ErrorMessage_sessionId__and__sessionIdExpr__attributes_should_not_be_assigned_in_Start_element {
             get {
                 return ResourceManager.GetString("ErrorMessage_sessionId__and__sessionIdExpr__attributes_should_not_be_assigned_in_" +
-                        "Start_element_", resourceCulture);
+                        "Start_element", resourceCulture);
             }
         }
         
@@ -961,15 +952,6 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Adjusted with offset value does not fall into acceptable range..
-        /// </summary>
-        internal static string Exception_Adjusted_with_offset_value_does_not_fall_into_acceptable_range {
-            get {
-                return ResourceManager.GetString("Exception_Adjusted_with_offset_value_does_not_fall_into_acceptable_range", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Another asynchronous operation in progress..
         /// </summary>
         internal static string Exception_Another_asynchronous_operation_in_progress {
@@ -1069,33 +1051,6 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Capacity can&apos;t be less then properties count..
-        /// </summary>
-        internal static string Exception_Capacity_can_t_be_less_then_properties_count {
-            get {
-                return ResourceManager.GetString("Exception_Capacity_can_t_be_less_then_properties_count", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Capacity can&apos;t be less then size of list..
-        /// </summary>
-        internal static string Exception_Capacity_can_t_be_less_then_size_of_array {
-            get {
-                return ResourceManager.GetString("Exception_Capacity_can_t_be_less_then_size_of_array", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Capacity should not be negative..
-        /// </summary>
-        internal static string Exception_Capacity_should_not_be_negative {
-            get {
-                return ResourceManager.GetString("Exception_Capacity_should_not_be_negative", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Channel can&apos;t consume previously persisted object..
         /// </summary>
         internal static string Exception_Channel_can_t_consume_previously_persisted_object {
@@ -1128,15 +1083,6 @@ namespace Xtate {
         internal static string Exception_DataModelValue_is_not_Boolean {
             get {
                 return ResourceManager.GetString("Exception_DataModelValue_is_not_Boolean", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to DataModelValue is not MetadataModelElement..
-        /// </summary>
-        internal static string Exception_DataModelValue_is_not_DataModelElement {
-            get {
-                return ResourceManager.GetString("Exception_DataModelValue_is_not_DataModelElement", resourceCulture);
             }
         }
         
@@ -1242,15 +1188,6 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to File is more then 2GB length..
-        /// </summary>
-        internal static string Exception_File_is_more_then_2GB_length {
-            get {
-                return ResourceManager.GetString("Exception_File_is_more_then_2GB_length", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Forward entities required to restore state machine..
         /// </summary>
         internal static string Exception_Forward_entities_required_to_restore_state_machine {
@@ -1274,15 +1211,6 @@ namespace Xtate {
         internal static string Exception_Forward_entity_has_incorrect_type {
             get {
                 return ResourceManager.GetString("Exception_Forward_entity_has_incorrect_type", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Identifier cannot be empty..
-        /// </summary>
-        internal static string Exception_IdentifierCannotBeEmpty {
-            get {
-                return ResourceManager.GetString("Exception_IdentifierCannotBeEmpty", resourceCulture);
             }
         }
         
@@ -1449,15 +1377,6 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Missed InvokeUniqueId..
-        /// </summary>
-        internal static string Exception_Missed_InvokeUniqueId {
-            get {
-                return ResourceManager.GetString("Exception_Missed_InvokeUniqueId", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Missed ParentSessionId..
         /// </summary>
         internal static string Exception_Missed_ParentSessionId {
@@ -1549,15 +1468,6 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ResourceLoader did not specified..
-        /// </summary>
-        internal static string Exception_ResourceLoader_did_not_specified {
-            get {
-                return ResourceManager.GetString("Exception_ResourceLoader_did_not_specified", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Result of XPath expression can&apos;t be identified..
         /// </summary>
         internal static string Exception_Result_of_XPath_expression_can_t_be_identified {
@@ -1585,15 +1495,6 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Result of XPath expression should be string value..
-        /// </summary>
-        internal static string Exception_Result_of_XPath_expression_should_be_string_value {
-            get {
-                return ResourceManager.GetString("Exception_Result_of_XPath_expression_should_be_string_value", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Root path can be set only before visiting..
         /// </summary>
         internal static string Exception_Root_path_can_be_set_only_before_visiting {
@@ -1617,15 +1518,6 @@ namespace Xtate {
         internal static string Exception_SessionId_could_not_be_empty {
             get {
                 return ResourceManager.GetString("Exception_SessionId_could_not_be_empty", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to SessionId is empty..
-        /// </summary>
-        internal static string Exception_SessionId_is_empty {
-            get {
-                return ResourceManager.GetString("Exception_SessionId_is_empty", resourceCulture);
             }
         }
         
@@ -1847,15 +1739,6 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unspecified or UTC kind should have zero offset..
-        /// </summary>
-        internal static string Exception_Unspecified_or_UTC_kind_should_have_zero_offset {
-            get {
-                return ResourceManager.GetString("Exception_Unspecified_or_UTC_kind_should_have_zero_offset", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Unsupported object type..
         /// </summary>
         internal static string Exception_Unsupported_object_type {
@@ -1897,15 +1780,6 @@ namespace Xtate {
         internal static string Exception_Use_WriteAsync___instead {
             get {
                 return ResourceManager.GetString("Exception_Use_WriteAsync___instead", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Value cannot be null or empty..
-        /// </summary>
-        internal static string Exception_Value_cannot_be_null_or_empty_ {
-            get {
-                return ResourceManager.GetString("Exception_Value_cannot_be_null_or_empty_", resourceCulture);
             }
         }
         

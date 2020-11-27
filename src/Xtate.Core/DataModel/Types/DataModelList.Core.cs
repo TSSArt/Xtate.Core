@@ -149,7 +149,7 @@ namespace Xtate
 					return;
 				}
 
-				throw new InfrastructureException(Resources.Exception_Access_can_t_be_changed);
+				Infrastructure.Fail(Resources.Exception_Access_can_t_be_changed);
 			}
 		}
 

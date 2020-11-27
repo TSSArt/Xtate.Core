@@ -27,7 +27,7 @@ namespace Xtate.CustomAction
 	[PublicAPI]
 	public class DynamicCustomActionFactory : DynamicFactory<ICustomActionFactory>, ICustomActionFactory
 	{
-		protected DynamicCustomActionFactory(bool throwOnError) : base(throwOnError) { }
+		public DynamicCustomActionFactory(bool throwOnError = true) : base(throwOnError) { }
 
 	#region Interface ICustomActionFactory
 

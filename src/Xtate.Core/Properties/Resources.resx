@@ -192,9 +192,6 @@
   <data name="Exception_StreamShouldSupportReadWriteSeekOperations" xml:space="preserve">
     <value>Stream should support Read, Write, Seek operations.</value>
   </data>
-  <data name="Exception_IdentifierCannotBeEmpty" xml:space="preserve">
-    <value>Identifier cannot be empty.</value>
-  </data>
   <data name="Exception_IdentifierCannotContainsWhitespace" xml:space="preserve">
     <value>Identifier cannot contains whitespace.</value>
   </data>
@@ -399,9 +396,6 @@
   <data name="Exception_Persisted_state_can_t_be_read__Stored_and_provided_SessionIds_does_not_match" xml:space="preserve">
     <value>Persisted state can't be read. Stored and provided SessionIds does not match.</value>
   </data>
-  <data name="Exception_ResourceLoader_did_not_specified" xml:space="preserve">
-    <value>ResourceLoader did not specified.</value>
-  </data>
   <data name="Exception_Partition_argument_should_be_null" xml:space="preserve">
     <value>Partition argument should be null.</value>
   </data>
@@ -456,9 +450,6 @@
   <data name="Exception_Root_path_can_be_set_only_before_visiting" xml:space="preserve">
     <value>Root path can be set only before visiting.</value>
   </data>
-  <data name="Exception_Value_cannot_be_null_or_empty_" xml:space="preserve">
-    <value>Value cannot be null or empty.</value>
-  </data>
   <data name="Exception_Incorrect_data_format" xml:space="preserve">
     <value>Incorrect data format.</value>
   </data>
@@ -476,9 +467,6 @@
   </data>
   <data name="Exception_InvokedServiceMeta_Missed_InvokeId" xml:space="preserve">
     <value>Missed InvokeId.</value>
-  </data>
-  <data name="Exception_Missed_InvokeUniqueId" xml:space="preserve">
-    <value>Missed InvokeUniqueId.</value>
   </data>
   <data name="Exception_Missed_SessionId" xml:space="preserve">
     <value>Missed SessionId.</value>
@@ -501,9 +489,6 @@
   </data>
   <data name="Exception_Incorrect_encoding" xml:space="preserve">
     <value>Incorrect encoding.</value>
-  </data>
-  <data name="Assertion_ValidationFailed" xml:space="preserve">
-    <value>Validation failed. Result of operation must be true.</value>
   </data>
   <data name="Exception_Cannot_find_target" xml:space="preserve">
     <value>Cannot find target.</value>
@@ -611,9 +596,6 @@
   <data name="Exception_Target_wrong_format" xml:space="preserve">
     <value>Target wrong format.</value>
   </data>
-  <data name="Exception_SessionId_is_empty" xml:space="preserve">
-    <value>SessionId is empty.</value>
-  </data>
   <data name="Exception_NamedIoProcessor_with_name_already_has_been_registered" xml:space="preserve">
     <value>NamedIoProcessor with name '{0}' already has been registered.</value>
   </data>
@@ -665,14 +647,8 @@
   <data name="DefaultLogger_TraceInterpreterState" xml:space="preserve">
     <value>Interpreter state has changed to [{0}]. SessionId: [{1}].</value>
   </data>
-  <data name="Exception_Unspecified_or_UTC_kind_should_have_zero_offset" xml:space="preserve">
-    <value>Unspecified or UTC kind should have zero offset.</value>
-  </data>
   <data name="Exception_Argument_must_be_DataModelDateTime_type" xml:space="preserve">
     <value>Argument must be DataModelDateTime type.</value>
-  </data>
-  <data name="Exception_Adjusted_with_offset_value_does_not_fall_into_acceptable_range" xml:space="preserve">
-    <value>Adjusted with offset value does not fall into acceptable range.</value>
   </data>
   <data name="ErrorMessage_Scripting_not_supported_in_XPATH_data_model" xml:space="preserve">
     <value>Scripting not supported in XPATH data model.</value>
@@ -686,32 +662,17 @@
   <data name="Exception_Value_Expression_must_be_present" xml:space="preserve">
     <value>Value Expression must be present.</value>
   </data>
-  <data name="Exception_Result_of_XPath_expression_should_be_string_value" xml:space="preserve">
-    <value>Result of XPath expression should be string value.</value>
-  </data>
   <data name="Exception_Result_of_XPath_expression_should_be_boolean_value" xml:space="preserve">
     <value>Result of XPath expression should be boolean value.</value>
   </data>
   <data name="Exception_Result_of_XPath_expression_should_be_element" xml:space="preserve">
     <value>Result of XPath expression should be element.</value>
   </data>
-  <data name="Exception_Capacity_can_t_be_less_then_properties_count" xml:space="preserve">
-    <value>Capacity can't be less then properties count.</value>
-  </data>
   <data name="Exception_Destination_array_is_not_long_enough" xml:space="preserve">
     <value>Destination list is not long enough to copy all the items in the collection. Check list index and length.</value>
   </data>
-  <data name="Exception_Capacity_should_not_be_negative" xml:space="preserve">
-    <value>Capacity should not be negative.</value>
-  </data>
   <data name="Exception_Index_should_be_non_negative_and_less_then_aarray_size" xml:space="preserve">
     <value>Index should be non-negative and less then array size.</value>
-  </data>
-  <data name="Exception_Capacity_can_t_be_less_then_size_of_array" xml:space="preserve">
-    <value>Capacity can't be less then size of list.</value>
-  </data>
-  <data name="Exception_DataModelValue_is_not_DataModelElement" xml:space="preserve">
-    <value>DataModelValue is not MetadataModelElement.</value>
   </data>
   <data name="Exception_Index_value_must_be_non_negative_integer" xml:space="preserve">
     <value>Index value must be non-negative integer.</value>
@@ -734,16 +695,13 @@
   <data name="ErrorMessage_attr_attribute_should_no_be_empty" xml:space="preserve">
     <value>attr attribute should no be empty.</value>
   </data>
-  <data name="Exception_File_is_more_then_2GB_length" xml:space="preserve">
-    <value>File is more then 2GB length.</value>
-  </data>
   <data name="Exception_Prefix_cant_be_resolved" xml:space="preserve">
     <value>Prefix {0} can't be resolved.</value>
   </data>
   <data name="ErrorMessage_SessionId_could_not_be_empty" xml:space="preserve">
     <value>[sessionId] could not be empty.</value>
   </data>
-  <data name="ErrorMessage_sessionId__and__sessionIdExpr__attributes_should_not_be_assigned_in_Start_element_" xml:space="preserve">
+  <data name="ErrorMessage_sessionId__and__sessionIdExpr__attributes_should_not_be_assigned_in_Start_element" xml:space="preserve">
     <value>[sessionId] and [sessionIdExpr] attributes should not be assigned in Start element.</value>
   </data>
   <data name="Exception_SessionId_could_not_be_empty" xml:space="preserve">
