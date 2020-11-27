@@ -19,11 +19,12 @@
 
 using System;
 using System.Collections.Immutable;
-using Xtate.Annotations;
 
 namespace Xtate
 {
-	[PublicAPI]
+	/// <summary>
+	/// Aggregates all errors and throw single exception with previously added errors
+	/// </summary>
 	public sealed class DetailedErrorProcessor : IErrorProcessor
 	{
 		private readonly StateMachineOrigin _origin;

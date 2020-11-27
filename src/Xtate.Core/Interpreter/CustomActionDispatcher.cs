@@ -71,7 +71,7 @@ namespace Xtate
 
 			if (_executor is not null)
 			{
-				throw new InfrastructureException(Resources.Exception_Registration_should_no_occur_after_initialization);
+				throw Infrastructure.Fail<Exception>(Resources.Exception_Registration_should_no_occur_after_initialization);
 			}
 
 			_locations ??= ImmutableArray.CreateBuilder<ILocationExpression>();
@@ -88,7 +88,7 @@ namespace Xtate
 
 			if (_executor is not null)
 			{
-				throw new InfrastructureException(Resources.Exception_Registration_should_no_occur_after_initialization);
+				throw Infrastructure.Fail<Exception>(Resources.Exception_Registration_should_no_occur_after_initialization);
 			}
 
 			_values ??= ImmutableArray.CreateBuilder<IValueExpression>();

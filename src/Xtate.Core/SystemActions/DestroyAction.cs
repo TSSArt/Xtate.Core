@@ -47,7 +47,7 @@ namespace Xtate.CustomAction
 
 			if (_sessionId is not null && sessionIdExpression is not null)
 			{
-				access.AddValidationError<StartAction>(Resources.ErrorMessage_sessionId__and__sessionIdExpr__attributes_should_not_be_assigned_in_Start_element_);
+				access.AddValidationError<StartAction>(Resources.ErrorMessage_sessionId__and__sessionIdExpr__attributes_should_not_be_assigned_in_Start_element);
 			}
 
 			if (_sessionId is null && sessionIdExpression is null)
