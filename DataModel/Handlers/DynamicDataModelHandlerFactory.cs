@@ -28,9 +28,9 @@ namespace Xtate.DataModel
 	[PublicAPI]
 	public class DynamicDataModelHandlerFactory : DynamicFactory<IDataModelHandlerFactory>, IDataModelHandlerFactory
 	{
-		private readonly string _uriFormat;
+		private readonly string? _uriFormat;
 
-		protected DynamicDataModelHandlerFactory(bool throwOnError) : base(throwOnError) => _uriFormat = null!;
+		protected DynamicDataModelHandlerFactory(bool throwOnError) : base(throwOnError) { }
 
 		public DynamicDataModelHandlerFactory(string format, bool throwOnError = true) : base(throwOnError) => _uriFormat = format ?? throw new ArgumentNullException(nameof(format));
 
@@ -57,6 +57,8 @@ namespace Xtate.DataModel
 
 		protected virtual Uri DataModelTypeToUri(string dataModelType)
 		{
+			Infrastructure.NotNull(_uriFormat);
+
 			var uriString = string.Format(CultureInfo.InvariantCulture, _uriFormat, dataModelType);
 
 			return new Uri(uriString, UriKind.RelativeOrAbsolute);

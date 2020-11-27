@@ -152,10 +152,10 @@ namespace Xtate
 
 		private async ValueTask<InterpreterModel> BuildInterpreterModel(IStateMachine? stateMachine)
 		{
-			var wrapperErrorProcessor = new WrapperErrorProcessor(_errorProcessor);
+			var errorProcessor = new WrapperErrorProcessor(_errorProcessor);
 			using var factoryContext = new FactoryContext(_resourceLoaders);
 
-			var interpreterModel = IsPersistingEnabled ? await TryRestoreInterpreterModel(stateMachine, factoryContext, wrapperErrorProcessor).ConfigureAwait(false) : null;
+			var interpreterModel = IsPersistingEnabled ? await TryRestoreInterpreterModel(stateMachine, factoryContext, errorProcessor).ConfigureAwait(false) : null;
 
 			if (interpreterModel is not null)
 			{
@@ -164,11 +164,11 @@ namespace Xtate
 
 			Infrastructure.NotNull(stateMachine);
 
-			_dataModelHandler = await CreateDataModelHandler(stateMachine.DataModelType, _dataModelHandlerFactories, factoryContext, wrapperErrorProcessor).ConfigureAwait(false);
+			_dataModelHandler = await CreateDataModelHandler(stateMachine.DataModelType, _dataModelHandlerFactories, factoryContext, errorProcessor).ConfigureAwait(false);
 
-			_stateMachineValidator.Validate(stateMachine, wrapperErrorProcessor);
+			_stateMachineValidator.Validate(stateMachine, errorProcessor);
 
-			var interpreterModelBuilder = new InterpreterModelBuilder(stateMachine, _dataModelHandler, _customActionProviders, factoryContext, wrapperErrorProcessor);
+			var interpreterModelBuilder = new InterpreterModelBuilder(stateMachine, _dataModelHandler, _customActionProviders, factoryContext, errorProcessor);
 
 			try
 			{
@@ -176,8 +176,7 @@ namespace Xtate
 			}
 			finally
 			{
-				_errorProcessor.ThrowIfErrors();
-				wrapperErrorProcessor.ThrowIfErrors();
+				errorProcessor.ThrowIfErrors();
 			}
 
 			if (IsPersistingEnabled)
@@ -231,12 +230,11 @@ namespace Xtate
 					//TODO: Validate stateMachine vs restoredStateMachine (number of elements should be the same and documentId should point to the same entity type)
 				}
 
-				var wrapperErrorProcessor = new WrapperErrorProcessor(_errorProcessor);
+				var restoredErrorProcessor = new WrapperErrorProcessor(_errorProcessor);
 
-				var interpreterModelBuilder = new InterpreterModelBuilder(restoredStateMachine, _dataModelHandler, _customActionProviders, factoryContext, wrapperErrorProcessor);
+				var interpreterModelBuilder = new InterpreterModelBuilder(restoredStateMachine, _dataModelHandler, _customActionProviders, factoryContext, restoredErrorProcessor);
 
-				_errorProcessor.ThrowIfErrors();
-				wrapperErrorProcessor.ThrowIfErrors();
+				restoredErrorProcessor.ThrowIfErrors();
 
 				return await interpreterModelBuilder.Build(_stopToken).ConfigureAwait(false);
 			}
@@ -1437,7 +1435,7 @@ namespace Xtate
 					ErrorType.Execution => EventName.ErrorExecution,
 					ErrorType.Communication => EventName.ErrorCommunication,
 					ErrorType.Platform => EventName.ErrorPlatform,
-					_ => throw new InfrastructureException()
+					_ => throw Infrastructure.UnexpectedValue<Exception>(errorType)
 			};
 
 			var eventObject = new EventObject(EventType.Platform, nameParts, DataConverter.FromException(exception, _dataModelHandler.CaseInsensitive), sendId, invokeId: default, exception);
