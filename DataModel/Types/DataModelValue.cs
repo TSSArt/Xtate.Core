@@ -50,9 +50,9 @@ namespace Xtate
 
 		private DataModelValue(SerializationInfo info, StreamingContext context)
 		{
-			var val = info.GetValue(name: "L", typeof(long));
+			var val = info.GetValue(name: @"L", typeof(long));
 			_int64 = val is long int64 ? int64 : 0;
-			_value = info.GetValue(name: "V", typeof(object));
+			_value = info.GetValue(name: @"V", typeof(object));
 		}
 
 		public DataModelValue(DataModelList? value)
@@ -358,8 +358,8 @@ namespace Xtate
 				val = lazyValue.Value;
 			}
 
-			info.AddValue(name: "L", val._int64);
-			info.AddValue(name: "V", val._value);
+			info.AddValue(name: @"L", val._int64);
+			info.AddValue(name: @"V", val._value);
 		}
 
 	#endregion
@@ -610,7 +610,7 @@ namespace Xtate
 		{
 			var type = value.GetType();
 
-			if (!type.Name.StartsWith("VB$") && !type.Name.StartsWith("<>") || !type.Name.Contains("AnonymousType") ||
+			if (!type.Name.StartsWith(@"VB$") && !type.Name.StartsWith(@"<>") || !type.Name.Contains(@"AnonymousType") ||
 				type.GetCustomAttributes(typeof(CompilerGeneratedAttribute), inherit: false).Length == 0)
 			{
 				result = default;
@@ -627,7 +627,7 @@ namespace Xtate
 				return true;
 			}
 
-			var caseInsensitive = type.Name.StartsWith("VB$");
+			var caseInsensitive = type.Name.StartsWith(@"VB$");
 			var list = new DataModelList(caseInsensitive);
 
 			map[value] = list;

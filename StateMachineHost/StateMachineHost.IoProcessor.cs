@@ -27,9 +27,9 @@ namespace Xtate
 {
 	public sealed partial class StateMachineHost : IIoProcessor, IEventConsumer
 	{
-		private static readonly Uri BaseUri            = new("ioprocessor:///");
-		private static readonly Uri IoProcessorId      = new("http://www.w3.org/TR/scxml/#SCXMLEventProcessor");
-		private static readonly Uri IoProcessorAliasId = new(uriString: "scxml", UriKind.Relative);
+		private static readonly Uri BaseUri            = new(@"ioprocessor:///");
+		private static readonly Uri IoProcessorId      = new(@"http://www.w3.org/TR/scxml/#SCXMLEventProcessor");
+		private static readonly Uri IoProcessorAliasId = new(uriString: @"scxml", UriKind.Relative);
 
 	#region Interface IEventConsumer
 
@@ -92,6 +92,6 @@ namespace Xtate
 			return !target.IsAbsoluteUri;
 		}
 
-		private static Uri GetTarget(SessionId sessionId) => new(BaseUri, "#_scxml_" + sessionId.Value);
+		private static Uri GetTarget(SessionId sessionId) => new(BaseUri, @"#_scxml_" + sessionId.Value);
 	}
 }

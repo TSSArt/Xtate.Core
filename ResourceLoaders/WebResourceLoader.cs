@@ -43,7 +43,7 @@ namespace Xtate
 		{
 			if (uri is null) throw new ArgumentNullException(nameof(uri));
 
-			return uri.IsAbsoluteUri && (uri.Scheme == "http" || uri.Scheme == "https");
+			return uri.IsAbsoluteUri && (uri.Scheme == @"http" || uri.Scheme == @"https");
 		}
 
 		public async ValueTask<Resource> Request(Uri uri, CancellationToken token)

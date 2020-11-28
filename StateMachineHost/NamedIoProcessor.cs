@@ -20,6 +20,7 @@
 using System;
 using System.Buffers;
 using System.Collections.Concurrent;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -36,8 +37,8 @@ namespace Xtate.IoProcessor
 		private const string      PipePrefix         = "#SCXML#_";
 		private const PipeOptions DefaultPipeOptions = PipeOptions.WriteThrough | PipeOptions.Asynchronous;
 
-		private static readonly Uri IoProcessorId      = new("http://www.w3.org/TR/scxml/#SCXMLEventProcessor");
-		private static readonly Uri IoProcessorAliasId = new(uriString: "scxml", UriKind.Relative);
+		private static readonly Uri IoProcessorId      = new(@"http://www.w3.org/TR/scxml/#SCXMLEventProcessor");
+		private static readonly Uri IoProcessorAliasId = new(uriString: @"scxml", UriKind.Relative);
 
 		private static readonly ConcurrentDictionary<string, IEventConsumer> InProcConsumers = new();
 
@@ -49,15 +50,15 @@ namespace Xtate.IoProcessor
 
 		private readonly CancellationTokenSource _stopTokenSource = new();
 
-		public NamedIoProcessor(IEventConsumer eventConsumer, string host, string name)
+		public NamedIoProcessor(IEventConsumer eventConsumer, [Localizable(false)] string host, [Localizable(false)] string name)
 		{
 			if (host is null) throw new ArgumentNullException(nameof(host));
 
 			_eventConsumer = eventConsumer ?? throw new ArgumentNullException(nameof(eventConsumer));
 			_name = name ?? throw new ArgumentNullException(nameof(name));
 			_pipeName = PipePrefix + name;
-			_baseUri = new Uri("pipe://" + host + "/" + name);
-			_loopbackBaseUri = new Uri("pipe:///" + name);
+			_baseUri = new Uri(@"pipe://" + host + @"/" + name);
+			_loopbackBaseUri = new Uri(@"pipe:///" + name);
 
 			if (!InProcConsumers.TryAdd(name, eventConsumer))
 			{
@@ -90,7 +91,7 @@ namespace Xtate.IoProcessor
 
 	#endregion
 
-		private Uri GetTarget(SessionId sessionId, bool isLoopback = false) => new(isLoopback ? _loopbackBaseUri : _baseUri, "#_scxml_" + sessionId.Value);
+		private Uri GetTarget(SessionId sessionId, bool isLoopback = false) => new(isLoopback ? _loopbackBaseUri : _baseUri, @"#_scxml_" + sessionId.Value);
 
 		private async ValueTask OutgoingEvent(SessionId sessionId, IOutgoingEvent evt, CancellationToken token)
 		{
@@ -119,7 +120,7 @@ namespace Xtate.IoProcessor
 			}
 			else
 			{
-				await SendEventToPipe(isLoopback ? "." : host, PipePrefix + name, targetSessionId, eventObject, token).ConfigureAwait(false);
+				await SendEventToPipe(isLoopback ? @"." : host, PipePrefix + name, targetSessionId, eventObject, token).ConfigureAwait(false);
 			}
 		}
 
@@ -312,9 +313,9 @@ namespace Xtate.IoProcessor
 
 		public ValueTask CheckPipeline(CancellationToken token)
 		{
-			var eventObject = new EventObject(EventType.External, new EventEntity("$"));
+			var eventObject = new EventObject(EventType.External, new EventEntity(@"$"));
 
-			return SendEventToPipe(server: ".", _pipeName, sessionId: null, eventObject, token);
+			return SendEventToPipe(server: @".", _pipeName, sessionId: null, eventObject, token);
 		}
 
 		private readonly struct EventMessage : IStoreSupport

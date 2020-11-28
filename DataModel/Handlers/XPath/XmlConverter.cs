@@ -213,7 +213,7 @@ namespace Xtate.DataModel.XPath
 						DataModelValueType.Null => string.Empty,
 						DataModelValueType.String => value.AsString(),
 						DataModelValueType.Number => XmlConvert.ToString(value.AsNumber()),
-						DataModelValueType.Boolean => value.AsBoolean() ? "true" : "false",
+						DataModelValueType.Boolean => value.AsBoolean() ? @"true" : @"false",
 						DataModelValueType.DateTime => DateTimeToXmlString(value.AsDateTime()),
 						_ => Infrastructure.UnexpectedValue<string>(value.Type)
 				};
@@ -247,7 +247,7 @@ namespace Xtate.DataModel.XPath
 					DataModelValueType.String => WriteString(value.AsString(), span),
 					DataModelValueType.Number => WriteString(XmlConvert.ToString(value.AsNumber()), span),
 					DataModelValueType.DateTime => WriteDataModelDateTime(value.AsDateTime(), span),
-					DataModelValueType.Boolean => WriteString(value.AsBoolean() ? "true" : "false", span),
+					DataModelValueType.Boolean => WriteString(value.AsBoolean() ? @"true" : @"false", span),
 					_ => Infrastructure.UnexpectedValue<int>(value.Type)
 			};
 

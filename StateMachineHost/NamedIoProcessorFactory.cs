@@ -80,7 +80,7 @@ namespace Xtate.IoProcessor
 			}
 			catch
 			{
-				return ".";
+				return @".";
 			}
 		}
 	}

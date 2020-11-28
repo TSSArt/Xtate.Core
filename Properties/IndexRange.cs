@@ -79,7 +79,7 @@ namespace System
 		public static implicit operator Index(int value) => FromStart(value);
 
 		[SuppressMessage(category: "Globalization", checkId: "CA1305:Specify IFormatProvider", Justification = "Does not required culture formatting")]
-		public override string ToString() => IsFromEnd ? "^" + (uint) Value : ((uint) Value).ToString();
+		public override string ToString() => IsFromEnd ? @"^" + (uint) Value : ((uint) Value).ToString();
 	}
 
 	[PublicAPI]
@@ -107,7 +107,7 @@ namespace System
 
 		public override int GetHashCode() => Start.GetHashCode() * 31 + End.GetHashCode();
 
-		public override string ToString() => Start + ".." + End;
+		public override string ToString() => Start + @".." + End;
 
 		public static Range StartAt(Index start) => new(start, Index.End);
 
