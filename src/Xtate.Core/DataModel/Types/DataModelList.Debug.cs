@@ -51,7 +51,7 @@ namespace Xtate
 		{
 			if (_count == 0)
 			{
-				return "()";
+				return @"()";
 			}
 
 			var sb = new StringBuilder();
@@ -81,7 +81,7 @@ namespace Xtate
 		{
 			if (_count == 0)
 			{
-				return "[]";
+				return @"[]";
 			}
 
 			var sb = new StringBuilder();
@@ -122,7 +122,7 @@ namespace Xtate
 			private DataModelValue Value => _entry.Value;
 
 			[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-			private string IndexKey => _entry.Key ?? "[" + _entry.Index + "]";
+			private string IndexKey => _entry.Key ?? @"[" + _entry.Index + @"]";
 
 			[UsedImplicitly]
 			[SuppressMessage(category: "ReSharper", checkId: "InconsistentNaming")]
@@ -145,7 +145,7 @@ namespace Xtate
 			private DataModelAccess Access => _entry.Access;
 
 			[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-			private string MetadataNote => _entry.Metadata is not null ? "{...}" : "null";
+			private string MetadataNote => _entry.Metadata is not null ? @"{...}" : @"null";
 
 			[UsedImplicitly]
 			public DataModelList? Metadata => _entry.Metadata;
@@ -161,7 +161,7 @@ namespace Xtate
 			public ListInfo(DataModelList dataModelList) => _dataModelList = dataModelList;
 
 			[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-			private string MetadataNote => _dataModelList.GetMetadata() is not null ? "{...}" : "null";
+			private string MetadataNote => _dataModelList.GetMetadata() is not null ? @"{...}" : @"null";
 
 			[DebuggerBrowsable(DebuggerBrowsableState.Never)]
 			private DataModelAccess Access => _dataModelList.Access;

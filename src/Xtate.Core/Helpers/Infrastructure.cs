@@ -18,6 +18,7 @@
 #endregion
 
 using System;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using Xtate.Annotations;
 
@@ -41,7 +42,7 @@ namespace Xtate
 
 		[AssertionMethod]
 		public static void Assert([AssertionCondition(AssertionConditionType.IS_TRUE)] [DoesNotReturnIf(false)]
-								  bool condition, string message)
+								  bool condition, [Localizable(true)] string message)
 		{
 			if (condition)
 			{
@@ -65,7 +66,7 @@ namespace Xtate
 
 		[AssertionMethod]
 		public static void NotNull([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] [NotNull]
-								   object? value, string message)
+								   object? value, [Localizable(true)] string message)
 		{
 			if (value is not null)
 			{
@@ -86,7 +87,7 @@ namespace Xtate
 
 		[AssertionMethod]
 		[DoesNotReturn]
-		public static void Fail(string message)
+		public static void Fail([Localizable(true)] string message)
 		{
 			Assert(condition: false, message);
 
@@ -104,7 +105,7 @@ namespace Xtate
 
 		[AssertionMethod]
 		[DoesNotReturn]
-		public static T Fail<T>(string message)
+		public static T Fail<T>([Localizable(true)] string message)
 		{
 			Assert(condition: false, message);
 
@@ -115,19 +116,19 @@ namespace Xtate
 		{
 			if (value is null)
 			{
-				Assert(condition: false, $"{message} (null)");
+				Assert(condition: false, @$"{message} (null)");
 
 				return;
 			}
 
 			if (value.GetType().IsValueType)
 			{
-				Assert(condition: false, $"{message} ({value.GetType().FullName}:{value})");
+				Assert(condition: false, @$"{message} ({value.GetType().FullName}:{value})");
 
 				return;
 			}
 
-			Assert(condition: false, $"{message} ({value.GetType().FullName})");
+			Assert(condition: false, @$"{message} ({value.GetType().FullName})");
 		}
 
 		[AssertionMethod]
@@ -141,7 +142,7 @@ namespace Xtate
 
 		[AssertionMethod]
 		[DoesNotReturn]
-		public static void UnexpectedValue(object? value, string message)
+		public static void UnexpectedValue(object? value, [Localizable(true)] string message)
 		{
 			AssertUnexpectedValue(value, message);
 
@@ -159,7 +160,7 @@ namespace Xtate
 
 		[AssertionMethod]
 		[DoesNotReturn]
-		public static T UnexpectedValue<T>(object? value, string message)
+		public static T UnexpectedValue<T>(object? value, [Localizable(true)] string message)
 		{
 			AssertUnexpectedValue(value, message);
 

@@ -124,9 +124,9 @@ namespace Xtate.CustomAction
 
 		private static Uri? GetBaseUri(IExecutionContext executionContext)
 		{
-			var val = executionContext.DataModel[key: "_x", caseInsensitive: false]
-									  .AsListOrEmpty()[key: "host", caseInsensitive: false]
-									  .AsListOrEmpty()[key: "location", caseInsensitive: false]
+			var val = executionContext.DataModel[key: @"_x", caseInsensitive: false]
+									  .AsListOrEmpty()[key: @"host", caseInsensitive: false]
+									  .AsListOrEmpty()[key: @"location", caseInsensitive: false]
 									  .AsStringOrDefault();
 
 			return val is not null ? new Uri(val, UriKind.RelativeOrAbsolute) : null;

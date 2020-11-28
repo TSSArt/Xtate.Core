@@ -33,8 +33,8 @@ namespace Xtate.CustomAction
 		{
 			if (catalog is null) throw new ArgumentNullException(nameof(catalog));
 
-			catalog.Register(Namespace, name: "start", (context, reader) => new StartAction(context, reader));
-			catalog.Register(Namespace, name: "destroy", (context, reader) => new DestroyAction(context, reader));
+			catalog.Register(Namespace, name: @"start", (context, reader) => new StartAction(context, reader));
+			catalog.Register(Namespace, name: @"destroy", (context, reader) => new DestroyAction(context, reader));
 		}
 	}
 }
