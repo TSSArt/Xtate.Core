@@ -40,7 +40,7 @@ namespace Xtate
 		{
 			if (uri is null) throw new ArgumentNullException(nameof(uri));
 
-			return uri.IsAbsoluteUri && (uri.Scheme == "res" || uri.Scheme == "resx");
+			return uri.IsAbsoluteUri && (uri.Scheme == @"res" || uri.Scheme == @"resx");
 		}
 
 		public async ValueTask<Resource> Request(Uri uri, CancellationToken token)

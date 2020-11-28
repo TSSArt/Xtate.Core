@@ -28,7 +28,7 @@ namespace Xtate.DataModel.XPath
 
 		public override string GetValue(in DataModelXPathNavigator.Node node) => XmlConverter.ToString(node.DataModelValue);
 
-		public override string GetLocalName(in DataModelXPathNavigator.Node node) => "#text";
+		public override string GetLocalName(in DataModelXPathNavigator.Node node) => @"#text";
 
 		public override int GetBufferSizeForValue(in DataModelXPathNavigator.Node node) => XmlConverter.GetBufferSizeForValue(node.DataModelValue);
 

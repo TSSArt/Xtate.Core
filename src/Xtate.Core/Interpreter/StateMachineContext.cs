@@ -28,7 +28,7 @@ namespace Xtate
 {
 	internal class StateMachineContext : IStateMachineContext, IExecutionContext
 	{
-		private static readonly Uri InternalTarget = new(uriString: "_internal", UriKind.Relative);
+		private static readonly Uri InternalTarget = new(uriString: @"_internal", UriKind.Relative);
 
 		private readonly ImmutableDictionary<object, object> _contextRuntimeItems;
 		private readonly IDataModelValueProvider             _dataModelValueProvider;

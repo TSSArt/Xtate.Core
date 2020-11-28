@@ -25,8 +25,8 @@ namespace Xtate.DataModel.XPath
 	{
 		public override XPathNodeType GetNodeType() => XPathNodeType.Namespace;
 
-		public override string GetValue(in DataModelXPathNavigator.Node node) => "http://www.w3.org/XML/1998/namespace";
+		public override string GetValue(in DataModelXPathNavigator.Node node) => @"http://www.w3.org/XML/1998/namespace";
 
-		public override string GetLocalName(in DataModelXPathNavigator.Node node) => "xml";
+		public override string GetLocalName(in DataModelXPathNavigator.Node node) => @"xml";
 	}
 }

@@ -38,7 +38,7 @@ namespace Xtate.DataModel.XPath
 		{
 			var prefix = GetPrefix(node);
 
-			return string.IsNullOrEmpty(prefix) ? GetLocalName(node) : prefix + ":" + GetLocalName(node);
+			return string.IsNullOrEmpty(prefix) ? GetLocalName(node) : prefix + @":" + GetLocalName(node);
 		}
 
 		public virtual string GetPrefix(in DataModelXPathNavigator.Node node) => string.Empty;

@@ -52,7 +52,7 @@ namespace Xtate
 				throw new ProcessorException(Resources.Exception_Target_should_be_equal_to___parent__or_null);
 			}
 
-			_origin ??= new Uri("#_" + _invokeId.Value);
+			_origin ??= new Uri(@"#_" + _invokeId.Value);
 
 			var eventObject = new EventObject(EventType.External, evt, _origin, _originType, _invokeId);
 

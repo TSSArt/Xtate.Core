@@ -26,8 +26,8 @@ namespace Xtate
 	[PublicAPI]
 	public struct EventEntity : IOutgoingEvent
 	{
-		public static readonly Uri InternalTarget = new(uriString: "_internal", UriKind.Relative);
-		public static readonly Uri ParentTarget   = new(uriString: "_parent", UriKind.Relative);
+		public static readonly Uri InternalTarget = new(uriString: @"_internal", UriKind.Relative);
+		public static readonly Uri ParentTarget   = new(uriString: @"_parent", UriKind.Relative);
 
 		public EventEntity(string? val) : this()
 		{

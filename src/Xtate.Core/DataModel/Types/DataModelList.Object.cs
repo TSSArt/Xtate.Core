@@ -18,12 +18,13 @@
 #endregion
 
 using System;
+using System.ComponentModel;
 
 namespace Xtate
 {
 	public partial class DataModelList
 	{
-		public DataModelValue this[string key]
+		public DataModelValue this[[Localizable(false)] string key]
 		{
 			get
 			{
@@ -35,7 +36,7 @@ namespace Xtate
 			set => Set(key, CaseInsensitive, value, metadata: default);
 		}
 
-		public DataModelValue this[string key, bool caseInsensitive]
+		public DataModelValue this[[Localizable(false)] string key, bool caseInsensitive]
 		{
 			get
 			{
@@ -47,20 +48,20 @@ namespace Xtate
 			set => Set(key, caseInsensitive, value, metadata: default);
 		}
 
-		public void Add(string key, in DataModelValue value)
+		public void Add([Localizable(false)] string key, in DataModelValue value)
 		{
 			if (key is null) throw new ArgumentNullException(nameof(key));
 
 			Add(key, value, metadata: default);
 		}
 
-		public bool ContainsKey(string key) => TryGet(key, CaseInsensitive, out _);
+		public bool ContainsKey([Localizable(false)] string key) => TryGet(key, CaseInsensitive, out _);
 
-		public bool ContainsKey(string key, bool caseInsensitive) => TryGet(key, caseInsensitive, out _);
+		public bool ContainsKey([Localizable(false)] string key, bool caseInsensitive) => TryGet(key, caseInsensitive, out _);
 
-		public bool RemoveFirst(string key) => RemoveFirst(key, CaseInsensitive);
+		public bool RemoveFirst([Localizable(false)] string key) => RemoveFirst(key, CaseInsensitive);
 
-		public bool RemoveFirst(string key, bool caseInsensitive)
+		public bool RemoveFirst([Localizable(false)] string key, bool caseInsensitive)
 		{
 			if (TryGet(key, caseInsensitive, out var entry))
 			{
@@ -79,9 +80,9 @@ namespace Xtate
 			return false;
 		}
 
-		public bool RemoveAll(string key) => RemoveAll(key, CaseInsensitive);
+		public bool RemoveAll([Localizable(false)] string key) => RemoveAll(key, CaseInsensitive);
 
-		public bool RemoveAll(string key, bool caseInsensitive)
+		public bool RemoveAll([Localizable(false)] string key, bool caseInsensitive)
 		{
 			var enumerator = ListEntries(key, caseInsensitive).GetEnumerator();
 

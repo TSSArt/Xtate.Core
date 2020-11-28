@@ -18,6 +18,8 @@
 #endregion
 
 using System;
+using System.ComponentModel;
+
 #if NET461 || NETSTANDARD2_0
 using System.Text;
 
@@ -36,33 +38,33 @@ namespace Xtate
 		public static string NewId(int hash) => NewGuidWithHash(hash);
 
 #if NET461 || NETSTANDARD2_0
-		public static string NewInvokeId(string id, int hash) =>
+		public static string NewInvokeId([Localizable(false)] string id, int hash) =>
 				new StringBuilder(id.Length + 33)
 						.Append(id)
 						.Append('.')
 						.Append(Guid.NewGuid().ToString("N"), startIndex: 0, count: 24)
-						.Append(hash.ToString("x8")).ToString();
+						.Append(hash.ToString(@"x8")).ToString();
 
 		private static string NewGuidWithHash(int hash) =>
 				new StringBuilder(32)
 						.Append(Guid.NewGuid().ToString("N"), startIndex: 0, count: 24)
-						.Append(hash.ToString("x8")).ToString();
+						.Append(hash.ToString(@"x8")).ToString();
 #else
-		public static string NewInvokeId(string id, int hash) =>
+		public static string NewInvokeId([Localizable(false)] string id, int hash) =>
 				string.Create(33 + id.Length, (id, hash), (span, arg) =>
 														  {
 															  arg.id.AsSpan().CopyTo(span);
 															  span[arg.id.Length] = '.';
 															  span = span[(arg.id.Length + 1)..];
-															  Guid.NewGuid().TryFormat(span, out var pos, format: "N");
-															  hash.TryFormat(span[(pos - 8)..], out pos, format: "x8");
+															  Guid.NewGuid().TryFormat(span, out var pos, format: @"N");
+															  hash.TryFormat(span[(pos - 8)..], out pos, format: @"x8");
 														  });
 
 		private static string NewGuidWithHash(int hash) =>
 				string.Create(length: 32, hash, (span, _) =>
 												{
-													Guid.NewGuid().TryFormat(span, out var pos, format: "N");
-													hash.TryFormat(span[(pos - 8)..], out pos, format: "x8");
+													Guid.NewGuid().TryFormat(span, out var pos, format: @"N");
+													hash.TryFormat(span[(pos - 8)..], out pos, format: @"x8");
 												});
 #endif
 	}
