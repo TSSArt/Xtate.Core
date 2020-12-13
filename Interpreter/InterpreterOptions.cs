@@ -17,6 +17,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Immutable;
 using System.Threading;
 using Xtate.CustomAction;
@@ -44,5 +45,6 @@ namespace Xtate
 		public ILogger?                                 Logger                    { get; set; }
 		public IErrorProcessor?                         ErrorProcessor            { get; set; }
 		public UnhandledErrorBehaviour                  UnhandledErrorBehaviour   { get; set; }
+		public Uri?                                     BaseUri                   { get; set; }
 	}
 }

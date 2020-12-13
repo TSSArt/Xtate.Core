@@ -179,14 +179,14 @@ namespace Xtate
 
 	#region Interface IService
 
+		public ValueTask<DataModelValue> GetResult(CancellationToken token) => _completedTcs.WaitAsync(token);
+
 		ValueTask IService.Destroy(CancellationToken token)
 		{
 			TriggerDestroySignal();
 
 			return default;
 		}
-
-		public Task<DataModelValue> Result => _completedTcs.Task;
 
 	#endregion
 

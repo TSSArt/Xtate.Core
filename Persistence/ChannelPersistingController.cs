@@ -83,7 +83,7 @@ namespace Xtate.Persistence
 
 			public override async ValueTask<bool> WaitToReadAsync(CancellationToken token = default)
 			{
-				await _parent._initializedTcs.Task.WaitAsync(token).ConfigureAwait(false);
+				await _parent._initializedTcs.WaitAsync(token).ConfigureAwait(false);
 
 				await _parent._storageLock!.WaitAsync(token).ConfigureAwait(false);
 				try
@@ -98,7 +98,7 @@ namespace Xtate.Persistence
 
 			public override async ValueTask<T> ReadAsync(CancellationToken token = default)
 			{
-				await _parent._initializedTcs.Task.WaitAsync(token).ConfigureAwait(false);
+				await _parent._initializedTcs.WaitAsync(token).ConfigureAwait(false);
 
 				await _parent._storageLock!.WaitAsync(token).ConfigureAwait(false);
 				try
@@ -139,7 +139,7 @@ namespace Xtate.Persistence
 
 			public override async ValueTask<bool> WaitToWriteAsync(CancellationToken token = default)
 			{
-				await _parent._initializedTcs.Task.WaitAsync(token).ConfigureAwait(false);
+				await _parent._initializedTcs.WaitAsync(token).ConfigureAwait(false);
 
 				await _parent._storageLock!.WaitAsync(token).ConfigureAwait(false);
 				try
@@ -156,7 +156,7 @@ namespace Xtate.Persistence
 			{
 				if (item is null) throw new ArgumentNullException(nameof(item));
 
-				await _parent._initializedTcs.Task.WaitAsync(token).ConfigureAwait(false);
+				await _parent._initializedTcs.WaitAsync(token).ConfigureAwait(false);
 
 				await _parent._storageLock!.WaitAsync(token).ConfigureAwait(false);
 				try
