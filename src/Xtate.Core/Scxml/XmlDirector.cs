@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Xml;
 using Xtate.Annotations;
 
@@ -31,23 +32,27 @@ namespace Xtate.Scxml
 	public abstract class XmlDirector<TDirector> : IXmlLineInfo where TDirector : XmlDirector<TDirector>
 	{
 		private readonly IErrorProcessor _errorProcessor;
+		private readonly bool            _useAsync;
 		private readonly IXmlLineInfo?   _xmlLineInfo;
 		private readonly XmlReader       _xmlReader;
-		private          string?         _current;
+		private          string?         _rawContent;
 
-		protected XmlDirector(XmlReader xmlReader, IErrorProcessor errorProcessor)
+		protected XmlDirector(XmlReader xmlReader, IErrorProcessor errorProcessor, bool useAsync)
 		{
 			_xmlReader = xmlReader ?? throw new ArgumentNullException(nameof(xmlReader));
 			_errorProcessor = errorProcessor ?? throw new ArgumentNullException(nameof(errorProcessor));
+			_useAsync = useAsync;
 
 			_xmlLineInfo = _xmlReader as IXmlLineInfo;
 		}
 
-		protected string Current => _current ?? _xmlReader.Value;
+		protected string AttributeValue => _xmlReader.Value;
 
 		protected string CurrentName => _xmlReader.LocalName;
 
 		protected string CurrentNamespace => _xmlReader.NamespaceURI;
+
+		protected string RawContent => _rawContent ?? string.Empty;
 
 	#region Interface IXmlLineInfo
 
@@ -59,13 +64,41 @@ namespace Xtate.Scxml
 
 	#endregion
 
-		protected string ReadOuterXml() => _xmlReader.ReadOuterXml();
+		protected ValueTask Skip()
+		{
+			if (_useAsync)
+			{
+				return new ValueTask(_xmlReader.SkipAsync());
+			}
 
-		protected void Skip() => _xmlReader.Skip();
+			_xmlReader.Skip();
 
-		protected TEntity Populate<TEntity>(TEntity entity, Policy<TEntity> policy)
+			return default;
+		}
+
+		protected ValueTask<string> ReadOuterXml() =>
+				_useAsync
+						? new ValueTask<string>(_xmlReader.ReadOuterXmlAsync())
+						: new ValueTask<string>(_xmlReader.ReadOuterXml());
+
+		private ValueTask<string> ReadInnerXml() =>
+				_useAsync
+						? new ValueTask<string>(_xmlReader.ReadInnerXmlAsync())
+						: new ValueTask<string>(_xmlReader.ReadInnerXml());
+
+		private ValueTask<XmlNodeType> MoveToContent() =>
+				_useAsync
+						? new ValueTask<XmlNodeType>(_xmlReader.MoveToContentAsync())
+						: new ValueTask<XmlNodeType>(_xmlReader.MoveToContent());
+
+		protected async ValueTask<TEntity> Populate<TEntity>(TEntity entity, Policy<TEntity> policy)
 		{
 			if (policy is null) throw new ArgumentNullException(nameof(policy));
+
+			if (!await IsStartElement().ConfigureAwait(false))
+			{
+				return entity;
+			}
 
 			var validationContext = policy.CreateValidationContext(_xmlReader, _errorProcessor);
 
@@ -73,14 +106,14 @@ namespace Xtate.Scxml
 
 			if (_xmlReader.IsEmptyElement)
 			{
-				_xmlReader.ReadStartElement();
+				await ReadStartElement().ConfigureAwait(false);
 
 				return entity;
 			}
 
 			if (policy.RawContentAction is { } policyRawContentAction)
 			{
-				_current = _xmlReader.ReadInnerXml();
+				_rawContent = await ReadInnerXml().ConfigureAwait(false);
 
 				try
 				{
@@ -91,12 +124,12 @@ namespace Xtate.Scxml
 					AddError(Resources.ErrorMessage_FailureContentProcessing, ex);
 				}
 
-				_current = null;
+				_rawContent = null;
 
 				return entity;
 			}
 
-			PopulateElements(entity, policy, validationContext);
+			await PopulateElements(entity, policy, validationContext).ConfigureAwait(false);
 
 			return entity;
 		}
@@ -108,6 +141,36 @@ namespace Xtate.Scxml
 			var policy = new Policy<TEntity>();
 			buildPolicy(new PolicyBuilder<TEntity>(policy));
 			return policy;
+		}
+
+		private async ValueTask<bool> IsStartElement()
+		{
+			if (_xmlReader.NodeType != XmlNodeType.Element)
+			{
+				await MoveToContent().ConfigureAwait(false);
+			}
+
+			return _xmlReader.IsStartElement();
+		}
+
+		private async ValueTask ReadStartElement()
+		{
+			if (_xmlReader.NodeType != XmlNodeType.Element)
+			{
+				await MoveToContent().ConfigureAwait(false);
+			}
+
+			_xmlReader.ReadStartElement();
+		}
+
+		private async ValueTask ReadEndElement()
+		{
+			if (_xmlReader.NodeType != XmlNodeType.EndElement)
+			{
+				await MoveToContent().ConfigureAwait(false);
+			}
+
+			_xmlReader.ReadEndElement();
 		}
 
 		private void PopulateAttributes<TEntity>(TEntity entity, Policy<TEntity> policy, Policy<TEntity>.ValidationContext validationContext)
@@ -135,11 +198,11 @@ namespace Xtate.Scxml
 			validationContext.ProcessAttributesCompleted();
 		}
 
-		private void PopulateElements<TEntity>(TEntity entity, Policy<TEntity> policy, Policy<TEntity>.ValidationContext validationContext)
+		private async ValueTask PopulateElements<TEntity>(TEntity entity, Policy<TEntity> policy, Policy<TEntity>.ValidationContext validationContext)
 		{
-			_xmlReader.ReadStartElement();
+			await ReadStartElement().ConfigureAwait(false);
 
-			while (_xmlReader.IsStartElement())
+			while (await IsStartElement().ConfigureAwait(false))
 			{
 				var ns = _xmlReader.NamespaceURI;
 				var name = _xmlReader.LocalName;
@@ -148,7 +211,7 @@ namespace Xtate.Scxml
 				{
 					try
 					{
-						located((TDirector) this, entity);
+						await located((TDirector) this, entity).ConfigureAwait(false);
 					}
 					catch (Exception ex)
 					{
@@ -157,13 +220,13 @@ namespace Xtate.Scxml
 				}
 				else
 				{
-					_xmlReader.Skip();
+					await Skip().ConfigureAwait(false);
 				}
 			}
 
 			validationContext.ProcessElementsCompleted();
 
-			_xmlReader.ReadEndElement();
+			await ReadEndElement().ConfigureAwait(false);
 		}
 
 		private void AddError(string message, Exception exception) => _errorProcessor.AddError<XmlDirector<TDirector>>(_xmlReader, message, exception);
@@ -175,19 +238,19 @@ namespace Xtate.Scxml
 			IPolicyBuilder<TEntity> ValidateElementName([Localizable(false)] string name);
 			IPolicyBuilder<TEntity> RequiredAttribute([Localizable(false)] string name, Action<TDirector, TEntity> located);
 			IPolicyBuilder<TEntity> OptionalAttribute([Localizable(false)] string name, Action<TDirector, TEntity> located);
-			IPolicyBuilder<TEntity> OptionalElement([Localizable(false)] string name, Action<TDirector, TEntity> located);
-			IPolicyBuilder<TEntity> SingleElement([Localizable(false)] string name, Action<TDirector, TEntity> located);
-			IPolicyBuilder<TEntity> MultipleElements([Localizable(false)] string name, Action<TDirector, TEntity> located);
+			IPolicyBuilder<TEntity> OptionalElement([Localizable(false)] string name, Func<TDirector, TEntity, ValueTask> located);
+			IPolicyBuilder<TEntity> SingleElement([Localizable(false)] string name, Func<TDirector, TEntity, ValueTask> located);
+			IPolicyBuilder<TEntity> MultipleElements([Localizable(false)] string name, Func<TDirector, TEntity, ValueTask> located);
 			IPolicyBuilder<TEntity> ValidateElementName([Localizable(false)] string ns, [Localizable(false)] string name);
 			IPolicyBuilder<TEntity> RequiredAttribute([Localizable(false)] string ns, [Localizable(false)] string name, Action<TDirector, TEntity> located);
 			IPolicyBuilder<TEntity> OptionalAttribute([Localizable(false)] string ns, [Localizable(false)] string name, Action<TDirector, TEntity> located);
-			IPolicyBuilder<TEntity> OptionalElement([Localizable(false)] string ns, [Localizable(false)] string name, Action<TDirector, TEntity> located);
-			IPolicyBuilder<TEntity> SingleElement([Localizable(false)] string ns, [Localizable(false)] string name, Action<TDirector, TEntity> located);
-			IPolicyBuilder<TEntity> MultipleElements([Localizable(false)] string ns, [Localizable(false)] string name, Action<TDirector, TEntity> located);
+			IPolicyBuilder<TEntity> OptionalElement([Localizable(false)] string ns, [Localizable(false)] string name, Func<TDirector, TEntity, ValueTask> located);
+			IPolicyBuilder<TEntity> SingleElement([Localizable(false)] string ns, [Localizable(false)] string name, Func<TDirector, TEntity, ValueTask> located);
+			IPolicyBuilder<TEntity> MultipleElements([Localizable(false)] string ns, [Localizable(false)] string name, Func<TDirector, TEntity, ValueTask> located);
 			IPolicyBuilder<TEntity> IgnoreUnknownElements();
 			IPolicyBuilder<TEntity> DenyUnknownElements();
-			IPolicyBuilder<TEntity> RawContent(Action<TDirector, TEntity> action);
-			IPolicyBuilder<TEntity> UnknownElement(Action<TDirector, TEntity> located);
+			IPolicyBuilder<TEntity> RawContent(Action<TDirector, TEntity> located);
+			IPolicyBuilder<TEntity> UnknownElement(Func<TDirector, TEntity, ValueTask> located);
 		}
 
 		[PublicAPI]
@@ -218,11 +281,11 @@ namespace Xtate.Scxml
 		{
 			private readonly Dictionary<QualifiedName, (Action<TDirector, TEntity> located, AttributeType type)> _attributes = new();
 
-			private readonly Dictionary<QualifiedName, (Action<TDirector, TEntity> located, ElementType type)> _elements = new();
+			private readonly Dictionary<QualifiedName, (Func<TDirector, TEntity, ValueTask> located, ElementType type)> _elements = new();
 
 			public Action<TDirector, TEntity>? RawContentAction { get; set; }
 
-			public Action<TDirector, TEntity>? UnknownElementAction { get; set; }
+			public Func<TDirector, TEntity, ValueTask>? UnknownElementAction { get; set; }
 
 			public bool    IgnoreUnknownElements { get; set; }
 			public string? ElementNamespace      { get; set; }
@@ -233,14 +296,14 @@ namespace Xtate.Scxml
 				_attributes.Add(new QualifiedName(ns, name), (located, type));
 			}
 
-			public void AddElement(string ns, string name, Action<TDirector, TEntity> located, ElementType type)
+			public void AddElement(string ns, string name, Func<TDirector, TEntity, ValueTask> located, ElementType type)
 			{
 				_elements.Add(new QualifiedName(ns, name), (located, type));
 			}
 
 			public Action<TDirector, TEntity>? AttributeLocated(string ns, string name) => _attributes.TryGetValue(new QualifiedName(ns, name), out var val) ? val.located : null;
 
-			public Action<TDirector, TEntity>? ElementLocated(string ns, string name) => _elements.TryGetValue(new QualifiedName(ns, name), out var val) ? val.located : UnknownElementAction;
+			public Func<TDirector, TEntity, ValueTask>? ElementLocated(string ns, string name) => _elements.TryGetValue(new QualifiedName(ns, name), out var val) ? val.located : UnknownElementAction;
 
 			public ValidationContext CreateValidationContext(XmlReader xmlReader, IErrorProcessor errorProcessor) => new(this, xmlReader, errorProcessor);
 
@@ -392,7 +455,8 @@ namespace Xtate.Scxml
 		private class PolicyBuilder<TEntity> : IPolicyBuilder<TEntity>
 		{
 			private readonly Policy<TEntity> _policy;
-			private          bool?           _rawContent;
+
+			private bool? _rawContent;
 
 			public PolicyBuilder(Policy<TEntity> policy) => _policy = policy;
 
@@ -411,11 +475,11 @@ namespace Xtate.Scxml
 
 			public IPolicyBuilder<TEntity> OptionalAttribute(string name, Action<TDirector, TEntity> located) => OptionalAttribute(string.Empty, name, located);
 
-			public IPolicyBuilder<TEntity> OptionalElement(string name, Action<TDirector, TEntity> located) => OptionalElement(string.Empty, name, located);
+			public IPolicyBuilder<TEntity> OptionalElement(string name, Func<TDirector, TEntity, ValueTask> located) => OptionalElement(string.Empty, name, located);
 
-			public IPolicyBuilder<TEntity> SingleElement(string name, Action<TDirector, TEntity> located) => SingleElement(string.Empty, name, located);
+			public IPolicyBuilder<TEntity> SingleElement(string name, Func<TDirector, TEntity, ValueTask> located) => SingleElement(string.Empty, name, located);
 
-			public IPolicyBuilder<TEntity> MultipleElements(string name, Action<TDirector, TEntity> located) => MultipleElements(string.Empty, name, located);
+			public IPolicyBuilder<TEntity> MultipleElements(string name, Func<TDirector, TEntity, ValueTask> located) => MultipleElements(string.Empty, name, located);
 
 			public IPolicyBuilder<TEntity> ValidateElementName(string ns, string name)
 			{
@@ -449,7 +513,7 @@ namespace Xtate.Scxml
 				return this;
 			}
 
-			public IPolicyBuilder<TEntity> OptionalElement(string ns, string name, Action<TDirector, TEntity> located)
+			public IPolicyBuilder<TEntity> OptionalElement(string ns, string name, Func<TDirector, TEntity, ValueTask> located)
 			{
 				if (ns is null) throw new ArgumentNullException(nameof(ns));
 				if (located is null) throw new ArgumentNullException(nameof(located));
@@ -460,7 +524,7 @@ namespace Xtate.Scxml
 				return this;
 			}
 
-			public IPolicyBuilder<TEntity> SingleElement(string ns, string name, Action<TDirector, TEntity> located)
+			public IPolicyBuilder<TEntity> SingleElement(string ns, string name, Func<TDirector, TEntity, ValueTask> located)
 			{
 				if (ns is null) throw new ArgumentNullException(nameof(ns));
 				if (located is null) throw new ArgumentNullException(nameof(located));
@@ -472,7 +536,7 @@ namespace Xtate.Scxml
 				return this;
 			}
 
-			public IPolicyBuilder<TEntity> MultipleElements(string ns, string name, Action<TDirector, TEntity> located)
+			public IPolicyBuilder<TEntity> MultipleElements(string ns, string name, Func<TDirector, TEntity, ValueTask> located)
 			{
 				if (ns is null) throw new ArgumentNullException(nameof(ns));
 				if (located is null) throw new ArgumentNullException(nameof(located));
@@ -484,7 +548,7 @@ namespace Xtate.Scxml
 				return this;
 			}
 
-			public IPolicyBuilder<TEntity> UnknownElement(Action<TDirector, TEntity> located)
+			public IPolicyBuilder<TEntity> UnknownElement(Func<TDirector, TEntity, ValueTask> located)
 			{
 				_policy.UnknownElementAction = located ?? throw new ArgumentNullException(nameof(located));
 

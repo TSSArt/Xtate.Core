@@ -46,6 +46,7 @@ namespace Xtate
 		private static readonly ImmutableArray<IDataModelHandlerFactory> PredefinedDataModelHandlerFactories =
 				ImmutableArray.Create(NullDataModelHandler.Factory, RuntimeDataModelHandler.Factory);
 
+		private readonly Uri?                                     _baseUri;
 		private readonly ImmutableDictionary<object, object>      _contextRuntimeItems;
 		private readonly ImmutableArray<ICustomActionFactory>     _customActionProviders;
 		private readonly ImmutableArray<IDataModelHandlerFactory> _dataModelHandlerFactories;
@@ -75,6 +76,7 @@ namespace Xtate
 		{
 			_sessionId = sessionId;
 			_eventChannel = eventChannel;
+			_baseUri = options.BaseUri;
 			_suspendToken = options.SuspendToken;
 			_stopToken = options.StopToken;
 			_destroyToken = options.DestroyToken;
@@ -168,7 +170,7 @@ namespace Xtate
 
 			_stateMachineValidator.Validate(stateMachine, errorProcessor);
 
-			var interpreterModelBuilder = new InterpreterModelBuilder(stateMachine, _dataModelHandler, _customActionProviders, factoryContext, errorProcessor);
+			var interpreterModelBuilder = new InterpreterModelBuilder(stateMachine, _dataModelHandler, _customActionProviders, factoryContext, errorProcessor, _baseUri);
 
 			try
 			{
@@ -218,7 +220,7 @@ namespace Xtate
 
 				if (stateMachine is not null)
 				{
-					var builder = new InterpreterModelBuilder(stateMachine, _dataModelHandler, _customActionProviders, factoryContext, DefaultErrorProcessor.Instance);
+					var builder = new InterpreterModelBuilder(stateMachine, _dataModelHandler, _customActionProviders, factoryContext, DefaultErrorProcessor.Instance, _baseUri);
 					var model = await builder.Build(_stopToken).ConfigureAwait(false);
 					entityMap = model.EntityMap;
 				}
@@ -232,7 +234,7 @@ namespace Xtate
 
 				var restoredErrorProcessor = new WrapperErrorProcessor(_errorProcessor);
 
-				var interpreterModelBuilder = new InterpreterModelBuilder(restoredStateMachine, _dataModelHandler, _customActionProviders, factoryContext, restoredErrorProcessor);
+				var interpreterModelBuilder = new InterpreterModelBuilder(restoredStateMachine, _dataModelHandler, _customActionProviders, factoryContext, restoredErrorProcessor, _baseUri);
 
 				restoredErrorProcessor.ThrowIfErrors();
 
@@ -1581,7 +1583,7 @@ namespace Xtate
 			{
 				Infrastructure.NotNull(data.Source);
 
-				var resource = await LoadData(data.Source).ConfigureAwait(false);
+				await using var resource = await LoadData(data.Source).ConfigureAwait(false);
 
 				var obj = await resourceEvaluator.EvaluateObject(_context.ExecutionContext, resource, _stopToken).ConfigureAwait(false);
 
@@ -1609,13 +1611,13 @@ namespace Xtate
 		{
 			if (!_resourceLoaders.IsDefaultOrEmpty)
 			{
-				var uri = externalDataExpression.Uri!;
+				var uri = _baseUri.CombineWith(externalDataExpression.Uri!);
 
 				foreach (var resourceLoader in _resourceLoaders)
 				{
 					if (resourceLoader.CanHandle(uri))
 					{
-						return await resourceLoader.Request(uri, _stopToken).ConfigureAwait(false);
+						return await resourceLoader.Request(uri, headers: default, _stopToken).ConfigureAwait(false);
 					}
 				}
 			}

@@ -216,10 +216,9 @@ namespace Xtate
 				{
 					if (resourceLoader.CanHandle(uri))
 					{
-						var resource = await resourceLoader.Request(uri, token).ConfigureAwait(false);
+						await using var request = await resourceLoader.Request(uri, headers: default, token).ConfigureAwait(false);
+						var bytes = await request.GetBytes(token).ConfigureAwait(false);
 
-						var bytes = resource.GetBytes();
-						Infrastructure.NotNull(bytes);
 						return Assembly.Load(bytes);
 					}
 				}

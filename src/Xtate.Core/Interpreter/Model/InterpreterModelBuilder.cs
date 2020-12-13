@@ -30,6 +30,7 @@ namespace Xtate
 {
 	internal sealed class InterpreterModelBuilder : StateMachineVisitor
 	{
+		private readonly Uri?                                               _baseUri;
 		private readonly ImmutableArray<ICustomActionFactory>               _customActionProviders;
 		private readonly IDataModelHandler                                  _dataModelHandler;
 		private readonly LinkedList<int>                                    _documentIdList;
@@ -46,12 +47,13 @@ namespace Xtate
 		private          bool                                               _inParallel;
 
 		public InterpreterModelBuilder(IStateMachine stateMachine, IDataModelHandler dataModelHandler, ImmutableArray<ICustomActionFactory> customActionProviders, IFactoryContext factoryContext,
-									   IErrorProcessor errorProcessor)
+									   IErrorProcessor errorProcessor, Uri? baseUri)
 		{
 			_stateMachine = stateMachine ?? throw new ArgumentNullException(nameof(stateMachine));
 			_dataModelHandler = dataModelHandler ?? throw new ArgumentNullException(nameof(dataModelHandler));
 			_customActionProviders = customActionProviders;
 			_errorProcessor = errorProcessor;
+			_baseUri = baseUri;
 			_preDataModelProcessor = new PreDataModelProcessor(errorProcessor, factoryContext);
 			_idMap = new Dictionary<IIdentifier, StateEntityNode>(IdentifierEqualityComparer.Instance);
 			_entities = new List<IEntity>();
@@ -140,8 +142,8 @@ namespace Xtate
 			return entityMap.ToImmutable();
 		}
 
-		private static async ValueTask SetExternalResources(List<(Uri Uri, IExternalScriptConsumer Consumer)> externalScriptList, ImmutableArray<IResourceLoader> resourceLoaders,
-															CancellationToken token)
+		private async ValueTask SetExternalResources(List<(Uri Uri, IExternalScriptConsumer Consumer)> externalScriptList, ImmutableArray<IResourceLoader> resourceLoaders,
+													 CancellationToken token)
 		{
 			foreach (var (uri, consumer) in externalScriptList)
 			{
@@ -151,20 +153,19 @@ namespace Xtate
 			}
 		}
 
-		private static async ValueTask LoadAndSetContent(ImmutableArray<IResourceLoader> resourceLoaders, Uri uri, IExternalScriptConsumer consumer, CancellationToken token)
+		private async ValueTask LoadAndSetContent(ImmutableArray<IResourceLoader> resourceLoaders, Uri uri, IExternalScriptConsumer consumer, CancellationToken token)
 		{
 			if (!resourceLoaders.IsDefaultOrEmpty)
 			{
+				uri = _baseUri.CombineWith(uri);
+
 				foreach (var resourceLoader in resourceLoaders)
 				{
 					if (resourceLoader.CanHandle(uri))
 					{
-						var resource = await resourceLoader.Request(uri, token).ConfigureAwait(false);
+						await using var resource = await resourceLoader.Request(uri, headers: default, token).ConfigureAwait(false);
 
-						if (resource.Content is not null)
-						{
-							consumer.SetContent(resource.Content);
-						}
+						consumer.SetContent(await resource.GetContent(token).ConfigureAwait(false));
 
 						return;
 					}

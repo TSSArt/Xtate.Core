@@ -376,6 +376,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Condition property required for If element..
+        /// </summary>
+        internal static string ErrorMessage_ConditionRequiredForIf {
+            get {
+                return ResourceManager.GetString("ErrorMessage_ConditionRequiredForIf", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Content value can&apos;t be null..
         /// </summary>
         internal static string ErrorMessage_ContentValueCantBeNull {
@@ -699,15 +708,6 @@ namespace Xtate {
             get {
                 return ResourceManager.GetString("ErrorMessage_NameList_and_Parameters_can_t_be_used_at_the_same_time_in_Invoke_ele" +
                         "ment", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Condition property required for If element..
-        /// </summary>
-        internal static string ErrorMessage_onditionRequiredForIf {
-            get {
-                return ResourceManager.GetString("ErrorMessage_onditionRequiredForIf", resourceCulture);
             }
         }
         
@@ -1260,6 +1260,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to XIncludeReader does not support in-document references..
+        /// </summary>
+        internal static string Exception_IndocumentReferencesNotSupported {
+            get {
+                return ResourceManager.GetString("Exception_IndocumentReferencesNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Internal events can&apos;t be delayed..
         /// </summary>
         internal static string Exception_Internal_events_can_t_be_delayed {
@@ -1301,6 +1310,15 @@ namespace Xtate {
         internal static string Exception_Invalid_TypeInfo_value {
             get {
                 return ResourceManager.GetString("Exception_Invalid_TypeInfo_value", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid URI &apos;{0}&apos;..
+        /// </summary>
+        internal static string Exception_InvalidURI {
+            get {
+                return ResourceManager.GetString("Exception_InvalidURI", resourceCulture);
             }
         }
         
@@ -1368,6 +1386,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Loading external resources does not supported. Derive class from ScxmlXmlResolver and pass instance of it to ScxmlDirector..
+        /// </summary>
+        internal static string Exception_Loading_external_resources_does_not_supported {
+            get {
+                return ResourceManager.GetString("Exception_Loading_external_resources_does_not_supported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Location does not specified..
         /// </summary>
         internal static string Exception_LocationDoesNotSpecified {
@@ -1400,6 +1427,15 @@ namespace Xtate {
         internal static string Exception_NamedIoProcessor_with_name_already_has_been_registered {
             get {
                 return ResourceManager.GetString("Exception_NamedIoProcessor_with_name_already_has_been_registered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nesting level reached, probably circular inclusion..
+        /// </summary>
+        internal static string Exception_NestingReachedLevelInclusion {
+            get {
+                return ResourceManager.GetString("Exception_NestingReachedLevelInclusion", resourceCulture);
             }
         }
         
@@ -1739,11 +1775,38 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unknown &apos;parse&apos; attribute value: &apos;{0}&apos;..
+        /// </summary>
+        internal static string Exception_UnknownParseAttrValue {
+            get {
+                return ResourceManager.GetString("Exception_UnknownParseAttrValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to resolve URI reference &apos;{0}&apos;..
+        /// </summary>
+        internal static string Exception_UnresolvableURI {
+            get {
+                return ResourceManager.GetString("Exception_UnresolvableURI", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unsupported object type..
         /// </summary>
         internal static string Exception_Unsupported_object_type {
             get {
                 return ResourceManager.GetString("Exception_Unsupported_object_type", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to RedirectXmlResolver not supported class: {0}..
+        /// </summary>
+        internal static string Exception_UnsupportedClass {
+            get {
+                return ResourceManager.GetString("Exception_UnsupportedClass", resourceCulture);
             }
         }
         
@@ -1883,20 +1946,65 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} Line {1}, Position {2}..
+        /// </summary>
+        internal static string Exception_XIncludeException_Line_Position {
+            get {
+                return ResourceManager.GetString("Exception_XIncludeException_Line_Position", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} Location: {1}..
+        /// </summary>
+        internal static string Exception_XIncludeException_Location {
+            get {
+                return ResourceManager.GetString("Exception_XIncludeException_Location", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} Location: {1}, Line {2}, Position {3}..
+        /// </summary>
+        internal static string Exception_XIncludeException_Location_Line_Position {
+            get {
+                return ResourceManager.GetString("Exception_XIncludeException_Location_Line_Position", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An exception has occurred during GetEntity call to XmlResolver..
+        /// </summary>
+        internal static string Exception_XmlResolverGetEntity {
+            get {
+                return ResourceManager.GetString("Exception_XmlResolverGetEntity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to XmlResolver returned null..
+        /// </summary>
+        internal static string Exception_XmlResolverReturnedNull {
+            get {
+                return ResourceManager.GetString("Exception_XmlResolverReturnedNull", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Message read partially. {0} of {1} bytes..
         /// </summary>
-        internal static string NamedIoProcessor_ReceiveMessage4_Message_read_partially {
+        internal static string NamedIoProcessor_Message_read_partially {
             get {
-                return ResourceManager.GetString("NamedIoProcessor_ReceiveMessage4_Message_read_partially", resourceCulture);
+                return ResourceManager.GetString("NamedIoProcessor_Message_read_partially", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Message size has wrong value or missed. Size: {0} bytes..
         /// </summary>
-        internal static string NamedIoProcessor_ReceiveMessage4_Message_size_has_wrong_value_or_missed {
+        internal static string NamedIoProcessor_Message_size_has_wrong_value_or_missed {
             get {
-                return ResourceManager.GetString("NamedIoProcessor_ReceiveMessage4_Message_size_has_wrong_value_or_missed", resourceCulture);
+                return ResourceManager.GetString("NamedIoProcessor_Message_size_has_wrong_value_or_missed", resourceCulture);
             }
         }
         

@@ -255,7 +255,7 @@ namespace Xtate.IoProcessor
 
 			if (sizeBufReadCount != sizeBuf.Length || messageSize < 0 || messageSize > MaxMessageSize)
 			{
-				throw new ProcessorException(Res.Format(Resources.NamedIoProcessor_ReceiveMessage4_Message_size_has_wrong_value_or_missed, messageSize));
+				throw new ProcessorException(Res.Format(Resources.NamedIoProcessor_Message_size_has_wrong_value_or_missed, messageSize));
 			}
 
 			var buffer = ArrayPool<byte>.Shared.Rent(messageSize);
@@ -266,7 +266,7 @@ namespace Xtate.IoProcessor
 
 				if (count != messageSize)
 				{
-					throw new ProcessorException(Res.Format(Resources.NamedIoProcessor_ReceiveMessage4_Message_read_partially, count, messageSize));
+					throw new ProcessorException(Res.Format(Resources.NamedIoProcessor_Message_read_partially, count, messageSize));
 				}
 
 				memoryStream.Write(buffer, offset: 0, messageSize);

@@ -18,14 +18,11 @@
 #endregion
 
 using System;
-using System.Collections.Immutable;
-using System.IO;
+using System.Collections.Specialized;
 using System.Net;
-using System.Net.Http;
 using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
 using Xtate.Annotations;
 
 namespace Xtate
@@ -33,8 +30,6 @@ namespace Xtate
 	[PublicAPI]
 	public sealed class WebResourceLoader : IResourceLoader
 	{
-		private ImmutableDictionary<Uri, WeakReference<Resource>> _cachedWebResources = ImmutableDictionary<Uri, WeakReference<Resource>>.Empty;
-
 		public static IResourceLoader Instance { get; } = new WebResourceLoader();
 
 	#region Interface IResourceLoader
@@ -46,89 +41,58 @@ namespace Xtate
 			return uri.IsAbsoluteUri && (uri.Scheme == @"http" || uri.Scheme == @"https");
 		}
 
-		public async ValueTask<Resource> Request(Uri uri, CancellationToken token)
+		public async ValueTask<Resource> Request(Uri uri, NameValueCollection? headers, CancellationToken token)
 		{
-			if (uri is null) throw new ArgumentNullException(nameof(uri));
+			var request = WebRequest.CreateHttp(uri);
 
-			using var client = new HttpClient();
-			HttpResponseMessage responseMessage;
+			SetHeader(request, headers);
 
-			var cachedWebResources = _cachedWebResources;
-			if (cachedWebResources.TryGetValue(uri, out var weakReference) && weakReference.TryGetTarget(out var resource))
-			{
-				client.DefaultRequestHeaders.IfModifiedSince = resource.ModifiedDate;
-				responseMessage = await client.GetAsync(uri, token).ConfigureAwait(false);
-				if (responseMessage.StatusCode == HttpStatusCode.NotModified)
-				{
-					return resource;
-				}
-			}
-			else
-			{
-				responseMessage = await client.GetAsync(uri, token).ConfigureAwait(false);
-			}
+			var response = await GetResponse(request, token).ConfigureAwait(false);
 
-			responseMessage.EnsureSuccessStatusCode();
+			var contentType = response.Headers[HttpResponseHeader.ContentType] is { Length: > 0 } val ? new ContentType(val) : null;
 
-			var content = responseMessage.Content;
-			var headers = content.Headers;
-			var contentType = headers.ContentType is { } ct ? new ContentType(ct.ToString()) : new ContentType();
-			var lastModified = headers.LastModified;
-
-#if NET461 || NETSTANDARD2_0
-			var stream = await content.ReadAsStreamAsync().ConfigureAwait(false);
-#else
-			var stream = await content.ReadAsStreamAsync(token).ConfigureAwait(false);
-#endif
-
-			await using (stream.ConfigureAwait(false))
-			{
-				if (headers.ContentLength is { } longLen && longLen < int.MaxValue)
-				{
-					var count = (int) longLen;
-					var bytes = new byte[count];
-					await stream.ReadAsync(bytes, offset: 0, count, token).ConfigureAwait(false);
-					resource = new Resource(uri, contentType, lastModified, bytes: bytes);
-				}
-				else
-				{
-					var memStream = new MemoryStream();
-					await using (memStream.ConfigureAwait(false))
-					{
-						await stream.CopyToAsync(memStream, bufferSize: 4096, token).ConfigureAwait(false);
-						resource = new Resource(uri, contentType, lastModified, bytes: memStream.ToArray());
-					}
-				}
-			}
-
-			if (weakReference is null)
-			{
-				weakReference = new WeakReference<Resource>(resource);
-			}
-			else
-			{
-				weakReference.SetTarget(resource);
-			}
-
-			_cachedWebResources = cachedWebResources.SetItem(uri, weakReference);
-
-			return resource;
+			return new Resource(response.GetResponseStream()!, contentType);
 		}
 
-		public ValueTask<XmlReader> RequestXmlReader(Uri uri, XmlReaderSettings? readerSettings = default, XmlParserContext? parserContext = default, CancellationToken token = default)
+		private static void SetHeader(HttpWebRequest request, NameValueCollection? headers)
 		{
-			if (uri is null) throw new ArgumentNullException(nameof(uri));
-
-			try
+			if (headers is null)
 			{
-				return new ValueTask<XmlReader>(XmlReader.Create(uri.ToString(), readerSettings, parserContext));
+				return;
 			}
-			catch (Exception ex)
+
+			for (var i = 0; i < headers.Count; i ++)
 			{
-				return new ValueTask<XmlReader>(Task.FromException<XmlReader>(ex));
+				if (headers.GetKey(i) is { Length: > 0 } key)
+				{
+					request.Headers[key] = headers.Get(i);
+				}
 			}
 		}
 
 	#endregion
+
+		private static async Task<HttpWebResponse> GetResponse(HttpWebRequest request, CancellationToken token)
+		{
+#if NET461 || NETSTANDARD2_0
+			using var registration = token.Register(request.Abort, useSynchronizationContext: false);
+#else
+			await using var registration = token.Register(request.Abort, useSynchronizationContext: false);
+#endif
+
+			try
+			{
+				return (HttpWebResponse) await request.GetResponseAsync().ConfigureAwait(false);
+			}
+			catch (WebException ex)
+			{
+				if (token.IsCancellationRequested)
+				{
+					throw new OperationCanceledException(ex.Message, ex, token);
+				}
+
+				throw;
+			}
+		}
 	}
 }

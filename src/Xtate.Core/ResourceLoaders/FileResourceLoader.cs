@@ -18,19 +18,16 @@
 #endregion
 
 using System;
-using System.Collections.Immutable;
+using System.Collections.Specialized;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
-using Xtate.Annotations;
 
 namespace Xtate
 {
-	[PublicAPI]
 	public sealed class FileResourceLoader : IResourceLoader
 	{
-		private ImmutableDictionary<string, WeakReference<Resource>> _cachedFileResources = ImmutableDictionary<string, WeakReference<Resource>>.Empty;
+		private const FileOptions OpenFileOptions = FileOptions.Asynchronous | FileOptions.SequentialScan;
 
 		public static IResourceLoader Instance { get; } = new FileResourceLoader();
 
@@ -43,79 +40,18 @@ namespace Xtate
 			return !uri.IsAbsoluteUri || uri.IsFile || uri.IsUnc;
 		}
 
-		public async ValueTask<Resource> Request(Uri uri, CancellationToken token)
+		public async ValueTask<Resource> Request(Uri uri, NameValueCollection? headers, CancellationToken token)
 		{
 			if (uri is null) throw new ArgumentNullException(nameof(uri));
 
 			var path = uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString;
-			var modifiedUtc = new FileInfo(path).LastWriteTimeUtc;
 
-			var cachedFileResources = _cachedFileResources;
-			if (cachedFileResources.TryGetValue(path, out var weakReference) && weakReference.TryGetTarget(out var resource) && resource.ModifiedDate == modifiedUtc)
-			{
-				return resource;
-			}
-
-			var bytes = await GetBytesFromFile(path, token).ConfigureAwait(false);
-
-			resource = new Resource(uri, modifiedDate: modifiedUtc, bytes: bytes);
-
-			if (weakReference is null)
-			{
-				weakReference = new WeakReference<Resource>(resource);
-			}
-			else
-			{
-				weakReference.SetTarget(resource);
-			}
-
-			_cachedFileResources = cachedFileResources.Add(path, weakReference);
-
-			return resource;
-		}
-
-		public ValueTask<XmlReader> RequestXmlReader(Uri uri, XmlReaderSettings? readerSettings = default, XmlParserContext? parserContext = default, CancellationToken token = default)
-		{
-			if (uri is null) throw new ArgumentNullException(nameof(uri));
-
-			var path = uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString;
-			var modifiedUtc = new FileInfo(path).LastWriteTimeUtc;
-
-			Stream stream;
-			if (_cachedFileResources.TryGetValue(path, out var weakReference) && weakReference.TryGetTarget(out var resource) && resource.ModifiedDate == modifiedUtc)
-			{
-				stream = new MemoryStream(resource.GetBytes() ?? Array.Empty<byte>());
-			}
-			else
-			{
-				stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 1, FileOptions.Asynchronous | FileOptions.SequentialScan);
-			}
-
-			try
-			{
-				return new ValueTask<XmlReader>(XmlReader.Create(stream, readerSettings, parserContext));
-			}
-			catch (Exception ex)
-			{
-				return new ValueTask<XmlReader>(Task.FromException<XmlReader>(ex));
-			}
+			return new Resource(await OpenFileForReadAsync(path, token).ConfigureAwait(false));
 		}
 
 	#endregion
 
-		private static async ValueTask<byte[]> GetBytesFromFile(string path, CancellationToken token)
-		{
-#if NET461 || NETSTANDARD2_0
-			token.ThrowIfCancellationRequested();
-
-			using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 1, FileOptions.Asynchronous | FileOptions.SequentialScan);
-			var bytes = new byte[stream.Length];
-			await stream.ReadAsync(bytes, offset: 0, (int) stream.Length, token).ConfigureAwait(false);
-
-			return bytes;
-#else
-			return await File.ReadAllBytesAsync(path, token).ConfigureAwait(false);
-#endif
-		}
+		private static Task<FileStream> OpenFileForReadAsync(string path, CancellationToken token) =>
+				IoBoundTask.Run(state => new FileStream((string) state!, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 1, OpenFileOptions), path, token);
 	}
 }

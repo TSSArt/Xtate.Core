@@ -240,7 +240,7 @@
   <data name="ErrorMessage_Invalid_Type_value_in_History_element" xml:space="preserve">
     <value>Invalid Type value in History element.</value>
   </data>
-  <data name="ErrorMessage_onditionRequiredForIf" xml:space="preserve">
+  <data name="ErrorMessage_ConditionRequiredForIf" xml:space="preserve">
     <value>Condition property required for If element.</value>
   </data>
   <data name="ErrorMessage_ElseifCannotFollowElse" xml:space="preserve">
@@ -722,13 +722,49 @@
   <data name="ErrorMessage_sessionId__or__sessionIdExpr__must_be_specified" xml:space="preserve">
     <value>[sessionId] or [sessionIdExpr] must be specified.</value>
   </data>
-  <data name="NamedIoProcessor_ReceiveMessage4_Message_size_has_wrong_value_or_missed" xml:space="preserve">
+  <data name="NamedIoProcessor_Message_size_has_wrong_value_or_missed" xml:space="preserve">
     <value>Message size has wrong value or missed. Size: {0} bytes.</value>
   </data>
-  <data name="NamedIoProcessor_ReceiveMessage4_Message_read_partially" xml:space="preserve">
+  <data name="NamedIoProcessor_Message_read_partially" xml:space="preserve">
     <value>Message read partially. {0} of {1} bytes.</value>
   </data>
   <data name="Exception_Event_dispatcher_not_found" xml:space="preserve">
     <value>Event dispatcher not found.</value>
+  </data>
+  <data name="Exception_UnsupportedClass" xml:space="preserve">
+    <value>RedirectXmlResolver not supported class: {0}.</value>
+  </data>
+  <data name="Exception_NestingReachedLevelInclusion" xml:space="preserve">
+    <value>Nesting level reached, probably circular inclusion.</value>
+  </data>
+  <data name="Exception_XmlResolverGetEntity" xml:space="preserve">
+    <value>An exception has occurred during GetEntity call to XmlResolver.</value>
+  </data>
+  <data name="Exception_XmlResolverReturnedNull" xml:space="preserve">
+    <value>XmlResolver returned null.</value>
+  </data>
+  <data name="Exception_IndocumentReferencesNotSupported" xml:space="preserve">
+    <value>XIncludeReader does not support in-document references.</value>
+  </data>
+  <data name="Exception_InvalidURI" xml:space="preserve">
+    <value>Invalid URI '{0}'.</value>
+  </data>
+  <data name="Exception_UnknownParseAttrValue" xml:space="preserve">
+    <value>Unknown 'parse' attribute value: '{0}'.</value>
+  </data>
+  <data name="Exception_UnresolvableURI" xml:space="preserve">
+    <value>Unable to resolve URI reference '{0}'.</value>
+  </data>
+  <data name="Exception_XIncludeException_Location_Line_Position" xml:space="preserve">
+    <value>{0} Location: {1}, Line {2}, Position {3}.</value>
+  </data>
+  <data name="Exception_XIncludeException_Location" xml:space="preserve">
+    <value>{0} Location: {1}.</value>
+  </data>
+  <data name="Exception_XIncludeException_Line_Position" xml:space="preserve">
+    <value>{0} Line {1}, Position {2}.</value>
+  </data>
+  <data name="Exception_Loading_external_resources_does_not_supported" xml:space="preserve">
+    <value>Loading external resources does not supported. Derive class from ScxmlXmlResolver and pass instance of it to ScxmlDirector.</value>
   </data>
 </root>

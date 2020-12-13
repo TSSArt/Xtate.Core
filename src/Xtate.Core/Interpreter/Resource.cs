@@ -21,53 +21,80 @@ using System;
 using System.IO;
 using System.Net.Mime;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtate.Annotations;
+using Xtate.XInclude;
 
 namespace Xtate
 {
 	[PublicAPI]
-	public class Resource
+	public sealed class Resource : IDisposable, IAsyncDisposable, IXIncludeResource
 	{
-		private byte[]? _bytes;
-		private string? _content;
+		private readonly Stream  _stream;
+		private          byte[]? _bytes;
+		private          string? _content;
 
-		public Resource(Uri uri, ContentType? contentType = default, DateTimeOffset? modifiedDate = default, string? content = default, byte[]? bytes = default)
+		public Resource(Stream stream, ContentType? contentType = default)
 		{
-			Uri = uri;
+			_stream = stream ?? throw new ArgumentNullException(nameof(stream));
 			ContentType = contentType;
-			ModifiedDate = modifiedDate;
-			_content = content;
-			_bytes = bytes;
 		}
 
-		public Uri             Uri          { get; }
-		public ContentType?    ContentType  { get; }
-		public DateTimeOffset? ModifiedDate { get; }
+		public Encoding Encoding => !string.IsNullOrEmpty(ContentType?.CharSet) ? Encoding.GetEncoding(ContentType.CharSet) : Encoding.UTF8;
 
-		public string? Content
+	#region Interface IAsyncDisposable
+
+		public ValueTask DisposeAsync()
 		{
-			get
+#if NET461 || NETSTANDARD2_0
+			_stream.Dispose();
+
+			return default;
+#else
+			return _stream.DisposeAsync();
+#endif
+		}
+
+	#endregion
+
+	#region Interface IDisposable
+
+		public void Dispose() => _stream.Dispose();
+
+	#endregion
+
+	#region Interface IXIncludeResource
+
+		ValueTask<Stream> IXIncludeResource.GetStream() => GetStream(doNotCache: true, token: default);
+
+		public ContentType? ContentType { get; }
+
+	#endregion
+
+		public async ValueTask<string> GetContent(CancellationToken token)
+		{
+			if (_content is not null)
 			{
-				if (_content is not null)
-				{
-					return _content;
-				}
-
-				if (_bytes is not null)
-				{
-					var encoding = !string.IsNullOrEmpty(ContentType?.CharSet) ? Encoding.GetEncoding(ContentType.CharSet) : Encoding.UTF8;
-
-					using var stream = new MemoryStream(_bytes);
-					using var reader = new StreamReader(stream, encoding, detectEncodingFromByteOrderMarks: true);
-
-					_content = reader.ReadToEnd();
-				}
-
 				return _content;
+			}
+
+			if (_bytes is not null)
+			{
+				using var reader = new StreamReader(new MemoryStream(_bytes), Encoding, detectEncodingFromByteOrderMarks: true);
+
+				return _content = await reader.ReadToEndAsync().ConfigureAwait(false);
+			}
+
+			await using (_stream.ConfigureAwait(false))
+			{
+				using var reader = new StreamReader(_stream.InjectCancellationToken(token), Encoding, detectEncodingFromByteOrderMarks: true);
+
+				return _content = await reader.ReadToEndAsync().ConfigureAwait(false);
 			}
 		}
 
-		public byte[]? GetBytes()
+		public async ValueTask<byte[]> GetBytes(CancellationToken token)
 		{
 			if (_bytes is not null)
 			{
@@ -76,12 +103,38 @@ namespace Xtate
 
 			if (_content is not null)
 			{
-				var encoding = !string.IsNullOrEmpty(ContentType?.CharSet) ? Encoding.GetEncoding(ContentType.CharSet) : Encoding.UTF8;
-
-				_bytes = encoding.GetBytes(_content);
+				return _bytes = Encoding.GetBytes(_content);
 			}
 
-			return _bytes;
+			await using (_stream.ConfigureAwait(false))
+			{
+				return _bytes = await _stream.ReadToEndAsync(token).ConfigureAwait(false);
+			}
+		}
+
+		public async ValueTask<Stream> GetStream(bool doNotCache, CancellationToken token)
+		{
+			if (_bytes is not null)
+			{
+				return new MemoryStream(_bytes, writable: false);
+			}
+
+			if (_content is not null)
+			{
+				return new MemoryStream(Encoding.GetBytes(_content));
+			}
+
+			if (doNotCache)
+			{
+				return _stream;
+			}
+
+			await using (_stream.ConfigureAwait(false))
+			{
+				_bytes = await _stream.ReadToEndAsync(token).ConfigureAwait(false);
+
+				return new MemoryStream(_bytes, writable: false);
+			}
 		}
 	}
 }

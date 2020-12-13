@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+#region Copyright � 2019-2020 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -18,17 +18,14 @@
 #endregion
 
 using System;
-using System.Collections.Specialized;
-using System.Threading;
 using System.Threading.Tasks;
-using Xtate.Annotations;
 
-namespace Xtate
+namespace Xtate.XInclude
 {
-	[PublicAPI]
-	public interface IResourceLoader
+	public interface IXIncludeXmlResolver
 	{
-		bool                CanHandle(Uri uri);
-		ValueTask<Resource> Request(Uri uri, NameValueCollection? headers, CancellationToken token);
+		object? GetEntity(Uri uri, string? accept, string? acceptLanguage, Type? ofObjectToReturn);
+
+		Task<object?> GetEntityAsync(Uri uri, string? accept, string? acceptLanguage, Type? ofObjectToReturn);
 	}
 }

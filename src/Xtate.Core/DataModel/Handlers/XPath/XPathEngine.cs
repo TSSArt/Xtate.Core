@@ -63,7 +63,7 @@ namespace Xtate.DataModel.XPath
 
 			foreach (DataModelXPathNavigator navigator in iterator)
 			{
-				if (assignData != null)
+				if (assignData is not null)
 				{
 					Assign(navigator, assignData.AssignType, assignData.AssignAttributeName, rightValue);
 				}

@@ -49,18 +49,12 @@ namespace Xtate.Service
 
 	#region Interface IAsyncDisposable
 
-		public virtual ValueTask DisposeAsync()
+		public async ValueTask DisposeAsync()
 		{
-			try
-			{
-				Dispose();
+			await DisposeAsyncCore().ConfigureAwait(false);
 
-				return default;
-			}
-			catch (Exception ex)
-			{
-				return new ValueTask(Task.FromException(ex));
-			}
+			Dispose(false);
+			GC.SuppressFinalize(this);
 		}
 
 	#endregion
@@ -70,7 +64,6 @@ namespace Xtate.Service
 		public void Dispose()
 		{
 			Dispose(true);
-
 			GC.SuppressFinalize(this);
 		}
 
@@ -84,6 +77,8 @@ namespace Xtate.Service
 
 	#region Interface IService
 
+		public ValueTask<DataModelValue> GetResult(CancellationToken token) => _completedTcs.WaitAsync(token);
+
 		ValueTask IService.Destroy(CancellationToken token)
 		{
 			_tokenSource.Cancel();
@@ -91,8 +86,6 @@ namespace Xtate.Service
 
 			return default;
 		}
-
-		Task<DataModelValue> IService.Result => _completedTcs.Task;
 
 	#endregion
 
@@ -123,6 +116,18 @@ namespace Xtate.Service
 
 		protected abstract ValueTask<DataModelValue> Execute();
 
+		protected virtual ValueTask DisposeAsyncCore()
+		{
+			if (!_disposed)
+			{
+				_tokenSource.Dispose();
+
+				_disposed = true;
+			}
+
+			return default;
+		}
+		
 		protected virtual void Dispose(bool disposing)
 		{
 			if (_disposed)

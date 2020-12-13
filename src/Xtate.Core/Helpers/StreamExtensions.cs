@@ -18,8 +18,9 @@
 #endregion
 
 using System;
+using System.Buffers;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtate.Annotations;
@@ -33,116 +34,84 @@ namespace Xtate
 
 		public static Stream InjectCancellationToken(this Stream stream, CancellationToken token) => new InjectedCancellationStream(stream, token);
 
-		private class InjectedCancellationStream : Stream
+		[SuppressMessage(category: "ReSharper", checkId: "MethodHasAsyncOverloadWithCancellation")]
+		public static async ValueTask<byte[]> ReadToEndAsync(this Stream stream, CancellationToken token)
 		{
-			private readonly Stream            _stream;
+			if (stream is null) throw new ArgumentNullException(nameof(stream));
+
+			var longLength = stream.Length - stream.Position;
+			var capacity = 0 <= longLength && longLength <= int.MaxValue ? (int) longLength : 0;
+
+			var memoryStream = new MemoryStream(capacity);
+			var buffer = ArrayPool<byte>.Shared.Rent(4096);
+			try
+			{
+				while (true)
+				{
+					var bytesRead = await stream.ReadAsync(buffer, offset: 0, buffer.Length, token).ConfigureAwait(false);
+					if (bytesRead == 0)
+					{
+						return memoryStream.Length == memoryStream.Capacity ? memoryStream.GetBuffer() : memoryStream.ToArray();
+					}
+
+					memoryStream.Write(buffer, offset: 0, bytesRead);
+				}
+			}
+			finally
+			{
+				ArrayPool<byte>.Shared.Return(buffer);
+			}
+		}
+
+		private sealed class InjectedCancellationStream : DelegatedStream
+		{
 			private readonly CancellationToken _token;
 
 			public InjectedCancellationStream(Stream stream, CancellationToken token)
 			{
-				_stream = stream;
+				InnerStream = stream;
 				_token = token;
 			}
 
-			public override bool CanRead => _stream.CanRead;
-
-			public override bool CanSeek => _stream.CanSeek;
-
-			public override bool CanTimeout => _stream.CanTimeout;
-
-			public override bool CanWrite => _stream.CanWrite;
-
-			public override long Length => _stream.Length;
-
-			public override long Position
-			{
-				get => _stream.Position;
-				set => _stream.Position = value;
-			}
-
-			public override int ReadTimeout
-			{
-				get => _stream.ReadTimeout;
-				set => _stream.ReadTimeout = value;
-			}
-
-			public override int WriteTimeout
-			{
-				get => _stream.WriteTimeout;
-				set => _stream.WriteTimeout = value;
-			}
-
-			public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback? callback, object? state) => _stream.BeginRead(buffer, offset, count, callback, state);
-
-			public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback? callback, object? state) => _stream.BeginWrite(buffer, offset, count, callback, state);
-
-			public override void Close() => _stream.Close();
-
-			public override int EndRead(IAsyncResult asyncResult) => _stream.EndRead(asyncResult);
-
-			public override void EndWrite(IAsyncResult asyncResult) => _stream.EndWrite(asyncResult);
-
-			public override void Flush() => _stream.Flush();
-
-			public override int Read(byte[] buffer, int offset, int count) => _stream.Read(buffer, offset, count);
-
-			public override int ReadByte() => _stream.ReadByte();
-
-			public override long Seek(long offset, SeekOrigin origin) => _stream.Seek(offset, origin);
-
-			public override void SetLength(long value) => _stream.SetLength(value);
-
-			public override void Write(byte[] buffer, int offset, int count) => _stream.Write(buffer, offset, count);
-
-			public override void WriteByte(byte value) => _stream.WriteByte(value);
-
-			protected override void Dispose(bool disposing)
-			{
-				if (disposing)
-				{
-					_stream.Dispose();
-				}
-
-				base.Dispose(disposing);
-			}
+			protected override Stream InnerStream { get; }
 
 			public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken token) =>
-					IsCombinedTokenRequired(ref token) ? ReadAsyncInternal(buffer, offset, count, token) : _stream.ReadAsync(buffer, offset, count, token);
+					IsCombinedTokenRequired(ref token) ? ReadAsyncInternal(buffer, offset, count, token) : InnerStream.ReadAsync(buffer, offset, count, token);
 
 			private async Task<int> ReadAsyncInternal(byte[] buffer, int offset, int count, CancellationToken token)
 			{
 				using var cts = CancellationTokenSource.CreateLinkedTokenSource(token, _token);
 
-				return await _stream.ReadAsync(buffer, offset, count, cts.Token).ConfigureAwait(false);
+				return await InnerStream.ReadAsync(buffer, offset, count, cts.Token).ConfigureAwait(false);
 			}
 
 			public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken token) =>
-					IsCombinedTokenRequired(ref token) ? CopyToAsyncInternal(destination, bufferSize, token) : _stream.CopyToAsync(destination, bufferSize, token);
+					IsCombinedTokenRequired(ref token) ? CopyToAsyncInternal(destination, bufferSize, token) : InnerStream.CopyToAsync(destination, bufferSize, token);
 
 			private async Task CopyToAsyncInternal(Stream destination, int bufferSize, CancellationToken token)
 			{
 				using var cts = CancellationTokenSource.CreateLinkedTokenSource(token, _token);
 
-				await _stream.CopyToAsync(destination, bufferSize, cts.Token).ConfigureAwait(false);
+				await InnerStream.CopyToAsync(destination, bufferSize, cts.Token).ConfigureAwait(false);
 			}
 
-			public override Task FlushAsync(CancellationToken token) => IsCombinedTokenRequired(ref token) ? FlushAsyncInternal(token) : _stream.FlushAsync(token);
+			public override Task FlushAsync(CancellationToken token) => IsCombinedTokenRequired(ref token) ? FlushAsyncInternal(token) : InnerStream.FlushAsync(token);
 
 			private async Task FlushAsyncInternal(CancellationToken token)
 			{
 				using var cts = CancellationTokenSource.CreateLinkedTokenSource(token, _token);
 
-				await _stream.FlushAsync(cts.Token).ConfigureAwait(false);
+				await InnerStream.FlushAsync(cts.Token).ConfigureAwait(false);
 			}
 
 			public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken token) =>
-					IsCombinedTokenRequired(ref token) ? WriteAsyncInternal(buffer, offset, count, token) : _stream.WriteAsync(buffer, offset, count, token);
+					IsCombinedTokenRequired(ref token) ? WriteAsyncInternal(buffer, offset, count, token) : InnerStream.WriteAsync(buffer, offset, count, token);
 
 			private async Task WriteAsyncInternal(byte[] buffer, int offset, int count, CancellationToken token)
 			{
 				using var cts = CancellationTokenSource.CreateLinkedTokenSource(token, _token);
 
-				await _stream.WriteAsync(buffer, offset, count, cts.Token).ConfigureAwait(false);
+				await InnerStream.WriteAsync(buffer, offset, count, cts.Token).ConfigureAwait(false);
 			}
 
 			private bool IsCombinedTokenRequired(ref CancellationToken token)
@@ -158,63 +127,26 @@ namespace Xtate
 			}
 
 #if !NET461 && !NETSTANDARD2_0
-			public override void CopyTo(Stream destination, int bufferSize) => _stream.CopyTo(destination, bufferSize);
-
-			public override int Read(Span<byte> buffer) => _stream.Read(buffer);
-
-			public override void Write(ReadOnlySpan<byte> buffer) => _stream.Write(buffer);
-
 			public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken token = default) =>
-					IsCombinedTokenRequired(ref token) ? ReadAsyncInternal(buffer, token) : _stream.ReadAsync(buffer, token);
+					IsCombinedTokenRequired(ref token) ? ReadAsyncInternal(buffer, token) : InnerStream.ReadAsync(buffer, token);
 
 			private async ValueTask<int> ReadAsyncInternal(Memory<byte> buffer, CancellationToken token)
 			{
 				using var cts = CancellationTokenSource.CreateLinkedTokenSource(token, _token);
 
-				return await _stream.ReadAsync(buffer, cts.Token).ConfigureAwait(false);
+				return await InnerStream.ReadAsync(buffer, cts.Token).ConfigureAwait(false);
 			}
 
 			public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken token = default) =>
-					IsCombinedTokenRequired(ref token) ? WriteAsyncInternal(buffer, token) : _stream.WriteAsync(buffer, token);
+					IsCombinedTokenRequired(ref token) ? WriteAsyncInternal(buffer, token) : InnerStream.WriteAsync(buffer, token);
 
 			private async ValueTask WriteAsyncInternal(ReadOnlyMemory<byte> buffer, CancellationToken token)
 			{
 				using var cts = CancellationTokenSource.CreateLinkedTokenSource(token, _token);
 
-				await _stream.WriteAsync(buffer, cts.Token).ConfigureAwait(false);
+				await InnerStream.WriteAsync(buffer, cts.Token).ConfigureAwait(false);
 			}
-
-			public override async ValueTask DisposeAsync()
-			{
-				await _stream.DisposeAsync().ConfigureAwait(false);
-				await base.DisposeAsync().ConfigureAwait(false);
-			}
-
 #endif
 		}
-	}
-
-	[PublicAPI]
-	public readonly struct ConfiguredStreamAwaitable
-	{
-		private readonly Stream _stream;
-		private readonly bool   _continueOnCapturedContext;
-
-		public ConfiguredStreamAwaitable(Stream stream, bool continueOnCapturedContext)
-		{
-			_stream = stream;
-			_continueOnCapturedContext = continueOnCapturedContext;
-		}
-
-#if NET461 || NETSTANDARD2_0
-		public ConfiguredValueTaskAwaitable DisposeAsync()
-		{
-			_stream.Dispose();
-
-			return new ValueTask().ConfigureAwait(_continueOnCapturedContext);
-		}
-#else
-		public ConfiguredValueTaskAwaitable DisposeAsync() => _stream.DisposeAsync().ConfigureAwait(_continueOnCapturedContext);
-#endif
 	}
 }

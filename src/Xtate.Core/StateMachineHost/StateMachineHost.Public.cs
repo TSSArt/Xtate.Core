@@ -64,7 +64,7 @@ namespace Xtate
 
 	#region Interface IDisposable
 
-		public void Dispose() => DisposeAsync().AsTask().GetAwaiter().GetResult();
+		public void Dispose() => DisposeAsync().SynchronousWait();
 
 	#endregion
 

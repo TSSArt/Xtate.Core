@@ -18,7 +18,6 @@
 #endregion
 
 using System;
-using System.Collections.Specialized;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtate.Annotations;
@@ -26,9 +25,36 @@ using Xtate.Annotations;
 namespace Xtate
 {
 	[PublicAPI]
-	public interface IResourceLoader
+	internal static class IoBoundTask
 	{
-		bool                CanHandle(Uri uri);
-		ValueTask<Resource> Request(Uri uri, NameValueCollection? headers, CancellationToken token);
+		private static readonly SemaphoreSlim _poolSemaphore = new(initialCount: 64, maxCount: 64);
+
+		public static async Task<T> Run<T>(Func<T> func, CancellationToken token)
+		{
+			await _poolSemaphore.WaitAsync(token).ConfigureAwait(false);
+
+			try
+			{
+				return await Task.Factory.StartNew(func, token, TaskCreationOptions.LongRunning, TaskScheduler.Default).ConfigureAwait(false);
+			}
+			finally
+			{
+				_poolSemaphore.Release();
+			}
+		}
+
+		public static async Task<T> Run<T>(Func<object?, T> func, object? state, CancellationToken token)
+		{
+			await _poolSemaphore.WaitAsync(token).ConfigureAwait(false);
+
+			try
+			{
+				return await Task.Factory.StartNew(func, state, token, TaskCreationOptions.LongRunning, TaskScheduler.Default).ConfigureAwait(false);
+			}
+			finally
+			{
+				_poolSemaphore.Release();
+			}
+		}
 	}
 }

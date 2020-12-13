@@ -45,26 +45,18 @@ namespace Xtate.DataModel
 
 	#region Interface IResourceEvaluator
 
-		public virtual ValueTask<IObject> EvaluateObject(IExecutionContext executionContext, Resource resource, CancellationToken token)
-		{
-			Exception? parsingException = null;
-			var parsedValue = ParseToDataModel(resource, ref parsingException);
-
-			if (parsingException is not null)
-			{
-				Infrastructure.IgnoredException(parsingException);
-			}
-
-			return new ValueTask<IObject>(parsedValue);
-		}
+		public virtual async ValueTask<IObject> EvaluateObject(IExecutionContext executionContext, Resource resource, CancellationToken token) =>
+				await ParseToDataModel(resource, token).ConfigureAwait(false);
 
 	#endregion
 
-		protected virtual DataModelValue ParseToDataModel(Resource resource, ref Exception? parseException)
+		protected virtual async ValueTask<DataModelValue> ParseToDataModel(Resource resource, CancellationToken token)
 		{
 			if (resource is null) throw new ArgumentNullException(nameof(resource));
 
-			return resource.Content is { } content ? DataConverter.FromContent(content, resource.ContentType) : DataModelValue.Null;
+			return await resource.GetContent(token).ConfigureAwait(false) is { } content
+					? DataConverter.FromContent(content, resource.ContentType)
+					: DataModelValue.Null;
 		}
 	}
 }

@@ -19,6 +19,7 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Xtate.Annotations;
 
 namespace Xtate
@@ -28,6 +29,7 @@ namespace Xtate
 	public static class Infrastructure
 	{
 		[AssertionMethod]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void Assert([AssertionCondition(AssertionConditionType.IS_TRUE)] [DoesNotReturnIf(false)]
 								  bool condition)
 		{
@@ -40,6 +42,7 @@ namespace Xtate
 		}
 
 		[AssertionMethod]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void Assert([AssertionCondition(AssertionConditionType.IS_TRUE)] [DoesNotReturnIf(false)]
 								  bool condition, string message)
 		{
@@ -52,6 +55,7 @@ namespace Xtate
 		}
 
 		[AssertionMethod]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void NotNull([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] [NotNull]
 								   object? value)
 		{
@@ -64,6 +68,7 @@ namespace Xtate
 		}
 
 		[AssertionMethod]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void NotNull([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] [NotNull]
 								   object? value, string message)
 		{

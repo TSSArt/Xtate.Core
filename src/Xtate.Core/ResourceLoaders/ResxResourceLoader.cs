@@ -18,20 +18,16 @@
 #endregion
 
 using System;
+using System.Collections.Specialized;
 using System.IO;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
-using Xtate.Annotations;
 
 namespace Xtate
 {
-	[PublicAPI]
 	public sealed class ResxResourceLoader : IResourceLoader
 	{
-		private static readonly XmlReaderSettings CloseInputReaderSettings = new() { CloseInput = true };
-
 		public static IResourceLoader Instance { get; } = new ResxResourceLoader();
 
 	#region Interface IResourceLoader
@@ -43,45 +39,16 @@ namespace Xtate
 			return uri.IsAbsoluteUri && (uri.Scheme == @"res" || uri.Scheme == @"resx");
 		}
 
-		public async ValueTask<Resource> Request(Uri uri, CancellationToken token)
+		public async ValueTask<Resource> Request(Uri uri, NameValueCollection? headers,  CancellationToken token)
 		{
 			if (uri is null) throw new ArgumentNullException(nameof(uri));
 
-			var stream = GetResourceStream(uri);
-
-			await using (stream.ConfigureAwait(false))
-			{
-				var buffer = new byte[stream.Length];
-				await stream.ReadAsync(buffer, offset: 0, buffer.Length, token).ConfigureAwait(false);
-				return new Resource(uri, bytes: buffer);
-			}
-		}
-
-		public ValueTask<XmlReader> RequestXmlReader(Uri uri, XmlReaderSettings? readerSettings = default, XmlParserContext? parserContext = default, CancellationToken token = default)
-		{
-			if (uri is null) throw new ArgumentNullException(nameof(uri));
-
-			try
-			{
-				var stream = GetResourceStream(uri);
-
-				readerSettings ??= CloseInputReaderSettings;
-
-				if (!readerSettings.CloseInput)
-				{
-					readerSettings = readerSettings.Clone();
-					readerSettings.CloseInput = true;
-				}
-
-				return new ValueTask<XmlReader>(XmlReader.Create(stream, readerSettings, parserContext));
-			}
-			catch (Exception ex)
-			{
-				return new ValueTask<XmlReader>(Task.FromException<XmlReader>(ex));
-			}
+			return new Resource(await GetResourceStreamAsync(uri, token).ConfigureAwait(false));
 		}
 
 	#endregion
+
+		private static Task<Stream> GetResourceStreamAsync(Uri uri, CancellationToken token) => IoBoundTask.Run(state => GetResourceStream((Uri) state!), uri, token);
 
 		private static Stream GetResourceStream(Uri uri)
 		{
