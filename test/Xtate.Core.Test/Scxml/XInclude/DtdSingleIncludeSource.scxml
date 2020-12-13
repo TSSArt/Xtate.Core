@@ -1,0 +1,16 @@
+﻿<?xml version = "1.0"?>
+
+<!DOCTYPE scxml [
+  <!ENTITY include SYSTEM "SingleIncludeItem1.scxml" >
+]>
+
+<scxml xmlns="http://www.w3.org/2005/07/scxml"
+       version="1.0" initial="fin">
+  
+  <state id="state0"/>
+
+  &include;
+
+  <final id="fin"/>
+
+</scxml>

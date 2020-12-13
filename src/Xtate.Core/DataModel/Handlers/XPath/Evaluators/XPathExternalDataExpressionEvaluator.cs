@@ -17,7 +17,8 @@
 
 #endregion
 
-using System;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace Xtate.DataModel.XPath
@@ -26,9 +27,9 @@ namespace Xtate.DataModel.XPath
 	{
 		public XPathExternalDataExpressionEvaluator(in ExternalDataExpression externalDataExpression) : base(externalDataExpression) { }
 
-		protected override DataModelValue ParseToDataModel(Resource resource, ref Exception? parseException)
+		protected override async ValueTask<DataModelValue> ParseToDataModel(Resource resource, CancellationToken token)
 		{
-			var content = resource.Content;
+			var content = await resource.GetContent(token).ConfigureAwait(false);
 
 			if (content is null)
 			{
@@ -41,7 +42,7 @@ namespace Xtate.DataModel.XPath
 			}
 			catch (XmlException ex)
 			{
-				parseException = ex;
+				Infrastructure.IgnoredException(ex);
 
 				return content.NormalizeSpaces();
 			}

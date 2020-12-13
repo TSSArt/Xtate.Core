@@ -8,15 +8,21 @@
 
   <ItemGroup>
     <None Remove="Legacy\test.scxml" />
+    <None Remove="Scxml\XInclude\DtdSingleIncludeSource.scxml" />
+    <None Remove="Scxml\XInclude\SingleIncludeItem1.scxml" />
+    <None Remove="Scxml\XInclude\SingleIncludeSource.scxml" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Legacy\test.scxml" />
+    <EmbeddedResource Include="Scxml\XInclude\SingleIncludeItem1.scxml" />
+    <EmbeddedResource Include="Scxml\XInclude\DtdSingleIncludeSource.scxml" />
+    <EmbeddedResource Include="Scxml\XInclude\SingleIncludeSource.scxml" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.0-preview-20201020-06" />
-    <PackageReference Include="Moq" Version="4.15.1" />
+    <PackageReference Include="Moq" Version="4.15.2" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.1.2" />
     <PackageReference Include="MSTest.TestFramework" Version="2.1.2" />
     <PackageReference Include="coverlet.collector" Version="1.3.0">

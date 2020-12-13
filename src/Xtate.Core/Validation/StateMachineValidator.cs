@@ -270,7 +270,7 @@ namespace Xtate
 
 				if (entity.Condition is null)
 				{
-					AddError(entity, Resources.ErrorMessage_onditionRequiredForIf);
+					AddError(entity, Resources.ErrorMessage_ConditionRequiredForIf);
 				}
 
 				var condition = true;

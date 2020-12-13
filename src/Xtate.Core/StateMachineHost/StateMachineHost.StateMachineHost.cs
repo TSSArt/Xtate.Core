@@ -124,7 +124,7 @@ namespace Xtate
 		{
 			try
 			{
-				var result = await invokedService.Result.ConfigureAwait(false);
+				var result = await invokedService.GetResult(default).ConfigureAwait(false);
 
 				var nameParts = EventName.GetDoneInvokeNameParts(invokeId);
 				var evt = new EventObject(EventType.External, nameParts, result, sendId: null, invokeId);

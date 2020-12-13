@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <LangVersion>9.0</LangVersion>
-    <AnalysisLevel>latest</AnalysisLevel>
     <Product>Xtate</Product>
     <Company>T.S.S.Art</Company>
     <Authors>Sergii Artemenko</Authors>

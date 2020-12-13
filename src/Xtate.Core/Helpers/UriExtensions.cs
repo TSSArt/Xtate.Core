@@ -18,17 +18,21 @@
 #endregion
 
 using System;
-using System.Collections.Specialized;
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.Annotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Xtate
 {
-	[PublicAPI]
-	public interface IResourceLoader
+	public static class UriExtensions
 	{
-		bool                CanHandle(Uri uri);
-		ValueTask<Resource> Request(Uri uri, NameValueCollection? headers, CancellationToken token);
+		[return: NotNullIfNotNull("relativeUri")]
+		public static Uri? CombineWith(this Uri? baseUri, Uri? relativeUri)
+		{
+			if (baseUri is null || !baseUri.IsAbsoluteUri || relativeUri is null || relativeUri.IsAbsoluteUri)
+			{
+				return relativeUri;
+			}
+
+			return new Uri(baseUri, relativeUri);
+		}
 	}
 }

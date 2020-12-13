@@ -58,7 +58,7 @@ namespace Xtate
 		{
 			try
 			{
-				await controller.Result.ConfigureAwait(false);
+				await controller.GetResult(default).ConfigureAwait(false);
 			}
 			finally
 			{

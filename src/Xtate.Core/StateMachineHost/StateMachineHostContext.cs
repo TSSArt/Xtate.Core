@@ -20,7 +20,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,9 +35,6 @@ namespace Xtate
 		private const string SessionIdPrefix = "#_scxml_";
 		private const string InvokeIdPrefix  = "#_";
 		private const string Location        = "location";
-
-		private static readonly XmlReaderSettings DefaultSyncXmlReaderSettings  = new() { Async = false, CloseInput = true };
-		private static readonly XmlReaderSettings DefaultAsyncXmlReaderSettings = new() { Async = true, CloseInput = true };
 
 		private readonly DataModelList?                                          _configuration;
 		private readonly ImmutableDictionary<object, object>?                    _contextRuntimeItems;
@@ -114,50 +110,55 @@ namespace Xtate
 																			  Uri? stateMachineLocation, in InterpreterOptions defaultOptions) =>
 				new(sessionId, stateMachineOptions, stateMachine, stateMachineLocation, _stateMachineHost, _options.SuspendIdlePeriod, defaultOptions);
 
-		private static XmlReaderSettings GetXmlReaderSettings(bool useAsync = false) => useAsync ? DefaultAsyncXmlReaderSettings : DefaultSyncXmlReaderSettings;
+		private static XmlReaderSettings GetXmlReaderSettings(XmlNameTable nameTable, ScxmlXmlResolver xmlResolver) =>
+				new()
+				{
+						Async = true,
+						CloseInput = true,
+						NameTable = nameTable,
+						XmlResolver = xmlResolver,
+						DtdProcessing = DtdProcessing.Parse
+				};
 
-		private static XmlParserContext GetXmlParserContext()
+		private static XmlParserContext GetXmlParserContext(XmlNameTable nameTable, Uri? baseUri)
 		{
-			var nameTable = new NameTable();
 			var nsManager = new XmlNamespaceManager(nameTable);
-			return new XmlParserContext(nameTable, nsManager, xmlLang: null, XmlSpace.None);
+			return new XmlParserContext(nameTable, nsManager, xmlLang: null, XmlSpace.None) { BaseURI = baseUri?.ToString() };
 		}
 
 		private static IBuilderFactory GetBuilderFactory() => BuilderFactory.Instance;
 
-		private static IStateMachine GetStateMachine(string scxml, IErrorProcessor errorProcessor)
-		{
-			using var stringReader = new StringReader(scxml);
-			var xmlParserContext = GetXmlParserContext();
-			using var xmlReader = XmlReader.Create(stringReader, GetXmlReaderSettings(), xmlParserContext);
-			var scxmlDirector = new ScxmlDirector(xmlReader, GetBuilderFactory(), errorProcessor, xmlParserContext.NamespaceManager);
-
-			return scxmlDirector.ConstructStateMachine();
-		}
-
-		private async ValueTask<IStateMachine> GetStateMachine(Uri source, IErrorProcessor errorProcessor, CancellationToken token)
-		{
-			if (!_options.ResourceLoaders.IsDefaultOrEmpty)
-			{
-				foreach (var resourceLoader in _options.ResourceLoaders)
+		private static ScxmlDirectorOptions GetScxmlDirectorOptions(IErrorProcessor errorProcessor, XmlParserContext xmlParserContext,
+																	XmlReaderSettings xmlReaderSettings, ScxmlXmlResolver xmlResolver) =>
+				new()
 				{
-					if (resourceLoader.CanHandle(source))
-					{
-						var xmlParserContext = GetXmlParserContext();
-						using var xmlReader = await resourceLoader.RequestXmlReader(source, GetXmlReaderSettings(), xmlParserContext, token).ConfigureAwait(false);
-						var scxmlDirector = new ScxmlDirector(xmlReader, GetBuilderFactory(), errorProcessor, xmlParserContext.NamespaceManager);
+						ErrorProcessor = errorProcessor,
+						NamespaceResolver = xmlParserContext.NamespaceManager,
+						XmlReaderSettings = xmlReaderSettings,
+						XmlResolver = xmlResolver,
+						Async = true
+				};
 
-						return scxmlDirector.ConstructStateMachine();
-					}
-				}
-			}
+		private async ValueTask<IStateMachine> GetStateMachine(Uri? uri, string? scxml, IErrorProcessor errorProcessor, CancellationToken token)
+		{
+			var nameTable = new NameTable();
+			var xmlResolver = new RedirectXmlResolver(_options.ResourceLoaders, token);
+			var xmlParserContext = GetXmlParserContext(nameTable, uri);
+			var xmlReaderSettings = GetXmlReaderSettings(nameTable, xmlResolver);
+			var directorOptions = GetScxmlDirectorOptions(errorProcessor, xmlParserContext, xmlReaderSettings, xmlResolver);
 
-			throw new ProcessorException(Resources.Exception_Cannot_find_ResourceLoader_to_load_external_resource);
+			using var xmlReader = scxml is null
+					? XmlReader.Create(uri!.ToString(), xmlReaderSettings, xmlParserContext)
+					: XmlReader.Create(new StringReader(scxml), xmlReaderSettings, xmlParserContext);
+
+			var scxmlDirector = new ScxmlDirector(xmlReader, GetBuilderFactory(), directorOptions);
+
+			return await scxmlDirector.ConstructStateMachine().ConfigureAwait(false);
 		}
 
 		protected async ValueTask<(IStateMachine StateMachine, Uri? Location)> LoadStateMachine(StateMachineOrigin origin, Uri? hostBaseUri, IErrorProcessor errorProcessor, CancellationToken token)
 		{
-			var location = CombineUri(hostBaseUri, origin.BaseUri);
+			var location = hostBaseUri.CombineWith(origin.BaseUri);
 
 			switch (origin.Type)
 			{
@@ -166,29 +167,20 @@ namespace Xtate
 
 				case StateMachineOriginType.Scxml:
 				{
-					return (GetStateMachine(origin.AsScxml(), errorProcessor), location);
+					var stateMachine = await GetStateMachine(location, origin.AsScxml(), errorProcessor, token).ConfigureAwait(false);
+
+					return (stateMachine, location);
 				}
 				case StateMachineOriginType.Source:
 				{
-					location = CombineUri(location, origin.AsSource());
-					var stateMachine = await GetStateMachine(location, errorProcessor, token).ConfigureAwait(false);
+					location = location.CombineWith(origin.AsSource());
+					var stateMachine = await GetStateMachine(location, scxml: default, errorProcessor, token).ConfigureAwait(false);
 
 					return (stateMachine, location);
 				}
 				default:
 					throw new ArgumentException(Resources.Exception_StateMachine_origin_missed);
 			}
-		}
-
-		[return: NotNullIfNotNull("relativeUri")]
-		private static Uri? CombineUri(Uri? baseUri, Uri? relativeUri)
-		{
-			if (baseUri is not null && baseUri.IsAbsoluteUri && relativeUri is not null && !relativeUri.IsAbsoluteUri)
-			{
-				return new Uri(baseUri, relativeUri);
-			}
-
-			return relativeUri;
 		}
 
 		public virtual async ValueTask<StateMachineController> CreateAndAddStateMachine(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters,
@@ -200,6 +192,7 @@ namespace Xtate
 			interpreterOptions.Arguments = parameters;
 			interpreterOptions.ErrorProcessor = errorProcessor;
 			interpreterOptions.Host = CreateHostData(location);
+			interpreterOptions.BaseUri = location;
 
 			stateMachine.Is<IStateMachineOptions>(out var stateMachineOptions);
 
@@ -214,6 +207,7 @@ namespace Xtate
 			FillInterpreterOptions(out var interpreterOptions);
 			interpreterOptions.ErrorProcessor = errorProcessor;
 			interpreterOptions.Host = CreateHostData(stateMachineLocation);
+			interpreterOptions.BaseUri = stateMachineLocation;
 
 			var stateMachineController = CreateStateMachineController(sessionId, stateMachine: default, stateMachineOptions, stateMachineLocation, interpreterOptions);
 			RegisterStateMachineController(stateMachineController);
@@ -364,20 +358,17 @@ namespace Xtate
 			{
 				controller.TriggerDestroySignal();
 
-				if (!controller.Result.IsCompleted)
+				try
 				{
-					try
-					{
-						await controller.Result.WaitAsync(token).ConfigureAwait(false);
-					}
-					catch (OperationCanceledException ex) when (ex.CancellationToken == token)
-					{
-						throw;
-					}
-					catch
-					{
-						// ignored
-					}
+					await controller.GetResult(token).ConfigureAwait(false);
+				}
+				catch (OperationCanceledException ex) when (ex.CancellationToken == token)
+				{
+					throw;
+				}
+				catch
+				{
+					// ignored
 				}
 			}
 		}
@@ -393,14 +384,9 @@ namespace Xtate
 				foreach (var pair in _stateMachineBySessionId)
 				{
 					var controller = pair.Value;
-					if (controller.Result.IsCompleted)
-					{
-						continue;
-					}
-
 					try
 					{
-						await controller.Result.WaitAsync(token).ConfigureAwait(false);
+						await controller.GetResult(token).ConfigureAwait(false);
 					}
 					catch (OperationCanceledException ex) when (ex.CancellationToken == token)
 					{

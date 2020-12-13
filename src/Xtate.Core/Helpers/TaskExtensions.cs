@@ -26,35 +26,33 @@ namespace Xtate
 	[PublicAPI]
 	internal static class TaskExtensions
 	{
-		public static Task<T> WaitAsync<T>(this Task<T> task, CancellationToken token)
+		public static void SynchronousWait(this ValueTask valueTask)
 		{
-			if (task.IsCompleted || !token.CanBeCanceled)
+			if (valueTask.IsCompleted)
 			{
-				return task;
+				valueTask.GetAwaiter().GetResult();
 			}
-
-			if (token.IsCancellationRequested)
+			else
 			{
-				return Task.FromCanceled<T>(token);
-			}
-
-			return WaitAsyncLocal();
-
-			async Task<T> WaitAsyncLocal()
-			{
-				await Task.WhenAny(task, Task.Delay(millisecondsDelay: -1, token)).ConfigureAwait(false);
-
-				token.ThrowIfCancellationRequested();
-
-				return await task.ConfigureAwait(false);
+				valueTask.AsTask().GetAwaiter().GetResult();
 			}
 		}
 
-		public static ValueTask<T> WaitAsync<T>(this ValueTask<T> valueTask, CancellationToken token)
+		public static T SynchronousGetResult<T>(this ValueTask<T> valueTask)
 		{
-			if (valueTask.IsCompleted || !token.CanBeCanceled)
+			if (valueTask.IsCompleted)
 			{
-				return valueTask;
+				return valueTask.GetAwaiter().GetResult();
+			}
+
+			return valueTask.AsTask().GetAwaiter().GetResult();
+		}
+
+		public static ValueTask<T> WaitAsync<T>(this TaskCompletionSource<T> tcs, CancellationToken token)
+		{
+			if (tcs.Task.IsCompleted || !token.CanBeCanceled)
+			{
+				return new ValueTask<T>(tcs.Task);
 			}
 
 			if (token.IsCancellationRequested)
@@ -66,13 +64,11 @@ namespace Xtate
 
 			async ValueTask<T> WaitAsyncLocal()
 			{
-				var task = valueTask.AsTask();
-
-				await Task.WhenAny(task, Task.Delay(millisecondsDelay: -1, token)).ConfigureAwait(false);
+				await Task.WhenAny(tcs.Task, Task.Delay(millisecondsDelay: -1, token)).ConfigureAwait(false);
 
 				token.ThrowIfCancellationRequested();
 
-				return await task.ConfigureAwait(false);
+				return await tcs.Task.ConfigureAwait(false);
 			}
 		}
 

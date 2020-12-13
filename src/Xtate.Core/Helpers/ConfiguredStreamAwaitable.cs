@@ -17,18 +17,37 @@
 
 #endregion
 
-using System;
-using System.Collections.Specialized;
-using System.Threading;
-using System.Threading.Tasks;
+using System.IO;
+using System.Runtime.CompilerServices;
 using Xtate.Annotations;
+#if NET461 || NETSTANDARD2_0
+using System.Threading.Tasks;
+
+#endif
 
 namespace Xtate
 {
 	[PublicAPI]
-	public interface IResourceLoader
+	public readonly struct ConfiguredStreamAwaitable
 	{
-		bool                CanHandle(Uri uri);
-		ValueTask<Resource> Request(Uri uri, NameValueCollection? headers, CancellationToken token);
+		private readonly bool   _continueOnCapturedContext;
+		private readonly Stream _stream;
+
+		public ConfiguredStreamAwaitable(Stream stream, bool continueOnCapturedContext)
+		{
+			_stream = stream;
+			_continueOnCapturedContext = continueOnCapturedContext;
+		}
+
+		public ConfiguredValueTaskAwaitable DisposeAsync()
+		{
+#if NET461 || NETSTANDARD2_0
+			_stream.Dispose();
+
+			return new ValueTask().ConfigureAwait(_continueOnCapturedContext);
+#else
+			return _stream.DisposeAsync().ConfigureAwait(_continueOnCapturedContext);
+#endif
+		}
 	}
 }

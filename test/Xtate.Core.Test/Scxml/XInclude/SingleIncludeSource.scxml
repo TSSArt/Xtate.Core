@@ -1,0 +1,11 @@
+﻿<scxml xmlns="http://www.w3.org/2005/07/scxml"
+       xmlns:xi="http://www.w3.org/2003/XInclude"
+       version="1.0" initial="fin">
+  
+  <state id="state0"/>
+
+  <xi:include href="SingleIncludeItem1.scxml"/>
+
+  <final id="fin"/>
+
+</scxml>
