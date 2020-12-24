@@ -34,6 +34,7 @@ namespace Xtate.Scxml
 		public ScxmlXmlResolver?       XmlResolver           { get; set; }
 		public IStateMachineValidator? StateMachineValidator { get; set; }
 		public bool                    Async                 { get; set; }
+		public bool                    XIncludeAllowed       { get; set; }
 
 		public int MaxNestingLevel
 		{

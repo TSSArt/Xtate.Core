@@ -24,12 +24,13 @@ using System.Threading;
 namespace Xtate
 {
 	[Serializable]
-	public sealed class InvokeId : LazyId
+	public sealed class InvokeId : LazyId, IEquatable<InvokeId>
 	{
 		internal static readonly IEqualityComparer<InvokeId> InvokeUniqueIdComparer = new InvokeUniqueIdEqualityComparer();
 
 		private readonly IIdentifier? _stateId;
-		private          string?      _invokeUniqueId;
+
+		private string? _invokeUniqueId;
 
 		private InvokeId(IIdentifier stateId) => _stateId = stateId;
 
@@ -52,6 +53,12 @@ namespace Xtate
 				return invokeUniqueId;
 			}
 		}
+
+	#region Interface IEquatable<InvokeId>
+
+		public bool Equals(InvokeId? other) => SameTypeEquals(other);
+
+	#endregion
 
 		protected override string GenerateId()
 		{

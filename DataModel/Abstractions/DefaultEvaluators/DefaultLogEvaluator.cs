@@ -57,7 +57,7 @@ namespace Xtate.DataModel
 				data = DataModelValue.FromObject(obj).AsConstant();
 			}
 
-			await executionContext.Log(_log.Label, data, token).ConfigureAwait(false);
+			await executionContext.Log(LogLevel.Info, _log.Label, data, token: token).ConfigureAwait(false);
 		}
 
 	#endregion

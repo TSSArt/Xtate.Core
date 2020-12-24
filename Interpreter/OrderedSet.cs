@@ -115,5 +115,20 @@ namespace Xtate
 		}
 
 		public List<T> ToFilteredList(Predicate<T> predicate) => FindAll(predicate);
+
+		public List<T> ToFilteredList<TArg>(Func<T, TArg, bool> predicate, TArg arg)
+		{
+			var list = new List<T>();
+
+			foreach (var item in this)
+			{
+				if (predicate(item, arg))
+				{
+					list.Add(item);
+				}
+			}
+
+			return list;
+		}
 	}
 }
