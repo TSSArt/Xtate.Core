@@ -39,7 +39,7 @@ namespace Xtate
 			return uri.IsAbsoluteUri && (uri.Scheme == @"res" || uri.Scheme == @"resx");
 		}
 
-		public async ValueTask<Resource> Request(Uri uri, NameValueCollection? headers,  CancellationToken token)
+		public async ValueTask<Resource> Request(Uri uri, NameValueCollection? headers, CancellationToken token)
 		{
 			if (uri is null) throw new ArgumentNullException(nameof(uri));
 
@@ -48,7 +48,7 @@ namespace Xtate
 
 	#endregion
 
-		private static Task<Stream> GetResourceStreamAsync(Uri uri, CancellationToken token) => IoBoundTask.Run(state => GetResourceStream((Uri) state!), uri, token);
+		private static ValueTask<Stream> GetResourceStreamAsync(Uri uri, CancellationToken token) => IoBoundTask.DefaultPool.Run(state => GetResourceStream((Uri) state!), uri, token);
 
 		private static Stream GetResourceStream(Uri uri)
 		{

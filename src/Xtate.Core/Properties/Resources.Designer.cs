@@ -88,7 +88,7 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Name: [{0}]. SessionId: [{1}]. Label: &quot;{2}&quot;. Data: {3}.
+        ///   Looks up a localized string similar to Name: [{0}]. SessionId: [{1}]. Message: &quot;{2}&quot;. Arguments: {3} Exception: {4}.
         /// </summary>
         internal static string DefaultLogger_LogInfo {
             get {

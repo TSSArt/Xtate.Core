@@ -46,11 +46,11 @@ namespace Xtate.DataModel
 	#region Interface IResourceEvaluator
 
 		public virtual async ValueTask<IObject> EvaluateObject(IExecutionContext executionContext, Resource resource, CancellationToken token) =>
-				await ParseToDataModel(resource, token).ConfigureAwait(false);
+				await ParseToDataModel(executionContext, resource, token).ConfigureAwait(false);
 
 	#endregion
 
-		protected virtual async ValueTask<DataModelValue> ParseToDataModel(Resource resource, CancellationToken token)
+		protected virtual async ValueTask<DataModelValue> ParseToDataModel(IExecutionContext executionContext, Resource resource, CancellationToken token)
 		{
 			if (resource is null) throw new ArgumentNullException(nameof(resource));
 

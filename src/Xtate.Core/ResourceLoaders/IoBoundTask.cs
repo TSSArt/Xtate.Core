@@ -20,16 +20,24 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Xtate.Annotations;
 
 namespace Xtate
 {
-	[PublicAPI]
-	internal static class IoBoundTask
+	internal sealed class IoBoundTask : IDisposable
 	{
-		private static readonly SemaphoreSlim _poolSemaphore = new(initialCount: 64, maxCount: 64);
+		public static readonly IoBoundTask DefaultPool = new(64);
 
-		public static async Task<T> Run<T>(Func<T> func, CancellationToken token)
+		private readonly SemaphoreSlim _poolSemaphore;
+
+		private IoBoundTask(int maxPoolSize) => _poolSemaphore = new SemaphoreSlim(maxPoolSize, maxPoolSize);
+
+	#region Interface IDisposable
+
+		public void Dispose() => _poolSemaphore.Dispose();
+
+	#endregion
+
+		public async ValueTask<T> Run<T>(Func<T> func, CancellationToken token)
 		{
 			await _poolSemaphore.WaitAsync(token).ConfigureAwait(false);
 
@@ -43,7 +51,7 @@ namespace Xtate
 			}
 		}
 
-		public static async Task<T> Run<T>(Func<object?, T> func, object? state, CancellationToken token)
+		public async ValueTask<T> Run<T>(Func<object?, T> func, object? state, CancellationToken token)
 		{
 			await _poolSemaphore.WaitAsync(token).ConfigureAwait(false);
 

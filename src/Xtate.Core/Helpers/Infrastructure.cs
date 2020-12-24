@@ -28,56 +28,82 @@ namespace Xtate
 	[ExcludeFromCodeCoverage]
 	public static class Infrastructure
 	{
+		/// <summary>
+		///     Checks for a condition; if the condition is <see langword="false" />, throws
+		///     <see cref="Xtate.InfrastructureException" /> exception.
+		/// </summary>
+		/// <param name="condition">
+		///     The conditional expression to evaluate. If the condition is <see langword="true" />, execution
+		///     returned to caller.
+		/// </param>
 		[AssertionMethod]
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void Assert([AssertionCondition(AssertionConditionType.IS_TRUE)] [DoesNotReturnIf(false)]
 								  bool condition)
 		{
-			if (condition)
+			if (!condition)
 			{
-				return;
+				ThrowInfrastructureException();
 			}
-
-			throw new InfrastructureException(Resources.Exception_AssertionFailed);
 		}
 
+		/// <summary>
+		///     Checks for a condition; if the condition is <see langword="false" />, throws
+		///     <see cref="Xtate.InfrastructureException" /> exception.
+		/// </summary>
+		/// <param name="condition">
+		///     The conditional expression to evaluate. If the condition is <see langword="true" />, execution
+		///     returned to caller.
+		/// </param>
+		/// <param name="message">The message for <see cref="Xtate.InfrastructureException" />. </param>
 		[AssertionMethod]
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void Assert([AssertionCondition(AssertionConditionType.IS_TRUE)] [DoesNotReturnIf(false)]
 								  bool condition, string message)
 		{
-			if (condition)
+			if (!condition)
 			{
-				return;
+				ThrowInfrastructureException(message);
 			}
-
-			throw new InfrastructureException(message);
 		}
 
+		/// <summary>
+		///     Checks value for a null; if the value is <see langword="null" />, throws
+		///     <see cref="Xtate.InfrastructureException" /> exception.
+		/// </summary>
+		/// <param name="value">
+		///     The value to check for null. If the value is not <see langword="null" />, execution returned to
+		///     caller.
+		/// </param>
 		[AssertionMethod]
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void NotNull([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] [NotNull]
 								   object? value)
 		{
-			if (value is not null)
+			if (value is null)
 			{
-				return;
+				ThrowInfrastructureException();
 			}
-
-			throw new InfrastructureException(Resources.Exception_AssertionFailed);
 		}
 
+		/// <summary>
+		///     Checks value for a null; if the value is <see langword="null" />, throws
+		///     <see cref="Xtate.InfrastructureException" /> exception.
+		/// </summary>
+		/// <param name="value">
+		///     The value to check for null. If the value is not <see langword="null" />, execution returned to
+		///     caller.
+		/// </param>
+		/// <param name="message">The message for <see cref="Xtate.InfrastructureException" />. </param>
 		[AssertionMethod]
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void NotNull([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] [NotNull]
 								   object? value, string message)
 		{
-			if (value is not null)
+			if (value is null)
 			{
-				return;
+				ThrowInfrastructureException(message);
 			}
-
-			throw new InfrastructureException(message);
 		}
 
 		[AssertionMethod]
@@ -85,8 +111,6 @@ namespace Xtate
 		public static void Fail()
 		{
 			Assert(false);
-
-			throw new NotSupportedException();
 		}
 
 		[AssertionMethod]
@@ -94,8 +118,6 @@ namespace Xtate
 		public static void Fail(string message)
 		{
 			Assert(condition: false, message);
-
-			throw new NotSupportedException();
 		}
 
 		[AssertionMethod]
@@ -116,20 +138,27 @@ namespace Xtate
 			throw new NotSupportedException();
 		}
 
+		[DoesNotReturn]
+		private static void ThrowInfrastructureException() => throw new InfrastructureException(Resources.Exception_AssertionFailed);
+
+		[DoesNotReturn]
+		private static void ThrowInfrastructureException(string message) => throw new InfrastructureException(message);
+
+		[DoesNotReturn]
 		private static void AssertUnexpectedValue(object? value, string message)
 		{
 			if (value is null)
 			{
 				Assert(condition: false, @$"{message} (null)");
 
-				return;
+				throw new NotSupportedException();
 			}
 
 			if (value.GetType().IsValueType)
 			{
 				Assert(condition: false, @$"{message} ({value.GetType().FullName}:{value})");
 
-				return;
+				throw new NotSupportedException();
 			}
 
 			Assert(condition: false, @$"{message} ({value.GetType().FullName})");
@@ -140,8 +169,6 @@ namespace Xtate
 		public static void UnexpectedValue(object? value)
 		{
 			AssertUnexpectedValue(value, Resources.Exception_UnexpectedValue);
-
-			throw new NotSupportedException();
 		}
 
 		[AssertionMethod]
@@ -149,8 +176,6 @@ namespace Xtate
 		public static void UnexpectedValue(object? value, string message)
 		{
 			AssertUnexpectedValue(value, message);
-
-			throw new NotSupportedException();
 		}
 
 		[AssertionMethod]
@@ -170,7 +195,5 @@ namespace Xtate
 
 			throw new NotSupportedException();
 		}
-
-		public static void IgnoredException(Exception _) { }
 	}
 }

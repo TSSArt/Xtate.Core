@@ -51,20 +51,20 @@ namespace Xtate
 						.Append(hash.ToString(@"x8")).ToString();
 #else
 		public static string NewInvokeId([Localizable(false)] string id, int hash) =>
-				string.Create(33 + id.Length, (id, hash), (span, arg) =>
+				string.Create(33 + id.Length, (id, hash), static (span, arg) =>
 														  {
 															  arg.id.AsSpan().CopyTo(span);
 															  span[arg.id.Length] = '.';
 															  span = span[(arg.id.Length + 1)..];
 															  Guid.NewGuid().TryFormat(span, out var pos, format: @"N");
-															  hash.TryFormat(span[(pos - 8)..], out pos, format: @"x8");
+															  arg.hash.TryFormat(span[(pos - 8)..], out pos, format: @"x8");
 														  });
 
 		private static string NewGuidWithHash(int hash) =>
-				string.Create(length: 32, hash, (span, _) =>
+				string.Create(length: 32, hash, static (span, h) =>
 												{
 													Guid.NewGuid().TryFormat(span, out var pos, format: @"N");
-													hash.TryFormat(span[(pos - 8)..], out pos, format: @"x8");
+													h.TryFormat(span[(pos - 8)..], out pos, format: @"x8");
 												});
 #endif
 	}

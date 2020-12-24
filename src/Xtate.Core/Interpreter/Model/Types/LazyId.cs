@@ -128,6 +128,21 @@ namespace Xtate
 			return _id == ((LazyId) obj)._id;
 		}
 
+		protected bool SameTypeEquals(LazyId? lazyId)
+		{
+			if (ReferenceEquals(this, lazyId))
+			{
+				return true;
+			}
+
+			if (lazyId is null || _id is null)
+			{
+				return false;
+			}
+
+			return _id == lazyId._id;
+		}
+
 		public static bool operator ==(LazyId? left, LazyId? right) => Equals(left, right);
 
 		public static bool operator !=(LazyId? left, LazyId? right) => !Equals(left, right);

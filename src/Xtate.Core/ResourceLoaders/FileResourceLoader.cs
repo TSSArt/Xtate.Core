@@ -51,7 +51,7 @@ namespace Xtate
 
 	#endregion
 
-		private static Task<FileStream> OpenFileForReadAsync(string path, CancellationToken token) =>
-				IoBoundTask.Run(state => new FileStream((string) state!, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 1, OpenFileOptions), path, token);
+		private static ValueTask<FileStream> OpenFileForReadAsync(string path, CancellationToken token) =>
+				IoBoundTask.DefaultPool.Run(state => new FileStream((string) state!, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 1, OpenFileOptions), path, token);
 	}
 }
