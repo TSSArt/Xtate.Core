@@ -29,7 +29,7 @@ namespace Xtate
 	{
 		bool IsTracingEnabled { get; }
 
-		ValueTask ExecuteLog(ILoggerContext loggerContext, string? label, DataModelValue data, CancellationToken token);
+		ValueTask ExecuteLog(ILoggerContext loggerContext, LogLevel logLevel, string? message, DataModelValue arguments, Exception? exception, CancellationToken token);
 		ValueTask LogError(ILoggerContext loggerContext, ErrorType errorType, Exception exception, string? sourceEntityId, CancellationToken token);
 		ValueTask TraceProcessingEvent(ILoggerContext loggerContext, IEvent evt, CancellationToken token);
 		ValueTask TraceEnteringState(ILoggerContext loggerContext, IIdentifier stateId, CancellationToken token);

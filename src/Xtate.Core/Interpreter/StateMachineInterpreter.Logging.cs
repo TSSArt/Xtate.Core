@@ -70,18 +70,6 @@ namespace Xtate
 			return false;
 		}
 
-		private async ValueTask LogInformation(string? label, DataModelValue data, CancellationToken token)
-		{
-			try
-			{
-				await _logger.ExecuteLog(this, label, data, token).ConfigureAwait(false);
-			}
-			catch (Exception ex)
-			{
-				throw new PlatformException(ex, _sessionId);
-			}
-		}
-
 		private async ValueTask LogError(ErrorType errorType, string? sourceEntityId, Exception exception, CancellationToken token)
 		{
 			try

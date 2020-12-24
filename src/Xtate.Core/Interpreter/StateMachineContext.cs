@@ -91,7 +91,8 @@ namespace Xtate
 			await _externalCommunication.CancelEvent(sendId, token).ConfigureAwait(false);
 		}
 
-		public ValueTask Log(string? label, DataModelValue arguments, CancellationToken token) => _logger.ExecuteLog(_loggerContext, label, arguments, token);
+		public ValueTask Log(LogLevel logLevel, string? message, DataModelValue arguments, Exception? exception, CancellationToken token) =>
+				_logger.ExecuteLog(_loggerContext, logLevel, message, arguments, exception, token);
 
 		public async ValueTask StartInvoke(InvokeData invokeData, CancellationToken token = default)
 		{

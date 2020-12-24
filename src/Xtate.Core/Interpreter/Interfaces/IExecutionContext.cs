@@ -17,11 +17,19 @@
 
 #endregion
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Xtate
 {
+	public enum LogLevel
+	{
+		Info,
+		Warning,
+		Error
+	}
+
 	public interface IExecutionContext
 	{
 		IContextItems RuntimeItems { get; }
@@ -32,13 +40,13 @@ namespace Xtate
 
 		ValueTask Cancel(SendId sendId, CancellationToken token = default);
 
-		ValueTask Log(string? label, DataModelValue arguments = default, CancellationToken token = default);
-
 		ValueTask Send(IOutgoingEvent evt, CancellationToken token = default);
 
 		ValueTask StartInvoke(InvokeData invokeData, CancellationToken token = default);
 
 		ValueTask CancelInvoke(InvokeId invokeId, CancellationToken token = default);
+
+		ValueTask Log(LogLevel logLevel, string? message = default, DataModelValue arguments = default, Exception? exception = default, CancellationToken token = default);
 	}
 
 	public interface IContextItems

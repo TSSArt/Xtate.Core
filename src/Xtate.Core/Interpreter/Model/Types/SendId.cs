@@ -23,11 +23,17 @@ using System.Diagnostics.CodeAnalysis;
 namespace Xtate
 {
 	[Serializable]
-	public sealed class SendId : LazyId
+	public sealed class SendId : LazyId, IEquatable<SendId>
 	{
 		private SendId() { }
 
 		private SendId(string val) : base(val) { }
+
+	#region Interface IEquatable<SendId>
+
+		public bool Equals(SendId? other) => SameTypeEquals(other);
+
+	#endregion
 
 		protected override string GenerateId() => IdGenerator.NewSendId(GetHashCode());
 

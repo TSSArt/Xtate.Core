@@ -52,8 +52,10 @@ namespace Xtate.DataModel
 
 	#region Interface IObjectEvaluator
 
-		public virtual ValueTask<IObject> EvaluateObject(IExecutionContext executionContext, CancellationToken token)
+		public virtual async ValueTask<IObject> EvaluateObject(IExecutionContext executionContext, CancellationToken token)
 		{
+			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
+
 			if (_parsingException is null && _parsedValue.IsUndefined())
 			{
 				_parsedValue = ParseToDataModel(ref _parsingException);
@@ -62,10 +64,10 @@ namespace Xtate.DataModel
 
 			if (_parsingException is not null)
 			{
-				Infrastructure.IgnoredException(_parsingException);
+				await executionContext.Log(LogLevel.Warning, exception: _parsingException, token: token).ConfigureAwait(false);
 			}
 
-			return new ValueTask<IObject>(_parsedValue.CloneAsWritable());
+			return _parsedValue.CloneAsWritable();
 		}
 
 	#endregion

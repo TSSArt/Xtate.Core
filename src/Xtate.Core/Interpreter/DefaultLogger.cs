@@ -30,9 +30,26 @@ namespace Xtate
 
 		private DefaultLogger() { }
 
-		public ValueTask ExecuteLog(ILoggerContext loggerContext, string? label, DataModelValue data, CancellationToken token)
+		public ValueTask ExecuteLog(ILoggerContext loggerContext, LogLevel logLevel, string? message, DataModelValue arguments, Exception? exception, CancellationToken token)
 		{
-			Trace.TraceInformation(Resources.DefaultLogger_LogInfo, loggerContext.StateMachineName, loggerContext.SessionId?.Value, label, loggerContext.ConvertToText(data));
+			switch (logLevel)
+			{
+				case LogLevel.Info:
+					Trace.TraceInformation(Resources.DefaultLogger_LogInfo, loggerContext.StateMachineName, loggerContext.SessionId?.Value, message, loggerContext.ConvertToText(arguments), exception);
+					break;
+
+				case LogLevel.Warning:
+					Trace.TraceWarning(Resources.DefaultLogger_LogInfo, loggerContext.StateMachineName, loggerContext.SessionId?.Value, message, loggerContext.ConvertToText(arguments), exception);
+					break;
+
+				case LogLevel.Error:
+					Trace.TraceError(Resources.DefaultLogger_LogInfo, loggerContext.StateMachineName, loggerContext.SessionId?.Value, message, loggerContext.ConvertToText(arguments), exception);
+					break;
+
+				default:
+					Infrastructure.UnexpectedValue(logLevel);
+					break;
+			}
 
 			return default;
 		}

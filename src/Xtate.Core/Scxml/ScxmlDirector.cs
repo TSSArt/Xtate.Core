@@ -90,13 +90,17 @@ namespace Xtate.Scxml
 		{
 			if (xmlReader is null) throw new ArgumentNullException(nameof(xmlReader));
 
-			var xmlResolver = options?.XmlResolver ?? ScxmlXmlResolver.DefaultInstance;
-			var settings = options?.XmlReaderSettings is null ? new XmlReaderSettings() : options.XmlReaderSettings.Clone();
+			if (options?.XIncludeAllowed is not true)
+			{
+				return xmlReader;
+			}
+
+			var xmlResolver = options.XmlResolver ?? ScxmlXmlResolver.DefaultInstance;
+			var settings = options.XmlReaderSettings is null ? new XmlReaderSettings() : options.XmlReaderSettings.Clone();
 			settings.XmlResolver = xmlResolver;
 			settings.NameTable = xmlReader.NameTable;
-			settings.Async = true;
 
-			return new XIncludeReader(xmlReader, settings, xmlResolver, options?.MaxNestingLevel ?? 0);
+			return new XIncludeReader(xmlReader, settings, xmlResolver, options.MaxNestingLevel);
 		}
 
 		private static void FillNameTable(XmlNameTable nameTable)

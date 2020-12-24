@@ -539,7 +539,7 @@
     <value>Invalid InvokeId.</value>
   </data>
   <data name="DefaultLogger_LogInfo" xml:space="preserve">
-    <value>Name: [{0}]. SessionId: [{1}]. Label: "{2}". Data: {3}</value>
+    <value>Name: [{0}]. SessionId: [{1}]. Message: "{2}". Arguments: {3} Exception: {4}</value>
   </data>
   <data name="DefaultLogger_LogError" xml:space="preserve">
     <value>Type: [{0}]. Name: [{1}]. SessionId: [{2}]. SourceEntityId: [{3}]. Exception: {4}</value>

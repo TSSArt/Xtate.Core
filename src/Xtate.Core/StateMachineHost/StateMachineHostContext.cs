@@ -136,6 +136,7 @@ namespace Xtate
 						NamespaceResolver = xmlParserContext.NamespaceManager,
 						XmlReaderSettings = xmlReaderSettings,
 						XmlResolver = xmlResolver,
+						XIncludeAllowed = true,
 						Async = true
 				};
 

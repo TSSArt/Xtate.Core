@@ -979,12 +979,14 @@ namespace Xtate
 			{
 				foreach (var history in state.HistoryStates)
 				{
-					var predicate = history.Type == HistoryType.Deep ? (Predicate<StateEntityNode>) Deep : Shallow;
+					static bool Deep(StateEntityNode node, StateEntityNode state)    => node.IsAtomicState && IsDescendant(node, state);
+					static bool Shallow(StateEntityNode node, StateEntityNode state) => node.Parent == state;
 
-					bool Deep(StateEntityNode node)    => node.IsAtomicState && IsDescendant(node, state);
-					bool Shallow(StateEntityNode node) => node.Parent == state;
-
-					_context.HistoryValue.Set(history.Id, _context.Configuration.ToFilteredList(predicate));
+					var list = history.Type == HistoryType.Deep
+							? _context.Configuration.ToFilteredList(Deep, state)
+							: _context.Configuration.ToFilteredList(Shallow, state);
+					
+					_context.HistoryValue.Set(history.Id, list);
 				}
 			}
 
@@ -1129,7 +1131,8 @@ namespace Xtate
 		{
 			if (state is CompoundNode)
 			{
-				return state.States.Any(s => s is FinalNode && _context.Configuration.IsMember(s));
+				static bool Predicate(StateEntityNode s, OrderedSet<StateEntityNode> cfg) => s is FinalNode && cfg.IsMember(s);
+				return state.States.Any(Predicate, _context.Configuration);
 			}
 
 			if (state is ParallelNode)
@@ -1235,7 +1238,7 @@ namespace Xtate
 					{
 						foreach (var child in state.States)
 						{
-							if (!statesToEnter.Exists(s => IsDescendant(s, child)))
+							if (!statesToEnter.Exists(IsDescendant, child))
 							{
 								AddDescendantStatesToEnter(child, statesToEnter, statesForDefaultEntry, defaultHistoryContent);
 							}
@@ -1263,7 +1266,7 @@ namespace Xtate
 				{
 					foreach (var child in anc.States)
 					{
-						if (!statesToEnter.Exists(s => IsDescendant(s, child)))
+						if (!statesToEnter.Exists(IsDescendant, child))
 						{
 							AddDescendantStatesToEnter(child, statesToEnter, statesForDefaultEntry, defaultHistoryContent);
 						}
@@ -1294,7 +1297,7 @@ namespace Xtate
 				return null;
 			}
 
-			if (transition.Type == TransitionType.Internal && transition.Source is CompoundNode && tstates.TrueForAll(s => IsDescendant(s, transition.Source)))
+			if (transition.Type == TransitionType.Internal && transition.Source is CompoundNode && tstates.TrueForAll(IsDescendant, transition.Source))
 			{
 				return transition.Source;
 			}
@@ -1313,7 +1316,7 @@ namespace Xtate
 
 			foreach (var anc in ancestors)
 			{
-				if (tailStates.TrueForAll(s => IsDescendant(s, anc)))
+				if (tailStates.TrueForAll(IsDescendant, anc))
 				{
 					return anc;
 				}

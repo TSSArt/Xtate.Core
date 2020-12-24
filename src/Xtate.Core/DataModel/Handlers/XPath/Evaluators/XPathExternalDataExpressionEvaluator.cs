@@ -27,7 +27,7 @@ namespace Xtate.DataModel.XPath
 	{
 		public XPathExternalDataExpressionEvaluator(in ExternalDataExpression externalDataExpression) : base(externalDataExpression) { }
 
-		protected override async ValueTask<DataModelValue> ParseToDataModel(Resource resource, CancellationToken token)
+		protected override async ValueTask<DataModelValue> ParseToDataModel(IExecutionContext executionContext, Resource resource, CancellationToken token)
 		{
 			var content = await resource.GetContent(token).ConfigureAwait(false);
 
@@ -42,7 +42,7 @@ namespace Xtate.DataModel.XPath
 			}
 			catch (XmlException ex)
 			{
-				Infrastructure.IgnoredException(ex);
+				await executionContext.Log(LogLevel.Warning, exception: ex, token: token).ConfigureAwait(false);
 
 				return content.NormalizeSpaces();
 			}

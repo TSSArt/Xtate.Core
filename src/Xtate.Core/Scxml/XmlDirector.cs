@@ -143,6 +143,8 @@ namespace Xtate.Scxml
 			return policy;
 		}
 
+		private bool ValidXmlReader() => _xmlReader.ReadState == ReadState.Interactive;
+
 		private async ValueTask<bool> IsStartElement()
 		{
 			if (_xmlReader.NodeType != XmlNodeType.Element)
@@ -150,7 +152,7 @@ namespace Xtate.Scxml
 				await MoveToContent().ConfigureAwait(false);
 			}
 
-			return _xmlReader.IsStartElement();
+			return ValidXmlReader() && _xmlReader.IsStartElement();
 		}
 
 		private async ValueTask ReadStartElement()
@@ -175,58 +177,78 @@ namespace Xtate.Scxml
 
 		private void PopulateAttributes<TEntity>(TEntity entity, Policy<TEntity> policy, Policy<TEntity>.ValidationContext validationContext)
 		{
-			for (var exists = _xmlReader.MoveToFirstAttribute(); exists; exists = _xmlReader.MoveToNextAttribute())
+			try
 			{
-				var ns = _xmlReader.NamespaceURI;
-				var name = _xmlReader.LocalName;
-				validationContext.ValidateAttribute(ns, name);
-				if (policy.AttributeLocated(ns, name) is { } located)
+				for (var exists = _xmlReader.MoveToFirstAttribute(); exists; exists = _xmlReader.MoveToNextAttribute())
 				{
-					try
+					var ns = _xmlReader.NamespaceURI;
+					var name = _xmlReader.LocalName;
+					validationContext.ValidateAttribute(ns, name);
+					if (policy.AttributeLocated(ns, name) is { } located)
 					{
-						located((TDirector) this, entity);
-					}
-					catch (Exception ex)
-					{
-						AddError(Resources.ErrorMessage_FailureAttributeProcessing, ex);
+						try
+						{
+							located((TDirector) this, entity);
+						}
+						catch (Exception ex)
+						{
+							AddError(Resources.ErrorMessage_FailureAttributeProcessing, ex);
+
+							if (!ValidXmlReader())
+							{
+								return;
+							}
+						}
 					}
 				}
+
+				_xmlReader.MoveToElement();
 			}
-
-			_xmlReader.MoveToElement();
-
-			validationContext.ProcessAttributesCompleted();
+			finally
+			{
+				validationContext.ProcessAttributesCompleted();
+			}
 		}
 
 		private async ValueTask PopulateElements<TEntity>(TEntity entity, Policy<TEntity> policy, Policy<TEntity>.ValidationContext validationContext)
 		{
-			await ReadStartElement().ConfigureAwait(false);
-
-			while (await IsStartElement().ConfigureAwait(false))
+			try
 			{
-				var ns = _xmlReader.NamespaceURI;
-				var name = _xmlReader.LocalName;
-				validationContext.ValidateElement(ns, name);
-				if (policy.ElementLocated(ns, name) is { } located)
+				await ReadStartElement().ConfigureAwait(false);
+
+				while (await IsStartElement().ConfigureAwait(false))
 				{
-					try
+					var ns = _xmlReader.NamespaceURI;
+					var name = _xmlReader.LocalName;
+					validationContext.ValidateElement(ns, name);
+					if (policy.ElementLocated(ns, name) is { } located)
 					{
-						await located((TDirector) this, entity).ConfigureAwait(false);
+						try
+						{
+							await located((TDirector) this, entity).ConfigureAwait(false);
+						}
+						catch (Exception ex)
+						{
+							AddError(Resources.ErrorMessage_FailureElementProcessing, ex);
+
+							if (!ValidXmlReader())
+							{
+								return;
+							}
+						}
 					}
-					catch (Exception ex)
+					else
 					{
-						AddError(Resources.ErrorMessage_FailureElementProcessing, ex);
+						await Skip().ConfigureAwait(false);
 					}
 				}
-				else
-				{
-					await Skip().ConfigureAwait(false);
-				}
+
+				await ReadEndElement().ConfigureAwait(false);
 			}
-
-			validationContext.ProcessElementsCompleted();
-
-			await ReadEndElement().ConfigureAwait(false);
+			finally
+			{
+				validationContext.ProcessElementsCompleted();
+			}
 		}
 
 		private void AddError(string message, Exception exception) => _errorProcessor.AddError<XmlDirector<TDirector>>(_xmlReader, message, exception);

@@ -23,11 +23,18 @@ using System.Diagnostics.CodeAnalysis;
 namespace Xtate
 {
 	[Serializable]
-	public sealed class SessionId : LazyId
+	public sealed class SessionId : LazyId, IEquatable<SessionId>
 	{
 		private SessionId() { }
 
 		private SessionId(string val) : base(val) { }
+
+	#region Interface IEquatable<SessionId>
+
+		public bool Equals(SessionId? other) => SameTypeEquals(other);
+
+	#endregion
+
 		protected override string GenerateId() => IdGenerator.NewSessionId(GetHashCode());
 
 		public static SessionId New() => new();
