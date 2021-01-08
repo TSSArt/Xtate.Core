@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2021 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -56,7 +56,7 @@ namespace Xtate
 			var securityContext = factoryContext.SecurityContext.CreateNested(SecurityContextType.InvokedStateMachine, finalizer);
 			await using (finalizer.ConfigureAwait(false))
 			{
-				return await StartStateMachine(sessionId, origin, parameters, (SecurityContext)securityContext, finalizer, token).ConfigureAwait(false);
+				return await StartStateMachine(sessionId, origin, parameters, (SecurityContext) securityContext, finalizer, token).ConfigureAwait(false);
 			}
 		}
 

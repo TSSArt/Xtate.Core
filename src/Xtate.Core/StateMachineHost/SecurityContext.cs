@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2021 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -78,6 +78,45 @@ namespace Xtate.Core
 
 		public static SecurityContext NoAccess { get; } = new(SecurityContextType.NoAccess, SecurityContextPermissions.None, parentSecurityContext: default);
 
+	#region Interface ISecurityContext
+
+		public ISecurityContext CreateNested(SecurityContextType type, DeferredFinalizer finalizer)
+		{
+			if (finalizer is null) throw new ArgumentNullException(nameof(finalizer));
+
+			SecurityContext securityContext;
+			switch (type)
+			{
+				case SecurityContextType.NewTrustedStateMachine:
+					CheckPermissions(SecurityContextPermissions.CreateTrustedStateMachine);
+
+					securityContext = new SecurityContext(type, Permissions, this);
+
+					break;
+
+				case SecurityContextType.NewStateMachine:
+					CheckPermissions(SecurityContextPermissions.CreateStateMachine);
+
+					securityContext = new SecurityContext(type, SecurityContextPermissions.RunIoBoundTask, this);
+
+					break;
+
+				case SecurityContextType.InvokedStateMachine:
+					securityContext = new SecurityContext(type, Permissions, this);
+
+					break;
+
+				default:
+					throw Infrastructure.UnexpectedValue<Exception>(type);
+			}
+
+			finalizer.Add(new Disposer(securityContext));
+
+			return securityContext;
+		}
+
+	#endregion
+
 		private TaskFactory CreateTaskFactory()
 		{
 			var taskScheduler = HasPermissions(SecurityContextPermissions.RunIoBoundTask)
@@ -156,41 +195,6 @@ namespace Xtate.Core
 		internal static SecurityContext Create(SecurityContextType type, SecurityContextPermissions permissions, DeferredFinalizer finalizer)
 		{
 			var securityContext = new SecurityContext(type, permissions, parentSecurityContext: default);
-
-			finalizer.Add(new Disposer(securityContext));
-
-			return securityContext;
-		}
-
-		public ISecurityContext CreateNested(SecurityContextType type, DeferredFinalizer finalizer)
-		{
-			if (finalizer is null) throw new ArgumentNullException(nameof(finalizer));
-
-			SecurityContext securityContext;
-			switch (type)
-			{
-				case SecurityContextType.NewTrustedStateMachine:
-					CheckPermissions(SecurityContextPermissions.CreateTrustedStateMachine);
-
-					securityContext = new SecurityContext(type, Permissions, this);
-
-					break;
-
-				case SecurityContextType.NewStateMachine:
-					CheckPermissions(SecurityContextPermissions.CreateStateMachine);
-
-					securityContext = new SecurityContext(type, SecurityContextPermissions.RunIoBoundTask, this);
-
-					break;
-
-				case SecurityContextType.InvokedStateMachine:
-					securityContext = new SecurityContext(type, Permissions, this);
-
-					break;
-
-				default:
-					throw Infrastructure.UnexpectedValue<Exception>(type);
-			}
 
 			finalizer.Add(new Disposer(securityContext));
 

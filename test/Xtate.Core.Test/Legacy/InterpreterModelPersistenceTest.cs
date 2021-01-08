@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2021 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -153,17 +153,6 @@ namespace Xtate.Core.Test.Legacy
 			_dataModelHandler = new TestDataModelHandler();
 		}
 
-		private class DummyResourceLoader : IResourceLoaderFactory, IResourceLoaderFactoryActivator, IResourceLoader
-		{
-			public static readonly IResourceLoaderFactory Instance = new DummyResourceLoader();
-
-			public ValueTask<IResourceLoaderFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, Uri uri, CancellationToken token) => new(this);
-
-			public ValueTask<IResourceLoader> CreateResourceLoader(IFactoryContext factoryContext, CancellationToken token) => new(this);
-
-			public ValueTask<Resource> Request(Uri uri, NameValueCollection? headers, CancellationToken token) => new(new Resource(new MemoryStream()));
-		}
-
 		[TestMethod]
 		public async Task SaveInterpreterModelTest()
 		{
@@ -182,9 +171,9 @@ namespace Xtate.Core.Test.Legacy
 		public async Task SaveRestoreInterpreterModelWithStorageRecreateTest()
 		{
 			var securityContext = SecurityContext.Create(SecurityContextType.NewStateMachine, new DeferredFinalizer());
-			var model = new InterpreterModelBuilder(_allStateMachine, _dataModelHandler, customActionProviders: default, ImmutableArray.Create(DummyResourceLoader.Instance), 
+			var model = new InterpreterModelBuilder(_allStateMachine, _dataModelHandler, customActionProviders: default, ImmutableArray.Create(DummyResourceLoader.Instance),
 													securityContext, DefaultErrorProcessor.Instance, baseUri: default).Build(default)
-																															   .SynchronousGetResult();
+																													  .SynchronousGetResult();
 			var storeSupport = model.Root.As<IStoreSupport>();
 
 			byte[] transactionLog;
@@ -203,7 +192,8 @@ namespace Xtate.Core.Test.Legacy
 				restoredStateMachine = new StateMachineReader().Build(new Bucket(newStorage));
 			}
 
-			await new InterpreterModelBuilder(restoredStateMachine, _dataModelHandler, customActionProviders: default, ImmutableArray.Create(DummyResourceLoader.Instance), securityContext, DefaultErrorProcessor.Instance,
+			await new InterpreterModelBuilder(restoredStateMachine, _dataModelHandler, customActionProviders: default, ImmutableArray.Create(DummyResourceLoader.Instance), securityContext,
+											  DefaultErrorProcessor.Instance,
 											  baseUri: default).Build(default);
 		}
 
@@ -218,7 +208,7 @@ namespace Xtate.Core.Test.Legacy
 					.Build();
 
 			var securityContext = SecurityContext.Create(SecurityContextType.NewStateMachine, new DeferredFinalizer());
-			var model = await new InterpreterModelBuilder(_allStateMachine, _dataModelHandler, customActionProviders: default, ImmutableArray.Create(DummyResourceLoader.Instance), 
+			var model = await new InterpreterModelBuilder(_allStateMachine, _dataModelHandler, customActionProviders: default, ImmutableArray.Create(DummyResourceLoader.Instance),
 														  securityContext, DefaultErrorProcessor.Instance, baseUri: default).Build(default);
 			var storeSupport = model.Root.As<IStoreSupport>();
 
@@ -236,8 +226,32 @@ namespace Xtate.Core.Test.Legacy
 				restoredStateMachine = new StateMachineReader().Build(new Bucket(newStorage), model.EntityMap);
 			}
 
-			await new InterpreterModelBuilder(restoredStateMachine, _dataModelHandler, customActionProviders: default, ImmutableArray.Create(DummyResourceLoader.Instance), securityContext, DefaultErrorProcessor.Instance,
+			await new InterpreterModelBuilder(restoredStateMachine, _dataModelHandler, customActionProviders: default, ImmutableArray.Create(DummyResourceLoader.Instance), securityContext,
+											  DefaultErrorProcessor.Instance,
 											  baseUri: default).Build(default);
+		}
+
+		private class DummyResourceLoader : IResourceLoaderFactory, IResourceLoaderFactoryActivator, IResourceLoader
+		{
+			public static readonly IResourceLoaderFactory Instance = new DummyResourceLoader();
+
+		#region Interface IResourceLoader
+
+			public ValueTask<Resource> Request(Uri uri, NameValueCollection? headers, CancellationToken token) => new(new Resource(new MemoryStream()));
+
+		#endregion
+
+		#region Interface IResourceLoaderFactory
+
+			public ValueTask<IResourceLoaderFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, Uri uri, CancellationToken token) => new(this);
+
+		#endregion
+
+		#region Interface IResourceLoaderFactoryActivator
+
+			public ValueTask<IResourceLoader> CreateResourceLoader(IFactoryContext factoryContext, CancellationToken token) => new(this);
+
+		#endregion
 		}
 	}
 }

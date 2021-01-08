@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2021 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,8 +21,8 @@
 using System.IO;
 using System.Reflection;
 using Xtate;
-using Xtate.Core;
 using Xtate.Annotations;
+using Xtate.Core;
 
 namespace System.Runtime.Loader
 {
