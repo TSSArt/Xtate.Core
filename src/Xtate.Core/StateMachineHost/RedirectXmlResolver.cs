@@ -25,7 +25,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xtate.XInclude;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	public class RedirectXmlResolver : ScxmlXmlResolver
 	{

@@ -22,7 +22,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	internal abstract class DelegatedStream : Stream
 	{

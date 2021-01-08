@@ -20,7 +20,7 @@
 using System;
 using Xtate.Annotations;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	[PublicAPI]
 	public class LazyValue : ILazyValue

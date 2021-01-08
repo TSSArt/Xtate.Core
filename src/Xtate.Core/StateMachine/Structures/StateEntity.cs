@@ -20,7 +20,7 @@
 using System;
 using System.Collections.Immutable;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	public struct StateEntity : IState, IVisitorEntity<StateEntity, IState>, IAncestorProvider, IDebugEntityId
 	{

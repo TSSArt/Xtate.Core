@@ -20,14 +20,10 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Xtate.Core;
 
 namespace Xtate
 {
-	public interface IStateMachineController
-	{
-		ValueTask<DataModelValue> GetResult(CancellationToken token);
-	}
-
 	public sealed partial class StateMachineHost : IHost
 	{
 	#region Interface IHost

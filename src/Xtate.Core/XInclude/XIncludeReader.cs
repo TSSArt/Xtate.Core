@@ -25,6 +25,7 @@ using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using Xtate.Core;
 
 namespace Xtate.XInclude
 {

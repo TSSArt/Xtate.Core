@@ -22,7 +22,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	[Serializable]
 	public abstract class LazyId : ILazyValue, IObject

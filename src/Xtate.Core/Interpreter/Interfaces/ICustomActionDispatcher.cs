@@ -22,7 +22,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xtate.DataModel;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	internal interface ICustomActionDispatcher
 	{

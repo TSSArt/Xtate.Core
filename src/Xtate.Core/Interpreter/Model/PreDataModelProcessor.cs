@@ -23,7 +23,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xtate.CustomAction;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	internal sealed class PreDataModelProcessor : StateMachineVisitor
 	{

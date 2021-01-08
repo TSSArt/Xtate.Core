@@ -33,7 +33,7 @@ using Xtate.DataModel.Null;
 using Xtate.DataModel.Runtime;
 using Xtate.Persistence;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	using DefaultHistoryContent = Dictionary<IIdentifier, ImmutableArray<IExecEvaluator>>;
 

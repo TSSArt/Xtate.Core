@@ -20,7 +20,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	internal struct DocumentIdRecord
 	{

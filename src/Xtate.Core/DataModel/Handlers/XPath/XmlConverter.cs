@@ -22,6 +22,7 @@ using System.Globalization;
 using System.IO;
 using System.Xml;
 using System.Xml.XPath;
+using Xtate.Core;
 using Xtate.Scxml;
 
 namespace Xtate.DataModel.XPath

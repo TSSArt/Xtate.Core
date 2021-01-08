@@ -22,7 +22,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using Xtate.Persistence;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	internal abstract class StateEntityNode : IStateEntity, IStoreSupport, IDocumentId
 	{

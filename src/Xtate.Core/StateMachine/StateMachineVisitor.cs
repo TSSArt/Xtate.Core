@@ -24,7 +24,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Xtate.Annotations;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	[PublicAPI]
 	public abstract class StateMachineVisitor

@@ -25,7 +25,7 @@ using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	internal sealed class DynamicAssembly : IAsyncDisposable, IEquatable<DynamicAssembly>
 	{

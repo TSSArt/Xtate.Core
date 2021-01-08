@@ -20,7 +20,7 @@
 using System.Collections.Immutable;
 using Xtate.Persistence;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	internal sealed class DataModelNode : IDataModel, IStoreSupport, IAncestorProvider, IDocumentId
 	{

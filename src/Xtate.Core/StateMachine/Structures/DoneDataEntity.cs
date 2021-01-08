@@ -19,7 +19,7 @@
 
 using System.Collections.Immutable;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	public struct DoneDataEntity : IDoneData, IVisitorEntity<DoneDataEntity, IDoneData>, IAncestorProvider
 	{

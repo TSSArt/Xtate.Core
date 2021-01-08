@@ -20,7 +20,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	internal interface IPersistenceContext
 	{

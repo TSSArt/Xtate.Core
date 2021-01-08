@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	internal abstract class DelegatedXmlReader : XmlReader, IXmlLineInfo
 	{

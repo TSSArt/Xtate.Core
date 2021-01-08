@@ -21,6 +21,7 @@ using System;
 using System.Collections.Immutable;
 using System.Runtime.Serialization;
 using System.Text;
+using Xtate.Core;
 
 namespace Xtate
 {

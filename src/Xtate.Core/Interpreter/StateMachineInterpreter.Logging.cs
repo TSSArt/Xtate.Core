@@ -23,7 +23,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	public sealed partial class StateMachineInterpreter : ILoggerContext
 	{

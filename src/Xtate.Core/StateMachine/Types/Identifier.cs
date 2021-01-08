@@ -20,6 +20,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Xtate.Annotations;
+using Xtate.Core;
 
 namespace Xtate
 {

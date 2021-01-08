@@ -23,7 +23,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Xtate.Annotations;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	public enum SecurityContextType
 	{

@@ -23,7 +23,7 @@ using System.Threading.Tasks;
 using Xtate.DataModel;
 using Xtate.Persistence;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	internal sealed class DoneDataNode : IDoneData, IStoreSupport, IAncestorProvider
 	{

@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using Xtate.XInclude;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	public class ScxmlXmlResolver : XmlResolver, IXIncludeXmlResolver
 	{

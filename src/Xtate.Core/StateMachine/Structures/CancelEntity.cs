@@ -17,7 +17,7 @@
 
 #endregion
 
-namespace Xtate
+namespace Xtate.Core
 {
 	public struct CancelEntity : ICancel, IVisitorEntity<CancelEntity, ICancel>, IAncestorProvider
 	{

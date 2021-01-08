@@ -26,7 +26,7 @@ using Xtate.CustomAction;
 using Xtate.DataModel;
 using Xtate.Persistence;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	internal sealed class InterpreterModelBuilder : StateMachineVisitor
 	{

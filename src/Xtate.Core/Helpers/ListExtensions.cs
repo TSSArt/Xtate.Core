@@ -22,7 +22,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using Xtate.Annotations;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	[PublicAPI]
 	internal static class ListExtensions

@@ -19,6 +19,7 @@
 
 using System;
 using System.Xml;
+using Xtate.Core;
 
 namespace Xtate.DataModel.XPath
 {

@@ -19,7 +19,7 @@
 
 using System;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	internal interface IStateMachineContext : IAsyncDisposable
 	{

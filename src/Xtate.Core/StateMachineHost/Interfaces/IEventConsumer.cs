@@ -19,7 +19,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	public interface IEventConsumer
 	{

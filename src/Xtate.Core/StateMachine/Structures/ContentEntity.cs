@@ -17,7 +17,7 @@
 
 #endregion
 
-namespace Xtate
+namespace Xtate.Core
 {
 	public struct ContentEntity : IContent, IVisitorEntity<ContentEntity, IContent>, IAncestorProvider
 	{

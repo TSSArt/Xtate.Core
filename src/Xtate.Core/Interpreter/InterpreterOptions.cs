@@ -24,7 +24,7 @@ using Xtate.CustomAction;
 using Xtate.DataModel;
 using Xtate.Persistence;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	public sealed class InterpreterOptions
 	{

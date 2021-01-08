@@ -17,6 +17,8 @@
 
 #endregion
 
+using Xtate.Core;
+
 namespace Xtate
 {
 	public interface ILog : IExecutableEntity

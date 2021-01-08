@@ -22,7 +22,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Xtate.Annotations;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	[PublicAPI]
 	internal sealed class OrderedSet<T> : List<T>

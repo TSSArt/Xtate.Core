@@ -24,7 +24,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xtate.Annotations;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	[PublicAPI]
 	public sealed class IoBoundTaskScheduler : TaskScheduler

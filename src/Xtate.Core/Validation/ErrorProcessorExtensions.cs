@@ -21,7 +21,7 @@ using System;
 using System.Xml;
 using Xtate.Annotations;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	[PublicAPI]
 	public static class ErrorProcessorExtensions

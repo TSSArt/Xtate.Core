@@ -24,7 +24,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xtate.IoProcessor;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	internal class StateMachineContext : IStateMachineContext, IExecutionContext
 	{

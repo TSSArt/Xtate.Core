@@ -21,7 +21,7 @@ using System;
 using System.Collections.Immutable;
 using Xtate.Annotations;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	[PublicAPI]
 	public struct EventEntity : IOutgoingEvent

@@ -20,7 +20,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	public static class UriExtensions
 	{

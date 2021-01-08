@@ -19,7 +19,7 @@
 
 using System.Threading.Tasks;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	public interface INotifyStateChanged
 	{

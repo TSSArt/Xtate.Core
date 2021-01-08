@@ -24,7 +24,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xtate.Annotations;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	[PublicAPI]
 	public abstract class DynamicFactory<TFactory> where TFactory : class

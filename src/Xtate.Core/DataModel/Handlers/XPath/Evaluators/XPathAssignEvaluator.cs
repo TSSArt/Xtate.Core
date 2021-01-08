@@ -17,6 +17,8 @@
 
 #endregion
 
+using Xtate.Core;
+
 namespace Xtate.DataModel.XPath
 {
 	internal sealed class XPathAssignEvaluator : DefaultAssignEvaluator

@@ -23,7 +23,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xtate.IoProcessor;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	public sealed partial class StateMachineInterpreter : IExternalCommunication
 	{

@@ -22,7 +22,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xtate.Service;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	internal class ServiceCommunication : IServiceCommunication
 	{

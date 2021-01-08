@@ -20,7 +20,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	internal sealed class EntityQueue<T>
 	{

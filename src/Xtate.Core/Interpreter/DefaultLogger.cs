@@ -22,7 +22,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	internal sealed class DefaultLogger : ILogger
 	{
