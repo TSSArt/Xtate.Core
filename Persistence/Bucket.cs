@@ -22,11 +22,9 @@ using System.Buffers.Binary;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Text;
-using Xtate.Annotations;
 
 namespace Xtate.Persistence
 {
-	[PublicAPI]
 	internal readonly struct Bucket
 	{
 		public static readonly RootType RootKey = RootType.Instance;

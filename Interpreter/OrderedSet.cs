@@ -20,11 +20,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using Xtate.Annotations;
 
 namespace Xtate.Core
 {
-	[PublicAPI]
 	internal sealed class OrderedSet<T> : List<T>
 	{
 		public delegate void ChangedHandler(ChangedAction action, [AllowNull] T item);
@@ -73,31 +71,6 @@ namespace Xtate.Core
 			Changed?.Invoke(ChangedAction.Delete, item);
 		}
 
-		public void Union(List<T> orderedSet)
-		{
-			if (orderedSet is null) throw new ArgumentNullException(nameof(orderedSet));
-
-			foreach (var item in orderedSet)
-			{
-				AddIfNotExists(item);
-			}
-		}
-
-		public bool HasIntersection(List<T> orderedSet)
-		{
-			if (orderedSet is null) throw new ArgumentNullException(nameof(orderedSet));
-
-			foreach (var item in orderedSet)
-			{
-				if (Contains(item))
-				{
-					return true;
-				}
-			}
-
-			return false;
-		}
-
 		public List<T> ToSortedList(IComparer<T> comparer)
 		{
 			var list = new List<T>(this);
@@ -113,8 +86,6 @@ namespace Xtate.Core
 
 			return list;
 		}
-
-		public List<T> ToFilteredList(Predicate<T> predicate) => FindAll(predicate);
 
 		public List<T> ToFilteredList<TArg>(Func<T, TArg, bool> predicate, TArg arg)
 		{

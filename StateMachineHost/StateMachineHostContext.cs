@@ -94,23 +94,25 @@ namespace Xtate.Core
 
 		public virtual ValueTask InitializeAsync(CancellationToken token) => default;
 
-		private void FillInterpreterOptions(out InterpreterOptions interpreterOptions)
-		{
-			interpreterOptions = new InterpreterOptions
-								 {
-										 Configuration = _configuration,
-										 PersistenceLevel = _options.PersistenceLevel,
-										 StorageProvider = _options.StorageProvider,
-										 ResourceLoaderFactories = _options.ResourceLoaderFactories,
-										 CustomActionProviders = _options.CustomActionFactories,
-										 StopToken = _stopTokenSource.Token,
-										 SuspendToken = _suspendTokenSource.Token,
-										 Logger = _options.Logger,
-										 DataModelHandlerFactories = _options.DataModelHandlerFactories,
-										 UnhandledErrorBehaviour = _options.UnhandledErrorBehaviour,
-										 ContextRuntimeItems = _contextRuntimeItems
-								 };
-		}
+		private InterpreterOptions CreateInterpreterOptions(Uri? baseUri, DataModelList? hostData, IErrorProcessor? errorProcessor, DataModelValue arguments = default) =>
+				new()
+				{
+						Configuration = _configuration,
+						PersistenceLevel = _options.PersistenceLevel,
+						StorageProvider = _options.StorageProvider,
+						ResourceLoaderFactories = _options.ResourceLoaderFactories,
+						CustomActionProviders = _options.CustomActionFactories,
+						StopToken = _stopTokenSource.Token,
+						SuspendToken = _suspendTokenSource.Token,
+						Logger = _options.Logger,
+						DataModelHandlerFactories = _options.DataModelHandlerFactories,
+						UnhandledErrorBehaviour = _options.UnhandledErrorBehaviour,
+						ContextRuntimeItems = _contextRuntimeItems,
+						BaseUri = baseUri,
+						Host = hostData,
+						ErrorProcessor = errorProcessor,
+						Arguments = arguments
+				};
 
 		protected virtual StateMachineController CreateStateMachineController(SessionId sessionId, IStateMachine? stateMachine, IStateMachineOptions? stateMachineOptions, Uri? stateMachineLocation,
 																			  InterpreterOptions defaultOptions, SecurityContext securityContext, DeferredFinalizer finalizer) =>
@@ -196,11 +198,7 @@ namespace Xtate.Core
 		{
 			var (stateMachine, location) = await LoadStateMachine(origin, _options.BaseUri, securityContext, errorProcessor, token).ConfigureAwait(false);
 
-			FillInterpreterOptions(out var interpreterOptions);
-			interpreterOptions.Arguments = parameters;
-			interpreterOptions.ErrorProcessor = errorProcessor;
-			interpreterOptions.Host = CreateHostData(location);
-			interpreterOptions.BaseUri = location;
+			var interpreterOptions = CreateInterpreterOptions(location, CreateHostData(location), errorProcessor, parameters);
 
 			stateMachine.Is<IStateMachineOptions>(out var stateMachineOptions);
 
@@ -210,10 +208,7 @@ namespace Xtate.Core
 		protected StateMachineController AddSavedStateMachine(SessionId sessionId, Uri? stateMachineLocation, IStateMachineOptions stateMachineOptions,
 															  SecurityContext securityContext, DeferredFinalizer finalizer, IErrorProcessor errorProcessor)
 		{
-			FillInterpreterOptions(out var interpreterOptions);
-			interpreterOptions.ErrorProcessor = errorProcessor;
-			interpreterOptions.Host = CreateHostData(stateMachineLocation);
-			interpreterOptions.BaseUri = stateMachineLocation;
+			var interpreterOptions = CreateInterpreterOptions(stateMachineLocation, CreateHostData(stateMachineLocation), errorProcessor);
 
 			return CreateStateMachineController(sessionId, stateMachine: default, stateMachineOptions, stateMachineLocation, interpreterOptions, securityContext, finalizer);
 		}

@@ -27,15 +27,17 @@ namespace Xtate.Core
 	[PublicAPI]
 	public sealed class DeferredFinalizer : IAsyncDisposable, IEnumerable
 	{
-		private const int MaxCount = 4;
+		private const int EmbeddedCount = 4;
 
 		private readonly DeferredFinalizer? _previous;
 
-		private bool    _deferred;
-		private object? _f0;
-		private object? _f1;
-		private object? _f2;
-		private object? _f3;
+		private object?[]? _array;
+		private int        _count;
+		private bool       _deferred;
+		private object?    _f0;
+		private object?    _f1;
+		private object?    _f2;
+		private object?    _f3;
 
 		public DeferredFinalizer() { }
 
@@ -75,7 +77,7 @@ namespace Xtate.Core
 
 		private async ValueTask DisposeRecursive(int index)
 		{
-			if (index >= MaxCount)
+			if (index >= _count)
 			{
 				return;
 			}
@@ -140,6 +142,8 @@ namespace Xtate.Core
 
 					break;
 			}
+
+			_count = index;
 		}
 
 		public void Add(IAsyncDisposable asyncDisposable) => AddInternal(asyncDisposable);
@@ -163,18 +167,7 @@ namespace Xtate.Core
 		{
 			if (val is null) throw new ArgumentNullException(nameof(val));
 
-			for (var i = 0; i < MaxCount; i ++)
-			{
-				ref var elem = ref ElementAt(i);
-				if (elem is null)
-				{
-					elem = val;
-
-					return;
-				}
-			}
-
-			throw new InvalidOperationException();
+			ElementAt(_count ++) = val;
 		}
 
 		private ref object? ElementAt(int index)
@@ -185,7 +178,18 @@ namespace Xtate.Core
 				case 1: return ref _f1;
 				case 2: return ref _f2;
 				case 3: return ref _f3;
-				default: throw Infrastructure.UnexpectedValue<Exception>(index);
+				default:
+					_array ??= new object?[4];
+
+					var arrayIndex = index - EmbeddedCount;
+					if (arrayIndex >= _array.Length)
+					{
+						var newArray = new object?[_array.Length * 2];
+						Array.Copy(_array, newArray, _array.Length);
+						_array = newArray;
+					}
+
+					return ref _array[arrayIndex];
 			}
 		}
 

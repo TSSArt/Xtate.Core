@@ -25,22 +25,22 @@ using Xtate.Core;
 namespace Xtate.Scxml
 {
 	[PublicAPI]
-	public class ScxmlDirectorOptions
+	public record ScxmlDirectorOptions
 	{
 		private int _maxNestingLevel;
 
-		public IErrorProcessor?        ErrorProcessor        { get; set; }
-		public IXmlNamespaceResolver?  NamespaceResolver     { get; set; }
-		public XmlReaderSettings?      XmlReaderSettings     { get; set; }
-		public ScxmlXmlResolver?       XmlResolver           { get; set; }
-		public IStateMachineValidator? StateMachineValidator { get; set; }
-		public bool                    Async                 { get; set; }
-		public bool                    XIncludeAllowed       { get; set; }
+		public IErrorProcessor?        ErrorProcessor        { get; init; }
+		public IXmlNamespaceResolver?  NamespaceResolver     { get; init; }
+		public XmlReaderSettings?      XmlReaderSettings     { get; init; }
+		public ScxmlXmlResolver?       XmlResolver           { get; init; }
+		public IStateMachineValidator? StateMachineValidator { get; init; }
+		public bool                    Async                 { get; init; }
+		public bool                    XIncludeAllowed       { get; init; }
 
 		public int MaxNestingLevel
 		{
 			get => _maxNestingLevel;
-			set
+			init
 			{
 				if (value < 0) throw new ArgumentOutOfRangeException(nameof(value), Resources.Exception_Value_must_be_non_negative_integer);
 
