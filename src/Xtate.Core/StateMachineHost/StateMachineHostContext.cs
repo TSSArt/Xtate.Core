@@ -75,15 +75,22 @@ namespace Xtate
 
 	#region Interface IAsyncDisposable
 
-		public virtual ValueTask DisposeAsync()
+		public async ValueTask DisposeAsync()
+		{
+			await DisposeAsyncCore().ConfigureAwait(false);
+
+			GC.SuppressFinalize(this);
+		}
+
+	#endregion
+
+		protected virtual ValueTask DisposeAsyncCore()
 		{
 			_suspendTokenSource.Dispose();
 			_stopTokenSource.Dispose();
 
 			return default;
 		}
-
-	#endregion
 
 		public virtual ValueTask InitializeAsync(CancellationToken token) => default;
 
@@ -94,7 +101,7 @@ namespace Xtate
 										 Configuration = _configuration,
 										 PersistenceLevel = _options.PersistenceLevel,
 										 StorageProvider = _options.StorageProvider,
-										 ResourceLoaders = _options.ResourceLoaders,
+										 ResourceLoaderFactories = _options.ResourceLoaderFactories,
 										 CustomActionProviders = _options.CustomActionFactories,
 										 StopToken = _stopTokenSource.Token,
 										 SuspendToken = _suspendTokenSource.Token,
@@ -105,10 +112,9 @@ namespace Xtate
 								 };
 		}
 
-		protected virtual StateMachineController CreateStateMachineController(SessionId sessionId, IStateMachine? stateMachine,
-																			  IStateMachineOptions? stateMachineOptions,
-																			  Uri? stateMachineLocation, in InterpreterOptions defaultOptions) =>
-				new(sessionId, stateMachineOptions, stateMachine, stateMachineLocation, _stateMachineHost, _options.SuspendIdlePeriod, defaultOptions);
+		protected virtual StateMachineController CreateStateMachineController(SessionId sessionId, IStateMachine? stateMachine, IStateMachineOptions? stateMachineOptions, Uri? stateMachineLocation,
+																			  InterpreterOptions defaultOptions, SecurityContext securityContext, DeferredFinalizer finalizer) =>
+				new(sessionId, stateMachineOptions, stateMachine, stateMachineLocation, _stateMachineHost, _options.SuspendIdlePeriod, defaultOptions, securityContext, finalizer);
 
 		private static XmlReaderSettings GetXmlReaderSettings(XmlNameTable nameTable, ScxmlXmlResolver xmlResolver) =>
 				new()
@@ -140,10 +146,10 @@ namespace Xtate
 						Async = true
 				};
 
-		private async ValueTask<IStateMachine> GetStateMachine(Uri? uri, string? scxml, IErrorProcessor errorProcessor, CancellationToken token)
+		private async ValueTask<IStateMachine> GetStateMachine(Uri? uri, string? scxml, SecurityContext securityContext, IErrorProcessor errorProcessor, CancellationToken token)
 		{
 			var nameTable = new NameTable();
-			var xmlResolver = new RedirectXmlResolver(_options.ResourceLoaders, token);
+			var xmlResolver = new RedirectXmlResolver(_options.ResourceLoaderFactories, securityContext, token);
 			var xmlParserContext = GetXmlParserContext(nameTable, uri);
 			var xmlReaderSettings = GetXmlReaderSettings(nameTable, xmlResolver);
 			var directorOptions = GetScxmlDirectorOptions(errorProcessor, xmlParserContext, xmlReaderSettings, xmlResolver);
@@ -157,7 +163,8 @@ namespace Xtate
 			return await scxmlDirector.ConstructStateMachine().ConfigureAwait(false);
 		}
 
-		protected async ValueTask<(IStateMachine StateMachine, Uri? Location)> LoadStateMachine(StateMachineOrigin origin, Uri? hostBaseUri, IErrorProcessor errorProcessor, CancellationToken token)
+		protected async ValueTask<(IStateMachine StateMachine, Uri? Location)> LoadStateMachine(StateMachineOrigin origin, Uri? hostBaseUri, SecurityContext securityContext,
+																								IErrorProcessor errorProcessor, CancellationToken token)
 		{
 			var location = hostBaseUri.CombineWith(origin.BaseUri);
 
@@ -168,14 +175,14 @@ namespace Xtate
 
 				case StateMachineOriginType.Scxml:
 				{
-					var stateMachine = await GetStateMachine(location, origin.AsScxml(), errorProcessor, token).ConfigureAwait(false);
+					var stateMachine = await GetStateMachine(location, origin.AsScxml(), securityContext, errorProcessor, token).ConfigureAwait(false);
 
 					return (stateMachine, location);
 				}
 				case StateMachineOriginType.Source:
 				{
 					location = location.CombineWith(origin.AsSource());
-					var stateMachine = await GetStateMachine(location, scxml: default, errorProcessor, token).ConfigureAwait(false);
+					var stateMachine = await GetStateMachine(location, scxml: default, securityContext, errorProcessor, token).ConfigureAwait(false);
 
 					return (stateMachine, location);
 				}
@@ -184,10 +191,10 @@ namespace Xtate
 			}
 		}
 
-		public virtual async ValueTask<StateMachineController> CreateAndAddStateMachine(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters,
-																						IErrorProcessor errorProcessor, CancellationToken token)
+		public virtual async ValueTask<StateMachineController> CreateAndAddStateMachine(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters, SecurityContext securityContext,
+																						DeferredFinalizer finalizer, IErrorProcessor errorProcessor, CancellationToken token)
 		{
-			var (stateMachine, location) = await LoadStateMachine(origin, _options.BaseUri, errorProcessor, token).ConfigureAwait(false);
+			var (stateMachine, location) = await LoadStateMachine(origin, _options.BaseUri, securityContext, errorProcessor, token).ConfigureAwait(false);
 
 			FillInterpreterOptions(out var interpreterOptions);
 			interpreterOptions.Arguments = parameters;
@@ -197,23 +204,18 @@ namespace Xtate
 
 			stateMachine.Is<IStateMachineOptions>(out var stateMachineOptions);
 
-			var stateMachineController = CreateStateMachineController(sessionId, stateMachine, stateMachineOptions, location, interpreterOptions);
-			RegisterStateMachineController(stateMachineController);
-
-			return stateMachineController;
+			return CreateStateMachineController(sessionId, stateMachine, stateMachineOptions, location, interpreterOptions, securityContext, finalizer);
 		}
 
-		protected StateMachineController AddSavedStateMachine(SessionId sessionId, Uri? stateMachineLocation, IStateMachineOptions stateMachineOptions, IErrorProcessor errorProcessor)
+		protected StateMachineController AddSavedStateMachine(SessionId sessionId, Uri? stateMachineLocation, IStateMachineOptions stateMachineOptions,
+															  SecurityContext securityContext, DeferredFinalizer finalizer, IErrorProcessor errorProcessor)
 		{
 			FillInterpreterOptions(out var interpreterOptions);
 			interpreterOptions.ErrorProcessor = errorProcessor;
 			interpreterOptions.Host = CreateHostData(stateMachineLocation);
 			interpreterOptions.BaseUri = stateMachineLocation;
 
-			var stateMachineController = CreateStateMachineController(sessionId, stateMachine: default, stateMachineOptions, stateMachineLocation, interpreterOptions);
-			RegisterStateMachineController(stateMachineController);
-
-			return stateMachineController;
+			return CreateStateMachineController(sessionId, stateMachine: default, stateMachineOptions, stateMachineLocation, interpreterOptions, securityContext, finalizer);
 		}
 
 		private static DataModelList? CreateHostData(Uri? stateMachineLocation)
@@ -229,7 +231,7 @@ namespace Xtate
 			return null;
 		}
 
-		private void RegisterStateMachineController(StateMachineController stateMachineController)
+		public void AddStateMachineController(StateMachineController stateMachineController)
 		{
 			var sessionId = stateMachineController.SessionId;
 			var result = _stateMachineBySessionId.TryAdd(sessionId, stateMachineController);
@@ -237,12 +239,12 @@ namespace Xtate
 			Infrastructure.Assert(result);
 		}
 
-		public virtual ValueTask RemoveStateMachine(SessionId sessionId)
+		public virtual ValueTask RemoveStateMachineController(StateMachineController stateMachineController)
 		{
-			var result = _stateMachineBySessionId.TryRemove(sessionId, out var stateMachineController);
+			var result = _stateMachineBySessionId.TryRemove(stateMachineController.SessionId, out var controller);
 
 			Infrastructure.Assert(result);
-			Infrastructure.NotNull(stateMachineController);
+			Infrastructure.NotNull(controller);
 
 			return stateMachineController.DisposeAsync();
 		}

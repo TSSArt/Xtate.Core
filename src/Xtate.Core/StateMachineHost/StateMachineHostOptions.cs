@@ -35,7 +35,7 @@ namespace Xtate
 		public ImmutableArray<IServiceFactory>          ServiceFactories          { get; set; }
 		public ImmutableArray<IDataModelHandlerFactory> DataModelHandlerFactories { get; set; }
 		public ImmutableArray<ICustomActionFactory>     CustomActionFactories     { get; set; }
-		public ImmutableArray<IResourceLoader>          ResourceLoaders           { get; set; }
+		public ImmutableArray<IResourceLoaderFactory>   ResourceLoaderFactories   { get; set; }
 		public ImmutableDictionary<string, string>?     Configuration             { get; set; }
 		public Uri?                                     BaseUri                   { get; set; }
 		public ILogger?                                 Logger                    { get; set; }

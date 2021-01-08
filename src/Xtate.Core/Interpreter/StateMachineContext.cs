@@ -42,7 +42,7 @@ namespace Xtate
 		private          IContextItems?                      _runtimeItems;
 
 		public StateMachineContext(string? stateMachineName, SessionId sessionId, IDataModelValueProvider dataModelValueProvider, ILogger logger, ILoggerContext loggerContext,
-								   IExternalCommunication externalCommunication, ImmutableDictionary<object, object> contextRuntimeItems)
+								   IExternalCommunication externalCommunication, ImmutableDictionary<object, object> contextRuntimeItems, SecurityContext securityContext)
 		{
 			_stateMachineName = stateMachineName;
 			_sessionId = sessionId;
@@ -51,6 +51,7 @@ namespace Xtate
 			_loggerContext = loggerContext;
 			_externalCommunication = externalCommunication;
 			_contextRuntimeItems = contextRuntimeItems;
+			SecurityContext = securityContext;
 		}
 
 	#region Interface IAsyncDisposable
@@ -109,6 +110,8 @@ namespace Xtate
 		}
 
 		public IContextItems RuntimeItems => _runtimeItems ??= new ContextItems(_contextRuntimeItems);
+
+		public SecurityContext SecurityContext { get; }
 
 	#endregion
 

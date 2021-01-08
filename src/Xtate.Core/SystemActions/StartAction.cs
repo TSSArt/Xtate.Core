@@ -112,7 +112,13 @@ namespace Xtate.CustomAction
 				throw new ProcessorException(Resources.Exception_SessionId_could_not_be_empty);
 			}
 
-			await host.StartStateMachineAsync(sessionId, new StateMachineOrigin(source, baseUri), parameters: default, token).ConfigureAwait(false);
+			var finalizer = new DeferredFinalizer();
+			var securityContext = executionContext.SecurityContext.CreateNested(SecurityContextType.NewStateMachine, finalizer);
+
+			await using (finalizer.ConfigureAwait(false))
+			{
+				await host.StartStateMachineAsync(sessionId, new StateMachineOrigin(source, baseUri), parameters: default, securityContext, finalizer, token).ConfigureAwait(false);
+			}
 
 			if (_idLocation is not null)
 			{

@@ -19,11 +19,8 @@
 
 using System;
 using System.ComponentModel;
-
-#if NET461 || NETSTANDARD2_0
 using System.Text;
-
-#endif
+using Xtate.Annotations;
 
 namespace Xtate
 {
@@ -50,8 +47,11 @@ namespace Xtate
 						.Append(Guid.NewGuid().ToString("N"), startIndex: 0, count: 24)
 						.Append(hash.ToString(@"x8")).ToString();
 #else
+		[UsedImplicitly]
+		private static void IgnoreIt(StringBuilder _) { }
+
 		public static string NewInvokeId([Localizable(false)] string id, int hash) =>
-				string.Create(33 + id.Length, (id, hash), static (span, arg) =>
+				string.Create(33 + id.Length, (id, hash), static(span, arg) =>
 														  {
 															  arg.id.AsSpan().CopyTo(span);
 															  span[arg.id.Length] = '.';
@@ -61,7 +61,7 @@ namespace Xtate
 														  });
 
 		private static string NewGuidWithHash(int hash) =>
-				string.Create(length: 32, hash, static (span, h) =>
+				string.Create(length: 32, hash, static(span, h) =>
 												{
 													Guid.NewGuid().TryFormat(span, out var pos, format: @"N");
 													h.TryFormat(span[(pos - 8)..], out pos, format: @"x8");

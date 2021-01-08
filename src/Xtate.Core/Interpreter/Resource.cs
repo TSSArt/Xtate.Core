@@ -45,16 +45,7 @@ namespace Xtate
 
 	#region Interface IAsyncDisposable
 
-		public ValueTask DisposeAsync()
-		{
-#if NET461 || NETSTANDARD2_0
-			_stream.Dispose();
-
-			return default;
-#else
-			return _stream.DisposeAsync();
-#endif
-		}
+		public ValueTask DisposeAsync() => _stream.DisposeAsync();
 
 	#endregion
 

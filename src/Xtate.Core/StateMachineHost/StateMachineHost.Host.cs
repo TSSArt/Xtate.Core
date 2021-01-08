@@ -23,64 +23,51 @@ using System.Threading.Tasks;
 
 namespace Xtate
 {
+	public interface IStateMachineController
+	{
+		ValueTask<DataModelValue> GetResult(CancellationToken token);
+	}
+
 	public sealed partial class StateMachineHost : IHost
 	{
 	#region Interface IHost
 
-		async ValueTask IHost.StartStateMachineAsync(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters, CancellationToken token) =>
-				await StartStateMachine(sessionId, origin, parameters, token).ConfigureAwait(false);
+		async ValueTask<IStateMachineController> IHost.StartStateMachineAsync(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters,
+																			  SecurityContext securityContext, DeferredFinalizer finalizer, CancellationToken token)
+		{
+			if (securityContext.Type is SecurityContextType.NewStateMachine or SecurityContextType.NewTrustedStateMachine)
+			{
+				return await StartStateMachine(sessionId, origin, parameters, securityContext, finalizer, token).ConfigureAwait(false);
+			}
 
-		ValueTask<DataModelValue> IHost.ExecuteStateMachineAsync(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters, CancellationToken token) =>
-				ExecuteStateMachine(sessionId, origin, parameters, token);
+			throw new StateMachineSecurityException(Resources.Exception_Starting_State_Machine_denied);
+		}
 
 		ValueTask IHost.DestroyStateMachine(SessionId sessionId, CancellationToken token) => DestroyStateMachine(sessionId, token);
 
 	#endregion
 
-		private async ValueTask<StateMachineController> StartStateMachine(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters, CancellationToken token = default)
+		private async ValueTask<StateMachineController> StartStateMachine(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters, SecurityContext securityContext,
+																		  DeferredFinalizer finalizer, CancellationToken token = default)
 		{
 			if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
 			if (origin.Type == StateMachineOriginType.None) throw new ArgumentException(Resources.Exception_StateMachine_origin_missed, nameof(origin));
 
 			var context = GetCurrentContext();
 			var errorProcessor = CreateErrorProcessor(sessionId, origin);
+			finalizer = new DeferredFinalizer(finalizer);
+			var controller = await context.CreateAndAddStateMachine(sessionId, origin, parameters, securityContext, finalizer, errorProcessor, token).ConfigureAwait(false);
+			context.AddStateMachineController(controller);
 
-			var controller = await context.CreateAndAddStateMachine(sessionId, origin, parameters, errorProcessor, token).ConfigureAwait(false);
+			finalizer.Add(static(ctx, ctrl) => ((StateMachineHostContext) ctx).RemoveStateMachineController((StateMachineController) ctrl), context, controller);
+			finalizer.Add(controller);
 
-			await controller.StartAsync(token).ConfigureAwait(false);
-
-			CompleteStateMachine(context, controller).Forget();
+			await using (finalizer.ConfigureAwait(false))
+			{
+				await controller.StartAsync(token).ConfigureAwait(false);
+			}
 
 			return controller;
-		}
-
-		private static async ValueTask CompleteStateMachine(StateMachineHostContext context, StateMachineController controller)
-		{
-			try
-			{
-				await controller.GetResult(default).ConfigureAwait(false);
-			}
-			finally
-			{
-				await context.RemoveStateMachine(controller.SessionId).ConfigureAwait(false);
-			}
-		}
-
-		private async ValueTask<DataModelValue> ExecuteStateMachine(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters, CancellationToken token = default)
-		{
-			var context = GetCurrentContext();
-			var errorProcessor = CreateErrorProcessor(sessionId, origin);
-
-			var controller = await context.CreateAndAddStateMachine(sessionId, origin, parameters, errorProcessor, token).ConfigureAwait(false);
-
-			try
-			{
-				return await controller.ExecuteAsync().ConfigureAwait(false);
-			}
-			finally
-			{
-				await context.RemoveStateMachine(sessionId).ConfigureAwait(false);
-			}
 		}
 
 		private ValueTask DestroyStateMachine(SessionId sessionId, CancellationToken token = default) => GetCurrentContext().DestroyStateMachine(sessionId, token);

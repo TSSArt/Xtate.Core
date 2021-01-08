@@ -23,7 +23,7 @@ using System.Collections.Immutable;
 namespace Xtate
 {
 	/// <summary>
-	/// Throw an exception on first error
+	///     Throw an exception on first error
 	/// </summary>
 	public sealed class DefaultErrorProcessor : IErrorProcessor
 	{

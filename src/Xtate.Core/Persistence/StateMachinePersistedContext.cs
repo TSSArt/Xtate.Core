@@ -38,8 +38,8 @@ namespace Xtate.Persistence
 
 		public StateMachinePersistedContext(string? stateMachineName, SessionId sessionId, IDataModelValueProvider dataModelValueProvider, ITransactionalStorage storage,
 											ImmutableDictionary<int, IEntity> entityMap, ILogger logger, ILoggerContext loggerContext, IExternalCommunication externalCommunication,
-											ImmutableDictionary<object, object> contextRuntimeItems)
-				: base(stateMachineName, sessionId, dataModelValueProvider, logger, loggerContext, externalCommunication, contextRuntimeItems)
+											ImmutableDictionary<object, object> contextRuntimeItems, SecurityContext securityContext)
+				: base(stateMachineName, sessionId, dataModelValueProvider, logger, loggerContext, externalCommunication, contextRuntimeItems, securityContext)
 		{
 			_storage = storage;
 			var bucket = new Bucket(storage);

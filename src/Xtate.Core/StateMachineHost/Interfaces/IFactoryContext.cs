@@ -23,8 +23,8 @@ namespace Xtate
 {
 	public interface IFactoryContext
 	{
-		ImmutableArray<IResourceLoader> ResourceLoaders { get; }
+		SecurityContext SecurityContext { get; }
 
-		object? this[object key] { get; set; }
+		ImmutableArray<IResourceLoaderFactory> ResourceLoaderFactories { get; }
 	}
 }

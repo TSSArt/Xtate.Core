@@ -17,24 +17,20 @@
 
 #endregion
 
-using System.Collections.Immutable;
+using System;
+using System.Runtime.Serialization;
 
 namespace Xtate
 {
-	internal class FactoryContext : IFactoryContext
+	[Serializable]
+	public class StateMachineSecurityException : XtateException
 	{
-		public FactoryContext(ImmutableArray<IResourceLoaderFactory> resourceLoaderFactories, SecurityContext securityContext)
-		{
-			SecurityContext = securityContext;
-			ResourceLoaderFactories = resourceLoaderFactories;
-		}
+		public StateMachineSecurityException() { }
 
-	#region Interface IFactoryContext
+		public StateMachineSecurityException(string? message) : base(message) { }
 
-		public ImmutableArray<IResourceLoaderFactory> ResourceLoaderFactories { get; }
+		public StateMachineSecurityException(string? message, Exception? inner) : base(message, inner) { }
 
-		public SecurityContext SecurityContext { get; }
-
-	#endregion
+		protected StateMachineSecurityException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 	}
 }

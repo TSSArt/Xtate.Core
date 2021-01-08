@@ -37,8 +37,8 @@ namespace Xtate
 
 	#region Interface IServiceFactoryActivator
 
-		async ValueTask<IService> IServiceFactoryActivator.StartService(IFactoryContext factoryContext, Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication,
-																		CancellationToken token)
+		async ValueTask<IService> IServiceFactoryActivator.StartService(IFactoryContext factoryContext, Uri? baseUri, InvokeData invokeData,
+																		IServiceCommunication serviceCommunication, CancellationToken token)
 		{
 			Infrastructure.Assert(CanHandle(invokeData.Type));
 
@@ -51,7 +51,12 @@ namespace Xtate
 
 			var origin = scxml is not null ? new StateMachineOrigin(scxml, baseUri) : new StateMachineOrigin(source!, baseUri);
 
-			return await StartStateMachine(sessionId, origin, parameters, token).ConfigureAwait(false);
+			var finalizer = new DeferredFinalizer();
+			var securityContext = factoryContext.SecurityContext.CreateNested(SecurityContextType.InvokedStateMachine, finalizer);
+			await using (finalizer.ConfigureAwait(false))
+			{
+				return await StartStateMachine(sessionId, origin, parameters, securityContext, finalizer, token).ConfigureAwait(false);
+			}
 		}
 
 	#endregion

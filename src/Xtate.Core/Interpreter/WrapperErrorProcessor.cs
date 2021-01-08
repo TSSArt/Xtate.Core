@@ -23,8 +23,9 @@ using System.Collections.Immutable;
 namespace Xtate
 {
 	/// <summary>
-	/// Makes sure error is thrown by <see cref="ThrowIfErrors()"/> in case of underlying error processor does not throw exception in it.
-	/// </summary> 
+	///     Makes sure error is thrown by <see cref="ThrowIfErrors()" /> in case of underlying error processor does not throw
+	///     exception in it.
+	/// </summary>
 	internal sealed class WrapperErrorProcessor : IErrorProcessor
 	{
 		private readonly IErrorProcessor _errorProcessor;

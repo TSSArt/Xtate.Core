@@ -17,37 +17,28 @@
 
 #endregion
 
-using System.IO;
-using System.Runtime.CompilerServices;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using Xtate.Annotations;
-#if NET461 || NETSTANDARD2_0
-using System.Threading.Tasks;
-
-#endif
 
 namespace Xtate
 {
 	[PublicAPI]
-	public readonly struct ConfiguredStreamAwaitable
+	public sealed class GlobalCache<TKey, TValue> where TKey : notnull
 	{
-		private readonly bool   _continueOnCapturedContext;
-		private readonly Stream _stream;
+		private readonly IEqualityComparer<TKey> _comparer;
 
-		public ConfiguredStreamAwaitable(Stream stream, bool continueOnCapturedContext)
+		private readonly ConcurrentDictionary<TKey, CacheEntry<TValue>> _global;
+
+		public GlobalCache() : this(EqualityComparer<TKey>.Default) { }
+
+		public GlobalCache(IEqualityComparer<TKey> comparer)
 		{
-			_stream = stream;
-			_continueOnCapturedContext = continueOnCapturedContext;
+			_comparer = comparer ?? throw new ArgumentNullException(nameof(comparer));
+			_global = new ConcurrentDictionary<TKey, CacheEntry<TValue>>(comparer);
 		}
 
-		public ConfiguredValueTaskAwaitable DisposeAsync()
-		{
-#if NET461 || NETSTANDARD2_0
-			_stream.Dispose();
-
-			return new ValueTask().ConfigureAwait(_continueOnCapturedContext);
-#else
-			return _stream.DisposeAsync().ConfigureAwait(_continueOnCapturedContext);
-#endif
-		}
+		public LocalCache<TKey, TValue> CreateLocalCache() => new(_global, _comparer);
 	}
 }

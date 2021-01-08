@@ -18,25 +18,24 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtate.Annotations;
 
 namespace Xtate
 {
+	internal static class DynamicFactoryGlobal
+	{
+		public static readonly object AssemblyCacheKey = new();
+	}
+
 	[PublicAPI]
 	public abstract class DynamicFactory<TFactory> where TFactory : class
 	{
-		private static readonly Type CacheKey = typeof(DynamicFactory<TFactory>);
+		private static readonly object FactoryCacheKey = new();
 
 		private readonly bool _throwOnError;
-
-		private ImmutableDictionary<Uri, Assembly>                      _assemblyCache = ImmutableDictionary<Uri, Assembly>.Empty;
-		private ImmutableDictionary<Assembly, ImmutableArray<TFactory>> _factoryCache  = ImmutableDictionary<Assembly, ImmutableArray<TFactory>>.Empty;
-		private ImmutableDictionary<object, Uri?>                       _uriCache      = ImmutableDictionary<object, Uri?>.Empty;
 
 		protected DynamicFactory(bool throwOnError) => _throwOnError = throwOnError;
 
@@ -45,69 +44,35 @@ namespace Xtate
 			if (factoryContext is null) throw new ArgumentNullException(nameof(factoryContext));
 			if (key is null) throw new ArgumentNullException(nameof(key));
 
-			var uri = GetCachedUri(key);
+			var uri = GetUri(key);
 
 			if (uri is null)
 			{
 				return default;
 			}
 
-			var loadedAssembly = await LoadAssembly(factoryContext, uri, token).ConfigureAwait(false);
+			var dynamicAssembly = await LoadAssembly(factoryContext, uri, token).ConfigureAwait(false);
 
-			var assembly = ResolveAssembly(uri, loadedAssembly);
-
-			if (assembly is null)
+			if (dynamicAssembly is null)
 			{
 				return default;
 			}
 
-			return GetCachedFactories(assembly);
+			return await GetCachedFactories(factoryContext.SecurityContext, dynamicAssembly).ConfigureAwait(false);
 		}
 
-		private Assembly? ResolveAssembly(Uri uri, Assembly? loadedAssembly)
+		private async ValueTask<ImmutableArray<TFactory>> GetCachedFactories(SecurityContext securityContext, DynamicAssembly dynamicAssembly)
 		{
-			var assemblyCache = _assemblyCache;
-
-			assemblyCache.TryGetValue(uri, out var cachedAssembly);
-
-			var assembly = loadedAssembly ?? cachedAssembly;
-
-			if (assembly is not null && assembly != cachedAssembly)
-			{
-				_assemblyCache = assemblyCache.SetItem(uri, assembly);
-
-				ClearFactoryCache(cachedAssembly!);
-			}
-
-			return assembly;
-		}
-
-		private void ClearFactoryCache(Assembly assembly)
-		{
-			foreach (var pair in _assemblyCache)
-			{
-				if (pair.Value == assembly)
-				{
-					return;
-				}
-			}
-
-			_factoryCache = _factoryCache.Remove(assembly);
-		}
-
-		private ImmutableArray<TFactory> GetCachedFactories(Assembly assembly)
-		{
-			var factoryCache = _factoryCache;
-
-			if (factoryCache.TryGetValue(assembly, out var factories))
+			if (securityContext.TryGetValue(FactoryCacheKey, dynamicAssembly, out ImmutableArray<TFactory> factories))
 			{
 				return factories;
 			}
 
 			try
 			{
-				factories = CreateFactories(assembly);
-				_factoryCache = factoryCache.Add(assembly, factories);
+				factories = await CreateFactories(dynamicAssembly).ConfigureAwait(false);
+
+				await securityContext.SetValue(FactoryCacheKey, dynamicAssembly, factories, ValueOptions.ThreadSafe).ConfigureAwait(false);
 			}
 			catch (Exception ex)
 			{
@@ -122,8 +87,10 @@ namespace Xtate
 			return factories;
 		}
 
-		private static ImmutableArray<TFactory> CreateFactories(Assembly assembly)
+		private static async ValueTask<ImmutableArray<TFactory>> CreateFactories(DynamicAssembly dynamicAssembly)
 		{
+			var assembly = await dynamicAssembly.GetAssembly().ConfigureAwait(false);
+
 			var attributes = assembly.GetCustomAttributes(typeof(FactoryAttribute), inherit: false);
 
 			if (attributes.Length == 0)
@@ -148,50 +115,58 @@ namespace Xtate
 			return builder.ToImmutable();
 		}
 
-		private Uri? GetCachedUri(object key)
+		private Uri? GetUri(object key)
 		{
-			var uriCache = _uriCache;
-
-			if (!uriCache.TryGetValue(key, out var uri))
+			try
 			{
-				try
+				return KeyToUri(key);
+			}
+			catch (Exception ex)
+			{
+				if (_throwOnError)
 				{
-					uri = KeyToUri(key);
-					_uriCache = uriCache.Add(key, uri);
+					throw;
 				}
-				catch (Exception ex)
-				{
-					if (_throwOnError)
-					{
-						throw;
-					}
 
-					IgnoreException(ex);
-				}
+				IgnoreException(ex);
 			}
 
-			return uri;
+			return default;
 		}
 
 		protected virtual void IgnoreException(Exception ex) { }
 
-		private async ValueTask<Assembly?> LoadAssembly(IFactoryContext factoryContext, Uri uri, CancellationToken token)
+		private async ValueTask<DynamicAssembly?> LoadAssembly(IFactoryContext factoryContext, Uri uri, CancellationToken token)
 		{
 			try
 			{
-				Assembly? assembly;
-				if (factoryContext[CacheKey] is not Dictionary<Uri, Assembly> cache)
+				var securityContext = factoryContext.SecurityContext;
+
+				if (!securityContext.TryGetValue(DynamicFactoryGlobal.AssemblyCacheKey, uri, out DynamicAssembly? dynamicAssembly))
 				{
-					assembly = await LoadAssembly(factoryContext.ResourceLoaders, uri, token).ConfigureAwait(false);
-					factoryContext[CacheKey] = new Dictionary<Uri, Assembly> { { uri, assembly } };
-				}
-				else if (!cache.TryGetValue(uri, out assembly))
-				{
-					assembly = await LoadAssembly(factoryContext.ResourceLoaders, uri, token).ConfigureAwait(false);
-					cache.Add(uri, assembly);
+					var resource = await factoryContext.GetResource(uri, token).ConfigureAwait(false);
+					byte[] bytes;
+					await using (resource.ConfigureAwait(false))
+					{
+						bytes = await resource.GetBytes(token).ConfigureAwait(false);
+					}
+
+					dynamicAssembly = new DynamicAssembly(securityContext.IoBoundTaskFactory, bytes);
+					try
+					{
+						await dynamicAssembly.GetAssembly().ConfigureAwait(false);
+					}
+					catch
+					{
+						await dynamicAssembly.DisposeAsync().ConfigureAwait(false);
+
+						throw;
+					}
+
+					await securityContext.SetValue(DynamicFactoryGlobal.AssemblyCacheKey, uri, dynamicAssembly, ValueOptions.ThreadSafe | ValueOptions.Dispose).ConfigureAwait(false);
 				}
 
-				return assembly;
+				return dynamicAssembly;
 			}
 			catch (Exception ex)
 			{
@@ -207,24 +182,5 @@ namespace Xtate
 		}
 
 		protected abstract Uri? KeyToUri(object key);
-
-		private static async ValueTask<Assembly> LoadAssembly(ImmutableArray<IResourceLoader> resourceLoaders, Uri uri, CancellationToken token)
-		{
-			if (!resourceLoaders.IsDefaultOrEmpty)
-			{
-				foreach (var resourceLoader in resourceLoaders)
-				{
-					if (resourceLoader.CanHandle(uri))
-					{
-						await using var request = await resourceLoader.Request(uri, headers: default, token).ConfigureAwait(false);
-						var bytes = await request.GetBytes(token).ConfigureAwait(false);
-
-						return Assembly.Load(bytes);
-					}
-				}
-			}
-
-			throw new ProcessorException(Resources.Exception_Cannot_find_ResourceLoader_to_load_external_resource);
-		}
 	}
 }

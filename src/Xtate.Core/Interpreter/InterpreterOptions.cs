@@ -26,11 +26,14 @@ using Xtate.Persistence;
 
 namespace Xtate
 {
-	public struct InterpreterOptions
+	public sealed class InterpreterOptions
 	{
+		public static InterpreterOptions Default { get; } = new();
+
 		public ImmutableArray<IDataModelHandlerFactory> DataModelHandlerFactories { get; set; }
 		public ImmutableArray<ICustomActionFactory>     CustomActionProviders     { get; set; }
-		public ImmutableArray<IResourceLoader>          ResourceLoaders           { get; set; }
+		public ImmutableArray<IResourceLoaderFactory>   ResourceLoaderFactories   { get; set; }
+		public SecurityContext?                         SecurityContext           { get; set; }
 		public DataModelList?                           Host                      { get; set; }
 		public DataModelList?                           Configuration             { get; set; }
 		public ImmutableDictionary<object, object>?     ContextRuntimeItems       { get; set; }
@@ -46,5 +49,7 @@ namespace Xtate
 		public IErrorProcessor?                         ErrorProcessor            { get; set; }
 		public UnhandledErrorBehaviour                  UnhandledErrorBehaviour   { get; set; }
 		public Uri?                                     BaseUri                   { get; set; }
+
+		public InterpreterOptions Clone() => (InterpreterOptions) MemberwiseClone();
 	}
 }
