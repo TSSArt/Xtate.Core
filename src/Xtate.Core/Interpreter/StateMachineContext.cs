@@ -111,7 +111,7 @@ namespace Xtate.Core
 
 		public IContextItems RuntimeItems => _runtimeItems ??= new ContextItems(_contextRuntimeItems);
 
-		public SecurityContext SecurityContext { get; }
+		public ISecurityContext SecurityContext { get; }
 
 	#endregion
 

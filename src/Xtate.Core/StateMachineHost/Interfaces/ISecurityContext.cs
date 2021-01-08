@@ -17,18 +17,12 @@
 
 #endregion
 
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.Annotations;
+using Xtate.Core;
 
-namespace Xtate.Core
+namespace Xtate
 {
-	[PublicAPI]
-	public interface IHost
+	public interface ISecurityContext
 	{
-		ValueTask<IStateMachineController> StartStateMachineAsync(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters, ISecurityContext securityContext,
-																  DeferredFinalizer finalizer, CancellationToken token);
-
-		ValueTask DestroyStateMachine(SessionId sessionId, CancellationToken token);
+		ISecurityContext CreateNested(SecurityContextType type, DeferredFinalizer finalizer);
 	}
 }

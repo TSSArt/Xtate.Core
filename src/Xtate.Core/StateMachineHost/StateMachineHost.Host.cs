@@ -29,11 +29,11 @@ namespace Xtate
 	#region Interface IHost
 
 		async ValueTask<IStateMachineController> IHost.StartStateMachineAsync(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters,
-																			  SecurityContext securityContext, DeferredFinalizer finalizer, CancellationToken token)
+																			  ISecurityContext securityContext, DeferredFinalizer finalizer, CancellationToken token)
 		{
-			if (securityContext.Type is SecurityContextType.NewStateMachine or SecurityContextType.NewTrustedStateMachine)
+			if (securityContext is SecurityContext { Type: SecurityContextType.NewStateMachine or SecurityContextType.NewTrustedStateMachine } ctx)
 			{
-				return await StartStateMachine(sessionId, origin, parameters, securityContext, finalizer, token).ConfigureAwait(false);
+				return await StartStateMachine(sessionId, origin, parameters, ctx, finalizer, token).ConfigureAwait(false);
 			}
 
 			throw new StateMachineSecurityException(Resources.Exception_Starting_State_Machine_denied);

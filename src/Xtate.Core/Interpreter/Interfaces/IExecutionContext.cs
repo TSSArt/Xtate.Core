@@ -55,7 +55,7 @@ namespace Xtate
 	{
 		IContextItems RuntimeItems { get; }
 
-		SecurityContext SecurityContext { get; }
+		ISecurityContext SecurityContext { get; }
 
 		DataModelList DataModel { get; }
 

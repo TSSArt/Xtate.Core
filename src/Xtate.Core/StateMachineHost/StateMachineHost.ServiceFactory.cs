@@ -56,7 +56,7 @@ namespace Xtate
 			var securityContext = factoryContext.SecurityContext.CreateNested(SecurityContextType.InvokedStateMachine, finalizer);
 			await using (finalizer.ConfigureAwait(false))
 			{
-				return await StartStateMachine(sessionId, origin, parameters, securityContext, finalizer, token).ConfigureAwait(false);
+				return await StartStateMachine(sessionId, origin, parameters, (SecurityContext)securityContext, finalizer, token).ConfigureAwait(false);
 			}
 		}
 
