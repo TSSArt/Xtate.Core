@@ -34,7 +34,7 @@ namespace Xtate.Core.Test
 		public async Task CreateStateMachineWithXInclude()
 		{
 			var host = new StateMachineHostBuilder()
-					   .AddResourceLoader(ResxResourceLoader.Instance)
+					   .AddResourceLoaderFactory(ResxResourceLoaderFactory.Instance)
 					   .Build();
 
 			await host.StartHostAsync();
@@ -49,11 +49,13 @@ namespace Xtate.Core.Test
 		{
 			var uri = new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Scxml/XInclude/DtdSingleIncludeSource.scxml");
 
-			var proxy = new RedirectXmlResolver(ImmutableArray.Create(ResxResourceLoader.Instance), token: default);
-
-			var resource = await ResxResourceLoader.Instance.Request(uri, headers: default, token: default);
+			var securityContext = SecurityContext.Create(SecurityContextType.NewStateMachine, new DeferredFinalizer());
+			var proxy = new RedirectXmlResolver(ImmutableArray.Create(ResxResourceLoaderFactory.Instance), securityContext, token: default);
+			var factoryContext = new FactoryContext(ImmutableArray.Create(ResxResourceLoaderFactory.Instance), securityContext);
+			var resource = await factoryContext.GetResource(uri, token: default);
 			var xmlReaderSettings = new XmlReaderSettings { Async = true, XmlResolver = proxy, DtdProcessing = DtdProcessing.Parse };
 			var xmlReader = XmlReader.Create(await resource.GetStream(doNotCache: true, token: default), xmlReaderSettings, uri.ToString());
+
 			//var xIncludeReader = new XIncludeReader(xmlReader, xmlReaderSettings, proxy, maxNestingLevel: 0);
 
 			var builder = new StringBuilder();
@@ -73,10 +75,12 @@ namespace Xtate.Core.Test
 		public async Task XIncludeReaderTest()
 		{
 			var uri = new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Scxml/XInclude/SingleIncludeSource.scxml");
+			
+			var securityContext = SecurityContext.Create(SecurityContextType.NewStateMachine, new DeferredFinalizer());
+			var proxy = new RedirectXmlResolver(ImmutableArray.Create(ResxResourceLoaderFactory.Instance), securityContext, token: default);
+			var factoryContext = new FactoryContext(ImmutableArray.Create(ResxResourceLoaderFactory.Instance), securityContext);
 
-			var proxy = new RedirectXmlResolver(ImmutableArray.Create(ResxResourceLoader.Instance), token: default);
-
-			var resource = await ResxResourceLoader.Instance.Request(uri, headers: default, token: default);
+			var resource = await factoryContext.GetResource(uri, headers: default, token: default);
 			var xmlReaderSettings = new XmlReaderSettings { Async = true, XmlResolver = proxy };
 			var xmlReader = XmlReader.Create(await resource.GetStream(doNotCache: true, token: default), xmlReaderSettings, uri.ToString());
 			var xIncludeReader = new XIncludeReader(xmlReader, xmlReaderSettings, proxy, maxNestingLevel: 0);

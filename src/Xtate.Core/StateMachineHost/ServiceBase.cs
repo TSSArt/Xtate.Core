@@ -127,7 +127,7 @@ namespace Xtate.Service
 
 			return default;
 		}
-		
+
 		protected virtual void Dispose(bool disposing)
 		{
 			if (_disposed)

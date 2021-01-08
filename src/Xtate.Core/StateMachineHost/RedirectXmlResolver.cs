@@ -29,12 +29,14 @@ namespace Xtate
 {
 	public class RedirectXmlResolver : ScxmlXmlResolver
 	{
-		private readonly ImmutableArray<IResourceLoader> _resourceLoaders;
-		private readonly CancellationToken               _token;
+		private readonly ImmutableArray<IResourceLoaderFactory> _resourceLoaderFactories;
+		private readonly SecurityContext                        _securityContext;
+		private readonly CancellationToken                      _token;
 
-		public RedirectXmlResolver(ImmutableArray<IResourceLoader> resourceLoaders, CancellationToken token)
+		public RedirectXmlResolver(ImmutableArray<IResourceLoaderFactory> resourceLoaderFactories, SecurityContext securityContext, CancellationToken token)
 		{
-			_resourceLoaders = resourceLoaders;
+			_resourceLoaderFactories = resourceLoaderFactories;
+			_securityContext = securityContext;
 			_token = token;
 		}
 
@@ -45,22 +47,12 @@ namespace Xtate
 				throw new ArgumentException(Res.Format(Resources.Exception_UnsupportedClass, ofObjectToReturn));
 			}
 
-			if (!_resourceLoaders.IsDefaultOrEmpty)
-			{
-				foreach (var resourceLoader in _resourceLoaders)
-				{
-					if (resourceLoader.CanHandle(uri))
-					{
-						var resource = await resourceLoader.Request(uri, GetHeaders(accept, acceptLanguage), _token).ConfigureAwait(false);
-						var stream = await resource.GetStream(doNotCache: true, _token).ConfigureAwait(false);
-						stream = stream.InjectCancellationToken(_token);
+			var factoryContext = new FactoryContext(_resourceLoaderFactories, _securityContext);
+			var resource = await factoryContext.GetResource(uri, GetHeaders(accept, acceptLanguage), _token).ConfigureAwait(false);
+			var stream = await resource.GetStream(doNotCache: true, _token).ConfigureAwait(false);
+			stream = stream.InjectCancellationToken(_token);
 
-						return ofObjectToReturn == typeof(IXIncludeResource) ? new Resource(stream, resource.ContentType) : stream;
-					}
-				}
-			}
-
-			throw new ProcessorException(Resources.Exception_Cannot_find_ResourceLoader_to_load_external_resource);
+			return ofObjectToReturn == typeof(IXIncludeResource) ? new Resource(stream, resource.ContentType) : stream;
 		}
 
 		private static NameValueCollection? GetHeaders(string? accept, string? acceptLanguage)

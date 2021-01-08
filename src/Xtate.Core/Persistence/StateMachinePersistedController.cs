@@ -42,8 +42,9 @@ namespace Xtate.Persistence
 		private ITransactionalStorage? _storage;
 
 		public StateMachinePersistedController(SessionId sessionId, IStateMachineOptions? options, IStateMachine? stateMachine, Uri? stateMachineLocation,
-											   IStateMachineHost stateMachineHost, IStorageProvider storageProvider, TimeSpan idlePeriod, in InterpreterOptions defaultOptions)
-				: base(sessionId, options, stateMachine, stateMachineLocation, stateMachineHost, idlePeriod, defaultOptions)
+											   IStateMachineHost stateMachineHost, IStorageProvider storageProvider, TimeSpan idlePeriod, InterpreterOptions defaultOptions,
+											   SecurityContext securityContext, DeferredFinalizer finalizer)
+				: base(sessionId, options, stateMachine, stateMachineLocation, stateMachineHost, idlePeriod, defaultOptions, securityContext, finalizer)
 		{
 			_storageProvider = storageProvider;
 			_stopToken = defaultOptions.StopToken;
@@ -78,7 +79,7 @@ namespace Xtate.Persistence
 
 	#endregion
 
-		public override async ValueTask DisposeAsync()
+		protected override async ValueTask DisposeAsyncCore()
 		{
 			if (_disposed)
 			{
@@ -94,7 +95,7 @@ namespace Xtate.Persistence
 				await storage.DisposeAsync().ConfigureAwait(false);
 			}
 
-			await base.DisposeAsync().ConfigureAwait(false);
+			await base.DisposeAsyncCore().ConfigureAwait(false);
 
 			_disposed = true;
 		}

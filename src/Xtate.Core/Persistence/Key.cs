@@ -80,6 +80,8 @@ namespace Xtate.Persistence
 		RefId,
 		Remove,
 		Script,
+		SecurityContextType,
+		SecurityContextPermissions,
 		SendId,
 		SendIdExpression,
 		SessionId,

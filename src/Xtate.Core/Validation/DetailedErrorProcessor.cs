@@ -23,7 +23,7 @@ using System.Collections.Immutable;
 namespace Xtate
 {
 	/// <summary>
-	/// Aggregates all errors and throw single exception with previously added errors
+	///     Aggregates all errors and throw single exception with previously added errors
 	/// </summary>
 	public sealed class DetailedErrorProcessor : IErrorProcessor
 	{

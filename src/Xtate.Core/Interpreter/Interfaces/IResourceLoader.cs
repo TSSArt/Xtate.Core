@@ -28,7 +28,6 @@ namespace Xtate
 	[PublicAPI]
 	public interface IResourceLoader
 	{
-		bool                CanHandle(Uri uri);
 		ValueTask<Resource> Request(Uri uri, NameValueCollection? headers, CancellationToken token);
 	}
 }

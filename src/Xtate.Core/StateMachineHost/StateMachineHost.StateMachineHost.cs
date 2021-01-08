@@ -39,13 +39,13 @@ namespace Xtate
 
 		ImmutableArray<IIoProcessor> IStateMachineHost.GetIoProcessors() => !_ioProcessors.IsDefault ? _ioProcessors : ImmutableArray<IIoProcessor>.Empty;
 
-		async ValueTask IStateMachineHost.StartInvoke(SessionId sessionId, InvokeData data, CancellationToken token)
+		async ValueTask IStateMachineHost.StartInvoke(SessionId sessionId, InvokeData data, SecurityContext securityContext, CancellationToken token)
 		{
 			var context = GetCurrentContext();
 
 			context.ValidateSessionId(sessionId, out var service);
 
-			using var factoryContext = new FactoryContext(_options.ResourceLoaders);
+			var factoryContext = new FactoryContext(_options.ResourceLoaderFactories, securityContext);
 			var activator = await FindServiceFactoryActivator(factoryContext, data.Type, token).ConfigureAwait(false);
 			var serviceCommunication = new ServiceCommunication(service, IoProcessorId, data.InvokeId);
 			var invokedService = await activator.StartService(factoryContext, service.StateMachineLocation, data, serviceCommunication, token).ConfigureAwait(false);
@@ -53,6 +53,30 @@ namespace Xtate
 			await context.AddService(sessionId, data.InvokeId, invokedService, token).ConfigureAwait(false);
 
 			CompleteAsync(context, invokedService, service, sessionId, data.InvokeId).Forget();
+
+			static async ValueTask CompleteAsync(StateMachineHostContext context, IService invokedService, StateMachineController service, SessionId sessionId, InvokeId invokeId)
+			{
+				try
+				{
+					var result = await invokedService.GetResult(default).ConfigureAwait(false);
+
+					var nameParts = EventName.GetDoneInvokeNameParts(invokeId);
+					var evt = new EventObject(EventType.External, nameParts, result, sendId: null, invokeId);
+					await service.Send(evt, token: default).ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+					var evt = new EventObject(EventType.External, EventName.ErrorExecution, DataConverter.FromException(ex, caseInsensitive: false), sendId: null, invokeId);
+					await service.Send(evt, token: default).ConfigureAwait(false);
+				}
+				finally
+				{
+					if (await context.TryCompleteService(sessionId, invokeId).ConfigureAwait(false) is { } invokedService2)
+					{
+						await DisposeInvokedService(invokedService2).ConfigureAwait(false);
+					}
+				}
+			}
 		}
 
 		async ValueTask IStateMachineHost.CancelInvoke(SessionId sessionId, InvokeId invokeId, CancellationToken token)
@@ -119,30 +143,6 @@ namespace Xtate
 		}
 
 	#endregion
-
-		private static async ValueTask CompleteAsync(StateMachineHostContext context, IService invokedService, StateMachineController service, SessionId sessionId, InvokeId invokeId)
-		{
-			try
-			{
-				var result = await invokedService.GetResult(default).ConfigureAwait(false);
-
-				var nameParts = EventName.GetDoneInvokeNameParts(invokeId);
-				var evt = new EventObject(EventType.External, nameParts, result, sendId: null, invokeId);
-				await service.Send(evt, token: default).ConfigureAwait(false);
-			}
-			catch (Exception ex)
-			{
-				var evt = new EventObject(EventType.External, EventName.ErrorExecution, DataConverter.FromException(ex, caseInsensitive: false), sendId: null, invokeId);
-				await service.Send(evt, token: default).ConfigureAwait(false);
-			}
-			finally
-			{
-				if (await context.TryCompleteService(sessionId, invokeId).ConfigureAwait(false) is { } invokedService2)
-				{
-					await DisposeInvokedService(invokedService2).ConfigureAwait(false);
-				}
-			}
-		}
 
 		private bool IsCurrentContextExists([NotNullWhen(true)] out StateMachineHostContext? context)
 		{

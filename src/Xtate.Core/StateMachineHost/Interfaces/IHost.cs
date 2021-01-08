@@ -26,9 +26,8 @@ namespace Xtate
 	[PublicAPI]
 	public interface IHost
 	{
-		ValueTask StartStateMachineAsync(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters, CancellationToken token);
-
-		ValueTask<DataModelValue> ExecuteStateMachineAsync(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters, CancellationToken token);
+		ValueTask<IStateMachineController> StartStateMachineAsync(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters, SecurityContext securityContext,
+																  DeferredFinalizer finalizer, CancellationToken token);
 
 		ValueTask DestroyStateMachine(SessionId sessionId, CancellationToken token);
 	}

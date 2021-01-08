@@ -61,7 +61,7 @@ namespace Xtate.Core.Test
 
 			var host = new StateMachineHostBuilder()
 					   .AddDataModelHandlerFactory(XPathDataModelHandler.Factory)
-					   .AddResourceLoader(new WebResourceLoader())
+					   .AddResourceLoaderFactory(WebResourceLoaderFactory.Instance)
 					   .Build();
 
 			await host.StartHostAsync();
@@ -96,7 +96,7 @@ namespace Xtate.Core.Test
 
 			var host = new StateMachineHostBuilder()
 					   .AddDataModelHandlerFactory(XPathDataModelHandler.Factory)
-					   .AddResourceLoader(new WebResourceLoader())
+					   .AddResourceLoaderFactory(WebResourceLoaderFactory.Instance)
 					   .Build();
 
 			await host.StartHostAsync();

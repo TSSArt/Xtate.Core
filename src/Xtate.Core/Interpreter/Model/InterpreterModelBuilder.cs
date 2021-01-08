@@ -38,6 +38,8 @@ namespace Xtate
 		private readonly IErrorProcessor                                    _errorProcessor;
 		private readonly Dictionary<IIdentifier, StateEntityNode>           _idMap;
 		private readonly PreDataModelProcessor                              _preDataModelProcessor;
+		private readonly ImmutableArray<IResourceLoaderFactory>             _resourceLoaderFactories;
+		private readonly SecurityContext                                    _securityContext;
 		private readonly IStateMachine                                      _stateMachine;
 		private readonly List<TransitionNode>                               _targetMap;
 		private          int                                                _counter;
@@ -46,15 +48,17 @@ namespace Xtate
 		private          List<(Uri Uri, IExternalScriptConsumer Consumer)>? _externalScriptList;
 		private          bool                                               _inParallel;
 
-		public InterpreterModelBuilder(IStateMachine stateMachine, IDataModelHandler dataModelHandler, ImmutableArray<ICustomActionFactory> customActionProviders, IFactoryContext factoryContext,
-									   IErrorProcessor errorProcessor, Uri? baseUri)
+		public InterpreterModelBuilder(IStateMachine stateMachine, IDataModelHandler dataModelHandler, ImmutableArray<ICustomActionFactory> customActionProviders,
+									   ImmutableArray<IResourceLoaderFactory> resourceLoaderFactories, SecurityContext securityContext, IErrorProcessor errorProcessor, Uri? baseUri)
 		{
 			_stateMachine = stateMachine ?? throw new ArgumentNullException(nameof(stateMachine));
 			_dataModelHandler = dataModelHandler ?? throw new ArgumentNullException(nameof(dataModelHandler));
 			_customActionProviders = customActionProviders;
+			_resourceLoaderFactories = resourceLoaderFactories;
+			_securityContext = securityContext;
 			_errorProcessor = errorProcessor;
 			_baseUri = baseUri;
-			_preDataModelProcessor = new PreDataModelProcessor(errorProcessor, factoryContext);
+			_preDataModelProcessor = new PreDataModelProcessor(errorProcessor, resourceLoaderFactories, securityContext);
 			_idMap = new Dictionary<IIdentifier, StateEntityNode>(IdentifierEqualityComparer.Instance);
 			_entities = new List<IEntity>();
 			_targetMap = new List<TransitionNode>();
@@ -107,16 +111,11 @@ namespace Xtate
 
 			_documentIdList.Clear();
 
-			return new InterpreterModel(stateMachine.As<StateMachineNode>(), _counter, entityMap, _dataModelNodeArray?.ToImmutable() ?? default);
-		}
-
-		public async ValueTask<InterpreterModel> Build(ImmutableArray<IResourceLoader> resourceLoaders, CancellationToken token)
-		{
-			var model = await Build(token).ConfigureAwait(false);
+			var model = new InterpreterModel(stateMachine.As<StateMachineNode>(), _counter, entityMap, _dataModelNodeArray?.ToImmutable() ?? default);
 
 			if (_externalScriptList is not null)
 			{
-				await SetExternalResources(_externalScriptList, resourceLoaders, token).ConfigureAwait(false);
+				await SetExternalResources(_externalScriptList, token).ConfigureAwait(false);
 			}
 
 			return model;
@@ -142,37 +141,25 @@ namespace Xtate
 			return entityMap.ToImmutable();
 		}
 
-		private async ValueTask SetExternalResources(List<(Uri Uri, IExternalScriptConsumer Consumer)> externalScriptList, ImmutableArray<IResourceLoader> resourceLoaders,
-													 CancellationToken token)
+		private async ValueTask SetExternalResources(List<(Uri Uri, IExternalScriptConsumer Consumer)> externalScriptList, CancellationToken token)
 		{
 			foreach (var (uri, consumer) in externalScriptList)
 			{
 				token.ThrowIfCancellationRequested();
 
-				await LoadAndSetContent(resourceLoaders, uri, consumer, token).ConfigureAwait(false);
+				await LoadAndSetContent(uri, consumer, token).ConfigureAwait(false);
 			}
 		}
 
-		private async ValueTask LoadAndSetContent(ImmutableArray<IResourceLoader> resourceLoaders, Uri uri, IExternalScriptConsumer consumer, CancellationToken token)
+		private async ValueTask LoadAndSetContent(Uri uri, IExternalScriptConsumer consumer, CancellationToken token)
 		{
-			if (!resourceLoaders.IsDefaultOrEmpty)
+			uri = _baseUri.CombineWith(uri);
+			var factoryContext = new FactoryContext(_resourceLoaderFactories, _securityContext);
+			var resource = await factoryContext.GetResource(uri, token).ConfigureAwait(false);
+			await using (resource.ConfigureAwait(false))
 			{
-				uri = _baseUri.CombineWith(uri);
-
-				foreach (var resourceLoader in resourceLoaders)
-				{
-					if (resourceLoader.CanHandle(uri))
-					{
-						await using var resource = await resourceLoader.Request(uri, headers: default, token).ConfigureAwait(false);
-
-						consumer.SetContent(await resource.GetContent(token).ConfigureAwait(false));
-
-						return;
-					}
-				}
+				consumer.SetContent(await resource.GetContent(token).ConfigureAwait(false));
 			}
-
-			throw new ProcessorException(Resources.Exception_Cannot_find_ResourceLoader_to_load_external_resource);
 		}
 
 		private void RegisterEntity(IEntity entity) => _entities.Add(entity);
