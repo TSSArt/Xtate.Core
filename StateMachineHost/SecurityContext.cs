@@ -44,7 +44,7 @@ namespace Xtate.Core
 	}
 
 	[PublicAPI]
-	public sealed class SecurityContext
+	public sealed class SecurityContext : ISecurityContext
 	{
 		private const int IoBoundTaskSchedulerMaximumConcurrencyLevel = 2;
 
@@ -162,7 +162,7 @@ namespace Xtate.Core
 			return securityContext;
 		}
 
-		public SecurityContext CreateNested(SecurityContextType type, DeferredFinalizer finalizer)
+		public ISecurityContext CreateNested(SecurityContextType type, DeferredFinalizer finalizer)
 		{
 			if (finalizer is null) throw new ArgumentNullException(nameof(finalizer));
 

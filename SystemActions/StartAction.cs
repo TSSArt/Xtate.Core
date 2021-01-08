@@ -29,11 +29,13 @@ namespace Xtate.CustomAction
 	{
 		private const string Url               = "url";
 		private const string UrlExpr           = "urlExpr";
+		private const string Trusted           = "trusted";
 		private const string SessionId         = "sessionId";
 		private const string SessionIdExpr     = "sessionIdExpr";
 		private const string SessionIdLocation = "sessionIdLocation";
 
 		private readonly ILocationAssigner?    _idLocation;
+		private readonly bool                  _trusted;
 		private readonly string?               _sessionId;
 		private readonly IExpressionEvaluator? _sessionIdExpression;
 		private readonly Uri?                  _url;
@@ -46,9 +48,11 @@ namespace Xtate.CustomAction
 
 			var url = xmlReader.GetAttribute(Url);
 			var urlExpression = xmlReader.GetAttribute(UrlExpr);
+			var trusted = xmlReader.GetAttribute(Trusted);
 			var sessionIdExpression = xmlReader.GetAttribute(SessionIdExpr);
 			var sessionIdLocation = xmlReader.GetAttribute(SessionIdLocation);
 			_sessionId = xmlReader.GetAttribute(SessionId);
+			_trusted = trusted is not null && XmlConvert.ToBoolean(trusted);
 
 			if (url is null && urlExpression is null)
 			{
@@ -114,7 +118,8 @@ namespace Xtate.CustomAction
 			}
 
 			var finalizer = new DeferredFinalizer();
-			var securityContext = executionContext.SecurityContext.CreateNested(SecurityContextType.NewStateMachine, finalizer);
+			var securityContextType = _trusted ? SecurityContextType.NewTrustedStateMachine : SecurityContextType.NewStateMachine;
+			var securityContext = executionContext.SecurityContext.CreateNested(securityContextType, finalizer);
 
 			await using (finalizer.ConfigureAwait(false))
 			{
