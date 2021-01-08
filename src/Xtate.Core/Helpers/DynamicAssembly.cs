@@ -29,6 +29,8 @@ namespace Xtate
 {
 	internal sealed class DynamicAssembly : IAsyncDisposable, IEquatable<DynamicAssembly>
 	{
+		internal static readonly object AssemblyCacheKey = new();
+
 		private readonly ulong                _hash0;
 		private readonly ulong                _hash1;
 		private readonly ulong                _hash2;

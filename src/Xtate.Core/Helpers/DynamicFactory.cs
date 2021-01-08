@@ -19,20 +19,17 @@
 
 using System;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtate.Annotations;
 
 namespace Xtate
 {
-	internal static class DynamicFactoryGlobal
-	{
-		public static readonly object AssemblyCacheKey = new();
-	}
-
 	[PublicAPI]
 	public abstract class DynamicFactory<TFactory> where TFactory : class
 	{
+		[SuppressMessage(category: "ReSharper", checkId: "StaticMemberInGenericType")]
 		private static readonly object FactoryCacheKey = new();
 
 		private readonly bool _throwOnError;
@@ -142,7 +139,7 @@ namespace Xtate
 			{
 				var securityContext = factoryContext.SecurityContext;
 
-				if (!securityContext.TryGetValue(DynamicFactoryGlobal.AssemblyCacheKey, uri, out DynamicAssembly? dynamicAssembly))
+				if (!securityContext.TryGetValue(DynamicAssembly.AssemblyCacheKey, uri, out DynamicAssembly? dynamicAssembly))
 				{
 					var resource = await factoryContext.GetResource(uri, token).ConfigureAwait(false);
 					byte[] bytes;
@@ -163,7 +160,7 @@ namespace Xtate
 						throw;
 					}
 
-					await securityContext.SetValue(DynamicFactoryGlobal.AssemblyCacheKey, uri, dynamicAssembly, ValueOptions.ThreadSafe | ValueOptions.Dispose).ConfigureAwait(false);
+					await securityContext.SetValue(DynamicAssembly.AssemblyCacheKey, uri, dynamicAssembly, ValueOptions.ThreadSafe | ValueOptions.Dispose).ConfigureAwait(false);
 				}
 
 				return dynamicAssembly;
