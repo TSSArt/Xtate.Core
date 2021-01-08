@@ -21,6 +21,7 @@
 using System.IO;
 using System.Reflection;
 using Xtate;
+using Xtate.Core;
 using Xtate.Annotations;
 
 namespace System.Runtime.Loader

@@ -24,7 +24,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Xtate.Annotations;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	[PublicAPI]
 	public sealed class LocalCache<TKey, TValue> : IDisposable, IAsyncDisposable where TKey : notnull

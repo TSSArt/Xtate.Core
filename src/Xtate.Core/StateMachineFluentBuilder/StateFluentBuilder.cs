@@ -21,6 +21,7 @@ using System;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using Xtate.Annotations;
+using Xtate.Core;
 
 namespace Xtate.Builder
 {

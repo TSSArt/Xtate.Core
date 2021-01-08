@@ -22,8 +22,9 @@ using System.ComponentModel;
 using System.Text;
 using Xtate.Annotations;
 
-namespace Xtate
+namespace Xtate.Core
 {
+	[PublicAPI]
 	internal static class IdGenerator
 	{
 		public static string NewSendId(int hash) => NewGuidWithHash(hash);

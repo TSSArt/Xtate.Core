@@ -19,7 +19,7 @@
 
 using System.Collections.Generic;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	internal sealed class KeyList<T>
 	{

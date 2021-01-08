@@ -24,7 +24,7 @@ using System.Threading.Tasks;
 using Xtate.CustomAction;
 using Xtate.DataModel;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	internal sealed class CustomActionDispatcher : ICustomAction, ICustomActionDispatcher, ICustomActionContext
 	{

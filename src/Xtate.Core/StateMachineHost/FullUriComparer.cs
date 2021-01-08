@@ -20,7 +20,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	internal class FullUriComparer : IEqualityComparer<Uri>
 	{

@@ -17,28 +17,13 @@
 
 #endregion
 
-using System;
-using System.Xml;
-using Xtate.Core;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Xtate.DataModel.XPath
+namespace Xtate.Core
 {
-	internal class XPathInlineContentEvaluator : DefaultInlineContentEvaluator
+	public interface IStateMachineController
 	{
-		public XPathInlineContentEvaluator(in InlineContent inlineContent) : base(inlineContent) { }
-
-		protected override DataModelValue ParseToDataModel(ref Exception? parseException)
-		{
-			try
-			{
-				return XmlConverter.FromXml(Value, this);
-			}
-			catch (XmlException ex)
-			{
-				parseException = ex;
-
-				return Value.NormalizeSpaces();
-			}
-		}
+		ValueTask<DataModelValue> GetResult(CancellationToken token);
 	}
 }

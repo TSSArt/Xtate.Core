@@ -20,7 +20,7 @@
 using System.Reflection;
 using Xtate.Annotations;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	[PublicAPI]
 	public interface ITypeInfo

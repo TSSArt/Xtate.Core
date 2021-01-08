@@ -21,6 +21,7 @@ using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using Xtate.Core;
 
 namespace Xtate.Persistence
 {

@@ -20,6 +20,7 @@
 using System.Text;
 using System.Xml;
 using System.Xml.XPath;
+using Xtate.Core;
 
 namespace Xtate.DataModel.XPath
 {

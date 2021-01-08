@@ -29,7 +29,7 @@ using Xtate.IoProcessor;
 using Xtate.Persistence;
 using Xtate.Service;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	internal class StateMachineController : IStateMachineController, IService, IExternalCommunication, INotifyStateChanged, ILoggerContext, IAsyncDisposable
 	{

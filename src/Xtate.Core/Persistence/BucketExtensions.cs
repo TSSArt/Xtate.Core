@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using Xtate.Core;
 
 namespace Xtate.Persistence
 {

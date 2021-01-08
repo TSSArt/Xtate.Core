@@ -22,7 +22,7 @@ using System.Collections;
 using System.Threading.Tasks;
 using Xtate.Annotations;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	[PublicAPI]
 	public sealed class DeferredFinalizer : IAsyncDisposable, IEnumerable

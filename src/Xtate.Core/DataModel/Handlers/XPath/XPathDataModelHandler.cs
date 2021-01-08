@@ -23,6 +23,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.XPath;
+using Xtate.Core;
 
 namespace Xtate.DataModel.XPath
 {

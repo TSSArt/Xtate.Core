@@ -26,6 +26,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using Xtate.Annotations;
 using Xtate.Builder;
+using Xtate.Core;
 using Xtate.XInclude;
 
 namespace Xtate.Scxml

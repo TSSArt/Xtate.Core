@@ -21,6 +21,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtate.Annotations;
+using Xtate.Core;
 using Xtate.Persistence;
 
 namespace Xtate

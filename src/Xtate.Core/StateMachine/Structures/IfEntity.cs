@@ -19,7 +19,7 @@
 
 using System.Collections.Immutable;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	public struct IfEntity : IIf, IVisitorEntity<IfEntity, IIf>, IAncestorProvider
 	{

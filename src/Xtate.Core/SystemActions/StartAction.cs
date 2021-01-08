@@ -21,6 +21,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using Xtate.Core;
 
 namespace Xtate.CustomAction
 {
