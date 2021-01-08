@@ -109,7 +109,13 @@ namespace Xtate.DataModel
 
 			Infrastructure.NotNull(type);
 
-			var invokeData = new InvokeData(invokeId, type, source, rawContent, content, parameters);
+			var invokeData = new InvokeData(invokeId, type)
+							 {
+									 Source = source,
+									 RawContent = rawContent,
+									 Content = content,
+									 Parameters = parameters
+							 };
 
 			await executionContext.StartInvoke(invokeData, token).ConfigureAwait(false);
 

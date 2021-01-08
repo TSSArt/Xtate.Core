@@ -31,7 +31,7 @@ using Xtate.Service;
 namespace Xtate
 {
 	[PublicAPI]
-	public class StateMachineHostBuilder
+	public sealed class StateMachineHostBuilder
 	{
 		private Uri?                                              _baseUri;
 		private ImmutableDictionary<string, string>.Builder?      _configuration;

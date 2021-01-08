@@ -31,24 +31,20 @@ namespace Xtate
 		Error
 	}
 
-	public class InvokeData
+	public record InvokeData
 	{
-		public InvokeData(InvokeId invokeId, Uri type, Uri? source, string? rawContent, DataModelValue content, DataModelValue parameters)
+		public InvokeData(InvokeId invokeId, Uri type)
 		{
 			InvokeId = invokeId;
 			Type = type;
-			Source = source;
-			RawContent = rawContent;
-			Content = content;
-			Parameters = parameters;
 		}
 
 		public InvokeId       InvokeId   { get; }
 		public Uri            Type       { get; }
-		public Uri?           Source     { get; }
-		public string?        RawContent { get; }
-		public DataModelValue Content    { get; }
-		public DataModelValue Parameters { get; }
+		public Uri?           Source     { get; init; }
+		public string?        RawContent { get; init; }
+		public DataModelValue Content    { get; init; }
+		public DataModelValue Parameters { get; init; }
 	}
 
 	public interface IExecutionContext

@@ -31,7 +31,7 @@ namespace Xtate
 
 	public delegate ValueTask ExecutableCancellableTask(IExecutionContext executionContext, CancellationToken token);
 
-	public class RuntimeAction : IExecutableEntity, IExecEvaluator
+	public sealed class RuntimeAction : IExecutableEntity, IExecEvaluator
 	{
 		private readonly object _action;
 

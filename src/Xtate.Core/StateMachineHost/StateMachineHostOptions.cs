@@ -30,7 +30,7 @@ using Xtate.Service;
 namespace Xtate
 {
 	[PublicAPI]
-	public class StateMachineHostOptions
+	public sealed class StateMachineHostOptions
 	{
 		public ImmutableArray<IIoProcessorFactory>      IoProcessorFactories      { get; set; }
 		public ImmutableArray<IServiceFactory>          ServiceFactories          { get; set; }

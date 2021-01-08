@@ -69,7 +69,6 @@ namespace Xtate.Core
 			_logger = _defaultOptions.Logger ?? DefaultLogger.Instance;
 
 			_destroyTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_defaultOptions.DestroyToken, token2: default);
-			_defaultOptions.DestroyToken = _destroyTokenSource.Token;
 
 			Channel = CreateChannel(options);
 		}
@@ -232,31 +231,35 @@ namespace Xtate.Core
 			await _acceptedTcs.WaitAsync(token).ConfigureAwait(false);
 		}
 
-		private void FillOptions(InterpreterOptions options)
+		private InterpreterOptions GetOptions() =>
+				_defaultOptions with
+				{
+						ExternalCommunication = this,
+						StorageProvider = this as IStorageProvider,
+						NotifyStateChanged = this,
+						SecurityContext = _securityContext,
+						DestroyToken = _destroyTokenSource.Token,
+						SuspendToken = GetSuspendToken(),
+						UnhandledErrorBehaviour = _options?.UnhandledErrorBehaviour is { } behaviour ? behaviour : _defaultOptions.UnhandledErrorBehaviour
+				};
+
+		private CancellationToken GetSuspendToken()
 		{
-			options.ExternalCommunication = this;
-			options.StorageProvider = this as IStorageProvider;
-			options.NotifyStateChanged = this;
-			options.SecurityContext = _securityContext;
-
-			if (_idlePeriod > TimeSpan.Zero)
+			if (_idlePeriod == TimeSpan.Zero)
 			{
-				_suspendTokenSource?.Dispose();
-				_suspendOnIdleTokenSource?.Dispose();
-
-				_suspendOnIdleTokenSource = new CancellationTokenSource(_idlePeriod);
-
-				_suspendTokenSource = options.SuspendToken.CanBeCanceled
-						? CancellationTokenSource.CreateLinkedTokenSource(options.SuspendToken, _suspendOnIdleTokenSource.Token)
-						: _suspendOnIdleTokenSource;
-
-				options.SuspendToken = _suspendTokenSource.Token;
+				return _defaultOptions.SuspendToken;
 			}
 
-			if (_options?.UnhandledErrorBehaviour is { } behaviour)
-			{
-				options.UnhandledErrorBehaviour = behaviour;
-			}
+			_suspendTokenSource?.Dispose();
+			_suspendOnIdleTokenSource?.Dispose();
+
+			_suspendOnIdleTokenSource = new CancellationTokenSource(_idlePeriod);
+
+			_suspendTokenSource = _defaultOptions.SuspendToken.CanBeCanceled
+					? CancellationTokenSource.CreateLinkedTokenSource(_defaultOptions.SuspendToken, _suspendOnIdleTokenSource.Token)
+					: _suspendOnIdleTokenSource;
+
+			return _suspendTokenSource.Token;
 		}
 
 		protected virtual ValueTask Initialize() => default;
@@ -276,12 +279,9 @@ namespace Xtate.Core
 						await Initialize().ConfigureAwait(false);
 					}
 
-					var options = _defaultOptions.Clone();
-					FillOptions(options);
-
 					try
 					{
-						var result = await StateMachineInterpreter.RunAsync(SessionId, _stateMachine, Channel.Reader, options).ConfigureAwait(false);
+						var result = await StateMachineInterpreter.RunAsync(SessionId, _stateMachine, Channel.Reader, GetOptions()).ConfigureAwait(false);
 						await _finalizer.ExecuteDeferredFinalization().ConfigureAwait(false);
 						_acceptedTcs.TrySetResult(0);
 						_completedTcs.TrySetResult(result);

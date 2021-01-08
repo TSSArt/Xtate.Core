@@ -26,30 +26,28 @@ using Xtate.Persistence;
 
 namespace Xtate.Core
 {
-	public sealed class InterpreterOptions
+	public record InterpreterOptions
 	{
 		public static InterpreterOptions Default { get; } = new();
 
-		public ImmutableArray<IDataModelHandlerFactory> DataModelHandlerFactories { get; set; }
-		public ImmutableArray<ICustomActionFactory>     CustomActionProviders     { get; set; }
-		public ImmutableArray<IResourceLoaderFactory>   ResourceLoaderFactories   { get; set; }
-		public SecurityContext?                         SecurityContext           { get; set; }
-		public DataModelList?                           Host                      { get; set; }
-		public DataModelList?                           Configuration             { get; set; }
-		public ImmutableDictionary<object, object>?     ContextRuntimeItems       { get; set; }
-		public DataModelValue                           Arguments                 { get; set; }
-		public IExternalCommunication?                  ExternalCommunication     { get; set; }
-		public INotifyStateChanged?                     NotifyStateChanged        { get; set; }
-		public CancellationToken                        SuspendToken              { get; set; }
-		public CancellationToken                        StopToken                 { get; set; }
-		public CancellationToken                        DestroyToken              { get; set; }
-		public PersistenceLevel                         PersistenceLevel          { get; set; }
-		public IStorageProvider?                        StorageProvider           { get; set; }
-		public ILogger?                                 Logger                    { get; set; }
-		public IErrorProcessor?                         ErrorProcessor            { get; set; }
-		public UnhandledErrorBehaviour                  UnhandledErrorBehaviour   { get; set; }
-		public Uri?                                     BaseUri                   { get; set; }
-
-		public InterpreterOptions Clone() => (InterpreterOptions) MemberwiseClone();
+		public ImmutableArray<IDataModelHandlerFactory> DataModelHandlerFactories { get; init; }
+		public ImmutableArray<ICustomActionFactory>     CustomActionProviders     { get; init; }
+		public ImmutableArray<IResourceLoaderFactory>   ResourceLoaderFactories   { get; init; }
+		public SecurityContext?                         SecurityContext           { get; init; }
+		public DataModelList?                           Host                      { get; init; }
+		public DataModelList?                           Configuration             { get; init; }
+		public ImmutableDictionary<object, object>?     ContextRuntimeItems       { get; init; }
+		public DataModelValue                           Arguments                 { get; init; }
+		public IExternalCommunication?                  ExternalCommunication     { get; init; }
+		public INotifyStateChanged?                     NotifyStateChanged        { get; init; }
+		public CancellationToken                        SuspendToken              { get; init; }
+		public CancellationToken                        StopToken                 { get; init; }
+		public CancellationToken                        DestroyToken              { get; init; }
+		public PersistenceLevel                         PersistenceLevel          { get; init; }
+		public IStorageProvider?                        StorageProvider           { get; init; }
+		public ILogger?                                 Logger                    { get; init; }
+		public IErrorProcessor?                         ErrorProcessor            { get; init; }
+		public UnhandledErrorBehaviour                  UnhandledErrorBehaviour   { get; init; }
+		public Uri?                                     BaseUri                   { get; init; }
 	}
 }

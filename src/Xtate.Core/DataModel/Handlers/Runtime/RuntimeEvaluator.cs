@@ -31,7 +31,7 @@ namespace Xtate
 
 	public delegate ValueTask<DataModelValue> EvaluatorCancellableTask(IExecutionContext executionContext, CancellationToken token);
 
-	public class RuntimeEvaluator : IValueExpression, IObjectEvaluator
+	public sealed class RuntimeEvaluator : IValueExpression, IObjectEvaluator
 	{
 		private readonly object _evaluator;
 
