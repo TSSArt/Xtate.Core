@@ -25,7 +25,7 @@ using Xtate.Annotations;
 namespace Xtate
 {
 	[PublicAPI]
-	public class ErrorItem
+	public sealed class ErrorItem
 	{
 		public ErrorItem(Type source, string message, Exception? exception, int lineNumber = 0, int linePosition = 0)
 		{

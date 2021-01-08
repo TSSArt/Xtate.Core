@@ -22,11 +22,9 @@ using System.Buffers;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Xtate.Annotations;
 
 namespace Xtate.Persistence
 {
-	[PublicAPI]
 	internal sealed class StreamStorage : ITransactionalStorage
 	{
 		private const byte SkipMark        = 0;

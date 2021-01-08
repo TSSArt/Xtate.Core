@@ -33,7 +33,7 @@ namespace Xtate
 	public delegate ValueTask<bool> PredicateCancellableTask(IExecutionContext executionContext, CancellationToken token);
 
 	[PublicAPI]
-	public class RuntimePredicate : IExecutableEntity, IBooleanEvaluator
+	public sealed class RuntimePredicate : IExecutableEntity, IBooleanEvaluator
 	{
 		private readonly object _predicate;
 

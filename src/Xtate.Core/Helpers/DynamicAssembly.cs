@@ -56,7 +56,12 @@ namespace Xtate.Core
 
 	#region Interface IAsyncDisposable
 
-		public ValueTask DisposeAsync() => new(_ioBoundTaskFactory.StartNew(static obj => ((DynamicAssembly) obj!).Unload(), this));
+		public ValueTask DisposeAsync()
+		{
+			return _context is not null
+					? new ValueTask(_ioBoundTaskFactory.StartNew(static ctx => ((Context) ctx!).Unload(), _context))
+					: default;
+		}
 
 	#endregion
 
@@ -82,8 +87,6 @@ namespace Xtate.Core
 		private Task<Assembly> Initialization() => _ioBoundTaskFactory.StartNew(static obj => ((DynamicAssembly) obj!).LoadAssembly(), this);
 
 		public ValueTask<Assembly> GetAssembly() => new(_lazyInitialization.Value);
-
-		private void Unload() => _context?.Unload();
 
 		private Assembly LoadAssembly()
 		{

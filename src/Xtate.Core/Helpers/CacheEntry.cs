@@ -26,32 +26,39 @@ namespace Xtate.Core
 {
 	internal class CacheEntry<T>
 	{
-		private readonly T?             _value1;
+		private readonly T?             _value;
 		private readonly WeakReference? _weakReference;
-		private          int            _refCount;
+
+		private int _refCount;
 
 		public CacheEntry([DisallowNull] T value, ValueOptions options)
 		{
-			if ((options & ValueOptions.WeakRef) != 0)
+			Options = options;
+			_refCount = 1;
+
+			if (IsWeakReference)
 			{
 				_weakReference = new WeakReference(value);
 			}
 			else
 			{
-				_value1 = value;
+				_value = value;
 			}
-
-			Options = options;
-			_refCount = 1;
 		}
 
 		public ValueOptions Options { get; }
 
+		private bool IsWeakReference => (Options & ValueOptions.WeakRef) != 0;
+
+		private bool DisposeRequired => (Options & ValueOptions.Dispose) != 0;
+
+		private bool IsThreadSafe => (Options & ValueOptions.ThreadSafe) != 0;
+
 		public bool TryGetValue([NotNullWhen(true)] out T? value)
 		{
-			if (_value1 is not null)
+			if (_value is not null)
 			{
-				value = _value1;
+				value = _value;
 
 				return true;
 			}
@@ -70,7 +77,7 @@ namespace Xtate.Core
 
 		public bool AddReference()
 		{
-			if ((Options & ValueOptions.ThreadSafe) == 0)
+			if (!IsThreadSafe)
 			{
 				if (_refCount == 0)
 				{
@@ -100,7 +107,7 @@ namespace Xtate.Core
 
 		public async ValueTask<bool> RemoveReference()
 		{
-			if ((Options & ValueOptions.ThreadSafe) == 0)
+			if (!IsThreadSafe)
 			{
 				Infrastructure.Assert(_refCount > 0);
 
@@ -129,7 +136,7 @@ namespace Xtate.Core
 				}
 			}
 
-			if ((Options & ValueOptions.Dispose) != 0 && TryGetValue(out var value))
+			if (DisposeRequired && TryGetValue(out var value))
 			{
 				switch (value)
 				{

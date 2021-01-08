@@ -18,32 +18,14 @@
 #endregion
 
 #if NET461 || NETSTANDARD2_0
-using System.IO;
-using System.Reflection;
-using Xtate;
-using Xtate.Core;
+using System.ComponentModel;
+using Xtate.Annotations;
 
-namespace System.Runtime.Loader
+namespace System.Runtime.CompilerServices
 {
-	internal class AssemblyLoadContext
-	{
-		public AssemblyLoadContext(bool isCollectible) => IsCollectible = isCollectible;
-
-		public bool IsCollectible { get; }
-
-		public void Unload() => Infrastructure.Assert(IsCollectible);
-
-		public Assembly LoadFromStream(Stream stream)
-		{
-			Infrastructure.Assert(IsCollectible);
-
-			if (stream is MemoryStream memoryStream && memoryStream.TryGetBuffer(out var segment) && segment.Offset == 0 && segment.Count == memoryStream.Length)
-			{
-				return Assembly.Load(segment.Array);
-			}
-
-			return Assembly.Load(stream.ReadToEndAsync(default).SynchronousGetResult());
-		}
-	}
+	[EditorBrowsable(EditorBrowsableState.Never)]
+	[UsedImplicitly]
+	internal static class IsExternalInit { }
 }
+
 #endif
