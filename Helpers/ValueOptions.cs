@@ -17,24 +17,28 @@
 
 #endregion
 
-using System.Collections.Immutable;
+using System;
 
 namespace Xtate
 {
-	internal class FactoryContext : IFactoryContext
+	[Flags]
+	public enum ValueOptions
 	{
-		public FactoryContext(ImmutableArray<IResourceLoaderFactory> resourceLoaderFactories, SecurityContext securityContext)
-		{
-			SecurityContext = securityContext;
-			ResourceLoaderFactories = resourceLoaderFactories;
-		}
+		/// <summary>
+		///     Calls <see cref="IDisposable.Dispose" /> or <see cref="IAsyncDisposable.DisposeAsync" /> on value object when
+		///     <see cref="SecurityContext" /> disposed.
+		/// </summary>
+		Dispose = 1,
 
-	#region Interface IFactoryContext
+		/// <summary>
+		///     Uses <see cref="WeakReference" /> for storing value object. It means object can be collected by GC at any time.
+		/// </summary>
+		WeakRef = 2,
 
-		public ImmutableArray<IResourceLoaderFactory> ResourceLoaderFactories { get; }
-
-		public SecurityContext SecurityContext { get; }
-
-	#endregion
+		/// <summary>
+		///     Value is a thread-safe object, therefore it will be stored in Global cache, otherwise it will be stored in Local
+		///     cache and will not be available for other Local caches.
+		/// </summary>
+		ThreadSafe = 4
 	}
 }

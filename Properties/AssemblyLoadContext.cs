@@ -17,24 +17,34 @@
 
 #endregion
 
-using System.Collections.Immutable;
+#if NET461 || NETSTANDARD2_0
+using System.IO;
+using System.Reflection;
+using Xtate;
+using Xtate.Annotations;
 
-namespace Xtate
+namespace System.Runtime.Loader
 {
-	internal class FactoryContext : IFactoryContext
+	[PublicAPI]
+	internal class AssemblyLoadContext
 	{
-		public FactoryContext(ImmutableArray<IResourceLoaderFactory> resourceLoaderFactories, SecurityContext securityContext)
+		public AssemblyLoadContext(bool isCollectible) => IsCollectible = isCollectible;
+
+		public bool IsCollectible { get; }
+
+		public void Unload() => Infrastructure.Assert(IsCollectible);
+
+		public Assembly LoadFromStream(Stream stream)
 		{
-			SecurityContext = securityContext;
-			ResourceLoaderFactories = resourceLoaderFactories;
+			Infrastructure.Assert(IsCollectible);
+
+			if (stream is MemoryStream memoryStream && memoryStream.TryGetBuffer(out var segment) && segment.Offset == 0 && segment.Count == memoryStream.Length)
+			{
+				return Assembly.Load(segment.Array);
+			}
+
+			return Assembly.Load(stream.ReadToEndAsync(default).SynchronousGetResult());
 		}
-
-	#region Interface IFactoryContext
-
-		public ImmutableArray<IResourceLoaderFactory> ResourceLoaderFactories { get; }
-
-		public SecurityContext SecurityContext { get; }
-
-	#endregion
 	}
 }
+#endif

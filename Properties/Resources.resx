@@ -767,4 +767,13 @@
   <data name="Exception_Loading_external_resources_does_not_supported" xml:space="preserve">
     <value>Loading external resources does not supported. Derive class from ScxmlXmlResolver and pass instance of it to ScxmlDirector.</value>
   </data>
+  <data name="Exception_Access_to_IO_bound_threads_denied" xml:space="preserve">
+    <value>Access to IO bound threads denied.</value>
+  </data>
+  <data name="Exception_Starting_State_Machine_denied" xml:space="preserve">
+    <value>Starting State Machine denied.</value>
+  </data>
+  <data name="Exception_Access_denied_Permission_required" xml:space="preserve">
+    <value>Access denied. Permission [{0}] required.</value>
+  </data>
 </root>

@@ -952,6 +952,24 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Access denied. Permission [{0}] required..
+        /// </summary>
+        internal static string Exception_Access_denied_Permission_required {
+            get {
+                return ResourceManager.GetString("Exception_Access_denied_Permission_required", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Access to IO bound threads denied..
+        /// </summary>
+        internal static string Exception_Access_to_IO_bound_threads_denied {
+            get {
+                return ResourceManager.GetString("Exception_Access_to_IO_bound_threads_denied", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Another asynchronous operation in progress..
         /// </summary>
         internal static string Exception_Another_asynchronous_operation_in_progress {
@@ -1563,6 +1581,15 @@ namespace Xtate {
         internal static string Exception_Specified_method_is_not_supported_in_type {
             get {
                 return ResourceManager.GetString("Exception_Specified_method_is_not_supported_in_type", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Starting State Machine denied..
+        /// </summary>
+        internal static string Exception_Starting_State_Machine_denied {
+            get {
+                return ResourceManager.GetString("Exception_Starting_State_Machine_denied", resourceCulture);
             }
         }
         

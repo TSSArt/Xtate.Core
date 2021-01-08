@@ -31,7 +31,7 @@ using Xtate.Service;
 
 namespace Xtate
 {
-	internal class StateMachineController : IService, IExternalCommunication, INotifyStateChanged, ILoggerContext, IAsyncDisposable
+	internal class StateMachineController : IStateMachineController, IService, IExternalCommunication, INotifyStateChanged, ILoggerContext, IAsyncDisposable
 	{
 		private static readonly UnboundedChannelOptions UnboundedSynchronousChannelOptions  = new() { SingleReader = true, AllowSynchronousContinuations = true };
 		private static readonly UnboundedChannelOptions UnboundedAsynchronousChannelOptions = new() { SingleReader = true, AllowSynchronousContinuations = false };
@@ -40,10 +40,12 @@ namespace Xtate
 		private readonly TaskCompletionSource<DataModelValue> _completedTcs = new();
 		private readonly InterpreterOptions                   _defaultOptions;
 		private readonly CancellationTokenSource              _destroyTokenSource;
+		private readonly DeferredFinalizer                    _finalizer;
 		private readonly TimeSpan                             _idlePeriod;
 		private readonly ILogger                              _logger;
 		private readonly IStateMachineOptions?                _options;
 		private readonly HashSet<ScheduledEvent>              _scheduledEvents = new();
+		private readonly SecurityContext                      _securityContext;
 		private readonly IStateMachine?                       _stateMachine;
 		private readonly IStateMachineHost                    _stateMachineHost;
 		private readonly ConcurrentQueue<ScheduledEvent>      _toDelete = new();
@@ -52,8 +54,8 @@ namespace Xtate
 		private CancellationTokenSource? _suspendOnIdleTokenSource;
 		private CancellationTokenSource? _suspendTokenSource;
 
-		public StateMachineController(SessionId sessionId, IStateMachineOptions? options, IStateMachine? stateMachine, Uri? stateMachineLocation,
-									  IStateMachineHost stateMachineHost, TimeSpan idlePeriod, in InterpreterOptions defaultOptions)
+		public StateMachineController(SessionId sessionId, IStateMachineOptions? options, IStateMachine? stateMachine, Uri? stateMachineLocation, IStateMachineHost stateMachineHost,
+									  TimeSpan idlePeriod, InterpreterOptions defaultOptions, SecurityContext securityContext, DeferredFinalizer finalizer)
 		{
 			SessionId = sessionId;
 			StateMachineLocation = stateMachineLocation;
@@ -61,6 +63,8 @@ namespace Xtate
 			_stateMachine = stateMachine;
 			_stateMachineHost = stateMachineHost;
 			_defaultOptions = defaultOptions;
+			_securityContext = securityContext;
+			_finalizer = finalizer;
 			_idlePeriod = idlePeriod;
 			_logger = _defaultOptions.Logger ?? DefaultLogger.Instance;
 
@@ -76,20 +80,11 @@ namespace Xtate
 
 	#region Interface IAsyncDisposable
 
-		public virtual ValueTask DisposeAsync()
+		public async ValueTask DisposeAsync()
 		{
-			if (_disposed)
-			{
-				return default;
-			}
+			await DisposeAsyncCore().ConfigureAwait(false);
 
-			_destroyTokenSource.Dispose();
-			_suspendTokenSource?.Dispose();
-			_suspendOnIdleTokenSource?.Dispose();
-
-			_disposed = true;
-
-			return default;
+			GC.SuppressFinalize(this);
 		}
 
 	#endregion
@@ -131,7 +126,7 @@ namespace Xtate
 			}
 		}
 
-		ValueTask IExternalCommunication.StartInvoke(InvokeData invokeData, CancellationToken token) => _stateMachineHost.StartInvoke(SessionId, invokeData, token);
+		ValueTask IExternalCommunication.StartInvoke(InvokeData invokeData, CancellationToken token) => _stateMachineHost.StartInvoke(SessionId, invokeData, _securityContext, token);
 
 		ValueTask IExternalCommunication.CancelInvoke(InvokeId invokeId, CancellationToken token) => _stateMachineHost.CancelInvoke(SessionId, invokeId, token);
 
@@ -179,8 +174,6 @@ namespace Xtate
 
 	#region Interface IService
 
-		public ValueTask<DataModelValue> GetResult(CancellationToken token) => _completedTcs.WaitAsync(token);
-
 		ValueTask IService.Destroy(CancellationToken token)
 		{
 			TriggerDestroySignal();
@@ -189,6 +182,28 @@ namespace Xtate
 		}
 
 	#endregion
+
+	#region Interface IStateMachineController
+
+		public ValueTask<DataModelValue> GetResult(CancellationToken token) => _completedTcs.WaitAsync(token);
+
+	#endregion
+
+		protected virtual ValueTask DisposeAsyncCore()
+		{
+			if (_disposed)
+			{
+				return default;
+			}
+
+			_destroyTokenSource.Dispose();
+			_suspendTokenSource?.Dispose();
+			_suspendOnIdleTokenSource?.Dispose();
+
+			_disposed = true;
+
+			return default;
+		}
 
 		private static Channel<IEvent> CreateChannel(IStateMachineOptions? options)
 		{
@@ -210,22 +225,19 @@ namespace Xtate
 			return System.Threading.Channels.Channel.CreateBounded<IEvent>(channelOptions);
 		}
 
-		public ValueTask StartAsync(CancellationToken token)
+		public async ValueTask StartAsync(CancellationToken token)
 		{
-			token.Register(() => _acceptedTcs.TrySetCanceled(token));
-
 			ExecuteAsync().Forget();
 
-			return new ValueTask(_acceptedTcs.Task);
+			await _acceptedTcs.WaitAsync(token).ConfigureAwait(false);
 		}
 
-		private void FillOptions(out InterpreterOptions options)
+		private void FillOptions(InterpreterOptions options)
 		{
-			options = _defaultOptions;
-
 			options.ExternalCommunication = this;
 			options.StorageProvider = this as IStorageProvider;
 			options.NotifyStateChanged = this;
+			options.SecurityContext = _securityContext;
 
 			if (_idlePeriod > TimeSpan.Zero)
 			{
@@ -249,8 +261,9 @@ namespace Xtate
 
 		protected virtual ValueTask Initialize() => default;
 
-		public async ValueTask<DataModelValue> ExecuteAsync()
+		private async ValueTask<DataModelValue> ExecuteAsync()
 		{
+			_finalizer.DefferFinalization();
 			var initialized = false;
 			while (true)
 			{
@@ -263,11 +276,13 @@ namespace Xtate
 						await Initialize().ConfigureAwait(false);
 					}
 
-					FillOptions(out var options);
+					var options = _defaultOptions.Clone();
+					FillOptions(options);
 
 					try
 					{
 						var result = await StateMachineInterpreter.RunAsync(SessionId, _stateMachine, Channel.Reader, options).ConfigureAwait(false);
+						await _finalizer.ExecuteDeferredFinalization().ConfigureAwait(false);
 						_acceptedTcs.TrySetResult(0);
 						_completedTcs.TrySetResult(result);
 
@@ -279,6 +294,7 @@ namespace Xtate
 				}
 				catch (OperationCanceledException ex)
 				{
+					await _finalizer.ExecuteDeferredFinalization().ConfigureAwait(false);
 					_acceptedTcs.TrySetCanceled(ex.CancellationToken);
 					_completedTcs.TrySetCanceled(ex.CancellationToken);
 
@@ -286,6 +302,7 @@ namespace Xtate
 				}
 				catch (Exception ex)
 				{
+					await _finalizer.ExecuteDeferredFinalization().ConfigureAwait(false);
 					_acceptedTcs.TrySetException(ex);
 					_completedTcs.TrySetException(ex);
 
@@ -297,7 +314,6 @@ namespace Xtate
 		public void TriggerDestroySignal()
 		{
 			_destroyTokenSource.Cancel();
-			Channel.Writer.Complete();
 		}
 
 		private async ValueTask WaitForResume()

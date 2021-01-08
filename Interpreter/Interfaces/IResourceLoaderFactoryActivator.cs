@@ -17,24 +17,15 @@
 
 #endregion
 
-using System.Collections.Immutable;
+using System.Threading;
+using System.Threading.Tasks;
+using Xtate.Annotations;
 
 namespace Xtate
 {
-	internal class FactoryContext : IFactoryContext
+	[PublicAPI]
+	public interface IResourceLoaderFactoryActivator
 	{
-		public FactoryContext(ImmutableArray<IResourceLoaderFactory> resourceLoaderFactories, SecurityContext securityContext)
-		{
-			SecurityContext = securityContext;
-			ResourceLoaderFactories = resourceLoaderFactories;
-		}
-
-	#region Interface IFactoryContext
-
-		public ImmutableArray<IResourceLoaderFactory> ResourceLoaderFactories { get; }
-
-		public SecurityContext SecurityContext { get; }
-
-	#endregion
+		ValueTask<IResourceLoader> CreateResourceLoader(IFactoryContext factoryContext, CancellationToken token);
 	}
 }

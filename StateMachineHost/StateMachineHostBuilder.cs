@@ -39,7 +39,7 @@ namespace Xtate
 		private ImmutableArray<IIoProcessorFactory>.Builder?      _ioProcessorFactories;
 		private ILogger?                                          _logger;
 		private PersistenceLevel                                  _persistenceLevel;
-		private ImmutableArray<IResourceLoader>.Builder?          _resourceLoaders;
+		private ImmutableArray<IResourceLoaderFactory>.Builder?   _resourceLoaderFactories;
 		private ImmutableArray<IServiceFactory>.Builder?          _serviceFactories;
 		private IStorageProvider?                                 _storageProvider;
 		private TimeSpan                                          _suspendIdlePeriod;
@@ -54,7 +54,7 @@ namespace Xtate
 								 ServiceFactories = _serviceFactories?.ToImmutable() ?? default,
 								 DataModelHandlerFactories = _dataModelHandlerFactories?.ToImmutable() ?? default,
 								 CustomActionFactories = _customActionFactories?.ToImmutable() ?? default,
-								 ResourceLoaders = _resourceLoaders?.ToImmutable() ?? default,
+								 ResourceLoaderFactories = _resourceLoaderFactories?.ToImmutable() ?? default,
 								 Configuration = _configuration?.ToImmutable(),
 								 BaseUri = _baseUri,
 								 Logger = _logger,
@@ -91,11 +91,11 @@ namespace Xtate
 			return this;
 		}
 
-		public StateMachineHostBuilder AddResourceLoader(IResourceLoader resourceLoader)
+		public StateMachineHostBuilder AddResourceLoaderFactory(IResourceLoaderFactory resourceLoaderFactory)
 		{
-			if (resourceLoader is null) throw new ArgumentNullException(nameof(resourceLoader));
+			if (resourceLoaderFactory is null) throw new ArgumentNullException(nameof(resourceLoaderFactory));
 
-			(_resourceLoaders ??= ImmutableArray.CreateBuilder<IResourceLoader>()).Add(resourceLoader);
+			(_resourceLoaderFactories ??= ImmutableArray.CreateBuilder<IResourceLoaderFactory>()).Add(resourceLoaderFactory);
 
 			return this;
 		}
