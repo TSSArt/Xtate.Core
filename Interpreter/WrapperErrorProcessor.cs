@@ -20,7 +20,7 @@
 using System;
 using System.Collections.Immutable;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	/// <summary>
 	///     Makes sure error is thrown by <see cref="ThrowIfErrors()" /> in case of underlying error processor does not throw

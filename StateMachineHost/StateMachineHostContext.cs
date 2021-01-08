@@ -28,7 +28,7 @@ using Xtate.Builder;
 using Xtate.Scxml;
 using Xtate.Service;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	internal class StateMachineHostContext : IAsyncDisposable
 	{

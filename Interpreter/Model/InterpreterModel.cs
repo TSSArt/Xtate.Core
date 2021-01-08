@@ -20,7 +20,7 @@
 using System.Collections.Immutable;
 using Xtate.Annotations;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	[PublicAPI]
 	internal class InterpreterModel

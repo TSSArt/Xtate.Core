@@ -22,6 +22,7 @@ using System.Dynamic;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtate.Core;
 
 namespace Xtate
 {

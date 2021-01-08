@@ -20,7 +20,7 @@
 using System;
 using Xtate.Persistence;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	internal sealed class LogNode : ExecutableEntityNode, ILog, IAncestorProvider, IDebugEntityId
 	{

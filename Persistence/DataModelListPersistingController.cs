@@ -18,6 +18,7 @@
 #endregion
 
 using System;
+using Xtate.Core;
 
 namespace Xtate.Persistence
 {

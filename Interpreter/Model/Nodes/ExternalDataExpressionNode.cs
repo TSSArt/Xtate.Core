@@ -20,7 +20,7 @@
 using System;
 using Xtate.Persistence;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	internal sealed class ExternalDataExpressionNode : IExternalDataExpression, IStoreSupport, IAncestorProvider
 	{

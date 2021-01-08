@@ -20,7 +20,7 @@
 using System;
 using System.Buffers;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	public static class StringExtensions
 	{

@@ -26,7 +26,7 @@ using System.Threading.Tasks;
 using Xtate.Annotations;
 using Xtate.XInclude;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	[PublicAPI]
 	public sealed class Resource : IDisposable, IAsyncDisposable, IXIncludeResource

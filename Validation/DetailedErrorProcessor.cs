@@ -20,7 +20,7 @@
 using System;
 using System.Collections.Immutable;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	/// <summary>
 	///     Aggregates all errors and throw single exception with previously added errors

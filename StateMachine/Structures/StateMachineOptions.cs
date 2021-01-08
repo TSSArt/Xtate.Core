@@ -17,7 +17,7 @@
 
 #endregion
 
-namespace Xtate
+namespace Xtate.Core
 {
 	public struct StateMachineOptions : IStateMachineOptions
 	{

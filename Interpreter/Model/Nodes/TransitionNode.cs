@@ -23,7 +23,7 @@ using System.Collections.Immutable;
 using Xtate.DataModel;
 using Xtate.Persistence;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	internal sealed class TransitionNode : ITransition, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 	{

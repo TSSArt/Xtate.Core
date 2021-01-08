@@ -22,7 +22,7 @@ using System.Collections.Immutable;
 using Xtate.DataModel;
 using Xtate.Persistence;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	internal sealed class OnExitNode : IOnExit, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 	{

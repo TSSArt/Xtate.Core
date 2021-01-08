@@ -21,7 +21,7 @@ using System;
 using System.Dynamic;
 using System.Linq.Expressions;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	internal class MetaObject : DynamicMetaObject
 	{

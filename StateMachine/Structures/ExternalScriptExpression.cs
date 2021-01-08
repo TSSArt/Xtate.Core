@@ -19,7 +19,7 @@
 
 using System;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	public struct ExternalScriptExpression : IExternalScriptExpression, IVisitorEntity<ExternalScriptExpression, IExternalScriptExpression>, IAncestorProvider
 	{

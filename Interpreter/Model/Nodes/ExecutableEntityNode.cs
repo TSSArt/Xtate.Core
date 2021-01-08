@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 using Xtate.DataModel;
 using Xtate.Persistence;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	internal abstract class ExecutableEntityNode : IExecutableEntity, IExecEvaluator, IStoreSupport, IDocumentId
 	{

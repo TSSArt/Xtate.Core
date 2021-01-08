@@ -19,7 +19,7 @@
 
 using System;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	public struct HistoryEntity : IHistory, IVisitorEntity<HistoryEntity, IHistory>, IAncestorProvider, IDebugEntityId
 	{

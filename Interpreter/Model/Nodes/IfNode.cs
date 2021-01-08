@@ -21,7 +21,7 @@ using System;
 using System.Collections.Immutable;
 using Xtate.Persistence;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	internal sealed class IfNode : ExecutableEntityNode, IIf, IAncestorProvider, IDebugEntityId
 	{
