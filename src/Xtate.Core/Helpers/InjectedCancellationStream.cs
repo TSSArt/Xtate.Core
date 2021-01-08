@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2021 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -112,7 +112,7 @@ namespace Xtate.Core
 #else
 		[UsedImplicitly]
 		internal static void IgnoreIt(ValueTask _) { }
-		
+
 		[UsedImplicitly]
 		internal static void IgnoreIt(Memory<byte> _) { }
 #endif

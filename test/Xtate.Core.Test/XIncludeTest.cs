@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2021 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -75,7 +75,7 @@ namespace Xtate.Core.Test
 		public async Task XIncludeReaderTest()
 		{
 			var uri = new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Scxml/XInclude/SingleIncludeSource.scxml");
-			
+
 			var securityContext = SecurityContext.Create(SecurityContextType.NewStateMachine, new DeferredFinalizer());
 			var proxy = new RedirectXmlResolver(ImmutableArray.Create(ResxResourceLoaderFactory.Instance), securityContext, token: default);
 			var factoryContext = new FactoryContext(ImmutableArray.Create(ResxResourceLoaderFactory.Instance), securityContext);

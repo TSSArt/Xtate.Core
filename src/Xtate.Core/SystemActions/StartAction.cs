@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2021 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -35,9 +35,9 @@ namespace Xtate.CustomAction
 		private const string SessionIdLocation = "sessionIdLocation";
 
 		private readonly ILocationAssigner?    _idLocation;
-		private readonly bool                  _trusted;
 		private readonly string?               _sessionId;
 		private readonly IExpressionEvaluator? _sessionIdExpression;
+		private readonly bool                  _trusted;
 		private readonly Uri?                  _url;
 		private readonly IExpressionEvaluator? _urlExpression;
 
