@@ -33,7 +33,7 @@ namespace Xtate.Core
 		public ImmutableArray<IDataModelHandlerFactory> DataModelHandlerFactories { get; init; }
 		public ImmutableArray<ICustomActionFactory>     CustomActionProviders     { get; init; }
 		public ImmutableArray<IResourceLoaderFactory>   ResourceLoaderFactories   { get; init; }
-		public SecurityContext?                         SecurityContext           { get; init; }
+		public ISecurityContext?                         SecurityContext           { get; init; }
 		public DataModelList?                           Host                      { get; init; }
 		public DataModelList?                           Configuration             { get; init; }
 		public ImmutableDictionary<object, object>?     ContextRuntimeItems       { get; init; }

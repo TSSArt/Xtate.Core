@@ -25,14 +25,6 @@ using Xtate.Annotations;
 
 namespace Xtate.Core
 {
-	public enum SecurityContextType
-	{
-		NoAccess,
-		NewStateMachine,
-		NewTrustedStateMachine,
-		InvokedStateMachine
-	}
-
 	[Flags]
 	public enum SecurityContextPermissions
 	{
@@ -59,9 +51,8 @@ namespace Xtate.Core
 
 		private readonly SecurityContext?                                  _parent;
 		private          GlobalCache<(object Key, object SubKey), object>? _globalCache;
-
-		private TaskFactory?                                     _ioBoundTaskFactory;
-		private LocalCache<(object Key, object SubKey), object>? _localCache;
+		private          TaskFactory?                                      _ioBoundTaskFactory;
+		private          LocalCache<(object Key, object SubKey), object>?  _localCache;
 
 		private SecurityContext(SecurityContextType type, SecurityContextPermissions permissions, SecurityContext? parentSecurityContext)
 		{
@@ -73,8 +64,6 @@ namespace Xtate.Core
 		public SecurityContextType Type { get; }
 
 		public SecurityContextPermissions Permissions { get; }
-
-		public TaskFactory IoBoundTaskFactory => _ioBoundTaskFactory ??= CreateTaskFactory();
 
 		public static SecurityContext NoAccess { get; } = new(SecurityContextType.NoAccess, SecurityContextPermissions.None, parentSecurityContext: default);
 
@@ -115,6 +104,24 @@ namespace Xtate.Core
 			return securityContext;
 		}
 
+		public ValueTask SetValue<T>(object key, object subKey, [DisallowNull] T value, ValueOptions options) => GetLocalCache().SetValue((key, subKey), value, options);
+
+		public bool TryGetValue<T>(object key, object subKey, [NotNullWhen(true)] out T? value)
+		{
+			if (GetLocalCache().TryGetValue((key, subKey), out var obj))
+			{
+				value = (T) obj;
+
+				return true;
+			}
+
+			value = default;
+
+			return false;
+		}
+
+		public TaskFactory IoBoundTaskFactory => _ioBoundTaskFactory ??= CreateTaskFactory();
+
 	#endregion
 
 		private TaskFactory CreateTaskFactory()
@@ -152,22 +159,6 @@ namespace Xtate.Core
 			root._globalCache ??= new GlobalCache<(object Key, object SubKey), object>();
 
 			return _localCache = root._globalCache.CreateLocalCache();
-		}
-
-		public ValueTask SetValue<T>(object key, object subKey, [DisallowNull] T value, ValueOptions options) => GetLocalCache().SetValue((key, subKey), value, options);
-
-		public bool TryGetValue<T>(object key, object subKey, [NotNullWhen(true)] out T? value)
-		{
-			if (GetLocalCache().TryGetValue((key, subKey), out var obj))
-			{
-				value = (T) obj;
-
-				return true;
-			}
-
-			value = default;
-
-			return false;
 		}
 
 		private async ValueTask DisposeAsync()

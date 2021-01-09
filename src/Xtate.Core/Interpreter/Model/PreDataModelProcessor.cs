@@ -29,13 +29,13 @@ namespace Xtate.Core
 	{
 		private readonly IErrorProcessor                        _errorProcessor;
 		private readonly ImmutableArray<IResourceLoaderFactory> _resourceLoaderFactories;
-		private readonly SecurityContext                        _securityContext;
+		private readonly ISecurityContext                        _securityContext;
 
 		private Dictionary<ICustomAction, CustomActionDispatcher>? _customActionDispatchers;
 
 		private bool _postProcess;
 
-		public PreDataModelProcessor(IErrorProcessor errorProcessor, ImmutableArray<IResourceLoaderFactory> resourceLoaderFactories, SecurityContext securityContext)
+		public PreDataModelProcessor(IErrorProcessor errorProcessor, ImmutableArray<IResourceLoaderFactory> resourceLoaderFactories, ISecurityContext securityContext)
 		{
 			_errorProcessor = errorProcessor;
 			_resourceLoaderFactories = resourceLoaderFactories;

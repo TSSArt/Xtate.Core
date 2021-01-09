@@ -40,7 +40,7 @@ namespace Xtate
 
 		ImmutableArray<IIoProcessor> IStateMachineHost.GetIoProcessors() => !_ioProcessors.IsDefault ? _ioProcessors : ImmutableArray<IIoProcessor>.Empty;
 
-		async ValueTask IStateMachineHost.StartInvoke(SessionId sessionId, InvokeData data, SecurityContext securityContext, CancellationToken token)
+		async ValueTask IStateMachineHost.StartInvoke(SessionId sessionId, InvokeData data, ISecurityContext securityContext, CancellationToken token)
 		{
 			var context = GetCurrentContext();
 

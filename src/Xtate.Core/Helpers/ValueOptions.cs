@@ -19,14 +19,14 @@
 
 using System;
 
-namespace Xtate.Core
+namespace Xtate
 {
 	[Flags]
 	public enum ValueOptions
 	{
 		/// <summary>
 		///     Calls <see cref="IDisposable.Dispose" /> or <see cref="IAsyncDisposable.DisposeAsync" /> on value object when
-		///     <see cref="SecurityContext" /> disposed.
+		///     <see cref="ISecurityContext" /> disposed.
 		/// </summary>
 		Dispose = 1,
 

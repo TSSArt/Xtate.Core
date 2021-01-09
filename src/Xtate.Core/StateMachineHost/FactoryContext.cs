@@ -23,7 +23,7 @@ namespace Xtate.Core
 {
 	internal class FactoryContext : IFactoryContext
 	{
-		public FactoryContext(ImmutableArray<IResourceLoaderFactory> resourceLoaderFactories, SecurityContext securityContext)
+		public FactoryContext(ImmutableArray<IResourceLoaderFactory> resourceLoaderFactories, ISecurityContext securityContext)
 		{
 			SecurityContext = securityContext;
 			ResourceLoaderFactories = resourceLoaderFactories;
@@ -33,7 +33,7 @@ namespace Xtate.Core
 
 		public ImmutableArray<IResourceLoaderFactory> ResourceLoaderFactories { get; }
 
-		public SecurityContext SecurityContext { get; }
+		public ISecurityContext SecurityContext { get; }
 
 	#endregion
 	}
