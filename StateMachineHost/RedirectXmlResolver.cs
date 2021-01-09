@@ -30,10 +30,10 @@ namespace Xtate.Core
 	public class RedirectXmlResolver : ScxmlXmlResolver
 	{
 		private readonly ImmutableArray<IResourceLoaderFactory> _resourceLoaderFactories;
-		private readonly SecurityContext                        _securityContext;
+		private readonly ISecurityContext                        _securityContext;
 		private readonly CancellationToken                      _token;
 
-		public RedirectXmlResolver(ImmutableArray<IResourceLoaderFactory> resourceLoaderFactories, SecurityContext securityContext, CancellationToken token)
+		public RedirectXmlResolver(ImmutableArray<IResourceLoaderFactory> resourceLoaderFactories, ISecurityContext securityContext, CancellationToken token)
 		{
 			_resourceLoaderFactories = resourceLoaderFactories;
 			_securityContext = securityContext;

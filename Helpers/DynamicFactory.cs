@@ -58,7 +58,7 @@ namespace Xtate.Core
 			return await GetCachedFactories(factoryContext.SecurityContext, dynamicAssembly).ConfigureAwait(false);
 		}
 
-		private async ValueTask<ImmutableArray<TFactory>> GetCachedFactories(SecurityContext securityContext, DynamicAssembly dynamicAssembly)
+		private async ValueTask<ImmutableArray<TFactory>> GetCachedFactories(ISecurityContext securityContext, DynamicAssembly dynamicAssembly)
 		{
 			if (securityContext.TryGetValue(FactoryCacheKey, dynamicAssembly, out ImmutableArray<TFactory> factories))
 			{
