@@ -45,7 +45,7 @@ namespace Xtate.Core
 		private readonly ILogger                              _logger;
 		private readonly IStateMachineOptions?                _options;
 		private readonly HashSet<ScheduledEvent>              _scheduledEvents = new();
-		private readonly SecurityContext                      _securityContext;
+		private readonly ISecurityContext                      _securityContext;
 		private readonly IStateMachine?                       _stateMachine;
 		private readonly IStateMachineHost                    _stateMachineHost;
 		private readonly ConcurrentQueue<ScheduledEvent>      _toDelete = new();
@@ -55,7 +55,7 @@ namespace Xtate.Core
 		private CancellationTokenSource? _suspendTokenSource;
 
 		public StateMachineController(SessionId sessionId, IStateMachineOptions? options, IStateMachine? stateMachine, Uri? stateMachineLocation, IStateMachineHost stateMachineHost,
-									  TimeSpan idlePeriod, InterpreterOptions defaultOptions, SecurityContext securityContext, DeferredFinalizer finalizer)
+									  TimeSpan idlePeriod, InterpreterOptions defaultOptions, ISecurityContext securityContext, DeferredFinalizer finalizer)
 		{
 			SessionId = sessionId;
 			StateMachineLocation = stateMachineLocation;

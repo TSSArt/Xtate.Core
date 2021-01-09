@@ -148,7 +148,7 @@ namespace Xtate.Core
 						Async = true
 				};
 
-		private async ValueTask<IStateMachine> GetStateMachine(Uri? uri, string? scxml, SecurityContext securityContext, IErrorProcessor errorProcessor, CancellationToken token)
+		private async ValueTask<IStateMachine> GetStateMachine(Uri? uri, string? scxml, ISecurityContext securityContext, IErrorProcessor errorProcessor, CancellationToken token)
 		{
 			var nameTable = new NameTable();
 			var xmlResolver = new RedirectXmlResolver(_options.ResourceLoaderFactories, securityContext, token);
@@ -165,7 +165,7 @@ namespace Xtate.Core
 			return await scxmlDirector.ConstructStateMachine().ConfigureAwait(false);
 		}
 
-		protected async ValueTask<(IStateMachine StateMachine, Uri? Location)> LoadStateMachine(StateMachineOrigin origin, Uri? hostBaseUri, SecurityContext securityContext,
+		protected async ValueTask<(IStateMachine StateMachine, Uri? Location)> LoadStateMachine(StateMachineOrigin origin, Uri? hostBaseUri, ISecurityContext securityContext,
 																								IErrorProcessor errorProcessor, CancellationToken token)
 		{
 			var location = hostBaseUri.CombineWith(origin.BaseUri);

@@ -23,7 +23,7 @@ namespace Xtate.Core
 {
 	public interface IFactoryContext
 	{
-		SecurityContext SecurityContext { get; }
+		ISecurityContext SecurityContext { get; }
 
 		ImmutableArray<IResourceLoaderFactory> ResourceLoaderFactories { get; }
 	}

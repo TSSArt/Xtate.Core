@@ -44,7 +44,7 @@ namespace Xtate.Persistence
 
 		public StateMachinePersistedController(SessionId sessionId, IStateMachineOptions? options, IStateMachine? stateMachine, Uri? stateMachineLocation,
 											   IStateMachineHost stateMachineHost, IStorageProvider storageProvider, TimeSpan idlePeriod, InterpreterOptions defaultOptions,
-											   SecurityContext securityContext, DeferredFinalizer finalizer)
+											   ISecurityContext securityContext, DeferredFinalizer finalizer)
 				: base(sessionId, options, stateMachine, stateMachineLocation, stateMachineHost, idlePeriod, defaultOptions, securityContext, finalizer)
 		{
 			_storageProvider = storageProvider;

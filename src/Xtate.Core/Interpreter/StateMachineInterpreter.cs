@@ -58,7 +58,7 @@ namespace Xtate.Core
 		private readonly INotifyStateChanged?                     _notifyStateChanged;
 		private readonly PersistenceLevel                         _persistenceLevel;
 		private readonly ImmutableArray<IResourceLoaderFactory>   _resourceLoaderFactories;
-		private readonly SecurityContext                          _securityContext;
+		private readonly ISecurityContext                          _securityContext;
 		private readonly SessionId                                _sessionId;
 		private readonly IStateMachineValidator                   _stateMachineValidator;
 		private readonly CancellationToken                        _stopToken;

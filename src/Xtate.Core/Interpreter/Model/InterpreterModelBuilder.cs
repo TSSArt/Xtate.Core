@@ -39,7 +39,7 @@ namespace Xtate.Core
 		private readonly Dictionary<IIdentifier, StateEntityNode>           _idMap;
 		private readonly PreDataModelProcessor                              _preDataModelProcessor;
 		private readonly ImmutableArray<IResourceLoaderFactory>             _resourceLoaderFactories;
-		private readonly SecurityContext                                    _securityContext;
+		private readonly ISecurityContext                                    _securityContext;
 		private readonly IStateMachine                                      _stateMachine;
 		private readonly List<TransitionNode>                               _targetMap;
 		private          int                                                _counter;
@@ -49,7 +49,7 @@ namespace Xtate.Core
 		private          bool                                               _inParallel;
 
 		public InterpreterModelBuilder(IStateMachine stateMachine, IDataModelHandler dataModelHandler, ImmutableArray<ICustomActionFactory> customActionProviders,
-									   ImmutableArray<IResourceLoaderFactory> resourceLoaderFactories, SecurityContext securityContext, IErrorProcessor errorProcessor, Uri? baseUri)
+									   ImmutableArray<IResourceLoaderFactory> resourceLoaderFactories, ISecurityContext securityContext, IErrorProcessor errorProcessor, Uri? baseUri)
 		{
 			_stateMachine = stateMachine ?? throw new ArgumentNullException(nameof(stateMachine));
 			_dataModelHandler = dataModelHandler ?? throw new ArgumentNullException(nameof(dataModelHandler));

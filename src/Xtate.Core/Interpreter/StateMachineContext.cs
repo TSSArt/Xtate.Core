@@ -42,7 +42,7 @@ namespace Xtate.Core
 		private          IContextItems?                      _runtimeItems;
 
 		public StateMachineContext(string? stateMachineName, SessionId sessionId, IDataModelValueProvider dataModelValueProvider, ILogger logger, ILoggerContext loggerContext,
-								   IExternalCommunication externalCommunication, ImmutableDictionary<object, object> contextRuntimeItems, SecurityContext securityContext)
+								   IExternalCommunication externalCommunication, ImmutableDictionary<object, object> contextRuntimeItems, ISecurityContext securityContext)
 		{
 			_stateMachineName = stateMachineName;
 			_sessionId = sessionId;

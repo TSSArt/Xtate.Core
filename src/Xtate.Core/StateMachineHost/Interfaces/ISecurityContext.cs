@@ -17,12 +17,28 @@
 
 #endregion
 
+using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 using Xtate.Core;
 
 namespace Xtate
 {
+	public enum SecurityContextType
+	{
+		NoAccess,
+		NewStateMachine,
+		NewTrustedStateMachine,
+		InvokedStateMachine
+	}
+
 	public interface ISecurityContext
 	{
+		TaskFactory IoBoundTaskFactory { get; }
+
 		ISecurityContext CreateNested(SecurityContextType type, DeferredFinalizer finalizer);
+
+		ValueTask SetValue<T>(object key, object subKey, [DisallowNull] T value, ValueOptions options);
+
+		bool TryGetValue<T>(object key, object subKey, [NotNullWhen(true)] out T? value);
 	}
 }
