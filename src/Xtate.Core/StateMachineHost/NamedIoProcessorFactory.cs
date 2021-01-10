@@ -29,28 +29,32 @@ namespace Xtate.IoProcessor
 	[PublicAPI]
 	public sealed class NamedIoProcessorFactory : IIoProcessorFactory
 	{
-		private const int FreeSlotsCount = 2;
+		private const int DefaultMaxMessageSize = 1024 * 1024;
+		private const int FreeSlotsCount        = 2;
 
 		private static readonly string HostName = GetHostName();
 
 		private readonly string _host;
+		private readonly int?   _maxMessageSize;
 		private readonly string _name;
 
-		public NamedIoProcessorFactory(string name)
+		public NamedIoProcessorFactory(string name, int? maxMessageSize = default)
 		{
 			if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
 
 			_name = name;
+			_maxMessageSize = maxMessageSize;
 			_host = HostName;
 		}
 
-		public NamedIoProcessorFactory(string host, string name)
+		public NamedIoProcessorFactory(string host, string name, int? maxMessageSize = default)
 		{
 			if (string.IsNullOrEmpty(host)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(host));
 			if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
 
 			_host = host;
 			_name = name;
+			_maxMessageSize = maxMessageSize;
 		}
 
 	#region Interface IIoProcessorFactory
@@ -59,7 +63,7 @@ namespace Xtate.IoProcessor
 		{
 			if (eventConsumer is null) throw new ArgumentNullException(nameof(eventConsumer));
 
-			var processor = new NamedIoProcessor(eventConsumer, _host, _name);
+			var processor = new NamedIoProcessor(eventConsumer, _host, _name, _maxMessageSize ?? DefaultMaxMessageSize);
 
 			for (var i = 0; i < FreeSlotsCount; i ++)
 			{

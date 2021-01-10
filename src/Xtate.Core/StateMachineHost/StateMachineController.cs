@@ -45,7 +45,7 @@ namespace Xtate.Core
 		private readonly ILogger                              _logger;
 		private readonly IStateMachineOptions?                _options;
 		private readonly HashSet<ScheduledEvent>              _scheduledEvents = new();
-		private readonly ISecurityContext                      _securityContext;
+		private readonly ISecurityContext                     _securityContext;
 		private readonly IStateMachine?                       _stateMachine;
 		private readonly IStateMachineHost                    _stateMachineHost;
 		private readonly ConcurrentQueue<ScheduledEvent>      _toDelete = new();
@@ -330,15 +330,15 @@ namespace Xtate.Core
 			}
 			catch (OperationCanceledException ex) when (ex.CancellationToken == anyTokenSource.Token && _defaultOptions.StopToken.IsCancellationRequested)
 			{
-				throw new OperationCanceledException(Resources.Exception_State_Machine_has_been_halted, ex, _defaultOptions.StopToken);
+				throw new OperationCanceledException(Resources.Exception_StateMachineHasBeenHalted, ex, _defaultOptions.StopToken);
 			}
 			catch (OperationCanceledException ex) when (ex.CancellationToken == anyTokenSource.Token && _defaultOptions.SuspendToken.IsCancellationRequested)
 			{
-				throw new StateMachineSuspendedException(Resources.Exception_State_Machine_has_been_suspended, ex);
+				throw new StateMachineSuspendedException(Resources.Exception_StateMachineHasBeenSuspended, ex);
 			}
 			catch (ChannelClosedException ex)
 			{
-				throw new StateMachineQueueClosedException(Resources.Exception_State_Machine_external_queue_has_been_closed, ex);
+				throw new StateMachineQueueClosedException(Resources.Exception_StateMachineExternalQueueHasBeenClosed, ex);
 			}
 			finally
 			{

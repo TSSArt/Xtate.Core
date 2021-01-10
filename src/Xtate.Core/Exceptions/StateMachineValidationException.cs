@@ -63,7 +63,7 @@ namespace Xtate
 					sb.AppendLine();
 				}
 
-				sb.Append(Res.Format(Resources.Exception_StateMachineValidationException_Message, index ++, validationMessages.Length, error));
+				sb.Append(Res.Format(Resources.Exception_StateMachineValidationExceptionMessage, index ++, validationMessages.Length, error));
 			}
 
 			return sb.ToString();

@@ -69,16 +69,16 @@ namespace Xtate.XInclude
 			{
 				if (xmlReader is IXmlLineInfo xmlLineInfo && xmlLineInfo.HasLineInfo())
 				{
-					return Res.Format(Resources.Exception_XIncludeException_Location_Line_Position, message, baseURI, xmlLineInfo.LineNumber, xmlLineInfo.LinePosition);
+					return Res.Format(Resources.Exception_XIncludeExceptionLocationLinePosition, message, baseURI, xmlLineInfo.LineNumber, xmlLineInfo.LinePosition);
 				}
 
-				return Res.Format(Resources.Exception_XIncludeException_Location, message, baseURI);
+				return Res.Format(Resources.Exception_XIncludeExceptionLocation, message, baseURI);
 			}
 			else
 			{
 				if (xmlReader is IXmlLineInfo xmlLineInfo && xmlLineInfo.HasLineInfo())
 				{
-					return Res.Format(Resources.Exception_XIncludeException_Line_Position, message, xmlLineInfo.LineNumber, xmlLineInfo.LinePosition);
+					return Res.Format(Resources.Exception_XIncludeExceptionLinePosition, message, xmlLineInfo.LineNumber, xmlLineInfo.LinePosition);
 				}
 
 				return message;

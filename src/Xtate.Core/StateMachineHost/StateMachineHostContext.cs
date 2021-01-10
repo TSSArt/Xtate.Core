@@ -189,7 +189,7 @@ namespace Xtate.Core
 					return (stateMachine, location);
 				}
 				default:
-					throw new ArgumentException(Resources.Exception_StateMachine_origin_missed);
+					throw new ArgumentException(Resources.Exception_StateMachineOriginMissed);
 			}
 		}
 
@@ -347,7 +347,7 @@ namespace Xtate.Core
 				}
 			}
 
-			throw new ProcessorException(Resources.Exception_Cannot_find_target);
+			throw new ProcessorException(Resources.Exception_CannotFindTarget);
 		}
 
 		public async ValueTask DestroyStateMachine(SessionId sessionId, CancellationToken token)

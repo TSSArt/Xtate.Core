@@ -43,17 +43,17 @@ namespace Xtate.CustomAction
 
 			if (_sessionId is { Length: 0 })
 			{
-				access.AddValidationError<StartAction>(Resources.ErrorMessage_SessionId_could_not_be_empty);
+				access.AddValidationError<StartAction>(Resources.ErrorMessage_SessionIdCouldNotBeEmpty);
 			}
 
 			if (_sessionId is not null && sessionIdExpression is not null)
 			{
-				access.AddValidationError<StartAction>(Resources.ErrorMessage_sessionId__and__sessionIdExpr__attributes_should_not_be_assigned_in_Start_element);
+				access.AddValidationError<StartAction>(Resources.ErrorMessage_SessionIdAndSessionIdExprAttributesShouldNotBeAssignedInStartElement);
 			}
 
 			if (_sessionId is null && sessionIdExpression is null)
 			{
-				access.AddValidationError<StartAction>(Resources.ErrorMessage_sessionId__or__sessionIdExpr__must_be_specified);
+				access.AddValidationError<StartAction>(Resources.ErrorMessage_SessionIdOrSessionIdExprMustBeSpecified);
 			}
 
 			if (sessionIdExpression is not null)
@@ -73,7 +73,7 @@ namespace Xtate.CustomAction
 
 			if (sessionId is { Length: 0 })
 			{
-				throw new ProcessorException(Resources.Exception_SessionId_could_not_be_empty);
+				throw new ProcessorException(Resources.Exception_SessionIdCouldNotBeEmpty);
 			}
 
 			await host.DestroyStateMachine(Xtate.SessionId.FromString(sessionId), token).ConfigureAwait(false);
@@ -88,7 +88,7 @@ namespace Xtate.CustomAction
 				return host;
 			}
 
-			throw new ProcessorException(Resources.Exception_Can_t_get_access_to_IHost_interface);
+			throw new ProcessorException(Resources.Exception_CantGetAccessToIHostInterface);
 		}
 
 		private async ValueTask<string> GetSessionId(IExecutionContext executionContext, CancellationToken token)

@@ -60,7 +60,7 @@ namespace Xtate
 
 			if (target is null)
 			{
-				throw new ProcessorException(Resources.Exception_Event_Target_did_not_specified);
+				throw new ProcessorException(Resources.Exception_EventTargetDidNotSpecified);
 			}
 
 			var service = GetCurrentContext().GetService(sessionId, target.IsAbsoluteUri ? target.Fragment : target.OriginalString);

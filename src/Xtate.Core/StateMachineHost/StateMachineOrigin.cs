@@ -72,7 +72,7 @@ namespace Xtate.Core
 				return str;
 			}
 
-			throw new ArgumentException(Resources.Exception_Value_is_not_SCXML);
+			throw new ArgumentException(Resources.Exception_ValueIsNotSCXML);
 		}
 
 		public Uri AsSource()
@@ -82,7 +82,7 @@ namespace Xtate.Core
 				return uri;
 			}
 
-			throw new ArgumentException(Resources.Exception_Value_is_not_Source);
+			throw new ArgumentException(Resources.Exception_ValueIsNotSource);
 		}
 
 		public IStateMachine AsStateMachine()
@@ -92,7 +92,7 @@ namespace Xtate.Core
 				return stateMachine;
 			}
 
-			throw new ArgumentException(Resources.Exception_Value_is_not_StateMachine);
+			throw new ArgumentException(Resources.Exception_ValueIsNotStateMachine);
 		}
 	}
 }

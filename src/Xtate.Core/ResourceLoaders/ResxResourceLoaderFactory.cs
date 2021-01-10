@@ -89,7 +89,7 @@ namespace Xtate
 
 				if (stream is null)
 				{
-					throw new ResourceNotFoundException(Res.Format(Resources.Exception_Resource_not_found, uri));
+					throw new ResourceNotFoundException(Res.Format(Resources.Exception_ResourceNotFound, uri));
 				}
 
 				return stream;

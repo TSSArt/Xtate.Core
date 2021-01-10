@@ -433,7 +433,7 @@ namespace Xtate.Scxml
 					if (_attributes is not null && _attributes.Any(p => p.Value == AttributeType.Required))
 					{
 						var query = _attributes.Where(p => p.Value == AttributeType.Required).Select(p => p.Key);
-						AddError(CreateMessage(Resources.ErrorMessage_Missed_required_attributes, delimiter: @"', '", query));
+						AddError(CreateMessage(Resources.ErrorMessage_MissedRequiredAttributes, delimiter: @"', '", query));
 					}
 				}
 
@@ -443,7 +443,7 @@ namespace Xtate.Scxml
 					{
 						if (type == ElementType.SysOneFound || type == ElementType.SysZeroToOneFound)
 						{
-							AddError(CreateMessage(Resources.ErrorMessage_Only_one_element_allowed, ns, name));
+							AddError(CreateMessage(Resources.ErrorMessage_OnlyOneElementAllowed, ns, name));
 						}
 
 						_elements[new QualifiedName(ns, name)] = type + (int) ElementType.SysIncrement;
@@ -459,7 +459,7 @@ namespace Xtate.Scxml
 					if (_elements is not null && _elements.Any(p => p.Value == ElementType.One || p.Value == ElementType.OneToMany))
 					{
 						var query = _elements.Where(p => p.Value == ElementType.One || p.Value == ElementType.OneToMany).Select(p => p.Key);
-						AddError(CreateMessage(Resources.ErrorMessage_Missed_required_elements, delimiter: @">, <", query));
+						AddError(CreateMessage(Resources.ErrorMessage_MissedRequiredElements, delimiter: @">, <", query));
 					}
 				}
 
@@ -608,7 +608,7 @@ namespace Xtate.Scxml
 				{
 					if (val)
 					{
-						throw new ArgumentException(Resources.Exception_Can_not_register_raw_content_more_than_one_time);
+						throw new ArgumentException(Resources.Exception_CanNotRegisterRawContentMoreThanOneTime);
 					}
 
 					return;
@@ -623,10 +623,10 @@ namespace Xtate.Scxml
 
 				if (val)
 				{
-					throw new ArgumentException(Resources.Exception_Can_not_read_raw_content_due_to_registered_elements);
+					throw new ArgumentException(Resources.Exception_CanNotReadRawContentDueToRegisteredElements);
 				}
 
-				throw new ArgumentException(Resources.Exception_Can_not_register_component_due_to_registered_raw_content);
+				throw new ArgumentException(Resources.Exception_CanNotRegisterComponentDueToRegisteredRawContent);
 			}
 		}
 	}

@@ -59,21 +59,21 @@ namespace Xtate.Persistence
 
 		ValueTask<ITransactionalStorage> IStorageProvider.GetTransactionalStorage(string? partition, string key, CancellationToken token)
 		{
-			if (partition is not null) throw new ArgumentException(Resources.Exception_Partition_argument_should_be_null, nameof(partition));
+			if (partition is not null) throw new ArgumentException(Resources.Exception_PartitionArgumentShouldBeNull, nameof(partition));
 
 			return _storageProvider.GetTransactionalStorage(SessionId.Value, key, token);
 		}
 
 		ValueTask IStorageProvider.RemoveTransactionalStorage(string? partition, string key, CancellationToken token)
 		{
-			if (partition is not null) throw new ArgumentException(Resources.Exception_Partition_argument_should_be_null, nameof(partition));
+			if (partition is not null) throw new ArgumentException(Resources.Exception_PartitionArgumentShouldBeNull, nameof(partition));
 
 			return _storageProvider.RemoveTransactionalStorage(SessionId.Value, key, token);
 		}
 
 		ValueTask IStorageProvider.RemoveAllTransactionalStorage(string? partition, CancellationToken token)
 		{
-			if (partition is not null) throw new ArgumentException(Resources.Exception_Partition_argument_should_be_null, nameof(partition));
+			if (partition is not null) throw new ArgumentException(Resources.Exception_PartitionArgumentShouldBeNull, nameof(partition));
 
 			return _storageProvider.RemoveAllTransactionalStorage(SessionId.Value, token);
 		}
