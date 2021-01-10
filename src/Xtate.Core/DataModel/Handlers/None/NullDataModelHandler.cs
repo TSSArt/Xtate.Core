@@ -34,17 +34,17 @@ namespace Xtate.DataModel.Null
 
 		public override ITypeInfo TypeInfo => TypeInfo<NullDataModelHandler>.Instance;
 
-		protected override void Visit(ref IForEach forEach) => AddErrorMessage(forEach, Resources.ErrorMesasge_ForEachNotSupportedForNull);
+		protected override void Visit(ref IForEach forEach) => AddErrorMessage(forEach, Resources.ErrorMessage_ForEachNotSupportedForNull);
 
-		protected override void Visit(ref IScript script) => AddErrorMessage(script, Resources.ErrorMesasge_ScriptingNotSupportedForNull);
+		protected override void Visit(ref IScript script) => AddErrorMessage(script, Resources.ErrorMessage_ScriptingNotSupportedForNull);
 
-		protected override void Visit(ref IDataModel dataModel) => AddErrorMessage(dataModel, Resources.ErrorMesasge_DataModelNotSupportedForNull);
+		protected override void Visit(ref IDataModel dataModel) => AddErrorMessage(dataModel, Resources.ErrorMessage_DataModelNotSupportedForNull);
 
-		protected override void Visit(ref IDoneData doneData) => AddErrorMessage(doneData, Resources.ErrorMesasge_DoneDataNotSupportedForNull);
+		protected override void Visit(ref IDoneData doneData) => AddErrorMessage(doneData, Resources.ErrorMessage_DoneDataNotSupportedForNull);
 
-		protected override void Visit(ref IValueExpression expression) => AddErrorMessage(expression, Resources.ErrorMesasge_ValueExpressionNotSupportedForNull);
+		protected override void Visit(ref IValueExpression expression) => AddErrorMessage(expression, Resources.ErrorMessage_ValueExpressionNotSupportedForNull);
 
-		protected override void Visit(ref ILocationExpression expression) => AddErrorMessage(expression, Resources.ErrorMesasge_LocationExpressionNotSupportedForNull);
+		protected override void Visit(ref ILocationExpression expression) => AddErrorMessage(expression, Resources.ErrorMessage_LocationExpressionNotSupportedForNull);
 
 		protected override void Build(ref IConditionExpression conditionExpression, ref ConditionExpression properties)
 		{
@@ -54,7 +54,7 @@ namespace Xtate.DataModel.Null
 
 			if (!expression.StartsWith(value: @"In(", StringComparison.Ordinal) || !expression.EndsWith(value: @")", StringComparison.Ordinal))
 			{
-				AddErrorMessage(conditionExpression, Resources.ErrorMesasge_IncorrectConditionExpressionForNull);
+				AddErrorMessage(conditionExpression, Resources.ErrorMessage_IncorrectConditionExpressionForNull);
 
 				return;
 			}
@@ -67,7 +67,7 @@ namespace Xtate.DataModel.Null
 			}
 			else
 			{
-				AddErrorMessage(conditionExpression, Resources.ErrorMesasge_IncorrectConditionExpression);
+				AddErrorMessage(conditionExpression, Resources.ErrorMessage_IncorrectConditionExpression);
 			}
 		}
 

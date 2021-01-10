@@ -57,7 +57,7 @@ namespace Xtate.Core
 
 			if (_path?.Count > 0)
 			{
-				throw new InvalidOperationException(message: Resources.Exception_Root_path_can_be_set_only_before_visiting);
+				throw new InvalidOperationException(message: Resources.Exception_RootPathCanBeSetOnlyBeforeVisiting);
 			}
 
 			_path?.Push((root, new ImmutableArray<object?>()));

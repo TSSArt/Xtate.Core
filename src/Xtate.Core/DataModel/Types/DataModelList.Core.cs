@@ -150,7 +150,7 @@ namespace Xtate
 					return;
 				}
 
-				Infrastructure.Fail(Resources.Exception_Access_can_t_be_changed);
+				Infrastructure.Fail(Resources.Exception_AccessCantBeChanged);
 			}
 		}
 
@@ -187,7 +187,7 @@ namespace Xtate
 
 		public bool TryGet(int index, out Entry entry)
 		{
-			if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_Index_value_must_be_non_negative_integer);
+			if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_IndexValueMustBeNonNegativeInteger);
 
 			if (index >= _count)
 			{
@@ -256,7 +256,7 @@ namespace Xtate
 
 		public void Set(int index, string? key, in DataModelValue value, DataModelList? metadata)
 		{
-			if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_Index_value_must_be_non_negative_integer);
+			if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_IndexValueMustBeNonNegativeInteger);
 
 			CreateArgs(out var args);
 			args.Index = index;
@@ -303,7 +303,7 @@ namespace Xtate
 
 		public bool Remove(int index)
 		{
-			if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_Index_value_must_be_non_negative_integer);
+			if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_IndexValueMustBeNonNegativeInteger);
 
 			CreateArgs(out var args);
 			args.Index = index;
@@ -315,7 +315,7 @@ namespace Xtate
 
 		public void SetLength(int length)
 		{
-			if (length < 0) throw new ArgumentOutOfRangeException(nameof(length), Resources.Exception_Value_must_be_non_negative_integer);
+			if (length < 0) throw new ArgumentOutOfRangeException(nameof(length), Resources.Exception_ValueMustBeNonNegativeInteger);
 
 			SetLengthItems(length, DataModelAccess.Writable, throwOnDeny: true);
 		}
@@ -451,7 +451,7 @@ namespace Xtate
 
 		public bool CanInsert(int index)
 		{
-			if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_Index_value_must_be_non_negative_integer);
+			if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_IndexValueMustBeNonNegativeInteger);
 
 			CreateArgs(out var args);
 			args.Index = index;
@@ -461,7 +461,7 @@ namespace Xtate
 
 		public bool CanRemove(int index)
 		{
-			if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_Index_value_must_be_non_negative_integer);
+			if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_IndexValueMustBeNonNegativeInteger);
 
 			CreateArgs(out var args);
 			args.Index = index;
@@ -471,7 +471,7 @@ namespace Xtate
 
 		public bool CanSet(int index)
 		{
-			if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_Index_value_must_be_non_negative_integer);
+			if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_IndexValueMustBeNonNegativeInteger);
 
 			CreateArgs(out var args);
 			args.Index = index;
@@ -491,7 +491,7 @@ namespace Xtate
 
 		public bool CanSetLength(int length)
 		{
-			if (length < 0) throw new ArgumentOutOfRangeException(nameof(length), Resources.Exception_Value_must_be_non_negative_integer);
+			if (length < 0) throw new ArgumentOutOfRangeException(nameof(length), Resources.Exception_ValueMustBeNonNegativeInteger);
 
 			return SetLengthItems(length, DataModelAccess.Constant, throwOnDeny: false);
 		}
@@ -516,7 +516,7 @@ namespace Xtate
 
 		internal bool InsertInternal(int index, string? key, in DataModelValue value, DataModelAccess access, DataModelList? metadata = default, bool throwOnDeny = true)
 		{
-			if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_Index_value_must_be_non_negative_integer);
+			if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_IndexValueMustBeNonNegativeInteger);
 
 			CreateArgs(out var args);
 			args.Index = index;
@@ -533,7 +533,7 @@ namespace Xtate
 
 		internal bool RemoveInternal(int index, bool throwOnDeny = true)
 		{
-			if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_Index_value_must_be_non_negative_integer);
+			if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_IndexValueMustBeNonNegativeInteger);
 
 			CreateArgs(out var args);
 			args.Index = index;
@@ -555,7 +555,7 @@ namespace Xtate
 
 		internal bool SetInternal(int index, string? key, in DataModelValue value, DataModelAccess access, DataModelList? metadata = default, bool throwOnDeny = true)
 		{
-			if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_Index_value_must_be_non_negative_integer);
+			if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_IndexValueMustBeNonNegativeInteger);
 
 			CreateArgs(out var args);
 			args.Index = index;
@@ -572,7 +572,7 @@ namespace Xtate
 
 		internal bool SetLengthInternal(int length, bool throwOnDeny = true)
 		{
-			if (length < 0) throw new ArgumentOutOfRangeException(nameof(length), Resources.Exception_Value_must_be_non_negative_integer);
+			if (length < 0) throw new ArgumentOutOfRangeException(nameof(length), Resources.Exception_ValueMustBeNonNegativeInteger);
 
 			return SetLengthItems(length, DataModelAccess.ReadOnly, throwOnDeny);
 		}
@@ -638,7 +638,7 @@ namespace Xtate
 
 				if (throwOnDeny)
 				{
-					throw new InvalidOperationException(Resources.Exception_Object_can_not_be_modified);
+					throw new InvalidOperationException(Resources.Exception_ObjectCanNotBeModified);
 				}
 
 				return true;

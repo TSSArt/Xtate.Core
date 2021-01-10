@@ -139,7 +139,7 @@ namespace Xtate.Core
 		{
 			if (!HasPermissions(permissions))
 			{
-				throw new StateMachineSecurityException(Res.Format(Resources.Exception_Access_denied_Permission_required, permissions));
+				throw new StateMachineSecurityException(Res.Format(Resources.Exception_AccessDeniedPermissionRequired, permissions));
 			}
 		}
 
@@ -202,7 +202,7 @@ namespace Xtate.Core
 
 			protected override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued) => throw GetSecurityException();
 
-			private static Exception GetSecurityException() => throw new StateMachineSecurityException(Resources.Exception_Access_to_IO_bound_threads_denied);
+			private static Exception GetSecurityException() => throw new StateMachineSecurityException(Resources.Exception_AccessToIOBoundThreadsDenied);
 		}
 
 		private class Disposer : IAsyncDisposable

@@ -29,7 +29,7 @@ namespace Xtate.Core
 	{
 		private readonly IErrorProcessor                        _errorProcessor;
 		private readonly ImmutableArray<IResourceLoaderFactory> _resourceLoaderFactories;
-		private readonly ISecurityContext                        _securityContext;
+		private readonly ISecurityContext                       _securityContext;
 
 		private Dictionary<ICustomAction, CustomActionDispatcher>? _customActionDispatchers;
 

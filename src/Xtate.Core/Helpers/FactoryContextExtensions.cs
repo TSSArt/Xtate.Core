@@ -48,7 +48,7 @@ namespace Xtate.Core
 				}
 			}
 
-			throw new ProcessorException(Resources.Exception_Cannot_find_ResourceLoader_to_load_external_resource);
+			throw new ProcessorException(Resources.Exception_CannotFindResourceLoaderToLoadExternalResource);
 		}
 	}
 }

@@ -39,7 +39,7 @@ namespace Xtate.Core
 		private readonly Dictionary<IIdentifier, StateEntityNode>           _idMap;
 		private readonly PreDataModelProcessor                              _preDataModelProcessor;
 		private readonly ImmutableArray<IResourceLoaderFactory>             _resourceLoaderFactories;
-		private readonly ISecurityContext                                    _securityContext;
+		private readonly ISecurityContext                                   _securityContext;
 		private readonly IStateMachine                                      _stateMachine;
 		private readonly List<TransitionNode>                               _targetMap;
 		private          int                                                _counter;
@@ -103,7 +103,7 @@ namespace Xtate.Core
 			{
 				if (!transition.TryMapTarget(_idMap))
 				{
-					_errorProcessor.AddError<InterpreterModelBuilder>(entity: null, Resources.ErrorMessage_Target_Id_does_not_exists);
+					_errorProcessor.AddError<InterpreterModelBuilder>(entity: null, Resources.ErrorMessage_TargetIdDoesNotExists);
 				}
 			}
 

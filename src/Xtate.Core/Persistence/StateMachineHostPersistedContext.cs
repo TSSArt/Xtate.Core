@@ -418,7 +418,7 @@ namespace Xtate.Persistence
 
 			public StateMachineMeta(Bucket bucket)
 			{
-				SessionId = bucket.GetSessionId(Key.SessionId) ?? throw new PersistenceException(Resources.Exception_Missed_SessionId);
+				SessionId = bucket.GetSessionId(Key.SessionId) ?? throw new PersistenceException(Resources.Exception_MissedSessionId);
 				Location = bucket.GetUri(Key.Location);
 				Name = bucket.GetString(Key.Name);
 
@@ -520,8 +520,8 @@ namespace Xtate.Persistence
 
 			public InvokedServiceMeta(Bucket bucket)
 			{
-				ParentSessionId = bucket.GetSessionId(Key.ParentSessionId) ?? throw new PersistenceException(Resources.Exception_Missed_ParentSessionId);
-				InvokeId = bucket.GetInvokeId(Key.InvokeId) ?? throw new PersistenceException(Resources.Exception_InvokedServiceMeta_Missed_InvokeId);
+				ParentSessionId = bucket.GetSessionId(Key.ParentSessionId) ?? throw new PersistenceException(Resources.Exception_MissedParentSessionId);
+				InvokeId = bucket.GetInvokeId(Key.InvokeId) ?? throw new PersistenceException(Resources.Exception_InvokedServiceMetaMissedInvokeId);
 				SessionId = bucket.GetSessionId(Key.SessionId);
 			}
 

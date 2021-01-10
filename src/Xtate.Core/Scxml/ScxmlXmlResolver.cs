@@ -45,6 +45,6 @@ namespace Xtate.Core
 				GetEntityAsync(absoluteUri, accept: default, acceptLanguage: default, ofObjectToReturn).AsTask();
 
 		protected virtual ValueTask<object> GetEntityAsync(Uri uri, string? accept, string? acceptLanguage, Type? ofObjectToReturn) =>
-				throw new NotSupportedException(Resources.Exception_Loading_external_resources_does_not_supported);
+				throw new NotSupportedException(Resources.Exception_LoadingExternalResourcesDoesNotSupported);
 	}
 }

@@ -31,32 +31,18 @@ namespace Xtate.DataModel
 
 	#region Interface IDataModelHandler
 
-		public virtual void ExecutionContextCreated(IExecutionContext executionContext, out ImmutableDictionary<string, string> dataModelVars)
-		{
-			dataModelVars = ImmutableDictionary<string, string>.Empty;
-		}
+		public virtual void ExecutionContextCreated(IExecutionContext executionContext, out ImmutableDictionary<string, string> dataModelVars) =>
+				dataModelVars = ImmutableDictionary<string, string>.Empty;
 
 		public virtual string ConvertToText(DataModelValue dataModelValue) => dataModelValue.ToString(provider: null);
 
-		void IDataModelHandler.Process(ref IExecutableEntity executableEntity)
-		{
-			Visit(ref executableEntity);
-		}
+		void IDataModelHandler.Process(ref IExecutableEntity executableEntity) => Visit(ref executableEntity);
 
-		void IDataModelHandler.Process(ref IDataModel dataModel)
-		{
-			Visit(ref dataModel);
-		}
+		void IDataModelHandler.Process(ref IDataModel dataModel) => Visit(ref dataModel);
 
-		void IDataModelHandler.Process(ref IDoneData doneData)
-		{
-			Visit(ref doneData);
-		}
+		void IDataModelHandler.Process(ref IDoneData doneData) => Visit(ref doneData);
 
-		void IDataModelHandler.Process(ref IInvoke invoke)
-		{
-			Visit(ref invoke);
-		}
+		void IDataModelHandler.Process(ref IInvoke invoke) => Visit(ref invoke);
 
 		public virtual bool CaseInsensitive => false;
 
@@ -70,9 +56,9 @@ namespace Xtate.DataModel
 		{
 			base.Visit(ref expression);
 
-			if (!(expression is IValueEvaluator))
+			if (expression is not IValueEvaluator)
 			{
-				AddErrorMessage(expression, Resources.ErrorMessage_Value_expression__does_not_implement_IValueEvaluator_);
+				AddErrorMessage(expression, Resources.ErrorMessage_ValueExpressionDoesNotImplementIValueEvaluator);
 			}
 		}
 
@@ -80,9 +66,9 @@ namespace Xtate.DataModel
 		{
 			base.Visit(ref expression);
 
-			if (!(expression is ILocationEvaluator))
+			if (expression is not ILocationEvaluator)
 			{
-				AddErrorMessage(expression, Resources.ErrorMessage_Location_expression__does_not_implement_ILocationEvaluator);
+				AddErrorMessage(expression, Resources.ErrorMessage_LocationExpressionDoesNotImplementILocationEvaluator);
 			}
 		}
 

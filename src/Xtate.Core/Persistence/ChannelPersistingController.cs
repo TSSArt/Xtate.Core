@@ -65,7 +65,7 @@ namespace Xtate.Persistence
 			{
 				if (!_baseChannel.Writer.TryWrite(creator(bucket.Nested(i))))
 				{
-					throw new PersistenceException(Resources.Exception_Channel_can_t_consume_previously_persisted_object);
+					throw new PersistenceException(Resources.Exception_ChannelCantConsumePreviouslyPersistedObject);
 				}
 			}
 
@@ -80,7 +80,7 @@ namespace Xtate.Persistence
 
 			public override Task Completion => _parent._baseChannel.Reader.Completion;
 
-			public override bool TryRead(out T item) => throw new NotSupportedException(Resources.Exception_Use_ReadAsync___instead);
+			public override bool TryRead(out T item) => throw new NotSupportedException(Resources.Exception_UseReadAsyncInstead);
 
 			public override async ValueTask<bool> WaitToReadAsync(CancellationToken token = default)
 			{
@@ -136,7 +136,7 @@ namespace Xtate.Persistence
 
 			public override bool TryComplete(Exception? error = default) => _parent._baseChannel.Writer.TryComplete(error);
 
-			public override bool TryWrite(T item) => throw new NotSupportedException(Resources.Exception_Use_WriteAsync___instead);
+			public override bool TryWrite(T item) => throw new NotSupportedException(Resources.Exception_UseWriteAsyncInstead);
 
 			public override async ValueTask<bool> WaitToWriteAsync(CancellationToken token = default)
 			{

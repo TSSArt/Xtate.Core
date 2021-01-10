@@ -44,12 +44,12 @@ namespace Xtate.Core
 		{
 			if (evt.Type is not null || evt.SendId is not null || evt.DelayMs != 0)
 			{
-				throw new ProcessorException(Resources.Exception_Type__SendId__DelayMs_can_t_be_specified_for_this_event);
+				throw new ProcessorException(Resources.Exception_TypeSendIdDelayMsCantBeSpecifiedForThisEvent);
 			}
 
 			if (evt.Target != EventEntity.ParentTarget && evt.Target is not null)
 			{
-				throw new ProcessorException(Resources.Exception_Target_should_be_equal_to___parent__or_null);
+				throw new ProcessorException(Resources.Exception_TargetShouldBeEqualToParentOrNull);
 			}
 
 			_origin ??= new Uri(@"#_" + _invokeId.Value);

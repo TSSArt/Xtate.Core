@@ -61,7 +61,7 @@ namespace Xtate.DataModel.XPath
 
 		private static void WriteNode(XmlWriter xmlWriter, XPathNavigator navigator)
 		{
-			if (navigator.NodeType == XPathNodeType.Element && navigator.LocalName is { Length: 0 })
+			if (navigator is { NodeType: XPathNodeType.Element, LocalName: { Length: 0 } })
 			{
 				if (navigator.HasChildren)
 				{

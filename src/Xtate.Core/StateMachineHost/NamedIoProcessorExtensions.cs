@@ -26,20 +26,20 @@ namespace Xtate
 	[PublicAPI]
 	public static class NamedIoProcessorExtensions
 	{
-		public static StateMachineHostBuilder AddNamedIoProcessor(this StateMachineHostBuilder builder, string name)
+		public static StateMachineHostBuilder AddNamedIoProcessor(this StateMachineHostBuilder builder, string name, int? maxMessageSize = default)
 		{
 			if (builder is null) throw new ArgumentNullException(nameof(builder));
 
-			builder.AddIoProcessorFactory(new NamedIoProcessorFactory(name));
+			builder.AddIoProcessorFactory(new NamedIoProcessorFactory(name, maxMessageSize));
 
 			return builder;
 		}
 
-		public static StateMachineHostBuilder AddNamedIoProcessor(this StateMachineHostBuilder builder, string host, string name)
+		public static StateMachineHostBuilder AddNamedIoProcessor(this StateMachineHostBuilder builder, string host, string name, int? maxMessageSize = default)
 		{
 			if (builder is null) throw new ArgumentNullException(nameof(builder));
 
-			builder.AddIoProcessorFactory(new NamedIoProcessorFactory(host, name));
+			builder.AddIoProcessorFactory(new NamedIoProcessorFactory(host, name, maxMessageSize));
 
 			return builder;
 		}

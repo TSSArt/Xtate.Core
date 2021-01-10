@@ -142,7 +142,7 @@ namespace Xtate.Core
 
 			if (evt.DelayMs != 0)
 			{
-				throw new ExecutionException(Resources.Exception_Internal_events_can_t_be_delayed);
+				throw new ExecutionException(Resources.Exception_InternalEventsCantBeDelayed);
 			}
 
 			return true;

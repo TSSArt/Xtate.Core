@@ -36,7 +36,7 @@ namespace Xtate
 				return await StartStateMachine(sessionId, origin, parameters, ctx, finalizer, token).ConfigureAwait(false);
 			}
 
-			throw new StateMachineSecurityException(Resources.Exception_Starting_State_Machine_denied);
+			throw new StateMachineSecurityException(Resources.Exception_StartingStateMachineDenied);
 		}
 
 		ValueTask IHost.DestroyStateMachine(SessionId sessionId, CancellationToken token) => DestroyStateMachine(sessionId, token);
@@ -47,7 +47,7 @@ namespace Xtate
 																		  DeferredFinalizer finalizer, CancellationToken token = default)
 		{
 			if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
-			if (origin.Type == StateMachineOriginType.None) throw new ArgumentException(Resources.Exception_StateMachine_origin_missed, nameof(origin));
+			if (origin.Type == StateMachineOriginType.None) throw new ArgumentException(Resources.Exception_StateMachineOriginMissed, nameof(origin));
 
 			var context = GetCurrentContext();
 			var errorProcessor = CreateErrorProcessor(sessionId, origin);

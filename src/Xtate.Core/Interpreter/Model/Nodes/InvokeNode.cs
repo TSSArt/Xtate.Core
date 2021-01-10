@@ -113,7 +113,7 @@ namespace Xtate.Core
 
 		public async ValueTask Start(IExecutionContext executionContext, CancellationToken token)
 		{
-			Infrastructure.NotNull(_stateId, Resources.Exception_StateId_not_initialized);
+			Infrastructure.NotNull(_stateId, Resources.Exception_StateIdNotInitialized);
 
 			InvokeId = await _startInvokeEvaluator.Start(_stateId, executionContext, token).ConfigureAwait(false);
 		}

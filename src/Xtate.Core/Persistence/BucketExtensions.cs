@@ -65,7 +65,7 @@ namespace Xtate.Persistence
 
 				if (item is null)
 				{
-					throw new PersistenceException(Resources.Exception_Item_can_t_be_null);
+					throw new PersistenceException(Resources.Exception_ItemCantBeNull);
 				}
 
 				builder.Add(item);
@@ -100,12 +100,12 @@ namespace Xtate.Persistence
 		}
 
 		public static TEnum Get<TEnum>(this in Bucket bucket, Key key) where TEnum : struct, Enum =>
-				bucket.TryGet(key, out TEnum value) ? value : throw new KeyNotFoundException(Res.Format(Resources.Exception_key_not_found, key));
+				bucket.TryGet(key, out TEnum value) ? value : throw new KeyNotFoundException(Res.Format(Resources.Exception_KeyNotFound, key));
 
-		public static int GetInt32(this in Bucket bucket, Key key) => bucket.TryGet(key, out int value) ? value : throw new KeyNotFoundException(Res.Format(Resources.Exception_key_not_found, key));
+		public static int GetInt32(this in Bucket bucket, Key key) => bucket.TryGet(key, out int value) ? value : throw new KeyNotFoundException(Res.Format(Resources.Exception_KeyNotFound, key));
 
 		public static bool GetBoolean(this in Bucket bucket, Key key) =>
-				bucket.TryGet(key, out bool value) ? value : throw new KeyNotFoundException(Res.Format(Resources.Exception_key_not_found, key));
+				bucket.TryGet(key, out bool value) ? value : throw new KeyNotFoundException(Res.Format(Resources.Exception_KeyNotFound, key));
 
 		public static string? GetString(this in Bucket bucket, Key key) => bucket.TryGet(key, out string? value) ? value : null;
 

@@ -24,6 +24,13 @@ using Xtate.Annotations;
 
 namespace Xtate.Core
 {
+	/// <summary>
+	///     Class makes sure that added objects/delegates will be disposed/called
+	///     when <see cref="DeferredFinalizer" /> disposed (in case if <see cref="DefferFinalization()" /> wasn't called before
+	///     disposing of <see cref="DeferredFinalizer" />) or at the moment when <see cref="ExecuteDeferredFinalization()" />
+	///     called
+	///     (in case if <see cref="DefferFinalization()" /> was called before disposing of <see cref="DeferredFinalizer" />)
+	/// </summary>
 	[PublicAPI]
 	public sealed class DeferredFinalizer : IAsyncDisposable, IEnumerable
 	{
@@ -179,6 +186,13 @@ namespace Xtate.Core
 				case 2: return ref _f2;
 				case 3: return ref _f3;
 				default:
+#if DEBUG
+					Infrastructure.Fail(@"Read DeferredFinalizer.ElementAt() source code.");
+#endif
+
+					// Code below used in Release mode to not allow DeferredFinalizer to fail if not enough space fields [_f#] is allocated.
+					// If code fails here try to increase number of [_f#] fields.
+
 					_array ??= new object?[4];
 
 					var arrayIndex = index - EmbeddedCount;

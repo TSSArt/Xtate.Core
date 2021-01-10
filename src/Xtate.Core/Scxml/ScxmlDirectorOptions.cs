@@ -42,7 +42,7 @@ namespace Xtate.Scxml
 			get => _maxNestingLevel;
 			init
 			{
-				if (value < 0) throw new ArgumentOutOfRangeException(nameof(value), Resources.Exception_Value_must_be_non_negative_integer);
+				if (value < 0) throw new ArgumentOutOfRangeException(nameof(value), Resources.Exception_ValueMustBeNonNegativeInteger);
 
 				_maxNestingLevel = value;
 			}

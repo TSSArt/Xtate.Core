@@ -42,6 +42,6 @@ namespace Xtate.DataModel.XPath
 		public void SetResolver(XPathResolver resolver) => Resolver = resolver;
 
 		private string GetNamespaceByPrefix(string prefix) =>
-				LookupNamespace(prefix) is { } ns ? ns : throw new XPathDataModelException(Res.Format(Resources.Exception_Prefix_cant_be_resolved, prefix));
+				LookupNamespace(prefix) is { } ns ? ns : throw new XPathDataModelException(Res.Format(Resources.Exception_PrefixCantBeResolved, prefix));
 	}
 }

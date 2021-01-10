@@ -112,7 +112,7 @@ namespace Xtate
 				{
 					if (evt.DelayMs != 0)
 					{
-						throw new ProcessorException(Resources.Exception_Internal_events_can_t_be_delayed_);
+						throw new ProcessorException(Resources.Exception_InternalEventsCantBeDelayed);
 					}
 
 					return SendStatus.ToInternalQueue;
@@ -137,7 +137,7 @@ namespace Xtate
 
 			if (!context.TryGetService(sessionId, invokeId, out var service))
 			{
-				throw new ProcessorException(Resources.Exception_Invalid_InvokeId);
+				throw new ProcessorException(Resources.Exception_InvalidInvokeId);
 			}
 
 			return service?.Send(evt, token) ?? default;
@@ -155,7 +155,7 @@ namespace Xtate
 		private IErrorProcessor CreateErrorProcessor(SessionId sessionId, StateMachineOrigin origin) =>
 				_options.VerboseValidation ? new DetailedErrorProcessor(sessionId, origin) : DefaultErrorProcessor.Instance;
 
-		private StateMachineHostContext GetCurrentContext() => _context ?? throw new InvalidOperationException(Resources.Exception_IO_Processor_has_not_been_started);
+		private StateMachineHostContext GetCurrentContext() => _context ?? throw new InvalidOperationException(Resources.Exception_IOProcessorHasNotBeenStarted);
 
 		private async ValueTask<IServiceFactoryActivator> FindServiceFactoryActivator(IFactoryContext factoryContext, Uri type, CancellationToken token)
 		{
@@ -172,7 +172,7 @@ namespace Xtate
 				}
 			}
 
-			throw new ProcessorException(Resources.Exception_Invalid_type);
+			throw new ProcessorException(Resources.Exception_InvalidType);
 		}
 
 		private void StateMachineHostInit()
@@ -264,7 +264,7 @@ namespace Xtate
 
 			if (ioProcessors.IsDefault)
 			{
-				throw new ProcessorException(Resources.Exception_StateMachineHost_stopped);
+				throw new ProcessorException(Resources.Exception_StateMachineHostStopped);
 			}
 
 			foreach (var ioProcessor in ioProcessors)
@@ -275,7 +275,7 @@ namespace Xtate
 				}
 			}
 
-			throw new ProcessorException(Resources.Exception_Invalid_type);
+			throw new ProcessorException(Resources.Exception_InvalidType);
 		}
 	}
 }

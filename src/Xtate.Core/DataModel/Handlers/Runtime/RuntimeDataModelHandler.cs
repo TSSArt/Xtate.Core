@@ -39,7 +39,7 @@ namespace Xtate.DataModel.Runtime
 
 		protected override void Visit(ref IExecutableEntity executableEntity)
 		{
-			if (!(executableEntity is RuntimeAction) && !(executableEntity is RuntimePredicate))
+			if (executableEntity is not RuntimeAction and not RuntimePredicate)
 			{
 				AddErrorMessage(executableEntity, Resources.ErrorMessage_RuntimeActionAndPredicateOnlyAllowed);
 			}

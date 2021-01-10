@@ -390,7 +390,7 @@ namespace Xtate
 				{
 						DataModelList list => list,
 						ILazyValue val => val.Value.AsList(),
-						_ => throw new ArgumentException(Resources.Exception_DataModelValue_is_not_DataModelList)
+						_ => throw new ArgumentException(Resources.Exception_DataModelValueIsNotDataModelList)
 				};
 
 		public DataModelList? AsNullableList() =>
@@ -399,7 +399,7 @@ namespace Xtate
 						DataModelList list => list,
 						{ } val when val == NullValue => null,
 						ILazyValue val => val.Value.AsNullableList(),
-						_ => throw new ArgumentException(Resources.Exception_DataModelValue_is_not_DataModelList)
+						_ => throw new ArgumentException(Resources.Exception_DataModelValueIsNotDataModelList)
 				};
 
 		public DataModelList? AsListOrDefault() =>
@@ -425,7 +425,7 @@ namespace Xtate
 				{
 						string str => str,
 						ILazyValue val => val.Value.AsString(),
-						_ => throw new ArgumentException(Resources.Exception_DataModelValue_is_not_String)
+						_ => throw new ArgumentException(Resources.Exception_DataModelValueIsNotString)
 				};
 
 		public string? AsNullableString() =>
@@ -434,7 +434,7 @@ namespace Xtate
 						string str => str,
 						{ } val when val == NullValue => null,
 						ILazyValue val => val.Value.AsNullableString(),
-						_ => throw new ArgumentException(Resources.Exception_DataModelValue_is_not_String)
+						_ => throw new ArgumentException(Resources.Exception_DataModelValueIsNotString)
 				};
 
 		public string? AsStringOrDefault() =>
@@ -451,7 +451,7 @@ namespace Xtate
 						? BitConverter.Int64BitsToDouble(_int64)
 						: _value is ILazyValue val
 								? val.Value.AsNumber()
-								: throw new ArgumentException(Resources.Exception_DataModelValue_is_not_Number);
+								: throw new ArgumentException(Resources.Exception_DataModelValueIsNotNumber);
 
 		public double? AsNumberOrDefault() =>
 				_value == NumberValue
@@ -465,7 +465,7 @@ namespace Xtate
 						? _int64 != 0
 						: _value is ILazyValue val
 								? val.Value.AsBoolean()
-								: throw new ArgumentException(Resources.Exception_DataModelValue_is_not_Boolean);
+								: throw new ArgumentException(Resources.Exception_DataModelValueIsNotBoolean);
 
 		public bool? AsBooleanOrDefault() =>
 				_value == BooleanValue
@@ -479,7 +479,7 @@ namespace Xtate
 				{
 						DateTimeValue val => val.GetDataModelDateTime(_int64),
 						ILazyValue lazyVal => lazyVal.Value.AsDateTime(),
-						_ => throw new ArgumentException(Resources.Exception_DataModelValue_is_not_DateTime)
+						_ => throw new ArgumentException(Resources.Exception_DataModelValueIsNotDateTime)
 				};
 
 		public DataModelDateTime? AsDateTimeOrDefault() =>
@@ -588,7 +588,7 @@ namespace Xtate
 					TypeCode.DateTime => (DateTime) value,
 					TypeCode.String => (string) value,
 					TypeCode.Object => FromUnknownObjectWithMap(value, ref map),
-					_ => throw new ArgumentException(Resources.Exception_Unsupported_object_type, nameof(value))
+					_ => throw new ArgumentException(Resources.Exception_UnsupportedObjectType, nameof(value))
 			};
 		}
 
@@ -604,7 +604,7 @@ namespace Xtate
 						IEnumerable array => CreateDataModelList(array, ref map),
 						ILazyValue val => new DataModelValue(val),
 						{ } when TryFromAnonymousType(value, ref map, out var val) => val,
-						_ => throw new ArgumentException(Resources.Exception_Unsupported_object_type, nameof(value))
+						_ => throw new ArgumentException(Resources.Exception_UnsupportedObjectType, nameof(value))
 				};
 
 		private static bool TryFromAnonymousType(object value, ref Dictionary<object, DataModelList>? map, out DataModelValue result)

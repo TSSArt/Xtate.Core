@@ -73,7 +73,7 @@ namespace Xtate
 		{
 			if (_asyncOperationInProgress)
 			{
-				throw new InvalidOperationException(Resources.Exception_Another_asynchronous_operation_in_progress);
+				throw new InvalidOperationException(Resources.Exception_AnotherAsynchronousOperationInProgress);
 			}
 
 			if (_context is not null)
@@ -109,7 +109,7 @@ namespace Xtate
 		{
 			if (_asyncOperationInProgress)
 			{
-				throw new InvalidOperationException(Resources.Exception_Another_asynchronous_operation_in_progress);
+				throw new InvalidOperationException(Resources.Exception_AnotherAsynchronousOperationInProgress);
 			}
 
 			var context = _context;

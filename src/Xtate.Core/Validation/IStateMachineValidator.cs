@@ -17,11 +17,8 @@
 
 #endregion
 
-using Xtate.Annotations;
-
 namespace Xtate.Core
 {
-	[PublicAPI]
 	public interface IStateMachineValidator
 	{
 		void Validate(IStateMachine stateMachine, IErrorProcessor errorProcessor);

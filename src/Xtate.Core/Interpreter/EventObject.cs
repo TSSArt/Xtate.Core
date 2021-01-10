@@ -47,7 +47,7 @@ namespace Xtate.Core
 		{
 			if (!bucket.TryGet(Key.TypeInfo, out TypeInfo storedTypeInfo) || storedTypeInfo != TypeInfo.EventObject)
 			{
-				throw new ArgumentException(Resources.Exception_Invalid_TypeInfo_value);
+				throw new ArgumentException(Resources.Exception_InvalidTypeInfoValue);
 			}
 
 			var name = bucket.GetString(Key.Name);

@@ -34,7 +34,6 @@ namespace Xtate.IoProcessor
 {
 	public sealed class NamedIoProcessor : IIoProcessor, IDisposable
 	{
-		private const int         MaxMessageSize     = 1048576;
 		private const string      PipePrefix         = "#SCXML#_";
 		private const PipeOptions DefaultPipeOptions = PipeOptions.WriteThrough | PipeOptions.Asynchronous;
 
@@ -46,24 +45,27 @@ namespace Xtate.IoProcessor
 		private readonly Uri            _baseUri;
 		private readonly IEventConsumer _eventConsumer;
 		private readonly Uri            _loopbackBaseUri;
+		private readonly int            _maxMessageSize;
 		private readonly string         _name;
 		private readonly string         _pipeName;
 
 		private readonly CancellationTokenSource _stopTokenSource = new();
 
-		public NamedIoProcessor(IEventConsumer eventConsumer, [Localizable(false)] string host, [Localizable(false)] string name)
+		public NamedIoProcessor(IEventConsumer eventConsumer, [Localizable(false)] string host, [Localizable(false)] string name, int maxMessageSize)
 		{
 			if (host is null) throw new ArgumentNullException(nameof(host));
+			if (maxMessageSize < 0) throw new ArgumentOutOfRangeException(nameof(maxMessageSize));
 
 			_eventConsumer = eventConsumer ?? throw new ArgumentNullException(nameof(eventConsumer));
 			_name = name ?? throw new ArgumentNullException(nameof(name));
 			_pipeName = PipePrefix + name;
 			_baseUri = new Uri(@"pipe://" + host + @"/" + name);
 			_loopbackBaseUri = new Uri(@"pipe:///" + name);
+			_maxMessageSize = maxMessageSize;
 
 			if (!InProcConsumers.TryAdd(name, eventConsumer))
 			{
-				throw new ProcessorException(Res.Format(Resources.Exception_NamedIoProcessor_with_name_already_has_been_registered, name));
+				throw new ProcessorException(Res.Format(Resources.Exception_NamedIoProcessorWithNameAlreadyHasBeenRegistered, name));
 			}
 		}
 
@@ -98,7 +100,7 @@ namespace Xtate.IoProcessor
 		{
 			if (evt.Target is null)
 			{
-				throw new ProcessorException(Resources.Exception_Event_Target_did_not_specified);
+				throw new ProcessorException(Resources.Exception_EventTargetDidNotSpecified);
 			}
 
 			var host = evt.Target.Host;
@@ -116,7 +118,7 @@ namespace Xtate.IoProcessor
 				}
 				else
 				{
-					throw new ProcessorException(Resources.Exception_Event_dispatcher_not_found);
+					throw new ProcessorException(Resources.Exception_EventDispatcherNotFound);
 				}
 			}
 			else
@@ -125,7 +127,7 @@ namespace Xtate.IoProcessor
 			}
 		}
 
-		private static async ValueTask SendEventToPipe(string server, string pipeName, SessionId? sessionId, EventObject eventObject, CancellationToken token)
+		private async ValueTask SendEventToPipe(string server, string pipeName, SessionId? sessionId, EventObject eventObject, CancellationToken token)
 		{
 			var pipeStream = new NamedPipeClientStream(server, pipeName, PipeDirection.InOut, DefaultPipeOptions);
 			var memoryStream = new MemoryStream();
@@ -154,10 +156,10 @@ namespace Xtate.IoProcessor
 						break;
 
 					case ErrorType.Exception:
-						throw new ProcessorException(Res.Format(Resources.Exception_Error_on_event_consumer_side, responseMessage.ExceptionMessage, responseMessage.ExceptionText));
+						throw new ProcessorException(Res.Format(Resources.Exception_ErrorOnEventConsumerSide, responseMessage.ExceptionMessage, responseMessage.ExceptionText));
 
 					case ErrorType.EventDispatcherNotFound:
-						throw new ProcessorException(Resources.Exception_Event_dispatcher_not_found);
+						throw new ProcessorException(Resources.Exception_EventDispatcherNotFound);
 
 					default:
 						Infrastructure.UnexpectedValue(responseMessage.ErrorType);
@@ -222,7 +224,7 @@ namespace Xtate.IoProcessor
 				return SessionId.FromString(fragment[prefix.Length..]);
 			}
 
-			throw new ProcessorException(Resources.Exception_Target_wrong_format);
+			throw new ProcessorException(Resources.Exception_TargetWrongFormat);
 		}
 
 #if !NET461 && !NETSTANDARD2_0
@@ -246,7 +248,7 @@ namespace Xtate.IoProcessor
 		[SuppressMessage(category: "Performance", checkId: "CA1835:Prefer the 'Memory'-based overloads for 'ReadAsync' and 'WriteAsync'", Justification = "Not available in .Net 4.6")]
 #endif
 		[SuppressMessage(category: "ReSharper", checkId: "MethodHasAsyncOverloadWithCancellation")]
-		private static async ValueTask ReceiveMessage(PipeStream pipeStream, MemoryStream memoryStream, CancellationToken token)
+		private async ValueTask ReceiveMessage(PipeStream pipeStream, MemoryStream memoryStream, CancellationToken token)
 		{
 			Infrastructure.Assert(pipeStream.IsConnected);
 
@@ -254,9 +256,9 @@ namespace Xtate.IoProcessor
 			var sizeBufReadCount = await pipeStream.ReadAsync(sizeBuf, offset: 0, sizeBuf.Length, token).ConfigureAwait(false);
 			var messageSize = BitConverter.ToInt32(sizeBuf, startIndex: 0);
 
-			if (sizeBufReadCount != sizeBuf.Length || messageSize < 0 || messageSize > MaxMessageSize)
+			if (sizeBufReadCount != sizeBuf.Length || messageSize < 0 || _maxMessageSize > 0 && messageSize > _maxMessageSize)
 			{
-				throw new ProcessorException(Res.Format(Resources.NamedIoProcessor_Message_size_has_wrong_value_or_missed, messageSize));
+				throw new ProcessorException(Res.Format(Resources.Exception_NamedIoProcessorMessageSizeHasWrongValueOrMissed, messageSize));
 			}
 
 			var buffer = ArrayPool<byte>.Shared.Rent(messageSize);
@@ -267,7 +269,7 @@ namespace Xtate.IoProcessor
 
 				if (count != messageSize)
 				{
-					throw new ProcessorException(Res.Format(Resources.NamedIoProcessor_Message_read_partially, count, messageSize));
+					throw new ProcessorException(Res.Format(Resources.Exception_NamedIoProcessorMessageReadPartially, count, messageSize));
 				}
 
 				memoryStream.Write(buffer, offset: 0, messageSize);
@@ -334,7 +336,7 @@ namespace Xtate.IoProcessor
 			{
 				if (!bucket.TryGet(Key.TypeInfo, out TypeInfo storedTypeInfo) || storedTypeInfo != TypeInfo.Message)
 				{
-					throw new ArgumentException(Resources.Exception_Invalid_TypeInfo_value);
+					throw new ArgumentException(Resources.Exception_InvalidTypeInfoValue);
 				}
 
 				SessionId = bucket.GetSessionId(Key.SessionId);
@@ -384,7 +386,7 @@ namespace Xtate.IoProcessor
 			{
 				if (!bucket.TryGet(Key.TypeInfo, out TypeInfo storedTypeInfo) || storedTypeInfo != TypeInfo.Message)
 				{
-					throw new ArgumentException(Resources.Exception_Invalid_TypeInfo_value);
+					throw new ArgumentException(Resources.Exception_InvalidTypeInfoValue);
 				}
 
 				ErrorType = bucket.TryGet(Key.Type, out ErrorType errorType) ? errorType : ErrorType.None;

@@ -96,17 +96,15 @@ namespace Xtate.Core
 			{
 				val <<= 4;
 
-				if (ch >= '0' && ch <= '9')
+				switch (ch)
 				{
-					val |= ch - '0';
-				}
-				else if (ch >= 'a' && ch <= 'f')
-				{
-					val |= ch - 'a' + 10;
-				}
-				else
-				{
-					return false;
+					case >= '0' and <= '9':
+						val |= ch - '0';
+						break;
+					case >= 'a' and <= 'f':
+						val |= ch - 'a' + 10;
+						break;
+					default: return false;
 				}
 			}
 

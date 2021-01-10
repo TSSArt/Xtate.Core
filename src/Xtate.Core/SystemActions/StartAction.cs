@@ -56,27 +56,27 @@ namespace Xtate.CustomAction
 
 			if (url is null && urlExpression is null)
 			{
-				access.AddValidationError<StartAction>(Resources.ErrorMessage_At_least_one_url_must_be_specified);
+				access.AddValidationError<StartAction>(Resources.ErrorMessage_AtLeastOneUrlMustBeSpecified);
 			}
 
 			if (url is not null && urlExpression is not null)
 			{
-				access.AddValidationError<StartAction>(Resources.ErrorMessage_url_and_urlExpr_attributes_should_not_be_assigned_in_Start_element);
+				access.AddValidationError<StartAction>(Resources.ErrorMessage_UrlAndUrlExprAttributesShouldNotBeAssignedInStartElement);
 			}
 
 			if (url is not null && !Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out _url))
 			{
-				access.AddValidationError<StartAction>(Resources.ErrorMessage_url__has_invalid_URI_format);
+				access.AddValidationError<StartAction>(Resources.ErrorMessage_UrlHasInvalidURIFormat);
 			}
 
 			if (_sessionId is { Length: 0 })
 			{
-				access.AddValidationError<StartAction>(Resources.ErrorMessage_SessionId_could_not_be_empty);
+				access.AddValidationError<StartAction>(Resources.ErrorMessage_SessionIdCouldNotBeEmpty);
 			}
 
 			if (_sessionId is not null && sessionIdExpression is not null)
 			{
-				access.AddValidationError<StartAction>(Resources.ErrorMessage_sessionId__and__sessionIdExpr__attributes_should_not_be_assigned_in_Start_element);
+				access.AddValidationError<StartAction>(Resources.ErrorMessage_SessionIdAndSessionIdExprAttributesShouldNotBeAssignedInStartElement);
 			}
 
 			if (urlExpression is not null)
@@ -107,14 +107,14 @@ namespace Xtate.CustomAction
 
 			if (source is null)
 			{
-				throw new ProcessorException(Resources.StartAction_Execute_Source_not_specified);
+				throw new ProcessorException(Resources.Exception_StartActionExecuteSourceNotSpecified);
 			}
 
 			var sessionId = await GetSessionId(executionContext, token).ConfigureAwait(false);
 
 			if (_sessionId is { Length: 0 })
 			{
-				throw new ProcessorException(Resources.Exception_SessionId_could_not_be_empty);
+				throw new ProcessorException(Resources.Exception_SessionIdCouldNotBeEmpty);
 			}
 
 			var finalizer = new DeferredFinalizer();
@@ -151,7 +151,7 @@ namespace Xtate.CustomAction
 				return host;
 			}
 
-			throw new ProcessorException(Resources.Exception_Can_t_get_access_to_IHost_interface);
+			throw new ProcessorException(Resources.Exception_CantGetAccessToIHostInterface);
 		}
 
 		private async ValueTask<Uri?> GetSource(IExecutionContext executionContext, CancellationToken token)

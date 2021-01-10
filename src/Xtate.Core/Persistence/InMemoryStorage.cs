@@ -113,7 +113,7 @@ namespace Xtate.Persistence
 		{
 			if (_readModel is null)
 			{
-				throw new InvalidOperationException(Resources.Exception_Storage_not_available_for_read_operations);
+				throw new InvalidOperationException(Resources.Exception_StorageNotAvailableForReadOperations);
 			}
 
 			var buffer = AllocateBuffer(key.Length, shared: true);
@@ -266,7 +266,7 @@ namespace Xtate.Persistence
 		{
 			if (_readModel is null)
 			{
-				throw new InvalidOperationException(Resources.Exception_Storage_not_available_for_read_operations);
+				throw new InvalidOperationException(Resources.Exception_StorageNotAvailableForReadOperations);
 			}
 
 			return _readModel.Sum(p => Encode.GetEncodedLength(p.Key.Length) + p.Key.Length + Encode.GetEncodedLength(p.Value.Length) + p.Value.Length);
@@ -276,7 +276,7 @@ namespace Xtate.Persistence
 		{
 			if (_readModel is null)
 			{
-				throw new InvalidOperationException(Resources.Exception_Storage_not_available_for_read_operations);
+				throw new InvalidOperationException(Resources.Exception_StorageNotAvailableForReadOperations);
 			}
 
 			IMemoryOwner<byte>? newBaselineOwner = null;

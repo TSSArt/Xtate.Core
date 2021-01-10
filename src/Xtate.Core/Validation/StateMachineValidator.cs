@@ -109,7 +109,7 @@ namespace Xtate.Core
 
 				if (entity.Expression is null)
 				{
-					AddError(entity, Resources.ErrorMessage_Location_expression_can_t_be_null);
+					AddError(entity, Resources.ErrorMessage_LocationExpressionCantBeNull);
 				}
 
 				base.Visit(ref entity);
@@ -121,7 +121,7 @@ namespace Xtate.Core
 
 				if (entity.Expression is null)
 				{
-					AddError(entity, Resources.ErrorMessage_Script_expression_can_t_be_null);
+					AddError(entity, Resources.ErrorMessage_ScriptExpressionCantBeNull);
 				}
 
 				base.Visit(ref entity);
@@ -186,7 +186,7 @@ namespace Xtate.Core
 
 				if (string.IsNullOrEmpty(entity.Id))
 				{
-					AddError(entity, Resources.ErrorMessage_Id_property_required_in_Data_element);
+					AddError(entity, Resources.ErrorMessage_IdPropertyRequiredInDataElement);
 				}
 
 				if (entity.InlineContent is not null && entity.Expression is not null || entity.InlineContent is not null && entity.Source is not null ||
@@ -218,12 +218,12 @@ namespace Xtate.Core
 				{
 					if (executableEntity is IRaise)
 					{
-						AddError(executableEntity, Resources.ErrorMessage_Raise_can_t_be_used_in_Finalize_element);
+						AddError(executableEntity, Resources.ErrorMessage_RaiseCantBeUsedInFinalizeElement);
 					}
 
 					if (executableEntity is ISend)
 					{
-						AddError(executableEntity, Resources.ErrorMessage_Send_can_t_be_used_in_Finalize_element);
+						AddError(executableEntity, Resources.ErrorMessage_SendCantBeUsedInFinalizeElement);
 					}
 				}
 
@@ -253,12 +253,12 @@ namespace Xtate.Core
 
 				if (entity.Transition is null)
 				{
-					AddError(entity, Resources.ErrorMessage_Transition_must_be_present_in_History_element);
+					AddError(entity, Resources.ErrorMessage_TransitionMustBePresentInHistoryElement);
 				}
 
 				if (entity.Type < HistoryType.Shallow || entity.Type > HistoryType.Deep)
 				{
-					AddError(entity, Resources.ErrorMessage_Invalid_Type_value_in_History_element);
+					AddError(entity, Resources.ErrorMessage_InvalidTypeValueInHistoryElement);
 				}
 
 				base.Visit(ref entity);
@@ -308,7 +308,7 @@ namespace Xtate.Core
 
 				if (entity.Transition is null)
 				{
-					AddError(entity, Resources.ErrorMessage_Transition_must_be_present_in_Initial_element);
+					AddError(entity, Resources.ErrorMessage_TransitionMustBePresentInInitialElement);
 				}
 
 				base.Visit(ref entity);
@@ -320,27 +320,27 @@ namespace Xtate.Core
 
 				if (entity.Type is null && entity.TypeExpression is null)
 				{
-					AddError(entity, Resources.ErrorMessage_Type_or_TypeExpression_must_be_specified_in_Invoke_element);
+					AddError(entity, Resources.ErrorMessage_TypeOrTypeExpressionMustBeSpecifiedInInvokeElement);
 				}
 
 				if (entity.Type is not null && entity.TypeExpression is not null)
 				{
-					AddError(entity, Resources.ErrorMessage_Type_and_TypeExpression_can_t_be_used_at_the_same_time_in_Invoke_element);
+					AddError(entity, Resources.ErrorMessage_TypeAndTypeExpressionCantBeUsedAtTheSameTimeInInvokeElement);
 				}
 
 				if (entity.Id is not null && entity.IdLocation is not null)
 				{
-					AddError(entity, Resources.ErrorMessage_Id_and_IdLocation_can_t_be_used_at_the_same_time_in_Invoke_element);
+					AddError(entity, Resources.ErrorMessage_IdAndIdLocationCantBeUsedAtTheSameTimeInInvokeElement);
 				}
 
 				if (entity.Source is not null && entity.SourceExpression is not null)
 				{
-					AddError(entity, Resources.ErrorMessage_Source_and_SourceExpression_can_t_be_used_at_the_same_time_in_Invoke_element);
+					AddError(entity, Resources.ErrorMessage_SourceAndSourceExpressionCantBeUsedAtTheSameTimeInInvokeElement);
 				}
 
 				if (!entity.NameList.IsDefaultOrEmpty && !entity.Parameters.IsDefaultOrEmpty)
 				{
-					AddError(entity, Resources.ErrorMessage_NameList_and_Parameters_can_t_be_used_at_the_same_time_in_Invoke_element);
+					AddError(entity, Resources.ErrorMessage_NameListAndParametersCantBeUsedAtTheSameTimeInInvokeElement);
 				}
 
 				base.Visit(ref entity);
@@ -352,7 +352,7 @@ namespace Xtate.Core
 
 				if (entity.Name is null)
 				{
-					AddError(entity, Resources.ErrorMessage_Name_attributes_required_in_Param_element);
+					AddError(entity, Resources.ErrorMessage_NameAttributesRequiredInParamElement);
 				}
 
 				if (entity.Expression is not null && entity.Location is not null)
@@ -381,7 +381,7 @@ namespace Xtate.Core
 
 				if (entity.Source is not null && entity.Content is not null)
 				{
-					AddError(entity, Resources.ErrorMessage_Source_and_Body_can_t_be_used_at_the_same_time_in_Assign_element);
+					AddError(entity, Resources.ErrorMessage_SourceAndBodyCantBeUsedAtTheSameTimeInAssignElement);
 				}
 
 				base.Visit(ref entity);
@@ -400,17 +400,17 @@ namespace Xtate.Core
 
 				if (entity.Target is not null && entity.TargetExpression is not null)
 				{
-					AddError(entity, Resources.ErrorMessage_Target_and_TargetExpression_can_t_be_used_at_the_same_time_in_Send_element);
+					AddError(entity, Resources.ErrorMessage_TargetAndTargetExpressionCantBeUsedAtTheSameTimeInSendElement);
 				}
 
 				if (entity.Type is not null && entity.TypeExpression is not null)
 				{
-					AddError(entity, Resources.ErrorMessage_Type_and_TypeExpression_can_t_be_used_at_the_same_time_in_Send_element);
+					AddError(entity, Resources.ErrorMessage_TypeAndTypeExpressionCantBeUsedAtTheSameTimeInSendElement);
 				}
 
 				if (entity.Id is not null && entity.IdLocation is not null)
 				{
-					AddError(entity, Resources.ErrorMessage_Id_and_IdLocation_can_t_be_used_at_the_same_time_in_Send_element);
+					AddError(entity, Resources.ErrorMessage_IdAndIdLocationCantBeUsedAtTheSameTimeInSendElement);
 				}
 
 				if (entity.DelayMs is not null && entity.DelayExpression is not null)
@@ -420,17 +420,17 @@ namespace Xtate.Core
 
 				if (!entity.NameList.IsDefaultOrEmpty && entity.Content is not null)
 				{
-					AddError(entity, Resources.ErrorMessage_NameList_and_Content_can_t_be_used_at_the_same_time_in_Send_element);
+					AddError(entity, Resources.ErrorMessage_NameListAndContentCantBeUsedAtTheSameTimeInSendElement);
 				}
 
 				if (!entity.Parameters.IsDefaultOrEmpty && entity.Content is not null)
 				{
-					AddError(entity, Resources.ErrorMessage_Parameters_and_Content_can_t_be_used_at_the_same_time_in_Send_element);
+					AddError(entity, Resources.ErrorMessage_ParametersAndContentCantBeUsedAtTheSameTimeInSendElement);
 				}
 
 				if (entity.EventName is null && entity.EventExpression is null && entity.Content is null)
 				{
-					AddError(entity, Resources.ErrorMessage_Must_be_present_Event_or_EventExpression_or_Content_in_Send_element);
+					AddError(entity, Resources.ErrorMessage_MustBePresentEventOrEventExpressionOrContentInSendElement);
 				}
 
 				base.Visit(ref entity);
@@ -442,12 +442,12 @@ namespace Xtate.Core
 
 				if (entity.Initial is not null && entity.States.IsDefaultOrEmpty)
 				{
-					AddError(entity, Resources.ErrorMessage_Initial_state_property_cannot_be_used_without_any_states);
+					AddError(entity, Resources.ErrorMessage_InitialStatePropertyCannotBeUsedWithoutAnyStates);
 				}
 
 				if (entity.Binding < BindingType.Early || entity.Binding > BindingType.Late)
 				{
-					AddError(entity, Resources.ErrorMessage_Invalid_BindingType_value_in_StateMachine_element);
+					AddError(entity, Resources.ErrorMessage_InvalidBindingTypeValueInStateMachineElement);
 				}
 
 				base.Visit(ref entity);
@@ -459,7 +459,7 @@ namespace Xtate.Core
 
 				if (entity.Initial is not null && entity.States.IsDefaultOrEmpty)
 				{
-					AddError(entity, Resources.ErrorMessage_Initial_state_property_can_be_used_only_in_complex_states);
+					AddError(entity, Resources.ErrorMessage_InitialStatePropertyCanBeUsedOnlyInComplexStates);
 				}
 
 				base.Visit(ref entity);
@@ -471,7 +471,7 @@ namespace Xtate.Core
 
 				if (entity.EventDescriptors.IsDefaultOrEmpty && entity.Condition is null && entity.Target.IsDefaultOrEmpty)
 				{
-					AddError(entity, Resources.ErrorMessage_Must_be_present_at_least_Event_or_Condition_or_Target_in_Transition_element);
+					AddError(entity, Resources.ErrorMessage_MustBePresentAtLeastEventOrConditionOrTargetInTransitionElement);
 				}
 
 				base.Visit(ref entity);
