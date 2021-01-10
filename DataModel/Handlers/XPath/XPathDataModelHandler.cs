@@ -62,16 +62,16 @@ namespace Xtate.DataModel.XPath
 				}
 				catch (XPathException ex)
 				{
-					AddErrorMessage(valueExpression, Resources.Exception_Error_on_parsing_XPath_expression, ex);
+					AddErrorMessage(valueExpression, Resources.Exception_ErrorOnParsingXPathExpression, ex);
 				}
 				catch (ArgumentException ex)
 				{
-					AddErrorMessage(valueExpression, Resources.Exception_Error_on_parsing_XPath_expression, ex);
+					AddErrorMessage(valueExpression, Resources.Exception_ErrorOnParsingXPathExpression, ex);
 				}
 			}
 			else
 			{
-				AddErrorMessage(valueExpression, Resources.Exception_Value_Expression_must_be_present);
+				AddErrorMessage(valueExpression, Resources.Exception_ValueExpressionMustBePresent);
 			}
 		}
 
@@ -92,7 +92,7 @@ namespace Xtate.DataModel.XPath
 					break;
 
 				case XPathResultType.Error:
-					AddErrorMessage(valueExpression, Resources.Exception_Result_of_XPath_expression_can_t_be_identified);
+					AddErrorMessage(valueExpression, Resources.Exception_ResultOfXPathExpressionCantBeIdentified);
 					break;
 				default:
 					Infrastructure.UnexpectedValue(compiledExpression.ReturnType);
@@ -112,16 +112,16 @@ namespace Xtate.DataModel.XPath
 				}
 				catch (XPathException ex)
 				{
-					AddErrorMessage(conditionExpression, Resources.Exception_Error_on_parsing_XPath_expression, ex);
+					AddErrorMessage(conditionExpression, Resources.Exception_ErrorOnParsingXPathExpression, ex);
 				}
 				catch (ArgumentException ex)
 				{
-					AddErrorMessage(conditionExpression, Resources.Exception_Error_on_parsing_XPath_expression, ex);
+					AddErrorMessage(conditionExpression, Resources.Exception_ErrorOnParsingXPathExpression, ex);
 				}
 			}
 			else
 			{
-				AddErrorMessage(conditionExpression, Resources.Exception_Value_Expression_must_be_present);
+				AddErrorMessage(conditionExpression, Resources.Exception_ValueExpressionMustBePresent);
 			}
 		}
 
@@ -141,11 +141,11 @@ namespace Xtate.DataModel.XPath
 				case XPathResultType.String:
 				case XPathResultType.NodeSet:
 				case XPathResultType.Number:
-					AddErrorMessage(conditionExpression, Resources.Exception_Result_of_XPath_expression_should_be_boolean_value);
+					AddErrorMessage(conditionExpression, Resources.Exception_ResultOfXPathExpressionShouldBeBooleanValue);
 					break;
 
 				case XPathResultType.Error:
-					AddErrorMessage(conditionExpression, Resources.Exception_Result_of_XPath_expression_can_t_be_identified);
+					AddErrorMessage(conditionExpression, Resources.Exception_ResultOfXPathExpressionCantBeIdentified);
 					break;
 				default:
 					Infrastructure.UnexpectedValue(compiledExpression.ReturnType);
@@ -165,16 +165,16 @@ namespace Xtate.DataModel.XPath
 				}
 				catch (XPathException ex)
 				{
-					AddErrorMessage(locationExpression, Resources.Exception_Error_on_parsing_XPath_expression, ex);
+					AddErrorMessage(locationExpression, Resources.Exception_ErrorOnParsingXPathExpression, ex);
 				}
 				catch (ArgumentException ex)
 				{
-					AddErrorMessage(locationExpression, Resources.Exception_Error_on_parsing_XPath_expression, ex);
+					AddErrorMessage(locationExpression, Resources.Exception_ErrorOnParsingXPathExpression, ex);
 				}
 			}
 			else
 			{
-				AddErrorMessage(locationExpression, Resources.Exception_Value_Expression_must_be_present);
+				AddErrorMessage(locationExpression, Resources.Exception_ValueExpressionMustBePresent);
 			}
 		}
 
@@ -194,11 +194,11 @@ namespace Xtate.DataModel.XPath
 				case XPathResultType.Boolean:
 				case XPathResultType.String:
 				case XPathResultType.Number:
-					AddErrorMessage(locationExpression, Resources.Exception_Result_of_XPath_expression_should_be_element);
+					AddErrorMessage(locationExpression, Resources.Exception_ResultOfXPathExpressionShouldBeElement);
 					break;
 
 				case XPathResultType.Error:
-					AddErrorMessage(locationExpression, Resources.Exception_Result_of_XPath_expression_can_t_be_identified);
+					AddErrorMessage(locationExpression, Resources.Exception_ResultOfXPathExpressionCantBeIdentified);
 					break;
 				default:
 					Infrastructure.UnexpectedValue(compiledExpression.ReturnType);
@@ -244,16 +244,16 @@ namespace Xtate.DataModel.XPath
 			}
 			else
 			{
-				AddErrorMessage(assign, Resources.Exception_Unexpected_type_attribute_value);
+				AddErrorMessage(assign, Resources.Exception_UnexpectedTypeAttributeValue);
 			}
 
 			if (assignType == XPathAssignType.AddAttribute && string.IsNullOrEmpty(assign.Attribute))
 			{
-				AddErrorMessage(assign, Resources.ErrorMessage_attr_attribute_should_no_be_empty);
+				AddErrorMessage(assign, Resources.ErrorMessage_AttrAttributeShouldNotBeEmpty);
 			}
 		}
 
-		protected override void Visit(ref IScript script) => AddErrorMessage(script, Resources.ErrorMessage_Scripting_not_supported_in_XPATH_data_model);
+		protected override void Visit(ref IScript script) => AddErrorMessage(script, Resources.ErrorMessage_ScriptingNotSupportedInXPATHDataModel);
 
 		private static bool CanHandle(string dataModelType) => dataModelType == DataModelType;
 

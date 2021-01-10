@@ -32,7 +32,7 @@ namespace Xtate.Persistence
 			if ((val & 0xFC) == 0xF8) return 5;
 			if ((val & 0xFE) == 0xFC) return 6;
 
-			throw new ArgumentException(Resources.Exception_Incorrect_encoding, nameof(val));
+			throw new ArgumentException(Resources.Exception_IncorrectEncoding, nameof(val));
 		}
 
 		internal static int Decode(ReadOnlySpan<byte> span)
@@ -57,7 +57,7 @@ namespace Xtate.Persistence
 					return ((span[0] & 0x01) << 30) + ((span[1] & 0x3F) << 24) + ((span[2] & 0x3F) << 18) + ((span[3] & 0x3F) << 12) + ((span[4] & 0x3F) << 6) + (span[5] & 0x3F);
 			}
 
-			throw new ArgumentException(Resources.Exception_Incorrect_encoding, nameof(span));
+			throw new ArgumentException(Resources.Exception_IncorrectEncoding, nameof(span));
 		}
 
 		internal static int GetEncodedLength(int val)

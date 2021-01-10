@@ -42,7 +42,7 @@ namespace Xtate.DataModel.XPath
 				return descriptor;
 			}
 
-			throw new XPathDataModelException(Res.Format(Resources.Exception_Unknown_XPath_function, ns, name));
+			throw new XPathDataModelException(Res.Format(Resources.Exception_UnknownXPathFunction, ns, name));
 		}
 
 	#endregion

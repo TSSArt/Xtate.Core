@@ -66,7 +66,7 @@ namespace Xtate
 				{
 						null => 1,
 						DataModelDateTime dateTime => Compare(this, dateTime),
-						_ => throw new ArgumentException(Resources.Exception_Argument_must_be_DataModelDateTime_type)
+						_ => throw new ArgumentException(Resources.Exception_ArgumentMustBeDataModelDateTimeType)
 				};
 
 	#endregion

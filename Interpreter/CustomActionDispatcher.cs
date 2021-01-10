@@ -71,7 +71,7 @@ namespace Xtate.Core
 
 			if (_executor is not null)
 			{
-				throw Infrastructure.Fail<Exception>(Resources.Exception_Registration_should_no_occur_after_initialization);
+				throw Infrastructure.Fail<Exception>(Resources.Exception_RegistrationShouldNoOccurAfterInitialization);
 			}
 
 			_locations ??= ImmutableArray.CreateBuilder<ILocationExpression>();
@@ -88,7 +88,7 @@ namespace Xtate.Core
 
 			if (_executor is not null)
 			{
-				throw Infrastructure.Fail<Exception>(Resources.Exception_Registration_should_no_occur_after_initialization);
+				throw Infrastructure.Fail<Exception>(Resources.Exception_RegistrationShouldNoOccurAfterInitialization);
 			}
 
 			_values ??= ImmutableArray.CreateBuilder<IValueExpression>();
@@ -135,7 +135,7 @@ namespace Xtate.Core
 
 				if (executor is null)
 				{
-					_errorProcessor.AddError<CustomActionDispatcher>(this, Resources.ErrorMessage_Custom_action_executor_can_t_be_found);
+					_errorProcessor.AddError<CustomActionDispatcher>(this, Resources.ErrorMessage_CustomActionExecutorCantBeFound);
 				}
 
 				Locations = _locations?.ToImmutable() ?? default;
@@ -145,7 +145,7 @@ namespace Xtate.Core
 			}
 			catch (Exception ex)
 			{
-				_errorProcessor.AddError<PreDataModelProcessor>(this, Resources.ErrorMessage_Error_on_creation_CustomAction_executor, ex);
+				_errorProcessor.AddError<PreDataModelProcessor>(this, Resources.ErrorMessage_ErrorOnCreationCustomActionExecutor, ex);
 			}
 
 			_executor ??= NoActionExecutor.Instance;

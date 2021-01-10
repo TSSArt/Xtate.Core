@@ -204,16 +204,16 @@
   <data name="ErrorMessage_ConditionExpressionCantBeNull" xml:space="preserve">
     <value>Condition expression can't be null.</value>
   </data>
-  <data name="ErrorMessage_Location_expression_can_t_be_null" xml:space="preserve">
+  <data name="ErrorMessage_LocationExpressionCantBeNull" xml:space="preserve">
     <value>Location expression can't be null.</value>
   </data>
-  <data name="ErrorMessage_Script_expression_can_t_be_null" xml:space="preserve">
+  <data name="ErrorMessage_ScriptExpressionCantBeNull" xml:space="preserve">
     <value>Script expression can't be null.</value>
   </data>
   <data name="ErrorMessage_ContentValueCantBeNull" xml:space="preserve">
     <value>Content value can't be null.</value>
   </data>
-  <data name="ErrorMessage_Id_property_required_in_Data_element" xml:space="preserve">
+  <data name="ErrorMessage_IdPropertyRequiredInDataElement" xml:space="preserve">
     <value>Id property required in Data element.</value>
   </data>
   <data name="ErrorMessage_ExpressionSourceInData" xml:space="preserve">
@@ -222,10 +222,10 @@
   <data name="ErrorMessage_ConditionRequiredForElseIf" xml:space="preserve">
     <value>Condition property required for ElseIf element.</value>
   </data>
-  <data name="ErrorMessage_Raise_can_t_be_used_in_Finalize_element" xml:space="preserve">
+  <data name="ErrorMessage_RaiseCantBeUsedInFinalizeElement" xml:space="preserve">
     <value>Raise can't be used in Finalize element.</value>
   </data>
-  <data name="ErrorMessage_Send_can_t_be_used_in_Finalize_element" xml:space="preserve">
+  <data name="ErrorMessage_SendCantBeUsedInFinalizeElement" xml:space="preserve">
     <value>Send can't be used in Finalize element.</value>
   </data>
   <data name="ErrorMessage_ArrayPropertyRequiredForForEach" xml:space="preserve">
@@ -234,10 +234,10 @@
   <data name="ErrorMessage_ConditionRequiredForForEach" xml:space="preserve">
     <value>Condition property required for ForEach element.</value>
   </data>
-  <data name="ErrorMessage_Transition_must_be_present_in_History_element" xml:space="preserve">
+  <data name="ErrorMessage_TransitionMustBePresentInHistoryElement" xml:space="preserve">
     <value>Transition must be present in History element.</value>
   </data>
-  <data name="ErrorMessage_Invalid_Type_value_in_History_element" xml:space="preserve">
+  <data name="ErrorMessage_InvalidTypeValueInHistoryElement" xml:space="preserve">
     <value>Invalid Type value in History element.</value>
   </data>
   <data name="ErrorMessage_ConditionRequiredForIf" xml:space="preserve">
@@ -249,25 +249,25 @@
   <data name="ErrorMessage_ElseCanBeUsedOnlyOnce" xml:space="preserve">
     <value>&lt;else&gt; can be used only once.</value>
   </data>
-  <data name="ErrorMessage_Transition_must_be_present_in_Initial_element" xml:space="preserve">
+  <data name="ErrorMessage_TransitionMustBePresentInInitialElement" xml:space="preserve">
     <value>Transition must be present in Initial element.</value>
   </data>
-  <data name="ErrorMessage_Type_or_TypeExpression_must_be_specified_in_Invoke_element" xml:space="preserve">
+  <data name="ErrorMessage_TypeOrTypeExpressionMustBeSpecifiedInInvokeElement" xml:space="preserve">
     <value>Type or TypeExpression must be specified in Invoke element.</value>
   </data>
-  <data name="ErrorMessage_Type_and_TypeExpression_can_t_be_used_at_the_same_time_in_Invoke_element" xml:space="preserve">
+  <data name="ErrorMessage_TypeAndTypeExpressionCantBeUsedAtTheSameTimeInInvokeElement" xml:space="preserve">
     <value>Type and TypeExpression can't be used at the same time in Invoke element.</value>
   </data>
-  <data name="ErrorMessage_Id_and_IdLocation_can_t_be_used_at_the_same_time_in_Invoke_element" xml:space="preserve">
+  <data name="ErrorMessage_IdAndIdLocationCantBeUsedAtTheSameTimeInInvokeElement" xml:space="preserve">
     <value>Id and IdLocation can't be used at the same time in Invoke element.</value>
   </data>
-  <data name="ErrorMessage_Source_and_SourceExpression_can_t_be_used_at_the_same_time_in_Invoke_element" xml:space="preserve">
+  <data name="ErrorMessage_SourceAndSourceExpressionCantBeUsedAtTheSameTimeInInvokeElement" xml:space="preserve">
     <value>Source and SourceExpression can't be used at the same time in Invoke element.</value>
   </data>
-  <data name="ErrorMessage_NameList_and_Parameters_can_t_be_used_at_the_same_time_in_Invoke_element" xml:space="preserve">
+  <data name="ErrorMessage_NameListAndParametersCantBeUsedAtTheSameTimeInInvokeElement" xml:space="preserve">
     <value>NameList and Parameters can't be used at the same time in Invoke element.</value>
   </data>
-  <data name="ErrorMessage_Name_attributes_required_in_Param_element" xml:space="preserve">
+  <data name="ErrorMessage_NameAttributesRequiredInParamElement" xml:space="preserve">
     <value>Name attributes required in Param element.</value>
   </data>
   <data name="ErrorMessage_ExpressionLocationInParam" xml:space="preserve">
@@ -276,43 +276,43 @@
   <data name="ErrorMessage_EventRequiredForRaise" xml:space="preserve">
     <value>Event property required for Raise element.</value>
   </data>
-  <data name="ErrorMessage_Source_and_Body_can_t_be_used_at_the_same_time_in_Assign_element" xml:space="preserve">
+  <data name="ErrorMessage_SourceAndBodyCantBeUsedAtTheSameTimeInAssignElement" xml:space="preserve">
     <value>Source and Body can't be used at the same time in Assign element.</value>
   </data>
   <data name="ErrorMessage_EvenExpressionContentInSend" xml:space="preserve">
     <value>Event, EventExpression and Content can't be used at the same time in Send element.</value>
   </data>
-  <data name="ErrorMessage_Target_and_TargetExpression_can_t_be_used_at_the_same_time_in_Send_element" xml:space="preserve">
+  <data name="ErrorMessage_TargetAndTargetExpressionCantBeUsedAtTheSameTimeInSendElement" xml:space="preserve">
     <value>Target and TargetExpression can't be used at the same time in Send element.</value>
   </data>
-  <data name="ErrorMessage_Type_and_TypeExpression_can_t_be_used_at_the_same_time_in_Send_element" xml:space="preserve">
+  <data name="ErrorMessage_TypeAndTypeExpressionCantBeUsedAtTheSameTimeInSendElement" xml:space="preserve">
     <value>Type and TypeExpression can't be used at the same time in Send element.</value>
   </data>
-  <data name="ErrorMessage_Id_and_IdLocation_can_t_be_used_at_the_same_time_in_Send_element" xml:space="preserve">
+  <data name="ErrorMessage_IdAndIdLocationCantBeUsedAtTheSameTimeInSendElement" xml:space="preserve">
     <value>Id and IdLocation can't be used at the same time in Send element.</value>
   </data>
   <data name="ErrorMessage_EventExpressionInSend" xml:space="preserve">
     <value>Event and EventExpression can't be used at the same time in Send element.</value>
   </data>
-  <data name="ErrorMessage_NameList_and_Content_can_t_be_used_at_the_same_time_in_Send_element" xml:space="preserve">
+  <data name="ErrorMessage_NameListAndContentCantBeUsedAtTheSameTimeInSendElement" xml:space="preserve">
     <value>NameList and Content can't be used at the same time in Send element.</value>
   </data>
-  <data name="ErrorMessage_Parameters_and_Content_can_t_be_used_at_the_same_time_in_Send_element" xml:space="preserve">
+  <data name="ErrorMessage_ParametersAndContentCantBeUsedAtTheSameTimeInSendElement" xml:space="preserve">
     <value>Parameters and Content can't be used at the same time in Send element.</value>
   </data>
-  <data name="ErrorMessage_Must_be_present_Event_or_EventExpression_or_Content_in_Send_element" xml:space="preserve">
+  <data name="ErrorMessage_MustBePresentEventOrEventExpressionOrContentInSendElement" xml:space="preserve">
     <value>Must be present Event or EventExpression or Content in Send element.</value>
   </data>
-  <data name="ErrorMessage_Initial_state_property_cannot_be_used_without_any_states" xml:space="preserve">
+  <data name="ErrorMessage_InitialStatePropertyCannotBeUsedWithoutAnyStates" xml:space="preserve">
     <value>Initial state/property cannot be used without any states.</value>
   </data>
-  <data name="ErrorMessage_Invalid_BindingType_value_in_StateMachine_element" xml:space="preserve">
+  <data name="ErrorMessage_InvalidBindingTypeValueInStateMachineElement" xml:space="preserve">
     <value>Invalid BindingType value in StateMachine element.</value>
   </data>
-  <data name="ErrorMessage_Initial_state_property_can_be_used_only_in_complex_states" xml:space="preserve">
+  <data name="ErrorMessage_InitialStatePropertyCanBeUsedOnlyInComplexStates" xml:space="preserve">
     <value>Initial state/property can be used only in complex (compound) states.</value>
   </data>
-  <data name="ErrorMessage_Must_be_present_at_least_Event_or_Condition_or_Target_in_Transition_element" xml:space="preserve">
+  <data name="ErrorMessage_MustBePresentAtLeastEventOrConditionOrTargetInTransitionElement" xml:space="preserve">
     <value>Must be present at least Event or Condition or Target in Transition element.</value>
   </data>
   <data name="Exception_ValueCannotBeParsed" xml:space="preserve">
@@ -339,43 +339,43 @@
   <data name="ErrorMessage_FoundDuplicateAttribute" xml:space="preserve">
     <value>Found duplicate attribute '{0}'.</value>
   </data>
-  <data name="ErrorMessage_Missed_required_attributes" xml:space="preserve">
+  <data name="ErrorMessage_MissedRequiredAttributes" xml:space="preserve">
     <value>Missed required attributes '{0}'.</value>
   </data>
-  <data name="ErrorMessage_Only_one_element_allowed" xml:space="preserve">
+  <data name="ErrorMessage_OnlyOneElementAllowed" xml:space="preserve">
     <value>Only one &lt;{0}&gt; element allowed.</value>
   </data>
   <data name="ErrorMessage_DetectedUnknownElement" xml:space="preserve">
     <value>Detected unknown element &lt;{0}&gt;.</value>
   </data>
-  <data name="ErrorMessage_Missed_required_elements" xml:space="preserve">
+  <data name="ErrorMessage_MissedRequiredElements" xml:space="preserve">
     <value>Missed required elements &lt;{0}&gt;.</value>
   </data>
-  <data name="Exception_Can_not_register_raw_content_more_than_one_time" xml:space="preserve">
+  <data name="Exception_CanNotRegisterRawContentMoreThanOneTime" xml:space="preserve">
     <value>Can not register raw content more than one time.</value>
   </data>
-  <data name="Exception_Can_not_read_raw_content_due_to_registered_elements" xml:space="preserve">
+  <data name="Exception_CanNotReadRawContentDueToRegisteredElements" xml:space="preserve">
     <value>Can not read raw content due to registered elements.</value>
   </data>
-  <data name="Exception_Can_not_register_component_due_to_registered_raw_content" xml:space="preserve">
+  <data name="Exception_CanNotRegisterComponentDueToRegisteredRawContent" xml:space="preserve">
     <value>Can not register component due to registered raw content.</value>
   </data>
-  <data name="Exception_Unsupported_object_type" xml:space="preserve">
+  <data name="Exception_UnsupportedObjectType" xml:space="preserve">
     <value>Unsupported object type.</value>
   </data>
-  <data name="Exception_DataModelValue_is_not_DateTime" xml:space="preserve">
+  <data name="Exception_DataModelValueIsNotDateTime" xml:space="preserve">
     <value>DataModelValue is not DateTime.</value>
   </data>
-  <data name="Exception_DataModelValue_is_not_Boolean" xml:space="preserve">
+  <data name="Exception_DataModelValueIsNotBoolean" xml:space="preserve">
     <value>DataModelValue is not Boolean.</value>
   </data>
-  <data name="Exception_DataModelValue_is_not_Number" xml:space="preserve">
+  <data name="Exception_DataModelValueIsNotNumber" xml:space="preserve">
     <value>DataModelValue is not Number.</value>
   </data>
-  <data name="Exception_DataModelValue_is_not_String" xml:space="preserve">
+  <data name="Exception_DataModelValueIsNotString" xml:space="preserve">
     <value>DataModelValue is not String.</value>
   </data>
-  <data name="Exception_Object_can_not_be_modified" xml:space="preserve">
+  <data name="Exception_ObjectCanNotBeModified" xml:space="preserve">
     <value>Object can not be modified.</value>
   </data>
   <data name="Exception_AssertionFailed" xml:space="preserve">
@@ -384,158 +384,155 @@
   <data name="Exception_UnexpectedValue" xml:space="preserve">
     <value>Unexpected value.</value>
   </data>
-  <data name="Exception_External_communication_does_not_configured_for_state_machine_interpreter" xml:space="preserve">
+  <data name="Exception_ExternalCommunicationDoesNotConfiguredForStateMachineInterpreter" xml:space="preserve">
     <value>External communication does not configured for state machine interpreter.</value>
   </data>
-  <data name="Exception_Cant_find_DataModelHandlerFactory_for_DataModel_type" xml:space="preserve">
+  <data name="Exception_CantFindDataModelHandlerFactoryForDataModelType" xml:space="preserve">
     <value>Can't find DataModelHandlerFactory for DataModel type '{0}'.</value>
   </data>
-  <data name="Exception_Persisted_state_can_t_be_read__Unsupported_version_" xml:space="preserve">
+  <data name="Exception_PersistedStateCantBeReadUnsupportedVersion" xml:space="preserve">
     <value>Persisted state can't be read. Unsupported version.</value>
   </data>
-  <data name="Exception_Persisted_state_can_t_be_read__Stored_and_provided_SessionIds_does_not_match" xml:space="preserve">
+  <data name="Exception_PersistedStateCantBeReadStoredAndProvidedSessionIdsDoesNotMatch" xml:space="preserve">
     <value>Persisted state can't be read. Stored and provided SessionIds does not match.</value>
   </data>
-  <data name="Exception_Partition_argument_should_be_null" xml:space="preserve">
+  <data name="Exception_PartitionArgumentShouldBeNull" xml:space="preserve">
     <value>Partition argument should be null.</value>
   </data>
   <data name="Assertion_ObjectsStructureMismatch" xml:space="preserve">
     <value>Objects structure mismatch.</value>
   </data>
-  <data name="ErrorMessage_Value_expression__does_not_implement_IValueEvaluator_" xml:space="preserve">
+  <data name="ErrorMessage_ValueExpressionDoesNotImplementIValueEvaluator" xml:space="preserve">
     <value>'Value expression' does not implement IValueEvaluator.</value>
   </data>
-  <data name="ErrorMessage_Location_expression__does_not_implement_ILocationEvaluator" xml:space="preserve">
+  <data name="ErrorMessage_LocationExpressionDoesNotImplementILocationEvaluator" xml:space="preserve">
     <value>'Location expression' does not implement ILocationEvaluator.</value>
   </data>
   <data name="Assertion_CustomActionDoesNotConfigured" xml:space="preserve">
     <value>Custom action does not configured.</value>
   </data>
-  <data name="ErrorMesasge_ForEachNotSupportedForNull" xml:space="preserve">
+  <data name="ErrorMessage_ForEachNotSupportedForNull" xml:space="preserve">
     <value>ForEach not supported in NULL data model.</value>
   </data>
-  <data name="ErrorMesasge_ScriptingNotSupportedForNull" xml:space="preserve">
+  <data name="ErrorMessage_ScriptingNotSupportedForNull" xml:space="preserve">
     <value>Scripting not supported in NULL data model.</value>
   </data>
-  <data name="ErrorMesasge_DataModelNotSupportedForNull" xml:space="preserve">
+  <data name="ErrorMessage_DataModelNotSupportedForNull" xml:space="preserve">
     <value>DataModel not supported in NULL data model.</value>
   </data>
-  <data name="ErrorMesasge_DoneDataNotSupportedForNull" xml:space="preserve">
+  <data name="ErrorMessage_DoneDataNotSupportedForNull" xml:space="preserve">
     <value>DoneData not supported in NULL data model.</value>
   </data>
-  <data name="ErrorMesasge_ValueExpressionNotSupportedForNull" xml:space="preserve">
+  <data name="ErrorMessage_ValueExpressionNotSupportedForNull" xml:space="preserve">
     <value>'Value expression' not supported in NULL data model.</value>
   </data>
-  <data name="ErrorMesasge_LocationExpressionNotSupportedForNull" xml:space="preserve">
+  <data name="ErrorMessage_LocationExpressionNotSupportedForNull" xml:space="preserve">
     <value>'Location expression' not supported in NULL data model.</value>
   </data>
-  <data name="ErrorMesasge_IncorrectConditionExpressionForNull" xml:space="preserve">
+  <data name="ErrorMessage_IncorrectConditionExpressionForNull" xml:space="preserve">
     <value>Incorrect format of condition expression for NULL data model.</value>
   </data>
-  <data name="ErrorMesasge_IncorrectConditionExpression" xml:space="preserve">
+  <data name="ErrorMessage_IncorrectConditionExpression" xml:space="preserve">
     <value>Incorrect condition expression.</value>
   </data>
-  <data name="Exception_Invalid_TypeInfo_value" xml:space="preserve">
+  <data name="Exception_InvalidTypeInfoValue" xml:space="preserve">
     <value>Invalid TypeInfo value.</value>
   </data>
-  <data name="ErrorMessage_Target_Id_does_not_exists" xml:space="preserve">
+  <data name="ErrorMessage_TargetIdDoesNotExists" xml:space="preserve">
     <value>Target Id does not exists.</value>
   </data>
-  <data name="Exception_StateId_not_initialized" xml:space="preserve">
+  <data name="Exception_StateIdNotInitialized" xml:space="preserve">
     <value>StateId not initialized.</value>
   </data>
-  <data name="Exception_Can_t_restore_element" xml:space="preserve">
+  <data name="Exception_CantRestoreElement" xml:space="preserve">
     <value>Can't restore element.</value>
   </data>
-  <data name="Exception_Root_path_can_be_set_only_before_visiting" xml:space="preserve">
+  <data name="Exception_RootPathCanBeSetOnlyBeforeVisiting" xml:space="preserve">
     <value>Root path can be set only before visiting.</value>
   </data>
-  <data name="Exception_Incorrect_data_format" xml:space="preserve">
+  <data name="Exception_IncorrectDataFormat" xml:space="preserve">
     <value>Incorrect data format.</value>
   </data>
-  <data name="Exception_Forward_entities_required_to_restore_state_machine" xml:space="preserve">
+  <data name="Exception_ForwardEntitiesRequiredToRestoreStateMachine" xml:space="preserve">
     <value>Forward entities required to restore state machine.</value>
   </data>
-  <data name="Exception_Forward_entity_can_not_be_found" xml:space="preserve">
+  <data name="Exception_ForwardEntityCanNotBeFound" xml:space="preserve">
     <value>Forward entity can not be found.</value>
   </data>
-  <data name="Exception_Forward_entity_has_incorrect_type" xml:space="preserve">
+  <data name="Exception_ForwardEntityHasIncorrectType" xml:space="preserve">
     <value>Forward entity has incorrect type.</value>
   </data>
-  <data name="Exception_Missed_ParentSessionId" xml:space="preserve">
+  <data name="Exception_MissedParentSessionId" xml:space="preserve">
     <value>Missed ParentSessionId.</value>
   </data>
-  <data name="Exception_InvokedServiceMeta_Missed_InvokeId" xml:space="preserve">
+  <data name="Exception_InvokedServiceMetaMissedInvokeId" xml:space="preserve">
     <value>Missed InvokeId.</value>
   </data>
-  <data name="Exception_Missed_SessionId" xml:space="preserve">
+  <data name="Exception_MissedSessionId" xml:space="preserve">
     <value>Missed SessionId.</value>
   </data>
-  <data name="Exception_Unexpected_TypeInfo_value" xml:space="preserve">
+  <data name="Exception_UnexpectedTypeInfoValue" xml:space="preserve">
     <value>Unexpected TypeInfo value.
 </value>
   </data>
-  <data name="Exception_Unknown_Condition_type" xml:space="preserve">
+  <data name="Exception_UnknownConditionType" xml:space="preserve">
     <value>Unknown Condition type.</value>
   </data>
-  <data name="Exception_Unknown_Executable_Entity_type" xml:space="preserve">
+  <data name="Exception_UnknownExecutableEntityType" xml:space="preserve">
     <value>Unknown Executable Entity type.</value>
   </data>
-  <data name="Exception_Unknown_State_Entity_type" xml:space="preserve">
+  <data name="Exception_UnknownStateEntityType" xml:space="preserve">
     <value>Unknown State Entity type.</value>
   </data>
-  <data name="Exception_Storage_not_available_for_read_operations" xml:space="preserve">
+  <data name="Exception_StorageNotAvailableForReadOperations" xml:space="preserve">
     <value>Storage not available for read operations</value>
   </data>
-  <data name="Exception_Incorrect_encoding" xml:space="preserve">
+  <data name="Exception_IncorrectEncoding" xml:space="preserve">
     <value>Incorrect encoding.</value>
   </data>
-  <data name="Exception_Cannot_find_target" xml:space="preserve">
+  <data name="Exception_CannotFindTarget" xml:space="preserve">
     <value>Cannot find target.</value>
   </data>
-  <data name="Exception_Channel_can_t_consume_previously_persisted_object" xml:space="preserve">
+  <data name="Exception_ChannelCantConsumePreviouslyPersistedObject" xml:space="preserve">
     <value>Channel can't consume previously persisted object.</value>
   </data>
-  <data name="Exception_Use_ReadAsync___instead" xml:space="preserve">
+  <data name="Exception_UseReadAsyncInstead" xml:space="preserve">
     <value>Use ReadAsync() instead.</value>
   </data>
-  <data name="Exception_Use_WriteAsync___instead" xml:space="preserve">
+  <data name="Exception_UseWriteAsyncInstead" xml:space="preserve">
     <value>Use WriteAsync() instead.</value>
   </data>
-  <data name="Exception_Item_can_t_be_null" xml:space="preserve">
+  <data name="Exception_ItemCantBeNull" xml:space="preserve">
     <value>Item can't be null.</value>
   </data>
-  <data name="Exception_key_not_found" xml:space="preserve">
+  <data name="Exception_KeyNotFound" xml:space="preserve">
     <value>'{0}' key not found.</value>
   </data>
-  <data name="Exception_Target_should_be_equal_to___parent__or_null" xml:space="preserve">
-    <value>Target should be equal to '_parent' or null.</value>
+  <data name="Exception_TargetShouldBeEqualToParentOrNull" xml:space="preserve">
+    <value>Target should be equal to 'Parent' or null.</value>
   </data>
-  <data name="Exception_Type__SendId__DelayMs_can_t_be_specified_for_this_event" xml:space="preserve">
+  <data name="Exception_TypeSendIdDelayMsCantBeSpecifiedForThisEvent" xml:space="preserve">
     <value>Type, SendId, DelayMs can't be specified for this event.</value>
   </data>
-  <data name="Exception_Invalid_type" xml:space="preserve">
+  <data name="Exception_InvalidType" xml:space="preserve">
     <value>Invalid type.</value>
   </data>
-  <data name="Exception_Internal_events_can_t_be_delayed_" xml:space="preserve">
-    <value>Internal events can't be delayed.</value>
-  </data>
-  <data name="Exception_Another_asynchronous_operation_in_progress" xml:space="preserve">
+  <data name="Exception_AnotherAsynchronousOperationInProgress" xml:space="preserve">
     <value>Another asynchronous operation in progress.</value>
   </data>
-  <data name="Exception_IO_Processor_has_not_been_started" xml:space="preserve">
+  <data name="Exception_IOProcessorHasNotBeenStarted" xml:space="preserve">
     <value>IO Processor has not been started.</value>
   </data>
-  <data name="Exception_Event_Target_did_not_specified" xml:space="preserve">
+  <data name="Exception_EventTargetDidNotSpecified" xml:space="preserve">
     <value>Event Target did not specified.</value>
   </data>
-  <data name="Exception_Internal_events_can_t_be_delayed" xml:space="preserve">
+  <data name="Exception_InternalEventsCantBeDelayed" xml:space="preserve">
     <value>Internal events can't be delayed.</value>
   </data>
-  <data name="Exception_StateMachineHost_stopped" xml:space="preserve">
+  <data name="Exception_StateMachineHostStopped" xml:space="preserve">
     <value>StateMachineHost stopped.</value>
   </data>
-  <data name="Exception_Invalid_InvokeId" xml:space="preserve">
+  <data name="Exception_InvalidInvokeId" xml:space="preserve">
     <value>Invalid InvokeId.</value>
   </data>
   <data name="DefaultLogger_LogInfo" xml:space="preserve">
@@ -565,146 +562,146 @@
   <data name="DefaultLogger_TraceProcessingEvent" xml:space="preserve">
     <value>Processing {0} event [{1}]. SendId: [{2}]. InvokeId: [{3}]. Data: [{4}]. OriginType: [{5}]. Origin: [{6}]. SessionId: [{7}].</value>
   </data>
-  <data name="Exception_StateMachineValidationException_Message" xml:space="preserve">
+  <data name="Exception_StateMachineValidationExceptionMessage" xml:space="preserve">
     <value>Message #{0} of {1}: {2}</value>
   </data>
-  <data name="Exception_Specified_method_is_not_supported_in_type" xml:space="preserve">
+  <data name="Exception_SpecifiedMethodIsNotSupportedInType" xml:space="preserve">
     <value>Specified method is not supported in type {0}.</value>
   </data>
   <data name="Exception_UnsupportedType" xml:space="preserve">
     <value>Unsupported {0} type: [{1}].</value>
   </data>
-  <data name="Exception_State_Machine_external_queue_has_been_closed" xml:space="preserve">
+  <data name="Exception_StateMachineExternalQueueHasBeenClosed" xml:space="preserve">
     <value>State Machine external queue has been closed.</value>
   </data>
-  <data name="Exception_State_Machine_has_been_halted" xml:space="preserve">
+  <data name="Exception_StateMachineHasBeenHalted" xml:space="preserve">
     <value>State Machine has been halted.</value>
   </data>
-  <data name="Exception_State_Machine_has_been_destroyed" xml:space="preserve">
+  <data name="Exception_StateMachineHasBeenDestroyed" xml:space="preserve">
     <value>State Machine has been destroyed.</value>
   </data>
-  <data name="Exception_State_Machine_has_been_suspended" xml:space="preserve">
+  <data name="Exception_StateMachineHasBeenSuspended" xml:space="preserve">
     <value>State Machine has been suspended.</value>
   </data>
-  <data name="Exception_Cannot_find_ResourceLoader_to_load_external_resource" xml:space="preserve">
+  <data name="Exception_CannotFindResourceLoaderToLoadExternalResource" xml:space="preserve">
     <value>Cannot find ResourceLoader to load external resource.</value>
   </data>
-  <data name="Exception_Error_on_event_consumer_side" xml:space="preserve">
+  <data name="Exception_ErrorOnEventConsumerSide" xml:space="preserve">
     <value>Error on event consumer side. Exception message: {0}.
 {1}</value>
   </data>
-  <data name="Exception_Target_wrong_format" xml:space="preserve">
+  <data name="Exception_TargetWrongFormat" xml:space="preserve">
     <value>Target wrong format.</value>
   </data>
-  <data name="Exception_NamedIoProcessor_with_name_already_has_been_registered" xml:space="preserve">
+  <data name="Exception_NamedIoProcessorWithNameAlreadyHasBeenRegistered" xml:space="preserve">
     <value>NamedIoProcessor with name '{0}' already has been registered.</value>
   </data>
-  <data name="Exception_Access_can_t_be_changed" xml:space="preserve">
+  <data name="Exception_AccessCantBeChanged" xml:space="preserve">
     <value>Access can't be changed.</value>
   </data>
-  <data name="Exception_Registration_should_no_occur_after_initialization" xml:space="preserve">
+  <data name="Exception_RegistrationShouldNoOccurAfterInitialization" xml:space="preserve">
     <value>Registration should no occur after initialization.</value>
   </data>
-  <data name="Exception_Can_t_get_access_to_IHost_interface" xml:space="preserve">
+  <data name="Exception_CantGetAccessToIHostInterface" xml:space="preserve">
     <value>Can't get access to IHost interface.</value>
   </data>
-  <data name="ErrorMessage_Error_on_creation_CustomAction_executor" xml:space="preserve">
+  <data name="ErrorMessage_ErrorOnCreationCustomActionExecutor" xml:space="preserve">
     <value>Error on creation CustomAction executor.</value>
   </data>
-  <data name="ErrorMessage_url_and_urlExpr_attributes_should_not_be_assigned_in_Start_element" xml:space="preserve">
+  <data name="ErrorMessage_UrlAndUrlExprAttributesShouldNotBeAssignedInStartElement" xml:space="preserve">
     <value>[url] and [urlExpr] attributes should not be assigned in Start element.</value>
   </data>
-  <data name="ErrorMessage_url__has_invalid_URI_format" xml:space="preserve">
+  <data name="ErrorMessage_UrlHasInvalidURIFormat" xml:space="preserve">
     <value>[url] has invalid URI format.</value>
   </data>
-  <data name="ErrorMessage_At_least_one_url_must_be_specified" xml:space="preserve">
+  <data name="ErrorMessage_AtLeastOneUrlMustBeSpecified" xml:space="preserve">
     <value>At least one attribute url or urlExpr must be specified</value>
   </data>
-  <data name="StartAction_Execute_Source_not_specified" xml:space="preserve">
+  <data name="Exception_StartActionExecuteSourceNotSpecified" xml:space="preserve">
     <value>Source not specified.</value>
   </data>
-  <data name="ErrorMessage_Custom_action_executor_can_t_be_found" xml:space="preserve">
+  <data name="ErrorMessage_CustomActionExecutorCantBeFound" xml:space="preserve">
     <value>Custom action executor can't be found.</value>
   </data>
-  <data name="Exception_StateMachine_origin_missed" xml:space="preserve">
+  <data name="Exception_StateMachineOriginMissed" xml:space="preserve">
     <value>StateMachine origin missed.</value>
   </data>
-  <data name="Exception_Value_is_not_SCXML" xml:space="preserve">
+  <data name="Exception_ValueIsNotSCXML" xml:space="preserve">
     <value>Value is not SCXML.</value>
   </data>
-  <data name="Exception_Value_is_not_Source" xml:space="preserve">
+  <data name="Exception_ValueIsNotSource" xml:space="preserve">
     <value>Value is not Source.</value>
   </data>
-  <data name="Exception_Value_is_not_StateMachine" xml:space="preserve">
+  <data name="Exception_ValueIsNotStateMachine" xml:space="preserve">
     <value>Value is not StateMachine.</value>
   </data>
-  <data name="Exception_Resource_not_found" xml:space="preserve">
+  <data name="Exception_ResourceNotFound" xml:space="preserve">
     <value>Resource '{0}' not found.</value>
   </data>
-  <data name="Exception_Unhandled_exception" xml:space="preserve">
+  <data name="Exception_UnhandledException" xml:space="preserve">
     <value>Unhandled exception.</value>
   </data>
   <data name="DefaultLogger_TraceInterpreterState" xml:space="preserve">
     <value>Interpreter state has changed to [{0}]. SessionId: [{1}].</value>
   </data>
-  <data name="Exception_Argument_must_be_DataModelDateTime_type" xml:space="preserve">
+  <data name="Exception_ArgumentMustBeDataModelDateTimeType" xml:space="preserve">
     <value>Argument must be DataModelDateTime type.</value>
   </data>
-  <data name="ErrorMessage_Scripting_not_supported_in_XPATH_data_model" xml:space="preserve">
+  <data name="ErrorMessage_ScriptingNotSupportedInXPATHDataModel" xml:space="preserve">
     <value>Scripting not supported in XPATH data model.</value>
   </data>
-  <data name="Exception_Error_on_parsing_XPath_expression" xml:space="preserve">
+  <data name="Exception_ErrorOnParsingXPathExpression" xml:space="preserve">
     <value>Error on parsing XPath expression.</value>
   </data>
-  <data name="Exception_Result_of_XPath_expression_can_t_be_identified" xml:space="preserve">
+  <data name="Exception_ResultOfXPathExpressionCantBeIdentified" xml:space="preserve">
     <value>Result of XPath expression can't be identified.</value>
   </data>
-  <data name="Exception_Value_Expression_must_be_present" xml:space="preserve">
+  <data name="Exception_ValueExpressionMustBePresent" xml:space="preserve">
     <value>Value Expression must be present.</value>
   </data>
-  <data name="Exception_Result_of_XPath_expression_should_be_boolean_value" xml:space="preserve">
+  <data name="Exception_ResultOfXPathExpressionShouldBeBooleanValue" xml:space="preserve">
     <value>Result of XPath expression should be boolean value.</value>
   </data>
-  <data name="Exception_Result_of_XPath_expression_should_be_element" xml:space="preserve">
+  <data name="Exception_ResultOfXPathExpressionShouldBeElement" xml:space="preserve">
     <value>Result of XPath expression should be element.</value>
   </data>
-  <data name="Exception_Destination_array_is_not_long_enough" xml:space="preserve">
+  <data name="Exception_DestinationArrayIsNotLongEnough" xml:space="preserve">
     <value>Destination list is not long enough to copy all the items in the collection. Check list index and length.</value>
   </data>
-  <data name="Exception_Index_should_be_non_negative_and_less_then_aarray_size" xml:space="preserve">
+  <data name="Exception_IndexShouldBeNonNegativeAndLessThenAarraySize" xml:space="preserve">
     <value>Index should be non-negative and less then array size.</value>
   </data>
-  <data name="Exception_Index_value_must_be_non_negative_integer" xml:space="preserve">
+  <data name="Exception_IndexValueMustBeNonNegativeInteger" xml:space="preserve">
     <value>Index value must be non-negative integer.</value>
   </data>
-  <data name="Exception_Unknown_XPath_function" xml:space="preserve">
+  <data name="Exception_UnknownXPathFunction" xml:space="preserve">
     <value>Unknown XPath function. Namespace:'{0}', Name:'{1}'.</value>
   </data>
-  <data name="Exception_Unknown_XPath_variable" xml:space="preserve">
+  <data name="Exception_UnknownXPathVariable" xml:space="preserve">
     <value>Unknown XPath variable. Namespace:'{0}', Name:'{1}'.</value>
   </data>
-  <data name="Exception_Value_must_be_non_negative_integer" xml:space="preserve">
+  <data name="Exception_ValueMustBeNonNegativeInteger" xml:space="preserve">
     <value>Value must be non negative integer.</value>
   </data>
-  <data name="Exception_DataModelValue_is_not_DataModelList" xml:space="preserve">
+  <data name="Exception_DataModelValueIsNotDataModelList" xml:space="preserve">
     <value>DataModelValue is not DataModelList.</value>
   </data>
-  <data name="Exception_Unexpected_type_attribute_value" xml:space="preserve">
+  <data name="Exception_UnexpectedTypeAttributeValue" xml:space="preserve">
     <value>Unexpected type attribute value: {0}.</value>
   </data>
-  <data name="ErrorMessage_attr_attribute_should_no_be_empty" xml:space="preserve">
-    <value>attr attribute should no be empty.</value>
+  <data name="ErrorMessage_AttrAttributeShouldNotBeEmpty" xml:space="preserve">
+    <value>'attr' attribute should not be empty.</value>
   </data>
-  <data name="Exception_Prefix_cant_be_resolved" xml:space="preserve">
+  <data name="Exception_PrefixCantBeResolved" xml:space="preserve">
     <value>Prefix {0} can't be resolved.</value>
   </data>
-  <data name="ErrorMessage_SessionId_could_not_be_empty" xml:space="preserve">
+  <data name="ErrorMessage_SessionIdCouldNotBeEmpty" xml:space="preserve">
     <value>[sessionId] could not be empty.</value>
   </data>
-  <data name="ErrorMessage_sessionId__and__sessionIdExpr__attributes_should_not_be_assigned_in_Start_element" xml:space="preserve">
+  <data name="ErrorMessage_SessionIdAndSessionIdExprAttributesShouldNotBeAssignedInStartElement" xml:space="preserve">
     <value>[sessionId] and [sessionIdExpr] attributes should not be assigned in Start element.</value>
   </data>
-  <data name="Exception_SessionId_could_not_be_empty" xml:space="preserve">
+  <data name="Exception_SessionIdCouldNotBeEmpty" xml:space="preserve">
     <value>SessionId could not be empty.</value>
   </data>
   <data name="DefaultLogger_TraceSendEvent" xml:space="preserve">
@@ -719,16 +716,13 @@
   <data name="DefaultLogger_TraceCancelInvoke" xml:space="preserve">
     <value>Cancel invoke. InvokeId: [{0}].</value>
   </data>
-  <data name="ErrorMessage_sessionId__or__sessionIdExpr__must_be_specified" xml:space="preserve">
-    <value>[sessionId] or [sessionIdExpr] must be specified.</value>
-  </data>
-  <data name="NamedIoProcessor_Message_size_has_wrong_value_or_missed" xml:space="preserve">
+  <data name="Exception_NamedIoProcessorMessageSizeHasWrongValueOrMissed" xml:space="preserve">
     <value>Message size has wrong value or missed. Size: {0} bytes.</value>
   </data>
-  <data name="NamedIoProcessor_Message_read_partially" xml:space="preserve">
+  <data name="Exception_NamedIoProcessorMessageReadPartially" xml:space="preserve">
     <value>Message read partially. {0} of {1} bytes.</value>
   </data>
-  <data name="Exception_Event_dispatcher_not_found" xml:space="preserve">
+  <data name="Exception_EventDispatcherNotFound" xml:space="preserve">
     <value>Event dispatcher not found.</value>
   </data>
   <data name="Exception_UnsupportedClass" xml:space="preserve">
@@ -755,25 +749,28 @@
   <data name="Exception_UnresolvableURI" xml:space="preserve">
     <value>Unable to resolve URI reference '{0}'.</value>
   </data>
-  <data name="Exception_XIncludeException_Location_Line_Position" xml:space="preserve">
+  <data name="Exception_XIncludeExceptionLocationLinePosition" xml:space="preserve">
     <value>{0} Location: {1}, Line {2}, Position {3}.</value>
   </data>
-  <data name="Exception_XIncludeException_Location" xml:space="preserve">
+  <data name="Exception_XIncludeExceptionLocation" xml:space="preserve">
     <value>{0} Location: {1}.</value>
   </data>
-  <data name="Exception_XIncludeException_Line_Position" xml:space="preserve">
+  <data name="Exception_XIncludeExceptionLinePosition" xml:space="preserve">
     <value>{0} Line {1}, Position {2}.</value>
   </data>
-  <data name="Exception_Loading_external_resources_does_not_supported" xml:space="preserve">
+  <data name="Exception_LoadingExternalResourcesDoesNotSupported" xml:space="preserve">
     <value>Loading external resources does not supported. Derive class from ScxmlXmlResolver and pass instance of it to ScxmlDirector.</value>
   </data>
-  <data name="Exception_Access_to_IO_bound_threads_denied" xml:space="preserve">
+  <data name="Exception_AccessToIOBoundThreadsDenied" xml:space="preserve">
     <value>Access to IO bound threads denied.</value>
   </data>
-  <data name="Exception_Starting_State_Machine_denied" xml:space="preserve">
+  <data name="Exception_StartingStateMachineDenied" xml:space="preserve">
     <value>Starting State Machine denied.</value>
   </data>
-  <data name="Exception_Access_denied_Permission_required" xml:space="preserve">
+  <data name="Exception_AccessDeniedPermissionRequired" xml:space="preserve">
     <value>Access denied. Permission [{0}] required.</value>
+  </data>
+  <data name="ErrorMessage_SessionIdOrSessionIdExprMustBeSpecified" xml:space="preserve">
+    <value>[sessionId] or [sessionIdExpr] must be specified.</value>
   </data>
 </root>

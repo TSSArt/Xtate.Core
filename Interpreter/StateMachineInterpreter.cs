@@ -58,7 +58,7 @@ namespace Xtate.Core
 		private readonly INotifyStateChanged?                     _notifyStateChanged;
 		private readonly PersistenceLevel                         _persistenceLevel;
 		private readonly ImmutableArray<IResourceLoaderFactory>   _resourceLoaderFactories;
-		private readonly ISecurityContext                          _securityContext;
+		private readonly ISecurityContext                         _securityContext;
 		private readonly SessionId                                _sessionId;
 		private readonly IStateMachineValidator                   _stateMachineValidator;
 		private readonly CancellationToken                        _stopToken;
@@ -199,13 +199,13 @@ namespace Xtate.Core
 
 				if (bucket.TryGet(Key.Version, out int version) && version != 1)
 				{
-					throw new PersistenceException(Resources.Exception_Persisted_state_can_t_be_read__Unsupported_version_);
+					throw new PersistenceException(Resources.Exception_PersistedStateCantBeReadUnsupportedVersion);
 				}
 
 				var storedSessionId = bucket.GetSessionId(Key.SessionId);
 				if (storedSessionId is not null && storedSessionId != _sessionId)
 				{
-					throw new PersistenceException(Resources.Exception_Persisted_state_can_t_be_read__Stored_and_provided_SessionIds_does_not_match);
+					throw new PersistenceException(Resources.Exception_PersistedStateCantBeReadStoredAndProvidedSessionIdsDoesNotMatch);
 				}
 
 				if (!bucket.TryGet(Key.StateMachineDefinition, out var memory))
@@ -280,7 +280,7 @@ namespace Xtate.Core
 				return await activator.CreateHandler(factoryContext, dataModelType, errorProcessor, _stopToken).ConfigureAwait(false);
 			}
 
-			errorProcessor.AddError<StateMachineInterpreter>(entity: null, Res.Format(Resources.Exception_Cant_find_DataModelHandlerFactory_for_DataModel_type, dataModelType));
+			errorProcessor.AddError<StateMachineInterpreter>(entity: null, Res.Format(Resources.Exception_CantFindDataModelHandlerFactoryForDataModelType, dataModelType));
 
 			return new NullDataModelHandler(errorProcessor);
 		}
@@ -479,7 +479,7 @@ namespace Xtate.Core
 
 			await ExitSteps().ConfigureAwait(false);
 
-			return new StateMachineDestroyedException(Resources.Exception_State_Machine_has_been_destroyed, destroyException);
+			return new StateMachineDestroyedException(Resources.Exception_StateMachineHasBeenDestroyed, destroyException);
 		}
 
 		private async ValueTask<DataModelValue> Run(IStateMachine? stateMachine)
@@ -504,13 +504,13 @@ namespace Xtate.Core
 				{
 					await TraceInterpreterState(StateMachineInterpreterState.QueueClosed).ConfigureAwait(false);
 
-					throw new StateMachineQueueClosedException(Resources.Exception_State_Machine_external_queue_has_been_closed, ex);
+					throw new StateMachineQueueClosedException(Resources.Exception_StateMachineExternalQueueHasBeenClosed, ex);
 				}
 				catch (OperationCanceledException ex) when (ex.CancellationToken == _stopToken || ex.CancellationToken == _anyTokenSource.Token && _stopToken.IsCancellationRequested)
 				{
 					await TraceInterpreterState(StateMachineInterpreterState.Halted).ConfigureAwait(false);
 
-					throw new OperationCanceledException(Resources.Exception_State_Machine_has_been_halted, ex, _stopToken);
+					throw new OperationCanceledException(Resources.Exception_StateMachineHasBeenHalted, ex, _stopToken);
 				}
 				catch (StateMachineUnhandledErrorException ex) when (ex.UnhandledErrorBehaviour == UnhandledErrorBehaviour.HaltStateMachine)
 				{
@@ -522,7 +522,7 @@ namespace Xtate.Core
 				{
 					await TraceInterpreterState(StateMachineInterpreterState.Suspended).ConfigureAwait(false);
 
-					throw new StateMachineSuspendedException(Resources.Exception_State_Machine_has_been_suspended, ex);
+					throw new StateMachineSuspendedException(Resources.Exception_StateMachineHasBeenSuspended, ex);
 				}
 
 				return _doneData;
@@ -627,7 +627,7 @@ namespace Xtate.Core
 
 					evt.Is<Exception>(out var exception);
 
-					throw new StateMachineUnhandledErrorException(Resources.Exception_Unhandled_exception, exception, _unhandledErrorBehaviour);
+					throw new StateMachineUnhandledErrorException(Resources.Exception_UnhandledException, exception, _unhandledErrorBehaviour);
 
 				default:
 					Infrastructure.UnexpectedValue(_unhandledErrorBehaviour);
@@ -860,7 +860,7 @@ namespace Xtate.Core
 				}
 			}
 
-			if (!(state.Parent is StateMachineNode))
+			if (state.Parent is not StateMachineNode)
 			{
 				await FindTransitionForState(transitionNodes, state.Parent!, evt).ConfigureAwait(false);
 			}

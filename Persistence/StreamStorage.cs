@@ -370,6 +370,6 @@ namespace Xtate.Persistence
 			}
 		}
 
-		private static PersistenceException GetIncorrectDataFormatException(Exception? ex = default) => new(Resources.Exception_Incorrect_data_format, ex);
+		private static PersistenceException GetIncorrectDataFormatException(Exception? ex = default) => new(Resources.Exception_IncorrectDataFormat, ex);
 	}
 }

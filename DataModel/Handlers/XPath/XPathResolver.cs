@@ -45,7 +45,7 @@ namespace Xtate.DataModel.XPath
 		{
 			if (!string.IsNullOrEmpty(ns))
 			{
-				throw new XPathDataModelException(Res.Format(Resources.Exception_Unknown_XPath_variable, ns, name));
+				throw new XPathDataModelException(Res.Format(Resources.Exception_UnknownXPathVariable, ns, name));
 			}
 
 			_varDescriptors ??= new Dictionary<string, IXsltContextVariable>();
