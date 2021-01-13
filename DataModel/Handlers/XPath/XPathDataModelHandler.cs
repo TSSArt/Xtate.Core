@@ -39,7 +39,7 @@ namespace Xtate.DataModel.XPath
 
 		public override ITypeInfo TypeInfo => TypeInfo<XPathDataModelHandler>.Instance;
 
-		public override string ConvertToText(DataModelValue dataModelValue) => XmlConverter.ToXml(dataModelValue);
+		public override string ConvertToText(DataModelValue dataModelValue) => XmlConverter.ToXml(dataModelValue, indent: true);
 
 		public override void ExecutionContextCreated(IExecutionContext executionContext, out ImmutableDictionary<string, string> dataModelVars)
 		{

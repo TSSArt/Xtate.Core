@@ -104,8 +104,7 @@ namespace Xtate.Persistence
 
 		public static int GetInt32(this in Bucket bucket, Key key) => bucket.TryGet(key, out int value) ? value : throw new KeyNotFoundException(Res.Format(Resources.Exception_KeyNotFound, key));
 
-		public static bool GetBoolean(this in Bucket bucket, Key key) =>
-				bucket.TryGet(key, out bool value) ? value : throw new KeyNotFoundException(Res.Format(Resources.Exception_KeyNotFound, key));
+		public static bool GetBoolean(this in Bucket bucket, Key key) => bucket.TryGet(key, out bool value) ? value : throw new KeyNotFoundException(Res.Format(Resources.Exception_KeyNotFound, key));
 
 		public static string? GetString(this in Bucket bucket, Key key) => bucket.TryGet(key, out string? value) ? value : null;
 
