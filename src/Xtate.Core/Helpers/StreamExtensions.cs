@@ -31,9 +31,9 @@ namespace Xtate.Core
 	[PublicAPI]
 	public static class StreamExtensions
 	{
+#if NET461 || NETSTANDARD2_0
 		public static ConfiguredAwaitable ConfigureAwait(this Stream stream, bool continueOnCapturedContext) => new(stream, continueOnCapturedContext);
 
-#if NET461 || NETSTANDARD2_0
 		public static ValueTask DisposeAsync(this Stream stream)
 		{
 			if (stream is null) throw new ArgumentNullException(nameof(stream));
@@ -42,6 +42,26 @@ namespace Xtate.Core
 
 			return default;
 		}
+
+		[PublicAPI]
+		[SuppressMessage(category: "Design", checkId: "CA1034:Nested types should not be visible", Justification = "<Pending>")]
+		[SuppressMessage(category: "Performance", checkId: "CA1815:Override equals and operator equals on value types", Justification = "<Pending>")]
+		public readonly struct ConfiguredAwaitable
+		{
+			private readonly bool _continueOnCapturedContext;
+
+			private readonly Stream _stream;
+
+			public ConfiguredAwaitable(Stream stream, bool continueOnCapturedContext)
+			{
+				_stream = stream;
+				_continueOnCapturedContext = continueOnCapturedContext;
+			}
+
+			public ConfiguredValueTaskAwaitable DisposeAsync() => _stream.DisposeAsync().ConfigureAwait(_continueOnCapturedContext);
+		}
+#else
+		internal static void IgnoreIt(ConfiguredValueTaskAwaitable _) { }
 #endif
 
 		public static Stream InjectCancellationToken(this Stream stream, CancellationToken token) => new InjectedCancellationStream(stream, token);
@@ -73,22 +93,6 @@ namespace Xtate.Core
 			{
 				ArrayPool<byte>.Shared.Return(buffer);
 			}
-		}
-
-		[PublicAPI]
-		public readonly struct ConfiguredAwaitable
-		{
-			private readonly bool _continueOnCapturedContext;
-
-			private readonly Stream _stream;
-
-			public ConfiguredAwaitable(Stream stream, bool continueOnCapturedContext)
-			{
-				_stream = stream;
-				_continueOnCapturedContext = continueOnCapturedContext;
-			}
-
-			public ConfiguredValueTaskAwaitable DisposeAsync() => _stream.DisposeAsync().ConfigureAwait(_continueOnCapturedContext);
 		}
 	}
 }
