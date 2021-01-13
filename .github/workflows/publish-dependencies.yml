@@ -14,7 +14,6 @@ jobs:
       matrix:
         repo: 
           - TSSArt/Xtate
-          - TSSArt/Xtate.Serialization
           - TSSArt/Xtate.DataModel.EcmaScript
           - TSSArt/Xtate.IoProcessor.Http
           - TSSArt/Xtate.Service.HttpClient

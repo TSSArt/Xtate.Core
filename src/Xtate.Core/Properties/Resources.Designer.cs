@@ -1089,6 +1089,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cycle reference detected..
+        /// </summary>
+        internal static string Exception_CycleReferenceDetected {
+            get {
+                return ResourceManager.GetString("Exception_CycleReferenceDetected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to DataModelValue is not Boolean..
         /// </summary>
         internal static string Exception_DataModelValueIsNotBoolean {
@@ -1459,6 +1468,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Not expected token type..
+        /// </summary>
+        internal static string Exception_NotExpectedTokenType {
+            get {
+                return ResourceManager.GetString("Exception_NotExpectedTokenType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Object can not be modified..
         /// </summary>
         internal static string Exception_ObjectCanNotBeModified {
@@ -1729,6 +1747,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Undefined value not allowed..
+        /// </summary>
+        internal static string Exception_UndefinedValueNotAllowed {
+            get {
+                return ResourceManager.GetString("Exception_UndefinedValueNotAllowed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unexpected type attribute value: {0}..
         /// </summary>
         internal static string Exception_UnexpectedTypeAttributeValue {
@@ -1798,6 +1825,15 @@ namespace Xtate {
         internal static string Exception_UnknownStateEntityType {
             get {
                 return ResourceManager.GetString("Exception_UnknownStateEntityType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown type for serialization..
+        /// </summary>
+        internal static string Exception_UnknownTypeForSerialization {
+            get {
+                return ResourceManager.GetString("Exception_UnknownTypeForSerialization", resourceCulture);
             }
         }
         
