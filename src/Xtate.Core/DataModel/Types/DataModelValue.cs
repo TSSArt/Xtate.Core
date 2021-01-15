@@ -29,7 +29,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
-using Xtate.Annotations;
 using Xtate.Core;
 
 namespace Xtate

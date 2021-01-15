@@ -17,8 +17,6 @@
 
 #endregion
 
-using Xtate.Annotations;
-
 namespace Xtate.Persistence
 {
 	[PublicAPI]

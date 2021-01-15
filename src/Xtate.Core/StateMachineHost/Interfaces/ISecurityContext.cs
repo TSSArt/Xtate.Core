@@ -23,6 +23,7 @@ using Xtate.Core;
 
 namespace Xtate
 {
+	[PublicAPI]
 	public enum SecurityContextType
 	{
 		NoAccess,

@@ -19,7 +19,6 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
-using Xtate.Annotations;
 
 namespace Xtate.Builder
 {

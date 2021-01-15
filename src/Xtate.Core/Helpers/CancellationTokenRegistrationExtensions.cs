@@ -20,7 +20,6 @@
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Xtate.Annotations;
 
 namespace Xtate.Core
 {
@@ -43,7 +42,6 @@ namespace Xtate.Core
 
 #endif
 
-		[PublicAPI]
 		public struct ConfiguredAwaitable
 		{
 			private readonly CancellationTokenRegistration _cancellationTokenRegistration;

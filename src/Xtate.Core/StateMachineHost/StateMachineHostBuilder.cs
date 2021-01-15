@@ -20,7 +20,6 @@
 using System;
 using System.Collections.Immutable;
 using System.ComponentModel;
-using Xtate.Annotations;
 using Xtate.Core;
 using Xtate.CustomAction;
 using Xtate.DataModel;

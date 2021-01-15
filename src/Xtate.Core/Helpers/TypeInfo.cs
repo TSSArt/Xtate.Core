@@ -18,7 +18,6 @@
 #endregion
 
 using System.Reflection;
-using Xtate.Annotations;
 
 namespace Xtate.Core
 {
