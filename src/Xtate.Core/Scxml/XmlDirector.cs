@@ -24,7 +24,6 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
-using Xtate.Annotations;
 using Xtate.Core;
 
 namespace Xtate.Scxml

@@ -19,7 +19,6 @@
 
 using System;
 using System.Collections.Immutable;
-using Xtate.Annotations;
 
 namespace Xtate.Core
 {

@@ -23,6 +23,7 @@ using Xtate.Core;
 
 namespace Xtate
 {
+	[PublicAPI]
 	[Serializable]
 	public sealed class SessionId : LazyId, IEquatable<SessionId>
 	{

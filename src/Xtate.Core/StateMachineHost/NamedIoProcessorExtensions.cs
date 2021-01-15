@@ -18,7 +18,6 @@
 #endregion
 
 using System;
-using Xtate.Annotations;
 using Xtate.IoProcessor;
 
 namespace Xtate

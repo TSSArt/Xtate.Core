@@ -24,6 +24,7 @@ using Xtate.Core;
 
 namespace Xtate
 {
+	[PublicAPI]
 	public enum LogLevel
 	{
 		Info,
@@ -31,6 +32,7 @@ namespace Xtate
 		Error
 	}
 
+	[PublicAPI]
 	public record InvokeData
 	{
 		public InvokeData(InvokeId invokeId, Uri type)

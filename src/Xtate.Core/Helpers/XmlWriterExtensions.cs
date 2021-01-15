@@ -23,7 +23,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Xml;
-using Xtate.Annotations;
 
 namespace Xtate.Core
 {

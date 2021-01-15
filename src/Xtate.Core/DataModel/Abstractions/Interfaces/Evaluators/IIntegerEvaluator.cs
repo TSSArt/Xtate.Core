@@ -19,7 +19,6 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using Xtate.Annotations;
 
 namespace Xtate.DataModel
 {

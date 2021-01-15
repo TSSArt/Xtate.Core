@@ -17,8 +17,6 @@
 
 #endregion
 
-using System.Diagnostics.Contracts;
-
 namespace Xtate.Core
 {
 	internal interface IVisitorEntity<TEntity, in TIEntity> where TEntity : struct, IVisitorEntity<TEntity, TIEntity>, TIEntity

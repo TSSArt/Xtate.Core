@@ -21,6 +21,7 @@ using System;
 
 namespace Xtate
 {
+	[PublicAPI]
 	[Flags]
 	public enum ValueOptions
 	{

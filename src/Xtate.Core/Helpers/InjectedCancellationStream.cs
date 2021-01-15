@@ -21,11 +21,9 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Xtate.Annotations;
 
 namespace Xtate.Core
 {
-	[PublicAPI]
 	internal sealed class InjectedCancellationStream : DelegatedStream
 	{
 		private readonly CancellationToken _token;
