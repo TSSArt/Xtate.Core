@@ -20,7 +20,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using Xtate.Annotations;
 
 namespace Xtate.Core
 {

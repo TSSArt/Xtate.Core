@@ -20,11 +20,11 @@
 using System;
 using System.Buffers.Binary;
 using System.Globalization;
-using Xtate.Annotations;
 using Xtate.Core;
 
 namespace Xtate
 {
+	[PublicAPI]
 	public enum DataModelDateTimeType
 	{
 		DateTime,

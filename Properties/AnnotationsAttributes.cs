@@ -39,7 +39,7 @@ using System.Diagnostics.CodeAnalysis;
 // ReSharper disable MemberCanBeProtected.Global
 // ReSharper disable InconsistentNaming
 
-namespace Xtate.Annotations
+namespace Xtate
 {
   /// <summary>
   /// Indicates that the value of the marked element could be <c>null</c> sometimes,

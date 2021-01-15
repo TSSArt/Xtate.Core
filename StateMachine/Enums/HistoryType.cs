@@ -19,6 +19,7 @@
 
 namespace Xtate
 {
+	[PublicAPI]
 	public enum HistoryType
 	{
 		Shallow,

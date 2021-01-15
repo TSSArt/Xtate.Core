@@ -18,7 +18,6 @@
 #endregion
 
 using System.Collections.Immutable;
-using Xtate.Annotations;
 
 namespace Xtate
 {

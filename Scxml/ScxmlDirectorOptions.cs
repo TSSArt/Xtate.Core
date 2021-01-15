@@ -19,7 +19,6 @@
 
 using System;
 using System.Xml;
-using Xtate.Annotations;
 using Xtate.Core;
 
 namespace Xtate.Scxml

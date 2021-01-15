@@ -20,7 +20,6 @@
 using System;
 using System.Globalization;
 using System.Text;
-using Xtate.Annotations;
 
 namespace Xtate
 {

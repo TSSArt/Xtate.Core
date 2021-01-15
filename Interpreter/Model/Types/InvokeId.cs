@@ -24,6 +24,7 @@ using Xtate.Core;
 
 namespace Xtate
 {
+	[PublicAPI]
 	[Serializable]
 	public sealed class InvokeId : LazyId, IEquatable<InvokeId>
 	{

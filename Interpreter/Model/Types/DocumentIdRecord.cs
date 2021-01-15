@@ -18,7 +18,6 @@
 #endregion
 
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 
 namespace Xtate.Core
 {
