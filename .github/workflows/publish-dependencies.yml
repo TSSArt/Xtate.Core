@@ -16,7 +16,7 @@ jobs:
           - TSSArt/Xtate.DataModel.EcmaScript
           - TSSArt/Xtate.IoProcessor.Http.Kestrel
           - TSSArt/Xtate.Logger.Serilog
-          - TSSArt/Xtate.Web
+          - TSSArt/Xtate.Web.Tools
     
     runs-on: ubuntu-latest
   
