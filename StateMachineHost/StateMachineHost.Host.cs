@@ -44,14 +44,14 @@ namespace Xtate
 	#endregion
 
 		private async ValueTask<StateMachineController> StartStateMachine(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters, SecurityContext securityContext,
-																		  DeferredFinalizer finalizer, CancellationToken token = default)
+																		  DeferredFinalizer? finalizer, CancellationToken token = default)
 		{
 			if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
 			if (origin.Type == StateMachineOriginType.None) throw new ArgumentException(Resources.Exception_StateMachineOriginMissed, nameof(origin));
 
 			var context = GetCurrentContext();
 			var errorProcessor = CreateErrorProcessor(sessionId, origin);
-			finalizer = new DeferredFinalizer(finalizer);
+			finalizer = finalizer is not null ? new DeferredFinalizer(finalizer) : new DeferredFinalizer();
 			var controller = await context.CreateAndAddStateMachine(sessionId, origin, parameters, securityContext, finalizer, errorProcessor, token).ConfigureAwait(false);
 			context.AddStateMachineController(controller);
 

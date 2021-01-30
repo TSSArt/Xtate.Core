@@ -17,29 +17,24 @@
 
 #endregion
 
-using System.Diagnostics.CodeAnalysis;
+#if NET461 || NETSTANDARD2_0
+using System;
+using System.IO;
+using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
-using Xtate.Core;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	[PublicAPI]
-	public enum SecurityContextType
+	public static class HttpContentExtensions
 	{
-		NoAccess,
-		NewStateMachine,
-		NewTrustedStateMachine,
-		InvokedService
-	}
+		public static Task CopyToAsync(this HttpContent httpContent, Stream stream, CancellationToken token)
+		{
+			if (httpContent is null) throw new ArgumentNullException(nameof(httpContent));
 
-	public interface ISecurityContext
-	{
-		TaskFactory IoBoundTaskFactory { get; }
-
-		ISecurityContext CreateNested(SecurityContextType type, DeferredFinalizer finalizer);
-
-		ValueTask SetValue<T>(object key, object subKey, [DisallowNull] T value, ValueOptions options);
-
-		bool TryGetValue<T>(object key, object subKey, [NotNullWhen(true)] out T? value);
+			return httpContent.CopyToAsync(stream.InjectCancellationToken(token));
+		}
 	}
 }
+#endif

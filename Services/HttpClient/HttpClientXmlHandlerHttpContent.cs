@@ -17,29 +17,35 @@
 
 #endregion
 
-using System.Diagnostics.CodeAnalysis;
+using System;
+using System.IO;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using Xtate.Core;
 
-namespace Xtate
+namespace Xtate.Service
 {
-	[PublicAPI]
-	public enum SecurityContextType
+	public class HttpClientXmlHandlerHttpContent : HttpContent
 	{
-		NoAccess,
-		NewStateMachine,
-		NewTrustedStateMachine,
-		InvokedService
-	}
+		private readonly DataModelValue _value;
 
-	public interface ISecurityContext
-	{
-		TaskFactory IoBoundTaskFactory { get; }
+		public HttpClientXmlHandlerHttpContent(DataModelValue value, string contentType)
+		{
+			if (string.IsNullOrEmpty(contentType)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(contentType));
 
-		ISecurityContext CreateNested(SecurityContextType type, DeferredFinalizer finalizer);
+			_value = value;
 
-		ValueTask SetValue<T>(object key, object subKey, [DisallowNull] T value, ValueOptions options);
+			Headers.ContentType = new MediaTypeHeaderValue(contentType);
+		}
 
-		bool TryGetValue<T>(object key, object subKey, [NotNullWhen(true)] out T? value);
+		protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context) => DataModelConverter.ToXmlAsync(stream, _value);
+
+		protected override bool TryComputeLength(out long length)
+		{
+			length = 0;
+
+			return false;
+		}
 	}
 }
