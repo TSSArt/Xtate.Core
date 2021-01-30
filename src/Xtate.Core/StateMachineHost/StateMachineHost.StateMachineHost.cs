@@ -46,35 +46,46 @@ namespace Xtate
 
 			context.ValidateSessionId(sessionId, out var service);
 
-			var factoryContext = new FactoryContext(_options.ResourceLoaderFactories, securityContext);
-			var activator = await FindServiceFactoryActivator(factoryContext, data.Type, token).ConfigureAwait(false);
-			var serviceCommunication = new ServiceCommunication(service, IoProcessorId, data.InvokeId);
-			var invokedService = await activator.StartService(factoryContext, service.StateMachineLocation, data, serviceCommunication, token).ConfigureAwait(false);
-
-			await context.AddService(sessionId, data.InvokeId, invokedService, token).ConfigureAwait(false);
-
-			CompleteAsync(context, invokedService, service, sessionId, data.InvokeId).Forget();
-
-			static async ValueTask CompleteAsync(StateMachineHostContext context, IService invokedService, StateMachineController service, SessionId sessionId, InvokeId invokeId)
+			var finalizer = new DeferredFinalizer();
+			await using (finalizer.ConfigureAwait(false))
 			{
-				try
-				{
-					var result = await invokedService.GetResult(default).ConfigureAwait(false);
+				securityContext = securityContext.CreateNested(SecurityContextType.InvokedService, finalizer);
+				var factoryContext = new FactoryContext(_options.ResourceLoaderFactories, securityContext);
+				var activator = await FindServiceFactoryActivator(factoryContext, data.Type, token).ConfigureAwait(false);
+				var serviceCommunication = new ServiceCommunication(service, IoProcessorId, data.InvokeId);
+				var invokedService = await activator.StartService(factoryContext, service.StateMachineLocation, data, serviceCommunication, token).ConfigureAwait(false);
 
-					var nameParts = EventName.GetDoneInvokeNameParts(invokeId);
-					var evt = new EventObject(EventType.External, nameParts, result, sendId: null, invokeId);
-					await service.Send(evt, token: default).ConfigureAwait(false);
-				}
-				catch (Exception ex)
+				await context.AddService(sessionId, data.InvokeId, invokedService, token).ConfigureAwait(false);
+
+				CompleteAsync(context, invokedService, service, sessionId, data.InvokeId, finalizer).Forget();
+			}
+
+			static async ValueTask CompleteAsync(StateMachineHostContext context, IService invokedService, StateMachineController service, 
+												 SessionId sessionId, InvokeId invokeId, DeferredFinalizer finalizer)
+			{
+				await using (finalizer.ConfigureAwait(false))
 				{
-					var evt = new EventObject(EventType.External, EventName.ErrorExecution, DataConverter.FromException(ex, caseInsensitive: false), sendId: null, invokeId);
-					await service.Send(evt, token: default).ConfigureAwait(false);
-				}
-				finally
-				{
-					if (await context.TryCompleteService(sessionId, invokeId).ConfigureAwait(false) is { } invokedService2)
+					finalizer.DefferFinalization();
+
+					try
 					{
-						await DisposeInvokedService(invokedService2).ConfigureAwait(false);
+						var result = await invokedService.GetResult(default).ConfigureAwait(false);
+
+						var nameParts = EventName.GetDoneInvokeNameParts(invokeId);
+						var evt = new EventObject(EventType.External, nameParts, result, sendId: null, invokeId);
+						await service.Send(evt, token: default).ConfigureAwait(false);
+					}
+					catch (Exception ex)
+					{
+						var evt = new EventObject(EventType.External, EventName.ErrorExecution, DataConverter.FromException(ex, caseInsensitive: false), sendId: null, invokeId);
+						await service.Send(evt, token: default).ConfigureAwait(false);
+					}
+					finally
+					{
+						if (await context.TryCompleteService(sessionId, invokeId).ConfigureAwait(false) is { } invokedService2)
+						{
+							await DisposeInvokedService(invokedService2).ConfigureAwait(false);
+						}
 					}
 				}
 			}

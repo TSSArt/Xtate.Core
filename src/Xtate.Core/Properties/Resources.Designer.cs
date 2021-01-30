@@ -1053,6 +1053,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t match network interface to listen..
+        /// </summary>
+        internal static string Exception_CantMatchNetworkInterfaceToListen {
+            get {
+                return ResourceManager.GetString("Exception_CantMatchNetworkInterfaceToListen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Can&apos;t restore element..
         /// </summary>
         internal static string Exception_CantRestoreElement {
@@ -1094,6 +1103,15 @@ namespace Xtate {
         internal static string Exception_CycleReferenceDetected {
             get {
                 return ResourceManager.GetString("Exception_CycleReferenceDetected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Data format not supported..
+        /// </summary>
+        internal static string Exception_DataFormatNotSupported {
+            get {
+                return ResourceManager.GetString("Exception_DataFormatNotSupported", resourceCulture);
             }
         }
         
@@ -1230,6 +1248,15 @@ namespace Xtate {
         internal static string Exception_ForwardEntityHasIncorrectType {
             get {
                 return ResourceManager.GetString("Exception_ForwardEntityHasIncorrectType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Found more then one interface to listen..
+        /// </summary>
+        internal static string Exception_FoundMoreThenOneInterfaceToListen {
+            get {
+                return ResourceManager.GetString("Exception_FoundMoreThenOneInterfaceToListen", resourceCulture);
             }
         }
         
@@ -1707,6 +1734,15 @@ namespace Xtate {
         internal static string Exception_StreamShouldSupportReadWriteSeekOperations {
             get {
                 return ResourceManager.GetString("Exception_StreamShouldSupportReadWriteSeekOperations", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Target is not defined.
+        /// </summary>
+        internal static string Exception_TargetIsNotDefined {
+            get {
+                return ResourceManager.GetString("Exception_TargetIsNotDefined", resourceCulture);
             }
         }
         

@@ -17,29 +17,21 @@
 
 #endregion
 
-using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
-using Xtate.Core;
+using System;
+using Xtate.Service;
 
 namespace Xtate
 {
 	[PublicAPI]
-	public enum SecurityContextType
+	public static class SmtpClientExtensions
 	{
-		NoAccess,
-		NewStateMachine,
-		NewTrustedStateMachine,
-		InvokedService
-	}
+		public static StateMachineHostBuilder AddSmtpClient(this StateMachineHostBuilder builder)
+		{
+			if (builder is null) throw new ArgumentNullException(nameof(builder));
 
-	public interface ISecurityContext
-	{
-		TaskFactory IoBoundTaskFactory { get; }
+			builder.AddServiceFactory(SmtpClientServiceFactory.Instance);
 
-		ISecurityContext CreateNested(SecurityContextType type, DeferredFinalizer finalizer);
-
-		ValueTask SetValue<T>(object key, object subKey, [DisallowNull] T value, ValueOptions options);
-
-		bool TryGetValue<T>(object key, object subKey, [NotNullWhen(true)] out T? value);
+			return builder;
+		}
 	}
 }

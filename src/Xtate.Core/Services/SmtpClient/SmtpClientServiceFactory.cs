@@ -17,29 +17,20 @@
 
 #endregion
 
-using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
-using Xtate.Core;
+using System;
 
-namespace Xtate
+namespace Xtate.Service
 {
-	[PublicAPI]
-	public enum SecurityContextType
+	public class SmtpClientServiceFactory : ServiceFactoryBase
 	{
-		NoAccess,
-		NewStateMachine,
-		NewTrustedStateMachine,
-		InvokedService
-	}
+		public static IServiceFactory Instance { get; } = new SmtpClientServiceFactory();
 
-	public interface ISecurityContext
-	{
-		TaskFactory IoBoundTaskFactory { get; }
+		protected override void Register(IServiceCatalog catalog)
+		{
+			if (catalog is null) throw new ArgumentNullException(nameof(catalog));
 
-		ISecurityContext CreateNested(SecurityContextType type, DeferredFinalizer finalizer);
-
-		ValueTask SetValue<T>(object key, object subKey, [DisallowNull] T value, ValueOptions options);
-
-		bool TryGetValue<T>(object key, object subKey, [NotNullWhen(true)] out T? value);
+			catalog.Register(type: @"http://xtate.net/scxml/service/#SMTPClient", () => new SmtpClientService());
+			catalog.Register(type: @"smtp", () => new SmtpClientService());
+		}
 	}
 }

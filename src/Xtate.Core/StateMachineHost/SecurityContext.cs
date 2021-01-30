@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Xtate.Core
@@ -89,7 +90,7 @@ namespace Xtate.Core
 
 					break;
 
-				case SecurityContextType.InvokedStateMachine:
+				case SecurityContextType.InvokedService:
 					securityContext = new SecurityContext(type, Permissions, this);
 
 					break;
@@ -155,9 +156,15 @@ namespace Xtate.Core
 				root = parent;
 			}
 
-			root._globalCache ??= new GlobalCache<(object Key, object SubKey), object>();
+			var globalCache = root._globalCache;
 
-			return _localCache = root._globalCache.CreateLocalCache();
+			if (globalCache is null)
+			{
+				var newGlobalCache = new GlobalCache<(object Key, object SubKey), object>();
+				globalCache = Interlocked.CompareExchange(ref root._globalCache, newGlobalCache, comparand: null) ?? newGlobalCache;
+			}
+
+			return _localCache = globalCache.CreateLocalCache();
 		}
 
 		private async ValueTask DisposeAsync()

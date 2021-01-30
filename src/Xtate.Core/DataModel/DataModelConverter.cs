@@ -104,7 +104,23 @@ namespace Xtate
 				}
 			}
 
-			return !list.HasKeys;
+			return list.Count > 0 && !list.HasKeys;
+		}
+
+		public static bool IsObject(DataModelList list)
+		{
+			if (list is null) throw new ArgumentNullException(nameof(list));
+
+			if (list.GetMetadata() is { } metadata && metadata[TypeMetaKey, caseInsensitive: false] is { } val)
+			{
+				switch (val.AsStringOrDefault())
+				{
+					case ObjectMetaValue: return true;
+					case ArrayMetaValue: return false;
+				}
+			}
+
+			return list.Count > 0 && list.HasKeys;
 		}
 
 		public static DataModelList CreateAsObject()

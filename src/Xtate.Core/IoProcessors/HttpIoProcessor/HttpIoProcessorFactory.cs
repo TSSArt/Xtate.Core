@@ -17,29 +17,36 @@
 
 #endregion
 
-using System.Diagnostics.CodeAnalysis;
+using System;
+using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using Xtate.Core;
 
-namespace Xtate
+namespace Xtate.IoProcessor
 {
-	[PublicAPI]
-	public enum SecurityContextType
+	public sealed class HttpIoProcessorFactory : IIoProcessorFactory
 	{
-		NoAccess,
-		NewStateMachine,
-		NewTrustedStateMachine,
-		InvokedService
-	}
+		private readonly Uri        _baseUri;
+		private readonly IPEndPoint _ipEndPoint;
 
-	public interface ISecurityContext
-	{
-		TaskFactory IoBoundTaskFactory { get; }
+		public HttpIoProcessorFactory(Uri baseUri, IPEndPoint ipEndPoint)
+		{
+			_baseUri = baseUri;
+			_ipEndPoint = ipEndPoint;
+		}
 
-		ISecurityContext CreateNested(SecurityContextType type, DeferredFinalizer finalizer);
+	#region Interface IIoProcessorFactory
 
-		ValueTask SetValue<T>(object key, object subKey, [DisallowNull] T value, ValueOptions options);
+		public async ValueTask<IIoProcessor> Create(IEventConsumer eventConsumer, CancellationToken token)
+		{
+			var httpIoProcessor = new HttpIoProcessor(eventConsumer, _baseUri, _ipEndPoint);
 
-		bool TryGetValue<T>(object key, object subKey, [NotNullWhen(true)] out T? value);
+			await httpIoProcessor.Start(token).ConfigureAwait(false);
+
+			return httpIoProcessor;
+		}
+
+	#endregion
 	}
 }

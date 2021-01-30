@@ -785,4 +785,16 @@
   <data name="Exception_CycleReferenceDetected" xml:space="preserve">
     <value>Cycle reference detected.</value>
   </data>
+  <data name="Exception_DataFormatNotSupported" xml:space="preserve">
+    <value>Data format not supported.</value>
+  </data>
+  <data name="Exception_TargetIsNotDefined" xml:space="preserve">
+    <value>Target is not defined</value>
+  </data>
+  <data name="Exception_FoundMoreThenOneInterfaceToListen" xml:space="preserve">
+    <value>Found more then one interface to listen.</value>
+  </data>
+  <data name="Exception_CantMatchNetworkInterfaceToListen" xml:space="preserve">
+    <value>Can't match network interface to listen.</value>
+  </data>
 </root>

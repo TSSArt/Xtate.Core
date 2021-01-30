@@ -13,12 +13,10 @@ jobs:
     strategy:
       matrix:
         repo: 
-          - TSSArt/Xtate
           - TSSArt/Xtate.DataModel.EcmaScript
-          - TSSArt/Xtate.IoProcessor.Http
-          - TSSArt/Xtate.Service.HttpClient
-          - TSSArt/Xtate.Service.SmtpClient
+          - TSSArt/Xtate.IoProcessor.Http.Kestrel
           - TSSArt/Xtate.Logger.Serilog
+          - TSSArt/Xtate.Web
     
     runs-on: ubuntu-latest
   

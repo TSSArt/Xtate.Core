@@ -17,29 +17,22 @@
 
 #endregion
 
-using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
-using Xtate.Core;
+#if NET461 || NETSTANDARD2_0
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 
-namespace Xtate
+namespace Xtate.Core
 {
 	[PublicAPI]
-	public enum SecurityContextType
+	public static class ConcurrentDictionaryExtensions
 	{
-		NoAccess,
-		NewStateMachine,
-		NewTrustedStateMachine,
-		InvokedService
-	}
+		public static bool TryRemove<TKey, TValue>(this ConcurrentDictionary<TKey, TValue> concurrentDictionary, KeyValuePair<TKey, TValue> pair)
+		{
+			if (concurrentDictionary is null) throw new ArgumentNullException(nameof(concurrentDictionary));
 
-	public interface ISecurityContext
-	{
-		TaskFactory IoBoundTaskFactory { get; }
-
-		ISecurityContext CreateNested(SecurityContextType type, DeferredFinalizer finalizer);
-
-		ValueTask SetValue<T>(object key, object subKey, [DisallowNull] T value, ValueOptions options);
-
-		bool TryGetValue<T>(object key, object subKey, [NotNullWhen(true)] out T? value);
+			return ((ICollection<KeyValuePair<TKey, TValue>>) concurrentDictionary).Remove(pair);
+		}
 	}
 }
+#endif
