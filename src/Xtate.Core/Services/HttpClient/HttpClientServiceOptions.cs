@@ -17,29 +17,21 @@
 
 #endregion
 
-using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
-using Xtate.Core;
+using System.Collections.Generic;
 
-namespace Xtate
+namespace Xtate.Service
 {
-	[PublicAPI]
-	public enum SecurityContextType
+	public class HttpClientServiceOptions
 	{
-		NoAccess,
-		NewStateMachine,
-		NewTrustedStateMachine,
-		InvokedService
-	}
+		private HttpClientServiceOptions() { }
 
-	public interface ISecurityContext
-	{
-		TaskFactory IoBoundTaskFactory { get; }
+		public List<HttpClientMimeTypeHandler> MimeTypeHandlers { get; } = new()
+																		   {
+																				   HttpClientFormUrlEncodedHandler.Instance,
+																				   HttpClientJsonHandler.Instance,
+																				   HttpClientXmlHandler.Instance
+																		   };
 
-		ISecurityContext CreateNested(SecurityContextType type, DeferredFinalizer finalizer);
-
-		ValueTask SetValue<T>(object key, object subKey, [DisallowNull] T value, ValueOptions options);
-
-		bool TryGetValue<T>(object key, object subKey, [NotNullWhen(true)] out T? value);
+		public static HttpClientServiceOptions CreateDefault() => new();
 	}
 }

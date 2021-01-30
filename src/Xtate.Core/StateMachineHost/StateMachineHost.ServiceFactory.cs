@@ -52,12 +52,7 @@ namespace Xtate
 
 			var origin = scxml is not null ? new StateMachineOrigin(scxml, baseUri) : new StateMachineOrigin(source!, baseUri);
 
-			var finalizer = new DeferredFinalizer();
-			var securityContext = factoryContext.SecurityContext.CreateNested(SecurityContextType.InvokedStateMachine, finalizer);
-			await using (finalizer.ConfigureAwait(false))
-			{
-				return await StartStateMachine(sessionId, origin, parameters, (SecurityContext) securityContext, finalizer, token).ConfigureAwait(false);
-			}
+			return await StartStateMachine(sessionId, origin, parameters, (SecurityContext) factoryContext.SecurityContext, finalizer: default, token).ConfigureAwait(false);
 		}
 
 	#endregion

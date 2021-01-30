@@ -364,17 +364,23 @@ namespace Xtate.XInclude
 
 		private static bool IsXml(IXIncludeResource resource)
 		{
-			switch (resource.ContentType?.MediaType)
+			var mediaType = resource.ContentType?.MediaType;
+
+			if (mediaType is null)
 			{
-				case "text/xml":
-				case "application/xml":
-				case { } mt when (mt.StartsWith(value: @"text/", StringComparison.Ordinal)
-								  || mt.StartsWith(value: @"application/", StringComparison.Ordinal))
-								 && mt.EndsWith(value: @"+xml", StringComparison.Ordinal):
-					return true;
+				return false;
 			}
 
-			return false;
+			const StringComparison ct = StringComparison.OrdinalIgnoreCase;
+			const string textXml = "text/xml";
+			const string applicationXml = "application/xml";
+			const string text = "text/";
+			const string application = "application/";
+			const string xml = "+xml";
+
+			return string.Equals(mediaType, applicationXml, ct)
+				   || string.Equals(mediaType, textXml, ct)
+				   || (mediaType.StartsWith(text, ct) || mediaType.StartsWith(application, ct)) && mediaType.EndsWith(xml, ct);
 		}
 
 		private Encoding GetEncoding(IXIncludeResource resource)

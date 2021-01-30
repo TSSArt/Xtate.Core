@@ -17,29 +17,31 @@
 
 #endregion
 
-using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
-using Xtate.Core;
+using System;
+using System.Net;
+using Xtate.IoProcessor;
 
 namespace Xtate
 {
 	[PublicAPI]
-	public enum SecurityContextType
+	public static class HttpIoProcessorExtensions
 	{
-		NoAccess,
-		NewStateMachine,
-		NewTrustedStateMachine,
-		InvokedService
-	}
+		public static StateMachineHostBuilder AddHttpIoProcessor(this StateMachineHostBuilder builder, Uri baseUri)
+		{
+			if (builder is null) throw new ArgumentNullException(nameof(builder));
 
-	public interface ISecurityContext
-	{
-		TaskFactory IoBoundTaskFactory { get; }
+			builder.AddIoProcessorFactory(new HttpIoProcessorFactory(baseUri, new IPEndPoint(IPAddress.None, port: 0)));
 
-		ISecurityContext CreateNested(SecurityContextType type, DeferredFinalizer finalizer);
+			return builder;
+		}
 
-		ValueTask SetValue<T>(object key, object subKey, [DisallowNull] T value, ValueOptions options);
+		public static StateMachineHostBuilder AddHttpIoProcessor(this StateMachineHostBuilder builder, Uri baseUri, IPEndPoint ipEndPoint)
+		{
+			if (builder is null) throw new ArgumentNullException(nameof(builder));
 
-		bool TryGetValue<T>(object key, object subKey, [NotNullWhen(true)] out T? value);
+			builder.AddIoProcessorFactory(new HttpIoProcessorFactory(baseUri, ipEndPoint));
+
+			return builder;
+		}
 	}
 }
