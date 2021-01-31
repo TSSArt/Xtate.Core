@@ -100,6 +100,8 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage(category:"Microsoft.Naming", checkId:"CA1724:TypeNamesShouldNotMatchNamespaces", Justification = "<Pending>", Scope = "type", Target = "~T:Xtate.Scxml.XmlDirector`1.Policy`1")]
 [assembly: SuppressMessage(category:"Naming", checkId:"CA1710:Identifiers should have correct suffix", Justification = "<Pending>", Scope = "type", Target = "~T:Xtate.Core.DeferredFinalizer")]
 [assembly: SuppressMessage(category:"Naming", checkId:"CA1710:Identifiers should have correct suffix", Justification = "<Pending>", Scope = "type", Target = "~T:Xtate.DataModelList")]
+[assembly: SuppressMessage(category:"Naming", checkId:"CA1716:Identifiers should not match keywords", Justification = "<Pending>", Scope = "member", Target = "~M:Xtate.Persistence.IStorage.Get(System.ReadOnlySpan{System.Byte})~System.ReadOnlyMemory{System.Byte}")]
+[assembly: SuppressMessage(category:"Naming", checkId:"CA1716:Identifiers should not match keywords", Justification = "<Pending>", Scope = "member", Target = "~M:Xtate.Persistence.IStorage.Set(System.ReadOnlySpan{System.Byte},System.ReadOnlySpan{System.Byte})")]
 [assembly: SuppressMessage(category:"Naming", checkId:"CA1720:Identifier contains type name", Justification = "<Pending>", Scope = "type", Target = "~T:Xtate.CustomAction.ExpectedValueType")]
 [assembly: SuppressMessage(category:"Naming", checkId:"CA1720:Identifier contains type name", Justification = "<Pending>", Scope = "type", Target = "~T:Xtate.DataModelValueType")]
 [assembly: SuppressMessage(category:"Performance", checkId:"CA1815:Override equals and operator equals on value types", Justification = "<Pending>", Scope = "type", Target = "~T:Xtate.Core.AssignEntity")]

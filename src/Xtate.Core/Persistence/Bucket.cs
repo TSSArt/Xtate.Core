@@ -138,7 +138,7 @@ namespace Xtate.Persistence
 			}
 
 			Span<byte> buf = stackalloc byte[GetFullKeySize(key)];
-			_node.Storage.Write(CreateFullKey(buf, key), value);
+			_node.Storage.Set(CreateFullKey(buf, key), value);
 		}
 
 		public void Add<TKey, TValue>(TKey key, TValue value) where TKey : notnull
@@ -153,25 +153,25 @@ namespace Xtate.Persistence
 
 			Span<byte> bufVal = stackalloc byte[ValueHelper<TValue>.Converter.GetLength(value)];
 			ValueHelper<TValue>.Converter.Write(value, bufVal);
-			_node.Storage.Write(CreateFullKey(buf, key), bufVal);
+			_node.Storage.Set(CreateFullKey(buf, key), bufVal);
 		}
 
 		public void Remove<TKey>(TKey key) where TKey : notnull
 		{
 			Span<byte> buf = stackalloc byte[GetFullKeySize(key)];
-			_node.Storage.Write(CreateFullKey(buf, key), ReadOnlySpan<byte>.Empty);
+			_node.Storage.Remove(CreateFullKey(buf, key));
 		}
 
 		public void RemoveSubtree<TKey>(TKey key) where TKey : notnull
 		{
 			Span<byte> buf = stackalloc byte[GetFullKeySize(key)];
-			_node.Storage.Write(ReadOnlySpan<byte>.Empty, CreateFullKey(buf, key));
+			_node.Storage.RemoveAll(CreateFullKey(buf, key));
 		}
 
 		public bool TryGet<TKey>(TKey key, out ReadOnlyMemory<byte> value) where TKey : notnull
 		{
 			Span<byte> buf = stackalloc byte[GetFullKeySize(key)];
-			value = _node.Storage.Read(CreateFullKey(buf, key));
+			value = _node.Storage.Get(CreateFullKey(buf, key));
 			return !value.IsEmpty;
 		}
 
@@ -179,7 +179,7 @@ namespace Xtate.Persistence
 										 out TValue value) where TKey : notnull
 		{
 			Span<byte> buf = stackalloc byte[GetFullKeySize(key)];
-			var memory = _node.Storage.Read(CreateFullKey(buf, key));
+			var memory = _node.Storage.Get(CreateFullKey(buf, key));
 
 			if (memory.Length == 0)
 			{
