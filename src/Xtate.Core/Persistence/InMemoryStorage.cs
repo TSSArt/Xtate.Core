@@ -21,6 +21,7 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
+using Xtate.Core;
 
 namespace Xtate.Persistence
 {
@@ -89,7 +90,39 @@ namespace Xtate.Persistence
 
 	#region Interface IStorage
 
-		public void Write(ReadOnlySpan<byte> key, ReadOnlySpan<byte> value)
+		public void Set(ReadOnlySpan<byte> key, ReadOnlySpan<byte> value)
+		{
+			if (key.IsEmpty) throw new ArgumentException(Resources.Exception_KeyShouldNotBeEmpty, nameof(key));
+
+			Write(key, value);
+		}
+
+		public void Remove(ReadOnlySpan<byte> key)
+		{
+			if (key.IsEmpty) throw new ArgumentException(Resources.Exception_KeyShouldNotBeEmpty, nameof(key));
+
+			Write(key, ReadOnlySpan<byte>.Empty);
+		}
+
+		public void RemoveAll(ReadOnlySpan<byte> prefix) => Write(ReadOnlySpan<byte>.Empty, prefix);
+
+		public ReadOnlyMemory<byte> Get(ReadOnlySpan<byte> key)
+		{
+			if (_readModel is null)
+			{
+				throw new InvalidOperationException(Resources.Exception_StorageNotAvailableForReadOperations);
+			}
+
+			var buffer = AllocateBuffer(key.Length, shared: true);
+			key.CopyTo(buffer.Span);
+
+			XtateCore.Use();
+			return _readModel.TryGetValue(new Entry(buffer), out var result) ? result.Value : ReadOnlyMemory<byte>.Empty;
+		}
+
+	#endregion
+
+		private void Write(in ReadOnlySpan<byte> key, in ReadOnlySpan<byte> value)
 		{
 			var keyLengthLength = Encode.GetEncodedLength(key.Length);
 			var valueLengthLength = Encode.GetEncodedLength(value.Length);
@@ -109,42 +142,9 @@ namespace Xtate.Persistence
 			AddToReadModel(keyMemory, valueMemory);
 		}
 
-		public ReadOnlyMemory<byte> Read(ReadOnlySpan<byte> key)
-		{
-			if (_readModel is null)
-			{
-				throw new InvalidOperationException(Resources.Exception_StorageNotAvailableForReadOperations);
-			}
-
-			var buffer = AllocateBuffer(key.Length, shared: true);
-			key.CopyTo(buffer.Span);
-
-			return ReadModelTryGetValue(_readModel, new Entry(buffer), out var result) ? result.Value : ReadOnlyMemory<byte>.Empty;
-		}
-
-	#endregion
-
-		private static bool ReadModelTryGetValue(SortedSet<Entry> readModel, Entry equalEntry, out Entry actualEntry)
-		{
-#if NET461 || NETSTANDARD2_0
-			foreach (var entry in readModel.GetViewBetween(equalEntry, equalEntry))
-			{
-				actualEntry = entry;
-
-				return true;
-			}
-
-			actualEntry = default;
-
-			return false;
-#else
-			return readModel.TryGetValue(equalEntry, out actualEntry);
-#endif
-		}
-
 		private static SortedSet<Entry> CreateReadModel() => new();
 
-		private void AddToReadModel(Memory<byte> key, Memory<byte> value)
+		private void AddToReadModel(in Memory<byte> key, in Memory<byte> value)
 		{
 			if (_readModel is null)
 			{
@@ -159,17 +159,20 @@ namespace Xtate.Persistence
 				}
 				else
 				{
-					var from = new Entry(value);
-					var to = new Entry(GetTo(value));
+					var toDelete = new List<ReadOnlyMemory<byte>>();
+					foreach (var entry in _readModel.GetViewBetween(new Entry(value), upperValue: default))
+					{
+						if (entry.Key.Length < value.Length || !value.Span.SequenceEqual(entry.Key[..value.Length].Span))
+						{
+							break;
+						}
 
-					if (ReadModelTryGetValue(_readModel, to, out var toValue))
-					{
-						_readModel.GetViewBetween(from, to).Clear();
-						_readModel.Add(toValue);
+						toDelete.Add(entry.Key);
 					}
-					else
+
+					foreach (var keyToDelete in toDelete)
 					{
-						_readModel.GetViewBetween(from, to).Clear();
+						_readModel.Remove(new Entry(keyToDelete));
 					}
 				}
 			}
@@ -182,27 +185,6 @@ namespace Xtate.Persistence
 				_readModel.Remove(new Entry(key));
 				_readModel.Add(new Entry(key, value));
 			}
-		}
-
-		private Memory<byte> GetTo(Memory<byte> from)
-		{
-			var to = AllocateBuffer(from.Length, shared: true);
-			from.CopyTo(to);
-			var span = to.Span;
-
-			for (var i = span.Length - 1; i >= 0; i --)
-			{
-				if (span[i] == 0xFF)
-				{
-					continue;
-				}
-
-				span[i] ++;
-
-				return to[..(i + 1)];
-			}
-
-			return Memory<byte>.Empty;
 		}
 
 		private Memory<byte> AllocateBuffer(int size, bool shared = false)

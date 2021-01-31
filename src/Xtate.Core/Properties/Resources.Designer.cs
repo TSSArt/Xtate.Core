@@ -1396,6 +1396,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Key should not be empty.
+        /// </summary>
+        internal static string Exception_KeyShouldNotBeEmpty {
+            get {
+                return ResourceManager.GetString("Exception_KeyShouldNotBeEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to List of events cannot be empty..
         /// </summary>
         internal static string Exception_ListOfEventsCannotBeEmpty {

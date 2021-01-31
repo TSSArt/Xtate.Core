@@ -797,4 +797,7 @@
   <data name="Exception_CantMatchNetworkInterfaceToListen" xml:space="preserve">
     <value>Can't match network interface to listen.</value>
   </data>
+  <data name="Exception_KeyShouldNotBeEmpty" xml:space="preserve">
+    <value>Key should not be empty</value>
+  </data>
 </root>

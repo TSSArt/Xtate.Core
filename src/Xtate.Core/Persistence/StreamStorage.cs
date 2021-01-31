@@ -22,6 +22,7 @@ using System.Buffers;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Xtate.Core;
 
 namespace Xtate.Persistence
 {
@@ -32,13 +33,13 @@ namespace Xtate.Persistence
 		private const byte FinalMark       = 4;
 		private const int  FinalMarkLength = 1;
 
-		private static readonly int MaxInt32Length = Encode.GetEncodedLength(int.MaxValue);
+		private static readonly int  MaxInt32Length = Encode.GetEncodedLength(int.MaxValue);
+		private readonly        bool _disposeStream;
 
 		private readonly Stream           _stream;
-		private readonly bool             _disposeStream;
 		private          bool             _canShrink = true;
-		private          InMemoryStorage? _inMemoryStorage;
 		private          bool             _disposed;
+		private          InMemoryStorage? _inMemoryStorage;
 
 		private StreamStorage(Stream stream, bool disposeStream)
 		{
@@ -51,19 +52,82 @@ namespace Xtate.Persistence
 			}
 		}
 
-		public ReadOnlyMemory<byte> Read(ReadOnlySpan<byte> key)
+	#region Interface IAsyncDisposable
+
+		public async ValueTask DisposeAsync()
+		{
+			if (_disposed)
+			{
+				return;
+			}
+
+			if (_disposeStream)
+			{
+				XtateCore.Use();
+				await _stream.DisposeAsync().ConfigureAwait(false);
+			}
+
+			_inMemoryStorage?.Dispose();
+
+			_disposed = true;
+		}
+
+	#endregion
+
+	#region Interface IDisposable
+
+		public void Dispose()
+		{
+			if (_disposed)
+			{
+				return;
+			}
+
+			if (_disposeStream)
+			{
+				_stream.Dispose();
+			}
+
+			_inMemoryStorage?.Dispose();
+
+			_disposed = true;
+		}
+
+	#endregion
+
+	#region Interface IStorage
+
+		public ReadOnlyMemory<byte> Get(ReadOnlySpan<byte> key)
 		{
 			Infrastructure.NotNull(_inMemoryStorage);
 
-			return _inMemoryStorage.Read(key);
+			return _inMemoryStorage.Get(key);
 		}
 
-		public void Write(ReadOnlySpan<byte> key, ReadOnlySpan<byte> value)
+		public void Set(ReadOnlySpan<byte> key, ReadOnlySpan<byte> value)
 		{
 			Infrastructure.NotNull(_inMemoryStorage);
 
-			_inMemoryStorage.Write(key, value);
+			_inMemoryStorage.Set(key, value);
 		}
+
+		public void Remove(ReadOnlySpan<byte> key)
+		{
+			Infrastructure.NotNull(_inMemoryStorage);
+
+			_inMemoryStorage.Remove(key);
+		}
+
+		public void RemoveAll(ReadOnlySpan<byte> prefix)
+		{
+			Infrastructure.NotNull(_inMemoryStorage);
+
+			_inMemoryStorage.RemoveAll(prefix);
+		}
+
+	#endregion
+
+	#region Interface ITransactionalStorage
 
 		public async ValueTask CheckPoint(int level, CancellationToken token)
 		{
@@ -111,55 +175,7 @@ namespace Xtate.Persistence
 			}
 		}
 
-		public void Dispose()
-		{
-			if (_disposed)
-			{
-				return;
-			}
-
-			if (_disposeStream)
-			{
-				_stream.Dispose();
-			}
-
-			_inMemoryStorage?.Dispose();
-
-			_disposed = true;
-		}
-
-#if NET461 || NETSTANDARD2_0
-		public ValueTask DisposeAsync()
-		{
-			try
-			{
-				Dispose();
-
-				return default;
-			}
-			catch (Exception ex)
-			{
-				return new ValueTask(Task.FromException(ex));
-			}
-		}
-#else
-		public async ValueTask DisposeAsync()
-		{
-			if (_disposed)
-			{
-				return;
-			}
-
-			if (_disposeStream)
-			{
-				await _stream.DisposeAsync().ConfigureAwait(false);
-			}
-
-			_inMemoryStorage?.Dispose();
-
-			_disposed = true;
-		}
-#endif
+	#endregion
 
 		public static async ValueTask<StreamStorage> CreateAsync(Stream stream, bool disposeStream = true, CancellationToken token = default)
 		{
