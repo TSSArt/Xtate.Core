@@ -55,9 +55,13 @@ namespace Xtate.Persistence
 
 		#region Interface IStorage
 
-			public void Write(ReadOnlySpan<byte> key, ReadOnlySpan<byte> value) { }
+			public void Set(ReadOnlySpan<byte> key, ReadOnlySpan<byte> value) { }
 
-			public ReadOnlyMemory<byte> Read(ReadOnlySpan<byte> key) => ReadOnlyMemory<byte>.Empty;
+			public void Remove(ReadOnlySpan<byte> key) { }
+
+			public void RemoveAll(ReadOnlySpan<byte> prefix) { }
+
+			public ReadOnlyMemory<byte> Get(ReadOnlySpan<byte> key) => ReadOnlyMemory<byte>.Empty;
 
 		#endregion
 

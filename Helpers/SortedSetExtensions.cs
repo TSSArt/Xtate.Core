@@ -17,18 +17,34 @@
 
 #endregion
 
+#if NET461 || NETSTANDARD2_0
 using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
-namespace Xtate.Persistence
+namespace Xtate.Core
 {
-	public interface IStorage : IDisposable
+	[PublicAPI]
+	public static class SortedSetExtensions
 	{
-		ReadOnlyMemory<byte> Get(ReadOnlySpan<byte> key);
+		public static bool TryGetValue<T>(this SortedSet<T> sortedSet, T equalValue, [MaybeNullWhen(false)] out T actualValue)
+		{
+			if (sortedSet is null) throw new ArgumentNullException(nameof(sortedSet));
 
-		void Set(ReadOnlySpan<byte> key, ReadOnlySpan<byte> value);
+			if (sortedSet.Contains(equalValue))
+			{
+				using var enumerator = sortedSet.GetViewBetween(equalValue, equalValue).GetEnumerator();
 
-		void Remove(ReadOnlySpan<byte> key);
+				enumerator.MoveNext();
+				actualValue = enumerator.Current;
 
-		void RemoveAll(ReadOnlySpan<byte> prefix);
+				return true;
+			}
+
+			actualValue = default;
+
+			return false;
+		}
 	}
 }
+#endif
