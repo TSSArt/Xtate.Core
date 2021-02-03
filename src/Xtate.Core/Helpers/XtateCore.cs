@@ -21,7 +21,7 @@ using System.Diagnostics;
 
 namespace Xtate.Core
 {
-	internal static class XtateCore
+	public static class XtateCore
 	{
 		/// <summary>
 		///     Used for code static analysis tool (e.g. ReSharper) to prevent removing 'using Xtate.Core;' statement from header
