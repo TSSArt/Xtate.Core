@@ -134,7 +134,7 @@ namespace Xtate
 			{
 				if (args.Meta.Access != DataModelAccess.Writable || args.Meta.Metadata is not null)
 				{
-					return args.HashKey.Key is not null ? (Array) ValueToKeyMetaValue(ref args, size) : ValueToMetaValue(ref args, size);
+					return args.HashKey.Key is not null ? ValueToKeyMetaValue(ref args, size) : ValueToMetaValue(ref args, size);
 				}
 
 				if (args.HashKey.Key is not null)
