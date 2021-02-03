@@ -87,7 +87,7 @@ namespace Xtate.Persistence
 								  Initial = RestoreInitial(bucket.Nested(Key.Initial)),
 								  States = bucket.RestoreList(Key.States, RestoreStateEntity)
 						  }
-						: (IStateMachine?) null;
+						: null;
 
 		private static IDataModel? RestoreDataModel(Bucket bucket) =>
 				Exist(bucket, TypeInfo.DataModelNode)
@@ -96,7 +96,7 @@ namespace Xtate.Persistence
 								  Ancestor = new EntityData(bucket),
 								  Data = bucket.RestoreList(Key.DataList, RestoreData)
 						  }
-						: (IDataModel?) null;
+						: null;
 
 		private IInitial? RestoreInitial(Bucket bucket) =>
 				Exist(bucket, TypeInfo.InitialNode)
@@ -105,7 +105,7 @@ namespace Xtate.Persistence
 								  Ancestor = new EntityData(bucket),
 								  Transition = RestoreTransition(bucket.Nested(Key.Transition))
 						  }
-						: (IInitial?) null;
+						: null;
 
 		private ITransition? RestoreTransition(Bucket bucket) =>
 				Exist(bucket, TypeInfo.TransitionNode)
@@ -118,7 +118,7 @@ namespace Xtate.Persistence
 								  Type = bucket.Get<TransitionType>(Key.TransitionType),
 								  Action = bucket.RestoreList(Key.Action, RestoreExecutableEntity)
 						  }
-						: (ITransition?) null;
+						: null;
 
 		private static IAssign? RestoreAssign(Bucket bucket) =>
 				Exist(bucket, TypeInfo.AssignNode)
@@ -129,9 +129,9 @@ namespace Xtate.Persistence
 								  Expression = RestoreValueExpression(bucket.Nested(Key.Expression)),
 								  Type = bucket.GetString(Key.Type),
 								  Attribute = bucket.GetString(Key.Attribute),
-								  InlineContent = bucket.TryGet(Key.InlineContent, out string? content) ? new InlineContent { Value = content } : (IInlineContent?) null
+								  InlineContent = bucket.TryGet(Key.InlineContent, out string? content) ? new InlineContent { Value = content } : null
 						  }
-						: (IAssign?) null;
+						: null;
 
 		private static ICancel? RestoreCancel(Bucket bucket) =>
 				Exist(bucket, TypeInfo.CancelNode)
@@ -141,7 +141,7 @@ namespace Xtate.Persistence
 								  SendId = bucket.GetString(Key.SendId),
 								  SendIdExpression = RestoreValueExpression(bucket.Nested(Key.SendIdExpression))
 						  }
-						: (ICancel?) null;
+						: null;
 
 		private IState? RestoreCompound(Bucket bucket) =>
 				Exist(bucket, TypeInfo.CompoundNode)
@@ -158,7 +158,7 @@ namespace Xtate.Persistence
 								  OnExit = bucket.RestoreList(Key.OnExit, RestoreOnExit),
 								  Invoke = bucket.RestoreList(Key.Invoke, RestoreInvoke)
 						  }
-						: (IState?) null;
+						: null;
 
 		private IExecutableEntity? RestoreCondition(Bucket bucket)
 		{
@@ -182,7 +182,7 @@ namespace Xtate.Persistence
 								  Ancestor = new EntityData(bucket),
 								  Expression = bucket.GetString(Key.Expression)
 						  }
-						: (IConditionExpression?) null;
+						: null;
 
 		private static IContent? RestoreContent(Bucket bucket) =>
 				Exist(bucket, TypeInfo.ContentNode)
@@ -190,9 +190,9 @@ namespace Xtate.Persistence
 						  {
 								  Ancestor = new EntityData(bucket),
 								  Expression = RestoreValueExpression(bucket.Nested(Key.Expression)),
-								  Body = bucket.TryGet(Key.Body, out string? body) ? new ContentBody { Value = body } : (IContentBody?) null
+								  Body = bucket.TryGet(Key.Body, out string? body) ? new ContentBody { Value = body } : null
 						  }
-						: (IContent?) null;
+						: null;
 
 		private static IData? RestoreData(Bucket bucket) =>
 				Exist(bucket, TypeInfo.DataNode)
@@ -202,9 +202,9 @@ namespace Xtate.Persistence
 								  Id = bucket.GetString(Key.Id),
 								  Source = RestoreExternalDataExpression(bucket.Nested(Key.Source)),
 								  Expression = RestoreValueExpression(bucket.Nested(Key.Expression)),
-								  InlineContent = bucket.TryGet(Key.InlineContent, out string? content) ? new InlineContent { Value = content } : (IInlineContent?) null
+								  InlineContent = bucket.TryGet(Key.InlineContent, out string? content) ? new InlineContent { Value = content } : null
 						  }
-						: (IData?) null;
+						: null;
 
 		private static IDoneData? RestoreDoneData(Bucket bucket) =>
 				Exist(bucket, TypeInfo.DoneDataNode)
@@ -214,7 +214,7 @@ namespace Xtate.Persistence
 								  Content = RestoreContent(bucket.Nested(Key.Source)),
 								  Parameters = bucket.RestoreList(Key.Parameters, RestoreParam)
 						  }
-						: (IDoneData?) null;
+						: null;
 
 		private static IElseIf? RestoreElseIf(Bucket bucket) =>
 				Exist(bucket, TypeInfo.ElseIfNode)
@@ -223,7 +223,7 @@ namespace Xtate.Persistence
 								  Ancestor = new EntityData(bucket),
 								  Condition = RestoreConditionExpression(bucket.Nested(Key.Condition))
 						  }
-						: (IElseIf?) null;
+						: null;
 
 		private static IElse? RestoreElse(Bucket bucket) =>
 				Exist(bucket, TypeInfo.ElseNode)
@@ -231,7 +231,7 @@ namespace Xtate.Persistence
 						  {
 								  Ancestor = new EntityData(bucket)
 						  }
-						: (IElse?) null;
+						: null;
 
 		private static IEventDescriptor? RestoreEventDescriptor(Bucket bucket)
 		{
@@ -271,7 +271,7 @@ namespace Xtate.Persistence
 								  Label = bucket.GetString(Key.Label),
 								  Expression = RestoreValueExpression(bucket.Nested(Key.Expression))
 						  }
-						: (ILog?) null;
+						: null;
 
 		private static IRaise? RestoreRaise(Bucket bucket) =>
 				Exist(bucket, TypeInfo.RaiseNode)
@@ -280,7 +280,7 @@ namespace Xtate.Persistence
 								  Ancestor = new EntityData(bucket),
 								  OutgoingEvent = RestoreEvent(bucket.Nested(Key.Event))
 						  }
-						: (IRaise?) null;
+						: null;
 
 		private static IScript? RestoreScript(Bucket bucket) =>
 				Exist(bucket, TypeInfo.ScriptNode)
@@ -290,7 +290,7 @@ namespace Xtate.Persistence
 								  Source = RestoreExternalScriptExpression(bucket.Nested(Key.Source)),
 								  Content = RestoreScriptExpression(bucket.Nested(Key.Content))
 						  }
-						: (IScript?) null;
+						: null;
 
 		private static ICustomAction? RestoreCustomAction(Bucket bucket) =>
 				Exist(bucket, TypeInfo.CustomActionNode)
@@ -303,7 +303,7 @@ namespace Xtate.Persistence
 								  Locations = bucket.RestoreList(Key.LocationList, RestoreLocationExpression),
 								  Values = bucket.RestoreList(Key.ValueList, RestoreValueExpression)
 						  }
-						: (ICustomAction?) null;
+						: null;
 
 		private static ISend? RestoreSend(Bucket bucket) =>
 				Exist(bucket, TypeInfo.SendNode)
@@ -324,7 +324,7 @@ namespace Xtate.Persistence
 								  Parameters = bucket.RestoreList(Key.Parameters, RestoreParam),
 								  Content = RestoreContent(bucket.Nested(Key.Content))
 						  }
-						: (ISend?) null;
+						: null;
 
 		private static IExternalDataExpression? RestoreExternalDataExpression(Bucket bucket) =>
 				Exist(bucket, TypeInfo.ExternalDataExpressionNode)
@@ -333,7 +333,7 @@ namespace Xtate.Persistence
 								  Ancestor = new EntityData(bucket),
 								  Uri = bucket.GetUri(Key.Uri)
 						  }
-						: (IExternalDataExpression?) null;
+						: null;
 
 		private static IExternalScriptExpression? RestoreExternalScriptExpression(Bucket bucket)
 		{
@@ -361,7 +361,7 @@ namespace Xtate.Persistence
 								  Ancestor = new EntityData(bucket),
 								  Action = bucket.RestoreList(Key.Parameters, RestoreExecutableEntity)
 						  }
-						: (IFinalize?) null;
+						: null;
 
 		private IFinal? RestoreFinal(Bucket bucket) =>
 				Exist(bucket, TypeInfo.FinalNode)
@@ -373,7 +373,7 @@ namespace Xtate.Persistence
 								  OnExit = bucket.RestoreList(Key.OnExit, RestoreOnExit),
 								  DoneData = RestoreDoneData(bucket.Nested(Key.DoneData))
 						  }
-						: (IFinal?) null;
+						: null;
 
 		private IForEach? RestoreForEach(Bucket bucket) =>
 				Exist(bucket, TypeInfo.ForEachNode)
@@ -385,7 +385,7 @@ namespace Xtate.Persistence
 								  Index = RestoreLocationExpression(bucket.Nested(Key.Index)),
 								  Action = bucket.RestoreList(Key.Action, RestoreExecutableEntity)
 						  }
-						: (IForEach?) null;
+						: null;
 
 		private IHistory? RestoreHistory(Bucket bucket) =>
 				Exist(bucket, TypeInfo.HistoryNode)
@@ -396,7 +396,7 @@ namespace Xtate.Persistence
 								  Type = bucket.Get<HistoryType>(Key.HistoryType),
 								  Transition = RestoreTransition(bucket.Nested(Key.Transition))
 						  }
-						: (IHistory?) null;
+						: null;
 
 		private static IIdentifier? RestoreIdentifier(Bucket bucket)
 		{
@@ -412,7 +412,7 @@ namespace Xtate.Persistence
 								  Condition = RestoreConditionExpression(bucket.Nested(Key.Condition)),
 								  Action = bucket.RestoreList(Key.Action, RestoreExecutableEntity)
 						  }
-						: (IIf?) null;
+						: null;
 
 		private IInvoke? RestoreInvoke(Bucket bucket) =>
 				Exist(bucket, TypeInfo.InvokeNode)
@@ -431,7 +431,7 @@ namespace Xtate.Persistence
 								  Finalize = RestoreFinalize(bucket.Nested(Key.Finalize)),
 								  Content = RestoreContent(bucket.Nested(Key.Content))
 						  }
-						: (IInvoke?) null;
+						: null;
 
 		private static ILocationExpression? RestoreLocationExpression(Bucket bucket) =>
 				Exist(bucket, TypeInfo.LocationExpressionNode)
@@ -440,7 +440,7 @@ namespace Xtate.Persistence
 								  Ancestor = new EntityData(bucket),
 								  Expression = bucket.GetString(Key.Expression)
 						  }
-						: (ILocationExpression?) null;
+						: null;
 
 		private IOnEntry? RestoreOnEntry(Bucket bucket) =>
 				Exist(bucket, TypeInfo.OnEntryNode)
@@ -449,7 +449,7 @@ namespace Xtate.Persistence
 								  Ancestor = new EntityData(bucket),
 								  Action = bucket.RestoreList(Key.Action, RestoreExecutableEntity)
 						  }
-						: (IOnEntry?) null;
+						: null;
 
 		private IOnExit? RestoreOnExit(Bucket bucket) =>
 				Exist(bucket, TypeInfo.OnExitNode)
@@ -458,7 +458,7 @@ namespace Xtate.Persistence
 								  Ancestor = new EntityData(bucket),
 								  Action = bucket.RestoreList(Key.Action, RestoreExecutableEntity)
 						  }
-						: (IOnExit?) null;
+						: null;
 
 		private IParallel? RestoreParallel(Bucket bucket) =>
 				Exist(bucket, TypeInfo.ParallelNode)
@@ -474,7 +474,7 @@ namespace Xtate.Persistence
 								  OnExit = bucket.RestoreList(Key.OnExit, RestoreOnExit),
 								  Invoke = bucket.RestoreList(Key.Invoke, RestoreInvoke)
 						  }
-						: (IParallel?) null;
+						: null;
 
 		private static IParam? RestoreParam(Bucket bucket) =>
 				Exist(bucket, TypeInfo.ParamNode)
@@ -485,7 +485,7 @@ namespace Xtate.Persistence
 								  Expression = RestoreValueExpression(bucket.Nested(Key.Expression)),
 								  Location = RestoreLocationExpression(bucket.Nested(Key.Location))
 						  }
-						: (IParam?) null;
+						: null;
 
 		private static IScriptExpression? RestoreScriptExpression(Bucket bucket) =>
 				Exist(bucket, TypeInfo.ScriptExpressionNode)
@@ -494,7 +494,7 @@ namespace Xtate.Persistence
 								  Ancestor = new EntityData(bucket),
 								  Expression = bucket.GetString(Key.Expression)
 						  }
-						: (IScriptExpression?) null;
+						: null;
 
 		private IStateEntity RestoreStateEntity(Bucket bucket)
 		{
@@ -524,7 +524,7 @@ namespace Xtate.Persistence
 								  OnExit = bucket.RestoreList(Key.OnExit, RestoreOnExit),
 								  Invoke = bucket.RestoreList(Key.Invoke, RestoreInvoke)
 						  }
-						: (IState?) null;
+						: null;
 
 		private static IValueExpression? RestoreValueExpression(Bucket bucket) =>
 				Exist(bucket, TypeInfo.ValueExpressionNode)
@@ -533,7 +533,7 @@ namespace Xtate.Persistence
 								  Ancestor = new EntityData(bucket),
 								  Expression = bucket.GetString(Key.Expression)
 						  }
-						: (IValueExpression?) null;
+						: null;
 
 		private class EntityData : IPersistedDocumentId
 		{
