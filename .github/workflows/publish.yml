@@ -21,7 +21,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.102
+        dotnet-version: 5.0.201
         source-url: https://nuget.pkg.github.com/TSSArt/index.json
     - name: Setup NuGet.exe
       uses: NuGet/setup-nuget@v1.0.5
