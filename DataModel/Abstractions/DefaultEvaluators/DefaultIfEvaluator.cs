@@ -53,7 +53,7 @@ namespace Xtate.DataModel
 
 					case IElse:
 						branchesBuilder.Add((currentCondition, currentActions.ToImmutable()));
-						currentCondition = null!;
+						currentCondition = default!;
 						currentActions.Clear();
 						break;
 

@@ -81,7 +81,7 @@ namespace Xtate.Persistence
 								  Ancestor = new EntityData(bucket),
 								  Name = bucket.GetString(Key.Name),
 								  DataModelType = bucket.GetString(Key.DataModelType),
-								  Binding = bucket.Get<BindingType>(Key.Binding),
+								  Binding = bucket.GetEnum(Key.Binding).As<BindingType>(),
 								  Script = RestoreScript(bucket.Nested(Key.Script)),
 								  DataModel = RestoreDataModel(bucket.Nested(Key.DataModel)),
 								  Initial = RestoreInitial(bucket.Nested(Key.Initial)),
@@ -115,7 +115,7 @@ namespace Xtate.Persistence
 								  EventDescriptors = bucket.RestoreList(Key.Event, RestoreEventDescriptor),
 								  Condition = RestoreCondition(bucket.Nested(Key.Condition)),
 								  Target = bucket.RestoreList(Key.Target, RestoreIdentifier),
-								  Type = bucket.Get<TransitionType>(Key.TransitionType),
+								  Type = bucket.GetEnum(Key.TransitionType).As<TransitionType>(),
 								  Action = bucket.RestoreList(Key.Action, RestoreExecutableEntity)
 						  }
 						: null;
@@ -244,7 +244,7 @@ namespace Xtate.Persistence
 
 		private IExecutableEntity RestoreExecutableEntity(Bucket bucket)
 		{
-			var typeInfo = bucket.Get<TypeInfo>(Key.TypeInfo);
+			var typeInfo = bucket.GetEnum(Key.TypeInfo).As<TypeInfo>();
 			return typeInfo switch
 			{
 					TypeInfo.AssignNode => RestoreAssign(bucket) ?? throw new PersistenceException(Resources.Exception_CantRestoreElement),
@@ -393,7 +393,7 @@ namespace Xtate.Persistence
 						  {
 								  Ancestor = new EntityData(bucket),
 								  Id = RestoreIdentifier(bucket.Nested(Key.Id)),
-								  Type = bucket.Get<HistoryType>(Key.HistoryType),
+								  Type = bucket.GetEnum(Key.HistoryType).As<HistoryType>(),
 								  Transition = RestoreTransition(bucket.Nested(Key.Transition))
 						  }
 						: null;
@@ -498,7 +498,7 @@ namespace Xtate.Persistence
 
 		private IStateEntity RestoreStateEntity(Bucket bucket)
 		{
-			var typeInfo = bucket.Get<TypeInfo>(Key.TypeInfo);
+			var typeInfo = bucket.GetEnum(Key.TypeInfo).As<TypeInfo>();
 			return typeInfo switch
 			{
 					TypeInfo.CompoundNode => RestoreCompound(bucket) ?? throw new PersistenceException(Resources.Exception_CantRestoreElement),

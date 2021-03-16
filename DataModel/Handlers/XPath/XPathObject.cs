@@ -109,7 +109,7 @@ namespace Xtate.DataModel.XPath
 		{
 			var length = 0;
 			var count = 0;
-			string? result = null;
+			string? result = default;
 
 			foreach (DataModelXPathNavigator navigator in iterator)
 			{

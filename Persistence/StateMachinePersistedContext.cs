@@ -26,6 +26,7 @@ namespace Xtate.Persistence
 {
 	internal sealed class StateMachinePersistedContext : StateMachineContext, IPersistenceContext
 	{
+		private readonly ServiceIdSetPersistingController                _activeInvokesController;
 		private readonly OrderedSetPersistingController<StateEntityNode> _configurationController;
 		private readonly DataModelListPersistingController               _dataModelPersistingController;
 		private readonly DataModelReferenceTracker                       _dataModelReferenceTracker;
@@ -47,6 +48,7 @@ namespace Xtate.Persistence
 
 			_configurationController = new OrderedSetPersistingController<StateEntityNode>(bucket.Nested(StorageSection.Configuration), Configuration, entityMap);
 			_statesToInvokeController = new OrderedSetPersistingController<StateEntityNode>(bucket.Nested(StorageSection.StatesToInvoke), StatesToInvoke, entityMap);
+			_activeInvokesController = new ServiceIdSetPersistingController(bucket.Nested(StorageSection.ActiveInvokes), ActiveInvokes);
 			_dataModelReferenceTracker = new DataModelReferenceTracker(bucket.Nested(StorageSection.DataModelReferences));
 			_dataModelPersistingController = new DataModelListPersistingController(bucket.Nested(StorageSection.DataModel), _dataModelReferenceTracker, DataModel);
 			_historyValuePersistingController = new KeyListPersistingController<StateEntityNode>(bucket.Nested(StorageSection.HistoryValue), HistoryValue, entityMap);
@@ -90,6 +92,7 @@ namespace Xtate.Persistence
 			_dataModelPersistingController.Dispose();
 			_dataModelReferenceTracker.Dispose();
 			_statesToInvokeController.Dispose();
+			_activeInvokesController.Dispose();
 			_configurationController.Dispose();
 
 			_disposed = true;
@@ -101,6 +104,7 @@ namespace Xtate.Persistence
 		{
 			Configuration,
 			StatesToInvoke,
+			ActiveInvokes,
 			DataModel,
 			DataModelReferences,
 			InternalQueue,

@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
@@ -100,13 +101,17 @@ namespace Xtate.Core
 			Host = new DataModelValue(options.Host?.AsConstant() ?? DataModelList.Empty);
 			Arguments = options.Arguments.AsConstant();
 
-			_anyTokenSource = null!;
-			_dataModelHandler = null!;
-			_context = null!;
-			_model = null!;
+			_anyTokenSource = default!;
+			_dataModelHandler = default!;
+			_context = default!;
+			_model = default!;
 		}
 
-		private bool IsPersistingEnabled => _persistenceLevel != PersistenceLevel.None;
+		private bool IsPersistingEnabled
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get => _persistenceLevel != PersistenceLevel.None;
+		}
 
 		private bool Running
 		{
@@ -216,7 +221,7 @@ namespace Xtate.Core
 
 				_dataModelHandler = await CreateDataModelHandler(smdBucket.GetString(Key.DataModelType), errorProcessor).ConfigureAwait(false);
 
-				ImmutableDictionary<int, IEntity>? entityMap = null;
+				ImmutableDictionary<int, IEntity>? entityMap = default;
 
 				if (stateMachine is not null)
 				{
@@ -599,8 +604,8 @@ namespace Xtate.Core
 		{
 			var internalEvent = _context.InternalQueue.Dequeue();
 
-			var evt = DataConverter.FromEvent(internalEvent, _dataModelHandler.CaseInsensitive);
-			_context.DataModel.SetInternal(key: @"_event", _dataModelHandler.CaseInsensitive, evt, DataModelAccess.ReadOnly);
+			var eventModel = DataConverter.FromEvent(internalEvent, _dataModelHandler.CaseInsensitive);
+			_context.DataModel.SetInternal(key: @"_event", _dataModelHandler.CaseInsensitive, eventModel, DataModelAccess.ReadOnly);
 
 			await TraceProcessingEvent(internalEvent).ConfigureAwait(false);
 
@@ -731,8 +736,8 @@ namespace Xtate.Core
 		{
 			var externalEvent = await ReadExternalEvent().ConfigureAwait(false);
 
-			var evt = DataConverter.FromEvent(externalEvent, _dataModelHandler.CaseInsensitive);
-			_context.DataModel.SetInternal(key: @"_event", _dataModelHandler.CaseInsensitive, evt, DataModelAccess.ReadOnly);
+			var eventModel = DataConverter.FromEvent(externalEvent, _dataModelHandler.CaseInsensitive);
+			_context.DataModel.SetInternal(key: @"_event", _dataModelHandler.CaseInsensitive, eventModel, DataModelAccess.ReadOnly);
 
 			await TraceProcessingEvent(externalEvent).ConfigureAwait(false);
 
@@ -789,20 +794,20 @@ namespace Xtate.Core
 			}
 		}
 
+		private bool IsInvokeActive(InvokeId invokeId) => _context.ActiveInvokes.Contains(invokeId);
+
 		private async ValueTask<IEvent> ReadExternalEventUnfiltered()
 		{
-			var valueTask = _eventChannel.ReadAsync(_anyTokenSource.Token);
-
-			if (valueTask.IsCompleted)
+			if (_eventChannel.TryRead(out var evt))
 			{
-				return await valueTask.ConfigureAwait(false);
+				return evt;
 			}
 
 			await CheckPoint(PersistenceLevel.StableState).ConfigureAwait(false);
 
 			await NotifyWaiting().ConfigureAwait(false);
 
-			return await valueTask.ConfigureAwait(false);
+			return await _eventChannel.ReadAsync(_anyTokenSource.Token).ConfigureAwait(false);
 		}
 
 		private async ValueTask ExitInterpreter()
@@ -914,9 +919,9 @@ namespace Xtate.Core
 		private List<TransitionNode> RemoveConflictingTransitions(List<TransitionNode> enabledTransitions)
 		{
 			var filteredTransitions = new List<TransitionNode>();
-			List<TransitionNode>? transitionsToRemove = null;
-			List<TransitionNode>? tr1 = null;
-			List<TransitionNode>? tr2 = null;
+			List<TransitionNode>? transitionsToRemove = default;
+			List<TransitionNode>? tr1 = default;
+			List<TransitionNode>? tr2 = default;
 
 			foreach (var t1 in enabledTransitions)
 			{
@@ -1097,13 +1102,13 @@ namespace Xtate.Core
 							doneData = await EvaluateDoneData(final.DoneData).ConfigureAwait(false);
 						}
 
-						_context.InternalQueue.Enqueue(new EventObject(EventType.Internal, EventName.GetDoneStateNameParts(parent.Id), doneData));
+						_context.InternalQueue.Enqueue(new EventObject { Type = EventType.Internal, NameParts = EventName.GetDoneStateNameParts(parent.Id), Data = doneData });
 
 						if (grandparent is ParallelNode)
 						{
 							if (grandparent.States.All(IsInFinalState))
 							{
-								_context.InternalQueue.Enqueue(new EventObject(EventType.Internal, EventName.GetDoneStateNameParts(grandparent.Id)));
+								_context.InternalQueue.Enqueue(new EventObject { Type = EventType.Internal, NameParts = EventName.GetDoneStateNameParts(grandparent.Id) });
 							}
 						}
 					}
@@ -1331,7 +1336,7 @@ namespace Xtate.Core
 
 		private static List<StateEntityNode>? GetProperAncestors(StateEntityNode state1, StateEntityNode? state2)
 		{
-			List<StateEntityNode>? states = null;
+			List<StateEntityNode>? states = default;
 
 			for (var s = state1.Parent; s is not null; s = s.Parent)
 			{
@@ -1431,7 +1436,7 @@ namespace Xtate.Core
 		{
 			var sourceEntityId = (source as IEntity).Is(out IDebugEntityId? id) ? id.EntityId?.ToString(CultureInfo.InvariantCulture) : null;
 
-			SendId? sendId = null;
+			SendId? sendId = default;
 
 			var errorType = IsPlatformError(exception)
 					? ErrorType.Platform
@@ -1447,9 +1452,16 @@ namespace Xtate.Core
 					_ => throw Infrastructure.UnexpectedValue<Exception>(errorType)
 			};
 
-			var eventObject = new EventObject(EventType.Platform, nameParts, DataConverter.FromException(exception, _dataModelHandler.CaseInsensitive), sendId, invokeId: default, exception);
+			var evt = new EventObject
+					  {
+							  Type = EventType.Platform,
+							  NameParts = nameParts,
+							  Data = DataConverter.FromException(exception, _dataModelHandler.CaseInsensitive),
+							  SendId = sendId,
+							  Ancestor = exception
+					  };
 
-			_context.InternalQueue.Enqueue(eventObject);
+			_context.InternalQueue.Enqueue(evt);
 
 			try
 			{
@@ -1515,6 +1527,10 @@ namespace Xtate.Core
 			try
 			{
 				await invoke.Start(_context.ExecutionContext, _stopToken).ConfigureAwait(false);
+
+				Infrastructure.NotNull(invoke.InvokeId);
+
+				_context.ActiveInvokes.Add(invoke.InvokeId);
 			}
 			catch (Exception ex) when (IsError(ex))
 			{
@@ -1526,6 +1542,10 @@ namespace Xtate.Core
 		{
 			try
 			{
+				Infrastructure.NotNull(invoke.InvokeId);
+
+				_context.ActiveInvokes.Remove(invoke.InvokeId);
+
 				await invoke.Cancel(_context.ExecutionContext, _stopToken).ConfigureAwait(false);
 			}
 			catch (Exception ex) when (IsError(ex))
@@ -1725,7 +1745,7 @@ namespace Xtate.Core
 				{
 					ArrayPool<int>.Shared.Return(data);
 
-					_data = null;
+					_data = default;
 				}
 			}
 

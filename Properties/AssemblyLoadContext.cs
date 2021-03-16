@@ -25,6 +25,7 @@ using Xtate.Core;
 
 namespace System.Runtime.Loader
 {
+	[PublicAPI]
 	internal class AssemblyLoadContext
 	{
 		public AssemblyLoadContext(bool isCollectible) => IsCollectible = isCollectible;

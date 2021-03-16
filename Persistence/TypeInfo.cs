@@ -40,6 +40,7 @@ namespace Xtate.Persistence
 		FinalNode,
 		ForEachNode,
 		HistoryNode,
+		HostEvent,
 		IdentifierNode,
 		IfNode,
 		InitialNode,

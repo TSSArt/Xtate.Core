@@ -127,7 +127,7 @@ namespace Xtate.Core
 			public TrackList(ImmutableArray<T> items)
 			{
 				_items = items;
-				ModifiedItems = null;
+				ModifiedItems = default;
 			}
 
 			public bool IsModified

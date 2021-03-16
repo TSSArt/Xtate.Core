@@ -32,26 +32,30 @@ using Xtate.Persistence;
 
 namespace Xtate.IoProcessor
 {
-	public sealed class NamedIoProcessor : IIoProcessor, IDisposable
+	public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 	{
-		private const string      PipePrefix         = "#SCXML#_";
+		private const string SessionIdPrefix = "#_session_";
+		private const string InvokeIdPrefix  = "#_invoke_";
+		private const string PipePrefix      = "#xtate#";
+
 		private const PipeOptions DefaultPipeOptions = PipeOptions.WriteThrough | PipeOptions.Asynchronous;
 
-		private static readonly Uri IoProcessorId      = new(@"http://www.w3.org/TR/scxml/#SCXMLEventProcessor");
-		private static readonly Uri IoProcessorAliasId = new(uriString: @"scxml", UriKind.Relative);
+		private const string Id    = @"http://www.w3.org/TR/scxml/#NamedPipeEventProcessor";
+		private const string Alias = @"named.pipe";
+
+		private static readonly EventObject CheckPipelineEvent = new() { Type = EventType.External, NameParts = EventName.ToParts(@"$") };
 
 		private static readonly ConcurrentDictionary<string, IEventConsumer> InProcConsumers = new();
 
 		private readonly Uri            _baseUri;
 		private readonly IEventConsumer _eventConsumer;
-		private readonly Uri            _loopbackBaseUri;
 		private readonly int            _maxMessageSize;
 		private readonly string         _name;
 		private readonly string         _pipeName;
 
 		private readonly CancellationTokenSource _stopTokenSource = new();
 
-		public NamedIoProcessor(IEventConsumer eventConsumer, [Localizable(false)] string host, [Localizable(false)] string name, int maxMessageSize)
+		public NamedPipeIoProcessor(IEventConsumer eventConsumer, [Localizable(false)] string host, [Localizable(false)] string name, int maxMessageSize) : base(eventConsumer, Id, Alias)
 		{
 			if (host is null) throw new ArgumentNullException(nameof(host));
 			if (maxMessageSize < 0) throw new ArgumentOutOfRangeException(nameof(maxMessageSize));
@@ -59,13 +63,12 @@ namespace Xtate.IoProcessor
 			_eventConsumer = eventConsumer ?? throw new ArgumentNullException(nameof(eventConsumer));
 			_name = name ?? throw new ArgumentNullException(nameof(name));
 			_pipeName = PipePrefix + name;
-			_baseUri = new Uri(@"pipe://" + host + @"/" + name);
-			_loopbackBaseUri = new Uri(@"pipe:///" + name);
+			_baseUri = new Uri(@"named.pipe://" + host + @"/" + name);
 			_maxMessageSize = maxMessageSize;
 
 			if (!InProcConsumers.TryAdd(name, eventConsumer))
 			{
-				throw new ProcessorException(Res.Format(Resources.Exception_NamedIoProcessorWithNameAlreadyHasBeenRegistered, name));
+				throw new ProcessorException(Res.Format(Resources.Exception_NamedPipeIoProcessorWithNameAlreadyHasBeenRegistered, name));
 			}
 		}
 
@@ -82,39 +85,35 @@ namespace Xtate.IoProcessor
 
 	#endregion
 
-	#region Interface IIoProcessor
-
-		Uri IIoProcessor.GetTarget(SessionId sessionId) => GetTarget(sessionId);
-
-		ValueTask IIoProcessor.Dispatch(SessionId sessionId, IOutgoingEvent evt, CancellationToken token) => OutgoingEvent(sessionId, evt, token);
-
-		bool IIoProcessor.CanHandle(Uri? type, Uri? target) => type is null || FullUriComparer.Instance.Equals(type, IoProcessorId) || FullUriComparer.Instance.Equals(type, IoProcessorAliasId);
-
-		Uri IIoProcessor.Id => IoProcessorId;
-
-	#endregion
-
-		private Uri GetTarget(SessionId sessionId, bool isLoopback = false) => new(isLoopback ? _loopbackBaseUri : _baseUri, @"#_scxml_" + sessionId.Value);
-
-		private async ValueTask OutgoingEvent(SessionId sessionId, IOutgoingEvent evt, CancellationToken token)
+		protected override IHostEvent CreateHostEvent(ServiceId senderServiceId, IOutgoingEvent outgoingEvent)
 		{
-			if (evt.Target is null)
+			if (outgoingEvent is null) throw new ArgumentNullException(nameof(outgoingEvent));
+
+			if (outgoingEvent.Target is null)
 			{
 				throw new ProcessorException(Resources.Exception_EventTargetDidNotSpecified);
 			}
 
-			var host = evt.Target.Host;
-			var isLoopback = evt.Target.IsLoopback || host == _baseUri.Host;
-			var name = evt.Target.GetComponents(UriComponents.Path, UriFormat.Unescaped);
+			return base.CreateHostEvent(senderServiceId, outgoingEvent);
+		}
 
-			var targetSessionId = ExtractSessionId(evt.Target);
-			var eventObject = new EventObject(EventType.External, evt, GetTarget(sessionId, isLoopback), IoProcessorId);
+		protected override async ValueTask OutgoingEvent(IHostEvent hostEvent, CancellationToken token)
+		{
+			var target = ((UriId?) hostEvent.TargetServiceId)?.Uri;
+
+			Infrastructure.NotNull(target);
+
+			var host = target.Host;
+			var isLoopback = target.IsLoopback || host == _baseUri.Host;
+			var name = target.GetComponents(UriComponents.Path, UriFormat.Unescaped);
+
+			var targetServiceId = GetServiceId(target);
 
 			if (isLoopback && InProcConsumers.TryGetValue(name, out var eventConsumer))
 			{
-				if (eventConsumer.TryGetEventDispatcher(targetSessionId, out var eventDispatcher))
+				if (await eventConsumer.TryGetEventDispatcher(targetServiceId, token).ConfigureAwait(false) is { } eventDispatcher)
 				{
-					await eventDispatcher.Send(eventObject, token).ConfigureAwait(false);
+					await eventDispatcher.Send(hostEvent, token).ConfigureAwait(false);
 				}
 				else
 				{
@@ -123,11 +122,22 @@ namespace Xtate.IoProcessor
 			}
 			else
 			{
-				await SendEventToPipe(isLoopback ? @"." : host, PipePrefix + name, targetSessionId, eventObject, token).ConfigureAwait(false);
+				await SendEventToPipe(isLoopback ? @"." : host, PipePrefix + name, targetServiceId, hostEvent, token).ConfigureAwait(false);
 			}
 		}
 
-		private async ValueTask SendEventToPipe(string server, string pipeName, SessionId? sessionId, EventObject eventObject, CancellationToken token)
+		protected override Uri? GetTarget(ServiceId serviceId)
+		{
+			return serviceId switch
+			{
+					SessionId sessionId => new Uri(_baseUri, SessionIdPrefix + sessionId.Value),
+					InvokeId invokeId => new Uri(_baseUri, InvokeIdPrefix + invokeId.Value),
+					UriId uriId => new Uri(_baseUri, uriId.Uri),
+					_ => default
+			};
+		}
+
+		private async ValueTask SendEventToPipe(string server, string pipeName, ServiceId? targetServiceId, IEvent evt, CancellationToken token)
 		{
 			var pipeStream = new NamedPipeClientStream(server, pipeName, PipeDirection.InOut, DefaultPipeOptions);
 			var memoryStream = new MemoryStream();
@@ -137,7 +147,7 @@ namespace Xtate.IoProcessor
 			{
 				await pipeStream.ConnectAsync(token).ConfigureAwait(false);
 
-				var message = new EventMessage(sessionId, eventObject);
+				var message = new EventMessage(targetServiceId, evt);
 
 				Serialize(message, memoryStream);
 
@@ -188,11 +198,11 @@ namespace Xtate.IoProcessor
 					memoryStream.Position = 0;
 					var message = Deserialize(memoryStream, b => new EventMessage(b));
 
-					if (message.SessionId is { } sessionId)
+					if (message.TargetServiceId is { } targetServiceId)
 					{
-						if (_eventConsumer.TryGetEventDispatcher(sessionId, out var eventDispatcher))
+						if (await _eventConsumer.TryGetEventDispatcher(targetServiceId, _stopTokenSource.Token).ConfigureAwait(false) is { } eventDispatcher)
 						{
-							await eventDispatcher.Send(message.Event, _stopTokenSource.Token).ConfigureAwait(false);
+							await eventDispatcher.Send(message, _stopTokenSource.Token).ConfigureAwait(false);
 						}
 						else
 						{
@@ -213,18 +223,53 @@ namespace Xtate.IoProcessor
 			}
 		}
 
-		private static SessionId ExtractSessionId(Uri target)
+		private static string GetTargetString(Uri target) => target.IsAbsoluteUri ? target.Fragment : target.OriginalString;
+
+		private static bool IsTargetSessionId(Uri target, [NotNullWhen(true)] out SessionId? sessionId)
 		{
-			var fragment = target.GetComponents(UriComponents.Fragment, UriFormat.Unescaped);
+			var val = GetTargetString(target);
 
-			const string prefix = "_scxml_";
-
-			if (fragment.StartsWith(prefix))
+			if (val.StartsWith(SessionIdPrefix, StringComparison.Ordinal))
 			{
-				return SessionId.FromString(fragment[prefix.Length..]);
+				sessionId = SessionId.FromString(val[SessionIdPrefix.Length..]);
+
+				return true;
 			}
 
-			throw new ProcessorException(Resources.Exception_TargetWrongFormat);
+			sessionId = default;
+
+			return false;
+		}
+
+		private static bool IsTargetInvokeId(Uri target, [NotNullWhen(true)] out InvokeId? invokeId)
+		{
+			var val = GetTargetString(target);
+
+			if (val.StartsWith(InvokeIdPrefix, StringComparison.Ordinal))
+			{
+				invokeId = InvokeId.FromString(val[InvokeIdPrefix.Length..]);
+
+				return true;
+			}
+
+			invokeId = default;
+
+			return false;
+		}
+
+		private static ServiceId GetServiceId(Uri target)
+		{
+			if (IsTargetSessionId(target, out var sessionId))
+			{
+				return sessionId;
+			}
+
+			if (IsTargetInvokeId(target, out var invokeId))
+			{
+				return invokeId;
+			}
+
+			return UriId.FromUri(target);
 		}
 
 #if !NET461 && !NETSTANDARD2_0
@@ -258,7 +303,7 @@ namespace Xtate.IoProcessor
 
 			if (sizeBufReadCount != sizeBuf.Length || messageSize < 0 || _maxMessageSize > 0 && messageSize > _maxMessageSize)
 			{
-				throw new ProcessorException(Res.Format(Resources.Exception_NamedIoProcessorMessageSizeHasWrongValueOrMissed, messageSize));
+				throw new ProcessorException(Res.Format(Resources.Exception_NamedPipeIoProcessorMessageSizeHasWrongValueOrMissed, messageSize));
 			}
 
 			var buffer = ArrayPool<byte>.Shared.Rent(messageSize);
@@ -269,7 +314,7 @@ namespace Xtate.IoProcessor
 
 				if (count != messageSize)
 				{
-					throw new ProcessorException(Res.Format(Resources.Exception_NamedIoProcessorMessageReadPartially, count, messageSize));
+					throw new ProcessorException(Res.Format(Resources.Exception_NamedPipeIoProcessorMessageReadPartially, count, messageSize));
 				}
 
 				memoryStream.Write(buffer, offset: 0, messageSize);
@@ -314,45 +359,32 @@ namespace Xtate.IoProcessor
 			memoryStream.Seek(size, SeekOrigin.Current);
 		}
 
-		public ValueTask CheckPipeline(CancellationToken token)
+		public ValueTask CheckPipeline(CancellationToken token) => SendEventToPipe(server: @".", _pipeName, targetServiceId: default, CheckPipelineEvent, token);
+
+		private class EventMessage : EventObject
 		{
-			var eventObject = new EventObject(EventType.External, new EventEntity(@"$"));
+			public EventMessage(ServiceId? targetServiceId, IEvent evt) : base(evt) => TargetServiceId = targetServiceId;
 
-			return SendEventToPipe(server: @".", _pipeName, sessionId: null, eventObject, token);
-		}
-
-		private readonly struct EventMessage : IStoreSupport
-		{
-			public readonly EventObject Event;
-			public readonly SessionId?  SessionId;
-
-			public EventMessage(SessionId? sessionId, EventObject evt)
-			{
-				SessionId = sessionId;
-				Event = evt;
-			}
-
-			public EventMessage(in Bucket bucket)
+			public EventMessage(in Bucket bucket) : base(bucket)
 			{
 				if (!bucket.TryGet(Key.TypeInfo, out TypeInfo storedTypeInfo) || storedTypeInfo != TypeInfo.Message)
 				{
 					throw new ArgumentException(Resources.Exception_InvalidTypeInfoValue);
 				}
 
-				SessionId = bucket.GetSessionId(Key.SessionId);
-				Event = new EventObject(bucket.Nested(Key.Event));
+				TargetServiceId = bucket.TryGetServiceId(Key.Target, out var serviceId) ? serviceId : default;
 			}
 
-		#region Interface IStoreSupport
+			public ServiceId? TargetServiceId { get; }
 
-			public void Store(Bucket bucket)
+			protected override TypeInfo TypeInfo => TypeInfo.Message;
+
+			public override void Store(Bucket bucket)
 			{
-				bucket.Add(Key.TypeInfo, TypeInfo.Message);
-				bucket.AddId(Key.SessionId, SessionId);
-				bucket.AddEntity(Key.Event, Event);
-			}
+				base.Store(bucket);
 
-		#endregion
+				bucket.AddServiceId(Key.Target, TargetServiceId);
+			}
 		}
 
 		private enum ErrorType
@@ -371,8 +403,8 @@ namespace Xtate.IoProcessor
 			public ResponseMessage(ErrorType errorType)
 			{
 				ErrorType = errorType;
-				ExceptionMessage = null;
-				ExceptionText = null;
+				ExceptionMessage = default;
+				ExceptionText = default;
 			}
 
 			public ResponseMessage(Exception exception)

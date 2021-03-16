@@ -124,7 +124,7 @@ namespace Xtate.Scxml
 					AddError(Resources.ErrorMessage_FailureContentProcessing, ex);
 				}
 
-				_rawContent = null;
+				_rawContent = default;
 
 				return entity;
 			}

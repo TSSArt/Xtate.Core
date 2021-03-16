@@ -22,6 +22,7 @@ using Xtate.DataModel.XPath;
 
 namespace Xtate
 {
+	[PublicAPI]
 	public static class XPathExtensions
 	{
 		public static StateMachineHostBuilder AddXPath(this StateMachineHostBuilder builder)

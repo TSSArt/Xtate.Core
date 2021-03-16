@@ -36,7 +36,60 @@ namespace Xtate
 		private ImmutableArray<IIoProcessor>    _ioProcessors;
 		private ImmutableArray<IServiceFactory> _serviceFactories;
 
+	#region Interface IHostEventDispatcher
+
+		public async ValueTask DispatchEvent(IHostEvent hostEvent, CancellationToken token)
+		{
+			if (hostEvent is null) throw new ArgumentNullException(nameof(hostEvent));
+
+			if (hostEvent.OriginType is not { } originType)
+			{
+				throw new PlatformException(Resources.Exception_OriginTypeMustBeProvidedInIoProcessorEvent);
+			}
+
+			var ioProcessor = GetIoProcessorById(originType);
+
+			await ioProcessor.Dispatch(hostEvent, token).ConfigureAwait(false);
+		}
+
+	#endregion
+
 	#region Interface IStateMachineHost
+
+		async ValueTask<SendStatus> IStateMachineHost.DispatchEvent(ServiceId senderServiceId, IOutgoingEvent outgoingEvent, CancellationToken token)
+		{
+			if (outgoingEvent is null) throw new ArgumentNullException(nameof(outgoingEvent));
+
+			var context = GetCurrentContext();
+
+			var ioProcessor = GetIoProcessorByType(outgoingEvent.Type);
+
+			if (ioProcessor == this)
+			{
+				if (outgoingEvent.Target == InternalTarget)
+				{
+					if (outgoingEvent.DelayMs != 0)
+					{
+						throw new ProcessorException(Resources.Exception_InternalEventsCantBeDelayed);
+					}
+
+					return SendStatus.ToInternalQueue;
+				}
+			}
+
+			var ioProcessorEvent = await ioProcessor.GetHostEvent(senderServiceId, outgoingEvent, token).ConfigureAwait(false);
+
+			if (outgoingEvent.DelayMs > 0)
+			{
+				await context.ScheduleEvent(ioProcessorEvent, token).ConfigureAwait(false);
+
+				return SendStatus.Scheduled;
+			}
+
+			await ioProcessor.Dispatch(ioProcessorEvent, token).ConfigureAwait(false);
+
+			return SendStatus.Sent;
+		}
 
 		ImmutableArray<IIoProcessor> IStateMachineHost.GetIoProcessors() => !_ioProcessors.IsDefault ? _ioProcessors : ImmutableArray<IIoProcessor>.Empty;
 
@@ -52,7 +105,7 @@ namespace Xtate
 				securityContext = securityContext.CreateNested(SecurityContextType.InvokedService, finalizer);
 				var factoryContext = new FactoryContext(_options.ResourceLoaderFactories, securityContext);
 				var activator = await FindServiceFactoryActivator(factoryContext, data.Type, token).ConfigureAwait(false);
-				var serviceCommunication = new ServiceCommunication(service, IoProcessorId, data.InvokeId);
+				var serviceCommunication = new ServiceCommunication(this, GetTarget(sessionId), IoProcessorId, data.InvokeId);
 				var invokedService = await activator.StartService(factoryContext, service.StateMachineLocation, data, serviceCommunication, token).ConfigureAwait(false);
 
 				await context.AddService(sessionId, data.InvokeId, invokedService, token).ConfigureAwait(false);
@@ -60,7 +113,7 @@ namespace Xtate
 				CompleteAsync(context, invokedService, service, sessionId, data.InvokeId, finalizer).Forget();
 			}
 
-			static async ValueTask CompleteAsync(StateMachineHostContext context, IService invokedService, StateMachineController service, 
+			static async ValueTask CompleteAsync(StateMachineHostContext context, IService invokedService, IEventDispatcher service,
 												 SessionId sessionId, InvokeId invokeId, DeferredFinalizer finalizer)
 			{
 				await using (finalizer.ConfigureAwait(false))
@@ -72,12 +125,18 @@ namespace Xtate
 						var result = await invokedService.GetResult(default).ConfigureAwait(false);
 
 						var nameParts = EventName.GetDoneInvokeNameParts(invokeId);
-						var evt = new EventObject(EventType.External, nameParts, result, sendId: null, invokeId);
+						var evt = new EventObject { Type = EventType.External, NameParts = nameParts, Data = result, InvokeId = invokeId };
 						await service.Send(evt, token: default).ConfigureAwait(false);
 					}
 					catch (Exception ex)
 					{
-						var evt = new EventObject(EventType.External, EventName.ErrorExecution, DataConverter.FromException(ex, caseInsensitive: false), sendId: null, invokeId);
+						var evt = new EventObject
+								  {
+										  Type = EventType.External,
+										  NameParts = EventName.ErrorExecution,
+										  Data = DataConverter.FromException(ex, caseInsensitive: false),
+										  InvokeId = invokeId
+								  };
 						await service.Send(evt, token: default).ConfigureAwait(false);
 					}
 					finally
@@ -105,39 +164,13 @@ namespace Xtate
 			}
 		}
 
-		bool IStateMachineHost.IsInvokeActive(SessionId sessionId, InvokeId invokeId) => IsCurrentContextExists(out var context) && context.TryGetService(sessionId, invokeId, out _);
-
-		async ValueTask<SendStatus> IStateMachineHost.DispatchEvent(SessionId sessionId, IOutgoingEvent evt, bool skipDelay, CancellationToken token)
+		ValueTask IStateMachineHost.CancelEvent(SessionId sessionId, SendId sendId, CancellationToken token)
 		{
-			if (evt is null) throw new ArgumentNullException(nameof(evt));
-
 			var context = GetCurrentContext();
 
 			context.ValidateSessionId(sessionId, out _);
 
-			var ioProcessor = GetIoProcessor(evt.Type, evt.Target);
-
-			if (ioProcessor == this)
-			{
-				if (evt.Target == InternalTarget)
-				{
-					if (evt.DelayMs != 0)
-					{
-						throw new ProcessorException(Resources.Exception_InternalEventsCantBeDelayed);
-					}
-
-					return SendStatus.ToInternalQueue;
-				}
-			}
-
-			if (!skipDelay && evt.DelayMs != 0)
-			{
-				return SendStatus.ToSchedule;
-			}
-
-			await ioProcessor.Dispatch(sessionId, evt, token).ConfigureAwait(false);
-
-			return SendStatus.Sent;
+			return context.CancelEvent(sessionId, sendId, token);
 		}
 
 		ValueTask IStateMachineHost.ForwardEvent(SessionId sessionId, IEvent evt, InvokeId invokeId, CancellationToken token)
@@ -146,12 +179,12 @@ namespace Xtate
 
 			context.ValidateSessionId(sessionId, out _);
 
-			if (!context.TryGetService(sessionId, invokeId, out var service))
+			if (!context.TryGetService(invokeId, out var service))
 			{
 				throw new ProcessorException(Resources.Exception_InvalidInvokeId);
 			}
 
-			return service?.Send(evt, token) ?? default;
+			return service.Send(evt, token);
 		}
 
 	#endregion
@@ -164,7 +197,12 @@ namespace Xtate
 		}
 
 		private IErrorProcessor CreateErrorProcessor(SessionId sessionId, StateMachineOrigin origin) =>
-				_options.VerboseValidation ? new DetailedErrorProcessor(sessionId, origin) : DefaultErrorProcessor.Instance;
+				_options.ValidationMode switch
+				{
+						ValidationMode.Default => DefaultErrorProcessor.Instance,
+						ValidationMode.Verbose => new DetailedErrorProcessor(sessionId, origin),
+						_ => Infrastructure.UnexpectedValue<IErrorProcessor>(_options.ValidationMode)
+				};
 
 		private StateMachineHostContext GetCurrentContext() => _context ?? throw new InvalidOperationException(Resources.Exception_IOProcessorHasNotBeenStarted);
 
@@ -269,7 +307,7 @@ namespace Xtate
 			return default;
 		}
 
-		private IIoProcessor GetIoProcessor(Uri? type, Uri? target)
+		private IIoProcessor GetIoProcessorByType(Uri? type)
 		{
 			var ioProcessors = _ioProcessors;
 
@@ -280,7 +318,27 @@ namespace Xtate
 
 			foreach (var ioProcessor in ioProcessors)
 			{
-				if (ioProcessor.CanHandle(type, target))
+				if (ioProcessor.CanHandle(type))
+				{
+					return ioProcessor;
+				}
+			}
+
+			throw new ProcessorException(Resources.Exception_InvalidType);
+		}
+
+		private IIoProcessor GetIoProcessorById(Uri ioProcessorsId)
+		{
+			var ioProcessors = _ioProcessors;
+
+			if (ioProcessors.IsDefault)
+			{
+				throw new ProcessorException(Resources.Exception_StateMachineHostStopped);
+			}
+
+			foreach (var ioProcessor in ioProcessors)
+			{
+				if (FullUriComparer.Instance.Equals(ioProcessor.Id, ioProcessorsId))
 				{
 					return ioProcessor;
 				}

@@ -39,7 +39,7 @@ namespace Xtate
 		ValueTask TracePerformingTransition(ILoggerContext loggerContext, TransitionType type, string? eventDescriptor, string? target, CancellationToken token);
 		ValueTask TracePerformedTransition(ILoggerContext loggerContext, TransitionType type, string? eventDescriptor, string? target, CancellationToken token);
 		ValueTask TraceInterpreterState(ILoggerContext loggerContext, StateMachineInterpreterState state, CancellationToken token);
-		ValueTask TraceSendEvent(ILoggerContext loggerContext, IOutgoingEvent evt, CancellationToken token);
+		ValueTask TraceSendEvent(ILoggerContext loggerContext, IOutgoingEvent outgoingEvent, CancellationToken token);
 		ValueTask TraceCancelEvent(ILoggerContext loggerContext, SendId sendId, CancellationToken token);
 		ValueTask TraceStartInvoke(ILoggerContext loggerContext, InvokeData invokeData, CancellationToken token);
 		ValueTask TraceCancelInvoke(ILoggerContext loggerContext, InvokeId invokeId, CancellationToken token);

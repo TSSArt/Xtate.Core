@@ -49,6 +49,7 @@ namespace Xtate.Persistence
 		FireOn,
 		HistoryStates,
 		HistoryType,
+		HostEventData,
 		Id,
 		IdLocation,
 		Index,
@@ -82,6 +83,7 @@ namespace Xtate.Persistence
 		Script,
 		SecurityContextType,
 		SecurityContextPermissions,
+		Sender,
 		SendId,
 		SendIdExpression,
 		SessionId,
@@ -105,6 +107,7 @@ namespace Xtate.Persistence
 		TypeInfo,
 		UnhandledErrorBehaviour,
 		Uri,
+		UriId,
 		ValueList,
 		Version
 	}

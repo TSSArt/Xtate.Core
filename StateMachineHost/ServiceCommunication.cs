@@ -26,37 +26,42 @@ namespace Xtate.Core
 {
 	internal class ServiceCommunication : IServiceCommunication
 	{
-		private readonly StateMachineController _creator;
-		private readonly InvokeId               _invokeId;
-		private readonly Uri                    _originType;
-		private          Uri?                   _origin;
+		private readonly IStateMachineHost _host;
+		private readonly InvokeId          _invokeId;
+		private readonly Uri?              _target;
+		private readonly Uri               _type;
 
-		public ServiceCommunication(StateMachineController creator, Uri originType, InvokeId invokeId)
+		public ServiceCommunication(IStateMachineHost host, Uri? target, Uri type, InvokeId invokeId)
 		{
-			_creator = creator;
-			_originType = originType;
+			_host = host;
+			_target = target;
+			_type = type;
 			_invokeId = invokeId;
 		}
 
 	#region Interface IServiceCommunication
 
-		public ValueTask SendToCreator(IOutgoingEvent evt, CancellationToken token)
+		public async ValueTask SendToCreator(IOutgoingEvent outgoingEvent, CancellationToken token)
 		{
-			if (evt.Type is not null || evt.SendId is not null || evt.DelayMs != 0)
+			if (outgoingEvent.Type is not null || outgoingEvent.SendId is not null || outgoingEvent.DelayMs != 0)
 			{
 				throw new ProcessorException(Resources.Exception_TypeSendIdDelayMsCantBeSpecifiedForThisEvent);
 			}
 
-			if (evt.Target != EventEntity.ParentTarget && evt.Target is not null)
+			if (outgoingEvent.Target != EventEntity.ParentTarget && outgoingEvent.Target is not null)
 			{
 				throw new ProcessorException(Resources.Exception_TargetShouldBeEqualToParentOrNull);
 			}
 
-			_origin ??= new Uri(@"#_" + _invokeId.Value);
+			var newOutgoingEvent = new EventEntity
+								   {
+										   NameParts = outgoingEvent.NameParts,
+										   Data = outgoingEvent.Data,
+										   Type = _type,
+										   Target = _target
+								   };
 
-			var eventObject = new EventObject(EventType.External, evt, _origin, _originType, _invokeId);
-
-			return _creator.Send(eventObject, token);
+			await _host.DispatchEvent(_invokeId, newOutgoingEvent, token).ConfigureAwait(false);
 		}
 
 	#endregion

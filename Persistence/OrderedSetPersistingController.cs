@@ -24,7 +24,7 @@ using Xtate.Core;
 
 namespace Xtate.Persistence
 {
-	internal sealed class OrderedSetPersistingController<T> : IDisposable where T : class
+	internal sealed class OrderedSetPersistingController<T> : IDisposable where T : class, IDocumentId
 	{
 		private readonly Bucket        _bucket;
 		private readonly OrderedSet<T> _orderedSet;
@@ -41,19 +41,19 @@ namespace Xtate.Persistence
 			{
 				var recordBucket = bucket.Nested(_record);
 
-				if (!recordBucket.TryGet(Keys.Operation, out Keys operation) ||
-					!recordBucket.TryGet(Keys.DocumentId, out int documentId))
+				if (!recordBucket.TryGet(Key.Operation, out Key operation) ||
+					!recordBucket.TryGet(Key.DocumentId, out int documentId))
 				{
 					break;
 				}
 
 				switch (operation)
 				{
-					case Keys.Added:
+					case Key.Added:
 						orderedSet.Add(entityMap[documentId].As<T>());
 						break;
 
-					case Keys.Deleted:
+					case Key.Deleted:
 						orderedSet.Delete(entityMap[documentId].As<T>());
 						shrink = true;
 						break;
@@ -70,8 +70,8 @@ namespace Xtate.Persistence
 				foreach (var entity in orderedSet)
 				{
 					var recordBucket = bucket.Nested(_record ++);
-					recordBucket.Add(Keys.DocumentId, entity.As<IDocumentId>().DocumentId);
-					recordBucket.Add(Keys.Operation, Keys.Added);
+					recordBucket.Add(Key.DocumentId, entity.As<IDocumentId>().DocumentId);
+					recordBucket.Add(Key.Operation, Key.Added);
 				}
 			}
 
@@ -94,8 +94,8 @@ namespace Xtate.Persistence
 				case OrderedSet<T>.ChangedAction.Add:
 				{
 					var bucket = _bucket.Nested(_record ++);
-					bucket.Add(Keys.DocumentId, item!.As<IDocumentId>().DocumentId);
-					bucket.Add(Keys.Operation, Keys.Added);
+					bucket.Add(Key.DocumentId, item!.As<IDocumentId>().DocumentId);
+					bucket.Add(Key.Operation, Key.Added);
 					break;
 				}
 
@@ -113,18 +113,18 @@ namespace Xtate.Persistence
 					else
 					{
 						var bucket = _bucket.Nested(_record ++);
-						bucket.Add(Keys.DocumentId, item!.As<IDocumentId>().DocumentId);
-						bucket.Add(Keys.Operation, Keys.Deleted);
+						bucket.Add(Key.DocumentId, item!.As<IDocumentId>().DocumentId);
+						bucket.Add(Key.Operation, Key.Deleted);
 					}
 
 					break;
 
 				default:
-					throw new ArgumentOutOfRangeException(nameof(action), action, message: null);
+					throw Infrastructure.UnexpectedValue<Exception>(action);
 			}
 		}
 
-		private enum Keys
+		private enum Key
 		{
 			DocumentId,
 			Operation,

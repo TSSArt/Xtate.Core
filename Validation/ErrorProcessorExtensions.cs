@@ -25,10 +25,10 @@ namespace Xtate.Core
 	[PublicAPI]
 	public static class ErrorProcessorExtensions
 	{
-		public static void AddError<T>(this IErrorProcessor errorProcessor, object? entity, string message, Exception? exception = null) =>
+		public static void AddError<T>(this IErrorProcessor errorProcessor, object? entity, string message, Exception? exception = default) =>
 				AddError(errorProcessor, typeof(T), entity, message, exception);
 
-		public static void AddError(this IErrorProcessor errorProcessor, Type source, object? entity, string message, Exception? exception = null)
+		public static void AddError(this IErrorProcessor errorProcessor, Type source, object? entity, string message, Exception? exception = default)
 		{
 			if (errorProcessor is null) throw new ArgumentNullException(nameof(errorProcessor));
 			if (source is null) throw new ArgumentNullException(nameof(source));

@@ -18,14 +18,13 @@
 #endregion
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using Xtate.Core;
 
 namespace Xtate
 {
 	[PublicAPI]
 	[Serializable]
-	public sealed class SessionId : LazyId, IEquatable<SessionId>
+	public sealed class SessionId : ServiceId, IEquatable<SessionId>
 	{
 		private SessionId() { }
 
@@ -41,7 +40,6 @@ namespace Xtate
 
 		public static SessionId New() => new();
 
-		[return: NotNullIfNotNull("val")]
-		public static SessionId? FromString(string? val) => val is not null ? new SessionId(val) : null;
+		public static SessionId FromString(string val) => new(val);
 	}
 }

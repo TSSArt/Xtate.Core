@@ -51,7 +51,7 @@ namespace Xtate
 
 			if (_context is { } context)
 			{
-				_context = null;
+				_context = default;
 				await context.DisposeAsync().ConfigureAwait(false);
 			}
 
@@ -80,16 +80,21 @@ namespace Xtate
 				return;
 			}
 
-			var context = _options.StorageProvider is not null
-					? new StateMachineHostPersistedContext(this, _options)
-					: new StateMachineHostContext(this, _options);
+			var context = _options.HostMode switch
+			{
+					HostMode.Cluster => new StateMachineHostClusterContext(this, _options),
+					HostMode.Standalone => _options.StorageProvider is not null
+							? new StateMachineHostPersistedContext(this, _options)
+							: new StateMachineHostContext(this, _options, InProcEventSchedulerFactory.Instance),
+					_ => Infrastructure.UnexpectedValue<StateMachineHostContext>(_options.HostMode)
+			};
 
 			try
 			{
 				_asyncOperationInProgress = true;
 
-				await StateMachineHostStartAsync(token).ConfigureAwait(false);
 				await context.InitializeAsync(token).ConfigureAwait(false);
+				await StateMachineHostStartAsync(token).ConfigureAwait(false);
 
 				_context = context;
 			}
@@ -118,7 +123,7 @@ namespace Xtate
 			}
 
 			_asyncOperationInProgress = true;
-			_context = null;
+			_context = default;
 
 			try
 			{
@@ -132,8 +137,8 @@ namespace Xtate
 			}
 			finally
 			{
-				await context.DisposeAsync().ConfigureAwait(false);
 				await StateMachineHostStopAsync().ConfigureAwait(false);
+				await context.DisposeAsync().ConfigureAwait(false);
 
 				_asyncOperationInProgress = false;
 			}

@@ -41,8 +41,10 @@ namespace Xtate
 		public ILogger?                                 Logger                    { get; set; }
 		public PersistenceLevel                         PersistenceLevel          { get; set; }
 		public IStorageProvider?                        StorageProvider           { get; set; }
-		public TimeSpan                                 SuspendIdlePeriod         { get; set; }
-		public bool                                     VerboseValidation         { get; set; }
+		public IEventSchedulerFactory?                  EventSchedulerFactory     { get; set; }
+		public TimeSpan?                                SuspendIdlePeriod         { get; set; }
+		public ValidationMode                           ValidationMode            { get; set; }
+		public HostMode                                 HostMode                  { get; set; }
 		public UnhandledErrorBehaviour                  UnhandledErrorBehaviour   { get; set; }
 	}
 }

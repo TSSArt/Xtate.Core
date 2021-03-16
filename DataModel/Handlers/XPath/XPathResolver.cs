@@ -31,7 +31,7 @@ namespace Xtate.DataModel.XPath
 		private          Stack<DataModelList>?                     _scopeStack;
 		private          Dictionary<string, IXsltContextVariable>? _varDescriptors;
 
-		public XPathResolver(IXPathFunctionFactory functionFactory, IExecutionContext? executionContext = null)
+		public XPathResolver(IXPathFunctionFactory functionFactory, IExecutionContext? executionContext = default)
 		{
 			_functionFactory = functionFactory;
 			ExecutionContext = executionContext;
