@@ -103,7 +103,7 @@ namespace Xtate
 						SessionId sessionId
 								when await GetCurrentContext().FindStateMachineController(sessionId, token).ConfigureAwait(false) is { } controller => controller,
 						InvokeId invokeId
-								when GetCurrentContext().TryGetService(invokeId, out var service) => service,
+								when GetCurrentContext().TryGetService(invokeId, out var service) && service is not null => service,
 						_ => throw new ProcessorException(Resources.Exception_CannotFindTarget)
 				};
 

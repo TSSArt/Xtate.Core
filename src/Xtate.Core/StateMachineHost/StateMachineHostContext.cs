@@ -346,7 +346,7 @@ namespace Xtate.Core
 
 		public bool TryGetParentSessionId(SessionId sessionId, [NotNullWhen(true)] out SessionId? parentSessionId) => _parentSessionIdBySessionId.TryGetValue(sessionId, out parentSessionId);
 
-		public bool TryGetService(InvokeId invokeId, [NotNullWhen(true)] out IService? service) => _serviceByInvokeId.TryGetValue(invokeId, out service);
+		public bool TryGetService(InvokeId invokeId, out IService? service) => _serviceByInvokeId.TryGetValue(invokeId, out service);
 
 		public async ValueTask DestroyStateMachine(SessionId sessionId, CancellationToken token)
 		{

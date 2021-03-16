@@ -184,7 +184,7 @@ namespace Xtate
 				throw new ProcessorException(Resources.Exception_InvalidInvokeId);
 			}
 
-			return service.Send(evt, token);
+			return service?.Send(evt, token) ?? default;
 		}
 
 	#endregion
