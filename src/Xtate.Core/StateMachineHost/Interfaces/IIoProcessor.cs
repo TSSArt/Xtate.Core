@@ -28,10 +28,12 @@ namespace Xtate.IoProcessor
 	{
 		Uri Id { get; }
 
-		bool CanHandle(Uri? type, Uri? target);
+		bool CanHandle(Uri? type);
 
-		Uri GetTarget(SessionId sessionId);
+		Uri? GetTarget(ServiceId serviceId);
 
-		ValueTask Dispatch(SessionId sessionId, IOutgoingEvent evt, CancellationToken token);
+		ValueTask<IHostEvent> GetHostEvent(ServiceId senderServiceId, IOutgoingEvent outgoingEvent, CancellationToken token);
+
+		ValueTask Dispatch(IHostEvent hostEvent, CancellationToken token);
 	}
 }

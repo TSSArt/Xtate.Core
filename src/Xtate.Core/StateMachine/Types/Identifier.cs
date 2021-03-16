@@ -58,7 +58,7 @@ namespace Xtate
 		{
 			if (string.IsNullOrEmpty(val))
 			{
-				identifier = null;
+				identifier = default;
 
 				return false;
 			}
@@ -67,7 +67,7 @@ namespace Xtate
 			{
 				if (char.IsWhiteSpace(ch))
 				{
-					identifier = null;
+					identifier = default;
 
 					return false;
 				}

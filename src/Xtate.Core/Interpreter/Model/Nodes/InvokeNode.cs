@@ -121,7 +121,7 @@ namespace Xtate.Core
 		public async ValueTask Cancel(IExecutionContext executionContext, CancellationToken token)
 		{
 			var tmpInvokeId = InvokeId;
-			InvokeId = null;
+			InvokeId = default;
 
 			if (tmpInvokeId is not null)
 			{

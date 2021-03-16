@@ -21,8 +21,12 @@ using System;
 
 namespace Xtate.Service
 {
+	[PublicAPI]
 	public class HttpClientServiceFactory : ServiceFactoryBase
 	{
+		private const string Id    = @"http://xtate.net/scxml/service/#HTTPClient";
+		private const string Alias = @"http";
+
 		private readonly HttpClientServiceOptions _options;
 
 		private HttpClientServiceFactory(HttpClientServiceOptions options) => _options = options;
@@ -33,8 +37,8 @@ namespace Xtate.Service
 		{
 			if (catalog is null) throw new ArgumentNullException(nameof(catalog));
 
-			catalog.Register(type: @"http://xtate.net/scxml/service/#HTTPClient", HttpClientServiceCreator);
-			catalog.Register(type: @"http", HttpClientServiceCreator);
+			catalog.Register(Id, HttpClientServiceCreator);
+			catalog.Register(Alias, HttpClientServiceCreator);
 		}
 
 		private ServiceBase HttpClientServiceCreator() => new HttpClientService(_options);

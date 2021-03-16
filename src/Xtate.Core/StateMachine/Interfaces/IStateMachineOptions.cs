@@ -19,6 +19,7 @@
 
 namespace Xtate
 {
+	[PublicAPI]
 	public interface IStateMachineOptions
 	{
 		string? Name { get; }

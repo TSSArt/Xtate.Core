@@ -45,7 +45,7 @@ namespace Xtate
 					args.KeyValues[i] = new HashKeyValue(hashKey: default, args.Values[i]);
 				}
 
-				args.Values = null!;
+				args.Values = default!;
 				args.Adapter = KeyValueAdapterInstance;
 
 				return args.KeyValues;
@@ -60,7 +60,7 @@ namespace Xtate
 					args.MetaValues[i] = new MetaValue(meta: default, args.Values[i]);
 				}
 
-				args.Values = null!;
+				args.Values = default!;
 				args.Adapter = MetaValueAdapterInstance;
 
 				return args.MetaValues;
@@ -75,7 +75,7 @@ namespace Xtate
 					args.KeyMetaValues[i] = new KeyMetaValue(hashKey: default, meta: default, args.Values[i]);
 				}
 
-				args.Values = null!;
+				args.Values = default!;
 				args.Adapter = KeyMetaValueAdapterInstance;
 
 				return args.KeyMetaValues;
@@ -90,7 +90,7 @@ namespace Xtate
 					args.KeyMetaValues[i] = new KeyMetaValue(args.KeyValues[i].HashKey, meta: default, args.KeyValues[i].Value);
 				}
 
-				args.KeyValues = null!;
+				args.KeyValues = default!;
 				args.Adapter = KeyMetaValueAdapterInstance;
 
 				return args.KeyMetaValues;
@@ -105,7 +105,7 @@ namespace Xtate
 					args.KeyMetaValues[i] = new KeyMetaValue(hashKey: default, args.MetaValues[i].Meta, args.MetaValues[i].Value);
 				}
 
-				args.MetaValues = null!;
+				args.MetaValues = default!;
 				args.Adapter = KeyMetaValueAdapterInstance;
 
 				return args.KeyMetaValues;

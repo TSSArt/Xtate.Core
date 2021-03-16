@@ -18,13 +18,13 @@
 #endregion
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtate.Core;
 
 namespace Xtate.IoProcessor
 {
+	[PublicAPI]
 	public abstract class IoProcessorBase : IIoProcessor
 	{
 		private readonly IEventConsumer _eventConsumer;
@@ -45,20 +45,33 @@ namespace Xtate.IoProcessor
 
 	#region Interface IIoProcessor
 
-		Uri IIoProcessor.GetTarget(SessionId sessionId) => GetTarget(sessionId);
+		Uri? IIoProcessor.GetTarget(ServiceId serviceId) => GetTarget(serviceId);
 
-		ValueTask IIoProcessor.Dispatch(SessionId sessionId, IOutgoingEvent evt, CancellationToken token) => OutgoingEvent(sessionId, evt, token);
+		ValueTask<IHostEvent> IIoProcessor.GetHostEvent(ServiceId senderServiceId, IOutgoingEvent outgoingEvent, CancellationToken token) =>
+				CreateHostEventAsync(senderServiceId, outgoingEvent, token);
 
-		bool IIoProcessor.CanHandle(Uri? type, Uri? target) => FullUriComparer.Instance.Equals(type, IoProcessorId) || FullUriComparer.Instance.Equals(type, _ioProcessorAliasId);
+		ValueTask IIoProcessor.Dispatch(IHostEvent hostEvent, CancellationToken token) => OutgoingEvent(hostEvent, token);
+
+		bool IIoProcessor.CanHandle(Uri? type) => FullUriComparer.Instance.Equals(type, IoProcessorId) || FullUriComparer.Instance.Equals(type, _ioProcessorAliasId);
 
 		Uri IIoProcessor.Id => IoProcessorId;
 
 	#endregion
 
-		protected abstract Uri GetTarget(SessionId sessionId);
+		protected abstract Uri? GetTarget(ServiceId serviceId);
 
-		protected abstract ValueTask OutgoingEvent(SessionId sessionId, IOutgoingEvent evt, CancellationToken token);
+		protected virtual ValueTask<IHostEvent> CreateHostEventAsync(ServiceId senderServiceId, IOutgoingEvent outgoingEvent, CancellationToken token) =>
+				new(CreateHostEvent(senderServiceId, outgoingEvent));
 
-		protected bool TryGetEventDispatcher(SessionId sessionId, [NotNullWhen(true)] out IEventDispatcher? eventDispatcher) => _eventConsumer.TryGetEventDispatcher(sessionId, out eventDispatcher);
+		protected virtual IHostEvent CreateHostEvent(ServiceId senderServiceId, IOutgoingEvent outgoingEvent)
+		{
+			if (outgoingEvent is null) throw new ArgumentNullException(nameof(outgoingEvent));
+
+			return new HostEvent(this, senderServiceId, outgoingEvent.Target is { } target ? UriId.FromUri(target) : null, outgoingEvent);
+		}
+
+		protected abstract ValueTask OutgoingEvent(IHostEvent hostEvent, CancellationToken token);
+
+		protected ValueTask<IEventDispatcher?> TryGetEventDispatcher(SessionId sessionId, CancellationToken token) => _eventConsumer.TryGetEventDispatcher(sessionId, token);
 	}
 }

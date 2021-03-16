@@ -18,36 +18,18 @@
 #endregion
 
 using System;
+using System.Threading;
 
 namespace Xtate.Core
 {
 	[PublicAPI]
-	public class LazyValue : ILazyValue
+	public class LazyValue : Lazy<DataModelValue>, ILazyValue
 	{
-		private Func<DataModelValue>? _factory;
-		private DataModelValue        _value;
-
-		public LazyValue(Func<DataModelValue> factory) => _factory = factory ?? throw new ArgumentNullException(nameof(factory));
+		public LazyValue(Func<DataModelValue> factory) : base(factory, LazyThreadSafetyMode.PublicationOnly) { }
 
 	#region Interface ILazyValue
 
-		public DataModelValue Value
-		{
-			get
-			{
-				if (_factory is { } factory)
-				{
-					var value = factory();
-
-					_factory = null;
-					_value = value;
-
-					return value;
-				}
-
-				return _value;
-			}
-		}
+		DataModelValue ILazyValue.Value => Value;
 
 	#endregion
 
@@ -57,37 +39,13 @@ namespace Xtate.Core
 	}
 
 	[PublicAPI]
-	public class LazyValue<TArg> : ILazyValue
+	public class LazyValue<TArg> : Lazy<DataModelValue>, ILazyValue
 	{
-		private readonly TArg                        _arg;
-		private          Func<TArg, DataModelValue>? _factory;
-		private          DataModelValue              _value;
-
-		public LazyValue(Func<TArg, DataModelValue> factory, TArg arg)
-		{
-			_factory = factory ?? throw new ArgumentNullException(nameof(factory));
-			_arg = arg;
-		}
+		public LazyValue(Func<TArg, DataModelValue> factory, TArg arg) : base(() => factory(arg), LazyThreadSafetyMode.PublicationOnly) { }
 
 	#region Interface ILazyValue
 
-		public DataModelValue Value
-		{
-			get
-			{
-				if (_factory is { } factory)
-				{
-					var value = factory(_arg);
-
-					_factory = null;
-					_value = value;
-
-					return value;
-				}
-
-				return _value;
-			}
-		}
+		DataModelValue ILazyValue.Value => Value;
 
 	#endregion
 
@@ -97,39 +55,13 @@ namespace Xtate.Core
 	}
 
 	[PublicAPI]
-	public class LazyValue<TArg1, TArg2> : ILazyValue
+	public class LazyValue<TArg1, TArg2> : Lazy<DataModelValue>, ILazyValue
 	{
-		private readonly TArg1                               _arg1;
-		private readonly TArg2                               _arg2;
-		private          Func<TArg1, TArg2, DataModelValue>? _factory;
-		private          DataModelValue                      _value;
-
-		public LazyValue(Func<TArg1, TArg2, DataModelValue> factory, TArg1 arg1, TArg2 arg2)
-		{
-			_factory = factory ?? throw new ArgumentNullException(nameof(factory));
-			_arg1 = arg1;
-			_arg2 = arg2;
-		}
+		public LazyValue(Func<TArg1, TArg2, DataModelValue> factory, TArg1 arg1, TArg2 arg2) : base(() => factory(arg1, arg2), LazyThreadSafetyMode.PublicationOnly) { }
 
 	#region Interface ILazyValue
 
-		public DataModelValue Value
-		{
-			get
-			{
-				if (_factory is { } factory)
-				{
-					var value = factory(_arg1, _arg2);
-
-					_factory = null;
-					_value = value;
-
-					return value;
-				}
-
-				return _value;
-			}
-		}
+		DataModelValue ILazyValue.Value => Value;
 
 	#endregion
 

@@ -37,7 +37,7 @@ namespace Xtate.Core
 			TargetState = target;
 			ActionEvaluators = transition.Action.AsArrayOf<IExecutableEntity, IExecEvaluator>(true);
 			ConditionEvaluator = transition.Condition?.As<IBooleanEvaluator>();
-			Source = null!;
+			Source = default!;
 		}
 
 		public ImmutableArray<StateEntityNode> TargetState        { get; private set; }

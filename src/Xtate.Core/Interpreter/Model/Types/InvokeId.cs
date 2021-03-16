@@ -26,7 +26,7 @@ namespace Xtate
 {
 	[PublicAPI]
 	[Serializable]
-	public sealed class InvokeId : LazyId, IEquatable<InvokeId>
+	public sealed class InvokeId : ServiceId, IEquatable<InvokeId>
 	{
 		internal static readonly IEqualityComparer<InvokeId> InvokeUniqueIdComparer = new InvokeUniqueIdEqualityComparer();
 

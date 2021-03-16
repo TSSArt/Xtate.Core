@@ -109,7 +109,7 @@ namespace Xtate
 					{
 						_list.SetLength(cnvArg.ToInt32(CultureInfo.InvariantCulture));
 
-						result = null;
+						result = default;
 
 						return true;
 					}
@@ -127,7 +127,7 @@ namespace Xtate
 							_list.Add(str1Arg, value: default, (DataModelList?) args[1]);
 						}
 
-						result = null;
+						result = default;
 
 						return true;
 					}
@@ -146,13 +146,13 @@ namespace Xtate
 							_list.Set(entry.Index, key: default, value: default, (DataModelList?) args[1]);
 						}
 
-						result = null;
+						result = default;
 
 						return true;
 					}
 				}
 
-				result = null;
+				result = default;
 
 				return false;
 
@@ -176,7 +176,7 @@ namespace Xtate
 						return true;
 
 					default:
-						result = null;
+						result = default;
 
 						return false;
 				}
@@ -219,7 +219,7 @@ namespace Xtate
 					return true;
 				}
 
-				result = null;
+				result = default;
 
 				return false;
 			}

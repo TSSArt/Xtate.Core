@@ -65,10 +65,10 @@ namespace Xtate.Core.Test
 	[TestClass]
 	public class DataModelValueTest
 	{
-		private DataModelList    _emptyDataModelList           = null!;
-		private Mock<ILazyValue> _lazyValueListMock            = null!;
-		private Mock<ILazyValue> _lazyValueNullMock            = null!;
-		private Mock<ILazyValue> _lazyValueOfLazyValueNullMock = null!;
+		private DataModelList    _emptyDataModelList           = default!;
+		private Mock<ILazyValue> _lazyValueListMock            = default!;
+		private Mock<ILazyValue> _lazyValueNullMock            = default!;
+		private Mock<ILazyValue> _lazyValueOfLazyValueNullMock = default!;
 
 		private static IEnumerable<Record> SimpleRecords
 		{

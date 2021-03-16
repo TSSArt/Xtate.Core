@@ -28,12 +28,13 @@ namespace Xtate.Persistence
 {
 	internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 	{
-		private const    string   HostPartition      = "StateMachineHost";
-		private const    string   ContextKey         = "context";
-		private const    int      StateMachinesKey   = 0;
-		private const    int      InvokedServicesKey = 1;
-		private readonly Uri?     _baseUri;
-		private readonly TimeSpan _idlePeriod;
+		private const string HostPartition      = "StateMachineHost";
+		private const string ContextKey         = "context";
+		private const int    StateMachinesKey   = 0;
+		private const int    InvokedServicesKey = 1;
+
+		private readonly Uri?      _baseUri;
+		private readonly TimeSpan? _idlePeriod;
 
 		private readonly Dictionary<(SessionId SessionId, InvokeId InvokeId), InvokedServiceMeta> _invokedServices = new();
 
@@ -48,7 +49,7 @@ namespace Xtate.Persistence
 
 		private ITransactionalStorage? _storage;
 
-		public StateMachineHostPersistedContext(IStateMachineHost stateMachineHost, StateMachineHostOptions options) : base(stateMachineHost, options)
+		public StateMachineHostPersistedContext(IStateMachineHost stateMachineHost, StateMachineHostOptions options) : base(stateMachineHost, options, new PersistedEventSchedulerFactory(options))
 		{
 			Infrastructure.NotNull(options.StorageProvider);
 
@@ -111,7 +112,7 @@ namespace Xtate.Persistence
 				var bucket = new Bucket(_storage).Nested(InvokedServicesKey);
 				var recordId = _invokedServiceRecordId ++;
 
-				var invokedSessionId = service is StateMachineController stateMachineController ? stateMachineController.SessionId : null;
+				var invokedSessionId = service is StateMachineControllerBase stateMachineController ? stateMachineController.SessionId : null;
 				var invokedService = new InvokedServiceMeta(sessionId, invokeId, invokedSessionId) { RecordId = recordId };
 				_invokedServices.Add((sessionId, invokeId), invokedService);
 
@@ -177,15 +178,17 @@ namespace Xtate.Persistence
 			}
 		}
 
-		protected override StateMachineController CreateStateMachineController(SessionId sessionId, IStateMachine? stateMachine, IStateMachineOptions? stateMachineOptions, Uri? stateMachineLocation,
-																			   InterpreterOptions defaultOptions, SecurityContext securityContext, DeferredFinalizer finalizer) =>
+		protected override StateMachineControllerBase CreateStateMachineController(SessionId sessionId, IStateMachine? stateMachine, IStateMachineOptions? stateMachineOptions,
+																				   Uri? stateMachineLocation,
+																				   InterpreterOptions defaultOptions, SecurityContext securityContext, DeferredFinalizer finalizer) =>
 				stateMachineOptions.IsStateMachinePersistable()
 						? new StateMachinePersistedController(sessionId, stateMachineOptions, stateMachine, stateMachineLocation, _stateMachineHost,
 															  _storageProvider, _idlePeriod, defaultOptions, securityContext, finalizer)
 						: base.CreateStateMachineController(sessionId, stateMachine, stateMachineOptions, stateMachineLocation, defaultOptions, securityContext, finalizer);
 
-		public override async ValueTask<StateMachineController> CreateAndAddStateMachine(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters, SecurityContext securityContext,
-																						 DeferredFinalizer finalizer, IErrorProcessor errorProcessor, CancellationToken token)
+		public override async ValueTask<StateMachineControllerBase> CreateAndAddStateMachine(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters,
+																							 SecurityContext securityContext,
+																							 DeferredFinalizer finalizer, IErrorProcessor errorProcessor, CancellationToken token)
 		{
 			Infrastructure.NotNull(_storage);
 
@@ -223,7 +226,7 @@ namespace Xtate.Persistence
 			}
 		}
 
-		public override async ValueTask RemoveStateMachineController(StateMachineController stateMachineController)
+		public override async ValueTask RemoveStateMachineController(StateMachineControllerBase stateMachineController)
 		{
 			Infrastructure.NotNull(_storage);
 
@@ -309,7 +312,7 @@ namespace Xtate.Persistence
 						var controller = AddSavedStateMachine(meta.SessionId, meta.Location, meta, securityContext, finalizer, DefaultErrorProcessor.Instance);
 						AddStateMachineController(controller);
 
-						finalizer.Add(static(ctx, ctrl) => ((StateMachineHostContext) ctx).RemoveStateMachineController((StateMachineController) ctrl), this, controller);
+						finalizer.Add(static(ctx, ctrl) => ((StateMachineHostContext) ctx).RemoveStateMachineController((StateMachineControllerBase) ctrl), this, controller);
 						finalizer.Add(controller);
 
 						meta.Controller = controller;
@@ -386,7 +389,7 @@ namespace Xtate.Persistence
 						else if (_stateMachines.TryGetValue(invokedService.ParentSessionId, out var invokingStateMachine))
 						{
 							Infrastructure.NotNull(invokingStateMachine.Controller);
-							var evt = new EventObject(EventType.External, EventName.ErrorExecution, data: default, sendId: null, invokedService.InvokeId);
+							var evt = new EventObject { Type = EventType.External, NameParts = EventName.ErrorExecution, InvokeId = invokedService.InvokeId };
 							await invokingStateMachine.Controller.Send(evt, token).ConfigureAwait(false);
 						}
 					}
@@ -453,12 +456,12 @@ namespace Xtate.Persistence
 				}
 			}
 
-			public SessionId                  SessionId           { get; }
-			public Uri?                       Location            { get; }
-			public int                        RecordId            { get; set; }
-			public StateMachineController?    Controller          { get; set; }
-			public SecurityContextType        SecurityContextType { get; }
-			public SecurityContextPermissions Permissions         { get; }
+			public SessionId                   SessionId           { get; }
+			public Uri?                        Location            { get; }
+			public int                         RecordId            { get; set; }
+			public StateMachineControllerBase? Controller          { get; set; }
+			public SecurityContextType         SecurityContextType { get; }
+			public SecurityContextPermissions  Permissions         { get; }
 
 		#region Interface IStateMachineOptions
 

@@ -34,9 +34,6 @@ namespace Xtate.Builder
 
 		protected object? Ancestor { get; }
 
-		protected void AddError(string message, Exception? exception = default)
-		{
-			_errorProcessor.AddError(GetType(), Ancestor, message, exception);
-		}
+		protected void AddError(string message, Exception? exception = default) => _errorProcessor.AddError(GetType(), Ancestor, message, exception);
 	}
 }

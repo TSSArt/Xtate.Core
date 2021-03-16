@@ -34,19 +34,19 @@ namespace Xtate.Core
 	{
 		private readonly object? _val;
 
-		public StateMachineOrigin(IStateMachine stateMachine, Uri? baseUri = null)
+		public StateMachineOrigin(IStateMachine stateMachine, Uri? baseUri = default)
 		{
 			_val = stateMachine ?? throw new ArgumentNullException(nameof(stateMachine));
 			BaseUri = baseUri;
 		}
 
-		public StateMachineOrigin(Uri source, Uri? baseUri = null)
+		public StateMachineOrigin(Uri source, Uri? baseUri = default)
 		{
 			_val = source ?? throw new ArgumentNullException(nameof(source));
 			BaseUri = baseUri;
 		}
 
-		public StateMachineOrigin(string scxml, Uri? baseUri = null)
+		public StateMachineOrigin(string scxml, Uri? baseUri = default)
 		{
 			_val = scxml ?? throw new ArgumentNullException(nameof(scxml));
 			BaseUri = baseUri;

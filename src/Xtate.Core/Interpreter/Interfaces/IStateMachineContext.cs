@@ -29,6 +29,7 @@ namespace Xtate.Core
 		DataModelList               DataModel          { get; }
 		OrderedSet<StateEntityNode> Configuration      { get; }
 		OrderedSet<StateEntityNode> StatesToInvoke     { get; }
+		ServiceIdSet                ActiveInvokes      { get; }
 		KeyList<StateEntityNode>    HistoryValue       { get; }
 	}
 }

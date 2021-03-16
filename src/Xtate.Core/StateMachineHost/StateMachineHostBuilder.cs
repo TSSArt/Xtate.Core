@@ -36,15 +36,16 @@ namespace Xtate
 		private ImmutableDictionary<string, string>.Builder?      _configuration;
 		private ImmutableArray<ICustomActionFactory>.Builder?     _customActionFactories;
 		private ImmutableArray<IDataModelHandlerFactory>.Builder? _dataModelHandlerFactories;
+		private HostMode                                          _hostMode;
 		private ImmutableArray<IIoProcessorFactory>.Builder?      _ioProcessorFactories;
 		private ILogger?                                          _logger;
 		private PersistenceLevel                                  _persistenceLevel;
 		private ImmutableArray<IResourceLoaderFactory>.Builder?   _resourceLoaderFactories;
 		private ImmutableArray<IServiceFactory>.Builder?          _serviceFactories;
 		private IStorageProvider?                                 _storageProvider;
-		private TimeSpan                                          _suspendIdlePeriod;
+		private TimeSpan?                                         _suspendIdlePeriod;
 		private UnhandledErrorBehaviour                           _unhandledErrorBehaviour;
-		private bool                                              _verboseValidation = true;
+		private ValidationMode                                    _validationMode = ValidationMode.Verbose;
 
 		public StateMachineHost Build()
 		{
@@ -61,8 +62,9 @@ namespace Xtate
 								 PersistenceLevel = _persistenceLevel,
 								 StorageProvider = _storageProvider,
 								 SuspendIdlePeriod = _suspendIdlePeriod,
-								 VerboseValidation = _verboseValidation,
-								 UnhandledErrorBehaviour = _unhandledErrorBehaviour
+								 ValidationMode = _validationMode,
+								 UnhandledErrorBehaviour = _unhandledErrorBehaviour,
+								 HostMode = _hostMode
 						 };
 
 			return new StateMachineHost(option);
@@ -77,7 +79,7 @@ namespace Xtate
 
 		public StateMachineHostBuilder DisableVerboseValidation()
 		{
-			_verboseValidation = false;
+			_validationMode = ValidationMode.Default;
 
 			return this;
 		}
@@ -173,6 +175,20 @@ namespace Xtate
 			}
 
 			_unhandledErrorBehaviour = unhandledErrorBehaviour;
+
+			return this;
+		}
+
+		public StateMachineHostBuilder SetClusterHostMode()
+		{
+			_hostMode = HostMode.Cluster;
+
+			return this;
+		}
+
+		public StateMachineHostBuilder SetStandaloneHostMode()
+		{
+			_hostMode = HostMode.Standalone;
 
 			return this;
 		}

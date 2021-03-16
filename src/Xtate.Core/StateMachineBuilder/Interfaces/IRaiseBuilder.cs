@@ -25,6 +25,6 @@ namespace Xtate.Builder
 	{
 		IRaise Build();
 
-		void SetEvent(IOutgoingEvent evt);
+		void SetEvent(IOutgoingEvent outgoingEvent);
 	}
 }

@@ -25,24 +25,24 @@ namespace Xtate.Core
 {
 	internal sealed class EventNode : IOutgoingEvent, IStoreSupport, IAncestorProvider
 	{
-		private readonly IOutgoingEvent _event;
+		private readonly IOutgoingEvent _outgoingEvent;
 
-		public EventNode(IOutgoingEvent evt) => _event = evt;
+		public EventNode(IOutgoingEvent outgoingEvent) => _outgoingEvent = outgoingEvent;
 
 	#region Interface IAncestorProvider
 
-		object IAncestorProvider.Ancestor => _event;
+		object IAncestorProvider.Ancestor => _outgoingEvent;
 
 	#endregion
 
 	#region Interface IOutgoingEvent
 
-		public ImmutableArray<IIdentifier> NameParts => _event.NameParts;
-		public SendId?                     SendId    => _event.SendId;
-		public DataModelValue              Data      => _event.Data;
-		public Uri?                        Target    => _event.Target;
-		public Uri?                        Type      => _event.Type;
-		public int                         DelayMs   => _event.DelayMs;
+		public ImmutableArray<IIdentifier> NameParts => _outgoingEvent.NameParts;
+		public SendId?                     SendId    => _outgoingEvent.SendId;
+		public DataModelValue              Data      => _outgoingEvent.Data;
+		public Uri?                        Target    => _outgoingEvent.Target;
+		public Uri?                        Type      => _outgoingEvent.Type;
+		public int                         DelayMs   => _outgoingEvent.DelayMs;
 
 	#endregion
 
@@ -50,7 +50,7 @@ namespace Xtate.Core
 
 		void IStoreSupport.Store(Bucket bucket)
 		{
-			bucket.Add(Key.Id, EventName.ToName(_event.NameParts));
+			bucket.Add(Key.Id, EventName.ToName(_outgoingEvent.NameParts));
 		}
 
 	#endregion

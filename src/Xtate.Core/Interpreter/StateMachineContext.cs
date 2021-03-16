@@ -75,13 +75,13 @@ namespace Xtate.Core
 			return false;
 		}
 
-		public async ValueTask Send(IOutgoingEvent evt, CancellationToken token)
+		public async ValueTask Send(IOutgoingEvent outgoingEvent, CancellationToken token)
 		{
-			await _logger.TraceSendEvent(_loggerContext, evt, token).ConfigureAwait(false);
+			await _logger.TraceSendEvent(_loggerContext, outgoingEvent, token).ConfigureAwait(false);
 
-			if (IsInternalEvent(evt) || await _externalCommunication.TrySendEvent(evt, token).ConfigureAwait(false) == SendStatus.ToInternalQueue)
+			if (IsInternalEvent(outgoingEvent) || await _externalCommunication.TrySendEvent(outgoingEvent, token).ConfigureAwait(false) == SendStatus.ToInternalQueue)
 			{
-				InternalQueue.Enqueue(new EventObject(EventType.Internal, evt));
+				InternalQueue.Enqueue(new EventObject(outgoingEvent) { Type = EventType.Internal });
 			}
 		}
 
@@ -129,18 +129,20 @@ namespace Xtate.Core
 
 		public OrderedSet<StateEntityNode> StatesToInvoke { get; } = new();
 
+		public ServiceIdSet ActiveInvokes { get; } = new();
+
 		public virtual IPersistenceContext PersistenceContext => throw new NotSupportedException();
 
 	#endregion
 
-		private static bool IsInternalEvent(IOutgoingEvent evt)
+		private static bool IsInternalEvent(IOutgoingEvent outgoingEvent)
 		{
-			if (evt.Target != InternalTarget || evt.Type is not null)
+			if (outgoingEvent.Target != InternalTarget || outgoingEvent.Type is not null)
 			{
 				return false;
 			}
 
-			if (evt.DelayMs != 0)
+			if (outgoingEvent.DelayMs != 0)
 			{
 				throw new ExecutionException(Resources.Exception_InternalEventsCantBeDelayed);
 			}
@@ -206,7 +208,7 @@ namespace Xtate.Core
 				return list;
 			}
 
-			static DataModelValue GetLocation(IIoProcessor ioProcessor, SessionId sessionId) => new(ioProcessor.GetTarget(sessionId).ToString());
+			static DataModelValue GetLocation(IIoProcessor ioProcessor, SessionId sessionId) => new(ioProcessor.GetTarget(sessionId)?.ToString());
 		}
 
 		private class ContextItems : IContextItems

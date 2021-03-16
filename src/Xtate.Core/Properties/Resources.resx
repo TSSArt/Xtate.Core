@@ -590,11 +590,8 @@
     <value>Error on event consumer side. Exception message: {0}.
 {1}</value>
   </data>
-  <data name="Exception_TargetWrongFormat" xml:space="preserve">
-    <value>Target wrong format.</value>
-  </data>
-  <data name="Exception_NamedIoProcessorWithNameAlreadyHasBeenRegistered" xml:space="preserve">
-    <value>NamedIoProcessor with name '{0}' already has been registered.</value>
+  <data name="Exception_NamedPipeIoProcessorWithNameAlreadyHasBeenRegistered" xml:space="preserve">
+    <value>NamedPipeIoProcessor with name '{0}' already has been registered.</value>
   </data>
   <data name="Exception_AccessCantBeChanged" xml:space="preserve">
     <value>Access can't be changed.</value>
@@ -716,10 +713,10 @@
   <data name="DefaultLogger_TraceCancelInvoke" xml:space="preserve">
     <value>Cancel invoke. InvokeId: [{0}].</value>
   </data>
-  <data name="Exception_NamedIoProcessorMessageSizeHasWrongValueOrMissed" xml:space="preserve">
+  <data name="Exception_NamedPipeIoProcessorMessageSizeHasWrongValueOrMissed" xml:space="preserve">
     <value>Message size has wrong value or missed. Size: {0} bytes.</value>
   </data>
-  <data name="Exception_NamedIoProcessorMessageReadPartially" xml:space="preserve">
+  <data name="Exception_NamedPipeIoProcessorMessageReadPartially" xml:space="preserve">
     <value>Message read partially. {0} of {1} bytes.</value>
   </data>
   <data name="Exception_EventDispatcherNotFound" xml:space="preserve">
@@ -799,5 +796,8 @@
   </data>
   <data name="Exception_KeyShouldNotBeEmpty" xml:space="preserve">
     <value>Key should not be empty</value>
+  </data>
+  <data name="Exception_OriginTypeMustBeProvidedInIoProcessorEvent" xml:space="preserve">
+    <value>OriginType must be provided in ioProcessorEvent.</value>
   </data>
 </root>

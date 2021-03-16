@@ -166,7 +166,7 @@ namespace Xtate.IoProcessor
 
 			var hostEntry = await Dns.GetHostEntryAsync(uri.DnsSafeHost).ConfigureAwait(false);
 
-			IPAddress? listenAddress = null;
+			IPAddress? listenAddress = default;
 
 			foreach (var address in hostEntry.AddressList)
 			{
@@ -189,54 +189,62 @@ namespace Xtate.IoProcessor
 			return new IPEndPoint(listenAddress, uri.Port);
 		}
 
-		protected override Uri GetTarget(SessionId sessionId)
-		{
-			if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
+		protected override Uri? GetTarget(ServiceId serviceId) =>
+				serviceId switch
+				{
+						SessionId sessionId => new Uri(_baseUri, sessionId.Value),
+						_ => default
+				};
 
-			return new Uri(_baseUri, sessionId.Value);
+		protected override IHostEvent CreateHostEvent(ServiceId senderServiceId, IOutgoingEvent outgoingEvent)
+		{
+			if (outgoingEvent is null) throw new ArgumentNullException(nameof(outgoingEvent));
+
+			if (outgoingEvent.Target is null)
+			{
+				throw new ArgumentException(Resources.Exception_TargetIsNotDefined, nameof(outgoingEvent));
+			}
+
+			return base.CreateHostEvent(senderServiceId, outgoingEvent);
 		}
 
-		protected override async ValueTask OutgoingEvent(SessionId sessionId, IOutgoingEvent evt, CancellationToken token)
+		protected override async ValueTask OutgoingEvent(IHostEvent hostEvent, CancellationToken token)
 		{
-			if (evt is null) throw new ArgumentNullException(nameof(evt));
+			if (hostEvent is null) throw new ArgumentNullException(nameof(hostEvent));
+
+			var targetUri = hostEvent.TargetServiceId?.Value;
+			Infrastructure.NotNull(targetUri);
+
+			var content = GetContent(hostEvent, out var eventNameInContent);
+			if (!hostEvent.NameParts.IsDefaultOrEmpty && !eventNameInContent)
+			{
+				targetUri = QueryStringHelper.AddQueryString(targetUri, EventNameParameterName, EventName.ToName(hostEvent.NameParts));
+			}
+
+			using var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, targetUri) { Content = content };
+
+			if (GetTarget(hostEvent.SenderServiceId) is { } origin)
+			{
+				httpRequestMessage.Headers.Add(name: @"Origin", origin.ToString());
+			}
 
 			using var client = new HttpClient();
-
-			if (evt.Target is null)
-			{
-				throw new ArgumentException(Resources.Exception_TargetIsNotDefined, nameof(evt));
-			}
-
-			var targetUri = evt.Target.ToString();
-
-			var content = GetContent(evt, out var eventNameInContent);
-			if (!evt.NameParts.IsDefaultOrEmpty && !eventNameInContent)
-			{
-				targetUri = QueryStringHelper.AddQueryString(targetUri, EventNameParameterName, EventName.ToName(evt.NameParts));
-			}
-
-			using var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, targetUri)
-										   {
-												   Content = content,
-												   Headers = { { @"Origin", GetTarget(sessionId).ToString() } }
-										   };
-
 			var httpResponseMessage = await client.SendAsync(httpRequestMessage, token).ConfigureAwait(false);
 			httpResponseMessage.EnsureSuccessStatusCode();
 		}
 
-		private static HttpContent? GetContent(IOutgoingEvent evt, out bool eventNameInContent)
+		private static HttpContent? GetContent(IHostEvent hostEvent, out bool eventNameInContent)
 		{
-			var data = evt.Data;
+			var data = hostEvent.Data;
 			var dataType = data.Type;
 
 			switch (dataType)
 			{
 				case DataModelValueType.Undefined:
 				case DataModelValueType.Null:
-					eventNameInContent = !evt.NameParts.IsDefaultOrEmpty;
+					eventNameInContent = !hostEvent.NameParts.IsDefaultOrEmpty;
 
-					return eventNameInContent ? new FormUrlEncodedContent(GetParameters(evt.NameParts, dataModelList: null)) : null;
+					return eventNameInContent ? new FormUrlEncodedContent(GetParameters(hostEvent.NameParts, dataModelList: null)) : null;
 
 				case DataModelValueType.String:
 					eventNameInContent = false;
@@ -250,7 +258,7 @@ namespace Xtate.IoProcessor
 					if (IsStringDictionary(dataModelList))
 					{
 						eventNameInContent = true;
-						return new FormUrlEncodedContent(GetParameters(evt.NameParts, dataModelList));
+						return new FormUrlEncodedContent(GetParameters(hostEvent.NameParts, dataModelList));
 					}
 
 					eventNameInContent = false;
@@ -361,7 +369,7 @@ namespace Xtate.IoProcessor
 				return false;
 			}
 
-			if (!TryGetEventDispatcher(sessionId, out var eventDispatcher))
+			if (await TryGetEventDispatcher(sessionId, token).ConfigureAwait(false) is not { } eventDispatcher)
 			{
 				return false;
 			}
@@ -423,7 +431,13 @@ namespace Xtate.IoProcessor
 
 			exceptionData.MakeDeepConstant();
 
-			return new EventObject(EventName.GetErrorPlatform(ErrorSuffixHeader + _errorSuffix), origin: default, IoProcessorId, data);
+			return new EventObject
+				   {
+						   Type = EventType.External,
+						   NameParts = EventName.GetErrorPlatform(ErrorSuffixHeader + _errorSuffix),
+						   Data = data,
+						   OriginType = IoProcessorId
+				   };
 		}
 
 		protected abstract THost CreateHost(IPEndPoint ipEndPoint);
@@ -461,12 +475,19 @@ namespace Xtate.IoProcessor
 
 			eventName ??= eventNameInContent ?? GetMethod(context);
 
-			return new EventObject(eventName, origin, IoProcessorId, data);
+			return new EventObject
+				   {
+						   Type = EventType.External,
+						   NameParts = EventName.ToParts(eventName),
+						   Data = data,
+						   OriginType = IoProcessorId,
+						   Origin = origin
+				   };
 		}
 
 		protected virtual DataModelValue CreateData(string mediaType, string body, out string? eventName)
 		{
-			eventName = null;
+			eventName = default;
 
 			if (mediaType == MediaTypeTextPlain)
 			{
@@ -508,43 +529,6 @@ namespace Xtate.IoProcessor
 			}
 
 			return default;
-		}
-
-		private class EventObject : IEvent
-		{
-			public EventObject(ImmutableArray<IIdentifier> nameParts, Uri? origin, Uri originType, DataModelValue data)
-			{
-				NameParts = nameParts;
-				Origin = origin;
-				OriginType = originType;
-				Data = data.AsConstant();
-			}
-
-			public EventObject(string eventName, Uri? origin, Uri originType, DataModelValue data)
-			{
-				NameParts = EventName.ToParts(eventName);
-				Origin = origin;
-				OriginType = originType;
-				Data = data.AsConstant();
-			}
-
-		#region Interface IEvent
-
-			public DataModelValue Data { get; }
-
-			public InvokeId? InvokeId => null;
-
-			public ImmutableArray<IIdentifier> NameParts { get; }
-
-			public Uri? Origin { get; }
-
-			public Uri OriginType { get; }
-
-			public SendId? SendId => null;
-
-			public EventType Type => EventType.External;
-
-		#endregion
 		}
 	}
 }

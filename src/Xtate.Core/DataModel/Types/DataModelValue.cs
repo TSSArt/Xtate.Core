@@ -510,21 +510,21 @@ namespace Xtate
 
 		public DataModelValue CloneAsWritable()
 		{
-			Dictionary<object, DataModelList>? map = null;
+			Dictionary<object, DataModelList>? map = default;
 
 			return DeepCloneWithMap(DataModelAccess.Writable, ref map);
 		}
 
 		public DataModelValue CloneAsReadOnly()
 		{
-			Dictionary<object, DataModelList>? map = null;
+			Dictionary<object, DataModelList>? map = default;
 
 			return DeepCloneWithMap(DataModelAccess.ReadOnly, ref map);
 		}
 
 		public DataModelValue AsConstant()
 		{
-			Dictionary<object, DataModelList>? map = null;
+			Dictionary<object, DataModelList>? map = default;
 
 			return DeepCloneWithMap(DataModelAccess.Constant, ref map);
 		}
@@ -557,7 +557,7 @@ namespace Xtate
 
 		public static DataModelValue FromObject(object? value)
 		{
-			Dictionary<object, DataModelList>? map = null;
+			Dictionary<object, DataModelList>? map = default;
 
 			return FromObjectWithMap(value, ref map);
 		}
@@ -829,7 +829,7 @@ namespace Xtate
 					return new DataModelList.Dynamic(list).TryGetMember(binder, out result);
 				}
 
-				result = null;
+				result = default;
 
 				return false;
 			}
@@ -851,7 +851,7 @@ namespace Xtate
 					return new DataModelList.Dynamic(list).TryGetIndex(binder, indexes, out result);
 				}
 
-				result = null;
+				result = default;
 
 				return false;
 			}
@@ -912,7 +912,7 @@ namespace Xtate
 					return true;
 				}
 
-				result = null;
+				result = default;
 
 				return false;
 			}

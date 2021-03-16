@@ -39,32 +39,32 @@ namespace Xtate.Core
 				new StringBuilder(id.Length + 33)
 						.Append(id)
 						.Append('.')
-						.Append(Guid.NewGuid().ToString("N"), startIndex: 0, count: 24)
+						.Append(Guid.NewGuid().ToString("N"))
 						.Append(hash.ToString(@"x8")).ToString();
 
 		private static string NewGuidWithHash(int hash) =>
 				new StringBuilder(32)
-						.Append(Guid.NewGuid().ToString("N"), startIndex: 0, count: 24)
+						.Append(Guid.NewGuid().ToString("N"))
 						.Append(hash.ToString(@"x8")).ToString();
 #else
 		[UsedImplicitly]
 		private static void IgnoreIt(StringBuilder _) { }
 
 		public static string NewInvokeId([Localizable(false)] string id, int hash) =>
-				string.Create(33 + id.Length, (id, hash), static(span, arg) =>
+				string.Create(41 + id.Length, (id, hash), static(span, arg) =>
 														  {
 															  arg.id.AsSpan().CopyTo(span);
 															  span[arg.id.Length] = '.';
 															  span = span[(arg.id.Length + 1)..];
 															  Guid.NewGuid().TryFormat(span, out var pos, format: @"N");
-															  arg.hash.TryFormat(span[(pos - 8)..], out pos, format: @"x8");
+															  arg.hash.TryFormat(span[pos..], out pos, format: @"x8");
 														  });
 
 		private static string NewGuidWithHash(int hash) =>
-				string.Create(length: 32, hash, static(span, h) =>
+				string.Create(length: 40, hash, static(span, h) =>
 												{
 													Guid.NewGuid().TryFormat(span, out var pos, format: @"N");
-													h.TryFormat(span[(pos - 8)..], out pos, format: @"x8");
+													h.TryFormat(span[pos..], out pos, format: @"x8");
 												});
 #endif
 	}

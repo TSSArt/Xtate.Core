@@ -184,7 +184,7 @@ namespace Xtate.Core
 			if (_taskQueue is not { } taskQueue)
 			{
 				taskQueue = new ConcurrentQueue<Task>();
-				Interlocked.CompareExchange(ref _taskQueue, taskQueue, comparand: null);
+				taskQueue = Interlocked.CompareExchange(ref _taskQueue, taskQueue, comparand: null) ?? taskQueue;
 			}
 
 			if (_taskSemaphore is not { } taskSemaphore)

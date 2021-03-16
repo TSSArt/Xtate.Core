@@ -27,7 +27,7 @@ namespace Xtate.Core
 	public enum SendStatus
 	{
 		Sent,
-		ToSchedule,
+		Scheduled,
 		ToInternalQueue
 	}
 
@@ -37,8 +37,7 @@ namespace Xtate.Core
 
 		ValueTask             StartInvoke(InvokeData invokeData, CancellationToken token);
 		ValueTask             CancelInvoke(InvokeId invokeId, CancellationToken token);
-		bool                  IsInvokeActive(InvokeId invokeId);
-		ValueTask<SendStatus> TrySendEvent(IOutgoingEvent evt, CancellationToken token);
+		ValueTask<SendStatus> TrySendEvent(IOutgoingEvent outgoingEvent, CancellationToken token);
 		ValueTask             ForwardEvent(IEvent evt, InvokeId invokeId, CancellationToken token);
 		ValueTask             CancelEvent(SendId sendId, CancellationToken token);
 	}

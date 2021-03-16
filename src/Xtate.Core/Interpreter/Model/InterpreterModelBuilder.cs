@@ -87,8 +87,8 @@ namespace Xtate.Core
 			_entities.Clear();
 			_targetMap.Clear();
 			_documentIdList.Clear();
-			_dataModelNodeArray = null;
-			_externalScriptList = null;
+			_dataModelNodeArray = default;
+			_externalScriptList = default;
 			_inParallel = false;
 			_deepLevel = 0;
 			_counter = 0;

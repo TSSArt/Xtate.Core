@@ -33,6 +33,14 @@ namespace Xtate.Core
 
 			return ((ICollection<KeyValuePair<TKey, TValue>>) concurrentDictionary).Remove(pair);
 		}
+
+		public static TValue AddOrUpdate<TKey, TValue, TArg>(this ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key, Func<TKey, TArg, TValue> addValueFactory,
+															 Func<TKey, TValue, TArg, TValue> updateValueFactory, TArg factoryArgument)
+		{
+			if (concurrentDictionary is null) throw new ArgumentNullException(nameof(concurrentDictionary));
+
+			return concurrentDictionary.AddOrUpdate(key, k => addValueFactory(k, factoryArgument), (k, v) => updateValueFactory(k, v, factoryArgument));
+		}
 	}
 }
 #endif

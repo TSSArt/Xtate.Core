@@ -81,7 +81,8 @@ namespace Xtate.Persistence
 
 					break;
 
-				default: throw new ArgumentOutOfRangeException(nameof(action), action, message: null);
+				default:
+					throw Infrastructure.UnexpectedValue<Exception>(action);
 			}
 		}
 

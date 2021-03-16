@@ -37,7 +37,7 @@ namespace Xtate.Service
 
 		public static HttpClientMimeTypeHandler Instance { get; } = new HttpClientXmlHandler();
 
-		private static bool CanHandle([NotNullWhen(true)]string? contentType)
+		private static bool CanHandle([NotNullWhen(true)] string? contentType)
 		{
 			if (contentType is not { Length: > 0 })
 			{

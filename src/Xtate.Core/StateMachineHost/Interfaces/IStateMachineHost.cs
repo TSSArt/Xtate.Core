@@ -24,13 +24,13 @@ using Xtate.IoProcessor;
 
 namespace Xtate.Core
 {
-	internal interface IStateMachineHost
+	internal interface IStateMachineHost : IHostEventDispatcher
 	{
 		ImmutableArray<IIoProcessor> GetIoProcessors();
-		ValueTask<SendStatus>        DispatchEvent(SessionId sessionId, IOutgoingEvent evt, bool skipDelay, CancellationToken token);
+		ValueTask<SendStatus>        DispatchEvent(ServiceId serviceId, IOutgoingEvent outgoingEvent, CancellationToken token);
+		ValueTask                    CancelEvent(SessionId sessionId, SendId sendId, CancellationToken token);
 		ValueTask                    StartInvoke(SessionId sessionId, InvokeData invokeData, ISecurityContext securityContext, CancellationToken token);
 		ValueTask                    CancelInvoke(SessionId sessionId, InvokeId invokeId, CancellationToken token);
-		bool                         IsInvokeActive(SessionId sessionId, InvokeId invokeId);
 		ValueTask                    ForwardEvent(SessionId sessionId, IEvent evt, InvokeId invokeId, CancellationToken token);
 	}
 }

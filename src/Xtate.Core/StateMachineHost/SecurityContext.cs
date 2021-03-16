@@ -174,7 +174,7 @@ namespace Xtate.Core
 				await localCache.DisposeAsync().ConfigureAwait(false);
 			}
 
-			_localCache = null;
+			_localCache = default;
 		}
 
 		internal static SecurityContext Create(SecurityContextType type, DeferredFinalizer finalizer)

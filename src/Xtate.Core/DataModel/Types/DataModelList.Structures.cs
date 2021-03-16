@@ -33,9 +33,9 @@ namespace Xtate
 			{
 				Index = index;
 				Value = value;
-				Key = null;
+				Key = default;
 				Access = default;
-				Metadata = null;
+				Metadata = default;
 			}
 
 			internal Entry(int index, string? key, in DataModelValue value)
@@ -44,14 +44,14 @@ namespace Xtate
 				Value = value;
 				Key = key;
 				Access = default;
-				Metadata = null;
+				Metadata = default;
 			}
 
 			internal Entry(int index, in DataModelValue value, DataModelAccess access, DataModelList? metadata)
 			{
 				Index = index;
 				Value = value;
-				Key = null;
+				Key = default;
 				Access = access;
 				Metadata = metadata;
 			}

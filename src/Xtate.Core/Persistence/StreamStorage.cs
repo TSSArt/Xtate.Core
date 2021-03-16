@@ -26,6 +26,7 @@ using Xtate.Core;
 
 namespace Xtate.Persistence
 {
+	[PublicAPI]
 	internal sealed class StreamStorage : ITransactionalStorage
 	{
 		private const byte SkipMark        = 0;

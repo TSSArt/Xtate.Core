@@ -17,30 +17,17 @@
 
 #endregion
 
-using System;
-using Xtate.IoProcessor;
-
-namespace Xtate
+namespace Xtate.Core
 {
 	[PublicAPI]
-	public static class NamedIoProcessorExtensions
+	public interface IHostEvent : IEvent
 	{
-		public static StateMachineHostBuilder AddNamedIoProcessor(this StateMachineHostBuilder builder, string name, int? maxMessageSize = default)
-		{
-			if (builder is null) throw new ArgumentNullException(nameof(builder));
+		ServiceId SenderServiceId { get; }
 
-			builder.AddIoProcessorFactory(new NamedIoProcessorFactory(name, maxMessageSize));
+		ServiceId? TargetServiceId { get; }
 
-			return builder;
-		}
+		DataModelList? IoProcessorData { get; }
 
-		public static StateMachineHostBuilder AddNamedIoProcessor(this StateMachineHostBuilder builder, string host, string name, int? maxMessageSize = default)
-		{
-			if (builder is null) throw new ArgumentNullException(nameof(builder));
-
-			builder.AddIoProcessorFactory(new NamedIoProcessorFactory(host, name, maxMessageSize));
-
-			return builder;
-		}
+		int DelayMs { get; }
 	}
 }

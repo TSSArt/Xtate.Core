@@ -17,12 +17,13 @@
 
 #endregion
 
-using System.Diagnostics.CodeAnalysis;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Xtate.Core
 {
 	public interface IEventConsumer
 	{
-		bool TryGetEventDispatcher(SessionId sessionId, [NotNullWhen(true)] out IEventDispatcher? eventDispatcher);
+		ValueTask<IEventDispatcher?> TryGetEventDispatcher(ServiceId serviceId, CancellationToken token);
 	}
 }

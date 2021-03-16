@@ -20,18 +20,20 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using Xtate.Core;
 
 namespace Xtate.Persistence
 {
+	[PublicAPI]
 	internal static class BucketExtensions
 	{
-		public static void AddEntity<T>(this in Bucket bucket, Key key, T? entity) where T : class
+		public static void AddEntity<TKey, TValue>(this in Bucket bucket, TKey key, TValue? entity) where TKey : notnull where TValue : class
 		{
 			entity?.As<IStoreSupport>().Store(bucket.Nested(key));
 		}
 
-		public static void AddEntityList<T>(this in Bucket bucket, Key key, ImmutableArray<T> array) where T : class
+		public static void AddEntityList<TKey, TValue>(this in Bucket bucket, TKey key, ImmutableArray<TValue> array) where TKey : notnull where TValue : class
 		{
 			if (array.IsDefaultOrEmpty)
 			{
@@ -48,7 +50,7 @@ namespace Xtate.Persistence
 			}
 		}
 
-		public static ImmutableArray<T> RestoreList<T>(this in Bucket bucket, Key key, Func<Bucket, T?> factory) where T : class
+		public static ImmutableArray<TValue> RestoreList<TKey, TValue>(this in Bucket bucket, TKey key, Func<Bucket, TValue?> factory) where TKey : notnull where TValue : class
 		{
 			if (!bucket.TryGet(key, out int length))
 			{
@@ -57,7 +59,7 @@ namespace Xtate.Persistence
 
 			var itemsBucket = bucket.Nested(key);
 
-			var builder = ImmutableArray.CreateBuilder<T>(length);
+			var builder = ImmutableArray.CreateBuilder<TValue>(length);
 
 			for (var i = 0; i < length; i ++)
 			{
@@ -74,7 +76,7 @@ namespace Xtate.Persistence
 			return builder.MoveToImmutable();
 		}
 
-		public static void AddId(this in Bucket bucket, Key key, SessionId? sessionId)
+		public static void AddId<TKey>(this in Bucket bucket, TKey key, SessionId? sessionId) where TKey : notnull
 		{
 			if (sessionId is not null)
 			{
@@ -82,7 +84,7 @@ namespace Xtate.Persistence
 			}
 		}
 
-		public static void AddId(this in Bucket bucket, Key key, SendId? sendId)
+		public static void AddId<TKey>(this in Bucket bucket, TKey key, SendId? sendId) where TKey : notnull
 		{
 			if (sendId is not null)
 			{
@@ -90,7 +92,7 @@ namespace Xtate.Persistence
 			}
 		}
 
-		public static void AddId(this in Bucket bucket, Key key, InvokeId? invokeId)
+		public static void AddId<TKey>(this in Bucket bucket, TKey key, InvokeId? invokeId) where TKey : notnull
 		{
 			if (invokeId is not null)
 			{
@@ -99,20 +101,31 @@ namespace Xtate.Persistence
 			}
 		}
 
-		public static TEnum Get<TEnum>(this in Bucket bucket, Key key) where TEnum : struct, Enum =>
-				bucket.TryGet(key, out TEnum value) ? value : throw new KeyNotFoundException(Res.Format(Resources.Exception_KeyNotFound, key));
+		public static void AddId<TKey>(this in Bucket bucket, TKey key, UriId? uriId) where TKey : notnull
+		{
+			if (uriId is not null)
+			{
+				bucket.Add(key, uriId.Uri);
+			}
+		}
 
-		public static int GetInt32(this in Bucket bucket, Key key) => bucket.TryGet(key, out int value) ? value : throw new KeyNotFoundException(Res.Format(Resources.Exception_KeyNotFound, key));
+		public static EnumGetter<TKey> GetEnum<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => new(bucket, key);
 
-		public static bool GetBoolean(this in Bucket bucket, Key key) => bucket.TryGet(key, out bool value) ? value : throw new KeyNotFoundException(Res.Format(Resources.Exception_KeyNotFound, key));
+		public static int GetInt32<TKey>(this in Bucket bucket, TKey key) where TKey : notnull =>
+				bucket.TryGet(key, out int value) ? value : throw new KeyNotFoundException(Res.Format(Resources.Exception_KeyNotFound, key));
 
-		public static string? GetString(this in Bucket bucket, Key key) => bucket.TryGet(key, out string? value) ? value : null;
+		public static bool GetBoolean<TKey>(this in Bucket bucket, TKey key) where TKey : notnull =>
+				bucket.TryGet(key, out bool value) ? value : throw new KeyNotFoundException(Res.Format(Resources.Exception_KeyNotFound, key));
 
-		public static SessionId? GetSessionId(this in Bucket bucket, Key key) => bucket.TryGet(key, out string? value) ? SessionId.FromString(value) : null;
+		public static string? GetString<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out string? value) ? value : null;
 
-		public static SendId? GetSendId(this in Bucket bucket, Key key) => bucket.TryGet(key, out string? value) ? SendId.FromString(value) : null;
+		public static SessionId? GetSessionId<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out string? value) ? SessionId.FromString(value) : null;
 
-		public static InvokeId? GetInvokeId(this in Bucket bucket, Key key)
+		public static SendId? GetSendId<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out string? value) ? SendId.FromString(value) : null;
+
+		public static UriId? GetUriId<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out Uri? value) ? UriId.FromUri(value) : null;
+
+		public static InvokeId? GetInvokeId<TKey>(this in Bucket bucket, TKey key) where TKey : notnull
 		{
 			bucket.TryGet(key, out string? invokeId);
 			bucket.Nested(key).TryGet(key: 1, out string? invokeUniqueId);
@@ -125,7 +138,48 @@ namespace Xtate.Persistence
 			return InvokeId.FromString(invokeId, invokeUniqueId);
 		}
 
-		public static Uri? GetUri(this in Bucket bucket, Key key) => bucket.TryGet(key, out Uri? value) ? value : null;
+		public static Uri? GetUri<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out Uri? value) ? value : null;
+
+		public static void AddServiceId<TKey>(this in Bucket bucket, TKey key, ServiceId? serviceId) where TKey : notnull
+		{
+			var serviceBucket = bucket.Nested(key);
+
+			switch (serviceId)
+			{
+				case SessionId sessionId:
+					serviceBucket.AddId(Key.SessionId, sessionId);
+					break;
+
+				case InvokeId invokeId:
+					serviceBucket.AddId(Key.InvokeId, invokeId);
+					break;
+
+				case UriId uriId:
+					serviceBucket.AddId(Key.UriId, uriId);
+					break;
+			}
+		}
+
+		public static bool TryGetServiceId<TKey>(this in Bucket bucket, TKey key, [NotNullWhen(true)] out ServiceId? serviceId) where TKey : notnull
+		{
+			var serviceBucket = bucket.Nested(key);
+
+			serviceId = serviceBucket.GetSessionId(Key.SessionId)
+						?? serviceBucket.GetInvokeId(Key.InvokeId)
+						?? serviceBucket.GetUriId(Key.UriId)
+						?? (ServiceId?) default;
+
+			return serviceId is not null;
+		}
+
+		public static DataModelValue GetDataModelValue<TKey>(this in Bucket bucket, TKey key) where TKey : notnull
+		{
+			var valRefBucket = bucket.Nested(key);
+
+			using var tracker = new DataModelReferenceTracker(valRefBucket.Nested(Key.DataReferences));
+
+			return valRefBucket.GetDataModelValue(tracker, baseValue: default);
+		}
 
 		public static DataModelValue GetDataModelValue(this in Bucket bucket, DataModelReferenceTracker tracker, DataModelValue baseValue)
 		{
@@ -147,6 +201,16 @@ namespace Xtate.Persistence
 					return DataModelValue.FromObject(tracker.GetValue(refId, type, list));
 
 				default: return Infrastructure.UnexpectedValue<DataModelValue>(type);
+			}
+		}
+
+		public static void AddDataModelValue<TKey>(this in Bucket bucket, TKey key, in DataModelValue item) where TKey : notnull
+		{
+			if (!item.IsUndefined())
+			{
+				var valRefBucket = bucket.Nested(key);
+				using var tracker = new DataModelReferenceTracker(valRefBucket.Nested(Key.DataReferences));
+				valRefBucket.SetDataModelValue(tracker, item);
 			}
 		}
 
@@ -189,6 +253,20 @@ namespace Xtate.Persistence
 					Infrastructure.UnexpectedValue(type);
 					break;
 			}
+		}
+
+		public readonly struct EnumGetter<TKey> where TKey : notnull
+		{
+			private readonly Bucket _bucket;
+			private readonly TKey   _key;
+
+			public EnumGetter(in Bucket bucket, TKey key)
+			{
+				_bucket = bucket;
+				_key = key;
+			}
+
+			public TEnum As<TEnum>() where TEnum : struct, Enum => _bucket.TryGet(_key, out TEnum value) ? value : throw new KeyNotFoundException(Res.Format(Resources.Exception_KeyNotFound, _key));
 		}
 	}
 }

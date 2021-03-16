@@ -27,6 +27,7 @@ using Xtate.Core;
 
 namespace Xtate.DataModel.XPath
 {
+	[PublicAPI]
 	internal sealed class XPathDataModelHandler : DataModelHandlerBase
 	{
 		private const string DataModelType = "xpath";

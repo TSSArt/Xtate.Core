@@ -44,7 +44,7 @@ namespace Xtate.Core
 		{
 			if (_errors is { } errors)
 			{
-				_errors = null;
+				_errors = default;
 
 				throw new StateMachineValidationException(errors.ToImmutable(), _sessionId, _origin);
 			}

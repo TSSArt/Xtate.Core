@@ -25,6 +25,7 @@ using System.Text;
 
 namespace Xtate.Persistence
 {
+	[PublicAPI]
 	internal readonly struct Bucket
 	{
 		public static readonly RootType RootKey = RootType.Instance;
@@ -280,7 +281,7 @@ namespace Xtate.Persistence
 
 			public Node(IStorage storage)
 			{
-				Previous = null;
+				Previous = default;
 				Storage = storage;
 			}
 

@@ -261,9 +261,9 @@ namespace Xtate.Persistence
 				throw new InvalidOperationException(Resources.Exception_StorageNotAvailableForReadOperations);
 			}
 
-			IMemoryOwner<byte>? newBaselineOwner = null;
+			IMemoryOwner<byte>? newBaselineOwner = default;
 			var newBaseline = Memory<byte>.Empty;
-			SortedSet<Entry>? newReadModel = null;
+			SortedSet<Entry>? newReadModel = default;
 			if (shrink)
 			{
 				newBaselineOwner = MemoryPool<byte>.Shared.Rent(_readModel.Sum(p => p.Key.Length + p.Value.Length));
@@ -323,9 +323,9 @@ namespace Xtate.Persistence
 				}
 
 				_owner?.Dispose();
-				_owner = null;
+				_owner = default;
 
-				_buffers = null;
+				_buffers = default;
 				_buffer = Memory<byte>.Empty;
 			}
 			else
@@ -345,7 +345,7 @@ namespace Xtate.Persistence
 					_buffers.Add((_owner, 0));
 				}
 
-				_owner = null;
+				_owner = default;
 				_buffer = Memory<byte>.Empty;
 			}
 		}
