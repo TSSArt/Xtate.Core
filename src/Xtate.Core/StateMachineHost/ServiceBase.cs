@@ -35,8 +35,8 @@ namespace Xtate.Service
 
 		protected ServiceBase()
 		{
-			_invokeData = null!;
-			ServiceCommunication = null!;
+			_invokeData = default!;
+			ServiceCommunication = default!;
 		}
 
 		protected Uri?                  BaseUri              { get; private set; }

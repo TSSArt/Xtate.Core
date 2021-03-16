@@ -132,7 +132,7 @@ namespace Xtate.DataModel.XPath
 			}
 		}
 
-		public static DataModelValue FromXml(string xml, object? entity = null)
+		public static DataModelValue FromXml(string xml, object? entity = default)
 		{
 			entity.Is<XmlNameTable>(out var nameTable);
 
@@ -204,7 +204,7 @@ namespace Xtate.DataModel.XPath
 
 		private static async ValueTask<DataModelValue> LoadValueAsync(XmlReader xmlReader)
 		{
-			DataModelList? list = null;
+			DataModelList? list = default;
 
 			do
 			{
@@ -282,7 +282,7 @@ namespace Xtate.DataModel.XPath
 
 		private static DataModelValue LoadValue(XmlReader xmlReader)
 		{
-			DataModelList? list = null;
+			DataModelList? list = default;
 
 			do
 			{

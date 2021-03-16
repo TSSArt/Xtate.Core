@@ -18,8 +18,8 @@
 #endregion
 
 #if NET461 || NETSTANDARD2_0
-using Xtate;
 using System.ComponentModel;
+using Xtate;
 
 namespace System.Runtime.CompilerServices
 {

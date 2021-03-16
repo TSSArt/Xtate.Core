@@ -30,7 +30,7 @@ namespace Xtate.Core.Test.Legacy
 		public void DataModelListNullTest()
 		{
 			// arrange
-			DataModelList nullVal = null!;
+			DataModelList nullVal = default!;
 
 			// act
 			var v = (DataModelValue) nullVal;
@@ -44,7 +44,7 @@ namespace Xtate.Core.Test.Legacy
 		public void DataModelStringNullTest()
 		{
 			// arrange
-			string nullVal = null!;
+			string nullVal = default!;
 
 			// act
 			var v = (DataModelValue) nullVal;

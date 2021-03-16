@@ -42,7 +42,7 @@ namespace Xtate.Core
 
 					if (value >= 0)
 					{
-						_node = null;
+						_node = default;
 						_value = value;
 					}
 

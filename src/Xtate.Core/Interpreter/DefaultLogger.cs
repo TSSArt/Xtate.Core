@@ -124,9 +124,9 @@ namespace Xtate.Core
 			return default;
 		}
 
-		public ValueTask TraceSendEvent(ILoggerContext loggerContext, IOutgoingEvent evt, CancellationToken token)
+		public ValueTask TraceSendEvent(ILoggerContext loggerContext, IOutgoingEvent outgoingEvent, CancellationToken token)
 		{
-			Trace.TraceInformation(Resources.DefaultLogger_TraceSendEvent, !evt.NameParts.IsDefaultOrEmpty ? EventName.ToName(evt.NameParts) : null, evt.SendId?.Value);
+			Trace.TraceInformation(Resources.DefaultLogger_TraceSendEvent, !outgoingEvent.NameParts.IsDefaultOrEmpty ? EventName.ToName(outgoingEvent.NameParts) : null, outgoingEvent.SendId?.Value);
 
 			return default;
 		}

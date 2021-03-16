@@ -18,7 +18,6 @@
 #endregion
 
 #if NET461 || NETSTANDARD2_0
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Xtate;
 
@@ -78,7 +77,6 @@ namespace System
 
 		public static implicit operator Index(int value) => FromStart(value);
 
-		[SuppressMessage(category: "Globalization", checkId: "CA1305:Specify IFormatProvider", Justification = "Does not required culture formatting")]
 		public override string ToString() => IsFromEnd ? @"^" + (uint) Value : ((uint) Value).ToString();
 	}
 

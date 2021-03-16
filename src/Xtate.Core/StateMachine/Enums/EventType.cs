@@ -19,8 +19,10 @@
 
 namespace Xtate
 {
+	[PublicAPI]
 	public enum EventType
 	{
+		None,
 		Platform,
 		Internal,
 		External

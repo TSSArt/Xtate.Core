@@ -23,14 +23,19 @@ namespace Xtate.Service
 {
 	public class SmtpClientServiceFactory : ServiceFactoryBase
 	{
+		private const string Id    = @"http://xtate.net/scxml/service/#SMTPClient";
+		private const string Alias = @"smtp";
+
 		public static IServiceFactory Instance { get; } = new SmtpClientServiceFactory();
 
 		protected override void Register(IServiceCatalog catalog)
 		{
 			if (catalog is null) throw new ArgumentNullException(nameof(catalog));
 
-			catalog.Register(type: @"http://xtate.net/scxml/service/#SMTPClient", () => new SmtpClientService());
-			catalog.Register(type: @"smtp", () => new SmtpClientService());
+			catalog.Register(Id, SmtpClientServiceCreator);
+			catalog.Register(Alias, SmtpClientServiceCreator);
 		}
+
+		private static ServiceBase SmtpClientServiceCreator() => new SmtpClientService();
 	}
 }

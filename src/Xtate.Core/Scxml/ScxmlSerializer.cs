@@ -63,7 +63,7 @@ namespace Xtate.Scxml
 				WriteOptions(options);
 			}
 
-			properties.Initial = null;
+			properties.Initial = default;
 			base.Build(ref entity, ref properties);
 
 			_writer.WriteEndElement();

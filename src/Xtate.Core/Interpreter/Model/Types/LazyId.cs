@@ -33,7 +33,7 @@ namespace Xtate.Core
 
 		protected LazyId(string id) => _id = id ?? throw new ArgumentNullException(nameof(id));
 
-		public string Value
+		public virtual string Value
 		{
 			get
 			{
@@ -73,6 +73,8 @@ namespace Xtate.Core
 		[SuppressMessage(category: "ReSharper", checkId: "BaseObjectGetHashCodeCallInGetHashCode")]
 		[SuppressMessage(category: "ReSharper", checkId: "NonReadonlyMemberInGetHashCode")]
 		public override int GetHashCode() => _id is { } id ? TryGetHashFromId(id, out var hash) ? hash : id.GetHashCode() : base.GetHashCode();
+
+		public override string ToString() => Value;
 
 		protected static bool TryGetHashFromId(string id, out int hash)
 		{

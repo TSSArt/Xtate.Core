@@ -61,7 +61,7 @@ namespace Xtate
 
 		ValueTask Cancel(SendId sendId, CancellationToken token = default);
 
-		ValueTask Send(IOutgoingEvent evt, CancellationToken token = default);
+		ValueTask Send(IOutgoingEvent outgoingEvent, CancellationToken token = default);
 
 		ValueTask StartInvoke(InvokeData invokeData, CancellationToken token = default);
 

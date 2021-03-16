@@ -65,11 +65,9 @@ namespace Xtate.Core
 			}
 		}
 
-		bool IExternalCommunication.IsInvokeActive(InvokeId invokeId) => IsInvokeActive(invokeId);
-
-		async ValueTask<SendStatus> IExternalCommunication.TrySendEvent(IOutgoingEvent evt, CancellationToken token)
+		async ValueTask<SendStatus> IExternalCommunication.TrySendEvent(IOutgoingEvent outgoingEvent, CancellationToken token)
 		{
-			if (evt is null) throw new ArgumentNullException(nameof(evt));
+			if (outgoingEvent is null) throw new ArgumentNullException(nameof(outgoingEvent));
 
 			try
 			{
@@ -78,11 +76,11 @@ namespace Xtate.Core
 					throw NoExternalCommunication();
 				}
 
-				return await _externalCommunication.TrySendEvent(evt, token).ConfigureAwait(false);
+				return await _externalCommunication.TrySendEvent(outgoingEvent, token).ConfigureAwait(false);
 			}
 			catch (Exception ex)
 			{
-				throw new CommunicationException(ex, _sessionId, evt.SendId);
+				throw new CommunicationException(ex, _sessionId, outgoingEvent.SendId);
 			}
 		}
 
@@ -107,8 +105,6 @@ namespace Xtate.Core
 
 	#endregion
 
-		private bool IsInvokeActive(InvokeId invokeId) => _externalCommunication?.IsInvokeActive(invokeId) == true;
-
 		private bool IsCommunicationError(Exception exception, out SendId? sendId)
 		{
 			for (var ex = exception; ex is not null; ex = ex.InnerException)
@@ -121,7 +117,7 @@ namespace Xtate.Core
 				}
 			}
 
-			sendId = null;
+			sendId = default;
 
 			return false;
 		}

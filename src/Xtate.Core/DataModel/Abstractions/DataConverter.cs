@@ -135,10 +135,10 @@ namespace Xtate.DataModel
 
 			var eventList = new DataModelList(caseInsensitive)
 							{
-									{ @"name", EventName.ToName(evt.NameParts) },
+									{ @"name", new LazyValue<IEvent>(static e => EventName.ToName(e.NameParts), evt) },
 									{ @"type", GetTypeString(evt.Type) },
 									{ @"sendid", evt.SendId },
-									{ @"origin", evt.Origin?.ToString() },
+									{ @"origin", new LazyValue<IEvent>(static e => e.Origin?.ToString(), evt) },
 									{ @"origintype", evt.OriginType?.ToString() },
 									{ @"invokeid", evt.InvokeId },
 									{ @"data", evt.Data.AsConstant() }
@@ -155,7 +155,7 @@ namespace Xtate.DataModel
 						EventType.Platform => @"platform",
 						EventType.Internal => @"internal",
 						EventType.External => @"external",
-						_ => throw new ArgumentOutOfRangeException(nameof(eventType), eventType, message: null)
+						_ => Infrastructure.UnexpectedValue<string>(eventType)
 				};
 			}
 		}
@@ -164,19 +164,24 @@ namespace Xtate.DataModel
 		{
 			if (exception is null) throw new ArgumentNullException(nameof(exception));
 
-			var exceptionData = new DataModelList(caseInsensitive)
-								{
-										{ @"message", exception.Message },
-										{ @"typeName", exception.GetType().Name },
-										{ @"source", exception.Source },
-										{ @"typeFullName", exception.GetType().FullName },
-										{ @"stackTrace", exception.StackTrace },
-										{ @"text", exception.ToString() }
-								};
+			return new LazyValue<Exception, bool>(ValueFactory, exception, caseInsensitive);
 
-			exceptionData.MakeDeepConstant();
+			static DataModelValue ValueFactory(Exception exception, bool caseInsensitive)
+			{
+				var exceptionData = new DataModelList(caseInsensitive)
+									{
+											{ @"message", exception.Message },
+											{ @"typeName", exception.GetType().Name },
+											{ @"source", exception.Source },
+											{ @"typeFullName", exception.GetType().FullName },
+											{ @"stackTrace", exception.StackTrace },
+											{ @"text", exception.ToString() }
+									};
 
-			return new DataModelValue(exceptionData);
+				exceptionData.MakeDeepConstant();
+
+				return new DataModelValue(exceptionData);
+			}
 		}
 	}
 }

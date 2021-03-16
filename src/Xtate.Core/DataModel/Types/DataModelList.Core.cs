@@ -934,7 +934,7 @@ namespace Xtate
 
 		internal DataModelList DeepClone(DataModelAccess targetAccess)
 		{
-			Dictionary<object, DataModelList>? map = null;
+			Dictionary<object, DataModelList>? map = default;
 
 			return DeepCloneWithMap(targetAccess, ref map);
 		}

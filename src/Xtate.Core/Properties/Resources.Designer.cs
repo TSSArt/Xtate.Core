@@ -1470,27 +1470,27 @@ namespace Xtate {
         /// <summary>
         ///   Looks up a localized string similar to Message read partially. {0} of {1} bytes..
         /// </summary>
-        internal static string Exception_NamedIoProcessorMessageReadPartially {
+        internal static string Exception_NamedPipeIoProcessorMessageReadPartially {
             get {
-                return ResourceManager.GetString("Exception_NamedIoProcessorMessageReadPartially", resourceCulture);
+                return ResourceManager.GetString("Exception_NamedPipeIoProcessorMessageReadPartially", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Message size has wrong value or missed. Size: {0} bytes..
         /// </summary>
-        internal static string Exception_NamedIoProcessorMessageSizeHasWrongValueOrMissed {
+        internal static string Exception_NamedPipeIoProcessorMessageSizeHasWrongValueOrMissed {
             get {
-                return ResourceManager.GetString("Exception_NamedIoProcessorMessageSizeHasWrongValueOrMissed", resourceCulture);
+                return ResourceManager.GetString("Exception_NamedPipeIoProcessorMessageSizeHasWrongValueOrMissed", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to NamedIoProcessor with name &apos;{0}&apos; already has been registered..
+        ///   Looks up a localized string similar to NamedPipeIoProcessor with name &apos;{0}&apos; already has been registered..
         /// </summary>
-        internal static string Exception_NamedIoProcessorWithNameAlreadyHasBeenRegistered {
+        internal static string Exception_NamedPipeIoProcessorWithNameAlreadyHasBeenRegistered {
             get {
-                return ResourceManager.GetString("Exception_NamedIoProcessorWithNameAlreadyHasBeenRegistered", resourceCulture);
+                return ResourceManager.GetString("Exception_NamedPipeIoProcessorWithNameAlreadyHasBeenRegistered", resourceCulture);
             }
         }
         
@@ -1518,6 +1518,15 @@ namespace Xtate {
         internal static string Exception_ObjectCanNotBeModified {
             get {
                 return ResourceManager.GetString("Exception_ObjectCanNotBeModified", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to OriginType must be provided in ioProcessorEvent..
+        /// </summary>
+        internal static string Exception_OriginTypeMustBeProvidedInIoProcessorEvent {
+            get {
+                return ResourceManager.GetString("Exception_OriginTypeMustBeProvidedInIoProcessorEvent", resourceCulture);
             }
         }
         
@@ -1761,15 +1770,6 @@ namespace Xtate {
         internal static string Exception_TargetShouldBeEqualToParentOrNull {
             get {
                 return ResourceManager.GetString("Exception_TargetShouldBeEqualToParentOrNull", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Target wrong format..
-        /// </summary>
-        internal static string Exception_TargetWrongFormat {
-            get {
-                return ResourceManager.GetString("Exception_TargetWrongFormat", resourceCulture);
             }
         }
         
