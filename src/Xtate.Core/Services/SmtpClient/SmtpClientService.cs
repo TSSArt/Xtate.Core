@@ -32,7 +32,7 @@ namespace Xtate.Service
 			var parameters = Parameters.AsListOrEmpty();
 			var host = parameters["server"].AsString();
 			var port = parameters["port"].AsNumberOrDefault();
-			using var client = new SmtpClient(host, port is { } p ? (int) p : 25);
+			using var client = new SmtpClient(host, port is { } portValue ? (int) portValue : 25);
 
 			if (parameters["userName"].AsStringOrDefault() is { Length: >0 } userName)
 			{

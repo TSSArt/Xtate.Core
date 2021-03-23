@@ -70,7 +70,7 @@ namespace Xtate.Core
 			}
 		}
 
-		private static void StartNewWorker(object? o, bool b)
+		private static void StartNewWorker(object? _0, bool _1)
 		{
 			var thread = new Thread(WorkerThread) { IsBackground = true };
 

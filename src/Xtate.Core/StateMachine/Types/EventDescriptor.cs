@@ -28,13 +28,13 @@ namespace Xtate.Core
 
 		private readonly IIdentifier[] _parts;
 
-		private EventDescriptor(string val)
+		private EventDescriptor(string value)
 		{
-			if (string.IsNullOrEmpty(val)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(val));
+			if (string.IsNullOrEmpty(value)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(value));
 
-			Value = val;
+			Value = value;
 
-			var parts = val.Split(Dot, StringSplitOptions.None);
+			var parts = value.Split(Dot, StringSplitOptions.None);
 			var length = parts.Length;
 			if (length > 0 && parts[length - 1] == @"*")
 			{
@@ -75,8 +75,8 @@ namespace Xtate.Core
 
 	#endregion
 
-		public static explicit operator EventDescriptor(string val) => new(val);
+		public static explicit operator EventDescriptor(string value) => new(value);
 
-		public static EventDescriptor FromString(string val) => new(val);
+		public static EventDescriptor FromString(string value) => new(value);
 	}
 }

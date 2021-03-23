@@ -156,7 +156,7 @@ namespace Xtate.Persistence
 				_fireOnUtcTicks = DateTime.UtcNow.Ticks + hostEvent.DelayMs * TimeSpan.TicksPerMillisecond;
 			}
 
-			public PersistedScheduledEvent(PersistedEventScheduler eventScheduler, Bucket bucket) : base(bucket)
+			public PersistedScheduledEvent(PersistedEventScheduler eventScheduler, in Bucket bucket) : base(bucket)
 			{
 				_eventScheduler = eventScheduler;
 

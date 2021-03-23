@@ -38,6 +38,6 @@ namespace Xtate.DataModel
 
 		void ExecutionContextCreated(IExecutionContext executionContext, out ImmutableDictionary<string, string> dataModelVars);
 
-		string ConvertToText(DataModelValue dataModelValue);
+		string ConvertToText(DataModelValue value);
 	}
 }

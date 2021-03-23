@@ -27,7 +27,7 @@ namespace Xtate.Core
 	{
 		private readonly DynamicMetaObject _metaObject;
 
-		public MetaObject(Expression expression, object val, Func<Expression, DynamicMetaObject> metaObjectCreator) : base(expression, BindingRestrictions.Empty, val) =>
+		public MetaObject(Expression expression, object value, Func<Expression, DynamicMetaObject> metaObjectCreator) : base(expression, BindingRestrictions.Empty, value) =>
 				_metaObject = metaObjectCreator(expression);
 
 		public override DynamicMetaObject BindGetMember(GetMemberBinder binder) => _metaObject.BindGetMember(binder);

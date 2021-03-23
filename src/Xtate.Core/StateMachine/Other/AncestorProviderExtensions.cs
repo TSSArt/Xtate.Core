@@ -51,12 +51,12 @@ namespace Xtate.Core
 						value = default!;
 						return false;
 
-					case AncestorContainer { Value: T val }:
-						value = val;
+					case AncestorContainer { Value: T ancestorValue }:
+						value = ancestorValue;
 						return true;
 
-					case T val:
-						value = val;
+					case T tValue:
+						value = tValue;
 						return true;
 
 					case IAncestorProvider provider:

@@ -195,7 +195,7 @@ namespace Xtate.Core.Test
 		public void TryParse_ShouldReturnFalse_IfStringCannotBeParsed()
 		{
 			// assert
-			Assert.IsFalse(DataModelDateTime.TryParse(val: "some", out _));
+			Assert.IsFalse(DataModelDateTime.TryParse(value: "some", out _));
 		}
 
 		[TestMethod]
@@ -213,10 +213,10 @@ namespace Xtate.Core.Test
 		[DataRow("9999-12-31T23:59:59.9999999+01:00")]
 		[DataRow("9999-12-31T23:59:59")]
 		[DataRow("9999-12-31 23:59:59")]
-		public void TryParse_ShouldReturnTrue_IfStringCanBeParsed(string val)
+		public void TryParse_ShouldReturnTrue_IfStringCanBeParsed(string value)
 		{
 			// assert
-			Assert.IsTrue(DataModelDateTime.TryParse(val, out _));
+			Assert.IsTrue(DataModelDateTime.TryParse(value, out _));
 		}
 
 		[TestMethod]
@@ -232,10 +232,10 @@ namespace Xtate.Core.Test
 		[DataRow("9999-12-31T23:59:59.9999999-00:00")]
 		[DataRow("9999-12-31T23:59:59.9999999+00:00")]
 		[DataRow("9999-12-31T23:59:59.9999999+01:00")]
-		public void TryParseExact_ShouldReturnTrue_IfStringCanBeParsed(string val)
+		public void TryParseExact_ShouldReturnTrue_IfStringCanBeParsed(string value)
 		{
 			// assert
-			Assert.IsTrue(DataModelDateTime.TryParseExact(val, format: "o", provider: null, DateTimeStyles.None, out _));
+			Assert.IsTrue(DataModelDateTime.TryParseExact(value, format: "o", provider: null, DateTimeStyles.None, out _));
 		}
 
 		[TestMethod]
@@ -252,10 +252,10 @@ namespace Xtate.Core.Test
 		[DataRow("9999-12-31T23:59:59.9999999+00:00")]
 		[DataRow("9999-12-31T23:59:59.9999999+01:00")]
 		[DataRow("9999-12-31T23:59:59")]
-		public void TryParseExact2_ShouldReturnTrue_IfStringCanBeParsed(string val)
+		public void TryParseExact2_ShouldReturnTrue_IfStringCanBeParsed(string value)
 		{
 			// assert
-			Assert.IsTrue(DataModelDateTime.TryParseExact(val, new[] { "o", "s" }, provider: null, DateTimeStyles.None, out _));
+			Assert.IsTrue(DataModelDateTime.TryParseExact(value, new[] { "o", "s" }, provider: null, DateTimeStyles.None, out _));
 		}
 
 		[TestMethod]
@@ -273,12 +273,12 @@ namespace Xtate.Core.Test
 		[DataRow("9999-12-31T23:59:59.9999999+01:00")]
 		[DataRow("9999-12-31T23:59:59")]
 		[DataRow("9999-12-31 23:59:59")]
-		public void Parse_ShouldReturnSameValueAsTryParse_IfStringCanBeParsed(string val)
+		public void Parse_ShouldReturnSameValueAsTryParse_IfStringCanBeParsed(string value)
 		{
 			// act
-			DataModelDateTime.TryParse(val, provider: null, DateTimeStyles.None, out var dttm);
+			DataModelDateTime.TryParse(value, provider: null, DateTimeStyles.None, out var dttm);
 
-			var parsedDttm = DataModelDateTime.Parse(val);
+			var parsedDttm = DataModelDateTime.Parse(value);
 
 			// assert
 			Assert.AreEqual(dttm, parsedDttm);
@@ -297,12 +297,12 @@ namespace Xtate.Core.Test
 		[DataRow("9999-12-31T23:59:59.9999999-00:00")]
 		[DataRow("9999-12-31T23:59:59.9999999+00:00")]
 		[DataRow("9999-12-31T23:59:59.9999999+01:00")]
-		public void ParseExact_ShouldReturnSameValueAsTryParse_IfStringCanBeParsed(string val)
+		public void ParseExact_ShouldReturnSameValueAsTryParse_IfStringCanBeParsed(string value)
 		{
 			// act
-			DataModelDateTime.TryParseExact(val, format: "o", provider: null, DateTimeStyles.None, out var dttm);
+			DataModelDateTime.TryParseExact(value, format: "o", provider: null, DateTimeStyles.None, out var dttm);
 
-			var parsedDttm = DataModelDateTime.ParseExact(val, format: "o", provider: null);
+			var parsedDttm = DataModelDateTime.ParseExact(value, format: "o", provider: null);
 
 			// assert
 			Assert.AreEqual(dttm, parsedDttm);
@@ -322,12 +322,12 @@ namespace Xtate.Core.Test
 		[DataRow("9999-12-31T23:59:59.9999999+00:00")]
 		[DataRow("9999-12-31T23:59:59.9999999+01:00")]
 		[DataRow("9999-12-31T23:59:59")]
-		public void ParseExact2_ShouldReturnSameValueAsTryParse_IfStringCanBeParsed(string val)
+		public void ParseExact2_ShouldReturnSameValueAsTryParse_IfStringCanBeParsed(string value)
 		{
 			// act
-			DataModelDateTime.TryParseExact(val, new[] { "o", "s" }, provider: null, DateTimeStyles.None, out var dttm);
+			DataModelDateTime.TryParseExact(value, new[] { "o", "s" }, provider: null, DateTimeStyles.None, out var dttm);
 
-			var parsedDttm = DataModelDateTime.ParseExact(val, new[] { "o", "s" }, provider: null);
+			var parsedDttm = DataModelDateTime.ParseExact(value, new[] { "o", "s" }, provider: null);
 
 			// assert
 			Assert.AreEqual(dttm, parsedDttm);

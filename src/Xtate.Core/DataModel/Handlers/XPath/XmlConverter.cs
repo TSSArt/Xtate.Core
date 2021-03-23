@@ -338,14 +338,14 @@ namespace Xtate.DataModel.XPath
 			return list;
 		}
 
-		private static DataModelValue ToType(in DataModelValue val, string? type)
+		private static DataModelValue ToType(in DataModelValue value, string? type)
 		{
 			return type switch
 			{
-					null => val,
-					BoolTypeValue => XmlConvert.ToBoolean(val.AsString()),
-					DatetimeTypeValue => XmlConvert.ToDateTimeOffset(val.AsString()),
-					NumberTypeValue => XmlConvert.ToDouble(val.AsString()),
+					null => value,
+					BoolTypeValue => XmlConvert.ToBoolean(value.AsString()),
+					DatetimeTypeValue => XmlConvert.ToDateTimeOffset(value.AsString()),
+					NumberTypeValue => XmlConvert.ToDouble(value.AsString()),
 					NullTypeValue => DataModelValue.Null,
 					UndefinedTypeValue => default,
 					_ => Infrastructure.UnexpectedValue<DataModelValue>(type)
@@ -397,30 +397,30 @@ namespace Xtate.DataModel.XPath
 					_ => Infrastructure.UnexpectedValue<int>(value.Type)
 			};
 
-			static int WriteDataModelDateTime(in DataModelDateTime val, in Span<char> span) =>
-					val.Type switch
+			static int WriteDataModelDateTime(in DataModelDateTime value, in Span<char> span) =>
+					value.Type switch
 					{
-							DataModelDateTimeType.DateTime => WriteString(XmlConvert.ToString(val.ToDateTime(), XmlDateTimeSerializationMode.RoundtripKind), span),
-							DataModelDateTimeType.DateTimeOffset => WriteString(XmlConvert.ToString(val.ToDateTimeOffset()), span),
-							_ => Infrastructure.UnexpectedValue<int>(val.Type)
+							DataModelDateTimeType.DateTime => WriteString(XmlConvert.ToString(value.ToDateTime(), XmlDateTimeSerializationMode.RoundtripKind), span),
+							DataModelDateTimeType.DateTimeOffset => WriteString(XmlConvert.ToString(value.ToDateTimeOffset()), span),
+							_ => Infrastructure.UnexpectedValue<int>(value.Type)
 					};
 
-			static int WriteString(string val, in Span<char> span)
+			static int WriteString(string value, in Span<char> span)
 			{
-				val.AsSpan().CopyTo(span);
-				return val.Length;
+				value.AsSpan().CopyTo(span);
+				return value.Length;
 			}
 		}
 
-		public static DataModelValue GetTypeValue(in DataModelValue val) =>
-				val.Type switch
+		public static DataModelValue GetTypeValue(in DataModelValue value) =>
+				value.Type switch
 				{
 						DataModelValueType.Boolean => BoolTypeValue,
 						DataModelValueType.DateTime => DatetimeTypeValue,
 						DataModelValueType.Number => NumberTypeValue,
 						DataModelValueType.Null => NullTypeValue,
 						DataModelValueType.Undefined => UndefinedTypeValue,
-						_ => Infrastructure.UnexpectedValue<bool>(val.Type)
+						_ => Infrastructure.UnexpectedValue<bool>(value.Type)
 				};
 
 		private static DataModelList? GetMetaData(XmlReader xmlReader)

@@ -39,7 +39,7 @@ namespace Xtate.Core
 		{
 			if (concurrentDictionary is null) throw new ArgumentNullException(nameof(concurrentDictionary));
 
-			return concurrentDictionary.AddOrUpdate(key, k => addValueFactory(k, factoryArgument), (k, v) => updateValueFactory(k, v, factoryArgument));
+			return concurrentDictionary.AddOrUpdate(key, keyArg => addValueFactory(keyArg, factoryArgument), (keyArg, valueArg) => updateValueFactory(keyArg, valueArg, factoryArgument));
 		}
 	}
 }

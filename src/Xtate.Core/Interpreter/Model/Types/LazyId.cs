@@ -90,21 +90,21 @@ namespace Xtate.Core
 			return false;
 		}
 
-		private static bool TryHexToInt32(ReadOnlySpan<char> span, out int val)
+		private static bool TryHexToInt32(ReadOnlySpan<char> span, out int value)
 		{
-			val = 0;
+			value = 0;
 
 			foreach (var ch in span)
 			{
-				val <<= 4;
+				value <<= 4;
 
 				switch (ch)
 				{
 					case >= '0' and <= '9':
-						val |= ch - '0';
+						value |= ch - '0';
 						break;
 					case >= 'a' and <= 'f':
-						val |= ch - 'a' + 10;
+						value |= ch - 'a' + 10;
 						break;
 					default: return false;
 				}

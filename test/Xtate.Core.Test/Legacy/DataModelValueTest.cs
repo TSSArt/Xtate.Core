@@ -44,7 +44,7 @@ namespace Xtate.Core.Test.Legacy
 		public void DataModelStringNullTest()
 		{
 			// arrange
-			string nullVal = default!;
+			const string nullVal = default!;
 
 			// act
 			var v = (DataModelValue) nullVal;
@@ -80,11 +80,11 @@ namespace Xtate.Core.Test.Legacy
 		public void FromListDictionaryCycleRefTest()
 		{
 			// arrange
-			var dict = new Dictionary<string, object>();
-			dict["self"] = dict;
+			var dictionary = new Dictionary<string, object>();
+			dictionary["self"] = dictionary;
 
 			// act
-			var dst = DataModelValue.FromObject(dict);
+			var dst = DataModelValue.FromObject(dictionary);
 
 			// assert
 			Assert.AreSame(dst.AsList(), dst.AsList()["self"].AsList());
@@ -94,9 +94,9 @@ namespace Xtate.Core.Test.Legacy
 		public void DeepCloneDictionaryCycleRefTest()
 		{
 			// arrange
-			var dict = new DataModelList();
-			dict["self"] = dict;
-			var src = (DataModelValue) dict;
+			var list = new DataModelList();
+			list["self"] = list;
+			var src = (DataModelValue) list;
 
 			// act
 			var dst = src.CloneAsWritable();
@@ -109,9 +109,9 @@ namespace Xtate.Core.Test.Legacy
 		public void MakeDeepConstantMakeDeepReadOnlyDictionaryCycleRefTest()
 		{
 			// arrange
-			var dict = new DataModelList();
-			dict["self"] = dict;
-			var src = (DataModelValue) dict;
+			var list = new DataModelList();
+			list["self"] = list;
+			var src = (DataModelValue) list;
 
 			// act
 			src.MakeDeepConstant();

@@ -323,9 +323,10 @@ namespace Xtate.Scxml
 				_elements.Add(new QualifiedName(ns, name), (located, type));
 			}
 
-			public Action<TDirector, TEntity>? AttributeLocated(string ns, string name) => _attributes.TryGetValue(new QualifiedName(ns, name), out var val) ? val.located : null;
+			public Action<TDirector, TEntity>? AttributeLocated(string ns, string name) => _attributes.TryGetValue(new QualifiedName(ns, name), out var value) ? value.located : null;
 
-			public Func<TDirector, TEntity, ValueTask>? ElementLocated(string ns, string name) => _elements.TryGetValue(new QualifiedName(ns, name), out var val) ? val.located : UnknownElementAction;
+			public Func<TDirector, TEntity, ValueTask>? ElementLocated(string ns, string name) =>
+					_elements.TryGetValue(new QualifiedName(ns, name), out var value) ? value.located : UnknownElementAction;
 
 			public ValidationContext CreateValidationContext(XmlReader xmlReader, IErrorProcessor errorProcessor) => new(this, xmlReader, errorProcessor);
 
@@ -429,9 +430,9 @@ namespace Xtate.Scxml
 
 				public void ProcessAttributesCompleted()
 				{
-					if (_attributes is not null && _attributes.Any(p => p.Value == AttributeType.Required))
+					if (_attributes is not null && _attributes.Any(pair => pair.Value == AttributeType.Required))
 					{
-						var query = _attributes.Where(p => p.Value == AttributeType.Required).Select(p => p.Key);
+						var query = _attributes.Where(pair => pair.Value == AttributeType.Required).Select(p => p.Key);
 						AddError(CreateMessage(Resources.ErrorMessage_MissedRequiredAttributes, delimiter: @"', '", query));
 					}
 				}
@@ -455,9 +456,9 @@ namespace Xtate.Scxml
 
 				public void ProcessElementsCompleted()
 				{
-					if (_elements is not null && _elements.Any(p => p.Value == ElementType.One || p.Value == ElementType.OneToMany))
+					if (_elements is not null && _elements.Any(pair => pair.Value == ElementType.One || pair.Value == ElementType.OneToMany))
 					{
-						var query = _elements.Where(p => p.Value == ElementType.One || p.Value == ElementType.OneToMany).Select(p => p.Key);
+						var query = _elements.Where(pair => pair.Value == ElementType.One || pair.Value == ElementType.OneToMany).Select(p => p.Key);
 						AddError(CreateMessage(Resources.ErrorMessage_MissedRequiredElements, delimiter: @">, <", query));
 					}
 				}
@@ -466,7 +467,7 @@ namespace Xtate.Scxml
 
 				private static string CreateMessage(string format, string delimiter, IEnumerable<QualifiedName> names)
 				{
-					var query = names.Select(n => string.IsNullOrEmpty(n.Namespace) ? n.Name : n.Namespace + @":" + n.Name);
+					var query = names.Select(qualifiedName => string.IsNullOrEmpty(qualifiedName.Namespace) ? qualifiedName.Name : qualifiedName.Namespace + @":" + qualifiedName.Name);
 					return string.Format(CultureInfo.InvariantCulture, format, string.Join(delimiter, query));
 				}
 
@@ -552,7 +553,7 @@ namespace Xtate.Scxml
 				if (located is null) throw new ArgumentNullException(nameof(located));
 				if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
 
-				UseRawContent(val: false);
+				UseRawContent(value: false);
 				_policy.AddElement(ns, name, located, ElementType.One);
 
 				return this;
@@ -564,7 +565,7 @@ namespace Xtate.Scxml
 				if (located is null) throw new ArgumentNullException(nameof(located));
 				if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
 
-				UseRawContent(val: false);
+				UseRawContent(value: false);
 				_policy.AddElement(ns, name, located, ElementType.ZeroToMany);
 
 				return this;
@@ -593,7 +594,7 @@ namespace Xtate.Scxml
 
 			public IPolicyBuilder<TEntity> RawContent(Action<TDirector, TEntity> action)
 			{
-				UseRawContent(val: true);
+				UseRawContent(value: true);
 				_policy.RawContentAction = action;
 
 				return this;
@@ -601,11 +602,11 @@ namespace Xtate.Scxml
 
 		#endregion
 
-			private void UseRawContent(bool val)
+			private void UseRawContent(bool value)
 			{
-				if (_rawContent == val)
+				if (_rawContent == value)
 				{
-					if (val)
+					if (value)
 					{
 						throw new ArgumentException(Resources.Exception_CanNotRegisterRawContentMoreThanOneTime);
 					}
@@ -615,12 +616,12 @@ namespace Xtate.Scxml
 
 				if (!_rawContent.HasValue)
 				{
-					_rawContent = val;
+					_rawContent = value;
 
 					return;
 				}
 
-				if (val)
+				if (value)
 				{
 					throw new ArgumentException(Resources.Exception_CanNotReadRawContentDueToRegisteredElements);
 				}

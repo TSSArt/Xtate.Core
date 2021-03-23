@@ -28,14 +28,14 @@ namespace Xtate.Persistence
 	{
 		private ImmutableDictionary<int, IEntity>? _forwardEntities;
 
-		public IStateMachine Build(Bucket bucket, ImmutableDictionary<int, IEntity>? forwardEntities = default)
+		public IStateMachine Build(in Bucket bucket, ImmutableDictionary<int, IEntity>? forwardEntities = default)
 		{
 			_forwardEntities = forwardEntities;
 
 			return RestoreStateMachine(bucket) ?? throw new PersistenceException(Resources.Exception_CantRestoreElement);
 		}
 
-		private static bool Exist(Bucket bucket, TypeInfo typeInfo)
+		private static bool Exist(in Bucket bucket, TypeInfo typeInfo)
 		{
 			var typeInfoVal = typeInfo;
 
@@ -235,9 +235,9 @@ namespace Xtate.Persistence
 
 		private static IEventDescriptor? RestoreEventDescriptor(Bucket bucket)
 		{
-			var val = bucket.GetString(Key.Id);
+			var value = bucket.GetString(Key.Id);
 
-			return val is not null ? (EventDescriptor) val : null;
+			return value is not null ? (EventDescriptor) value : null;
 		}
 
 		private static IOutgoingEvent RestoreEvent(Bucket bucket) => new EventEntity(bucket.GetString(Key.Id)) { Target = EventEntity.InternalTarget };

@@ -169,11 +169,11 @@ namespace Xtate.Core
 			AddInternal(arg2);
 		}
 
-		private void AddInternal(object val)
+		private void AddInternal(object obj)
 		{
-			if (val is null) throw new ArgumentNullException(nameof(val));
+			if (obj is null) throw new ArgumentNullException(nameof(obj));
 
-			ElementAt(_count ++) = val;
+			ElementAt(_count ++) = obj;
 		}
 
 		private ref object? ElementAt(int index)

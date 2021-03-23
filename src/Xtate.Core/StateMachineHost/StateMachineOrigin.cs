@@ -32,41 +32,41 @@ namespace Xtate.Core
 	[PublicAPI]
 	public readonly struct StateMachineOrigin
 	{
-		private readonly object? _val;
+		private readonly object? _value;
 
 		public StateMachineOrigin(IStateMachine stateMachine, Uri? baseUri = default)
 		{
-			_val = stateMachine ?? throw new ArgumentNullException(nameof(stateMachine));
+			_value = stateMachine ?? throw new ArgumentNullException(nameof(stateMachine));
 			BaseUri = baseUri;
 		}
 
 		public StateMachineOrigin(Uri source, Uri? baseUri = default)
 		{
-			_val = source ?? throw new ArgumentNullException(nameof(source));
+			_value = source ?? throw new ArgumentNullException(nameof(source));
 			BaseUri = baseUri;
 		}
 
 		public StateMachineOrigin(string scxml, Uri? baseUri = default)
 		{
-			_val = scxml ?? throw new ArgumentNullException(nameof(scxml));
+			_value = scxml ?? throw new ArgumentNullException(nameof(scxml));
 			BaseUri = baseUri;
 		}
 
 		public StateMachineOriginType Type =>
-				_val switch
+				_value switch
 				{
 						string => StateMachineOriginType.Scxml,
 						Uri => StateMachineOriginType.Source,
 						IStateMachine => StateMachineOriginType.StateMachine,
 						null => StateMachineOriginType.None,
-						_ => Infrastructure.UnexpectedValue<StateMachineOriginType>(_val)
+						_ => Infrastructure.UnexpectedValue<StateMachineOriginType>(_value)
 				};
 
 		public Uri? BaseUri { get; }
 
 		public string AsScxml()
 		{
-			if (_val is string str)
+			if (_value is string str)
 			{
 				return str;
 			}
@@ -76,7 +76,7 @@ namespace Xtate.Core
 
 		public Uri AsSource()
 		{
-			if (_val is Uri uri)
+			if (_value is Uri uri)
 			{
 				return uri;
 			}
@@ -86,7 +86,7 @@ namespace Xtate.Core
 
 		public IStateMachine AsStateMachine()
 		{
-			if (_val is IStateMachine stateMachine)
+			if (_value is IStateMachine stateMachine)
 			{
 				return stateMachine;
 			}

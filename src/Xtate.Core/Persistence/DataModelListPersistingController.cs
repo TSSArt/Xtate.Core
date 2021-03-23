@@ -30,7 +30,7 @@ namespace Xtate.Persistence
 		private          int                       _record;
 		private          bool                      _shrink;
 
-		public DataModelListPersistingController(Bucket bucket, DataModelReferenceTracker referenceTracker, DataModelList dataModelList)
+		public DataModelListPersistingController(in Bucket bucket, DataModelReferenceTracker referenceTracker, DataModelList dataModelList)
 		{
 			_bucket = bucket;
 			_referenceTracker = referenceTracker ?? throw new ArgumentNullException(nameof(referenceTracker));
@@ -121,10 +121,10 @@ namespace Xtate.Persistence
 
 						_list.TryGet(key, caseInsensitive, out var baseEntry);
 
-						var dataModelValue = recordBucket.GetDataModelValue(_referenceTracker, baseEntry.Value);
+						var value = recordBucket.GetDataModelValue(_referenceTracker, baseEntry.Value);
 						var metadata = recordBucket.Nested(Key.Metadata).GetDataModelValue(_referenceTracker, baseEntry.Metadata).AsListOrDefault();
 
-						_list.SetInternal(key, caseInsensitive, dataModelValue, access, metadata, throwOnDeny: false);
+						_list.SetInternal(key, caseInsensitive, value, access, metadata, throwOnDeny: false);
 						break;
 					}
 					case Key.Append:
@@ -132,10 +132,10 @@ namespace Xtate.Persistence
 						recordBucket.TryGet(Key.Access, out DataModelAccess access);
 						var key = recordBucket.GetString(Key.Key);
 
-						var dataModelValue = recordBucket.GetDataModelValue(_referenceTracker, baseValue: default);
+						var value = recordBucket.GetDataModelValue(_referenceTracker, baseValue: default);
 						var metadata = recordBucket.Nested(Key.Metadata).GetDataModelValue(_referenceTracker, baseValue: default).AsListOrDefault();
 
-						_list.AddInternal(key, dataModelValue, access, metadata, throwOnDeny: false);
+						_list.AddInternal(key, value, access, metadata, throwOnDeny: false);
 						break;
 					}
 					case Key.Set:
@@ -146,10 +146,10 @@ namespace Xtate.Persistence
 
 						_list.TryGet(index, out var baseEntry);
 
-						var dataModelValue = recordBucket.GetDataModelValue(_referenceTracker, baseEntry.Value);
+						var value = recordBucket.GetDataModelValue(_referenceTracker, baseEntry.Value);
 						var metadata = recordBucket.Nested(Key.Metadata).GetDataModelValue(_referenceTracker, baseEntry.Metadata).AsListOrDefault();
 
-						_list.SetInternal(index, key, dataModelValue, access, metadata, throwOnDeny: false);
+						_list.SetInternal(index, key, value, access, metadata, throwOnDeny: false);
 						break;
 					}
 
@@ -159,10 +159,10 @@ namespace Xtate.Persistence
 						recordBucket.TryGet(Key.Access, out DataModelAccess access);
 						var key = recordBucket.GetString(Key.Key);
 
-						var dataModelValue = recordBucket.GetDataModelValue(_referenceTracker, baseValue: default);
+						var value = recordBucket.GetDataModelValue(_referenceTracker, baseValue: default);
 						var metadata = recordBucket.Nested(Key.Metadata).GetDataModelValue(_referenceTracker, baseValue: default).AsListOrDefault();
 
-						_list.InsertInternal(index, key, dataModelValue, access, metadata, throwOnDeny: false);
+						_list.InsertInternal(index, key, value, access, metadata, throwOnDeny: false);
 						break;
 					}
 
@@ -216,7 +216,7 @@ namespace Xtate.Persistence
 				var recordBucket = _bucket.Nested(_record ++);
 				recordBucket.Add(Key.Operation, Key.SetMetadata);
 				var entry = new DataModelList.Entry(metadata);
-				AddEntry(ref recordBucket, entry);
+				AddEntry(recordBucket, entry);
 			}
 
 			if (_list.Access != DataModelAccess.Writable)
@@ -257,14 +257,14 @@ namespace Xtate.Persistence
 				var recordBucket = _bucket.Nested(_record ++);
 				recordBucket.Add(Key.Operation, Key.Set);
 				recordBucket.Add(Key.Index, entry.Index);
-				AddEntry(ref recordBucket, entry);
+				AddEntry(recordBucket, entry);
 			}
 
 			void Append(in DataModelList.Entry entry)
 			{
 				var recordBucket = _bucket.Nested(_record ++);
 				recordBucket.Add(Key.Operation, Key.Append);
-				AddEntry(ref recordBucket, entry);
+				AddEntry(recordBucket, entry);
 			}
 		}
 
@@ -280,7 +280,7 @@ namespace Xtate.Persistence
 				{
 					var recordBucket = _bucket.Nested(_record ++);
 					recordBucket.Add(Key.Operation, Key.Append);
-					AddEntry(ref recordBucket, entry);
+					AddEntry(recordBucket, entry);
 					AddReferences(entry);
 					break;
 				}
@@ -288,7 +288,7 @@ namespace Xtate.Persistence
 				{
 					var recordBucket = _bucket.Nested(_record ++);
 					recordBucket.Add(Key.Operation, Key.SetCsKey);
-					AddEntry(ref recordBucket, entry);
+					AddEntry(recordBucket, entry);
 					AddReferences(entry);
 					break;
 				}
@@ -296,7 +296,7 @@ namespace Xtate.Persistence
 				{
 					var recordBucket = _bucket.Nested(_record ++);
 					recordBucket.Add(Key.Operation, Key.SetCiKey);
-					AddEntry(ref recordBucket, entry);
+					AddEntry(recordBucket, entry);
 					AddReferences(entry);
 					break;
 				}
@@ -305,7 +305,7 @@ namespace Xtate.Persistence
 					var recordBucket = _bucket.Nested(_record ++);
 					recordBucket.Add(Key.Index, entry.Index);
 					recordBucket.Add(Key.Operation, Key.Set);
-					AddEntry(ref recordBucket, entry);
+					AddEntry(recordBucket, entry);
 					AddReferences(entry);
 					break;
 				}
@@ -314,7 +314,7 @@ namespace Xtate.Persistence
 					var recordBucket = _bucket.Nested(_record ++);
 					recordBucket.Add(Key.Index, entry.Index);
 					recordBucket.Add(Key.Operation, Key.Insert);
-					AddEntry(ref recordBucket, entry);
+					AddEntry(recordBucket, entry);
 					AddReferences(entry);
 					break;
 				}
@@ -353,7 +353,7 @@ namespace Xtate.Persistence
 
 					var recordBucket = _bucket.Nested(_record ++);
 					recordBucket.Add(Key.Operation, Key.SetMetadata);
-					AddEntry(ref recordBucket, entry);
+					AddEntry(recordBucket, entry);
 					AddReferences(entry);
 
 					break;
@@ -363,7 +363,7 @@ namespace Xtate.Persistence
 			}
 		}
 
-		private void AddEntry(ref Bucket bucket, in DataModelList.Entry entry)
+		private void AddEntry(in Bucket bucket, in DataModelList.Entry entry)
 		{
 			bucket.Add(Key.Key, entry.Key);
 
