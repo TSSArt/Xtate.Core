@@ -36,6 +36,6 @@ namespace Xtate
 
 		public ImmutableArray<string> GetActiveStates();
 
-		public string ConvertToText(in DataModelValue dataModelValue);
+		public string ConvertToText(DataModelValue value);
 	}
 }

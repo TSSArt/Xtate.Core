@@ -72,7 +72,7 @@ namespace Xtate
 				SetHeader(request, headers);
 
 				var response = await GetResponse(request, token).ConfigureAwait(false);
-				var contentType = response.Headers[HttpResponseHeader.ContentType] is { Length: > 0 } val ? new ContentType(val) : null;
+				var contentType = response.Headers[HttpResponseHeader.ContentType] is { Length: > 0 } value ? new ContentType(value) : null;
 
 				return new Resource(response.GetResponseStream()!, contentType);
 			}

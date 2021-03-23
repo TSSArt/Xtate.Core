@@ -28,7 +28,7 @@ namespace Xtate.Persistence
 		private readonly ServiceIdSet _serviceIdSet;
 		private          int          _record;
 
-		public ServiceIdSetPersistingController(Bucket bucket, ServiceIdSet serviceIdSet)
+		public ServiceIdSetPersistingController(in Bucket bucket, ServiceIdSet serviceIdSet)
 		{
 			_bucket = bucket;
 			_serviceIdSet = serviceIdSet ?? throw new ArgumentNullException(nameof(serviceIdSet));

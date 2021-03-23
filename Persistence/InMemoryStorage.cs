@@ -219,7 +219,7 @@ namespace Xtate.Persistence
 			return result;
 		}
 
-		public int GetTransactionLogSize() => (_owner is not null ? _owner.Memory.Length - _buffer.Length : 0) + (_buffers?.Select(b => b.Size).Sum() ?? 0);
+		public int GetTransactionLogSize() => (_owner is not null ? _owner.Memory.Length - _buffer.Length : 0) + (_buffers?.Select(tuple => tuple.Size).Sum() ?? 0);
 
 		public void WriteTransactionLogToSpan(Span<byte> span, bool truncateLog = true)
 		{
@@ -251,7 +251,7 @@ namespace Xtate.Persistence
 				throw new InvalidOperationException(Resources.Exception_StorageNotAvailableForReadOperations);
 			}
 
-			return _readModel.Sum(p => Encode.GetEncodedLength(p.Key.Length) + p.Key.Length + Encode.GetEncodedLength(p.Value.Length) + p.Value.Length);
+			return _readModel.Sum(entry => Encode.GetEncodedLength(entry.Key.Length) + entry.Key.Length + Encode.GetEncodedLength(entry.Value.Length) + entry.Value.Length);
 		}
 
 		public void WriteDataToSpan(Span<byte> span, bool shrink = true)
@@ -266,7 +266,7 @@ namespace Xtate.Persistence
 			SortedSet<Entry>? newReadModel = default;
 			if (shrink)
 			{
-				newBaselineOwner = MemoryPool<byte>.Shared.Rent(_readModel.Sum(p => p.Key.Length + p.Value.Length));
+				newBaselineOwner = MemoryPool<byte>.Shared.Rent(_readModel.Sum(entry => entry.Key.Length + entry.Value.Length));
 				newBaseline = newBaselineOwner.Memory;
 				newReadModel = CreateReadModel();
 			}

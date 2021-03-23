@@ -142,37 +142,37 @@ namespace Xtate.Scxml
 			return stateMachine;
 		}
 
-		private static IIdentifier AsIdentifier(string val)
+		private static IIdentifier AsIdentifier(string value)
 		{
-			if (val is null) throw new ArgumentNullException(nameof(val));
+			if (value is null) throw new ArgumentNullException(nameof(value));
 
-			return (Identifier) val;
+			return (Identifier) value;
 		}
 
-		private static IOutgoingEvent AsEvent(string val)
+		private static IOutgoingEvent AsEvent(string value)
 		{
-			if (val is null) throw new ArgumentNullException(nameof(val));
+			if (value is null) throw new ArgumentNullException(nameof(value));
 
-			return new EventEntity(val) { Target = EventEntity.InternalTarget };
+			return new EventEntity(value) { Target = EventEntity.InternalTarget };
 		}
 
-		private static ImmutableArray<IIdentifier> AsIdentifierList(string val)
+		private static ImmutableArray<IIdentifier> AsIdentifierList(string value)
 		{
-			if (string.IsNullOrEmpty(val))
+			if (string.IsNullOrEmpty(value))
 			{
-				throw new ArgumentException(Resources.Exception_ListOfIdentifiersCannotBeEmpty, nameof(val));
+				throw new ArgumentException(Resources.Exception_ListOfIdentifiersCannotBeEmpty, nameof(value));
 			}
 
-			if (val.IndexOf(Space) < 0)
+			if (value.IndexOf(Space) < 0)
 			{
-				return ImmutableArray.Create<IIdentifier>((Identifier) val);
+				return ImmutableArray.Create<IIdentifier>((Identifier) value);
 			}
 
-			var identifiers = val.Split(SpaceSplitter, StringSplitOptions.RemoveEmptyEntries);
+			var identifiers = value.Split(SpaceSplitter, StringSplitOptions.RemoveEmptyEntries);
 
 			if (identifiers.Length == 0)
 			{
-				throw new ArgumentException(Resources.Exception_ListOfIdentifiersCannotBeEmpty, nameof(val));
+				throw new ArgumentException(Resources.Exception_ListOfIdentifiersCannotBeEmpty, nameof(value));
 			}
 
 			var builder = ImmutableArray.CreateBuilder<IIdentifier>(identifiers.Length);
@@ -185,23 +185,23 @@ namespace Xtate.Scxml
 			return builder.MoveToImmutable();
 		}
 
-		private static ImmutableArray<IEventDescriptor> AsEventDescriptorList(string val)
+		private static ImmutableArray<IEventDescriptor> AsEventDescriptorList(string value)
 		{
-			if (string.IsNullOrEmpty(val))
+			if (string.IsNullOrEmpty(value))
 			{
-				throw new ArgumentException(Resources.Exception_ListOfEventsCannotBeEmpty, nameof(val));
+				throw new ArgumentException(Resources.Exception_ListOfEventsCannotBeEmpty, nameof(value));
 			}
 
-			if (val.IndexOf(Space) < 0)
+			if (value.IndexOf(Space) < 0)
 			{
-				return ImmutableArray.Create<IEventDescriptor>((EventDescriptor) val);
+				return ImmutableArray.Create<IEventDescriptor>((EventDescriptor) value);
 			}
 
-			var eventDescriptors = val.Split(SpaceSplitter, StringSplitOptions.RemoveEmptyEntries);
+			var eventDescriptors = value.Split(SpaceSplitter, StringSplitOptions.RemoveEmptyEntries);
 
 			if (eventDescriptors.Length == 0)
 			{
-				throw new ArgumentException(Resources.Exception_ListOfEventsCannotBeEmpty, nameof(val));
+				throw new ArgumentException(Resources.Exception_ListOfEventsCannotBeEmpty, nameof(value));
 			}
 
 			var builder = ImmutableArray.CreateBuilder<IEventDescriptor>(eventDescriptors.Length);
@@ -312,11 +312,11 @@ namespace Xtate.Scxml
 			return new Uri(uri, UriKind.RelativeOrAbsolute);
 		}
 
-		private static T AsEnum<T>(string val) where T : struct
+		private static T AsEnum<T>(string value) where T : struct
 		{
-			if (val is null) throw new ArgumentNullException(nameof(val));
+			if (value is null) throw new ArgumentNullException(nameof(value));
 
-			if (!Enum.TryParse(val, ignoreCase: true, out T result) || val.ToLowerInvariant() != val)
+			if (!Enum.TryParse(value, ignoreCase: true, out T result) || value.ToLowerInvariant() != value)
 			{
 				throw new ArgumentException(Res.Format(Resources.Exception_ValueCannotBeParsed, typeof(T).Name));
 			}
@@ -324,28 +324,28 @@ namespace Xtate.Scxml
 			return result;
 		}
 
-		private static int AsMilliseconds(string val)
+		private static int AsMilliseconds(string value)
 		{
-			if (string.IsNullOrEmpty(val))
+			if (string.IsNullOrEmpty(value))
 			{
-				throw new ArgumentException(Resources.Exception_ValueCantBeEmpty, nameof(val));
+				throw new ArgumentException(Resources.Exception_ValueCantBeEmpty, nameof(value));
 			}
 
-			if (val == @"0")
+			if (value == @"0")
 			{
 				return 0;
 			}
 
 			const string ms = "ms";
-			if (val.EndsWith(ms, StringComparison.Ordinal))
+			if (value.EndsWith(ms, StringComparison.Ordinal))
 			{
-				return int.Parse(val[..^ms.Length], NumberFormatInfo.InvariantInfo);
+				return int.Parse(value[..^ms.Length], NumberFormatInfo.InvariantInfo);
 			}
 
 			const string s = "s";
-			if (val.EndsWith(s, StringComparison.Ordinal))
+			if (value.EndsWith(s, StringComparison.Ordinal))
 			{
-				return int.Parse(val[..^s.Length], NumberFormatInfo.InvariantInfo) * 1000;
+				return int.Parse(value[..^s.Length], NumberFormatInfo.InvariantInfo) * 1000;
 			}
 
 			throw new ArgumentException(Resources.Exception_DelayParsingError);

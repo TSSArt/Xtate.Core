@@ -28,7 +28,7 @@ namespace Xtate
 	{
 		private SessionId() { }
 
-		private SessionId(string val) : base(val) { }
+		private SessionId(string value) : base(value) { }
 
 	#region Interface IEquatable<SessionId>
 
@@ -40,6 +40,6 @@ namespace Xtate
 
 		public static SessionId New() => new();
 
-		public static SessionId FromString(string val) => new(val);
+		public static SessionId FromString(string value) => new(value);
 	}
 }

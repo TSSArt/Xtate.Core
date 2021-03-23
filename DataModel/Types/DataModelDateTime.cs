@@ -229,85 +229,85 @@ namespace Xtate
 						_ => Infrastructure.UnexpectedValue<object>(Type)
 				};
 
-		public static bool TryParse(string val, out DataModelDateTime dataModelDateTime) => TryParse(val, provider: null, DateTimeStyles.None, out dataModelDateTime);
+		public static bool TryParse(string value, out DataModelDateTime dataModelDateTime) => TryParse(value, provider: null, DateTimeStyles.None, out dataModelDateTime);
 
-		public static bool TryParse(string val, IFormatProvider? provider, DateTimeStyles style, out DataModelDateTime dataModelDateTime)
+		public static bool TryParse(string value, IFormatProvider? provider, DateTimeStyles style, out DataModelDateTime dataModelDateTime)
 		{
 			ParseData data = default;
 
-			data.DateTimeParsed = DateTime.TryParse(val, provider, style | DateTimeStyles.RoundtripKind, out data.DateTime);
-			data.DateTimeOffsetParsed = DateTimeOffset.TryParse(val, provider, style, out data.DateTimeOffset);
+			data.DateTimeParsed = DateTime.TryParse(value, provider, style | DateTimeStyles.RoundtripKind, out data.DateTime);
+			data.DateTimeOffsetParsed = DateTimeOffset.TryParse(value, provider, style, out data.DateTimeOffset);
 
 			return ProcessParseData(ref data, out dataModelDateTime);
 		}
 
-		public static bool TryParseExact(string val, string format, IFormatProvider? provider, DateTimeStyles style, out DataModelDateTime dataModelDateTime)
+		public static bool TryParseExact(string value, string format, IFormatProvider? provider, DateTimeStyles style, out DataModelDateTime dataModelDateTime)
 		{
 			ParseData data = default;
 
-			data.DateTimeParsed = DateTime.TryParseExact(val, format, provider, style | DateTimeStyles.RoundtripKind, out data.DateTime);
-			data.DateTimeOffsetParsed = DateTimeOffset.TryParseExact(val, format, provider, style, out data.DateTimeOffset);
+			data.DateTimeParsed = DateTime.TryParseExact(value, format, provider, style | DateTimeStyles.RoundtripKind, out data.DateTime);
+			data.DateTimeOffsetParsed = DateTimeOffset.TryParseExact(value, format, provider, style, out data.DateTimeOffset);
 
 			return ProcessParseData(ref data, out dataModelDateTime);
 		}
 
-		public static bool TryParseExact(string val, string[] formats, IFormatProvider? provider, DateTimeStyles style, out DataModelDateTime dataModelDateTime)
+		public static bool TryParseExact(string value, string[] formats, IFormatProvider? provider, DateTimeStyles style, out DataModelDateTime dataModelDateTime)
 		{
 			ParseData data = default;
 
-			data.DateTimeParsed = DateTime.TryParseExact(val, formats, provider, style | DateTimeStyles.RoundtripKind, out data.DateTime);
-			data.DateTimeOffsetParsed = DateTimeOffset.TryParseExact(val, formats, provider, style, out data.DateTimeOffset);
+			data.DateTimeParsed = DateTime.TryParseExact(value, formats, provider, style | DateTimeStyles.RoundtripKind, out data.DateTime);
+			data.DateTimeOffsetParsed = DateTimeOffset.TryParseExact(value, formats, provider, style, out data.DateTimeOffset);
 
 			return ProcessParseData(ref data, out dataModelDateTime);
 		}
 
-		public static DataModelDateTime Parse(string val) => Parse(val, provider: null);
+		public static DataModelDateTime Parse(string value) => Parse(value, provider: null);
 
-		public static DataModelDateTime Parse(string val, IFormatProvider? provider) => Parse(val, provider, DateTimeStyles.None);
+		public static DataModelDateTime Parse(string value, IFormatProvider? provider) => Parse(value, provider, DateTimeStyles.None);
 
-		public static DataModelDateTime Parse(string val, IFormatProvider? provider, DateTimeStyles style)
+		public static DataModelDateTime Parse(string value, IFormatProvider? provider, DateTimeStyles style)
 		{
 			var data = new ParseData
 					   {
-							   DateTimeOffset = DateTimeOffset.Parse(val, provider, style),
+							   DateTimeOffset = DateTimeOffset.Parse(value, provider, style),
 							   DateTimeOffsetParsed = true
 					   };
 
-			data.DateTimeParsed = DateTime.TryParse(val, provider, style | DateTimeStyles.RoundtripKind, out data.DateTime);
+			data.DateTimeParsed = DateTime.TryParse(value, provider, style | DateTimeStyles.RoundtripKind, out data.DateTime);
 
 			ProcessParseData(ref data, out var result);
 
 			return result;
 		}
 
-		public static DataModelDateTime ParseExact(string val, string format, IFormatProvider? provider) => ParseExact(val, format, provider, DateTimeStyles.None);
+		public static DataModelDateTime ParseExact(string value, string format, IFormatProvider? provider) => ParseExact(value, format, provider, DateTimeStyles.None);
 
-		public static DataModelDateTime ParseExact(string val, string format, IFormatProvider? provider, DateTimeStyles style)
+		public static DataModelDateTime ParseExact(string value, string format, IFormatProvider? provider, DateTimeStyles style)
 		{
 			var data = new ParseData
 					   {
-							   DateTimeOffset = DateTimeOffset.ParseExact(val, format, provider, style),
+							   DateTimeOffset = DateTimeOffset.ParseExact(value, format, provider, style),
 							   DateTimeOffsetParsed = true
 					   };
 
-			data.DateTimeParsed = DateTime.TryParseExact(val, format, provider, style | DateTimeStyles.RoundtripKind, out data.DateTime);
+			data.DateTimeParsed = DateTime.TryParseExact(value, format, provider, style | DateTimeStyles.RoundtripKind, out data.DateTime);
 
 			ProcessParseData(ref data, out var result);
 
 			return result;
 		}
 
-		public static DataModelDateTime ParseExact(string val, string[] formats, IFormatProvider? provider) => ParseExact(val, formats, provider, DateTimeStyles.None);
+		public static DataModelDateTime ParseExact(string value, string[] formats, IFormatProvider? provider) => ParseExact(value, formats, provider, DateTimeStyles.None);
 
-		public static DataModelDateTime ParseExact(string val, string[] formats, IFormatProvider? provider, DateTimeStyles style)
+		public static DataModelDateTime ParseExact(string value, string[] formats, IFormatProvider? provider, DateTimeStyles style)
 		{
 			var data = new ParseData
 					   {
-							   DateTimeOffset = DateTimeOffset.ParseExact(val, formats, provider, style),
+							   DateTimeOffset = DateTimeOffset.ParseExact(value, formats, provider, style),
 							   DateTimeOffsetParsed = true
 					   };
 
-			data.DateTimeParsed = DateTime.TryParseExact(val, formats, provider, style | DateTimeStyles.RoundtripKind, out data.DateTime);
+			data.DateTimeParsed = DateTime.TryParseExact(value, formats, provider, style | DateTimeStyles.RoundtripKind, out data.DateTime);
 
 			ProcessParseData(ref data, out var result);
 

@@ -260,7 +260,7 @@ namespace Xtate.Core
 			}
 		}
 
-		private void SaveToStorage(IStoreSupport root, Bucket bucket)
+		private void SaveToStorage(IStoreSupport root, in Bucket bucket)
 		{
 			var memoryStorage = new InMemoryStorage();
 			root.Store(new Bucket(memoryStorage));

@@ -34,7 +34,7 @@ namespace Xtate.DataModel
 		public virtual void ExecutionContextCreated(IExecutionContext executionContext, out ImmutableDictionary<string, string> dataModelVars) =>
 				dataModelVars = ImmutableDictionary<string, string>.Empty;
 
-		public virtual string ConvertToText(DataModelValue dataModelValue) => dataModelValue.ToString(provider: null);
+		public virtual string ConvertToText(DataModelValue value) => value.ToString(provider: null);
 
 		void IDataModelHandler.Process(ref IExecutableEntity executableEntity) => Visit(ref executableEntity);
 

@@ -41,13 +41,13 @@ namespace Xtate.Service
 
 		public HttpClientService(HttpClientServiceOptions options) => _options = options ?? throw new ArgumentNullException(nameof(options));
 
-		private static NameValueCollection? CreateHeadersCollection(DataModelValue headersValue)
+		private static NameValueCollection? CreateHeadersCollection(in DataModelValue value)
 		{
-			var headers = headersValue.AsListOrEmpty();
+			var headers = value.AsListOrEmpty();
 
 			var pairs = DataModelConverter.IsObject(headers)
-					? from p in headers.KeyValues select (Name: p.Key, Value: p.Value.AsStringOrDefault())
-					: from p in headers select (Name: p.AsListOrEmpty()["name"].AsStringOrDefault(), Value: p.AsListOrEmpty()["value"].AsStringOrDefault());
+					? from pair in headers.KeyValues select (Name: pair.Key, Value: pair.Value.AsStringOrDefault())
+					: from item in headers select (Name: item.AsListOrEmpty()["name"].AsStringOrDefault(), Value: item.AsListOrEmpty()["value"].AsStringOrDefault());
 
 			NameValueCollection? collection = default;
 
@@ -62,7 +62,7 @@ namespace Xtate.Service
 			return collection;
 		}
 
-		private static List<Cookie>? CreateCookieList(DataModelValue cookiesValue)
+		private static List<Cookie>? CreateCookieList(in DataModelValue cookiesValue)
 		{
 			List<Cookie>? list = default;
 
@@ -106,7 +106,7 @@ namespace Xtate.Service
 
 			DataModelList? list = default;
 
-			foreach (Cookie cookie in responseCookies)
+			foreach (var cookie in responseCookies)
 			{
 				Infrastructure.NotNull(cookie);
 
@@ -156,9 +156,9 @@ namespace Xtate.Service
 			return list ?? DataModelList.Empty;
 		}
 
-		private static Cookie CreateCookie(DataModelValue val)
+		private static Cookie CreateCookie(in DataModelValue value)
 		{
-			var cookie = val.AsListOrEmpty();
+			var cookie = value.AsListOrEmpty();
 
 			return new Cookie
 				   {
@@ -173,7 +173,7 @@ namespace Xtate.Service
 				   };
 		}
 
-		private static HttpContent CreateDefaultContent(DataModelValue content) => new StringContent(content.ToObject()?.ToString() ?? string.Empty, Encoding.UTF8);
+		private static HttpContent CreateDefaultContent(in DataModelValue content) => new StringContent(content.ToObject()?.ToString() ?? string.Empty, Encoding.UTF8);
 
 		private async ValueTask<Response> DoRequest(string method, bool autoRedirect, string? contentType, string? accept,
 													NameValueCollection? headers, List<Cookie>? cookies)

@@ -23,16 +23,16 @@ namespace Xtate.Persistence
 {
 	internal static class Encode
 	{
-		internal static int GetLength(byte val)
+		internal static int GetLength(byte value)
 		{
-			if ((val & 0x80) == 0x00) return 1;
-			if ((val & 0xE0) == 0xC0) return 2;
-			if ((val & 0xF0) == 0xE0) return 3;
-			if ((val & 0xF8) == 0xF0) return 4;
-			if ((val & 0xFC) == 0xF8) return 5;
-			if ((val & 0xFE) == 0xFC) return 6;
+			if ((value & 0x80) == 0x00) return 1;
+			if ((value & 0xE0) == 0xC0) return 2;
+			if ((value & 0xF0) == 0xE0) return 3;
+			if ((value & 0xF8) == 0xF0) return 4;
+			if ((value & 0xFC) == 0xF8) return 5;
+			if ((value & 0xFE) == 0xFC) return 6;
 
-			throw new ArgumentException(Resources.Exception_IncorrectEncoding, nameof(val));
+			throw new ArgumentException(Resources.Exception_IncorrectEncoding, nameof(value));
 		}
 
 		internal static int Decode(ReadOnlySpan<byte> span)
@@ -60,76 +60,76 @@ namespace Xtate.Persistence
 			throw new ArgumentException(Resources.Exception_IncorrectEncoding, nameof(span));
 		}
 
-		internal static int GetEncodedLength(int val)
+		internal static int GetEncodedLength(int value)
 		{
-			if (val < 0) throw new ArgumentOutOfRangeException(nameof(val));
+			if (value < 0) throw new ArgumentOutOfRangeException(nameof(value));
 
-			if (val <= 0x7F) return 1;
-			if (val <= 0x7FF) return 2;
-			if (val <= 0xFFFF) return 3;
-			if (val <= 0x1FFFFF) return 4;
-			if (val <= 0x3FFFFFF) return 5;
+			if (value <= 0x7F) return 1;
+			if (value <= 0x7FF) return 2;
+			if (value <= 0xFFFF) return 3;
+			if (value <= 0x1FFFFF) return 4;
+			if (value <= 0x3FFFFFF) return 5;
 			return 6;
 		}
 
-		private static ulong GetEncodedValue(int val)
+		private static ulong GetEncodedValue(int value)
 		{
-			if (val < 0) throw new ArgumentOutOfRangeException(nameof(val));
+			if (value < 0) throw new ArgumentOutOfRangeException(nameof(value));
 
-			var value = (ulong) val;
+			var uValue = (ulong) value;
 
-			if (value <= 0x7F)
+			if (uValue <= 0x7F)
 			{
-				return value;
+				return uValue;
 			}
 
-			if (value <= 0x7FF)
+			if (uValue <= 0x7FF)
 			{
-				return 0x80C0U + (value >> 6) +
-					   ((value & 0x3FU) << 8);
+				return 0x80C0U + (uValue >> 6) +
+					   ((uValue & 0x3FU) << 8);
 			}
 
-			if (value <= 0xFFFF)
+			if (uValue <= 0xFFFF)
 			{
-				return 0x8080E0U + (value >> 12) +
-					   ((value & 0xFC0U) << 2) +
-					   ((value & 0x3FU) << 16);
+				return 0x8080E0U + (uValue >> 12) +
+					   ((uValue & 0xFC0U) << 2) +
+					   ((uValue & 0x3FU) << 16);
 			}
 
-			if (value <= 0x1FFFFF)
+			if (uValue <= 0x1FFFFF)
 			{
-				return 0x808080F0U + (value >> 18) +
-					   ((value & 0x3F000U) >> 4) +
-					   ((value & 0xFC0U) << 10) +
-					   ((value & 0x3FU) << 24);
+				return 0x808080F0U + (uValue >> 18) +
+					   ((uValue & 0x3F000U) >> 4) +
+					   ((uValue & 0xFC0U) << 10) +
+					   ((uValue & 0x3FU) << 24);
 			}
 
-			if (value <= 0x3FFFFFF)
+			if (uValue <= 0x3FFFFFF)
 			{
-				return 0x80808080F8UL + (value >> 24) +
-					   ((value & 0xFC0000U) >> 10) +
-					   ((value & 0x3F000U) << 4) +
-					   ((value & 0xFC0U) << 18) +
-					   ((value & 0x3FUL) << 32);
+				return 0x80808080F8UL + (uValue >> 24) +
+					   ((uValue & 0xFC0000U) >> 10) +
+					   ((uValue & 0x3F000U) << 4) +
+					   ((uValue & 0xFC0U) << 18) +
+					   ((uValue & 0x3FUL) << 32);
 			}
 
-			return 0x8080808080FCUL + (value >> 30) +
-				   ((value & 0x3F000000) >> 16) +
-				   ((value & 0xFC0000) >> 2) +
-				   ((value & 0x3F000) << 12) +
-				   ((value & 0xFC0UL) << 26) +
-				   ((value & 0x3FUL) << 40);
+			return 0x8080808080FCUL + (uValue >> 30) +
+				   ((uValue & 0x3F000000) >> 16) +
+				   ((uValue & 0xFC0000) >> 2) +
+				   ((uValue & 0x3F000) << 12) +
+				   ((uValue & 0xFC0UL) << 26) +
+				   ((uValue & 0x3FUL) << 40);
 		}
 
-		internal static void WriteEncodedValue(Span<byte> span, int val)
+		internal static void WriteEncodedValue(Span<byte> span, int value)
 		{
-			var value = GetEncodedValue(val);
+			var encodedValue = GetEncodedValue(value);
 
 			for (var i = 0; i < span.Length; i ++)
 			{
-				span[i] = (byte) value;
+				span[i] = (byte) encodedValue;
 
-				value >>= 8;
+				encodedValue >>= 8;
 			}
 		}
 	}

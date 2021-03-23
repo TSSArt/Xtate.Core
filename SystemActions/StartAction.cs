@@ -136,12 +136,12 @@ namespace Xtate.CustomAction
 
 		private static Uri? GetBaseUri(IExecutionContext executionContext)
 		{
-			var val = executionContext.DataModel[key: @"_x", caseInsensitive: false]
-									  .AsListOrEmpty()[key: @"host", caseInsensitive: false]
-									  .AsListOrEmpty()[key: @"location", caseInsensitive: false]
-									  .AsStringOrDefault();
+			var value = executionContext.DataModel[key: @"_x", caseInsensitive: false]
+										.AsListOrEmpty()[key: @"host", caseInsensitive: false]
+										.AsListOrEmpty()[key: @"location", caseInsensitive: false]
+										.AsStringOrDefault();
 
-			return val is not null ? new Uri(val, UriKind.RelativeOrAbsolute) : null;
+			return value is not null ? new Uri(value, UriKind.RelativeOrAbsolute) : null;
 		}
 
 		private static IHost GetHost(IExecutionContext executionContext)
@@ -163,9 +163,9 @@ namespace Xtate.CustomAction
 
 			if (_urlExpression is not null)
 			{
-				var val = await _urlExpression.Evaluate(executionContext, token).ConfigureAwait(false);
+				var value = await _urlExpression.Evaluate(executionContext, token).ConfigureAwait(false);
 
-				return new Uri(val.AsString(), UriKind.RelativeOrAbsolute);
+				return new Uri(value.AsString(), UriKind.RelativeOrAbsolute);
 			}
 
 			return Infrastructure.Fail<Uri>();
@@ -180,9 +180,9 @@ namespace Xtate.CustomAction
 
 			if (_sessionIdExpression is not null)
 			{
-				var val = await _sessionIdExpression.Evaluate(executionContext, token).ConfigureAwait(false);
+				var value = await _sessionIdExpression.Evaluate(executionContext, token).ConfigureAwait(false);
 
-				return Xtate.SessionId.FromString(val.AsString());
+				return Xtate.SessionId.FromString(value.AsString());
 			}
 
 			return Xtate.SessionId.New();

@@ -181,7 +181,7 @@ namespace Xtate.Persistence
 			return valRefBucket.GetDataModelValue(tracker, baseValue: default);
 		}
 
-		public static DataModelValue GetDataModelValue(this in Bucket bucket, DataModelReferenceTracker tracker, DataModelValue baseValue)
+		public static DataModelValue GetDataModelValue(this in Bucket bucket, DataModelReferenceTracker tracker, in DataModelValue baseValue)
 		{
 			if (tracker is null) throw new ArgumentNullException(nameof(tracker));
 

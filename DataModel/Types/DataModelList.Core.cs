@@ -241,7 +241,7 @@ namespace Xtate
 			return false;
 		}
 
-		public void Set(string key, bool caseInsensitive, in DataModelValue value, DataModelList? metadata)
+		public void Set(string key, bool caseInsensitive, DataModelValue value, DataModelList? metadata)
 		{
 			if (key is null) throw new ArgumentNullException(nameof(key));
 
@@ -253,7 +253,7 @@ namespace Xtate
 			SetKey(ref args, caseInsensitive, DataModelAccess.Writable, throwOnDeny: true);
 		}
 
-		public void Set(int index, string? key, in DataModelValue value, DataModelList? metadata)
+		public void Set(int index, string? key, DataModelValue value, DataModelList? metadata)
 		{
 			if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_IndexValueMustBeNonNegativeInteger);
 
@@ -270,7 +270,7 @@ namespace Xtate
 			SetItem(ref args, DataModelAccess.Writable, throwOnDeny: true);
 		}
 
-		public void Insert(int index, string? key, in DataModelValue value, DataModelList? metadata)
+		public void Insert(int index, string? key, DataModelValue value, DataModelList? metadata)
 		{
 			CreateArgs(out var args);
 			args.Index = index;
@@ -285,7 +285,7 @@ namespace Xtate
 			InsertItem(ref args, DataModelAccess.Writable, throwOnDeny: true);
 		}
 
-		public void Add(string? key, in DataModelValue value, DataModelList? metadata)
+		public void Add(string? key, DataModelValue value, DataModelList? metadata)
 		{
 			CreateArgs(out var args);
 
@@ -956,9 +956,9 @@ namespace Xtate
 
 			map ??= new Dictionary<object, DataModelList>();
 
-			if (map.TryGetValue(this, out var val))
+			if (map.TryGetValue(this, out var value))
 			{
-				return val;
+				return value;
 			}
 
 			var clone = new DataModelList(targetAccess);

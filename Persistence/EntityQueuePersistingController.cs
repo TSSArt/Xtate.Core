@@ -30,7 +30,7 @@ namespace Xtate.Persistence
 		private          int            _headIndex;
 		private          int            _tailIndex;
 
-		public EntityQueuePersistingController(Bucket bucket, EntityQueue<T> entityQueue, Func<Bucket, T> creator)
+		public EntityQueuePersistingController(in Bucket bucket, EntityQueue<T> entityQueue, Func<Bucket, T> creator)
 		{
 			if (creator is null) throw new ArgumentNullException(nameof(creator));
 

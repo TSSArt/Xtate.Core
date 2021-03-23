@@ -116,7 +116,7 @@ namespace Xtate
 		{
 			if (nameParts.IsDefaultOrEmpty) throw new ArgumentException(Resources.Exception_ValueCantBeEmpty, nameof(nameParts));
 
-			return string.Join(separator: @".", nameParts.Select(p => p.Value));
+			return string.Join(separator: @".", nameParts.Select(namePart => namePart.Value));
 		}
 
 		public static void WriteXml(XmlWriter writer, ImmutableArray<IIdentifier> nameParts)

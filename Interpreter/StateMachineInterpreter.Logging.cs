@@ -31,7 +31,7 @@ namespace Xtate.Core
 
 		public string GetDataModelAsText() => _dataModelHandler.ConvertToText(_context.DataModel);
 
-		public string ConvertToText(in DataModelValue dataModelValue) => _dataModelHandler.ConvertToText(dataModelValue);
+		public string ConvertToText(DataModelValue value) => _dataModelHandler.ConvertToText(value);
 
 		DataModelList ILoggerContext.GetDataModel() => _context.DataModel.AsConstant();
 
