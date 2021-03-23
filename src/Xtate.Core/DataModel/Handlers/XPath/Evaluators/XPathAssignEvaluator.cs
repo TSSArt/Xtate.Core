@@ -36,9 +36,9 @@ namespace Xtate.DataModel.XPath
 			}
 		}
 
-		public static bool TryParseAssignType(string? val, out XPathAssignType assignType)
+		public static bool TryParseAssignType(string? value, out XPathAssignType assignType)
 		{
-			switch (val)
+			switch (value)
 			{
 				case null:
 				case "":

@@ -100,9 +100,9 @@ namespace Xtate.CustomAction
 
 			if (_sessionIdExpression is not null)
 			{
-				var val = await _sessionIdExpression.Evaluate(executionContext, token).ConfigureAwait(false);
+				var value = await _sessionIdExpression.Evaluate(executionContext, token).ConfigureAwait(false);
 
-				return val.AsString();
+				return value.AsString();
 			}
 
 			return Infrastructure.Fail<string>();

@@ -29,7 +29,7 @@ namespace Xtate
 	{
 		private SendId() { }
 
-		private SendId(string val) : base(val) { }
+		private SendId(string value) : base(value) { }
 
 	#region Interface IEquatable<SendId>
 
@@ -41,7 +41,7 @@ namespace Xtate
 
 		public static SendId New() => new();
 
-		[return: NotNullIfNotNull("val")]
-		public static SendId? FromString(string? val) => val is not null ? new SendId(val) : null;
+		[return: NotNullIfNotNull("value")]
+		public static SendId? FromString(string? value) => value is not null ? new SendId(value) : null;
 	}
 }

@@ -158,7 +158,7 @@ namespace Xtate.IoProcessor
 				await ReceiveMessage(pipeStream, memoryStream, token).ConfigureAwait(false);
 
 				memoryStream.Position = 0;
-				var responseMessage = Deserialize(memoryStream, b => new ResponseMessage(b));
+				var responseMessage = Deserialize(memoryStream, bucket => new ResponseMessage(bucket));
 
 				switch (responseMessage.ErrorType)
 				{
@@ -196,7 +196,7 @@ namespace Xtate.IoProcessor
 					await ReceiveMessage(pipeStream, memoryStream, _stopTokenSource.Token).ConfigureAwait(false);
 
 					memoryStream.Position = 0;
-					var message = Deserialize(memoryStream, b => new EventMessage(b));
+					var message = Deserialize(memoryStream, bucket => new EventMessage(bucket));
 
 					if (message.TargetServiceId is { } targetServiceId)
 					{
@@ -227,11 +227,11 @@ namespace Xtate.IoProcessor
 
 		private static bool IsTargetSessionId(Uri target, [NotNullWhen(true)] out SessionId? sessionId)
 		{
-			var val = GetTargetString(target);
+			var value = GetTargetString(target);
 
-			if (val.StartsWith(SessionIdPrefix, StringComparison.Ordinal))
+			if (value.StartsWith(SessionIdPrefix, StringComparison.Ordinal))
 			{
-				sessionId = SessionId.FromString(val[SessionIdPrefix.Length..]);
+				sessionId = SessionId.FromString(value[SessionIdPrefix.Length..]);
 
 				return true;
 			}
@@ -243,11 +243,11 @@ namespace Xtate.IoProcessor
 
 		private static bool IsTargetInvokeId(Uri target, [NotNullWhen(true)] out InvokeId? invokeId)
 		{
-			var val = GetTargetString(target);
+			var value = GetTargetString(target);
 
-			if (val.StartsWith(InvokeIdPrefix, StringComparison.Ordinal))
+			if (value.StartsWith(InvokeIdPrefix, StringComparison.Ordinal))
 			{
-				invokeId = InvokeId.FromString(val[InvokeIdPrefix.Length..]);
+				invokeId = InvokeId.FromString(value[InvokeIdPrefix.Length..]);
 
 				return true;
 			}

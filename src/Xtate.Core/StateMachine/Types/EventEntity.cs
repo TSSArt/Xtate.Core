@@ -28,11 +28,11 @@ namespace Xtate.Core
 		public static readonly Uri InternalTarget = new(uriString: @"_internal", UriKind.Relative);
 		public static readonly Uri ParentTarget   = new(uriString: @"_parent", UriKind.Relative);
 
-		public EventEntity(string? val) : this()
+		public EventEntity(string? value) : this()
 		{
-			if (!string.IsNullOrEmpty(val))
+			if (!string.IsNullOrEmpty(value))
 			{
-				NameParts = EventName.ToParts(val);
+				NameParts = EventName.ToParts(value);
 			}
 		}
 

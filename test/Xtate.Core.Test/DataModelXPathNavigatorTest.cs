@@ -35,10 +35,10 @@ namespace Xtate.Core.Test
 			var v = DataModelValue.FromString("StrVal");
 
 			// act
-			var val = new DataModelXPathNavigator(v).Evaluate("string(.)");
+			var value = new DataModelXPathNavigator(v).Evaluate("string(.)");
 
 			// assert
-			Assert.AreEqual(expected: "StrVal", val);
+			Assert.AreEqual(expected: "StrVal", value);
 		}
 
 		[TestMethod]
@@ -48,10 +48,10 @@ namespace Xtate.Core.Test
 			var v = DataModelValue.FromString("5.5");
 
 			// act
-			var val = new DataModelXPathNavigator(v).Evaluate("sum(.)");
+			var value = new DataModelXPathNavigator(v).Evaluate("sum(.)");
 
 			// assert
-			Assert.AreEqual(expected: 5.5, val);
+			Assert.AreEqual(expected: 5.5, value);
 		}
 
 		[TestMethod]
@@ -61,23 +61,23 @@ namespace Xtate.Core.Test
 			var v = DataModelValue.FromString("5.5");
 
 			// act
-			var val = new DataModelXPathNavigator(v).Evaluate("sum(.) > 1.0");
+			var value = new DataModelXPathNavigator(v).Evaluate("sum(.) > 1.0");
 
 			// assert
-			Assert.AreEqual(expected: true, val);
+			Assert.AreEqual(expected: true, value);
 		}
 
 		[TestMethod]
 		public void ValueOfObjectPropertyShouldBeAvailableThroughValue_IfRootIsObject()
 		{
 			// arrange
-			var v = DataModelValue.FromObject(new { prop = "val" });
+			var v = DataModelValue.FromObject(new { prop = "value" });
 
 			// act
-			var val = new DataModelXPathNavigator(v).Evaluate("string(prop)");
+			var value = new DataModelXPathNavigator(v).Evaluate("string(prop)");
 
 			// assert
-			Assert.AreEqual(expected: "val", val);
+			Assert.AreEqual(expected: "value", value);
 		}
 
 		[TestMethod]
@@ -87,10 +87,10 @@ namespace Xtate.Core.Test
 			var v = DataModelValue.FromObject(new { prop = "1", obj = new { prop1 = "1", prop2 = "1" } });
 
 			// act
-			var val = new DataModelXPathNavigator(v).Evaluate("string(.)");
+			var value = new DataModelXPathNavigator(v).Evaluate("string(.)");
 
 			// assert
-			Assert.AreEqual(expected: "111", val);
+			Assert.AreEqual(expected: "111", value);
 		}
 
 		[TestMethod]
@@ -99,14 +99,14 @@ namespace Xtate.Core.Test
 			// arrange
 			var v = DataModelValue.FromObject(new
 											  {
-													  /*prop = "val", */obj = new { prop1 = "val1", prop2 = "target" }
+													  /*prop = "value", */obj = new { prop1 = "val1", prop2 = "target" }
 											  });
 
 			// act
-			var val = new DataModelXPathNavigator(v).Evaluate("string(obj/prop2)");
+			var value = new DataModelXPathNavigator(v).Evaluate("string(obj/prop2)");
 
 			// assert
-			Assert.AreEqual(expected: "target", val);
+			Assert.AreEqual(expected: "target", value);
 		}
 
 		[TestMethod]
@@ -116,10 +116,10 @@ namespace Xtate.Core.Test
 			var v = DataModelValue.FromObject("str");
 
 			// act
-			var val = new DataModelXPathNavigator(v);
+			var value = new DataModelXPathNavigator(v);
 
 			// assert
-			Assert.AreEqual(expected: "#text", val.LocalName);
+			Assert.AreEqual(expected: "#text", value.LocalName);
 		}
 
 		[TestMethod]
@@ -129,37 +129,37 @@ namespace Xtate.Core.Test
 			var v = DataModelValue.FromObject(55);
 
 			// act
-			var val = new DataModelXPathNavigator(v);
+			var value = new DataModelXPathNavigator(v);
 
 			// assert
-			Assert.AreEqual(expected: "#text", val.LocalName);
+			Assert.AreEqual(expected: "#text", value.LocalName);
 		}
 
 		[TestMethod]
 		public void LocalNameShouldBeEmpty_IfTypeIsList()
 		{
 			// arrange
-			var v = DataModelValue.FromObject(new { key = "val" });
+			var v = DataModelValue.FromObject(new { key = "value" });
 
 			// act
-			var val = new DataModelXPathNavigator(v);
+			var value = new DataModelXPathNavigator(v);
 
 			// assert
-			Assert.AreEqual(expected: "", val.LocalName);
+			Assert.AreEqual(expected: "", value.LocalName);
 		}
 
 		[TestMethod]
 		public void LocalNameShouldBePropName_IfTypeIsList()
 		{
 			// arrange
-			var v = DataModelValue.FromObject(new { key = "val" });
+			var v = DataModelValue.FromObject(new { key = "value" });
 
 			// act
-			var val = new DataModelXPathNavigator(v);
-			val.MoveToFirstChild();
+			var value = new DataModelXPathNavigator(v);
+			value.MoveToFirstChild();
 
 			// assert
-			Assert.AreEqual(expected: "key", val.LocalName);
+			Assert.AreEqual(expected: "key", value.LocalName);
 		}
 
 		[TestMethod]
@@ -167,7 +167,7 @@ namespace Xtate.Core.Test
 		{
 			// arrange
 			var n = DataModelValue.FromObject(new { child1 = "val1", child2 = "val2" });
-			var v = DataModelValue.FromObject(new { key = "val" });
+			var v = DataModelValue.FromObject(new { key = "value" });
 			var nNav = new DataModelXPathNavigator(n);
 			var vNav = new DataModelXPathNavigator(v);
 			vNav.MoveToFirstChild();
@@ -230,14 +230,14 @@ namespace Xtate.Core.Test
 
 
 			// act
-			var val = new DataModelXPathNavigator(root);
+			var navigator = new DataModelXPathNavigator(root);
 
 			// assert
-			var xml = val.InnerXml;
+			var xml = navigator.InnerXml;
 
-			var dataModelValue = XmlConverter.FromXml(xml);
+			var value = XmlConverter.FromXml(xml);
 
-			var n2 = new DataModelXPathNavigator(dataModelValue);
+			var n2 = new DataModelXPathNavigator(value);
 			var xml2 = n2.InnerXml;
 
 			var dataModelValue2 = XmlConverter.FromXml(xml2);

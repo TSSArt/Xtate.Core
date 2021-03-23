@@ -110,6 +110,6 @@ namespace Xtate.Core
 			return collection;
 		}
 
-		private static string UnescapeDataString(string val) => Uri.UnescapeDataString(val.Replace(oldChar: '+', newChar: ' '));
+		private static string UnescapeDataString(string value) => Uri.UnescapeDataString(value.Replace(oldChar: '+', newChar: ' '));
 	}
 }

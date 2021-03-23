@@ -30,7 +30,7 @@ namespace Xtate.Persistence
 		private readonly OrderedSet<T> _orderedSet;
 		private          int           _record;
 
-		public OrderedSetPersistingController(Bucket bucket, OrderedSet<T> orderedSet, ImmutableDictionary<int, IEntity> entityMap)
+		public OrderedSetPersistingController(in Bucket bucket, OrderedSet<T> orderedSet, ImmutableDictionary<int, IEntity> entityMap)
 		{
 			if (entityMap is null) throw new ArgumentNullException(nameof(entityMap));
 			_bucket = bucket;

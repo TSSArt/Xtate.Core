@@ -47,12 +47,12 @@ namespace Xtate.Service
 			var list = value.AsListOrEmpty();
 
 			var pairs = DataModelConverter.IsObject(list)
-					? from p in list.KeyValues select (Name: p.Key, Value: p.Value.AsStringOrDefault())
-					: from p in list select (Name: p.AsListOrEmpty()["name"].AsStringOrDefault(), Value: p.AsListOrEmpty()["value"].AsStringOrDefault());
+					? from pair in list.KeyValues select (Name: pair.Key, Value: pair.Value.AsStringOrDefault())
+					: from item in list select (Name: item.AsListOrEmpty()["name"].AsStringOrDefault(), Value: item.AsListOrEmpty()["value"].AsStringOrDefault());
 
-			var forms = from p in pairs
-						where !string.IsNullOrEmpty(p.Name) && p.Value is not null
-						select new KeyValuePair<string?, string?>(p.Name, p.Value);
+			var forms = from pair in pairs
+						where !string.IsNullOrEmpty(pair.Name) && pair.Value is not null
+						select new KeyValuePair<string?, string?>(pair.Name, pair.Value);
 
 			return new FormUrlEncodedContent(forms);
 		}

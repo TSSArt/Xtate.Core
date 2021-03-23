@@ -41,8 +41,8 @@ namespace Xtate.Core
 			return default;
 		}
 
-		[SuppressMessage(category: "Design", checkId: "CA1034:Nested types should not be visible", Justification = "<Pending>")]
-		[SuppressMessage(category: "Performance", checkId: "CA1815:Override equals and operator equals on value types", Justification = "<Pending>")]
+		[SuppressMessage(category: "Design", checkId: "CA1034:Nested types should not be visible")]
+		[SuppressMessage(category: "Performance", checkId: "CA1815:Override equals and operator equals on value types")]
 		public readonly struct ConfiguredAwaitable
 		{
 			private readonly bool _continueOnCapturedContext;

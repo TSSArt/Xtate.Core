@@ -61,10 +61,10 @@ namespace Xtate.Core
 														  });
 
 		private static string NewGuidWithHash(int hash) =>
-				string.Create(length: 40, hash, static(span, h) =>
+				string.Create(length: 40, hash, static(span, hash) =>
 												{
 													Guid.NewGuid().TryFormat(span, out var pos, format: @"N");
-													h.TryFormat(span[pos..], out pos, format: @"x8");
+													hash.TryFormat(span[pos..], out pos, format: @"x8");
 												});
 #endif
 	}

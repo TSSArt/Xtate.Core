@@ -48,7 +48,7 @@ namespace Xtate
 			set => Set(key, caseInsensitive, value, metadata: default);
 		}
 
-		public void Add([Localizable(false)] string key, in DataModelValue value)
+		public void Add([Localizable(false)] string key, DataModelValue value)
 		{
 			if (key is null) throw new ArgumentNullException(nameof(key));
 

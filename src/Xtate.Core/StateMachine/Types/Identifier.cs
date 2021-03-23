@@ -28,7 +28,7 @@ namespace Xtate
 	{
 		private Identifier() { }
 
-		private Identifier(string val) : base(val) { }
+		private Identifier(string value) : base(value) { }
 
 	#region Interface IEquatable<IIdentifier>
 
@@ -36,34 +36,34 @@ namespace Xtate
 
 	#endregion
 
-		public static explicit operator Identifier(string val) => FromString(val);
+		public static explicit operator Identifier(string value) => FromString(value);
 
-		public static Identifier FromString(string val)
+		public static Identifier FromString(string value)
 		{
-			if (string.IsNullOrEmpty(val)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(val));
+			if (string.IsNullOrEmpty(value)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(value));
 
-			foreach (var ch in val)
+			foreach (var ch in value)
 			{
 				if (char.IsWhiteSpace(ch))
 				{
-					throw new ArgumentException(Resources.Exception_IdentifierCannotContainsWhitespace, nameof(val));
+					throw new ArgumentException(Resources.Exception_IdentifierCannotContainsWhitespace, nameof(value));
 				}
 			}
 
-			return new Identifier(val);
+			return new Identifier(value);
 		}
 
-		public static bool TryCreate(string? val, [NotNullWhen(true)] [MaybeNullWhen(false)]
+		public static bool TryCreate(string? value, [NotNullWhen(true)] [MaybeNullWhen(false)]
 									 out Identifier? identifier)
 		{
-			if (string.IsNullOrEmpty(val))
+			if (string.IsNullOrEmpty(value))
 			{
 				identifier = default;
 
 				return false;
 			}
 
-			foreach (var ch in val)
+			foreach (var ch in value)
 			{
 				if (char.IsWhiteSpace(ch))
 				{
@@ -73,7 +73,7 @@ namespace Xtate
 				}
 			}
 
-			identifier = new Identifier(val);
+			identifier = new Identifier(value);
 
 			return true;
 		}

@@ -95,9 +95,9 @@ namespace Xtate
 		{
 			if (list is null) throw new ArgumentNullException(nameof(list));
 
-			if (list.GetMetadata() is { } metadata && metadata[TypeMetaKey, caseInsensitive: false] is { } val)
+			if (list.GetMetadata() is { } metadata && metadata[TypeMetaKey, caseInsensitive: false] is { } value)
 			{
-				switch (val.AsStringOrDefault())
+				switch (value.AsStringOrDefault())
 				{
 					case ObjectMetaValue: return false;
 					case ArrayMetaValue: return true;
@@ -111,9 +111,9 @@ namespace Xtate
 		{
 			if (list is null) throw new ArgumentNullException(nameof(list));
 
-			if (list.GetMetadata() is { } metadata && metadata[TypeMetaKey, caseInsensitive: false] is { } val)
+			if (list.GetMetadata() is { } metadata && metadata[TypeMetaKey, caseInsensitive: false] is { } value)
 			{
-				switch (val.AsStringOrDefault())
+				switch (value.AsStringOrDefault())
 				{
 					case ObjectMetaValue: return true;
 					case ArrayMetaValue: return false;

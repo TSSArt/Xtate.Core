@@ -77,9 +77,9 @@ namespace Xtate.DataModel.XPath
 				_value switch
 				{
 						XPathNodeIterator iterator => XmlConvert.ToInt32(GetFirstStringValue(iterator)),
-						string val => XmlConvert.ToInt32(val),
-						double val => (int) val,
-						bool val => val ? 1 : 0,
+						string value => XmlConvert.ToInt32(value),
+						double value => (int) value,
+						bool value => value ? 1 : 0,
 						_ => Infrastructure.UnexpectedValue<int>(_value)
 				};
 
@@ -87,9 +87,9 @@ namespace Xtate.DataModel.XPath
 				_value switch
 				{
 						XPathNodeIterator iterator => GetFirstStringValue(iterator),
-						string val => val,
-						double val => XmlConvert.ToString(val),
-						bool val => XmlConvert.ToString(val),
+						string value => value,
+						double value => XmlConvert.ToString(value),
+						bool value => XmlConvert.ToString(value),
 						_ => Infrastructure.UnexpectedValue<string>(_value)
 				};
 
@@ -97,9 +97,9 @@ namespace Xtate.DataModel.XPath
 				_value switch
 				{
 						XPathNodeIterator iterator => XmlConvert.ToBoolean(GetFirstStringValue(iterator)),
-						string val => XmlConvert.ToBoolean(val),
-						double val => val != 0,
-						bool val => val,
+						string value => XmlConvert.ToBoolean(value),
+						double value => value != 0,
+						bool value => value,
 						_ => Infrastructure.UnexpectedValue<bool>(_value)
 				};
 
@@ -192,9 +192,9 @@ namespace Xtate.DataModel.XPath
 				obj switch
 				{
 						XPathNodeIterator iterator => ToString(iterator),
-						double val => XmlConvert.ToString(val),
-						string val => val,
-						bool val => XmlConvert.ToString(val),
+						double value => XmlConvert.ToString(value),
+						string value => value,
+						bool value => XmlConvert.ToString(value),
 						_ => Infrastructure.UnexpectedValue<string>(obj)
 				};
 

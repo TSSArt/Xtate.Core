@@ -91,14 +91,14 @@ namespace Xtate.Core
 
 			while (true)
 			{
-				var val = _refCount;
+				var refCount = _refCount;
 
-				if (val == 0)
+				if (refCount == 0)
 				{
 					return false;
 				}
 
-				if (Interlocked.CompareExchange(ref _refCount, val + 1, val) == val)
+				if (Interlocked.CompareExchange(ref _refCount, refCount + 1, refCount) == refCount)
 				{
 					return true;
 				}
@@ -120,13 +120,13 @@ namespace Xtate.Core
 			{
 				while (true)
 				{
-					var val = _refCount;
+					var refCount = _refCount;
 
-					Infrastructure.Assert(val > 0);
+					Infrastructure.Assert(refCount > 0);
 
-					if (Interlocked.CompareExchange(ref _refCount, val - 1, val) == val)
+					if (Interlocked.CompareExchange(ref _refCount, refCount - 1, refCount) == refCount)
 					{
-						if (val > 1)
+						if (refCount > 1)
 						{
 							return false;
 						}

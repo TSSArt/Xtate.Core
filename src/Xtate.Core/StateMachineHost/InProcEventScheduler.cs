@@ -54,12 +54,12 @@ namespace Xtate.Core
 
 		public ValueTask CancelEvent(ServiceId senderServiceId, SendId sendId, CancellationToken token)
 		{
-			if (!_scheduledEvents.TryRemove((senderServiceId, sendId), out var val))
+			if (!_scheduledEvents.TryRemove((senderServiceId, sendId), out var value))
 			{
 				return default;
 			}
 
-			if (val is ImmutableHashSet<ScheduledEvent> set)
+			if (value is ImmutableHashSet<ScheduledEvent> set)
 			{
 				foreach (var evt in set)
 				{
@@ -68,7 +68,7 @@ namespace Xtate.Core
 			}
 			else
 			{
-				((ScheduledEvent) val).Cancel();
+				((ScheduledEvent) value).Cancel();
 			}
 
 			return default;
@@ -168,7 +168,7 @@ namespace Xtate.Core
 
 			string? ILoggerContext.GetDataModelAsText() => default;
 
-			string ILoggerContext.ConvertToText(in DataModelValue dataModelValue) => dataModelValue.ToString(CultureInfo.InvariantCulture);
+			string ILoggerContext.ConvertToText(DataModelValue value) => value.ToString(CultureInfo.InvariantCulture);
 
 			DataModelList? ILoggerContext.GetDataModel() => default;
 
