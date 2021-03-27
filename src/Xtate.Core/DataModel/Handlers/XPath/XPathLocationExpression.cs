@@ -21,20 +21,32 @@ using Xtate.Core;
 
 namespace Xtate.DataModel.XPath
 {
-	internal sealed class XPathAssignEvaluator : DefaultAssignEvaluator
+	internal class XPathLocationExpression : ILocationExpression, IAncestorProvider
 	{
-		private readonly XPathAssignData? _customData;
+		private readonly ILocationExpression _locationExpression;
 
-		public XPathAssignEvaluator(in AssignEntity assign) : base(in assign)
+		public XPathLocationExpression(ILocationExpression locationExpression, XPathAssignType assignType, string? attribute)
 		{
-			var parsed = TryParseAssignType(assign.Type, out var assignType);
-			Infrastructure.Assert(parsed);
-
-			if (assignType != XPathAssignType.ReplaceChildren)
-			{
-				_customData = new XPathAssignData(assignType, Attribute);
-			}
+			AssignType = assignType;
+			Attribute = attribute;
+			_locationExpression = locationExpression;
 		}
+
+		public XPathAssignType AssignType { get; }
+
+		public string? Attribute { get; }
+
+	#region Interface IAncestorProvider
+
+		public object Ancestor => _locationExpression;
+
+	#endregion
+
+	#region Interface ILocationExpression
+
+		public string? Expression => _locationExpression.Expression;
+
+	#endregion
 
 		public static bool TryParseAssignType(string? value, out XPathAssignType assignType)
 		{
@@ -88,7 +100,5 @@ namespace Xtate.DataModel.XPath
 					return false;
 			}
 		}
-
-		protected override object? GetCustomData() => _customData;
 	}
 }

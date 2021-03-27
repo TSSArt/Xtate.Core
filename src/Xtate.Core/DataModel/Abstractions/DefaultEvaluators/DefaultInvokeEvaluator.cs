@@ -96,7 +96,7 @@ namespace Xtate.DataModel
 
 			if (IdLocationEvaluator is not null)
 			{
-				await IdLocationEvaluator.SetValue(invokeId, customData: null, executionContext, token).ConfigureAwait(false);
+				await IdLocationEvaluator.SetValue(invokeId, executionContext, token).ConfigureAwait(false);
 			}
 
 			var type = TypeExpressionEvaluator is not null ? ToUri(await TypeExpressionEvaluator.EvaluateString(executionContext, token).ConfigureAwait(false)) : _invoke.Type;

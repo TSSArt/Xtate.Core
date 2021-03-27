@@ -28,7 +28,7 @@ namespace Xtate.DataModel
 	{
 		void DeclareLocalVariable(IExecutionContext executionContext);
 
-		ValueTask SetValue(IObject value, object? customData, IExecutionContext executionContext, CancellationToken token);
+		ValueTask SetValue(IObject value, IExecutionContext executionContext, CancellationToken token);
 
 		ValueTask<IObject> GetValue(IExecutionContext executionContext, CancellationToken token);
 

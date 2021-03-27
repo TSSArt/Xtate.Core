@@ -68,12 +68,10 @@ namespace Xtate.DataModel
 
 			var value = await EvaluateRightValue(executionContext, token).ConfigureAwait(false);
 
-			await LocationEvaluator.SetValue(value, GetCustomData(), executionContext, token).ConfigureAwait(false);
+			await LocationEvaluator.SetValue(value, executionContext, token).ConfigureAwait(false);
 		}
 
 	#endregion
-
-		protected virtual object? GetCustomData() => null;
 
 		private ValueTask<IObject> EvaluateRightValue(IExecutionContext executionContext, CancellationToken token)
 		{

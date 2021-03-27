@@ -66,11 +66,11 @@ namespace Xtate.DataModel
 			{
 				var instance = array[i];
 
-				await ItemEvaluator.SetValue(instance, customData: null, executionContext, token).ConfigureAwait(false);
+				await ItemEvaluator.SetValue(instance, executionContext, token).ConfigureAwait(false);
 
 				if (IndexEvaluator is not null)
 				{
-					await IndexEvaluator.SetValue(new DefaultObject(i), customData: null, executionContext, token).ConfigureAwait(false);
+					await IndexEvaluator.SetValue(new DefaultObject(i), executionContext, token).ConfigureAwait(false);
 				}
 
 				foreach (var execEvaluator in ActionEvaluatorList)

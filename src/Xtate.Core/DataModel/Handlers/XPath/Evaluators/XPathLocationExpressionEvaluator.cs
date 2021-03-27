@@ -25,6 +25,8 @@ namespace Xtate.DataModel.XPath
 {
 	internal class XPathLocationExpressionEvaluator : ILocationEvaluator, ILocationExpression, IAncestorProvider
 	{
+		private readonly XPathAssignType         _assignType;
+		private readonly string?                 _attribute;
 		private readonly XPathCompiledExpression _compiledExpression;
 		private readonly LocationExpression      _locationExpression;
 
@@ -32,6 +34,16 @@ namespace Xtate.DataModel.XPath
 		{
 			_locationExpression = locationExpression;
 			_compiledExpression = compiledExpression;
+
+			if (_locationExpression.Ancestor.Is<XPathLocationExpression>(out var xPathLocationExpression))
+			{
+				_assignType = xPathLocationExpression.AssignType;
+				_attribute = xPathLocationExpression.Attribute;
+			}
+			else
+			{
+				_assignType = XPathAssignType.ReplaceChildren;
+			}
 		}
 
 	#region Interface IAncestorProvider
@@ -44,9 +56,9 @@ namespace Xtate.DataModel.XPath
 
 		public void DeclareLocalVariable(IExecutionContext executionContext) => executionContext.Engine().DeclareVariable(_compiledExpression);
 
-		public ValueTask SetValue(IObject value, object? customData, IExecutionContext executionContext, CancellationToken token)
+		public ValueTask SetValue(IObject value, IExecutionContext executionContext, CancellationToken token)
 		{
-			executionContext.Engine().Assign(_compiledExpression, (XPathAssignData?) customData, value);
+			executionContext.Engine().Assign(_compiledExpression, _assignType, _attribute, value);
 
 			return default;
 		}
