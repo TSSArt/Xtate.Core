@@ -193,7 +193,7 @@ namespace Xtate.Core
 
 				var locationEvaluator = _dispatcher._locationEvaluators[_index];
 
-				return locationEvaluator.SetValue(value, customData: null, executionContext, token);
+				return locationEvaluator.SetValue(value, executionContext, token);
 			}
 
 		#endregion

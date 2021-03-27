@@ -237,18 +237,22 @@ namespace Xtate.DataModel.XPath
 
 		protected override void Build(ref IAssign assign, ref AssignEntity assignProperties)
 		{
+			var parsed = XPathLocationExpression.TryParseAssignType(assignProperties.Type, out var assignType);
+			var attribute = assignProperties.Attribute;
+
+			if (parsed && assignProperties.Location is { } locationExpression)
+			{
+				assignProperties.Location = new XPathLocationExpression(locationExpression, assignType, attribute);
+			}
+
 			base.Build(ref assign, ref assignProperties);
 
-			if (XPathAssignEvaluator.TryParseAssignType(assign.Type, out var assignType))
-			{
-				assign = new XPathAssignEvaluator(assignProperties);
-			}
-			else
+			if (!parsed)
 			{
 				AddErrorMessage(assign, Resources.Exception_UnexpectedTypeAttributeValue);
 			}
 
-			if (assignType == XPathAssignType.AddAttribute && string.IsNullOrEmpty(assign.Attribute))
+			if (assignType == XPathAssignType.AddAttribute && string.IsNullOrEmpty(attribute))
 			{
 				AddErrorMessage(assign, Resources.ErrorMessage_AttrAttributeShouldNotBeEmpty);
 			}
