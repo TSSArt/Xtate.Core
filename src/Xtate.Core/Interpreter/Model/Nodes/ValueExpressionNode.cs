@@ -23,13 +23,13 @@ namespace Xtate.Core
 {
 	internal sealed class ValueExpressionNode : IValueExpression, IStoreSupport, IAncestorProvider
 	{
-		private readonly ValueExpression _valueExpression;
+		private readonly IValueExpression _valueExpression;
 
-		public ValueExpressionNode(in ValueExpression valueExpression) => _valueExpression = valueExpression;
+		public ValueExpressionNode(IValueExpression valueExpression) => _valueExpression = valueExpression;
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _valueExpression.Ancestor;
+		object IAncestorProvider.Ancestor => _valueExpression;
 
 	#endregion
 

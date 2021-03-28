@@ -24,12 +24,12 @@ namespace Xtate.Core
 {
 	internal sealed class DataModelNode : IDataModel, IStoreSupport, IAncestorProvider, IDocumentId
 	{
-		private readonly DataModelEntity  _dataModel;
-		private          DocumentIdRecord _documentIdNode;
+		private readonly IDataModel     _dataModel;
+		private          DocumentIdSlot _documentIdSlot;
 
-		public DataModelNode(in DocumentIdRecord documentIdNode, in DataModelEntity dataModel)
+		public DataModelNode(DocumentIdNode documentIdNode, IDataModel dataModel)
 		{
-			_documentIdNode = documentIdNode;
+			documentIdNode.SaveToSlot(out _documentIdSlot);
 			_dataModel = dataModel;
 			Data = dataModel.Data.AsArrayOf<IData, DataNode>(true);
 		}
@@ -38,7 +38,7 @@ namespace Xtate.Core
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _dataModel.Ancestor;
+		object IAncestorProvider.Ancestor => _dataModel;
 
 	#endregion
 
@@ -50,7 +50,7 @@ namespace Xtate.Core
 
 	#region Interface IDocumentId
 
-		public int DocumentId => _documentIdNode.Value;
+		public int DocumentId => _documentIdSlot.Value;
 
 	#endregion
 

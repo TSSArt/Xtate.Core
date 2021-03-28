@@ -25,9 +25,9 @@ namespace Xtate.Core
 {
 	internal sealed class FinalizeNode : IFinalize, IStoreSupport, IAncestorProvider
 	{
-		private readonly FinalizeEntity _finalize;
+		private readonly IFinalize _finalize;
 
-		public FinalizeNode(in FinalizeEntity finalize)
+		public FinalizeNode(IFinalize finalize)
 		{
 			_finalize = finalize;
 			ActionEvaluators = finalize.Action.AsArrayOf<IExecutableEntity, IExecEvaluator>();
@@ -37,7 +37,7 @@ namespace Xtate.Core
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _finalize.Ancestor;
+		object IAncestorProvider.Ancestor => _finalize;
 
 	#endregion
 

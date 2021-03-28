@@ -28,14 +28,14 @@ namespace Xtate.DataModel
 	[PublicAPI]
 	public class DefaultCustomActionEvaluator : ICustomAction, IExecEvaluator, IAncestorProvider
 	{
-		private readonly CustomActionEntity      _customAction;
+		private readonly ICustomAction           _customAction;
 		private readonly ICustomActionDispatcher _customActionDispatcher;
 
-		public DefaultCustomActionEvaluator(in CustomActionEntity customAction)
+		public DefaultCustomActionEvaluator(ICustomAction customAction)
 		{
 			_customAction = customAction;
 
-			var customActionDispatcher = customAction.Ancestor?.As<ICustomActionDispatcher>();
+			var customActionDispatcher = customAction.As<ICustomActionDispatcher>();
 
 			Infrastructure.NotNull(customActionDispatcher, Resources.Assertion_CustomActionDoesNotConfigured);
 
@@ -49,7 +49,7 @@ namespace Xtate.DataModel
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _customAction.Ancestor;
+		object IAncestorProvider.Ancestor => _customAction;
 
 	#endregion
 

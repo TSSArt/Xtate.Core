@@ -26,7 +26,7 @@ namespace Xtate.DataModel.XPath
 {
 	internal class XPathExternalDataExpressionEvaluator : DefaultExternalDataExpressionEvaluator
 	{
-		public XPathExternalDataExpressionEvaluator(in ExternalDataExpression externalDataExpression) : base(externalDataExpression) { }
+		public XPathExternalDataExpressionEvaluator(IExternalDataExpression externalDataExpression) : base(externalDataExpression) { }
 
 		protected override async ValueTask<DataModelValue> ParseToDataModel(IExecutionContext executionContext, Resource resource, CancellationToken token)
 		{

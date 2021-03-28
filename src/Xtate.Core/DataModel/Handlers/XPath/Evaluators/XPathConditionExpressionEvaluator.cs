@@ -26,9 +26,9 @@ namespace Xtate.DataModel.XPath
 	internal class XPathConditionExpressionEvaluator : IConditionExpression, IBooleanEvaluator, IAncestorProvider
 	{
 		private readonly XPathCompiledExpression _compiledExpression;
-		private readonly ConditionExpression     _conditionExpression;
+		private readonly IConditionExpression    _conditionExpression;
 
-		public XPathConditionExpressionEvaluator(ConditionExpression conditionExpression, XPathCompiledExpression compiledExpression)
+		public XPathConditionExpressionEvaluator(IConditionExpression conditionExpression, XPathCompiledExpression compiledExpression)
 		{
 			_conditionExpression = conditionExpression;
 			_compiledExpression = compiledExpression;
@@ -36,7 +36,7 @@ namespace Xtate.DataModel.XPath
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _conditionExpression.Ancestor;
+		object IAncestorProvider.Ancestor => _conditionExpression;
 
 	#endregion
 

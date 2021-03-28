@@ -28,11 +28,11 @@ namespace Xtate.DataModel
 	[PublicAPI]
 	public class DefaultSendEvaluator : IExecEvaluator, ISend, IAncestorProvider, IDebugEntityId
 	{
-		private readonly SendEntity _send;
+		private readonly ISend _send;
 
-		public DefaultSendEvaluator(in SendEntity send)
+		public DefaultSendEvaluator(ISend send)
 		{
-			_send = send;
+			_send = send ?? throw new ArgumentNullException(nameof(send));
 
 			EventExpressionEvaluator = send.EventExpression?.As<IStringEvaluator>();
 			TypeExpressionEvaluator = send.TypeExpression?.As<IStringEvaluator>();
@@ -57,7 +57,7 @@ namespace Xtate.DataModel
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _send.Ancestor;
+		object IAncestorProvider.Ancestor => _send;
 
 	#endregion
 

@@ -46,11 +46,11 @@ namespace Xtate.DataModel.Null
 
 		protected override void Visit(ref ILocationExpression expression) => AddErrorMessage(expression, Resources.ErrorMessage_LocationExpressionNotSupportedForNull);
 
-		protected override void Build(ref IConditionExpression conditionExpression, ref ConditionExpression properties)
+		protected override void Visit(ref IConditionExpression conditionExpression)
 		{
-			base.Build(ref conditionExpression, ref properties);
+			base.Visit(ref conditionExpression);
 
-			var expression = properties.Expression!;
+			var expression = conditionExpression.Expression!;
 
 			if (!expression.StartsWith(value: @"In(", StringComparison.Ordinal) || !expression.EndsWith(value: @")", StringComparison.Ordinal))
 			{
@@ -63,7 +63,7 @@ namespace Xtate.DataModel.Null
 
 			if (Identifier.TryCreate(state, out var inState))
 			{
-				conditionExpression = new NullConditionExpressionEvaluator(properties, inState);
+				conditionExpression = new NullConditionExpressionEvaluator(conditionExpression, inState);
 			}
 			else
 			{

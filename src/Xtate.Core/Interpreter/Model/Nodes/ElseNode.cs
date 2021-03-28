@@ -24,18 +24,18 @@ namespace Xtate.Core
 {
 	internal sealed class ElseNode : IElse, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 	{
-		private readonly ElseEntity       _entity;
-		private          DocumentIdRecord _documentIdNode;
+		private readonly IElse          _else;
+		private          DocumentIdSlot _documentIdSlot;
 
-		public ElseNode(in DocumentIdRecord documentIdNode, in ElseEntity entity)
+		public ElseNode(DocumentIdNode documentIdNode, IElse @else)
 		{
-			_documentIdNode = documentIdNode;
-			_entity = entity;
+			documentIdNode.SaveToSlot(out _documentIdSlot);
+			_else = @else;
 		}
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _entity.Ancestor;
+		object IAncestorProvider.Ancestor => _else;
 
 	#endregion
 
@@ -47,7 +47,7 @@ namespace Xtate.Core
 
 	#region Interface IDocumentId
 
-		public int DocumentId => _documentIdNode.Value;
+		public int DocumentId => _documentIdSlot.Value;
 
 	#endregion
 

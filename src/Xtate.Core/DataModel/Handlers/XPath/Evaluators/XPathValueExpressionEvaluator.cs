@@ -28,9 +28,9 @@ namespace Xtate.DataModel.XPath
 	internal class XPathValueExpressionEvaluator : IValueExpression, IObjectEvaluator, IStringEvaluator, IIntegerEvaluator, IArrayEvaluator, IAncestorProvider, IDebugEntityId
 	{
 		private readonly XPathCompiledExpression _compiledExpression;
-		private readonly ValueExpression         _valueExpression;
+		private readonly IValueExpression        _valueExpression;
 
-		public XPathValueExpressionEvaluator(in ValueExpression valueExpression, XPathCompiledExpression compiledExpression)
+		public XPathValueExpressionEvaluator(IValueExpression valueExpression, XPathCompiledExpression compiledExpression)
 		{
 			_valueExpression = valueExpression;
 			_compiledExpression = compiledExpression;
@@ -38,7 +38,7 @@ namespace Xtate.DataModel.XPath
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _valueExpression.Ancestor;
+		object IAncestorProvider.Ancestor => _valueExpression;
 
 	#endregion
 

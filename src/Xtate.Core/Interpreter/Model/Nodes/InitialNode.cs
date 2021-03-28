@@ -24,9 +24,9 @@ namespace Xtate.Core
 {
 	internal sealed class InitialNode : StateEntityNode, IInitial, IAncestorProvider, IDebugEntityId
 	{
-		private readonly InitialEntity _initial;
+		private readonly IInitial? _initial;
 
-		public InitialNode(in DocumentIdRecord documentIdNode, in InitialEntity initial) : base(documentIdNode, children: null)
+		public InitialNode(DocumentIdNode documentIdNode, IInitial initial) : base(documentIdNode, children: null)
 		{
 			Infrastructure.NotNull(initial.Transition);
 
@@ -36,7 +36,7 @@ namespace Xtate.Core
 			Transition.SetSource(this);
 		}
 
-		public InitialNode(in DocumentIdRecord documentIdNode, TransitionNode transition) : base(documentIdNode, children: null)
+		public InitialNode(DocumentIdNode documentIdNode, TransitionNode transition) : base(documentIdNode, children: null)
 		{
 			Transition = transition ?? throw new ArgumentNullException(nameof(transition));
 
@@ -47,7 +47,7 @@ namespace Xtate.Core
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _initial.Ancestor;
+		object? IAncestorProvider.Ancestor => _initial;
 
 	#endregion
 
@@ -59,7 +59,7 @@ namespace Xtate.Core
 
 	#region Interface IInitial
 
-		ITransition IInitial.Transition => _initial.Transition!;
+		ITransition IInitial.Transition => _initial?.Transition ?? Infrastructure.Fail<ITransition>();
 
 	#endregion
 

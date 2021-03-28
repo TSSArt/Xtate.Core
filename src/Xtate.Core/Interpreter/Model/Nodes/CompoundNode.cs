@@ -24,7 +24,7 @@ namespace Xtate.Core
 {
 	internal sealed class CompoundNode : StateNode, IStoreSupport, IDebugEntityId
 	{
-		public CompoundNode(in DocumentIdRecord documentIdNode, in StateEntity state) : base(documentIdNode, state)
+		public CompoundNode(DocumentIdNode documentIdNode, IState state) : base(documentIdNode, state)
 		{
 			Infrastructure.NotNull(base.Initial);
 		}

@@ -26,10 +26,10 @@ namespace Xtate.DataModel.Null
 {
 	internal sealed class NullConditionExpressionEvaluator : IConditionExpression, IBooleanEvaluator, IAncestorProvider, IDebugEntityId
 	{
-		private readonly ConditionExpression _conditionExpression;
-		private readonly IIdentifier         _inState;
+		private readonly IConditionExpression _conditionExpression;
+		private readonly IIdentifier          _inState;
 
-		public NullConditionExpressionEvaluator(in ConditionExpression conditionExpression, IIdentifier inState)
+		public NullConditionExpressionEvaluator(IConditionExpression conditionExpression, IIdentifier inState)
 		{
 			_conditionExpression = conditionExpression;
 			_inState = inState;
@@ -37,7 +37,7 @@ namespace Xtate.DataModel.Null
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _conditionExpression.Ancestor;
+		object IAncestorProvider.Ancestor => _conditionExpression;
 
 	#endregion
 

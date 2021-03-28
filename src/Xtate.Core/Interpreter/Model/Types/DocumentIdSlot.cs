@@ -21,14 +21,14 @@ using System.Collections.Generic;
 
 namespace Xtate.Core
 {
-	internal struct DocumentIdRecord
+	internal struct DocumentIdSlot
 	{
 		private LinkedListNode<int>? _node;
 		private int                  _value;
 
-		public DocumentIdRecord(LinkedList<int> list)
+		public DocumentIdSlot(LinkedListNode<int> node)
 		{
-			_node = list.AddLast(-1);
+			_node = node;
 			_value = -1;
 		}
 
@@ -51,21 +51,6 @@ namespace Xtate.Core
 
 				return _value;
 			}
-		}
-
-		[Pure]
-		public DocumentIdRecord After()
-		{
-			Infrastructure.NotNull(_node);
-
-			var list = _node.List;
-			Infrastructure.NotNull(list);
-
-			return new DocumentIdRecord
-				   {
-						   _node = list.AddAfter(_node, value: -1),
-						   _value = -1
-				   };
 		}
 	}
 }

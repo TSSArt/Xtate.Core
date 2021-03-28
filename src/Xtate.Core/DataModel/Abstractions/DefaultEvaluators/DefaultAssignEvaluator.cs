@@ -27,11 +27,11 @@ namespace Xtate.DataModel
 	[PublicAPI]
 	public class DefaultAssignEvaluator : IAssign, IExecEvaluator, IAncestorProvider
 	{
-		private readonly AssignEntity _assign;
+		private readonly IAssign _assign;
 
-		public DefaultAssignEvaluator(in AssignEntity assign)
+		public DefaultAssignEvaluator(IAssign assign)
 		{
-			_assign = assign;
+			_assign = assign ?? throw new ArgumentNullException(nameof(assign));
 
 			Infrastructure.NotNull(assign.Location);
 
@@ -46,7 +46,7 @@ namespace Xtate.DataModel
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _assign.Ancestor;
+		object IAncestorProvider.Ancestor => _assign;
 
 	#endregion
 

@@ -25,10 +25,10 @@ namespace Xtate.Core
 {
 	internal sealed class ExternalScriptExpressionNode : IExternalScriptExpression, IExternalScriptConsumer, IStoreSupport, IAncestorProvider
 	{
-		private readonly ExternalScriptExpression _externalScriptExpression;
-		private          string?                  _content;
+		private readonly IExternalScriptExpression _externalScriptExpression;
+		private          string?                   _content;
 
-		public ExternalScriptExpressionNode(in ExternalScriptExpression externalScriptExpression)
+		public ExternalScriptExpressionNode(IExternalScriptExpression externalScriptExpression)
 		{
 			Infrastructure.NotNull(externalScriptExpression.Uri);
 
@@ -37,7 +37,7 @@ namespace Xtate.Core
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _externalScriptExpression.Ancestor;
+		object IAncestorProvider.Ancestor => _externalScriptExpression;
 
 	#endregion
 
@@ -47,7 +47,7 @@ namespace Xtate.Core
 		{
 			_content = content;
 
-			if (_externalScriptExpression.Ancestor.Is<IExternalScriptConsumer>(out var externalScript))
+			if (_externalScriptExpression.Is<IExternalScriptConsumer>(out var externalScript))
 			{
 				externalScript.SetContent(content);
 			}

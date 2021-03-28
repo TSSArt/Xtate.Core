@@ -24,20 +24,20 @@ namespace Xtate.Core
 {
 	internal sealed class ElseIfNode : IElseIf, IAncestorProvider, IStoreSupport, IDocumentId, IDebugEntityId
 	{
-		private readonly ElseIfEntity     _entity;
-		private          DocumentIdRecord _documentIdNode;
+		private readonly IElseIf        _elseIf;
+		private          DocumentIdSlot _documentIdSlot;
 
-		public ElseIfNode(in DocumentIdRecord documentIdNode, in ElseIfEntity entity)
+		public ElseIfNode(DocumentIdNode documentIdNode, IElseIf elseIf)
 		{
-			Infrastructure.NotNull(entity.Condition);
+			Infrastructure.NotNull(elseIf.Condition);
 
-			_documentIdNode = documentIdNode;
-			_entity = entity;
+			documentIdNode.SaveToSlot(out _documentIdSlot);
+			_elseIf = elseIf;
 		}
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _entity.Ancestor;
+		object IAncestorProvider.Ancestor => _elseIf;
 
 	#endregion
 
@@ -49,13 +49,13 @@ namespace Xtate.Core
 
 	#region Interface IDocumentId
 
-		public int DocumentId => _documentIdNode.Value;
+		public int DocumentId => _documentIdSlot.Value;
 
 	#endregion
 
 	#region Interface IElseIf
 
-		public IConditionExpression Condition => _entity.Condition!;
+		public IConditionExpression Condition => _elseIf.Condition!;
 
 	#endregion
 

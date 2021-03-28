@@ -27,11 +27,11 @@ namespace Xtate.DataModel
 	[PublicAPI]
 	public class DefaultCancelEvaluator : ICancel, IExecEvaluator, IAncestorProvider
 	{
-		private readonly CancelEntity _cancel;
+		private readonly ICancel _cancel;
 
-		public DefaultCancelEvaluator(in CancelEntity cancel)
+		public DefaultCancelEvaluator(ICancel cancel)
 		{
-			_cancel = cancel;
+			_cancel = cancel ?? throw new ArgumentNullException(nameof(cancel));
 			SendIdExpressionEvaluator = cancel.SendIdExpression?.As<IStringEvaluator>();
 		}
 
@@ -39,7 +39,7 @@ namespace Xtate.DataModel
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _cancel.Ancestor;
+		object IAncestorProvider.Ancestor => _cancel;
 
 	#endregion
 

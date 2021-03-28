@@ -29,23 +29,23 @@ namespace Xtate.Core
 	internal sealed class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 	{
 		private readonly ICancelInvokeEvaluator _cancelInvokeEvaluator;
-		private readonly InvokeEntity           _invoke;
+		private readonly IInvoke                _invoke;
 		private readonly IStartInvokeEvaluator  _startInvokeEvaluator;
-		private          DocumentIdRecord       _documentIdNode;
+		private          DocumentIdSlot         _documentIdSlot;
 		private          IIdentifier?           _stateId;
 
-		public InvokeNode(in DocumentIdRecord documentIdNode, in InvokeEntity invoke)
+		public InvokeNode(DocumentIdNode documentIdNode, IInvoke invoke)
 		{
-			_documentIdNode = documentIdNode;
+			documentIdNode.SaveToSlot(out _documentIdSlot);
 			_invoke = invoke;
 
 			Finalize = invoke.Finalize?.As<FinalizeNode>();
 
-			var startInvokeEvaluator = invoke.Ancestor?.As<IStartInvokeEvaluator>();
+			var startInvokeEvaluator = invoke.As<IStartInvokeEvaluator>();
 			Infrastructure.NotNull(startInvokeEvaluator);
 			_startInvokeEvaluator = startInvokeEvaluator;
 
-			var cancelInvokeEvaluator = invoke.Ancestor?.As<ICancelInvokeEvaluator>();
+			var cancelInvokeEvaluator = invoke.As<ICancelInvokeEvaluator>();
 			Infrastructure.NotNull(cancelInvokeEvaluator);
 			_cancelInvokeEvaluator = cancelInvokeEvaluator;
 		}
@@ -56,7 +56,7 @@ namespace Xtate.Core
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _invoke.Ancestor;
+		object IAncestorProvider.Ancestor => _invoke;
 
 	#endregion
 
@@ -68,7 +68,7 @@ namespace Xtate.Core
 
 	#region Interface IDocumentId
 
-		public int DocumentId => _documentIdNode.Value;
+		public int DocumentId => _documentIdSlot.Value;
 
 	#endregion
 

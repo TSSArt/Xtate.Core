@@ -27,11 +27,11 @@ namespace Xtate.DataModel
 	[PublicAPI]
 	public class DefaultLogEvaluator : ILog, IExecEvaluator, IAncestorProvider
 	{
-		private readonly LogEntity _log;
+		private readonly ILog _log;
 
-		public DefaultLogEvaluator(in LogEntity log)
+		public DefaultLogEvaluator(ILog log)
 		{
-			_log = log;
+			_log = log ?? throw new ArgumentNullException(nameof(log));
 			ExpressionEvaluator = log.Expression?.As<IObjectEvaluator>();
 		}
 
@@ -39,7 +39,7 @@ namespace Xtate.DataModel
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _log.Ancestor;
+		object IAncestorProvider.Ancestor => _log;
 
 	#endregion
 

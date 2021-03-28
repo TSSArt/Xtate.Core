@@ -24,27 +24,27 @@ namespace Xtate.Core
 {
 	internal sealed class AssignNode : ExecutableEntityNode, IAssign, IAncestorProvider, IDebugEntityId
 	{
-		private readonly AssignEntity _entity;
+		private readonly IAssign _assign;
 
-		public AssignNode(in DocumentIdRecord documentIdNode, in AssignEntity entity) : base(documentIdNode, (IAssign?) entity.Ancestor) => _entity = entity;
+		public AssignNode(DocumentIdNode documentIdNode, IAssign assign) : base(documentIdNode, assign) => _assign = assign;
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _entity.Ancestor;
+		object IAncestorProvider.Ancestor => _assign;
 
 	#endregion
 
 	#region Interface IAssign
 
-		public ILocationExpression? Location => _entity.Location;
+		public ILocationExpression? Location => _assign.Location;
 
-		public IValueExpression? Expression => _entity.Expression;
+		public IValueExpression? Expression => _assign.Expression;
 
-		public IInlineContent? InlineContent => _entity.InlineContent;
+		public IInlineContent? InlineContent => _assign.InlineContent;
 
-		public string? Type => _entity.Type;
+		public string? Type => _assign.Type;
 
-		public string? Attribute => _entity.Attribute;
+		public string? Attribute => _assign.Attribute;
 
 	#endregion
 

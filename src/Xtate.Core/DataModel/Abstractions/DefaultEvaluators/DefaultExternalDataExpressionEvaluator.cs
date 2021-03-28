@@ -27,13 +27,13 @@ namespace Xtate.DataModel
 	[PublicAPI]
 	public class DefaultExternalDataExpressionEvaluator : IExternalDataExpression, IResourceEvaluator, IAncestorProvider
 	{
-		private readonly ExternalDataExpression _externalDataExpression;
+		private readonly IExternalDataExpression _externalDataExpression;
 
-		public DefaultExternalDataExpressionEvaluator(in ExternalDataExpression externalDataExpression) => _externalDataExpression = externalDataExpression;
+		public DefaultExternalDataExpressionEvaluator(IExternalDataExpression externalDataExpression) => _externalDataExpression = externalDataExpression;
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _externalDataExpression.Ancestor;
+		object IAncestorProvider.Ancestor => _externalDataExpression;
 
 	#endregion
 

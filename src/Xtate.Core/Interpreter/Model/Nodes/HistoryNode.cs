@@ -24,9 +24,9 @@ namespace Xtate.Core
 {
 	internal sealed class HistoryNode : StateEntityNode, IHistory, IAncestorProvider, IDebugEntityId
 	{
-		private readonly HistoryEntity _history;
+		private readonly IHistory _history;
 
-		public HistoryNode(in DocumentIdRecord documentIdNode, in HistoryEntity history) : base(documentIdNode, children: null)
+		public HistoryNode(DocumentIdNode documentIdNode, IHistory history) : base(documentIdNode, children: null)
 		{
 			Infrastructure.NotNull(history.Transition);
 
@@ -41,7 +41,7 @@ namespace Xtate.Core
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _history.Ancestor;
+		object IAncestorProvider.Ancestor => _history;
 
 	#endregion
 

@@ -25,13 +25,13 @@ namespace Xtate.Core
 {
 	internal sealed class IfNode : ExecutableEntityNode, IIf, IAncestorProvider, IDebugEntityId
 	{
-		private readonly IfEntity _entity;
+		private readonly IIf _if;
 
-		public IfNode(in DocumentIdRecord documentIdNode, in IfEntity entity) : base(documentIdNode, (IIf?) entity.Ancestor) => _entity = entity;
+		public IfNode(DocumentIdNode documentIdNode, IIf @if) : base(documentIdNode, @if) => _if = @if;
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _entity.Ancestor;
+		object IAncestorProvider.Ancestor => _if;
 
 	#endregion
 
@@ -43,9 +43,9 @@ namespace Xtate.Core
 
 	#region Interface IIf
 
-		public IConditionExpression? Condition => _entity.Condition;
+		public IConditionExpression? Condition => _if.Condition;
 
-		public ImmutableArray<IExecutableEntity> Action => _entity.Action;
+		public ImmutableArray<IExecutableEntity> Action => _if.Action;
 
 	#endregion
 

@@ -28,11 +28,11 @@ namespace Xtate.DataModel
 	[PublicAPI]
 	public class DefaultForEachEvaluator : IForEach, IExecEvaluator, IAncestorProvider
 	{
-		private readonly ForEachEntity _forEach;
+		private readonly IForEach _forEach;
 
-		public DefaultForEachEvaluator(in ForEachEntity forEach)
+		public DefaultForEachEvaluator(IForEach forEach)
 		{
-			_forEach = forEach;
+			_forEach = forEach ?? throw new ArgumentNullException(nameof(forEach));
 
 			Infrastructure.NotNull(forEach.Array);
 			Infrastructure.NotNull(forEach.Item);
@@ -50,7 +50,7 @@ namespace Xtate.DataModel
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _forEach.Ancestor;
+		object IAncestorProvider.Ancestor => _forEach;
 
 	#endregion
 

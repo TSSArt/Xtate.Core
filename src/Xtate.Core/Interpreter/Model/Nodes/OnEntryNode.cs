@@ -26,13 +26,13 @@ namespace Xtate.Core
 {
 	internal sealed class OnEntryNode : IOnEntry, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 	{
-		private readonly OnEntryEntity    _onEntry;
-		private          DocumentIdRecord _documentIdNode;
+		private readonly IOnEntry       _onEntry;
+		private          DocumentIdSlot _documentIdSlot;
 
-		public OnEntryNode(in DocumentIdRecord documentIdNode, in OnEntryEntity onEntry)
+		public OnEntryNode(DocumentIdNode documentIdNode, IOnEntry onEntry)
 		{
 			_onEntry = onEntry;
-			_documentIdNode = documentIdNode;
+			documentIdNode.SaveToSlot(out _documentIdSlot);
 			ActionEvaluators = onEntry.Action.AsArrayOf<IExecutableEntity, IExecEvaluator>();
 		}
 
@@ -40,7 +40,7 @@ namespace Xtate.Core
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _onEntry.Ancestor;
+		object IAncestorProvider.Ancestor => _onEntry;
 
 	#endregion
 
@@ -52,7 +52,7 @@ namespace Xtate.Core
 
 	#region Interface IDocumentId
 
-		public int DocumentId => _documentIdNode.Value;
+		public int DocumentId => _documentIdSlot.Value;
 
 	#endregion
 

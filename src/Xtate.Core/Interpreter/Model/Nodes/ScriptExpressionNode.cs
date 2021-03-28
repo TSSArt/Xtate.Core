@@ -23,9 +23,9 @@ namespace Xtate.Core
 {
 	internal sealed class ScriptExpressionNode : IScriptExpression, IStoreSupport, IAncestorProvider
 	{
-		private readonly ScriptExpression _scriptExpression;
+		private readonly IScriptExpression _scriptExpression;
 
-		public ScriptExpressionNode(in ScriptExpression scriptExpression)
+		public ScriptExpressionNode(IScriptExpression scriptExpression)
 		{
 			Infrastructure.NotNull(scriptExpression.Expression);
 
@@ -34,7 +34,7 @@ namespace Xtate.Core
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _scriptExpression.Ancestor;
+		object IAncestorProvider.Ancestor => _scriptExpression;
 
 	#endregion
 

@@ -164,61 +164,76 @@ namespace Xtate.Core
 
 		private void RegisterEntity(IEntity entity) => _entities.Add(entity);
 
-		private DocumentIdRecord NewDocumentId() => new(_documentIdList);
+		private DocumentIdNode CreateDocumentId() => new(_documentIdList);
 
-		private static DocumentIdRecord NewDocumentIdAfter(in DocumentIdRecord previous) => previous.After();
-
-		protected override void Build(ref IStateMachine stateMachine, ref StateMachineEntity stateMachineProperties)
+		protected override void Build(ref StateMachineEntity stateMachineProperties)
 		{
-			var documentId = NewDocumentId();
+			var initialNodeDocumentId = CreateDocumentId();
+			var transitionNodeDocumentId = CreateDocumentId();
 
-			base.Build(ref stateMachine, ref stateMachineProperties);
+			base.Build(ref stateMachineProperties);
 
 			if (!stateMachineProperties.States.IsDefaultOrEmpty && stateMachineProperties.Initial is null)
 			{
-				var initialDocId = NewDocumentIdAfter(documentId);
 				var target = ImmutableArray.Create(stateMachineProperties.States[index: 0].As<StateEntityNode>());
-				var transition = new TransitionNode(NewDocumentIdAfter(initialDocId), transition: default, target);
-				stateMachineProperties.Initial = new InitialNode(initialDocId, transition);
-			}
-
-			var stateMachineNode = new StateMachineNode(documentId, stateMachineProperties);
-
-			if (_dataModelNodeArray is not null && stateMachineNode.DataModel is not null)
-			{
-				_dataModelNodeArray.Remove(stateMachineNode.DataModel);
-			}
-
-			stateMachine = stateMachineNode;
-			RegisterEntity(stateMachine);
-		}
-
-		protected override void Build(ref IState state, ref StateEntity stateProperties)
-		{
-			var documentId = NewDocumentId();
-
-			CounterBefore(inParallel: false, out var saved);
-			base.Build(ref state, ref stateProperties);
-			CounterAfter(saved);
-
-			StateNode newState;
-
-			if (!stateProperties.States.IsDefaultOrEmpty)
-			{
-				if (stateProperties.Initial is null)
-				{
-					var initialDocId = NewDocumentIdAfter(documentId);
-					var target = ImmutableArray.Create(stateProperties.States[index: 0].As<StateEntityNode>());
-					var transition = new TransitionNode(NewDocumentIdAfter(initialDocId), transition: default, target);
-					stateProperties.Initial = new InitialNode(initialDocId, transition);
-				}
-
-				newState = new CompoundNode(documentId, stateProperties);
+				var transition = new TransitionNode(transitionNodeDocumentId, target);
+				stateMachineProperties.Initial = new InitialNode(initialNodeDocumentId, transition);
 			}
 			else
 			{
-				newState = new StateNode(documentId, stateProperties);
+				initialNodeDocumentId.Discard();
+				transitionNodeDocumentId.Discard();
 			}
+		}
+
+		protected override void Visit(ref IStateMachine stateMachine)
+		{
+			var documentId = CreateDocumentId();
+
+			base.Visit(ref stateMachine);
+
+			var newStateMachine = new StateMachineNode(documentId, stateMachine);
+
+			if (_dataModelNodeArray is not null && newStateMachine.DataModel is { } dataModelNode)
+			{
+				_dataModelNodeArray.Remove(dataModelNode);
+			}
+
+			stateMachine = newStateMachine;
+			RegisterEntity(stateMachine);
+		}
+
+		protected override void Build(ref StateEntity stateProperties)
+		{
+			var initialNodeDocumentId = CreateDocumentId();
+			var transitionNodeDocumentId = CreateDocumentId();
+
+			base.Build(ref stateProperties);
+
+			if (!stateProperties.States.IsDefaultOrEmpty && stateProperties.Initial is null)
+			{
+				var target = ImmutableArray.Create(stateProperties.States[index: 0].As<StateEntityNode>());
+				var transition = new TransitionNode(transitionNodeDocumentId, target);
+				stateProperties.Initial = new InitialNode(initialNodeDocumentId, transition);
+			}
+			else
+			{
+				initialNodeDocumentId.Discard();
+				transitionNodeDocumentId.Discard();
+			}
+		}
+
+		protected override void Visit(ref IState state)
+		{
+			var documentId = CreateDocumentId();
+
+			CounterBefore(inParallel: false, out var saved);
+			base.Visit(ref state);
+			CounterAfter(saved);
+
+			var newState = !state.States.IsDefaultOrEmpty
+					? new CompoundNode(documentId, state)
+					: new StateNode(documentId, state);
 
 			_idMap.Add(newState.Id, newState);
 
@@ -226,68 +241,68 @@ namespace Xtate.Core
 			RegisterEntity(state);
 		}
 
-		protected override void Build(ref IParallel parallel, ref ParallelEntity parallelProperties)
+		protected override void Visit(ref IParallel parallel)
 		{
-			var documentId = NewDocumentId();
+			var documentId = CreateDocumentId();
 
 			CounterBefore(inParallel: false, out var saved);
-			base.Build(ref parallel, ref parallelProperties);
+			base.Visit(ref parallel);
 			CounterAfter(saved);
 
-			var newParallel = new ParallelNode(documentId, parallelProperties);
+			var newParallel = new ParallelNode(documentId, parallel);
 			_idMap.Add(newParallel.Id, newParallel);
 
 			parallel = newParallel;
 			RegisterEntity(parallel);
 		}
 
-		protected override void Build(ref IFinal final, ref FinalEntity finalProperties)
+		protected override void Visit(ref IFinal final)
 		{
-			var documentId = NewDocumentId();
+			var documentId = CreateDocumentId();
 
 			CounterBefore(inParallel: false, out var saved);
-			base.Build(ref final, ref finalProperties);
+			base.Visit(ref final);
 			CounterAfter(saved);
 
-			var newFinal = new FinalNode(documentId, finalProperties);
+			var newFinal = new FinalNode(documentId, final);
 			_idMap.Add(newFinal.Id, newFinal);
 
 			final = newFinal;
 			RegisterEntity(final);
 		}
 
-		protected override void Build(ref IHistory history, ref HistoryEntity historyProperties)
+		protected override void Visit(ref IHistory history)
 		{
-			var documentId = NewDocumentId();
+			var documentId = CreateDocumentId();
 
-			base.Build(ref history, ref historyProperties);
+			base.Visit(ref history);
 
-			var newHistory = new HistoryNode(documentId, historyProperties);
+			var newHistory = new HistoryNode(documentId, history);
 			_idMap.Add(newHistory.Id, newHistory);
 
 			history = newHistory;
 			RegisterEntity(history);
 		}
 
-		protected override void Build(ref IInitial initial, ref InitialEntity initialProperties)
+		protected override void Visit(ref IInitial initial)
 		{
-			var documentId = NewDocumentId();
+			var documentId = CreateDocumentId();
 
-			base.Build(ref initial, ref initialProperties);
+			base.Visit(ref initial);
 
-			initial = new InitialNode(documentId, initialProperties);
+			initial = new InitialNode(documentId, initial);
 			RegisterEntity(initial);
 		}
 
-		protected override void Build(ref ITransition transition, ref TransitionEntity transitionProperties)
+		protected override void Visit(ref ITransition transition)
 		{
-			var documentId = NewDocumentId();
+			var documentId = CreateDocumentId();
 
-			base.Build(ref transition, ref transitionProperties);
+			base.Visit(ref transition);
 
-			var newTransition = new TransitionNode(documentId, transitionProperties);
+			var newTransition = new TransitionNode(documentId, transition);
 
-			if (!transitionProperties.Target.IsDefaultOrEmpty)
+			if (!transition.Target.IsDefaultOrEmpty)
 			{
 				_targetMap.Add(newTransition);
 			}
@@ -296,33 +311,33 @@ namespace Xtate.Core
 			RegisterEntity(transition);
 		}
 
-		protected override void Build(ref IOnEntry onEntry, ref OnEntryEntity onEntryProperties)
+		protected override void Visit(ref IOnEntry onEntry)
 		{
-			var documentId = NewDocumentId();
+			var documentId = CreateDocumentId();
 
-			base.Build(ref onEntry, ref onEntryProperties);
+			base.Visit(ref onEntry);
 
-			onEntry = new OnEntryNode(documentId, onEntryProperties);
+			onEntry = new OnEntryNode(documentId, onEntry);
 			RegisterEntity(onEntry);
 		}
 
-		protected override void Build(ref IOnExit onExit, ref OnExitEntity onExitProperties)
+		protected override void Visit(ref IOnExit onExit)
 		{
-			var documentId = NewDocumentId();
+			var documentId = CreateDocumentId();
 
-			base.Build(ref onExit, ref onExitProperties);
+			base.Visit(ref onExit);
 
-			onExit = new OnExitNode(documentId, onExitProperties);
+			onExit = new OnExitNode(documentId, onExit);
 			RegisterEntity(onExit);
 		}
 
-		protected override void Build(ref IDataModel dataModel, ref DataModelEntity dataModelProperties)
+		private void VisitInternal(ref IDataModel dataModel)
 		{
-			var documentId = NewDocumentId();
+			var documentId = CreateDocumentId();
 
-			base.Build(ref dataModel, ref dataModelProperties);
+			base.Visit(ref dataModel);
 
-			var dataModelNode = new DataModelNode(documentId, dataModelProperties);
+			var dataModelNode = new DataModelNode(documentId, dataModel);
 
 			(_dataModelNodeArray ??= ImmutableArray.CreateBuilder<DataModelNode>()).Add(dataModelNode);
 
@@ -330,43 +345,43 @@ namespace Xtate.Core
 			RegisterEntity(dataModel);
 		}
 
-		protected override void Build(ref IData data, ref DataEntity dataProperties)
+		protected override void Visit(ref IData data)
 		{
-			var documentId = NewDocumentId();
+			var documentId = CreateDocumentId();
 
-			base.Build(ref data, ref dataProperties);
+			base.Visit(ref data);
 
-			data = new DataNode(documentId, dataProperties);
+			data = new DataNode(documentId, data);
 			RegisterEntity(data);
 		}
 
-		protected override void Build(ref IInvoke invoke, ref InvokeEntity invokeProperties)
+		private void VisitInternal(ref IInvoke invoke)
 		{
-			var documentId = NewDocumentId();
+			var documentId = CreateDocumentId();
 
-			base.Build(ref invoke, ref invokeProperties);
+			base.Visit(ref invoke);
 
-			invoke = new InvokeNode(documentId, invokeProperties);
+			invoke = new InvokeNode(documentId, invoke);
 			RegisterEntity(invoke);
 		}
 
-		protected override void Build(ref IScriptExpression scriptExpression, ref ScriptExpression scriptExpressionProperties)
+		protected override void Visit(ref IScriptExpression scriptExpression)
 		{
-			NewDocumentId();
+			CreateDocumentId();
 
-			base.Build(ref scriptExpression, ref scriptExpressionProperties);
+			base.Visit(ref scriptExpression);
 
-			scriptExpression = new ScriptExpressionNode(scriptExpressionProperties);
+			scriptExpression = new ScriptExpressionNode(scriptExpression);
 			RegisterEntity(scriptExpression);
 		}
 
-		protected override void Build(ref IExternalScriptExpression externalScriptExpression, ref ExternalScriptExpression externalScriptExpressionProperties)
+		protected override void Visit(ref IExternalScriptExpression externalScriptExpression)
 		{
-			NewDocumentId();
+			CreateDocumentId();
 
-			base.Build(ref externalScriptExpression, ref externalScriptExpressionProperties);
+			base.Visit(ref externalScriptExpression);
 
-			var externalScriptExpressionNode = new ExternalScriptExpressionNode(externalScriptExpressionProperties);
+			var externalScriptExpressionNode = new ExternalScriptExpressionNode(externalScriptExpression);
 			externalScriptExpression = externalScriptExpressionNode;
 
 			RegisterEntity(externalScriptExpression);
@@ -386,101 +401,99 @@ namespace Xtate.Core
 			}
 		}
 
-		protected override void Build(ref ICustomAction customAction, ref CustomActionEntity customActionProperties)
+		protected override void Visit(ref ICustomAction customAction)
 		{
-			var documentId = NewDocumentId();
+			var documentId = CreateDocumentId();
 
-			base.Build(ref customAction, ref customActionProperties);
+			base.Visit(ref customAction);
 
-			customAction = new CustomActionNode(documentId, customActionProperties);
+			customAction = new CustomActionNode(documentId, customAction);
 			RegisterEntity(customAction);
 		}
 
-		protected override void Build(ref IExternalDataExpression externalDataExpression, ref ExternalDataExpression externalDataExpressionProperties)
+		protected override void Visit(ref IExternalDataExpression externalDataExpression)
 		{
-			NewDocumentId();
+			CreateDocumentId();
 
-			base.Build(ref externalDataExpression, ref externalDataExpressionProperties);
+			base.Visit(ref externalDataExpression);
 
-			externalDataExpression = new ExternalDataExpressionNode(externalDataExpressionProperties);
+			externalDataExpression = new ExternalDataExpressionNode(externalDataExpression);
 			RegisterEntity(externalDataExpression);
 		}
 
-		protected override void Build(ref IValueExpression valueExpression, ref ValueExpression valueExpressionProperties)
+		protected override void Visit(ref IValueExpression valueExpression)
 		{
-			NewDocumentId();
+			CreateDocumentId();
 
-			base.Build(ref valueExpression, ref valueExpressionProperties);
+			base.Visit(ref valueExpression);
 
-			valueExpression = new ValueExpressionNode(valueExpressionProperties);
+			valueExpression = new ValueExpressionNode(valueExpression);
 			RegisterEntity(valueExpression);
 		}
 
-		protected override void Build(ref ILocationExpression locationExpression, ref LocationExpression locationExpressionProperties)
+		protected override void Visit(ref ILocationExpression locationExpression)
 		{
-			NewDocumentId();
+			CreateDocumentId();
 
-			base.Build(ref locationExpression, ref locationExpressionProperties);
+			base.Visit(ref locationExpression);
 
-			locationExpression = new LocationExpressionNode(locationExpressionProperties);
+			locationExpression = new LocationExpressionNode(locationExpression);
 			RegisterEntity(locationExpression);
 		}
 
-		protected override void Build(ref IConditionExpression conditionExpression, ref ConditionExpression conditionExpressionProperties)
+		protected override void Visit(ref IConditionExpression conditionExpression)
 		{
-			NewDocumentId();
+			CreateDocumentId();
 
-			base.Build(ref conditionExpression, ref conditionExpressionProperties);
+			base.Visit(ref conditionExpression);
 
-			conditionExpression = new ConditionExpressionNode(conditionExpressionProperties);
+			conditionExpression = new ConditionExpressionNode(conditionExpression);
 			RegisterEntity(conditionExpression);
 		}
 
-		protected override void Build(ref IDoneData doneData, ref DoneDataEntity doneDataProperties)
+		private void VisitInternal(ref IDoneData doneData)
 		{
-			NewDocumentId();
+			CreateDocumentId();
 
-			base.Build(ref doneData, ref doneDataProperties);
+			base.Visit(ref doneData);
 
-			doneData = new DoneDataNode(doneDataProperties);
+			doneData = new DoneDataNode(doneData);
 			RegisterEntity(doneData);
 		}
 
-		protected override void Build(ref IContent content, ref ContentEntity contentProperties)
+		protected override void Visit(ref IContent content)
 		{
-			NewDocumentId();
+			CreateDocumentId();
 
-			base.Build(ref content, ref contentProperties);
+			base.Visit(ref content);
 
-			content = new ContentNode(contentProperties);
+			content = new ContentNode(content);
 			RegisterEntity(content);
 		}
 
-		protected override void Build(ref IFinalize finalize, ref FinalizeEntity finalizeProperties)
+		protected override void Visit(ref IFinalize finalize)
 		{
-			NewDocumentId();
+			CreateDocumentId();
 
-			base.Build(ref finalize, ref finalizeProperties);
+			base.Visit(ref finalize);
 
-			finalize = new FinalizeNode(finalizeProperties);
+			finalize = new FinalizeNode(finalize);
 			RegisterEntity(finalize);
 		}
 
-		protected override void Build(ref IParam param, ref ParamEntity paramProperties)
+		protected override void Visit(ref IParam param)
 		{
-			NewDocumentId();
+			var documentId = CreateDocumentId();
 
-			var documentId = NewDocumentId();
+			base.Visit(ref param);
 
-			base.Build(ref param, ref paramProperties);
-
-			param = new ParamNode(documentId, paramProperties);
+			param = new ParamNode(documentId, param);
 			RegisterEntity(param);
 		}
 
 		protected override void Visit(ref IIdentifier entity)
 		{
-			NewDocumentId();
+			CreateDocumentId();
 
 			base.Visit(ref entity);
 
@@ -490,7 +503,7 @@ namespace Xtate.Core
 
 		protected override void Visit(ref IOutgoingEvent entity)
 		{
-			NewDocumentId();
+			CreateDocumentId();
 
 			base.Visit(ref entity);
 
@@ -500,7 +513,7 @@ namespace Xtate.Core
 
 		protected override void Visit(ref IEventDescriptor entity)
 		{
-			NewDocumentId();
+			CreateDocumentId();
 
 			base.Visit(ref entity);
 
@@ -508,109 +521,109 @@ namespace Xtate.Core
 			RegisterEntity(entity);
 		}
 
-		protected override void Build(ref ICancel cancel, ref CancelEntity cancelProperties)
+		protected override void Visit(ref ICancel cancel)
 		{
-			var documentId = NewDocumentId();
+			var documentId = CreateDocumentId();
 
-			base.Build(ref cancel, ref cancelProperties);
+			base.Visit(ref cancel);
 
-			cancel = new CancelNode(documentId, cancelProperties);
+			cancel = new CancelNode(documentId, cancel);
 			RegisterEntity(cancel);
 		}
 
-		protected override void Build(ref IAssign assign, ref AssignEntity assignProperties)
+		protected override void Visit(ref IAssign assign)
 		{
-			var documentId = NewDocumentId();
+			var documentId = CreateDocumentId();
 
-			base.Build(ref assign, ref assignProperties);
+			base.Visit(ref assign);
 
-			assign = new AssignNode(documentId, assignProperties);
+			assign = new AssignNode(documentId, assign);
 			RegisterEntity(assign);
 		}
 
-		protected override void Build(ref IForEach forEach, ref ForEachEntity forEachProperties)
+		protected override void Visit(ref IForEach forEach)
 		{
-			var documentId = NewDocumentId();
+			var documentId = CreateDocumentId();
 
-			base.Build(ref forEach, ref forEachProperties);
+			base.Visit(ref forEach);
 
-			forEach = new ForEachNode(documentId, forEachProperties);
-			RegisterEntity(forEachProperties);
+			forEach = new ForEachNode(documentId, forEach);
+			RegisterEntity(forEach);
 		}
 
-		protected override void Build(ref IIf @if, ref IfEntity ifProperties)
+		protected override void Visit(ref IIf @if)
 		{
-			var documentId = NewDocumentId();
+			var documentId = CreateDocumentId();
 
-			base.Build(ref @if, ref ifProperties);
+			base.Visit(ref @if);
 
-			@if = new IfNode(documentId, ifProperties);
+			@if = new IfNode(documentId, @if);
 			RegisterEntity(@if);
 		}
 
-		protected override void Build(ref IElseIf elseIf, ref ElseIfEntity elseIfProperties)
+		protected override void Visit(ref IElseIf elseIf)
 		{
-			var documentId = NewDocumentId();
+			var documentId = CreateDocumentId();
 
-			base.Build(ref elseIf, ref elseIfProperties);
+			base.Visit(ref elseIf);
 
-			elseIf = new ElseIfNode(documentId, elseIfProperties);
+			elseIf = new ElseIfNode(documentId, elseIf);
 			RegisterEntity(elseIf);
 		}
 
-		protected override void Build(ref IElse @else, ref ElseEntity elseProperties)
+		protected override void Visit(ref IElse @else)
 		{
-			var documentId = NewDocumentId();
+			var documentId = CreateDocumentId();
 
-			base.Build(ref @else, ref elseProperties);
+			base.Visit(ref @else);
 
-			@else = new ElseNode(documentId, elseProperties);
+			@else = new ElseNode(documentId, @else);
 			RegisterEntity(@else);
 		}
 
-		protected override void Build(ref ILog log, ref LogEntity logProperties)
+		protected override void Visit(ref ILog log)
 		{
-			var documentId = NewDocumentId();
+			var documentId = CreateDocumentId();
 
-			base.Build(ref log, ref logProperties);
+			base.Visit(ref log);
 
-			log = new LogNode(documentId, logProperties);
+			log = new LogNode(documentId, log);
 			RegisterEntity(log);
 		}
 
-		protected override void Build(ref IRaise raise, ref RaiseEntity raiseProperties)
+		protected override void Visit(ref IRaise raise)
 		{
-			var documentId = NewDocumentId();
+			var documentId = CreateDocumentId();
 
-			base.Build(ref raise, ref raiseProperties);
+			base.Visit(ref raise);
 
-			raise = new RaiseNode(documentId, raiseProperties);
+			raise = new RaiseNode(documentId, raise);
 			RegisterEntity(raise);
 		}
 
-		protected override void Build(ref ISend send, ref SendEntity sendProperties)
+		protected override void Visit(ref ISend send)
 		{
-			var documentId = NewDocumentId();
+			var documentId = CreateDocumentId();
 
-			base.Build(ref send, ref sendProperties);
+			base.Visit(ref send);
 
-			send = new SendNode(documentId, sendProperties);
+			send = new SendNode(documentId, send);
 			RegisterEntity(send);
 		}
 
-		protected override void Build(ref IScript script, ref ScriptEntity scriptProperties)
+		protected override void Visit(ref IScript script)
 		{
-			var documentId = NewDocumentId();
+			var documentId = CreateDocumentId();
 
-			base.Build(ref script, ref scriptProperties);
+			base.Visit(ref script);
 
-			script = new ScriptNode(documentId, scriptProperties);
+			script = new ScriptNode(documentId, script);
 			RegisterEntity(script);
 		}
 
 		protected override void VisitUnknown(ref IExecutableEntity entity)
 		{
-			var documentId = NewDocumentId();
+			var documentId = CreateDocumentId();
 
 			base.VisitUnknown(ref entity);
 
@@ -642,7 +655,7 @@ namespace Xtate.Core
 			}
 
 			_deepLevel ++;
-			base.Visit(ref dataModel);
+			VisitInternal(ref dataModel);
 			_deepLevel --;
 		}
 
@@ -654,7 +667,7 @@ namespace Xtate.Core
 			}
 
 			_deepLevel ++;
-			base.Visit(ref doneData);
+			VisitInternal(ref doneData);
 			_deepLevel --;
 		}
 
@@ -666,7 +679,7 @@ namespace Xtate.Core
 			}
 
 			_deepLevel ++;
-			base.Visit(ref invoke);
+			VisitInternal(ref invoke);
 			_deepLevel --;
 		}
 	}

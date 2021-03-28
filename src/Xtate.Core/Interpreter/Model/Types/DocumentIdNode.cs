@@ -17,28 +17,24 @@
 
 #endregion
 
-using System;
-using System.Xml;
-using Xtate.Core;
+using System.Collections.Generic;
 
-namespace Xtate.DataModel.XPath
+namespace Xtate.Core
 {
-	internal class XPathInlineContentEvaluator : DefaultInlineContentEvaluator
+	internal readonly struct DocumentIdNode
 	{
-		public XPathInlineContentEvaluator(IInlineContent inlineContent) : base(inlineContent) { }
+		private readonly LinkedListNode<int> _node;
 
-		protected override DataModelValue ParseToDataModel(ref Exception? parseException)
+		public DocumentIdNode(LinkedList<int> list) => _node = list.AddLast(-1);
+
+		public void Discard()
 		{
-			try
+			if (_node.List is { } list)
 			{
-				return XmlConverter.FromXml(Value, this);
-			}
-			catch (XmlException ex)
-			{
-				parseException = ex;
-
-				return Value.NormalizeSpaces();
+				list.Remove(_node);
 			}
 		}
+
+		public void SaveToSlot(out DocumentIdSlot slot) => slot = new DocumentIdSlot(_node);
 	}
 }

@@ -25,9 +25,9 @@ namespace Xtate.Core
 {
 	internal class StateNode : StateEntityNode, IState, IAncestorProvider, IDebugEntityId
 	{
-		private readonly StateEntity _state;
+		private readonly IState _state;
 
-		public StateNode(in DocumentIdRecord documentIdNode, in StateEntity state) : base(documentIdNode, GetChildNodes(state.Initial, state.States, state.HistoryStates))
+		public StateNode(DocumentIdNode documentIdNode, IState state) : base(documentIdNode, GetChildNodes(state.Initial, state.States, state.HistoryStates))
 		{
 			_state = state;
 
@@ -69,7 +69,7 @@ namespace Xtate.Core
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _state.Ancestor;
+		object IAncestorProvider.Ancestor => _state;
 
 	#endregion
 

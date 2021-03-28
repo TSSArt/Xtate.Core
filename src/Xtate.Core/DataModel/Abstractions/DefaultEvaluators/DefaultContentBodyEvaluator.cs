@@ -27,12 +27,14 @@ namespace Xtate.DataModel
 	[PublicAPI]
 	public class DefaultContentBodyEvaluator : IContentBody, IObjectEvaluator, IStringEvaluator, IAncestorProvider
 	{
-		private readonly ContentBody    _contentBody;
+		private readonly IContentBody   _contentBody;
 		private          DataModelValue _parsedValue;
 		private          Exception?     _parsingException;
 
-		public DefaultContentBodyEvaluator(in ContentBody contentBody)
+		public DefaultContentBodyEvaluator(IContentBody contentBody)
 		{
+			if (contentBody is null) throw new ArgumentNullException(nameof(contentBody));
+
 			Infrastructure.NotNull(contentBody.Value);
 
 			_contentBody = contentBody;
@@ -40,7 +42,7 @@ namespace Xtate.DataModel
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _contentBody.Ancestor;
+		object IAncestorProvider.Ancestor => _contentBody;
 
 	#endregion
 

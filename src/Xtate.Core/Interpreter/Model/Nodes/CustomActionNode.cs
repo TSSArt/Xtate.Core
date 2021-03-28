@@ -24,32 +24,32 @@ namespace Xtate.Core
 {
 	internal sealed class CustomActionNode : ExecutableEntityNode, ICustomAction, IAncestorProvider
 	{
-		private readonly CustomActionEntity _entity;
+		private readonly ICustomAction _customAction;
 
-		public CustomActionNode(in DocumentIdRecord documentIdNode, in CustomActionEntity entity) : base(documentIdNode, (ICustomAction?) entity.Ancestor)
+		public CustomActionNode(DocumentIdNode documentIdNode, ICustomAction customAction) : base(documentIdNode, customAction)
 		{
-			Infrastructure.NotNull(entity.Xml);
+			Infrastructure.NotNull(customAction.Xml);
 
-			_entity = entity;
+			_customAction = customAction;
 		}
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _entity.Ancestor;
+		object IAncestorProvider.Ancestor => _customAction;
 
 	#endregion
 
 	#region Interface ICustomAction
 
-		public string XmlNamespace => _entity.XmlNamespace!;
+		public string XmlNamespace => _customAction.XmlNamespace!;
 
-		public string XmlName => _entity.XmlName!;
+		public string XmlName => _customAction.XmlName!;
 
-		public string Xml => _entity.Xml!;
+		public string Xml => _customAction.Xml!;
 
-		public ImmutableArray<ILocationExpression> Locations => _entity.Locations;
+		public ImmutableArray<ILocationExpression> Locations => _customAction.Locations;
 
-		public ImmutableArray<IValueExpression> Values => _entity.Values;
+		public ImmutableArray<IValueExpression> Values => _customAction.Values;
 
 	#endregion
 

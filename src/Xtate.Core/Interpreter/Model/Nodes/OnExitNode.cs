@@ -26,13 +26,13 @@ namespace Xtate.Core
 {
 	internal sealed class OnExitNode : IOnExit, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 	{
-		private readonly OnExitEntity     _onExit;
-		private          DocumentIdRecord _documentIdNode;
+		private readonly IOnExit        _onExit;
+		private          DocumentIdSlot _documentIdSlot;
 
-		public OnExitNode(in DocumentIdRecord documentIdNode, in OnExitEntity onExit)
+		public OnExitNode(DocumentIdNode documentIdNode, IOnExit onExit)
 		{
 			_onExit = onExit;
-			_documentIdNode = documentIdNode;
+			documentIdNode.SaveToSlot(out _documentIdSlot);
 			ActionEvaluators = onExit.Action.AsArrayOf<IExecutableEntity, IExecEvaluator>();
 		}
 
@@ -40,7 +40,7 @@ namespace Xtate.Core
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _onExit.Ancestor;
+		object IAncestorProvider.Ancestor => _onExit;
 
 	#endregion
 
@@ -52,7 +52,7 @@ namespace Xtate.Core
 
 	#region Interface IDocumentId
 
-		public int DocumentId => _documentIdNode.Value;
+		public int DocumentId => _documentIdSlot.Value;
 
 	#endregion
 

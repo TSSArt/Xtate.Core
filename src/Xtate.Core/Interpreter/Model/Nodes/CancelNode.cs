@@ -24,21 +24,21 @@ namespace Xtate.Core
 {
 	internal sealed class CancelNode : ExecutableEntityNode, ICancel, IAncestorProvider, IDebugEntityId
 	{
-		private readonly CancelEntity _entity;
+		private readonly ICancel _cancel;
 
-		public CancelNode(in DocumentIdRecord documentIdNode, in CancelEntity entity) : base(documentIdNode, (ICancel?) entity.Ancestor) => _entity = entity;
+		public CancelNode(DocumentIdNode documentIdNode, ICancel cancel) : base(documentIdNode, cancel) => _cancel = cancel;
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _entity.Ancestor;
+		object IAncestorProvider.Ancestor => _cancel;
 
 	#endregion
 
 	#region Interface ICancel
 
-		public string? SendId => _entity.SendId;
+		public string? SendId => _cancel.SendId;
 
-		public IValueExpression? SendIdExpression => _entity.SendIdExpression;
+		public IValueExpression? SendIdExpression => _cancel.SendIdExpression;
 
 	#endregion
 

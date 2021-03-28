@@ -26,16 +26,17 @@ namespace Xtate.Core
 {
 	internal sealed class StateMachineNode : StateEntityNode, IStateMachine, IAncestorProvider, IDebugEntityId
 	{
-		private readonly StateMachineEntity _stateMachine;
+		private readonly IStateMachine _stateMachine;
 
-		public StateMachineNode(in DocumentIdRecord documentIdNode, in StateMachineEntity stateMachine) : base(documentIdNode, GetChildNodes(stateMachine.Initial, stateMachine.States))
+		public StateMachineNode(DocumentIdNode documentIdNode, IStateMachine stateMachine) : base(documentIdNode, GetChildNodes(stateMachine.Initial, stateMachine.States))
 		{
+			_stateMachine = stateMachine;
+
 			Infrastructure.NotNull(stateMachine.Initial);
 
-			_stateMachine = stateMachine;
 			Initial = stateMachine.Initial.As<InitialNode>();
-			ScriptEvaluator = stateMachine.Script?.As<ScriptNode>();
-			DataModel = stateMachine.DataModel?.As<DataModelNode>();
+			ScriptEvaluator = _stateMachine.Script?.As<ScriptNode>();
+			DataModel = _stateMachine.DataModel?.As<DataModelNode>();
 		}
 
 		public override DataModelNode? DataModel { get; }
@@ -45,7 +46,7 @@ namespace Xtate.Core
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _stateMachine.Ancestor;
+		object IAncestorProvider.Ancestor => _stateMachine;
 
 	#endregion
 
@@ -57,14 +58,13 @@ namespace Xtate.Core
 
 	#region Interface IStateMachine
 
-		public BindingType        Binding       => _stateMachine.Binding;
-		public string?            Name          => _stateMachine.Name;
-		public string?            DataModelType => _stateMachine.DataModelType;
-		public IExecutableEntity? Script        => _stateMachine.Script;
-
-		IDataModel? IStateMachine.                 DataModel => _stateMachine.DataModel;
-		IInitial? IStateMachine.                   Initial   => _stateMachine.Initial;
-		ImmutableArray<IStateEntity> IStateMachine.States    => _stateMachine.States;
+		public BindingType                         Binding       => _stateMachine.Binding;
+		public string?                             Name          => _stateMachine.Name;
+		public string?                             DataModelType => _stateMachine.DataModelType;
+		public IExecutableEntity?                  Script        => _stateMachine.Script;
+		IDataModel? IStateMachine.                 DataModel     => _stateMachine.DataModel;
+		IInitial? IStateMachine.                   Initial       => _stateMachine.Initial;
+		ImmutableArray<IStateEntity> IStateMachine.States        => _stateMachine.States;
 
 	#endregion
 

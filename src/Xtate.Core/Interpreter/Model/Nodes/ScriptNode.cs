@@ -23,21 +23,21 @@ namespace Xtate.Core
 {
 	internal sealed class ScriptNode : ExecutableEntityNode, IScript, IAncestorProvider
 	{
-		private readonly ScriptEntity _entity;
+		private readonly IScript _script;
 
-		public ScriptNode(in DocumentIdRecord documentIdNode, in ScriptEntity entity) : base(documentIdNode, (IScript?) entity.Ancestor) => _entity = entity;
+		public ScriptNode(DocumentIdNode documentIdNode, IScript script) : base(documentIdNode, script) => _script = script;
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _entity.Ancestor;
+		object IAncestorProvider.Ancestor => _script;
 
 	#endregion
 
 	#region Interface IScript
 
-		public IScriptExpression? Content => _entity.Content;
+		public IScriptExpression? Content => _script.Content;
 
-		public IExternalScriptExpression? Source => _entity.Source;
+		public IExternalScriptExpression? Source => _script.Source;
 
 	#endregion
 

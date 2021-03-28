@@ -52,129 +52,109 @@ namespace Xtate.DataModel
 
 		protected void AddErrorMessage(object? entity, string message, Exception? exception = default) => _errorProcessor.AddError(GetType(), entity, message, exception);
 
-		protected override void Visit(ref IValueExpression expression)
+		protected override void Visit(ref ILog log)
 		{
-			base.Visit(ref expression);
+			base.Visit(ref log);
 
-			if (expression is not IValueEvaluator)
-			{
-				AddErrorMessage(expression, Resources.ErrorMessage_ValueExpressionDoesNotImplementIValueEvaluator);
-			}
+			log = new DefaultLogEvaluator(log);
 		}
 
-		protected override void Visit(ref ILocationExpression expression)
+		protected override void Visit(ref ISend send)
 		{
-			base.Visit(ref expression);
+			base.Visit(ref send);
 
-			if (expression is not ILocationEvaluator)
-			{
-				AddErrorMessage(expression, Resources.ErrorMessage_LocationExpressionDoesNotImplementILocationEvaluator);
-			}
+			send = new DefaultSendEvaluator(send);
 		}
 
-		protected override void Build(ref ILog log, ref LogEntity logProperties)
+		protected override void Visit(ref IDoneData doneData)
 		{
-			base.Build(ref log, ref logProperties);
+			base.Visit(ref doneData);
 
-			log = new DefaultLogEvaluator(logProperties);
+			doneData = new DefaultDoneDataEvaluator(doneData);
 		}
 
-		protected override void Build(ref ISend send, ref SendEntity sendProperties)
+		protected override void Visit(ref IParam param)
 		{
-			base.Build(ref send, ref sendProperties);
+			base.Visit(ref param);
 
-			send = new DefaultSendEvaluator(sendProperties);
+			param = new DefaultParam(param);
 		}
 
-		protected override void Build(ref IDoneData doneData, ref DoneDataEntity doneDataProperties)
+		protected override void Visit(ref ICancel cancel)
 		{
-			base.Build(ref doneData, ref doneDataProperties);
+			base.Visit(ref cancel);
 
-			doneData = new DefaultDoneDataEvaluator(doneDataProperties);
+			cancel = new DefaultCancelEvaluator(cancel);
 		}
 
-		protected override void Build(ref IParam param, ref ParamEntity paramProperties)
+		protected override void Visit(ref IIf @if)
 		{
-			base.Build(ref param, ref paramProperties);
+			base.Visit(ref @if);
 
-			param = new DefaultParam(paramProperties);
+			@if = new DefaultIfEvaluator(@if);
 		}
 
-		protected override void Build(ref ICancel cancel, ref CancelEntity cancelProperties)
+		protected override void Visit(ref IRaise raise)
 		{
-			base.Build(ref cancel, ref cancelProperties);
+			base.Visit(ref raise);
 
-			cancel = new DefaultCancelEvaluator(cancelProperties);
+			raise = new DefaultRaiseEvaluator(raise);
 		}
 
-		protected override void Build(ref IIf @if, ref IfEntity ifProperties)
+		protected override void Visit(ref IForEach forEach)
 		{
-			base.Build(ref @if, ref ifProperties);
+			base.Visit(ref forEach);
 
-			@if = new DefaultIfEvaluator(ifProperties);
+			forEach = new DefaultForEachEvaluator(forEach);
 		}
 
-		protected override void Build(ref IRaise raise, ref RaiseEntity raiseProperties)
+		protected override void Visit(ref IAssign assign)
 		{
-			base.Build(ref raise, ref raiseProperties);
+			base.Visit(ref assign);
 
-			raise = new DefaultRaiseEvaluator(raiseProperties);
+			assign = new DefaultAssignEvaluator(assign);
 		}
 
-		protected override void Build(ref IForEach forEach, ref ForEachEntity forEachProperties)
+		protected override void Visit(ref IScript script)
 		{
-			base.Build(ref forEach, ref forEachProperties);
+			base.Visit(ref script);
 
-			forEach = new DefaultForEachEvaluator(forEachProperties);
+			script = new DefaultScriptEvaluator(script);
 		}
 
-		protected override void Build(ref IAssign assign, ref AssignEntity assignProperties)
+		protected override void Visit(ref ICustomAction customAction)
 		{
-			base.Build(ref assign, ref assignProperties);
+			base.Visit(ref customAction);
 
-			assign = new DefaultAssignEvaluator(assignProperties);
+			customAction = new DefaultCustomActionEvaluator(customAction);
 		}
 
-		protected override void Build(ref IScript script, ref ScriptEntity scriptProperties)
+		protected override void Visit(ref IInvoke invoke)
 		{
-			base.Build(ref script, ref scriptProperties);
+			base.Visit(ref invoke);
 
-			script = new DefaultScriptEvaluator(scriptProperties);
+			invoke = new DefaultInvokeEvaluator(invoke);
 		}
 
-		protected override void Build(ref ICustomAction customAction, ref CustomActionEntity customActionProperties)
+		protected override void Visit(ref IContentBody contentBody)
 		{
-			base.Build(ref customAction, ref customActionProperties);
+			base.Visit(ref contentBody);
 
-			customAction = new DefaultCustomActionEvaluator(customActionProperties);
+			contentBody = new DefaultContentBodyEvaluator(contentBody);
 		}
 
-		protected override void Build(ref IInvoke invoke, ref InvokeEntity invokeProperties)
+		protected override void Visit(ref IInlineContent inlineContent)
 		{
-			base.Build(ref invoke, ref invokeProperties);
+			base.Visit(ref inlineContent);
 
-			invoke = new DefaultInvokeEvaluator(invokeProperties);
+			inlineContent = new DefaultInlineContentEvaluator(inlineContent);
 		}
 
-		protected override void Build(ref IContentBody contentBody, ref ContentBody contentBodyProperties)
+		protected override void Visit(ref IExternalDataExpression externalDataExpression)
 		{
-			base.Build(ref contentBody, ref contentBodyProperties);
+			base.Visit(ref externalDataExpression);
 
-			contentBody = new DefaultContentBodyEvaluator(contentBodyProperties);
-		}
-
-		protected override void Build(ref IInlineContent inlineContent, ref InlineContent inlineContentProperties)
-		{
-			base.Build(ref inlineContent, ref inlineContentProperties);
-
-			inlineContent = new DefaultInlineContentEvaluator(inlineContentProperties);
-		}
-
-		protected override void Build(ref IExternalDataExpression externalDataExpression, ref ExternalDataExpression externalDataExpressionProperties)
-		{
-			base.Build(ref externalDataExpression, ref externalDataExpressionProperties);
-
-			externalDataExpression = new DefaultExternalDataExpressionEvaluator(externalDataExpressionProperties);
+			externalDataExpression = new DefaultExternalDataExpressionEvaluator(externalDataExpression);
 		}
 	}
 }

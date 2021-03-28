@@ -24,12 +24,12 @@ namespace Xtate.Core
 	internal sealed class RuntimeExecNode : IExecutableEntity, IStoreSupport, IAncestorProvider, IDocumentId
 	{
 		private readonly IExecutableEntity _entity;
-		private          DocumentIdRecord  _documentIdNode;
+		private          DocumentIdSlot    _documentIdSlot;
 
-		public RuntimeExecNode(in DocumentIdRecord documentIdNode, IExecutableEntity entity)
+		public RuntimeExecNode(DocumentIdNode documentIdNode, IExecutableEntity entity)
 		{
 			_entity = entity;
-			_documentIdNode = documentIdNode;
+			documentIdNode.SaveToSlot(out _documentIdSlot);
 		}
 
 	#region Interface IAncestorProvider
@@ -40,7 +40,7 @@ namespace Xtate.Core
 
 	#region Interface IDocumentId
 
-		public int DocumentId => _documentIdNode.Value;
+		public int DocumentId => _documentIdSlot.Value;
 
 	#endregion
 

@@ -64,13 +64,12 @@ namespace Xtate.Core
 
 		private ref struct VisitData<TEntity, TIEntity> where TEntity : struct, IVisitorEntity<TEntity, TIEntity>, TIEntity
 		{
-			private readonly TIEntity _entity;
-			private readonly TEntity  _original;
-			public           TEntity  Properties;
+			private readonly TEntity _original;
+			public           TEntity Properties;
 
 			public VisitData(TIEntity entity)
 			{
-				_entity = entity ?? throw new ArgumentNullException(nameof(entity));
+				if (entity is null) throw new ArgumentNullException(nameof(entity));
 
 				if (entity is TEntity tmp)
 				{
@@ -87,7 +86,7 @@ namespace Xtate.Core
 
 			public void Update(ref TIEntity entity)
 			{
-				if (ReferenceEquals(_entity, entity) && !_original.RefEquals(ref Properties))
+				if (!_original.RefEquals(ref Properties))
 				{
 					entity = Properties;
 				}
@@ -226,245 +225,245 @@ namespace Xtate.Core
 		protected virtual void Visit(ref IStateMachine entity)
 		{
 			var data = new VisitData<StateMachineEntity, IStateMachine>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
 		protected virtual void Visit(ref ITransition entity)
 		{
 			var data = new VisitData<TransitionEntity, ITransition>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
 		protected virtual void Visit(ref IState entity)
 		{
 			var data = new VisitData<StateEntity, IState>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
 		protected virtual void Visit(ref IParallel entity)
 		{
 			var data = new VisitData<ParallelEntity, IParallel>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
 		protected virtual void Visit(ref IInitial entity)
 		{
 			var data = new VisitData<InitialEntity, IInitial>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
 		protected virtual void Visit(ref IFinal entity)
 		{
 			var data = new VisitData<FinalEntity, IFinal>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
 		protected virtual void Visit(ref IHistory entity)
 		{
 			var data = new VisitData<HistoryEntity, IHistory>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
 		protected virtual void Visit(ref IOnEntry entity)
 		{
 			var data = new VisitData<OnEntryEntity, IOnEntry>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
 		protected virtual void Visit(ref IOnExit entity)
 		{
 			var data = new VisitData<OnExitEntity, IOnExit>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
 		protected virtual void Visit(ref IAssign entity)
 		{
 			var data = new VisitData<AssignEntity, IAssign>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
 		protected virtual void Visit(ref ICancel entity)
 		{
 			var data = new VisitData<CancelEntity, ICancel>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
 		protected virtual void Visit(ref IElseIf entity)
 		{
 			var data = new VisitData<ElseIfEntity, IElseIf>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
 		protected virtual void Visit(ref IForEach entity)
 		{
 			var data = new VisitData<ForEachEntity, IForEach>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
 		protected virtual void Visit(ref IIf entity)
 		{
 			var data = new VisitData<IfEntity, IIf>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
 		protected virtual void Visit(ref ILog entity)
 		{
 			var data = new VisitData<LogEntity, ILog>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
 		protected virtual void Visit(ref IRaise entity)
 		{
 			var data = new VisitData<RaiseEntity, IRaise>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
 		protected virtual void Visit(ref IScript entity)
 		{
 			var data = new VisitData<ScriptEntity, IScript>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
 		protected virtual void Visit(ref ICustomAction entity)
 		{
 			var data = new VisitData<CustomActionEntity, ICustomAction>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
 		protected virtual void Visit(ref ISend entity)
 		{
 			var data = new VisitData<SendEntity, ISend>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
 		protected virtual void Visit(ref IDataModel entity)
 		{
 			var data = new VisitData<DataModelEntity, IDataModel>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
 		protected virtual void Visit(ref IData entity)
 		{
 			var data = new VisitData<DataEntity, IData>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
 		protected virtual void Visit(ref IDoneData entity)
 		{
 			var data = new VisitData<DoneDataEntity, IDoneData>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
 		protected virtual void Visit(ref IInvoke entity)
 		{
 			var data = new VisitData<InvokeEntity, IInvoke>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
 		protected virtual void Visit(ref IContent entity)
 		{
 			var data = new VisitData<ContentEntity, IContent>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
 		protected virtual void Visit(ref IContentBody entity)
 		{
 			var data = new VisitData<ContentBody, IContentBody>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
 		protected virtual void Visit(ref IInlineContent entity)
 		{
 			var data = new VisitData<InlineContent, IInlineContent>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
 		protected virtual void Visit(ref IParam entity)
 		{
 			var data = new VisitData<ParamEntity, IParam>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
 		protected virtual void Visit(ref IFinalize entity)
 		{
 			var data = new VisitData<FinalizeEntity, IFinalize>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
 		protected virtual void Visit(ref IElse entity)
 		{
 			var data = new VisitData<ElseEntity, IElse>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
 		protected virtual void Visit(ref IValueExpression entity)
 		{
 			var data = new VisitData<ValueExpression, IValueExpression>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
 		protected virtual void Visit(ref ILocationExpression entity)
 		{
 			var data = new VisitData<LocationExpression, ILocationExpression>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
 		protected virtual void Visit(ref IConditionExpression entity)
 		{
 			var data = new VisitData<ConditionExpression, IConditionExpression>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
 		protected virtual void Visit(ref IScriptExpression entity)
 		{
 			var data = new VisitData<ScriptExpression, IScriptExpression>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
 		protected virtual void Visit(ref IExternalScriptExpression entity)
 		{
 			var data = new VisitData<ExternalScriptExpression, IExternalScriptExpression>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
 		protected virtual void Visit(ref IExternalDataExpression entity)
 		{
 			var data = new VisitData<ExternalDataExpression, IExternalDataExpression>(entity);
-			Build(ref entity, ref data.Properties);
+			Build(ref data.Properties);
 			data.Update(ref entity);
 		}
 
@@ -578,91 +577,91 @@ namespace Xtate.Core
 		protected virtual void Visit(ref ImmutableArray<IIdentifier> list)
 		{
 			var data = new VisitListData<IIdentifier>(list);
-			Build(ref list, ref data.List);
+			Build(ref data.List);
 			data.Update(ref list);
 		}
 
 		protected virtual void Visit(ref ImmutableArray<IStateEntity> list)
 		{
 			var data = new VisitListData<IStateEntity>(list);
-			Build(ref list, ref data.List);
+			Build(ref data.List);
 			data.Update(ref list);
 		}
 
 		protected virtual void Visit(ref ImmutableArray<ITransition> list)
 		{
 			var data = new VisitListData<ITransition>(list);
-			Build(ref list, ref data.List);
+			Build(ref data.List);
 			data.Update(ref list);
 		}
 
 		protected virtual void Visit(ref ImmutableArray<IEventDescriptor> list)
 		{
 			var data = new VisitListData<IEventDescriptor>(list);
-			Build(ref list, ref data.List);
+			Build(ref data.List);
 			data.Update(ref list);
 		}
 
 		protected virtual void Visit(ref ImmutableArray<IHistory> list)
 		{
 			var data = new VisitListData<IHistory>(list);
-			Build(ref list, ref data.List);
+			Build(ref data.List);
 			data.Update(ref list);
 		}
 
 		protected virtual void Visit(ref ImmutableArray<IOnEntry> list)
 		{
 			var data = new VisitListData<IOnEntry>(list);
-			Build(ref list, ref data.List);
+			Build(ref data.List);
 			data.Update(ref list);
 		}
 
 		protected virtual void Visit(ref ImmutableArray<IOnExit> list)
 		{
 			var data = new VisitListData<IOnExit>(list);
-			Build(ref list, ref data.List);
+			Build(ref data.List);
 			data.Update(ref list);
 		}
 
 		protected virtual void Visit(ref ImmutableArray<IExecutableEntity> list)
 		{
 			var data = new VisitListData<IExecutableEntity>(list);
-			Build(ref list, ref data.List);
+			Build(ref data.List);
 			data.Update(ref list);
 		}
 
 		protected virtual void Visit(ref ImmutableArray<IInvoke> list)
 		{
 			var data = new VisitListData<IInvoke>(list);
-			Build(ref list, ref data.List);
+			Build(ref data.List);
 			data.Update(ref list);
 		}
 
 		protected virtual void Visit(ref ImmutableArray<IValueExpression> list)
 		{
 			var data = new VisitListData<IValueExpression>(list);
-			Build(ref list, ref data.List);
+			Build(ref data.List);
 			data.Update(ref list);
 		}
 
 		protected virtual void Visit(ref ImmutableArray<ILocationExpression> list)
 		{
 			var data = new VisitListData<ILocationExpression>(list);
-			Build(ref list, ref data.List);
+			Build(ref data.List);
 			data.Update(ref list);
 		}
 
 		protected virtual void Visit(ref ImmutableArray<IData> list)
 		{
 			var data = new VisitListData<IData>(list);
-			Build(ref list, ref data.List);
+			Build(ref data.List);
 			data.Update(ref list);
 		}
 
 		protected virtual void Visit(ref ImmutableArray<IParam> list)
 		{
 			var data = new VisitListData<IParam>(list);
-			Build(ref list, ref data.List);
+			Build(ref data.List);
 			data.Update(ref list);
 		}
 
@@ -670,7 +669,7 @@ namespace Xtate.Core
 
 	#region Build(ref IT entity, ref T properties)
 
-		protected virtual void Build(ref IStateMachine entity, ref StateMachineEntity properties)
+		protected virtual void Build(ref StateMachineEntity properties)
 		{
 			var dataModel = properties.DataModel;
 			VisitWrapper(ref dataModel);
@@ -689,7 +688,7 @@ namespace Xtate.Core
 			properties.States = states;
 		}
 
-		protected virtual void Build(ref ITransition entity, ref TransitionEntity properties)
+		protected virtual void Build(ref TransitionEntity properties)
 		{
 			var evt = properties.EventDescriptors;
 			VisitWrapper(ref evt);
@@ -708,7 +707,7 @@ namespace Xtate.Core
 			properties.Action = action;
 		}
 
-		protected virtual void Build(ref IState entity, ref StateEntity properties)
+		protected virtual void Build(ref StateEntity properties)
 		{
 			var id = properties.Id;
 			VisitWrapper(ref id);
@@ -747,7 +746,7 @@ namespace Xtate.Core
 			properties.Invoke = invoke;
 		}
 
-		protected virtual void Build(ref IParallel entity, ref ParallelEntity properties)
+		protected virtual void Build(ref ParallelEntity properties)
 		{
 			var id = properties.Id;
 			VisitWrapper(ref id);
@@ -782,14 +781,14 @@ namespace Xtate.Core
 			properties.Invoke = invoke;
 		}
 
-		protected virtual void Build(ref IInitial entity, ref InitialEntity properties)
+		protected virtual void Build(ref InitialEntity properties)
 		{
 			var transition = properties.Transition;
 			VisitWrapper(ref transition);
 			properties.Transition = transition;
 		}
 
-		protected virtual void Build(ref IFinal entity, ref FinalEntity properties)
+		protected virtual void Build(ref FinalEntity properties)
 		{
 			var id = properties.Id;
 			VisitWrapper(ref id);
@@ -808,7 +807,7 @@ namespace Xtate.Core
 			properties.DoneData = doneData;
 		}
 
-		protected virtual void Build(ref IHistory entity, ref HistoryEntity properties)
+		protected virtual void Build(ref HistoryEntity properties)
 		{
 			var id = properties.Id;
 			VisitWrapper(ref id);
@@ -819,21 +818,21 @@ namespace Xtate.Core
 			properties.Transition = transition;
 		}
 
-		protected virtual void Build(ref IOnEntry entity, ref OnEntryEntity properties)
+		protected virtual void Build(ref OnEntryEntity properties)
 		{
 			var action = properties.Action;
 			VisitWrapper(ref action);
 			properties.Action = action;
 		}
 
-		protected virtual void Build(ref IOnExit entity, ref OnExitEntity properties)
+		protected virtual void Build(ref OnExitEntity properties)
 		{
 			var action = properties.Action;
 			VisitWrapper(ref action);
 			properties.Action = action;
 		}
 
-		protected virtual void Build(ref IAssign entity, ref AssignEntity properties)
+		protected virtual void Build(ref AssignEntity properties)
 		{
 			var location = properties.Location;
 			VisitWrapper(ref location!);
@@ -848,21 +847,21 @@ namespace Xtate.Core
 			properties.InlineContent = inlineContent;
 		}
 
-		protected virtual void Build(ref ICancel entity, ref CancelEntity properties)
+		protected virtual void Build(ref CancelEntity properties)
 		{
 			var sendIdExpression = properties.SendIdExpression;
 			VisitWrapper(ref sendIdExpression);
 			properties.SendIdExpression = sendIdExpression;
 		}
 
-		protected virtual void Build(ref IElseIf entity, ref ElseIfEntity properties)
+		protected virtual void Build(ref ElseIfEntity properties)
 		{
 			var condition = properties.Condition;
 			VisitWrapper(ref condition);
 			properties.Condition = condition;
 		}
 
-		protected virtual void Build(ref IForEach entity, ref ForEachEntity properties)
+		protected virtual void Build(ref ForEachEntity properties)
 		{
 			var array = properties.Array;
 			VisitWrapper(ref array!);
@@ -881,7 +880,7 @@ namespace Xtate.Core
 			properties.Action = action;
 		}
 
-		protected virtual void Build(ref IIf entity, ref IfEntity properties)
+		protected virtual void Build(ref IfEntity properties)
 		{
 			var condition = properties.Condition;
 			VisitWrapper(ref condition!);
@@ -892,21 +891,21 @@ namespace Xtate.Core
 			properties.Action = action;
 		}
 
-		protected virtual void Build(ref ILog entity, ref LogEntity properties)
+		protected virtual void Build(ref LogEntity properties)
 		{
 			var expression = properties.Expression;
 			VisitWrapper(ref expression);
 			properties.Expression = expression;
 		}
 
-		protected virtual void Build(ref IRaise entity, ref RaiseEntity properties)
+		protected virtual void Build(ref RaiseEntity properties)
 		{
 			var evt = properties.OutgoingEvent;
 			VisitWrapper(ref evt);
 			properties.OutgoingEvent = evt;
 		}
 
-		protected virtual void Build(ref IScript entity, ref ScriptEntity properties)
+		protected virtual void Build(ref ScriptEntity properties)
 		{
 			var content = properties.Content;
 			VisitWrapper(ref content);
@@ -917,7 +916,7 @@ namespace Xtate.Core
 			properties.Source = source;
 		}
 
-		protected virtual void Build(ref ISend entity, ref SendEntity properties)
+		protected virtual void Build(ref SendEntity properties)
 		{
 			var eventExpression = properties.EventExpression;
 			VisitWrapper(ref eventExpression);
@@ -952,14 +951,14 @@ namespace Xtate.Core
 			properties.Content = content;
 		}
 
-		protected virtual void Build(ref IDataModel entity, ref DataModelEntity properties)
+		protected virtual void Build(ref DataModelEntity properties)
 		{
 			var data = properties.Data;
 			VisitWrapper(ref data);
 			properties.Data = data;
 		}
 
-		protected virtual void Build(ref IData entity, ref DataEntity properties)
+		protected virtual void Build(ref DataEntity properties)
 		{
 			var expression = properties.Expression;
 			VisitWrapper(ref expression);
@@ -974,7 +973,7 @@ namespace Xtate.Core
 			properties.Source = source;
 		}
 
-		protected virtual void Build(ref IDoneData entity, ref DoneDataEntity properties)
+		protected virtual void Build(ref DoneDataEntity properties)
 		{
 			var content = properties.Content;
 			VisitWrapper(ref content);
@@ -985,7 +984,7 @@ namespace Xtate.Core
 			properties.Parameters = parameters;
 		}
 
-		protected virtual void Build(ref IInvoke entity, ref InvokeEntity properties)
+		protected virtual void Build(ref InvokeEntity properties)
 		{
 			var typeExpression = properties.TypeExpression;
 			VisitWrapper(ref typeExpression);
@@ -1016,7 +1015,7 @@ namespace Xtate.Core
 			properties.Finalize = finalize;
 		}
 
-		protected virtual void Build(ref IContent entity, ref ContentEntity properties)
+		protected virtual void Build(ref ContentEntity properties)
 		{
 			var expression = properties.Expression;
 			VisitWrapper(ref expression);
@@ -1027,7 +1026,7 @@ namespace Xtate.Core
 			properties.Body = body;
 		}
 
-		protected virtual void Build(ref IParam entity, ref ParamEntity properties)
+		protected virtual void Build(ref ParamEntity properties)
 		{
 			var expression = properties.Expression;
 			VisitWrapper(ref expression);
@@ -1038,14 +1037,14 @@ namespace Xtate.Core
 			properties.Location = location;
 		}
 
-		protected virtual void Build(ref IFinalize entity, ref FinalizeEntity properties)
+		protected virtual void Build(ref FinalizeEntity properties)
 		{
 			var action = properties.Action;
 			VisitWrapper(ref action);
 			properties.Action = action;
 		}
 
-		protected virtual void Build(ref ICustomAction entity, ref CustomActionEntity properties)
+		protected virtual void Build(ref CustomActionEntity properties)
 		{
 			var values = properties.Values;
 			VisitWrapper(ref values);
@@ -1056,29 +1055,29 @@ namespace Xtate.Core
 			properties.Locations = locations;
 		}
 
-		protected virtual void Build(ref IElse entity, ref ElseEntity properties) { }
+		protected virtual void Build(ref ElseEntity properties) { }
 
-		protected virtual void Build(ref IValueExpression entity, ref ValueExpression properties) { }
+		protected virtual void Build(ref ValueExpression properties) { }
 
-		protected virtual void Build(ref ILocationExpression entity, ref LocationExpression properties) { }
+		protected virtual void Build(ref LocationExpression properties) { }
 
-		protected virtual void Build(ref IConditionExpression entity, ref ConditionExpression properties) { }
+		protected virtual void Build(ref ConditionExpression properties) { }
 
-		protected virtual void Build(ref IScriptExpression entity, ref ScriptExpression properties) { }
+		protected virtual void Build(ref ScriptExpression properties) { }
 
-		protected virtual void Build(ref IExternalScriptExpression entity, ref ExternalScriptExpression properties) { }
+		protected virtual void Build(ref ExternalScriptExpression properties) { }
 
-		protected virtual void Build(ref IExternalDataExpression entity, ref ExternalDataExpression properties) { }
+		protected virtual void Build(ref ExternalDataExpression properties) { }
 
-		protected virtual void Build(ref IContentBody entity, ref ContentBody properties) { }
+		protected virtual void Build(ref ContentBody properties) { }
 
-		protected virtual void Build(ref IInlineContent entity, ref InlineContent properties) { }
+		protected virtual void Build(ref InlineContent properties) { }
 
 	#endregion
 
 	#region Build(ref ImmutableArray<IT> list, ref TrackList<IT> trackList)
 
-		protected virtual void Build(ref ImmutableArray<IIdentifier> list, ref TrackList<IIdentifier> trackList)
+		protected virtual void Build(ref TrackList<IIdentifier> trackList)
 		{
 			for (var i = 0; i < trackList.Count; i ++)
 			{
@@ -1088,7 +1087,7 @@ namespace Xtate.Core
 			}
 		}
 
-		protected virtual void Build(ref ImmutableArray<IStateEntity> list, ref TrackList<IStateEntity> trackList)
+		protected virtual void Build(ref TrackList<IStateEntity> trackList)
 		{
 			for (var i = 0; i < trackList.Count; i ++)
 			{
@@ -1098,7 +1097,7 @@ namespace Xtate.Core
 			}
 		}
 
-		protected virtual void Build(ref ImmutableArray<ITransition> list, ref TrackList<ITransition> trackList)
+		protected virtual void Build(ref TrackList<ITransition> trackList)
 		{
 			for (var i = 0; i < trackList.Count; i ++)
 			{
@@ -1108,7 +1107,7 @@ namespace Xtate.Core
 			}
 		}
 
-		protected virtual void Build(ref ImmutableArray<IEventDescriptor> list, ref TrackList<IEventDescriptor> trackList)
+		protected virtual void Build(ref TrackList<IEventDescriptor> trackList)
 		{
 			for (var i = 0; i < trackList.Count; i ++)
 			{
@@ -1118,7 +1117,7 @@ namespace Xtate.Core
 			}
 		}
 
-		protected virtual void Build(ref ImmutableArray<IHistory> list, ref TrackList<IHistory> trackList)
+		protected virtual void Build(ref TrackList<IHistory> trackList)
 		{
 			for (var i = 0; i < trackList.Count; i ++)
 			{
@@ -1128,7 +1127,7 @@ namespace Xtate.Core
 			}
 		}
 
-		protected virtual void Build(ref ImmutableArray<IOnEntry> list, ref TrackList<IOnEntry> trackList)
+		protected virtual void Build(ref TrackList<IOnEntry> trackList)
 		{
 			for (var i = 0; i < trackList.Count; i ++)
 			{
@@ -1138,7 +1137,7 @@ namespace Xtate.Core
 			}
 		}
 
-		protected virtual void Build(ref ImmutableArray<IOnExit> list, ref TrackList<IOnExit> trackList)
+		protected virtual void Build(ref TrackList<IOnExit> trackList)
 		{
 			for (var i = 0; i < trackList.Count; i ++)
 			{
@@ -1148,7 +1147,7 @@ namespace Xtate.Core
 			}
 		}
 
-		protected virtual void Build(ref ImmutableArray<IExecutableEntity> list, ref TrackList<IExecutableEntity> trackList)
+		protected virtual void Build(ref TrackList<IExecutableEntity> trackList)
 		{
 			for (var i = 0; i < trackList.Count; i ++)
 			{
@@ -1158,7 +1157,7 @@ namespace Xtate.Core
 			}
 		}
 
-		protected virtual void Build(ref ImmutableArray<IInvoke> list, ref TrackList<IInvoke> trackList)
+		protected virtual void Build(ref TrackList<IInvoke> trackList)
 		{
 			for (var i = 0; i < trackList.Count; i ++)
 			{
@@ -1168,7 +1167,7 @@ namespace Xtate.Core
 			}
 		}
 
-		protected virtual void Build(ref ImmutableArray<IValueExpression> list, ref TrackList<IValueExpression> trackList)
+		protected virtual void Build(ref TrackList<IValueExpression> trackList)
 		{
 			for (var i = 0; i < trackList.Count; i ++)
 			{
@@ -1178,7 +1177,7 @@ namespace Xtate.Core
 			}
 		}
 
-		protected virtual void Build(ref ImmutableArray<ILocationExpression> list, ref TrackList<ILocationExpression> trackList)
+		protected virtual void Build(ref TrackList<ILocationExpression> trackList)
 		{
 			for (var i = 0; i < trackList.Count; i ++)
 			{
@@ -1188,7 +1187,7 @@ namespace Xtate.Core
 			}
 		}
 
-		protected virtual void Build(ref ImmutableArray<IData> list, ref TrackList<IData> trackList)
+		protected virtual void Build(ref TrackList<IData> trackList)
 		{
 			for (var i = 0; i < trackList.Count; i ++)
 			{
@@ -1198,7 +1197,7 @@ namespace Xtate.Core
 			}
 		}
 
-		protected virtual void Build(ref ImmutableArray<IParam> list, ref TrackList<IParam> trackList)
+		protected virtual void Build(ref TrackList<IParam> trackList)
 		{
 			for (var i = 0; i < trackList.Count; i ++)
 			{

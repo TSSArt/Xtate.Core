@@ -30,12 +30,12 @@ namespace Xtate.DataModel
 	{
 		private readonly IValueEvaluator?             _contentBodyEvaluator;
 		private readonly IObjectEvaluator?            _contentExpressionEvaluator;
-		private readonly DoneDataEntity               _doneData;
+		private readonly IDoneData                    _doneData;
 		private readonly ImmutableArray<DefaultParam> _parameterList;
 
-		public DefaultDoneDataEvaluator(in DoneDataEntity doneData)
+		public DefaultDoneDataEvaluator(IDoneData doneData)
 		{
-			_doneData = doneData;
+			_doneData = doneData ?? throw new ArgumentNullException(nameof(doneData));
 
 			_contentExpressionEvaluator = doneData.Content?.Expression?.As<IObjectEvaluator>();
 			_contentBodyEvaluator = doneData.Content?.Body?.As<IValueEvaluator>();
@@ -44,7 +44,7 @@ namespace Xtate.DataModel
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _doneData.Ancestor;
+		object IAncestorProvider.Ancestor => _doneData;
 
 	#endregion
 

@@ -26,20 +26,18 @@ namespace Xtate.Core
 {
 	internal abstract class ExecutableEntityNode : IExecutableEntity, IExecEvaluator, IStoreSupport, IDocumentId
 	{
-		private readonly IExecEvaluator   _execEvaluator;
-		private          DocumentIdRecord _documentIdNode;
+		private readonly IExecEvaluator _execEvaluator;
+		private          DocumentIdSlot _documentIdSlot;
 
-		protected ExecutableEntityNode(in DocumentIdRecord documentIdNode, IExecutableEntity? entity)
+		protected ExecutableEntityNode(DocumentIdNode documentIdNode, IExecutableEntity entity)
 		{
-			Infrastructure.NotNull(entity);
-
 			_execEvaluator = entity.As<IExecEvaluator>();
-			_documentIdNode = documentIdNode;
+			documentIdNode.SaveToSlot(out _documentIdSlot);
 		}
 
 	#region Interface IDocumentId
 
-		public int DocumentId => _documentIdNode.Value;
+		public int DocumentId => _documentIdSlot.Value;
 
 	#endregion
 
