@@ -51,15 +51,15 @@ namespace Xtate.DataModel.XPath
 			executionContext.RuntimeItems[XPathEngine.Key] = new XPathEngine(executionContext);
 		}
 
-		protected override void Build(ref IValueExpression valueExpression, ref ValueExpression valueExpressionProperties)
+		protected override void Visit(ref IValueExpression valueExpression)
 		{
-			base.Build(ref valueExpression, ref valueExpressionProperties);
+			base.Visit(ref valueExpression);
 
-			if (valueExpressionProperties.Expression is not null)
+			if (valueExpression.Expression is not null)
 			{
 				try
 				{
-					CompileValueExpression(ref valueExpression, ref valueExpressionProperties);
+					CompileValueExpression(ref valueExpression);
 				}
 				catch (XPathException ex)
 				{
@@ -76,11 +76,11 @@ namespace Xtate.DataModel.XPath
 			}
 		}
 
-		private void CompileValueExpression(ref IValueExpression valueExpression, ref ValueExpression valueExpressionProperties)
+		private void CompileValueExpression(ref IValueExpression valueExpression)
 		{
-			Debug.Assert(valueExpressionProperties.Expression is not null);
+			Debug.Assert(valueExpression.Expression is not null);
 
-			var compiledExpression = new XPathCompiledExpression(valueExpressionProperties.Expression, valueExpression);
+			var compiledExpression = new XPathCompiledExpression(valueExpression.Expression, valueExpression);
 
 			switch (compiledExpression.ReturnType)
 			{
@@ -89,7 +89,7 @@ namespace Xtate.DataModel.XPath
 				case XPathResultType.String:
 				case XPathResultType.NodeSet:
 				case XPathResultType.Number:
-					valueExpression = new XPathValueExpressionEvaluator(valueExpressionProperties, compiledExpression);
+					valueExpression = new XPathValueExpressionEvaluator(valueExpression, compiledExpression);
 					break;
 
 				case XPathResultType.Error:
@@ -101,15 +101,15 @@ namespace Xtate.DataModel.XPath
 			}
 		}
 
-		protected override void Build(ref IConditionExpression conditionExpression, ref ConditionExpression conditionExpressionProperties)
+		protected override void Visit(ref IConditionExpression conditionExpression)
 		{
-			base.Build(ref conditionExpression, ref conditionExpressionProperties);
+			base.Visit(ref conditionExpression);
 
-			if (conditionExpressionProperties.Expression is not null)
+			if (conditionExpression.Expression is not null)
 			{
 				try
 				{
-					CompileConditionExpression(ref conditionExpression, ref conditionExpressionProperties);
+					CompileConditionExpression(ref conditionExpression);
 				}
 				catch (XPathException ex)
 				{
@@ -126,17 +126,17 @@ namespace Xtate.DataModel.XPath
 			}
 		}
 
-		private void CompileConditionExpression(ref IConditionExpression conditionExpression, ref ConditionExpression conditionExpressionProperties)
+		private void CompileConditionExpression(ref IConditionExpression conditionExpression)
 		{
-			Debug.Assert(conditionExpressionProperties.Expression is not null);
+			Debug.Assert(conditionExpression.Expression is not null);
 
-			var compiledExpression = new XPathCompiledExpression(conditionExpressionProperties.Expression, conditionExpression);
+			var compiledExpression = new XPathCompiledExpression(conditionExpression.Expression, conditionExpression);
 
 			switch (compiledExpression.ReturnType)
 			{
 				case XPathResultType.Boolean:
 				case XPathResultType.Any:
-					conditionExpression = new XPathConditionExpressionEvaluator(conditionExpressionProperties, compiledExpression);
+					conditionExpression = new XPathConditionExpressionEvaluator(conditionExpression, compiledExpression);
 					break;
 
 				case XPathResultType.String:
@@ -154,15 +154,15 @@ namespace Xtate.DataModel.XPath
 			}
 		}
 
-		protected override void Build(ref ILocationExpression locationExpression, ref LocationExpression locationExpressionProperties)
+		protected override void Visit(ref ILocationExpression locationExpression)
 		{
-			base.Build(ref locationExpression, ref locationExpressionProperties);
+			base.Visit(ref locationExpression);
 
-			if (locationExpressionProperties.Expression is not null)
+			if (locationExpression.Expression is not null)
 			{
 				try
 				{
-					CompileLocationExpression(ref locationExpression, ref locationExpressionProperties);
+					CompileLocationExpression(ref locationExpression);
 				}
 				catch (XPathException ex)
 				{
@@ -179,17 +179,17 @@ namespace Xtate.DataModel.XPath
 			}
 		}
 
-		private void CompileLocationExpression(ref ILocationExpression locationExpression, ref LocationExpression locationExpressionProperties)
+		private void CompileLocationExpression(ref ILocationExpression locationExpression)
 		{
-			Debug.Assert(locationExpressionProperties.Expression is not null);
+			Debug.Assert(locationExpression.Expression is not null);
 
-			var compiledExpression = new XPathCompiledExpression(locationExpressionProperties.Expression, locationExpression);
+			var compiledExpression = new XPathCompiledExpression(locationExpression.Expression, locationExpression);
 
 			switch (compiledExpression.ReturnType)
 			{
 				case XPathResultType.NodeSet:
 				case XPathResultType.Any:
-					locationExpression = new XPathLocationExpressionEvaluator(locationExpressionProperties, compiledExpression);
+					locationExpression = new XPathLocationExpressionEvaluator(locationExpression, compiledExpression);
 					break;
 
 				case XPathResultType.Boolean:
@@ -207,52 +207,57 @@ namespace Xtate.DataModel.XPath
 			}
 		}
 
-		protected override void Build(ref IContentBody contentBody, ref ContentBody contentBodyProperties)
+		protected override void Visit(ref IContentBody contentBody)
 		{
-			base.Build(ref contentBody, ref contentBodyProperties);
+			base.Visit(ref contentBody);
 
-			contentBody = new XPathContentBodyEvaluator(contentBodyProperties);
+			contentBody = new XPathContentBodyEvaluator(contentBody);
 		}
 
-		protected override void Build(ref IInlineContent inlineContent, ref InlineContent inlineContentProperties)
+		protected override void Visit(ref IInlineContent inlineContent)
 		{
-			base.Build(ref inlineContent, ref inlineContentProperties);
+			base.Visit(ref inlineContent);
 
-			inlineContent = new XPathInlineContentEvaluator(inlineContentProperties);
+			inlineContent = new XPathInlineContentEvaluator(inlineContent);
 		}
 
-		protected override void Build(ref IExternalDataExpression externalDataExpression, ref ExternalDataExpression externalDataExpressionProperties)
+		protected override void Visit(ref IExternalDataExpression externalDataExpression)
 		{
-			base.Build(ref externalDataExpression, ref externalDataExpressionProperties);
+			base.Visit(ref externalDataExpression);
 
-			externalDataExpression = new XPathExternalDataExpressionEvaluator(externalDataExpressionProperties);
+			externalDataExpression = new XPathExternalDataExpressionEvaluator(externalDataExpression);
 		}
 
-		protected override void Build(ref IForEach forEach, ref ForEachEntity forEachProperties)
+		protected override void Visit(ref IForEach forEach)
 		{
-			base.Build(ref forEach, ref forEachProperties);
+			base.Visit(ref forEach);
 
-			forEach = new XPathForEachEvaluator(forEachProperties);
+			forEach = new XPathForEachEvaluator(forEach);
 		}
 
-		protected override void Build(ref IAssign assign, ref AssignEntity assignProperties)
+		protected override void Build(ref AssignEntity assignProperties)
 		{
 			var parsed = XPathLocationExpression.TryParseAssignType(assignProperties.Type, out var assignType);
-			var attribute = assignProperties.Attribute;
 
-			if (parsed && assignProperties.Location is { } locationExpression)
+			if (parsed)
 			{
-				assignProperties.Location = new XPathLocationExpression(locationExpression, assignType, attribute);
+				Infrastructure.NotNull(assignProperties.Location);
+
+				assignProperties.Location = new XPathLocationExpression(assignProperties.Location, assignType, assignProperties.Attribute);
 			}
 
-			base.Build(ref assign, ref assignProperties);
+			base.Build(ref assignProperties);
+		}
 
-			if (!parsed)
+		protected override void Visit(ref IAssign assign)
+		{
+			base.Visit(ref assign);
+
+			if (!assign.Location.Is<XPathLocationExpression>(out var xPathLocationExpression))
 			{
 				AddErrorMessage(assign, Resources.Exception_UnexpectedTypeAttributeValue);
 			}
-
-			if (assignType == XPathAssignType.AddAttribute && string.IsNullOrEmpty(attribute))
+			else if (xPathLocationExpression.AssignType == XPathAssignType.AddAttribute && string.IsNullOrEmpty(assign.Attribute))
 			{
 				AddErrorMessage(assign, Resources.ErrorMessage_AttrAttributeShouldNotBeEmpty);
 			}

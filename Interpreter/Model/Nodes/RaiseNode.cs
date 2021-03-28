@@ -24,13 +24,13 @@ namespace Xtate.Core
 {
 	internal sealed class RaiseNode : ExecutableEntityNode, IRaise, IAncestorProvider, IDebugEntityId
 	{
-		private readonly RaiseEntity _entity;
+		private readonly IRaise _raise;
 
-		public RaiseNode(in DocumentIdRecord documentIdNode, in RaiseEntity entity) : base(documentIdNode, (IRaise?) entity.Ancestor) => _entity = entity;
+		public RaiseNode(DocumentIdNode documentIdNode, IRaise raise) : base(documentIdNode, raise) => _raise = raise;
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _entity.Ancestor;
+		object IAncestorProvider.Ancestor => _raise;
 
 	#endregion
 
@@ -42,7 +42,7 @@ namespace Xtate.Core
 
 	#region Interface IRaise
 
-		public IOutgoingEvent? OutgoingEvent => _entity.OutgoingEvent;
+		public IOutgoingEvent? OutgoingEvent => _raise.OutgoingEvent;
 
 	#endregion
 

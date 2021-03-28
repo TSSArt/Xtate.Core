@@ -77,7 +77,6 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage(category:"Design", checkId:"CA1040:Avoid empty interfaces", Justification = "<Pending>", Scope = "type", Target = "~T:Xtate.IElse")]
 [assembly: SuppressMessage(category:"Design", checkId:"CA1040:Avoid empty interfaces", Justification = "<Pending>", Scope = "type", Target = "~T:Xtate.IIdentifier")]
 [assembly: SuppressMessage(category:"Design", checkId:"CA1062:Validate arguments of public methods", Justification = "<Pending>", Scope = "member", Target = "~M:Xtate.Core.ErrorProcessorExtensions.AddError(Xtate.Core.IErrorProcessor,System.Type,System.Object,System.String,System.Exception)")]
-[assembly: SuppressMessage(category:"Design", checkId:"CA1062:Validate arguments of public methods", Justification = "<Pending>", Scope = "member", Target = "~M:Xtate.Scxml.ScxmlSerializer.Build(Xtate.IStateMachine@,Xtate.Core.StateMachineEntity@)")]
 [assembly: SuppressMessage(category:"Design", checkId:"CA1067:Override Object.Equals(object) when implementing IEquatable<T>", Justification = "<Pending>", Scope = "type", Target = "~T:Xtate.InvokeId")]
 [assembly: SuppressMessage(category:"Design", checkId:"CA1067:Override Object.Equals(object) when implementing IEquatable<T>", Justification = "<Pending>", Scope = "type", Target = "~T:Xtate.SendId")]
 [assembly: SuppressMessage(category:"Design", checkId:"CA1067:Override Object.Equals(object) when implementing IEquatable<T>", Justification = "<Pending>", Scope = "type", Target = "~T:Xtate.SessionId")]

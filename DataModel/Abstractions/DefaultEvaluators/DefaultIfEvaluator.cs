@@ -28,11 +28,11 @@ namespace Xtate.DataModel
 	[PublicAPI]
 	public class DefaultIfEvaluator : IIf, IExecEvaluator, IAncestorProvider
 	{
-		private readonly IfEntity _if;
+		private readonly IIf _if;
 
-		public DefaultIfEvaluator(in IfEntity @if)
+		public DefaultIfEvaluator(IIf @if)
 		{
-			_if = @if;
+			_if = @if ?? throw new ArgumentNullException(nameof(@if));
 
 			Infrastructure.NotNull(@if.Condition);
 
@@ -72,7 +72,7 @@ namespace Xtate.DataModel
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _if.Ancestor;
+		object IAncestorProvider.Ancestor => _if;
 
 	#endregion
 

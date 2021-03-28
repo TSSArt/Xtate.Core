@@ -40,17 +40,19 @@ namespace Xtate.Scxml
 			new ScxmlSerializer(writer).Visit(ref stateMachine);
 		}
 
-		protected override void Build(ref IStateMachine entity, ref StateMachineEntity properties)
+		protected override void Visit(ref IStateMachine entity)
 		{
+			Infrastructure.NotNull(entity);
+
 			_writer.WriteStartElement(prefix: "", localName: "scxml", ScxmlNs);
 			_writer.WriteAttributeString(localName: "version", value: @"1.0");
 
-			if (properties.DataModelType is { } dataModelType)
+			if (entity.DataModelType is { } dataModelType)
 			{
 				_writer.WriteAttributeString(localName: "datamodel", dataModelType);
 			}
 
-			var target = properties.Initial?.Transition?.Target ?? default;
+			var target = entity.Initial?.Transition?.Target ?? default;
 			if (!target.IsDefaultOrEmpty)
 			{
 				_writer.WriteStartAttribute("initial");
@@ -63,10 +65,16 @@ namespace Xtate.Scxml
 				WriteOptions(options);
 			}
 
-			properties.Initial = default;
-			base.Build(ref entity, ref properties);
+			base.Visit(ref entity);
 
 			_writer.WriteEndElement();
+		}
+
+		protected override void Build(ref StateMachineEntity properties)
+		{
+			properties.Initial = default;
+
+			base.Build(ref properties);
 		}
 
 		private void WriteOptions(IStateMachineOptions options)
@@ -310,7 +318,7 @@ namespace Xtate.Scxml
 			_writer.WriteEndElement();
 		}
 
-		protected override void Build(ref ICustomAction entity, ref CustomActionEntity properties)
+		protected override void Visit(ref ICustomAction entity)
 		{
 			if (entity is null) throw new ArgumentNullException(nameof(entity));
 

@@ -27,12 +27,14 @@ namespace Xtate.DataModel
 	[PublicAPI]
 	public class DefaultInlineContentEvaluator : IInlineContent, IObjectEvaluator, IStringEvaluator, IAncestorProvider
 	{
-		private readonly InlineContent  _inlineContent;
+		private readonly IInlineContent _inlineContent;
 		private          DataModelValue _parsedValue;
 		private          Exception?     _parsingException;
 
-		public DefaultInlineContentEvaluator(in InlineContent inlineContent)
+		public DefaultInlineContentEvaluator(IInlineContent inlineContent)
 		{
+			if (inlineContent is null) throw new ArgumentNullException(nameof(inlineContent));
+
 			Infrastructure.NotNull(inlineContent.Value);
 
 			_inlineContent = inlineContent;
@@ -40,7 +42,7 @@ namespace Xtate.DataModel
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _inlineContent.Ancestor;
+		object IAncestorProvider.Ancestor => _inlineContent;
 
 	#endregion
 

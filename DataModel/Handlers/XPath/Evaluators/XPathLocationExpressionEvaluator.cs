@@ -28,14 +28,14 @@ namespace Xtate.DataModel.XPath
 		private readonly XPathAssignType         _assignType;
 		private readonly string?                 _attribute;
 		private readonly XPathCompiledExpression _compiledExpression;
-		private readonly LocationExpression      _locationExpression;
+		private readonly ILocationExpression     _locationExpression;
 
-		public XPathLocationExpressionEvaluator(in LocationExpression locationExpression, XPathCompiledExpression compiledExpression)
+		public XPathLocationExpressionEvaluator(ILocationExpression locationExpression, XPathCompiledExpression compiledExpression)
 		{
 			_locationExpression = locationExpression;
 			_compiledExpression = compiledExpression;
 
-			if (_locationExpression.Ancestor.Is<XPathLocationExpression>(out var xPathLocationExpression))
+			if (_locationExpression.Is<XPathLocationExpression>(out var xPathLocationExpression))
 			{
 				_assignType = xPathLocationExpression.AssignType;
 				_attribute = xPathLocationExpression.Attribute;
@@ -48,7 +48,7 @@ namespace Xtate.DataModel.XPath
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _locationExpression.Ancestor;
+		object IAncestorProvider.Ancestor => _locationExpression;
 
 	#endregion
 

@@ -27,21 +27,18 @@ namespace Xtate.Core
 {
 	internal sealed class DoneDataNode : IDoneData, IStoreSupport, IAncestorProvider
 	{
-		private readonly DoneDataEntity   _doneData;
+		private readonly IDoneData        _doneData;
 		private readonly IObjectEvaluator _doneDataEvaluator;
 
-		public DoneDataNode(in DoneDataEntity doneData)
+		public DoneDataNode(IDoneData doneData)
 		{
 			_doneData = doneData;
-
-			Infrastructure.NotNull(doneData.Ancestor);
-
-			_doneDataEvaluator = doneData.Ancestor.As<IObjectEvaluator>();
+			_doneDataEvaluator = doneData.As<IObjectEvaluator>();
 		}
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _doneData.Ancestor;
+		object IAncestorProvider.Ancestor => _doneData;
 
 	#endregion
 

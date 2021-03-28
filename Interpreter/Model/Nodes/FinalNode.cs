@@ -25,9 +25,9 @@ namespace Xtate.Core
 {
 	internal sealed class FinalNode : StateEntityNode, IFinal, IAncestorProvider, IDebugEntityId
 	{
-		private readonly FinalEntity _final;
+		private readonly IFinal _final;
 
-		public FinalNode(in DocumentIdRecord documentIdNode, in FinalEntity final) : base(documentIdNode, children: null)
+		public FinalNode(DocumentIdNode documentIdNode, IFinal final) : base(documentIdNode, children: null)
 		{
 			_final = final;
 
@@ -47,7 +47,7 @@ namespace Xtate.Core
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _final.Ancestor;
+		object IAncestorProvider.Ancestor => _final;
 
 	#endregion
 

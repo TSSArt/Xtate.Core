@@ -24,9 +24,9 @@ namespace Xtate.Core
 {
 	internal sealed class ExternalDataExpressionNode : IExternalDataExpression, IStoreSupport, IAncestorProvider
 	{
-		private readonly ExternalDataExpression _externalDataExpression;
+		private readonly IExternalDataExpression _externalDataExpression;
 
-		public ExternalDataExpressionNode(in ExternalDataExpression externalDataExpression)
+		public ExternalDataExpressionNode(IExternalDataExpression externalDataExpression)
 		{
 			Infrastructure.NotNull(externalDataExpression.Uri);
 
@@ -35,7 +35,7 @@ namespace Xtate.Core
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _externalDataExpression.Ancestor;
+		object IAncestorProvider.Ancestor => _externalDataExpression;
 
 	#endregion
 

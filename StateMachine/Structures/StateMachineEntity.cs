@@ -52,9 +52,9 @@ namespace Xtate.Core
 
 	#region Interface IVisitorEntity<StateMachineEntity,IStateMachine>
 
-		void IVisitorEntity<StateMachineEntity, IStateMachine>.Init(IStateMachine source)
+		public void Init(IStateMachine source)
 		{
-			Ancestor = source;
+			Ancestor = source ?? throw new ArgumentNullException(nameof(source));
 			Name = source.Name;
 			Initial = source.Initial;
 			DataModelType = source.DataModelType;

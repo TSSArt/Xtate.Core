@@ -25,14 +25,14 @@ namespace Xtate.Core
 {
 	internal sealed class DataNode : IData, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 	{
-		private readonly DataEntity       _data;
-		private          DocumentIdRecord _documentIdNode;
+		private readonly IData          _data;
+		private          DocumentIdSlot _documentIdSlot;
 
-		public DataNode(in DocumentIdRecord documentIdNode, in DataEntity data)
+		public DataNode(DocumentIdNode documentIdNode, IData data)
 		{
 			Infrastructure.NotNull(data.Id);
 
-			_documentIdNode = documentIdNode;
+			documentIdNode.SaveToSlot(out _documentIdSlot);
 			_data = data;
 
 			ResourceEvaluator = data.Source?.As<IResourceEvaluator>();
@@ -46,7 +46,7 @@ namespace Xtate.Core
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _data.Ancestor;
+		object IAncestorProvider.Ancestor => _data;
 
 	#endregion
 
@@ -67,7 +67,7 @@ namespace Xtate.Core
 
 	#region Interface IDocumentId
 
-		public int DocumentId => _documentIdNode.Value;
+		public int DocumentId => _documentIdSlot.Value;
 
 	#endregion
 

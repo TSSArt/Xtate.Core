@@ -25,13 +25,13 @@ namespace Xtate.Core
 {
 	internal sealed class ForEachNode : ExecutableEntityNode, IForEach, IAncestorProvider, IDebugEntityId
 	{
-		private readonly ForEachEntity _entity;
+		private readonly IForEach _forEach;
 
-		public ForEachNode(in DocumentIdRecord documentIdNode, in ForEachEntity entity) : base(documentIdNode, (IForEach?) entity.Ancestor) => _entity = entity;
+		public ForEachNode(DocumentIdNode documentIdNode, IForEach forEach) : base(documentIdNode, forEach) => _forEach = forEach;
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _entity.Ancestor;
+		object IAncestorProvider.Ancestor => _forEach;
 
 	#endregion
 
@@ -43,13 +43,13 @@ namespace Xtate.Core
 
 	#region Interface IForEach
 
-		public IValueExpression? Array => _entity.Array;
+		public IValueExpression? Array => _forEach.Array;
 
-		public ILocationExpression? Item => _entity.Item;
+		public ILocationExpression? Item => _forEach.Item;
 
-		public ILocationExpression? Index => _entity.Index;
+		public ILocationExpression? Index => _forEach.Index;
 
-		public ImmutableArray<IExecutableEntity> Action => _entity.Action;
+		public ImmutableArray<IExecutableEntity> Action => _forEach.Action;
 
 	#endregion
 
@@ -57,9 +57,9 @@ namespace Xtate.Core
 		{
 			bucket.Add(Key.TypeInfo, TypeInfo.ForEachNode);
 			bucket.Add(Key.DocumentId, DocumentId);
-			bucket.AddEntity(Key.Array, _entity.Array);
-			bucket.AddEntity(Key.Item, _entity.Item);
-			bucket.AddEntity(Key.Index, _entity.Index);
+			bucket.AddEntity(Key.Array, _forEach.Array);
+			bucket.AddEntity(Key.Item, _forEach.Item);
+			bucket.AddEntity(Key.Index, _forEach.Index);
 			bucket.AddEntityList(Key.Action, Action);
 		}
 	}
