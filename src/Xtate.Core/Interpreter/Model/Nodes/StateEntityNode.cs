@@ -29,11 +29,11 @@ namespace Xtate.Core
 		public static readonly IComparer<StateEntityNode> EntryOrder = new DocumentOrderComparer(reverseOrder: false);
 		public static readonly IComparer<StateEntityNode> ExitOrder  = new DocumentOrderComparer(reverseOrder: true);
 
-		private DocumentIdRecord _documentIdNode;
+		private DocumentIdSlot _documentIdSlot;
 
-		protected StateEntityNode(in DocumentIdRecord documentIdNode, IEnumerable<StateEntityNode>? children)
+		protected StateEntityNode(DocumentIdNode documentIdNode, IEnumerable<StateEntityNode>? children)
 		{
-			_documentIdNode = documentIdNode;
+			documentIdNode.SaveToSlot(out _documentIdSlot);
 
 			if (children is not null)
 			{
@@ -58,7 +58,7 @@ namespace Xtate.Core
 
 	#region Interface IDocumentId
 
-		public int DocumentId => _documentIdNode.Value;
+		public int DocumentId => _documentIdSlot.Value;
 
 	#endregion
 

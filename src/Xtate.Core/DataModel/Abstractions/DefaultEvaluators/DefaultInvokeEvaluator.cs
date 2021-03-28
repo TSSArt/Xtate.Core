@@ -28,11 +28,11 @@ namespace Xtate.DataModel
 	[PublicAPI]
 	public class DefaultInvokeEvaluator : IInvoke, IStartInvokeEvaluator, ICancelInvokeEvaluator, IAncestorProvider
 	{
-		private readonly InvokeEntity _invoke;
+		private readonly IInvoke _invoke;
 
-		public DefaultInvokeEvaluator(in InvokeEntity invoke)
+		public DefaultInvokeEvaluator(IInvoke invoke)
 		{
-			_invoke = invoke;
+			_invoke = invoke ?? throw new ArgumentNullException(nameof(invoke));
 
 			TypeExpressionEvaluator = invoke.TypeExpression?.As<IStringEvaluator>();
 			SourceExpressionEvaluator = invoke.SourceExpression?.As<IStringEvaluator>();
@@ -53,7 +53,7 @@ namespace Xtate.DataModel
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _invoke.Ancestor;
+		object IAncestorProvider.Ancestor => _invoke;
 
 	#endregion
 

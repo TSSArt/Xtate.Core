@@ -23,9 +23,9 @@ namespace Xtate.Core
 {
 	internal sealed class LocationExpressionNode : ILocationExpression, IStoreSupport, IAncestorProvider
 	{
-		private readonly LocationExpression _locationExpression;
+		private readonly ILocationExpression _locationExpression;
 
-		public LocationExpressionNode(in LocationExpression locationExpression)
+		public LocationExpressionNode(ILocationExpression locationExpression)
 		{
 			Infrastructure.NotNull(locationExpression.Expression);
 
@@ -34,7 +34,7 @@ namespace Xtate.Core
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _locationExpression.Ancestor;
+		object IAncestorProvider.Ancestor => _locationExpression;
 
 	#endregion
 

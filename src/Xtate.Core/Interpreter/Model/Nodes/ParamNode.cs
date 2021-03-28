@@ -24,20 +24,20 @@ namespace Xtate.Core
 {
 	internal sealed class ParamNode : IParam, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 	{
-		private readonly ParamEntity      _param;
-		private          DocumentIdRecord _documentIdNode;
+		private readonly IParam         _param;
+		private          DocumentIdSlot _documentIdSlot;
 
-		public ParamNode(in DocumentIdRecord documentIdNode, in ParamEntity param)
+		public ParamNode(DocumentIdNode documentIdNode, IParam param)
 		{
 			Infrastructure.NotNull(param.Name);
 
-			_documentIdNode = documentIdNode;
+			documentIdNode.SaveToSlot(out _documentIdSlot);
 			_param = param;
 		}
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _param.Ancestor;
+		object IAncestorProvider.Ancestor => _param;
 
 	#endregion
 
@@ -49,7 +49,7 @@ namespace Xtate.Core
 
 	#region Interface IDocumentId
 
-		public int DocumentId => _documentIdNode.Value;
+		public int DocumentId => _documentIdSlot.Value;
 
 	#endregion
 

@@ -25,9 +25,9 @@ namespace Xtate.Core
 {
 	internal sealed class ParallelNode : StateEntityNode, IParallel, IAncestorProvider, IDebugEntityId
 	{
-		private readonly ParallelEntity _parallel;
+		private readonly IParallel _parallel;
 
-		public ParallelNode(in DocumentIdRecord documentIdNode, in ParallelEntity parallel) : base(documentIdNode, GetChildNodes(initial: null, parallel.States, parallel.HistoryStates))
+		public ParallelNode(DocumentIdNode documentIdNode, IParallel parallel) : base(documentIdNode, GetChildNodes(initial: null, parallel.States, parallel.HistoryStates))
 		{
 			_parallel = parallel;
 
@@ -66,7 +66,7 @@ namespace Xtate.Core
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _parallel.Ancestor;
+		object IAncestorProvider.Ancestor => _parallel;
 
 	#endregion
 

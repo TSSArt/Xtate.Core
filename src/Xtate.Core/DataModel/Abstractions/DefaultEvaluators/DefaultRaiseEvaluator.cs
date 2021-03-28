@@ -27,10 +27,12 @@ namespace Xtate.DataModel
 	[PublicAPI]
 	public class DefaultRaiseEvaluator : IRaise, IExecEvaluator, IAncestorProvider
 	{
-		private readonly RaiseEntity _raise;
+		private readonly IRaise _raise;
 
-		public DefaultRaiseEvaluator(in RaiseEntity raise)
+		public DefaultRaiseEvaluator(IRaise raise)
 		{
+			if (raise is null) throw new ArgumentNullException(nameof(raise));
+
 			Infrastructure.NotNull(raise.OutgoingEvent);
 
 			_raise = raise;
@@ -38,7 +40,7 @@ namespace Xtate.DataModel
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _raise.Ancestor;
+		object IAncestorProvider.Ancestor => _raise;
 
 	#endregion
 

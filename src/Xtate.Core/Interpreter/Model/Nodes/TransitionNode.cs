@@ -27,13 +27,17 @@ namespace Xtate.Core
 {
 	internal sealed class TransitionNode : ITransition, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 	{
-		private readonly TransitionEntity _transition;
-		private          DocumentIdRecord _documentIdNode;
+		private static readonly ITransition EmptyTransition = new TransitionEntity();
 
-		public TransitionNode(in DocumentIdRecord documentIdNode, in TransitionEntity transition, ImmutableArray<StateEntityNode> target = default)
+		private readonly ITransition    _transition;
+		private          DocumentIdSlot _documentIdSlot;
+
+		public TransitionNode(DocumentIdNode documentIdNode, ImmutableArray<StateEntityNode> target = default) : this(documentIdNode, EmptyTransition, target) { }
+
+		public TransitionNode(DocumentIdNode documentIdNode, ITransition transition, ImmutableArray<StateEntityNode> target = default)
 		{
 			_transition = transition;
-			_documentIdNode = documentIdNode;
+			documentIdNode.SaveToSlot(out _documentIdSlot);
 			TargetState = target;
 			ActionEvaluators = transition.Action.AsArrayOf<IExecutableEntity, IExecEvaluator>(true);
 			ConditionEvaluator = transition.Condition?.As<IBooleanEvaluator>();
@@ -47,7 +51,7 @@ namespace Xtate.Core
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _transition.Ancestor;
+		object IAncestorProvider.Ancestor => _transition;
 
 	#endregion
 
@@ -59,7 +63,7 @@ namespace Xtate.Core
 
 	#region Interface IDocumentId
 
-		public int DocumentId => _documentIdNode.Value;
+		public int DocumentId => _documentIdSlot.Value;
 
 	#endregion
 

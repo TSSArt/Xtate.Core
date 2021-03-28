@@ -24,10 +24,12 @@ namespace Xtate.DataModel
 {
 	public sealed class DefaultParam : IParam, IAncestorProvider, IDebugEntityId
 	{
-		private readonly ParamEntity _param;
+		private readonly IParam _param;
 
-		public DefaultParam(in ParamEntity param)
+		public DefaultParam(IParam param)
 		{
+			if (param is null) throw new ArgumentNullException(nameof(param));
+
 			Infrastructure.NotNull(param.Name);
 
 			_param = param;
@@ -40,7 +42,7 @@ namespace Xtate.DataModel
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _param.Ancestor;
+		object IAncestorProvider.Ancestor => _param;
 
 	#endregion
 

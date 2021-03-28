@@ -23,13 +23,13 @@ namespace Xtate.Core
 {
 	internal sealed class ContentNode : IContent, IStoreSupport, IAncestorProvider
 	{
-		private readonly ContentEntity _content;
+		private readonly IContent _content;
 
-		public ContentNode(in ContentEntity content) => _content = content;
+		public ContentNode(IContent content) => _content = content;
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _content.Ancestor;
+		object IAncestorProvider.Ancestor => _content;
 
 	#endregion
 

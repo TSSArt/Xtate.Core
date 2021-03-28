@@ -27,11 +27,11 @@ namespace Xtate.DataModel
 	[PublicAPI]
 	public class DefaultScriptEvaluator : IScript, IExecEvaluator, IAncestorProvider
 	{
-		private readonly ScriptEntity _script;
+		private readonly IScript _script;
 
-		public DefaultScriptEvaluator(in ScriptEntity script)
+		public DefaultScriptEvaluator(IScript script)
 		{
-			_script = script;
+			_script = script ?? throw new ArgumentNullException(nameof(script));
 
 			Infrastructure.Assert(script.Content is not null || script.Source is not null);
 
@@ -44,7 +44,7 @@ namespace Xtate.DataModel
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _script.Ancestor;
+		object IAncestorProvider.Ancestor => _script;
 
 	#endregion
 

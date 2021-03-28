@@ -25,7 +25,7 @@ namespace Xtate.DataModel.XPath
 {
 	internal class XPathContentBodyEvaluator : DefaultContentBodyEvaluator
 	{
-		public XPathContentBodyEvaluator(in ContentBody contentBody) : base(contentBody) { }
+		public XPathContentBodyEvaluator(IContentBody contentBody) : base(contentBody) { }
 
 		protected override DataModelValue ParseToDataModel(ref Exception? parseException)
 		{

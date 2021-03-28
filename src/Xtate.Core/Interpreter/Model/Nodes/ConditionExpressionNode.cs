@@ -23,13 +23,13 @@ namespace Xtate.Core
 {
 	internal sealed class ConditionExpressionNode : IConditionExpression, IStoreSupport, IAncestorProvider
 	{
-		private readonly ConditionExpression _conditionExpression;
+		private readonly IConditionExpression _conditionExpression;
 
-		public ConditionExpressionNode(in ConditionExpression conditionExpression) => _conditionExpression = conditionExpression;
+		public ConditionExpressionNode(IConditionExpression conditionExpression) => _conditionExpression = conditionExpression;
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _conditionExpression.Ancestor;
+		object IAncestorProvider.Ancestor => _conditionExpression;
 
 	#endregion
 

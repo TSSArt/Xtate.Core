@@ -24,13 +24,13 @@ namespace Xtate.Core
 {
 	internal sealed class LogNode : ExecutableEntityNode, ILog, IAncestorProvider, IDebugEntityId
 	{
-		private readonly LogEntity _entity;
+		private readonly ILog _log;
 
-		public LogNode(in DocumentIdRecord documentIdNode, in LogEntity entity) : base(documentIdNode, (ILog?) entity.Ancestor) => _entity = entity;
+		public LogNode(DocumentIdNode documentIdNode, ILog log) : base(documentIdNode, log) => _log = log;
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _entity.Ancestor;
+		object IAncestorProvider.Ancestor => _log;
 
 	#endregion
 
@@ -42,9 +42,9 @@ namespace Xtate.Core
 
 	#region Interface ILog
 
-		public string? Label => _entity.Label;
+		public string? Label => _log.Label;
 
-		public IValueExpression? Expression => _entity.Expression;
+		public IValueExpression? Expression => _log.Expression;
 
 	#endregion
 

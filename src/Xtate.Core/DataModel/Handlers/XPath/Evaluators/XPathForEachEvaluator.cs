@@ -19,13 +19,12 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using Xtate.Core;
 
 namespace Xtate.DataModel.XPath
 {
 	internal class XPathForEachEvaluator : DefaultForEachEvaluator
 	{
-		public XPathForEachEvaluator(in ForEachEntity forEach) : base(forEach) { }
+		public XPathForEachEvaluator(IForEach forEach) : base(forEach) { }
 
 		public override async ValueTask Execute(IExecutionContext executionContext, CancellationToken token)
 		{
