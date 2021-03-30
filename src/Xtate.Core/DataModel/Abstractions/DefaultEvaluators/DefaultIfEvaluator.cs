@@ -34,7 +34,7 @@ namespace Xtate.DataModel
 		{
 			_if = @if ?? throw new ArgumentNullException(nameof(@if));
 
-			Infrastructure.NotNull(@if.Condition);
+			Infra.NotNull(@if.Condition);
 
 			var currentCondition = @if.Condition.As<IBooleanEvaluator>();
 			var currentActions = ImmutableArray.CreateBuilder<IExecEvaluator>();
@@ -46,7 +46,7 @@ namespace Xtate.DataModel
 				{
 					case IElseIf elseIf:
 						branchesBuilder.Add((currentCondition, currentActions.ToImmutable()));
-						Infrastructure.NotNull(elseIf.Condition);
+						Infra.NotNull(elseIf.Condition);
 						currentCondition = elseIf.Condition.As<IBooleanEvaluator>();
 						currentActions.Clear();
 						break;

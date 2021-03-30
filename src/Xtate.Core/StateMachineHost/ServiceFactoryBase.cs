@@ -107,7 +107,7 @@ namespace Xtate.Service
 						return creator(factoryContext, baseUri, invokeData, serviceCommunication, token);
 
 					default:
-						return Infrastructure.UnexpectedValue<ValueTask<IService>>(_creators[invokeData.Type]?.GetType());
+						return Infra.Unexpected<ValueTask<IService>>(_creators[invokeData.Type]?.GetType());
 				}
 			}
 		}
@@ -128,7 +128,7 @@ namespace Xtate.Service
 			{
 				if (invokeData is null) throw new ArgumentNullException(nameof(invokeData));
 
-				Infrastructure.Assert(CanHandle(invokeData.Type));
+				Infra.Assert(CanHandle(invokeData.Type));
 
 				return _catalog.CreateService(factoryContext, baseUri, invokeData, serviceCommunication, token);
 			}

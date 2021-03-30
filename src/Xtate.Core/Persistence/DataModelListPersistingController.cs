@@ -87,7 +87,7 @@ namespace Xtate.Persistence
 
 				case DataModelList.ChangeAction.SetMetadata: break;
 				default:
-					Infrastructure.UnexpectedValue(action);
+					Infra.Unexpected(action);
 					break;
 			}
 		}
@@ -117,7 +117,7 @@ namespace Xtate.Persistence
 						recordBucket.TryGet(Key.Access, out DataModelAccess access);
 						var key = recordBucket.GetString(Key.Key);
 
-						Infrastructure.NotNull(key);
+						Infra.NotNull(key);
 
 						_list.TryGet(key, caseInsensitive, out var baseEntry);
 
@@ -186,7 +186,7 @@ namespace Xtate.Persistence
 						break;
 					}
 					default:
-						Infrastructure.UnexpectedValue(operation);
+						Infra.Unexpected(operation);
 						break;
 				}
 
@@ -359,7 +359,7 @@ namespace Xtate.Persistence
 					break;
 				}
 
-				default: throw Infrastructure.UnexpectedValue<Exception>(action);
+				default: throw Infra.Unexpected<Exception>(action);
 			}
 		}
 

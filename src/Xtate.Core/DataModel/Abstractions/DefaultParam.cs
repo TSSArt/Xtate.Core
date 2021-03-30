@@ -30,7 +30,7 @@ namespace Xtate.DataModel
 		{
 			if (param is null) throw new ArgumentNullException(nameof(param));
 
-			Infrastructure.NotNull(param.Name);
+			Infra.NotNull(param.Name);
 
 			_param = param;
 			ExpressionEvaluator = param.Expression?.As<IObjectEvaluator>();

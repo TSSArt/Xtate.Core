@@ -172,7 +172,7 @@ namespace Xtate.Core
 				return interpreterModel;
 			}
 
-			Infrastructure.NotNull(stateMachine);
+			Infra.NotNull(stateMachine);
 
 			_dataModelHandler = await CreateDataModelHandler(stateMachine.DataModelType, errorProcessor).ConfigureAwait(false);
 
@@ -640,7 +640,7 @@ namespace Xtate.Core
 					throw new StateMachineUnhandledErrorException(Resources.Exception_UnhandledException, exception, _unhandledErrorBehaviour);
 
 				default:
-					Infrastructure.UnexpectedValue(_unhandledErrorBehaviour);
+					Infra.Unexpected(_unhandledErrorBehaviour);
 					break;
 			}
 		}
@@ -1462,7 +1462,7 @@ namespace Xtate.Core
 								ErrorType.Execution     => EventName.ErrorExecution,
 								ErrorType.Communication => EventName.ErrorCommunication,
 								ErrorType.Platform      => EventName.ErrorPlatform,
-								_                       => throw Infrastructure.UnexpectedValue<Exception>(errorType)
+								_                       => throw Infra.Unexpected<Exception>(errorType)
 							};
 
 			var evt = new EventObject
@@ -1523,7 +1523,7 @@ namespace Xtate.Core
 		{
 			try
 			{
-				Infrastructure.NotNull(invoke.InvokeId);
+				Infra.NotNull(invoke.InvokeId);
 
 				await ForwardEvent(evt, invoke.InvokeId, _stopToken).ConfigureAwait(false);
 			}
@@ -1541,7 +1541,7 @@ namespace Xtate.Core
 			{
 				await invoke.Start(_context.ExecutionContext, _stopToken).ConfigureAwait(false);
 
-				Infrastructure.NotNull(invoke.InvokeId);
+				Infra.NotNull(invoke.InvokeId);
 
 				_context.ActiveInvokes.Add(invoke.InvokeId);
 			}
@@ -1555,7 +1555,7 @@ namespace Xtate.Core
 		{
 			try
 			{
-				Infrastructure.NotNull(invoke.InvokeId);
+				Infra.NotNull(invoke.InvokeId);
 
 				_context.ActiveInvokes.Remove(invoke.InvokeId);
 
@@ -1621,7 +1621,7 @@ namespace Xtate.Core
 
 			if (data.ResourceEvaluator is { } resourceEvaluator)
 			{
-				Infrastructure.NotNull(data.Source);
+				Infra.NotNull(data.Source);
 
 				var resource = await LoadData(data.Source).ConfigureAwait(false);
 

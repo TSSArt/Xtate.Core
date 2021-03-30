@@ -29,7 +29,7 @@ namespace Xtate.Persistence
 
 		public PersistedEventSchedulerFactory(StateMachineHostOptions options)
 		{
-			Infrastructure.NotNull(options.StorageProvider);
+			Infra.NotNull(options.StorageProvider);
 
 			_storageProvider = options.StorageProvider;
 		}

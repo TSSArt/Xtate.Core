@@ -51,7 +51,7 @@ namespace Xtate.Persistence
 
 		public StateMachineHostPersistedContext(IStateMachineHost stateMachineHost, StateMachineHostOptions options) : base(stateMachineHost, options, new PersistedEventSchedulerFactory(options))
 		{
-			Infrastructure.NotNull(options.StorageProvider);
+			Infra.NotNull(options.StorageProvider);
 
 			_stateMachineHost = stateMachineHost;
 			_storageProvider = options.StorageProvider;
@@ -105,7 +105,7 @@ namespace Xtate.Persistence
 												   IService service,
 												   CancellationToken token)
 		{
-			Infrastructure.NotNull(_storage);
+			Infra.NotNull(_storage);
 
 			await _lockInvokedServices.WaitAsync(token).ConfigureAwait(false);
 			try
@@ -133,7 +133,7 @@ namespace Xtate.Persistence
 
 		private async ValueTask RemoveInvokedService(SessionId sessionId, InvokeId invokeId)
 		{
-			Infrastructure.NotNull(_storage);
+			Infra.NotNull(_storage);
 
 			if (!_invokedServices.Remove((sessionId, invokeId)))
 			{
@@ -201,7 +201,7 @@ namespace Xtate.Persistence
 																							 IErrorProcessor errorProcessor,
 																							 CancellationToken token)
 		{
-			Infrastructure.NotNull(_storage);
+			Infra.NotNull(_storage);
 
 			var (stateMachine, location) = await LoadStateMachine(origin, _baseUri, securityContext, errorProcessor, token).ConfigureAwait(false);
 
@@ -239,7 +239,7 @@ namespace Xtate.Persistence
 
 		public override async ValueTask RemoveStateMachineController(StateMachineControllerBase stateMachineController)
 		{
-			Infrastructure.NotNull(_storage);
+			Infra.NotNull(_storage);
 
 			var sessionId = stateMachineController.SessionId;
 
@@ -268,7 +268,7 @@ namespace Xtate.Persistence
 
 		private async ValueTask ShrinkStateMachines()
 		{
-			Infrastructure.NotNull(_storage);
+			Infra.NotNull(_storage);
 
 			if (_stateMachines.Count * 2 > _stateMachineRecordId)
 			{
@@ -296,7 +296,7 @@ namespace Xtate.Persistence
 
 		private async ValueTask LoadStateMachines(CancellationToken token)
 		{
-			Infrastructure.NotNull(_storage);
+			Infra.NotNull(_storage);
 
 			var bucket = new Bucket(_storage).Nested(StateMachinesKey);
 
@@ -340,7 +340,7 @@ namespace Xtate.Persistence
 
 		private async ValueTask ShrinkInvokedServices()
 		{
-			Infrastructure.NotNull(_storage);
+			Infra.NotNull(_storage);
 
 			if (_invokedServices.Count * 2 > _invokedServiceRecordId)
 			{
@@ -368,7 +368,7 @@ namespace Xtate.Persistence
 
 		private async ValueTask LoadInvokedServices(CancellationToken token)
 		{
-			Infrastructure.NotNull(_storage);
+			Infra.NotNull(_storage);
 
 			var bucket = new Bucket(_storage).Nested(InvokedServicesKey);
 
@@ -392,14 +392,14 @@ namespace Xtate.Persistence
 						if (invokedService.SessionId is not null)
 						{
 							var stateMachine = _stateMachines[invokedService.SessionId];
-							Infrastructure.NotNull(stateMachine.Controller);
+							Infra.NotNull(stateMachine.Controller);
 							await base.AddService(invokedService.ParentSessionId, invokedService.InvokeId, stateMachine.Controller, token).ConfigureAwait(false);
 
 							_invokedServices.Add((invokedService.ParentSessionId, invokedService.InvokeId), invokedService);
 						}
 						else if (_stateMachines.TryGetValue(invokedService.ParentSessionId, out var invokingStateMachine))
 						{
-							Infrastructure.NotNull(invokingStateMachine.Controller);
+							Infra.NotNull(invokingStateMachine.Controller);
 							var evt = new EventObject { Type = EventType.External, NameParts = EventName.ErrorExecution, InvokeId = invokedService.InvokeId };
 							await invokingStateMachine.Controller.Send(evt, token).ConfigureAwait(false);
 						}

@@ -26,7 +26,7 @@ namespace Xtate.Core
 	{
 		public CompoundNode(DocumentIdNode documentIdNode, IState state) : base(documentIdNode, state)
 		{
-			Infrastructure.NotNull(base.Initial);
+			Infra.NotNull(base.Initial);
 		}
 
 		public new InitialNode Initial => base.Initial!;

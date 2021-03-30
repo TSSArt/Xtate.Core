@@ -28,7 +28,7 @@ namespace Xtate.Core
 
 		public InitialNode(DocumentIdNode documentIdNode, IInitial initial) : base(documentIdNode, children: null)
 		{
-			Infrastructure.NotNull(initial.Transition);
+			Infra.NotNull(initial.Transition);
 
 			_initial = initial;
 			Transition = initial.Transition.As<TransitionNode>();
@@ -59,7 +59,7 @@ namespace Xtate.Core
 
 	#region Interface IInitial
 
-		ITransition IInitial.Transition => _initial?.Transition ?? Infrastructure.Fail<ITransition>();
+		ITransition IInitial.Transition => _initial?.Transition ?? Infra.Fail<ITransition>();
 
 	#endregion
 

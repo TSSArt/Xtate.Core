@@ -68,7 +68,7 @@ namespace Xtate.DataModel.Runtime
 															  IErrorProcessor errorProcessor,
 															  CancellationToken token)
 			{
-				Infrastructure.Assert(CanHandle(dataModelType));
+				Infra.Assert(CanHandle(dataModelType));
 
 				return new ValueTask<IDataModelHandler>(new RuntimeDataModelHandler(errorProcessor));
 			}

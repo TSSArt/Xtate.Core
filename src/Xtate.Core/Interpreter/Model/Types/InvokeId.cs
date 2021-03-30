@@ -64,7 +64,7 @@ namespace Xtate
 
 		protected override string GenerateId()
 		{
-			Infrastructure.NotNull(_stateId);
+			Infra.NotNull(_stateId);
 
 			return IdGenerator.NewInvokeId(_stateId.Value, GetHashCode());
 		}

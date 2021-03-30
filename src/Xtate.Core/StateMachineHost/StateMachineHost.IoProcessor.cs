@@ -85,7 +85,7 @@ namespace Xtate
 
 		async ValueTask IIoProcessor.Dispatch(IHostEvent hostEvent, CancellationToken token)
 		{
-			Infrastructure.NotNull(hostEvent.TargetServiceId);
+			Infra.NotNull(hostEvent.TargetServiceId);
 
 			var service = await GetService(hostEvent.TargetServiceId, token).ConfigureAwait(false);
 			await service.Send(hostEvent, token).ConfigureAwait(false);

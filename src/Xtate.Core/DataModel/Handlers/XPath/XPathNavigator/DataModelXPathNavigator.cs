@@ -273,7 +273,7 @@ namespace Xtate.DataModel.XPath
 		{
 			if (valueObject is null) throw new ArgumentNullException(nameof(valueObject));
 
-			Infrastructure.Assert(NodeType == XPathNodeType.Element);
+			Infra.Assert(NodeType == XPathNodeType.Element);
 
 			if (_pathLength == 0)
 			{
@@ -303,7 +303,7 @@ namespace Xtate.DataModel.XPath
 		{
 			if (valueObject is null) throw new ArgumentNullException(nameof(valueObject));
 
-			Infrastructure.Assert(NodeType == XPathNodeType.Element);
+			Infra.Assert(NodeType == XPathNodeType.Element);
 
 			if (_pathLength == 0)
 			{
@@ -502,7 +502,7 @@ namespace Xtate.DataModel.XPath
 		{
 			if (string.IsNullOrEmpty(localName)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(localName));
 
-			Infrastructure.Assert(NodeType == XPathNodeType.Element);
+			Infra.Assert(NodeType == XPathNodeType.Element);
 
 			if (_pathLength == 0)
 			{

@@ -108,7 +108,7 @@ namespace Xtate.Service
 
 			foreach (var cookie in responseCookies)
 			{
-				Infrastructure.NotNull(cookie);
+				Infra.NotNull(cookie);
 
 				(list ??= new DataModelList()).Add(new DataModelList
 												   {
@@ -182,7 +182,7 @@ namespace Xtate.Service
 													NameValueCollection? headers,
 													List<Cookie>? cookies)
 		{
-			Infrastructure.NotNull(Source);
+			Infra.NotNull(Source);
 
 			var request = WebRequest.CreateHttp(Source);
 

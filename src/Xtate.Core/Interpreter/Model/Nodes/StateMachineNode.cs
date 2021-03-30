@@ -32,7 +32,7 @@ namespace Xtate.Core
 		{
 			_stateMachine = stateMachine;
 
-			Infrastructure.NotNull(stateMachine.Initial);
+			Infra.NotNull(stateMachine.Initial);
 
 			Initial = stateMachine.Initial.As<InitialNode>();
 			ScriptEvaluator = _stateMachine.Script?.As<ScriptNode>();

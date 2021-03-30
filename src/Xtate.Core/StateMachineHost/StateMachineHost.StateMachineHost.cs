@@ -211,7 +211,7 @@ namespace Xtate
 			{
 				ValidationMode.Default => DefaultErrorProcessor.Instance,
 				ValidationMode.Verbose => new DetailedErrorProcessor(sessionId, origin),
-				_                      => Infrastructure.UnexpectedValue<IErrorProcessor>(_options.ValidationMode)
+				_                      => Infra.Unexpected<IErrorProcessor>(_options.ValidationMode)
 			};
 
 		private StateMachineHostContext GetCurrentContext() => _context ?? throw new InvalidOperationException(Resources.Exception_IOProcessorHasNotBeenStarted);

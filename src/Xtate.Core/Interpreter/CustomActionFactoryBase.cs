@@ -115,7 +115,7 @@ namespace Xtate.CustomAction
 						return creator(factoryContext, context, reader, token);
 
 					default:
-						return Infrastructure.UnexpectedValue<ValueTask<ICustomActionExecutor>>(_creators[(ns, name)]?.GetType());
+						return Infra.Unexpected<ValueTask<ICustomActionExecutor>>(_creators[(ns, name)]?.GetType());
 				}
 			}
 		}
@@ -145,8 +145,8 @@ namespace Xtate.CustomAction
 				var ns = customActionContext.XmlNamespace;
 				var name = customActionContext.XmlName;
 
-				Infrastructure.Assert(xmlReader.NamespaceURI == ns);
-				Infrastructure.Assert(xmlReader.LocalName == name);
+				Infra.Assert(xmlReader.NamespaceURI == ns);
+				Infra.Assert(xmlReader.LocalName == name);
 
 				return _catalog.CreateExecutor(ns, name, factoryContext, customActionContext, xmlReader, token);
 			}

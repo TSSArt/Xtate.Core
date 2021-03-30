@@ -42,7 +42,7 @@ namespace Xtate.Scxml
 
 		protected override void Visit(ref IStateMachine entity)
 		{
-			Infrastructure.NotNull(entity);
+			Infra.NotNull(entity);
 
 			_writer.WriteStartElement(prefix: "", localName: "scxml", ScxmlNs);
 			_writer.WriteAttributeString(localName: "version", value: @"1.0");

@@ -27,7 +27,7 @@ namespace Xtate.Core
 
 		public ScriptExpressionNode(IScriptExpression scriptExpression)
 		{
-			Infrastructure.NotNull(scriptExpression.Expression);
+			Infra.NotNull(scriptExpression.Expression);
 
 			_scriptExpression = scriptExpression;
 		}

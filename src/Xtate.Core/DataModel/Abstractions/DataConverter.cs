@@ -163,7 +163,7 @@ namespace Xtate.DataModel
 						   EventType.Platform => @"platform",
 						   EventType.Internal => @"internal",
 						   EventType.External => @"external",
-						   _                  => Infrastructure.UnexpectedValue<string>(eventType)
+						   _                  => Infra.Unexpected<string>(eventType)
 					   };
 			}
 		}
