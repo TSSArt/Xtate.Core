@@ -29,7 +29,7 @@ namespace Xtate.Core
 
 		public ParamNode(DocumentIdNode documentIdNode, IParam param)
 		{
-			Infrastructure.NotNull(param.Name);
+			Infra.NotNull(param.Name);
 
 			documentIdNode.SaveToSlot(out _documentIdSlot);
 			_param = param;

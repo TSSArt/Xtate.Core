@@ -68,7 +68,7 @@ namespace Xtate
 			{
 				if (uri is null) throw new ArgumentNullException(nameof(uri));
 
-				Infrastructure.Assert(CanHandle(uri));
+				Infra.Assert(CanHandle(uri));
 
 				var path = uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString;
 

@@ -109,7 +109,7 @@ namespace Xtate.Core
 		{
 			if (!IsThreadSafe)
 			{
-				Infrastructure.Assert(_refCount > 0);
+				Infra.Assert(_refCount > 0);
 
 				if (-- _refCount > 0)
 				{
@@ -122,7 +122,7 @@ namespace Xtate.Core
 				{
 					var refCount = _refCount;
 
-					Infrastructure.Assert(refCount > 0);
+					Infra.Assert(refCount > 0);
 
 					if (Interlocked.CompareExchange(ref _refCount, refCount - 1, refCount) == refCount)
 					{

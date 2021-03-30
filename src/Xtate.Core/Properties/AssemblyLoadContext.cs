@@ -32,11 +32,11 @@ namespace System.Runtime.Loader
 
 		public bool IsCollectible { get; }
 
-		public void Unload() => Infrastructure.Assert(IsCollectible);
+		public void Unload() => Infra.Assert(IsCollectible);
 
 		public Assembly LoadFromStream(Stream stream)
 		{
-			Infrastructure.Assert(IsCollectible);
+			Infra.Assert(IsCollectible);
 
 			if (stream is MemoryStream memoryStream && memoryStream.TryGetBuffer(out var segment) && segment.Offset == 0 && segment.Count == memoryStream.Length)
 			{

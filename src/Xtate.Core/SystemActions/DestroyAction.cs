@@ -105,7 +105,7 @@ namespace Xtate.CustomAction
 				return value.AsString();
 			}
 
-			return Infrastructure.Fail<string>();
+			return Infra.Fail<string>();
 		}
 	}
 }

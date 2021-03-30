@@ -96,7 +96,7 @@ namespace Xtate.DataModel.XPath
 					AddErrorMessage(valueExpression, Resources.Exception_ResultOfXPathExpressionCantBeIdentified);
 					break;
 				default:
-					Infrastructure.UnexpectedValue(compiledExpression.ReturnType);
+					Infra.Unexpected(compiledExpression.ReturnType);
 					break;
 			}
 		}
@@ -149,7 +149,7 @@ namespace Xtate.DataModel.XPath
 					AddErrorMessage(conditionExpression, Resources.Exception_ResultOfXPathExpressionCantBeIdentified);
 					break;
 				default:
-					Infrastructure.UnexpectedValue(compiledExpression.ReturnType);
+					Infra.Unexpected(compiledExpression.ReturnType);
 					break;
 			}
 		}
@@ -202,7 +202,7 @@ namespace Xtate.DataModel.XPath
 					AddErrorMessage(locationExpression, Resources.Exception_ResultOfXPathExpressionCantBeIdentified);
 					break;
 				default:
-					Infrastructure.UnexpectedValue(compiledExpression.ReturnType);
+					Infra.Unexpected(compiledExpression.ReturnType);
 					break;
 			}
 		}
@@ -241,7 +241,7 @@ namespace Xtate.DataModel.XPath
 
 			if (parsed)
 			{
-				Infrastructure.NotNull(assignProperties.Location);
+				Infra.NotNull(assignProperties.Location);
 
 				assignProperties.Location = new XPathLocationExpression(assignProperties.Location, assignType, assignProperties.Attribute);
 			}
@@ -288,7 +288,7 @@ namespace Xtate.DataModel.XPath
 															  IErrorProcessor errorProcessor,
 															  CancellationToken token)
 			{
-				Infrastructure.Assert(CanHandle(dataModelType));
+				Infra.Assert(CanHandle(dataModelType));
 
 				return new ValueTask<IDataModelHandler>(new XPathDataModelHandler(errorProcessor));
 			}

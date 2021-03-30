@@ -36,16 +36,18 @@ namespace Xtate.Core
 
 #if NET461 || NETSTANDARD2_0
 		public static string NewInvokeId([Localizable(false)] string id, int hash) =>
-				new StringBuilder(id.Length + 33)
-						.Append(id)
-						.Append('.')
-						.Append(Guid.NewGuid().ToString("N"))
-						.Append(hash.ToString(@"x8")).ToString();
+			new StringBuilder(id.Length + 33)
+				.Append(id)
+				.Append('.')
+				.Append(Guid.NewGuid().ToString("N"))
+				.Append(hash.ToString(@"x8"))
+				.ToString();
 
 		private static string NewGuidWithHash(int hash) =>
-				new StringBuilder(32)
-						.Append(Guid.NewGuid().ToString("N"))
-						.Append(hash.ToString(@"x8")).ToString();
+			new StringBuilder(32)
+				.Append(Guid.NewGuid().ToString("N"))
+				.Append(hash.ToString(@"x8"))
+				.ToString();
 #else
 		[UsedImplicitly]
 		private static void IgnoreIt(StringBuilder _) { }

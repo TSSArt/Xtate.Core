@@ -106,7 +106,7 @@ namespace Xtate.DataModel
 			var content = await DataConverter.GetContent(ContentBodyEvaluator, ContentExpressionEvaluator, executionContext, token).ConfigureAwait(false);
 			var parameters = await DataConverter.GetParameters(NameEvaluatorList, ParameterList, executionContext, token).ConfigureAwait(false);
 
-			Infrastructure.NotNull(type);
+			Infra.NotNull(type);
 
 			var invokeData = new InvokeData(invokeId, type)
 							 {

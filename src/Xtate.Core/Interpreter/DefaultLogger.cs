@@ -52,7 +52,7 @@ namespace Xtate.Core
 					break;
 
 				default:
-					Infrastructure.UnexpectedValue(logLevel);
+					Infra.Unexpected(logLevel);
 					break;
 			}
 

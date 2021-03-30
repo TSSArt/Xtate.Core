@@ -59,7 +59,7 @@ namespace Xtate.XInclude
 			_maxNestingLevel = maxNestingLevel;
 
 			var nameTable = innerReader.NameTable;
-			Infrastructure.NotNull(nameTable);
+			Infra.NotNull(nameTable);
 			_strings = new Strings(nameTable);
 		}
 
@@ -110,7 +110,7 @@ namespace Xtate.XInclude
 					case ProcessNodeResult.Ready:    return true;
 					case ProcessNodeResult.Complete: return false;
 					case ProcessNodeResult.Continue: break;
-					default:                         return Infrastructure.UnexpectedValue<bool>(result);
+					default:                         return Infra.Unexpected<bool>(result);
 				}
 			}
 		}

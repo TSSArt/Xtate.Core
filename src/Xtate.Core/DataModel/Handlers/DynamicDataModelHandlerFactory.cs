@@ -57,7 +57,7 @@ namespace Xtate.DataModel
 
 		protected virtual Uri DataModelTypeToUri(string dataModelType)
 		{
-			Infrastructure.NotNull(_uriFormat);
+			Infra.NotNull(_uriFormat);
 
 			var uriString = string.Format(CultureInfo.InvariantCulture, _uriFormat, dataModelType);
 

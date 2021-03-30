@@ -79,7 +79,7 @@ namespace Xtate.Service
 
 			var stream = webResponse.GetResponseStream();
 
-			Infrastructure.NotNull(stream);
+			Infra.NotNull(stream);
 
 			XtateCore.Use();
 			await using (stream.ConfigureAwait(false))

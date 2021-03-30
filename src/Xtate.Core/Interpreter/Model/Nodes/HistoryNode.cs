@@ -28,7 +28,7 @@ namespace Xtate.Core
 
 		public HistoryNode(DocumentIdNode documentIdNode, IHistory history) : base(documentIdNode, children: null)
 		{
-			Infrastructure.NotNull(history.Transition);
+			Infra.NotNull(history.Transition);
 
 			_history = history;
 

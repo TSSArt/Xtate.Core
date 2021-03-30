@@ -90,7 +90,7 @@ namespace Xtate.Core
 
 		private Assembly LoadAssembly()
 		{
-			Infrastructure.NotNull(_bytes);
+			Infra.NotNull(_bytes);
 
 			_context = new Context();
 

@@ -28,7 +28,7 @@ namespace Xtate.Core
 
 		public CustomActionNode(DocumentIdNode documentIdNode, ICustomAction customAction) : base(documentIdNode, customAction)
 		{
-			Infrastructure.NotNull(customAction.Xml);
+			Infra.NotNull(customAction.Xml);
 
 			_customAction = customAction;
 		}

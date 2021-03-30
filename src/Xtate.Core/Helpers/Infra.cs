@@ -25,7 +25,7 @@ namespace Xtate
 {
 	[PublicAPI]
 	[ExcludeFromCodeCoverage]
-	public static class Infrastructure
+	public static class Infra
 	{
 		/// <summary>
 		///     Checks for a condition; if the condition is <see langword="false" />, throws
@@ -155,33 +155,34 @@ namespace Xtate
 				throw new NotSupportedException();
 			}
 
-			if (value.GetType().IsValueType) //TODO: only basic value types should be allowed (e.g. Int32)
+			var type = value.GetType();
+			if (type.IsPrimitive || type.IsEnum)
 			{
-				Assert(condition: false, @$"{message} ({value.GetType().FullName}:{value})");
+				Assert(condition: false, @$"{message} ({type.FullName}:{value})");
 
 				throw new NotSupportedException();
 			}
 
-			Assert(condition: false, @$"{message} ({value.GetType().FullName})");
+			Assert(condition: false, @$"{message} ({type.FullName})");
 		}
 
 		[AssertionMethod]
 		[DoesNotReturn]
-		public static void UnexpectedValue(object? value)
+		public static void Unexpected(object? value)
 		{
 			AssertUnexpectedValue(value, Resources.Exception_UnexpectedValue);
 		}
 
 		[AssertionMethod]
 		[DoesNotReturn]
-		public static void UnexpectedValue(object? value, string message)
+		public static void Unexpected(object? value, string message)
 		{
 			AssertUnexpectedValue(value, message);
 		}
 
 		[AssertionMethod]
 		[DoesNotReturn]
-		public static T UnexpectedValue<T>(object? value)
+		public static T Unexpected<T>(object? value)
 		{
 			AssertUnexpectedValue(value, Resources.Exception_UnexpectedValue);
 
@@ -190,7 +191,7 @@ namespace Xtate
 
 		[AssertionMethod]
 		[DoesNotReturn]
-		public static T UnexpectedValue<T>(object? value, string message)
+		public static T Unexpected<T>(object? value, string message)
 		{
 			AssertUnexpectedValue(value, message);
 

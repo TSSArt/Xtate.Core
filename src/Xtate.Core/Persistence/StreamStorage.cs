@@ -100,28 +100,28 @@ namespace Xtate.Persistence
 
 		public ReadOnlyMemory<byte> Get(ReadOnlySpan<byte> key)
 		{
-			Infrastructure.NotNull(_inMemoryStorage);
+			Infra.NotNull(_inMemoryStorage);
 
 			return _inMemoryStorage.Get(key);
 		}
 
 		public void Set(ReadOnlySpan<byte> key, ReadOnlySpan<byte> value)
 		{
-			Infrastructure.NotNull(_inMemoryStorage);
+			Infra.NotNull(_inMemoryStorage);
 
 			_inMemoryStorage.Set(key, value);
 		}
 
 		public void Remove(ReadOnlySpan<byte> key)
 		{
-			Infrastructure.NotNull(_inMemoryStorage);
+			Infra.NotNull(_inMemoryStorage);
 
 			_inMemoryStorage.Remove(key);
 		}
 
 		public void RemoveAll(ReadOnlySpan<byte> prefix)
 		{
-			Infrastructure.NotNull(_inMemoryStorage);
+			Infra.NotNull(_inMemoryStorage);
 
 			_inMemoryStorage.RemoveAll(prefix);
 		}
@@ -134,7 +134,7 @@ namespace Xtate.Persistence
 		{
 			if (level < 0) throw new ArgumentOutOfRangeException(nameof(level));
 
-			Infrastructure.NotNull(_inMemoryStorage);
+			Infra.NotNull(_inMemoryStorage);
 
 			var transactionLogSize = _inMemoryStorage.GetTransactionLogSize();
 

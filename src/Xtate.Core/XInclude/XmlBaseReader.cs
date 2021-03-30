@@ -40,7 +40,7 @@ namespace Xtate.XInclude
 
 			var nameTable = xmlReader.NameTable;
 
-			Infrastructure.NotNull(nameTable);
+			Infra.NotNull(nameTable);
 
 			_baseName = nameTable.Add(@"base");
 			_xmlNs = nameTable.Add(@"http://www.w3.org/XML/1998/namespace");
@@ -127,7 +127,7 @@ namespace Xtate.XInclude
 		{
 			if ((NodeType == XmlNodeType.EndElement || NodeType == XmlNodeType.Element && IsEmptyElement) && TryPeek(out var depth, out _) && depth == Depth)
 			{
-				Infrastructure.NotNull(_baseUris);
+				Infra.NotNull(_baseUris);
 
 				_baseUris.Pop();
 			}

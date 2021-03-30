@@ -106,7 +106,7 @@ namespace Xtate.Core
 		{
 			if (hostEvent is null) throw new ArgumentNullException(nameof(hostEvent));
 
-			Infrastructure.NotNull(_eventScheduler);
+			Infra.NotNull(_eventScheduler);
 
 			return _eventScheduler.ScheduleEvent(hostEvent, token);
 		}
@@ -116,7 +116,7 @@ namespace Xtate.Core
 			if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
 			if (sendId is null) throw new ArgumentNullException(nameof(sendId));
 
-			Infrastructure.NotNull(_eventScheduler);
+			Infra.NotNull(_eventScheduler);
 
 			return _eventScheduler.CancelEvent(sessionId, sendId, token);
 		}
@@ -285,15 +285,15 @@ namespace Xtate.Core
 			var sessionId = stateMachineController.SessionId;
 			var result = _stateMachineBySessionId.TryAdd(sessionId, stateMachineController);
 
-			Infrastructure.Assert(result);
+			Infra.Assert(result);
 		}
 
 		public virtual ValueTask RemoveStateMachineController(StateMachineControllerBase stateMachineController)
 		{
 			var result = _stateMachineBySessionId.TryRemove(stateMachineController.SessionId, out var controller);
 
-			Infrastructure.Assert(result);
-			Infrastructure.NotNull(controller);
+			Infra.Assert(result);
+			Infra.NotNull(controller);
 
 			return stateMachineController.DisposeAsync();
 		}
@@ -311,8 +311,8 @@ namespace Xtate.Core
 
 			var result = _stateMachineBySessionId.TryGetValue(sessionId, out var stateMachineController);
 
-			Infrastructure.Assert(result);
-			Infrastructure.NotNull(stateMachineController);
+			Infra.Assert(result);
+			Infra.NotNull(stateMachineController);
 
 			controller = stateMachineController;
 		}
@@ -324,13 +324,13 @@ namespace Xtate.Core
 		{
 			var result = _serviceByInvokeId.TryAdd(invokeId, service);
 
-			Infrastructure.Assert(result);
+			Infra.Assert(result);
 
 			if (service is StateMachineControllerBase stateMachineController)
 			{
 				result = _parentSessionIdBySessionId.TryAdd(stateMachineController.SessionId, sessionId);
 
-				Infrastructure.Assert(result);
+				Infra.Assert(result);
 			}
 
 			return default;

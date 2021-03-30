@@ -97,7 +97,7 @@ namespace Xtate.Core
 				if (localEntry is not null)
 				{
 					var valueTask = localEntry.RemoveReference();
-					Infrastructure.Assert(valueTask.IsCompleted);
+					Infra.Assert(valueTask.IsCompleted);
 					valueTask.GetAwaiter().GetResult();
 				}
 

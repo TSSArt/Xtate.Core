@@ -59,7 +59,7 @@ namespace Xtate.Core
 			}
 			else
 			{
-				Infrastructure.Fail();
+				Infra.Fail();
 			}
 
 			if (bucket.TryGetServiceId(Key.Target, out var targetServiceId))

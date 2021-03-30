@@ -348,10 +348,10 @@ namespace Xtate.Scxml
 					foreach (var pair in dictionary)
 					{
 						var ns = nameTable.Add(pair.Key.Namespace);
-						Infrastructure.Assert(ns == pair.Key.Namespace);
+						Infra.Assert(ns == pair.Key.Namespace);
 
 						var name = nameTable.Add(pair.Key.Name);
-						Infrastructure.Assert(name == pair.Key.Name);
+						Infra.Assert(name == pair.Key.Name);
 					}
 				}
 			}

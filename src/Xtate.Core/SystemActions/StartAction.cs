@@ -168,7 +168,7 @@ namespace Xtate.CustomAction
 				return new Uri(value.AsString(), UriKind.RelativeOrAbsolute);
 			}
 
-			return Infrastructure.Fail<Uri>();
+			return Infra.Fail<Uri>();
 		}
 
 		private async ValueTask<SessionId> GetSessionId(IExecutionContext executionContext, CancellationToken token)

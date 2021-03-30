@@ -149,7 +149,7 @@ namespace Xtate
 					return;
 				}
 
-				Infrastructure.Fail(Resources.Exception_AccessCantBeChanged);
+				Infra.Fail(Resources.Exception_AccessCantBeChanged);
 			}
 		}
 
@@ -827,7 +827,7 @@ namespace Xtate
 							DataModelAccess requestedAccess,
 							bool throwOnDeny)
 		{
-			Infrastructure.NotNull(args.Key);
+			Infra.NotNull(args.Key);
 
 			var findArgs = args;
 			var hash = GetHashCodeForKey(args.Key);
@@ -963,7 +963,7 @@ namespace Xtate
 					break;
 
 				default:
-					Infrastructure.UnexpectedValue(_array);
+					Infra.Unexpected(_array);
 					break;
 			}
 		}

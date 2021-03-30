@@ -44,14 +44,14 @@ namespace Xtate
 																		IServiceCommunication serviceCommunication,
 																		CancellationToken token)
 		{
-			Infrastructure.Assert(CanHandle(invokeData.Type));
+			Infra.Assert(CanHandle(invokeData.Type));
 
 			var sessionId = SessionId.New();
 			var scxml = invokeData.RawContent ?? invokeData.Content.AsStringOrDefault();
 			var parameters = invokeData.Parameters;
 			var source = invokeData.Source;
 
-			Infrastructure.Assert(scxml is not null || source is not null);
+			Infra.Assert(scxml is not null || source is not null);
 
 			var origin = scxml is not null ? new StateMachineOrigin(scxml, baseUri) : new StateMachineOrigin(source!, baseUri);
 

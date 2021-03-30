@@ -86,7 +86,7 @@ namespace Xtate
 							  HostMode.Standalone => _options.StorageProvider is not null
 								  ? new StateMachineHostPersistedContext(this, _options)
 								  : new StateMachineHostContext(this, _options, InProcEventSchedulerFactory.Instance),
-							  _ => Infrastructure.UnexpectedValue<StateMachineHostContext>(_options.HostMode)
+							  _ => Infra.Unexpected<StateMachineHostContext>(_options.HostMode)
 						  };
 
 			try

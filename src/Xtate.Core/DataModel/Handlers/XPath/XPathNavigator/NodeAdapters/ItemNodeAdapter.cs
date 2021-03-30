@@ -112,7 +112,7 @@ namespace Xtate.DataModel.XPath
 				DataModelValueType.Null      => true,
 				DataModelValueType.Undefined => true,
 				DataModelValueType.List      => false,
-				_                            => Infrastructure.UnexpectedValue<bool>(node.DataModelValue.Type)
+				_                            => Infra.Unexpected<bool>(node.DataModelValue.Type)
 			};
 	}
 }

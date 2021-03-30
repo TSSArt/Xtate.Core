@@ -30,7 +30,7 @@ namespace Xtate.Core
 
 		public DataNode(DocumentIdNode documentIdNode, IData data)
 		{
-			Infrastructure.NotNull(data.Id);
+			Infra.NotNull(data.Id);
 
 			documentIdNode.SaveToSlot(out _documentIdSlot);
 			_data = data;

@@ -96,7 +96,7 @@ namespace Xtate.Core
 					break;
 
 				default:
-					throw Infrastructure.UnexpectedValue<Exception>(type);
+					throw Infra.Unexpected<Exception>(type);
 			}
 
 			finalizer.Add(new Disposer(securityContext));
@@ -187,7 +187,7 @@ namespace Xtate.Core
 							  {
 								  SecurityContextType.NewTrustedStateMachine => SecurityContextPermissions.Full,
 								  SecurityContextType.NewStateMachine        => SecurityContextPermissions.RunIoBoundTask,
-								  _                                          => Infrastructure.UnexpectedValue<SecurityContextPermissions>(type)
+								  _                                          => Infra.Unexpected<SecurityContextPermissions>(type)
 							  };
 
 			return Create(type, permissions, finalizer);

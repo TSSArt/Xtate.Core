@@ -186,7 +186,7 @@ namespace Xtate.Core
 				case 3: return ref _f3;
 				default:
 #if DEBUG
-					Infrastructure.Fail(@"Read DeferredFinalizer.ElementAt() source code.");
+					Infra.Fail(@"Read DeferredFinalizer.ElementAt() source code.");
 #endif
 
 					// Code below used in Release mode to not allow DeferredFinalizer to fail if not enough space fields [_f#] is allocated.

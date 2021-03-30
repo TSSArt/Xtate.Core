@@ -200,7 +200,7 @@ namespace Xtate.Persistence
 					var list = baseValue.Type == DataModelValueType.List ? baseValue.AsList() : null;
 					return DataModelValue.FromObject(tracker.GetValue(refId, type, list));
 
-				default: return Infrastructure.UnexpectedValue<DataModelValue>(type);
+				default: return Infra.Unexpected<DataModelValue>(type);
 			}
 		}
 
@@ -250,7 +250,7 @@ namespace Xtate.Persistence
 					break;
 
 				default:
-					Infrastructure.UnexpectedValue(type);
+					Infra.Unexpected(type);
 					break;
 			}
 		}

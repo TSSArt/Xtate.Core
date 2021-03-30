@@ -44,9 +44,9 @@ namespace Xtate.Core
 			_customAction = customAction;
 			_factoryContext = factoryContext;
 
-			Infrastructure.NotNull(customAction.XmlNamespace);
-			Infrastructure.NotNull(customAction.XmlName);
-			Infrastructure.NotNull(customAction.Xml);
+			Infra.NotNull(customAction.XmlNamespace);
+			Infra.NotNull(customAction.XmlName);
+			Infra.NotNull(customAction.Xml);
 		}
 
 	#region Interface ICustomAction
@@ -71,7 +71,7 @@ namespace Xtate.Core
 
 			if (_executor is not null)
 			{
-				throw Infrastructure.Fail<Exception>(Resources.Exception_RegistrationShouldNoOccurAfterInitialization);
+				throw Infra.Fail<Exception>(Resources.Exception_RegistrationShouldNoOccurAfterInitialization);
 			}
 
 			_locations ??= ImmutableArray.CreateBuilder<ILocationExpression>();
@@ -88,7 +88,7 @@ namespace Xtate.Core
 
 			if (_executor is not null)
 			{
-				throw Infrastructure.Fail<Exception>(Resources.Exception_RegistrationShouldNoOccurAfterInitialization);
+				throw Infra.Fail<Exception>(Resources.Exception_RegistrationShouldNoOccurAfterInitialization);
 			}
 
 			_values ??= ImmutableArray.CreateBuilder<IValueExpression>();
@@ -120,7 +120,7 @@ namespace Xtate.Core
 		{
 			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
-			Infrastructure.NotNull(_executor);
+			Infra.NotNull(_executor);
 
 			return _executor.Execute(executionContext, token);
 		}
@@ -189,7 +189,7 @@ namespace Xtate.Core
 			{
 				if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
-				Infrastructure.Assert(!_dispatcher._locationEvaluators.IsDefault);
+				Infra.Assert(!_dispatcher._locationEvaluators.IsDefault);
 
 				var locationEvaluator = _dispatcher._locationEvaluators[_index];
 
@@ -228,7 +228,7 @@ namespace Xtate.Core
 			{
 				if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
-				Infrastructure.Assert(!_dispatcher._valueEvaluators.IsDefault);
+				Infra.Assert(!_dispatcher._valueEvaluators.IsDefault);
 
 				var valueEvaluator = _dispatcher._valueEvaluators[_index];
 
@@ -269,7 +269,7 @@ namespace Xtate.Core
 
 		#region Interface ICustomActionExecutor
 
-			public ValueTask Execute(IExecutionContext executionContext, CancellationToken token) => Infrastructure.Fail<ValueTask>();
+			public ValueTask Execute(IExecutionContext executionContext, CancellationToken token) => Infra.Fail<ValueTask>();
 
 		#endregion
 		}

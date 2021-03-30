@@ -84,7 +84,7 @@ namespace Xtate
 			{
 				DataModelDateTimeType.DateTime       => TypeCode.DateTime,
 				DataModelDateTimeType.DateTimeOffset => TypeCode.Object,
-				_                                    => Infrastructure.UnexpectedValue<TypeCode>(Type)
+				_                                    => Infra.Unexpected<TypeCode>(Type)
 			};
 
 		bool IConvertible.ToBoolean(IFormatProvider? provider) => ToDateTime().ToBoolean(provider);
@@ -134,7 +134,7 @@ namespace Xtate
 			{
 				DataModelDateTimeType.DateTime       => ToDateTime().ToString(format, formatProvider),
 				DataModelDateTimeType.DateTimeOffset => ToDateTimeOffset().ToString(format, formatProvider),
-				_                                    => Infrastructure.UnexpectedValue<string>(Type)
+				_                                    => Infra.Unexpected<string>(Type)
 			};
 
 	#endregion
@@ -226,7 +226,7 @@ namespace Xtate
 			{
 				DataModelDateTimeType.DateTime       => ToDateTime(),
 				DataModelDateTimeType.DateTimeOffset => ToDateTimeOffset(),
-				_                                    => Infrastructure.UnexpectedValue<object>(Type)
+				_                                    => Infra.Unexpected<object>(Type)
 			};
 
 		public static bool TryParse(string value, out DataModelDateTime dataModelDateTime) => TryParse(value, provider: null, DateTimeStyles.None, out dataModelDateTime);

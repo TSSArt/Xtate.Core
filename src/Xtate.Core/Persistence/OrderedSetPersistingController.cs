@@ -120,7 +120,7 @@ namespace Xtate.Persistence
 					break;
 
 				default:
-					throw Infrastructure.UnexpectedValue<Exception>(action);
+					throw Infra.Unexpected<Exception>(action);
 			}
 		}
 

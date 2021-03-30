@@ -25,7 +25,7 @@ namespace Xtate.DataModel.XPath
 	{
 		public override XPathNodeType GetNodeType() => XPathNodeType.Attribute;
 
-		public override string GetLocalName(in DataModelXPathNavigator.Node node) => node.ParentProperty ?? Infrastructure.Fail<string>();
+		public override string GetLocalName(in DataModelXPathNavigator.Node node) => node.ParentProperty ?? Infra.Fail<string>();
 
 		public override string GetNamespaceUri(in DataModelXPathNavigator.Node node) => XPathMetadata.GetValue(node.Metadata, node.ParentIndex, XPathMetadata.AttributeNamespaceOffset);
 

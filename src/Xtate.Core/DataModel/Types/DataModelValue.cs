@@ -104,7 +104,7 @@ namespace Xtate
 				DateTimeValue                        => DataModelValueType.DateTime,
 				DataModelList                        => DataModelValueType.List,
 				ILazyValue lazyValue                 => lazyValue.Value.Type,
-				_                                    => Infrastructure.UnexpectedValue<DataModelValueType>(_value)
+				_                                    => Infra.Unexpected<DataModelValueType>(_value)
 			};
 
 	#region Interface IConvertible
@@ -121,7 +121,7 @@ namespace Xtate
 				DataModelValueType.Number    => TypeCode.Double,
 				DataModelValueType.DateTime  => AsDateTime().GetTypeCode(),
 				DataModelValueType.Boolean   => TypeCode.Boolean,
-				_                            => Infrastructure.UnexpectedValue<TypeCode>(Type)
+				_                            => Infra.Unexpected<TypeCode>(Type)
 			};
 
 		bool IConvertible.ToBoolean(IFormatProvider? provider) =>
@@ -342,7 +342,7 @@ namespace Xtate
 				DateTimeValue value                  => value.GetDataModelDateTime(_int64).ToObject(),
 				DataModelList list                   => list,
 				ILazyValue lazyValue                 => lazyValue.Value.ToObject(),
-				_                                    => Infrastructure.UnexpectedValue<object>(_value)
+				_                                    => Infra.Unexpected<object>(_value)
 			};
 
 	#endregion
@@ -756,7 +756,7 @@ namespace Xtate
 
 					default:
 						utcTicks = 0;
-						return Infrastructure.UnexpectedValue<DateTimeValue>(dataModelDateTime.Type);
+						return Infra.Unexpected<DateTimeValue>(dataModelDateTime.Type);
 				}
 
 				if (data % CacheGranularity != 0)

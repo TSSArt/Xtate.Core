@@ -104,7 +104,7 @@ namespace Xtate.IoProcessor
 		{
 			var target = ((UriId?) hostEvent.TargetServiceId)?.Uri;
 
-			Infrastructure.NotNull(target);
+			Infra.NotNull(target);
 
 			var host = target.Host;
 			var isLoopback = target.IsLoopback || host == _baseUri.Host;
@@ -179,7 +179,7 @@ namespace Xtate.IoProcessor
 						throw new ProcessorException(Resources.Exception_EventDispatcherNotFound);
 
 					default:
-						Infrastructure.UnexpectedValue(responseMessage.ErrorType);
+						Infra.Unexpected(responseMessage.ErrorType);
 
 						break;
 				}
@@ -284,7 +284,7 @@ namespace Xtate.IoProcessor
 #endif
 		private static async ValueTask SendMessage(MemoryStream memoryStream, PipeStream pipeStream, CancellationToken token)
 		{
-			Infrastructure.Assert(pipeStream.IsConnected);
+			Infra.Assert(pipeStream.IsConnected);
 
 			var sizeBuf = BitConverter.GetBytes((int) memoryStream.Length);
 			Debug.Assert(sizeBuf.Length == sizeof(int));
@@ -302,7 +302,7 @@ namespace Xtate.IoProcessor
 		[SuppressMessage(category: "ReSharper", checkId: "MethodHasAsyncOverloadWithCancellation")]
 		private async ValueTask ReceiveMessage(PipeStream pipeStream, MemoryStream memoryStream, CancellationToken token)
 		{
-			Infrastructure.Assert(pipeStream.IsConnected);
+			Infra.Assert(pipeStream.IsConnected);
 
 			var sizeBuf = new byte[sizeof(int)];
 			var sizeBufReadCount = await pipeStream.ReadAsync(sizeBuf, offset: 0, sizeBuf.Length, token).ConfigureAwait(false);

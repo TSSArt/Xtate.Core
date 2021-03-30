@@ -33,7 +33,7 @@ namespace Xtate.DataModel
 		{
 			if (raise is null) throw new ArgumentNullException(nameof(raise));
 
-			Infrastructure.NotNull(raise.OutgoingEvent);
+			Infra.NotNull(raise.OutgoingEvent);
 
 			_raise = raise;
 		}

@@ -54,7 +54,7 @@ namespace Xtate.CustomAction
 										string? expression,
 										object? defaultValue = default)
 		{
-			Infrastructure.NotNull(_customActionContext);
+			Infra.NotNull(_customActionContext);
 
 			_arguments ??= new Dictionary<string, object?>();
 			_arguments.Add(key, expression is not null ? _customActionContext.RegisterValueExpression(expression, expectedValueType) : defaultValue);
@@ -62,7 +62,7 @@ namespace Xtate.CustomAction
 
 		protected void RegisterResultLocation(string? expression)
 		{
-			Infrastructure.NotNull(_customActionContext);
+			Infra.NotNull(_customActionContext);
 
 			if (expression is not null)
 			{
