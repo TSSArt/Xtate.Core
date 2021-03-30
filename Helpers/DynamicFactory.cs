@@ -103,7 +103,7 @@ namespace Xtate.Core
 				if (type is not null && typeof(TFactory).IsAssignableFrom(type))
 				{
 					var instance = Activator.CreateInstance(type);
-					Infrastructure.NotNull(instance);
+					Infra.NotNull(instance);
 					builder.Add((TFactory) instance);
 				}
 			}

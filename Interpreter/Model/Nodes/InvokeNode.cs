@@ -42,11 +42,11 @@ namespace Xtate.Core
 			Finalize = invoke.Finalize?.As<FinalizeNode>();
 
 			var startInvokeEvaluator = invoke.As<IStartInvokeEvaluator>();
-			Infrastructure.NotNull(startInvokeEvaluator);
+			Infra.NotNull(startInvokeEvaluator);
 			_startInvokeEvaluator = startInvokeEvaluator;
 
 			var cancelInvokeEvaluator = invoke.As<ICancelInvokeEvaluator>();
-			Infrastructure.NotNull(cancelInvokeEvaluator);
+			Infra.NotNull(cancelInvokeEvaluator);
 			_cancelInvokeEvaluator = cancelInvokeEvaluator;
 		}
 
@@ -113,7 +113,7 @@ namespace Xtate.Core
 
 		public async ValueTask Start(IExecutionContext executionContext, CancellationToken token)
 		{
-			Infrastructure.NotNull(_stateId, Resources.Exception_StateIdNotInitialized);
+			Infra.NotNull(_stateId, Resources.Exception_StateIdNotInitialized);
 
 			InvokeId = await _startInvokeEvaluator.Start(_stateId, executionContext, token).ConfigureAwait(false);
 		}

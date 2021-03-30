@@ -136,11 +136,11 @@ namespace Xtate.Core
 			{
 				ProcessTaskQueue();
 
-				Infrastructure.NotNull(_taskQueue);
+				Infra.NotNull(_taskQueue);
 
 				while (!_taskQueue.IsEmpty)
 				{
-					Infrastructure.NotNull(_taskSemaphore);
+					Infra.NotNull(_taskSemaphore);
 
 					if (_taskSemaphore.WaitOne(NoWaitTimeout))
 					{
@@ -162,11 +162,11 @@ namespace Xtate.Core
 
 		private void ProcessTaskQueue()
 		{
-			Infrastructure.NotNull(_taskSemaphore);
+			Infra.NotNull(_taskSemaphore);
 
 			try
 			{
-				Infrastructure.NotNull(_taskQueue);
+				Infra.NotNull(_taskQueue);
 
 				while (_taskQueue.TryDequeue(out var task))
 				{

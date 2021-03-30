@@ -36,7 +36,7 @@ namespace Xtate.DataModel.XPath
 						 string            => value,
 						 double            => value,
 						 bool              => value,
-						 _                 => Infrastructure.UnexpectedValue<object>(value)
+						 _                 => Infra.Unexpected<object>(value)
 					 };
 		}
 
@@ -47,7 +47,7 @@ namespace Xtate.DataModel.XPath
 				double            => XPathObjectType.Number,
 				string            => XPathObjectType.String,
 				bool              => XPathObjectType.Boolean,
-				_                 => Infrastructure.UnexpectedValue<XPathObjectType>(_value)
+				_                 => Infra.Unexpected<XPathObjectType>(_value)
 			};
 
 	#region Interface IObject
@@ -80,7 +80,7 @@ namespace Xtate.DataModel.XPath
 				string value               => XmlConvert.ToInt32(value),
 				double value               => (int) value,
 				bool value                 => value ? 1 : 0,
-				_                          => Infrastructure.UnexpectedValue<int>(_value)
+				_                          => Infra.Unexpected<int>(_value)
 			};
 
 		public string AsString() =>
@@ -90,7 +90,7 @@ namespace Xtate.DataModel.XPath
 				string value               => value,
 				double value               => XmlConvert.ToString(value),
 				bool value                 => XmlConvert.ToString(value),
-				_                          => Infrastructure.UnexpectedValue<string>(_value)
+				_                          => Infra.Unexpected<string>(_value)
 			};
 
 		public bool AsBoolean() =>
@@ -100,7 +100,7 @@ namespace Xtate.DataModel.XPath
 				string value               => XmlConvert.ToBoolean(value),
 				double value               => value != 0,
 				bool value                 => value,
-				_                          => Infrastructure.UnexpectedValue<bool>(_value)
+				_                          => Infra.Unexpected<bool>(_value)
 			};
 
 		public XPathNodeIterator AsIterator() => ((XPathNodeIterator) _value).Clone();
@@ -129,7 +129,7 @@ namespace Xtate.DataModel.XPath
 						break;
 
 					default:
-						return Infrastructure.UnexpectedValue<DataModelList>(navigator.NodeType);
+						return Infra.Unexpected<DataModelList>(navigator.NodeType);
 				}
 			}
 
@@ -143,7 +143,7 @@ namespace Xtate.DataModel.XPath
 				return string.Empty;
 			}
 
-			Infrastructure.NotNull(result);
+			Infra.NotNull(result);
 
 			if (result.Length == length)
 			{
@@ -181,7 +181,7 @@ namespace Xtate.DataModel.XPath
 						break;
 
 					default:
-						return Infrastructure.UnexpectedValue<DataModelList>(navigator.NodeType);
+						return Infra.Unexpected<DataModelList>(navigator.NodeType);
 				}
 			}
 
@@ -195,7 +195,7 @@ namespace Xtate.DataModel.XPath
 				double value               => XmlConvert.ToString(value),
 				string value               => value,
 				bool value                 => XmlConvert.ToString(value),
-				_                          => Infrastructure.UnexpectedValue<string>(obj)
+				_                          => Infra.Unexpected<string>(obj)
 			};
 
 		private static string ToString(XPathNodeIterator iterator)

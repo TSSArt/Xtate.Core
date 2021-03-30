@@ -35,7 +35,7 @@ namespace Xtate.DataModel
 		{
 			if (inlineContent is null) throw new ArgumentNullException(nameof(inlineContent));
 
-			Infrastructure.NotNull(inlineContent.Value);
+			Infra.NotNull(inlineContent.Value);
 
 			_inlineContent = inlineContent;
 		}

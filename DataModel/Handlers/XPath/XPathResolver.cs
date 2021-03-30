@@ -68,14 +68,14 @@ namespace Xtate.DataModel.XPath
 
 		public void LeaveScope()
 		{
-			Infrastructure.NotNull(_scopeStack);
+			Infra.NotNull(_scopeStack);
 
 			_scopeStack.Pop();
 		}
 
 		public object Evaluate(XPathCompiledExpression compiledExpression)
 		{
-			Infrastructure.NotNull(ExecutionContext);
+			Infra.NotNull(ExecutionContext);
 
 			compiledExpression.SetResolver(this);
 
@@ -132,7 +132,7 @@ namespace Xtate.DataModel.XPath
 			{
 				var moved = navigator.MoveToNext();
 
-				Infrastructure.Assert(moved);
+				Infra.Assert(moved);
 			}
 
 			return new XPathSingleElementIterator(navigator);

@@ -67,7 +67,7 @@ namespace Xtate
 			{
 				if (uri is null) throw new ArgumentNullException(nameof(uri));
 
-				Infrastructure.Assert(CanHandle(uri));
+				Infra.Assert(CanHandle(uri));
 
 				return new Resource(await GetResourceStreamAsync(uri, token).ConfigureAwait(false));
 			}

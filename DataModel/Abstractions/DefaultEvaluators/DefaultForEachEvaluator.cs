@@ -34,8 +34,8 @@ namespace Xtate.DataModel
 		{
 			_forEach = forEach ?? throw new ArgumentNullException(nameof(forEach));
 
-			Infrastructure.NotNull(forEach.Array);
-			Infrastructure.NotNull(forEach.Item);
+			Infra.NotNull(forEach.Array);
+			Infra.NotNull(forEach.Item);
 
 			ArrayEvaluator = forEach.Array.As<IArrayEvaluator>();
 			ItemEvaluator = forEach.Item.As<ILocationEvaluator>();

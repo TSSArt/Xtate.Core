@@ -53,7 +53,7 @@ namespace Xtate.DataModel.XPath
 					_current = navigator.Clone();
 					var moveToFirstChild = _current.MoveToFirstChild();
 
-					Infrastructure.Assert(moveToFirstChild);
+					Infra.Assert(moveToFirstChild);
 
 					_position ++;
 

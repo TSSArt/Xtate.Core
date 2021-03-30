@@ -211,7 +211,7 @@ namespace Xtate
 					JsonTokenType.Number => reader.GetDouble(),
 					JsonTokenType.StartObject => JsonSerializer.Deserialize<DataModelList>(ref reader, options),
 					JsonTokenType.StartArray => JsonSerializer.Deserialize<DataModelList>(ref reader, options),
-					_ => Infrastructure.UnexpectedValue<DataModelValue>(reader.TokenType, Resources.Exception_NotExpectedTokenType)
+					_ => Infra.Unexpected<DataModelValue>(reader.TokenType, Resources.Exception_NotExpectedTokenType)
 				};
 
 			public override void Write(Utf8JsonWriter writer, DataModelValue value, JsonSerializerOptions options)
@@ -253,7 +253,7 @@ namespace Xtate
 								break;
 
 							default:
-								Infrastructure.UnexpectedValue(dataModelDateTime.Type);
+								Infra.Unexpected(dataModelDateTime.Type);
 								break;
 						}
 
@@ -268,7 +268,7 @@ namespace Xtate
 						break;
 
 					default:
-						Infrastructure.UnexpectedValue(value.Type, Resources.Exception_UnknownTypeForSerialization);
+						Infra.Unexpected(value.Type, Resources.Exception_UnknownTypeForSerialization);
 						break;
 				}
 			}
@@ -285,7 +285,7 @@ namespace Xtate
 				{
 					JsonTokenType.StartObject => ReadObject(ref reader, options),
 					JsonTokenType.StartArray  => ReadArray(ref reader, options),
-					_                         => Infrastructure.UnexpectedValue<DataModelList>(reader.TokenType)
+					_                         => Infra.Unexpected<DataModelList>(reader.TokenType)
 				};
 
 			public override void Write(Utf8JsonWriter writer, DataModelList list, JsonSerializerOptions options)
@@ -304,14 +304,14 @@ namespace Xtate
 			{
 				var list = new DataModelList();
 
-				Infrastructure.Assert(reader.TokenType == JsonTokenType.StartObject);
+				Infra.Assert(reader.TokenType == JsonTokenType.StartObject);
 
 				reader.Read();
 
 				while (reader.TokenType != JsonTokenType.EndObject)
 				{
 					var name = reader.GetString();
-					Infrastructure.NotNull(name);
+					Infra.NotNull(name);
 
 					var value = JsonSerializer.Deserialize<DataModelValue>(ref reader, options);
 
@@ -358,7 +358,7 @@ namespace Xtate
 			{
 				var list = new DataModelList();
 
-				Infrastructure.Assert(reader.TokenType == JsonTokenType.StartArray);
+				Infra.Assert(reader.TokenType == JsonTokenType.StartArray);
 
 				reader.Read();
 

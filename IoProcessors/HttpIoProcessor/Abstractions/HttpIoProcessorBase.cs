@@ -218,7 +218,7 @@ namespace Xtate.IoProcessor
 			if (hostEvent is null) throw new ArgumentNullException(nameof(hostEvent));
 
 			var targetUri = hostEvent.TargetServiceId?.Value;
-			Infrastructure.NotNull(targetUri);
+			Infra.NotNull(targetUri);
 
 			var content = GetContent(hostEvent, out var eventNameInContent);
 			if (!hostEvent.NameParts.IsDefaultOrEmpty && !eventNameInContent)
@@ -302,7 +302,7 @@ namespace Xtate.IoProcessor
 						break;
 
 					default:
-						Infrastructure.UnexpectedValue(pair.Value.Type);
+						Infra.Unexpected(pair.Value.Type);
 						break;
 				}
 			}

@@ -79,7 +79,7 @@ namespace Xtate.Core
 			}
 			else
 			{
-				Infrastructure.NotNull(_customActionDispatchers);
+				Infra.NotNull(_customActionDispatchers);
 
 				entity = _customActionDispatchers[entity];
 			}

@@ -33,7 +33,7 @@ namespace Xtate.DataModel
 		{
 			_assign = assign ?? throw new ArgumentNullException(nameof(assign));
 
-			Infrastructure.NotNull(assign.Location);
+			Infra.NotNull(assign.Location);
 
 			LocationEvaluator = assign.Location.As<ILocationEvaluator>();
 			ExpressionEvaluator = assign.Expression?.As<IObjectEvaluator>();

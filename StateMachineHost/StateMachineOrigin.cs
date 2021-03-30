@@ -59,7 +59,7 @@ namespace Xtate.Core
 				Uri           => StateMachineOriginType.Source,
 				IStateMachine => StateMachineOriginType.StateMachine,
 				null          => StateMachineOriginType.None,
-				_             => Infrastructure.UnexpectedValue<StateMachineOriginType>(_value)
+				_             => Infra.Unexpected<StateMachineOriginType>(_value)
 			};
 
 		public Uri? BaseUri { get; }

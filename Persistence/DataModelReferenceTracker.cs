@@ -61,7 +61,7 @@ namespace Xtate.Persistence
 		{
 			if (_refIds.TryGetValue(refId, out var list))
 			{
-				Infrastructure.Assert(baseList is null || baseList == list, Resources.Assertion_ObjectsStructureMismatch);
+				Infra.Assert(baseList is null || baseList == list, Resources.Assertion_ObjectsStructureMismatch);
 
 				return list;
 			}
@@ -81,7 +81,7 @@ namespace Xtate.Persistence
 			var controller = type switch
 							 {
 								 DataModelValueType.List => ListControllerCreator(_bucket.Nested(refId), list),
-								 _                       => Infrastructure.UnexpectedValue<DataModelPersistingController>(type)
+								 _                       => Infra.Unexpected<DataModelPersistingController>(type)
 							 };
 
 			_lists[list] = new Entry { RefCount = default, RefId = refId, Controller = controller };
@@ -105,7 +105,7 @@ namespace Xtate.Persistence
 
 					return list;
 
-				default: return Infrastructure.UnexpectedValue<DataModelList>(type);
+				default: return Infra.Unexpected<DataModelList>(type);
 			}
 		}
 
@@ -134,7 +134,7 @@ namespace Xtate.Persistence
 			value.Type switch
 			{
 				DataModelValueType.List => GetRefId(value.AsList(), ListControllerCreator, incrementReference: false),
-				_                       => Infrastructure.UnexpectedValue<int>(value.Type)
+				_                       => Infra.Unexpected<int>(value.Type)
 			};
 
 		public void AddReference(in DataModelValue value)

@@ -124,7 +124,7 @@ namespace Xtate
 
 			public override void ReadToArgsByIndex(ref Args args) => args.Value = args.Values[args.Index];
 
-			public override DataModelAccess GetAccessByIndex(ref Args args) => Infrastructure.Fail<DataModelAccess>();
+			public override DataModelAccess GetAccessByIndex(ref Args args) => Infra.Fail<DataModelAccess>();
 
 			public override bool IsAccessAvailable() => false;
 
@@ -169,7 +169,7 @@ namespace Xtate
 				args.HashKey = args.KeyValues[args.Index].HashKey;
 			}
 
-			public override DataModelAccess GetAccessByIndex(ref Args args) => Infrastructure.Fail<DataModelAccess>();
+			public override DataModelAccess GetAccessByIndex(ref Args args) => Infra.Fail<DataModelAccess>();
 
 			public override bool IsAccessAvailable() => false;
 

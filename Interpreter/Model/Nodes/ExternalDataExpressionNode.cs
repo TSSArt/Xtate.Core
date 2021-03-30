@@ -28,7 +28,7 @@ namespace Xtate.Core
 
 		public ExternalDataExpressionNode(IExternalDataExpression externalDataExpression)
 		{
-			Infrastructure.NotNull(externalDataExpression.Uri);
+			Infra.NotNull(externalDataExpression.Uri);
 
 			_externalDataExpression = externalDataExpression;
 		}

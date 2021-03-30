@@ -29,7 +29,7 @@ namespace Xtate.Core
 
 		public ElseIfNode(DocumentIdNode documentIdNode, IElseIf elseIf)
 		{
-			Infrastructure.NotNull(elseIf.Condition);
+			Infra.NotNull(elseIf.Condition);
 
 			documentIdNode.SaveToSlot(out _documentIdSlot);
 			_elseIf = elseIf;

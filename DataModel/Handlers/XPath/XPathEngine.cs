@@ -36,7 +36,7 @@ namespace Xtate.DataModel.XPath
 		{
 			var engine = (XPathEngine?) executionContext.RuntimeItems[Key];
 
-			Infrastructure.NotNull(engine);
+			Infra.NotNull(engine);
 
 			return engine;
 		}
@@ -100,12 +100,12 @@ namespace Xtate.DataModel.XPath
 					navigator.DeleteSelf();
 					break;
 				case XPathAssignType.AddAttribute:
-					Infrastructure.NotNull(attributeName);
+					Infra.NotNull(attributeName);
 					var value = Convert.ToString(valueObject.ToObject(), CultureInfo.InvariantCulture);
 					navigator.CreateAttribute(string.Empty, attributeName, string.Empty, value ?? string.Empty);
 					break;
 				default:
-					Infrastructure.UnexpectedValue(assignType);
+					Infra.Unexpected(assignType);
 					break;
 			}
 		}
