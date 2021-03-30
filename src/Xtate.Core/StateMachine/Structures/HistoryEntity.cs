@@ -56,9 +56,9 @@ namespace Xtate.Core
 		}
 
 		bool IVisitorEntity<HistoryEntity, IHistory>.RefEquals(ref HistoryEntity other) =>
-				Type == other.Type &&
-				ReferenceEquals(Id, other.Id) &&
-				ReferenceEquals(Transition, other.Transition);
+			Type == other.Type &&
+			ReferenceEquals(Id, other.Id) &&
+			ReferenceEquals(Transition, other.Transition);
 
 	#endregion
 	}

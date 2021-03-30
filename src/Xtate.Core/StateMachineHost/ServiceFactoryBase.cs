@@ -85,7 +85,11 @@ namespace Xtate.Service
 
 			public bool CanHandle(Uri type) => _creators.ContainsKey(type);
 
-			public ValueTask<IService> CreateService(IFactoryContext factoryContext, Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication, CancellationToken token)
+			public ValueTask<IService> CreateService(IFactoryContext factoryContext,
+													 Uri? baseUri,
+													 InvokeData invokeData,
+													 IServiceCommunication serviceCommunication,
+													 CancellationToken token)
 			{
 				switch (_creators[invokeData.Type])
 				{
@@ -116,7 +120,11 @@ namespace Xtate.Service
 
 		#region Interface IServiceFactoryActivator
 
-			public ValueTask<IService> StartService(IFactoryContext factoryContext, Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication, CancellationToken token)
+			public ValueTask<IService> StartService(IFactoryContext factoryContext,
+													Uri? baseUri,
+													InvokeData invokeData,
+													IServiceCommunication serviceCommunication,
+													CancellationToken token)
 			{
 				if (invokeData is null) throw new ArgumentNullException(nameof(invokeData));
 

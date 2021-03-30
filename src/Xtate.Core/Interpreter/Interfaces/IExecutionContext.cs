@@ -67,7 +67,11 @@ namespace Xtate
 
 		ValueTask CancelInvoke(InvokeId invokeId, CancellationToken token = default);
 
-		ValueTask Log(LogLevel logLevel, string? message = default, DataModelValue arguments = default, Exception? exception = default, CancellationToken token = default);
+		ValueTask Log(LogLevel logLevel,
+					  string? message = default,
+					  DataModelValue arguments = default,
+					  Exception? exception = default,
+					  CancellationToken token = default);
 	}
 
 	public interface IContextItems

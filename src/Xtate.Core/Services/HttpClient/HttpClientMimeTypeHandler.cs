@@ -127,9 +127,16 @@ namespace Xtate.Service
 			acceptHeaderValue = acceptHeaderValue + @", " + contentType;
 		}
 
-		public virtual void PrepareRequest(WebRequest webRequest, string? contentType, DataModelList parameters, DataModelValue value) { }
+		public virtual void PrepareRequest(WebRequest webRequest,
+										   string? contentType,
+										   DataModelList parameters,
+										   DataModelValue value) { }
 
-		public virtual HttpContent? TryCreateHttpContent(WebRequest webRequest, string? contentType, DataModelList parameters, DataModelValue value) => default;
+		public virtual HttpContent? TryCreateHttpContent(WebRequest webRequest,
+														 string? contentType,
+														 DataModelList parameters,
+														 DataModelValue value) =>
+			default;
 
 		public virtual ValueTask<DataModelValue?> TryParseResponseAsync(WebResponse webResponse, DataModelList parameters, CancellationToken token) => default;
 	}

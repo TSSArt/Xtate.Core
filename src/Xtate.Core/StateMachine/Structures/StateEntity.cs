@@ -69,15 +69,15 @@ namespace Xtate.Core
 		}
 
 		bool IVisitorEntity<StateEntity, IState>.RefEquals(ref StateEntity other) =>
-				ReferenceEquals(Id, other.Id) &&
-				ReferenceEquals(Initial, other.Initial) &&
-				ReferenceEquals(DataModel, other.DataModel) &&
-				Invoke == other.Invoke &&
-				States == other.States &&
-				HistoryStates == other.HistoryStates &&
-				OnExit == other.OnExit &&
-				OnEntry == other.OnEntry &&
-				Transitions == other.Transitions;
+			ReferenceEquals(Id, other.Id) &&
+			ReferenceEquals(Initial, other.Initial) &&
+			ReferenceEquals(DataModel, other.DataModel) &&
+			Invoke == other.Invoke &&
+			States == other.States &&
+			HistoryStates == other.HistoryStates &&
+			OnExit == other.OnExit &&
+			OnEntry == other.OnEntry &&
+			Transitions == other.Transitions;
 
 	#endregion
 	}

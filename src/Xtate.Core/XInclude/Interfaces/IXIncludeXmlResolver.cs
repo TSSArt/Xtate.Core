@@ -24,8 +24,14 @@ namespace Xtate.XInclude
 {
 	public interface IXIncludeXmlResolver
 	{
-		object? GetEntity(Uri uri, string? accept, string? acceptLanguage, Type? ofObjectToReturn);
+		object? GetEntity(Uri uri,
+						  string? accept,
+						  string? acceptLanguage,
+						  Type? ofObjectToReturn);
 
-		Task<object?> GetEntityAsync(Uri uri, string? accept, string? acceptLanguage, Type? ofObjectToReturn);
+		Task<object?> GetEntityAsync(Uri uri,
+									 string? accept,
+									 string? acceptLanguage,
+									 Type? ofObjectToReturn);
 	}
 }

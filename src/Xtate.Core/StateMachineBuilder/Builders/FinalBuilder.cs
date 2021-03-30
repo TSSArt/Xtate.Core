@@ -35,7 +35,7 @@ namespace Xtate.Builder
 	#region Interface IFinalBuilder
 
 		public IFinal Build() =>
-				new FinalEntity { Ancestor = Ancestor, Id = _id, OnEntry = _onEntryList?.ToImmutable() ?? default, OnExit = _onExitList?.ToImmutable() ?? default, DoneData = _doneData };
+			new FinalEntity { Ancestor = Ancestor, Id = _id, OnEntry = _onEntryList?.ToImmutable() ?? default, OnExit = _onExitList?.ToImmutable() ?? default, DoneData = _doneData };
 
 		public void SetId(IIdentifier id) => _id = id ?? throw new ArgumentNullException(nameof(id));
 

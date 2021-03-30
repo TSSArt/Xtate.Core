@@ -47,7 +47,10 @@ namespace Xtate
 				Metadata = default;
 			}
 
-			internal Entry(int index, in DataModelValue value, DataModelAccess access, DataModelList? metadata)
+			internal Entry(int index,
+						   in DataModelValue value,
+						   DataModelAccess access,
+						   DataModelList? metadata)
 			{
 				Index = index;
 				Value = value;
@@ -56,7 +59,11 @@ namespace Xtate
 				Metadata = metadata;
 			}
 
-			internal Entry(int index, string? key, in DataModelValue value, DataModelAccess access, DataModelList? metadata)
+			internal Entry(int index,
+						   string? key,
+						   in DataModelValue value,
+						   DataModelAccess access,
+						   DataModelList? metadata)
 			{
 				Index = index;
 				Value = value;

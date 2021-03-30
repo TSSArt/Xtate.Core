@@ -32,7 +32,7 @@ namespace Xtate.Core.Test.Legacy
 			var writer = new StringWriter();
 			var xmlWriter = XmlWriter.Create(writer, new XmlWriterSettings
 													 {
-															 Indent = true
+														 Indent = true
 													 });
 
 			xmlWriter!.WriteStartElement("v");

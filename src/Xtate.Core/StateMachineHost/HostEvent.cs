@@ -27,7 +27,10 @@ namespace Xtate.Core
 	{
 		private readonly IIoProcessor? _ioProcessor;
 
-		public HostEvent(IIoProcessor ioProcessor, ServiceId senderServiceId, ServiceId? targetServiceId, IOutgoingEvent outgoingEvent) : base(outgoingEvent)
+		public HostEvent(IIoProcessor ioProcessor,
+						 ServiceId senderServiceId,
+						 ServiceId? targetServiceId,
+						 IOutgoingEvent outgoingEvent) : base(outgoingEvent)
 		{
 			if (outgoingEvent is null) throw new ArgumentNullException(nameof(outgoingEvent));
 

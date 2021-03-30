@@ -55,7 +55,12 @@ namespace Xtate.IoProcessor
 		private readonly string     _path;
 		private          IPEndPoint _ipEndPoint;
 
-		protected HttpIoProcessorBase(IEventConsumer eventConsumer, Uri baseUri, IPEndPoint ipEndPoint, string id, string? alias, string errorSuffix) : base(eventConsumer, id, alias)
+		protected HttpIoProcessorBase(IEventConsumer eventConsumer,
+									  Uri baseUri,
+									  IPEndPoint ipEndPoint,
+									  string id,
+									  string? alias,
+									  string errorSuffix) : base(eventConsumer, id, alias)
 		{
 			_baseUri = baseUri ?? throw new ArgumentNullException(nameof(baseUri));
 			_path = baseUri.GetComponents(UriComponents.Path, UriFormat.Unescaped);
@@ -190,11 +195,11 @@ namespace Xtate.IoProcessor
 		}
 
 		protected override Uri? GetTarget(ServiceId serviceId) =>
-				serviceId switch
-				{
-						SessionId sessionId => new Uri(_baseUri, sessionId.Value),
-						_ => default
-				};
+			serviceId switch
+			{
+				SessionId sessionId => new Uri(_baseUri, sessionId.Value),
+				_                   => default
+			};
 
 		protected override IHostEvent CreateHostEvent(ServiceId senderServiceId, IOutgoingEvent outgoingEvent)
 		{
@@ -405,38 +410,38 @@ namespace Xtate.IoProcessor
 
 			var requestData = new DataModelList
 							  {
-									  { @"remoteIp", GetRemoteAddress(context) is { } address ? address.ToString() : string.Empty },
-									  { @"method", GetMethod(context) },
-									  { @"contentType", GetHeaderValue(context, ContentTypeHeaderName) is { Length: > 0 } typeStr ? typeStr : string.Empty },
-									  { @"contentLength", GetHeaderValue(context, ContentLengthHeaderName) is { Length: > 0 } lenStr && int.TryParse(lenStr, out var len) ? len : -1 },
-									  { @"path", GetPath(context) },
-									  { @"query", GetQueryString(context) ?? string.Empty }
+								  { @"remoteIp", GetRemoteAddress(context) is { } address ? address.ToString() : string.Empty },
+								  { @"method", GetMethod(context) },
+								  { @"contentType", GetHeaderValue(context, ContentTypeHeaderName) is { Length: > 0 } typeStr ? typeStr : string.Empty },
+								  { @"contentLength", GetHeaderValue(context, ContentLengthHeaderName) is { Length: > 0 } lenStr && int.TryParse(lenStr, out var len) ? len : -1 },
+								  { @"path", GetPath(context) },
+								  { @"query", GetQueryString(context) ?? string.Empty }
 							  };
 
 			var exceptionData = new DataModelList
 								{
-										{ @"message", exception.Message },
-										{ @"typeName", exception.GetType().Name },
-										{ @"source", exception.Source },
-										{ @"typeFullName", exception.GetType().FullName },
-										{ @"stackTrace", exception.StackTrace },
-										{ @"text", exception.ToString() }
+									{ @"message", exception.Message },
+									{ @"typeName", exception.GetType().Name },
+									{ @"source", exception.Source },
+									{ @"typeFullName", exception.GetType().FullName },
+									{ @"stackTrace", exception.StackTrace },
+									{ @"text", exception.ToString() }
 								};
 
 			var data = new DataModelList
 					   {
-							   { @"request", requestData },
-							   { @"exception", exceptionData }
+						   { @"request", requestData },
+						   { @"exception", exceptionData }
 					   };
 
 			exceptionData.MakeDeepConstant();
 
 			return new EventObject
 				   {
-						   Type = EventType.External,
-						   NameParts = EventName.GetErrorPlatform(ErrorSuffixHeader + _errorSuffix),
-						   Data = data,
-						   OriginType = IoProcessorId
+					   Type = EventType.External,
+					   NameParts = EventName.GetErrorPlatform(ErrorSuffixHeader + _errorSuffix),
+					   Data = data,
+					   OriginType = IoProcessorId
 				   };
 		}
 
@@ -477,11 +482,11 @@ namespace Xtate.IoProcessor
 
 			return new EventObject
 				   {
-						   Type = EventType.External,
-						   NameParts = EventName.ToParts(eventName),
-						   Data = data,
-						   OriginType = IoProcessorId,
-						   Origin = origin
+					   Type = EventType.External,
+					   NameParts = EventName.ToParts(eventName),
+					   Data = data,
+					   OriginType = IoProcessorId,
+					   Origin = origin
 				   };
 		}
 

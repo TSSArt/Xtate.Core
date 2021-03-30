@@ -77,19 +77,19 @@ namespace Xtate.Scxml
 		}
 
 		protected ValueTask<string> ReadOuterXml() =>
-				_useAsync
-						? new ValueTask<string>(_xmlReader.ReadOuterXmlAsync())
-						: new ValueTask<string>(_xmlReader.ReadOuterXml());
+			_useAsync
+				? new ValueTask<string>(_xmlReader.ReadOuterXmlAsync())
+				: new ValueTask<string>(_xmlReader.ReadOuterXml());
 
 		private ValueTask<string> ReadInnerXml() =>
-				_useAsync
-						? new ValueTask<string>(_xmlReader.ReadInnerXmlAsync())
-						: new ValueTask<string>(_xmlReader.ReadInnerXml());
+			_useAsync
+				? new ValueTask<string>(_xmlReader.ReadInnerXmlAsync())
+				: new ValueTask<string>(_xmlReader.ReadInnerXml());
 
 		private ValueTask<XmlNodeType> MoveToContent() =>
-				_useAsync
-						? new ValueTask<XmlNodeType>(_xmlReader.MoveToContentAsync())
-						: new ValueTask<XmlNodeType>(_xmlReader.MoveToContent());
+			_useAsync
+				? new ValueTask<XmlNodeType>(_xmlReader.MoveToContentAsync())
+				: new ValueTask<XmlNodeType>(_xmlReader.MoveToContent());
 
 		protected async ValueTask<TEntity> Populate<TEntity>(TEntity entity, Policy<TEntity> policy)
 		{
@@ -313,12 +313,18 @@ namespace Xtate.Scxml
 			public string? ElementNamespace      { get; set; }
 			public string? ElementName           { get; set; }
 
-			public void AddAttribute(string ns, string name, Action<TDirector, TEntity> located, AttributeType type)
+			public void AddAttribute(string ns,
+									 string name,
+									 Action<TDirector, TEntity> located,
+									 AttributeType type)
 			{
 				_attributes.Add(new QualifiedName(ns, name), (located, type));
 			}
 
-			public void AddElement(string ns, string name, Func<TDirector, TEntity, ValueTask> located, ElementType type)
+			public void AddElement(string ns,
+								   string name,
+								   Func<TDirector, TEntity, ValueTask> located,
+								   ElementType type)
 			{
 				_elements.Add(new QualifiedName(ns, name), (located, type));
 			}
@@ -326,7 +332,7 @@ namespace Xtate.Scxml
 			public Action<TDirector, TEntity>? AttributeLocated(string ns, string name) => _attributes.TryGetValue(new QualifiedName(ns, name), out var value) ? value.located : null;
 
 			public Func<TDirector, TEntity, ValueTask>? ElementLocated(string ns, string name) =>
-					_elements.TryGetValue(new QualifiedName(ns, name), out var value) ? value.located : UnknownElementAction;
+				_elements.TryGetValue(new QualifiedName(ns, name), out var value) ? value.located : UnknownElementAction;
 
 			public ValidationContext CreateValidationContext(XmlReader xmlReader, IErrorProcessor errorProcessor) => new(this, xmlReader, errorProcessor);
 

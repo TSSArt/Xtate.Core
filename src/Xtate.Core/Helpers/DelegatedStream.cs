@@ -56,9 +56,19 @@ namespace Xtate.Core
 			set => InnerStream.WriteTimeout = value;
 		}
 
-		public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback? callback, object? state) => InnerStream.BeginRead(buffer, offset, count, callback, state);
+		public override IAsyncResult BeginRead(byte[] buffer,
+											   int offset,
+											   int count,
+											   AsyncCallback? callback,
+											   object? state) =>
+			InnerStream.BeginRead(buffer, offset, count, callback, state);
 
-		public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback? callback, object? state) => InnerStream.BeginWrite(buffer, offset, count, callback, state);
+		public override IAsyncResult BeginWrite(byte[] buffer,
+												int offset,
+												int count,
+												AsyncCallback? callback,
+												object? state) =>
+			InnerStream.BeginWrite(buffer, offset, count, callback, state);
 
 		public override void Close() => InnerStream.Close();
 
@@ -80,13 +90,21 @@ namespace Xtate.Core
 
 		public override void WriteByte(byte value) => InnerStream.WriteByte(value);
 
-		public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken token) => InnerStream.ReadAsync(buffer, offset, count, token);
+		public override Task<int> ReadAsync(byte[] buffer,
+											int offset,
+											int count,
+											CancellationToken token) =>
+			InnerStream.ReadAsync(buffer, offset, count, token);
 
 		public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken token) => InnerStream.CopyToAsync(destination, bufferSize, token);
 
 		public override Task FlushAsync(CancellationToken token) => InnerStream.FlushAsync(token);
 
-		public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken token) => InnerStream.WriteAsync(buffer, offset, count, token);
+		public override Task WriteAsync(byte[] buffer,
+										int offset,
+										int count,
+										CancellationToken token) =>
+			InnerStream.WriteAsync(buffer, offset, count, token);
 
 #if !NET461 && !NETSTANDARD2_0
 		public override void CopyTo(Stream destination, int bufferSize) => InnerStream.CopyTo(destination, bufferSize);

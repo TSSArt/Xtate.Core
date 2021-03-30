@@ -52,10 +52,10 @@ namespace Xtate.Core
 		}
 
 		bool IVisitorEntity<ForEachEntity, IForEach>.RefEquals(ref ForEachEntity other) =>
-				Action == other.Action &&
-				ReferenceEquals(Array, other.Array) &&
-				ReferenceEquals(Index, other.Index) &&
-				ReferenceEquals(Item, other.Item);
+			Action == other.Action &&
+			ReferenceEquals(Array, other.Array) &&
+			ReferenceEquals(Index, other.Index) &&
+			ReferenceEquals(Item, other.Item);
 
 	#endregion
 	}

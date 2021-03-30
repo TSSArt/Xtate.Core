@@ -67,14 +67,14 @@ namespace Xtate.Core
 		}
 
 		bool IVisitorEntity<ParallelEntity, IParallel>.RefEquals(ref ParallelEntity other) =>
-				ReferenceEquals(Id, other.Id) &&
-				ReferenceEquals(DataModel, other.DataModel) &&
-				Invoke == other.Invoke &&
-				States == other.States &&
-				HistoryStates == other.HistoryStates &&
-				OnExit == other.OnExit &&
-				OnEntry == other.OnEntry &&
-				Transitions == other.Transitions;
+			ReferenceEquals(Id, other.Id) &&
+			ReferenceEquals(DataModel, other.DataModel) &&
+			Invoke == other.Invoke &&
+			States == other.States &&
+			HistoryStates == other.HistoryStates &&
+			OnExit == other.OnExit &&
+			OnEntry == other.OnEntry &&
+			Transitions == other.Transitions;
 
 	#endregion
 	}

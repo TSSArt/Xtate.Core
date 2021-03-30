@@ -73,17 +73,17 @@ namespace Xtate.Core
 		}
 
 		bool IVisitorEntity<InvokeEntity, IInvoke>.RefEquals(ref InvokeEntity other) =>
-				AutoForward == other.AutoForward &&
-				NameList == other.NameList &&
-				Parameters == other.Parameters &&
-				ReferenceEquals(Id, other.Id) &&
-				ReferenceEquals(IdLocation, other.IdLocation) &&
-				ReferenceEquals(Content, other.Content) &&
-				ReferenceEquals(Type, other.Type) &&
-				ReferenceEquals(TypeExpression, other.TypeExpression) &&
-				ReferenceEquals(Source, other.Source) &&
-				ReferenceEquals(SourceExpression, other.SourceExpression) &&
-				ReferenceEquals(Finalize, other.Finalize);
+			AutoForward == other.AutoForward &&
+			NameList == other.NameList &&
+			Parameters == other.Parameters &&
+			ReferenceEquals(Id, other.Id) &&
+			ReferenceEquals(IdLocation, other.IdLocation) &&
+			ReferenceEquals(Content, other.Content) &&
+			ReferenceEquals(Type, other.Type) &&
+			ReferenceEquals(TypeExpression, other.TypeExpression) &&
+			ReferenceEquals(Source, other.Source) &&
+			ReferenceEquals(SourceExpression, other.SourceExpression) &&
+			ReferenceEquals(Finalize, other.Finalize);
 
 	#endregion
 	}

@@ -62,12 +62,12 @@ namespace Xtate
 	#region Interface IComparable
 
 		public int CompareTo(object? value) =>
-				value switch
-				{
-						null => 1,
-						DataModelDateTime dateTime => Compare(this, dateTime),
-						_ => throw new ArgumentException(Resources.Exception_ArgumentMustBeDataModelDateTimeType)
-				};
+			value switch
+			{
+				null                       => 1,
+				DataModelDateTime dateTime => Compare(this, dateTime),
+				_                          => throw new ArgumentException(Resources.Exception_ArgumentMustBeDataModelDateTimeType)
+			};
 
 	#endregion
 
@@ -80,12 +80,12 @@ namespace Xtate
 	#region Interface IConvertible
 
 		TypeCode IConvertible.GetTypeCode() =>
-				Type switch
-				{
-						DataModelDateTimeType.DateTime => TypeCode.DateTime,
-						DataModelDateTimeType.DateTimeOffset => TypeCode.Object,
-						_ => Infrastructure.UnexpectedValue<TypeCode>(Type)
-				};
+			Type switch
+			{
+				DataModelDateTimeType.DateTime       => TypeCode.DateTime,
+				DataModelDateTimeType.DateTimeOffset => TypeCode.Object,
+				_                                    => Infrastructure.UnexpectedValue<TypeCode>(Type)
+			};
 
 		bool IConvertible.ToBoolean(IFormatProvider? provider) => ToDateTime().ToBoolean(provider);
 
@@ -130,12 +130,12 @@ namespace Xtate
 	#region Interface IFormattable
 
 		public string ToString(string? format, IFormatProvider? formatProvider) =>
-				Type switch
-				{
-						DataModelDateTimeType.DateTime => ToDateTime().ToString(format, formatProvider),
-						DataModelDateTimeType.DateTimeOffset => ToDateTimeOffset().ToString(format, formatProvider),
-						_ => Infrastructure.UnexpectedValue<string>(Type)
-				};
+			Type switch
+			{
+				DataModelDateTimeType.DateTime       => ToDateTime().ToString(format, formatProvider),
+				DataModelDateTimeType.DateTimeOffset => ToDateTimeOffset().ToString(format, formatProvider),
+				_                                    => Infrastructure.UnexpectedValue<string>(Type)
+			};
 
 	#endregion
 
@@ -222,16 +222,19 @@ namespace Xtate
 		public static bool operator >=(DataModelDateTime left, DataModelDateTime right) => Compare(left, right) >= 0;
 
 		public object ToObject() =>
-				Type switch
-				{
-						DataModelDateTimeType.DateTime => ToDateTime(),
-						DataModelDateTimeType.DateTimeOffset => ToDateTimeOffset(),
-						_ => Infrastructure.UnexpectedValue<object>(Type)
-				};
+			Type switch
+			{
+				DataModelDateTimeType.DateTime       => ToDateTime(),
+				DataModelDateTimeType.DateTimeOffset => ToDateTimeOffset(),
+				_                                    => Infrastructure.UnexpectedValue<object>(Type)
+			};
 
 		public static bool TryParse(string value, out DataModelDateTime dataModelDateTime) => TryParse(value, provider: null, DateTimeStyles.None, out dataModelDateTime);
 
-		public static bool TryParse(string value, IFormatProvider? provider, DateTimeStyles style, out DataModelDateTime dataModelDateTime)
+		public static bool TryParse(string value,
+									IFormatProvider? provider,
+									DateTimeStyles style,
+									out DataModelDateTime dataModelDateTime)
 		{
 			ParseData data = default;
 
@@ -241,7 +244,11 @@ namespace Xtate
 			return ProcessParseData(ref data, out dataModelDateTime);
 		}
 
-		public static bool TryParseExact(string value, string format, IFormatProvider? provider, DateTimeStyles style, out DataModelDateTime dataModelDateTime)
+		public static bool TryParseExact(string value,
+										 string format,
+										 IFormatProvider? provider,
+										 DateTimeStyles style,
+										 out DataModelDateTime dataModelDateTime)
 		{
 			ParseData data = default;
 
@@ -251,7 +258,11 @@ namespace Xtate
 			return ProcessParseData(ref data, out dataModelDateTime);
 		}
 
-		public static bool TryParseExact(string value, string[] formats, IFormatProvider? provider, DateTimeStyles style, out DataModelDateTime dataModelDateTime)
+		public static bool TryParseExact(string value,
+										 string[] formats,
+										 IFormatProvider? provider,
+										 DateTimeStyles style,
+										 out DataModelDateTime dataModelDateTime)
 		{
 			ParseData data = default;
 
@@ -269,8 +280,8 @@ namespace Xtate
 		{
 			var data = new ParseData
 					   {
-							   DateTimeOffset = DateTimeOffset.Parse(value, provider, style),
-							   DateTimeOffsetParsed = true
+						   DateTimeOffset = DateTimeOffset.Parse(value, provider, style),
+						   DateTimeOffsetParsed = true
 					   };
 
 			data.DateTimeParsed = DateTime.TryParse(value, provider, style | DateTimeStyles.RoundtripKind, out data.DateTime);
@@ -282,12 +293,15 @@ namespace Xtate
 
 		public static DataModelDateTime ParseExact(string value, string format, IFormatProvider? provider) => ParseExact(value, format, provider, DateTimeStyles.None);
 
-		public static DataModelDateTime ParseExact(string value, string format, IFormatProvider? provider, DateTimeStyles style)
+		public static DataModelDateTime ParseExact(string value,
+												   string format,
+												   IFormatProvider? provider,
+												   DateTimeStyles style)
 		{
 			var data = new ParseData
 					   {
-							   DateTimeOffset = DateTimeOffset.ParseExact(value, format, provider, style),
-							   DateTimeOffsetParsed = true
+						   DateTimeOffset = DateTimeOffset.ParseExact(value, format, provider, style),
+						   DateTimeOffsetParsed = true
 					   };
 
 			data.DateTimeParsed = DateTime.TryParseExact(value, format, provider, style | DateTimeStyles.RoundtripKind, out data.DateTime);
@@ -299,12 +313,15 @@ namespace Xtate
 
 		public static DataModelDateTime ParseExact(string value, string[] formats, IFormatProvider? provider) => ParseExact(value, formats, provider, DateTimeStyles.None);
 
-		public static DataModelDateTime ParseExact(string value, string[] formats, IFormatProvider? provider, DateTimeStyles style)
+		public static DataModelDateTime ParseExact(string value,
+												   string[] formats,
+												   IFormatProvider? provider,
+												   DateTimeStyles style)
 		{
 			var data = new ParseData
 					   {
-							   DateTimeOffset = DateTimeOffset.ParseExact(value, formats, provider, style),
-							   DateTimeOffsetParsed = true
+						   DateTimeOffset = DateTimeOffset.ParseExact(value, formats, provider, style),
+						   DateTimeOffsetParsed = true
 					   };
 
 			data.DateTimeParsed = DateTime.TryParseExact(value, formats, provider, style | DateTimeStyles.RoundtripKind, out data.DateTime);

@@ -100,7 +100,10 @@ namespace Xtate.Persistence
 			await base.DisposeAsyncCore().ConfigureAwait(false);
 		}
 
-		public override async ValueTask AddService(SessionId sessionId, InvokeId invokeId, IService service, CancellationToken token)
+		public override async ValueTask AddService(SessionId sessionId,
+												   InvokeId invokeId,
+												   IService service,
+												   CancellationToken token)
 		{
 			Infrastructure.NotNull(_storage);
 
@@ -178,17 +181,25 @@ namespace Xtate.Persistence
 			}
 		}
 
-		protected override StateMachineControllerBase CreateStateMachineController(SessionId sessionId, IStateMachine? stateMachine, IStateMachineOptions? stateMachineOptions,
+		protected override StateMachineControllerBase CreateStateMachineController(SessionId sessionId,
+																				   IStateMachine? stateMachine,
+																				   IStateMachineOptions? stateMachineOptions,
 																				   Uri? stateMachineLocation,
-																				   InterpreterOptions defaultOptions, SecurityContext securityContext, DeferredFinalizer finalizer) =>
-				stateMachineOptions.IsStateMachinePersistable()
-						? new StateMachinePersistedController(sessionId, stateMachineOptions, stateMachine, stateMachineLocation, _stateMachineHost,
-															  _storageProvider, _idlePeriod, defaultOptions, securityContext, finalizer)
-						: base.CreateStateMachineController(sessionId, stateMachine, stateMachineOptions, stateMachineLocation, defaultOptions, securityContext, finalizer);
+																				   InterpreterOptions defaultOptions,
+																				   SecurityContext securityContext,
+																				   DeferredFinalizer finalizer) =>
+			stateMachineOptions.IsStateMachinePersistable()
+				? new StateMachinePersistedController(sessionId, stateMachineOptions, stateMachine, stateMachineLocation, _stateMachineHost,
+													  _storageProvider, _idlePeriod, defaultOptions, securityContext, finalizer)
+				: base.CreateStateMachineController(sessionId, stateMachine, stateMachineOptions, stateMachineLocation, defaultOptions, securityContext, finalizer);
 
-		public override async ValueTask<StateMachineControllerBase> CreateAndAddStateMachine(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters,
+		public override async ValueTask<StateMachineControllerBase> CreateAndAddStateMachine(SessionId sessionId,
+																							 StateMachineOrigin origin,
+																							 DataModelValue parameters,
 																							 SecurityContext securityContext,
-																							 DeferredFinalizer finalizer, IErrorProcessor errorProcessor, CancellationToken token)
+																							 DeferredFinalizer finalizer,
+																							 IErrorProcessor errorProcessor,
+																							 CancellationToken token)
 		{
 			Infrastructure.NotNull(_storage);
 
@@ -403,7 +414,10 @@ namespace Xtate.Persistence
 
 		private class StateMachineMeta : IStoreSupport, IStateMachineOptions
 		{
-			public StateMachineMeta(SessionId sessionId, IStateMachineOptions? options, Uri? stateMachineLocation, SecurityContext securityContext)
+			public StateMachineMeta(SessionId sessionId,
+									IStateMachineOptions? options,
+									Uri? stateMachineLocation,
+									SecurityContext securityContext)
 			{
 				SessionId = sessionId;
 				Location = stateMachineLocation;

@@ -69,21 +69,21 @@ namespace Xtate.DataModel.XPath
 	#region Interface IIntegerEvaluator
 
 		ValueTask<int> IIntegerEvaluator.EvaluateInteger(IExecutionContext executionContext, CancellationToken token) =>
-				new(executionContext.Engine().EvalObject(_compiledExpression, stripRoots: true).AsInteger());
+			new(executionContext.Engine().EvalObject(_compiledExpression, stripRoots: true).AsInteger());
 
 	#endregion
 
 	#region Interface IObjectEvaluator
 
 		ValueTask<IObject> IObjectEvaluator.EvaluateObject(IExecutionContext executionContext, CancellationToken token) =>
-				new(executionContext.Engine().EvalObject(_compiledExpression, stripRoots: true));
+			new(executionContext.Engine().EvalObject(_compiledExpression, stripRoots: true));
 
 	#endregion
 
 	#region Interface IStringEvaluator
 
 		ValueTask<string> IStringEvaluator.EvaluateString(IExecutionContext executionContext, CancellationToken token) =>
-				new(executionContext.Engine().EvalObject(_compiledExpression, stripRoots: true).AsString());
+			new(executionContext.Engine().EvalObject(_compiledExpression, stripRoots: true).AsString());
 
 	#endregion
 

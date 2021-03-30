@@ -99,7 +99,7 @@ namespace Xtate.Core.Test
 			// arrange
 			var v = DataModelValue.FromObject(new
 											  {
-													  /*prop = "value", */obj = new { prop1 = "val1", prop2 = "target" }
+												  /*prop = "value", */obj = new { prop1 = "val1", prop2 = "target" }
 											  });
 
 			// act
@@ -187,14 +187,14 @@ namespace Xtate.Core.Test
 			// arrange
 			var list = new DataModelList { new DataModelList { ["key1"] = "val1" }, new DataModelList { ["key2"] = "val2" } };
 			var root = new DataModelList { ["root"] = list };
-/*			list.Add("", "empty");
-			list.Add(":#$%", "symbol");
-			list.Add("b", true);
-			list.Add("n", 1.5);
-			list.Add("dttm", DateTime.UtcNow);
-			list.Add("nl", DataModelValue.Null);
-			list.Add("undef", default);
-			list.Add(null, default, default);*/
+			/*			list.Add("", "empty");
+						list.Add(":#$%", "symbol");
+						list.Add("b", true);
+						list.Add("n", 1.5);
+						list.Add("dttm", DateTime.UtcNow);
+						list.Add("nl", DataModelValue.Null);
+						list.Add("undef", default);
+						list.Add(null, default, default);*/
 			var nav = new DataModelXPathNavigator(root);
 
 			// act
@@ -210,22 +210,22 @@ namespace Xtate.Core.Test
 			// arrange
 			var root = new DataModelList
 					   {
+						   {
+							   "root",
+							   new DataModelList
 							   {
-									   "root",
-									   new DataModelList
-									   {
-											   { "item", "val1" },
-											   { "item", "val2" }
-									   },
-									   new DataModelList
-									   {
-											   "prefix",
-											   "namespace-uri",
-											   "attr1", "aVal1", "", "",
-											   "attr2", "aVal2", "pfx", "attr-ns",
-											   "myNs", "myNamespace", "", "http://www.w3.org/2000/xmlns/"
-									   }
+								   { "item", "val1" },
+								   { "item", "val2" }
+							   },
+							   new DataModelList
+							   {
+								   "prefix",
+								   "namespace-uri",
+								   "attr1", "aVal1", "", "",
+								   "attr2", "aVal2", "pfx", "attr-ns",
+								   "myNs", "myNamespace", "", "http://www.w3.org/2000/xmlns/"
 							   }
+						   }
 					   };
 
 
@@ -250,7 +250,7 @@ namespace Xtate.Core.Test
 		[SuppressMessage(category: "ReSharper", checkId: "UnusedVariable")]
 		public void RenderValidXml2()
 		{
-#pragma warning disable IDE0059
+			#pragma warning disable IDE0059
 			const string xpath = "string(/a)";
 			var xPathExpression = XPathExpression.Compile(xpath);
 
@@ -291,7 +291,7 @@ namespace Xtate.Core.Test
 			{
 				navigator.MoveToParent();
 			}
-#pragma warning restore IDE0059
+			#pragma warning restore IDE0059
 		}
 	}
 }

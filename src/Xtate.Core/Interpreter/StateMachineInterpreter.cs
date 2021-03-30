@@ -44,7 +44,7 @@ namespace Xtate.Core
 		private const string StateMachineDefinitionStorageKey = "smd";
 
 		private static readonly ImmutableArray<IDataModelHandlerFactory> PredefinedDataModelHandlerFactories =
-				ImmutableArray.Create(NullDataModelHandler.Factory, RuntimeDataModelHandler.Factory);
+			ImmutableArray.Create(NullDataModelHandler.Factory, RuntimeDataModelHandler.Factory);
 
 		private readonly Uri?                                     _baseUri;
 		private readonly ImmutableDictionary<object, object>      _contextRuntimeItems;
@@ -150,7 +150,10 @@ namespace Xtate.Core
 			return new StateMachineInterpreter(SessionId.New(), eventChannel, options ?? InterpreterOptions.Default).Run(stateMachine);
 		}
 
-		public static ValueTask<DataModelValue> RunAsync(SessionId sessionId, IStateMachine? stateMachine, ChannelReader<IEvent> eventChannel, InterpreterOptions? options = default)
+		public static ValueTask<DataModelValue> RunAsync(SessionId sessionId,
+														 IStateMachine? stateMachine,
+														 ChannelReader<IEvent> eventChannel,
+														 InterpreterOptions? options = default)
 		{
 			if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
 			if (eventChannel is null) throw new ArgumentNullException(nameof(eventChannel));
@@ -349,7 +352,10 @@ namespace Xtate.Core
 			}
 		}
 
-		private ValueTask DoOperation<TArg>(StateBagKey key, IEntity entity, Func<TArg, ValueTask> func, TArg arg)
+		private ValueTask DoOperation<TArg>(StateBagKey key,
+											IEntity entity,
+											Func<TArg, ValueTask> func,
+											TArg arg)
 		{
 			return IsPersistingEnabled ? DoOperationAsync() : func(arg);
 
@@ -992,8 +998,8 @@ namespace Xtate.Core
 					static bool Shallow(StateEntityNode node, StateEntityNode state) => node.Parent == state;
 
 					var list = history.Type == HistoryType.Deep
-							? _context.Configuration.ToFilteredList(Deep, state)
-							: _context.Configuration.ToFilteredList(Shallow, state);
+						? _context.Configuration.ToFilteredList(Deep, state)
+						: _context.Configuration.ToFilteredList(Shallow, state);
 
 					_context.HistoryValue.Set(history.Id, list);
 				}
@@ -1152,7 +1158,9 @@ namespace Xtate.Core
 			return false;
 		}
 
-		private void ComputeEntrySet(List<TransitionNode> transitions, List<StateEntityNode> statesToEnter, List<CompoundNode> statesForDefaultEntry,
+		private void ComputeEntrySet(List<TransitionNode> transitions,
+									 List<StateEntityNode> statesToEnter,
+									 List<CompoundNode> statesForDefaultEntry,
 									 DefaultHistoryContent defaultHistoryContent)
 		{
 			foreach (var transition in transitions)
@@ -1192,7 +1200,9 @@ namespace Xtate.Core
 			return statesToExit;
 		}
 
-		private void AddDescendantStatesToEnter(StateEntityNode state, List<StateEntityNode> statesToEnter, List<CompoundNode> statesForDefaultEntry,
+		private void AddDescendantStatesToEnter(StateEntityNode state,
+												List<StateEntityNode> statesToEnter,
+												List<CompoundNode> statesForDefaultEntry,
 												DefaultHistoryContent defaultHistoryContent)
 		{
 			if (state is HistoryNode history)
@@ -1257,7 +1267,10 @@ namespace Xtate.Core
 			}
 		}
 
-		private void AddAncestorStatesToEnter(StateEntityNode state, StateEntityNode? ancestor, List<StateEntityNode> statesToEnter, List<CompoundNode> statesForDefaultEntry,
+		private void AddAncestorStatesToEnter(StateEntityNode state,
+											  StateEntityNode? ancestor,
+											  List<StateEntityNode> statesToEnter,
+											  List<CompoundNode> statesForDefaultEntry,
 											  DefaultHistoryContent defaultHistoryContent)
 		{
 			var ancestors = GetProperAncestors(state, ancestor);
@@ -1424,10 +1437,10 @@ namespace Xtate.Core
 		private bool IsOperationCancelled(Exception exception)
 		{
 			return exception switch
-			{
-					OperationCanceledException ex => ex.CancellationToken == _stopToken,
-					_ => false
-			};
+				   {
+					   OperationCanceledException ex => ex.CancellationToken == _stopToken,
+					   _                             => false
+				   };
 		}
 
 		private bool IsError(Exception ex) => !IsOperationCancelled(ex);
@@ -1439,26 +1452,26 @@ namespace Xtate.Core
 			SendId? sendId = default;
 
 			var errorType = IsPlatformError(exception)
-					? ErrorType.Platform
-					: IsCommunicationError(exception, out sendId)
-							? ErrorType.Communication
-							: ErrorType.Execution;
+				? ErrorType.Platform
+				: IsCommunicationError(exception, out sendId)
+					? ErrorType.Communication
+					: ErrorType.Execution;
 
 			var nameParts = errorType switch
-			{
-					ErrorType.Execution => EventName.ErrorExecution,
-					ErrorType.Communication => EventName.ErrorCommunication,
-					ErrorType.Platform => EventName.ErrorPlatform,
-					_ => throw Infrastructure.UnexpectedValue<Exception>(errorType)
-			};
+							{
+								ErrorType.Execution     => EventName.ErrorExecution,
+								ErrorType.Communication => EventName.ErrorCommunication,
+								ErrorType.Platform      => EventName.ErrorPlatform,
+								_                       => throw Infrastructure.UnexpectedValue<Exception>(errorType)
+							};
 
 			var evt = new EventObject
 					  {
-							  Type = EventType.Platform,
-							  NameParts = nameParts,
-							  Data = DataConverter.FromException(exception, _dataModelHandler.CaseInsensitive),
-							  SendId = sendId,
-							  Ancestor = exception
+						  Type = EventType.Platform,
+						  NameParts = nameParts,
+						  Data = DataConverter.FromException(exception, _dataModelHandler.CaseInsensitive),
+						  SendId = sendId,
+						  Ancestor = exception
 					  };
 
 			_context.InternalQueue.Enqueue(evt);
@@ -1669,8 +1682,8 @@ namespace Xtate.Core
 
 			var interpreterList = new DataModelList(_dataModelHandler.CaseInsensitive)
 								  {
-										  { @"name", typeInfo.FullTypeName },
-										  { @"version", typeInfo.AssemblyVersion }
+									  { @"name", typeInfo.FullTypeName },
+									  { @"version", typeInfo.AssemblyVersion }
 								  };
 
 			interpreterList.MakeDeepConstant();
@@ -1684,10 +1697,10 @@ namespace Xtate.Core
 
 			var dataModelHandlerList = new DataModelList(_dataModelHandler.CaseInsensitive)
 									   {
-											   { @"name", typeInfo.FullTypeName },
-											   { @"assembly", typeInfo.AssemblyName },
-											   { @"version", typeInfo.AssemblyVersion },
-											   { @"vars", DataModelValue.FromObject(_dataModelVars) }
+										   { @"name", typeInfo.FullTypeName },
+										   { @"assembly", typeInfo.AssemblyName },
+										   { @"version", typeInfo.AssemblyVersion },
+										   { @"vars", DataModelValue.FromObject(_dataModelVars) }
 									   };
 
 			dataModelHandlerList.MakeDeepConstant();

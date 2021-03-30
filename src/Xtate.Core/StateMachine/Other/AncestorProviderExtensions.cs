@@ -40,7 +40,8 @@ namespace Xtate.Core
 
 		public static bool Is<T>(this object? entity) => entity.Is<T>(out _);
 
-		public static bool Is<T>(this object? entity, [NotNullWhen(true)] [MaybeNullWhen(false)]
+		public static bool Is<T>(this object? entity,
+								 [NotNullWhen(true)] [MaybeNullWhen(false)]
 								 out T value)
 		{
 			while (true)

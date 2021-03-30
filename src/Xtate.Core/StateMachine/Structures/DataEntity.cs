@@ -58,10 +58,10 @@ namespace Xtate.Core
 		}
 
 		bool IVisitorEntity<DataEntity, IData>.RefEquals(ref DataEntity other) =>
-				ReferenceEquals(Id, other.Id) &&
-				ReferenceEquals(Source, other.Source) &&
-				ReferenceEquals(InlineContent, other.InlineContent) &&
-				ReferenceEquals(Expression, other.Expression);
+			ReferenceEquals(Id, other.Id) &&
+			ReferenceEquals(Source, other.Source) &&
+			ReferenceEquals(InlineContent, other.InlineContent) &&
+			ReferenceEquals(Expression, other.Expression);
 
 	#endregion
 	}

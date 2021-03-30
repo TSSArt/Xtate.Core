@@ -24,12 +24,12 @@ namespace Xtate.DataModel.XPath
 		public override string GetLocalName(in DataModelXPathNavigator.Node node) => XmlConverter.KeyToLocalName(node.ParentProperty);
 
 		public override string GetNamespaceUri(in DataModelXPathNavigator.Node node) =>
-				XmlConverter.KeyToNamespaceOrDefault(node.ParentProperty) ??
-				XPathMetadata.GetValue(node.Metadata, XPathMetadata.ElementIndex, XPathMetadata.ElementNamespaceOffset);
+			XmlConverter.KeyToNamespaceOrDefault(node.ParentProperty) ??
+			XPathMetadata.GetValue(node.Metadata, XPathMetadata.ElementIndex, XPathMetadata.ElementNamespaceOffset);
 
 		public override string GetPrefix(in DataModelXPathNavigator.Node node) =>
-				XmlConverter.KeyToPrefixOrDefault(node.ParentProperty) ??
-				XPathMetadata.GetValue(node.Metadata, XPathMetadata.ElementIndex, XPathMetadata.ElementPrefixOffset);
+			XmlConverter.KeyToPrefixOrDefault(node.ParentProperty) ??
+			XPathMetadata.GetValue(node.Metadata, XPathMetadata.ElementIndex, XPathMetadata.ElementPrefixOffset);
 
 		public override bool GetFirstAttribute(in DataModelXPathNavigator.Node node, out DataModelXPathNavigator.Node attributeNode)
 		{
@@ -103,16 +103,16 @@ namespace Xtate.DataModel.XPath
 		}
 
 		private static bool UseTypeAttribute(in DataModelXPathNavigator.Node node) =>
-				node.DataModelValue.Type switch
-				{
-						DataModelValueType.String => false,
-						DataModelValueType.Boolean => true,
-						DataModelValueType.DateTime => true,
-						DataModelValueType.Number => true,
-						DataModelValueType.Null => true,
-						DataModelValueType.Undefined => true,
-						DataModelValueType.List => false,
-						_ => Infrastructure.UnexpectedValue<bool>(node.DataModelValue.Type)
-				};
+			node.DataModelValue.Type switch
+			{
+				DataModelValueType.String    => false,
+				DataModelValueType.Boolean   => true,
+				DataModelValueType.DateTime  => true,
+				DataModelValueType.Number    => true,
+				DataModelValueType.Null      => true,
+				DataModelValueType.Undefined => true,
+				DataModelValueType.List      => false,
+				_                            => Infrastructure.UnexpectedValue<bool>(node.DataModelValue.Type)
+			};
 	}
 }

@@ -53,11 +53,11 @@ namespace Xtate.Core.Test
 
 			return new Record
 				   {
-						   Line = $"LZ({Line})",
-						   ConstructorArg = ConstructorArg,
-						   Type = Type,
-						   Value = new DataModelValue(lazyMock.Object),
-						   OriginalValue = OriginalValue
+					   Line = $"LZ({Line})",
+					   ConstructorArg = ConstructorArg,
+					   Type = Type,
+					   Value = new DataModelValue(lazyMock.Object),
+					   OriginalValue = OriginalValue
 				   };
 		}
 	}
@@ -76,241 +76,241 @@ namespace Xtate.Core.Test
 			{
 				yield return new Record
 							 {
-									 Type = DataModelValueType.Undefined,
-									 Value = new DataModelValue()
+								 Type = DataModelValueType.Undefined,
+								 Value = new DataModelValue()
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.Null,
-									 Value = new DataModelValue((DataModelList?) null)
+								 Type = DataModelValueType.Null,
+								 Value = new DataModelValue((DataModelList?) null)
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.Null,
-									 Value = new DataModelValue((string?) null)
+								 Type = DataModelValueType.Null,
+								 Value = new DataModelValue((string?) null)
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.Null,
-									 Value = new DataModelValue((ILazyValue?) null)
+								 Type = DataModelValueType.Null,
+								 Value = new DataModelValue((ILazyValue?) null)
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.Boolean,
-									 Value = new DataModelValue(false),
-									 ConstructorArg = false
+								 Type = DataModelValueType.Boolean,
+								 Value = new DataModelValue(false),
+								 ConstructorArg = false
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.Boolean,
-									 Value = new DataModelValue(true),
-									 ConstructorArg = true
+								 Type = DataModelValueType.Boolean,
+								 Value = new DataModelValue(true),
+								 ConstructorArg = true
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.Number,
-									 Value = new DataModelValue(0.0),
-									 ConstructorArg = 0.0
+								 Type = DataModelValueType.Number,
+								 Value = new DataModelValue(0.0),
+								 ConstructorArg = 0.0
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.Number,
-									 Value = new DataModelValue(1.0),
-									 ConstructorArg = 1.0
+								 Type = DataModelValueType.Number,
+								 Value = new DataModelValue(1.0),
+								 ConstructorArg = 1.0
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.Number,
-									 Value = new DataModelValue(double.MinValue),
-									 ConstructorArg = double.MinValue
+								 Type = DataModelValueType.Number,
+								 Value = new DataModelValue(double.MinValue),
+								 ConstructorArg = double.MinValue
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.Number,
-									 Value = new DataModelValue(double.MaxValue),
-									 ConstructorArg = double.MaxValue
+								 Type = DataModelValueType.Number,
+								 Value = new DataModelValue(double.MaxValue),
+								 ConstructorArg = double.MaxValue
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.Number,
-									 Value = new DataModelValue(double.NegativeInfinity),
-									 ConstructorArg = double.NegativeInfinity
+								 Type = DataModelValueType.Number,
+								 Value = new DataModelValue(double.NegativeInfinity),
+								 ConstructorArg = double.NegativeInfinity
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.Number,
-									 Value = new DataModelValue(double.PositiveInfinity),
-									 ConstructorArg = double.PositiveInfinity
+								 Type = DataModelValueType.Number,
+								 Value = new DataModelValue(double.PositiveInfinity),
+								 ConstructorArg = double.PositiveInfinity
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.Number,
-									 Value = new DataModelValue(double.NaN),
-									 ConstructorArg = double.NaN
+								 Type = DataModelValueType.Number,
+								 Value = new DataModelValue(double.NaN),
+								 ConstructorArg = double.NaN
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.Number,
-									 Value = new DataModelValue(double.Epsilon),
-									 ConstructorArg = double.Epsilon
+								 Type = DataModelValueType.Number,
+								 Value = new DataModelValue(double.Epsilon),
+								 ConstructorArg = double.Epsilon
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.Number,
-									 Value = new DataModelValue(9007199254740991), // JavaScript Number.MAX_SAFE_INTEGER
-									 ConstructorArg = (double) 9007199254740991
+								 Type = DataModelValueType.Number,
+								 Value = new DataModelValue(9007199254740991), // JavaScript Number.MAX_SAFE_INTEGER
+								 ConstructorArg = (double) 9007199254740991
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.Number,
-									 Value = new DataModelValue(-9007199254740991), // JavaScript Number.MIN_SAFE_INTEGER
-									 ConstructorArg = (double) -9007199254740991
+								 Type = DataModelValueType.Number,
+								 Value = new DataModelValue(-9007199254740991), // JavaScript Number.MIN_SAFE_INTEGER
+								 ConstructorArg = (double) -9007199254740991
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.Number,
-									 Value = new DataModelValue(int.MinValue),
-									 ConstructorArg = (double) int.MinValue
+								 Type = DataModelValueType.Number,
+								 Value = new DataModelValue(int.MinValue),
+								 ConstructorArg = (double) int.MinValue
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.Number,
-									 Value = new DataModelValue(int.MaxValue),
-									 ConstructorArg = (double) int.MaxValue
+								 Type = DataModelValueType.Number,
+								 Value = new DataModelValue(int.MaxValue),
+								 ConstructorArg = (double) int.MaxValue
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.String,
-									 Value = new DataModelValue(""),
-									 ConstructorArg = ""
+								 Type = DataModelValueType.String,
+								 Value = new DataModelValue(""),
+								 ConstructorArg = ""
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.String,
-									 Value = new DataModelValue(" "),
-									 ConstructorArg = " "
+								 Type = DataModelValueType.String,
+								 Value = new DataModelValue(" "),
+								 ConstructorArg = " "
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.String,
-									 Value = new DataModelValue("Text"),
-									 ConstructorArg = "Text"
+								 Type = DataModelValueType.String,
+								 Value = new DataModelValue("Text"),
+								 ConstructorArg = "Text"
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.DateTime,
-									 Value = new DataModelValue(new DateTime(ticks: 1, DateTimeKind.Utc)),
-									 ConstructorArg = new DateTime(ticks: 1, DateTimeKind.Utc)
+								 Type = DataModelValueType.DateTime,
+								 Value = new DataModelValue(new DateTime(ticks: 1, DateTimeKind.Utc)),
+								 ConstructorArg = new DateTime(ticks: 1, DateTimeKind.Utc)
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.DateTime,
-									 Value = new DataModelValue(new DateTime(TimeSpan.TicksPerDay, DateTimeKind.Unspecified)),
-									 ConstructorArg = new DateTime(TimeSpan.TicksPerDay, DateTimeKind.Unspecified)
+								 Type = DataModelValueType.DateTime,
+								 Value = new DataModelValue(new DateTime(TimeSpan.TicksPerDay, DateTimeKind.Unspecified)),
+								 ConstructorArg = new DateTime(TimeSpan.TicksPerDay, DateTimeKind.Unspecified)
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.DateTime,
-									 Value = new DataModelValue(new DateTime(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, DateTimeKind.Utc)),
-									 ConstructorArg = new DateTime(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, DateTimeKind.Utc)
+								 Type = DataModelValueType.DateTime,
+								 Value = new DataModelValue(new DateTime(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, DateTimeKind.Utc)),
+								 ConstructorArg = new DateTime(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, DateTimeKind.Utc)
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.DateTime,
-									 Value = new DataModelValue(new DateTime(year: 1, month: 1, day: 1, hour: 0, minute: 0, second: 0, DateTimeKind.Utc)),
-									 ConstructorArg = new DateTime(year: 1, month: 1, day: 1, hour: 0, minute: 0, second: 0, DateTimeKind.Utc)
+								 Type = DataModelValueType.DateTime,
+								 Value = new DataModelValue(new DateTime(year: 1, month: 1, day: 1, hour: 0, minute: 0, second: 0, DateTimeKind.Utc)),
+								 ConstructorArg = new DateTime(year: 1, month: 1, day: 1, hour: 0, minute: 0, second: 0, DateTimeKind.Utc)
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.DateTime,
-									 Value = new DataModelValue(new DateTime(year: 9999, month: 12, day: 31, hour: 23, minute: 59, second: 59, DateTimeKind.Utc)),
-									 ConstructorArg = new DateTime(year: 9999, month: 12, day: 31, hour: 23, minute: 59, second: 59, DateTimeKind.Utc)
+								 Type = DataModelValueType.DateTime,
+								 Value = new DataModelValue(new DateTime(year: 9999, month: 12, day: 31, hour: 23, minute: 59, second: 59, DateTimeKind.Utc)),
+								 ConstructorArg = new DateTime(year: 9999, month: 12, day: 31, hour: 23, minute: 59, second: 59, DateTimeKind.Utc)
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.DateTime,
-									 Value = new DataModelValue(new DateTime(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, DateTimeKind.Unspecified)),
-									 ConstructorArg = new DateTime(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, DateTimeKind.Unspecified)
+								 Type = DataModelValueType.DateTime,
+								 Value = new DataModelValue(new DateTime(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, DateTimeKind.Unspecified)),
+								 ConstructorArg = new DateTime(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, DateTimeKind.Unspecified)
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.DateTime, // DateTimeOffset
-									 Value = new DataModelValue(new DateTime(TimeSpan.TicksPerDay, DateTimeKind.Local)),
-									 ConstructorArg = new DateTime(TimeSpan.TicksPerDay, DateTimeKind.Local)
+								 Type = DataModelValueType.DateTime, // DateTimeOffset
+								 Value = new DataModelValue(new DateTime(TimeSpan.TicksPerDay, DateTimeKind.Local)),
+								 ConstructorArg = new DateTime(TimeSpan.TicksPerDay, DateTimeKind.Local)
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.DateTime, // DateTimeOffset
-									 Value = new DataModelValue(new DateTimeOffset()),
-									 ConstructorArg = new DateTimeOffset()
+								 Type = DataModelValueType.DateTime, // DateTimeOffset
+								 Value = new DataModelValue(new DateTimeOffset()),
+								 ConstructorArg = new DateTimeOffset()
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.DateTime, // DateTimeOffset
-									 Value = new DataModelValue(new DateTimeOffset(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, TimeSpan.FromHours(-14))),
-									 ConstructorArg = new DateTimeOffset(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, TimeSpan.FromHours(-14))
+								 Type = DataModelValueType.DateTime, // DateTimeOffset
+								 Value = new DataModelValue(new DateTimeOffset(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, TimeSpan.FromHours(-14))),
+								 ConstructorArg = new DateTimeOffset(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, TimeSpan.FromHours(-14))
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.DateTime, // DateTimeOffset
-									 Value = new DataModelValue(new DateTimeOffset(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, TimeSpan.FromHours(14))),
-									 ConstructorArg = new DateTimeOffset(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, TimeSpan.FromHours(14))
+								 Type = DataModelValueType.DateTime, // DateTimeOffset
+								 Value = new DataModelValue(new DateTimeOffset(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, TimeSpan.FromHours(14))),
+								 ConstructorArg = new DateTimeOffset(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, TimeSpan.FromHours(14))
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.DateTime, // DateTimeOffset
-									 Value = new DataModelValue(new DateTimeOffset(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, TimeSpan.FromMinutes(0))),
-									 ConstructorArg = new DateTimeOffset(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, TimeSpan.FromMinutes(0))
+								 Type = DataModelValueType.DateTime, // DateTimeOffset
+								 Value = new DataModelValue(new DateTimeOffset(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, TimeSpan.FromMinutes(0))),
+								 ConstructorArg = new DateTimeOffset(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, TimeSpan.FromMinutes(0))
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.DateTime, // DateTimeOffset
-									 Value = new DataModelValue(new DateTimeOffset(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, TimeSpan.FromMinutes(5))),
-									 ConstructorArg = new DateTimeOffset(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, TimeSpan.FromMinutes(5))
+								 Type = DataModelValueType.DateTime, // DateTimeOffset
+								 Value = new DataModelValue(new DateTimeOffset(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, TimeSpan.FromMinutes(5))),
+								 ConstructorArg = new DateTimeOffset(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, TimeSpan.FromMinutes(5))
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.DateTime, // DateTimeOffset
-									 Value = new DataModelValue(new DateTimeOffset(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, TimeSpan.FromMinutes(15))),
-									 ConstructorArg = new DateTimeOffset(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, TimeSpan.FromMinutes(15))
+								 Type = DataModelValueType.DateTime, // DateTimeOffset
+								 Value = new DataModelValue(new DateTimeOffset(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, TimeSpan.FromMinutes(15))),
+								 ConstructorArg = new DateTimeOffset(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, TimeSpan.FromMinutes(15))
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.DateTime, // DateTimeOffset
-									 Value = new DataModelValue(new DateTimeOffset(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, TimeSpan.FromMinutes(30))),
-									 ConstructorArg = new DateTimeOffset(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, TimeSpan.FromMinutes(30))
+								 Type = DataModelValueType.DateTime, // DateTimeOffset
+								 Value = new DataModelValue(new DateTimeOffset(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, TimeSpan.FromMinutes(30))),
+								 ConstructorArg = new DateTimeOffset(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, TimeSpan.FromMinutes(30))
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.DateTime, // DateTimeOffset
-									 Value = new DataModelValue(new DateTimeOffset(year: 1, month: 1, day: 1, hour: 0, minute: 0, second: 0, TimeSpan.FromMinutes(0))),
-									 ConstructorArg = new DateTimeOffset(year: 1, month: 1, day: 1, hour: 0, minute: 0, second: 0, TimeSpan.FromMinutes(0))
+								 Type = DataModelValueType.DateTime, // DateTimeOffset
+								 Value = new DataModelValue(new DateTimeOffset(year: 1, month: 1, day: 1, hour: 0, minute: 0, second: 0, TimeSpan.FromMinutes(0))),
+								 ConstructorArg = new DateTimeOffset(year: 1, month: 1, day: 1, hour: 0, minute: 0, second: 0, TimeSpan.FromMinutes(0))
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.DateTime, // DateTimeOffset
-									 Value = new DataModelValue(new DateTimeOffset(year: 1, month: 1, day: 1, hour: 0, minute: 0, second: 0, TimeSpan.FromMinutes(-1))),
-									 ConstructorArg = new DateTimeOffset(year: 1, month: 1, day: 1, hour: 0, minute: 0, second: 0, TimeSpan.FromMinutes(-1))
+								 Type = DataModelValueType.DateTime, // DateTimeOffset
+								 Value = new DataModelValue(new DateTimeOffset(year: 1, month: 1, day: 1, hour: 0, minute: 0, second: 0, TimeSpan.FromMinutes(-1))),
+								 ConstructorArg = new DateTimeOffset(year: 1, month: 1, day: 1, hour: 0, minute: 0, second: 0, TimeSpan.FromMinutes(-1))
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.DateTime, // DateTimeOffset
-									 Value = new DataModelValue(new DateTimeOffset(year: 9999, month: 12, day: 31, hour: 23, minute: 59, second: 59, TimeSpan.FromMinutes(0))),
-									 ConstructorArg = new DateTimeOffset(year: 9999, month: 12, day: 31, hour: 23, minute: 59, second: 59, TimeSpan.FromMinutes(0))
+								 Type = DataModelValueType.DateTime, // DateTimeOffset
+								 Value = new DataModelValue(new DateTimeOffset(year: 9999, month: 12, day: 31, hour: 23, minute: 59, second: 59, TimeSpan.FromMinutes(0))),
+								 ConstructorArg = new DateTimeOffset(year: 9999, month: 12, day: 31, hour: 23, minute: 59, second: 59, TimeSpan.FromMinutes(0))
 							 };
 				yield return new Record
 							 {
-									 Type = DataModelValueType.DateTime, // DateTimeOffset
-									 Value = new DataModelValue(new DateTimeOffset(year: 9999, month: 12, day: 31, hour: 23, minute: 59, second: 59, TimeSpan.FromMinutes(1))),
-									 ConstructorArg = new DateTimeOffset(year: 9999, month: 12, day: 31, hour: 23, minute: 59, second: 59, TimeSpan.FromMinutes(1))
+								 Type = DataModelValueType.DateTime, // DateTimeOffset
+								 Value = new DataModelValue(new DateTimeOffset(year: 9999, month: 12, day: 31, hour: 23, minute: 59, second: 59, TimeSpan.FromMinutes(1))),
+								 ConstructorArg = new DateTimeOffset(year: 9999, month: 12, day: 31, hour: 23, minute: 59, second: 59, TimeSpan.FromMinutes(1))
 							 };
 
 				var dataModelList = new DataModelList();
 				yield return new Record
 							 {
-									 Type = DataModelValueType.List,
-									 Value = new DataModelValue(dataModelList),
-									 ConstructorArg = dataModelList
+								 Type = DataModelValueType.List,
+								 Value = new DataModelValue(dataModelList),
+								 ConstructorArg = dataModelList
 							 };
 			}
 		}
@@ -331,7 +331,10 @@ namespace Xtate.Core.Test
 
 		[TestMethod]
 		[DynamicData(nameof(RecordsConstructorArgValueType), DynamicDataSourceType.Method)]
-		public void CtrArg1_ShouldBeEqualToObject(string line, object ctrArg, DataModelValue value, DataModelValueType type)
+		public void CtrArg1_ShouldBeEqualToObject(string line,
+												  object ctrArg,
+												  DataModelValue value,
+												  DataModelValueType type)
 		{
 			var obj = value.ToObject();
 
@@ -419,7 +422,10 @@ namespace Xtate.Core.Test
 
 		[TestMethod]
 		[DynamicData(nameof(RecordsConstructorArgValueType), DynamicDataSourceType.Method)]
-		public void AsList_ShouldReturnCorrectValueOrThrow(string line, object ctrArg, DataModelValue value, DataModelValueType type)
+		public void AsList_ShouldReturnCorrectValueOrThrow(string line,
+														   object ctrArg,
+														   DataModelValue value,
+														   DataModelValueType type)
 		{
 			// assert
 			if (type == DataModelValueType.List)
@@ -434,7 +440,10 @@ namespace Xtate.Core.Test
 
 		[TestMethod]
 		[DynamicData(nameof(RecordsConstructorArgValueType), DynamicDataSourceType.Method)]
-		public void AsNullableList_ShouldReturnCorrectValueOrThrow(string line, object ctrArg, DataModelValue value, DataModelValueType type)
+		public void AsNullableList_ShouldReturnCorrectValueOrThrow(string line,
+																   object ctrArg,
+																   DataModelValue value,
+																   DataModelValueType type)
 		{
 			// assert
 			if (type == DataModelValueType.List)
@@ -453,7 +462,10 @@ namespace Xtate.Core.Test
 
 		[TestMethod]
 		[DynamicData(nameof(RecordsConstructorArgValueType), DynamicDataSourceType.Method)]
-		public void AsListOrEmpty_ShouldReturnCorrectValue(string line, object ctrArg, DataModelValue value, DataModelValueType type)
+		public void AsListOrEmpty_ShouldReturnCorrectValue(string line,
+														   object ctrArg,
+														   DataModelValue value,
+														   DataModelValueType type)
 		{
 			// assert
 			if (type == DataModelValueType.List)
@@ -468,7 +480,10 @@ namespace Xtate.Core.Test
 
 		[TestMethod]
 		[DynamicData(nameof(RecordsConstructorArgValueType), DynamicDataSourceType.Method)]
-		public void AsString_ShouldReturnCorrectValueOrThrow(string line, object ctrArg, DataModelValue value, DataModelValueType type)
+		public void AsString_ShouldReturnCorrectValueOrThrow(string line,
+															 object ctrArg,
+															 DataModelValue value,
+															 DataModelValueType type)
 		{
 			// assert
 			if (type == DataModelValueType.String)
@@ -483,7 +498,10 @@ namespace Xtate.Core.Test
 
 		[TestMethod]
 		[DynamicData(nameof(RecordsConstructorArgValueType), DynamicDataSourceType.Method)]
-		public void AsNullableString_ShouldReturnCorrectValueOrThrow(string line, object ctrArg, DataModelValue value, DataModelValueType type)
+		public void AsNullableString_ShouldReturnCorrectValueOrThrow(string line,
+																	 object ctrArg,
+																	 DataModelValue value,
+																	 DataModelValueType type)
 		{
 			// assert
 			if (type == DataModelValueType.String)
@@ -502,7 +520,10 @@ namespace Xtate.Core.Test
 
 		[TestMethod]
 		[DynamicData(nameof(RecordsConstructorArgValueType), DynamicDataSourceType.Method)]
-		public void AsStringOrDefault_ShouldReturnCorrectValue(string line, object ctrArg, DataModelValue value, DataModelValueType type)
+		public void AsStringOrDefault_ShouldReturnCorrectValue(string line,
+															   object ctrArg,
+															   DataModelValue value,
+															   DataModelValueType type)
 		{
 			// assert
 			if (type == DataModelValueType.String)
@@ -517,7 +538,10 @@ namespace Xtate.Core.Test
 
 		[TestMethod]
 		[DynamicData(nameof(RecordsConstructorArgValueType), DynamicDataSourceType.Method)]
-		public void AsNumber_ShouldReturnCorrectValueOrThrow(string line, object ctrArg, DataModelValue value, DataModelValueType type)
+		public void AsNumber_ShouldReturnCorrectValueOrThrow(string line,
+															 object ctrArg,
+															 DataModelValue value,
+															 DataModelValueType type)
 		{
 			// assert
 			if (type == DataModelValueType.Number)
@@ -532,7 +556,10 @@ namespace Xtate.Core.Test
 
 		[TestMethod]
 		[DynamicData(nameof(RecordsConstructorArgValueType), DynamicDataSourceType.Method)]
-		public void AsNumberOrDefault_ShouldReturnCorrectValueOrThrow(string line, object ctrArg, DataModelValue value, DataModelValueType type)
+		public void AsNumberOrDefault_ShouldReturnCorrectValueOrThrow(string line,
+																	  object ctrArg,
+																	  DataModelValue value,
+																	  DataModelValueType type)
 		{
 			// assert
 			if (type == DataModelValueType.Number)

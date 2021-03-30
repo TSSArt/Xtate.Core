@@ -46,7 +46,7 @@ namespace Xtate.DataModel
 	#region Interface IResourceEvaluator
 
 		public virtual async ValueTask<IObject> EvaluateObject(IExecutionContext executionContext, Resource resource, CancellationToken token) =>
-				await ParseToDataModel(executionContext, resource, token).ConfigureAwait(false);
+			await ParseToDataModel(executionContext, resource, token).ConfigureAwait(false);
 
 	#endregion
 
@@ -55,8 +55,8 @@ namespace Xtate.DataModel
 			if (resource is null) throw new ArgumentNullException(nameof(resource));
 
 			return await resource.GetContent(token).ConfigureAwait(false) is { } content
-					? DataConverter.FromContent(content, resource.ContentType)
-					: DataModelValue.Null;
+				? DataConverter.FromContent(content, resource.ContentType)
+				: DataModelValue.Null;
 		}
 	}
 }

@@ -51,20 +51,20 @@ namespace Xtate
 		{
 			var option = new StateMachineHostOptions
 						 {
-								 IoProcessorFactories = _ioProcessorFactories?.ToImmutable() ?? default,
-								 ServiceFactories = _serviceFactories?.ToImmutable() ?? default,
-								 DataModelHandlerFactories = _dataModelHandlerFactories?.ToImmutable() ?? default,
-								 CustomActionFactories = _customActionFactories?.ToImmutable() ?? default,
-								 ResourceLoaderFactories = _resourceLoaderFactories?.ToImmutable() ?? default,
-								 Configuration = _configuration?.ToImmutable(),
-								 BaseUri = _baseUri,
-								 Logger = _logger,
-								 PersistenceLevel = _persistenceLevel,
-								 StorageProvider = _storageProvider,
-								 SuspendIdlePeriod = _suspendIdlePeriod,
-								 ValidationMode = _validationMode,
-								 UnhandledErrorBehaviour = _unhandledErrorBehaviour,
-								 HostMode = _hostMode
+							 IoProcessorFactories = _ioProcessorFactories?.ToImmutable() ?? default,
+							 ServiceFactories = _serviceFactories?.ToImmutable() ?? default,
+							 DataModelHandlerFactories = _dataModelHandlerFactories?.ToImmutable() ?? default,
+							 CustomActionFactories = _customActionFactories?.ToImmutable() ?? default,
+							 ResourceLoaderFactories = _resourceLoaderFactories?.ToImmutable() ?? default,
+							 Configuration = _configuration?.ToImmutable(),
+							 BaseUri = _baseUri,
+							 Logger = _logger,
+							 PersistenceLevel = _persistenceLevel,
+							 StorageProvider = _storageProvider,
+							 SuspendIdlePeriod = _suspendIdlePeriod,
+							 ValidationMode = _validationMode,
+							 UnhandledErrorBehaviour = _unhandledErrorBehaviour,
+							 HostMode = _hostMode
 						 };
 
 			return new StateMachineHost(option);

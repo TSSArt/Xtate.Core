@@ -30,21 +30,30 @@ namespace Xtate.Core
 
 	#region Interface IXIncludeXmlResolver
 
-		object IXIncludeXmlResolver.GetEntity(Uri uri, string? accept, string? acceptLanguage, Type? ofObjectToReturn) =>
-				GetEntityAsync(uri, accept, acceptLanguage, ofObjectToReturn).SynchronousGetResult();
+		object IXIncludeXmlResolver.GetEntity(Uri uri,
+											  string? accept,
+											  string? acceptLanguage,
+											  Type? ofObjectToReturn) =>
+			GetEntityAsync(uri, accept, acceptLanguage, ofObjectToReturn).SynchronousGetResult();
 
-		Task<object?> IXIncludeXmlResolver.GetEntityAsync(Uri uri, string? accept, string? acceptLanguage, Type? ofObjectToReturn) =>
-				GetEntityAsync(uri, accept, acceptLanguage, ofObjectToReturn).AsTask()!;
+		Task<object?> IXIncludeXmlResolver.GetEntityAsync(Uri uri,
+														  string? accept,
+														  string? acceptLanguage,
+														  Type? ofObjectToReturn) =>
+			GetEntityAsync(uri, accept, acceptLanguage, ofObjectToReturn).AsTask()!;
 
 	#endregion
 
 		public sealed override object GetEntity(Uri absoluteUri, string? role, Type? ofObjectToReturn) =>
-				GetEntityAsync(absoluteUri, accept: default, acceptLanguage: default, ofObjectToReturn).SynchronousGetResult();
+			GetEntityAsync(absoluteUri, accept: default, acceptLanguage: default, ofObjectToReturn).SynchronousGetResult();
 
 		public sealed override Task<object> GetEntityAsync(Uri absoluteUri, string? role, Type? ofObjectToReturn) =>
-				GetEntityAsync(absoluteUri, accept: default, acceptLanguage: default, ofObjectToReturn).AsTask();
+			GetEntityAsync(absoluteUri, accept: default, acceptLanguage: default, ofObjectToReturn).AsTask();
 
-		protected virtual ValueTask<object> GetEntityAsync(Uri uri, string? accept, string? acceptLanguage, Type? ofObjectToReturn) =>
-				throw new NotSupportedException(Resources.Exception_LoadingExternalResourcesDoesNotSupported);
+		protected virtual ValueTask<object> GetEntityAsync(Uri uri,
+														   string? accept,
+														   string? acceptLanguage,
+														   Type? ofObjectToReturn) =>
+			throw new NotSupportedException(Resources.Exception_LoadingExternalResourcesDoesNotSupported);
 	}
 }

@@ -50,7 +50,10 @@ namespace Xtate.Persistence
 
 	#endregion
 
-		public void Initialize(Bucket bucket, Func<Bucket, T> creator, SemaphoreSlim storageLock, Func<CancellationToken, ValueTask> postAction)
+		public void Initialize(Bucket bucket,
+							   Func<Bucket, T> creator,
+							   SemaphoreSlim storageLock,
+							   Func<CancellationToken, ValueTask> postAction)
 		{
 			if (creator is null) throw new ArgumentNullException(nameof(creator));
 

@@ -38,8 +38,11 @@ namespace Xtate
 
 	#region Interface IServiceFactoryActivator
 
-		async ValueTask<IService> IServiceFactoryActivator.StartService(IFactoryContext factoryContext, Uri? baseUri, InvokeData invokeData,
-																		IServiceCommunication serviceCommunication, CancellationToken token)
+		async ValueTask<IService> IServiceFactoryActivator.StartService(IFactoryContext factoryContext,
+																		Uri? baseUri,
+																		InvokeData invokeData,
+																		IServiceCommunication serviceCommunication,
+																		CancellationToken token)
 		{
 			Infrastructure.Assert(CanHandle(invokeData.Type));
 

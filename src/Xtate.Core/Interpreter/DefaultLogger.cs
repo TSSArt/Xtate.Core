@@ -30,7 +30,12 @@ namespace Xtate.Core
 
 		private DefaultLogger() { }
 
-		public ValueTask ExecuteLog(ILoggerContext loggerContext, LogLevel logLevel, string? message, DataModelValue arguments, Exception? exception, CancellationToken token)
+		public ValueTask ExecuteLog(ILoggerContext loggerContext,
+									LogLevel logLevel,
+									string? message,
+									DataModelValue arguments,
+									Exception? exception,
+									CancellationToken token)
 		{
 			switch (logLevel)
 			{
@@ -54,7 +59,11 @@ namespace Xtate.Core
 			return default;
 		}
 
-		public ValueTask LogError(ILoggerContext loggerContext, ErrorType errorType, Exception exception, string? sourceEntityId, CancellationToken token)
+		public ValueTask LogError(ILoggerContext loggerContext,
+								  ErrorType errorType,
+								  Exception exception,
+								  string? sourceEntityId,
+								  CancellationToken token)
 		{
 			Trace.TraceError(Resources.DefaultLogger_LogError, errorType, loggerContext.StateMachineName, loggerContext.SessionId?.Value, sourceEntityId, exception);
 
@@ -103,14 +112,22 @@ namespace Xtate.Core
 			return default;
 		}
 
-		public ValueTask TracePerformingTransition(ILoggerContext loggerContext, TransitionType type, string? eventDescriptor, string? target, CancellationToken token)
+		public ValueTask TracePerformingTransition(ILoggerContext loggerContext,
+												   TransitionType type,
+												   string? eventDescriptor,
+												   string? target,
+												   CancellationToken token)
 		{
 			Trace.TraceInformation(Resources.DefaultLogger_TracePerformingTransition, type, target, eventDescriptor, loggerContext.SessionId?.Value);
 
 			return default;
 		}
 
-		public ValueTask TracePerformedTransition(ILoggerContext loggerContext, TransitionType type, string? eventDescriptor, string? target, CancellationToken token)
+		public ValueTask TracePerformedTransition(ILoggerContext loggerContext,
+												  TransitionType type,
+												  string? eventDescriptor,
+												  string? target,
+												  CancellationToken token)
 		{
 			Trace.TraceInformation(Resources.DefaultLogger_TracePerformedTransition, type, target, eventDescriptor, loggerContext.SessionId?.Value);
 

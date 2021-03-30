@@ -56,10 +56,17 @@ namespace Xtate.Service
 				   || (mediaType.StartsWith(text, ct) || mediaType.StartsWith(application, ct)) && mediaType.EndsWith(xml, ct);
 		}
 
-		public override void PrepareRequest(WebRequest webRequest, string? contentType, DataModelList parameters, DataModelValue value) => AppendAcceptHeader(webRequest, MediaTypeApplicationXml);
+		public override void PrepareRequest(WebRequest webRequest,
+											string? contentType,
+											DataModelList parameters,
+											DataModelValue value) =>
+			AppendAcceptHeader(webRequest, MediaTypeApplicationXml);
 
-		public override HttpContent? TryCreateHttpContent(WebRequest webRequest, string? contentType, DataModelList parameters, DataModelValue value) =>
-				CanHandle(contentType) ? new HttpClientXmlHandlerHttpContent(value, contentType) : default;
+		public override HttpContent? TryCreateHttpContent(WebRequest webRequest,
+														  string? contentType,
+														  DataModelList parameters,
+														  DataModelValue value) =>
+			CanHandle(contentType) ? new HttpClientXmlHandlerHttpContent(value, contentType) : default;
 
 		public override async ValueTask<DataModelValue?> TryParseResponseAsync(WebResponse webResponse, DataModelList parameters, CancellationToken token)
 		{

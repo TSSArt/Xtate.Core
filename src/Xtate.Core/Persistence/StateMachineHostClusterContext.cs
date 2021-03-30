@@ -27,11 +27,15 @@ namespace Xtate.Persistence
 		private readonly StateMachineHost _stateMachineHost;
 
 		public StateMachineHostClusterContext(StateMachineHost stateMachineHost, StateMachineHostOptions options) : base(stateMachineHost, options, new PersistedEventSchedulerFactory(options)) =>
-				_stateMachineHost = stateMachineHost;
+			_stateMachineHost = stateMachineHost;
 
-		protected override StateMachineControllerBase CreateStateMachineController(SessionId sessionId, IStateMachine? stateMachine, IStateMachineOptions? stateMachineOptions,
-																				   Uri? stateMachineLocation, InterpreterOptions defaultOptions, SecurityContext securityContext,
+		protected override StateMachineControllerBase CreateStateMachineController(SessionId sessionId,
+																				   IStateMachine? stateMachine,
+																				   IStateMachineOptions? stateMachineOptions,
+																				   Uri? stateMachineLocation,
+																				   InterpreterOptions defaultOptions,
+																				   SecurityContext securityContext,
 																				   DeferredFinalizer finalizer) =>
-				new StateMachineSingleMacroStepController(sessionId, stateMachineOptions, stateMachine, stateMachineLocation, _stateMachineHost, defaultOptions, securityContext, finalizer);
+			new StateMachineSingleMacroStepController(sessionId, stateMachineOptions, stateMachine, stateMachineLocation, _stateMachineHost, defaultOptions, securityContext, finalizer);
 	}
 }

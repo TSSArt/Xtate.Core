@@ -77,19 +77,19 @@ namespace Xtate
 		private static readonly JsonSerializerOptions DefaultOptions = CreateOptions(DataModelConverterJsonOptions.UndefinedNotAllowed);
 
 		private static JsonSerializerOptions GetOptions(DataModelConverterJsonOptions options) =>
-				options == DataModelConverterJsonOptions.UndefinedNotAllowed ? DefaultOptions : CreateOptions(options);
+			options == DataModelConverterJsonOptions.UndefinedNotAllowed ? DefaultOptions : CreateOptions(options);
 
 		private static JsonSerializerOptions CreateOptions(DataModelConverterJsonOptions options) =>
-				new()
+			new()
+			{
+				Converters =
 				{
-						Converters =
-						{
-								new JsonValueConverter(options),
-								new JsonListConverter(options)
-						},
-						WriteIndented = (options & DataModelConverterJsonOptions.WriteIndented) != 0,
-						MaxDepth = 64
-				};
+					new JsonValueConverter(options),
+					new JsonListConverter(options)
+				},
+				WriteIndented = (options & DataModelConverterJsonOptions.WriteIndented) != 0,
+				MaxDepth = 64
+			};
 
 		public static bool IsArray(DataModelList list)
 		{
@@ -100,7 +100,7 @@ namespace Xtate
 				switch (value.AsStringOrDefault())
 				{
 					case ObjectMetaValue: return false;
-					case ArrayMetaValue: return true;
+					case ArrayMetaValue:  return true;
 				}
 			}
 
@@ -116,7 +116,7 @@ namespace Xtate
 				switch (value.AsStringOrDefault())
 				{
 					case ObjectMetaValue: return true;
-					case ArrayMetaValue: return false;
+					case ArrayMetaValue:  return false;
 				}
 			}
 
@@ -145,8 +145,11 @@ namespace Xtate
 
 		public static byte[] ToJsonUtf8Bytes(DataModelValue value, DataModelConverterJsonOptions options = default) => JsonSerializer.SerializeToUtf8Bytes(value, GetOptions(options));
 
-		public static Task ToJsonAsync(Stream stream, DataModelValue value, DataModelConverterJsonOptions options = default, CancellationToken token = default) =>
-				JsonSerializer.SerializeAsync(stream, value, GetOptions(options), token);
+		public static Task ToJsonAsync(Stream stream,
+									   DataModelValue value,
+									   DataModelConverterJsonOptions options = default,
+									   CancellationToken token = default) =>
+			JsonSerializer.SerializeAsync(stream, value, GetOptions(options), token);
 
 		public static DataModelValue FromJson(string json) => JsonSerializer.Deserialize<DataModelValue>(json, DefaultOptions)!;
 
@@ -164,8 +167,11 @@ namespace Xtate
 			return memoryStream.ToArray();
 		}
 
-		public static Task ToXmlAsync(Stream stream, DataModelValue value, DataModelConverterXmlOptions options = default, CancellationToken token = default) =>
-				XmlConverter.AsXmlToStreamAsync(value, (options & DataModelConverterXmlOptions.WriteIndented) != 0, stream.InjectCancellationToken(token));
+		public static Task ToXmlAsync(Stream stream,
+									  DataModelValue value,
+									  DataModelConverterXmlOptions options = default,
+									  CancellationToken token = default) =>
+			XmlConverter.AsXmlToStreamAsync(value, (options & DataModelConverterXmlOptions.WriteIndented) != 0, stream.InjectCancellationToken(token));
 
 		public static DataModelValue FromXml(string xml) => XmlConverter.FromXml(xml);
 
@@ -194,19 +200,19 @@ namespace Xtate
 			public JsonValueConverter(DataModelConverterJsonOptions options) => _options = options;
 
 			public override DataModelValue Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
-					reader.TokenType switch
-					{
-							JsonTokenType.True => true,
-							JsonTokenType.False => false,
-							JsonTokenType.Null => DataModelValue.Null,
-							JsonTokenType.String when reader.TryGetDateTime(out var datetime) && datetime.Kind != DateTimeKind.Local => datetime,
-							JsonTokenType.String when reader.TryGetDateTimeOffset(out var datetimeOffset) => datetimeOffset,
-							JsonTokenType.String => reader.GetString(),
-							JsonTokenType.Number => reader.GetDouble(),
-							JsonTokenType.StartObject => JsonSerializer.Deserialize<DataModelList>(ref reader, options),
-							JsonTokenType.StartArray => JsonSerializer.Deserialize<DataModelList>(ref reader, options),
-							_ => Infrastructure.UnexpectedValue<DataModelValue>(reader.TokenType, Resources.Exception_NotExpectedTokenType)
-					};
+				reader.TokenType switch
+				{
+					JsonTokenType.True => true,
+					JsonTokenType.False => false,
+					JsonTokenType.Null => DataModelValue.Null,
+					JsonTokenType.String when reader.TryGetDateTime(out var datetime) && datetime.Kind != DateTimeKind.Local => datetime,
+					JsonTokenType.String when reader.TryGetDateTimeOffset(out var datetimeOffset) => datetimeOffset,
+					JsonTokenType.String => reader.GetString(),
+					JsonTokenType.Number => reader.GetDouble(),
+					JsonTokenType.StartObject => JsonSerializer.Deserialize<DataModelList>(ref reader, options),
+					JsonTokenType.StartArray => JsonSerializer.Deserialize<DataModelList>(ref reader, options),
+					_ => Infrastructure.UnexpectedValue<DataModelValue>(reader.TokenType, Resources.Exception_NotExpectedTokenType)
+				};
 
 			public override void Write(Utf8JsonWriter writer, DataModelValue value, JsonSerializerOptions options)
 			{
@@ -275,12 +281,12 @@ namespace Xtate
 			public JsonListConverter(DataModelConverterJsonOptions options) => _options = options;
 
 			public override DataModelList Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
-					reader.TokenType switch
-					{
-							JsonTokenType.StartObject => ReadObject(ref reader, options),
-							JsonTokenType.StartArray => ReadArray(ref reader, options),
-							_ => Infrastructure.UnexpectedValue<DataModelList>(reader.TokenType)
-					};
+				reader.TokenType switch
+				{
+					JsonTokenType.StartObject => ReadObject(ref reader, options),
+					JsonTokenType.StartArray  => ReadArray(ref reader, options),
+					_                         => Infrastructure.UnexpectedValue<DataModelList>(reader.TokenType)
+				};
 
 			public override void Write(Utf8JsonWriter writer, DataModelList list, JsonSerializerOptions options)
 			{

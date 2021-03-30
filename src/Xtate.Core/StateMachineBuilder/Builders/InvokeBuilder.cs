@@ -42,11 +42,11 @@ namespace Xtate.Builder
 	#region Interface IInvokeBuilder
 
 		public IInvoke Build() =>
-				new InvokeEntity
-				{
-						Ancestor = Ancestor, Type = _type, TypeExpression = _typeExpression, Source = _source, SourceExpression = _sourceExpression, Id = _id, IdLocation = _idLocation,
-						NameList = _nameList, AutoForward = _autoForward, Parameters = _parameters?.ToImmutable() ?? default, Finalize = _finalize, Content = _content
-				};
+			new InvokeEntity
+			{
+				Ancestor = Ancestor, Type = _type, TypeExpression = _typeExpression, Source = _source, SourceExpression = _sourceExpression, Id = _id, IdLocation = _idLocation,
+				NameList = _nameList, AutoForward = _autoForward, Parameters = _parameters?.ToImmutable() ?? default, Finalize = _finalize, Content = _content
+			};
 
 		public void SetType(Uri type) => _type = type ?? throw new ArgumentNullException(nameof(type));
 

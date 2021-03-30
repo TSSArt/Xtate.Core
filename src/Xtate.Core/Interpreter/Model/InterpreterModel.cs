@@ -24,7 +24,10 @@ namespace Xtate.Core
 	[PublicAPI]
 	internal class InterpreterModel
 	{
-		public InterpreterModel(StateMachineNode root, int maxConfigurationLength, ImmutableDictionary<int, IEntity> entityMap, ImmutableArray<DataModelNode> dataModelList)
+		public InterpreterModel(StateMachineNode root,
+								int maxConfigurationLength,
+								ImmutableDictionary<int, IEntity> entityMap,
+								ImmutableArray<DataModelNode> dataModelList)
 		{
 			Root = root;
 			MaxConfigurationLength = maxConfigurationLength;

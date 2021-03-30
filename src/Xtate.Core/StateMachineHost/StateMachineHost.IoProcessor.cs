@@ -40,12 +40,12 @@ namespace Xtate
 	#region Interface IEventConsumer
 
 		public async ValueTask<IEventDispatcher?> TryGetEventDispatcher(ServiceId serviceId, CancellationToken token) =>
-				serviceId switch
-				{
-						SessionId sessionId => await GetCurrentContext().FindStateMachineController(sessionId, token).ConfigureAwait(false),
-						InvokeId invokeId when GetCurrentContext().TryGetService(invokeId, out var service) => service,
-						_ => default
-				};
+			serviceId switch
+			{
+				SessionId sessionId                                                                 => await GetCurrentContext().FindStateMachineController(sessionId, token).ConfigureAwait(false),
+				InvokeId invokeId when GetCurrentContext().TryGetService(invokeId, out var service) => service,
+				_                                                                                   => default
+			};
 
 	#endregion
 
@@ -98,24 +98,24 @@ namespace Xtate
 	#endregion
 
 		private async ValueTask<IService> GetService(ServiceId serviceId, CancellationToken token) =>
-				serviceId switch
-				{
-						SessionId sessionId
-								when await GetCurrentContext().FindStateMachineController(sessionId, token).ConfigureAwait(false) is { } controller => controller,
-						InvokeId invokeId
-								when GetCurrentContext().TryGetService(invokeId, out var service) && service is not null => service,
-						_ => throw new ProcessorException(Resources.Exception_CannotFindTarget)
-				};
+			serviceId switch
+			{
+				SessionId sessionId
+					when await GetCurrentContext().FindStateMachineController(sessionId, token).ConfigureAwait(false) is { } controller => controller,
+				InvokeId invokeId
+					when GetCurrentContext().TryGetService(invokeId, out var service) && service is not null => service,
+				_ => throw new ProcessorException(Resources.Exception_CannotFindTarget)
+			};
 
 		private static bool CanHandleType(Uri? type) => type is null || FullUriComparer.Instance.Equals(type, IoProcessorId) || FullUriComparer.Instance.Equals(type, IoProcessorAliasId);
 
 		private static Uri? GetTarget(ServiceId serviceId) =>
-				serviceId switch
-				{
-						SessionId sessionId => new Uri(BaseUri, SessionIdPrefix + sessionId.Value),
-						InvokeId invokeId => new Uri(BaseUri, InvokeIdPrefix + invokeId.Value),
-						_ => default
-				};
+			serviceId switch
+			{
+				SessionId sessionId => new Uri(BaseUri, SessionIdPrefix + sessionId.Value),
+				InvokeId invokeId   => new Uri(BaseUri, InvokeIdPrefix + invokeId.Value),
+				_                   => default
+			};
 
 		private static string GetTargetString(Uri target) => target.IsAbsoluteUri ? target.Fragment : target.OriginalString;
 

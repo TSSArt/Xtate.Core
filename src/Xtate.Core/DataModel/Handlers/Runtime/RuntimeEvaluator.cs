@@ -45,13 +45,13 @@ namespace Xtate
 	#region Interface IObjectEvaluator
 
 		public async ValueTask<IObject> EvaluateObject(IExecutionContext executionContext, CancellationToken token) =>
-				_evaluator switch
-				{
-						Evaluator evaluator => new DefaultObject(evaluator(executionContext)),
-						EvaluatorTask task => new DefaultObject(await task(executionContext).ConfigureAwait(false)),
-						EvaluatorCancellableTask task => new DefaultObject(await task(executionContext, token).ConfigureAwait(false)),
-						_ => Infrastructure.UnexpectedValue<IObject>(_evaluator)
-				};
+			_evaluator switch
+			{
+				Evaluator evaluator           => new DefaultObject(evaluator(executionContext)),
+				EvaluatorTask task            => new DefaultObject(await task(executionContext).ConfigureAwait(false)),
+				EvaluatorCancellableTask task => new DefaultObject(await task(executionContext, token).ConfigureAwait(false)),
+				_                             => Infrastructure.UnexpectedValue<IObject>(_evaluator)
+			};
 
 	#endregion
 
