@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using Xtate.Core;
 
 namespace Xtate.Builder
 {
@@ -47,21 +48,38 @@ namespace Xtate.Builder
 			return _outerBuilder;
 		}
 
-		public TransitionFluentBuilder<TOuterBuilder> SetEvent(params IEventDescriptor[] eventsDescriptor)
+		public TransitionFluentBuilder<TOuterBuilder> SetEvent(params string[] eventDescriptors)
 		{
-			if (eventsDescriptor is null) throw new ArgumentNullException(nameof(eventsDescriptor));
-			if (eventsDescriptor.Length == 0) throw new ArgumentException(Resources.Exception_ValueCannotBeAnEmptyCollection, nameof(eventsDescriptor));
+			if (eventDescriptors is null) throw new ArgumentNullException(nameof(eventDescriptors));
+			if (eventDescriptors.Length == 0) throw new ArgumentException(Resources.Exception_ValueCannotBeAnEmptyCollection, nameof(eventDescriptors));
 
-			_builder.SetEvent(eventsDescriptor.ToImmutableArray());
+			var eventsDescriptorsBuilder = ImmutableArray.CreateBuilder<IEventDescriptor>(eventDescriptors.Length);
+
+			foreach (var eventDescriptor in eventDescriptors)
+			{
+				eventsDescriptorsBuilder.Add(EventDescriptor.FromString(eventDescriptor));
+			}
+
+			_builder.SetEvent(eventsDescriptorsBuilder.MoveToImmutable());
 
 			return this;
 		}
 
-		public TransitionFluentBuilder<TOuterBuilder> SetEvent(ImmutableArray<IEventDescriptor> eventsDescriptor)
+		public TransitionFluentBuilder<TOuterBuilder> SetEvent(params IEventDescriptor[] eventDescriptors)
 		{
-			if (eventsDescriptor.IsDefaultOrEmpty) throw new ArgumentException(Resources.Exception_ValueCannotBeAnEmptyList, nameof(eventsDescriptor));
+			if (eventDescriptors is null) throw new ArgumentNullException(nameof(eventDescriptors));
+			if (eventDescriptors.Length == 0) throw new ArgumentException(Resources.Exception_ValueCannotBeAnEmptyCollection, nameof(eventDescriptors));
 
-			_builder.SetEvent(eventsDescriptor);
+			_builder.SetEvent(eventDescriptors.ToImmutableArray());
+
+			return this;
+		}
+
+		public TransitionFluentBuilder<TOuterBuilder> SetEvent(ImmutableArray<IEventDescriptor> eventDescriptors)
+		{
+			if (eventDescriptors.IsDefaultOrEmpty) throw new ArgumentException(Resources.Exception_ValueCannotBeAnEmptyList, nameof(eventDescriptors));
+
+			_builder.SetEvent(eventDescriptors);
 
 			return this;
 		}
