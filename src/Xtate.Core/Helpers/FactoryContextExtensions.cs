@@ -29,7 +29,10 @@ namespace Xtate.Core
 	{
 		public static ValueTask<Resource> GetResource(this IFactoryContext factoryContext, Uri uri, CancellationToken token) => GetResource(factoryContext, uri, headers: default, token);
 
-		public static async ValueTask<Resource> GetResource(this IFactoryContext factoryContext, Uri uri, NameValueCollection? headers, CancellationToken token)
+		public static async ValueTask<Resource> GetResource(this IFactoryContext factoryContext,
+															Uri uri,
+															NameValueCollection? headers,
+															CancellationToken token)
 		{
 			if (factoryContext is null) throw new ArgumentNullException(nameof(factoryContext));
 

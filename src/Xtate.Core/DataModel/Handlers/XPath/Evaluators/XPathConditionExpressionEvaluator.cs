@@ -43,7 +43,7 @@ namespace Xtate.DataModel.XPath
 	#region Interface IBooleanEvaluator
 
 		ValueTask<bool> IBooleanEvaluator.EvaluateBoolean(IExecutionContext executionContext, CancellationToken token) =>
-				new(executionContext.Engine().EvalObject(_compiledExpression, stripRoots: true).AsBoolean());
+			new(executionContext.Engine().EvalObject(_compiledExpression, stripRoots: true).AsBoolean());
 
 	#endregion
 

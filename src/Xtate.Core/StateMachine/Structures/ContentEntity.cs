@@ -46,8 +46,8 @@ namespace Xtate.Core
 		}
 
 		bool IVisitorEntity<ContentEntity, IContent>.RefEquals(ref ContentEntity other) =>
-				ReferenceEquals(Expression, other.Expression) &&
-				ReferenceEquals(Body, other.Body);
+			ReferenceEquals(Expression, other.Expression) &&
+			ReferenceEquals(Body, other.Body);
 
 	#endregion
 	}

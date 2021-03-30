@@ -26,7 +26,11 @@ namespace Xtate
 	[PublicAPI]
 	public sealed class ErrorItem
 	{
-		public ErrorItem(Type source, string message, Exception? exception, int lineNumber = 0, int linePosition = 0)
+		public ErrorItem(Type source,
+						 string message,
+						 Exception? exception,
+						 int lineNumber = 0,
+						 int linePosition = 0)
 		{
 			Source = source;
 			Message = message;

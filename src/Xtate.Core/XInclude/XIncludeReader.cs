@@ -45,8 +45,11 @@ namespace Xtate.XInclude
 		private Stack<XmlReader>? _sourceReaders;
 		private Strings           _strings;
 
-		public XIncludeReader(XmlReader innerReader, XmlReaderSettings xmlReaderSettings, XmlResolver xmlResolver, int maxNestingLevel)
-				: base(new XmlBaseReader(innerReader, xmlResolver))
+		public XIncludeReader(XmlReader innerReader,
+							  XmlReaderSettings xmlReaderSettings,
+							  XmlResolver xmlResolver,
+							  int maxNestingLevel)
+			: base(new XmlBaseReader(innerReader, xmlResolver))
 		{
 			if (innerReader is null) throw new ArgumentNullException(nameof(innerReader));
 			if (maxNestingLevel < 0) throw new ArgumentOutOfRangeException(nameof(maxNestingLevel));
@@ -104,10 +107,10 @@ namespace Xtate.XInclude
 
 				switch (result)
 				{
-					case ProcessNodeResult.Ready: return true;
+					case ProcessNodeResult.Ready:    return true;
 					case ProcessNodeResult.Complete: return false;
 					case ProcessNodeResult.Continue: break;
-					default: return Infrastructure.UnexpectedValue<bool>(result);
+					default:                         return Infrastructure.UnexpectedValue<bool>(result);
 				}
 			}
 		}
@@ -151,12 +154,12 @@ namespace Xtate.XInclude
 		}
 
 		private bool IsIncludeElement() =>
-				(
-						ReferenceEquals(InnerReader.NamespaceURI, _strings.XInclude1Ns) ||
-						ReferenceEquals(InnerReader.NamespaceURI, _strings.XInclude2Ns)
-				)
-				&& ReferenceEquals(InnerReader.LocalName, _strings.Include)
-				&& InnerReader.IsEmptyElement;
+			(
+				ReferenceEquals(InnerReader.NamespaceURI, _strings.XInclude1Ns) ||
+				ReferenceEquals(InnerReader.NamespaceURI, _strings.XInclude2Ns)
+			)
+			&& ReferenceEquals(InnerReader.LocalName, _strings.Include)
+			&& InnerReader.IsEmptyElement;
 
 		private void ExtractIncludeElementAttributes()
 		{
@@ -245,20 +248,20 @@ namespace Xtate.XInclude
 				if (_xmlResolver is IXIncludeXmlResolver resolver)
 				{
 					resource = useAsync
-							? await resolver.GetEntityAsync(uri, _acceptValue, _acceptLanguageValue, ResourceType).ConfigureAwait(false)
-							: resolver.GetEntity(uri, _acceptValue, _acceptLanguageValue, ResourceType);
+						? await resolver.GetEntityAsync(uri, _acceptValue, _acceptLanguageValue, ResourceType).ConfigureAwait(false)
+						: resolver.GetEntity(uri, _acceptValue, _acceptLanguageValue, ResourceType);
 				}
 				else if (_xmlResolver.SupportsType(uri, ResourceType))
 				{
 					resource = useAsync
-							? await _xmlResolver.GetEntityAsync(uri, role: null, ResourceType).ConfigureAwait(false)
-							: _xmlResolver.GetEntity(uri, role: null, ResourceType);
+						? await _xmlResolver.GetEntityAsync(uri, role: null, ResourceType).ConfigureAwait(false)
+						: _xmlResolver.GetEntity(uri, role: null, ResourceType);
 				}
 				else
 				{
 					resource = useAsync
-							? await _xmlResolver.GetEntityAsync(uri, role: null, ofObjectToReturn: default).ConfigureAwait(false)
-							: _xmlResolver.GetEntity(uri, role: null, ofObjectToReturn: default);
+						? await _xmlResolver.GetEntityAsync(uri, role: null, ofObjectToReturn: default).ConfigureAwait(false)
+						: _xmlResolver.GetEntity(uri, role: null, ofObjectToReturn: default);
 				}
 			}
 			catch (Exception ex)
@@ -319,8 +322,8 @@ namespace Xtate.XInclude
 			var resource = await LoadAcquiredData(uri, useAsync).ConfigureAwait(false);
 
 			var content = IsXml(resource)
-					? await ReadStreamAsXml(resource).ConfigureAwait(false)
-					: await ReadStreamAsText(resource).ConfigureAwait(false);
+				? await ReadStreamAsXml(resource).ConfigureAwait(false)
+				: await ReadStreamAsText(resource).ConfigureAwait(false);
 
 			PushInnerReader(new TextContentReader(uri, content));
 

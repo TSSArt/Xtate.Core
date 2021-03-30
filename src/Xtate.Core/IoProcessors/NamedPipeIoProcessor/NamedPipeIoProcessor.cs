@@ -55,7 +55,10 @@ namespace Xtate.IoProcessor
 
 		private readonly CancellationTokenSource _stopTokenSource = new();
 
-		public NamedPipeIoProcessor(IEventConsumer eventConsumer, [Localizable(false)] string host, [Localizable(false)] string name, int maxMessageSize) : base(eventConsumer, Id, Alias)
+		public NamedPipeIoProcessor(IEventConsumer eventConsumer,
+									[Localizable(false)] string host,
+									[Localizable(false)] string name,
+									int maxMessageSize) : base(eventConsumer, Id, Alias)
 		{
 			if (host is null) throw new ArgumentNullException(nameof(host));
 			if (maxMessageSize < 0) throw new ArgumentOutOfRangeException(nameof(maxMessageSize));
@@ -129,15 +132,19 @@ namespace Xtate.IoProcessor
 		protected override Uri? GetTarget(ServiceId serviceId)
 		{
 			return serviceId switch
-			{
-					SessionId sessionId => new Uri(_baseUri, SessionIdPrefix + sessionId.Value),
-					InvokeId invokeId => new Uri(_baseUri, InvokeIdPrefix + invokeId.Value),
-					UriId uriId => new Uri(_baseUri, uriId.Uri),
-					_ => default
-			};
+				   {
+					   SessionId sessionId => new Uri(_baseUri, SessionIdPrefix + sessionId.Value),
+					   InvokeId invokeId   => new Uri(_baseUri, InvokeIdPrefix + invokeId.Value),
+					   UriId uriId         => new Uri(_baseUri, uriId.Uri),
+					   _                   => default
+				   };
 		}
 
-		private async ValueTask SendEventToPipe(string server, string pipeName, ServiceId? targetServiceId, IEvent evt, CancellationToken token)
+		private async ValueTask SendEventToPipe(string server,
+												string pipeName,
+												ServiceId? targetServiceId,
+												IEvent evt,
+												CancellationToken token)
 		{
 			var pipeStream = new NamedPipeClientStream(server, pipeName, PipeDirection.InOut, DefaultPipeOptions);
 			var memoryStream = new MemoryStream();

@@ -81,12 +81,13 @@ namespace Xtate.IoProcessor
 
 		private void StartWaiter()
 		{
-			_httpListener.GetContextAsync().ContinueWith(task =>
-														 {
-															 StartWaiter();
-															 HandleRequest(task.Result);
-														 },
-														 TaskContinuationOptions.OnlyOnRanToCompletion);
+			_httpListener.GetContextAsync()
+						 .ContinueWith(task =>
+									   {
+										   StartWaiter();
+										   HandleRequest(task.Result);
+									   },
+									   TaskContinuationOptions.OnlyOnRanToCompletion);
 		}
 
 		protected override ValueTask StopHost(CancellationToken token)

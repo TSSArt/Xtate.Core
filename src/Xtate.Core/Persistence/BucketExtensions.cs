@@ -112,10 +112,10 @@ namespace Xtate.Persistence
 		public static EnumGetter<TKey> GetEnum<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => new(bucket, key);
 
 		public static int GetInt32<TKey>(this in Bucket bucket, TKey key) where TKey : notnull =>
-				bucket.TryGet(key, out int value) ? value : throw new KeyNotFoundException(Res.Format(Resources.Exception_KeyNotFound, key));
+			bucket.TryGet(key, out int value) ? value : throw new KeyNotFoundException(Res.Format(Resources.Exception_KeyNotFound, key));
 
 		public static bool GetBoolean<TKey>(this in Bucket bucket, TKey key) where TKey : notnull =>
-				bucket.TryGet(key, out bool value) ? value : throw new KeyNotFoundException(Res.Format(Resources.Exception_KeyNotFound, key));
+			bucket.TryGet(key, out bool value) ? value : throw new KeyNotFoundException(Res.Format(Resources.Exception_KeyNotFound, key));
 
 		public static string? GetString<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out string? value) ? value : null;
 
@@ -189,12 +189,12 @@ namespace Xtate.Persistence
 
 			switch (type)
 			{
-				case DataModelValueType.Undefined: return default;
-				case DataModelValueType.Null: return DataModelValue.Null;
-				case DataModelValueType.String when bucket.TryGet(Key.Item, out string? value): return value;
-				case DataModelValueType.Number when bucket.TryGet(Key.Item, out double value): return value;
+				case DataModelValueType.Undefined:                                                          return default;
+				case DataModelValueType.Null:                                                               return DataModelValue.Null;
+				case DataModelValueType.String when bucket.TryGet(Key.Item, out string? value):             return value;
+				case DataModelValueType.Number when bucket.TryGet(Key.Item, out double value):              return value;
 				case DataModelValueType.DateTime when bucket.TryGet(Key.Item, out DataModelDateTime value): return value;
-				case DataModelValueType.Boolean when bucket.TryGet(Key.Item, out bool value): return value;
+				case DataModelValueType.Boolean when bucket.TryGet(Key.Item, out bool value):               return value;
 
 				case DataModelValueType.List when bucket.TryGet(Key.RefId, out int refId):
 					var list = baseValue.Type == DataModelValueType.List ? baseValue.AsList() : null;
@@ -227,7 +227,7 @@ namespace Xtate.Persistence
 			switch (type)
 			{
 				case DataModelValueType.Undefined: break;
-				case DataModelValueType.Null: break;
+				case DataModelValueType.Null:      break;
 
 				case DataModelValueType.String:
 					bucket.Add(Key.Item, item.AsString());

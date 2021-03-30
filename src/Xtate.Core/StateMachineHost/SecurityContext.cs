@@ -104,7 +104,11 @@ namespace Xtate.Core
 			return securityContext;
 		}
 
-		public ValueTask SetValue<T>(object key, object subKey, [DisallowNull] T value, ValueOptions options) => GetLocalCache().SetValue((key, subKey), value, options);
+		public ValueTask SetValue<T>(object key,
+									 object subKey,
+									 [DisallowNull] T value,
+									 ValueOptions options) =>
+			GetLocalCache().SetValue((key, subKey), value, options);
 
 		public bool TryGetValue<T>(object key, object subKey, [NotNullWhen(true)] out T? value)
 		{
@@ -127,8 +131,8 @@ namespace Xtate.Core
 		private TaskFactory CreateTaskFactory()
 		{
 			var taskScheduler = HasPermissions(SecurityContextPermissions.RunIoBoundTask)
-					? new IoBoundTaskScheduler(IoBoundTaskSchedulerMaximumConcurrencyLevel)
-					: NoAccessTaskScheduler.Instance;
+				? new IoBoundTaskScheduler(IoBoundTaskSchedulerMaximumConcurrencyLevel)
+				: NoAccessTaskScheduler.Instance;
 
 			return new TaskFactory(cancellationToken: default, CreationOptions, ContinuationOptions, taskScheduler);
 		}
@@ -180,11 +184,11 @@ namespace Xtate.Core
 		internal static SecurityContext Create(SecurityContextType type, DeferredFinalizer finalizer)
 		{
 			var permissions = type switch
-			{
-					SecurityContextType.NewTrustedStateMachine => SecurityContextPermissions.Full,
-					SecurityContextType.NewStateMachine => SecurityContextPermissions.RunIoBoundTask,
-					_ => Infrastructure.UnexpectedValue<SecurityContextPermissions>(type)
-			};
+							  {
+								  SecurityContextType.NewTrustedStateMachine => SecurityContextPermissions.Full,
+								  SecurityContextType.NewStateMachine        => SecurityContextPermissions.RunIoBoundTask,
+								  _                                          => Infrastructure.UnexpectedValue<SecurityContextPermissions>(type)
+							  };
 
 			return Create(type, permissions, finalizer);
 		}

@@ -94,161 +94,161 @@ namespace Xtate
 		internal bool IsLazyValue => _value is ILazyValue;
 
 		public DataModelValueType Type =>
-				_value switch
-				{
-						null => DataModelValueType.Undefined,
-						{ } value when value == NullValue => DataModelValueType.Null,
-						{ } value when value == NumberValue => DataModelValueType.Number,
-						{ } value when value == BooleanValue => DataModelValueType.Boolean,
-						string => DataModelValueType.String,
-						DateTimeValue => DataModelValueType.DateTime,
-						DataModelList => DataModelValueType.List,
-						ILazyValue lazyValue => lazyValue.Value.Type,
-						_ => Infrastructure.UnexpectedValue<DataModelValueType>(_value)
-				};
+			_value switch
+			{
+				null                                 => DataModelValueType.Undefined,
+				{ } value when value == NullValue    => DataModelValueType.Null,
+				{ } value when value == NumberValue  => DataModelValueType.Number,
+				{ } value when value == BooleanValue => DataModelValueType.Boolean,
+				string                               => DataModelValueType.String,
+				DateTimeValue                        => DataModelValueType.DateTime,
+				DataModelList                        => DataModelValueType.List,
+				ILazyValue lazyValue                 => lazyValue.Value.Type,
+				_                                    => Infrastructure.UnexpectedValue<DataModelValueType>(_value)
+			};
 
 	#region Interface IConvertible
 
 		public string ToString(IFormatProvider? provider) => ToString(format: null, provider);
 
 		TypeCode IConvertible.GetTypeCode() =>
-				Type switch
-				{
-						DataModelValueType.Undefined => TypeCode.Empty,
-						DataModelValueType.Null => TypeCode.Empty,
-						DataModelValueType.String => TypeCode.String,
-						DataModelValueType.List => TypeCode.Object,
-						DataModelValueType.Number => TypeCode.Double,
-						DataModelValueType.DateTime => AsDateTime().GetTypeCode(),
-						DataModelValueType.Boolean => TypeCode.Boolean,
-						_ => Infrastructure.UnexpectedValue<TypeCode>(Type)
-				};
+			Type switch
+			{
+				DataModelValueType.Undefined => TypeCode.Empty,
+				DataModelValueType.Null      => TypeCode.Empty,
+				DataModelValueType.String    => TypeCode.String,
+				DataModelValueType.List      => TypeCode.Object,
+				DataModelValueType.Number    => TypeCode.Double,
+				DataModelValueType.DateTime  => AsDateTime().GetTypeCode(),
+				DataModelValueType.Boolean   => TypeCode.Boolean,
+				_                            => Infrastructure.UnexpectedValue<TypeCode>(Type)
+			};
 
 		bool IConvertible.ToBoolean(IFormatProvider? provider) =>
-				Type switch
-				{
-						DataModelValueType.Number => AsNumber().ToBoolean(provider),
-						DataModelValueType.DateTime => AsDateTime().ToBoolean(provider),
-						DataModelValueType.Boolean => AsBoolean().ToBoolean(provider),
-						_ => Convert.ToBoolean(ToObject(), provider)
-				};
+			Type switch
+			{
+				DataModelValueType.Number   => AsNumber().ToBoolean(provider),
+				DataModelValueType.DateTime => AsDateTime().ToBoolean(provider),
+				DataModelValueType.Boolean  => AsBoolean().ToBoolean(provider),
+				_                           => Convert.ToBoolean(ToObject(), provider)
+			};
 
 		byte IConvertible.ToByte(IFormatProvider? provider) =>
-				Type switch
-				{
-						DataModelValueType.Number => AsNumber().ToByte(provider),
-						DataModelValueType.DateTime => AsDateTime().ToByte(provider),
-						DataModelValueType.Boolean => AsBoolean().ToByte(provider),
-						_ => Convert.ToByte(ToObject(), provider)
-				};
+			Type switch
+			{
+				DataModelValueType.Number   => AsNumber().ToByte(provider),
+				DataModelValueType.DateTime => AsDateTime().ToByte(provider),
+				DataModelValueType.Boolean  => AsBoolean().ToByte(provider),
+				_                           => Convert.ToByte(ToObject(), provider)
+			};
 
 		char IConvertible.ToChar(IFormatProvider? provider) =>
-				Type switch
-				{
-						DataModelValueType.Number => AsNumber().ToChar(provider),
-						DataModelValueType.DateTime => AsDateTime().ToChar(provider),
-						DataModelValueType.Boolean => AsBoolean().ToChar(provider),
-						_ => Convert.ToChar(ToObject(), provider)
-				};
+			Type switch
+			{
+				DataModelValueType.Number   => AsNumber().ToChar(provider),
+				DataModelValueType.DateTime => AsDateTime().ToChar(provider),
+				DataModelValueType.Boolean  => AsBoolean().ToChar(provider),
+				_                           => Convert.ToChar(ToObject(), provider)
+			};
 
 		decimal IConvertible.ToDecimal(IFormatProvider? provider) =>
-				Type switch
-				{
-						DataModelValueType.Number => AsNumber().ToDecimal(provider),
-						DataModelValueType.DateTime => AsDateTime().ToDecimal(provider),
-						DataModelValueType.Boolean => AsBoolean().ToDecimal(provider),
-						_ => Convert.ToDecimal(ToObject(), provider)
-				};
+			Type switch
+			{
+				DataModelValueType.Number   => AsNumber().ToDecimal(provider),
+				DataModelValueType.DateTime => AsDateTime().ToDecimal(provider),
+				DataModelValueType.Boolean  => AsBoolean().ToDecimal(provider),
+				_                           => Convert.ToDecimal(ToObject(), provider)
+			};
 
 		double IConvertible.ToDouble(IFormatProvider? provider) =>
-				Type switch
-				{
-						DataModelValueType.Number => AsNumber().ToDouble(provider),
-						DataModelValueType.DateTime => AsDateTime().ToDouble(provider),
-						DataModelValueType.Boolean => AsBoolean().ToDouble(provider),
-						_ => Convert.ToDouble(ToObject(), provider)
-				};
+			Type switch
+			{
+				DataModelValueType.Number   => AsNumber().ToDouble(provider),
+				DataModelValueType.DateTime => AsDateTime().ToDouble(provider),
+				DataModelValueType.Boolean  => AsBoolean().ToDouble(provider),
+				_                           => Convert.ToDouble(ToObject(), provider)
+			};
 
 		short IConvertible.ToInt16(IFormatProvider? provider) =>
-				Type switch
-				{
-						DataModelValueType.Number => AsNumber().ToInt16(provider),
-						DataModelValueType.DateTime => AsDateTime().ToInt16(provider),
-						DataModelValueType.Boolean => AsBoolean().ToInt16(provider),
-						_ => Convert.ToInt16(ToObject(), provider)
-				};
+			Type switch
+			{
+				DataModelValueType.Number   => AsNumber().ToInt16(provider),
+				DataModelValueType.DateTime => AsDateTime().ToInt16(provider),
+				DataModelValueType.Boolean  => AsBoolean().ToInt16(provider),
+				_                           => Convert.ToInt16(ToObject(), provider)
+			};
 
 		int IConvertible.ToInt32(IFormatProvider? provider) =>
-				Type switch
-				{
-						DataModelValueType.Number => AsNumber().ToInt32(provider),
-						DataModelValueType.DateTime => AsDateTime().ToInt32(provider),
-						DataModelValueType.Boolean => AsBoolean().ToInt32(provider),
-						_ => Convert.ToInt32(ToObject(), provider)
-				};
+			Type switch
+			{
+				DataModelValueType.Number   => AsNumber().ToInt32(provider),
+				DataModelValueType.DateTime => AsDateTime().ToInt32(provider),
+				DataModelValueType.Boolean  => AsBoolean().ToInt32(provider),
+				_                           => Convert.ToInt32(ToObject(), provider)
+			};
 
 		long IConvertible.ToInt64(IFormatProvider? provider) =>
-				Type switch
-				{
-						DataModelValueType.Number => AsNumber().ToInt64(provider),
-						DataModelValueType.DateTime => AsDateTime().ToInt64(provider),
-						DataModelValueType.Boolean => AsBoolean().ToInt64(provider),
-						_ => Convert.ToInt64(ToObject(), provider)
-				};
+			Type switch
+			{
+				DataModelValueType.Number   => AsNumber().ToInt64(provider),
+				DataModelValueType.DateTime => AsDateTime().ToInt64(provider),
+				DataModelValueType.Boolean  => AsBoolean().ToInt64(provider),
+				_                           => Convert.ToInt64(ToObject(), provider)
+			};
 
 		sbyte IConvertible.ToSByte(IFormatProvider? provider) =>
-				Type switch
-				{
-						DataModelValueType.Number => AsNumber().ToSByte(provider),
-						DataModelValueType.DateTime => AsDateTime().ToSByte(provider),
-						DataModelValueType.Boolean => AsBoolean().ToSByte(provider),
-						_ => Convert.ToSByte(ToObject(), provider)
-				};
+			Type switch
+			{
+				DataModelValueType.Number   => AsNumber().ToSByte(provider),
+				DataModelValueType.DateTime => AsDateTime().ToSByte(provider),
+				DataModelValueType.Boolean  => AsBoolean().ToSByte(provider),
+				_                           => Convert.ToSByte(ToObject(), provider)
+			};
 
 		float IConvertible.ToSingle(IFormatProvider? provider) =>
-				Type switch
-				{
-						DataModelValueType.Number => AsNumber().ToSingle(provider),
-						DataModelValueType.DateTime => AsDateTime().ToSingle(provider),
-						DataModelValueType.Boolean => AsBoolean().ToSingle(provider),
-						_ => Convert.ToSingle(ToObject(), provider)
-				};
+			Type switch
+			{
+				DataModelValueType.Number   => AsNumber().ToSingle(provider),
+				DataModelValueType.DateTime => AsDateTime().ToSingle(provider),
+				DataModelValueType.Boolean  => AsBoolean().ToSingle(provider),
+				_                           => Convert.ToSingle(ToObject(), provider)
+			};
 
 		ushort IConvertible.ToUInt16(IFormatProvider? provider) =>
-				Type switch
-				{
-						DataModelValueType.Number => AsNumber().ToUInt16(provider),
-						DataModelValueType.DateTime => AsDateTime().ToUInt16(provider),
-						DataModelValueType.Boolean => AsBoolean().ToUInt16(provider),
-						_ => Convert.ToUInt16(ToObject(), provider)
-				};
+			Type switch
+			{
+				DataModelValueType.Number   => AsNumber().ToUInt16(provider),
+				DataModelValueType.DateTime => AsDateTime().ToUInt16(provider),
+				DataModelValueType.Boolean  => AsBoolean().ToUInt16(provider),
+				_                           => Convert.ToUInt16(ToObject(), provider)
+			};
 
 		uint IConvertible.ToUInt32(IFormatProvider? provider) =>
-				Type switch
-				{
-						DataModelValueType.Number => AsNumber().ToUInt32(provider),
-						DataModelValueType.DateTime => AsDateTime().ToUInt32(provider),
-						DataModelValueType.Boolean => AsBoolean().ToUInt32(provider),
-						_ => Convert.ToUInt32(ToObject(), provider)
-				};
+			Type switch
+			{
+				DataModelValueType.Number   => AsNumber().ToUInt32(provider),
+				DataModelValueType.DateTime => AsDateTime().ToUInt32(provider),
+				DataModelValueType.Boolean  => AsBoolean().ToUInt32(provider),
+				_                           => Convert.ToUInt32(ToObject(), provider)
+			};
 
 		ulong IConvertible.ToUInt64(IFormatProvider? provider) =>
-				Type switch
-				{
-						DataModelValueType.Number => AsNumber().ToUInt64(provider),
-						DataModelValueType.DateTime => AsDateTime().ToUInt64(provider),
-						DataModelValueType.Boolean => AsBoolean().ToUInt64(provider),
-						_ => Convert.ToUInt64(ToObject(), provider)
-				};
+			Type switch
+			{
+				DataModelValueType.Number   => AsNumber().ToUInt64(provider),
+				DataModelValueType.DateTime => AsDateTime().ToUInt64(provider),
+				DataModelValueType.Boolean  => AsBoolean().ToUInt64(provider),
+				_                           => Convert.ToUInt64(ToObject(), provider)
+			};
 
 		DateTime IConvertible.ToDateTime(IFormatProvider? provider) =>
-				Type switch
-				{
-						DataModelValueType.Number => AsNumber().ToDateTime(provider),
-						DataModelValueType.DateTime => AsDateTime().ToDateTime(provider),
-						DataModelValueType.Boolean => AsBoolean().ToDateTime(provider),
-						_ => Convert.ToDateTime(ToObject(), provider)
-				};
+			Type switch
+			{
+				DataModelValueType.Number   => AsNumber().ToDateTime(provider),
+				DataModelValueType.DateTime => AsDateTime().ToDateTime(provider),
+				DataModelValueType.Boolean  => AsBoolean().ToDateTime(provider),
+				_                           => Convert.ToDateTime(ToObject(), provider)
+			};
 
 		object IConvertible.ToType(Type conversionType, IFormatProvider? provider)
 		{
@@ -258,21 +258,21 @@ namespace Xtate
 			}
 
 			return Type switch
-			{
-					DataModelValueType.Number => AsNumber().ToType(conversionType, provider),
-					DataModelValueType.DateTime => AsDateTime().ToType(conversionType, provider),
-					DataModelValueType.Boolean => AsBoolean().ToType(conversionType, provider),
-					_ => Convert.ChangeType(ToObject()!, conversionType, provider)
-			};
+				   {
+					   DataModelValueType.Number   => AsNumber().ToType(conversionType, provider),
+					   DataModelValueType.DateTime => AsDateTime().ToType(conversionType, provider),
+					   DataModelValueType.Boolean  => AsBoolean().ToType(conversionType, provider),
+					   _                           => Convert.ChangeType(ToObject()!, conversionType, provider)
+				   };
 
 			DateTimeOffset ToDateTimeOffset(in DataModelValue value) =>
-					value.Type switch
-					{
-							DataModelValueType.Number => new DateTimeOffset(value.AsNumber().ToDateTime(provider)),
-							DataModelValueType.DateTime => value.AsDateTime().ToDateTimeOffset(),
-							DataModelValueType.Boolean => new DateTimeOffset(value.AsBoolean().ToDateTime(provider)),
-							_ => new DateTimeOffset(Convert.ToDateTime(value.ToObject(), provider))
-					};
+				value.Type switch
+				{
+					DataModelValueType.Number   => new DateTimeOffset(value.AsNumber().ToDateTime(provider)),
+					DataModelValueType.DateTime => value.AsDateTime().ToDateTimeOffset(),
+					DataModelValueType.Boolean  => new DateTimeOffset(value.AsBoolean().ToDateTime(provider)),
+					_                           => new DateTimeOffset(Convert.ToDateTime(value.ToObject(), provider))
+				};
 		}
 
 	#endregion
@@ -314,17 +314,17 @@ namespace Xtate
 		public string ToString(string? format, IFormatProvider? formatProvider)
 		{
 			return Type switch
-			{
-					DataModelValueType.Number => AsNumber().ToString(format, formatProvider),
-					DataModelValueType.DateTime => AsDateTime().ToString(format, formatProvider),
-					DataModelValueType.Boolean => AsBoolean().ToString(formatProvider),
-					_ => ObjectToString(ToObject(), format, formatProvider)
-			};
+				   {
+					   DataModelValueType.Number   => AsNumber().ToString(format, formatProvider),
+					   DataModelValueType.DateTime => AsDateTime().ToString(format, formatProvider),
+					   DataModelValueType.Boolean  => AsBoolean().ToString(formatProvider),
+					   _                           => ObjectToString(ToObject(), format, formatProvider)
+				   };
 
 			static string ObjectToString(object? obj, string? format, IFormatProvider? formatProvider) =>
-					(!string.IsNullOrEmpty(format) && obj is IFormattable formattable
-							? formattable.ToString(format, formatProvider)
-							: Convert.ToString(obj, formatProvider)) ?? string.Empty;
+				(!string.IsNullOrEmpty(format) && obj is IFormattable formattable
+					? formattable.ToString(format, formatProvider)
+					: Convert.ToString(obj, formatProvider)) ?? string.Empty;
 		}
 
 	#endregion
@@ -332,18 +332,18 @@ namespace Xtate
 	#region Interface IObject
 
 		public object? ToObject() =>
-				_value switch
-				{
-						null => null,
-						{ } value when value == NullValue => null,
-						{ } value when value == NumberValue => BitConverter.Int64BitsToDouble(_int64),
-						{ } value when value == BooleanValue => _int64 != 0,
-						string str => str,
-						DateTimeValue value => value.GetDataModelDateTime(_int64).ToObject(),
-						DataModelList list => list,
-						ILazyValue lazyValue => lazyValue.Value.ToObject(),
-						_ => Infrastructure.UnexpectedValue<object>(_value)
-				};
+			_value switch
+			{
+				null                                 => null,
+				{ } value when value == NullValue    => null,
+				{ } value when value == NumberValue  => BitConverter.Int64BitsToDouble(_int64),
+				{ } value when value == BooleanValue => _int64 != 0,
+				string str                           => str,
+				DateTimeValue value                  => value.GetDataModelDateTime(_int64).ToObject(),
+				DataModelList list                   => list,
+				ILazyValue lazyValue                 => lazyValue.Value.ToObject(),
+				_                                    => Infrastructure.UnexpectedValue<object>(_value)
+			};
 
 	#endregion
 
@@ -385,110 +385,110 @@ namespace Xtate
 		public bool IsUndefined() => _value is null || _value is ILazyValue lazyValue && lazyValue.Value.IsUndefined();
 
 		public DataModelList AsList() =>
-				_value switch
-				{
-						DataModelList list => list,
-						ILazyValue lazyValue => lazyValue.Value.AsList(),
-						_ => throw new ArgumentException(Resources.Exception_DataModelValueIsNotDataModelList)
-				};
+			_value switch
+			{
+				DataModelList list   => list,
+				ILazyValue lazyValue => lazyValue.Value.AsList(),
+				_                    => throw new ArgumentException(Resources.Exception_DataModelValueIsNotDataModelList)
+			};
 
 		public DataModelList? AsNullableList() =>
-				_value switch
-				{
-						DataModelList list => list,
-						{ } value when value == NullValue => null,
-						ILazyValue lazyValue => lazyValue.Value.AsNullableList(),
-						_ => throw new ArgumentException(Resources.Exception_DataModelValueIsNotDataModelList)
-				};
+			_value switch
+			{
+				DataModelList list                => list,
+				{ } value when value == NullValue => null,
+				ILazyValue lazyValue              => lazyValue.Value.AsNullableList(),
+				_                                 => throw new ArgumentException(Resources.Exception_DataModelValueIsNotDataModelList)
+			};
 
 		public DataModelList? AsListOrDefault() =>
-				_value switch
-				{
-						null => null,
-						DataModelList list => list,
-						ILazyValue lazyValue => lazyValue.Value.AsListOrDefault(),
-						_ => null
-				};
+			_value switch
+			{
+				null                 => null,
+				DataModelList list   => list,
+				ILazyValue lazyValue => lazyValue.Value.AsListOrDefault(),
+				_                    => null
+			};
 
 		public DataModelList AsListOrEmpty() =>
-				_value switch
-				{
-						null => DataModelList.Empty,
-						DataModelList list => list,
-						ILazyValue lazyValue => lazyValue.Value.AsListOrEmpty(),
-						_ => DataModelList.Empty
-				};
+			_value switch
+			{
+				null                 => DataModelList.Empty,
+				DataModelList list   => list,
+				ILazyValue lazyValue => lazyValue.Value.AsListOrEmpty(),
+				_                    => DataModelList.Empty
+			};
 
 		public string AsString() =>
-				_value switch
-				{
-						string str => str,
-						ILazyValue lazyValue => lazyValue.Value.AsString(),
-						_ => throw new ArgumentException(Resources.Exception_DataModelValueIsNotString)
-				};
+			_value switch
+			{
+				string str           => str,
+				ILazyValue lazyValue => lazyValue.Value.AsString(),
+				_                    => throw new ArgumentException(Resources.Exception_DataModelValueIsNotString)
+			};
 
 		public string? AsNullableString() =>
-				_value switch
-				{
-						string str => str,
-						{ } value when value == NullValue => null,
-						ILazyValue lazyValue => lazyValue.Value.AsNullableString(),
-						_ => throw new ArgumentException(Resources.Exception_DataModelValueIsNotString)
-				};
+			_value switch
+			{
+				string str                        => str,
+				{ } value when value == NullValue => null,
+				ILazyValue lazyValue              => lazyValue.Value.AsNullableString(),
+				_                                 => throw new ArgumentException(Resources.Exception_DataModelValueIsNotString)
+			};
 
 		public string? AsStringOrDefault() =>
-				_value switch
-				{
-						null => null,
-						string str => str,
-						ILazyValue lazyValue => lazyValue.Value.AsStringOrDefault(),
-						_ => null
-				};
+			_value switch
+			{
+				null                 => null,
+				string str           => str,
+				ILazyValue lazyValue => lazyValue.Value.AsStringOrDefault(),
+				_                    => null
+			};
 
 		public double AsNumber() =>
-				_value == NumberValue
-						? BitConverter.Int64BitsToDouble(_int64)
-						: _value is ILazyValue lazyValue
-								? lazyValue.Value.AsNumber()
-								: throw new ArgumentException(Resources.Exception_DataModelValueIsNotNumber);
+			_value == NumberValue
+				? BitConverter.Int64BitsToDouble(_int64)
+				: _value is ILazyValue lazyValue
+					? lazyValue.Value.AsNumber()
+					: throw new ArgumentException(Resources.Exception_DataModelValueIsNotNumber);
 
 		public double? AsNumberOrDefault() =>
-				_value == NumberValue
-						? BitConverter.Int64BitsToDouble(_int64)
-						: _value is ILazyValue lazyValue
-								? lazyValue.Value.AsNumberOrDefault()
-								: null;
+			_value == NumberValue
+				? BitConverter.Int64BitsToDouble(_int64)
+				: _value is ILazyValue lazyValue
+					? lazyValue.Value.AsNumberOrDefault()
+					: null;
 
 		public bool AsBoolean() =>
-				_value == BooleanValue
-						? _int64 != 0
-						: _value is ILazyValue lazyValue
-								? lazyValue.Value.AsBoolean()
-								: throw new ArgumentException(Resources.Exception_DataModelValueIsNotBoolean);
+			_value == BooleanValue
+				? _int64 != 0
+				: _value is ILazyValue lazyValue
+					? lazyValue.Value.AsBoolean()
+					: throw new ArgumentException(Resources.Exception_DataModelValueIsNotBoolean);
 
 		public bool? AsBooleanOrDefault() =>
-				_value == BooleanValue
-						? _int64 != 0
-						: _value is ILazyValue lazyValue
-								? lazyValue.Value.AsBooleanOrDefault()
-								: null;
+			_value == BooleanValue
+				? _int64 != 0
+				: _value is ILazyValue lazyValue
+					? lazyValue.Value.AsBooleanOrDefault()
+					: null;
 
 		public DataModelDateTime AsDateTime() =>
-				_value switch
-				{
-						DateTimeValue value => value.GetDataModelDateTime(_int64),
-						ILazyValue lazyVal => lazyVal.Value.AsDateTime(),
-						_ => throw new ArgumentException(Resources.Exception_DataModelValueIsNotDateTime)
-				};
+			_value switch
+			{
+				DateTimeValue value => value.GetDataModelDateTime(_int64),
+				ILazyValue lazyVal  => lazyVal.Value.AsDateTime(),
+				_                   => throw new ArgumentException(Resources.Exception_DataModelValueIsNotDateTime)
+			};
 
 		public DataModelDateTime? AsDateTimeOrDefault() =>
-				_value switch
-				{
-						null => null,
-						DateTimeValue value => value.GetDataModelDateTime(_int64),
-						ILazyValue lazyVal => lazyVal.Value.AsDateTimeOrDefault(),
-						_ => null
-				};
+			_value switch
+			{
+				null                => null,
+				DateTimeValue value => value.GetDataModelDateTime(_int64),
+				ILazyValue lazyVal  => lazyVal.Value.AsDateTimeOrDefault(),
+				_                   => null
+			};
 
 		public override bool Equals(object? obj) => obj is DataModelValue other && Equals(other);
 
@@ -530,13 +530,13 @@ namespace Xtate
 		}
 
 		internal DataModelValue DeepCloneWithMap(DataModelAccess targetAccess, ref Dictionary<object, DataModelList>? map) =>
-				_value switch
-				{
-						null => this,
-						DataModelList list => new DataModelValue(list.DeepCloneWithMap(targetAccess, ref map)),
-						ILazyValue lazyValue => lazyValue.Value.DeepCloneWithMap(targetAccess, ref map),
-						_ => this
-				};
+			_value switch
+			{
+				null                 => this,
+				DataModelList list   => new DataModelValue(list.DeepCloneWithMap(targetAccess, ref map)),
+				ILazyValue lazyValue => lazyValue.Value.DeepCloneWithMap(targetAccess, ref map),
+				_                    => this
+			};
 
 		public void MakeDeepConstant()
 		{
@@ -571,40 +571,40 @@ namespace Xtate
 
 			var type = value.GetType();
 			return System.Type.GetTypeCode(type) switch
-			{
-					TypeCode.SByte => (sbyte) value,
-					TypeCode.Int16 => (short) value,
-					TypeCode.Int32 => (int) value,
-					TypeCode.Int64 => (long) value,
-					TypeCode.Byte => (byte) value,
-					TypeCode.UInt16 => (ushort) value,
-					TypeCode.UInt32 => (uint) value,
-					TypeCode.UInt64 => (ulong) value,
-					TypeCode.Single => (float) value,
-					TypeCode.Double => (double) value,
-					TypeCode.Decimal => (double) (decimal) value,
-					TypeCode.Boolean => (bool) value,
-					TypeCode.DateTime => (DateTime) value,
-					TypeCode.String => (string) value,
-					TypeCode.Object => FromUnknownObjectWithMap(value, ref map),
-					_ => throw new ArgumentException(Resources.Exception_UnsupportedObjectType, nameof(value))
-			};
+				   {
+					   TypeCode.SByte    => (sbyte) value,
+					   TypeCode.Int16    => (short) value,
+					   TypeCode.Int32    => (int) value,
+					   TypeCode.Int64    => (long) value,
+					   TypeCode.Byte     => (byte) value,
+					   TypeCode.UInt16   => (ushort) value,
+					   TypeCode.UInt32   => (uint) value,
+					   TypeCode.UInt64   => (ulong) value,
+					   TypeCode.Single   => (float) value,
+					   TypeCode.Double   => (double) value,
+					   TypeCode.Decimal  => (double) (decimal) value,
+					   TypeCode.Boolean  => (bool) value,
+					   TypeCode.DateTime => (DateTime) value,
+					   TypeCode.String   => (string) value,
+					   TypeCode.Object   => FromUnknownObjectWithMap(value, ref map),
+					   _                 => throw new ArgumentException(Resources.Exception_UnsupportedObjectType, nameof(value))
+				   };
 		}
 
 		private static DataModelValue FromUnknownObjectWithMap(object obj, ref Dictionary<object, DataModelList>? map) =>
-				obj switch
-				{
-						DateTimeOffset dateTimeOffset => new DataModelValue(dateTimeOffset),
-						DataModelValue value => value,
-						IObject value => FromObjectWithMap(value.ToObject(), ref map),
-						DataModelList list => new DataModelValue(list),
-						IDictionary<string, object> dictionary => CreateDataModelObject(dictionary, ref map),
-						IDictionary<string, string> dictionary => CreateDataModelObject(dictionary, ref map),
-						IEnumerable array => CreateDataModelList(array, ref map),
-						ILazyValue lazyValue => new DataModelValue(lazyValue),
-						{ } when TryFromAnonymousType(obj, ref map, out var value) => value,
-						_ => throw new ArgumentException(Resources.Exception_UnsupportedObjectType, nameof(obj))
-				};
+			obj switch
+			{
+				DateTimeOffset dateTimeOffset                              => new DataModelValue(dateTimeOffset),
+				DataModelValue value                                       => value,
+				IObject value                                              => FromObjectWithMap(value.ToObject(), ref map),
+				DataModelList list                                         => new DataModelValue(list),
+				IDictionary<string, object> dictionary                     => CreateDataModelObject(dictionary, ref map),
+				IDictionary<string, string> dictionary                     => CreateDataModelObject(dictionary, ref map),
+				IEnumerable array                                          => CreateDataModelList(array, ref map),
+				ILazyValue lazyValue                                       => new DataModelValue(lazyValue),
+				{ } when TryFromAnonymousType(obj, ref map, out var value) => value,
+				_                                                          => throw new ArgumentException(Resources.Exception_UnsupportedObjectType, nameof(obj))
+			};
 
 		private static bool TryFromAnonymousType(object obj, ref Dictionary<object, DataModelList>? map, out DataModelValue result)
 		{

@@ -70,7 +70,10 @@ namespace Xtate.Core
 			return false;
 		}
 
-		private async ValueTask LogError(ErrorType errorType, string? sourceEntityId, Exception exception, CancellationToken token)
+		private async ValueTask LogError(ErrorType errorType,
+										 string? sourceEntityId,
+										 Exception exception,
+										 CancellationToken token)
 		{
 			try
 			{
@@ -93,14 +96,14 @@ namespace Xtate.Core
 		private ValueTask TraceExitedState(StateEntityNode state) => _logger.IsTracingEnabled ? _logger.TraceExitedState(this, state.Id, _stopToken) : default;
 
 		private ValueTask TracePerformingTransition(TransitionNode transition) =>
-				_logger.IsTracingEnabled
-						? _logger.TracePerformingTransition(this, transition.Type, EventDescriptorToString(transition.EventDescriptors), TargetToString(transition.Target), _stopToken)
-						: default;
+			_logger.IsTracingEnabled
+				? _logger.TracePerformingTransition(this, transition.Type, EventDescriptorToString(transition.EventDescriptors), TargetToString(transition.Target), _stopToken)
+				: default;
 
 		private ValueTask TracePerformedTransition(TransitionNode transition) =>
-				_logger.IsTracingEnabled
-						? _logger.TracePerformedTransition(this, transition.Type, EventDescriptorToString(transition.EventDescriptors), TargetToString(transition.Target), _stopToken)
-						: default;
+			_logger.IsTracingEnabled
+				? _logger.TracePerformedTransition(this, transition.Type, EventDescriptorToString(transition.EventDescriptors), TargetToString(transition.Target), _stopToken)
+				: default;
 
 		private static string? TargetToString(ImmutableArray<IIdentifier> list) => !list.IsDefault ? string.Join(separator: @" ", list.Select(id => id.Value)) : null;
 

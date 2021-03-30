@@ -59,8 +59,8 @@ namespace Xtate.Core
 		public ValueTask DisposeAsync()
 		{
 			return _context is not null
-					? new ValueTask(_ioBoundTaskFactory.StartNew(static ctx => ((Context) ctx!).Unload(), _context))
-					: default;
+				? new ValueTask(_ioBoundTaskFactory.StartNew(static ctx => ((Context) ctx!).Unload(), _context))
+				: default;
 		}
 
 	#endregion

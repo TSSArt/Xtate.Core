@@ -52,7 +52,7 @@ namespace Xtate.DataModel.Runtime
 		#region Interface IDataModelHandlerFactory
 
 			public ValueTask<IDataModelHandlerFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, string dataModelType, CancellationToken token) =>
-					new(CanHandle(dataModelType) ? DataModelHandlerFactoryActivator.Instance : null);
+				new(CanHandle(dataModelType) ? DataModelHandlerFactoryActivator.Instance : null);
 
 		#endregion
 		}
@@ -63,7 +63,10 @@ namespace Xtate.DataModel.Runtime
 
 		#region Interface IDataModelHandlerFactoryActivator
 
-			public ValueTask<IDataModelHandler> CreateHandler(IFactoryContext factoryContext, string dataModelType, IErrorProcessor errorProcessor, CancellationToken token)
+			public ValueTask<IDataModelHandler> CreateHandler(IFactoryContext factoryContext,
+															  string dataModelType,
+															  IErrorProcessor errorProcessor,
+															  CancellationToken token)
 			{
 				Infrastructure.Assert(CanHandle(dataModelType));
 

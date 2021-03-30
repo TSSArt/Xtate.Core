@@ -40,8 +40,14 @@ namespace Xtate.Core
 		private readonly IStateMachine?                       _stateMachine;
 		private readonly IStateMachineHost                    _stateMachineHost;
 
-		protected StateMachineControllerBase(SessionId sessionId, IStateMachineOptions? options, IStateMachine? stateMachine, Uri? stateMachineLocation,
-											 IStateMachineHost stateMachineHost, InterpreterOptions defaultOptions, ISecurityContext securityContext, DeferredFinalizer finalizer)
+		protected StateMachineControllerBase(SessionId sessionId,
+											 IStateMachineOptions? options,
+											 IStateMachine? stateMachine,
+											 Uri? stateMachineLocation,
+											 IStateMachineHost stateMachineHost,
+											 InterpreterOptions defaultOptions,
+											 ISecurityContext securityContext,
+											 DeferredFinalizer finalizer)
 		{
 			SessionId = sessionId;
 			StateMachineLocation = stateMachineLocation;
@@ -144,16 +150,16 @@ namespace Xtate.Core
 		}
 
 		private InterpreterOptions GetOptions() =>
-				_defaultOptions with
-				{
-						ExternalCommunication = this,
-						StorageProvider = this as IStorageProvider,
-						NotifyStateChanged = this,
-						SecurityContext = _securityContext,
-						DestroyToken = _destroyTokenSource.Token,
-						SuspendToken = GetSuspendToken(),
-						UnhandledErrorBehaviour = _options?.UnhandledErrorBehaviour is { } behaviour ? behaviour : _defaultOptions.UnhandledErrorBehaviour
-				};
+			_defaultOptions with
+			{
+				ExternalCommunication = this,
+				StorageProvider = this as IStorageProvider,
+				NotifyStateChanged = this,
+				SecurityContext = _securityContext,
+				DestroyToken = _destroyTokenSource.Token,
+				SuspendToken = GetSuspendToken(),
+				UnhandledErrorBehaviour = _options?.UnhandledErrorBehaviour is { } behaviour ? behaviour : _defaultOptions.UnhandledErrorBehaviour
+			};
 
 		protected virtual CancellationToken GetSuspendToken() => _defaultOptions.SuspendToken;
 

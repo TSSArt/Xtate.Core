@@ -45,13 +45,13 @@ namespace Xtate
 	#region Interface IBooleanEvaluator
 
 		public async ValueTask<bool> EvaluateBoolean(IExecutionContext executionContext, CancellationToken token) =>
-				_predicate switch
-				{
-						Predicate predicate => predicate(executionContext),
-						PredicateTask task => await task(executionContext).ConfigureAwait(false),
-						PredicateCancellableTask task => await task(executionContext, token).ConfigureAwait(false),
-						_ => Infrastructure.UnexpectedValue<bool>(_predicate)
-				};
+			_predicate switch
+			{
+				Predicate predicate           => predicate(executionContext),
+				PredicateTask task            => await task(executionContext).ConfigureAwait(false),
+				PredicateCancellableTask task => await task(executionContext, token).ConfigureAwait(false),
+				_                             => Infrastructure.UnexpectedValue<bool>(_predicate)
+			};
 
 	#endregion
 	}

@@ -53,7 +53,8 @@ namespace Xtate
 			return new Identifier(value);
 		}
 
-		public static bool TryCreate(string? value, [NotNullWhen(true)] [MaybeNullWhen(false)]
+		public static bool TryCreate(string? value,
+									 [NotNullWhen(true)] [MaybeNullWhen(false)]
 									 out Identifier? identifier)
 		{
 			if (string.IsNullOrEmpty(value))

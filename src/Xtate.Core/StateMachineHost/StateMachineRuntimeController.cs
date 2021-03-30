@@ -34,9 +34,16 @@ namespace Xtate.Core
 		private CancellationTokenSource? _suspendOnIdleTokenSource;
 		private CancellationTokenSource? _suspendTokenSource;
 
-		public StateMachineRuntimeController(SessionId sessionId, IStateMachineOptions? options, IStateMachine? stateMachine, Uri? stateMachineLocation, IStateMachineHost stateMachineHost,
-											 TimeSpan? idlePeriod, InterpreterOptions defaultOptions, ISecurityContext securityContext, DeferredFinalizer finalizer)
-				: base(sessionId, options, stateMachine, stateMachineLocation, stateMachineHost, defaultOptions, securityContext, finalizer)
+		public StateMachineRuntimeController(SessionId sessionId,
+											 IStateMachineOptions? options,
+											 IStateMachine? stateMachine,
+											 Uri? stateMachineLocation,
+											 IStateMachineHost stateMachineHost,
+											 TimeSpan? idlePeriod,
+											 InterpreterOptions defaultOptions,
+											 ISecurityContext securityContext,
+											 DeferredFinalizer finalizer)
+			: base(sessionId, options, stateMachine, stateMachineLocation, stateMachineHost, defaultOptions, securityContext, finalizer)
 		{
 			_idlePeriod = idlePeriod;
 
@@ -98,8 +105,8 @@ namespace Xtate.Core
 			_suspendOnIdleTokenSource = new CancellationTokenSource(idlePeriod);
 
 			_suspendTokenSource = defaultSuspendToken.CanBeCanceled
-					? CancellationTokenSource.CreateLinkedTokenSource(defaultSuspendToken, _suspendOnIdleTokenSource.Token)
-					: _suspendOnIdleTokenSource;
+				? CancellationTokenSource.CreateLinkedTokenSource(defaultSuspendToken, _suspendOnIdleTokenSource.Token)
+				: _suspendOnIdleTokenSource;
 
 			return _suspendTokenSource.Token;
 		}

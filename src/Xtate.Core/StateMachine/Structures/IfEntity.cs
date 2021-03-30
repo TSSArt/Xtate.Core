@@ -48,8 +48,8 @@ namespace Xtate.Core
 		}
 
 		bool IVisitorEntity<IfEntity, IIf>.RefEquals(ref IfEntity other) =>
-				Action == other.Action &&
-				ReferenceEquals(Condition, other.Condition);
+			Action == other.Action &&
+			ReferenceEquals(Condition, other.Condition);
 
 	#endregion
 	}

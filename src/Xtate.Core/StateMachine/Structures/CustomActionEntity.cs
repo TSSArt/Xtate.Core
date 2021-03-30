@@ -58,11 +58,11 @@ namespace Xtate.Core
 		}
 
 		bool IVisitorEntity<CustomActionEntity, ICustomAction>.RefEquals(ref CustomActionEntity other) =>
-				ReferenceEquals(XmlNamespace, other.XmlNamespace) &&
-				ReferenceEquals(XmlName, other.XmlName) &&
-				ReferenceEquals(Xml, other.Xml) &&
-				Locations == other.Locations &&
-				Values == other.Values;
+			ReferenceEquals(XmlNamespace, other.XmlNamespace) &&
+			ReferenceEquals(XmlName, other.XmlName) &&
+			ReferenceEquals(Xml, other.Xml) &&
+			Locations == other.Locations &&
+			Values == other.Values;
 
 	#endregion
 	}

@@ -38,10 +38,17 @@ namespace Xtate.Persistence
 
 		private bool _disposed;
 
-		public StateMachinePersistedContext(string? stateMachineName, SessionId sessionId, IDataModelValueProvider dataModelValueProvider, ITransactionalStorage storage,
-											ImmutableDictionary<int, IEntity> entityMap, ILogger logger, ILoggerContext loggerContext, IExternalCommunication externalCommunication,
-											ImmutableDictionary<object, object> contextRuntimeItems, ISecurityContext securityContext)
-				: base(stateMachineName, sessionId, dataModelValueProvider, logger, loggerContext, externalCommunication, contextRuntimeItems, securityContext)
+		public StateMachinePersistedContext(string? stateMachineName,
+											SessionId sessionId,
+											IDataModelValueProvider dataModelValueProvider,
+											ITransactionalStorage storage,
+											ImmutableDictionary<int, IEntity> entityMap,
+											ILogger logger,
+											ILoggerContext loggerContext,
+											IExternalCommunication externalCommunication,
+											ImmutableDictionary<object, object> contextRuntimeItems,
+											ISecurityContext securityContext)
+			: base(stateMachineName, sessionId, dataModelValueProvider, logger, loggerContext, externalCommunication, contextRuntimeItems, securityContext)
 		{
 			_storage = storage;
 			var bucket = new Bucket(storage);

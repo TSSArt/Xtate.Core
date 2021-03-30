@@ -35,45 +35,43 @@ namespace Xtate.DataModel.XPath
 		private static readonly NodeAdapter SimpleTypeNodeAdapter     = new SimpleTypeNodeAdapter();
 
 		public static NodeAdapter GetDefaultAdapter(in DataModelValue value) =>
-				value.Type switch
-				{
-						DataModelValueType.Undefined => SimpleTypeNodeAdapter,
-						DataModelValueType.Null => SimpleTypeNodeAdapter,
-						DataModelValueType.String => SimpleTypeNodeAdapter,
-						DataModelValueType.Number => SimpleTypeNodeAdapter,
-						DataModelValueType.Boolean => SimpleTypeNodeAdapter,
-						DataModelValueType.DateTime => SimpleTypeNodeAdapter,
-						DataModelValueType.List => ListNodeAdapter,
-						_ => throw GetNotSupportedException()
-				};
-
-		public static NodeAdapter GetItemAdapter(in DataModelList.Entry entry)
-		{
-			return entry.Value.Type switch
+			value.Type switch
 			{
-					DataModelValueType.Undefined => ItemNodeAdapter,
-					DataModelValueType.Null => ItemNodeAdapter,
-					DataModelValueType.String => SimpleTypeItemNodeAdapter,
-					DataModelValueType.Number => SimpleTypeItemNodeAdapter,
-					DataModelValueType.Boolean => SimpleTypeItemNodeAdapter,
-					DataModelValueType.DateTime => SimpleTypeItemNodeAdapter,
-					DataModelValueType.List => ListItemNodeAdapter,
-					_ => throw GetNotSupportedException()
+				DataModelValueType.Undefined => SimpleTypeNodeAdapter,
+				DataModelValueType.Null      => SimpleTypeNodeAdapter,
+				DataModelValueType.String    => SimpleTypeNodeAdapter,
+				DataModelValueType.Number    => SimpleTypeNodeAdapter,
+				DataModelValueType.Boolean   => SimpleTypeNodeAdapter,
+				DataModelValueType.DateTime  => SimpleTypeNodeAdapter,
+				DataModelValueType.List      => ListNodeAdapter,
+				_                            => throw GetNotSupportedException()
 			};
-		}
+
+		public static NodeAdapter GetItemAdapter(in DataModelList.Entry entry) =>
+			entry.Value.Type switch
+			{
+				DataModelValueType.Undefined => ItemNodeAdapter,
+				DataModelValueType.Null      => ItemNodeAdapter,
+				DataModelValueType.String    => SimpleTypeItemNodeAdapter,
+				DataModelValueType.Number    => SimpleTypeItemNodeAdapter,
+				DataModelValueType.Boolean   => SimpleTypeItemNodeAdapter,
+				DataModelValueType.DateTime  => SimpleTypeItemNodeAdapter,
+				DataModelValueType.List      => ListItemNodeAdapter,
+				_                            => throw GetNotSupportedException()
+			};
 
 		public static NodeAdapter? GetSimpleTypeAdapter(in DataModelValue value) =>
-				value.Type switch
-				{
-						DataModelValueType.Undefined => null,
-						DataModelValueType.Null => null,
-						DataModelValueType.String when value.AsString().Length == 0 => null,
-						DataModelValueType.String => SimpleTypeNodeAdapter,
-						DataModelValueType.Number => SimpleTypeNodeAdapter,
-						DataModelValueType.Boolean => SimpleTypeNodeAdapter,
-						DataModelValueType.DateTime => SimpleTypeNodeAdapter,
-						_ => throw GetNotSupportedException()
-				};
+			value.Type switch
+			{
+				DataModelValueType.Undefined                                => null,
+				DataModelValueType.Null                                     => null,
+				DataModelValueType.String when value.AsString().Length == 0 => null,
+				DataModelValueType.String                                   => SimpleTypeNodeAdapter,
+				DataModelValueType.Number                                   => SimpleTypeNodeAdapter,
+				DataModelValueType.Boolean                                  => SimpleTypeNodeAdapter,
+				DataModelValueType.DateTime                                 => SimpleTypeNodeAdapter,
+				_                                                           => throw GetNotSupportedException()
+			};
 
 		private static NotSupportedException GetNotSupportedException() => new();
 	}

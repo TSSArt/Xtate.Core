@@ -84,13 +84,13 @@ namespace Xtate.DataModel.XPath
 		}
 
 		private static XmlWriterSettings GetOptions(bool indent, bool async) =>
-				new()
-				{
-						Indent = indent,
-						OmitXmlDeclaration = true,
-						ConformanceLevel = ConformanceLevel.Auto,
-						Async = async
-				};
+			new()
+			{
+				Indent = indent,
+				OmitXmlDeclaration = true,
+				ConformanceLevel = ConformanceLevel.Auto,
+				Async = async
+			};
 
 		private static void WriteNode(XmlWriter xmlWriter, XPathNavigator navigator)
 		{
@@ -170,37 +170,37 @@ namespace Xtate.DataModel.XPath
 		}
 
 		public static string? NsNameToKey(string ns, string localName) =>
-				ns != XPathElementNamespace
-						? XmlConvert.DecodeName(localName)
-						: localName switch
-						{
-								NoKeyElementName => null,
-								EmptyKeyElementName => string.Empty,
-								_ => XmlConvert.DecodeName(localName)
-						};
+			ns != XPathElementNamespace
+				? XmlConvert.DecodeName(localName)
+				: localName switch
+				  {
+					  NoKeyElementName    => null,
+					  EmptyKeyElementName => string.Empty,
+					  _                   => XmlConvert.DecodeName(localName)
+				  };
 
 		public static string KeyToLocalName(string? key) =>
-				key switch
-				{
-						{ Length: 0 } => EmptyKeyElementName,
-						_ => key is not null ? XmlConvert.EncodeLocalName(key)! : NoKeyElementName
-				};
+			key switch
+			{
+				{ Length: 0 } => EmptyKeyElementName,
+				_             => key is not null ? XmlConvert.EncodeLocalName(key)! : NoKeyElementName
+			};
 
 		public static string? KeyToNamespaceOrDefault(string? key) =>
-				key switch
-				{
-						null => XPathElementNamespace,
-						{ Length: 0 } => XPathElementNamespace,
-						_ => null
-				};
+			key switch
+			{
+				null          => XPathElementNamespace,
+				{ Length: 0 } => XPathElementNamespace,
+				_             => null
+			};
 
 		public static string? KeyToPrefixOrDefault(string? key) =>
-				key switch
-				{
-						null => XPathElementPrefix,
-						{ Length: 0 } => XPathElementPrefix,
-						_ => null
-				};
+			key switch
+			{
+				null          => XPathElementPrefix,
+				{ Length: 0 } => XPathElementPrefix,
+				_             => null
+			};
 
 		private static async ValueTask<DataModelValue> LoadValueAsync(XmlReader xmlReader)
 		{
@@ -255,7 +255,8 @@ namespace Xtate.DataModel.XPath
 						Infrastructure.UnexpectedValue(xmlReader.NodeType);
 						break;
 				}
-			} while (await xmlReader.ReadAsync().ConfigureAwait(false));
+			}
+			while (await xmlReader.ReadAsync().ConfigureAwait(false));
 
 			return list;
 		}
@@ -333,7 +334,8 @@ namespace Xtate.DataModel.XPath
 						Infrastructure.UnexpectedValue(xmlReader.NodeType);
 						break;
 				}
-			} while (xmlReader.Read());
+			}
+			while (xmlReader.Read());
 
 			return list;
 		}
@@ -341,69 +343,69 @@ namespace Xtate.DataModel.XPath
 		private static DataModelValue ToType(in DataModelValue value, string? type)
 		{
 			return type switch
-			{
-					null => value,
-					BoolTypeValue => XmlConvert.ToBoolean(value.AsString()),
-					DatetimeTypeValue => XmlConvert.ToDateTimeOffset(value.AsString()),
-					NumberTypeValue => XmlConvert.ToDouble(value.AsString()),
-					NullTypeValue => DataModelValue.Null,
-					UndefinedTypeValue => default,
-					_ => Infrastructure.UnexpectedValue<DataModelValue>(type)
-			};
+				   {
+					   null               => value,
+					   BoolTypeValue      => XmlConvert.ToBoolean(value.AsString()),
+					   DatetimeTypeValue  => XmlConvert.ToDateTimeOffset(value.AsString()),
+					   NumberTypeValue    => XmlConvert.ToDouble(value.AsString()),
+					   NullTypeValue      => DataModelValue.Null,
+					   UndefinedTypeValue => default,
+					   _                  => Infrastructure.UnexpectedValue<DataModelValue>(type)
+				   };
 		}
 
 		public static string ToString(in DataModelValue value) =>
-				value.Type switch
-				{
-						DataModelValueType.Undefined => string.Empty,
-						DataModelValueType.Null => string.Empty,
-						DataModelValueType.String => value.AsString(),
-						DataModelValueType.Number => XmlConvert.ToString(value.AsNumber()),
-						DataModelValueType.Boolean => value.AsBoolean() ? @"true" : @"false",
-						DataModelValueType.DateTime => DateTimeToXmlString(value.AsDateTime()),
-						_ => Infrastructure.UnexpectedValue<string>(value.Type)
-				};
+			value.Type switch
+			{
+				DataModelValueType.Undefined => string.Empty,
+				DataModelValueType.Null      => string.Empty,
+				DataModelValueType.String    => value.AsString(),
+				DataModelValueType.Number    => XmlConvert.ToString(value.AsNumber()),
+				DataModelValueType.Boolean   => value.AsBoolean() ? @"true" : @"false",
+				DataModelValueType.DateTime  => DateTimeToXmlString(value.AsDateTime()),
+				_                            => Infrastructure.UnexpectedValue<string>(value.Type)
+			};
 
 		private static string DateTimeToXmlString(in DataModelDateTime dttm) =>
-				dttm.Type switch
-				{
-						DataModelDateTimeType.DateTime => XmlConvert.ToString(dttm.ToDateTime(), XmlDateTimeSerializationMode.RoundtripKind),
-						DataModelDateTimeType.DateTimeOffset => XmlConvert.ToString(dttm.ToDateTimeOffset()),
-						_ => Infrastructure.UnexpectedValue<string>(dttm.Type)
-				};
+			dttm.Type switch
+			{
+				DataModelDateTimeType.DateTime       => XmlConvert.ToString(dttm.ToDateTime(), XmlDateTimeSerializationMode.RoundtripKind),
+				DataModelDateTimeType.DateTimeOffset => XmlConvert.ToString(dttm.ToDateTimeOffset()),
+				_                                    => Infrastructure.UnexpectedValue<string>(dttm.Type)
+			};
 
 		public static int GetBufferSizeForValue(in DataModelValue value) =>
-				value.Type switch
-				{
-						DataModelValueType.Undefined => 0,
-						DataModelValueType.Null => 0,
-						DataModelValueType.String => value.AsString().Length,
-						DataModelValueType.Number => 24, // -1.2345678901234567e+123 (G17)
-						DataModelValueType.DateTime => 33, // YYYY-MM-DDThh:mm:ss.1234567+hh:mm (DateTime with Offset)
-						DataModelValueType.Boolean => 5, // 'false' - longest value
-						_ => Infrastructure.UnexpectedValue<int>(value.Type)
-				};
+			value.Type switch
+			{
+				DataModelValueType.Undefined => 0,
+				DataModelValueType.Null      => 0,
+				DataModelValueType.String    => value.AsString().Length,
+				DataModelValueType.Number    => 24, // -1.2345678901234567e+123 (G17)
+				DataModelValueType.DateTime  => 33, // YYYY-MM-DDThh:mm:ss.1234567+hh:mm (DateTime with Offset)
+				DataModelValueType.Boolean   => 5,  // 'false' - longest value
+				_                            => Infrastructure.UnexpectedValue<int>(value.Type)
+			};
 
 		public static int WriteValueToSpan(in DataModelValue value, in Span<char> span)
 		{
 			return value.Type switch
-			{
-					DataModelValueType.Undefined => 0,
-					DataModelValueType.Null => 0,
-					DataModelValueType.String => WriteString(value.AsString(), span),
-					DataModelValueType.Number => WriteString(XmlConvert.ToString(value.AsNumber()), span),
-					DataModelValueType.DateTime => WriteDataModelDateTime(value.AsDateTime(), span),
-					DataModelValueType.Boolean => WriteString(value.AsBoolean() ? @"true" : @"false", span),
-					_ => Infrastructure.UnexpectedValue<int>(value.Type)
-			};
+				   {
+					   DataModelValueType.Undefined => 0,
+					   DataModelValueType.Null      => 0,
+					   DataModelValueType.String    => WriteString(value.AsString(), span),
+					   DataModelValueType.Number    => WriteString(XmlConvert.ToString(value.AsNumber()), span),
+					   DataModelValueType.DateTime  => WriteDataModelDateTime(value.AsDateTime(), span),
+					   DataModelValueType.Boolean   => WriteString(value.AsBoolean() ? @"true" : @"false", span),
+					   _                            => Infrastructure.UnexpectedValue<int>(value.Type)
+				   };
 
 			static int WriteDataModelDateTime(in DataModelDateTime value, in Span<char> span) =>
-					value.Type switch
-					{
-							DataModelDateTimeType.DateTime => WriteString(XmlConvert.ToString(value.ToDateTime(), XmlDateTimeSerializationMode.RoundtripKind), span),
-							DataModelDateTimeType.DateTimeOffset => WriteString(XmlConvert.ToString(value.ToDateTimeOffset()), span),
-							_ => Infrastructure.UnexpectedValue<int>(value.Type)
-					};
+				value.Type switch
+				{
+					DataModelDateTimeType.DateTime       => WriteString(XmlConvert.ToString(value.ToDateTime(), XmlDateTimeSerializationMode.RoundtripKind), span),
+					DataModelDateTimeType.DateTimeOffset => WriteString(XmlConvert.ToString(value.ToDateTimeOffset()), span),
+					_                                    => Infrastructure.UnexpectedValue<int>(value.Type)
+				};
 
 			static int WriteString(string value, in Span<char> span)
 			{
@@ -413,15 +415,15 @@ namespace Xtate.DataModel.XPath
 		}
 
 		public static DataModelValue GetTypeValue(in DataModelValue value) =>
-				value.Type switch
-				{
-						DataModelValueType.Boolean => BoolTypeValue,
-						DataModelValueType.DateTime => DatetimeTypeValue,
-						DataModelValueType.Number => NumberTypeValue,
-						DataModelValueType.Null => NullTypeValue,
-						DataModelValueType.Undefined => UndefinedTypeValue,
-						_ => Infrastructure.UnexpectedValue<bool>(value.Type)
-				};
+			value.Type switch
+			{
+				DataModelValueType.Boolean   => BoolTypeValue,
+				DataModelValueType.DateTime  => DatetimeTypeValue,
+				DataModelValueType.Number    => NumberTypeValue,
+				DataModelValueType.Null      => NullTypeValue,
+				DataModelValueType.Undefined => UndefinedTypeValue,
+				_                            => Infrastructure.UnexpectedValue<bool>(value.Type)
+			};
 
 		private static DataModelList? GetMetaData(XmlReader xmlReader)
 		{

@@ -39,7 +39,7 @@ namespace Xtate.Persistence
 		private          ITransactionalStorage            _storage = default!;
 
 		public PersistedEventScheduler(IStorageProvider storageProvider, IHostEventDispatcher hostEventDispatcher, ILogger? logger) : base(hostEventDispatcher, logger) =>
-				_storageProvider = storageProvider;
+			_storageProvider = storageProvider;
 
 		protected override async ValueTask<ScheduledEvent> CreateScheduledEvent(IHostEvent hostEvent, CancellationToken token)
 		{

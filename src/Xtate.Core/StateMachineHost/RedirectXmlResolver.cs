@@ -40,7 +40,10 @@ namespace Xtate.Core
 			_token = token;
 		}
 
-		protected override async ValueTask<object> GetEntityAsync(Uri uri, string? accept, string? acceptLanguage, Type? ofObjectToReturn)
+		protected override async ValueTask<object> GetEntityAsync(Uri uri,
+																  string? accept,
+																  string? acceptLanguage,
+																  Type? ofObjectToReturn)
 		{
 			if (ofObjectToReturn is not null && ofObjectToReturn != typeof(Stream) && ofObjectToReturn != typeof(IXIncludeResource))
 			{

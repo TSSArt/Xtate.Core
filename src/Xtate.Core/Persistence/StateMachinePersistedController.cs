@@ -38,10 +38,17 @@ namespace Xtate.Persistence
 		private bool                   _disposed;
 		private ITransactionalStorage? _storage;
 
-		public StateMachinePersistedController(SessionId sessionId, IStateMachineOptions? options, IStateMachine? stateMachine, Uri? stateMachineLocation,
-											   IStateMachineHost stateMachineHost, IStorageProvider storageProvider, TimeSpan? idlePeriod, InterpreterOptions defaultOptions,
-											   ISecurityContext securityContext, DeferredFinalizer finalizer)
-				: base(sessionId, options, stateMachine, stateMachineLocation, stateMachineHost, idlePeriod, defaultOptions, securityContext, finalizer)
+		public StateMachinePersistedController(SessionId sessionId,
+											   IStateMachineOptions? options,
+											   IStateMachine? stateMachine,
+											   Uri? stateMachineLocation,
+											   IStateMachineHost stateMachineHost,
+											   IStorageProvider storageProvider,
+											   TimeSpan? idlePeriod,
+											   InterpreterOptions defaultOptions,
+											   ISecurityContext securityContext,
+											   DeferredFinalizer finalizer)
+			: base(sessionId, options, stateMachine, stateMachineLocation, stateMachineHost, idlePeriod, defaultOptions, securityContext, finalizer)
 		{
 			_storageProvider = storageProvider;
 			_stopToken = defaultOptions.StopToken;

@@ -54,11 +54,11 @@ namespace Xtate.Core
 		}
 
 		bool IVisitorEntity<TransitionEntity, ITransition>.RefEquals(ref TransitionEntity other) =>
-				Type == other.Type &&
-				Target == other.Target &&
-				Action == other.Action &&
-				EventDescriptors == other.EventDescriptors &&
-				ReferenceEquals(Condition, other.Condition);
+			Type == other.Type &&
+			Target == other.Target &&
+			Action == other.Action &&
+			EventDescriptors == other.EventDescriptors &&
+			ReferenceEquals(Condition, other.Condition);
 
 	#endregion
 	}

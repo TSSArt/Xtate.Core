@@ -31,7 +31,10 @@ namespace Xtate.Service
 
 		public delegate IService ServiceCreator(Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication);
 
-		public delegate ValueTask<IService> ServiceCreatorAsync(IFactoryContext factoryContext, Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication,
+		public delegate ValueTask<IService> ServiceCreatorAsync(IFactoryContext factoryContext,
+																Uri? baseUri,
+																InvokeData invokeData,
+																IServiceCommunication serviceCommunication,
 																CancellationToken token);
 
 		void Register(string type, Creator creator);

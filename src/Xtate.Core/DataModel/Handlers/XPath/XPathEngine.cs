@@ -53,7 +53,10 @@ namespace Xtate.DataModel.XPath
 			return new XPathObject(value);
 		}
 
-		public void Assign(XPathCompiledExpression compiledLeftExpression, XPathAssignType assignType, string? attributeName, IObject rightValue)
+		public void Assign(XPathCompiledExpression compiledLeftExpression,
+						   XPathAssignType assignType,
+						   string? attributeName,
+						   IObject rightValue)
 		{
 			var result = _resolver.Evaluate(compiledLeftExpression);
 
@@ -68,7 +71,10 @@ namespace Xtate.DataModel.XPath
 			}
 		}
 
-		private static void Assign(DataModelXPathNavigator navigator, XPathAssignType assignType, string? attributeName, IObject valueObject)
+		private static void Assign(DataModelXPathNavigator navigator,
+								   XPathAssignType assignType,
+								   string? attributeName,
+								   IObject valueObject)
 		{
 			switch (assignType)
 			{

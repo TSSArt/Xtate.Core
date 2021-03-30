@@ -185,7 +185,10 @@ namespace Xtate.Persistence
 			return new StreamStorage(stream, disposeStream) { _inMemoryStorage = await ReadStream(stream, int.MaxValue, shrink: false, token).ConfigureAwait(false) };
 		}
 
-		public static async ValueTask<StreamStorage> CreateWithRollbackAsync(Stream stream, int rollbackLevel, bool disposeStream = true, CancellationToken token = default)
+		public static async ValueTask<StreamStorage> CreateWithRollbackAsync(Stream stream,
+																			 int rollbackLevel,
+																			 bool disposeStream = true,
+																			 CancellationToken token = default)
 		{
 			if (stream is null) throw new ArgumentNullException(nameof(stream));
 			if (rollbackLevel < 0) throw new ArgumentOutOfRangeException(nameof(rollbackLevel));
@@ -193,7 +196,10 @@ namespace Xtate.Persistence
 			return new StreamStorage(stream, disposeStream) { _inMemoryStorage = await ReadStream(stream, rollbackLevel, shrink: false, token).ConfigureAwait(false) };
 		}
 
-		private static async ValueTask<InMemoryStorage?> ReadStream(Stream stream, int rollbackLevel, bool shrink, CancellationToken token)
+		private static async ValueTask<InMemoryStorage?> ReadStream(Stream stream,
+																	int rollbackLevel,
+																	bool shrink,
+																	CancellationToken token)
 		{
 			var total = 0;
 			var end = 0;

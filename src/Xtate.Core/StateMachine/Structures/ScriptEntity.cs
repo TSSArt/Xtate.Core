@@ -46,8 +46,8 @@ namespace Xtate.Core
 		}
 
 		bool IVisitorEntity<ScriptEntity, IScript>.RefEquals(ref ScriptEntity other) =>
-				ReferenceEquals(Content, other.Content) &&
-				ReferenceEquals(Source, other.Source);
+			ReferenceEquals(Content, other.Content) &&
+			ReferenceEquals(Source, other.Source);
 
 	#endregion
 	}

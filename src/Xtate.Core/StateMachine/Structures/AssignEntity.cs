@@ -52,11 +52,11 @@ namespace Xtate.Core
 		}
 
 		bool IVisitorEntity<AssignEntity, IAssign>.RefEquals(ref AssignEntity other) =>
-				ReferenceEquals(Location, other.Location) &&
-				ReferenceEquals(Expression, other.Expression) &&
-				ReferenceEquals(InlineContent, other.InlineContent) &&
-				ReferenceEquals(Type, other.Type) &&
-				ReferenceEquals(Attribute, other.Attribute);
+			ReferenceEquals(Location, other.Location) &&
+			ReferenceEquals(Expression, other.Expression) &&
+			ReferenceEquals(InlineContent, other.InlineContent) &&
+			ReferenceEquals(Type, other.Type) &&
+			ReferenceEquals(Attribute, other.Attribute);
 
 	#endregion
 	}

@@ -39,12 +39,12 @@ namespace Xtate.Builder
 	#region Interface IParallelBuilder
 
 		public IParallel Build() =>
-				new ParallelEntity
-				{
-						Ancestor = Ancestor, Id = _id, States = _states?.ToImmutable() ?? default, HistoryStates = _historyStates?.ToImmutable() ?? default,
-						Transitions = _transitions?.ToImmutable() ?? default, DataModel = _dataModel, OnEntry = _onEntryList?.ToImmutable() ?? default,
-						OnExit = _onExitList?.ToImmutable() ?? default, Invoke = _invokeList?.ToImmutable() ?? default
-				};
+			new ParallelEntity
+			{
+				Ancestor = Ancestor, Id = _id, States = _states?.ToImmutable() ?? default, HistoryStates = _historyStates?.ToImmutable() ?? default,
+				Transitions = _transitions?.ToImmutable() ?? default, DataModel = _dataModel, OnEntry = _onEntryList?.ToImmutable() ?? default,
+				OnExit = _onExitList?.ToImmutable() ?? default, Invoke = _invokeList?.ToImmutable() ?? default
+			};
 
 		public void SetId(IIdentifier id) => _id = id ?? throw new ArgumentNullException(nameof(id));
 

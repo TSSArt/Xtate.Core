@@ -49,7 +49,10 @@ namespace Xtate.CustomAction
 
 	#endregion
 
-		protected void RegisterArgument(string key, ExpectedValueType expectedValueType, string? expression, object? defaultValue = default)
+		protected void RegisterArgument(string key,
+										ExpectedValueType expectedValueType,
+										string? expression,
+										object? defaultValue = default)
 		{
 			Infrastructure.NotNull(_customActionContext);
 

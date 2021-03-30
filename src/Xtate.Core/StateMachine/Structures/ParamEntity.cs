@@ -48,9 +48,9 @@ namespace Xtate.Core
 		}
 
 		bool IVisitorEntity<ParamEntity, IParam>.RefEquals(ref ParamEntity other) =>
-				ReferenceEquals(Expression, other.Expression) &&
-				ReferenceEquals(Location, other.Location) &&
-				ReferenceEquals(Name, other.Name);
+			ReferenceEquals(Expression, other.Expression) &&
+			ReferenceEquals(Location, other.Location) &&
+			ReferenceEquals(Name, other.Name);
 
 	#endregion
 	}

@@ -176,7 +176,8 @@ namespace Xtate.Persistence
 			return !value.IsEmpty;
 		}
 
-		public bool TryGet<TKey, TValue>(TKey key, [NotNullWhen(true)] [MaybeNullWhen(false)]
+		public bool TryGet<TKey, TValue>(TKey key,
+										 [NotNullWhen(true)] [MaybeNullWhen(false)]
 										 out TValue value) where TKey : notnull
 		{
 			Span<byte> buf = stackalloc byte[GetFullKeySize(key)];
@@ -255,22 +256,22 @@ namespace Xtate.Persistence
 			{
 				var type = typeof(T);
 				return Type.GetTypeCode(type) switch
-				{
-						TypeCode.Byte => new EnumIntValueConverter<T>(),
-						TypeCode.Int16 => new EnumIntValueConverter<T>(),
-						TypeCode.Int32 => new EnumIntValueConverter<T>(),
-						TypeCode.SByte => new EnumIntValueConverter<T>(),
-						TypeCode.UInt16 => new EnumIntValueConverter<T>(),
-						TypeCode.UInt32 => new EnumIntValueConverter<T>(),
-						TypeCode.Double => new DoubleValueConverter<T>(),
-						TypeCode.Boolean => new BooleanValueConverter<T>(),
-						TypeCode.String => new StringValueConverter<T>(),
-						TypeCode.DateTime => new DateTimeValueConverter<T>(),
-						TypeCode.Object when type == typeof(Uri) => new UriValueConverter<T>(),
-						TypeCode.Object when type == typeof(DateTimeOffset) => new DateTimeOffsetValueConverter<T>(),
-						TypeCode.Object when type == typeof(DataModelDateTime) => new DataModelDateTimeValueConverter<T>(),
-						_ => new UnsupportedConverter<T>(@"value")
-				};
+					   {
+						   TypeCode.Byte                                          => new EnumIntValueConverter<T>(),
+						   TypeCode.Int16                                         => new EnumIntValueConverter<T>(),
+						   TypeCode.Int32                                         => new EnumIntValueConverter<T>(),
+						   TypeCode.SByte                                         => new EnumIntValueConverter<T>(),
+						   TypeCode.UInt16                                        => new EnumIntValueConverter<T>(),
+						   TypeCode.UInt32                                        => new EnumIntValueConverter<T>(),
+						   TypeCode.Double                                        => new DoubleValueConverter<T>(),
+						   TypeCode.Boolean                                       => new BooleanValueConverter<T>(),
+						   TypeCode.String                                        => new StringValueConverter<T>(),
+						   TypeCode.DateTime                                      => new DateTimeValueConverter<T>(),
+						   TypeCode.Object when type == typeof(Uri)               => new UriValueConverter<T>(),
+						   TypeCode.Object when type == typeof(DateTimeOffset)    => new DateTimeOffsetValueConverter<T>(),
+						   TypeCode.Object when type == typeof(DataModelDateTime) => new DataModelDateTimeValueConverter<T>(),
+						   _                                                      => new UnsupportedConverter<T>(@"value")
+					   };
 			}
 		}
 

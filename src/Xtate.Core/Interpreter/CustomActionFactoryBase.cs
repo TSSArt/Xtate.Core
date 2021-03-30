@@ -33,7 +33,10 @@ namespace Xtate.CustomAction
 
 	#region Interface ICustomActionFactory
 
-		ValueTask<ICustomActionFactoryActivator?> ICustomActionFactory.TryGetActivator(IFactoryContext factoryContext, string ns, string name, CancellationToken token)
+		ValueTask<ICustomActionFactoryActivator?> ICustomActionFactory.TryGetActivator(IFactoryContext factoryContext,
+																					   string ns,
+																					   string name,
+																					   CancellationToken token)
 		{
 			_activator ??= CreateActivator();
 
@@ -90,7 +93,12 @@ namespace Xtate.CustomAction
 
 			public bool CanHandle(string ns, string name) => _creators.ContainsKey((ns, name));
 
-			public ValueTask<ICustomActionExecutor> CreateExecutor(string ns, string name, IFactoryContext factoryContext, ICustomActionContext context, XmlReader reader, CancellationToken token)
+			public ValueTask<ICustomActionExecutor> CreateExecutor(string ns,
+																   string name,
+																   IFactoryContext factoryContext,
+																   ICustomActionContext context,
+																   XmlReader reader,
+																   CancellationToken token)
 			{
 				switch (_creators[(ns, name)])
 				{

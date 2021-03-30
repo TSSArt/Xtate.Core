@@ -49,8 +49,8 @@ namespace Xtate.Builder
 
 			return new StateMachineEntity
 				   {
-						   Ancestor = ancestor, Name = _name, Initial = initial, DataModelType = _dataModelType,
-						   Binding = _bindingType, States = _states?.ToImmutable() ?? default, DataModel = _dataModel, Script = _script
+					   Ancestor = ancestor, Name = _name, Initial = initial, DataModelType = _dataModelType,
+					   Binding = _bindingType, States = _states?.ToImmutable() ?? default, DataModel = _dataModel, Script = _script
 				   };
 		}
 

@@ -58,7 +58,8 @@ namespace Xtate
 		[AssertionMethod]
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void Assert([AssertionCondition(AssertionConditionType.IS_TRUE)] [DoesNotReturnIf(false)]
-								  bool condition, string message)
+								  bool condition,
+								  string message)
 		{
 			if (!condition)
 			{
@@ -97,7 +98,8 @@ namespace Xtate
 		[AssertionMethod]
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void NotNull([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] [NotNull]
-								   object? value, string message)
+								   object? value,
+								   string message)
 		{
 			if (value is null)
 			{
@@ -153,7 +155,7 @@ namespace Xtate
 				throw new NotSupportedException();
 			}
 
-			if (value.GetType().IsValueType)
+			if (value.GetType().IsValueType) //TODO: only basic value types should be allowed (e.g. Int32)
 			{
 				Assert(condition: false, @$"{message} ({value.GetType().FullName}:{value})");
 

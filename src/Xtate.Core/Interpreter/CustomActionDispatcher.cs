@@ -211,7 +211,10 @@ namespace Xtate.Core
 			private readonly ExpectedValueType      _expectedValueType;
 			private readonly int                    _index;
 
-			public ExpressionEvaluator(CustomActionDispatcher dispatcher, int index, string expression, ExpectedValueType expectedValueType)
+			public ExpressionEvaluator(CustomActionDispatcher dispatcher,
+									   int index,
+									   string expression,
+									   ExpectedValueType expectedValueType)
 			{
 				_dispatcher = dispatcher;
 				_index = index;

@@ -77,19 +77,19 @@ namespace Xtate.Core
 		}
 
 		bool IVisitorEntity<SendEntity, ISend>.RefEquals(ref SendEntity other) =>
-				DelayMs == other.DelayMs &&
-				Parameters == other.Parameters &&
-				NameList == other.NameList &&
-				ReferenceEquals(DelayExpression, other.DelayExpression) &&
-				ReferenceEquals(Id, other.Id) &&
-				ReferenceEquals(IdLocation, other.IdLocation) &&
-				ReferenceEquals(EventName, other.EventName) &&
-				ReferenceEquals(EventExpression, other.EventExpression) &&
-				ReferenceEquals(Target, other.Target) &&
-				ReferenceEquals(TargetExpression, other.TargetExpression) &&
-				ReferenceEquals(Type, other.Type) &&
-				ReferenceEquals(TypeExpression, other.TypeExpression) &&
-				ReferenceEquals(Content, other.Content);
+			DelayMs == other.DelayMs &&
+			Parameters == other.Parameters &&
+			NameList == other.NameList &&
+			ReferenceEquals(DelayExpression, other.DelayExpression) &&
+			ReferenceEquals(Id, other.Id) &&
+			ReferenceEquals(IdLocation, other.IdLocation) &&
+			ReferenceEquals(EventName, other.EventName) &&
+			ReferenceEquals(EventExpression, other.EventExpression) &&
+			ReferenceEquals(Target, other.Target) &&
+			ReferenceEquals(TargetExpression, other.TargetExpression) &&
+			ReferenceEquals(Type, other.Type) &&
+			ReferenceEquals(TypeExpression, other.TypeExpression) &&
+			ReferenceEquals(Content, other.Content);
 
 	#endregion
 	}

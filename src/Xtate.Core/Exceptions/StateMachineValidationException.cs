@@ -31,7 +31,7 @@ namespace Xtate
 		protected StateMachineValidationException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
 		public StateMachineValidationException(ImmutableArray<ErrorItem> validationMessages, SessionId? sessionId = default, StateMachineOrigin origin = default)
-				: base(GetMessage(validationMessages))
+			: base(GetMessage(validationMessages))
 		{
 			Origin = origin;
 			SessionId = sessionId;

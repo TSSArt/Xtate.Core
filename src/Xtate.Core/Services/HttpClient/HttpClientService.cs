@@ -46,8 +46,8 @@ namespace Xtate.Service
 			var headers = value.AsListOrEmpty();
 
 			var pairs = DataModelConverter.IsObject(headers)
-					? from pair in headers.KeyValues select (Name: pair.Key, Value: pair.Value.AsStringOrDefault())
-					: from item in headers select (Name: item.AsListOrEmpty()["name"].AsStringOrDefault(), Value: item.AsListOrEmpty()["value"].AsStringOrDefault());
+				? from pair in headers.KeyValues select (Name: pair.Key, Value: pair.Value.AsStringOrDefault())
+				: from item in headers select (Name: item.AsListOrEmpty()["name"].AsStringOrDefault(), Value: item.AsListOrEmpty()["value"].AsStringOrDefault());
 
 			NameValueCollection? collection = default;
 
@@ -88,12 +88,12 @@ namespace Xtate.Service
 
 			return new DataModelList
 				   {
-						   { "statusCode", response.StatusCode },
-						   { "statusDescription", response.StatusDescription },
-						   { "webExceptionStatus", response.WebExceptionStatus },
-						   { "headers", GetResponseHeaderList(response) },
-						   { "cookies", GetResponseCookieList(response) },
-						   { "content", response.Content }
+					   { "statusCode", response.StatusCode },
+					   { "statusDescription", response.StatusDescription },
+					   { "webExceptionStatus", response.WebExceptionStatus },
+					   { "headers", GetResponseHeaderList(response) },
+					   { "cookies", GetResponseCookieList(response) },
+					   { "content", response.Content }
 				   };
 		}
 
@@ -112,14 +112,14 @@ namespace Xtate.Service
 
 				(list ??= new DataModelList()).Add(new DataModelList
 												   {
-														   { "name", cookie.Name },
-														   { "value", cookie.Value },
-														   { "path", cookie.Path },
-														   { "domain", cookie.Domain },
-														   { "httpOnly", cookie.HttpOnly },
-														   { "port", cookie.Port },
-														   { "secure", cookie.Secure },
-														   { "expires", cookie.Expires != default ? cookie.Expires : default(DataModelValue) }
+													   { "name", cookie.Name },
+													   { "value", cookie.Value },
+													   { "path", cookie.Path },
+													   { "domain", cookie.Domain },
+													   { "httpOnly", cookie.HttpOnly },
+													   { "port", cookie.Port },
+													   { "secure", cookie.Secure },
+													   { "expires", cookie.Expires != default ? cookie.Expires : default(DataModelValue) }
 												   });
 			}
 
@@ -162,21 +162,25 @@ namespace Xtate.Service
 
 			return new Cookie
 				   {
-						   Name = cookie["name"].AsStringOrDefault(),
-						   Value = cookie["value"].AsStringOrDefault(),
-						   Path = cookie["path"].AsStringOrDefault(),
-						   Domain = cookie["domain"].AsStringOrDefault(),
-						   Port = cookie["port"].AsStringOrDefault(),
-						   Expires = cookie["expires"].AsDateTimeOrDefault()?.ToDateTime() ?? default,
-						   HttpOnly = cookie["httpOnly"].AsBooleanOrDefault() ?? false,
-						   Secure = cookie["secure"].AsBooleanOrDefault() ?? false
+					   Name = cookie["name"].AsStringOrDefault(),
+					   Value = cookie["value"].AsStringOrDefault(),
+					   Path = cookie["path"].AsStringOrDefault(),
+					   Domain = cookie["domain"].AsStringOrDefault(),
+					   Port = cookie["port"].AsStringOrDefault(),
+					   Expires = cookie["expires"].AsDateTimeOrDefault()?.ToDateTime() ?? default,
+					   HttpOnly = cookie["httpOnly"].AsBooleanOrDefault() ?? false,
+					   Secure = cookie["secure"].AsBooleanOrDefault() ?? false
 				   };
 		}
 
 		private static HttpContent CreateDefaultContent(in DataModelValue content) => new StringContent(content.ToObject()?.ToString() ?? string.Empty, Encoding.UTF8);
 
-		private async ValueTask<Response> DoRequest(string method, bool autoRedirect, string? contentType, string? accept,
-													NameValueCollection? headers, List<Cookie>? cookies)
+		private async ValueTask<Response> DoRequest(string method,
+													bool autoRedirect,
+													string? contentType,
+													string? accept,
+													NameValueCollection? headers,
+													List<Cookie>? cookies)
 		{
 			Infrastructure.NotNull(Source);
 
@@ -251,12 +255,12 @@ namespace Xtate.Service
 
 				return new Response
 					   {
-							   StatusCode = (int) response.StatusCode,
-							   StatusDescription = response.StatusDescription,
-							   WebExceptionStatus = webExceptionStatus,
-							   Headers = response.Headers,
-							   Cookies = cookieCollection,
-							   Content = await ReadContent(response, StopToken).ConfigureAwait(false)
+						   StatusCode = (int) response.StatusCode,
+						   StatusDescription = response.StatusDescription,
+						   WebExceptionStatus = webExceptionStatus,
+						   Headers = response.Headers,
+						   Cookies = cookieCollection,
+						   Content = await ReadContent(response, StopToken).ConfigureAwait(false)
 					   };
 			}
 		}

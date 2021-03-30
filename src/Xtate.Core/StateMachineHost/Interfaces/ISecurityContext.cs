@@ -38,7 +38,10 @@ namespace Xtate
 
 		ISecurityContext CreateNested(SecurityContextType type, DeferredFinalizer finalizer);
 
-		ValueTask SetValue<T>(object key, object subKey, [DisallowNull] T value, ValueOptions options);
+		ValueTask SetValue<T>(object key,
+							  object subKey,
+							  [DisallowNull] T value,
+							  ValueOptions options);
 
 		bool TryGetValue<T>(object key, object subKey, [NotNullWhen(true)] out T? value);
 	}

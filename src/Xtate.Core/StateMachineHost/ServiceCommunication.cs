@@ -31,7 +31,10 @@ namespace Xtate.Core
 		private readonly Uri?              _target;
 		private readonly Uri               _type;
 
-		public ServiceCommunication(IStateMachineHost host, Uri? target, Uri type, InvokeId invokeId)
+		public ServiceCommunication(IStateMachineHost host,
+									Uri? target,
+									Uri type,
+									InvokeId invokeId)
 		{
 			_host = host;
 			_target = target;
@@ -55,10 +58,10 @@ namespace Xtate.Core
 
 			var newOutgoingEvent = new EventEntity
 								   {
-										   NameParts = outgoingEvent.NameParts,
-										   Data = outgoingEvent.Data,
-										   Type = _type,
-										   Target = _target
+									   NameParts = outgoingEvent.NameParts,
+									   Data = outgoingEvent.Data,
+									   Type = _type,
+									   Target = _target
 								   };
 
 			await _host.DispatchEvent(_invokeId, newOutgoingEvent, token).ConfigureAwait(false);

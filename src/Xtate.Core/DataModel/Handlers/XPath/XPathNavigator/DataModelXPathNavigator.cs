@@ -107,12 +107,12 @@ namespace Xtate.DataModel.XPath
 		{
 			switch (index)
 			{
-				case 0: return ref _path0;
-				case 1: return ref _path1;
-				case 2: return ref _path2;
-				case 3: return ref _path3;
-				case 4: return ref _path4;
-				case 5: return ref _path5;
+				case 0:  return ref _path0;
+				case 1:  return ref _path1;
+				case 2:  return ref _path2;
+				case 3:  return ref _path3;
+				case 4:  return ref _path4;
+				case 5:  return ref _path5;
 				default: return ref _pathOther[index - PathFieldCount];
 			}
 		}
@@ -360,7 +360,10 @@ namespace Xtate.DataModel.XPath
 			}
 		}
 
-		private static IEnumerable<Element> Entries(DataModelList list, int excludeIndex, Element includeElement, IObject? valueObject)
+		private static IEnumerable<Element> Entries(DataModelList list,
+													int excludeIndex,
+													Element includeElement,
+													IObject? valueObject)
 		{
 			foreach (var entry in list.Entries)
 			{
@@ -492,7 +495,10 @@ namespace Xtate.DataModel.XPath
 			}
 		}
 
-		public override void CreateAttribute(string prefix, string localName, string namespaceUri, string value)
+		public override void CreateAttribute(string prefix,
+											 string localName,
+											 string namespaceUri,
+											 string value)
 		{
 			if (string.IsNullOrEmpty(localName)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(localName));
 
@@ -520,7 +526,11 @@ namespace Xtate.DataModel.XPath
 			}
 		}
 
-		private static void AddAttribute(DataModelList metadata, string name, string value, string namespaceUri, string prefix)
+		private static void AddAttribute(DataModelList metadata,
+										 string name,
+										 string value,
+										 string namespaceUri,
+										 string prefix)
 		{
 			metadata.Add(name, value, metadata: default);
 
@@ -564,7 +574,12 @@ namespace Xtate.DataModel.XPath
 			public readonly int            ParentIndex;
 			public readonly string?        ParentProperty;
 
-			public Node(in DataModelValue value, NodeAdapter adapter, int parentCursor = -1, int parentIndex = -1, string? parentProperty = default, DataModelList? metadata = default)
+			public Node(in DataModelValue value,
+						NodeAdapter adapter,
+						int parentCursor = -1,
+						int parentIndex = -1,
+						string? parentProperty = default,
+						DataModelList? metadata = default)
 			{
 				DataModelValue = value;
 				Adapter = adapter;

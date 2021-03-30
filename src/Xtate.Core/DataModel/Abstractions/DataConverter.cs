@@ -28,8 +28,12 @@ namespace Xtate.DataModel
 {
 	internal static class DataConverter
 	{
-		public static ValueTask<DataModelValue> GetData(IValueEvaluator? contentBodyEvaluator, IObjectEvaluator? contentExpressionEvaluator, ImmutableArray<ILocationEvaluator> nameEvaluatorList,
-														ImmutableArray<DefaultParam> parameterList, IExecutionContext executionContext, CancellationToken token)
+		public static ValueTask<DataModelValue> GetData(IValueEvaluator? contentBodyEvaluator,
+														IObjectEvaluator? contentExpressionEvaluator,
+														ImmutableArray<ILocationEvaluator> nameEvaluatorList,
+														ImmutableArray<DefaultParam> parameterList,
+														IExecutionContext executionContext,
+														CancellationToken token)
 		{
 			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
@@ -41,8 +45,10 @@ namespace Xtate.DataModel
 			return GetParameters(nameEvaluatorList, parameterList, executionContext, token);
 		}
 
-		public static async ValueTask<DataModelValue> GetContent(IValueEvaluator? contentBodyEvaluator, IObjectEvaluator? contentExpressionEvaluator,
-																 IExecutionContext executionContext, CancellationToken token)
+		public static async ValueTask<DataModelValue> GetContent(IValueEvaluator? contentBodyEvaluator,
+																 IObjectEvaluator? contentExpressionEvaluator,
+																 IExecutionContext executionContext,
+																 CancellationToken token)
 		{
 			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
@@ -70,8 +76,10 @@ namespace Xtate.DataModel
 			return default;
 		}
 
-		public static async ValueTask<DataModelValue> GetParameters(ImmutableArray<ILocationEvaluator> nameEvaluatorList, ImmutableArray<DefaultParam> parameterList,
-																	IExecutionContext executionContext, CancellationToken token)
+		public static async ValueTask<DataModelValue> GetParameters(ImmutableArray<ILocationEvaluator> nameEvaluatorList,
+																	ImmutableArray<DefaultParam> parameterList,
+																	IExecutionContext executionContext,
+																	CancellationToken token)
 		{
 			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
 
@@ -135,13 +143,13 @@ namespace Xtate.DataModel
 
 			var eventList = new DataModelList(caseInsensitive)
 							{
-									{ @"name", new LazyValue<IEvent>(static e => EventName.ToName(e.NameParts), evt) },
-									{ @"type", GetTypeString(evt.Type) },
-									{ @"sendid", evt.SendId },
-									{ @"origin", new LazyValue<IEvent>(static e => e.Origin?.ToString(), evt) },
-									{ @"origintype", evt.OriginType?.ToString() },
-									{ @"invokeid", evt.InvokeId },
-									{ @"data", evt.Data.AsConstant() }
+								{ @"name", new LazyValue<IEvent>(static e => EventName.ToName(e.NameParts), evt) },
+								{ @"type", GetTypeString(evt.Type) },
+								{ @"sendid", evt.SendId },
+								{ @"origin", new LazyValue<IEvent>(static e => e.Origin?.ToString(), evt) },
+								{ @"origintype", evt.OriginType?.ToString() },
+								{ @"invokeid", evt.InvokeId },
+								{ @"data", evt.Data.AsConstant() }
 							};
 
 			eventList.MakeDeepConstant();
@@ -151,12 +159,12 @@ namespace Xtate.DataModel
 			static string GetTypeString(EventType eventType)
 			{
 				return eventType switch
-				{
-						EventType.Platform => @"platform",
-						EventType.Internal => @"internal",
-						EventType.External => @"external",
-						_ => Infrastructure.UnexpectedValue<string>(eventType)
-				};
+					   {
+						   EventType.Platform => @"platform",
+						   EventType.Internal => @"internal",
+						   EventType.External => @"external",
+						   _                  => Infrastructure.UnexpectedValue<string>(eventType)
+					   };
 			}
 		}
 
@@ -170,12 +178,12 @@ namespace Xtate.DataModel
 			{
 				var exceptionData = new DataModelList(caseInsensitive)
 									{
-											{ @"message", exception.Message },
-											{ @"typeName", exception.GetType().Name },
-											{ @"source", exception.Source },
-											{ @"typeFullName", exception.GetType().FullName },
-											{ @"stackTrace", exception.StackTrace },
-											{ @"text", exception.ToString() }
+										{ @"message", exception.Message },
+										{ @"typeName", exception.GetType().Name },
+										{ @"source", exception.Source },
+										{ @"typeFullName", exception.GetType().FullName },
+										{ @"stackTrace", exception.StackTrace },
+										{ @"text", exception.ToString() }
 									};
 
 				exceptionData.MakeDeepConstant();

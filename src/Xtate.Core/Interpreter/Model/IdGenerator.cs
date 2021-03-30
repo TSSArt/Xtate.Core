@@ -51,21 +51,21 @@ namespace Xtate.Core
 		private static void IgnoreIt(StringBuilder _) { }
 
 		public static string NewInvokeId([Localizable(false)] string id, int hash) =>
-				string.Create(41 + id.Length, (id, hash), static(span, arg) =>
-														  {
-															  arg.id.AsSpan().CopyTo(span);
-															  span[arg.id.Length] = '.';
-															  span = span[(arg.id.Length + 1)..];
-															  Guid.NewGuid().TryFormat(span, out var pos, format: @"N");
-															  arg.hash.TryFormat(span[pos..], out pos, format: @"x8");
-														  });
+			string.Create(41 + id.Length, (id, hash), static(span, arg) =>
+													  {
+														  arg.id.AsSpan().CopyTo(span);
+														  span[arg.id.Length] = '.';
+														  span = span[(arg.id.Length + 1)..];
+														  Guid.NewGuid().TryFormat(span, out var pos, format: @"N");
+														  arg.hash.TryFormat(span[pos..], out pos, format: @"x8");
+													  });
 
 		private static string NewGuidWithHash(int hash) =>
-				string.Create(length: 40, hash, static(span, hash) =>
-												{
-													Guid.NewGuid().TryFormat(span, out var pos, format: @"N");
-													hash.TryFormat(span[pos..], out pos, format: @"x8");
-												});
+			string.Create(length: 40, hash, static(span, hash) =>
+											{
+												Guid.NewGuid().TryFormat(span, out var pos, format: @"N");
+												hash.TryFormat(span[pos..], out pos, format: @"x8");
+											});
 #endif
 	}
 }

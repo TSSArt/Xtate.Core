@@ -48,7 +48,7 @@ namespace Xtate.IoProcessor
 		Uri? IIoProcessor.GetTarget(ServiceId serviceId) => GetTarget(serviceId);
 
 		ValueTask<IHostEvent> IIoProcessor.GetHostEvent(ServiceId senderServiceId, IOutgoingEvent outgoingEvent, CancellationToken token) =>
-				CreateHostEventAsync(senderServiceId, outgoingEvent, token);
+			CreateHostEventAsync(senderServiceId, outgoingEvent, token);
 
 		ValueTask IIoProcessor.Dispatch(IHostEvent hostEvent, CancellationToken token) => OutgoingEvent(hostEvent, token);
 
@@ -61,7 +61,7 @@ namespace Xtate.IoProcessor
 		protected abstract Uri? GetTarget(ServiceId serviceId);
 
 		protected virtual ValueTask<IHostEvent> CreateHostEventAsync(ServiceId senderServiceId, IOutgoingEvent outgoingEvent, CancellationToken token) =>
-				new(CreateHostEvent(senderServiceId, outgoingEvent));
+			new(CreateHostEvent(senderServiceId, outgoingEvent));
 
 		protected virtual IHostEvent CreateHostEvent(ServiceId senderServiceId, IOutgoingEvent outgoingEvent)
 		{
