@@ -48,8 +48,8 @@ namespace Xtate.Core
 		}
 
 		bool IVisitorEntity<DoneDataEntity, IDoneData>.RefEquals(ref DoneDataEntity other) =>
-				ReferenceEquals(Content, other.Content) &&
-				Parameters == other.Parameters;
+			ReferenceEquals(Content, other.Content) &&
+			Parameters == other.Parameters;
 
 	#endregion
 	}

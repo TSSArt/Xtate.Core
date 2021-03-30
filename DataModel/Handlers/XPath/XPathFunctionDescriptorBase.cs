@@ -24,7 +24,10 @@ namespace Xtate.DataModel.XPath
 {
 	internal abstract class XPathFunctionDescriptorBase : IXsltContextFunction
 	{
-		protected XPathFunctionDescriptorBase(string ns, string name, XPathResultType[] argTypes, XPathResultType returnType)
+		protected XPathFunctionDescriptorBase(string ns,
+											  string name,
+											  XPathResultType[] argTypes,
+											  XPathResultType returnType)
 		{
 			Namespace = ns;
 			Name = name;

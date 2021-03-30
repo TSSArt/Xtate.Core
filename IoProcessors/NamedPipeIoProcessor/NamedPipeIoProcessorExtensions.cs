@@ -34,7 +34,10 @@ namespace Xtate
 			return builder;
 		}
 
-		public static StateMachineHostBuilder AddNamedPipeIoProcessor(this StateMachineHostBuilder builder, string host, string name, int? maxMessageSize = default)
+		public static StateMachineHostBuilder AddNamedPipeIoProcessor(this StateMachineHostBuilder builder,
+																	  string host,
+																	  string name,
+																	  int? maxMessageSize = default)
 		{
 			if (builder is null) throw new ArgumentNullException(nameof(builder));
 

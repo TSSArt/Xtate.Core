@@ -37,7 +37,10 @@ namespace Xtate.Service
 
 		public static HttpClientMimeTypeHandler Instance { get; } = new HttpClientFormUrlEncodedHandler();
 
-		public override HttpContent? TryCreateHttpContent(WebRequest webRequest, string? contentType, DataModelList parameters, DataModelValue value)
+		public override HttpContent? TryCreateHttpContent(WebRequest webRequest,
+														  string? contentType,
+														  DataModelList parameters,
+														  DataModelValue value)
 		{
 			if (!ContentTypeEquals(contentType, MediaTypeApplicationFormUrlEncoded))
 			{
@@ -47,8 +50,8 @@ namespace Xtate.Service
 			var list = value.AsListOrEmpty();
 
 			var pairs = DataModelConverter.IsObject(list)
-					? from pair in list.KeyValues select (Name: pair.Key, Value: pair.Value.AsStringOrDefault())
-					: from item in list select (Name: item.AsListOrEmpty()["name"].AsStringOrDefault(), Value: item.AsListOrEmpty()["value"].AsStringOrDefault());
+				? from pair in list.KeyValues select (Name: pair.Key, Value: pair.Value.AsStringOrDefault())
+				: from item in list select (Name: item.AsListOrEmpty()["name"].AsStringOrDefault(), Value: item.AsListOrEmpty()["value"].AsStringOrDefault());
 
 			var forms = from pair in pairs
 						where !string.IsNullOrEmpty(pair.Name) && pair.Value is not null

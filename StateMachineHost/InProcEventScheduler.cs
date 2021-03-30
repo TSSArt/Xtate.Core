@@ -136,8 +136,8 @@ namespace Xtate.Core
 				var newValue = RemoveFromValue(value, scheduledEvent);
 
 				exit = newValue is null
-						? _scheduledEvents.TryRemove(new KeyValuePair<(ServiceId, SendId), object>((serviceId, sendId), value))
-						: ReferenceEquals(value, newValue) || _scheduledEvents.TryUpdate((serviceId, sendId), value, newValue);
+					? _scheduledEvents.TryRemove(new KeyValuePair<(ServiceId, SendId), object>((serviceId, sendId), value))
+					: ReferenceEquals(value, newValue) || _scheduledEvents.TryUpdate((serviceId, sendId), value, newValue);
 			}
 
 			static object? RemoveFromValue(object value, ScheduledEvent scheduledEvent)

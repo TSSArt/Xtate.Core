@@ -46,8 +46,8 @@ namespace Xtate.Core
 		}
 
 		bool IVisitorEntity<CancelEntity, ICancel>.RefEquals(ref CancelEntity other) =>
-				ReferenceEquals(SendId, other.SendId) &&
-				ReferenceEquals(SendIdExpression, other.SendIdExpression);
+			ReferenceEquals(SendId, other.SendId) &&
+			ReferenceEquals(SendIdExpression, other.SendIdExpression);
 
 	#endregion
 	}

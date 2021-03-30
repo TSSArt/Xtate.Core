@@ -65,13 +65,13 @@ namespace Xtate.Core
 		}
 
 		bool IVisitorEntity<StateMachineEntity, IStateMachine>.RefEquals(ref StateMachineEntity other) =>
-				Binding == other.Binding &&
-				States == other.States &&
-				ReferenceEquals(Name, other.Name) &&
-				ReferenceEquals(DataModel, other.DataModel) &&
-				ReferenceEquals(DataModelType, other.DataModelType) &&
-				ReferenceEquals(Initial, other.Initial) &&
-				ReferenceEquals(Script, other.Script);
+			Binding == other.Binding &&
+			States == other.States &&
+			ReferenceEquals(Name, other.Name) &&
+			ReferenceEquals(DataModel, other.DataModel) &&
+			ReferenceEquals(DataModelType, other.DataModelType) &&
+			ReferenceEquals(Initial, other.Initial) &&
+			ReferenceEquals(Script, other.Script);
 
 	#endregion
 	}

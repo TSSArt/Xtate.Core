@@ -43,7 +43,8 @@ namespace Xtate.IoProcessor
 				}
 
 				newVal = preVal.Add(processor);
-			} while (Interlocked.CompareExchange(ref _processors, newVal, preVal) != preVal);
+			}
+			while (Interlocked.CompareExchange(ref _processors, newVal, preVal) != preVal);
 
 			return preVal.Count == 0;
 		}
@@ -62,7 +63,8 @@ namespace Xtate.IoProcessor
 				}
 
 				newVal = preVal.RemoveAt(index);
-			} while (Interlocked.CompareExchange(ref _processors, newVal, preVal) != preVal);
+			}
+			while (Interlocked.CompareExchange(ref _processors, newVal, preVal) != preVal);
 
 			return newVal.Count == 0;
 		}

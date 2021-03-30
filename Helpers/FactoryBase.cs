@@ -37,7 +37,10 @@ namespace Xtate
 
 	#region Interface ICustomActionFactory
 
-		public async ValueTask<ICustomActionFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, string ns, string name, CancellationToken token)
+		public async ValueTask<ICustomActionFactoryActivator?> TryGetActivator(IFactoryContext factoryContext,
+																			   string ns,
+																			   string name,
+																			   CancellationToken token)
 		{
 			if (_customActionFactories is not null)
 			{

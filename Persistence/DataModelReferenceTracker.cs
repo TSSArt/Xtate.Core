@@ -79,10 +79,10 @@ namespace Xtate.Persistence
 		private void FillList(int refId, DataModelValueType type, DataModelList list)
 		{
 			var controller = type switch
-			{
-					DataModelValueType.List => ListControllerCreator(_bucket.Nested(refId), list),
-					_ => Infrastructure.UnexpectedValue<DataModelPersistingController>(type)
-			};
+							 {
+								 DataModelValueType.List => ListControllerCreator(_bucket.Nested(refId), list),
+								 _                       => Infrastructure.UnexpectedValue<DataModelPersistingController>(type)
+							 };
 
 			_lists[list] = new Entry { RefCount = default, RefId = refId, Controller = controller };
 			_refIds[refId] = list;
@@ -131,11 +131,11 @@ namespace Xtate.Persistence
 		}
 
 		public int GetRefId(in DataModelValue value) =>
-				value.Type switch
-				{
-						DataModelValueType.List => GetRefId(value.AsList(), ListControllerCreator, incrementReference: false),
-						_ => Infrastructure.UnexpectedValue<int>(value.Type)
-				};
+			value.Type switch
+			{
+				DataModelValueType.List => GetRefId(value.AsList(), ListControllerCreator, incrementReference: false),
+				_                       => Infrastructure.UnexpectedValue<int>(value.Type)
+			};
 
 		public void AddReference(in DataModelValue value)
 		{

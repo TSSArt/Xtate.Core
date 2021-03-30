@@ -34,7 +34,7 @@ namespace Xtate
 		protected StateMachineUnhandledErrorException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
 		public StateMachineUnhandledErrorException(string message, Exception? innerException, UnhandledErrorBehaviour unhandledErrorBehaviour) : base(message, innerException) =>
-				UnhandledErrorBehaviour = unhandledErrorBehaviour;
+			UnhandledErrorBehaviour = unhandledErrorBehaviour;
 
 		public UnhandledErrorBehaviour UnhandledErrorBehaviour { get; }
 	}

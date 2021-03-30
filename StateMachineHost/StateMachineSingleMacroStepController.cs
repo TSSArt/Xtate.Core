@@ -31,9 +31,15 @@ namespace Xtate.Persistence
 		private readonly TaskCompletionSource<StateMachineInterpreterState> _doneCompletionSource = new();
 		private readonly CancellationTokenSource                            _suspendTokenSource   = new();
 
-		public StateMachineSingleMacroStepController(SessionId sessionId, IStateMachineOptions? options, IStateMachine? stateMachine, Uri? stateMachineLocation,
-													 IStateMachineHost stateMachineHost, InterpreterOptions defaultOptions, ISecurityContext securityContext, DeferredFinalizer finalizer)
-				: base(sessionId, options, stateMachine, stateMachineLocation, stateMachineHost, defaultOptions, securityContext, finalizer) { }
+		public StateMachineSingleMacroStepController(SessionId sessionId,
+													 IStateMachineOptions? options,
+													 IStateMachine? stateMachine,
+													 Uri? stateMachineLocation,
+													 IStateMachineHost stateMachineHost,
+													 InterpreterOptions defaultOptions,
+													 ISecurityContext securityContext,
+													 DeferredFinalizer finalizer)
+			: base(sessionId, options, stateMachine, stateMachineLocation, stateMachineHost, defaultOptions, securityContext, finalizer) { }
 
 		protected override Channel<IEvent> EventChannel { get; } = new SingleItemChannel<IEvent>();
 

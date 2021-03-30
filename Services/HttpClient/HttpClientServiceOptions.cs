@@ -27,9 +27,9 @@ namespace Xtate.Service
 
 		public List<HttpClientMimeTypeHandler> MimeTypeHandlers { get; } = new()
 																		   {
-																				   HttpClientFormUrlEncodedHandler.Instance,
-																				   HttpClientJsonHandler.Instance,
-																				   HttpClientXmlHandler.Instance
+																			   HttpClientFormUrlEncodedHandler.Instance,
+																			   HttpClientJsonHandler.Instance,
+																			   HttpClientXmlHandler.Instance
 																		   };
 
 		public static HttpClientServiceOptions CreateDefault() => new();

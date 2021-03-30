@@ -88,11 +88,11 @@ namespace Xtate.DataModel
 
 			var eventEntity = new EventEntity(name)
 							  {
-									  SendId = sendId,
-									  Type = type,
-									  Target = target,
-									  DelayMs = delayMs,
-									  Data = data
+								  SendId = sendId,
+								  Type = type,
+								  Target = target,
+								  DelayMs = delayMs,
+								  Data = data
 							  };
 
 			if (ContentBodyEvaluator is IStringEvaluator rawContentEvaluator)

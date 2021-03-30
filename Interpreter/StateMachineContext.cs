@@ -41,8 +41,14 @@ namespace Xtate.Core
 		private          KeyList<StateEntityNode>?           _historyValue;
 		private          IContextItems?                      _runtimeItems;
 
-		public StateMachineContext(string? stateMachineName, SessionId sessionId, IDataModelValueProvider dataModelValueProvider, ILogger logger, ILoggerContext loggerContext,
-								   IExternalCommunication externalCommunication, ImmutableDictionary<object, object> contextRuntimeItems, ISecurityContext securityContext)
+		public StateMachineContext(string? stateMachineName,
+								   SessionId sessionId,
+								   IDataModelValueProvider dataModelValueProvider,
+								   ILogger logger,
+								   ILoggerContext loggerContext,
+								   IExternalCommunication externalCommunication,
+								   ImmutableDictionary<object, object> contextRuntimeItems,
+								   ISecurityContext securityContext)
 		{
 			_stateMachineName = stateMachineName;
 			_sessionId = sessionId;
@@ -92,8 +98,12 @@ namespace Xtate.Core
 			await _externalCommunication.CancelEvent(sendId, token).ConfigureAwait(false);
 		}
 
-		public ValueTask Log(LogLevel logLevel, string? message, DataModelValue arguments, Exception? exception, CancellationToken token) =>
-				_logger.ExecuteLog(_loggerContext, logLevel, message, arguments, exception, token);
+		public ValueTask Log(LogLevel logLevel,
+							 string? message,
+							 DataModelValue arguments,
+							 Exception? exception,
+							 CancellationToken token) =>
+			_logger.ExecuteLog(_loggerContext, logLevel, message, arguments, exception, token);
 
 		public async ValueTask StartInvoke(InvokeData invokeData, CancellationToken token = default)
 		{
@@ -197,7 +207,7 @@ namespace Xtate.Core
 
 					var entry = new DataModelList(context._dataModelValueProvider.CaseInsensitive)
 								{
-										{ @"location", locationLazy }
+									{ @"location", locationLazy }
 								};
 
 					list.Add(ioProcessor.Id.ToString(), entry);

@@ -202,7 +202,7 @@ namespace Xtate
 			public override ref readonly DataModelValue GetValueByIndex(ref Args args) => ref args.MetaValues[args.Index].Value;
 
 			public override void GetEntryByIndex(ref Args args, out Entry entry) =>
-					entry = new Entry(args.Index, args.MetaValues[args.Index].Value, args.MetaValues[args.Index].Meta.Access, args.MetaValues[args.Index].Meta.Metadata);
+				entry = new Entry(args.Index, args.MetaValues[args.Index].Value, args.MetaValues[args.Index].Meta.Access, args.MetaValues[args.Index].Meta.Metadata);
 
 			public override void ReadToArgsByIndex(ref Args args)
 			{
@@ -243,8 +243,8 @@ namespace Xtate
 			public override ref readonly DataModelValue GetValueByIndex(ref Args args) => ref args.KeyMetaValues[args.Index].Value;
 
 			public override void GetEntryByIndex(ref Args args, out Entry entry) =>
-					entry = new Entry(args.Index, args.KeyMetaValues[args.Index].HashKey.Key, args.KeyMetaValues[args.Index].Value,
-									  args.KeyMetaValues[args.Index].Meta.Access, args.KeyMetaValues[args.Index].Meta.Metadata);
+				entry = new Entry(args.Index, args.KeyMetaValues[args.Index].HashKey.Key, args.KeyMetaValues[args.Index].Value,
+								  args.KeyMetaValues[args.Index].Meta.Access, args.KeyMetaValues[args.Index].Meta.Metadata);
 
 			public override void ReadToArgsByIndex(ref Args args)
 			{

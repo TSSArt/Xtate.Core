@@ -28,8 +28,12 @@ namespace Xtate
 	{
 	#region Interface IHost
 
-		async ValueTask<IStateMachineController> IHost.StartStateMachineAsync(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters,
-																			  ISecurityContext securityContext, DeferredFinalizer finalizer, CancellationToken token)
+		async ValueTask<IStateMachineController> IHost.StartStateMachineAsync(SessionId sessionId,
+																			  StateMachineOrigin origin,
+																			  DataModelValue parameters,
+																			  ISecurityContext securityContext,
+																			  DeferredFinalizer finalizer,
+																			  CancellationToken token)
 		{
 			if (securityContext is SecurityContext { Type: SecurityContextType.NewStateMachine or SecurityContextType.NewTrustedStateMachine } ctx)
 			{
@@ -43,8 +47,12 @@ namespace Xtate
 
 	#endregion
 
-		private async ValueTask<StateMachineControllerBase> StartStateMachine(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters, SecurityContext securityContext,
-																			  DeferredFinalizer? finalizer, CancellationToken token = default)
+		private async ValueTask<StateMachineControllerBase> StartStateMachine(SessionId sessionId,
+																			  StateMachineOrigin origin,
+																			  DataModelValue parameters,
+																			  SecurityContext securityContext,
+																			  DeferredFinalizer? finalizer,
+																			  CancellationToken token = default)
 		{
 			if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
 			if (origin.Type == StateMachineOriginType.None) throw new ArgumentException(Resources.Exception_StateMachineOriginMissed, nameof(origin));

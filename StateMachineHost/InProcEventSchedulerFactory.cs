@@ -31,7 +31,7 @@ namespace Xtate.Core
 	#region Interface IEventSchedulerFactory
 
 		public ValueTask<IEventScheduler> CreateEventScheduler(IHostEventDispatcher hostEventDispatcher, ILogger? logger, CancellationToken token) =>
-				new(new InProcEventScheduler(hostEventDispatcher, logger));
+			new(new InProcEventScheduler(hostEventDispatcher, logger));
 
 	#endregion
 	}

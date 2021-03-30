@@ -110,10 +110,10 @@ namespace Xtate.DataModel
 
 			var invokeData = new InvokeData(invokeId, type)
 							 {
-									 Source = source,
-									 RawContent = rawContent,
-									 Content = content,
-									 Parameters = parameters
+								 Source = source,
+								 RawContent = rawContent,
+								 Content = content,
+								 Parameters = parameters
 							 };
 
 			await executionContext.StartInvoke(invokeData, token).ConfigureAwait(false);

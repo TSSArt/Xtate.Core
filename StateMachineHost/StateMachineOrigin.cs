@@ -53,14 +53,14 @@ namespace Xtate.Core
 		}
 
 		public StateMachineOriginType Type =>
-				_value switch
-				{
-						string => StateMachineOriginType.Scxml,
-						Uri => StateMachineOriginType.Source,
-						IStateMachine => StateMachineOriginType.StateMachine,
-						null => StateMachineOriginType.None,
-						_ => Infrastructure.UnexpectedValue<StateMachineOriginType>(_value)
-				};
+			_value switch
+			{
+				string        => StateMachineOriginType.Scxml,
+				Uri           => StateMachineOriginType.Source,
+				IStateMachine => StateMachineOriginType.StateMachine,
+				null          => StateMachineOriginType.None,
+				_             => Infrastructure.UnexpectedValue<StateMachineOriginType>(_value)
+			};
 
 		public Uri? BaseUri { get; }
 

@@ -31,7 +31,10 @@ namespace Xtate.CustomAction
 
 	#region Interface ICustomActionFactory
 
-		public async ValueTask<ICustomActionFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, string ns, string name, CancellationToken token)
+		public async ValueTask<ICustomActionFactoryActivator?> TryGetActivator(IFactoryContext factoryContext,
+																			   string ns,
+																			   string name,
+																			   CancellationToken token)
 		{
 			var factories = await GetFactories(factoryContext, ns, token).ConfigureAwait(false);
 

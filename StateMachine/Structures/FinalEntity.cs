@@ -59,10 +59,10 @@ namespace Xtate.Core
 		}
 
 		bool IVisitorEntity<FinalEntity, IFinal>.RefEquals(ref FinalEntity other) =>
-				OnExit == other.OnExit &&
-				OnEntry == other.OnEntry &&
-				ReferenceEquals(Id, other.Id) &&
-				ReferenceEquals(DoneData, other.DoneData);
+			OnExit == other.OnExit &&
+			OnEntry == other.OnEntry &&
+			ReferenceEquals(Id, other.Id) &&
+			ReferenceEquals(DoneData, other.DoneData);
 
 	#endregion
 	}

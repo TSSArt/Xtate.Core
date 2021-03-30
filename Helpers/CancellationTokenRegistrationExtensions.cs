@@ -27,7 +27,7 @@ namespace Xtate.Core
 	public static class CancellationTokenRegistrationExtensions
 	{
 		public static ConfiguredAwaitable ConfigureAwait(this CancellationTokenRegistration cancellationTokenRegistration, bool continueOnCapturedContext) =>
-				new(cancellationTokenRegistration, continueOnCapturedContext);
+			new(cancellationTokenRegistration, continueOnCapturedContext);
 
 #if NET461 || NETSTANDARD2_0
 		public static ValueTask DisposeAsync(this CancellationTokenRegistration cancellationTokenRegistration)

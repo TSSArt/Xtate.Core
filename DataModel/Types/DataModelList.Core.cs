@@ -241,7 +241,10 @@ namespace Xtate
 			return false;
 		}
 
-		public void Set(string key, bool caseInsensitive, DataModelValue value, DataModelList? metadata)
+		public void Set(string key,
+						bool caseInsensitive,
+						DataModelValue value,
+						DataModelList? metadata)
 		{
 			if (key is null) throw new ArgumentNullException(nameof(key));
 
@@ -253,7 +256,10 @@ namespace Xtate
 			SetKey(ref args, caseInsensitive, DataModelAccess.Writable, throwOnDeny: true);
 		}
 
-		public void Set(int index, string? key, DataModelValue value, DataModelList? metadata)
+		public void Set(int index,
+						string? key,
+						DataModelValue value,
+						DataModelList? metadata)
 		{
 			if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_IndexValueMustBeNonNegativeInteger);
 
@@ -270,7 +276,10 @@ namespace Xtate
 			SetItem(ref args, DataModelAccess.Writable, throwOnDeny: true);
 		}
 
-		public void Insert(int index, string? key, DataModelValue value, DataModelList? metadata)
+		public void Insert(int index,
+						   string? key,
+						   DataModelValue value,
+						   DataModelList? metadata)
 		{
 			CreateArgs(out var args);
 			args.Index = index;
@@ -497,7 +506,11 @@ namespace Xtate
 
 		public bool CanSetMetadata() => SetMetadata(metadata: default, DataModelAccess.Constant, throwOnDeny: false);
 
-		internal bool AddInternal(string? key, in DataModelValue value, DataModelAccess access, DataModelList? metadata = default, bool throwOnDeny = true)
+		internal bool AddInternal(string? key,
+								  in DataModelValue value,
+								  DataModelAccess access,
+								  DataModelList? metadata = default,
+								  bool throwOnDeny = true)
 		{
 			CreateArgs(out var args);
 			args.Value = value;
@@ -513,7 +526,12 @@ namespace Xtate
 
 		internal bool ClearInternal(bool throwOnDeny = true) => ClearItems(DataModelAccess.ReadOnly, throwOnDeny);
 
-		internal bool InsertInternal(int index, string? key, in DataModelValue value, DataModelAccess access, DataModelList? metadata = default, bool throwOnDeny = true)
+		internal bool InsertInternal(int index,
+									 string? key,
+									 in DataModelValue value,
+									 DataModelAccess access,
+									 DataModelList? metadata = default,
+									 bool throwOnDeny = true)
 		{
 			if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_IndexValueMustBeNonNegativeInteger);
 
@@ -540,7 +558,12 @@ namespace Xtate
 			return RemoveAtItem(ref args, DataModelAccess.ReadOnly, throwOnDeny);
 		}
 
-		internal bool SetInternal(string key, bool caseInsensitive, in DataModelValue value, DataModelAccess access, DataModelList? metadata = default, bool throwOnDeny = true)
+		internal bool SetInternal(string key,
+								  bool caseInsensitive,
+								  in DataModelValue value,
+								  DataModelAccess access,
+								  DataModelList? metadata = default,
+								  bool throwOnDeny = true)
 		{
 			if (key is null) throw new ArgumentNullException(nameof(key));
 
@@ -552,7 +575,12 @@ namespace Xtate
 			return SetKey(ref args, caseInsensitive, DataModelAccess.ReadOnly, throwOnDeny);
 		}
 
-		internal bool SetInternal(int index, string? key, in DataModelValue value, DataModelAccess access, DataModelList? metadata = default, bool throwOnDeny = true)
+		internal bool SetInternal(int index,
+								  string? key,
+								  in DataModelValue value,
+								  DataModelAccess access,
+								  DataModelList? metadata = default,
+								  bool throwOnDeny = true)
 		{
 			if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_IndexValueMustBeNonNegativeInteger);
 
@@ -582,7 +610,12 @@ namespace Xtate
 
 		private int GetHashCodeForKey(string key) => (CaseInsensitive ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal).GetHashCode(key);
 
-		private bool CheckAccess(ref Args args, int start, int end, DataModelAccess requestedAccess, bool throwOnDeny, out bool result)
+		private bool CheckAccess(ref Args args,
+								 int start,
+								 int end,
+								 DataModelAccess requestedAccess,
+								 bool throwOnDeny,
+								 out bool result)
 		{
 			if (NoAccess(Access))
 			{
@@ -789,7 +822,10 @@ namespace Xtate
 			return true;
 		}
 
-		private bool SetKey(ref Args args, bool caseInsensitive, DataModelAccess requestedAccess, bool throwOnDeny)
+		private bool SetKey(ref Args args,
+							bool caseInsensitive,
+							DataModelAccess requestedAccess,
+							bool throwOnDeny)
 		{
 			Infrastructure.NotNull(args.Key);
 

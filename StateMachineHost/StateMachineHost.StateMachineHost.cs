@@ -93,7 +93,10 @@ namespace Xtate
 
 		ImmutableArray<IIoProcessor> IStateMachineHost.GetIoProcessors() => !_ioProcessors.IsDefault ? _ioProcessors : ImmutableArray<IIoProcessor>.Empty;
 
-		async ValueTask IStateMachineHost.StartInvoke(SessionId sessionId, InvokeData data, ISecurityContext securityContext, CancellationToken token)
+		async ValueTask IStateMachineHost.StartInvoke(SessionId sessionId,
+													  InvokeData data,
+													  ISecurityContext securityContext,
+													  CancellationToken token)
 		{
 			var context = GetCurrentContext();
 
@@ -113,8 +116,12 @@ namespace Xtate
 				CompleteAsync(context, invokedService, service, sessionId, data.InvokeId, finalizer).Forget();
 			}
 
-			static async ValueTask CompleteAsync(StateMachineHostContext context, IService invokedService, IEventDispatcher service,
-												 SessionId sessionId, InvokeId invokeId, DeferredFinalizer finalizer)
+			static async ValueTask CompleteAsync(StateMachineHostContext context,
+												 IService invokedService,
+												 IEventDispatcher service,
+												 SessionId sessionId,
+												 InvokeId invokeId,
+												 DeferredFinalizer finalizer)
 			{
 				await using (finalizer.ConfigureAwait(false))
 				{
@@ -132,10 +139,10 @@ namespace Xtate
 					{
 						var evt = new EventObject
 								  {
-										  Type = EventType.External,
-										  NameParts = EventName.ErrorExecution,
-										  Data = DataConverter.FromException(ex, caseInsensitive: false),
-										  InvokeId = invokeId
+									  Type = EventType.External,
+									  NameParts = EventName.ErrorExecution,
+									  Data = DataConverter.FromException(ex, caseInsensitive: false),
+									  InvokeId = invokeId
 								  };
 						await service.Send(evt, token: default).ConfigureAwait(false);
 					}
@@ -173,7 +180,10 @@ namespace Xtate
 			return context.CancelEvent(sessionId, sendId, token);
 		}
 
-		ValueTask IStateMachineHost.ForwardEvent(SessionId sessionId, IEvent evt, InvokeId invokeId, CancellationToken token)
+		ValueTask IStateMachineHost.ForwardEvent(SessionId sessionId,
+												 IEvent evt,
+												 InvokeId invokeId,
+												 CancellationToken token)
 		{
 			var context = GetCurrentContext();
 
@@ -197,12 +207,12 @@ namespace Xtate
 		}
 
 		private IErrorProcessor CreateErrorProcessor(SessionId sessionId, StateMachineOrigin origin) =>
-				_options.ValidationMode switch
-				{
-						ValidationMode.Default => DefaultErrorProcessor.Instance,
-						ValidationMode.Verbose => new DetailedErrorProcessor(sessionId, origin),
-						_ => Infrastructure.UnexpectedValue<IErrorProcessor>(_options.ValidationMode)
-				};
+			_options.ValidationMode switch
+			{
+				ValidationMode.Default => DefaultErrorProcessor.Instance,
+				ValidationMode.Verbose => new DetailedErrorProcessor(sessionId, origin),
+				_                      => Infrastructure.UnexpectedValue<IErrorProcessor>(_options.ValidationMode)
+			};
 
 		private StateMachineHostContext GetCurrentContext() => _context ?? throw new InvalidOperationException(Resources.Exception_IOProcessorHasNotBeenStarted);
 

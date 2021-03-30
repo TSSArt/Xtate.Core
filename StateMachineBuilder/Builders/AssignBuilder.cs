@@ -35,11 +35,11 @@ namespace Xtate.Builder
 	#region Interface IAssignBuilder
 
 		public IAssign Build() =>
-				new AssignEntity
-				{
-						Ancestor = Ancestor, Location = _location, Expression = _expression,
-						InlineContent = _inlineContent, Type = _type, Attribute = _attribute
-				};
+			new AssignEntity
+			{
+				Ancestor = Ancestor, Location = _location, Expression = _expression,
+				InlineContent = _inlineContent, Type = _type, Attribute = _attribute
+			};
 
 		public void SetLocation(ILocationExpression location) => _location = location ?? throw new ArgumentNullException(nameof(location));
 

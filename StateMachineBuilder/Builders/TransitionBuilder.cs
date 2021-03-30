@@ -35,7 +35,7 @@ namespace Xtate.Builder
 	#region Interface ITransitionBuilder
 
 		public ITransition Build() =>
-				new TransitionEntity { Ancestor = Ancestor, EventDescriptors = _eventDescriptors, Condition = _condition, Target = _target, Type = _type, Action = _actions?.ToImmutable() ?? default };
+			new TransitionEntity { Ancestor = Ancestor, EventDescriptors = _eventDescriptors, Condition = _condition, Target = _target, Type = _type, Action = _actions?.ToImmutable() ?? default };
 
 		public void SetCondition(IExecutableEntity condition) => _condition = condition;
 

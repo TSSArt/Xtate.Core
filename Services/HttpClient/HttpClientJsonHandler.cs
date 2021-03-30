@@ -34,10 +34,17 @@ namespace Xtate.Service
 
 		public static HttpClientMimeTypeHandler Instance { get; } = new HttpClientJsonHandler();
 
-		public override void PrepareRequest(WebRequest webRequest, string? contentType, DataModelList parameters, DataModelValue value) => AppendAcceptHeader(webRequest, MediaTypeApplicationJson);
+		public override void PrepareRequest(WebRequest webRequest,
+											string? contentType,
+											DataModelList parameters,
+											DataModelValue value) =>
+			AppendAcceptHeader(webRequest, MediaTypeApplicationJson);
 
-		public override HttpContent? TryCreateHttpContent(WebRequest webRequest, string? contentType, DataModelList parameters, DataModelValue value) =>
-				ContentTypeEquals(contentType, MediaTypeApplicationJson) ? new HttpClientJsonHandlerHttpContent(value, MediaTypeApplicationJson) : default;
+		public override HttpContent? TryCreateHttpContent(WebRequest webRequest,
+														  string? contentType,
+														  DataModelList parameters,
+														  DataModelValue value) =>
+			ContentTypeEquals(contentType, MediaTypeApplicationJson) ? new HttpClientJsonHandlerHttpContent(value, MediaTypeApplicationJson) : default;
 
 		public override async ValueTask<DataModelValue?> TryParseResponseAsync(WebResponse webResponse, DataModelList parameters, CancellationToken token)
 		{

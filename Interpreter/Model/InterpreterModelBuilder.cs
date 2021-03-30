@@ -48,8 +48,13 @@ namespace Xtate.Core
 		private          List<(Uri Uri, IExternalScriptConsumer Consumer)>? _externalScriptList;
 		private          bool                                               _inParallel;
 
-		public InterpreterModelBuilder(IStateMachine stateMachine, IDataModelHandler dataModelHandler, ImmutableArray<ICustomActionFactory> customActionProviders,
-									   ImmutableArray<IResourceLoaderFactory> resourceLoaderFactories, ISecurityContext securityContext, IErrorProcessor errorProcessor, Uri? baseUri)
+		public InterpreterModelBuilder(IStateMachine stateMachine,
+									   IDataModelHandler dataModelHandler,
+									   ImmutableArray<ICustomActionFactory> customActionProviders,
+									   ImmutableArray<IResourceLoaderFactory> resourceLoaderFactories,
+									   ISecurityContext securityContext,
+									   IErrorProcessor errorProcessor,
+									   Uri? baseUri)
 		{
 			_stateMachine = stateMachine ?? throw new ArgumentNullException(nameof(stateMachine));
 			_dataModelHandler = dataModelHandler ?? throw new ArgumentNullException(nameof(dataModelHandler));
@@ -232,8 +237,8 @@ namespace Xtate.Core
 			CounterAfter(saved);
 
 			var newState = !state.States.IsDefaultOrEmpty
-					? new CompoundNode(documentId, state)
-					: new StateNode(documentId, state);
+				? new CompoundNode(documentId, state)
+				: new StateNode(documentId, state);
 
 			_idMap.Add(newState.Id, newState);
 
