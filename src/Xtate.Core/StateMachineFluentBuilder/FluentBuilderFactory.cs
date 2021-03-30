@@ -17,19 +17,11 @@
 
 #endregion
 
-namespace Xtate.Core
+namespace Xtate.Builder
 {
-	/// <summary>
-	///     Used as partner interface in Decorator pattern by chaining instances into ancestors chain.
-	///     It is used to lookup implemented interface all the way of decorators chain. See
-	///     <see cref="AncestorProviderExtensions.As{T}" /> and <see cref="AncestorProviderExtensions.Is{T}(object?)" />"/>
-	/// </summary>
-	public interface IAncestorProvider
+	[PublicAPI]
+	public static class FluentBuilderFactory
 	{
-		/// <summary>
-		///     Return reference to ancestor instance when Decorator patter is implemented or <see langword="null" /> if current
-		///     instance has no ancestor
-		/// </summary>
-		object? Ancestor { get; }
+		public static StateMachineFluentBuilder Create() => new(BuilderFactory.Instance);
 	}
 }

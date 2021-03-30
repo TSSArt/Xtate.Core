@@ -200,7 +200,8 @@ namespace Xtate.Core.Test.Legacy
 		[TestMethod]
 		public async Task SaveRestoreInterpreterModelRuntimeModelTest()
 		{
-			var _ = new StateMachineFluentBuilder(BuilderFactory.Instance)
+			var _ = FluentBuilderFactory
+					.Create()
 					.BeginState((Identifier) "a")
 					.AddTransition(_ => true, (Identifier) "a")
 					.AddOnEntry(_ => Console.WriteLine(@"OnEntry"))
