@@ -69,10 +69,7 @@ namespace Xtate.Core
 		{
 			if (expression is null) throw new ArgumentNullException(nameof(expression));
 
-			if (_executor is not null)
-			{
-				throw Infra.Fail<Exception>(Resources.Exception_RegistrationShouldNoOccurAfterInitialization);
-			}
+			Infra.NotNull(_executor, Resources.Exception_RegistrationShouldNoOccurAfterInitialization);
 
 			_locations ??= ImmutableArray.CreateBuilder<ILocationExpression>();
 
@@ -86,10 +83,7 @@ namespace Xtate.Core
 		{
 			if (expression is null) throw new ArgumentNullException(nameof(expression));
 
-			if (_executor is not null)
-			{
-				throw Infra.Fail<Exception>(Resources.Exception_RegistrationShouldNoOccurAfterInitialization);
-			}
+			Infra.NotNull(_executor, Resources.Exception_RegistrationShouldNoOccurAfterInitialization);
 
 			_values ??= ImmutableArray.CreateBuilder<IValueExpression>();
 
