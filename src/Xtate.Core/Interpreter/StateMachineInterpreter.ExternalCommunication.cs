@@ -29,18 +29,18 @@ namespace Xtate.Core
 	{
 	#region Interface IExternalCommunication
 
-		ImmutableArray<IIoProcessor> IExternalCommunication.GetIoProcessors() => _externalCommunication?.GetIoProcessors() ?? default;
+		ImmutableArray<IIoProcessor> IExternalCommunication.GetIoProcessors() => _options.ExternalCommunication?.GetIoProcessors() ?? default;
 
 		async ValueTask IExternalCommunication.StartInvoke(InvokeData invokeData, CancellationToken token)
 		{
 			try
 			{
-				if (_externalCommunication is null)
+				if (_options.ExternalCommunication is not { } externalCommunication)
 				{
 					throw NoExternalCommunication();
 				}
 
-				await _externalCommunication.StartInvoke(invokeData, token).ConfigureAwait(false);
+				await externalCommunication.StartInvoke(invokeData, token).ConfigureAwait(false);
 			}
 			catch (Exception ex)
 			{
@@ -52,12 +52,12 @@ namespace Xtate.Core
 		{
 			try
 			{
-				if (_externalCommunication is null)
+				if (_options.ExternalCommunication is not { } externalCommunication)
 				{
 					throw NoExternalCommunication();
 				}
 
-				await _externalCommunication.CancelInvoke(invokeId, token).ConfigureAwait(false);
+				await externalCommunication.CancelInvoke(invokeId, token).ConfigureAwait(false);
 			}
 			catch (Exception ex)
 			{
@@ -71,12 +71,12 @@ namespace Xtate.Core
 
 			try
 			{
-				if (_externalCommunication is null)
+				if (_options.ExternalCommunication is not { } externalCommunication)
 				{
 					throw NoExternalCommunication();
 				}
 
-				return await _externalCommunication.TrySendEvent(outgoingEvent, token).ConfigureAwait(false);
+				return await externalCommunication.TrySendEvent(outgoingEvent, token).ConfigureAwait(false);
 			}
 			catch (Exception ex)
 			{
@@ -90,12 +90,12 @@ namespace Xtate.Core
 		{
 			try
 			{
-				if (_externalCommunication is null)
+				if (_options.ExternalCommunication is not { } externalCommunication)
 				{
 					throw NoExternalCommunication();
 				}
 
-				await _externalCommunication.CancelEvent(sendId, token).ConfigureAwait(false);
+				await externalCommunication.CancelEvent(sendId, token).ConfigureAwait(false);
 			}
 			catch (Exception ex)
 			{
@@ -126,12 +126,12 @@ namespace Xtate.Core
 		{
 			try
 			{
-				if (_externalCommunication is null)
+				if (_options.ExternalCommunication is not { } externalCommunication)
 				{
 					throw NoExternalCommunication();
 				}
 
-				await _externalCommunication.ForwardEvent(evt, invokeId, token).ConfigureAwait(false);
+				await externalCommunication.ForwardEvent(evt, invokeId, token).ConfigureAwait(false);
 			}
 			catch (Exception ex)
 			{

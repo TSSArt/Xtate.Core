@@ -36,7 +36,7 @@ namespace Xtate.CustomAction
 																			   string name,
 																			   CancellationToken token)
 		{
-			var factories = await GetFactories(factoryContext, ns, token).ConfigureAwait(false);
+			var factories = await GetFactories(factoryContext, CustomActionNamespaceToUri(ns), token).ConfigureAwait(false);
 
 			foreach (var factory in factories)
 			{
@@ -54,7 +54,5 @@ namespace Xtate.CustomAction
 	#endregion
 
 		protected virtual Uri CustomActionNamespaceToUri(string customActionNamespace) => new(customActionNamespace, UriKind.RelativeOrAbsolute);
-
-		protected sealed override Uri KeyToUri(object key) => CustomActionNamespaceToUri((string) key);
 	}
 }

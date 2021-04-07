@@ -21,7 +21,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtate.Persistence;
@@ -110,9 +109,12 @@ namespace Xtate.Core
 				}
 				catch (Exception ex)
 				{
-					var loggerContext = new LoggerContext(scheduledEvent);
-					var logger = _logger ?? DefaultLogger.Instance;
-					await logger.LogError(loggerContext, ErrorType.Communication, ex, scheduledEvent.SendId?.Value, token: default).ConfigureAwait(false);
+					if (_logger is not null)
+					{
+						var loggerContext = new LoggerContext(scheduledEvent);
+						var message = Res.Format(Resources.Exception_ErrorOnDispatchingEvent, scheduledEvent.SendId?.Value);
+						await _logger.ExecuteLog(loggerContext, LogLevel.Error, message, arguments: default, ex, token: default).ConfigureAwait(false);
+					}
 				}
 			}
 			finally
@@ -158,27 +160,34 @@ namespace Xtate.Core
 			}
 		}
 
-		private class LoggerContext : ILoggerContext
+		private class LoggerContext : IEventSchedulerLoggerContext
 		{
 			private readonly ScheduledEvent _scheduledEvent;
 
 			public LoggerContext(ScheduledEvent scheduledEvent) => _scheduledEvent = scheduledEvent;
 
-		#region Interface ILoggerContext
-
-			string? ILoggerContext.GetDataModelAsText() => default;
-
-			string ILoggerContext.ConvertToText(DataModelValue value) => value.ToString(CultureInfo.InvariantCulture);
-
-			DataModelList? ILoggerContext.GetDataModel() => default;
-
-			ImmutableArray<string> ILoggerContext.GetActiveStates() => default;
+		#region Interface IEventSchedulerLoggerContext
 
 			public SessionId? SessionId => _scheduledEvent.SenderServiceId as SessionId;
 
-			IStateMachine? ILoggerContext.StateMachine => default;
+		#endregion
 
-			string? ILoggerContext.StateMachineName => default;
+		#region Interface ILoggerContext
+
+			public DataModelList GetProperties()
+			{
+				if (_scheduledEvent.SenderServiceId is SessionId sessionId)
+				{
+					var properties = new DataModelList { { @"SessionId", sessionId } };
+					properties.MakeDeepConstant();
+
+					return properties;
+				}
+
+				return DataModelList.Empty;
+			}
+
+			public string LoggerContextType => nameof(IEventSchedulerLoggerContext);
 
 		#endregion
 		}

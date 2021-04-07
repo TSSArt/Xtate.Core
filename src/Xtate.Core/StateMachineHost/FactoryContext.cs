@@ -17,15 +17,26 @@
 
 #endregion
 
+using System;
 using System.Collections.Immutable;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Xtate.Core
 {
 	internal class FactoryContext : IFactoryContext
 	{
-		public FactoryContext(ImmutableArray<IResourceLoaderFactory> resourceLoaderFactories, ISecurityContext securityContext)
+		private readonly ILogger?        _logger;
+		private readonly ILoggerContext? _loggerContext;
+
+		public FactoryContext(ImmutableArray<IResourceLoaderFactory> resourceLoaderFactories,
+							  ISecurityContext? securityContext,
+							  ILogger? logger,
+							  ILoggerContext? loggerContext)
 		{
-			SecurityContext = securityContext;
+			_logger = logger;
+			_loggerContext = loggerContext;
+			SecurityContext = securityContext ?? Core.SecurityContext.NoAccess;
 			ResourceLoaderFactories = resourceLoaderFactories;
 		}
 
@@ -34,6 +45,17 @@ namespace Xtate.Core
 		public ImmutableArray<IResourceLoaderFactory> ResourceLoaderFactories { get; }
 
 		public ISecurityContext SecurityContext { get; }
+
+	#endregion
+
+	#region Interface ILogEvent
+
+		public ValueTask Log(LogLevel logLevel,
+							 string? message = default,
+							 DataModelValue arguments = default,
+							 Exception? exception = default,
+							 CancellationToken token = default) =>
+			_logger?.ExecuteLog(_loggerContext, logLevel, message, arguments, exception, token) ?? default;
 
 	#endregion
 	}

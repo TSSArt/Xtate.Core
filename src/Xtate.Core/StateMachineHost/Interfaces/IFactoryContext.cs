@@ -21,7 +21,7 @@ using System.Collections.Immutable;
 
 namespace Xtate.Core
 {
-	public interface IFactoryContext
+	public interface IFactoryContext : ILogEvent
 	{
 		ISecurityContext SecurityContext { get; }
 

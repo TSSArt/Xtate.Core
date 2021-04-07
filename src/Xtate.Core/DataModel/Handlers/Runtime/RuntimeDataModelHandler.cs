@@ -27,7 +27,7 @@ namespace Xtate.DataModel.Runtime
 	{
 		private const string DataModelType = "runtime";
 
-		private RuntimeDataModelHandler(IErrorProcessor errorProcessor) : base(errorProcessor) { }
+		private RuntimeDataModelHandler(IErrorProcessor? errorProcessor) : base(errorProcessor) { }
 
 		public override ITypeInfo TypeInfo => TypeInfo<RuntimeDataModelHandler>.Instance;
 
@@ -65,7 +65,7 @@ namespace Xtate.DataModel.Runtime
 
 			public ValueTask<IDataModelHandler> CreateHandler(IFactoryContext factoryContext,
 															  string dataModelType,
-															  IErrorProcessor errorProcessor,
+															  IErrorProcessor? errorProcessor,
 															  CancellationToken token)
 			{
 				Infra.Assert(CanHandle(dataModelType));

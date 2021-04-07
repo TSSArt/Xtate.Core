@@ -79,20 +79,29 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Name: [{0}]. SessionId: [{1}]. Message: &quot;{2}&quot;. Arguments: {3} Exception: {4}.
+        /// </summary>
+        internal static string DefaultLogger_InterpreterLogEntry {
+            get {
+                return ResourceManager.GetString("DefaultLogger_InterpreterLogEntry", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Message: &quot;{0}&quot;. Arguments: {1} Exception: {2} LoggerContextType: {3} Properties: {4}.
+        /// </summary>
+        internal static string DefaultLogger_LogEntry {
+            get {
+                return ResourceManager.GetString("DefaultLogger_LogEntry", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Type: [{0}]. Name: [{1}]. SessionId: [{2}]. SourceEntityId: [{3}]. Exception: {4}.
         /// </summary>
         internal static string DefaultLogger_LogError {
             get {
                 return ResourceManager.GetString("DefaultLogger_LogError", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Name: [{0}]. SessionId: [{1}]. Message: &quot;{2}&quot;. Arguments: {3} Exception: {4}.
-        /// </summary>
-        internal static string DefaultLogger_LogInfo {
-            get {
-                return ResourceManager.GetString("DefaultLogger_LogInfo", resourceCulture);
             }
         }
         
@@ -1179,6 +1188,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Error on dispatching event. SendId: {0}..
+        /// </summary>
+        internal static string Exception_ErrorOnDispatchingEvent {
+            get {
+                return ResourceManager.GetString("Exception_ErrorOnDispatchingEvent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Error on event consumer side. Exception message: {0}.
         ///{1}.
         /// </summary>
@@ -1774,6 +1792,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to This exception should never happen..
+        /// </summary>
+        internal static string Exception_ThisExceptionShouldNeverHappen {
+            get {
+                return ResourceManager.GetString("Exception_ThisExceptionShouldNeverHappen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Type &apos;{0}&apos; can&apos;t be found in type &apos;{1}&apos; or in its ancestors..
         /// </summary>
         internal static string Exception_TypeCantBeFound {
@@ -2104,6 +2131,24 @@ namespace Xtate {
         internal static string Exception_XmlResolverReturnedNull {
             get {
                 return ResourceManager.GetString("Exception_XmlResolverReturnedNull", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error on creation factories..
+        /// </summary>
+        internal static string Warning_ErrorOnCreationFactories {
+            get {
+                return ResourceManager.GetString("Warning_ErrorOnCreationFactories", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error on loading assembly..
+        /// </summary>
+        internal static string Warning_ErrorOnLoadingAssembly {
+            get {
+                return ResourceManager.GetString("Warning_ErrorOnLoadingAssembly", resourceCulture);
             }
         }
     }

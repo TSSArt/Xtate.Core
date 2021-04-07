@@ -25,9 +25,9 @@ namespace Xtate.DataModel
 {
 	public abstract class DataModelHandlerBase : StateMachineVisitor, IDataModelHandler
 	{
-		private readonly IErrorProcessor _errorProcessor;
+		private readonly IErrorProcessor? _errorProcessor;
 
-		protected DataModelHandlerBase(IErrorProcessor errorProcessor) => _errorProcessor = errorProcessor;
+		protected DataModelHandlerBase(IErrorProcessor? errorProcessor) => _errorProcessor = errorProcessor;
 
 	#region Interface IDataModelHandler
 

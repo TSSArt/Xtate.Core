@@ -28,9 +28,9 @@ namespace Xtate.Core
 {
 	internal sealed class CustomActionDispatcher : ICustomAction, ICustomActionDispatcher, ICustomActionContext
 	{
-		private readonly ICustomAction   _customAction;
-		private readonly IErrorProcessor _errorProcessor;
-		private readonly IFactoryContext _factoryContext;
+		private readonly ICustomAction    _customAction;
+		private readonly IErrorProcessor? _errorProcessor;
+		private readonly IFactoryContext  _factoryContext;
 
 		private ICustomActionExecutor?                       _executor;
 		private ImmutableArray<ILocationEvaluator>           _locationEvaluators;
@@ -38,7 +38,7 @@ namespace Xtate.Core
 		private ImmutableArray<IValueEvaluator>              _valueEvaluators;
 		private ImmutableArray<IValueExpression>.Builder?    _values;
 
-		public CustomActionDispatcher(IErrorProcessor errorProcessor, ICustomAction customAction, IFactoryContext factoryContext)
+		public CustomActionDispatcher(IErrorProcessor? errorProcessor, ICustomAction customAction, IFactoryContext factoryContext)
 		{
 			_errorProcessor = errorProcessor;
 			_customAction = customAction;
@@ -93,10 +93,7 @@ namespace Xtate.Core
 			return expressionEvaluator;
 		}
 
-		void ICustomActionContext.AddValidationError<T>(string message, Exception? exception)
-		{
-			_errorProcessor.AddError<T>(this, message, exception);
-		}
+		void ICustomActionContext.AddValidationError<T>(string message, Exception? exception) => _errorProcessor.AddError<T>(this, message, exception);
 
 		string ICustomActionContext.Xml => _customAction.Xml!;
 

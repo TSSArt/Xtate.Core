@@ -38,7 +38,7 @@ namespace Xtate.DataModel
 
 		public async ValueTask<IDataModelHandlerFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, string dataModelType, CancellationToken token)
 		{
-			var factories = await GetFactories(factoryContext, dataModelType, token).ConfigureAwait(false);
+			var factories = await GetFactories(factoryContext, DataModelTypeToUri(dataModelType), token).ConfigureAwait(false);
 
 			foreach (var factory in factories)
 			{
@@ -63,7 +63,5 @@ namespace Xtate.DataModel
 
 			return new Uri(uriString, UriKind.RelativeOrAbsolute);
 		}
-
-		protected sealed override Uri KeyToUri(object key) => DataModelTypeToUri((string) key);
 	}
 }

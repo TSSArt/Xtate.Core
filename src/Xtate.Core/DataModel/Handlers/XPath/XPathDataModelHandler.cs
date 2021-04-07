@@ -34,7 +34,7 @@ namespace Xtate.DataModel.XPath
 
 		internal XPathDataModelHandler() : base(DefaultErrorProcessor.Instance) { }
 
-		private XPathDataModelHandler(IErrorProcessor errorProcessor) : base(errorProcessor) { }
+		private XPathDataModelHandler(IErrorProcessor? errorProcessor) : base(errorProcessor) { }
 
 		public static IDataModelHandlerFactory Factory { get; } = new DataModelHandlerFactory();
 
@@ -285,7 +285,7 @@ namespace Xtate.DataModel.XPath
 
 			public ValueTask<IDataModelHandler> CreateHandler(IFactoryContext factoryContext,
 															  string dataModelType,
-															  IErrorProcessor errorProcessor,
+															  IErrorProcessor? errorProcessor,
 															  CancellationToken token)
 			{
 				Infra.Assert(CanHandle(dataModelType));

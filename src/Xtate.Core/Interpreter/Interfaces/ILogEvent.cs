@@ -17,15 +17,18 @@
 
 #endregion
 
-namespace Xtate.Core
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Xtate
 {
-	internal interface IDataModelValueProvider
+	public interface ILogEvent
 	{
-		DataModelValue Arguments        { get; }
-		DataModelValue Configuration    { get; }
-		DataModelValue Host             { get; }
-		DataModelValue Interpreter      { get; }
-		DataModelValue DataModelHandler { get; }
-		bool           CaseInsensitive  { get; }
+		ValueTask Log(LogLevel logLevel,
+					  string? message = default,
+					  DataModelValue arguments = default,
+					  Exception? exception = default,
+					  CancellationToken token = default);
 	}
 }

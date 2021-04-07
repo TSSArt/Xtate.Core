@@ -106,7 +106,8 @@ namespace Xtate
 			await using (finalizer.ConfigureAwait(false))
 			{
 				securityContext = securityContext.CreateNested(SecurityContextType.InvokedService, finalizer);
-				var factoryContext = new FactoryContext(_options.ResourceLoaderFactories, securityContext);
+				var loggerContext = new StartInvokeLoggerContext(sessionId, data.Type, data.Source);
+				var factoryContext = new FactoryContext(_options.ResourceLoaderFactories, securityContext, _options.Logger, loggerContext);
 				var activator = await FindServiceFactoryActivator(factoryContext, data.Type, token).ConfigureAwait(false);
 				var serviceCommunication = new ServiceCommunication(this, GetTarget(sessionId), IoProcessorId, data.InvokeId);
 				var invokedService = await activator.StartService(factoryContext, service.StateMachineLocation, data, serviceCommunication, token).ConfigureAwait(false);
@@ -355,6 +356,48 @@ namespace Xtate
 			}
 
 			throw new ProcessorException(Resources.Exception_InvalidType);
+		}
+
+		private class StartInvokeLoggerContext : IStartInvokeLoggerContext
+		{
+			public StartInvokeLoggerContext(SessionId sessionId, Uri type, Uri? source)
+			{
+				SessionId = sessionId;
+				Type = type;
+				Source = source;
+			}
+
+		#region Interface ILoggerContext
+
+			public DataModelList GetProperties()
+			{
+				var properties = new DataModelList
+								 {
+									 { @"SessionId", SessionId },
+									 { @"InvokeType", Type.ToString() }
+								 };
+
+				if (Source is { } source)
+				{
+					properties.Add(key: @"Source", source.ToString());
+				}
+
+				properties.MakeDeepConstant();
+
+				return properties;
+			}
+
+			public string LoggerContextType => nameof(IStartInvokeLoggerContext);
+
+		#endregion
+
+		#region Interface IStartInvokeLoggerContext
+
+			public SessionId SessionId { get; }
+			public Uri       Type      { get; }
+			public Uri?      Source    { get; }
+
+		#endregion
 		}
 	}
 }

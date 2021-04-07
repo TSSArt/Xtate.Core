@@ -18,7 +18,6 @@
 #endregion
 
 using System;
-using System.Collections.Immutable;
 using System.Collections.Specialized;
 using System.IO;
 using System.Threading;
@@ -29,14 +28,12 @@ namespace Xtate.Core
 {
 	public class RedirectXmlResolver : ScxmlXmlResolver
 	{
-		private readonly ImmutableArray<IResourceLoaderFactory> _resourceLoaderFactories;
-		private readonly ISecurityContext                       _securityContext;
-		private readonly CancellationToken                      _token;
+		private readonly IFactoryContext   _factoryContext;
+		private readonly CancellationToken _token;
 
-		public RedirectXmlResolver(ImmutableArray<IResourceLoaderFactory> resourceLoaderFactories, ISecurityContext securityContext, CancellationToken token)
+		public RedirectXmlResolver(IFactoryContext factoryContext, CancellationToken token)
 		{
-			_resourceLoaderFactories = resourceLoaderFactories;
-			_securityContext = securityContext;
+			_factoryContext = factoryContext;
 			_token = token;
 		}
 
@@ -50,8 +47,7 @@ namespace Xtate.Core
 				throw new ArgumentException(Res.Format(Resources.Exception_UnsupportedClass, ofObjectToReturn));
 			}
 
-			var factoryContext = new FactoryContext(_resourceLoaderFactories, _securityContext);
-			var resource = await factoryContext.GetResource(uri, GetHeaders(accept, acceptLanguage), _token).ConfigureAwait(false);
+			var resource = await _factoryContext.GetResource(uri, GetHeaders(accept, acceptLanguage), _token).ConfigureAwait(false);
 			var stream = await resource.GetStream(doNotCache: true, _token).ConfigureAwait(false);
 			stream = stream.InjectCancellationToken(_token);
 

@@ -28,7 +28,7 @@ namespace Xtate.DataModel
 	{
 		ValueTask<IDataModelHandler> CreateHandler(IFactoryContext factoryContext,
 												   string dataModelType,
-												   IErrorProcessor errorProcessor,
+												   IErrorProcessor? errorProcessor,
 												   CancellationToken token);
 	}
 }

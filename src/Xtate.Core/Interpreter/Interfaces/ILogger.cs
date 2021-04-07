@@ -29,41 +29,40 @@ namespace Xtate
 	{
 		bool IsTracingEnabled { get; }
 
-		ValueTask ExecuteLog(ILoggerContext loggerContext,
+		ValueTask ExecuteLog(ILoggerContext? loggerContext,
 							 LogLevel logLevel,
 							 string? message,
 							 DataModelValue arguments,
 							 Exception? exception,
 							 CancellationToken token);
 
-		ValueTask LogError(ILoggerContext loggerContext,
+		ValueTask LogError(ILoggerContext? loggerContext,
 						   ErrorType errorType,
 						   Exception exception,
 						   string? sourceEntityId,
 						   CancellationToken token);
 
-		ValueTask TraceProcessingEvent(ILoggerContext loggerContext, IEvent evt, CancellationToken token);
-		ValueTask TraceEnteringState(ILoggerContext loggerContext, IIdentifier stateId, CancellationToken token);
-		ValueTask TraceEnteredState(ILoggerContext loggerContext, IIdentifier stateId, CancellationToken token);
-		ValueTask TraceExitingState(ILoggerContext loggerContext, IIdentifier stateId, CancellationToken token);
-		ValueTask TraceExitedState(ILoggerContext loggerContext, IIdentifier stateId, CancellationToken token);
-
-		ValueTask TracePerformingTransition(ILoggerContext loggerContext,
+		ValueTask TracePerformingTransition(ILoggerContext? loggerContext,
 											TransitionType type,
 											string? eventDescriptor,
 											string? target,
 											CancellationToken token);
 
-		ValueTask TracePerformedTransition(ILoggerContext loggerContext,
+		ValueTask TracePerformedTransition(ILoggerContext? loggerContext,
 										   TransitionType type,
 										   string? eventDescriptor,
 										   string? target,
 										   CancellationToken token);
 
-		ValueTask TraceInterpreterState(ILoggerContext loggerContext, StateMachineInterpreterState state, CancellationToken token);
-		ValueTask TraceSendEvent(ILoggerContext loggerContext, IOutgoingEvent outgoingEvent, CancellationToken token);
-		ValueTask TraceCancelEvent(ILoggerContext loggerContext, SendId sendId, CancellationToken token);
-		ValueTask TraceStartInvoke(ILoggerContext loggerContext, InvokeData invokeData, CancellationToken token);
-		ValueTask TraceCancelInvoke(ILoggerContext loggerContext, InvokeId invokeId, CancellationToken token);
+		ValueTask TraceProcessingEvent(ILoggerContext? loggerContext, IEvent evt, CancellationToken token);
+		ValueTask TraceEnteringState(ILoggerContext? loggerContext, IIdentifier stateId, CancellationToken token);
+		ValueTask TraceEnteredState(ILoggerContext? loggerContext, IIdentifier stateId, CancellationToken token);
+		ValueTask TraceExitingState(ILoggerContext? loggerContext, IIdentifier stateId, CancellationToken token);
+		ValueTask TraceExitedState(ILoggerContext? loggerContext, IIdentifier stateId, CancellationToken token);
+		ValueTask TraceInterpreterState(ILoggerContext? loggerContext, StateMachineInterpreterState state, CancellationToken token);
+		ValueTask TraceSendEvent(ILoggerContext? loggerContext, IOutgoingEvent outgoingEvent, CancellationToken token);
+		ValueTask TraceCancelEvent(ILoggerContext? loggerContext, SendId sendId, CancellationToken token);
+		ValueTask TraceStartInvoke(ILoggerContext? loggerContext, InvokeData invokeData, CancellationToken token);
+		ValueTask TraceCancelInvoke(ILoggerContext? loggerContext, InvokeId invokeId, CancellationToken token);
 	}
 }

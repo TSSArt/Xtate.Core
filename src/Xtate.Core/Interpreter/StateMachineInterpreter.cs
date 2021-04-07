@@ -23,11 +23,9 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
-using Xtate.CustomAction;
 using Xtate.DataModel;
 using Xtate.DataModel.Null;
 using Xtate.DataModel.Runtime;
@@ -38,7 +36,7 @@ namespace Xtate.Core
 	using DefaultHistoryContent = Dictionary<IIdentifier, ImmutableArray<IExecEvaluator>>;
 
 	[PublicAPI]
-	public sealed partial class StateMachineInterpreter : IDataModelValueProvider
+	public sealed partial class StateMachineInterpreter
 	{
 		private const string StateStorageKey                  = "state";
 		private const string StateMachineDefinitionStorageKey = "smd";
@@ -46,108 +44,51 @@ namespace Xtate.Core
 		private static readonly ImmutableArray<IDataModelHandlerFactory> PredefinedDataModelHandlerFactories =
 			ImmutableArray.Create(NullDataModelHandler.Factory, RuntimeDataModelHandler.Factory);
 
-		private readonly Uri?                                     _baseUri;
-		private readonly ImmutableDictionary<object, object>      _contextRuntimeItems;
-		private readonly ImmutableArray<ICustomActionFactory>     _customActionProviders;
-		private readonly ImmutableArray<IDataModelHandlerFactory> _dataModelHandlerFactories;
-		private readonly CancellationToken                        _destroyToken;
-		private readonly IErrorProcessor                          _errorProcessor;
-		private readonly ChannelReader<IEvent>                    _eventChannel;
-		private readonly IExternalCommunication?                  _externalCommunication;
-		private readonly ILogger                                  _logger;
-		private readonly INotifyStateChanged?                     _notifyStateChanged;
-		private readonly PersistenceLevel                         _persistenceLevel;
-		private readonly ImmutableArray<IResourceLoaderFactory>   _resourceLoaderFactories;
-		private readonly ISecurityContext                         _securityContext;
-		private readonly SessionId                                _sessionId;
-		private readonly IStateMachineValidator                   _stateMachineValidator;
-		private readonly CancellationToken                        _stopToken;
-		private readonly IStorageProvider                         _storageProvider;
-		private readonly CancellationToken                        _suspendToken;
-		private readonly UnhandledErrorBehaviour                  _unhandledErrorBehaviour;
-		private          CancellationTokenSource                  _anyTokenSource;
-		private          IStateMachineContext                     _context;
-		private          IDataModelHandler                        _dataModelHandler;
-		private          ImmutableDictionary<string, string>      _dataModelVars;
-		private          DataModelValue                           _doneData;
-		private          InterpreterModel                         _model;
-		private          bool                                     _stop;
+		private readonly ChannelReader<IEvent>               _eventChannel;
+		private readonly bool                                _isPersistingEnabled;
+		private readonly InterpreterOptions                  _options;
+		private readonly SessionId                           _sessionId;
+		private readonly IStateMachineValidator              _stateMachineValidator = StateMachineValidator.Instance;
+		private          CancellationToken                   _anyToken;
+		private          IStateMachineContext                _context = default!;
+		private          IDataModelHandler?                  _dataModelHandler;
+		private          ImmutableDictionary<string, string> _dataModelVars = ImmutableDictionary<string, string>.Empty;
+		private          DataModelValue                      _doneData;
+		private          InterpreterModel?                   _model;
+		private          IStateMachine?                      _stateMachine;
+		private          bool                                _stop;
 
-		private StateMachineInterpreter(SessionId sessionId, ChannelReader<IEvent> eventChannel, InterpreterOptions options)
+		private StateMachineInterpreter(SessionId sessionId,
+										IStateMachine? stateMachine,
+										ChannelReader<IEvent> eventChannel,
+										InterpreterOptions options)
 		{
 			_sessionId = sessionId;
+			_stateMachine = stateMachine;
 			_eventChannel = eventChannel;
-			_baseUri = options.BaseUri;
-			_suspendToken = options.SuspendToken;
-			_stopToken = options.StopToken;
-			_destroyToken = options.DestroyToken;
-			_securityContext = options.SecurityContext ?? SecurityContext.NoAccess;
-			_customActionProviders = options.CustomActionProviders;
-			_dataModelHandlerFactories = options.DataModelHandlerFactories;
-			_resourceLoaderFactories = options.ResourceLoaderFactories;
-			_logger = options.Logger ?? DefaultLogger.Instance;
-			_externalCommunication = options.ExternalCommunication;
-			_storageProvider = options.StorageProvider ?? NullStorageProvider.Instance;
-			_contextRuntimeItems = options.ContextRuntimeItems ?? ImmutableDictionary<object, object>.Empty;
-			_errorProcessor = options.ErrorProcessor ?? DefaultErrorProcessor.Instance;
-			_persistenceLevel = options.PersistenceLevel;
-			_notifyStateChanged = options.NotifyStateChanged;
-			_stateMachineValidator = StateMachineValidator.Instance;
-			_dataModelVars = ImmutableDictionary<string, string>.Empty;
-			_unhandledErrorBehaviour = options.UnhandledErrorBehaviour;
-			Interpreter = new DataModelValue(new LazyValue(CreateInterpreterList));
-			DataModelHandler = new DataModelValue(new LazyValue(CreateDataModelHandlerList));
-			Configuration = new DataModelValue(options.Configuration?.AsConstant() ?? DataModelList.Empty);
-			Host = new DataModelValue(options.Host?.AsConstant() ?? DataModelList.Empty);
-			Arguments = options.Arguments.AsConstant();
-
-			_anyTokenSource = default!;
-			_dataModelHandler = default!;
-			_context = default!;
-			_model = default!;
-		}
-
-		private bool IsPersistingEnabled
-		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => _persistenceLevel != PersistenceLevel.None;
+			_options = options;
+			_isPersistingEnabled = _options.PersistenceLevel != PersistenceLevel.None && _options.StorageProvider is not null;
 		}
 
 		private bool Running
 		{
-			get => !_stop && (!IsPersistingEnabled || _context.PersistenceContext.GetState((int) StateBagKey.Stop) == 0);
+			get => !_stop && (!_isPersistingEnabled || _context.PersistenceContext.GetState((int) StateBagKey.Stop) == 0);
 			set
 			{
 				_stop = !value;
 
-				if (IsPersistingEnabled)
+				if (_isPersistingEnabled)
 				{
 					_context.PersistenceContext.SetState((int) StateBagKey.Stop, value ? 0 : 1);
 				}
 			}
 		}
 
-	#region Interface IDataModelValueProvider
-
-		public DataModelValue Arguments { get; }
-
-		public DataModelValue Interpreter { get; }
-
-		public DataModelValue Configuration { get; }
-
-		public DataModelValue Host { get; }
-
-		public DataModelValue DataModelHandler { get; }
-
-		public bool CaseInsensitive => _dataModelHandler.CaseInsensitive;
-
-	#endregion
-
 		public static ValueTask<DataModelValue> RunAsync(IStateMachine? stateMachine, ChannelReader<IEvent> eventChannel, InterpreterOptions? options = default)
 		{
 			if (eventChannel is null) throw new ArgumentNullException(nameof(eventChannel));
 
-			return new StateMachineInterpreter(SessionId.New(), eventChannel, options ?? InterpreterOptions.Default).Run(stateMachine);
+			return new StateMachineInterpreter(SessionId.New(), stateMachine, eventChannel, options ?? InterpreterOptions.Default).Run();
 		}
 
 		public static ValueTask<DataModelValue> RunAsync(SessionId sessionId,
@@ -158,38 +99,54 @@ namespace Xtate.Core
 			if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
 			if (eventChannel is null) throw new ArgumentNullException(nameof(eventChannel));
 
-			return new StateMachineInterpreter(sessionId, eventChannel, options ?? InterpreterOptions.Default).Run(stateMachine);
+			return new StateMachineInterpreter(sessionId, stateMachine, eventChannel, options ?? InterpreterOptions.Default).Run();
 		}
 
-		private async ValueTask<InterpreterModel> BuildInterpreterModel(IStateMachine? stateMachine)
+		private InterpreterModelBuilder.Parameters CreateInterpreterModelBuilderParameters()
 		{
-			var errorProcessor = new WrapperErrorProcessor(_errorProcessor);
+			Infra.NotNull(_stateMachine);
+			Infra.NotNull(_dataModelHandler);
 
-			var interpreterModel = IsPersistingEnabled ? await TryRestoreInterpreterModel(stateMachine, errorProcessor).ConfigureAwait(false) : null;
+			return new InterpreterModelBuilder.Parameters(_stateMachine, _dataModelHandler)
+				   {
+					   BaseUri = _options.BaseUri,
+					   CustomActionProviders = _options.CustomActionProviders,
+					   ErrorProcessor = _options.ErrorProcessor,
+					   ResourceLoaderFactories = _options.ResourceLoaderFactories,
+					   SecurityContext = _options.SecurityContext,
+					   Logger = _options.Logger,
+					   LoggerContext = this
+				   };
+		}
+
+		private async ValueTask<InterpreterModel> BuildInterpreterModel()
+		{
+			var interpreterModel = _isPersistingEnabled ? await TryRestoreInterpreterModel().ConfigureAwait(false) : null;
 
 			if (interpreterModel is not null)
 			{
 				return interpreterModel;
 			}
 
-			Infra.NotNull(stateMachine);
+			Infra.NotNull(_stateMachine);
 
-			_dataModelHandler = await CreateDataModelHandler(stateMachine.DataModelType, errorProcessor).ConfigureAwait(false);
+			_dataModelHandler = await CreateDataModelHandler(_stateMachine.DataModelType).ConfigureAwait(false);
 
-			_stateMachineValidator.Validate(stateMachine, errorProcessor);
+			_stateMachineValidator.Validate(_stateMachine, _options.ErrorProcessor);
 
-			var interpreterModelBuilder = new InterpreterModelBuilder(stateMachine, _dataModelHandler, _customActionProviders, _resourceLoaderFactories, _securityContext, errorProcessor, _baseUri);
+			var parameters = CreateInterpreterModelBuilderParameters();
+			var interpreterModelBuilder = new InterpreterModelBuilder(parameters);
 
 			try
 			{
-				interpreterModel = await interpreterModelBuilder.Build(_stopToken).ConfigureAwait(false);
+				interpreterModel = await interpreterModelBuilder.Build(_options.StopToken).ConfigureAwait(false);
 			}
 			finally
 			{
-				errorProcessor.ThrowIfErrors();
+				_options.ErrorProcessor?.ThrowIfErrors();
 			}
 
-			if (IsPersistingEnabled)
+			if (_isPersistingEnabled)
 			{
 				await SaveInterpreterModel(interpreterModel).ConfigureAwait(false);
 			}
@@ -197,9 +154,11 @@ namespace Xtate.Core
 			return interpreterModel;
 		}
 
-		private async ValueTask<InterpreterModel?> TryRestoreInterpreterModel(IStateMachine? stateMachine, IErrorProcessor errorProcessor)
+		private async ValueTask<InterpreterModel?> TryRestoreInterpreterModel()
 		{
-			var storage = await _storageProvider.GetTransactionalStorage(partition: default, StateMachineDefinitionStorageKey, _stopToken).ConfigureAwait(false);
+			Infra.NotNull(_options.StorageProvider);
+
+			var storage = await _options.StorageProvider.GetTransactionalStorage(partition: default, StateMachineDefinitionStorageKey, _options.StopToken).ConfigureAwait(false);
 			await using (storage.ConfigureAwait(false))
 			{
 				var bucket = new Bucket(storage);
@@ -221,45 +180,52 @@ namespace Xtate.Core
 				}
 
 				var smdBucket = new Bucket(new InMemoryStorage(memory.Span));
-
-				_dataModelHandler = await CreateDataModelHandler(smdBucket.GetString(Key.DataModelType), errorProcessor).ConfigureAwait(false);
+				var dataModelType = smdBucket.GetString(Key.DataModelType);
+				_dataModelHandler = await CreateDataModelHandler(dataModelType).ConfigureAwait(false);
 
 				ImmutableDictionary<int, IEntity>? entityMap = default;
 
-				if (stateMachine is not null)
+				if (_stateMachine is not null)
 				{
-					var builder = new InterpreterModelBuilder(stateMachine, _dataModelHandler, _customActionProviders, _resourceLoaderFactories, _securityContext, DefaultErrorProcessor.Instance,
-															  _baseUri);
-					var model = await builder.Build(_stopToken).ConfigureAwait(false);
+					var parameters = CreateInterpreterModelBuilderParameters();
+					var temporaryModelBuilder = new InterpreterModelBuilder(parameters);
+					var model = await temporaryModelBuilder.Build(_options.StopToken).ConfigureAwait(false);
 					entityMap = model.EntityMap;
 				}
 
 				var restoredStateMachine = new StateMachineReader().Build(smdBucket, entityMap);
 
-				if (stateMachine is not null)
+				if (_stateMachine is not null)
 				{
 					//TODO: Validate stateMachine vs restoredStateMachine (number of elements should be the same and documentId should point to the same entity type)
 				}
 
-				var restoredErrorProcessor = new WrapperErrorProcessor(_errorProcessor);
+				_stateMachine = restoredStateMachine;
 
-				var interpreterModelBuilder = new InterpreterModelBuilder(restoredStateMachine, _dataModelHandler, _customActionProviders, _resourceLoaderFactories,
-																		  _securityContext, restoredErrorProcessor, _baseUri);
+				try
+				{
+					var parameters = CreateInterpreterModelBuilderParameters();
+					var interpreterModelBuilder = new InterpreterModelBuilder(parameters);
 
-				restoredErrorProcessor.ThrowIfErrors();
-
-				return await interpreterModelBuilder.Build(_stopToken).ConfigureAwait(false);
+					return await interpreterModelBuilder.Build(_options.StopToken).ConfigureAwait(false);
+				}
+				finally
+				{
+					_options.ErrorProcessor?.ThrowIfErrors();
+				}
 			}
 		}
 
 		private async ValueTask SaveInterpreterModel(InterpreterModel interpreterModel)
 		{
-			var storage = await _storageProvider.GetTransactionalStorage(partition: default, StateMachineDefinitionStorageKey, _stopToken).ConfigureAwait(false);
+			Infra.NotNull(_options.StorageProvider);
+
+			var storage = await _options.StorageProvider.GetTransactionalStorage(partition: default, StateMachineDefinitionStorageKey, _options.StopToken).ConfigureAwait(false);
 			await using (storage.ConfigureAwait(false))
 			{
 				SaveToStorage(interpreterModel.Root.As<IStoreSupport>(), new Bucket(storage));
 
-				await storage.CheckPoint(level: 0, _stopToken).ConfigureAwait(false);
+				await storage.CheckPoint(level: 0, _options.StopToken).ConfigureAwait(false);
 			}
 		}
 
@@ -276,29 +242,29 @@ namespace Xtate.Core
 			bucket.Add(Key.StateMachineDefinition, span);
 		}
 
-		private async ValueTask<IDataModelHandler> CreateDataModelHandler(string? dataModelType, IErrorProcessor errorProcessor)
+		private async ValueTask<IDataModelHandler> CreateDataModelHandler(string? dataModelType)
 		{
 			dataModelType ??= NullDataModelHandler.DataModelType;
-			var factoryContext = new FactoryContext(_resourceLoaderFactories, _securityContext);
+			var factoryContext = new FactoryContext(_options.ResourceLoaderFactories, _options.SecurityContext, _options.Logger, this);
 			var activator = await FindDataModelHandlerFactoryActivator(dataModelType, factoryContext).ConfigureAwait(false);
 
 			if (activator is not null)
 			{
-				return await activator.CreateHandler(factoryContext, dataModelType, errorProcessor, _stopToken).ConfigureAwait(false);
+				return await activator.CreateHandler(factoryContext, dataModelType, _options.ErrorProcessor, _options.StopToken).ConfigureAwait(false);
 			}
 
-			errorProcessor.AddError<StateMachineInterpreter>(entity: null, Res.Format(Resources.Exception_CantFindDataModelHandlerFactoryForDataModelType, dataModelType));
+			_options.ErrorProcessor.AddError<StateMachineInterpreter>(entity: null, Res.Format(Resources.Exception_CantFindDataModelHandlerFactoryForDataModelType, dataModelType));
 
-			return new NullDataModelHandler(errorProcessor);
+			return new NullDataModelHandler(_options.ErrorProcessor);
 		}
 
 		private async ValueTask<IDataModelHandlerFactoryActivator?> FindDataModelHandlerFactoryActivator(string dataModelType, IFactoryContext factoryContext)
 		{
-			if (!_dataModelHandlerFactories.IsDefaultOrEmpty)
+			if (!_options.DataModelHandlerFactories.IsDefaultOrEmpty)
 			{
-				foreach (var factory in _dataModelHandlerFactories)
+				foreach (var factory in _options.DataModelHandlerFactories)
 				{
-					var activator = await factory.TryGetActivator(factoryContext, dataModelType, _stopToken).ConfigureAwait(false);
+					var activator = await factory.TryGetActivator(factoryContext, dataModelType, _options.StopToken).ConfigureAwait(false);
 
 					if (activator is not null)
 					{
@@ -309,7 +275,7 @@ namespace Xtate.Core
 
 			foreach (var factory in PredefinedDataModelHandlerFactories)
 			{
-				var activator = await factory.TryGetActivator(factoryContext, dataModelType ?? NullDataModelHandler.DataModelType, _stopToken).ConfigureAwait(false);
+				var activator = await factory.TryGetActivator(factoryContext, dataModelType ?? NullDataModelHandler.DataModelType, _options.StopToken).ConfigureAwait(false);
 
 				if (activator is not null)
 				{
@@ -322,7 +288,7 @@ namespace Xtate.Core
 
 		private ValueTask DoOperation(StateBagKey key, Func<ValueTask> func)
 		{
-			return IsPersistingEnabled ? DoOperationAsync() : func();
+			return _isPersistingEnabled ? DoOperationAsync() : func();
 
 			async ValueTask DoOperationAsync()
 			{
@@ -338,7 +304,7 @@ namespace Xtate.Core
 
 		private ValueTask DoOperation<TArg>(StateBagKey key, Func<TArg, ValueTask> func, TArg arg)
 		{
-			return IsPersistingEnabled ? DoOperationAsync() : func(arg);
+			return _isPersistingEnabled ? DoOperationAsync() : func(arg);
 
 			async ValueTask DoOperationAsync()
 			{
@@ -357,7 +323,7 @@ namespace Xtate.Core
 											Func<TArg, ValueTask> func,
 											TArg arg)
 		{
-			return IsPersistingEnabled ? DoOperationAsync() : func(arg);
+			return _isPersistingEnabled ? DoOperationAsync() : func(arg);
 
 			async ValueTask DoOperationAsync()
 			{
@@ -375,7 +341,7 @@ namespace Xtate.Core
 
 		private void Complete(StateBagKey key)
 		{
-			if (IsPersistingEnabled)
+			if (_isPersistingEnabled)
 			{
 				_context.PersistenceContext.ClearState((int) key);
 			}
@@ -383,7 +349,7 @@ namespace Xtate.Core
 
 		private bool Capture(StateBagKey key, bool value)
 		{
-			if (IsPersistingEnabled)
+			if (_isPersistingEnabled)
 			{
 				var persistenceContext = _context.PersistenceContext;
 				if (persistenceContext.GetState((int) key) == 1)
@@ -400,7 +366,7 @@ namespace Xtate.Core
 
 		private ValueTask<List<TransitionNode>> Capture(StateBagKey key, Func<ValueTask<List<TransitionNode>>> value)
 		{
-			return IsPersistingEnabled ? CaptureAsync() : value();
+			return _isPersistingEnabled ? CaptureAsync() : value();
 
 			async ValueTask<List<TransitionNode>> CaptureAsync()
 			{
@@ -423,6 +389,8 @@ namespace Xtate.Core
 				var length = persistenceContext.GetState((int) key, subKey: 0);
 				var capturedSet = new List<TransitionNode>(length);
 
+				Infra.NotNull(_model);
+
 				for (var i = 0; i < length; i ++)
 				{
 					var documentId = persistenceContext.GetState((int) key, i + 1);
@@ -442,9 +410,9 @@ namespace Xtate.Core
 		{
 			await TraceInterpreterState(state).ConfigureAwait(false);
 
-			if (_notifyStateChanged is not null)
+			if (_options.NotifyStateChanged is { } notifyStateChanged)
 			{
-				await _notifyStateChanged.OnChanged(state).ConfigureAwait(false);
+				await notifyStateChanged.OnChanged(state).ConfigureAwait(false);
 			}
 		}
 
@@ -464,7 +432,7 @@ namespace Xtate.Core
 			{
 				throw await DestroyingSteps(ex).ConfigureAwait(false);
 			}
-			catch (OperationCanceledException ex) when (ex.CancellationToken == _destroyToken || ex.CancellationToken == _anyTokenSource.Token && _destroyToken.IsCancellationRequested)
+			catch (OperationCanceledException ex) when (ex.CancellationToken == _options.DestroyToken || ex.CancellationToken == _anyToken && _options.DestroyToken.IsCancellationRequested)
 			{
 				throw await DestroyingSteps(ex).ConfigureAwait(false);
 			}
@@ -492,16 +460,18 @@ namespace Xtate.Core
 			return new StateMachineDestroyedException(Resources.Exception_StateMachineHasBeenDestroyed, destroyException);
 		}
 
-		private async ValueTask<DataModelValue> Run(IStateMachine? stateMachine)
+		private async ValueTask<DataModelValue> Run()
 		{
-			_model = await BuildInterpreterModel(stateMachine).ConfigureAwait(false);
+			_model = await BuildInterpreterModel().ConfigureAwait(false);
 			_context = await CreateContext().ConfigureAwait(false);
-			_anyTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_suspendToken, _destroyToken, _stopToken);
+			var anyTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_options.SuspendToken, _options.DestroyToken, _options.StopToken);
 
-			using (_anyTokenSource)
+			using (anyTokenSource)
 			await using (_context.ConfigureAwait(false))
 			{
-				if (stateMachine is null)
+				_anyToken = anyTokenSource.Token;
+
+				if (_stateMachine is null)
 				{
 					await TraceInterpreterState(StateMachineInterpreterState.Resumed).ConfigureAwait(false);
 				}
@@ -516,11 +486,11 @@ namespace Xtate.Core
 
 					throw new StateMachineQueueClosedException(Resources.Exception_StateMachineExternalQueueHasBeenClosed, ex);
 				}
-				catch (OperationCanceledException ex) when (ex.CancellationToken == _stopToken || ex.CancellationToken == _anyTokenSource.Token && _stopToken.IsCancellationRequested)
+				catch (OperationCanceledException ex) when (ex.CancellationToken == _options.StopToken || ex.CancellationToken == _anyToken && _options.StopToken.IsCancellationRequested)
 				{
 					await TraceInterpreterState(StateMachineInterpreterState.Halted).ConfigureAwait(false);
 
-					throw new OperationCanceledException(Resources.Exception_StateMachineHasBeenHalted, ex, _stopToken);
+					throw new OperationCanceledException(Resources.Exception_StateMachineHasBeenHalted, ex, _options.StopToken);
 				}
 				catch (StateMachineUnhandledErrorException ex) when (ex.UnhandledErrorBehaviour == UnhandledErrorBehaviour.HaltStateMachine)
 				{
@@ -528,7 +498,8 @@ namespace Xtate.Core
 
 					throw;
 				}
-				catch (OperationCanceledException ex) when (ex.CancellationToken == _suspendToken || ex.CancellationToken == _anyTokenSource.Token && _suspendToken.IsCancellationRequested)
+				catch (OperationCanceledException ex) when (ex.CancellationToken == _options.SuspendToken ||
+															ex.CancellationToken == _anyToken && _options.SuspendToken.IsCancellationRequested)
 				{
 					await TraceInterpreterState(StateMachineInterpreterState.Suspended).ConfigureAwait(false);
 
@@ -541,15 +512,19 @@ namespace Xtate.Core
 
 		private async ValueTask CleanupPersistedData()
 		{
-			if (IsPersistingEnabled)
+			if (_isPersistingEnabled)
 			{
-				await _storageProvider.RemoveTransactionalStorage(partition: default, StateStorageKey, _stopToken).ConfigureAwait(false);
-				await _storageProvider.RemoveTransactionalStorage(partition: default, StateMachineDefinitionStorageKey, _stopToken).ConfigureAwait(false);
+				Infra.NotNull(_options.StorageProvider);
+
+				await _options.StorageProvider.RemoveTransactionalStorage(partition: default, StateStorageKey, _options.StopToken).ConfigureAwait(false);
+				await _options.StorageProvider.RemoveTransactionalStorage(partition: default, StateMachineDefinitionStorageKey, _options.StopToken).ConfigureAwait(false);
 			}
 		}
 
 		private async ValueTask InitializeAllDataModels()
 		{
+			Infra.NotNull(_model);
+
 			if (_model.Root.Binding == BindingType.Early && !_model.DataModelList.IsDefaultOrEmpty)
 			{
 				foreach (var node in _model.DataModelList)
@@ -559,7 +534,12 @@ namespace Xtate.Core
 			}
 		}
 
-		private ValueTask InitialEnterStates() => EnterStates(new List<TransitionNode>(1) { _model.Root.Initial.Transition });
+		private ValueTask InitialEnterStates()
+		{
+			Infra.NotNull(_model);
+
+			return EnterStates(new List<TransitionNode>(1) { _model.Root.Initial.Transition });
+		}
 
 		private async ValueTask MainEventLoop()
 		{
@@ -567,7 +547,7 @@ namespace Xtate.Core
 
 			while (Capture(StateBagKey.Running, Running && !exit))
 			{
-				_anyTokenSource.Token.ThrowIfCancellationRequested();
+				_anyToken.ThrowIfCancellationRequested();
 
 				await DoOperation(StateBagKey.InternalQueueProcessing, InternalQueueProcessing).ConfigureAwait(false);
 
@@ -589,7 +569,7 @@ namespace Xtate.Core
 			{
 				while (Capture(StateBagKey.Running, Running && !exit))
 				{
-					_anyTokenSource.Token.ThrowIfCancellationRequested();
+					_anyToken.ThrowIfCancellationRequested();
 
 					liveLockDetector.Iteration(_context.InternalQueue.Count);
 
@@ -608,6 +588,8 @@ namespace Xtate.Core
 
 		private async ValueTask<List<TransitionNode>> SelectInternalEventTransitions()
 		{
+			Infra.NotNull(_dataModelHandler);
+
 			var internalEvent = _context.InternalQueue.Dequeue();
 
 			var eventModel = DataConverter.FromEvent(internalEvent, _dataModelHandler.CaseInsensitive);
@@ -627,7 +609,7 @@ namespace Xtate.Core
 
 		private void UnhandledErrorEvent(IEvent evt)
 		{
-			switch (_unhandledErrorBehaviour)
+			switch (_options.UnhandledErrorBehaviour)
 			{
 				case UnhandledErrorBehaviour.IgnoreError:
 					return;
@@ -637,10 +619,10 @@ namespace Xtate.Core
 
 					evt.Is<Exception>(out var exception);
 
-					throw new StateMachineUnhandledErrorException(Resources.Exception_UnhandledException, exception, _unhandledErrorBehaviour);
+					throw new StateMachineUnhandledErrorException(Resources.Exception_UnhandledException, exception, _options.UnhandledErrorBehaviour);
 
 				default:
-					Infra.Unexpected(_unhandledErrorBehaviour);
+					Infra.Unexpected(_options.UnhandledErrorBehaviour);
 					break;
 			}
 		}
@@ -712,7 +694,7 @@ namespace Xtate.Core
 
 				if (Capture(StateBagKey.InternalQueueEmpty, _context.InternalQueue.Count == 0))
 				{
-					_anyTokenSource.Token.ThrowIfCancellationRequested();
+					_anyToken.ThrowIfCancellationRequested();
 
 					var transitions = await Capture(StateBagKey.ExternalEventTransitions, ExternalEventTransitions).ConfigureAwait(false);
 
@@ -740,6 +722,8 @@ namespace Xtate.Core
 
 		private async ValueTask<List<TransitionNode>> ExternalEventTransitions()
 		{
+			Infra.NotNull(_dataModelHandler);
+
 			var externalEvent = await ReadExternalEvent().ConfigureAwait(false);
 
 			var eventModel = DataConverter.FromEvent(externalEvent, _dataModelHandler.CaseInsensitive);
@@ -768,17 +752,17 @@ namespace Xtate.Core
 
 		private async ValueTask CheckPoint(PersistenceLevel level)
 		{
-			if (!IsPersistingEnabled || _persistenceLevel < level)
+			if (!_isPersistingEnabled || _options.PersistenceLevel < level)
 			{
 				return;
 			}
 
 			var persistenceContext = _context.PersistenceContext;
-			await persistenceContext.CheckPoint((int) level, _stopToken).ConfigureAwait(false);
+			await persistenceContext.CheckPoint((int) level, _options.StopToken).ConfigureAwait(false);
 
 			if (level == PersistenceLevel.StableState)
 			{
-				await persistenceContext.Shrink(_stopToken).ConfigureAwait(false);
+				await persistenceContext.Shrink(_options.StopToken).ConfigureAwait(false);
 			}
 		}
 
@@ -813,7 +797,7 @@ namespace Xtate.Core
 
 			await NotifyWaiting().ConfigureAwait(false);
 
-			return await _eventChannel.ReadAsync(_anyTokenSource.Token).ConfigureAwait(false);
+			return await _eventChannel.ReadAsync(_anyToken).ConfigureAwait(false);
 		}
 
 		private async ValueTask ExitInterpreter()
@@ -908,11 +892,11 @@ namespace Xtate.Core
 				return true;
 			}
 
-			_stopToken.ThrowIfCancellationRequested();
+			_options.StopToken.ThrowIfCancellationRequested();
 
 			try
 			{
-				return await condition.EvaluateBoolean(_context.ExecutionContext, _stopToken).ConfigureAwait(false);
+				return await condition.EvaluateBoolean(_context.ExecutionContext, _options.StopToken).ConfigureAwait(false);
 			}
 			catch (Exception ex) when (IsError(ex))
 			{
@@ -1058,6 +1042,8 @@ namespace Xtate.Core
 
 		private async ValueTask EnterStates(List<TransitionNode> enabledTransitions)
 		{
+			Infra.NotNull(_model);
+
 			var statesToEnter = new List<StateEntityNode>();
 			var statesForDefaultEntry = new List<CompoundNode>();
 			var defaultHistoryContent = new DefaultHistoryContent();
@@ -1132,7 +1118,7 @@ namespace Xtate.Core
 		{
 			try
 			{
-				return await doneData.Evaluate(_context.ExecutionContext, _stopToken).ConfigureAwait(false);
+				return await doneData.Evaluate(_context.ExecutionContext, _options.StopToken).ConfigureAwait(false);
 			}
 			catch (Exception ex) when (IsError(ex))
 			{
@@ -1416,11 +1402,11 @@ namespace Xtate.Core
 			{
 				foreach (var executableEntity in action)
 				{
-					_stopToken.ThrowIfCancellationRequested();
+					_options.StopToken.ThrowIfCancellationRequested();
 
 					try
 					{
-						await executableEntity.Execute(_context.ExecutionContext, _stopToken).ConfigureAwait(false);
+						await executableEntity.Execute(_context.ExecutionContext, _options.StopToken).ConfigureAwait(false);
 					}
 					catch (Exception ex) when (IsError(ex))
 					{
@@ -1438,7 +1424,7 @@ namespace Xtate.Core
 		{
 			return exception switch
 				   {
-					   OperationCanceledException ex => ex.CancellationToken == _stopToken,
+					   OperationCanceledException ex => ex.CancellationToken == _options.StopToken,
 					   _                             => false
 				   };
 		}
@@ -1447,6 +1433,8 @@ namespace Xtate.Core
 
 		private async ValueTask Error(object source, Exception exception, bool logLoggerErrors = true)
 		{
+			Infra.NotNull(_dataModelHandler);
+
 			var sourceEntityId = (source as IEntity).Is(out IDebugEntityId? id) ? id.EntityId?.ToString(CultureInfo.InvariantCulture) : null;
 
 			SendId? sendId = default;
@@ -1478,7 +1466,7 @@ namespace Xtate.Core
 
 			try
 			{
-				await LogError(errorType, sourceEntityId, exception, _stopToken).ConfigureAwait(false);
+				await LogError(errorType, sourceEntityId, exception, _options.StopToken).ConfigureAwait(false);
 			}
 			catch (Exception ex)
 			{
@@ -1498,11 +1486,13 @@ namespace Xtate.Core
 
 		private async ValueTask ExecuteGlobalScript()
 		{
+			Infra.NotNull(_model);
+
 			if (_model.Root.ScriptEvaluator is { } scriptEvaluator)
 			{
 				try
 				{
-					await scriptEvaluator.Execute(_context.ExecutionContext, _stopToken).ConfigureAwait(false);
+					await scriptEvaluator.Execute(_context.ExecutionContext, _options.StopToken).ConfigureAwait(false);
 				}
 				catch (Exception ex) when (IsError(ex))
 				{
@@ -1525,7 +1515,7 @@ namespace Xtate.Core
 			{
 				Infra.NotNull(invoke.InvokeId);
 
-				await ForwardEvent(evt, invoke.InvokeId, _stopToken).ConfigureAwait(false);
+				await ForwardEvent(evt, invoke.InvokeId, _options.StopToken).ConfigureAwait(false);
 			}
 			catch (Exception ex) when (IsError(ex))
 			{
@@ -1539,7 +1529,7 @@ namespace Xtate.Core
 		{
 			try
 			{
-				await invoke.Start(_context.ExecutionContext, _stopToken).ConfigureAwait(false);
+				await invoke.Start(_context.ExecutionContext, _options.StopToken).ConfigureAwait(false);
 
 				Infra.NotNull(invoke.InvokeId);
 
@@ -1559,7 +1549,7 @@ namespace Xtate.Core
 
 				_context.ActiveInvokes.Remove(invoke.InvokeId);
 
-				await invoke.Cancel(_context.ExecutionContext, _stopToken).ConfigureAwait(false);
+				await invoke.Cancel(_context.ExecutionContext, _options.StopToken).ConfigureAwait(false);
 			}
 			catch (Exception ex) when (IsError(ex))
 			{
@@ -1569,6 +1559,9 @@ namespace Xtate.Core
 
 		private async ValueTask InitializeRootDataModel()
 		{
+			Infra.NotNull(_model);
+			Infra.NotNull(_dataModelHandler);
+
 			var rootDataModel = _model.Root.DataModel;
 
 			if (rootDataModel is null)
@@ -1576,14 +1569,14 @@ namespace Xtate.Core
 				return;
 			}
 
-			if (Arguments.Type != DataModelValueType.List)
+			if (_options.Arguments.Type != DataModelValueType.List)
 			{
 				await InitializeDataModel(rootDataModel).ConfigureAwait(false);
 
 				return;
 			}
 
-			var dictionary = Arguments.AsList();
+			var dictionary = _options.Arguments.AsList();
 			var caseInsensitive = _dataModelHandler.CaseInsensitive;
 
 			foreach (var node in rootDataModel.Data)
@@ -1602,6 +1595,8 @@ namespace Xtate.Core
 
 		private async ValueTask InitializeData(DataNode data, DataModelValue overrideValue = default)
 		{
+			Infra.NotNull(_dataModelHandler);
+
 			try
 			{
 				_context.DataModel[data.Id, _dataModelHandler.CaseInsensitive] = await GetValue(data, overrideValue).ConfigureAwait(false);
@@ -1627,7 +1622,7 @@ namespace Xtate.Core
 
 				await using (resource.ConfigureAwait(false))
 				{
-					var obj = await resourceEvaluator.EvaluateObject(_context.ExecutionContext, resource, _stopToken).ConfigureAwait(false);
+					var obj = await resourceEvaluator.EvaluateObject(_context.ExecutionContext, resource, _options.StopToken).ConfigureAwait(false);
 
 					return DataModelValue.FromObject(obj);
 				}
@@ -1635,14 +1630,14 @@ namespace Xtate.Core
 
 			if (data.ExpressionEvaluator is { } expressionEvaluator)
 			{
-				var obj = await expressionEvaluator.EvaluateObject(_context.ExecutionContext, _stopToken).ConfigureAwait(false);
+				var obj = await expressionEvaluator.EvaluateObject(_context.ExecutionContext, _options.StopToken).ConfigureAwait(false);
 
 				return DataModelValue.FromObject(obj);
 			}
 
 			if (data.InlineContentEvaluator is { } inlineContentEvaluator)
 			{
-				var obj = await inlineContentEvaluator.EvaluateObject(_context.ExecutionContext, _stopToken).ConfigureAwait(false);
+				var obj = await inlineContentEvaluator.EvaluateObject(_context.ExecutionContext, _options.StopToken).ConfigureAwait(false);
 
 				return DataModelValue.FromObject(obj);
 			}
@@ -1652,23 +1647,52 @@ namespace Xtate.Core
 
 		private ValueTask<Resource> LoadData(IExternalDataExpression externalDataExpression)
 		{
-			var uri = _baseUri.CombineWith(externalDataExpression.Uri!);
-			var factoryContext = new FactoryContext(_resourceLoaderFactories, _securityContext);
+			var uri = _options.BaseUri.CombineWith(externalDataExpression.Uri!);
+			var factoryContext = new FactoryContext(_options.ResourceLoaderFactories, _options.SecurityContext, _options.Logger, this);
 
-			return factoryContext.GetResource(uri, _stopToken);
+			return factoryContext.GetResource(uri, _options.StopToken);
+		}
+
+		private StateMachineContext.Parameters CreateStateMachineContextParameters()
+		{
+			Infra.NotNull(_model);
+			Infra.NotNull(_dataModelHandler);
+
+			return new(_sessionId)
+				   {
+					   StateMachineName = _model.Root.Name,
+					   ContextRuntimeItems = _options.ContextRuntimeItems,
+					   Logger = _options.Logger,
+					   LoggerContext = this,
+					   ExternalCommunication = this,
+					   SecurityContext = _options.SecurityContext,
+					   DataModelCaseInsensitive = _dataModelHandler.CaseInsensitive,
+					   DataModelInterpreter = new LazyValue(CreateInterpreterList),
+					   DataModelHandlerData = new LazyValue(CreateDataModelHandlerList),
+					   DataModelConfiguration = _options.Configuration,
+					   DataModelHost = _options.Host,
+					   DataModelArguments = _options.Arguments
+				   };
 		}
 
 		private async ValueTask<IStateMachineContext> CreateContext()
 		{
+			Infra.NotNull(_model);
+			Infra.NotNull(_dataModelHandler);
+
 			IStateMachineContext context;
-			if (IsPersistingEnabled)
+			var parameters = CreateStateMachineContextParameters();
+
+			if (_isPersistingEnabled)
 			{
-				var storage = await _storageProvider.GetTransactionalStorage(partition: default, StateStorageKey, _stopToken).ConfigureAwait(false);
-				context = new StateMachinePersistedContext(_model.Root.Name, _sessionId, this, storage, _model.EntityMap, _logger, this, this, _contextRuntimeItems, _securityContext);
+				Infra.NotNull(_options.StorageProvider);
+
+				var storage = await _options.StorageProvider.GetTransactionalStorage(partition: default, StateStorageKey, _options.StopToken).ConfigureAwait(false);
+				context = new StateMachinePersistedContext(storage, _model.EntityMap, parameters);
 			}
 			else
 			{
-				context = new StateMachineContext(_model.Root.Name, _sessionId, this, _logger, this, this, _contextRuntimeItems, _securityContext);
+				context = new StateMachineContext(parameters);
 			}
 
 			_dataModelHandler.ExecutionContextCreated(context.ExecutionContext, out _dataModelVars);
@@ -1678,6 +1702,8 @@ namespace Xtate.Core
 
 		private DataModelValue CreateInterpreterList()
 		{
+			Infra.NotNull(_dataModelHandler);
+
 			var typeInfo = TypeInfo<StateMachineInterpreter>.Instance;
 
 			var interpreterList = new DataModelList(_dataModelHandler.CaseInsensitive)
@@ -1693,6 +1719,8 @@ namespace Xtate.Core
 
 		private DataModelValue CreateDataModelHandlerList()
 		{
+			Infra.NotNull(_dataModelHandler);
+
 			var typeInfo = _dataModelHandler.TypeInfo;
 
 			var dataModelHandlerList = new DataModelList(_dataModelHandler.CaseInsensitive)

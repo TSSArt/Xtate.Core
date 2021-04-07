@@ -37,7 +37,7 @@ namespace Xtate.Core
 		private const string Location = "location";
 
 		private readonly DataModelList?                                              _configuration;
-		private readonly ImmutableDictionary<object, object>?                        _contextRuntimeItems;
+		private readonly ImmutableDictionary<object, object>                         _contextRuntimeItems;
 		private readonly IEventSchedulerFactory                                      _defaultEventSchedulerFactory;
 		private readonly StateMachineHostOptions                                     _options;
 		private readonly ConcurrentDictionary<SessionId, SessionId>                  _parentSessionIdBySessionId = new();
@@ -56,16 +56,17 @@ namespace Xtate.Core
 			_suspendTokenSource = new CancellationTokenSource();
 			_stopTokenSource = new CancellationTokenSource();
 
+			_contextRuntimeItems = ImmutableDictionary<object, object>.Empty;
 			if (stateMachineHost is IHost host)
 			{
-				_contextRuntimeItems = ImmutableDictionary<object, object>.Empty.Add(typeof(IHost), host);
+				_contextRuntimeItems = _contextRuntimeItems.Add(typeof(IHost), host);
 			}
 
-			if (options.Configuration?.Count > 0)
+			if (options.Configuration is { Count : > 0 } configuration)
 			{
 				_configuration = new DataModelList();
 
-				foreach (var pair in options.Configuration)
+				foreach (var pair in configuration)
 				{
 					_configuration.Add(pair.Key, pair.Value);
 				}
@@ -123,7 +124,7 @@ namespace Xtate.Core
 
 		private InterpreterOptions CreateInterpreterOptions(Uri? baseUri,
 															DataModelList? hostData,
-															IErrorProcessor? errorProcessor,
+															IErrorProcessor errorProcessor,
 															DataModelValue arguments = default) =>
 			new()
 			{
@@ -193,7 +194,9 @@ namespace Xtate.Core
 															   CancellationToken token)
 		{
 			var nameTable = new NameTable();
-			var xmlResolver = new RedirectXmlResolver(_options.ResourceLoaderFactories, securityContext, token);
+			var loggerContext = new LoadStateMachineLoggerContext(uri, scxml);
+			var factoryContext = new FactoryContext(_options.ResourceLoaderFactories, securityContext, _options.Logger, loggerContext);
+			var xmlResolver = new RedirectXmlResolver(factoryContext, token);
 			var xmlParserContext = GetXmlParserContext(nameTable, uri);
 			var xmlReaderSettings = GetXmlReaderSettings(nameTable, xmlResolver);
 			var directorOptions = GetScxmlDirectorOptions(errorProcessor, xmlParserContext, xmlReaderSettings, xmlResolver);
@@ -428,5 +431,46 @@ namespace Xtate.Core
 		public void Stop() => _stopTokenSource.Cancel();
 
 		public void Suspend() => _suspendTokenSource.Cancel();
+
+		private class LoadStateMachineLoggerContext : ILoadStateMachineLoggerContext
+		{
+			public LoadStateMachineLoggerContext(Uri? uri, string? scxml)
+			{
+				Uri = uri;
+				Scxml = scxml;
+			}
+
+		#region Interface ILoadStateMachineLoggerContext
+
+			public Uri?    Uri   { get; }
+			public string? Scxml { get; }
+
+		#endregion
+
+		#region Interface ILoggerContext
+
+			public DataModelList GetProperties()
+			{
+				var properties = new DataModelList();
+
+				if (Uri is { } uri)
+				{
+					properties.Add(key: @"Uri", uri.ToString());
+				}
+
+				if (Scxml is { } scxml)
+				{
+					properties.Add(key: @"SCXML", scxml);
+				}
+
+				properties.MakeDeepConstant();
+
+				return properties;
+			}
+
+			public string LoggerContextType => nameof(ILoadStateMachineLoggerContext);
+
+		#endregion
+		}
 	}
 }
