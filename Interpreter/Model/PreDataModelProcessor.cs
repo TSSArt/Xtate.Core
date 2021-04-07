@@ -18,39 +18,31 @@
 #endregion
 
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
-using Xtate.CustomAction;
 
 namespace Xtate.Core
 {
 	internal sealed class PreDataModelProcessor : StateMachineVisitor
 	{
-		private readonly IErrorProcessor                        _errorProcessor;
-		private readonly ImmutableArray<IResourceLoaderFactory> _resourceLoaderFactories;
-		private readonly ISecurityContext                       _securityContext;
+		private readonly InterpreterModelBuilder.Parameters _parameters;
 
 		private Dictionary<ICustomAction, CustomActionDispatcher>? _customActionDispatchers;
+		private bool                                               _postProcess;
 
-		private bool _postProcess;
+		public PreDataModelProcessor(InterpreterModelBuilder.Parameters parameters) => _parameters = parameters;
 
-		public PreDataModelProcessor(IErrorProcessor errorProcessor, ImmutableArray<IResourceLoaderFactory> resourceLoaderFactories, ISecurityContext securityContext)
+		public async ValueTask PreProcessStateMachine(CancellationToken token)
 		{
-			_errorProcessor = errorProcessor;
-			_resourceLoaderFactories = resourceLoaderFactories;
-			_securityContext = securityContext;
-		}
+			var stateMachine = _parameters.StateMachine;
 
-		public async ValueTask PreProcessStateMachine(IStateMachine stateMachine, ImmutableArray<ICustomActionFactory> customActionProviders, CancellationToken token)
-		{
 			Visit(ref stateMachine);
 
 			if (_customActionDispatchers is not null)
 			{
 				foreach (var pair in _customActionDispatchers)
 				{
-					await pair.Value.SetupExecutor(customActionProviders, token).ConfigureAwait(false);
+					await pair.Value.SetupExecutor(_parameters.CustomActionProviders, token).ConfigureAwait(false);
 				}
 			}
 
@@ -72,8 +64,8 @@ namespace Xtate.Core
 
 				if (!_customActionDispatchers.ContainsKey(entity))
 				{
-					var factoryContext = new FactoryContext(_resourceLoaderFactories, _securityContext);
-					var customActionDispatcher = new CustomActionDispatcher(_errorProcessor, entity, factoryContext);
+					var factoryContext = new FactoryContext(_parameters.ResourceLoaderFactories, _parameters.SecurityContext, _parameters.Logger, _parameters.LoggerContext);
+					var customActionDispatcher = new CustomActionDispatcher(_parameters.ErrorProcessor, entity, factoryContext);
 					_customActionDispatchers.Add(entity, customActionDispatcher);
 				}
 			}

@@ -17,25 +17,13 @@
 
 #endregion
 
-using System.Collections.Immutable;
-
 namespace Xtate
 {
 	[PublicAPI]
 	public interface ILoggerContext
 	{
-		public SessionId? SessionId { get; }
+		string LoggerContextType { get; }
 
-		public string? StateMachineName { get; }
-
-		public IStateMachine? StateMachine { get; }
-
-		public DataModelList? GetDataModel();
-
-		public string? GetDataModelAsText();
-
-		public ImmutableArray<string> GetActiveStates();
-
-		public string ConvertToText(DataModelValue value);
+		DataModelList GetProperties();
 	}
 }

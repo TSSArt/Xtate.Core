@@ -112,6 +112,8 @@ namespace Xtate
 		public static void Fail()
 		{
 			Assert(false);
+
+			throw WrongExecutionPath();
 		}
 
 		[AssertionMethod]
@@ -119,6 +121,8 @@ namespace Xtate
 		public static void Fail(string message)
 		{
 			Assert(condition: false, message);
+
+			throw WrongExecutionPath();
 		}
 
 		[AssertionMethod]
@@ -127,7 +131,7 @@ namespace Xtate
 		{
 			Assert(condition: false);
 
-			throw new NotSupportedException();
+			throw WrongExecutionPath();
 		}
 
 		[AssertionMethod]
@@ -136,8 +140,10 @@ namespace Xtate
 		{
 			Assert(condition: false, message);
 
-			throw new NotSupportedException();
+			throw WrongExecutionPath();
 		}
+
+		private static Exception WrongExecutionPath() => new NotSupportedException(Resources.Exception_ThisExceptionShouldNeverHappen);
 
 		[DoesNotReturn]
 		private static void ThrowInfrastructureException() => throw new InfrastructureException(Resources.Exception_AssertionFailed);
@@ -146,13 +152,13 @@ namespace Xtate
 		private static void ThrowInfrastructureException(string message) => throw new InfrastructureException(message);
 
 		[DoesNotReturn]
-		private static void AssertUnexpectedValue(object? value, string message)
+		private static void AssertUnexpected(object? value, string message)
 		{
 			if (value is null)
 			{
 				Assert(condition: false, @$"{message} (null)");
 
-				throw new NotSupportedException();
+				throw WrongExecutionPath();
 			}
 
 			var type = value.GetType();
@@ -160,42 +166,48 @@ namespace Xtate
 			{
 				Assert(condition: false, @$"{message} ({type.FullName}:{value})");
 
-				throw new NotSupportedException();
+				throw WrongExecutionPath();
 			}
 
 			Assert(condition: false, @$"{message} ({type.FullName})");
+
+			throw WrongExecutionPath();
 		}
 
 		[AssertionMethod]
 		[DoesNotReturn]
 		public static void Unexpected(object? value)
 		{
-			AssertUnexpectedValue(value, Resources.Exception_UnexpectedValue);
+			AssertUnexpected(value, Resources.Exception_UnexpectedValue);
+
+			throw WrongExecutionPath();
 		}
 
 		[AssertionMethod]
 		[DoesNotReturn]
 		public static void Unexpected(object? value, string message)
 		{
-			AssertUnexpectedValue(value, message);
+			AssertUnexpected(value, message);
+
+			throw WrongExecutionPath();
 		}
 
 		[AssertionMethod]
 		[DoesNotReturn]
 		public static T Unexpected<T>(object? value)
 		{
-			AssertUnexpectedValue(value, Resources.Exception_UnexpectedValue);
+			AssertUnexpected(value, Resources.Exception_UnexpectedValue);
 
-			throw new NotSupportedException();
+			throw WrongExecutionPath();
 		}
 
 		[AssertionMethod]
 		[DoesNotReturn]
 		public static T Unexpected<T>(object? value, string message)
 		{
-			AssertUnexpectedValue(value, message);
+			AssertUnexpected(value, message);
 
-			throw new NotSupportedException();
+			throw WrongExecutionPath();
 		}
 	}
 }

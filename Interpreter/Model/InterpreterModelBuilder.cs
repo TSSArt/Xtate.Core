@@ -30,44 +30,22 @@ namespace Xtate.Core
 {
 	internal sealed class InterpreterModelBuilder : StateMachineVisitor
 	{
-		private readonly Uri?                                               _baseUri;
-		private readonly ImmutableArray<ICustomActionFactory>               _customActionProviders;
-		private readonly IDataModelHandler                                  _dataModelHandler;
-		private readonly LinkedList<int>                                    _documentIdList;
-		private readonly List<IEntity>                                      _entities;
-		private readonly IErrorProcessor                                    _errorProcessor;
-		private readonly Dictionary<IIdentifier, StateEntityNode>           _idMap;
+		private readonly LinkedList<int>                                    _documentIdList = new();
+		private readonly List<IEntity>                                      _entities       = new();
+		private readonly Dictionary<IIdentifier, StateEntityNode>           _idMap          = new(IdentifierEqualityComparer.Instance);
+		private readonly Parameters                                         _parameters;
 		private readonly PreDataModelProcessor                              _preDataModelProcessor;
-		private readonly ImmutableArray<IResourceLoaderFactory>             _resourceLoaderFactories;
-		private readonly ISecurityContext                                   _securityContext;
-		private readonly IStateMachine                                      _stateMachine;
-		private readonly List<TransitionNode>                               _targetMap;
+		private readonly List<TransitionNode>                               _targetMap = new();
 		private          int                                                _counter;
 		private          ImmutableArray<DataModelNode>.Builder?             _dataModelNodeArray;
 		private          int                                                _deepLevel;
 		private          List<(Uri Uri, IExternalScriptConsumer Consumer)>? _externalScriptList;
 		private          bool                                               _inParallel;
 
-		public InterpreterModelBuilder(IStateMachine stateMachine,
-									   IDataModelHandler dataModelHandler,
-									   ImmutableArray<ICustomActionFactory> customActionProviders,
-									   ImmutableArray<IResourceLoaderFactory> resourceLoaderFactories,
-									   ISecurityContext securityContext,
-									   IErrorProcessor errorProcessor,
-									   Uri? baseUri)
+		public InterpreterModelBuilder(Parameters parameters)
 		{
-			_stateMachine = stateMachine ?? throw new ArgumentNullException(nameof(stateMachine));
-			_dataModelHandler = dataModelHandler ?? throw new ArgumentNullException(nameof(dataModelHandler));
-			_customActionProviders = customActionProviders;
-			_resourceLoaderFactories = resourceLoaderFactories;
-			_securityContext = securityContext;
-			_errorProcessor = errorProcessor;
-			_baseUri = baseUri;
-			_preDataModelProcessor = new PreDataModelProcessor(errorProcessor, resourceLoaderFactories, securityContext);
-			_idMap = new Dictionary<IIdentifier, StateEntityNode>(IdentifierEqualityComparer.Instance);
-			_entities = new List<IEntity>();
-			_targetMap = new List<TransitionNode>();
-			_documentIdList = new LinkedList<int>();
+			_parameters = parameters;
+			_preDataModelProcessor = new PreDataModelProcessor(parameters);
 		}
 
 		private void CounterBefore(bool inParallel, out (int counter, bool inParallel) saved)
@@ -98,17 +76,16 @@ namespace Xtate.Core
 			_deepLevel = 0;
 			_counter = 0;
 
-			var stateMachine = _stateMachine;
+			await _preDataModelProcessor.PreProcessStateMachine(token).ConfigureAwait(false);
 
-			await _preDataModelProcessor.PreProcessStateMachine(stateMachine, _customActionProviders, token).ConfigureAwait(false);
-
+			var stateMachine = _parameters.StateMachine;
 			Visit(ref stateMachine);
 
 			foreach (var transition in _targetMap)
 			{
 				if (!transition.TryMapTarget(_idMap))
 				{
-					_errorProcessor.AddError<InterpreterModelBuilder>(entity: null, Resources.ErrorMessage_TargetIdDoesNotExists);
+					_parameters.ErrorProcessor.AddError<InterpreterModelBuilder>(entity: null, Resources.ErrorMessage_TargetIdDoesNotExists);
 				}
 			}
 
@@ -158,8 +135,8 @@ namespace Xtate.Core
 
 		private async ValueTask LoadAndSetContent(Uri uri, IExternalScriptConsumer consumer, CancellationToken token)
 		{
-			uri = _baseUri.CombineWith(uri);
-			var factoryContext = new FactoryContext(_resourceLoaderFactories, _securityContext);
+			uri = _parameters.BaseUri.CombineWith(uri);
+			var factoryContext = new FactoryContext(_parameters.ResourceLoaderFactories, _parameters.SecurityContext, _parameters.Logger, _parameters.LoggerContext);
 			var resource = await factoryContext.GetResource(uri, token).ConfigureAwait(false);
 			await using (resource.ConfigureAwait(false))
 			{
@@ -644,7 +621,7 @@ namespace Xtate.Core
 			if (_deepLevel == 0)
 			{
 				_preDataModelProcessor.PostProcess(ref executableEntity);
-				_dataModelHandler.Process(ref executableEntity);
+				_parameters.DataModelHandler.Process(ref executableEntity);
 			}
 
 			_deepLevel ++;
@@ -656,7 +633,7 @@ namespace Xtate.Core
 		{
 			if (_deepLevel == 0)
 			{
-				_dataModelHandler.Process(ref dataModel);
+				_parameters.DataModelHandler.Process(ref dataModel);
 			}
 
 			_deepLevel ++;
@@ -668,7 +645,7 @@ namespace Xtate.Core
 		{
 			if (_deepLevel == 0)
 			{
-				_dataModelHandler.Process(ref doneData);
+				_parameters.DataModelHandler.Process(ref doneData);
 			}
 
 			_deepLevel ++;
@@ -680,12 +657,32 @@ namespace Xtate.Core
 		{
 			if (_deepLevel == 0)
 			{
-				_dataModelHandler.Process(ref invoke);
+				_parameters.DataModelHandler.Process(ref invoke);
 			}
 
 			_deepLevel ++;
 			VisitInternal(ref invoke);
 			_deepLevel --;
+		}
+
+		[PublicAPI]
+		internal record Parameters
+		{
+			public Parameters(IStateMachine stateMachine, IDataModelHandler dataModelHandler)
+			{
+				StateMachine = stateMachine;
+				DataModelHandler = dataModelHandler;
+			}
+
+			public Uri?                                   BaseUri                 { get; init; }
+			public ImmutableArray<ICustomActionFactory>   CustomActionProviders   { get; init; }
+			public IDataModelHandler                      DataModelHandler        { get; init; }
+			public IErrorProcessor?                       ErrorProcessor          { get; init; }
+			public ILogger?                               Logger                  { get; init; }
+			public ILoggerContext?                        LoggerContext           { get; init; }
+			public ISecurityContext?                      SecurityContext         { get; init; }
+			public ImmutableArray<IResourceLoaderFactory> ResourceLoaderFactories { get; init; }
+			public IStateMachine                          StateMachine            { get; init; }
 		}
 	}
 }

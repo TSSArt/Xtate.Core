@@ -49,7 +49,7 @@ namespace Xtate
 		public DataModelValue Parameters { get; init; }
 	}
 
-	public interface IExecutionContext
+	public interface IExecutionContext : ILogEvent
 	{
 		IContextItems RuntimeItems { get; }
 
@@ -66,12 +66,6 @@ namespace Xtate
 		ValueTask StartInvoke(InvokeData invokeData, CancellationToken token = default);
 
 		ValueTask CancelInvoke(InvokeId invokeId, CancellationToken token = default);
-
-		ValueTask Log(LogLevel logLevel,
-					  string? message = default,
-					  DataModelValue arguments = default,
-					  Exception? exception = default,
-					  CancellationToken token = default);
 	}
 
 	public interface IContextItems

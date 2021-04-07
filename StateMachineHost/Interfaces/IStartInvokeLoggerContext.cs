@@ -17,10 +17,15 @@
 
 #endregion
 
+using System;
+
 namespace Xtate.Core
 {
-	public interface IStateMachineValidator
+	[PublicAPI]
+	public interface IStartInvokeLoggerContext : ILoggerContext
 	{
-		void Validate(IStateMachine stateMachine, IErrorProcessor? errorProcessor);
+		public SessionId SessionId { get; }
+		public Uri       Type      { get; }
+		public Uri?      Source    { get; }
 	}
 }
