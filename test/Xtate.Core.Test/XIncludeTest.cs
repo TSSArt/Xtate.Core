@@ -48,10 +48,9 @@ namespace Xtate.Core.Test
 		public async Task DtdReaderTest()
 		{
 			var uri = new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Scxml/XInclude/DtdSingleIncludeSource.scxml");
-
 			var securityContext = SecurityContext.Create(SecurityContextType.NewStateMachine, new DeferredFinalizer());
-			var proxy = new RedirectXmlResolver(ImmutableArray.Create(ResxResourceLoaderFactory.Instance), securityContext, token: default);
-			var factoryContext = new FactoryContext(ImmutableArray.Create(ResxResourceLoaderFactory.Instance), securityContext);
+			var factoryContext = new FactoryContext(ImmutableArray.Create(ResxResourceLoaderFactory.Instance), securityContext, logger: default, loggerContext: default);
+			var proxy = new RedirectXmlResolver(factoryContext, token: default);
 			var resource = await factoryContext.GetResource(uri, token: default);
 			var xmlReaderSettings = new XmlReaderSettings { Async = true, XmlResolver = proxy, DtdProcessing = DtdProcessing.Parse };
 			var xmlReader = XmlReader.Create(await resource.GetStream(doNotCache: true, token: default), xmlReaderSettings, uri.ToString());
@@ -77,8 +76,8 @@ namespace Xtate.Core.Test
 			var uri = new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Scxml/XInclude/SingleIncludeSource.scxml");
 
 			var securityContext = SecurityContext.Create(SecurityContextType.NewStateMachine, new DeferredFinalizer());
-			var proxy = new RedirectXmlResolver(ImmutableArray.Create(ResxResourceLoaderFactory.Instance), securityContext, token: default);
-			var factoryContext = new FactoryContext(ImmutableArray.Create(ResxResourceLoaderFactory.Instance), securityContext);
+			var factoryContext = new FactoryContext(ImmutableArray.Create(ResxResourceLoaderFactory.Instance), securityContext, logger: default, loggerContext: default);
+			var proxy = new RedirectXmlResolver(factoryContext, token: default);
 
 			var resource = await factoryContext.GetResource(uri, headers: default, token: default);
 			var xmlReaderSettings = new XmlReaderSettings { Async = true, XmlResolver = proxy };

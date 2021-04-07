@@ -27,7 +27,7 @@ namespace Xtate.Core
 
 	#region Interface IStateMachineValidator
 
-		public void Validate(IStateMachine stateMachine, IErrorProcessor errorProcessor)
+		public void Validate(IStateMachine stateMachine, IErrorProcessor? errorProcessor)
 		{
 			new Validator(errorProcessor).Validate(stateMachine);
 		}
@@ -38,7 +38,7 @@ namespace Xtate.Core
 		{
 			private readonly IErrorProcessor _errorProcessor;
 
-			public Validator(IErrorProcessor errorProcessor) => _errorProcessor = errorProcessor;
+			public Validator(IErrorProcessor? errorProcessor) => _errorProcessor = errorProcessor ?? DefaultErrorProcessor.Instance;
 
 			public void Validate(IStateMachine stateMachine)
 			{

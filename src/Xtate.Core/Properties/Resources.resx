@@ -535,7 +535,10 @@
   <data name="Exception_InvalidInvokeId" xml:space="preserve">
     <value>Invalid InvokeId.</value>
   </data>
-  <data name="DefaultLogger_LogInfo" xml:space="preserve">
+  <data name="DefaultLogger_LogEntry" xml:space="preserve">
+    <value>Message: "{0}". Arguments: {1} Exception: {2} LoggerContextType: {3} Properties: {4}</value>
+  </data>
+  <data name="DefaultLogger_InterpreterLogEntry" xml:space="preserve">
     <value>Name: [{0}]. SessionId: [{1}]. Message: "{2}". Arguments: {3} Exception: {4}</value>
   </data>
   <data name="DefaultLogger_LogError" xml:space="preserve">
@@ -799,5 +802,17 @@
   </data>
   <data name="Exception_OriginTypeMustBeProvidedInIoProcessorEvent" xml:space="preserve">
     <value>OriginType must be provided in ioProcessorEvent.</value>
+  </data>
+  <data name="Exception_ThisExceptionShouldNeverHappen" xml:space="preserve">
+    <value>This exception should never happen.</value>
+  </data>
+  <data name="Exception_ErrorOnDispatchingEvent" xml:space="preserve">
+    <value>Error on dispatching event. SendId: {0}.</value>
+  </data>
+  <data name="Warning_ErrorOnLoadingAssembly" xml:space="preserve">
+    <value>Error on loading assembly.</value>
+  </data>
+  <data name="Warning_ErrorOnCreationFactories" xml:space="preserve">
+    <value>Error on creation factories.</value>
   </data>
 </root>

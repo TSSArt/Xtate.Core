@@ -28,16 +28,18 @@ namespace Xtate.Core
 {
 	public record InterpreterOptions
 	{
-		public static InterpreterOptions Default { get; } = new();
+		private readonly DataModelValue _arguments;
+		private readonly DataModelValue _configuration;
 
+		private readonly IErrorProcessor?   _errorProcessor;
+		private readonly DataModelValue     _host;
+		public static    InterpreterOptions Default { get; } = new();
+
+		public ISecurityContext?                        SecurityContext           { get; init; }
 		public ImmutableArray<IDataModelHandlerFactory> DataModelHandlerFactories { get; init; }
 		public ImmutableArray<ICustomActionFactory>     CustomActionProviders     { get; init; }
 		public ImmutableArray<IResourceLoaderFactory>   ResourceLoaderFactories   { get; init; }
-		public ISecurityContext?                        SecurityContext           { get; init; }
-		public DataModelList?                           Host                      { get; init; }
-		public DataModelList?                           Configuration             { get; init; }
 		public ImmutableDictionary<object, object>?     ContextRuntimeItems       { get; init; }
-		public DataModelValue                           Arguments                 { get; init; }
 		public IExternalCommunication?                  ExternalCommunication     { get; init; }
 		public INotifyStateChanged?                     NotifyStateChanged        { get; init; }
 		public CancellationToken                        SuspendToken              { get; init; }
@@ -46,8 +48,31 @@ namespace Xtate.Core
 		public PersistenceLevel                         PersistenceLevel          { get; init; }
 		public IStorageProvider?                        StorageProvider           { get; init; }
 		public ILogger?                                 Logger                    { get; init; }
-		public IErrorProcessor?                         ErrorProcessor            { get; init; }
 		public UnhandledErrorBehaviour                  UnhandledErrorBehaviour   { get; init; }
 		public Uri?                                     BaseUri                   { get; init; }
+
+		public DataModelValue Arguments
+		{
+			get => _arguments;
+			init => _arguments = value.AsConstant();
+		}
+
+		public DataModelValue Host
+		{
+			get => _host;
+			init => _host = value.AsConstant();
+		}
+
+		public DataModelValue Configuration
+		{
+			get => _configuration;
+			init => _configuration = value.AsConstant();
+		}
+
+		public IErrorProcessor? ErrorProcessor
+		{
+			get => _errorProcessor;
+			init => _errorProcessor = value is null or DefaultErrorProcessor or DetailedErrorProcessor or WrapperErrorProcessor ? value : new WrapperErrorProcessor(value);
+		}
 	}
 }

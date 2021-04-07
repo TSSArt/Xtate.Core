@@ -17,10 +17,21 @@
 
 #endregion
 
-namespace Xtate.Core
+using System.Collections.Immutable;
+
+namespace Xtate
 {
-	public interface IStateMachineValidator
+	[PublicAPI]
+	public interface IInterpreterLoggerContext : ILoggerContext
 	{
-		void Validate(IStateMachine stateMachine, IErrorProcessor? errorProcessor);
+		public SessionId SessionId { get; }
+
+		public IStateMachine StateMachine { get; }
+
+		public DataModelValue GetDataModel();
+
+		public ImmutableArray<string> GetActiveStates();
+
+		public string ConvertToText(DataModelValue value);
 	}
 }

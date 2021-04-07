@@ -153,12 +153,17 @@ namespace Xtate.Core.Test.Legacy
 			_dataModelHandler = new TestDataModelHandler();
 		}
 
+		private InterpreterModelBuilder.Parameters CreateBuilderParameters() =>
+			new(_allStateMachine, _dataModelHandler)
+			{
+				ResourceLoaderFactories = ImmutableArray.Create(DummyResourceLoader.Instance),
+				SecurityContext = SecurityContext.Create(SecurityContextType.NewStateMachine, new DeferredFinalizer())
+			};
+
 		[TestMethod]
 		public async Task SaveInterpreterModelTest()
 		{
-			var securityContext = SecurityContext.Create(SecurityContextType.NewStateMachine, new DeferredFinalizer());
-			var model = await new InterpreterModelBuilder(_allStateMachine, _dataModelHandler, customActionProviders: default, ImmutableArray.Create(DummyResourceLoader.Instance),
-														  securityContext, DefaultErrorProcessor.Instance, baseUri: default).Build(default);
+			var model = await new InterpreterModelBuilder(CreateBuilderParameters()).Build(default);
 			var storeSupport = model.Root.As<IStoreSupport>();
 
 			var storage = new InMemoryStorage(false);
@@ -170,10 +175,8 @@ namespace Xtate.Core.Test.Legacy
 		[TestMethod]
 		public async Task SaveRestoreInterpreterModelWithStorageRecreateTest()
 		{
-			var securityContext = SecurityContext.Create(SecurityContextType.NewStateMachine, new DeferredFinalizer());
-			var model = new InterpreterModelBuilder(_allStateMachine, _dataModelHandler, customActionProviders: default, ImmutableArray.Create(DummyResourceLoader.Instance),
-													securityContext, DefaultErrorProcessor.Instance, baseUri: default).Build(default)
-																													  .SynchronousGetResult();
+			var model = new InterpreterModelBuilder(CreateBuilderParameters()).Build(default)
+																			  .SynchronousGetResult();
 			var storeSupport = model.Root.As<IStoreSupport>();
 
 			byte[] transactionLog;
@@ -192,9 +195,7 @@ namespace Xtate.Core.Test.Legacy
 				restoredStateMachine = new StateMachineReader().Build(new Bucket(newStorage));
 			}
 
-			await new InterpreterModelBuilder(restoredStateMachine, _dataModelHandler, customActionProviders: default, ImmutableArray.Create(DummyResourceLoader.Instance), securityContext,
-											  DefaultErrorProcessor.Instance,
-											  baseUri: default).Build(default);
+			await new InterpreterModelBuilder(CreateBuilderParameters() with { StateMachine = restoredStateMachine }).Build(default);
 		}
 
 		[TestMethod]
@@ -208,9 +209,7 @@ namespace Xtate.Core.Test.Legacy
 					.EndState()
 					.Build();
 
-			var securityContext = SecurityContext.Create(SecurityContextType.NewStateMachine, new DeferredFinalizer());
-			var model = await new InterpreterModelBuilder(_allStateMachine, _dataModelHandler, customActionProviders: default, ImmutableArray.Create(DummyResourceLoader.Instance),
-														  securityContext, DefaultErrorProcessor.Instance, baseUri: default).Build(default);
+			var model = await new InterpreterModelBuilder(CreateBuilderParameters()).Build(default);
 			var storeSupport = model.Root.As<IStoreSupport>();
 
 			byte[] transactionLog;
@@ -227,9 +226,7 @@ namespace Xtate.Core.Test.Legacy
 				restoredStateMachine = new StateMachineReader().Build(new Bucket(newStorage), model.EntityMap);
 			}
 
-			await new InterpreterModelBuilder(restoredStateMachine, _dataModelHandler, customActionProviders: default, ImmutableArray.Create(DummyResourceLoader.Instance), securityContext,
-											  DefaultErrorProcessor.Instance,
-											  baseUri: default).Build(default);
+			await new InterpreterModelBuilder(CreateBuilderParameters() with { StateMachine = restoredStateMachine }).Build(default);
 		}
 
 		private class DummyResourceLoader : IResourceLoaderFactory, IResourceLoaderFactoryActivator, IResourceLoader

@@ -33,7 +33,7 @@ namespace Xtate.Service
 
 		public async ValueTask<IServiceFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, Uri type, CancellationToken token)
 		{
-			var factories = await GetFactories(factoryContext, type, token).ConfigureAwait(false);
+			var factories = await GetFactories(factoryContext, InvokeTypeToUri(type), token).ConfigureAwait(false);
 
 			foreach (var factory in factories)
 			{
@@ -51,7 +51,5 @@ namespace Xtate.Service
 	#endregion
 
 		protected virtual Uri InvokeTypeToUri(Uri invokeType) => invokeType;
-
-		protected sealed override Uri KeyToUri(object key) => InvokeTypeToUri((Uri) key);
 	}
 }

@@ -19,8 +19,9 @@
 
 namespace Xtate.Core
 {
-	public interface IStateMachineValidator
+	[PublicAPI]
+	public interface IEventSchedulerLoggerContext : ILoggerContext
 	{
-		void Validate(IStateMachine stateMachine, IErrorProcessor? errorProcessor);
+		public SessionId? SessionId { get; }
 	}
 }

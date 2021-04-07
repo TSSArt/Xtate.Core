@@ -45,7 +45,7 @@ namespace Xtate
 		private IStorageProvider?                                 _storageProvider;
 		private TimeSpan?                                         _suspendIdlePeriod;
 		private UnhandledErrorBehaviour                           _unhandledErrorBehaviour;
-		private ValidationMode                                    _validationMode = ValidationMode.Verbose;
+		private ValidationMode                                    _validationMode;
 
 		public StateMachineHost Build()
 		{
@@ -56,7 +56,7 @@ namespace Xtate
 							 DataModelHandlerFactories = _dataModelHandlerFactories?.ToImmutable() ?? default,
 							 CustomActionFactories = _customActionFactories?.ToImmutable() ?? default,
 							 ResourceLoaderFactories = _resourceLoaderFactories?.ToImmutable() ?? default,
-							 Configuration = _configuration?.ToImmutable(),
+							 Configuration = _configuration?.ToImmutable() ?? ImmutableDictionary<string, string>.Empty,
 							 BaseUri = _baseUri,
 							 Logger = _logger,
 							 PersistenceLevel = _persistenceLevel,

@@ -35,17 +35,10 @@ namespace Xtate.Core
 
 		protected DynamicFactory(bool throwOnError) => _throwOnError = throwOnError;
 
-		protected async ValueTask<ImmutableArray<TFactory>> GetFactories(IFactoryContext factoryContext, object key, CancellationToken token)
+		protected async ValueTask<ImmutableArray<TFactory>> GetFactories(IFactoryContext factoryContext, Uri uri, CancellationToken token)
 		{
 			if (factoryContext is null) throw new ArgumentNullException(nameof(factoryContext));
-			if (key is null) throw new ArgumentNullException(nameof(key));
-
-			var uri = GetUri(key);
-
-			if (uri is null)
-			{
-				return default;
-			}
+			if (uri is null) throw new ArgumentNullException(nameof(uri));
 
 			var dynamicAssembly = await LoadAssembly(factoryContext, uri, token).ConfigureAwait(false);
 
@@ -54,11 +47,13 @@ namespace Xtate.Core
 				return default;
 			}
 
-			return await GetCachedFactories(factoryContext.SecurityContext, dynamicAssembly).ConfigureAwait(false);
+			return await GetCachedFactories(factoryContext, uri, dynamicAssembly).ConfigureAwait(false);
 		}
 
-		private async ValueTask<ImmutableArray<TFactory>> GetCachedFactories(ISecurityContext securityContext, DynamicAssembly dynamicAssembly)
+		private async ValueTask<ImmutableArray<TFactory>> GetCachedFactories(IFactoryContext factoryContext, Uri uri, DynamicAssembly dynamicAssembly)
 		{
+			var securityContext = factoryContext.SecurityContext;
+
 			if (securityContext.TryGetValue(FactoryCacheKey, dynamicAssembly, out ImmutableArray<TFactory> factories))
 			{
 				return factories;
@@ -77,7 +72,7 @@ namespace Xtate.Core
 					throw;
 				}
 
-				IgnoreException(ex);
+				await factoryContext.Log(LogLevel.Warning, Resources.Warning_ErrorOnCreationFactories, GetLogArguments(uri), ex, token: default).ConfigureAwait(false);
 			}
 
 			return factories;
@@ -110,27 +105,6 @@ namespace Xtate.Core
 
 			return builder.ToImmutable();
 		}
-
-		private Uri? GetUri(object key)
-		{
-			try
-			{
-				return KeyToUri(key);
-			}
-			catch (Exception ex)
-			{
-				if (_throwOnError)
-				{
-					throw;
-				}
-
-				IgnoreException(ex);
-			}
-
-			return default;
-		}
-
-		protected virtual void IgnoreException(Exception ex) { }
 
 		private async ValueTask<DynamicAssembly?> LoadAssembly(IFactoryContext factoryContext, Uri uri, CancellationToken token)
 		{
@@ -171,12 +145,12 @@ namespace Xtate.Core
 					throw;
 				}
 
-				IgnoreException(ex);
+				await factoryContext.Log(LogLevel.Warning, Resources.Warning_ErrorOnLoadingAssembly, GetLogArguments(uri), ex, token).ConfigureAwait(false);
 			}
 
 			return null;
 		}
 
-		protected abstract Uri? KeyToUri(object key);
+		private static DataModelList GetLogArguments(Uri uri) => new() { { @"AssemblyUri", uri.ToString() } };
 	}
 }

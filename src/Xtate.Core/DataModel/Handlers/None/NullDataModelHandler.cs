@@ -28,7 +28,7 @@ namespace Xtate.DataModel.Null
 	{
 		public const string DataModelType = "null";
 
-		internal NullDataModelHandler(IErrorProcessor errorProcessor) : base(errorProcessor) { }
+		internal NullDataModelHandler(IErrorProcessor? errorProcessor) : base(errorProcessor) { }
 
 		public static IDataModelHandlerFactory Factory { get; } = new DataModelHandlerFactory();
 
@@ -91,7 +91,7 @@ namespace Xtate.DataModel.Null
 
 			public ValueTask<IDataModelHandler> CreateHandler(IFactoryContext factoryContext,
 															  string dataModelType,
-															  IErrorProcessor errorProcessor,
+															  IErrorProcessor? errorProcessor,
 															  CancellationToken token)
 			{
 				Infra.Assert(CanHandle(dataModelType));
