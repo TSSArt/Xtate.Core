@@ -25,6 +25,6 @@ namespace Xtate.DataModel
 	[PublicAPI]
 	public interface IExecEvaluator
 	{
-		ValueTask Execute(IExecutionContext executionContext, CancellationToken token);
+		ValueTask Execute();
 	}
 }

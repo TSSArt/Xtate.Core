@@ -27,13 +27,14 @@ using Xtate.Core;
 
 namespace Xtate.CustomAction
 {
+	[Obsolete]
 	public abstract class CustomActionFactoryBase : ICustomActionFactory
 	{
 		private Activator? _activator;
 
 	#region Interface ICustomActionFactory
 
-		ValueTask<ICustomActionFactoryActivator?> ICustomActionFactory.TryGetActivator(IFactoryContext factoryContext,
+		ValueTask<ICustomActionFactoryActivator?> ICustomActionFactory.TryGetActivator(ServiceLocator serviceLocator,
 																					   string ns,
 																					   string name,
 																					   CancellationToken token)
@@ -95,7 +96,7 @@ namespace Xtate.CustomAction
 
 			public ValueTask<ICustomActionExecutor> CreateExecutor(string ns,
 																   string name,
-																   IFactoryContext factoryContext,
+																   ServiceLocator serviceLocator,
 																   ICustomActionContext context,
 																   XmlReader reader,
 																   CancellationToken token)
@@ -112,10 +113,10 @@ namespace Xtate.CustomAction
 						return new ValueTask<ICustomActionExecutor>(creator(context, reader));
 
 					case ICustomActionCatalog.ExecutorCreatorAsync creator:
-						return creator(factoryContext, context, reader, token);
+						return creator(serviceLocator, context, reader, token);
 
 					default:
-						return Infra.Unexpected<ValueTask<ICustomActionExecutor>>(_creators[(ns, name)]?.GetType());
+						return Infra.Unexpected<ValueTask<ICustomActionExecutor>>(_creators[(ns, name)].GetType());
 				}
 			}
 		}
@@ -128,7 +129,7 @@ namespace Xtate.CustomAction
 
 		#region Interface ICustomActionFactoryActivator
 
-			public ValueTask<ICustomActionExecutor> CreateExecutor(IFactoryContext factoryContext, ICustomActionContext customActionContext, CancellationToken token)
+			public ValueTask<ICustomActionExecutor> CreateExecutor(ServiceLocator serviceLocator, ICustomActionContext customActionContext, CancellationToken token)
 			{
 				if (customActionContext is null) throw new ArgumentNullException(nameof(customActionContext));
 
@@ -148,7 +149,7 @@ namespace Xtate.CustomAction
 				Infra.Assert(xmlReader.NamespaceURI == ns);
 				Infra.Assert(xmlReader.LocalName == name);
 
-				return _catalog.CreateExecutor(ns, name, factoryContext, customActionContext, xmlReader, token);
+				return _catalog.CreateExecutor(ns, name, serviceLocator, customActionContext, xmlReader, token);
 			}
 
 		#endregion

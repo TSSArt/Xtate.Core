@@ -17,18 +17,20 @@
 
 #endregion
 
-using System.Threading;
+using System;
 using System.Threading.Tasks;
 using Xtate.Core;
 
 namespace Xtate.DataModel.XPath
 {
-	internal class XPathLocationExpressionEvaluator : ILocationEvaluator, ILocationExpression, IAncestorProvider
+	public class XPathLocationExpressionEvaluator : ILocationEvaluator, ILocationExpression, IAncestorProvider
 	{
 		private readonly XPathAssignType         _assignType;
 		private readonly string?                 _attribute;
 		private readonly XPathCompiledExpression _compiledExpression;
 		private readonly ILocationExpression     _locationExpression;
+
+		public required Func<ValueTask<XPathEngine>> EngineFactory { private get; init; }
 
 		public XPathLocationExpressionEvaluator(ILocationExpression locationExpression, XPathCompiledExpression compiledExpression)
 		{
@@ -54,18 +56,33 @@ namespace Xtate.DataModel.XPath
 
 	#region Interface ILocationEvaluator
 
-		public void DeclareLocalVariable(IExecutionContext executionContext) => executionContext.Engine().DeclareVariable(_compiledExpression);
-
-		public ValueTask SetValue(IObject value, IExecutionContext executionContext, CancellationToken token)
+		public async ValueTask DeclareLocalVariable()
 		{
-			executionContext.Engine().Assign(_compiledExpression, _assignType, _attribute, value);
+			var engine = await EngineFactory().ConfigureAwait(false);
 
-			return default;
+			engine.DeclareVariable(_compiledExpression);
 		}
 
-		public ValueTask<IObject> GetValue(IExecutionContext executionContext, CancellationToken token) => new(executionContext.Engine().EvalObject(_compiledExpression, stripRoots: true));
+		public async ValueTask SetValue(IObject value)
+		{
+			var engine = await EngineFactory().ConfigureAwait(false);
 
-		public string GetName(IExecutionContext executionContext) => executionContext.Engine().GetName(_compiledExpression);
+			await engine.Assign1(_compiledExpression, _assignType, _attribute, value).ConfigureAwait(false);
+		}
+
+		public async ValueTask<IObject> GetValue()
+		{
+			var engine = await EngineFactory().ConfigureAwait(false);
+
+			return await engine.EvalObject(_compiledExpression, stripRoots: true).ConfigureAwait(false);
+		}
+
+		public async ValueTask<string> GetName()
+		{
+			var engine = await EngineFactory().ConfigureAwait(false);
+
+			return engine.GetName(_compiledExpression);
+		}
 
 	#endregion
 

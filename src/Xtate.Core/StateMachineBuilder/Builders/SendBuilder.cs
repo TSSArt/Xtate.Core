@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Immutable;
+using System.Reflection.Emit;
 using Xtate.Core;
 
 namespace Xtate.Builder
@@ -39,8 +40,6 @@ namespace Xtate.Builder
 		private Uri?                                _type;
 		private IValueExpression?                   _typeExpression;
 
-		public SendBuilder(IErrorProcessor errorProcessor, object? ancestor) : base(errorProcessor, ancestor) { }
-
 	#region Interface ISendBuilder
 
 		public ISend Build() =>
@@ -53,54 +52,94 @@ namespace Xtate.Builder
 
 		public void SetEvent(string evt)
 		{
-			if (string.IsNullOrEmpty(evt)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(evt));
+			Infra.RequiresNonEmptyString(evt);
 
 			_event = evt;
 		}
 
-		public void SetEventExpression(IValueExpression eventExpression) => _eventExpression = eventExpression ?? throw new ArgumentNullException(nameof(eventExpression));
+		public void SetEventExpression(IValueExpression eventExpression)
+		{
+			Infra.Requires(eventExpression);
 
-		public void SetTarget(Uri target) => _target = target ?? throw new ArgumentNullException(nameof(target));
+			_eventExpression = eventExpression;
+		}
 
-		public void SetTargetExpression(IValueExpression targetExpression) => _targetExpression = targetExpression ?? throw new ArgumentNullException(nameof(targetExpression));
+		public void SetTarget(Uri target)
+		{
+			Infra.Requires(target);
 
-		public void SetType(Uri type) => _type = type ?? throw new ArgumentNullException(nameof(type));
+			_target = target;
+		}
 
-		public void SetTypeExpression(IValueExpression typeExpression) => _typeExpression = typeExpression ?? throw new ArgumentNullException(nameof(typeExpression));
+		public void SetTargetExpression(IValueExpression targetExpression)
+		{
+			Infra.Requires(targetExpression);
+
+			_targetExpression = targetExpression;
+		}
+
+		public void SetType(Uri type)
+		{
+			Infra.Requires(type);
+
+			_type = type;
+		}
+
+		public void SetTypeExpression(IValueExpression typeExpression)
+		{
+			Infra.Requires(typeExpression);
+
+			_typeExpression = typeExpression;
+		}
 
 		public void SetId(string id)
 		{
-			if (string.IsNullOrEmpty(id)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(id));
+			Infra.RequiresNonEmptyString(id);
 
 			_id = id;
 		}
 
-		public void SetIdLocation(ILocationExpression idLocation) => _idLocation = idLocation ?? throw new ArgumentNullException(nameof(idLocation));
+		public void SetIdLocation(ILocationExpression idLocation)
+		{
+			Infra.Requires(idLocation);
+			
+			_idLocation = idLocation;
+		}
 
 		public void SetDelay(int delay)
 		{
-			if (delay < 0) throw new ArgumentOutOfRangeException(nameof(delay));
+			Infra.RequiresNonNegative(delay);
 
 			_delayMs = delay;
 		}
 
-		public void SetDelayExpression(IValueExpression delayExpression) => _delayExpression = delayExpression ?? throw new ArgumentNullException(nameof(delayExpression));
+		public void SetDelayExpression(IValueExpression delayExpression)
+		{
+			Infra.Requires(delayExpression);
+
+			_delayExpression = delayExpression;
+		}
 
 		public void SetNameList(ImmutableArray<ILocationExpression> nameList)
 		{
-			if (nameList.IsDefaultOrEmpty) throw new ArgumentException(Resources.Exception_ValueCannotBeEmptyList, nameof(nameList));
+			Infra.RequiresNonEmptyCollection(nameList);
 
 			_nameList = nameList;
 		}
 
 		public void AddParameter(IParam param)
 		{
-			if (param is null) throw new ArgumentNullException(nameof(param));
+			Infra.Requires(param);
 
 			(_parameters ??= ImmutableArray.CreateBuilder<IParam>()).Add(param);
 		}
 
-		public void SetContent(IContent content) => _content = content ?? throw new ArgumentNullException(nameof(content));
+		public void SetContent(IContent content)
+		{
+			Infra.Requires(content);
+			
+			_content = content;
+		}
 
 	#endregion
 	}

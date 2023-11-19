@@ -19,5 +19,8 @@
 
 namespace Xtate.Core
 {
-	public interface IStateEntity : IEntity { }
+	public interface IStateEntity : IEntity
+	{
+		IIdentifier? Id { get; }
+	}
 }

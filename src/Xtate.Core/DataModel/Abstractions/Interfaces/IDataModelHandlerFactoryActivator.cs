@@ -26,7 +26,7 @@ namespace Xtate.DataModel
 	[PublicAPI]
 	public interface IDataModelHandlerFactoryActivator
 	{
-		ValueTask<IDataModelHandler> CreateHandler(IFactoryContext factoryContext,
+		ValueTask<IDataModelHandler> CreateHandler(ServiceLocator serviceLocator,
 												   string dataModelType,
 												   IErrorProcessor? errorProcessor,
 												   CancellationToken token);

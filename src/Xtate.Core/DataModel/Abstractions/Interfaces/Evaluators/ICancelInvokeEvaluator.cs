@@ -25,6 +25,6 @@ namespace Xtate.DataModel
 	[PublicAPI]
 	public interface ICancelInvokeEvaluator
 	{
-		ValueTask Cancel(InvokeId invokeId, IExecutionContext executionContext, CancellationToken token);
+		ValueTask Cancel(InvokeId invokeId);
 	}
 }

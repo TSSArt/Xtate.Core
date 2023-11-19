@@ -29,7 +29,7 @@ namespace Xtate.DataModel.XPath
 
 		public XPathDataModelException(string message) : base(message) { }
 
-		public XPathDataModelException(string message, Exception inner) : base(message, inner) { }
+		public XPathDataModelException(string message, Exception innerException) : base(message, innerException) { }
 
 		protected XPathDataModelException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 	}

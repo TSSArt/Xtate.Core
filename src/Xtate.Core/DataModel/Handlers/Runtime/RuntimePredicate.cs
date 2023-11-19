@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -18,41 +18,75 @@
 #endregion
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
-using Xtate.Core;
-using Xtate.DataModel;
 
-namespace Xtate
+namespace Xtate.DataModel.Runtime;
+
+public class RuntimePredicateEvaluator : IConditionExpression, IBooleanEvaluator
 {
-	public delegate bool Predicate(IExecutionContext executionContext);
+	public required RuntimePredicate Predicate { private get; init; }
 
-	public delegate ValueTask<bool> PredicateTask(IExecutionContext executionContext);
+	public required Func<ValueTask<RuntimeExecutionContext>> RuntimeExecutionContextFactory { private get; init; }
 
-	public delegate ValueTask<bool> PredicateCancellableTask(IExecutionContext executionContext, CancellationToken token);
+#region Interface IBooleanEvaluator
 
-	[PublicAPI]
-	public sealed class RuntimePredicate : IExecutableEntity, IBooleanEvaluator
+	public async ValueTask<bool> EvaluateBoolean()
 	{
-		private readonly object _predicate;
+		var executionContext = await RuntimeExecutionContextFactory().ConfigureAwait(false);
 
-		public RuntimePredicate(Predicate predicate) => _predicate = predicate ?? throw new ArgumentNullException(nameof(predicate));
+		Xtate.Runtime.SetCurrentExecutionContext(executionContext);
 
-		public RuntimePredicate(PredicateTask task) => _predicate = task ?? throw new ArgumentNullException(nameof(task));
+		return await Predicate.Evaluate().ConfigureAwait(false);
+	}
 
-		public RuntimePredicate(PredicateCancellableTask task) => _predicate = task ?? throw new ArgumentNullException(nameof(task));
+#endregion
 
-	#region Interface IBooleanEvaluator
+#region Interface IConditionExpression
 
-		public async ValueTask<bool> EvaluateBoolean(IExecutionContext executionContext, CancellationToken token) =>
-			_predicate switch
-			{
-				Predicate predicate           => predicate(executionContext),
-				PredicateTask task            => await task(executionContext).ConfigureAwait(false),
-				PredicateCancellableTask task => await task(executionContext, token).ConfigureAwait(false),
-				_                             => Infra.Unexpected<bool>(_predicate)
-			};
+	public string? Expression => Predicate.Expression;
 
-	#endregion
+#endregion
+}
+
+public abstract class RuntimePredicate : IConditionExpression
+{
+#region Interface IConditionExpression
+
+	public string? Expression => null;
+
+#endregion
+
+	public static IConditionExpression GetPredicate(Func<bool> predicate)
+	{
+		Infra.Requires(predicate);
+
+		return new EvaluatorSync(predicate);
+	}
+
+	public static IConditionExpression GetPredicate(Func<ValueTask<bool>> predicate)
+	{
+		Infra.Requires(predicate);
+
+		return new EvaluatorAsync(predicate);
+	}
+
+	public abstract ValueTask<bool> Evaluate();
+
+	private sealed class EvaluatorSync : RuntimePredicate
+	{
+		private readonly Func<bool> _predicate;
+
+		public EvaluatorSync(Func<bool> predicate) => _predicate = predicate;
+
+		public override ValueTask<bool> Evaluate() => new(_predicate());
+	}
+
+	private sealed class EvaluatorAsync : RuntimePredicate
+	{
+		private readonly Func<ValueTask<bool>> _predicate;
+
+		public EvaluatorAsync(Func<ValueTask<bool>> predicate) => _predicate = predicate;
+
+		public override ValueTask<bool> Evaluate() => _predicate();
 	}
 }

@@ -1,0 +1,37 @@
+﻿#region Copyright © 2019-2022 Sergii Artemenko
+
+// This file is part of the Xtate project. <https://xtate.net/>
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+// 
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+#endregion
+
+using System.Diagnostics.CodeAnalysis;
+using System.Threading.Channels;
+using System.Threading.Tasks;
+
+namespace Xtate.Core;
+
+public class EventQueue : IEventQueueReader, IEventQueueWriter
+{
+	private readonly Channel<IEvent> _channel = Channel.CreateUnbounded<IEvent>();
+
+	public bool TryReadEvent([MaybeNullWhen(false)] out IEvent evt) => _channel.Reader.TryRead(out evt);
+
+	public ValueTask<bool> WaitToEvent() => _channel.Reader.WaitToReadAsync();
+
+	public void Complete() => _channel.Writer.TryComplete();
+
+	public ValueTask WriteAsync(IEvent evt) => _channel.Writer.WriteAsync(evt);
+}

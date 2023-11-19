@@ -19,7 +19,7 @@
 
 namespace Xtate.DataModel.XPath
 {
-	internal enum XPathAssignType
+	public enum XPathAssignType
 	{
 		ReplaceChildren,
 		FirstChild,

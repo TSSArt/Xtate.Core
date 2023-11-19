@@ -28,9 +28,9 @@ namespace Xtate.Core
 		ValueTask<IStateMachineController> StartStateMachineAsync(SessionId sessionId,
 																  StateMachineOrigin origin,
 																  DataModelValue parameters,
-																  ISecurityContext securityContext,
+																  SecurityContextType securityContextType,
 																  DeferredFinalizer finalizer,
-																  CancellationToken token);
+																CancellationToken token);
 
 		ValueTask DestroyStateMachine(SessionId sessionId, CancellationToken token);
 	}

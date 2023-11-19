@@ -27,12 +27,12 @@ using Xtate.XInclude;
 
 namespace Xtate.Core
 {
-	[PublicAPI]
-	public sealed class Resource : IDisposable, IAsyncDisposable, IXIncludeResource
+	public class Resource : IDisposable, IAsyncDisposable, IXIncludeResource
 	{
-		private readonly Stream  _stream;
-		private          byte[]? _bytes;
-		private          string? _content;
+		private readonly DisposingToken _disposingToken = new();
+		private readonly Stream         _stream;
+		private          byte[]?        _bytes;
+		private          string?        _content;
 
 		public Resource(Stream stream, ContentType? contentType = default)
 		{
@@ -42,27 +42,52 @@ namespace Xtate.Core
 
 		public Encoding Encoding => !string.IsNullOrEmpty(ContentType?.CharSet) ? Encoding.GetEncoding(ContentType.CharSet) : Encoding.UTF8;
 
-	#region Interface IAsyncDisposable
-
-		public ValueTask DisposeAsync() => _stream.DisposeAsync();
-
-	#endregion
-
 	#region Interface IDisposable
 
-		public void Dispose() => _stream.Dispose();
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
 
 	#endregion
+
+	#region Interface IAsyncDisposable
+
+		public async ValueTask DisposeAsync()
+		{
+			await DisposeAsyncCore().ConfigureAwait(false);
+
+			Dispose(false);
+			GC.SuppressFinalize(this);
+		}
+
+	#endregion
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				_disposingToken.Dispose();
+			}
+		}
+
+		protected virtual ValueTask DisposeAsyncCore()
+		{
+			_disposingToken.Dispose();
+
+			return default;
+		}
 
 	#region Interface IXIncludeResource
 
-		ValueTask<Stream> IXIncludeResource.GetStream() => GetStream(doNotCache: true, token: default);
+		ValueTask<Stream> IXIncludeResource.GetStream() => GetStream(doNotCache: true);
 
 		public ContentType? ContentType { get; }
 
 	#endregion
 
-		public async ValueTask<string> GetContent(CancellationToken token)
+		public async ValueTask<string> GetContent()
 		{
 			if (_content is not null)
 			{
@@ -78,13 +103,13 @@ namespace Xtate.Core
 
 			await using (_stream.ConfigureAwait(false))
 			{
-				using var reader = new StreamReader(_stream.InjectCancellationToken(token), Encoding, detectEncodingFromByteOrderMarks: true);
+				using var reader = new StreamReader(_stream.InjectCancellationToken(_disposingToken.Token), Encoding, detectEncodingFromByteOrderMarks: true);
 
 				return _content = await reader.ReadToEndAsync().ConfigureAwait(false);
 			}
 		}
 
-		public async ValueTask<byte[]> GetBytes(CancellationToken token)
+		public async ValueTask<byte[]> GetBytes()
 		{
 			if (_bytes is not null)
 			{
@@ -98,11 +123,11 @@ namespace Xtate.Core
 
 			await using (_stream.ConfigureAwait(false))
 			{
-				return _bytes = await _stream.ReadToEndAsync(token).ConfigureAwait(false);
+				return _bytes = await _stream.ReadToEndAsync(_disposingToken.Token).ConfigureAwait(false);
 			}
 		}
 
-		public async ValueTask<Stream> GetStream(bool doNotCache, CancellationToken token)
+		public async ValueTask<Stream> GetStream(bool doNotCache)
 		{
 			if (_bytes is not null)
 			{
@@ -121,7 +146,7 @@ namespace Xtate.Core
 
 			await using (_stream.ConfigureAwait(false))
 			{
-				_bytes = await _stream.ReadToEndAsync(token).ConfigureAwait(false);
+				_bytes = await _stream.ReadToEndAsync(_disposingToken.Token).ConfigureAwait(false);
 
 				return new MemoryStream(_bytes, writable: false);
 			}

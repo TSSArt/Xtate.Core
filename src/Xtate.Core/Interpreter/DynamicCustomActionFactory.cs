@@ -24,6 +24,8 @@ using Xtate.Core;
 
 namespace Xtate.CustomAction
 {
+	//TODO: uncomment
+	/*
 	[PublicAPI]
 	public class DynamicCustomActionFactory : DynamicFactory<ICustomActionFactory>, ICustomActionFactory
 	{
@@ -31,16 +33,16 @@ namespace Xtate.CustomAction
 
 	#region Interface ICustomActionFactory
 
-		public async ValueTask<ICustomActionFactoryActivator?> TryGetActivator(IFactoryContext factoryContext,
+		public async ValueTask<ICustomActionFactoryActivator?> TryGetActivator(ServiceLocator serviceLocator,
 																			   string ns,
 																			   string name,
 																			   CancellationToken token)
 		{
-			var factories = await GetFactories(factoryContext, CustomActionNamespaceToUri(ns), token).ConfigureAwait(false);
+			var factories = await GetFactories(serviceLocator, CustomActionNamespaceToUri(ns), token).ConfigureAwait(false);
 
 			foreach (var factory in factories)
 			{
-				var activator = await factory.TryGetActivator(factoryContext, ns, name, token).ConfigureAwait(false);
+				var activator = await factory.TryGetActivator(serviceLocator, ns, name, token).ConfigureAwait(false);
 
 				if (activator is not null)
 				{
@@ -55,4 +57,5 @@ namespace Xtate.CustomAction
 
 		protected virtual Uri CustomActionNamespaceToUri(string customActionNamespace) => new(customActionNamespace, UriKind.RelativeOrAbsolute);
 	}
+	*/
 }

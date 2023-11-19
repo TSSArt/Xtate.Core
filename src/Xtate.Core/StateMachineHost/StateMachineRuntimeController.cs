@@ -24,7 +24,7 @@ using System.Threading.Tasks;
 
 namespace Xtate.Core
 {
-	internal class StateMachineRuntimeController : StateMachineControllerBase
+	public class StateMachineRuntimeController : StateMachineControllerBase
 	{
 		private static readonly UnboundedChannelOptions UnboundedSynchronousChannelOptions  = new() { SingleReader = true, AllowSynchronousContinuations = true };
 		private static readonly UnboundedChannelOptions UnboundedAsynchronousChannelOptions = new() { SingleReader = true, AllowSynchronousContinuations = false };
@@ -34,6 +34,8 @@ namespace Xtate.Core
 		private CancellationTokenSource? _suspendOnIdleTokenSource;
 		private CancellationTokenSource? _suspendTokenSource;
 
+		//TODO:delete
+		[Obsolete]
 		public StateMachineRuntimeController(SessionId sessionId,
 											 IStateMachineOptions? options,
 											 IStateMachine? stateMachine,
@@ -46,6 +48,22 @@ namespace Xtate.Core
 			: base(sessionId, options, stateMachine, stateMachineLocation, stateMachineHost, defaultOptions, securityContext, finalizer)
 		{
 			_idlePeriod = idlePeriod;
+
+			EventChannel = CreateChannel(options);
+		}
+
+		public StateMachineRuntimeController(IStateMachineStartOptions stateMachineStartOptions,
+											 IStateMachineSessionId sessionId,
+											 IStateMachineOptions? options,
+											 IStateMachine? stateMachine,
+											 IStateMachineLocation? stateMachineLocation,
+											 IStateMachineHost stateMachineHost,
+											 IStateMachineIdlePeriod? idlePeriod,
+											 /* IStateMachineInterpreterOptions defaultOptions, */
+											 ISecurityContext securityContext)
+			: base(stateMachineStartOptions.SessionId, options, stateMachine, stateMachineLocation?.Location, stateMachineHost,/* defaultOptions.options*/new InterpreterOptions(ServiceLocator.Default), securityContext, null)
+		{
+			_idlePeriod = idlePeriod?.IdlePeriod;
 
 			EventChannel = CreateChannel(options);
 		}
@@ -110,5 +128,20 @@ namespace Xtate.Core
 
 			return _suspendTokenSource.Token;
 		}
+	}
+
+	public interface IStateMachineIdlePeriod
+	{
+		TimeSpan? IdlePeriod { get; }
+	}
+
+	public interface IStateMachineLocation
+	{
+		Uri Location { get; }
+	}
+
+	public interface IStateMachineSessionId
+	{
+		SessionId SessionId { get; }
 	}
 }

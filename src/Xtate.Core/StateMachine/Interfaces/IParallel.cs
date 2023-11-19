@@ -24,7 +24,6 @@ namespace Xtate
 {
 	public interface IParallel : IStateEntity
 	{
-		IIdentifier?                 Id            { get; }
 		ImmutableArray<IStateEntity> States        { get; }
 		ImmutableArray<IHistory>     HistoryStates { get; }
 		ImmutableArray<ITransition>  Transitions   { get; }

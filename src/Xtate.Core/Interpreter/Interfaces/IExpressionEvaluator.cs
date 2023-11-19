@@ -24,6 +24,6 @@ namespace Xtate.Core
 {
 	public interface IExpressionEvaluator
 	{
-		ValueTask<DataModelValue> Evaluate(IExecutionContext executionContext, CancellationToken token);
+		ValueTask<DataModelValue> Evaluate();
 	}
 }

@@ -17,7 +17,6 @@
 
 #endregion
 
-using System;
 using Xtate.Core;
 
 namespace Xtate.Builder
@@ -28,17 +27,30 @@ namespace Xtate.Builder
 		private ITransition? _transition;
 		private HistoryType  _type;
 
-		public HistoryBuilder(IErrorProcessor errorProcessor, object? ancestor) : base(errorProcessor, ancestor) { }
-
 	#region Interface IHistoryBuilder
 
 		public IHistory Build() => new HistoryEntity { Ancestor = Ancestor, Id = _id, Type = _type, Transition = _transition };
 
-		public void SetId(IIdentifier id) => _id = id ?? throw new ArgumentNullException(nameof(id));
+		public void SetId(IIdentifier id)
+		{
+			Infra.Requires(id);
 
-		public void SetType(HistoryType type) => _type = type;
+			_id = id;
+		}
 
-		public void SetTransition(ITransition transition) => _transition = transition ?? throw new ArgumentNullException(nameof(transition));
+		public void SetType(HistoryType type)
+		{
+			Infra.RequiresValidEnum(type);
+
+			_type = type;
+		}
+
+		public void SetTransition(ITransition transition)
+		{
+			Infra.Requires(transition);
+
+			_transition = transition;
+		}
 
 	#endregion
 	}

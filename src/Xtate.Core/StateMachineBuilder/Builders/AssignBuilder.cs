@@ -30,8 +30,6 @@ namespace Xtate.Builder
 		private ILocationExpression? _location;
 		private string?              _type;
 
-		public AssignBuilder(IErrorProcessor errorProcessor, object? ancestor) : base(errorProcessor, ancestor) { }
-
 	#region Interface IAssignBuilder
 
 		public IAssign Build() =>
@@ -41,15 +39,40 @@ namespace Xtate.Builder
 				InlineContent = _inlineContent, Type = _type, Attribute = _attribute
 			};
 
-		public void SetLocation(ILocationExpression location) => _location = location ?? throw new ArgumentNullException(nameof(location));
+		public void SetLocation(ILocationExpression location)
+		{
+			Infra.Requires(location);
 
-		public void SetExpression(IValueExpression expression) => _expression = expression ?? throw new ArgumentNullException(nameof(expression));
+			_location = location;
+		}
 
-		public void SetInlineContent(IInlineContent inlineContent) => _inlineContent = inlineContent ?? throw new ArgumentNullException(nameof(inlineContent));
+		public void SetExpression(IValueExpression expression)
+		{
+			Infra.Requires(expression);
 
-		public void SetType(string type) => _type = type ?? throw new ArgumentNullException(nameof(type));
+			_expression = expression;
+		}
 
-		public void SetAttribute(string attribute) => _attribute = attribute ?? throw new ArgumentNullException(nameof(attribute));
+		public void SetInlineContent(IInlineContent inlineContent)
+		{
+			Infra.Requires(inlineContent);
+			
+			_inlineContent = inlineContent;
+		}
+
+		public void SetType(string type)
+		{
+			Infra.Requires(type);
+
+			_type = type;
+		}
+
+		public void SetAttribute(string attribute)
+		{
+			Infra.Requires(attribute);
+
+			_attribute = attribute;
+		}
 
 	#endregion
 	}

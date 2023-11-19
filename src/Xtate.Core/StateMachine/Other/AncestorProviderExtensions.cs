@@ -78,7 +78,7 @@ namespace Xtate.Core
 				return emptyArrayIfDefault ? ImmutableArray<TDestination>.Empty : default;
 			}
 
-			return ImmutableArray.CreateRange(array, item => item is not null ? item.As<TDestination>() : default!)!;
+			return ImmutableArray.CreateRange(array, item => item is not null ? item.As<TDestination>() : default!);
 		}
 	}
 }

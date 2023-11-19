@@ -31,10 +31,10 @@ namespace Xtate
 
 		public PlatformException(string message, Exception innerException) : base(message, innerException) { }
 
-		public PlatformException(Exception inner, SessionId sessionId) : base(message: null, inner) => SessionId = sessionId;
+		public PlatformException(Exception innerException) : base(message: null, innerException) { }
 
 		protected PlatformException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
-		public SessionId SessionId { get; } = default!;
+		internal object? Token { get; init; }
 	}
 }

@@ -17,32 +17,51 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
+using Xtate.CustomAction;
 
 namespace Xtate.Core
 {
-	internal sealed class PreDataModelProcessor : StateMachineVisitor
+	public interface IPreDataModelProcessor
 	{
-		private readonly InterpreterModelBuilder.Parameters _parameters;
+		ValueTask PreProcessStateMachine(IStateMachine stateMachine, CancellationToken token);
 
-		private Dictionary<ICustomAction, CustomActionDispatcher>? _customActionDispatchers;
-		private bool                                               _postProcess;
+		void      PostProcess(ref IExecutableEntity executableEntity);
+	}
 
-		public PreDataModelProcessor(InterpreterModelBuilder.Parameters parameters) => _parameters = parameters;
+	public class PreDataModelProcessor : StateMachineVisitor, IPreDataModelProcessor
+	{
+		//private readonly InterpreterModelBuilder.Parameters _parameters;
+		private         Dictionary<ICustomAction, CustomActionDispatcher>? _customActionDispatchers;
+		private         bool                                               _postProcess;
 
-		public async ValueTask PreProcessStateMachine(CancellationToken token)
+		private ImmutableArray<ICustomActionFactory>   _CustomActionProviders;
+
+		[Obsolete]
+		//TODO:delete
+		public PreDataModelProcessor(InterpreterModelBuilder.Parameters parameters)
 		{
-			var stateMachine = _parameters.StateMachine;
+			_CustomActionProviders = parameters.CustomActionProviders;
+		}
 
+		public PreDataModelProcessor(
+									 ) 
+		{
+		}
+
+		public async ValueTask PreProcessStateMachine(IStateMachine stateMachine, CancellationToken token)
+		{
 			Visit(ref stateMachine);
 
 			if (_customActionDispatchers is not null)
 			{
 				foreach (var pair in _customActionDispatchers)
 				{
-					await pair.Value.SetupExecutor(_parameters.CustomActionProviders, token).ConfigureAwait(false);
+					await pair.Value.SetupExecutor(_CustomActionProviders, token).ConfigureAwait(false);
 				}
 			}
 
@@ -64,8 +83,7 @@ namespace Xtate.Core
 
 				if (!_customActionDispatchers.ContainsKey(entity))
 				{
-					var factoryContext = new FactoryContext(_parameters.ResourceLoaderFactories, _parameters.SecurityContext, _parameters.Logger, _parameters.LoggerContext);
-					var customActionDispatcher = new CustomActionDispatcher(_parameters.ErrorProcessor, entity, factoryContext);
+					var customActionDispatcher = new CustomActionDispatcher(null, entity, default); //TODO: ?
 					_customActionDispatchers.Add(entity, customActionDispatcher);
 				}
 			}

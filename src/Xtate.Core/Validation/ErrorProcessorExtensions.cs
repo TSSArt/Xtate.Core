@@ -19,19 +19,31 @@
 
 using System;
 using System.Xml;
+using Xtate.IoC;
 
 namespace Xtate.Core
 {
-	[PublicAPI]
 	public static class ErrorProcessorExtensions
 	{
-		public static void AddError<T>(this IErrorProcessor? errorProcessor,
+		public static void RegisterErrorProcessor(this IServiceCollection services)
+		{
+			if (services.IsRegistered<IErrorProcessorService<Any>>())
+			{
+				return;
+			}
+
+			services.AddSharedImplementationSync<DefaultErrorProcessor>(SharedWithin.Container).For<IErrorProcessor>();
+			services.AddImplementationSync<ErrorProcessorService<Any>>().For<IErrorProcessorService<Any>>();
+			services.AddImplementation<StateMachineValidator>().For<IStateMachineValidator>();
+		}
+
+		public static void AddError11<T>(this IErrorProcessor? errorProcessor,
 									   object? entity,
 									   string message,
 									   Exception? exception = default) =>
-			AddError(errorProcessor, typeof(T), entity, message, exception);
+			AddError11(errorProcessor, typeof(T), entity, message, exception);
 
-		public static void AddError(this IErrorProcessor? errorProcessor,
+		public static void AddError11(this IErrorProcessor? errorProcessor,
 									Type source,
 									object? entity,
 									string message,
@@ -39,7 +51,8 @@ namespace Xtate.Core
 		{
 			if (source is null) throw new ArgumentNullException(nameof(source));
 			if (message is null) throw new ArgumentNullException(nameof(message));
-
+			//TODO:
+			/*
 			errorProcessor ??= DefaultErrorProcessor.Instance;
 
 			if (errorProcessor.LineInfoRequired)
@@ -59,7 +72,7 @@ namespace Xtate.Core
 				}
 			}
 
-			errorProcessor.AddError(new ErrorItem(source, message, exception));
+			errorProcessor.AddError(new ErrorItem(source, message, exception));*/
 		}
 	}
 }

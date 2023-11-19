@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,32 +17,37 @@
 
 #endregion
 
-using System.Threading;
+using System;
 using System.Threading.Tasks;
 
-namespace Xtate.DataModel.XPath
+namespace Xtate.DataModel.XPath;
+
+public class XPathForEachEvaluator : DefaultForEachEvaluator
 {
-	internal class XPathForEachEvaluator : DefaultForEachEvaluator
+	public XPathForEachEvaluator(IForEach forEach) : base(forEach) { }
+	
+	public required Func<ValueTask<XPathEngine>> EngineFactory { private get; init; }
+
+	public override async ValueTask Execute()
 	{
-		public XPathForEachEvaluator(IForEach forEach) : base(forEach) { }
+		var engine = await EngineFactory().ConfigureAwait(false);
 
-		public override async ValueTask Execute(IExecutionContext executionContext, CancellationToken token)
+		engine.EnterScope();
+
+		try
 		{
-			var engine = executionContext.Engine();
+			await ItemEvaluator.DeclareLocalVariable().ConfigureAwait(false);
 
-			engine.EnterScope();
-
-			try
+			if (IndexEvaluator is not null)
 			{
-				ItemEvaluator.DeclareLocalVariable(executionContext);
-				IndexEvaluator?.DeclareLocalVariable(executionContext);
+				await IndexEvaluator.DeclareLocalVariable().ConfigureAwait(false);
+			}
 
-				await base.Execute(executionContext, token).ConfigureAwait(false);
-			}
-			finally
-			{
-				engine.LeaveScope();
-			}
+			await base.Execute().ConfigureAwait(false);
+		}
+		finally
+		{
+			engine.LeaveScope();
 		}
 	}
 }

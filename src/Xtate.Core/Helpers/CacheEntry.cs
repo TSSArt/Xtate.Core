@@ -138,16 +138,7 @@ namespace Xtate.Core
 
 			if (DisposeRequired && TryGetValue(out var value))
 			{
-				switch (value)
-				{
-					case IAsyncDisposable asyncDisposable:
-						await asyncDisposable.DisposeAsync().ConfigureAwait(false);
-						break;
-
-					case IDisposable disposable:
-						disposable.Dispose();
-						break;
-				}
+				await Disposer.DisposeAsync(value).ConfigureAwait(false);
 			}
 
 			return true;

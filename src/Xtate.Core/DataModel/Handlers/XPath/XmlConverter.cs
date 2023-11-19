@@ -28,7 +28,7 @@ using Xtate.Scxml;
 
 namespace Xtate.DataModel.XPath
 {
-	internal static class XmlConverter
+	public static class XmlConverter
 	{
 		public const string TypeAttributeName     = @"type";
 		public const string XPathElementNamespace = @"http://xtate.net/xpath";
@@ -94,7 +94,7 @@ namespace Xtate.DataModel.XPath
 
 		private static void WriteNode(XmlWriter xmlWriter, XPathNavigator navigator)
 		{
-			if (navigator is { NodeType: XPathNodeType.Element, LocalName: { Length: 0 } })
+			if (navigator is { NodeType: XPathNodeType.Element, LocalName.Length: 0 })
 			{
 				if (navigator.HasChildren)
 				{
@@ -114,7 +114,7 @@ namespace Xtate.DataModel.XPath
 
 		private static async Task WriteNodeAsync(XmlWriter xmlWriter, XPathNavigator navigator)
 		{
-			if (navigator is { NodeType: XPathNodeType.Element, LocalName: { Length: 0 } })
+			if (navigator is { NodeType: XPathNodeType.Element, LocalName.Length: 0 })
 			{
 				if (navigator.HasChildren)
 				{
@@ -132,52 +132,37 @@ namespace Xtate.DataModel.XPath
 			}
 		}
 
-		public static DataModelValue FromXml(string xml, object? entity = default)
+		public static DataModelValue FromXml(string xml, XmlParserContext? context = default)
 		{
-			entity.Is<XmlNameTable>(out var nameTable);
-
-			nameTable ??= new NameTable();
-			var namespaceManager = new XmlNamespaceManager(nameTable);
-
-			if (entity.Is<IXmlNamespacesInfo>(out var namespacesInfo))
-			{
-				foreach (var prefixUri in namespacesInfo.Namespaces)
-				{
-					namespaceManager.AddNamespace(prefixUri.Prefix, prefixUri.Namespace);
-				}
-			}
-
-			var context = new XmlParserContext(nameTable, namespaceManager, xmlLang: null, XmlSpace.None);
-
 			using var reader = new StringReader(xml);
 			using var xmlReader = XmlReader.Create(reader, DefaultReaderSettings, context);
 
 			return LoadValue(xmlReader);
 		}
 
-		public static DataModelValue FromXmlStream(Stream stream)
+		public static DataModelValue FromXmlStream(Stream stream, XmlParserContext? context = default)
 		{
-			using var xmlReader = XmlReader.Create(stream, DefaultReaderSettings);
+			using var xmlReader = XmlReader.Create(stream, DefaultReaderSettings, context);
 
 			return LoadValue(xmlReader);
 		}
 
-		public static async ValueTask<DataModelValue> FromXmlStreamAsync(Stream stream)
+		public static async ValueTask<DataModelValue> FromXmlStreamAsync(Stream stream, XmlParserContext? context = default)
 		{
-			using var xmlReader = XmlReader.Create(stream, DefaultReaderSettings);
+			using var xmlReader = XmlReader.Create(stream, DefaultReaderSettings, context);
 
 			return await LoadValueAsync(xmlReader).ConfigureAwait(false);
 		}
 
 		public static string? NsNameToKey(string ns, string localName) =>
-			ns != XPathElementNamespace
-				? XmlConvert.DecodeName(localName)
-				: localName switch
+			ns == XPathElementNamespace
+				? localName switch
 				  {
 					  NoKeyElementName    => null,
 					  EmptyKeyElementName => string.Empty,
 					  _                   => XmlConvert.DecodeName(localName)
-				  };
+				  }
+				: XmlConvert.DecodeName(localName);
 
 		public static string KeyToLocalName(string? key) =>
 			key switch
@@ -249,10 +234,12 @@ namespace Xtate.DataModel.XPath
 						return text;
 
 					case XmlNodeType.None:
+
 						return list;
 
 					default:
 						Infra.Unexpected(xmlReader.NodeType);
+
 						break;
 				}
 			}
@@ -288,6 +275,7 @@ namespace Xtate.DataModel.XPath
 			do
 			{
 				xmlReader.MoveToContent();
+
 				switch (xmlReader.NodeType)
 				{
 					case XmlNodeType.Element:
@@ -328,10 +316,12 @@ namespace Xtate.DataModel.XPath
 						return text;
 
 					case XmlNodeType.None:
+
 						return list;
 
 					default:
 						Infra.Unexpected(xmlReader.NodeType);
+
 						break;
 				}
 			}

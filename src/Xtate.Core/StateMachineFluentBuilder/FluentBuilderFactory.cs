@@ -19,9 +19,9 @@
 
 namespace Xtate.Builder
 {
-	[PublicAPI]
+	//TODO: Delete class
 	public static class FluentBuilderFactory
 	{
-		public static StateMachineFluentBuilder Create() => new(BuilderFactory.Instance);
+		public static StateMachineFluentBuilder Create() => ServiceLocator.Default.GetService<StateMachineFluentBuilder>();
 	}
 }

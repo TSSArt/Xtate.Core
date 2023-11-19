@@ -38,7 +38,7 @@ namespace Xtate.Persistence
 		private          int                              _scheduledEventRecordId;
 		private          ITransactionalStorage            _storage = default!;
 
-		public PersistedEventScheduler(IStorageProvider storageProvider, IHostEventDispatcher hostEventDispatcher, ILogger? logger) : base(hostEventDispatcher, logger) =>
+		public PersistedEventScheduler(IStorageProvider storageProvider, IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger logger) : base(hostEventDispatcher, logger) =>
 			_storageProvider = storageProvider;
 
 		protected override async ValueTask<ScheduledEvent> CreateScheduledEvent(IHostEvent hostEvent, CancellationToken token)
@@ -56,7 +56,7 @@ namespace Xtate.Persistence
 				rootBucket.Add(Bucket.RootKey, _scheduledEventRecordId);
 				persistedScheduledEvent.Store(rootBucket.Nested(persistedScheduledEvent.RecordId));
 
-				await _storage.CheckPoint(level: 0, token).ConfigureAwait(false);
+				await _storage.CheckPoint(level: 0).ConfigureAwait(false);
 			}
 			finally
 			{
@@ -78,7 +78,7 @@ namespace Xtate.Persistence
 				var rootBucket = new Bucket(_storage).Nested(ScheduledEventsKey);
 				rootBucket.RemoveSubtree(persistedScheduledEvent.RecordId);
 
-				await _storage.CheckPoint(level: 0, token).ConfigureAwait(false);
+				await _storage.CheckPoint(level: 0).ConfigureAwait(false);
 
 				await ShrinkScheduledEvents(token).ConfigureAwait(false);
 			}
@@ -110,13 +110,13 @@ namespace Xtate.Persistence
 				rootBucket.Add(Bucket.RootKey, _recordId);
 			}
 
-			await _storage.CheckPoint(level: 0, token).ConfigureAwait(false);
-			await _storage.Shrink(token).ConfigureAwait(false);
+			await _storage.CheckPoint(level: 0).ConfigureAwait(false);
+			await _storage.Shrink().ConfigureAwait(false);
 		}
 
 		public async ValueTask Initialize(CancellationToken token)
 		{
-			_storage = await _storageProvider.GetTransactionalStorage(HostPartition, PersistedEventSchedulerKey, token).ConfigureAwait(false);
+			_storage = await _storageProvider.GetTransactionalStorage(HostPartition, PersistedEventSchedulerKey).ConfigureAwait(false);
 
 			await LoadScheduledEvents(_storage, token).ConfigureAwait(false);
 

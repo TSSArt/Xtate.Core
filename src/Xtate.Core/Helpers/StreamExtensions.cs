@@ -27,7 +27,6 @@ using System.Threading.Tasks;
 
 namespace Xtate.Core
 {
-	[PublicAPI]
 	public static class StreamExtensions
 	{
 #if NET461 || NETSTANDARD2_0
@@ -42,7 +41,6 @@ namespace Xtate.Core
 			return default;
 		}
 
-		[PublicAPI]
 		[SuppressMessage(category: "Design", checkId: "CA1034:Nested types should not be visible")]
 		[SuppressMessage(category: "Performance", checkId: "CA1815:Override equals and operator equals on value types")]
 		public readonly struct ConfiguredAwaitable
@@ -71,7 +69,7 @@ namespace Xtate.Core
 			if (stream is null) throw new ArgumentNullException(nameof(stream));
 
 			var longLength = stream.Length - stream.Position;
-			var capacity = 0 <= longLength && longLength <= int.MaxValue ? (int) longLength : 0;
+			var capacity = longLength is >= 0 and <= int.MaxValue ? (int) longLength : 0;
 
 			var memoryStream = new MemoryStream(capacity);
 			var buffer = ArrayPool<byte>.Shared.Rent(4096);

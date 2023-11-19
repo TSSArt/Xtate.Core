@@ -21,6 +21,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Xml;
 using System.Xml.XPath;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using Xtate.DataModel.XPath;
 
 namespace Xtate.Core.Test
@@ -28,6 +29,14 @@ namespace Xtate.Core.Test
 	[TestClass]
 	public class DataModelXPathNavigatorTest
 	{
+		private readonly Mock<INameTableProvider> NameTableProvider = new();
+
+		[TestInitialize]
+		public void Init()
+		{
+			NameTableProvider.Setup(n => n.GetNameTable()).Returns(new NameTable());
+		}
+
 		[TestMethod]
 		public void SimpleStringShouldBeConvertedToString_IfRootIsString()
 		{

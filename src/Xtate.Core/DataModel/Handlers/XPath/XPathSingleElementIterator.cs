@@ -28,7 +28,7 @@ namespace Xtate.DataModel.XPath
 
 		public XPathSingleElementIterator(XPathNavigator navigator) => _navigator = navigator;
 
-		public override XPathNavigator Current => _navigator;
+		public override XPathNavigator? Current => _completed  ? _navigator : default;
 
 		public override int CurrentPosition => _completed ? 1 : 0;
 

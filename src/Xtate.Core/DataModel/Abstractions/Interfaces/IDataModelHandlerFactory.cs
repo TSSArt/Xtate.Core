@@ -19,12 +19,12 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using Xtate.Core;
 
 namespace Xtate.DataModel
 {
-	public interface IDataModelHandlerFactory
+	//TODO:delete
+	public interface IDataModelHandlerFactory1
 	{
-		ValueTask<IDataModelHandlerFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, string dataModelType, CancellationToken token);
+		ValueTask<IDataModelHandlerFactoryActivator?> TryGetActivator(ServiceLocator serviceLocator, string dataModelType, CancellationToken token);
 	}
 }

@@ -21,6 +21,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtate.Core;
+using Xtate.IoC;
 using Xtate.Persistence;
 
 namespace Xtate
@@ -28,7 +29,7 @@ namespace Xtate
 	[PublicAPI]
 	public sealed partial class StateMachineHost : IAsyncDisposable, IDisposable
 	{
-		private readonly StateMachineHostOptions  _options;
+		private StateMachineHostOptions  _options;
 		private          bool                     _asyncOperationInProgress;
 		private          StateMachineHostContext? _context;
 		private          bool                     _disposed;
@@ -37,7 +38,13 @@ namespace Xtate
 		{
 			_options = options ?? throw new ArgumentNullException(nameof(options));
 
-			StateMachineHostInit();
+			//TODO: start
+			var serviceScopeFactory = _options.ServiceLocator.GetService<IServiceScopeFactory>();
+			var serviceScope = serviceScopeFactory.CreateScope(s => s.AddForwarding<StateMachineHost>(_ => this));
+			_options = _options with { ServiceLocator = new ServiceLocator(serviceScope.ServiceProvider) };
+			//TODO: end
+
+			//StateMachineHostInit();
 		}
 
 	#region Interface IAsyncDisposable
@@ -97,6 +104,12 @@ namespace Xtate
 				await StateMachineHostStartAsync(token).ConfigureAwait(false);
 
 				_context = context;
+
+				//TODO: start
+				var serviceScopeFactory = _options.ServiceLocator.GetService<IServiceScopeFactory>();
+				var serviceScope = serviceScopeFactory.CreateScope(s => s.AddForwarding<StateMachineHostContext>(_ => context));
+				_options = _options with { ServiceLocator = new ServiceLocator(serviceScope.ServiceProvider) };
+				//TODO: end
 			}
 			catch (OperationCanceledException ex) when (ex.CancellationToken == token)
 			{
@@ -247,10 +260,9 @@ namespace Xtate
 		private async ValueTask<IStateMachineController> StartStateMachineWrapper(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters)
 		{
 			var finalizer = new DeferredFinalizer();
-			var securityContext = SecurityContext.Create(SecurityContextType.NewTrustedStateMachine, finalizer);
 			await using (finalizer.ConfigureAwait(false))
 			{
-				return await StartStateMachine(sessionId, origin, parameters, securityContext, finalizer).ConfigureAwait(false);
+				return await StartStateMachine(sessionId, origin, parameters, SecurityContextType.NewTrustedStateMachine, finalizer, CancellationToken.None).ConfigureAwait(false);
 			}
 		}
 
@@ -258,9 +270,9 @@ namespace Xtate
 		{
 			var controller = await StartStateMachineWrapper(sessionId, origin, parameters).ConfigureAwait(false);
 
-			return await controller.GetResult(default).ConfigureAwait(false);
+			return await controller.GetResult(CancellationToken.None).ConfigureAwait(false);
 		}
 
-		public ValueTask DestroyStateMachineAsync(string sessionId) => DestroyStateMachine(SessionId.FromString(sessionId));
+		public ValueTask DestroyStateMachineAsync(string sessionId) => DestroyStateMachine(SessionId.FromString(sessionId), CancellationToken.None);
 	}
 }

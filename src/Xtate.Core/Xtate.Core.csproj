@@ -3,7 +3,7 @@
   <Import Condition="'$(Version)'==''" Project="..\..\Version.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>net5.0;netstandard2.0;net461</TargetFrameworks>
+    <TargetFrameworks>net6.0;netstandard2.0;net461</TargetFrameworks>
     <Nullable>enable</Nullable>
     <RepositoryUrl>https://github.com/TSSArt/Xtate.Core</RepositoryUrl>
     <PackageId>Xtate.Core</PackageId>
@@ -21,6 +21,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="IoC\**" />
+    <EmbeddedResource Remove="IoC\**" />
+    <None Remove="IoC\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Portable.BouncyCastle" Version="1.8.10" />
     <PackageReference Include="System.Threading.Channels" Version="5.0.0" />
 
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="5.0.3" PrivateAssets="all" />
@@ -38,6 +45,14 @@
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
       <_Parameter1>Xtate.BenchmarkTest</_Parameter1>
     </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="IoC\Container.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Xtate.IoC\Xtate.IoC.csproj" />
   </ItemGroup>
 
   <ItemGroup>

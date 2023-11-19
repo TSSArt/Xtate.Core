@@ -36,7 +36,7 @@ namespace Xtate.Persistence
 
 	#region Interface IEventSchedulerFactory
 
-		public async ValueTask<IEventScheduler> CreateEventScheduler(IHostEventDispatcher hostEventDispatcher, ILogger? logger, CancellationToken token)
+		public async ValueTask<IEventScheduler> CreateEventScheduler(IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger? logger, CancellationToken token)
 		{
 			var persistedEventScheduler = new PersistedEventScheduler(_storageProvider, hostEventDispatcher, logger);
 

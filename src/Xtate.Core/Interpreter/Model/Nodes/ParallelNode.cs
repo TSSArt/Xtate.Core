@@ -23,46 +23,44 @@ using Xtate.Persistence;
 
 namespace Xtate.Core
 {
-	internal sealed class ParallelNode : StateEntityNode, IParallel, IAncestorProvider, IDebugEntityId
+	public sealed class ParallelNode : StateEntityNode, IParallel, IAncestorProvider, IDebugEntityId
 	{
 		private readonly IParallel _parallel;
 
-		public ParallelNode(DocumentIdNode documentIdNode, IParallel parallel) : base(documentIdNode, GetChildNodes(initial: null, parallel.States, parallel.HistoryStates))
+		public ParallelNode(DocumentIdNode documentIdNode, IParallel parallel) : base(documentIdNode)
 		{
 			_parallel = parallel;
 
 			var id = parallel.Id ?? new IdentifierNode(Identifier.New());
 			var transitions = parallel.Transitions.AsArrayOf<ITransition, TransitionNode>(true);
 			var invokeList = parallel.Invoke.AsArrayOf<IInvoke, InvokeNode>(true);
+			var states = parallel.States.AsArrayOf<IStateEntity, StateEntityNode>(true);
+			var historyStates = parallel.HistoryStates.AsArrayOf<IHistory, HistoryNode>(true);
 
+			Register(states);
+			Register(historyStates);
+			Register(transitions);
+			Register(invokeList);
+			
 			Id = id;
-			States = parallel.States.AsArrayOf<IStateEntity, StateEntityNode>();
-			HistoryStates = parallel.HistoryStates.AsArrayOf<IHistory, HistoryNode>(true);
+			States = states;
+			HistoryStates = historyStates;
 			Transitions = transitions;
+			Invoke = invokeList;
 			OnEntry = parallel.OnEntry.AsArrayOf<IOnEntry, OnEntryNode>(true);
 			OnExit = parallel.OnExit.AsArrayOf<IOnExit, OnExitNode>(true);
-			Invoke = invokeList;
 			DataModel = parallel.DataModel?.As<DataModelNode>();
-
-			foreach (var transition in transitions)
-			{
-				transition.SetSource(this);
-			}
-
-			foreach (var invoke in invokeList)
-			{
-				invoke.SetStateId(id);
-			}
 		}
 
-		public override bool                            IsAtomicState => false;
-		public override ImmutableArray<InvokeNode>      Invoke        { get; }
-		public override ImmutableArray<TransitionNode>  Transitions   { get; }
-		public override ImmutableArray<HistoryNode>     HistoryStates { get; }
-		public override ImmutableArray<StateEntityNode> States        { get; }
-		public override ImmutableArray<OnEntryNode>     OnEntry       { get; }
-		public override ImmutableArray<OnExitNode>      OnExit        { get; }
-		public override DataModelNode?                  DataModel     { get; }
+		public override bool                            IsAtomicState      => false;
+		public override DataModelNode?                  DataModel          { get; }
+		public override ImmutableArray<InvokeNode>      Invoke             { get; }
+		public override ImmutableArray<TransitionNode>  Transitions        { get; }
+		public override ImmutableArray<HistoryNode>     HistoryStates      { get; }
+		public override ImmutableArray<StateEntityNode> States             { get; }
+		public override ImmutableArray<OnEntryNode>     OnEntry            { get; }
+		public override ImmutableArray<OnExitNode>      OnExit             { get; }
+
 
 	#region Interface IAncestorProvider
 

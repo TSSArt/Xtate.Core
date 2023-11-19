@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net5.0;net461</TargetFrameworks>
+    <TargetFrameworks>net6.0;net461</TargetFrameworks>
     <IsPackable>false</IsPackable>
     <Nullable>enable</Nullable>
   </PropertyGroup>
@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.1" />
-    <PackageReference Include="Moq" Version="4.16.1" />
+    <PackageReference Include="Moq" Version="4.20.69" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.2.2" />
     <PackageReference Include="MSTest.TestFramework" Version="2.2.2" />
     <PackageReference Include="coverlet.collector" Version="3.0.3">

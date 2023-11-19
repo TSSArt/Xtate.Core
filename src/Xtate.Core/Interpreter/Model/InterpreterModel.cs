@@ -17,30 +17,52 @@
 
 #endregion
 
+using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Threading;
+using System.Threading.Tasks;
+using Xtate.IoC;
 
 namespace Xtate.Core
 {
-	[PublicAPI]
-	internal class InterpreterModel
+	public interface IInterpreterModel
 	{
+		StateMachineNode                  Root                   { get; }
+		//ImmutableArray<DataModelNode>     DataModelList          { get; }
+		ImmutableDictionary<int, IEntity> EntityMap { get; }
+	}
+
+	public class InterpreterModel : IInterpreterModel, IAsyncInitialization
+	{
+		private readonly InterpreterModelBuilder     _interpreterModelBuilder;
+		private readonly AsyncInit<StateMachineNode> _stateMachineNodeAsyncInit;
+
+		[Obsolete]
 		public InterpreterModel(StateMachineNode root,
 								int maxConfigurationLength,
 								ImmutableDictionary<int, IEntity> entityMap,
 								ImmutableArray<DataModelNode> dataModelList)
 		{
-			Root = root;
 			MaxConfigurationLength = maxConfigurationLength;
 			EntityMap = entityMap;
 			DataModelList = dataModelList;
 		}
 
-		public StateMachineNode Root { get; }
+		public InterpreterModel(InterpreterModelBuilder interpreterModelBuilder) 
+		{
+			_interpreterModelBuilder = interpreterModelBuilder;
+			_stateMachineNodeAsyncInit = AsyncInit.RunAfter(_interpreterModelBuilder, builder => builder.Build2(null));
+		}
+
+		public StateMachineNode Root => _stateMachineNodeAsyncInit.Value;
 
 		public int MaxConfigurationLength { get; }
 
 		public ImmutableDictionary<int, IEntity> EntityMap { get; }
 
-		public ImmutableArray<DataModelNode> DataModelList { get; }
+		public ImmutableArray<DataModelNode> DataModelList  { get; }
+
+		public virtual Task Initialization => _stateMachineNodeAsyncInit.Task;
 	}
 }

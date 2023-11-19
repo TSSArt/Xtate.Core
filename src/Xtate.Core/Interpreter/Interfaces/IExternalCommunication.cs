@@ -33,12 +33,18 @@ namespace Xtate.Core
 
 	public interface IExternalCommunication
 	{
-		ImmutableArray<IIoProcessor> GetIoProcessors();
+		ValueTask             StartInvoke(InvokeData invokeData);
+		ValueTask             CancelInvoke(InvokeId invokeId);
+		ValueTask<SendStatus> TrySendEvent(IOutgoingEvent outgoingEvent);
+		ValueTask             ForwardEvent(IEvent evt, InvokeId invokeId);
+		ValueTask             CancelEvent(SendId sendId);
+	}
 
-		ValueTask             StartInvoke(InvokeData invokeData, CancellationToken token);
-		ValueTask             CancelInvoke(InvokeId invokeId, CancellationToken token);
-		ValueTask<SendStatus> TrySendEvent(IOutgoingEvent outgoingEvent, CancellationToken token);
-		ValueTask             ForwardEvent(IEvent evt, InvokeId invokeId, CancellationToken token);
-		ValueTask             CancelEvent(SendId sendId, CancellationToken token);
+	public interface IExternalCommunication2
+	{
+		ValueTask             StartInvoke(InvokeData invokeData);
+		ValueTask             CancelInvoke(InvokeId invokeId);
+		ValueTask<SendStatus> TrySendEvent(IOutgoingEvent outgoingEvent);
+		ValueTask             CancelEvent(SendId sendId);
 	}
 }

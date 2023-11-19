@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -20,60 +20,71 @@
 using System;
 using System.Collections.Specialized;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using Xtate.XInclude;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public class RedirectXmlResolver : ScxmlXmlResolver, IDisposable
 {
-	public class RedirectXmlResolver : ScxmlXmlResolver
+	private readonly DisposingToken  _disposingToken = new();
+	public required  Func<ValueTask<IResourceLoader>> ResourceLoaderFactory { private get; init; }
+
+#region Interface IDisposable
+
+	public void Dispose()
 	{
-		private readonly IFactoryContext   _factoryContext;
-		private readonly CancellationToken _token;
+		Dispose(true);
+		GC.SuppressFinalize(this);
+	}
 
-		public RedirectXmlResolver(IFactoryContext factoryContext, CancellationToken token)
+#endregion
+
+	protected virtual void Dispose(bool disposing)
+	{
+		if (disposing)
 		{
-			_factoryContext = factoryContext;
-			_token = token;
+			_disposingToken.Dispose();
+		}
+	}
+
+	protected override async ValueTask<object> GetEntityAsync(Uri uri,
+															  string? accept,
+															  string? acceptLanguage,
+															  Type? ofObjectToReturn)
+	{
+		if (ofObjectToReturn is not null && ofObjectToReturn != typeof(Stream) && ofObjectToReturn != typeof(IXIncludeResource))
+		{
+			throw new ArgumentException(Res.Format(Resources.Exception_UnsupportedClass, ofObjectToReturn));
 		}
 
-		protected override async ValueTask<object> GetEntityAsync(Uri uri,
-																  string? accept,
-																  string? acceptLanguage,
-																  Type? ofObjectToReturn)
+		var resourceLoader = await ResourceLoaderFactory().ConfigureAwait(false);
+		var resource = await resourceLoader.Request(uri, GetHeaders(accept, acceptLanguage)).ConfigureAwait(false);
+		var stream = await resource.GetStream(true).ConfigureAwait(false);
+		stream = stream.InjectCancellationToken(_disposingToken.Token);
+
+		return ofObjectToReturn == typeof(IXIncludeResource) ? new Resource(stream, resource.ContentType) : stream;
+	}
+
+	private static NameValueCollection? GetHeaders(string? accept, string? acceptLanguage)
+	{
+		if (string.IsNullOrEmpty(accept) && string.IsNullOrEmpty(acceptLanguage))
 		{
-			if (ofObjectToReturn is not null && ofObjectToReturn != typeof(Stream) && ofObjectToReturn != typeof(IXIncludeResource))
-			{
-				throw new ArgumentException(Res.Format(Resources.Exception_UnsupportedClass, ofObjectToReturn));
-			}
-
-			var resource = await _factoryContext.GetResource(uri, GetHeaders(accept, acceptLanguage), _token).ConfigureAwait(false);
-			var stream = await resource.GetStream(doNotCache: true, _token).ConfigureAwait(false);
-			stream = stream.InjectCancellationToken(_token);
-
-			return ofObjectToReturn == typeof(IXIncludeResource) ? new Resource(stream, resource.ContentType) : stream;
+			return default;
 		}
 
-		private static NameValueCollection? GetHeaders(string? accept, string? acceptLanguage)
+		var headers = new NameValueCollection(2);
+
+		if (!string.IsNullOrEmpty(accept))
 		{
-			if (string.IsNullOrEmpty(accept) && string.IsNullOrEmpty(acceptLanguage))
-			{
-				return default;
-			}
-
-			var headers = new NameValueCollection(2);
-
-			if (!string.IsNullOrEmpty(accept))
-			{
-				headers.Add(name: @"Accept", accept);
-			}
-
-			if (!string.IsNullOrEmpty(accept))
-			{
-				headers.Add(name: @"Accept-Language", acceptLanguage);
-			}
-
-			return headers;
+			headers.Add(name: @"Accept", accept);
 		}
+
+		if (!string.IsNullOrEmpty(accept))
+		{
+			headers.Add(name: @"Accept-Language", acceptLanguage);
+		}
+
+		return headers;
 	}
 }

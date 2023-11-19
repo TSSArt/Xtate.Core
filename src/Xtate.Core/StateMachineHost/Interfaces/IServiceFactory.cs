@@ -26,6 +26,6 @@ namespace Xtate.Service
 {
 	public interface IServiceFactory
 	{
-		ValueTask<IServiceFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, Uri type, CancellationToken token);
+		ValueTask<IServiceFactoryActivator?> TryGetActivator(ServiceLocator serviceLocator, Uri type, CancellationToken token);
 	}
 }

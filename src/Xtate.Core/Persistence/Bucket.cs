@@ -26,7 +26,7 @@ using System.Text;
 namespace Xtate.Persistence
 {
 	[PublicAPI]
-	internal readonly struct Bucket
+	public readonly struct Bucket
 	{
 		public static readonly RootType RootKey = RootType.Instance;
 

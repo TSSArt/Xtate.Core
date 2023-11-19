@@ -43,11 +43,12 @@ namespace Xtate
 			Reset
 		}
 
-		private const          int           CaseInsensitiveBit = 0x10;
-		private const          int           AccessMask         = 0xF;
-		private const          int           AccessConstant     = (int) DataModelAccess.Constant;
-		private const          int           AccessReadOnly     = (int) DataModelAccess.ReadOnly;
-		public static readonly DataModelList Empty              = new(DataModelAccess.Constant);
+		private const int CaseInsensitiveBit = 0x10;
+		private const int AccessMask         = 0xF;
+		private const int AccessConstant     = (int) DataModelAccess.Constant;
+		private const int AccessReadOnly     = (int) DataModelAccess.ReadOnly;
+
+		public static readonly DataModelList Empty = new(DataModelAccess.Constant);
 
 		private static readonly ValueAdapter        ValueAdapterInstance        = new();
 		private static readonly KeyValueAdapter     KeyValueAdapterInstance     = new();

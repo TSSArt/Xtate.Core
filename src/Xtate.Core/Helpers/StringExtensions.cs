@@ -34,7 +34,7 @@ namespace Xtate.Core
 		/// <exception cref="ArgumentNullException"></exception>
 		public static string NormalizeSpaces(this string str)
 		{
-			if (str is null) throw new ArgumentNullException(nameof(str));
+			Infra.Requires(str);
 
 			if (str.Length == 0) return string.Empty;
 
@@ -52,7 +52,7 @@ namespace Xtate.Core
 			}
 			finally
 			{
-				ArrayPool<char>.Shared.Return(array);
+				ArrayPool<char>.Shared.Return(array, true);
 			}
 		}
 

@@ -24,7 +24,7 @@ using Xtate.Persistence;
 
 namespace Xtate.Core
 {
-	internal sealed class OnEntryNode : IOnEntry, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
+	public sealed class OnEntryNode : IOnEntry, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 	{
 		private readonly IOnEntry       _onEntry;
 		private          DocumentIdSlot _documentIdSlot;

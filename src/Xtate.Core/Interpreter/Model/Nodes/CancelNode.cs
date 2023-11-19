@@ -22,7 +22,7 @@ using Xtate.Persistence;
 
 namespace Xtate.Core
 {
-	internal sealed class CancelNode : ExecutableEntityNode, ICancel, IAncestorProvider, IDebugEntityId
+	public sealed class CancelNode : ExecutableEntityNode, ICancel, IAncestorProvider, IDebugEntityId
 	{
 		private readonly ICancel _cancel;
 

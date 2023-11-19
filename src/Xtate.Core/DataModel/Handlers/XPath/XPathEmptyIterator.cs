@@ -21,10 +21,8 @@ using System.Xml.XPath;
 
 namespace Xtate.DataModel.XPath
 {
-	internal class XPathEmptyIterator : XPathNodeIterator
+	public class XPathEmptyIterator : XPathNodeIterator
 	{
-		public static XPathNodeIterator Instance { get; } = new XPathEmptyIterator();
-
 		public override XPathNavigator Current => default!;
 
 		public override int CurrentPosition => 0;
