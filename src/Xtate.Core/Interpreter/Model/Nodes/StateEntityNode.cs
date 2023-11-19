@@ -24,23 +24,78 @@ using Xtate.Persistence;
 
 namespace Xtate.Core
 {
-	internal abstract class StateEntityNode : IStateEntity, IStoreSupport, IDocumentId
+	public abstract class StateEntityNode : IStateEntity, IStoreSupport, IDocumentId
 	{
 		public static readonly IComparer<StateEntityNode> EntryOrder = new DocumentOrderComparer(reverseOrder: false);
 		public static readonly IComparer<StateEntityNode> ExitOrder  = new DocumentOrderComparer(reverseOrder: true);
 
-		private DocumentIdSlot _documentIdSlot;
+		private DocumentIdSlot   _documentIdSlot;
 
-		protected StateEntityNode(DocumentIdNode documentIdNode, IEnumerable<StateEntityNode>? children)
+		protected StateEntityNode(DocumentIdNode documentIdNode) => documentIdNode.SaveToSlot(out _documentIdSlot);
+
+		protected void Register(InitialNode? initialNode)
 		{
-			documentIdNode.SaveToSlot(out _documentIdSlot);
-
-			if (children is not null)
+			if (initialNode is not null)
 			{
-				foreach (var stateEntity in children)
+				initialNode.Parent = this;
+			}
+		}
+
+		protected void Register(ImmutableArray<StateEntityNode> stateEntityNodes)
+		{
+			if (stateEntityNodes.IsDefaultOrEmpty)
+			{
+				return;
+			}
+
+			foreach (var stateEntityNode in stateEntityNodes)
+			{
+				if (stateEntityNode is not null)
 				{
-					stateEntity.Parent = this;
+					stateEntityNode.Parent = this;
 				}
+			}
+		}
+
+		protected void Register(ImmutableArray<HistoryNode> historyNodes)
+		{
+			if (historyNodes.IsDefaultOrEmpty)
+			{
+				return;
+			}
+
+			foreach (var historyNode in historyNodes)
+			{
+				if (historyNode is not null)
+				{
+					historyNode.Parent = this;
+				}
+			}
+		}
+
+		protected void Register(ImmutableArray<TransitionNode> transitionNodes)
+		{
+			if (transitionNodes.IsDefaultOrEmpty)
+			{
+				return;
+			}
+
+			foreach (var transitionNode in transitionNodes)
+			{
+				transitionNode?.SetSource(this);
+			}
+		}
+
+		protected void Register(ImmutableArray<InvokeNode> invokeNodes)
+		{
+			if (invokeNodes.IsDefaultOrEmpty)
+			{
+				return;
+			}
+
+			foreach (var invokeNode in invokeNodes)
+			{
+				invokeNode?.SetSource(this);
 			}
 		}
 
@@ -52,11 +107,11 @@ namespace Xtate.Core
 		public virtual ImmutableArray<OnEntryNode>     OnEntry       => throw GetNotSupportedException();
 		public virtual ImmutableArray<OnExitNode>      OnExit        => throw GetNotSupportedException();
 		public virtual ImmutableArray<InvokeNode>      Invoke        => throw GetNotSupportedException();
-		public virtual ImmutableArray<StateEntityNode> States        => throw GetNotSupportedException();
 		public virtual ImmutableArray<HistoryNode>     HistoryStates => throw GetNotSupportedException();
+		public virtual ImmutableArray<StateEntityNode> States        => throw GetNotSupportedException();
 		public virtual DataModelNode?                  DataModel     => throw GetNotSupportedException();
 
-	#region Interface IDocumentId
+		#region Interface IDocumentId
 
 		public int DocumentId => _documentIdSlot.Value;
 
@@ -69,30 +124,6 @@ namespace Xtate.Core
 	#endregion
 
 		private NotSupportedException GetNotSupportedException() => new(Res.Format(Resources.Exception_SpecifiedMethodIsNotSupportedInType, GetType().Name));
-
-		protected static IEnumerable<StateEntityNode> GetChildNodes(IInitial? initial, ImmutableArray<IStateEntity> states, ImmutableArray<IHistory> historyStates = default)
-		{
-			if (initial is not null)
-			{
-				yield return initial.As<InitialNode>();
-			}
-
-			if (!states.IsDefaultOrEmpty)
-			{
-				foreach (var node in states)
-				{
-					yield return node.As<StateEntityNode>();
-				}
-			}
-
-			if (!historyStates.IsDefaultOrEmpty)
-			{
-				foreach (var node in historyStates)
-				{
-					yield return node.As<StateEntityNode>();
-				}
-			}
-		}
 
 		protected abstract void Store(Bucket bucket);
 

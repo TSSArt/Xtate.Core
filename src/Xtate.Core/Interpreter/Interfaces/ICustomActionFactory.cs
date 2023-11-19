@@ -25,7 +25,7 @@ namespace Xtate.CustomAction
 {
 	public interface ICustomActionFactory
 	{
-		ValueTask<ICustomActionFactoryActivator?> TryGetActivator(IFactoryContext factoryContext,
+		ValueTask<ICustomActionFactoryActivator?> TryGetActivator(ServiceLocator serviceLocator,
 																  string ns,
 																  string name,
 																  CancellationToken token);

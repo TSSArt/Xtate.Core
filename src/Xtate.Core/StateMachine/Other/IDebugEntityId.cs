@@ -23,6 +23,6 @@ namespace Xtate.Core
 {
 	public interface IDebugEntityId
 	{
-		FormattableString? EntityId { get; }
+		FormattableString EntityId { get; }
 	}
 }

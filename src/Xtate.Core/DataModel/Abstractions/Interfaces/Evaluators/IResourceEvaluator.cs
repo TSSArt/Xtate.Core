@@ -26,6 +26,6 @@ namespace Xtate.DataModel
 	[PublicAPI]
 	public interface IResourceEvaluator : IValueEvaluator
 	{
-		ValueTask<IObject> EvaluateObject(IExecutionContext executionContext, Resource resource, CancellationToken token);
+		ValueTask<IObject> EvaluateObject(Resource resource);
 	}
 }

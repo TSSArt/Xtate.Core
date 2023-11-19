@@ -27,21 +27,16 @@ namespace Xtate.Core
 	/// </summary>
 	public sealed class DefaultErrorProcessor : IErrorProcessor
 	{
-		private DefaultErrorProcessor() { }
-		public static IErrorProcessor Instance { get; } = new DefaultErrorProcessor();
-
 	#region Interface IErrorProcessor
 
 		public void ThrowIfErrors() { }
 
 		void IErrorProcessor.AddError(ErrorItem errorItem)
 		{
-			if (errorItem is null) throw new ArgumentNullException(nameof(errorItem));
+			Infra.Requires(errorItem);
 
 			throw new StateMachineValidationException(ImmutableArray.Create(errorItem));
 		}
-
-		bool IErrorProcessor.LineInfoRequired => false;
 
 	#endregion
 	}

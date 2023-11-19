@@ -19,7 +19,7 @@
 
 namespace Xtate.DataModel.XPath
 {
-	internal enum XPathObjectType
+	public enum XPathObjectType
 	{
 		Number,
 		String,

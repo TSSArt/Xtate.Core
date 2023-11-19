@@ -23,33 +23,78 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtate.Core;
+using Xtate.IoC;
 
 namespace Xtate.Persistence
 {
-	[PublicAPI]
-	internal sealed class StreamStorage : ITransactionalStorage
+	public class StreamStorage : ITransactionalStorage, IAsyncInitialization
 	{
+		public required Func<bool, InMemoryStorage>                 InMemoryStorageFactory { private get; init; }
+		public required Func<ReadOnlyMemory<byte>, InMemoryStorage> InMemoryStorageBaselineFactory { private get; init; }
+
 		private const byte SkipMark        = 0;
 		private const int  SkipBlockMark   = 2;
 		private const byte FinalMark       = 4;
 		private const int  FinalMarkLength = 1;
 
-		private static readonly int  MaxInt32Length = Encode.GetEncodedLength(int.MaxValue);
-		private readonly        bool _disposeStream;
+		private static readonly int MaxInt32Length = Encode.GetEncodedLength(int.MaxValue);
 
-		private readonly Stream           _stream;
-		private          bool             _canShrink = true;
-		private          bool             _disposed;
-		private          InMemoryStorage? _inMemoryStorage;
+		private readonly  CancellationTokenSource     _cancellationTokenSource = new();
+		private readonly  bool                        _disposeStream;
+		private readonly  int                         _rollbackLevel;
+		private readonly  Stream                      _stream;
+		private           bool                        _canShrink = true;
+		private           bool                        _disposed;
+		private  readonly AsyncInit<InMemoryStorage?> _inMemoryStorageAsyncInit;
+		private  readonly DisposingToken                _disposingToken = new();
 
-		private StreamStorage(Stream stream, bool disposeStream)
+		public StreamStorage(Stream stream, bool disposeStream = true, int? rollbackLevel = default)
 		{
-			_stream = stream ?? throw new ArgumentNullException(nameof(stream));
+			Infra.Requires(stream);
+
+			_stream = stream;
 			_disposeStream = disposeStream;
+			_rollbackLevel = rollbackLevel ?? int.MaxValue;
 
 			if (!stream.CanRead || !stream.CanWrite || !stream.CanSeek)
 			{
 				throw new ArgumentException(Resources.Exception_StreamShouldSupportReadWriteSeekOperations, nameof(stream));
+			}
+
+			_inMemoryStorageAsyncInit = AsyncInit.RunAfter(this, storage => storage.Init());
+		}
+
+		private ValueTask<InMemoryStorage?> Init() => ReadStream(_stream, _rollbackLevel, false, _disposingToken.Token);
+
+		public Task Initialization => _inMemoryStorageAsyncInit.Task;
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!_disposed && disposing)
+			{
+				_disposingToken.Dispose();
+
+				if (_disposeStream)
+				{
+					_stream.Dispose();
+				}
+
+				_disposed = true;
+			}
+		}
+
+		protected virtual async ValueTask DisposeAsyncCore()
+		{
+			if (!_disposed)
+			{
+				_disposingToken.Dispose();
+
+				if (_disposeStream)
+				{
+					await _stream.DisposeAsync().ConfigureAwait(false);
+				}
+
+				_disposed = true;
 			}
 		}
 
@@ -57,20 +102,9 @@ namespace Xtate.Persistence
 
 		public async ValueTask DisposeAsync()
 		{
-			if (_disposed)
-			{
-				return;
-			}
+			await DisposeAsyncCore().ConfigureAwait(false);
 
-			if (_disposeStream)
-			{
-				XtateCore.Use();
-				await _stream.DisposeAsync().ConfigureAwait(false);
-			}
-
-			_inMemoryStorage?.Dispose();
-
-			_disposed = true;
+			GC.SuppressFinalize(this);
 		}
 
 	#endregion
@@ -79,64 +113,32 @@ namespace Xtate.Persistence
 
 		public void Dispose()
 		{
-			if (_disposed)
-			{
-				return;
-			}
+			Dispose(true);
 
-			if (_disposeStream)
-			{
-				_stream.Dispose();
-			}
-
-			_inMemoryStorage?.Dispose();
-
-			_disposed = true;
+			GC.SuppressFinalize(this);
 		}
 
 	#endregion
 
 	#region Interface IStorage
 
-		public ReadOnlyMemory<byte> Get(ReadOnlySpan<byte> key)
-		{
-			Infra.NotNull(_inMemoryStorage);
+		public ReadOnlyMemory<byte> Get(ReadOnlySpan<byte> key) => _inMemoryStorageAsyncInit.Value.Get(key);
 
-			return _inMemoryStorage.Get(key);
-		}
+		public void Set(ReadOnlySpan<byte> key, ReadOnlySpan<byte> value) => _inMemoryStorageAsyncInit.Value.Set(key, value);
 
-		public void Set(ReadOnlySpan<byte> key, ReadOnlySpan<byte> value)
-		{
-			Infra.NotNull(_inMemoryStorage);
+		public void Remove(ReadOnlySpan<byte> key) => _inMemoryStorageAsyncInit.Value.Remove(key);
 
-			_inMemoryStorage.Set(key, value);
-		}
-
-		public void Remove(ReadOnlySpan<byte> key)
-		{
-			Infra.NotNull(_inMemoryStorage);
-
-			_inMemoryStorage.Remove(key);
-		}
-
-		public void RemoveAll(ReadOnlySpan<byte> prefix)
-		{
-			Infra.NotNull(_inMemoryStorage);
-
-			_inMemoryStorage.RemoveAll(prefix);
-		}
+		public void RemoveAll(ReadOnlySpan<byte> prefix) => _inMemoryStorageAsyncInit.Value.RemoveAll(prefix);
 
 	#endregion
 
 	#region Interface ITransactionalStorage
 
-		public async ValueTask CheckPoint(int level, CancellationToken token)
+		public async ValueTask CheckPoint(int level)
 		{
-			if (level < 0) throw new ArgumentOutOfRangeException(nameof(level));
+			Infra.RequiresNonNegative(level);
 
-			Infra.NotNull(_inMemoryStorage);
-
-			var transactionLogSize = _inMemoryStorage.GetTransactionLogSize();
+			var transactionLogSize = _inMemoryStorageAsyncInit.Value.GetTransactionLogSize();
 
 			if (transactionLogSize == 0)
 			{
@@ -155,8 +157,9 @@ namespace Xtate.Persistence
 				var markSizeLength = GetMarkSizeLength(mark, transactionLogSize);
 				WriteMarkSize(buf.AsSpan(start: 0, markSizeLength), mark, transactionLogSize);
 
-				_inMemoryStorage.WriteTransactionLogToSpan(buf.AsSpan(markSizeLength));
+				_inMemoryStorageAsyncInit.Value.WriteTransactionLogToSpan(buf.AsSpan(markSizeLength));
 
+				var token = _cancellationTokenSource.Token;
 				await _stream.WriteAsync(buf, offset: 0, markSizeLength + transactionLogSize, token).ConfigureAwait(false);
 				await _stream.FlushAsync(token).ConfigureAwait(false);
 			}
@@ -166,11 +169,11 @@ namespace Xtate.Persistence
 			}
 		}
 
-		public async ValueTask Shrink(CancellationToken token)
+		public async ValueTask Shrink()
 		{
 			if (_canShrink)
 			{
-				await ReadStream(_stream, rollbackLevel: 0, shrink: true, token).ConfigureAwait(false);
+				await ReadStream(_stream, rollbackLevel: 0, shrink: true, _cancellationTokenSource.Token).ConfigureAwait(false);
 
 				_canShrink = false;
 			}
@@ -178,25 +181,7 @@ namespace Xtate.Persistence
 
 	#endregion
 
-		public static async ValueTask<StreamStorage> CreateAsync(Stream stream, bool disposeStream = true, CancellationToken token = default)
-		{
-			if (stream is null) throw new ArgumentNullException(nameof(stream));
-
-			return new StreamStorage(stream, disposeStream) { _inMemoryStorage = await ReadStream(stream, int.MaxValue, shrink: false, token).ConfigureAwait(false) };
-		}
-
-		public static async ValueTask<StreamStorage> CreateWithRollbackAsync(Stream stream,
-																			 int rollbackLevel,
-																			 bool disposeStream = true,
-																			 CancellationToken token = default)
-		{
-			if (stream is null) throw new ArgumentNullException(nameof(stream));
-			if (rollbackLevel < 0) throw new ArgumentOutOfRangeException(nameof(rollbackLevel));
-
-			return new StreamStorage(stream, disposeStream) { _inMemoryStorage = await ReadStream(stream, rollbackLevel, shrink: false, token).ConfigureAwait(false) };
-		}
-
-		private static async ValueTask<InMemoryStorage?> ReadStream(Stream stream,
+		private async ValueTask<InMemoryStorage?> ReadStream(Stream stream,
 																	int rollbackLevel,
 																	bool shrink,
 																	CancellationToken token)
@@ -210,7 +195,7 @@ namespace Xtate.Persistence
 
 			if (streamLength == 0)
 			{
-				return shrink ? null : new InMemoryStorage(false);
+				return shrink ? null : InMemoryStorageFactory(false);
 			}
 
 			var buf = ArrayPool<byte>.Shared.Rent(streamLength + 8 * MaxInt32Length);
@@ -292,7 +277,7 @@ namespace Xtate.Persistence
 						await stream.FlushAsync(token).ConfigureAwait(false);
 					}
 
-					return new InMemoryStorage(buf.AsSpan(start: 0, end));
+					return InMemoryStorageBaselineFactory(buf.AsMemory(start: 0, end));
 				}
 
 				if (streamTotal < streamLength)
@@ -300,7 +285,7 @@ namespace Xtate.Persistence
 					stream.SetLength(streamTotal);
 				}
 
-				using var baseline = new InMemoryStorage(buf.AsSpan(start: 0, end));
+				using var baseline = InMemoryStorageBaselineFactory(buf.AsMemory(start: 0, end));
 				var dataSize = baseline.GetDataSize();
 
 				if (dataSize >= end)
@@ -326,7 +311,8 @@ namespace Xtate.Persistence
 				if (tranSize > 0)
 				{
 					stream.Seek(streamEnd, SeekOrigin.Begin);
-					await stream.ReadAsync(buf, memoryOffset, tranSize, token).ConfigureAwait(false);
+					var count = await stream.ReadAsync(buf, memoryOffset, tranSize, token).ConfigureAwait(false);
+					Infra.Assert(count == tranSize);
 					memoryOffset += tranSize;
 				}
 

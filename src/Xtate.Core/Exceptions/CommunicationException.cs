@@ -31,16 +31,12 @@ namespace Xtate
 
 		public CommunicationException(string message, Exception innerException) : base(message, innerException) { }
 
-		public CommunicationException(Exception inner, SessionId sessionId, SendId? sendId = default) : base(message: null, inner)
-		{
-			SessionId = sessionId;
-			SendId = sendId;
-		}
+		public CommunicationException(Exception innerException, SendId? sendId = default) : base(message: null, innerException) => SendId = sendId;
 
 		protected CommunicationException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-
-		public SessionId SessionId { get; } = default!;
-
+		
 		public SendId? SendId { get; }
+
+		internal object? Token { get; init; }
 	}
 }

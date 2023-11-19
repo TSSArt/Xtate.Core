@@ -27,14 +27,21 @@ using Xtate.Persistence;
 
 namespace Xtate.Core
 {
+	public interface IEventSchedulerLogger
+	{
+		bool IsEnabled { get; }
+
+		ValueTask LogError(string message, Exception exception, IHostEvent scheduledEvent);
+	}
+
 	internal class InProcEventScheduler : IEventScheduler
 	{
-		private readonly IHostEventDispatcher _hostEventDispatcher;
-		private readonly ILogger?             _logger;
+		private readonly IHostEventDispatcher   _hostEventDispatcher;
+		private readonly IEventSchedulerLogger _logger;
 
 		private readonly ConcurrentDictionary<(ServiceId, SendId), object> _scheduledEvents = new();
 
-		public InProcEventScheduler(IHostEventDispatcher hostEventDispatcher, ILogger? logger)
+		public InProcEventScheduler(IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger logger)
 		{
 			_hostEventDispatcher = hostEventDispatcher;
 			_logger = logger;
@@ -109,11 +116,10 @@ namespace Xtate.Core
 				}
 				catch (Exception ex)
 				{
-					if (_logger is not null)
+					if (_logger.IsEnabled)
 					{
-						var loggerContext = new LoggerContext(scheduledEvent);
 						var message = Res.Format(Resources.Exception_ErrorOnDispatchingEvent, scheduledEvent.SendId?.Value);
-						await _logger.ExecuteLog(loggerContext, LogLevel.Error, message, arguments: default, ex, token: default).ConfigureAwait(false);
+						await _logger.LogError(message, ex, scheduledEvent).ConfigureAwait(false);
 					}
 				}
 			}
@@ -193,7 +199,7 @@ namespace Xtate.Core
 		}
 
 		[PublicAPI]
-		protected class ScheduledEvent : HostEvent
+		internal class ScheduledEvent : HostEvent
 		{
 			private readonly CancellationTokenSource _cancellationTokenSource = new();
 

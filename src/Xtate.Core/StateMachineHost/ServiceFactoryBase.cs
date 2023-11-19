@@ -31,7 +31,7 @@ namespace Xtate.Service
 
 	#region Interface IServiceFactory
 
-		public ValueTask<IServiceFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, Uri type, CancellationToken token)
+		public ValueTask<IServiceFactoryActivator?> TryGetActivator(ServiceLocator serviceLocator, Uri type, CancellationToken token)
 		{
 			_activator ??= CreateActivator();
 
@@ -85,7 +85,7 @@ namespace Xtate.Service
 
 			public bool CanHandle(Uri type) => _creators.ContainsKey(type);
 
-			public ValueTask<IService> CreateService(IFactoryContext factoryContext,
+			public ValueTask<IService> CreateService(ServiceLocator serviceLocator,
 													 Uri? baseUri,
 													 InvokeData invokeData,
 													 IServiceCommunication serviceCommunication,
@@ -104,10 +104,10 @@ namespace Xtate.Service
 						return new ValueTask<IService>(creator(baseUri, invokeData, serviceCommunication));
 
 					case IServiceCatalog.ServiceCreatorAsync creator:
-						return creator(factoryContext, baseUri, invokeData, serviceCommunication, token);
+						return creator(serviceLocator, baseUri, invokeData, serviceCommunication, token);
 
 					default:
-						return Infra.Unexpected<ValueTask<IService>>(_creators[invokeData.Type]?.GetType());
+						return Infra.Unexpected<ValueTask<IService>>(_creators[invokeData.Type].GetType());
 				}
 			}
 		}
@@ -120,7 +120,7 @@ namespace Xtate.Service
 
 		#region Interface IServiceFactoryActivator
 
-			public ValueTask<IService> StartService(IFactoryContext factoryContext,
+			public ValueTask<IService> StartService(ServiceLocator serviceLocator,
 													Uri? baseUri,
 													InvokeData invokeData,
 													IServiceCommunication serviceCommunication,
@@ -130,7 +130,7 @@ namespace Xtate.Service
 
 				Infra.Assert(CanHandle(invokeData.Type));
 
-				return _catalog.CreateService(factoryContext, baseUri, invokeData, serviceCommunication, token);
+				return _catalog.CreateService(serviceLocator, baseUri, invokeData, serviceCommunication, token);
 			}
 
 		#endregion

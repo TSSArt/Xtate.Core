@@ -21,11 +21,16 @@ using System.Collections.Generic;
 
 namespace Xtate.Core
 {
-	internal readonly struct DocumentIdNode
+	public readonly struct DocumentIdNode
 	{
 		private readonly LinkedListNode<int> _node;
 
-		public DocumentIdNode(LinkedList<int> list) => _node = list.AddLast(-1);
+		public DocumentIdNode(LinkedList<int> list)
+		{
+			Infra.Requires(list);
+
+			_node = list.AddLast(-1);
+		}
 
 		public void Discard()
 		{
@@ -35,6 +40,6 @@ namespace Xtate.Core
 			}
 		}
 
-		public void SaveToSlot(out DocumentIdSlot slot) => slot = new DocumentIdSlot(_node);
+		internal void SaveToSlot(out DocumentIdSlot slot) => slot = new DocumentIdSlot(_node);
 	}
 }

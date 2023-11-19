@@ -26,6 +26,6 @@ namespace Xtate.CustomAction
 	[PublicAPI]
 	public interface ICustomActionFactoryActivator
 	{
-		ValueTask<ICustomActionExecutor> CreateExecutor(IFactoryContext factoryContext, ICustomActionContext customActionContext, CancellationToken token);
+		ValueTask<ICustomActionExecutor> CreateExecutor(ServiceLocator serviceLocator, ICustomActionContext customActionContext, CancellationToken token);
 	}
 }

@@ -22,7 +22,7 @@ using Xtate.Persistence;
 
 namespace Xtate.Core
 {
-	internal sealed class EventDescriptorNode : IEventDescriptor, IStoreSupport, IAncestorProvider, IDebugEntityId
+	public sealed class EventDescriptorNode : IEventDescriptor, IStoreSupport, IAncestorProvider, IDebugEntityId
 	{
 		private readonly IEventDescriptor _eventDescriptor;
 

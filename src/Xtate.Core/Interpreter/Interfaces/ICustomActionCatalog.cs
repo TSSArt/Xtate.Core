@@ -31,7 +31,7 @@ namespace Xtate.CustomAction
 
 		public delegate ICustomActionExecutor ExecutorCreator(ICustomActionContext context, XmlReader reader);
 
-		public delegate ValueTask<ICustomActionExecutor> ExecutorCreatorAsync(IFactoryContext factoryContext,
+		public delegate ValueTask<ICustomActionExecutor> ExecutorCreatorAsync(ServiceLocator serviceLocator,
 																			  ICustomActionContext customActionContext,
 																			  XmlReader reader,
 																			  CancellationToken token);

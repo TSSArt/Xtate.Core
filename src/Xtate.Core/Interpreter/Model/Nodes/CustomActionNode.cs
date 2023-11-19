@@ -22,7 +22,7 @@ using Xtate.Persistence;
 
 namespace Xtate.Core
 {
-	internal sealed class CustomActionNode : ExecutableEntityNode, ICustomAction, IAncestorProvider
+	public sealed class CustomActionNode : ExecutableEntityNode, ICustomAction, IAncestorProvider
 	{
 		private readonly ICustomAction _customAction;
 

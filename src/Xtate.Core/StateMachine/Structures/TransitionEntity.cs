@@ -34,7 +34,7 @@ namespace Xtate.Core
 	#region Interface ITransition
 
 		public ImmutableArray<IEventDescriptor>  EventDescriptors { get; set; }
-		public IExecutableEntity?                Condition        { get; set; }
+		public IConditionExpression?             Condition        { get; set; }
 		public ImmutableArray<IIdentifier>       Target           { get; set; }
 		public TransitionType                    Type             { get; set; }
 		public ImmutableArray<IExecutableEntity> Action           { get; set; }

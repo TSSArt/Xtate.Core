@@ -71,8 +71,17 @@ namespace Xtate.Core
 			}
 		}
 
+		/// <summary>
+		/// Do not wait ValueTask for completion if it is not completed. Result of execution ignored.
+		/// </summary>
+		/// <param name="valueTask">Instance of ValueTask</param>
 		public static void Forget(this ValueTask valueTask) => valueTask.Preserve();
 
+		/// <summary>
+		/// Do not wait ValueTask for completion if it is not completed. Result of execution ignored.
+		/// </summary>
+		/// <typeparam name="T">Type result</typeparam>
+		/// <param name="valueTask">Instance of ValueTask</param>
 		public static void Forget<T>(this ValueTask<T> valueTask) => valueTask.Preserve();
 	}
 }

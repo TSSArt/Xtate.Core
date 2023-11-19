@@ -18,17 +18,17 @@
 #endregion
 
 using System;
-using System.Collections.Immutable;
+using System.Collections.Generic;
 using Xtate.Core;
 using Xtate.DataModel;
 
 namespace Xtate.Persistence
 {
-	internal sealed class StateMachineReader
+	public class StateMachineReader
 	{
-		private ImmutableDictionary<int, IEntity>? _forwardEntities;
+		private IReadOnlyDictionary<int, IEntity>? _forwardEntities;
 
-		public IStateMachine Build(in Bucket bucket, ImmutableDictionary<int, IEntity>? forwardEntities = default)
+		public IStateMachine Build(Bucket bucket, IReadOnlyDictionary<int, IEntity>? forwardEntities = default)
 		{
 			_forwardEntities = forwardEntities;
 
@@ -160,7 +160,7 @@ namespace Xtate.Persistence
 				  }
 				: null;
 
-		private IExecutableEntity? RestoreCondition(Bucket bucket)
+		private IConditionExpression? RestoreCondition(Bucket bucket)
 		{
 			if (!bucket.TryGet(Key.TypeInfo, out TypeInfo typeInfo))
 			{
@@ -170,7 +170,7 @@ namespace Xtate.Persistence
 			return typeInfo switch
 				   {
 					   TypeInfo.ConditionExpressionNode => RestoreConditionExpression(bucket) ?? throw new PersistenceException(Resources.Exception_CantRestoreElement),
-					   TypeInfo.RuntimeExecNode         => ForwardExecEntity(bucket),
+					   TypeInfo.RuntimeExecNode         => (IConditionExpression)ForwardExecEntity(bucket),
 					   _                                => throw new PersistenceException(Resources.Exception_UnknownConditionType)
 				   };
 		}

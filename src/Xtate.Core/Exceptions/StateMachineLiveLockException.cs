@@ -29,7 +29,7 @@ namespace Xtate
 
 		public StateMachineLiveLockException(string message) : base(message) { }
 
-		public StateMachineLiveLockException(string message, Exception inner) : base(message, inner) { }
+		public StateMachineLiveLockException(string message, Exception innerException) : base(message, innerException) { }
 
 		protected StateMachineLiveLockException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 	}

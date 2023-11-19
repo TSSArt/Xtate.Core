@@ -1,14 +1,13 @@
 ﻿<Project>
 
   <PropertyGroup>
-    <LangVersion>9.0</LangVersion>
     <Product>Xtate</Product>
     <Company>T.S.S.Art</Company>
     <Authors>Sergii Artemenko</Authors>
     <RepositoryType>git</RepositoryType>
     <PackageTags>xtate;state;machine;statemachine;scxml;fsm</PackageTags>
     <Description>State Machine Framework</Description>
-    <Copyright>Copyright © 2019-2021 Sergii Artemenko</Copyright>
+    <Copyright>Copyright © 2019-2022 Sergii Artemenko</Copyright>
     <PackageProjectUrl>https://xtate.net</PackageProjectUrl>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>

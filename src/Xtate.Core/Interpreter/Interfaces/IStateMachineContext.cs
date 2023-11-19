@@ -18,13 +18,12 @@
 #endregion
 
 using System;
+using Xtate.Persistence;
 
 namespace Xtate.Core
 {
-	internal interface IStateMachineContext : IAsyncDisposable
+	public interface IStateMachineContext
 	{
-		IPersistenceContext         PersistenceContext { get; }
-		IExecutionContext           ExecutionContext   { get; }
 		EntityQueue<IEvent>         InternalQueue      { get; }
 		DataModelList               DataModel          { get; }
 		OrderedSet<StateEntityNode> Configuration      { get; }

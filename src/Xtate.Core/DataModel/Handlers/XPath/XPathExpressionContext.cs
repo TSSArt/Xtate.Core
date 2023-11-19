@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,30 +17,102 @@
 
 #endregion
 
-using System.Xml;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Xml.XPath;
 using System.Xml.Xsl;
+using Xtate.Core;
+using Xtate.Scxml;
 
-namespace Xtate.DataModel.XPath
+namespace Xtate.DataModel.XPath;
+
+public interface IInitResolver
 {
-	internal class XPathExpressionContext : XsltContext
+	ValueTask Initialize();
+}
+
+public class XPathExpressionContext : XsltContext
+{
+	private List<IInitResolver>? _initResolvers;
+
+	public required IEnumerable<IXPathFunctionProvider> FunctionProviders         { private get; init; }
+	public required Func<string, XPathVarDescriptor>    XPathVarDescriptorFactory { private get; init; }
+	
+
+	public XPathExpressionContext(INameTableProvider nameTableProvider, IXmlNamespacesInfo? xmlNamespacesInfo) : base(nameTableProvider.GetNameTable())
 	{
-		public XPathExpressionContext(XPathResolver resolver, XmlNameTable nameTable) : base((NameTable) nameTable) => Resolver = resolver;
+		if (xmlNamespacesInfo is not null)
+		{
+			foreach (var prefixNamespace in xmlNamespacesInfo.Namespaces)
+			{
+				AddNamespace(prefixNamespace.Prefix, prefixNamespace.Namespace);
+			}
+		}
+	}
 
-		public XPathResolver Resolver { get; private set; }
+	public override bool Whitespace => false;
 
-		public override bool Whitespace => false;
+	public override IXsltContextVariable ResolveVariable(string prefix, string name)
+	{
+		var ns = LookupNamespace(prefix);
 
-		public override IXsltContextVariable ResolveVariable(string prefix, string name) => Resolver.ResolveVariable(GetNamespaceByPrefix(prefix), name);
+		if (!string.IsNullOrEmpty(ns))
+		{
+			throw new XPathDataModelException(Res.Format(Resources.Exception_UnknownXPathVariable, ns, name));
+		}
 
-		public override IXsltContextFunction ResolveFunction(string prefix, string name, XPathResultType[] _) => Resolver.ResolveFunction(GetNamespaceByPrefix(prefix), name);
+		var varDescriptor = XPathVarDescriptorFactory(name);
 
-		public override bool PreserveWhitespace(XPathNavigator node) => false;
+		RegisterInitResolver(varDescriptor);
 
-		public override int CompareDocument(string baseUri, string nextbaseUri) => string.CompareOrdinal(baseUri, nextbaseUri);
+		return varDescriptor;
+	}
 
-		public void SetResolver(XPathResolver resolver) => Resolver = resolver;
+	public override IXsltContextFunction ResolveFunction(string prefix, string name, XPathResultType[] _)
+	{
+		var ns = LookupNamespace(prefix);
 
-		private string GetNamespaceByPrefix(string prefix) => LookupNamespace(prefix) is { } ns ? ns : throw new XPathDataModelException(Res.Format(Resources.Exception_PrefixCantBeResolved, prefix));
+		foreach (var provider in FunctionProviders)
+		{
+			if (provider.TryGetFunction(ns, name) is { } function)
+			{
+				RegisterInitResolver(function);
+
+				return function;
+			}
+		}
+
+		throw new XPathDataModelException(Res.Format(Resources.Exception_UnknownXPathFunction, ns, name));
+	}
+
+	private void RegisterInitResolver(object resolver)
+	{
+		if (resolver is IInitResolver initResolver)
+		{
+			_initResolvers ??= new List<IInitResolver>();
+
+			_initResolvers.Add(initResolver);
+		}
+	}
+
+	public override bool PreserveWhitespace(XPathNavigator node) => false;
+
+	public override int CompareDocument(string baseUri, string nextbaseUri) => string.CompareOrdinal(baseUri, nextbaseUri);
+
+	public override string LookupNamespace(string prefix) => base.LookupNamespace(prefix) ?? throw new XPathDataModelException(Res.Format(Resources.Exception_PrefixCantBeResolved, prefix));
+
+	public async ValueTask InitResolvers()
+	{
+		var initResolvers = _initResolvers;
+		_initResolvers = default;
+
+		if (initResolvers is not null)
+		{
+			foreach (var initResolver in initResolvers)
+			{
+				await initResolver.Initialize().ConfigureAwait(false);
+			}
+		}
 	}
 }

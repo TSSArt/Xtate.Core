@@ -38,7 +38,7 @@ namespace Xtate.DataModel.XPath
 		private int    _pathLength;
 		private Node[] _pathOther = Array.Empty<Node>();
 
-		public DataModelXPathNavigator(in DataModelValue root)
+		public DataModelXPathNavigator(DataModelValue root)
 		{
 			NameTable = new NameTable();
 

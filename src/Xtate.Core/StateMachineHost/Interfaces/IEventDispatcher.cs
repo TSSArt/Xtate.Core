@@ -24,6 +24,6 @@ namespace Xtate.Core
 {
 	public interface IEventDispatcher
 	{
-		ValueTask Send(IEvent evt, CancellationToken token = default);
+		ValueTask Send(IEvent evt, CancellationToken token);
 	}
 }

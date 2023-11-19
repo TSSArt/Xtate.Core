@@ -17,63 +17,59 @@
 
 #endregion
 
-using System.Threading;
-using System.Threading.Tasks;
+using System;
 using Xtate.Core;
 
 namespace Xtate.DataModel.Runtime
 {
-	internal sealed class RuntimeDataModelHandler : DataModelHandlerBase
+	public class RuntimeDataModelHandler : DataModelHandlerBase
 	{
-		private const string DataModelType = "runtime";
+		public required Func<RuntimePredicate, RuntimePredicateEvaluator> RuntimePredicateEvaluatorFactory { private get; init; }
 
-		private RuntimeDataModelHandler(IErrorProcessor? errorProcessor) : base(errorProcessor) { }
+		public required Func<RuntimeValue, RuntimeValueEvaluator> RuntimeValueEvaluatorFactory { private get; init; }
 
-		public override ITypeInfo TypeInfo => TypeInfo<RuntimeDataModelHandler>.Instance;
+		public required Func<RuntimeAction, RuntimeActionExecutor> RuntimeActionExecutorFactory { private get; init; }
 
-		public static IDataModelHandlerFactory Factory { get; } = new DataModelHandlerFactory();
+		public required IErrorProcessorService<RuntimeDataModelHandler> RuntimeErrorProcessorService    { private get; init; }
 
-		protected override void Visit(ref IScript script) => AddErrorMessage(script, Resources.ErrorMessage_ScriptingNotSupportedInRuntimeDataModel);
+		protected override void Visit(ref IScript script) => RuntimeErrorProcessorService.AddError(script, Resources.ErrorMessage_ScriptingNotSupportedInRuntimeDataModel);
 
-		protected override void Visit(ref IDataModel dataModel) => AddErrorMessage(dataModel, Resources.ErrorMessage_DataModelNotSupportedInRuntime);
+		protected override void Visit(ref IDataModel dataModel) => RuntimeErrorProcessorService.AddError(dataModel, Resources.ErrorMessage_DataModelNotSupportedInRuntime);
 
-		protected override void Visit(ref IExecutableEntity executableEntity)
+		protected override void Visit(ref IConditionExpression conditionExpression)
 		{
-			if (executableEntity is not RuntimeAction and not RuntimePredicate)
+			if (conditionExpression is RuntimePredicate runtimePredicate)
 			{
-				AddErrorMessage(executableEntity, Resources.ErrorMessage_RuntimeActionAndPredicateOnlyAllowed);
+				conditionExpression = RuntimePredicateEvaluatorFactory(runtimePredicate);
+			}
+			else
+			{
+				RuntimeErrorProcessorService.AddError(conditionExpression, Resources.ErrorMessage_RuntimePredicateOnlyAllowed);
 			}
 		}
 
-		private static bool CanHandle(string dataModelType) => dataModelType == DataModelType;
-
-		private class DataModelHandlerFactory : IDataModelHandlerFactory
+		protected override void Visit(ref IValueExpression valueExpression)
 		{
-		#region Interface IDataModelHandlerFactory
-
-			public ValueTask<IDataModelHandlerFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, string dataModelType, CancellationToken token) =>
-				new(CanHandle(dataModelType) ? DataModelHandlerFactoryActivator.Instance : null);
-
-		#endregion
+			if (valueExpression is RuntimeValue runtimeValue)
+			{
+				valueExpression = RuntimeValueEvaluatorFactory(runtimeValue);
+			}
+			else
+			{
+				RuntimeErrorProcessorService.AddError(valueExpression, Resources.ErrorMessage_RuntimeValueOnlyAllowed);
+			}
 		}
 
-		private class DataModelHandlerFactoryActivator : IDataModelHandlerFactoryActivator
+		protected override void VisitUnknown(ref IExecutableEntity executableEntity)
 		{
-			public static IDataModelHandlerFactoryActivator Instance { get; } = new DataModelHandlerFactoryActivator();
-
-		#region Interface IDataModelHandlerFactoryActivator
-
-			public ValueTask<IDataModelHandler> CreateHandler(IFactoryContext factoryContext,
-															  string dataModelType,
-															  IErrorProcessor? errorProcessor,
-															  CancellationToken token)
+			if (executableEntity is RuntimeAction runtimeAction)
 			{
-				Infra.Assert(CanHandle(dataModelType));
-
-				return new ValueTask<IDataModelHandler>(new RuntimeDataModelHandler(errorProcessor));
+				executableEntity = RuntimeActionExecutorFactory(runtimeAction);
 			}
-
-		#endregion
+			else
+			{
+				RuntimeErrorProcessorService.AddError(executableEntity, Resources.ErrorMessage_RuntimeActionOnlyAllowed);
+			}
 		}
 	}
 }

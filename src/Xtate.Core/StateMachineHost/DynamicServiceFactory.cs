@@ -23,7 +23,9 @@ using System.Threading.Tasks;
 using Xtate.Core;
 
 namespace Xtate.Service
-{
+{  
+	//TODO: uncomment
+	/*
 	[PublicAPI]
 	public class DynamicServiceFactory : DynamicFactory<IServiceFactory>, IServiceFactory
 	{
@@ -31,13 +33,13 @@ namespace Xtate.Service
 
 	#region Interface IServiceFactory
 
-		public async ValueTask<IServiceFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, Uri type, CancellationToken token)
+		public async ValueTask<IServiceFactoryActivator?> TryGetActivator(ServiceLocator serviceLocator, Uri type, CancellationToken token)
 		{
-			var factories = await GetFactories(factoryContext, InvokeTypeToUri(type), token).ConfigureAwait(false);
+			var factories = await GetFactories(serviceLocator, InvokeTypeToUri(type), token).ConfigureAwait(false);
 
 			foreach (var factory in factories)
 			{
-				var activator = await factory.TryGetActivator(factoryContext, type, token).ConfigureAwait(false);
+				var activator = await factory.TryGetActivator(serviceLocator, type, token).ConfigureAwait(false);
 
 				if (activator is not null)
 				{
@@ -51,5 +53,5 @@ namespace Xtate.Service
 	#endregion
 
 		protected virtual Uri InvokeTypeToUri(Uri invokeType) => invokeType;
-	}
+	}*/
 }

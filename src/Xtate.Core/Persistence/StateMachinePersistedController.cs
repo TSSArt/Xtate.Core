@@ -60,25 +60,25 @@ namespace Xtate.Persistence
 
 	#region Interface IStorageProvider
 
-		ValueTask<ITransactionalStorage> IStorageProvider.GetTransactionalStorage(string? partition, string key, CancellationToken token)
+		ValueTask<ITransactionalStorage> IStorageProvider.GetTransactionalStorage(string? partition, string key)
 		{
 			if (partition is not null) throw new ArgumentException(Resources.Exception_PartitionArgumentShouldBeNull, nameof(partition));
 
-			return _storageProvider.GetTransactionalStorage(SessionId.Value, key, token);
+			return _storageProvider.GetTransactionalStorage(SessionId.Value, key);
 		}
 
-		ValueTask IStorageProvider.RemoveTransactionalStorage(string? partition, string key, CancellationToken token)
+		ValueTask IStorageProvider.RemoveTransactionalStorage(string? partition, string key)
 		{
 			if (partition is not null) throw new ArgumentException(Resources.Exception_PartitionArgumentShouldBeNull, nameof(partition));
 
-			return _storageProvider.RemoveTransactionalStorage(SessionId.Value, key, token);
+			return _storageProvider.RemoveTransactionalStorage(SessionId.Value, key);
 		}
 
-		ValueTask IStorageProvider.RemoveAllTransactionalStorage(string? partition, CancellationToken token)
+		ValueTask IStorageProvider.RemoveAllTransactionalStorage(string? partition)
 		{
 			if (partition is not null) throw new ArgumentException(Resources.Exception_PartitionArgumentShouldBeNull, nameof(partition));
 
-			return _storageProvider.RemoveAllTransactionalStorage(SessionId.Value, token);
+			return _storageProvider.RemoveAllTransactionalStorage(SessionId.Value);
 		}
 
 	#endregion
@@ -108,9 +108,9 @@ namespace Xtate.Persistence
 		{
 			await base.Initialize().ConfigureAwait(false);
 
-			_storage = await _storageProvider.GetTransactionalStorage(SessionId.Value, ControllerStateKey, _stopToken).ConfigureAwait(false);
+			_storage = await _storageProvider.GetTransactionalStorage(SessionId.Value, ControllerStateKey/*, _stopToken*/).ConfigureAwait(false);
 
-			_channelPersistingController.Initialize(new Bucket(_storage).Nested(ExternalEventsKey), bucket => new EventObject(bucket), _storageLock, token => _storage.CheckPoint(level: 0, token));
+			_channelPersistingController.Initialize(new Bucket(_storage).Nested(ExternalEventsKey), bucket => new EventObject(bucket), _storageLock, token => _storage.CheckPoint(level: 0));
 
 			_storageLock.Release();
 		}

@@ -18,19 +18,49 @@
 #endregion
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Threading.Tasks;
 using System.Xml;
 using Xtate.Builder;
 using Xtate.Core;
-using Xtate.XInclude;
 
 namespace Xtate.Scxml
 {
-	[PublicAPI]
+	//TODO:delete
+	/*
+	public class XIncludeXmlReaderProvider : IXmlReaderProvider
+	{
+		public XIncludeXmlReaderProvider(IXmlReaderProvider xmlReaderProvider, IXIncludeMaxNestingLevel? maxNestingLevel)
+		{
+			var xmlResolver = scxmlXmlResolver ?? ScxmlXmlResolver.DefaultInstance;
+			var settings = xmlReaderSettings is null ? new XmlReaderSettings() : xmlReaderSettings.Clone();
+			settings.XmlResolver = xmlResolver;
+			settings.NameTable = xmlReaderProvider.XmlReader.NameTable;
+
+			var xmlReaderSettings = GetXmlReaderSettings(nameTable, xmlResolver);
+
+			XmlReader = new XIncludeReader(xmlReaderProvider.XmlReader, xmlReaderSettings, xmlResolver, maxNestingLevel?.MaxNestingLevel ?? 0);
+			UseAsync = xmlReaderProvider.UseAsync;
+		}
+
+		private static XmlReaderSettings GetXmlReaderSettings(XmlNameTable nameTable, ScxmlXmlResolver xmlResolver) =>
+			new()
+			{
+				Async = true,
+				CloseInput = true,
+				NameTable = nameTable,
+				XmlResolver = xmlResolver,
+				DtdProcessing = DtdProcessing.Parse
+			};
+
+
+		public XmlReader XmlReader { get; }
+		public bool      UseAsync  { get; }
+	}*/
+
 	public class ScxmlDirector : XmlDirector<ScxmlDirector>
 	{
 		private const string ScxmlNs      = "http://www.w3.org/2005/07/scxml";
@@ -66,41 +96,48 @@ namespace Xtate.Scxml
 		private static readonly Policy<IAssignBuilder>       AssignPolicy       = BuildPolicy<IAssignBuilder>(AssignBuildPolicy);
 		private static readonly Policy<ICancelBuilder>       CancelPolicy       = BuildPolicy<ICancelBuilder>(CancelBuildPolicy);
 
-		private readonly IErrorProcessor                        _errorProcessor;
-		private readonly IBuilderFactory                        _factory;
-		private readonly IXmlNamespaceResolver?                 _namespaceResolver;
-		private readonly XmlNameTable                           _nameTable;
-		private readonly IStateMachineValidator?                _stateMachineValidator;
+		public required Func<object?, IStateMachineBuilder> StateMachineBuilderFactory { private get; init; }
+		public required Func<object?, IStateBuilder>        StateBuilderFactory        { private get; init; }
+		public required Func<object?, IParallelBuilder>     ParallelBuilderFactory     { private get; init; }
+		public required Func<object?, IHistoryBuilder>      HistoryBuilderFactory      { private get; init; }
+		public required Func<object?, IInitialBuilder>      InitialBuilderFactory      { private get; init; }
+		public required Func<object?, IFinalBuilder>        FinalBuilderFactory        { private get; init; }
+		public required Func<object?, ITransitionBuilder>   TransitionBuilderFactory   { private get; init; }
+		public required Func<object?, ILogBuilder>          LogBuilderFactory          { private get; init; }
+		public required Func<object?, ISendBuilder>         SendBuilderFactory         { private get; init; }
+		public required Func<object?, IParamBuilder>        ParamBuilderFactory        { private get; init; }
+		public required Func<object?, IContentBuilder>      ContentBuilderFactory      { private get; init; }
+		public required Func<object?, IOnEntryBuilder>      OnEntryBuilderFactory      { private get; init; }
+		public required Func<object?, IOnExitBuilder>       OnExitBuilderFactory       { private get; init; }
+		public required Func<object?, IInvokeBuilder>       InvokeBuilderFactory       { private get; init; }
+		public required Func<object?, IFinalizeBuilder>     FinalizeBuilderFactory     { private get; init; }
+		public required Func<object?, IScriptBuilder>       ScriptBuilderFactory       { private get; init; }
+		public required Func<object?, ICustomActionBuilder> CustomActionBuilderFactory { private get; init; }
+		public required Func<object?, IDataModelBuilder>    DataModelBuilderFactory    { private get; init; }
+		public required Func<object?, IDataBuilder>         DataBuilderFactory         { private get; init; }
+		public required Func<object?, IDoneDataBuilder>     DoneDataBuilderFactory     { private get; init; }
+		public required Func<object?, IAssignBuilder>       AssignBuilderFactory       { private get; init; }
+		public required Func<object?, IRaiseBuilder>        RaiseBuilderFactory        { private get; init; }
+		public required Func<object?, ICancelBuilder>       CancelBuilderFactory       { private get; init; }
+		public required Func<object?, IForEachBuilder>      ForEachBuilderFactory      { private get; init; }
+		public required Func<object?, IIfBuilder>           IfBuilderFactory           { private get; init; }
+		public required Func<object?, IElseBuilder>         ElseBuilderFactory         { private get; init; }
+		public required Func<object?, IElseIfBuilder>       ElseIfBuilderFactory       { private get; init; }
+
+		public required IErrorProcessorService<ScxmlDirector> ErrorProcessorService { private get; init; }
+		public required ILineInfoRequired?                    LineInfoRequired      { private get; init; }
+
+		private readonly XmlReader                              _xmlReader;
+		private          List<string>?                          _namespacePrefixes;
 		private          List<ImmutableArray<PrefixNamespace>>? _nsCache;
 
-		[SuppressMessage(category: "ReSharper", checkId: "ConstantNullCoalescingCondition")]
-		public ScxmlDirector(XmlReader xmlReader, IBuilderFactory factory, ScxmlDirectorOptions? options = default)
-			: base(GetReaderForXmlDirector(xmlReader, options), options?.ErrorProcessor ?? DefaultErrorProcessor.Instance, options?.Async ?? false)
+		public ScxmlDirector(XmlReader xmlReader) : base(xmlReader)
 		{
-			_namespaceResolver = options?.NamespaceResolver;
-			_stateMachineValidator = options?.StateMachineValidator;
-			_factory = factory;
-			_errorProcessor = options?.ErrorProcessor ?? DefaultErrorProcessor.Instance;
-			_nameTable = xmlReader.NameTable ?? new NameTable();
+			Infra.Requires(xmlReader);
 
-			FillNameTable(_nameTable);
-		}
+			_xmlReader = xmlReader;
 
-		private static XmlReader GetReaderForXmlDirector(XmlReader xmlReader, ScxmlDirectorOptions? options)
-		{
-			if (xmlReader is null) throw new ArgumentNullException(nameof(xmlReader));
-
-			if (options?.XIncludeAllowed is not true)
-			{
-				return xmlReader;
-			}
-
-			var xmlResolver = options.XmlResolver ?? ScxmlXmlResolver.DefaultInstance;
-			var settings = options.XmlReaderSettings is null ? new XmlReaderSettings() : options.XmlReaderSettings.Clone();
-			settings.XmlResolver = xmlResolver;
-			settings.NameTable = xmlReader.NameTable;
-
-			return new XIncludeReader(xmlReader, settings, xmlResolver, options.MaxNestingLevel);
+			FillNameTable(xmlReader.NameTable);
 		}
 
 		private static void FillNameTable(XmlNameTable nameTable)
@@ -133,32 +170,44 @@ namespace Xtate.Scxml
 			CancelPolicy.FillNameTable(nameTable);
 		}
 
-		public async ValueTask<IStateMachine> ConstructStateMachine()
+		protected override void NamespaceAttribute(string newPrefix)
 		{
-			var stateMachine = await ReadStateMachine().ConfigureAwait(false);
+			_namespacePrefixes ??= new List<string>();
 
-			_stateMachineValidator?.Validate(stateMachine, _errorProcessor);
+			foreach (var prefix in _namespacePrefixes)
+			{
+				if (ReferenceEquals(prefix, newPrefix))
+				{
+					return;
+				}
+			}
 
-			return stateMachine;
+			_namespacePrefixes.Add(newPrefix);
 		}
+
+		protected override void OnError(string message, Exception? exception) => ErrorProcessorService.AddError(CreateXmlLineInfo(), message, exception);
+
+		public ValueTask<IStateMachine> ConstructStateMachine() => ReadStateMachine();
 
 		private static IIdentifier AsIdentifier(string value)
 		{
-			if (value is null) throw new ArgumentNullException(nameof(value));
+			Infra.Requires(value);
 
 			return (Identifier) value;
 		}
 
 		private static IOutgoingEvent AsEvent(string value)
 		{
-			if (value is null) throw new ArgumentNullException(nameof(value));
+			Infra.Requires(value);
 
 			return new EventEntity(value) { Target = EventEntity.InternalTarget };
 		}
 
 		private static ImmutableArray<IIdentifier> AsIdentifierList(string value)
 		{
-			if (string.IsNullOrEmpty(value))
+			Infra.Requires(value);
+
+			if (value.Length == 0)
 			{
 				throw new ArgumentException(Resources.Exception_ListOfIdentifiersCannotBeEmpty, nameof(value));
 			}
@@ -168,12 +217,7 @@ namespace Xtate.Scxml
 				return ImmutableArray.Create<IIdentifier>((Identifier) value);
 			}
 
-			var identifiers = value.Split(SpaceSplitter, StringSplitOptions.RemoveEmptyEntries);
-
-			if (identifiers.Length == 0)
-			{
-				throw new ArgumentException(Resources.Exception_ListOfIdentifiersCannotBeEmpty, nameof(value));
-			}
+			var identifiers = value.Split(SpaceSplitter, StringSplitOptions.None);
 
 			var builder = ImmutableArray.CreateBuilder<IIdentifier>(identifiers.Length);
 
@@ -265,56 +309,56 @@ namespace Xtate.Scxml
 
 		private IValueExpression AsValueExpression(string expression)
 		{
-			if (expression is null) throw new ArgumentNullException(nameof(expression));
+			Infra.Requires(expression);
 
 			return new ValueExpression { Expression = expression, Ancestor = CreateAncestor(namespaces: true, nameTable: true) };
 		}
 
 		private IScriptExpression AsScriptExpression(string expression)
 		{
-			if (expression is null) throw new ArgumentNullException(nameof(expression));
+			Infra.Requires(expression);
 
 			return new ScriptExpression { Expression = expression, Ancestor = CreateAncestor(namespaces: true, nameTable: true) };
 		}
 
 		private IInlineContent AsInlineContent(string inlineContent)
 		{
-			if (inlineContent is null) throw new ArgumentNullException(nameof(inlineContent));
+			Infra.Requires(inlineContent);
 
 			return new InlineContent { Value = inlineContent, Ancestor = CreateAncestor(namespaces: true, nameTable: true) };
 		}
 
 		private IContentBody AsContentBody(string contentBody)
 		{
-			if (contentBody is null) throw new ArgumentNullException(nameof(contentBody));
+			Infra.Requires(contentBody);
 
 			return new ContentBody { Value = contentBody, Ancestor = CreateAncestor(namespaces: true, nameTable: true) };
 		}
 
 		private static IExternalScriptExpression AsExternalScriptExpression(string uri)
 		{
-			if (uri is null) throw new ArgumentNullException(nameof(uri));
+			Infra.Requires(uri);
 
 			return new ExternalScriptExpression { Uri = new Uri(uri, UriKind.RelativeOrAbsolute) };
 		}
 
 		private static IExternalDataExpression AsExternalDataExpression(string uri)
 		{
-			if (uri is null) throw new ArgumentNullException(nameof(uri));
+			Infra.Requires(uri);
 
 			return new ExternalDataExpression { Uri = new Uri(uri, UriKind.RelativeOrAbsolute) };
 		}
 
 		private static Uri AsUri(string uri)
 		{
-			if (uri is null) throw new ArgumentNullException(nameof(uri));
+			Infra.Requires(uri);
 
 			return new Uri(uri, UriKind.RelativeOrAbsolute);
 		}
 
 		private static T AsEnum<T>(string value) where T : struct
 		{
-			if (value is null) throw new ArgumentNullException(nameof(value));
+			Infra.Requires(value);
 
 			if (!Enum.TryParse(value, ignoreCase: true, out T result) || value.ToLowerInvariant() != value)
 			{
@@ -326,10 +370,7 @@ namespace Xtate.Scxml
 
 		private static int AsMilliseconds(string value)
 		{
-			if (string.IsNullOrEmpty(value))
-			{
-				throw new ArgumentException(Resources.Exception_ValueCantBeEmpty, nameof(value));
-			}
+			Infra.RequiresNonEmptyString(value);
 
 			if (value == @"0")
 			{
@@ -369,89 +410,94 @@ namespace Xtate.Scxml
 			{
 				result = CreateXmlNamespacesInfo(result);
 			}
-
+			/*
 			if (nameTable)
 			{
 				result = CreateNameTableInfo(result);
-			}
+			}*/
 
 			return result;
 		}
 
-		private object? CreateXmlLineInfo(object? ancestor) => _errorProcessor.LineInfoRequired && HasLineInfo() ? new XmlLineInfo(LineNumber, LinePosition, ancestor) : ancestor;
+		private object? CreateXmlLineInfo(object? ancestor = default) =>
+			LineInfoRequired?.LineInfoRequired == true && _xmlReader is IXmlLineInfo xmlLineInfo && xmlLineInfo.HasLineInfo()
+				? new XmlLineInfo(xmlLineInfo.LineNumber, xmlLineInfo.LinePosition, ancestor)
+				: ancestor;
 
-		private object CreateNameTableInfo(object? ancestor) => new AncestorContainer(_nameTable, ancestor);
+		//TODO:delete
+		private object CreateNameTableInfo(object? ancestor) => new AncestorContainer(_xmlReader.NameTable, ancestor);
 
 		private object? CreateXmlNamespacesInfo(object? ancestor)
 		{
-			var namespaces = _namespaceResolver?.GetNamespacesInScope(XmlNamespaceScope.ExcludeXml);
-
-			if (namespaces is null || namespaces.Count == 0 || namespaces.Count == 1 && namespaces.ContainsKey(string.Empty))
+			if (_namespacePrefixes is null)
 			{
 				return ancestor;
 			}
 
-			namespaces.Remove(string.Empty);
+			PrefixNamespace[]? namespaces = default;
 
-			var array = ResolveThroughCache(namespaces);
+			var count = 0;
 
-			if (array.IsDefaultOrEmpty)
+			foreach (var prefix in _namespacePrefixes)
+			{
+				if (_xmlReader.LookupNamespace(prefix) is { Length: > 0 } val)
+				{
+					namespaces ??= ArrayPool<PrefixNamespace>.Shared.Rent(_namespacePrefixes.Count);
+					namespaces[count ++] = new PrefixNamespace(prefix, val);
+				}
+			}
+
+			if (namespaces is null)
 			{
 				return ancestor;
 			}
+
+			var array = ResolveThroughCache(namespaces, count);
+
+			Array.Clear(namespaces, 0, count);
+			ArrayPool<PrefixNamespace>.Shared.Return(namespaces);
 
 			return new XmlNamespacesInfo(array, ancestor);
 		}
 
-		private ImmutableArray<PrefixNamespace> ResolveThroughCache(ICollection<KeyValuePair<string, string>> list)
+		private ImmutableArray<PrefixNamespace> ResolveThroughCache(PrefixNamespace[] list, int count)
 		{
 			_nsCache ??= new List<ImmutableArray<PrefixNamespace>>();
 
 			foreach (var item in _nsCache)
 			{
-				if (CompareArrays(item, list))
+				if (CompareArrays(item, list, count))
 				{
 					return item;
 				}
 			}
 
-			var builder = ImmutableArray.CreateBuilder<PrefixNamespace>(list.Count);
-
-			foreach (var pair in list)
-			{
-				builder.Add(new PrefixNamespace(pair.Key, pair.Value));
-			}
-
-			var array = builder.MoveToImmutable();
+			var array = ImmutableArray.Create(list, 0, count);
 
 			_nsCache.Add(array);
 
 			return array;
 		}
 
-		private static bool CompareArrays(ImmutableArray<PrefixNamespace> array, ICollection<KeyValuePair<string, string>> list)
+		private static bool CompareArrays(ImmutableArray<PrefixNamespace> array, PrefixNamespace[] list, int count)
 		{
-			if (array.Length != list.Count)
+			if (array.Length != count)
 			{
 				return false;
 			}
 
-			var index = 0;
-
-			foreach (var pair in list)
+			for (var i = 0; i < count; i ++)
 			{
-				if (!ReferenceEquals(pair.Key, array[index].Prefix) || !ReferenceEquals(pair.Value, array[index].Namespace))
+				if (!ReferenceEquals(list[i].Prefix, array[i].Prefix) || list[i].Namespace != array[i].Namespace)
 				{
 					return false;
 				}
-
-				index ++;
 			}
 
 			return true;
 		}
 
-		private async ValueTask<IStateMachine> ReadStateMachine() => (await Populate(_factory.CreateStateMachineBuilder(CreateAncestor()), StateMachinePolicy).ConfigureAwait(false)).Build();
+		private async ValueTask<IStateMachine> ReadStateMachine() => (await Populate(StateMachineBuilderFactory(CreateAncestor()), StateMachinePolicy).ConfigureAwait(false)).Build();
 
 		private static void StateMachineBuildPolicy(IPolicyBuilder<IStateMachineBuilder> pb) =>
 			pb.ValidateElementName(ScxmlNs, name: "scxml")
@@ -470,7 +516,7 @@ namespace Xtate.Scxml
 			  .OptionalAttribute(XtateScxmlNs, name: "persistence", (dr, b) => b.SetPersistenceLevel((PersistenceLevel) Enum.Parse(typeof(PersistenceLevel), dr.AttributeValue)))
 			  .OptionalAttribute(XtateScxmlNs, name: "onError", (dr, b) => b.SetUnhandledErrorBehaviour((UnhandledErrorBehaviour) Enum.Parse(typeof(UnhandledErrorBehaviour), dr.AttributeValue)));
 
-		private async ValueTask<IState> ReadState() => (await Populate(_factory.CreateStateBuilder(CreateAncestor()), StatePolicy).ConfigureAwait(false)).Build();
+		private async ValueTask<IState> ReadState() => (await Populate(StateBuilderFactory(CreateAncestor()), StatePolicy).ConfigureAwait(false)).Build();
 
 		private static void StateBuildPolicy(IPolicyBuilder<IStateBuilder> pb) =>
 			pb.OptionalAttribute(name: "id", (dr, b) => b.SetId(AsIdentifier(dr.AttributeValue)))
@@ -486,7 +532,7 @@ namespace Xtate.Scxml
 			  .OptionalElement(ScxmlNs, name: "initial", async (dr, b) => b.SetInitial(await dr.ReadInitial().ConfigureAwait(false)))
 			  .OptionalElement(ScxmlNs, name: "datamodel", async (dr, b) => b.SetDataModel(await dr.ReadDataModel().ConfigureAwait(false)));
 
-		private async ValueTask<IParallel> ReadParallel() => (await Populate(_factory.CreateParallelBuilder(CreateAncestor()), ParallelPolicy).ConfigureAwait(false)).Build();
+		private async ValueTask<IParallel> ReadParallel() => (await Populate(ParallelBuilderFactory(CreateAncestor()), ParallelPolicy).ConfigureAwait(false)).Build();
 
 		private static void ParallelBuildPolicy(IPolicyBuilder<IParallelBuilder> pb) =>
 			pb.OptionalAttribute(name: "id", (dr, b) => b.SetId(AsIdentifier(dr.AttributeValue)))
@@ -499,7 +545,7 @@ namespace Xtate.Scxml
 			  .MultipleElements(ScxmlNs, name: "onexit", async (dr, b) => b.AddOnExit(await dr.ReadOnExit().ConfigureAwait(false)))
 			  .OptionalElement(ScxmlNs, name: "datamodel", async (dr, b) => b.SetDataModel(await dr.ReadDataModel().ConfigureAwait(false)));
 
-		private async ValueTask<IFinal> ReadFinal() => (await Populate(_factory.CreateFinalBuilder(CreateAncestor()), FinalPolicy).ConfigureAwait(false)).Build();
+		private async ValueTask<IFinal> ReadFinal() => (await Populate(FinalBuilderFactory(CreateAncestor()), FinalPolicy).ConfigureAwait(false)).Build();
 
 		private static void FinalBuildPolicy(IPolicyBuilder<IFinalBuilder> pb) =>
 			pb.OptionalAttribute(name: "id", (dr, b) => b.SetId(AsIdentifier(dr.AttributeValue)))
@@ -507,19 +553,19 @@ namespace Xtate.Scxml
 			  .MultipleElements(ScxmlNs, name: "onexit", async (dr, b) => b.AddOnExit(await dr.ReadOnExit().ConfigureAwait(false)))
 			  .OptionalElement(ScxmlNs, name: "donedata", async (dr, b) => b.SetDoneData(await dr.ReadDoneData().ConfigureAwait(false)));
 
-		private async ValueTask<IInitial> ReadInitial() => (await Populate(_factory.CreateInitialBuilder(CreateAncestor()), InitialPolicy).ConfigureAwait(false)).Build();
+		private async ValueTask<IInitial> ReadInitial() => (await Populate(InitialBuilderFactory(CreateAncestor()), InitialPolicy).ConfigureAwait(false)).Build();
 
 		private static void InitialBuildPolicy(IPolicyBuilder<IInitialBuilder> pb) =>
 			pb.SingleElement(ScxmlNs, name: "transition", async (dr, b) => b.SetTransition(await dr.ReadTransition().ConfigureAwait(false)));
 
-		private async ValueTask<IHistory> ReadHistory() => (await Populate(_factory.CreateHistoryBuilder(CreateAncestor()), HistoryPolicy).ConfigureAwait(false)).Build();
+		private async ValueTask<IHistory> ReadHistory() => (await Populate(HistoryBuilderFactory(CreateAncestor()), HistoryPolicy).ConfigureAwait(false)).Build();
 
 		private static void HistoryBuildPolicy(IPolicyBuilder<IHistoryBuilder> pb) =>
 			pb.OptionalAttribute(name: "id", (dr, b) => b.SetId(AsIdentifier(dr.AttributeValue)))
 			  .OptionalAttribute(name: "type", (dr, b) => b.SetType(AsEnum<HistoryType>(dr.AttributeValue)))
 			  .SingleElement(ScxmlNs, name: "transition", async (dr, b) => b.SetTransition(await dr.ReadTransition().ConfigureAwait(false)));
 
-		private async ValueTask<ITransition> ReadTransition() => (await Populate(_factory.CreateTransitionBuilder(CreateAncestor()), TransitionPolicy).ConfigureAwait(false)).Build();
+		private async ValueTask<ITransition> ReadTransition() => (await Populate(TransitionBuilderFactory(CreateAncestor()), TransitionPolicy).ConfigureAwait(false)).Build();
 
 		private static void TransitionBuildPolicy(IPolicyBuilder<ITransitionBuilder> pb) =>
 			pb.OptionalAttribute(name: "event", (dr, b) => b.SetEvent(AsEventDescriptorList(dr.AttributeValue)))
@@ -536,13 +582,13 @@ namespace Xtate.Scxml
 			  .MultipleElements(ScxmlNs, name: "script", async (dr, b) => b.AddAction(await dr.ReadScript().ConfigureAwait(false)))
 			  .UnknownElement(async (dr, b) => b.AddAction(await dr.ReadCustomAction().ConfigureAwait(false)));
 
-		private async ValueTask<ILog> ReadLog() => (await Populate(_factory.CreateLogBuilder(CreateAncestor()), LogPolicy).ConfigureAwait(false)).Build();
+		private async ValueTask<ILog> ReadLog() => (await Populate(LogBuilderFactory(CreateAncestor()), LogPolicy).ConfigureAwait(false)).Build();
 
 		private static void LogBuildPolicy(IPolicyBuilder<ILogBuilder> pb) =>
 			pb.OptionalAttribute(name: "label", (dr, b) => b.SetLabel(dr.AttributeValue))
 			  .OptionalAttribute(name: "expr", (dr, b) => b.SetExpression(dr.AsValueExpression(dr.AttributeValue)));
 
-		private async ValueTask<ISend> ReadSend() => (await Populate(_factory.CreateSendBuilder(CreateAncestor()), SendPolicy).ConfigureAwait(false)).Build();
+		private async ValueTask<ISend> ReadSend() => (await Populate(SendBuilderFactory(CreateAncestor()), SendPolicy).ConfigureAwait(false)).Build();
 
 		private static void SendBuildPolicy(IPolicyBuilder<ISendBuilder> pb) =>
 			pb.OptionalAttribute(name: "event", (dr, b) => b.SetEvent(dr.AttributeValue))
@@ -559,20 +605,20 @@ namespace Xtate.Scxml
 			  .MultipleElements(ScxmlNs, name: "param", async (dr, b) => b.AddParameter(await dr.ReadParam().ConfigureAwait(false)))
 			  .OptionalElement(ScxmlNs, name: "content", async (dr, b) => b.SetContent(await dr.ReadContent().ConfigureAwait(false)));
 
-		private async ValueTask<IParam> ReadParam() => (await Populate(_factory.CreateParamBuilder(CreateAncestor()), ParamPolicy).ConfigureAwait(false)).Build();
+		private async ValueTask<IParam> ReadParam() => (await Populate(ParamBuilderFactory(CreateAncestor()), ParamPolicy).ConfigureAwait(false)).Build();
 
 		private static void ParamBuildPolicy(IPolicyBuilder<IParamBuilder> pb) =>
 			pb.RequiredAttribute(name: "name", (dr, b) => b.SetName(dr.AttributeValue))
 			  .OptionalAttribute(name: "expr", (dr, b) => b.SetExpression(dr.AsValueExpression(dr.AttributeValue)))
 			  .OptionalAttribute(name: "location", (dr, b) => b.SetLocation(dr.AsLocationExpression(dr.AttributeValue)));
 
-		private async ValueTask<IContent> ReadContent() => (await Populate(_factory.CreateContentBuilder(CreateAncestor()), ContentPolicy).ConfigureAwait(false)).Build();
+		private async ValueTask<IContent> ReadContent() => (await Populate(ContentBuilderFactory(CreateAncestor()), ContentPolicy).ConfigureAwait(false)).Build();
 
 		private static void ContentBuildPolicy(IPolicyBuilder<IContentBuilder> pb) =>
 			pb.OptionalAttribute(name: "expr", (dr, b) => b.SetExpression(dr.AsValueExpression(dr.AttributeValue)))
 			  .RawContent((dr, b) => b.SetBody(dr.AsContentBody(dr.RawContent)));
 
-		private async ValueTask<IOnEntry> ReadOnEntry() => (await Populate(_factory.CreateOnEntryBuilder(CreateAncestor()), OnEntryPolicy).ConfigureAwait(false)).Build();
+		private async ValueTask<IOnEntry> ReadOnEntry() => (await Populate(OnEntryBuilderFactory(CreateAncestor()), OnEntryPolicy).ConfigureAwait(false)).Build();
 
 		private static void OnEntryBuildPolicy(IPolicyBuilder<IOnEntryBuilder> pb) =>
 			pb.MultipleElements(ScxmlNs, name: "assign", async (dr, b) => b.AddAction(await dr.ReadAssign().ConfigureAwait(false)))
@@ -585,7 +631,7 @@ namespace Xtate.Scxml
 			  .MultipleElements(ScxmlNs, name: "script", async (dr, b) => b.AddAction(await dr.ReadScript().ConfigureAwait(false)))
 			  .UnknownElement(async (dr, b) => b.AddAction(await dr.ReadCustomAction().ConfigureAwait(false)));
 
-		private async ValueTask<IOnExit> ReadOnExit() => (await Populate(_factory.CreateOnExitBuilder(CreateAncestor()), OnExitPolicy).ConfigureAwait(false)).Build();
+		private async ValueTask<IOnExit> ReadOnExit() => (await Populate(OnExitBuilderFactory(CreateAncestor()), OnExitPolicy).ConfigureAwait(false)).Build();
 
 		private static void OnExitBuildPolicy(IPolicyBuilder<IOnExitBuilder> pb) =>
 			pb.MultipleElements(ScxmlNs, name: "assign", async (dr, b) => b.AddAction(await dr.ReadAssign().ConfigureAwait(false)))
@@ -598,7 +644,7 @@ namespace Xtate.Scxml
 			  .MultipleElements(ScxmlNs, name: "script", async (dr, b) => b.AddAction(await dr.ReadScript().ConfigureAwait(false)))
 			  .UnknownElement(async (dr, b) => b.AddAction(await dr.ReadCustomAction().ConfigureAwait(false)));
 
-		private async ValueTask<IInvoke> ReadInvoke() => (await Populate(_factory.CreateInvokeBuilder(CreateAncestor()), InvokePolicy).ConfigureAwait(false)).Build();
+		private async ValueTask<IInvoke> ReadInvoke() => (await Populate(InvokeBuilderFactory(CreateAncestor()), InvokePolicy).ConfigureAwait(false)).Build();
 
 		private static void InvokeBuildPolicy(IPolicyBuilder<IInvokeBuilder> pb) =>
 			pb.OptionalAttribute(name: "type", (dr, b) => b.SetType(AsUri(dr.AttributeValue)))
@@ -613,7 +659,7 @@ namespace Xtate.Scxml
 			  .OptionalElement(ScxmlNs, name: "finalize", async (dr, b) => b.SetFinalize(await dr.ReadFinalize().ConfigureAwait(false)))
 			  .OptionalElement(ScxmlNs, name: "content", async (dr, b) => b.SetContent(await dr.ReadContent().ConfigureAwait(false)));
 
-		private async ValueTask<IFinalize> ReadFinalize() => (await Populate(_factory.CreateFinalizeBuilder(CreateAncestor()), FinalizePolicy).ConfigureAwait(false)).Build();
+		private async ValueTask<IFinalize> ReadFinalize() => (await Populate(FinalizeBuilderFactory(CreateAncestor()), FinalizePolicy).ConfigureAwait(false)).Build();
 
 		private static void FinalizeBuildPolicy(IPolicyBuilder<IFinalizeBuilder> pb) =>
 			pb.MultipleElements(ScxmlNs, name: "assign", async (dr, b) => b.AddAction(await dr.ReadAssign().ConfigureAwait(false)))
@@ -624,18 +670,18 @@ namespace Xtate.Scxml
 			  .MultipleElements(ScxmlNs, name: "script", async (dr, b) => b.AddAction(await dr.ReadScript().ConfigureAwait(false)))
 			  .UnknownElement(async (dr, b) => b.AddAction(await dr.ReadCustomAction().ConfigureAwait(false)));
 
-		private async ValueTask<IScript> ReadScript() => (await Populate(_factory.CreateScriptBuilder(CreateAncestor()), ScriptPolicy).ConfigureAwait(false)).Build();
+		private async ValueTask<IScript> ReadScript() => (await Populate(ScriptBuilderFactory(CreateAncestor()), ScriptPolicy).ConfigureAwait(false)).Build();
 
 		private static void ScriptBuildPolicy(IPolicyBuilder<IScriptBuilder> pb) =>
 			pb.OptionalAttribute(name: "src", (dr, b) => b.SetSource(AsExternalScriptExpression(dr.AttributeValue)))
 			  .RawContent((dr, b) => b.SetBody(dr.AsScriptExpression(dr.RawContent)));
 
-		private async ValueTask<IDataModel> ReadDataModel() => (await Populate(_factory.CreateDataModelBuilder(CreateAncestor()), DataModelPolicy).ConfigureAwait(false)).Build();
+		private async ValueTask<IDataModel> ReadDataModel() => (await Populate(DataModelBuilderFactory(CreateAncestor()), DataModelPolicy).ConfigureAwait(false)).Build();
 
 		private static void DataModelBuildPolicy(IPolicyBuilder<IDataModelBuilder> pb) =>
 			pb.MultipleElements(ScxmlNs, name: "data", async (dr, b) => b.AddData(await dr.ReadData().ConfigureAwait(false)));
 
-		private async ValueTask<IData> ReadData() => (await Populate(_factory.CreateDataBuilder(CreateAncestor()), DataPolicy).ConfigureAwait(false)).Build();
+		private async ValueTask<IData> ReadData() => (await Populate(DataBuilderFactory(CreateAncestor()), DataPolicy).ConfigureAwait(false)).Build();
 
 		private static void DataBuildPolicy(IPolicyBuilder<IDataBuilder> pb) =>
 			pb.RequiredAttribute(name: "id", (dr, b) => b.SetId(dr.AttributeValue))
@@ -643,13 +689,13 @@ namespace Xtate.Scxml
 			  .OptionalAttribute(name: "expr", (dr, b) => b.SetExpression(dr.AsValueExpression(dr.AttributeValue)))
 			  .RawContent((dr, b) => b.SetInlineContent(dr.AsInlineContent(dr.RawContent)));
 
-		private async ValueTask<IDoneData> ReadDoneData() => (await Populate(_factory.CreateDoneDataBuilder(CreateAncestor()), DoneDataPolicy).ConfigureAwait(false)).Build();
+		private async ValueTask<IDoneData> ReadDoneData() => (await Populate(DoneDataBuilderFactory(CreateAncestor()), DoneDataPolicy).ConfigureAwait(false)).Build();
 
 		private static void DoneDataBuildPolicy(IPolicyBuilder<IDoneDataBuilder> pb) =>
 			pb.OptionalElement(ScxmlNs, name: "content", async (dr, b) => b.SetContent(await dr.ReadContent().ConfigureAwait(false)))
 			  .MultipleElements(ScxmlNs, name: "param", async (dr, b) => b.AddParameter(await dr.ReadParam().ConfigureAwait(false)));
 
-		private async ValueTask<IForEach> ReadForEach() => (await Populate(_factory.CreateForEachBuilder(CreateAncestor()), ForEachPolicy).ConfigureAwait(false)).Build();
+		private async ValueTask<IForEach> ReadForEach() => (await Populate(ForEachBuilderFactory(CreateAncestor()), ForEachPolicy).ConfigureAwait(false)).Build();
 
 		private static void ForEachBuildPolicy(IPolicyBuilder<IForEachBuilder> pb) =>
 			pb.RequiredAttribute(name: "array", (dr, b) => b.SetArray(dr.AsValueExpression(dr.AttributeValue)))
@@ -665,7 +711,7 @@ namespace Xtate.Scxml
 			  .MultipleElements(ScxmlNs, name: "script", async (dr, b) => b.AddAction(await dr.ReadScript().ConfigureAwait(false)))
 			  .UnknownElement(async (dr, b) => b.AddAction(await dr.ReadCustomAction().ConfigureAwait(false)));
 
-		private async ValueTask<IIf> ReadIf() => (await Populate(_factory.CreateIfBuilder(CreateAncestor()), IfPolicy).ConfigureAwait(false)).Build();
+		private async ValueTask<IIf> ReadIf() => (await Populate(IfBuilderFactory(CreateAncestor()), IfPolicy).ConfigureAwait(false)).Build();
 
 		private static void IfBuildPolicy(IPolicyBuilder<IIfBuilder> pb) =>
 			pb.RequiredAttribute(name: "cond", (dr, b) => b.SetCondition(dr.AsConditionalExpression(dr.AttributeValue)))
@@ -681,19 +727,19 @@ namespace Xtate.Scxml
 			  .MultipleElements(ScxmlNs, name: "script", async (dr, b) => b.AddAction(await dr.ReadScript().ConfigureAwait(false)))
 			  .UnknownElement(async (dr, b) => b.AddAction(await dr.ReadCustomAction().ConfigureAwait(false)));
 
-		private async ValueTask<IElse> ReadElse() => (await Populate(_factory.CreateElseBuilder(CreateAncestor()), ElsePolicy).ConfigureAwait(false)).Build();
+		private async ValueTask<IElse> ReadElse() => (await Populate(ElseBuilderFactory(CreateAncestor()), ElsePolicy).ConfigureAwait(false)).Build();
 
 		private static void ElseBuildPolicy(IPolicyBuilder<IElseBuilder> pb) { }
 
-		private async ValueTask<IElseIf> ReadElseIf() => (await Populate(_factory.CreateElseIfBuilder(CreateAncestor()), ElseIfPolicy).ConfigureAwait(false)).Build();
+		private async ValueTask<IElseIf> ReadElseIf() => (await Populate(ElseIfBuilderFactory(CreateAncestor()), ElseIfPolicy).ConfigureAwait(false)).Build();
 
 		private static void ElseIfBuildPolicy(IPolicyBuilder<IElseIfBuilder> pb) => pb.RequiredAttribute(name: "cond", (dr, b) => b.SetCondition(dr.AsConditionalExpression(dr.AttributeValue)));
 
-		private async ValueTask<IRaise> ReadRaise() => (await Populate(_factory.CreateRaiseBuilder(CreateAncestor()), RaisePolicy).ConfigureAwait(false)).Build();
+		private async ValueTask<IRaise> ReadRaise() => (await Populate(RaiseBuilderFactory(CreateAncestor()), RaisePolicy).ConfigureAwait(false)).Build();
 
 		private static void RaiseBuildPolicy(IPolicyBuilder<IRaiseBuilder> pb) => pb.RequiredAttribute(name: "event", (dr, b) => b.SetEvent(AsEvent(dr.AttributeValue)));
 
-		private async ValueTask<IAssign> ReadAssign() => (await Populate(_factory.CreateAssignBuilder(CreateAncestor()), AssignPolicy).ConfigureAwait(false)).Build();
+		private async ValueTask<IAssign> ReadAssign() => (await Populate(AssignBuilderFactory(CreateAncestor()), AssignPolicy).ConfigureAwait(false)).Build();
 
 		private static void AssignBuildPolicy(IPolicyBuilder<IAssignBuilder> pb) =>
 			pb.RequiredAttribute(name: "location", (dr, b) => b.SetLocation(dr.AsLocationExpression(dr.AttributeValue)))
@@ -702,7 +748,7 @@ namespace Xtate.Scxml
 			  .OptionalAttribute(name: "attr", (dr, b) => b.SetAttribute(dr.AttributeValue))
 			  .RawContent((dr, b) => b.SetInlineContent(dr.AsInlineContent(dr.RawContent)));
 
-		private async ValueTask<ICancel> ReadCancel() => (await Populate(_factory.CreateCancelBuilder(CreateAncestor()), CancelPolicy).ConfigureAwait(false)).Build();
+		private async ValueTask<ICancel> ReadCancel() => (await Populate(CancelBuilderFactory(CreateAncestor()), CancelPolicy).ConfigureAwait(false)).Build();
 
 		private static void CancelBuildPolicy(IPolicyBuilder<ICancelBuilder> pb) =>
 			pb.OptionalAttribute(name: "sendid", (dr, b) => b.SetSendId(dr.AttributeValue))
@@ -710,7 +756,7 @@ namespace Xtate.Scxml
 
 		private async ValueTask<ICustomAction> ReadCustomAction()
 		{
-			var builder = _factory.CreateCustomActionBuilder(CreateAncestor(namespaces: true, nameTable: true));
+			var builder = CustomActionBuilderFactory(CreateAncestor(namespaces: true, nameTable: true));
 			builder.SetXml(CurrentNamespace, CurrentName, await ReadOuterXml().ConfigureAwait(false));
 			return builder.Build();
 		}
@@ -760,5 +806,17 @@ namespace Xtate.Scxml
 
 		#endregion
 		}
+	}
+
+	public interface ILineInfoRequired
+	{
+		bool LineInfoRequired { get; }
+	}
+
+	public interface IXmlReaderProvider
+	{
+		XmlReader CreateXmlReader();
+
+		bool      UseAsync { get; }
 	}
 }

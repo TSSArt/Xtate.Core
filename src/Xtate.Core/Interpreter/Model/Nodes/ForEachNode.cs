@@ -23,7 +23,7 @@ using Xtate.Persistence;
 
 namespace Xtate.Core
 {
-	internal sealed class ForEachNode : ExecutableEntityNode, IForEach, IAncestorProvider, IDebugEntityId
+	public sealed class ForEachNode : ExecutableEntityNode, IForEach, IAncestorProvider, IDebugEntityId
 	{
 		private readonly IForEach _forEach;
 

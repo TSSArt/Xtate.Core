@@ -97,16 +97,7 @@ namespace Xtate.IoProcessor
 				var last = await host.RemoveProcessor(this, token: default).ConfigureAwait(false);
 				if (last && Hosts.TryRemove(new KeyValuePair<IPEndPoint, THost>(_ipEndPoint, host)))
 				{
-					switch (host)
-					{
-						case IAsyncDisposable asyncDisposable:
-							await asyncDisposable.DisposeAsync().ConfigureAwait(false);
-							break;
-
-						case IDisposable disposable:
-							disposable.Dispose();
-							break;
-					}
+					await Disposer.DisposeAsync(host).ConfigureAwait(false);
 				}
 			}
 		}
@@ -119,16 +110,7 @@ namespace Xtate.IoProcessor
 				var last = host.RemoveProcessor(this, token: default).SynchronousGetResult();
 				if (last && Hosts.TryRemove(new KeyValuePair<IPEndPoint, THost>(_ipEndPoint, host)))
 				{
-					switch (host)
-					{
-						case IDisposable disposable:
-							disposable.Dispose();
-							break;
-
-						case IAsyncDisposable asyncDisposable:
-							asyncDisposable.DisposeAsync().SynchronousWait();
-							break;
-					}
+					Disposer.Dispose(host);
 				}
 			}
 		}

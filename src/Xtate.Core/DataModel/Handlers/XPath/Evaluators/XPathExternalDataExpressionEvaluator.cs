@@ -17,36 +17,35 @@
 
 #endregion
 
-using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
 using Xtate.Core;
 
 namespace Xtate.DataModel.XPath
 {
-	internal class XPathExternalDataExpressionEvaluator : DefaultExternalDataExpressionEvaluator
+	public class XPathExternalDataExpressionEvaluator : DefaultExternalDataExpressionEvaluator
 	{
+		private const string MediaTypeApplicationXml = @"application/xml";
+		private const string MediaTypeTextXml = @"text/xml";
+
 		public XPathExternalDataExpressionEvaluator(IExternalDataExpression externalDataExpression) : base(externalDataExpression) { }
 
-		protected override async ValueTask<DataModelValue> ParseToDataModel(IExecutionContext executionContext, Resource resource, CancellationToken token)
+		public required XPathXmlParserContextFactory XPathXmlParserContextFactory { private get; init; }
+
+		protected override async ValueTask<DataModelValue> ParseToDataModel(Resource resource)
 		{
-			var content = await resource.GetContent(token).ConfigureAwait(false);
+			Infra.Requires(resource);
 
-			if (content is null)
+			var mediaType = resource.ContentType?.MediaType;
+
+			if (mediaType is MediaTypeApplicationXml or MediaTypeTextXml)
 			{
-				return DataModelValue.Null;
+				var stream = await resource.GetStream(true).ConfigureAwait(false);
+				var context = XPathXmlParserContextFactory.CreateContext(this);
+
+				return await XmlConverter.FromXmlStreamAsync(stream, context).ConfigureAwait(false);
 			}
 
-			try
-			{
-				return XmlConverter.FromXml(content, this);
-			}
-			catch (XmlException ex)
-			{
-				await executionContext.Log(LogLevel.Warning, exception: ex, token: token).ConfigureAwait(false);
-
-				return content.NormalizeSpaces();
-			}
+			throw new XPathDataModelException(string.Format(Resources.Exception_Unrecognized_MediaType, mediaType));
 		}
-	}
+	}	
 }

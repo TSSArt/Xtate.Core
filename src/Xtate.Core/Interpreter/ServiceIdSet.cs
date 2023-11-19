@@ -22,7 +22,7 @@ using System.Collections.Generic;
 
 namespace Xtate.Core
 {
-	internal sealed class ServiceIdSet : IEnumerable<ServiceId>
+	public sealed class ServiceIdSet : IEnumerable<ServiceId>
 	{
 		public delegate void ChangeHandler(ChangedAction action, ServiceId serviceId);
 

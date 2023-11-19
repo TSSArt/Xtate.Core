@@ -63,7 +63,7 @@ namespace Xtate.Persistence
 		{
 			try
 			{
-				_storage = await _storageProvider.GetTransactionalStorage(HostPartition, ContextKey, token).ConfigureAwait(false);
+				_storage = await _storageProvider.GetTransactionalStorage(HostPartition, ContextKey).ConfigureAwait(false);
 
 				await LoadStateMachines(token).ConfigureAwait(false);
 				await LoadInvokedServices(token).ConfigureAwait(false);
@@ -123,7 +123,8 @@ namespace Xtate.Persistence
 
 				invokedService.Store(bucket.Nested(recordId));
 
-				await _storage.CheckPoint(level: 0, StopToken).ConfigureAwait(false);
+				//TODO:
+				await _storage.CheckPoint(level: 0/*, StopToken*/).ConfigureAwait(false);
 			}
 			finally
 			{
@@ -145,7 +146,8 @@ namespace Xtate.Persistence
 			{
 				bucket.RemoveSubtree(recordId);
 
-				await _storage.CheckPoint(level: 0, StopToken).ConfigureAwait(false);
+				//TODO:
+				await _storage.CheckPoint(level: 0/*, StopToken*/).ConfigureAwait(false);
 			}
 
 			await ShrinkInvokedServices().ConfigureAwait(false);
@@ -191,9 +193,13 @@ namespace Xtate.Persistence
 			stateMachineOptions.IsStateMachinePersistable()
 				? new StateMachinePersistedController(sessionId, stateMachineOptions, stateMachine, stateMachineLocation, _stateMachineHost,
 													  _storageProvider, _idlePeriod, defaultOptions, securityContext, finalizer)
+				  {
+					  _stateMachineInterpreterFactory = default, sd = default, EventQueueWriter = default
+				  }
 				: base.CreateStateMachineController(sessionId, stateMachine, stateMachineOptions, stateMachineLocation, defaultOptions, securityContext, finalizer);
 
-		public override async ValueTask<StateMachineControllerBase> CreateAndAddStateMachine(SessionId sessionId,
+		public override async ValueTask<StateMachineControllerBase> CreateAndAddStateMachine(ServiceLocator serviceLocator, 
+																							 SessionId sessionId,
 																							 StateMachineOrigin origin,
 																							 DataModelValue parameters,
 																							 SecurityContext securityContext,
@@ -209,13 +215,13 @@ namespace Xtate.Persistence
 
 			if (!options.IsStateMachinePersistable())
 			{
-				return await base.CreateAndAddStateMachine(sessionId, origin, parameters, securityContext, finalizer, errorProcessor, token).ConfigureAwait(false);
+				return await base.CreateAndAddStateMachine(serviceLocator, sessionId, origin, parameters, securityContext, finalizer, errorProcessor, token).ConfigureAwait(false);
 			}
 
 			await _lockStateMachines.WaitAsync(token).ConfigureAwait(false);
 			try
 			{
-				var stateMachineController = await base.CreateAndAddStateMachine(sessionId, origin, parameters, securityContext, finalizer, errorProcessor, token).ConfigureAwait(false);
+				var stateMachineController = await base.CreateAndAddStateMachine(serviceLocator, sessionId, origin, parameters, securityContext, finalizer, errorProcessor, token).ConfigureAwait(false);
 
 				var bucket = new Bucket(_storage).Nested(StateMachinesKey);
 				var recordId = _stateMachineRecordId ++;
@@ -227,7 +233,8 @@ namespace Xtate.Persistence
 
 				stateMachineMeta.Store(bucket.Nested(recordId));
 
-				await _storage.CheckPoint(level: 0, StopToken).ConfigureAwait(false);
+				//TODO:
+				await _storage.CheckPoint(level: 0 /*, StopToken*/).ConfigureAwait(false);
 
 				return stateMachineController;
 			}
@@ -237,7 +244,7 @@ namespace Xtate.Persistence
 			}
 		}
 
-		public override async ValueTask RemoveStateMachineController(StateMachineControllerBase stateMachineController)
+		public override async ValueTask RemoveStateMachineController(IStateMachineController stateMachineController)
 		{
 			Infra.NotNull(_storage);
 
@@ -253,7 +260,8 @@ namespace Xtate.Persistence
 				{
 					bucket.RemoveSubtree(recordId);
 
-					await _storage.CheckPoint(level: 0, StopToken).ConfigureAwait(false);
+					//TODO:
+					await _storage.CheckPoint(level: 0/*, StopToken*/).ConfigureAwait(false);
 				}
 
 				await ShrinkStateMachines().ConfigureAwait(false);
@@ -290,8 +298,10 @@ namespace Xtate.Persistence
 				rootBucket.Add(Bucket.RootKey, _stateMachineRecordId);
 			}
 
-			await _storage.CheckPoint(level: 0, StopToken).ConfigureAwait(false);
-			await _storage.Shrink(StopToken).ConfigureAwait(false);
+			//TODO:
+
+			await _storage.CheckPoint(level: 0/*, StopToken*/).ConfigureAwait(false);
+			await _storage.Shrink(/*StopToken*/).ConfigureAwait(false);
 		}
 
 		private async ValueTask LoadStateMachines(CancellationToken token)
@@ -318,9 +328,9 @@ namespace Xtate.Persistence
 						var meta = new StateMachineMeta(stateMachineBucket) { RecordId = i };
 
 						var finalizer = new DeferredFinalizer();
-						var securityContext = SecurityContext.Create(meta.SecurityContextType, meta.Permissions, finalizer);
+						var securityContext = SecurityContext.Create(meta.SecurityContextType, meta.Permissions);
 
-						var controller = AddSavedStateMachine(meta.SessionId, meta.Location, meta, securityContext, finalizer, DefaultErrorProcessor.Instance);
+						var controller = AddSavedStateMachine(default/*TODO*/, meta.SessionId, meta.Location, meta, securityContext, finalizer, default/*TODO*/);
 						AddStateMachineController(controller);
 
 						finalizer.Add(static(ctx, ctrl) => ((StateMachineHostContext) ctx).RemoveStateMachineController((StateMachineControllerBase) ctrl), this, controller);
@@ -362,8 +372,9 @@ namespace Xtate.Persistence
 				rootBucket.Add(Bucket.RootKey, _invokedServiceRecordId);
 			}
 
-			await _storage.CheckPoint(level: 0, StopToken).ConfigureAwait(false);
-			await _storage.Shrink(StopToken).ConfigureAwait(false);
+			//TODO:
+			await _storage.CheckPoint(level: 0/*, StopToken*/).ConfigureAwait(false);
+			await _storage.Shrink(/*StopToken*/).ConfigureAwait(false);
 		}
 
 		private async ValueTask LoadInvokedServices(CancellationToken token)

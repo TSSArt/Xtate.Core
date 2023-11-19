@@ -21,6 +21,6 @@ namespace Xtate.Core
 {
 	public interface IStateMachineValidator
 	{
-		void Validate(IStateMachine stateMachine, IErrorProcessor? errorProcessor);
+		void Validate(IStateMachine stateMachine);
 	}
 }

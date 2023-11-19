@@ -18,6 +18,9 @@
 #endregion
 
 using System;
+using Xtate.Core;
+using Xtate.IoC;
+using Xtate.DataModel;
 using Xtate.DataModel.XPath;
 
 namespace Xtate
@@ -25,13 +28,29 @@ namespace Xtate
 	[PublicAPI]
 	public static class XPathExtensions
 	{
-		public static StateMachineHostBuilder AddXPath(this StateMachineHostBuilder builder)
+		public static IServiceCollection AddXPath(this IServiceCollection services)
 		{
-			if (builder is null) throw new ArgumentNullException(nameof(builder));
+			if (services is null) throw new ArgumentNullException(nameof(services));
 
-			builder.AddDataModelHandlerFactory(XPathDataModelHandler.Factory);
+			//services.AddIErrorProcessorService<XPathDataModelHandler>();
 
-			return builder;
+			//services.AddTransient(
+				//async provider => new XPathDataModelHandler(await provider.GetRequiredService<IErrorProcessorService<XPathDataModelHandler>>().ConfigureAwait(false)));
+
+				services.AddType<XPathDataModelHandler>();
+
+			//TODO:delete
+			/*services.AddForwarding<IDataModelHandler?, string?>(
+				async (provider, dataModel) => dataModel == XPathDataModelHandler.DataModelType
+					? await provider.GetRequiredService<XPathDataModelHandler>().ConfigureAwait(false)
+					: default);*/
+
+			services.AddShared<IDataModelHandlerProvider>(SharedWithin.Container, sp => new XPathDataModelHandlerProvider
+																					    {
+																						    DataModelHandlerFactory = sp.GetRequiredFactory<XPathDataModelHandler>()
+																					    });
+
+			return services;
 		}
 	}
 }

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -18,104 +18,189 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Threading.Tasks;
 using System.Xml.XPath;
+using System.Xml.Xsl;
 using Xtate.Core;
 
-namespace Xtate.DataModel.XPath
+namespace Xtate.DataModel.XPath;
+
+public class XPathEngine
 {
-	internal class XPathEngine
+	private readonly DataModelList        _root;
+	private readonly Stack<DataModelList> _scopeStack = new();
+
+	public XPathEngine(IDataModelController? dataModelController) => _root = dataModelController?.DataModel ?? new DataModelList(false);
+
+	//public required Func<string, XPathVarDescriptorOld>    XPathVarDescriptorFactory { private get; init; }
+	/*
+	public IXsltContextVariable ResolveVariable(string ns, string name)
 	{
-		public static readonly object Key = new();
-
-		private readonly XPathResolver _resolver;
-
-		public XPathEngine(IExecutionContext executionContext) => _resolver = new XPathResolver(XPathFunctionFactory.Instance, executionContext);
-
-		public static XPathEngine GetEngine(IExecutionContext executionContext)
+		if (!string.IsNullOrEmpty(ns))
 		{
-			var engine = (XPathEngine?) executionContext.RuntimeItems[Key];
-
-			Infra.NotNull(engine);
-
-			return engine;
+			throw new XPathDataModelException(Res.Format(Resources.Exception_UnknownXPathVariable, ns, name));
 		}
 
-		public XPathObject EvalObject(XPathCompiledExpression compiledExpression, bool stripRoots)
+		return XPathVarDescriptorFactory(name);
+	}*/
+
+	public object GetVariable(string name)
+	{
+		if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
+
+		foreach (var vars in _scopeStack)
 		{
-			var value = _resolver.Evaluate(compiledExpression);
-
-			if (stripRoots && value is XPathNodeIterator iterator)
+			if (vars.ContainsKey(name, caseInsensitive: false))
 			{
-				value = new XPathStripRootsIterator(iterator);
-			}
-
-			return new XPathObject(value);
-		}
-
-		public void Assign(XPathCompiledExpression compiledLeftExpression,
-						   XPathAssignType assignType,
-						   string? attributeName,
-						   IObject rightValue)
-		{
-			var result = _resolver.Evaluate(compiledLeftExpression);
-
-			if (result is not XPathNodeIterator iterator)
-			{
-				return;
-			}
-
-			foreach (DataModelXPathNavigator navigator in iterator)
-			{
-				Assign(navigator, assignType, attributeName, rightValue);
+				return CreateIterator(vars, name);
 			}
 		}
 
-		private static void Assign(DataModelXPathNavigator navigator,
-								   XPathAssignType assignType,
-								   string? attributeName,
-								   IObject valueObject)
+		if (!_root.ContainsKey(name, caseInsensitive: false))
 		{
-			switch (assignType)
-			{
-				case XPathAssignType.ReplaceChildren:
-					navigator.ReplaceChildren(valueObject);
-					break;
-				case XPathAssignType.FirstChild:
-					navigator.FirstChild(valueObject);
-					break;
-				case XPathAssignType.LastChild:
-					navigator.LastChild(valueObject);
-					break;
-				case XPathAssignType.PreviousSibling:
-					navigator.PreviousSibling(valueObject);
-					break;
-				case XPathAssignType.NextSibling:
-					navigator.NextSibling(valueObject);
-					break;
-				case XPathAssignType.Replace:
-					navigator.Replace(valueObject);
-					break;
-				case XPathAssignType.Delete:
-					navigator.DeleteSelf();
-					break;
-				case XPathAssignType.AddAttribute:
-					Infra.NotNull(attributeName);
-					var value = Convert.ToString(valueObject.ToObject(), CultureInfo.InvariantCulture);
-					navigator.CreateAttribute(string.Empty, attributeName, string.Empty, value ?? string.Empty);
-					break;
-				default:
-					Infra.Unexpected(assignType);
-					break;
-			}
+			_root[name, caseInsensitive: false] = default;
 		}
 
-		public string GetName(XPathCompiledExpression compiledExpression) => _resolver.GetName(compiledExpression);
+		return CreateIterator(_root, name);
+	}
 
-		public void EnterScope() => _resolver.EnterScope();
+	private static object? GetVariableValue(DataModelList list, string key)
+	{
+		var value = list[key, caseInsensitive: false];
 
-		public void LeaveScope() => _resolver.LeaveScope();
+		switch (value.Type)
+		{
+			case DataModelValueType.List:     return CreateIterator(list, key);
+			case DataModelValueType.String:   return value.AsString();
+			case DataModelValueType.Boolean:  return value.AsBoolean();
+			case DataModelValueType.Number:   return value.AsNumber();
+			case DataModelValueType.DateTime: return value.AsDateTime().ToString(@"O");
+			default:                          return default;
+		}
+	}
 
-		public void DeclareVariable(XPathCompiledExpression compiledExpression) => _resolver.DeclareVariable(compiledExpression);
+	private static XPathNodeIterator CreateIterator(DataModelList list, string key)
+	{
+		var navigator = new DataModelXPathNavigator(list);
+
+		navigator.MoveToFirstChild();
+		while (navigator.Name != key)
+		{
+			var moved = navigator.MoveToNext();
+
+			Infra.Assert(moved);
+		}
+
+		return new XPathSingleElementIterator(navigator);
+	}
+
+	public async ValueTask<XPathObject> EvalObject(XPathCompiledExpression compiledExpression, bool stripRoots)
+	{
+		Infra.Requires(compiledExpression);
+
+		var value = await Evaluate(compiledExpression).ConfigureAwait(false);
+
+		if (stripRoots && value is XPathNodeIterator iterator)
+		{
+			value = new XPathStripRootsIterator(iterator);
+		}
+
+		return new XPathObject(value);
+	}
+
+	public async ValueTask Assign1(XPathCompiledExpression compiledLeftExpression,
+							XPathAssignType assignType,
+							string? attributeName,
+							IObject rightValue)
+	{
+		Infra.Requires(compiledLeftExpression);
+		Infra.Requires(rightValue);
+
+		var result = await Evaluate(compiledLeftExpression).ConfigureAwait(false);
+
+		if (result is not XPathNodeIterator iterator)
+		{
+			return;
+		}
+
+		foreach (DataModelXPathNavigator navigator in iterator)
+		{
+			Assign(navigator, assignType, attributeName, rightValue);
+		}
+	}
+
+	private async ValueTask<object> Evaluate(XPathCompiledExpression compiledExpression)
+	{
+		var xPathExpression = await compiledExpression.GetXPathExpression().ConfigureAwait(false);
+
+		return new DataModelXPathNavigator(_root).Evaluate(xPathExpression)!;
+	}
+
+	private static void Assign(DataModelXPathNavigator navigator,
+							   XPathAssignType assignType,
+							   string? attributeName,
+							   IObject valueObject)
+	{
+		switch (assignType)
+		{
+			case XPathAssignType.ReplaceChildren:
+				navigator.ReplaceChildren(valueObject);
+				break;
+			case XPathAssignType.FirstChild:
+				navigator.FirstChild(valueObject);
+				break;
+			case XPathAssignType.LastChild:
+				navigator.LastChild(valueObject);
+				break;
+			case XPathAssignType.PreviousSibling:
+				navigator.PreviousSibling(valueObject);
+				break;
+			case XPathAssignType.NextSibling:
+				navigator.NextSibling(valueObject);
+				break;
+			case XPathAssignType.Replace:
+				navigator.Replace(valueObject);
+				break;
+			case XPathAssignType.Delete:
+				navigator.DeleteSelf();
+				break;
+			case XPathAssignType.AddAttribute:
+				Infra.NotNull(attributeName);
+				var value = Convert.ToString(valueObject.ToObject(), CultureInfo.InvariantCulture);
+				navigator.CreateAttribute(string.Empty, attributeName, string.Empty, value ?? string.Empty);
+				break;
+			default:
+				Infra.Unexpected(assignType);
+				break;
+		}
+	}
+
+	public string GetName(XPathCompiledExpression compiledExpression)
+	{
+		Infra.Requires(compiledExpression);
+
+		return compiledExpression.Expression;
+	}
+
+	public void EnterScope()
+	{
+		_scopeStack.Push(new DataModelList());
+	}
+
+	public void LeaveScope()
+	{
+		_scopeStack.Pop();
+	}
+
+	public void DeclareVariable(XPathCompiledExpression compiledExpression)
+	{
+		Infra.Requires(compiledExpression);
+
+		if (_scopeStack.Count > 0)
+		{
+			_scopeStack.Peek()[compiledExpression.Expression] = default;
+		}
 	}
 }

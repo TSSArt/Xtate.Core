@@ -25,6 +25,6 @@ namespace Xtate.DataModel
 	[PublicAPI]
 	public interface IStartInvokeEvaluator
 	{
-		ValueTask<InvokeId> Start(IIdentifier stateId, IExecutionContext executionContext, CancellationToken token);
+		ValueTask<InvokeId> Start(IIdentifier stateId);
 	}
 }

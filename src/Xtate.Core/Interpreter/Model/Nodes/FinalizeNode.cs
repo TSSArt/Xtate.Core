@@ -23,7 +23,7 @@ using Xtate.Persistence;
 
 namespace Xtate.Core
 {
-	internal sealed class FinalizeNode : IFinalize, IStoreSupport, IAncestorProvider
+	public sealed class FinalizeNode : IFinalize, IStoreSupport, IAncestorProvider
 	{
 		private readonly IFinalize _finalize;
 

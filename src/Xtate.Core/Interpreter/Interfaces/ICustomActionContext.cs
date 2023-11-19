@@ -29,7 +29,7 @@ namespace Xtate.CustomAction
 		string XmlName { get; }
 
 		string Xml { get; }
-
+		
 		void AddValidationError<T>(string message, Exception? exception = default) where T : ICustomActionExecutor;
 
 		ILocationAssigner RegisterLocationExpression(string expression);

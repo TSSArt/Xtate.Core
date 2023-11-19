@@ -25,16 +25,21 @@ using Xtate.Persistence;
 
 namespace Xtate.Core
 {
-	internal sealed class TransitionNode : ITransition, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
+	public class EmptyTransitionNode : TransitionNode
 	{
 		private static readonly ITransition EmptyTransition = new TransitionEntity();
 
+		public EmptyTransitionNode(DocumentIdNode documentIdNode, ImmutableArray<StateEntityNode> target) : base(documentIdNode, EmptyTransition, target) { }
+	}
+
+	public class TransitionNode : ITransition, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
+	{
 		private readonly ITransition    _transition;
 		private          DocumentIdSlot _documentIdSlot;
 
-		public TransitionNode(DocumentIdNode documentIdNode, ImmutableArray<StateEntityNode> target = default) : this(documentIdNode, EmptyTransition, target) { }
+		public TransitionNode(DocumentIdNode documentIdNode, ITransition transition) : this(documentIdNode, transition, default) { }
 
-		public TransitionNode(DocumentIdNode documentIdNode, ITransition transition, ImmutableArray<StateEntityNode> target = default)
+		protected TransitionNode(DocumentIdNode documentIdNode, ITransition transition, ImmutableArray<StateEntityNode> target)
 		{
 			_transition = transition;
 			documentIdNode.SaveToSlot(out _documentIdSlot);
@@ -86,7 +91,7 @@ namespace Xtate.Core
 
 		public ImmutableArray<IEventDescriptor> EventDescriptors => _transition.EventDescriptors;
 
-		public IExecutableEntity? Condition => _transition.Condition;
+		public IConditionExpression? Condition => _transition.Condition;
 
 		public ImmutableArray<IIdentifier> Target => _transition.Target;
 
@@ -102,7 +107,7 @@ namespace Xtate.Core
 
 			foreach (var node in TargetState)
 			{
-				if (node is null)
+				if (node == null!)
 				{
 					return false;
 				}

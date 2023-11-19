@@ -19,13 +19,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Xtate.Core
 {
-	internal sealed class OrderedSet<T> : List<T>
+	public sealed class OrderedSet<T> : List<T>
 	{
-		public delegate void ChangedHandler(ChangedAction action, [AllowNull] T item);
+		public delegate void ChangedHandler(ChangedAction action, T? item);
 
 		public enum ChangedAction
 		{
@@ -89,6 +88,8 @@ namespace Xtate.Core
 
 		public List<T> ToFilteredList<TArg>(Func<T, TArg, bool> predicate, TArg arg)
 		{
+			Infra.Requires(predicate);
+
 			var list = new List<T>();
 
 			foreach (var item in this)

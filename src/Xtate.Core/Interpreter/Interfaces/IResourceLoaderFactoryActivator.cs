@@ -25,6 +25,6 @@ namespace Xtate.Core
 	[PublicAPI]
 	public interface IResourceLoaderFactoryActivator
 	{
-		ValueTask<IResourceLoader> CreateResourceLoader(IFactoryContext factoryContext, CancellationToken token);
+		ValueTask<IResourceLoader> CreateResourceLoader(ServiceLocator serviceLocator);
 	}
 }

@@ -23,7 +23,7 @@ using Xtate.Persistence;
 
 namespace Xtate.Core
 {
-	internal sealed class IfNode : ExecutableEntityNode, IIf, IAncestorProvider, IDebugEntityId
+	public sealed class IfNode : ExecutableEntityNode, IIf, IAncestorProvider, IDebugEntityId
 	{
 		private readonly IIf _if;
 

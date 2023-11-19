@@ -21,10 +21,8 @@ using System.Collections.Immutable;
 
 namespace Xtate.Core
 {
-	public interface IFactoryContext : ILogEvent
+	public interface IFactoryContext : ILogController
 	{
 		ISecurityContext SecurityContext { get; }
-
-		ImmutableArray<IResourceLoaderFactory> ResourceLoaderFactories { get; }
 	}
 }

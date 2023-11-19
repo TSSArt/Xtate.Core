@@ -31,49 +31,39 @@ namespace Xtate
 		async ValueTask<IStateMachineController> IHost.StartStateMachineAsync(SessionId sessionId,
 																			  StateMachineOrigin origin,
 																			  DataModelValue parameters,
-																			  ISecurityContext securityContext,
-																			  DeferredFinalizer finalizer,
+																			  SecurityContextType securityContextType,
+																			  DeferredFinalizer finalizer, 
 																			  CancellationToken token)
 		{
-			if (securityContext is SecurityContext { Type: SecurityContextType.NewStateMachine or SecurityContextType.NewTrustedStateMachine } ctx)
-			{
-				return await StartStateMachine(sessionId, origin, parameters, ctx, finalizer, token).ConfigureAwait(false);
-			}
-
-			throw new StateMachineSecurityException(Resources.Exception_StartingStateMachineDenied);
+			return await StartStateMachine(sessionId, origin, parameters, securityContextType, finalizer, token).ConfigureAwait(false);
 		}
 
 		ValueTask IHost.DestroyStateMachine(SessionId sessionId, CancellationToken token) => DestroyStateMachine(sessionId, token);
 
 	#endregion
 
-		private async ValueTask<StateMachineControllerBase> StartStateMachine(SessionId sessionId,
-																			  StateMachineOrigin origin,
-																			  DataModelValue parameters,
-																			  SecurityContext securityContext,
-																			  DeferredFinalizer? finalizer,
-																			  CancellationToken token = default)
+		private async ValueTask<IStateMachineController> StartStateMachine(SessionId sessionId,
+																		   StateMachineOrigin origin,
+																		   DataModelValue parameters,
+																		   SecurityContextType securityContextType,
+																		   DeferredFinalizer? finalizer, 
+																		   CancellationToken token)
 		{
 			if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
 			if (origin.Type == StateMachineOriginType.None) throw new ArgumentException(Resources.Exception_StateMachineOriginMissed, nameof(origin));
 
-			var context = GetCurrentContext();
-			var errorProcessor = CreateErrorProcessor(sessionId, origin);
-			finalizer = finalizer is not null ? new DeferredFinalizer(finalizer) : new DeferredFinalizer();
-			var controller = await context.CreateAndAddStateMachine(sessionId, origin, parameters, securityContext, finalizer, errorProcessor, token).ConfigureAwait(false);
-			context.AddStateMachineController(controller);
-
-			finalizer.Add(static(ctx, ctrl) => ((StateMachineHostContext) ctx).RemoveStateMachineController((StateMachineControllerBase) ctrl), context, controller);
-			finalizer.Add(controller);
-
-			await using (finalizer.ConfigureAwait(false))
-			{
-				await controller.StartAsync(token).ConfigureAwait(false);
-			}
-
-			return controller;
+			var scopeManager = _options.ServiceLocator.GetService<IScopeManager>();
+			var stateMachineStartOptions = new StateMachineStartOptions()
+										   {
+											   Origin = origin, 
+											   Parameters = parameters, 
+											   SessionId = sessionId, 
+											   SecurityContextType = securityContextType
+										   };
+			
+			return await scopeManager.RunStateMachine(stateMachineStartOptions).ConfigureAwait(false);
 		}
 
-		private ValueTask DestroyStateMachine(SessionId sessionId, CancellationToken token = default) => GetCurrentContext().DestroyStateMachine(sessionId, token);
+		private ValueTask DestroyStateMachine(SessionId sessionId, CancellationToken token) => GetCurrentContext().DestroyStateMachine(sessionId, token);
 	}
 }

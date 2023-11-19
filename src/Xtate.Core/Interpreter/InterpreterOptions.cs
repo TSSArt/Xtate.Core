@@ -21,7 +21,6 @@ using System;
 using System.Collections.Immutable;
 using System.Threading;
 using Xtate.CustomAction;
-using Xtate.DataModel;
 using Xtate.Persistence;
 
 namespace Xtate.Core
@@ -33,10 +32,15 @@ namespace Xtate.Core
 
 		private readonly IErrorProcessor?   _errorProcessor;
 		private readonly DataModelValue     _host;
-		public static    InterpreterOptions Default { get; } = new();
+		//public static    InterpreterOptions Default { get; } = new(ServiceLocator.Default);
 
+		public InterpreterOptions(ServiceLocator serviceLocator)
+		{
+			//ServiceLocator = serviceLocator;
+		}
+
+		//public ServiceLocator                           ServiceLocator { get; init; }
 		public ISecurityContext?                        SecurityContext           { get; init; }
-		public ImmutableArray<IDataModelHandlerFactory> DataModelHandlerFactories { get; init; }
 		public ImmutableArray<ICustomActionFactory>     CustomActionProviders     { get; init; }
 		public ImmutableArray<IResourceLoaderFactory>   ResourceLoaderFactories   { get; init; }
 		public ImmutableDictionary<object, object>?     ContextRuntimeItems       { get; init; }
@@ -47,7 +51,7 @@ namespace Xtate.Core
 		public CancellationToken                        DestroyToken              { get; init; }
 		public PersistenceLevel                         PersistenceLevel          { get; init; }
 		public IStorageProvider?                        StorageProvider           { get; init; }
-		public ILogger?                                 Logger                    { get; init; }
+		public ILoggerOld?                                 Logger                    { get; init; }
 		public UnhandledErrorBehaviour                  UnhandledErrorBehaviour   { get; init; }
 		public Uri?                                     BaseUri                   { get; init; }
 
