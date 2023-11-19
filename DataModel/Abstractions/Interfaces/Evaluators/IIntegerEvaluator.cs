@@ -25,6 +25,6 @@ namespace Xtate.DataModel
 	[PublicAPI]
 	public interface IIntegerEvaluator : IValueEvaluator
 	{
-		ValueTask<int> EvaluateInteger(IExecutionContext executionContext, CancellationToken token);
+		ValueTask<int> EvaluateInteger();
 	}
 }

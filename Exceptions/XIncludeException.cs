@@ -32,7 +32,7 @@ namespace Xtate.XInclude
 
 		public XIncludeException(string? message, XmlReader? xmlReader) : base(AddLocationInfo(message, xmlReader)) => Init(xmlReader);
 
-		public XIncludeException(string? message, Exception? inner) : base(message, inner) { }
+		public XIncludeException(string? message, Exception? innerException) : base(message, innerException) { }
 
 		protected XIncludeException(SerializationInfo info, StreamingContext context) : base(info, context)
 		{

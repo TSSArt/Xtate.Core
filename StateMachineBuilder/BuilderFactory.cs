@@ -1,6 +1,6 @@
 ﻿#region Copyright © 2019-2021 Sergii Artemenko
 
-// This file is part of the Xtate project. <https://xtate.net/>
+// This file is part of the Xtate project. <https://xtate.net/
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -13,53 +13,74 @@
 // GNU Affero General Public License for more details.
 // 
 // You should have received a copy of the GNU Affero General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program.  If not, see <https://www.gnu.org/licenses/.
 
 #endregion
 
 using System;
-using Xtate.Core;
+using System.Threading.Tasks;
 
 namespace Xtate.Builder
 {
-	[PublicAPI]
 	public class BuilderFactory : IBuilderFactory
 	{
-		private readonly IErrorProcessor _errorProcessor;
-
-		public BuilderFactory(IErrorProcessor errorProcessor) => _errorProcessor = errorProcessor ?? throw new ArgumentNullException(nameof(errorProcessor));
-
-		public static IBuilderFactory Instance { get; } = new BuilderFactory(DefaultErrorProcessor.Instance);
+		public required Func<object?, StateMachineBuilder> StateMachineBuilderFactory { private get; init; }
+		public required Func<object?, StateBuilder>        StateBuilderFactory        { private get; init; }
+		public required Func<object?, ParallelBuilder>     ParallelBuilderFactory     { private get; init; }
+		public required Func<object?, HistoryBuilder>      HistoryBuilderFactory      { private get; init; }
+		public required Func<object?, InitialBuilder>      InitialBuilderFactory      { private get; init; }
+		public required Func<object?, FinalBuilder>        FinalBuilderFactory        { private get; init; }
+		public required Func<object?, TransitionBuilder>   TransitionBuilderFactory   { private get; init; }
+		public required Func<object?, LogBuilder>          LogBuilderFactory          { private get; init; }
+		public required Func<object?, SendBuilder>         SendBuilderFactory         { private get; init; }
+		public required Func<object?, ParamBuilder>        ParamBuilderFactory        { private get; init; }
+		public required Func<object?, ContentBuilder>      ContentBuilderFactory      { private get; init; }
+		public required Func<object?, OnEntryBuilder>      OnEntryBuilderFactory      { private get; init; }
+		public required Func<object?, OnExitBuilder>       OnExitBuilderFactory       { private get; init; }
+		public required Func<object?, InvokeBuilder>       InvokeBuilderFactory       { private get; init; }
+		public required Func<object?, FinalizeBuilder>     FinalizeBuilderFactory     { private get; init; }
+		public required Func<object?, ScriptBuilder>       ScriptBuilderFactory       { private get; init; }
+		public required Func<object?, CustomActionBuilder> CustomActionBuilderFactory { private get; init; }
+		public required Func<object?, DataModelBuilder>    DataModelBuilderFactory    { private get; init; }
+		public required Func<object?, DataBuilder>         DataBuilderFactory         { private get; init; }
+		public required Func<object?, DoneDataBuilder>     DoneDataBuilderFactory     { private get; init; }
+		public required Func<object?, AssignBuilder>       AssignBuilderFactory       { private get; init; }
+		public required Func<object?, RaiseBuilder>        RaiseBuilderFactory        { private get; init; }
+		public required Func<object?, CancelBuilder>       CancelBuilderFactory       { private get; init; }
+		public required Func<object?, ForEachBuilder>      ForEachBuilderFactory      { private get; init; }
+		public required Func<object?, IfBuilder>           IfBuilderFactory           { private get; init; }
+		public required Func<object?, ElseBuilder>         ElseBuilderFactory         { private get; init; }
+		public required Func<object?, ElseIfBuilder>       ElseIfBuilderFactory       { private get; init; }
 
 	#region Interface IBuilderFactory
 
-		public virtual IStateMachineBuilder CreateStateMachineBuilder(object? ancestor) => new StateMachineBuilder(_errorProcessor, ancestor);
-		public virtual IStateBuilder        CreateStateBuilder(object? ancestor)        => new StateBuilder(_errorProcessor, ancestor);
-		public virtual IParallelBuilder     CreateParallelBuilder(object? ancestor)     => new ParallelBuilder(_errorProcessor, ancestor);
-		public virtual IHistoryBuilder      CreateHistoryBuilder(object? ancestor)      => new HistoryBuilder(_errorProcessor, ancestor);
-		public virtual IInitialBuilder      CreateInitialBuilder(object? ancestor)      => new InitialBuilder(_errorProcessor, ancestor);
-		public virtual IFinalBuilder        CreateFinalBuilder(object? ancestor)        => new FinalBuilder(_errorProcessor, ancestor);
-		public virtual ITransitionBuilder   CreateTransitionBuilder(object? ancestor)   => new TransitionBuilder(_errorProcessor, ancestor);
-		public virtual ILogBuilder          CreateLogBuilder(object? ancestor)          => new LogBuilder(_errorProcessor, ancestor);
-		public virtual ISendBuilder         CreateSendBuilder(object? ancestor)         => new SendBuilder(_errorProcessor, ancestor);
-		public virtual IParamBuilder        CreateParamBuilder(object? ancestor)        => new ParamBuilder(_errorProcessor, ancestor);
-		public virtual IContentBuilder      CreateContentBuilder(object? ancestor)      => new ContentBuilder(_errorProcessor, ancestor);
-		public virtual IOnEntryBuilder      CreateOnEntryBuilder(object? ancestor)      => new OnEntryBuilder(_errorProcessor, ancestor);
-		public virtual IOnExitBuilder       CreateOnExitBuilder(object? ancestor)       => new OnExitBuilder(_errorProcessor, ancestor);
-		public virtual IInvokeBuilder       CreateInvokeBuilder(object? ancestor)       => new InvokeBuilder(_errorProcessor, ancestor);
-		public virtual IFinalizeBuilder     CreateFinalizeBuilder(object? ancestor)     => new FinalizeBuilder(_errorProcessor, ancestor);
-		public virtual IScriptBuilder       CreateScriptBuilder(object? ancestor)       => new ScriptBuilder(_errorProcessor, ancestor);
-		public virtual ICustomActionBuilder CreateCustomActionBuilder(object? ancestor) => new CustomActionBuilder(_errorProcessor, ancestor);
-		public virtual IDataModelBuilder    CreateDataModelBuilder(object? ancestor)    => new DataModelBuilder(_errorProcessor, ancestor);
-		public virtual IDataBuilder         CreateDataBuilder(object? ancestor)         => new DataBuilder(_errorProcessor, ancestor);
-		public virtual IDoneDataBuilder     CreateDoneDataBuilder(object? ancestor)     => new DoneDataBuilder(_errorProcessor, ancestor);
-		public virtual IAssignBuilder       CreateAssignBuilder(object? ancestor)       => new AssignBuilder(_errorProcessor, ancestor);
-		public virtual IRaiseBuilder        CreateRaiseBuilder(object? ancestor)        => new RaiseBuilder(_errorProcessor, ancestor);
-		public virtual ICancelBuilder       CreateCancelBuilder(object? ancestor)       => new CancelBuilder(_errorProcessor, ancestor);
-		public virtual IForEachBuilder      CreateForEachBuilder(object? ancestor)      => new ForEachBuilder(_errorProcessor, ancestor);
-		public virtual IIfBuilder           CreateIfBuilder(object? ancestor)           => new IfBuilder(_errorProcessor, ancestor);
-		public virtual IElseBuilder         CreateElseBuilder(object? ancestor)         => new ElseBuilder(_errorProcessor, ancestor);
-		public virtual IElseIfBuilder       CreateElseIfBuilder(object? ancestor)       => new ElseIfBuilder(_errorProcessor, ancestor);
+		public virtual IStateMachineBuilder CreateStateMachineBuilder(object? ancestor) => StateMachineBuilderFactory(ancestor);
+		public virtual IStateBuilder        CreateStateBuilder(object? ancestor)        => StateBuilderFactory(ancestor);
+		public virtual IParallelBuilder     CreateParallelBuilder(object? ancestor)     => ParallelBuilderFactory(ancestor);
+		public virtual IHistoryBuilder      CreateHistoryBuilder(object? ancestor)      => HistoryBuilderFactory(ancestor);
+		public virtual IInitialBuilder      CreateInitialBuilder(object? ancestor)      => InitialBuilderFactory(ancestor);
+		public virtual IFinalBuilder        CreateFinalBuilder(object? ancestor)        => FinalBuilderFactory(ancestor);
+		public virtual ITransitionBuilder   CreateTransitionBuilder(object? ancestor)   => TransitionBuilderFactory(ancestor);
+		public virtual ILogBuilder          CreateLogBuilder(object? ancestor)          => LogBuilderFactory(ancestor);
+		public virtual ISendBuilder         CreateSendBuilder(object? ancestor)         => SendBuilderFactory(ancestor);
+		public virtual IParamBuilder        CreateParamBuilder(object? ancestor)        => ParamBuilderFactory(ancestor);
+		public virtual IContentBuilder      CreateContentBuilder(object? ancestor)      => ContentBuilderFactory(ancestor);
+		public virtual IOnEntryBuilder      CreateOnEntryBuilder(object? ancestor)      => OnEntryBuilderFactory(ancestor);
+		public virtual IOnExitBuilder       CreateOnExitBuilder(object? ancestor)       => OnExitBuilderFactory(ancestor);
+		public virtual IInvokeBuilder       CreateInvokeBuilder(object? ancestor)       => InvokeBuilderFactory(ancestor);
+		public virtual IFinalizeBuilder     CreateFinalizeBuilder(object? ancestor)     => FinalizeBuilderFactory(ancestor);
+		public virtual IScriptBuilder       CreateScriptBuilder(object? ancestor)       => ScriptBuilderFactory(ancestor);
+		public virtual ICustomActionBuilder CreateCustomActionBuilder(object? ancestor) => CustomActionBuilderFactory(ancestor);
+		public virtual IDataModelBuilder    CreateDataModelBuilder(object? ancestor)    => DataModelBuilderFactory(ancestor);
+		public virtual IDataBuilder         CreateDataBuilder(object? ancestor)         => DataBuilderFactory(ancestor);
+		public virtual IDoneDataBuilder     CreateDoneDataBuilder(object? ancestor)     => DoneDataBuilderFactory(ancestor);
+		public virtual IAssignBuilder       CreateAssignBuilder(object? ancestor)       => AssignBuilderFactory(ancestor);
+		public virtual IRaiseBuilder        CreateRaiseBuilder(object? ancestor)        => RaiseBuilderFactory(ancestor);
+		public virtual ICancelBuilder       CreateCancelBuilder(object? ancestor)       => CancelBuilderFactory(ancestor);
+		public virtual IForEachBuilder      CreateForEachBuilder(object? ancestor)      => ForEachBuilderFactory(ancestor);
+		public virtual IIfBuilder           CreateIfBuilder(object? ancestor)           => IfBuilderFactory(ancestor);
+		public virtual IElseBuilder         CreateElseBuilder(object? ancestor)         => ElseBuilderFactory(ancestor);
+		public virtual IElseIfBuilder       CreateElseIfBuilder(object? ancestor)       => ElseIfBuilderFactory(ancestor);
 
 	#endregion
 	}

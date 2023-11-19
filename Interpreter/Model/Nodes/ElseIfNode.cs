@@ -22,7 +22,7 @@ using Xtate.Persistence;
 
 namespace Xtate.Core
 {
-	internal sealed class ElseIfNode : IElseIf, IAncestorProvider, IStoreSupport, IDocumentId, IDebugEntityId
+	public sealed class ElseIfNode : IElseIf, IAncestorProvider, IStoreSupport, IDocumentId, IDebugEntityId
 	{
 		private readonly IElseIf        _elseIf;
 		private          DocumentIdSlot _documentIdSlot;

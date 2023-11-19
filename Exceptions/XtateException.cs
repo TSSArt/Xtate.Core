@@ -29,7 +29,7 @@ namespace Xtate
 
 		public XtateException(string? message) : base(message) { }
 
-		public XtateException(string? message, Exception? inner) : base(message, inner) { }
+		public XtateException(string? message, Exception? innerException) : base(message, innerException) { }
 
 		protected XtateException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 	}

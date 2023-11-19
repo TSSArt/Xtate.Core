@@ -18,9 +18,11 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel;
 using Xtate.Core;
+using Xtate.IoC;
 using Xtate.CustomAction;
 using Xtate.DataModel;
 using Xtate.IoProcessor;
@@ -29,16 +31,18 @@ using Xtate.Service;
 
 namespace Xtate
 {
+	public interface IStateMachineHostBuilder { }
+
+
 	[PublicAPI]
-	public sealed class StateMachineHostBuilder
+	public sealed class StateMachineHostBuilder : IStateMachineHostBuilder
 	{
 		private Uri?                                              _baseUri;
 		private ImmutableDictionary<string, string>.Builder?      _configuration;
 		private ImmutableArray<ICustomActionFactory>.Builder?     _customActionFactories;
-		private ImmutableArray<IDataModelHandlerFactory>.Builder? _dataModelHandlerFactories;
 		private HostMode                                          _hostMode;
 		private ImmutableArray<IIoProcessorFactory>.Builder?      _ioProcessorFactories;
-		private ILogger?                                          _logger;
+		private ILoggerOld?                                          _logger;
 		private PersistenceLevel                                  _persistenceLevel;
 		private ImmutableArray<IResourceLoaderFactory>.Builder?   _resourceLoaderFactories;
 		private ImmutableArray<IServiceFactory>.Builder?          _serviceFactories;
@@ -46,14 +50,35 @@ namespace Xtate
 		private TimeSpan?                                         _suspendIdlePeriod;
 		private UnhandledErrorBehaviour                           _unhandledErrorBehaviour;
 		private ValidationMode                                    _validationMode;
+		
+		private List<object> _actions = new();
 
-		public StateMachineHost Build()
+		public StateMachineHost Build(ServiceLocator serviceLocator)
 		{
-			var option = new StateMachineHostOptions
+			var serviceScope = serviceLocator.GetService<IServiceScopeFactory>()
+											 .CreateScope(
+												 collection =>
+												 {
+													 foreach (var action in _actions)
+													 {
+														 switch (action)
+														 {
+															 case Action<IServiceCollection> action1:
+																 action1(collection);
+																 break;
+															 case Func<IServiceCollection, IServiceCollection> action2:
+																 action2(collection);
+																 break;
+														 }
+													 }
+												 });
+
+			serviceLocator = new ServiceLocator(serviceScope.ServiceProvider);
+
+			var option = new StateMachineHostOptions(serviceLocator)
 						 {
 							 IoProcessorFactories = _ioProcessorFactories?.ToImmutable() ?? default,
 							 ServiceFactories = _serviceFactories?.ToImmutable() ?? default,
-							 DataModelHandlerFactories = _dataModelHandlerFactories?.ToImmutable() ?? default,
 							 CustomActionFactories = _customActionFactories?.ToImmutable() ?? default,
 							 ResourceLoaderFactories = _resourceLoaderFactories?.ToImmutable() ?? default,
 							 Configuration = _configuration?.ToImmutable() ?? ImmutableDictionary<string, string>.Empty,
@@ -67,10 +92,26 @@ namespace Xtate
 							 HostMode = _hostMode
 						 };
 
-			return new StateMachineHost(option);
+			return new StateMachineHost(option) {_dataConverter = new DataConverter(null), ServiceFactories = AsyncEnumerable.Empty<IServiceFactory>(), _ioProcessorFactories = AsyncEnumerable.Empty<IIoProcessorFactory>()};
 		}
 
-		public StateMachineHostBuilder SetLogger(ILogger logger)
+		//TODO:
+		public StateMachineHostBuilder AddServices(Action<IServiceCollection> action)
+		{
+			_actions.Add(action);
+
+			return this;
+		}
+
+		//TODO:
+		public StateMachineHostBuilder AddServices(Func<IServiceCollection, IServiceCollection> action)
+		{
+			_actions.Add(action);
+
+			return this;
+		}
+
+		public StateMachineHostBuilder SetLogger(ILoggerOld logger)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -129,15 +170,6 @@ namespace Xtate
 			if (serviceFactory is null) throw new ArgumentNullException(nameof(serviceFactory));
 
 			(_serviceFactories ??= ImmutableArray.CreateBuilder<IServiceFactory>()).Add(serviceFactory);
-
-			return this;
-		}
-
-		public StateMachineHostBuilder AddDataModelHandlerFactory(IDataModelHandlerFactory dataModelHandlerFactory)
-		{
-			if (dataModelHandlerFactory is null) throw new ArgumentNullException(nameof(dataModelHandlerFactory));
-
-			(_dataModelHandlerFactories ??= ImmutableArray.CreateBuilder<IDataModelHandlerFactory>()).Add(dataModelHandlerFactory);
 
 			return this;
 		}

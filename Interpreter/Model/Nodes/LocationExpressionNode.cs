@@ -21,7 +21,7 @@ using Xtate.Persistence;
 
 namespace Xtate.Core
 {
-	internal sealed class LocationExpressionNode : ILocationExpression, IStoreSupport, IAncestorProvider
+	public sealed class LocationExpressionNode : ILocationExpression, IStoreSupport, IAncestorProvider
 	{
 		private readonly ILocationExpression _locationExpression;
 

@@ -28,17 +28,20 @@ namespace Xtate.Builder
 		private ImmutableArray<IExecutableEntity>.Builder? _actions;
 		private IConditionExpression?                      _condition;
 
-		public IfBuilder(IErrorProcessor errorProcessor, object? ancestor) : base(errorProcessor, ancestor) { }
-
 	#region Interface IIfBuilder
 
 		public IIf Build() => new IfEntity { Ancestor = Ancestor, Condition = _condition, Action = _actions?.ToImmutable() ?? default };
 
-		public void SetCondition(IConditionExpression condition) => _condition = condition ?? throw new ArgumentNullException(nameof(condition));
+		public void SetCondition(IConditionExpression condition)
+		{
+			Infra.Requires(condition);
+
+			_condition = condition;
+		}
 
 		public void AddAction(IExecutableEntity action)
 		{
-			if (action is null) throw new ArgumentNullException(nameof(action));
+			Infra.Requires(action);
 
 			(_actions ??= ImmutableArray.CreateBuilder<IExecutableEntity>()).Add(action);
 		}

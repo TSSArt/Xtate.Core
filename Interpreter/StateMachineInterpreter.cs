@@ -1,4 +1,5 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿
+#region Copyright © 2019-2021 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,93 +22,178 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using Xtate.DataModel;
-using Xtate.DataModel.Null;
-using Xtate.DataModel.Runtime;
-using Xtate.Persistence;
 
 namespace Xtate.Core
 {
 	using DefaultHistoryContent = Dictionary<IIdentifier, ImmutableArray<IExecEvaluator>>;
 
-	[PublicAPI]
-	public sealed partial class StateMachineInterpreter
+	public partial class StateMachineInterpreter : IStateMachineInterpreter
 	{
-		private const string StateStorageKey                  = "state";
-		private const string StateMachineDefinitionStorageKey = "smd";
+		//TODO:
+		//private static readonly ImmutableArray<IDataModelHandlerFactory> PredefinedDataModelHandlerFactories =
+		//ImmutableArray.Create(NullDataModelHandler.Factory, RuntimeDataModelHandler.Factory);
 
-		private static readonly ImmutableArray<IDataModelHandlerFactory> PredefinedDataModelHandlerFactories =
-			ImmutableArray.Create(NullDataModelHandler.Factory, RuntimeDataModelHandler.Factory);
+		private readonly object _stateMachineToken = new();
+		//private readonly ChannelReader<IEvent>               _eventChannel;
+		//private readonly bool                                _isPersistingEnabled;
+	//	private readonly InterpreterOptions                  _options;
+		//private readonly SessionId                           _sessionId;
+		[Obsolete]
+		private readonly IStateMachineValidator              _stateMachineValidator;
+		//private readonly IPersistenceContext?                _persistenceContext;
+		private                   IStateMachineContext      _context;
+		public required Func<ValueTask<IStateMachineContext     >> ContextFactory;
+		public           required INotifyStateChanged?      _notifyStateChanged;
+		public           required IUnhandledErrorBehaviour? _unhandledErrorBehaviour;
+		public           required IResourceLoader?          _resourceLoader;
+		public           required IStateMachineLocation?    _stateMachineLocation;
+		public           required IExternalCommunication?   _externalCommunication;
+		//public           required IStateMachineInterpreterLogger        _logger;
+		public           required ILogger<IStateMachineInterpreter> _logger;
+		//public           required IStateMachineInterpreterTracer        _tracer;
+		public           required DataConverter                         _dataConverter;
 
-		private readonly ChannelReader<IEvent>               _eventChannel;
-		private readonly bool                                _isPersistingEnabled;
-		private readonly InterpreterOptions                  _options;
-		private readonly SessionId                           _sessionId;
-		private readonly IStateMachineValidator              _stateMachineValidator = StateMachineValidator.Instance;
-		private          CancellationToken                   _anyToken;
-		private          IStateMachineContext                _context = default!;
-		private          IDataModelHandler?                  _dataModelHandler;
-		private          ImmutableDictionary<string, string> _dataModelVars = ImmutableDictionary<string, string>.Empty;
-		private          DataModelValue                      _doneData;
-		private          InterpreterModel?                   _model;
-		private          IStateMachine?                      _stateMachine;
-		private          bool                                _stop;
+		public required IDataModelHandler _dataModelHandler;
+		//
+		private         ImmutableDictionary<string, string> _dataModelVars = ImmutableDictionary<string, string>.Empty;
+		private         DataModelValue                      _doneData; //TODO: move to context
+		
+		public required IInterpreterModel                   _model;
+
+		public required IEventQueueReader _eventQueueReader;
+
+		//private          IStateMachine?                      _stateMachine;
+		
+		//[Obsolete] private IExecutionContext _executionContext;
+
+		private readonly IStateMachineArguments? _stateMachineArguments;
+
+		private          StateMachineDestroyedException? _stateMachineDestroyedException;
+
+
+		public StateMachineInterpreter() { }
+
+		[Obsolete]
+		[SetsRequiredMembers]
+		public StateMachineInterpreter(IInterpreterModel interpreterModel,
+									   IEventQueueReader eventQueueReader,
+									   IDataModelHandler dataModelHandler,
+									   IStateMachineContext stateMachineContext,
+									   INotifyStateChanged? notifyStateChanged,
+									   IUnhandledErrorBehaviour? unhandledErrorBehaviour,
+									   IResourceLoader? resourceLoader,
+									   IStateMachineLocation? stateMachineLocation,
+									   IExternalCommunication? externalCommunication,
+									   ILogger<IStateMachineInterpreter> logger)
+		{
+			_model = interpreterModel;
+			_eventQueueReader = eventQueueReader;
+
+
+			//	_sessionId = options.SessionId;
+			//	_stateMachine = null;
+			//_eventChannel = options.eventChannel;
+
+			//	_options = options.options;
+			_dataModelHandler = dataModelHandler;
+
+			//	_isPersistingEnabled = _options.PersistenceLevel != PersistenceLevel.None && _options.StorageProvider is not null;
+			//_persistenceContext = persistenceContext;
+
+			_context = stateMachineContext;
+			_notifyStateChanged = notifyStateChanged;
+			_unhandledErrorBehaviour = unhandledErrorBehaviour;
+			_resourceLoader = resourceLoader;
+			_stateMachineLocation = stateMachineLocation;
+			_externalCommunication = externalCommunication;
+			_logger = logger;
+
+			//_executionContext = executionContext;
+		}
+
+		private StateMachineInterpreter(IStateMachineInterpreterOptions options, 
+										IStateMachineContext context,
+										IExecutionContext executionContext,
+										IDataModelHandler dataModelHandler,
+										IStateMachineValidator stateMachineValidator,
+										IPersistenceContext? persistenceContext,
+										IStateMachineArguments? stateMachineArguments)
+		{
+			if (options is null) throw new ArgumentNullException(nameof(options));
+
+		/*	_sessionId = options.SessionId;
+			_stateMachine = null;
+			_eventChannel = options.eventChannel;
+			_options = options.options;
+			_dataModelHandler = dataModelHandler;
+			_isPersistingEnabled = _options.PersistenceLevel != PersistenceLevel.None && _options.StorageProvider is not null;
+			_stateMachineValidator = stateMachineValidator;*/
+			//_persistenceContext = persistenceContext;
+
+		//	_model = options.model;
+			_context = context;
+			//_executionContext = executionContext;
+			_stateMachineArguments = stateMachineArguments;
+		}
 
 		private StateMachineInterpreter(SessionId sessionId,
 										IStateMachine? stateMachine,
 										ChannelReader<IEvent> eventChannel,
 										InterpreterOptions options)
 		{
-			_sessionId = sessionId;
+			//TODO: to delete
+			/*_sessionId = sessionId;
 			_stateMachine = stateMachine;
 			_eventChannel = eventChannel;
 			_options = options;
 			_isPersistingEnabled = _options.PersistenceLevel != PersistenceLevel.None && _options.StorageProvider is not null;
+			_stateMachineValidator = _options.ServiceLocator.GetService<IStateMachineValidator>();*/
 		}
 
-		private bool Running
-		{
-			get => !_stop && (!_isPersistingEnabled || _context.PersistenceContext.GetState((int) StateBagKey.Stop) == 0);
-			set
-			{
-				_stop = !value;
+		private bool _running = true;
 
-				if (_isPersistingEnabled)
-				{
-					_context.PersistenceContext.SetState((int) StateBagKey.Stop, value ? 0 : 1);
-				}
-			}
-		}
-
-		public static ValueTask<DataModelValue> RunAsync(IStateMachine? stateMachine, ChannelReader<IEvent> eventChannel, InterpreterOptions? options = default)
+		
+		//TODO: to delete
+		public static ValueTask<DataModelValue> RunAsync(IStateMachine? stateMachine, ChannelReader<IEvent>  eventChannel, InterpreterOptions? options = default)
 		{
 			if (eventChannel is null) throw new ArgumentNullException(nameof(eventChannel));
 
-			return new StateMachineInterpreter(SessionId.New(), stateMachine, eventChannel, options ?? InterpreterOptions.Default).Run();
+			return RunAsync(SessionId.New(), stateMachine, eventChannel, options);
 		}
 
+		//TODO: to delete
 		public static ValueTask<DataModelValue> RunAsync(SessionId sessionId,
-														 IStateMachine? stateMachine,
-														 ChannelReader<IEvent> eventChannel,
-														 InterpreterOptions? options = default)
+																  IStateMachine? stateMachine,
+																  ChannelReader<IEvent> eventChannel,
+																  InterpreterOptions? options = default)
 		{
 			if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
 			if (eventChannel is null) throw new ArgumentNullException(nameof(eventChannel));
 
-			return new StateMachineInterpreter(sessionId, stateMachine, eventChannel, options ?? InterpreterOptions.Default).Run();
-		}
+			Infra.NotNull(options);
 
+			//var sp = options.ServiceLocator;
+
+			
+			//return new StateMachineInterpreter(sessionId, stateMachine, eventChannel, options ?? InterpreterOptions.Default).Run();
+			return default;//sp.GetService<IStateMachineInterpreter>().RunAsync();
+		}
+		/*
 		private InterpreterModelBuilder.Parameters CreateInterpreterModelBuilderParameters()
 		{
 			Infra.NotNull(_stateMachine);
 			Infra.NotNull(_dataModelHandler);
 
-			return new InterpreterModelBuilder.Parameters(_stateMachine, _dataModelHandler)
+			return new InterpreterModelBuilder.Parameters(_options.ServiceLocator, _stateMachine, _dataModelHandler)
 				   {
 					   BaseUri = _options.BaseUri,
 					   CustomActionProviders = _options.CustomActionProviders,
@@ -117,8 +203,8 @@ namespace Xtate.Core
 					   Logger = _options.Logger,
 					   LoggerContext = this
 				   };
-		}
-
+		}*/
+		/*
 		private async ValueTask<InterpreterModel> BuildInterpreterModel()
 		{
 			var interpreterModel = _isPersistingEnabled ? await TryRestoreInterpreterModel().ConfigureAwait(false) : null;
@@ -132,14 +218,14 @@ namespace Xtate.Core
 
 			_dataModelHandler = await CreateDataModelHandler(_stateMachine.DataModelType).ConfigureAwait(false);
 
-			_stateMachineValidator.Validate(_stateMachine, _options.ErrorProcessor);
+			_stateMachineValidator.Validate(_stateMachine);
 
 			var parameters = CreateInterpreterModelBuilderParameters();
 			var interpreterModelBuilder = new InterpreterModelBuilder(parameters);
 
 			try
 			{
-				interpreterModel = await interpreterModelBuilder.Build(_options.StopToken).ConfigureAwait(false);
+				interpreterModel = await interpreterModelBuilder.Build(CancellationToken.None).ConfigureAwait(false);
 			}
 			finally
 			{
@@ -158,7 +244,7 @@ namespace Xtate.Core
 		{
 			Infra.NotNull(_options.StorageProvider);
 
-			var storage = await _options.StorageProvider.GetTransactionalStorage(partition: default, StateMachineDefinitionStorageKey, _options.StopToken).ConfigureAwait(false);
+			var storage = await _options.StorageProvider.GetTransactionalStorage(partition: default, StateMachineDefinitionStorageKey, CancellationToken.None).ConfigureAwait(false);
 			await using (storage.ConfigureAwait(false))
 			{
 				var bucket = new Bucket(storage);
@@ -189,7 +275,7 @@ namespace Xtate.Core
 				{
 					var parameters = CreateInterpreterModelBuilderParameters();
 					var temporaryModelBuilder = new InterpreterModelBuilder(parameters);
-					var model = await temporaryModelBuilder.Build(_options.StopToken).ConfigureAwait(false);
+					var model = await temporaryModelBuilder.Build(CancellationToken.None).ConfigureAwait(false);
 					entityMap = model.EntityMap;
 				}
 
@@ -207,7 +293,7 @@ namespace Xtate.Core
 					var parameters = CreateInterpreterModelBuilderParameters();
 					var interpreterModelBuilder = new InterpreterModelBuilder(parameters);
 
-					return await interpreterModelBuilder.Build(_options.StopToken).ConfigureAwait(false);
+					return await interpreterModelBuilder.Build(CancellationToken.None).ConfigureAwait(false);
 				}
 				finally
 				{
@@ -220,12 +306,12 @@ namespace Xtate.Core
 		{
 			Infra.NotNull(_options.StorageProvider);
 
-			var storage = await _options.StorageProvider.GetTransactionalStorage(partition: default, StateMachineDefinitionStorageKey, _options.StopToken).ConfigureAwait(false);
+			var storage = await _options.StorageProvider.GetTransactionalStorage(partition: default, StateMachineDefinitionStorageKey, CancellationToken.None).ConfigureAwait(false);
 			await using (storage.ConfigureAwait(false))
 			{
 				SaveToStorage(interpreterModel.Root.As<IStoreSupport>(), new Bucket(storage));
 
-				await storage.CheckPoint(level: 0, _options.StopToken).ConfigureAwait(false);
+				await storage.CheckPoint(level: 0, CancellationToken.None).ConfigureAwait(false);
 			}
 		}
 
@@ -240,31 +326,36 @@ namespace Xtate.Core
 			bucket.Add(Key.Version, value: 1);
 			bucket.AddId(Key.SessionId, _sessionId);
 			bucket.Add(Key.StateMachineDefinition, span);
-		}
-
-		private async ValueTask<IDataModelHandler> CreateDataModelHandler(string? dataModelType)
+		}*/
+		/*
+		private ValueTask<IDataModelHandler> CreateDataModelHandler(string? dataModelType)
 		{
+			var dataModelHandlerService = _options.ServiceLocator.GetService<IDataModelHandlerService>();
+
+			return dataModelHandlerService.GetDataModelHandler(dataModelType, CancellationToken.None);
+			
 			dataModelType ??= NullDataModelHandler.DataModelType;
-			var factoryContext = new FactoryContext(_options.ResourceLoaderFactories, _options.SecurityContext, _options.Logger, this);
-			var activator = await FindDataModelHandlerFactoryActivator(dataModelType, factoryContext).ConfigureAwait(false);
+			var factoryContext = new FactoryContext(_options.ServiceLocator, _options.ResourceLoaderFactories, _options.SecurityContext, _options.Logger, this);
+			var activator = await FindDataModelHandlerFactoryActivator(dataModelType, _options.ServiceLocator).ConfigureAwait(false);
 
 			if (activator is not null)
 			{
-				return await activator.CreateHandler(factoryContext, dataModelType, _options.ErrorProcessor, _options.StopToken).ConfigureAwait(false);
+				return await activator.CreateHandler(_options.ServiceLocator, dataModelType, _options.ErrorProcessor, _stopCts.Token).ConfigureAwait(false);
 			}
 
 			_options.ErrorProcessor.AddError<StateMachineInterpreter>(entity: null, Res.Format(Resources.Exception_CantFindDataModelHandlerFactoryForDataModelType, dataModelType));
 
-			return new NullDataModelHandler(_options.ErrorProcessor);
-		}
-
-		private async ValueTask<IDataModelHandlerFactoryActivator?> FindDataModelHandlerFactoryActivator(string dataModelType, IFactoryContext factoryContext)
+			return new NullDataModelHandler(_options.ServiceLocator);
+			
+		}*/
+		/*
+		private async ValueTask<IDataModelHandlerFactoryActivator?> FindDataModelHandlerFactoryActivator(string dataModelType, ServiceLocator serviceLocator)
 		{
 			if (!_options.DataModelHandlerFactories.IsDefaultOrEmpty)
 			{
 				foreach (var factory in _options.DataModelHandlerFactories)
 				{
-					var activator = await factory.TryGetActivator(factoryContext, dataModelType, _options.StopToken).ConfigureAwait(false);
+					var activator = await factory.TryGetActivator(serviceLocator, dataModelType, _stopCts.Token).ConfigureAwait(false);
 
 					if (activator is not null)
 					{
@@ -275,7 +366,7 @@ namespace Xtate.Core
 
 			foreach (var factory in PredefinedDataModelHandlerFactories)
 			{
-				var activator = await factory.TryGetActivator(factoryContext, dataModelType ?? NullDataModelHandler.DataModelType, _options.StopToken).ConfigureAwait(false);
+				var activator = await factory.TryGetActivator(serviceLocator, dataModelType ?? NullDataModelHandler.DataModelType, _stopCts.Token).ConfigureAwait(false);
 
 				if (activator is not null)
 				{
@@ -284,315 +375,275 @@ namespace Xtate.Core
 			}
 
 			return null;
-		}
+		}*/
 
-		private ValueTask DoOperation(StateBagKey key, Func<ValueTask> func)
-		{
-			return _isPersistingEnabled ? DoOperationAsync() : func();
+		/*protected virtual ValueTask DoOperation<TArg>(StateBagKey key,
+													  IEntity entity,
+													  Func<TArg, ValueTask> func,
+													  TArg arg) =>
+			func(arg);
 
-			async ValueTask DoOperationAsync()
-			{
-				var persistenceContext = _context.PersistenceContext;
-				if (persistenceContext.GetState((int) key) == 0)
-				{
-					await func().ConfigureAwait(false);
+		protected virtual void Complete(StateBagKey key)            { }*/
+		
+		protected virtual ValueTask NotifyAccepted() => NotifyInterpreterState(StateMachineInterpreterState.Accepted);
+		protected virtual ValueTask NotifyStarted()  => NotifyInterpreterState(StateMachineInterpreterState.Started);
+		protected virtual ValueTask NotifyExited()   => NotifyInterpreterState(StateMachineInterpreterState.Exited);
+		protected virtual ValueTask NotifyWaiting()  => NotifyInterpreterState(StateMachineInterpreterState.Waiting);
 
-					persistenceContext.SetState((int) key, value: 1);
-				}
-			}
-		}
-
-		private ValueTask DoOperation<TArg>(StateBagKey key, Func<TArg, ValueTask> func, TArg arg)
-		{
-			return _isPersistingEnabled ? DoOperationAsync() : func(arg);
-
-			async ValueTask DoOperationAsync()
-			{
-				var persistenceContext = _context.PersistenceContext;
-				if (persistenceContext.GetState((int) key) == 0)
-				{
-					await func(arg).ConfigureAwait(false);
-
-					persistenceContext.SetState((int) key, value: 1);
-				}
-			}
-		}
-
-		private ValueTask DoOperation<TArg>(StateBagKey key,
-											IEntity entity,
-											Func<TArg, ValueTask> func,
-											TArg arg)
-		{
-			return _isPersistingEnabled ? DoOperationAsync() : func(arg);
-
-			async ValueTask DoOperationAsync()
-			{
-				var documentId = entity.As<IDocumentId>().DocumentId;
-
-				var persistenceContext = _context.PersistenceContext;
-				if (persistenceContext.GetState((int) key, documentId) == 0)
-				{
-					await func(arg).ConfigureAwait(false);
-
-					persistenceContext.SetState((int) key, documentId, value: 1);
-				}
-			}
-		}
-
-		private void Complete(StateBagKey key)
-		{
-			if (_isPersistingEnabled)
-			{
-				_context.PersistenceContext.ClearState((int) key);
-			}
-		}
-
-		private bool Capture(StateBagKey key, bool value)
-		{
-			if (_isPersistingEnabled)
-			{
-				var persistenceContext = _context.PersistenceContext;
-				if (persistenceContext.GetState((int) key) == 1)
-				{
-					return persistenceContext.GetState((int) key, subKey: 0) == 1;
-				}
-
-				persistenceContext.SetState((int) key, subKey: 0, value ? 1 : 0);
-				persistenceContext.SetState((int) key, value: 1);
-			}
-
-			return value;
-		}
-
-		private ValueTask<List<TransitionNode>> Capture(StateBagKey key, Func<ValueTask<List<TransitionNode>>> value)
-		{
-			return _isPersistingEnabled ? CaptureAsync() : value();
-
-			async ValueTask<List<TransitionNode>> CaptureAsync()
-			{
-				var persistenceContext = _context.PersistenceContext;
-				if (persistenceContext.GetState((int) key) == 0)
-				{
-					var list = await value().ConfigureAwait(false);
-					persistenceContext.SetState((int) key, subKey: 0, list.Count);
-
-					for (var i = 0; i < list.Count; i ++)
-					{
-						persistenceContext.SetState((int) key, i + 1, list[i].As<IDocumentId>().DocumentId);
-					}
-
-					persistenceContext.SetState((int) key, value: 1);
-
-					return list;
-				}
-
-				var length = persistenceContext.GetState((int) key, subKey: 0);
-				var capturedSet = new List<TransitionNode>(length);
-
-				Infra.NotNull(_model);
-
-				for (var i = 0; i < length; i ++)
-				{
-					var documentId = persistenceContext.GetState((int) key, i + 1);
-					capturedSet.Add(_model.EntityMap[documentId].As<TransitionNode>());
-				}
-
-				return capturedSet;
-			}
-		}
-
-		private ValueTask NotifyAccepted() => NotifyInterpreterState(StateMachineInterpreterState.Accepted);
-		private ValueTask NotifyStarted()  => NotifyInterpreterState(StateMachineInterpreterState.Started);
-		private ValueTask NotifyExited()   => NotifyInterpreterState(StateMachineInterpreterState.Exited);
-		private ValueTask NotifyWaiting()  => NotifyInterpreterState(StateMachineInterpreterState.Waiting);
+		protected ValueTask TraceInterpreterState(StateMachineInterpreterState state) => _logger.Write(Level.Trace, $@"Interpreter state has changed to '{state}'");
 
 		private async ValueTask NotifyInterpreterState(StateMachineInterpreterState state)
 		{
 			await TraceInterpreterState(state).ConfigureAwait(false);
 
-			if (_options.NotifyStateChanged is { } notifyStateChanged)
+			if (_notifyStateChanged is { } notifyStateChanged)
 			{
 				await notifyStateChanged.OnChanged(state).ConfigureAwait(false);
 			}
 		}
 
-		private async ValueTask RunSteps()
+		public virtual async ValueTask<DataModelValue> RunAsync()
+		{
+			_context = await ContextFactory().ConfigureAwait(false);
+
+			if (false /*_stateMachine is null*/) //TODO: use correct condition
+			{
+				//await TraceInterpreterState(StateMachineInterpreterState.Resumed).ConfigureAwait(false);
+			}
+
+			//try
+			//{
+				await Interpret().ConfigureAwait(false);
+			//}
+			/*catch (StateMachineQueueClosedException)
+			{
+				await TraceInterpreterState(StateMachineInterpreterState.QueueClosed).ConfigureAwait(false);
+
+				throw;
+			}*/
+			/*catch (StateMachineDestroyedException)
+			{
+				throw;
+			}
+			catch
+			{
+				await TraceInterpreterState(StateMachineInterpreterState.Halted).ConfigureAwait(false);
+
+				throw;
+			}*/ /*
+			catch (StateMachineSuspendedException)
+			{
+				await TraceInterpreterState(StateMachineInterpreterState.Suspended).ConfigureAwait(false);
+
+				throw;
+			}*/
+			/*catch (StateMachineInterpreterDisposedException)
+			{
+				await TraceInterpreterState(StateMachineInterpreterState.Halted).ConfigureAwait(false);
+
+				throw;
+			}*/
+
+			return _doneData;
+		}
+
+		protected virtual async ValueTask Interpret()
 		{
 			try
 			{
-				await DoOperation(StateBagKey.NotifyAccepted, NotifyAccepted).ConfigureAwait(false);
-				await DoOperation(StateBagKey.InitializeRootDataModel, InitializeRootDataModel).ConfigureAwait(false);
-				await DoOperation(StateBagKey.EarlyInitializeDataModel, InitializeAllDataModels).ConfigureAwait(false);
-				await DoOperation(StateBagKey.ExecuteGlobalScript, ExecuteGlobalScript).ConfigureAwait(false);
-				await DoOperation(StateBagKey.NotifyStarted, NotifyStarted).ConfigureAwait(false);
-				await DoOperation(StateBagKey.InitialEnterStates, InitialEnterStates).ConfigureAwait(false);
-				await DoOperation(StateBagKey.MainEventLoop, MainEventLoop).ConfigureAwait(false);
+				await EnterSteps().ConfigureAwait(false);
+				await MainEventLoop().ConfigureAwait(false);
 			}
-			catch (StateMachineLiveLockException ex)
+			catch (StateMachineDestroyedException)
 			{
-				throw await DestroyingSteps(ex).ConfigureAwait(false);
+				await TraceInterpreterState(StateMachineInterpreterState.Destroying).ConfigureAwait(false);
+				await ExitSteps().ConfigureAwait(false);
+
+				throw;
 			}
-			catch (OperationCanceledException ex) when (ex.CancellationToken == _options.DestroyToken || ex.CancellationToken == _anyToken && _options.DestroyToken.IsCancellationRequested)
+			catch
 			{
-				throw await DestroyingSteps(ex).ConfigureAwait(false);
-			}
-			catch (StateMachineUnhandledErrorException ex) when (ex.UnhandledErrorBehaviour == UnhandledErrorBehaviour.DestroyStateMachine)
-			{
-				throw await DestroyingSteps(ex).ConfigureAwait(false);
+				await TraceInterpreterState(StateMachineInterpreterState.Halted).ConfigureAwait(false);
+
+				throw;
 			}
 
 			await ExitSteps().ConfigureAwait(false);
 		}
 
-		private async ValueTask ExitSteps()
+		protected virtual async ValueTask EnterSteps()
 		{
-			await DoOperation(StateBagKey.ExitInterpreter, ExitInterpreter).ConfigureAwait(false);
-			await DoOperation(StateBagKey.NotifyExited, NotifyExited).ConfigureAwait(false);
-			await CleanupPersistedData().ConfigureAwait(false);
+			await NotifyAccepted().ConfigureAwait(false);
+			await InitializeDataModels().ConfigureAwait(false);
+			await ExecuteGlobalScript().ConfigureAwait(false);
+			await NotifyStarted().ConfigureAwait(false);
+			await InitialEnterStates().ConfigureAwait(false);
 		}
 
-		private async ValueTask<StateMachineDestroyedException> DestroyingSteps(Exception destroyException)
+		protected virtual async ValueTask ExitSteps()
 		{
-			await TraceInterpreterState(StateMachineInterpreterState.Destroying).ConfigureAwait(false);
-
-			await ExitSteps().ConfigureAwait(false);
-
-			return new StateMachineDestroyedException(Resources.Exception_StateMachineHasBeenDestroyed, destroyException);
+			await ExitInterpreter().ConfigureAwait(false);
+			await NotifyExited().ConfigureAwait(false);
 		}
-
-		private async ValueTask<DataModelValue> Run()
+		/*
+		private void ThrowIfTerminationRequested(bool throwOnDestroy)
 		{
-			_model = await BuildInterpreterModel().ConfigureAwait(false);
-			_context = await CreateContext().ConfigureAwait(false);
-			var anyTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_options.SuspendToken, _options.DestroyToken, _options.StopToken);
+			var state = (State)_state;
 
-			using (anyTokenSource)
-			await using (_context.ConfigureAwait(false))
+			switch (state)
 			{
-				_anyToken = anyTokenSource.Token;
-
-				if (_stateMachine is null)
-				{
-					await TraceInterpreterState(StateMachineInterpreterState.Resumed).ConfigureAwait(false);
-				}
-
-				try
-				{
-					await RunSteps().ConfigureAwait(false);
-				}
-				catch (ChannelClosedException ex)
-				{
-					await TraceInterpreterState(StateMachineInterpreterState.QueueClosed).ConfigureAwait(false);
-
-					throw new StateMachineQueueClosedException(Resources.Exception_StateMachineExternalQueueHasBeenClosed, ex);
-				}
-				catch (OperationCanceledException ex) when (ex.CancellationToken == _options.StopToken || ex.CancellationToken == _anyToken && _options.StopToken.IsCancellationRequested)
-				{
-					await TraceInterpreterState(StateMachineInterpreterState.Halted).ConfigureAwait(false);
-
-					throw new OperationCanceledException(Resources.Exception_StateMachineHasBeenHalted, ex, _options.StopToken);
-				}
-				catch (StateMachineUnhandledErrorException ex) when (ex.UnhandledErrorBehaviour == UnhandledErrorBehaviour.HaltStateMachine)
-				{
-					await TraceInterpreterState(StateMachineInterpreterState.Halted).ConfigureAwait(false);
-
-					throw;
-				}
-				catch (OperationCanceledException ex) when (ex.CancellationToken == _options.SuspendToken ||
-															ex.CancellationToken == _anyToken && _options.SuspendToken.IsCancellationRequested)
-				{
-					await TraceInterpreterState(StateMachineInterpreterState.Suspended).ConfigureAwait(false);
-
-					throw new StateMachineSuspendedException(Resources.Exception_StateMachineHasBeenSuspended, ex);
-				}
-
-				return _doneData;
+				case State.Operate:                      return;
+				case State.Destroy when !throwOnDestroy: return;
+				case State.Destroy when throwOnDestroy:  throw new StateMachineDestroyedException(Resources.Exception_StateMachineHasBeenDestroyed);
+				//case State.Suspend:                      throw new StateMachineSuspendedException(Resources.Exception_StateMachineHasBeenSuspended);
+				case State.Disposed:                     throw new StateMachineInterpreterDisposedException(Resources.Exception_StateMachineInterpreterHasBeenDisposed);
+				default:                                 throw Infra.Unexpected<Exception>(state);
 			}
+		}*/
+
+		public virtual void TriggerDestroySignal(Exception? innerException = default)
+		{
+			_stateMachineDestroyedException = new StateMachineDestroyedException(Resources.Exception_StateMachineHasBeenDestroyed, innerException);
+
+			StopWaitingExternalEvents();
 		}
 
-		private async ValueTask CleanupPersistedData()
-		{
-			if (_isPersistingEnabled)
-			{
-				Infra.NotNull(_options.StorageProvider);
+		protected void StopWaitingExternalEvents() => _eventQueueReader.Complete();
 
-				await _options.StorageProvider.RemoveTransactionalStorage(partition: default, StateStorageKey, _options.StopToken).ConfigureAwait(false);
-				await _options.StorageProvider.RemoveTransactionalStorage(partition: default, StateMachineDefinitionStorageKey, _options.StopToken).ConfigureAwait(false);
+		protected virtual async ValueTask InitializeDataModels()
+		{
+			if (_model.Root.DataModel is { } dataModel)
+			{
+				await InitializeDataModel(dataModel, _stateMachineArguments?.Arguments.AsListOrDefault()).ConfigureAwait(false);
 			}
-		}
 
-		private async ValueTask InitializeAllDataModels()
-		{
-			Infra.NotNull(_model);
-
-			if (_model.Root.Binding == BindingType.Early && !_model.DataModelList.IsDefaultOrEmpty)
+			if (_model.Root is { Binding: BindingType.Early } stateMachineNode)
 			{
-				foreach (var node in _model.DataModelList)
+				foreach (var stateNode in stateMachineNode.States)
 				{
-					await DoOperation(StateBagKey.InitializeDataModel, node, InitializeDataModel, node).ConfigureAwait(false);
+					await InitializeDataModelRecursive(stateNode).ConfigureAwait(false);
 				}
 			}
 		}
 
-		private ValueTask InitialEnterStates()
+		private async ValueTask InitializeDataModelRecursive(StateEntityNode stateEntityNode)
 		{
-			Infra.NotNull(_model);
+			if (stateEntityNode is ParallelNode or StateNode)
+			{
+				if (stateEntityNode.DataModel is { } dataModelNode)
+				{
+					await InitializeDataModel(dataModelNode).ConfigureAwait(false);
+				}
 
+				if (stateEntityNode.States is { IsDefaultOrEmpty: false } states)
+				{
+					foreach (var stateNode in states)
+					{
+						await InitializeDataModelRecursive(stateNode).ConfigureAwait(false);
+					}
+				}
+			}
+		}
+
+		protected virtual ValueTask InitialEnterStates()
+		{
 			return EnterStates(new List<TransitionNode>(1) { _model.Root.Initial.Transition });
 		}
 
-		private async ValueTask MainEventLoop()
+		protected virtual async ValueTask MainEventLoop()
 		{
-			var exit = false;
-
-			while (Capture(StateBagKey.Running, Running && !exit))
-			{
-				_anyToken.ThrowIfCancellationRequested();
-
-				await DoOperation(StateBagKey.InternalQueueProcessing, InternalQueueProcessing).ConfigureAwait(false);
-
-				exit = await ExternalQueueProcessing().ConfigureAwait(false);
-
-				Complete(StateBagKey.InternalQueueProcessing);
-				Complete(StateBagKey.Running);
-			}
-
-			Complete(StateBagKey.Running);
+			while (await MainEventLoopIteration().ConfigureAwait(false)) { }
 		}
 
-		private async ValueTask InternalQueueProcessing()
+		protected virtual async ValueTask<bool> MainEventLoopIteration()
 		{
-			var liveLockDetector = LiveLockDetector.Create();
-			var exit = false;
-
-			try
+			if (!await Macrostep().ConfigureAwait(false))
 			{
-				while (Capture(StateBagKey.Running, Running && !exit))
+				return false;
+			}
+
+			if (await StartInvokeLoop().ConfigureAwait(false))
+			{
+				return true;
+			}
+
+			return await ExternalQueueProcess().ConfigureAwait(false);
+		}
+
+		protected virtual async ValueTask<bool> StartInvokeLoop()
+		{
+			foreach (var state in _context.StatesToInvoke.ToSortedList(StateEntityNode.EntryOrder))
+			{
+				foreach (var invoke in state.Invoke)
 				{
-					_anyToken.ThrowIfCancellationRequested();
-
-					liveLockDetector.Iteration(_context.InternalQueue.Count);
-
-					exit = await InternalQueueProcessingIteration().ConfigureAwait(false);
-
-					Complete(StateBagKey.Running);
+					await Invoke(invoke).ConfigureAwait(false);
 				}
+			}
 
-				Complete(StateBagKey.Running);
-			}
-			finally
-			{
-				liveLockDetector.Dispose();
-			}
+			_context.StatesToInvoke.Clear();
+
+			return !await IsInternalQueueEmpty().ConfigureAwait(false);
 		}
 
-		private async ValueTask<List<TransitionNode>> SelectInternalEventTransitions()
+		protected virtual async ValueTask<bool> ExternalQueueProcess()
 		{
-			Infra.NotNull(_dataModelHandler);
+			if (await ExternalEventTransitions().ConfigureAwait(false) is { Count: > 0 } transitions)
+			{
+				return await Microstep(transitions).ConfigureAwait(false);
+			}
 
+			return _running;
+		}
+		
+		protected virtual async ValueTask<bool> Macrostep()
+		{
+			using var liveLockDetector = LiveLockDetector.Create();
+
+			while (await MacrostepIteration().ConfigureAwait(false))
+			{
+				if (liveLockDetector.IsLiveLockDetected(_context.InternalQueue.Count))
+				{
+					throw new StateMachineDestroyedException(Resources.Exception_LivelockDetected);
+				}
+			}
+
+			return _running;
+		}
+
+		protected virtual async ValueTask<bool> MacrostepIteration()
+		{
+			if (await SelectTransitions(evt: default).ConfigureAwait(false) is { Count: > 0 } transitions)
+			{
+				return await Microstep(transitions).ConfigureAwait(false);
+			}
+
+			return await InternalQueueProcess().ConfigureAwait(false);
+		}
+
+		protected virtual ValueTask<bool> IsInternalQueueEmpty() => new(_context.InternalQueue.Count == 0);
+
+		protected virtual async ValueTask<bool> InternalQueueProcess()
+		{
+			if (await IsInternalQueueEmpty().ConfigureAwait(false))
+			{
+				return false;
+			}
+
+			if (await SelectInternalEventTransitions().ConfigureAwait(false) is { Count: > 0 } transitions)
+			{
+				return await Microstep(transitions).ConfigureAwait(false);
+			}
+
+			return _running;
+		}
+
+		private ValueTask TraceProcessingEvent(IEvent evt) => _logger.Write(Level.Trace, $@"Processing {evt.Type} event '{EventName.ToName(evt.NameParts)}'", evt);
+
+		protected virtual async ValueTask<List<TransitionNode>> SelectInternalEventTransitions()
+		{
 			var internalEvent = _context.InternalQueue.Dequeue();
 
-			var eventModel = DataConverter.FromEvent(internalEvent, _dataModelHandler.CaseInsensitive);
+			var eventModel = _dataConverter.FromEvent(internalEvent);
 			_context.DataModel.SetInternal(key: @"_event", _dataModelHandler.CaseInsensitive, eventModel, DataModelAccess.ReadOnly);
 
 			await TraceProcessingEvent(internalEvent).ConfigureAwait(false);
@@ -601,132 +652,57 @@ namespace Xtate.Core
 
 			if (transitions.Count == 0 && EventName.IsError(internalEvent.NameParts))
 			{
-				UnhandledErrorEvent(internalEvent);
+				ProcessUnhandledError(internalEvent);
 			}
 
 			return transitions;
 		}
 
-		private void UnhandledErrorEvent(IEvent evt)
+		private void ProcessUnhandledError(IEvent evt)
 		{
-			switch (_options.UnhandledErrorBehaviour)
+			var behaviour = _unhandledErrorBehaviour?.Behaviour ?? UnhandledErrorBehaviour.DestroyStateMachine;
+			
+			switch (behaviour)
 			{
 				case UnhandledErrorBehaviour.IgnoreError:
-					return;
+					break;
+
+				case UnhandledErrorBehaviour.DestroyStateMachine:
+					TriggerDestroySignal(GetUnhandledErrorException());
+					break;
 
 				case UnhandledErrorBehaviour.HaltStateMachine:
-				case UnhandledErrorBehaviour.DestroyStateMachine:
-
-					evt.Is<Exception>(out var exception);
-
-					throw new StateMachineUnhandledErrorException(Resources.Exception_UnhandledException, exception, _options.UnhandledErrorBehaviour);
+					throw GetUnhandledErrorException();
 
 				default:
-					Infra.Unexpected(_options.UnhandledErrorBehaviour);
-					break;
+					throw Infra.Unexpected<Exception>(behaviour);
+			}
+
+			StateMachineUnhandledErrorException GetUnhandledErrorException()
+			{
+				evt.Is<Exception>(out var exception);
+
+				return new StateMachineUnhandledErrorException(Resources.Exception_UnhandledException, exception);
 			}
 		}
 
-		private async ValueTask<bool> InternalQueueProcessMessage()
+		protected virtual async ValueTask<List<TransitionNode>> SelectTransitions(IEvent? evt)
 		{
-			var exit = false;
+			var transitions = new List<TransitionNode>();
 
-			if (Capture(StateBagKey.InternalQueueNonEmpty, _context.InternalQueue.Count > 0))
+			foreach (var state in _context.Configuration.ToFilteredSortedList(s => s.IsAtomicState, StateEntityNode.EntryOrder))
 			{
-				var transitions = await Capture(StateBagKey.SelectInternalEventTransitions, SelectInternalEventTransitions).ConfigureAwait(false);
-
-				if (transitions.Count > 0)
-				{
-					await Microstep(transitions).ConfigureAwait(false);
-
-					await CheckPoint(PersistenceLevel.Transition).ConfigureAwait(false);
-				}
-
-				Complete(StateBagKey.SelectInternalEventTransitions);
-			}
-			else
-			{
-				exit = true;
+				await FindTransitionForState(transitions, state, evt).ConfigureAwait(false);
 			}
 
-			Complete(StateBagKey.InternalQueueNonEmpty);
-
-			return exit;
+			return RemoveConflictingTransitions(transitions);
 		}
 
-		private async ValueTask<bool> InternalQueueProcessingIteration()
+		protected virtual async ValueTask<List<TransitionNode>> ExternalEventTransitions()
 		{
-			var exit = false;
-			var transitions = await Capture(StateBagKey.EventlessTransitions, SelectEventlessTransitions).ConfigureAwait(false);
+			var externalEvent = await ReadExternalEventFiltered().ConfigureAwait(false);
 
-			if (transitions.Count > 0)
-			{
-				await Microstep(transitions).ConfigureAwait(false);
-
-				await CheckPoint(PersistenceLevel.Transition).ConfigureAwait(false);
-			}
-			else
-			{
-				exit = await InternalQueueProcessMessage().ConfigureAwait(false);
-			}
-
-			Complete(StateBagKey.EventlessTransitions);
-
-			return exit;
-		}
-
-		private async ValueTask<bool> ExternalQueueProcessing()
-		{
-			var exit = false;
-
-			if (Capture(StateBagKey.Running2, Running))
-			{
-				foreach (var state in _context.StatesToInvoke.ToSortedList(StateEntityNode.EntryOrder))
-				{
-					foreach (var invoke in state.Invoke)
-					{
-						await DoOperation(StateBagKey.Invoke, invoke, Invoke, invoke).ConfigureAwait(false);
-					}
-				}
-
-				_context.StatesToInvoke.Clear();
-				Complete(StateBagKey.Invoke);
-
-				if (Capture(StateBagKey.InternalQueueEmpty, _context.InternalQueue.Count == 0))
-				{
-					_anyToken.ThrowIfCancellationRequested();
-
-					var transitions = await Capture(StateBagKey.ExternalEventTransitions, ExternalEventTransitions).ConfigureAwait(false);
-
-					if (transitions.Count > 0)
-					{
-						await Microstep(transitions).ConfigureAwait(false);
-
-						await CheckPoint(PersistenceLevel.Event).ConfigureAwait(false);
-					}
-
-					Complete(StateBagKey.ExternalEventTransitions);
-				}
-
-				Complete(StateBagKey.InternalQueueEmpty);
-			}
-			else
-			{
-				exit = true;
-			}
-
-			Complete(StateBagKey.Running2);
-
-			return exit;
-		}
-
-		private async ValueTask<List<TransitionNode>> ExternalEventTransitions()
-		{
-			Infra.NotNull(_dataModelHandler);
-
-			var externalEvent = await ReadExternalEvent().ConfigureAwait(false);
-
-			var eventModel = DataConverter.FromEvent(externalEvent, _dataModelHandler.CaseInsensitive);
+			var eventModel = _dataConverter.FromEvent(externalEvent);
 			_context.DataModel.SetInternal(key: @"_event", _dataModelHandler.CaseInsensitive, eventModel, DataModelAccess.ReadOnly);
 
 			await TraceProcessingEvent(externalEvent).ConfigureAwait(false);
@@ -750,27 +726,13 @@ namespace Xtate.Core
 			return await SelectTransitions(externalEvent).ConfigureAwait(false);
 		}
 
-		private async ValueTask CheckPoint(PersistenceLevel level)
-		{
-			if (!_isPersistingEnabled || _options.PersistenceLevel < level)
-			{
-				return;
-			}
+		//protected virtual ValueTask CheckPoint(PersistenceLevel level) => default;
 
-			var persistenceContext = _context.PersistenceContext;
-			await persistenceContext.CheckPoint((int) level, _options.StopToken).ConfigureAwait(false);
-
-			if (level == PersistenceLevel.StableState)
-			{
-				await persistenceContext.Shrink(_options.StopToken).ConfigureAwait(false);
-			}
-		}
-
-		private async ValueTask<IEvent> ReadExternalEvent()
+		private async ValueTask<IEvent> ReadExternalEventFiltered()
 		{
 			while (true)
 			{
-				var evt = await ReadExternalEventUnfiltered().ConfigureAwait(false);
+				var evt = await ReadExternalEvent().ConfigureAwait(false);
 
 				if (evt.InvokeId is null)
 				{
@@ -786,21 +748,51 @@ namespace Xtate.Core
 
 		private bool IsInvokeActive(InvokeId invokeId) => _context.ActiveInvokes.Contains(invokeId);
 
-		private async ValueTask<IEvent> ReadExternalEventUnfiltered()
+		protected virtual async ValueTask<IEvent> ReadExternalEvent()
 		{
-			if (_eventChannel.TryRead(out var evt))
+			ThrowIfDestroying();
+
+			if (_eventQueueReader.TryReadEvent(out var evt))
 			{
 				return evt;
 			}
 
-			await CheckPoint(PersistenceLevel.StableState).ConfigureAwait(false);
-
-			await NotifyWaiting().ConfigureAwait(false);
-
-			return await _eventChannel.ReadAsync(_anyToken).ConfigureAwait(false);
+			return await WaitForExternalEvent().ConfigureAwait(false);
 		}
 
-		private async ValueTask ExitInterpreter()
+		protected virtual async ValueTask<IEvent> WaitForExternalEvent()
+		{
+			await NotifyWaiting().ConfigureAwait(false);
+
+			while (await _eventQueueReader.WaitToEvent().ConfigureAwait(false))
+			{
+				if (_eventQueueReader.TryReadEvent(out var evt))
+				{
+					return evt;
+				}
+			}
+
+			await ExternalQueueCompleted().ConfigureAwait(false);
+			
+			throw new StateMachineQueueClosedException(Resources.Exception_StateMachineExternalQueueHasBeenClosed);
+		}
+
+		protected virtual ValueTask ExternalQueueCompleted()
+		{
+			ThrowIfDestroying();
+
+			return default;
+		}
+
+		private void ThrowIfDestroying()
+		{
+			if (_stateMachineDestroyedException is { } exception)
+			{
+				throw exception;
+			}
+		}
+
+		protected virtual async ValueTask ExitInterpreter()
 		{
 			var statesToExit = _context.Configuration.ToSortedList(StateEntityNode.ExitOrder);
 
@@ -808,7 +800,7 @@ namespace Xtate.Core
 			{
 				foreach (var onExit in state.OnExit)
 				{
-					await DoOperation(StateBagKey.OnExit, onExit, RunExecutableEntity, onExit.ActionEvaluators).ConfigureAwait(false);
+					await RunExecutableEntity(onExit.ActionEvaluators).ConfigureAwait(false);
 				}
 
 				foreach (var invoke in state.Invoke)
@@ -820,26 +812,9 @@ namespace Xtate.Core
 
 				if (state is FinalNode { Parent: StateMachineNode } final)
 				{
-					await DoOperation(StateBagKey.ReturnDoneEvent, state, EvaluateDoneData, final).ConfigureAwait(false);
+					await EvaluateDoneData(final).ConfigureAwait(false);
 				}
 			}
-
-			Complete(StateBagKey.ReturnDoneEvent);
-			Complete(StateBagKey.OnExit);
-		}
-
-		private ValueTask<List<TransitionNode>> SelectEventlessTransitions() => SelectTransitions(evt: null);
-
-		private async ValueTask<List<TransitionNode>> SelectTransitions(IEvent? evt)
-		{
-			var transitions = new List<TransitionNode>();
-
-			foreach (var state in _context.Configuration.ToFilteredSortedList(s => s.IsAtomicState, StateEntityNode.EntryOrder))
-			{
-				await FindTransitionForState(transitions, state, evt).ConfigureAwait(false);
-			}
-
-			return RemoveConflictingTransitions(transitions);
 		}
 
 		private async ValueTask FindTransitionForState(List<TransitionNode> transitionNodes, StateEntityNode state, IEvent? evt)
@@ -892,11 +867,9 @@ namespace Xtate.Core
 				return true;
 			}
 
-			_options.StopToken.ThrowIfCancellationRequested();
-
 			try
 			{
-				return await condition.EvaluateBoolean(_context.ExecutionContext, _options.StopToken).ConfigureAwait(false);
+				return await condition.EvaluateBoolean().ConfigureAwait(false);
 			}
 			catch (Exception ex) when (IsError(ex))
 			{
@@ -954,16 +927,16 @@ namespace Xtate.Core
 			return filteredTransitions;
 		}
 
-		private async ValueTask Microstep(List<TransitionNode> enabledTransitions)
+		protected virtual async ValueTask<bool> Microstep(List<TransitionNode> enabledTransitions)
 		{
-			await DoOperation(StateBagKey.ExitStates, ExitStates, enabledTransitions).ConfigureAwait(false);
+			await ExitStates(enabledTransitions).ConfigureAwait(false);
+			await ExecuteTransitionContent(enabledTransitions).ConfigureAwait(false);
+			await EnterStates(enabledTransitions).ConfigureAwait(false);
 
-			await DoOperation(StateBagKey.ExecuteTransitionContent, ExecuteTransitionContent, enabledTransitions).ConfigureAwait(false);
-
-			await DoOperation(StateBagKey.EnterStates, EnterStates, enabledTransitions).ConfigureAwait(false);
+			return _running;
 		}
 
-		private async ValueTask ExitStates(List<TransitionNode> enabledTransitions)
+		protected virtual async ValueTask ExitStates(List<TransitionNode> enabledTransitions)
 		{
 			var statesToExit = ComputeExitSet(enabledTransitions);
 
@@ -991,11 +964,11 @@ namespace Xtate.Core
 
 			foreach (var state in states)
 			{
-				await TraceExitingState(state).ConfigureAwait(false);
+				await _logger.Write(Level.Trace, $@"Exiting state '{state.Id}'", state).ConfigureAwait(false);
 
 				foreach (var onExit in state.OnExit)
 				{
-					await DoOperation(StateBagKey.OnExit, onExit, RunExecutableEntity, onExit.ActionEvaluators).ConfigureAwait(false);
+					await RunExecutableEntity(onExit.ActionEvaluators).ConfigureAwait(false);
 				}
 
 				foreach (var invoke in state.Invoke)
@@ -1005,10 +978,8 @@ namespace Xtate.Core
 
 				_context.Configuration.Delete(state);
 
-				await TraceExitedState(state).ConfigureAwait(false);
+				await _logger.Write(Level.Trace, $@"Exited state '{state.Id}'", state).ConfigureAwait(false);
 			}
-
-			Complete(StateBagKey.OnExit);
 		}
 
 		private static void AddIfNotExists<T>(List<T> list, T item)
@@ -1019,15 +990,15 @@ namespace Xtate.Core
 			}
 		}
 
-		private static List<T> ToSortedList<T>(List<T> list, IComparer<T> comparer)
+		private static List<StateEntityNode> ToSortedList(List<StateEntityNode> list, IComparer<StateEntityNode> comparer)
 		{
-			var result = new List<T>(list);
+			var result = new List<StateEntityNode>(list);
 			result.Sort(comparer);
 
 			return result;
 		}
 
-		private static bool HasIntersection<T>(List<T> list1, List<T> list2)
+		private static bool HasIntersection(List<StateEntityNode> list1, List<StateEntityNode> list2)
 		{
 			foreach (var item in list1)
 			{
@@ -1040,10 +1011,8 @@ namespace Xtate.Core
 			return false;
 		}
 
-		private async ValueTask EnterStates(List<TransitionNode> enabledTransitions)
+		protected virtual async ValueTask EnterStates(List<TransitionNode> enabledTransitions)
 		{
-			Infra.NotNull(_model);
-
 			var statesToEnter = new List<StateEntityNode>();
 			var statesForDefaultEntry = new List<CompoundNode>();
 			var defaultHistoryContent = new DefaultHistoryContent();
@@ -1052,36 +1021,36 @@ namespace Xtate.Core
 
 			foreach (var state in ToSortedList(statesToEnter, StateEntityNode.EntryOrder))
 			{
-				await TraceEnteringState(state).ConfigureAwait(false);
+				await _logger.Write(Level.Trace, $@"Entering state '{state.Id}'", state).ConfigureAwait(false);
 
 				_context.Configuration.AddIfNotExists(state);
 				_context.StatesToInvoke.AddIfNotExists(state);
 
 				if (_model.Root.Binding == BindingType.Late && state.DataModel is { } dataModel)
 				{
-					await DoOperation(StateBagKey.InitializeDataModel, dataModel, InitializeDataModel, dataModel).ConfigureAwait(false);
+					await InitializeDataModel(dataModel).ConfigureAwait(false);
 				}
 
 				foreach (var onEntry in state.OnEntry)
 				{
-					await DoOperation(StateBagKey.OnEntry, onEntry, RunExecutableEntity, onEntry.ActionEvaluators).ConfigureAwait(false);
+					await RunExecutableEntity(onEntry.ActionEvaluators).ConfigureAwait(false);
 				}
 
 				if (state is CompoundNode compound && statesForDefaultEntry.Contains(compound))
 				{
-					await DoOperation(StateBagKey.DefaultEntry, state, RunExecutableEntity, compound.Initial.Transition.ActionEvaluators).ConfigureAwait(false);
+					await RunExecutableEntity(compound.Initial.Transition.ActionEvaluators).ConfigureAwait(false);
 				}
 
 				if (defaultHistoryContent.TryGetValue(state.Id, out var action))
 				{
-					await DoOperation(StateBagKey.DefaultHistoryContent, state, RunExecutableEntity, action).ConfigureAwait(false);
+					await RunExecutableEntity(action).ConfigureAwait(false);
 				}
 
 				if (state is FinalNode final)
 				{
 					if (final.Parent is StateMachineNode)
 					{
-						Running = false;
+						_running = false;
 					}
 					else
 					{
@@ -1106,19 +1075,15 @@ namespace Xtate.Core
 					}
 				}
 
-				await TraceEnteredState(state).ConfigureAwait(false);
+				await _logger.Write(Level.Trace, $@"Entered state '{state.Id}'", state).ConfigureAwait(false);
 			}
-
-			Complete(StateBagKey.OnEntry);
-			Complete(StateBagKey.DefaultEntry);
-			Complete(StateBagKey.DefaultHistoryContent);
 		}
 
 		private async ValueTask<DataModelValue> EvaluateDoneData(DoneDataNode doneData)
 		{
 			try
 			{
-				return await doneData.Evaluate(_context.ExecutionContext, _options.StopToken).ConfigureAwait(false);
+				return await doneData.Evaluate().ConfigureAwait(false);
 			}
 			catch (Exception ex) when (IsError(ex))
 			{
@@ -1377,36 +1342,54 @@ namespace Xtate.Core
 			return targets;
 		}
 
-		private async ValueTask ExecuteTransitionContent(List<TransitionNode> transitions)
+		protected virtual async ValueTask ExecuteTransitionContent(List<TransitionNode> transitions)
 		{
 			foreach (var transition in transitions)
 			{
-				await DoOperation(StateBagKey.RunExecutableEntity, transition, ExecuteTransitionContent, transition).ConfigureAwait(false);
+				string? eventDescriptor = default;
+				string? target = default;
+				var traceEnabled = _logger.IsEnabled(Level.Trace);
+
+				if (traceEnabled)
+				{
+					eventDescriptor = EventDescriptor.ToString(transition.EventDescriptors);
+					target = Identifier.ToString(transition.Target);
+
+					if (eventDescriptor is not null)
+					{
+						await _logger.Write(Level.Trace, $@"Performing eventless {transition.Type} transition to '{target}'", transition).ConfigureAwait(false);
+					}
+					else
+					{
+						await _logger.Write(Level.Trace, $@"Performing {transition.Type} transition to '{target}'. Event descriptor '{eventDescriptor}'", transition).ConfigureAwait(false);
+					}
+				}
+
+				await RunExecutableEntity(transition.ActionEvaluators).ConfigureAwait(false);
+
+				if (traceEnabled)
+				{
+					if (eventDescriptor is not null)
+					{
+						await _logger.Write(Level.Trace, $@"Performing eventless {transition.Type} transition to '{target}'", transition).ConfigureAwait(false);
+					}
+					else
+					{
+						await _logger.Write(Level.Trace, $@"Performing {transition.Type} transition to '{target}'. Event descriptor '{eventDescriptor}'", transition).ConfigureAwait(false);
+					}
+				}
 			}
-
-			Complete(StateBagKey.RunExecutableEntity);
 		}
 
-		private async ValueTask ExecuteTransitionContent(TransitionNode transition)
-		{
-			await TracePerformingTransition(transition).ConfigureAwait(false);
-
-			await RunExecutableEntity(transition.ActionEvaluators).ConfigureAwait(false);
-
-			await TracePerformedTransition(transition).ConfigureAwait(false);
-		}
-
-		private async ValueTask RunExecutableEntity(ImmutableArray<IExecEvaluator> action)
+		protected virtual async ValueTask RunExecutableEntity(ImmutableArray<IExecEvaluator> action)
 		{
 			if (!action.IsDefaultOrEmpty)
 			{
 				foreach (var executableEntity in action)
 				{
-					_options.StopToken.ThrowIfCancellationRequested();
-
 					try
 					{
-						await executableEntity.Execute(_context.ExecutionContext, _options.StopToken).ConfigureAwait(false);
+						await executableEntity.Execute().ConfigureAwait(false);
 					}
 					catch (Exception ex) when (IsError(ex))
 					{
@@ -1416,27 +1399,52 @@ namespace Xtate.Core
 					}
 				}
 			}
-
-			await CheckPoint(PersistenceLevel.ExecutableAction).ConfigureAwait(false);
 		}
 
-		private bool IsOperationCancelled(Exception exception)
+		private static bool IsError(Exception _) => true;// TODO: Is not OperationCanceled or ObjectDisposed when SM halted?
+
+		private bool IsPlatformError(Exception exception)
 		{
-			return exception switch
-				   {
-					   OperationCanceledException ex => ex.CancellationToken == _options.StopToken,
-					   _                             => false
-				   };
+			for (var ex = exception; ex is not null; ex = ex.InnerException)
+			{
+				if (ex is PlatformException platformException)
+				{
+					if (platformException.Token == _stateMachineToken)
+					{
+						return true;
+					}
+
+					break;
+				}
+			}
+
+			return false;
 		}
 
-		private bool IsError(Exception ex) => !IsOperationCancelled(ex);
+		private bool IsCommunicationError(Exception? exception, out SendId? sendId)
+		{
+			for (var ex = exception; ex is not null; ex = ex.InnerException)
+			{
+				if (ex is CommunicationException communicationException)
+				{
+					if (communicationException.Token == _stateMachineToken)
+					{
+						sendId = communicationException.SendId;
+
+						return true;
+					}
+
+					break;
+				}
+			}
+
+			sendId = default;
+
+			return false;
+		}
 
 		private async ValueTask Error(object source, Exception exception, bool logLoggerErrors = true)
 		{
-			Infra.NotNull(_dataModelHandler);
-
-			var sourceEntityId = (source as IEntity).Is(out IDebugEntityId? id) ? id.EntityId?.ToString(CultureInfo.InvariantCulture) : null;
-
 			SendId? sendId = default;
 
 			var errorType = IsPlatformError(exception)
@@ -1457,42 +1465,57 @@ namespace Xtate.Core
 					  {
 						  Type = EventType.Platform,
 						  NameParts = nameParts,
-						  Data = DataConverter.FromException(exception, _dataModelHandler.CaseInsensitive),
+						  Data = _dataConverter.FromException(exception),
 						  SendId = sendId,
 						  Ancestor = exception
 					  };
 
 			_context.InternalQueue.Enqueue(evt);
 
-			try
+			if (_logger.IsEnabled(Level.Error))
 			{
-				await LogError(errorType, sourceEntityId, exception, _options.StopToken).ConfigureAwait(false);
-			}
-			catch (Exception ex)
-			{
-				if (logLoggerErrors)
+				try
 				{
-					try
+					await LogError(errorType, source, exception).ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+					if (logLoggerErrors)
 					{
-						await Error(source, ex, logLoggerErrors: false).ConfigureAwait(false);
-					}
-					catch
-					{
-						// ignored
+						try
+						{
+							await Error(source, ex, logLoggerErrors: false).ConfigureAwait(false);
+						}
+						catch
+						{
+							// ignored
+						}
 					}
 				}
 			}
 		}
 
-		private async ValueTask ExecuteGlobalScript()
+		private async ValueTask LogError(ErrorType errorType, object source, Exception exception)
 		{
-			Infra.NotNull(_model);
+			try
+			{
+				var entityId = source.Is(out IDebugEntityId? id) ? id.EntityId : default;
 
+				await _logger.Write(Level.Error, $@"{errorType} error in entity '{entityId}'.", exception).ConfigureAwait(false);
+			}
+			catch (Exception ex)
+			{
+				throw new PlatformException(ex) { Token = _stateMachineToken };
+			}
+		}
+
+		protected virtual async ValueTask ExecuteGlobalScript()
+		{
 			if (_model.Root.ScriptEvaluator is { } scriptEvaluator)
 			{
 				try
 				{
-					await scriptEvaluator.Execute(_context.ExecutionContext, _options.StopToken).ConfigureAwait(false);
+					await scriptEvaluator.Execute().ConfigureAwait(false);
 				}
 				catch (Exception ex) when (IsError(ex))
 				{
@@ -1515,7 +1538,7 @@ namespace Xtate.Core
 			{
 				Infra.NotNull(invoke.InvokeId);
 
-				await ForwardEvent(evt, invoke.InvokeId, _options.StopToken).ConfigureAwait(false);
+				await ForwardEvent(evt, invoke.InvokeId).ConfigureAwait(false);
 			}
 			catch (Exception ex) when (IsError(ex))
 			{
@@ -1525,11 +1548,11 @@ namespace Xtate.Core
 
 		private ValueTask ApplyFinalize(InvokeNode invoke) => invoke.Finalize is not null ? RunExecutableEntity(invoke.Finalize.ActionEvaluators) : default;
 
-		private async ValueTask Invoke(InvokeNode invoke)
+		protected virtual async ValueTask Invoke(InvokeNode invoke)
 		{
 			try
 			{
-				await invoke.Start(_context.ExecutionContext, _options.StopToken).ConfigureAwait(false);
+				await invoke.Start().ConfigureAwait(false);
 
 				Infra.NotNull(invoke.InvokeId);
 
@@ -1541,7 +1564,7 @@ namespace Xtate.Core
 			}
 		}
 
-		private async ValueTask CancelInvoke(InvokeNode invoke)
+		protected virtual async ValueTask CancelInvoke(InvokeNode invoke)
 		{
 			try
 			{
@@ -1549,7 +1572,7 @@ namespace Xtate.Core
 
 				_context.ActiveInvokes.Remove(invoke.InvokeId);
 
-				await invoke.Cancel(_context.ExecutionContext, _options.StopToken).ConfigureAwait(false);
+				await invoke.Cancel().ConfigureAwait(false);
 			}
 			catch (Exception ex) when (IsError(ex))
 			{
@@ -1557,63 +1580,39 @@ namespace Xtate.Core
 			}
 		}
 
-		private async ValueTask InitializeRootDataModel()
+		protected virtual async ValueTask InitializeDataModel(DataModelNode rootDataModel, DataModelList? defaultValues = default)
 		{
-			Infra.NotNull(_model);
-			Infra.NotNull(_dataModelHandler);
-
-			var rootDataModel = _model.Root.DataModel;
-
-			if (rootDataModel is null)
-			{
-				return;
-			}
-
-			if (_options.Arguments.Type != DataModelValueType.List)
-			{
-				await InitializeDataModel(rootDataModel).ConfigureAwait(false);
-
-				return;
-			}
-
-			var dictionary = _options.Arguments.AsList();
-			var caseInsensitive = _dataModelHandler.CaseInsensitive;
-
 			foreach (var node in rootDataModel.Data)
 			{
-				await InitializeData(node, dictionary[node.Id, caseInsensitive]).ConfigureAwait(false);
+				await InitializeData(node, defaultValues).ConfigureAwait(false);
 			}
 		}
 
-		private async ValueTask InitializeDataModel(DataModelNode dataModel)
+		protected virtual async ValueTask InitializeData(DataNode data, DataModelList? defaultValues)
 		{
-			foreach (var node in dataModel.Data)
+			Infra.Requires(data);
+
+			var caseInsensitive = _dataModelHandler.CaseInsensitive;
+
+			if (defaultValues?[data.Id, caseInsensitive] is not { Type: not DataModelValueType.Undefined } value)
 			{
-				await InitializeData(node).ConfigureAwait(false);
+				try
+				{
+					value = await GetValue(data).ConfigureAwait(false);
+				}
+				catch (Exception ex) when (IsError(ex))
+				{
+					await Error(data, ex).ConfigureAwait(false);
+
+					return;
+				}
 			}
+
+			_context.DataModel[data.Id, caseInsensitive] = value;
 		}
 
-		private async ValueTask InitializeData(DataNode data, DataModelValue overrideValue = default)
+		private async ValueTask<DataModelValue> GetValue(DataNode data)
 		{
-			Infra.NotNull(_dataModelHandler);
-
-			try
-			{
-				_context.DataModel[data.Id, _dataModelHandler.CaseInsensitive] = await GetValue(data, overrideValue).ConfigureAwait(false);
-			}
-			catch (Exception ex) when (IsError(ex))
-			{
-				await Error(data, ex).ConfigureAwait(false);
-			}
-		}
-
-		private async ValueTask<DataModelValue> GetValue(DataNode data, DataModelValue overrideValue)
-		{
-			if (!overrideValue.IsUndefined())
-			{
-				return overrideValue;
-			}
-
 			if (data.ResourceEvaluator is { } resourceEvaluator)
 			{
 				Infra.NotNull(data.Source);
@@ -1622,7 +1621,7 @@ namespace Xtate.Core
 
 				await using (resource.ConfigureAwait(false))
 				{
-					var obj = await resourceEvaluator.EvaluateObject(_context.ExecutionContext, resource, _options.StopToken).ConfigureAwait(false);
+					var obj = await resourceEvaluator.EvaluateObject(resource).ConfigureAwait(false);
 
 					return DataModelValue.FromObject(obj);
 				}
@@ -1630,14 +1629,14 @@ namespace Xtate.Core
 
 			if (data.ExpressionEvaluator is { } expressionEvaluator)
 			{
-				var obj = await expressionEvaluator.EvaluateObject(_context.ExecutionContext, _options.StopToken).ConfigureAwait(false);
+				var obj = await expressionEvaluator.EvaluateObject().ConfigureAwait(false);
 
 				return DataModelValue.FromObject(obj);
 			}
 
 			if (data.InlineContentEvaluator is { } inlineContentEvaluator)
 			{
-				var obj = await inlineContentEvaluator.EvaluateObject(_context.ExecutionContext, _options.StopToken).ConfigureAwait(false);
+				var obj = await inlineContentEvaluator.EvaluateObject().ConfigureAwait(false);
 
 				return DataModelValue.FromObject(obj);
 			}
@@ -1647,12 +1646,14 @@ namespace Xtate.Core
 
 		private ValueTask<Resource> LoadData(IExternalDataExpression externalDataExpression)
 		{
-			var uri = _options.BaseUri.CombineWith(externalDataExpression.Uri!);
-			var factoryContext = new FactoryContext(_options.ResourceLoaderFactories, _options.SecurityContext, _options.Logger, this);
+			var uri = _stateMachineLocation?.Location.CombineWith(externalDataExpression.Uri);
+			//TODO:
+			//var factoryContext = new FactoryContext(_options.ServiceLocator, _options.ResourceLoaderFactories, _options.SecurityContext, _options.Logger, this);
+			//var resourceLoaderService = _options.ServiceLocator.GetService<IResourceLoaderService>();
 
-			return factoryContext.GetResource(uri, _options.StopToken);
+			return _resourceLoader.Request(uri);
 		}
-
+		/*
 		private StateMachineContext.Parameters CreateStateMachineContextParameters()
 		{
 			Infra.NotNull(_model);
@@ -1673,8 +1674,8 @@ namespace Xtate.Core
 					   DataModelHost = _options.Host,
 					   DataModelArguments = _options.Arguments
 				   };
-		}
-
+		}*/
+		/*
 		private async ValueTask<IStateMachineContext> CreateContext()
 		{
 			Infra.NotNull(_model);
@@ -1687,7 +1688,7 @@ namespace Xtate.Core
 			{
 				Infra.NotNull(_options.StorageProvider);
 
-				var storage = await _options.StorageProvider.GetTransactionalStorage(partition: default, StateStorageKey, _options.StopToken).ConfigureAwait(false);
+				var storage = await _options.StorageProvider.GetTransactionalStorage(partition: default, StateStorageKey, _stopCts.Token).ConfigureAwait(false);
 				context = new StateMachinePersistedContext(storage, _model.EntityMap, parameters);
 			}
 			else
@@ -1695,10 +1696,10 @@ namespace Xtate.Core
 				context = new StateMachineContext(parameters);
 			}
 
-			_dataModelHandler.ExecutionContextCreated(context.ExecutionContext, out _dataModelVars);
+			_dataModelHandler.ExecutionContextCreated(_executionContext, out _dataModelVars);
 
 			return context;
-		}
+		}*/
 
 		private DataModelValue CreateInterpreterList()
 		{
@@ -1721,7 +1722,7 @@ namespace Xtate.Core
 		{
 			Infra.NotNull(_dataModelHandler);
 
-			var typeInfo = _dataModelHandler.TypeInfo;
+			var typeInfo = TypeInfo<int>.Instance;//_dataModelHandler.TypeInfo;
 
 			var dataModelHandlerList = new DataModelList(_dataModelHandler.CaseInsensitive)
 									   {
@@ -1736,46 +1737,13 @@ namespace Xtate.Core
 			return new DataModelValue(dataModelHandlerList);
 		}
 
-		private enum StateBagKey
-		{
-			Stop,
-			Running,
-			Running2,
-			EventlessTransitions,
-			InternalQueueNonEmpty,
-			SelectInternalEventTransitions,
-			InternalQueueEmpty,
-			InitializeRootDataModel,
-			EarlyInitializeDataModel,
-			ExecuteGlobalScript,
-			ExternalEventTransitions,
-			InitialEnterStates,
-			ExitInterpreter,
-			InternalQueueProcessing,
-			MainEventLoop,
-			ExitStates,
-			ExecuteTransitionContent,
-			EnterStates,
-			RunExecutableEntity,
-			InitializeDataModel,
-			OnExit,
-			OnEntry,
-			DefaultEntry,
-			DefaultHistoryContent,
-			Invoke,
-			ReturnDoneEvent,
-			NotifyAccepted,
-			NotifyStarted,
-			NotifyExited
-		}
-
 		private struct LiveLockDetector : IDisposable
 		{
 			private const int IterationCount = 36;
 
 			private int[]? _data;
 			private int    _index;
-			private int    _internalQueueLength;
+			private int    _queueLength;
 			private int    _sum;
 
 		#region Interface IDisposable
@@ -1794,14 +1762,14 @@ namespace Xtate.Core
 
 			public static LiveLockDetector Create() => new() { _index = -1 };
 
-			public void Iteration(int internalQueueCount)
+			public bool IsLiveLockDetected(int queueLength)
 			{
 				if (_index == -1)
 				{
-					_internalQueueLength = internalQueueCount;
+					_queueLength = queueLength;
 					_index = _sum = 0;
 
-					return;
+					return false;
 				}
 
 				_data ??= ArrayPool<int>.Shared.Rent(IterationCount);
@@ -1810,16 +1778,18 @@ namespace Xtate.Core
 				{
 					if (_sum >= 0)
 					{
-						throw new StateMachineLiveLockException();
+						return true;
 					}
 
 					_sum -= _data[_index % IterationCount];
 				}
 
-				var delta = internalQueueCount - _internalQueueLength;
-				_internalQueueLength = internalQueueCount;
+				var delta = queueLength - _queueLength;
+				_queueLength = queueLength;
 				_sum += delta;
 				_data[_index ++ % IterationCount] = delta;
+
+				return false;
 			}
 		}
 	}

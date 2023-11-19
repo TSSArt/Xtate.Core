@@ -27,15 +27,13 @@ namespace Xtate.Builder
 	{
 		private ImmutableArray<IExecutableEntity>.Builder? _actions;
 
-		public FinalizeBuilder(IErrorProcessor errorProcessor, object? ancestor) : base(errorProcessor, ancestor) { }
-
 	#region Interface IFinalizeBuilder
 
 		public IFinalize Build() => new FinalizeEntity { Ancestor = Ancestor, Action = _actions?.ToImmutable() ?? default };
 
 		public void AddAction(IExecutableEntity action)
 		{
-			if (action is null) throw new ArgumentNullException(nameof(action));
+			Infra.Requires(action);
 
 			(_actions ??= ImmutableArray.CreateBuilder<IExecutableEntity>()).Add(action);
 		}

@@ -22,16 +22,16 @@ using System.Threading.Tasks;
 
 namespace Xtate.Core
 {
-	internal sealed class InProcEventSchedulerFactory : IEventSchedulerFactory
+	public sealed class InProcEventSchedulerFactory : IEventSchedulerFactory
 	{
-		private InProcEventSchedulerFactory() { }
+		public InProcEventSchedulerFactory() { }
 
 		public static IEventSchedulerFactory Instance { get; } = new InProcEventSchedulerFactory();
 
 	#region Interface IEventSchedulerFactory
 
-		public ValueTask<IEventScheduler> CreateEventScheduler(IHostEventDispatcher hostEventDispatcher, ILogger? logger, CancellationToken token) =>
-			new(new InProcEventScheduler(hostEventDispatcher, logger));
+		public ValueTask<IEventScheduler> CreateEventScheduler(IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger? logger, CancellationToken token) =>
+			new(new InProcEventScheduler(hostEventDispatcher, null)); //TODO: move factory to IoC
 
 	#endregion
 	}

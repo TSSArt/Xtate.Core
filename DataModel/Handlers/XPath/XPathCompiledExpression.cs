@@ -17,43 +17,40 @@
 
 #endregion
 
-using System.Xml;
+using System;
+using System.Threading.Tasks;
 using System.Xml.XPath;
-using Xtate.Core;
 using Xtate.Scxml;
 
 namespace Xtate.DataModel.XPath
 {
-	internal class XPathCompiledExpression
+	public class XPathCompiledExpression
 	{
-		private static readonly XPathResolver ParseExpressionResolver = new(XPathFunctionFactory.Instance);
+		private readonly XPathExpression         _xPathExpression;
+		private          XPathExpressionContext? _expressionContext;
 
-		private readonly XPathExpressionContext _context;
-
-		public XPathCompiledExpression(string expression, object? entity)
+		public XPathCompiledExpression(string expression,
+									   IXmlNamespacesInfo? xmlNamespacesInfo,
+									   Func<IXmlNamespacesInfo?, XPathExpressionContext> xPathExpressionContextFactory)
 		{
-			entity.Is<XmlNameTable>(out var nameTable);
-			nameTable ??= new NameTable();
-
-			_context = new XPathExpressionContext(ParseExpressionResolver, nameTable);
-
-			if (entity.Is<IXmlNamespacesInfo>(out var xmlNamespacesInfo))
-			{
-				foreach (var prefixUri in xmlNamespacesInfo.Namespaces)
-				{
-					_context.AddNamespace(prefixUri.Prefix, prefixUri.Namespace);
-				}
-			}
-
-			XPathExpression = XPathExpression.Compile(expression, _context);
+			_expressionContext = xPathExpressionContextFactory(xmlNamespacesInfo);
+			_xPathExpression = XPathExpression.Compile(expression, _expressionContext);
 		}
 
-		public XPathResultType ReturnType => XPathExpression.ReturnType;
+		public XPathResultType ReturnType => _xPathExpression.ReturnType;
 
-		public string Expression => XPathExpression.Expression;
+		public string Expression => _xPathExpression.Expression;
 
-		public XPathExpression XPathExpression { get; }
+		public async ValueTask<XPathExpression> GetXPathExpression()
+		{
+			if (_expressionContext is { } context)
+			{
+				await context.InitResolvers().ConfigureAwait(false);
 
-		public void SetResolver(XPathResolver resolver) => _context.SetResolver(resolver);
+				_expressionContext = default;
+			}
+
+			return _xPathExpression;
+		}
 	}
 }

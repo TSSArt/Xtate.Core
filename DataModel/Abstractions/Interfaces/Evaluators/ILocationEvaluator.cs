@@ -17,7 +17,6 @@
 
 #endregion
 
-using System.Threading;
 using System.Threading.Tasks;
 using Xtate.Core;
 
@@ -26,12 +25,12 @@ namespace Xtate.DataModel
 	[PublicAPI]
 	public interface ILocationEvaluator
 	{
-		void DeclareLocalVariable(IExecutionContext executionContext);
+		ValueTask DeclareLocalVariable();
 
-		ValueTask SetValue(IObject value, IExecutionContext executionContext, CancellationToken token);
+		ValueTask SetValue(IObject value);
 
-		ValueTask<IObject> GetValue(IExecutionContext executionContext, CancellationToken token);
+		ValueTask<IObject> GetValue();
 
-		string GetName(IExecutionContext executionContext);
+		ValueTask<string> GetName();
 	}
 }

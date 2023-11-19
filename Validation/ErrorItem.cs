@@ -40,7 +40,7 @@ namespace Xtate
 		}
 
 		public ErrorSeverity Severity     { get; } = ErrorSeverity.Error;
-		public Type          Source       { get; }
+		public Type     Source       { get; }
 		public string        Message      { get; }
 		public Exception?    Exception    { get; }
 		public int           LineNumber   { get; }

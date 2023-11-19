@@ -25,7 +25,6 @@ using System.Linq;
 
 namespace Xtate.Core
 {
-	[PublicAPI]
 	public abstract class StateMachineVisitor
 	{
 		private readonly Stack<(object, ImmutableArray<object?>)>? _path;
@@ -118,7 +117,6 @@ namespace Xtate.Core
 			}
 		}
 
-		[PublicAPI]
 		protected ref struct TrackList<T> where T : class
 		{
 			private ImmutableArray<T> _items;
@@ -483,10 +481,10 @@ namespace Xtate.Core
 					entity = cancel;
 					break;
 
-				case IConditionExpression conditionExpression:
+				/*case IConditionExpression conditionExpression:
 					Visit(ref conditionExpression);
 					entity = conditionExpression;
-					break;
+					break;*/ //TODO:delete
 
 				case ICustomAction customAction:
 					Visit(ref customAction);

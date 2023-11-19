@@ -21,7 +21,7 @@ using Xtate.Persistence;
 
 namespace Xtate.Core
 {
-	internal sealed class ScriptExpressionNode : IScriptExpression, IStoreSupport, IAncestorProvider
+	public sealed class ScriptExpressionNode : IScriptExpression, IStoreSupport, IAncestorProvider
 	{
 		private readonly IScriptExpression _scriptExpression;
 

@@ -26,13 +26,16 @@ namespace Xtate.Builder
 	{
 		private IOutgoingEvent? _outgoingEvent;
 
-		public RaiseBuilder(IErrorProcessor errorProcessor, object? ancestor) : base(errorProcessor, ancestor) { }
-
 	#region Interface IRaiseBuilder
 
 		public IRaise Build() => new RaiseEntity { OutgoingEvent = _outgoingEvent };
 
-		public void SetEvent(IOutgoingEvent outgoingEvent) => _outgoingEvent = outgoingEvent ?? throw new ArgumentNullException(nameof(outgoingEvent));
+		public void SetEvent(IOutgoingEvent outgoingEvent)
+		{
+			Infra.Requires(outgoingEvent);
+			
+			_outgoingEvent = outgoingEvent;
+		}
 
 	#endregion
 	}

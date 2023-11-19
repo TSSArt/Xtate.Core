@@ -24,7 +24,7 @@ using Xtate.Persistence;
 
 namespace Xtate.Core
 {
-	internal sealed class OnExitNode : IOnExit, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
+	public sealed class OnExitNode : IOnExit, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 	{
 		private readonly IOnExit        _onExit;
 		private          DocumentIdSlot _documentIdSlot;

@@ -28,6 +28,8 @@ using Xtate.Service;
 
 namespace Xtate
 {
+	//TODO: delete
+	/*
 	[PublicAPI]
 	public abstract class FactoryBase : IDataModelHandlerFactory, IServiceFactory, ICustomActionFactory
 	{
@@ -37,7 +39,7 @@ namespace Xtate
 
 	#region Interface ICustomActionFactory
 
-		public async ValueTask<ICustomActionFactoryActivator?> TryGetActivator(IFactoryContext factoryContext,
+		public async ValueTask<ICustomActionFactoryActivator?> TryGetActivator(ServiceLocator serviceLocator,
 																			   string ns,
 																			   string name,
 																			   CancellationToken token)
@@ -46,7 +48,7 @@ namespace Xtate
 			{
 				foreach (var factory in _customActionFactories)
 				{
-					var activator = await factory.TryGetActivator(factoryContext, ns, name, token).ConfigureAwait(false);
+					var activator = await factory.TryGetActivator(serviceLocator, ns, name, token).ConfigureAwait(false);
 
 					if (activator is not null)
 					{
@@ -62,13 +64,13 @@ namespace Xtate
 
 	#region Interface IDataModelHandlerFactory
 
-		public async ValueTask<IDataModelHandlerFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, string dataModelType, CancellationToken token)
+		public async ValueTask<IDataModelHandlerFactoryActivator?> TryGetActivator(ServiceLocator serviceLocator, string dataModelType, CancellationToken token)
 		{
 			if (_dataModelHandlerFactories is not null)
 			{
 				foreach (var factory in _dataModelHandlerFactories)
 				{
-					var activator = await factory.TryGetActivator(factoryContext, dataModelType, token).ConfigureAwait(false);
+					var activator = await factory.TryGetActivator(serviceLocator, dataModelType, token).ConfigureAwait(false);
 
 					if (activator is not null)
 					{
@@ -84,13 +86,13 @@ namespace Xtate
 
 	#region Interface IServiceFactory
 
-		public async ValueTask<IServiceFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, Uri type, CancellationToken token)
+		public async ValueTask<IServiceFactoryActivator?> TryGetActivator(ServiceLocator serviceLocator, Uri type, CancellationToken token)
 		{
 			if (_serviceFactories is not null)
 			{
 				foreach (var factory in _serviceFactories)
 				{
-					var activator = await factory.TryGetActivator(factoryContext, type, token).ConfigureAwait(false);
+					var activator = await factory.TryGetActivator(serviceLocator, type, token).ConfigureAwait(false);
 
 					if (activator is not null)
 					{
@@ -109,5 +111,5 @@ namespace Xtate
 		protected void Add(IDataModelHandlerFactory dataModelHandlerFactory) => (_dataModelHandlerFactories ??= new List<IDataModelHandlerFactory>()).Add(dataModelHandlerFactory);
 
 		protected void Add(IServiceFactory serviceFactory) => (_serviceFactories ??= new List<IServiceFactory>()).Add(serviceFactory);
-	}
+	}*/
 }

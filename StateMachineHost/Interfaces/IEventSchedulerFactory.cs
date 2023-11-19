@@ -25,6 +25,6 @@ namespace Xtate.Core
 	[PublicAPI]
 	public interface IEventSchedulerFactory
 	{
-		ValueTask<IEventScheduler> CreateEventScheduler(IHostEventDispatcher hostEventDispatcher, ILogger? logger, CancellationToken token);
+		ValueTask<IEventScheduler> CreateEventScheduler(IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger? logger, CancellationToken token);
 	}
 }

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,26 +17,32 @@
 
 #endregion
 
+using System;
+using System.Threading.Tasks;
 using System.Xml.XPath;
 using System.Xml.Xsl;
 
-namespace Xtate.DataModel.XPath
+namespace Xtate.DataModel.XPath;
+
+public class XPathVarDescriptor : IXsltContextVariable, IInitResolver
 {
-	internal sealed class XPathVarDescriptor : IXsltContextVariable
-	{
-		private readonly string _name;
+	public required Func<ValueTask<XPathEngine>> XPathEngineFactory { private get; init; }
 
-		public XPathVarDescriptor(string name) => _name = name;
+	private readonly string       _name;
+	private          XPathEngine? _engine;
 
-	#region Interface IXsltContextVariable
+	public XPathVarDescriptor(string name) => _name = name;
 
-		public object Evaluate(XsltContext xsltContext) => ((XPathExpressionContext) xsltContext).Resolver.GetVariable(_name);
+#region Interface IXsltContextVariable
 
-		public bool IsLocal => false;
-		public bool IsParam => false;
+	public virtual object Evaluate(XsltContext xsltContext) => _engine?.GetVariable(_name);
 
-		public XPathResultType VariableType => XPathResultType.NodeSet;
+	public bool IsLocal => false;
+	public bool IsParam => false;
 
-	#endregion
-	}
+	public XPathResultType VariableType => XPathResultType.NodeSet;
+
+#endregion
+
+	public async ValueTask Initialize() => _engine = await XPathEngineFactory().ConfigureAwait(false);
 }

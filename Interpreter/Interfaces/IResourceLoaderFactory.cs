@@ -23,9 +23,8 @@ using System.Threading.Tasks;
 
 namespace Xtate.Core
 {
-	[PublicAPI]
 	public interface IResourceLoaderFactory
 	{
-		ValueTask<IResourceLoaderFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, Uri uri, CancellationToken token);
+		ValueTask<IResourceLoaderFactoryActivator?> TryGetActivator(Uri uri);
 	}
 }

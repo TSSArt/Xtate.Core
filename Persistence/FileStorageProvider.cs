@@ -21,14 +21,14 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Xtate.Persistence
 {
-	[PublicAPI]
 	public class FileStorageProvider : IStorageProvider
 	{
+		public required Func<Stream, ValueTask<ITransactionalStorage>> TransactionalStorageFactory { private get; init; }
+
 		private static readonly char[]   InvalidFileNameChars   = Path.GetInvalidFileNameChars();
 		private static readonly string[] InvalidCharReplacement = GetInvalidCharReplacement();
 
@@ -37,33 +37,33 @@ namespace Xtate.Persistence
 
 		public FileStorageProvider(string path, string? extension = default)
 		{
-			_path = path ?? throw new ArgumentNullException(nameof(path));
+			Infra.Requires(path);
+
+			_path = path;
 			_extension = extension;
 		}
 
 	#region Interface IStorageProvider
 
-		public async ValueTask<ITransactionalStorage> GetTransactionalStorage(string? partition, string key, CancellationToken token)
+		public async ValueTask<ITransactionalStorage> GetTransactionalStorage(string? partition, string key)
 		{
-			if (string.IsNullOrEmpty(key)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(key));
+			Infra.RequiresNonEmptyString(key);
 
 			var dir = !string.IsNullOrEmpty(partition) ? Path.Combine(_path, Escape(partition)) : _path;
 
 			if (!Directory.Exists(dir))
 			{
-				Directory.CreateDirectory(_path);
+				Directory.CreateDirectory(dir);
 			}
 
 			var path = Path.Combine(dir, Escape(key) + _extension);
 			var fileStream = new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, bufferSize: 4096, FileOptions.Asynchronous);
-			var streamStorage = await StreamStorage.CreateAsync(fileStream, disposeStream: true, token).ConfigureAwait(false);
-
-			return streamStorage;
+			return await TransactionalStorageFactory(fileStream).ConfigureAwait(false);
 		}
 
-		public ValueTask RemoveTransactionalStorage(string? partition, string key, CancellationToken token)
+		public ValueTask RemoveTransactionalStorage(string? partition, string key)
 		{
-			if (string.IsNullOrEmpty(key)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(key));
+			Infra.RequiresNonEmptyString(key);
 
 			var dir = !string.IsNullOrEmpty(partition) ? Path.Combine(_path, Escape(partition)) : _path;
 			var path = Path.Combine(dir, Escape(key) + _extension);
@@ -72,12 +72,15 @@ namespace Xtate.Persistence
 			{
 				File.Delete(path);
 			}
-			catch (IOException) { }
+			catch (FileNotFoundException)
+			{
+				// Ignore
+			}
 
 			return default;
 		}
 
-		public ValueTask RemoveAllTransactionalStorage(string? partition, CancellationToken token)
+		public ValueTask RemoveAllTransactionalStorage(string? partition)
 		{
 			var path = !string.IsNullOrEmpty(partition) ? Path.Combine(_path, Escape(partition)) : _path;
 
@@ -85,7 +88,10 @@ namespace Xtate.Persistence
 			{
 				Directory.Delete(path, recursive: true);
 			}
-			catch (IOException) { }
+			catch (DirectoryNotFoundException)
+			{
+				// Ignore
+			}
 
 			return default;
 		}

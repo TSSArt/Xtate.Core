@@ -21,7 +21,7 @@ using Xtate.Persistence;
 
 namespace Xtate.Core
 {
-	internal sealed class ValueExpressionNode : IValueExpression, IStoreSupport, IAncestorProvider
+	public sealed class ValueExpressionNode : IValueExpression, IStoreSupport, IAncestorProvider
 	{
 		private readonly IValueExpression _valueExpression;
 

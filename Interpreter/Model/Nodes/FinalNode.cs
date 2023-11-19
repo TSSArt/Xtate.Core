@@ -23,11 +23,11 @@ using Xtate.Persistence;
 
 namespace Xtate.Core
 {
-	internal sealed class FinalNode : StateEntityNode, IFinal, IAncestorProvider, IDebugEntityId
+	public class FinalNode : StateEntityNode, IFinal, IAncestorProvider, IDebugEntityId
 	{
 		private readonly IFinal _final;
 
-		public FinalNode(DocumentIdNode documentIdNode, IFinal final) : base(documentIdNode, children: null)
+		public FinalNode(DocumentIdNode documentIdNode, IFinal final) : base(documentIdNode)
 		{
 			_final = final;
 
@@ -61,8 +61,8 @@ namespace Xtate.Core
 
 		public override IIdentifier Id { get; }
 
-		ImmutableArray<IOnEntry> IFinal.OnEntry  => ImmutableArray<IOnEntry>.CastUp(OnEntry)!;
-		ImmutableArray<IOnExit> IFinal. OnExit   => ImmutableArray<IOnExit>.CastUp(OnExit)!;
+		ImmutableArray<IOnEntry> IFinal.OnEntry  => ImmutableArray<IOnEntry>.CastUp(OnEntry);
+		ImmutableArray<IOnExit> IFinal. OnExit   => ImmutableArray<IOnExit>.CastUp(OnExit);
 		IDoneData? IFinal.              DoneData => DoneData;
 
 	#endregion

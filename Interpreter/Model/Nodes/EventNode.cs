@@ -23,7 +23,7 @@ using Xtate.Persistence;
 
 namespace Xtate.Core
 {
-	internal sealed class EventNode : IOutgoingEvent, IStoreSupport, IAncestorProvider
+	public sealed class EventNode : IOutgoingEvent, IStoreSupport, IAncestorProvider
 	{
 		private readonly IOutgoingEvent _outgoingEvent;
 

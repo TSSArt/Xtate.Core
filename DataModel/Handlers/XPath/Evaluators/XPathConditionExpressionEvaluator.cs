@@ -17,16 +17,18 @@
 
 #endregion
 
-using System.Threading;
+using System;
 using System.Threading.Tasks;
 using Xtate.Core;
 
 namespace Xtate.DataModel.XPath
 {
-	internal class XPathConditionExpressionEvaluator : IConditionExpression, IBooleanEvaluator, IAncestorProvider
+	public class XPathConditionExpressionEvaluator : IConditionExpression, IBooleanEvaluator, IAncestorProvider
 	{
 		private readonly XPathCompiledExpression _compiledExpression;
 		private readonly IConditionExpression    _conditionExpression;
+
+		public required Func<ValueTask<XPathEngine>> EngineFactory { private get; init; }
 
 		public XPathConditionExpressionEvaluator(IConditionExpression conditionExpression, XPathCompiledExpression compiledExpression)
 		{
@@ -42,8 +44,14 @@ namespace Xtate.DataModel.XPath
 
 	#region Interface IBooleanEvaluator
 
-		ValueTask<bool> IBooleanEvaluator.EvaluateBoolean(IExecutionContext executionContext, CancellationToken token) =>
-			new(executionContext.Engine().EvalObject(_compiledExpression, stripRoots: true).AsBoolean());
+		async ValueTask<bool> IBooleanEvaluator.EvaluateBoolean()
+		{
+			var engine = await EngineFactory().ConfigureAwait(false);
+			
+			var obj = await engine.EvalObject(_compiledExpression, stripRoots: true).ConfigureAwait(false);
+
+			return obj.AsBoolean();
+		}
 
 	#endregion
 

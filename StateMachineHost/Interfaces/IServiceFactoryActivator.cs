@@ -26,7 +26,7 @@ namespace Xtate.Service
 {
 	public interface IServiceFactoryActivator
 	{
-		ValueTask<IService> StartService(IFactoryContext factoryContext,
+		ValueTask<IService> StartService(ServiceLocator serviceLocator,
 										 Uri? baseUri,
 										 InvokeData invokeData,
 										 IServiceCommunication serviceCommunication,

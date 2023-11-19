@@ -29,24 +29,37 @@ namespace Xtate.Builder
 		private IInlineContent?          _inlineContent;
 		private IExternalDataExpression? _source;
 
-		public DataBuilder(IErrorProcessor errorProcessor, object? ancestor) : base(errorProcessor, ancestor) { }
-
 	#region Interface IDataBuilder
 
 		public IData Build() => new DataEntity { Ancestor = Ancestor, Id = _id, Source = _source, Expression = _expression, InlineContent = _inlineContent };
 
 		public void SetId(string id)
 		{
-			if (string.IsNullOrEmpty(id)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(id));
+			Infra.RequiresNonEmptyString(id);
 
 			_id = id;
 		}
 
-		public void SetSource(IExternalDataExpression source) => _source = source ?? throw new ArgumentNullException(nameof(source));
+		public void SetSource(IExternalDataExpression source)
+		{
+			Infra.Requires(source);
 
-		public void SetExpression(IValueExpression expression) => _expression = expression ?? throw new ArgumentNullException(nameof(expression));
+			_source = source;
+		}
 
-		public void SetInlineContent(IInlineContent inlineContent) => _inlineContent = inlineContent ?? throw new ArgumentNullException(nameof(inlineContent));
+		public void SetExpression(IValueExpression expression)
+		{
+			Infra.Requires(expression);
+
+			_expression = expression;
+		}
+
+		public void SetInlineContent(IInlineContent inlineContent)
+		{
+			Infra.Requires(inlineContent);
+
+			_inlineContent = inlineContent;
+		}
 
 	#endregion
 	}

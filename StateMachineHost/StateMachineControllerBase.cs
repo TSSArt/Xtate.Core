@@ -25,10 +25,35 @@ using System.Threading.Tasks;
 using Xtate.IoProcessor;
 using Xtate.Persistence;
 using Xtate.Service;
+using IServiceProvider = Xtate.IoC.IServiceProvider;
 
 namespace Xtate.Core
 {
-	internal abstract class StateMachineControllerBase : IStateMachineController, IService, IExternalCommunication, INotifyStateChanged, IAsyncDisposable
+	public class StateMachineControllerProxy : IStateMachineController
+	{
+		public StateMachineControllerProxy(StateMachineRuntimeController stateMachineRuntimeController) => _baseStateMachineController = stateMachineRuntimeController;
+
+		private readonly IStateMachineController _baseStateMachineController;
+
+		public ValueTask Send(IEvent evt, CancellationToken token = default) => _baseStateMachineController.Send(evt, token);
+
+		ValueTask<DataModelValue> IService.GetResult(CancellationToken token) => _baseStateMachineController.GetResult(token);
+
+		public ValueTask Destroy(CancellationToken token) => _baseStateMachineController.Destroy(token);
+
+		public ValueTask DisposeAsync() => _baseStateMachineController.DisposeAsync();
+
+		public SessionId SessionId              => _baseStateMachineController.SessionId;
+		public Uri       StateMachineLocation   => _baseStateMachineController.StateMachineLocation;
+		public void      TriggerDestroySignal() => _baseStateMachineController.TriggerDestroySignal();
+
+
+		public ValueTask StartAsync(CancellationToken token) => _baseStateMachineController.StartAsync(token);
+
+		ValueTask<DataModelValue> IStateMachineController.GetResult(CancellationToken token) => _baseStateMachineController.GetResult(token);
+	}
+
+	public abstract class StateMachineControllerBase : IStateMachineController, IService, IExternalCommunication, INotifyStateChanged, IAsyncDisposable, IInvokeController
 	{
 		private readonly TaskCompletionSource<int>            _acceptedTcs  = new();
 		private readonly TaskCompletionSource<DataModelValue> _completedTcs = new();
@@ -39,6 +64,9 @@ namespace Xtate.Core
 		private readonly ISecurityContext                     _securityContext;
 		private readonly IStateMachine?                       _stateMachine;
 		private readonly IStateMachineHost                    _stateMachineHost;
+
+		public required Func<ValueTask<IStateMachineInterpreter>> _stateMachineInterpreterFactory { private get; init; }
+		public required IServiceProvider sd { private get; init; } //TODO:delete
 
 		protected StateMachineControllerBase(SessionId sessionId,
 											 IStateMachineOptions? options,
@@ -61,7 +89,8 @@ namespace Xtate.Core
 			_destroyTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_defaultOptions.DestroyToken, token2: default);
 		}
 
-		protected abstract Channel<IEvent> EventChannel { get; }
+		protected abstract Channel<IEvent>   EventChannel { get; }
+		public required    IEventQueueWriter EventQueueWriter  { private get; init; }
 
 		public Uri? StateMachineLocation { get; }
 
@@ -80,25 +109,29 @@ namespace Xtate.Core
 
 	#region Interface IEventDispatcher
 
-		public virtual ValueTask Send(IEvent evt, CancellationToken token) => EventChannel.Writer.WriteAsync(evt, token);
+		//public virtual ValueTask Send(IEvent evt, CancellationToken token) => EventChannel.Writer.WriteAsync(evt, token);
+		public virtual ValueTask Send(IEvent evt, CancellationToken token) => EventQueueWriter.WriteAsync(evt);
 
 	#endregion
 
 	#region Interface IExternalCommunication
 
-		ImmutableArray<IIoProcessor> IExternalCommunication.GetIoProcessors() => _stateMachineHost.GetIoProcessors();
+		ValueTask<SendStatus> IExternalCommunication.TrySendEvent(IOutgoingEvent outgoingEvent) => _stateMachineHost.DispatchEvent(SessionId, outgoingEvent, CancellationToken.None);
 
-		ValueTask<SendStatus> IExternalCommunication.TrySendEvent(IOutgoingEvent outgoingEvent, CancellationToken token) => _stateMachineHost.DispatchEvent(SessionId, outgoingEvent, token);
+		ValueTask IExternalCommunication.CancelEvent(SendId sendId) => _stateMachineHost.CancelEvent(SessionId, sendId, CancellationToken.None);
 
-		ValueTask IExternalCommunication.CancelEvent(SendId sendId, CancellationToken token) => _stateMachineHost.CancelEvent(SessionId, sendId, token);
+		ValueTask IExternalCommunication.StartInvoke(InvokeData invokeData) => _stateMachineHost.StartInvoke(SessionId, invokeData, _securityContext, CancellationToken.None);
 
-		ValueTask IExternalCommunication.StartInvoke(InvokeData invokeData, CancellationToken token) => _stateMachineHost.StartInvoke(SessionId, invokeData, _securityContext, token);
+		ValueTask IExternalCommunication.CancelInvoke(InvokeId invokeId) => _stateMachineHost.CancelInvoke(SessionId, invokeId, CancellationToken.None);
 
-		ValueTask IExternalCommunication.CancelInvoke(InvokeId invokeId, CancellationToken token) => _stateMachineHost.CancelInvoke(SessionId, invokeId, token);
-
-		ValueTask IExternalCommunication.ForwardEvent(IEvent evt, InvokeId invokeId, CancellationToken token) => _stateMachineHost.ForwardEvent(SessionId, evt, invokeId, token);
+		ValueTask IExternalCommunication.ForwardEvent(IEvent evt, InvokeId invokeId) => _stateMachineHost.ForwardEvent(SessionId, evt, invokeId, CancellationToken.None);
 
 	#endregion
+
+		ValueTask IInvokeController.Start(InvokeData invokeData) => _stateMachineHost.StartInvoke(SessionId, invokeData, _securityContext, CancellationToken.None);
+
+		ValueTask IInvokeController.Cancel(InvokeId invokeId) => _stateMachineHost.CancelInvoke(SessionId, invokeId, CancellationToken.None);
+
 
 	#region Interface INotifyStateChanged
 
@@ -121,6 +154,8 @@ namespace Xtate.Core
 		ValueTask IService.Destroy(CancellationToken token)
 		{
 			TriggerDestroySignal();
+
+			//TODO: Wait StateMachine destroyed
 
 			return default;
 		}
@@ -167,7 +202,7 @@ namespace Xtate.Core
 
 		private async ValueTask<DataModelValue> ExecuteAsync()
 		{
-			_finalizer.DefferFinalization();
+			//_finalizer.DefferFinalization();
 			var initialized = false;
 			while (true)
 			{
@@ -182,20 +217,28 @@ namespace Xtate.Core
 
 					try
 					{
-						var result = await StateMachineInterpreter.RunAsync(SessionId, _stateMachine, EventChannel.Reader, GetOptions()).ConfigureAwait(false);
-						await _finalizer.ExecuteDeferredFinalization().ConfigureAwait(false);
+						//var stateMachineInterpreter = _defaultOptions.ServiceLocator.GetService<IStateMachineInterpreter>();
+						var stateMachineInterpreter = await _stateMachineInterpreterFactory().ConfigureAwait(false);
+						var result = await stateMachineInterpreter.RunAsync().ConfigureAwait(false);
+
+						//var result = await stateMachineInterpreter.RunAsync(SessionId, _stateMachine, EventChannel.Reader, GetOptions()).ConfigureAwait(false);
+						//await _finalizer.ExecuteDeferredFinalization().ConfigureAwait(false);
 						_acceptedTcs.TrySetResult(0);
 						_completedTcs.TrySetResult(result);
 
 						return result;
 					}
 					catch (StateMachineSuspendedException) when (!_defaultOptions.SuspendToken.IsCancellationRequested) { }
+					catch(Exception s)
+					{
+						throw;
+					}
 
 					await WaitForResume().ConfigureAwait(false);
 				}
 				catch (OperationCanceledException ex)
 				{
-					await _finalizer.ExecuteDeferredFinalization().ConfigureAwait(false);
+					//await _finalizer.ExecuteDeferredFinalization().ConfigureAwait(false);
 					_acceptedTcs.TrySetCanceled(ex.CancellationToken);
 					_completedTcs.TrySetCanceled(ex.CancellationToken);
 
@@ -203,7 +246,7 @@ namespace Xtate.Core
 				}
 				catch (Exception ex)
 				{
-					await _finalizer.ExecuteDeferredFinalization().ConfigureAwait(false);
+					//await _finalizer.ExecuteDeferredFinalization().ConfigureAwait(false);
 					_acceptedTcs.TrySetException(ex);
 					_completedTcs.TrySetException(ex);
 

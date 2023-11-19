@@ -29,7 +29,8 @@ namespace Xtate
 		{
 			if (builder is null) throw new ArgumentNullException(nameof(builder));
 
-			builder.AddCustomActionFactory(SystemActionFactory.Instance);
+			//TODO:
+			//builder.AddCustomActionFactory(SystemActionFactory.Instance);
 
 			return builder;
 		}

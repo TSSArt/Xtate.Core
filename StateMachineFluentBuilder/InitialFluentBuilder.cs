@@ -25,28 +25,21 @@ namespace Xtate.Builder
 	[PublicAPI]
 	public class InitialFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 	{
-		private readonly IInitialBuilder  _builder;
-		private readonly Action<IInitial> _builtAction;
-		private readonly IBuilderFactory  _factory;
-		private readonly TOuterBuilder    _outerBuilder;
+		public required IInitialBuilder  Builder      { private get; init; }
+		public required Action<IInitial> BuiltAction  { private get; init; }
+		public required TOuterBuilder    OuterBuilder { private get; init; }
 
-		public InitialFluentBuilder(IBuilderFactory factory, TOuterBuilder outerBuilder, Action<IInitial> builtAction)
-		{
-			_factory = factory ?? throw new ArgumentNullException(nameof(factory));
-			_builder = factory.CreateInitialBuilder(null);
-			_outerBuilder = outerBuilder;
-			_builtAction = builtAction;
-		}
+		public required Func<InitialFluentBuilder<TOuterBuilder>, Action<ITransition>, TransitionFluentBuilder<InitialFluentBuilder<TOuterBuilder>>> TransitionFluentBuilderFactory { private get; init; }
 
 		[return: NotNull]
 		public TOuterBuilder EndInitial()
 		{
-			_builtAction(_builder.Build());
+			BuiltAction(Builder.Build());
 
-			return _outerBuilder;
+			return OuterBuilder;
 		}
 
-		public TransitionFluentBuilder<InitialFluentBuilder<TOuterBuilder>> BeginTransition() => new(_factory, this, _builder.SetTransition);
+		public TransitionFluentBuilder<InitialFluentBuilder<TOuterBuilder>> BeginTransition() => TransitionFluentBuilderFactory(this, Builder.SetTransition);
 
 		public InitialFluentBuilder<TOuterBuilder> AddTransition(string target) => AddTransition((Identifier) target);
 

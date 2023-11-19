@@ -19,7 +19,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
-using Xtate.Core;
 
 namespace Xtate
 {
@@ -32,11 +31,19 @@ namespace Xtate
 		InvokedService
 	}
 
-	public interface ISecurityContext
+	public interface IIoBoundTask
 	{
-		TaskFactory IoBoundTaskFactory { get; }
+		TaskFactory Factory { get; }
+	}
 
-		ISecurityContext CreateNested(SecurityContextType type, DeferredFinalizer finalizer);
+	public class DefaultIoBoundTask : IIoBoundTask
+	{
+		public TaskFactory Factory => new(TaskScheduler.Default);
+	}
+
+	public interface ISecurityContext : IIoBoundTask
+	{
+		ISecurityContext CreateNested(SecurityContextType type);
 
 		ValueTask SetValue<T>(object key,
 							  object subKey,

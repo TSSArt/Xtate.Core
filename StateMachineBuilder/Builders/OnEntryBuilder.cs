@@ -27,15 +27,13 @@ namespace Xtate.Builder
 	{
 		private ImmutableArray<IExecutableEntity>.Builder? _actions;
 
-		public OnEntryBuilder(IErrorProcessor errorProcessor, object? ancestor) : base(errorProcessor, ancestor) { }
-
 	#region Interface IOnEntryBuilder
 
 		public IOnEntry Build() => new OnEntryEntity { Ancestor = Ancestor, Action = _actions?.ToImmutable() ?? default };
 
 		public void AddAction(IExecutableEntity action)
 		{
-			if (action is null) throw new ArgumentNullException(nameof(action));
+			Infra.Requires(action);
 
 			(_actions ??= ImmutableArray.CreateBuilder<IExecutableEntity>()).Add(action);
 		}
