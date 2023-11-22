@@ -23,7 +23,7 @@ using Xtate.Persistence;
 
 namespace Xtate.Core
 {
-	internal sealed class SendNode : ExecutableEntityNode, ISend, IAncestorProvider, IDebugEntityId
+	public sealed class SendNode : ExecutableEntityNode, ISend, IAncestorProvider, IDebugEntityId
 	{
 		private readonly ISend _send;
 

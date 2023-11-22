@@ -17,14 +17,16 @@
 
 #endregion
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Xtate.CustomAction
 {
-	[PublicAPI]
+	[Obsolete]
 	public interface ICustomActionExecutor
 	{
-		ValueTask Execute(IExecutionContext executionContext, CancellationToken token);
+		[Obsolete]
+		ValueTask Execute();
 	}
 }

@@ -25,6 +25,6 @@ namespace Xtate.DataModel
 	[PublicAPI]
 	public interface IBooleanEvaluator : IValueEvaluator
 	{
-		ValueTask<bool> EvaluateBoolean(IExecutionContext executionContext, CancellationToken token);
+		ValueTask<bool> EvaluateBoolean();
 	}
 }

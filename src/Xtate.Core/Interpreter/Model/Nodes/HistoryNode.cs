@@ -22,11 +22,11 @@ using Xtate.Persistence;
 
 namespace Xtate.Core
 {
-	internal sealed class HistoryNode : StateEntityNode, IHistory, IAncestorProvider, IDebugEntityId
+	public sealed class HistoryNode : StateEntityNode, IHistory, IAncestorProvider, IDebugEntityId
 	{
 		private readonly IHistory _history;
 
-		public HistoryNode(DocumentIdNode documentIdNode, IHistory history) : base(documentIdNode, children: null)
+		public HistoryNode(DocumentIdNode documentIdNode, IHistory history) : base(documentIdNode)
 		{
 			Infra.NotNull(history.Transition);
 

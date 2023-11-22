@@ -24,24 +24,32 @@ using Xtate.Persistence;
 
 namespace Xtate.Core
 {
-	internal sealed class StateMachineNode : StateEntityNode, IStateMachine, IAncestorProvider, IDebugEntityId
+	public sealed class StateMachineNode : StateEntityNode, IStateMachine, IAncestorProvider, IDebugEntityId
 	{
 		private readonly IStateMachine _stateMachine;
 
-		public StateMachineNode(DocumentIdNode documentIdNode, IStateMachine stateMachine) : base(documentIdNode, GetChildNodes(stateMachine.Initial, stateMachine.States))
+		public StateMachineNode(DocumentIdNode documentIdNode, IStateMachine stateMachine) : base(documentIdNode)
 		{
-			_stateMachine = stateMachine;
+			Infra.Requires(stateMachine);
+			Infra.Requires(stateMachine.Initial);
 
-			Infra.NotNull(stateMachine.Initial);
+			_stateMachine = stateMachine;
 
 			Initial = stateMachine.Initial.As<InitialNode>();
 			ScriptEvaluator = _stateMachine.Script?.As<ScriptNode>();
 			DataModel = _stateMachine.DataModel?.As<DataModelNode>();
+			States = _stateMachine.States.AsArrayOf<IStateEntity, StateEntityNode>(true);
+
+			Register(Initial);
+			Register(States);
 		}
 
 		public override DataModelNode? DataModel { get; }
 
-		public InitialNode     Initial         { get; }
+		public override ImmutableArray<StateEntityNode> States { get; }
+
+		public InitialNode Initial { get; }
+
 		public IExecEvaluator? ScriptEvaluator { get; }
 
 	#region Interface IAncestorProvider
@@ -62,9 +70,9 @@ namespace Xtate.Core
 		public string?                             Name          => _stateMachine.Name;
 		public string?                             DataModelType => _stateMachine.DataModelType;
 		public IExecutableEntity?                  Script        => _stateMachine.Script;
-		IDataModel? IStateMachine.                 DataModel     => _stateMachine.DataModel;
-		IInitial? IStateMachine.                   Initial       => _stateMachine.Initial;
-		ImmutableArray<IStateEntity> IStateMachine.States        => _stateMachine.States;
+		IDataModel? IStateMachine.                 DataModel     => DataModel;
+		IInitial? IStateMachine.                   Initial       => Initial;
+		ImmutableArray<IStateEntity> IStateMachine.States        => ImmutableArray<IStateEntity>.CastUp(States);
 
 	#endregion
 

@@ -31,7 +31,7 @@ namespace Xtate.Service
 
 		public delegate IService ServiceCreator(Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication);
 
-		public delegate ValueTask<IService> ServiceCreatorAsync(IFactoryContext factoryContext,
+		public delegate ValueTask<IService> ServiceCreatorAsync(ServiceLocator serviceLocator,
 																Uri? baseUri,
 																InvokeData invokeData,
 																IServiceCommunication serviceCommunication,

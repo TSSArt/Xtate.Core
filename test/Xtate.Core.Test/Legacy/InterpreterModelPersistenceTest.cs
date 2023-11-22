@@ -27,6 +27,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Xtate.Builder;
+using Xtate.IoC;
 using Xtate.DataModel;
 using Xtate.Persistence;
 using Xtate.Scxml;
@@ -34,7 +35,7 @@ using Xtate.Scxml;
 namespace Xtate.Core.Test.Legacy
 {
 	public class Evaluator : IExternalScriptExpression, IIntegerEvaluator, IStringEvaluator, IExecEvaluator, IArrayEvaluator, IObjectEvaluator, IBooleanEvaluator, ILocationEvaluator, IValueExpression,
-							 ILocationExpression, IConditionExpression, IScriptExpression
+							 ILocationExpression, IConditionExpression, IScriptExpression, IExternalDataExpression, IResourceEvaluator
 	{
 		public Evaluator(string? expression) => Expression = expression;
 
@@ -42,71 +43,81 @@ namespace Xtate.Core.Test.Legacy
 
 	#region Interface IArrayEvaluator
 
-		public ValueTask<IObject[]> EvaluateArray(IExecutionContext executionContext, CancellationToken token) => new(Array.Empty<IObject>());
+		ValueTask<IObject[]> IArrayEvaluator.EvaluateArray() => new(Array.Empty<IObject>());
 
 	#endregion
 
 	#region Interface IBooleanEvaluator
 
-		public ValueTask<bool> EvaluateBoolean(IExecutionContext executionContext, CancellationToken token) => new(false);
+		ValueTask<bool> IBooleanEvaluator.EvaluateBoolean() => new(false);
 
 	#endregion
 
 	#region Interface IExecEvaluator
 
-		public ValueTask Execute(IExecutionContext executionContext, CancellationToken token) => default;
+		ValueTask IExecEvaluator.Execute() => default;
 
 	#endregion
 
+		ValueTask<IObject> IResourceEvaluator.EvaluateObject(Resource resource) => default;
+
 	#region Interface IExternalScriptExpression
 
-		public Uri? Uri { get; }
+		Uri? IExternalScriptExpression.Uri => Uri;
 
 	#endregion
 
 	#region Interface IIntegerEvaluator
 
-		public ValueTask<int> EvaluateInteger(IExecutionContext executionContext, CancellationToken token) => new(0);
+		ValueTask<int> IIntegerEvaluator.EvaluateInteger() => new(0);
 
 	#endregion
 
 	#region Interface ILocationEvaluator
 
-		public void DeclareLocalVariable(IExecutionContext executionContext) { }
+		ValueTask ILocationEvaluator.DeclareLocalVariable() => default;
 
-		public ValueTask SetValue(IObject value, IExecutionContext executionContext, CancellationToken token) => default;
+		ValueTask ILocationEvaluator.SetValue(IObject value) => default;
 
-		public ValueTask<IObject> GetValue(IExecutionContext executionContext, CancellationToken token) => new((IObject) null!);
+		ValueTask<IObject> ILocationEvaluator.GetValue() => new((IObject) null!);
 
-		public string GetName(IExecutionContext executionContext) => "?";
+		ValueTask<string> ILocationEvaluator.GetName() => new("?");
 
 	#endregion
 
 	#region Interface IObjectEvaluator
 
-		public ValueTask<IObject> EvaluateObject(IExecutionContext executionContext, CancellationToken token) => new((IObject) null!);
+		ValueTask<IObject> IObjectEvaluator.EvaluateObject() => new((IObject) null!);
 
 	#endregion
 
 	#region Interface IStringEvaluator
 
-		public ValueTask<string> EvaluateString(IExecutionContext executionContext, CancellationToken token) => new("");
+		ValueTask<string> IStringEvaluator.EvaluateString() => new("");
 
 	#endregion
 
 	#region Interface IValueExpression
 
-		public string? Expression { get; }
+		string? IScriptExpression.Expression => Expression;
+
+		string? IConditionExpression.Expression => Expression;
+
+		string? ILocationExpression. Expression => Expression;
+
+		string? IValueExpression.   Expression => Expression;
 
 	#endregion
+
+		Uri? IExternalDataExpression.Uri => Uri;
+
+		private Uri? Uri { get; }
+		private string? Expression { get; }
+
 	}
 
 	public class TestDataModelHandler : DataModelHandlerBase
 	{
-		public TestDataModelHandler() : base(DefaultErrorProcessor.Instance) { }
-
-		public override ITypeInfo TypeInfo => TypeInfo<TestDataModelHandler>.Instance;
-
 		protected override void Visit(ref IValueExpression expression)
 		{
 			expression = new Evaluator(expression.Expression);
@@ -131,6 +142,11 @@ namespace Xtate.Core.Test.Legacy
 		{
 			entity = new Evaluator(entity.Uri);
 		}
+
+		protected override void Visit(ref IExternalDataExpression entity)
+		{
+			entity = new Evaluator(entity.Uri);
+		}
 	}
 
 	[TestClass]
@@ -138,6 +154,7 @@ namespace Xtate.Core.Test.Legacy
 	{
 		private IStateMachine     _allStateMachine  = default!;
 		private IDataModelHandler _dataModelHandler = default!;
+		//private ServiceLocator _serviceLocator;
 
 		[TestInitialize]
 		public async Task Initialize()
@@ -145,25 +162,58 @@ namespace Xtate.Core.Test.Legacy
 			var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Xtate.Core.Test.Legacy.test.scxml");
 
 			var xmlReader = XmlReader.Create(stream!);
+			/*
+			_serviceLocator = ServiceLocator.Create(
+				delegate(IServiceCollection s)
+				{
+					s.AddForwarding(_ => (IResourceLoader) DummyResourceLoader.Instance);
+					s.AddForwarding<IStateMachineValidator, StateMachineValidator>();
+				});
 
-			var director = new ScxmlDirector(xmlReader, BuilderFactory.Instance, new ScxmlDirectorOptions { StateMachineValidator = StateMachineValidator.Instance });
+			var director = _serviceLocator.GetService<ScxmlDirector, XmlReader>(xmlReader);*/
 
-			_allStateMachine = await director.ConstructStateMachine();
+			//_allStateMachine = await director.ConstructStateMachine();
 
-			_dataModelHandler = new TestDataModelHandler();
+			_dataModelHandler = new TestDataModelHandler
+								{
+									DefaultLogEvaluatorFactory = null,
+									DefaultSendEvaluatorFactory = null,
+									//DefaultDoneDataEvaluatorFactory = null,
+									DefaultCancelEvaluatorFactory = null,
+									DefaultIfEvaluatorFactory = null,
+									DefaultRaiseEvaluatorFactory = null,
+									DefaultForEachEvaluatorFactory = null,
+									DefaultAssignEvaluatorFactory = null,
+									DefaultScriptEvaluatorFactory = null,
+									DefaultCustomActionEvaluatorFactory = null,
+									DefaultInvokeEvaluatorFactory = null,
+									DefaultContentBodyEvaluatorFactory = null,
+									DefaultInlineContentEvaluatorFactory = null,
+									DefaultExternalDataExpressionEvaluatorFactory = null,
+									//DefaultParamEvaluatorFactory = null,
+									CustomActionContainerFactory = null,
+									d = null
+								};
 		}
 
-		private InterpreterModelBuilder.Parameters CreateBuilderParameters() =>
-			new(_allStateMachine, _dataModelHandler)
+		/*private InterpreterModelBuilder.Parameters CreateBuilderParameters() =>
+			new(_serviceLocator, _allStateMachine, _dataModelHandler)
 			{
 				ResourceLoaderFactories = ImmutableArray.Create(DummyResourceLoader.Instance),
-				SecurityContext = SecurityContext.Create(SecurityContextType.NewStateMachine, new DeferredFinalizer())
-			};
+				SecurityContext = SecurityContext.Create(SecurityContextType.NewStateMachine)
+			};*/
 
 		[TestMethod]
 		public async Task SaveInterpreterModelTest()
 		{
-			var model = await new InterpreterModelBuilder(CreateBuilderParameters()).Build(default);
+			var services = new ServiceCollection();
+			services.RegisterStateMachineInterpreter();
+			services.RegisterStateMachineFactory();
+			services.AddForwarding<IStateMachineLocation>(_ => new StateMachineLocation(new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Legacy/test.scxml")));
+			services.AddImplementation<TestDataModelHandler>().For<IDataModelHandler>();
+			services.AddImplementation<DummyResourceLoader>().For<IResourceLoader>();
+			var serviceProvider = services.BuildProvider();
+			var model = await serviceProvider.GetRequiredService<IInterpreterModel>();
 			var storeSupport = model.Root.As<IStoreSupport>();
 
 			var storage = new InMemoryStorage(false);
@@ -175,8 +225,14 @@ namespace Xtate.Core.Test.Legacy
 		[TestMethod]
 		public async Task SaveRestoreInterpreterModelWithStorageRecreateTest()
 		{
-			var model = new InterpreterModelBuilder(CreateBuilderParameters()).Build(default)
-																			  .SynchronousGetResult();
+			var services = new ServiceCollection();
+			services.RegisterStateMachineInterpreter();
+			services.RegisterStateMachineFactory();
+			services.AddForwarding<IStateMachineLocation>(_ => new StateMachineLocation(new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Legacy/test.scxml")));
+			services.AddImplementation<TestDataModelHandler>().For<IDataModelHandler>();
+			services.AddImplementation<DummyResourceLoader>().For<IResourceLoader>();
+			var serviceProvider = services.BuildProvider();
+			var model = await serviceProvider.GetRequiredService<IInterpreterModel>();
 			var storeSupport = model.Root.As<IStoreSupport>();
 
 			byte[] transactionLog;
@@ -195,21 +251,33 @@ namespace Xtate.Core.Test.Legacy
 				restoredStateMachine = new StateMachineReader().Build(new Bucket(newStorage));
 			}
 
-			await new InterpreterModelBuilder(CreateBuilderParameters() with { StateMachine = restoredStateMachine }).Build(default);
+			var services2 = new ServiceCollection();
+			services2.RegisterStateMachineInterpreter();
+			services2.RegisterStateMachineFactory();
+			services2.AddForwarding(_ => restoredStateMachine);
+			services2.AddImplementation<TestDataModelHandler>().For<IDataModelHandler>();
+			services2.AddImplementation<DummyResourceLoader>().For<IResourceLoader>();
+			var serviceProvider2 = services2.BuildProvider();
+			var model2 = await serviceProvider2.GetRequiredService<IInterpreterModel>();
+			Assert.IsNotNull(model2.Root);
 		}
 
 		[TestMethod]
 		public async Task SaveRestoreInterpreterModelRuntimeModelTest()
 		{
-			var _ = FluentBuilderFactory
+			var stateMachine = FluentBuilderFactory
 					.Create()
 					.BeginState((Identifier) "a")
-					.AddTransition(_ => true, (Identifier) "a")
-					.AddOnEntry(_ => Console.WriteLine(@"OnEntry"))
+					.AddTransition(() => true, (Identifier) "a")
+					.AddOnEntry(() => Console.WriteLine(@"OnEntry"))
 					.EndState()
 					.Build();
 
-			var model = await new InterpreterModelBuilder(CreateBuilderParameters()).Build(default);
+			var services = new ServiceCollection();
+			services.RegisterStateMachineInterpreter();
+			services.AddForwarding(_ => stateMachine);
+			var serviceProvider = services.BuildProvider();
+			var model = await serviceProvider.GetRequiredService<IInterpreterModel>();
 			var storeSupport = model.Root.As<IStoreSupport>();
 
 			byte[] transactionLog;
@@ -226,30 +294,61 @@ namespace Xtate.Core.Test.Legacy
 				restoredStateMachine = new StateMachineReader().Build(new Bucket(newStorage), model.EntityMap);
 			}
 
-			await new InterpreterModelBuilder(CreateBuilderParameters() with { StateMachine = restoredStateMachine }).Build(default);
+			var services2 = new ServiceCollection();
+			services2.RegisterStateMachineInterpreter();
+			services2.RegisterStateMachineFactory();
+			services2.AddForwarding(_ => restoredStateMachine);
+			services2.AddImplementation<TestDataModelHandler>().For<IDataModelHandler>();
+			services2.AddImplementation<DummyResourceLoader>().For<IResourceLoader>();
+			var serviceProvider2 = services2.BuildProvider();
+			var model2 = await serviceProvider2.GetRequiredService<IInterpreterModel>();
+			Assert.IsNotNull(model2.Root);
 		}
 
-		private class DummyResourceLoader : IResourceLoaderFactory, IResourceLoaderFactoryActivator, IResourceLoader
+		//TODO: remove IResourceLoader
+		private class DummyResourceLoader : ResxResourceLoader//, IResourceLoaderFactory, IResourceLoaderFactoryActivator
 		{
-			public static readonly IResourceLoaderFactory Instance = new DummyResourceLoader();
+			protected override Stream GetResourceStream(Uri uri)
+			{
+				try
+				{
+					return base.GetResourceStream(uri);
+				}
+				catch (Exception e)
+				{
+					return new MemoryStream();
+				}
+			}
 
+			/*
 		#region Interface IResourceLoader
 
-			public ValueTask<Resource> Request(Uri uri, NameValueCollection? headers, CancellationToken token) => new(new Resource(new MemoryStream()));
+			public ValueTask<Resource> Request(Uri uri, NameValueCollection? headers) => new(new Resource(GetStream(uri)));
 
 		#endregion
 
 		#region Interface IResourceLoaderFactory
 
-			public ValueTask<IResourceLoaderFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, Uri uri, CancellationToken token) => new(this);
+			public ValueTask<IResourceLoaderFactoryActivator?> TryGetActivator(Uri uri) => new(this);
 
 		#endregion
 
 		#region Interface IResourceLoaderFactoryActivator
 
-			public ValueTask<IResourceLoader> CreateResourceLoader(IFactoryContext factoryContext, CancellationToken token) => new(this);
+			public ValueTask<IResourceLoader> CreateResourceLoader(ServiceLocator serviceLocator) => new(this);
 
 		#endregion
+
+			public  ValueTask<Resource> GetResource(Uri uri) => new(new Resource(GetStream(uri)));
+
+			private Stream GetStream(Uri uri)
+			{
+				return new MemoryStream();
+			}
+
+			public ValueTask<Resource> GetResource(Uri uri, NameValueCollection? headers) => new(new Resource(GetStream(uri)));
+
+			public ValueTask<IResourceLoader?> TryGetResourceLoader(Uri uri) => throw new NotImplementedException();*/
 		}
 	}
 }

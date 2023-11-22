@@ -17,6 +17,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Immutable;
 using Xtate.Core;
 
@@ -24,20 +25,24 @@ namespace Xtate.DataModel
 {
 	public interface IDataModelHandler
 	{
-		ITypeInfo TypeInfo { get; }
-
 		bool CaseInsensitive { get; }
 
 		void Process(ref IExecutableEntity executableEntity);
 
-		void Process(ref IDataModel dataModel);
+		void Process(ref IValueExpression valueExpression);
+		
+		void Process(ref ILocationExpression locationExpression);
 
-		void Process(ref IDoneData doneData);
+		void Process(ref IConditionExpression conditionExpression);
+		
+		void Process(ref IContentBody contentBody);
 
-		void Process(ref IInvoke invoke);
-
-		void ExecutionContextCreated(IExecutionContext executionContext, out ImmutableDictionary<string, string> dataModelVars);
+		void Process(ref IInlineContent inlineContent);
+		
+		void Process(ref IExternalDataExpression externalDataExpression);
 
 		string ConvertToText(DataModelValue value);
+
+		ImmutableDictionary<string, string> DataModelVars { get; }
 	}
 }

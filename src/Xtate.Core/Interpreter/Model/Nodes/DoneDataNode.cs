@@ -17,28 +17,51 @@
 
 #endregion
 
+using System;
 using System.Collections.Immutable;
-using System.Threading;
 using System.Threading.Tasks;
 using Xtate.DataModel;
 using Xtate.Persistence;
 
 namespace Xtate.Core
 {
-	internal sealed class DoneDataNode : IDoneData, IStoreSupport, IAncestorProvider
+	public sealed class DoneDataNode : IDoneData, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 	{
-		private readonly IDoneData        _doneData;
-		private readonly IObjectEvaluator _doneDataEvaluator;
+		private readonly IDoneData                           _doneData;
+		private readonly IValueEvaluator?                    _contentBodyEvaluator;
+		private readonly IObjectEvaluator?                   _contentExpressionEvaluator;
+		private readonly ImmutableArray<DataConverter.Param> _parameterList;
+		private          DocumentIdSlot                      _documentIdSlot;
 
-		public DoneDataNode(IDoneData doneData)
+		public required  Func<ValueTask<DataConverter>>      DataConverterFactory { private get; init; }
+
+		public DoneDataNode(DocumentIdNode documentIdNode, IDoneData doneData)
 		{
+			Infra.Requires(doneData);
+
 			_doneData = doneData;
-			_doneDataEvaluator = doneData.As<IObjectEvaluator>();
+			documentIdNode.SaveToSlot(out _documentIdSlot);
+			_contentExpressionEvaluator = doneData.Content?.Expression?.As<IObjectEvaluator>();
+			_contentBodyEvaluator = doneData.Content?.Body?.As<IValueEvaluator>();
+			_parameterList = DataConverter.AsParamArray(doneData.Parameters);
 		}
 
 	#region Interface IAncestorProvider
 
 		object IAncestorProvider.Ancestor => _doneData;
+
+	#endregion
+
+
+	#region Interface IDebugEntityId
+
+		public FormattableString EntityId => @$"(#{DocumentId})";
+
+	#endregion
+
+	#region Interface IDocumentId
+
+		public int DocumentId => _documentIdSlot.Value;
 
 	#endregion
 
@@ -61,11 +84,11 @@ namespace Xtate.Core
 
 	#endregion
 
-		public async ValueTask<DataModelValue> Evaluate(IExecutionContext executionContext, CancellationToken token)
+		public async ValueTask<DataModelValue> Evaluate()
 		{
-			var obj = await _doneDataEvaluator.EvaluateObject(executionContext, token).ConfigureAwait(false);
+			var dataConverter = await DataConverterFactory().ConfigureAwait(false);
 
-			return DataModelValue.FromObject(obj);
+			return await dataConverter.GetData(_contentBodyEvaluator, _contentExpressionEvaluator, nameEvaluatorList: default, _parameterList).ConfigureAwait(false);
 		}
 	}
 }

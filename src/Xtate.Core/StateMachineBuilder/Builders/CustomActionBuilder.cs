@@ -28,17 +28,19 @@ namespace Xtate.Builder
 		private string? _ns;
 		private string? _xml;
 
-		public CustomActionBuilder(IErrorProcessor errorProcessor, object? ancestor) : base(errorProcessor, ancestor) { }
-
 	#region Interface ICustomActionBuilder
 
 		public ICustomAction Build() => new CustomActionEntity { Ancestor = Ancestor, XmlNamespace = _ns, XmlName = _name, Xml = _xml };
 
 		public void SetXml(string ns, string name, string xml)
 		{
-			_ns = ns ?? throw new ArgumentNullException(nameof(xml));
-			_name = name ?? throw new ArgumentNullException(nameof(xml));
-			_xml = xml ?? throw new ArgumentNullException(nameof(xml));
+			Infra.Requires(xml);
+			Infra.Requires(name);
+			Infra.Requires(ns);
+
+			_ns = ns;
+			_name = name;
+			_xml = xml;
 		}
 
 	#endregion

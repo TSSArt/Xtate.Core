@@ -36,7 +36,7 @@ namespace Xtate.Core
 	}
 
 	[PublicAPI]
-	public sealed class SecurityContext : ISecurityContext
+	public sealed class SecurityContext : ISecurityContext, IAsyncDisposable
 	{
 		private const int IoBoundTaskSchedulerMaximumConcurrencyLevel = 2;
 
@@ -69,10 +69,8 @@ namespace Xtate.Core
 
 	#region Interface ISecurityContext
 
-		public ISecurityContext CreateNested(SecurityContextType type, DeferredFinalizer finalizer)
+		public ISecurityContext CreateNested(SecurityContextType type)
 		{
-			if (finalizer is null) throw new ArgumentNullException(nameof(finalizer));
-
 			SecurityContext securityContext;
 			switch (type)
 			{
@@ -99,8 +97,6 @@ namespace Xtate.Core
 					throw Infra.Unexpected<Exception>(type);
 			}
 
-			finalizer.Add(new Disposer(securityContext));
-
 			return securityContext;
 		}
 
@@ -124,7 +120,7 @@ namespace Xtate.Core
 			return false;
 		}
 
-		public TaskFactory IoBoundTaskFactory => _ioBoundTaskFactory ??= CreateTaskFactory();
+		public TaskFactory Factory => _ioBoundTaskFactory ??= CreateTaskFactory();
 
 	#endregion
 
@@ -171,17 +167,19 @@ namespace Xtate.Core
 			return _localCache = globalCache.CreateLocalCache();
 		}
 
-		private async ValueTask DisposeAsync()
+		public ValueTask DisposeAsync()
 		{
 			if (_localCache is { } localCache)
 			{
-				await localCache.DisposeAsync().ConfigureAwait(false);
+				_localCache = default;
+
+				return localCache.DisposeAsync();
 			}
 
-			_localCache = default;
+			return default;
 		}
 
-		internal static SecurityContext Create(SecurityContextType type, DeferredFinalizer finalizer)
+		internal static SecurityContext Create(SecurityContextType type)
 		{
 			var permissions = type switch
 							  {
@@ -190,17 +188,10 @@ namespace Xtate.Core
 								  _                                          => Infra.Unexpected<SecurityContextPermissions>(type)
 							  };
 
-			return Create(type, permissions, finalizer);
+			return Create(type, permissions);
 		}
 
-		internal static SecurityContext Create(SecurityContextType type, SecurityContextPermissions permissions, DeferredFinalizer finalizer)
-		{
-			var securityContext = new SecurityContext(type, permissions, parentSecurityContext: default);
-
-			finalizer.Add(new Disposer(securityContext));
-
-			return securityContext;
-		}
+		internal static SecurityContext Create(SecurityContextType type, SecurityContextPermissions permissions) => new(type, permissions, parentSecurityContext: default);
 
 		private class NoAccessTaskScheduler : TaskScheduler
 		{
@@ -213,19 +204,6 @@ namespace Xtate.Core
 			protected override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued) => throw GetSecurityException();
 
 			private static Exception GetSecurityException() => throw new StateMachineSecurityException(Resources.Exception_AccessToIOBoundThreadsDenied);
-		}
-
-		private class Disposer : IAsyncDisposable
-		{
-			private readonly SecurityContext _securityContext;
-
-			public Disposer(SecurityContext securityContext) => _securityContext = securityContext;
-
-		#region Interface IAsyncDisposable
-
-			public ValueTask DisposeAsync() => _securityContext.DisposeAsync();
-
-		#endregion
 		}
 	}
 }

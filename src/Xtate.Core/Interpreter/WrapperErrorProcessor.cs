@@ -53,8 +53,6 @@ namespace Xtate.Core
 			}
 		}
 
-		public bool LineInfoRequired => _errorProcessor.LineInfoRequired;
-
 	#endregion
 	}
 }

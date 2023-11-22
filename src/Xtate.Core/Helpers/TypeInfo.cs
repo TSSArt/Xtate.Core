@@ -17,11 +17,11 @@
 
 #endregion
 
+using System;
 using System.Reflection;
 
 namespace Xtate.Core
 {
-	[PublicAPI]
 	public interface ITypeInfo
 	{
 		public string FullTypeName    { get; }
@@ -29,20 +29,18 @@ namespace Xtate.Core
 		public string AssemblyVersion { get; }
 	}
 
-	[PublicAPI]
-	public class TypeInfo<T> : ITypeInfo
+	public class TypeInfoBase : ITypeInfo
 	{
-		private TypeInfo()
+		public TypeInfoBase(Type type)
 		{
-			var type = typeof(T);
+			Infra.Requires(type);
+
 			var assembly = type.Assembly;
 
 			FullTypeName = type.FullName ?? string.Empty;
 			AssemblyName = assembly.GetName().Name ?? string.Empty;
 			AssemblyVersion = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? string.Empty;
 		}
-
-		public static ITypeInfo Instance { get; } = new TypeInfo<T>();
 
 	#region Interface ITypeInfo
 
@@ -51,5 +49,13 @@ namespace Xtate.Core
 		public string AssemblyVersion { get; }
 
 	#endregion
+
+	}
+
+	public class TypeInfo<T> : TypeInfoBase
+	{
+		private TypeInfo() : base(typeof(T)) { }
+
+		public static ITypeInfo Instance { get; } = new TypeInfo<T>();
 	}
 }

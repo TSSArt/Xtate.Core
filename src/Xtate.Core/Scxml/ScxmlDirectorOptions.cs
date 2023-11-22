@@ -28,11 +28,21 @@ namespace Xtate.Scxml
 	{
 		private int _maxNestingLevel;
 
-		public IErrorProcessor?        ErrorProcessor        { get; init; }
+		public ScxmlDirectorOptions(ServiceLocator serviceLocator)
+		{
+			ServiceLocator = serviceLocator;
+			ErrorProcessorService = serviceLocator.GetService<IErrorProcessorService<ScxmlDirector>>();
+			StateMachineValidator = serviceLocator.GetService<IStateMachineValidator>();
+		}
+
+		public ServiceLocator ServiceLocator { get; init; }
+
+		public IErrorProcessorService1  ErrorProcessorService { get; init; }
 		public IXmlNamespaceResolver?  NamespaceResolver     { get; init; }
 		public XmlReaderSettings?      XmlReaderSettings     { get; init; }
 		public ScxmlXmlResolver?       XmlResolver           { get; init; }
 		public IStateMachineValidator? StateMachineValidator { get; init; }
+		public bool                    LineInfoRequired   { get; init; }
 		public bool                    Async                 { get; init; }
 		public bool                    XIncludeAllowed       { get; init; }
 

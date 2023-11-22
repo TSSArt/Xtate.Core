@@ -21,7 +21,7 @@ using Xtate.Persistence;
 
 namespace Xtate.Core
 {
-	internal sealed class RuntimeExecNode : IExecutableEntity, IStoreSupport, IAncestorProvider, IDocumentId
+	public sealed class RuntimeExecNode : IExecutableEntity, IStoreSupport, IAncestorProvider, IDocumentId
 	{
 		private readonly IExecutableEntity _entity;
 		private          DocumentIdSlot    _documentIdSlot;

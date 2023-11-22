@@ -24,9 +24,14 @@ using System.Xml.Schema;
 
 namespace Xtate.Core
 {
-	internal abstract class DelegatedXmlReader : XmlReader, IXmlLineInfo
+	public abstract class DelegatedXmlReader : XmlReader, IXmlLineInfo
 	{
-		protected DelegatedXmlReader(XmlReader innerReader) => InnerReader = innerReader ?? throw new ArgumentNullException(nameof(innerReader));
+		protected DelegatedXmlReader(XmlReader innerReader)
+		{
+			Infra.Requires(innerReader);
+			
+			InnerReader = innerReader;
+		}
 
 		protected XmlReader InnerReader { get; set; }
 

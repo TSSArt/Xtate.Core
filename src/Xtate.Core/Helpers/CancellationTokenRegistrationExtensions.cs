@@ -29,17 +29,16 @@ namespace Xtate.Core
 		public static ConfiguredAwaitable ConfigureAwait(this CancellationTokenRegistration cancellationTokenRegistration, bool continueOnCapturedContext) =>
 			new(cancellationTokenRegistration, continueOnCapturedContext);
 
-#if NET461 || NETSTANDARD2_0
+#if NET6_0_OR_GREATER
+		[UsedImplicitly]
+		internal static void IgnoreIt(ValueTask _) { }
+#else
 		public static ValueTask DisposeAsync(this CancellationTokenRegistration cancellationTokenRegistration)
 		{
 			cancellationTokenRegistration.Dispose();
 
 			return default;
 		}
-#else
-		[UsedImplicitly]
-		internal static void IgnoreIt(ValueTask _) { }
-
 #endif
 
 		public struct ConfiguredAwaitable

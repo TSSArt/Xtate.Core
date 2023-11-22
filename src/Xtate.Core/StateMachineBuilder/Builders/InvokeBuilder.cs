@@ -37,8 +37,6 @@ namespace Xtate.Builder
 		private Uri?                                _type;
 		private IValueExpression?                   _typeExpression;
 
-		public InvokeBuilder(IErrorProcessor errorProcessor, object? ancestor) : base(errorProcessor, ancestor) { }
-
 	#region Interface IInvokeBuilder
 
 		public IInvoke Build() =>
@@ -48,26 +46,51 @@ namespace Xtate.Builder
 				NameList = _nameList, AutoForward = _autoForward, Parameters = _parameters?.ToImmutable() ?? default, Finalize = _finalize, Content = _content
 			};
 
-		public void SetType(Uri type) => _type = type ?? throw new ArgumentNullException(nameof(type));
+		public void SetType(Uri type)
+		{
+			Infra.Requires(type);
 
-		public void SetTypeExpression(IValueExpression typeExpression) => _typeExpression = typeExpression ?? throw new ArgumentNullException(nameof(typeExpression));
+			_type = type;
+		}
 
-		public void SetSource(Uri source) => _source = source ?? throw new ArgumentNullException(nameof(source));
+		public void SetTypeExpression(IValueExpression typeExpression)
+		{
+			Infra.Requires(typeExpression);
+			
+			_typeExpression = typeExpression;
+		}
 
-		public void SetSourceExpression(IValueExpression sourceExpression) => _sourceExpression = sourceExpression ?? throw new ArgumentNullException(nameof(sourceExpression));
+		public void SetSource(Uri source)
+		{
+			Infra.Requires(source);
+
+			_source = source;
+		}
+
+		public void SetSourceExpression(IValueExpression sourceExpression)
+		{
+			Infra.Requires(sourceExpression);
+
+			_sourceExpression = sourceExpression;
+		}
 
 		public void SetId(string id)
 		{
-			if (string.IsNullOrEmpty(id)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(id));
+			Infra.RequiresNonEmptyString(id);
 
 			_id = id;
 		}
 
-		public void SetIdLocation(ILocationExpression idLocation) => _idLocation = idLocation ?? throw new ArgumentNullException(nameof(idLocation));
+		public void SetIdLocation(ILocationExpression idLocation)
+		{
+			Infra.Requires(idLocation);
+
+			_idLocation = idLocation;
+		}
 
 		public void SetNameList(ImmutableArray<ILocationExpression> nameList)
 		{
-			if (nameList.IsDefaultOrEmpty) throw new ArgumentException(Resources.Exception_ValueCannotBeEmptyList, nameof(nameList));
+			Infra.RequiresNonEmptyCollection(nameList);
 
 			_nameList = nameList;
 		}
@@ -76,14 +99,24 @@ namespace Xtate.Builder
 
 		public void AddParam(IParam param)
 		{
-			if (param is null) throw new ArgumentNullException(nameof(param));
+			Infra.Requires(param);
 
 			(_parameters ??= ImmutableArray.CreateBuilder<IParam>()).Add(param);
 		}
 
-		public void SetFinalize(IFinalize finalize) => _finalize = finalize ?? throw new ArgumentNullException(nameof(finalize));
+		public void SetFinalize(IFinalize finalize)
+		{
+			Infra.Requires(finalize);
 
-		public void SetContent(IContent content) => _content = content ?? throw new ArgumentNullException(nameof(content));
+			_finalize = finalize;
+		}
+
+		public void SetContent(IContent content)
+		{
+			Infra.Requires(content);
+
+			_content = content;
+		}
 
 	#endregion
 	}

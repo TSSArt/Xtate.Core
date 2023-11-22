@@ -21,7 +21,7 @@ using Xtate.Core;
 
 namespace Xtate
 {
-	public interface IInlineContent : IExecutableEntity
+	public interface IInlineContent : IEntity
 	{
 		string? Value { get; }
 	}

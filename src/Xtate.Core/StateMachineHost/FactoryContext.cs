@@ -18,31 +18,39 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
+using Xtate.IoC;
 
 namespace Xtate.Core
 {
-	internal class FactoryContext : IFactoryContext
+	//TODO:delete class
+	internal class FactoryContext : IFactoryContext, IAsyncInitialization
 	{
-		private readonly ILogger?        _logger;
-		private readonly ILoggerContext? _loggerContext;
+		private readonly IAsyncEnumerable<IResourceLoaderFactory> _resourceLoaderFactories;
+		private readonly ILoggerOld?                                 _logger;
+		private readonly ILoggerContext?                          _loggerContext;
 
-		public FactoryContext(ImmutableArray<IResourceLoaderFactory> resourceLoaderFactories,
+		public FactoryContext(ServiceLocator serviceLocator,
+							  ImmutableArray<IResourceLoaderFactory> resourceLoaderFactories,
 							  ISecurityContext? securityContext,
-							  ILogger? logger,
+							  ILoggerOld? logger,
 							  ILoggerContext? loggerContext)
 		{
+			_resourceLoaderFactories = serviceLocator.GetServices<IResourceLoaderFactory>();
+			ResourceLoaderFactories = resourceLoaderFactories;
 			_logger = logger;
 			_loggerContext = loggerContext;
 			SecurityContext = securityContext ?? Core.SecurityContext.NoAccess;
-			ResourceLoaderFactories = resourceLoaderFactories;
+
+			Initialization = InitializeAsync();
 		}
 
 	#region Interface IFactoryContext
 
-		public ImmutableArray<IResourceLoaderFactory> ResourceLoaderFactories { get; }
+		public ImmutableArray<IResourceLoaderFactory> ResourceLoaderFactories { get; private set; }
 
 		public ISecurityContext SecurityContext { get; }
 
@@ -50,13 +58,30 @@ namespace Xtate.Core
 
 	#region Interface ILogEvent
 
-		public ValueTask Log(LogLevel logLevel,
-							 string? message = default,
-							 DataModelValue arguments = default,
-							 Exception? exception = default,
-							 CancellationToken token = default) =>
-			_logger?.ExecuteLog(_loggerContext, logLevel, message, arguments, exception, token) ?? default;
+		public bool IsEnabled => throw new NotImplementedException();
+
+		public async ValueTask Log(string? message = default, DataModelValue arguments = default) => throw new NotImplementedException();
+
+		public ValueTask LogOld(LogLevel logLevel,
+								string? message = default,
+								DataModelValue arguments = default,
+								Exception? exception = default) =>
+			_logger?.ExecuteLogOld(logLevel, message, arguments, exception) ?? default;
 
 	#endregion
+
+		public Task Initialization { get; }
+
+		private async Task InitializeAsync()
+		{
+			var builder = ImmutableArray.CreateBuilder<IResourceLoaderFactory>();
+
+			await foreach (var resourceLoaderFactory in _resourceLoaderFactories.ConfigureAwait(false))
+			{
+				builder.Add(resourceLoaderFactory);
+			}
+
+			ResourceLoaderFactories = builder.ToImmutable();
+		}
 	}
 }

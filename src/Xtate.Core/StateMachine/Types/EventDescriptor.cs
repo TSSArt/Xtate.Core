@@ -18,10 +18,11 @@
 #endregion
 
 using System;
+using System.Collections.Immutable;
+using System.Linq;
 
 namespace Xtate.Core
 {
-	[PublicAPI]
 	public sealed class EventDescriptor : IEventDescriptor
 	{
 		private static readonly char[] Dot = { '.' };
@@ -78,5 +79,20 @@ namespace Xtate.Core
 		public static explicit operator EventDescriptor(string value) => new(value);
 
 		public static EventDescriptor FromString(string value) => new(value);
+
+		public static string? ToString(ImmutableArray<IEventDescriptor> eventDescriptors)
+		{
+			if (eventDescriptors.IsDefaultOrEmpty)
+			{
+				return null;
+			}
+
+			if (eventDescriptors.Length == 1)
+			{
+				return eventDescriptors[0].Value;
+			}
+
+			return string.Join(@" ", eventDescriptors.Select(d => d.Value));
+		}
 	}
 }

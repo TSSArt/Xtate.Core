@@ -30,27 +30,34 @@ namespace Xtate.Builder
 		private ILocationExpression?                       _index;
 		private ILocationExpression?                       _item;
 
-		public ForEachBuilder(IErrorProcessor errorProcessor, object? ancestor) : base(errorProcessor, ancestor) { }
-
 	#region Interface IForEachBuilder
 
 		public IForEach Build() => new ForEachEntity { Ancestor = Ancestor, Array = _array, Item = _item, Index = _index, Action = _actions?.ToImmutable() ?? default };
 
-		public void SetArray(IValueExpression array) => _array = array ?? throw new ArgumentNullException(nameof(array));
+		public void SetArray(IValueExpression array)
+		{
+			Infra.Requires(array);
+			
+			_array = array;
+		}
 
 		public void SetItem(ILocationExpression item)
 		{
-			_item = item ?? throw new ArgumentNullException(nameof(item));
+			Infra.Requires(item);
+				
+			_item = item;
 		}
 
 		public void SetIndex(ILocationExpression index)
 		{
-			_index = index ?? throw new ArgumentNullException(nameof(index));
+			Infra.Requires(index);
+			
+			_index = index;
 		}
 
 		public void AddAction(IExecutableEntity action)
 		{
-			if (action is null) throw new ArgumentNullException(nameof(action));
+			Infra.Requires(action);
 
 			(_actions ??= ImmutableArray.CreateBuilder<IExecutableEntity>()).Add(action);
 		}

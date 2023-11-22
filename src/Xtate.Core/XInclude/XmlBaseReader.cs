@@ -26,18 +26,17 @@ using Xtate.Core;
 
 namespace Xtate.XInclude
 {
-	internal sealed class XmlBaseReader : DelegatedXmlReader
+	public class XmlBaseReader : DelegatedXmlReader
 	{
-		private readonly string      _baseName;
-		private readonly string      _xmlNs;
-		private readonly XmlResolver _xmlResolver;
+		public required XmlResolver XmlResolver { private get; init; }
+
+		private readonly string _baseName;
+		private readonly string _xmlNs;
 
 		private Stack<(int Depth, Uri BaseUri)>? _baseUris;
 
-		public XmlBaseReader(XmlReader xmlReader, XmlResolver xmlResolver) : base(xmlReader)
+		public XmlBaseReader(XmlReader xmlReader) : base(xmlReader)
 		{
-			_xmlResolver = xmlResolver ?? throw new ArgumentNullException(nameof(xmlResolver));
-
 			var nameTable = xmlReader.NameTable;
 
 			Infra.NotNull(nameTable);
@@ -119,7 +118,7 @@ namespace Xtate.XInclude
 					baseUri = base.BaseURI is { } uri ? new Uri(uri, UriKind.RelativeOrAbsolute) : null;
 				}
 
-				_baseUris.Push((Depth, _xmlResolver.ResolveUri(baseUri!, xmlBase)));
+				_baseUris.Push((Depth, XmlResolver.ResolveUri(baseUri!, xmlBase)));
 			}
 		}
 

@@ -17,14 +17,11 @@
 
 #endregion
 
-using System;
 using System.Collections.Immutable;
-using System.ComponentModel;
 using Xtate.Core;
 
 namespace Xtate.Builder
 {
-	[PublicAPI]
 	public class StateMachineBuilder : BuilderBase, IStateMachineBuilder
 	{
 		private BindingType                           _bindingType;
@@ -36,8 +33,6 @@ namespace Xtate.Builder
 		private StateMachineOptions                   _options;
 		private IScript?                              _script;
 		private ImmutableArray<IStateEntity>.Builder? _states;
-
-		public StateMachineBuilder(IErrorProcessor errorProcessor, object? ancestor) : base(errorProcessor, ancestor) { }
 
 	#region Interface IStateMachineBuilder
 
@@ -56,55 +51,72 @@ namespace Xtate.Builder
 
 		public void SetInitial(ImmutableArray<IIdentifier> initialId)
 		{
-			if (initialId.IsDefaultOrEmpty) throw new ArgumentException(Resources.Exception_ValueCannotBeEmptyList, nameof(initialId));
+			Infra.RequiresNonEmptyCollection(initialId);
 
 			_initialId = initialId;
 		}
 
 		public void SetName(string name)
 		{
-			if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
+			Infra.RequiresNonEmptyString(name);
 
 			_name = name;
 			_options.Name = name;
 			_injectOptions = true;
 		}
 
-		public void SetBindingType(BindingType bindingType) => _bindingType = bindingType;
+		public void SetBindingType(BindingType bindingType)
+		{
+			Infra.RequiresValidEnum(bindingType);
+
+			_bindingType = bindingType;
+		}
 
 		public void AddState(IState state)
 		{
-			if (state is null) throw new ArgumentNullException(nameof(state));
-
+			Infra.Requires(state);
+			
 			(_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(state);
 		}
 
 		public void AddParallel(IParallel parallel)
 		{
-			if (parallel is null) throw new ArgumentNullException(nameof(parallel));
+			Infra.Requires(parallel);
 
 			(_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(parallel);
 		}
 
 		public void AddFinal(IFinal final)
 		{
-			if (final is null) throw new ArgumentNullException(nameof(final));
-
+			Infra.Requires(final);
+			
 			(_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(final);
 		}
 
-		public void SetDataModel(IDataModel dataModel) => _dataModel = dataModel ?? throw new ArgumentNullException(nameof(dataModel));
+		public void SetDataModel(IDataModel dataModel)
+		{
+			Infra.Requires(dataModel);
 
-		public void SetScript(IScript script) => _script = script ?? throw new ArgumentNullException(nameof(script));
+			_dataModel = dataModel;
+		}
 
-		public void SetDataModelType(string dataModelType) => _dataModelType = dataModelType ?? throw new ArgumentNullException(nameof(dataModelType));
+		public void SetScript(IScript script)
+		{
+			Infra.Requires(script);
+			
+			_script = script;
+		}
+
+		public void SetDataModelType(string dataModelType)
+		{
+			Infra.Requires(dataModelType);
+			
+			_dataModelType = dataModelType;
+		}
 
 		public void SetPersistenceLevel(PersistenceLevel persistenceLevel)
 		{
-			if (persistenceLevel < PersistenceLevel.None || persistenceLevel > PersistenceLevel.ExecutableAction)
-			{
-				throw new InvalidEnumArgumentException(nameof(persistenceLevel), (int) persistenceLevel, typeof(PersistenceLevel));
-			}
+			Infra.RequiresValidEnum(persistenceLevel);
 
 			_options.PersistenceLevel = persistenceLevel;
 			_injectOptions = true;
@@ -118,7 +130,7 @@ namespace Xtate.Builder
 
 		public void SetExternalQueueSize(int size)
 		{
-			if (size < 0) throw new ArgumentOutOfRangeException(nameof(size));
+			Infra.RequiresNonNegative(size);
 
 			_options.ExternalQueueSize = size;
 			_injectOptions = true;
@@ -126,11 +138,8 @@ namespace Xtate.Builder
 
 		public void SetUnhandledErrorBehaviour(UnhandledErrorBehaviour unhandledErrorBehaviour)
 		{
-			if (unhandledErrorBehaviour < UnhandledErrorBehaviour.DestroyStateMachine || unhandledErrorBehaviour > UnhandledErrorBehaviour.IgnoreError)
-			{
-				throw new InvalidEnumArgumentException(nameof(unhandledErrorBehaviour), (int) unhandledErrorBehaviour, typeof(UnhandledErrorBehaviour));
-			}
-
+			Infra.RequiresValidEnum(unhandledErrorBehaviour);
+			
 			_options.UnhandledErrorBehaviour = unhandledErrorBehaviour;
 			_injectOptions = true;
 		}

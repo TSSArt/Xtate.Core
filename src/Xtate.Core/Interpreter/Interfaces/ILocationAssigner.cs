@@ -24,6 +24,6 @@ namespace Xtate.Core
 {
 	public interface ILocationAssigner
 	{
-		ValueTask Assign(IExecutionContext executionContext, DataModelValue value, CancellationToken token);
+		ValueTask Assign(DataModelValue value);
 	}
 }

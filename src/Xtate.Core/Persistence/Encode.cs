@@ -23,7 +23,7 @@ namespace Xtate.Persistence
 {
 	internal static class Encode
 	{
-		internal static int GetLength(byte value)
+		public static int GetLength(byte value)
 		{
 			if ((value & 0x80) == 0x00) return 1;
 			if ((value & 0xE0) == 0xC0) return 2;
@@ -35,7 +35,7 @@ namespace Xtate.Persistence
 			throw new ArgumentException(Resources.Exception_IncorrectEncoding, nameof(value));
 		}
 
-		internal static int Decode(ReadOnlySpan<byte> span)
+		public static int Decode(ReadOnlySpan<byte> span)
 		{
 			switch (span.Length)
 			{
@@ -60,7 +60,7 @@ namespace Xtate.Persistence
 			throw new ArgumentException(Resources.Exception_IncorrectEncoding, nameof(span));
 		}
 
-		internal static int GetEncodedLength(int value)
+		public static int GetEncodedLength(int value)
 		{
 			if (value < 0) throw new ArgumentOutOfRangeException(nameof(value));
 
@@ -121,7 +121,7 @@ namespace Xtate.Persistence
 				   ((uValue & 0x3FUL) << 40);
 		}
 
-		internal static void WriteEncodedValue(Span<byte> span, int value)
+		public static void WriteEncodedValue(Span<byte> span, int value)
 		{
 			var encodedValue = GetEncodedValue(value);
 

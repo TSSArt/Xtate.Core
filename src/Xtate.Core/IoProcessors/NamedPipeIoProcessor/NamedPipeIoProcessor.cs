@@ -279,7 +279,7 @@ namespace Xtate.IoProcessor
 			return UriId.FromUri(target);
 		}
 
-#if !NET461 && !NETSTANDARD2_0
+#if NET6_0_OR_GREATER
 		[SuppressMessage(category: "Performance", checkId: "CA1835:Prefer the 'Memory'-based overloads for 'ReadAsync' and 'WriteAsync'", Justification = "Not available in .Net 4.6")]
 #endif
 		private static async ValueTask SendMessage(MemoryStream memoryStream, PipeStream pipeStream, CancellationToken token)
@@ -296,7 +296,7 @@ namespace Xtate.IoProcessor
 			await pipeStream.WriteAsync(buffer.Array, buffer.Offset, buffer.Count, token).ConfigureAwait(false);
 		}
 
-#if !NET461 && !NETSTANDARD2_0
+#if NET6_0_OR_GREATER
 		[SuppressMessage(category: "Performance", checkId: "CA1835:Prefer the 'Memory'-based overloads for 'ReadAsync' and 'WriteAsync'", Justification = "Not available in .Net 4.6")]
 #endif
 		[SuppressMessage(category: "ReSharper", checkId: "MethodHasAsyncOverloadWithCancellation")]

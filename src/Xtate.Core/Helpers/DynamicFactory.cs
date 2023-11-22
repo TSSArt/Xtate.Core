@@ -24,9 +24,10 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace Xtate.Core
-{
+{	
+    //TODO: do something with it
 	[PublicAPI]
-	public abstract class DynamicFactory<TFactory> where TFactory : class
+	public abstract class DynamicFactory
 	{
 		[SuppressMessage(category: "ReSharper", checkId: "StaticMemberInGenericType")]
 		private static readonly object FactoryCacheKey = new();
@@ -34,25 +35,25 @@ namespace Xtate.Core
 		private readonly bool _throwOnError;
 
 		protected DynamicFactory(bool throwOnError) => _throwOnError = throwOnError;
-
-		protected async ValueTask<ImmutableArray<TFactory>> GetFactories(IFactoryContext factoryContext, Uri uri, CancellationToken token)
+		/*
+		protected async ValueTask<ImmutableArray<TFactory>> GetFactories(ServiceLocator serviceLocator, Uri uri, CancellationToken token)
 		{
-			if (factoryContext is null) throw new ArgumentNullException(nameof(factoryContext));
 			if (uri is null) throw new ArgumentNullException(nameof(uri));
 
-			var dynamicAssembly = await LoadAssembly(factoryContext, uri, token).ConfigureAwait(false);
+			var dynamicAssembly = await LoadAssembly(serviceLocator, uri, token).ConfigureAwait(false);
 
 			if (dynamicAssembly is null)
 			{
 				return default;
 			}
 
-			return await GetCachedFactories(factoryContext, uri, dynamicAssembly).ConfigureAwait(false);
+			return await GetCachedFactories(serviceLocator, uri, dynamicAssembly).ConfigureAwait(false);
 		}
 
-		private async ValueTask<ImmutableArray<TFactory>> GetCachedFactories(IFactoryContext factoryContext, Uri uri, DynamicAssembly dynamicAssembly)
+		private async ValueTask<ImmutableArray<TFactory>> GetCachedFactories(ServiceLocator serviceLocator, Uri uri, DynamicAssembly dynamicAssembly)
 		{
-			var securityContext = factoryContext.SecurityContext;
+			var securityContext = serviceLocator.GetService<ISecurityContext>();
+			var logEvent = serviceLocator.GetService<ILogEvent>();
 
 			if (securityContext.TryGetValue(FactoryCacheKey, dynamicAssembly, out ImmutableArray<TFactory> factories))
 			{
@@ -61,7 +62,7 @@ namespace Xtate.Core
 
 			try
 			{
-				factories = await CreateFactories(dynamicAssembly).ConfigureAwait(false);
+				factories = await CreateModules(dynamicAssembly).ConfigureAwait(false);
 
 				await securityContext.SetValue(FactoryCacheKey, dynamicAssembly, factories, ValueOptions.ThreadSafe).ConfigureAwait(false);
 			}
@@ -72,49 +73,50 @@ namespace Xtate.Core
 					throw;
 				}
 
-				await factoryContext.Log(LogLevel.Warning, Resources.Warning_ErrorOnCreationFactories, GetLogArguments(uri), ex, token: default).ConfigureAwait(false);
+				await logEvent.Log(LogLevel.Warning, Resources.Warning_ErrorOnCreationFactories, GetLogArguments(uri), ex, token: default).ConfigureAwait(false);
 			}
 
 			return factories;
 		}
 
-		private static async ValueTask<ImmutableArray<TFactory>> CreateFactories(DynamicAssembly dynamicAssembly)
+		private static async ValueTask<ImmutableArray<IServiceModule>> CreateModules(DynamicAssembly dynamicAssembly)
 		{
 			var assembly = await dynamicAssembly.GetAssembly().ConfigureAwait(false);
 
-			var attributes = assembly.GetCustomAttributes(typeof(FactoryAttribute), inherit: false);
+			var attributes = assembly.GetCustomAttributes(typeof(ServiceModuleAttribute), inherit: false);
 
 			if (attributes.Length == 0)
 			{
-				return ImmutableArray<TFactory>.Empty;
+				return ImmutableArray<IServiceModule>.Empty;
 			}
 
-			var builder = ImmutableArray.CreateBuilder<TFactory>(attributes.Length);
+			var builder = ImmutableArray.CreateBuilder<IServiceModule>(attributes.Length);
 
-			foreach (FactoryAttribute attribute in attributes)
+			foreach (ServiceModuleAttribute attribute in attributes)
 			{
-				var type = attribute.FactoryType;
+				var type = attribute.ServiceModuleType;
 
-				if (type is not null && typeof(TFactory).IsAssignableFrom(type))
+				if (type is not null && typeof(IServiceModule).IsAssignableFrom(type))
 				{
 					var instance = Activator.CreateInstance(type);
 					Infra.NotNull(instance);
-					builder.Add((TFactory) instance);
+					builder.Add((IServiceModule) instance);
 				}
 			}
 
 			return builder.ToImmutable();
 		}
 
-		private async ValueTask<DynamicAssembly?> LoadAssembly(IFactoryContext factoryContext, Uri uri, CancellationToken token)
+		private async ValueTask<DynamicAssembly?> LoadAssembly(ServiceLocator serviceLocator, Uri uri, CancellationToken token)
 		{
 			try
 			{
-				var securityContext = factoryContext.SecurityContext;
+				var resourceLoaderService = serviceLocator.GetService<IResourceLoaderService>();
+				var securityContext = serviceLocator.GetService<ISecurityContext>();
 
 				if (!securityContext.TryGetValue(DynamicAssembly.AssemblyCacheKey, uri, out DynamicAssembly? dynamicAssembly))
 				{
-					var resource = await factoryContext.GetResource(uri, token).ConfigureAwait(false);
+					var resource = await resourceLoaderService.GetResource(uri, token).ConfigureAwait(false);
 					byte[] bytes;
 					await using (resource.ConfigureAwait(false))
 					{
@@ -144,13 +146,13 @@ namespace Xtate.Core
 				{
 					throw;
 				}
-
-				await factoryContext.Log(LogLevel.Warning, Resources.Warning_ErrorOnLoadingAssembly, GetLogArguments(uri), ex, token).ConfigureAwait(false);
+				var logEvent = serviceLocator.GetService<ILogEvent>();
+				await logEvent.Log(LogLevel.Warning, Resources.Warning_ErrorOnLoadingAssembly, GetLogArguments(uri), ex, token).ConfigureAwait(false);
 			}
 
 			return null;
 		}
-
+		*/
 		private static DataModelList GetLogArguments(Uri uri) => new() { { @"AssemblyUri", uri.ToString() } };
 	}
 }

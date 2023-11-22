@@ -52,12 +52,10 @@ namespace Xtate.Core
 
 		void IErrorProcessor.AddError(ErrorItem errorItem)
 		{
-			if (errorItem is null) throw new ArgumentNullException(nameof(errorItem));
+			Infra.Requires(errorItem);
 
 			(_errors ??= ImmutableArray.CreateBuilder<ErrorItem>()).Add(errorItem);
 		}
-
-		bool IErrorProcessor.LineInfoRequired => true;
 
 	#endregion
 	}

@@ -17,7 +17,6 @@
 
 #endregion
 
-using System;
 using System.Collections.Immutable;
 using Xtate.Core;
 
@@ -25,18 +24,18 @@ namespace Xtate.Builder
 {
 	public class StateBuilder : BuilderBase, IStateBuilder
 	{
-		private IDataModel?                           _dataModel;
-		private ImmutableArray<IHistory>.Builder?     _historyStates;
-		private IIdentifier?                          _id;
-		private IInitial?                             _initial;
-		private ImmutableArray<IIdentifier>           _initialId;
-		private ImmutableArray<IInvoke>.Builder?      _invokeList;
-		private ImmutableArray<IOnEntry>.Builder?     _onEntryList;
-		private ImmutableArray<IOnExit>.Builder?      _onExitList;
-		private ImmutableArray<IStateEntity>.Builder? _states;
-		private ImmutableArray<ITransition>.Builder?  _transitions;
+		public required IErrorProcessorService<StateBuilder>  ErrorProcessorService { private get; init; }
 
-		public StateBuilder(IErrorProcessor errorProcessor, object? ancestor) : base(errorProcessor, ancestor) { }
+		private         IDataModel?                           _dataModel;
+		private         ImmutableArray<IHistory>.Builder?     _historyStates;
+		private         IIdentifier?                          _id;
+		private         IInitial?                             _initial;
+		private         ImmutableArray<IIdentifier>           _initialId;
+		private         ImmutableArray<IInvoke>.Builder?      _invokeList;
+		private         ImmutableArray<IOnEntry>.Builder?     _onEntryList;
+		private         ImmutableArray<IOnExit>.Builder?      _onExitList;
+		private         ImmutableArray<IStateEntity>.Builder? _states;
+		private         ImmutableArray<ITransition>.Builder?  _transitions;
 
 	#region Interface IStateBuilder
 
@@ -46,7 +45,7 @@ namespace Xtate.Builder
 			{
 				if (_initial is not null)
 				{
-					AddError(Resources.ErrorMessage_InitialAttributeAndInitialStateCantBeUsedAtTheSameTimeInStateElement);
+					ErrorProcessorService.AddError(Ancestor, Resources.ErrorMessage_InitialAttributeAndInitialStateCantBeUsedAtTheSameTimeInStateElement);
 				}
 
 				_initial = new InitialEntity { Transition = new TransitionEntity { Target = _initialId } };
@@ -60,74 +59,89 @@ namespace Xtate.Builder
 				   };
 		}
 
-		public void SetId(IIdentifier id) => _id = id ?? throw new ArgumentNullException(nameof(id));
+		public void SetId(IIdentifier id)
+		{
+			Infra.Requires(id);
+
+			_id = id;
+		}
 
 		public void SetInitial(ImmutableArray<IIdentifier> initialId)
 		{
-			if (initialId.IsDefaultOrEmpty) throw new ArgumentException(Resources.Exception_ValueCannotBeEmptyList, nameof(initialId));
+			Infra.RequiresNonEmptyCollection(initialId);
 
 			_initialId = initialId;
 		}
 
 		public void AddState(IState state)
 		{
-			if (state is null) throw new ArgumentNullException(nameof(state));
+			Infra.Requires(state);
 
 			(_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(state);
 		}
 
 		public void AddParallel(IParallel parallel)
 		{
-			if (parallel is null) throw new ArgumentNullException(nameof(parallel));
+			Infra.Requires(parallel);
 
 			(_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(parallel);
 		}
 
-		public void SetInitial(IInitial initial) => _initial = initial ?? throw new ArgumentNullException(nameof(initial));
+		public void SetInitial(IInitial initial)
+		{
+			Infra.Requires(initial);
+			
+			_initial = initial;
+		}
 
 		public void AddFinal(IFinal final)
 		{
-			if (final is null) throw new ArgumentNullException(nameof(final));
+			Infra.Requires(final);
 
 			(_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(final);
 		}
 
 		public void AddHistory(IHistory history)
 		{
-			if (history is null) throw new ArgumentNullException(nameof(history));
+			Infra.Requires(history);
 
 			(_historyStates ??= ImmutableArray.CreateBuilder<IHistory>()).Add(history);
 		}
 
 		public void AddTransition(ITransition transition)
 		{
-			if (transition is null) throw new ArgumentNullException(nameof(transition));
+			Infra.Requires(transition);
 
 			(_transitions ??= ImmutableArray.CreateBuilder<ITransition>()).Add(transition);
 		}
 
 		public void AddOnEntry(IOnEntry onEntry)
 		{
-			if (onEntry is null) throw new ArgumentNullException(nameof(onEntry));
+			Infra.Requires(onEntry);
 
 			(_onEntryList ??= ImmutableArray.CreateBuilder<IOnEntry>()).Add(onEntry);
 		}
 
 		public void AddOnExit(IOnExit onExit)
 		{
-			if (onExit is null) throw new ArgumentNullException(nameof(onExit));
+			Infra.Requires(onExit);
 
 			(_onExitList ??= ImmutableArray.CreateBuilder<IOnExit>()).Add(onExit);
 		}
 
 		public void AddInvoke(IInvoke invoke)
 		{
-			if (invoke is null) throw new ArgumentNullException(nameof(invoke));
+			Infra.Requires(invoke);
 
 			(_invokeList ??= ImmutableArray.CreateBuilder<IInvoke>()).Add(invoke);
 		}
 
-		public void SetDataModel(IDataModel dataModel) => _dataModel = dataModel ?? throw new ArgumentNullException(nameof(dataModel));
+		public void SetDataModel(IDataModel dataModel)
+		{
+			Infra.Requires(dataModel);
+
+			_dataModel = dataModel;
+		}
 
 	#endregion
 	}

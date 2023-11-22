@@ -25,10 +25,9 @@ namespace Xtate.Core
 		Started,
 		Exited,
 		Waiting,
-		Resumed,
-		Halted,
 		Destroying,
+		Halted,
 		Suspended,
-		QueueClosed
+		Resumed
 	}
 }

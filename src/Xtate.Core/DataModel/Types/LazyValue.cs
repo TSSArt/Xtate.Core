@@ -22,51 +22,89 @@ using System.Threading;
 
 namespace Xtate.Core
 {
-	[PublicAPI]
-	public class LazyValue : Lazy<DataModelValue>, ILazyValue
+	public abstract class LazyValue : ILazyValue
 	{
-		public LazyValue(Func<DataModelValue> factory) : base(factory, LazyThreadSafetyMode.PublicationOnly) { }
+		private volatile int _state;
+
+		private DataModelValue _value;
+
+		public static DataModelValue Create(Func<DataModelValue> factory) => new (new NoArg(factory));
+
+		public static DataModelValue Create<TArg>(TArg arg, Func<TArg, DataModelValue> factory) => new(new OneArg<TArg>(factory, arg));
+
+		public static DataModelValue Create<TArg1, TArg2>(TArg1 arg1, TArg2 arg2, Func<TArg1, TArg2, DataModelValue> factory) => new(new TwoArgs<TArg1, TArg2>(factory, arg1, arg2));
+
+		protected abstract DataModelValue Create();
 
 	#region Interface ILazyValue
 
-		DataModelValue ILazyValue.Value => Value;
+		DataModelValue ILazyValue.Value
+		{
+			get
+			{
+				if (_state == 2)
+				{
+					return _value;
+				}
+
+				var newValue = Create();
+				if (Interlocked.CompareExchange(ref _state, 1, 0) == 0)
+				{
+					_value = newValue;
+					_state = 2;
+
+					return _value;
+				}
+
+				SpinWait spinWait = default;
+				while (_state != 2)
+				{
+					spinWait.SpinOnce();
+				}
+
+				return _value;
+			}
+		}
 
 	#endregion
 
-		public static implicit operator DataModelValue(LazyValue lazyValue) => new(lazyValue);
+		private class NoArg: LazyValue
+		{
+			private readonly Func<DataModelValue> _factory;
 
-		public DataModelValue ToDataModelValue() => this;
-	}
+			public NoArg(Func<DataModelValue> factory) => _factory = factory;
 
-	[PublicAPI]
-	public class LazyValue<TArg> : Lazy<DataModelValue>, ILazyValue
-	{
-		public LazyValue(Func<TArg, DataModelValue> factory, TArg arg) : base(() => factory(arg), LazyThreadSafetyMode.PublicationOnly) { }
+			protected override DataModelValue Create() => _factory();
+		}
 
-	#region Interface ILazyValue
+		private class OneArg<TArg> : LazyValue
+		{
+			private readonly Func<TArg, DataModelValue> _factory;
+			private readonly TArg                       _arg;
 
-		DataModelValue ILazyValue.Value => Value;
+			public OneArg(Func<TArg, DataModelValue> factory, TArg arg)
+			{
+				_factory = factory;
+				_arg = arg;
+			}
 
-	#endregion
+			protected override DataModelValue Create() => _factory(_arg);
+		}
 
-		public static implicit operator DataModelValue(LazyValue<TArg> lazyValue) => new(lazyValue);
+		private class TwoArgs<TArg1, TArg2> : LazyValue
+		{
+			private readonly Func<TArg1, TArg2, DataModelValue> _factory;
+			private readonly TArg1                              _arg1;
+			private readonly TArg2                              _arg2;
 
-		public DataModelValue ToDataModelValue() => this;
-	}
+			public TwoArgs(Func<TArg1, TArg2, DataModelValue> factory, TArg1 arg1, TArg2 arg2)
+			{
+				_factory = factory;
+				_arg1 = arg1;
+				_arg2 = arg2;
+			}
 
-	[PublicAPI]
-	public class LazyValue<TArg1, TArg2> : Lazy<DataModelValue>, ILazyValue
-	{
-		public LazyValue(Func<TArg1, TArg2, DataModelValue> factory, TArg1 arg1, TArg2 arg2) : base(() => factory(arg1, arg2), LazyThreadSafetyMode.PublicationOnly) { }
-
-	#region Interface ILazyValue
-
-		DataModelValue ILazyValue.Value => Value;
-
-	#endregion
-
-		public static implicit operator DataModelValue(LazyValue<TArg1, TArg2> lazyValue) => new(lazyValue);
-
-		public DataModelValue ToDataModelValue() => this;
+			protected override DataModelValue Create() => _factory(_arg1, _arg2);
+		}
 	}
 }

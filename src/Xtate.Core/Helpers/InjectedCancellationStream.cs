@@ -99,7 +99,7 @@ namespace Xtate.Core
 			return false;
 		}
 
-#if !NET461 && !NETSTANDARD2_0
+#if NET6_0_OR_GREATER
 		public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken token = default) =>
 			IsCombinedTokenRequired(ref token) ? ReadAsyncInternal(buffer, token) : InnerStream.ReadAsync(buffer, token);
 

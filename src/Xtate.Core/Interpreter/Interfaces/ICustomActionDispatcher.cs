@@ -28,6 +28,6 @@ namespace Xtate.Core
 	{
 		void SetEvaluators(ImmutableArray<ILocationEvaluator> locations, ImmutableArray<IValueEvaluator> values);
 
-		ValueTask Execute(IExecutionContext executionContext, CancellationToken token);
+		ValueTask Execute();
 	}
 }

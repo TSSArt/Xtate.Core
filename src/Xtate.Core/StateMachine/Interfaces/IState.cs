@@ -24,7 +24,6 @@ namespace Xtate
 {
 	public interface IState : IStateEntity
 	{
-		IIdentifier?                 Id            { get; }
 		IInitial?                    Initial       { get; }
 		ImmutableArray<IStateEntity> States        { get; }
 		ImmutableArray<IHistory>     HistoryStates { get; }

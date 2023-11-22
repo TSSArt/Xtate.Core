@@ -17,7 +17,7 @@
 
 #endregion
 
-#if NET461 || NETSTANDARD2_0
+#if !NET6_0_OR_GREATER
 using System;
 using System.IO;
 using System.Net.Http;

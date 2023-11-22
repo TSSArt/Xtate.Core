@@ -18,8 +18,10 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtate.Core;
@@ -29,12 +31,23 @@ using Xtate.Service;
 
 namespace Xtate
 {
+	//TODO:Move
+	public interface IStateMachineHostLogger
+	{
+
+	}
+
 	public sealed partial class StateMachineHost : IStateMachineHost
 	{
 		private static readonly Uri InternalTarget = new(uriString: @"#_internal", UriKind.Relative);
 
+		public required DataConverter _dataConverter { private get; init; }
+
 		private ImmutableArray<IIoProcessor>    _ioProcessors;
-		private ImmutableArray<IServiceFactory> _serviceFactories;
+		//private ImmutableArray<IServiceFactory> _serviceFactories;
+		public required IAsyncEnumerable<IIoProcessorFactory> _ioProcessorFactories { private get; init; }
+
+		public required IAsyncEnumerable<IServiceFactory> ServiceFactories { private get; init; }
 
 	#region Interface IHostEventDispatcher
 
@@ -105,16 +118,16 @@ namespace Xtate
 			var finalizer = new DeferredFinalizer();
 			await using (finalizer.ConfigureAwait(false))
 			{
-				securityContext = securityContext.CreateNested(SecurityContextType.InvokedService, finalizer);
+				securityContext = securityContext.CreateNested(SecurityContextType.InvokedService);
 				var loggerContext = new StartInvokeLoggerContext(sessionId, data.Type, data.Source);
-				var factoryContext = new FactoryContext(_options.ResourceLoaderFactories, securityContext, _options.Logger, loggerContext);
-				var activator = await FindServiceFactoryActivator(factoryContext, data.Type, token).ConfigureAwait(false);
+				var factoryContext = new FactoryContext(_options.ServiceLocator, _options.ResourceLoaderFactories, securityContext, _options.Logger, loggerContext);
+				var activator = await FindServiceFactoryActivator(_options.ServiceLocator, data.Type).ConfigureAwait(false);
 				var serviceCommunication = new ServiceCommunication(this, GetTarget(sessionId), IoProcessorId, data.InvokeId);
-				var invokedService = await activator.StartService(factoryContext, service.StateMachineLocation, data, serviceCommunication, token).ConfigureAwait(false);
+				var invokedService = await activator.StartService(_options.ServiceLocator, service.StateMachineLocation, data, serviceCommunication, token).ConfigureAwait(false);
 
 				await context.AddService(sessionId, data.InvokeId, invokedService, token).ConfigureAwait(false);
 
-				CompleteAsync(context, invokedService, service, sessionId, data.InvokeId, finalizer).Forget();
+				CompleteAsync(context, invokedService, service, sessionId, data.InvokeId, finalizer, _dataConverter, token).Forget();
 			}
 
 			static async ValueTask CompleteAsync(StateMachineHostContext context,
@@ -122,7 +135,9 @@ namespace Xtate
 												 IEventDispatcher service,
 												 SessionId sessionId,
 												 InvokeId invokeId,
-												 DeferredFinalizer finalizer)
+												 DeferredFinalizer finalizer,
+												 DataConverter dataConverter,
+												 CancellationToken token)
 			{
 				await using (finalizer.ConfigureAwait(false))
 				{
@@ -130,7 +145,7 @@ namespace Xtate
 
 					try
 					{
-						var result = await invokedService.GetResult(default).ConfigureAwait(false);
+						var result = await invokedService.GetResult(token).ConfigureAwait(false);
 
 						var nameParts = EventName.GetDoneInvokeNameParts(invokeId);
 						var evt = new EventObject { Type = EventType.External, NameParts = nameParts, Data = result, InvokeId = invokeId };
@@ -142,7 +157,7 @@ namespace Xtate
 								  {
 									  Type = EventType.External,
 									  NameParts = EventName.ErrorExecution,
-									  Data = DataConverter.FromException(ex, caseInsensitive: false),
+									  Data = dataConverter.FromException(ex),
 									  InvokeId = invokeId
 								  };
 						await service.Send(evt, token: default).ConfigureAwait(false);
@@ -210,31 +225,26 @@ namespace Xtate
 		private IErrorProcessor CreateErrorProcessor(SessionId sessionId, StateMachineOrigin origin) =>
 			_options.ValidationMode switch
 			{
-				ValidationMode.Default => DefaultErrorProcessor.Instance,
+				ValidationMode.Default => new DefaultErrorProcessor(),
 				ValidationMode.Verbose => new DetailedErrorProcessor(sessionId, origin),
 				_                      => Infra.Unexpected<IErrorProcessor>(_options.ValidationMode)
 			};
 
 		private StateMachineHostContext GetCurrentContext() => _context ?? throw new InvalidOperationException(Resources.Exception_IOProcessorHasNotBeenStarted);
 
-		private async ValueTask<IServiceFactoryActivator> FindServiceFactoryActivator(IFactoryContext factoryContext, Uri type, CancellationToken token)
+		private async ValueTask<IServiceFactoryActivator> FindServiceFactoryActivator(ServiceLocator serviceLocator, Uri type)
 		{
-			if (!_serviceFactories.IsDefaultOrEmpty)
+			await foreach (var serviceFactory in ServiceFactories.ConfigureAwait(false))
 			{
-				foreach (var serviceFactory in _serviceFactories)
+				if (await serviceFactory.TryGetActivator(serviceLocator, type, default).ConfigureAwait(false) is {} activator)
 				{
-					var activator = await serviceFactory.TryGetActivator(factoryContext, type, token).ConfigureAwait(false);
-
-					if (activator is not null)
-					{
-						return activator;
-					}
+					return activator;
 				}
 			}
 
 			throw new ProcessorException(Resources.Exception_InvalidType);
 		}
-
+		/*
 		private void StateMachineHostInit()
 		{
 			var factories = _options.ServiceFactories;
@@ -252,20 +262,23 @@ namespace Xtate
 			}
 
 			_serviceFactories = serviceFactories.MoveToImmutable();
-		}
+		}*/
 
 		private async ValueTask StateMachineHostStartAsync(CancellationToken token)
 		{
-			var factories = _options.IoProcessorFactories;
+			
+
+			//var factories = _options.IoProcessorFactories;
+			var factories = await _ioProcessorFactories.ToImmutableArrayAsync().ConfigureAwait(false);
 			var length = !factories.IsDefault ? factories.Length + 1 : 1;
 
 			var ioProcessors = ImmutableArray.CreateBuilder<IIoProcessor>(length);
 
 			ioProcessors.Add(this);
 
-			if (!_options.IoProcessorFactories.IsDefaultOrEmpty)
+			if (!factories.IsDefaultOrEmpty)
 			{
-				foreach (var ioProcessorFactory in _options.IoProcessorFactories)
+				foreach (var ioProcessorFactory in factories)
 				{
 					ioProcessors.Add(await ioProcessorFactory.Create(this, token).ConfigureAwait(false));
 				}

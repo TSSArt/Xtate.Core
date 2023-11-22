@@ -21,7 +21,7 @@ using Xtate.Persistence;
 
 namespace Xtate.Core
 {
-	internal sealed class ScriptNode : ExecutableEntityNode, IScript, IAncestorProvider
+	public sealed class ScriptNode : ExecutableEntityNode, IScript, IAncestorProvider
 	{
 		private readonly IScript _script;
 

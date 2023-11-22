@@ -144,9 +144,9 @@ namespace Xtate.Core.Test
 		}
 
 		[TestMethod]
-		[DataRow(data1: 1, "2000-01-01T00:00:00.0000001")]
-		[DataRow(data1: 10000, "2000-01-01T00:00:00.0010000")]
-		[DataRow(data1: -1, "1999-12-31T23:59:59.9999999")]
+		[DataRow(1, "2000-01-01T00:00:00.0000001")]
+		[DataRow(10000, "2000-01-01T00:00:00.0010000")]
+		[DataRow(-1, "1999-12-31T23:59:59.9999999")]
 		public void ToString_ShouldNotLoosePrecision(int addTicks, string expected)
 		{
 			// arrange
@@ -160,9 +160,9 @@ namespace Xtate.Core.Test
 		}
 
 		[TestMethod]
-		[DataRow(data1: 1, "2000-01-01T00:00:00.0000001")]
-		[DataRow(data1: 10000, "2000-01-01T00:00:00.0010000")]
-		[DataRow(data1: -1, "1999-12-31T23:59:59.9999999")]
+		[DataRow(1, "2000-01-01T00:00:00.0000001")]
+		[DataRow(10000, "2000-01-01T00:00:00.0010000")]
+		[DataRow(-1, "1999-12-31T23:59:59.9999999")]
 		public void TryParse_ShouldNotLoosePrecision_IfNoOffset(int addTicks, string forParse)
 		{
 			// arrange
@@ -176,9 +176,9 @@ namespace Xtate.Core.Test
 		}
 
 		[TestMethod]
-		[DataRow(data1: 1, "2000-01-01T00:00:00.0000001+01:00")]
-		[DataRow(data1: 10000, "2000-01-01T00:00:00.0010000+01:00")]
-		[DataRow(data1: -1, "1999-12-31T23:59:59.9999999+01:00")]
+		[DataRow(1, "2000-01-01T00:00:00.0000001+01:00")]
+		[DataRow(10000, "2000-01-01T00:00:00.0010000+01:00")]
+		[DataRow(-1, "1999-12-31T23:59:59.9999999+01:00")]
 		public void TryParse_ShouldNotLoosePrecision_IfOffsetPResent(int addTicks, string forParse)
 		{
 			// arrange

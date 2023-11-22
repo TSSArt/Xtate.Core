@@ -21,7 +21,7 @@ using Xtate.Persistence;
 
 namespace Xtate.Core
 {
-	internal sealed class ConditionExpressionNode : IConditionExpression, IStoreSupport, IAncestorProvider
+	public sealed class ConditionExpressionNode : IConditionExpression, IStoreSupport, IAncestorProvider
 	{
 		private readonly IConditionExpression _conditionExpression;
 

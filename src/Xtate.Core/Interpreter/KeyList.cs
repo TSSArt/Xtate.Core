@@ -21,7 +21,7 @@ using System.Collections.Generic;
 
 namespace Xtate.Core
 {
-	internal sealed class KeyList<T>
+	public sealed class KeyList<T>
 	{
 		public delegate void ChangeHandler(ChangedAction action, IEntity entity, List<T> list);
 

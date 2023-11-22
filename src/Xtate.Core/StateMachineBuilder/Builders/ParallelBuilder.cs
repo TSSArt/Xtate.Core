@@ -17,7 +17,6 @@
 
 #endregion
 
-using System;
 using System.Collections.Immutable;
 using Xtate.Core;
 
@@ -34,8 +33,6 @@ namespace Xtate.Builder
 		private ImmutableArray<IStateEntity>.Builder? _states;
 		private ImmutableArray<ITransition>.Builder?  _transitions;
 
-		public ParallelBuilder(IErrorProcessor errorProcessor, object? ancestor) : base(errorProcessor, ancestor) { }
-
 	#region Interface IParallelBuilder
 
 		public IParallel Build() =>
@@ -46,58 +43,68 @@ namespace Xtate.Builder
 				OnExit = _onExitList?.ToImmutable() ?? default, Invoke = _invokeList?.ToImmutable() ?? default
 			};
 
-		public void SetId(IIdentifier id) => _id = id ?? throw new ArgumentNullException(nameof(id));
+		public void SetId(IIdentifier id)
+		{
+			Infra.Requires(id);
+
+			_id = id;
+		}
 
 		public void AddState(IState state)
 		{
-			if (state is null) throw new ArgumentNullException(nameof(state));
+			Infra.Requires(state);
 
 			(_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(state);
 		}
 
 		public void AddParallel(IParallel parallel)
 		{
-			if (parallel is null) throw new ArgumentNullException(nameof(parallel));
+			Infra.Requires(parallel);
 
 			(_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(parallel);
 		}
 
 		public void AddHistory(IHistory history)
 		{
-			if (history is null) throw new ArgumentNullException(nameof(history));
+			Infra.Requires(history);
 
 			(_historyStates ??= ImmutableArray.CreateBuilder<IHistory>()).Add(history);
 		}
 
 		public void AddTransition(ITransition transition)
 		{
-			if (transition is null) throw new ArgumentNullException(nameof(transition));
+			Infra.Requires(transition);
 
 			(_transitions ??= ImmutableArray.CreateBuilder<ITransition>()).Add(transition);
 		}
 
 		public void AddOnEntry(IOnEntry onEntry)
 		{
-			if (onEntry is null) throw new ArgumentNullException(nameof(onEntry));
+			Infra.Requires(onEntry);
 
 			(_onEntryList ??= ImmutableArray.CreateBuilder<IOnEntry>()).Add(onEntry);
 		}
 
 		public void AddOnExit(IOnExit onExit)
 		{
-			if (onExit is null) throw new ArgumentNullException(nameof(onExit));
+			Infra.Requires(onExit);
 
 			(_onExitList ??= ImmutableArray.CreateBuilder<IOnExit>()).Add(onExit);
 		}
 
 		public void AddInvoke(IInvoke invoke)
 		{
-			if (invoke is null) throw new ArgumentNullException(nameof(invoke));
+			Infra.Requires(invoke);
 
 			(_invokeList ??= ImmutableArray.CreateBuilder<IInvoke>()).Add(invoke);
 		}
 
-		public void SetDataModel(IDataModel dataModel) => _dataModel = dataModel ?? throw new ArgumentNullException(nameof(dataModel));
+		public void SetDataModel(IDataModel dataModel)
+		{
+			Infra.Requires(dataModel);
+
+			_dataModel = dataModel;
+		}
 
 	#endregion
 	}

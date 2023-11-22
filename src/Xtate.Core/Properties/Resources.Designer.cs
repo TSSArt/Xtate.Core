@@ -19,7 +19,7 @@ namespace Xtate {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -75,6 +75,17 @@ namespace Xtate {
         internal static string Assertion_ObjectsStructureMismatch {
             get {
                 return ResourceManager.GetString("Assertion_ObjectsStructureMismatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: {1}
+        ///Arguments: {2}
+        ///Exception: {3}.
+        /// </summary>
+        internal static string DefaultLogEvent_Message {
+            get {
+                return ResourceManager.GetString("DefaultLogEvent_Message", resourceCulture);
             }
         }
         
@@ -282,6 +293,15 @@ namespace Xtate {
         internal static string ErrorMessage_CancelItemSendIdAndExpressionSpecified {
             get {
                 return ResourceManager.GetString("ErrorMessage_CancelItemSendIdAndExpressionSpecified", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t find DataModelHandlerFactory for DataModel type &apos;{0}&apos;..
+        /// </summary>
+        internal static string ErrorMessage_CantFindDataModelHandlerFactoryForDataModelType {
+            get {
+                return ResourceManager.GetString("ErrorMessage_CantFindDataModelHandlerFactoryForDataModelType", resourceCulture);
             }
         }
         
@@ -701,6 +721,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Not initialized..
+        /// </summary>
+        internal static string ErrorMessage_Not_initialized {
+            get {
+                return ResourceManager.GetString("ErrorMessage_Not_initialized", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Only one &lt;{0}&gt; element allowed..
         /// </summary>
         internal static string ErrorMessage_OnlyOneElementAllowed {
@@ -728,11 +757,29 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to RuntimeAction and RuntimePredicate objects only allowed as action and condition in &apos;runtime&apos; data model..
+        ///   Looks up a localized string similar to RuntimeAction object only allowed as action in &apos;runtime&apos; data model..
         /// </summary>
-        internal static string ErrorMessage_RuntimeActionAndPredicateOnlyAllowed {
+        internal static string ErrorMessage_RuntimeActionOnlyAllowed {
             get {
-                return ResourceManager.GetString("ErrorMessage_RuntimeActionAndPredicateOnlyAllowed", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_RuntimeActionOnlyAllowed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to RuntimePredicate object only allowed as condition in &apos;runtime&apos; data model..
+        /// </summary>
+        internal static string ErrorMessage_RuntimePredicateOnlyAllowed {
+            get {
+                return ResourceManager.GetString("ErrorMessage_RuntimePredicateOnlyAllowed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to RuntimeValue object only allowed as value in &apos;runtime&apos; data model..
+        /// </summary>
+        internal static string ErrorMessage_RuntimeValueOnlyAllowed {
+            get {
+                return ResourceManager.GetString("ErrorMessage_RuntimeValueOnlyAllowed", resourceCulture);
             }
         }
         
@@ -999,7 +1046,25 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Cannot find ResourceLoader to load external resource..
+        ///   Looks up a localized string similar to {0} ({1})..
+        /// </summary>
+        internal static string Exception_AssertUnexpected {
+            get {
+                return ResourceManager.GetString("Exception_AssertUnexpected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} ({1}:{2})..
+        /// </summary>
+        internal static string Exception_AssertUnexpectedWithType {
+            get {
+                return ResourceManager.GetString("Exception_AssertUnexpectedWithType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot find ResourceLoader to load external resource: {0}.
         /// </summary>
         internal static string Exception_CannotFindResourceLoaderToLoadExternalResource {
             get {
@@ -1044,11 +1109,38 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can&apos;t find DataModelHandlerFactory for DataModel type &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Can&apos;t cast/forward delegate {0} to {1}..
         /// </summary>
-        internal static string Exception_CantFindDataModelHandlerFactoryForDataModelType {
+        internal static string Exception_CantCastForwardDelegate {
             get {
-                return ResourceManager.GetString("Exception_CantFindDataModelHandlerFactoryForDataModelType", resourceCulture);
+                return ResourceManager.GetString("Exception_CantCastForwardDelegate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t find entity parser for type {0}..
+        /// </summary>
+        internal static string Exception_CantFindEntityParser {
+            get {
+                return ResourceManager.GetString("Exception_CantFindEntityParser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t find factory for type [{0}]..
+        /// </summary>
+        internal static string Exception_CantFindFactoryForType {
+            get {
+                return ResourceManager.GetString("Exception_CantFindFactoryForType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t find State Machine provider..
+        /// </summary>
+        internal static string Exception_CantFindStateMachineProvider {
+            get {
+                return ResourceManager.GetString("Exception_CantFindStateMachineProvider", resourceCulture);
             }
         }
         
@@ -1080,6 +1172,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Catalog closed for modifications..
+        /// </summary>
+        internal static string Exception_CatalogClosedForModifications {
+            get {
+                return ResourceManager.GetString("Exception_CatalogClosedForModifications", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Channel can&apos;t consume previously persisted object..
         /// </summary>
         internal static string Exception_ChannelCantConsumePreviouslyPersistedObject {
@@ -1094,6 +1195,15 @@ namespace Xtate {
         internal static string Exception_ConditionDoesNotSpecified {
             get {
                 return ResourceManager.GetString("Exception_ConditionDoesNotSpecified", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Context is not available at this place..
+        /// </summary>
+        internal static string Exception_ContextIsNotAvailableAtThisPlace {
+            get {
+                return ResourceManager.GetString("Exception_ContextIsNotAvailableAtThisPlace", resourceCulture);
             }
         }
         
@@ -1166,6 +1276,15 @@ namespace Xtate {
         internal static string Exception_DataModelValueIsNotString {
             get {
                 return ResourceManager.GetString("Exception_DataModelValueIsNotString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Decorated object missed..
+        /// </summary>
+        internal static string Exception_DecoratedObjectMissed {
+            get {
+                return ResourceManager.GetString("Exception_DecoratedObjectMissed", resourceCulture);
             }
         }
         
@@ -1243,6 +1362,24 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Factory of [{0}] raised exception..
+        /// </summary>
+        internal static string Exception_FactoryOfRaisedException {
+            get {
+                return ResourceManager.GetString("Exception_FactoryOfRaisedException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Factory should not return {null} value..
+        /// </summary>
+        internal static string Exception_FactoryShouldNotReturnNullValue {
+            get {
+                return ResourceManager.GetString("Exception_FactoryShouldNotReturnNullValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Forward entities required to restore state machine..
         /// </summary>
         internal static string Exception_ForwardEntitiesRequiredToRestoreStateMachine {
@@ -1275,6 +1412,15 @@ namespace Xtate {
         internal static string Exception_FoundMoreThenOneInterfaceToListen {
             get {
                 return ResourceManager.GetString("Exception_FoundMoreThenOneInterfaceToListen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Generic type {0} can&apos;t be constructed from interface {1}..
+        /// </summary>
+        internal static string Exception_GenericTypeCantBeConstructedFromInterface {
+            get {
+                return ResourceManager.GetString("Exception_GenericTypeCantBeConstructedFromInterface", resourceCulture);
             }
         }
         
@@ -1450,6 +1596,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Live lock detected..
+        /// </summary>
+        internal static string Exception_LivelockDetected {
+            get {
+                return ResourceManager.GetString("Exception_LivelockDetected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Loading external resources does not supported. Derive class from ScxmlXmlResolver and pass instance of it to ScxmlDirector..
         /// </summary>
         internal static string Exception_LoadingExternalResourcesDoesNotSupported {
@@ -1468,6 +1623,24 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Missed default activation for service [{0}]..
+        /// </summary>
+        internal static string Exception_MissedDefaultActivationForService {
+            get {
+                return ResourceManager.GetString("Exception_MissedDefaultActivationForService", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Missed parameterized activation [{0}] for service [{1}]..
+        /// </summary>
+        internal static string Exception_MissedParameterizedActivationForService {
+            get {
+                return ResourceManager.GetString("Exception_MissedParameterizedActivationForService", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Missed ParentSessionId..
         /// </summary>
         internal static string Exception_MissedParentSessionId {
@@ -1482,6 +1655,15 @@ namespace Xtate {
         internal static string Exception_MissedSessionId {
             get {
                 return ResourceManager.GetString("Exception_MissedSessionId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to More then one CustomActionProvider registered for processing custom action node: &lt;{0}:{1}&gt;..
+        /// </summary>
+        internal static string Exception_MoreThenOneCustomActionProviderRegisteredForProcessingCustomActionNode {
+            get {
+                return ResourceManager.GetString("Exception_MoreThenOneCustomActionProviderRegisteredForProcessingCustomActionNode", resourceCulture);
             }
         }
         
@@ -1540,11 +1722,29 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Object disposed during initialization..
+        /// </summary>
+        internal static string Exception_ObjectDisposedDuringInitialization {
+            get {
+                return ResourceManager.GetString("Exception_ObjectDisposedDuringInitialization", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to OriginType must be provided in ioProcessorEvent..
         /// </summary>
         internal static string Exception_OriginTypeMustBeProvidedInIoProcessorEvent {
             get {
                 return ResourceManager.GetString("Exception_OriginTypeMustBeProvidedInIoProcessorEvent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Partially closed type not supported..
+        /// </summary>
+        internal static string Exception_PartiallyClosedTypeNotSupported {
+            get {
+                return ResourceManager.GetString("Exception_PartiallyClosedTypeNotSupported", resourceCulture);
             }
         }
         
@@ -1648,11 +1848,75 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Service [{0} (Argument: {1})] missed in container..
+        /// </summary>
+        internal static string Exception_ServiceArgMissedInContainer {
+            get {
+                return ResourceManager.GetString("Exception_ServiceArgMissedInContainer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Service can&apos;t be instantiated since at least one parameter required asynchronous call..
+        /// </summary>
+        internal static string Exception_ServiceCantBeInstantiatedSinceAtLeastOneParameterRequiredAsynchronousCall {
+            get {
+                return ResourceManager.GetString("Exception_ServiceCantBeInstantiatedSinceAtLeastOneParameterRequiredAsynchronousCa" +
+                        "ll", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Service [{0}] missed in container..
+        /// </summary>
+        internal static string Exception_ServiceMissedInContainer {
+            get {
+                return ResourceManager.GetString("Exception_ServiceMissedInContainer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Service not available in synchronous context..
+        /// </summary>
+        internal static string Exception_ServiceNotAvailableInSynchronousContext {
+            get {
+                return ResourceManager.GetString("Exception_ServiceNotAvailableInSynchronousContext", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ServiceType not initialized..
+        /// </summary>
+        internal static string Exception_ServiceTypeNotInitialized {
+            get {
+                return ResourceManager.GetString("Exception_ServiceTypeNotInitialized", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to SessionId could not be empty..
         /// </summary>
         internal static string Exception_SessionIdCouldNotBeEmpty {
             get {
                 return ResourceManager.GetString("Exception_SessionIdCouldNotBeEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Singleton/scoped types does not supported for syncronous instantination..
+        /// </summary>
+        internal static string Exception_SingletonScopedTypesDoesNotSupportedForSyncronousInstantination {
+            get {
+                return ResourceManager.GetString("Exception_SingletonScopedTypesDoesNotSupportedForSyncronousInstantination", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Source not initialized..
+        /// </summary>
+        internal static string Exception_SourceNotInitialized {
+            get {
+                return ResourceManager.GetString("Exception_SourceNotInitialized", resourceCulture);
             }
         }
         
@@ -1680,15 +1944,6 @@ namespace Xtate {
         internal static string Exception_StartingStateMachineDenied {
             get {
                 return ResourceManager.GetString("Exception_StartingStateMachineDenied", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to StateId not initialized..
-        /// </summary>
-        internal static string Exception_StateIdNotInitialized {
-            get {
-                return ResourceManager.GetString("Exception_StateIdNotInitialized", resourceCulture);
             }
         }
         
@@ -1734,6 +1989,15 @@ namespace Xtate {
         internal static string Exception_StateMachineHostStopped {
             get {
                 return ResourceManager.GetString("Exception_StateMachineHostStopped", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to StateMachine interpreter has been disposed..
+        /// </summary>
+        internal static string Exception_StateMachineInterpreterHasBeenDisposed {
+            get {
+                return ResourceManager.GetString("Exception_StateMachineInterpreterHasBeenDisposed", resourceCulture);
             }
         }
         
@@ -1792,11 +2056,48 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to There is no any CustomActionProvider registered for processing custom action node: &lt;{0}:{1}&gt;.
+        /// </summary>
+        internal static string Exception_ThereIsNoAnyCustomActionProviderRegisteredForProcessingCustomActionNode {
+            get {
+                return ResourceManager.GetString("Exception_ThereIsNoAnyCustomActionProviderRegisteredForProcessingCustomActionNode" +
+                        "", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to This exception should never happen..
         /// </summary>
         internal static string Exception_ThisExceptionShouldNeverHappen {
             get {
                 return ResourceManager.GetString("Exception_ThisExceptionShouldNeverHappen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TransitionNode with DocumentId: {0} not found..
+        /// </summary>
+        internal static string Exception_TransitionNodeWithDocumentIdNotFound {
+            get {
+                return ResourceManager.GetString("Exception_TransitionNodeWithDocumentIdNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type {0} can&apos;t be cast to {1}..
+        /// </summary>
+        internal static string Exception_TypeCantBeCastedTo {
+            get {
+                return ResourceManager.GetString("Exception_TypeCantBeCastedTo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type {0} can&apos;t be constructed based on service type {1}..
+        /// </summary>
+        internal static string Exception_TypeCantBeConstructedBasedOnServiceType {
+            get {
+                return ResourceManager.GetString("Exception_TypeCantBeConstructedBasedOnServiceType", resourceCulture);
             }
         }
         
@@ -1810,11 +2111,38 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Type {0} does not contains method (or ambiguity) with return type: (ValueTask&lt;{1}&gt; or {1}) and empty or single CancellationToken input parameter..
+        /// </summary>
+        internal static string Exception_TypeDoesNotContainsMethodWithSignatureMethodCancellationToken {
+            get {
+                return ResourceManager.GetString("Exception_TypeDoesNotContainsMethodWithSignatureMethodCancellationToken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Type, SendId, DelayMs can&apos;t be specified for this event..
         /// </summary>
         internal static string Exception_TypeSendIdDelayMsCantBeSpecifiedForThisEvent {
             get {
                 return ResourceManager.GetString("Exception_TypeSendIdDelayMsCantBeSpecifiedForThisEvent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type should be GenericTypeDefinition..
+        /// </summary>
+        internal static string Exception_TypeShouldBeGenericTypeDefinition {
+            get {
+                return ResourceManager.GetString("Exception_TypeShouldBeGenericTypeDefinition", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type {0} used in synchronous instantiation and can&apos;t implement IAsyncInitialization interface..
+        /// </summary>
+        internal static string Exception_TypeUsedInSynchronousInstantiation {
+            get {
+                return ResourceManager.GetString("Exception_TypeUsedInSynchronousInstantiation", resourceCulture);
             }
         }
         
@@ -1928,6 +2256,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unrecognized MediaType: {0}..
+        /// </summary>
+        internal static string Exception_Unrecognized_MediaType {
+            get {
+                return ResourceManager.GetString("Exception_Unrecognized_MediaType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to resolve URI reference &apos;{0}&apos;..
         /// </summary>
         internal static string Exception_UnresolvableURI {
@@ -1987,6 +2324,15 @@ namespace Xtate {
         internal static string Exception_UseWriteAsyncInstead {
             get {
                 return ResourceManager.GetString("Exception_UseWriteAsyncInstead", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Valid range is [{0}..{1}]..
+        /// </summary>
+        internal static string Exception_ValidRangeIsMinMax {
+            get {
+                return ResourceManager.GetString("Exception_ValidRangeIsMinMax", resourceCulture);
             }
         }
         
@@ -2131,6 +2477,15 @@ namespace Xtate {
         internal static string Exception_XmlResolverReturnedNull {
             get {
                 return ResourceManager.GetString("Exception_XmlResolverReturnedNull", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown Data Model..
+        /// </summary>
+        internal static string Message_UnknownDataModel {
+            get {
+                return ResourceManager.GetString("Message_UnknownDataModel", resourceCulture);
             }
         }
         
