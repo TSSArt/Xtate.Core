@@ -22,23 +22,29 @@ using Xtate.Persistence;
 
 namespace Xtate.Core
 {
-	internal sealed class InitialNode : StateEntityNode, IInitial, IAncestorProvider, IDebugEntityId
+	public class EmptyInitialNode : InitialNode
+	{
+		public EmptyInitialNode(DocumentIdNode documentIdNode, TransitionNode transition) : base(documentIdNode, transition) { }
+	}
+
+	public class InitialNode : StateEntityNode, IInitial, IAncestorProvider, IDebugEntityId
 	{
 		private readonly IInitial? _initial;
 
-		public InitialNode(DocumentIdNode documentIdNode, IInitial initial) : base(documentIdNode, children: null)
+		public InitialNode(DocumentIdNode documentIdNode, IInitial initial) : this(documentIdNode, GetTransitionNode(initial)) => _initial = initial;
+
+		private static TransitionNode GetTransitionNode(IInitial initial)
 		{
+			Infra.Requires(initial);
+
 			Infra.NotNull(initial.Transition);
 
-			_initial = initial;
-			Transition = initial.Transition.As<TransitionNode>();
-
-			Transition.SetSource(this);
+			return initial.Transition.As<TransitionNode>();
 		}
 
-		public InitialNode(DocumentIdNode documentIdNode, TransitionNode transition) : base(documentIdNode, children: null)
+		protected InitialNode(DocumentIdNode documentIdNode, TransitionNode transition) : base(documentIdNode)
 		{
-			Transition = transition ?? throw new ArgumentNullException(nameof(transition));
+			Transition = transition;
 
 			Transition.SetSource(this);
 		}

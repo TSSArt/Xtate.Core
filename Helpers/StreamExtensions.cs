@@ -27,10 +27,11 @@ using System.Threading.Tasks;
 
 namespace Xtate.Core
 {
-	[PublicAPI]
 	public static class StreamExtensions
 	{
-#if NET461 || NETSTANDARD2_0
+#if NET6_0_OR_GREATER
+		internal static void IgnoreIt(ConfiguredValueTaskAwaitable _) { }
+#else
 		public static ConfiguredAwaitable ConfigureAwait(this Stream stream, bool continueOnCapturedContext) => new(stream, continueOnCapturedContext);
 
 		public static ValueTask DisposeAsync(this Stream stream)
@@ -42,7 +43,6 @@ namespace Xtate.Core
 			return default;
 		}
 
-		[PublicAPI]
 		[SuppressMessage(category: "Design", checkId: "CA1034:Nested types should not be visible")]
 		[SuppressMessage(category: "Performance", checkId: "CA1815:Override equals and operator equals on value types")]
 		public readonly struct ConfiguredAwaitable
@@ -59,8 +59,6 @@ namespace Xtate.Core
 
 			public ConfiguredValueTaskAwaitable DisposeAsync() => _stream.DisposeAsync().ConfigureAwait(_continueOnCapturedContext);
 		}
-#else
-		internal static void IgnoreIt(ConfiguredValueTaskAwaitable _) { }
 #endif
 
 		public static Stream InjectCancellationToken(this Stream stream, CancellationToken token) => new InjectedCancellationStream(stream, token);
@@ -71,7 +69,7 @@ namespace Xtate.Core
 			if (stream is null) throw new ArgumentNullException(nameof(stream));
 
 			var longLength = stream.Length - stream.Position;
-			var capacity = 0 <= longLength && longLength <= int.MaxValue ? (int) longLength : 0;
+			var capacity = longLength is >= 0 and <= int.MaxValue ? (int) longLength : 0;
 
 			var memoryStream = new MemoryStream(capacity);
 			var buffer = ArrayPool<byte>.Shared.Rent(4096);

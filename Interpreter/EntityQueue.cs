@@ -22,7 +22,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Xtate.Core
 {
-	internal sealed class EntityQueue<T>
+	public sealed class EntityQueue<T>
 	{
 		public delegate void ChangeHandler(ChangedAction action, [AllowNull] T entity);
 

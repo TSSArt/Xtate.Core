@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,38 +22,35 @@ using System.Threading.Tasks;
 using System.Xml;
 using Xtate.XInclude;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public class ScxmlXmlResolver : XmlResolver, IXIncludeXmlResolver
 {
-	public class ScxmlXmlResolver : XmlResolver, IXIncludeXmlResolver
-	{
-		public static ScxmlXmlResolver DefaultInstance { get; } = new();
+#region Interface IXIncludeXmlResolver
 
-	#region Interface IXIncludeXmlResolver
+	object IXIncludeXmlResolver.GetEntity(Uri uri,
+										  string? accept,
+										  string? acceptLanguage,
+										  Type? ofObjectToReturn) =>
+		GetEntityAsync(uri, accept, acceptLanguage, ofObjectToReturn).SynchronousGetResult();
 
-		object IXIncludeXmlResolver.GetEntity(Uri uri,
-											  string? accept,
-											  string? acceptLanguage,
-											  Type? ofObjectToReturn) =>
-			GetEntityAsync(uri, accept, acceptLanguage, ofObjectToReturn).SynchronousGetResult();
+	Task<object?> IXIncludeXmlResolver.GetEntityAsync(Uri uri,
+													  string? accept,
+													  string? acceptLanguage,
+													  Type? ofObjectToReturn) =>
+		GetEntityAsync(uri, accept, acceptLanguage, ofObjectToReturn).AsTask()!;
 
-		Task<object?> IXIncludeXmlResolver.GetEntityAsync(Uri uri,
-														  string? accept,
-														  string? acceptLanguage,
-														  Type? ofObjectToReturn) =>
-			GetEntityAsync(uri, accept, acceptLanguage, ofObjectToReturn).AsTask()!;
+#endregion
 
-	#endregion
+	public sealed override object GetEntity(Uri absoluteUri, string? role, Type? ofObjectToReturn) =>
+		GetEntityAsync(absoluteUri, accept: default, acceptLanguage: default, ofObjectToReturn).SynchronousGetResult();
 
-		public sealed override object GetEntity(Uri absoluteUri, string? role, Type? ofObjectToReturn) =>
-			GetEntityAsync(absoluteUri, accept: default, acceptLanguage: default, ofObjectToReturn).SynchronousGetResult();
+	public sealed override Task<object> GetEntityAsync(Uri absoluteUri, string? role, Type? ofObjectToReturn) =>
+		GetEntityAsync(absoluteUri, accept: default, acceptLanguage: default, ofObjectToReturn).AsTask();
 
-		public sealed override Task<object> GetEntityAsync(Uri absoluteUri, string? role, Type? ofObjectToReturn) =>
-			GetEntityAsync(absoluteUri, accept: default, acceptLanguage: default, ofObjectToReturn).AsTask();
-
-		protected virtual ValueTask<object> GetEntityAsync(Uri uri,
-														   string? accept,
-														   string? acceptLanguage,
-														   Type? ofObjectToReturn) =>
-			throw new NotSupportedException(Resources.Exception_LoadingExternalResourcesDoesNotSupported);
-	}
+	protected virtual ValueTask<object> GetEntityAsync(Uri uri,
+													   string? accept,
+													   string? acceptLanguage,
+													   Type? ofObjectToReturn) =>
+		throw new NotSupportedException(Resources.Exception_LoadingExternalResourcesDoesNotSupported);
 }

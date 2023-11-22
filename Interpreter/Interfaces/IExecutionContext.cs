@@ -25,14 +25,6 @@ using Xtate.Core;
 namespace Xtate
 {
 	[PublicAPI]
-	public enum LogLevel
-	{
-		Info,
-		Warning,
-		Error
-	}
-
-	[PublicAPI]
 	public record InvokeData
 	{
 		public InvokeData(InvokeId invokeId, Uri type)
@@ -49,23 +41,37 @@ namespace Xtate
 		public DataModelValue Parameters { get; init; }
 	}
 
-	public interface IExecutionContext : ILogEvent
+	public interface IEventController
+	{
+		ValueTask Send(IOutgoingEvent outgoingEvent);
+
+		ValueTask Cancel(SendId sendId);
+	}
+
+	public interface IInvokeController
+	{
+		ValueTask Start(InvokeData invokeData);
+
+		ValueTask Cancel(InvokeId invokeId);
+	}
+
+	//TODO:delete
+	[Obsolete]
+	public interface IExecutionContext : ILogController, IEventController, IInvokeController, IInStateController, IDataModelController
 	{
 		IContextItems RuntimeItems { get; }
 
 		ISecurityContext SecurityContext { get; }
+	}
 
-		DataModelList DataModel { get; }
-
+	public interface IInStateController
+	{
 		bool InState(IIdentifier id);
+	}
 
-		ValueTask Cancel(SendId sendId, CancellationToken token = default);
-
-		ValueTask Send(IOutgoingEvent outgoingEvent, CancellationToken token = default);
-
-		ValueTask StartInvoke(InvokeData invokeData, CancellationToken token = default);
-
-		ValueTask CancelInvoke(InvokeId invokeId, CancellationToken token = default);
+	public interface IDataModelController
+	{
+		DataModelList DataModel { get; }
 	}
 
 	public interface IContextItems

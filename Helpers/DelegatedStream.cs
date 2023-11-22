@@ -106,7 +106,7 @@ namespace Xtate.Core
 										CancellationToken token) =>
 			InnerStream.WriteAsync(buffer, offset, count, token);
 
-#if !NET461 && !NETSTANDARD2_0
+#if NET6_0_OR_GREATER
 		public override void CopyTo(Stream destination, int bufferSize) => InnerStream.CopyTo(destination, bufferSize);
 
 		public override int Read(Span<byte> buffer) => InnerStream.Read(buffer);

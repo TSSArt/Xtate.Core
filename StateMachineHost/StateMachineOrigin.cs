@@ -36,19 +36,25 @@ namespace Xtate.Core
 
 		public StateMachineOrigin(IStateMachine stateMachine, Uri? baseUri = default)
 		{
-			_value = stateMachine ?? throw new ArgumentNullException(nameof(stateMachine));
+			Infra.Requires(stateMachine);
+			
+			_value = stateMachine;
 			BaseUri = baseUri;
 		}
 
 		public StateMachineOrigin(Uri source, Uri? baseUri = default)
 		{
-			_value = source ?? throw new ArgumentNullException(nameof(source));
+			Infra.Requires(source);
+			
+			_value = source;
 			BaseUri = baseUri;
 		}
 
 		public StateMachineOrigin(string scxml, Uri? baseUri = default)
 		{
-			_value = scxml ?? throw new ArgumentNullException(nameof(scxml));
+			Infra.Requires(scxml);
+			
+			_value = scxml;
 			BaseUri = baseUri;
 		}
 

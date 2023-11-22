@@ -17,7 +17,7 @@
 
 #endregion
 
-#if NET461 || NETSTANDARD2_0
+#if !NET6_0_OR_GREATER
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -29,7 +29,7 @@ namespace Xtate.Core
 	{
 		public static bool TryRemove<TKey, TValue>(this ConcurrentDictionary<TKey, TValue> concurrentDictionary, KeyValuePair<TKey, TValue> pair)
 		{
-			if (concurrentDictionary is null) throw new ArgumentNullException(nameof(concurrentDictionary));
+			Infra.Requires(concurrentDictionary);
 
 			return ((ICollection<KeyValuePair<TKey, TValue>>) concurrentDictionary).Remove(pair);
 		}
@@ -40,9 +40,47 @@ namespace Xtate.Core
 															 Func<TKey, TValue, TArg, TValue> updateValueFactory,
 															 TArg factoryArgument)
 		{
-			if (concurrentDictionary is null) throw new ArgumentNullException(nameof(concurrentDictionary));
+			Infra.Requires(concurrentDictionary);
+			Infra.Requires(updateValueFactory);
+			Infra.Requires(addValueFactory);
 
-			return concurrentDictionary.AddOrUpdate(key, keyArg => addValueFactory(keyArg, factoryArgument), (keyArg, valueArg) => updateValueFactory(keyArg, valueArg, factoryArgument));
+			while (true)
+			{
+				if(concurrentDictionary.TryGetValue(key, out var value))
+				{
+					var newValue = updateValueFactory(key, value, factoryArgument);
+
+					if (concurrentDictionary.TryUpdate(key, newValue, value))
+					{
+						return newValue;
+					}
+				}
+				else
+				{
+					var newValue = addValueFactory(key, factoryArgument);
+
+					if (concurrentDictionary.TryAdd(key, newValue))
+					{
+						return newValue;
+					}
+				}
+			}
+		}
+
+		public static TValue GetOrAdd<TKey, TValue, TArg>(this ConcurrentDictionary<TKey, TValue> concurrentDictionary,
+														  TKey key, Func<TKey, TArg, TValue> valueFactory, TArg factoryArgument)
+		{
+			Infra.Requires(concurrentDictionary);
+			Infra.Requires(valueFactory);
+
+			if (concurrentDictionary.TryGetValue(key, out var value))
+			{
+				return value;
+			}
+
+			var newValue = valueFactory(key, factoryArgument);
+
+			return concurrentDictionary.GetOrAdd(key, newValue);
 		}
 	}
 }

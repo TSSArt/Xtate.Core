@@ -23,7 +23,7 @@ using Xtate.Persistence;
 
 namespace Xtate.Core
 {
-	internal sealed class ExternalScriptExpressionNode : IExternalScriptExpression, IExternalScriptConsumer, IStoreSupport, IAncestorProvider
+	public sealed class ExternalScriptExpressionNode : IExternalScriptExpression, IExternalScriptConsumer, IStoreSupport, IAncestorProvider
 	{
 		private readonly IExternalScriptExpression _externalScriptExpression;
 		private          string?                   _content;

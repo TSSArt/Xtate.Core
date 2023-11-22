@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -18,51 +18,72 @@
 #endregion
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Xtate.Core;
 
-namespace Xtate
+namespace Xtate;
+
+//TODO:move to file
+[Obsolete]
+public interface IStateMachineInterpreterLogger1
 {
-	[PublicAPI]
-	public interface ILogger
-	{
-		bool IsTracingEnabled { get; }
+	bool IsEnabled { get; }
 
-		ValueTask ExecuteLog(ILoggerContext? loggerContext,
-							 LogLevel logLevel,
-							 string? message,
-							 DataModelValue arguments,
-							 Exception? exception,
-							 CancellationToken token);
+	ValueTask LogError(ErrorType errorType, Exception exception, IDebugEntityId? entityId);
+}
 
-		ValueTask LogError(ILoggerContext? loggerContext,
-						   ErrorType errorType,
-						   Exception exception,
-						   string? sourceEntityId,
-						   CancellationToken token);
+//TODO:move to file
+[Obsolete]
+public interface IStateMachineInterpreterTracer1
+{
+	ValueTask TracePerformingTransition(ITransition transition);
+	ValueTask TracePerformedTransition(ITransition transition);
+	ValueTask TraceProcessingEvent(IEvent evt);
+	ValueTask TraceEnteringState(IStateEntity stateEntity);
+	ValueTask TraceEnteredState(IStateEntity stateEntity);
+	ValueTask TraceExitingState(IStateEntity stateEntity);
+	ValueTask TraceExitedState(IStateEntity stateEntity);
+	ValueTask TraceInterpreterState(StateMachineInterpreterState state);
+	ValueTask TraceSendEvent(IOutgoingEvent outgoingEvent);
+	ValueTask TraceCancelEvent(SendId sendId);
+	ValueTask TraceStartInvoke(InvokeData invokeData);
+	ValueTask TraceCancelInvoke(InvokeId invokeId);
+}
 
-		ValueTask TracePerformingTransition(ILoggerContext? loggerContext,
-											TransitionType type,
-											string? eventDescriptor,
-											string? target,
-											CancellationToken token);
+public interface ILoggerOld
+{
+	[Obsolete]
+	bool IsTracingEnabled { get; }
 
-		ValueTask TracePerformedTransition(ILoggerContext? loggerContext,
-										   TransitionType type,
-										   string? eventDescriptor,
-										   string? target,
-										   CancellationToken token);
+	//TODO:delete
+	[Obsolete]
+	ValueTask ExecuteLogOld(LogLevel logLevel,
+							string? message,
+							DataModelValue arguments,
+							Exception? exception);
 
-		ValueTask TraceProcessingEvent(ILoggerContext? loggerContext, IEvent evt, CancellationToken token);
-		ValueTask TraceEnteringState(ILoggerContext? loggerContext, IIdentifier stateId, CancellationToken token);
-		ValueTask TraceEnteredState(ILoggerContext? loggerContext, IIdentifier stateId, CancellationToken token);
-		ValueTask TraceExitingState(ILoggerContext? loggerContext, IIdentifier stateId, CancellationToken token);
-		ValueTask TraceExitedState(ILoggerContext? loggerContext, IIdentifier stateId, CancellationToken token);
-		ValueTask TraceInterpreterState(ILoggerContext? loggerContext, StateMachineInterpreterState state, CancellationToken token);
-		ValueTask TraceSendEvent(ILoggerContext? loggerContext, IOutgoingEvent outgoingEvent, CancellationToken token);
-		ValueTask TraceCancelEvent(ILoggerContext? loggerContext, SendId sendId, CancellationToken token);
-		ValueTask TraceStartInvoke(ILoggerContext? loggerContext, InvokeData invokeData, CancellationToken token);
-		ValueTask TraceCancelInvoke(ILoggerContext? loggerContext, InvokeId invokeId, CancellationToken token);
-	}
+	//TODO:delete
+	[Obsolete]
+	ValueTask LogErrorOld(ErrorType errorType,
+						  Exception exception,
+						  string? sourceEntityId);
+
+	ValueTask TracePerformingTransition(TransitionType type,
+										string? eventDescriptor,
+										string? target);
+
+	ValueTask TracePerformedTransition(TransitionType type,
+									   string? eventDescriptor,
+									   string? target);
+
+	ValueTask TraceProcessingEvent(IEvent evt);
+	ValueTask TraceEnteringState(IIdentifier stateId);
+	ValueTask TraceEnteredState(IIdentifier stateId);
+	ValueTask TraceExitingState(IIdentifier stateId);
+	ValueTask TraceExitedState(IIdentifier stateId);
+	ValueTask TraceInterpreterState(StateMachineInterpreterState state);
+	ValueTask TraceSendEvent(IOutgoingEvent outgoingEvent);
+	ValueTask TraceCancelEvent(SendId sendId);
+	ValueTask TraceStartInvoke(InvokeData invokeData);
+	ValueTask TraceCancelInvoke(InvokeId invokeId);
 }

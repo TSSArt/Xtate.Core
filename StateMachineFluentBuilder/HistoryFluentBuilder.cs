@@ -23,51 +23,43 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Xtate.Builder
 {
-	[PublicAPI]
 	public class HistoryFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 	{
-		private readonly IHistoryBuilder  _builder;
-		private readonly Action<IHistory> _builtAction;
-		private readonly IBuilderFactory  _factory;
-		private readonly TOuterBuilder    _outerBuilder;
+		public required IHistoryBuilder  Builder      { private get; init; }
+		public required Action<IHistory> BuiltAction  { private get; init; }
+		public required TOuterBuilder    OuterBuilder { private get; init; }
 
-		public HistoryFluentBuilder(IBuilderFactory factory, TOuterBuilder outerBuilder, Action<IHistory> builtAction)
-		{
-			_factory = factory ?? throw new ArgumentNullException(nameof(factory));
-			_builder = factory.CreateHistoryBuilder(null);
-			_outerBuilder = outerBuilder;
-			_builtAction = builtAction;
-		}
+		public required Func<HistoryFluentBuilder<TOuterBuilder>, Action<ITransition>, TransitionFluentBuilder<HistoryFluentBuilder<TOuterBuilder>>> TransitionFluentBuilderFactory { private get; init; }
 
 		[return: NotNull]
 		public TOuterBuilder EndHistory()
 		{
-			_builtAction(_builder.Build());
+			BuiltAction(Builder.Build());
 
-			return _outerBuilder;
+			return OuterBuilder;
 		}
 
 		public HistoryFluentBuilder<TOuterBuilder> SetId(string id) => SetId((Identifier) id);
 
 		public HistoryFluentBuilder<TOuterBuilder> SetId(IIdentifier id)
 		{
-			if (id is null) throw new ArgumentNullException(nameof(id));
+			Infra.Requires(id);
 
-			_builder.SetId(id);
+			Builder.SetId(id);
 
 			return this;
 		}
 
 		public HistoryFluentBuilder<TOuterBuilder> SetType(HistoryType type)
 		{
-			if (type < HistoryType.Shallow || type > HistoryType.Deep) throw new InvalidEnumArgumentException(nameof(type), (int) type, typeof(HistoryType));
+			Infra.RequiresValidEnum(type);
 
-			_builder.SetType(type);
+			Builder.SetType(type);
 
 			return this;
 		}
 
-		public TransitionFluentBuilder<HistoryFluentBuilder<TOuterBuilder>> BeginTransition() => new(_factory, this, _builder.SetTransition);
+		public TransitionFluentBuilder<HistoryFluentBuilder<TOuterBuilder>> BeginTransition() => TransitionFluentBuilderFactory(this, Builder.SetTransition);
 
 		public HistoryFluentBuilder<TOuterBuilder> AddTransition(string target) => AddTransition((Identifier) target);
 

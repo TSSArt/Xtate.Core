@@ -22,7 +22,7 @@ using Xtate.Persistence;
 
 namespace Xtate.Core
 {
-	internal sealed class AssignNode : ExecutableEntityNode, IAssign, IAncestorProvider, IDebugEntityId
+	public sealed class AssignNode : ExecutableEntityNode, IAssign, IAncestorProvider, IDebugEntityId
 	{
 		private readonly IAssign _assign;
 

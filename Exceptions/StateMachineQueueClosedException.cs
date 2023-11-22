@@ -29,7 +29,7 @@ namespace Xtate
 
 		public StateMachineQueueClosedException(string? message) : base(message) { }
 
-		public StateMachineQueueClosedException(string? message, Exception? inner) : base(message, inner) { }
+		public StateMachineQueueClosedException(string? message, Exception? innerException) : base(message, innerException) { }
 
 		protected StateMachineQueueClosedException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 	}

@@ -24,7 +24,7 @@ using Xtate.Persistence;
 
 namespace Xtate.Core
 {
-	internal abstract class ExecutableEntityNode : IExecutableEntity, IExecEvaluator, IStoreSupport, IDocumentId
+	public abstract class ExecutableEntityNode : IExecutableEntity, IExecEvaluator, IStoreSupport, IDocumentId
 	{
 		private readonly IExecEvaluator _execEvaluator;
 		private          DocumentIdSlot _documentIdSlot;
@@ -43,7 +43,7 @@ namespace Xtate.Core
 
 	#region Interface IExecEvaluator
 
-		public ValueTask Execute(IExecutionContext executionContext, CancellationToken token) => _execEvaluator.Execute(executionContext, token);
+		public ValueTask Execute() => _execEvaluator.Execute();
 
 	#endregion
 

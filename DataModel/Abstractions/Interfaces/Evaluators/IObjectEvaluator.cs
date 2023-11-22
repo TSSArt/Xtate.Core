@@ -23,9 +23,8 @@ using Xtate.Core;
 
 namespace Xtate.DataModel
 {
-	[PublicAPI]
 	public interface IObjectEvaluator : IValueEvaluator
 	{
-		ValueTask<IObject> EvaluateObject(IExecutionContext executionContext, CancellationToken token);
+		ValueTask<IObject> EvaluateObject();
 	}
 }

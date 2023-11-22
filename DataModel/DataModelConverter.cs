@@ -20,6 +20,7 @@
 using System;
 using System.Buffers;
 using System.IO;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -88,12 +89,13 @@ namespace Xtate
 					new JsonListConverter(options)
 				},
 				WriteIndented = (options & DataModelConverterJsonOptions.WriteIndented) != 0,
-				MaxDepth = 64
+				MaxDepth = 64,
+				
 			};
 
 		public static bool IsArray(DataModelList list)
 		{
-			if (list is null) throw new ArgumentNullException(nameof(list));
+			Infra.Requires(list);
 
 			if (list.GetMetadata() is { } metadata && metadata[TypeMetaKey, caseInsensitive: false] is { } value)
 			{
@@ -104,12 +106,12 @@ namespace Xtate
 				}
 			}
 
-			return list.Count > 0 && !list.HasKeys;
+			return list is { Count: > 0, HasKeys: false };
 		}
 
 		public static bool IsObject(DataModelList list)
 		{
-			if (list is null) throw new ArgumentNullException(nameof(list));
+			Infra.Requires(list);
 
 			if (list.GetMetadata() is { } metadata && metadata[TypeMetaKey, caseInsensitive: false] is { } value)
 			{
@@ -148,14 +150,44 @@ namespace Xtate
 		public static Task ToJsonAsync(Stream stream,
 									   DataModelValue value,
 									   DataModelConverterJsonOptions options = default,
-									   CancellationToken token = default) =>
-			JsonSerializer.SerializeAsync(stream, value, GetOptions(options), token);
+									   CancellationToken token = default)
+		{
+			Infra.Requires(stream);
 
-		public static DataModelValue FromJson(string json) => JsonSerializer.Deserialize<DataModelValue>(json, DefaultOptions)!;
+			return JsonSerializer.SerializeAsync(stream, value, GetOptions(options), token);
+		}
 
-		public static DataModelValue FromJson(ReadOnlySpan<byte> utf8Json) => JsonSerializer.Deserialize<DataModelValue>(utf8Json, DefaultOptions)!;
+		public static DataModelValue FromJson(string json)
+		{
+			Infra.Requires(json);
 
-		public static ValueTask<DataModelValue> FromJsonAsync(Stream stream, CancellationToken token = default) => JsonSerializer.DeserializeAsync<DataModelValue>(stream, DefaultOptions, token);
+			return JsonSerializer.Deserialize<DataModelValue>(json, DefaultOptions);
+		}
+
+		public static async ValueTask<DataModelValue> FromJsonContentAsync(Resource resource)
+		{
+			Infra.Requires(resource);
+
+			if (resource.Encoding.CodePage == 65001)
+			{
+				var stream = await resource.GetStream(true).ConfigureAwait(false);
+
+				return await JsonSerializer.DeserializeAsync<DataModelValue>(stream, DefaultOptions).ConfigureAwait(false);
+			}
+
+			var content = await resource.GetContent().ConfigureAwait(false);
+
+			return JsonSerializer.Deserialize<DataModelValue>(content, DefaultOptions);
+		}
+
+		public static DataModelValue FromJson(ReadOnlySpan<byte> utf8Json) => JsonSerializer.Deserialize<DataModelValue>(utf8Json, DefaultOptions);
+
+		public static ValueTask<DataModelValue> FromJsonAsync(Stream stream, CancellationToken token = default)
+		{
+			Infra.Requires(stream);
+
+			return JsonSerializer.DeserializeAsync<DataModelValue>(stream, DefaultOptions, token);
+		}
 
 		public static string ToXml(DataModelValue value, DataModelConverterXmlOptions options = default) => XmlConverter.ToXml(value, (options & DataModelConverterXmlOptions.WriteIndented) != 0);
 
@@ -170,10 +202,19 @@ namespace Xtate
 		public static Task ToXmlAsync(Stream stream,
 									  DataModelValue value,
 									  DataModelConverterXmlOptions options = default,
-									  CancellationToken token = default) =>
-			XmlConverter.AsXmlToStreamAsync(value, (options & DataModelConverterXmlOptions.WriteIndented) != 0, stream.InjectCancellationToken(token));
+									  CancellationToken token = default)
+		{
+			Infra.Requires(stream);
 
-		public static DataModelValue FromXml(string xml) => XmlConverter.FromXml(xml);
+			return XmlConverter.AsXmlToStreamAsync(value, (options & DataModelConverterXmlOptions.WriteIndented) != 0, stream.InjectCancellationToken(token));
+		}
+
+		public static DataModelValue FromXml(string xml)
+		{
+			Infra.Requires(xml);
+
+			return XmlConverter.FromXml(xml);
+		}
 
 		public static DataModelValue FromXml(ReadOnlySpan<byte> xml)
 		{
@@ -191,7 +232,12 @@ namespace Xtate
 			}
 		}
 
-		public static ValueTask<DataModelValue> FromXmlAsync(Stream stream, CancellationToken token = default) => XmlConverter.FromXmlStreamAsync(stream.InjectCancellationToken(token));
+		public static ValueTask<DataModelValue> FromXmlAsync(Stream stream, CancellationToken token = default)
+		{
+			Infra.Requires(stream);
+
+			return XmlConverter.FromXmlStreamAsync(stream.InjectCancellationToken(token));
+		}
 
 		private class JsonValueConverter : JsonConverter<DataModelValue>
 		{

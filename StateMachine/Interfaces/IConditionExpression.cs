@@ -21,7 +21,7 @@ using Xtate.Core;
 
 namespace Xtate
 {
-	public interface IConditionExpression : IExecutableEntity
+	public interface IConditionExpression : IEntity
 	{
 		string? Expression { get; }
 	}

@@ -22,7 +22,7 @@ using Xtate.Persistence;
 
 namespace Xtate.Core
 {
-	internal sealed class IdentifierNode : IIdentifier, IStoreSupport, IAncestorProvider, IDebugEntityId
+	public sealed class IdentifierNode : IIdentifier, IStoreSupport, IAncestorProvider, IDebugEntityId
 	{
 		private readonly IIdentifier _identifier;
 
@@ -55,5 +55,11 @@ namespace Xtate.Core
 		}
 
 	#endregion
+
+		public override string ToString() => _identifier.ToString();
+
+		public override bool Equals(object? obj) => _identifier.Equals(obj);
+
+		public override int GetHashCode() => _identifier.GetHashCode();
 	}
 }

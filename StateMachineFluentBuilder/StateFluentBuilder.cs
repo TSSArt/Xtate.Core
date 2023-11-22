@@ -20,49 +20,47 @@
 using System;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 using Xtate.Core;
+using Xtate.DataModel.Runtime;
 
 namespace Xtate.Builder
 {
-	[PublicAPI]
 	public class StateFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 	{
-		private readonly IStateBuilder   _builder;
-		private readonly Action<IState>  _builtAction;
-		private readonly IBuilderFactory _factory;
-		private readonly TOuterBuilder   _outerBuilder;
+		public required IStateBuilder  Builder { private get; init; }
+		public required Action<IState> BuiltAction  { private get; init; }
+		public required TOuterBuilder  OuterBuilder { private get; init; }
 
-		public StateFluentBuilder(IBuilderFactory factory, TOuterBuilder outerBuilder, Action<IState> builtAction)
-		{
-			_factory = factory ?? throw new ArgumentNullException(nameof(factory));
-			_builder = factory.CreateStateBuilder(null);
-			_outerBuilder = outerBuilder;
-			_builtAction = builtAction;
-		}
+		public required Func<StateFluentBuilder<TOuterBuilder>, Action<IInitial>, InitialFluentBuilder<StateFluentBuilder<TOuterBuilder>>>       InitialFluentBuilderFactory    { private get; init; }
+		public required Func<StateFluentBuilder<TOuterBuilder>, Action<IState>, StateFluentBuilder<StateFluentBuilder<TOuterBuilder>>>           StateFluentBuilderFactory      { private get; init; }
+		public required Func<StateFluentBuilder<TOuterBuilder>, Action<IParallel>, ParallelFluentBuilder<StateFluentBuilder<TOuterBuilder>>>     ParallelFluentBuilderFactory   { private get; init; }
+		public required Func<StateFluentBuilder<TOuterBuilder>, Action<IFinal>, FinalFluentBuilder<StateFluentBuilder<TOuterBuilder>>>           FinalFluentBuilderFactory      { private get; init; }
+		public required Func<StateFluentBuilder<TOuterBuilder>, Action<IHistory>, HistoryFluentBuilder<StateFluentBuilder<TOuterBuilder>>>       HistoryFluentBuilderFactory    { private get; init; }
+		public required Func<StateFluentBuilder<TOuterBuilder>, Action<ITransition>, TransitionFluentBuilder<StateFluentBuilder<TOuterBuilder>>> TransitionFluentBuilderFactory { private get; init; }
 
 		[return: NotNull]
 		public TOuterBuilder EndState()
 		{
-			_builtAction(_builder.Build());
+			BuiltAction(Builder.Build());
 
-			return _outerBuilder;
+			return OuterBuilder;
 		}
 
 		public StateFluentBuilder<TOuterBuilder> SetId(string id) => SetId((Identifier) id);
 
 		public StateFluentBuilder<TOuterBuilder> SetId(IIdentifier id)
 		{
-			if (id is null) throw new ArgumentNullException(nameof(id));
+			Infra.Requires(id);
 
-			_builder.SetId(id);
+			Builder.SetId(id);
 
 			return this;
 		}
 
 		public StateFluentBuilder<TOuterBuilder> SetInitial(params string[] initial)
 		{
-			if (initial is null) throw new ArgumentNullException(nameof(initial));
-			if (initial.Length == 0) throw new ArgumentException(Resources.Exception_ValueCannotBeAnEmptyCollection, nameof(initial));
+			Infra.RequiresNonEmptyCollection(initial);
 
 			var builder = ImmutableArray.CreateBuilder<IIdentifier>(initial.Length);
 
@@ -71,103 +69,94 @@ namespace Xtate.Builder
 				builder.Add((Identifier) s);
 			}
 
-			_builder.SetInitial(builder.MoveToImmutable());
+			Builder.SetInitial(builder.MoveToImmutable());
 
 			return this;
 		}
 
 		public StateFluentBuilder<TOuterBuilder> SetInitial(params IIdentifier[] initial)
 		{
-			if (initial is null) throw new ArgumentNullException(nameof(initial));
-			if (initial.Length == 0) throw new ArgumentException(Resources.Exception_ValueCannotBeAnEmptyCollection, nameof(initial));
+			Infra.RequiresNonEmptyCollection(initial);
 
-			_builder.SetInitial(initial.ToImmutableArray());
+			Builder.SetInitial(initial.ToImmutableArray());
 
 			return this;
 		}
 
 		public StateFluentBuilder<TOuterBuilder> SetInitial(ImmutableArray<string> initial)
 		{
-			if (initial.IsDefaultOrEmpty) throw new ArgumentException(Resources.Exception_ValueCannotBeAnEmptyList, nameof(initial));
+			Infra.RequiresNonEmptyCollection(initial);
 
-			_builder.SetInitial(ImmutableArray.CreateRange<string, IIdentifier>(initial, id => (Identifier) id));
+			Builder.SetInitial(ImmutableArray.CreateRange<string, IIdentifier>(initial, id => (Identifier) id));
 
 			return this;
 		}
 
 		public StateFluentBuilder<TOuterBuilder> SetInitial(ImmutableArray<IIdentifier> initial)
 		{
-			if (initial.IsDefaultOrEmpty) throw new ArgumentException(Resources.Exception_ValueCannotBeAnEmptyList, nameof(initial));
+			Infra.RequiresNonEmptyCollection(initial);
 
-			_builder.SetInitial(initial);
+			Builder.SetInitial(initial);
 
 			return this;
 		}
 
-		private StateFluentBuilder<TOuterBuilder> AddOnEntry(RuntimeAction action)
+		private StateFluentBuilder<TOuterBuilder> AddOnEntry(IExecutableEntity action)
 		{
-			_builder.AddOnEntry(new OnEntryEntity { Action = ImmutableArray.Create<IExecutableEntity>(action) });
+			Builder.AddOnEntry(new OnEntryEntity { Action = ImmutableArray.Create(action) });
 
 			return this;
 		}
 
-		public StateFluentBuilder<TOuterBuilder> AddOnEntry(ExecutableAction action) => AddOnEntry(new RuntimeAction(action));
+		public StateFluentBuilder<TOuterBuilder> AddOnEntry(Action action) => AddOnEntry(RuntimeAction.GetAction(action));
 
-		public StateFluentBuilder<TOuterBuilder> AddOnEntry(ExecutableTask task) => AddOnEntry(new RuntimeAction(task));
+		public StateFluentBuilder<TOuterBuilder> AddOnEntryAsync(Func<ValueTask> action) => AddOnEntry(RuntimeAction.GetAction(action));
 
-		public StateFluentBuilder<TOuterBuilder> AddOnEntry(ExecutableCancellableTask task) => AddOnEntry(new RuntimeAction(task));
-
-		private StateFluentBuilder<TOuterBuilder> AddOnExit(RuntimeAction action)
+		private StateFluentBuilder<TOuterBuilder> AddOnExit(IExecutableEntity action)
 		{
-			_builder.AddOnExit(new OnExitEntity { Action = ImmutableArray.Create<IExecutableEntity>(action) });
+			Builder.AddOnExit(new OnExitEntity { Action = ImmutableArray.Create(action) });
 
 			return this;
 		}
 
-		public StateFluentBuilder<TOuterBuilder> AddOnExit(ExecutableAction action) => AddOnExit(new RuntimeAction(action));
+		public StateFluentBuilder<TOuterBuilder> AddOnExit(Action action) => AddOnExit(RuntimeAction.GetAction(action));
 
-		public StateFluentBuilder<TOuterBuilder> AddOnExit(ExecutableTask task) => AddOnExit(new RuntimeAction(task));
+		public StateFluentBuilder<TOuterBuilder> AddOnExitAsync(Func<ValueTask> action) => AddOnExit(RuntimeAction.GetAction(action));
 
-		public StateFluentBuilder<TOuterBuilder> AddOnExit(ExecutableCancellableTask task) => AddOnExit(new RuntimeAction(task));
+		public InitialFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginInitial() => InitialFluentBuilderFactory(this, Builder.SetInitial);
 
-		public InitialFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginInitial() => new(_factory, this, _builder.SetInitial);
+		public StateFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginState() => StateFluentBuilderFactory(this, Builder.AddState);
 
-		public StateFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginState() => new(_factory, this, _builder.AddState);
+		public ParallelFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginParallel() => ParallelFluentBuilderFactory(this, Builder.AddParallel);
 
-		public ParallelFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginParallel() => new(_factory, this, _builder.AddParallel);
+		public FinalFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginFinal() => FinalFluentBuilderFactory(this, Builder.AddFinal);
 
-		public FinalFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginFinal() => new(_factory, this, _builder.AddFinal);
-
-		public HistoryFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginHistory() => new(_factory, this, _builder.AddHistory);
+		public HistoryFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginHistory() => HistoryFluentBuilderFactory(this, Builder.AddHistory);
 
 		public StateFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginState(string id) => BeginState((Identifier) id);
 
-		public StateFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginState(IIdentifier id) =>
-			new StateFluentBuilder<StateFluentBuilder<TOuterBuilder>>(_factory, this, _builder.AddState).SetId(id);
+		public StateFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginState(IIdentifier id) => StateFluentBuilderFactory(this, Builder.AddState).SetId(id);
 
 		public ParallelFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginParallel(string id) => BeginParallel((Identifier) id);
 
-		public ParallelFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginParallel(IIdentifier id) =>
-			new ParallelFluentBuilder<StateFluentBuilder<TOuterBuilder>>(_factory, this, _builder.AddParallel).SetId(id);
+		public ParallelFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginParallel(IIdentifier id) => ParallelFluentBuilderFactory(this, Builder.AddParallel).SetId(id);
 
 		public FinalFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginFinal(string id) => BeginFinal((Identifier) id);
 
-		public FinalFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginFinal(IIdentifier id) =>
-			new FinalFluentBuilder<StateFluentBuilder<TOuterBuilder>>(_factory, this, _builder.AddFinal).SetId(id);
+		public FinalFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginFinal(IIdentifier id) => FinalFluentBuilderFactory(this, Builder.AddFinal).SetId(id);
 
 		public HistoryFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginHistory(string id) => BeginHistory((Identifier) id);
 
-		public HistoryFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginHistory(IIdentifier id) =>
-			new HistoryFluentBuilder<StateFluentBuilder<TOuterBuilder>>(_factory, this, _builder.AddHistory).SetId(id);
+		public HistoryFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginHistory(IIdentifier id) => HistoryFluentBuilderFactory(this, Builder.AddHistory).SetId(id);
 
-		public TransitionFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginTransition() => new(_factory, this, _builder.AddTransition);
+		public TransitionFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginTransition() => TransitionFluentBuilderFactory(this, Builder.AddTransition);
 
 		public StateFluentBuilder<TOuterBuilder> AddTransition(EventDescriptor eventDescriptor, string target) => AddTransition(eventDescriptor, (Identifier) target);
 
 		public StateFluentBuilder<TOuterBuilder> AddTransition(EventDescriptor eventDescriptor, IIdentifier target) => BeginTransition().SetEvent(eventDescriptor).SetTarget(target).EndTransition();
 
-		public StateFluentBuilder<TOuterBuilder> AddTransition(Predicate condition, string target) => AddTransition(condition, (Identifier) target);
+		public StateFluentBuilder<TOuterBuilder> AddTransition(Func<bool> condition, string target) => AddTransition(condition, (Identifier) target);
 
-		public StateFluentBuilder<TOuterBuilder> AddTransition(Predicate condition, IIdentifier target) => BeginTransition().SetCondition(condition).SetTarget(target).EndTransition();
+		public StateFluentBuilder<TOuterBuilder> AddTransition(Func<bool> condition, IIdentifier target) => BeginTransition().SetConditionFunc(condition).SetTarget(target).EndTransition();
 	}
 }

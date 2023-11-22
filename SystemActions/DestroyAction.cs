@@ -25,13 +25,17 @@ using Xtate.Core;
 
 namespace Xtate.CustomAction
 {
-	public class DestroyAction : ICustomActionExecutor
+	public class DestroyAction : CustomActionBase, IDisposable
 	{
+
 		private const string SessionId     = "sessionId";
 		private const string SessionIdExpr = "sessionIdExpr";
 
+		private readonly DisposingToken        _disposingToken = new();
 		private readonly string?               _sessionId;
 		private readonly IExpressionEvaluator? _sessionIdExpression;
+
+		public required Func<ValueTask<IExecutionContext>> ExecutionContextFactory { private get; init; }
 
 		public DestroyAction(ICustomActionContext access, XmlReader xmlReader)
 		{
@@ -64,19 +68,19 @@ namespace Xtate.CustomAction
 
 	#region Interface ICustomActionExecutor
 
-		public async ValueTask Execute(IExecutionContext executionContext, CancellationToken token)
+		public async ValueTask Execute()
 		{
-			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
+			var executionContext = await ExecutionContextFactory().ConfigureAwait(false);
 
 			var host = GetHost(executionContext);
-			var sessionId = await GetSessionId(executionContext, token).ConfigureAwait(false);
+			var sessionId = await GetSessionId().ConfigureAwait(false);
 
 			if (sessionId is { Length: 0 })
 			{
 				throw new ProcessorException(Resources.Exception_SessionIdCouldNotBeEmpty);
 			}
 
-			await host.DestroyStateMachine(Xtate.SessionId.FromString(sessionId), token).ConfigureAwait(false);
+			await host.DestroyStateMachine(Xtate.SessionId.FromString(sessionId), _disposingToken.Token).ConfigureAwait(false);
 		}
 
 	#endregion
@@ -91,7 +95,7 @@ namespace Xtate.CustomAction
 			throw new ProcessorException(Resources.Exception_CantGetAccessToIHostInterface);
 		}
 
-		private async ValueTask<string> GetSessionId(IExecutionContext executionContext, CancellationToken token)
+		private async ValueTask<string> GetSessionId()
 		{
 			if (_sessionId is not null)
 			{
@@ -100,12 +104,26 @@ namespace Xtate.CustomAction
 
 			if (_sessionIdExpression is not null)
 			{
-				var value = await _sessionIdExpression.Evaluate(executionContext, token).ConfigureAwait(false);
+				var value = await _sessionIdExpression.Evaluate().ConfigureAwait(false);
 
 				return value.AsString();
 			}
 
 			return Infra.Fail<string>();
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				_disposingToken.Dispose();
+			}
+		}
+
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
 		}
 	}
 }

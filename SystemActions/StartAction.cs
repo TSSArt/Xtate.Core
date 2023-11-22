@@ -18,14 +18,42 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Xtate.Core;
 
 namespace Xtate.CustomAction
-{
-	public class StartAction : ICustomActionExecutor
+{/*
+	public class StartAction : CustomActionBase
+	{
+		private readonly Value    _url;
+		private readonly Value    _sessionId;
+		private readonly Location _output;
+
+		public StartAction(XmlReader xmlReader)
+		{
+			_url = new StringValue(xmlReader.GetAttribute("urlExpr"), xmlReader.GetAttribute("url"));
+			_sessionId = new StringValue(xmlReader.GetAttribute("sessionIdExpr"), xmlReader.GetAttribute("sessionId"));
+			sessionId = new Location(xmlReader.GetAttribute("destination"));
+		}
+
+		public override IEnumerable<Value> GetValues() { yield return _input; }
+
+		public override IEnumerable<Location> GetLocations() { yield return _output;}
+
+		protected override DataModelValue Evaluate(IReadOnlyDictionary<string, DataModelValue> arguments) => base.Evaluate(arguments);
+
+		protected override ValueTask<DataModelValue> EvaluateAsync(IReadOnlyDictionary<string, DataModelValue> arguments) => base.EvaluateAsync(arguments);
+
+		public override async ValueTask Execute()
+		{
+			await _output.CopyFrom(_input);
+		}
+	}*/
+
+	public class StartAction : CustomActionBase, IDisposable
 	{
 		private const string Url               = "url";
 		private const string UrlExpr           = "urlExpr";
@@ -34,12 +62,15 @@ namespace Xtate.CustomAction
 		private const string SessionIdExpr     = "sessionIdExpr";
 		private const string SessionIdLocation = "sessionIdLocation";
 
+		private readonly DisposingToken        _disposingToken = new();
 		private readonly ILocationAssigner?    _idLocation;
 		private readonly string?               _sessionId;
 		private readonly IExpressionEvaluator? _sessionIdExpression;
 		private readonly bool                  _trusted;
 		private readonly Uri?                  _url;
 		private readonly IExpressionEvaluator? _urlExpression;
+
+		public required Func<ValueTask<IExecutionContext>> ExecutionContextFactory { private get; init; }
 
 		public StartAction(ICustomActionContext access, XmlReader xmlReader)
 		{
@@ -97,20 +128,20 @@ namespace Xtate.CustomAction
 
 	#region Interface ICustomActionExecutor
 
-		public async ValueTask Execute(IExecutionContext executionContext, CancellationToken token)
+		public async ValueTask Execute()
 		{
-			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
+			var executionContext = await ExecutionContextFactory().ConfigureAwait(false);
 
 			var host = GetHost(executionContext);
 			var baseUri = GetBaseUri(executionContext);
-			var source = await GetSource(executionContext, token).ConfigureAwait(false);
+			var source = await GetSource().ConfigureAwait(false);
 
 			if (source is null)
 			{
 				throw new ProcessorException(Resources.Exception_StartActionExecuteSourceNotSpecified);
 			}
 
-			var sessionId = await GetSessionId(executionContext, token).ConfigureAwait(false);
+			var sessionId = await GetSessionId().ConfigureAwait(false);
 
 			if (_sessionId is { Length: 0 })
 			{
@@ -119,16 +150,16 @@ namespace Xtate.CustomAction
 
 			var finalizer = new DeferredFinalizer();
 			var securityContextType = _trusted ? SecurityContextType.NewTrustedStateMachine : SecurityContextType.NewStateMachine;
-			var securityContext = executionContext.SecurityContext.CreateNested(securityContextType, finalizer);
+			var securityContext = executionContext.SecurityContext.CreateNested(securityContextType);
 
 			await using (finalizer.ConfigureAwait(false))
 			{
-				await host.StartStateMachineAsync(sessionId, new StateMachineOrigin(source, baseUri), parameters: default, securityContext, finalizer, token).ConfigureAwait(false);
+				await host.StartStateMachineAsync(sessionId, new StateMachineOrigin(source, baseUri), parameters: default, securityContextType: securityContextType, finalizer: finalizer, _disposingToken.Token).ConfigureAwait(false);
 			}
 
 			if (_idLocation is not null)
 			{
-				await _idLocation.Assign(executionContext, sessionId, token).ConfigureAwait(false);
+				await _idLocation.Assign(sessionId).ConfigureAwait(false);
 			}
 		}
 
@@ -154,7 +185,7 @@ namespace Xtate.CustomAction
 			throw new ProcessorException(Resources.Exception_CantGetAccessToIHostInterface);
 		}
 
-		private async ValueTask<Uri?> GetSource(IExecutionContext executionContext, CancellationToken token)
+		private async ValueTask<Uri?> GetSource()
 		{
 			if (_url is not null)
 			{
@@ -163,7 +194,7 @@ namespace Xtate.CustomAction
 
 			if (_urlExpression is not null)
 			{
-				var value = await _urlExpression.Evaluate(executionContext, token).ConfigureAwait(false);
+				var value = await _urlExpression.Evaluate().ConfigureAwait(false);
 
 				return new Uri(value.AsString(), UriKind.RelativeOrAbsolute);
 			}
@@ -171,7 +202,7 @@ namespace Xtate.CustomAction
 			return Infra.Fail<Uri>();
 		}
 
-		private async ValueTask<SessionId> GetSessionId(IExecutionContext executionContext, CancellationToken token)
+		private async ValueTask<SessionId> GetSessionId()
 		{
 			if (_sessionId is not null)
 			{
@@ -180,12 +211,26 @@ namespace Xtate.CustomAction
 
 			if (_sessionIdExpression is not null)
 			{
-				var value = await _sessionIdExpression.Evaluate(executionContext, token).ConfigureAwait(false);
+				var value = await _sessionIdExpression.Evaluate().ConfigureAwait(false);
 
 				return Xtate.SessionId.FromString(value.AsString());
 			}
 
 			return Xtate.SessionId.New();
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				_disposingToken.Dispose();
+			}
+		}
+
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
 		}
 	}
 }

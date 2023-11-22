@@ -17,13 +17,20 @@
 
 #endregion
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Xtate.Service;
 
 namespace Xtate.Core
 {
-	public interface IStateMachineController
+	//TODO: ????
+	public interface IStateMachineController : IService, IAsyncDisposable
 	{
+		SessionId                 SessionId            { get; }
+		Uri                       StateMachineLocation { get; }
+		void                      TriggerDestroySignal();
+		ValueTask                 StartAsync(CancellationToken token);
 		ValueTask<DataModelValue> GetResult(CancellationToken token);
 	}
 }

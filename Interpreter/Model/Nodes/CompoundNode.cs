@@ -22,7 +22,7 @@ using Xtate.Persistence;
 
 namespace Xtate.Core
 {
-	internal sealed class CompoundNode : StateNode, IStoreSupport, IDebugEntityId
+	public sealed class CompoundNode : StateNode, IStoreSupport, IDebugEntityId
 	{
 		public CompoundNode(DocumentIdNode documentIdNode, IState state) : base(documentIdNode, state)
 		{

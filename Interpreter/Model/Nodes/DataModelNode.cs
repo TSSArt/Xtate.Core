@@ -22,7 +22,7 @@ using Xtate.Persistence;
 
 namespace Xtate.Core
 {
-	internal sealed class DataModelNode : IDataModel, IStoreSupport, IAncestorProvider, IDocumentId
+	public sealed class DataModelNode : IDataModel, IStoreSupport, IAncestorProvider, IDocumentId
 	{
 		private readonly IDataModel     _dataModel;
 		private          DocumentIdSlot _documentIdSlot;

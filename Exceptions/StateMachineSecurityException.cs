@@ -29,7 +29,7 @@ namespace Xtate
 
 		public StateMachineSecurityException(string? message) : base(message) { }
 
-		public StateMachineSecurityException(string? message, Exception? inner) : base(message, inner) { }
+		public StateMachineSecurityException(string? message, Exception? innerException) : base(message, innerException) { }
 
 		protected StateMachineSecurityException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 	}

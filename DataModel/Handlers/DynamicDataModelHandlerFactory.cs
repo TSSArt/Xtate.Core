@@ -18,15 +18,62 @@
 #endregion
 
 using System;
+using System.Collections.Immutable;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtate.Core;
+using Xtate.IoC;
+using IServiceProvider = Xtate.IoC.IServiceProvider;
 
 namespace Xtate.DataModel
 {
+
+	public class DynamicDataModelHandlerProvider : IDataModelHandlerProvider
+	{
+		private readonly IDataModelTypeToUriConverter _dataModelTypeToUriConverter;
+		private readonly IAssemblyContainerProvider   _assemblyContainerProvider;
+
+		public DynamicDataModelHandlerProvider(IDataModelTypeToUriConverter dataModelTypeToUriConverter, IAssemblyContainerProvider assemblyContainerProvider)
+		{
+			_dataModelTypeToUriConverter = dataModelTypeToUriConverter;
+			_assemblyContainerProvider = assemblyContainerProvider;
+		}
+
+		public async ValueTask<IDataModelHandler?> TryGetDataModelHandler(string? dataModelType)
+		{
+			var uri = _dataModelTypeToUriConverter.GetUri(dataModelType);
+			var serviceProvider = await _assemblyContainerProvider.GetContainer(uri).ConfigureAwait(false);
+			var  dataModelHandlerService = await serviceProvider.GetRequiredService<IDataModelHandlerService>().ConfigureAwait(false);
+
+			return await dataModelHandlerService.GetDataModelHandler(dataModelType).ConfigureAwait(false);
+		}
+	}
+
+
+	public interface IDataModelTypeToUriConverter
+	{
+		Uri GetUri(string dataModelType);
+	}
+
+	public interface IAssemblyContainerProvider
+	{
+		ValueTask<IServiceProvider> GetContainer(Uri uri);
+	}
+
+	public class AssemblyContainerProvider : IAssemblyContainerProvider
+	{
+
+
+		public ValueTask<IServiceProvider> GetContainer(Uri uri)
+		{
+			return default; // TODO: implement
+		}
+	}
+	//TODO: uncomment
+	/*
 	[PublicAPI]
-	public class DynamicDataModelHandlerFactory : DynamicFactory<IDataModelHandlerFactory>, IDataModelHandlerFactory
+	public class DynamicDataModelHandlerFactory : DynamicFactory
 	{
 		private readonly string? _uriFormat;
 
@@ -36,13 +83,13 @@ namespace Xtate.DataModel
 
 	#region Interface IDataModelHandlerFactory
 
-		public async ValueTask<IDataModelHandlerFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, string dataModelType, CancellationToken token)
+		public async ValueTask<IDataModelHandlerFactoryActivator?> TryGetActivator(ServiceLocator serviceLocator, string dataModelType, CancellationToken token)
 		{
-			var factories = await GetFactories(factoryContext, DataModelTypeToUri(dataModelType), token).ConfigureAwait(false);
+			var factories = await GetFactories(serviceLocator, DataModelTypeToUri(dataModelType), token).ConfigureAwait(false);
 
 			foreach (var factory in factories)
 			{
-				var activator = await factory.TryGetActivator(factoryContext, dataModelType, token).ConfigureAwait(false);
+				var activator = await factory.TryGetActivator(serviceLocator, dataModelType, token).ConfigureAwait(false);
 
 				if (activator is not null)
 				{
@@ -63,5 +110,11 @@ namespace Xtate.DataModel
 
 			return new Uri(uriString, UriKind.RelativeOrAbsolute);
 		}
+
+		public IDataModelHandler GetDataModelHandler(string dataModel)
+		{
+			throw new NotImplementedException();
+		}
 	}
+	*/
 }

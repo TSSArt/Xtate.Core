@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,14 +17,58 @@
 
 #endregion
 
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Xml.XPath;
 
-namespace Xtate.DataModel.XPath
-{
-	internal sealed class InFunction : XPathFunctionDescriptorBase
-	{
-		public InFunction() : base(string.Empty, name: @"In", new[] { XPathResultType.String }, XPathResultType.Boolean) { }
+namespace Xtate.DataModel.XPath;
 
-		protected override object Invoke(XPathResolver resolver, object[] args) => resolver.ExecutionContext?.InState((Identifier) XPathObject.ToString(args[0])) ?? false;
+public sealed class InFunctionProvider : XPathFunctionProviderBase<InFunction>
+{
+	protected override bool CanHandle(string ns, string name) => ns == string.Empty && name == @"In";
+}
+
+public sealed class InFunction : XPathFunctionDescriptorBase, IInitResolver
+{
+	public InFunction() : base(XPathResultType.Boolean, XPathResultType.Any) { }
+	
+	
+	public required Func<ValueTask<IInStateController?>> InStateControllerFactory { private get; init; }
+
+	public          IInStateController?                  _inStateController;
+
+	protected override object Invoke(object[] args)
+	{
+		if (_inStateController is not null)
+		{
+			if (args is [string stateId])
+			{
+				return _inStateController.InState((Identifier) stateId);
+			}
+
+			if (args is [XPathNodeIterator iterator])
+			{
+				if (!iterator.MoveNext())
+				{
+					return false;
+				}
+
+				do
+				{
+					if (!_inStateController.InState((Identifier) iterator.Current.Value))
+					{
+						return false;
+					}
+				}
+				while (iterator.MoveNext());
+
+				return true;
+			}
+		}
+
+		return false;
 	}
+
+	public async ValueTask Initialize() => _inStateController = await InStateControllerFactory().ConfigureAwait(false);
 }

@@ -36,6 +36,9 @@ namespace Xtate.Persistence
 																				   InterpreterOptions defaultOptions,
 																				   SecurityContext securityContext,
 																				   DeferredFinalizer finalizer) =>
-			new StateMachineSingleMacroStepController(sessionId, stateMachineOptions, stateMachine, stateMachineLocation, _stateMachineHost, defaultOptions, securityContext, finalizer);
+			new StateMachineSingleMacroStepController(sessionId, stateMachineOptions, stateMachine, stateMachineLocation, _stateMachineHost, defaultOptions, securityContext, finalizer)
+			{
+				_stateMachineInterpreterFactory = default, sd = default, EventQueueWriter = default
+			};
 	}
 }

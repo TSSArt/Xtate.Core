@@ -24,7 +24,7 @@ using Xtate.Core;
 
 namespace Xtate.DataModel.XPath
 {
-	internal class XPathObject : IObject
+	public class XPathObject : IObject
 	{
 		private readonly object _value;
 

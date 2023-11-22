@@ -24,7 +24,7 @@ using Xtate.IoProcessor;
 
 namespace Xtate.Core
 {
-	internal interface IStateMachineHost : IHostEventDispatcher
+	public interface IStateMachineHost : IHostEventDispatcher
 	{
 		ImmutableArray<IIoProcessor> GetIoProcessors();
 		ValueTask<SendStatus>        DispatchEvent(ServiceId serviceId, IOutgoingEvent outgoingEvent, CancellationToken token);

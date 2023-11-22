@@ -25,117 +25,96 @@ using Xtate.IoProcessor;
 
 namespace Xtate.Core
 {
-	public sealed partial class StateMachineInterpreter : IExternalCommunication
+	public partial class StateMachineInterpreter : IExternalCommunication2
 	{
 	#region Interface IExternalCommunication
 
-		ImmutableArray<IIoProcessor> IExternalCommunication.GetIoProcessors() => _options.ExternalCommunication?.GetIoProcessors() ?? default;
-
-		async ValueTask IExternalCommunication.StartInvoke(InvokeData invokeData, CancellationToken token)
+		async ValueTask IExternalCommunication2.StartInvoke(InvokeData invokeData)
 		{
 			try
 			{
-				if (_options.ExternalCommunication is not { } externalCommunication)
+				if (_externalCommunication is null)
 				{
 					throw NoExternalCommunication();
 				}
 
-				await externalCommunication.StartInvoke(invokeData, token).ConfigureAwait(false);
+				await _externalCommunication.StartInvoke(invokeData).ConfigureAwait(false);
 			}
 			catch (Exception ex)
 			{
-				throw new CommunicationException(ex, _sessionId);
+				throw new CommunicationException(ex) { Token = _stateMachineToken };
 			}
 		}
 
-		async ValueTask IExternalCommunication.CancelInvoke(InvokeId invokeId, CancellationToken token)
+		async ValueTask IExternalCommunication2.CancelInvoke(InvokeId invokeId)
 		{
 			try
 			{
-				if (_options.ExternalCommunication is not { } externalCommunication)
+				if (_externalCommunication is null)
 				{
 					throw NoExternalCommunication();
 				}
 
-				await externalCommunication.CancelInvoke(invokeId, token).ConfigureAwait(false);
+				await _externalCommunication.CancelInvoke(invokeId).ConfigureAwait(false);
 			}
 			catch (Exception ex)
 			{
-				throw new CommunicationException(ex, _sessionId);
+				throw new CommunicationException(ex) { Token = _stateMachineToken };
 			}
 		}
 
-		async ValueTask<SendStatus> IExternalCommunication.TrySendEvent(IOutgoingEvent outgoingEvent, CancellationToken token)
+		async ValueTask<SendStatus> IExternalCommunication2.TrySendEvent(IOutgoingEvent outgoingEvent)
 		{
 			if (outgoingEvent is null) throw new ArgumentNullException(nameof(outgoingEvent));
 
 			try
 			{
-				if (_options.ExternalCommunication is not { } externalCommunication)
+				if (_externalCommunication is null)
 				{
 					throw NoExternalCommunication();
 				}
 
-				return await externalCommunication.TrySendEvent(outgoingEvent, token).ConfigureAwait(false);
+				return await _externalCommunication.TrySendEvent(outgoingEvent).ConfigureAwait(false);
 			}
 			catch (Exception ex)
 			{
-				throw new CommunicationException(ex, _sessionId, outgoingEvent.SendId);
+				throw new CommunicationException(ex, outgoingEvent.SendId) { Token = _stateMachineToken };
 			}
 		}
 
-		ValueTask IExternalCommunication.ForwardEvent(IEvent evt, InvokeId invokeId, CancellationToken token) => ForwardEvent(evt, invokeId, token);
-
-		async ValueTask IExternalCommunication.CancelEvent(SendId sendId, CancellationToken token)
+		async ValueTask IExternalCommunication2.CancelEvent(SendId sendId)
 		{
 			try
 			{
-				if (_options.ExternalCommunication is not { } externalCommunication)
+				if (_externalCommunication is null)
 				{
 					throw NoExternalCommunication();
 				}
 
-				await externalCommunication.CancelEvent(sendId, token).ConfigureAwait(false);
+				await _externalCommunication.CancelEvent(sendId).ConfigureAwait(false);
 			}
 			catch (Exception ex)
 			{
-				throw new CommunicationException(ex, _sessionId, sendId);
+				throw new CommunicationException(ex, sendId) { Token = _stateMachineToken };
 			}
 		}
 
 	#endregion
 
-		private bool IsCommunicationError(Exception exception, out SendId? sendId)
-		{
-			for (var ex = exception; ex is not null; ex = ex.InnerException)
-			{
-				if (ex is CommunicationException communicationException && communicationException.SessionId == _sessionId)
-				{
-					sendId = communicationException.SendId;
-
-					return true;
-				}
-			}
-
-			sendId = default;
-
-			return false;
-		}
-
-		private async ValueTask ForwardEvent(IEvent evt, InvokeId invokeId, CancellationToken token)
+		private async ValueTask ForwardEvent(IEvent evt, InvokeId invokeId)
 		{
 			try
 			{
-				if (_options.ExternalCommunication is not { } externalCommunication)
+				if (_externalCommunication is null)
 				{
 					throw NoExternalCommunication();
 				}
 
-				await externalCommunication.ForwardEvent(evt, invokeId, token).ConfigureAwait(false);
+				await _externalCommunication.ForwardEvent(evt, invokeId).ConfigureAwait(false);
 			}
 			catch (Exception ex)
 			{
-				throw new CommunicationException(ex, _sessionId);
+				throw new CommunicationException(ex) {Token = _stateMachineToken};
 			}
 		}
 

@@ -25,7 +25,7 @@ using Xtate.Core;
 
 namespace Xtate.Persistence
 {
-	internal class InMemoryStorage : IStorage
+	public class InMemoryStorage : IStorage
 	{
 		private IMemoryOwner<byte>?                         _baselineOwner;
 		private Memory<byte>                                _buffer;
@@ -34,31 +34,34 @@ namespace Xtate.Persistence
 		private IMemoryOwner<byte>?                         _owner;
 		private SortedSet<Entry>?                           _readModel;
 
-		public InMemoryStorage(ReadOnlySpan<byte> baseline)
+		public InMemoryStorage(ReadOnlySpan<byte> baseline) : this(false)
 		{
-			_readModel = CreateReadModel();
-
 			if (!baseline.IsEmpty)
 			{
-				_baselineOwner = MemoryPool<byte>.Shared.Rent(baseline.Length);
-				var memory = _baselineOwner.Memory[..baseline.Length];
-				baseline.CopyTo(memory.Span);
-				while (!baseline.IsEmpty)
-				{
-					var keyLengthLength = Encode.GetLength(baseline[0]);
-					var keyLength = Encode.Decode(baseline[..keyLengthLength]);
-					var key = memory.Slice(keyLengthLength, keyLength);
+				InitFromBaseline(baseline);
+			}
+		}
 
-					var valueLengthLength = Encode.GetLength(baseline[keyLengthLength + keyLength]);
-					var valueLength = Encode.Decode(baseline.Slice(keyLengthLength + keyLength, valueLengthLength));
-					var value = memory.Slice(keyLengthLength + keyLength + valueLengthLength, valueLength);
+		private void InitFromBaseline(ReadOnlySpan<byte> baseline)
+		{
+			_baselineOwner = MemoryPool<byte>.Shared.Rent(baseline.Length);
+			var memory = _baselineOwner.Memory[..baseline.Length];
+			baseline.CopyTo(memory.Span);
+			while (!baseline.IsEmpty)
+			{
+				var keyLengthLength = Encode.GetLength(baseline[0]);
+				var keyLength = Encode.Decode(baseline[..keyLengthLength]);
+				var key = memory.Slice(keyLengthLength, keyLength);
 
-					AddToReadModel(key, value);
+				var valueLengthLength = Encode.GetLength(baseline[keyLengthLength + keyLength]);
+				var valueLength = Encode.Decode(baseline.Slice(keyLengthLength + keyLength, valueLengthLength));
+				var value = memory.Slice(keyLengthLength + keyLength + valueLengthLength, valueLength);
 
-					var rowSize = keyLengthLength + keyLength + valueLengthLength + valueLength;
-					baseline = baseline[rowSize..];
-					memory = memory[rowSize..];
-				}
+				AddToReadModel(key, value);
+
+				var rowSize = keyLengthLength + keyLength + valueLengthLength + valueLength;
+				baseline = baseline[rowSize..];
+				memory = memory[rowSize..];
 			}
 		}
 
@@ -70,20 +73,25 @@ namespace Xtate.Persistence
 			}
 		}
 
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposing && !_disposed)
+			{
+				TruncateLog(true);
+
+				_baselineOwner?.Dispose();
+
+				_disposed = true;
+			}
+		}
+
 	#region Interface IDisposable
 
 		public void Dispose()
 		{
-			if (_disposed)
-			{
-				return;
-			}
+			Dispose(true);
 
-			TruncateLog(true);
-
-			_baselineOwner?.Dispose();
-
-			_disposed = true;
+			GC.SuppressFinalize(this);
 		}
 
 	#endregion
@@ -113,10 +121,9 @@ namespace Xtate.Persistence
 				throw new InvalidOperationException(Resources.Exception_StorageNotAvailableForReadOperations);
 			}
 
-			var buffer = AllocateBuffer(key.Length, shared: true);
+			var buffer = AllocateBuffer(key.Length, share: true);
 			key.CopyTo(buffer.Span);
 
-			XtateCore.Use();
 			return _readModel.TryGetValue(new Entry(buffer), out var result) ? result.Value : ReadOnlyMemory<byte>.Empty;
 		}
 
@@ -187,7 +194,7 @@ namespace Xtate.Persistence
 			}
 		}
 
-		private Memory<byte> AllocateBuffer(int size, bool shared = false)
+		private Memory<byte> AllocateBuffer(int size, bool share = false)
 		{
 			if (_buffer.Length < size)
 			{
@@ -211,7 +218,7 @@ namespace Xtate.Persistence
 
 			var result = _buffer[..size];
 
-			if (!shared)
+			if (!share)
 			{
 				_buffer = _buffer[size..];
 			}

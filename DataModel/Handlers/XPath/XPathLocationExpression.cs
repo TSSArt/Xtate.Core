@@ -21,7 +21,7 @@ using Xtate.Core;
 
 namespace Xtate.DataModel.XPath
 {
-	internal class XPathLocationExpression : ILocationExpression, IAncestorProvider
+	public class XPathLocationExpression : ILocationExpression, IAncestorProvider
 	{
 		private readonly ILocationExpression _locationExpression;
 

@@ -26,6 +26,6 @@ namespace Xtate.DataModel
 	[PublicAPI]
 	public interface IArrayEvaluator : IValueEvaluator
 	{
-		ValueTask<IObject[]> EvaluateArray(IExecutionContext executionContext, CancellationToken token);
+		ValueTask<IObject[]> EvaluateArray();
 	}
 }

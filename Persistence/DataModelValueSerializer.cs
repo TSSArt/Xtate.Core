@@ -19,23 +19,18 @@
 
 namespace Xtate.Persistence
 {
-	[PublicAPI]
-	public sealed class DataModelValueSerializer
+	public static class DataModelValueSerializer
 	{
-		private readonly Bucket _bucket;
-
-		public DataModelValueSerializer(IStorage storage) => _bucket = new Bucket(storage);
-
-		public void Save(string key, in DataModelValue value)
+		public static void Save(IStorage storage, string key, in DataModelValue value)
 		{
-			var bucket = _bucket.Nested(key);
+			var bucket = new Bucket(storage).Nested(key);
 			using var tracker = new DataModelReferenceTracker(bucket.Nested(Key.DataReferences));
 			bucket.SetDataModelValue(tracker, value);
 		}
 
-		public DataModelValue Load(string key)
+		public static DataModelValue Load(IStorage storage, string key)
 		{
-			var bucket = _bucket.Nested(key);
+			var bucket = new Bucket(storage).Nested(key);
 			using var tracker = new DataModelReferenceTracker(bucket.Nested(Key.DataReferences));
 
 			return bucket.GetDataModelValue(tracker, baseValue: default);

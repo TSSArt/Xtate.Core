@@ -26,7 +26,7 @@ using System.Text;
 namespace Xtate.Persistence
 {
 	[PublicAPI]
-	internal readonly struct Bucket
+	public readonly struct Bucket
 	{
 		public static readonly RootType RootKey = RootType.Instance;
 
@@ -488,10 +488,10 @@ namespace Xtate.Persistence
 				var lastByteIndex = bytes.Length - 1;
 				bytes[lastByteIndex] = 0xFF;
 				var dest = bytes[1..^1];
-#if NET461 || NETSTANDARD2_0
-				Encoding.UTF8.GetBytes(key).CopyTo(dest);
-#else
+#if NET6_0_OR_GREATER
 				Encoding.UTF8.GetBytes(key, dest);
+#else
+				Encoding.UTF8.GetBytes(key).CopyTo(dest);
 #endif
 			}
 		}
@@ -644,10 +644,10 @@ namespace Xtate.Persistence
 					return;
 				}
 
-#if NET461 || NETSTANDARD2_0
-				Encoding.UTF8.GetBytes(value).CopyTo(bytes);
-#else
+#if NET6_0_OR_GREATER
 				Encoding.UTF8.GetBytes(value, bytes);
+#else
+				Encoding.UTF8.GetBytes(value).CopyTo(bytes);
 #endif
 			}
 
@@ -658,10 +658,10 @@ namespace Xtate.Persistence
 					return string.Empty;
 				}
 
-#if NET461 || NETSTANDARD2_0
-				return Encoding.UTF8.GetString(bytes.ToArray());
-#else
+#if NET6_0_OR_GREATER
 				return Encoding.UTF8.GetString(bytes);
+#else
+				return Encoding.UTF8.GetString(bytes.ToArray());
 #endif
 			}
 		}

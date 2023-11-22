@@ -19,56 +19,77 @@
 
 using System;
 using System.Collections.Immutable;
-using System.Net.Mime;
-using System.Threading;
 using System.Threading.Tasks;
 using Xtate.Core;
 
 namespace Xtate.DataModel
 {
-	internal static class DataConverter
+	public class DataConverter
 	{
-		public static ValueTask<DataModelValue> GetData(IValueEvaluator? contentBodyEvaluator,
-														IObjectEvaluator? contentExpressionEvaluator,
-														ImmutableArray<ILocationEvaluator> nameEvaluatorList,
-														ImmutableArray<DefaultParam> parameterList,
-														IExecutionContext executionContext,
-														CancellationToken token)
+		public struct Param
 		{
-			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
-
-			if (nameEvaluatorList.IsDefaultOrEmpty && parameterList.IsDefaultOrEmpty)
+			public Param(IParam param)
 			{
-				return GetContent(contentBodyEvaluator, contentExpressionEvaluator, executionContext, token);
+				Name = param.Name;
+				ExpressionEvaluator = param.Expression?.As<IObjectEvaluator>();
+				LocationEvaluator = param.Location?.As<ILocationEvaluator>();
 			}
 
-			return GetParameters(nameEvaluatorList, parameterList, executionContext, token);
+			public string              Name                { get; }
+			public IObjectEvaluator?   ExpressionEvaluator { get; }
+			public ILocationEvaluator? LocationEvaluator   { get; }
 		}
 
-		public static async ValueTask<DataModelValue> GetContent(IValueEvaluator? contentBodyEvaluator,
-																 IObjectEvaluator? contentExpressionEvaluator,
-																 IExecutionContext executionContext,
-																 CancellationToken token)
+		public static ImmutableArray<Param> AsParamArray(ImmutableArray<IParam> parameters)
 		{
-			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
+			if (parameters.IsDefault)
+			{
+				return default;
+			}
 
+			return ImmutableArray.CreateRange(parameters, param => new Param(param));
+		}
+
+		private readonly bool _caseInsensitive;
+
+		public DataConverter(IDataModelHandler? dataModelHandler)
+		{
+			_caseInsensitive = dataModelHandler?.CaseInsensitive ?? false;
+		}
+
+		public ValueTask<DataModelValue> GetData(IValueEvaluator? contentBodyEvaluator,
+												 IObjectEvaluator? contentExpressionEvaluator,
+												 ImmutableArray<ILocationEvaluator> nameEvaluatorList,
+												 ImmutableArray<Param> parameterList)
+		{
+			if (nameEvaluatorList.IsDefaultOrEmpty && parameterList.IsDefaultOrEmpty)
+			{
+				return GetContent(contentBodyEvaluator, contentExpressionEvaluator);
+			}
+
+			return GetParameters(nameEvaluatorList, parameterList);
+		}
+
+		public async ValueTask<DataModelValue> GetContent(IValueEvaluator? contentBodyEvaluator,
+														  IObjectEvaluator? contentExpressionEvaluator)
+		{
 			if (contentExpressionEvaluator is not null)
 			{
-				var obj = await contentExpressionEvaluator.EvaluateObject(executionContext, token).ConfigureAwait(false);
+				var obj = await contentExpressionEvaluator.EvaluateObject().ConfigureAwait(false);
 
 				return DataModelValue.FromObject(obj).AsConstant();
 			}
 
 			if (contentBodyEvaluator is IObjectEvaluator objectEvaluator)
 			{
-				var obj = await objectEvaluator.EvaluateObject(executionContext, token).ConfigureAwait(false);
+				var obj = await objectEvaluator.EvaluateObject().ConfigureAwait(false);
 
 				return DataModelValue.FromObject(obj).AsConstant();
 			}
 
 			if (contentBodyEvaluator is IStringEvaluator stringEvaluator)
 			{
-				var str = await stringEvaluator.EvaluateString(executionContext, token).ConfigureAwait(false);
+				var str = await stringEvaluator.EvaluateString().ConfigureAwait(false);
 
 				return new DataModelValue(str);
 			}
@@ -76,26 +97,22 @@ namespace Xtate.DataModel
 			return default;
 		}
 
-		public static async ValueTask<DataModelValue> GetParameters(ImmutableArray<ILocationEvaluator> nameEvaluatorList,
-																	ImmutableArray<DefaultParam> parameterList,
-																	IExecutionContext executionContext,
-																	CancellationToken token)
+		public async ValueTask<DataModelValue> GetParameters(ImmutableArray<ILocationEvaluator> nameEvaluatorList,
+															 ImmutableArray<Param> parameterList)
 		{
-			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
-
 			if (nameEvaluatorList.IsDefaultOrEmpty && parameterList.IsDefaultOrEmpty)
 			{
 				return default;
 			}
 
-			var attributes = new DataModelList(executionContext.DataModel.CaseInsensitive);
+			var attributes = new DataModelList(_caseInsensitive);
 
 			if (!nameEvaluatorList.IsDefaultOrEmpty)
 			{
 				foreach (var locationEvaluator in nameEvaluatorList)
 				{
-					var name = locationEvaluator.GetName(executionContext);
-					var value = await locationEvaluator.GetValue(executionContext, token).ConfigureAwait(false);
+					var name = await locationEvaluator.GetName().ConfigureAwait(false);
+					var value = await locationEvaluator.GetValue().ConfigureAwait(false);
 
 					attributes.Add(name, DataModelValue.FromObject(value).AsConstant());
 				}
@@ -105,48 +122,46 @@ namespace Xtate.DataModel
 			{
 				foreach (var param in parameterList)
 				{
-					var name = param.Name;
-					var value = await GetParamValue(param, executionContext, token).ConfigureAwait(false);
+					var value = DefaultObject.Null;
 
-					attributes.Add(name, DataModelValue.FromObject(value).AsConstant());
+					if (param.ExpressionEvaluator is { } expressionEvaluator)
+					{
+						value = await expressionEvaluator.EvaluateObject().ConfigureAwait(false);
+					}
+					else if (param.LocationEvaluator is  { } locationEvaluator)
+					{
+						value = await locationEvaluator.GetValue().ConfigureAwait(false);
+					}
+
+					attributes.Add(param.Name, DataModelValue.FromObject(value).AsConstant());
 				}
 			}
 
 			return new DataModelValue(attributes);
 		}
 
-		private static async ValueTask<IObject?> GetParamValue(DefaultParam param, IExecutionContext executionContext, CancellationToken token)
+		public async ValueTask<DataModelValue> FromContent(Resource resource)
 		{
-			if (param.ExpressionEvaluator is not null)
+			Infra.Requires(resource);
+
+			if (await resource.GetContent().ConfigureAwait(false) is { } content)
 			{
-				return await param.ExpressionEvaluator.EvaluateObject(executionContext, token).ConfigureAwait(false);
+				return new DataModelValue(content);
 			}
 
-			if (param.LocationEvaluator is not null)
-			{
-				return await param.LocationEvaluator.GetValue(executionContext, token).ConfigureAwait(false);
-			}
-
-			return null;
+			return DataModelValue.Null;
 		}
 
-		public static DataModelValue FromContent(string content, ContentType? contentType)
+		public DataModelValue FromEvent(IEvent evt)
 		{
-			var _ = contentType;
+			Infra.Requires(evt);
 
-			return new DataModelValue(content);
-		}
-
-		public static DataModelValue FromEvent(IEvent evt, bool caseInsensitive)
-		{
-			if (evt is null) throw new ArgumentNullException(nameof(evt));
-
-			var eventList = new DataModelList(caseInsensitive)
+			var eventList = new DataModelList(_caseInsensitive)
 							{
-								{ @"name", new LazyValue<IEvent>(static e => EventName.ToName(e.NameParts), evt) },
+								{ @"name", EventName.ToName(evt.NameParts) },
 								{ @"type", GetTypeString(evt.Type) },
 								{ @"sendid", evt.SendId },
-								{ @"origin", new LazyValue<IEvent>(static e => e.Origin?.ToString(), evt) },
+								{ @"origin", evt.Origin?.ToString() },
 								{ @"origintype", evt.OriginType?.ToString() },
 								{ @"invokeid", evt.InvokeId },
 								{ @"data", evt.Data.AsConstant() }
@@ -154,7 +169,7 @@ namespace Xtate.DataModel
 
 			eventList.MakeDeepConstant();
 
-			return new DataModelValue(eventList);
+			return eventList;
 
 			static string GetTypeString(EventType eventType)
 			{
@@ -168,11 +183,11 @@ namespace Xtate.DataModel
 			}
 		}
 
-		public static DataModelValue FromException(Exception exception, bool caseInsensitive)
+		public DataModelValue FromException(Exception exception)
 		{
-			if (exception is null) throw new ArgumentNullException(nameof(exception));
+			Infra.Requires(exception);
 
-			return new LazyValue<Exception, bool>(ValueFactory, exception, caseInsensitive);
+			return LazyValue.Create(exception, _caseInsensitive, ValueFactory);
 
 			static DataModelValue ValueFactory(Exception exception, bool caseInsensitive)
 			{
