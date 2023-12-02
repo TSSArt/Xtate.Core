@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,125 +17,112 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.Core;
+namespace Xtate.Service;
 
-namespace Xtate.Service
+public abstract class ServiceFactoryBase : IServiceFactory
 {
-	public abstract class ServiceFactoryBase : IServiceFactory
+	private Activator? _activator;
+
+#region Interface IServiceFactory
+
+	public ValueTask<IServiceFactoryActivator?> TryGetActivator(Uri type)
 	{
-		private Activator? _activator;
+		_activator ??= CreateActivator();
 
-	#region Interface IServiceFactory
+		return new ValueTask<IServiceFactoryActivator?>(_activator.CanHandle(type) ? _activator : null);
+	}
 
-		public ValueTask<IServiceFactoryActivator?> TryGetActivator(ServiceLocator serviceLocator, Uri type, CancellationToken token)
+#endregion
+
+	private Activator CreateActivator()
+	{
+		var catalog = new Catalog();
+
+		Register(catalog);
+
+		return new Activator(catalog);
+	}
+
+	protected abstract void Register(IServiceCatalog catalog);
+
+	private class Catalog : IServiceCatalog
+	{
+		private readonly Dictionary<Uri, Delegate> _creators = new(FullUriComparer.Instance);
+
+#region Interface IServiceCatalog
+
+		public void Register(string type, IServiceCatalog.Creator creator)
 		{
-			_activator ??= CreateActivator();
+			if (string.IsNullOrEmpty(type)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(type));
+			if (creator is null) throw new ArgumentNullException(nameof(creator));
 
-			return new ValueTask<IServiceFactoryActivator?>(_activator.CanHandle(type) ? _activator : null);
+			_creators.Add(new Uri(type, UriKind.RelativeOrAbsolute), creator);
 		}
 
-	#endregion
-
-		private Activator CreateActivator()
+		public void Register(string type, IServiceCatalog.ServiceCreator creator)
 		{
-			var catalog = new Catalog();
+			if (string.IsNullOrEmpty(type)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(type));
+			if (creator is null) throw new ArgumentNullException(nameof(creator));
 
-			Register(catalog);
-
-			return new Activator(catalog);
+			_creators.Add(new Uri(type, UriKind.RelativeOrAbsolute), creator);
 		}
 
-		protected abstract void Register(IServiceCatalog catalog);
-
-		private class Catalog : IServiceCatalog
+		public void Register(string type, IServiceCatalog.ServiceCreatorAsync creator)
 		{
-			private readonly Dictionary<Uri, Delegate> _creators = new(FullUriComparer.Instance);
+			if (string.IsNullOrEmpty(type)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(type));
+			if (creator is null) throw new ArgumentNullException(nameof(creator));
 
-		#region Interface IServiceCatalog
-
-			public void Register(string type, IServiceCatalog.Creator creator)
-			{
-				if (string.IsNullOrEmpty(type)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(type));
-				if (creator is null) throw new ArgumentNullException(nameof(creator));
-
-				_creators.Add(new Uri(type, UriKind.RelativeOrAbsolute), creator);
-			}
-
-			public void Register(string type, IServiceCatalog.ServiceCreator creator)
-			{
-				if (string.IsNullOrEmpty(type)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(type));
-				if (creator is null) throw new ArgumentNullException(nameof(creator));
-
-				_creators.Add(new Uri(type, UriKind.RelativeOrAbsolute), creator);
-			}
-
-			public void Register(string type, IServiceCatalog.ServiceCreatorAsync creator)
-			{
-				if (string.IsNullOrEmpty(type)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(type));
-				if (creator is null) throw new ArgumentNullException(nameof(creator));
-
-				_creators.Add(new Uri(type, UriKind.RelativeOrAbsolute), creator);
-			}
-
-		#endregion
-
-			public bool CanHandle(Uri type) => _creators.ContainsKey(type);
-
-			public ValueTask<IService> CreateService(ServiceLocator serviceLocator,
-													 Uri? baseUri,
-													 InvokeData invokeData,
-													 IServiceCommunication serviceCommunication,
-													 CancellationToken token)
-			{
-				switch (_creators[invokeData.Type])
-				{
-					case IServiceCatalog.Creator creator:
-						var service = creator();
-
-						service.Start(baseUri, invokeData, serviceCommunication);
-
-						return new ValueTask<IService>(service);
-
-					case IServiceCatalog.ServiceCreator creator:
-						return new ValueTask<IService>(creator(baseUri, invokeData, serviceCommunication));
-
-					case IServiceCatalog.ServiceCreatorAsync creator:
-						return creator(serviceLocator, baseUri, invokeData, serviceCommunication, token);
-
-					default:
-						return Infra.Unexpected<ValueTask<IService>>(_creators[invokeData.Type].GetType());
-				}
-			}
+			_creators.Add(new Uri(type, UriKind.RelativeOrAbsolute), creator);
 		}
 
-		private class Activator : IServiceFactoryActivator
+#endregion
+
+		public bool CanHandle(Uri type) => _creators.ContainsKey(type);
+
+		public ValueTask<IService> CreateService(Uri? baseUri,
+												 InvokeData invokeData,
+												 IServiceCommunication serviceCommunication)
 		{
-			private readonly Catalog _catalog;
-
-			public Activator(Catalog catalog) => _catalog = catalog;
-
-		#region Interface IServiceFactoryActivator
-
-			public ValueTask<IService> StartService(ServiceLocator serviceLocator,
-													Uri? baseUri,
-													InvokeData invokeData,
-													IServiceCommunication serviceCommunication,
-													CancellationToken token)
+			switch (_creators[invokeData.Type])
 			{
-				if (invokeData is null) throw new ArgumentNullException(nameof(invokeData));
+				case IServiceCatalog.Creator creator:
+					var service = creator();
 
-				Infra.Assert(CanHandle(invokeData.Type));
+					service.Start(baseUri, invokeData, serviceCommunication);
 
-				return _catalog.CreateService(serviceLocator, baseUri, invokeData, serviceCommunication, token);
+					return new ValueTask<IService>(service);
+
+				case IServiceCatalog.ServiceCreator creator:
+					return new ValueTask<IService>(creator(baseUri, invokeData, serviceCommunication));
+
+				case IServiceCatalog.ServiceCreatorAsync creator:
+					return creator(baseUri, invokeData, serviceCommunication);
+
+				default:
+					return Infra.Unexpected<ValueTask<IService>>(_creators[invokeData.Type].GetType());
 			}
-
-		#endregion
-
-			public bool CanHandle(Uri type) => _catalog.CanHandle(type);
 		}
+	}
+
+	private class Activator : IServiceFactoryActivator
+	{
+		private readonly Catalog _catalog;
+
+		public Activator(Catalog catalog) => _catalog = catalog;
+
+#region Interface IServiceFactoryActivator
+
+		public ValueTask<IService> StartService(Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication)
+		{
+			if (invokeData is null) throw new ArgumentNullException(nameof(invokeData));
+
+			Infra.Assert(CanHandle(invokeData.Type));
+
+			return _catalog.CreateService(baseUri, invokeData, serviceCommunication);
+		}
+
+#endregion
+
+		public bool CanHandle(Uri type) => _catalog.CanHandle(type);
 	}
 }

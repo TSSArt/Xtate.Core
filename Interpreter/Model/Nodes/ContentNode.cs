@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,37 +19,36 @@
 
 using Xtate.Persistence;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public sealed class ContentNode : IContent, IStoreSupport, IAncestorProvider
 {
-	public sealed class ContentNode : IContent, IStoreSupport, IAncestorProvider
+	private readonly IContent _content;
+
+	public ContentNode(IContent content) => _content = content;
+
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => _content;
+
+#endregion
+
+#region Interface IContent
+
+	public IValueExpression? Expression => _content.Expression;
+
+	public IContentBody? Body => _content.Body;
+
+#endregion
+
+#region Interface IStoreSupport
+
+	void IStoreSupport.Store(Bucket bucket)
 	{
-		private readonly IContent _content;
-
-		public ContentNode(IContent content) => _content = content;
-
-	#region Interface IAncestorProvider
-
-		object IAncestorProvider.Ancestor => _content;
-
-	#endregion
-
-	#region Interface IContent
-
-		public IValueExpression? Expression => _content.Expression;
-
-		public IContentBody? Body => _content.Body;
-
-	#endregion
-
-	#region Interface IStoreSupport
-
-		void IStoreSupport.Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.ContentNode);
-			bucket.AddEntity(Key.Expression, Expression);
-			bucket.Add(Key.Body, Body?.Value);
-		}
-
-	#endregion
+		bucket.Add(Key.TypeInfo, TypeInfo.ContentNode);
+		bucket.AddEntity(Key.Expression, Expression);
+		bucket.Add(Key.Body, Body?.Value);
 	}
+
+#endregion
 }

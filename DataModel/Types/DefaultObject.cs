@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,20 +17,19 @@
 
 #endregion
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+internal sealed class DefaultObject : IObject
 {
-	internal sealed class DefaultObject : IObject
-	{
-		public static readonly IObject Null = new DefaultObject(null);
+	public static readonly IObject Null = new DefaultObject(null);
 
-		private readonly object? _value;
+	private readonly object? _value;
 
-		public DefaultObject(object? value) => _value = value;
+	public DefaultObject(object? value) => _value = value;
 
-	#region Interface IObject
+#region Interface IObject
 
-		public object? ToObject() => _value;
+	public object? ToObject() => _value;
 
-	#endregion
-	}
+#endregion
 }

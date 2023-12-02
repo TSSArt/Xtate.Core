@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,44 +17,42 @@
 
 #endregion
 
-using System.Collections.Immutable;
 using Xtate.DataModel;
 using Xtate.Persistence;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public sealed class FinalizeNode : IFinalize, IStoreSupport, IAncestorProvider
 {
-	public sealed class FinalizeNode : IFinalize, IStoreSupport, IAncestorProvider
+	private readonly IFinalize _finalize;
+
+	public FinalizeNode(IFinalize finalize)
 	{
-		private readonly IFinalize _finalize;
-
-		public FinalizeNode(IFinalize finalize)
-		{
-			_finalize = finalize;
-			ActionEvaluators = finalize.Action.AsArrayOf<IExecutableEntity, IExecEvaluator>();
-		}
-
-		public ImmutableArray<IExecEvaluator> ActionEvaluators { get; }
-
-	#region Interface IAncestorProvider
-
-		object IAncestorProvider.Ancestor => _finalize;
-
-	#endregion
-
-	#region Interface IFinalize
-
-		public ImmutableArray<IExecutableEntity> Action => _finalize.Action;
-
-	#endregion
-
-	#region Interface IStoreSupport
-
-		void IStoreSupport.Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.FinalizeNode);
-			bucket.AddEntityList(Key.Action, Action);
-		}
-
-	#endregion
+		_finalize = finalize;
+		ActionEvaluators = finalize.Action.AsArrayOf<IExecutableEntity, IExecEvaluator>();
 	}
+
+	public ImmutableArray<IExecEvaluator> ActionEvaluators { get; }
+
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => _finalize;
+
+#endregion
+
+#region Interface IFinalize
+
+	public ImmutableArray<IExecutableEntity> Action => _finalize.Action;
+
+#endregion
+
+#region Interface IStoreSupport
+
+	void IStoreSupport.Store(Bucket bucket)
+	{
+		bucket.Add(Key.TypeInfo, TypeInfo.FinalizeNode);
+		bucket.AddEntityList(Key.Action, Action);
+	}
+
+#endregion
 }

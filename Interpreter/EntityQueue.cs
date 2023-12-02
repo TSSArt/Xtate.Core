@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,39 +17,35 @@
 
 #endregion
 
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+namespace Xtate.Core;
 
-namespace Xtate.Core
+public sealed class EntityQueue<T>
 {
-	public sealed class EntityQueue<T>
+	public delegate void ChangeHandler(ChangedAction action, [AllowNull] T entity);
+
+	public enum ChangedAction
 	{
-		public delegate void ChangeHandler(ChangedAction action, [AllowNull] T entity);
+		Enqueue,
+		Dequeue
+	}
 
-		public enum ChangedAction
-		{
-			Enqueue,
-			Dequeue
-		}
+	private readonly Queue<T> _queue = new();
 
-		private readonly Queue<T> _queue = new();
+	public int Count => _queue.Count;
 
-		public int Count => _queue.Count;
+	public event ChangeHandler? Changed;
 
-		public event ChangeHandler? Changed;
+	public T Dequeue()
+	{
+		Changed?.Invoke(ChangedAction.Dequeue, entity: default);
 
-		public T Dequeue()
-		{
-			Changed?.Invoke(ChangedAction.Dequeue, entity: default);
+		return _queue.Dequeue();
+	}
 
-			return _queue.Dequeue();
-		}
+	public void Enqueue(T item)
+	{
+		_queue.Enqueue(item);
 
-		public void Enqueue(T item)
-		{
-			_queue.Enqueue(item);
-
-			Changed?.Invoke(ChangedAction.Enqueue, item);
-		}
+		Changed?.Invoke(ChangedAction.Enqueue, item);
 	}
 }

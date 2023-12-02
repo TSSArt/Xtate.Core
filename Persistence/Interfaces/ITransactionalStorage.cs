@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,14 +17,10 @@
 
 #endregion
 
-using System;
-using System.Threading.Tasks;
+namespace Xtate.Persistence;
 
-namespace Xtate.Persistence
+public interface ITransactionalStorage : IStorage, IAsyncDisposable
 {
-	public interface ITransactionalStorage : IStorage, IAsyncDisposable
-	{
-		ValueTask CheckPoint(int level);
-		ValueTask Shrink();
-	}
+	ValueTask CheckPoint(int level);
+	ValueTask Shrink();
 }

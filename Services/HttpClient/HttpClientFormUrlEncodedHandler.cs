@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,89 +17,82 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.Core;
 
-namespace Xtate.Service
+namespace Xtate.Service;
+
+public class HttpClientFormUrlEncodedHandler : HttpClientMimeTypeHandler
 {
-	public class HttpClientFormUrlEncodedHandler : HttpClientMimeTypeHandler
+	private const string MediaTypeApplicationFormUrlEncoded = "application/x-www-form-urlencoded";
+
+	private HttpClientFormUrlEncodedHandler() { }
+
+	public static HttpClientMimeTypeHandler Instance { get; } = new HttpClientFormUrlEncodedHandler();
+
+	public override HttpContent? TryCreateHttpContent(WebRequest webRequest,
+													  string? contentType,
+													  DataModelList parameters,
+													  DataModelValue value)
 	{
-		private const string MediaTypeApplicationFormUrlEncoded = "application/x-www-form-urlencoded";
-
-		private HttpClientFormUrlEncodedHandler() { }
-
-		public static HttpClientMimeTypeHandler Instance { get; } = new HttpClientFormUrlEncodedHandler();
-
-		public override HttpContent? TryCreateHttpContent(WebRequest webRequest,
-														  string? contentType,
-														  DataModelList parameters,
-														  DataModelValue value)
+		if (!ContentTypeEquals(contentType, MediaTypeApplicationFormUrlEncoded))
 		{
-			if (!ContentTypeEquals(contentType, MediaTypeApplicationFormUrlEncoded))
-			{
-				return default;
-			}
-
-			var list = value.AsListOrEmpty();
-
-			var pairs = DataModelConverter.IsObject(list)
-				? from pair in list.KeyValues select (Name: pair.Key, Value: pair.Value.AsStringOrDefault())
-				: from item in list select (Name: item.AsListOrEmpty()["name"].AsStringOrDefault(), Value: item.AsListOrEmpty()["value"].AsStringOrDefault());
-
-			var forms = from pair in pairs
-						where !string.IsNullOrEmpty(pair.Name) && pair.Value is not null
-						select new KeyValuePair<string?, string?>(pair.Name, pair.Value);
-
-			return new FormUrlEncodedContent(forms);
+			return default;
 		}
 
-		public override async ValueTask<DataModelValue?> TryParseResponseAsync(WebResponse webResponse, DataModelList parameters, CancellationToken token)
+		var list = value.AsListOrEmpty();
+
+		var pairs = DataModelConverter.IsObject(list)
+			? from pair in list.KeyValues select (Name: pair.Key, Value: pair.Value.AsStringOrDefault())
+			: from item in list select (Name: item.AsListOrEmpty()["name"].AsStringOrDefault(), Value: item.AsListOrEmpty()["value"].AsStringOrDefault());
+
+		var forms = from pair in pairs
+					where !string.IsNullOrEmpty(pair.Name) && pair.Value is not null
+					select new KeyValuePair<string?, string?>(pair.Name, pair.Value);
+
+		return new FormUrlEncodedContent(forms);
+	}
+
+	public override async ValueTask<DataModelValue?> TryParseResponseAsync(WebResponse webResponse, DataModelList parameters, CancellationToken token)
+	{
+		if (webResponse is null) throw new ArgumentNullException(nameof(webResponse));
+
+		if (!ContentTypeEquals(webResponse.ContentType, MediaTypeApplicationFormUrlEncoded))
 		{
-			if (webResponse is null) throw new ArgumentNullException(nameof(webResponse));
+			return default;
+		}
 
-			if (!ContentTypeEquals(webResponse.ContentType, MediaTypeApplicationFormUrlEncoded))
+		var stream = webResponse.GetResponseStream();
+
+		Infra.NotNull(stream);
+
+		await using (stream.ConfigureAwait(false))
+		{
+			var bytes = await stream.ReadToEndAsync(token).ConfigureAwait(false);
+
+			var queryString = Encoding.ASCII.GetString(bytes);
+			var collection = QueryStringHelper.ParseQuery(queryString);
+
+			var list = new DataModelList();
+
+			for (var i = 0; i < collection.Count; i ++)
 			{
-				return default;
-			}
-
-			var stream = webResponse.GetResponseStream();
-
-			Infra.NotNull(stream);
-
-			await using (stream.ConfigureAwait(false))
-			{
-				var bytes = await stream.ReadToEndAsync(token).ConfigureAwait(false);
-
-				var queryString = Encoding.ASCII.GetString(bytes);
-				var collection = QueryStringHelper.ParseQuery(queryString);
-
-				var list = new DataModelList();
-
-				for (var i = 0; i < collection.Count; i ++)
+				if (collection.GetKey(i) is not { } key)
 				{
-					if (collection.GetKey(i) is not { } key)
-					{
-						continue;
-					}
-
-					if (collection.GetValues(i) is { } values)
-					{
-						foreach (var value in values)
-						{
-							list.Add(key, value);
-						}
-					}
+					continue;
 				}
 
-				return list;
+				if (collection.GetValues(i) is { } values)
+				{
+					foreach (var value in values)
+					{
+						list.Add(key, value);
+					}
+				}
 			}
+
+			return list;
 		}
 	}
 }

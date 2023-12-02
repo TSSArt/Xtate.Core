@@ -17,17 +17,15 @@
 
 #endregion
 
-using System;
-using System.Threading.Tasks;
-using Xtate.Core;
-
 namespace Xtate.DataModel.Runtime;
 
 public class RuntimeValueEvaluator : IValueExpression, IObjectEvaluator
 {
-	public required RuntimeValue Value { private get; init; }
+	public required RuntimeValue Value { private get; [UsedImplicitly] init; }
 
-	public required Func<ValueTask<RuntimeExecutionContext>> RuntimeExecutionContextFactory { private get; init; }
+	public required Func<ValueTask<RuntimeExecutionContext>> RuntimeExecutionContextFactory { private get; [UsedImplicitly] init; }
+
+#region Interface IObjectEvaluator
 
 	public async ValueTask<IObject> EvaluateObject()
 	{
@@ -38,11 +36,23 @@ public class RuntimeValueEvaluator : IValueExpression, IObjectEvaluator
 		return await Value.Evaluate().ConfigureAwait(false);
 	}
 
+#endregion
+
+#region Interface IValueExpression
+
 	public string? Expression => Value.Expression;
+
+#endregion
 }
 
 public abstract class RuntimeValue : IValueExpression
 {
+#region Interface IValueExpression
+
+	public string? Expression => null;
+
+#endregion
+
 	public static RuntimeValue GetValue(DataModelValue value) => new ConstantValue(value);
 
 	public static RuntimeValue GetValue(Func<DataModelValue> evaluator)
@@ -60,12 +70,6 @@ public abstract class RuntimeValue : IValueExpression
 	}
 
 	public abstract ValueTask<DataModelValue> Evaluate();
-
-#region Interface IValueExpression
-
-	public string? Expression => null;
-
-#endregion
 
 	private sealed class ConstantValue : RuntimeValue
 	{

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,43 +17,41 @@
 
 #endregion
 
-using System;
 using Xtate.Persistence;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public sealed class LogNode : ExecutableEntityNode, ILog, IAncestorProvider, IDebugEntityId
 {
-	public sealed class LogNode : ExecutableEntityNode, ILog, IAncestorProvider, IDebugEntityId
+	private readonly ILog _log;
+
+	public LogNode(DocumentIdNode documentIdNode, ILog log) : base(documentIdNode, log) => _log = log;
+
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => _log;
+
+#endregion
+
+#region Interface IDebugEntityId
+
+	FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
+
+#endregion
+
+#region Interface ILog
+
+	public string? Label => _log.Label;
+
+	public IValueExpression? Expression => _log.Expression;
+
+#endregion
+
+	protected override void Store(Bucket bucket)
 	{
-		private readonly ILog _log;
-
-		public LogNode(DocumentIdNode documentIdNode, ILog log) : base(documentIdNode, log) => _log = log;
-
-	#region Interface IAncestorProvider
-
-		object IAncestorProvider.Ancestor => _log;
-
-	#endregion
-
-	#region Interface IDebugEntityId
-
-		FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
-
-	#endregion
-
-	#region Interface ILog
-
-		public string? Label => _log.Label;
-
-		public IValueExpression? Expression => _log.Expression;
-
-	#endregion
-
-		protected override void Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.LogNode);
-			bucket.Add(Key.DocumentId, DocumentId);
-			bucket.Add(Key.Label, Label);
-			bucket.AddEntity(Key.Expression, Expression);
-		}
+		bucket.Add(Key.TypeInfo, TypeInfo.LogNode);
+		bucket.Add(Key.DocumentId, DocumentId);
+		bucket.Add(Key.Label, Label);
+		bucket.AddEntity(Key.Expression, Expression);
 	}
 }

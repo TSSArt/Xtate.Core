@@ -17,33 +17,27 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Xml;
 
 namespace Xtate.Scxml;
 
 public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDirector>
 {
-	private readonly XmlReader _xmlReader;
 	private readonly string    _xmlnsPrefix;
+	private readonly XmlReader _xmlReader;
 
 	private string? _rawContent;
 
 	protected XmlDirector(XmlReader xmlReader)
 	{
-		Infra.Requires(xmlReader);
-
 		_xmlReader = xmlReader;
 		var nameTable = xmlReader.NameTable;
-		
+
 		Infra.NotNull(nameTable);
-		
+
 		_xmlnsPrefix = nameTable.Add(@"xmlns");
 	}
 
@@ -467,7 +461,7 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 
 		public PolicyBuilder(Policy<TEntity> policy) => _policy = policy;
 
-	#region Interface XmlDirector<TDirector>.IPolicyBuilder<TEntity>
+#region Interface XmlDirector<TDirector>.IPolicyBuilder<TEntity>
 
 		public IPolicyBuilder<TEntity> IgnoreUnknownElements(bool value)
 		{
@@ -587,7 +581,7 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 			return this;
 		}
 
-	#endregion
+#endregion
 
 		private void UseRawContent(bool value)
 		{
@@ -628,11 +622,11 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 			Name = name;
 		}
 
-	#region Interface IEquatable<XmlDirector<TDirector>.QualifiedName>
+#region Interface IEquatable<XmlDirector<TDirector>.QualifiedName>
 
 		public bool Equals(QualifiedName other) => ReferenceEquals(Namespace, other.Namespace) && ReferenceEquals(Name, other.Name);
 
-	#endregion
+#endregion
 
 		public override bool Equals(object? obj) => obj is QualifiedName other && Equals(other);
 

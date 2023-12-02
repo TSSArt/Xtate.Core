@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,23 +17,19 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
+namespace Xtate.Core;
 
-namespace Xtate.Core
+internal class FullUriComparer : IEqualityComparer<Uri>
 {
-	internal class FullUriComparer : IEqualityComparer<Uri>
-	{
-		public static IEqualityComparer<Uri> Instance { get; } = new FullUriComparer();
+	public static IEqualityComparer<Uri> Instance { get; } = new FullUriComparer();
 
-	#region Interface IEqualityComparer<Uri>
+#region Interface IEqualityComparer<Uri>
 
-		public bool Equals(Uri? x, Uri? y) => x == y && GetSafeFragment(x) == GetSafeFragment(y);
+	public bool Equals(Uri? x, Uri? y) => x == y && GetSafeFragment(x) == GetSafeFragment(y);
 
-		public int GetHashCode(Uri uri) => (uri.GetHashCode() * 397) ^ GetSafeFragment(uri).GetHashCode();
+	public int GetHashCode(Uri uri) => (uri.GetHashCode() * 397) ^ GetSafeFragment(uri).GetHashCode();
 
-	#endregion
+#endregion
 
-		private static string GetSafeFragment(Uri? uri) => uri is not null && uri.IsAbsoluteUri ? uri.Fragment : string.Empty;
-	}
+	private static string GetSafeFragment(Uri? uri) => uri is not null && uri.IsAbsoluteUri ? uri.Fragment : string.Empty;
 }

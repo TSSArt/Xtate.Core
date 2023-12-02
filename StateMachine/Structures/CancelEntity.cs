@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,38 +17,37 @@
 
 #endregion
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public struct CancelEntity : ICancel, IVisitorEntity<CancelEntity, ICancel>, IAncestorProvider
 {
-	public struct CancelEntity : ICancel, IVisitorEntity<CancelEntity, ICancel>, IAncestorProvider
+	internal object? Ancestor;
+
+#region Interface IAncestorProvider
+
+	object? IAncestorProvider.Ancestor => Ancestor;
+
+#endregion
+
+#region Interface ICancel
+
+	public string?           SendId           { get; set; }
+	public IValueExpression? SendIdExpression { get; set; }
+
+#endregion
+
+#region Interface IVisitorEntity<CancelEntity,ICancel>
+
+	void IVisitorEntity<CancelEntity, ICancel>.Init(ICancel source)
 	{
-		internal object? Ancestor;
-
-	#region Interface IAncestorProvider
-
-		object? IAncestorProvider.Ancestor => Ancestor;
-
-	#endregion
-
-	#region Interface ICancel
-
-		public string?           SendId           { get; set; }
-		public IValueExpression? SendIdExpression { get; set; }
-
-	#endregion
-
-	#region Interface IVisitorEntity<CancelEntity,ICancel>
-
-		void IVisitorEntity<CancelEntity, ICancel>.Init(ICancel source)
-		{
-			Ancestor = source;
-			SendId = source.SendId;
-			SendIdExpression = source.SendIdExpression;
-		}
-
-		bool IVisitorEntity<CancelEntity, ICancel>.RefEquals(ref CancelEntity other) =>
-			ReferenceEquals(SendId, other.SendId) &&
-			ReferenceEquals(SendIdExpression, other.SendIdExpression);
-
-	#endregion
+		Ancestor = source;
+		SendId = source.SendId;
+		SendIdExpression = source.SendIdExpression;
 	}
+
+	bool IVisitorEntity<CancelEntity, ICancel>.RefEquals(ref CancelEntity other) =>
+		ReferenceEquals(SendId, other.SendId) &&
+		ReferenceEquals(SendIdExpression, other.SendIdExpression);
+
+#endregion
 }

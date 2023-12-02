@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -20,194 +20,192 @@
 using System.Text;
 using System.Xml;
 using System.Xml.XPath;
-using Xtate.Core;
 
-namespace Xtate.DataModel.XPath
+namespace Xtate.DataModel.XPath;
+
+public class XPathObject : IObject
 {
-	public class XPathObject : IObject
-	{
-		private readonly object _value;
+	private readonly object _value;
 
-		public XPathObject(object value)
+	public XPathObject(object value)
+	{
+		_value = value switch
+				 {
+					 XPathNodeIterator => value,
+					 string            => value,
+					 double            => value,
+					 bool              => value,
+					 _                 => Infra.Unexpected<object>(value)
+				 };
+	}
+
+	public XPathObjectType Type =>
+		_value switch
 		{
-			_value = value switch
-					 {
-						 XPathNodeIterator => value,
-						 string            => value,
-						 double            => value,
-						 bool              => value,
-						 _                 => Infra.Unexpected<object>(value)
-					 };
+			XPathNodeIterator => XPathObjectType.NodeSet,
+			double            => XPathObjectType.Number,
+			string            => XPathObjectType.String,
+			bool              => XPathObjectType.Boolean,
+			_                 => Infra.Unexpected<XPathObjectType>(_value)
+		};
+
+#region Interface IObject
+
+	public object? ToObject() =>
+		_value switch
+		{
+			XPathNodeIterator iterator => ToObject(iterator),
+			_                          => _value
+		};
+
+#endregion
+
+	private static string GetFirstStringValue(XPathNodeIterator iterator)
+	{
+		iterator = iterator.Clone();
+
+		if (iterator.MoveNext() && iterator.Current is { } first)
+		{
+			return first.Value;
 		}
 
-		public XPathObjectType Type =>
-			_value switch
-			{
-				XPathNodeIterator => XPathObjectType.NodeSet,
-				double            => XPathObjectType.Number,
-				string            => XPathObjectType.String,
-				bool              => XPathObjectType.Boolean,
-				_                 => Infra.Unexpected<XPathObjectType>(_value)
-			};
+		return string.Empty;
+	}
 
-	#region Interface IObject
-
-		public object? ToObject() =>
-			_value switch
-			{
-				XPathNodeIterator iterator => ToObject(iterator),
-				_                          => _value
-			};
-
-	#endregion
-
-		private static string GetFirstStringValue(XPathNodeIterator iterator)
+	public int AsInteger() =>
+		_value switch
 		{
-			iterator = iterator.Clone();
+			XPathNodeIterator iterator => XmlConvert.ToInt32(GetFirstStringValue(iterator)),
+			string value               => XmlConvert.ToInt32(value),
+			double value               => (int) value,
+			bool value                 => value ? 1 : 0,
+			_                          => Infra.Unexpected<int>(_value)
+		};
 
-			if (iterator.MoveNext() && iterator.Current is { } first)
+	public string AsString() =>
+		_value switch
+		{
+			XPathNodeIterator iterator => GetFirstStringValue(iterator),
+			string value               => value,
+			double value               => XmlConvert.ToString(value),
+			bool value                 => XmlConvert.ToString(value),
+			_                          => Infra.Unexpected<string>(_value)
+		};
+
+	public bool AsBoolean() =>
+		_value switch
+		{
+			XPathNodeIterator iterator => XmlConvert.ToBoolean(GetFirstStringValue(iterator)),
+			string value               => XmlConvert.ToBoolean(value),
+			double value               => value != 0,
+			bool value                 => value,
+			_                          => Infra.Unexpected<bool>(_value)
+		};
+
+	public XPathNodeIterator AsIterator() => ((XPathNodeIterator) _value).Clone();
+
+	private static object? ToObject(XPathNodeIterator iterator)
+	{
+		var length = 0;
+		var count = 0;
+		string? result = default;
+
+		foreach (DataModelXPathNavigator navigator in iterator)
+		{
+			switch (navigator.NodeType)
 			{
-				return first.Value;
-			}
+				case XPathNodeType.Element:
+					return ToDataModelObject(iterator);
 
+				case XPathNodeType.Text:
+					count ++;
+					if (navigator.DataModelValue.AsStringOrDefault() is { } str)
+					{
+						length += str.Length;
+						result = str;
+					}
+
+					break;
+
+				default:
+					return Infra.Unexpected<DataModelList>(navigator.NodeType);
+			}
+		}
+
+		if (count == 0)
+		{
+			return null;
+		}
+
+		if (length == 0)
+		{
 			return string.Empty;
 		}
 
-		public int AsInteger() =>
-			_value switch
-			{
-				XPathNodeIterator iterator => XmlConvert.ToInt32(GetFirstStringValue(iterator)),
-				string value               => XmlConvert.ToInt32(value),
-				double value               => (int) value,
-				bool value                 => value ? 1 : 0,
-				_                          => Infra.Unexpected<int>(_value)
-			};
+		Infra.NotNull(result);
 
-		public string AsString() =>
-			_value switch
-			{
-				XPathNodeIterator iterator => GetFirstStringValue(iterator),
-				string value               => value,
-				double value               => XmlConvert.ToString(value),
-				bool value                 => XmlConvert.ToString(value),
-				_                          => Infra.Unexpected<string>(_value)
-			};
-
-		public bool AsBoolean() =>
-			_value switch
-			{
-				XPathNodeIterator iterator => XmlConvert.ToBoolean(GetFirstStringValue(iterator)),
-				string value               => XmlConvert.ToBoolean(value),
-				double value               => value != 0,
-				bool value                 => value,
-				_                          => Infra.Unexpected<bool>(_value)
-			};
-
-		public XPathNodeIterator AsIterator() => ((XPathNodeIterator) _value).Clone();
-
-		private static object? ToObject(XPathNodeIterator iterator)
+		if (result.Length == length)
 		{
-			var length = 0;
-			var count = 0;
-			string? result = default;
-
-			foreach (DataModelXPathNavigator navigator in iterator)
-			{
-				switch (navigator.NodeType)
-				{
-					case XPathNodeType.Element:
-						return ToDataModelObject(iterator);
-
-					case XPathNodeType.Text:
-						count ++;
-						if (navigator.DataModelValue.AsStringOrDefault() is { } str)
-						{
-							length += str.Length;
-							result = str;
-						}
-
-						break;
-
-					default:
-						return Infra.Unexpected<DataModelList>(navigator.NodeType);
-				}
-			}
-
-			if (count == 0)
-			{
-				return null;
-			}
-
-			if (length == 0)
-			{
-				return string.Empty;
-			}
-
-			Infra.NotNull(result);
-
-			if (result.Length == length)
-			{
-				return result;
-			}
-
-			var sb = new StringBuilder(length);
-
-			foreach (DataModelXPathNavigator navigator in iterator)
-			{
-				if (navigator.DataModelValue.AsStringOrDefault() is { } str)
-				{
-					sb.Append(str);
-				}
-			}
-
-			return sb.ToString();
+			return result;
 		}
 
-		private static DataModelList ToDataModelObject(XPathNodeIterator iterator)
+		var sb = new StringBuilder(length);
+
+		foreach (DataModelXPathNavigator navigator in iterator)
 		{
-			var list = new DataModelList();
-
-			foreach (DataModelXPathNavigator navigator in iterator)
+			if (navigator.DataModelValue.AsStringOrDefault() is { } str)
 			{
-				switch (navigator.NodeType)
-				{
-					case XPathNodeType.Element:
-						var key = XmlConverter.NsNameToKey(navigator.NamespaceURI, navigator.LocalName);
-						list.Add(key, navigator.DataModelValue.CloneAsWritable(), navigator.Metadata?.DeepClone(DataModelAccess.Writable));
-						break;
-
-					case XPathNodeType.Text:
-						list.Add(key: default, navigator.DataModelValue.CloneAsWritable(), metadata: default);
-						break;
-
-					default:
-						return Infra.Unexpected<DataModelList>(navigator.NodeType);
-				}
+				sb.Append(str);
 			}
-
-			return list;
 		}
 
-		public static string ToString(object obj) =>
-			obj switch
-			{
-				XPathNodeIterator iterator => ToString(iterator),
-				double value               => XmlConvert.ToString(value),
-				string value               => value,
-				bool value                 => XmlConvert.ToString(value),
-				_                          => Infra.Unexpected<string>(obj)
-			};
+		return sb.ToString();
+	}
 
-		private static string ToString(XPathNodeIterator iterator)
+	private static DataModelList ToDataModelObject(XPathNodeIterator iterator)
+	{
+		var list = new DataModelList();
+
+		foreach (DataModelXPathNavigator navigator in iterator)
 		{
-			var stringBuilder = new StringBuilder();
-
-			foreach (XPathNavigator navigator in iterator)
+			switch (navigator.NodeType)
 			{
-				stringBuilder.Append(navigator.Value);
-			}
+				case XPathNodeType.Element:
+					var key = XmlConverter.NsNameToKey(navigator.NamespaceURI, navigator.LocalName);
+					list.Add(key, navigator.DataModelValue.CloneAsWritable(), navigator.Metadata?.DeepClone(DataModelAccess.Writable));
+					break;
 
-			return stringBuilder.ToString();
+				case XPathNodeType.Text:
+					list.Add(key: default, navigator.DataModelValue.CloneAsWritable(), metadata: default);
+					break;
+
+				default:
+					return Infra.Unexpected<DataModelList>(navigator.NodeType);
+			}
 		}
+
+		return list;
+	}
+
+	public static string ToString(object obj) =>
+		obj switch
+		{
+			XPathNodeIterator iterator => ToString(iterator),
+			double value               => XmlConvert.ToString(value),
+			string value               => value,
+			bool value                 => XmlConvert.ToString(value),
+			_                          => Infra.Unexpected<string>(obj)
+		};
+
+	private static string ToString(XPathNodeIterator iterator)
+	{
+		var stringBuilder = new StringBuilder();
+
+		foreach (XPathNavigator navigator in iterator)
+		{
+			stringBuilder.Append(navigator.Value);
+		}
+
+		return stringBuilder.ToString();
 	}
 }

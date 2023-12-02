@@ -17,11 +17,6 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
-using System.Threading.Tasks;
-using Xtate.Core;
-
 namespace Xtate.DataModel;
 
 public abstract class SendEvaluator : IExecEvaluator, ISend, IAncestorProvider
@@ -66,7 +61,7 @@ public abstract class SendEvaluator : IExecEvaluator, ISend, IAncestorProvider
 #endregion
 }
 
-[PublicAPI]
+
 public class DefaultSendEvaluator : SendEvaluator
 {
 	public DefaultSendEvaluator(ISend send) : base(send)
@@ -82,18 +77,18 @@ public class DefaultSendEvaluator : SendEvaluator
 		ParameterList = DataConverter.AsParamArray(send.Parameters);
 	}
 
-	public required Func<ValueTask<DataConverter>>     DataConverterFactory { private get; init; }
-	public required Func<ValueTask<IEventController?>> EventSenderFactory   { private get; init; }
+	public required Func<ValueTask<DataConverter>>     DataConverterFactory { private get; [UsedImplicitly] init; }
+	public required Func<ValueTask<IEventController?>> EventSenderFactory   { private get; [UsedImplicitly] init; }
 
-	public IObjectEvaluator?                  ContentExpressionEvaluator { get; }
-	public IValueEvaluator?                   ContentBodyEvaluator       { get; }
-	public IIntegerEvaluator?                 DelayExpressionEvaluator   { get; }
-	public IStringEvaluator?                  EventExpressionEvaluator   { get; }
-	public ILocationEvaluator?                IdLocationEvaluator        { get; }
-	public IStringEvaluator?                  TargetExpressionEvaluator  { get; }
-	public IStringEvaluator?                  TypeExpressionEvaluator    { get; }
-	public ImmutableArray<ILocationEvaluator> NameEvaluatorList          { get; }
-	public ImmutableArray<DataConverter.Param>       ParameterList              { get; }
+	public IObjectEvaluator?                   ContentExpressionEvaluator { get; }
+	public IValueEvaluator?                    ContentBodyEvaluator       { get; }
+	public IIntegerEvaluator?                  DelayExpressionEvaluator   { get; }
+	public IStringEvaluator?                   EventExpressionEvaluator   { get; }
+	public ILocationEvaluator?                 IdLocationEvaluator        { get; }
+	public IStringEvaluator?                   TargetExpressionEvaluator  { get; }
+	public IStringEvaluator?                   TypeExpressionEvaluator    { get; }
+	public ImmutableArray<ILocationEvaluator>  NameEvaluatorList          { get; }
+	public ImmutableArray<DataConverter.Param> ParameterList              { get; }
 
 	public override async ValueTask Execute()
 	{

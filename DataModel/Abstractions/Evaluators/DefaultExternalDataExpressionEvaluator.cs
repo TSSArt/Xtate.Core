@@ -17,10 +17,6 @@
 
 #endregion
 
-using System;
-using System.Threading.Tasks;
-using Xtate.Core;
-
 namespace Xtate.DataModel;
 
 public abstract class ExternalDataExpressionEvaluator : IExternalDataExpression, IResourceEvaluator, IAncestorProvider
@@ -57,7 +53,7 @@ public class DefaultExternalDataExpressionEvaluator : ExternalDataExpressionEval
 {
 	public DefaultExternalDataExpressionEvaluator(IExternalDataExpression externalDataExpression) : base(externalDataExpression) { }
 
-	public required Func<ValueTask<DataConverter>> DataConverterFactory { private get; init; }
+	public required Func<ValueTask<DataConverter>> DataConverterFactory { private get; [UsedImplicitly] init; }
 
 	public override async ValueTask<IObject> EvaluateObject(Resource resource) => await ParseToDataModel(resource).ConfigureAwait(false);
 

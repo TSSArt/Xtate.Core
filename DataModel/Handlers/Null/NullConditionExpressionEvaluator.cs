@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,55 +17,44 @@
 
 #endregion
 
-using System;
-using System.Threading.Tasks;
-using Xtate.Core;
+namespace Xtate.DataModel.Null;
 
-namespace Xtate.DataModel.Null
+public sealed class NullConditionExpressionEvaluator : IConditionExpression, IBooleanEvaluator, IAncestorProvider
 {
-	public sealed class NullConditionExpressionEvaluator : IConditionExpression, IBooleanEvaluator, IAncestorProvider, IDebugEntityId
+	private readonly IConditionExpression _conditionExpression;
+	private readonly IIdentifier          _inState;
+
+	public NullConditionExpressionEvaluator(IConditionExpression conditionExpression, IIdentifier inState)
 	{
-		private readonly IConditionExpression _conditionExpression;
-		private readonly IIdentifier          _inState;
-
-		public required Func<ValueTask<IInStateController?>> InStateControllerFactory { private get; init; }
-
-		public NullConditionExpressionEvaluator(IConditionExpression conditionExpression, IIdentifier inState)
-		{
-			_conditionExpression = conditionExpression;
-			_inState = inState;
-		}
-
-	#region Interface IAncestorProvider
-
-		object IAncestorProvider.Ancestor => _conditionExpression;
-
-	#endregion
-
-	#region Interface IBooleanEvaluator
-
-		async ValueTask<bool> IBooleanEvaluator.EvaluateBoolean()
-		{
-			if (await InStateControllerFactory().ConfigureAwait(false) is { } inStateController)
-			{
-				return inStateController.InState(_inState);
-			}
-
-			return false;
-		}
-
-	#endregion
-
-	#region Interface IConditionExpression
-
-		public string? Expression => _conditionExpression.Expression;
-
-	#endregion
-
-	#region Interface IDebugEntityId
-
-		FormattableString IDebugEntityId.EntityId => @$"{_inState}";
-
-	#endregion
+		_conditionExpression = conditionExpression;
+		_inState = inState;
 	}
+
+	public required Func<ValueTask<IInStateController?>> InStateControllerFactory { private get; [UsedImplicitly] init; }
+
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => _conditionExpression;
+
+#endregion
+
+#region Interface IBooleanEvaluator
+
+	async ValueTask<bool> IBooleanEvaluator.EvaluateBoolean()
+	{
+		if (await InStateControllerFactory().ConfigureAwait(false) is { } inStateController)
+		{
+			return inStateController.InState(_inState);
+		}
+
+		return false;
+	}
+
+#endregion
+
+#region Interface IConditionExpression
+
+	public string? Expression => _conditionExpression.Expression;
+
+#endregion
 }

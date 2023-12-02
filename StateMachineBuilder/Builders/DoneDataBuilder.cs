@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,35 +17,30 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
-using Xtate.Core;
+namespace Xtate.Builder;
 
-namespace Xtate.Builder
+public class DoneDataBuilder : BuilderBase, IDoneDataBuilder
 {
-	public class DoneDataBuilder : BuilderBase, IDoneDataBuilder
+	private IContent?                       _content;
+	private ImmutableArray<IParam>.Builder? _parameters;
+
+#region Interface IDoneDataBuilder
+
+	public IDoneData Build() => new DoneDataEntity { Ancestor = Ancestor, Content = _content, Parameters = _parameters?.ToImmutable() ?? default };
+
+	public void SetContent(IContent content)
 	{
-		private IContent?                       _content;
-		private ImmutableArray<IParam>.Builder? _parameters;
+		Infra.Requires(content);
 
-	#region Interface IDoneDataBuilder
-
-		public IDoneData Build() => new DoneDataEntity { Ancestor = Ancestor, Content = _content, Parameters = _parameters?.ToImmutable() ?? default };
-
-		public void SetContent(IContent content)
-		{
-			Infra.Requires(content);
-			
-			_content = content;
-		}
-
-		public void AddParameter(IParam parameter)
-		{
-			Infra.Requires(parameter);
-			
-			(_parameters ??= ImmutableArray.CreateBuilder<IParam>()).Add(parameter);
-		}
-
-	#endregion
+		_content = content;
 	}
+
+	public void AddParameter(IParam parameter)
+	{
+		Infra.Requires(parameter);
+
+		(_parameters ??= ImmutableArray.CreateBuilder<IParam>()).Add(parameter);
+	}
+
+#endregion
 }

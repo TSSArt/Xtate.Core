@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,53 +17,51 @@
 
 #endregion
 
-using System;
 using System.Globalization;
 using System.Text;
 
-namespace Xtate
+namespace Xtate;
+
+
+public sealed class ErrorItem
 {
-	[PublicAPI]
-	public sealed class ErrorItem
+	public ErrorItem(Type source,
+					 string message,
+					 Exception? exception,
+					 int lineNumber = 0,
+					 int linePosition = 0)
 	{
-		public ErrorItem(Type source,
-						 string message,
-						 Exception? exception,
-						 int lineNumber = 0,
-						 int linePosition = 0)
+		Source = source;
+		Message = message;
+		Exception = exception;
+		LineNumber = lineNumber;
+		LinePosition = linePosition;
+	}
+
+	public ErrorSeverity Severity     { get; } = ErrorSeverity.Error;
+	public Type          Source       { get; }
+	public string        Message      { get; }
+	public Exception?    Exception    { get; }
+	public int           LineNumber   { get; }
+	public int           LinePosition { get; }
+
+	public override string ToString()
+	{
+		var sb = new StringBuilder();
+		sb.AppendFormat(CultureInfo.InvariantCulture, format: @"{0}: [{1}] ", Severity, Source.Name);
+
+		if (LineNumber > 0)
 		{
-			Source = source;
-			Message = message;
-			Exception = exception;
-			LineNumber = lineNumber;
-			LinePosition = linePosition;
+			sb.AppendFormat(CultureInfo.InvariantCulture, format: @"(Ln: {0}, Col: {1}) ", LineNumber, LinePosition);
 		}
 
-		public ErrorSeverity Severity     { get; } = ErrorSeverity.Error;
-		public Type     Source       { get; }
-		public string        Message      { get; }
-		public Exception?    Exception    { get; }
-		public int           LineNumber   { get; }
-		public int           LinePosition { get; }
+		sb.Append(Message);
 
-		public override string ToString()
+		if (Exception is not null)
 		{
-			var sb = new StringBuilder();
-			sb.AppendFormat(CultureInfo.InvariantCulture, format: @"{0}: [{1}] ", Severity, Source.Name);
-
-			if (LineNumber > 0)
-			{
-				sb.AppendFormat(CultureInfo.InvariantCulture, format: @"(Ln: {0}, Col: {1}) ", LineNumber, LinePosition);
-			}
-
-			sb.Append(Message);
-
-			if (Exception is not null)
-			{
-				sb.AppendLine().Append('\t').Append(@"Exception ==> ").Append(Exception);
-			}
-
-			return sb.ToString();
+			sb.AppendLine().Append('\t').Append(@"Exception ==> ").Append(Exception);
 		}
+
+		return sb.ToString();
 	}
 }

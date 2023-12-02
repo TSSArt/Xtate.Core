@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,103 +17,101 @@
 
 #endregion
 
-using System;
 using Xtate.IoProcessor;
 using Xtate.Persistence;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+internal class HostEvent : EventObject, IHostEvent
 {
-	internal class HostEvent : EventObject, IHostEvent
+	private readonly IIoProcessor? _ioProcessor;
+
+	public HostEvent(IIoProcessor ioProcessor,
+					 ServiceId senderServiceId,
+					 ServiceId? targetServiceId,
+					 IOutgoingEvent outgoingEvent) : base(outgoingEvent)
 	{
-		private readonly IIoProcessor? _ioProcessor;
+		if (outgoingEvent is null) throw new ArgumentNullException(nameof(outgoingEvent));
 
-		public HostEvent(IIoProcessor ioProcessor,
-						 ServiceId senderServiceId,
-						 ServiceId? targetServiceId,
-						 IOutgoingEvent outgoingEvent) : base(outgoingEvent)
-		{
-			if (outgoingEvent is null) throw new ArgumentNullException(nameof(outgoingEvent));
-
-			_ioProcessor = ioProcessor ?? throw new ArgumentNullException(nameof(ioProcessor));
-			SenderServiceId = senderServiceId ?? throw new ArgumentNullException(nameof(senderServiceId));
-			TargetServiceId = targetServiceId;
-			Type = EventType.External;
-			DelayMs = outgoingEvent.DelayMs;
-			InvokeId = senderServiceId as InvokeId;
-			OriginType = ioProcessor.Id;
-		}
-
-		protected HostEvent(IHostEvent hostEvent) : base(hostEvent)
-		{
-			SenderServiceId = hostEvent.SenderServiceId;
-			TargetServiceId = hostEvent.TargetServiceId;
-			IoProcessorData = hostEvent.IoProcessorData;
-			DelayMs = hostEvent.DelayMs;
-		}
-
-		protected HostEvent(in Bucket bucket) : base(bucket)
-		{
-			if (bucket.TryGetServiceId(Key.Sender, out var senderServiceId))
-			{
-				SenderServiceId = senderServiceId;
-			}
-			else
-			{
-				Infra.Fail();
-			}
-
-			if (bucket.TryGetServiceId(Key.Target, out var targetServiceId))
-			{
-				TargetServiceId = targetServiceId;
-			}
-
-			if (bucket.GetDataModelValue(Key.HostEventData) is { Type: DataModelValueType.List } ioProcessorData)
-			{
-				IoProcessorData = ioProcessorData.AsList();
-			}
-
-			if (bucket.TryGet(Key.DelayMs, out int delayMs))
-			{
-				DelayMs = delayMs;
-			}
-		}
-
-		protected override TypeInfo TypeInfo => TypeInfo.HostEvent;
-
-	#region Interface IHostEvent
-
-		public int DelayMs { get; protected init; }
-
-		public ServiceId SenderServiceId { get; }
-
-		public ServiceId? TargetServiceId { get; }
-
-		public DataModelList? IoProcessorData { get; }
-
-	#endregion
-
-		public override void Store(Bucket bucket)
-		{
-			base.Store(bucket);
-
-			bucket.AddServiceId(Key.Sender, SenderServiceId);
-
-			if (TargetServiceId is not null)
-			{
-				bucket.AddServiceId(Key.Target, TargetServiceId);
-			}
-
-			if (IoProcessorData is not null)
-			{
-				bucket.AddDataModelValue(Key.HostEventData, IoProcessorData);
-			}
-
-			if (DelayMs > 0)
-			{
-				bucket.Add(Key.DelayMs, DelayMs);
-			}
-		}
-
-		protected override Uri? CreateOrigin() => _ioProcessor?.GetTarget(SenderServiceId);
+		_ioProcessor = ioProcessor ?? throw new ArgumentNullException(nameof(ioProcessor));
+		SenderServiceId = senderServiceId ?? throw new ArgumentNullException(nameof(senderServiceId));
+		TargetServiceId = targetServiceId;
+		Type = EventType.External;
+		DelayMs = outgoingEvent.DelayMs;
+		InvokeId = senderServiceId as InvokeId;
+		OriginType = ioProcessor.Id;
 	}
+
+	protected HostEvent(IHostEvent hostEvent) : base(hostEvent)
+	{
+		SenderServiceId = hostEvent.SenderServiceId;
+		TargetServiceId = hostEvent.TargetServiceId;
+		IoProcessorData = hostEvent.IoProcessorData;
+		DelayMs = hostEvent.DelayMs;
+	}
+
+	protected HostEvent(in Bucket bucket) : base(bucket)
+	{
+		if (bucket.TryGetServiceId(Key.Sender, out var senderServiceId))
+		{
+			SenderServiceId = senderServiceId;
+		}
+		else
+		{
+			Infra.Fail();
+		}
+
+		if (bucket.TryGetServiceId(Key.Target, out var targetServiceId))
+		{
+			TargetServiceId = targetServiceId;
+		}
+
+		if (bucket.GetDataModelValue(Key.HostEventData) is { Type: DataModelValueType.List } ioProcessorData)
+		{
+			IoProcessorData = ioProcessorData.AsList();
+		}
+
+		if (bucket.TryGet(Key.DelayMs, out int delayMs))
+		{
+			DelayMs = delayMs;
+		}
+	}
+
+	protected override TypeInfo TypeInfo => TypeInfo.HostEvent;
+
+#region Interface IHostEvent
+
+	public int DelayMs { get; protected init; }
+
+	public ServiceId SenderServiceId { get; }
+
+	public ServiceId? TargetServiceId { get; }
+
+	public DataModelList? IoProcessorData { get; }
+
+#endregion
+
+	public override void Store(Bucket bucket)
+	{
+		base.Store(bucket);
+
+		bucket.AddServiceId(Key.Sender, SenderServiceId);
+
+		if (TargetServiceId is not null)
+		{
+			bucket.AddServiceId(Key.Target, TargetServiceId);
+		}
+
+		if (IoProcessorData is not null)
+		{
+			bucket.AddDataModelValue(Key.HostEventData, IoProcessorData);
+		}
+
+		if (DelayMs > 0)
+		{
+			bucket.Add(Key.DelayMs, DelayMs);
+		}
+	}
+
+	protected override Uri? CreateOrigin() => _ioProcessor?.GetTarget(SenderServiceId);
 }

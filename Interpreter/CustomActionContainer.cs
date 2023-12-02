@@ -17,10 +17,6 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
-using System.Threading.Tasks;
-using Xtate.Core;
 using Xtate.DataModel;
 
 namespace Xtate.CustomAction;
@@ -30,7 +26,7 @@ public class CustomActionContainer : ICustomAction, IAncestorProvider
 	private readonly ICustomAction    _customAction;
 	private readonly CustomActionBase _customActionBase;
 
-	public CustomActionContainer(ICustomAction customAction , Func<ICustomAction, CustomActionBase> customActionFactory)
+	public CustomActionContainer(ICustomAction customAction, Func<ICustomAction, CustomActionBase> customActionFactory)
 	{
 		Infra.Requires(customAction);
 
@@ -48,7 +44,7 @@ public class CustomActionContainer : ICustomAction, IAncestorProvider
 		{
 			if (value is IValueExpression { Expression: not null } valueExpression)
 			{
-				valueExpressions.Add(valueExpression); 
+				valueExpressions.Add(valueExpression);
 			}
 		}
 
@@ -59,7 +55,7 @@ public class CustomActionContainer : ICustomAction, IAncestorProvider
 		{
 			if (location is ILocationExpression { Expression: not null } locationExpression)
 			{
-				locationExpressions.Add(locationExpression); 
+				locationExpressions.Add(locationExpression);
 			}
 		}
 

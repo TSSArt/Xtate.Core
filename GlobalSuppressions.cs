@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -18,8 +18,6 @@
 #endregion
 
 // @formatter:off
-
-using System.Diagnostics.CodeAnalysis;
 
 [assembly: SuppressMessage(category:"Design", checkId:"CA1000:Do not declare static members on generic types", Justification = "<Pending>", Scope = "member", Target = "~P:Xtate.Core.TypeInfo`1.Instance")]
 [assembly: SuppressMessage(category:"Design", checkId:"CA1001:Types that own disposable fields should be disposable", Justification = "<Pending>", Scope = "type", Target = "~T:Xtate.Core.StateMachineRuntimeController")]
@@ -167,16 +165,16 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage(category:"Usage", checkId:"CA2227:Collection properties should be read only", Justification = "<Pending>", Scope = "member", Target = "~P:Xtate.Core.InterpreterOptions.Host")]
 [assembly: SuppressMessage(category:"Usage", checkId:"CA2249:Consider using 'string.Contains' instead of 'string.IndexOf'", Justification = "<Pending>", Scope = "member", Target = "~M:Xtate.Core.QueryStringHelper.AddQueryString(System.String,System.String,System.String)~System.String")]
 [assembly: SuppressMessage(category:"Design", checkId:"CA1031:Do not catch general exception types", Justification = "<Pending>", Scope = "member", Target = "~M:Xtate.Core.InProcEventScheduler.DelayedFire(Xtate.Core.InProcEventScheduler.ScheduledEvent)~System.Threading.Tasks.ValueTask")]
-[assembly: SuppressMessage("Performance", "CA1815:Override equals and operator equals on value types", Justification = "<Pending>", Scope = "type", Target = "~T:Xtate.Core.IoC.FactoryImplementation")]
-[assembly: SuppressMessage("Performance", "CA1815:Override equals and operator equals on value types", Justification = "<Pending>", Scope = "type", Target = "~T:Xtate.Core.IoC.FactoryImplementation`1")]
-[assembly: SuppressMessage("Performance", "CA1815:Override equals and operator equals on value types", Justification = "<Pending>", Scope = "type", Target = "~T:Xtate.Core.IoC.FactoryImplementation`2")]
-[assembly: SuppressMessage("Design", "CA1000:Do not declare static members on generic types", Justification = "<Pending>", Scope = "member", Target = "~P:Xtate.Core.IoC.DecoratorFactoryProvider`2.Delegate")]
-[assembly: SuppressMessage("Design", "CA1000:Do not declare static members on generic types", Justification = "<Pending>", Scope = "member", Target = "~P:Xtate.Core.IoC.DecoratorFactoryProvider`3.Delegate")]
-[assembly: SuppressMessage("Design", "CA1000:Do not declare static members on generic types", Justification = "<Pending>", Scope = "member", Target = "~P:Xtate.Core.IoC.ServiceFactoryProvider`2.Delegate")]
-[assembly: SuppressMessage("Performance", "CA1815:Override equals and operator equals on value types", Justification = "<Pending>", Scope = "type", Target = "~T:Xtate.Core.IoC.FactoryImplementation")]
-[assembly: SuppressMessage("Performance", "CA1815:Override equals and operator equals on value types", Justification = "<Pending>", Scope = "type", Target = "~T:Xtate.Core.IoC.DecoratorImplementation`2")]
-[assembly: SuppressMessage("Performance", "CA1815:Override equals and operator equals on value types", Justification = "<Pending>", Scope = "type", Target = "~T:Xtate.Core.IoC.DecoratorImplementation`1")]
-[assembly: SuppressMessage("Performance", "CA1815:Override equals and operator equals on value types", Justification = "<Pending>", Scope = "type", Target = "~T:Xtate.Core.IoC.DecoratorImplementation")]
-[assembly: SuppressMessage("Design", "CA1062:Validate arguments of public methods", Justification = "<Pending>", Scope = "type", Target = "~T:Xtate.Core.IoC.ServiceProviderExtensions")]
+[assembly: SuppressMessage(category:"Performance", checkId:"CA1815:Override equals and operator equals on value types", Justification = "<Pending>", Scope = "type", Target = "~T:Xtate.Core.IoC.FactoryImplementation")]
+[assembly: SuppressMessage(category:"Performance", checkId:"CA1815:Override equals and operator equals on value types", Justification = "<Pending>", Scope = "type", Target = "~T:Xtate.Core.IoC.FactoryImplementation`1")]
+[assembly: SuppressMessage(category:"Performance", checkId:"CA1815:Override equals and operator equals on value types", Justification = "<Pending>", Scope = "type", Target = "~T:Xtate.Core.IoC.FactoryImplementation`2")]
+[assembly: SuppressMessage(category:"Design", checkId:"CA1000:Do not declare static members on generic types", Justification = "<Pending>", Scope = "member", Target = "~P:Xtate.Core.IoC.DecoratorFactoryProvider`2.Delegate")]
+[assembly: SuppressMessage(category:"Design", checkId:"CA1000:Do not declare static members on generic types", Justification = "<Pending>", Scope = "member", Target = "~P:Xtate.Core.IoC.DecoratorFactoryProvider`3.Delegate")]
+[assembly: SuppressMessage(category:"Design", checkId:"CA1000:Do not declare static members on generic types", Justification = "<Pending>", Scope = "member", Target = "~P:Xtate.Core.IoC.ServiceFactoryProvider`2.Delegate")]
+[assembly: SuppressMessage(category:"Performance", checkId:"CA1815:Override equals and operator equals on value types", Justification = "<Pending>", Scope = "type", Target = "~T:Xtate.Core.IoC.FactoryImplementation")]
+[assembly: SuppressMessage(category:"Performance", checkId:"CA1815:Override equals and operator equals on value types", Justification = "<Pending>", Scope = "type", Target = "~T:Xtate.Core.IoC.DecoratorImplementation`2")]
+[assembly: SuppressMessage(category:"Performance", checkId:"CA1815:Override equals and operator equals on value types", Justification = "<Pending>", Scope = "type", Target = "~T:Xtate.Core.IoC.DecoratorImplementation`1")]
+[assembly: SuppressMessage(category:"Performance", checkId:"CA1815:Override equals and operator equals on value types", Justification = "<Pending>", Scope = "type", Target = "~T:Xtate.Core.IoC.DecoratorImplementation")]
+[assembly: SuppressMessage(category:"Design", checkId:"CA1062:Validate arguments of public methods", Justification = "<Pending>", Scope = "type", Target = "~T:Xtate.Core.IoC.ServiceProviderExtensions")]
 
-[assembly: SuppressMessage("Design", "CA1044:Properties should not be write only", Justification = "<Pending>", Scope = "module")]
+[assembly: SuppressMessage(category:"Design", checkId:"CA1044:Properties should not be write only", Justification = "<Pending>", Scope = "module")]

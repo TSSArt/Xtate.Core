@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,49 +19,48 @@
 
 using System.Xml.XPath;
 
-namespace Xtate.DataModel.XPath
+namespace Xtate.DataModel.XPath;
+
+internal class XPathStripRootsIterator : XPathNodeIterator
 {
-	internal class XPathStripRootsIterator : XPathNodeIterator
+	private readonly XPathNodeIterator _iterator;
+	private          XPathNavigator?   _current;
+	private          int               _position;
+
+	public XPathStripRootsIterator(XPathNodeIterator iterator) => _iterator = iterator.Clone();
+
+	public override XPathNavigator? Current => _current;
+
+	public override int CurrentPosition => _position;
+
+	public override XPathNodeIterator Clone() => new XPathStripRootsIterator(_iterator);
+
+	public override bool MoveNext()
 	{
-		private readonly XPathNodeIterator _iterator;
-		private          XPathNavigator?   _current;
-		private          int               _position;
-
-		public XPathStripRootsIterator(XPathNodeIterator iterator) => _iterator = iterator.Clone();
-
-		public override XPathNavigator? Current => _current;
-
-		public override int CurrentPosition => _position;
-
-		public override XPathNodeIterator Clone() => new XPathStripRootsIterator(_iterator);
-
-		public override bool MoveNext()
+		if (_current?.MoveToNext() == true)
 		{
-			if (_current?.MoveToNext() == true)
+			_position ++;
+
+			return true;
+		}
+
+		while (_iterator.MoveNext())
+		{
+			var navigator = _iterator.Current;
+
+			if (navigator?.HasChildren == true)
 			{
+				_current = navigator.Clone();
+				var moveToFirstChild = _current.MoveToFirstChild();
+
+				Infra.Assert(moveToFirstChild);
+
 				_position ++;
 
 				return true;
 			}
-
-			while (_iterator.MoveNext())
-			{
-				var navigator = _iterator.Current;
-
-				if (navigator?.HasChildren == true)
-				{
-					_current = navigator.Clone();
-					var moveToFirstChild = _current.MoveToFirstChild();
-
-					Infra.Assert(moveToFirstChild);
-
-					_position ++;
-
-					return true;
-				}
-			}
-
-			return false;
 		}
+
+		return false;
 	}
 }

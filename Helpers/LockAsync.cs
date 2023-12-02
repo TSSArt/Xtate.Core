@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,47 +17,41 @@
 
 #endregion
 
-using System;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
+namespace Xtate.Core;
 
-namespace Xtate.Core
+public readonly struct LockAsync : IDisposable
 {
-	public readonly struct LockAsync : IDisposable
+	private readonly SemaphoreSlim _semaphore;
+
+	private LockAsync(SemaphoreSlim semaphore) => _semaphore = semaphore;
+
+#region Interface IDisposable
+
+	public void Dispose() => _semaphore.Dispose();
+
+#endregion
+
+	public static LockAsync Create() => new(new(initialCount: 1, maxCount: 1));
+
+	public ConfiguredValueTaskAwaitable<LockDisposer> Lock(bool continueOnCapturedContext = false) => LockInternal().ConfigureAwait(continueOnCapturedContext);
+
+	private async ValueTask<LockDisposer> LockInternal()
+	{
+		await _semaphore.WaitAsync().ConfigureAwait(false);
+
+		return new LockDisposer(_semaphore);
+	}
+
+	public readonly struct LockDisposer : IDisposable
 	{
 		private readonly SemaphoreSlim _semaphore;
 
-		private LockAsync(SemaphoreSlim semaphore) => _semaphore = semaphore;
+		public LockDisposer(SemaphoreSlim semaphore) => _semaphore = semaphore;
 
-	#region Interface IDisposable
+#region Interface IDisposable
 
-		public void Dispose() => _semaphore.Dispose();
+		public void Dispose() => _semaphore.Release();
 
-	#endregion
-
-		public static LockAsync Create() => new(new(initialCount: 1, maxCount: 1));
-
-		public ConfiguredValueTaskAwaitable<LockDisposer> Lock(bool continueOnCapturedContext = false) => LockInternal().ConfigureAwait(continueOnCapturedContext);
-
-		private async ValueTask<LockDisposer> LockInternal()
-		{
-			await _semaphore.WaitAsync().ConfigureAwait(false);
-
-			return new LockDisposer(_semaphore);
-		}
-
-		public readonly struct LockDisposer : IDisposable
-		{
-			private readonly SemaphoreSlim _semaphore;
-
-			public LockDisposer(SemaphoreSlim semaphore) => _semaphore = semaphore;
-
-		#region Interface IDisposable
-
-			public void Dispose() => _semaphore.Release();
-
-		#endregion
-		}
+#endregion
 	}
 }

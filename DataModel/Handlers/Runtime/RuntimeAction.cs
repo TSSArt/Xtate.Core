@@ -17,17 +17,15 @@
 
 #endregion
 
-using System;
-using System.Threading.Tasks;
-using Xtate.Core;
-
 namespace Xtate.DataModel.Runtime;
 
 public class RuntimeActionExecutor : IExecutableEntity, IExecEvaluator
 {
-	public required RuntimeAction Action { private get; init; }
+	public required RuntimeAction Action { private get; [UsedImplicitly] init; }
 
-	public required Func<ValueTask<RuntimeExecutionContext>> RuntimeExecutionContextFactory { private get; init; }
+	public required Func<ValueTask<RuntimeExecutionContext>> RuntimeExecutionContextFactory { private get; [UsedImplicitly] init; }
+
+#region Interface IExecEvaluator
 
 	public async ValueTask Execute()
 	{
@@ -37,6 +35,8 @@ public class RuntimeActionExecutor : IExecutableEntity, IExecEvaluator
 
 		await Action.DoAction().ConfigureAwait(false);
 	}
+
+#endregion
 }
 
 public abstract class RuntimeAction : IExecutableEntity
@@ -57,26 +57,18 @@ public abstract class RuntimeAction : IExecutableEntity
 
 	public abstract ValueTask DoAction();
 
-	private sealed class ActionSync : RuntimeAction
+	private sealed class ActionSync(Action action) : RuntimeAction
 	{
-		private readonly Action _action;
-		
-		public ActionSync(Action action) => _action = action;
-
 		public override ValueTask DoAction()
 		{
-			_action();
+			action();
 
 			return default;
 		}
 	}
 
-	private sealed class ActionAsync : RuntimeAction
+	private sealed class ActionAsync(Func<ValueTask> action) : RuntimeAction
 	{
-		private readonly Func<ValueTask> _action;
-		
-		public ActionAsync(Func<ValueTask> action) => _action = action;
-
-		public override ValueTask DoAction() => _action();
+		public override ValueTask DoAction() => action();
 	}
 }

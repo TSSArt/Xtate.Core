@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,112 +17,109 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
 using Xtate.Persistence;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+internal class EventObject : IEvent, IStoreSupport, IAncestorProvider
 {
-	internal class EventObject : IEvent, IStoreSupport, IAncestorProvider
+	private readonly DataModelValue _data;
+	private          Uri?           _origin;
+
+	public EventObject() { }
+
+	protected EventObject(IEvent evt)
 	{
-		private readonly DataModelValue _data;
-		private          Uri?           _origin;
+		if (evt is null) throw new ArgumentNullException(nameof(evt));
 
-		public EventObject() { }
-
-		protected EventObject(IEvent evt)
-		{
-			if (evt is null) throw new ArgumentNullException(nameof(evt));
-
-			SendId = evt.SendId;
-			NameParts = evt.NameParts;
-			Type = evt.Type;
-			Origin = evt.Origin;
-			OriginType = evt.OriginType;
-			InvokeId = evt.InvokeId;
-			Data = evt.Data;
-		}
-
-		public EventObject(IOutgoingEvent outgoingEvent)
-		{
-			if (outgoingEvent is null) throw new ArgumentNullException(nameof(outgoingEvent));
-
-			SendId = outgoingEvent.SendId;
-			NameParts = outgoingEvent.NameParts;
-			Data = outgoingEvent.Data;
-		}
-
-		public EventObject(in Bucket bucket)
-		{
-			ValidateTypeInfo(bucket);
-
-			NameParts = bucket.GetString(Key.Name) is { Length: > 0 } name ? EventName.ToParts(name) : default;
-			Type = bucket.GetEnum(Key.Type).As<EventType>();
-			SendId = bucket.GetSendId(Key.SendId);
-			Origin = bucket.GetUri(Key.Origin);
-			OriginType = bucket.GetUri(Key.OriginType);
-			InvokeId = bucket.GetInvokeId(Key.InvokeUniqueId);
-			Data = bucket.GetDataModelValue(Key.Data);
-		}
-
-		protected virtual TypeInfo TypeInfo => TypeInfo.EventObject;
-
-	#region Interface IAncestorProvider
-
-		public object? Ancestor { get; init; }
-
-	#endregion
-
-	#region Interface IEvent
-
-		public Uri? OriginType { get; init; }
-
-		public InvokeId? InvokeId { get; init; }
-
-		public ImmutableArray<IIdentifier> NameParts { get; init; }
-
-		public SendId? SendId { get; init; }
-
-		public EventType Type { get; init; }
-
-		public DataModelValue Data
-		{
-			get => _data;
-			init => _data = value.AsConstant();
-		}
-
-		public Uri? Origin
-		{
-			get => _origin ??= CreateOrigin();
-			init => _origin = value;
-		}
-
-	#endregion
-
-	#region Interface IStoreSupport
-
-		public virtual void Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo);
-			bucket.Add(Key.Name, EventName.ToName(NameParts));
-			bucket.Add(Key.Type, Type);
-			bucket.AddId(Key.SendId, SendId);
-			bucket.Add(Key.Origin, Origin);
-			bucket.Add(Key.OriginType, OriginType);
-			bucket.AddId(Key.InvokeId, InvokeId);
-			bucket.AddDataModelValue(Key.Data, Data);
-		}
-
-	#endregion
-
-		private void ValidateTypeInfo(in Bucket bucket)
-		{
-			if (!bucket.TryGet(Key.TypeInfo, out TypeInfo storedTypeInfo) || storedTypeInfo != TypeInfo)
-			{
-				throw new ArgumentException(Resources.Exception_InvalidTypeInfoValue);
-			}
-		}
-
-		protected virtual Uri? CreateOrigin() => default;
+		SendId = evt.SendId;
+		NameParts = evt.NameParts;
+		Type = evt.Type;
+		Origin = evt.Origin;
+		OriginType = evt.OriginType;
+		InvokeId = evt.InvokeId;
+		Data = evt.Data;
 	}
+
+	public EventObject(IOutgoingEvent outgoingEvent)
+	{
+		if (outgoingEvent is null) throw new ArgumentNullException(nameof(outgoingEvent));
+
+		SendId = outgoingEvent.SendId;
+		NameParts = outgoingEvent.NameParts;
+		Data = outgoingEvent.Data;
+	}
+
+	public EventObject(in Bucket bucket)
+	{
+		ValidateTypeInfo(bucket);
+
+		NameParts = bucket.GetString(Key.Name) is { Length: > 0 } name ? EventName.ToParts(name) : default;
+		Type = bucket.GetEnum(Key.Type).As<EventType>();
+		SendId = bucket.GetSendId(Key.SendId);
+		Origin = bucket.GetUri(Key.Origin);
+		OriginType = bucket.GetUri(Key.OriginType);
+		InvokeId = bucket.GetInvokeId(Key.InvokeUniqueId);
+		Data = bucket.GetDataModelValue(Key.Data);
+	}
+
+	protected virtual TypeInfo TypeInfo => TypeInfo.EventObject;
+
+#region Interface IAncestorProvider
+
+	public object? Ancestor { get; init; }
+
+#endregion
+
+#region Interface IEvent
+
+	public Uri? OriginType { get; init; }
+
+	public InvokeId? InvokeId { get; init; }
+
+	public ImmutableArray<IIdentifier> NameParts { get; init; }
+
+	public SendId? SendId { get; init; }
+
+	public EventType Type { get; init; }
+
+	public DataModelValue Data
+	{
+		get => _data;
+		init => _data = value.AsConstant();
+	}
+
+	public Uri? Origin
+	{
+		get => _origin ??= CreateOrigin();
+		init => _origin = value;
+	}
+
+#endregion
+
+#region Interface IStoreSupport
+
+	public virtual void Store(Bucket bucket)
+	{
+		bucket.Add(Key.TypeInfo, TypeInfo);
+		bucket.Add(Key.Name, EventName.ToName(NameParts));
+		bucket.Add(Key.Type, Type);
+		bucket.AddId(Key.SendId, SendId);
+		bucket.Add(Key.Origin, Origin);
+		bucket.Add(Key.OriginType, OriginType);
+		bucket.AddId(Key.InvokeId, InvokeId);
+		bucket.AddDataModelValue(Key.Data, Data);
+	}
+
+#endregion
+
+	private void ValidateTypeInfo(in Bucket bucket)
+	{
+		if (!bucket.TryGet(Key.TypeInfo, out TypeInfo storedTypeInfo) || storedTypeInfo != TypeInfo)
+		{
+			throw new ArgumentException(Resources.Exception_InvalidTypeInfoValue);
+		}
+	}
+
+	protected virtual Uri? CreateOrigin() => default;
 }

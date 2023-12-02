@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,45 +17,42 @@
 
 #endregion
 
-using System;
 using System.Reflection;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public interface ITypeInfo
 {
-	public interface ITypeInfo
+	public string FullTypeName    { get; }
+	public string AssemblyName    { get; }
+	public string AssemblyVersion { get; }
+}
+
+public class TypeInfoBase : ITypeInfo
+{
+	public TypeInfoBase(Type type)
 	{
-		public string FullTypeName    { get; }
-		public string AssemblyName    { get; }
-		public string AssemblyVersion { get; }
+		Infra.Requires(type);
+
+		var assembly = type.Assembly;
+
+		FullTypeName = type.FullName ?? string.Empty;
+		AssemblyName = assembly.GetName().Name ?? string.Empty;
+		AssemblyVersion = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? string.Empty;
 	}
 
-	public class TypeInfoBase : ITypeInfo
-	{
-		public TypeInfoBase(Type type)
-		{
-			Infra.Requires(type);
+#region Interface ITypeInfo
 
-			var assembly = type.Assembly;
+	public string FullTypeName    { get; }
+	public string AssemblyName    { get; }
+	public string AssemblyVersion { get; }
 
-			FullTypeName = type.FullName ?? string.Empty;
-			AssemblyName = assembly.GetName().Name ?? string.Empty;
-			AssemblyVersion = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? string.Empty;
-		}
+#endregion
+}
 
-	#region Interface ITypeInfo
+public class TypeInfo<T> : TypeInfoBase
+{
+	private TypeInfo() : base(typeof(T)) { }
 
-		public string FullTypeName    { get; }
-		public string AssemblyName    { get; }
-		public string AssemblyVersion { get; }
-
-	#endregion
-
-	}
-
-	public class TypeInfo<T> : TypeInfoBase
-	{
-		private TypeInfo() : base(typeof(T)) { }
-
-		public static ITypeInfo Instance { get; } = new TypeInfo<T>();
-	}
+	public static ITypeInfo Instance { get; } = new TypeInfo<T>();
 }

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,19 +17,15 @@
 
 #endregion
 
-using System.Collections.Immutable;
-using Xtate.Core;
+namespace Xtate;
 
-namespace Xtate
+public interface IStateMachine : IEntity
 {
-	public interface IStateMachine : IEntity
-	{
-		string?                      Name          { get; }
-		string?                      DataModelType { get; }
-		BindingType                  Binding       { get; }
-		IInitial?                    Initial       { get; }
-		ImmutableArray<IStateEntity> States        { get; }
-		IDataModel?                  DataModel     { get; }
-		IExecutableEntity?           Script        { get; }
-	}
+	string?                      Name          { get; }
+	string?                      DataModelType { get; }
+	BindingType                  Binding       { get; }
+	IInitial?                    Initial       { get; }
+	ImmutableArray<IStateEntity> States        { get; }
+	IDataModel?                  DataModel     { get; }
+	IExecutableEntity?           Script        { get; }
 }

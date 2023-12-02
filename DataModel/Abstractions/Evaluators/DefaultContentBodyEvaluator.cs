@@ -17,9 +17,6 @@
 
 #endregion
 
-using System.Threading.Tasks;
-using Xtate.Core;
-
 namespace Xtate.DataModel;
 
 public abstract class ContentBodyEvaluator : IContentBody, IObjectEvaluator, IStringEvaluator, IAncestorProvider
@@ -72,7 +69,7 @@ public class DefaultContentBodyEvaluator : ContentBodyEvaluator
 			_parsedValue.MakeDeepConstant();
 		}
 
-		return new(_parsedValue.CloneAsWritable());
+		return new ValueTask<IObject>(_parsedValue.CloneAsWritable());
 	}
 
 	protected virtual DataModelValue ParseToDataModel() => Value;

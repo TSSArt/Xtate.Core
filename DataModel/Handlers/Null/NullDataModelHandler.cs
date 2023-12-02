@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,52 +17,48 @@
 
 #endregion
 
-using System;
-using Xtate.Core;
+namespace Xtate.DataModel.Null;
 
-namespace Xtate.DataModel.Null
+public class NullDataModelHandler : DataModelHandlerBase
 {
-	public class NullDataModelHandler : DataModelHandlerBase
+	public required IErrorProcessorService<NullDataModelHandler> NullErrorProcessorService { private get; [UsedImplicitly] init; }
+
+	public required Func<IConditionExpression, IIdentifier, NullConditionExpressionEvaluator> NullConditionExpressionEvaluatorFactory { private get; [UsedImplicitly] init; }
+
+	protected override void Visit(ref IForEach forEach) => NullErrorProcessorService.AddError(forEach, Resources.ErrorMessage_ForEachNotSupportedForNull);
+
+	protected override void Visit(ref IScript script) => NullErrorProcessorService.AddError(script, Resources.ErrorMessage_ScriptingNotSupportedForNull);
+
+	protected override void Visit(ref IDataModel dataModel) => NullErrorProcessorService.AddError(dataModel, Resources.ErrorMessage_DataModelNotSupportedForNull);
+
+	protected override void Visit(ref IDoneData doneData) => NullErrorProcessorService.AddError(doneData, Resources.ErrorMessage_DoneDataNotSupportedForNull);
+
+	protected override void Visit(ref IValueExpression expression) => NullErrorProcessorService.AddError(expression, Resources.ErrorMessage_ValueExpressionNotSupportedForNull);
+
+	protected override void Visit(ref ILocationExpression expression) => NullErrorProcessorService.AddError(expression, Resources.ErrorMessage_LocationExpressionNotSupportedForNull);
+
+	protected override void Visit(ref IConditionExpression conditionExpression)
 	{
-		public required IErrorProcessorService<NullDataModelHandler> NullErrorProcessorService { private get; init; }
-		
-		public required Func<IConditionExpression, IIdentifier, NullConditionExpressionEvaluator> NullConditionExpressionEvaluatorFactory { private get; init; }
+		base.Visit(ref conditionExpression);
 
-		protected override void Visit(ref IForEach forEach) => NullErrorProcessorService.AddError(forEach, Resources.ErrorMessage_ForEachNotSupportedForNull);
+		var expression = conditionExpression.Expression!;
 
-		protected override void Visit(ref IScript script) => NullErrorProcessorService.AddError(script, Resources.ErrorMessage_ScriptingNotSupportedForNull);
-
-		protected override void Visit(ref IDataModel dataModel) => NullErrorProcessorService.AddError(dataModel, Resources.ErrorMessage_DataModelNotSupportedForNull);
-
-		protected override void Visit(ref IDoneData doneData) => NullErrorProcessorService.AddError(doneData, Resources.ErrorMessage_DoneDataNotSupportedForNull);
-
-		protected override void Visit(ref IValueExpression expression) => NullErrorProcessorService.AddError(expression, Resources.ErrorMessage_ValueExpressionNotSupportedForNull);
-
-		protected override void Visit(ref ILocationExpression expression) => NullErrorProcessorService.AddError(expression, Resources.ErrorMessage_LocationExpressionNotSupportedForNull);
-
-		protected override void Visit(ref IConditionExpression conditionExpression)
+		if (!expression.StartsWith(value: @"In(", StringComparison.Ordinal) || !expression.EndsWith(value: @")", StringComparison.Ordinal))
 		{
-			base.Visit(ref conditionExpression);
+			NullErrorProcessorService.AddError(conditionExpression, Resources.ErrorMessage_IncorrectConditionExpressionForNull);
 
-			var expression = conditionExpression.Expression!;
+			return;
+		}
 
-			if (!expression.StartsWith(value: @"In(", StringComparison.Ordinal) || !expression.EndsWith(value: @")", StringComparison.Ordinal))
-			{
-				NullErrorProcessorService.AddError(conditionExpression, Resources.ErrorMessage_IncorrectConditionExpressionForNull);
+		var state = expression[3..^1].Trim();
 
-				return;
-			}
-
-			var state = expression[3..^1].Trim();
-
-			if (Identifier.TryCreate(state, out var inState))
-			{
-				conditionExpression = NullConditionExpressionEvaluatorFactory(conditionExpression, inState);
-			}
-			else
-			{
-				NullErrorProcessorService.AddError(conditionExpression, Resources.ErrorMessage_IncorrectConditionExpression);
-			}
+		if (Identifier.TryCreate(state, out var inState))
+		{
+			conditionExpression = NullConditionExpressionEvaluatorFactory(conditionExpression, inState);
+		}
+		else
+		{
+			NullErrorProcessorService.AddError(conditionExpression, Resources.ErrorMessage_IncorrectConditionExpression);
 		}
 	}
 }

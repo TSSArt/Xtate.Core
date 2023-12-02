@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,84 +17,81 @@
 
 #endregion
 
-using System;
 using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Xtate.IoProcessor
+namespace Xtate.IoProcessor;
+
+internal sealed class HttpIoProcessorHost : HttpIoProcessorHostBase<HttpIoProcessorHost, HttpListenerContext>, IDisposable
 {
-	internal sealed class HttpIoProcessorHost : HttpIoProcessorHostBase<HttpIoProcessorHost, HttpListenerContext>, IDisposable
+	private const int FreeSlotsCount = 2;
+
+	private readonly HttpListener _httpListener;
+
+	public HttpIoProcessorHost(IPEndPoint ipEndPoint)
 	{
-		private const int FreeSlotsCount = 2;
+		_httpListener = new HttpListener();
 
-		private readonly HttpListener _httpListener;
-
-		public HttpIoProcessorHost(IPEndPoint ipEndPoint)
+		if (ipEndPoint.Address.Equals(IPAddress.Any) || ipEndPoint.Address.Equals(IPAddress.IPv6Any))
 		{
-			_httpListener = new HttpListener();
+			_httpListener.Prefixes.Add(@$"http://*:{ipEndPoint.Port}/");
+		}
+		else
+		{
+			_httpListener.Prefixes.Add(@$"http://{ipEndPoint}/");
+		}
+	}
 
-			if (ipEndPoint.Address.Equals(IPAddress.Any) || ipEndPoint.Address.Equals(IPAddress.IPv6Any))
+#region Interface IDisposable
+
+	public void Dispose() => ((IDisposable) _httpListener).Dispose();
+
+#endregion
+
+	private async void HandleRequest(HttpListenerContext context)
+	{
+		foreach (var processor in Processors)
+		{
+			if (await processor.Handle(context, token: default).ConfigureAwait(false))
 			{
-				_httpListener.Prefixes.Add(@$"http://*:{ipEndPoint.Port}/");
+				context.Response.StatusCode = (int) HttpStatusCode.NoContent;
+				context.Response.Close();
+
+				return;
 			}
-			else
-			{
-				_httpListener.Prefixes.Add(@$"http://{ipEndPoint}/");
-			}
 		}
 
-	#region Interface IDisposable
+		context.Response.StatusCode = (int) HttpStatusCode.NotFound;
+		context.Response.Close();
+	}
 
-		public void Dispose() => ((IDisposable) _httpListener).Dispose();
+	protected override ValueTask StartHost(CancellationToken token)
+	{
+		_httpListener.Start();
 
-	#endregion
-
-		private async void HandleRequest(HttpListenerContext context)
+		for (var i = 0; i < FreeSlotsCount; i ++)
 		{
-			foreach (var processor in Processors)
-			{
-				if (await processor.Handle(context, token: default).ConfigureAwait(false))
-				{
-					context.Response.StatusCode = (int) HttpStatusCode.NoContent;
-					context.Response.Close();
-
-					return;
-				}
-			}
-
-			context.Response.StatusCode = (int) HttpStatusCode.NotFound;
-			context.Response.Close();
+			StartWaiter();
 		}
 
-		protected override ValueTask StartHost(CancellationToken token)
-		{
-			_httpListener.Start();
+		return default;
+	}
 
-			for (var i = 0; i < FreeSlotsCount; i ++)
-			{
-				StartWaiter();
-			}
+	private void StartWaiter()
+	{
+		_httpListener.GetContextAsync()
+					 .ContinueWith(
+						 task =>
+						 {
+							 StartWaiter();
+							 HandleRequest(task.Result);
+						 },
+						 TaskContinuationOptions.OnlyOnRanToCompletion);
+	}
 
-			return default;
-		}
+	protected override ValueTask StopHost(CancellationToken token)
+	{
+		_httpListener.Stop();
 
-		private void StartWaiter()
-		{
-			_httpListener.GetContextAsync()
-						 .ContinueWith(task =>
-									   {
-										   StartWaiter();
-										   HandleRequest(task.Result);
-									   },
-									   TaskContinuationOptions.OnlyOnRanToCompletion);
-		}
-
-		protected override ValueTask StopHost(CancellationToken token)
-		{
-			_httpListener.Stop();
-
-			return default;
-		}
+		return default;
 	}
 }

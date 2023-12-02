@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,49 +17,47 @@
 
 #endregion
 
-using System;
 using Xtate.Persistence;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public sealed class IdentifierNode : IIdentifier, IStoreSupport, IAncestorProvider, IDebugEntityId
 {
-	public sealed class IdentifierNode : IIdentifier, IStoreSupport, IAncestorProvider, IDebugEntityId
+	private readonly IIdentifier _identifier;
+
+	public IdentifierNode(IIdentifier id) => _identifier = id ?? throw new ArgumentNullException(nameof(id));
+
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => _identifier;
+
+#endregion
+
+#region Interface IDebugEntityId
+
+	FormattableString IDebugEntityId.EntityId => @$"{_identifier}";
+
+#endregion
+
+#region Interface IIdentifier
+
+	public string Value => _identifier.Value;
+
+#endregion
+
+#region Interface IStoreSupport
+
+	void IStoreSupport.Store(Bucket bucket)
 	{
-		private readonly IIdentifier _identifier;
-
-		public IdentifierNode(IIdentifier id) => _identifier = id ?? throw new ArgumentNullException(nameof(id));
-
-	#region Interface IAncestorProvider
-
-		object IAncestorProvider.Ancestor => _identifier;
-
-	#endregion
-
-	#region Interface IDebugEntityId
-
-		FormattableString IDebugEntityId.EntityId => @$"{_identifier}";
-
-	#endregion
-
-	#region Interface IIdentifier
-
-		public string Value => _identifier.Value;
-
-	#endregion
-
-	#region Interface IStoreSupport
-
-		void IStoreSupport.Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.IdentifierNode);
-			bucket.Add(Key.Id, _identifier.Value);
-		}
-
-	#endregion
-
-		public override string ToString() => _identifier.ToString();
-
-		public override bool Equals(object? obj) => _identifier.Equals(obj);
-
-		public override int GetHashCode() => _identifier.GetHashCode();
+		bucket.Add(Key.TypeInfo, TypeInfo.IdentifierNode);
+		bucket.Add(Key.Id, _identifier.Value);
 	}
+
+#endregion
+
+	public override string ToString() => _identifier.ToString();
+
+	public override bool Equals(object? obj) => _identifier.Equals(obj);
+
+	public override int GetHashCode() => _identifier.GetHashCode();
 }

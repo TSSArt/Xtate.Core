@@ -17,15 +17,11 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 
 namespace Xtate;
 
-[PublicAPI]
+
 [ExcludeFromCodeCoverage]
 public static class Infra
 {
@@ -151,7 +147,8 @@ public static class Infra
 	[AssertionMethod]
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void RequiresNonEmptyCollection<T>([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] [NotNull] T[]? parameter,
-													 [CallerArgumentExpression(nameof(parameter))] string? parameterName = default)
+													 [CallerArgumentExpression(nameof(parameter))]
+													 string? parameterName = default)
 	{
 		if (parameter is null)
 		{
@@ -198,7 +195,8 @@ public static class Infra
 	[AssertionMethod]
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void RequiresNonEmptyString([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] [NotNull] string? parameter,
-											  [CallerArgumentExpression(nameof(parameter))] string? parameterName = default)
+											  [CallerArgumentExpression(nameof(parameter))]
+											  string? parameterName = default)
 	{
 		if (string.IsNullOrEmpty(parameter))
 		{

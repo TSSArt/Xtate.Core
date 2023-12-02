@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,20 +17,14 @@
 
 #endregion
 
-using System;
-using System.Runtime.Serialization;
+namespace Xtate;
 
-namespace Xtate
+[Serializable]
+public class PersistenceException : XtateException
 {
-	[Serializable]
-	public class PersistenceException : XtateException
-	{
-		public PersistenceException() { }
+	public PersistenceException() { }
 
-		public PersistenceException(string? message) : base(message) { }
+	public PersistenceException(string? message) : base(message) { }
 
-		public PersistenceException(string? message, Exception? innerException) : base(message, innerException) { }
-
-		protected PersistenceException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-	}
+	public PersistenceException(string? message, Exception? innerException) : base(message, innerException) { }
 }

@@ -17,15 +17,10 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net.Mime;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
-using Xtate.Core;
 
 namespace Xtate.XInclude;
 
@@ -64,9 +59,9 @@ public class XIncludeReader : DelegatedXmlReader
 		_strings = new Strings(nameTable);
 	}
 
-	public required XmlResolver          XmlResolver         { private get; init; }
-	public required IXIncludeXmlResolver XIncludeXmlResolver { private get; init; }
-	public required IXIncludeOptions?    XIncludeOptions     { private get; init; }
+	public required XmlResolver          XmlResolver         { private get; [UsedImplicitly] init; }
+	public required IXIncludeXmlResolver XIncludeXmlResolver { private get; [UsedImplicitly] init; }
+	public required IXIncludeOptions?    XIncludeOptions     { private get; [UsedImplicitly] init; }
 
 	public override int Depth
 	{
@@ -441,13 +436,13 @@ public class XIncludeReader : DelegatedXmlReader
 
 		public StreamResource(Stream stream) => _stream = stream;
 
-	#region Interface IXIncludeResource
+#region Interface IXIncludeResource
 
 		public ValueTask<Stream> GetStream() => new(_stream);
 
 		public ContentType? ContentType => null;
 
-	#endregion
+#endregion
 	}
 
 	private enum ProcessNodeResult

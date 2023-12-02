@@ -17,32 +17,46 @@
 
 #endregion
 
-using System;
-using System.Threading.Tasks;
 using System.Xml.XPath;
 using System.Xml.Xsl;
 
 namespace Xtate.DataModel.XPath;
 
-public class XPathVarDescriptor : IXsltContextVariable, IInitResolver
+public class XPathVarDescriptor : IXsltContextVariable
 {
-	public required Func<ValueTask<XPathEngine>> XPathEngineFactory { private get; init; }
+	private class EmptyIterator : XPathNodeIterator
+	{
+		public override XPathNavigator Current => default!;
 
-	private readonly string       _name;
-	private          XPathEngine? _engine;
+		public override int CurrentPosition => 0;
 
-	public XPathVarDescriptor(string name) => _name = name;
+		public override XPathNodeIterator Clone() => this;
+
+		public override bool MoveNext() => false;
+	}
+
+	private static readonly XPathNodeIterator Empty = new EmptyIterator();
+
+	protected XPathEngine? Engine { get; private set; }
+
+	public required string Name { protected get; [UsedImplicitly] init; }
+
+	public virtual ValueTask Initialize(XPathEngine engine)
+	{
+		Engine = engine;
+
+		return default;
+	}
 
 #region Interface IXsltContextVariable
 
-	public virtual object Evaluate(XsltContext xsltContext) => _engine?.GetVariable(_name);
+	public virtual object Evaluate(XsltContext xsltContext) => Engine?.GetVariable(Name) ?? Empty;
 
-	public bool IsLocal => false;
-	public bool IsParam => false;
+	public virtual bool IsLocal => false;
+	
+	public virtual bool IsParam => false;
 
-	public XPathResultType VariableType => XPathResultType.NodeSet;
+	public virtual XPathResultType VariableType => XPathResultType.NodeSet;
 
 #endregion
-
-	public async ValueTask Initialize() => _engine = await XPathEngineFactory().ConfigureAwait(false);
 }

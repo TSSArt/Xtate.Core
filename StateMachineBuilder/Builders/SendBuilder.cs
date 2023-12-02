@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,130 +17,124 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
-using System.Reflection.Emit;
-using Xtate.Core;
+namespace Xtate.Builder;
 
-namespace Xtate.Builder
+public class SendBuilder : BuilderBase, ISendBuilder
 {
-	public class SendBuilder : BuilderBase, ISendBuilder
+	private IContent?                           _content;
+	private IValueExpression?                   _delayExpression;
+	private int?                                _delayMs;
+	private string?                             _event;
+	private IValueExpression?                   _eventExpression;
+	private string?                             _id;
+	private ILocationExpression?                _idLocation;
+	private ImmutableArray<ILocationExpression> _nameList;
+	private ImmutableArray<IParam>.Builder?     _parameters;
+	private Uri?                                _target;
+	private IValueExpression?                   _targetExpression;
+	private Uri?                                _type;
+	private IValueExpression?                   _typeExpression;
+
+#region Interface ISendBuilder
+
+	public ISend Build() =>
+		new SendEntity
+		{
+			Ancestor = Ancestor, EventName = _event, EventExpression = _eventExpression, Target = _target, TargetExpression = _targetExpression,
+			Type = _type, TypeExpression = _typeExpression, Id = _id, IdLocation = _idLocation, DelayMs = _delayMs,
+			DelayExpression = _delayExpression, NameList = _nameList, Parameters = _parameters?.ToImmutable() ?? default, Content = _content
+		};
+
+	public void SetEvent(string evt)
 	{
-		private IContent?                           _content;
-		private IValueExpression?                   _delayExpression;
-		private int?                                _delayMs;
-		private string?                             _event;
-		private IValueExpression?                   _eventExpression;
-		private string?                             _id;
-		private ILocationExpression?                _idLocation;
-		private ImmutableArray<ILocationExpression> _nameList;
-		private ImmutableArray<IParam>.Builder?     _parameters;
-		private Uri?                                _target;
-		private IValueExpression?                   _targetExpression;
-		private Uri?                                _type;
-		private IValueExpression?                   _typeExpression;
+		Infra.RequiresNonEmptyString(evt);
 
-	#region Interface ISendBuilder
-
-		public ISend Build() =>
-			new SendEntity
-			{
-				Ancestor = Ancestor, EventName = _event, EventExpression = _eventExpression, Target = _target, TargetExpression = _targetExpression,
-				Type = _type, TypeExpression = _typeExpression, Id = _id, IdLocation = _idLocation, DelayMs = _delayMs,
-				DelayExpression = _delayExpression, NameList = _nameList, Parameters = _parameters?.ToImmutable() ?? default, Content = _content
-			};
-
-		public void SetEvent(string evt)
-		{
-			Infra.RequiresNonEmptyString(evt);
-
-			_event = evt;
-		}
-
-		public void SetEventExpression(IValueExpression eventExpression)
-		{
-			Infra.Requires(eventExpression);
-
-			_eventExpression = eventExpression;
-		}
-
-		public void SetTarget(Uri target)
-		{
-			Infra.Requires(target);
-
-			_target = target;
-		}
-
-		public void SetTargetExpression(IValueExpression targetExpression)
-		{
-			Infra.Requires(targetExpression);
-
-			_targetExpression = targetExpression;
-		}
-
-		public void SetType(Uri type)
-		{
-			Infra.Requires(type);
-
-			_type = type;
-		}
-
-		public void SetTypeExpression(IValueExpression typeExpression)
-		{
-			Infra.Requires(typeExpression);
-
-			_typeExpression = typeExpression;
-		}
-
-		public void SetId(string id)
-		{
-			Infra.RequiresNonEmptyString(id);
-
-			_id = id;
-		}
-
-		public void SetIdLocation(ILocationExpression idLocation)
-		{
-			Infra.Requires(idLocation);
-			
-			_idLocation = idLocation;
-		}
-
-		public void SetDelay(int delay)
-		{
-			Infra.RequiresNonNegative(delay);
-
-			_delayMs = delay;
-		}
-
-		public void SetDelayExpression(IValueExpression delayExpression)
-		{
-			Infra.Requires(delayExpression);
-
-			_delayExpression = delayExpression;
-		}
-
-		public void SetNameList(ImmutableArray<ILocationExpression> nameList)
-		{
-			Infra.RequiresNonEmptyCollection(nameList);
-
-			_nameList = nameList;
-		}
-
-		public void AddParameter(IParam param)
-		{
-			Infra.Requires(param);
-
-			(_parameters ??= ImmutableArray.CreateBuilder<IParam>()).Add(param);
-		}
-
-		public void SetContent(IContent content)
-		{
-			Infra.Requires(content);
-			
-			_content = content;
-		}
-
-	#endregion
+		_event = evt;
 	}
+
+	public void SetEventExpression(IValueExpression eventExpression)
+	{
+		Infra.Requires(eventExpression);
+
+		_eventExpression = eventExpression;
+	}
+
+	public void SetTarget(Uri target)
+	{
+		Infra.Requires(target);
+
+		_target = target;
+	}
+
+	public void SetTargetExpression(IValueExpression targetExpression)
+	{
+		Infra.Requires(targetExpression);
+
+		_targetExpression = targetExpression;
+	}
+
+	public void SetType(Uri type)
+	{
+		Infra.Requires(type);
+
+		_type = type;
+	}
+
+	public void SetTypeExpression(IValueExpression typeExpression)
+	{
+		Infra.Requires(typeExpression);
+
+		_typeExpression = typeExpression;
+	}
+
+	public void SetId(string id)
+	{
+		Infra.RequiresNonEmptyString(id);
+
+		_id = id;
+	}
+
+	public void SetIdLocation(ILocationExpression idLocation)
+	{
+		Infra.Requires(idLocation);
+
+		_idLocation = idLocation;
+	}
+
+	public void SetDelay(int delay)
+	{
+		Infra.RequiresNonNegative(delay);
+
+		_delayMs = delay;
+	}
+
+	public void SetDelayExpression(IValueExpression delayExpression)
+	{
+		Infra.Requires(delayExpression);
+
+		_delayExpression = delayExpression;
+	}
+
+	public void SetNameList(ImmutableArray<ILocationExpression> nameList)
+	{
+		Infra.RequiresNonEmptyCollection(nameList);
+
+		_nameList = nameList;
+	}
+
+	public void AddParameter(IParam param)
+	{
+		Infra.Requires(param);
+
+		(_parameters ??= ImmutableArray.CreateBuilder<IParam>()).Add(param);
+	}
+
+	public void SetContent(IContent content)
+	{
+		Infra.Requires(content);
+
+		_content = content;
+	}
+
+#endregion
 }

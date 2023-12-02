@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,41 +17,35 @@
 
 #endregion
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.Core;
+namespace Xtate.Service;
 
-namespace Xtate.Service
-{  
-	//TODO: uncomment
-	/*
-	[PublicAPI]
-	public class DynamicServiceFactory : DynamicFactory<IServiceFactory>, IServiceFactory
+//TODO: uncomment
+/*
+
+public class DynamicServiceFactory : DynamicFactory<IServiceFactory>, IServiceFactory
+{
+	public DynamicServiceFactory(bool throwOnError = true) : base(throwOnError) { }
+
+#region Interface IServiceFactory
+
+	public async ValueTask<IServiceFactoryActivator?> TryGetActivator(ServiceLocator serviceLocator, Uri type, CancellationToken token)
 	{
-		public DynamicServiceFactory(bool throwOnError = true) : base(throwOnError) { }
+		var factories = await GetFactories(serviceLocator, InvokeTypeToUri(type), token).ConfigureAwait(false);
 
-	#region Interface IServiceFactory
-
-		public async ValueTask<IServiceFactoryActivator?> TryGetActivator(ServiceLocator serviceLocator, Uri type, CancellationToken token)
+		foreach (var factory in factories)
 		{
-			var factories = await GetFactories(serviceLocator, InvokeTypeToUri(type), token).ConfigureAwait(false);
+			var activator = await factory.TryGetActivator(serviceLocator, type, token).ConfigureAwait(false);
 
-			foreach (var factory in factories)
+			if (activator is not null)
 			{
-				var activator = await factory.TryGetActivator(serviceLocator, type, token).ConfigureAwait(false);
-
-				if (activator is not null)
-				{
-					return activator;
-				}
+				return activator;
 			}
-
-			return null;
 		}
 
-	#endregion
+		return null;
+	}
 
-		protected virtual Uri InvokeTypeToUri(Uri invokeType) => invokeType;
-	}*/
-}
+#endregion
+
+	protected virtual Uri InvokeTypeToUri(Uri invokeType) => invokeType;
+}*/

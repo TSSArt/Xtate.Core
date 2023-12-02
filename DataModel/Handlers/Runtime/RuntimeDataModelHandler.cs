@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,59 +17,52 @@
 
 #endregion
 
-using System;
-using Xtate.Core;
+namespace Xtate.DataModel.Runtime;
 
-namespace Xtate.DataModel.Runtime
+public class RuntimeDataModelHandler : DataModelHandlerBase
 {
-	public class RuntimeDataModelHandler : DataModelHandlerBase
+	public required Func<RuntimePredicate, RuntimePredicateEvaluator> RuntimePredicateEvaluatorFactory { private get; [UsedImplicitly] init; }
+	public required Func<RuntimeValue, RuntimeValueEvaluator>         RuntimeValueEvaluatorFactory     { private get; [UsedImplicitly] init; }
+	public required Func<RuntimeAction, RuntimeActionExecutor>        RuntimeActionExecutorFactory     { private get; [UsedImplicitly] init; }
+	public required IErrorProcessorService<RuntimeDataModelHandler>   RuntimeErrorProcessorService     { private get; [UsedImplicitly] init; }
+
+	protected override void Visit(ref IScript script) => RuntimeErrorProcessorService.AddError(script, Resources.ErrorMessage_ScriptingNotSupportedInRuntimeDataModel);
+
+	protected override void Visit(ref IDataModel dataModel) => RuntimeErrorProcessorService.AddError(dataModel, Resources.ErrorMessage_DataModelNotSupportedInRuntime);
+
+	protected override void Visit(ref IConditionExpression conditionExpression)
 	{
-		public required Func<RuntimePredicate, RuntimePredicateEvaluator> RuntimePredicateEvaluatorFactory { private get; init; }
-
-		public required Func<RuntimeValue, RuntimeValueEvaluator> RuntimeValueEvaluatorFactory { private get; init; }
-
-		public required Func<RuntimeAction, RuntimeActionExecutor> RuntimeActionExecutorFactory { private get; init; }
-
-		public required IErrorProcessorService<RuntimeDataModelHandler> RuntimeErrorProcessorService    { private get; init; }
-
-		protected override void Visit(ref IScript script) => RuntimeErrorProcessorService.AddError(script, Resources.ErrorMessage_ScriptingNotSupportedInRuntimeDataModel);
-
-		protected override void Visit(ref IDataModel dataModel) => RuntimeErrorProcessorService.AddError(dataModel, Resources.ErrorMessage_DataModelNotSupportedInRuntime);
-
-		protected override void Visit(ref IConditionExpression conditionExpression)
+		if (conditionExpression is RuntimePredicate runtimePredicate)
 		{
-			if (conditionExpression is RuntimePredicate runtimePredicate)
-			{
-				conditionExpression = RuntimePredicateEvaluatorFactory(runtimePredicate);
-			}
-			else
-			{
-				RuntimeErrorProcessorService.AddError(conditionExpression, Resources.ErrorMessage_RuntimePredicateOnlyAllowed);
-			}
+			conditionExpression = RuntimePredicateEvaluatorFactory(runtimePredicate);
 		}
-
-		protected override void Visit(ref IValueExpression valueExpression)
+		else
 		{
-			if (valueExpression is RuntimeValue runtimeValue)
-			{
-				valueExpression = RuntimeValueEvaluatorFactory(runtimeValue);
-			}
-			else
-			{
-				RuntimeErrorProcessorService.AddError(valueExpression, Resources.ErrorMessage_RuntimeValueOnlyAllowed);
-			}
+			RuntimeErrorProcessorService.AddError(conditionExpression, Resources.ErrorMessage_RuntimePredicateOnlyAllowed);
 		}
+	}
 
-		protected override void VisitUnknown(ref IExecutableEntity executableEntity)
+	protected override void Visit(ref IValueExpression valueExpression)
+	{
+		if (valueExpression is RuntimeValue runtimeValue)
 		{
-			if (executableEntity is RuntimeAction runtimeAction)
-			{
-				executableEntity = RuntimeActionExecutorFactory(runtimeAction);
-			}
-			else
-			{
-				RuntimeErrorProcessorService.AddError(executableEntity, Resources.ErrorMessage_RuntimeActionOnlyAllowed);
-			}
+			valueExpression = RuntimeValueEvaluatorFactory(runtimeValue);
+		}
+		else
+		{
+			RuntimeErrorProcessorService.AddError(valueExpression, Resources.ErrorMessage_RuntimeValueOnlyAllowed);
+		}
+	}
+
+	protected override void VisitUnknown(ref IExecutableEntity executableEntity)
+	{
+		if (executableEntity is RuntimeAction runtimeAction)
+		{
+			executableEntity = RuntimeActionExecutorFactory(runtimeAction);
+		}
+		else
+		{
+			RuntimeErrorProcessorService.AddError(executableEntity, Resources.ErrorMessage_RuntimeActionOnlyAllowed);
 		}
 	}
 }

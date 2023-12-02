@@ -17,9 +17,6 @@
 
 #endregion
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Xml.XPath;
 
 namespace Xtate.DataModel.XPath;
@@ -29,14 +26,20 @@ public sealed class InFunctionProvider : XPathFunctionProviderBase<InFunction>
 	protected override bool CanHandle(string ns, string name) => ns == string.Empty && name == @"In";
 }
 
-public sealed class InFunction : XPathFunctionDescriptorBase, IInitResolver
+public sealed class InFunction : XPathFunctionDescriptorBase
 {
-	public InFunction() : base(XPathResultType.Boolean, XPathResultType.Any) { }
-	
-	
-	public required Func<ValueTask<IInStateController?>> InStateControllerFactory { private get; init; }
+	private IInStateController? _inStateController;
 
-	public          IInStateController?                  _inStateController;
+	public InFunction() : base(XPathResultType.Boolean, XPathResultType.Any) { }
+
+	public required Func<ValueTask<IInStateController?>> InStateControllerFactory { private get; [UsedImplicitly] init; }
+
+	public override async ValueTask Initialize()
+	{
+		_inStateController = await InStateControllerFactory().ConfigureAwait(false);
+
+		await base.Initialize().ConfigureAwait(false);
+	}
 
 	protected override object Invoke(object[] args)
 	{
@@ -56,7 +59,8 @@ public sealed class InFunction : XPathFunctionDescriptorBase, IInitResolver
 
 				do
 				{
-					if (!_inStateController.InState((Identifier) iterator.Current.Value))
+					var id = iterator.Current?.Value;
+					if (string.IsNullOrEmpty(id) || !_inStateController.InState((Identifier) id))
 					{
 						return false;
 					}
@@ -69,6 +73,4 @@ public sealed class InFunction : XPathFunctionDescriptorBase, IInitResolver
 
 		return false;
 	}
-
-	public async ValueTask Initialize() => _inStateController = await InStateControllerFactory().ConfigureAwait(false);
 }

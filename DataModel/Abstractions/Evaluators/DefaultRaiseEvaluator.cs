@@ -17,10 +17,6 @@
 
 #endregion
 
-using System;
-using System.Threading.Tasks;
-using Xtate.Core;
-
 namespace Xtate.DataModel;
 
 public abstract class RaiseEvaluator : IRaise, IExecEvaluator, IAncestorProvider
@@ -30,7 +26,7 @@ public abstract class RaiseEvaluator : IRaise, IExecEvaluator, IAncestorProvider
 	protected RaiseEvaluator(IRaise raise)
 	{
 		Infra.Requires(raise);
-		
+
 		_raise = raise;
 	}
 
@@ -60,7 +56,7 @@ public class DefaultRaiseEvaluator : RaiseEvaluator
 		Infra.NotNull(raise.OutgoingEvent);
 	}
 
-	public required Func<ValueTask<IEventController?>> EventSenderFactory { private get; init; }
+	public required Func<ValueTask<IEventController?>> EventSenderFactory { private get; [UsedImplicitly] init; }
 
 	public override async ValueTask Execute()
 	{

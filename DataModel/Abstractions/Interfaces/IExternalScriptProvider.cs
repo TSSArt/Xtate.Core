@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,10 +17,9 @@
 
 #endregion
 
-namespace Xtate.DataModel
+namespace Xtate.DataModel;
+
+public interface IExternalScriptProvider
 {
-	public interface IExternalScriptProvider
-	{
-		string Content { get; }
-	}
+	string Content { get; }
 }

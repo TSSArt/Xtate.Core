@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,18 +17,14 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
+namespace Xtate.Core;
 
-namespace Xtate.Core
+public interface IOutgoingEvent : IEntity
 {
-	public interface IOutgoingEvent : IEntity
-	{
-		SendId?                     SendId    { get; }
-		ImmutableArray<IIdentifier> NameParts { get; }
-		Uri?                        Target    { get; }
-		Uri?                        Type      { get; }
-		int                         DelayMs   { get; }
-		DataModelValue              Data      { get; }
-	}
+	SendId?                     SendId    { get; }
+	ImmutableArray<IIdentifier> NameParts { get; }
+	Uri?                        Target    { get; }
+	Uri?                        Type      { get; }
+	int                         DelayMs   { get; }
+	DataModelValue              Data      { get; }
 }

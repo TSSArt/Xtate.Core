@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,34 +19,33 @@
 
 using Xtate.Persistence;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public sealed class ConditionExpressionNode : IConditionExpression, IStoreSupport, IAncestorProvider
 {
-	public sealed class ConditionExpressionNode : IConditionExpression, IStoreSupport, IAncestorProvider
+	private readonly IConditionExpression _conditionExpression;
+
+	public ConditionExpressionNode(IConditionExpression conditionExpression) => _conditionExpression = conditionExpression;
+
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => _conditionExpression;
+
+#endregion
+
+#region Interface IConditionExpression
+
+	public string? Expression => _conditionExpression.Expression;
+
+#endregion
+
+#region Interface IStoreSupport
+
+	void IStoreSupport.Store(Bucket bucket)
 	{
-		private readonly IConditionExpression _conditionExpression;
-
-		public ConditionExpressionNode(IConditionExpression conditionExpression) => _conditionExpression = conditionExpression;
-
-	#region Interface IAncestorProvider
-
-		object IAncestorProvider.Ancestor => _conditionExpression;
-
-	#endregion
-
-	#region Interface IConditionExpression
-
-		public string? Expression => _conditionExpression.Expression;
-
-	#endregion
-
-	#region Interface IStoreSupport
-
-		void IStoreSupport.Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.ConditionExpressionNode);
-			bucket.Add(Key.Expression, Expression);
-		}
-
-	#endregion
+		bucket.Add(Key.TypeInfo, TypeInfo.ConditionExpressionNode);
+		bucket.Add(Key.Expression, Expression);
 	}
+
+#endregion
 }

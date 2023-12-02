@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,91 +17,85 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using Xtate.Core;
+namespace Xtate;
 
-namespace Xtate
+
+[Serializable]
+public sealed class InvokeId : ServiceId, IEquatable<InvokeId>
 {
-	[PublicAPI]
-	[Serializable]
-	public sealed class InvokeId : ServiceId, IEquatable<InvokeId>
+	internal static readonly IEqualityComparer<InvokeId> InvokeUniqueIdComparer = new InvokeUniqueIdEqualityComparer();
+
+	private readonly IIdentifier? _stateId;
+
+	private string? _invokeUniqueId;
+
+	private InvokeId(IIdentifier stateId) => _stateId = stateId;
+
+	private InvokeId(string invokeId) : base(invokeId) { }
+
+	private InvokeId(string invokeId, string invokeUniqueId) : base(invokeId) => _invokeUniqueId = invokeUniqueId;
+
+	public string InvokeUniqueIdValue
 	{
-		internal static readonly IEqualityComparer<InvokeId> InvokeUniqueIdComparer = new InvokeUniqueIdEqualityComparer();
-
-		private readonly IIdentifier? _stateId;
-
-		private string? _invokeUniqueId;
-
-		private InvokeId(IIdentifier stateId) => _stateId = stateId;
-
-		private InvokeId(string invokeId) : base(invokeId) { }
-
-		private InvokeId(string invokeId, string invokeUniqueId) : base(invokeId) => _invokeUniqueId = invokeUniqueId;
-
-		public string InvokeUniqueIdValue
+		get
 		{
-			get
+			if (_invokeUniqueId is { } invokeUniqueId)
 			{
-				if (_invokeUniqueId is { } invokeUniqueId)
-				{
-					return invokeUniqueId;
-				}
-
-				var newInvokeUniqueId = IdGenerator.NewInvokeUniqueId(GetHashCode());
-				invokeUniqueId = Interlocked.CompareExchange(ref _invokeUniqueId, newInvokeUniqueId, comparand: null) ?? newInvokeUniqueId;
-
 				return invokeUniqueId;
 			}
+
+			var newInvokeUniqueId = IdGenerator.NewInvokeUniqueId(GetHashCode());
+			invokeUniqueId = Interlocked.CompareExchange(ref _invokeUniqueId, newInvokeUniqueId, comparand: null) ?? newInvokeUniqueId;
+
+			return invokeUniqueId;
 		}
+	}
 
-	#region Interface IEquatable<InvokeId>
+#region Interface IEquatable<InvokeId>
 
-		public bool Equals(InvokeId? other) => SameTypeEquals(other);
+	public bool Equals(InvokeId? other) => SameTypeEquals(other);
 
-	#endregion
+#endregion
 
-		protected override string GenerateId()
+	protected override string GenerateId()
+	{
+		Infra.NotNull(_stateId);
+
+		return IdGenerator.NewInvokeId(_stateId.Value, GetHashCode());
+	}
+
+	public static InvokeId New(IIdentifier stateId, string? invokeId) => invokeId is null ? new InvokeId(stateId) : new InvokeId(invokeId);
+
+	public static InvokeId FromString(string invokeId) => new(invokeId);
+
+	public static InvokeId FromString(string invokeId, string invokeUniqueId) => new(invokeId, invokeUniqueId);
+
+	internal sealed class InvokeUniqueIdEqualityComparer : IEqualityComparer<InvokeId>
+	{
+#region Interface IEqualityComparer<InvokeId>
+
+		public bool Equals(InvokeId? x, InvokeId? y)
 		{
-			Infra.NotNull(_stateId);
-
-			return IdGenerator.NewInvokeId(_stateId.Value, GetHashCode());
-		}
-
-		public static InvokeId New(IIdentifier stateId, string? invokeId) => invokeId is null ? new InvokeId(stateId) : new InvokeId(invokeId);
-
-		public static InvokeId FromString(string invokeId) => new(invokeId);
-
-		public static InvokeId FromString(string invokeId, string invokeUniqueId) => new(invokeId, invokeUniqueId);
-
-		internal sealed class InvokeUniqueIdEqualityComparer : IEqualityComparer<InvokeId>
-		{
-		#region Interface IEqualityComparer<InvokeId>
-
-			public bool Equals(InvokeId? x, InvokeId? y)
+			if (ReferenceEquals(x, y))
 			{
-				if (ReferenceEquals(x, y))
-				{
-					return true;
-				}
-
-				return x?._invokeUniqueId is { } a && y?._invokeUniqueId is { } b && a == b;
+				return true;
 			}
 
-			public int GetHashCode(InvokeId obj)
+			return x?._invokeUniqueId is { } a && y?._invokeUniqueId is { } b && a == b;
+		}
+
+		public int GetHashCode(InvokeId obj)
+		{
+			if (obj is null) throw new ArgumentNullException(nameof(obj));
+
+			if (obj._invokeUniqueId is { } id)
 			{
-				if (obj is null) throw new ArgumentNullException(nameof(obj));
-
-				if (obj._invokeUniqueId is { } id)
-				{
-					return TryGetHashFromId(id, out var hash) ? hash : id.GetHashCode();
-				}
-
-				return obj.GetHashCode();
+				return TryGetHashFromId(id, out var hash) ? hash : id.GetHashCode();
 			}
 
-		#endregion
+			return obj.GetHashCode();
 		}
+
+#endregion
 	}
 }

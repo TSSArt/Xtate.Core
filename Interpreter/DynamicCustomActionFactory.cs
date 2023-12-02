@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,45 +17,39 @@
 
 #endregion
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.Core;
+namespace Xtate.CustomAction;
 
-namespace Xtate.CustomAction
+//TODO: uncomment
+/*
+
+public class DynamicCustomActionFactory : DynamicFactory<ICustomActionFactory>, ICustomActionFactory
 {
-	//TODO: uncomment
-	/*
-	[PublicAPI]
-	public class DynamicCustomActionFactory : DynamicFactory<ICustomActionFactory>, ICustomActionFactory
+	public DynamicCustomActionFactory(bool throwOnError = true) : base(throwOnError) { }
+
+#region Interface ICustomActionFactory
+
+	public async ValueTask<ICustomActionFactoryActivator?> TryGetActivator(ServiceLocator serviceLocator,
+																		   string ns,
+																		   string name,
+																		   CancellationToken token)
 	{
-		public DynamicCustomActionFactory(bool throwOnError = true) : base(throwOnError) { }
+		var factories = await GetFactories(serviceLocator, CustomActionNamespaceToUri(ns), token).ConfigureAwait(false);
 
-	#region Interface ICustomActionFactory
-
-		public async ValueTask<ICustomActionFactoryActivator?> TryGetActivator(ServiceLocator serviceLocator,
-																			   string ns,
-																			   string name,
-																			   CancellationToken token)
+		foreach (var factory in factories)
 		{
-			var factories = await GetFactories(serviceLocator, CustomActionNamespaceToUri(ns), token).ConfigureAwait(false);
+			var activator = await factory.TryGetActivator(serviceLocator, ns, name, token).ConfigureAwait(false);
 
-			foreach (var factory in factories)
+			if (activator is not null)
 			{
-				var activator = await factory.TryGetActivator(serviceLocator, ns, name, token).ConfigureAwait(false);
-
-				if (activator is not null)
-				{
-					return activator;
-				}
+				return activator;
 			}
-
-			return null;
 		}
 
-	#endregion
-
-		protected virtual Uri CustomActionNamespaceToUri(string customActionNamespace) => new(customActionNamespace, UriKind.RelativeOrAbsolute);
+		return null;
 	}
-	*/
+
+#endregion
+
+	protected virtual Uri CustomActionNamespaceToUri(string customActionNamespace) => new(customActionNamespace, UriKind.RelativeOrAbsolute);
 }
+*/

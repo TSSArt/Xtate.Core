@@ -17,10 +17,6 @@
 
 #endregion
 
-using System.Collections.Immutable;
-using System.Threading.Tasks;
-using Xtate.Core;
-
 namespace Xtate.DataModel;
 
 public abstract class ForEachEvaluator : IForEach, IExecEvaluator, IAncestorProvider

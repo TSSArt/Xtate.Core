@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,42 +17,43 @@
 
 #endregion
 
-using System;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Loader;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+[Obsolete]
+
+//TODO: delete
+public sealed class DynamicAssembly : IDisposable
 {
-	[Obsolete]
-	//TODO: delete
-	public sealed class DynamicAssembly : IDisposable
+	internal static readonly object    AssemblyCacheKey = new();
+	private                  Assembly? _assembly;
+
+	private Context? _context;
+
+	public DynamicAssembly(Stream stream)
 	{
-		internal static readonly object AssemblyCacheKey = new();
+		_context = new Context();
+		_assembly = _context.LoadFromStream(stream);
+	}
 
-		private Context?  _context;
-		private Assembly? _assembly;
+	public Assembly Assembly => _assembly ?? throw new ObjectDisposedException(nameof(DynamicAssembly));
 
-		public DynamicAssembly(Stream stream)
-		{
-			_context = new Context();
-			_assembly = _context.LoadFromStream(stream);
-		}
+#region Interface IDisposable
 
-		public void Dispose()
-		{
-			_context?.Unload();
-			_assembly = null;
-			_context = null;
-		}
+	public void Dispose()
+	{
+		_context?.Unload();
+		_assembly = null;
+		_context = null;
+	}
 
+#endregion
 
-
-		public Assembly Assembly => _assembly ?? throw new ObjectDisposedException(nameof(DynamicAssembly));
-
-		private class Context : AssemblyLoadContext
-		{
-			public Context() : base(isCollectible: true) { }
-		}
+	private class Context : AssemblyLoadContext
+	{
+		public Context() : base(isCollectible: true) { }
 	}
 }

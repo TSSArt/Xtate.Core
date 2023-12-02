@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,53 +17,48 @@
 
 #endregion
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.Core;
+namespace Xtate;
 
-namespace Xtate
+public sealed partial class StateMachineHost : IHost
 {
-	public sealed partial class StateMachineHost : IHost
+	public required Func<ValueTask<IScopeManager>> _scopeManagerFactory { private get; [UsedImplicitly] init; }
+
+#region Interface IHost
+
+	async ValueTask<IStateMachineController> IHost.StartStateMachineAsync(SessionId sessionId,
+																		  StateMachineOrigin origin,
+																		  DataModelValue parameters,
+																		  SecurityContextType securityContextType,
+																		  DeferredFinalizer finalizer,
+																		  CancellationToken token) =>
+		await StartStateMachine(sessionId, origin, parameters, securityContextType, finalizer, token).ConfigureAwait(false);
+	
+	ValueTask IHost.DestroyStateMachine(SessionId sessionId, CancellationToken token) => DestroyStateMachine(sessionId, token);
+
+#endregion
+
+	private async ValueTask<IStateMachineController> StartStateMachine(SessionId sessionId,
+																	   StateMachineOrigin origin,
+																	   DataModelValue parameters,
+																	   SecurityContextType securityContextType,
+																	   DeferredFinalizer? finalizer,
+																	   CancellationToken token)
 	{
-	#region Interface IHost
+		if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
+		if (origin.Type == StateMachineOriginType.None) throw new ArgumentException(Resources.Exception_StateMachineOriginMissed, nameof(origin));
 
-		async ValueTask<IStateMachineController> IHost.StartStateMachineAsync(SessionId sessionId,
-																			  StateMachineOrigin origin,
-																			  DataModelValue parameters,
-																			  SecurityContextType securityContextType,
-																			  DeferredFinalizer finalizer, 
-																			  CancellationToken token)
-		{
-			return await StartStateMachine(sessionId, origin, parameters, securityContextType, finalizer, token).ConfigureAwait(false);
-		}
+		var stateMachineStartOptions = new StateMachineStartOptions
+									   {
+										   Origin = origin,
+										   Parameters = parameters,
+										   SessionId = sessionId,
+										   SecurityContextType = securityContextType
+									   };
 
-		ValueTask IHost.DestroyStateMachine(SessionId sessionId, CancellationToken token) => DestroyStateMachine(sessionId, token);
+		var scopeManager = await _scopeManagerFactory().ConfigureAwait(false);
 
-	#endregion
-
-		private async ValueTask<IStateMachineController> StartStateMachine(SessionId sessionId,
-																		   StateMachineOrigin origin,
-																		   DataModelValue parameters,
-																		   SecurityContextType securityContextType,
-																		   DeferredFinalizer? finalizer, 
-																		   CancellationToken token)
-		{
-			if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
-			if (origin.Type == StateMachineOriginType.None) throw new ArgumentException(Resources.Exception_StateMachineOriginMissed, nameof(origin));
-
-			var scopeManager = _options.ServiceLocator.GetService<IScopeManager>();
-			var stateMachineStartOptions = new StateMachineStartOptions()
-										   {
-											   Origin = origin, 
-											   Parameters = parameters, 
-											   SessionId = sessionId, 
-											   SecurityContextType = securityContextType
-										   };
-			
-			return await scopeManager.RunStateMachine(stateMachineStartOptions).ConfigureAwait(false);
-		}
-
-		private ValueTask DestroyStateMachine(SessionId sessionId, CancellationToken token) => GetCurrentContext().DestroyStateMachine(sessionId, token);
+		return await scopeManager.RunStateMachine(stateMachineStartOptions).ConfigureAwait(false);
 	}
+
+	private ValueTask DestroyStateMachine(SessionId sessionId, CancellationToken token) => GetCurrentContext().DestroyStateMachine(sessionId, token);
 }

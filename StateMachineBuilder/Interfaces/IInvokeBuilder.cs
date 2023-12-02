@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,25 +17,21 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
+namespace Xtate.Builder;
 
-namespace Xtate.Builder
+public interface IInvokeBuilder
 {
-	public interface IInvokeBuilder
-	{
-		IInvoke Build();
+	IInvoke Build();
 
-		void SetType(Uri type);
-		void SetTypeExpression(IValueExpression typeExpression);
-		void SetSource(Uri source);
-		void SetSourceExpression(IValueExpression sourceExpression);
-		void SetId(string id);
-		void SetIdLocation(ILocationExpression idLocation);
-		void SetNameList(ImmutableArray<ILocationExpression> nameList);
-		void SetAutoForward(bool autoForward);
-		void AddParam(IParam param);
-		void SetFinalize(IFinalize finalize);
-		void SetContent(IContent content);
-	}
+	void SetType(Uri type);
+	void SetTypeExpression(IValueExpression typeExpression);
+	void SetSource(Uri source);
+	void SetSourceExpression(IValueExpression sourceExpression);
+	void SetId(string id);
+	void SetIdLocation(ILocationExpression idLocation);
+	void SetNameList(ImmutableArray<ILocationExpression> nameList);
+	void SetAutoForward(bool autoForward);
+	void AddParam(IParam param);
+	void SetFinalize(IFinalize finalize);
+	void SetContent(IContent content);
 }

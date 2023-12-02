@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,42 +17,39 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
 using Xtate.Persistence;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public sealed class EventNode : IOutgoingEvent, IStoreSupport, IAncestorProvider
 {
-	public sealed class EventNode : IOutgoingEvent, IStoreSupport, IAncestorProvider
+	private readonly IOutgoingEvent _outgoingEvent;
+
+	public EventNode(IOutgoingEvent outgoingEvent) => _outgoingEvent = outgoingEvent;
+
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => _outgoingEvent;
+
+#endregion
+
+#region Interface IOutgoingEvent
+
+	public ImmutableArray<IIdentifier> NameParts => _outgoingEvent.NameParts;
+	public SendId?                     SendId    => _outgoingEvent.SendId;
+	public DataModelValue              Data      => _outgoingEvent.Data;
+	public Uri?                        Target    => _outgoingEvent.Target;
+	public Uri?                        Type      => _outgoingEvent.Type;
+	public int                         DelayMs   => _outgoingEvent.DelayMs;
+
+#endregion
+
+#region Interface IStoreSupport
+
+	void IStoreSupport.Store(Bucket bucket)
 	{
-		private readonly IOutgoingEvent _outgoingEvent;
-
-		public EventNode(IOutgoingEvent outgoingEvent) => _outgoingEvent = outgoingEvent;
-
-	#region Interface IAncestorProvider
-
-		object IAncestorProvider.Ancestor => _outgoingEvent;
-
-	#endregion
-
-	#region Interface IOutgoingEvent
-
-		public ImmutableArray<IIdentifier> NameParts => _outgoingEvent.NameParts;
-		public SendId?                     SendId    => _outgoingEvent.SendId;
-		public DataModelValue              Data      => _outgoingEvent.Data;
-		public Uri?                        Target    => _outgoingEvent.Target;
-		public Uri?                        Type      => _outgoingEvent.Type;
-		public int                         DelayMs   => _outgoingEvent.DelayMs;
-
-	#endregion
-
-	#region Interface IStoreSupport
-
-		void IStoreSupport.Store(Bucket bucket)
-		{
-			bucket.Add(Key.Id, EventName.ToName(_outgoingEvent.NameParts));
-		}
-
-	#endregion
+		bucket.Add(Key.Id, EventName.ToName(_outgoingEvent.NameParts));
 	}
+
+#endregion
 }

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,63 +17,61 @@
 
 #endregion
 
-using System;
 using Xtate.Persistence;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public sealed class ParamNode : IParam, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 {
-	public sealed class ParamNode : IParam, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
+	private readonly IParam         _param;
+	private          DocumentIdSlot _documentIdSlot;
+
+	public ParamNode(DocumentIdNode documentIdNode, IParam param)
 	{
-		private readonly IParam         _param;
-		private          DocumentIdSlot _documentIdSlot;
+		Infra.NotNull(param.Name);
 
-		public ParamNode(DocumentIdNode documentIdNode, IParam param)
-		{
-			Infra.NotNull(param.Name);
-
-			documentIdNode.SaveToSlot(out _documentIdSlot);
-			_param = param;
-		}
-
-	#region Interface IAncestorProvider
-
-		object IAncestorProvider.Ancestor => _param;
-
-	#endregion
-
-	#region Interface IDebugEntityId
-
-		FormattableString IDebugEntityId.EntityId => @$"{Name}(#{DocumentId})";
-
-	#endregion
-
-	#region Interface IDocumentId
-
-		public int DocumentId => _documentIdSlot.Value;
-
-	#endregion
-
-	#region Interface IParam
-
-		public string Name => _param.Name!;
-
-		public IValueExpression? Expression => _param.Expression;
-
-		public ILocationExpression? Location => _param.Location;
-
-	#endregion
-
-	#region Interface IStoreSupport
-
-		void IStoreSupport.Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.ParamNode);
-			bucket.Add(Key.DocumentId, DocumentId);
-			bucket.Add(Key.Name, Name);
-			bucket.AddEntity(Key.Expression, Expression);
-			bucket.AddEntity(Key.Location, Location);
-		}
-
-	#endregion
+		documentIdNode.SaveToSlot(out _documentIdSlot);
+		_param = param;
 	}
+
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => _param;
+
+#endregion
+
+#region Interface IDebugEntityId
+
+	FormattableString IDebugEntityId.EntityId => @$"{Name}(#{DocumentId})";
+
+#endregion
+
+#region Interface IDocumentId
+
+	public int DocumentId => _documentIdSlot.Value;
+
+#endregion
+
+#region Interface IParam
+
+	public string Name => _param.Name!;
+
+	public IValueExpression? Expression => _param.Expression;
+
+	public ILocationExpression? Location => _param.Location;
+
+#endregion
+
+#region Interface IStoreSupport
+
+	void IStoreSupport.Store(Bucket bucket)
+	{
+		bucket.Add(Key.TypeInfo, TypeInfo.ParamNode);
+		bucket.Add(Key.DocumentId, DocumentId);
+		bucket.Add(Key.Name, Name);
+		bucket.AddEntity(Key.Expression, Expression);
+		bucket.AddEntity(Key.Location, Location);
+	}
+
+#endregion
 }

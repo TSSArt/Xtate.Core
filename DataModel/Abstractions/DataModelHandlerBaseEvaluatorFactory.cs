@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2022 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,48 +17,43 @@
 
 #endregion
 
-using System;
-
 namespace Xtate.DataModel;
 
-[PublicAPI]
+
 public class DataModelHandlerBaseEvaluatorFactory : IDataModelHandlerBaseEvaluatorFactory
 {
 	private readonly Func<IAssign, DefaultAssignEvaluator>                                 _assignEvaluatorFactory;
 	private readonly Func<ICancel, DefaultCancelEvaluator>                                 _cancelEvaluatorFactory;
 	private readonly Func<IContentBody, DefaultContentBodyEvaluator>                       _contentBodyEvaluatorFactory;
 	private readonly Func<ICustomAction, DefaultCustomActionEvaluator>                     _customActionEvaluatorFactory;
-	private readonly Func<IDoneData, DefaultDoneDataEvaluator>                             _doneDataEvaluatorFactory;
 	private readonly Func<IExternalDataExpression, DefaultExternalDataExpressionEvaluator> _externalDataExpressionEvaluatorFactory;
 	private readonly Func<IForEach, DefaultForEachEvaluator>                               _forEachEvaluatorFactory;
 	private readonly Func<IIf, DefaultIfEvaluator>                                         _ifEvaluatorFactory;
 	private readonly Func<IInlineContent, DefaultInlineContentEvaluator>                   _inlineContentEvaluatorFactory;
 	private readonly Func<IInvoke, DefaultInvokeEvaluator>                                 _invokeEvaluatorFactory;
 	private readonly Func<ILog, DefaultLogEvaluator>                                       _logEvaluatorFactory;
-	private readonly Func<IParam, DefaultParamEvaluator>                                            _paramFactory;
+	private readonly Func<IParam, DefaultParamEvaluator>                                   _paramFactory;
 	private readonly Func<IRaise, DefaultRaiseEvaluator>                                   _raiseEvaluatorFactory;
 	private readonly Func<IScript, DefaultScriptEvaluator>                                 _scriptEvaluatorFactory;
 	private readonly Func<ISend, DefaultSendEvaluator>                                     _sendEvaluatorFactory;
 
 	public DataModelHandlerBaseEvaluatorFactory(Func<ILog, DefaultLogEvaluator> logEvaluatorFactory,
-											Func<ISend, DefaultSendEvaluator> sendEvaluatorFactory,
-											Func<IDoneData, DefaultDoneDataEvaluator> doneDataEvaluatorFactory,
-											Func<IParam, DefaultParamEvaluator> paramFactory,
-											Func<ICancel, DefaultCancelEvaluator> cancelEvaluatorFactory,
-											Func<IIf, DefaultIfEvaluator> ifEvaluatorFactory,
-											Func<IRaise, DefaultRaiseEvaluator> raiseEvaluatorFactory,
-											Func<IForEach, DefaultForEachEvaluator> forEachEvaluatorFactory,
-											Func<IAssign, DefaultAssignEvaluator> assignEvaluatorFactory,
-											Func<IScript, DefaultScriptEvaluator> scriptEvaluatorFactory,
-											Func<ICustomAction, DefaultCustomActionEvaluator> customActionEvaluatorFactory,
-											Func<IInvoke, DefaultInvokeEvaluator> invokeEvaluatorFactory,
-											Func<IContentBody, DefaultContentBodyEvaluator> contentBodyEvaluatorFactory,
-											Func<IInlineContent, DefaultInlineContentEvaluator> inlineContentEvaluatorFactory,
-											Func<IExternalDataExpression, DefaultExternalDataExpressionEvaluator> externalDataExpressionEvaluatorFactory)
+												Func<ISend, DefaultSendEvaluator> sendEvaluatorFactory,
+												Func<IParam, DefaultParamEvaluator> paramFactory,
+												Func<ICancel, DefaultCancelEvaluator> cancelEvaluatorFactory,
+												Func<IIf, DefaultIfEvaluator> ifEvaluatorFactory,
+												Func<IRaise, DefaultRaiseEvaluator> raiseEvaluatorFactory,
+												Func<IForEach, DefaultForEachEvaluator> forEachEvaluatorFactory,
+												Func<IAssign, DefaultAssignEvaluator> assignEvaluatorFactory,
+												Func<IScript, DefaultScriptEvaluator> scriptEvaluatorFactory,
+												Func<ICustomAction, DefaultCustomActionEvaluator> customActionEvaluatorFactory,
+												Func<IInvoke, DefaultInvokeEvaluator> invokeEvaluatorFactory,
+												Func<IContentBody, DefaultContentBodyEvaluator> contentBodyEvaluatorFactory,
+												Func<IInlineContent, DefaultInlineContentEvaluator> inlineContentEvaluatorFactory,
+												Func<IExternalDataExpression, DefaultExternalDataExpressionEvaluator> externalDataExpressionEvaluatorFactory)
 	{
 		_logEvaluatorFactory = logEvaluatorFactory;
 		_sendEvaluatorFactory = sendEvaluatorFactory;
-		_doneDataEvaluatorFactory = doneDataEvaluatorFactory;
 		_paramFactory = paramFactory;
 		_cancelEvaluatorFactory = cancelEvaluatorFactory;
 		_ifEvaluatorFactory = ifEvaluatorFactory;
@@ -78,8 +73,6 @@ public class DataModelHandlerBaseEvaluatorFactory : IDataModelHandlerBaseEvaluat
 	public virtual ILog CreateLogEvaluator(ILog log) => _logEvaluatorFactory(log);
 
 	public virtual ISend CreateSendEvaluator(ISend send) => _sendEvaluatorFactory(send);
-
-	public virtual IDoneData CreateDoneDataEvaluator(IDoneData doneData) => _doneDataEvaluatorFactory(doneData);
 
 	public virtual IParam CreateParam(IParam param) => _paramFactory(param);
 

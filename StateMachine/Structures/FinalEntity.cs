@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,53 +17,54 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
+namespace Xtate.Core;
 
-namespace Xtate.Core
+public struct FinalEntity : IFinal, IVisitorEntity<FinalEntity, IFinal>, IAncestorProvider, IDebugEntityId
 {
-	public struct FinalEntity : IFinal, IVisitorEntity<FinalEntity, IFinal>, IAncestorProvider, IDebugEntityId
+	internal object? Ancestor;
+
+#region Interface IAncestorProvider
+
+	object? IAncestorProvider.Ancestor => Ancestor;
+
+#endregion
+
+#region Interface IDebugEntityId
+
+	FormattableString IDebugEntityId.EntityId => @$"{Id}";
+
+#endregion
+
+#region Interface IFinal
+
+	public ImmutableArray<IOnEntry> OnEntry  { get; set; }
+	public ImmutableArray<IOnExit>  OnExit   { get; set; }
+	public IDoneData?               DoneData { get; set; }
+
+#endregion
+
+#region Interface IStateEntity
+
+	public IIdentifier? Id { get; set; }
+
+#endregion
+
+#region Interface IVisitorEntity<FinalEntity,IFinal>
+
+	void IVisitorEntity<FinalEntity, IFinal>.Init(IFinal source)
 	{
-		internal object? Ancestor;
-
-	#region Interface IAncestorProvider
-
-		object? IAncestorProvider.Ancestor => Ancestor;
-
-	#endregion
-
-	#region Interface IDebugEntityId
-
-		FormattableString IDebugEntityId.EntityId => @$"{Id}";
-
-	#endregion
-
-	#region Interface IFinal
-
-		public IIdentifier?             Id       { get; set; }
-		public ImmutableArray<IOnEntry> OnEntry  { get; set; }
-		public ImmutableArray<IOnExit>  OnExit   { get; set; }
-		public IDoneData?               DoneData { get; set; }
-
-	#endregion
-
-	#region Interface IVisitorEntity<FinalEntity,IFinal>
-
-		void IVisitorEntity<FinalEntity, IFinal>.Init(IFinal source)
-		{
-			Ancestor = source;
-			Id = source.Id;
-			OnEntry = source.OnEntry;
-			OnExit = source.OnExit;
-			DoneData = source.DoneData;
-		}
-
-		bool IVisitorEntity<FinalEntity, IFinal>.RefEquals(ref FinalEntity other) =>
-			OnExit == other.OnExit &&
-			OnEntry == other.OnEntry &&
-			ReferenceEquals(Id, other.Id) &&
-			ReferenceEquals(DoneData, other.DoneData);
-
-	#endregion
+		Ancestor = source;
+		Id = source.Id;
+		OnEntry = source.OnEntry;
+		OnExit = source.OnExit;
+		DoneData = source.DoneData;
 	}
+
+	bool IVisitorEntity<FinalEntity, IFinal>.RefEquals(ref FinalEntity other) =>
+		OnExit == other.OnExit &&
+		OnEntry == other.OnEntry &&
+		ReferenceEquals(Id, other.Id) &&
+		ReferenceEquals(DoneData, other.DoneData);
+
+#endregion
 }

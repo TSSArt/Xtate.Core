@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,136 +17,137 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using Xtate.Persistence;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public abstract class StateEntityNode : IStateEntity, IStoreSupport, IDocumentId
 {
-	public abstract class StateEntityNode : IStateEntity, IStoreSupport, IDocumentId
+	public static readonly IComparer<StateEntityNode> EntryOrder = new DocumentOrderComparer(reverseOrder: false);
+	public static readonly IComparer<StateEntityNode> ExitOrder  = new DocumentOrderComparer(reverseOrder: true);
+
+	private DocumentIdSlot _documentIdSlot;
+
+	protected StateEntityNode(DocumentIdNode documentIdNode) => documentIdNode.SaveToSlot(out _documentIdSlot);
+
+	public StateEntityNode? Parent { get; private set; }
+
+	public virtual bool                            IsAtomicState => throw GetNotSupportedException();
+	public virtual ImmutableArray<TransitionNode>  Transitions   => throw GetNotSupportedException();
+	public virtual ImmutableArray<OnEntryNode>     OnEntry       => throw GetNotSupportedException();
+	public virtual ImmutableArray<OnExitNode>      OnExit        => throw GetNotSupportedException();
+	public virtual ImmutableArray<InvokeNode>      Invoke        => throw GetNotSupportedException();
+	public virtual ImmutableArray<HistoryNode>     HistoryStates => throw GetNotSupportedException();
+	public virtual ImmutableArray<StateEntityNode> States        => throw GetNotSupportedException();
+	public virtual DataModelNode?                  DataModel     => throw GetNotSupportedException();
+
+#region Interface IDocumentId
+
+	public int DocumentId => _documentIdSlot.Value;
+
+#endregion
+
+#region Interface IStateEntity
+
+	public virtual IIdentifier Id => throw GetNotSupportedException();
+
+#endregion
+
+#region Interface IStoreSupport
+
+	void IStoreSupport.Store(Bucket bucket) => Store(bucket);
+
+#endregion
+
+	protected void Register(InitialNode? initialNode)
 	{
-		public static readonly IComparer<StateEntityNode> EntryOrder = new DocumentOrderComparer(reverseOrder: false);
-		public static readonly IComparer<StateEntityNode> ExitOrder  = new DocumentOrderComparer(reverseOrder: true);
-
-		private DocumentIdSlot   _documentIdSlot;
-
-		protected StateEntityNode(DocumentIdNode documentIdNode) => documentIdNode.SaveToSlot(out _documentIdSlot);
-
-		protected void Register(InitialNode? initialNode)
+		if (initialNode is not null)
 		{
-			if (initialNode is not null)
-			{
-				initialNode.Parent = this;
-			}
+			initialNode.Parent = this;
+		}
+	}
+
+	protected void Register(ImmutableArray<StateEntityNode> stateEntityNodes)
+	{
+		if (stateEntityNodes.IsDefaultOrEmpty)
+		{
+			return;
 		}
 
-		protected void Register(ImmutableArray<StateEntityNode> stateEntityNodes)
+		foreach (var stateEntityNode in stateEntityNodes)
 		{
-			if (stateEntityNodes.IsDefaultOrEmpty)
+			if (stateEntityNode is not null)
 			{
-				return;
-			}
-
-			foreach (var stateEntityNode in stateEntityNodes)
-			{
-				if (stateEntityNode is not null)
-				{
-					stateEntityNode.Parent = this;
-				}
+				stateEntityNode.Parent = this;
 			}
 		}
+	}
 
-		protected void Register(ImmutableArray<HistoryNode> historyNodes)
+	protected void Register(ImmutableArray<HistoryNode> historyNodes)
+	{
+		if (historyNodes.IsDefaultOrEmpty)
 		{
-			if (historyNodes.IsDefaultOrEmpty)
-			{
-				return;
-			}
-
-			foreach (var historyNode in historyNodes)
-			{
-				if (historyNode is not null)
-				{
-					historyNode.Parent = this;
-				}
-			}
+			return;
 		}
 
-		protected void Register(ImmutableArray<TransitionNode> transitionNodes)
+		foreach (var historyNode in historyNodes)
 		{
-			if (transitionNodes.IsDefaultOrEmpty)
+			if (historyNode is not null)
 			{
-				return;
-			}
-
-			foreach (var transitionNode in transitionNodes)
-			{
-				transitionNode?.SetSource(this);
+				historyNode.Parent = this;
 			}
 		}
+	}
 
-		protected void Register(ImmutableArray<InvokeNode> invokeNodes)
+	protected void Register(ImmutableArray<TransitionNode> transitionNodes)
+	{
+		if (transitionNodes.IsDefaultOrEmpty)
 		{
-			if (invokeNodes.IsDefaultOrEmpty)
-			{
-				return;
-			}
-
-			foreach (var invokeNode in invokeNodes)
-			{
-				invokeNode?.SetSource(this);
-			}
+			return;
 		}
 
-		public StateEntityNode? Parent { get; private set; }
-
-		public virtual bool                            IsAtomicState => throw GetNotSupportedException();
-		public virtual IIdentifier                     Id            => throw GetNotSupportedException();
-		public virtual ImmutableArray<TransitionNode>  Transitions   => throw GetNotSupportedException();
-		public virtual ImmutableArray<OnEntryNode>     OnEntry       => throw GetNotSupportedException();
-		public virtual ImmutableArray<OnExitNode>      OnExit        => throw GetNotSupportedException();
-		public virtual ImmutableArray<InvokeNode>      Invoke        => throw GetNotSupportedException();
-		public virtual ImmutableArray<HistoryNode>     HistoryStates => throw GetNotSupportedException();
-		public virtual ImmutableArray<StateEntityNode> States        => throw GetNotSupportedException();
-		public virtual DataModelNode?                  DataModel     => throw GetNotSupportedException();
-
-		#region Interface IDocumentId
-
-		public int DocumentId => _documentIdSlot.Value;
-
-	#endregion
-
-	#region Interface IStoreSupport
-
-		void IStoreSupport.Store(Bucket bucket) => Store(bucket);
-
-	#endregion
-
-		private NotSupportedException GetNotSupportedException() => new(Res.Format(Resources.Exception_SpecifiedMethodIsNotSupportedInType, GetType().Name));
-
-		protected abstract void Store(Bucket bucket);
-
-		private sealed class DocumentOrderComparer : IComparer<StateEntityNode>
+		foreach (var transitionNode in transitionNodes)
 		{
-			private readonly bool _reverseOrder;
+			transitionNode?.SetSource(this);
+		}
+	}
 
-			public DocumentOrderComparer(bool reverseOrder) => _reverseOrder = reverseOrder;
+	protected void Register(ImmutableArray<InvokeNode> invokeNodes)
+	{
+		if (invokeNodes.IsDefaultOrEmpty)
+		{
+			return;
+		}
 
-		#region Interface IComparer<StateEntityNode>
+		foreach (var invokeNode in invokeNodes)
+		{
+			invokeNode?.SetSource(this);
+		}
+	}
 
-			public int Compare(StateEntityNode? x, StateEntityNode? y) => _reverseOrder ? InternalCompare(y, x) : InternalCompare(x, y);
+	private NotSupportedException GetNotSupportedException() => new(Res.Format(Resources.Exception_SpecifiedMethodIsNotSupportedInType, GetType().Name));
 
-		#endregion
+	protected abstract void Store(Bucket bucket);
 
-			private static int InternalCompare(StateEntityNode? x, StateEntityNode? y)
-			{
-				if (x == y) return 0;
-				if (y is null) return 1;
-				if (x is null) return -1;
+	private sealed class DocumentOrderComparer : IComparer<StateEntityNode>
+	{
+		private readonly bool _reverseOrder;
 
-				return x.DocumentId.CompareTo(y.DocumentId);
-			}
+		public DocumentOrderComparer(bool reverseOrder) => _reverseOrder = reverseOrder;
+
+#region Interface IComparer<StateEntityNode>
+
+		public int Compare(StateEntityNode? x, StateEntityNode? y) => _reverseOrder ? InternalCompare(y, x) : InternalCompare(x, y);
+
+#endregion
+
+		private static int InternalCompare(StateEntityNode? x, StateEntityNode? y)
+		{
+			if (x == y) return 0;
+			if (y is null) return 1;
+			if (x is null) return -1;
+
+			return x.DocumentId.CompareTo(y.DocumentId);
 		}
 	}
 }

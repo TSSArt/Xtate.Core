@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,39 +17,32 @@
 
 #endregion
 
-using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
+namespace Xtate;
 
-namespace Xtate
+
+public enum SecurityContextType
 {
-	[PublicAPI]
-	public enum SecurityContextType
-	{
-		NoAccess,
-		NewStateMachine,
-		NewTrustedStateMachine,
-		InvokedService
-	}
+	NoAccess,
+	NewStateMachine,
+	NewTrustedStateMachine,
+	InvokedService
+}
 
-	public interface IIoBoundTask
-	{
-		TaskFactory Factory { get; }
-	}
+public interface IIoBoundTask
+{
+	TaskFactory Factory { get; }
+}
 
-	public class DefaultIoBoundTask : IIoBoundTask
-	{
-		public TaskFactory Factory => new(TaskScheduler.Default);
-	}
+public class DefaultIoBoundTask : IIoBoundTask
+{
+#region Interface IIoBoundTask
 
-	public interface ISecurityContext : IIoBoundTask
-	{
-		ISecurityContext CreateNested(SecurityContextType type);
+	public TaskFactory Factory => new(TaskScheduler.Default);
 
-		ValueTask SetValue<T>(object key,
-							  object subKey,
-							  [DisallowNull] T value,
-							  ValueOptions options);
+#endregion
+}
 
-		bool TryGetValue<T>(object key, object subKey, [NotNullWhen(true)] out T? value);
-	}
+public interface ISecurityContext : IIoBoundTask
+{
+	ISecurityContext CreateNested(SecurityContextType type);
 }

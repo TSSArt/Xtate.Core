@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,15 +17,10 @@
 
 #endregion
 
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.Core;
+namespace Xtate.DataModel;
 
-namespace Xtate.DataModel
+
+public interface IResourceEvaluator : IValueEvaluator
 {
-	[PublicAPI]
-	public interface IResourceEvaluator : IValueEvaluator
-	{
-		ValueTask<IObject> EvaluateObject(Resource resource);
-	}
+	ValueTask<IObject> EvaluateObject(Resource resource);
 }

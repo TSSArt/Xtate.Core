@@ -17,18 +17,16 @@
 
 #endregion
 
-using System;
 using System.Collections.Specialized;
 using System.IO;
-using System.Threading.Tasks;
 using Xtate.XInclude;
 
 namespace Xtate.Core;
 
 public class RedirectXmlResolver : ScxmlXmlResolver, IDisposable
 {
-	private readonly DisposingToken  _disposingToken = new();
-	public required  Func<ValueTask<IResourceLoader>> ResourceLoaderFactory { private get; init; }
+	private readonly DisposingToken                   _disposingToken = new();
+	public required  Func<ValueTask<IResourceLoader>> ResourceLoaderFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IDisposable
 

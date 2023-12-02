@@ -17,13 +17,9 @@
 
 #endregion
 
-using System;
-using System.Threading.Tasks;
-using Xtate.Core;
-
 namespace Xtate.DataModel;
 
-public abstract class ParamEvaluator : IParam, IParameterEvaluator, IAncestorProvider, IDebugEntityId
+public abstract class ParamEvaluator : IParam, IAncestorProvider, IDebugEntityId
 {
 	private readonly IParam _param;
 

@@ -1,4 +1,4 @@
-#region Copyright © 2019-2021 Sergii Artemenko
+#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,14 +19,12 @@
 
 using System.IO;
 using System.Net.Mime;
-using System.Threading.Tasks;
 
-namespace Xtate.XInclude
+namespace Xtate.XInclude;
+
+public interface IXIncludeResource
 {
-	public interface IXIncludeResource
-	{
-		ContentType? ContentType { get; }
+	ContentType? ContentType { get; }
 
-		ValueTask<Stream> GetStream();
-	}
+	ValueTask<Stream> GetStream();
 }

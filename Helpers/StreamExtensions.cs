@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,20 +17,15 @@
 
 #endregion
 
-using System;
 using System.Buffers;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public static class StreamExtensions
 {
-	public static class StreamExtensions
-	{
 #if NET6_0_OR_GREATER
-		internal static void IgnoreIt(ConfiguredValueTaskAwaitable _) { }
+	internal static void IgnoreIt(ConfiguredValueTaskAwaitable _) { }
 #else
 		public static ConfiguredAwaitable ConfigureAwait(this Stream stream, bool continueOnCapturedContext) => new(stream, continueOnCapturedContext);
 
@@ -61,35 +56,34 @@ namespace Xtate.Core
 		}
 #endif
 
-		public static Stream InjectCancellationToken(this Stream stream, CancellationToken token) => new InjectedCancellationStream(stream, token);
+	public static Stream InjectCancellationToken(this Stream stream, CancellationToken token) => new InjectedCancellationStream(stream, token);
 
-		[SuppressMessage(category: "ReSharper", checkId: "MethodHasAsyncOverloadWithCancellation")]
-		public static async ValueTask<byte[]> ReadToEndAsync(this Stream stream, CancellationToken token)
+	[SuppressMessage(category: "ReSharper", checkId: "MethodHasAsyncOverloadWithCancellation")]
+	public static async ValueTask<byte[]> ReadToEndAsync(this Stream stream, CancellationToken token)
+	{
+		if (stream is null) throw new ArgumentNullException(nameof(stream));
+
+		var longLength = stream.Length - stream.Position;
+		var capacity = longLength is >= 0 and <= int.MaxValue ? (int) longLength : 0;
+
+		var memoryStream = new MemoryStream(capacity);
+		var buffer = ArrayPool<byte>.Shared.Rent(4096);
+		try
 		{
-			if (stream is null) throw new ArgumentNullException(nameof(stream));
-
-			var longLength = stream.Length - stream.Position;
-			var capacity = longLength is >= 0 and <= int.MaxValue ? (int) longLength : 0;
-
-			var memoryStream = new MemoryStream(capacity);
-			var buffer = ArrayPool<byte>.Shared.Rent(4096);
-			try
+			while (true)
 			{
-				while (true)
+				var bytesRead = await stream.ReadAsync(buffer, offset: 0, buffer.Length, token).ConfigureAwait(false);
+				if (bytesRead == 0)
 				{
-					var bytesRead = await stream.ReadAsync(buffer, offset: 0, buffer.Length, token).ConfigureAwait(false);
-					if (bytesRead == 0)
-					{
-						return memoryStream.Length == memoryStream.Capacity ? memoryStream.GetBuffer() : memoryStream.ToArray();
-					}
-
-					memoryStream.Write(buffer, offset: 0, bytesRead);
+					return memoryStream.Length == memoryStream.Capacity ? memoryStream.GetBuffer() : memoryStream.ToArray();
 				}
+
+				memoryStream.Write(buffer, offset: 0, bytesRead);
 			}
-			finally
-			{
-				ArrayPool<byte>.Shared.Return(buffer);
-			}
+		}
+		finally
+		{
+			ArrayPool<byte>.Shared.Return(buffer);
 		}
 	}
 }

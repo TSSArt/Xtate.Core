@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,34 +17,33 @@
 
 #endregion
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public struct RaiseEntity : IRaise, IVisitorEntity<RaiseEntity, IRaise>, IAncestorProvider
 {
-	public struct RaiseEntity : IRaise, IVisitorEntity<RaiseEntity, IRaise>, IAncestorProvider
+	internal object? Ancestor;
+
+#region Interface IAncestorProvider
+
+	object? IAncestorProvider.Ancestor => Ancestor;
+
+#endregion
+
+#region Interface IRaise
+
+	public IOutgoingEvent? OutgoingEvent { get; set; }
+
+#endregion
+
+#region Interface IVisitorEntity<RaiseEntity,IRaise>
+
+	void IVisitorEntity<RaiseEntity, IRaise>.Init(IRaise source)
 	{
-		internal object? Ancestor;
-
-	#region Interface IAncestorProvider
-
-		object? IAncestorProvider.Ancestor => Ancestor;
-
-	#endregion
-
-	#region Interface IRaise
-
-		public IOutgoingEvent? OutgoingEvent { get; set; }
-
-	#endregion
-
-	#region Interface IVisitorEntity<RaiseEntity,IRaise>
-
-		void IVisitorEntity<RaiseEntity, IRaise>.Init(IRaise source)
-		{
-			Ancestor = source;
-			OutgoingEvent = source.OutgoingEvent;
-		}
-
-		bool IVisitorEntity<RaiseEntity, IRaise>.RefEquals(ref RaiseEntity other) => ReferenceEquals(OutgoingEvent, other.OutgoingEvent);
-
-	#endregion
+		Ancestor = source;
+		OutgoingEvent = source.OutgoingEvent;
 	}
+
+	bool IVisitorEntity<RaiseEntity, IRaise>.RefEquals(ref RaiseEntity other) => ReferenceEquals(OutgoingEvent, other.OutgoingEvent);
+
+#endregion
 }

@@ -31,22 +31,23 @@ public static class StateMachineHostExtensions
 			services.RegisterStateMachineFactory();
 			services.RegisterStateMachineInterpreter();
 
-			
 			//TODO: tmp ----
 			services.AddType<StateMachineHostOptions>();
-			services.AddForwarding(sp => new ServiceLocator(sp));
+			//services.AddForwarding(sp => new ServiceLocator(sp));
+
 			//TODO: tmp ----
-
-
 
 			services.AddImplementation<InProcEventSchedulerFactory>().For<IEventSchedulerFactory>();
 
 			services.AddSharedImplementation<ScopeManager>(SharedWithin.Scope).For<IScopeManager>();
-			services.AddSharedImplementation<StateMachineRuntimeController>(SharedWithin.Scope).For<IStateMachineController>().For<IInvokeController>().For<INotifyStateChanged>().For<IExternalCommunication>();
+			services.AddSharedImplementation<StateMachineRuntimeController>(SharedWithin.Scope)
+					.For<IStateMachineController>()
+					.For<IInvokeController>()
+					.For<INotifyStateChanged>()
+					.For<IExternalCommunication>();
 
-
-			services.AddSharedImplementation<StateMachineHost>(SharedWithin.Container).For<StateMachineHost>().For<IStateMachineHost>().For<IServiceFactory>();                      //TODO: Make only interface
-			services.AddSharedImplementation<StateMachineHostContext>(SharedWithin.Container).For<StateMachineHostContext>().For<IStateMachineHostContext>(); //TODO: Make only interface
+			services.AddSharedImplementation<StateMachineHost>(SharedWithin.Container).For<StateMachineHost>().For<IStateMachineHost>().For<IServiceFactory>(); //TODO: Make only interface
+			services.AddSharedImplementation<StateMachineHostContext>(SharedWithin.Container).For<StateMachineHostContext>().For<IStateMachineHostContext>();   //TODO: Make only interface
 		}
 	}
 }

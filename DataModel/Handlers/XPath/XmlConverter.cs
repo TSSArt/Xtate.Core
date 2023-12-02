@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,447 +17,442 @@
 
 #endregion
 
-using System;
 using System.Globalization;
 using System.IO;
-using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.XPath;
-using Xtate.Core;
-using Xtate.Scxml;
 
-namespace Xtate.DataModel.XPath
+namespace Xtate.DataModel.XPath;
+
+public static class XmlConverter
 {
-	public static class XmlConverter
+	public const string TypeAttributeName     = @"type";
+	public const string XPathElementNamespace = @"http://xtate.net/xpath";
+
+	private const string NoKeyElementName    = @"item";
+	private const string EmptyKeyElementName = @"empty";
+	private const string XPathElementPrefix  = @"x";
+	private const string BoolTypeValue       = @"bool";
+	private const string DatetimeTypeValue   = @"datetime";
+	private const string NumberTypeValue     = @"number";
+	private const string NullTypeValue       = @"null";
+	private const string UndefinedTypeValue  = @"undefined";
+
+	private static readonly XmlReaderSettings DefaultReaderSettings = new() { ConformanceLevel = ConformanceLevel.Auto };
+
+	public static string ToXml(in DataModelValue value, bool indent)
 	{
-		public const string TypeAttributeName     = @"type";
-		public const string XPathElementNamespace = @"http://xtate.net/xpath";
+		using var textWriter = new StringWriter(CultureInfo.InvariantCulture);
+		using var xmlWriter = XmlWriter.Create(textWriter, GetOptions(indent, async: false));
+		Infra.NotNull(xmlWriter);
 
-		private const string NoKeyElementName    = @"item";
-		private const string EmptyKeyElementName = @"empty";
-		private const string XPathElementPrefix  = @"x";
-		private const string BoolTypeValue       = @"bool";
-		private const string DatetimeTypeValue   = @"datetime";
-		private const string NumberTypeValue     = @"number";
-		private const string NullTypeValue       = @"null";
-		private const string UndefinedTypeValue  = @"undefined";
+		var navigator = new DataModelXPathNavigator(value);
 
-		private static readonly XmlReaderSettings DefaultReaderSettings = new() { ConformanceLevel = ConformanceLevel.Auto };
+		WriteNode(xmlWriter, navigator);
 
-		public static string ToXml(in DataModelValue value, bool indent)
+		xmlWriter.Flush();
+
+		return textWriter.ToString();
+	}
+
+	public static async Task AsXmlToStreamAsync(DataModelValue value, bool indent, Stream stream)
+	{
+		var xmlWriter = XmlWriter.Create(stream, GetOptions(indent, async: true));
+
+		await using (xmlWriter.ConfigureAwait(false))
 		{
-			using var textWriter = new StringWriter(CultureInfo.InvariantCulture);
-			using var xmlWriter = XmlWriter.Create(textWriter, GetOptions(indent, async: false));
-			Infra.NotNull(xmlWriter);
-
 			var navigator = new DataModelXPathNavigator(value);
 
-			WriteNode(xmlWriter, navigator);
+			await WriteNodeAsync(xmlWriter, navigator).ConfigureAwait(false);
 
-			xmlWriter.Flush();
-
-			return textWriter.ToString();
+			await xmlWriter.FlushAsync().ConfigureAwait(false);
 		}
+	}
 
-		public static async Task AsXmlToStreamAsync(DataModelValue value, bool indent, Stream stream)
+	public static void AsXmlToStream(DataModelValue value, bool indent, Stream stream)
+	{
+		using var xmlWriter = XmlWriter.Create(stream, GetOptions(indent, async: false));
+		var navigator = new DataModelXPathNavigator(value);
+
+		WriteNode(xmlWriter, navigator);
+
+		xmlWriter.Flush();
+	}
+
+	private static XmlWriterSettings GetOptions(bool indent, bool async) =>
+		new()
 		{
-			var xmlWriter = XmlWriter.Create(stream, GetOptions(indent, async: true));
+			Indent = indent,
+			OmitXmlDeclaration = true,
+			ConformanceLevel = ConformanceLevel.Auto,
+			Async = async
+		};
 
-			await using (xmlWriter.ConfigureAwait(false))
-			{
-				var navigator = new DataModelXPathNavigator(value);
-
-				await WriteNodeAsync(xmlWriter, navigator).ConfigureAwait(false);
-
-				await xmlWriter.FlushAsync().ConfigureAwait(false);
-			}
-		}
-
-		public static void AsXmlToStream(DataModelValue value, bool indent, Stream stream)
+	private static void WriteNode(XmlWriter xmlWriter, XPathNavigator navigator)
+	{
+		if (navigator is { NodeType: XPathNodeType.Element, LocalName.Length: 0 })
 		{
-			using var xmlWriter = XmlWriter.Create(stream, GetOptions(indent, async: false));
-			var navigator = new DataModelXPathNavigator(value);
-
-			WriteNode(xmlWriter, navigator);
-
-			xmlWriter.Flush();
-		}
-
-		private static XmlWriterSettings GetOptions(bool indent, bool async) =>
-			new()
+			if (navigator.HasChildren)
 			{
-				Indent = indent,
-				OmitXmlDeclaration = true,
-				ConformanceLevel = ConformanceLevel.Auto,
-				Async = async
-			};
-
-		private static void WriteNode(XmlWriter xmlWriter, XPathNavigator navigator)
-		{
-			if (navigator is { NodeType: XPathNodeType.Element, LocalName.Length: 0 })
-			{
-				if (navigator.HasChildren)
+				for (var moved = navigator.MoveToFirstChild(); moved; moved = navigator.MoveToNext())
 				{
-					for (var moved = navigator.MoveToFirstChild(); moved; moved = navigator.MoveToNext())
-					{
-						WriteNode(xmlWriter, navigator);
-					}
-
-					navigator.MoveToParent();
+					WriteNode(xmlWriter, navigator);
 				}
-			}
-			else
-			{
-				xmlWriter.WriteNode(navigator, defattr: true);
+
+				navigator.MoveToParent();
 			}
 		}
-
-		private static async Task WriteNodeAsync(XmlWriter xmlWriter, XPathNavigator navigator)
+		else
 		{
-			if (navigator is { NodeType: XPathNodeType.Element, LocalName.Length: 0 })
-			{
-				if (navigator.HasChildren)
-				{
-					for (var moved = navigator.MoveToFirstChild(); moved; moved = navigator.MoveToNext())
-					{
-						await WriteNodeAsync(xmlWriter, navigator).ConfigureAwait(false);
-					}
+			xmlWriter.WriteNode(navigator, defattr: true);
+		}
+	}
 
-					navigator.MoveToParent();
+	private static async Task WriteNodeAsync(XmlWriter xmlWriter, XPathNavigator navigator)
+	{
+		if (navigator is { NodeType: XPathNodeType.Element, LocalName.Length: 0 })
+		{
+			if (navigator.HasChildren)
+			{
+				for (var moved = navigator.MoveToFirstChild(); moved; moved = navigator.MoveToNext())
+				{
+					await WriteNodeAsync(xmlWriter, navigator).ConfigureAwait(false);
 				}
-			}
-			else
-			{
-				await xmlWriter.WriteNodeAsync(navigator, defattr: true).ConfigureAwait(false);
+
+				navigator.MoveToParent();
 			}
 		}
-
-		public static DataModelValue FromXml(string xml, XmlParserContext? context = default)
+		else
 		{
-			using var reader = new StringReader(xml);
-			using var xmlReader = XmlReader.Create(reader, DefaultReaderSettings, context);
-
-			return LoadValue(xmlReader);
+			await xmlWriter.WriteNodeAsync(navigator, defattr: true).ConfigureAwait(false);
 		}
+	}
 
-		public static DataModelValue FromXmlStream(Stream stream, XmlParserContext? context = default)
+	public static DataModelValue FromXml(string xml, XmlParserContext? context = default)
+	{
+		using var reader = new StringReader(xml);
+		using var xmlReader = XmlReader.Create(reader, DefaultReaderSettings, context);
+
+		return LoadValue(xmlReader);
+	}
+
+	public static DataModelValue FromXmlStream(Stream stream, XmlParserContext? context = default)
+	{
+		using var xmlReader = XmlReader.Create(stream, DefaultReaderSettings, context);
+
+		return LoadValue(xmlReader);
+	}
+
+	public static async ValueTask<DataModelValue> FromXmlStreamAsync(Stream stream, XmlParserContext? context = default)
+	{
+		using var xmlReader = XmlReader.Create(stream, DefaultReaderSettings, context);
+
+		return await LoadValueAsync(xmlReader).ConfigureAwait(false);
+	}
+
+	public static string? NsNameToKey(string ns, string localName) =>
+		ns == XPathElementNamespace
+			? localName switch
+			  {
+				  NoKeyElementName    => null,
+				  EmptyKeyElementName => string.Empty,
+				  _                   => XmlConvert.DecodeName(localName)
+			  }
+			: XmlConvert.DecodeName(localName);
+
+	public static string KeyToLocalName(string? key) =>
+		key switch
 		{
-			using var xmlReader = XmlReader.Create(stream, DefaultReaderSettings, context);
+			{ Length: 0 } => EmptyKeyElementName,
+			_             => key is not null ? XmlConvert.EncodeLocalName(key)! : NoKeyElementName
+		};
 
-			return LoadValue(xmlReader);
-		}
-
-		public static async ValueTask<DataModelValue> FromXmlStreamAsync(Stream stream, XmlParserContext? context = default)
+	public static string? KeyToNamespaceOrDefault(string? key) =>
+		key switch
 		{
-			using var xmlReader = XmlReader.Create(stream, DefaultReaderSettings, context);
+			null          => XPathElementNamespace,
+			{ Length: 0 } => XPathElementNamespace,
+			_             => null
+		};
 
-			return await LoadValueAsync(xmlReader).ConfigureAwait(false);
-		}
-
-		public static string? NsNameToKey(string ns, string localName) =>
-			ns == XPathElementNamespace
-				? localName switch
-				  {
-					  NoKeyElementName    => null,
-					  EmptyKeyElementName => string.Empty,
-					  _                   => XmlConvert.DecodeName(localName)
-				  }
-				: XmlConvert.DecodeName(localName);
-
-		public static string KeyToLocalName(string? key) =>
-			key switch
-			{
-				{ Length: 0 } => EmptyKeyElementName,
-				_             => key is not null ? XmlConvert.EncodeLocalName(key)! : NoKeyElementName
-			};
-
-		public static string? KeyToNamespaceOrDefault(string? key) =>
-			key switch
-			{
-				null          => XPathElementNamespace,
-				{ Length: 0 } => XPathElementNamespace,
-				_             => null
-			};
-
-		public static string? KeyToPrefixOrDefault(string? key) =>
-			key switch
-			{
-				null          => XPathElementPrefix,
-				{ Length: 0 } => XPathElementPrefix,
-				_             => null
-			};
-
-		private static async ValueTask<DataModelValue> LoadValueAsync(XmlReader xmlReader)
+	public static string? KeyToPrefixOrDefault(string? key) =>
+		key switch
 		{
-			DataModelList? list = default;
+			null          => XPathElementPrefix,
+			{ Length: 0 } => XPathElementPrefix,
+			_             => null
+		};
 
-			do
-			{
-				await xmlReader.MoveToContentAsync().ConfigureAwait(false);
-				switch (xmlReader.NodeType)
-				{
-					case XmlNodeType.Element:
+	private static async ValueTask<DataModelValue> LoadValueAsync(XmlReader xmlReader)
+	{
+		DataModelList? list = default;
 
-						var key = NsNameToKey(xmlReader.NamespaceURI, xmlReader.LocalName);
-
-						var metadata = GetMetaData(xmlReader);
-
-						list ??= new DataModelList();
-
-						if (!xmlReader.IsEmptyElement)
-						{
-							var type = xmlReader.GetAttribute(TypeAttributeName, XPathElementNamespace);
-
-							await ReadStartElementAsync(xmlReader).ConfigureAwait(false);
-							var value = await LoadValueAsync(xmlReader).ConfigureAwait(false);
-
-							list.Add(key, ToType(value, type), metadata);
-						}
-						else
-						{
-							var type = xmlReader.GetAttribute(TypeAttributeName, XPathElementNamespace);
-
-							list.Add(key, ToType(string.Empty, type), metadata);
-						}
-
-						break;
-
-					case XmlNodeType.EndElement:
-						await ReadEndElementAsync(xmlReader).ConfigureAwait(false);
-
-						return list;
-
-					case XmlNodeType.Text:
-						var text = xmlReader.Value;
-						await xmlReader.ReadAsync().ConfigureAwait(false);
-
-						return text;
-
-					case XmlNodeType.None:
-
-						return list;
-
-					default:
-						Infra.Unexpected(xmlReader.NodeType);
-
-						break;
-				}
-			}
-			while (await xmlReader.ReadAsync().ConfigureAwait(false));
-
-			return list;
-		}
-
-		private static async ValueTask ReadStartElementAsync(XmlReader xmlReader)
+		do
 		{
-			if (xmlReader.NodeType != XmlNodeType.Element)
+			await xmlReader.MoveToContentAsync().ConfigureAwait(false);
+			switch (xmlReader.NodeType)
 			{
-				await xmlReader.MoveToContentAsync().ConfigureAwait(false);
-			}
+				case XmlNodeType.Element:
 
-			xmlReader.ReadStartElement();
-		}
+					var key = NsNameToKey(xmlReader.NamespaceURI, xmlReader.LocalName);
 
-		private static async ValueTask ReadEndElementAsync(XmlReader xmlReader)
-		{
-			if (xmlReader.NodeType != XmlNodeType.EndElement)
-			{
-				await xmlReader.MoveToContentAsync().ConfigureAwait(false);
-			}
+					var metadata = GetMetaData(xmlReader);
 
-			xmlReader.ReadEndElement();
-		}
+					list ??= new DataModelList();
 
-		private static DataModelValue LoadValue(XmlReader xmlReader)
-		{
-			DataModelList? list = default;
-
-			do
-			{
-				xmlReader.MoveToContent();
-
-				switch (xmlReader.NodeType)
-				{
-					case XmlNodeType.Element:
-
-						var key = NsNameToKey(xmlReader.NamespaceURI, xmlReader.LocalName);
-
-						var metadata = GetMetaData(xmlReader);
-
-						list ??= new DataModelList();
-
-						if (!xmlReader.IsEmptyElement)
-						{
-							var type = xmlReader.GetAttribute(TypeAttributeName, XPathElementNamespace);
-
-							xmlReader.ReadStartElement();
-							var value = LoadValue(xmlReader);
-
-							list.Add(key, ToType(value, type), metadata);
-						}
-						else
-						{
-							var type = xmlReader.GetAttribute(TypeAttributeName, XPathElementNamespace);
-
-							list.Add(key, ToType(string.Empty, type), metadata);
-						}
-
-						break;
-
-					case XmlNodeType.EndElement:
-						xmlReader.ReadEndElement();
-
-						return list;
-
-					case XmlNodeType.Text:
-						var text = xmlReader.Value;
-						xmlReader.Read();
-
-						return text;
-
-					case XmlNodeType.None:
-
-						return list;
-
-					default:
-						Infra.Unexpected(xmlReader.NodeType);
-
-						break;
-				}
-			}
-			while (xmlReader.Read());
-
-			return list;
-		}
-
-		private static DataModelValue ToType(in DataModelValue value, string? type)
-		{
-			return type switch
-				   {
-					   null               => value,
-					   BoolTypeValue      => XmlConvert.ToBoolean(value.AsString()),
-					   DatetimeTypeValue  => XmlConvert.ToDateTimeOffset(value.AsString()),
-					   NumberTypeValue    => XmlConvert.ToDouble(value.AsString()),
-					   NullTypeValue      => DataModelValue.Null,
-					   UndefinedTypeValue => default,
-					   _                  => Infra.Unexpected<DataModelValue>(type)
-				   };
-		}
-
-		public static string ToString(in DataModelValue value) =>
-			value.Type switch
-			{
-				DataModelValueType.Undefined => string.Empty,
-				DataModelValueType.Null      => string.Empty,
-				DataModelValueType.String    => value.AsString(),
-				DataModelValueType.Number    => XmlConvert.ToString(value.AsNumber()),
-				DataModelValueType.Boolean   => value.AsBoolean() ? @"true" : @"false",
-				DataModelValueType.DateTime  => DateTimeToXmlString(value.AsDateTime()),
-				_                            => Infra.Unexpected<string>(value.Type)
-			};
-
-		private static string DateTimeToXmlString(in DataModelDateTime dttm) =>
-			dttm.Type switch
-			{
-				DataModelDateTimeType.DateTime       => XmlConvert.ToString(dttm.ToDateTime(), XmlDateTimeSerializationMode.RoundtripKind),
-				DataModelDateTimeType.DateTimeOffset => XmlConvert.ToString(dttm.ToDateTimeOffset()),
-				_                                    => Infra.Unexpected<string>(dttm.Type)
-			};
-
-		public static int GetBufferSizeForValue(in DataModelValue value) =>
-			value.Type switch
-			{
-				DataModelValueType.Undefined => 0,
-				DataModelValueType.Null      => 0,
-				DataModelValueType.String    => value.AsString().Length,
-				DataModelValueType.Number    => 24, // -1.2345678901234567e+123 (G17)
-				DataModelValueType.DateTime  => 33, // YYYY-MM-DDThh:mm:ss.1234567+hh:mm (DateTime with Offset)
-				DataModelValueType.Boolean   => 5,  // 'false' - longest value
-				_                            => Infra.Unexpected<int>(value.Type)
-			};
-
-		public static int WriteValueToSpan(in DataModelValue value, in Span<char> span)
-		{
-			return value.Type switch
-				   {
-					   DataModelValueType.Undefined => 0,
-					   DataModelValueType.Null      => 0,
-					   DataModelValueType.String    => WriteString(value.AsString(), span),
-					   DataModelValueType.Number    => WriteString(XmlConvert.ToString(value.AsNumber()), span),
-					   DataModelValueType.DateTime  => WriteDataModelDateTime(value.AsDateTime(), span),
-					   DataModelValueType.Boolean   => WriteString(value.AsBoolean() ? @"true" : @"false", span),
-					   _                            => Infra.Unexpected<int>(value.Type)
-				   };
-
-			static int WriteDataModelDateTime(in DataModelDateTime value, in Span<char> span) =>
-				value.Type switch
-				{
-					DataModelDateTimeType.DateTime       => WriteString(XmlConvert.ToString(value.ToDateTime(), XmlDateTimeSerializationMode.RoundtripKind), span),
-					DataModelDateTimeType.DateTimeOffset => WriteString(XmlConvert.ToString(value.ToDateTimeOffset()), span),
-					_                                    => Infra.Unexpected<int>(value.Type)
-				};
-
-			static int WriteString(string value, in Span<char> span)
-			{
-				value.AsSpan().CopyTo(span);
-				return value.Length;
-			}
-		}
-
-		public static DataModelValue GetTypeValue(in DataModelValue value) =>
-			value.Type switch
-			{
-				DataModelValueType.Boolean   => BoolTypeValue,
-				DataModelValueType.DateTime  => DatetimeTypeValue,
-				DataModelValueType.Number    => NumberTypeValue,
-				DataModelValueType.Null      => NullTypeValue,
-				DataModelValueType.Undefined => UndefinedTypeValue,
-				_                            => Infra.Unexpected<bool>(value.Type)
-			};
-
-		private static DataModelList? GetMetaData(XmlReader xmlReader)
-		{
-			var elementPrefix = xmlReader.Prefix;
-			var elementNs = xmlReader.NamespaceURI;
-
-			if (elementPrefix.Length == 0 && elementNs.Length == 0 && !xmlReader.HasAttributes)
-			{
-				return null;
-			}
-
-			var metadata = new DataModelList { elementPrefix, elementNs };
-
-			if (xmlReader.HasAttributes)
-			{
-				for (var ok = xmlReader.MoveToFirstAttribute(); ok; ok = xmlReader.MoveToNextAttribute())
-				{
-					if (xmlReader.NamespaceURI != XPathMetadata.XmlnsNamespace)
+					if (!xmlReader.IsEmptyElement)
 					{
-						metadata.Add(xmlReader.LocalName);
-						metadata.Add(xmlReader.Value);
-						metadata.Add(xmlReader.Prefix);
-						metadata.Add(xmlReader.NamespaceURI);
-					}
-					else if (xmlReader.LocalName != XPathMetadata.Xmlns)
-					{
-						metadata.Add(xmlReader.LocalName);
-						metadata.Add(xmlReader.Value);
-						metadata.Add(string.Empty);
-						metadata.Add(xmlReader.NamespaceURI);
+						var type = xmlReader.GetAttribute(TypeAttributeName, XPathElementNamespace);
+
+						await ReadStartElementAsync(xmlReader).ConfigureAwait(false);
+						var value = await LoadValueAsync(xmlReader).ConfigureAwait(false);
+
+						list.Add(key, ToType(value, type), metadata);
 					}
 					else
 					{
-						metadata.Add(string.Empty);
-						metadata.Add(xmlReader.Value);
-						metadata.Add(string.Empty);
-						metadata.Add(xmlReader.NamespaceURI);
-					}
-				}
+						var type = xmlReader.GetAttribute(TypeAttributeName, XPathElementNamespace);
 
-				xmlReader.MoveToElement();
+						list.Add(key, ToType(string.Empty, type), metadata);
+					}
+
+					break;
+
+				case XmlNodeType.EndElement:
+					await ReadEndElementAsync(xmlReader).ConfigureAwait(false);
+
+					return list;
+
+				case XmlNodeType.Text:
+					var text = xmlReader.Value;
+					await xmlReader.ReadAsync().ConfigureAwait(false);
+
+					return text;
+
+				case XmlNodeType.None:
+
+					return list;
+
+				default:
+					Infra.Unexpected(xmlReader.NodeType);
+
+					break;
+			}
+		}
+		while (await xmlReader.ReadAsync().ConfigureAwait(false));
+
+		return list;
+	}
+
+	private static async ValueTask ReadStartElementAsync(XmlReader xmlReader)
+	{
+		if (xmlReader.NodeType != XmlNodeType.Element)
+		{
+			await xmlReader.MoveToContentAsync().ConfigureAwait(false);
+		}
+
+		xmlReader.ReadStartElement();
+	}
+
+	private static async ValueTask ReadEndElementAsync(XmlReader xmlReader)
+	{
+		if (xmlReader.NodeType != XmlNodeType.EndElement)
+		{
+			await xmlReader.MoveToContentAsync().ConfigureAwait(false);
+		}
+
+		xmlReader.ReadEndElement();
+	}
+
+	private static DataModelValue LoadValue(XmlReader xmlReader)
+	{
+		DataModelList? list = default;
+
+		do
+		{
+			xmlReader.MoveToContent();
+
+			switch (xmlReader.NodeType)
+			{
+				case XmlNodeType.Element:
+
+					var key = NsNameToKey(xmlReader.NamespaceURI, xmlReader.LocalName);
+
+					var metadata = GetMetaData(xmlReader);
+
+					list ??= new DataModelList();
+
+					if (!xmlReader.IsEmptyElement)
+					{
+						var type = xmlReader.GetAttribute(TypeAttributeName, XPathElementNamespace);
+
+						xmlReader.ReadStartElement();
+						var value = LoadValue(xmlReader);
+
+						list.Add(key, ToType(value, type), metadata);
+					}
+					else
+					{
+						var type = xmlReader.GetAttribute(TypeAttributeName, XPathElementNamespace);
+
+						list.Add(key, ToType(string.Empty, type), metadata);
+					}
+
+					break;
+
+				case XmlNodeType.EndElement:
+					xmlReader.ReadEndElement();
+
+					return list;
+
+				case XmlNodeType.Text:
+					var text = xmlReader.Value;
+					xmlReader.Read();
+
+					return text;
+
+				case XmlNodeType.None:
+
+					return list;
+
+				default:
+					Infra.Unexpected(xmlReader.NodeType);
+
+					break;
+			}
+		}
+		while (xmlReader.Read());
+
+		return list;
+	}
+
+	private static DataModelValue ToType(in DataModelValue value, string? type)
+	{
+		return type switch
+			   {
+				   null               => value,
+				   BoolTypeValue      => XmlConvert.ToBoolean(value.AsString()),
+				   DatetimeTypeValue  => XmlConvert.ToDateTimeOffset(value.AsString()),
+				   NumberTypeValue    => XmlConvert.ToDouble(value.AsString()),
+				   NullTypeValue      => DataModelValue.Null,
+				   UndefinedTypeValue => default,
+				   _                  => Infra.Unexpected<DataModelValue>(type)
+			   };
+	}
+
+	public static string ToString(in DataModelValue value) =>
+		value.Type switch
+		{
+			DataModelValueType.Undefined => string.Empty,
+			DataModelValueType.Null      => string.Empty,
+			DataModelValueType.String    => value.AsString(),
+			DataModelValueType.Number    => XmlConvert.ToString(value.AsNumber()),
+			DataModelValueType.Boolean   => value.AsBoolean() ? @"true" : @"false",
+			DataModelValueType.DateTime  => DateTimeToXmlString(value.AsDateTime()),
+			_                            => Infra.Unexpected<string>(value.Type)
+		};
+
+	private static string DateTimeToXmlString(in DataModelDateTime dttm) =>
+		dttm.Type switch
+		{
+			DataModelDateTimeType.DateTime       => XmlConvert.ToString(dttm.ToDateTime(), XmlDateTimeSerializationMode.RoundtripKind),
+			DataModelDateTimeType.DateTimeOffset => XmlConvert.ToString(dttm.ToDateTimeOffset()),
+			_                                    => Infra.Unexpected<string>(dttm.Type)
+		};
+
+	public static int GetBufferSizeForValue(in DataModelValue value) =>
+		value.Type switch
+		{
+			DataModelValueType.Undefined => 0,
+			DataModelValueType.Null      => 0,
+			DataModelValueType.String    => value.AsString().Length,
+			DataModelValueType.Number    => 24, // -1.2345678901234567e+123 (G17)
+			DataModelValueType.DateTime  => 33, // YYYY-MM-DDThh:mm:ss.1234567+hh:mm (DateTime with Offset)
+			DataModelValueType.Boolean   => 5,  // 'false' - longest value
+			_                            => Infra.Unexpected<int>(value.Type)
+		};
+
+	public static int WriteValueToSpan(in DataModelValue value, in Span<char> span)
+	{
+		return value.Type switch
+			   {
+				   DataModelValueType.Undefined => 0,
+				   DataModelValueType.Null      => 0,
+				   DataModelValueType.String    => WriteString(value.AsString(), span),
+				   DataModelValueType.Number    => WriteString(XmlConvert.ToString(value.AsNumber()), span),
+				   DataModelValueType.DateTime  => WriteDataModelDateTime(value.AsDateTime(), span),
+				   DataModelValueType.Boolean   => WriteString(value.AsBoolean() ? @"true" : @"false", span),
+				   _                            => Infra.Unexpected<int>(value.Type)
+			   };
+
+		static int WriteDataModelDateTime(in DataModelDateTime value, in Span<char> span) =>
+			value.Type switch
+			{
+				DataModelDateTimeType.DateTime       => WriteString(XmlConvert.ToString(value.ToDateTime(), XmlDateTimeSerializationMode.RoundtripKind), span),
+				DataModelDateTimeType.DateTimeOffset => WriteString(XmlConvert.ToString(value.ToDateTimeOffset()), span),
+				_                                    => Infra.Unexpected<int>(value.Type)
+			};
+
+		static int WriteString(string value, in Span<char> span)
+		{
+			value.AsSpan().CopyTo(span);
+			return value.Length;
+		}
+	}
+
+	public static DataModelValue GetTypeValue(in DataModelValue value) =>
+		value.Type switch
+		{
+			DataModelValueType.Boolean   => BoolTypeValue,
+			DataModelValueType.DateTime  => DatetimeTypeValue,
+			DataModelValueType.Number    => NumberTypeValue,
+			DataModelValueType.Null      => NullTypeValue,
+			DataModelValueType.Undefined => UndefinedTypeValue,
+			_                            => Infra.Unexpected<bool>(value.Type)
+		};
+
+	private static DataModelList? GetMetaData(XmlReader xmlReader)
+	{
+		var elementPrefix = xmlReader.Prefix;
+		var elementNs = xmlReader.NamespaceURI;
+
+		if (elementPrefix.Length == 0 && elementNs.Length == 0 && !xmlReader.HasAttributes)
+		{
+			return null;
+		}
+
+		var metadata = new DataModelList { elementPrefix, elementNs };
+
+		if (xmlReader.HasAttributes)
+		{
+			for (var ok = xmlReader.MoveToFirstAttribute(); ok; ok = xmlReader.MoveToNextAttribute())
+			{
+				if (xmlReader.NamespaceURI != XPathMetadata.XmlnsNamespace)
+				{
+					metadata.Add(xmlReader.LocalName);
+					metadata.Add(xmlReader.Value);
+					metadata.Add(xmlReader.Prefix);
+					metadata.Add(xmlReader.NamespaceURI);
+				}
+				else if (xmlReader.LocalName != XPathMetadata.Xmlns)
+				{
+					metadata.Add(xmlReader.LocalName);
+					metadata.Add(xmlReader.Value);
+					metadata.Add(string.Empty);
+					metadata.Add(xmlReader.NamespaceURI);
+				}
+				else
+				{
+					metadata.Add(string.Empty);
+					metadata.Add(xmlReader.Value);
+					metadata.Add(string.Empty);
+					metadata.Add(xmlReader.NamespaceURI);
+				}
 			}
 
-			return metadata;
+			xmlReader.MoveToElement();
 		}
+
+		return metadata;
 	}
 }

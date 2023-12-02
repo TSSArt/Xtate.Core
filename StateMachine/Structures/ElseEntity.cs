@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,24 +17,23 @@
 
 #endregion
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public struct ElseEntity : IElse, IVisitorEntity<ElseEntity, IElse>, IAncestorProvider
 {
-	public struct ElseEntity : IElse, IVisitorEntity<ElseEntity, IElse>, IAncestorProvider
-	{
-		internal object? Ancestor;
+	internal object? Ancestor;
 
-	#region Interface IAncestorProvider
+#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => Ancestor;
+	object? IAncestorProvider.Ancestor => Ancestor;
 
-	#endregion
+#endregion
 
-	#region Interface IVisitorEntity<ElseEntity,IElse>
+#region Interface IVisitorEntity<ElseEntity,IElse>
 
-		void IVisitorEntity<ElseEntity, IElse>.Init(IElse source) => Ancestor = source;
+	void IVisitorEntity<ElseEntity, IElse>.Init(IElse source) => Ancestor = source;
 
-		bool IVisitorEntity<ElseEntity, IElse>.RefEquals(ref ElseEntity other) => true;
+	bool IVisitorEntity<ElseEntity, IElse>.RefEquals(ref ElseEntity other) => true;
 
-	#endregion
-	}
+#endregion
 }

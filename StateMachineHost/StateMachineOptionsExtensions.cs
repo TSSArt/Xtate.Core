@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,10 +17,9 @@
 
 #endregion
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+internal static class StateMachineOptionsExtensions
 {
-	internal static class StateMachineOptionsExtensions
-	{
-		public static bool IsStateMachinePersistable(this IStateMachineOptions? options) => options is null || options.PersistenceLevel != PersistenceLevel.None;
-	}
+	public static bool IsStateMachinePersistable(this IStateMachineOptions? options) => options is null || options.PersistenceLevel != PersistenceLevel.None;
 }

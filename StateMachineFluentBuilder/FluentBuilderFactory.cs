@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,11 +17,10 @@
 
 #endregion
 
-namespace Xtate.Builder
+namespace Xtate.Builder;
+
+//TODO: Delete class
+public static class FluentBuilderFactory
 {
-	//TODO: Delete class
-	public static class FluentBuilderFactory
-	{
-		public static StateMachineFluentBuilder Create() => ServiceLocator.Default.GetService<StateMachineFluentBuilder>();
-	}
+	//public static StateMachineFluentBuilder Create() => ServiceLocator.Default.GetService<StateMachineFluentBuilder>();
 }

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -25,7 +25,7 @@ using Xtate.Core;
 
 namespace System.Runtime.Loader
 {
-	[PublicAPI]
+	
 	internal class AssemblyLoadContext
 	{
 		public AssemblyLoadContext(bool isCollectible) => IsCollectible = isCollectible;

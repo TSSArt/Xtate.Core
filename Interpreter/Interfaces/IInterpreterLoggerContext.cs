@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,21 +17,18 @@
 
 #endregion
 
-using System.Collections.Immutable;
+namespace Xtate;
 
-namespace Xtate
+
+public interface IInterpreterLoggerContext : ILoggerContext
 {
-	[PublicAPI]
-	public interface IInterpreterLoggerContext : ILoggerContext
-	{
-		public SessionId SessionId { get; }
+	public SessionId SessionId { get; }
 
-		public IStateMachine StateMachine { get; }
+	public IStateMachine StateMachine { get; }
 
-		public DataModelValue GetDataModel();
+	public DataModelValue GetDataModel();
 
-		public ImmutableArray<string> GetActiveStates();
+	public ImmutableArray<string> GetActiveStates();
 
-		public string ConvertToText(DataModelValue value);
-	}
+	public string ConvertToText(DataModelValue value);
 }

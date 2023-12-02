@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,29 +17,26 @@
 
 #endregion
 
-using System;
+namespace Xtate;
 
-namespace Xtate
+
+[Flags]
+public enum ValueOptions
 {
-	[PublicAPI]
-	[Flags]
-	public enum ValueOptions
-	{
-		/// <summary>
-		///     Calls <see cref="IDisposable.Dispose" /> or <see cref="IAsyncDisposable.DisposeAsync" /> on value object when
-		///     <see cref="ISecurityContext" /> disposed.
-		/// </summary>
-		Dispose = 1,
+	/// <summary>
+	///     Calls <see cref="IDisposable.Dispose" /> or <see cref="IAsyncDisposable.DisposeAsync" /> on value object when
+	///     <see cref="ISecurityContext" /> disposed.
+	/// </summary>
+	Dispose = 1,
 
-		/// <summary>
-		///     Uses <see cref="WeakReference" /> for storing value object. It means object can be collected by GC at any time.
-		/// </summary>
-		WeakRef = 2,
+	/// <summary>
+	///     Uses <see cref="WeakReference" /> for storing value object. It means object can be collected by GC at any time.
+	/// </summary>
+	WeakRef = 2,
 
-		/// <summary>
-		///     Value is a thread-safe object, therefore it will be stored in Global cache, otherwise it will be stored in Local
-		///     cache and will not be available for other Local caches.
-		/// </summary>
-		ThreadSafe = 4
-	}
+	/// <summary>
+	///     Value is a thread-safe object, therefore it will be stored in Global cache, otherwise it will be stored in Local
+	///     cache and will not be available for other Local caches.
+	/// </summary>
+	ThreadSafe = 4
 }

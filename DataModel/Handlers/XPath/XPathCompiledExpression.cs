@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,40 +17,32 @@
 
 #endregion
 
-using System;
-using System.Threading.Tasks;
 using System.Xml.XPath;
 using Xtate.Scxml;
 
-namespace Xtate.DataModel.XPath
+namespace Xtate.DataModel.XPath;
+
+public class XPathCompiledExpression
 {
-	public class XPathCompiledExpression
+	private readonly XPathExpression        _xPathExpression;
+	private readonly XPathExpressionContext _expressionContext;
+
+	public XPathCompiledExpression(string expression,
+								   IXmlNamespacesInfo? xmlNamespacesInfo,
+								   Func<IXmlNamespacesInfo?, XPathExpressionContext> xPathExpressionContextFactory)
 	{
-		private readonly XPathExpression         _xPathExpression;
-		private          XPathExpressionContext? _expressionContext;
+		_expressionContext = xPathExpressionContextFactory(xmlNamespacesInfo);
+		_xPathExpression = XPathExpression.Compile(expression, _expressionContext);
+	}
 
-		public XPathCompiledExpression(string expression,
-									   IXmlNamespacesInfo? xmlNamespacesInfo,
-									   Func<IXmlNamespacesInfo?, XPathExpressionContext> xPathExpressionContextFactory)
-		{
-			_expressionContext = xPathExpressionContextFactory(xmlNamespacesInfo);
-			_xPathExpression = XPathExpression.Compile(expression, _expressionContext);
-		}
+	public XPathResultType ReturnType => _xPathExpression.ReturnType;
 
-		public XPathResultType ReturnType => _xPathExpression.ReturnType;
+	public string Expression => _xPathExpression.Expression;
 
-		public string Expression => _xPathExpression.Expression;
+	public async ValueTask<XPathExpression> GetXPathExpression()
+	{
+		await _expressionContext.EnsureInitialized().ConfigureAwait(false);
 
-		public async ValueTask<XPathExpression> GetXPathExpression()
-		{
-			if (_expressionContext is { } context)
-			{
-				await context.InitResolvers().ConfigureAwait(false);
-
-				_expressionContext = default;
-			}
-
-			return _xPathExpression;
-		}
+		return _xPathExpression;
 	}
 }

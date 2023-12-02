@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,34 +17,29 @@
 
 #endregion
 
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.Core;
+namespace Xtate.Persistence;
 
-namespace Xtate.Persistence
+internal sealed class PersistedEventSchedulerFactory : IEventSchedulerFactory
 {
-	internal sealed class PersistedEventSchedulerFactory : IEventSchedulerFactory
+	private readonly IStorageProvider _storageProvider;
+
+	public PersistedEventSchedulerFactory(StateMachineHostOptions options)
 	{
-		private readonly IStorageProvider _storageProvider;
+		Infra.NotNull(options.StorageProvider);
 
-		public PersistedEventSchedulerFactory(StateMachineHostOptions options)
-		{
-			Infra.NotNull(options.StorageProvider);
-
-			_storageProvider = options.StorageProvider;
-		}
-
-	#region Interface IEventSchedulerFactory
-
-		public async ValueTask<IEventScheduler> CreateEventScheduler(IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger? logger, CancellationToken token)
-		{
-			var persistedEventScheduler = new PersistedEventScheduler(_storageProvider, hostEventDispatcher, logger);
-
-			await persistedEventScheduler.Initialize(token).ConfigureAwait(false);
-
-			return persistedEventScheduler;
-		}
-
-	#endregion
+		_storageProvider = options.StorageProvider;
 	}
+
+#region Interface IEventSchedulerFactory
+
+	public async ValueTask<IEventScheduler> CreateEventScheduler(IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger? logger, CancellationToken token)
+	{
+		var persistedEventScheduler = new PersistedEventScheduler(_storageProvider, hostEventDispatcher, logger);
+
+		await persistedEventScheduler.Initialize(token).ConfigureAwait(false);
+
+		return persistedEventScheduler;
+	}
+
+#endregion
 }

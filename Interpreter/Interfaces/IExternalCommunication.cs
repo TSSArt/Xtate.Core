@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,34 +17,28 @@
 
 #endregion
 
-using System.Collections.Immutable;
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.IoProcessor;
+namespace Xtate.Core;
 
-namespace Xtate.Core
+public enum SendStatus
 {
-	public enum SendStatus
-	{
-		Sent,
-		Scheduled,
-		ToInternalQueue
-	}
+	Sent,
+	Scheduled,
+	ToInternalQueue
+}
 
-	public interface IExternalCommunication
-	{
-		ValueTask             StartInvoke(InvokeData invokeData);
-		ValueTask             CancelInvoke(InvokeId invokeId);
-		ValueTask<SendStatus> TrySendEvent(IOutgoingEvent outgoingEvent);
-		ValueTask             ForwardEvent(IEvent evt, InvokeId invokeId);
-		ValueTask             CancelEvent(SendId sendId);
-	}
+public interface IExternalCommunication
+{
+	ValueTask             StartInvoke(InvokeData invokeData);
+	ValueTask             CancelInvoke(InvokeId invokeId);
+	ValueTask<SendStatus> TrySendEvent(IOutgoingEvent outgoingEvent);
+	ValueTask             ForwardEvent(IEvent evt, InvokeId invokeId);
+	ValueTask             CancelEvent(SendId sendId);
+}
 
-	public interface IExternalCommunication2
-	{
-		ValueTask             StartInvoke(InvokeData invokeData);
-		ValueTask             CancelInvoke(InvokeId invokeId);
-		ValueTask<SendStatus> TrySendEvent(IOutgoingEvent outgoingEvent);
-		ValueTask             CancelEvent(SendId sendId);
-	}
+public interface IExternalCommunication2
+{
+	ValueTask             StartInvoke(InvokeData invokeData);
+	ValueTask             CancelInvoke(InvokeId invokeId);
+	ValueTask<SendStatus> TrySendEvent(IOutgoingEvent outgoingEvent);
+	ValueTask             CancelEvent(SendId sendId);
 }

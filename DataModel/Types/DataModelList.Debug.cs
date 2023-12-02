@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,173 +17,168 @@
 
 #endregion
 
-using System;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Text;
-using Xtate.Core;
 
-namespace Xtate
+namespace Xtate;
+
+[DebuggerTypeProxy(typeof(DebugView))]
+[DebuggerDisplay(value: "Count = {" + nameof(Count) + "}")]
+public partial class DataModelList : IFormattable
 {
-	[DebuggerTypeProxy(typeof(DebugView))]
-	[DebuggerDisplay(value: "Count = {" + nameof(Count) + "}")]
-	public partial class DataModelList : IFormattable
+#region Interface IFormattable
+
+	public string ToString(string? format, IFormatProvider? formatProvider)
 	{
-	#region Interface IFormattable
-
-		public string ToString(string? format, IFormatProvider? formatProvider)
+		foreach (var keyValue in KeyValues)
 		{
-			foreach (var keyValue in KeyValues)
+			if (keyValue.Key is not null)
 			{
-				if (keyValue.Key is not null)
-				{
-					return ToStringAsObject(formatProvider);
-				}
+				return ToStringAsObject(formatProvider);
+			}
+		}
+
+		return ToStringAsArray(formatProvider);
+	}
+
+#endregion
+
+	private string ToStringAsObject(IFormatProvider? formatProvider)
+	{
+		if (_count == 0)
+		{
+			return @"()";
+		}
+
+		var sb = new StringBuilder();
+		var addDelimiter = false;
+
+		sb.Append('(');
+		foreach (var keyValue in KeyValues)
+		{
+			if (addDelimiter)
+			{
+				sb.Append(',');
+			}
+			else
+			{
+				addDelimiter = true;
 			}
 
-			return ToStringAsArray(formatProvider);
+			sb.Append(keyValue.Key).Append('=').Append(keyValue.Value.ToString(format: null, formatProvider));
 		}
 
-	#endregion
+		sb.Append(')');
 
-		private string ToStringAsObject(IFormatProvider? formatProvider)
+		return sb.ToString();
+	}
+
+	private string ToStringAsArray(IFormatProvider? formatProvider)
+	{
+		if (_count == 0)
 		{
-			if (_count == 0)
+			return @"[]";
+		}
+
+		var sb = new StringBuilder();
+		var addDelimiter = false;
+
+		sb.Append('[');
+		foreach (var value in Values)
+		{
+			if (addDelimiter)
 			{
-				return @"()";
+				sb.Append(',');
+			}
+			else
+			{
+				addDelimiter = true;
 			}
 
-			var sb = new StringBuilder();
-			var addDelimiter = false;
-
-			sb.Append('(');
-			foreach (var keyValue in KeyValues)
-			{
-				if (addDelimiter)
-				{
-					sb.Append(',');
-				}
-				else
-				{
-					addDelimiter = true;
-				}
-
-				sb.Append(keyValue.Key).Append('=').Append(keyValue.Value.ToString(format: null, formatProvider));
-			}
-
-			sb.Append(')');
-
-			return sb.ToString();
+			sb.Append(value.ToString(format: null, formatProvider));
 		}
 
-		private string ToStringAsArray(IFormatProvider? formatProvider)
-		{
-			if (_count == 0)
-			{
-				return @"[]";
-			}
+		sb.Append(']');
 
-			var sb = new StringBuilder();
-			var addDelimiter = false;
+		return sb.ToString();
+	}
 
-			sb.Append('[');
-			foreach (var value in Values)
-			{
-				if (addDelimiter)
-				{
-					sb.Append(',');
-				}
-				else
-				{
-					addDelimiter = true;
-				}
+	public override string ToString() => ToString(format: null, formatProvider: null);
 
-				sb.Append(value.ToString(format: null, formatProvider));
-			}
+	[ExcludeFromCodeCoverage]
+	[DebuggerDisplay(value: "{" + nameof(Value) + "}", Name = "{" + nameof(IndexKey) + ",nq}")]
+	private readonly struct DebugIndexKeyValue
+	{
+		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
+		private readonly Entry _entry;
 
-			sb.Append(']');
+		public DebugIndexKeyValue(in Entry entry) => _entry = entry;
 
-			return sb.ToString();
-		}
+		[DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+		private DataModelValue Value => _entry.Value;
 
-		public override string ToString() => ToString(format: null, formatProvider: null);
+		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
+		private string IndexKey => _entry.Key ?? @"[" + _entry.Index + @"]";
 
-		[ExcludeFromCodeCoverage]
-		[DebuggerDisplay(value: "{" + nameof(Value) + "}", Name = "{" + nameof(IndexKey) + ",nq}")]
-		private readonly struct DebugIndexKeyValue
-		{
-			[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-			private readonly Entry _entry;
+		[UsedImplicitly]
+		[SuppressMessage(category: "ReSharper", checkId: "InconsistentNaming")]
+		public ItemInfo __ItemInfo__ => new(_entry);
+	}
 
-			public DebugIndexKeyValue(in Entry entry) => _entry = entry;
+	[ExcludeFromCodeCoverage]
+	[DebuggerDisplay(value: "Index = {" + nameof(Index) + "}, Access = {" + nameof(Access) + "}, Metadata = {" + nameof(MetadataNote) + ",nq}")]
+	private readonly struct ItemInfo
+	{
+		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
+		private readonly Entry _entry;
 
-			[DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-			private DataModelValue Value => _entry.Value;
+		public ItemInfo(in Entry entry) => _entry = entry;
 
-			[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-			private string IndexKey => _entry.Key ?? @"[" + _entry.Index + @"]";
+		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
+		private int Index => _entry.Index;
 
-			[UsedImplicitly]
-			[SuppressMessage(category: "ReSharper", checkId: "InconsistentNaming")]
-			public ItemInfo __ItemInfo__ => new(_entry);
-		}
+		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
+		private DataModelAccess Access => _entry.Access;
 
-		[ExcludeFromCodeCoverage]
-		[DebuggerDisplay(value: "Index = {" + nameof(Index) + "}, Access = {" + nameof(Access) + "}, Metadata = {" + nameof(MetadataNote) + ",nq}")]
-		private readonly struct ItemInfo
-		{
-			[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-			private readonly Entry _entry;
+		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
+		private string MetadataNote => _entry.Metadata is not null ? @"{...}" : @"null";
 
-			public ItemInfo(in Entry entry) => _entry = entry;
+		[UsedImplicitly]
+		public DataModelList? Metadata => _entry.Metadata;
+	}
 
-			[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-			private int Index => _entry.Index;
+	[ExcludeFromCodeCoverage]
+	[DebuggerDisplay(value: "Access = {" + nameof(Access) + "}, Metadata = {" + nameof(MetadataNote) + ",nq}")]
+	private readonly struct ListInfo
+	{
+		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
+		private readonly DataModelList _dataModelList;
 
-			[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-			private DataModelAccess Access => _entry.Access;
+		public ListInfo(DataModelList dataModelList) => _dataModelList = dataModelList;
 
-			[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-			private string MetadataNote => _entry.Metadata is not null ? @"{...}" : @"null";
+		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
+		private string MetadataNote => _dataModelList.GetMetadata() is not null ? @"{...}" : @"null";
 
-			[UsedImplicitly]
-			public DataModelList? Metadata => _entry.Metadata;
-		}
+		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
+		private DataModelAccess Access => _dataModelList.Access;
 
-		[ExcludeFromCodeCoverage]
-		[DebuggerDisplay(value: "Access = {" + nameof(Access) + "}, Metadata = {" + nameof(MetadataNote) + ",nq}")]
-		private readonly struct ListInfo
-		{
-			[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-			private readonly DataModelList _dataModelList;
+		[UsedImplicitly]
+		public DataModelList? Metadata => _dataModelList.GetMetadata();
+	}
 
-			public ListInfo(DataModelList dataModelList) => _dataModelList = dataModelList;
+	[ExcludeFromCodeCoverage]
+	private class DebugView
+	{
+		private readonly DataModelList _dataModelList;
 
-			[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-			private string MetadataNote => _dataModelList.GetMetadata() is not null ? @"{...}" : @"null";
+		public DebugView(DataModelList dataModelList) => _dataModelList = dataModelList;
 
-			[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-			private DataModelAccess Access => _dataModelList.Access;
+		[UsedImplicitly]
+		[DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+		public DebugIndexKeyValue[] Items => _dataModelList.Entries.Select(entry => new DebugIndexKeyValue(entry)).ToArray();
 
-			[UsedImplicitly]
-			public DataModelList? Metadata => _dataModelList.GetMetadata();
-		}
-
-		[ExcludeFromCodeCoverage]
-		private class DebugView
-		{
-			private readonly DataModelList _dataModelList;
-
-			public DebugView(DataModelList dataModelList) => _dataModelList = dataModelList;
-
-			[UsedImplicitly]
-			[DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-			public DebugIndexKeyValue[] Items => _dataModelList.Entries.Select(entry => new DebugIndexKeyValue(entry)).ToArray();
-
-			[UsedImplicitly]
-			[SuppressMessage(category: "ReSharper", checkId: "InconsistentNaming")]
-			public ListInfo __ListInfo__ => new(_dataModelList);
-		}
+		[UsedImplicitly]
+		[SuppressMessage(category: "ReSharper", checkId: "InconsistentNaming")]
+		public ListInfo __ListInfo__ => new(_dataModelList);
 	}
 }

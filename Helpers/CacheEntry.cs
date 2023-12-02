@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,131 +17,125 @@
 
 #endregion
 
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Threading;
-using System.Threading.Tasks;
+namespace Xtate.Core;
 
-namespace Xtate.Core
+internal class CacheEntry<T>
 {
-	internal class CacheEntry<T>
+	private readonly T?             _value;
+	private readonly WeakReference? _weakReference;
+
+	private int _refCount;
+
+	public CacheEntry([DisallowNull] T value, ValueOptions options)
 	{
-		private readonly T?             _value;
-		private readonly WeakReference? _weakReference;
+		Options = options;
+		_refCount = 1;
 
-		private int _refCount;
-
-		public CacheEntry([DisallowNull] T value, ValueOptions options)
+		if (IsWeakReference)
 		{
-			Options = options;
-			_refCount = 1;
+			_weakReference = new WeakReference(value);
+		}
+		else
+		{
+			_value = value;
+		}
+	}
 
-			if (IsWeakReference)
-			{
-				_weakReference = new WeakReference(value);
-			}
-			else
-			{
-				_value = value;
-			}
+	public ValueOptions Options { get; }
+
+	private bool IsWeakReference => (Options & ValueOptions.WeakRef) != 0;
+
+	private bool DisposeRequired => (Options & ValueOptions.Dispose) != 0;
+
+	private bool IsThreadSafe => (Options & ValueOptions.ThreadSafe) != 0;
+
+	public bool TryGetValue([NotNullWhen(true)] out T? value)
+	{
+		if (_value is not null)
+		{
+			value = _value;
+
+			return true;
 		}
 
-		public ValueOptions Options { get; }
-
-		private bool IsWeakReference => (Options & ValueOptions.WeakRef) != 0;
-
-		private bool DisposeRequired => (Options & ValueOptions.Dispose) != 0;
-
-		private bool IsThreadSafe => (Options & ValueOptions.ThreadSafe) != 0;
-
-		public bool TryGetValue([NotNullWhen(true)] out T? value)
+		if (_weakReference is { Target: T target })
 		{
-			if (_value is not null)
-			{
-				value = _value;
+			value = target;
 
-				return true;
-			}
-
-			if (_weakReference is { Target: T target })
-			{
-				value = target;
-
-				return true;
-			}
-
-			value = default;
-
-			return false;
+			return true;
 		}
 
-		public bool AddReference()
+		value = default;
+
+		return false;
+	}
+
+	public bool AddReference()
+	{
+		if (!IsThreadSafe)
 		{
-			if (!IsThreadSafe)
+			if (_refCount == 0)
 			{
-				if (_refCount == 0)
-				{
-					return false;
-				}
-
-				++ _refCount;
-
-				return true;
+				return false;
 			}
 
+			++ _refCount;
+
+			return true;
+		}
+
+		while (true)
+		{
+			var refCount = _refCount;
+
+			if (refCount == 0)
+			{
+				return false;
+			}
+
+			if (Interlocked.CompareExchange(ref _refCount, refCount + 1, refCount) == refCount)
+			{
+				return true;
+			}
+		}
+	}
+
+	public async ValueTask<bool> RemoveReference()
+	{
+		if (!IsThreadSafe)
+		{
+			Infra.Assert(_refCount > 0);
+
+			if (-- _refCount > 0)
+			{
+				return false;
+			}
+		}
+		else
+		{
 			while (true)
 			{
 				var refCount = _refCount;
 
-				if (refCount == 0)
+				Infra.Assert(refCount > 0);
+
+				if (Interlocked.CompareExchange(ref _refCount, refCount - 1, refCount) == refCount)
 				{
-					return false;
-				}
-
-				if (Interlocked.CompareExchange(ref _refCount, refCount + 1, refCount) == refCount)
-				{
-					return true;
-				}
-			}
-		}
-
-		public async ValueTask<bool> RemoveReference()
-		{
-			if (!IsThreadSafe)
-			{
-				Infra.Assert(_refCount > 0);
-
-				if (-- _refCount > 0)
-				{
-					return false;
-				}
-			}
-			else
-			{
-				while (true)
-				{
-					var refCount = _refCount;
-
-					Infra.Assert(refCount > 0);
-
-					if (Interlocked.CompareExchange(ref _refCount, refCount - 1, refCount) == refCount)
+					if (refCount > 1)
 					{
-						if (refCount > 1)
-						{
-							return false;
-						}
-
-						break;
+						return false;
 					}
+
+					break;
 				}
 			}
-
-			if (DisposeRequired && TryGetValue(out var value))
-			{
-				await Disposer.DisposeAsync(value).ConfigureAwait(false);
-			}
-
-			return true;
 		}
+
+		if (DisposeRequired && TryGetValue(out var value))
+		{
+			await Disposer.DisposeAsync(value).ConfigureAwait(false);
+		}
+
+		return true;
 	}
 }

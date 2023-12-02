@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,43 +17,38 @@
 
 #endregion
 
-using System;
-using System.Reflection.Emit;
-using Xtate.Core;
+namespace Xtate.Builder;
 
-namespace Xtate.Builder
+public class ParamBuilder : BuilderBase, IParamBuilder
 {
-	public class ParamBuilder : BuilderBase, IParamBuilder
+	private IValueExpression?    _expression;
+	private ILocationExpression? _location;
+	private string?              _name;
+
+#region Interface IParamBuilder
+
+	public IParam Build() => new ParamEntity { Ancestor = Ancestor, Name = _name, Expression = _expression, Location = _location };
+
+	public void SetName(string name)
 	{
-		private IValueExpression?    _expression;
-		private ILocationExpression? _location;
-		private string?              _name;
+		Infra.RequiresNonEmptyString(name);
 
-	#region Interface IParamBuilder
-
-		public IParam Build() => new ParamEntity { Ancestor = Ancestor, Name = _name, Expression = _expression, Location = _location };
-
-		public void SetName(string name)
-		{
-			Infra.RequiresNonEmptyString(name);
-
-			_name = name;
-		}
-
-		public void SetExpression(IValueExpression expression)
-		{
-			Infra.Requires(expression);
-
-			_expression = expression;
-		}
-
-		public void SetLocation(ILocationExpression location)
-		{
-			Infra.Requires(location);
-			
-			_location = location;
-		}
-
-	#endregion
+		_name = name;
 	}
+
+	public void SetExpression(IValueExpression expression)
+	{
+		Infra.Requires(expression);
+
+		_expression = expression;
+	}
+
+	public void SetLocation(ILocationExpression location)
+	{
+		Infra.Requires(location);
+
+		_location = location;
+	}
+
+#endregion
 }

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,43 +17,41 @@
 
 #endregion
 
-using System;
 using Xtate.Persistence;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public sealed class CancelNode : ExecutableEntityNode, ICancel, IAncestorProvider, IDebugEntityId
 {
-	public sealed class CancelNode : ExecutableEntityNode, ICancel, IAncestorProvider, IDebugEntityId
+	private readonly ICancel _cancel;
+
+	public CancelNode(DocumentIdNode documentIdNode, ICancel cancel) : base(documentIdNode, cancel) => _cancel = cancel;
+
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => _cancel;
+
+#endregion
+
+#region Interface ICancel
+
+	public string? SendId => _cancel.SendId;
+
+	public IValueExpression? SendIdExpression => _cancel.SendIdExpression;
+
+#endregion
+
+#region Interface IDebugEntityId
+
+	FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
+
+#endregion
+
+	protected override void Store(Bucket bucket)
 	{
-		private readonly ICancel _cancel;
-
-		public CancelNode(DocumentIdNode documentIdNode, ICancel cancel) : base(documentIdNode, cancel) => _cancel = cancel;
-
-	#region Interface IAncestorProvider
-
-		object IAncestorProvider.Ancestor => _cancel;
-
-	#endregion
-
-	#region Interface ICancel
-
-		public string? SendId => _cancel.SendId;
-
-		public IValueExpression? SendIdExpression => _cancel.SendIdExpression;
-
-	#endregion
-
-	#region Interface IDebugEntityId
-
-		FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
-
-	#endregion
-
-		protected override void Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.CancelNode);
-			bucket.Add(Key.DocumentId, DocumentId);
-			bucket.Add(Key.SendId, SendId);
-			bucket.AddEntity(Key.SendIdExpression, SendIdExpression);
-		}
+		bucket.Add(Key.TypeInfo, TypeInfo.CancelNode);
+		bucket.Add(Key.DocumentId, DocumentId);
+		bucket.Add(Key.SendId, SendId);
+		bucket.AddEntity(Key.SendIdExpression, SendIdExpression);
 	}
 }

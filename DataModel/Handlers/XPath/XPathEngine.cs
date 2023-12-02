@@ -17,13 +17,8 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Threading.Tasks;
 using System.Xml.XPath;
-using System.Xml.Xsl;
-using Xtate.Core;
 
 namespace Xtate.DataModel.XPath;
 
@@ -34,21 +29,9 @@ public class XPathEngine
 
 	public XPathEngine(IDataModelController? dataModelController) => _root = dataModelController?.DataModel ?? new DataModelList(false);
 
-	//public required Func<string, XPathVarDescriptorOld>    XPathVarDescriptorFactory { private get; init; }
-	/*
-	public IXsltContextVariable ResolveVariable(string ns, string name)
-	{
-		if (!string.IsNullOrEmpty(ns))
-		{
-			throw new XPathDataModelException(Res.Format(Resources.Exception_UnknownXPathVariable, ns, name));
-		}
-
-		return XPathVarDescriptorFactory(name);
-	}*/
-
 	public object GetVariable(string name)
 	{
-		if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
+		Infra.RequiresNonEmptyString(name);
 
 		foreach (var vars in _scopeStack)
 		{
@@ -64,21 +47,6 @@ public class XPathEngine
 		}
 
 		return CreateIterator(_root, name);
-	}
-
-	private static object? GetVariableValue(DataModelList list, string key)
-	{
-		var value = list[key, caseInsensitive: false];
-
-		switch (value.Type)
-		{
-			case DataModelValueType.List:     return CreateIterator(list, key);
-			case DataModelValueType.String:   return value.AsString();
-			case DataModelValueType.Boolean:  return value.AsBoolean();
-			case DataModelValueType.Number:   return value.AsNumber();
-			case DataModelValueType.DateTime: return value.AsDateTime().ToString(@"O");
-			default:                          return default;
-		}
 	}
 
 	private static XPathNodeIterator CreateIterator(DataModelList list, string key)
@@ -111,9 +79,9 @@ public class XPathEngine
 	}
 
 	public async ValueTask Assign1(XPathCompiledExpression compiledLeftExpression,
-							XPathAssignType assignType,
-							string? attributeName,
-							IObject rightValue)
+								   XPathAssignType assignType,
+								   string? attributeName,
+								   IObject rightValue)
 	{
 		Infra.Requires(compiledLeftExpression);
 		Infra.Requires(rightValue);
@@ -135,7 +103,7 @@ public class XPathEngine
 	{
 		var xPathExpression = await compiledExpression.GetXPathExpression().ConfigureAwait(false);
 
-		return new DataModelXPathNavigator(_root).Evaluate(xPathExpression)!;
+		return new DataModelXPathNavigator(_root).Evaluate(xPathExpression);
 	}
 
 	private static void Assign(DataModelXPathNavigator navigator,

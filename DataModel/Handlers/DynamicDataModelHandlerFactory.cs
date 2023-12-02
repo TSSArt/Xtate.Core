@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,104 +17,99 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
-using System.Globalization;
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.Core;
 using Xtate.IoC;
 using IServiceProvider = Xtate.IoC.IServiceProvider;
 
-namespace Xtate.DataModel
+namespace Xtate.DataModel;
+
+public class DynamicDataModelHandlerProvider : IDataModelHandlerProvider
 {
+	private readonly IAssemblyContainerProvider   _assemblyContainerProvider;
+	private readonly IDataModelTypeToUriConverter _dataModelTypeToUriConverter;
 
-	public class DynamicDataModelHandlerProvider : IDataModelHandlerProvider
+	public DynamicDataModelHandlerProvider(IDataModelTypeToUriConverter dataModelTypeToUriConverter, IAssemblyContainerProvider assemblyContainerProvider)
 	{
-		private readonly IDataModelTypeToUriConverter _dataModelTypeToUriConverter;
-		private readonly IAssemblyContainerProvider   _assemblyContainerProvider;
-
-		public DynamicDataModelHandlerProvider(IDataModelTypeToUriConverter dataModelTypeToUriConverter, IAssemblyContainerProvider assemblyContainerProvider)
-		{
-			_dataModelTypeToUriConverter = dataModelTypeToUriConverter;
-			_assemblyContainerProvider = assemblyContainerProvider;
-		}
-
-		public async ValueTask<IDataModelHandler?> TryGetDataModelHandler(string? dataModelType)
-		{
-			var uri = _dataModelTypeToUriConverter.GetUri(dataModelType);
-			var serviceProvider = await _assemblyContainerProvider.GetContainer(uri).ConfigureAwait(false);
-			var  dataModelHandlerService = await serviceProvider.GetRequiredService<IDataModelHandlerService>().ConfigureAwait(false);
-
-			return await dataModelHandlerService.GetDataModelHandler(dataModelType).ConfigureAwait(false);
-		}
+		_dataModelTypeToUriConverter = dataModelTypeToUriConverter;
+		_assemblyContainerProvider = assemblyContainerProvider;
 	}
 
+#region Interface IDataModelHandlerProvider
 
-	public interface IDataModelTypeToUriConverter
+	public async ValueTask<IDataModelHandler?> TryGetDataModelHandler(string? dataModelType)
 	{
-		Uri GetUri(string dataModelType);
+		var uri = _dataModelTypeToUriConverter.GetUri(dataModelType);
+		var serviceProvider = await _assemblyContainerProvider.GetContainer(uri).ConfigureAwait(false);
+		var dataModelHandlerService = await serviceProvider.GetRequiredService<IDataModelHandlerService>().ConfigureAwait(false);
+
+		return await dataModelHandlerService.GetDataModelHandler(dataModelType).ConfigureAwait(false);
 	}
 
-	public interface IAssemblyContainerProvider
-	{
-		ValueTask<IServiceProvider> GetContainer(Uri uri);
-	}
-
-	public class AssemblyContainerProvider : IAssemblyContainerProvider
-	{
-
-
-		public ValueTask<IServiceProvider> GetContainer(Uri uri)
-		{
-			return default; // TODO: implement
-		}
-	}
-	//TODO: uncomment
-	/*
-	[PublicAPI]
-	public class DynamicDataModelHandlerFactory : DynamicFactory
-	{
-		private readonly string? _uriFormat;
-
-		protected DynamicDataModelHandlerFactory(bool throwOnError) : base(throwOnError) { }
-
-		public DynamicDataModelHandlerFactory(string format, bool throwOnError = true) : base(throwOnError) => _uriFormat = format ?? throw new ArgumentNullException(nameof(format));
-
-	#region Interface IDataModelHandlerFactory
-
-		public async ValueTask<IDataModelHandlerFactoryActivator?> TryGetActivator(ServiceLocator serviceLocator, string dataModelType, CancellationToken token)
-		{
-			var factories = await GetFactories(serviceLocator, DataModelTypeToUri(dataModelType), token).ConfigureAwait(false);
-
-			foreach (var factory in factories)
-			{
-				var activator = await factory.TryGetActivator(serviceLocator, dataModelType, token).ConfigureAwait(false);
-
-				if (activator is not null)
-				{
-					return activator;
-				}
-			}
-
-			return null;
-		}
-
-	#endregion
-
-		protected virtual Uri DataModelTypeToUri(string dataModelType)
-		{
-			Infra.NotNull(_uriFormat);
-
-			var uriString = string.Format(CultureInfo.InvariantCulture, _uriFormat, dataModelType);
-
-			return new Uri(uriString, UriKind.RelativeOrAbsolute);
-		}
-
-		public IDataModelHandler GetDataModelHandler(string dataModel)
-		{
-			throw new NotImplementedException();
-		}
-	}
-	*/
+#endregion
 }
+
+public interface IDataModelTypeToUriConverter
+{
+	Uri GetUri(string dataModelType);
+}
+
+public interface IAssemblyContainerProvider
+{
+	ValueTask<IServiceProvider> GetContainer(Uri uri);
+}
+
+public class AssemblyContainerProvider : IAssemblyContainerProvider
+{
+#region Interface IAssemblyContainerProvider
+
+	public ValueTask<IServiceProvider> GetContainer(Uri uri) => default; // TODO: implement
+
+#endregion
+}
+
+//TODO: uncomment
+/*
+
+public class DynamicDataModelHandlerFactory : DynamicFactory
+{
+	private readonly string? _uriFormat;
+
+	protected DynamicDataModelHandlerFactory(bool throwOnError) : base(throwOnError) { }
+
+	public DynamicDataModelHandlerFactory(string format, bool throwOnError = true) : base(throwOnError) => _uriFormat = format ?? throw new ArgumentNullException(nameof(format));
+
+#region Interface IDataModelHandlerFactory
+
+	public async ValueTask<IDataModelHandlerFactoryActivator?> TryGetActivator(ServiceLocator serviceLocator, string dataModelType, CancellationToken token)
+	{
+		var factories = await GetFactories(serviceLocator, DataModelTypeToUri(dataModelType), token).ConfigureAwait(false);
+
+		foreach (var factory in factories)
+		{
+			var activator = await factory.TryGetActivator(serviceLocator, dataModelType, token).ConfigureAwait(false);
+
+			if (activator is not null)
+			{
+				return activator;
+			}
+		}
+
+		return null;
+	}
+
+#endregion
+
+	protected virtual Uri DataModelTypeToUri(string dataModelType)
+	{
+		Infra.NotNull(_uriFormat);
+
+		var uriString = string.Format(CultureInfo.InvariantCulture, _uriFormat, dataModelType);
+
+		return new Uri(uriString, UriKind.RelativeOrAbsolute);
+	}
+
+	public IDataModelHandler GetDataModelHandler(string dataModel)
+	{
+		throw new NotImplementedException();
+	}
+}
+*/

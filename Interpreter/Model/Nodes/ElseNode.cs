@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,48 +17,46 @@
 
 #endregion
 
-using System;
 using Xtate.Persistence;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public sealed class ElseNode : IElse, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 {
-	public sealed class ElseNode : IElse, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
+	private readonly IElse          _else;
+	private          DocumentIdSlot _documentIdSlot;
+
+	public ElseNode(DocumentIdNode documentIdNode, IElse @else)
 	{
-		private readonly IElse          _else;
-		private          DocumentIdSlot _documentIdSlot;
-
-		public ElseNode(DocumentIdNode documentIdNode, IElse @else)
-		{
-			documentIdNode.SaveToSlot(out _documentIdSlot);
-			_else = @else;
-		}
-
-	#region Interface IAncestorProvider
-
-		object IAncestorProvider.Ancestor => _else;
-
-	#endregion
-
-	#region Interface IDebugEntityId
-
-		FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
-
-	#endregion
-
-	#region Interface IDocumentId
-
-		public int DocumentId => _documentIdSlot.Value;
-
-	#endregion
-
-	#region Interface IStoreSupport
-
-		void IStoreSupport.Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.ElseNode);
-			bucket.Add(Key.DocumentId, DocumentId);
-		}
-
-	#endregion
+		documentIdNode.SaveToSlot(out _documentIdSlot);
+		_else = @else;
 	}
+
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => _else;
+
+#endregion
+
+#region Interface IDebugEntityId
+
+	FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
+
+#endregion
+
+#region Interface IDocumentId
+
+	public int DocumentId => _documentIdSlot.Value;
+
+#endregion
+
+#region Interface IStoreSupport
+
+	void IStoreSupport.Store(Bucket bucket)
+	{
+		bucket.Add(Key.TypeInfo, TypeInfo.ElseNode);
+		bucket.Add(Key.DocumentId, DocumentId);
+	}
+
+#endregion
 }
