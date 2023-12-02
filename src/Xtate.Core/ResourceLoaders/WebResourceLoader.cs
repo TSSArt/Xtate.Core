@@ -17,22 +17,25 @@
 
 #endregion
 
-using System;
 using System.Collections.Specialized;
 using System.IO;
 using System.Net.Http;
 using System.Net.Mime;
-using System.Threading.Tasks;
 
 namespace Xtate.Core;
+
+public class WebResourceLoaderProvider : ResourceLoaderProviderBase<WebResourceLoader>
+{
+	protected override bool CanHandle(Uri uri) => uri is { IsAbsoluteUri: true, Scheme: @"http" or @"https" };
+}
 
 public class WebResourceLoader : IResourceLoader, IDisposable
 {
 	private readonly DisposingToken _disposingToken = new();
 
-	public required Func<Stream, ContentType?, Resource> ResourceFactory { private get; init; }
+	public required Func<Stream, ContentType?, Resource> ResourceFactory { private get; [UsedImplicitly] init; }
 
-	public required Func<HttpClient> HttpClientFactory { private get; init; }
+	public required Func<HttpClient> HttpClientFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IDisposable
 

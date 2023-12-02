@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,169 +17,162 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.Core;
+namespace Xtate.Persistence;
 
-namespace Xtate.Persistence
+internal sealed class PersistedEventScheduler : InProcEventScheduler
 {
-	internal sealed class PersistedEventScheduler : InProcEventScheduler
+	private const    string        HostPartition              = "StateMachineHost";
+	private const    string        PersistedEventSchedulerKey = "scheduler";
+	private const    int           ScheduledEventsKey         = 0;
+	private readonly SemaphoreSlim _lockScheduledEvents       = new(initialCount: 1, maxCount: 1);
+
+	private readonly HashSet<PersistedScheduledEvent> _scheduledEvents = new();
+	private readonly IStorageProvider                 _storageProvider;
+	private          int                              _recordId;
+	private          int                              _scheduledEventRecordId;
+	private          ITransactionalStorage            _storage = default!;
+
+	public PersistedEventScheduler(IStorageProvider storageProvider, IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger logger) : base(hostEventDispatcher, logger) =>
+		_storageProvider = storageProvider;
+
+	protected override async ValueTask<ScheduledEvent> CreateScheduledEvent(IHostEvent hostEvent, CancellationToken token)
 	{
-		private const    string        HostPartition              = "StateMachineHost";
-		private const    string        PersistedEventSchedulerKey = "scheduler";
-		private const    int           ScheduledEventsKey         = 0;
-		private readonly SemaphoreSlim _lockScheduledEvents       = new(initialCount: 1, maxCount: 1);
+		var persistedScheduledEvent = new PersistedScheduledEvent(this, hostEvent);
 
-		private readonly HashSet<PersistedScheduledEvent> _scheduledEvents = new();
-		private readonly IStorageProvider                 _storageProvider;
-		private          int                              _recordId;
-		private          int                              _scheduledEventRecordId;
-		private          ITransactionalStorage            _storage = default!;
-
-		public PersistedEventScheduler(IStorageProvider storageProvider, IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger logger) : base(hostEventDispatcher, logger) =>
-			_storageProvider = storageProvider;
-
-		protected override async ValueTask<ScheduledEvent> CreateScheduledEvent(IHostEvent hostEvent, CancellationToken token)
+		await _lockScheduledEvents.WaitAsync(token).ConfigureAwait(false);
+		try
 		{
-			var persistedScheduledEvent = new PersistedScheduledEvent(this, hostEvent);
+			_scheduledEvents.Add(persistedScheduledEvent);
 
-			await _lockScheduledEvents.WaitAsync(token).ConfigureAwait(false);
-			try
-			{
-				_scheduledEvents.Add(persistedScheduledEvent);
+			persistedScheduledEvent.RecordId = _scheduledEventRecordId ++;
 
-				persistedScheduledEvent.RecordId = _scheduledEventRecordId ++;
-
-				var rootBucket = new Bucket(_storage).Nested(ScheduledEventsKey);
-				rootBucket.Add(Bucket.RootKey, _scheduledEventRecordId);
-				persistedScheduledEvent.Store(rootBucket.Nested(persistedScheduledEvent.RecordId));
-
-				await _storage.CheckPoint(level: 0).ConfigureAwait(false);
-			}
-			finally
-			{
-				_lockScheduledEvents.Release();
-			}
-
-			return persistedScheduledEvent;
-		}
-
-		private async ValueTask DeleteEvent(PersistedScheduledEvent persistedScheduledEvent, CancellationToken token)
-		{
-			if (persistedScheduledEvent is null) throw new ArgumentNullException(nameof(persistedScheduledEvent));
-
-			await _lockScheduledEvents.WaitAsync(token).ConfigureAwait(false);
-			try
-			{
-				_scheduledEvents.Remove(persistedScheduledEvent);
-
-				var rootBucket = new Bucket(_storage).Nested(ScheduledEventsKey);
-				rootBucket.RemoveSubtree(persistedScheduledEvent.RecordId);
-
-				await _storage.CheckPoint(level: 0).ConfigureAwait(false);
-
-				await ShrinkScheduledEvents(token).ConfigureAwait(false);
-			}
-			finally
-			{
-				_lockScheduledEvents.Release();
-			}
-		}
-
-		private async ValueTask ShrinkScheduledEvents(CancellationToken token)
-		{
-			if (_scheduledEvents.Count * 2 > _recordId)
-			{
-				return;
-			}
-
-			_recordId = 0;
 			var rootBucket = new Bucket(_storage).Nested(ScheduledEventsKey);
-			rootBucket.RemoveSubtree(Bucket.RootKey);
-
-			foreach (var scheduledEvent in _scheduledEvents)
-			{
-				scheduledEvent.RecordId = _recordId ++;
-				scheduledEvent.Store(rootBucket.Nested(scheduledEvent.RecordId));
-			}
-
-			if (_recordId > 0)
-			{
-				rootBucket.Add(Bucket.RootKey, _recordId);
-			}
+			rootBucket.Add(Bucket.RootKey, _scheduledEventRecordId);
+			persistedScheduledEvent.Store(rootBucket.Nested(persistedScheduledEvent.RecordId));
 
 			await _storage.CheckPoint(level: 0).ConfigureAwait(false);
-			await _storage.Shrink().ConfigureAwait(false);
 		}
-
-		public async ValueTask Initialize(CancellationToken token)
+		finally
 		{
-			_storage = await _storageProvider.GetTransactionalStorage(HostPartition, PersistedEventSchedulerKey).ConfigureAwait(false);
-
-			await LoadScheduledEvents(_storage, token).ConfigureAwait(false);
-
 			_lockScheduledEvents.Release();
 		}
 
-		private async ValueTask LoadScheduledEvents(IStorage storage, CancellationToken token)
+		return persistedScheduledEvent;
+	}
+
+	private async ValueTask DeleteEvent(PersistedScheduledEvent persistedScheduledEvent, CancellationToken token)
+	{
+		if (persistedScheduledEvent is null) throw new ArgumentNullException(nameof(persistedScheduledEvent));
+
+		await _lockScheduledEvents.WaitAsync(token).ConfigureAwait(false);
+		try
 		{
-			var bucket = new Bucket(storage).Nested(ScheduledEventsKey);
+			_scheduledEvents.Remove(persistedScheduledEvent);
 
-			bucket.TryGet(Bucket.RootKey, out _recordId);
+			var rootBucket = new Bucket(_storage).Nested(ScheduledEventsKey);
+			rootBucket.RemoveSubtree(persistedScheduledEvent.RecordId);
 
-			for (var i = 0; i < _recordId; i ++)
-			{
-				var eventBucket = bucket.Nested(i);
-				if (eventBucket.TryGet(Key.TypeInfo, out TypeInfo typeInfo) && typeInfo == TypeInfo.ScheduledEvent)
-				{
-					var scheduledEvent = new PersistedScheduledEvent(this, eventBucket) { RecordId = i };
+			await _storage.CheckPoint(level: 0).ConfigureAwait(false);
 
-					_scheduledEvents.Add(scheduledEvent);
+			await ShrinkScheduledEvents(token).ConfigureAwait(false);
+		}
+		finally
+		{
+			_lockScheduledEvents.Release();
+		}
+	}
 
-					await ScheduleEvent(scheduledEvent, token).ConfigureAwait(false);
-				}
-			}
+	private async ValueTask ShrinkScheduledEvents(CancellationToken token)
+	{
+		if (_scheduledEvents.Count * 2 > _recordId)
+		{
+			return;
 		}
 
-		private sealed class PersistedScheduledEvent : ScheduledEvent, IAsyncDisposable
+		_recordId = 0;
+		var rootBucket = new Bucket(_storage).Nested(ScheduledEventsKey);
+		rootBucket.RemoveSubtree(Bucket.RootKey);
+
+		foreach (var scheduledEvent in _scheduledEvents)
 		{
-			private readonly PersistedEventScheduler _eventScheduler;
-			private readonly long                    _fireOnUtcTicks;
+			scheduledEvent.RecordId = _recordId ++;
+			scheduledEvent.Store(rootBucket.Nested(scheduledEvent.RecordId));
+		}
 
-			public PersistedScheduledEvent(PersistedEventScheduler eventScheduler, IHostEvent hostEvent) : base(hostEvent)
+		if (_recordId > 0)
+		{
+			rootBucket.Add(Bucket.RootKey, _recordId);
+		}
+
+		await _storage.CheckPoint(level: 0).ConfigureAwait(false);
+		await _storage.Shrink().ConfigureAwait(false);
+	}
+
+	public async ValueTask Initialize(CancellationToken token)
+	{
+		_storage = await _storageProvider.GetTransactionalStorage(HostPartition, PersistedEventSchedulerKey).ConfigureAwait(false);
+
+		await LoadScheduledEvents(_storage, token).ConfigureAwait(false);
+
+		_lockScheduledEvents.Release();
+	}
+
+	private async ValueTask LoadScheduledEvents(IStorage storage, CancellationToken token)
+	{
+		var bucket = new Bucket(storage).Nested(ScheduledEventsKey);
+
+		bucket.TryGet(Bucket.RootKey, out _recordId);
+
+		for (var i = 0; i < _recordId; i ++)
+		{
+			var eventBucket = bucket.Nested(i);
+			if (eventBucket.TryGet(Key.TypeInfo, out TypeInfo typeInfo) && typeInfo == TypeInfo.ScheduledEvent)
 			{
-				if (hostEvent is null) throw new ArgumentNullException(nameof(hostEvent));
-				_eventScheduler = eventScheduler;
+				var scheduledEvent = new PersistedScheduledEvent(this, eventBucket) { RecordId = i };
 
-				_fireOnUtcTicks = DateTime.UtcNow.Ticks + hostEvent.DelayMs * TimeSpan.TicksPerMillisecond;
+				_scheduledEvents.Add(scheduledEvent);
+
+				await ScheduleEvent(scheduledEvent, token).ConfigureAwait(false);
 			}
+		}
+	}
 
-			public PersistedScheduledEvent(PersistedEventScheduler eventScheduler, in Bucket bucket) : base(bucket)
-			{
-				_eventScheduler = eventScheduler;
+	private sealed class PersistedScheduledEvent : ScheduledEvent, IAsyncDisposable
+	{
+		private readonly PersistedEventScheduler _eventScheduler;
+		private readonly long                    _fireOnUtcTicks;
 
-				bucket.TryGet(Key.FireOn, out long fireOnUtcTicks);
+		public PersistedScheduledEvent(PersistedEventScheduler eventScheduler, IHostEvent hostEvent) : base(hostEvent)
+		{
+			if (hostEvent is null) throw new ArgumentNullException(nameof(hostEvent));
+			_eventScheduler = eventScheduler;
 
-				var delayMs = (int) ((fireOnUtcTicks - DateTime.UtcNow.Ticks) / TimeSpan.TicksPerMillisecond);
-				DelayMs = delayMs > 1 ? delayMs : 1;
-			}
+			_fireOnUtcTicks = DateTime.UtcNow.Ticks + hostEvent.DelayMs * TimeSpan.TicksPerMillisecond;
+		}
 
-			public int RecordId { get; set; }
+		public PersistedScheduledEvent(PersistedEventScheduler eventScheduler, in Bucket bucket) : base(bucket)
+		{
+			_eventScheduler = eventScheduler;
 
-			protected override TypeInfo TypeInfo => TypeInfo.ScheduledEvent;
+			bucket.TryGet(Key.FireOn, out long fireOnUtcTicks);
 
-		#region Interface IAsyncDisposable
+			var delayMs = (int) ((fireOnUtcTicks - DateTime.UtcNow.Ticks) / TimeSpan.TicksPerMillisecond);
+			DelayMs = delayMs > 1 ? delayMs : 1;
+		}
 
-			public ValueTask DisposeAsync() => _eventScheduler.DeleteEvent(this, token: default);
+		public int RecordId { get; set; }
 
-		#endregion
+		protected override TypeInfo TypeInfo => TypeInfo.ScheduledEvent;
 
-			public override void Store(Bucket bucket)
-			{
-				bucket.Add(Key.FireOn, _fireOnUtcTicks);
-			}
+#region Interface IAsyncDisposable
+
+		public ValueTask DisposeAsync() => _eventScheduler.DeleteEvent(this, token: default);
+
+#endregion
+
+		public override void Store(Bucket bucket)
+		{
+			bucket.Add(Key.FireOn, _fireOnUtcTicks);
 		}
 	}
 }

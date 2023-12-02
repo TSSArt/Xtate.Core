@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,63 +17,59 @@
 
 #endregion
 
-using System;
-using Xtate.Core;
+namespace Xtate.Builder;
 
-namespace Xtate.Builder
+public class AssignBuilder : BuilderBase, IAssignBuilder
 {
-	public class AssignBuilder : BuilderBase, IAssignBuilder
+	private string?              _attribute;
+	private IValueExpression?    _expression;
+	private IInlineContent?      _inlineContent;
+	private ILocationExpression? _location;
+	private string?              _type;
+
+#region Interface IAssignBuilder
+
+	public IAssign Build() =>
+		new AssignEntity
+		{
+			Ancestor = Ancestor, Location = _location, Expression = _expression,
+			InlineContent = _inlineContent, Type = _type, Attribute = _attribute
+		};
+
+	public void SetLocation(ILocationExpression location)
 	{
-		private string?              _attribute;
-		private IValueExpression?    _expression;
-		private IInlineContent?      _inlineContent;
-		private ILocationExpression? _location;
-		private string?              _type;
+		Infra.Requires(location);
 
-	#region Interface IAssignBuilder
-
-		public IAssign Build() =>
-			new AssignEntity
-			{
-				Ancestor = Ancestor, Location = _location, Expression = _expression,
-				InlineContent = _inlineContent, Type = _type, Attribute = _attribute
-			};
-
-		public void SetLocation(ILocationExpression location)
-		{
-			Infra.Requires(location);
-
-			_location = location;
-		}
-
-		public void SetExpression(IValueExpression expression)
-		{
-			Infra.Requires(expression);
-
-			_expression = expression;
-		}
-
-		public void SetInlineContent(IInlineContent inlineContent)
-		{
-			Infra.Requires(inlineContent);
-			
-			_inlineContent = inlineContent;
-		}
-
-		public void SetType(string type)
-		{
-			Infra.Requires(type);
-
-			_type = type;
-		}
-
-		public void SetAttribute(string attribute)
-		{
-			Infra.Requires(attribute);
-
-			_attribute = attribute;
-		}
-
-	#endregion
+		_location = location;
 	}
+
+	public void SetExpression(IValueExpression expression)
+	{
+		Infra.Requires(expression);
+
+		_expression = expression;
+	}
+
+	public void SetInlineContent(IInlineContent inlineContent)
+	{
+		Infra.Requires(inlineContent);
+
+		_inlineContent = inlineContent;
+	}
+
+	public void SetType(string type)
+	{
+		Infra.Requires(type);
+
+		_type = type;
+	}
+
+	public void SetAttribute(string attribute)
+	{
+		Infra.Requires(attribute);
+
+		_attribute = attribute;
+	}
+
+#endregion
 }

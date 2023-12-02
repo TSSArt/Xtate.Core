@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,24 +17,23 @@
 
 #endregion
 
-namespace Xtate.DataModel.XPath
+namespace Xtate.DataModel.XPath;
+
+internal class SimpleTypeItemNodeAdapter : ItemNodeAdapter
 {
-	internal class SimpleTypeItemNodeAdapter : ItemNodeAdapter
+	public override bool GetFirstChild(in DataModelXPathNavigator.Node node, out DataModelXPathNavigator.Node childNode)
 	{
-		public override bool GetFirstChild(in DataModelXPathNavigator.Node node, out DataModelXPathNavigator.Node childNode)
+		if (AdapterFactory.GetSimpleTypeAdapter(node.DataModelValue) is { } adapter)
 		{
-			if (AdapterFactory.GetSimpleTypeAdapter(node.DataModelValue) is { } adapter)
-			{
-				childNode = new DataModelXPathNavigator.Node(node.DataModelValue, adapter);
+			childNode = new DataModelXPathNavigator.Node(node.DataModelValue, adapter);
 
-				return true;
-			}
-
-			childNode = default;
-
-			return false;
+			return true;
 		}
 
-		public override bool GetNextChild(in DataModelXPathNavigator.Node parentNode, ref DataModelXPathNavigator.Node node) => false;
+		childNode = default;
+
+		return false;
 	}
+
+	public override bool GetNextChild(in DataModelXPathNavigator.Node parentNode, ref DataModelXPathNavigator.Node node) => false;
 }

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,25 +17,22 @@
 
 #endregion
 
-using System.Collections.Immutable;
+namespace Xtate.Builder;
 
-namespace Xtate.Builder
+public interface IStateBuilder
 {
-	public interface IStateBuilder
-	{
-		IState Build();
+	IState Build();
 
-		void SetId(IIdentifier id);
-		void SetInitial(ImmutableArray<IIdentifier> initial);
-		void AddState(IState state);
-		void AddParallel(IParallel parallel);
-		void AddFinal(IFinal final);
-		void SetInitial(IInitial initial);
-		void AddHistory(IHistory history);
-		void AddTransition(ITransition transition);
-		void AddInvoke(IInvoke action);
-		void AddOnEntry(IOnEntry action);
-		void AddOnExit(IOnExit action);
-		void SetDataModel(IDataModel dataModel);
-	}
+	void SetId(IIdentifier id);
+	void SetInitial(ImmutableArray<IIdentifier> initial);
+	void AddState(IState state);
+	void AddParallel(IParallel parallel);
+	void AddFinal(IFinal final);
+	void SetInitial(IInitial initial);
+	void AddHistory(IHistory history);
+	void AddTransition(ITransition transition);
+	void AddInvoke(IInvoke action);
+	void AddOnEntry(IOnEntry action);
+	void AddOnExit(IOnExit action);
+	void SetDataModel(IDataModel dataModel);
 }

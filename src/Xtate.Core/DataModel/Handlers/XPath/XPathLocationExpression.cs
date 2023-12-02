@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,88 +17,85 @@
 
 #endregion
 
-using Xtate.Core;
+namespace Xtate.DataModel.XPath;
 
-namespace Xtate.DataModel.XPath
+public class XPathLocationExpression : ILocationExpression, IAncestorProvider
 {
-	public class XPathLocationExpression : ILocationExpression, IAncestorProvider
+	private readonly ILocationExpression _locationExpression;
+
+	public XPathLocationExpression(ILocationExpression locationExpression, XPathAssignType assignType, string? attribute)
 	{
-		private readonly ILocationExpression _locationExpression;
+		AssignType = assignType;
+		Attribute = attribute;
+		_locationExpression = locationExpression;
+	}
 
-		public XPathLocationExpression(ILocationExpression locationExpression, XPathAssignType assignType, string? attribute)
+	public XPathAssignType AssignType { get; }
+
+	public string? Attribute { get; }
+
+#region Interface IAncestorProvider
+
+	public object Ancestor => _locationExpression;
+
+#endregion
+
+#region Interface ILocationExpression
+
+	public string? Expression => _locationExpression.Expression;
+
+#endregion
+
+	public static bool TryParseAssignType(string? value, out XPathAssignType assignType)
+	{
+		switch (value)
 		{
-			AssignType = assignType;
-			Attribute = attribute;
-			_locationExpression = locationExpression;
-		}
+			case null:
+			case "":
+			case "replacechildren":
+				assignType = XPathAssignType.ReplaceChildren;
 
-		public XPathAssignType AssignType { get; }
+				return true;
 
-		public string? Attribute { get; }
+			case "firstchild":
+				assignType = XPathAssignType.FirstChild;
 
-	#region Interface IAncestorProvider
+				return true;
 
-		public object Ancestor => _locationExpression;
+			case "lastchild":
+				assignType = XPathAssignType.LastChild;
 
-	#endregion
+				return true;
 
-	#region Interface ILocationExpression
+			case "previoussibling":
+				assignType = XPathAssignType.PreviousSibling;
 
-		public string? Expression => _locationExpression.Expression;
+				return true;
 
-	#endregion
+			case "nextsibling":
+				assignType = XPathAssignType.NextSibling;
 
-		public static bool TryParseAssignType(string? value, out XPathAssignType assignType)
-		{
-			switch (value)
-			{
-				case null:
-				case "":
-				case "replacechildren":
-					assignType = XPathAssignType.ReplaceChildren;
+				return true;
 
-					return true;
+			case "replace":
+				assignType = XPathAssignType.Replace;
 
-				case "firstchild":
-					assignType = XPathAssignType.FirstChild;
+				return true;
 
-					return true;
+			case "delete":
+				assignType = XPathAssignType.Delete;
 
-				case "lastchild":
-					assignType = XPathAssignType.LastChild;
+				return true;
 
-					return true;
+			case "addattribute":
+				assignType = XPathAssignType.AddAttribute;
 
-				case "previoussibling":
-					assignType = XPathAssignType.PreviousSibling;
+				return true;
 
-					return true;
+			default:
+				assignType = default;
 
-				case "nextsibling":
-					assignType = XPathAssignType.NextSibling;
-
-					return true;
-
-				case "replace":
-					assignType = XPathAssignType.Replace;
-
-					return true;
-
-				case "delete":
-					assignType = XPathAssignType.Delete;
-
-					return true;
-
-				case "addattribute":
-					assignType = XPathAssignType.AddAttribute;
-
-					return true;
-
-				default:
-					assignType = default;
-
-					return false;
-			}
+				return false;
 		}
 	}
 }

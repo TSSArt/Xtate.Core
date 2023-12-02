@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,36 +17,33 @@
 
 #endregion
 
-using System.Collections.Immutable;
+namespace Xtate.Core;
 
-namespace Xtate.Core
+public struct DataModelEntity : IDataModel, IVisitorEntity<DataModelEntity, IDataModel>, IAncestorProvider
 {
-	public struct DataModelEntity : IDataModel, IVisitorEntity<DataModelEntity, IDataModel>, IAncestorProvider
+	internal object? Ancestor;
+
+#region Interface IAncestorProvider
+
+	object? IAncestorProvider.Ancestor => Ancestor;
+
+#endregion
+
+#region Interface IDataModel
+
+	public ImmutableArray<IData> Data { get; set; }
+
+#endregion
+
+#region Interface IVisitorEntity<DataModelEntity,IDataModel>
+
+	void IVisitorEntity<DataModelEntity, IDataModel>.Init(IDataModel source)
 	{
-		internal object? Ancestor;
-
-	#region Interface IAncestorProvider
-
-		object? IAncestorProvider.Ancestor => Ancestor;
-
-	#endregion
-
-	#region Interface IDataModel
-
-		public ImmutableArray<IData> Data { get; set; }
-
-	#endregion
-
-	#region Interface IVisitorEntity<DataModelEntity,IDataModel>
-
-		void IVisitorEntity<DataModelEntity, IDataModel>.Init(IDataModel source)
-		{
-			Ancestor = source;
-			Data = source.Data;
-		}
-
-		bool IVisitorEntity<DataModelEntity, IDataModel>.RefEquals(ref DataModelEntity other) => Data == other.Data;
-
-	#endregion
+		Ancestor = source;
+		Data = source.Data;
 	}
+
+	bool IVisitorEntity<DataModelEntity, IDataModel>.RefEquals(ref DataModelEntity other) => Data == other.Data;
+
+#endregion
 }

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,386 +17,412 @@
 
 #endregion
 
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Xml;
 using Xtate.Builder;
+using Xtate.IoC;
 using Xtate.Scxml;
 using Xtate.Service;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public interface IStateMachineHostContext
 {
-	public interface IStateMachineHostContext
+	void      AddStateMachineController(IStateMachineController controller);
+	ValueTask RemoveStateMachineController(IStateMachineController controller);
+}
+
+
+public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposable
+{
+	private const string Location = "location";
+
+	private readonly DataModelList?                                           _configuration;
+	private readonly ImmutableDictionary<object, object>                      _contextRuntimeItems;
+	private readonly IEventSchedulerFactory                                   _defaultEventSchedulerFactory;
+	private readonly StateMachineHostOptions                                  _options;
+	private readonly ConcurrentDictionary<SessionId, SessionId>               _parentSessionIdBySessionId = new();
+	private readonly ConcurrentDictionary<InvokeId, IService?>                _serviceByInvokeId          = new();
+	private readonly ConcurrentDictionary<SessionId, IStateMachineController> _stateMachineBySessionId    = new();
+	private readonly IStateMachineHost                                        _stateMachineHost;
+	private readonly CancellationTokenSource                                  _stopTokenSource;
+	private readonly CancellationTokenSource                                  _suspendTokenSource;
+	private          IEventScheduler?                                         _eventScheduler;
+
+	public StateMachineHostContext(IStateMachineHost stateMachineHost, StateMachineHostOptions options, IEventSchedulerFactory defaultEventSchedulerFactory)
 	{
-		void AddStateMachineController(IStateMachineController controller);
-		ValueTask RemoveStateMachineController(IStateMachineController controller);
+		_stateMachineHost = stateMachineHost;
+		_options = options;
+		_defaultEventSchedulerFactory = defaultEventSchedulerFactory;
+		_suspendTokenSource = new CancellationTokenSource();
+		_stopTokenSource = new CancellationTokenSource();
+
+		_contextRuntimeItems = ImmutableDictionary<object, object>.Empty;
+		if (stateMachineHost is IHost host)
+		{
+			_contextRuntimeItems = _contextRuntimeItems.Add(typeof(IHost), host);
+		}
+
+		if (options.Configuration is { Count : > 0 } configuration)
+		{
+			_configuration = new DataModelList();
+
+			foreach (var pair in configuration)
+			{
+				_configuration.Add(pair.Key, pair.Value);
+			}
+
+			_configuration.MakeDeepConstant();
+		}
 	}
 
-	[PublicAPI]
-	internal class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposable
+	protected CancellationToken StopToken => _stopTokenSource.Token;
+
+#region Interface IAsyncDisposable
+
+	public async ValueTask DisposeAsync()
 	{
-		private const string Location = "location";
+		await DisposeAsyncCore().ConfigureAwait(false);
 
-		private readonly DataModelList?                                              _configuration;
-		private readonly ImmutableDictionary<object, object>                         _contextRuntimeItems;
-		private readonly IEventSchedulerFactory                                      _defaultEventSchedulerFactory;
-		private readonly StateMachineHostOptions                                     _options;
-		private readonly ConcurrentDictionary<SessionId, SessionId>                  _parentSessionIdBySessionId = new();
-		private readonly ConcurrentDictionary<InvokeId, IService?>                   _serviceByInvokeId          = new();
-		private readonly ConcurrentDictionary<SessionId, IStateMachineController> _stateMachineBySessionId    = new();
-		private readonly IStateMachineHost                                           _stateMachineHost;
-		private readonly CancellationTokenSource                                     _stopTokenSource;
-		private readonly CancellationTokenSource                                     _suspendTokenSource;
-		private          IEventScheduler?                                            _eventScheduler;
+		GC.SuppressFinalize(this);
+	}
 
-		public StateMachineHostContext(IStateMachineHost stateMachineHost, StateMachineHostOptions options, IEventSchedulerFactory defaultEventSchedulerFactory)
+#endregion
+
+#region Interface IStateMachineHostContext
+
+	public void AddStateMachineController(IStateMachineController stateMachineController)
+	{
+		var sessionId = stateMachineController.SessionId;
+		var result = _stateMachineBySessionId.TryAdd(sessionId, stateMachineController);
+
+		Infra.Assert(result);
+	}
+
+	public virtual ValueTask RemoveStateMachineController(IStateMachineController stateMachineController)
+	{
+		var result = _stateMachineBySessionId.TryRemove(stateMachineController.SessionId, out var controller);
+
+		Infra.Assert(result);
+		Infra.NotNull(controller);
+
+		return stateMachineController.DisposeAsync();
+	}
+
+#endregion
+
+	protected virtual ValueTask DisposeAsyncCore()
+	{
+		_suspendTokenSource.Dispose();
+		_stopTokenSource.Dispose();
+
+		return default;
+	}
+
+	public virtual async ValueTask InitializeAsync(CancellationToken token)
+	{
+		var eventSchedulerFactory = _options.EventSchedulerFactory ?? _defaultEventSchedulerFactory;
+
+		_eventScheduler = await eventSchedulerFactory.CreateEventScheduler(_stateMachineHost, _options.EsLogger, token).ConfigureAwait(false);
+	}
+
+	public ValueTask ScheduleEvent(IHostEvent hostEvent, CancellationToken token)
+	{
+		if (hostEvent is null) throw new ArgumentNullException(nameof(hostEvent));
+
+		Infra.NotNull(_eventScheduler);
+
+		return _eventScheduler.ScheduleEvent(hostEvent, token);
+	}
+
+	public ValueTask CancelEvent(SessionId sessionId, SendId sendId, CancellationToken token)
+	{
+		if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
+		if (sendId is null) throw new ArgumentNullException(nameof(sendId));
+
+		Infra.NotNull(_eventScheduler);
+
+		return _eventScheduler.CancelEvent(sessionId, sendId, token);
+	}
+
+	private InterpreterOptions CreateInterpreterOptions(//ServiceLocator serviceLocator,
+														Uri? baseUri,
+														DataModelList? hostData,
+														IErrorProcessor errorProcessor,
+														DataModelValue arguments = default) =>
+		new()
 		{
-			_stateMachineHost = stateMachineHost;
-			_options = options;
-			_defaultEventSchedulerFactory = defaultEventSchedulerFactory;
-			_suspendTokenSource = new CancellationTokenSource();
-			_stopTokenSource = new CancellationTokenSource();
+			Configuration = _configuration,
+			PersistenceLevel = _options.PersistenceLevel,
+			StorageProvider = _options.StorageProvider,
+			ResourceLoaderFactories = _options.ResourceLoaderFactories,
+			//CustomActionProviders = _options.CustomActionFactories,
+			StopToken = _stopTokenSource.Token,
+			SuspendToken = _suspendTokenSource.Token,
+			//Logger = _options.Logger,
+			UnhandledErrorBehaviour = _options.UnhandledErrorBehaviour,
+			ContextRuntimeItems = _contextRuntimeItems,
+			BaseUri = baseUri,
+			Host = hostData,
+			ErrorProcessor = errorProcessor,
+			Arguments = arguments
+		};
 
-			_contextRuntimeItems = ImmutableDictionary<object, object>.Empty;
-			if (stateMachineHost is IHost host)
-			{
-				_contextRuntimeItems = _contextRuntimeItems.Add(typeof(IHost), host);
-			}
-
-			if (options.Configuration is { Count : > 0 } configuration)
-			{
-				_configuration = new DataModelList();
-
-				foreach (var pair in configuration)
-				{
-					_configuration.Add(pair.Key, pair.Value);
-				}
-
-				_configuration.MakeDeepConstant();
-			}
-		}
-
-		protected CancellationToken StopToken => _stopTokenSource.Token;
-
-	#region Interface IAsyncDisposable
-
-		public async ValueTask DisposeAsync()
+	protected virtual StateMachineControllerBase CreateStateMachineController(SessionId sessionId,
+																			  IStateMachine? stateMachine,
+																			  IStateMachineOptions? stateMachineOptions,
+																			  Uri? stateMachineLocation,
+																			  InterpreterOptions defaultOptions
+																			  //SecurityContext securityContext,
+		//																	  DeferredFinalizer finalizer
+		) =>
+		new StateMachineRuntimeController(
+			sessionId, stateMachineOptions, stateMachine, stateMachineLocation, _stateMachineHost,
+			_options.SuspendIdlePeriod, defaultOptions)
 		{
-			await DisposeAsyncCore().ConfigureAwait(false);
+			_stateMachineInterpreterFactory = default, sd = default, EventQueueWriter = default
+		};
 
-			GC.SuppressFinalize(this);
-		}
-
-	#endregion
-
-		protected virtual ValueTask DisposeAsyncCore()
+	private static XmlReaderSettings GetXmlReaderSettings(XmlNameTable nameTable, ScxmlXmlResolver xmlResolver) =>
+		new()
 		{
-			_suspendTokenSource.Dispose();
-			_stopTokenSource.Dispose();
+			Async = true,
+			CloseInput = true,
+			NameTable = nameTable,
+			XmlResolver = xmlResolver,
+			DtdProcessing = DtdProcessing.Parse
+		};
 
-			return default;
-		}
+	private static XmlParserContext GetXmlParserContext(XmlNameTable nameTable, Uri? baseUri)
+	{
+		var nsManager = new XmlNamespaceManager(nameTable);
+		return new XmlParserContext(nameTable, nsManager, xmlLang: null, XmlSpace.None) { BaseURI = baseUri?.ToString() };
+	}
 
-		public virtual async ValueTask InitializeAsync(CancellationToken token)
-		{
-			var eventSchedulerFactory = _options.EventSchedulerFactory ?? _defaultEventSchedulerFactory;
 
-			_eventScheduler = await eventSchedulerFactory.CreateEventScheduler(_stateMachineHost, _options.EsLogger, token).ConfigureAwait(false);
-		}
+	private async ValueTask<IStateMachine> GetStateMachine(Uri? uri,
+														   string? scxml,
+														   ISecurityContext securityContext,
+														   IErrorProcessor errorProcessor,
+														   CancellationToken token)
+	{
+		var nameTable = new NameTable();
 
-		public ValueTask ScheduleEvent(IHostEvent hostEvent, CancellationToken token)
-		{
-			if (hostEvent is null) throw new ArgumentNullException(nameof(hostEvent));
+		//var loggerContext = new LoadStateMachineLoggerContext(uri, scxml);
+		//var factoryContext = new FactoryContext(_options.ResourceLoaderFactories, securityContext, _options.Logger, loggerContext);
+		//TODO:
+	//	var xmlResolver = ServiceLocator.Default.GetService<RedirectXmlResolver>();
+		var xmlParserContext = GetXmlParserContext(nameTable, uri);
+		//var xmlReaderSettings = GetXmlReaderSettings(nameTable, xmlResolver);
+		//var directorOptions = GetScxmlDirectorOptions(_options.ServiceLocator, xmlParserContext, xmlReaderSettings, xmlResolver);
+		/*
+		using var xmlReader = scxml is null
+			? XmlReader.Create(uri!.ToString(), xmlReaderSettings, xmlParserContext)
+			: XmlReader.Create(new StringReader(scxml), xmlReaderSettings, xmlParserContext);*/
 
-			Infra.NotNull(_eventScheduler);
+	//	var scxmlDirector = ServiceLocator.Default.GetService<ScxmlDirector, XmlReader>(xmlReader);
 
-			return _eventScheduler.ScheduleEvent(hostEvent, token);
-		}
+		var services = new ServiceCollection();
+		services.RegisterStateMachineBuilder();
 
-		public ValueTask CancelEvent(SessionId sessionId, SendId sendId, CancellationToken token)
-		{
-			if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
-			if (sendId is null) throw new ArgumentNullException(nameof(sendId));
+		if(scxml is null)
+			services.AddForwarding<IStateMachineLocation>(_ => new StateMachineLocation(uri));
+		else
+			services.AddForwarding<IScxmlStateMachine>(_ => new ScxmlStateMachine(scxml));
 
-			Infra.NotNull(_eventScheduler);
+		var serviceProvider = services.BuildProvider();
+		return await serviceProvider.GetRequiredService<IStateMachine>().ConfigureAwait(false);
 
-			return _eventScheduler.CancelEvent(sessionId, sendId, token);
-		}
+		//return await scxmlDirector.ConstructStateMachine().ConfigureAwait(false);
+	}
 
-		private InterpreterOptions CreateInterpreterOptions(ServiceLocator serviceLocator,
-															Uri? baseUri,
-															DataModelList? hostData,
-															IErrorProcessor errorProcessor,
-															DataModelValue arguments = default) =>
-			new(serviceLocator)
-			{
-				Configuration = _configuration,
-				PersistenceLevel = _options.PersistenceLevel,
-				StorageProvider = _options.StorageProvider,
-				ResourceLoaderFactories = _options.ResourceLoaderFactories,
-				CustomActionProviders = _options.CustomActionFactories,
-				StopToken = _stopTokenSource.Token,
-				SuspendToken = _suspendTokenSource.Token,
-				Logger = _options.Logger,
-				UnhandledErrorBehaviour = _options.UnhandledErrorBehaviour,
-				ContextRuntimeItems = _contextRuntimeItems,
-				BaseUri = baseUri,
-				Host = hostData,
-				ErrorProcessor = errorProcessor,
-				Arguments = arguments
-			};
-
-		protected virtual StateMachineControllerBase CreateStateMachineController(SessionId sessionId,
-																				  IStateMachine? stateMachine,
-																				  IStateMachineOptions? stateMachineOptions,
-																				  Uri? stateMachineLocation,
-																				  InterpreterOptions defaultOptions,
-																				  SecurityContext securityContext,
-																				  DeferredFinalizer finalizer) =>
-			new StateMachineRuntimeController(sessionId, stateMachineOptions, stateMachine, stateMachineLocation, _stateMachineHost,
-											  _options.SuspendIdlePeriod, defaultOptions, securityContext, finalizer)
-			{
-				_stateMachineInterpreterFactory = default, sd = default, EventQueueWriter = default
-			};
-
-		private static XmlReaderSettings GetXmlReaderSettings(XmlNameTable nameTable, ScxmlXmlResolver xmlResolver) =>
-			new()
-			{
-				Async = true,
-				CloseInput = true,
-				NameTable = nameTable,
-				XmlResolver = xmlResolver,
-				DtdProcessing = DtdProcessing.Parse
-			};
-
-		private static XmlParserContext GetXmlParserContext(XmlNameTable nameTable, Uri? baseUri)
-		{
-			var nsManager = new XmlNamespaceManager(nameTable);
-			return new XmlParserContext(nameTable, nsManager, xmlLang: null, XmlSpace.None) { BaseURI = baseUri?.ToString() };
-		}
-
-		private IBuilderFactory GetBuilderFactory() => _options.ServiceLocator.GetService<IBuilderFactory>();
-
-		private static ScxmlDirectorOptions GetScxmlDirectorOptions(ServiceLocator serviceLocator,
-																	XmlParserContext xmlParserContext,
-																	XmlReaderSettings xmlReaderSettings,
-																	ScxmlXmlResolver xmlResolver) =>
-			new(serviceLocator)
-			{
-				NamespaceResolver = xmlParserContext.NamespaceManager,
-				XmlReaderSettings = xmlReaderSettings,
-				XmlResolver = xmlResolver,
-				XIncludeAllowed = true,
-				Async = true
-			};
-
-		private async ValueTask<IStateMachine> GetStateMachine(Uri? uri,
-															   string? scxml,
-															   ISecurityContext securityContext,
-															   IErrorProcessor errorProcessor,
-															   CancellationToken token)
-		{
-			var nameTable = new NameTable();
-			//var loggerContext = new LoadStateMachineLoggerContext(uri, scxml);
-			//var factoryContext = new FactoryContext(_options.ResourceLoaderFactories, securityContext, _options.Logger, loggerContext);
-			//TODO:
-			var xmlResolver = ServiceLocator.Default.GetService<RedirectXmlResolver>();
-			var xmlParserContext = GetXmlParserContext(nameTable, uri);
-			var xmlReaderSettings = GetXmlReaderSettings(nameTable, xmlResolver);
-			var directorOptions = GetScxmlDirectorOptions(_options.ServiceLocator, xmlParserContext, xmlReaderSettings, xmlResolver);
-
-			using var xmlReader = scxml is null
-				? XmlReader.Create(uri!.ToString(), xmlReaderSettings, xmlParserContext)
-				: XmlReader.Create(new StringReader(scxml), xmlReaderSettings, xmlParserContext);
-
-			var scxmlDirector = ServiceLocator.Default.GetService<ScxmlDirector, XmlReader>(xmlReader);
-
-			return await scxmlDirector.ConstructStateMachine().ConfigureAwait(false);
-		}
-
-		//TODO:delete
-		protected async ValueTask<(IStateMachine StateMachine, Uri? Location)> LoadStateMachine(StateMachineOrigin origin,
-																								Uri? hostBaseUri,
-																								ISecurityContext securityContext,
-																								IErrorProcessor errorProcessor,
-																								CancellationToken token)
-		{
-			var location = hostBaseUri.CombineWith(origin.BaseUri);
-
-			switch (origin.Type)
-			{
-				case StateMachineOriginType.StateMachine:
-					return (origin.AsStateMachine(), location);
-
-				case StateMachineOriginType.Scxml:
-				{
-					var stateMachine = await GetStateMachine(location, origin.AsScxml(), securityContext, errorProcessor, token).ConfigureAwait(false);
-
-					return (stateMachine, location);
-				}
-				case StateMachineOriginType.Source:
-				{
-					location = location.CombineWith(origin.AsSource());
-					var stateMachine = await GetStateMachine(location, scxml: default, securityContext, errorProcessor, token).ConfigureAwait(false);
-
-					return (stateMachine, location);
-				}
-				default:
-					throw new ArgumentException(Resources.Exception_StateMachineOriginMissed);
-			}
-		}
-
-		//TODO:remove
-		public virtual async ValueTask<StateMachineControllerBase> CreateAndAddStateMachine(ServiceLocator serviceLocator,
-																							SessionId sessionId,
-																							StateMachineOrigin origin,
-																							DataModelValue parameters,
-																							SecurityContext securityContext,
-																							DeferredFinalizer finalizer,
+	//TODO:delete
+	protected async ValueTask<(IStateMachine StateMachine, Uri? Location)> LoadStateMachine(StateMachineOrigin origin,
+																							Uri? hostBaseUri,
+																							ISecurityContext securityContext,
 																							IErrorProcessor errorProcessor,
 																							CancellationToken token)
+	{
+		var location = hostBaseUri.CombineWith(origin.BaseUri);
+
+		switch (origin.Type)
 		{
-			var (stateMachine, location) = await LoadStateMachine(origin, _options.BaseUri, securityContext, errorProcessor, token).ConfigureAwait(false);
+			case StateMachineOriginType.StateMachine:
+				return (origin.AsStateMachine(), location);
 
-			var interpreterOptions = CreateInterpreterOptions(serviceLocator, location, CreateHostData(location), errorProcessor, parameters);
-
-			stateMachine.Is<IStateMachineOptions>(out var stateMachineOptions);
-
-			return CreateStateMachineController(sessionId, stateMachine, stateMachineOptions, location, interpreterOptions, securityContext, finalizer);
-		}
-
-		protected StateMachineControllerBase AddSavedStateMachine(ServiceLocator serviceLocator, 
-																  SessionId sessionId,
-																  Uri? stateMachineLocation,
-																  IStateMachineOptions stateMachineOptions,
-																  SecurityContext securityContext,
-																  DeferredFinalizer finalizer,
-																  IErrorProcessor errorProcessor)
-		{
-			var interpreterOptions = CreateInterpreterOptions(serviceLocator, stateMachineLocation, CreateHostData(stateMachineLocation), errorProcessor);
-
-			return CreateStateMachineController(sessionId, stateMachine: default, stateMachineOptions, stateMachineLocation, interpreterOptions, securityContext, finalizer);
-		}
-
-		private static DataModelList? CreateHostData(Uri? stateMachineLocation)
-		{
-			if (stateMachineLocation is not null)
+			case StateMachineOriginType.Scxml:
 			{
-				var list = new DataModelList { { Location, stateMachineLocation.ToString() } };
-				list.MakeDeepConstant();
+				var stateMachine = await GetStateMachine(location, origin.AsScxml(), securityContext, errorProcessor, token).ConfigureAwait(false);
 
-				return list;
+				return (stateMachine, location);
 			}
+			case StateMachineOriginType.Source:
+			{
+				location = location.CombineWith(origin.AsSource());
+				var stateMachine = await GetStateMachine(location, scxml: default, securityContext, errorProcessor, token).ConfigureAwait(false);
 
-			return null;
+				return (stateMachine, location);
+			}
+			default:
+				throw new ArgumentException(Resources.Exception_StateMachineOriginMissed);
+		}
+	}
+
+	//TODO:remove
+	public virtual async ValueTask<StateMachineControllerBase> CreateAndAddStateMachine(//ServiceLocator serviceLocator,
+																						SessionId sessionId,
+																						StateMachineOrigin origin,
+																						DataModelValue parameters,
+																						SecurityContext securityContext,
+																						DeferredFinalizer finalizer,
+																						IErrorProcessor errorProcessor,
+																						CancellationToken token)
+	{
+		var (stateMachine, location) = await LoadStateMachine(origin, _options.BaseUri, securityContext, errorProcessor, token).ConfigureAwait(false);
+
+		var interpreterOptions = CreateInterpreterOptions(location, CreateHostData(location), errorProcessor, parameters);
+
+		stateMachine.Is<IStateMachineOptions>(out var stateMachineOptions);
+
+		return CreateStateMachineController(sessionId, stateMachine, stateMachineOptions, location, interpreterOptions);
+	}
+
+	protected StateMachineControllerBase AddSavedStateMachine(//ServiceLocator serviceLocator,
+															  SessionId sessionId,
+															  Uri? stateMachineLocation,
+															  IStateMachineOptions stateMachineOptions,
+															  SecurityContext securityContext,
+															  DeferredFinalizer finalizer,
+															  IErrorProcessor errorProcessor)
+	{
+		var interpreterOptions = CreateInterpreterOptions(stateMachineLocation, CreateHostData(stateMachineLocation), errorProcessor);
+
+		return CreateStateMachineController(sessionId, stateMachine: default, stateMachineOptions, stateMachineLocation, interpreterOptions);
+	}
+
+	private static DataModelList? CreateHostData(Uri? stateMachineLocation)
+	{
+		if (stateMachineLocation is not null)
+		{
+			var list = new DataModelList { { Location, stateMachineLocation.ToString() } };
+			list.MakeDeepConstant();
+
+			return list;
 		}
 
-		public void AddStateMachineController(IStateMachineController stateMachineController)
+		return null;
+	}
+
+	public virtual ValueTask<IStateMachineController?> FindStateMachineController(SessionId sessionId, CancellationToken token)
+	{
+		if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
+
+		return _stateMachineBySessionId.TryGetValue(sessionId, out var controller) ? new ValueTask<IStateMachineController?>(controller) : default;
+	}
+
+	public void ValidateSessionId(SessionId sessionId, out IStateMachineController controller)
+	{
+		if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
+
+		var result = _stateMachineBySessionId.TryGetValue(sessionId, out var stateMachineController);
+
+		Infra.Assert(result);
+		Infra.NotNull(stateMachineController);
+
+		controller = stateMachineController;
+	}
+
+	public virtual ValueTask AddService(SessionId sessionId,
+										InvokeId invokeId,
+										IService service,
+										CancellationToken token)
+	{
+		var result = _serviceByInvokeId.TryAdd(invokeId, service);
+
+		Infra.Assert(result);
+
+		if (service is StateMachineControllerBase stateMachineController)
 		{
-			var sessionId = stateMachineController.SessionId;
-			var result = _stateMachineBySessionId.TryAdd(sessionId, stateMachineController);
+			result = _parentSessionIdBySessionId.TryAdd(stateMachineController.SessionId, sessionId);
 
 			Infra.Assert(result);
 		}
 
-		public virtual ValueTask RemoveStateMachineController(IStateMachineController stateMachineController)
+		return default;
+	}
+
+	public virtual ValueTask<IService?> TryCompleteService(SessionId sessionId, InvokeId invokeId)
+	{
+		if (!_serviceByInvokeId.TryGetValue(invokeId, out var service))
 		{
-			var result = _stateMachineBySessionId.TryRemove(stateMachineController.SessionId, out var controller);
-
-			Infra.Assert(result);
-			Infra.NotNull(controller);
-
-			return stateMachineController.DisposeAsync();
+			return new ValueTask<IService?>((IService?) null);
 		}
 
-		public virtual ValueTask<IStateMachineController?> FindStateMachineController(SessionId sessionId, CancellationToken token)
+		if (!_serviceByInvokeId.TryUpdate(invokeId, newValue: null, service))
 		{
-			if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
-
-			return _stateMachineBySessionId.TryGetValue(sessionId, out var controller) ? new ValueTask<IStateMachineController?>(controller) : default;
+			return new ValueTask<IService?>((IService?) null);
 		}
 
-		public void ValidateSessionId(SessionId sessionId, out IStateMachineController controller)
+		if (service is StateMachineControllerBase stateMachineController)
 		{
-			if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
-
-			var result = _stateMachineBySessionId.TryGetValue(sessionId, out var stateMachineController);
-
-			Infra.Assert(result);
-			Infra.NotNull(stateMachineController);
-
-			controller = stateMachineController;
+			_parentSessionIdBySessionId.TryRemove(stateMachineController.SessionId, out _);
 		}
 
-		public virtual ValueTask AddService(SessionId sessionId,
-											InvokeId invokeId,
-											IService service,
-											CancellationToken token)
+		return new ValueTask<IService?>(service);
+	}
+
+	public virtual ValueTask<IService?> TryRemoveService(SessionId sessionId, InvokeId invokeId)
+	{
+		if (!_serviceByInvokeId.TryRemove(invokeId, out var service) || service is null)
 		{
-			var result = _serviceByInvokeId.TryAdd(invokeId, service);
-
-			Infra.Assert(result);
-
-			if (service is StateMachineControllerBase stateMachineController)
-			{
-				result = _parentSessionIdBySessionId.TryAdd(stateMachineController.SessionId, sessionId);
-
-				Infra.Assert(result);
-			}
-
-			return default;
+			return new ValueTask<IService?>((IService?) null);
 		}
 
-		public virtual ValueTask<IService?> TryCompleteService(SessionId sessionId, InvokeId invokeId)
+		if (service is StateMachineControllerBase stateMachineController)
 		{
-			if (!_serviceByInvokeId.TryGetValue(invokeId, out var service))
-			{
-				return new ValueTask<IService?>((IService?) null);
-			}
-
-			if (!_serviceByInvokeId.TryUpdate(invokeId, newValue: null, service))
-			{
-				return new ValueTask<IService?>((IService?) null);
-			}
-
-			if (service is StateMachineControllerBase stateMachineController)
-			{
-				_parentSessionIdBySessionId.TryRemove(stateMachineController.SessionId, out _);
-			}
-
-			return new ValueTask<IService?>(service);
+			_parentSessionIdBySessionId.TryRemove(stateMachineController.SessionId, out _);
 		}
 
-		public virtual ValueTask<IService?> TryRemoveService(SessionId sessionId, InvokeId invokeId)
+		return new ValueTask<IService?>(service);
+	}
+
+	public bool TryGetParentSessionId(SessionId sessionId, [NotNullWhen(true)] out SessionId? parentSessionId) => _parentSessionIdBySessionId.TryGetValue(sessionId, out parentSessionId);
+
+	public bool TryGetService(InvokeId invokeId, out IService? service) => _serviceByInvokeId.TryGetValue(invokeId, out service);
+
+	public async ValueTask DestroyStateMachine(SessionId sessionId, CancellationToken token)
+	{
+		if (_stateMachineBySessionId.TryGetValue(sessionId, out var controller))
 		{
-			if (!_serviceByInvokeId.TryRemove(invokeId, out var service) || service is null)
-			{
-				return new ValueTask<IService?>((IService?) null);
-			}
+			controller.TriggerDestroySignal();
 
-			if (service is StateMachineControllerBase stateMachineController)
+			try
 			{
-				_parentSessionIdBySessionId.TryRemove(stateMachineController.SessionId, out _);
+				await controller.GetResult(token).ConfigureAwait(false);
 			}
-
-			return new ValueTask<IService?>(service);
+			catch (OperationCanceledException ex) when (ex.CancellationToken == token)
+			{
+				throw;
+			}
+			catch
+			{
+				// ignored
+			}
 		}
+	}
 
-		public bool TryGetParentSessionId(SessionId sessionId, [NotNullWhen(true)] out SessionId? parentSessionId) => _parentSessionIdBySessionId.TryGetValue(sessionId, out parentSessionId);
+	public async ValueTask WaitAllAsync(CancellationToken token)
+	{
+		var exit = false;
 
-		public bool TryGetService(InvokeId invokeId, out IService? service) => _serviceByInvokeId.TryGetValue(invokeId, out service);
-
-		public async ValueTask DestroyStateMachine(SessionId sessionId, CancellationToken token)
+		while (!exit)
 		{
-			if (_stateMachineBySessionId.TryGetValue(sessionId, out var controller))
-			{
-				controller.TriggerDestroySignal();
+			exit = true;
 
+			foreach (var pair in _stateMachineBySessionId)
+			{
+				var controller = pair.Value;
 				try
 				{
 					await controller.GetResult(token).ConfigureAwait(false);
@@ -409,81 +435,54 @@ namespace Xtate.Core
 				{
 					// ignored
 				}
+
+				exit = false;
 			}
 		}
+	}
 
-		public async ValueTask WaitAllAsync(CancellationToken token)
+	public void Stop() => _stopTokenSource.Cancel();
+
+	public void Suspend() => _suspendTokenSource.Cancel();
+
+	private class LoadStateMachineLoggerContext : ILoadStateMachineLoggerContext
+	{
+		public LoadStateMachineLoggerContext(Uri? uri, string? scxml)
 		{
-			var exit = false;
-
-			while (!exit)
-			{
-				exit = true;
-
-				foreach (var pair in _stateMachineBySessionId)
-				{
-					var controller = pair.Value;
-					try
-					{
-						await controller.GetResult(token).ConfigureAwait(false);
-					}
-					catch (OperationCanceledException ex) when (ex.CancellationToken == token)
-					{
-						throw;
-					}
-					catch
-					{
-						// ignored
-					}
-
-					exit = false;
-				}
-			}
+			Uri = uri;
+			Scxml = scxml;
 		}
 
-		public void Stop() => _stopTokenSource.Cancel();
+#region Interface ILoadStateMachineLoggerContext
 
-		public void Suspend() => _suspendTokenSource.Cancel();
+		public Uri?    Uri   { get; }
+		public string? Scxml { get; }
 
-		private class LoadStateMachineLoggerContext : ILoadStateMachineLoggerContext
+#endregion
+
+#region Interface ILoggerContext
+
+		public DataModelList GetProperties()
 		{
-			public LoadStateMachineLoggerContext(Uri? uri, string? scxml)
+			var properties = new DataModelList();
+
+			if (Uri is { } uri)
 			{
-				Uri = uri;
-				Scxml = scxml;
+				properties.Add(key: @"Uri", uri.ToString());
 			}
 
-		#region Interface ILoadStateMachineLoggerContext
-
-			public Uri?    Uri   { get; }
-			public string? Scxml { get; }
-
-		#endregion
-
-		#region Interface ILoggerContext
-
-			public DataModelList GetProperties()
+			if (Scxml is { } scxml)
 			{
-				var properties = new DataModelList();
-
-				if (Uri is { } uri)
-				{
-					properties.Add(key: @"Uri", uri.ToString());
-				}
-
-				if (Scxml is { } scxml)
-				{
-					properties.Add(key: @"SCXML", scxml);
-				}
-
-				properties.MakeDeepConstant();
-
-				return properties;
+				properties.Add(key: @"SCXML", scxml);
 			}
 
-			public string LoggerContextType => nameof(ILoadStateMachineLoggerContext);
+			properties.MakeDeepConstant();
 
-		#endregion
+			return properties;
 		}
+
+		public string LoggerContextType => nameof(ILoadStateMachineLoggerContext);
+
+#endregion
 	}
 }

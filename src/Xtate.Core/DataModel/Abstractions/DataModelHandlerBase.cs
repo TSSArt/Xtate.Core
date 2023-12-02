@@ -17,34 +17,26 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
-using Xtate.Core;
 using Xtate.CustomAction;
-using IServiceProvider = Xtate.IoC.IServiceProvider;
 
 namespace Xtate.DataModel;
 
 public abstract class DataModelHandlerBase : StateMachineVisitor, IDataModelHandler
 {
-	public required Func<ILog, DefaultLogEvaluator>                                       DefaultLogEvaluatorFactory                    { private get; init; }
-	public required Func<ISend, DefaultSendEvaluator>                                     DefaultSendEvaluatorFactory                   { private get; init; }
-	//public required Func<IDoneData, DefaultDoneDataEvaluator>                             DefaultDoneDataEvaluatorFactory               { private get; init; }
-	public required Func<ICancel, DefaultCancelEvaluator>                                 DefaultCancelEvaluatorFactory                 { private get; init; }
-	public required Func<IIf, DefaultIfEvaluator>                                         DefaultIfEvaluatorFactory                     { private get; init; }
-	public required Func<IRaise, DefaultRaiseEvaluator>                                   DefaultRaiseEvaluatorFactory                  { private get; init; }
-	public required Func<IForEach, DefaultForEachEvaluator>                               DefaultForEachEvaluatorFactory                { private get; init; }
-	public required Func<IAssign, DefaultAssignEvaluator>                                 DefaultAssignEvaluatorFactory                 { private get; init; }
-	public required Func<IScript, DefaultScriptEvaluator>                                 DefaultScriptEvaluatorFactory                 { private get; init; }
-	//public required Func<IParam, DefaultParamEvaluator>                                   DefaultParamEvaluatorFactory                  { private get; init; }
-	public required Func<ICustomAction, DefaultCustomActionEvaluator>                     DefaultCustomActionEvaluatorFactory           { private get; init; }
-	public required Func<IInvoke, DefaultInvokeEvaluator>                                 DefaultInvokeEvaluatorFactory                 { private get; init; }
-	public required Func<IContentBody, DefaultContentBodyEvaluator>                       DefaultContentBodyEvaluatorFactory            { private get; init; }
-	public required Func<IInlineContent, DefaultInlineContentEvaluator>                   DefaultInlineContentEvaluatorFactory          { private get; init; }
-	public required Func<IExternalDataExpression, DefaultExternalDataExpressionEvaluator> DefaultExternalDataExpressionEvaluatorFactory { private get; init; }
-	public required Func<ICustomAction, CustomActionContainer>                            CustomActionContainerFactory                  { private get; init; }
-	
-	public required IServiceProvider d { private get; init; } //TODO:Delete
+	public required Func<ILog, DefaultLogEvaluator>                                       DefaultLogEvaluatorFactory                    { private get; [UsedImplicitly] init; }
+	public required Func<ISend, DefaultSendEvaluator>                                     DefaultSendEvaluatorFactory                   { private get; [UsedImplicitly] init; }
+	public required Func<ICancel, DefaultCancelEvaluator>                                 DefaultCancelEvaluatorFactory                 { private get; [UsedImplicitly] init; }
+	public required Func<IIf, DefaultIfEvaluator>                                         DefaultIfEvaluatorFactory                     { private get; [UsedImplicitly] init; }
+	public required Func<IRaise, DefaultRaiseEvaluator>                                   DefaultRaiseEvaluatorFactory                  { private get; [UsedImplicitly] init; }
+	public required Func<IForEach, DefaultForEachEvaluator>                               DefaultForEachEvaluatorFactory                { private get; [UsedImplicitly] init; }
+	public required Func<IAssign, DefaultAssignEvaluator>                                 DefaultAssignEvaluatorFactory                 { private get; [UsedImplicitly] init; }
+	public required Func<IScript, DefaultScriptEvaluator>                                 DefaultScriptEvaluatorFactory                 { private get; [UsedImplicitly] init; }
+	public required Func<ICustomAction, DefaultCustomActionEvaluator>                     DefaultCustomActionEvaluatorFactory           { private get; [UsedImplicitly] init; }
+	public required Func<IInvoke, DefaultInvokeEvaluator>                                 DefaultInvokeEvaluatorFactory                 { private get; [UsedImplicitly] init; }
+	public required Func<IContentBody, DefaultContentBodyEvaluator>                       DefaultContentBodyEvaluatorFactory            { private get; [UsedImplicitly] init; }
+	public required Func<IInlineContent, DefaultInlineContentEvaluator>                   DefaultInlineContentEvaluatorFactory          { private get; [UsedImplicitly] init; }
+	public required Func<IExternalDataExpression, DefaultExternalDataExpressionEvaluator> DefaultExternalDataExpressionEvaluatorFactory { private get; [UsedImplicitly] init; }
+	public required Func<ICustomAction, CustomActionContainer>                            CustomActionContainerFactory                  { private get; [UsedImplicitly] init; }
 
 #region Interface IDataModelHandler
 
@@ -57,9 +49,9 @@ public abstract class DataModelHandlerBase : StateMachineVisitor, IDataModelHand
 	void IDataModelHandler.Process(ref ILocationExpression locationExpression) => Visit(ref locationExpression);
 
 	void IDataModelHandler.Process(ref IConditionExpression conditionExpression) => Visit(ref conditionExpression);
-	
+
 	void IDataModelHandler.Process(ref IContentBody contentBody) => Visit(ref contentBody);
-	
+
 	void IDataModelHandler.Process(ref IInlineContent inlineContent) => Visit(ref inlineContent);
 
 	void IDataModelHandler.Process(ref IExternalDataExpression externalDataExpression) => Visit(ref externalDataExpression);
@@ -88,27 +80,6 @@ public abstract class DataModelHandlerBase : StateMachineVisitor, IDataModelHand
 
 	protected virtual ISend GetEvaluator(ISend send) => DefaultSendEvaluatorFactory(send);
 
-	//TODO:delete
-	/*
-	protected override void Visit(ref IDoneData doneData)
-	{
-		base.Visit(ref doneData);
-
-		doneData = GetEvaluator(doneData);
-	}
-
-	protected virtual IDoneData GetEvaluator(IDoneData doneData) => DefaultDoneDataEvaluatorFactory(doneData);
-	*/
-	/*
-	protected override void Visit(ref IParam param)
-	{
-		base.Visit(ref param);
-
-		param = GetEvaluator(param);
-	}
-
-	private IParam GetEvaluator(IParam param) => DefaultParamEvaluatorFactory(param);
-	*/
 	protected override void Visit(ref ICancel cancel)
 	{
 		base.Visit(ref cancel);

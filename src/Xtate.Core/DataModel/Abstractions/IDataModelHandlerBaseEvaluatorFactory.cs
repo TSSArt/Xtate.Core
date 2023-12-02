@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2022 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -24,8 +24,6 @@ public interface IDataModelHandlerBaseEvaluatorFactory
 	ILog CreateLogEvaluator(ILog log);
 
 	ISend CreateSendEvaluator(ISend send);
-
-	IDoneData CreateDoneDataEvaluator(IDoneData doneData);
 
 	IParam CreateParam(IParam param);
 

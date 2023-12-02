@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,36 +17,32 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
+namespace Xtate.Core;
 
-namespace Xtate.Core
+
+public struct EventEntity : IOutgoingEvent
 {
-	[PublicAPI]
-	public struct EventEntity : IOutgoingEvent
+	public static readonly Uri InternalTarget = new(uriString: @"_internal", UriKind.Relative);
+	public static readonly Uri ParentTarget   = new(uriString: @"_parent", UriKind.Relative);
+
+	public EventEntity(string? value) : this()
 	{
-		public static readonly Uri InternalTarget = new(uriString: @"_internal", UriKind.Relative);
-		public static readonly Uri ParentTarget   = new(uriString: @"_parent", UriKind.Relative);
-
-		public EventEntity(string? value) : this()
+		if (!string.IsNullOrEmpty(value))
 		{
-			if (!string.IsNullOrEmpty(value))
-			{
-				NameParts = EventName.ToParts(value);
-			}
+			NameParts = EventName.ToParts(value);
 		}
-
-		public string? RawData { get; set; }
-
-	#region Interface IOutgoingEvent
-
-		public DataModelValue              Data      { get; set; }
-		public int                         DelayMs   { get; set; }
-		public ImmutableArray<IIdentifier> NameParts { get; set; }
-		public SendId?                     SendId    { get; set; }
-		public Uri?                        Target    { get; set; }
-		public Uri?                        Type      { get; set; }
-
-	#endregion
 	}
+
+	public string? RawData { get; set; }
+
+#region Interface IOutgoingEvent
+
+	public DataModelValue              Data      { get; set; }
+	public int                         DelayMs   { get; set; }
+	public ImmutableArray<IIdentifier> NameParts { get; set; }
+	public SendId?                     SendId    { get; set; }
+	public Uri?                        Target    { get; set; }
+	public Uri?                        Type      { get; set; }
+
+#endregion
 }

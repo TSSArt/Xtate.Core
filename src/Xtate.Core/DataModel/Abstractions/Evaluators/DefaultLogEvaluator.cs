@@ -17,10 +17,6 @@
 
 #endregion
 
-using System;
-using System.Threading.Tasks;
-using Xtate.Core;
-
 namespace Xtate.DataModel;
 
 public abstract class LogEvaluator : ILog, IExecEvaluator, IAncestorProvider
@@ -59,7 +55,7 @@ public class DefaultLogEvaluator : LogEvaluator
 {
 	public DefaultLogEvaluator(ILog log) : base(log) => ExpressionEvaluator = log.Expression?.As<IObjectEvaluator>();
 
-	public required Func<ValueTask<ILogger<ILog>>>  LoggerFactory { private get; init; }
+	public required Func<ValueTask<ILogger<ILog>>> LoggerFactory { private get; [UsedImplicitly] init; }
 
 	public virtual IObjectEvaluator? ExpressionEvaluator { get; }
 

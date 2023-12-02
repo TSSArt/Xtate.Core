@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,17 +17,13 @@
 
 #endregion
 
-using System.Collections.Immutable;
-using System.Threading;
-using System.Threading.Tasks;
 using Xtate.DataModel;
 
-namespace Xtate.Core
-{
-	internal interface ICustomActionDispatcher
-	{
-		void SetEvaluators(ImmutableArray<ILocationEvaluator> locations, ImmutableArray<IValueEvaluator> values);
+namespace Xtate.Core;
 
-		ValueTask Execute();
-	}
+internal interface ICustomActionDispatcher
+{
+	void SetEvaluators(ImmutableArray<ILocationEvaluator> locations, ImmutableArray<IValueEvaluator> values);
+
+	ValueTask Execute();
 }

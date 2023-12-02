@@ -17,14 +17,9 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Xtate.Core;
-
 namespace Xtate.DataModel.XPath;
 
-public class XPathValueExpressionEvaluator : IValueExpression, IObjectEvaluator, IStringEvaluator, IIntegerEvaluator, IArrayEvaluator, IAncestorProvider, IDebugEntityId
+public class XPathValueExpressionEvaluator : IValueExpression, IObjectEvaluator, IStringEvaluator, IIntegerEvaluator, IArrayEvaluator, IAncestorProvider
 {
 	private readonly XPathCompiledExpression _compiledExpression;
 	private readonly IValueExpression        _valueExpression;
@@ -35,7 +30,7 @@ public class XPathValueExpressionEvaluator : IValueExpression, IObjectEvaluator,
 		_compiledExpression = compiledExpression;
 	}
 
-	public required Func<ValueTask<XPathEngine>> EngineFactory { private get; init; }
+	public required Func<ValueTask<XPathEngine>> EngineFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IAncestorProvider
 
@@ -62,12 +57,6 @@ public class XPathValueExpressionEvaluator : IValueExpression, IObjectEvaluator,
 
 		return list.ToArray();
 	}
-
-#endregion
-
-#region Interface IDebugEntityId
-
-	FormattableString? IDebugEntityId.EntityId => null;
 
 #endregion
 

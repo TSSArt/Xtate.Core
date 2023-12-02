@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,22 +17,17 @@
 
 #endregion
 
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Xtate.DataModel.XPath;
 using Xtate.IoC;
 
-namespace Xtate.Core.Test
+namespace Xtate.Core.Test;
+
+[TestClass]
+public class XPathDataModelTest
 {
-	[TestClass]
-	public class XPathDataModelTest
+	[TestMethod]
+	public async Task M1()
 	{
-		[TestMethod]
-		public async Task M1()
-		{
-			const string xml = @"<scxml version='1.0' xmlns='http://www.w3.org/2005/07/scxml' datamodel='xpath' initial='errorSwitch'>
+		const string xml = @"<scxml version='1.0' xmlns='http://www.w3.org/2005/07/scxml' datamodel='xpath' initial='errorSwitch'>
 <datamodel>
   <data id='company'>
     <about xmlns=''>
@@ -62,30 +57,26 @@ namespace Xtate.Core.Test
 </scxml>
 					";
 
-			var hostOld = new StateMachineHostBuilder()
-					   //TODO:
-					   //.AddResourceLoaderFactory(WebResourceLoaderFactory.Instance)
-					   .Build(ServiceLocator.Create(s => s.AddXPath()));
+		var services = new ServiceCollection();
+		services.RegisterStateMachineHost();
+		//services.AddForwarding<IServiceProviderDebugger>(_ => new ServiceProviderDebugger(new StreamWriter(File.Create(@"D:\Ser\s1.txt"))));
+		var serviceProvider = services.BuildProvider();
 
-			var services = new ServiceCollection();
-			services.RegisterStateMachineHost();
-			var serviceProvider = services.BuildProvider();
+		var host = await serviceProvider.GetRequiredService<StateMachineHost>();
 
-			var host = await serviceProvider.GetRequiredService<StateMachineHost>();
+		await host.StartHostAsync();
 
-			await host.StartHostAsync();
+		var _ = await host.ExecuteStateMachineAsync(xml);
 
-			var _ = await host.ExecuteStateMachineAsync(xml);
+		await host.WaitAllStateMachinesAsync();
 
-			await host.WaitAllStateMachinesAsync();
+		await host.StopHostAsync();
+	}
 
-			await host.StopHostAsync();
-		}
-
-		[TestMethod]
-		public async Task M2()
-		{
-			const string xml = @"<scxml version='1.0' xmlns='http://www.w3.org/2005/07/scxml' datamodel='xpath'>
+	[TestMethod]
+	public async Task M2()
+	{
+		const string xml = @"<scxml version='1.0' xmlns='http://www.w3.org/2005/07/scxml' datamodel='xpath'>
 <datamodel>
   <data id='src'>
     textValue
@@ -103,32 +94,27 @@ namespace Xtate.Core.Test
 </scxml>
 					";
 
-			var ub = new Moq.Mock<IUnhandledErrorBehaviour>();
-			ub.Setup(s => s.Behaviour).Returns(UnhandledErrorBehaviour.HaltStateMachine);
+		var ub = new Mock<IUnhandledErrorBehaviour>();
+		ub.Setup(s => s.Behaviour).Returns(UnhandledErrorBehaviour.HaltStateMachine);
 
-			var services = new ServiceCollection();
-			//var fileLogWriter = new FileLogWriter("D:\\Ser\\sss5.txt");
-			//var d = new ServiceProviderDebugger(new StreamWriter(File.Create("D:\\Ser\\sss6.txt", 1, FileOptions.WriteThrough), Encoding.UTF8, 1));
-			//services.AddForwarding<ILogWriter>(_ => fileLogWriter);
-			services.AddForwarding(_ => ub.Object);
-			//services.AddForwarding<IServiceProviderDebugger>(_ => d);
-			services.RegisterStateMachineHost();
-			var serviceProvider = services.BuildProvider();
+		var services = new ServiceCollection();
 
-			var host = await serviceProvider.GetRequiredService<StateMachineHost>();
-			/*
-			var host = new StateMachineHostBuilder()
-					   //TODO:
-					   //.AddResourceLoaderFactory(WebResourceLoaderFactory.Instance)
-					   .Build(ServiceLocator.Create(s => s.AddXPath()));
-			*/
-			await host.StartHostAsync();
+		//var fileLogWriter = new FileLogWriter("D:\\Ser\\sss5.txt");
+		//var d = new ServiceProviderDebugger(new StreamWriter(File.Create("D:\\Ser\\sss6.txt", 1, FileOptions.WriteThrough), Encoding.UTF8, 1));
+		//services.AddForwarding<ILogWriter>(_ => fileLogWriter);
+		services.AddForwarding(_ => ub.Object);
 
-			var _ = await host.ExecuteStateMachineAsync(xml);
+		//services.AddForwarding<IServiceProviderDebugger>(_ => d);
+		services.RegisterStateMachineHost();
+		var serviceProvider = services.BuildProvider();
 
-			await host.WaitAllStateMachinesAsync();
+		var host = await serviceProvider.GetRequiredService<StateMachineHost>();
+		await host.StartHostAsync();
 
-			await host.StopHostAsync();
-		}
+		var _ = await host.ExecuteStateMachineAsync(xml);
+
+		await host.WaitAllStateMachinesAsync();
+
+		await host.StopHostAsync();
 	}
 }

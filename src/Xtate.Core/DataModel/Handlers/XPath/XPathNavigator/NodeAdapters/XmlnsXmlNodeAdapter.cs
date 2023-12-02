@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,14 +19,13 @@
 
 using System.Xml.XPath;
 
-namespace Xtate.DataModel.XPath
+namespace Xtate.DataModel.XPath;
+
+internal class XmlnsXmlNodeAdapter : NodeAdapter
 {
-	internal class XmlnsXmlNodeAdapter : NodeAdapter
-	{
-		public override XPathNodeType GetNodeType() => XPathNodeType.Namespace;
+	public override XPathNodeType GetNodeType() => XPathNodeType.Namespace;
 
-		public override string GetValue(in DataModelXPathNavigator.Node node) => @"http://www.w3.org/XML/1998/namespace";
+	public override string GetValue(in DataModelXPathNavigator.Node node) => @"http://www.w3.org/XML/1998/namespace";
 
-		public override string GetLocalName(in DataModelXPathNavigator.Node node) => @"xml";
-	}
+	public override string GetLocalName(in DataModelXPathNavigator.Node node) => @"xml";
 }

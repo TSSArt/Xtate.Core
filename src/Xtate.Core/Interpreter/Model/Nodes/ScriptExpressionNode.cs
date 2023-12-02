@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,39 +19,38 @@
 
 using Xtate.Persistence;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public sealed class ScriptExpressionNode : IScriptExpression, IStoreSupport, IAncestorProvider
 {
-	public sealed class ScriptExpressionNode : IScriptExpression, IStoreSupport, IAncestorProvider
+	private readonly IScriptExpression _scriptExpression;
+
+	public ScriptExpressionNode(IScriptExpression scriptExpression)
 	{
-		private readonly IScriptExpression _scriptExpression;
+		Infra.NotNull(scriptExpression.Expression);
 
-		public ScriptExpressionNode(IScriptExpression scriptExpression)
-		{
-			Infra.NotNull(scriptExpression.Expression);
-
-			_scriptExpression = scriptExpression;
-		}
-
-	#region Interface IAncestorProvider
-
-		object IAncestorProvider.Ancestor => _scriptExpression;
-
-	#endregion
-
-	#region Interface IScriptExpression
-
-		public string Expression => _scriptExpression.Expression!;
-
-	#endregion
-
-	#region Interface IStoreSupport
-
-		void IStoreSupport.Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.ScriptExpressionNode);
-			bucket.Add(Key.Expression, Expression);
-		}
-
-	#endregion
+		_scriptExpression = scriptExpression;
 	}
+
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => _scriptExpression;
+
+#endregion
+
+#region Interface IScriptExpression
+
+	public string Expression => _scriptExpression.Expression!;
+
+#endregion
+
+#region Interface IStoreSupport
+
+	void IStoreSupport.Store(Bucket bucket)
+	{
+		bucket.Add(Key.TypeInfo, TypeInfo.ScriptExpressionNode);
+		bucket.Add(Key.Expression, Expression);
+	}
+
+#endregion
 }

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,22 +17,16 @@
 
 #endregion
 
-using System.Threading;
-using System.Threading.Tasks;
+namespace Xtate.Core;
 
-namespace Xtate.Core
+public sealed class InProcEventSchedulerFactory : IEventSchedulerFactory
 {
-	public sealed class InProcEventSchedulerFactory : IEventSchedulerFactory
-	{
-		public InProcEventSchedulerFactory() { }
+	public static IEventSchedulerFactory Instance { get; } = new InProcEventSchedulerFactory();
 
-		public static IEventSchedulerFactory Instance { get; } = new InProcEventSchedulerFactory();
+#region Interface IEventSchedulerFactory
 
-	#region Interface IEventSchedulerFactory
+	public ValueTask<IEventScheduler> CreateEventScheduler(IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger? logger, CancellationToken token) =>
+		new(new InProcEventScheduler(hostEventDispatcher, logger: null)); //TODO: move factory to IoC
 
-		public ValueTask<IEventScheduler> CreateEventScheduler(IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger? logger, CancellationToken token) =>
-			new(new InProcEventScheduler(hostEventDispatcher, null)); //TODO: move factory to IoC
-
-	#endregion
-	}
+#endregion
 }

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,35 +17,34 @@
 
 #endregion
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public struct InitialEntity : IInitial, IVisitorEntity<InitialEntity, IInitial>, IAncestorProvider
 {
-	public struct InitialEntity : IInitial, IVisitorEntity<InitialEntity, IInitial>, IAncestorProvider
+	internal object? Ancestor;
+
+#region Interface IAncestorProvider
+
+	object? IAncestorProvider.Ancestor => Ancestor;
+
+#endregion
+
+#region Interface IInitial
+
+	public ITransition? Transition { get; set; }
+
+#endregion
+
+#region Interface IVisitorEntity<InitialEntity,IInitial>
+
+	void IVisitorEntity<InitialEntity, IInitial>.Init(IInitial source)
 	{
-		internal object? Ancestor;
+		Ancestor = source;
 
-	#region Interface IAncestorProvider
-
-		object? IAncestorProvider.Ancestor => Ancestor;
-
-	#endregion
-
-	#region Interface IInitial
-
-		public ITransition? Transition { get; set; }
-
-	#endregion
-
-	#region Interface IVisitorEntity<InitialEntity,IInitial>
-
-		void IVisitorEntity<InitialEntity, IInitial>.Init(IInitial source)
-		{
-			Ancestor = source;
-
-			Transition = source.Transition;
-		}
-
-		bool IVisitorEntity<InitialEntity, IInitial>.RefEquals(ref InitialEntity other) => ReferenceEquals(Transition, other.Transition);
-
-	#endregion
+		Transition = source.Transition;
 	}
+
+	bool IVisitorEntity<InitialEntity, IInitial>.RefEquals(ref InitialEntity other) => ReferenceEquals(Transition, other.Transition);
+
+#endregion
 }

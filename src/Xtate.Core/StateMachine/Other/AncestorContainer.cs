@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,24 +17,23 @@
 
 #endregion
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+internal class AncestorContainer : IAncestorProvider
 {
-	internal class AncestorContainer : IAncestorProvider
+	private readonly object? _ancestor;
+
+	public AncestorContainer(object value, object? ancestor)
 	{
-		private readonly object? _ancestor;
-
-		public AncestorContainer(object value, object? ancestor)
-		{
-			Value = value;
-			_ancestor = ancestor;
-		}
-
-		public object Value { get; }
-
-	#region Interface IAncestorProvider
-
-		object? IAncestorProvider.Ancestor => _ancestor;
-
-	#endregion
+		Value = value;
+		_ancestor = ancestor;
 	}
+
+	public object Value { get; }
+
+#region Interface IAncestorProvider
+
+	object? IAncestorProvider.Ancestor => _ancestor;
+
+#endregion
 }

@@ -17,10 +17,6 @@
 
 #endregion
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.Core;
 using Xtate.DataModel.Runtime;
 
 namespace Xtate;
@@ -28,6 +24,8 @@ namespace Xtate;
 public static class Runtime
 {
 	private static readonly AsyncLocal<RuntimeExecutionContext> Current = new();
+
+	public static DataModelList DataModel => GetContext().DataModelController?.DataModel ?? DataModelList.Empty;
 
 	private static RuntimeExecutionContext GetContext()
 	{
@@ -52,6 +50,4 @@ public static class Runtime
 	public static ValueTask StartInvoke(InvokeData invokeData) => GetContext().InvokeController?.Start(invokeData) ?? default;
 
 	public static ValueTask CancelInvoke(InvokeId invokeId) => GetContext().InvokeController?.Cancel(invokeId) ?? default;
-
-	public static DataModelList DataModel => GetContext().DataModelController?.DataModel ?? DataModelList.Empty;
 }

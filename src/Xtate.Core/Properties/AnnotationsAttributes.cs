@@ -1,8 +1,4 @@
-﻿#define INTERNAL_NULLABLE_ATTRIBUTES
-
-#region ReSharper Annotations
-
-/* MIT License
+﻿/* MIT License
 
 Copyright (c) 2016 JetBrains http://www.jetbrains.com
 
@@ -23,14 +19,10 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. */
-// @formatter:off
 
-using System;
+#nullable disable
+
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-
-#pragma warning disable CS8618
-// ReSharper disable InheritdocConsiderUsage
 // ReSharper disable UnusedType.Global
 // ReSharper disable UnusedMember.Global
 // ReSharper disable MemberCanBePrivate.Global
@@ -39,7 +31,9 @@ using System.Diagnostics.CodeAnalysis;
 // ReSharper disable MemberCanBeProtected.Global
 // ReSharper disable InconsistentNaming
 
-namespace Xtate
+#pragma warning disable CA1069 // Enums values should not be duplicated
+
+namespace JetBrains.Annotations
 {
   /// <summary>
   /// Indicates that the value of the marked element could be <c>null</c> sometimes,
@@ -57,8 +51,23 @@ namespace Xtate
     AttributeTargets.Method | AttributeTargets.Parameter | AttributeTargets.Property |
     AttributeTargets.Delegate | AttributeTargets.Field | AttributeTargets.Event |
     AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.GenericParameter)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
 internal sealed class CanBeNullAttribute : Attribute { }
+
+  /// <summary>
+  /// Indicates that the value of the marked element can never be <c>null</c>.
+  /// </summary>
+  /// <example><code>
+  /// [NotNull] object Foo() {
+  ///   return null; // Warning: Possible 'null' assignment
+  /// }
+  /// </code></example>
+  [AttributeUsage(
+    AttributeTargets.Method | AttributeTargets.Parameter | AttributeTargets.Property |
+    AttributeTargets.Delegate | AttributeTargets.Field | AttributeTargets.Event |
+    AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.GenericParameter)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class NotNullAttribute : Attribute { }
 
   /// <summary>
   /// Can be applied to symbols of types derived from IEnumerable as well as to symbols of Task
@@ -77,7 +86,7 @@ internal sealed class CanBeNullAttribute : Attribute { }
   [AttributeUsage(
     AttributeTargets.Method | AttributeTargets.Parameter | AttributeTargets.Property |
     AttributeTargets.Delegate | AttributeTargets.Field)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
 internal sealed class ItemNotNullAttribute : Attribute { }
 
   /// <summary>
@@ -98,38 +107,48 @@ internal sealed class ItemNotNullAttribute : Attribute { }
   [AttributeUsage(
     AttributeTargets.Method | AttributeTargets.Parameter | AttributeTargets.Property |
     AttributeTargets.Delegate | AttributeTargets.Field)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
 internal sealed class ItemCanBeNullAttribute : Attribute { }
 
-  /// <summary>
-  /// Indicates that the marked method builds string by the format pattern and (optional) arguments.
-  /// The parameter, which contains the format string, should be given in constructor. The format string
-  /// should be in <see cref="string.Format(IFormatProvider,string,object[])"/>-like form.
-  /// </summary>
-  /// <example><code>
-  /// [StringFormatMethod("message")]
-  /// void ShowError(string message, params object[] args) { /* do something */ }
-  /// 
-  /// void Foo() {
-  ///   ShowError("Failed: {0}"); // Warning: Non-existing argument in format string
-  /// }
-  /// </code></example>
-  [AttributeUsage(
+	/// <summary>
+	/// Indicates that the marked method builds a string by the format pattern and (optional) arguments.
+	/// The parameter, which contains the format string, should be given in the constructor. The format string
+	/// should be in <see cref="string.Format(IFormatProvider,string,object[])"/>-like form.
+	/// </summary>
+	/// <example><code>
+	/// [StringFormatMethod("message")]
+	/// void ShowError(string message, params object[] args) { /* do something */ }
+	/// 
+	/// void Foo() {
+	///   ShowError("Failed: {0}"); // Warning: Non-existing argument in format string
+	/// }
+	/// </code></example>
+	/// <param name="formatParameterName">
+	/// Specifies which parameter of an annotated method should be treated as the format string.
+	/// </param>
+	[AttributeUsage(
     AttributeTargets.Constructor | AttributeTargets.Method |
     AttributeTargets.Property | AttributeTargets.Delegate)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class StringFormatMethodAttribute : Attribute
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class StringFormatMethodAttribute([NotNull] string formatParameterName) : Attribute
   {
-    /// <param name="formatParameterName">
-    /// Specifies which parameter of an annotated method should be treated as the format string
-    /// </param>
-    public StringFormatMethodAttribute([NotNull] string formatParameterName)
-    {
-      FormatParameterName = formatParameterName;
-    }
+		[NotNull] public string FormatParameterName { get; } = formatParameterName;
+	}
 
-    [NotNull] public string FormatParameterName { get; }
-  }
+  /// <summary>
+  /// Indicates that the marked parameter is a message template where placeholders are to be replaced by the following arguments
+  /// in the order in which they appear.
+  /// </summary>
+  /// <example><code>
+  /// void LogInfo([StructuredMessageTemplate]string message, params object[] args) { /* do something */ }
+  /// 
+  /// void Foo() {
+  ///   LogInfo("User created: {username}"); // Warning: Non-existing argument in format string
+  /// }
+  /// </code></example>
+  [AttributeUsage(AttributeTargets.Parameter)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class StructuredMessageTemplateAttribute : Attribute {}
 
   /// <summary>
   /// Use this annotation to specify a type that contains static or const fields
@@ -161,30 +180,86 @@ internal sealed class StringFormatMethodAttribute : Attribute
   [AttributeUsage(
     AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.Field,
     AllowMultiple = true)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class ValueProviderAttribute : Attribute
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class ValueProviderAttribute([NotNull] string name) : Attribute
   {
-    public ValueProviderAttribute([NotNull] string name)
+		[NotNull] public string Name { get; } = name;
+	}
+
+  /// <summary>
+  /// Indicates that the integral value falls into the specified interval.
+  /// It's allowed to specify multiple non-intersecting intervals.
+  /// Values of interval boundaries are inclusive.
+  /// </summary>
+  /// <example><code>
+  /// void Foo([ValueRange(0, 100)] int value) {
+  ///   if (value == -1) { // Warning: Expression is always 'false'
+  ///     ...
+  ///   }
+  /// }
+  /// </code></example>
+  [AttributeUsage(
+    AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property |
+    AttributeTargets.Method | AttributeTargets.Delegate,
+    AllowMultiple = true)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class ValueRangeAttribute : Attribute
+  {
+    public object From { get; }
+    public object To { get; }
+
+    public ValueRangeAttribute(long from, long to)
     {
-      Name = name;
+      From = from;
+      To = to;
     }
 
-    [NotNull] public string Name { get; }
+    public ValueRangeAttribute(ulong from, ulong to)
+    {
+      From = from;
+      To = to;
+    }
+
+    public ValueRangeAttribute(long value)
+    {
+      From = To = value;
+    }
+
+    public ValueRangeAttribute(ulong value)
+    {
+      From = To = value;
+    }
   }
 
   /// <summary>
-  /// Indicates that the function argument should be a string literal and match one
-  /// of the parameters of the caller function. For example, ReSharper annotates
-  /// the parameter of <see cref="System.ArgumentNullException"/>.
+  /// Indicates that the integral value never falls below zero.
+  /// </summary>
+  /// <example><code>
+  /// void Foo([NonNegativeValue] int value) {
+  ///   if (value == -1) { // Warning: Expression is always 'false'
+  ///     ...
+  ///   }
+  /// }
+  /// </code></example>
+  [AttributeUsage(
+    AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property |
+    AttributeTargets.Method | AttributeTargets.Delegate)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class NonNegativeValueAttribute : Attribute { }
+
+  /// <summary>
+  /// Indicates that the function argument should be a string literal and match
+  /// one of the parameters of the caller function. This annotation is used for parameters
+  /// like 'string paramName' parameter of the <see cref="System.ArgumentNullException"/> constructor.
   /// </summary>
   /// <example><code>
   /// void Foo(string param) {
-  ///   if (param is null)
+  ///   if (param == null)
   ///     throw new ArgumentNullException("par"); // Warning: Cannot resolve symbol
   /// }
   /// </code></example>
   [AttributeUsage(AttributeTargets.Parameter)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
 internal sealed class InvokerParameterNameAttribute : Attribute { }
 
   /// <summary>
@@ -226,7 +301,7 @@ internal sealed class InvokerParameterNameAttribute : Attribute { }
   /// </list>
   /// </example>
   [AttributeUsage(AttributeTargets.Method)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
 internal sealed class NotifyPropertyChangedInvocatorAttribute : Attribute
   {
     public NotifyPropertyChangedInvocatorAttribute() { }
@@ -239,7 +314,7 @@ internal sealed class NotifyPropertyChangedInvocatorAttribute : Attribute
   }
 
   /// <summary>
-  /// Describes dependency between method input and output.
+  /// Describes dependence between method input and output.
   /// </summary>
   /// <syntax>
   /// <p>Function Definition Table syntax:</p>
@@ -255,7 +330,7 @@ internal sealed class NotifyPropertyChangedInvocatorAttribute : Attribute
   /// means that the method doesn't return normally (throws or terminates the process).<br/>
   /// Value <c>canbenull</c> is only applicable for output parameters.<br/>
   /// You can use multiple <c>[ContractAnnotation]</c> for each FDT row, or use single attribute
-  /// with rows separated by semicolon. There is no notion of order rows, all rows are checked
+  /// with rows separated by the semicolon. There is no notion of order rows, all rows are checked
   /// for applicability and applied per each program state tracked by the analysis engine.<br/>
   /// </syntax>
   /// <examples><list>
@@ -283,22 +358,16 @@ internal sealed class NotifyPropertyChangedInvocatorAttribute : Attribute
   /// </code></item>
   /// </list></examples>
   [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class ContractAnnotationAttribute : Attribute
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class ContractAnnotationAttribute([NotNull] string contract, bool forceFullStates) : Attribute
   {
     public ContractAnnotationAttribute([NotNull] string contract)
       : this(contract, false) { }
 
-    public ContractAnnotationAttribute([NotNull] string contract, bool forceFullStates)
-    {
-      Contract = contract;
-      ForceFullStates = forceFullStates;
-    }
+		[NotNull] public string Contract { get; } = contract;
 
-    [NotNull] public string Contract { get; }
-
-    public bool ForceFullStates { get; }
-  }
+		public bool ForceFullStates { get; } = forceFullStates;
+	}
 
   /// <summary>
   /// Indicates whether the marked element should be localized.
@@ -310,18 +379,13 @@ internal sealed class ContractAnnotationAttribute : Attribute
   /// }
   /// </code></example>
   [AttributeUsage(AttributeTargets.All)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class LocalizationRequiredAttribute : Attribute
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class LocalizationRequiredAttribute(bool required) : Attribute
   {
     public LocalizationRequiredAttribute() : this(true) { }
 
-    public LocalizationRequiredAttribute(bool required)
-    {
-      Required = required;
-    }
-
-    public bool Required { get; }
-  }
+		public bool Required { get; } = required;
+	}
 
   /// <summary>
   /// Indicates that the value of the marked type (or its derivatives)
@@ -344,12 +408,12 @@ internal sealed class LocalizationRequiredAttribute : Attribute
   /// }
   /// </code></example>
   [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Struct)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
 internal sealed class CannotApplyEqualityOperatorAttribute : Attribute { }
 
   /// <summary>
   /// When applied to a target attribute, specifies a requirement for any type marked
-  /// with the target attribute to implement or inherit specific type or types.
+  /// with the target attribute to implement or inherit the specific type or types.
   /// </summary>
   /// <example><code>
   /// [BaseTypeRequired(typeof(IComponent)] // Specify requirement
@@ -360,24 +424,34 @@ internal sealed class CannotApplyEqualityOperatorAttribute : Attribute { }
   /// </code></example>
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
   [BaseTypeRequired(typeof(Attribute))]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class BaseTypeRequiredAttribute : Attribute
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class BaseTypeRequiredAttribute([NotNull] Type baseType) : Attribute
   {
-    public BaseTypeRequiredAttribute([NotNull] Type baseType)
-    {
-      BaseType = baseType;
-    }
-
-    [NotNull] public Type BaseType { get; }
-  }
+		[NotNull] public Type BaseType { get; } = baseType;
+	}
 
   /// <summary>
   /// Indicates that the marked symbol is used implicitly (e.g. via reflection, in external library),
-  /// so this symbol will not be reported as unused (as well as by other usage inspections).
+  /// so this symbol will be ignored by usage-checking inspections. <br/>
+  /// You can use <see cref="ImplicitUseKindFlags"/> and <see cref="ImplicitUseTargetFlags"/>
+  /// to configure how this attribute is applied.
   /// </summary>
-  [AttributeUsage(AttributeTargets.All, Inherited = false)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class UsedImplicitlyAttribute : Attribute
+  /// <example><code>
+  /// [UsedImplicitly]
+  /// public class TypeConverter {}
+  /// 
+  /// public class SummaryData
+  /// {
+  ///   [UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
+  ///   public SummaryData() {}
+  /// }
+  /// 
+  /// [UsedImplicitly(ImplicitUseTargetFlags.WithInheritors | ImplicitUseTargetFlags.Default)]
+  /// public interface IService {}
+  /// </code></example>
+  [AttributeUsage(AttributeTargets.All)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class UsedImplicitlyAttribute(ImplicitUseKindFlags useKindFlags, ImplicitUseTargetFlags targetFlags) : Attribute
   {
     public UsedImplicitlyAttribute()
       : this(ImplicitUseKindFlags.Default, ImplicitUseTargetFlags.Default) { }
@@ -388,26 +462,20 @@ internal sealed class UsedImplicitlyAttribute : Attribute
     public UsedImplicitlyAttribute(ImplicitUseTargetFlags targetFlags)
       : this(ImplicitUseKindFlags.Default, targetFlags) { }
 
-    public UsedImplicitlyAttribute(ImplicitUseKindFlags useKindFlags, ImplicitUseTargetFlags targetFlags)
-    {
-      UseKindFlags = useKindFlags;
-      TargetFlags = targetFlags;
-    }
+		public ImplicitUseKindFlags UseKindFlags { get; } = useKindFlags;
 
-    public ImplicitUseKindFlags UseKindFlags { get; }
-
-    public ImplicitUseTargetFlags TargetFlags { get; }
-  }
+		public ImplicitUseTargetFlags TargetFlags { get; } = targetFlags;
+	}
 
   /// <summary>
   /// Can be applied to attributes, type parameters, and parameters of a type assignable from <see cref="System.Type"/> .
   /// When applied to an attribute, the decorated attribute behaves the same as <see cref="UsedImplicitlyAttribute"/>.
-  /// When applied to a type parameter or to a parameter of type <see cref="System.Type"/>,  indicates that the corresponding type
-  /// is used implicitly.
+  /// When applied to a type parameter or to a parameter of type <see cref="System.Type"/>,
+  /// indicates that the corresponding type is used implicitly.
   /// </summary>
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.GenericParameter | AttributeTargets.Parameter)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class MeansImplicitUseAttribute : Attribute
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class MeansImplicitUseAttribute(ImplicitUseKindFlags useKindFlags, ImplicitUseTargetFlags targetFlags) : Attribute
   {
     public MeansImplicitUseAttribute()
       : this(ImplicitUseKindFlags.Default, ImplicitUseTargetFlags.Default) { }
@@ -418,19 +486,13 @@ internal sealed class MeansImplicitUseAttribute : Attribute
     public MeansImplicitUseAttribute(ImplicitUseTargetFlags targetFlags)
       : this(ImplicitUseKindFlags.Default, targetFlags) { }
 
-    public MeansImplicitUseAttribute(ImplicitUseKindFlags useKindFlags, ImplicitUseTargetFlags targetFlags)
-    {
-      UseKindFlags = useKindFlags;
-      TargetFlags = targetFlags;
-    }
+		[UsedImplicitly] public ImplicitUseKindFlags UseKindFlags { get; } = useKindFlags;
 
-    [UsedImplicitly] public ImplicitUseKindFlags UseKindFlags { get; }
-
-    [UsedImplicitly] public ImplicitUseTargetFlags TargetFlags { get; }
-  }
+		[UsedImplicitly] public ImplicitUseTargetFlags TargetFlags { get; } = targetFlags;
+	}
 
   /// <summary>
-  /// Specify the details of implicitly used symbol when it is marked
+  /// Specifies the details of an implicitly used symbol when it is marked
   /// with <see cref="MeansImplicitUseAttribute"/> or <see cref="UsedImplicitlyAttribute"/>.
   /// </summary>
   [Flags]
@@ -451,27 +513,29 @@ internal enum ImplicitUseKindFlags
   }
 
   /// <summary>
-  /// Specify what is considered to be used implicitly when marked
+  /// Specifies what is considered to be used implicitly when marked
   /// with <see cref="MeansImplicitUseAttribute"/> or <see cref="UsedImplicitlyAttribute"/>.
   /// </summary>
   [Flags]
 internal enum ImplicitUseTargetFlags
   {
     Default = Itself,
-    Itself = 1,
-    /// <summary>Members of entity marked with attribute are considered used.</summary>
-    Members = 2,
-    /// <summary>Entity marked with attribute and all its members considered used.</summary>
+		Itself = 1,
+		/// <summary>Members of the type marked with the attribute are considered used.</summary>
+		Members = 2,
+    /// <summary> Inherited entities are considered used. </summary>
+    WithInheritors = 4,
+    /// <summary>Entity marked with the attribute and all its members considered used.</summary>
     WithMembers = Itself | Members
   }
 
   /// <summary>
-  /// This attribute is intended to mark publicly available API
+  /// This attribute is intended to mark publicly available APIs,
   /// which should not be removed and so is treated as used.
   /// </summary>
   [MeansImplicitUse(ImplicitUseTargetFlags.WithMembers)]
   [AttributeUsage(AttributeTargets.All, Inherited = false)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
 internal sealed class PublicAPIAttribute : Attribute
   {
     public PublicAPIAttribute() { }
@@ -485,13 +549,23 @@ internal sealed class PublicAPIAttribute : Attribute
   }
 
   /// <summary>
-  /// Tells code analysis engine if the parameter is completely handled when the invoked method is on stack.
-  /// If the parameter is a delegate, indicates that delegate is executed while the method is executed.
+  /// Tells the code analysis engine if the parameter is completely handled when the invoked method is on stack.
+  /// If the parameter is a delegate, indicates that the delegate can only be invoked during method execution
+  /// (the delegate can be invoked zero or multiple times, but not stored to some field and invoked later,
+  /// when the containing method is no longer on the execution stack).
   /// If the parameter is an enumerable, indicates that it is enumerated while the method is executed.
+  /// If <see cref="RequireAwait"/> is true, the attribute will only take effect if the method invocation is located under the 'await' expression.
   /// </summary>
   [AttributeUsage(AttributeTargets.Parameter)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class InstantHandleAttribute : Attribute { }
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class InstantHandleAttribute : Attribute
+  {
+    /// <summary>
+    /// Require the method invocation to be used under the 'await' expression for this attribute to take effect on the code analysis engine.
+    /// Can be used for delegate/enumerable parameters of 'async' methods.
+    /// </summary>
+    public bool RequireAwait { get; set; }
+  }
 
   /// <summary>
   /// Indicates that a method does not make any observable state changes.
@@ -501,11 +575,11 @@ internal sealed class InstantHandleAttribute : Attribute { }
   /// [Pure] int Multiply(int x, int y) => x * y;
   /// 
   /// void M() {
-  ///   Multiply(123, 42); // Waring: Return value of pure method is not used
+  ///   Multiply(123, 42); // Warning: Return value of pure method is not used
   /// }
   /// </code></example>
   [AttributeUsage(AttributeTargets.Method)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
 internal sealed class PureAttribute : Attribute { }
 
   /// <summary>
@@ -515,12 +589,12 @@ internal sealed class PureAttribute : Attribute { }
   /// Methods decorated with this attribute (in contrast to pure methods) might change state,
   /// but make no sense without using their return value. <br/>
   /// Similarly to <see cref="PureAttribute"/>, this attribute
-  /// will help detecting usages of the method when the return value in not used.
-  /// Additionally, you can optionally specify a custom message, which will be used when showing warnings, e.g.
+  /// will help to detect usages of the method when the return value is not used.
+  /// Optionally, you can specify a message to use when showing warnings, e.g.
   /// <code>[MustUseReturnValue("Use the return value to...")]</code>.
   /// </remarks>
   [AttributeUsage(AttributeTargets.Method)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
 internal sealed class MustUseReturnValueAttribute : Attribute
   {
     public MustUseReturnValueAttribute() { }
@@ -534,9 +608,82 @@ internal sealed class MustUseReturnValueAttribute : Attribute
   }
 
   /// <summary>
-  /// Indicates the type member or parameter of some type, that should be used instead of all other ways
+  /// Indicates that the resource disposal must be handled by the use site,
+  /// meaning that the resource ownership is transferred to the callee.
+  /// This annotation can be used to annotate disposable types or their constructors individually to enable
+  /// the resource disposal IDE code analysis in every context where the new instance of this type is created.
+  /// Factory methods and 'out' parameters can also be annotated to indicate that the return value of disposable type
+  /// needs handling.
+  /// </summary>
+  /// <remarks>
+  /// Annotation of input parameters with this attribute is meaningless.<br/>
+  /// Constructors inherit this attribute from their type, if it is annotated,
+  /// but not from the base constructors they delegate to (if any).<br/>
+  /// Resource disposal is expected to be expressed via either <c>using (resource)</c> statement,
+  /// <c>using var</c> declaration, explicit 'Dispose' method call, or an argument passing
+  /// to a parameter with the <see cref="HandlesResourceDisposalAttribute"/> attribute applied.
+  /// </remarks>
+  [AttributeUsage(
+    AttributeTargets.Class | AttributeTargets.Constructor | AttributeTargets.Method | AttributeTargets.Parameter)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class MustDisposeResourceAttribute : Attribute
+  {
+    public MustDisposeResourceAttribute()
+    {
+      Value = true;
+    }
+
+    public MustDisposeResourceAttribute(bool value)
+    {
+      Value = value;
+    }
+
+    /// <summary>
+    /// When set to <c>false</c>, disposing of the resource is not obligatory.
+    /// The main use-case for explicit <c>[MustDisposeResource(false)]</c> annotation is to loosen inherited annotation.
+    /// </summary>
+    public bool Value { get; }
+  }
+
+  /// <summary>
+  /// Indicates that method or class instance acquires resource ownership and will dispose it after use.
+  /// </summary>
+  /// <remarks>
+  /// Annotation of 'out' parameter with this attribute is meaningless.<br/>
+  /// When a instance method is annotated with this attribute,
+  /// it means that it is handling the resource disposal of the corresponding resource instance.<br/>
+  /// When a field or a property is annotated with this attribute, it means that this type owns the resource
+  /// and will handle the resource disposal properly (e.g. in own IDisposable implementation).
+  /// </remarks>
+  [AttributeUsage(
+    AttributeTargets.Method | AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class HandlesResourceDisposalAttribute : Attribute { }
+
+  /// <summary>
+  /// This annotation allows to enforce allocation-less usage patterns of delegates for performance-critical APIs.
+  /// When this annotation is applied to the parameter of delegate type, the IDE checks the input argument of this parameter:
+  /// * When a lambda expression or anonymous method is passed as an argument, the IDE verifies that the passed closure
+  ///   has no captures of the containing local variables and the compiler is able to cache the delegate instance
+  ///   to avoid heap allocations. Otherwise a warning is produced.
+  /// * The IDE warns when the method name or local function name is passed as an argument as this always results
+  ///   in heap allocation of the delegate instance.
+  /// </summary>
+  /// <remarks>
+  /// In C# 9.0+ code, the IDE will also suggest to annotate the anonymous function with the 'static' modifier
+  /// to make use of the similar analysis provided by the language/compiler.
+  /// </remarks>
+  [AttributeUsage(AttributeTargets.Parameter)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class RequireStaticDelegateAttribute : Attribute
+  {
+    public bool IsError { get; set; }
+  }
+
+  /// <summary>
+  /// Indicates the type member or parameter of some type that should be used instead of all other ways
   /// to get the value of that type. This annotation is useful when you have some "context" value evaluated
-  /// and stored somewhere, meaning that all other ways to get this value must be consolidated with existing one.
+  /// and stored somewhere, meaning that all other ways to get this value must be consolidated with the existing one.
   /// </summary>
   /// <example><code>
   /// class Foo {
@@ -551,15 +698,15 @@ internal sealed class MustUseReturnValueAttribute : Attribute
   [AttributeUsage(
     AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Parameter | AttributeTargets.Method |
     AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Struct | AttributeTargets.GenericParameter)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
 internal sealed class ProvidesContextAttribute : Attribute { }
 
   /// <summary>
   /// Indicates that a parameter is a path to a file or a folder within a web project.
   /// Path can be relative or absolute, starting from web root (~).
   /// </summary>
-  [AttributeUsage(AttributeTargets.Parameter)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
+  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
 internal sealed class PathReferenceAttribute : Attribute
   {
     public PathReferenceAttribute() { }
@@ -575,17 +722,18 @@ internal sealed class PathReferenceAttribute : Attribute
   /// <summary>
   /// An extension method marked with this attribute is processed by code completion
   /// as a 'Source Template'. When the extension method is completed over some expression, its source code
-  /// is automatically expanded like a template at call site.
+  /// is automatically expanded like a template at the call site.
   /// </summary>
   /// <remarks>
-  /// Template method body can contain valid source code and/or special comments starting with '$'.
+  /// Template method bodies can contain valid source code and/or special comments starting with '$'.
   /// Text inside these comments is added as source code when the template is applied. Template parameters
   /// can be used either as additional method parameters or as identifiers wrapped in two '$' signs.
   /// Use the <see cref="MacroAttribute"/> attribute to specify macros for parameters.
+  /// The expression to be used in the expansion can be adjusted by the <see cref="SourceTemplateAttribute.Target"/> parameter.
   /// </remarks>
   /// <example>
   /// In this example, the 'forEach' method is a source template available over all values
-  /// of enumerable types, producing ordinary C# 'foreach' statement and placing caret inside block:
+  /// of enumerable types, producing ordinary C# 'foreach' statement and placing the caret inside the block:
   /// <code>
   /// [SourceTemplate]
   /// public static void forEach&lt;T&gt;(this IEnumerable&lt;T&gt; xs) {
@@ -596,8 +744,32 @@ internal sealed class PathReferenceAttribute : Attribute
   /// </code>
   /// </example>
   [AttributeUsage(AttributeTargets.Method)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class SourceTemplateAttribute : Attribute { }
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class SourceTemplateAttribute : Attribute
+  {
+    /// <summary>
+    /// Allows specifying which expression to capture for template execution if more than one present on the expansion.
+    /// If not specified, <see cref="SourceTemplateTargetExpression.Inner"/> is assumed.
+    /// </summary>
+    public SourceTemplateTargetExpression Target { get; set; }
+  }
+
+  /// <summary>
+  /// Provides a value for the <see cref="SourceTemplateAttribute"/> to define how to capture
+  /// the expression at the point of expansion
+  /// </summary>
+internal enum SourceTemplateTargetExpression
+  {
+    /// <summary>Selects inner expression</summary>
+    /// <example><c>value > 42.{caret}</c> captures <c>42</c></example>
+    /// <example><c>_args = args.{caret}</c> captures <c>args</c></example>
+    Inner = 0,
+
+    /// <summary>Selects outer expression</summary>
+    /// <example><c>value > 42.{caret}</c> captures <c>value > 42</c></example>
+    /// <example><c>_args = args.{caret}</c> captures whole assignment</example>
+    Outer = 1
+  }
 
   /// <summary>
   /// Allows specifying a macro for a parameter of a <see cref="SourceTemplateAttribute">source template</see>.
@@ -606,7 +778,7 @@ internal sealed class SourceTemplateAttribute : Attribute { }
   /// You can apply the attribute on the whole method or on any of its additional parameters. The macro expression
   /// is defined in the <see cref="MacroAttribute.Expression"/> property. When applied on a method, the target
   /// template parameter is defined in the <see cref="MacroAttribute.Target"/> property. To apply the macro silently
-  /// for the parameter, set the <see cref="MacroAttribute.Editable"/> property value = -1.
+  /// for the parameter, set the <see cref="MacroAttribute.Editable"/> property value to -1.
   /// </remarks>
   /// <example>
   /// Applying the attribute on a source template method:
@@ -628,7 +800,7 @@ internal sealed class SourceTemplateAttribute : Attribute { }
   /// </code>
   /// </example>
   [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method, AllowMultiple = true)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
 internal sealed class MacroAttribute : Attribute
   {
     /// <summary>
@@ -654,276 +826,12 @@ internal sealed class MacroAttribute : Attribute
     [CanBeNull] public string Target { get; set; }
   }
 
-  [AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class AspMvcAreaMasterLocationFormatAttribute : Attribute
-  {
-    public AspMvcAreaMasterLocationFormatAttribute([NotNull] string format)
-    {
-      Format = format;
-    }
-
-    [NotNull] public string Format { get; }
-  }
-
-  [AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class AspMvcAreaPartialViewLocationFormatAttribute : Attribute
-  {
-    public AspMvcAreaPartialViewLocationFormatAttribute([NotNull] string format)
-    {
-      Format = format;
-    }
-
-    [NotNull] public string Format { get; }
-  }
-
-  [AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class AspMvcAreaViewLocationFormatAttribute : Attribute
-  {
-    public AspMvcAreaViewLocationFormatAttribute([NotNull] string format)
-    {
-      Format = format;
-    }
-
-    [NotNull] public string Format { get; }
-  }
-
-  [AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class AspMvcMasterLocationFormatAttribute : Attribute
-  {
-    public AspMvcMasterLocationFormatAttribute([NotNull] string format)
-    {
-      Format = format;
-    }
-
-    [NotNull] public string Format { get; }
-  }
-
-  [AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class AspMvcPartialViewLocationFormatAttribute : Attribute
-  {
-    public AspMvcPartialViewLocationFormatAttribute([NotNull] string format)
-    {
-      Format = format;
-    }
-
-    [NotNull] public string Format { get; }
-  }
-
-  [AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class AspMvcViewLocationFormatAttribute : Attribute
-  {
-    public AspMvcViewLocationFormatAttribute([NotNull] string format)
-    {
-      Format = format;
-    }
-
-    [NotNull] public string Format { get; }
-  }
-
   /// <summary>
-  /// ASP.NET MVC attribute. If applied to a parameter, indicates that the parameter
-  /// is an MVC action. If applied to a method, the MVC action name is calculated
-  /// implicitly from the context. Use this attribute for custom wrappers similar to
-  /// <c>System.Web.Mvc.Html.ChildActionExtensions.RenderAction(HtmlHelper, String)</c>.
-  /// </summary>
-  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method | AttributeTargets.Field | AttributeTargets.Property)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class AspMvcActionAttribute : Attribute
-  {
-    public AspMvcActionAttribute() { }
-
-    public AspMvcActionAttribute([NotNull] string anonymousProperty)
-    {
-      AnonymousProperty = anonymousProperty;
-    }
-
-    [CanBeNull] public string AnonymousProperty { get; }
-  }
-
-  /// <summary>
-  /// ASP.NET MVC attribute. Indicates that the marked parameter is an MVC area.
-  /// Use this attribute for custom wrappers similar to
-  /// <c>System.Web.Mvc.Html.ChildActionExtensions.RenderAction(HtmlHelper, String)</c>.
-  /// </summary>
-  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class AspMvcAreaAttribute : Attribute
-  {
-    public AspMvcAreaAttribute() { }
-
-    public AspMvcAreaAttribute([NotNull] string anonymousProperty)
-    {
-      AnonymousProperty = anonymousProperty;
-    }
-
-    [CanBeNull] public string AnonymousProperty { get; }
-  }
-
-  /// <summary>
-  /// ASP.NET MVC attribute. If applied to a parameter, indicates that the parameter is
-  /// an MVC controller. If applied to a method, the MVC controller name is calculated
-  /// implicitly from the context. Use this attribute for custom wrappers similar to
-  /// <c>System.Web.Mvc.Html.ChildActionExtensions.RenderAction(HtmlHelper, String, String)</c>.
-  /// </summary>
-  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method | AttributeTargets.Field | AttributeTargets.Property)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class AspMvcControllerAttribute : Attribute
-  {
-    public AspMvcControllerAttribute() { }
-
-    public AspMvcControllerAttribute([NotNull] string anonymousProperty)
-    {
-      AnonymousProperty = anonymousProperty;
-    }
-
-    [CanBeNull] public string AnonymousProperty { get; }
-  }
-
-  /// <summary>
-  /// ASP.NET MVC attribute. Indicates that the marked parameter is an MVC Master. Use this attribute
-  /// for custom wrappers similar to <c>System.Web.Mvc.Controller.View(String, String)</c>.
-  /// </summary>
-  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class AspMvcMasterAttribute : Attribute { }
-
-  /// <summary>
-  /// ASP.NET MVC attribute. Indicates that the marked parameter is an MVC model type. Use this attribute
-  /// for custom wrappers similar to <c>System.Web.Mvc.Controller.View(String, Object)</c>.
-  /// </summary>
-  [AttributeUsage(AttributeTargets.Parameter)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class AspMvcModelTypeAttribute : Attribute { }
-
-  /// <summary>
-  /// ASP.NET MVC attribute. If applied to a parameter, indicates that the parameter is an MVC
-  /// partial view. If applied to a method, the MVC partial view name is calculated implicitly
-  /// from the context. Use this attribute for custom wrappers similar to
-  /// <c>System.Web.Mvc.Html.RenderPartialExtensions.RenderPartial(HtmlHelper, String)</c>.
-  /// </summary>
-  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method | AttributeTargets.Field | AttributeTargets.Property)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class AspMvcPartialViewAttribute : Attribute { }
-
-  /// <summary>
-  /// ASP.NET MVC attribute. Allows disabling inspections for MVC views within a class or a method.
-  /// </summary>
-  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class AspMvcSuppressViewErrorAttribute : Attribute { }
-
-  /// <summary>
-  /// ASP.NET MVC attribute. Indicates that a parameter is an MVC display template.
-  /// Use this attribute for custom wrappers similar to
-  /// <c>System.Web.Mvc.Html.DisplayExtensions.DisplayForModel(HtmlHelper, String)</c>.
-  /// </summary>
-  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class AspMvcDisplayTemplateAttribute : Attribute { }
-
-  /// <summary>
-  /// ASP.NET MVC attribute. Indicates that the marked parameter is an MVC editor template.
-  /// Use this attribute for custom wrappers similar to
-  /// <c>System.Web.Mvc.Html.EditorExtensions.EditorForModel(HtmlHelper, String)</c>.
-  /// </summary>
-  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class AspMvcEditorTemplateAttribute : Attribute { }
-
-  /// <summary>
-  /// ASP.NET MVC attribute. Indicates that the marked parameter is an MVC template.
-  /// Use this attribute for custom wrappers similar to
-  /// <c>System.ComponentModel.DataAnnotations.UIHintAttribute(System.String)</c>.
-  /// </summary>
-  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class AspMvcTemplateAttribute : Attribute { }
-
-  /// <summary>
-  /// ASP.NET MVC attribute. If applied to a parameter, indicates that the parameter
-  /// is an MVC view component. If applied to a method, the MVC view name is calculated implicitly
-  /// from the context. Use this attribute for custom wrappers similar to
-  /// <c>System.Web.Mvc.Controller.View(Object)</c>.
-  /// </summary>
-  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method | AttributeTargets.Field | AttributeTargets.Property)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class AspMvcViewAttribute : Attribute { }
-
-  /// <summary>
-  /// ASP.NET MVC attribute. If applied to a parameter, indicates that the parameter
-  /// is an MVC view component name.
-  /// </summary>
-  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class AspMvcViewComponentAttribute : Attribute { }
-
-  /// <summary>
-  /// ASP.NET MVC attribute. If applied to a parameter, indicates that the parameter
-  /// is an MVC view component view. If applied to a method, the MVC view component view name is default.
-  /// </summary>
-  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method | AttributeTargets.Field | AttributeTargets.Property)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class AspMvcViewComponentViewAttribute : Attribute { }
-
-  /// <summary>
-  /// ASP.NET MVC attribute. When applied to a parameter of an attribute,
-  /// indicates that this parameter is an MVC action name.
-  /// </summary>
-  /// <example><code>
-  /// [ActionName("Foo")]
-  /// public ActionResult Login(string returnUrl) {
-  ///   ViewBag.ReturnUrl = Url.Action("Foo"); // OK
-  ///   return RedirectToAction("Bar"); // Error: Cannot resolve action
-  /// }
-  /// </code></example>
-  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class AspMvcActionSelectorAttribute : Attribute { }
-
-  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.Field)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class HtmlElementAttributesAttribute : Attribute
-  {
-    public HtmlElementAttributesAttribute() { }
-
-    public HtmlElementAttributesAttribute([NotNull] string name)
-    {
-      Name = name;
-    }
-
-    [CanBeNull] public string Name { get; }
-  }
-
-  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class HtmlAttributeValueAttribute : Attribute
-  {
-    public HtmlAttributeValueAttribute([NotNull] string name)
-    {
-      Name = name;
-    }
-
-    [NotNull] public string Name { get; }
-  }
-
-  /// <summary>
-  /// Razor attribute. Indicates that the marked parameter or method is a Razor section.
-  /// Use this attribute for custom wrappers similar to
-  /// <c>System.Web.WebPages.WebPageBase.RenderSection(String)</c>.
-  /// </summary>
-  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class RazorSectionAttribute : Attribute { }
-
-  /// <summary>
-  /// Indicates how method, constructor invocation, or property access
-  /// over collection type affects the contents of the collection.
+  /// Indicates how a method, constructor invocation, or property access
+  /// over a collection type affects the contents of the collection.
+  /// When applied to a return value of a method, indicates if the returned collection
+  /// is created exclusively for the caller (CollectionAccessType.UpdatedContent) or
+  /// can be read/updated from outside (CollectionAccessType.Read | CollectionAccessType.UpdatedContent)
   /// Use <see cref="CollectionAccessType"/> to specify the access type.
   /// </summary>
   /// <remarks>
@@ -948,17 +856,12 @@ internal sealed class RazorSectionAttribute : Attribute { }
   ///   }
   /// }
   /// </code></example>
-  [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor | AttributeTargets.Property)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class CollectionAccessAttribute : Attribute
+  [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor | AttributeTargets.Property | AttributeTargets.ReturnValue)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class CollectionAccessAttribute(CollectionAccessType collectionAccessType) : Attribute
   {
-    public CollectionAccessAttribute(CollectionAccessType collectionAccessType)
-    {
-      CollectionAccessType = collectionAccessType;
-    }
-
-    public CollectionAccessType CollectionAccessType { get; }
-  }
+		public CollectionAccessType CollectionAccessType { get; } = collectionAccessType;
+	}
 
   /// <summary>
   /// Provides a value for the <see cref="CollectionAccessAttribute"/> to define
@@ -978,33 +881,28 @@ internal enum CollectionAccessType
   }
 
   /// <summary>
-  /// Indicates that the marked method is assertion method, i.e. it halts the control flow if
+  /// Indicates that the marked method is an assertion method, i.e. it halts the control flow if
   /// one of the conditions is satisfied. To set the condition, mark one of the parameters with
   /// <see cref="AssertionConditionAttribute"/> attribute.
   /// </summary>
   [AttributeUsage(AttributeTargets.Method)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
 internal sealed class AssertionMethodAttribute : Attribute { }
 
   /// <summary>
   /// Indicates the condition parameter of the assertion method. The method itself should be
-  /// marked by <see cref="AssertionMethodAttribute"/> attribute. The mandatory argument of
+  /// marked by the <see cref="AssertionMethodAttribute"/> attribute. The mandatory argument of
   /// the attribute is the assertion type.
   /// </summary>
   [AttributeUsage(AttributeTargets.Parameter)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class AssertionConditionAttribute : Attribute
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AssertionConditionAttribute(AssertionConditionType conditionType) : Attribute
   {
-    public AssertionConditionAttribute(AssertionConditionType conditionType)
-    {
-      ConditionType = conditionType;
-    }
-
-    public AssertionConditionType ConditionType { get; }
-  }
+		public AssertionConditionType ConditionType { get; } = conditionType;
+	}
 
   /// <summary>
-  /// Specifies assertion type. If the assertion method argument satisfies the condition,
+  /// Specifies the assertion type. If the assertion method argument satisfies the condition,
   /// then the execution continues. Otherwise, execution is assumed to be halted.
   /// </summary>
 internal enum AssertionConditionType
@@ -1021,20 +919,20 @@ internal enum AssertionConditionType
 
   /// <summary>
   /// Indicates that the marked method unconditionally terminates control flow execution.
-  /// For example, it could unconditionally throw exception.
+  /// For example, it could unconditionally throw an exception.
   /// </summary>
   [Obsolete("Use [ContractAnnotation('=> halt')] instead")]
   [AttributeUsage(AttributeTargets.Method)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
 internal sealed class TerminatesProgramAttribute : Attribute { }
 
   /// <summary>
-  /// Indicates that method is pure LINQ method, with postponed enumeration (like Enumerable.Select,
+  /// Indicates that the method is a pure LINQ method, with postponed enumeration (like Enumerable.Select,
   /// .Where). This annotation allows inference of [InstantHandle] annotation for parameters
   /// of delegate type by analyzing LINQ method chains.
   /// </summary>
   [AttributeUsage(AttributeTargets.Method)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
 internal sealed class LinqTunnelAttribute : Attribute { }
 
   /// <summary>
@@ -1046,7 +944,7 @@ internal sealed class LinqTunnelAttribute : Attribute { }
   /// {
   ///   // custom check for null but no enumeration
   /// }
-  /// 
+  ///
   /// void Foo(IEnumerable&lt;string&gt; values)
   /// {
   ///   ThrowIfNull(values, nameof(values));
@@ -1054,15 +952,69 @@ internal sealed class LinqTunnelAttribute : Attribute { }
   /// }
   /// </code></example>
   [AttributeUsage(AttributeTargets.Parameter)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
 internal sealed class NoEnumerationAttribute : Attribute { }
 
   /// <summary>
-  /// Indicates that the marked parameter is a regular expression pattern.
+  /// Indicates that the marked parameter, field, or property is a regular expression pattern.
   /// </summary>
-  [AttributeUsage(AttributeTargets.Parameter)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
+  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
 internal sealed class RegexPatternAttribute : Attribute { }
+
+  /// <summary>
+  /// Language of injected code fragment inside marked by the <see cref="LanguageInjectionAttribute"/> string literal.
+  /// </summary>
+internal enum InjectedLanguage
+  {
+    CSS = 0,
+    HTML = 1,
+    JAVASCRIPT = 2,
+    JSON = 3,
+    XML = 4
+  }
+
+  /// <summary>
+  /// Indicates that the marked parameter, field, or property is accepting a string literal
+  /// containing code fragments in a specified language.
+  /// </summary>
+  /// <example><code>
+  /// void Foo([LanguageInjection(InjectedLanguage.CSS, Prefix = "body{", Suffix = "}")] string cssProps)
+  /// {
+  ///   // cssProps should only contains a list of CSS properties
+  /// }
+  /// </code></example>
+  /// <example><code>
+  /// void Bar([LanguageInjection("json")] string json)
+  /// {
+  /// }
+  /// </code></example>
+  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class LanguageInjectionAttribute : Attribute
+  {
+    public LanguageInjectionAttribute(InjectedLanguage injectedLanguage)
+    {
+      InjectedLanguage = injectedLanguage;
+    }
+
+    public LanguageInjectionAttribute([NotNull] string injectedLanguage)
+    {
+      InjectedLanguageName = injectedLanguage;
+    }
+
+    /// <summary>Specifies a language of the injected code fragment.</summary>
+    public InjectedLanguage InjectedLanguage { get; }
+
+    /// <summary>Specifies a language name of the injected code fragment.</summary>
+    [CanBeNull] public string InjectedLanguageName { get; }
+
+    /// <summary>Specifies a string that "precedes" the injected string literal.</summary>
+    [CanBeNull] public string Prefix { get; set; }
+
+    /// <summary>Specifies a string that "follows" the injected string literal.</summary>
+    [CanBeNull] public string Suffix { get; set; }
+  }
 
   /// <summary>
   /// Prevents the Member Reordering feature from tossing members of the marked class.
@@ -1072,122 +1024,698 @@ internal sealed class RegexPatternAttribute : Attribute { }
   /// </remarks>
   [AttributeUsage(
     AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Struct | AttributeTargets.Enum)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
 internal sealed class NoReorderAttribute : Attribute { }
 
   /// <summary>
-  /// XAML attribute. Indicates the type that has <c>ItemsSource</c> property and should be treated
-  /// as <c>ItemsControl</c>-derived type, to enable inner items <c>DataContext</c> type resolve.
+  /// <para>
+  /// Defines the code search template using the Structural Search and Replace syntax.
+  /// It allows you to find and, if necessary, replace blocks of code that match a specific pattern.
+  /// Search and replace patterns consist of a textual part and placeholders.
+  /// Textural part must contain only identifiers allowed in the target language and will be matched exactly (white spaces, tabulation characters, and line breaks are ignored).
+  /// Placeholders allow matching variable parts of the target code blocks.
+  /// A placeholder has the following format: $placeholder_name$- where placeholder_name is an arbitrary identifier.
+  /// </para>
+  /// <para>
+  /// Available placeholders:
+  /// <list type="bullet">
+  /// <item>$this$ - expression of containing type</item>
+  /// <item>$thisType$ - containing type</item>
+  /// <item>$member$ - current member placeholder</item>
+  /// <item>$qualifier$ - this placeholder is available in the replace pattern and can be used to insert a qualifier expression matched by the $member$ placeholder.
+  /// (Note that if $qualifier$ placeholder is used, then $member$ placeholder will match only qualified references)</item>
+  /// <item>$expression$ - expression of any type</item>
+  /// <item>$identifier$ - identifier placeholder</item>
+  /// <item>$args$ - any number of arguments</item>
+  /// <item>$arg$ - single argument</item>
+  /// <item>$arg1$ ... $arg10$ - single argument</item>
+  /// <item>$stmts$ - any number of statements</item>
+  /// <item>$stmt$ - single statement</item>
+  /// <item>$stmt1$ ... $stmt10$ - single statement</item>
+  /// <item>$name{Expression, 'Namespace.FooType'}$ - expression with 'Namespace.FooType' type</item>
+  /// <item>$expression{'Namespace.FooType'}$ - expression with 'Namespace.FooType' type</item>
+  /// <item>$name{Type, 'Namespace.FooType'}$ - 'Namespace.FooType' type</item>
+  /// <item>$type{'Namespace.FooType'}$ - 'Namespace.FooType' type</item>
+  /// <item>$statement{1,2}$ - 1 or 2 statements</item>
+  /// </list>
+  /// </para>
+  /// <para>
+  /// Note that you can also define your own placeholders of the supported types and specify arguments for each placeholder type.
+  /// This can be done using the following format: $name{type, arguments}$. Where 'name' - is the name of your placeholder,
+  /// 'type' - is the type of your placeholder (one of the following: Expression, Type, Identifier, Statement, Argument, Member),
+  /// 'arguments' - arguments list for your placeholder. Each placeholder type supports its own arguments, check examples below for more details.
+  /// The placeholder type may be omitted and determined from the placeholder name, if the name has one of the following prefixes:
+  /// <list type="bullet">
+  /// <item>expr, expression - expression placeholder, e.g. $exprPlaceholder{}$, $expressionFoo{}$</item>
+  /// <item>arg, argument - argument placeholder, e.g. $argPlaceholder{}$, $argumentFoo{}$</item>
+  /// <item>ident, identifier - identifier placeholder, e.g. $identPlaceholder{}$, $identifierFoo{}$</item>
+  /// <item>stmt, statement - statement placeholder, e.g. $stmtPlaceholder{}$, $statementFoo{}$</item>
+  /// <item>type - type placeholder, e.g. $typePlaceholder{}$, $typeFoo{}$</item>
+  /// <item>member - member placeholder, e.g. $memberPlaceholder{}$, $memberFoo{}$</item>
+  /// </list>
+  /// </para>
+  /// <para>
+  /// Expression placeholder arguments:
+  /// <list type="bullet">
+  /// <item>expressionType - string value in single quotes, specifies full type name to match (empty string by default)</item>
+  /// <item>exactType - boolean value, specifies if expression should have exact type match (false by default)</item>
+  /// </list>
+  /// Examples:
+  /// <list type="bullet">
+  /// <item>$myExpr{Expression, 'Namespace.FooType', true}$ - defines expression placeholder, matching expressions of the 'Namespace.FooType' type with exact matching.</item>
+  /// <item>$myExpr{Expression, 'Namespace.FooType'}$ - defines expression placeholder, matching expressions of the 'Namespace.FooType' type or expressions which can be implicitly converted to 'Namespace.FooType'.</item>
+  /// <item>$myExpr{Expression}$ - defines expression placeholder, matching expressions of any type.</item>
+  /// <item>$exprFoo{'Namespace.FooType', true}$ - defines expression placeholder, matching expressions of the 'Namespace.FooType' type with exact matching.</item>
+  /// </list>
+  /// </para>
+  /// <para>
+  /// Type placeholder arguments:
+  /// <list type="bullet">
+  /// <item>type - string value in single quotes, specifies full type name to match (empty string by default)</item>
+  /// <item>exactType - boolean value, specifies if expression should have exact type match (false by default)</item>
+  /// </list>
+  /// Examples:
+  /// <list type="bullet">
+  /// <item>$myType{Type, 'Namespace.FooType', true}$ - defines type placeholder, matching 'Namespace.FooType' types with exact matching.</item>
+  /// <item>$myType{Type, 'Namespace.FooType'}$ - defines type placeholder, matching 'Namespace.FooType' types or types, which can be implicitly converted to 'Namespace.FooType'.</item>
+  /// <item>$myType{Type}$ - defines type placeholder, matching any type.</item>
+  /// <item>$typeFoo{'Namespace.FooType', true}$ - defines types placeholder, matching 'Namespace.FooType' types with exact matching.</item>
+  /// </list>
+  /// </para>
+  /// <para>
+  /// Identifier placeholder arguments:
+  /// <list type="bullet">
+  /// <item>nameRegex - string value in single quotes, specifies regex to use for matching (empty string by default)</item>
+  /// <item>nameRegexCaseSensitive - boolean value, specifies if name regex is case sensitive (true by default)</item>
+  /// <item>type - string value in single quotes, specifies full type name to match (empty string by default)</item>
+  /// <item>exactType - boolean value, specifies if expression should have exact type match (false by default)</item>
+  /// </list>
+  /// Examples:
+  /// <list type="bullet">
+  /// <item>$myIdentifier{Identifier, 'my.*', false, 'Namespace.FooType', true}$ - defines identifier placeholder, matching identifiers (ignoring case) starting with 'my' prefix with 'Namespace.FooType' type.</item>
+  /// <item>$myIdentifier{Identifier, 'my.*', true, 'Namespace.FooType', true}$ - defines identifier placeholder, matching identifiers (case sensitively) starting with 'my' prefix with 'Namespace.FooType' type.</item>
+  /// <item>$identFoo{'my.*'}$ - defines identifier placeholder, matching identifiers (case sensitively) starting with 'my' prefix.</item>
+  /// </list>
+  /// </para>
+  /// <para>
+  /// Statement placeholder arguments:
+  /// <list type="bullet">
+  /// <item>minimalOccurrences - minimal number of statements to match (-1 by default)</item>
+  /// <item>maximalOccurrences - maximal number of statements to match (-1 by default)</item>
+  /// </list>
+  /// Examples:
+  /// <list type="bullet">
+  /// <item>$myStmt{Statement, 1, 2}$ - defines statement placeholder, matching 1 or 2 statements.</item>
+  /// <item>$myStmt{Statement}$ - defines statement placeholder, matching any number of statements.</item>
+  /// <item>$stmtFoo{1, 2}$ - defines statement placeholder, matching 1 or 2 statements.</item>
+  /// </list>
+  /// </para>
+  /// <para>
+  /// Argument placeholder arguments:
+  /// <list type="bullet">
+  /// <item>minimalOccurrences - minimal number of arguments to match (-1 by default)</item>
+  /// <item>maximalOccurrences - maximal number of arguments to match (-1 by default)</item>
+  /// </list>
+  /// Examples:
+  /// <list type="bullet">
+  /// <item>$myArg{Argument, 1, 2}$ - defines argument placeholder, matching 1 or 2 arguments.</item>
+  /// <item>$myArg{Argument}$ - defines argument placeholder, matching any number of arguments.</item>
+  /// <item>$argFoo{1, 2}$ - defines argument placeholder, matching 1 or 2 arguments.</item>
+  /// </list>
+  /// </para>
+  /// <para>
+  /// Member placeholder arguments:
+  /// <list type="bullet">
+  /// <item>docId - string value in single quotes, specifies XML documentation id of the member to match (empty by default)</item>
+  /// </list>
+  /// Examples:
+  /// <list type="bullet">
+  /// <item>$myMember{Member, 'M:System.String.IsNullOrEmpty(System.String)'}$ - defines member placeholder, matching 'IsNullOrEmpty' member of the 'System.String' type.</item>
+  /// <item>$memberFoo{'M:System.String.IsNullOrEmpty(System.String)'}$ - defines member placeholder, matching 'IsNullOrEmpty' member of the 'System.String' type.</item>
+  /// </list>
+  /// </para>
+  /// <para>
+  /// For more information please refer to the <a href="https://www.jetbrains.com/help/resharper/Navigation_and_Search__Structural_Search_and_Replace.html">Structural Search and Replace</a> article.
+  /// </para>
   /// </summary>
-  [AttributeUsage(AttributeTargets.Class)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class XamlItemsControlAttribute : Attribute { }
-
-  /// <summary>
-  /// XAML attribute. Indicates the property of some <c>BindingBase</c>-derived type, that
-  /// is used to bind some item of <c>ItemsControl</c>-derived type. This annotation will
-  /// enable the <c>DataContext</c> type resolve for XAML bindings for such properties.
-  /// </summary>
-  /// <remarks>
-  /// Property should have the tree ancestor of the <c>ItemsControl</c> type or
-  /// marked with the <see cref="XamlItemsControlAttribute"/> attribute.
-  /// </remarks>
-  [AttributeUsage(AttributeTargets.Property)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class XamlItemBindingOfItemsControlAttribute : Attribute { }
-
-  [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class AspChildControlTypeAttribute : Attribute
+  [AttributeUsage(
+    AttributeTargets.Method
+    | AttributeTargets.Constructor
+    | AttributeTargets.Property
+    | AttributeTargets.Field
+    | AttributeTargets.Event
+    | AttributeTargets.Interface
+    | AttributeTargets.Class
+    | AttributeTargets.Struct
+    | AttributeTargets.Enum,
+    AllowMultiple = true,
+    Inherited = false)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class CodeTemplateAttribute(string searchTemplate) : Attribute
   {
-    public AspChildControlTypeAttribute([NotNull] string tagName, [NotNull] Type controlType)
-    {
-      TagName = tagName;
-      ControlType = controlType;
-    }
 
-    [NotNull] public string TagName { get; }
+		/// <summary>
+		/// Structural search pattern to use in the code template.
+		/// The pattern includes a textual part, which must contain only identifiers allowed in the target language,
+		/// and placeholders, which allow matching variable parts of the target code blocks.
+		/// </summary>
+		public string SearchTemplate { get; } = searchTemplate;
 
-    [NotNull] public Type ControlType { get; }
+		/// <summary>
+		/// Message to show when the search pattern was found.
+		/// You can also prepend the message text with "Error:", "Warning:", "Suggestion:" or "Hint:" prefix to specify the pattern severity.
+		/// Code patterns with replace templates produce suggestions by default.
+		/// However, if a replace template is not provided, then warning severity will be used.
+		/// </summary>
+		public string Message { get; set; }
+
+    /// <summary>
+    /// Structural search replace pattern to use in code template replacement.
+    /// </summary>
+    public string ReplaceTemplate { get; set; }
+
+    /// <summary>
+    /// The replace message to show in the light bulb.
+    /// </summary>
+    public string ReplaceMessage { get; set; }
+
+    /// <summary>
+    /// Apply code formatting after code replacement.
+    /// </summary>
+    public bool FormatAfterReplace { get; set; } = true;
+
+    /// <summary>
+    /// Whether similar code blocks should be matched.
+    /// </summary>
+    public bool MatchSimilarConstructs { get; set; }
+
+    /// <summary>
+    /// Automatically insert namespace import directives or remove qualifiers that become redundant after the template is applied.
+    /// </summary>
+    public bool ShortenReferences { get; set; }
+
+    /// <summary>
+    /// The string to use as a suppression key.
+    /// By default the following suppression key is used 'CodeTemplate_SomeType_SomeMember',
+    /// where 'SomeType' and 'SomeMember' are names of the associated containing type and member to which this attribute is applied.
+    /// </summary>
+    public string SuppressionKey { get; set; }
   }
 
+  /// <summary>
+  /// Indicates that the string literal, passed as an argument matching this parameter,
+  /// should not be checked on spelling or grammar errors.
+  /// </summary>
+  [AttributeUsage(AttributeTargets.Parameter)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class IgnoreSpellingAndGrammarErrorsAttribute : Attribute
+  {
+  }
+
+  #region ASP.NET
+
+  [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspChildControlTypeAttribute([NotNull] string tagName, [NotNull] Type controlType) : Attribute
+  {
+		[NotNull] public string TagName { get; } = tagName;
+
+		[NotNull] public Type ControlType { get; } = controlType;
+	}
+
   [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
 internal sealed class AspDataFieldAttribute : Attribute { }
 
   [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
 internal sealed class AspDataFieldsAttribute : Attribute { }
 
   [AttributeUsage(AttributeTargets.Property)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
 internal sealed class AspMethodPropertyAttribute : Attribute { }
 
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class AspRequiredAttributeAttribute : Attribute
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspRequiredAttributeAttribute([NotNull] string attribute) : Attribute
   {
-    public AspRequiredAttributeAttribute([NotNull] string attribute)
-    {
-      Attribute = attribute;
-    }
-
-    [NotNull] public string Attribute { get; }
-  }
+		[NotNull] public string Attribute { get; } = attribute;
+	}
 
   [AttributeUsage(AttributeTargets.Property)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class AspTypePropertyAttribute : Attribute
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspTypePropertyAttribute(bool createConstructorReferences) : Attribute
   {
-    public bool CreateConstructorReferences { get; }
+		public bool CreateConstructorReferences { get; } = createConstructorReferences;
+	}
 
-    public AspTypePropertyAttribute(bool createConstructorReferences)
+  #endregion
+
+  #region ASP.NET MVC
+
+  [AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspMvcAreaMasterLocationFormatAttribute([NotNull] string format) : Attribute
+  {
+		[NotNull] public string Format { get; } = format;
+	}
+
+  [AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspMvcAreaPartialViewLocationFormatAttribute([NotNull] string format) : Attribute
+  {
+		[NotNull] public string Format { get; } = format;
+	}
+
+  [AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspMvcAreaViewComponentViewLocationFormatAttribute([NotNull] string format) : Attribute
+  {
+		[NotNull] public string Format { get; } = format;
+	}
+
+  [AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspMvcAreaViewLocationFormatAttribute([NotNull] string format) : Attribute
+  {
+		[NotNull] public string Format { get; } = format;
+	}
+
+  [AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspMvcMasterLocationFormatAttribute([NotNull] string format) : Attribute
+  {
+		[NotNull] public string Format { get; } = format;
+	}
+
+  [AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspMvcPartialViewLocationFormatAttribute([NotNull] string format) : Attribute
+  {
+		[NotNull] public string Format { get; } = format;
+	}
+
+  [AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspMvcViewComponentViewLocationFormatAttribute([NotNull] string format) : Attribute
+  {
+		[NotNull] public string Format { get; } = format;
+	}
+
+  [AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspMvcViewLocationFormatAttribute([NotNull] string format) : Attribute
+  {
+		[NotNull] public string Format { get; } = format;
+	}
+
+  /// <summary>
+  /// ASP.NET MVC attribute. If applied to a parameter, indicates that the parameter
+  /// is an MVC action. If applied to a method, the MVC action name is calculated
+  /// implicitly from the context. Use this attribute for custom wrappers similar to
+  /// <c>System.Web.Mvc.Html.ChildActionExtensions.RenderAction(HtmlHelper, String)</c>.
+  /// </summary>
+  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method | AttributeTargets.Field | AttributeTargets.Property)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspMvcActionAttribute : Attribute
+  {
+    public AspMvcActionAttribute() { }
+
+    public AspMvcActionAttribute([NotNull] string anonymousProperty)
     {
-      CreateConstructorReferences = createConstructorReferences;
+      AnonymousProperty = anonymousProperty;
     }
+
+    [CanBeNull] public string AnonymousProperty { get; }
   }
 
-  [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class RazorImportNamespaceAttribute : Attribute
+  /// <summary>
+  /// ASP.NET MVC attribute. Indicates that the marked parameter is an MVC area.
+  /// Use this attribute for custom wrappers similar to
+  /// <c>System.Web.Mvc.Html.ChildActionExtensions.RenderAction(HtmlHelper, String)</c>.
+  /// </summary>
+  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspMvcAreaAttribute : Attribute
   {
-    public RazorImportNamespaceAttribute([NotNull] string name)
+    public AspMvcAreaAttribute() { }
+
+    public AspMvcAreaAttribute([NotNull] string anonymousProperty)
+    {
+      AnonymousProperty = anonymousProperty;
+    }
+
+    [CanBeNull] public string AnonymousProperty { get; }
+  }
+
+  /// <summary>
+  /// ASP.NET MVC attribute. If applied to a parameter, indicates that the parameter is
+  /// an MVC controller. If applied to a method, the MVC controller name is calculated
+  /// implicitly from the context. Use this attribute for custom wrappers similar to
+  /// <c>System.Web.Mvc.Html.ChildActionExtensions.RenderAction(HtmlHelper, String, String)</c>.
+  /// </summary>
+  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method | AttributeTargets.Field | AttributeTargets.Property)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspMvcControllerAttribute : Attribute
+  {
+    public AspMvcControllerAttribute() { }
+
+    public AspMvcControllerAttribute([NotNull] string anonymousProperty)
+    {
+      AnonymousProperty = anonymousProperty;
+    }
+
+    [CanBeNull] public string AnonymousProperty { get; }
+  }
+
+  /// <summary>
+  /// ASP.NET MVC attribute. Indicates that the marked parameter is an MVC Master. Use this attribute
+  /// for custom wrappers similar to <c>System.Web.Mvc.Controller.View(String, String)</c>.
+  /// </summary>
+  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspMvcMasterAttribute : Attribute { }
+
+  /// <summary>
+  /// ASP.NET MVC attribute. Indicates that the marked parameter is an MVC model type. Use this attribute
+  /// for custom wrappers similar to <c>System.Web.Mvc.Controller.View(String, Object)</c>.
+  /// </summary>
+  [AttributeUsage(AttributeTargets.Parameter)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspMvcModelTypeAttribute : Attribute { }
+
+  /// <summary>
+  /// ASP.NET MVC attribute. If applied to a parameter, indicates that the parameter is an MVC
+  /// partial view. If applied to a method, the MVC partial view name is calculated implicitly
+  /// from the context. Use this attribute for custom wrappers similar to
+  /// <c>System.Web.Mvc.Html.RenderPartialExtensions.RenderPartial(HtmlHelper, String)</c>.
+  /// </summary>
+  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method | AttributeTargets.Field | AttributeTargets.Property)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspMvcPartialViewAttribute : Attribute { }
+
+  /// <summary>
+  /// ASP.NET MVC attribute. Allows disabling inspections for MVC views within a class or a method.
+  /// </summary>
+  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspMvcSuppressViewErrorAttribute : Attribute { }
+
+  /// <summary>
+  /// ASP.NET MVC attribute. Indicates that a parameter is an MVC display template.
+  /// Use this attribute for custom wrappers similar to
+  /// <c>System.Web.Mvc.Html.DisplayExtensions.DisplayForModel(HtmlHelper, String)</c>.
+  /// </summary>
+  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspMvcDisplayTemplateAttribute : Attribute { }
+
+  /// <summary>
+  /// ASP.NET MVC attribute. Indicates that the marked parameter is an MVC editor template.
+  /// Use this attribute for custom wrappers similar to
+  /// <c>System.Web.Mvc.Html.EditorExtensions.EditorForModel(HtmlHelper, String)</c>.
+  /// </summary>
+  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspMvcEditorTemplateAttribute : Attribute { }
+
+  /// <summary>
+  /// ASP.NET MVC attribute. Indicates that the marked parameter is an MVC template.
+  /// Use this attribute for custom wrappers similar to
+  /// <c>System.ComponentModel.DataAnnotations.UIHintAttribute(System.String)</c>.
+  /// </summary>
+  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspMvcTemplateAttribute : Attribute { }
+
+  /// <summary>
+  /// ASP.NET MVC attribute. If applied to a parameter, indicates that the parameter
+  /// is an MVC view component. If applied to a method, the MVC view name is calculated implicitly
+  /// from the context. Use this attribute for custom wrappers similar to
+  /// <c>System.Web.Mvc.Controller.View(Object)</c>.
+  /// </summary>
+  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method | AttributeTargets.Field | AttributeTargets.Property)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspMvcViewAttribute : Attribute { }
+
+  /// <summary>
+  /// ASP.NET MVC attribute. If applied to a parameter, indicates that the parameter
+  /// is an MVC view component name.
+  /// </summary>
+  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspMvcViewComponentAttribute : Attribute { }
+
+  /// <summary>
+  /// ASP.NET MVC attribute. If applied to a parameter, indicates that the parameter
+  /// is an MVC view component view. If applied to a method, the MVC view component view name is default.
+  /// </summary>
+  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method | AttributeTargets.Field | AttributeTargets.Property)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspMvcViewComponentViewAttribute : Attribute { }
+
+  /// <summary>
+  /// ASP.NET MVC attribute. When applied to a parameter of an attribute,
+  /// indicates that this parameter is an MVC action name.
+  /// </summary>
+  /// <example><code>
+  /// [ActionName("Foo")]
+  /// public ActionResult Login(string returnUrl) {
+  ///   ViewBag.ReturnUrl = Url.Action("Foo"); // OK
+  ///   return RedirectToAction("Bar"); // Error: Cannot resolve action
+  /// }
+  /// </code></example>
+  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspMvcActionSelectorAttribute : Attribute { }
+
+  #endregion
+
+  #region ASP.NET Routing
+
+  /// <summary>
+  /// Indicates that the marked parameter, field, or property is a route template.
+  /// </summary>
+  /// <remarks>
+  /// This attribute allows IDE to recognize the use of web frameworks' route templates
+  /// to enable syntax highlighting, code completion, navigation, rename and other features in string literals.
+  /// </remarks>
+  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class RouteTemplateAttribute : Attribute { }
+
+  /// <summary>
+  /// Indicates that the marked type is custom route parameter constraint,
+  /// which is registered in the application's Startup with the name <c>ConstraintName</c>.
+  /// </summary>
+  /// <remarks>
+  /// You can specify <c>ProposedType</c> if target constraint matches only route parameters of specific type,
+  /// it will allow IDE to create method's parameter from usage in route template
+  /// with specified type instead of default <c>System.String</c>
+  /// and check if constraint's proposed type conflicts with matched parameter's type.
+  /// </remarks>
+  [AttributeUsage(AttributeTargets.Class)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class RouteParameterConstraintAttribute([NotNull] string constraintName) : Attribute
+  {
+		[NotNull] public string ConstraintName { get; } = constraintName;
+		[CanBeNull] public Type ProposedType { get; set; }
+	}
+
+	/// <summary>
+	/// Indicates that the marked parameter, field, or property is an URI string.
+	/// </summary>
+	/// <remarks>
+	/// This attribute enables code completion, navigation, renaming and other features
+	/// in URI string literals assigned to annotated parameters, fields, or properties.
+	/// </remarks>
+	[AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class UriStringAttribute : Attribute
+  {
+    public UriStringAttribute() { }
+
+    public UriStringAttribute(string httpVerb)
+    {
+      HttpVerb = httpVerb;
+    }
+
+    [CanBeNull] public string HttpVerb { get; }
+  }
+
+  /// <summary>
+  /// Indicates that the marked method declares routing convention for ASP.NET.
+  /// </summary>
+  /// <remarks>
+  /// The IDE will analyze all usages of methods marked with this attribute,
+  /// and will add all routes to completion, navigation, and other features over URI strings.
+  /// </remarks>
+  [AttributeUsage(AttributeTargets.Method)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspRouteConventionAttribute : Attribute
+  {
+    public AspRouteConventionAttribute() { }
+
+    public AspRouteConventionAttribute(string predefinedPattern)
+    {
+      PredefinedPattern = predefinedPattern;
+    }
+
+    [CanBeNull] public string PredefinedPattern { get; }
+  }
+
+  /// <summary>
+  /// Indicates that the marked method parameter contains default route values of routing convention for ASP.NET.
+  /// </summary>
+  [AttributeUsage(AttributeTargets.Parameter)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspDefaultRouteValuesAttribute : Attribute { }
+
+  /// <summary>
+  /// Indicates that the marked method parameter contains constraints on route values of routing convention for ASP.NET.
+  /// </summary>
+  [AttributeUsage(AttributeTargets.Parameter)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspRouteValuesConstraintsAttribute : Attribute { }
+
+  /// <summary>
+  /// Indicates that the marked parameter or property contains routing order provided by ASP.NET routing attribute.
+  /// </summary>
+  [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspRouteOrderAttribute : Attribute { }
+
+  /// <summary>
+  /// Indicates that the marked parameter or property contains HTTP verbs provided by ASP.NET routing attribute.
+  /// </summary>
+  [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspRouteVerbsAttribute : Attribute { }
+
+  /// <summary>
+  /// Indicates that the marked attribute is used for attribute routing in ASP.NET.
+  /// </summary>
+  /// <remarks>
+  /// The IDE will analyze all usages of attributes marked with this attribute,
+  /// and will add all routes to completion, navigation and other features over URI strings.
+  /// </remarks>
+  [AttributeUsage(AttributeTargets.Class)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspAttributeRoutingAttribute : Attribute
+  {
+    public string HttpVerb { get; set; }
+  }
+
+  /// <summary>
+  /// Indicates that the marked method declares an ASP.NET Minimal API endpoint.
+  /// </summary>
+  /// <remarks>
+  /// The IDE will analyze all usages of methods marked with this attribute,
+  /// and will add all routes to completion, navigation and other features over URI strings.
+  /// </remarks>
+  [AttributeUsage(AttributeTargets.Method)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspMinimalApiDeclarationAttribute : Attribute
+  {
+    public string HttpVerb { get; set; }
+  }
+
+  /// <summary>
+  /// Indicates that the marked method declares an ASP.NET Minimal API endpoints group.
+  /// </summary>
+  [AttributeUsage(AttributeTargets.Method)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspMinimalApiGroupAttribute : Attribute { }
+
+  /// <summary>
+  /// Indicates that the marked parameter contains an ASP.NET Minimal API endpoint handler.
+  /// </summary>
+  [AttributeUsage(AttributeTargets.Parameter)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspMinimalApiHandlerAttribute : Attribute { }
+
+  /// <summary>
+  /// Indicates that the marked method contains Minimal API endpoint declaration.
+  /// </summary>
+  /// <remarks>
+  /// The IDE will analyze all usages of methods marked with this attribute,
+  /// and will add all declared in attributes routes to completion, navigation and other features over URI strings.
+  /// </remarks>
+  [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class AspMinimalApiImplicitEndpointDeclarationAttribute : Attribute
+  {
+    public string HttpVerb { get; set; }
+
+    public string RouteTemplate { get; set; }
+
+    public Type BodyType { get; set; }
+
+    /// <summary>
+    /// Comma-separated list of query parameters defined for endpoint
+    /// </summary>
+    public string QueryParameters { get; set; }
+  }
+
+  #endregion
+
+  #region Razor
+
+  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.Field)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class HtmlElementAttributesAttribute : Attribute
+  {
+    public HtmlElementAttributesAttribute() { }
+
+    public HtmlElementAttributesAttribute([NotNull] string name)
     {
       Name = name;
     }
 
-    [NotNull] public string Name { get; }
+    [CanBeNull] public string Name { get; }
   }
 
-  [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class RazorInjectionAttribute : Attribute
+  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class HtmlAttributeValueAttribute([NotNull] string name) : Attribute
   {
-    public RazorInjectionAttribute([NotNull] string type, [NotNull] string fieldName)
-    {
-      Type = type;
-      FieldName = fieldName;
-    }
+		[NotNull] public string Name { get; } = name;
+	}
 
-    [NotNull] public string Type { get; }
-
-    [NotNull] public string FieldName { get; }
-  }
+  /// <summary>
+  /// Razor attribute. Indicates that the marked parameter or method is a Razor section.
+  /// Use this attribute for custom wrappers similar to
+  /// <c>System.Web.WebPages.WebPageBase.RenderSection(String)</c>.
+  /// </summary>
+  [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class RazorSectionAttribute : Attribute { }
 
   [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
-internal sealed class RazorDirectiveAttribute : Attribute
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class RazorImportNamespaceAttribute([NotNull] string name) : Attribute
   {
-    public RazorDirectiveAttribute([NotNull] string directive)
-    {
-      Directive = directive;
-    }
-
-    [NotNull] public string Directive { get; }
-  }
+		[NotNull] public string Name { get; } = name;
+	}
 
   [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class RazorInjectionAttribute([NotNull] string type, [NotNull] string fieldName) : Attribute
+  {
+		[NotNull] public string Type { get; } = type;
+
+		[NotNull] public string FieldName { get; } = fieldName;
+	}
+
+  [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class RazorDirectiveAttribute([NotNull] string directive) : Attribute
+  {
+		[NotNull] public string Directive { get; } = directive;
+	}
+
+  [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
 internal sealed class RazorPageBaseTypeAttribute : Attribute
   {
       public RazorPageBaseTypeAttribute([NotNull] string baseType)
@@ -1205,176 +1733,135 @@ internal sealed class RazorPageBaseTypeAttribute : Attribute
   }
 
   [AttributeUsage(AttributeTargets.Method)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
 internal sealed class RazorHelperCommonAttribute : Attribute { }
 
   [AttributeUsage(AttributeTargets.Property)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
 internal sealed class RazorLayoutAttribute : Attribute { }
 
   [AttributeUsage(AttributeTargets.Method)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
 internal sealed class RazorWriteLiteralMethodAttribute : Attribute { }
 
   [AttributeUsage(AttributeTargets.Method)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
 internal sealed class RazorWriteMethodAttribute : Attribute { }
 
   [AttributeUsage(AttributeTargets.Parameter)]
-  [Conditional("ANNOTATIONS"), ExcludeFromCodeCoverage]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
 internal sealed class RazorWriteMethodParameterAttribute : Attribute { }
+
+  #endregion
+
+  #region XAML
+
+  /// <summary>
+  /// XAML attribute. Indicates the type that has an <c>ItemsSource</c> property and should be treated
+  /// as an <c>ItemsControl</c>-derived type, to enable inner items <c>DataContext</c> type resolution.
+  /// </summary>
+  [AttributeUsage(AttributeTargets.Class)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class XamlItemsControlAttribute : Attribute { }
+
+  /// <summary>
+  /// XAML attribute. Indicates the property of some <c>BindingBase</c>-derived type, that
+  /// is used to bind some item of an <c>ItemsControl</c>-derived type. This annotation will
+  /// enable the <c>DataContext</c> type resolve for XAML bindings for such properties.
+  /// </summary>
+  /// <remarks>
+  /// The property should have the tree ancestor of the <c>ItemsControl</c> type, or
+  /// marked with the <see cref="XamlItemsControlAttribute"/> attribute.
+  /// </remarks>
+  [AttributeUsage(AttributeTargets.Property)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class XamlItemBindingOfItemsControlAttribute : Attribute { }
+
+  /// <summary>
+  /// XAML attribute. Indicates the property of some <c>Style</c>-derived type that
+  /// is used to style items of an <c>ItemsControl</c>-derived type. This annotation will
+  /// enable the <c>DataContext</c> type resolve for XAML bindings for such properties.
+  /// </summary>
+  /// <remarks>
+  /// Property should have the tree ancestor of the <c>ItemsControl</c> type or
+  /// marked with the <see cref="XamlItemsControlAttribute"/> attribute.
+  /// </remarks>
+  [AttributeUsage(AttributeTargets.Property)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class XamlItemStyleOfItemsControlAttribute : Attribute { }
+
+  /// <summary>
+  /// XAML attribute. Indicates that DependencyProperty has <c>OneWay</c> binding mode by default.
+  /// </summary>
+  /// <remarks>
+  /// This attribute must be applied to DependencyProperty's CLR accessor property if it is present, or to a DependencyProperty descriptor field otherwise.
+  /// </remarks>
+  [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class XamlOneWayBindingModeByDefaultAttribute : Attribute { }
+
+  /// <summary>
+  /// XAML attribute. Indicates that DependencyProperty has <c>TwoWay</c> binding mode by default.
+  /// </summary>
+  /// <remarks>
+  /// This attribute must be applied to DependencyProperty's CLR accessor property if it is present, or to a DependencyProperty descriptor field otherwise.
+  /// </remarks>
+  [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class XamlTwoWayBindingModeByDefaultAttribute : Attribute { }
+
+	#endregion
+
+	#region Unit Testing
+
+	/// <summary>
+	/// Specifies the subject being tested by a test class or a test method.
+	/// </summary>
+	/// <remarks>
+	/// The <see cref="TestSubjectAttribute"/> can be applied to a test class or a test method to indicate what class
+	/// or interface the tests defined in them test. This information can be used by an IDE to provide better navigation
+	/// support or by test runners to group tests by subject and to provide better test reports.
+	/// </remarks>
+	/// <remarks>
+	/// Initializes a new instance of the <see cref="TestSubjectAttribute"/> class with the specified subject type.
+	/// </remarks>
+	/// <param name="subject">The type of the subject being tested.</param>
+	[AttributeUsage(AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = true)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class TestSubjectAttribute([NotNull] Type subject) : Attribute
+  {
+		/// <summary>
+		/// Gets the type of the subject being tested.
+		/// </summary>
+		[NotNull] public Type Subject { get; } = subject;
+	}
+
+  /// <summary>
+  /// Signifies a generic argument as the test subject for a test class.
+  /// </summary>
+  /// <remarks>
+  /// The <see cref="MeansTestSubjectAttribute"/> can be applied to a generic parameter of a base test class to indicate that
+  /// the type passed as the argument is the class being tested. This information can be used by an IDE to provide better
+  /// navigation support or by test runners to group tests by subject and to provide better test reports.
+  /// </remarks>
+  /// <example><code>
+  /// public class BaseTestClass&lt;[MeansTestSubject] T&gt;
+  /// {
+  ///   protected T Component { get; }
+  /// }
+  /// 
+  /// public class CalculatorAdditionTests : BaseTestClass&lt;Calculator&gt;
+  /// {
+  ///   [Test]
+  ///   public void Should_add_two_numbers()
+  ///   {
+  ///      Assert.That(Component.Add(2, 3), Is.EqualTo(5));
+  ///   }
+  /// }
+  /// </code></example>
+  [AttributeUsage(AttributeTargets.GenericParameter)]
+  [Conditional("JETBRAINS_ANNOTATIONS")]
+internal sealed class MeansTestSubjectAttribute : Attribute { }
+
+  #endregion
 }
-
-#endregion
-
-#region CodeAnalysis Attributes
-
-#if NETSTANDARD2_0 || NETCOREAPP2_0 || NETCOREAPP2_1 || NETCOREAPP2_2 || NET45 || NET451 || NET452 || NET6 || NET461 || NET462 || NET47 || NET471 || NET472 || NET48
-// https://github.com/dotnet/corefx/blob/48363ac826ccf66fbe31a5dcb1dc2aab9a7dd768/src/Common/src/CoreLib/System/Diagnostics/CodeAnalysis/NullableAttributes.cs
-
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
-
-// @formatter:off
-// ReSharper disable UnusedMember.Global
-// ReSharper disable MemberCanBePrivate.Global
-// ReSharper disable UnusedAutoPropertyAccessor.Global
-// ReSharper disable IntroduceOptionalParameters.Global
-// ReSharper disable MemberCanBeProtected.Global
-// ReSharper disable InconsistentNaming
-// ReSharper disable InheritdocConsiderUsage
-// ReSharper disable UnusedType.Global
-
-namespace System.Diagnostics.CodeAnalysis
-{
-    /// <summary>Specifies that null is allowed as an input even if the corresponding type disallows it.</summary>
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Parameter | AttributeTargets.Property, Inherited = false)]
-#if INTERNAL_NULLABLE_ATTRIBUTES
-    internal
-#else
-    public
-#endif
-        sealed class AllowNullAttribute : Attribute
-    { }
-
-    /// <summary>Specifies that null is disallowed as an input even if the corresponding type allows it.</summary>
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Parameter | AttributeTargets.Property, Inherited = false)]
-#if INTERNAL_NULLABLE_ATTRIBUTES
-    internal
-#else
-    public
-#endif
-        sealed class DisallowNullAttribute : Attribute
-    { }
-
-    /// <summary>Specifies that an output may be null even if the corresponding type disallows it.</summary>
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.ReturnValue, Inherited = false)]
-#if INTERNAL_NULLABLE_ATTRIBUTES
-    internal
-#else
-    public
-#endif
-        sealed class MaybeNullAttribute : Attribute
-    { }
-
-    /// <summary>Specifies that an output will not be null even if the corresponding type allows it.</summary>
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.ReturnValue, Inherited = false)]
-#if INTERNAL_NULLABLE_ATTRIBUTES
-    internal
-#else
-    public
-#endif
-        sealed class NotNullAttribute : Attribute
-    { }
-
-    /// <summary>Specifies that when a method returns <see cref="ReturnValue"/>, the parameter may be null even if the corresponding type disallows it.</summary>
-    [AttributeUsage(AttributeTargets.Parameter, Inherited = false), ExcludeFromCodeCoverage]
-#if INTERNAL_NULLABLE_ATTRIBUTES
-    internal
-#else
-    public
-#endif
-        sealed class MaybeNullWhenAttribute : Attribute
-    {
-        /// <summary>Initializes the attribute with the specified return value condition.</summary>
-        /// <param name="returnValue">
-        /// The return value condition. If the method returns this value, the associated parameter may be null.
-        /// </param>
-        public MaybeNullWhenAttribute(bool returnValue) => ReturnValue = returnValue;
-
-        /// <summary>Gets the return value condition.</summary>
-        public bool ReturnValue { get; }
-    }
-
-    /// <summary>Specifies that when a method returns <see cref="ReturnValue"/>, the parameter will not be null even if the corresponding type allows it.</summary>
-    [AttributeUsage(AttributeTargets.Parameter, Inherited = false), ExcludeFromCodeCoverage]
-#if INTERNAL_NULLABLE_ATTRIBUTES
-    internal
-#else
-    public
-#endif
-        sealed class NotNullWhenAttribute : Attribute
-    {
-        /// <summary>Initializes the attribute with the specified return value condition.</summary>
-        /// <param name="returnValue">
-        /// The return value condition. If the method returns this value, the associated parameter will not be null.
-        /// </param>
-        public NotNullWhenAttribute(bool returnValue) => ReturnValue = returnValue;
-
-        /// <summary>Gets the return value condition.</summary>
-        public bool ReturnValue { get; }
-    }
-
-    /// <summary>Specifies that the output will be non-null if the named parameter is non-null.</summary>
-    [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.ReturnValue, AllowMultiple = true, Inherited = false)]
-#if INTERNAL_NULLABLE_ATTRIBUTES
-    internal
-#else
-    public
-#endif
-        sealed class NotNullIfNotNullAttribute : Attribute
-    {
-        /// <summary>Initializes the attribute with the associated parameter name.</summary>
-        /// <param name="parameterName">
-        /// The associated parameter name.  The output will be non-null if the argument to the parameter specified is non-null.
-        /// </param>
-        public NotNullIfNotNullAttribute(string parameterName) => ParameterName = parameterName;
-
-        /// <summary>Gets the associated parameter name.</summary>
-        public string ParameterName { get; }
-    }
-
-    /// <summary>Applied to a method that will never return under any circumstance.</summary>
-    [AttributeUsage(AttributeTargets.Method, Inherited = false), ExcludeFromCodeCoverage]
-#if INTERNAL_NULLABLE_ATTRIBUTES
-    internal
-#else
-    public
-#endif
-        sealed class DoesNotReturnAttribute : Attribute
-    { }
-
-    /// <summary>Specifies that the method will not return if the associated Boolean parameter is passed the specified value.</summary>
-    [AttributeUsage(AttributeTargets.Parameter, Inherited = false), ExcludeFromCodeCoverage]
-#if INTERNAL_NULLABLE_ATTRIBUTES
-    internal
-#else
-    public
-#endif
-        sealed class DoesNotReturnIfAttribute : Attribute
-    {
-        /// <summary>Initializes the attribute with the specified parameter value.</summary>
-        /// <param name="parameterValue">
-        /// The condition parameter value. Code after the method will be considered unreachable by diagnostics if the argument to
-        /// the associated parameter matches this value.
-        /// </param>
-        public DoesNotReturnIfAttribute(bool parameterValue) => ParameterValue = parameterValue;
-
-        /// <summary>Gets the condition parameter value.</summary>
-        public bool ParameterValue { get; }
-    }
-}
-#endif
-
-#endregion

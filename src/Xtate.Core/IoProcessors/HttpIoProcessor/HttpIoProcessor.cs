@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,33 +17,30 @@
 
 #endregion
 
-using System;
 using System.IO;
 using System.Net;
-using Xtate.Core;
 
-namespace Xtate.IoProcessor
+namespace Xtate.IoProcessor;
+
+internal sealed class HttpIoProcessor : HttpIoProcessorBase<HttpIoProcessorHost, HttpListenerContext>
 {
-	internal sealed class HttpIoProcessor : HttpIoProcessorBase<HttpIoProcessorHost, HttpListenerContext>
-	{
-		private const string Id          = @"http://www.w3.org/TR/scxml/#BasicHTTPEventProcessor";
-		private const string Alias       = @"http";
-		private const string ErrorSuffix = @"Internal";
+	private const string Id          = @"http://www.w3.org/TR/scxml/#BasicHTTPEventProcessor";
+	private const string Alias       = @"http";
+	private const string ErrorSuffix = @"Internal";
 
-		public HttpIoProcessor(IEventConsumer eventConsumer, Uri baseUri, IPEndPoint ipEndPoint) : base(eventConsumer, baseUri, ipEndPoint, Id, Alias, ErrorSuffix) { }
+	public HttpIoProcessor(IEventConsumer eventConsumer, Uri baseUri, IPEndPoint ipEndPoint) : base(eventConsumer, baseUri, ipEndPoint, Id, Alias, ErrorSuffix) { }
 
-		protected override HttpIoProcessorHost CreateHost(IPEndPoint ipEndPoint) => new(ipEndPoint);
+	protected override HttpIoProcessorHost CreateHost(IPEndPoint ipEndPoint) => new(ipEndPoint);
 
-		protected override string GetPath(HttpListenerContext context) => context.Request.Url?.GetComponents(UriComponents.Path, UriFormat.Unescaped) ?? throw new NotSupportedException();
+	protected override string GetPath(HttpListenerContext context) => context.Request.Url?.GetComponents(UriComponents.Path, UriFormat.Unescaped) ?? throw new NotSupportedException();
 
-		protected override string? GetHeaderValue(HttpListenerContext context, string name) => context.Request.Headers[name];
+	protected override string? GetHeaderValue(HttpListenerContext context, string name) => context.Request.Headers[name];
 
-		protected override IPAddress? GetRemoteAddress(HttpListenerContext context) => context.Request.RemoteEndPoint is { } endPoint ? endPoint.Address : default;
+	protected override IPAddress? GetRemoteAddress(HttpListenerContext context) => context.Request.RemoteEndPoint is { } endPoint ? endPoint.Address : default;
 
-		protected override string? GetQueryString(HttpListenerContext context) => context.Request.Url?.GetComponents(UriComponents.Query, UriFormat.Unescaped);
+	protected override string? GetQueryString(HttpListenerContext context) => context.Request.Url?.GetComponents(UriComponents.Query, UriFormat.Unescaped);
 
-		protected override Stream GetBody(HttpListenerContext context) => context.Request.InputStream;
+	protected override Stream GetBody(HttpListenerContext context) => context.Request.InputStream;
 
-		protected override string GetMethod(HttpListenerContext context) => context.Request.HttpMethod;
-	}
+	protected override string GetMethod(HttpListenerContext context) => context.Request.HttpMethod;
 }

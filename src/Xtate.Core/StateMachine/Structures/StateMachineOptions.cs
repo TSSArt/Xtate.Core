@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,22 +17,21 @@
 
 #endregion
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public struct StateMachineOptions : IStateMachineOptions
 {
-	public struct StateMachineOptions : IStateMachineOptions
-	{
-	#region Interface IStateMachineOptions
+#region Interface IStateMachineOptions
 
-		public string? Name { get; set; }
+	public string? Name { get; set; }
 
-		public PersistenceLevel? PersistenceLevel { get; set; }
+	public PersistenceLevel? PersistenceLevel { get; set; }
 
-		public bool? SynchronousEventProcessing { get; set; }
+	public bool? SynchronousEventProcessing { get; set; }
 
-		public int? ExternalQueueSize { get; set; }
+	public int? ExternalQueueSize { get; set; }
 
-		public UnhandledErrorBehaviour? UnhandledErrorBehaviour { get; set; }
+	public UnhandledErrorBehaviour? UnhandledErrorBehaviour { get; set; }
 
-	#endregion
-	}
+#endregion
 }

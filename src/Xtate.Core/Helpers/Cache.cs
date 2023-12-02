@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2022 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -18,22 +18,20 @@
 #endregion
 
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Xtate.Core;
 
 public class Cache<TKey, TValue> where TKey : notnull
 {
+	private const    int                                ConcurrencyLevel = 1;
 	private readonly ConcurrentDictionary<TKey, TValue> _dictionary;
-
-	private const int ConcurrencyLevel = 1;
 
 	public Cache(int initialCapacity) => _dictionary = new ConcurrentDictionary<TKey, TValue>(ConcurrencyLevel, initialCapacity);
 
-	public Cache(IEnumerable<KeyValuePair<TKey, TValue>> initialCollection) => _dictionary = new ConcurrentDictionary<TKey, TValue>(ConcurrencyLevel, initialCollection, EqualityComparer<TKey>.Default);
+	public Cache(IEnumerable<KeyValuePair<TKey, TValue>> initialCollection) =>
+		_dictionary = new ConcurrentDictionary<TKey, TValue>(ConcurrencyLevel, initialCollection, EqualityComparer<TKey>.Default);
 
-	public bool TryGetValue(TKey key, [MaybeNullWhen(false)]out TValue value) => _dictionary.TryGetValue(key, out value);
+	public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value) => _dictionary.TryGetValue(key, out value);
 
 	public TValue GetOrAdd(TKey key, TValue value) => _dictionary.GetOrAdd(key, value);
 

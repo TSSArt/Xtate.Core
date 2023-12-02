@@ -17,15 +17,15 @@
 
 #endregion
 
-using System;
-using System.Threading.Tasks;
 using System.Xml;
 
 namespace Xtate.Scxml;
 
 public class ScxmlSerializer : IScxmlSerializer
 {
-	public required Func<XmlWriter, ValueTask<ScxmlSerializerWriter>> ScxmlSerializerWriterFactory { private get; init; }
+	public required Func<XmlWriter, ValueTask<ScxmlSerializerWriter>> ScxmlSerializerWriterFactory { private get; [UsedImplicitly] init; }
+
+#region Interface IScxmlSerializer
 
 	public async ValueTask Serialize(IStateMachine stateMachine, XmlWriter xmlWriter)
 	{
@@ -33,4 +33,6 @@ public class ScxmlSerializer : IScxmlSerializer
 
 		scxmlSerializerWriter.Serialize(stateMachine);
 	}
+
+#endregion
 }

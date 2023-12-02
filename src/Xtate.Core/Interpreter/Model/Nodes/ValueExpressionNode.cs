@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,34 +19,33 @@
 
 using Xtate.Persistence;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public sealed class ValueExpressionNode : IValueExpression, IStoreSupport, IAncestorProvider
 {
-	public sealed class ValueExpressionNode : IValueExpression, IStoreSupport, IAncestorProvider
+	private readonly IValueExpression _valueExpression;
+
+	public ValueExpressionNode(IValueExpression valueExpression) => _valueExpression = valueExpression;
+
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => _valueExpression;
+
+#endregion
+
+#region Interface IStoreSupport
+
+	void IStoreSupport.Store(Bucket bucket)
 	{
-		private readonly IValueExpression _valueExpression;
-
-		public ValueExpressionNode(IValueExpression valueExpression) => _valueExpression = valueExpression;
-
-	#region Interface IAncestorProvider
-
-		object IAncestorProvider.Ancestor => _valueExpression;
-
-	#endregion
-
-	#region Interface IStoreSupport
-
-		void IStoreSupport.Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.ValueExpressionNode);
-			bucket.Add(Key.Expression, Expression);
-		}
-
-	#endregion
-
-	#region Interface IValueExpression
-
-		public string? Expression => _valueExpression.Expression;
-
-	#endregion
+		bucket.Add(Key.TypeInfo, TypeInfo.ValueExpressionNode);
+		bucket.Add(Key.Expression, Expression);
 	}
+
+#endregion
+
+#region Interface IValueExpression
+
+	public string? Expression => _valueExpression.Expression;
+
+#endregion
 }

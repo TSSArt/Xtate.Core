@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,16 +17,13 @@
 
 #endregion
 
-using System;
+namespace Xtate;
 
-namespace Xtate
+
+[AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+public sealed class ServiceModuleAttribute : Attribute
 {
-	[PublicAPI]
-	[AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
-	public sealed class ServiceModuleAttribute : Attribute
-	{
-		public ServiceModuleAttribute(Type serviceModuleType) => ServiceModuleType = serviceModuleType;
+	public ServiceModuleAttribute(Type serviceModuleType) => ServiceModuleType = serviceModuleType;
 
-		public Type? ServiceModuleType { get; }
-	}
+	public Type? ServiceModuleType { get; }
 }

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,76 +17,73 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
 using Xtate.DataModel;
 using Xtate.Persistence;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public sealed class StateMachineNode : StateEntityNode, IStateMachine, IAncestorProvider, IDebugEntityId
 {
-	public sealed class StateMachineNode : StateEntityNode, IStateMachine, IAncestorProvider, IDebugEntityId
+	private readonly IStateMachine _stateMachine;
+
+	public StateMachineNode(DocumentIdNode documentIdNode, IStateMachine stateMachine) : base(documentIdNode)
 	{
-		private readonly IStateMachine _stateMachine;
+		Infra.Requires(stateMachine);
+		Infra.Requires(stateMachine.Initial);
 
-		public StateMachineNode(DocumentIdNode documentIdNode, IStateMachine stateMachine) : base(documentIdNode)
-		{
-			Infra.Requires(stateMachine);
-			Infra.Requires(stateMachine.Initial);
+		_stateMachine = stateMachine;
 
-			_stateMachine = stateMachine;
+		Initial = stateMachine.Initial.As<InitialNode>();
+		ScriptEvaluator = _stateMachine.Script?.As<ScriptNode>();
+		DataModel = _stateMachine.DataModel?.As<DataModelNode>();
+		States = _stateMachine.States.AsArrayOf<IStateEntity, StateEntityNode>(true);
 
-			Initial = stateMachine.Initial.As<InitialNode>();
-			ScriptEvaluator = _stateMachine.Script?.As<ScriptNode>();
-			DataModel = _stateMachine.DataModel?.As<DataModelNode>();
-			States = _stateMachine.States.AsArrayOf<IStateEntity, StateEntityNode>(true);
+		Register(Initial);
+		Register(States);
+	}
 
-			Register(Initial);
-			Register(States);
-		}
+	public override DataModelNode? DataModel { get; }
 
-		public override DataModelNode? DataModel { get; }
+	public override ImmutableArray<StateEntityNode> States { get; }
 
-		public override ImmutableArray<StateEntityNode> States { get; }
+	public InitialNode Initial { get; }
 
-		public InitialNode Initial { get; }
+	public IExecEvaluator? ScriptEvaluator { get; }
 
-		public IExecEvaluator? ScriptEvaluator { get; }
+#region Interface IAncestorProvider
 
-	#region Interface IAncestorProvider
+	object IAncestorProvider.Ancestor => _stateMachine;
 
-		object IAncestorProvider.Ancestor => _stateMachine;
+#endregion
 
-	#endregion
+#region Interface IDebugEntityId
 
-	#region Interface IDebugEntityId
+	FormattableString IDebugEntityId.EntityId => @$"{Name}(#{DocumentId})";
 
-		FormattableString IDebugEntityId.EntityId => @$"{Name}(#{DocumentId})";
+#endregion
 
-	#endregion
+#region Interface IStateMachine
 
-	#region Interface IStateMachine
+	public BindingType                         Binding       => _stateMachine.Binding;
+	public string?                             Name          => _stateMachine.Name;
+	public string?                             DataModelType => _stateMachine.DataModelType;
+	public IExecutableEntity?                  Script        => _stateMachine.Script;
+	IDataModel? IStateMachine.                 DataModel     => DataModel;
+	IInitial? IStateMachine.                   Initial       => Initial;
+	ImmutableArray<IStateEntity> IStateMachine.States        => ImmutableArray<IStateEntity>.CastUp(States);
 
-		public BindingType                         Binding       => _stateMachine.Binding;
-		public string?                             Name          => _stateMachine.Name;
-		public string?                             DataModelType => _stateMachine.DataModelType;
-		public IExecutableEntity?                  Script        => _stateMachine.Script;
-		IDataModel? IStateMachine.                 DataModel     => DataModel;
-		IInitial? IStateMachine.                   Initial       => Initial;
-		ImmutableArray<IStateEntity> IStateMachine.States        => ImmutableArray<IStateEntity>.CastUp(States);
+#endregion
 
-	#endregion
-
-		protected override void Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.StateMachineNode);
-			bucket.Add(Key.DocumentId, DocumentId);
-			bucket.Add(Key.Name, Name);
-			bucket.Add(Key.DataModelType, DataModelType);
-			bucket.Add(Key.Binding, Binding);
-			bucket.AddEntity(Key.Script, Script);
-			bucket.AddEntity(Key.DataModel, DataModel);
-			bucket.AddEntity(Key.Initial, Initial);
-			bucket.AddEntityList(Key.States, _stateMachine.States);
-		}
+	protected override void Store(Bucket bucket)
+	{
+		bucket.Add(Key.TypeInfo, TypeInfo.StateMachineNode);
+		bucket.Add(Key.DocumentId, DocumentId);
+		bucket.Add(Key.Name, Name);
+		bucket.Add(Key.DataModelType, DataModelType);
+		bucket.Add(Key.Binding, Binding);
+		bucket.AddEntity(Key.Script, Script);
+		bucket.AddEntity(Key.DataModel, DataModel);
+		bucket.AddEntity(Key.Initial, Initial);
+		bucket.AddEntityList(Key.States, _stateMachine.States);
 	}
 }

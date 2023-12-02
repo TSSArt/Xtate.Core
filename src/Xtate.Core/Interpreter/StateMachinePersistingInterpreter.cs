@@ -1,9 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
-using System.Threading;
-using System.Threading.Tasks;
+﻿#region Copyright © 2019-2023 Sergii Artemenko
+
+// This file is part of the Xtate project. <https://xtate.net/>
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+// 
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+#endregion
+
 using Xtate.DataModel;
 using Xtate.Persistence;
 
@@ -13,78 +26,17 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 {
 	private const string StateStorageKey                  = "state";
 	private const string StateMachineDefinitionStorageKey = "smd";
+	private const int    KeyIndex                         = 0;
+	private const int    ValueIndex                       = 1;
 
 	private readonly IInterpreterModel               _interpreterModel;
 	private readonly IStateMachineInterpreterOptions _options;
 	private readonly IPersistenceContext             _persistenceContext;
 
-	[SetsRequiredMembers]
-	public StateMachinePersistingInterpreter(IInterpreterModel interpreterModel,
-											 IEventQueueReader eventQueueReader,
-											 IDataModelHandler dataModelHandler,
-											 IPersistenceContext persistenceContext,
-											 IStateMachineContext stateMachineContext,
-											 INotifyStateChanged? notifyStateChanged,
-											 IUnhandledErrorBehaviour? unhandledErrorBehaviour,
-											 IResourceLoader resourceLoader,
-											 IStateMachineLocation? stateMachineLocation,
-											 IExternalCommunication? externalCommunication,
-											 ILogger<IStateMachineInterpreter>? logger) : base(
-		interpreterModel, eventQueueReader, dataModelHandler, stateMachineContext, notifyStateChanged, unhandledErrorBehaviour,
-		resourceLoader, stateMachineLocation, externalCommunication, logger)
-	{
-		_interpreterModel = interpreterModel;
-
-		//_options = options;
-		_persistenceContext = persistenceContext;
-	}
-
-	private enum MethodState
-	{
-		Executing,
-		Completed
-	}
+	private Bucket _stateBucket;
+	private int    _stateBucketIndex;
+	private int    _stateBucketSubIndex;
 	
-
-	private enum StateBagKey
-	{
-		Value,
-		ExecuteGlobalScript,
-		InitialEnterStates,
-		ExitStates,
-		EnterStates,
-		NotifyAccepted,
-		NotifyStarted,
-		NotifyExited,
-		NotifyWaiting,
-		Interpret,
-		ExitSteps,
-		InitializeDataModels,
-		MainEventLoopIteration,
-		StartInvokeLoop,
-		Microstep,
-		InternalQueueProcess,
-		IsInternalQueueEmpty,
-		MacrostepIteration,
-		Macrostep,
-		ExternalQueueProcess,
-		SelectTransitions,
-		MainEventLoop,
-		ExitInterpreter,
-		ExecuteTransitionContent,
-		RunExecutableEntity,
-		Invoke,
-		CancelInvoke,
-		InitializeDataModel,
-		InitializeData
-	}
-
-	private       Bucket _stateBucket;
-	private       int    _stateBucketIndex;
-	private       int    _stateBucketSubIndex;
-	private const int    KeyIndex = 0;
-	private const int    ValueIndex = 1;
-
 	public virtual void TriggerSuspendSignal()
 	{
 		//CloseEventQueue(new StateMachineSuspendedException(Resources.Exception_StateMachineHasBeenSuspended));
@@ -192,7 +144,7 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 		switch (methodState)
 		{
 			case MethodState.Executing:
-				_stateBucketIndex++;
+				_stateBucketIndex ++;
 				_stateBucket.Add(_stateBucketIndex, _stateBucketSubIndex);
 				_stateBucketSubIndex = 0;
 				bucket = default;
@@ -204,8 +156,8 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 				{
 					Infra.Fail();
 				}
-				
-				_stateBucketSubIndex++;
+
+				_stateBucketSubIndex ++;
 				bucket = subBucket;
 
 				return true;
@@ -219,7 +171,7 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 		var topBucket = _stateBucket.Nested(_stateBucketIndex);
 		var getStatus = topBucket.TryGet(Bucket.RootKey, out int subIndex);
 		Infra.Assert(getStatus);
-		_stateBucketIndex--;
+		_stateBucketIndex --;
 		_stateBucketSubIndex = subIndex;
 
 		var subBucket = _stateBucket.Nested(_stateBucketIndex).Nested(_stateBucketSubIndex);
@@ -242,7 +194,7 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 		else
 		{
 			subBucket.Add(Bucket.RootKey, MethodState.Completed);
-			_stateBucketSubIndex++;
+			_stateBucketSubIndex ++;
 		}
 
 		bucket = subBucket;
@@ -598,7 +550,46 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 		Exit(StateBagKey.InitializeData);
 	}
 
-	/*-	
+	private enum MethodState
+	{
+		Executing,
+		Completed
+	}
+
+	private enum StateBagKey
+	{
+		Value,
+		ExecuteGlobalScript,
+		InitialEnterStates,
+		ExitStates,
+		EnterStates,
+		NotifyAccepted,
+		NotifyStarted,
+		NotifyExited,
+		NotifyWaiting,
+		Interpret,
+		ExitSteps,
+		InitializeDataModels,
+		MainEventLoopIteration,
+		StartInvokeLoop,
+		Microstep,
+		InternalQueueProcess,
+		IsInternalQueueEmpty,
+		MacrostepIteration,
+		Macrostep,
+		ExternalQueueProcess,
+		SelectTransitions,
+		MainEventLoop,
+		ExitInterpreter,
+		ExecuteTransitionContent,
+		RunExecutableEntity,
+		Invoke,
+		CancelInvoke,
+		InitializeDataModel,
+		InitializeData
+	}
+
+	/*-
 	protected override async ValueTask DoOperation(StateBagKey key, Func<ValueTask> func)
 	{
 		if (_persistenceContext.GetState((int) key) == 0)

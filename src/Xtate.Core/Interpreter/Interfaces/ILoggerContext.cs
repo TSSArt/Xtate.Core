@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,13 +17,12 @@
 
 #endregion
 
-namespace Xtate
-{
-	[PublicAPI]
-	public interface ILoggerContext
-	{
-		string LoggerContextType { get; }
+namespace Xtate;
 
-		DataModelList GetProperties();
-	}
+
+public interface ILoggerContext
+{
+	string LoggerContextType { get; }
+
+	DataModelList GetProperties();
 }

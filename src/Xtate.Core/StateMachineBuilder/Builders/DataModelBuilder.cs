@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,27 +17,22 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
-using Xtate.Core;
+namespace Xtate.Builder;
 
-namespace Xtate.Builder
+public class DataModelBuilder : BuilderBase, IDataModelBuilder
 {
-	public class DataModelBuilder : BuilderBase, IDataModelBuilder
+	private ImmutableArray<IData>.Builder? _dataList;
+
+#region Interface IDataModelBuilder
+
+	public IDataModel Build() => new DataModelEntity { Ancestor = Ancestor, Data = _dataList?.ToImmutable() ?? default };
+
+	public void AddData(IData data)
 	{
-		private ImmutableArray<IData>.Builder? _dataList;
+		Infra.Requires(data);
 
-	#region Interface IDataModelBuilder
-
-		public IDataModel Build() => new DataModelEntity { Ancestor = Ancestor, Data = _dataList?.ToImmutable() ?? default };
-
-		public void AddData(IData data)
-		{
-			Infra.Requires(data);
-
-			(_dataList ??= ImmutableArray.CreateBuilder<IData>()).Add(data);
-		}
-
-	#endregion
+		(_dataList ??= ImmutableArray.CreateBuilder<IData>()).Add(data);
 	}
+
+#endregion
 }

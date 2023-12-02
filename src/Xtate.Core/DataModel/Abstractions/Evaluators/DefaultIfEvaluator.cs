@@ -17,10 +17,6 @@
 
 #endregion
 
-using System.Collections.Immutable;
-using System.Threading.Tasks;
-using Xtate.Core;
-
 namespace Xtate.DataModel;
 
 public abstract class IfEvaluator : IIf, IExecEvaluator, IAncestorProvider
@@ -54,7 +50,7 @@ public abstract class IfEvaluator : IIf, IExecEvaluator, IAncestorProvider
 #endregion
 }
 
-[PublicAPI]
+
 public class DefaultIfEvaluator : IfEvaluator
 {
 	public DefaultIfEvaluator(IIf @if) : base(@if)

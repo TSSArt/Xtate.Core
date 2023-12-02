@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,52 +17,23 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.IoC;
+namespace Xtate.Core;
 
-namespace Xtate.Core
+public interface IInterpreterModel
 {
-	public interface IInterpreterModel
-	{
-		StateMachineNode                  Root                   { get; }
-		//ImmutableArray<DataModelNode>     DataModelList          { get; }
-		ImmutableDictionary<int, IEntity> EntityMap { get; }
-	}
+	StateMachineNode Root { get; }
 
-	public class InterpreterModel : IInterpreterModel, IAsyncInitialization
-	{
-		private readonly InterpreterModelBuilder     _interpreterModelBuilder;
-		private readonly AsyncInit<StateMachineNode> _stateMachineNodeAsyncInit;
-
-		[Obsolete]
-		public InterpreterModel(StateMachineNode root,
-								int maxConfigurationLength,
-								ImmutableDictionary<int, IEntity> entityMap,
-								ImmutableArray<DataModelNode> dataModelList)
-		{
-			MaxConfigurationLength = maxConfigurationLength;
-			EntityMap = entityMap;
-			DataModelList = dataModelList;
-		}
-
-		public InterpreterModel(InterpreterModelBuilder interpreterModelBuilder) 
-		{
-			_interpreterModelBuilder = interpreterModelBuilder;
-			_stateMachineNodeAsyncInit = AsyncInit.RunAfter(_interpreterModelBuilder, builder => builder.Build2(null));
-		}
-
-		public StateMachineNode Root => _stateMachineNodeAsyncInit.Value;
-
-		public int MaxConfigurationLength { get; }
-
-		public ImmutableDictionary<int, IEntity> EntityMap { get; }
-
-		public ImmutableArray<DataModelNode> DataModelList  { get; }
-
-		public virtual Task Initialization => _stateMachineNodeAsyncInit.Task;
-	}
+	ImmutableDictionary<int, IEntity> EntityMap { get; }
 }
+
+public class InterpreterModel : IInterpreterModel
+{
+#region Interface IInterpreterModel
+
+	public StateMachineNode Root { get; set; } //TODO:delete setter
+
+	public ImmutableDictionary<int, IEntity> EntityMap { get; set;  } //TODO:delete setter
+
+#endregion
+}
+

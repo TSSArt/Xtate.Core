@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,30 +17,18 @@
 
 #endregion
 
-using System;
-using System.Threading.Tasks;
+namespace Xtate;
 
-namespace Xtate
+public enum LogLevel
 {
-	public enum LogLevel
-	{
-		Info,
-		Warning,
-		Error
-	}
+	Info,
+	Warning,
+	Error
+}
 
+public interface ILogController
+{
+	bool IsEnabled { get; }
 
-	public interface ILogController
-	{
-		bool IsEnabled { get; }
-
-		ValueTask Log(string? message = default, DataModelValue arguments = default);
-
-		//TODO:delete
-		[Obsolete]
-		ValueTask LogOld(LogLevel logLevel,
-					  string? message = default,
-					  DataModelValue arguments = default,
-					  Exception? exception = default);
-	}
+	ValueTask Log(string? message = default, DataModelValue arguments = default);
 }

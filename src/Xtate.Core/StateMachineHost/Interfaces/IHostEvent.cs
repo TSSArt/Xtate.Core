@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,17 +17,16 @@
 
 #endregion
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+
+public interface IHostEvent : IEvent
 {
-	[PublicAPI]
-	public interface IHostEvent : IEvent
-	{
-		ServiceId SenderServiceId { get; }
+	ServiceId SenderServiceId { get; }
 
-		ServiceId? TargetServiceId { get; }
+	ServiceId? TargetServiceId { get; }
 
-		DataModelList? IoProcessorData { get; }
+	DataModelList? IoProcessorData { get; }
 
-		int DelayMs { get; }
-	}
+	int DelayMs { get; }
 }

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,28 +17,25 @@
 
 #endregion
 
-using System;
-using Xtate.Core;
+namespace Xtate.Persistence;
 
-namespace Xtate.Persistence
+internal sealed class StateMachineHostClusterContext : StateMachineHostContext
 {
-	internal sealed class StateMachineHostClusterContext : StateMachineHostContext
-	{
-		private readonly StateMachineHost _stateMachineHost;
+	private readonly StateMachineHost _stateMachineHost;
 
-		public StateMachineHostClusterContext(StateMachineHost stateMachineHost, StateMachineHostOptions options) : base(stateMachineHost, options, new PersistedEventSchedulerFactory(options)) =>
-			_stateMachineHost = stateMachineHost;
+	public StateMachineHostClusterContext(StateMachineHost stateMachineHost, StateMachineHostOptions options) : base(stateMachineHost, options, new PersistedEventSchedulerFactory(options)) =>
+		_stateMachineHost = stateMachineHost;
 
-		protected override StateMachineControllerBase CreateStateMachineController(SessionId sessionId,
-																				   IStateMachine? stateMachine,
-																				   IStateMachineOptions? stateMachineOptions,
-																				   Uri? stateMachineLocation,
-																				   InterpreterOptions defaultOptions,
-																				   SecurityContext securityContext,
-																				   DeferredFinalizer finalizer) =>
-			new StateMachineSingleMacroStepController(sessionId, stateMachineOptions, stateMachine, stateMachineLocation, _stateMachineHost, defaultOptions, securityContext, finalizer)
-			{
-				_stateMachineInterpreterFactory = default, sd = default, EventQueueWriter = default
-			};
-	}
+	protected override StateMachineControllerBase CreateStateMachineController(SessionId sessionId,
+																			   IStateMachine? stateMachine,
+																			   IStateMachineOptions? stateMachineOptions,
+																			   Uri? stateMachineLocation,
+																			   InterpreterOptions defaultOptions
+																			   //SecurityContext securityContext,
+																			   //DeferredFinalizer finalizer
+		) =>
+		new StateMachineSingleMacroStepController(sessionId, stateMachineOptions, stateMachine, stateMachineLocation, _stateMachineHost, defaultOptions)
+		{
+			_stateMachineInterpreterFactory = default!, sd = default!, EventQueueWriter = default!
+		};
 }

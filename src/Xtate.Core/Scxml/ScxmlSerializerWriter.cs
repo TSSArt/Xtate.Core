@@ -17,10 +17,7 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
 using System.Xml;
-using Xtate.Core;
 
 namespace Xtate.Scxml;
 

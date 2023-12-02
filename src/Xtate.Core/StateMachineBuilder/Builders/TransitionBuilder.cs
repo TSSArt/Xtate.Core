@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,59 +17,55 @@
 
 #endregion
 
-using System.Collections.Immutable;
-using Xtate.Core;
+namespace Xtate.Builder;
 
-namespace Xtate.Builder
+public class TransitionBuilder : BuilderBase, ITransitionBuilder
 {
-	public class TransitionBuilder : BuilderBase, ITransitionBuilder
+	private ImmutableArray<IExecutableEntity>.Builder? _actions;
+	private IConditionExpression?                      _condition;
+	private ImmutableArray<IEventDescriptor>           _eventDescriptors;
+	private ImmutableArray<IIdentifier>                _target;
+	private TransitionType                             _type;
+
+#region Interface ITransitionBuilder
+
+	public ITransition Build() =>
+		new TransitionEntity { Ancestor = Ancestor, EventDescriptors = _eventDescriptors, Condition = _condition, Target = _target, Type = _type, Action = _actions?.ToImmutable() ?? default };
+
+	public void SetCondition(IConditionExpression condition)
 	{
-		private ImmutableArray<IExecutableEntity>.Builder? _actions;
-		private IConditionExpression?                      _condition;
-		private ImmutableArray<IEventDescriptor>           _eventDescriptors;
-		private ImmutableArray<IIdentifier>                _target;
-		private TransitionType                             _type;
+		Infra.Requires(condition);
 
-	#region Interface ITransitionBuilder
-
-		public ITransition Build() =>
-			new TransitionEntity { Ancestor = Ancestor, EventDescriptors = _eventDescriptors, Condition = _condition, Target = _target, Type = _type, Action = _actions?.ToImmutable() ?? default };
-
-		public void SetCondition(IConditionExpression condition)
-		{
-			Infra.Requires(condition);
-
-			_condition = condition;
-		}
-
-		public void SetTarget(ImmutableArray<IIdentifier> target)
-		{
-			Infra.RequiresNonEmptyCollection(target);
-
-			_target = target;
-		}
-
-		public void SetType(TransitionType type)
-		{
-			Infra.RequiresValidEnum(type);
-
-			_type = type;
-		}
-
-		public void SetEvent(ImmutableArray<IEventDescriptor> eventDescriptors)
-		{
-			Infra.RequiresNonEmptyCollection(eventDescriptors);
-
-			_eventDescriptors = eventDescriptors;
-		}
-
-		public void AddAction(IExecutableEntity action)
-		{
-			Infra.Requires(action);
-
-			(_actions ??= ImmutableArray.CreateBuilder<IExecutableEntity>()).Add(action);
-		}
-
-	#endregion
+		_condition = condition;
 	}
+
+	public void SetTarget(ImmutableArray<IIdentifier> target)
+	{
+		Infra.RequiresNonEmptyCollection(target);
+
+		_target = target;
+	}
+
+	public void SetType(TransitionType type)
+	{
+		Infra.RequiresValidEnum(type);
+
+		_type = type;
+	}
+
+	public void SetEvent(ImmutableArray<IEventDescriptor> eventDescriptors)
+	{
+		Infra.RequiresNonEmptyCollection(eventDescriptors);
+
+		_eventDescriptors = eventDescriptors;
+	}
+
+	public void AddAction(IExecutableEntity action)
+	{
+		Infra.Requires(action);
+
+		(_actions ??= ImmutableArray.CreateBuilder<IExecutableEntity>()).Add(action);
+	}
+
+#endregion
 }

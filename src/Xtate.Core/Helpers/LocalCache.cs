@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,98 +17,93 @@
 
 #endregion
 
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+
+public sealed class LocalCache<TKey, TValue> : IDisposable, IAsyncDisposable where TKey : notnull
 {
-	[PublicAPI]
-	public sealed class LocalCache<TKey, TValue> : IDisposable, IAsyncDisposable where TKey : notnull
+	private readonly ConcurrentDictionary<TKey, CacheEntry<TValue>> _globalDictionary;
+	private readonly Dictionary<TKey, CacheEntry<TValue>>           _localDictionary;
+
+	internal LocalCache(ConcurrentDictionary<TKey, CacheEntry<TValue>> globalDictionary, IEqualityComparer<TKey> comparer)
 	{
-		private readonly ConcurrentDictionary<TKey, CacheEntry<TValue>> _globalDictionary;
-		private readonly Dictionary<TKey, CacheEntry<TValue>>           _localDictionary;
+		_globalDictionary = globalDictionary;
+		_localDictionary = new Dictionary<TKey, CacheEntry<TValue>>(comparer);
+	}
 
-		internal LocalCache(ConcurrentDictionary<TKey, CacheEntry<TValue>> globalDictionary, IEqualityComparer<TKey> comparer)
+#region Interface IAsyncDisposable
+
+	public async ValueTask DisposeAsync()
+	{
+		foreach (var pair in _localDictionary)
 		{
-			_globalDictionary = globalDictionary;
-			_localDictionary = new Dictionary<TKey, CacheEntry<TValue>>(comparer);
+			await DropEntry(pair.Key, pair.Value).ConfigureAwait(false);
 		}
 
-	#region Interface IAsyncDisposable
+		_localDictionary.Clear();
+	}
 
-		public async ValueTask DisposeAsync()
+#endregion
+
+#region Interface IDisposable
+
+	public void Dispose() => DisposeAsync().SynchronousWait();
+
+#endregion
+
+	private async ValueTask DropEntry(TKey key, CacheEntry<TValue> entry)
+	{
+		var noMoreReferences = await entry.RemoveReference().ConfigureAwait(false);
+
+		if ((entry.Options & ValueOptions.ThreadSafe) != 0 && noMoreReferences)
 		{
-			foreach (var pair in _localDictionary)
-			{
-				await DropEntry(pair.Key, pair.Value).ConfigureAwait(false);
-			}
+			var collection = (ICollection<KeyValuePair<TKey, CacheEntry<TValue>>>) _globalDictionary;
+			collection.Remove(new KeyValuePair<TKey, CacheEntry<TValue>>(key, entry));
+		}
+	}
 
-			_localDictionary.Clear();
+	public async ValueTask SetValue(TKey key, [DisallowNull] TValue value, ValueOptions options)
+	{
+		if (_localDictionary.TryGetValue(key, out var entry))
+		{
+			await DropEntry(key, entry).ConfigureAwait(false);
 		}
 
-	#endregion
+		var newEntry = new CacheEntry<TValue>(value, options);
 
-	#region Interface IDisposable
+		_localDictionary[key] = newEntry;
 
-		public void Dispose() => DisposeAsync().SynchronousWait();
-
-	#endregion
-
-		private async ValueTask DropEntry(TKey key, CacheEntry<TValue> entry)
+		if ((options & ValueOptions.ThreadSafe) != 0)
 		{
-			var noMoreReferences = await entry.RemoveReference().ConfigureAwait(false);
+			_globalDictionary[key] = newEntry;
+		}
+	}
 
-			if ((entry.Options & ValueOptions.ThreadSafe) != 0 && noMoreReferences)
-			{
-				var collection = (ICollection<KeyValuePair<TKey, CacheEntry<TValue>>>) _globalDictionary;
-				collection.Remove(new KeyValuePair<TKey, CacheEntry<TValue>>(key, entry));
-			}
+	public bool TryGetValue(TKey key, [NotNullWhen(true)] out TValue? value)
+	{
+		if (_localDictionary.TryGetValue(key, out var localEntry) && localEntry.TryGetValue(out value))
+		{
+			return true;
 		}
 
-		public async ValueTask SetValue(TKey key, [DisallowNull] TValue value, ValueOptions options)
+		if (_globalDictionary.TryGetValue(key, out var globalEntry) && globalEntry.TryGetValue(out value) && globalEntry.AddReference())
 		{
-			if (_localDictionary.TryGetValue(key, out var entry))
+			if (localEntry is not null)
 			{
-				await DropEntry(key, entry).ConfigureAwait(false);
+				var valueTask = localEntry.RemoveReference();
+				Infra.Assert(valueTask.IsCompleted);
+				valueTask.GetAwaiter().GetResult();
 			}
 
-			var newEntry = new CacheEntry<TValue>(value, options);
+			_localDictionary[key] = globalEntry;
 
-			_localDictionary[key] = newEntry;
-
-			if ((options & ValueOptions.ThreadSafe) != 0)
-			{
-				_globalDictionary[key] = newEntry;
-			}
+			return true;
 		}
 
-		public bool TryGetValue(TKey key, [NotNullWhen(true)] out TValue? value)
-		{
-			if (_localDictionary.TryGetValue(key, out var localEntry) && localEntry.TryGetValue(out value))
-			{
-				return true;
-			}
+		value = default;
 
-			if (_globalDictionary.TryGetValue(key, out var globalEntry) && globalEntry.TryGetValue(out value) && globalEntry.AddReference())
-			{
-				if (localEntry is not null)
-				{
-					var valueTask = localEntry.RemoveReference();
-					Infra.Assert(valueTask.IsCompleted);
-					valueTask.GetAwaiter().GetResult();
-				}
-
-				_localDictionary[key] = globalEntry;
-
-				return true;
-			}
-
-			value = default;
-
-			return false;
-		}
+		return false;
 	}
 }

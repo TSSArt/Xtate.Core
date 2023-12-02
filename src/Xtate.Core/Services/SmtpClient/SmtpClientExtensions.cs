@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,21 +17,19 @@
 
 #endregion
 
-using System;
 using Xtate.Service;
 
-namespace Xtate
+namespace Xtate;
+
+
+public static class SmtpClientExtensions
 {
-	[PublicAPI]
-	public static class SmtpClientExtensions
+	public static StateMachineHostBuilder AddSmtpClient(this StateMachineHostBuilder builder)
 	{
-		public static StateMachineHostBuilder AddSmtpClient(this StateMachineHostBuilder builder)
-		{
-			if (builder is null) throw new ArgumentNullException(nameof(builder));
+		if (builder is null) throw new ArgumentNullException(nameof(builder));
 
-			builder.AddServiceFactory(SmtpClientServiceFactory.Instance);
+		builder.AddServiceFactory(SmtpClientServiceFactory.Instance);
 
-			return builder;
-		}
+		return builder;
 	}
 }

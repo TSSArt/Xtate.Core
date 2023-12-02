@@ -17,10 +17,6 @@
 
 #endregion
 
-using System;
-using System.Threading.Tasks;
-using Xtate.Core;
-
 namespace Xtate.DataModel;
 
 public abstract class CancelEvaluator : ICancel, IExecEvaluator, IAncestorProvider
@@ -42,7 +38,8 @@ public abstract class CancelEvaluator : ICancel, IExecEvaluator, IAncestorProvid
 
 #region Interface ICancel
 
-	public virtual string?           SendId           => _cancel.SendId;
+	public virtual string? SendId => _cancel.SendId;
+
 	public virtual IValueExpression? SendIdExpression => _cancel.SendIdExpression;
 
 #endregion
@@ -58,7 +55,7 @@ public class DefaultCancelEvaluator : CancelEvaluator
 {
 	public DefaultCancelEvaluator(ICancel cancel) : base(cancel) => SendIdExpressionEvaluator = cancel.SendIdExpression?.As<IStringEvaluator>();
 
-	public required Func<ValueTask<IEventController?>> EventSenderFactory { private get; init; }
+	public required Func<ValueTask<IEventController?>> EventSenderFactory { private get; [UsedImplicitly] init; }
 
 	public IStringEvaluator? SendIdExpressionEvaluator { get; }
 

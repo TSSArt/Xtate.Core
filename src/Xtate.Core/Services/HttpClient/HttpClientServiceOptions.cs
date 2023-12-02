@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,21 +17,18 @@
 
 #endregion
 
-using System.Collections.Generic;
+namespace Xtate.Service;
 
-namespace Xtate.Service
+public class HttpClientServiceOptions
 {
-	public class HttpClientServiceOptions
-	{
-		private HttpClientServiceOptions() { }
+	private HttpClientServiceOptions() { }
 
-		public List<HttpClientMimeTypeHandler> MimeTypeHandlers { get; } = new()
-																		   {
-																			   HttpClientFormUrlEncodedHandler.Instance,
-																			   HttpClientJsonHandler.Instance,
-																			   HttpClientXmlHandler.Instance
-																		   };
+	public List<HttpClientMimeTypeHandler> MimeTypeHandlers { get; } = new()
+																	   {
+																		   HttpClientFormUrlEncodedHandler.Instance,
+																		   HttpClientJsonHandler.Instance,
+																		   HttpClientXmlHandler.Instance
+																	   };
 
-		public static HttpClientServiceOptions CreateDefault() => new();
-	}
+	public static HttpClientServiceOptions CreateDefault() => new();
 }

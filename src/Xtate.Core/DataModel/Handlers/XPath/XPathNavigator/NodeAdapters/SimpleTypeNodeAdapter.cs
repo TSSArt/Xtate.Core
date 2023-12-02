@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,21 +17,19 @@
 
 #endregion
 
-using System;
 using System.Xml.XPath;
 
-namespace Xtate.DataModel.XPath
+namespace Xtate.DataModel.XPath;
+
+internal class SimpleTypeNodeAdapter : NodeAdapter
 {
-	internal class SimpleTypeNodeAdapter : NodeAdapter
-	{
-		public override XPathNodeType GetNodeType() => XPathNodeType.Text;
+	public override XPathNodeType GetNodeType() => XPathNodeType.Text;
 
-		public override string GetValue(in DataModelXPathNavigator.Node node) => XmlConverter.ToString(node.DataModelValue);
+	public override string GetValue(in DataModelXPathNavigator.Node node) => XmlConverter.ToString(node.DataModelValue);
 
-		public override string GetLocalName(in DataModelXPathNavigator.Node node) => @"#text";
+	public override string GetLocalName(in DataModelXPathNavigator.Node node) => @"#text";
 
-		public override int GetBufferSizeForValue(in DataModelXPathNavigator.Node node) => XmlConverter.GetBufferSizeForValue(node.DataModelValue);
+	public override int GetBufferSizeForValue(in DataModelXPathNavigator.Node node) => XmlConverter.GetBufferSizeForValue(node.DataModelValue);
 
-		public override int WriteValueToSpan(in DataModelXPathNavigator.Node node, in Span<char> span) => XmlConverter.WriteValueToSpan(node.DataModelValue, span);
-	}
+	public override int WriteValueToSpan(in DataModelXPathNavigator.Node node, in Span<char> span) => XmlConverter.WriteValueToSpan(node.DataModelValue, span);
 }

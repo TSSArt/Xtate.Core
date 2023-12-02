@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,44 +17,41 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
 using Xtate.Persistence;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public sealed class IfNode : ExecutableEntityNode, IIf, IAncestorProvider, IDebugEntityId
 {
-	public sealed class IfNode : ExecutableEntityNode, IIf, IAncestorProvider, IDebugEntityId
+	private readonly IIf _if;
+
+	public IfNode(DocumentIdNode documentIdNode, IIf @if) : base(documentIdNode, @if) => _if = @if;
+
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => _if;
+
+#endregion
+
+#region Interface IDebugEntityId
+
+	FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
+
+#endregion
+
+#region Interface IIf
+
+	public IConditionExpression? Condition => _if.Condition;
+
+	public ImmutableArray<IExecutableEntity> Action => _if.Action;
+
+#endregion
+
+	protected override void Store(Bucket bucket)
 	{
-		private readonly IIf _if;
-
-		public IfNode(DocumentIdNode documentIdNode, IIf @if) : base(documentIdNode, @if) => _if = @if;
-
-	#region Interface IAncestorProvider
-
-		object IAncestorProvider.Ancestor => _if;
-
-	#endregion
-
-	#region Interface IDebugEntityId
-
-		FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
-
-	#endregion
-
-	#region Interface IIf
-
-		public IConditionExpression? Condition => _if.Condition;
-
-		public ImmutableArray<IExecutableEntity> Action => _if.Action;
-
-	#endregion
-
-		protected override void Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.IfNode);
-			bucket.Add(Key.DocumentId, DocumentId);
-			bucket.AddEntity(Key.Condition, Condition);
-			bucket.AddEntityList(Key.Action, Action);
-		}
+		bucket.Add(Key.TypeInfo, TypeInfo.IfNode);
+		bucket.Add(Key.DocumentId, DocumentId);
+		bucket.AddEntity(Key.Condition, Condition);
+		bucket.AddEntityList(Key.Action, Action);
 	}
 }

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -26,7 +26,7 @@ using System.Threading.Tasks;
 
 namespace Xtate.Core
 {
-	[PublicAPI]
+	
 	public static class HttpContentExtensions
 	{
 		public static Task CopyToAsync(this HttpContent httpContent, Stream stream, CancellationToken token)

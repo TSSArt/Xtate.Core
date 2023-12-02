@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,16 +17,13 @@
 
 #endregion
 
-using System;
+namespace Xtate.Persistence;
 
-namespace Xtate.Persistence
+internal abstract class DataModelPersistingController : IDisposable
 {
-	internal abstract class DataModelPersistingController : IDisposable
-	{
-	#region Interface IDisposable
+#region Interface IDisposable
 
-		public virtual void Dispose() { }
+	public virtual void Dispose() { }
 
-	#endregion
-	}
+#endregion
 }

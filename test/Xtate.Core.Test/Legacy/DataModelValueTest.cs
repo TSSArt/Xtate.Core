@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,120 +17,115 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+namespace Xtate.Core.Test.Legacy;
 
-namespace Xtate.Core.Test.Legacy
+[TestClass]
+public class DataModelValueTest
 {
-	[TestClass]
-	public class DataModelValueTest
+	[TestMethod]
+	public void DataModelListNullTest()
 	{
-		[TestMethod]
-		public void DataModelListNullTest()
-		{
-			// arrange
-			DataModelList nullVal = default!;
+		// arrange
+		DataModelList nullVal = default!;
 
-			// act
-			var v = (DataModelValue) nullVal;
+		// act
+		var v = (DataModelValue) nullVal;
 
-			// assert
-			Assert.AreEqual(DataModelValue.Null, v);
-			Assert.AreEqual(expected: null, v.AsNullableList());
-		}
+		// assert
+		Assert.AreEqual(DataModelValue.Null, v);
+		Assert.AreEqual(expected: null, v.AsNullableList());
+	}
 
-		[TestMethod]
-		public void DataModelStringNullTest()
-		{
-			// arrange
-			const string nullVal = default!;
+	[TestMethod]
+	public void DataModelStringNullTest()
+	{
+		// arrange
+		const string nullVal = default!;
 
-			// act
-			var v = (DataModelValue) nullVal;
+		// act
+		var v = (DataModelValue) nullVal;
 
-			// assert
-			Assert.AreEqual(DataModelValue.Null, v);
-			Assert.AreEqual(expected: null, v.AsNullableString());
-		}
+		// assert
+		Assert.AreEqual(DataModelValue.Null, v);
+		Assert.AreEqual(expected: null, v.AsNullableString());
+	}
 
-		[TestMethod]
-		public void EqualityInequalityTest()
-		{
-			Assert.AreEqual(expected: default, new DataModelValue());
-			Assert.AreEqual(DataModelValue.Null, DataModelValue.Null);
-			Assert.AreNotEqual(DataModelValue.Null, actual: default);
-			Assert.AreNotEqual(notExpected: default, DataModelValue.Null);
-		}
+	[TestMethod]
+	public void EqualityInequalityTest()
+	{
+		Assert.AreEqual(expected: default, new DataModelValue());
+		Assert.AreEqual(DataModelValue.Null, DataModelValue.Null);
+		Assert.AreNotEqual(DataModelValue.Null, actual: default);
+		Assert.AreNotEqual(notExpected: default, DataModelValue.Null);
+	}
 
-		[TestMethod]
-		public void TypesTest()
-		{
-			Assert.AreEqual(DataModelValueType.Undefined, default(DataModelValue).Type);
-			Assert.AreEqual(DataModelValueType.Undefined, new DataModelValue().Type);
-			Assert.AreEqual(DataModelValueType.Null, DataModelValue.Null.Type);
-			Assert.AreEqual(DataModelValueType.String, DataModelValue.FromString("str").Type);
-			Assert.AreEqual(DataModelValueType.Boolean, DataModelValue.FromBoolean(false).Type);
-			Assert.AreEqual(DataModelValueType.Number, DataModelValue.FromDouble(0).Type);
-			Assert.AreEqual(DataModelValueType.DateTime, DataModelValue.FromDateTimeOffset(DateTimeOffset.MinValue).Type);
-			Assert.AreEqual(DataModelValueType.List, DataModelValue.FromDataModelList(new DataModelList()).Type);
-		}
+	[TestMethod]
+	public void TypesTest()
+	{
+		Assert.AreEqual(DataModelValueType.Undefined, default(DataModelValue).Type);
+		Assert.AreEqual(DataModelValueType.Undefined, new DataModelValue().Type);
+		Assert.AreEqual(DataModelValueType.Null, DataModelValue.Null.Type);
+		Assert.AreEqual(DataModelValueType.String, DataModelValue.FromString("str").Type);
+		Assert.AreEqual(DataModelValueType.Boolean, DataModelValue.FromBoolean(false).Type);
+		Assert.AreEqual(DataModelValueType.Number, DataModelValue.FromDouble(0).Type);
+		Assert.AreEqual(DataModelValueType.DateTime, DataModelValue.FromDateTimeOffset(DateTimeOffset.MinValue).Type);
+		Assert.AreEqual(DataModelValueType.List, DataModelValue.FromDataModelList([]).Type);
+	}
 
-		[TestMethod]
-		public void FromListDictionaryCycleRefTest()
-		{
-			// arrange
-			var dictionary = new Dictionary<string, object>();
-			dictionary["self"] = dictionary;
+	[TestMethod]
+	public void FromListDictionaryCycleRefTest()
+	{
+		// arrange
+		var dictionary = new Dictionary<string, object>();
+		dictionary["self"] = dictionary;
 
-			// act
-			var dst = DataModelValue.FromObject(dictionary);
+		// act
+		var dst = DataModelValue.FromObject(dictionary);
 
-			// assert
-			Assert.AreSame(dst.AsList(), dst.AsList()["self"].AsList());
-		}
+		// assert
+		Assert.AreSame(dst.AsList(), dst.AsList()["self"].AsList());
+	}
 
-		[TestMethod]
-		public void DeepCloneDictionaryCycleRefTest()
-		{
-			// arrange
-			var list = new DataModelList();
-			list["self"] = list;
-			var src = (DataModelValue) list;
+	[TestMethod]
+	public void DeepCloneDictionaryCycleRefTest()
+	{
+		// arrange
+		var list = new DataModelList();
+		list["self"] = list;
+		var src = (DataModelValue) list;
 
-			// act
-			var dst = src.CloneAsWritable();
+		// act
+		var dst = src.CloneAsWritable();
 
-			// assert
-			Assert.AreSame(dst.AsList(), dst.AsList()["self"].AsList());
-		}
+		// assert
+		Assert.AreSame(dst.AsList(), dst.AsList()["self"].AsList());
+	}
 
-		[TestMethod]
-		public void MakeDeepConstantMakeDeepReadOnlyDictionaryCycleRefTest()
-		{
-			// arrange
-			var list = new DataModelList();
-			list["self"] = list;
-			var src = (DataModelValue) list;
+	[TestMethod]
+	public void MakeDeepConstantMakeDeepReadOnlyDictionaryCycleRefTest()
+	{
+		// arrange
+		var list = new DataModelList();
+		list["self"] = list;
+		var src = (DataModelValue) list;
 
-			// act
-			src.MakeDeepConstant();
+		// act
+		src.MakeDeepConstant();
 
-			// assert
-			Assert.AreSame(src.AsList(), src.AsList()["self"].AsList());
-		}
+		// assert
+		Assert.AreSame(src.AsList(), src.AsList()["self"].AsList());
+	}
 
-		[TestMethod]
-		public void AnonymousTypeTest()
-		{
-			// arrange
-			var at = new { Key = "Name" };
+	[TestMethod]
+	public void AnonymousTypeTest()
+	{
+		// arrange
+		var at = new { Key = "Name" };
 
-			// act
-			var v = DataModelValue.FromObject(at);
+		// act
+		var v = DataModelValue.FromObject(at);
 
-			// assert
-			Assert.AreEqual(expected: "Name", v.AsList()["Key"].AsString());
-		}
+		// assert
+		Assert.AreEqual(expected: "Name", v.AsList()["Key"].AsString());
 	}
 }

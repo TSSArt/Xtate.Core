@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,32 +17,27 @@
 
 #endregion
 
-using System;
-using System.Diagnostics.CodeAnalysis;
+namespace Xtate.Builder;
 
-namespace Xtate.Builder
+
+public class InitialFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 {
-	[PublicAPI]
-	public class InitialFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
+	public required IInitialBuilder  Builder      { private get; [UsedImplicitly] init; }
+	public required Action<IInitial> BuiltAction  { private get; [UsedImplicitly] init; }
+	public required TOuterBuilder    OuterBuilder { private get; [UsedImplicitly] init; }
+
+	public required Func<InitialFluentBuilder<TOuterBuilder>, Action<ITransition>, TransitionFluentBuilder<InitialFluentBuilder<TOuterBuilder>>> TransitionFluentBuilderFactory { private get; [UsedImplicitly] init; }
+
+	public TOuterBuilder EndInitial()
 	{
-		public required IInitialBuilder  Builder      { private get; init; }
-		public required Action<IInitial> BuiltAction  { private get; init; }
-		public required TOuterBuilder    OuterBuilder { private get; init; }
+		BuiltAction(Builder.Build());
 
-		public required Func<InitialFluentBuilder<TOuterBuilder>, Action<ITransition>, TransitionFluentBuilder<InitialFluentBuilder<TOuterBuilder>>> TransitionFluentBuilderFactory { private get; init; }
-
-		[return: NotNull]
-		public TOuterBuilder EndInitial()
-		{
-			BuiltAction(Builder.Build());
-
-			return OuterBuilder;
-		}
-
-		public TransitionFluentBuilder<InitialFluentBuilder<TOuterBuilder>> BeginTransition() => TransitionFluentBuilderFactory(this, Builder.SetTransition);
-
-		public InitialFluentBuilder<TOuterBuilder> AddTransition(string target) => AddTransition((Identifier) target);
-
-		public InitialFluentBuilder<TOuterBuilder> AddTransition(IIdentifier target) => BeginTransition().SetTarget(target).EndTransition();
+		return OuterBuilder;
 	}
+
+	public TransitionFluentBuilder<InitialFluentBuilder<TOuterBuilder>> BeginTransition() => TransitionFluentBuilderFactory(this, Builder.SetTransition);
+
+	public InitialFluentBuilder<TOuterBuilder> AddTransition(string target) => AddTransition((Identifier) target);
+
+	public InitialFluentBuilder<TOuterBuilder> AddTransition(IIdentifier target) => BeginTransition().SetTarget(target).EndTransition();
 }

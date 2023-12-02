@@ -1,9 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
-using Xtate.DataModel;
+﻿#region Copyright © 2019-2023 Sergii Artemenko
+
+// This file is part of the Xtate project. <https://xtate.net/>
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+// 
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+#endregion
+
 using Xtate.Persistence;
 
 namespace Xtate.Core;
@@ -17,33 +30,15 @@ public interface IPersistingInterpreterState
 
 public class StateMachinePersistingInterpreterBase3 : StateMachinePersistingInterpreterBase2
 {
-	private readonly IPersistingInterpreterState _persistingInterpreterState;
+	//private readonly IPersistingInterpreterState _persistingInterpreterState;
 
 	[SetsRequiredMembers]
 	public StateMachinePersistingInterpreterBase3(IPersistingInterpreterState persistingInterpreterState,
-												  IInterpreterModel interpreterModel,
-												  IEventQueueReader eventQueueReader,
-												  IDataModelHandler dataModelHandler,
-												  IStateMachineContext stateMachineContext,
-												  INotifyStateChanged? notifyStateChanged,
-												  IUnhandledErrorBehaviour? unhandledErrorBehaviour,
-												  IResourceLoader resourceLoader,
-												  IStateMachineLocation? stateMachineLocation,
-												  IExternalCommunication? externalCommunication,
-												  ILogger<IStateMachineInterpreter> logger) : base(
-		persistingInterpreterState, 
-		interpreterModel, 
-		eventQueueReader, 
-		dataModelHandler, 
-		stateMachineContext, 
-		notifyStateChanged, 
-		unhandledErrorBehaviour, 
-		resourceLoader, 
-		stateMachineLocation,
-		externalCommunication, 
-		logger)
+												  IInterpreterModel interpreterModel) : base(
+		persistingInterpreterState,
+		interpreterModel)
 	{
-		_persistingInterpreterState = persistingInterpreterState;
+		//_persistingInterpreterState = persistingInterpreterState;
 	}
 }
 
@@ -53,30 +48,10 @@ public class StateMachinePersistingInterpreterBase2 : StateMachinePersistingInte
 
 	[SetsRequiredMembers]
 	public StateMachinePersistingInterpreterBase2(IPersistingInterpreterState persistingInterpreterState,
-												  IInterpreterModel interpreterModel,
-												  IEventQueueReader eventQueueReader,
-												  IDataModelHandler dataModelHandler,
-												  IStateMachineContext stateMachineContext,
-												  INotifyStateChanged? notifyStateChanged,
-												  IUnhandledErrorBehaviour? unhandledErrorBehaviour,
-												  IResourceLoader resourceLoader,
-												  IStateMachineLocation? stateMachineLocation,
-												  IExternalCommunication? externalCommunication,
-												  ILogger<IStateMachineInterpreter> logger) : base(
-		persistingInterpreterState, 
-		interpreterModel, 
-		eventQueueReader, 
-		dataModelHandler, 
-		stateMachineContext, 
-		notifyStateChanged, 
-		unhandledErrorBehaviour, 
-		resourceLoader, 
-		stateMachineLocation,
-		externalCommunication, 
-		logger)
-	{
+												  IInterpreterModel interpreterModel) : base(
+		persistingInterpreterState,
+		interpreterModel) =>
 		_persistingInterpreterState = persistingInterpreterState;
-	}
 
 	protected override async ValueTask<IEvent> ReadExternalEvent()
 	{
@@ -88,46 +63,26 @@ public class StateMachinePersistingInterpreterBase2 : StateMachinePersistingInte
 
 public class StateMachinePersistingInterpreterBase : StateMachineInterpreter
 {
-	private const int KeyIndex             = 0;
-	private const int MethodCompletedIndex = 1;
-	private const int ValueIndex           = 2;
-	private const int ReturnCallIndex      = 0;
+	private const    int               KeyIndex             = 0;
+	private const    int               MethodCompletedIndex = 1;
+	private const    int               ValueIndex           = 2;
+	private const    int               ReturnCallIndex      = 0;
+	private readonly IInterpreterModel _interpreterModel;
 
 	private readonly IPersistingInterpreterState _persistingInterpreterState;
-	private readonly IInterpreterModel           _interpreterModel;
 	private readonly Bucket                      _stateBucket;
-	private          Bucket                      _methodBucket;
 	private          Bucket                      _callBucket;
-	private          int                         _methodIndex  = 1;
-	private          int                         _callIndex    = 1;
-	private          bool                         _suspending;
+	private          int                         _callIndex = 1;
+	private          Bucket                      _methodBucket;
+	private          int                         _methodIndex = 1;
+	private          bool                        _suspending;
 
-	//public required IStateMachineInterpreterTracer1? StateMachineInterpreterTracer { private get; init; }
-	//public required ITmpLogger2<IStateMachineInterpreter>? Logger { private get; init; }
+	//public required IStateMachineInterpreterTracer1? StateMachineInterpreterTracer { private get; [UsedImplicitly] init; }
+	//public required ITmpLogger2<IStateMachineInterpreter>? Logger { private get; [UsedImplicitly] init; }
 
 	[SetsRequiredMembers]
 	public StateMachinePersistingInterpreterBase(IPersistingInterpreterState persistingInterpreterState,
-												 IInterpreterModel interpreterModel,
-												 IEventQueueReader eventQueueReader,
-												 IDataModelHandler dataModelHandler,
-												 IStateMachineContext stateMachineContext,
-												 INotifyStateChanged? notifyStateChanged,
-												 IUnhandledErrorBehaviour? unhandledErrorBehaviour,
-												 IResourceLoader resourceLoader,
-												 IStateMachineLocation? stateMachineLocation,
-												 IExternalCommunication? externalCommunication,
-												 ILogger<IStateMachineInterpreter> logger)
-		: base(
-			interpreterModel,
-			eventQueueReader,
-			dataModelHandler,
-			stateMachineContext,
-			notifyStateChanged,
-			unhandledErrorBehaviour,
-			resourceLoader,
-			stateMachineLocation,
-			externalCommunication,
-			logger)
+												 IInterpreterModel interpreterModel)
 	{
 		Infra.Requires(persistingInterpreterState);
 
@@ -243,8 +198,8 @@ public class StateMachinePersistingInterpreterBase : StateMachineInterpreter
 		var stateMachineNode = _interpreterModel.Root;
 		var length = bucket.GetInt32(Bucket.RootKey);
 		var list = new List<TransitionNode>(length);
-		
-		for (var i = 0; i < length; i++)
+
+		for (var i = 0; i < length; i ++)
 		{
 			list.Add(FindTransitionNode(stateMachineNode, bucket.GetInt32(i)));
 		}
@@ -266,7 +221,7 @@ public class StateMachinePersistingInterpreterBase : StateMachineInterpreter
 		}
 		else if (node.States is { IsDefaultOrEmpty: false } states)
 		{
-			for (var i = 1; i < states.Length; i++)
+			for (var i = 1; i < states.Length; i ++)
 			{
 				if (documentId < states[i].DocumentId)
 				{
@@ -285,7 +240,7 @@ public class StateMachinePersistingInterpreterBase : StateMachineInterpreter
 		Infra.Requires(list);
 
 		bucket.Add(Bucket.RootKey, list.Count);
-		for (var i = 0; i < list.Count; i++)
+		for (var i = 0; i < list.Count; i ++)
 		{
 			bucket.Add(i, list[i].DocumentId);
 		}
@@ -349,7 +304,7 @@ public class StateMachinePersistingInterpreterBase : StateMachineInterpreter
 
 		Infra.Assert(_callBucket.GetEnum(KeyIndex).As<StateBagKey>() == key);
 		Infra.Assert(!_callBucket.GetBoolean(MethodCompletedIndex));
-		
+
 		if (iteration)
 		{
 			_callBucket.RemoveSubtree(Bucket.RootKey);

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,39 +19,38 @@
 
 using Xtate.Persistence;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public sealed class LocationExpressionNode : ILocationExpression, IStoreSupport, IAncestorProvider
 {
-	public sealed class LocationExpressionNode : ILocationExpression, IStoreSupport, IAncestorProvider
+	private readonly ILocationExpression _locationExpression;
+
+	public LocationExpressionNode(ILocationExpression locationExpression)
 	{
-		private readonly ILocationExpression _locationExpression;
+		Infra.NotNull(locationExpression.Expression);
 
-		public LocationExpressionNode(ILocationExpression locationExpression)
-		{
-			Infra.NotNull(locationExpression.Expression);
-
-			_locationExpression = locationExpression;
-		}
-
-	#region Interface IAncestorProvider
-
-		object IAncestorProvider.Ancestor => _locationExpression;
-
-	#endregion
-
-	#region Interface ILocationExpression
-
-		public string Expression => _locationExpression.Expression!;
-
-	#endregion
-
-	#region Interface IStoreSupport
-
-		void IStoreSupport.Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.LocationExpressionNode);
-			bucket.Add(Key.Expression, Expression);
-		}
-
-	#endregion
+		_locationExpression = locationExpression;
 	}
+
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => _locationExpression;
+
+#endregion
+
+#region Interface ILocationExpression
+
+	public string Expression => _locationExpression.Expression!;
+
+#endregion
+
+#region Interface IStoreSupport
+
+	void IStoreSupport.Store(Bucket bucket)
+	{
+		bucket.Add(Key.TypeInfo, TypeInfo.LocationExpressionNode);
+		bucket.Add(Key.Expression, Expression);
+	}
+
+#endregion
 }

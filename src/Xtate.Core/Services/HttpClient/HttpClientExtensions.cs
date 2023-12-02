@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,34 +17,32 @@
 
 #endregion
 
-using System;
 using Xtate.Service;
 
-namespace Xtate
+namespace Xtate;
+
+
+public static class HttpClientExtensions
 {
-	[PublicAPI]
-	public static class HttpClientExtensions
+	public static StateMachineHostBuilder AddHttpClient(this StateMachineHostBuilder builder)
 	{
-		public static StateMachineHostBuilder AddHttpClient(this StateMachineHostBuilder builder)
-		{
-			if (builder is null) throw new ArgumentNullException(nameof(builder));
+		if (builder is null) throw new ArgumentNullException(nameof(builder));
 
-			builder.AddServiceFactory(HttpClientServiceFactory.Create(HttpClientServiceOptions.CreateDefault()));
+		builder.AddServiceFactory(HttpClientServiceFactory.Create(HttpClientServiceOptions.CreateDefault()));
 
-			return builder;
-		}
+		return builder;
+	}
 
-		public static StateMachineHostBuilder AddHttpClient(this StateMachineHostBuilder builder, Action<HttpClientServiceOptions> setOptions)
-		{
-			if (builder is null) throw new ArgumentNullException(nameof(builder));
-			if (setOptions is null) throw new ArgumentNullException(nameof(setOptions));
+	public static StateMachineHostBuilder AddHttpClient(this StateMachineHostBuilder builder, Action<HttpClientServiceOptions> setOptions)
+	{
+		if (builder is null) throw new ArgumentNullException(nameof(builder));
+		if (setOptions is null) throw new ArgumentNullException(nameof(setOptions));
 
-			var options = HttpClientServiceOptions.CreateDefault();
-			setOptions(options);
+		var options = HttpClientServiceOptions.CreateDefault();
+		setOptions(options);
 
-			builder.AddServiceFactory(HttpClientServiceFactory.Create(options));
+		builder.AddServiceFactory(HttpClientServiceFactory.Create(options));
 
-			return builder;
-		}
+		return builder;
 	}
 }

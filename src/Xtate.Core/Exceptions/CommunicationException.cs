@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,26 +17,20 @@
 
 #endregion
 
-using System;
-using System.Runtime.Serialization;
+namespace Xtate;
 
-namespace Xtate
+[Serializable]
+public class CommunicationException : XtateException
 {
-	[Serializable]
-	public class CommunicationException : XtateException
-	{
-		public CommunicationException() { }
+	public CommunicationException() { }
 
-		public CommunicationException(string message) : base(message) { }
+	public CommunicationException(string message) : base(message) { }
 
-		public CommunicationException(string message, Exception innerException) : base(message, innerException) { }
+	public CommunicationException(string message, Exception innerException) : base(message, innerException) { }
 
-		public CommunicationException(Exception innerException, SendId? sendId = default) : base(message: null, innerException) => SendId = sendId;
+	public CommunicationException(Exception innerException, SendId? sendId = default) : base(message: null, innerException) => SendId = sendId;
 
-		protected CommunicationException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-		
-		public SendId? SendId { get; }
+	public SendId? SendId { get; }
 
-		internal object? Token { get; init; }
-	}
+	internal object? Token { get; init; }
 }

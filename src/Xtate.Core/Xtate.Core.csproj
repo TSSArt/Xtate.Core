@@ -44,7 +44,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(UseProjectReference)'==''">
-	  <PackageReference Include="Xtate.IoC" Version="0.*" />
+	  <PackageReference Include="Xtate.IoC" Version="0.1.11" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,79 +17,74 @@
 
 #endregion
 
-using System;
-using System.Threading.Tasks;
-using Xtate.Core;
+namespace Xtate.DataModel.XPath;
 
-namespace Xtate.DataModel.XPath
+public class XPathLocationExpressionEvaluator : ILocationEvaluator, ILocationExpression, IAncestorProvider
 {
-	public class XPathLocationExpressionEvaluator : ILocationEvaluator, ILocationExpression, IAncestorProvider
+	private readonly XPathAssignType         _assignType;
+	private readonly string?                 _attribute;
+	private readonly XPathCompiledExpression _compiledExpression;
+	private readonly ILocationExpression     _locationExpression;
+
+	public XPathLocationExpressionEvaluator(ILocationExpression locationExpression, XPathCompiledExpression compiledExpression)
 	{
-		private readonly XPathAssignType         _assignType;
-		private readonly string?                 _attribute;
-		private readonly XPathCompiledExpression _compiledExpression;
-		private readonly ILocationExpression     _locationExpression;
+		_locationExpression = locationExpression;
+		_compiledExpression = compiledExpression;
 
-		public required Func<ValueTask<XPathEngine>> EngineFactory { private get; init; }
-
-		public XPathLocationExpressionEvaluator(ILocationExpression locationExpression, XPathCompiledExpression compiledExpression)
+		if (_locationExpression.Is<XPathLocationExpression>(out var xPathLocationExpression))
 		{
-			_locationExpression = locationExpression;
-			_compiledExpression = compiledExpression;
-
-			if (_locationExpression.Is<XPathLocationExpression>(out var xPathLocationExpression))
-			{
-				_assignType = xPathLocationExpression.AssignType;
-				_attribute = xPathLocationExpression.Attribute;
-			}
-			else
-			{
-				_assignType = XPathAssignType.ReplaceChildren;
-			}
+			_assignType = xPathLocationExpression.AssignType;
+			_attribute = xPathLocationExpression.Attribute;
 		}
-
-	#region Interface IAncestorProvider
-
-		object IAncestorProvider.Ancestor => _locationExpression;
-
-	#endregion
-
-	#region Interface ILocationEvaluator
-
-		public async ValueTask DeclareLocalVariable()
+		else
 		{
-			var engine = await EngineFactory().ConfigureAwait(false);
-
-			engine.DeclareVariable(_compiledExpression);
+			_assignType = XPathAssignType.ReplaceChildren;
 		}
-
-		public async ValueTask SetValue(IObject value)
-		{
-			var engine = await EngineFactory().ConfigureAwait(false);
-
-			await engine.Assign1(_compiledExpression, _assignType, _attribute, value).ConfigureAwait(false);
-		}
-
-		public async ValueTask<IObject> GetValue()
-		{
-			var engine = await EngineFactory().ConfigureAwait(false);
-
-			return await engine.EvalObject(_compiledExpression, stripRoots: true).ConfigureAwait(false);
-		}
-
-		public async ValueTask<string> GetName()
-		{
-			var engine = await EngineFactory().ConfigureAwait(false);
-
-			return engine.GetName(_compiledExpression);
-		}
-
-	#endregion
-
-	#region Interface ILocationExpression
-
-		public string? Expression => _locationExpression.Expression;
-
-	#endregion
 	}
+
+	public required Func<ValueTask<XPathEngine>> EngineFactory { private get; [UsedImplicitly] init; }
+
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => _locationExpression;
+
+#endregion
+
+#region Interface ILocationEvaluator
+
+	public async ValueTask DeclareLocalVariable()
+	{
+		var engine = await EngineFactory().ConfigureAwait(false);
+
+		engine.DeclareVariable(_compiledExpression);
+	}
+
+	public async ValueTask SetValue(IObject value)
+	{
+		var engine = await EngineFactory().ConfigureAwait(false);
+
+		await engine.Assign1(_compiledExpression, _assignType, _attribute, value).ConfigureAwait(false);
+	}
+
+	public async ValueTask<IObject> GetValue()
+	{
+		var engine = await EngineFactory().ConfigureAwait(false);
+
+		return await engine.EvalObject(_compiledExpression, stripRoots: true).ConfigureAwait(false);
+	}
+
+	public async ValueTask<string> GetName()
+	{
+		var engine = await EngineFactory().ConfigureAwait(false);
+
+		return engine.GetName(_compiledExpression);
+	}
+
+#endregion
+
+#region Interface ILocationExpression
+
+	public string? Expression => _locationExpression.Expression;
+
+#endregion
 }

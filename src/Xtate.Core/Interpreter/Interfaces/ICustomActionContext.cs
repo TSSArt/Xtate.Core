@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,23 +17,19 @@
 
 #endregion
 
-using System;
-using Xtate.Core;
+namespace Xtate.CustomAction;
 
-namespace Xtate.CustomAction
+public interface ICustomActionContext
 {
-	public interface ICustomActionContext
-	{
-		string XmlNamespace { get; }
+	string XmlNamespace { get; }
 
-		string XmlName { get; }
+	string XmlName { get; }
 
-		string Xml { get; }
-		
-		void AddValidationError<T>(string message, Exception? exception = default) where T : ICustomActionExecutor;
+	string Xml { get; }
 
-		ILocationAssigner RegisterLocationExpression(string expression);
+	void AddValidationError<T>(string message, Exception? exception = default);
 
-		IExpressionEvaluator RegisterValueExpression(string expression, ExpectedValueType expectedValueType);
-	}
+	ILocationAssigner RegisterLocationExpression(string expression);
+
+	IExpressionEvaluator RegisterValueExpression(string expression, ExpectedValueType expectedValueType);
 }

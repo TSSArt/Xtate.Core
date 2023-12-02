@@ -24,17 +24,6 @@ namespace Xtate.Core;
 
 public static class ResourceLoaderExtensions
 {
-	public static void RegisterResource(this IServiceCollection services)
-	{
-		if (services.IsRegistered<Resource, Stream>())
-		{
-			return;
-		}
-
-		services.AddSharedImplementation<DefaultIoBoundTask>(SharedWithin.Scope).For<IIoBoundTask>();
-		services.AddTypeSync<Resource, Stream>();
-	}
-
 	public static void RegisterResourceLoaders(this IServiceCollection services)
 	{
 		if (services.IsRegistered<ResourceLoaderService>())
@@ -49,7 +38,18 @@ public static class ResourceLoaderExtensions
 		services.AddImplementation<ResourceLoaderService>().For<ResourceLoaderService>().For<IResourceLoader>();
 	}
 
-	public static void RegisterFileResourceLoader(this IServiceCollection services)
+	private static void RegisterResource(this IServiceCollection services)
+	{
+		if (services.IsRegistered<Resource, Stream>())
+		{
+			return;
+		}
+
+		services.AddSharedImplementation<DefaultIoBoundTask>(SharedWithin.Scope).For<IIoBoundTask>();
+		services.AddTypeSync<Resource, Stream>();
+	}
+
+	private static void RegisterFileResourceLoader(this IServiceCollection services)
 	{
 		if (services.IsRegistered<FileResourceLoader>())
 		{
@@ -61,7 +61,7 @@ public static class ResourceLoaderExtensions
 		services.AddImplementation<FileResourceLoader>().For<FileResourceLoader>().For<IResourceLoader>();
 	}
 
-	public static void RegisterResxResourceLoader(this IServiceCollection services)
+	private static void RegisterResxResourceLoader(this IServiceCollection services)
 	{
 		if (services.IsRegistered<ResxResourceLoader>())
 		{
@@ -73,7 +73,7 @@ public static class ResourceLoaderExtensions
 		services.AddImplementation<ResxResourceLoader>().For<ResxResourceLoader>().For<IResourceLoader>();
 	}
 
-	public static void RegisterWebResourceLoader(this IServiceCollection services)
+	private static void RegisterWebResourceLoader(this IServiceCollection services)
 	{
 		if (services.IsRegistered<WebResourceLoader>())
 		{

@@ -17,39 +17,31 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Xml.XPath;
 using System.Xml.Xsl;
-using Xtate.Core;
 using Xtate.Scxml;
 
 namespace Xtate.DataModel.XPath;
 
-public interface IInitResolver
-{
-	ValueTask Initialize();
-}
-
 public class XPathExpressionContext : XsltContext
 {
-	private List<IInitResolver>? _initResolvers;
-
-	public required IEnumerable<IXPathFunctionProvider> FunctionProviders         { private get; init; }
-	public required Func<string, XPathVarDescriptor>    XPathVarDescriptorFactory { private get; init; }
-	
+	private List<XPathFunctionDescriptorBase>? _functionDescriptors;
+	private List<XPathVarDescriptor>? _varDescriptors;
 
 	public XPathExpressionContext(INameTableProvider nameTableProvider, IXmlNamespacesInfo? xmlNamespacesInfo) : base(nameTableProvider.GetNameTable())
 	{
-		if (xmlNamespacesInfo is not null)
+		if (xmlNamespacesInfo?.Namespaces is { } namespaces)
 		{
-			foreach (var prefixNamespace in xmlNamespacesInfo.Namespaces)
+			foreach (var prefixNamespace in namespaces)
 			{
-				AddNamespace(prefixNamespace.Prefix, prefixNamespace.Namespace);
+				base.AddNamespace(prefixNamespace.Prefix, prefixNamespace.Namespace);
 			}
 		}
 	}
+
+	public required IEnumerable<IXPathFunctionProvider> FunctionProviders         { private get; [UsedImplicitly] init; }
+	public required Func<string, XPathVarDescriptor>    XPathVarDescriptorFactory { private get; [UsedImplicitly] init; }
+	public required Func<ValueTask<XPathEngine>>        XPathEngineFactory        { private get; [UsedImplicitly] init; }
 
 	public override bool Whitespace => false;
 
@@ -64,7 +56,8 @@ public class XPathExpressionContext : XsltContext
 
 		var varDescriptor = XPathVarDescriptorFactory(name);
 
-		RegisterInitResolver(varDescriptor);
+		_varDescriptors ??= [];
+		_varDescriptors.Add(varDescriptor);
 
 		return varDescriptor;
 	}
@@ -77,7 +70,8 @@ public class XPathExpressionContext : XsltContext
 		{
 			if (provider.TryGetFunction(ns, name) is { } function)
 			{
-				RegisterInitResolver(function);
+				_functionDescriptors ??= [];
+				_functionDescriptors.Add(function);
 
 				return function;
 			}
@@ -86,32 +80,45 @@ public class XPathExpressionContext : XsltContext
 		throw new XPathDataModelException(Res.Format(Resources.Exception_UnknownXPathFunction, ns, name));
 	}
 
-	private void RegisterInitResolver(object resolver)
-	{
-		if (resolver is IInitResolver initResolver)
-		{
-			_initResolvers ??= new List<IInitResolver>();
-
-			_initResolvers.Add(initResolver);
-		}
-	}
-
 	public override bool PreserveWhitespace(XPathNavigator node) => false;
 
 	public override int CompareDocument(string baseUri, string nextbaseUri) => string.CompareOrdinal(baseUri, nextbaseUri);
 
 	public override string LookupNamespace(string prefix) => base.LookupNamespace(prefix) ?? throw new XPathDataModelException(Res.Format(Resources.Exception_PrefixCantBeResolved, prefix));
 
-	public async ValueTask InitResolvers()
+	public ValueTask EnsureInitialized()
 	{
-		var initResolvers = _initResolvers;
-		_initResolvers = default;
+		var varDescriptors = _varDescriptors;
+		var functionDescriptors = _functionDescriptors;
 
-		if (initResolvers is not null)
+		if (varDescriptors is null && functionDescriptors is null)
 		{
-			foreach (var initResolver in initResolvers)
+			return default;
+		}
+
+		_varDescriptors = null;
+		_functionDescriptors = null;
+
+		return Initialize(varDescriptors, functionDescriptors);
+	}
+
+	private async ValueTask Initialize(List<XPathVarDescriptor>? varDescriptors, List<XPathFunctionDescriptorBase>? functionDescriptors)
+	{
+		if (varDescriptors is not null)
+		{
+			var engine = await XPathEngineFactory().ConfigureAwait(false);
+
+			foreach (var varDescriptor in varDescriptors)
 			{
-				await initResolver.Initialize().ConfigureAwait(false);
+				await varDescriptor.Initialize(engine).ConfigureAwait(false);
+			}
+		}
+
+		if (functionDescriptors is not null)
+		{
+			foreach (var functionDescriptor in functionDescriptors)
+			{
+				await functionDescriptor.Initialize().ConfigureAwait(false);
 			}
 		}
 	}

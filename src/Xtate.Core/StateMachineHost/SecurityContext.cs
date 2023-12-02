@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,193 +17,194 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Threading;
-using System.Threading.Tasks;
+namespace Xtate.Core;
 
-namespace Xtate.Core
+[Flags]
+public enum SecurityContextPermissions
 {
-	[Flags]
-	public enum SecurityContextPermissions
+	None                      = 0x0000_0000,
+	RunIoBoundTask            = 0x0000_0001,
+	CreateStateMachine        = 0x0000_0002,
+	CreateTrustedStateMachine = 0x0000_0004,
+	Full                      = 0x7FFF_FFFF
+}
+
+
+public sealed class SecurityContext : ISecurityContext, IAsyncDisposable
+{
+	private const int IoBoundTaskSchedulerMaximumConcurrencyLevel = 2;
+
+	private const TaskCreationOptions CreationOptions = TaskCreationOptions.DenyChildAttach |
+														TaskCreationOptions.HideScheduler |
+														TaskCreationOptions.LongRunning |
+														TaskCreationOptions.RunContinuationsAsynchronously;
+
+	private const TaskContinuationOptions ContinuationOptions = TaskContinuationOptions.DenyChildAttach |
+																TaskContinuationOptions.HideScheduler |
+																TaskContinuationOptions.LongRunning;
+
+	private readonly SecurityContext?                                  _parent;
+	private          GlobalCache<(object Key, object SubKey), object>? _globalCache;
+	private          TaskFactory?                                      _ioBoundTaskFactory;
+	private          LocalCache<(object Key, object SubKey), object>?  _localCache;
+
+	private SecurityContext(SecurityContextType type, SecurityContextPermissions permissions, SecurityContext? parentSecurityContext)
 	{
-		None                      = 0x0000_0000,
-		RunIoBoundTask            = 0x0000_0001,
-		CreateStateMachine        = 0x0000_0002,
-		CreateTrustedStateMachine = 0x0000_0004,
-		Full                      = 0x7FFF_FFFF
+		Type = type;
+		Permissions = permissions;
+		_parent = parentSecurityContext;
 	}
 
-	[PublicAPI]
-	public sealed class SecurityContext : ISecurityContext, IAsyncDisposable
+	public SecurityContextType Type { get; }
+
+	public SecurityContextPermissions Permissions { get; }
+
+	public static SecurityContext NoAccess { get; } = new(SecurityContextType.NoAccess, SecurityContextPermissions.None, parentSecurityContext: default);
+
+#region Interface IAsyncDisposable
+
+	public ValueTask DisposeAsync()
 	{
-		private const int IoBoundTaskSchedulerMaximumConcurrencyLevel = 2;
-
-		private const TaskCreationOptions CreationOptions = TaskCreationOptions.DenyChildAttach |
-															TaskCreationOptions.HideScheduler |
-															TaskCreationOptions.LongRunning |
-															TaskCreationOptions.RunContinuationsAsynchronously;
-
-		private const TaskContinuationOptions ContinuationOptions = TaskContinuationOptions.DenyChildAttach |
-																	TaskContinuationOptions.HideScheduler |
-																	TaskContinuationOptions.LongRunning;
-
-		private readonly SecurityContext?                                  _parent;
-		private          GlobalCache<(object Key, object SubKey), object>? _globalCache;
-		private          TaskFactory?                                      _ioBoundTaskFactory;
-		private          LocalCache<(object Key, object SubKey), object>?  _localCache;
-
-		private SecurityContext(SecurityContextType type, SecurityContextPermissions permissions, SecurityContext? parentSecurityContext)
+		if (_localCache is { } localCache)
 		{
-			Type = type;
-			Permissions = permissions;
-			_parent = parentSecurityContext;
+			_localCache = default;
+
+			return localCache.DisposeAsync();
 		}
 
-		public SecurityContextType Type { get; }
+		return default;
+	}
 
-		public SecurityContextPermissions Permissions { get; }
+#endregion
 
-		public static SecurityContext NoAccess { get; } = new(SecurityContextType.NoAccess, SecurityContextPermissions.None, parentSecurityContext: default);
+#region Interface IIoBoundTask
 
-	#region Interface ISecurityContext
+	public TaskFactory Factory => _ioBoundTaskFactory ??= CreateTaskFactory();
 
-		public ISecurityContext CreateNested(SecurityContextType type)
+#endregion
+
+#region Interface ISecurityContext
+
+	public ISecurityContext CreateNested(SecurityContextType type)
+	{
+		SecurityContext securityContext;
+		switch (type)
 		{
-			SecurityContext securityContext;
-			switch (type)
-			{
-				case SecurityContextType.NewTrustedStateMachine:
-					CheckPermissions(SecurityContextPermissions.CreateTrustedStateMachine);
+			case SecurityContextType.NewTrustedStateMachine:
+				CheckPermissions(SecurityContextPermissions.CreateTrustedStateMachine);
 
-					securityContext = new SecurityContext(type, Permissions, this);
+				securityContext = new SecurityContext(type, Permissions, this);
 
-					break;
+				break;
 
-				case SecurityContextType.NewStateMachine:
-					CheckPermissions(SecurityContextPermissions.CreateStateMachine);
+			case SecurityContextType.NewStateMachine:
+				CheckPermissions(SecurityContextPermissions.CreateStateMachine);
 
-					securityContext = new SecurityContext(type, SecurityContextPermissions.RunIoBoundTask, this);
+				securityContext = new SecurityContext(type, SecurityContextPermissions.RunIoBoundTask, this);
 
-					break;
+				break;
 
-				case SecurityContextType.InvokedService:
-					securityContext = new SecurityContext(type, Permissions, this);
+			case SecurityContextType.InvokedService:
+				securityContext = new SecurityContext(type, Permissions, this);
 
-					break;
+				break;
 
-				default:
-					throw Infra.Unexpected<Exception>(type);
-			}
-
-			return securityContext;
+			default:
+				throw Infra.Unexpected<Exception>(type);
 		}
 
-		public ValueTask SetValue<T>(object key,
-									 object subKey,
-									 [DisallowNull] T value,
-									 ValueOptions options) =>
-			GetLocalCache().SetValue((key, subKey), value, options);
+		return securityContext;
+	}
 
-		public bool TryGetValue<T>(object key, object subKey, [NotNullWhen(true)] out T? value)
+	public ValueTask SetValue<T>(object key,
+								 object subKey,
+								 [DisallowNull] T value,
+								 ValueOptions options) =>
+		GetLocalCache().SetValue((key, subKey), value, options);
+
+	public bool TryGetValue<T>(object key, object subKey, [NotNullWhen(true)] out T? value)
+	{
+		if (GetLocalCache().TryGetValue((key, subKey), out var obj))
 		{
-			if (GetLocalCache().TryGetValue((key, subKey), out var obj))
-			{
-				value = (T) obj;
+			value = (T) obj;
 
-				return true;
-			}
-
-			value = default;
-
-			return false;
+			return true;
 		}
 
-		public TaskFactory Factory => _ioBoundTaskFactory ??= CreateTaskFactory();
+		value = default;
 
-	#endregion
+		return false;
+	}
 
-		private TaskFactory CreateTaskFactory()
+#endregion
+
+	private TaskFactory CreateTaskFactory()
+	{
+		var taskScheduler = HasPermissions(SecurityContextPermissions.RunIoBoundTask)
+			? new IoBoundTaskScheduler(IoBoundTaskSchedulerMaximumConcurrencyLevel)
+			: NoAccessTaskScheduler.Instance;
+
+		return new TaskFactory(cancellationToken: default, CreationOptions, ContinuationOptions, taskScheduler);
+	}
+
+	public bool HasPermissions(SecurityContextPermissions permissions) => (Permissions & permissions) == permissions;
+
+	public void CheckPermissions(SecurityContextPermissions permissions)
+	{
+		if (!HasPermissions(permissions))
 		{
-			var taskScheduler = HasPermissions(SecurityContextPermissions.RunIoBoundTask)
-				? new IoBoundTaskScheduler(IoBoundTaskSchedulerMaximumConcurrencyLevel)
-				: NoAccessTaskScheduler.Instance;
+			throw new StateMachineSecurityException(Res.Format(Resources.Exception_AccessDeniedPermissionRequired, permissions));
+		}
+	}
 
-			return new TaskFactory(cancellationToken: default, CreationOptions, ContinuationOptions, taskScheduler);
+	private LocalCache<(object Key, object SubKey), object> GetLocalCache()
+	{
+		if (_localCache is { } localCache)
+		{
+			return localCache;
 		}
 
-		public bool HasPermissions(SecurityContextPermissions permissions) => (Permissions & permissions) == permissions;
-
-		public void CheckPermissions(SecurityContextPermissions permissions)
+		var root = this;
+		while (root._parent is { } parent)
 		{
-			if (!HasPermissions(permissions))
-			{
-				throw new StateMachineSecurityException(Res.Format(Resources.Exception_AccessDeniedPermissionRequired, permissions));
-			}
+			root = parent;
 		}
 
-		private LocalCache<(object Key, object SubKey), object> GetLocalCache()
+		var globalCache = root._globalCache;
+
+		if (globalCache is null)
 		{
-			if (_localCache is { } localCache)
-			{
-				return localCache;
-			}
-
-			var root = this;
-			while (root._parent is { } parent)
-			{
-				root = parent;
-			}
-
-			var globalCache = root._globalCache;
-
-			if (globalCache is null)
-			{
-				var newGlobalCache = new GlobalCache<(object Key, object SubKey), object>();
-				globalCache = Interlocked.CompareExchange(ref root._globalCache, newGlobalCache, comparand: null) ?? newGlobalCache;
-			}
-
-			return _localCache = globalCache.CreateLocalCache();
+			var newGlobalCache = new GlobalCache<(object Key, object SubKey), object>();
+			globalCache = Interlocked.CompareExchange(ref root._globalCache, newGlobalCache, comparand: null) ?? newGlobalCache;
 		}
 
-		public ValueTask DisposeAsync()
-		{
-			if (_localCache is { } localCache)
-			{
-				_localCache = default;
+		return _localCache = globalCache.CreateLocalCache();
+	}
 
-				return localCache.DisposeAsync();
-			}
+	internal static SecurityContext Create(SecurityContextType type)
+	{
+		var permissions = type switch
+						  {
+							  SecurityContextType.NewTrustedStateMachine => SecurityContextPermissions.Full,
+							  SecurityContextType.NewStateMachine        => SecurityContextPermissions.RunIoBoundTask,
+							  _                                          => Infra.Unexpected<SecurityContextPermissions>(type)
+						  };
 
-			return default;
-		}
+		return Create(type, permissions);
+	}
 
-		internal static SecurityContext Create(SecurityContextType type)
-		{
-			var permissions = type switch
-							  {
-								  SecurityContextType.NewTrustedStateMachine => SecurityContextPermissions.Full,
-								  SecurityContextType.NewStateMachine        => SecurityContextPermissions.RunIoBoundTask,
-								  _                                          => Infra.Unexpected<SecurityContextPermissions>(type)
-							  };
+	internal static SecurityContext Create(SecurityContextType type, SecurityContextPermissions permissions) => new(type, permissions, parentSecurityContext: default);
 
-			return Create(type, permissions);
-		}
+	private class NoAccessTaskScheduler : TaskScheduler
+	{
+		public static readonly TaskScheduler Instance = new NoAccessTaskScheduler();
 
-		internal static SecurityContext Create(SecurityContextType type, SecurityContextPermissions permissions) => new(type, permissions, parentSecurityContext: default);
+		protected override IEnumerable<Task> GetScheduledTasks() => throw GetSecurityException();
 
-		private class NoAccessTaskScheduler : TaskScheduler
-		{
-			public static readonly TaskScheduler Instance = new NoAccessTaskScheduler();
+		protected override void QueueTask(Task task) => throw GetSecurityException();
 
-			protected override IEnumerable<Task> GetScheduledTasks() => throw GetSecurityException();
+		protected override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued) => throw GetSecurityException();
 
-			protected override void QueueTask(Task task) => throw GetSecurityException();
-
-			protected override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued) => throw GetSecurityException();
-
-			private static Exception GetSecurityException() => throw new StateMachineSecurityException(Resources.Exception_AccessToIOBoundThreadsDenied);
-		}
+		private static Exception GetSecurityException() => throw new StateMachineSecurityException(Resources.Exception_AccessToIOBoundThreadsDenied);
 	}
 }

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,43 +17,44 @@
 
 #endregion
 
-using System;
 using System.ComponentModel;
 using System.Text;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+
+internal static class IdGenerator
 {
-	[PublicAPI]
-	internal static class IdGenerator
-	{
-		public static string NewSendId(int hash) => NewGuidWithHash(hash);
+	public static string NewSendId(int hash) => NewGuidWithHash(hash);
 
-		public static string NewSessionId(int hash) => NewGuidWithHash(hash);
+	public static string NewSessionId(int hash) => NewGuidWithHash(hash);
 
-		public static string NewInvokeUniqueId(int hash) => NewGuidWithHash(hash);
+	public static string NewInvokeUniqueId(int hash) => NewGuidWithHash(hash);
 
-		public static string NewId(int hash) => NewGuidWithHash(hash);
+	public static string NewId(int hash) => NewGuidWithHash(hash);
 
 #if NET6_0_OR_GREATER
-		[UsedImplicitly]
-		private static void IgnoreIt(StringBuilder _) { }
+	[UsedImplicitly]
+	private static void IgnoreIt(StringBuilder _) { }
 
-		public static string NewInvokeId([Localizable(false)] string id, int hash) =>
-			string.Create(41 + id.Length, (id, hash), static(span, arg) =>
-													  {
-														  arg.id.AsSpan().CopyTo(span);
-														  span[arg.id.Length] = '.';
-														  span = span[(arg.id.Length + 1)..];
-														  Guid.NewGuid().TryFormat(span, out var pos, format: @"N");
-														  arg.hash.TryFormat(span[pos..], out pos, format: @"x8");
-													  });
+	public static string NewInvokeId([Localizable(false)] string id, int hash) =>
+		string.Create(
+			41 + id.Length, (id, hash), static (span, arg) =>
+										{
+											arg.id.AsSpan().CopyTo(span);
+											span[arg.id.Length] = '.';
+											span = span[(arg.id.Length + 1)..];
+											Guid.NewGuid().TryFormat(span, out var pos, format: @"N");
+											arg.hash.TryFormat(span[pos..], out pos, format: @"x8");
+										});
 
-		private static string NewGuidWithHash(int hash) =>
-			string.Create(length: 40, hash, static(span, hash) =>
-											{
-												Guid.NewGuid().TryFormat(span, out var pos, format: @"N");
-												hash.TryFormat(span[pos..], out pos, format: @"x8");
-											});
+	private static string NewGuidWithHash(int hash) =>
+		string.Create(
+			length: 40, hash, static (span, hash) =>
+							  {
+								  Guid.NewGuid().TryFormat(span, out var pos, format: @"N");
+								  hash.TryFormat(span[pos..], out pos, format: @"x8");
+							  });
 #else
 		public static string NewInvokeId([Localizable(false)] string id, int hash) =>
 			new StringBuilder(id.Length + 33)
@@ -69,5 +70,4 @@ namespace Xtate.Core
 				.Append(hash.ToString(@"x8"))
 				.ToString();
 #endif
-	}
 }

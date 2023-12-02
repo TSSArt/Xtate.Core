@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,36 +17,33 @@
 
 #endregion
 
-using System;
+namespace Xtate.Core;
 
-namespace Xtate.Core
+public struct ExternalScriptExpression : IExternalScriptExpression, IVisitorEntity<ExternalScriptExpression, IExternalScriptExpression>, IAncestorProvider
 {
-	public struct ExternalScriptExpression : IExternalScriptExpression, IVisitorEntity<ExternalScriptExpression, IExternalScriptExpression>, IAncestorProvider
+	internal object? Ancestor;
+
+#region Interface IAncestorProvider
+
+	object? IAncestorProvider.Ancestor => Ancestor;
+
+#endregion
+
+#region Interface IExternalScriptExpression
+
+	public Uri? Uri { get; set; }
+
+#endregion
+
+#region Interface IVisitorEntity<ExternalScriptExpression,IExternalScriptExpression>
+
+	void IVisitorEntity<ExternalScriptExpression, IExternalScriptExpression>.Init(IExternalScriptExpression source)
 	{
-		internal object? Ancestor;
-
-	#region Interface IAncestorProvider
-
-		object? IAncestorProvider.Ancestor => Ancestor;
-
-	#endregion
-
-	#region Interface IExternalScriptExpression
-
-		public Uri? Uri { get; set; }
-
-	#endregion
-
-	#region Interface IVisitorEntity<ExternalScriptExpression,IExternalScriptExpression>
-
-		void IVisitorEntity<ExternalScriptExpression, IExternalScriptExpression>.Init(IExternalScriptExpression source)
-		{
-			Ancestor = source;
-			Uri = source.Uri;
-		}
-
-		bool IVisitorEntity<ExternalScriptExpression, IExternalScriptExpression>.RefEquals(ref ExternalScriptExpression other) => ReferenceEquals(Uri, other.Uri);
-
-	#endregion
+		Ancestor = source;
+		Uri = source.Uri;
 	}
+
+	bool IVisitorEntity<ExternalScriptExpression, IExternalScriptExpression>.RefEquals(ref ExternalScriptExpression other) => ReferenceEquals(Uri, other.Uri);
+
+#endregion
 }

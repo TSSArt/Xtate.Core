@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,35 +17,31 @@
 
 #endregion
 
-using System.Threading.Tasks;
-using Xtate.Core;
+namespace Xtate.DataModel.XPath;
 
-namespace Xtate.DataModel.XPath
+public class XPathExternalDataExpressionEvaluator : DefaultExternalDataExpressionEvaluator
 {
-	public class XPathExternalDataExpressionEvaluator : DefaultExternalDataExpressionEvaluator
+	private const string MediaTypeApplicationXml = @"application/xml";
+	private const string MediaTypeTextXml        = @"text/xml";
+
+	public XPathExternalDataExpressionEvaluator(IExternalDataExpression externalDataExpression) : base(externalDataExpression) { }
+
+	public required XPathXmlParserContextFactory XPathXmlParserContextFactory { private get; [UsedImplicitly] init; }
+
+	protected override async ValueTask<DataModelValue> ParseToDataModel(Resource resource)
 	{
-		private const string MediaTypeApplicationXml = @"application/xml";
-		private const string MediaTypeTextXml = @"text/xml";
+		Infra.Requires(resource);
 
-		public XPathExternalDataExpressionEvaluator(IExternalDataExpression externalDataExpression) : base(externalDataExpression) { }
+		var mediaType = resource.ContentType?.MediaType;
 
-		public required XPathXmlParserContextFactory XPathXmlParserContextFactory { private get; init; }
-
-		protected override async ValueTask<DataModelValue> ParseToDataModel(Resource resource)
+		if (mediaType is MediaTypeApplicationXml or MediaTypeTextXml)
 		{
-			Infra.Requires(resource);
+			var stream = await resource.GetStream(true).ConfigureAwait(false);
+			var context = XPathXmlParserContextFactory.CreateContext(this);
 
-			var mediaType = resource.ContentType?.MediaType;
-
-			if (mediaType is MediaTypeApplicationXml or MediaTypeTextXml)
-			{
-				var stream = await resource.GetStream(true).ConfigureAwait(false);
-				var context = XPathXmlParserContextFactory.CreateContext(this);
-
-				return await XmlConverter.FromXmlStreamAsync(stream, context).ConfigureAwait(false);
-			}
-
-			throw new XPathDataModelException(string.Format(Resources.Exception_Unrecognized_MediaType, mediaType));
+			return await XmlConverter.FromXmlStreamAsync(stream, context).ConfigureAwait(false);
 		}
-	}	
+
+		throw new XPathDataModelException(string.Format(Resources.Exception_Unrecognized_MediaType, mediaType));
+	}
 }

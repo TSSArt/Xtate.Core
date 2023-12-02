@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,13 +17,10 @@
 
 #endregion
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+namespace Xtate.Core.Test;
 
-namespace Xtate.Core.Test
+[TestClass]
+public class XPathConvertTest
 {
-	[TestClass]
-	public class XPathConvertTest
-	{
-		//public void XPathConvert_XmlPar
-	}
+	//public void XPathConvert_XmlPar
 }

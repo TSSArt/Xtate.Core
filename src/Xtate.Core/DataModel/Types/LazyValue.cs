@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,94 +17,90 @@
 
 #endregion
 
-using System;
-using System.Threading;
+namespace Xtate.Core;
 
-namespace Xtate.Core
+public abstract class LazyValue : ILazyValue
 {
-	public abstract class LazyValue : ILazyValue
+	private volatile int _state;
+
+	private DataModelValue _value;
+
+#region Interface ILazyValue
+
+	DataModelValue ILazyValue.Value
 	{
-		private volatile int _state;
-
-		private DataModelValue _value;
-
-		public static DataModelValue Create(Func<DataModelValue> factory) => new (new NoArg(factory));
-
-		public static DataModelValue Create<TArg>(TArg arg, Func<TArg, DataModelValue> factory) => new(new OneArg<TArg>(factory, arg));
-
-		public static DataModelValue Create<TArg1, TArg2>(TArg1 arg1, TArg2 arg2, Func<TArg1, TArg2, DataModelValue> factory) => new(new TwoArgs<TArg1, TArg2>(factory, arg1, arg2));
-
-		protected abstract DataModelValue Create();
-
-	#region Interface ILazyValue
-
-		DataModelValue ILazyValue.Value
+		get
 		{
-			get
+			if (_state == 2)
 			{
-				if (_state == 2)
-				{
-					return _value;
-				}
+				return _value;
+			}
 
-				var newValue = Create();
-				if (Interlocked.CompareExchange(ref _state, 1, 0) == 0)
-				{
-					_value = newValue;
-					_state = 2;
-
-					return _value;
-				}
-
-				SpinWait spinWait = default;
-				while (_state != 2)
-				{
-					spinWait.SpinOnce();
-				}
+			var newValue = Create();
+			if (Interlocked.CompareExchange(ref _state, value: 1, comparand: 0) == 0)
+			{
+				_value = newValue;
+				_state = 2;
 
 				return _value;
 			}
-		}
 
-	#endregion
-
-		private class NoArg: LazyValue
-		{
-			private readonly Func<DataModelValue> _factory;
-
-			public NoArg(Func<DataModelValue> factory) => _factory = factory;
-
-			protected override DataModelValue Create() => _factory();
-		}
-
-		private class OneArg<TArg> : LazyValue
-		{
-			private readonly Func<TArg, DataModelValue> _factory;
-			private readonly TArg                       _arg;
-
-			public OneArg(Func<TArg, DataModelValue> factory, TArg arg)
+			SpinWait spinWait = default;
+			while (_state != 2)
 			{
-				_factory = factory;
-				_arg = arg;
+				spinWait.SpinOnce();
 			}
 
-			protected override DataModelValue Create() => _factory(_arg);
+			return _value;
 		}
+	}
 
-		private class TwoArgs<TArg1, TArg2> : LazyValue
+#endregion
+
+	public static DataModelValue Create(Func<DataModelValue> factory) => new(new NoArg(factory));
+
+	public static DataModelValue Create<TArg>(TArg arg, Func<TArg, DataModelValue> factory) => new(new OneArg<TArg>(factory, arg));
+
+	public static DataModelValue Create<TArg1, TArg2>(TArg1 arg1, TArg2 arg2, Func<TArg1, TArg2, DataModelValue> factory) => new(new TwoArgs<TArg1, TArg2>(factory, arg1, arg2));
+
+	protected abstract DataModelValue Create();
+
+	private class NoArg : LazyValue
+	{
+		private readonly Func<DataModelValue> _factory;
+
+		public NoArg(Func<DataModelValue> factory) => _factory = factory;
+
+		protected override DataModelValue Create() => _factory();
+	}
+
+	private class OneArg<TArg> : LazyValue
+	{
+		private readonly TArg                       _arg;
+		private readonly Func<TArg, DataModelValue> _factory;
+
+		public OneArg(Func<TArg, DataModelValue> factory, TArg arg)
 		{
-			private readonly Func<TArg1, TArg2, DataModelValue> _factory;
-			private readonly TArg1                              _arg1;
-			private readonly TArg2                              _arg2;
-
-			public TwoArgs(Func<TArg1, TArg2, DataModelValue> factory, TArg1 arg1, TArg2 arg2)
-			{
-				_factory = factory;
-				_arg1 = arg1;
-				_arg2 = arg2;
-			}
-
-			protected override DataModelValue Create() => _factory(_arg1, _arg2);
+			_factory = factory;
+			_arg = arg;
 		}
+
+		protected override DataModelValue Create() => _factory(_arg);
+	}
+
+	private class TwoArgs<TArg1, TArg2> : LazyValue
+	{
+		private readonly TArg1                              _arg1;
+		private readonly TArg2                              _arg2;
+		private readonly Func<TArg1, TArg2, DataModelValue> _factory;
+
+		public TwoArgs(Func<TArg1, TArg2, DataModelValue> factory, TArg1 arg1, TArg2 arg2)
+		{
+			_factory = factory;
+			_arg1 = arg1;
+			_arg2 = arg2;
+		}
+
+		protected override DataModelValue Create() => _factory(_arg1, _arg2);
 	}
 }

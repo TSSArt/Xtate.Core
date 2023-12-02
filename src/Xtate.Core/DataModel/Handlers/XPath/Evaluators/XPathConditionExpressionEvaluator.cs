@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,48 +17,43 @@
 
 #endregion
 
-using System;
-using System.Threading.Tasks;
-using Xtate.Core;
+namespace Xtate.DataModel.XPath;
 
-namespace Xtate.DataModel.XPath
+public class XPathConditionExpressionEvaluator : IConditionExpression, IBooleanEvaluator, IAncestorProvider
 {
-	public class XPathConditionExpressionEvaluator : IConditionExpression, IBooleanEvaluator, IAncestorProvider
+	private readonly XPathCompiledExpression _compiledExpression;
+	private readonly IConditionExpression    _conditionExpression;
+
+	public XPathConditionExpressionEvaluator(IConditionExpression conditionExpression, XPathCompiledExpression compiledExpression)
 	{
-		private readonly XPathCompiledExpression _compiledExpression;
-		private readonly IConditionExpression    _conditionExpression;
-
-		public required Func<ValueTask<XPathEngine>> EngineFactory { private get; init; }
-
-		public XPathConditionExpressionEvaluator(IConditionExpression conditionExpression, XPathCompiledExpression compiledExpression)
-		{
-			_conditionExpression = conditionExpression;
-			_compiledExpression = compiledExpression;
-		}
-
-	#region Interface IAncestorProvider
-
-		object IAncestorProvider.Ancestor => _conditionExpression;
-
-	#endregion
-
-	#region Interface IBooleanEvaluator
-
-		async ValueTask<bool> IBooleanEvaluator.EvaluateBoolean()
-		{
-			var engine = await EngineFactory().ConfigureAwait(false);
-			
-			var obj = await engine.EvalObject(_compiledExpression, stripRoots: true).ConfigureAwait(false);
-
-			return obj.AsBoolean();
-		}
-
-	#endregion
-
-	#region Interface IConditionExpression
-
-		public string? Expression => _conditionExpression.Expression;
-
-	#endregion
+		_conditionExpression = conditionExpression;
+		_compiledExpression = compiledExpression;
 	}
+
+	public required Func<ValueTask<XPathEngine>> EngineFactory { private get; [UsedImplicitly] init; }
+
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => _conditionExpression;
+
+#endregion
+
+#region Interface IBooleanEvaluator
+
+	async ValueTask<bool> IBooleanEvaluator.EvaluateBoolean()
+	{
+		var engine = await EngineFactory().ConfigureAwait(false);
+
+		var obj = await engine.EvalObject(_compiledExpression, stripRoots: true).ConfigureAwait(false);
+
+		return obj.AsBoolean();
+	}
+
+#endregion
+
+#region Interface IConditionExpression
+
+	public string? Expression => _conditionExpression.Expression;
+
+#endregion
 }

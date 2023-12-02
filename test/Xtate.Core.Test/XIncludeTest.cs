@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,103 +17,92 @@
 
 #endregion
 
-using System;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Xtate.IoC;
 using Xtate.Scxml;
 using Xtate.XInclude;
-using IServiceProvider = Xtate.IoC.IServiceProvider;
 
-namespace Xtate.Core.Test
+namespace Xtate.Core.Test;
+
+[TestClass]
+public class XIncludeTest
 {
-	[TestClass]
-	public class XIncludeTest
+	[TestMethod]
+	public async Task CreateStateMachineWithXInclude()
 	{
-		[TestMethod]
-		public async Task CreateStateMachineWithXInclude()
+		var services = new ServiceCollection();
+		services.RegisterStateMachineHost();
+		services.AddImplementationSync<XIncludeOptions>().For<IXIncludeOptions>();
+		var serviceProvider = services.BuildProvider();
+		var host = await serviceProvider.GetRequiredService<StateMachineHost>();
+
+		await host.StartHostAsync();
+
+		var _ = await host.ExecuteStateMachineAsync(new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Scxml/XInclude/SingleIncludeSource.scxml"));
+
+		await host.StopHostAsync();
+	}
+
+	[TestMethod]
+	public async Task DtdReaderTest()
+	{
+		var uri = new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Scxml/XInclude/DtdSingleIncludeSource.scxml");
+
+		var services = new ServiceCollection();
+		services.RegisterScxml();
+		var serviceProvider = services.BuildProvider();
+
+		var resourceLoaderService = await serviceProvider.GetRequiredService<IResourceLoader>();
+		var resource = await resourceLoaderService.Request(uri);
+		var resolver = await serviceProvider.GetRequiredService<XmlResolver>();
+
+		var xmlReaderSettings = new XmlReaderSettings { Async = true, XmlResolver = resolver, DtdProcessing = DtdProcessing.Parse };
+		var xmlReader = XmlReader.Create(await resource.GetStream(doNotCache: true), xmlReaderSettings, uri.ToString());
+
+		var xIncludeReader = await serviceProvider.GetRequiredService<XIncludeReader, XmlReader>(xmlReader);
+
+		var builder = new StringBuilder();
+		var xmlWriter = XmlWriter.Create(builder);
+		while (await xIncludeReader.ReadAsync())
 		{
-			var host2 = new StateMachineHostBuilder()
-					   //TODO:
-					   //.AddResourceLoaderFactory(ResxResourceLoaderFactory.Instance)
-					   .Build(ServiceLocator.Default);
-
-			var services = new ServiceCollection();
-			services.RegisterStateMachineHost();
-			services.AddImplementationSync<XIncludeOptions>().For<IXIncludeOptions>();
-			var serviceProvider = services.BuildProvider();
-			var host = await serviceProvider.GetRequiredService<StateMachineHost>();
-
-
-			await host.StartHostAsync();
-
-			var _ = await host.ExecuteStateMachineAsync(new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Scxml/XInclude/SingleIncludeSource.scxml"));
-
-			await host.StopHostAsync();
+			// ReSharper disable once MethodHasAsyncOverload
+			xmlWriter.WriteNode(xmlReader, defattr: false);
 		}
 
-		[TestMethod]
-		public async Task DtdReaderTest()
+		xmlWriter.Close();
+
+		Console.Write(builder.ToString());
+	}
+
+	[TestMethod]
+	public async Task XIncludeReaderTest()
+	{
+		var uri = new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Scxml/XInclude/SingleIncludeSource.scxml");
+
+		var services = new ServiceCollection();
+		services.RegisterScxml();
+		var serviceProvider = services.BuildProvider();
+
+		var resourceLoaderService = await serviceProvider.GetRequiredService<IResourceLoader>();
+		var resource = await resourceLoaderService.Request(uri);
+		var resolver = await serviceProvider.GetRequiredService<XmlResolver>();
+
+		var xmlReaderSettings = new XmlReaderSettings { Async = true, XmlResolver = resolver };
+		var xmlReader = XmlReader.Create(await resource.GetStream(doNotCache: true), xmlReaderSettings, uri.ToString());
+
+		var xIncludeReader = await serviceProvider.GetRequiredService<XIncludeReader, XmlReader>(xmlReader);
+
+		var builder = new StringBuilder();
+		var xmlWriter = XmlWriter.Create(builder);
+		while (await xIncludeReader.ReadAsync())
 		{
-			var uri = new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Scxml/XInclude/DtdSingleIncludeSource.scxml");
-
-			var services = new ServiceCollection();
-			services.RegisterScxml();
-			var serviceProvider = services.BuildProvider();
-
-			var resourceLoaderService = await serviceProvider.GetRequiredService<IResourceLoader>();
-			var resource = await resourceLoaderService.Request(uri);
-			var resolver = await serviceProvider.GetRequiredService<XmlResolver>();
-
-			var xmlReaderSettings = new XmlReaderSettings { Async = true, XmlResolver = resolver, DtdProcessing = DtdProcessing.Parse };
-			var xmlReader = XmlReader.Create(await resource.GetStream(doNotCache: true), xmlReaderSettings, uri.ToString());
-
-			var xIncludeReader = await serviceProvider.GetRequiredService<XIncludeReader, XmlReader>(xmlReader);
-
-			var builder = new StringBuilder();
-			var xmlWriter = XmlWriter.Create(builder);
-			while (await xIncludeReader.ReadAsync())
-			{
-				// ReSharper disable once MethodHasAsyncOverload
-				xmlWriter.WriteNode(xmlReader, defattr: false);
-			}
-
-			xmlWriter.Close();
-
-			Console.Write(builder.ToString());
+			// ReSharper disable once MethodHasAsyncOverload
+			xmlWriter.WriteNode(xIncludeReader, defattr: false);
 		}
 
-		[TestMethod]
-		public async Task XIncludeReaderTest()
-		{
-			var uri = new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Scxml/XInclude/SingleIncludeSource.scxml");
+		xmlWriter.Close();
 
-			var services = new ServiceCollection();
-			services.RegisterScxml();
-			var serviceProvider = services.BuildProvider();
-
-			var resourceLoaderService = await serviceProvider.GetRequiredService<IResourceLoader>();
-			var resource = await resourceLoaderService.Request(uri);
-			var resolver = await serviceProvider.GetRequiredService<XmlResolver>();
-
-			var xmlReaderSettings = new XmlReaderSettings { Async = true, XmlResolver = resolver };
-			var xmlReader = XmlReader.Create(await resource.GetStream(doNotCache: true), xmlReaderSettings, uri.ToString());
-
-			var xIncludeReader = await serviceProvider.GetRequiredService<XIncludeReader, XmlReader>(xmlReader);
-
-			var builder = new StringBuilder();
-			var xmlWriter = XmlWriter.Create(builder);
-			while (await xIncludeReader.ReadAsync())
-			{
-				// ReSharper disable once MethodHasAsyncOverload
-				xmlWriter.WriteNode(xIncludeReader, defattr: false);
-			}
-
-			xmlWriter.Close();
-
-			Console.Write(builder.ToString());
-		}
+		Console.Write(builder.ToString());
 	}
 }

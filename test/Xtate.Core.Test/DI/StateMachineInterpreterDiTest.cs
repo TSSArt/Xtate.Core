@@ -1,63 +1,72 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿#region Copyright © 2019-2023 Sergii Artemenko
+
+// This file is part of the Xtate project. <https://xtate.net/>
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+// 
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+#endregion
+
 using Xtate.IoC;
 
-namespace Xtate.Core.Test.DI
+namespace Xtate.Core.Test.DI;
+
+[TestClass]
+public class StateMachineInterpreterDiTest
 {
-	[TestClass]
-	public class StateMachineInterpreterDiTest
+	[TestMethod]
+	public async Task EmptyRun()
 	{
-		[TestMethod]
-		public async Task EmptyRun()
-		{
-			var services = new ServiceCollection();
-			services.AddTransient<IStateMachine>(sp => new StateMachineEntity { States = ImmutableArray.Create<IStateEntity>(new FinalEntity()) });
-			services.RegisterStateMachineInterpreter();
+		var services = new ServiceCollection();
+		services.AddTransient<IStateMachine>(sp => new StateMachineEntity { States = ImmutableArray.Create<IStateEntity>(new FinalEntity()) });
+		services.RegisterStateMachineInterpreter();
 
-			var serviceProvider = services.BuildProvider();
+		var serviceProvider = services.BuildProvider();
 
-			var stateMachineInterpreter = await serviceProvider.GetRequiredService<IStateMachineInterpreter>();
+		var stateMachineInterpreter = await serviceProvider.GetRequiredService<IStateMachineInterpreter>();
 
-			await stateMachineInterpreter.RunAsync();
-		}
+		await stateMachineInterpreter.RunAsync();
+	}
 
-		[TestMethod]
-		public async Task XpathDataModelRun()
-		{
-			var services = new ServiceCollection();
-			var stateMachineEntity = new StateMachineEntity
-									 {
-										 DataModelType = "xpath",
-										 States = ImmutableArray.Create<IStateEntity>(
-											 new FinalEntity
-											 {
-												 DoneData = new DoneDataEntity
-															{
-																Content = new ContentEntity
-																		  {
-																			  Body = new ContentBody { Value = "qwerty" }
-																		  }
-															}
-											 })
-									 };
+	[TestMethod]
+	public async Task XpathDataModelRun()
+	{
+		var services = new ServiceCollection();
+		var stateMachineEntity = new StateMachineEntity
+								 {
+									 DataModelType = "xpath",
+									 States = ImmutableArray.Create<IStateEntity>(
+										 new FinalEntity
+										 {
+											 DoneData = new DoneDataEntity
+														{
+															Content = new ContentEntity
+																	  {
+																		  Body = new ContentBody { Value = "qwerty" }
+																	  }
+														}
+										 })
+								 };
 
-			
-			services.AddTransient<IStateMachine>(sp => stateMachineEntity);
-			services.RegisterStateMachineInterpreter();
+		services.AddTransient<IStateMachine>(sp => stateMachineEntity);
+		services.RegisterStateMachineInterpreter();
 
-			var serviceProvider = services.BuildProvider();
+		var serviceProvider = services.BuildProvider();
 
-			var stateMachineInterpreter = await serviceProvider.GetRequiredService<IStateMachineInterpreter>();
+		var stateMachineInterpreter = await serviceProvider.GetRequiredService<IStateMachineInterpreter>();
 
-			var dataModelValue = await stateMachineInterpreter.RunAsync();
+		var dataModelValue = await stateMachineInterpreter.RunAsync();
 
-			Assert.AreEqual("qwerty", dataModelValue);
-		}
+		Assert.AreEqual(expected: "qwerty", dataModelValue);
 	}
 }

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,50 +17,47 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
 using Xtate.Persistence;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public sealed class ForEachNode : ExecutableEntityNode, IForEach, IAncestorProvider, IDebugEntityId
 {
-	public sealed class ForEachNode : ExecutableEntityNode, IForEach, IAncestorProvider, IDebugEntityId
+	private readonly IForEach _forEach;
+
+	public ForEachNode(DocumentIdNode documentIdNode, IForEach forEach) : base(documentIdNode, forEach) => _forEach = forEach;
+
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => _forEach;
+
+#endregion
+
+#region Interface IDebugEntityId
+
+	FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
+
+#endregion
+
+#region Interface IForEach
+
+	public IValueExpression? Array => _forEach.Array;
+
+	public ILocationExpression? Item => _forEach.Item;
+
+	public ILocationExpression? Index => _forEach.Index;
+
+	public ImmutableArray<IExecutableEntity> Action => _forEach.Action;
+
+#endregion
+
+	protected override void Store(Bucket bucket)
 	{
-		private readonly IForEach _forEach;
-
-		public ForEachNode(DocumentIdNode documentIdNode, IForEach forEach) : base(documentIdNode, forEach) => _forEach = forEach;
-
-	#region Interface IAncestorProvider
-
-		object IAncestorProvider.Ancestor => _forEach;
-
-	#endregion
-
-	#region Interface IDebugEntityId
-
-		FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
-
-	#endregion
-
-	#region Interface IForEach
-
-		public IValueExpression? Array => _forEach.Array;
-
-		public ILocationExpression? Item => _forEach.Item;
-
-		public ILocationExpression? Index => _forEach.Index;
-
-		public ImmutableArray<IExecutableEntity> Action => _forEach.Action;
-
-	#endregion
-
-		protected override void Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.ForEachNode);
-			bucket.Add(Key.DocumentId, DocumentId);
-			bucket.AddEntity(Key.Array, _forEach.Array);
-			bucket.AddEntity(Key.Item, _forEach.Item);
-			bucket.AddEntity(Key.Index, _forEach.Index);
-			bucket.AddEntityList(Key.Action, Action);
-		}
+		bucket.Add(Key.TypeInfo, TypeInfo.ForEachNode);
+		bucket.Add(Key.DocumentId, DocumentId);
+		bucket.AddEntity(Key.Array, _forEach.Array);
+		bucket.AddEntity(Key.Item, _forEach.Item);
+		bucket.AddEntity(Key.Index, _forEach.Index);
+		bucket.AddEntityList(Key.Action, Action);
 	}
 }

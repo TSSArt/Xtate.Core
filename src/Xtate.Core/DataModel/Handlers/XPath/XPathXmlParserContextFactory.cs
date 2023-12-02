@@ -17,16 +17,14 @@
 
 #endregion
 
-using System;
 using System.Xml;
-using Xtate.Core;
 using Xtate.Scxml;
 
 namespace Xtate.DataModel.XPath;
 
 public class XPathXmlParserContextFactory
 {
-	public required INameTableProvider? NameTableProvider { private get; init; }
+	public required INameTableProvider? NameTableProvider { private get; [UsedImplicitly] init; }
 
 	public XmlParserContext CreateContext(object entity)
 	{

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,51 +17,49 @@
 
 #endregion
 
-using System.Collections.Immutable;
 using Xtate.Persistence;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public sealed class DataModelNode : IDataModel, IStoreSupport, IAncestorProvider, IDocumentId
 {
-	public sealed class DataModelNode : IDataModel, IStoreSupport, IAncestorProvider, IDocumentId
+	private readonly IDataModel     _dataModel;
+	private          DocumentIdSlot _documentIdSlot;
+
+	public DataModelNode(DocumentIdNode documentIdNode, IDataModel dataModel)
 	{
-		private readonly IDataModel     _dataModel;
-		private          DocumentIdSlot _documentIdSlot;
-
-		public DataModelNode(DocumentIdNode documentIdNode, IDataModel dataModel)
-		{
-			documentIdNode.SaveToSlot(out _documentIdSlot);
-			_dataModel = dataModel;
-			Data = dataModel.Data.AsArrayOf<IData, DataNode>(true);
-		}
-
-		public ImmutableArray<DataNode> Data { get; }
-
-	#region Interface IAncestorProvider
-
-		object IAncestorProvider.Ancestor => _dataModel;
-
-	#endregion
-
-	#region Interface IDataModel
-
-		ImmutableArray<IData> IDataModel.Data => _dataModel.Data;
-
-	#endregion
-
-	#region Interface IDocumentId
-
-		public int DocumentId => _documentIdSlot.Value;
-
-	#endregion
-
-	#region Interface IStoreSupport
-
-		void IStoreSupport.Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.DataModelNode);
-			bucket.AddEntityList(Key.DataList, Data);
-		}
-
-	#endregion
+		documentIdNode.SaveToSlot(out _documentIdSlot);
+		_dataModel = dataModel;
+		Data = dataModel.Data.AsArrayOf<IData, DataNode>(true);
 	}
+
+	public ImmutableArray<DataNode> Data { get; }
+
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => _dataModel;
+
+#endregion
+
+#region Interface IDataModel
+
+	ImmutableArray<IData> IDataModel.Data => _dataModel.Data;
+
+#endregion
+
+#region Interface IDocumentId
+
+	public int DocumentId => _documentIdSlot.Value;
+
+#endregion
+
+#region Interface IStoreSupport
+
+	void IStoreSupport.Store(Bucket bucket)
+	{
+		bucket.Add(Key.TypeInfo, TypeInfo.DataModelNode);
+		bucket.AddEntityList(Key.DataList, Data);
+	}
+
+#endregion
 }

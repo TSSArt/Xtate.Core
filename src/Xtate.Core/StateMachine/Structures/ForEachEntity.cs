@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,46 +17,43 @@
 
 #endregion
 
-using System.Collections.Immutable;
+namespace Xtate.Core;
 
-namespace Xtate.Core
+public struct ForEachEntity : IForEach, IVisitorEntity<ForEachEntity, IForEach>, IAncestorProvider
 {
-	public struct ForEachEntity : IForEach, IVisitorEntity<ForEachEntity, IForEach>, IAncestorProvider
+	internal object? Ancestor;
+
+#region Interface IAncestorProvider
+
+	object? IAncestorProvider.Ancestor => Ancestor;
+
+#endregion
+
+#region Interface IForEach
+
+	public ImmutableArray<IExecutableEntity> Action { get; set; }
+	public IValueExpression?                 Array  { get; set; }
+	public ILocationExpression?              Index  { get; set; }
+	public ILocationExpression?              Item   { get; set; }
+
+#endregion
+
+#region Interface IVisitorEntity<ForEachEntity,IForEach>
+
+	void IVisitorEntity<ForEachEntity, IForEach>.Init(IForEach source)
 	{
-		internal object? Ancestor;
-
-	#region Interface IAncestorProvider
-
-		object? IAncestorProvider.Ancestor => Ancestor;
-
-	#endregion
-
-	#region Interface IForEach
-
-		public ImmutableArray<IExecutableEntity> Action { get; set; }
-		public IValueExpression?                 Array  { get; set; }
-		public ILocationExpression?              Index  { get; set; }
-		public ILocationExpression?              Item   { get; set; }
-
-	#endregion
-
-	#region Interface IVisitorEntity<ForEachEntity,IForEach>
-
-		void IVisitorEntity<ForEachEntity, IForEach>.Init(IForEach source)
-		{
-			Ancestor = source;
-			Action = source.Action;
-			Array = source.Array;
-			Index = source.Index;
-			Item = source.Item;
-		}
-
-		bool IVisitorEntity<ForEachEntity, IForEach>.RefEquals(ref ForEachEntity other) =>
-			Action == other.Action &&
-			ReferenceEquals(Array, other.Array) &&
-			ReferenceEquals(Index, other.Index) &&
-			ReferenceEquals(Item, other.Item);
-
-	#endregion
+		Ancestor = source;
+		Action = source.Action;
+		Array = source.Array;
+		Index = source.Index;
+		Item = source.Item;
 	}
+
+	bool IVisitorEntity<ForEachEntity, IForEach>.RefEquals(ref ForEachEntity other) =>
+		Action == other.Action &&
+		ReferenceEquals(Array, other.Array) &&
+		ReferenceEquals(Index, other.Index) &&
+		ReferenceEquals(Item, other.Item);
+
+#endregion
 }

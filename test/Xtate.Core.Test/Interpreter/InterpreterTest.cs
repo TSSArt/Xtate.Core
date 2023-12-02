@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,12 +17,6 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using Xtate.DataModel;
 
 namespace Xtate.Core.Interpreter;
@@ -52,14 +46,13 @@ public class InterpreterTest
 		var dataModelHandlerMock = new Mock<IDataModelHandler>();
 
 		var stateMachineContextMock = new Mock<IStateMachineContext>();
-		stateMachineContextMock.Setup(ctx => ctx.Configuration).Returns(new OrderedSet<StateEntityNode>());
-		stateMachineContextMock.Setup(ctx => ctx.StatesToInvoke).Returns(new OrderedSet<StateEntityNode>());
+		stateMachineContextMock.Setup(ctx => ctx.Configuration).Returns([]);
+		stateMachineContextMock.Setup(ctx => ctx.StatesToInvoke).Returns([]);
 		stateMachineContextMock.Setup(ctx => ctx.InternalQueue).Returns(new EntityQueue<IEvent>());
 
-		var entityParserHandlerMock = new Mock<IEntityParserHandler>();
 		var loggerMock = new Mock<ILogger<IStateMachineInterpreter>>();
 
-		var stateMachineInterpreter = new StateMachineInterpreter()
+		var stateMachineInterpreter = new StateMachineInterpreter
 									  {
 										  ContextFactory = () => new ValueTask<IStateMachineContext>(stateMachineContextMock.Object),
 										  _dataConverter = new DataConverter(dataModelHandlerMock.Object),
@@ -69,10 +62,9 @@ public class InterpreterTest
 										  _logger = loggerMock.Object,
 										  _model = interpreterModelMock.Object,
 										  _notifyStateChanged = null,
-										  _resourceLoader = null,
+										  _resourceLoader = null!,
 										  _stateMachineLocation = null,
 										  _unhandledErrorBehaviour = null
-
 									  };
 
 		// act

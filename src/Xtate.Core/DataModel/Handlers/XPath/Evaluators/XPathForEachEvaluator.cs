@@ -17,16 +17,13 @@
 
 #endregion
 
-using System;
-using System.Threading.Tasks;
-
 namespace Xtate.DataModel.XPath;
 
 public class XPathForEachEvaluator : DefaultForEachEvaluator
 {
 	public XPathForEachEvaluator(IForEach forEach) : base(forEach) { }
-	
-	public required Func<ValueTask<XPathEngine>> EngineFactory { private get; init; }
+
+	public required Func<ValueTask<XPathEngine>> EngineFactory { private get; [UsedImplicitly] init; }
 
 	public override async ValueTask Execute()
 	{

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -16,11 +16,12 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #endregion
+
 #if !NET6_0_OR_GREATER || NET6_0
 namespace System.Runtime.CompilerServices
 {
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Field | AttributeTargets.Property)]
-	internal sealed class RequiredMemberAttribute : Attribute { }
+	internal sealed class RequiredMemberAttribute : Attribute;
 
 	[AttributeUsage(AttributeTargets.All, AllowMultiple = true, Inherited = false)]
 	internal sealed class CompilerFeatureRequiredAttribute : Attribute
@@ -36,6 +37,6 @@ namespace System.Runtime.CompilerServices
 namespace System.Diagnostics.CodeAnalysis
 {
 	[AttributeUsage(AttributeTargets.Constructor, AllowMultiple = false, Inherited = false)]
-	internal sealed class SetsRequiredMembersAttribute : Attribute { }
+	internal sealed class SetsRequiredMembersAttribute : Attribute;
 }
 #endif

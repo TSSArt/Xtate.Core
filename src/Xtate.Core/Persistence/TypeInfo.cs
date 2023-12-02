@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,52 +17,51 @@
 
 #endregion
 
-namespace Xtate.Persistence
+namespace Xtate.Persistence;
+
+internal enum TypeInfo
 {
-	internal enum TypeInfo
-	{
-		AssignNode,
-		CancelNode,
-		CompoundNode,
-		ConditionExpressionNode,
-		ContentNode,
-		CustomActionNode,
-		DataModelNode,
-		DataNode,
-		DoneDataNode,
-		ElseIfNode,
-		ElseNode,
-		EventDescriptorNode,
-		EventObject,
-		ExternalDataExpressionNode,
-		ExternalScriptExpressionNode,
-		FinalizeNode,
-		FinalNode,
-		ForEachNode,
-		HistoryNode,
-		HostEvent,
-		IdentifierNode,
-		IfNode,
-		InitialNode,
-		InvokedService,
-		InvokeNode,
-		LocationExpressionNode,
-		LogNode,
-		Message,
-		OnEntryNode,
-		OnExitNode,
-		ParallelNode,
-		ParamNode,
-		RaiseNode,
-		RuntimeExecNode,
-		ScheduledEvent,
-		ScriptExpressionNode,
-		ScriptNode,
-		SendNode,
-		StateMachine,
-		StateMachineNode,
-		StateNode,
-		TransitionNode,
-		ValueExpressionNode
-	}
+	AssignNode,
+	CancelNode,
+	CompoundNode,
+	ConditionExpressionNode,
+	ContentNode,
+	CustomActionNode,
+	DataModelNode,
+	DataNode,
+	DoneDataNode,
+	ElseIfNode,
+	ElseNode,
+	EventDescriptorNode,
+	EventObject,
+	ExternalDataExpressionNode,
+	ExternalScriptExpressionNode,
+	FinalizeNode,
+	FinalNode,
+	ForEachNode,
+	HistoryNode,
+	HostEvent,
+	IdentifierNode,
+	IfNode,
+	InitialNode,
+	InvokedService,
+	InvokeNode,
+	LocationExpressionNode,
+	LogNode,
+	Message,
+	OnEntryNode,
+	OnExitNode,
+	ParallelNode,
+	ParamNode,
+	RaiseNode,
+	RuntimeExecNode,
+	ScheduledEvent,
+	ScriptExpressionNode,
+	ScriptNode,
+	SendNode,
+	StateMachine,
+	StateMachineNode,
+	StateNode,
+	TransitionNode,
+	ValueExpressionNode
 }

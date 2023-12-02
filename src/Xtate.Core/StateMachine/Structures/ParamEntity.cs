@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,41 +17,40 @@
 
 #endregion
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public struct ParamEntity : IParam, IVisitorEntity<ParamEntity, IParam>, IAncestorProvider
 {
-	public struct ParamEntity : IParam, IVisitorEntity<ParamEntity, IParam>, IAncestorProvider
+	internal object? Ancestor;
+
+#region Interface IAncestorProvider
+
+	object? IAncestorProvider.Ancestor => Ancestor;
+
+#endregion
+
+#region Interface IParam
+
+	public IValueExpression?    Expression { get; set; }
+	public ILocationExpression? Location   { get; set; }
+	public string?              Name       { get; set; }
+
+#endregion
+
+#region Interface IVisitorEntity<ParamEntity,IParam>
+
+	void IVisitorEntity<ParamEntity, IParam>.Init(IParam source)
 	{
-		internal object? Ancestor;
-
-	#region Interface IAncestorProvider
-
-		object? IAncestorProvider.Ancestor => Ancestor;
-
-	#endregion
-
-	#region Interface IParam
-
-		public IValueExpression?    Expression { get; set; }
-		public ILocationExpression? Location   { get; set; }
-		public string?              Name       { get; set; }
-
-	#endregion
-
-	#region Interface IVisitorEntity<ParamEntity,IParam>
-
-		void IVisitorEntity<ParamEntity, IParam>.Init(IParam source)
-		{
-			Ancestor = source;
-			Expression = source.Expression;
-			Location = source.Location;
-			Name = source.Name;
-		}
-
-		bool IVisitorEntity<ParamEntity, IParam>.RefEquals(ref ParamEntity other) =>
-			ReferenceEquals(Expression, other.Expression) &&
-			ReferenceEquals(Location, other.Location) &&
-			ReferenceEquals(Name, other.Name);
-
-	#endregion
+		Ancestor = source;
+		Expression = source.Expression;
+		Location = source.Location;
+		Name = source.Name;
 	}
+
+	bool IVisitorEntity<ParamEntity, IParam>.RefEquals(ref ParamEntity other) =>
+		ReferenceEquals(Expression, other.Expression) &&
+		ReferenceEquals(Location, other.Location) &&
+		ReferenceEquals(Name, other.Name);
+
+#endregion
 }

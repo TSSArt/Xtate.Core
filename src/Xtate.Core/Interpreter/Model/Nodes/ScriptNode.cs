@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,34 +19,33 @@
 
 using Xtate.Persistence;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public sealed class ScriptNode : ExecutableEntityNode, IScript, IAncestorProvider
 {
-	public sealed class ScriptNode : ExecutableEntityNode, IScript, IAncestorProvider
+	private readonly IScript _script;
+
+	public ScriptNode(DocumentIdNode documentIdNode, IScript script) : base(documentIdNode, script) => _script = script;
+
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => _script;
+
+#endregion
+
+#region Interface IScript
+
+	public IScriptExpression? Content => _script.Content;
+
+	public IExternalScriptExpression? Source => _script.Source;
+
+#endregion
+
+	protected override void Store(Bucket bucket)
 	{
-		private readonly IScript _script;
-
-		public ScriptNode(DocumentIdNode documentIdNode, IScript script) : base(documentIdNode, script) => _script = script;
-
-	#region Interface IAncestorProvider
-
-		object IAncestorProvider.Ancestor => _script;
-
-	#endregion
-
-	#region Interface IScript
-
-		public IScriptExpression? Content => _script.Content;
-
-		public IExternalScriptExpression? Source => _script.Source;
-
-	#endregion
-
-		protected override void Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.ScriptNode);
-			bucket.Add(Key.DocumentId, DocumentId);
-			bucket.AddEntity(Key.Content, Content);
-			bucket.AddEntity(Key.Source, Source);
-		}
+		bucket.Add(Key.TypeInfo, TypeInfo.ScriptNode);
+		bucket.Add(Key.DocumentId, DocumentId);
+		bucket.AddEntity(Key.Content, Content);
+		bucket.AddEntity(Key.Source, Source);
 	}
 }

@@ -17,9 +17,6 @@
 
 #endregion
 
-using System.Threading.Tasks;
-using Xtate.Core;
-
 namespace Xtate.DataModel;
 
 public abstract class ScriptEvaluator : IScript, IExecEvaluator, IAncestorProvider
@@ -53,7 +50,6 @@ public abstract class ScriptEvaluator : IScript, IExecEvaluator, IAncestorProvid
 #endregion
 }
 
-[PublicAPI]
 public class DefaultScriptEvaluator : ScriptEvaluator
 {
 	public DefaultScriptEvaluator(IScript script) : base(script)

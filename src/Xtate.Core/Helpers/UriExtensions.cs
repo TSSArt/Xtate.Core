@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,22 +17,18 @@
 
 #endregion
 
-using System;
-using System.Diagnostics.CodeAnalysis;
+namespace Xtate.Core;
 
-namespace Xtate.Core
+public static class UriExtensions
 {
-	public static class UriExtensions
+	[return: NotNullIfNotNull(nameof(relativeUri))]
+	public static Uri? CombineWith(this Uri? baseUri, Uri? relativeUri)
 	{
-		[return: NotNullIfNotNull("relativeUri")]
-		public static Uri? CombineWith(this Uri? baseUri, Uri? relativeUri)
+		if (baseUri is null || !baseUri.IsAbsoluteUri || relativeUri is null || relativeUri.IsAbsoluteUri)
 		{
-			if (baseUri is null || !baseUri.IsAbsoluteUri || relativeUri is null || relativeUri.IsAbsoluteUri)
-			{
-				return relativeUri;
-			}
-
-			return new Uri(baseUri, relativeUri);
+			return relativeUri;
 		}
+
+		return new Uri(baseUri, relativeUri);
 	}
 }

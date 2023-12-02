@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,41 +17,38 @@
 
 #endregion
 
-using Xtate.Core;
+namespace Xtate.Builder;
 
-namespace Xtate.Builder
+public class HistoryBuilder : BuilderBase, IHistoryBuilder
 {
-	public class HistoryBuilder : BuilderBase, IHistoryBuilder
+	private IIdentifier? _id;
+	private ITransition? _transition;
+	private HistoryType  _type;
+
+#region Interface IHistoryBuilder
+
+	public IHistory Build() => new HistoryEntity { Ancestor = Ancestor, Id = _id, Type = _type, Transition = _transition };
+
+	public void SetId(IIdentifier id)
 	{
-		private IIdentifier? _id;
-		private ITransition? _transition;
-		private HistoryType  _type;
+		Infra.Requires(id);
 
-	#region Interface IHistoryBuilder
-
-		public IHistory Build() => new HistoryEntity { Ancestor = Ancestor, Id = _id, Type = _type, Transition = _transition };
-
-		public void SetId(IIdentifier id)
-		{
-			Infra.Requires(id);
-
-			_id = id;
-		}
-
-		public void SetType(HistoryType type)
-		{
-			Infra.RequiresValidEnum(type);
-
-			_type = type;
-		}
-
-		public void SetTransition(ITransition transition)
-		{
-			Infra.Requires(transition);
-
-			_transition = transition;
-		}
-
-	#endregion
+		_id = id;
 	}
+
+	public void SetType(HistoryType type)
+	{
+		Infra.RequiresValidEnum(type);
+
+		_type = type;
+	}
+
+	public void SetTransition(ITransition transition)
+	{
+		Infra.Requires(transition);
+
+		_transition = transition;
+	}
+
+#endregion
 }

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,95 +17,91 @@
 
 #endregion
 
-using System.Collections.Immutable;
-using Xtate.Core;
+namespace Xtate.Builder;
 
-namespace Xtate.Builder
+public class ParallelBuilder : BuilderBase, IParallelBuilder
 {
-	public class ParallelBuilder : BuilderBase, IParallelBuilder
+	private IDataModel?                           _dataModel;
+	private ImmutableArray<IHistory>.Builder?     _historyStates;
+	private IIdentifier?                          _id;
+	private ImmutableArray<IInvoke>.Builder?      _invokeList;
+	private ImmutableArray<IOnEntry>.Builder?     _onEntryList;
+	private ImmutableArray<IOnExit>.Builder?      _onExitList;
+	private ImmutableArray<IStateEntity>.Builder? _states;
+	private ImmutableArray<ITransition>.Builder?  _transitions;
+
+#region Interface IParallelBuilder
+
+	public IParallel Build() =>
+		new ParallelEntity
+		{
+			Ancestor = Ancestor, Id = _id, States = _states?.ToImmutable() ?? default, HistoryStates = _historyStates?.ToImmutable() ?? default,
+			Transitions = _transitions?.ToImmutable() ?? default, DataModel = _dataModel, OnEntry = _onEntryList?.ToImmutable() ?? default,
+			OnExit = _onExitList?.ToImmutable() ?? default, Invoke = _invokeList?.ToImmutable() ?? default
+		};
+
+	public void SetId(IIdentifier id)
 	{
-		private IDataModel?                           _dataModel;
-		private ImmutableArray<IHistory>.Builder?     _historyStates;
-		private IIdentifier?                          _id;
-		private ImmutableArray<IInvoke>.Builder?      _invokeList;
-		private ImmutableArray<IOnEntry>.Builder?     _onEntryList;
-		private ImmutableArray<IOnExit>.Builder?      _onExitList;
-		private ImmutableArray<IStateEntity>.Builder? _states;
-		private ImmutableArray<ITransition>.Builder?  _transitions;
+		Infra.Requires(id);
 
-	#region Interface IParallelBuilder
-
-		public IParallel Build() =>
-			new ParallelEntity
-			{
-				Ancestor = Ancestor, Id = _id, States = _states?.ToImmutable() ?? default, HistoryStates = _historyStates?.ToImmutable() ?? default,
-				Transitions = _transitions?.ToImmutable() ?? default, DataModel = _dataModel, OnEntry = _onEntryList?.ToImmutable() ?? default,
-				OnExit = _onExitList?.ToImmutable() ?? default, Invoke = _invokeList?.ToImmutable() ?? default
-			};
-
-		public void SetId(IIdentifier id)
-		{
-			Infra.Requires(id);
-
-			_id = id;
-		}
-
-		public void AddState(IState state)
-		{
-			Infra.Requires(state);
-
-			(_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(state);
-		}
-
-		public void AddParallel(IParallel parallel)
-		{
-			Infra.Requires(parallel);
-
-			(_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(parallel);
-		}
-
-		public void AddHistory(IHistory history)
-		{
-			Infra.Requires(history);
-
-			(_historyStates ??= ImmutableArray.CreateBuilder<IHistory>()).Add(history);
-		}
-
-		public void AddTransition(ITransition transition)
-		{
-			Infra.Requires(transition);
-
-			(_transitions ??= ImmutableArray.CreateBuilder<ITransition>()).Add(transition);
-		}
-
-		public void AddOnEntry(IOnEntry onEntry)
-		{
-			Infra.Requires(onEntry);
-
-			(_onEntryList ??= ImmutableArray.CreateBuilder<IOnEntry>()).Add(onEntry);
-		}
-
-		public void AddOnExit(IOnExit onExit)
-		{
-			Infra.Requires(onExit);
-
-			(_onExitList ??= ImmutableArray.CreateBuilder<IOnExit>()).Add(onExit);
-		}
-
-		public void AddInvoke(IInvoke invoke)
-		{
-			Infra.Requires(invoke);
-
-			(_invokeList ??= ImmutableArray.CreateBuilder<IInvoke>()).Add(invoke);
-		}
-
-		public void SetDataModel(IDataModel dataModel)
-		{
-			Infra.Requires(dataModel);
-
-			_dataModel = dataModel;
-		}
-
-	#endregion
+		_id = id;
 	}
+
+	public void AddState(IState state)
+	{
+		Infra.Requires(state);
+
+		(_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(state);
+	}
+
+	public void AddParallel(IParallel parallel)
+	{
+		Infra.Requires(parallel);
+
+		(_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(parallel);
+	}
+
+	public void AddHistory(IHistory history)
+	{
+		Infra.Requires(history);
+
+		(_historyStates ??= ImmutableArray.CreateBuilder<IHistory>()).Add(history);
+	}
+
+	public void AddTransition(ITransition transition)
+	{
+		Infra.Requires(transition);
+
+		(_transitions ??= ImmutableArray.CreateBuilder<ITransition>()).Add(transition);
+	}
+
+	public void AddOnEntry(IOnEntry onEntry)
+	{
+		Infra.Requires(onEntry);
+
+		(_onEntryList ??= ImmutableArray.CreateBuilder<IOnEntry>()).Add(onEntry);
+	}
+
+	public void AddOnExit(IOnExit onExit)
+	{
+		Infra.Requires(onExit);
+
+		(_onExitList ??= ImmutableArray.CreateBuilder<IOnExit>()).Add(onExit);
+	}
+
+	public void AddInvoke(IInvoke invoke)
+	{
+		Infra.Requires(invoke);
+
+		(_invokeList ??= ImmutableArray.CreateBuilder<IInvoke>()).Add(invoke);
+	}
+
+	public void SetDataModel(IDataModel dataModel)
+	{
+		Infra.Requires(dataModel);
+
+		_dataModel = dataModel;
+	}
+
+#endregion
 }

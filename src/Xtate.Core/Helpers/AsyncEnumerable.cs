@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2022 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,19 +17,11 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace Xtate.Core;
 
-[PublicAPI]
 internal static class AsyncEnumerable
 {
-	public static IAsyncEnumerable<T> Empty<T>() => EmptyAsyncEnumerable<T>.Instance;
-
+	[SuppressMessage("Style", "IDE0304:Simplify collection initialization")]
 	public static async ValueTask<ImmutableArray<T>> ToImmutableArrayAsync<T>(this IAsyncEnumerable<T> asyncEnumerable)
 	{
 		var builder = ImmutableArray.CreateBuilder<T>();
@@ -40,30 +32,5 @@ internal static class AsyncEnumerable
 		}
 
 		return builder.ToImmutable();
-	}
-
-	private sealed class EmptyAsyncEnumerable<T> : IAsyncEnumerable<T>, IAsyncEnumerator<T>
-	{
-		public static readonly EmptyAsyncEnumerable<T> Instance = new();
-
-	#region Interface IAsyncDisposable
-
-		ValueTask IAsyncDisposable.DisposeAsync() => default;
-
-	#endregion
-
-	#region Interface IAsyncEnumerable<T>
-
-		IAsyncEnumerator<T> IAsyncEnumerable<T>.GetAsyncEnumerator(CancellationToken token) => this;
-
-	#endregion
-
-	#region Interface IAsyncEnumerator<T>
-
-		ValueTask<bool> IAsyncEnumerator<T>.MoveNextAsync() => default;
-
-		T IAsyncEnumerator<T>.Current => default!;
-
-	#endregion
 	}
 }

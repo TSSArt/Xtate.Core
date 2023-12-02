@@ -17,27 +17,30 @@
 
 #endregion
 
-using System;
 using System.Collections.Specialized;
 using System.IO;
-using System.Threading.Tasks;
 
 namespace Xtate.Core;
+
+public class FileResourceLoaderProvider : ResourceLoaderProviderBase<FileResourceLoader>
+{
+	protected override bool CanHandle(Uri uri) => uri.IsFile || uri.IsUnc || !uri.IsAbsoluteUri;
+}
 
 public class FileResourceLoader : IResourceLoader
 {
 	private const FileOptions OpenFileOptions = FileOptions.Asynchronous | FileOptions.SequentialScan;
 
-	public required IIoBoundTask ExternalResources { private get; init; }
+	public required IIoBoundTask ExternalResources { private get; [UsedImplicitly] init; }
 
-	public required Func<Stream, ValueTask<Resource>> ResourceFactory { private get; init; }
+	public required Func<Stream, ValueTask<Resource>> ResourceFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IResourceLoader
 
 	public virtual async ValueTask<Resource> Request(Uri uri, NameValueCollection? headers)
 	{
 		Infra.Requires(uri);
-
+		
 		var path = uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString;
 
 		var fileStream = await ExternalResources.Factory.StartNew(() => CreateFileStream(path)).ConfigureAwait(false);

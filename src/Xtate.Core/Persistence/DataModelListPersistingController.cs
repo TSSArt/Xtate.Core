@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,386 +17,382 @@
 
 #endregion
 
-using System;
-using Xtate.Core;
+namespace Xtate.Persistence;
 
-namespace Xtate.Persistence
+internal sealed class DataModelListPersistingController : DataModelPersistingController
 {
-	internal sealed class DataModelListPersistingController : DataModelPersistingController
+	private readonly Bucket                    _bucket;
+	private readonly DataModelList             _list;
+	private readonly DataModelReferenceTracker _referenceTracker;
+	private          int                       _record;
+	private          bool                      _shrink;
+
+	public DataModelListPersistingController(in Bucket bucket, DataModelReferenceTracker referenceTracker, DataModelList dataModelList)
 	{
-		private readonly Bucket                    _bucket;
-		private readonly DataModelList             _list;
-		private readonly DataModelReferenceTracker _referenceTracker;
-		private          int                       _record;
-		private          bool                      _shrink;
+		_bucket = bucket;
+		_referenceTracker = referenceTracker ?? throw new ArgumentNullException(nameof(referenceTracker));
+		_list = dataModelList ?? throw new ArgumentNullException(nameof(dataModelList));
 
-		public DataModelListPersistingController(in Bucket bucket, DataModelReferenceTracker referenceTracker, DataModelList dataModelList)
+		dataModelList.Change += OnRestoreChange;
+		Restore();
+		dataModelList.Change -= OnRestoreChange;
+
+		if (_shrink)
 		{
-			_bucket = bucket;
-			_referenceTracker = referenceTracker ?? throw new ArgumentNullException(nameof(referenceTracker));
-			_list = dataModelList ?? throw new ArgumentNullException(nameof(dataModelList));
-
-			dataModelList.Change += OnRestoreChange;
-			Restore();
-			dataModelList.Change -= OnRestoreChange;
-
-			if (_shrink)
-			{
-				Shrink();
-			}
-
-			dataModelList.Change += OnChange;
+			Shrink();
 		}
 
-		private void OnRestoreChange(DataModelList.ChangeAction action, in DataModelList.Entry entry)
-		{
-			switch (action)
-			{
-				case DataModelList.ChangeAction.RemoveAt:
-				case DataModelList.ChangeAction.Reset:
-				{
-					if (!entry.Value.IsUndefined() || entry.Metadata is not null)
-					{
-						_shrink = true;
-					}
+		dataModelList.Change += OnChange;
+	}
 
-					RemoveReferences(entry);
+	private void OnRestoreChange(DataModelList.ChangeAction action, in DataModelList.Entry entry)
+	{
+		switch (action)
+		{
+			case DataModelList.ChangeAction.RemoveAt:
+			case DataModelList.ChangeAction.Reset:
+			{
+				if (!entry.Value.IsUndefined() || entry.Metadata is not null)
+				{
+					_shrink = true;
+				}
+
+				RemoveReferences(entry);
+				break;
+			}
+			case DataModelList.ChangeAction.Append:
+			case DataModelList.ChangeAction.SetAt:
+			case DataModelList.ChangeAction.InsertAt:
+			case DataModelList.ChangeAction.SetCsKey:
+			case DataModelList.ChangeAction.SetCiKey:
+				AddReferences(entry);
+				break;
+
+			case DataModelList.ChangeAction.SetCount:
+				var length = entry.Index;
+				_shrink = length < _list.Count;
+
+				foreach (var item in _list.Entries)
+				{
+					if (item.Index >= length)
+					{
+						RemoveReferences(item);
+					}
+				}
+
+				break;
+
+			case DataModelList.ChangeAction.SetMetadata: break;
+			default:
+				Infra.Unexpected(action);
+				break;
+		}
+	}
+
+	private void Restore()
+	{
+		if (_list.Count > 0)
+		{
+			_shrink = true;
+		}
+
+		while (true)
+		{
+			var recordBucket = _bucket.Nested(_record);
+
+			if (!recordBucket.TryGet(Key.Operation, out Key operation))
+			{
+				break;
+			}
+
+			switch (operation)
+			{
+				case Key.SetCsKey:
+				case Key.SetCiKey:
+				{
+					var caseInsensitive = operation == Key.SetCiKey;
+					recordBucket.TryGet(Key.Access, out DataModelAccess access);
+					var key = recordBucket.GetString(Key.Key);
+
+					Infra.NotNull(key);
+
+					_list.TryGet(key, caseInsensitive, out var baseEntry);
+
+					var value = recordBucket.GetDataModelValue(_referenceTracker, baseEntry.Value);
+					var metadata = recordBucket.Nested(Key.Metadata).GetDataModelValue(_referenceTracker, baseEntry.Metadata).AsListOrDefault();
+
+					_list.SetInternal(key, caseInsensitive, value, access, metadata, throwOnDeny: false);
 					break;
 				}
-				case DataModelList.ChangeAction.Append:
-				case DataModelList.ChangeAction.SetAt:
-				case DataModelList.ChangeAction.InsertAt:
-				case DataModelList.ChangeAction.SetCsKey:
-				case DataModelList.ChangeAction.SetCiKey:
-					AddReferences(entry);
+				case Key.Append:
+				{
+					recordBucket.TryGet(Key.Access, out DataModelAccess access);
+					var key = recordBucket.GetString(Key.Key);
+
+					var value = recordBucket.GetDataModelValue(_referenceTracker, baseValue: default);
+					var metadata = recordBucket.Nested(Key.Metadata).GetDataModelValue(_referenceTracker, baseValue: default).AsListOrDefault();
+
+					_list.AddInternal(key, value, access, metadata, throwOnDeny: false);
 					break;
+				}
+				case Key.Set:
+				{
+					var index = recordBucket.GetInt32(Key.Index);
+					recordBucket.TryGet(Key.Access, out DataModelAccess access);
+					var key = recordBucket.GetString(Key.Key);
 
-				case DataModelList.ChangeAction.SetCount:
-					var length = entry.Index;
-					_shrink = length < _list.Count;
+					_list.TryGet(index, out var baseEntry);
 
-					foreach (var item in _list.Entries)
-					{
-						if (item.Index >= length)
-						{
-							RemoveReferences(item);
-						}
-					}
+					var value = recordBucket.GetDataModelValue(_referenceTracker, baseEntry.Value);
+					var metadata = recordBucket.Nested(Key.Metadata).GetDataModelValue(_referenceTracker, baseEntry.Metadata).AsListOrDefault();
 
+					_list.SetInternal(index, key, value, access, metadata, throwOnDeny: false);
 					break;
+				}
 
-				case DataModelList.ChangeAction.SetMetadata: break;
+				case Key.Insert:
+				{
+					var index = recordBucket.GetInt32(Key.Index);
+					recordBucket.TryGet(Key.Access, out DataModelAccess access);
+					var key = recordBucket.GetString(Key.Key);
+
+					var value = recordBucket.GetDataModelValue(_referenceTracker, baseValue: default);
+					var metadata = recordBucket.Nested(Key.Metadata).GetDataModelValue(_referenceTracker, baseValue: default).AsListOrDefault();
+
+					_list.InsertInternal(index, key, value, access, metadata, throwOnDeny: false);
+					break;
+				}
+
+				case Key.Remove:
+				{
+					var index = recordBucket.GetInt32(Key.Index);
+					_list.RemoveInternal(index, throwOnDeny: false);
+					break;
+				}
+
+				case Key.SetLength:
+				{
+					var length = recordBucket.GetInt32(Key.Index);
+					_list.SetLengthInternal(length, throwOnDeny: false);
+					break;
+				}
+				case Key.SetMetadata:
+				{
+					var metadata = recordBucket.Nested(Key.Metadata).GetDataModelValue(_referenceTracker, _list.GetMetadata()).AsListOrDefault();
+					_list.SetMetadataInternal(metadata, throwOnDeny: false);
+					break;
+				}
 				default:
-					Infra.Unexpected(action);
+					Infra.Unexpected(operation);
 					break;
 			}
+
+			_record ++;
+		}
+	}
+
+	private void Shrink()
+	{
+		_bucket.RemoveSubtree(Bucket.RootKey);
+
+		if (_list.Access != DataModelAccess.Writable)
+		{
+			_bucket.Add(Key.Access, _list.Access);
 		}
 
-		private void Restore()
+		if (_list.CaseInsensitive)
 		{
-			if (_list.Count > 0)
-			{
-				_shrink = true;
-			}
-
-			while (true)
-			{
-				var recordBucket = _bucket.Nested(_record);
-
-				if (!recordBucket.TryGet(Key.Operation, out Key operation))
-				{
-					break;
-				}
-
-				switch (operation)
-				{
-					case Key.SetCsKey:
-					case Key.SetCiKey:
-					{
-						var caseInsensitive = operation == Key.SetCiKey;
-						recordBucket.TryGet(Key.Access, out DataModelAccess access);
-						var key = recordBucket.GetString(Key.Key);
-
-						Infra.NotNull(key);
-
-						_list.TryGet(key, caseInsensitive, out var baseEntry);
-
-						var value = recordBucket.GetDataModelValue(_referenceTracker, baseEntry.Value);
-						var metadata = recordBucket.Nested(Key.Metadata).GetDataModelValue(_referenceTracker, baseEntry.Metadata).AsListOrDefault();
-
-						_list.SetInternal(key, caseInsensitive, value, access, metadata, throwOnDeny: false);
-						break;
-					}
-					case Key.Append:
-					{
-						recordBucket.TryGet(Key.Access, out DataModelAccess access);
-						var key = recordBucket.GetString(Key.Key);
-
-						var value = recordBucket.GetDataModelValue(_referenceTracker, baseValue: default);
-						var metadata = recordBucket.Nested(Key.Metadata).GetDataModelValue(_referenceTracker, baseValue: default).AsListOrDefault();
-
-						_list.AddInternal(key, value, access, metadata, throwOnDeny: false);
-						break;
-					}
-					case Key.Set:
-					{
-						var index = recordBucket.GetInt32(Key.Index);
-						recordBucket.TryGet(Key.Access, out DataModelAccess access);
-						var key = recordBucket.GetString(Key.Key);
-
-						_list.TryGet(index, out var baseEntry);
-
-						var value = recordBucket.GetDataModelValue(_referenceTracker, baseEntry.Value);
-						var metadata = recordBucket.Nested(Key.Metadata).GetDataModelValue(_referenceTracker, baseEntry.Metadata).AsListOrDefault();
-
-						_list.SetInternal(index, key, value, access, metadata, throwOnDeny: false);
-						break;
-					}
-
-					case Key.Insert:
-					{
-						var index = recordBucket.GetInt32(Key.Index);
-						recordBucket.TryGet(Key.Access, out DataModelAccess access);
-						var key = recordBucket.GetString(Key.Key);
-
-						var value = recordBucket.GetDataModelValue(_referenceTracker, baseValue: default);
-						var metadata = recordBucket.Nested(Key.Metadata).GetDataModelValue(_referenceTracker, baseValue: default).AsListOrDefault();
-
-						_list.InsertInternal(index, key, value, access, metadata, throwOnDeny: false);
-						break;
-					}
-
-					case Key.Remove:
-					{
-						var index = recordBucket.GetInt32(Key.Index);
-						_list.RemoveInternal(index, throwOnDeny: false);
-						break;
-					}
-
-					case Key.SetLength:
-					{
-						var length = recordBucket.GetInt32(Key.Index);
-						_list.SetLengthInternal(length, throwOnDeny: false);
-						break;
-					}
-					case Key.SetMetadata:
-					{
-						var metadata = recordBucket.Nested(Key.Metadata).GetDataModelValue(_referenceTracker, _list.GetMetadata()).AsListOrDefault();
-						_list.SetMetadataInternal(metadata, throwOnDeny: false);
-						break;
-					}
-					default:
-						Infra.Unexpected(operation);
-						break;
-				}
-
-				_record ++;
-			}
+			_bucket.Add(Key.CaseInsensitive, value: true);
 		}
 
-		private void Shrink()
+		_record = 0;
+
+		var metadata = _list.GetMetadata();
+		if (metadata is not null)
 		{
-			_bucket.RemoveSubtree(Bucket.RootKey);
+			var recordBucket = _bucket.Nested(_record ++);
+			recordBucket.Add(Key.Operation, Key.SetMetadata);
+			var entry = new DataModelList.Entry(metadata);
+			AddEntry(recordBucket, entry);
+		}
 
-			if (_list.Access != DataModelAccess.Writable)
+		if (_list.Access != DataModelAccess.Writable)
+		{
+			foreach (var entry in _list.Entries)
 			{
-				_bucket.Add(Key.Access, _list.Access);
+				Set(entry);
 			}
-
-			if (_list.CaseInsensitive)
+		}
+		else if (!_list.HasItemAccess)
+		{
+			foreach (var entry in _list.Entries)
 			{
-				_bucket.Add(Key.CaseInsensitive, value: true);
+				Append(entry);
 			}
-
-			_record = 0;
-
-			var metadata = _list.GetMetadata();
-			if (metadata is not null)
+		}
+		else
+		{
+			foreach (var entry in _list.Entries)
 			{
-				var recordBucket = _bucket.Nested(_record ++);
-				recordBucket.Add(Key.Operation, Key.SetMetadata);
-				var entry = new DataModelList.Entry(metadata);
-				AddEntry(recordBucket, entry);
-			}
-
-			if (_list.Access != DataModelAccess.Writable)
-			{
-				foreach (var entry in _list.Entries)
+				if (entry.Access != DataModelAccess.Writable)
 				{
 					Set(entry);
 				}
 			}
-			else if (!_list.HasItemAccess)
+
+			foreach (var entry in _list.Entries)
 			{
-				foreach (var entry in _list.Entries)
+				if (entry.Access == DataModelAccess.Writable)
 				{
 					Append(entry);
 				}
 			}
-			else
-			{
-				foreach (var entry in _list.Entries)
-				{
-					if (entry.Access != DataModelAccess.Writable)
-					{
-						Set(entry);
-					}
-				}
+		}
 
-				foreach (var entry in _list.Entries)
-				{
-					if (entry.Access == DataModelAccess.Writable)
-					{
-						Append(entry);
-					}
-				}
-			}
+		void Set(in DataModelList.Entry entry)
+		{
+			var recordBucket = _bucket.Nested(_record ++);
+			recordBucket.Add(Key.Operation, Key.Set);
+			recordBucket.Add(Key.Index, entry.Index);
+			AddEntry(recordBucket, entry);
+		}
 
-			void Set(in DataModelList.Entry entry)
-			{
-				var recordBucket = _bucket.Nested(_record ++);
-				recordBucket.Add(Key.Operation, Key.Set);
-				recordBucket.Add(Key.Index, entry.Index);
-				AddEntry(recordBucket, entry);
-			}
+		void Append(in DataModelList.Entry entry)
+		{
+			var recordBucket = _bucket.Nested(_record ++);
+			recordBucket.Add(Key.Operation, Key.Append);
+			AddEntry(recordBucket, entry);
+		}
+	}
 
-			void Append(in DataModelList.Entry entry)
+	private void OnChange(DataModelList.ChangeAction action, in DataModelList.Entry entry)
+	{
+		switch (action)
+		{
+			case DataModelList.ChangeAction.Reset:
+				RemoveReferences(entry);
+				break;
+
+			case DataModelList.ChangeAction.Append:
 			{
 				var recordBucket = _bucket.Nested(_record ++);
 				recordBucket.Add(Key.Operation, Key.Append);
 				AddEntry(recordBucket, entry);
+				AddReferences(entry);
+				break;
 			}
-		}
-
-		private void OnChange(DataModelList.ChangeAction action, in DataModelList.Entry entry)
-		{
-			switch (action)
+			case DataModelList.ChangeAction.SetCsKey:
 			{
-				case DataModelList.ChangeAction.Reset:
-					RemoveReferences(entry);
-					break;
+				var recordBucket = _bucket.Nested(_record ++);
+				recordBucket.Add(Key.Operation, Key.SetCsKey);
+				AddEntry(recordBucket, entry);
+				AddReferences(entry);
+				break;
+			}
+			case DataModelList.ChangeAction.SetCiKey:
+			{
+				var recordBucket = _bucket.Nested(_record ++);
+				recordBucket.Add(Key.Operation, Key.SetCiKey);
+				AddEntry(recordBucket, entry);
+				AddReferences(entry);
+				break;
+			}
+			case DataModelList.ChangeAction.SetAt:
+			{
+				var recordBucket = _bucket.Nested(_record ++);
+				recordBucket.Add(Key.Index, entry.Index);
+				recordBucket.Add(Key.Operation, Key.Set);
+				AddEntry(recordBucket, entry);
+				AddReferences(entry);
+				break;
+			}
+			case DataModelList.ChangeAction.InsertAt:
+			{
+				var recordBucket = _bucket.Nested(_record ++);
+				recordBucket.Add(Key.Index, entry.Index);
+				recordBucket.Add(Key.Operation, Key.Insert);
+				AddEntry(recordBucket, entry);
+				AddReferences(entry);
+				break;
+			}
+			case DataModelList.ChangeAction.RemoveAt:
+			{
+				RemoveReferences(entry);
 
-				case DataModelList.ChangeAction.Append:
-				{
-					var recordBucket = _bucket.Nested(_record ++);
-					recordBucket.Add(Key.Operation, Key.Append);
-					AddEntry(recordBucket, entry);
-					AddReferences(entry);
-					break;
-				}
-				case DataModelList.ChangeAction.SetCsKey:
-				{
-					var recordBucket = _bucket.Nested(_record ++);
-					recordBucket.Add(Key.Operation, Key.SetCsKey);
-					AddEntry(recordBucket, entry);
-					AddReferences(entry);
-					break;
-				}
-				case DataModelList.ChangeAction.SetCiKey:
-				{
-					var recordBucket = _bucket.Nested(_record ++);
-					recordBucket.Add(Key.Operation, Key.SetCiKey);
-					AddEntry(recordBucket, entry);
-					AddReferences(entry);
-					break;
-				}
-				case DataModelList.ChangeAction.SetAt:
-				{
-					var recordBucket = _bucket.Nested(_record ++);
-					recordBucket.Add(Key.Index, entry.Index);
-					recordBucket.Add(Key.Operation, Key.Set);
-					AddEntry(recordBucket, entry);
-					AddReferences(entry);
-					break;
-				}
-				case DataModelList.ChangeAction.InsertAt:
-				{
-					var recordBucket = _bucket.Nested(_record ++);
-					recordBucket.Add(Key.Index, entry.Index);
-					recordBucket.Add(Key.Operation, Key.Insert);
-					AddEntry(recordBucket, entry);
-					AddReferences(entry);
-					break;
-				}
-				case DataModelList.ChangeAction.RemoveAt:
-				{
-					RemoveReferences(entry);
+				var recordBucket = _bucket.Nested(_record ++);
+				recordBucket.Add(Key.Operation, Key.Remove);
+				recordBucket.Add(Key.Index, entry.Index);
 
-					var recordBucket = _bucket.Nested(_record ++);
-					recordBucket.Add(Key.Operation, Key.Remove);
-					recordBucket.Add(Key.Index, entry.Index);
-
-					break;
-				}
-				case DataModelList.ChangeAction.SetCount:
+				break;
+			}
+			case DataModelList.ChangeAction.SetCount:
+			{
+				if (entry.Index < _list.Count)
 				{
-					if (entry.Index < _list.Count)
+					foreach (var e in _list.Entries)
 					{
-						foreach (var e in _list.Entries)
+						if (e.Index >= entry.Index)
 						{
-							if (e.Index >= entry.Index)
-							{
-								RemoveReferences(e);
-							}
+							RemoveReferences(e);
 						}
 					}
-
-					var recordBucket = _bucket.Nested(_record ++);
-					recordBucket.Add(Key.Operation, Key.SetLength);
-					recordBucket.Add(Key.Index, entry.Index);
-
-					break;
-				}
-				case DataModelList.ChangeAction.SetMetadata:
-				{
-					RemoveReferences(new DataModelList.Entry(_list.GetMetadata()));
-
-					var recordBucket = _bucket.Nested(_record ++);
-					recordBucket.Add(Key.Operation, Key.SetMetadata);
-					AddEntry(recordBucket, entry);
-					AddReferences(entry);
-
-					break;
 				}
 
-				default: throw Infra.Unexpected<Exception>(action);
+				var recordBucket = _bucket.Nested(_record ++);
+				recordBucket.Add(Key.Operation, Key.SetLength);
+				recordBucket.Add(Key.Index, entry.Index);
+
+				break;
 			}
-		}
-
-		private void AddEntry(in Bucket bucket, in DataModelList.Entry entry)
-		{
-			bucket.Add(Key.Key, entry.Key);
-
-			if (entry.Access != DataModelAccess.Writable)
+			case DataModelList.ChangeAction.SetMetadata:
 			{
-				bucket.Add(Key.Access, entry.Access);
+				RemoveReferences(new DataModelList.Entry(_list.GetMetadata()));
+
+				var recordBucket = _bucket.Nested(_record ++);
+				recordBucket.Add(Key.Operation, Key.SetMetadata);
+				AddEntry(recordBucket, entry);
+				AddReferences(entry);
+
+				break;
 			}
 
-			if (entry.Metadata is not null)
-			{
-				bucket.Nested(Key.Metadata).SetDataModelValue(_referenceTracker, entry.Metadata);
-			}
-
-			bucket.SetDataModelValue(_referenceTracker, entry.Value);
+			default: throw Infra.Unexpected<Exception>(action);
 		}
+	}
 
-		private void AddReferences(in DataModelList.Entry entry)
+	private void AddEntry(in Bucket bucket, in DataModelList.Entry entry)
+	{
+		bucket.Add(Key.Key, entry.Key);
+
+		if (entry.Access != DataModelAccess.Writable)
 		{
-			_referenceTracker.AddReference(entry.Value);
-			_referenceTracker.AddReference(entry.Metadata);
+			bucket.Add(Key.Access, entry.Access);
 		}
 
-		private void RemoveReferences(in DataModelList.Entry entry)
+		if (entry.Metadata is not null)
 		{
-			_referenceTracker.RemoveReference(entry.Value);
-			_referenceTracker.RemoveReference(entry.Metadata);
+			bucket.Nested(Key.Metadata).SetDataModelValue(_referenceTracker, entry.Metadata);
 		}
 
-		public override void Dispose()
-		{
-			_list.Change -= OnChange;
+		bucket.SetDataModelValue(_referenceTracker, entry.Value);
+	}
 
-			base.Dispose();
-		}
+	private void AddReferences(in DataModelList.Entry entry)
+	{
+		_referenceTracker.AddReference(entry.Value);
+		_referenceTracker.AddReference(entry.Metadata);
+	}
+
+	private void RemoveReferences(in DataModelList.Entry entry)
+	{
+		_referenceTracker.RemoveReference(entry.Value);
+		_referenceTracker.RemoveReference(entry.Metadata);
+	}
+
+	public override void Dispose()
+	{
+		_list.Change -= OnChange;
+
+		base.Dispose();
 	}
 }

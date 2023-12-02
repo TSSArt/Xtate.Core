@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2022 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,9 +17,7 @@
 
 #endregion
 
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Channels;
-using System.Threading.Tasks;
 
 namespace Xtate.Core;
 
@@ -27,11 +25,19 @@ public class EventQueue : IEventQueueReader, IEventQueueWriter
 {
 	private readonly Channel<IEvent> _channel = Channel.CreateUnbounded<IEvent>();
 
+#region Interface IEventQueueReader
+
 	public bool TryReadEvent([MaybeNullWhen(false)] out IEvent evt) => _channel.Reader.TryRead(out evt);
 
 	public ValueTask<bool> WaitToEvent() => _channel.Reader.WaitToReadAsync();
 
 	public void Complete() => _channel.Writer.TryComplete();
 
+#endregion
+
+#region Interface IEventQueueWriter
+
 	public ValueTask WriteAsync(IEvent evt) => _channel.Writer.WriteAsync(evt);
+
+#endregion
 }

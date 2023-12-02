@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2022 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,10 +17,6 @@
 
 #endregion
 
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Threading;
-
 namespace Xtate.Core;
 
 /// <summary>
@@ -29,7 +25,7 @@ namespace Xtate.Core;
 /// <remarks>
 ///     All public members are thread-safe and may be used concurrently from multiple threads.
 /// </remarks>
-[PublicAPI]
+
 internal class WeakReferenceCollection
 {
 	private int _counter;

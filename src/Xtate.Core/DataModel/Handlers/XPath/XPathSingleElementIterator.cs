@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,27 +19,26 @@
 
 using System.Xml.XPath;
 
-namespace Xtate.DataModel.XPath
+namespace Xtate.DataModel.XPath;
+
+internal class XPathSingleElementIterator : XPathNodeIterator
 {
-	internal class XPathSingleElementIterator : XPathNodeIterator
+	private readonly XPathNavigator _navigator;
+	private          bool           _completed;
+
+	public XPathSingleElementIterator(XPathNavigator navigator) => _navigator = navigator;
+
+	public override XPathNavigator? Current => _completed ? _navigator : default;
+
+	public override int CurrentPosition => _completed ? 1 : 0;
+
+	public override XPathNodeIterator Clone() => new XPathSingleElementIterator(_navigator.Clone());
+
+	public override bool MoveNext()
 	{
-		private readonly XPathNavigator _navigator;
-		private          bool           _completed;
+		var completed = _completed;
+		_completed = true;
 
-		public XPathSingleElementIterator(XPathNavigator navigator) => _navigator = navigator;
-
-		public override XPathNavigator? Current => _completed  ? _navigator : default;
-
-		public override int CurrentPosition => _completed ? 1 : 0;
-
-		public override XPathNodeIterator Clone() => new XPathSingleElementIterator(_navigator.Clone());
-
-		public override bool MoveNext()
-		{
-			var completed = _completed;
-			_completed = true;
-
-			return !completed;
-		}
+		return !completed;
 	}
 }

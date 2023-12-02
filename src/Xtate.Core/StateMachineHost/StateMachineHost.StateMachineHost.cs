@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,400 +17,386 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.InteropServices.ComTypes;
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.Core;
 using Xtate.DataModel;
 using Xtate.IoProcessor;
 using Xtate.Service;
 
-namespace Xtate
-{
-	//TODO:Move
-	public interface IStateMachineHostLogger
-	{
+namespace Xtate;
 
+//TODO:Move
+public interface IStateMachineHostLogger;
+
+public sealed partial class StateMachineHost : IStateMachineHost
+{
+	private static readonly Uri InternalTarget = new(uriString: @"#_internal", UriKind.Relative);
+
+	private ImmutableArray<IIoProcessor> _ioProcessors;
+
+	public required DataConverter _dataConverter { private get; [UsedImplicitly] init; }
+
+	//private ImmutableArray<IServiceFactory> _serviceFactories;
+	public required IAsyncEnumerable<IIoProcessorFactory> _ioProcessorFactories { private get; [UsedImplicitly] init; }
+
+	public required IAsyncEnumerable<IServiceFactory> ServiceFactories { private get; [UsedImplicitly] init; }
+
+#region Interface IHostEventDispatcher
+
+	public async ValueTask DispatchEvent(IHostEvent hostEvent, CancellationToken token)
+	{
+		if (hostEvent is null) throw new ArgumentNullException(nameof(hostEvent));
+
+		if (hostEvent.OriginType is not { } originType)
+		{
+			throw new PlatformException(Resources.Exception_OriginTypeMustBeProvidedInIoProcessorEvent);
+		}
+
+		var ioProcessor = GetIoProcessorById(originType);
+
+		await ioProcessor.Dispatch(hostEvent, token).ConfigureAwait(false);
 	}
 
-	public sealed partial class StateMachineHost : IStateMachineHost
+#endregion
+
+#region Interface IStateMachineHost
+
+	async ValueTask<SendStatus> IStateMachineHost.DispatchEvent(ServiceId senderServiceId, IOutgoingEvent outgoingEvent, CancellationToken token)
 	{
-		private static readonly Uri InternalTarget = new(uriString: @"#_internal", UriKind.Relative);
+		if (outgoingEvent is null) throw new ArgumentNullException(nameof(outgoingEvent));
 
-		public required DataConverter _dataConverter { private get; init; }
+		var context = GetCurrentContext();
 
-		private ImmutableArray<IIoProcessor>    _ioProcessors;
-		//private ImmutableArray<IServiceFactory> _serviceFactories;
-		public required IAsyncEnumerable<IIoProcessorFactory> _ioProcessorFactories { private get; init; }
+		var ioProcessor = GetIoProcessorByType(outgoingEvent.Type);
 
-		public required IAsyncEnumerable<IServiceFactory> ServiceFactories { private get; init; }
-
-	#region Interface IHostEventDispatcher
-
-		public async ValueTask DispatchEvent(IHostEvent hostEvent, CancellationToken token)
+		if (ioProcessor == this)
 		{
-			if (hostEvent is null) throw new ArgumentNullException(nameof(hostEvent));
-
-			if (hostEvent.OriginType is not { } originType)
+			if (outgoingEvent.Target == InternalTarget)
 			{
-				throw new PlatformException(Resources.Exception_OriginTypeMustBeProvidedInIoProcessorEvent);
-			}
-
-			var ioProcessor = GetIoProcessorById(originType);
-
-			await ioProcessor.Dispatch(hostEvent, token).ConfigureAwait(false);
-		}
-
-	#endregion
-
-	#region Interface IStateMachineHost
-
-		async ValueTask<SendStatus> IStateMachineHost.DispatchEvent(ServiceId senderServiceId, IOutgoingEvent outgoingEvent, CancellationToken token)
-		{
-			if (outgoingEvent is null) throw new ArgumentNullException(nameof(outgoingEvent));
-
-			var context = GetCurrentContext();
-
-			var ioProcessor = GetIoProcessorByType(outgoingEvent.Type);
-
-			if (ioProcessor == this)
-			{
-				if (outgoingEvent.Target == InternalTarget)
+				if (outgoingEvent.DelayMs != 0)
 				{
-					if (outgoingEvent.DelayMs != 0)
-					{
-						throw new ProcessorException(Resources.Exception_InternalEventsCantBeDelayed);
-					}
-
-					return SendStatus.ToInternalQueue;
+					throw new ProcessorException(Resources.Exception_InternalEventsCantBeDelayed);
 				}
+
+				return SendStatus.ToInternalQueue;
 			}
-
-			var ioProcessorEvent = await ioProcessor.GetHostEvent(senderServiceId, outgoingEvent, token).ConfigureAwait(false);
-
-			if (outgoingEvent.DelayMs > 0)
-			{
-				await context.ScheduleEvent(ioProcessorEvent, token).ConfigureAwait(false);
-
-				return SendStatus.Scheduled;
-			}
-
-			await ioProcessor.Dispatch(ioProcessorEvent, token).ConfigureAwait(false);
-
-			return SendStatus.Sent;
 		}
 
-		ImmutableArray<IIoProcessor> IStateMachineHost.GetIoProcessors() => !_ioProcessors.IsDefault ? _ioProcessors : ImmutableArray<IIoProcessor>.Empty;
+		var ioProcessorEvent = await ioProcessor.GetHostEvent(senderServiceId, outgoingEvent, token).ConfigureAwait(false);
 
-		async ValueTask IStateMachineHost.StartInvoke(SessionId sessionId,
-													  InvokeData data,
-													  ISecurityContext securityContext,
-													  CancellationToken token)
+		if (outgoingEvent.DelayMs > 0)
 		{
-			var context = GetCurrentContext();
+			await context.ScheduleEvent(ioProcessorEvent, token).ConfigureAwait(false);
 
-			context.ValidateSessionId(sessionId, out var service);
+			return SendStatus.Scheduled;
+		}
 
-			var finalizer = new DeferredFinalizer();
+		await ioProcessor.Dispatch(ioProcessorEvent, token).ConfigureAwait(false);
+
+		return SendStatus.Sent;
+	}
+
+	ImmutableArray<IIoProcessor> IStateMachineHost.GetIoProcessors() => !_ioProcessors.IsDefault ? _ioProcessors : ImmutableArray<IIoProcessor>.Empty;
+
+	async ValueTask IStateMachineHost.StartInvoke(SessionId sessionId,
+												  InvokeData data,
+												  ISecurityContext securityContext,
+												  CancellationToken token)
+	{
+		var context = GetCurrentContext();
+
+		context.ValidateSessionId(sessionId, out var service);
+
+		var finalizer = new DeferredFinalizer();
+		await using (finalizer.ConfigureAwait(false))
+		{
+			securityContext = securityContext.CreateNested(SecurityContextType.InvokedService);
+			var loggerContext = new StartInvokeLoggerContext(sessionId, data.Type, data.Source);
+			var activator = await FindServiceFactoryActivator(data.Type).ConfigureAwait(false);
+			var serviceCommunication = new ServiceCommunication(this, GetTarget(sessionId), IoProcessorId, data.InvokeId);
+			var invokedService = await activator.StartService(service.StateMachineLocation, data, serviceCommunication).ConfigureAwait(false);
+
+			await context.AddService(sessionId, data.InvokeId, invokedService, token).ConfigureAwait(false);
+
+			CompleteAsync(context, invokedService, service, sessionId, data.InvokeId, finalizer, _dataConverter, token).Forget();
+		}
+
+		static async ValueTask CompleteAsync(StateMachineHostContext context,
+											 IService invokedService,
+											 IEventDispatcher service,
+											 SessionId sessionId,
+											 InvokeId invokeId,
+											 DeferredFinalizer finalizer,
+											 DataConverter dataConverter,
+											 CancellationToken token)
+		{
 			await using (finalizer.ConfigureAwait(false))
 			{
-				securityContext = securityContext.CreateNested(SecurityContextType.InvokedService);
-				var loggerContext = new StartInvokeLoggerContext(sessionId, data.Type, data.Source);
-				var factoryContext = new FactoryContext(_options.ServiceLocator, _options.ResourceLoaderFactories, securityContext, _options.Logger, loggerContext);
-				var activator = await FindServiceFactoryActivator(_options.ServiceLocator, data.Type).ConfigureAwait(false);
-				var serviceCommunication = new ServiceCommunication(this, GetTarget(sessionId), IoProcessorId, data.InvokeId);
-				var invokedService = await activator.StartService(_options.ServiceLocator, service.StateMachineLocation, data, serviceCommunication, token).ConfigureAwait(false);
+				finalizer.DefferFinalization();
 
-				await context.AddService(sessionId, data.InvokeId, invokedService, token).ConfigureAwait(false);
-
-				CompleteAsync(context, invokedService, service, sessionId, data.InvokeId, finalizer, _dataConverter, token).Forget();
-			}
-
-			static async ValueTask CompleteAsync(StateMachineHostContext context,
-												 IService invokedService,
-												 IEventDispatcher service,
-												 SessionId sessionId,
-												 InvokeId invokeId,
-												 DeferredFinalizer finalizer,
-												 DataConverter dataConverter,
-												 CancellationToken token)
-			{
-				await using (finalizer.ConfigureAwait(false))
+				try
 				{
-					finalizer.DefferFinalization();
+					var result = await invokedService.GetResult(token).ConfigureAwait(false);
 
-					try
+					var nameParts = EventName.GetDoneInvokeNameParts(invokeId);
+					var evt = new EventObject { Type = EventType.External, NameParts = nameParts, Data = result, InvokeId = invokeId };
+					await service.Send(evt, token: default).ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+					var evt = new EventObject
+							  {
+								  Type = EventType.External,
+								  NameParts = EventName.ErrorExecution,
+								  Data = dataConverter.FromException(ex),
+								  InvokeId = invokeId
+							  };
+					await service.Send(evt, token: default).ConfigureAwait(false);
+				}
+				finally
+				{
+					if (await context.TryCompleteService(sessionId, invokeId).ConfigureAwait(false) is { } invokedService2)
 					{
-						var result = await invokedService.GetResult(token).ConfigureAwait(false);
-
-						var nameParts = EventName.GetDoneInvokeNameParts(invokeId);
-						var evt = new EventObject { Type = EventType.External, NameParts = nameParts, Data = result, InvokeId = invokeId };
-						await service.Send(evt, token: default).ConfigureAwait(false);
-					}
-					catch (Exception ex)
-					{
-						var evt = new EventObject
-								  {
-									  Type = EventType.External,
-									  NameParts = EventName.ErrorExecution,
-									  Data = dataConverter.FromException(ex),
-									  InvokeId = invokeId
-								  };
-						await service.Send(evt, token: default).ConfigureAwait(false);
-					}
-					finally
-					{
-						if (await context.TryCompleteService(sessionId, invokeId).ConfigureAwait(false) is { } invokedService2)
-						{
-							await DisposeInvokedService(invokedService2).ConfigureAwait(false);
-						}
+						await DisposeInvokedService(invokedService2).ConfigureAwait(false);
 					}
 				}
 			}
 		}
+	}
 
-		async ValueTask IStateMachineHost.CancelInvoke(SessionId sessionId, InvokeId invokeId, CancellationToken token)
+	async ValueTask IStateMachineHost.CancelInvoke(SessionId sessionId, InvokeId invokeId, CancellationToken token)
+	{
+		var context = GetCurrentContext();
+
+		context.ValidateSessionId(sessionId, out _);
+
+		if (await context.TryRemoveService(sessionId, invokeId).ConfigureAwait(false) is { } service)
 		{
-			var context = GetCurrentContext();
+			await service.Destroy(token).ConfigureAwait(false);
 
-			context.ValidateSessionId(sessionId, out _);
+			await DisposeInvokedService(service).ConfigureAwait(false);
+		}
+	}
 
-			if (await context.TryRemoveService(sessionId, invokeId).ConfigureAwait(false) is { } service)
+	ValueTask IStateMachineHost.CancelEvent(SessionId sessionId, SendId sendId, CancellationToken token)
+	{
+		var context = GetCurrentContext();
+
+		context.ValidateSessionId(sessionId, out _);
+
+		return context.CancelEvent(sessionId, sendId, token);
+	}
+
+	ValueTask IStateMachineHost.ForwardEvent(SessionId sessionId,
+											 IEvent evt,
+											 InvokeId invokeId,
+											 CancellationToken token)
+	{
+		var context = GetCurrentContext();
+
+		context.ValidateSessionId(sessionId, out _);
+
+		if (!context.TryGetService(invokeId, out var service))
+		{
+			throw new ProcessorException(Resources.Exception_InvalidInvokeId);
+		}
+
+		return service?.Send(evt, token) ?? default;
+	}
+
+#endregion
+
+	private bool IsCurrentContextExists([NotNullWhen(true)] out StateMachineHostContext? context)
+	{
+		context = _context;
+
+		return context is not null;
+	}
+
+	private IErrorProcessor CreateErrorProcessor(SessionId sessionId, StateMachineOrigin origin) =>
+		_options.ValidationMode switch
+		{
+			ValidationMode.Default => new DefaultErrorProcessor(),
+			ValidationMode.Verbose => new DetailedErrorProcessor(sessionId, origin),
+			_                      => Infra.Unexpected<IErrorProcessor>(_options.ValidationMode)
+		};
+
+	private StateMachineHostContext GetCurrentContext() => _context ?? throw new InvalidOperationException(Resources.Exception_IOProcessorHasNotBeenStarted);
+
+	private async ValueTask<IServiceFactoryActivator> FindServiceFactoryActivator(Uri type)
+	{
+		await foreach (var serviceFactory in ServiceFactories.ConfigureAwait(false))
+		{
+			if (await serviceFactory.TryGetActivator(type).ConfigureAwait(false) is { } activator)
 			{
-				await service.Destroy(token).ConfigureAwait(false);
-
-				await DisposeInvokedService(service).ConfigureAwait(false);
+				return activator;
 			}
 		}
 
-		ValueTask IStateMachineHost.CancelEvent(SessionId sessionId, SendId sendId, CancellationToken token)
+		throw new ProcessorException(Resources.Exception_InvalidType);
+	}
+	/*
+	private void StateMachineHostInit()
+	{
+		var factories = _options.ServiceFactories;
+		var length = !factories.IsDefault ? factories.Length + 1 : 1;
+		var serviceFactories = ImmutableArray.CreateBuilder<IServiceFactory>(length);
+
+		serviceFactories.Add(this);
+
+		if (!factories.IsDefaultOrEmpty)
 		{
-			var context = GetCurrentContext();
-
-			context.ValidateSessionId(sessionId, out _);
-
-			return context.CancelEvent(sessionId, sendId, token);
-		}
-
-		ValueTask IStateMachineHost.ForwardEvent(SessionId sessionId,
-												 IEvent evt,
-												 InvokeId invokeId,
-												 CancellationToken token)
-		{
-			var context = GetCurrentContext();
-
-			context.ValidateSessionId(sessionId, out _);
-
-			if (!context.TryGetService(invokeId, out var service))
+			foreach (var serviceFactory in factories)
 			{
-				throw new ProcessorException(Resources.Exception_InvalidInvokeId);
-			}
-
-			return service?.Send(evt, token) ?? default;
-		}
-
-	#endregion
-
-		private bool IsCurrentContextExists([NotNullWhen(true)] out StateMachineHostContext? context)
-		{
-			context = _context;
-
-			return context is not null;
-		}
-
-		private IErrorProcessor CreateErrorProcessor(SessionId sessionId, StateMachineOrigin origin) =>
-			_options.ValidationMode switch
-			{
-				ValidationMode.Default => new DefaultErrorProcessor(),
-				ValidationMode.Verbose => new DetailedErrorProcessor(sessionId, origin),
-				_                      => Infra.Unexpected<IErrorProcessor>(_options.ValidationMode)
-			};
-
-		private StateMachineHostContext GetCurrentContext() => _context ?? throw new InvalidOperationException(Resources.Exception_IOProcessorHasNotBeenStarted);
-
-		private async ValueTask<IServiceFactoryActivator> FindServiceFactoryActivator(ServiceLocator serviceLocator, Uri type)
-		{
-			await foreach (var serviceFactory in ServiceFactories.ConfigureAwait(false))
-			{
-				if (await serviceFactory.TryGetActivator(serviceLocator, type, default).ConfigureAwait(false) is {} activator)
-				{
-					return activator;
-				}
-			}
-
-			throw new ProcessorException(Resources.Exception_InvalidType);
-		}
-		/*
-		private void StateMachineHostInit()
-		{
-			var factories = _options.ServiceFactories;
-			var length = !factories.IsDefault ? factories.Length + 1 : 1;
-			var serviceFactories = ImmutableArray.CreateBuilder<IServiceFactory>(length);
-
-			serviceFactories.Add(this);
-
-			if (!factories.IsDefaultOrEmpty)
-			{
-				foreach (var serviceFactory in factories)
-				{
-					serviceFactories.Add(serviceFactory);
-				}
-			}
-
-			_serviceFactories = serviceFactories.MoveToImmutable();
-		}*/
-
-		private async ValueTask StateMachineHostStartAsync(CancellationToken token)
-		{
-			
-
-			//var factories = _options.IoProcessorFactories;
-			var factories = await _ioProcessorFactories.ToImmutableArrayAsync().ConfigureAwait(false);
-			var length = !factories.IsDefault ? factories.Length + 1 : 1;
-
-			var ioProcessors = ImmutableArray.CreateBuilder<IIoProcessor>(length);
-
-			ioProcessors.Add(this);
-
-			if (!factories.IsDefaultOrEmpty)
-			{
-				foreach (var ioProcessorFactory in factories)
-				{
-					ioProcessors.Add(await ioProcessorFactory.Create(this, token).ConfigureAwait(false));
-				}
-			}
-
-			_ioProcessors = ioProcessors.MoveToImmutable();
-		}
-
-		private async ValueTask StateMachineHostStopAsync()
-		{
-			var ioProcessors = _ioProcessors;
-			_ioProcessors = default;
-
-			if (ioProcessors.IsDefaultOrEmpty)
-			{
-				return;
-			}
-
-			foreach (var ioProcessor in ioProcessors)
-			{
-				if (ioProcessor == this)
-				{
-					continue;
-				}
-
-				if (ioProcessor is IAsyncDisposable asyncDisposable)
-				{
-					await asyncDisposable.DisposeAsync().ConfigureAwait(false);
-				}
-
-				else if (ioProcessor is IDisposable disposable)
-				{
-					disposable.Dispose();
-				}
+				serviceFactories.Add(serviceFactory);
 			}
 		}
 
-		private static ValueTask DisposeInvokedService(IService service)
+		_serviceFactories = serviceFactories.MoveToImmutable();
+	}*/
+
+	private async ValueTask StateMachineHostStartAsync(CancellationToken token)
+	{
+		//var factories = _options.IoProcessorFactories;
+		var factories = await _ioProcessorFactories.ToImmutableArrayAsync().ConfigureAwait(false);
+		var length = !factories.IsDefault ? factories.Length + 1 : 1;
+
+		var ioProcessors = ImmutableArray.CreateBuilder<IIoProcessor>(length);
+
+		ioProcessors.Add(this);
+
+		if (!factories.IsDefaultOrEmpty)
 		{
-			if (service is IAsyncDisposable asyncDisposable)
+			foreach (var ioProcessorFactory in factories)
 			{
-				return asyncDisposable.DisposeAsync();
+				ioProcessors.Add(await ioProcessorFactory.Create(this, token).ConfigureAwait(false));
+			}
+		}
+
+		_ioProcessors = ioProcessors.MoveToImmutable();
+	}
+
+	private async ValueTask StateMachineHostStopAsync()
+	{
+		var ioProcessors = _ioProcessors;
+		_ioProcessors = default;
+
+		if (ioProcessors.IsDefaultOrEmpty)
+		{
+			return;
+		}
+
+		foreach (var ioProcessor in ioProcessors)
+		{
+			if (ioProcessor == this)
+			{
+				continue;
 			}
 
-			if (service is IDisposable disposable)
+			if (ioProcessor is IAsyncDisposable asyncDisposable)
+			{
+				await asyncDisposable.DisposeAsync().ConfigureAwait(false);
+			}
+
+			else if (ioProcessor is IDisposable disposable)
 			{
 				disposable.Dispose();
 			}
-
-			return default;
 		}
+	}
 
-		private IIoProcessor GetIoProcessorByType(Uri? type)
+	private static ValueTask DisposeInvokedService(IService service)
+	{
+		if (service is IAsyncDisposable asyncDisposable)
 		{
-			var ioProcessors = _ioProcessors;
-
-			if (ioProcessors.IsDefault)
-			{
-				throw new ProcessorException(Resources.Exception_StateMachineHostStopped);
-			}
-
-			foreach (var ioProcessor in ioProcessors)
-			{
-				if (ioProcessor.CanHandle(type))
-				{
-					return ioProcessor;
-				}
-			}
-
-			throw new ProcessorException(Resources.Exception_InvalidType);
+			return asyncDisposable.DisposeAsync();
 		}
 
-		private IIoProcessor GetIoProcessorById(Uri ioProcessorsId)
+		if (service is IDisposable disposable)
 		{
-			var ioProcessors = _ioProcessors;
-
-			if (ioProcessors.IsDefault)
-			{
-				throw new ProcessorException(Resources.Exception_StateMachineHostStopped);
-			}
-
-			foreach (var ioProcessor in ioProcessors)
-			{
-				if (FullUriComparer.Instance.Equals(ioProcessor.Id, ioProcessorsId))
-				{
-					return ioProcessor;
-				}
-			}
-
-			throw new ProcessorException(Resources.Exception_InvalidType);
+			disposable.Dispose();
 		}
 
-		private class StartInvokeLoggerContext : IStartInvokeLoggerContext
+		return default;
+	}
+
+	private IIoProcessor GetIoProcessorByType(Uri? type)
+	{
+		var ioProcessors = _ioProcessors;
+
+		if (ioProcessors.IsDefault)
 		{
-			public StartInvokeLoggerContext(SessionId sessionId, Uri type, Uri? source)
-			{
-				SessionId = sessionId;
-				Type = type;
-				Source = source;
-			}
-
-		#region Interface ILoggerContext
-
-			public DataModelList GetProperties()
-			{
-				var properties = new DataModelList
-								 {
-									 { @"SessionId", SessionId },
-									 { @"InvokeType", Type.ToString() }
-								 };
-
-				if (Source is { } source)
-				{
-					properties.Add(key: @"Source", source.ToString());
-				}
-
-				properties.MakeDeepConstant();
-
-				return properties;
-			}
-
-			public string LoggerContextType => nameof(IStartInvokeLoggerContext);
-
-		#endregion
-
-		#region Interface IStartInvokeLoggerContext
-
-			public SessionId SessionId { get; }
-			public Uri       Type      { get; }
-			public Uri?      Source    { get; }
-
-		#endregion
+			throw new ProcessorException(Resources.Exception_StateMachineHostStopped);
 		}
+
+		foreach (var ioProcessor in ioProcessors)
+		{
+			if (ioProcessor.CanHandle(type))
+			{
+				return ioProcessor;
+			}
+		}
+
+		throw new ProcessorException(Resources.Exception_InvalidType);
+	}
+
+	private IIoProcessor GetIoProcessorById(Uri ioProcessorsId)
+	{
+		var ioProcessors = _ioProcessors;
+
+		if (ioProcessors.IsDefault)
+		{
+			throw new ProcessorException(Resources.Exception_StateMachineHostStopped);
+		}
+
+		foreach (var ioProcessor in ioProcessors)
+		{
+			if (FullUriComparer.Instance.Equals(ioProcessor.Id, ioProcessorsId))
+			{
+				return ioProcessor;
+			}
+		}
+
+		throw new ProcessorException(Resources.Exception_InvalidType);
+	}
+
+	private class StartInvokeLoggerContext : IStartInvokeLoggerContext
+	{
+		public StartInvokeLoggerContext(SessionId sessionId, Uri type, Uri? source)
+		{
+			SessionId = sessionId;
+			Type = type;
+			Source = source;
+		}
+
+#region Interface ILoggerContext
+
+		public DataModelList GetProperties()
+		{
+			var properties = new DataModelList
+							 {
+								 { @"SessionId", SessionId },
+								 { @"InvokeType", Type.ToString() }
+							 };
+
+			if (Source is { } source)
+			{
+				properties.Add(key: @"Source", source.ToString());
+			}
+
+			properties.MakeDeepConstant();
+
+			return properties;
+		}
+
+		public string LoggerContextType => nameof(IStartInvokeLoggerContext);
+
+#endregion
+
+#region Interface IStartInvokeLoggerContext
+
+		public SessionId SessionId { get; }
+		public Uri       Type      { get; }
+		public Uri?      Source    { get; }
+
+#endregion
 	}
 }

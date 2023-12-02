@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,27 +17,22 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
-using Xtate.Core;
+namespace Xtate.Builder;
 
-namespace Xtate.Builder
+public class FinalizeBuilder : BuilderBase, IFinalizeBuilder
 {
-	public class FinalizeBuilder : BuilderBase, IFinalizeBuilder
+	private ImmutableArray<IExecutableEntity>.Builder? _actions;
+
+#region Interface IFinalizeBuilder
+
+	public IFinalize Build() => new FinalizeEntity { Ancestor = Ancestor, Action = _actions?.ToImmutable() ?? default };
+
+	public void AddAction(IExecutableEntity action)
 	{
-		private ImmutableArray<IExecutableEntity>.Builder? _actions;
+		Infra.Requires(action);
 
-	#region Interface IFinalizeBuilder
-
-		public IFinalize Build() => new FinalizeEntity { Ancestor = Ancestor, Action = _actions?.ToImmutable() ?? default };
-
-		public void AddAction(IExecutableEntity action)
-		{
-			Infra.Requires(action);
-
-			(_actions ??= ImmutableArray.CreateBuilder<IExecutableEntity>()).Add(action);
-		}
-
-	#endregion
+		(_actions ??= ImmutableArray.CreateBuilder<IExecutableEntity>()).Add(action);
 	}
+
+#endregion
 }

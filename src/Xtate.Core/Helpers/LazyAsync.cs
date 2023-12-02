@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,56 +17,53 @@
 
 #endregion
 
-using System;
+namespace Xtate.Core;
 
-namespace Xtate.Core
+public class LazyAsync<T> where T : class
 {
-	public class LazyAsync<T> where T : class
+	private Func<T>? _factory;
+
+	private volatile object? _state;
+
+	private T? _value;
+
+	public LazyAsync(Func<T>? valueFactory)
 	{
-		private Func<T>? _factory;
+		_factory = valueFactory;
+		_state = new object();
+	}
 
-		volatile private object? _state;
+	public T Value => _state == null ? _value! : CreateValue();
 
-		private T? _value;
+	private void ViaFactory()
+	{
+		var factory = _factory;
 
-		public LazyAsync(Func<T>? valueFactory)
+		if (factory == null)
 		{
-			_factory = valueFactory;
-			_state = new object();
+			throw new InvalidOperationException(@"SR.Lazy_Value_RecursiveCallsToValue");
 		}
 
-		public T Value => _state == null ? _value! : CreateValue();
+		_factory = null;
 
-		private void ViaFactory()
+		_value = factory();
+		_state = null;
+	}
+
+	private T CreateValue()
+	{
+		var state = _state;
+		if (state != null)
 		{
-			var factory = _factory;
-			
-			if (factory == null)
+			lock (state)
 			{
-				throw new InvalidOperationException(@"SR.Lazy_Value_RecursiveCallsToValue");
-			}
-
-			_factory = null;
-
-			_value = factory();
-			_state = null;
-		}
-
-		private T CreateValue()
-		{
-			var state = _state;
-			if (state != null)
-			{
-				lock (state)
+				if (ReferenceEquals(_state, state))
 				{
-					if (ReferenceEquals(_state, state))
-					{
-						ViaFactory();
-					}
+					ViaFactory();
 				}
 			}
-
-			return Value;
 		}
+
+		return Value;
 	}
 }

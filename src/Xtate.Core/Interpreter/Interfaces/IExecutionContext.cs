@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,65 +17,50 @@
 
 #endregion
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.Core;
+namespace Xtate;
 
-namespace Xtate
+
+public record InvokeData
 {
-	[PublicAPI]
-	public record InvokeData
+	public InvokeData(InvokeId invokeId, Uri type)
 	{
-		public InvokeData(InvokeId invokeId, Uri type)
-		{
-			InvokeId = invokeId;
-			Type = type;
-		}
-
-		public InvokeId       InvokeId   { get; }
-		public Uri            Type       { get; }
-		public Uri?           Source     { get; init; }
-		public string?        RawContent { get; init; }
-		public DataModelValue Content    { get; init; }
-		public DataModelValue Parameters { get; init; }
+		InvokeId = invokeId;
+		Type = type;
 	}
 
-	public interface IEventController
-	{
-		ValueTask Send(IOutgoingEvent outgoingEvent);
+	public InvokeId       InvokeId   { get; }
+	public Uri            Type       { get; }
+	public Uri?           Source     { get; init; }
+	public string?        RawContent { get; init; }
+	public DataModelValue Content    { get; init; }
+	public DataModelValue Parameters { get; init; }
+}
 
-		ValueTask Cancel(SendId sendId);
-	}
+public interface IEventController
+{
+	ValueTask Send(IOutgoingEvent outgoingEvent);
 
-	public interface IInvokeController
-	{
-		ValueTask Start(InvokeData invokeData);
+	ValueTask Cancel(SendId sendId);
+}
 
-		ValueTask Cancel(InvokeId invokeId);
-	}
+public interface IInvokeController
+{
+	ValueTask Start(InvokeData invokeData);
 
-	//TODO:delete
-	[Obsolete]
-	public interface IExecutionContext : ILogController, IEventController, IInvokeController, IInStateController, IDataModelController
-	{
-		IContextItems RuntimeItems { get; }
+	ValueTask Cancel(InvokeId invokeId);
+}
 
-		ISecurityContext SecurityContext { get; }
-	}
+public interface IInStateController
+{
+	bool InState(IIdentifier id);
+}
 
-	public interface IInStateController
-	{
-		bool InState(IIdentifier id);
-	}
+public interface IDataModelController
+{
+	DataModelList DataModel { get; }
+}
 
-	public interface IDataModelController
-	{
-		DataModelList DataModel { get; }
-	}
-
-	public interface IContextItems
-	{
-		object? this[object key] { get; set; }
-	}
+public interface IContextItems
+{
+	object? this[object key] { get; set; }
 }

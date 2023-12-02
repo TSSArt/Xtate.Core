@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,40 +17,38 @@
 
 #endregion
 
-using System;
 using Xtate.Persistence;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public sealed class RaiseNode : ExecutableEntityNode, IRaise, IAncestorProvider, IDebugEntityId
 {
-	public sealed class RaiseNode : ExecutableEntityNode, IRaise, IAncestorProvider, IDebugEntityId
+	private readonly IRaise _raise;
+
+	public RaiseNode(DocumentIdNode documentIdNode, IRaise raise) : base(documentIdNode, raise) => _raise = raise;
+
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => _raise;
+
+#endregion
+
+#region Interface IDebugEntityId
+
+	FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
+
+#endregion
+
+#region Interface IRaise
+
+	public IOutgoingEvent? OutgoingEvent => _raise.OutgoingEvent;
+
+#endregion
+
+	protected override void Store(Bucket bucket)
 	{
-		private readonly IRaise _raise;
-
-		public RaiseNode(DocumentIdNode documentIdNode, IRaise raise) : base(documentIdNode, raise) => _raise = raise;
-
-	#region Interface IAncestorProvider
-
-		object IAncestorProvider.Ancestor => _raise;
-
-	#endregion
-
-	#region Interface IDebugEntityId
-
-		FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
-
-	#endregion
-
-	#region Interface IRaise
-
-		public IOutgoingEvent? OutgoingEvent => _raise.OutgoingEvent;
-
-	#endregion
-
-		protected override void Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.RaiseNode);
-			bucket.Add(Key.DocumentId, DocumentId);
-			bucket.AddEntity(Key.Event, OutgoingEvent);
-		}
+		bucket.Add(Key.TypeInfo, TypeInfo.RaiseNode);
+		bucket.Add(Key.DocumentId, DocumentId);
+		bucket.AddEntity(Key.Event, OutgoingEvent);
 	}
 }

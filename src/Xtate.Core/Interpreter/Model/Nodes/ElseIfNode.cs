@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,57 +17,55 @@
 
 #endregion
 
-using System;
 using Xtate.Persistence;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public sealed class ElseIfNode : IElseIf, IAncestorProvider, IStoreSupport, IDocumentId, IDebugEntityId
 {
-	public sealed class ElseIfNode : IElseIf, IAncestorProvider, IStoreSupport, IDocumentId, IDebugEntityId
+	private readonly IElseIf        _elseIf;
+	private          DocumentIdSlot _documentIdSlot;
+
+	public ElseIfNode(DocumentIdNode documentIdNode, IElseIf elseIf)
 	{
-		private readonly IElseIf        _elseIf;
-		private          DocumentIdSlot _documentIdSlot;
+		Infra.NotNull(elseIf.Condition);
 
-		public ElseIfNode(DocumentIdNode documentIdNode, IElseIf elseIf)
-		{
-			Infra.NotNull(elseIf.Condition);
-
-			documentIdNode.SaveToSlot(out _documentIdSlot);
-			_elseIf = elseIf;
-		}
-
-	#region Interface IAncestorProvider
-
-		object IAncestorProvider.Ancestor => _elseIf;
-
-	#endregion
-
-	#region Interface IDebugEntityId
-
-		FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
-
-	#endregion
-
-	#region Interface IDocumentId
-
-		public int DocumentId => _documentIdSlot.Value;
-
-	#endregion
-
-	#region Interface IElseIf
-
-		public IConditionExpression Condition => _elseIf.Condition!;
-
-	#endregion
-
-	#region Interface IStoreSupport
-
-		void IStoreSupport.Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.ElseIfNode);
-			bucket.Add(Key.DocumentId, DocumentId);
-			bucket.AddEntity(Key.Condition, Condition);
-		}
-
-	#endregion
+		documentIdNode.SaveToSlot(out _documentIdSlot);
+		_elseIf = elseIf;
 	}
+
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => _elseIf;
+
+#endregion
+
+#region Interface IDebugEntityId
+
+	FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
+
+#endregion
+
+#region Interface IDocumentId
+
+	public int DocumentId => _documentIdSlot.Value;
+
+#endregion
+
+#region Interface IElseIf
+
+	public IConditionExpression Condition => _elseIf.Condition!;
+
+#endregion
+
+#region Interface IStoreSupport
+
+	void IStoreSupport.Store(Bucket bucket)
+	{
+		bucket.Add(Key.TypeInfo, TypeInfo.ElseIfNode);
+		bucket.Add(Key.DocumentId, DocumentId);
+		bucket.AddEntity(Key.Condition, Condition);
+	}
+
+#endregion
 }
