@@ -235,7 +235,7 @@ public class InterpreterXDataModelProperty : IXDataModelProperty
 {
 	public required IDataModelHandler        DataModelHandler        { private get; [UsedImplicitly] init; }
 	public required IStateMachineInterpreter StateMachineInterpreter { private get; [UsedImplicitly] init; }
-	public required Func<Type, ITypeInfo>    TypeInfoFactory         { private get; [UsedImplicitly] init; }
+	public required Func<Type, IAssemblyTypeInfo>    TypeInfoFactory         { private get; [UsedImplicitly] init; }
 
 #region Interface IXDataModelProperty
 
@@ -265,7 +265,7 @@ public class InterpreterXDataModelProperty : IXDataModelProperty
 public class DataModelXDataModelProperty : IXDataModelProperty
 {
 	public required IDataModelHandler     DataModelHandler { private get; [UsedImplicitly] init; }
-	public required Func<Type, ITypeInfo> TypeInfoFactory  { private get; [UsedImplicitly] init; }
+	public required Func<Type, IAssemblyTypeInfo> TypeInfoFactory  { private get; [UsedImplicitly] init; }
 
 #region Interface IXDataModelProperty
 

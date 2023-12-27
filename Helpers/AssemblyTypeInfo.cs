@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2023 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,47 +15,17 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
+using System.Reflection;
 
 namespace Xtate.Core;
 
-public class LazyAsync<T>(Func<T>? valueFactory) where T : class
+public class AssemblyTypeInfo(Type type) : IAssemblyTypeInfo
 {
-	private volatile object? _state = new object();
+#region Interface IAssemblyTypeInfo
 
-	private T? _value;
+	public string FullTypeName    { get; } = type.FullName ?? string.Empty;
+	public string AssemblyName    { get; } = type.Assembly.GetName().Name ?? string.Empty;
+	public string AssemblyVersion { get; } = type.Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? string.Empty;
 
-	public T Value => _state == null ? _value! : CreateValue();
-
-	private void ViaFactory()
-	{
-		var factory = valueFactory;
-
-		if (factory == null)
-		{
-			throw new InvalidOperationException(@"SR.Lazy_Value_RecursiveCallsToValue");
-		}
-
-		valueFactory = null;
-
-		_value = factory();
-		_state = null;
-	}
-
-	private T CreateValue()
-	{
-		var state = _state;
-		if (state != null)
-		{
-			lock (state)
-			{
-				if (ReferenceEquals(_state, state))
-				{
-					ViaFactory();
-				}
-			}
-		}
-
-		return Value;
-	}
+#endregion
 }

@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2023 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,44 +15,46 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using System.IO;
 using System.Reflection;
 using System.Runtime.Loader;
-using Xtate.DataModel;
 using Xtate.IoC;
 
 namespace Xtate.Core;
 
-public static class DynamicAssemblyExtensions
-{
-	public static void RegisterDynamicAssembly(this IServiceCollection services)
-	{
-		if (services.IsRegistered<InterpreterModelBuilder>())
-		{
-			return;
-		}
-
-		services.AddSharedType<DynamicAssembly, Uri>(SharedWithin.Scope);
-		services.AddSharedType<AssemblyContainerProvider, Uri>(SharedWithin.Scope);
-	}
-}
-
 public class DynamicAssembly : IDisposable, IAsyncInitialization, IServiceModule
 {
-	public required  IResourceLoader      ResourceLoader { private get; [UsedImplicitly] init; }
+	private readonly DisposingToken _disposingToken = new();
+	private readonly Uri            _uri;
 
-	private readonly DisposingToken                             _disposingToken = new();
-	private readonly Uri                                        _uri;
-	private          AsyncInit<ImmutableArray<IServiceModule>>? _asyncInitServiceModules;
-	private          Context?                                   _context;
+	private AsyncInit<ImmutableArray<IServiceModule>>? _asyncInitServiceModules;
+	private Context?                                   _context;
 
 	public DynamicAssembly(Uri uri)
 	{
 		_uri = uri;
 		_asyncInitServiceModules = AsyncInit.RunAfter(this, static da => da.LoadAssemblyServiceModules());
 	}
+
+	public required IResourceLoader ResourceLoader { private get; [UsedImplicitly] init; }
+
+#region Interface IAsyncInitialization
+
+	public Task Initialization => _asyncInitServiceModules?.Task ?? Task.CompletedTask;
+
+#endregion
+
+#region Interface IDisposable
+
+	public void Dispose()
+	{
+		Dispose(true);
+		GC.SuppressFinalize(this);
+	}
+
+#endregion
+
+#region Interface IServiceModule
 
 	public void Register(IServiceCollection servicesCollection)
 	{
@@ -63,6 +65,8 @@ public class DynamicAssembly : IDisposable, IAsyncInitialization, IServiceModule
 			serviceModule.Register(servicesCollection);
 		}
 	}
+
+#endregion
 
 	private async ValueTask<ImmutableArray<IServiceModule>> LoadAssemblyServiceModules()
 	{
@@ -108,27 +112,11 @@ public class DynamicAssembly : IDisposable, IAsyncInitialization, IServiceModule
 		}
 
 		using var memStream = new MemoryStream(new byte[stream.Length - stream.Position]);
-		await stream.CopyToAsync(memStream, 81920, _disposingToken.Token).ConfigureAwait(false);
+		await stream.CopyToAsync(memStream, bufferSize: 81920, _disposingToken.Token).ConfigureAwait(false);
 		memStream.Position = 0;
 
 		return _context.LoadFromStream(memStream);
 	}
-
-#region Interface IAsyncInitialization
-
-	public Task Initialization => _asyncInitServiceModules?.Task ?? Task.CompletedTask;
-
-#endregion
-
-#region Interface IDisposable
-
-	public void Dispose()
-	{
-		Dispose(true);
-		GC.SuppressFinalize(this);
-	}
-
-#endregion
 
 	protected virtual void Dispose(bool disposing)
 	{

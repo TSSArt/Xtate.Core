@@ -21,8 +21,6 @@ namespace Xtate;
 
 public static class Disposer
 {
-	public static bool IsDisposable<T>([NotNullWhen(true)] T instance) => instance is IDisposable or IAsyncDisposable;
-
 	public static void Dispose<T>(T instance)
 	{
 		switch (instance)

@@ -19,6 +19,6 @@
 
 namespace Xtate.CustomAction;
 
-public class StartActionProvider() : CustomActionProvider<StartAction>(Namespace: "http://xtate.net/scxml/system", Name: "start");
+public class StartActionProvider() : CustomActionProvider<StartAction>(ns: "http://xtate.net/scxml/system", name: "start");
 
-public class DestroyActionProvider() : CustomActionProvider<DestroyAction>(Namespace: "http://xtate.net/scxml/system", Name: "destroy");
+public class DestroyActionProvider() : CustomActionProvider<DestroyAction>(ns: "http://xtate.net/scxml/system", name: "destroy");

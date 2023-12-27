@@ -21,10 +21,8 @@ using System.IO;
 
 namespace Xtate.Core;
 
-internal sealed class InjectedCancellationStream(Stream stream, CancellationToken token) : DelegatedStream
+internal sealed class InjectedCancellationStream(Stream stream, CancellationToken extToken) : DelegatedStream
 {
-	private readonly CancellationToken _token = token;
-
 	protected override Stream InnerStream { get; } = stream;
 
 	public override Task<int> ReadAsync(byte[] buffer,
@@ -38,7 +36,7 @@ internal sealed class InjectedCancellationStream(Stream stream, CancellationToke
 											  int count,
 											  CancellationToken token)
 	{
-		using var cts = CancellationTokenSource.CreateLinkedTokenSource(token, _token);
+		using var cts = CancellationTokenSource.CreateLinkedTokenSource(token, extToken);
 
 		return await InnerStream.ReadAsync(buffer, offset, count, cts.Token).ConfigureAwait(false);
 	}
@@ -48,7 +46,7 @@ internal sealed class InjectedCancellationStream(Stream stream, CancellationToke
 
 	private async Task CopyToAsyncInternal(Stream destination, int bufferSize, CancellationToken token)
 	{
-		using var cts = CancellationTokenSource.CreateLinkedTokenSource(token, _token);
+		using var cts = CancellationTokenSource.CreateLinkedTokenSource(token, extToken);
 
 		await InnerStream.CopyToAsync(destination, bufferSize, cts.Token).ConfigureAwait(false);
 	}
@@ -57,7 +55,7 @@ internal sealed class InjectedCancellationStream(Stream stream, CancellationToke
 
 	private async Task FlushAsyncInternal(CancellationToken token)
 	{
-		using var cts = CancellationTokenSource.CreateLinkedTokenSource(token, _token);
+		using var cts = CancellationTokenSource.CreateLinkedTokenSource(token, extToken);
 
 		await InnerStream.FlushAsync(cts.Token).ConfigureAwait(false);
 	}
@@ -73,7 +71,7 @@ internal sealed class InjectedCancellationStream(Stream stream, CancellationToke
 										  int count,
 										  CancellationToken token)
 	{
-		using var cts = CancellationTokenSource.CreateLinkedTokenSource(token, _token);
+		using var cts = CancellationTokenSource.CreateLinkedTokenSource(token, extToken);
 
 		await InnerStream.WriteAsync(buffer, offset, count, cts.Token).ConfigureAwait(false);
 	}
@@ -82,10 +80,10 @@ internal sealed class InjectedCancellationStream(Stream stream, CancellationToke
 	{
 		if (token.CanBeCanceled)
 		{
-			return _token.CanBeCanceled;
+			return extToken.CanBeCanceled;
 		}
 
-		token = _token;
+		token = extToken;
 
 		return false;
 	}
@@ -96,7 +94,7 @@ internal sealed class InjectedCancellationStream(Stream stream, CancellationToke
 
 	private async ValueTask<int> ReadAsyncInternal(Memory<byte> buffer, CancellationToken token)
 	{
-		using var cts = CancellationTokenSource.CreateLinkedTokenSource(token, _token);
+		using var cts = CancellationTokenSource.CreateLinkedTokenSource(token, extToken);
 
 		return await InnerStream.ReadAsync(buffer, cts.Token).ConfigureAwait(false);
 	}
@@ -106,15 +104,9 @@ internal sealed class InjectedCancellationStream(Stream stream, CancellationToke
 
 	private async ValueTask WriteAsyncInternal(ReadOnlyMemory<byte> buffer, CancellationToken token)
 	{
-		using var cts = CancellationTokenSource.CreateLinkedTokenSource(token, _token);
+		using var cts = CancellationTokenSource.CreateLinkedTokenSource(token, extToken);
 
 		await InnerStream.WriteAsync(buffer, cts.Token).ConfigureAwait(false);
 	}
-#else
-		[UsedImplicitly]
-		internal static void IgnoreIt(ValueTask _) { }
-
-		[UsedImplicitly]
-		internal static void IgnoreIt(Memory<byte> _) { }
 #endif
 }

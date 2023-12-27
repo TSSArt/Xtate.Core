@@ -91,7 +91,7 @@ public static class InterpreterExtensions
 		services.RegisterInterpreterModelBuilder();
 		services.RegisterLogging();
 
-		services.AddSharedImplementationSync<TypeInfoBase, Type>(SharedWithin.Scope).For<ITypeInfo>();
+		services.AddSharedImplementationSync<AssemblyTypeInfo, Type>(SharedWithin.Scope).For<IAssemblyTypeInfo>();
 
 		services.AddImplementation<InterpreterXDataModelProperty>().For<IXDataModelProperty>();
 		services.AddImplementation<DataModelXDataModelProperty>().For<IXDataModelProperty>();

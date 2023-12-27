@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2023 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,8 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using System.Buffers;
 using System.IO;
 
@@ -24,28 +22,6 @@ namespace Xtate.Core;
 
 public static class StreamExtensions
 {
-#if NET6_0_OR_GREATER
-	internal static void IgnoreIt(ConfiguredValueTaskAwaitable _) { }
-#else
-		public static ConfiguredAwaitable ConfigureAwait(this Stream stream, bool continueOnCapturedContext) => new(stream, continueOnCapturedContext);
-
-		public static ValueTask DisposeAsync(this Stream stream)
-		{
-			if (stream is null) throw new ArgumentNullException(nameof(stream));
-
-			stream.Dispose();
-
-			return default;
-		}
-
-		[SuppressMessage(category: "Design", checkId: "CA1034:Nested types should not be visible")]
-		[SuppressMessage(category: "Performance", checkId: "CA1815:Override equals and operator equals on value types")]
-		public readonly struct ConfiguredAwaitable(Stream stream, bool continueOnCapturedContext)
-	{
-		public ConfiguredValueTaskAwaitable DisposeAsync() => stream.DisposeAsync().ConfigureAwait(continueOnCapturedContext);
-		}
-#endif
-
 	public static Stream InjectCancellationToken(this Stream stream, CancellationToken token) => new InjectedCancellationStream(stream, token);
 
 	[SuppressMessage(category: "ReSharper", checkId: "MethodHasAsyncOverloadWithCancellation")]
@@ -76,4 +52,24 @@ public static class StreamExtensions
 			ArrayPool<byte>.Shared.Return(buffer);
 		}
 	}
+
+#if !NET6_0_OR_GREATER
+
+	public static ConfiguredAwaitable ConfigureAwait(this Stream stream, bool continueOnCapturedContext) => new(stream, continueOnCapturedContext);
+
+	public static ValueTask DisposeAsync(this Stream stream)
+	{
+		if (stream is null) throw new ArgumentNullException(nameof(stream));
+
+		stream.Dispose();
+
+		return default;
+	}
+
+	public readonly struct ConfiguredAwaitable(Stream stream, bool continueOnCapturedContext)
+	{
+		public ConfiguredValueTaskAwaitable DisposeAsync() => stream.DisposeAsync().ConfigureAwait(continueOnCapturedContext);
+	}
+
+#endif
 }
