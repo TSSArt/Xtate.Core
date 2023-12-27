@@ -21,21 +21,13 @@ using System.Xml;
 
 namespace Xtate.XInclude;
 
-internal sealed class TextContentReader : XmlReader
+internal sealed class TextContentReader(Uri uri, string content) : XmlReader
 {
-	private readonly string    _content;
-	private          ReadState _readState;
-
-	public TextContentReader(Uri uri, string content)
-	{
-		BaseURI = uri.ToString();
-		_readState = ReadState.Initial;
-		_content = content;
-	}
+	private ReadState _readState = ReadState.Initial;
 
 	public override int AttributeCount => 0;
 
-	public override string BaseURI { get; }
+	public override string BaseURI { get; } = uri.ToString();
 
 	public override int Depth => _readState == ReadState.Interactive ? 1 : 0;
 
@@ -69,7 +61,7 @@ internal sealed class TextContentReader : XmlReader
 
 	public override ReadState ReadState => _readState;
 
-	public override string Value => _readState == ReadState.Interactive ? _content : string.Empty;
+	public override string Value => _readState == ReadState.Interactive ? content : string.Empty;
 
 	public override string XmlLang => string.Empty;
 
@@ -99,11 +91,11 @@ internal sealed class TextContentReader : XmlReader
 
 	public override bool ReadAttributeValue() => false;
 
-	public override string ReadInnerXml() => _readState == ReadState.Interactive ? _content : string.Empty;
+	public override string ReadInnerXml() => _readState == ReadState.Interactive ? content : string.Empty;
 
-	public override string ReadOuterXml() => _readState == ReadState.Interactive ? _content : string.Empty;
+	public override string ReadOuterXml() => _readState == ReadState.Interactive ? content : string.Empty;
 
-	public override string ReadString() => _readState == ReadState.Interactive ? _content : string.Empty;
+	public override string ReadString() => _readState == ReadState.Interactive ? content : string.Empty;
 
 	public override void ResolveEntity() { }
 

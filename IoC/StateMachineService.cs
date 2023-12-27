@@ -36,8 +36,6 @@ public class StateMachineService : IStateMachineService
 		}
 
 		return default;
-
-		//throw new InfrastructureException(Res.Format(Resources.Exception_CantFindStateMachineProvider));
 	}
 
 #endregion

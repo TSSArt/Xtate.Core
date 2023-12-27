@@ -18,8 +18,6 @@
 #endregion
 
 #if !NET6_0_OR_GREATER
-using System.Runtime.CompilerServices;
-using Xtate;
 
 namespace System
 {
@@ -81,17 +79,11 @@ namespace System
 	}
 
 	[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-	internal readonly struct Range : IEquatable<Range>
+	internal readonly struct Range(Index start, Index end) : IEquatable<Range>
 	{
-		public Range(Index start, Index end)
-		{
-			Start = start;
-			End = end;
-		}
+		public Index Start { get; } = start;
 
-		public Index Start { get; }
-
-		public Index End { get; }
+		public Index End { get; } = end;
 
 		public static Range All => new(Index.Start, Index.End);
 

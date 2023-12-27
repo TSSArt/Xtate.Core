@@ -21,15 +21,12 @@ using Xtate.Persistence;
 
 namespace Xtate.Core;
 
-public sealed class IfNode : ExecutableEntityNode, IIf, IAncestorProvider, IDebugEntityId
+public sealed class IfNode(DocumentIdNode documentIdNode, IIf @if) : ExecutableEntityNode(documentIdNode, @if), IIf, IAncestorProvider, IDebugEntityId
 {
-	private readonly IIf _if;
 
-	public IfNode(DocumentIdNode documentIdNode, IIf @if) : base(documentIdNode, @if) => _if = @if;
+	#region Interface IAncestorProvider
 
-#region Interface IAncestorProvider
-
-	object IAncestorProvider.Ancestor => _if;
+	object IAncestorProvider.Ancestor => @if;
 
 #endregion
 
@@ -41,9 +38,9 @@ public sealed class IfNode : ExecutableEntityNode, IIf, IAncestorProvider, IDebu
 
 #region Interface IIf
 
-	public IConditionExpression? Condition => _if.Condition;
+	public IConditionExpression? Condition => @if.Condition;
 
-	public ImmutableArray<IExecutableEntity> Action => _if.Action;
+	public ImmutableArray<IExecutableEntity> Action => @if.Action;
 
 #endregion
 

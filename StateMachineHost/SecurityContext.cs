@@ -44,7 +44,7 @@ public sealed class SecurityContext : ISecurityContext, IAsyncDisposable
 																TaskContinuationOptions.LongRunning;
 
 	private readonly SecurityContext?                                  _parent;
-	private          GlobalCache<(object Key, object SubKey), object>? _globalCache;
+	//private          GlobalCache<(object Key, object SubKey), object>? _globalCache;
 	private          TaskFactory?                                      _ioBoundTaskFactory;
 	private          LocalCache<(object Key, object SubKey), object>?  _localCache;
 
@@ -170,15 +170,16 @@ public sealed class SecurityContext : ISecurityContext, IAsyncDisposable
 			root = parent;
 		}
 
-		var globalCache = root._globalCache;
+		/*var globalCache = root._globalCache;
 
 		if (globalCache is null)
 		{
-			var newGlobalCache = new GlobalCache<(object Key, object SubKey), object>();
-			globalCache = Interlocked.CompareExchange(ref root._globalCache, newGlobalCache, comparand: null) ?? newGlobalCache;
-		}
+			//var newGlobalCache = new GlobalCache<(object Key, object SubKey), object>();
+			//globalCache = Interlocked.CompareExchange(ref root._globalCache, newGlobalCache, comparand: null) ?? newGlobalCache;
+		}*/
 
-		return _localCache = globalCache.CreateLocalCache();
+		//TODO:uncomment
+		return _localCache!;// = globalCache.CreateLocalCache();
 	}
 
 	internal static SecurityContext Create(SecurityContextType type)

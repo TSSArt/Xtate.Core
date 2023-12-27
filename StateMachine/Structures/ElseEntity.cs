@@ -23,9 +23,9 @@ public struct ElseEntity : IElse, IVisitorEntity<ElseEntity, IElse>, IAncestorPr
 {
 	internal object? Ancestor;
 
-#region Interface IAncestorProvider
+	#region Interface IAncestorProvider
 
-	object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
@@ -33,7 +33,7 @@ public struct ElseEntity : IElse, IVisitorEntity<ElseEntity, IElse>, IAncestorPr
 
 	void IVisitorEntity<ElseEntity, IElse>.Init(IElse source) => Ancestor = source;
 
-	bool IVisitorEntity<ElseEntity, IElse>.RefEquals(ref ElseEntity other) => true;
+	readonly bool IVisitorEntity<ElseEntity, IElse>.RefEquals(ref ElseEntity other) => true;
 
 #endregion
 }

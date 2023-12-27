@@ -23,21 +23,16 @@ using System.Xml.XPath;
 
 namespace Xtate.DataModel.XPath;
 
-public class XPathObject : IObject
+public class XPathObject(object value) : IObject
 {
-	private readonly object _value;
-
-	public XPathObject(object value)
+	private readonly object _value = value switch
 	{
-		_value = value switch
-				 {
-					 XPathNodeIterator => value,
-					 string            => value,
-					 double            => value,
-					 bool              => value,
-					 _                 => Infra.Unexpected<object>(value)
-				 };
-	}
+		XPathNodeIterator => value,
+		string => value,
+		double => value,
+		bool => value,
+		_ => Infra.Unexpected<object>(value)
+	};
 
 	public XPathObjectType Type =>
 		_value switch

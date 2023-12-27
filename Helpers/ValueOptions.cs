@@ -24,8 +24,7 @@ namespace Xtate;
 public enum ValueOptions
 {
 	/// <summary>
-	///     Calls <see cref="IDisposable.Dispose" /> or <see cref="IAsyncDisposable.DisposeAsync" /> on value object when
-	///     <see cref="ISecurityContext" /> disposed.
+	///     Calls <see cref="IDisposable.Dispose" /> or <see cref="IAsyncDisposable.DisposeAsync" /> on value object when object leaves the cache.
 	/// </summary>
 	Dispose = 1,
 

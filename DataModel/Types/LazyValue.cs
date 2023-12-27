@@ -65,42 +65,18 @@ public abstract class LazyValue : ILazyValue
 
 	protected abstract DataModelValue Create();
 
-	private class NoArg : LazyValue
+	private class NoArg(Func<DataModelValue> factory) : LazyValue
 	{
-		private readonly Func<DataModelValue> _factory;
-
-		public NoArg(Func<DataModelValue> factory) => _factory = factory;
-
-		protected override DataModelValue Create() => _factory();
+		protected override DataModelValue Create() => factory();
 	}
 
-	private class OneArg<TArg> : LazyValue
+	private class OneArg<TArg>(Func<TArg, DataModelValue> factory, TArg arg) : LazyValue
 	{
-		private readonly TArg                       _arg;
-		private readonly Func<TArg, DataModelValue> _factory;
-
-		public OneArg(Func<TArg, DataModelValue> factory, TArg arg)
-		{
-			_factory = factory;
-			_arg = arg;
-		}
-
-		protected override DataModelValue Create() => _factory(_arg);
+		protected override DataModelValue Create() => factory(arg);
 	}
 
-	private class TwoArgs<TArg1, TArg2> : LazyValue
+	private class TwoArgs<TArg1, TArg2>(Func<TArg1, TArg2, DataModelValue> factory, TArg1 arg1, TArg2 arg2) : LazyValue
 	{
-		private readonly TArg1                              _arg1;
-		private readonly TArg2                              _arg2;
-		private readonly Func<TArg1, TArg2, DataModelValue> _factory;
-
-		public TwoArgs(Func<TArg1, TArg2, DataModelValue> factory, TArg1 arg1, TArg2 arg2)
-		{
-			_factory = factory;
-			_arg1 = arg1;
-			_arg2 = arg2;
-		}
-
-		protected override DataModelValue Create() => _factory(_arg1, _arg2);
+		protected override DataModelValue Create() => factory(arg1, arg2);
 	}
 }

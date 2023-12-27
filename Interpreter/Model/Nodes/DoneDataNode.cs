@@ -32,8 +32,6 @@ public sealed class DoneDataNode : IDoneData, IStoreSupport, IAncestorProvider, 
 
 	public DoneDataNode(DocumentIdNode documentIdNode, IDoneData doneData)
 	{
-		Infra.Requires(doneData);
-
 		_doneData = doneData;
 		documentIdNode.SaveToSlot(out _documentIdSlot);
 		_contentExpressionEvaluator = doneData.Content?.Expression?.As<IObjectEvaluator>();

@@ -29,7 +29,7 @@ public sealed class ServiceIdSet : IEnumerable<ServiceId>
 		Remove
 	}
 
-	private readonly HashSet<ServiceId> _set = new();
+	private readonly HashSet<ServiceId> _set = [];
 
 	public int Count => _set.Count;
 

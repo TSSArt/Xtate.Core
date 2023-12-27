@@ -296,9 +296,9 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 
 	protected class Policy<TEntity>
 	{
-		private readonly Dictionary<QualifiedName, (Action<TDirector, TEntity> located, AttributeType type)> _attributes = new();
+		private readonly Dictionary<QualifiedName, (Action<TDirector, TEntity> located, AttributeType type)> _attributes = [];
 
-		private readonly Dictionary<QualifiedName, (Func<TDirector, TEntity, ValueTask> located, ElementType type)> _elements = new();
+		private readonly Dictionary<QualifiedName, (Func<TDirector, TEntity, ValueTask> located, ElementType type)> _elements = [];
 
 		public Action<TDirector, TEntity>? RawContentAction { get; set; }
 
@@ -453,19 +453,15 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 		}
 	}
 
-	private class PolicyBuilder<TEntity> : IPolicyBuilder<TEntity>
+	private class PolicyBuilder<TEntity>(Policy<TEntity> policy) : IPolicyBuilder<TEntity>
 	{
-		private readonly Policy<TEntity> _policy;
-
 		private bool? _rawContent;
 
-		public PolicyBuilder(Policy<TEntity> policy) => _policy = policy;
-
-#region Interface XmlDirector<TDirector>.IPolicyBuilder<TEntity>
+		#region Interface XmlDirector<TDirector>.IPolicyBuilder<TEntity>
 
 		public IPolicyBuilder<TEntity> IgnoreUnknownElements(bool value)
 		{
-			_policy.IgnoreUnknownElements = value;
+			policy.IgnoreUnknownElements = value;
 
 			return this;
 		}
@@ -487,8 +483,8 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 			Infra.Requires(ns);
 			Infra.RequiresNonEmptyString(name);
 
-			_policy.ElementNamespace = ns;
-			_policy.ElementName = name;
+			policy.ElementNamespace = ns;
+			policy.ElementName = name;
 
 			return this;
 		}
@@ -499,7 +495,7 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 			Infra.RequiresNonEmptyString(name);
 			Infra.Requires(located);
 
-			_policy.AddAttribute(ns, name, located, AttributeType.Required);
+			policy.AddAttribute(ns, name, located, AttributeType.Required);
 
 			return this;
 		}
@@ -510,7 +506,7 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 			Infra.RequiresNonEmptyString(name);
 			Infra.Requires(located);
 
-			_policy.AddAttribute(ns, name, located, AttributeType.Optional);
+			policy.AddAttribute(ns, name, located, AttributeType.Optional);
 
 			return this;
 		}
@@ -521,7 +517,7 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 			Infra.RequiresNonEmptyString(name);
 			Infra.Requires(located);
 
-			_policy.AddElement(ns, name, located, ElementType.ZeroToOne);
+			policy.AddElement(ns, name, located, ElementType.ZeroToOne);
 
 			return this;
 		}
@@ -533,7 +529,7 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 			Infra.Requires(located);
 
 			UseRawContent(value: false);
-			_policy.AddElement(ns, name, located, ElementType.One);
+			policy.AddElement(ns, name, located, ElementType.One);
 
 			return this;
 		}
@@ -545,7 +541,7 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 			Infra.Requires(located);
 
 			UseRawContent(value: false);
-			_policy.AddElement(ns, name, located, ElementType.ZeroToMany);
+			policy.AddElement(ns, name, located, ElementType.ZeroToMany);
 
 			return this;
 		}
@@ -554,21 +550,21 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 		{
 			Infra.Requires(located);
 
-			_policy.UnknownElementAction = located;
+			policy.UnknownElementAction = located;
 
 			return this;
 		}
 
 		public IPolicyBuilder<TEntity> IgnoreUnknownElements()
 		{
-			_policy.IgnoreUnknownElements = true;
+			policy.IgnoreUnknownElements = true;
 
 			return this;
 		}
 
 		public IPolicyBuilder<TEntity> DenyUnknownElements()
 		{
-			_policy.IgnoreUnknownElements = false;
+			policy.IgnoreUnknownElements = false;
 
 			return this;
 		}
@@ -576,7 +572,7 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 		public IPolicyBuilder<TEntity> RawContent(Action<TDirector, TEntity> action)
 		{
 			UseRawContent(value: true);
-			_policy.RawContentAction = action;
+			policy.RawContentAction = action;
 
 			return this;
 		}
@@ -611,18 +607,12 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 		}
 	}
 
-	private readonly struct QualifiedName : IEquatable<QualifiedName>
+	private readonly struct QualifiedName(string ns, string name) : IEquatable<QualifiedName>
 	{
-		public readonly string Name;
-		public readonly string Namespace;
+		public readonly string Name = name;
+		public readonly string Namespace = ns;
 
-		public QualifiedName(string ns, string name)
-		{
-			Namespace = ns;
-			Name = name;
-		}
-
-#region Interface IEquatable<XmlDirector<TDirector>.QualifiedName>
+		#region Interface IEquatable<XmlDirector<TDirector>.QualifiedName>
 
 		public bool Equals(QualifiedName other) => ReferenceEquals(Namespace, other.Namespace) && ReferenceEquals(Name, other.Name);
 

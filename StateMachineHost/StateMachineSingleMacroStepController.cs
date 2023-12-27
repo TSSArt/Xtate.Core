@@ -21,21 +21,18 @@ using System.Threading.Channels;
 
 namespace Xtate.Persistence;
 
-internal sealed class StateMachineSingleMacroStepController : StateMachineControllerBase
-{
-	private readonly TaskCompletionSource<StateMachineInterpreterState> _doneCompletionSource = new();
-	private readonly CancellationTokenSource                            _suspendTokenSource   = new();
-
-	public StateMachineSingleMacroStepController(SessionId sessionId,
+internal sealed class StateMachineSingleMacroStepController(SessionId sessionId,
 												 IStateMachineOptions? options,
 												 IStateMachine? stateMachine,
 												 Uri? stateMachineLocation,
 												 IStateMachineHost stateMachineHost,
 												 InterpreterOptions defaultOptions
-												// ISecurityContext securityContext,
+		// ISecurityContext securityContext,
 		//										 DeferredFinalizer finalizer
-		)
-		: base(sessionId, options, stateMachine, stateMachineLocation, stateMachineHost, defaultOptions) { }
+		) : StateMachineControllerBase(sessionId, options, stateMachine, stateMachineLocation, stateMachineHost, defaultOptions)
+{
+	private readonly TaskCompletionSource<StateMachineInterpreterState> _doneCompletionSource = new();
+	private readonly CancellationTokenSource                            _suspendTokenSource   = new();
 
 	protected override Channel<IEvent> EventChannel { get; } = new SingleItemChannel<IEvent>();
 
@@ -78,11 +75,9 @@ internal sealed class StateMachineSingleMacroStepController : StateMachineContro
 			Writer = new ChannelWriter(tcs);
 		}
 
-		private class ChannelReader : ChannelReader<T>
+		private class ChannelReader(TaskCompletionSource<T> tcs) : ChannelReader<T>
 		{
-			private TaskCompletionSource<T>? _tcs;
-
-			public ChannelReader(TaskCompletionSource<T> tcs) => _tcs = tcs;
+			private TaskCompletionSource<T>? _tcs = tcs;
 
 			public override bool TryRead([MaybeNullWhen(false)] out T item)
 			{
@@ -113,15 +108,11 @@ internal sealed class StateMachineSingleMacroStepController : StateMachineContro
 			}
 		}
 
-		private class ChannelWriter : ChannelWriter<T>
+		private class ChannelWriter(TaskCompletionSource<T> tcs) : ChannelWriter<T>
 		{
-			private readonly TaskCompletionSource<T> _tcs;
+			public override bool TryWrite(T item) => tcs.TrySetResult(item);
 
-			public ChannelWriter(TaskCompletionSource<T> tcs) => _tcs = tcs;
-
-			public override bool TryWrite(T item) => _tcs.TrySetResult(item);
-
-			public override ValueTask<bool> WaitToWriteAsync(CancellationToken token = default) => new(!_tcs.Task.IsCompleted);
+			public override ValueTask<bool> WaitToWriteAsync(CancellationToken token = default) => new(!tcs.Task.IsCompleted);
 		}
 	}
 }

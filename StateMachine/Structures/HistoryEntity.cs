@@ -23,15 +23,15 @@ public struct HistoryEntity : IHistory, IVisitorEntity<HistoryEntity, IHistory>,
 {
 	internal object? Ancestor;
 
-#region Interface IAncestorProvider
+	#region Interface IAncestorProvider
 
-	object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
-#endregion
+	#endregion
 
-#region Interface IDebugEntityId
+	#region Interface IDebugEntityId
 
-	FormattableString IDebugEntityId.EntityId => @$"{Id}";
+	readonly FormattableString IDebugEntityId.EntityId => @$"{Id}";
 
 #endregion
 
@@ -53,7 +53,7 @@ public struct HistoryEntity : IHistory, IVisitorEntity<HistoryEntity, IHistory>,
 		Transition = source.Transition;
 	}
 
-	bool IVisitorEntity<HistoryEntity, IHistory>.RefEquals(ref HistoryEntity other) =>
+	readonly bool IVisitorEntity<HistoryEntity, IHistory>.RefEquals(ref HistoryEntity other) =>
 		Type == other.Type &&
 		ReferenceEquals(Id, other.Id) &&
 		ReferenceEquals(Transition, other.Transition);

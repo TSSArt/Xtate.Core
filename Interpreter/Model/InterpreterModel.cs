@@ -26,14 +26,13 @@ public interface IInterpreterModel
 	ImmutableDictionary<int, IEntity> EntityMap { get; }
 }
 
-public class InterpreterModel : IInterpreterModel
+public class InterpreterModel(StateMachineNode root, ImmutableDictionary<int, IEntity> entityMap) : IInterpreterModel
 {
 #region Interface IInterpreterModel
 
-	public StateMachineNode Root { get; set; } //TODO:delete setter
+	public StateMachineNode Root { get; } = root;
 
-	public ImmutableDictionary<int, IEntity> EntityMap { get; set;  } //TODO:delete setter
+	public ImmutableDictionary<int, IEntity> EntityMap { get; } = entityMap;
 
 #endregion
 }
-

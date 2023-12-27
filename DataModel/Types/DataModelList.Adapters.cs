@@ -111,7 +111,7 @@ public partial class DataModelList
 
 	private sealed class ValueAdapter : AdapterBase
 	{
-		public override Array CreateArray(ref Args args, int size) => args.Values = size > 0 ? new DataModelValue[size] : Array.Empty<DataModelValue>();
+		public override Array CreateArray(ref Args args, int size) => args.Values = size > 0 ? new DataModelValue[size] : [];
 
 		public override void AssignItemByIndex(ref Args args) => args.Values[args.Index] = args.Value;
 
@@ -152,7 +152,7 @@ public partial class DataModelList
 
 	private sealed class KeyValueAdapter : AdapterBase
 	{
-		public override Array CreateArray(ref Args args, int size) => args.KeyValues = size > 0 ? new HashKeyValue[size] : Array.Empty<HashKeyValue>();
+		public override Array CreateArray(ref Args args, int size) => args.KeyValues = size > 0 ? new HashKeyValue[size] : [];
 
 		public override void AssignItemByIndex(ref Args args) => args.KeyValues[args.Index] = new HashKeyValue(args.HashKey, args.Value);
 
@@ -192,7 +192,7 @@ public partial class DataModelList
 
 	private sealed class MetaValueAdapter : AdapterBase
 	{
-		public override Array CreateArray(ref Args args, int size) => args.MetaValues = size > 0 ? new MetaValue[size] : Array.Empty<MetaValue>();
+		public override Array CreateArray(ref Args args, int size) => args.MetaValues = size > 0 ? new MetaValue[size] : [];
 
 		public override void AssignItemByIndex(ref Args args) => args.MetaValues[args.Index] = new MetaValue(args.Meta, args.Value);
 
@@ -233,7 +233,7 @@ public partial class DataModelList
 
 	private sealed class KeyMetaValueAdapter : AdapterBase
 	{
-		public override Array CreateArray(ref Args args, int size) => args.KeyMetaValues = size > 0 ? new KeyMetaValue[size] : Array.Empty<KeyMetaValue>();
+		public override Array CreateArray(ref Args args, int size) => args.KeyMetaValues = size > 0 ? new KeyMetaValue[size] : [];
 
 		public override void AssignItemByIndex(ref Args args) => args.KeyMetaValues[args.Index] = new KeyMetaValue(args.HashKey, args.Meta, args.Value);
 

@@ -23,9 +23,9 @@ public struct IfEntity : IIf, IVisitorEntity<IfEntity, IIf>, IAncestorProvider
 {
 	internal object? Ancestor;
 
-#region Interface IAncestorProvider
+	#region Interface IAncestorProvider
 
-	object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
@@ -45,7 +45,7 @@ public struct IfEntity : IIf, IVisitorEntity<IfEntity, IIf>, IAncestorProvider
 		Condition = source.Condition!;
 	}
 
-	bool IVisitorEntity<IfEntity, IIf>.RefEquals(ref IfEntity other) =>
+	readonly bool IVisitorEntity<IfEntity, IIf>.RefEquals(ref IfEntity other) =>
 		Action == other.Action &&
 		ReferenceEquals(Condition, other.Condition);
 

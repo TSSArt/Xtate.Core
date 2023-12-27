@@ -30,7 +30,7 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 	private const string XtateScxmlNs = "http://xtate.net/scxml";
 	private const char   Space        = ' ';
 
-	private static readonly char[] SpaceSplitter = { Space };
+	private static readonly char[] SpaceSplitter = [Space];
 
 	private static readonly Policy<IStateMachineBuilder> StateMachinePolicy = BuildPolicy<IStateMachineBuilder>(StateMachineBuildPolicy);
 	private static readonly Policy<IStateBuilder>        StatePolicy        = BuildPolicy<IStateBuilder>(StateBuildPolicy);
@@ -65,11 +65,13 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 
 	public ScxmlDirector(XmlReader xmlReader) : base(xmlReader)
 	{
-		Infra.Requires(xmlReader);
-
 		_xmlReader = xmlReader;
 
-		FillNameTable(xmlReader.NameTable);
+		var nameTable = xmlReader.NameTable;
+		
+		Infra.Requires(nameTable);
+
+		FillNameTable(nameTable);
 	}
 
 	public required Func<object?, IStateMachineBuilder> StateMachineBuilderFactory { private get; [UsedImplicitly] init; }
@@ -135,7 +137,7 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 
 	protected override void NamespaceAttribute(string newPrefix)
 	{
-		_namespacePrefixes ??= new List<string>();
+		_namespacePrefixes ??= [];
 
 		foreach (var prefix in _namespacePrefixes)
 		{
@@ -177,7 +179,7 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 
 		if (value.IndexOf(Space) < 0)
 		{
-			return ImmutableArray.Create<IIdentifier>((Identifier) value);
+			return [Identifier.FromString(value)];
 		}
 
 		var identifiers = value.Split(SpaceSplitter, StringSplitOptions.None);
@@ -201,7 +203,7 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 
 		if (value.IndexOf(Space) < 0)
 		{
-			return ImmutableArray.Create<IEventDescriptor>((EventDescriptor) value);
+			return [EventDescriptor.FromString(value)];
 		}
 
 		var eventDescriptors = value.Split(SpaceSplitter, StringSplitOptions.RemoveEmptyEntries);
@@ -215,7 +217,7 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 
 		foreach (var identifier in eventDescriptors)
 		{
-			builder.Add((EventDescriptor) identifier);
+			builder.Add(EventDescriptor.FromString(identifier));
 		}
 
 		return builder.MoveToImmutable();
@@ -250,7 +252,7 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 
 		if (expression.IndexOf(Space) < 0)
 		{
-			return ImmutableArray.Create<ILocationExpression>(new LocationExpression { Expression = expression, Ancestor = CreateAncestor(namespaces: true) });
+			return [new LocationExpression { Expression = expression, Ancestor = CreateAncestor(namespaces: true) }];
 		}
 
 		var locationExpressions = expression.Split(SpaceSplitter, StringSplitOptions.RemoveEmptyEntries);
@@ -417,7 +419,7 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 
 	private ImmutableArray<PrefixNamespace> ResolveThroughCache(PrefixNamespace[] list, int count)
 	{
-		_nsCache ??= new List<ImmutableArray<PrefixNamespace>>();
+		_nsCache ??= [];
 
 		foreach (var item in _nsCache)
 		{
@@ -715,50 +717,39 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 		return builder.Build();
 	}
 
-	private class XmlNamespacesInfo : IXmlNamespacesInfo, IAncestorProvider
+	private class XmlNamespacesInfo(ImmutableArray<PrefixNamespace> namespaces, object? ancestor) : IXmlNamespacesInfo, IAncestorProvider
 	{
-		public XmlNamespacesInfo(ImmutableArray<PrefixNamespace> namespaces, object? ancestor)
-		{
-			Namespaces = namespaces;
-			Ancestor = ancestor;
-		}
 
-#region Interface IAncestorProvider
+		#region Interface IAncestorProvider
 
-		public object? Ancestor { get; }
+		public object? Ancestor { get; } = ancestor;
 
-#endregion
+		#endregion
 
-#region Interface IXmlNamespacesInfo
+		#region Interface IXmlNamespacesInfo
 
-		public ImmutableArray<PrefixNamespace> Namespaces { get; }
+		public ImmutableArray<PrefixNamespace> Namespaces { get; } = namespaces;
 
-#endregion
+		#endregion
 	}
 
-	private class XmlLineInfo : IXmlLineInfo, IAncestorProvider
+	private class XmlLineInfo(int lineNumber, int linePosition, object? ancestor) : IXmlLineInfo, IAncestorProvider
 	{
-		public XmlLineInfo(int lineNumber, int linePosition, object? ancestor)
-		{
-			LineNumber = lineNumber;
-			LinePosition = linePosition;
-			Ancestor = ancestor;
-		}
 
-#region Interface IAncestorProvider
+		#region Interface IAncestorProvider
 
-		public object? Ancestor { get; }
+		public object? Ancestor { get; } = ancestor;
 
-#endregion
+		#endregion
 
-#region Interface IXmlLineInfo
+		#region Interface IXmlLineInfo
 
 		public bool HasLineInfo() => true;
 
-		public int LineNumber   { get; }
-		public int LinePosition { get; }
+		public int LineNumber { get; } = lineNumber;
+		public int LinePosition { get; } = linePosition;
 
-#endregion
+		#endregion
 	}
 }
 

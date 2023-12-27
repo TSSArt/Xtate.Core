@@ -54,7 +54,7 @@ public class TransitionFluentBuilder<TOuterBuilder> where TOuterBuilder : notnul
 	{
 		Infra.RequiresNonEmptyCollection(eventDescriptors);
 
-		Builder.SetEvent(eventDescriptors.ToImmutableArray());
+		Builder.SetEvent([.. eventDescriptors]);
 
 		return this;
 	}
@@ -99,7 +99,7 @@ public class TransitionFluentBuilder<TOuterBuilder> where TOuterBuilder : notnul
 	{
 		Infra.RequiresNonEmptyCollection(target);
 
-		Builder.SetTarget(target.ToImmutableArray());
+		Builder.SetTarget([.. target]);
 
 		return this;
 	}

@@ -232,11 +232,9 @@ public static class DataModelConverter
 		return XmlConverter.FromXmlStreamAsync(stream.InjectCancellationToken(token));
 	}
 
-	private class JsonValueConverter : JsonConverter<DataModelValue>
+	private class JsonValueConverter(DataModelConverterJsonOptions options) : JsonConverter<DataModelValue>
 	{
-		private readonly DataModelConverterJsonOptions _options;
-
-		public JsonValueConverter(DataModelConverterJsonOptions options) => _options = options;
+		private readonly DataModelConverterJsonOptions _options = options;
 
 		public override DataModelValue Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
 			reader.TokenType switch
@@ -313,11 +311,9 @@ public static class DataModelConverter
 		}
 	}
 
-	private class JsonListConverter : JsonConverter<DataModelList>
+	private class JsonListConverter(DataModelConverterJsonOptions options) : JsonConverter<DataModelList>
 	{
-		private readonly DataModelConverterJsonOptions _options;
-
-		public JsonListConverter(DataModelConverterJsonOptions options) => _options = options;
+		private readonly DataModelConverterJsonOptions _options = options;
 
 		public override DataModelList Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
 			reader.TokenType switch

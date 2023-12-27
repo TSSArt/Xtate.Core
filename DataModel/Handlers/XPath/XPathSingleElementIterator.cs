@@ -21,18 +21,15 @@ using System.Xml.XPath;
 
 namespace Xtate.DataModel.XPath;
 
-internal class XPathSingleElementIterator : XPathNodeIterator
+internal class XPathSingleElementIterator(XPathNavigator navigator) : XPathNodeIterator
 {
-	private readonly XPathNavigator _navigator;
-	private          bool           _completed;
+	private bool           _completed;
 
-	public XPathSingleElementIterator(XPathNavigator navigator) => _navigator = navigator;
-
-	public override XPathNavigator? Current => _completed ? _navigator : default;
+	public override XPathNavigator? Current => _completed ? navigator : default;
 
 	public override int CurrentPosition => _completed ? 1 : 0;
 
-	public override XPathNodeIterator Clone() => new XPathSingleElementIterator(_navigator.Clone());
+	public override XPathNodeIterator Clone() => new XPathSingleElementIterator(navigator.Clone());
 
 	public override bool MoveNext()
 	{

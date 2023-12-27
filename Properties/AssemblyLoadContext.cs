@@ -18,25 +18,20 @@
 #endregion
 
 #if !NET6_0_OR_GREATER
+
 using System.IO;
 using System.Reflection;
 using Xtate;
-using Xtate.Core;
 
 namespace System.Runtime.Loader
 {
-	
-	internal class AssemblyLoadContext
+	internal class AssemblyLoadContext(bool isCollectible)
 	{
-		public AssemblyLoadContext(bool isCollectible) => IsCollectible = isCollectible;
-
-		public bool IsCollectible { get; }
-
-		public void Unload() => Infra.Assert(IsCollectible);
+		public void Unload() => Infra.Assert(isCollectible);
 
 		public Assembly LoadFromStream(Stream stream)
 		{
-			Infra.Assert(IsCollectible);
+			Infra.Assert(isCollectible);
 
 			if (stream is MemoryStream memoryStream && memoryStream.TryGetBuffer(out var segment) && segment.Offset == 0 && segment.Count == memoryStream.Length)
 			{
@@ -47,4 +42,5 @@ namespace System.Runtime.Loader
 		}
 	}
 }
+
 #endif

@@ -22,29 +22,15 @@ using Xtate.Persistence;
 namespace Xtate;
 
 
-public sealed partial class StateMachineHost : IAsyncDisposable, IDisposable
+public sealed partial class StateMachineHost(StateMachineHostOptions options) : IAsyncDisposable, IDisposable
 {
 	private         bool                                     _asyncOperationInProgress;
 	private         StateMachineHostContext?                 _context;
 	public required Func<ValueTask<StateMachineHostContext>> ContextFactory;
 	private         bool                                     _disposed;
-	private         StateMachineHostOptions                  _options;
+	private         StateMachineHostOptions _options = options ?? throw new ArgumentNullException(nameof(options));
 
-	public StateMachineHost(StateMachineHostOptions options)
-	{
-		_options = options ?? throw new ArgumentNullException(nameof(options));
-
-		//TODO: start
-		//var serviceScopeFactory = _options.ServiceLocator.GetService<IServiceScopeFactory>();
-		//var serviceScope = ServiceScopeFactory.CreateScope(s => s.AddForwarding<StateMachineHost>(_ => this));
-		//_options = _options with { ServiceLocator = new ServiceLocator(serviceScope.ServiceProvider) };
-
-		//TODO: end
-
-		//StateMachineHostInit();
-	}
-
-#region Interface IAsyncDisposable
+	#region Interface IAsyncDisposable
 
 	public async ValueTask DisposeAsync()
 	{

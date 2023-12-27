@@ -28,12 +28,7 @@ public sealed class DefaultErrorProcessor : IErrorProcessor
 
 	public void ThrowIfErrors() { }
 
-	void IErrorProcessor.AddError(ErrorItem errorItem)
-	{
-		Infra.Requires(errorItem);
-
-		throw new StateMachineValidationException(ImmutableArray.Create(errorItem));
-	}
+	void IErrorProcessor.AddError(ErrorItem errorItem) => throw new StateMachineValidationException([errorItem]);
 
 #endregion
 }

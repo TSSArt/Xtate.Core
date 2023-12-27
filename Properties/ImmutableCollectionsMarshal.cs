@@ -17,11 +17,19 @@
 
 #endregion
 
-namespace Xtate.Core;
+// ReSharper disable UnusedType.Global
+// ReSharper disable UnusedMember.Global
 
-public class ScxmlStateMachineGetter
+#if NET6_0
+
+namespace System.Runtime.InteropServices
 {
-	public ScxmlStateMachineGetter(IStateMachineLocation stateMachineLocation) { }
+	public static class ImmutableCollectionsMarshal
+	{
+		public static ImmutableArray<T> AsImmutableArray<T>(T[]? array) => ImmutableArray.Create(array);
 
-	public virtual IStateMachine GetStateMachine() => throw new NotImplementedException();
+		public static T[]? AsArray<T>(ImmutableArray<T> array) => array.ToArray();
+	}
 }
+
+#endif

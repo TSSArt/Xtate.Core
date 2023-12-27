@@ -23,30 +23,26 @@ namespace Xtate.Core;
 ///     Makes sure error is thrown by <see cref="ThrowIfErrors()" /> in case of underlying error processor does not throw
 ///     exception in it.
 /// </summary>
-internal sealed class WrapperErrorProcessor : IErrorProcessor
+internal sealed class WrapperErrorProcessor(IErrorProcessor errorProcessor) : IErrorProcessor
 {
-	private readonly IErrorProcessor _errorProcessor;
-
 	private ErrorItem? _error;
 
-	public WrapperErrorProcessor(IErrorProcessor errorProcessor) => _errorProcessor = errorProcessor;
-
-#region Interface IErrorProcessor
+	#region Interface IErrorProcessor
 
 	public void AddError(ErrorItem errorItem)
 	{
 		_error ??= errorItem ?? throw new ArgumentNullException(nameof(errorItem));
 
-		_errorProcessor.AddError(errorItem);
+		errorProcessor.AddError(errorItem);
 	}
 
 	public void ThrowIfErrors()
 	{
-		_errorProcessor.ThrowIfErrors();
+		errorProcessor.ThrowIfErrors();
 
 		if (_error is { } error)
 		{
-			throw new StateMachineValidationException(ImmutableArray.Create(error));
+			throw new StateMachineValidationException([error]);
 		}
 	}
 

@@ -17,35 +17,34 @@
 
 #endregion
 
-namespace Xtate.Core;
+//namespace Xtate.Core;
 
-//TODO: do something with it
-
+//TODO:Delete
+/*
 public abstract class DynamicFactory
 {
-	[SuppressMessage(category: "ReSharper", checkId: "StaticMemberInGenericType")]
-	private static readonly object FactoryCacheKey = new();
+	public required IResourceLoader                          ResourceLoader         { private get; [UsedImplicitly] init; }
+	public required LocalCache<Uri, DynamicAssembly>         Cache                  { private get; [UsedImplicitly] init; }
+	public required Func<Stream, ValueTask<DynamicAssembly>> DynamicAssemblyFactory { private get; [UsedImplicitly] init; }
+	public required ILogger<DynamicFactory>        Logger                 { private get; [UsedImplicitly] init; }
 
 	private readonly bool _throwOnError;
 
 	protected DynamicFactory(bool throwOnError) => _throwOnError = throwOnError;
 
-	/*
-	protected async ValueTask<ImmutableArray<TFactory>> GetFactories(ServiceLocator serviceLocator, Uri uri, CancellationToken token)
+	protected async ValueTask<ImmutableArray<IServiceModule>> GetServiceModules(Uri uri)
 	{
-		if (uri is null) throw new ArgumentNullException(nameof(uri));
-
-		var dynamicAssembly = await LoadAssembly(serviceLocator, uri, token).ConfigureAwait(false);
+		var dynamicAssembly = await LoadAssembly(uri).ConfigureAwait(false);
 
 		if (dynamicAssembly is null)
 		{
 			return default;
 		}
 
-		return await GetCachedFactories(serviceLocator, uri, dynamicAssembly).ConfigureAwait(false);
+		return await GetCachedFactories(uri, dynamicAssembly).ConfigureAwait(false);
 	}
 
-	private async ValueTask<ImmutableArray<TFactory>> GetCachedFactories(ServiceLocator serviceLocator, Uri uri, DynamicAssembly dynamicAssembly)
+	private async ValueTask<ImmutableArray<TFactory>> GetCachedFactories(Uri uri, DynamicAssembly dynamicAssembly)
 	{
 		var securityContext = serviceLocator.GetService<ISecurityContext>();
 		var logEvent = serviceLocator.GetService<ILogEvent>();
@@ -74,63 +73,42 @@ public abstract class DynamicFactory
 		return factories;
 	}
 
-	private static async ValueTask<ImmutableArray<IServiceModule>> CreateModules(DynamicAssembly dynamicAssembly)
+	private static ImmutableArray<IServiceModule> CreateServiceModules(DynamicAssembly dynamicAssembly)
 	{
-		var assembly = await dynamicAssembly.GetAssembly().ConfigureAwait(false);
-
-		var attributes = assembly.GetCustomAttributes(typeof(ServiceModuleAttribute), inherit: false);
+		var attributes = dynamicAssembly.Assembly.GetCustomAttributes(typeof(ServiceModuleAttribute), inherit: false);
 
 		if (attributes.Length == 0)
 		{
-			return ImmutableArray<IServiceModule>.Empty;
+			return [];
 		}
 
-		var builder = ImmutableArray.CreateBuilder<IServiceModule>(attributes.Length);
+		var serviceModules = ImmutableArray.CreateBuilder<IServiceModule>(attributes.Length);
 
 		foreach (ServiceModuleAttribute attribute in attributes)
 		{
-			var type = attribute.ServiceModuleType;
-
-			if (type is not null && typeof(IServiceModule).IsAssignableFrom(type))
-			{
-				var instance = Activator.CreateInstance(type);
-				Infra.NotNull(instance);
-				builder.Add((IServiceModule) instance);
-			}
+			serviceModules.Add((IServiceModule) Activator.CreateInstance(attribute.ServiceModuleType!)!);
 		}
 
-		return builder.ToImmutable();
+		return serviceModules.MoveToImmutable();
 	}
 
-	private async ValueTask<DynamicAssembly?> LoadAssembly(ServiceLocator serviceLocator, Uri uri, CancellationToken token)
+	private async ValueTask<DynamicAssembly?> LoadAssembly(Uri uri)
 	{
 		try
 		{
-			var resourceLoaderService = serviceLocator.GetService<IResourceLoaderService>();
-			var securityContext = serviceLocator.GetService<ISecurityContext>();
-
-			if (!securityContext.TryGetValue(DynamicAssembly.AssemblyCacheKey, uri, out DynamicAssembly? dynamicAssembly))
+			if (!Cache.TryGetValue(uri, out var dynamicAssembly))
 			{
-				var resource = await resourceLoaderService.GetResource(uri, token).ConfigureAwait(false);
-				byte[] bytes;
+				var resource = await ResourceLoader.Request(uri).ConfigureAwait(false);
+
+				Stream stream;
 				await using (resource.ConfigureAwait(false))
 				{
-					bytes = await resource.GetBytes(token).ConfigureAwait(false);
+					stream = await resource.GetStream(true).ConfigureAwait(false);
 				}
 
-				dynamicAssembly = new DynamicAssembly(securityContext.IoBoundTaskFactory, bytes);
-				try
-				{
-					await dynamicAssembly.GetAssembly().ConfigureAwait(false);
-				}
-				catch
-				{
-					await dynamicAssembly.DisposeAsync().ConfigureAwait(false);
+				dynamicAssembly = await DynamicAssemblyFactory(stream).ConfigureAwait(false);
 
-					throw;
-				}
-
-				await securityContext.SetValue(DynamicAssembly.AssemblyCacheKey, uri, dynamicAssembly, ValueOptions.ThreadSafe | ValueOptions.Dispose).ConfigureAwait(false);
+				await Cache.SetValue(uri, dynamicAssembly, ValueOptions.ThreadSafe | ValueOptions.Dispose).ConfigureAwait(false);
 			}
 
 			return dynamicAssembly;
@@ -141,12 +119,11 @@ public abstract class DynamicFactory
 			{
 				throw;
 			}
-			var logEvent = serviceLocator.GetService<ILogEvent>();
-			await logEvent.Log(LogLevel.Warning, Resources.Warning_ErrorOnLoadingAssembly, GetLogArguments(uri), ex, token).ConfigureAwait(false);
+
+			await Logger.Write(Level.Warning, @$"Error on loading assembly ({uri})", ex).ConfigureAwait(false);
 		}
 
 		return null;
 	}
-	*/
-	private static DataModelList GetLogArguments(Uri uri) => new() { { @"AssemblyUri", uri.ToString() } };
 }
+*/

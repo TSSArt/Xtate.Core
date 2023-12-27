@@ -22,19 +22,11 @@ using System.Text;
 namespace Xtate;
 
 [Serializable]
-public class StateMachineValidationException : XtateException
+public class StateMachineValidationException(ImmutableArray<ErrorItem> validationMessages, SessionId? sessionId = default, StateMachineOrigin origin = default) : XtateException(GetMessage(validationMessages))
 {
-	public StateMachineValidationException(ImmutableArray<ErrorItem> validationMessages, SessionId? sessionId = default, StateMachineOrigin origin = default)
-		: base(GetMessage(validationMessages))
-	{
-		Origin = origin;
-		SessionId = sessionId;
-		ValidationMessages = validationMessages;
-	}
-
-	public SessionId?                SessionId          { get; }
-	public StateMachineOrigin        Origin             { get; }
-	public ImmutableArray<ErrorItem> ValidationMessages { get; }
+	public SessionId? SessionId { get; } = sessionId;
+	public StateMachineOrigin Origin { get; } = origin;
+	public ImmutableArray<ErrorItem> ValidationMessages { get; } = validationMessages;
 
 	private static string? GetMessage(ImmutableArray<ErrorItem> validationMessages)
 	{

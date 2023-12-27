@@ -17,18 +17,21 @@
 
 #endregion
 
+// ReSharper disable UnusedType.Global
+// ReSharper disable UnusedMember.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+
 #if !NET6_0_OR_GREATER || NET6_0
+
 namespace System.Runtime.CompilerServices
 {
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Field | AttributeTargets.Property)]
 	internal sealed class RequiredMemberAttribute : Attribute;
 
 	[AttributeUsage(AttributeTargets.All, AllowMultiple = true, Inherited = false)]
-	internal sealed class CompilerFeatureRequiredAttribute : Attribute
+	internal sealed class CompilerFeatureRequiredAttribute(string featureName) : Attribute
 	{
-		public CompilerFeatureRequiredAttribute(string featureName) => FeatureName = featureName;
-
-		public string FeatureName { get; }
+		public string FeatureName { get; } = featureName;
 
 		public string? Language { get; init; }
 	}
@@ -36,7 +39,8 @@ namespace System.Runtime.CompilerServices
 
 namespace System.Diagnostics.CodeAnalysis
 {
-	[AttributeUsage(AttributeTargets.Constructor, AllowMultiple = false, Inherited = false)]
+	[AttributeUsage(AttributeTargets.Constructor)]
 	internal sealed class SetsRequiredMembersAttribute : Attribute;
 }
+
 #endif

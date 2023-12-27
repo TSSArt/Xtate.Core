@@ -17,31 +17,39 @@
 
 #endregion
 
+using System.Globalization;
 using Xtate.IoC;
-using IServiceProvider = Xtate.IoC.IServiceProvider;
 
 namespace Xtate.DataModel;
 
 public class DynamicDataModelHandlerProvider : IDataModelHandlerProvider
 {
-	private readonly IAssemblyContainerProvider   _assemblyContainerProvider;
-	private readonly IDataModelTypeToUriConverter _dataModelTypeToUriConverter;
+	public required Func<Uri, IAssemblyContainerProvider> AssemblyContainerProviderFactory { private get; [UsedImplicitly] init; }
 
-	public DynamicDataModelHandlerProvider(IDataModelTypeToUriConverter dataModelTypeToUriConverter, IAssemblyContainerProvider assemblyContainerProvider)
-	{
-		_dataModelTypeToUriConverter = dataModelTypeToUriConverter;
-		_assemblyContainerProvider = assemblyContainerProvider;
-	}
+	public required IDataModelTypeToUriConverter DataModelTypeToUriConverter { private get; [UsedImplicitly] init; }
 
 #region Interface IDataModelHandlerProvider
 
 	public async ValueTask<IDataModelHandler?> TryGetDataModelHandler(string? dataModelType)
 	{
-		var uri = _dataModelTypeToUriConverter.GetUri(dataModelType);
-		var serviceProvider = await _assemblyContainerProvider.GetContainer(uri).ConfigureAwait(false);
-		var dataModelHandlerService = await serviceProvider.GetRequiredService<IDataModelHandlerService>().ConfigureAwait(false);
+		if (dataModelType is null)
+		{
+			return default;
+		}
 
-		return await dataModelHandlerService.GetDataModelHandler(dataModelType).ConfigureAwait(false);
+		var uri = DataModelTypeToUriConverter.GetUri(dataModelType);
+	
+		var providers = AssemblyContainerProviderFactory(uri).GetDataModelHandlerProviders();
+		
+		await foreach (var dataModelHandlerProvider in providers.ConfigureAwait(false))
+		{
+			if (await dataModelHandlerProvider.TryGetDataModelHandler(dataModelType).ConfigureAwait(false) is { } dataModelHandler)
+			{
+				return dataModelHandler;
+			}
+		}
+
+		return default;
 	}
 
 #endregion
@@ -52,23 +60,67 @@ public interface IDataModelTypeToUriConverter
 	Uri GetUri(string dataModelType);
 }
 
+public class DataModelTypeToUriConverter(string uriFormat) : IDataModelTypeToUriConverter
+{
+	public virtual Uri GetUri(string dataModelType)
+	{
+		var uriString = string.Format(CultureInfo.InvariantCulture, uriFormat, dataModelType);
+
+		return new Uri(uriString, UriKind.RelativeOrAbsolute);
+	}
+}
+
 public interface IAssemblyContainerProvider
 {
-	ValueTask<IServiceProvider> GetContainer(Uri uri);
+	IAsyncEnumerable<IDataModelHandlerProvider> GetDataModelHandlerProviders();
 }
 
-public class AssemblyContainerProvider : IAssemblyContainerProvider
+public class AssemblyContainerProvider : IAsyncInitialization, IAssemblyContainerProvider, IDisposable
 {
-#region Interface IAssemblyContainerProvider
+	private readonly Uri                                   _uri;
 
-	public ValueTask<IServiceProvider> GetContainer(Uri uri) => default; // TODO: implement
+	public required  IServiceScopeFactory                  ServiceScopeFactory    { private get; [UsedImplicitly] init; }
+	public required  Func<Uri, ValueTask<DynamicAssembly>> DynamicAssemblyFactory { private get; [UsedImplicitly] init; }
 
-#endregion
+	private readonly AsyncInit<IServiceScope> _asyncInitServiceScope;
+
+	public AssemblyContainerProvider(Uri uri)
+	{
+		_uri = uri;
+		_asyncInitServiceScope = AsyncInit.RunAfter(this, acp => acp.CreateServiceScope());
+	}
+
+	public Task Initialization => _asyncInitServiceScope.Task;
+
+	private async ValueTask<IServiceScope> CreateServiceScope()
+	{
+		var dynamicAssembly = await DynamicAssemblyFactory(_uri).ConfigureAwait(false);
+
+		return ServiceScopeFactory.CreateScope(dynamicAssembly.Register);
+	}
+
+	public virtual IAsyncEnumerable<IDataModelHandlerProvider> GetDataModelHandlerProviders()
+	{
+		return _asyncInitServiceScope.Value.ServiceProvider.GetServices<IDataModelHandlerProvider>();
+	}
+
+	protected virtual void Dispose(bool disposing)
+	{
+		if (disposing)
+		{
+			_asyncInitServiceScope.Value.Dispose();
+		}
+	}
+
+	public void Dispose()
+	{
+		Dispose(true);
+		GC.SuppressFinalize(this);
+	}
 }
 
-//TODO: uncomment
+//TODO:Delete
 /*
-
 public class DynamicDataModelHandlerFactory : DynamicFactory
 {
 	private readonly string? _uriFormat;
@@ -79,7 +131,7 @@ public class DynamicDataModelHandlerFactory : DynamicFactory
 
 #region Interface IDataModelHandlerFactory
 
-	public async ValueTask<IDataModelHandlerFactoryActivator?> TryGetActivator(ServiceLocator serviceLocator, string dataModelType, CancellationToken token)
+	public async ValueTask<IDataModelHandlerFactoryActivator?> TryGetActivator(string dataModelType, CancellationToken token)
 	{
 		var factories = await GetFactories(serviceLocator, DataModelTypeToUri(dataModelType), token).ConfigureAwait(false);
 

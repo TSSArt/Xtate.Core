@@ -28,34 +28,23 @@ public interface IPersistingInterpreterState
 	public ValueTask CheckPoint(int level);
 }
 
-public class StateMachinePersistingInterpreterBase3 : StateMachinePersistingInterpreterBase2
+[method: SetsRequiredMembers]
+public class StateMachinePersistingInterpreterBase3(IPersistingInterpreterState persistingInterpreterState,
+												  IInterpreterModel interpreterModel) : StateMachinePersistingInterpreterBase2(
+	persistingInterpreterState,
+	interpreterModel)
 {
-	//private readonly IPersistingInterpreterState _persistingInterpreterState;
-
-	[SetsRequiredMembers]
-	public StateMachinePersistingInterpreterBase3(IPersistingInterpreterState persistingInterpreterState,
-												  IInterpreterModel interpreterModel) : base(
-		persistingInterpreterState,
-		interpreterModel)
-	{
-		//_persistingInterpreterState = persistingInterpreterState;
-	}
 }
 
-public class StateMachinePersistingInterpreterBase2 : StateMachinePersistingInterpreterBase
+[method: SetsRequiredMembers]
+public class StateMachinePersistingInterpreterBase2(IPersistingInterpreterState persistingInterpreterState,
+												  IInterpreterModel interpreterModel) : StateMachinePersistingInterpreterBase(
+	persistingInterpreterState,
+	interpreterModel)
 {
-	private readonly IPersistingInterpreterState _persistingInterpreterState;
-
-	[SetsRequiredMembers]
-	public StateMachinePersistingInterpreterBase2(IPersistingInterpreterState persistingInterpreterState,
-												  IInterpreterModel interpreterModel) : base(
-		persistingInterpreterState,
-		interpreterModel) =>
-		_persistingInterpreterState = persistingInterpreterState;
-
 	protected override async ValueTask<IEvent> ReadExternalEvent()
 	{
-		await _persistingInterpreterState.CheckPoint(16).ConfigureAwait(false);
+		await persistingInterpreterState.CheckPoint(16).ConfigureAwait(false);
 
 		return await base.ReadExternalEvent().ConfigureAwait(false);
 	}

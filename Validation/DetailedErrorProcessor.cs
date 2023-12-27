@@ -22,20 +22,11 @@ namespace Xtate.Core;
 /// <summary>
 ///     Aggregates all errors and throw single exception with previously added errors
 /// </summary>
-public sealed class DetailedErrorProcessor : IErrorProcessor
+public sealed class DetailedErrorProcessor(SessionId? sessionId, StateMachineOrigin origin) : IErrorProcessor
 {
-	private readonly StateMachineOrigin _origin;
-	private readonly SessionId?         _sessionId;
-
 	private ImmutableArray<ErrorItem>.Builder? _errors;
 
-	public DetailedErrorProcessor(SessionId? sessionId, StateMachineOrigin origin)
-	{
-		_sessionId = sessionId;
-		_origin = origin;
-	}
-
-#region Interface IErrorProcessor
+	#region Interface IErrorProcessor
 
 	public void ThrowIfErrors()
 	{
@@ -43,7 +34,7 @@ public sealed class DetailedErrorProcessor : IErrorProcessor
 		{
 			_errors = default;
 
-			throw new StateMachineValidationException(errors.ToImmutable(), _sessionId, _origin);
+			throw new StateMachineValidationException(errors.ToImmutable(), sessionId, origin);
 		}
 	}
 

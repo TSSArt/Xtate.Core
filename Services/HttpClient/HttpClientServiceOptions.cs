@@ -23,12 +23,12 @@ public class HttpClientServiceOptions
 {
 	private HttpClientServiceOptions() { }
 
-	public List<HttpClientMimeTypeHandler> MimeTypeHandlers { get; } = new()
-																	   {
-																		   HttpClientFormUrlEncodedHandler.Instance,
-																		   HttpClientJsonHandler.Instance,
-																		   HttpClientXmlHandler.Instance
-																	   };
+	public List<HttpClientMimeTypeHandler> MimeTypeHandlers { get; } =
+	[
+		HttpClientFormUrlEncodedHandler.Instance,
+		HttpClientJsonHandler.Instance,
+		HttpClientXmlHandler.Instance
+	];
 
 	public static HttpClientServiceOptions CreateDefault() => new();
 }

@@ -40,19 +40,9 @@ public static class StreamExtensions
 
 		[SuppressMessage(category: "Design", checkId: "CA1034:Nested types should not be visible")]
 		[SuppressMessage(category: "Performance", checkId: "CA1815:Override equals and operator equals on value types")]
-		public readonly struct ConfiguredAwaitable
-		{
-			private readonly bool _continueOnCapturedContext;
-
-			private readonly Stream _stream;
-
-			public ConfiguredAwaitable(Stream stream, bool continueOnCapturedContext)
-			{
-				_stream = stream;
-				_continueOnCapturedContext = continueOnCapturedContext;
-			}
-
-			public ConfiguredValueTaskAwaitable DisposeAsync() => _stream.DisposeAsync().ConfigureAwait(_continueOnCapturedContext);
+		public readonly struct ConfiguredAwaitable(Stream stream, bool continueOnCapturedContext)
+	{
+		public ConfiguredValueTaskAwaitable DisposeAsync() => stream.DisposeAsync().ConfigureAwait(continueOnCapturedContext);
 		}
 #endif
 

@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2023 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,8 +14,6 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-#endregion
 
 using System.Buffers;
 
@@ -70,10 +68,10 @@ public class InMemoryStorage : IStorage
 	{
 		if (key.IsEmpty) throw new ArgumentException(Resources.Exception_KeyShouldNotBeEmpty, nameof(key));
 
-		Write(key, ReadOnlySpan<byte>.Empty);
+		Write(key, []);
 	}
 
-	public void RemoveAll(ReadOnlySpan<byte> prefix) => Write(ReadOnlySpan<byte>.Empty, prefix);
+	public void RemoveAll(ReadOnlySpan<byte> prefix) => Write([], prefix);
 
 	public ReadOnlyMemory<byte> Get(ReadOnlySpan<byte> key)
 	{
@@ -145,7 +143,7 @@ public class InMemoryStorage : IStorage
 		AddToReadModel(keyMemory, valueMemory);
 	}
 
-	private static SortedSet<Entry> CreateReadModel() => new();
+	private static SortedSet<Entry> CreateReadModel() => [];
 
 	private void AddToReadModel(in Memory<byte> key, in Memory<byte> value)
 	{
@@ -196,7 +194,7 @@ public class InMemoryStorage : IStorage
 		{
 			if (_owner is not null)
 			{
-				_buffers ??= new List<(IMemoryOwner<byte> Owner, int Size)>();
+				_buffers ??= [];
 
 				_buffers.Add((_owner, _owner.Memory.Length - _buffer.Length));
 			}
@@ -343,7 +341,7 @@ public class InMemoryStorage : IStorage
 
 			if (_owner is not null)
 			{
-				_buffers ??= new List<(IMemoryOwner<byte> Owner, int Size)>();
+				_buffers ??= [];
 
 				_buffers.Add((_owner, 0));
 			}
@@ -353,19 +351,12 @@ public class InMemoryStorage : IStorage
 		}
 	}
 
-	private readonly struct Entry : IComparable<Entry>
+	private readonly struct Entry(ReadOnlyMemory<byte> key, ReadOnlyMemory<byte> value = default) : IComparable<Entry>
 	{
-		public readonly ReadOnlyMemory<byte> Key;
-		public readonly ReadOnlyMemory<byte> Value;
-		public Entry(ReadOnlyMemory<byte> key) : this() => Key = key;
+		public readonly ReadOnlyMemory<byte> Key   = key;
+		public readonly ReadOnlyMemory<byte> Value = value;
 
-		public Entry(ReadOnlyMemory<byte> key, ReadOnlyMemory<byte> value)
-		{
-			Key = key;
-			Value = value;
-		}
-
-#region Interface IComparable<Entry>
+	#region Interface IComparable<Entry>
 
 		public int CompareTo(Entry other)
 		{
@@ -382,6 +373,6 @@ public class InMemoryStorage : IStorage
 			return Key.Span.SequenceCompareTo(other.Key.Span);
 		}
 
-#endregion
+	#endregion
 	}
 }

@@ -33,7 +33,8 @@ public abstract class DelegatedXmlReader : XmlReader, IXmlLineInfo
 
 	protected XmlReader InnerReader { get; set; }
 
-	public override string? BaseURI => InnerReader.BaseURI;
+	[SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")]
+	public override string BaseURI => InnerReader.BaseURI;
 
 	public override int AttributeCount => InnerReader.AttributeCount;
 
@@ -47,7 +48,8 @@ public abstract class DelegatedXmlReader : XmlReader, IXmlLineInfo
 
 	public override bool IsEmptyElement => InnerReader.IsEmptyElement;
 
-	public override string this[int i] => InnerReader[i]!;
+	[SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")]
+	public override string this[int i] => InnerReader[i];
 
 	public override string? this[string name] => InnerReader[name];
 
@@ -59,7 +61,8 @@ public abstract class DelegatedXmlReader : XmlReader, IXmlLineInfo
 
 	public override string NamespaceURI => InnerReader.NamespaceURI;
 
-	public override XmlNameTable NameTable => InnerReader.NameTable!;
+	[SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")]
+	public override XmlNameTable NameTable => InnerReader.NameTable;
 
 	public override XmlNodeType NodeType => InnerReader.NodeType;
 
@@ -101,7 +104,8 @@ public abstract class DelegatedXmlReader : XmlReader, IXmlLineInfo
 
 	public override void Close() => InnerReader.Close();
 
-	public override string GetAttribute(int i) => InnerReader.GetAttribute(i)!;
+	[SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")]
+	public override string GetAttribute(int i) => InnerReader.GetAttribute(i);
 
 	public override string? GetAttribute(string name) => InnerReader.GetAttribute(name);
 

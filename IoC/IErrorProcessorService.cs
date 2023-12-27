@@ -19,7 +19,7 @@
 
 namespace Xtate.Core;
 
-public interface IErrorProcessorService<TSource>
+public interface IErrorProcessorService<[UsedImplicitly] TSource>
 {
 	void AddError(object? entity, string message, Exception? exception = default);
 }

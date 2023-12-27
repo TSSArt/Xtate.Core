@@ -23,9 +23,9 @@ public struct DoneDataEntity : IDoneData, IVisitorEntity<DoneDataEntity, IDoneDa
 {
 	internal object? Ancestor;
 
-#region Interface IAncestorProvider
+	#region Interface IAncestorProvider
 
-	object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
@@ -45,7 +45,7 @@ public struct DoneDataEntity : IDoneData, IVisitorEntity<DoneDataEntity, IDoneDa
 		Parameters = source.Parameters;
 	}
 
-	bool IVisitorEntity<DoneDataEntity, IDoneData>.RefEquals(ref DoneDataEntity other) =>
+	readonly bool IVisitorEntity<DoneDataEntity, IDoneData>.RefEquals(ref DoneDataEntity other) =>
 		ReferenceEquals(Content, other.Content) &&
 		Parameters == other.Parameters;
 

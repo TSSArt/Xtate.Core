@@ -54,7 +54,7 @@ public class StateMachineFluentBuilder
 	{
 		Infra.RequiresNonEmptyCollection(initial);
 
-		Builder.SetInitial(initial.ToImmutableArray());
+		Builder.SetInitial([.. initial]);
 
 		return this;
 	}

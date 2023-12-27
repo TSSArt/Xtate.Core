@@ -104,13 +104,10 @@ public abstract class ServiceFactoryBase : IServiceFactory
 		}
 	}
 
-	private class Activator : IServiceFactoryActivator
+	private class Activator(Catalog catalog) : IServiceFactoryActivator
 	{
-		private readonly Catalog _catalog;
 
-		public Activator(Catalog catalog) => _catalog = catalog;
-
-#region Interface IServiceFactoryActivator
+		#region Interface IServiceFactoryActivator
 
 		public ValueTask<IService> StartService(Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication)
 		{
@@ -118,11 +115,11 @@ public abstract class ServiceFactoryBase : IServiceFactory
 
 			Infra.Assert(CanHandle(invokeData.Type));
 
-			return _catalog.CreateService(baseUri, invokeData, serviceCommunication);
+			return catalog.CreateService(baseUri, invokeData, serviceCommunication);
 		}
 
 #endregion
 
-		public bool CanHandle(Uri type) => _catalog.CanHandle(type);
+		public bool CanHandle(Uri type) => catalog.CanHandle(type);
 	}
 }

@@ -23,9 +23,9 @@ public struct ScriptEntity : IScript, IVisitorEntity<ScriptEntity, IScript>, IAn
 {
 	internal object? Ancestor;
 
-#region Interface IAncestorProvider
+	#region Interface IAncestorProvider
 
-	object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
@@ -45,7 +45,7 @@ public struct ScriptEntity : IScript, IVisitorEntity<ScriptEntity, IScript>, IAn
 		Source = source.Source;
 	}
 
-	bool IVisitorEntity<ScriptEntity, IScript>.RefEquals(ref ScriptEntity other) =>
+	readonly bool IVisitorEntity<ScriptEntity, IScript>.RefEquals(ref ScriptEntity other) =>
 		ReferenceEquals(Content, other.Content) &&
 		ReferenceEquals(Source, other.Source);
 

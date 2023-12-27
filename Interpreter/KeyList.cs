@@ -28,7 +28,7 @@ public sealed class KeyList<T>
 		Set
 	}
 
-	private readonly Dictionary<IEntity, List<T>> _dic = new();
+	private readonly Dictionary<IEntity, List<T>> _dic = [];
 
 	public event ChangeHandler? Changed;
 

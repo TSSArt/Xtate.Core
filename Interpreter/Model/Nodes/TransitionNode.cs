@@ -22,11 +22,9 @@ using Xtate.Persistence;
 
 namespace Xtate.Core;
 
-public class EmptyTransitionNode : TransitionNode
+public class EmptyTransitionNode(DocumentIdNode documentIdNode, ImmutableArray<StateEntityNode> target) : TransitionNode(documentIdNode, EmptyTransition, target)
 {
 	private static readonly ITransition EmptyTransition = new TransitionEntity();
-
-	public EmptyTransitionNode(DocumentIdNode documentIdNode, ImmutableArray<StateEntityNode> target) : base(documentIdNode, EmptyTransition, target) { }
 }
 
 public class TransitionNode : ITransition, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId

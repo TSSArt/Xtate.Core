@@ -430,15 +430,12 @@ public class XIncludeReader : DelegatedXmlReader
 		public string XInclude2Ns    => _xInclude2Ns ??= _nameTable.Add(@"http://www.w3.org/2003/XInclude");
 	}
 
-	private class StreamResource : IXIncludeResource
+	private class StreamResource(Stream stream) : IXIncludeResource
 	{
-		private readonly Stream _stream;
 
-		public StreamResource(Stream stream) => _stream = stream;
+		#region Interface IXIncludeResource
 
-#region Interface IXIncludeResource
-
-		public ValueTask<Stream> GetStream() => new(_stream);
+		public ValueTask<Stream> GetStream() => new(stream);
 
 		public ContentType? ContentType => null;
 

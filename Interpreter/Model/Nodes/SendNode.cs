@@ -21,15 +21,12 @@ using Xtate.Persistence;
 
 namespace Xtate.Core;
 
-public sealed class SendNode : ExecutableEntityNode, ISend, IAncestorProvider, IDebugEntityId
+public sealed class SendNode(DocumentIdNode documentIdNode, ISend send) : ExecutableEntityNode(documentIdNode, send), ISend, IAncestorProvider, IDebugEntityId
 {
-	private readonly ISend _send;
 
-	public SendNode(DocumentIdNode documentIdNode, ISend send) : base(documentIdNode, send) => _send = send;
+	#region Interface IAncestorProvider
 
-#region Interface IAncestorProvider
-
-	object IAncestorProvider.Ancestor => _send;
+	object IAncestorProvider.Ancestor => send;
 
 #endregion
 
@@ -41,19 +38,19 @@ public sealed class SendNode : ExecutableEntityNode, ISend, IAncestorProvider, I
 
 #region Interface ISend
 
-	public string?                             EventName        => _send.EventName;
-	public IValueExpression?                   EventExpression  => _send.EventExpression;
-	public Uri?                                Target           => _send.Target;
-	public IValueExpression?                   TargetExpression => _send.TargetExpression;
-	public Uri?                                Type             => _send.Type;
-	public IValueExpression?                   TypeExpression   => _send.TypeExpression;
-	public string?                             Id               => _send.Id;
-	public ILocationExpression?                IdLocation       => _send.IdLocation;
-	public int?                                DelayMs          => _send.DelayMs;
-	public IValueExpression?                   DelayExpression  => _send.DelayExpression;
-	public ImmutableArray<ILocationExpression> NameList         => _send.NameList;
-	public ImmutableArray<IParam>              Parameters       => _send.Parameters;
-	public IContent?                           Content          => _send.Content;
+	public string?                             EventName        => send.EventName;
+	public IValueExpression?                   EventExpression  => send.EventExpression;
+	public Uri?                                Target           => send.Target;
+	public IValueExpression?                   TargetExpression => send.TargetExpression;
+	public Uri?                                Type             => send.Type;
+	public IValueExpression?                   TypeExpression   => send.TypeExpression;
+	public string?                             Id               => send.Id;
+	public ILocationExpression?                IdLocation       => send.IdLocation;
+	public int?                                DelayMs          => send.DelayMs;
+	public IValueExpression?                   DelayExpression  => send.DelayExpression;
+	public ImmutableArray<ILocationExpression> NameList         => send.NameList;
+	public ImmutableArray<IParam>              Parameters       => send.Parameters;
+	public IContent?                           Content          => send.Content;
 
 #endregion
 

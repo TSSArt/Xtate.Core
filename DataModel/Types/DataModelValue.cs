@@ -610,7 +610,7 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 			return false;
 		}
 
-		map ??= new Dictionary<object, DataModelList>();
+		map ??= [];
 
 		if (map.TryGetValue(obj, out var value))
 		{
@@ -636,7 +636,7 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 
 	private static DataModelValue CreateDataModelObject(IDictionary<string, object> dictionary, ref Dictionary<object, DataModelList>? map)
 	{
-		map ??= new Dictionary<object, DataModelList>();
+		map ??= [];
 
 		if (map.TryGetValue(dictionary, out var value))
 		{
@@ -657,7 +657,7 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 
 	private static DataModelValue CreateDataModelObject(IDictionary<string, string> dictionary, ref Dictionary<object, DataModelList>? map)
 	{
-		map ??= new Dictionary<object, DataModelList>();
+		map ??= [];
 
 		if (map.TryGetValue(dictionary, out var value))
 		{
@@ -678,7 +678,7 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 
 	private static DataModelValue CreateDataModelList(IEnumerable enumerable, ref Dictionary<object, DataModelList>? map)
 	{
-		map ??= new Dictionary<object, DataModelList>();
+		map ??= [];
 
 		if (map.TryGetValue(enumerable, out var value))
 		{
@@ -700,11 +700,9 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 	public override string ToString() => ToString(format: null, formatProvider: null);
 
 	[Serializable]
-	private sealed class Marker
+	private sealed class Marker(DataModelValueType mark)
 	{
-		private readonly DataModelValueType _mark;
-
-		public Marker(DataModelValueType mark) => _mark = mark;
+		private readonly DataModelValueType _mark = mark;
 
 		private bool Equals(Marker other) => _mark == other._mark;
 
@@ -787,26 +785,23 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 
 	
 	[ExcludeFromCodeCoverage]
-	private class DebugView
+	private class DebugView(DataModelValue value)
 	{
 		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-		private readonly DataModelValue _value;
+		private readonly DataModelValue _value = value;
 
-		public DebugView(DataModelValue value) => _value = value;
-
+		[UsedImplicitly]
 		[DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
 		public object? Value => _value.ToObject();
 	}
 
-	internal class Dynamic : DynamicObject
+	internal class Dynamic(DataModelValue value) : DynamicObject
 	{
 		private static readonly IDynamicMetaObjectProvider Instance = new Dynamic(default);
 
 		private static readonly ConstructorInfo ConstructorInfo = typeof(Dynamic).GetConstructor(new[] { typeof(DataModelValue) })!;
 
-		private readonly DataModelValue _value;
-
-		public Dynamic(DataModelValue value) => _value = value;
+		private readonly DataModelValue _value = value;
 
 		public static DynamicMetaObject CreateMetaObject(Expression expression)
 		{

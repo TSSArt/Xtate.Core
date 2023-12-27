@@ -23,9 +23,9 @@ public struct OnExitEntity : IOnExit, IVisitorEntity<OnExitEntity, IOnExit>, IAn
 {
 	internal object? Ancestor;
 
-#region Interface IAncestorProvider
+	#region Interface IAncestorProvider
 
-	object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
@@ -43,7 +43,7 @@ public struct OnExitEntity : IOnExit, IVisitorEntity<OnExitEntity, IOnExit>, IAn
 		Action = source.Action;
 	}
 
-	bool IVisitorEntity<OnExitEntity, IOnExit>.RefEquals(ref OnExitEntity other) => Action == other.Action;
+	readonly bool IVisitorEntity<OnExitEntity, IOnExit>.RefEquals(ref OnExitEntity other) => Action == other.Action;
 
 #endregion
 }

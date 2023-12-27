@@ -17,6 +17,8 @@
 
 #endregion
 
+using System.ComponentModel;
+
 namespace Xtate;
 
 
@@ -64,11 +66,11 @@ public sealed class InvokeId : ServiceId, IEquatable<InvokeId>
 		return IdGenerator.NewInvokeId(_stateId.Value, GetHashCode());
 	}
 
-	public static InvokeId New(IIdentifier stateId, string? invokeId) => invokeId is null ? new InvokeId(stateId) : new InvokeId(invokeId);
+	public static InvokeId New(IIdentifier stateId, [Localizable(false)] string? invokeId) => invokeId is null ? new InvokeId(stateId) : new InvokeId(invokeId);
 
-	public static InvokeId FromString(string invokeId) => new(invokeId);
+	public static InvokeId FromString([Localizable(false)] string invokeId) => new(invokeId);
 
-	public static InvokeId FromString(string invokeId, string invokeUniqueId) => new(invokeId, invokeUniqueId);
+	public static InvokeId FromString([Localizable(false)] string invokeId, [Localizable(false)] string invokeUniqueId) => new(invokeId, invokeUniqueId);
 
 	internal sealed class InvokeUniqueIdEqualityComparer : IEqualityComparer<InvokeId>
 	{

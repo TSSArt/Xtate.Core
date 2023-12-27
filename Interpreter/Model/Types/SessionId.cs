@@ -17,6 +17,8 @@
 
 #endregion
 
+using System.ComponentModel;
+
 namespace Xtate;
 
 
@@ -37,5 +39,5 @@ public sealed class SessionId : ServiceId, IEquatable<SessionId>
 
 	public static SessionId New() => new();
 
-	public static SessionId FromString(string value) => new(value);
+	public static SessionId FromString([Localizable(false)] string value) => new(value);
 }

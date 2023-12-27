@@ -23,9 +23,9 @@ public struct InlineContent : IInlineContent, IVisitorEntity<InlineContent, IInl
 {
 	internal object? Ancestor;
 
-#region Interface IAncestorProvider
+	#region Interface IAncestorProvider
 
-	object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
@@ -43,7 +43,7 @@ public struct InlineContent : IInlineContent, IVisitorEntity<InlineContent, IInl
 		Value = source.Value;
 	}
 
-	bool IVisitorEntity<InlineContent, IInlineContent>.RefEquals(ref InlineContent other) => ReferenceEquals(Value, other.Value);
+	readonly bool IVisitorEntity<InlineContent, IInlineContent>.RefEquals(ref InlineContent other) => ReferenceEquals(Value, other.Value);
 
 #endregion
 }

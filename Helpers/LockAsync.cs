@@ -42,15 +42,12 @@ public readonly struct LockAsync : IDisposable
 		return new LockDisposer(_semaphore);
 	}
 
-	public readonly struct LockDisposer : IDisposable
+	public readonly struct LockDisposer(SemaphoreSlim semaphore) : IDisposable
 	{
-		private readonly SemaphoreSlim _semaphore;
 
-		public LockDisposer(SemaphoreSlim semaphore) => _semaphore = semaphore;
+		#region Interface IDisposable
 
-#region Interface IDisposable
-
-		public void Dispose() => _semaphore.Release();
+		public void Dispose() => semaphore.Release();
 
 #endregion
 	}

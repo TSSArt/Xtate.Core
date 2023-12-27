@@ -160,12 +160,24 @@ public static class XmlConverter
 			  }
 			: XmlConvert.DecodeName(localName);
 
-	public static string KeyToLocalName(string? key) =>
-		key switch
+	public static string KeyToLocalName(string? key)
+	{
+		if (key is null)
 		{
-			{ Length: 0 } => EmptyKeyElementName,
-			_             => key is not null ? XmlConvert.EncodeLocalName(key)! : NoKeyElementName
-		};
+			return NoKeyElementName;
+		}
+
+		if (key.Length == 0)
+		{
+			return EmptyKeyElementName;
+		}
+
+		var localName = XmlConvert.EncodeLocalName(key);
+
+		Infra.NotNull(localName);
+
+		return localName;
+	}
 
 	public static string? KeyToNamespaceOrDefault(string? key) =>
 		key switch
@@ -198,7 +210,7 @@ public static class XmlConverter
 
 					var metadata = GetMetaData(xmlReader);
 
-					list ??= new DataModelList();
+					list ??= [];
 
 					if (!xmlReader.IsEmptyElement)
 					{
@@ -280,7 +292,7 @@ public static class XmlConverter
 
 					var metadata = GetMetaData(xmlReader);
 
-					list ??= new DataModelList();
+					list ??= [];
 
 					if (!xmlReader.IsEmptyElement)
 					{

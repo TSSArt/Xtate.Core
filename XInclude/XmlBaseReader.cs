@@ -40,7 +40,7 @@ public class XmlBaseReader : DelegatedXmlReader
 
 	public required XmlResolver XmlResolver { private get; [UsedImplicitly] init; }
 
-	public override string? BaseURI => _baseUris?.Count > 0 ? _baseUris.Peek().BaseUri.ToString() : base.BaseURI;
+	public override string BaseURI => _baseUris?.Count > 0 ? _baseUris.Peek().BaseUri.ToString() : base.BaseURI;
 
 	public override bool Read()
 	{

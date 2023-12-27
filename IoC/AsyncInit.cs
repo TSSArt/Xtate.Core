@@ -98,17 +98,9 @@ public static class AsyncInit
 		private async Task Init(TArg arg, Func<TArg, ValueTask<T>> func) => SetValue(await func(arg).ConfigureAwait(false));
 	}
 
-	private sealed class InitAfter<T, TArg> : AsyncInit<T>
+	private sealed class InitAfter<T, TArg>(TArg arg, Func<TArg, ValueTask<T>> func) : AsyncInit<T>
 	{
-		private readonly TArg                     _arg;
-		private readonly Func<TArg, ValueTask<T>> _func;
-		private          Task?                    _task;
-
-		public InitAfter(TArg arg, Func<TArg, ValueTask<T>> func)
-		{
-			_arg = arg;
-			_func = func;
-		}
+		private Task?                    _task;
 
 		public override Task Task
 		{
@@ -126,6 +118,6 @@ public static class AsyncInit
 			}
 		}
 
-		private async Task Init() => SetValue(await _func(_arg).ConfigureAwait(false));
+		private async Task Init() => SetValue(await func(arg).ConfigureAwait(false));
 	}
 }

@@ -23,9 +23,9 @@ public struct FinalizeEntity : IFinalize, IVisitorEntity<FinalizeEntity, IFinali
 {
 	internal object? Ancestor;
 
-#region Interface IAncestorProvider
+	#region Interface IAncestorProvider
 
-	object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
@@ -43,7 +43,7 @@ public struct FinalizeEntity : IFinalize, IVisitorEntity<FinalizeEntity, IFinali
 		Action = source.Action;
 	}
 
-	bool IVisitorEntity<FinalizeEntity, IFinalize>.RefEquals(ref FinalizeEntity other) => Action == other.Action;
+	readonly bool IVisitorEntity<FinalizeEntity, IFinalize>.RefEquals(ref FinalizeEntity other) => Action == other.Action;
 
 #endregion
 }

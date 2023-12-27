@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2023 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,21 +15,15 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using Xtate.Persistence;
 
 namespace Xtate.Core;
 
-public sealed class ForEachNode : ExecutableEntityNode, IForEach, IAncestorProvider, IDebugEntityId
+public sealed class ForEachNode(DocumentIdNode documentIdNode, IForEach forEach) : ExecutableEntityNode(documentIdNode, forEach), IForEach, IAncestorProvider, IDebugEntityId
 {
-	private readonly IForEach _forEach;
-
-	public ForEachNode(DocumentIdNode documentIdNode, IForEach forEach) : base(documentIdNode, forEach) => _forEach = forEach;
-
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => _forEach;
+	object IAncestorProvider.Ancestor => forEach;
 
 #endregion
 
@@ -41,13 +35,13 @@ public sealed class ForEachNode : ExecutableEntityNode, IForEach, IAncestorProvi
 
 #region Interface IForEach
 
-	public IValueExpression? Array => _forEach.Array;
+	public IValueExpression? Array => forEach.Array;
 
-	public ILocationExpression? Item => _forEach.Item;
+	public ILocationExpression? Item => forEach.Item;
 
-	public ILocationExpression? Index => _forEach.Index;
+	public ILocationExpression? Index => forEach.Index;
 
-	public ImmutableArray<IExecutableEntity> Action => _forEach.Action;
+	public ImmutableArray<IExecutableEntity> Action => forEach.Action;
 
 #endregion
 
@@ -55,9 +49,9 @@ public sealed class ForEachNode : ExecutableEntityNode, IForEach, IAncestorProvi
 	{
 		bucket.Add(Key.TypeInfo, TypeInfo.ForEachNode);
 		bucket.Add(Key.DocumentId, DocumentId);
-		bucket.AddEntity(Key.Array, _forEach.Array);
-		bucket.AddEntity(Key.Item, _forEach.Item);
-		bucket.AddEntity(Key.Index, _forEach.Index);
+		bucket.AddEntity(Key.Array, forEach.Array);
+		bucket.AddEntity(Key.Item, forEach.Item);
+		bucket.AddEntity(Key.Index, forEach.Index);
 		bucket.AddEntityList(Key.Action, Action);
 	}
 }

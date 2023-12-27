@@ -27,12 +27,12 @@ public partial class StateMachineInterpreter : IExternalCommunication2
 	{
 		try
 		{
-			if (_externalCommunication is null)
+			if (ExternalCommunication is null)
 			{
 				throw NoExternalCommunication();
 			}
 
-			await _externalCommunication.StartInvoke(invokeData).ConfigureAwait(false);
+			await ExternalCommunication.StartInvoke(invokeData).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{
@@ -44,12 +44,12 @@ public partial class StateMachineInterpreter : IExternalCommunication2
 	{
 		try
 		{
-			if (_externalCommunication is null)
+			if (ExternalCommunication is null)
 			{
 				throw NoExternalCommunication();
 			}
 
-			await _externalCommunication.CancelInvoke(invokeId).ConfigureAwait(false);
+			await ExternalCommunication.CancelInvoke(invokeId).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{
@@ -63,12 +63,12 @@ public partial class StateMachineInterpreter : IExternalCommunication2
 
 		try
 		{
-			if (_externalCommunication is null)
+			if (ExternalCommunication is null)
 			{
 				throw NoExternalCommunication();
 			}
 
-			return await _externalCommunication.TrySendEvent(outgoingEvent).ConfigureAwait(false);
+			return await ExternalCommunication.TrySendEvent(outgoingEvent).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{
@@ -80,12 +80,12 @@ public partial class StateMachineInterpreter : IExternalCommunication2
 	{
 		try
 		{
-			if (_externalCommunication is null)
+			if (ExternalCommunication is null)
 			{
 				throw NoExternalCommunication();
 			}
 
-			await _externalCommunication.CancelEvent(sendId).ConfigureAwait(false);
+			await ExternalCommunication.CancelEvent(sendId).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{
@@ -99,12 +99,12 @@ public partial class StateMachineInterpreter : IExternalCommunication2
 	{
 		try
 		{
-			if (_externalCommunication is null)
+			if (ExternalCommunication is null)
 			{
 				throw NoExternalCommunication();
 			}
 
-			await _externalCommunication.ForwardEvent(evt, invokeId).ConfigureAwait(false);
+			await ExternalCommunication.ForwardEvent(evt, invokeId).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{

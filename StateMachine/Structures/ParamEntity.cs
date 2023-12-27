@@ -23,9 +23,9 @@ public struct ParamEntity : IParam, IVisitorEntity<ParamEntity, IParam>, IAncest
 {
 	internal object? Ancestor;
 
-#region Interface IAncestorProvider
+	#region Interface IAncestorProvider
 
-	object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
@@ -47,7 +47,7 @@ public struct ParamEntity : IParam, IVisitorEntity<ParamEntity, IParam>, IAncest
 		Name = source.Name;
 	}
 
-	bool IVisitorEntity<ParamEntity, IParam>.RefEquals(ref ParamEntity other) =>
+	readonly bool IVisitorEntity<ParamEntity, IParam>.RefEquals(ref ParamEntity other) =>
 		ReferenceEquals(Expression, other.Expression) &&
 		ReferenceEquals(Location, other.Location) &&
 		ReferenceEquals(Name, other.Name);

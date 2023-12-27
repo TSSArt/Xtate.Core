@@ -21,15 +21,12 @@ using Xtate.Persistence;
 
 namespace Xtate.Core;
 
-public sealed class LogNode : ExecutableEntityNode, ILog, IAncestorProvider, IDebugEntityId
+public sealed class LogNode(DocumentIdNode documentIdNode, ILog log) : ExecutableEntityNode(documentIdNode, log), ILog, IAncestorProvider, IDebugEntityId
 {
-	private readonly ILog _log;
 
-	public LogNode(DocumentIdNode documentIdNode, ILog log) : base(documentIdNode, log) => _log = log;
+	#region Interface IAncestorProvider
 
-#region Interface IAncestorProvider
-
-	object IAncestorProvider.Ancestor => _log;
+	object IAncestorProvider.Ancestor => log;
 
 #endregion
 
@@ -41,9 +38,9 @@ public sealed class LogNode : ExecutableEntityNode, ILog, IAncestorProvider, IDe
 
 #region Interface ILog
 
-	public string? Label => _log.Label;
+	public string? Label => log.Label;
 
-	public IValueExpression? Expression => _log.Expression;
+	public IValueExpression? Expression => log.Expression;
 
 #endregion
 

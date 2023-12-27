@@ -23,15 +23,15 @@ public struct ParallelEntity : IParallel, IVisitorEntity<ParallelEntity, IParall
 {
 	internal object? Ancestor;
 
-#region Interface IAncestorProvider
+	#region Interface IAncestorProvider
 
-	object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
-#endregion
+	#endregion
 
-#region Interface IDebugEntityId
+	#region Interface IDebugEntityId
 
-	FormattableString IDebugEntityId.EntityId => @$"{Id}";
+	readonly FormattableString IDebugEntityId.EntityId => @$"{Id}";
 
 #endregion
 
@@ -68,7 +68,7 @@ public struct ParallelEntity : IParallel, IVisitorEntity<ParallelEntity, IParall
 		Transitions = source.Transitions;
 	}
 
-	bool IVisitorEntity<ParallelEntity, IParallel>.RefEquals(ref ParallelEntity other) =>
+	readonly bool IVisitorEntity<ParallelEntity, IParallel>.RefEquals(ref ParallelEntity other) =>
 		ReferenceEquals(Id, other.Id) &&
 		ReferenceEquals(DataModel, other.DataModel) &&
 		Invoke == other.Invoke &&

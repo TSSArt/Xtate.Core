@@ -500,13 +500,9 @@ public readonly struct Bucket
 		protected override void Write(RootType key, Span<byte> bytes) { }
 	}
 
-	private class UnsupportedConverter<T> : ConverterBase<T>
+	private class UnsupportedConverter<T>(string type) : ConverterBase<T>
 	{
-		private readonly string _type;
-
-		public UnsupportedConverter(string type) => _type = type;
-
-		private NotSupportedException GetNotSupportedException() => new(Res.Format(Resources.Exception_UnsupportedType, _type, typeof(T)));
+		private NotSupportedException GetNotSupportedException() => new(Res.Format(Resources.Exception_UnsupportedType, type, typeof(T)));
 
 		public override int GetLength(T key) => throw GetNotSupportedException();
 

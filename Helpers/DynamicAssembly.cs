@@ -20,37 +20,126 @@
 using System.IO;
 using System.Reflection;
 using System.Runtime.Loader;
+using Xtate.DataModel;
+using Xtate.IoC;
 
 namespace Xtate.Core;
 
-[Obsolete]
-
-//TODO: delete
-public sealed class DynamicAssembly : IDisposable
+public static class DynamicAssemblyExtensions
 {
-	internal static readonly object    AssemblyCacheKey = new();
-	private                  Assembly? _assembly;
-
-	private Context? _context;
-
-	public DynamicAssembly(Stream stream)
+	public static void RegisterDynamicAssembly(this IServiceCollection services)
 	{
-		_context = new Context();
-		_assembly = _context.LoadFromStream(stream);
+		if (services.IsRegistered<InterpreterModelBuilder>())
+		{
+			return;
+		}
+
+		services.AddSharedType<DynamicAssembly, Uri>(SharedWithin.Scope);
+		services.AddSharedType<AssemblyContainerProvider, Uri>(SharedWithin.Scope);
+	}
+}
+
+public class DynamicAssembly : IDisposable, IAsyncInitialization, IServiceModule
+{
+	public required  IResourceLoader      ResourceLoader { private get; [UsedImplicitly] init; }
+
+	private readonly DisposingToken                             _disposingToken = new();
+	private readonly Uri                                        _uri;
+	private          AsyncInit<ImmutableArray<IServiceModule>>? _asyncInitServiceModules;
+	private          Context?                                   _context;
+
+	public DynamicAssembly(Uri uri)
+	{
+		_uri = uri;
+		_asyncInitServiceModules = AsyncInit.RunAfter(this, static da => da.LoadAssemblyServiceModules());
 	}
 
-	public Assembly Assembly => _assembly ?? throw new ObjectDisposedException(nameof(DynamicAssembly));
+	public void Register(IServiceCollection servicesCollection)
+	{
+		var serviceModules = _asyncInitServiceModules?.Value ?? throw new ObjectDisposedException(nameof(DynamicAssembly));
+
+		foreach (var serviceModule in serviceModules)
+		{
+			serviceModule.Register(servicesCollection);
+		}
+	}
+
+	private async ValueTask<ImmutableArray<IServiceModule>> LoadAssemblyServiceModules()
+	{
+		var resource = await ResourceLoader.Request(_uri).ConfigureAwait(false);
+		await using (resource.ConfigureAwait(false))
+		{
+			var stream = await resource.GetStream(true).ConfigureAwait(false);
+			await using (stream.ConfigureAwait(false))
+			{
+				var assembly = await LoadFromStream(stream).ConfigureAwait(false);
+
+				return CreateServiceModules(assembly);
+			}
+		}
+	}
+
+	private static ImmutableArray<IServiceModule> CreateServiceModules(Assembly assembly)
+	{
+		var attributes = assembly.GetCustomAttributes(typeof(ServiceModuleAttribute), inherit: false);
+
+		if (attributes.Length == 0)
+		{
+			return [];
+		}
+
+		var serviceModules = ImmutableArray.CreateBuilder<IServiceModule>(attributes.Length);
+
+		foreach (ServiceModuleAttribute attribute in attributes)
+		{
+			serviceModules.Add((IServiceModule) Activator.CreateInstance(attribute.ServiceModuleType!)!);
+		}
+
+		return serviceModules.MoveToImmutable();
+	}
+
+	private async ValueTask<Assembly> LoadFromStream(Stream stream)
+	{
+		_context = new Context();
+
+		if (stream is MemoryStream or UnmanagedMemoryStream)
+		{
+			return _context.LoadFromStream(stream);
+		}
+
+		using var memStream = new MemoryStream(new byte[stream.Length - stream.Position]);
+		await stream.CopyToAsync(memStream, 81920, _disposingToken.Token).ConfigureAwait(false);
+		memStream.Position = 0;
+
+		return _context.LoadFromStream(memStream);
+	}
+
+#region Interface IAsyncInitialization
+
+	public Task Initialization => _asyncInitServiceModules?.Task ?? Task.CompletedTask;
+
+#endregion
 
 #region Interface IDisposable
 
 	public void Dispose()
 	{
-		_context?.Unload();
-		_assembly = null;
-		_context = null;
+		Dispose(true);
+		GC.SuppressFinalize(this);
 	}
 
 #endregion
+
+	protected virtual void Dispose(bool disposing)
+	{
+		if (disposing)
+		{
+			_disposingToken.Dispose();
+			_context?.Unload();
+			_asyncInitServiceModules = null;
+			_context = null;
+		}
+	}
 
 	private class Context : AssemblyLoadContext
 	{

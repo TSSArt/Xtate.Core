@@ -24,18 +24,12 @@ using Xtate.XInclude;
 
 namespace Xtate.Core;
 
-public class Resource : IDisposable, IAsyncDisposable, IXIncludeResource
+public class Resource(Stream stream, ContentType? contentType = default) : IDisposable, IAsyncDisposable, IXIncludeResource
 {
 	private readonly DisposingToken _disposingToken = new();
-	private readonly Stream         _stream;
+	private readonly Stream _stream = stream ?? throw new ArgumentNullException(nameof(stream));
 	private          byte[]?        _bytes;
 	private          string?        _content;
-
-	public Resource(Stream stream, ContentType? contentType = default)
-	{
-		_stream = stream ?? throw new ArgumentNullException(nameof(stream));
-		ContentType = contentType;
-	}
 
 	public Encoding Encoding => !string.IsNullOrEmpty(ContentType?.CharSet) ? Encoding.GetEncoding(ContentType.CharSet) : Encoding.UTF8;
 
@@ -65,9 +59,9 @@ public class Resource : IDisposable, IAsyncDisposable, IXIncludeResource
 
 	ValueTask<Stream> IXIncludeResource.GetStream() => GetStream(doNotCache: true);
 
-	public ContentType? ContentType { get; }
+	public ContentType? ContentType { get; } = contentType;
 
-#endregion
+	#endregion
 
 	protected virtual void Dispose(bool disposing)
 	{

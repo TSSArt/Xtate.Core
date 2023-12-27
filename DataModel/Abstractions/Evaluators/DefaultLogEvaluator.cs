@@ -51,13 +51,11 @@ public abstract class LogEvaluator : ILog, IExecEvaluator, IAncestorProvider
 #endregion
 }
 
-public class DefaultLogEvaluator : LogEvaluator
+public class DefaultLogEvaluator(ILog log) : LogEvaluator(log)
 {
-	public DefaultLogEvaluator(ILog log) : base(log) => ExpressionEvaluator = log.Expression?.As<IObjectEvaluator>();
-
 	public required Func<ValueTask<ILogger<ILog>>> LoggerFactory { private get; [UsedImplicitly] init; }
 
-	public virtual IObjectEvaluator? ExpressionEvaluator { get; }
+	public virtual IObjectEvaluator? ExpressionEvaluator { get; } = log.Expression?.As<IObjectEvaluator>();
 
 	public override async ValueTask Execute()
 	{

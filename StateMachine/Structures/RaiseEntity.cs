@@ -23,9 +23,9 @@ public struct RaiseEntity : IRaise, IVisitorEntity<RaiseEntity, IRaise>, IAncest
 {
 	internal object? Ancestor;
 
-#region Interface IAncestorProvider
+	#region Interface IAncestorProvider
 
-	object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
@@ -43,7 +43,7 @@ public struct RaiseEntity : IRaise, IVisitorEntity<RaiseEntity, IRaise>, IAncest
 		OutgoingEvent = source.OutgoingEvent;
 	}
 
-	bool IVisitorEntity<RaiseEntity, IRaise>.RefEquals(ref RaiseEntity other) => ReferenceEquals(OutgoingEvent, other.OutgoingEvent);
+	readonly bool IVisitorEntity<RaiseEntity, IRaise>.RefEquals(ref RaiseEntity other) => ReferenceEquals(OutgoingEvent, other.OutgoingEvent);
 
 #endregion
 }

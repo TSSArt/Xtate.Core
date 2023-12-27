@@ -17,15 +17,16 @@
 
 #endregion
 
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+
 #if !NET6_0_OR_GREATER
+
 namespace System.Runtime.CompilerServices
 {
 	[AttributeUsage(AttributeTargets.Parameter)]
-	public sealed class CallerArgumentExpressionAttribute : Attribute
+	public sealed class CallerArgumentExpressionAttribute(string parameterName) : Attribute
 	{
-		public CallerArgumentExpressionAttribute(string parameterName) => ParameterName = parameterName;
-
-		public string ParameterName { get; }
+		public string ParameterName { get; } = parameterName;
 	}
 }
 

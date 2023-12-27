@@ -249,17 +249,8 @@ internal static class BucketExtensions
 		}
 	}
 
-	public readonly struct EnumGetter<TKey> where TKey : notnull
+	public readonly struct EnumGetter<TKey>(Bucket bucket, TKey key) where TKey : notnull
 	{
-		private readonly Bucket _bucket;
-		private readonly TKey   _key;
-
-		public EnumGetter(in Bucket bucket, TKey key)
-		{
-			_bucket = bucket;
-			_key = key;
-		}
-
-		public TEnum As<TEnum>() where TEnum : struct, Enum => _bucket.TryGet(_key, out TEnum value) ? value : throw new KeyNotFoundException(Res.Format(Resources.Exception_KeyNotFound, _key));
+		public TEnum As<TEnum>() where TEnum : struct, Enum => bucket.TryGet(key, out TEnum value) ? value : throw new KeyNotFoundException(Res.Format(Resources.Exception_KeyNotFound, key));
 	}
 }

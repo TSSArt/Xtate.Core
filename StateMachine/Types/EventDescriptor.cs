@@ -21,7 +21,7 @@ namespace Xtate.Core;
 
 public sealed class EventDescriptor : IEventDescriptor
 {
-	private static readonly char[] Dot = { '.' };
+	private static readonly char[] Dot = ['.'];
 
 	private readonly IIdentifier[] _parts;
 

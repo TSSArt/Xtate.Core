@@ -17,8 +17,9 @@
 
 #endregion
 
-namespace Xtate;
+using System.ComponentModel;
 
+namespace Xtate;
 
 public sealed class Identifier : LazyId, IIdentifier, IEquatable<IIdentifier>
 {
@@ -34,12 +35,10 @@ public sealed class Identifier : LazyId, IIdentifier, IEquatable<IIdentifier>
 
 #endregion
 
-	public static explicit operator Identifier(string value) => FromString(value);
+	public static explicit operator Identifier([Localizable(false)] string value) => FromString(value);
 
-	public static Identifier FromString(string value)
+	public static Identifier FromString([Localizable(false)] string value)
 	{
-		Infra.RequiresNonEmptyString(value);
-
 		foreach (var ch in value)
 		{
 			if (char.IsWhiteSpace(ch))
@@ -51,9 +50,7 @@ public sealed class Identifier : LazyId, IIdentifier, IEquatable<IIdentifier>
 		return new Identifier(value);
 	}
 
-	public static bool TryCreate(string? value,
-								 [NotNullWhen(true)] [MaybeNullWhen(false)]
-								 out Identifier? identifier)
+	public static bool TryCreate([Localizable(false)] string? value, [NotNullWhen(true)] out Identifier? identifier)
 	{
 		if (string.IsNullOrEmpty(value))
 		{

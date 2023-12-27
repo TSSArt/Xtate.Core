@@ -986,7 +986,7 @@ public sealed partial class DataModelList
 			}
 		}
 
-		map ??= new Dictionary<object, DataModelList>();
+		map ??= [];
 
 		if (map.TryGetValue(this, out var value))
 		{

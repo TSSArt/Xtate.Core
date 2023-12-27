@@ -17,7 +17,11 @@
 
 #endregion
 
+// ReSharper disable UnusedMember.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+
 #if !NET6_0_OR_GREATER
+
 namespace System.Runtime.CompilerServices
 {
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, Inherited = false)]
@@ -26,11 +30,12 @@ namespace System.Runtime.CompilerServices
 	[AttributeUsage(AttributeTargets.Parameter)]
 	public sealed class InterpolatedStringHandlerArgumentAttribute : Attribute
 	{
-		public InterpolatedStringHandlerArgumentAttribute(string argument) => Arguments = new [] { argument };
+		public InterpolatedStringHandlerArgumentAttribute(string argument) => Arguments = [argument];
 
 		public InterpolatedStringHandlerArgumentAttribute(params string[] arguments) => Arguments = arguments;
 
 		public string[] Arguments { get; }
 	}
 }
+
 #endif

@@ -21,29 +21,26 @@ using Xtate.Persistence;
 
 namespace Xtate.Core;
 
-public sealed class EventDescriptorNode : IEventDescriptor, IStoreSupport, IAncestorProvider, IDebugEntityId
+public sealed class EventDescriptorNode(IEventDescriptor eventDescriptor) : IEventDescriptor, IStoreSupport, IAncestorProvider, IDebugEntityId
 {
-	private readonly IEventDescriptor _eventDescriptor;
-
-	public EventDescriptorNode(IEventDescriptor eventDescriptor) => _eventDescriptor = eventDescriptor;
 
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => _eventDescriptor;
+	object IAncestorProvider.Ancestor => eventDescriptor;
 
 #endregion
 
 #region Interface IDebugEntityId
 
-	FormattableString IDebugEntityId.EntityId => @$"{_eventDescriptor}";
+	FormattableString IDebugEntityId.EntityId => @$"{eventDescriptor}";
 
 #endregion
 
 #region Interface IEventDescriptor
 
-	public bool IsEventMatch(IEvent evt) => _eventDescriptor.IsEventMatch(evt);
+	public bool IsEventMatch(IEvent evt) => eventDescriptor.IsEventMatch(evt);
 
-	public string Value => _eventDescriptor.Value;
+	public string Value => eventDescriptor.Value;
 
 #endregion
 
@@ -52,7 +49,7 @@ public sealed class EventDescriptorNode : IEventDescriptor, IStoreSupport, IAnce
 	void IStoreSupport.Store(Bucket bucket)
 	{
 		bucket.Add(Key.TypeInfo, TypeInfo.EventDescriptorNode);
-		bucket.Add(Key.Id, _eventDescriptor.Value);
+		bucket.Add(Key.Id, eventDescriptor.Value);
 	}
 
 #endregion

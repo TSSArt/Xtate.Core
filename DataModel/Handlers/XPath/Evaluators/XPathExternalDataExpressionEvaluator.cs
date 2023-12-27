@@ -19,19 +19,15 @@
 
 namespace Xtate.DataModel.XPath;
 
-public class XPathExternalDataExpressionEvaluator : DefaultExternalDataExpressionEvaluator
+public class XPathExternalDataExpressionEvaluator(IExternalDataExpression externalDataExpression) : DefaultExternalDataExpressionEvaluator(externalDataExpression)
 {
 	private const string MediaTypeApplicationXml = @"application/xml";
 	private const string MediaTypeTextXml        = @"text/xml";
-
-	public XPathExternalDataExpressionEvaluator(IExternalDataExpression externalDataExpression) : base(externalDataExpression) { }
 
 	public required XPathXmlParserContextFactory XPathXmlParserContextFactory { private get; [UsedImplicitly] init; }
 
 	protected override async ValueTask<DataModelValue> ParseToDataModel(Resource resource)
 	{
-		Infra.Requires(resource);
-
 		var mediaType = resource.ContentType?.MediaType;
 
 		if (mediaType is MediaTypeApplicationXml or MediaTypeTextXml)

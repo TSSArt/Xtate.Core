@@ -18,23 +18,31 @@
 #endregion
 
 using System.Collections.Concurrent;
+using Xtate.IoC;
 
 namespace Xtate.Core;
 
-
-public sealed class GlobalCache<TKey, TValue> where TKey : notnull
+public static class CacheExtensions //TODO:move out to file
 {
-	private readonly IEqualityComparer<TKey> _comparer;
-
-	private readonly ConcurrentDictionary<TKey, CacheEntry<TValue>> _global;
-
-	public GlobalCache() : this(EqualityComparer<TKey>.Default) { }
-
-	public GlobalCache(IEqualityComparer<TKey> comparer)
+	public static void RegisterCache(this IServiceCollection services)
 	{
-		_comparer = comparer ?? throw new ArgumentNullException(nameof(comparer));
-		_global = new ConcurrentDictionary<TKey, CacheEntry<TValue>>(comparer);
-	}
+		if (services.IsRegistered<GlobalCache<Any, Any>>())
+		{
+			return;
+		}
 
-	public LocalCache<TKey, TValue> CreateLocalCache() => new(_global, _comparer);
+		services.AddSharedType<GlobalCache<Any, Any>>(SharedWithin.Container);
+		services.AddSharedType<LocalCache<Any, Any>>(SharedWithin.Scope);
+	}
+}
+
+public class GlobalCache<TKey, TValue> where TKey : notnull
+{
+	private readonly ConcurrentDictionary<TKey, CacheEntry<TValue>> _globalDictionary = new();
+
+	public void Remove(TKey key, CacheEntry<TValue> entry) => _globalDictionary.TryRemove(new KeyValuePair<TKey, CacheEntry<TValue>>(key, entry));
+
+	public void Set(TKey key, CacheEntry<TValue> entry) => _globalDictionary[key] = entry;
+
+	public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out CacheEntry<TValue> entry) => _globalDictionary.TryGetValue(key, out entry);
 }

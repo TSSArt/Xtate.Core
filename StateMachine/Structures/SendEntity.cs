@@ -23,15 +23,15 @@ public struct SendEntity : ISend, IVisitorEntity<SendEntity, ISend>, IAncestorPr
 {
 	internal object? Ancestor;
 
-#region Interface IAncestorProvider
+	#region Interface IAncestorProvider
 
-	object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
-#endregion
+	#endregion
 
-#region Interface IDebugEntityId
+	#region Interface IDebugEntityId
 
-	FormattableString IDebugEntityId.EntityId => @$"{Id}";
+	readonly FormattableString IDebugEntityId.EntityId => @$"{Id}";
 
 #endregion
 
@@ -73,7 +73,7 @@ public struct SendEntity : ISend, IVisitorEntity<SendEntity, ISend>, IAncestorPr
 		NameList = source.NameList;
 	}
 
-	bool IVisitorEntity<SendEntity, ISend>.RefEquals(ref SendEntity other) =>
+	readonly bool IVisitorEntity<SendEntity, ISend>.RefEquals(ref SendEntity other) =>
 		DelayMs == other.DelayMs &&
 		Parameters == other.Parameters &&
 		NameList == other.NameList &&

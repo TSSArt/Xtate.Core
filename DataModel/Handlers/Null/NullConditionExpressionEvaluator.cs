@@ -19,22 +19,13 @@
 
 namespace Xtate.DataModel.Null;
 
-public sealed class NullConditionExpressionEvaluator : IConditionExpression, IBooleanEvaluator, IAncestorProvider
+public sealed class NullConditionExpressionEvaluator(IConditionExpression conditionExpression, IIdentifier inState) : IConditionExpression, IBooleanEvaluator, IAncestorProvider
 {
-	private readonly IConditionExpression _conditionExpression;
-	private readonly IIdentifier          _inState;
-
-	public NullConditionExpressionEvaluator(IConditionExpression conditionExpression, IIdentifier inState)
-	{
-		_conditionExpression = conditionExpression;
-		_inState = inState;
-	}
-
 	public required Func<ValueTask<IInStateController?>> InStateControllerFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => _conditionExpression;
+	object IAncestorProvider.Ancestor => conditionExpression;
 
 #endregion
 
@@ -44,7 +35,7 @@ public sealed class NullConditionExpressionEvaluator : IConditionExpression, IBo
 	{
 		if (await InStateControllerFactory().ConfigureAwait(false) is { } inStateController)
 		{
-			return inStateController.InState(_inState);
+			return inStateController.InState(inState);
 		}
 
 		return false;
@@ -54,7 +45,7 @@ public sealed class NullConditionExpressionEvaluator : IConditionExpression, IBo
 
 #region Interface IConditionExpression
 
-	public string? Expression => _conditionExpression.Expression;
+	public string? Expression => conditionExpression.Expression;
 
 #endregion
 }

@@ -19,21 +19,13 @@
 
 namespace Xtate.Core;
 
-internal class AncestorContainer : IAncestorProvider
+internal class AncestorContainer(object value, object? ancestor) : IAncestorProvider
 {
-	private readonly object? _ancestor;
+	public object Value { get; } = value;
 
-	public AncestorContainer(object value, object? ancestor)
-	{
-		Value = value;
-		_ancestor = ancestor;
-	}
+	#region Interface IAncestorProvider
 
-	public object Value { get; }
-
-#region Interface IAncestorProvider
-
-	object? IAncestorProvider.Ancestor => _ancestor;
+	object? IAncestorProvider.Ancestor => ancestor;
 
 #endregion
 }

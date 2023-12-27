@@ -21,25 +21,13 @@ using Xtate.Service;
 
 namespace Xtate.Core;
 
-internal class ServiceCommunication : IServiceCommunication
+internal class ServiceCommunication(IStateMachineHost host,
+							Uri? target,
+							Uri type,
+							InvokeId invokeId) : IServiceCommunication
 {
-	private readonly IStateMachineHost _host;
-	private readonly InvokeId          _invokeId;
-	private readonly Uri?              _target;
-	private readonly Uri               _type;
 
-	public ServiceCommunication(IStateMachineHost host,
-								Uri? target,
-								Uri type,
-								InvokeId invokeId)
-	{
-		_host = host;
-		_target = target;
-		_type = type;
-		_invokeId = invokeId;
-	}
-
-#region Interface IServiceCommunication
+	#region Interface IServiceCommunication
 
 	public async ValueTask SendToCreator(IOutgoingEvent outgoingEvent, CancellationToken token)
 	{
@@ -57,11 +45,11 @@ internal class ServiceCommunication : IServiceCommunication
 							   {
 								   NameParts = outgoingEvent.NameParts,
 								   Data = outgoingEvent.Data,
-								   Type = _type,
-								   Target = _target
+								   Type = type,
+								   Target = target
 							   };
 
-		await _host.DispatchEvent(_invokeId, newOutgoingEvent, token).ConfigureAwait(false);
+		await host.DispatchEvent(invokeId, newOutgoingEvent, token).ConfigureAwait(false);
 	}
 
 #endregion

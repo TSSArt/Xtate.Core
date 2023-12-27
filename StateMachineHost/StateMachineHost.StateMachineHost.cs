@@ -94,7 +94,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 		return SendStatus.Sent;
 	}
 
-	ImmutableArray<IIoProcessor> IStateMachineHost.GetIoProcessors() => !_ioProcessors.IsDefault ? _ioProcessors : ImmutableArray<IIoProcessor>.Empty;
+	ImmutableArray<IIoProcessor> IStateMachineHost.GetIoProcessors() => !_ioProcessors.IsDefault ? _ioProcessors : [];
 
 	async ValueTask IStateMachineHost.StartInvoke(SessionId sessionId,
 												  InvokeData data,
@@ -358,16 +358,10 @@ public sealed partial class StateMachineHost : IStateMachineHost
 		throw new ProcessorException(Resources.Exception_InvalidType);
 	}
 
-	private class StartInvokeLoggerContext : IStartInvokeLoggerContext
+	private class StartInvokeLoggerContext(SessionId sessionId, Uri type, Uri? source) : IStartInvokeLoggerContext
 	{
-		public StartInvokeLoggerContext(SessionId sessionId, Uri type, Uri? source)
-		{
-			SessionId = sessionId;
-			Type = type;
-			Source = source;
-		}
 
-#region Interface ILoggerContext
+		#region Interface ILoggerContext
 
 		public DataModelList GetProperties()
 		{
@@ -389,14 +383,14 @@ public sealed partial class StateMachineHost : IStateMachineHost
 
 		public string LoggerContextType => nameof(IStartInvokeLoggerContext);
 
-#endregion
+		#endregion
 
-#region Interface IStartInvokeLoggerContext
+		#region Interface IStartInvokeLoggerContext
 
-		public SessionId SessionId { get; }
-		public Uri       Type      { get; }
-		public Uri?      Source    { get; }
+		public SessionId SessionId { get; } = sessionId;
+		public Uri Type { get; } = type;
+		public Uri? Source { get; } = source;
 
-#endregion
+		#endregion
 	}
 }

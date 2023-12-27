@@ -53,14 +53,13 @@ public class SmtpClientService : ServiceBase
 		var textBody = parameters["body"].AsStringOrDefault();
 		var htmlBody = parameters["htmlBody"].AsStringOrDefault();
 
-		using var message = new MailMessage(parameters["from"].AsString(), parameters["to"].AsString())
-							{
-								Body = htmlBody ?? textBody,
-								IsBodyHtml = htmlBody is not null,
-								BodyEncoding = Encoding.UTF8,
-								Subject = parameters["subject"].AsStringOrDefault() ?? string.Empty,
-								SubjectEncoding = Encoding.UTF8
-							};
+		using var message = new MailMessage(parameters["from"].AsString(), parameters["to"].AsString());
+
+		message.Body = htmlBody ?? textBody ?? string.Empty;
+		message.IsBodyHtml = htmlBody is not null;
+		message.BodyEncoding = Encoding.UTF8;
+		message.Subject = parameters["subject"].AsStringOrDefault() ?? string.Empty;
+		message.SubjectEncoding = Encoding.UTF8;
 
 		await client.SendMailAsync(message).ConfigureAwait(false);
 

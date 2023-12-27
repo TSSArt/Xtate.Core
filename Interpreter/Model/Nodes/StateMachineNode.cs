@@ -69,7 +69,7 @@ public sealed class StateMachineNode : StateEntityNode, IStateMachine, IAncestor
 	public string?                             DataModelType => _stateMachine.DataModelType;
 	public IExecutableEntity?                  Script        => _stateMachine.Script;
 	IDataModel? IStateMachine.                 DataModel     => DataModel;
-	IInitial? IStateMachine.                   Initial       => Initial;
+	IInitial IStateMachine.                    Initial       => Initial;
 	ImmutableArray<IStateEntity> IStateMachine.States        => ImmutableArray<IStateEntity>.CastUp(States);
 
 #endregion

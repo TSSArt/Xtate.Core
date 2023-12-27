@@ -55,11 +55,9 @@ public abstract class InlineContentEvaluator : IInlineContent, IObjectEvaluator,
 #endregion
 }
 
-public class DefaultInlineContentEvaluator : InlineContentEvaluator
+public class DefaultInlineContentEvaluator(IInlineContent inlineContent) : InlineContentEvaluator(inlineContent)
 {
 	private DataModelValue _parsedValue;
-
-	public DefaultInlineContentEvaluator(IInlineContent inlineContent) : base(inlineContent) { }
 
 	public override ValueTask<IObject> EvaluateObject()
 	{

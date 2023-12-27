@@ -21,33 +21,18 @@ using Xtate.IoC;
 
 namespace Xtate.Core;
 
-public class StateMachineGetter : IAsyncInitialization
+public class StateMachineGetter(IStateMachineService stateMachineService) : IAsyncInitialization
 {
-	private readonly CancellationTokenSource _cancellationTokenSource = new();
-	private readonly IHostBaseUri?           _hostBaseUri;
-	private readonly IScxmlStateMachine?     _scxmlStateMachine;
-	//private readonly ServiceLocator          _serviceLocator;
-	private readonly ISourceStateMachine?    _sourceStateMachine;
+	private readonly AsyncInit<IStateMachine?> _stateMachineAsyncInit = AsyncInit.RunNow(stateMachineService, svc => svc.GetStateMachine());
 
-	private readonly AsyncInit<IStateMachine> _stateMachineAsyncInit;
-
-	//public  required IStateMachineService      _stateMachineService;
-	private readonly IStateMachineStartOptions _stateMachineStartOptions;
-
-	public StateMachineGetter(IStateMachineService stateMachineService)
-	{
-		//_stateMachineService = stateMachineService;
-
-		_stateMachineAsyncInit = AsyncInit.RunNow(stateMachineService, svc => svc.GetStateMachine());
-	}
-
-#region Interface IAsyncInitialization
+	#region Interface IAsyncInitialization
 
 	public Task Initialization => _stateMachineAsyncInit.Task;
 
 #endregion
 
-	public ValueTask<IStateMachine> GetStateMachine() => new(_stateMachineAsyncInit.Value);
+	[UsedImplicitly]
+	public ValueTask<IStateMachine?> GetStateMachine() => new(_stateMachineAsyncInit.Value);
 
 	//TODO:delete
 	/*

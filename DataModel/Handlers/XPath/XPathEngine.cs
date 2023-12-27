@@ -22,12 +22,10 @@ using System.Xml.XPath;
 
 namespace Xtate.DataModel.XPath;
 
-public class XPathEngine
+public class XPathEngine(IDataModelController? dataModelController)
 {
-	private readonly DataModelList        _root;
+	private readonly DataModelList _root = dataModelController?.DataModel ?? new DataModelList(false);
 	private readonly Stack<DataModelList> _scopeStack = new();
-
-	public XPathEngine(IDataModelController? dataModelController) => _root = dataModelController?.DataModel ?? new DataModelList(false);
 
 	public object GetVariable(string name)
 	{
@@ -103,7 +101,11 @@ public class XPathEngine
 	{
 		var xPathExpression = await compiledExpression.GetXPathExpression().ConfigureAwait(false);
 
-		return new DataModelXPathNavigator(_root).Evaluate(xPathExpression);
+		var result = new DataModelXPathNavigator(_root).Evaluate(xPathExpression);
+
+		Infra.NotNull(result);
+
+		return result;
 	}
 
 	private static void Assign(DataModelXPathNavigator navigator,
@@ -154,7 +156,7 @@ public class XPathEngine
 
 	public void EnterScope()
 	{
-		_scopeStack.Push(new DataModelList());
+		_scopeStack.Push([]);
 	}
 
 	public void LeaveScope()

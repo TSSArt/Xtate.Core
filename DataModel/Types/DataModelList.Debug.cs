@@ -107,12 +107,10 @@ public partial class DataModelList : IFormattable
 
 	[ExcludeFromCodeCoverage]
 	[DebuggerDisplay(value: "{" + nameof(Value) + "}", Name = "{" + nameof(IndexKey) + ",nq}")]
-	private readonly struct DebugIndexKeyValue
+	private readonly struct DebugIndexKeyValue(in Entry entry)
 	{
 		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-		private readonly Entry _entry;
-
-		public DebugIndexKeyValue(in Entry entry) => _entry = entry;
+		private readonly Entry _entry = entry;
 
 		[DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
 		private DataModelValue Value => _entry.Value;
@@ -127,12 +125,10 @@ public partial class DataModelList : IFormattable
 
 	[ExcludeFromCodeCoverage]
 	[DebuggerDisplay(value: "Index = {" + nameof(Index) + "}, Access = {" + nameof(Access) + "}, Metadata = {" + nameof(MetadataNote) + ",nq}")]
-	private readonly struct ItemInfo
+	private readonly struct ItemInfo(in Entry entry)
 	{
 		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-		private readonly Entry _entry;
-
-		public ItemInfo(in Entry entry) => _entry = entry;
+		private readonly Entry _entry = entry;
 
 		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
 		private int Index => _entry.Index;
@@ -149,12 +145,10 @@ public partial class DataModelList : IFormattable
 
 	[ExcludeFromCodeCoverage]
 	[DebuggerDisplay(value: "Access = {" + nameof(Access) + "}, Metadata = {" + nameof(MetadataNote) + ",nq}")]
-	private readonly struct ListInfo
+	private readonly struct ListInfo(DataModelList dataModelList)
 	{
 		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-		private readonly DataModelList _dataModelList;
-
-		public ListInfo(DataModelList dataModelList) => _dataModelList = dataModelList;
+		private readonly DataModelList _dataModelList = dataModelList;
 
 		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
 		private string MetadataNote => _dataModelList.GetMetadata() is not null ? @"{...}" : @"null";
@@ -167,18 +161,14 @@ public partial class DataModelList : IFormattable
 	}
 
 	[ExcludeFromCodeCoverage]
-	private class DebugView
+	private class DebugView(DataModelList dataModelList)
 	{
-		private readonly DataModelList _dataModelList;
-
-		public DebugView(DataModelList dataModelList) => _dataModelList = dataModelList;
-
 		[UsedImplicitly]
 		[DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-		public DebugIndexKeyValue[] Items => _dataModelList.Entries.Select(entry => new DebugIndexKeyValue(entry)).ToArray();
+		public DebugIndexKeyValue[] Items => dataModelList.Entries.Select(entry => new DebugIndexKeyValue(entry)).ToArray();
 
 		[UsedImplicitly]
 		[SuppressMessage(category: "ReSharper", checkId: "InconsistentNaming")]
-		public ListInfo __ListInfo__ => new(_dataModelList);
+		public ListInfo __ListInfo__ => new(dataModelList);
 	}
 }

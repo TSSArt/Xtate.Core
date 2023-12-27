@@ -17,13 +17,23 @@
 
 #endregion
 
+using Xtate.IoC;
+
 namespace Xtate;
 
+public interface IServiceModule
+{
+	void Register(IServiceCollection servicesCollection);
+}
 
 [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
-public sealed class ServiceModuleAttribute : Attribute
+public class ServiceModuleAttribute(Type serviceModuleType) : Attribute
 {
-	public ServiceModuleAttribute(Type serviceModuleType) => ServiceModuleType = serviceModuleType;
+	public Type? ServiceModuleType { get; } = serviceModuleType;
+}
 
-	public Type? ServiceModuleType { get; }
+[AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+public class ServiceModuleAttribute<T> : ServiceModuleAttribute where T : IServiceModule, new()
+{
+	public ServiceModuleAttribute() : base(typeof(T)) { }
 }

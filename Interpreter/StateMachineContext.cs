@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2023 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,32 +15,12 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using Xtate.DataModel;
 using Xtate.IoC;
 using Xtate.IoProcessor;
 
 namespace Xtate.Core;
 
-//TODO:  moveout
-public interface IStateMachineContextOptions;
-
-public interface IExecutionContextOptions
-{
-	DataModelList                        DataModel           { get; }
-}
-
-internal class ExecutionContextOptions : IExecutionContextOptions
-{
-#region Interface IExecutionContextOptions
-
-	public ISecurityContext?                    SecurityContext     { get; init; }
-	public ImmutableDictionary<object, object>? ContextRuntimeItems { get; init; }
-	public DataModelList DataModel { get; }
-
-#endregion
-}
 /*
 [Obsolete]
 public class StateMachineContextOptions : IStateMachineContextOptions, IAsyncInitialization
@@ -188,9 +168,10 @@ public class DataModelController : IDataModelController
 
 public class EventController : IEventController
 {
-	private static readonly Uri                       InternalTarget = new(uriString: @"_internal", UriKind.Relative);
-	public required         IExternalCommunication?   _externalCommunication { private get; [UsedImplicitly] init; }
-	public required         ILogger<IEventController> _logger                { private get; [UsedImplicitly] init; }
+	private static readonly Uri InternalTarget = new(uriString: "_internal", UriKind.Relative);
+
+	public required IExternalCommunication?   ExternalCommunication { private get; [UsedImplicitly] init; }
+	public required ILogger<IEventController> Logger                { private get; [UsedImplicitly] init; }
 
 	public required IStateMachineContext StateMachineContext { private get; [UsedImplicitly] init; }
 
@@ -198,17 +179,17 @@ public class EventController : IEventController
 
 	public virtual async ValueTask Cancel(SendId sendId)
 	{
-		await _logger.Write(Level.Trace, $@"Cancel Event '{sendId}'", sendId).ConfigureAwait(false);
+		await Logger.Write(Level.Trace, $@"Cancel Event '{sendId}'", sendId).ConfigureAwait(false);
 
-		if (_externalCommunication is { } externalCommunication)
+		if (ExternalCommunication is not null)
 		{
-			await externalCommunication.CancelEvent(sendId).ConfigureAwait(false);
+			await ExternalCommunication.CancelEvent(sendId).ConfigureAwait(false);
 		}
 	}
 
 	public virtual async ValueTask Send(IOutgoingEvent outgoingEvent)
 	{
-		await _logger.Write(Level.Trace, $@"Send event: '{EventName.ToName(outgoingEvent.NameParts)}'", outgoingEvent).ConfigureAwait(false);
+		await Logger.Write(Level.Trace, $@"Send event: '{EventName.ToName(outgoingEvent.NameParts)}'", outgoingEvent).ConfigureAwait(false);
 
 		if (IsInternalEvent(outgoingEvent))
 		{
@@ -217,9 +198,9 @@ public class EventController : IEventController
 			return;
 		}
 
-		if (_externalCommunication is { } externalCommunication)
+		if (ExternalCommunication is not null)
 		{
-			if (await externalCommunication.TrySendEvent(outgoingEvent).ConfigureAwait(false) == SendStatus.ToInternalQueue)
+			if (await ExternalCommunication.TrySendEvent(outgoingEvent).ConfigureAwait(false) == SendStatus.ToInternalQueue)
 			{
 				StateMachineContext.InternalQueue.Enqueue(new EventObject(outgoingEvent) { Type = EventType.Internal });
 			}
@@ -241,161 +222,6 @@ public class EventController : IEventController
 		}
 
 		return true;
-	}
-}
-
-public class ExecutionContext(IExecutionContextOptions executionContextOptions,
-						IStateMachineContext stateMachineContext,
-						ILogger logger,
-						ILoggerContext? loggerContext,
-						IExternalCommunication? externalCommunication) : ILogController, IEventController, IInvokeController, IInStateController, IDataModelController
-{
-	private static readonly Uri InternalTarget = new(uriString: @"_internal", UriKind.Relative);
-	private readonly IExternalCommunication? _externalCommunication = externalCommunication;
-	private readonly ILogger _logger = logger;
-
-	#region Interface IDataModelController
-
-	public DataModelList DataModel => executionContextOptions.DataModel;
-
-#endregion
-
-#region Interface IEventController
-
-	public async ValueTask Send(IOutgoingEvent outgoingEvent)
-	{
-		if (_logger is { } logger)
-		{
-			//TODO:delete
-			//await logger.TraceSendEvent(outgoingEvent).ConfigureAwait(false);
-		}
-
-		if (IsInternalEvent(outgoingEvent))
-		{
-			stateMachineContext.InternalQueue.Enqueue(new EventObject(outgoingEvent) { Type = EventType.Internal });
-
-			return;
-		}
-
-		if (_externalCommunication is { } externalCommunication)
-		{
-			if (await externalCommunication.TrySendEvent(outgoingEvent).ConfigureAwait(false) == SendStatus.ToInternalQueue)
-			{
-				stateMachineContext.InternalQueue.Enqueue(new EventObject(outgoingEvent) { Type = EventType.Internal });
-			}
-		}
-	}
-
-	public async ValueTask Cancel(SendId sendId)
-	{
-		if (_logger is { } logger)
-		{
-			//TODO:delete
-			//await logger.TraceCancelEvent(sendId).ConfigureAwait(false);
-		}
-
-		if (_externalCommunication is { } externalCommunication)
-		{
-			await externalCommunication.CancelEvent(sendId).ConfigureAwait(false);
-		}
-	}
-
-#endregion
-
-#region Interface IInStateController
-
-	public bool InState(IIdentifier id)
-	{
-		foreach (var state in stateMachineContext.Configuration)
-		{
-			if (Identifier.EqualityComparer.Equals(id, state.Id))
-			{
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-#endregion
-
-#region Interface IInvokeController
-
-	public async ValueTask Start(InvokeData invokeData)
-	{
-		if (_logger is { } logger)
-		{
-			//TODO:delete
-			//await logger.TraceStartInvoke(invokeData).ConfigureAwait(false);
-		}
-
-		if (_externalCommunication is { } externalCommunication)
-		{
-			await externalCommunication.StartInvoke(invokeData).ConfigureAwait(false);
-		}
-	}
-
-	public async ValueTask Cancel(InvokeId invokeId)
-	{
-		if (_logger is { } logger)
-		{
-			//TODO:delete
-			//await logger.TraceCancelInvoke(invokeId).ConfigureAwait(false);
-		}
-
-		if (_externalCommunication is { } externalCommunication)
-		{
-			await externalCommunication.CancelInvoke(invokeId).ConfigureAwait(false);
-		}
-	}
-
-#endregion
-
-#region Interface ILogController
-
-	public async ValueTask Log(string? message = default, DataModelValue arguments = default) => throw new NotImplementedException();
-
-	public bool IsEnabled => throw new NotImplementedException();
-
-#endregion
-
-	private static bool IsInternalEvent(IOutgoingEvent outgoingEvent)
-	{
-		if (outgoingEvent.Target != InternalTarget || outgoingEvent.Type is not null)
-		{
-			return false;
-		}
-
-		if (outgoingEvent.DelayMs != 0)
-		{
-			throw new ExecutionException(Resources.Exception_InternalEventsCantBeDelayed);
-		}
-
-		return true;
-	}
-
-	private class ContextItems : IContextItems
-	{
-		private readonly Dictionary<object, object>           _items = new();
-		private readonly ImmutableDictionary<object, object>? _permanentItems;
-
-		public ContextItems(ImmutableDictionary<object, object>? permanentItems) => _permanentItems = permanentItems;
-
-#region Interface IContextItems
-
-		public object? this[object key]
-		{
-			get => _permanentItems is not null && _permanentItems.TryGetValue(key, out var value) ? value : _items.TryGetValue(key, out value) ? value : null;
-			set
-			{
-				if (value is not null && (_permanentItems is null || !_permanentItems.ContainsKey(key)))
-				{
-					_items[key] = value;
-				}
-			}
-		}
-
-#endregion
 	}
 }
 
@@ -542,7 +368,7 @@ public class StateMachineContext : IStateMachineContext, IAsyncInitialization //
 
 	public DataModelList DataModel => _dataModel ??= CreateDataModel();
 
-	public OrderedSet<StateEntityNode> Configuration { get; } = new();
+	public OrderedSet<StateEntityNode> Configuration { get; } = [];
 
 	//public IExecutionContext ExecutionContext => this;
 
@@ -550,9 +376,9 @@ public class StateMachineContext : IStateMachineContext, IAsyncInitialization //
 
 	public EntityQueue<IEvent> InternalQueue { get; } = new();
 
-	public OrderedSet<StateEntityNode> StatesToInvoke { get; } = new();
+	public OrderedSet<StateEntityNode> StatesToInvoke { get; } = [];
 
-	public ServiceIdSet ActiveInvokes { get; } = new();
+	public ServiceIdSet ActiveInvokes { get; } = [];
 
 #endregion
 

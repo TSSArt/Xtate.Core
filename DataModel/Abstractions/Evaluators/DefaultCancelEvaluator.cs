@@ -51,13 +51,11 @@ public abstract class CancelEvaluator : ICancel, IExecEvaluator, IAncestorProvid
 #endregion
 }
 
-public class DefaultCancelEvaluator : CancelEvaluator
+public class DefaultCancelEvaluator(ICancel cancel) : CancelEvaluator(cancel)
 {
-	public DefaultCancelEvaluator(ICancel cancel) : base(cancel) => SendIdExpressionEvaluator = cancel.SendIdExpression?.As<IStringEvaluator>();
-
 	public required Func<ValueTask<IEventController?>> EventSenderFactory { private get; [UsedImplicitly] init; }
 
-	public IStringEvaluator? SendIdExpressionEvaluator { get; }
+	public IStringEvaluator? SendIdExpressionEvaluator { get; } = cancel.SendIdExpression?.As<IStringEvaluator>();
 
 	public override async ValueTask Execute()
 	{

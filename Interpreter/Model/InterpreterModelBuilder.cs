@@ -28,7 +28,7 @@ public class InterpreterModelBuilder : StateMachineVisitor
 	private readonly LinkedList<int>                                    _documentIdList = [];
 	private readonly List<IEntity>                                      _entities       = [];
 	private readonly Dictionary<IIdentifier, StateEntityNode>           _idMap          = new(Identifier.EqualityComparer);
-	private readonly List<TransitionNode>                               _targetMap = [];
+	private readonly List<TransitionNode>                               _targetMap      = [];
 	private          int                                                _counter;
 	private          int                                                _deepLevel;
 	private          List<(Uri Uri, IExternalScriptConsumer Consumer)>? _externalScriptList;
@@ -36,7 +36,7 @@ public class InterpreterModelBuilder : StateMachineVisitor
 
 	public required IDataModelHandler                               DataModelHandler      { private get; [UsedImplicitly] init; }
 	public required IErrorProcessorService<InterpreterModelBuilder> ErrorProcessorService { private get; [UsedImplicitly] init; }
-	public required IResourceLoader                                 ResourceLoader { private get; [UsedImplicitly] init; }
+	public required IResourceLoader                                 ResourceLoader        { private get; [UsedImplicitly] init; }
 
 	public required Func<DocumentIdNode, TransitionNode, EmptyInitialNode>                     EmptyInitialNodeFactory             { private get; [UsedImplicitly] init; }
 	public required Func<DocumentIdNode, ImmutableArray<StateEntityNode>, EmptyTransitionNode> EmptyTransitionNodeFactory          { private get; [UsedImplicitly] init; }
@@ -94,7 +94,7 @@ public class InterpreterModelBuilder : StateMachineVisitor
 		_counter ++;
 		_counter = _inParallel ? _counter + saved.counter : _counter > saved.counter ? _counter : saved.counter;
 	}
-	
+
 	public async ValueTask<IInterpreterModel> Build(IStateMachine stateMachine)
 	{
 		_idMap.Clear();
@@ -120,9 +120,7 @@ public class InterpreterModelBuilder : StateMachineVisitor
 			await SetExternalResources(_externalScriptList).ConfigureAwait(false);
 		}
 
-		var model = new InterpreterModel { Root = stateMachine.As<StateMachineNode>(), EntityMap = CreateEntityMap() };
-
-		return model;
+		return new InterpreterModel(stateMachine.As<StateMachineNode>(), CreateEntityMap());
 	}
 
 	private ImmutableDictionary<int, IEntity> CreateEntityMap()

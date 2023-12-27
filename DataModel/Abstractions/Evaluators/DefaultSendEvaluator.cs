@@ -62,33 +62,20 @@ public abstract class SendEvaluator : IExecEvaluator, ISend, IAncestorProvider
 }
 
 
-public class DefaultSendEvaluator : SendEvaluator
+public class DefaultSendEvaluator(ISend send) : SendEvaluator(send)
 {
-	public DefaultSendEvaluator(ISend send) : base(send)
-	{
-		EventExpressionEvaluator = send.EventExpression?.As<IStringEvaluator>();
-		TypeExpressionEvaluator = send.TypeExpression?.As<IStringEvaluator>();
-		TargetExpressionEvaluator = send.TargetExpression?.As<IStringEvaluator>();
-		DelayExpressionEvaluator = send.DelayExpression?.As<IIntegerEvaluator>();
-		ContentExpressionEvaluator = send.Content?.Expression?.As<IObjectEvaluator>();
-		ContentBodyEvaluator = send.Content?.Body?.As<IValueEvaluator>();
-		IdLocationEvaluator = send.IdLocation?.As<ILocationEvaluator>();
-		NameEvaluatorList = send.NameList.AsArrayOf<ILocationExpression, ILocationEvaluator>();
-		ParameterList = DataConverter.AsParamArray(send.Parameters);
-	}
-
 	public required Func<ValueTask<DataConverter>>     DataConverterFactory { private get; [UsedImplicitly] init; }
 	public required Func<ValueTask<IEventController?>> EventSenderFactory   { private get; [UsedImplicitly] init; }
 
-	public IObjectEvaluator?                   ContentExpressionEvaluator { get; }
-	public IValueEvaluator?                    ContentBodyEvaluator       { get; }
-	public IIntegerEvaluator?                  DelayExpressionEvaluator   { get; }
-	public IStringEvaluator?                   EventExpressionEvaluator   { get; }
-	public ILocationEvaluator?                 IdLocationEvaluator        { get; }
-	public IStringEvaluator?                   TargetExpressionEvaluator  { get; }
-	public IStringEvaluator?                   TypeExpressionEvaluator    { get; }
-	public ImmutableArray<ILocationEvaluator>  NameEvaluatorList          { get; }
-	public ImmutableArray<DataConverter.Param> ParameterList              { get; }
+	public IObjectEvaluator? ContentExpressionEvaluator { get; } = send.Content?.Expression?.As<IObjectEvaluator>();
+	public IValueEvaluator? ContentBodyEvaluator { get; } = send.Content?.Body?.As<IValueEvaluator>();
+	public IIntegerEvaluator? DelayExpressionEvaluator { get; } = send.DelayExpression?.As<IIntegerEvaluator>();
+	public IStringEvaluator? EventExpressionEvaluator { get; } = send.EventExpression?.As<IStringEvaluator>();
+	public ILocationEvaluator? IdLocationEvaluator { get; } = send.IdLocation?.As<ILocationEvaluator>();
+	public IStringEvaluator? TargetExpressionEvaluator { get; } = send.TargetExpression?.As<IStringEvaluator>();
+	public IStringEvaluator? TypeExpressionEvaluator { get; } = send.TypeExpression?.As<IStringEvaluator>();
+	public ImmutableArray<ILocationEvaluator> NameEvaluatorList { get; } = send.NameList.AsArrayOf<ILocationExpression, ILocationEvaluator>();
+	public ImmutableArray<DataConverter.Param> ParameterList { get; } = DataConverter.AsParamArray(send.Parameters);
 
 	public override async ValueTask Execute()
 	{

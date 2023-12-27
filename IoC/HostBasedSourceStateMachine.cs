@@ -19,20 +19,12 @@
 
 namespace Xtate.Core;
 
-public class HostBasedSourceStateMachine : ISourceStateMachine
+public class HostBasedSourceStateMachine(ISourceStateMachine sourceStateMachine, IHostBaseUri? hostBaseUri) : ISourceStateMachine
 {
-	private readonly IHostBaseUri?       _hostBaseUri;
-	private readonly ISourceStateMachine _sourceStateMachine;
 
-	public HostBasedSourceStateMachine(ISourceStateMachine sourceStateMachine, IHostBaseUri? hostBaseUri)
-	{
-		_sourceStateMachine = sourceStateMachine;
-		_hostBaseUri = hostBaseUri;
-	}
+	#region Interface ISourceStateMachine
 
-#region Interface ISourceStateMachine
-
-	public Uri Location => _hostBaseUri?.HostBaseUri.CombineWith(_sourceStateMachine.Location)!;
+	public Uri Location => hostBaseUri?.HostBaseUri.CombineWith(sourceStateMachine.Location)!;
 
 #endregion
 }
