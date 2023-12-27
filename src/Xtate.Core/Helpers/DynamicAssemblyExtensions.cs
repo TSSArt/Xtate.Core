@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2023 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,11 +15,21 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
+using Xtate.DataModel;
+using Xtate.IoC;
 
-namespace Xtate.Builder;
+namespace Xtate.Core;
 
-public abstract class BuilderBase
+public static class DynamicAssemblyExtensions
 {
-	public object? Ancestor { protected get; [UsedImplicitly] init; }
+	public static void RegisterDynamicAssembly(this IServiceCollection services)
+	{
+		if (services.IsRegistered<InterpreterModelBuilder>())
+		{
+			return;
+		}
+
+		services.AddSharedType<DynamicAssembly, Uri>(SharedWithin.Scope);
+		services.AddSharedType<AssemblyContainerProvider, Uri>(SharedWithin.Scope);
+	}
 }

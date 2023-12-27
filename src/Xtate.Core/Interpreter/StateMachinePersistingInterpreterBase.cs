@@ -32,9 +32,7 @@ public interface IPersistingInterpreterState
 public class StateMachinePersistingInterpreterBase3(IPersistingInterpreterState persistingInterpreterState,
 												  IInterpreterModel interpreterModel) : StateMachinePersistingInterpreterBase2(
 	persistingInterpreterState,
-	interpreterModel)
-{
-}
+	interpreterModel);
 
 [method: SetsRequiredMembers]
 public class StateMachinePersistingInterpreterBase2(IPersistingInterpreterState persistingInterpreterState,

@@ -29,7 +29,7 @@ using Xtate.XInclude;
 
 namespace Xtate.Core.Test;
 
-public class MyActionProvider() : CustomActionProvider<MyAction>(Namespace: "http://xtate.net/scxml/customaction/my", Name: "myAction");
+public class MyActionProvider() : CustomActionProvider<MyAction>(ns: "http://xtate.net/scxml/customaction/my", name: "myAction");
 
 public class MyAction(XmlReader xmlReader) : CustomActionBase
 {
@@ -53,11 +53,11 @@ public class RegisterClassTest
 
 		var services = new ServiceCollection();
 		services.RegisterNullDataModelHandler();
-		services.AddSharedImplementationSync<TypeInfoBase, Type>(SharedWithin.Container).For<ITypeInfo>();
+		services.AddSharedImplementationSync<AssemblyTypeInfo, Type>(SharedWithin.Container).For<IAssemblyTypeInfo>();
 		var provider = services.BuildProvider();
 
 		var dataModelHandler = await provider.GetRequiredService<IDataModelHandler>();
-		var typeInfo = provider.GetRequiredServiceSync<ITypeInfo, Type>(dataModelHandler.GetType());
+		var typeInfo = provider.GetRequiredServiceSync<IAssemblyTypeInfo, Type>(dataModelHandler.GetType());
 
 		// Act
 
@@ -78,11 +78,11 @@ public class RegisterClassTest
 
 		var services = new ServiceCollection();
 		services.RegisterRuntimeDataModelHandler();
-		services.AddSharedImplementationSync<TypeInfoBase, Type>(SharedWithin.Container).For<ITypeInfo>();
+		services.AddSharedImplementationSync<AssemblyTypeInfo, Type>(SharedWithin.Container).For<IAssemblyTypeInfo>();
 		var provider = services.BuildProvider();
 
 		var dataModelHandler = await provider.GetRequiredService<IDataModelHandler>();
-		var typeInfo = provider.GetRequiredServiceSync<ITypeInfo, Type>(dataModelHandler.GetType());
+		var typeInfo = provider.GetRequiredServiceSync<IAssemblyTypeInfo, Type>(dataModelHandler.GetType());
 
 		// Act
 
@@ -107,11 +107,11 @@ public class RegisterClassTest
 
 		var services = new ServiceCollection();
 		services.RegisterXPathDataModelHandler();
-		services.AddSharedImplementationSync<TypeInfoBase, Type>(SharedWithin.Container).For<ITypeInfo>();
+		services.AddSharedImplementationSync<AssemblyTypeInfo, Type>(SharedWithin.Container).For<IAssemblyTypeInfo>();
 		var provider = services.BuildProvider();
 
 		var dataModelHandler = await provider.GetRequiredService<IDataModelHandler>();
-		var typeInfo = provider.GetRequiredServiceSync<ITypeInfo, Type>(dataModelHandler.GetType());
+		var typeInfo = provider.GetRequiredServiceSync<IAssemblyTypeInfo, Type>(dataModelHandler.GetType());
 
 		// Act
 
@@ -319,7 +319,7 @@ public class RegisterClassTest
 
 		var services = new ServiceCollection();
 		services.RegisterDataModelHandlers();
-		services.AddSharedImplementationSync<TypeInfoBase, Type>(SharedWithin.Container).For<ITypeInfo>();
+		services.AddSharedImplementationSync<AssemblyTypeInfo, Type>(SharedWithin.Container).For<IAssemblyTypeInfo>();
 		var provider = services.BuildProvider();
 
 		var dataModelHandler = await provider.GetOptionalService<IDataModelHandler>();
@@ -342,11 +342,11 @@ public class RegisterClassTest
 		var services = new ServiceCollection();
 		services.RegisterDataModelHandlers();
 		services.AddForwarding<IStateMachine>(_ => new StateMachineEntity { DataModelType = "xpath" });
-		services.AddSharedImplementationSync<TypeInfoBase, Type>(SharedWithin.Container).For<ITypeInfo>();
+		services.AddSharedImplementationSync<AssemblyTypeInfo, Type>(SharedWithin.Container).For<IAssemblyTypeInfo>();
 		var provider = services.BuildProvider();
 
 		var dataModelHandler = await provider.GetRequiredService<IDataModelHandler>();
-		var typeInfo = provider.GetRequiredServiceSync<ITypeInfo, Type>(dataModelHandler.GetType());
+		var typeInfo = provider.GetRequiredServiceSync<IAssemblyTypeInfo, Type>(dataModelHandler.GetType());
 
 		// Act
 

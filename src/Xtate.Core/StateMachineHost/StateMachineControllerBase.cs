@@ -18,9 +18,7 @@
 #endregion
 
 using System.Threading.Channels;
-using Xtate.Persistence;
 using Xtate.Service;
-using IServiceProvider = Xtate.IoC.IServiceProvider;
 
 namespace Xtate.Core;
 

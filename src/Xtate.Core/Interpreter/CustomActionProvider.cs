@@ -1,20 +1,30 @@
-﻿using System.IO;
+﻿// Copyright © 2019-2023 Sergii Artemenko
+// 
+// This file is part of the Xtate project. <https://xtate.net/>
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+// 
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+using System.ComponentModel;
+using System.IO;
 using System.Xml;
 
 namespace Xtate.CustomAction;
 
-public abstract class CustomActionProvider<TCustomAction> : ICustomActionProvider, ICustomActionActivator where TCustomAction : CustomActionBase
+public abstract class CustomActionProvider<TCustomAction>([Localizable(false)] string ns, [Localizable(false)] string name)
+	: ICustomActionProvider, ICustomActionActivator where TCustomAction : CustomActionBase
 {
-	private readonly string    _name;
 	private readonly NameTable _nameTable = default!;
-
-	private readonly string _ns;
-
-	protected CustomActionProvider(string Namespace, string Name)
-	{
-		_ns = Namespace;
-		_name = Name;
-	}
 
 	public required Func<XmlReader, TCustomAction> CustomActionFactory { private get; [UsedImplicitly] init; }
 
@@ -27,8 +37,8 @@ public abstract class CustomActionProvider<TCustomAction> : ICustomActionProvide
 
 			_nameTable = value.GetNameTable();
 
-			_ns = _nameTable.Add(_ns);
-			_name = _nameTable.Add(_name);
+			ns = _nameTable.Add(ns);
+			name = _nameTable.Add(name);
 		}
 	}
 
@@ -45,8 +55,8 @@ public abstract class CustomActionProvider<TCustomAction> : ICustomActionProvide
 
 		xmlReader.MoveToContent();
 
-		Infra.Assert(xmlReader.NamespaceURI == _ns);
-		Infra.Assert(xmlReader.LocalName == _name);
+		Infra.Assert(xmlReader.NamespaceURI == ns);
+		Infra.Assert(xmlReader.LocalName == name);
 
 		return CustomActionFactory(xmlReader);
 	}
@@ -55,7 +65,7 @@ public abstract class CustomActionProvider<TCustomAction> : ICustomActionProvide
 
 #region Interface ICustomActionProvider
 
-	public virtual ICustomActionActivator? TryGetActivator(string ns, string name) => ns == _ns && name == _name ? this : default;
+	public virtual ICustomActionActivator? TryGetActivator(string ns1, string name1) => ns == ns1 && name1 == name ? this : default;
 
 #endregion
 }

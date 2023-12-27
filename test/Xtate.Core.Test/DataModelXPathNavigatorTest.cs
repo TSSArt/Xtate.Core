@@ -180,7 +180,7 @@ public class DataModelXPathNavigatorTest
 		vNav.MoveToFirstChild();
 
 		// act
-		vNav.ReplaceChildren(new XPathObject(nNav.Evaluate("child::*")));
+		vNav.ReplaceChildren(new XPathObject(nNav.Evaluate("child::*")!));
 
 		// assert
 		v.AsList().TryGet(key: "key", caseInsensitive: false, out var v1);

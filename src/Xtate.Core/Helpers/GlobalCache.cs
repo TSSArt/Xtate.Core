@@ -18,23 +18,8 @@
 #endregion
 
 using System.Collections.Concurrent;
-using Xtate.IoC;
 
 namespace Xtate.Core;
-
-public static class CacheExtensions //TODO:move out to file
-{
-	public static void RegisterCache(this IServiceCollection services)
-	{
-		if (services.IsRegistered<GlobalCache<Any, Any>>())
-		{
-			return;
-		}
-
-		services.AddSharedType<GlobalCache<Any, Any>>(SharedWithin.Container);
-		services.AddSharedType<LocalCache<Any, Any>>(SharedWithin.Scope);
-	}
-}
 
 public class GlobalCache<TKey, TValue> where TKey : notnull
 {

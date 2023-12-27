@@ -108,8 +108,8 @@ public sealed partial class StateMachineHost : IStateMachineHost
 		var finalizer = new DeferredFinalizer();
 		await using (finalizer.ConfigureAwait(false))
 		{
-			securityContext = securityContext.CreateNested(SecurityContextType.InvokedService);
-			var loggerContext = new StartInvokeLoggerContext(sessionId, data.Type, data.Source);
+			//securityContext = securityContext.CreateNested(SecurityContextType.InvokedService);
+			//var loggerContext = new StartInvokeLoggerContext(sessionId, data.Type, data.Source);
 			var activator = await FindServiceFactoryActivator(data.Type).ConfigureAwait(false);
 			var serviceCommunication = new ServiceCommunication(this, GetTarget(sessionId), IoProcessorId, data.InvokeId);
 			var invokedService = await activator.StartService(service.StateMachineLocation, data, serviceCommunication).ConfigureAwait(false);
