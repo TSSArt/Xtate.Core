@@ -25,14 +25,10 @@ using System.Text;
 
 namespace Xtate.Service;
 
-public class HttpClientService : ServiceBase
+public class HttpClientService(HttpClientServiceOptions options) : ServiceBase
 {
 	private static readonly FieldInfo DomainTableField = typeof(CookieContainer).GetField(name: "m_domainTable", BindingFlags.Instance | BindingFlags.NonPublic)!;
 	private static readonly FieldInfo ListField        = typeof(CookieContainer).Assembly.GetType("System.Net.PathList")!.GetField(name: "m_list", BindingFlags.Instance | BindingFlags.NonPublic)!;
-
-	private readonly HttpClientServiceOptions _options;
-
-	public HttpClientService(HttpClientServiceOptions options) => _options = options ?? throw new ArgumentNullException(nameof(options));
 
 	private static NameValueCollection? CreateHeadersCollection(in DataModelValue value)
 	{
@@ -48,7 +44,7 @@ public class HttpClientService : ServiceBase
 		{
 			if (!string.IsNullOrEmpty(pair.Name) && pair.Value is not null)
 			{
-				(collection ??= new NameValueCollection()).Add(pair.Name, pair.Value);
+				(collection ??= []).Add(pair.Name, pair.Value);
 			}
 		}
 
@@ -61,7 +57,7 @@ public class HttpClientService : ServiceBase
 
 		foreach (var cookie in cookiesValue.AsListOrEmpty())
 		{
-			(list ??= new List<Cookie>()).Add(CreateCookie(cookie));
+			(list ??= []).Add(CreateCookie(cookie));
 		}
 
 		return list;
@@ -103,7 +99,7 @@ public class HttpClientService : ServiceBase
 		{
 			Infra.NotNull(cookie);
 
-			(list ??= new DataModelList()).Add(
+			(list ??= []).Add(
 				new DataModelList
 				{
 					{ "name", cookie.Name },
@@ -143,7 +139,7 @@ public class HttpClientService : ServiceBase
 
 			foreach (var value in values)
 			{
-				(list ??= new DataModelList()).Add(new DataModelList { { "name", name }, { "value", value } });
+				(list ??= []).Add(new DataModelList { { "name", name }, { "value", value } });
 			}
 		}
 
@@ -204,7 +200,7 @@ public class HttpClientService : ServiceBase
 			request.CookieContainer = cookieContainer;
 		}
 
-		foreach (var handler in _options.MimeTypeHandlers)
+		foreach (var handler in options.MimeTypeHandlers)
 		{
 			handler.PrepareRequest(request, contentType, Parameters.AsListOrEmpty(), Content);
 		}
@@ -261,7 +257,7 @@ public class HttpClientService : ServiceBase
 
 	private async ValueTask<DataModelValue> ReadContent(WebResponse response, CancellationToken token)
 	{
-		foreach (var handler in _options.MimeTypeHandlers)
+		foreach (var handler in options.MimeTypeHandlers)
 		{
 			if (await handler.TryParseResponseAsync(response, Parameters.AsListOrEmpty(), token).ConfigureAwait(false) is { } data)
 			{
@@ -299,7 +295,7 @@ public class HttpClientService : ServiceBase
 
 		HttpContent? httpContent = default;
 
-		foreach (var handler in _options.MimeTypeHandlers)
+		foreach (var handler in options.MimeTypeHandlers)
 		{
 			httpContent = handler.TryCreateHttpContent(request, contentType, Parameters.AsListOrEmpty(), Content);
 

@@ -136,9 +136,8 @@ internal class WeakReferenceCollection
 		}
 	}
 
-	private class WeakReferenceNode : WeakReference
+	private class WeakReferenceNode(object target, WeakReferenceNode? nextNode) : WeakReference(target)
 	{
-		public WeakReferenceNode? NextNode;
-		public WeakReferenceNode(object target, WeakReferenceNode? nextNode) : base(target) => NextNode = nextNode;
+		public WeakReferenceNode? NextNode = nextNode;
 	}
 }

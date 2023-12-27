@@ -23,9 +23,9 @@ public struct ElseIfEntity : IElseIf, IVisitorEntity<ElseIfEntity, IElseIf>, IAn
 {
 	internal object? Ancestor;
 
-#region Interface IAncestorProvider
+	#region Interface IAncestorProvider
 
-	object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
@@ -43,7 +43,7 @@ public struct ElseIfEntity : IElseIf, IVisitorEntity<ElseIfEntity, IElseIf>, IAn
 		Condition = source.Condition;
 	}
 
-	bool IVisitorEntity<ElseIfEntity, IElseIf>.RefEquals(ref ElseIfEntity other) => ReferenceEquals(Condition, other.Condition);
+	readonly bool IVisitorEntity<ElseIfEntity, IElseIf>.RefEquals(ref ElseIfEntity other) => ReferenceEquals(Condition, other.Condition);
 
 #endregion
 }

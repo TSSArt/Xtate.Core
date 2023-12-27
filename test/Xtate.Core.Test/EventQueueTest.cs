@@ -43,6 +43,7 @@ public class EventQueueTest
 		Assert.IsTrue(result);
 		Assert.IsFalse(result2);
 		Assert.AreSame(eventObject, evt);
+		Assert.IsNull(evt2);
 	}
 
 	[TestMethod]

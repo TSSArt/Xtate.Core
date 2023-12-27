@@ -30,7 +30,7 @@ public interface IStateMachineHostBuilder;
 
 public sealed class StateMachineHostBuilder : IStateMachineHostBuilder
 {
-	private List<object>                                    _actions = new();
+	private List<object>                                    _actions = [];
 	private Uri?                                            _baseUri;
 	private ImmutableDictionary<string, string>.Builder?    _configuration;
 	//private ImmutableArray<ICustomActionFactory>.Builder?   _customActionFactories;

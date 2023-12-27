@@ -21,15 +21,12 @@ using Xtate.Persistence;
 
 namespace Xtate.Core;
 
-public sealed class ValueExpressionNode : IValueExpression, IStoreSupport, IAncestorProvider
+public sealed class ValueExpressionNode(IValueExpression valueExpression) : IValueExpression, IStoreSupport, IAncestorProvider
 {
-	private readonly IValueExpression _valueExpression;
 
-	public ValueExpressionNode(IValueExpression valueExpression) => _valueExpression = valueExpression;
+	#region Interface IAncestorProvider
 
-#region Interface IAncestorProvider
-
-	object IAncestorProvider.Ancestor => _valueExpression;
+	object IAncestorProvider.Ancestor => valueExpression;
 
 #endregion
 
@@ -45,7 +42,7 @@ public sealed class ValueExpressionNode : IValueExpression, IStoreSupport, IAnce
 
 #region Interface IValueExpression
 
-	public string? Expression => _valueExpression.Expression;
+	public string? Expression => valueExpression.Expression;
 
 #endregion
 }

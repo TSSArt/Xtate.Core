@@ -23,9 +23,9 @@ public struct CancelEntity : ICancel, IVisitorEntity<CancelEntity, ICancel>, IAn
 {
 	internal object? Ancestor;
 
-#region Interface IAncestorProvider
+	#region Interface IAncestorProvider
 
-	object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
@@ -45,7 +45,7 @@ public struct CancelEntity : ICancel, IVisitorEntity<CancelEntity, ICancel>, IAn
 		SendIdExpression = source.SendIdExpression;
 	}
 
-	bool IVisitorEntity<CancelEntity, ICancel>.RefEquals(ref CancelEntity other) =>
+	readonly bool IVisitorEntity<CancelEntity, ICancel>.RefEquals(ref CancelEntity other) =>
 		ReferenceEquals(SendId, other.SendId) &&
 		ReferenceEquals(SendIdExpression, other.SendIdExpression);
 

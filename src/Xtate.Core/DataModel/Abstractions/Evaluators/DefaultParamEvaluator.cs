@@ -58,17 +58,11 @@ public abstract class ParamEvaluator : IParam, IAncestorProvider, IDebugEntityId
 #endregion
 }
 
-public class DefaultParamEvaluator : ParamEvaluator
+public class DefaultParamEvaluator(IParam param) : ParamEvaluator(param)
 {
-	public DefaultParamEvaluator(IParam param) : base(param)
-	{
-		ExpressionEvaluator = param.Expression?.As<IObjectEvaluator>();
-		LocationEvaluator = param.Location?.As<ILocationEvaluator>();
-	}
+	public IObjectEvaluator? ExpressionEvaluator { get; } = param.Expression?.As<IObjectEvaluator>();
 
-	public IObjectEvaluator? ExpressionEvaluator { get; }
-
-	public ILocationEvaluator? LocationEvaluator { get; }
+	public ILocationEvaluator? LocationEvaluator { get; } = param.Location?.As<ILocationEvaluator>();
 
 	public override async ValueTask<IObject> EvaluateObject()
 	{

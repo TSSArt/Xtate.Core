@@ -17,25 +17,30 @@
 
 #endregion
 
-using System.Collections.Concurrent;
-
 namespace Xtate.Core;
 
-
-public sealed class LocalCache<TKey, TValue> : IDisposable, IAsyncDisposable where TKey : notnull
+public class LocalCache<TKey, TValue> : IDisposable, IAsyncDisposable where TKey : notnull
 {
-	private readonly ConcurrentDictionary<TKey, CacheEntry<TValue>> _globalDictionary;
-	private readonly Dictionary<TKey, CacheEntry<TValue>>           _localDictionary;
+	public required GlobalCache<TKey, TValue> GlobalCache { private get; [UsedImplicitly] init; }
 
-	internal LocalCache(ConcurrentDictionary<TKey, CacheEntry<TValue>> globalDictionary, IEqualityComparer<TKey> comparer)
+	private readonly Dictionary<TKey, CacheEntry<TValue>> _localDictionary = [];
+
+	protected virtual void Dispose(bool disposing)
 	{
-		_globalDictionary = globalDictionary;
-		_localDictionary = new Dictionary<TKey, CacheEntry<TValue>>(comparer);
+		if (disposing)
+		{
+			DisposeAsync().SynchronousWait();
+		}
 	}
 
-#region Interface IAsyncDisposable
+	public void Dispose()
+	{
+		Dispose(true);
 
-	public async ValueTask DisposeAsync()
+		GC.SuppressFinalize(this);
+	}
+
+	protected virtual async ValueTask DisposeAsyncCore()
 	{
 		foreach (var pair in _localDictionary)
 		{
@@ -45,13 +50,12 @@ public sealed class LocalCache<TKey, TValue> : IDisposable, IAsyncDisposable whe
 		_localDictionary.Clear();
 	}
 
-#endregion
+	public async ValueTask DisposeAsync()
+	{
+		await DisposeAsyncCore().ConfigureAwait(false);
 
-#region Interface IDisposable
-
-	public void Dispose() => DisposeAsync().SynchronousWait();
-
-#endregion
+		GC.SuppressFinalize(this);
+	}
 
 	private async ValueTask DropEntry(TKey key, CacheEntry<TValue> entry)
 	{
@@ -59,8 +63,7 @@ public sealed class LocalCache<TKey, TValue> : IDisposable, IAsyncDisposable whe
 
 		if ((entry.Options & ValueOptions.ThreadSafe) != 0 && noMoreReferences)
 		{
-			var collection = (ICollection<KeyValuePair<TKey, CacheEntry<TValue>>>) _globalDictionary;
-			collection.Remove(new KeyValuePair<TKey, CacheEntry<TValue>>(key, entry));
+			GlobalCache.Remove(key, entry);
 		}
 	}
 
@@ -77,7 +80,7 @@ public sealed class LocalCache<TKey, TValue> : IDisposable, IAsyncDisposable whe
 
 		if ((options & ValueOptions.ThreadSafe) != 0)
 		{
-			_globalDictionary[key] = newEntry;
+			GlobalCache.Set(key, newEntry);
 		}
 	}
 
@@ -88,7 +91,7 @@ public sealed class LocalCache<TKey, TValue> : IDisposable, IAsyncDisposable whe
 			return true;
 		}
 
-		if (_globalDictionary.TryGetValue(key, out var globalEntry) && globalEntry.TryGetValue(out value) && globalEntry.AddReference())
+		if (GlobalCache.TryGetValue(key, out var globalEntry) && globalEntry.TryGetValue(out value) && globalEntry.AddReference())
 		{
 			if (localEntry is not null)
 			{

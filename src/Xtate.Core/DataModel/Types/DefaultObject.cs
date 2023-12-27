@@ -19,17 +19,13 @@
 
 namespace Xtate.Core;
 
-internal sealed class DefaultObject : IObject
+internal sealed class DefaultObject(object? value) : IObject
 {
 	public static readonly IObject Null = new DefaultObject(null);
 
-	private readonly object? _value;
+	#region Interface IObject
 
-	public DefaultObject(object? value) => _value = value;
-
-#region Interface IObject
-
-	public object? ToObject() => _value;
+	public object? ToObject() => value;
 
 #endregion
 }

@@ -69,21 +69,13 @@ public abstract class RuntimePredicate : IConditionExpression
 
 	public abstract ValueTask<bool> Evaluate();
 
-	private sealed class EvaluatorSync : RuntimePredicate
+	private sealed class EvaluatorSync(Func<bool> predicate) : RuntimePredicate
 	{
-		private readonly Func<bool> _predicate;
-
-		public EvaluatorSync(Func<bool> predicate) => _predicate = predicate;
-
-		public override ValueTask<bool> Evaluate() => new(_predicate());
+		public override ValueTask<bool> Evaluate() => new(predicate());
 	}
 
-	private sealed class EvaluatorAsync : RuntimePredicate
+	private sealed class EvaluatorAsync(Func<ValueTask<bool>> predicate) : RuntimePredicate
 	{
-		private readonly Func<ValueTask<bool>> _predicate;
-
-		public EvaluatorAsync(Func<ValueTask<bool>> predicate) => _predicate = predicate;
-
-		public override ValueTask<bool> Evaluate() => _predicate();
+		public override ValueTask<bool> Evaluate() => predicate();
 	}
 }

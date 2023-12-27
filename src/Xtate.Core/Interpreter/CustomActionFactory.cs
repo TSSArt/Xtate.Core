@@ -20,6 +20,8 @@ public class CustomActionFactory
 
 		while (enumerator.MoveNext())
 		{
+			Infra.NotNull(enumerator.Current);
+
 			if (enumerator.Current.TryGetActivator(ns, name) is not { } activator)
 			{
 				continue;

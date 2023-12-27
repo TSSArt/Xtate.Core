@@ -19,30 +19,21 @@
 
 namespace Xtate.DataModel.XPath;
 
-public class XPathLocationExpression : ILocationExpression, IAncestorProvider
+public class XPathLocationExpression(ILocationExpression locationExpression, XPathAssignType assignType, string? attribute) : ILocationExpression, IAncestorProvider
 {
-	private readonly ILocationExpression _locationExpression;
+	public XPathAssignType AssignType { get; } = assignType;
 
-	public XPathLocationExpression(ILocationExpression locationExpression, XPathAssignType assignType, string? attribute)
-	{
-		AssignType = assignType;
-		Attribute = attribute;
-		_locationExpression = locationExpression;
-	}
+	public string? Attribute { get; } = attribute;
 
-	public XPathAssignType AssignType { get; }
+	#region Interface IAncestorProvider
 
-	public string? Attribute { get; }
-
-#region Interface IAncestorProvider
-
-	public object Ancestor => _locationExpression;
+	public object Ancestor => locationExpression;
 
 #endregion
 
 #region Interface ILocationExpression
 
-	public string? Expression => _locationExpression.Expression;
+	public string? Expression => locationExpression.Expression;
 
 #endregion
 

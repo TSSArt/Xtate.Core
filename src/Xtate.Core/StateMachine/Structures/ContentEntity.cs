@@ -23,9 +23,9 @@ public struct ContentEntity : IContent, IVisitorEntity<ContentEntity, IContent>,
 {
 	internal object? Ancestor;
 
-#region Interface IAncestorProvider
+	#region Interface IAncestorProvider
 
-	object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
@@ -45,7 +45,7 @@ public struct ContentEntity : IContent, IVisitorEntity<ContentEntity, IContent>,
 		Body = source.Body;
 	}
 
-	bool IVisitorEntity<ContentEntity, IContent>.RefEquals(ref ContentEntity other) =>
+	readonly bool IVisitorEntity<ContentEntity, IContent>.RefEquals(ref ContentEntity other) =>
 		ReferenceEquals(Expression, other.Expression) &&
 		ReferenceEquals(Body, other.Body);
 

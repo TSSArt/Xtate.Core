@@ -23,9 +23,9 @@ public struct CustomActionEntity : ICustomAction, IVisitorEntity<CustomActionEnt
 {
 	internal object? Ancestor;
 
-#region Interface IAncestorProvider
+	#region Interface IAncestorProvider
 
-	object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
@@ -55,7 +55,7 @@ public struct CustomActionEntity : ICustomAction, IVisitorEntity<CustomActionEnt
 		Values = source.Values;
 	}
 
-	bool IVisitorEntity<CustomActionEntity, ICustomAction>.RefEquals(ref CustomActionEntity other) =>
+	readonly bool IVisitorEntity<CustomActionEntity, ICustomAction>.RefEquals(ref CustomActionEntity other) =>
 		ReferenceEquals(XmlNamespace, other.XmlNamespace) &&
 		ReferenceEquals(XmlName, other.XmlName) &&
 		ReferenceEquals(Xml, other.Xml) &&

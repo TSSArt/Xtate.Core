@@ -19,13 +19,8 @@
 
 namespace Xtate.Persistence;
 
-internal sealed class StateMachineHostClusterContext : StateMachineHostContext
+internal sealed class StateMachineHostClusterContext(StateMachineHost stateMachineHost, StateMachineHostOptions options) : StateMachineHostContext(stateMachineHost, options, new PersistedEventSchedulerFactory(options))
 {
-	private readonly StateMachineHost _stateMachineHost;
-
-	public StateMachineHostClusterContext(StateMachineHost stateMachineHost, StateMachineHostOptions options) : base(stateMachineHost, options, new PersistedEventSchedulerFactory(options)) =>
-		_stateMachineHost = stateMachineHost;
-
 	protected override StateMachineControllerBase CreateStateMachineController(SessionId sessionId,
 																			   IStateMachine? stateMachine,
 																			   IStateMachineOptions? stateMachineOptions,
@@ -34,8 +29,8 @@ internal sealed class StateMachineHostClusterContext : StateMachineHostContext
 																			   //SecurityContext securityContext,
 																			   //DeferredFinalizer finalizer
 		) =>
-		new StateMachineSingleMacroStepController(sessionId, stateMachineOptions, stateMachine, stateMachineLocation, _stateMachineHost, defaultOptions)
+		new StateMachineSingleMacroStepController(sessionId, stateMachineOptions, stateMachine, stateMachineLocation, stateMachineHost, defaultOptions)
 		{
-			_stateMachineInterpreterFactory = default!, sd = default!, EventQueueWriter = default!
+			_stateMachineInterpreterFactory = default!, EventQueueWriter = default!
 		};
 }

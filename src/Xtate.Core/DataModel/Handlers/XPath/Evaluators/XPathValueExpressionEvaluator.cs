@@ -19,22 +19,13 @@
 
 namespace Xtate.DataModel.XPath;
 
-public class XPathValueExpressionEvaluator : IValueExpression, IObjectEvaluator, IStringEvaluator, IIntegerEvaluator, IArrayEvaluator, IAncestorProvider
+public class XPathValueExpressionEvaluator(IValueExpression valueExpression, XPathCompiledExpression compiledExpression) : IValueExpression, IObjectEvaluator, IStringEvaluator, IIntegerEvaluator, IArrayEvaluator, IAncestorProvider
 {
-	private readonly XPathCompiledExpression _compiledExpression;
-	private readonly IValueExpression        _valueExpression;
-
-	public XPathValueExpressionEvaluator(IValueExpression valueExpression, XPathCompiledExpression compiledExpression)
-	{
-		_valueExpression = valueExpression;
-		_compiledExpression = compiledExpression;
-	}
-
 	public required Func<ValueTask<XPathEngine>> EngineFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => _valueExpression;
+	object IAncestorProvider.Ancestor => valueExpression;
 
 #endregion
 
@@ -44,7 +35,7 @@ public class XPathValueExpressionEvaluator : IValueExpression, IObjectEvaluator,
 	{
 		var engine = await EngineFactory().ConfigureAwait(false);
 
-		var obj = await engine.EvalObject(_compiledExpression, stripRoots: true).ConfigureAwait(false);
+		var obj = await engine.EvalObject(compiledExpression, stripRoots: true).ConfigureAwait(false);
 
 		var iterator = obj.AsIterator();
 
@@ -55,7 +46,7 @@ public class XPathValueExpressionEvaluator : IValueExpression, IObjectEvaluator,
 			list.Add(new XPathObject(new XPathSingleElementIterator(navigator)));
 		}
 
-		return list.ToArray();
+		return [.. list];
 	}
 
 #endregion
@@ -66,7 +57,7 @@ public class XPathValueExpressionEvaluator : IValueExpression, IObjectEvaluator,
 	{
 		var engine = await EngineFactory().ConfigureAwait(false);
 
-		var obj = await engine.EvalObject(_compiledExpression, stripRoots: true).ConfigureAwait(false);
+		var obj = await engine.EvalObject(compiledExpression, stripRoots: true).ConfigureAwait(false);
 
 		return obj.AsInteger();
 	}
@@ -79,7 +70,7 @@ public class XPathValueExpressionEvaluator : IValueExpression, IObjectEvaluator,
 	{
 		var engine = await EngineFactory().ConfigureAwait(false);
 
-		return await engine.EvalObject(_compiledExpression, stripRoots: true).ConfigureAwait(false);
+		return await engine.EvalObject(compiledExpression, stripRoots: true).ConfigureAwait(false);
 	}
 
 #endregion
@@ -90,7 +81,7 @@ public class XPathValueExpressionEvaluator : IValueExpression, IObjectEvaluator,
 	{
 		var engine = await EngineFactory().ConfigureAwait(false);
 
-		var obj = await engine.EvalObject(_compiledExpression, stripRoots: true).ConfigureAwait(false);
+		var obj = await engine.EvalObject(compiledExpression, stripRoots: true).ConfigureAwait(false);
 
 		return obj.AsString();
 	}
@@ -99,7 +90,7 @@ public class XPathValueExpressionEvaluator : IValueExpression, IObjectEvaluator,
 
 #region Interface IValueExpression
 
-	public string? Expression => _valueExpression.Expression;
+	public string? Expression => valueExpression.Expression;
 
 #endregion
 }

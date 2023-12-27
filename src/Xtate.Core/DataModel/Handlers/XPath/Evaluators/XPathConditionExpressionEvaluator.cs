@@ -19,22 +19,13 @@
 
 namespace Xtate.DataModel.XPath;
 
-public class XPathConditionExpressionEvaluator : IConditionExpression, IBooleanEvaluator, IAncestorProvider
+public class XPathConditionExpressionEvaluator(IConditionExpression conditionExpression, XPathCompiledExpression compiledExpression) : IConditionExpression, IBooleanEvaluator, IAncestorProvider
 {
-	private readonly XPathCompiledExpression _compiledExpression;
-	private readonly IConditionExpression    _conditionExpression;
-
-	public XPathConditionExpressionEvaluator(IConditionExpression conditionExpression, XPathCompiledExpression compiledExpression)
-	{
-		_conditionExpression = conditionExpression;
-		_compiledExpression = compiledExpression;
-	}
-
 	public required Func<ValueTask<XPathEngine>> EngineFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => _conditionExpression;
+	object IAncestorProvider.Ancestor => conditionExpression;
 
 #endregion
 
@@ -44,7 +35,7 @@ public class XPathConditionExpressionEvaluator : IConditionExpression, IBooleanE
 	{
 		var engine = await EngineFactory().ConfigureAwait(false);
 
-		var obj = await engine.EvalObject(_compiledExpression, stripRoots: true).ConfigureAwait(false);
+		var obj = await engine.EvalObject(compiledExpression, stripRoots: true).ConfigureAwait(false);
 
 		return obj.AsBoolean();
 	}
@@ -53,7 +44,7 @@ public class XPathConditionExpressionEvaluator : IConditionExpression, IBooleanE
 
 #region Interface IConditionExpression
 
-	public string? Expression => _conditionExpression.Expression;
+	public string? Expression => conditionExpression.Expression;
 
 #endregion
 }

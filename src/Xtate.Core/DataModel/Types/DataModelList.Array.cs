@@ -93,7 +93,7 @@ public partial class DataModelList : IList<DataModelValue>
 
 		if (length == 0)
 		{
-			return Array.Empty<DataModelValue>();
+			return [];
 		}
 
 		var array = new DataModelValue[length];

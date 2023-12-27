@@ -23,9 +23,9 @@ public struct LocationExpression : ILocationExpression, IVisitorEntity<LocationE
 {
 	internal object? Ancestor;
 
-#region Interface IAncestorProvider
+	#region Interface IAncestorProvider
 
-	object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
@@ -43,7 +43,7 @@ public struct LocationExpression : ILocationExpression, IVisitorEntity<LocationE
 		Expression = source.Expression;
 	}
 
-	bool IVisitorEntity<LocationExpression, ILocationExpression>.RefEquals(ref LocationExpression other) => ReferenceEquals(Expression, other.Expression);
+	readonly bool IVisitorEntity<LocationExpression, ILocationExpression>.RefEquals(ref LocationExpression other) => ReferenceEquals(Expression, other.Expression);
 
 #endregion
 }

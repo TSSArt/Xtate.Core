@@ -21,23 +21,20 @@ using Xtate.Persistence;
 
 namespace Xtate.Core;
 
-public sealed class ScriptNode : ExecutableEntityNode, IScript, IAncestorProvider
+public sealed class ScriptNode(DocumentIdNode documentIdNode, IScript script) : ExecutableEntityNode(documentIdNode, script), IScript, IAncestorProvider
 {
-	private readonly IScript _script;
 
-	public ScriptNode(DocumentIdNode documentIdNode, IScript script) : base(documentIdNode, script) => _script = script;
+	#region Interface IAncestorProvider
 
-#region Interface IAncestorProvider
-
-	object IAncestorProvider.Ancestor => _script;
+	object IAncestorProvider.Ancestor => script;
 
 #endregion
 
 #region Interface IScript
 
-	public IScriptExpression? Content => _script.Content;
+	public IScriptExpression? Content => script.Content;
 
-	public IExternalScriptExpression? Source => _script.Source;
+	public IExternalScriptExpression? Source => script.Source;
 
 #endregion
 

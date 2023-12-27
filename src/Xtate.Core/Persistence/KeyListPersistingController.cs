@@ -25,7 +25,7 @@ internal sealed class KeyListPersistingController<T> : IDisposable where T : cla
 {
 	private readonly Bucket               _bucket;
 	private readonly KeyList<T>           _keyList;
-	private readonly Dictionary<int, int> _records = new();
+	private readonly Dictionary<int, int> _records = [];
 
 	public KeyListPersistingController(Bucket bucket, KeyList<T> keyList, ImmutableDictionary<int, IEntity> entityMap)
 	{

@@ -103,7 +103,7 @@ public class Evaluator : IExternalScriptExpression, IIntegerEvaluator, IStringEv
 
 #region Interface IResourceEvaluator
 
-	ValueTask<IObject> IResourceEvaluator.EvaluateObject(Resource resource) => default;
+	ValueTask<IObject> IResourceEvaluator.EvaluateObject() => default;
 
 #endregion
 

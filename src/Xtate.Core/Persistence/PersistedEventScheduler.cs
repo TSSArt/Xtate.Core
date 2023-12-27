@@ -19,21 +19,17 @@
 
 namespace Xtate.Persistence;
 
-internal sealed class PersistedEventScheduler : InProcEventScheduler
+internal sealed class PersistedEventScheduler(IStorageProvider storageProvider, IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger logger) : InProcEventScheduler(hostEventDispatcher, logger)
 {
 	private const    string        HostPartition              = "StateMachineHost";
 	private const    string        PersistedEventSchedulerKey = "scheduler";
 	private const    int           ScheduledEventsKey         = 0;
 	private readonly SemaphoreSlim _lockScheduledEvents       = new(initialCount: 1, maxCount: 1);
 
-	private readonly HashSet<PersistedScheduledEvent> _scheduledEvents = new();
-	private readonly IStorageProvider                 _storageProvider;
-	private          int                              _recordId;
+	private readonly HashSet<PersistedScheduledEvent> _scheduledEvents = [];
+	private int                              _recordId;
 	private          int                              _scheduledEventRecordId;
 	private          ITransactionalStorage            _storage = default!;
-
-	public PersistedEventScheduler(IStorageProvider storageProvider, IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger logger) : base(hostEventDispatcher, logger) =>
-		_storageProvider = storageProvider;
 
 	protected override async ValueTask<ScheduledEvent> CreateScheduledEvent(IHostEvent hostEvent, CancellationToken token)
 	{
@@ -74,7 +70,7 @@ internal sealed class PersistedEventScheduler : InProcEventScheduler
 
 			await _storage.CheckPoint(level: 0).ConfigureAwait(false);
 
-			await ShrinkScheduledEvents(token).ConfigureAwait(false);
+			await ShrinkScheduledEvents().ConfigureAwait(false);
 		}
 		finally
 		{
@@ -82,7 +78,7 @@ internal sealed class PersistedEventScheduler : InProcEventScheduler
 		}
 	}
 
-	private async ValueTask ShrinkScheduledEvents(CancellationToken token)
+	private async ValueTask ShrinkScheduledEvents()
 	{
 		if (_scheduledEvents.Count * 2 > _recordId)
 		{
@@ -110,7 +106,7 @@ internal sealed class PersistedEventScheduler : InProcEventScheduler
 
 	public async ValueTask Initialize(CancellationToken token)
 	{
-		_storage = await _storageProvider.GetTransactionalStorage(HostPartition, PersistedEventSchedulerKey).ConfigureAwait(false);
+		_storage = await storageProvider.GetTransactionalStorage(HostPartition, PersistedEventSchedulerKey).ConfigureAwait(false);
 
 		await LoadScheduledEvents(_storage, token).ConfigureAwait(false);
 
@@ -144,7 +140,6 @@ internal sealed class PersistedEventScheduler : InProcEventScheduler
 
 		public PersistedScheduledEvent(PersistedEventScheduler eventScheduler, IHostEvent hostEvent) : base(hostEvent)
 		{
-			if (hostEvent is null) throw new ArgumentNullException(nameof(hostEvent));
 			_eventScheduler = eventScheduler;
 
 			_fireOnUtcTicks = DateTime.UtcNow.Ticks + hostEvent.DelayMs * TimeSpan.TicksPerMillisecond;

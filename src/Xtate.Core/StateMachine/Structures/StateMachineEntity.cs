@@ -23,15 +23,15 @@ public struct StateMachineEntity : IStateMachine, IVisitorEntity<StateMachineEnt
 {
 	internal object? Ancestor;
 
-#region Interface IAncestorProvider
+	#region Interface IAncestorProvider
 
-	object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
-#endregion
+	#endregion
 
-#region Interface IDebugEntityId
+	#region Interface IDebugEntityId
 
-	FormattableString IDebugEntityId.EntityId => @$"{Name}";
+	readonly FormattableString IDebugEntityId.EntityId => @$"{Name}";
 
 #endregion
 
@@ -61,7 +61,7 @@ public struct StateMachineEntity : IStateMachine, IVisitorEntity<StateMachineEnt
 		Script = source.Script;
 	}
 
-	bool IVisitorEntity<StateMachineEntity, IStateMachine>.RefEquals(ref StateMachineEntity other) =>
+	readonly bool IVisitorEntity<StateMachineEntity, IStateMachine>.RefEquals(ref StateMachineEntity other) =>
 		Binding == other.Binding &&
 		States == other.States &&
 		ReferenceEquals(Name, other.Name) &&

@@ -24,12 +24,11 @@ using IServiceProvider = Xtate.IoC.IServiceProvider;
 
 namespace Xtate.Core;
 
-public class StateMachineControllerProxy : IStateMachineController
+public class StateMachineControllerProxy(StateMachineRuntimeController stateMachineRuntimeController) : IStateMachineController
 {
-	private readonly IStateMachineController _baseStateMachineController;
-	public StateMachineControllerProxy(StateMachineRuntimeController stateMachineRuntimeController) => _baseStateMachineController = stateMachineRuntimeController;
+	private readonly IStateMachineController _baseStateMachineController = stateMachineRuntimeController;
 
-#region Interface IAsyncDisposable
+	#region Interface IAsyncDisposable
 
 	public ValueTask DisposeAsync() => _baseStateMachineController.DisposeAsync();
 
@@ -94,7 +93,6 @@ public abstract class StateMachineControllerBase : IStateMachineController, ISer
 	}
 
 	public required Func<ValueTask<IStateMachineInterpreter>> _stateMachineInterpreterFactory { private get; [UsedImplicitly] init; }
-	public required IServiceProvider                          sd                              { private get; [UsedImplicitly] init; } //TODO:delete
 
 	protected abstract Channel<IEvent>   EventChannel     { get; }
 	public required    IEventQueueWriter EventQueueWriter { private get; [UsedImplicitly] init; }
@@ -195,18 +193,6 @@ public abstract class StateMachineControllerBase : IStateMachineController, ISer
 
 		return default;
 	}
-
-	private InterpreterOptions GetOptions() =>
-		_defaultOptions with
-		{
-			ExternalCommunication = this,
-			StorageProvider = this as IStorageProvider,
-			NotifyStateChanged = this,
-			SecurityContext = _securityContext,
-			DestroyToken = _destroyTokenSource.Token,
-			SuspendToken = GetSuspendToken(),
-			UnhandledErrorBehaviour = _options?.UnhandledErrorBehaviour is { } behaviour ? behaviour : _defaultOptions.UnhandledErrorBehaviour
-		};
 
 	protected virtual CancellationToken GetSuspendToken() => _defaultOptions.SuspendToken;
 

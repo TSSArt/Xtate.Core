@@ -129,15 +129,12 @@ public abstract class StateEntityNode : IStateEntity, IStoreSupport, IDocumentId
 
 	protected abstract void Store(Bucket bucket);
 
-	private sealed class DocumentOrderComparer : IComparer<StateEntityNode>
+	private sealed class DocumentOrderComparer(bool reverseOrder) : IComparer<StateEntityNode>
 	{
-		private readonly bool _reverseOrder;
 
-		public DocumentOrderComparer(bool reverseOrder) => _reverseOrder = reverseOrder;
+		#region Interface IComparer<StateEntityNode>
 
-#region Interface IComparer<StateEntityNode>
-
-		public int Compare(StateEntityNode? x, StateEntityNode? y) => _reverseOrder ? InternalCompare(y, x) : InternalCompare(x, y);
+		public int Compare(StateEntityNode? x, StateEntityNode? y) => reverseOrder ? InternalCompare(y, x) : InternalCompare(x, y);
 
 #endregion
 

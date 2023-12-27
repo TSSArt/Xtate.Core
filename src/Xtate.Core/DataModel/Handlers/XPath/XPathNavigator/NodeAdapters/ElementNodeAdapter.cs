@@ -29,7 +29,19 @@ internal class ElementNodeAdapter : NodeAdapter
 
 	public override bool IsEmptyElement(in DataModelXPathNavigator.Node node) => !GetFirstChild(node, out _);
 
-	public override string GetLocalName(in DataModelXPathNavigator.Node node) => node.ParentProperty is not null ? XmlConvert.EncodeLocalName(node.ParentProperty)! : string.Empty;
+	public override string GetLocalName(in DataModelXPathNavigator.Node node)
+	{
+		if (node.ParentProperty is { } parentProperty)
+		{
+			var localName = XmlConvert.EncodeLocalName(parentProperty);
+
+			Infra.NotNull(localName);
+			
+			return localName;
+		}
+
+		return string.Empty;
+	}
 
 	public override bool GetFirstChild(in DataModelXPathNavigator.Node node, out DataModelXPathNavigator.Node childNode)
 	{

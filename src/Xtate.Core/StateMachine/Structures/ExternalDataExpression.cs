@@ -23,9 +23,9 @@ public struct ExternalDataExpression : IExternalDataExpression, IVisitorEntity<E
 {
 	internal object? Ancestor;
 
-#region Interface IAncestorProvider
+	#region Interface IAncestorProvider
 
-	object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
@@ -43,7 +43,7 @@ public struct ExternalDataExpression : IExternalDataExpression, IVisitorEntity<E
 		Uri = source.Uri;
 	}
 
-	bool IVisitorEntity<ExternalDataExpression, IExternalDataExpression>.RefEquals(ref ExternalDataExpression other) => ReferenceEquals(Uri, other.Uri);
+	readonly bool IVisitorEntity<ExternalDataExpression, IExternalDataExpression>.RefEquals(ref ExternalDataExpression other) => ReferenceEquals(Uri, other.Uri);
 
 #endregion
 }

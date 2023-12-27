@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2023 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,29 +15,23 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using Xtate.Persistence;
 
 namespace Xtate.Core;
 
-public sealed class CancelNode : ExecutableEntityNode, ICancel, IAncestorProvider, IDebugEntityId
+public sealed class CancelNode(DocumentIdNode documentIdNode, ICancel cancel) : ExecutableEntityNode(documentIdNode, cancel), ICancel, IAncestorProvider, IDebugEntityId
 {
-	private readonly ICancel _cancel;
-
-	public CancelNode(DocumentIdNode documentIdNode, ICancel cancel) : base(documentIdNode, cancel) => _cancel = cancel;
-
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => _cancel;
+	object IAncestorProvider.Ancestor => cancel;
 
 #endregion
 
 #region Interface ICancel
 
-	public string? SendId => _cancel.SendId;
+	public string? SendId => cancel.SendId;
 
-	public IValueExpression? SendIdExpression => _cancel.SendIdExpression;
+	public IValueExpression? SendIdExpression => cancel.SendIdExpression;
 
 #endregion
 

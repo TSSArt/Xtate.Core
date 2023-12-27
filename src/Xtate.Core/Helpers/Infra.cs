@@ -198,7 +198,7 @@ public static class Infra
 											  [CallerArgumentExpression(nameof(parameter))]
 											  string? parameterName = default)
 	{
-		if (string.IsNullOrEmpty(parameter))
+		if (parameter is not { Length: > 0 })
 		{
 			ThrowNullOrEmptyString(parameterName);
 		}

@@ -23,9 +23,9 @@ public struct ForEachEntity : IForEach, IVisitorEntity<ForEachEntity, IForEach>,
 {
 	internal object? Ancestor;
 
-#region Interface IAncestorProvider
+	#region Interface IAncestorProvider
 
-	object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
@@ -49,7 +49,7 @@ public struct ForEachEntity : IForEach, IVisitorEntity<ForEachEntity, IForEach>,
 		Item = source.Item;
 	}
 
-	bool IVisitorEntity<ForEachEntity, IForEach>.RefEquals(ref ForEachEntity other) =>
+	readonly bool IVisitorEntity<ForEachEntity, IForEach>.RefEquals(ref ForEachEntity other) =>
 		Action == other.Action &&
 		ReferenceEquals(Array, other.Array) &&
 		ReferenceEquals(Index, other.Index) &&

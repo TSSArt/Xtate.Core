@@ -17,6 +17,8 @@
 
 #endregion
 
+using System.ComponentModel;
+
 namespace Xtate;
 
 
@@ -37,6 +39,6 @@ public sealed class SendId : LazyId, IEquatable<SendId>
 
 	public static SendId New() => new();
 
-	[return: NotNullIfNotNull("value")]
-	public static SendId? FromString(string? value) => value is not null ? new SendId(value) : null;
+	[return: NotNullIfNotNull(nameof(value))]
+	public static SendId? FromString([Localizable(false)] string? value) => value is not null ? new SendId(value) : null;
 }

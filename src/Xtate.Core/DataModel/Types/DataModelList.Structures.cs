@@ -22,7 +22,6 @@ namespace Xtate;
 public partial class DataModelList
 {
 	[Serializable]
-	[SuppressMessage(category: "Design", checkId: "CA1034:Nested types should not be visible", Justification = "Internal DTO")]
 	public readonly struct Entry : IEquatable<Entry>
 	{
 		internal Entry(int index, in DataModelValue value)
@@ -105,7 +104,6 @@ public partial class DataModelList
 	}
 
 	[Serializable]
-	[SuppressMessage(category: "Design", checkId: "CA1034:Nested types should not be visible", Justification = "Internal DTO")]
 	public readonly struct KeyValue : IEquatable<KeyValue>
 	{
 		internal KeyValue(string? key, in DataModelValue value)
@@ -148,69 +146,38 @@ public partial class DataModelList
 	}
 
 	[Serializable]
-	private readonly struct KeyMetaValue
+	private readonly struct KeyMetaValue(in HashKey hashKey, in Meta meta, in DataModelValue value)
 	{
-		public readonly HashKey        HashKey;
-		public readonly Meta           Meta;
-		public readonly DataModelValue Value;
-
-		public KeyMetaValue(in HashKey hashKey, in Meta meta, in DataModelValue value)
-		{
-			HashKey = hashKey;
-			Meta = meta;
-			Value = value;
-		}
+		public readonly HashKey HashKey = hashKey;
+		public readonly Meta Meta = meta;
+		public readonly DataModelValue Value = value;
 	}
 
 	[Serializable]
-	private readonly struct MetaValue
+	private readonly struct MetaValue(in Meta meta, in DataModelValue value)
 	{
-		public readonly Meta           Meta;
-		public readonly DataModelValue Value;
-
-		public MetaValue(in Meta meta, in DataModelValue value)
-		{
-			Meta = meta;
-			Value = value;
-		}
+		public readonly Meta Meta = meta;
+		public readonly DataModelValue Value = value;
 	}
 
 	[Serializable]
-	private readonly struct HashKeyValue
+	private readonly struct HashKeyValue(in HashKey hashKey, in DataModelValue value)
 	{
-		public readonly HashKey        HashKey;
-		public readonly DataModelValue Value;
-
-		public HashKeyValue(in HashKey hashKey, in DataModelValue value)
-		{
-			HashKey = hashKey;
-			Value = value;
-		}
+		public readonly HashKey HashKey = hashKey;
+		public readonly DataModelValue Value = value;
 	}
 
 	[Serializable]
-	private readonly struct HashKey
+	private readonly struct HashKey(int hash, string? key)
 	{
-		public readonly int     Hash;
-		public readonly string? Key;
-
-		public HashKey(int hash, string? key)
-		{
-			Hash = hash;
-			Key = key;
-		}
+		public readonly int Hash = hash;
+		public readonly string? Key = key;
 	}
 
 	[Serializable]
-	private readonly struct Meta
+	private readonly struct Meta(DataModelAccess access, DataModelList? metadata)
 	{
-		public readonly DataModelAccess Access;
-		public readonly DataModelList?  Metadata;
-
-		public Meta(DataModelAccess access, DataModelList? metadata)
-		{
-			Access = access;
-			Metadata = metadata;
-		}
+		public readonly DataModelAccess Access = access;
+		public readonly DataModelList? Metadata = metadata;
 	}
 }

@@ -21,15 +21,12 @@ using System.IO;
 
 namespace Xtate.Core;
 
-public class ScxmlStateMachine : IScxmlStateMachine
+public class ScxmlStateMachine(string scxml) : IScxmlStateMachine
 {
-	private readonly string _scxml;
 
-	public ScxmlStateMachine(string scxml) => _scxml = scxml;
+	#region Interface IScxmlStateMachine
 
-#region Interface IScxmlStateMachine
-
-	public TextReader CreateTextReader() => new StringReader(_scxml);
+	public TextReader CreateTextReader() => new StringReader(scxml);
 
 #endregion
 }

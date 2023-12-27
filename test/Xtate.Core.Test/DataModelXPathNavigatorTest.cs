@@ -180,7 +180,7 @@ public class DataModelXPathNavigatorTest
 		vNav.MoveToFirstChild();
 
 		// act
-		vNav.ReplaceChildren(new XPathObject(nNav.Evaluate("child::*")!));
+		vNav.ReplaceChildren(new XPathObject(nNav.Evaluate("child::*")));
 
 		// assert
 		v.AsList().TryGet(key: "key", caseInsensitive: false, out var v1);
@@ -205,7 +205,7 @@ public class DataModelXPathNavigatorTest
 		var nav = new DataModelXPathNavigator(root);
 
 		// act
-		var _ = (XPathNodeIterator?) nav.Evaluate("/root/node()");
+		_ = (XPathNodeIterator?) nav.Evaluate("/root/node()");
 
 		// assert
 		//Assert.AreEqual(expected: "e", xml);
@@ -249,7 +249,7 @@ public class DataModelXPathNavigatorTest
 		var dataModelValue2 = XmlConverter.FromXml(xml2);
 
 		var n3 = new DataModelXPathNavigator(dataModelValue2);
-		var _ = n3.InnerXml;
+		_ = n3.InnerXml;
 	}
 
 	[TestMethod]

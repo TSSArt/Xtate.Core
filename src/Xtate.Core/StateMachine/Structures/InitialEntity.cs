@@ -23,9 +23,9 @@ public struct InitialEntity : IInitial, IVisitorEntity<InitialEntity, IInitial>,
 {
 	internal object? Ancestor;
 
-#region Interface IAncestorProvider
+	#region Interface IAncestorProvider
 
-	object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
@@ -44,7 +44,7 @@ public struct InitialEntity : IInitial, IVisitorEntity<InitialEntity, IInitial>,
 		Transition = source.Transition;
 	}
 
-	bool IVisitorEntity<InitialEntity, IInitial>.RefEquals(ref InitialEntity other) => ReferenceEquals(Transition, other.Transition);
+	readonly bool IVisitorEntity<InitialEntity, IInitial>.RefEquals(ref InitialEntity other) => ReferenceEquals(Transition, other.Transition);
 
 #endregion
 }

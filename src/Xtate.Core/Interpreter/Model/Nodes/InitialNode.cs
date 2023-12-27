@@ -21,15 +21,13 @@ using Xtate.Persistence;
 
 namespace Xtate.Core;
 
-public class EmptyInitialNode : InitialNode
-{
-	public EmptyInitialNode(DocumentIdNode documentIdNode, TransitionNode transition) : base(documentIdNode, transition) { }
-}
+public class EmptyInitialNode(DocumentIdNode documentIdNode, TransitionNode transition) : InitialNode(documentIdNode, transition);
 
 public class InitialNode : StateEntityNode, IInitial, IAncestorProvider, IDebugEntityId
 {
 	private readonly IInitial? _initial;
 
+	[UsedImplicitly]
 	public InitialNode(DocumentIdNode documentIdNode, IInitial initial) : this(documentIdNode, GetTransitionNode(initial)) => _initial = initial;
 
 	protected InitialNode(DocumentIdNode documentIdNode, TransitionNode transition) : base(documentIdNode)

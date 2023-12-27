@@ -17,6 +17,8 @@
 
 #endregion
 
+using Xtate.IoC;
+
 namespace Xtate.Core;
 
 public class StateMachineRunner : IStateMachineRunner, IDisposable
@@ -42,10 +44,7 @@ public class StateMachineRunner : IStateMachineRunner, IDisposable
 	{
 		lock (_sync)
 		{
-			if (_disposed)
-			{
-				throw new ObjectDisposedException(nameof(StateMachineRunner));
-			}
+			XtateObjectDisposedException.ThrowIf(_disposed, this);
 
 			_context.AddStateMachineController(_controller);
 		}

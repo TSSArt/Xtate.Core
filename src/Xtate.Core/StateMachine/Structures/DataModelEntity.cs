@@ -23,9 +23,9 @@ public struct DataModelEntity : IDataModel, IVisitorEntity<DataModelEntity, IDat
 {
 	internal object? Ancestor;
 
-#region Interface IAncestorProvider
+	#region Interface IAncestorProvider
 
-	object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
@@ -43,7 +43,7 @@ public struct DataModelEntity : IDataModel, IVisitorEntity<DataModelEntity, IDat
 		Data = source.Data;
 	}
 
-	bool IVisitorEntity<DataModelEntity, IDataModel>.RefEquals(ref DataModelEntity other) => Data == other.Data;
+	readonly bool IVisitorEntity<DataModelEntity, IDataModel>.RefEquals(ref DataModelEntity other) => Data == other.Data;
 
 #endregion
 }

@@ -21,17 +21,11 @@ using System.IO;
 
 namespace Xtate.Core;
 
-internal sealed class InjectedCancellationStream : DelegatedStream
+internal sealed class InjectedCancellationStream(Stream stream, CancellationToken token) : DelegatedStream
 {
-	private readonly CancellationToken _token;
+	private readonly CancellationToken _token = token;
 
-	public InjectedCancellationStream(Stream stream, CancellationToken token)
-	{
-		InnerStream = stream;
-		_token = token;
-	}
-
-	protected override Stream InnerStream { get; }
+	protected override Stream InnerStream { get; } = stream;
 
 	public override Task<int> ReadAsync(byte[] buffer,
 										int offset,

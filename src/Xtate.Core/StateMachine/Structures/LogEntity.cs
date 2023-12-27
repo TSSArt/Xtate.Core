@@ -23,9 +23,9 @@ public struct LogEntity : ILog, IVisitorEntity<LogEntity, ILog>, IAncestorProvid
 {
 	internal object? Ancestor;
 
-#region Interface IAncestorProvider
+	#region Interface IAncestorProvider
 
-	object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
@@ -45,7 +45,7 @@ public struct LogEntity : ILog, IVisitorEntity<LogEntity, ILog>, IAncestorProvid
 		Label = source.Label;
 	}
 
-	bool IVisitorEntity<LogEntity, ILog>.RefEquals(ref LogEntity other) =>
+	readonly bool IVisitorEntity<LogEntity, ILog>.RefEquals(ref LogEntity other) =>
 		ReferenceEquals(Expression, other.Expression) &&
 		ReferenceEquals(Label, other.Label);
 

@@ -37,7 +37,7 @@ public abstract class StateMachineVisitor
 		return ((Type) entry.obj).Name;
 	}
 
-	private void Enter<T>(T entity) where T : notnull => _path?.Push((entity, new ImmutableArray<object?>()));
+	private void Enter<T>(T entity) where T : notnull => _path?.Push((entity, []));
 
 	private void Enter<T>(ImmutableArray<T> array) where T : notnull => _path?.Push((typeof(ImmutableArray<T>), array.CastArray<object?>()));
 
@@ -52,7 +52,7 @@ public abstract class StateMachineVisitor
 			throw new InvalidOperationException(message: Resources.Exception_RootPathCanBeSetOnlyBeforeVisiting);
 		}
 
-		_path?.Push((root, new ImmutableArray<object?>()));
+		_path?.Push((root, []));
 	}
 
 	private ref struct VisitData<TEntity, TIEntity> where TEntity : struct, IVisitorEntity<TEntity, TIEntity>, TIEntity
@@ -111,17 +111,9 @@ public abstract class StateMachineVisitor
 		}
 	}
 
-	protected ref struct TrackList<T> where T : class
+	protected ref struct TrackList<T>(ImmutableArray<T> items) where T : class
 	{
-		private readonly ImmutableArray<T> _items;
-
-		public TrackList(ImmutableArray<T> items)
-		{
-			_items = items;
-			ModifiedItems = default;
-		}
-
-		public bool IsModified
+		public readonly bool IsModified
 		{
 			get
 			{
@@ -130,14 +122,14 @@ public abstract class StateMachineVisitor
 					return false;
 				}
 
-				if (_items.Length != ModifiedItems.Count)
+				if (items.Length != ModifiedItems.Count)
 				{
 					return true;
 				}
 
-				for (var i = 0; i < _items.Length; i ++)
+				for (var i = 0; i < items.Length; i ++)
 				{
-					if (!ReferenceEquals(_items[i], ModifiedItems[i]))
+					if (!ReferenceEquals(items[i], ModifiedItems[i]))
 					{
 						return true;
 					}
@@ -147,33 +139,33 @@ public abstract class StateMachineVisitor
 			}
 		}
 
-		public ImmutableArray<T>.Builder? ModifiedItems { get; private set; }
+		public ImmutableArray<T>.Builder? ModifiedItems { get; private set; } = default;
 
-		public readonly int Count => ModifiedItems?.Count ?? _items.Length;
+		public readonly int Count => ModifiedItems?.Count ?? items.Length;
 
 		public T? this[int index]
 		{
-			get => ModifiedItems is not null ? ModifiedItems[index] : _items[index];
+			readonly get => ModifiedItems is not null ? ModifiedItems[index] : items[index];
 			set
 			{
 				if (ModifiedItems is not null)
 				{
 					ModifiedItems[index] = value!;
 				}
-				else if (!ReferenceEquals(_items[index], value))
+				else if (!ReferenceEquals(items[index], value))
 				{
-					ModifiedItems = _items.ToBuilder();
+					ModifiedItems = items.ToBuilder();
 					ModifiedItems[index] = value!;
 				}
 			}
 		}
 
-		public readonly bool Contains(T item) => ModifiedItems?.Contains(item) ?? _items.Contains(item);
+		public readonly bool Contains(T item) => ModifiedItems?.Contains(item) ?? items.Contains(item);
 
 		[MustDisposeResource]
-		public readonly IEnumerator<T> GetEnumerator() => ModifiedItems is not null ? ModifiedItems.GetEnumerator() : ((IEnumerable<T>) _items).GetEnumerator();
+		public readonly IEnumerator<T> GetEnumerator() => ModifiedItems is not null ? ModifiedItems.GetEnumerator() : ((IEnumerable<T>) items).GetEnumerator();
 
-		public void Add(T? item) => (ModifiedItems ??= _items.ToBuilder()).Add(item!);
+		public void Add(T? item) => (ModifiedItems ??= items.ToBuilder()).Add(item!);
 
 		public void Clear()
 		{
@@ -193,9 +185,9 @@ public abstract class StateMachineVisitor
 			}
 		}
 
-		public void Insert(int index, T item) => (ModifiedItems ??= _items.ToBuilder()).Insert(index, item);
+		public void Insert(int index, T item) => (ModifiedItems ??= items.ToBuilder()).Insert(index, item);
 
-		public void RemoveAt(int index) => (ModifiedItems ??= _items.ToBuilder()).RemoveAt(index);
+		public void RemoveAt(int index) => (ModifiedItems ??= items.ToBuilder()).RemoveAt(index);
 	}
 
 #region Visit(ref IT entity)

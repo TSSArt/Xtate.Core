@@ -19,13 +19,12 @@
 
 namespace Xtate.Core;
 
-public class StateMachineLocation : IStateMachineLocation
+public class StateMachineLocation(Uri location) : IStateMachineLocation
 {
-	public StateMachineLocation(Uri location) => Location = location;
 
-#region Interface IStateMachineLocation
+	#region Interface IStateMachineLocation
 
-	public Uri Location { get; }
+	public Uri Location { get; } = location;
 
-#endregion
+	#endregion
 }

@@ -17,8 +17,6 @@
 
 #endregion
 
-namespace Xtate.Service;
-
 //TODO: uncomment
 /*
 

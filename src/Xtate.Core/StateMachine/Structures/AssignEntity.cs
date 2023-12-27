@@ -23,9 +23,9 @@ public struct AssignEntity : IAssign, IVisitorEntity<AssignEntity, IAssign>, IAn
 {
 	internal object? Ancestor;
 
-#region Interface IAncestorProvider
+	#region Interface IAncestorProvider
 
-	object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
@@ -51,7 +51,7 @@ public struct AssignEntity : IAssign, IVisitorEntity<AssignEntity, IAssign>, IAn
 		Attribute = source.Attribute;
 	}
 
-	bool IVisitorEntity<AssignEntity, IAssign>.RefEquals(ref AssignEntity other) =>
+	readonly bool IVisitorEntity<AssignEntity, IAssign>.RefEquals(ref AssignEntity other) =>
 		ReferenceEquals(Location, other.Location) &&
 		ReferenceEquals(Expression, other.Expression) &&
 		ReferenceEquals(InlineContent, other.InlineContent) &&

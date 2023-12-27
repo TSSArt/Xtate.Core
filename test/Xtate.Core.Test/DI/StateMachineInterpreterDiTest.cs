@@ -28,7 +28,7 @@ public class StateMachineInterpreterDiTest
 	public async Task EmptyRun()
 	{
 		var services = new ServiceCollection();
-		services.AddTransient<IStateMachine>(sp => new StateMachineEntity { States = ImmutableArray.Create<IStateEntity>(new FinalEntity()) });
+		services.AddTransient<IStateMachine>(_ => new StateMachineEntity { States = [new FinalEntity()] });
 		services.RegisterStateMachineInterpreter();
 
 		var serviceProvider = services.BuildProvider();
@@ -45,7 +45,8 @@ public class StateMachineInterpreterDiTest
 		var stateMachineEntity = new StateMachineEntity
 								 {
 									 DataModelType = "xpath",
-									 States = ImmutableArray.Create<IStateEntity>(
+									 States =
+									 [
 										 new FinalEntity
 										 {
 											 DoneData = new DoneDataEntity
@@ -55,10 +56,11 @@ public class StateMachineInterpreterDiTest
 																		  Body = new ContentBody { Value = "qwerty" }
 																	  }
 														}
-										 })
+										 }
+									 ]
 								 };
 
-		services.AddTransient<IStateMachine>(sp => stateMachineEntity);
+		services.AddTransient<IStateMachine>(_ => stateMachineEntity);
 		services.RegisterStateMachineInterpreter();
 
 		var serviceProvider = services.BuildProvider();

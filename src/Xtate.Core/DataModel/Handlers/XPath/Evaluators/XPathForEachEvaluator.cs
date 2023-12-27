@@ -19,10 +19,8 @@
 
 namespace Xtate.DataModel.XPath;
 
-public class XPathForEachEvaluator : DefaultForEachEvaluator
+public class XPathForEachEvaluator(IForEach forEach) : DefaultForEachEvaluator(forEach)
 {
-	public XPathForEachEvaluator(IForEach forEach) : base(forEach) { }
-
 	public required Func<ValueTask<XPathEngine>> EngineFactory { private get; [UsedImplicitly] init; }
 
 	public override async ValueTask Execute()

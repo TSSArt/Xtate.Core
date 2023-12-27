@@ -23,9 +23,9 @@ public struct ConditionExpression : IConditionExpression, IVisitorEntity<Conditi
 {
 	internal object? Ancestor;
 
-#region Interface IAncestorProvider
+	#region Interface IAncestorProvider
 
-	object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
@@ -43,7 +43,7 @@ public struct ConditionExpression : IConditionExpression, IVisitorEntity<Conditi
 		Expression = source.Expression;
 	}
 
-	bool IVisitorEntity<ConditionExpression, IConditionExpression>.RefEquals(ref ConditionExpression other) => ReferenceEquals(Expression, other.Expression);
+	readonly bool IVisitorEntity<ConditionExpression, IConditionExpression>.RefEquals(ref ConditionExpression other) => ReferenceEquals(Expression, other.Expression);
 
 #endregion
 }

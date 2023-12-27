@@ -22,8 +22,8 @@ namespace Xtate.Persistence;
 internal sealed class DataModelReferenceTracker : IDisposable
 {
 	private readonly Bucket                           _bucket;
-	private readonly Dictionary<DataModelList, Entry> _lists  = new();
-	private readonly Dictionary<int, DataModelList>   _refIds = new();
+	private readonly Dictionary<DataModelList, Entry> _lists  = [];
+	private readonly Dictionary<int, DataModelList>   _refIds = [];
 
 	private bool _disposed;
 	private int  _nextRefId;

@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2023 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,37 +15,31 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 namespace Xtate;
 
 public partial class DataModelList
 {
-	
-	[SuppressMessage(category: "Design", checkId: "CA1034:Nested types should not be visible", Justification = "Wrapper")]
-	[SuppressMessage(category: "Performance", checkId: "CA1815:Override equals and operator equals on value types", Justification = "No equality")]
 	public readonly struct ValueEnumerable : IEnumerable<DataModelValue>
 	{
 		private readonly DataModelList _list;
 
 		internal ValueEnumerable(DataModelList list) => _list = list;
 
-#region Interface IEnumerable
+	#region Interface IEnumerable
 
 		IEnumerator IEnumerable.GetEnumerator() => new ValueEnumerator(_list);
 
-#endregion
+	#endregion
 
-#region Interface IEnumerable<DataModelValue>
+	#region Interface IEnumerable<DataModelValue>
 
 		IEnumerator<DataModelValue> IEnumerable<DataModelValue>.GetEnumerator() => new ValueEnumerator(_list);
 
-#endregion
+	#endregion
 
 		public ValueEnumerator GetEnumerator() => new(_list);
 	}
 
-	
 	public struct ValueEnumerator : IEnumerator<DataModelValue>
 	{
 		private readonly int  _count;
@@ -61,13 +55,13 @@ public partial class DataModelList
 
 		public DataModelValue Current { get; private set; }
 
-#region Interface IDisposable
+	#region Interface IDisposable
 
-		public void Dispose() { }
+		public readonly void Dispose() { }
 
-#endregion
+	#endregion
 
-#region Interface IEnumerator
+	#region Interface IEnumerator
 
 		public bool MoveNext()
 		{
@@ -88,42 +82,38 @@ public partial class DataModelList
 
 		public void Reset() => _args.Index = -1;
 
-		object IEnumerator.Current => Current;
+		readonly object IEnumerator.Current => Current;
 
-#endregion
+	#endregion
 
-#region Interface IEnumerator<DataModelValue>
+	#region Interface IEnumerator<DataModelValue>
 
-		DataModelValue IEnumerator<DataModelValue>.Current => Current;
+		readonly DataModelValue IEnumerator<DataModelValue>.Current => Current;
 
-#endregion
+	#endregion
 	}
 
-	
-	[SuppressMessage(category: "Design", checkId: "CA1034:Nested types should not be visible", Justification = "Wrapper")]
-	[SuppressMessage(category: "Performance", checkId: "CA1815:Override equals and operator equals on value types", Justification = "No equality")]
 	public readonly struct KeyValueEnumerable : IEnumerable<KeyValue>
 	{
 		private readonly DataModelList _list;
 
 		internal KeyValueEnumerable(DataModelList list) => _list = list;
 
-#region Interface IEnumerable
+	#region Interface IEnumerable
 
 		IEnumerator IEnumerable.GetEnumerator() => new KeyValueEnumerator(_list);
 
-#endregion
+	#endregion
 
-#region Interface IEnumerable<KeyValue>
+	#region Interface IEnumerable<KeyValue>
 
 		IEnumerator<KeyValue> IEnumerable<KeyValue>.GetEnumerator() => new KeyValueEnumerator(_list);
 
-#endregion
+	#endregion
 
 		public KeyValueEnumerator GetEnumerator() => new(_list);
 	}
 
-	
 	public struct KeyValueEnumerator : IEnumerator<KeyValue>
 	{
 		private readonly int  _count;
@@ -137,13 +127,13 @@ public partial class DataModelList
 			Current = default;
 		}
 
-#region Interface IDisposable
+	#region Interface IDisposable
 
-		public void Dispose() { }
+		public readonly void Dispose() { }
 
-#endregion
+	#endregion
 
-#region Interface IEnumerator
+	#region Interface IEnumerator
 
 		public bool MoveNext()
 		{
@@ -172,59 +162,56 @@ public partial class DataModelList
 
 		public void Reset() => _args.Index = -1;
 
-		object IEnumerator.Current => Current;
+		readonly object IEnumerator.Current => Current;
 
-#endregion
+	#endregion
 
-#region Interface IEnumerator<KeyValue>
+	#region Interface IEnumerator<KeyValue>
 
 		public KeyValue Current { get; private set; }
 
-#endregion
+	#endregion
 	}
 
-	
-	[SuppressMessage(category: "Design", checkId: "CA1034:Nested types should not be visible", Justification = "Wrapper")]
-	[SuppressMessage(category: "Performance", checkId: "CA1815:Override equals and operator equals on value types", Justification = "No equality")]
 	public readonly struct KeyValuePairEnumerable : IEnumerable<KeyValuePair<string, DataModelValue>>
 	{
 		private readonly DataModelList _list;
 
 		internal KeyValuePairEnumerable(DataModelList list) => _list = list;
 
-#region Interface IEnumerable
+	#region Interface IEnumerable
 
 		IEnumerator IEnumerable.GetEnumerator() => new KeyValuePairEnumerator(_list);
 
-#endregion
+	#endregion
 
-#region Interface IEnumerable<KeyValuePair<string,DataModelValue>>
+	#region Interface IEnumerable<KeyValuePair<string,DataModelValue>>
 
 		IEnumerator<KeyValuePair<string, DataModelValue>> IEnumerable<KeyValuePair<string, DataModelValue>>.GetEnumerator() => new KeyValuePairEnumerator(_list);
 
-#endregion
+	#endregion
 
 		public KeyValuePairEnumerator GetEnumerator() => new(_list);
 	}
 
-	
 	public struct KeyValuePairEnumerator : IEnumerator<KeyValuePair<string, DataModelValue>>
 	{
 		private KeyValueEnumerator _enumerator;
 
+		[SuppressMessage(category: "ReSharper", checkId: "NotDisposedResource")]
 		internal KeyValuePairEnumerator(DataModelList list)
 		{
 			_enumerator = list.KeyValues.GetEnumerator();
 			Current = default;
 		}
 
-#region Interface IDisposable
+	#region Interface IDisposable
 
-		public void Dispose() => _enumerator.Dispose();
+		public readonly void Dispose() => _enumerator.Dispose();
 
-#endregion
+	#endregion
 
-#region Interface IEnumerator
+	#region Interface IEnumerator
 
 		public bool MoveNext()
 		{
@@ -244,44 +231,44 @@ public partial class DataModelList
 			return false;
 		}
 
-		public void Reset() => _enumerator.Reset();
+		public void Reset()
+		{
+			_enumerator.Reset();
+			Current = default;
+		}
 
-		object IEnumerator.Current => _enumerator.Current;
+		readonly object IEnumerator.Current => Current;
 
-#endregion
+	#endregion
 
-#region Interface IEnumerator<KeyValuePair<string,DataModelValue>>
+	#region Interface IEnumerator<KeyValuePair<string,DataModelValue>>
 
 		public KeyValuePair<string, DataModelValue> Current { get; private set; }
 
-#endregion
+	#endregion
 	}
 
-	
-	[SuppressMessage(category: "Design", checkId: "CA1034:Nested types should not be visible", Justification = "Wrapper")]
-	[SuppressMessage(category: "Performance", checkId: "CA1815:Override equals and operator equals on value types", Justification = "No equality")]
 	public readonly struct EntryEnumerable : IEnumerable<Entry>
 	{
 		private readonly DataModelList _list;
 
 		internal EntryEnumerable(DataModelList list) => _list = list;
 
-#region Interface IEnumerable
+	#region Interface IEnumerable
 
 		IEnumerator IEnumerable.GetEnumerator() => new EntryEnumerator(_list);
 
-#endregion
+	#endregion
 
-#region Interface IEnumerable<Entry>
+	#region Interface IEnumerable<Entry>
 
 		IEnumerator<Entry> IEnumerable<Entry>.GetEnumerator() => new EntryEnumerator(_list);
 
-#endregion
+	#endregion
 
 		public EntryEnumerator GetEnumerator() => new(_list);
 	}
 
-	
 	public struct EntryEnumerator : IEnumerator<Entry>
 	{
 		private readonly int   _count;
@@ -296,13 +283,13 @@ public partial class DataModelList
 			_current = default;
 		}
 
-#region Interface IDisposable
+	#region Interface IDisposable
 
-		public void Dispose() { }
+		public readonly void Dispose() { }
 
-#endregion
+	#endregion
 
-#region Interface IEnumerator
+	#region Interface IEnumerator
 
 		public bool MoveNext()
 		{
@@ -330,20 +317,17 @@ public partial class DataModelList
 
 		public void Reset() => _args.Index = -1;
 
-		object IEnumerator.Current => _current;
+		readonly object IEnumerator.Current => _current;
 
-#endregion
+	#endregion
 
-#region Interface IEnumerator<Entry>
+	#region Interface IEnumerator<Entry>
 
-		public Entry Current => _current;
+		public readonly Entry Current => _current;
 
-#endregion
+	#endregion
 	}
 
-	
-	[SuppressMessage(category: "Design", checkId: "CA1034:Nested types should not be visible", Justification = "Wrapper")]
-	[SuppressMessage(category: "Performance", checkId: "CA1815:Override equals and operator equals on value types", Justification = "No equality")]
 	public readonly struct ValueByKeyEnumerable : IEnumerable<DataModelValue>
 	{
 		private readonly bool          _caseInsensitive;
@@ -357,22 +341,22 @@ public partial class DataModelList
 			_caseInsensitive = caseInsensitive;
 		}
 
-#region Interface IEnumerable
+	#region Interface IEnumerable
 
 		IEnumerator IEnumerable.GetEnumerator() => new ValueByKeyEnumerator(_list, _key, _caseInsensitive);
 
-#endregion
+	#endregion
 
-#region Interface IEnumerable<DataModelValue>
+	#region Interface IEnumerable<DataModelValue>
 
 		IEnumerator<DataModelValue> IEnumerable<DataModelValue>.GetEnumerator() => new ValueByKeyEnumerator(_list, _key, _caseInsensitive);
 
-#endregion
+	#endregion
 
+		[UsedImplicitly]
 		public ValueByKeyEnumerator GetEnumerator() => new(_list, _key, _caseInsensitive);
 	}
 
-	
 	public struct ValueByKeyEnumerator : IEnumerator<DataModelValue>
 	{
 		private readonly bool          _caseInsensitive;
@@ -393,13 +377,13 @@ public partial class DataModelList
 
 		public DataModelValue Current { get; private set; }
 
-#region Interface IDisposable
+	#region Interface IDisposable
 
-		public void Dispose() { }
+		public readonly void Dispose() { }
 
-#endregion
+	#endregion
 
-#region Interface IEnumerator
+	#region Interface IEnumerator
 
 		public bool MoveNext()
 		{
@@ -430,20 +414,17 @@ public partial class DataModelList
 
 		public void Reset() => _args.Index = -1;
 
-		object IEnumerator.Current => Current;
+		readonly object IEnumerator.Current => Current;
 
-#endregion
+	#endregion
 
-#region Interface IEnumerator<DataModelValue>
+	#region Interface IEnumerator<DataModelValue>
 
-		DataModelValue IEnumerator<DataModelValue>.Current => Current;
+		readonly DataModelValue IEnumerator<DataModelValue>.Current => Current;
 
-#endregion
+	#endregion
 	}
 
-	
-	[SuppressMessage(category: "Design", checkId: "CA1034:Nested types should not be visible", Justification = "Wrapper")]
-	[SuppressMessage(category: "Performance", checkId: "CA1815:Override equals and operator equals on value types", Justification = "No equality")]
 	public readonly struct KeyValueByKeyEnumerable : IEnumerable<KeyValue>
 	{
 		private readonly bool          _caseInsensitive;
@@ -457,22 +438,22 @@ public partial class DataModelList
 			_caseInsensitive = caseInsensitive;
 		}
 
-#region Interface IEnumerable
+	#region Interface IEnumerable
 
 		IEnumerator IEnumerable.GetEnumerator() => new KeyValueByKeyEnumerator(_list, _key, _caseInsensitive);
 
-#endregion
+	#endregion
 
-#region Interface IEnumerable<KeyValue>
+	#region Interface IEnumerable<KeyValue>
 
 		IEnumerator<KeyValue> IEnumerable<KeyValue>.GetEnumerator() => new KeyValueByKeyEnumerator(_list, _key, _caseInsensitive);
 
-#endregion
+	#endregion
 
+		[UsedImplicitly]
 		public KeyValueByKeyEnumerator GetEnumerator() => new(_list, _key, _caseInsensitive);
 	}
 
-	
 	public struct KeyValueByKeyEnumerator : IEnumerator<KeyValue>
 	{
 		private readonly bool          _caseInsensitive;
@@ -492,13 +473,13 @@ public partial class DataModelList
 			Current = default;
 		}
 
-#region Interface IDisposable
+	#region Interface IDisposable
 
-		public void Dispose() { }
+		public readonly void Dispose() { }
 
-#endregion
+	#endregion
 
-#region Interface IEnumerator
+	#region Interface IEnumerator
 
 		public bool MoveNext()
 		{
@@ -537,20 +518,17 @@ public partial class DataModelList
 
 		public void Reset() => _args.Index = -1;
 
-		object IEnumerator.Current => Current;
+		readonly object IEnumerator.Current => Current;
 
-#endregion
+	#endregion
 
-#region Interface IEnumerator<KeyValue>
+	#region Interface IEnumerator<KeyValue>
 
 		public KeyValue Current { get; private set; }
 
-#endregion
+	#endregion
 	}
 
-	
-	[SuppressMessage(category: "Design", checkId: "CA1034:Nested types should not be visible", Justification = "Wrapper")]
-	[SuppressMessage(category: "Performance", checkId: "CA1815:Override equals and operator equals on value types", Justification = "No equality")]
 	public readonly struct EntryByKeyEnumerable : IEnumerable<Entry>
 	{
 		private readonly bool          _caseInsensitive;
@@ -564,22 +542,21 @@ public partial class DataModelList
 			_caseInsensitive = caseInsensitive;
 		}
 
-#region Interface IEnumerable
+	#region Interface IEnumerable
 
 		IEnumerator IEnumerable.GetEnumerator() => new EntryByKeyEnumerator(_list, _key, _caseInsensitive);
 
-#endregion
+	#endregion
 
-#region Interface IEnumerable<Entry>
+	#region Interface IEnumerable<Entry>
 
 		IEnumerator<Entry> IEnumerable<Entry>.GetEnumerator() => new EntryByKeyEnumerator(_list, _key, _caseInsensitive);
 
-#endregion
+	#endregion
 
 		public EntryByKeyEnumerator GetEnumerator() => new(_list, _key, _caseInsensitive);
 	}
 
-	
 	public struct EntryByKeyEnumerator : IEnumerator<Entry>
 	{
 		private readonly bool          _caseInsensitive;
@@ -600,13 +577,13 @@ public partial class DataModelList
 			_current = default;
 		}
 
-#region Interface IDisposable
+	#region Interface IDisposable
 
-		public void Dispose() { }
+		public readonly void Dispose() { }
 
-#endregion
+	#endregion
 
-#region Interface IEnumerator
+	#region Interface IEnumerator
 
 		public bool MoveNext()
 		{
@@ -644,14 +621,14 @@ public partial class DataModelList
 
 		public void Reset() => _args.Index = -1;
 
-		object IEnumerator.Current => _current;
+		readonly object IEnumerator.Current => _current;
 
-#endregion
+	#endregion
 
-#region Interface IEnumerator<Entry>
+	#region Interface IEnumerator<Entry>
 
-		public Entry Current => _current;
+		public readonly Entry Current => _current;
 
-#endregion
+	#endregion
 	}
 }

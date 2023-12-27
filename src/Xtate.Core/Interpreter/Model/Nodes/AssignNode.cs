@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2023 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,35 +15,29 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using Xtate.Persistence;
 
 namespace Xtate.Core;
 
-public sealed class AssignNode : ExecutableEntityNode, IAssign, IAncestorProvider, IDebugEntityId
+public sealed class AssignNode(DocumentIdNode documentIdNode, IAssign assign) : ExecutableEntityNode(documentIdNode, assign), IAssign, IAncestorProvider, IDebugEntityId
 {
-	private readonly IAssign _assign;
-
-	public AssignNode(DocumentIdNode documentIdNode, IAssign assign) : base(documentIdNode, assign) => _assign = assign;
-
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => _assign;
+	object IAncestorProvider.Ancestor => assign;
 
 #endregion
 
 #region Interface IAssign
 
-	public ILocationExpression? Location => _assign.Location;
+	public ILocationExpression? Location => assign.Location;
 
-	public IValueExpression? Expression => _assign.Expression;
+	public IValueExpression? Expression => assign.Expression;
 
-	public IInlineContent? InlineContent => _assign.InlineContent;
+	public IInlineContent? InlineContent => assign.InlineContent;
 
-	public string? Type => _assign.Type;
+	public string? Type => assign.Type;
 
-	public string? Attribute => _assign.Attribute;
+	public string? Attribute => assign.Attribute;
 
 #endregion
 

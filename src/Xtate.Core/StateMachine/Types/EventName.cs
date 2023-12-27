@@ -26,15 +26,15 @@ public static class EventName
 {
 	private const char Dot = '.';
 
-	private static readonly IIdentifier DoneIdentifier     = (Identifier) @"done";
-	private static readonly IIdentifier StateIdentifier    = (Identifier) @"state";
-	private static readonly IIdentifier ErrorIdentifier    = (Identifier) @"error";
-	private static readonly IIdentifier InvokeIdentifier   = (Identifier) @"invoke";
-	private static readonly IIdentifier PlatformIdentifier = (Identifier) @"platform";
+	private static readonly IIdentifier DoneIdentifier     = Identifier.FromString("done");
+	private static readonly IIdentifier StateIdentifier    = Identifier.FromString("state");
+	private static readonly IIdentifier ErrorIdentifier    = Identifier.FromString("error");
+	private static readonly IIdentifier InvokeIdentifier   = Identifier.FromString("invoke");
+	private static readonly IIdentifier PlatformIdentifier = Identifier.FromString("platform");
 
-	public static readonly ImmutableArray<IIdentifier> ErrorExecution     = ImmutableArray.Create(ErrorIdentifier, (Identifier) @"execution");
-	public static readonly ImmutableArray<IIdentifier> ErrorCommunication = ImmutableArray.Create(ErrorIdentifier, (Identifier) @"communication");
-	public static readonly ImmutableArray<IIdentifier> ErrorPlatform      = ImmutableArray.Create(ErrorIdentifier, (Identifier) @"platform");
+	public static readonly ImmutableArray<IIdentifier> ErrorExecution     = [ErrorIdentifier, Identifier.FromString("execution")];
+	public static readonly ImmutableArray<IIdentifier> ErrorCommunication = [ErrorIdentifier, Identifier.FromString("communication")];
+	public static readonly ImmutableArray<IIdentifier> ErrorPlatform      = [ErrorIdentifier, Identifier.FromString("platform")];
 
 	internal static ImmutableArray<IIdentifier> GetDoneStateNameParts(IIdentifier id) => GetNameParts(DoneIdentifier, StateIdentifier, id.Value);
 
@@ -155,5 +155,5 @@ public static class EventName
 		return ImmutableArray.Create(parts);
 	}
 
-	public static bool IsError(ImmutableArray<IIdentifier> nameParts) => !nameParts.IsDefaultOrEmpty && nameParts[0] == ErrorIdentifier;
+	public static bool IsError(ImmutableArray<IIdentifier> nameParts) => !nameParts.IsDefaultOrEmpty && Identifier.EqualityComparer.Equals(nameParts[0], ErrorIdentifier);
 }

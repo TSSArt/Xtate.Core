@@ -65,29 +65,18 @@ public abstract class InvokeEvaluator : IInvoke, IStartInvokeEvaluator, ICancelI
 #endregion
 }
 
-public class DefaultInvokeEvaluator : InvokeEvaluator
+public class DefaultInvokeEvaluator(IInvoke invoke) : InvokeEvaluator(invoke)
 {
-	public DefaultInvokeEvaluator(IInvoke invoke) : base(invoke)
-	{
-		TypeExpressionEvaluator = invoke.TypeExpression?.As<IStringEvaluator>();
-		SourceExpressionEvaluator = invoke.SourceExpression?.As<IStringEvaluator>();
-		ContentExpressionEvaluator = invoke.Content?.Expression?.As<IObjectEvaluator>();
-		ContentBodyEvaluator = invoke.Content?.Body?.As<IValueEvaluator>();
-		IdLocationEvaluator = invoke.IdLocation?.As<ILocationEvaluator>();
-		NameEvaluatorList = invoke.NameList.AsArrayOf<ILocationExpression, ILocationEvaluator>();
-		ParameterList = DataConverter.AsParamArray(invoke.Parameters);
-	}
-
 	public required Func<ValueTask<DataConverter>>     DataConverterFactory    { private get; [UsedImplicitly] init; }
 	public required Func<ValueTask<IInvokeController>> InvokeControllerFactory { private get; [UsedImplicitly] init; }
 
-	public IObjectEvaluator?                   ContentExpressionEvaluator { get; }
-	public IValueEvaluator?                    ContentBodyEvaluator       { get; }
-	public ILocationEvaluator?                 IdLocationEvaluator        { get; }
-	public ImmutableArray<ILocationEvaluator>  NameEvaluatorList          { get; }
-	public ImmutableArray<DataConverter.Param> ParameterList              { get; }
-	public IStringEvaluator?                   SourceExpressionEvaluator  { get; }
-	public IStringEvaluator?                   TypeExpressionEvaluator    { get; }
+	public IObjectEvaluator? ContentExpressionEvaluator { get; } = invoke.Content?.Expression?.As<IObjectEvaluator>();
+	public IValueEvaluator? ContentBodyEvaluator { get; } = invoke.Content?.Body?.As<IValueEvaluator>();
+	public ILocationEvaluator? IdLocationEvaluator { get; } = invoke.IdLocation?.As<ILocationEvaluator>();
+	public ImmutableArray<ILocationEvaluator> NameEvaluatorList { get; } = invoke.NameList.AsArrayOf<ILocationExpression, ILocationEvaluator>();
+	public ImmutableArray<DataConverter.Param> ParameterList { get; } = DataConverter.AsParamArray(invoke.Parameters);
+	public IStringEvaluator? SourceExpressionEvaluator { get; } = invoke.SourceExpression?.As<IStringEvaluator>();
+	public IStringEvaluator? TypeExpressionEvaluator { get; } = invoke.TypeExpression?.As<IStringEvaluator>();
 
 	public override async ValueTask Cancel(InvokeId invokeId)
 	{

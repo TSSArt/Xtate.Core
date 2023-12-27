@@ -19,9 +19,8 @@
 
 namespace Xtate.DataModel.XPath;
 
-public class XPathContentBodyEvaluator : DefaultContentBodyEvaluator
+public class XPathContentBodyEvaluator(IContentBody contentBody) : DefaultContentBodyEvaluator(contentBody)
 {
-	public XPathContentBodyEvaluator(IContentBody contentBody) : base(contentBody) { }
 	public required XPathXmlParserContextFactory XPathXmlParserContextFactory { private get; [UsedImplicitly] init; }
 
 	protected override DataModelValue ParseToDataModel() => Value is not null ? XmlConverter.FromXml(Value, XPathXmlParserContextFactory.CreateContext(this)) : DataModelValue.Null;

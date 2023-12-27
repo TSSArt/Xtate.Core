@@ -37,17 +37,8 @@ public static class CancellationTokenRegistrationExtensions
 		}
 #endif
 
-	public struct ConfiguredAwaitable
+	public struct ConfiguredAwaitable(CancellationTokenRegistration cancellationTokenRegistration, bool continueOnCapturedContext)
 	{
-		private readonly CancellationTokenRegistration _cancellationTokenRegistration;
-		private readonly bool                          _continueOnCapturedContext;
-
-		public ConfiguredAwaitable(CancellationTokenRegistration cancellationTokenRegistration, bool continueOnCapturedContext)
-		{
-			_cancellationTokenRegistration = cancellationTokenRegistration;
-			_continueOnCapturedContext = continueOnCapturedContext;
-		}
-
-		public ConfiguredValueTaskAwaitable DisposeAsync() => _cancellationTokenRegistration.DisposeAsync().ConfigureAwait(_continueOnCapturedContext);
+		public readonly ConfiguredValueTaskAwaitable DisposeAsync() => cancellationTokenRegistration.DisposeAsync().ConfigureAwait(continueOnCapturedContext);
 	}
 }

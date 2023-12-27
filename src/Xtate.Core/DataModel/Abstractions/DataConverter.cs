@@ -19,11 +19,9 @@
 
 namespace Xtate.DataModel;
 
-public class DataConverter
+public class DataConverter(IDataModelHandler? dataModelHandler)
 {
-	private readonly bool _caseInsensitive;
-
-	public DataConverter(IDataModelHandler? dataModelHandler) => _caseInsensitive = dataModelHandler?.CaseInsensitive ?? false;
+	private readonly bool _caseInsensitive = dataModelHandler?.CaseInsensitive ?? false;
 
 	public static ImmutableArray<Param> AsParamArray(ImmutableArray<IParam> parameters)
 	{
@@ -48,8 +46,8 @@ public class DataConverter
 		return GetParameters(nameEvaluatorList, parameterList);
 	}
 
-	public async ValueTask<DataModelValue> GetContent(IValueEvaluator? contentBodyEvaluator,
-													  IObjectEvaluator? contentExpressionEvaluator)
+	[SuppressMessage("Performance", "CA1822:Mark members as static")]
+	public async ValueTask<DataModelValue> GetContent(IValueEvaluator? contentBodyEvaluator, IObjectEvaluator? contentExpressionEvaluator)
 	{
 		if (contentExpressionEvaluator is not null)
 		{
@@ -118,6 +116,7 @@ public class DataConverter
 		return new DataModelValue(attributes);
 	}
 
+	[SuppressMessage("Performance", "CA1822:Mark members as static")]
 	public async ValueTask<DataModelValue> FromContent(Resource resource)
 	{
 		Infra.Requires(resource);

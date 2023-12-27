@@ -71,30 +71,18 @@ public abstract class RuntimeValue : IValueExpression
 
 	public abstract ValueTask<DataModelValue> Evaluate();
 
-	private sealed class ConstantValue : RuntimeValue
+	private sealed class ConstantValue(DataModelValue value) : RuntimeValue
 	{
-		private readonly DataModelValue _value;
-
-		public ConstantValue(DataModelValue value) => _value = value;
-
-		public override ValueTask<DataModelValue> Evaluate() => new(_value);
+		public override ValueTask<DataModelValue> Evaluate() => new(value);
 	}
 
-	private sealed class EvaluatorSync : RuntimeValue
+	private sealed class EvaluatorSync(Func<DataModelValue> evaluator) : RuntimeValue
 	{
-		private readonly Func<DataModelValue> _evaluator;
-
-		public EvaluatorSync(Func<DataModelValue> evaluator) => _evaluator = evaluator;
-
-		public override ValueTask<DataModelValue> Evaluate() => new(_evaluator());
+		public override ValueTask<DataModelValue> Evaluate() => new(evaluator());
 	}
 
-	private sealed class EvaluatorAsync : RuntimeValue
+	private sealed class EvaluatorAsync(Func<ValueTask<DataModelValue>> evaluator) : RuntimeValue
 	{
-		private readonly Func<ValueTask<DataModelValue>> _evaluator;
-
-		public EvaluatorAsync(Func<ValueTask<DataModelValue>> evaluator) => _evaluator = evaluator;
-
-		public override ValueTask<DataModelValue> Evaluate() => _evaluator();
+		public override ValueTask<DataModelValue> Evaluate() => evaluator();
 	}
 }

@@ -21,12 +21,9 @@ using System.Dynamic;
 
 namespace Xtate.Core;
 
-internal class MetaObject : DynamicMetaObject
+internal class MetaObject(Expression expression, object value, Func<Expression, DynamicMetaObject> metaObjectCreator) : DynamicMetaObject(expression, BindingRestrictions.Empty, value)
 {
-	private readonly DynamicMetaObject _metaObject;
-
-	public MetaObject(Expression expression, object value, Func<Expression, DynamicMetaObject> metaObjectCreator) : base(expression, BindingRestrictions.Empty, value) =>
-		_metaObject = metaObjectCreator(expression);
+	private readonly DynamicMetaObject _metaObject = metaObjectCreator(expression);
 
 	public override DynamicMetaObject BindGetMember(GetMemberBinder binder) => _metaObject.BindGetMember(binder);
 

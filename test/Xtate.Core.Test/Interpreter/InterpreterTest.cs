@@ -35,7 +35,7 @@ public class InterpreterTest
 		var stateMachineEntity = new StateMachineEntity
 								 {
 									 Initial = new EmptyInitialNode(new DocumentIdNode(linkedList), transition),
-									 States = ImmutableArray.Create<IStateEntity>(finalNode)
+									 States = [finalNode]
 								 };
 		var root = new StateMachineNode(new DocumentIdNode(linkedList), stateMachineEntity);
 
@@ -55,16 +55,15 @@ public class InterpreterTest
 		var stateMachineInterpreter = new StateMachineInterpreter
 									  {
 										  ContextFactory = () => new ValueTask<IStateMachineContext>(stateMachineContextMock.Object),
-										  _dataConverter = new DataConverter(dataModelHandlerMock.Object),
-										  _dataModelHandler = dataModelHandlerMock.Object,
-										  _eventQueueReader = eventQueueMock.Object,
-										  _externalCommunication = null,
-										  _logger = loggerMock.Object,
-										  _model = interpreterModelMock.Object,
-										  _notifyStateChanged = null,
-										  _resourceLoader = null!,
-										  _stateMachineLocation = null,
-										  _unhandledErrorBehaviour = null
+										  DataConverter = new DataConverter(dataModelHandlerMock.Object),
+										  DataModelHandler = dataModelHandlerMock.Object,
+										  EventQueueReader = eventQueueMock.Object,
+										  ExternalCommunication = null,
+										  Logger = loggerMock.Object,
+										  Model = interpreterModelMock.Object,
+										  NotifyStateChanged = null,
+										  UnhandledErrorBehaviour = null,
+										  StateMachineArguments = null
 									  };
 
 		// act

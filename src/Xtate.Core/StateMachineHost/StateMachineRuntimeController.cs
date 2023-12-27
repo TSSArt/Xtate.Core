@@ -48,7 +48,6 @@ public class StateMachineRuntimeController : StateMachineControllerBase
 	}
 
 	public StateMachineRuntimeController(IStateMachineStartOptions stateMachineStartOptions,
-										 IStateMachineSessionId sessionId,
 										 IStateMachineOptions? options,
 										 IStateMachine? stateMachine,
 										 IStateMachineLocation? stateMachineLocation,

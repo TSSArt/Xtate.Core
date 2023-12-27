@@ -55,11 +55,9 @@ public abstract class ContentBodyEvaluator : IContentBody, IObjectEvaluator, ISt
 #endregion
 }
 
-public class DefaultContentBodyEvaluator : ContentBodyEvaluator
+public class DefaultContentBodyEvaluator(IContentBody contentBody) : ContentBodyEvaluator(contentBody)
 {
 	private DataModelValue _parsedValue;
-
-	public DefaultContentBodyEvaluator(IContentBody contentBody) : base(contentBody) { }
 
 	public override ValueTask<IObject> EvaluateObject()
 	{

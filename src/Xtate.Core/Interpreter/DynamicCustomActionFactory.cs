@@ -17,7 +17,7 @@
 
 #endregion
 
-namespace Xtate.CustomAction;
+//namespace Xtate.CustomAction;
 
 //TODO: uncomment
 /*

@@ -127,7 +127,7 @@ public abstract class EntityParserBase<TEntity> : IEntityParserProvider, IEntity
 
 #region Interface IEntityParserProvider
 
-	public virtual IEntityParserHandler TryGetEntityParserHandler<T>(T entity) => entity is TEntity ? this : default;
+	public virtual IEntityParserHandler? TryGetEntityParserHandler<T>(T entity) => entity is TEntity ? this : default;
 
 #endregion
 

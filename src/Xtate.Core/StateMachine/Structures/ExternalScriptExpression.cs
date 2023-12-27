@@ -23,9 +23,9 @@ public struct ExternalScriptExpression : IExternalScriptExpression, IVisitorEnti
 {
 	internal object? Ancestor;
 
-#region Interface IAncestorProvider
+	#region Interface IAncestorProvider
 
-	object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
@@ -43,7 +43,7 @@ public struct ExternalScriptExpression : IExternalScriptExpression, IVisitorEnti
 		Uri = source.Uri;
 	}
 
-	bool IVisitorEntity<ExternalScriptExpression, IExternalScriptExpression>.RefEquals(ref ExternalScriptExpression other) => ReferenceEquals(Uri, other.Uri);
+	readonly bool IVisitorEntity<ExternalScriptExpression, IExternalScriptExpression>.RefEquals(ref ExternalScriptExpression other) => ReferenceEquals(Uri, other.Uri);
 
 #endregion
 }

@@ -48,7 +48,6 @@ namespace Xtate.Core
 			services.AddType<FileResourceLoader>();
 			services.AddType<ResxResourceLoader>();
 			services.AddType<WebResourceLoader>();
-			services.AddImplementation<DataModelHandlerBaseEvaluatorFactory>().For<IDataModelHandlerBaseEvaluatorFactory>();
 			services.AddTypeSync<DefaultAssignEvaluator, IAssign>();
 			services.AddTypeSync<DefaultCancelEvaluator, ICancel>();
 			services.AddTypeSync<DefaultContentBodyEvaluator, IContentBody>();
@@ -111,7 +110,7 @@ namespace Xtate.Core
 			services.AddType<ScxmlDirector>();
 
 			//services.AddSharedImplementation<StateMachineContextOptions>(SharedWithin.Scope).For<IStateMachineContextOptions>();
-			services.AddSharedImplementation<ExecutionContextOptions>(SharedWithin.Scope).For<IExecutionContextOptions>();
+			//services.AddSharedImplementation<ExecutionContextOptions>(SharedWithin.Scope).For<IExecutionContextOptions>();
 			services.AddSharedImplementation<StateMachineContext>(SharedWithin.Scope).For<IStateMachineContext>();
 			services.AddImplementation<StateMachineStartOptions>().For<IStateMachineStartOptions>();
 

@@ -23,15 +23,15 @@ public struct InvokeEntity : IInvoke, IVisitorEntity<InvokeEntity, IInvoke>, IAn
 {
 	internal object? Ancestor;
 
-#region Interface IAncestorProvider
+	#region Interface IAncestorProvider
 
-	object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
-#endregion
+	#endregion
 
-#region Interface IDebugEntityId
+	#region Interface IDebugEntityId
 
-	FormattableString IDebugEntityId.EntityId => @$"{Id}";
+	readonly FormattableString IDebugEntityId.EntityId => @$"{Id}";
 
 #endregion
 
@@ -69,7 +69,7 @@ public struct InvokeEntity : IInvoke, IVisitorEntity<InvokeEntity, IInvoke>, IAn
 		AutoForward = source.AutoForward;
 	}
 
-	bool IVisitorEntity<InvokeEntity, IInvoke>.RefEquals(ref InvokeEntity other) =>
+	readonly bool IVisitorEntity<InvokeEntity, IInvoke>.RefEquals(ref InvokeEntity other) =>
 		AutoForward == other.AutoForward &&
 		NameList == other.NameList &&
 		Parameters == other.Parameters &&

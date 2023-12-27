@@ -23,8 +23,6 @@ internal static class AncestorProviderExtensions
 {
 	public static T As<T>(this object entity) where T : notnull
 	{
-		if (entity is null) throw new ArgumentNullException(nameof(entity));
-
 		if (entity.Is<T>(out var result))
 		{
 			return result;
@@ -70,7 +68,7 @@ internal static class AncestorProviderExtensions
 	{
 		if (array.IsDefault)
 		{
-			return emptyArrayIfDefault ? ImmutableArray<TDestination>.Empty : default;
+			return emptyArrayIfDefault ? [] : default;
 		}
 
 		return ImmutableArray.CreateRange(array, item => item is not null ? item.As<TDestination>() : default!);

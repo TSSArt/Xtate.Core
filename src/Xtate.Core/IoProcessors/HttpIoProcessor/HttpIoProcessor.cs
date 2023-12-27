@@ -22,13 +22,11 @@ using System.Net;
 
 namespace Xtate.IoProcessor;
 
-internal sealed class HttpIoProcessor : HttpIoProcessorBase<HttpIoProcessorHost, HttpListenerContext>
+internal sealed class HttpIoProcessor(IEventConsumer eventConsumer, Uri baseUri, IPEndPoint ipEndPoint) : HttpIoProcessorBase<HttpIoProcessorHost, HttpListenerContext>(eventConsumer, baseUri, ipEndPoint, Id, Alias, ErrorSuffix)
 {
 	private const string Id          = @"http://www.w3.org/TR/scxml/#BasicHTTPEventProcessor";
 	private const string Alias       = @"http";
 	private const string ErrorSuffix = @"Internal";
-
-	public HttpIoProcessor(IEventConsumer eventConsumer, Uri baseUri, IPEndPoint ipEndPoint) : base(eventConsumer, baseUri, ipEndPoint, Id, Alias, ErrorSuffix) { }
 
 	protected override HttpIoProcessorHost CreateHost(IPEndPoint ipEndPoint) => new(ipEndPoint);
 

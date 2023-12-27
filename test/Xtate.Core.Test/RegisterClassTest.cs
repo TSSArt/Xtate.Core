@@ -61,7 +61,7 @@ public class RegisterClassTest
 
 		// Act
 
-		IExecutableEntity ifEntity = new IfEntity { Action = ImmutableArray.Create<IExecutableEntity>(new LogEntity()), Condition = new ConditionExpression { Expression = "In(SomeState)" } };
+		IExecutableEntity ifEntity = new IfEntity { Action = [new LogEntity()], Condition = new ConditionExpression { Expression = "In(SomeState)" } };
 
 		dataModelHandler.Process(ref ifEntity);
 
@@ -86,7 +86,7 @@ public class RegisterClassTest
 
 		// Act
 
-		IExecutableEntity ifEntity = new IfEntity { Action = ImmutableArray.Create<IExecutableEntity>(new LogEntity()), Condition = RuntimePredicate.GetPredicate(() => !Runtime.InState("4")) };
+		IExecutableEntity ifEntity = new IfEntity { Action = [new LogEntity()], Condition = RuntimePredicate.GetPredicate(() => !Runtime.InState("4")) };
 
 		dataModelHandler.Process(ref ifEntity);
 
@@ -115,7 +115,7 @@ public class RegisterClassTest
 
 		// Act
 
-		IExecutableEntity ifEntity = new IfEntity { Action = ImmutableArray.Create<IExecutableEntity>(new LogEntity()), Condition = new ConditionExpression { Expression = "In('st') = false()" } };
+		IExecutableEntity ifEntity = new IfEntity { Action = [new LogEntity()], Condition = new ConditionExpression { Expression = "In('st') = false()" } };
 
 		dataModelHandler.Process(ref ifEntity);
 
@@ -258,7 +258,7 @@ public class RegisterClassTest
 		var services = new ServiceCollection();
 		services.RegisterScxml();
 		services.AddImplementation<DefaultIoBoundTask>().For<IIoBoundTask>();
-		services.AddForwarding<IXIncludeOptions>(sp => new XIncludeOptions());
+		services.AddForwarding<IXIncludeOptions>(_ => new XIncludeOptions());
 		var provider = services.BuildProvider();
 
 		var uri = new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Scxml/XInclude/SingleIncludeSource.scxml");
@@ -341,7 +341,7 @@ public class RegisterClassTest
 
 		var services = new ServiceCollection();
 		services.RegisterDataModelHandlers();
-		services.AddForwarding<IStateMachine>(sp => new StateMachineEntity { DataModelType = "xpath" });
+		services.AddForwarding<IStateMachine>(_ => new StateMachineEntity { DataModelType = "xpath" });
 		services.AddSharedImplementationSync<TypeInfoBase, Type>(SharedWithin.Container).For<ITypeInfo>();
 		var provider = services.BuildProvider();
 

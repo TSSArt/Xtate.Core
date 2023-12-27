@@ -72,28 +72,6 @@ public interface ILogEntityParser<in TEntity>
 	IEnumerable<(string Name, object Value)> EnumerateProperties(TEntity entity);
 }
 
-public interface ILogSource<T>
-{
-	IEnumerable<(string Name, object Value)> EnumerateProperties();
-}
-
-public interface ILogProperties
-{
-	IEnumerable<(string Name, object Value)> EnumerateProperties();
-}
-
-public readonly struct RawString
-{
-	public readonly string Value;
-
-	public RawString(string value) => Value = value;
-
-	public static implicit operator RawString(string val) => new(val);
-
-	[Obsolete(message: "Method has been added to prevent 'Ambiguous invocation' compiler error", error: true)]
-	public static implicit operator RawString(FormattableString formattable) => Infra.Fail<RawString>();
-}
-
 public readonly struct LoggingParameter
 {
 	public LoggingParameter(string name, object? value)
@@ -155,6 +133,8 @@ public readonly struct LoggingInterpolatedStringHandler
 
 	public void AppendLiteral(string value) => _stringBuilder!.Append(value);
 
+	[SuppressMessage("Style", "IDE0038:Use pattern matching", Justification = "Avoid boxing if T is struct")]
+	[SuppressMessage("ReSharper", "MergeCastWithTypeCheck", Justification = "Avoid boxing if T is struct")]
 	private string? ToStringFormatted<T>(T value, string? format)
 	{
 		if (_provider is not null && _provider.GetType() != typeof(CultureInfo) && _provider.GetFormat(typeof(ICustomFormatter)) is ICustomFormatter customFormatter)
@@ -218,7 +198,7 @@ public interface ILogger
 	bool IsEnabled(Level level);
 }
 
-public interface ILogger<TSource> : ILogger
+public interface ILogger<[UsedImplicitly] TSource> : ILogger
 {
 	ValueTask Write(Level level, string? message);
 
@@ -269,14 +249,11 @@ public class TraceLogWriter : ILogWriter
 #endregion
 }
 
-public class FileLogWriter : ILogWriter
+public class FileLogWriter(string file) : ILogWriter
 {
-	private readonly string _file;
-	private readonly object _lock = new object();
+	private readonly object _lock = new ();
 
-	public FileLogWriter(string file) => _file = file;
-
-#region Interface ILogWriter
+	#region Interface ILogWriter
 
 	public virtual bool IsEnabled(Level level) => true;
 
@@ -288,15 +265,15 @@ public class FileLogWriter : ILogWriter
 		lock (_lock)
 		{
 			File.AppendAllText(
-				_file, string.IsNullOrWhiteSpace(message)
-					? $"[{DateTime.Now:u}] [{source}] {level}\r\n"
-					: $"[{DateTime.Now:u}] [{source}] {level}: {message}\r\n");
+				file, string.IsNullOrWhiteSpace(message)
+					? @$"[{DateTime.Now:u}] [{source}] {level}\r\n"
+					: @$"[{DateTime.Now:u}] [{source}] {level}: {message}\r\n");
 
 			if (parameters is not null)
 			{
 				foreach (var parameter in parameters)
 				{
-					File.AppendAllText(_file, $"[{DateTime.Now:u}] [{source}] {parameter.Name}: {parameter.Value}\r\n");
+					File.AppendAllText(file, @$"[{DateTime.Now:u}] [{source}] {parameter.Name}: {parameter.Value}\r\n");
 				}
 			}
 
@@ -335,7 +312,7 @@ public class Logger<TSource> : ILogger<TSource>
 		return default;
 	}
 
-	public virtual ValueTask Write(Level level, LoggingInterpolatedStringHandler formattedMessage)
+	public virtual ValueTask Write(Level level, [InterpolatedStringHandlerArgument("", "level")] LoggingInterpolatedStringHandler formattedMessage)
 	{
 		if (IsEnabled(level))
 		{
@@ -357,7 +334,7 @@ public class Logger<TSource> : ILogger<TSource>
 		return default;
 	}
 
-	public virtual ValueTask Write<TEntity>(Level level, LoggingInterpolatedStringHandler formattedMessage, TEntity entity)
+	public virtual ValueTask Write<TEntity>(Level level, [InterpolatedStringHandlerArgument("", "level")] LoggingInterpolatedStringHandler formattedMessage, TEntity entity)
 	{
 		if (IsEnabled(level))
 		{
@@ -372,23 +349,6 @@ public class Logger<TSource> : ILogger<TSource>
 
 #endregion
 }
-
-public interface ITmpEntityLogger<in TEntity>
-{
-	bool IsEnabled(Level level);
-
-	ValueTask Write(Level level,
-					RawString message,
-					TEntity entity,
-					Exception? exception = default);
-
-	ValueTask Write(Level level,
-					FormattableString message,
-					TEntity entity,
-					Exception? exception = default);
-}
-
-public interface ITmpEntityLogger<TSource, in TEntity> : ITmpEntityLogger<TEntity>;
 
 public class StateMachineInterpreterTracerParser : ILogEntityParser<SendId>, ILogEntityParser<InvokeId>, ILogEntityParser<InvokeData>, ILogEntityParser<IOutgoingEvent>, ILogEntityParser<IEvent>,
 												   ILogEntityParser<IStateEntity>, ILogEntityParser<StateMachineInterpreterState>

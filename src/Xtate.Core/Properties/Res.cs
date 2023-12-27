@@ -19,7 +19,6 @@
 
 namespace Xtate;
 
-
 [ExcludeFromCodeCoverage]
 internal static class Res
 {

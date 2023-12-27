@@ -69,7 +69,7 @@ public class FinalFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 
 	private FinalFluentBuilder<TOuterBuilder> AddOnEntry(IExecutableEntity action)
 	{
-		Builder.AddOnEntry(new OnEntryEntity { Action = ImmutableArray.Create(action) });
+		Builder.AddOnEntry(new OnEntryEntity { Action = [action] });
 
 		return this;
 	}
@@ -80,7 +80,7 @@ public class FinalFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 
 	private FinalFluentBuilder<TOuterBuilder> AddOnExit(IExecutableEntity action)
 	{
-		Builder.AddOnExit(new OnExitEntity { Action = ImmutableArray.Create(action) });
+		Builder.AddOnExit(new OnExitEntity { Action = [action] });
 
 		return this;
 	}

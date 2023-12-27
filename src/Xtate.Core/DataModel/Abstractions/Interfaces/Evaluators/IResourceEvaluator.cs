@@ -22,5 +22,5 @@ namespace Xtate.DataModel;
 
 public interface IResourceEvaluator : IValueEvaluator
 {
-	ValueTask<IObject> EvaluateObject(Resource resource);
+	ValueTask<IObject> EvaluateObject();
 }

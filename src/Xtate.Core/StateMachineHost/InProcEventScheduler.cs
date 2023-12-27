@@ -29,20 +29,11 @@ public interface IEventSchedulerLogger
 	ValueTask LogError(string message, Exception exception, IHostEvent scheduledEvent);
 }
 
-internal class InProcEventScheduler : IEventScheduler
+internal class InProcEventScheduler(IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger logger) : IEventScheduler
 {
-	private readonly IHostEventDispatcher  _hostEventDispatcher;
-	private readonly IEventSchedulerLogger _logger;
-
 	private readonly ConcurrentDictionary<(ServiceId, SendId), object> _scheduledEvents = new();
 
-	public InProcEventScheduler(IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger logger)
-	{
-		_hostEventDispatcher = hostEventDispatcher;
-		_logger = logger;
-	}
-
-#region Interface IEventScheduler
+	#region Interface IEventScheduler
 
 	public async ValueTask ScheduleEvent(IHostEvent hostEvent, CancellationToken token)
 	{
@@ -90,7 +81,7 @@ internal class InProcEventScheduler : IEventScheduler
 		{
 			if (prev is not ImmutableHashSet<ScheduledEvent> set)
 			{
-				set = ImmutableHashSet.Create((ScheduledEvent) prev);
+				set = ImmutableHashSet<ScheduledEvent>.Empty.Add((ScheduledEvent) prev);
 			}
 
 			return set.Add(arg);
@@ -107,14 +98,14 @@ internal class InProcEventScheduler : IEventScheduler
 
 			try
 			{
-				await _hostEventDispatcher.DispatchEvent(scheduledEvent, token: default).ConfigureAwait(false);
+				await hostEventDispatcher.DispatchEvent(scheduledEvent, token: default).ConfigureAwait(false);
 			}
 			catch (Exception ex)
 			{
-				if (_logger.IsEnabled)
+				if (logger.IsEnabled)
 				{
 					var message = Res.Format(Resources.Exception_ErrorOnDispatchingEvent, scheduledEvent.SendId?.Value);
-					await _logger.LogError(message, ex, scheduledEvent).ConfigureAwait(false);
+					await logger.LogError(message, ex, scheduledEvent).ConfigureAwait(false);
 				}
 			}
 		}
@@ -161,15 +152,12 @@ internal class InProcEventScheduler : IEventScheduler
 		}
 	}
 
-	private class LoggerContext : IEventSchedulerLoggerContext
+	private class LoggerContext(ScheduledEvent scheduledEvent) : IEventSchedulerLoggerContext
 	{
-		private readonly ScheduledEvent _scheduledEvent;
 
-		public LoggerContext(ScheduledEvent scheduledEvent) => _scheduledEvent = scheduledEvent;
+		#region Interface IEventSchedulerLoggerContext
 
-#region Interface IEventSchedulerLoggerContext
-
-		public SessionId? SessionId => _scheduledEvent.SenderServiceId as SessionId;
+		public SessionId? SessionId => scheduledEvent.SenderServiceId as SessionId;
 
 #endregion
 
@@ -177,7 +165,7 @@ internal class InProcEventScheduler : IEventScheduler
 
 		public DataModelList GetProperties()
 		{
-			if (_scheduledEvent.SenderServiceId is SessionId sessionId)
+			if (scheduledEvent.SenderServiceId is SessionId sessionId)
 			{
 				var properties = new DataModelList { { @"SessionId", sessionId } };
 				properties.MakeDeepConstant();

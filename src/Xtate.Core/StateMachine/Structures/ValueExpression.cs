@@ -23,9 +23,9 @@ public struct ValueExpression : IValueExpression, IVisitorEntity<ValueExpression
 {
 	internal object? Ancestor;
 
-#region Interface IAncestorProvider
+	#region Interface IAncestorProvider
 
-	object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
@@ -43,7 +43,7 @@ public struct ValueExpression : IValueExpression, IVisitorEntity<ValueExpression
 		Expression = source.Expression;
 	}
 
-	bool IVisitorEntity<ValueExpression, IValueExpression>.RefEquals(ref ValueExpression other) => ReferenceEquals(Expression, other.Expression);
+	readonly bool IVisitorEntity<ValueExpression, IValueExpression>.RefEquals(ref ValueExpression other) => ReferenceEquals(Expression, other.Expression);
 
 #endregion
 }

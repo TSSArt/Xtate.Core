@@ -18,19 +18,17 @@
 #endregion
 
 using System.Collections.Concurrent;
-using System.IO;
 using System.Xml;
 using Xtate.Builder;
 using Xtate.IoC;
-using Xtate.Scxml;
 using Xtate.Service;
 
 namespace Xtate.Core;
 
 public interface IStateMachineHostContext
 {
-	void      AddStateMachineController(IStateMachineController controller);
-	ValueTask RemoveStateMachineController(IStateMachineController controller);
+	void AddStateMachineController(IStateMachineController controller);
+	void RemoveStateMachineController(IStateMachineController controller);
 }
 
 
@@ -66,7 +64,7 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 
 		if (options.Configuration is { Count : > 0 } configuration)
 		{
-			_configuration = new DataModelList();
+			_configuration = [];
 
 			foreach (var pair in configuration)
 			{
@@ -100,14 +98,12 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 		Infra.Assert(result);
 	}
 
-	public virtual ValueTask RemoveStateMachineController(IStateMachineController stateMachineController)
+	public virtual void RemoveStateMachineController(IStateMachineController stateMachineController)
 	{
 		var result = _stateMachineBySessionId.TryRemove(stateMachineController.SessionId, out var controller);
 
 		Infra.Assert(result);
 		Infra.NotNull(controller);
-
-		return stateMachineController.DisposeAsync();
 	}
 
 #endregion
@@ -129,8 +125,6 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 
 	public ValueTask ScheduleEvent(IHostEvent hostEvent, CancellationToken token)
 	{
-		if (hostEvent is null) throw new ArgumentNullException(nameof(hostEvent));
-
 		Infra.NotNull(_eventScheduler);
 
 		return _eventScheduler.ScheduleEvent(hostEvent, token);
@@ -138,9 +132,6 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 
 	public ValueTask CancelEvent(SessionId sessionId, SendId sendId, CancellationToken token)
 	{
-		if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
-		if (sendId is null) throw new ArgumentNullException(nameof(sendId));
-
 		Infra.NotNull(_eventScheduler);
 
 		return _eventScheduler.CancelEvent(sessionId, sendId, token);
@@ -181,7 +172,7 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 			sessionId, stateMachineOptions, stateMachine, stateMachineLocation, _stateMachineHost,
 			_options.SuspendIdlePeriod, defaultOptions)
 		{
-			_stateMachineInterpreterFactory = default, sd = default, EventQueueWriter = default
+			_stateMachineInterpreterFactory = default!, EventQueueWriter = default!
 		};
 
 	private static XmlReaderSettings GetXmlReaderSettings(XmlNameTable nameTable, ScxmlXmlResolver xmlResolver) =>
@@ -316,15 +307,11 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 
 	public virtual ValueTask<IStateMachineController?> FindStateMachineController(SessionId sessionId, CancellationToken token)
 	{
-		if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
-
 		return _stateMachineBySessionId.TryGetValue(sessionId, out var controller) ? new ValueTask<IStateMachineController?>(controller) : default;
 	}
 
 	public void ValidateSessionId(SessionId sessionId, out IStateMachineController controller)
 	{
-		if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
-
 		var result = _stateMachineBySessionId.TryGetValue(sessionId, out var stateMachineController);
 
 		Infra.Assert(result);
@@ -445,22 +432,16 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 
 	public void Suspend() => _suspendTokenSource.Cancel();
 
-	private class LoadStateMachineLoggerContext : ILoadStateMachineLoggerContext
+	private class LoadStateMachineLoggerContext(Uri? uri, string? scxml) : ILoadStateMachineLoggerContext
 	{
-		public LoadStateMachineLoggerContext(Uri? uri, string? scxml)
-		{
-			Uri = uri;
-			Scxml = scxml;
-		}
+		#region Interface ILoadStateMachineLoggerContext
 
-#region Interface ILoadStateMachineLoggerContext
+		public Uri? Uri { get; } = uri;
+		public string? Scxml { get; } = scxml;
 
-		public Uri?    Uri   { get; }
-		public string? Scxml { get; }
+		#endregion
 
-#endregion
-
-#region Interface ILoggerContext
+		#region Interface ILoggerContext
 
 		public DataModelList GetProperties()
 		{

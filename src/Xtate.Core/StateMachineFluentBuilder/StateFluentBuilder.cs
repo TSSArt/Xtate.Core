@@ -72,7 +72,7 @@ public class StateFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 	{
 		Infra.RequiresNonEmptyCollection(initial);
 
-		Builder.SetInitial(initial.ToImmutableArray());
+		Builder.SetInitial([.. initial]);
 
 		return this;
 	}
@@ -97,7 +97,7 @@ public class StateFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 
 	private StateFluentBuilder<TOuterBuilder> AddOnEntry(IExecutableEntity action)
 	{
-		Builder.AddOnEntry(new OnEntryEntity { Action = ImmutableArray.Create(action) });
+		Builder.AddOnEntry(new OnEntryEntity { Action = [action] });
 
 		return this;
 	}
@@ -108,7 +108,7 @@ public class StateFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 
 	private StateFluentBuilder<TOuterBuilder> AddOnExit(IExecutableEntity action)
 	{
-		Builder.AddOnExit(new OnExitEntity { Action = ImmutableArray.Create(action) });
+		Builder.AddOnExit(new OnExitEntity { Action = [action] });
 
 		return this;
 	}

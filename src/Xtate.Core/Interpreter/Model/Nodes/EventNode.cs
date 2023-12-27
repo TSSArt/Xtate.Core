@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2023 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,32 +15,26 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using Xtate.Persistence;
 
 namespace Xtate.Core;
 
-public sealed class EventNode : IOutgoingEvent, IStoreSupport, IAncestorProvider
+public sealed class EventNode(IOutgoingEvent outgoingEvent) : IOutgoingEvent, IStoreSupport, IAncestorProvider
 {
-	private readonly IOutgoingEvent _outgoingEvent;
-
-	public EventNode(IOutgoingEvent outgoingEvent) => _outgoingEvent = outgoingEvent;
-
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => _outgoingEvent;
+	object IAncestorProvider.Ancestor => outgoingEvent;
 
 #endregion
 
 #region Interface IOutgoingEvent
 
-	public ImmutableArray<IIdentifier> NameParts => _outgoingEvent.NameParts;
-	public SendId?                     SendId    => _outgoingEvent.SendId;
-	public DataModelValue              Data      => _outgoingEvent.Data;
-	public Uri?                        Target    => _outgoingEvent.Target;
-	public Uri?                        Type      => _outgoingEvent.Type;
-	public int                         DelayMs   => _outgoingEvent.DelayMs;
+	public ImmutableArray<IIdentifier> NameParts => outgoingEvent.NameParts;
+	public SendId?                     SendId    => outgoingEvent.SendId;
+	public DataModelValue              Data      => outgoingEvent.Data;
+	public Uri?                        Target    => outgoingEvent.Target;
+	public Uri?                        Type      => outgoingEvent.Type;
+	public int                         DelayMs   => outgoingEvent.DelayMs;
 
 #endregion
 
@@ -48,7 +42,7 @@ public sealed class EventNode : IOutgoingEvent, IStoreSupport, IAncestorProvider
 
 	void IStoreSupport.Store(Bucket bucket)
 	{
-		bucket.Add(Key.Id, EventName.ToName(_outgoingEvent.NameParts));
+		bucket.Add(Key.Id, EventName.ToName(outgoingEvent.NameParts));
 	}
 
 #endregion

@@ -23,15 +23,15 @@ public struct FinalEntity : IFinal, IVisitorEntity<FinalEntity, IFinal>, IAncest
 {
 	internal object? Ancestor;
 
-#region Interface IAncestorProvider
+	#region Interface IAncestorProvider
 
-	object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
-#endregion
+	#endregion
 
 #region Interface IDebugEntityId
 
-	FormattableString IDebugEntityId.EntityId => @$"{Id}";
+	readonly FormattableString IDebugEntityId.EntityId => @$"{Id}";
 
 #endregion
 
@@ -60,7 +60,7 @@ public struct FinalEntity : IFinal, IVisitorEntity<FinalEntity, IFinal>, IAncest
 		DoneData = source.DoneData;
 	}
 
-	bool IVisitorEntity<FinalEntity, IFinal>.RefEquals(ref FinalEntity other) =>
+	readonly bool IVisitorEntity<FinalEntity, IFinal>.RefEquals(ref FinalEntity other) =>
 		OnExit == other.OnExit &&
 		OnEntry == other.OnEntry &&
 		ReferenceEquals(Id, other.Id) &&

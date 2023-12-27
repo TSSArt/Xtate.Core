@@ -17,28 +17,17 @@
 
 #endregion
 
-using System.Threading.Channels;
-
 namespace Xtate.Core;
 
-public class StateMachineInterpreterOptions : IStateMachineInterpreterOptions
+public class StateMachineInterpreterOptions(IStateMachineStartOptions stateMachineStartOptions) : IStateMachineInterpreterOptions
 {
-	//private readonly IInterpreterModel  _interpreterModel;
 
-	public StateMachineInterpreterOptions(IStateMachineStartOptions stateMachineStartOptions)
-	{
-		//_interpreterModel = interpreterModel;
-		SessionId = stateMachineStartOptions.SessionId;
-		options = new InterpreterOptions();
-	}
+	#region Interface IStateMachineInterpreterOptions
 
-#region Interface IStateMachineInterpreterOptions
+	public SessionId SessionId { get; } = stateMachineStartOptions.SessionId;
+	public InterpreterOptions options { get; } = new InterpreterOptions();
 
-	public SessionId             SessionId    { get; }
-	public ChannelReader<IEvent> eventChannel { get; }
-	public InterpreterOptions    options      { get; }
-
-#endregion
+	#endregion
 
 	//public IInterpreterModel     model        => _interpreterModel;
 }

@@ -21,22 +21,14 @@ using System.Net;
 
 namespace Xtate.IoProcessor;
 
-public sealed class HttpIoProcessorFactory : IIoProcessorFactory
+public sealed class HttpIoProcessorFactory(Uri baseUri, IPEndPoint ipEndPoint) : IIoProcessorFactory
 {
-	private readonly Uri        _baseUri;
-	private readonly IPEndPoint _ipEndPoint;
 
-	public HttpIoProcessorFactory(Uri baseUri, IPEndPoint ipEndPoint)
-	{
-		_baseUri = baseUri;
-		_ipEndPoint = ipEndPoint;
-	}
-
-#region Interface IIoProcessorFactory
+	#region Interface IIoProcessorFactory
 
 	public async ValueTask<IIoProcessor> Create(IEventConsumer eventConsumer, CancellationToken token)
 	{
-		var httpIoProcessor = new HttpIoProcessor(eventConsumer, _baseUri, _ipEndPoint);
+		var httpIoProcessor = new HttpIoProcessor(eventConsumer, baseUri, ipEndPoint);
 
 		await httpIoProcessor.Start(token).ConfigureAwait(false);
 

@@ -36,19 +36,9 @@ public static class XmlWriterExtensions
 		return default;
 	}
 
-	public readonly struct ConfiguredAwaitable
+	public readonly struct ConfiguredAwaitable(XmlWriter xmlWriter, bool continueOnCapturedContext)
 	{
-		private readonly bool _continueOnCapturedContext;
-
-		private readonly XmlWriter _xmlWriter;
-
-		public ConfiguredAwaitable(XmlWriter xmlWriter, bool continueOnCapturedContext)
-		{
-			_xmlWriter = xmlWriter;
-			_continueOnCapturedContext = continueOnCapturedContext;
-		}
-
-		public ConfiguredValueTaskAwaitable DisposeAsync() => _xmlWriter.DisposeAsync().ConfigureAwait(_continueOnCapturedContext);
+		public ConfiguredValueTaskAwaitable DisposeAsync() => xmlWriter.DisposeAsync().ConfigureAwait(continueOnCapturedContext);
 	}
 }
 #endif

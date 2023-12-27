@@ -31,12 +31,12 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 	private readonly Uri?      _baseUri;
 	private readonly TimeSpan? _idlePeriod;
 
-	private readonly Dictionary<(SessionId SessionId, InvokeId InvokeId), InvokedServiceMeta> _invokedServices = new();
+	private readonly Dictionary<(SessionId SessionId, InvokeId InvokeId), InvokedServiceMeta> _invokedServices = [];
 
 	private readonly SemaphoreSlim                           _lockInvokedServices = new(initialCount: 1, maxCount: 1);
 	private readonly SemaphoreSlim                           _lockStateMachines   = new(initialCount: 1, maxCount: 1);
 	private readonly IStateMachineHost                       _stateMachineHost;
-	private readonly Dictionary<SessionId, StateMachineMeta> _stateMachines = new();
+	private readonly Dictionary<SessionId, StateMachineMeta> _stateMachines = [];
 	private readonly IStorageProvider                        _storageProvider;
 	private          bool                                    _disposed;
 	private          int                                     _invokedServiceRecordId;
@@ -191,7 +191,7 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 				  sessionId, stateMachineOptions, stateMachine, stateMachineLocation, _stateMachineHost,
 				  _storageProvider, _idlePeriod, defaultOptions)
 			  {
-				  _stateMachineInterpreterFactory = default!, sd = default!, EventQueueWriter = default!
+				  _stateMachineInterpreterFactory = default!, EventQueueWriter = default!
 			  }
 			: base.CreateStateMachineController(sessionId, stateMachine, stateMachineOptions, stateMachineLocation, defaultOptions);
 
@@ -241,8 +241,10 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 		}
 	}
 
-	public override async ValueTask RemoveStateMachineController(IStateMachineController stateMachineController)
+	public override async void RemoveStateMachineController(IStateMachineController stateMachineController)
 	{
+		//TODO:uncomment
+		/*
 		Infra.NotNull(_storage);
 
 		var sessionId = stateMachineController.SessionId;
@@ -258,7 +260,7 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 				bucket.RemoveSubtree(recordId);
 
 				//TODO:
-				await _storage.CheckPoint(level: 0 /*, StopToken*/).ConfigureAwait(false);
+				await _storage.CheckPoint(level: 0).ConfigureAwait(false);
 			}
 
 			await ShrinkStateMachines().ConfigureAwait(false);
@@ -268,7 +270,7 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 		finally
 		{
 			_lockStateMachines.Release();
-		}
+		}*/
 	}
 
 	private async ValueTask ShrinkStateMachines()
@@ -330,7 +332,8 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 					var controller = AddSavedStateMachine( meta.SessionId, meta.Location, meta, securityContext, finalizer, errorProcessor: default /*TODO*/);
 					AddStateMachineController(controller);
 
-					finalizer.Add(static (ctx, ctrl) => ((StateMachineHostContext) ctx).RemoveStateMachineController((StateMachineControllerBase) ctrl), this, controller);
+					//TODO:
+					//finalizer.Add(static (ctx, ctrl) => ((StateMachineHostContext) ctx).RemoveStateMachineController((StateMachineControllerBase) ctrl), this, controller);
 					finalizer.Add(controller);
 
 					meta.Controller = controller;

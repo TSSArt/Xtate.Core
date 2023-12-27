@@ -23,27 +23,18 @@ using System.Text;
 namespace Xtate;
 
 
-public sealed class ErrorItem
-{
-	public ErrorItem(Type source,
+public sealed class ErrorItem(Type source,
 					 string message,
 					 Exception? exception,
 					 int lineNumber = 0,
 					 int linePosition = 0)
-	{
-		Source = source;
-		Message = message;
-		Exception = exception;
-		LineNumber = lineNumber;
-		LinePosition = linePosition;
-	}
-
+{
 	public ErrorSeverity Severity     { get; } = ErrorSeverity.Error;
-	public Type          Source       { get; }
-	public string        Message      { get; }
-	public Exception?    Exception    { get; }
-	public int           LineNumber   { get; }
-	public int           LinePosition { get; }
+	public Type Source { get; } = source;
+	public string Message { get; } = message;
+	public Exception? Exception { get; } = exception;
+	public int LineNumber { get; } = lineNumber;
+	public int LinePosition { get; } = linePosition;
 
 	public override string ToString()
 	{

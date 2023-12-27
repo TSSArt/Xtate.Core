@@ -31,7 +31,7 @@ public partial class DataModelList : IDynamicMetaObjectProvider
 
 #endregion
 
-	internal class Dynamic : DynamicObject
+	internal class Dynamic(DataModelList list) : DynamicObject
 	{
 		private const string GetLength   = @"GetLength";
 		private const string GetMetadata = @"GetMetadata";
@@ -42,10 +42,6 @@ public partial class DataModelList : IDynamicMetaObjectProvider
 
 		private static readonly ConstructorInfo ConstructorInfo = typeof(Dynamic).GetConstructor(new[] { typeof(DataModelList) })!;
 
-		private readonly DataModelList _list;
-
-		public Dynamic(DataModelList list) => _list = list;
-
 		public static DynamicMetaObject CreateMetaObject(Expression expression)
 		{
 			var newExpression = Expression.New(ConstructorInfo, Expression.Convert(expression, typeof(DataModelList)));
@@ -54,14 +50,14 @@ public partial class DataModelList : IDynamicMetaObjectProvider
 
 		public override bool TryGetMember(GetMemberBinder binder, out object? result)
 		{
-			result = _list[binder.Name, binder.IgnoreCase].ToObject();
+			result = list[binder.Name, binder.IgnoreCase].ToObject();
 
 			return true;
 		}
 
 		public override bool TrySetMember(SetMemberBinder binder, object? value)
 		{
-			_list[binder.Name, binder.IgnoreCase] = DataModelValue.FromObject(value);
+			list[binder.Name, binder.IgnoreCase] = DataModelValue.FromObject(value);
 
 			return true;
 		}
@@ -72,14 +68,14 @@ public partial class DataModelList : IDynamicMetaObjectProvider
 			{
 				if (IsName(GetLength))
 				{
-					result = _list._count;
+					result = list._count;
 
 					return true;
 				}
 
 				if (IsName(GetMetadata))
 				{
-					result = _list.GetMetadata();
+					result = list.GetMetadata();
 
 					return true;
 				}
@@ -88,7 +84,7 @@ public partial class DataModelList : IDynamicMetaObjectProvider
 			{
 				if (IsName(GetMetadata))
 				{
-					result = _list.TryGet(strArg, binder.IgnoreCase, out var entry) ? entry.Metadata : null;
+					result = list.TryGet(strArg, binder.IgnoreCase, out var entry) ? entry.Metadata : null;
 
 					return true;
 				}
@@ -97,14 +93,14 @@ public partial class DataModelList : IDynamicMetaObjectProvider
 			{
 				if (IsName(GetMetadata))
 				{
-					result = _list.TryGet(cnvArg.ToInt32(CultureInfo.InvariantCulture), out var entry) ? entry.Metadata : null;
+					result = list.TryGet(cnvArg.ToInt32(CultureInfo.InvariantCulture), out var entry) ? entry.Metadata : null;
 
 					return true;
 				}
 
 				if (IsName(SetLength))
 				{
-					_list.SetLength(cnvArg.ToInt32(CultureInfo.InvariantCulture));
+					list.SetLength(cnvArg.ToInt32(CultureInfo.InvariantCulture));
 
 					result = default;
 
@@ -115,13 +111,13 @@ public partial class DataModelList : IDynamicMetaObjectProvider
 			{
 				if (IsName(SetMetadata))
 				{
-					if (_list.TryGet(str1Arg, binder.IgnoreCase, out var entry))
+					if (list.TryGet(str1Arg, binder.IgnoreCase, out var entry))
 					{
-						_list.Set(entry.Index, entry.Key, entry.Value, (DataModelList?) args[1]);
+						list.Set(entry.Index, entry.Key, entry.Value, (DataModelList?) args[1]);
 					}
 					else
 					{
-						_list.Add(str1Arg, value: default, (DataModelList?) args[1]);
+						list.Add(str1Arg, value: default, (DataModelList?) args[1]);
 					}
 
 					result = default;
@@ -134,13 +130,13 @@ public partial class DataModelList : IDynamicMetaObjectProvider
 				if (IsName(SetMetadata))
 				{
 					var index = cnv1Arg.ToInt32(CultureInfo.InvariantCulture);
-					if (_list.TryGet(index, out var entry))
+					if (list.TryGet(index, out var entry))
 					{
-						_list.Set(entry.Index, entry.Key, entry.Value, (DataModelList?) args[1]);
+						list.Set(entry.Index, entry.Key, entry.Value, (DataModelList?) args[1]);
 					}
 					else
 					{
-						_list.Set(entry.Index, key: default, value: default, (DataModelList?) args[1]);
+						list.Set(entry.Index, key: default, value: default, (DataModelList?) args[1]);
 					}
 
 					result = default;
@@ -163,12 +159,12 @@ public partial class DataModelList : IDynamicMetaObjectProvider
 			switch (arg)
 			{
 				case string key:
-					result = _list[key].ToObject();
+					result = list[key].ToObject();
 
 					return true;
 
 				case IConvertible convertible:
-					result = _list[convertible.ToInt32(NumberFormatInfo.InvariantInfo)].ToObject();
+					result = list[convertible.ToInt32(NumberFormatInfo.InvariantInfo)].ToObject();
 
 					return true;
 
@@ -186,12 +182,12 @@ public partial class DataModelList : IDynamicMetaObjectProvider
 			switch (arg)
 			{
 				case string key:
-					_list[key] = DataModelValue.FromObject(value);
+					list[key] = DataModelValue.FromObject(value);
 
 					return true;
 
 				case IConvertible convertible:
-					_list[convertible.ToInt32(NumberFormatInfo.InvariantInfo)] = DataModelValue.FromObject(value);
+					list[convertible.ToInt32(NumberFormatInfo.InvariantInfo)] = DataModelValue.FromObject(value);
 
 					return true;
 
@@ -204,14 +200,14 @@ public partial class DataModelList : IDynamicMetaObjectProvider
 		{
 			if (binder.Type == typeof(DataModelList))
 			{
-				result = _list;
+				result = list;
 
 				return true;
 			}
 
 			if (binder.Type == typeof(DataModelValue))
 			{
-				result = new DataModelValue(_list);
+				result = new DataModelValue(list);
 
 				return true;
 			}

@@ -17,20 +17,17 @@
 
 #endregion
 
-using IServiceProvider = Xtate.IoC.IServiceProvider;
-
 namespace Xtate.Core;
 
 public class SourceStateMachineProvider : IStateMachineProvider
 {
 	public required Func<ValueTask<ScxmlLocationStateMachineGetter>> ScxmlLocationStateMachineGetter { private get; [UsedImplicitly] init; }
 	public required IStateMachineLocation?                           StateMachineLocation            { private get; [UsedImplicitly] init; }
-	public required IServiceProvider                                 sdf                             { private get; [UsedImplicitly] init; } //TODO:delete
 
 #region Interface IStateMachineProvider
 
 	public async ValueTask<IStateMachine?> TryGetStateMachine() =>
-		StateMachineLocation is { Location: { } }
+		StateMachineLocation is { }
 			? await (await ScxmlLocationStateMachineGetter().ConfigureAwait(false)).GetStateMachine().ConfigureAwait(false)
 			: default;
 

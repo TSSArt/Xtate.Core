@@ -178,8 +178,6 @@ public abstract class HttpIoProcessorBase<THost, TContext> : IoProcessorBase, ID
 
 	protected override IHostEvent CreateHostEvent(ServiceId senderServiceId, IOutgoingEvent outgoingEvent)
 	{
-		if (outgoingEvent is null) throw new ArgumentNullException(nameof(outgoingEvent));
-
 		if (outgoingEvent.Target is null)
 		{
 			throw new ArgumentException(Resources.Exception_TargetIsNotDefined, nameof(outgoingEvent));
@@ -190,8 +188,6 @@ public abstract class HttpIoProcessorBase<THost, TContext> : IoProcessorBase, ID
 
 	protected override async ValueTask OutgoingEvent(IHostEvent hostEvent, CancellationToken token)
 	{
-		if (hostEvent is null) throw new ArgumentNullException(nameof(hostEvent));
-
 		var targetUri = hostEvent.TargetServiceId?.Value;
 		Infra.NotNull(targetUri);
 
@@ -201,8 +197,10 @@ public abstract class HttpIoProcessorBase<THost, TContext> : IoProcessorBase, ID
 			targetUri = QueryStringHelper.AddQueryString(targetUri, EventNameParameterName, EventName.ToName(hostEvent.NameParts));
 		}
 
-		using var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, targetUri) { Content = content };
-
+		using var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, targetUri);
+		
+		httpRequestMessage.Content = content;
+		
 		if (GetTarget(hostEvent.SenderServiceId) is { } origin)
 		{
 			httpRequestMessage.Headers.Add(name: @"Origin", origin.ToString());
@@ -381,8 +379,6 @@ public abstract class HttpIoProcessorBase<THost, TContext> : IoProcessorBase, ID
 
 	protected virtual IEvent CreateErrorEvent(TContext context, Exception exception)
 	{
-		if (exception is null) throw new ArgumentNullException(nameof(exception));
-
 		var requestData = new DataModelList
 						  {
 							  { @"remoteIp", GetRemoteAddress(context) is { } address ? address.ToString() : string.Empty },

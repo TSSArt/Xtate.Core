@@ -24,40 +24,29 @@ namespace Xtate.Core;
 
 public class ScxmlLocationStateMachineGetter
 {
-	private readonly Func<XmlReader, ValueTask<ScxmlDirector>> _scxmlDirectorFactory;
-	private readonly ScxmlXmlResolver                          _scxmlXmlResolver;
-	private readonly IStateMachineLocation                     _stateMachineLocation;
-
-	public ScxmlLocationStateMachineGetter(IStateMachineLocation stateMachineLocation, ScxmlXmlResolver scxmlXmlResolver, Func<XmlReader, ValueTask<ScxmlDirector>> scxmlDirectorFactory)
-	{
-		_stateMachineLocation = stateMachineLocation;
-		_scxmlXmlResolver = scxmlXmlResolver;
-		_scxmlDirectorFactory = scxmlDirectorFactory;
-	}
-
-	public required IScxmlDeserializer _ScxmlDeserializer { private get; [UsedImplicitly] init; }
-
+	public required ScxmlXmlResolver       ScxmlXmlResolver      { private get; [UsedImplicitly] init; }
+	public required IStateMachineLocation  StateMachineLocation  { private get; [UsedImplicitly] init; }
+	public required IScxmlDeserializer     ScxmlDeserializer     { private get; [UsedImplicitly] init; }
 	public required IStateMachineValidator StateMachineValidator { private get; [UsedImplicitly] init; }
 
-	public async ValueTask<IStateMachine> GetStateMachine()
+	public virtual async ValueTask<IStateMachine> GetStateMachine()
 	{
 		using var xmlReader = CreateXmlReader();
 
-		//var scxmlDirector = await _scxmlDirectorFactory(xmlReader).ConfigureAwait(false);
-		var stateMachine = await _ScxmlDeserializer.Deserialize(xmlReader).ConfigureAwait(false);
+		var stateMachine = await ScxmlDeserializer.Deserialize(xmlReader).ConfigureAwait(false);
 
 		StateMachineValidator.Validate(stateMachine);
 
 		return stateMachine;
 	}
 
-	protected virtual XmlReader CreateXmlReader() => XmlReader.Create(_stateMachineLocation.Location.ToString(), GetXmlReaderSettings(), GetXmlParserContext());
+	protected virtual XmlReader CreateXmlReader() => XmlReader.Create(StateMachineLocation.Location.ToString(), GetXmlReaderSettings(), GetXmlParserContext());
 
 	protected virtual XmlReaderSettings GetXmlReaderSettings() =>
 		new()
 		{
 			Async = true,
-			XmlResolver = _scxmlXmlResolver,
+			XmlResolver = ScxmlXmlResolver,
 			DtdProcessing = DtdProcessing.Parse
 		};
 
@@ -65,19 +54,6 @@ public class ScxmlLocationStateMachineGetter
 	{
 		var nsManager = new XmlNamespaceManager(new NameTable());
 
-		return new XmlParserContext(nt: null, nsManager, xmlLang: null, XmlSpace.None) { BaseURI = _stateMachineLocation.Location.ToString() };
+		return new XmlParserContext(nt: null, nsManager, xmlLang: null, XmlSpace.None) { BaseURI = StateMachineLocation.Location.ToString() };
 	}
-	/*
-		private static ScxmlDirectorOptions GetScxmlDirectorOptions(ServiceLocator serviceLocator,
-																	XmlParserContext xmlParserContext,
-																	XmlReaderSettings xmlReaderSettings,
-																	XmlResolver xmlResolver) =>
-			new(serviceLocator)
-			{
-				NamespaceResolver = xmlParserContext.NamespaceManager,
-				XmlReaderSettings = xmlReaderSettings,
-				XmlResolver = xmlResolver,
-				XIncludeAllowed = true,
-				Async = true
-			};*/
 }

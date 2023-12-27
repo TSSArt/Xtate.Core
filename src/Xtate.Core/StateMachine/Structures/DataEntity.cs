@@ -23,9 +23,9 @@ public struct DataEntity : IData, IVisitorEntity<DataEntity, IData>, IAncestorPr
 {
 	internal object? Ancestor;
 
-#region Interface IAncestorProvider
+	#region Interface IAncestorProvider
 
-	object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
@@ -36,11 +36,11 @@ public struct DataEntity : IData, IVisitorEntity<DataEntity, IData>, IAncestorPr
 	public IValueExpression?        Expression    { get; set; }
 	public IInlineContent?          InlineContent { get; set; }
 
-#endregion
+	#endregion
 
-#region Interface IDebugEntityId
+	#region Interface IDebugEntityId
 
-	FormattableString IDebugEntityId.EntityId => @$"{Id}";
+	readonly FormattableString IDebugEntityId.EntityId => @$"{Id}";
 
 #endregion
 
@@ -55,7 +55,7 @@ public struct DataEntity : IData, IVisitorEntity<DataEntity, IData>, IAncestorPr
 		InlineContent = source.InlineContent;
 	}
 
-	bool IVisitorEntity<DataEntity, IData>.RefEquals(ref DataEntity other) =>
+	readonly bool IVisitorEntity<DataEntity, IData>.RefEquals(ref DataEntity other) =>
 		ReferenceEquals(Id, other.Id) &&
 		ReferenceEquals(Source, other.Source) &&
 		ReferenceEquals(InlineContent, other.InlineContent) &&

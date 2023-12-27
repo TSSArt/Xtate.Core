@@ -549,31 +549,25 @@ public class StateMachineReader
 #endregion
 	}
 
-	private class ExternalScriptExpressionWithContent : IExternalScriptExpression, IExternalScriptProvider, IAncestorProvider
+	private class ExternalScriptExpressionWithContent(object ancestor, Uri? uri, string content) : IExternalScriptExpression, IExternalScriptProvider, IAncestorProvider
 	{
-		public ExternalScriptExpressionWithContent(object ancestor, Uri? uri, string content)
-		{
-			Ancestor = ancestor;
-			Uri = uri;
-			Content = content;
-		}
 
-#region Interface IAncestorProvider
+		#region Interface IAncestorProvider
 
-		public object Ancestor { get; }
+		public object Ancestor { get; } = ancestor;
 
-#endregion
+		#endregion
 
-#region Interface IExternalScriptExpression
+		#region Interface IExternalScriptExpression
 
-		public Uri? Uri { get; }
+		public Uri? Uri { get; } = uri;
 
-#endregion
+		#endregion
 
-#region Interface IExternalScriptProvider
+		#region Interface IExternalScriptProvider
 
-		public string Content { get; }
+		public string Content { get; } = content;
 
-#endregion
+		#endregion
 	}
 }

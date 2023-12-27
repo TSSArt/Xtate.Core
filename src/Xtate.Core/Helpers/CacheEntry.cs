@@ -19,7 +19,7 @@
 
 namespace Xtate.Core;
 
-internal class CacheEntry<T>
+public class CacheEntry<T>
 {
 	private readonly T?             _value;
 	private readonly WeakReference? _weakReference;

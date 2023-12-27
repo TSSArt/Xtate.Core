@@ -21,15 +21,12 @@ using Xtate.Persistence;
 
 namespace Xtate.Core;
 
-public sealed class RaiseNode : ExecutableEntityNode, IRaise, IAncestorProvider, IDebugEntityId
+public sealed class RaiseNode(DocumentIdNode documentIdNode, IRaise raise) : ExecutableEntityNode(documentIdNode, raise), IRaise, IAncestorProvider, IDebugEntityId
 {
-	private readonly IRaise _raise;
 
-	public RaiseNode(DocumentIdNode documentIdNode, IRaise raise) : base(documentIdNode, raise) => _raise = raise;
+	#region Interface IAncestorProvider
 
-#region Interface IAncestorProvider
-
-	object IAncestorProvider.Ancestor => _raise;
+	object IAncestorProvider.Ancestor => raise;
 
 #endregion
 
@@ -41,7 +38,7 @@ public sealed class RaiseNode : ExecutableEntityNode, IRaise, IAncestorProvider,
 
 #region Interface IRaise
 
-	public IOutgoingEvent? OutgoingEvent => _raise.OutgoingEvent;
+	public IOutgoingEvent? OutgoingEvent => raise.OutgoingEvent;
 
 #endregion
 

@@ -75,10 +75,6 @@ public static class ContainerBuilder
 
 	public static void AddStateMachineContext(this IServiceCollection services, SharedWithin sharedWithin)
 	{
-		services.AddForwarding(_ => new Mock<IExecutionContextOptions>().Object);
-
-		services.AddForwarding(_ => new Mock<IStateMachineContextOptions>().Object);
-
 		services.AddSharedImplementation<StateMachineContext>(sharedWithin).For<IStateMachineContext>();
 	}
 
@@ -109,7 +105,7 @@ public class TransitionToDiTest
 	[TestMethod]
 	public async Task MinimalTest()
 	{
-		var stateMachine = new StateMachineEntity { States = ImmutableArray.Create<IStateEntity>(new FinalEntity()) };
+		var stateMachine = new StateMachineEntity { States = [new FinalEntity()] };
 
 		var services = new ServiceCollection();
 		services.RegisterStateMachineInterpreter();
@@ -127,21 +123,23 @@ public class TransitionToDiTest
 	{
 		var stateMachine = new StateMachineEntity
 						   {
-							   DataModelType = "xpath", States = ImmutableArray.Create<IStateEntity>(
+							   DataModelType = "xpath", States =
+							   [
 								   new FinalEntity
-								   {
-									   DoneData = new DoneDataEntity
-												  {
-													  Content = new ContentEntity
-																{
-																	Body = new ContentBody
-																		   {
-																			   Value = "DONE-DATA"
-																		   }
-																}
-												  }
-								   })
-						   };
+								   						   {
+								   							   DoneData = new DoneDataEntity
+								   										  {
+								   											  Content = new ContentEntity
+								   														{
+								   															Body = new ContentBody
+								   																   {
+								   																	   Value = "DONE-DATA"
+								   																   }
+								   														}
+								   										  }
+								   						   },
+							   ]
+		};
 
 		var services = new ServiceCollection();
 		services.RegisterStateMachineInterpreter();

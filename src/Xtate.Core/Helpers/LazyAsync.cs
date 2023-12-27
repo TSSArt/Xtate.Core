@@ -19,32 +19,24 @@
 
 namespace Xtate.Core;
 
-public class LazyAsync<T> where T : class
+public class LazyAsync<T>(Func<T>? valueFactory) where T : class
 {
-	private Func<T>? _factory;
-
-	private volatile object? _state;
+	private volatile object? _state = new object();
 
 	private T? _value;
-
-	public LazyAsync(Func<T>? valueFactory)
-	{
-		_factory = valueFactory;
-		_state = new object();
-	}
 
 	public T Value => _state == null ? _value! : CreateValue();
 
 	private void ViaFactory()
 	{
-		var factory = _factory;
+		var factory = valueFactory;
 
 		if (factory == null)
 		{
 			throw new InvalidOperationException(@"SR.Lazy_Value_RecursiveCallsToValue");
 		}
 
-		_factory = null;
+		valueFactory = null;
 
 		_value = factory();
 		_state = null;

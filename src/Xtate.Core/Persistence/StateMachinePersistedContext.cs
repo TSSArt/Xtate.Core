@@ -19,7 +19,7 @@
 
 namespace Xtate.Persistence;
 
-public interface IStateMachinePersistedContextOptions : IStateMachineContextOptions
+public interface IStateMachinePersistedContextOptions
 {
 	ImmutableDictionary<int, IEntity> EntityMap { get; }
 }
