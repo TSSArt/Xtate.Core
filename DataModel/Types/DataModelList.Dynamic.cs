@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,8 +14,6 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-#endregion
 
 using System.Dynamic;
 using System.Globalization;
@@ -33,14 +31,14 @@ public partial class DataModelList : IDynamicMetaObjectProvider
 
 	internal class Dynamic(DataModelList list) : DynamicObject
 	{
-		private const string GetLength   = @"GetLength";
-		private const string GetMetadata = @"GetMetadata";
-		private const string SetLength   = @"SetLength";
-		private const string SetMetadata = @"SetMetadata";
+		private const string GetLength   = "GetLength";
+		private const string GetMetadata = "GetMetadata";
+		private const string SetLength   = "SetLength";
+		private const string SetMetadata = "SetMetadata";
 
-		private static readonly IDynamicMetaObjectProvider Instance = new Dynamic(default!);
+		private static readonly Dynamic Instance = new(default!);
 
-		private static readonly ConstructorInfo ConstructorInfo = typeof(Dynamic).GetConstructor(new[] { typeof(DataModelList) })!;
+		private static readonly ConstructorInfo ConstructorInfo = typeof(Dynamic).GetConstructor([typeof(DataModelList)])!;
 
 		public static DynamicMetaObject CreateMetaObject(Expression expression)
 		{
@@ -64,132 +62,133 @@ public partial class DataModelList : IDynamicMetaObjectProvider
 
 		public override bool TryInvokeMember(InvokeMemberBinder binder, object?[]? args, out object? result)
 		{
-			if (args is null || args.Length == 0)
+			switch (args ?? [])
 			{
-				if (IsName(GetLength))
+				case [] when IsName(GetLength):
 				{
 					result = list._count;
 
 					return true;
 				}
 
-				if (IsName(GetMetadata))
+				case [] when IsName(GetMetadata):
 				{
 					result = list.GetMetadata();
 
 					return true;
 				}
-			}
-			else if (args.Length == 1 && args[0] is string strArg)
-			{
-				if (IsName(GetMetadata))
-				{
-					result = list.TryGet(strArg, binder.IgnoreCase, out var entry) ? entry.Metadata : null;
 
-					return true;
-				}
-			}
-			else if (args.Length == 1 && args[0] is IConvertible cnvArg)
-			{
-				if (IsName(GetMetadata))
+				case [string key] when IsName(GetMetadata):
 				{
-					result = list.TryGet(cnvArg.ToInt32(CultureInfo.InvariantCulture), out var entry) ? entry.Metadata : null;
+					result = list.TryGet(key, binder.IgnoreCase, out var entry) ? entry.Metadata : null;
 
 					return true;
 				}
 
-				if (IsName(SetLength))
+				case [IConvertible index] when IsName(GetMetadata):
 				{
-					list.SetLength(cnvArg.ToInt32(CultureInfo.InvariantCulture));
+					result = list.TryGet(index.ToInt32(CultureInfo.InvariantCulture), out var entry) ? entry.Metadata : null;
+
+					return true;
+				}
+
+				case [IConvertible index] when IsName(SetLength):
+				{
+					list.SetLength(index.ToInt32(CultureInfo.InvariantCulture));
 
 					result = default;
 
 					return true;
 				}
-			}
-			else if (args.Length == 2 && args[0] is string str1Arg)
-			{
-				if (IsName(SetMetadata))
+
+				case [string key, DataModelList metadata] when IsName(SetMetadata):
 				{
-					if (list.TryGet(str1Arg, binder.IgnoreCase, out var entry))
+					if (list.TryGet(key, binder.IgnoreCase, out var entry))
 					{
-						list.Set(entry.Index, entry.Key, entry.Value, (DataModelList?) args[1]);
+						list.Set(entry.Index, entry.Key, entry.Value, metadata);
 					}
 					else
 					{
-						list.Add(str1Arg, value: default, (DataModelList?) args[1]);
+						list.Add(key, value: default, metadata);
 					}
 
 					result = default;
 
 					return true;
 				}
-			}
-			else if (args.Length == 2 && args[0] is IConvertible cnv1Arg)
-			{
-				if (IsName(SetMetadata))
+
+				case [IConvertible key, DataModelList metadata] when IsName(SetMetadata):
 				{
-					var index = cnv1Arg.ToInt32(CultureInfo.InvariantCulture);
+					var index = key.ToInt32(CultureInfo.InvariantCulture);
 					if (list.TryGet(index, out var entry))
 					{
-						list.Set(entry.Index, entry.Key, entry.Value, (DataModelList?) args[1]);
+						list.Set(entry.Index, entry.Key, entry.Value, metadata);
 					}
 					else
 					{
-						list.Set(entry.Index, key: default, value: default, (DataModelList?) args[1]);
+						list.Set(entry.Index, key: default, value: default, metadata);
 					}
 
 					result = default;
 
 					return true;
 				}
+
+				default:
+				{
+					result = default;
+
+					return false;
+				}
 			}
-
-			result = default;
-
-			return false;
 
 			bool IsName(string name) => string.Equals(binder.Name, name, binder.IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
 		}
 
 		public override bool TryGetIndex(GetIndexBinder binder, object[] indexes, out object? result)
 		{
-			var arg = indexes.Length == 1 ? indexes[0] : null;
-
-			switch (arg)
+			switch (indexes.Length == 1 ? indexes[0] : null)
 			{
 				case string key:
+				{
 					result = list[key].ToObject();
 
 					return true;
+				}
 
-				case IConvertible convertible:
-					result = list[convertible.ToInt32(NumberFormatInfo.InvariantInfo)].ToObject();
+				case IConvertible index:
+				{
+					result = list[index.ToInt32(NumberFormatInfo.InvariantInfo)].ToObject();
 
 					return true;
+				}
 
 				default:
+				{
 					result = default;
 
 					return false;
+				}
 			}
 		}
 
 		public override bool TrySetIndex(SetIndexBinder binder, object[] indexes, object? value)
 		{
-			var arg = indexes.Length == 1 ? indexes[0] : null;
-
-			switch (arg)
+			switch (indexes.Length == 1 ? indexes[0] : null)
 			{
 				case string key:
+				{
 					list[key] = DataModelValue.FromObject(value);
 
 					return true;
+				}
 
-				case IConvertible convertible:
-					list[convertible.ToInt32(NumberFormatInfo.InvariantInfo)] = DataModelValue.FromObject(value);
+				case IConvertible index:
+				{
+					list[index.ToInt32(NumberFormatInfo.InvariantInfo)] = DataModelValue.FromObject(value);
 
 					return true;
+				}
 
 				default:
 					return false;

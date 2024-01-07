@@ -797,9 +797,9 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 
 	internal class Dynamic(DataModelValue value) : DynamicObject
 	{
-		private static readonly IDynamicMetaObjectProvider Instance = new Dynamic(default);
+		private static readonly Dynamic Instance = new (default);
 
-		private static readonly ConstructorInfo ConstructorInfo = typeof(Dynamic).GetConstructor(new[] { typeof(DataModelValue) })!;
+		private static readonly ConstructorInfo ConstructorInfo = typeof(Dynamic).GetConstructor([typeof(DataModelValue)])!;
 
 		private readonly DataModelValue _value = value;
 

@@ -98,15 +98,15 @@ public sealed partial class StateMachineHost : IStateMachineHost
 
 	async ValueTask IStateMachineHost.StartInvoke(SessionId sessionId,
 												  InvokeData data,
-												  ISecurityContext securityContext,
+												 // ISecurityContext securityContext,
 												  CancellationToken token)
 	{
 		var context = GetCurrentContext();
 
 		context.ValidateSessionId(sessionId, out var service);
 
-		var finalizer = new DeferredFinalizer();
-		await using (finalizer.ConfigureAwait(false))
+		//var finalizer = new DeferredFinalizer();
+		//await using (finalizer.ConfigureAwait(false))
 		{
 			//securityContext = securityContext.CreateNested(SecurityContextType.InvokedService);
 			//var loggerContext = new StartInvokeLoggerContext(sessionId, data.Type, data.Source);
@@ -116,7 +116,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 
 			await context.AddService(sessionId, data.InvokeId, invokedService, token).ConfigureAwait(false);
 
-			CompleteAsync(context, invokedService, service, sessionId, data.InvokeId, finalizer, _dataConverter, token).Forget();
+			CompleteAsync(context, invokedService, service, sessionId, data.InvokeId, _dataConverter, token).Forget();
 		}
 
 		static async ValueTask CompleteAsync(StateMachineHostContext context,
@@ -124,13 +124,13 @@ public sealed partial class StateMachineHost : IStateMachineHost
 											 IEventDispatcher service,
 											 SessionId sessionId,
 											 InvokeId invokeId,
-											 DeferredFinalizer finalizer,
+											// DeferredFinalizer finalizer,
 											 DataConverter dataConverter,
 											 CancellationToken token)
 		{
-			await using (finalizer.ConfigureAwait(false))
+			//await using (finalizer.ConfigureAwait(false))
 			{
-				finalizer.DefferFinalization();
+				//finalizer.DefferFinalization();
 
 				try
 				{

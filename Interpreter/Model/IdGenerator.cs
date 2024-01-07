@@ -22,7 +22,6 @@ using System.Text;
 
 namespace Xtate.Core;
 
-
 internal static class IdGenerator
 {
 	public static string NewSendId(int hash) => NewGuidWithHash(hash);
@@ -34,9 +33,7 @@ internal static class IdGenerator
 	public static string NewId(int hash) => NewGuidWithHash(hash);
 
 #if NET6_0_OR_GREATER
-	[UsedImplicitly]
-	private static void IgnoreIt(StringBuilder _) { }
-
+	
 	public static string NewInvokeId([Localizable(false)] string id, int hash) =>
 		string.Create(
 			41 + id.Length, (id, hash), static (span, arg) =>

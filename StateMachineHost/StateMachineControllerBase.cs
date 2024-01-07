@@ -66,7 +66,7 @@ public abstract class StateMachineControllerBase : IStateMachineController, ISer
 	private readonly CancellationTokenSource              _destroyTokenSource;
 	//private readonly DeferredFinalizer                    _finalizer;
 	private readonly IStateMachineOptions?                _options;
-	private readonly ISecurityContext                     _securityContext;
+	//private readonly ISecurityContext                     _securityContext;
 	private readonly IStateMachine?                       _stateMachine;
 	private readonly IStateMachineHost                    _stateMachineHost;
 
@@ -119,7 +119,7 @@ public abstract class StateMachineControllerBase : IStateMachineController, ISer
 
 	ValueTask IExternalCommunication.CancelEvent(SendId sendId) => _stateMachineHost.CancelEvent(SessionId, sendId, CancellationToken.None);
 
-	ValueTask IExternalCommunication.StartInvoke(InvokeData invokeData) => _stateMachineHost.StartInvoke(SessionId, invokeData, _securityContext, CancellationToken.None);
+	ValueTask IExternalCommunication.StartInvoke(InvokeData invokeData) => _stateMachineHost.StartInvoke(SessionId, invokeData, /*_securityContext,*/ CancellationToken.None);
 
 	ValueTask IExternalCommunication.CancelInvoke(InvokeId invokeId) => _stateMachineHost.CancelInvoke(SessionId, invokeId, CancellationToken.None);
 
@@ -129,7 +129,7 @@ public abstract class StateMachineControllerBase : IStateMachineController, ISer
 
 #region Interface IInvokeController
 
-	ValueTask IInvokeController.Start(InvokeData invokeData) => _stateMachineHost.StartInvoke(SessionId, invokeData, _securityContext, CancellationToken.None);
+	ValueTask IInvokeController.Start(InvokeData invokeData) => _stateMachineHost.StartInvoke(SessionId, invokeData, /*_securityContext, */CancellationToken.None);
 
 	ValueTask IInvokeController.Cancel(InvokeId invokeId) => _stateMachineHost.CancelInvoke(SessionId, invokeId, CancellationToken.None);
 

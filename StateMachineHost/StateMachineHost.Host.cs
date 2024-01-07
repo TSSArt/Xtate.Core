@@ -29,9 +29,9 @@ public sealed partial class StateMachineHost : IHost
 																		  StateMachineOrigin origin,
 																		  DataModelValue parameters,
 																		  SecurityContextType securityContextType,
-																		  DeferredFinalizer finalizer,
+																		  //DeferredFinalizer finalizer,
 																		  CancellationToken token) =>
-		await StartStateMachine(sessionId, origin, parameters, securityContextType, finalizer, token).ConfigureAwait(false);
+		await StartStateMachine(sessionId, origin, parameters, securityContextType, token).ConfigureAwait(false);
 	
 	ValueTask IHost.DestroyStateMachine(SessionId sessionId, CancellationToken token) => DestroyStateMachine(sessionId, token);
 
@@ -41,7 +41,7 @@ public sealed partial class StateMachineHost : IHost
 																	   StateMachineOrigin origin,
 																	   DataModelValue parameters,
 																	   SecurityContextType securityContextType,
-																	   DeferredFinalizer? finalizer,
+																	   //DeferredFinalizer? finalizer,
 																	   CancellationToken token)
 	{
 		if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));

@@ -31,8 +31,6 @@ public class StateMachineValidator : StateMachineVisitor, IStateMachineValidator
 
 	protected override void Visit(ref IAssign entity)
 	{
-		if (entity is null) throw new ArgumentNullException(nameof(entity));
-
 		if (entity.Location is null)
 		{
 			ErrorProcessorService.AddError(entity, Resources.ErrorMessage_AssignItemLocationMissed);
@@ -53,8 +51,6 @@ public class StateMachineValidator : StateMachineVisitor, IStateMachineValidator
 
 	protected override void Visit(ref ICancel entity)
 	{
-		if (entity is null) throw new ArgumentNullException(nameof(entity));
-
 		if (entity.SendId is null && entity.SendIdExpression is null)
 		{
 			ErrorProcessorService.AddError(entity, Resources.ErrorMessage_CancelItemSendIdAndExpressionMissed);
@@ -75,8 +71,6 @@ public class StateMachineValidator : StateMachineVisitor, IStateMachineValidator
 
 	protected override void Visit(ref IConditionExpression entity)
 	{
-		if (entity is null) throw new ArgumentNullException(nameof(entity));
-
 		if (entity.Expression is null)
 		{
 			ErrorProcessorService.AddError(entity, Resources.ErrorMessage_ConditionExpressionCantBeNull);
@@ -87,8 +81,6 @@ public class StateMachineValidator : StateMachineVisitor, IStateMachineValidator
 
 	protected override void Visit(ref ILocationExpression entity)
 	{
-		if (entity is null) throw new ArgumentNullException(nameof(entity));
-
 		if (entity.Expression is null)
 		{
 			ErrorProcessorService.AddError(entity, Resources.ErrorMessage_LocationExpressionCantBeNull);
@@ -99,8 +91,6 @@ public class StateMachineValidator : StateMachineVisitor, IStateMachineValidator
 
 	protected override void Visit(ref IScriptExpression entity)
 	{
-		if (entity is null) throw new ArgumentNullException(nameof(entity));
-
 		if (entity.Expression is null)
 		{
 			ErrorProcessorService.AddError(entity, Resources.ErrorMessage_ScriptExpressionCantBeNull);
@@ -111,8 +101,6 @@ public class StateMachineValidator : StateMachineVisitor, IStateMachineValidator
 
 	protected override void Visit(ref IContentBody entity)
 	{
-		if (entity is null) throw new ArgumentNullException(nameof(entity));
-
 		if (entity.Value is null)
 		{
 			ErrorProcessorService.AddError(entity, Resources.ErrorMessage_ContentValueCantBeNull);
@@ -123,8 +111,6 @@ public class StateMachineValidator : StateMachineVisitor, IStateMachineValidator
 
 	protected override void Visit(ref IInlineContent entity)
 	{
-		if (entity is null) throw new ArgumentNullException(nameof(entity));
-
 		if (entity.Value is null)
 		{
 			ErrorProcessorService.AddError(entity, Resources.ErrorMessage_ContentValueCantBeNull);
@@ -135,8 +121,6 @@ public class StateMachineValidator : StateMachineVisitor, IStateMachineValidator
 
 	protected override void Visit(ref IContent entity)
 	{
-		if (entity is null) throw new ArgumentNullException(nameof(entity));
-
 		if (entity.Expression is null && entity.Body is null)
 		{
 			ErrorProcessorService.AddError(entity, Resources.ErrorMessage_ExpressionAndBodyMissedInContent);
@@ -152,8 +136,6 @@ public class StateMachineValidator : StateMachineVisitor, IStateMachineValidator
 
 	protected override void Visit(ref ICustomAction entity)
 	{
-		if (entity is null) throw new ArgumentNullException(nameof(entity));
-
 		if (entity.Xml is null)
 		{
 			ErrorProcessorService.AddError(entity, Resources.ErrorMessage_XmlCannotBeNull);
@@ -164,14 +146,13 @@ public class StateMachineValidator : StateMachineVisitor, IStateMachineValidator
 
 	protected override void Visit(ref IData entity)
 	{
-		if (entity is null) throw new ArgumentNullException(nameof(entity));
-
 		if (string.IsNullOrEmpty(entity.Id))
 		{
 			ErrorProcessorService.AddError(entity, Resources.ErrorMessage_IdPropertyRequiredInDataElement);
 		}
 
-		if ((entity.InlineContent is not null && entity.Expression is not null) || (entity.InlineContent is not null && entity.Source is not null) ||
+		if ((entity.InlineContent is not null && entity.Expression is not null) || 
+			(entity.InlineContent is not null && entity.Source is not null) ||
 			(entity.Source is not null && entity.Expression is not null))
 		{
 			ErrorProcessorService.AddError(entity, Resources.ErrorMessage_ExpressionSourceInData);
@@ -182,8 +163,6 @@ public class StateMachineValidator : StateMachineVisitor, IStateMachineValidator
 
 	protected override void Visit(ref IElseIf entity)
 	{
-		if (entity is null) throw new ArgumentNullException(nameof(entity));
-
 		if (entity.Condition is null)
 		{
 			ErrorProcessorService.AddError(entity, Resources.ErrorMessage_ConditionRequiredForElseIf);
@@ -194,8 +173,6 @@ public class StateMachineValidator : StateMachineVisitor, IStateMachineValidator
 
 	protected override void Visit(ref IFinalize entity)
 	{
-		if (entity is null) throw new ArgumentNullException(nameof(entity));
-
 		foreach (var executableEntity in entity.Action)
 		{
 			if (executableEntity is IRaise)
@@ -214,8 +191,6 @@ public class StateMachineValidator : StateMachineVisitor, IStateMachineValidator
 
 	protected override void Visit(ref IForEach entity)
 	{
-		if (entity is null) throw new ArgumentNullException(nameof(entity));
-
 		if (entity.Array is null)
 		{
 			ErrorProcessorService.AddError(entity, Resources.ErrorMessage_ArrayPropertyRequiredForForEach);
@@ -231,8 +206,6 @@ public class StateMachineValidator : StateMachineVisitor, IStateMachineValidator
 
 	protected override void Visit(ref IHistory entity)
 	{
-		if (entity is null) throw new ArgumentNullException(nameof(entity));
-
 		if (entity.Transition is null)
 		{
 			ErrorProcessorService.AddError(entity, Resources.ErrorMessage_TransitionMustBePresentInHistoryElement);
@@ -248,8 +221,6 @@ public class StateMachineValidator : StateMachineVisitor, IStateMachineValidator
 
 	protected override void Visit(ref IIf entity)
 	{
-		if (entity is null) throw new ArgumentNullException(nameof(entity));
-
 		if (entity.Condition is null)
 		{
 			ErrorProcessorService.AddError(entity, Resources.ErrorMessage_ConditionRequiredForIf);
@@ -285,8 +256,6 @@ public class StateMachineValidator : StateMachineVisitor, IStateMachineValidator
 
 	protected override void Visit(ref IInitial entity)
 	{
-		if (entity is null) throw new ArgumentNullException(nameof(entity));
-
 		if (entity.Transition is null)
 		{
 			ErrorProcessorService.AddError(entity, Resources.ErrorMessage_TransitionMustBePresentInInitialElement);
@@ -297,8 +266,6 @@ public class StateMachineValidator : StateMachineVisitor, IStateMachineValidator
 
 	protected override void Visit(ref IInvoke entity)
 	{
-		if (entity is null) throw new ArgumentNullException(nameof(entity));
-
 		if (entity.Type is null && entity.TypeExpression is null)
 		{
 			ErrorProcessorService.AddError(entity, Resources.ErrorMessage_TypeOrTypeExpressionMustBeSpecifiedInInvokeElement);
@@ -329,8 +296,6 @@ public class StateMachineValidator : StateMachineVisitor, IStateMachineValidator
 
 	protected override void Visit(ref IParam entity)
 	{
-		if (entity is null) throw new ArgumentNullException(nameof(entity));
-
 		if (entity.Name is null)
 		{
 			ErrorProcessorService.AddError(entity, Resources.ErrorMessage_NameAttributesRequiredInParamElement);
@@ -346,8 +311,6 @@ public class StateMachineValidator : StateMachineVisitor, IStateMachineValidator
 
 	protected override void Visit(ref IRaise entity)
 	{
-		if (entity is null) throw new ArgumentNullException(nameof(entity));
-
 		if (entity.OutgoingEvent is null)
 		{
 			ErrorProcessorService.AddError(entity, Resources.ErrorMessage_EventRequiredForRaise);
@@ -358,8 +321,6 @@ public class StateMachineValidator : StateMachineVisitor, IStateMachineValidator
 
 	protected override void Visit(ref IScript entity)
 	{
-		if (entity is null) throw new ArgumentNullException(nameof(entity));
-
 		if (entity.Source is not null && entity.Content is not null)
 		{
 			ErrorProcessorService.AddError(entity, Resources.ErrorMessage_SourceAndBodyCantBeUsedAtTheSameTimeInAssignElement);
@@ -370,8 +331,6 @@ public class StateMachineValidator : StateMachineVisitor, IStateMachineValidator
 
 	protected override void Visit(ref ISend entity)
 	{
-		if (entity is null) throw new ArgumentNullException(nameof(entity));
-
 		if ((entity.EventName is not null && entity.EventExpression is not null) ||
 			(entity.EventName is not null && entity.Content is not null) ||
 			(entity.EventExpression is not null && entity.Content is not null))
@@ -419,8 +378,6 @@ public class StateMachineValidator : StateMachineVisitor, IStateMachineValidator
 
 	protected override void Visit(ref IStateMachine entity)
 	{
-		if (entity is null) throw new ArgumentNullException(nameof(entity));
-
 		if (entity.Initial is not null && entity.States.IsDefaultOrEmpty)
 		{
 			ErrorProcessorService.AddError(entity, Resources.ErrorMessage_InitialStatePropertyCannotBeUsedWithoutAnyStates);
@@ -436,8 +393,6 @@ public class StateMachineValidator : StateMachineVisitor, IStateMachineValidator
 
 	protected override void Visit(ref IState entity)
 	{
-		if (entity is null) throw new ArgumentNullException(nameof(entity));
-
 		if (entity.Initial is not null && entity.States.IsDefaultOrEmpty)
 		{
 			ErrorProcessorService.AddError(entity, Resources.ErrorMessage_InitialStatePropertyCanBeUsedOnlyInComplexStates);
@@ -448,8 +403,6 @@ public class StateMachineValidator : StateMachineVisitor, IStateMachineValidator
 
 	protected override void Visit(ref ITransition entity)
 	{
-		if (entity is null) throw new ArgumentNullException(nameof(entity));
-
 		if (entity.EventDescriptors.IsDefaultOrEmpty && entity.Condition is null && entity.Target.IsDefaultOrEmpty)
 		{
 			ErrorProcessorService.AddError(entity, Resources.ErrorMessage_MustBePresentAtLeastEventOrConditionOrTargetInTransitionElement);

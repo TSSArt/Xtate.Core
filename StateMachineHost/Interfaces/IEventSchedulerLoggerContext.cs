@@ -20,7 +20,7 @@
 namespace Xtate.Core;
 
 
-public interface IEventSchedulerLoggerContext : ILoggerContext
+public interface IEventSchedulerLoggerContext //: ILoggerContext
 {
 	public SessionId? SessionId { get; }
 }

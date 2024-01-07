@@ -24,7 +24,6 @@ namespace Xtate.Core;
 
 public class InterpreterModelBuilder : StateMachineVisitor
 {
-	private readonly Uri?                                               _BaseUri;
 	private readonly LinkedList<int>                                    _documentIdList = [];
 	private readonly List<IEntity>                                      _entities       = [];
 	private readonly Dictionary<IIdentifier, StateEntityNode>           _idMap          = new(Identifier.EqualityComparer);
@@ -34,6 +33,8 @@ public class InterpreterModelBuilder : StateMachineVisitor
 	private          List<(Uri Uri, IExternalScriptConsumer Consumer)>? _externalScriptList;
 	private          bool                                               _inParallel;
 
+	public required IStateMachine                                   StateMachine          { private get; [UsedImplicitly] init; }
+	public required IStateMachineLocation?                          StateMachineLocation  { private get; [UsedImplicitly] init; }
 	public required IDataModelHandler                               DataModelHandler      { private get; [UsedImplicitly] init; }
 	public required IErrorProcessorService<InterpreterModelBuilder> ErrorProcessorService { private get; [UsedImplicitly] init; }
 	public required IResourceLoader                                 ResourceLoader        { private get; [UsedImplicitly] init; }
@@ -95,7 +96,7 @@ public class InterpreterModelBuilder : StateMachineVisitor
 		_counter = _inParallel ? _counter + saved.counter : _counter > saved.counter ? _counter : saved.counter;
 	}
 
-	public async ValueTask<IInterpreterModel> Build(IStateMachine stateMachine)
+	public async ValueTask<IInterpreterModel> Build()
 	{
 		_idMap.Clear();
 		_entities.Clear();
@@ -104,6 +105,8 @@ public class InterpreterModelBuilder : StateMachineVisitor
 		_inParallel = false;
 		_deepLevel = 0;
 		_counter = 0;
+
+		var stateMachine = StateMachine;
 
 		Visit(ref stateMachine);
 
@@ -156,8 +159,8 @@ public class InterpreterModelBuilder : StateMachineVisitor
 
 	private async ValueTask LoadAndSetContent(Uri uri, IExternalScriptConsumer consumer)
 	{
-		uri = _BaseUri.CombineWith(uri);
-		var resource = await ResourceLoader.Request(uri).ConfigureAwait(false);
+		var baseUri = StateMachineLocation?.Location;
+		var resource = await ResourceLoader.Request(baseUri.CombineWith(uri)).ConfigureAwait(false);
 		await using (resource.ConfigureAwait(false))
 		{
 			consumer.SetContent(await resource.GetContent().ConfigureAwait(false));

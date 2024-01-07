@@ -48,8 +48,7 @@ public sealed class IdentifierNode(IIdentifier id) : IIdentifier, IStoreSupport,
 	}
 
 #endregion
-
-	public override string ToString() => id.ToString();
+	public override string ToString() => id.ToString() ?? string.Empty;
 
 	public override bool Equals(object? obj) => id.Equals(obj);
 

@@ -204,7 +204,7 @@ public sealed class IoBoundTaskScheduler : TaskScheduler
 		}
 	}
 
-	protected override IEnumerable<Task> GetScheduledTasks() => _taskQueue is { } queue ? queue : Array.Empty<Task>();
+	protected override IEnumerable<Task> GetScheduledTasks() => _taskQueue ?? [];
 
 	protected override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued) => false;
 }

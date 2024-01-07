@@ -15,6 +15,10 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#if NET6_0_OR_GREATER
+#pragma warning disable CA1835
+#endif
+
 using System.Buffers;
 using System.IO;
 
@@ -24,7 +28,7 @@ public static class StreamExtensions
 {
 	public static Stream InjectCancellationToken(this Stream stream, CancellationToken token) => new InjectedCancellationStream(stream, token);
 
-	[SuppressMessage(category: "ReSharper", checkId: "MethodHasAsyncOverloadWithCancellation")]
+	[SuppressMessage("ReSharper", "MethodHasAsyncOverloadWithCancellation")]
 	public static async ValueTask<byte[]> ReadToEndAsync(this Stream stream, CancellationToken token)
 	{
 		if (stream is null) throw new ArgumentNullException(nameof(stream));

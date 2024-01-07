@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2023 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,30 +15,19 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 namespace Xtate.DataModel;
 
-public abstract class ContentBodyEvaluator : IContentBody, IObjectEvaluator, IStringEvaluator, IAncestorProvider
+public abstract class ContentBodyEvaluator(IContentBody contentBody) : IContentBody, IObjectEvaluator, IStringEvaluator, IAncestorProvider
 {
-	private readonly IContentBody _contentBody;
-
-	protected ContentBodyEvaluator(IContentBody contentBody)
-	{
-		Infra.Requires(contentBody);
-
-		_contentBody = contentBody;
-	}
-
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => _contentBody;
+	object IAncestorProvider.Ancestor => contentBody;
 
 #endregion
 
 #region Interface IContentBody
 
-	public virtual string? Value => _contentBody.Value;
+	public virtual string? Value => contentBody.Value;
 
 #endregion
 
@@ -57,18 +46,18 @@ public abstract class ContentBodyEvaluator : IContentBody, IObjectEvaluator, ISt
 
 public class DefaultContentBodyEvaluator(IContentBody contentBody) : ContentBodyEvaluator(contentBody)
 {
-	private DataModelValue _parsedValue;
+	private DataModelValue _contentValue;
 
 	public override ValueTask<IObject> EvaluateObject()
 	{
-		if (_parsedValue.IsUndefined())
+		if (_contentValue.IsUndefined())
 		{
-			_parsedValue = ParseToDataModel();
-			_parsedValue.MakeDeepConstant();
+			_contentValue = ParseToDataModel();
+			_contentValue.MakeDeepConstant();
 		}
 
-		return new ValueTask<IObject>(_parsedValue.CloneAsWritable());
+		return new ValueTask<IObject>(_contentValue);
 	}
 
-	protected virtual DataModelValue ParseToDataModel() => Value;
+	protected virtual DataModelValue ParseToDataModel() => DataModelValue.FromString(base.Value);
 }

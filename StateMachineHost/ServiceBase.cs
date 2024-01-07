@@ -28,14 +28,8 @@ public abstract class ServiceBase : IService, IAsyncDisposable, IDisposable
 	private bool        _disposed;
 	private InvokeData? _invokeData;
 
-	protected ServiceBase()
-	{
-		_invokeData = default!;
-		ServiceCommunication = default!;
-	}
-
 	protected Uri?                  BaseUri              { get; private set; }
-	protected IServiceCommunication ServiceCommunication { get; private set; }
+	protected IServiceCommunication ServiceCommunication { get; private set; } = default!;
 	protected Uri?                  Source               => _invokeData?.Source;
 	protected string?               RawContent           => _invokeData?.RawContent;
 	protected DataModelValue        Content              => _invokeData?.Content ?? default;

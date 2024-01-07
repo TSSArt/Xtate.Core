@@ -34,6 +34,7 @@ internal sealed class StateMachinePersistedController : StateMachineRuntimeContr
 	private bool                   _disposed;
 	private ITransactionalStorage? _storage;
 
+	[Obsolete]
 	public StateMachinePersistedController(SessionId sessionId,
 										   IStateMachineOptions? options,
 										   IStateMachine? stateMachine,

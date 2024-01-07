@@ -21,9 +21,9 @@ using Xtate.IoC;
 
 namespace Xtate.Core;
 
-public class InterpreterModelGetter(InterpreterModelBuilder interpreterModelBuilder, IStateMachine stateMachine) : IAsyncInitialization
+public class InterpreterModelGetter(InterpreterModelBuilder interpreterModelBuilder) : IAsyncInitialization
 {
-	private readonly AsyncInit<IInterpreterModel> _interpreterModelAsyncInit = AsyncInit.RunNow(interpreterModelBuilder, builder => builder.Build(stateMachine));
+	private readonly AsyncInit<IInterpreterModel> _interpreterModelAsyncInit = AsyncInit.RunNow(interpreterModelBuilder, builder => builder.Build());
 
 #region Interface IAsyncInitialization
 

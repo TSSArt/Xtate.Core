@@ -49,7 +49,7 @@ public sealed class DataModelNode : IDataModel, IStoreSupport, IAncestorProvider
 
 #region Interface IDocumentId
 
-	public int DocumentId => _documentIdSlot.Value;
+	public int DocumentId => _documentIdSlot.CreateValue();
 
 #endregion
 

@@ -29,7 +29,6 @@ public class CustomActionContainer : ICustomAction, IAncestorProvider
 	public CustomActionContainer(ICustomAction customAction, Func<ICustomAction, CustomActionBase> customActionFactory)
 	{
 		Infra.Requires(customAction);
-
 		Infra.Requires(customActionFactory);
 
 		Infra.Assert(customAction.Locations.IsDefault);

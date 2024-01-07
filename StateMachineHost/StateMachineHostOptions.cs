@@ -32,7 +32,7 @@ public record StateMachineHostOptions
 	public ImmutableArray<IIoProcessorFactory>    IoProcessorFactories    { get; set; }
 	public ImmutableArray<IServiceFactory>        ServiceFactories        { get; set; }
 	//public ImmutableArray<ICustomActionFactory>   CustomActionFactories   { get; set; }
-	public ImmutableArray<IResourceLoaderFactory> ResourceLoaderFactories { get; set; }
+	//public ImmutableArray<IResourceLoaderFactory> ResourceLoaderFactories { get; set; }
 	public ImmutableDictionary<string, string>?   Configuration           { get; set; }
 	public Uri?                                   BaseUri                 { get; set; }
 	//public ILoggerOld?                            Logger                  { get; set; }

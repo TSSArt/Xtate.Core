@@ -31,7 +31,7 @@ public class XPathConditionExpressionEvaluator(IConditionExpression conditionExp
 
 #region Interface IBooleanEvaluator
 
-	async ValueTask<bool> IBooleanEvaluator.EvaluateBoolean()
+	public async ValueTask<bool> EvaluateBoolean()
 	{
 		var engine = await EngineFactory().ConfigureAwait(false);
 

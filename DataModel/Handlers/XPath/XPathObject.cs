@@ -181,26 +181,4 @@ public class XPathObject(object value) : IObject
 
 		return list;
 	}
-
-	public static string ToString(object obj) =>
-		obj switch
-		{
-			XPathNodeIterator iterator => ToString(iterator),
-			double value               => XmlConvert.ToString(value),
-			string value               => value,
-			bool value                 => XmlConvert.ToString(value),
-			_                          => Infra.Unexpected<string>(obj)
-		};
-
-	private static string ToString(XPathNodeIterator iterator)
-	{
-		var stringBuilder = new StringBuilder();
-
-		foreach (XPathNavigator navigator in iterator)
-		{
-			stringBuilder.Append(navigator.Value);
-		}
-
-		return stringBuilder.ToString();
-	}
 }

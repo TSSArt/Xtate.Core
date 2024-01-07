@@ -19,13 +19,6 @@
 
 namespace Xtate;
 
-public enum LogLevel
-{
-	Info,
-	Warning,
-	Error
-}
-
 public interface ILogController
 {
 	bool IsEnabled { get; }

@@ -25,7 +25,7 @@ internal static class AsyncEnumerable
 	public static async ValueTask<ImmutableArray<T>> ToImmutableArrayAsync<T>(this IAsyncEnumerable<T> asyncEnumerable)
 	{
 		var builder = ImmutableArray.CreateBuilder<T>();
-
+		
 		await foreach (var item in asyncEnumerable.ConfigureAwait(false))
 		{
 			builder.Add(item);

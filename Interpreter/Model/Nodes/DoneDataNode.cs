@@ -55,7 +55,7 @@ public sealed class DoneDataNode : IDoneData, IStoreSupport, IAncestorProvider, 
 
 #region Interface IDocumentId
 
-	public int DocumentId => _documentIdSlot.Value;
+	public int DocumentId => _documentIdSlot.CreateValue();
 
 #endregion
 

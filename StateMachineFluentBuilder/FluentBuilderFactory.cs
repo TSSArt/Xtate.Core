@@ -17,10 +17,19 @@
 
 #endregion
 
+using Xtate.IoC;
+
 namespace Xtate.Builder;
 
 //TODO: Delete class
 public static class FluentBuilderFactory
 {
-	//public static StateMachineFluentBuilder Create() => ServiceLocator.Default.GetService<StateMachineFluentBuilder>();
+	public static StateMachineFluentBuilder Create()
+	{
+		var services = new ServiceCollection();
+		services.RegisterStateMachineFluentBuilder();
+		var sp = services.BuildProvider();
+
+		return sp.GetRequiredService<StateMachineFluentBuilder>().Result;
+	}
 }

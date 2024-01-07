@@ -53,7 +53,7 @@ internal sealed class EntityQueuePersistingController<T> : IDisposable where T :
 
 #endregion
 
-	private void OnChanged(EntityQueue<T>.ChangedAction action, [AllowNull] T entity)
+	private void OnChanged(EntityQueue<T>.ChangedAction action, T? entity)
 	{
 		switch (action)
 		{

@@ -4,6 +4,7 @@ public class CustomActionFactory
 {
 	public required IEnumerable<ICustomActionProvider> CustomActionProviders { private get; [UsedImplicitly] init; }
 
+	[UsedImplicitly]
 	public CustomActionBase GetCustomAction(ICustomAction customAction)
 	{
 		Infra.Requires(customAction);

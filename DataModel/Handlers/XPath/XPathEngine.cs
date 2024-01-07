@@ -76,7 +76,8 @@ public class XPathEngine(IDataModelController? dataModelController)
 		return new XPathObject(value);
 	}
 
-	public async ValueTask Assign1(XPathCompiledExpression compiledLeftExpression,
+	//TODO: Assign1 => Assign
+	public async ValueTask Assign(XPathCompiledExpression compiledLeftExpression,
 								   XPathAssignType assignType,
 								   string? attributeName,
 								   IObject rightValue)

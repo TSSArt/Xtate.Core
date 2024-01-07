@@ -25,7 +25,7 @@ public class StateMachineInterpreterOptions(IStateMachineStartOptions stateMachi
 	#region Interface IStateMachineInterpreterOptions
 
 	public SessionId SessionId { get; } = stateMachineStartOptions.SessionId;
-	public InterpreterOptions options { get; } = new InterpreterOptions();
+	public InterpreterOptions options { get; } = new ();
 
 	#endregion
 

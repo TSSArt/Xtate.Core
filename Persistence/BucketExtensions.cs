@@ -57,12 +57,7 @@ internal static class BucketExtensions
 
 		for (var i = 0; i < length; i ++)
 		{
-			var item = factory(itemsBucket.Nested(i));
-
-			if (item is null)
-			{
-				throw new PersistenceException(Resources.Exception_ItemCantBeNull);
-			}
+			var item = factory(itemsBucket.Nested(i)) ?? throw new PersistenceException(Resources.Exception_ItemCantBeNull);
 
 			builder.Add(item);
 		}

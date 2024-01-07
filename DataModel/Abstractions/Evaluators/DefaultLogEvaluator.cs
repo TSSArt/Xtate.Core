@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,24 +15,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 namespace Xtate.DataModel;
 
-public abstract class LogEvaluator : ILog, IExecEvaluator, IAncestorProvider
+public abstract class LogEvaluator(ILog log) : ILog, IExecEvaluator, IAncestorProvider
 {
-	private readonly ILog _log;
-
-	protected LogEvaluator(ILog log)
-	{
-		Infra.Requires(log);
-
-		_log = log;
-	}
-
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => _log;
+	object IAncestorProvider.Ancestor => log;
 
 #endregion
 
@@ -44,31 +33,32 @@ public abstract class LogEvaluator : ILog, IExecEvaluator, IAncestorProvider
 
 #region Interface ILog
 
-	public virtual IValueExpression? Expression => _log.Expression;
+	public virtual IValueExpression? Expression => log.Expression;
 
-	public virtual string? Label => _log.Label;
+	public virtual string? Label => log.Label;
 
 #endregion
 }
 
-public class DefaultLogEvaluator(ILog log) : LogEvaluator(log)
+public class DefaultLogEvaluator : LogEvaluator
 {
-	public required Func<ValueTask<ILogger<ILog>>> LoggerFactory { private get; [UsedImplicitly] init; }
+	private readonly IObjectEvaluator? _expressionEvaluator;
 
-	public virtual IObjectEvaluator? ExpressionEvaluator { get; } = log.Expression?.As<IObjectEvaluator>();
+	public DefaultLogEvaluator(ILog log) : base(log) => _expressionEvaluator = base.Expression?.As<IObjectEvaluator>();
+
+	public required Func<ValueTask<ILogger<ILog>>> LoggerFactory { private get; [UsedImplicitly] init; }
 
 	public override async ValueTask Execute()
 	{
 		var data = default(DataModelValue);
 
-		if (ExpressionEvaluator is not null)
+		if (_expressionEvaluator is not null)
 		{
-			var obj = await ExpressionEvaluator.EvaluateObject().ConfigureAwait(false);
+			var obj = await _expressionEvaluator.EvaluateObject().ConfigureAwait(false);
 			data = DataModelValue.FromObject(obj).AsConstant();
 		}
 
 		var logger = await LoggerFactory().ConfigureAwait(false);
-
-		await logger.Write(Level.Info, Label, data).ConfigureAwait(false);
+		await logger.Write(Level.Info, base.Label, data).ConfigureAwait(false);
 	}
 }

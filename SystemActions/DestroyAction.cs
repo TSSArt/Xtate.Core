@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,51 +15,39 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using System.Xml;
 
 namespace Xtate.CustomAction;
 
 public class DestroyAction : CustomActionBase, IDisposable
 {
-	private const string SessionId     = "sessionId";
-	private const string SessionIdExpr = "sessionIdExpr";
+	private readonly DisposingToken _disposingToken = new();
+	private readonly StringValue    _sessionIdValue;
 
-	private readonly DisposingToken        _disposingToken = new();
-	private readonly string?               _sessionId;
-	private readonly IExpressionEvaluator? _sessionIdExpression;
-
-	public required IHost _host;
-
-	public DestroyAction(ICustomActionContext access, XmlReader xmlReader)
+	public DestroyAction(XmlReader xmlReader, IErrorProcessorService<DestroyAction> errorProcessorService)
 	{
-		if (access is null) throw new ArgumentNullException(nameof(access));
-		if (xmlReader is null) throw new ArgumentNullException(nameof(xmlReader));
+		var sessionId = xmlReader.GetAttribute("sessionId");
+		var sessionIdExpression = xmlReader.GetAttribute("sessionIdExpr");
 
-		var sessionIdExpression = xmlReader.GetAttribute(SessionIdExpr);
-		_sessionId = xmlReader.GetAttribute(SessionId);
-
-		if (_sessionId is { Length: 0 })
+		if (sessionId is { Length: 0 })
 		{
-			access.AddValidationError<StartAction>(Resources.ErrorMessage_SessionIdCouldNotBeEmpty);
+			errorProcessorService.AddError(this, Resources.ErrorMessage_SessionIdCouldNotBeEmpty);
 		}
 
-		if (_sessionId is not null && sessionIdExpression is not null)
+		if (sessionId is not null && sessionIdExpression is not null)
 		{
-			access.AddValidationError<StartAction>(Resources.ErrorMessage_SessionIdAndSessionIdExprAttributesShouldNotBeAssignedInStartElement);
+			errorProcessorService.AddError(this, Resources.ErrorMessage_SessionIdAndSessionIdExprAttributesShouldNotBeAssignedInStartElement);
 		}
 
-		if (_sessionId is null && sessionIdExpression is null)
+		if (sessionId is null && sessionIdExpression is null)
 		{
-			access.AddValidationError<StartAction>(Resources.ErrorMessage_SessionIdOrSessionIdExprMustBeSpecified);
+			errorProcessorService.AddError(this, Resources.ErrorMessage_SessionIdOrSessionIdExprMustBeSpecified);
 		}
 
-		if (sessionIdExpression is not null)
-		{
-			_sessionIdExpression = access.RegisterValueExpression(sessionIdExpression, ExpectedValueType.String);
-		}
+		_sessionIdValue = new StringValue(sessionIdExpression, sessionId);
 	}
+
+	public required IHost Host { private get; [UsedImplicitly] init; }
 
 #region Interface IDisposable
 
@@ -75,29 +63,19 @@ public class DestroyAction : CustomActionBase, IDisposable
 	{
 		var sessionId = await GetSessionId().ConfigureAwait(false);
 
-		if (sessionId is { Length: 0 })
+		await Host.DestroyStateMachine(sessionId, _disposingToken.Token).ConfigureAwait(false);
+	}
+
+	private async ValueTask<SessionId> GetSessionId()
+	{
+		var sessionId = await _sessionIdValue.GetValue().ConfigureAwait(false);
+
+		if (string.IsNullOrEmpty(sessionId))
 		{
 			throw new ProcessorException(Resources.Exception_SessionIdCouldNotBeEmpty);
 		}
 
-		await _host.DestroyStateMachine(Xtate.SessionId.FromString(sessionId), _disposingToken.Token).ConfigureAwait(false);
-	}
-
-	private async ValueTask<string> GetSessionId()
-	{
-		if (_sessionId is not null)
-		{
-			return _sessionId;
-		}
-
-		if (_sessionIdExpression is not null)
-		{
-			var value = await _sessionIdExpression.Evaluate().ConfigureAwait(false);
-
-			return value.AsString();
-		}
-
-		return Infra.Fail<string>();
+		return SessionId.FromString(sessionId);
 	}
 
 	protected virtual void Dispose(bool disposing)

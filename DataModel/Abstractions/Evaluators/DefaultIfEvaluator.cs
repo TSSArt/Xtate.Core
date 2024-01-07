@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,24 +15,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 namespace Xtate.DataModel;
 
-public abstract class IfEvaluator : IIf, IExecEvaluator, IAncestorProvider
+public abstract class IfEvaluator(IIf iif) : IIf, IExecEvaluator, IAncestorProvider
 {
-	private readonly IIf _if;
-
-	protected IfEvaluator(IIf @if)
-	{
-		Infra.Requires(@if);
-
-		_if = @if;
-	}
-
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => _if;
+	object IAncestorProvider.Ancestor => iif;
 
 #endregion
 
@@ -44,56 +33,60 @@ public abstract class IfEvaluator : IIf, IExecEvaluator, IAncestorProvider
 
 #region Interface IIf
 
-	public virtual ImmutableArray<IExecutableEntity> Action    => _if.Action;
-	public virtual IConditionExpression              Condition => _if.Condition!;
+	public virtual ImmutableArray<IExecutableEntity> Action    => iif.Action;
+	public virtual IConditionExpression?             Condition => iif.Condition;
 
 #endregion
 }
 
-
 public class DefaultIfEvaluator : IfEvaluator
 {
-	public DefaultIfEvaluator(IIf @if) : base(@if)
-	{
-		Infra.NotNull(@if.Condition);
+	private readonly ImmutableArray<(IBooleanEvaluator? Condition, ImmutableArray<IExecEvaluator> Actions)> _branches;
 
-		var currentCondition = @if.Condition.As<IBooleanEvaluator>();
+	public DefaultIfEvaluator(IIf iif) : base(iif)
+	{
+		var currentCondition = base.Condition?.As<IBooleanEvaluator>();
+		Infra.NotNull(currentCondition);
+
 		var currentActions = ImmutableArray.CreateBuilder<IExecEvaluator>();
 		var branchesBuilder = ImmutableArray.CreateBuilder<(IBooleanEvaluator? Condition, ImmutableArray<IExecEvaluator> Actions)>();
 
-		foreach (var op in @if.Action)
+		var operations = base.Action;
+
+		if (!operations.IsDefaultOrEmpty)
 		{
-			switch (op)
+			foreach (var op in operations)
 			{
-				case IElseIf elseIf:
-					branchesBuilder.Add((currentCondition, currentActions.ToImmutable()));
-					Infra.NotNull(elseIf.Condition);
-					currentCondition = elseIf.Condition.As<IBooleanEvaluator>();
-					currentActions.Clear();
-					break;
+				switch (op)
+				{
+					case IElseIf elseIf:
+						branchesBuilder.Add((currentCondition, currentActions.ToImmutable()));
+						currentCondition = elseIf.Condition?.As<IBooleanEvaluator>();
+						Infra.NotNull(currentCondition);
+						currentActions.Clear();
+						break;
 
-				case IElse:
-					branchesBuilder.Add((currentCondition, currentActions.ToImmutable()));
-					currentCondition = default!;
-					currentActions.Clear();
-					break;
+					case IElse:
+						branchesBuilder.Add((currentCondition, currentActions.ToImmutable()));
+						currentCondition = default!;
+						currentActions.Clear();
+						break;
 
-				default:
-					currentActions.Add(op.As<IExecEvaluator>());
-					break;
+					default:
+						currentActions.Add(op.As<IExecEvaluator>());
+						break;
+				}
 			}
 		}
 
 		branchesBuilder.Add((currentCondition, currentActions.ToImmutable()));
 
-		Branches = branchesBuilder.ToImmutable();
+		_branches = branchesBuilder.ToImmutable();
 	}
-
-	public ImmutableArray<(IBooleanEvaluator? Condition, ImmutableArray<IExecEvaluator> Actions)> Branches { get; }
 
 	public override async ValueTask Execute()
 	{
-		foreach (var (condition, actions) in Branches)
+		foreach (var (condition, actions) in _branches)
 		{
 			if (condition is null || await condition.EvaluateBoolean().ConfigureAwait(false))
 			{

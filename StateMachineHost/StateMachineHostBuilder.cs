@@ -30,20 +30,20 @@ public interface IStateMachineHostBuilder;
 
 public sealed class StateMachineHostBuilder : IStateMachineHostBuilder
 {
-	private List<object>                                    _actions = [];
+	private readonly List<object>                                    _actions = [];
 	private Uri?                                            _baseUri;
 	private ImmutableDictionary<string, string>.Builder?    _configuration;
 	//private ImmutableArray<ICustomActionFactory>.Builder?   _customActionFactories;
-	private HostMode                                        _hostMode;
+	//private HostMode                                        _hostMode;
 	private ImmutableArray<IIoProcessorFactory>.Builder?    _ioProcessorFactories;
 	//private ILoggerOld?                                     _logger;
 	private PersistenceLevel                                _persistenceLevel;
-	private ImmutableArray<IResourceLoaderFactory>.Builder? _resourceLoaderFactories;
+	//private ImmutableArray<IResourceLoaderFactory>.Builder? _resourceLoaderFactories;
 	private ImmutableArray<IServiceFactory>.Builder?        _serviceFactories;
 	private IStorageProvider?                               _storageProvider;
 	private TimeSpan?                                       _suspendIdlePeriod;
 	private UnhandledErrorBehaviour                         _unhandledErrorBehaviour;
-	private ValidationMode                                  _validationMode;
+	//private ValidationMode                                  _validationMode;
 	/*
 	public StateMachineHost Build(ServiceLocator serviceLocator)
 	{
@@ -113,20 +113,20 @@ public sealed class StateMachineHostBuilder : IStateMachineHostBuilder
 
 	public StateMachineHostBuilder DisableVerboseValidation()
 	{
-		_validationMode = ValidationMode.Default;
+		//_validationMode = ValidationMode.Default;
 
 		return this;
 	}
 
 	public StateMachineHostBuilder SetSuspendIdlePeriod(TimeSpan suspendIdlePeriod)
 	{
-		if (suspendIdlePeriod <= TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(suspendIdlePeriod));
+		Infra.RequiresPositive(suspendIdlePeriod);
 
 		_suspendIdlePeriod = suspendIdlePeriod;
 
 		return this;
 	}
-
+	/*
 	public StateMachineHostBuilder AddResourceLoaderFactory(IResourceLoaderFactory resourceLoaderFactory)
 	{
 		if (resourceLoaderFactory is null) throw new ArgumentNullException(nameof(resourceLoaderFactory));
@@ -134,11 +134,11 @@ public sealed class StateMachineHostBuilder : IStateMachineHostBuilder
 		(_resourceLoaderFactories ??= ImmutableArray.CreateBuilder<IResourceLoaderFactory>()).Add(resourceLoaderFactory);
 
 		return this;
-	}
+	}*/
 
 	public StateMachineHostBuilder SetPersistence(PersistenceLevel persistenceLevel, IStorageProvider storageProvider)
 	{
-		if (persistenceLevel < PersistenceLevel.None || persistenceLevel > PersistenceLevel.ExecutableAction)
+		if (persistenceLevel is < PersistenceLevel.None or > PersistenceLevel.ExecutableAction)
 		{
 			throw new InvalidEnumArgumentException(nameof(persistenceLevel), (int) persistenceLevel, typeof(PersistenceLevel));
 		}
@@ -151,7 +151,7 @@ public sealed class StateMachineHostBuilder : IStateMachineHostBuilder
 
 	public StateMachineHostBuilder AddIoProcessorFactory(IIoProcessorFactory ioProcessorFactory)
 	{
-		if (ioProcessorFactory is null) throw new ArgumentNullException(nameof(ioProcessorFactory));
+		
 
 		(_ioProcessorFactories ??= ImmutableArray.CreateBuilder<IIoProcessorFactory>()).Add(ioProcessorFactory);
 
@@ -160,7 +160,7 @@ public sealed class StateMachineHostBuilder : IStateMachineHostBuilder
 
 	public StateMachineHostBuilder AddServiceFactory(IServiceFactory serviceFactory)
 	{
-		if (serviceFactory is null) throw new ArgumentNullException(nameof(serviceFactory));
+		
 
 		(_serviceFactories ??= ImmutableArray.CreateBuilder<IServiceFactory>()).Add(serviceFactory);
 
@@ -178,7 +178,7 @@ public sealed class StateMachineHostBuilder : IStateMachineHostBuilder
 
 	public StateMachineHostBuilder SetConfigurationValue(string key, string value)
 	{
-		if (key is null) throw new ArgumentNullException(nameof(key));
+		
 
 		(_configuration ??= ImmutableDictionary.CreateBuilder<string, string>())[key] = value ?? throw new ArgumentNullException(nameof(value));
 
@@ -206,14 +206,14 @@ public sealed class StateMachineHostBuilder : IStateMachineHostBuilder
 
 	public StateMachineHostBuilder SetClusterHostMode()
 	{
-		_hostMode = HostMode.Cluster;
+		//_hostMode = HostMode.Cluster;
 
 		return this;
 	}
 
 	public StateMachineHostBuilder SetStandaloneHostMode()
 	{
-		_hostMode = HostMode.Standalone;
+		//_hostMode = HostMode.Standalone;
 
 		return this;
 	}

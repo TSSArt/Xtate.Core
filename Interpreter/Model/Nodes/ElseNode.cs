@@ -46,7 +46,7 @@ public sealed class ElseNode : IElse, IStoreSupport, IAncestorProvider, IDocumen
 
 #region Interface IDocumentId
 
-	public int DocumentId => _documentIdSlot.Value;
+	public int DocumentId => _documentIdSlot.CreateValue();
 
 #endregion
 
