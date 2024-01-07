@@ -35,7 +35,7 @@ public abstract class ExecutableEntityNode : IExecutableEntity, IExecEvaluator, 
 
 #region Interface IDocumentId
 
-	public int DocumentId => _documentIdSlot.Value;
+	public int DocumentId => _documentIdSlot.CreateValue();
 
 #endregion
 

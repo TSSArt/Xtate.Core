@@ -18,7 +18,6 @@
 #endregion
 
 using System.Buffers;
-using System.Threading.Channels;
 using Xtate.DataModel;
 
 namespace Xtate.Core;
@@ -49,11 +48,12 @@ public partial class StateMachineInterpreter : IStateMachineInterpreter
 	public virtual async ValueTask<DataModelValue> RunAsync()
 	{
 		_context = await ContextFactory().ConfigureAwait(false);
-
-		if (false /*_stateMachine is null*/) //TODO: use correct condition
+		//TODO: use correct condition
+		/*
+		if (false /*_stateMachine is null) 
 		{
 			//await TraceInterpreterState(StateMachineInterpreterState.Resumed).ConfigureAwait(false);
-		}
+		}*/
 
 		//try
 		//{
@@ -94,22 +94,6 @@ public partial class StateMachineInterpreter : IStateMachineInterpreter
 
 #endregion
 
-	//TODO: to delete
-	public static ValueTask<DataModelValue> RunAsync(SessionId sessionId,
-													 IStateMachine? stateMachine,
-													 ChannelReader<IEvent> eventChannel,
-													 InterpreterOptions? options = default)
-	{
-		if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
-		if (eventChannel is null) throw new ArgumentNullException(nameof(eventChannel));
-
-		Infra.NotNull(options);
-
-		//var sp = options.ServiceLocator;
-
-		//return new StateMachineInterpreter(sessionId, stateMachine, eventChannel, options ?? InterpreterOptions.Default).Run();
-		return default; //sp.GetService<IStateMachineInterpreter>().RunAsync();
-	}
 	/*
 	private async ValueTask<InterpreterModel> BuildInterpreterModel()
 	{
@@ -1450,9 +1434,10 @@ public partial class StateMachineInterpreter : IStateMachineInterpreter
 	{
 		Infra.Requires(data);
 
-		var caseInsensitive = DataModelHandler.CaseInsensitive;
+		var id = data.Id;
+		Infra.NotNull(id);
 
-		if (defaultValues?[data.Id, caseInsensitive] is not { Type: not DataModelValueType.Undefined } value)
+		if (defaultValues?[id, DataModelHandler.CaseInsensitive] is not { Type: not DataModelValueType.Undefined } value)
 		{
 			try
 			{
@@ -1466,12 +1451,12 @@ public partial class StateMachineInterpreter : IStateMachineInterpreter
 			}
 		}
 
-		_context.DataModel[data.Id, caseInsensitive] = value;
+		_context.DataModel[id] = value;
 	}
 
-	private async ValueTask<DataModelValue> GetValue(DataNode data)
+	private static async ValueTask<DataModelValue> GetValue(DataNode data)
 	{
-		if (data.ResourceEvaluator is { } resourceEvaluator)
+		if (data.SourceEvaluator is { } resourceEvaluator)
 		{
 			var obj = await resourceEvaluator.EvaluateObject().ConfigureAwait(false);
 

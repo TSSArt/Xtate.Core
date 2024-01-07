@@ -29,7 +29,7 @@ public interface IStateMachineHost : IHostEventDispatcher
 
 	ValueTask StartInvoke(SessionId sessionId,
 						  InvokeData invokeData,
-						  ISecurityContext securityContext,
+						 // ISecurityContext securityContext,
 						  CancellationToken token);
 
 	ValueTask CancelInvoke(SessionId sessionId, InvokeId invokeId, CancellationToken token);

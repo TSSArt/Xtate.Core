@@ -66,7 +66,7 @@ public class XPathDataModelTest
 
 		await host.StartHostAsync();
 
-		var _ = await host.ExecuteStateMachineAsync(xml);
+		_ = await host.ExecuteStateMachineAsync(xml);
 
 		await host.WaitAllStateMachinesAsync();
 
@@ -111,7 +111,7 @@ public class XPathDataModelTest
 		var host = await serviceProvider.GetRequiredService<StateMachineHost>();
 		await host.StartHostAsync();
 
-		var _ = await host.ExecuteStateMachineAsync(xml);
+		_ = await host.ExecuteStateMachineAsync(xml);
 
 		await host.WaitAllStateMachinesAsync();
 

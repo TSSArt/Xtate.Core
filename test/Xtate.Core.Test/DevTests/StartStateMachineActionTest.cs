@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
+﻿#region Copyright © 2019-2021 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,12 +17,18 @@
 
 #endregion
 
-namespace Xtate;
-
-
-public interface ILoggerContext
+namespace Xtate.Test.DevTests
 {
-	string LoggerContextType { get; }
+	[TestClass]
+	public class StartStateMachineActionTest
+	{
+		[TestMethod]
+		public void RunStateMachineTest()
+		{
+			// arrange
 
-	DataModelList GetProperties();
+			// act
+			//await Host.ExecuteAsync(".\\Resources\\All.xml");
+		}
+	}
 }

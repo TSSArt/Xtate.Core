@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
+﻿#region Copyright © 2019-2020 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,10 +17,19 @@
 
 #endregion
 
-namespace Xtate.DataModel;
-
-
-public interface IResourceEvaluator : IValueEvaluator
+namespace Xtate.Test
 {
-	ValueTask<IObject> EvaluateObject();
+	public static class StateMachineHostOptionsTestBuilder
+	{
+		public delegate void StateMachineHostOptionsSetup(StateMachineHostOptions options);
+
+		public static StateMachineHostOptions Create(StateMachineHostOptionsSetup build)
+		{
+			var options = new StateMachineHostOptions { IoProcessorFactories = [], ServiceFactories = [] };
+
+			build(options);
+
+			return options;
+		}
+	}
 }

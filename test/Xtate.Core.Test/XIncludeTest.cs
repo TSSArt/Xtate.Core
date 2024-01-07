@@ -39,7 +39,7 @@ public class XIncludeTest
 
 		await host.StartHostAsync();
 
-		var _ = await host.ExecuteStateMachineAsync(new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Scxml/XInclude/SingleIncludeSource.scxml"));
+		_ = await host.ExecuteStateMachineAsync(new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Scxml/XInclude/SingleIncludeSource.scxml"));
 
 		await host.StopHostAsync();
 	}

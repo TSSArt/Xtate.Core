@@ -26,7 +26,7 @@ public sealed class InProcEventSchedulerFactory : IEventSchedulerFactory
 #region Interface IEventSchedulerFactory
 
 	public ValueTask<IEventScheduler> CreateEventScheduler(IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger? logger, CancellationToken token) =>
-		new(new InProcEventScheduler(hostEventDispatcher, logger: null)); //TODO: move factory to IoC
+		new(new InProcEventScheduler(hostEventDispatcher, logger: null!)); //TODO: move factory to IoC
 
 #endregion
 }

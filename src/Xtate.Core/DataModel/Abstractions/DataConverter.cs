@@ -25,12 +25,9 @@ public class DataConverter(IDataModelHandler? dataModelHandler)
 
 	public static ImmutableArray<Param> AsParamArray(ImmutableArray<IParam> parameters)
 	{
-		if (parameters.IsDefault)
-		{
-			return default;
-		}
-
-		return ImmutableArray.CreateRange(parameters, param => new Param(param));
+		return !parameters.IsDefault
+			? ImmutableArray.CreateRange(parameters, param => new Param(param))
+			: default;
 	}
 
 	public ValueTask<DataModelValue> GetData(IValueEvaluator? contentBodyEvaluator,
@@ -46,7 +43,6 @@ public class DataConverter(IDataModelHandler? dataModelHandler)
 		return GetParameters(nameEvaluatorList, parameterList);
 	}
 
-	[SuppressMessage("Performance", "CA1822:Mark members as static")]
 	public async ValueTask<DataModelValue> GetContent(IValueEvaluator? contentBodyEvaluator, IObjectEvaluator? contentExpressionEvaluator)
 	{
 		if (contentExpressionEvaluator is not null)
@@ -116,7 +112,6 @@ public class DataConverter(IDataModelHandler? dataModelHandler)
 		return new DataModelValue(attributes);
 	}
 
-	[SuppressMessage("Performance", "CA1822:Mark members as static")]
 	public async ValueTask<DataModelValue> FromContent(Resource resource)
 	{
 		Infra.Requires(resource);

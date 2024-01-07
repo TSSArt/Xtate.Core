@@ -40,7 +40,7 @@ public sealed class RuntimeExecNode : IExecutableEntity, IStoreSupport, IAncesto
 
 #region Interface IDocumentId
 
-	public int DocumentId => _documentIdSlot.Value;
+	public int DocumentId => _documentIdSlot.CreateValue();
 
 #endregion
 

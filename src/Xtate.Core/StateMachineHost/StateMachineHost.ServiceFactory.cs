@@ -49,7 +49,7 @@ public sealed partial class StateMachineHost : IServiceFactory, IServiceFactoryA
 
 		var origin = scxml is not null ? new StateMachineOrigin(scxml, baseUri) : new StateMachineOrigin(source!, baseUri);
 
-		return await StartStateMachine(sessionId, origin, parameters, SecurityContextType.InvokedService, finalizer: default, default).ConfigureAwait(false);
+		return await StartStateMachine(sessionId, origin, parameters, SecurityContextType.InvokedService, default).ConfigureAwait(false);
 	}
 
 #endregion

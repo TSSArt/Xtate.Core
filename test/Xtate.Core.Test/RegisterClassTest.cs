@@ -295,7 +295,9 @@ public class RegisterClassTest
 		services.RegisterScxml();
 		var provider = services.BuildProvider();
 
+		// ReSharper disable once UseAwaitUsing
 		using var textWriter = new StringWriter();
+		// ReSharper disable once UseAwaitUsing
 		using var writer = XmlWriter.Create(textWriter, new XmlWriterSettings { Async = true });
 
 		var scxmlSerializer = await provider.GetRequiredService<IScxmlSerializer>();
@@ -364,14 +366,15 @@ public class RegisterClassTest
 		services.RegisterScxml();
 		var provider = services.BuildProvider();
 
-		const string xml = @"
-  <scxml xmlns=""http://www.w3.org/2005/07/scxml"" xmlns:my=""http://xtate.net/scxml/customaction/my"" version=""1.0"" datamodel=""xpath"" initial=""init"">
-    <state id=""init"">
-      <onentry>
-        <my:myAction source=""emailContent"" destination=""emailContent"" />        
-      </onentry>
-    </state>
-  </scxml>";
+		const string xml = """
+						   <scxml xmlns="http://www.w3.org/2005/07/scxml" xmlns:my="http://xtate.net/scxml/customaction/my" version="1.0" datamodel="xpath" initial="init">
+						     <state id="init">
+						       <onentry>
+						         <my:myAction source="emailContent" destination="emailContent" />
+						       </onentry>
+						     </state>
+						   </scxml>
+						   """;
 
 		using var textReader = new StringReader(xml);
 		using var reader = XmlReader.Create(textReader, new XmlReaderSettings { NameTable = provider.GetRequiredServiceSync<INameTableProvider>().GetNameTable() });
@@ -390,7 +393,7 @@ public class RegisterClassTest
 		var interpreterModelBuilder = await provider2.GetRequiredService<InterpreterModelBuilder>();
 
 		// Act
-		var stateMachineNode = (await interpreterModelBuilder.Build(stateMachine)).Root;
+		var stateMachineNode = (await interpreterModelBuilder.Build()).Root;
 		await stateMachineNode.States[0].OnEntry[0].ActionEvaluators[0].Execute();
 
 		// Assert
@@ -403,11 +406,12 @@ public class RegisterClassTest
 	{
 		// Arrange
 
-		const string xml = @"
-  <scxml xmlns=""http://www.w3.org/2005/07/scxml"" version=""1.0"" datamodel=""xpath"" initial=""init"">
-    <state id=""init"">
-    </state>
-  </scxml>";
+		const string xml = """
+						   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="xpath" initial="init">
+						     <state id="init">
+						     </state>
+						   </scxml>
+						   """;
 
 		var services = new ServiceCollection();
 		services.RegisterStateMachineFactory();
@@ -416,10 +420,9 @@ public class RegisterClassTest
 		var provider = services.BuildProvider();
 
 		var interpreterModelBuilder = await provider.GetRequiredService<InterpreterModelBuilder>();
-		var stateMachine = await provider.GetRequiredService<IStateMachine>();
 
 		// Act
-		var stateMachineNode = (await interpreterModelBuilder.Build(stateMachine)).Root;
+		var stateMachineNode = (await interpreterModelBuilder.Build()).Root;
 
 		// Assert
 
@@ -430,14 +433,15 @@ public class RegisterClassTest
 	public async Task StateMachineInterpreterTest()
 	{
 		// Arrange
-		const string xml = @"
-  <scxml xmlns=""http://www.w3.org/2005/07/scxml"" version=""1.0"" datamodel=""xpath"" initial=""init"">
-    <final id=""init"">
-        <donedata>
-            <content>HELLO</content>
-        </donedata>
-    </final>
-  </scxml>";
+		const string xml = """
+						   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="xpath" initial="init">
+						     <final id="init">
+						         <donedata>
+						             <content>HELLO</content>
+						         </donedata>
+						     </final>
+						   </scxml>
+						   """;
 
 		var services = new ServiceCollection();
 		services.AddForwarding<IScxmlStateMachine>(_ => new ScxmlStateMachine(xml));

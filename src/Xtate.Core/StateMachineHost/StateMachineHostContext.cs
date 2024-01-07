@@ -147,7 +147,7 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 			Configuration = _configuration,
 			PersistenceLevel = _options.PersistenceLevel,
 			StorageProvider = _options.StorageProvider,
-			ResourceLoaderFactories = _options.ResourceLoaderFactories,
+			//ResourceLoaderFactories = _options.ResourceLoaderFactories,
 			//CustomActionProviders = _options.CustomActionFactories,
 			StopToken = _stopTokenSource.Token,
 			SuspendToken = _suspendTokenSource.Token,
@@ -160,6 +160,7 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 			Arguments = arguments
 		};
 
+	[Obsolete]
 	protected virtual StateMachineControllerBase CreateStateMachineController(SessionId sessionId,
 																			  IStateMachine? stateMachine,
 																			  IStateMachineOptions? stateMachineOptions,
@@ -204,7 +205,7 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 		//var factoryContext = new FactoryContext(_options.ResourceLoaderFactories, securityContext, _options.Logger, loggerContext);
 		//TODO:
 	//	var xmlResolver = ServiceLocator.Default.GetService<RedirectXmlResolver>();
-		var xmlParserContext = GetXmlParserContext(nameTable, uri);
+		//var xmlParserContext = GetXmlParserContext(nameTable, uri);
 		//var xmlReaderSettings = GetXmlReaderSettings(nameTable, xmlResolver);
 		//var directorOptions = GetScxmlDirectorOptions(_options.ServiceLocator, xmlParserContext, xmlReaderSettings, xmlResolver);
 		/*
@@ -218,7 +219,7 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 		services.RegisterStateMachineBuilder();
 
 		if(scxml is null)
-			services.AddForwarding<IStateMachineLocation>(_ => new StateMachineLocation(uri));
+			services.AddForwarding<IStateMachineLocation>(_ => new StateMachineLocation(uri!));
 		else
 			services.AddForwarding<IScxmlStateMachine>(_ => new ScxmlStateMachine(scxml));
 
@@ -266,7 +267,7 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 																						StateMachineOrigin origin,
 																						DataModelValue parameters,
 																						SecurityContext securityContext,
-																						DeferredFinalizer finalizer,
+																						//DeferredFinalizer finalizer,
 																						IErrorProcessor errorProcessor,
 																						CancellationToken token)
 	{
@@ -284,7 +285,7 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 															  Uri? stateMachineLocation,
 															  IStateMachineOptions stateMachineOptions,
 															  SecurityContext securityContext,
-															  DeferredFinalizer finalizer,
+															  //DeferredFinalizer finalizer,
 															  IErrorProcessor errorProcessor)
 	{
 		var interpreterOptions = CreateInterpreterOptions(stateMachineLocation, CreateHostData(stateMachineLocation), errorProcessor);

@@ -82,7 +82,7 @@ internal sealed class OrderedSetPersistingController<T> : IDisposable where T : 
 
 #endregion
 
-	private void OnChanged(OrderedSet<T>.ChangedAction action, [AllowNull] T item)
+	private void OnChanged(OrderedSet<T>.ChangedAction action, T? item)
 	{
 		switch (action)
 		{

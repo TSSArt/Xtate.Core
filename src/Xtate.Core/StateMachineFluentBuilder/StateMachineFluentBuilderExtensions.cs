@@ -28,15 +28,16 @@ public static class StateMachineFluentBuilderExtensions
 		services.RegisterStateMachineBuilder();
 
 		services.AddTypeSync<StateMachineFluentBuilder>();
-		services.AddTypeSync<StateFluentBuilder<TOuterBuilder>, TOuterBuilder, Action<IState>>();
-		services.AddTypeSync<ParallelFluentBuilder<TOuterBuilder>, TOuterBuilder, Action<IParallel>>();
-		services.AddTypeSync<FinalFluentBuilder<TOuterBuilder>, TOuterBuilder, Action<IFinal>>();
-		services.AddTypeSync<InitialFluentBuilder<TOuterBuilder>, TOuterBuilder, Action<IInitial>>();
-		services.AddTypeSync<HistoryFluentBuilder<TOuterBuilder>, TOuterBuilder, Action<IHistory>>();
-		services.AddTypeSync<TransitionFluentBuilder<TOuterBuilder>, TOuterBuilder, Action<ITransition>>();
+		services.AddTypeSync<StateFluentBuilder<OuterBuilderStub>, OuterBuilderStub, Action<IState>>();
+		services.AddTypeSync<ParallelFluentBuilder<OuterBuilderStub>, OuterBuilderStub, Action<IParallel>>();
+		services.AddTypeSync<FinalFluentBuilder<OuterBuilderStub>, OuterBuilderStub, Action<IFinal>>();
+		services.AddTypeSync<InitialFluentBuilder<OuterBuilderStub>, OuterBuilderStub, Action<IInitial>>();
+		services.AddTypeSync<HistoryFluentBuilder<OuterBuilderStub>, OuterBuilderStub, Action<IHistory>>();
+		services.AddTypeSync<TransitionFluentBuilder<OuterBuilderStub>, OuterBuilderStub, Action<ITransition>>();
 	}
 
-	private class TOuterBuilder : IStub
+	[UsedImplicitly]
+	private class OuterBuilderStub : IStub
 	{
 #region Interface IStub
 

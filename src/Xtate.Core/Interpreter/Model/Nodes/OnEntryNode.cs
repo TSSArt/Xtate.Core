@@ -50,7 +50,7 @@ public sealed class OnEntryNode : IOnEntry, IStoreSupport, IAncestorProvider, ID
 
 #region Interface IDocumentId
 
-	public int DocumentId => _documentIdSlot.Value;
+	public int DocumentId => _documentIdSlot.CreateValue();
 
 #endregion
 

@@ -83,12 +83,12 @@ public class DataModelDateTimeTest
 
 	private static IEnumerable<object[]> ToObjectData()
 	{
-		yield return new object[] { typeof(DateTime), DateTimeWithUnspecifiedKind };
-		yield return new object[] { typeof(DateTime), DateTimeWithUtcKind };
-		yield return new object[] { typeof(DateTimeOffset), DateTimeWithLocalKind };
-		yield return new object[] { typeof(DateTimeOffset), DateTimeOffsetWithZeroOffset };
-		yield return new object[] { typeof(DateTimeOffset), DateTimeOffsetWithPositiveOffset };
-		yield return new object[] { typeof(DateTimeOffset), DateTimeOffsetWithNegativeOffset };
+		yield return [typeof(DateTime), DateTimeWithUnspecifiedKind];
+		yield return [typeof(DateTime), DateTimeWithUtcKind];
+		yield return [typeof(DateTimeOffset), DateTimeWithLocalKind];
+		yield return [typeof(DateTimeOffset), DateTimeOffsetWithZeroOffset];
+		yield return [typeof(DateTimeOffset), DateTimeOffsetWithPositiveOffset];
+		yield return [typeof(DateTimeOffset), DateTimeOffsetWithNegativeOffset];
 	}
 
 	[TestMethod]
@@ -104,9 +104,9 @@ public class DataModelDateTimeTest
 
 	private static IEnumerable<object[]> DateTimeRoundtripValidationSet()
 	{
-		yield return new object[] { new DateTime(DefaultTicks, DateTimeKind.Utc) };
-		yield return new object[] { new DateTime(DefaultTicks, DateTimeKind.Local) };
-		yield return new object[] { new DateTime(DefaultTicks, DateTimeKind.Unspecified) };
+		yield return [new DateTime(DefaultTicks, DateTimeKind.Utc)];
+		yield return [new DateTime(DefaultTicks, DateTimeKind.Local)];
+		yield return [new DateTime(DefaultTicks, DateTimeKind.Unspecified)];
 	}
 
 	[TestMethod]
@@ -123,9 +123,9 @@ public class DataModelDateTimeTest
 
 	private static IEnumerable<object[]> DateTimeOffsetRoundtripValidationSet()
 	{
-		yield return new object[] { new DateTimeOffset(DefaultTicks, TimeSpan.Zero) };
-		yield return new object[] { new DateTimeOffset(DefaultTicks, PositiveOffset) };
-		yield return new object[] { new DateTimeOffset(DefaultTicks, NegativeOffset) };
+		yield return [new DateTimeOffset(DefaultTicks, TimeSpan.Zero)];
+		yield return [new DateTimeOffset(DefaultTicks, PositiveOffset)];
+		yield return [new DateTimeOffset(DefaultTicks, NegativeOffset)];
 	}
 
 	[TestMethod]
@@ -166,7 +166,7 @@ public class DataModelDateTimeTest
 		var v = new DateTime(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, millisecond: 0, DateTimeKind.Unspecified) + TimeSpan.FromTicks(addTicks);
 
 		// act
-		var _ = DataModelDateTime.TryParse(forParse, out var d);
+		_ = DataModelDateTime.TryParse(forParse, out var d);
 
 		// assert
 		Assert.AreEqual(v, d.ToDateTime());
@@ -182,7 +182,7 @@ public class DataModelDateTimeTest
 		var v = new DateTime(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, millisecond: 0, DateTimeKind.Unspecified) + TimeSpan.FromTicks(addTicks);
 
 		// act
-		var _ = DataModelDateTime.TryParse(forParse, out var d);
+		_ = DataModelDateTime.TryParse(forParse, out var d);
 
 		// assert
 		Assert.AreEqual(v, d.ToDateTime());
@@ -252,7 +252,7 @@ public class DataModelDateTimeTest
 	public void TryParseExact2_ShouldReturnTrue_IfStringCanBeParsed(string value)
 	{
 		// assert
-		Assert.IsTrue(DataModelDateTime.TryParseExact(value, new[] { "o", "s" }, provider: null, DateTimeStyles.None, out _));
+		Assert.IsTrue(DataModelDateTime.TryParseExact(value, ["o", "s"], provider: null, DateTimeStyles.None, out _));
 	}
 
 	[TestMethod]
@@ -322,9 +322,9 @@ public class DataModelDateTimeTest
 	public void ParseExact2_ShouldReturnSameValueAsTryParse_IfStringCanBeParsed(string value)
 	{
 		// act
-		DataModelDateTime.TryParseExact(value, new[] { "o", "s" }, provider: null, DateTimeStyles.None, out var dttm);
+		DataModelDateTime.TryParseExact(value, ["o", "s"], provider: null, DateTimeStyles.None, out var dttm);
 
-		var parsedDttm = DataModelDateTime.ParseExact(value, new[] { "o", "s" }, provider: null);
+		var parsedDttm = DataModelDateTime.ParseExact(value, ["o", "s"], provider: null);
 
 		// assert
 		Assert.AreEqual(dttm, parsedDttm);
@@ -449,12 +449,12 @@ public class DataModelDateTimeTest
 
 	private static IEnumerable<object[]> WriteToReadFromData()
 	{
-		yield return new object[] { DateTimeWithUnspecifiedKind };
-		yield return new object[] { DateTimeWithUtcKind };
-		yield return new object[] { DateTimeWithLocalKind };
-		yield return new object[] { DateTimeOffsetWithZeroOffset };
-		yield return new object[] { DateTimeOffsetWithPositiveOffset };
-		yield return new object[] { DateTimeOffsetWithNegativeOffset };
+		yield return [DateTimeWithUnspecifiedKind];
+		yield return [DateTimeWithUtcKind];
+		yield return [DateTimeWithLocalKind];
+		yield return [DateTimeOffsetWithZeroOffset];
+		yield return [DateTimeOffsetWithPositiveOffset];
+		yield return [DateTimeOffsetWithNegativeOffset];
 	}
 
 	[TestMethod]

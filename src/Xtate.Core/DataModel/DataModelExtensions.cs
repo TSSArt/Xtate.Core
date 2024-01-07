@@ -45,12 +45,10 @@ public static class DataModelExtensions
 		services.AddTypeSync<DefaultForEachEvaluator, IForEach>();
 		services.AddTypeSync<DefaultIfEvaluator, IIf>();
 		services.AddTypeSync<DefaultInlineContentEvaluator, IInlineContent>();
-		services.AddTypeSync<DefaultInvokeEvaluator, IInvoke>();
 		services.AddTypeSync<DefaultLogEvaluator, ILog>();
 		services.AddTypeSync<DefaultRaiseEvaluator, IRaise>();
 		services.AddTypeSync<DefaultScriptEvaluator, IScript>();
 		services.AddTypeSync<DefaultSendEvaluator, ISend>();
-		services.AddTypeSync<DefaultParamEvaluator, IParam>();
 
 		services.AddTypeSync<CustomActionContainer, ICustomAction>();
 		services.AddFactorySync<CustomActionFactory>().For<CustomActionBase, ICustomAction>();

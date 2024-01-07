@@ -50,7 +50,7 @@ public sealed class OnExitNode : IOnExit, IStoreSupport, IAncestorProvider, IDoc
 
 #region Interface IDocumentId
 
-	public int DocumentId => _documentIdSlot.Value;
+	public int DocumentId => _documentIdSlot.CreateValue();
 
 #endregion
 

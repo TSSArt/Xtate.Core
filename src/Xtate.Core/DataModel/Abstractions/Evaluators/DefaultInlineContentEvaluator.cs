@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,30 +15,19 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 namespace Xtate.DataModel;
 
-public abstract class InlineContentEvaluator : IInlineContent, IObjectEvaluator, IStringEvaluator, IAncestorProvider
+public abstract class InlineContentEvaluator(IInlineContent inlineContent) : IInlineContent, IObjectEvaluator, IStringEvaluator, IAncestorProvider
 {
-	private readonly IInlineContent _inlineContent;
-
-	protected InlineContentEvaluator(IInlineContent inlineContent)
-	{
-		Infra.Requires(inlineContent);
-
-		_inlineContent = inlineContent;
-	}
-
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => _inlineContent;
+	object IAncestorProvider.Ancestor => inlineContent;
 
 #endregion
 
 #region Interface IInlineContent
 
-	public virtual string? Value => _inlineContent.Value;
+	public virtual string? Value => inlineContent.Value;
 
 #endregion
 
@@ -57,18 +46,18 @@ public abstract class InlineContentEvaluator : IInlineContent, IObjectEvaluator,
 
 public class DefaultInlineContentEvaluator(IInlineContent inlineContent) : InlineContentEvaluator(inlineContent)
 {
-	private DataModelValue _parsedValue;
+	private DataModelValue _contentValue;
 
 	public override ValueTask<IObject> EvaluateObject()
 	{
-		if (_parsedValue.IsUndefined())
+		if (_contentValue.IsUndefined())
 		{
-			_parsedValue = ParseToDataModel();
-			_parsedValue.MakeDeepConstant();
+			_contentValue = ParseToDataModel();
+			_contentValue.MakeDeepConstant();
 		}
 
-		return new(_parsedValue.CloneAsWritable());
+		return new ValueTask<IObject>(_contentValue);
 	}
 
-	protected virtual DataModelValue ParseToDataModel() => Value;
+	protected virtual DataModelValue ParseToDataModel() => DataModelValue.FromString(base.Value);
 }

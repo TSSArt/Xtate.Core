@@ -200,7 +200,7 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 																						 StateMachineOrigin origin,
 																						 DataModelValue parameters,
 																						 SecurityContext securityContext,
-																						 DeferredFinalizer finalizer,
+																						 //DeferredFinalizer finalizer,
 																						 IErrorProcessor errorProcessor,
 																						 CancellationToken token)
 	{
@@ -212,13 +212,13 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 
 		if (!options.IsStateMachinePersistable())
 		{
-			return await base.CreateAndAddStateMachine(sessionId, origin, parameters, securityContext, finalizer, errorProcessor, token).ConfigureAwait(false);
+			return await base.CreateAndAddStateMachine(sessionId, origin, parameters, securityContext, errorProcessor, token).ConfigureAwait(false);
 		}
 
 		await _lockStateMachines.WaitAsync(token).ConfigureAwait(false);
 		try
 		{
-			var stateMachineController = await base.CreateAndAddStateMachine(sessionId, origin, parameters, securityContext, finalizer, errorProcessor, token).ConfigureAwait(false);
+			var stateMachineController = await base.CreateAndAddStateMachine(sessionId, origin, parameters, securityContext, errorProcessor, token).ConfigureAwait(false);
 
 			var bucket = new Bucket(_storage).Nested(StateMachinesKey);
 			var recordId = _stateMachineRecordId ++;
@@ -241,7 +241,7 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 		}
 	}
 
-	public override async void RemoveStateMachineController(IStateMachineController stateMachineController)
+	public override void RemoveStateMachineController(IStateMachineController stateMachineController)
 	{
 		//TODO:uncomment
 		/*
@@ -326,15 +326,15 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 				{
 					var meta = new StateMachineMeta(stateMachineBucket) { RecordId = i };
 
-					var finalizer = new DeferredFinalizer();
+					//var finalizer = new DeferredFinalizer();
 					var securityContext = SecurityContext.Create(meta.SecurityContextType, meta.Permissions);
 
-					var controller = AddSavedStateMachine( meta.SessionId, meta.Location, meta, securityContext, finalizer, errorProcessor: default /*TODO*/);
+					var controller = AddSavedStateMachine( meta.SessionId, meta.Location, meta, securityContext, errorProcessor: default! /*TODO*/);
 					AddStateMachineController(controller);
 
 					//TODO:
 					//finalizer.Add(static (ctx, ctrl) => ((StateMachineHostContext) ctx).RemoveStateMachineController((StateMachineControllerBase) ctrl), this, controller);
-					finalizer.Add(controller);
+					//finalizer.Add(controller);
 
 					meta.Controller = controller;
 

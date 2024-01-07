@@ -52,12 +52,7 @@ public sealed partial class StateMachineHost : IIoProcessor, IEventConsumer
 	{
 		if (senderServiceId is null) throw new ArgumentNullException(nameof(senderServiceId));
 
-		var target = outgoingEvent.Target;
-
-		if (target is null)
-		{
-			throw new ProcessorException(Resources.Exception_EventTargetDidNotSpecified);
-		}
+		var target = outgoingEvent.Target ?? throw new ProcessorException(Resources.Exception_EventTargetDidNotSpecified);
 
 		if (senderServiceId is SessionId sessionId && IsTargetParent(target))
 		{

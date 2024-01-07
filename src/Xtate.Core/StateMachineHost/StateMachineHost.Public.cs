@@ -28,7 +28,7 @@ public sealed partial class StateMachineHost(StateMachineHostOptions options) : 
 	private         StateMachineHostContext?                 _context;
 	public required Func<ValueTask<StateMachineHostContext>> ContextFactory;
 	private         bool                                     _disposed;
-	private         StateMachineHostOptions _options = options ?? throw new ArgumentNullException(nameof(options));
+	private         readonly StateMachineHostOptions _options = options ?? throw new ArgumentNullException(nameof(options));
 
 	#region Interface IAsyncDisposable
 
@@ -245,10 +245,10 @@ public sealed partial class StateMachineHost(StateMachineHostOptions options) : 
 
 	private async ValueTask<IStateMachineController> StartStateMachineWrapper(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters)
 	{
-		var finalizer = new DeferredFinalizer();
-		await using (finalizer.ConfigureAwait(false))
+		//var finalizer = new DeferredFinalizer();
+		//await using (finalizer.ConfigureAwait(false))
 		{
-			return await StartStateMachine(sessionId, origin, parameters, SecurityContextType.NewTrustedStateMachine, finalizer, CancellationToken.None).ConfigureAwait(false);
+			return await StartStateMachine(sessionId, origin, parameters, SecurityContextType.NewTrustedStateMachine, CancellationToken.None).ConfigureAwait(false);
 		}
 	}
 

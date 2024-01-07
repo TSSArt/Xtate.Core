@@ -48,6 +48,6 @@ public class XmlConverterTest
 
 		//xmlWriter.
 
-		var _ = writer.ToString();
+		_ = writer.ToString();
 	}
 }

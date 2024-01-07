@@ -17,16 +17,12 @@
 
 #endregion
 
-using Xtate.DataModel;
-using Xtate.DataModel.Null;
-using Xtate.DataModel.Runtime;
-using Xtate.DataModel.XPath;
 using Xtate.IoC;
 
 namespace Xtate.Core.Test.Interpreter;
 
 public static class ContainerBuilder
-{
+{/*
 	public static void AddDataModelHandler(this IServiceCollection services)
 	{
 		services.AddTypeSync<DefaultAssignEvaluator, IAssign>();
@@ -96,7 +92,7 @@ public static class ContainerBuilder
 		services.AddStateMachineContext(SharedWithin.Scope);
 
 		services.AddImplementation<StateMachineInterpreter>().For<IStateMachineInterpreter>();
-	}
+	}*/
 }
 
 [TestClass]

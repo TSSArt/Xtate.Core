@@ -19,11 +19,8 @@
 
 namespace Xtate.DataModel;
 
-
 public interface ILocationEvaluator
 {
-	ValueTask DeclareLocalVariable();
-
 	ValueTask SetValue(IObject value);
 
 	ValueTask<IObject> GetValue();

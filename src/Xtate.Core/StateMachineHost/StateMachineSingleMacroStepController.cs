@@ -44,7 +44,7 @@ internal sealed class StateMachineSingleMacroStepController(SessionId sessionId,
 
 		if (state == StateMachineInterpreterState.Waiting)
 		{
-			_suspendTokenSource.Cancel();
+			await _suspendTokenSource.CancelAsync().ConfigureAwait(false);
 		}
 
 		try

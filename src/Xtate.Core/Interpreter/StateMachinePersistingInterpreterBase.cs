@@ -28,16 +28,11 @@ public interface IPersistingInterpreterState
 	public ValueTask CheckPoint(int level);
 }
 
-[method: SetsRequiredMembers]
-public class StateMachinePersistingInterpreterBase3(IPersistingInterpreterState persistingInterpreterState,
-												  IInterpreterModel interpreterModel) : StateMachinePersistingInterpreterBase2(
-	persistingInterpreterState,
-	interpreterModel);
-
-[method: SetsRequiredMembers]
 public class StateMachinePersistingInterpreterBase2(IPersistingInterpreterState persistingInterpreterState,
 												  IInterpreterModel interpreterModel) : StateMachinePersistingInterpreterBase(
+#pragma warning disable CS9107 
 	persistingInterpreterState,
+#pragma warning restore CS9107 
 	interpreterModel)
 {
 	protected override async ValueTask<IEvent> ReadExternalEvent()
@@ -64,10 +59,6 @@ public class StateMachinePersistingInterpreterBase : StateMachineInterpreter
 	private          int                         _methodIndex = 1;
 	private          bool                        _suspending;
 
-	//public required IStateMachineInterpreterTracer1? StateMachineInterpreterTracer { private get; [UsedImplicitly] init; }
-	//public required ITmpLogger2<IStateMachineInterpreter>? Logger { private get; [UsedImplicitly] init; }
-
-	[SetsRequiredMembers]
 	public StateMachinePersistingInterpreterBase(IPersistingInterpreterState persistingInterpreterState,
 												 IInterpreterModel interpreterModel)
 	{

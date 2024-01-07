@@ -26,7 +26,6 @@ using Xtate.DataModel.XPath;
 namespace Xtate;
 
 [Flags]
-
 public enum DataModelConverterJsonOptions
 {
 	/// <summary>
@@ -90,7 +89,7 @@ public static class DataModelConverter
 	{
 		Infra.Requires(list);
 
-		if (list.GetMetadata() is { } metadata && metadata[TypeMetaKey, caseInsensitive: false] is { } value)
+		if (list.GetMetadata() is { } metadata && metadata[TypeMetaKey, caseInsensitive: false] is var value)
 		{
 			switch (value.AsStringOrDefault())
 			{
@@ -106,7 +105,7 @@ public static class DataModelConverter
 	{
 		Infra.Requires(list);
 
-		if (list.GetMetadata() is { } metadata && metadata[TypeMetaKey, caseInsensitive: false] is { } value)
+		if (list.GetMetadata() is { } metadata && metadata[TypeMetaKey, caseInsensitive: false] is var value)
 		{
 			switch (value.AsStringOrDefault())
 			{
@@ -115,7 +114,7 @@ public static class DataModelConverter
 			}
 		}
 
-		return list.Count > 0 && list.HasKeys;
+		return list is { Count: > 0, HasKeys: true };
 	}
 
 	public static DataModelList CreateAsObject()
@@ -232,10 +231,8 @@ public static class DataModelConverter
 		return XmlConverter.FromXmlStreamAsync(stream.InjectCancellationToken(token));
 	}
 
-	private class JsonValueConverter(DataModelConverterJsonOptions options) : JsonConverter<DataModelValue>
+	private class JsonValueConverter(DataModelConverterJsonOptions converterOptions) : JsonConverter<DataModelValue>
 	{
-		private readonly DataModelConverterJsonOptions _options = options;
-
 		public override DataModelValue Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
 			reader.TokenType switch
 			{
@@ -255,11 +252,11 @@ public static class DataModelConverter
 		{
 			switch (value.Type)
 			{
-				case DataModelValueType.Undefined when (_options & DataModelConverterJsonOptions.UndefinedToNull) != 0:
+				case DataModelValueType.Undefined when (converterOptions & DataModelConverterJsonOptions.UndefinedToNull) != 0:
 					writer.WriteNullValue();
 					break;
 
-				case DataModelValueType.Undefined when (_options & DataModelConverterJsonOptions.UndefinedToSkip) == 0:
+				case DataModelValueType.Undefined when (converterOptions & DataModelConverterJsonOptions.UndefinedToSkip) == 0:
 					throw new JsonException(Resources.Exception_UndefinedValueNotAllowed);
 
 				case DataModelValueType.Undefined:
@@ -311,10 +308,8 @@ public static class DataModelConverter
 		}
 	}
 
-	private class JsonListConverter(DataModelConverterJsonOptions options) : JsonConverter<DataModelList>
+	private class JsonListConverter(DataModelConverterJsonOptions converterOptions) : JsonConverter<DataModelList>
 	{
-		private readonly DataModelConverterJsonOptions _options = options;
-
 		public override DataModelList Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
 			reader.TokenType switch
 			{
@@ -378,7 +373,7 @@ public static class DataModelConverter
 						writer.WritePropertyName(pair.Key);
 						JsonSerializer.Serialize(writer, pair.Value, options);
 					}
-					else if ((_options & DataModelConverterJsonOptions.UndefinedToSkipOrNull) == DataModelConverterJsonOptions.UndefinedToNull)
+					else if ((converterOptions & DataModelConverterJsonOptions.UndefinedToSkipOrNull) == DataModelConverterJsonOptions.UndefinedToNull)
 					{
 						writer.WritePropertyName(pair.Key);
 						writer.WriteNullValue();
@@ -423,11 +418,11 @@ public static class DataModelConverter
 				{
 					JsonSerializer.Serialize(writer, value, options);
 				}
-				else if ((_options & DataModelConverterJsonOptions.UndefinedToNull) != 0)
+				else if ((converterOptions & DataModelConverterJsonOptions.UndefinedToNull) != 0)
 				{
 					writer.WriteNullValue();
 				}
-				else if ((_options & DataModelConverterJsonOptions.UndefinedToSkip) == 0)
+				else if ((converterOptions & DataModelConverterJsonOptions.UndefinedToSkip) == 0)
 				{
 					throw new JsonException(Resources.Exception_UndefinedValueNotAllowed);
 				}

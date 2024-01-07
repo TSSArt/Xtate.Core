@@ -20,7 +20,7 @@
 namespace Xtate.Core;
 
 
-public interface IStartInvokeLoggerContext : ILoggerContext
+public interface IStartInvokeLoggerContext //: ILoggerContext
 {
 	public SessionId SessionId { get; }
 	public Uri       Type      { get; }

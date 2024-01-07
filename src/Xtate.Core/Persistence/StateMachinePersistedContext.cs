@@ -55,7 +55,7 @@ public class StateMachinePersistedContext : StateMachineContext, IPersistenceCon
 	public StateMachinePersistedContext(IStateMachinePersistedContextOptions options,
 										ITransactionalStorage storage,
 										//ILoggerOld logger,
-										ILoggerContext loggerContext,
+										//ILoggerContext loggerContext,
 										IExternalCommunication? externalCommunication)
 	{
 		_storage = storage;

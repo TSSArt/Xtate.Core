@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2023 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,36 +15,25 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using Xtate.CustomAction;
 
 namespace Xtate.DataModel;
 
-public abstract class CustomActionEvaluator : ICustomAction, IExecEvaluator, IAncestorProvider
+public abstract class CustomActionEvaluator(ICustomAction customAction) : ICustomAction, IExecEvaluator, IAncestorProvider
 {
-	private readonly ICustomAction _customAction;
-
-	protected CustomActionEvaluator(ICustomAction customAction)
-	{
-		Infra.Requires(customAction);
-
-		_customAction = customAction;
-	}
-
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => _customAction;
+	object IAncestorProvider.Ancestor => customAction;
 
 #endregion
 
 #region Interface ICustomAction
 
-	public virtual string?                             XmlNamespace => _customAction.XmlNamespace;
-	public virtual string?                             XmlName      => _customAction.XmlName;
-	public virtual string?                             Xml          => _customAction.Xml;
-	public virtual ImmutableArray<ILocationExpression> Locations    => _customAction.Locations;
-	public virtual ImmutableArray<IValueExpression>    Values       => _customAction.Values;
+	public virtual string?                             XmlNamespace => customAction.XmlNamespace;
+	public virtual string?                             XmlName      => customAction.XmlName;
+	public virtual string?                             Xml          => customAction.Xml;
+	public virtual ImmutableArray<ILocationExpression> Locations    => customAction.Locations;
+	public virtual ImmutableArray<IValueExpression>    Values       => customAction.Values;
 
 #endregion
 
@@ -63,7 +52,7 @@ public class DefaultCustomActionEvaluator : CustomActionEvaluator
 	{
 		if (customAction.Is(out _customActionContainer))
 		{
-			_customActionContainer.SetEvaluators(customAction.Values, customAction.Locations);
+			_customActionContainer.SetEvaluators(base.Values, base.Locations);
 		}
 	}
 

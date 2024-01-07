@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,8 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using Xtate.DataModel;
 using Xtate.Persistence;
 
@@ -24,40 +22,37 @@ namespace Xtate.Core;
 
 public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 {
-	private readonly IInvoke                _invoke;
-	private          DocumentIdSlot         _documentIdSlot;
-	private          StateEntityNode?       _source;
+	private readonly IValueEvaluator?                    _contentBodyEvaluator;
+	private readonly IObjectEvaluator?                   _contentExpressionEvaluator;
+	private readonly ILocationEvaluator?                 _idLocationEvaluator;
+	private readonly IInvoke                             _invoke;
+	private readonly ImmutableArray<ILocationEvaluator>  _nameEvaluatorList;
+	private readonly ImmutableArray<DataConverter.Param> _parameterList;
+	private readonly IStringEvaluator?                   _sourceExpressionEvaluator;
+	private readonly IStringEvaluator?                   _typeExpressionEvaluator;
+	private          DocumentIdSlot                      _documentIdSlot;
+	private          StateEntityNode?                    _source;
 
 	public InvokeNode(DocumentIdNode documentIdNode, IInvoke invoke)
 	{
-		Infra.Requires(invoke);
+		_invoke = invoke;
 
 		documentIdNode.SaveToSlot(out _documentIdSlot);
 
-		_invoke = invoke;
+		_typeExpressionEvaluator = invoke.TypeExpression?.As<IStringEvaluator>();
+		_sourceExpressionEvaluator = invoke.SourceExpression?.As<IStringEvaluator>();
+		_contentExpressionEvaluator = invoke.Content?.Expression?.As<IObjectEvaluator>();
+		_contentBodyEvaluator = invoke.Content?.Body?.As<IValueEvaluator>();
+		_idLocationEvaluator = invoke.IdLocation?.As<ILocationEvaluator>();
+		_nameEvaluatorList = invoke.NameList.AsArrayOf<ILocationExpression, ILocationEvaluator>();
+		_parameterList = DataConverter.AsParamArray(invoke.Parameters);
 
 		Finalize = invoke.Finalize?.As<FinalizeNode>();
-
-		TypeExpressionEvaluator = invoke.TypeExpression?.As<IStringEvaluator>();
-		SourceExpressionEvaluator = invoke.SourceExpression?.As<IStringEvaluator>();
-		ContentExpressionEvaluator = invoke.Content?.Expression?.As<IObjectEvaluator>();
-		ContentBodyEvaluator = invoke.Content?.Body?.As<IValueEvaluator>();
-		IdLocationEvaluator = invoke.IdLocation?.As<ILocationEvaluator>();
-		NameEvaluatorList = invoke.NameList.AsArrayOf<ILocationExpression, ILocationEvaluator>();
-		ParameterList = DataConverter.AsParamArray(invoke.Parameters);
 	}
 
 	public required Func<ValueTask<DataConverter>>      DataConverterFactory    { private get; [UsedImplicitly] init; }
 	public required Func<ValueTask<IInvokeController?>> InvokeControllerFactory { private get; [UsedImplicitly] init; }
 	public required Func<ValueTask<ILogger<IInvoke>>>   LoggerFactory           { private get; [UsedImplicitly] init; }
-
-	public IObjectEvaluator?                   ContentExpressionEvaluator { get; }
-	public IValueEvaluator?                    ContentBodyEvaluator       { get; }
-	public ILocationEvaluator?                 IdLocationEvaluator        { get; }
-	public ImmutableArray<ILocationEvaluator>  NameEvaluatorList          { get; }
-	public ImmutableArray<DataConverter.Param> ParameterList              { get; }
-	public IStringEvaluator?                   SourceExpressionEvaluator  { get; }
-	public IStringEvaluator?                   TypeExpressionEvaluator    { get; }
 
 	public InvokeId? InvokeId { get; private set; }
 
@@ -77,7 +72,7 @@ public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId
 
 #region Interface IDocumentId
 
-	public int DocumentId => _documentIdSlot.Value;
+	public int DocumentId => _documentIdSlot.CreateValue();
 
 #endregion
 
@@ -126,19 +121,18 @@ public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId
 
 		InvokeId = InvokeId.New(_source.Id, _invoke.Id);
 
-		if (IdLocationEvaluator is not null)
+		if (_idLocationEvaluator is not null)
 		{
-			await IdLocationEvaluator.SetValue(InvokeId).ConfigureAwait(false);
+			await _idLocationEvaluator.SetValue(InvokeId).ConfigureAwait(false);
 		}
 
-		var type = TypeExpressionEvaluator is not null ? ToUri(await TypeExpressionEvaluator.EvaluateString().ConfigureAwait(false)) : _invoke.Type;
-		var source = SourceExpressionEvaluator is not null ? ToUri(await SourceExpressionEvaluator.EvaluateString().ConfigureAwait(false)) : _invoke.Source;
-
-		var rawContent = ContentBodyEvaluator is IStringEvaluator rawContentEvaluator ? await rawContentEvaluator.EvaluateString().ConfigureAwait(false) : null;
+		var type = _typeExpressionEvaluator is not null ? ToUri(await _typeExpressionEvaluator.EvaluateString().ConfigureAwait(false)) : _invoke.Type;
+		var source = _sourceExpressionEvaluator is not null ? ToUri(await _sourceExpressionEvaluator.EvaluateString().ConfigureAwait(false)) : _invoke.Source;
+		var rawContent = _contentBodyEvaluator is IStringEvaluator rawContentEvaluator ? await rawContentEvaluator.EvaluateString().ConfigureAwait(false) : null;
 
 		var dataConverter = await DataConverterFactory().ConfigureAwait(false);
-		var content = await dataConverter.GetContent(ContentBodyEvaluator, ContentExpressionEvaluator).ConfigureAwait(false);
-		var parameters = await dataConverter.GetParameters(NameEvaluatorList, ParameterList).ConfigureAwait(false);
+		var content = await dataConverter.GetContent(_contentBodyEvaluator, _contentExpressionEvaluator).ConfigureAwait(false);
+		var parameters = await dataConverter.GetParameters(_nameEvaluatorList, _parameterList).ConfigureAwait(false);
 
 		Infra.NotNull(type);
 

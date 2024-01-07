@@ -32,7 +32,6 @@ public abstract class DataModelHandlerBase : StateMachineVisitor, IDataModelHand
 	public required Func<IAssign, DefaultAssignEvaluator>                                 DefaultAssignEvaluatorFactory                 { private get; [UsedImplicitly] init; }
 	public required Func<IScript, DefaultScriptEvaluator>                                 DefaultScriptEvaluatorFactory                 { private get; [UsedImplicitly] init; }
 	public required Func<ICustomAction, DefaultCustomActionEvaluator>                     DefaultCustomActionEvaluatorFactory           { private get; [UsedImplicitly] init; }
-	public required Func<IInvoke, DefaultInvokeEvaluator>                                 DefaultInvokeEvaluatorFactory                 { private get; [UsedImplicitly] init; }
 	public required Func<IContentBody, DefaultContentBodyEvaluator>                       DefaultContentBodyEvaluatorFactory            { private get; [UsedImplicitly] init; }
 	public required Func<IInlineContent, DefaultInlineContentEvaluator>                   DefaultInlineContentEvaluatorFactory          { private get; [UsedImplicitly] init; }
 	public required Func<IExternalDataExpression, DefaultExternalDataExpressionEvaluator> DefaultExternalDataExpressionEvaluatorFactory { private get; [UsedImplicitly] init; }
@@ -146,15 +145,6 @@ public abstract class DataModelHandlerBase : StateMachineVisitor, IDataModelHand
 	protected virtual ICustomAction CreateCustomActionContainer(ICustomAction customAction) => CustomActionContainerFactory(customAction);
 
 	protected virtual ICustomAction GetEvaluator(ICustomAction customAction) => DefaultCustomActionEvaluatorFactory(customAction);
-
-	protected override void Visit(ref IInvoke invoke)
-	{
-		base.Visit(ref invoke);
-
-		invoke = GetEvaluator(invoke);
-	}
-
-	protected virtual IInvoke GetEvaluator(IInvoke invoke) => DefaultInvokeEvaluatorFactory(invoke);
 
 	protected override void Visit(ref IContentBody contentBody)
 	{

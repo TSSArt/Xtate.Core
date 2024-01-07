@@ -35,4 +35,8 @@
     <ProjectReference Include="..\..\src\Xtate.Core\Xtate.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="AITests\" />
+  </ItemGroup>
+
 </Project>

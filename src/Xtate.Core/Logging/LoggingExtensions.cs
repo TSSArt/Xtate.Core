@@ -31,6 +31,7 @@ public static class LoggingExtensions
 		}
 
 		services.AddImplementation<LogEntityParserService>().For<IEntityParserHandler>();
+		services.AddImplementation<LogEntityParserService>().For<IEntityParserHandler>();
 		services.AddImplementation<Logger<Any>>().For<ILogger<Any>>();
 	}
 }

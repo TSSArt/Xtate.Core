@@ -24,24 +24,23 @@ internal struct DocumentIdSlot(LinkedListNode<int> node)
 	private LinkedListNode<int>? _node = node;
 	private int _value = -1;
 
-	public int Value
+	public int CreateValue()
 	{
-		get
+		if (_node is not { } node)
 		{
-			if (_node is { } node)
-			{
-				var value = node.Value;
-
-				if (value >= 0)
-				{
-					_node = default;
-					_value = value;
-				}
-
-				return value;
-			}
-
 			return _value;
 		}
+
+		var value = node.Value;
+
+		if (value < 0)
+		{
+			return -1;
+		}
+
+		_node = default;
+		_value = value;
+
+		return value;
 	}
 }

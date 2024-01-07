@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,24 +15,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 namespace Xtate.DataModel;
 
-public abstract class RaiseEvaluator : IRaise, IExecEvaluator, IAncestorProvider
+public abstract class RaiseEvaluator(IRaise raise) : IRaise, IExecEvaluator, IAncestorProvider
 {
-	private readonly IRaise _raise;
-
-	protected RaiseEvaluator(IRaise raise)
-	{
-		Infra.Requires(raise);
-
-		_raise = raise;
-	}
-
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => _raise;
+	object IAncestorProvider.Ancestor => raise;
 
 #endregion
 
@@ -44,25 +33,23 @@ public abstract class RaiseEvaluator : IRaise, IExecEvaluator, IAncestorProvider
 
 #region Interface IRaise
 
-	public IOutgoingEvent? OutgoingEvent => _raise.OutgoingEvent;
+	public virtual IOutgoingEvent? OutgoingEvent => raise.OutgoingEvent;
 
 #endregion
 }
 
-public class DefaultRaiseEvaluator : RaiseEvaluator
+public class DefaultRaiseEvaluator(IRaise raise) : RaiseEvaluator(raise)
 {
-	public DefaultRaiseEvaluator(IRaise raise) : base(raise)
-	{
-		Infra.NotNull(raise.OutgoingEvent);
-	}
-
 	public required Func<ValueTask<IEventController?>> EventSenderFactory { private get; [UsedImplicitly] init; }
 
 	public override async ValueTask Execute()
 	{
+		var outgoingEvent = base.OutgoingEvent;
+		Infra.NotNull(outgoingEvent);
+
 		if (await EventSenderFactory().ConfigureAwait(false) is { } eventSender)
 		{
-			await eventSender.Send(OutgoingEvent!).ConfigureAwait(false);
+			await eventSender.Send(outgoingEvent).ConfigureAwait(false);
 		}
 	}
 }

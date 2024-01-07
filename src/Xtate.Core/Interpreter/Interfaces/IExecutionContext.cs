@@ -59,8 +59,3 @@ public interface IDataModelController
 {
 	DataModelList DataModel { get; }
 }
-
-public interface IContextItems
-{
-	object? this[object key] { get; set; }
-}

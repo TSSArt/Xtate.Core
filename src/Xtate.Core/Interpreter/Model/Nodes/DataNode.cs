@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2023 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,33 +15,31 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using Xtate.DataModel;
 using Xtate.Persistence;
 
 namespace Xtate.Core;
 
-public sealed class DataNode : IData, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
+public class DataNode : IData, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 {
-	private readonly IData          _data;
-	private          DocumentIdSlot _documentIdSlot;
+	private readonly IData _data;
+
+	private DocumentIdSlot _documentIdSlot;
 
 	public DataNode(DocumentIdNode documentIdNode, IData data)
 	{
-		Infra.NotNull(data.Id);
-
-		documentIdNode.SaveToSlot(out _documentIdSlot);
 		_data = data;
 
-		ResourceEvaluator = data.Source?.As<IResourceEvaluator>();
+		documentIdNode.SaveToSlot(out _documentIdSlot);
+
+		SourceEvaluator = data.Source?.As<IObjectEvaluator>();
 		ExpressionEvaluator = data.Expression?.As<IObjectEvaluator>();
 		InlineContentEvaluator = data.InlineContent?.As<IObjectEvaluator>();
 	}
 
-	public IResourceEvaluator? ResourceEvaluator      { get; }
-	public IObjectEvaluator?   ExpressionEvaluator    { get; }
-	public IObjectEvaluator?   InlineContentEvaluator { get; }
+	public IObjectEvaluator? SourceEvaluator        { get; }
+	public IObjectEvaluator? ExpressionEvaluator    { get; }
+	public IObjectEvaluator? InlineContentEvaluator { get; }
 
 #region Interface IAncestorProvider
 
@@ -51,7 +49,7 @@ public sealed class DataNode : IData, IStoreSupport, IAncestorProvider, IDocumen
 
 #region Interface IData
 
-	public string                   Id            => _data.Id!;
+	public string?                  Id            => _data.Id;
 	public IValueExpression?        Expression    => _data.Expression;
 	public IExternalDataExpression? Source        => _data.Source;
 	public IInlineContent?          InlineContent => _data.InlineContent;
@@ -66,7 +64,7 @@ public sealed class DataNode : IData, IStoreSupport, IAncestorProvider, IDocumen
 
 #region Interface IDocumentId
 
-	public int DocumentId => _documentIdSlot.Value;
+	public int DocumentId => _documentIdSlot.CreateValue();
 
 #endregion
 

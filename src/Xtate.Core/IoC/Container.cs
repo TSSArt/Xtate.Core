@@ -56,9 +56,7 @@ namespace Xtate.Core
 			services.AddTypeSync<DefaultForEachEvaluator, IForEach>();
 			services.AddTypeSync<DefaultIfEvaluator, IIf>();
 			services.AddTypeSync<DefaultInlineContentEvaluator, IInlineContent>();
-			services.AddTypeSync<DefaultInvokeEvaluator, IInvoke>();
 			services.AddTypeSync<DefaultLogEvaluator, ILog>();
-			services.AddTypeSync<DefaultParamEvaluator, IParam>();
 			services.AddTypeSync<DefaultRaiseEvaluator, IRaise>();
 			services.AddTypeSync<DefaultScriptEvaluator, IScript>();
 			services.AddTypeSync<DefaultSendEvaluator, ISend>();
@@ -69,7 +67,7 @@ namespace Xtate.Core
 			//services.AddImplementation<ErrorProcessorService<Any>>().For<IErrorProcessorService<Any>>();
 			services.AddImplementation<DataModelHandlerService>().For<IDataModelHandlerService>();
 			services.AddSharedImplementationSync<DefaultErrorProcessor>(SharedWithin.Container).For<IErrorProcessor>();
-			services.AddImplementation<BuilderFactory>().For<IBuilderFactory>();
+			//services.AddImplementation<BuilderFactory>().For<IBuilderFactory>();
 			services.AddImplementation<StateMachineValidator>()
 					.For<IStateMachineValidator>()
 					.For<StateMachineValidator>(); //TODO: remove .For<StateMachineValidator>()
@@ -161,9 +159,7 @@ namespace Xtate.Core
 			services.AddTypeSync<DefaultForEachEvaluator, IForEach>();
 			services.AddTypeSync<DefaultIfEvaluator, IIf>();
 			services.AddTypeSync<DefaultInlineContentEvaluator, IInlineContent>();
-			services.AddTypeSync<DefaultInvokeEvaluator, IInvoke>();
 			services.AddTypeSync<DefaultLogEvaluator, ILog>();
-			services.AddTypeSync<DefaultParamEvaluator, IParam>();
 			services.AddTypeSync<DefaultRaiseEvaluator, IRaise>();
 			services.AddTypeSync<DefaultScriptEvaluator, IScript>();
 			services.AddTypeSync<DefaultSendEvaluator, ISend>();

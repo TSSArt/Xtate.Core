@@ -26,7 +26,7 @@ using Xtate.Persistence;
 namespace Xtate.Core.Test.Legacy;
 
 public class Evaluator : IExternalScriptExpression, IIntegerEvaluator, IStringEvaluator, IExecEvaluator, IArrayEvaluator, IObjectEvaluator, IBooleanEvaluator, ILocationEvaluator, IValueExpression,
-						 ILocationExpression, IConditionExpression, IScriptExpression, IExternalDataExpression, IResourceEvaluator
+						 ILocationExpression, IConditionExpression, IScriptExpression, IExternalDataExpression
 {
 	public Evaluator(string? expression) => Expression = expression;
 
@@ -61,7 +61,7 @@ public class Evaluator : IExternalScriptExpression, IIntegerEvaluator, IStringEv
 
 #region Interface IExternalDataExpression
 
-	Uri? IExternalDataExpression.Uri => Uri;
+	Uri IExternalDataExpression.Uri => Uri!;
 
 #endregion
 
@@ -79,8 +79,6 @@ public class Evaluator : IExternalScriptExpression, IIntegerEvaluator, IStringEv
 
 #region Interface ILocationEvaluator
 
-	ValueTask ILocationEvaluator.DeclareLocalVariable() => default;
-
 	ValueTask ILocationEvaluator.SetValue(IObject value) => default;
 
 	ValueTask<IObject> ILocationEvaluator.GetValue() => new((IObject) null!);
@@ -97,13 +95,7 @@ public class Evaluator : IExternalScriptExpression, IIntegerEvaluator, IStringEv
 
 #region Interface IObjectEvaluator
 
-	ValueTask<IObject> IObjectEvaluator.EvaluateObject() => new((IObject) null!);
-
-#endregion
-
-#region Interface IResourceEvaluator
-
-	ValueTask<IObject> IResourceEvaluator.EvaluateObject() => default;
+	ValueTask<IObject> IObjectEvaluator.EvaluateObject() => new(DefaultObject.Null);
 
 #endregion
 

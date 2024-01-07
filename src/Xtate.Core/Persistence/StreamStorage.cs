@@ -17,6 +17,10 @@
 
 #endregion
 
+#if NET6_0_OR_GREATER
+#pragma warning disable CA1835
+#endif
+
 using System.Buffers;
 using System.IO;
 using Xtate.IoC;

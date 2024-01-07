@@ -47,7 +47,7 @@ public class StringExtensionsTest
 	public void NormalizeSpaces_ShouldRemoveNotExpectedWhiteSpaceCharacters(int num, string value, string expected)
 	{
 		// arrange
-		var _ = num;
+		_ = num;
 
 		// act
 		var normalized = value.NormalizeSpaces();

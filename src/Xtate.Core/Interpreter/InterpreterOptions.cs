@@ -35,7 +35,7 @@ public record InterpreterOptions
 	//public ServiceLocator                           ServiceLocator { get; init; }
 	public ISecurityContext?                      SecurityContext         { get; init; }
 	//public ImmutableArray<ICustomActionFactory>   CustomActionProviders   { get; init; }
-	public ImmutableArray<IResourceLoaderFactory> ResourceLoaderFactories { get; init; }
+	//public ImmutableArray<IResourceLoaderFactory> ResourceLoaderFactories { get; init; }
 	public ImmutableDictionary<object, object>?   ContextRuntimeItems     { get; init; }
 	public IExternalCommunication?                ExternalCommunication   { get; init; }
 	public INotifyStateChanged?                   NotifyStateChanged      { get; init; }

@@ -582,7 +582,7 @@ public class DataModelValueTest
 	public void CtrLazyValue_ShouldNotCallValuePropertyInConstructor()
 	{
 		// act
-		var _ = new DataModelValue(_lazyValueNullMock.Object);
+		_ = new DataModelValue(_lazyValueNullMock.Object);
 
 		// assert
 		_lazyValueNullMock.Verify(lv => lv.Value, Times.Never);

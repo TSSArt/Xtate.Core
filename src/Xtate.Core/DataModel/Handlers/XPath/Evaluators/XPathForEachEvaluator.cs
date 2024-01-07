@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,12 +15,22 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 namespace Xtate.DataModel.XPath;
 
-public class XPathForEachEvaluator(IForEach forEach) : DefaultForEachEvaluator(forEach)
+public class XPathForEachEvaluator : DefaultForEachEvaluator
 {
+	private readonly XPathLocationExpressionEvaluator? _indexEvaluator;
+	private readonly XPathLocationExpressionEvaluator  _itemEvaluator;
+
+	public XPathForEachEvaluator(IForEach forEach) : base(forEach)
+	{
+		var itemEvaluator = base.Item?.As<XPathLocationExpressionEvaluator>();
+		Infra.NotNull(itemEvaluator);
+		_itemEvaluator = itemEvaluator;
+
+		_indexEvaluator = base.Index?.As<XPathLocationExpressionEvaluator>();
+	}
+
 	public required Func<ValueTask<XPathEngine>> EngineFactory { private get; [UsedImplicitly] init; }
 
 	public override async ValueTask Execute()
@@ -31,11 +41,11 @@ public class XPathForEachEvaluator(IForEach forEach) : DefaultForEachEvaluator(f
 
 		try
 		{
-			await ItemEvaluator.DeclareLocalVariable().ConfigureAwait(false);
+			await _itemEvaluator.DeclareLocalVariable().ConfigureAwait(false);
 
-			if (IndexEvaluator is not null)
+			if (_indexEvaluator is not null)
 			{
-				await IndexEvaluator.DeclareLocalVariable().ConfigureAwait(false);
+				await _indexEvaluator.DeclareLocalVariable().ConfigureAwait(false);
 			}
 
 			await base.Execute().ConfigureAwait(false);

@@ -94,7 +94,7 @@ public class DynamicAssembly : IDisposable, IAsyncInitialization, IServiceModule
 
 		var serviceModules = ImmutableArray.CreateBuilder<IServiceModule>(attributes.Length);
 
-		foreach (ServiceModuleAttribute attribute in attributes)
+		foreach (var attribute in attributes.Cast<ServiceModuleAttribute>())
 		{
 			serviceModules.Add((IServiceModule) Activator.CreateInstance(attribute.ServiceModuleType!)!);
 		}

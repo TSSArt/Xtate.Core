@@ -20,7 +20,7 @@
 namespace Xtate.Core;
 
 
-public interface ILoadStateMachineLoggerContext : ILoggerContext
+public interface ILoadStateMachineLoggerContext //: ILoggerContext
 {
 	public Uri? Uri { get; }
 

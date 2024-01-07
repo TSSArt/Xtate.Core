@@ -35,22 +35,22 @@ public class FluentBuilderTest
 
 		var builder = await provider.GetRequiredService<StateMachineFluentBuilder>();
 
-		var stateMachine = builder
-						   .SetExternalQueueSize(4)
-						   .SetPersistenceLevel(PersistenceLevel.Event)
-						   .SetSynchronousEventProcessing(true)
-						   .SetInitial("init")
-						   .BeginState("init")
-						   .AddOnEntry(() => { })
-						   .AddOnExit(() => { })
-						   .BeginParallel("parallel")
-						   .BeginState("a1")
-						   .EndState()
-						   .BeginState("a2")
-						   .EndState()
-						   .EndParallel()
-						   .EndState()
-						   .Build();
+		builder
+			.SetExternalQueueSize(4)
+			.SetPersistenceLevel(PersistenceLevel.Event)
+			.SetSynchronousEventProcessing(true)
+			.SetInitial("init")
+			.BeginState("init")
+			.AddOnEntry(() => { })
+			.AddOnExit(() => { })
+			.BeginParallel("parallel")
+			.BeginState("a1")
+			.EndState()
+			.BeginState("a2")
+			.EndState()
+			.EndParallel()
+			.EndState()
+			.Build();
 	}
 
 	[TestMethod]
