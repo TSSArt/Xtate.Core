@@ -194,7 +194,7 @@ public sealed class StateMachineHostBuilder : IStateMachineHostBuilder
 
 	public StateMachineHostBuilder SetUnhandledErrorBehaviour(UnhandledErrorBehaviour unhandledErrorBehaviour)
 	{
-		if (unhandledErrorBehaviour < UnhandledErrorBehaviour.DestroyStateMachine || unhandledErrorBehaviour > UnhandledErrorBehaviour.IgnoreError)
+		if (unhandledErrorBehaviour is < UnhandledErrorBehaviour.DestroyStateMachine or > UnhandledErrorBehaviour.IgnoreError)
 		{
 			throw new InvalidEnumArgumentException(nameof(unhandledErrorBehaviour), (int) unhandledErrorBehaviour, typeof(UnhandledErrorBehaviour));
 		}

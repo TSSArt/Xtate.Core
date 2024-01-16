@@ -211,7 +211,7 @@ public class StateMachineValidator : StateMachineVisitor, IStateMachineValidator
 			ErrorProcessorService.AddError(entity, Resources.ErrorMessage_TransitionMustBePresentInHistoryElement);
 		}
 
-		if (entity.Type < HistoryType.Shallow || entity.Type > HistoryType.Deep)
+		if (entity.Type is < HistoryType.Shallow or > HistoryType.Deep)
 		{
 			ErrorProcessorService.AddError(entity, Resources.ErrorMessage_InvalidTypeValueInHistoryElement);
 		}
@@ -383,7 +383,7 @@ public class StateMachineValidator : StateMachineVisitor, IStateMachineValidator
 			ErrorProcessorService.AddError(entity, Resources.ErrorMessage_InitialStatePropertyCannotBeUsedWithoutAnyStates);
 		}
 
-		if (entity.Binding < BindingType.Early || entity.Binding > BindingType.Late)
+		if (entity.Binding is < BindingType.Early or > BindingType.Late)
 		{
 			ErrorProcessorService.AddError(entity, Resources.ErrorMessage_InvalidBindingTypeValueInStateMachineElement);
 		}

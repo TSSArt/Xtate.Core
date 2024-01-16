@@ -208,7 +208,7 @@ public class XIncludeReader : DelegatedXmlReader
 			throw new XIncludeException(Resources.Exception_IndocumentReferencesNotSupported, InnerReader);
 		}
 
-		if (_parseValue is null || _parseValue == @"xml")
+		if (_parseValue is null or @"xml")
 		{
 			return await ProcessInterDocXmlInclusion(ResolveHref(_hrefValue), useAsync).ConfigureAwait(false);
 		}
