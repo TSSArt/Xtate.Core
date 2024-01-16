@@ -234,7 +234,7 @@ namespace Xtate.Test
 			{
 				foreach (var b in value)
 				{
-					if (b < 32 || b > 127)
+					if (b is < 32 or > 127)
 					{
 						sb.Append('%').Append(((int) b).ToString("X2"));
 					}

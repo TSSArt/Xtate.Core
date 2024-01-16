@@ -375,7 +375,7 @@ public class DataModelValueTest
 	public void IsUndefinedOrNull_ShouldBeCorrectValue(string line, DataModelValueType type, DataModelValue value)
 	{
 		// assert
-		Assert.AreEqual(type == DataModelValueType.Undefined || type == DataModelValueType.Null, value.IsUndefinedOrNull(), M(line));
+		Assert.AreEqual(type is DataModelValueType.Undefined or DataModelValueType.Null, value.IsUndefinedOrNull(), M(line));
 	}
 
 	[TestMethod]

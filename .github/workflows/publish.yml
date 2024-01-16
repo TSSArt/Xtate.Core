@@ -21,7 +21,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v3.2.0
       with:
-        dotnet-version: 8.0.100
+        dotnet-version: 8.0.101
         source-url: https://nuget.pkg.github.com/TSSArt/index.json
     - name: Setup NuGet.exe
       uses: NuGet/setup-nuget@v1.2.0

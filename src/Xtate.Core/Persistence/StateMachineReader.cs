@@ -34,11 +34,9 @@ public class StateMachineReader
 
 	private static bool Exist(in Bucket bucket, TypeInfo typeInfo)
 	{
-		var typeInfoVal = typeInfo;
-
 		if (bucket.TryGet(Key.TypeInfo, out TypeInfo storedTypeInfo))
 		{
-			if (storedTypeInfo != typeInfoVal)
+			if (storedTypeInfo != typeInfo)
 			{
 				throw new PersistenceException(Resources.Exception_UnexpectedTypeInfoValue);
 			}

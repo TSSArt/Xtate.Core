@@ -397,7 +397,7 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 			{
 				if (_attributes is not null && _attributes.TryGetValue(new QualifiedName(ns, name), out var type))
 				{
-					if (type == AttributeType.SysOptionalFound || type == AttributeType.SysRequiredFound)
+					if (type is AttributeType.SysOptionalFound or AttributeType.SysRequiredFound)
 					{
 						OnError(CreateMessage(Resources.ErrorMessage_FoundDuplicateAttribute, ns, name));
 					}
