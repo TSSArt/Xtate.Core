@@ -22,7 +22,4 @@ namespace Xtate.Core;
 public interface IStateMachineInterpreterOptions
 {
 	SessionId             SessionId    { get; }
-	InterpreterOptions    options      { get; } //TODO:delete
-
-	//IInterpreterModel      model        { get; }
 }

@@ -29,10 +29,19 @@ namespace Xtate.Test
 	[TestClass]
 	public class StateMachineFluentBuilderTest
 	{
-		[TestMethod]
-		public void EmptyStateMachineTest()
+		public static ValueTask<StateMachineFluentBuilder> GetStateMachineFluentBuilder()
 		{
-			var builder = FluentBuilderFactory.Create();
+			var services = new ServiceCollection();
+			services.RegisterStateMachineFluentBuilder();
+			var sp = services.BuildProvider();
+
+			return sp.GetRequiredService<StateMachineFluentBuilder>();
+		}
+
+		[TestMethod]
+		public async Task EmptyStateMachineTest()
+		{
+			var builder = await GetStateMachineFluentBuilder();
 
 			var stateMachine = builder.Build();
 
@@ -41,9 +50,9 @@ namespace Xtate.Test
 		}
 
 		[TestMethod]
-		public void InitialAttributeStateMachineTest()
+		public async Task  InitialAttributeStateMachineTest()
 		{
-			var builder = FluentBuilderFactory.Create();
+			var builder = await GetStateMachineFluentBuilder();
 
 			builder
 				.SetInitial((Identifier) "S1")
@@ -60,9 +69,9 @@ namespace Xtate.Test
 		}
 
 		[TestMethod]
-		public void RootStatesStateMachineTest()
+		public async Task  RootStatesStateMachineTest()
 		{
-			var builder = FluentBuilderFactory.Create();
+			var builder = await GetStateMachineFluentBuilder();
 
 			builder
 				.BeginState((Identifier) "S1")
