@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,21 +15,40 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using Xtate.IoC;
 
 namespace Xtate.Core;
 
-public class InterpreterModelGetter(InterpreterModelBuilder interpreterModelBuilder) : IAsyncInitialization
+public class InterpreterModelGetter : IAsyncInitialization
 {
-	private readonly AsyncInit<IInterpreterModel> _interpreterModelAsyncInit = AsyncInit.RunNow(interpreterModelBuilder, builder => builder.Build());
+	private readonly AsyncInit<IInterpreterModel> _interpreterModelAsyncInit;
+
+	public InterpreterModelGetter()
+	{
+		_interpreterModelAsyncInit = AsyncInit.Run(this, getter => getter.CreateInterpreterModel());
+	}
+
+	public required InterpreterModelBuilder InterpreterModelBuilder { private get; [UsedImplicitly] init; }
+
+	public required IErrorProcessor ErrorProcessor { private get; [UsedImplicitly] init; }
 
 #region Interface IAsyncInitialization
 
 	public Task Initialization => _interpreterModelAsyncInit.Task;
 
 #endregion
+
+	private async ValueTask<IInterpreterModel> CreateInterpreterModel()
+	{
+		try
+		{
+			return await InterpreterModelBuilder.BuildModel().ConfigureAwait(false);
+		}
+		finally
+		{
+			ErrorProcessor.ThrowIfErrors();
+		}
+	}
 
 	[UsedImplicitly]
 	public IInterpreterModel GetInterpreterModel() => _interpreterModelAsyncInit.Value;

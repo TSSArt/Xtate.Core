@@ -55,9 +55,13 @@ public sealed class InvokeId : ServiceId, IEquatable<InvokeId>
 
 #region Interface IEquatable<InvokeId>
 
-	public bool Equals(InvokeId? other) => SameTypeEquals(other);
+	public bool Equals(InvokeId? other) => FastEqualsNoTypeCheck(other);
 
 #endregion
+
+	public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is InvokeId other && Equals(other);
+
+	public override int GetHashCode() => base.GetHashCode();
 
 	protected override string GenerateId()
 	{

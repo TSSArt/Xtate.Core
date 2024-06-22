@@ -119,7 +119,8 @@ public partial class DataModelList : IFormattable
 		private string IndexKey => _entry.Key ?? @"[" + _entry.Index + @"]";
 
 		[UsedImplicitly]
-		[SuppressMessage(category: "ReSharper", checkId: "InconsistentNaming")]
+		[SuppressMessage("ReSharper", "InconsistentNaming")]
+		[SuppressMessage("Style", "IDE1006:Naming Styles")]
 		public ItemInfo __ItemInfo__ => new(_entry);
 	}
 
@@ -168,7 +169,8 @@ public partial class DataModelList : IFormattable
 		public DebugIndexKeyValue[] Items => dataModelList.Entries.Select(entry => new DebugIndexKeyValue(entry)).ToArray();
 
 		[UsedImplicitly]
-		[SuppressMessage(category: "ReSharper", checkId: "InconsistentNaming")]
+		[SuppressMessage("ReSharper", "InconsistentNaming")]
+		[SuppressMessage("Style", "IDE1006:Naming Styles")]
 		public ListInfo __ListInfo__ => new(dataModelList);
 	}
 }

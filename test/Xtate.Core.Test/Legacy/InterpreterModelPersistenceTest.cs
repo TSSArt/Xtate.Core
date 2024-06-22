@@ -22,6 +22,8 @@ using Xtate.Builder;
 using Xtate.DataModel;
 using Xtate.IoC;
 using Xtate.Persistence;
+using Xtate.Test;
+using IServiceProvider = System.IServiceProvider;
 
 namespace Xtate.Core.Test.Legacy;
 
@@ -228,9 +230,15 @@ public class InterpreterModelPersistenceTest
 						   .EndState()
 						   .Build();
 
+		//var writer = new StreamWriter("C:\\Projects\\1.log");
+		//var debugger = new ServiceProviderDebugger(writer);
 		var services = new ServiceCollection();
+		//services.AddForwarding<IServiceProviderDebugger>(s => debugger);
 		services.RegisterStateMachineInterpreter();
+		services.RegisterPersistence();
 		services.AddForwarding(_ => stateMachine);
+		var storageProvider = new StateMachinePersistenceTest.TestStorage();
+		services.AddForwarding<IStorageProvider>(_ => storageProvider);
 		var serviceProvider = services.BuildProvider();
 		var model = await serviceProvider.GetRequiredService<IInterpreterModel>();
 		var storeSupport = model.Root.As<IStoreSupport>();

@@ -24,12 +24,22 @@ namespace Xtate.Core;
 
 public class InterpreterModelBuilder : StateMachineVisitor
 {
-	private readonly LinkedList<int>                                    _documentIdList = [];
-	private readonly List<IEntity>                                      _entities       = [];
-	private readonly Dictionary<IIdentifier, StateEntityNode>           _idMap          = new(Identifier.EqualityComparer);
-	private readonly List<TransitionNode>                               _targetMap      = [];
+	private class EntityMap(IEntity?[] map) : IEntityMap
+	{
+		public bool TryGetEntityByDocumentId(int id, [MaybeNullWhen(false)] out IEntity entity)
+		{
+			entity = id < map.Length ? map[id] : default;
+			
+			return entity is not null;
+		}
+	}
+
+	private readonly Dictionary<IIdentifier, StateEntityNode>           _idMap     = new(Identifier.EqualityComparer);
+	private readonly List<TransitionNode>                               _targetMap = [];
 	private          int                                                _counter;
 	private          int                                                _deepLevel;
+	private          List<IEntity>?                                     _entities;
+	private          LinkedList<int>?                                   _documentIdList;
 	private          List<(Uri Uri, IExternalScriptConsumer Consumer)>? _externalScriptList;
 	private          bool                                               _inParallel;
 
@@ -96,11 +106,12 @@ public class InterpreterModelBuilder : StateMachineVisitor
 		_counter = _inParallel ? _counter + saved.counter : _counter > saved.counter ? _counter : saved.counter;
 	}
 
-	public async ValueTask<IInterpreterModel> Build()
+	public async ValueTask<IInterpreterModel> BuildModel(bool withEntityMap = false)
 	{
 		_idMap.Clear();
-		_entities.Clear();
 		_targetMap.Clear();
+		_entities = withEntityMap ? [] : default;
+		_documentIdList = withEntityMap ? [] : default;
 		_externalScriptList = default;
 		_inParallel = false;
 		_deepLevel = 0;
@@ -118,35 +129,38 @@ public class InterpreterModelBuilder : StateMachineVisitor
 			}
 		}
 
+		var id = 0;
+
+		for (var node = _documentIdList?.First; node is not null; node = node.Next)
+		{
+			node.Value = id ++;
+		}
+
+		_documentIdList = default;
+
+		var entityMap = _entities is { } entities? GetEntityMap(entities, id) : default;
+
 		if (_externalScriptList is not null)
 		{
 			await SetExternalResources(_externalScriptList).ConfigureAwait(false);
 		}
 
-		return new InterpreterModel(stateMachine.As<StateMachineNode>(), CreateEntityMap());
+		return new InterpreterModel(stateMachine.As<StateMachineNode>(), entityMap);
 	}
 
-	private ImmutableDictionary<int, IEntity> CreateEntityMap()
+	private static IEntityMap GetEntityMap(List<IEntity> entities, int maxId)
 	{
-		var id = 0;
+		var map = maxId > 0 ? new IEntity?[maxId] : [];
 
-		for (var node = _documentIdList.First; node is not null; node = node.Next)
+		foreach (var entity in entities)
 		{
-			node.Value = id ++;
-		}
-
-		_documentIdList.Clear();
-
-		var entityMap = ImmutableDictionary.CreateBuilder<int, IEntity>();
-		foreach (var entity in _entities)
-		{
-			if (entity.Is<IDocumentId>(out var autoDocId))
+			if (entity.Is<IDocumentId>(out var docId))
 			{
-				entityMap.Add(autoDocId.DocumentId, entity);
+				map[docId.DocumentId] = entity;
 			}
 		}
 
-		return entityMap.ToImmutable();
+		return new EntityMap(map);
 	}
 
 	private async ValueTask SetExternalResources(List<(Uri Uri, IExternalScriptConsumer Consumer)> externalScriptList)
@@ -167,7 +181,7 @@ public class InterpreterModelBuilder : StateMachineVisitor
 		}
 	}
 
-	private void RegisterEntity(IEntity entity) => _entities.Add(entity);
+	private void RegisterEntity(IEntity entity) => _entities?.Add(entity);
 
 	private DocumentIdNode CreateDocumentId() => new(_documentIdList);
 

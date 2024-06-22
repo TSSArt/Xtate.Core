@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,24 +15,26 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using Xtate.IoC;
 
 namespace Xtate.Core;
 
-public class StateMachineGetter(IStateMachineService stateMachineService) : IAsyncInitialization
+public class StateMachineGetter : IAsyncInitialization
 {
-	private readonly AsyncInit<IStateMachine?> _stateMachineAsyncInit = AsyncInit.RunNow(stateMachineService, svc => svc.GetStateMachine());
+	private readonly AsyncInit<IStateMachine?> _stateMachineAsyncInit;
 
-	#region Interface IAsyncInitialization
+	public StateMachineGetter() => _stateMachineAsyncInit = AsyncInit.Run(this, getter => getter.StateMachineService.GetStateMachine());
+
+	public required IStateMachineService StateMachineService { private get; [UsedImplicitly] init; }
+
+#region Interface IAsyncInitialization
 
 	public Task Initialization => _stateMachineAsyncInit.Task;
 
 #endregion
 
 	[UsedImplicitly]
-	public ValueTask<IStateMachine?> GetStateMachine() => new(_stateMachineAsyncInit.Value);
+	public IStateMachine? GetStateMachine() => _stateMachineAsyncInit.Value;
 
 	//TODO:delete
 	/*

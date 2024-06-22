@@ -66,7 +66,7 @@ namespace Xtate.Test
 			_resourceLoaderServiceMock.Setup(e => e.Request(It.IsAny<Uri>(), It.IsAny<NameValueCollection>())).Returns(task);
 		}
 		
-		private class TestStorage : IStorageProvider
+		public class TestStorage : IStorageProvider
 		{
 			private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, MemoryStream>> _storage = new();
 

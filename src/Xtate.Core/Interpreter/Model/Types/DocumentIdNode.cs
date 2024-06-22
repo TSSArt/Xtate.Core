@@ -19,20 +19,13 @@
 
 namespace Xtate.Core;
 
-public readonly struct DocumentIdNode
+public readonly struct DocumentIdNode(LinkedList<int>? list)
 {
-	private readonly LinkedListNode<int> _node;
-
-	public DocumentIdNode(LinkedList<int> list)
-	{
-		Infra.Requires(list);
-
-		_node = list.AddLast(-1);
-	}
+	private readonly LinkedListNode<int>? _node = list?.AddLast(-1) ?? default;
 
 	public void Discard()
 	{
-		if (_node.List is { } list)
+		if (_node?.List is { } list)
 		{
 			list.Remove(_node);
 		}

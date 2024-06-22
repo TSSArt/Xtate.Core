@@ -58,21 +58,11 @@ internal static class Encode
 		throw new ArgumentException(Resources.Exception_IncorrectEncoding, nameof(span));
 	}
 
-	public static int GetEncodedLength(int value)
-	{
-		if (value < 0) throw new ArgumentOutOfRangeException(nameof(value));
-
-		if (value <= 0x7F) return 1;
-		if (value <= 0x7FF) return 2;
-		if (value <= 0xFFFF) return 3;
-		if (value <= 0x1FFFFF) return 4;
-		if (value <= 0x3FFFFFF) return 5;
-		return 6;
-	}
+	public static int GetEncodedLength(int value) => value switch { < 0 => 0, <= 0x7F => 1, <= 0x7FF => 2, <= 0xFFFF => 3, <= 0x1FFFFF => 4, <= 0x3FFFFFF => 5, _ => 6 };
 
 	private static ulong GetEncodedValue(int value)
 	{
-		if (value < 0) throw new ArgumentOutOfRangeException(nameof(value));
+		Infra.RequiresNonNegative(value);
 
 		var uValue = (ulong) value;
 

@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text;
 
@@ -22,7 +23,7 @@ namespace Xtate.Core;
 
 public class TraceLogWriter(string source, SourceLevels sourceLevels) : ILogWriter
 {
-	private static readonly string[] Formats = new string[20];
+	private static readonly ConcurrentDictionary<int, string> Formats = new();
 
 	private readonly TraceSource _traceSource = new(source, sourceLevels);
 
@@ -36,7 +37,7 @@ public class TraceLogWriter(string source, SourceLevels sourceLevels) : ILogWrit
 
 		if (_traceSource.Switch.ShouldTrace(traceEventType))
 		{
-			object[] args = parameters is not null ? [message, ..parameters] : [message];
+			object?[] args = parameters is not null ? [message, ..parameters] : [message];
 
 			_traceSource.TraceEvent(traceEventType, id: 0, GetFormat(args.Length - 1), args);
 		}
@@ -44,35 +45,33 @@ public class TraceLogWriter(string source, SourceLevels sourceLevels) : ILogWrit
 		return default;
 	}
 
-	private static TraceEventType GetTraceEventType(Level level)
-	{
-		return level switch
-			   {
-				   Level.Error   => TraceEventType.Error,
-				   Level.Warning => TraceEventType.Warning,
-				   Level.Info    => TraceEventType.Information,
-				   Level.Debug   => TraceEventType.Verbose,
-				   Level.Trace   => TraceEventType.Verbose,
-				   Level.Verbose => TraceEventType.Verbose,
-				   _             => Infra.Unexpected<TraceEventType>(level)
-			   };
-	}
-
 #endregion
 
-	private static string GetFormat(int len) => len < Formats.Length ? Formats[len] ??= CreateFormatString(len) : CreateFormatString(len);
-
-	private static string CreateFormatString(int len)
-	{
-		var sb = new StringBuilder(len * 8 + 8);
-
-		sb.AppendLine(@"{0}");
-
-		for (var i = 1; i <= len; i ++)
+	private static TraceEventType GetTraceEventType(Level level) =>
+		level switch
 		{
-			sb.AppendLine(@$"  {{{i}}}");
-		}
+			Level.Error   => TraceEventType.Error,
+			Level.Warning => TraceEventType.Warning,
+			Level.Info    => TraceEventType.Information,
+			Level.Debug   => TraceEventType.Verbose,
+			Level.Trace   => TraceEventType.Verbose,
+			Level.Verbose => TraceEventType.Verbose,
+			_             => Infra.Unexpected<TraceEventType>(level)
+		};
 
-		return sb.ToString();
-	}
+	private static string GetFormat(int len) =>
+		Formats.GetOrAdd(
+			len, static argsCount =>
+				 {
+					 var sb = new StringBuilder(argsCount * 8 + 8);
+
+					 sb.AppendLine(@"{0}");
+
+					 for (var i = 1; i <= argsCount; i ++)
+					 {
+						 sb.Append(@"  {").Append(i).Append('}').AppendLine();
+					 }
+
+					 return sb.ToString();
+				 });
 }

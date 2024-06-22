@@ -17,24 +17,11 @@
 
 namespace Xtate.Core;
 
-public readonly struct LoggingParameter : IFormattable
+public readonly struct LoggingParameter(string name, object? value, string? format = default) : IFormattable
 {
-	public LoggingParameter(string name, object? value)
-	{
-		Name = name;
-		Value = value;
-	}
-
-	public LoggingParameter(string name, object? value, string? format)
-	{
-		Name = name;
-		Format = format;
-		Value = value;
-	}
-
-	public string  Name   { get; }
-	public object? Value  { get; }
-	public string? Format { get; }
+	public string  Name   { get; } = name;
+	public object? Value  { get; } = value;
+	public string? Format { get; } = format;
 
 #region Interface IFormattable
 

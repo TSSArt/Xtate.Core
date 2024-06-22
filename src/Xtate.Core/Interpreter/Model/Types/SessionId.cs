@@ -31,9 +31,13 @@ public sealed class SessionId : ServiceId, IEquatable<SessionId>
 
 #region Interface IEquatable<SessionId>
 
-	public bool Equals(SessionId? other) => SameTypeEquals(other);
+	public bool Equals(SessionId? other) => FastEqualsNoTypeCheck(other);
 
-#endregion
+	#endregion
+
+	public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is SessionId other && Equals(other);
+
+	public override int GetHashCode() => base.GetHashCode();
 
 	protected override string GenerateId() => IdGenerator.NewSessionId(GetHashCode());
 

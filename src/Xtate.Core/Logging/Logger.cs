@@ -1,17 +1,42 @@
-﻿using System.Globalization;
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
+// This file is part of the Xtate project. <https://xtate.net/>
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+// 
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+using System.Globalization;
 using Xtate.IoC;
 
 namespace Xtate.Core;
 
-public class Logger<TSource>(Func<string, ValueTask<ILogWriter?>> logWriterFactory) : ILogger<TSource>, IAsyncInitialization
+public class Logger<TSource> : ILogger<TSource>, IAsyncInitialization
 {
-	public Task Initialization => _logWriterAsyncInit.Task;
+	private readonly AsyncInit<ILogWriter?> _logWriterAsyncInit;
+
+	public Logger() => _logWriterAsyncInit = AsyncInit.Run(this, logger => logger.LogWriterFactory(typeof(TSource).Name));
+
+	public required Func<string, ValueTask<ILogWriter?>> LogWriterFactory { private get; [UsedImplicitly] init; }
 
 	public required IEntityParserHandler EntityParserHandler { private get; [UsedImplicitly] init; }
 
-	private readonly AsyncInit<ILogWriter?> _logWriterAsyncInit = AsyncInit.RunNow(logWriterFactory, f => f(typeof(TSource).Name));
+#region Interface IAsyncInitialization
 
-	#region Interface ILogger
+	public Task Initialization => _logWriterAsyncInit.Task;
+
+#endregion
+
+#region Interface ILogger
 
 	public virtual bool IsEnabled(Level level) => _logWriterAsyncInit.Value?.IsEnabled(level) ?? false;
 

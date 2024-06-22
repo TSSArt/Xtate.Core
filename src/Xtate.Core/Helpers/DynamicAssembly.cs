@@ -33,7 +33,7 @@ public class DynamicAssembly : IDisposable, IAsyncInitialization, IServiceModule
 	public DynamicAssembly(Uri uri)
 	{
 		_uri = uri;
-		_asyncInitServiceModules = AsyncInit.RunAfter(this, static da => da.LoadAssemblyServiceModules());
+		_asyncInitServiceModules = AsyncInit.Run(this, static da => da.LoadAssemblyServiceModules());
 	}
 
 	public required IResourceLoader ResourceLoader { private get; [UsedImplicitly] init; }

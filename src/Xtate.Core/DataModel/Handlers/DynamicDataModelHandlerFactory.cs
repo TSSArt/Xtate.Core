@@ -87,7 +87,7 @@ public class AssemblyContainerProvider : IAsyncInitialization, IAssemblyContaine
 	public AssemblyContainerProvider(Uri uri)
 	{
 		_uri = uri;
-		_asyncInitServiceScope = AsyncInit.RunAfter(this, acp => acp.CreateServiceScope());
+		_asyncInitServiceScope = AsyncInit.Run(this, acp => acp.CreateServiceScope());
 	}
 
 	public Task Initialization => _asyncInitServiceScope.Task;

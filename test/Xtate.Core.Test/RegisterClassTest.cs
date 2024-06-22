@@ -393,8 +393,8 @@ public class RegisterClassTest
 		var interpreterModelBuilder = await provider2.GetRequiredService<InterpreterModelBuilder>();
 
 		// Act
-		var stateMachineNode = (await interpreterModelBuilder.Build()).Root;
-		await stateMachineNode.States[0].OnEntry[0].ActionEvaluators[0].Execute();
+		var interpreterModel = await interpreterModelBuilder.BuildModel();
+		await interpreterModel.Root.States[0].OnEntry[0].ActionEvaluators[0].Execute();
 
 		// Assert
 
@@ -422,7 +422,7 @@ public class RegisterClassTest
 		var interpreterModelBuilder = await provider.GetRequiredService<InterpreterModelBuilder>();
 
 		// Act
-		var stateMachineNode = (await interpreterModelBuilder.Build()).Root;
+		var stateMachineNode = await interpreterModelBuilder.BuildModel();
 
 		// Assert
 
