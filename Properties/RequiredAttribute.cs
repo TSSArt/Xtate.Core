@@ -21,7 +21,7 @@
 // ReSharper disable UnusedMember.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
-#if !NET6_0_OR_GREATER || NET6_0
+#if !NET7_0_OR_GREATER
 
 namespace System.Runtime.CompilerServices
 {
