@@ -79,6 +79,14 @@ public class StateMachinePersistingInterpreterBase : StateMachineInterpreter
 
 	public override async ValueTask<DataModelValue> RunAsync()
 	{
+		//TODO: use correct condition
+		/*
+		if (false /*_stateMachine is null)
+		{
+			//await TraceInterpreterState(StateMachineInterpreterState.Resumed).ConfigureAwait(false);
+		}*/
+
+
 		try
 		{
 			return await base.RunAsync().ConfigureAwait(false);

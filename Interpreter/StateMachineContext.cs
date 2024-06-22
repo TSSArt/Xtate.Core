@@ -380,6 +380,8 @@ public class StateMachineContext : IStateMachineContext, IAsyncInitialization //
 
 	public ServiceIdSet ActiveInvokes { get; } = [];
 
+	public DataModelValue DoneData { get; set; }
+
 #endregion
 
 	private DataModelList CreateDataModel()

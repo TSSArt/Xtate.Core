@@ -28,7 +28,6 @@ public partial class StateMachineInterpreter : IStateMachineInterpreter
 {
 	private readonly object                          _stateMachineToken = new();
 	private          IStateMachineContext            _context = default!;
-	private          DataModelValue                  _doneData; //TODO: move to context
 	private          bool                            _running = true;
 	private          StateMachineDestroyedException? _stateMachineDestroyedException;
 
@@ -48,232 +47,13 @@ public partial class StateMachineInterpreter : IStateMachineInterpreter
 	public virtual async ValueTask<DataModelValue> RunAsync()
 	{
 		_context = await ContextFactory().ConfigureAwait(false);
-		//TODO: use correct condition
-		/*
-		if (false /*_stateMachine is null) 
-		{
-			//await TraceInterpreterState(StateMachineInterpreterState.Resumed).ConfigureAwait(false);
-		}*/
 
-		//try
-		//{
 		await Interpret().ConfigureAwait(false);
 
-		//}
-		/*catch (StateMachineQueueClosedException)
-		{
-			await TraceInterpreterState(StateMachineInterpreterState.QueueClosed).ConfigureAwait(false);
-
-			throw;
-		}*/
-		/*catch (StateMachineDestroyedException)
-		{
-			throw;
-		}
-		catch
-		{
-			await TraceInterpreterState(StateMachineInterpreterState.Halted).ConfigureAwait(false);
-
-			throw;
-		}*/ /*
-		catch (StateMachineSuspendedException)
-		{
-			await TraceInterpreterState(StateMachineInterpreterState.Suspended).ConfigureAwait(false);
-
-			throw;
-		}*/
-		/*catch (StateMachineInterpreterDisposedException)
-		{
-			await TraceInterpreterState(StateMachineInterpreterState.Halted).ConfigureAwait(false);
-
-			throw;
-		}*/
-
-		return _doneData;
+		return _context.DoneData;
 	}
 
 #endregion
-
-	/*
-	private async ValueTask<InterpreterModel> BuildInterpreterModel()
-	{
-		var interpreterModel = _isPersistingEnabled ? await TryRestoreInterpreterModel().ConfigureAwait(false) : null;
-
-		if (interpreterModel is not null)
-		{
-			return interpreterModel;
-		}
-
-		Infra.NotNull(_stateMachine);
-
-		_dataModelHandler = await CreateDataModelHandler(_stateMachine.DataModelType).ConfigureAwait(false);
-
-		_stateMachineValidator.Validate(_stateMachine);
-
-		var parameters = CreateInterpreterModelBuilderParameters();
-		var interpreterModelBuilder = new InterpreterModelBuilder(parameters);
-
-		try
-		{
-			interpreterModel = await interpreterModelBuilder.Build(CancellationToken.None).ConfigureAwait(false);
-		}
-		finally
-		{
-			_options.ErrorProcessor?.ThrowIfErrors();
-		}
-
-		if (_isPersistingEnabled)
-		{
-			await SaveInterpreterModel(interpreterModel).ConfigureAwait(false);
-		}
-
-		return interpreterModel;
-	}
-
-	private async ValueTask<InterpreterModel?> TryRestoreInterpreterModel()
-	{
-		Infra.NotNull(_options.StorageProvider);
-
-		var storage = await _options.StorageProvider.GetTransactionalStorage(partition: default, StateMachineDefinitionStorageKey, CancellationToken.None).ConfigureAwait(false);
-		await using (storage.ConfigureAwait(false))
-		{
-			var bucket = new Bucket(storage);
-
-			if (bucket.TryGet(Key.Version, out int version) && version != 1)
-			{
-				throw new PersistenceException(Resources.Exception_PersistedStateCantBeReadUnsupportedVersion);
-			}
-
-			var storedSessionId = bucket.GetSessionId(Key.SessionId);
-			if (storedSessionId is not null && storedSessionId != _sessionId)
-			{
-				throw new PersistenceException(Resources.Exception_PersistedStateCantBeReadStoredAndProvidedSessionIdsDoesNotMatch);
-			}
-
-			if (!bucket.TryGet(Key.StateMachineDefinition, out var memory))
-			{
-				return null;
-			}
-
-			var smdBucket = new Bucket(new InMemoryStorage(memory.Span));
-			var dataModelType = smdBucket.GetString(Key.DataModelType);
-			_dataModelHandler = await CreateDataModelHandler(dataModelType).ConfigureAwait(false);
-
-			ImmutableDictionary<int, IEntity>? entityMap = default;
-
-			if (_stateMachine is not null)
-			{
-				var parameters = CreateInterpreterModelBuilderParameters();
-				var temporaryModelBuilder = new InterpreterModelBuilder(parameters);
-				var model = await temporaryModelBuilder.Build(CancellationToken.None).ConfigureAwait(false);
-				entityMap = model.EntityMap;
-			}
-
-			var restoredStateMachine = new StateMachineReader().Build(smdBucket, entityMap);
-
-			if (_stateMachine is not null)
-			{
-				//TODO: Validate stateMachine vs restoredStateMachine (number of elements should be the same and documentId should point to the same entity type)
-			}
-
-			_stateMachine = restoredStateMachine;
-
-			try
-			{
-				var parameters = CreateInterpreterModelBuilderParameters();
-				var interpreterModelBuilder = new InterpreterModelBuilder(parameters);
-
-				return await interpreterModelBuilder.Build(CancellationToken.None).ConfigureAwait(false);
-			}
-			finally
-			{
-				_options.ErrorProcessor?.ThrowIfErrors();
-			}
-		}
-	}
-
-	private async ValueTask SaveInterpreterModel(InterpreterModel interpreterModel)
-	{
-		Infra.NotNull(_options.StorageProvider);
-
-		var storage = await _options.StorageProvider.GetTransactionalStorage(partition: default, StateMachineDefinitionStorageKey, CancellationToken.None).ConfigureAwait(false);
-		await using (storage.ConfigureAwait(false))
-		{
-			SaveToStorage(interpreterModel.Root.As<IStoreSupport>(), new Bucket(storage));
-
-			await storage.CheckPoint(level: 0, CancellationToken.None).ConfigureAwait(false);
-		}
-	}
-
-	private void SaveToStorage(IStoreSupport root, in Bucket bucket)
-	{
-		var memoryStorage = new InMemoryStorage();
-		root.Store(new Bucket(memoryStorage));
-
-		Span<byte> span = stackalloc byte[memoryStorage.GetTransactionLogSize()];
-		memoryStorage.WriteTransactionLogToSpan(span);
-
-		bucket.Add(Key.Version, value: 1);
-		bucket.AddId(Key.SessionId, _sessionId);
-		bucket.Add(Key.StateMachineDefinition, span);
-	}*/
-	/*
-	private ValueTask<IDataModelHandler> CreateDataModelHandler(string? dataModelType)
-	{
-		var dataModelHandlerService = _options.ServiceLocator.GetService<IDataModelHandlerService>();
-
-		return dataModelHandlerService.GetDataModelHandler(dataModelType, CancellationToken.None);
-
-		dataModelType ??= NullDataModelHandler.DataModelType;
-		var factoryContext = new FactoryContext(_options.ServiceLocator, _options.ResourceLoaderFactories, _options.SecurityContext, _options.Logger, this);
-		var activator = await FindDataModelHandlerFactoryActivator(dataModelType, _options.ServiceLocator).ConfigureAwait(false);
-
-		if (activator is not null)
-		{
-			return await activator.CreateHandler(_options.ServiceLocator, dataModelType, _options.ErrorProcessor, _stopCts.Token).ConfigureAwait(false);
-		}
-
-		_options.ErrorProcessor.AddError<StateMachineInterpreter>(entity: null, Res.Format(Resources.Exception_CantFindDataModelHandlerFactoryForDataModelType, dataModelType));
-
-		return new NullDataModelHandler(_options.ServiceLocator);
-
-	}*/
-	/*
-	private async ValueTask<IDataModelHandlerFactoryActivator?> FindDataModelHandlerFactoryActivator(string dataModelType, ServiceLocator serviceLocator)
-	{
-		if (!_options.DataModelHandlerFactories.IsDefaultOrEmpty)
-		{
-			foreach (var factory in _options.DataModelHandlerFactories)
-			{
-				var activator = await factory.TryGetActivator(serviceLocator, dataModelType, _stopCts.Token).ConfigureAwait(false);
-
-				if (activator is not null)
-				{
-					return activator;
-				}
-			}
-		}
-
-		foreach (var factory in PredefinedDataModelHandlerFactories)
-		{
-			var activator = await factory.TryGetActivator(serviceLocator, dataModelType ?? NullDataModelHandler.DataModelType, _stopCts.Token).ConfigureAwait(false);
-
-			if (activator is not null)
-			{
-				return activator;
-			}
-		}
-
-		return null;
-	}*/
-
-	/*protected virtual ValueTask DoOperation<TArg>(StateBagKey key,
-												  IEntity entity,
-												  Func<TArg, ValueTask> func,
-												  TArg arg) =>
-		func(arg);
-
-	protected virtual void Complete(StateBagKey key)            { }*/
 
 	protected virtual ValueTask NotifyAccepted() => NotifyInterpreterState(StateMachineInterpreterState.Accepted);
 	protected virtual ValueTask NotifyStarted()  => NotifyInterpreterState(StateMachineInterpreterState.Started);
@@ -286,9 +66,9 @@ public partial class StateMachineInterpreter : IStateMachineInterpreter
 	{
 		await TraceInterpreterState(state).ConfigureAwait(false);
 
-		if (NotifyStateChanged is { } notifyStateChanged)
+		if (NotifyStateChanged is not null)
 		{
-			await notifyStateChanged.OnChanged(state).ConfigureAwait(false);
+			await NotifyStateChanged.OnChanged(state).ConfigureAwait(false);
 		}
 	}
 
@@ -330,21 +110,6 @@ public partial class StateMachineInterpreter : IStateMachineInterpreter
 		await ExitInterpreter().ConfigureAwait(false);
 		await NotifyExited().ConfigureAwait(false);
 	}
-	/*
-	private void ThrowIfTerminationRequested(bool throwOnDestroy)
-	{
-		var state = (State)_state;
-
-		switch (state)
-		{
-			case State.Operate:                      return;
-			case State.Destroy when !throwOnDestroy: return;
-			case State.Destroy when throwOnDestroy:  throw new StateMachineDestroyedException(Resources.Exception_StateMachineHasBeenDestroyed);
-			//case State.Suspend:                      throw new StateMachineSuspendedException(Resources.Exception_StateMachineHasBeenSuspended);
-			case State.Disposed:                     throw new StateMachineInterpreterDisposedException(Resources.Exception_StateMachineInterpreterHasBeenDisposed);
-			default:                                 throw Infra.Unexpected<Exception>(state);
-		}
-	}*/
 
 	public virtual void TriggerDestroySignal(Exception? innerException = default)
 	{
@@ -1370,7 +1135,7 @@ public partial class StateMachineInterpreter : IStateMachineInterpreter
 	{
 		if (final.DoneData is not null)
 		{
-			_doneData = await EvaluateDoneData(final.DoneData).ConfigureAwait(false);
+			_context.DoneData = await EvaluateDoneData(final.DoneData).ConfigureAwait(false);
 		}
 	}
 
