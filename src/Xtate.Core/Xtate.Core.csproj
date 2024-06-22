@@ -17,7 +17,7 @@
   <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0' or '$(TargetFramework)'=='net462'">
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="8.0.0" />
     <PackageReference Include="System.Collections.Immutable" Version="8.0.0" />
-    <PackageReference Include="System.Text.Json" Version="8.0.0" />
+    <PackageReference Include="System.Text.Json" Version="8.0.3" />
   </ItemGroup>
 
   <ItemGroup>
@@ -44,7 +44,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(UseProjectReference)'==''">
-	  <PackageReference Include="Xtate.IoC" Version="0.1.13" />
+	  <PackageReference Include="Xtate.IoC" Version="0.1.22" />
   </ItemGroup>
 
   <ItemGroup>
