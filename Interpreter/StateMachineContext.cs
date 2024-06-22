@@ -348,8 +348,8 @@ public class StateMachineContext : IStateMachineContext, IAsyncInitialization //
 
 	public StateMachineContext()
 	{
-		_ioProcessorsAsyncInit = AsyncInit.RunAfter(this, ctx => ctx.IoProcessors.ToImmutableArrayAsync());
-		_ixDataModelPropertyAsyncInit = AsyncInit.RunAfter(this, ctx => ctx.XDataModelProperties.ToImmutableArrayAsync());
+		_ioProcessorsAsyncInit = AsyncInit.Run(this, ctx => ctx.IoProcessors.ToImmutableArrayAsync());
+		_ixDataModelPropertyAsyncInit = AsyncInit.Run(this, ctx => ctx.XDataModelProperties.ToImmutableArrayAsync());
 	}
 
 	public required IDataModelHandler                     DataModelHandler      { private get; [UsedImplicitly] init; }

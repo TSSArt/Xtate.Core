@@ -31,9 +31,13 @@ public sealed class SendId : LazyId, IEquatable<SendId>
 
 #region Interface IEquatable<SendId>
 
-	public bool Equals(SendId? other) => SameTypeEquals(other);
+	public bool Equals(SendId? other) => FastEqualsNoTypeCheck(other);
 
-#endregion
+	#endregion
+
+	public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is SendId other && Equals(other);
+
+	public override int GetHashCode() => base.GetHashCode();
 
 	protected override string GenerateId() => IdGenerator.NewSendId(GetHashCode());
 

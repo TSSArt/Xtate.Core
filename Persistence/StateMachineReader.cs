@@ -21,11 +21,16 @@ using Xtate.DataModel;
 
 namespace Xtate.Persistence;
 
+public interface IEntityMap
+{
+	bool TryGetEntityByDocumentId(int id, [MaybeNullWhen(false)] out IEntity entity);
+}
+
 public class StateMachineReader
 {
-	private IReadOnlyDictionary<int, IEntity>? _forwardEntities;
+	private IEntityMap? _forwardEntities;
 
-	public IStateMachine Build(Bucket bucket, IReadOnlyDictionary<int, IEntity>? forwardEntities = default)
+	public IStateMachine Build(Bucket bucket, IEntityMap? forwardEntities = default)
 	{
 		_forwardEntities = forwardEntities;
 
@@ -56,7 +61,7 @@ public class StateMachineReader
 			throw new PersistenceException(Resources.Exception_ForwardEntitiesRequiredToRestoreStateMachine);
 		}
 
-		if (!_forwardEntities.TryGetValue(documentId, out var entity))
+		if (!_forwardEntities.TryGetEntityByDocumentId(documentId, out var entity))
 		{
 			throw new PersistenceException(Resources.Exception_ForwardEntityCanNotBeFound);
 		}

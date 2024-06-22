@@ -31,7 +31,7 @@ public sealed class Identifier : LazyId, IIdentifier, IEquatable<IIdentifier>
 
 #region Interface IEquatable<IIdentifier>
 
-	public bool Equals(IIdentifier? other) => other is Identifier identifier && SameTypeEquals(identifier);
+	public bool Equals(IIdentifier? other) => other is Identifier identifier && FastEqualsNoTypeCheck(identifier);
 
 #endregion
 

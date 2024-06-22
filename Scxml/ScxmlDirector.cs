@@ -325,7 +325,7 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 	{
 		Infra.Requires(value);
 
-		if (!Enum.TryParse(value, ignoreCase: true, out T result) || value.ToLowerInvariant() != value)
+		if (!Enum.TryParse(value, ignoreCase: true, out T result) || value.Any(char.IsUpper))
 		{
 			throw new ArgumentException(Res.Format(Resources.Exception_ValueCannotBeParsed, typeof(T).Name));
 		}

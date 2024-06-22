@@ -17,22 +17,24 @@
 
 #endregion
 
+using Xtate.Persistence;
+
 namespace Xtate.Core;
 
 public interface IInterpreterModel
 {
 	StateMachineNode Root { get; }
 
-	ImmutableDictionary<int, IEntity> EntityMap { get; }
+	IEntityMap? EntityMap { get; }
 }
 
-public class InterpreterModel(StateMachineNode root, ImmutableDictionary<int, IEntity> entityMap) : IInterpreterModel
+public class InterpreterModel(StateMachineNode root, IEntityMap? entityMap) : IInterpreterModel
 {
 #region Interface IInterpreterModel
 
 	public StateMachineNode Root { get; } = root;
 
-	public ImmutableDictionary<int, IEntity> EntityMap { get; } = entityMap;
+	public IEntityMap? EntityMap { get; } = entityMap;
 
 #endregion
 }

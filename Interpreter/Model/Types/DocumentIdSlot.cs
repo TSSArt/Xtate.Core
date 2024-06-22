@@ -19,26 +19,25 @@
 
 namespace Xtate.Core;
 
-internal struct DocumentIdSlot(LinkedListNode<int> node)
+internal struct DocumentIdSlot(LinkedListNode<int>? node)
 {
-	private LinkedListNode<int>? _node = node;
 	private int _value = -1;
 
 	public int CreateValue()
 	{
-		if (_node is not { } node)
+		if (node is not { } realNode)
 		{
 			return _value;
 		}
 
-		var value = node.Value;
+		var value = realNode.Value;
 
 		if (value < 0)
 		{
 			return -1;
 		}
 
-		_node = default;
+		node = default;
 		_value = value;
 
 		return value;

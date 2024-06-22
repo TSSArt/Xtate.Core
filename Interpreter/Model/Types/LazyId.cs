@@ -125,7 +125,7 @@ public abstract class LazyId : ILazyValue, IObject
 		return _id == ((LazyId) obj)._id;
 	}
 
-	protected bool SameTypeEquals(LazyId? lazyId)
+	protected bool FastEqualsNoTypeCheck(LazyId? lazyId)
 	{
 		if (ReferenceEquals(this, lazyId))
 		{
