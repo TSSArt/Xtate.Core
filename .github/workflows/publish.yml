@@ -6,8 +6,10 @@ on:
   workflow_dispatch:
 
 env:
-  VERSION: 0.1.${{ github.run_number }}
+  VERSION: ${{ vars.MM_VERSION }}.${{ github.run_number }}
   CONFIGURATION: Release
+
+run-name: "[v${{ vars.MM_VERSION }}.${{ github.run_number }}] ${{ github.event.head_commit.message }}"
 
 jobs:
   publish:
