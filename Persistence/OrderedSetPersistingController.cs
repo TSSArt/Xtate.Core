@@ -21,6 +21,12 @@ namespace Xtate.Persistence;
 
 internal sealed class OrderedSetPersistingController<T> : IDisposable where T : class, IDocumentId
 {
+	private const int DocumentId = 0;
+	private const int Operation  = 1;
+	private const int Added      = 2;
+	private const int Deleted    = 3;
+
+
 	private readonly Bucket        _bucket;
 	private readonly OrderedSet<T> _orderedSet;
 	private          int           _record;
@@ -36,19 +42,19 @@ internal sealed class OrderedSetPersistingController<T> : IDisposable where T : 
 		{
 			var recordBucket = bucket.Nested(_record);
 
-			if (!recordBucket.TryGet(Key.Operation, out Key operation) ||
-				!recordBucket.TryGet(Key.DocumentId, out int documentId))
+			if (!recordBucket.TryGet(Operation, out int operation) ||
+				!recordBucket.TryGet(DocumentId, out int documentId))
 			{
 				break;
 			}
 
 			switch (operation)
 			{
-				case Key.Added:
+				case Added:
 					orderedSet.Add(entityMap[documentId].As<T>());
 					break;
 
-				case Key.Deleted:
+				case Deleted:
 					orderedSet.Delete(entityMap[documentId].As<T>());
 					shrink = true;
 					break;
@@ -65,8 +71,8 @@ internal sealed class OrderedSetPersistingController<T> : IDisposable where T : 
 			foreach (var entity in orderedSet)
 			{
 				var recordBucket = bucket.Nested(_record ++);
-				recordBucket.Add(Key.DocumentId, entity.As<IDocumentId>().DocumentId);
-				recordBucket.Add(Key.Operation, Key.Added);
+				recordBucket.Add(DocumentId, entity.As<IDocumentId>().DocumentId);
+				recordBucket.Add(Operation, Added);
 			}
 		}
 
@@ -89,8 +95,8 @@ internal sealed class OrderedSetPersistingController<T> : IDisposable where T : 
 			case OrderedSet<T>.ChangedAction.Add:
 			{
 				var bucket = _bucket.Nested(_record ++);
-				bucket.Add(Key.DocumentId, item!.As<IDocumentId>().DocumentId);
-				bucket.Add(Key.Operation, Key.Added);
+				bucket.Add(DocumentId, item!.As<IDocumentId>().DocumentId);
+				bucket.Add(Operation, Added);
 				break;
 			}
 
@@ -108,8 +114,8 @@ internal sealed class OrderedSetPersistingController<T> : IDisposable where T : 
 				else
 				{
 					var bucket = _bucket.Nested(_record ++);
-					bucket.Add(Key.DocumentId, item!.As<IDocumentId>().DocumentId);
-					bucket.Add(Key.Operation, Key.Deleted);
+					bucket.Add(DocumentId, item!.As<IDocumentId>().DocumentId);
+					bucket.Add(Operation, Deleted);
 				}
 
 				break;
@@ -117,13 +123,5 @@ internal sealed class OrderedSetPersistingController<T> : IDisposable where T : 
 			default:
 				throw Infra.Unexpected<Exception>(action);
 		}
-	}
-
-	private enum Key
-	{
-		DocumentId,
-		Operation,
-		Added,
-		Deleted
 	}
 }

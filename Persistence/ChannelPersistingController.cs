@@ -23,6 +23,9 @@ namespace Xtate.Persistence;
 
 internal sealed class ChannelPersistingController<T> : Channel<T>, IDisposable
 {
+	private const int Head = 0;
+	private const int Tail = 1;
+
 	private readonly Channel<T>                          _baseChannel;
 	private readonly TaskCompletionSource<int>           _initializedTcs = new();
 	private          Bucket                              _bucket;
@@ -56,8 +59,8 @@ internal sealed class ChannelPersistingController<T> : Channel<T>, IDisposable
 		_storageLock = storageLock ?? throw new ArgumentNullException(nameof(storageLock));
 		_postAction = postAction ?? throw new ArgumentNullException(nameof(postAction));
 
-		bucket.TryGet(Key.Head, out _headIndex);
-		bucket.TryGet(Key.Tail, out _tailIndex);
+		bucket.TryGet(Head, out _headIndex);
+		bucket.TryGet(Tail, out _tailIndex);
 
 		for (var i = _headIndex; i < _tailIndex; i ++)
 		{
@@ -103,7 +106,7 @@ internal sealed class ChannelPersistingController<T> : Channel<T>, IDisposable
 				if (parent._tailIndex > parent._headIndex)
 				{
 					parent._bucket.RemoveSubtree(parent._headIndex ++);
-					parent._bucket.Add(Key.Head, parent._headIndex);
+					parent._bucket.Add(Head, parent._headIndex);
 				}
 				else
 				{
@@ -155,7 +158,7 @@ internal sealed class ChannelPersistingController<T> : Channel<T>, IDisposable
 				await parent._baseChannel.Writer.WriteAsync(item, token).ConfigureAwait(false);
 
 				var bucket = parent._bucket.Nested(parent._tailIndex ++);
-				parent._bucket.Add(Key.Tail, parent._tailIndex);
+				parent._bucket.Add(Tail, parent._tailIndex);
 				item.As<IStoreSupport>().Store(bucket);
 
 				await parent._postAction!(token).ConfigureAwait(false);
@@ -165,11 +168,5 @@ internal sealed class ChannelPersistingController<T> : Channel<T>, IDisposable
 				parent._storageLock.Release();
 			}
 		}
-	}
-
-	private enum Key
-	{
-		Head,
-		Tail
 	}
 }

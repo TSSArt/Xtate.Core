@@ -21,6 +21,11 @@ namespace Xtate.Persistence;
 
 internal sealed class ServiceIdSetPersistingController : IDisposable
 {
+	private const int ServiceId = 0;
+	private const int Operation = 1;
+	private const int Added     = 2;
+	private const int Removed   = 3;
+
 	private readonly Bucket       _bucket;
 	private readonly ServiceIdSet _serviceIdSet;
 	private          int          _record;
@@ -35,19 +40,19 @@ internal sealed class ServiceIdSetPersistingController : IDisposable
 		{
 			var recordBucket = bucket.Nested(_record);
 
-			if (!recordBucket.TryGet(Key.Operation, out Key operation)
-				|| !recordBucket.TryGetServiceId(Key.ServiceId, out var serviceId))
+			if (!recordBucket.TryGet(Operation, out int operation)
+				|| !recordBucket.TryGetServiceId(ServiceId, out var serviceId))
 			{
 				break;
 			}
 
 			switch (operation)
 			{
-				case Key.Added:
+				case Added:
 					_serviceIdSet.Add(serviceId);
 					break;
 
-				case Key.Removed:
+				case Removed:
 					_serviceIdSet.Remove(serviceId);
 					shrink = true;
 					break;
@@ -64,8 +69,8 @@ internal sealed class ServiceIdSetPersistingController : IDisposable
 			foreach (var serviceId in _serviceIdSet)
 			{
 				var recordBucket = bucket.Nested(_record ++);
-				recordBucket.Add(Key.ServiceId, serviceId);
-				recordBucket.Add(Key.Operation, Key.Added);
+				recordBucket.Add(ServiceId, serviceId);
+				recordBucket.Add(Operation, Added);
 			}
 		}
 
@@ -88,8 +93,8 @@ internal sealed class ServiceIdSetPersistingController : IDisposable
 			case ServiceIdSet.ChangedAction.Add:
 			{
 				var bucket = _bucket.Nested(_record ++);
-				bucket.AddServiceId(Key.ServiceId, serviceId);
-				bucket.Add(Key.Operation, Key.Added);
+				bucket.AddServiceId(ServiceId, serviceId);
+				bucket.Add(Operation, Added);
 				break;
 			}
 
@@ -102,8 +107,8 @@ internal sealed class ServiceIdSetPersistingController : IDisposable
 				else
 				{
 					var bucket = _bucket.Nested(_record ++);
-					bucket.AddServiceId(Key.ServiceId, serviceId);
-					bucket.Add(Key.Operation, Key.Removed);
+					bucket.AddServiceId(ServiceId, serviceId);
+					bucket.Add(Operation, Removed);
 				}
 
 				break;
@@ -111,13 +116,5 @@ internal sealed class ServiceIdSetPersistingController : IDisposable
 			default:
 				throw Infra.Unexpected<Exception>(action);
 		}
-	}
-
-	private enum Key
-	{
-		ServiceId,
-		Operation,
-		Added,
-		Removed
 	}
 }
