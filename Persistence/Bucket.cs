@@ -204,7 +204,6 @@ public readonly struct Bucket
 		private static ConverterBase<T> GetKeyConverter()
 		{
 			var type = typeof(T);
-			Console.WriteLine($"{type} - {Type.GetTypeCode(type)} --- {type.IsEnum}");
 			switch (Type.GetTypeCode(type))
 			{
 				case TypeCode.Byte when type.IsEnum:
@@ -213,6 +212,7 @@ public readonly struct Bucket
 				case TypeCode.SByte when type.IsEnum:
 				case TypeCode.UInt16 when type.IsEnum:
 				case TypeCode.UInt32 when type.IsEnum:
+				case TypeCode.Object when type.IsEnum: // On Unix GetTypeCode() for enums returns TypeCode.Object
 					return new EnumKeyConverter<T>();
 
 				case TypeCode.Byte:
