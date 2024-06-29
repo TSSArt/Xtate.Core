@@ -23,6 +23,9 @@ namespace Xtate.Persistence;
 
 internal sealed class KeyListPersistingController<T> : IDisposable where T : class
 {
+	private const int Id     = 0;
+	private const int IdList = 1;
+
 	private readonly Bucket               _bucket;
 	private readonly KeyList<T>           _keyList;
 	private readonly Dictionary<int, int> _records = [];
@@ -37,7 +40,7 @@ internal sealed class KeyListPersistingController<T> : IDisposable where T : cla
 		{
 			var recordBucket = bucket.Nested(_records.Count);
 
-			if (!recordBucket.TryGet(Key.Id, out int documentId) || !recordBucket.TryGet(Key.IdList, out var bytes))
+			if (!recordBucket.TryGet(Id, out int documentId) || !recordBucket.TryGet(IdList, out var bytes))
 			{
 				break;
 			}
@@ -83,15 +86,9 @@ internal sealed class KeyListPersistingController<T> : IDisposable where T : cla
 		{
 			record = _records.Count;
 			_records.Add(documentId, record);
-			_bucket.Nested(record).Add(Key.Id, record);
+			_bucket.Nested(record).Add(Id, record);
 		}
 
-		_bucket.Nested(record).Add(Key.IdList, bytes);
-	}
-
-	private enum Key
-	{
-		Id,
-		IdList
+		_bucket.Nested(record).Add(IdList, bytes);
 	}
 }

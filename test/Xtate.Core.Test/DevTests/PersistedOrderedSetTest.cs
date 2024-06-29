@@ -35,18 +35,9 @@ namespace Xtate.Test
 		private OrderedSet<Node>                     _sourceSet            = default!;
 		private InMemoryStorage                      _storage              = default!;
 
-		public class G<T>
-		{
-			public enum A { B, C }
-		}
-
 		[TestInitialize]
 		public void Initialize()
 		{
-			var tc = Type.GetTypeCode(typeof(G<string>.A));
-
-			Console.Write(tc);
-
 			_storage = new InMemoryStorage(false);
 			_bucket = new Bucket(_storage);
 			_node1 = new Node(1);
