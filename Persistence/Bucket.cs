@@ -201,7 +201,7 @@
 			public static readonly ConverterBase<T> Converter = GetKeyConverter();
 
 			private static ConverterBase<T> GetKeyConverter()
-			{
+			{/*
 				var type = typeof(T);
 
 				if (type.IsEnum)
@@ -224,6 +224,36 @@
 
 						   _ => new UnsupportedConverter<T>(@"key")
 					   };
+			*/
+				var type = typeof(T);
+				Console.WriteLine($"(K) Type: {type} --- TypeCode: {Type.GetTypeCode(type)} --- IsEnum: {type.IsEnum}");
+				switch (Type.GetTypeCode(type))
+				{
+					case TypeCode.Byte when type.IsEnum:
+					case TypeCode.Int16 when type.IsEnum:
+					case TypeCode.Int32 when type.IsEnum:
+					case TypeCode.SByte when type.IsEnum:
+					case TypeCode.UInt16 when type.IsEnum:
+					case TypeCode.UInt32 when type.IsEnum:
+					//case TypeCode.Object when type.IsEnum: // On Unix GetTypeCode() for enums returns TypeCode.Object
+						return new EnumKeyConverter<T>();
+
+					case TypeCode.Byte:
+					case TypeCode.Int16:
+					case TypeCode.Int32:
+					case TypeCode.SByte:
+					case TypeCode.UInt16:
+					case TypeCode.UInt32:
+						return new IndexKeyConverter<T>();
+
+					case TypeCode.String:
+						return new StringKeyConverter<T>();
+
+					case TypeCode.Object when type == typeof(RootType):
+						return new RootKeyConverter<T>();
+
+					default: return new UnsupportedConverter<T>(@"key");
+				}
 			}
 		}
 
@@ -234,7 +264,7 @@
 			private static ConverterBase<T> GetValueConverter()
 			{
 				var type = typeof(T);
-
+			/*
 				if (type.IsEnum)
 				{
 					return new EnumIntValueConverter<T>();
@@ -259,7 +289,26 @@
 						   TypeCode.Object when type == typeof(DataModelDateTime) => new DataModelDateTimeValueConverter<T>(),
 
 						   _ => new UnsupportedConverter<T>(@"value")
-					   };
+					   };*/
+			Console.WriteLine($"(V) Type: {type} --- TypeCode: {Type.GetTypeCode(type)} --- IsEnum: {type.IsEnum}");
+			return Type.GetTypeCode(type) switch
+				   {
+					   TypeCode.Byte                                          => new EnumIntValueConverter<T>(),
+					   TypeCode.Int16                                         => new EnumIntValueConverter<T>(),
+					   TypeCode.Int32                                         => new EnumIntValueConverter<T>(),
+					   TypeCode.SByte                                         => new EnumIntValueConverter<T>(),
+					   TypeCode.UInt16                                        => new EnumIntValueConverter<T>(),
+					   TypeCode.UInt32                                        => new EnumIntValueConverter<T>(),
+					   TypeCode.Double                                        => new DoubleValueConverter<T>(),
+					   TypeCode.Boolean                                       => new BooleanValueConverter<T>(),
+					   TypeCode.String                                        => new StringValueConverter<T>(),
+					   TypeCode.DateTime                                      => new DateTimeValueConverter<T>(),
+					   TypeCode.Object when type.IsEnum                       => new EnumIntValueConverter<T>(), // On Unix GetTypeCode() for enums returns TypeCode.Object
+					   TypeCode.Object when type == typeof(Uri)               => new UriValueConverter<T>(),
+					   TypeCode.Object when type == typeof(DateTimeOffset)    => new DateTimeOffsetValueConverter<T>(),
+					   TypeCode.Object when type == typeof(DataModelDateTime) => new DataModelDateTimeValueConverter<T>(),
+					   _                                                      => new UnsupportedConverter<T>(@"value")
+				   };
 			}
 		}
 
