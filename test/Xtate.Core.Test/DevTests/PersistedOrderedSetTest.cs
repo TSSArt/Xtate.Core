@@ -35,13 +35,15 @@ namespace Xtate.Test
 		private OrderedSet<Node>                     _sourceSet            = default!;
 		private InMemoryStorage                      _storage              = default!;
 
-		enum A { B,C}
-
+		public class G<T>
+		{
+			public enum A { B, C }
+		}
 
 		[TestInitialize]
 		public void Initialize()
 		{
-			var tc = Type.GetTypeCode(typeof(A));
+			var tc = Type.GetTypeCode(typeof(G<string>.A));
 
 			Console.Write(tc);
 

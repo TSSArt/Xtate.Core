@@ -12,7 +12,7 @@ env:
 jobs:
   publish:
     name: Build & Publish
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout
