@@ -197,18 +197,6 @@ public readonly struct Bucket
 		private RootType() { }
 	}
 
-	private static class TypeConverter<TInput, TOutput>
-	{
-		public static readonly Func<TInput, TOutput> Convert = CreateConverter();
-
-		private static Func<TInput, TOutput> CreateConverter()
-		{
-			var parameter = Expression.Parameter(typeof(TInput), typeof(TInput).Name);
-			var method = Expression.Lambda<Func<TInput, TOutput>>(Expression.Convert(parameter, typeof(TOutput)), parameter);
-			return method.Compile();
-		}
-	}
-
 	private static class KeyHelper<T> where T : notnull
 	{
 		public static readonly ConverterBase<T> Converter = GetKeyConverter();
@@ -216,6 +204,7 @@ public readonly struct Bucket
 		private static ConverterBase<T> GetKeyConverter()
 		{
 			var type = typeof(T);
+			Console.WriteLine($"{type} - {Type.GetTypeCode(type)} --- {type.IsEnum}");
 			switch (Type.GetTypeCode(type))
 			{
 				case TypeCode.Byte when type.IsEnum:
@@ -354,9 +343,9 @@ public readonly struct Bucket
 
 	private abstract class KeyConverterBase<TKey, TInternal> : ConverterBase<TKey> where TKey : notnull
 	{
-		public sealed override int GetLength(TKey key) => GetLength(TypeConverter<TKey, TInternal>.Convert(key));
+		public sealed override int GetLength(TKey key) => GetLength(ConvertHelper<TKey, TInternal>.Convert(key));
 
-		public sealed override void Write(TKey key, Span<byte> bytes) => Write(TypeConverter<TKey, TInternal>.Convert(key), bytes);
+		public sealed override void Write(TKey key, Span<byte> bytes) => Write(ConvertHelper<TKey, TInternal>.Convert(key), bytes);
 
 		public sealed override TKey Read(ReadOnlySpan<byte> bytes) => throw new NotSupportedException();
 
@@ -517,16 +506,16 @@ public readonly struct Bucket
 		{
 			if (value is null) throw new ArgumentNullException(nameof(value));
 
-			return GetLength(TypeConverter<TValue, TInternal>.Convert(value));
+			return GetLength(ConvertHelper<TValue, TInternal>.Convert(value));
 		}
 
-		public sealed override TValue Read(ReadOnlySpan<byte> bytes) => TypeConverter<TInternal, TValue>.Convert(Get(bytes));
+		public sealed override TValue Read(ReadOnlySpan<byte> bytes) => ConvertHelper<TInternal, TValue>.Convert(Get(bytes));
 
 		public sealed override void Write(TValue value, Span<byte> bytes)
 		{
 			if (value is null) throw new ArgumentNullException(nameof(value));
 
-			Write(TypeConverter<TValue, TInternal>.Convert(value), bytes);
+			Write(ConvertHelper<TValue, TInternal>.Convert(value), bytes);
 		}
 
 		protected abstract int GetLength(TInternal value);
