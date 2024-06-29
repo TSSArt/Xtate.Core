@@ -17,7 +17,7 @@
 
 namespace Xtate.Core;
 
-internal static class AncestorProviderExtensions
+public static class AncestorProviderExtensions
 {
 	public static T As<T>(this object entity) where T : notnull
 	{
