@@ -253,10 +253,11 @@ public readonly struct Bucket
 					   TypeCode.Boolean                                       => new BooleanValueConverter<T>(),
 					   TypeCode.String                                        => new StringValueConverter<T>(),
 					   TypeCode.DateTime                                      => new DateTimeValueConverter<T>(),
+					   TypeCode.Object when type.IsEnum                       => new EnumIntValueConverter<T>(), // On Unix GetTypeCode() for enums returns TypeCode.Object
 					   TypeCode.Object when type == typeof(Uri)               => new UriValueConverter<T>(),
 					   TypeCode.Object when type == typeof(DateTimeOffset)    => new DateTimeOffsetValueConverter<T>(),
 					   TypeCode.Object when type == typeof(DataModelDateTime) => new DataModelDateTimeValueConverter<T>(),
-					   _                                                      => new UnsupportedConverter<T>(@"value")
+					   _                                              => new UnsupportedConverter<T>(@"value")
 				   };
 		}
 	}
