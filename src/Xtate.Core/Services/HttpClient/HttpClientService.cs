@@ -40,11 +40,11 @@ public class HttpClientService(HttpClientServiceOptions options) : ServiceBase
 
 		NameValueCollection? collection = default;
 
-		foreach (var pair in pairs)
+		foreach (var (nm, val) in pairs)
 		{
-			if (!string.IsNullOrEmpty(pair.Name) && pair.Value is not null)
+			if (!string.IsNullOrEmpty(nm) && val is not null)
 			{
-				(collection ??= []).Add(pair.Name, pair.Value);
+				(collection ??= []).Add(nm, val);
 			}
 		}
 
