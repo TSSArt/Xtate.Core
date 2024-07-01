@@ -17,11 +17,15 @@
 
 #endregion
 
+<<<<<<< Updated upstream
 using System;
 using System.Collections.Generic;
+=======
+>>>>>>> Stashed changes
 using System.Globalization;
 using System.Threading.Tasks;
 using System.Xml.XPath;
+<<<<<<< Updated upstream
 using System.Xml.Xsl;
 using Xtate.Core;
 
@@ -52,6 +56,22 @@ public class XPathEngine
 
 		foreach (var vars in _scopeStack)
 		{
+=======
+
+namespace Xtate.DataModel.XPath;
+
+public class XPathEngine(IDataModelController? dataModelController)
+{
+	private readonly DataModelList _root = dataModelController?.DataModel ?? new DataModelList(false);
+	private readonly Stack<DataModelList> _scopeStack = new();
+
+	public object GetVariable(string name)
+	{
+		Infra.RequiresNonEmptyString(name);
+
+		foreach (var vars in _scopeStack)
+		{
+>>>>>>> Stashed changes
 			if (vars.ContainsKey(name, caseInsensitive: false))
 			{
 				return CreateIterator(vars, name);
@@ -59,6 +79,7 @@ public class XPathEngine
 		}
 
 		if (!_root.ContainsKey(name, caseInsensitive: false))
+<<<<<<< Updated upstream
 		{
 			_root[name, caseInsensitive: false] = default;
 		}
@@ -136,6 +157,75 @@ public class XPathEngine
 		var xPathExpression = await compiledExpression.GetXPathExpression().ConfigureAwait(false);
 
 		return new DataModelXPathNavigator(_root).Evaluate(xPathExpression)!;
+=======
+		{
+			_root[name, caseInsensitive: false] = default;
+		}
+
+		return CreateIterator(_root, name);
+	}
+
+	private static XPathNodeIterator CreateIterator(DataModelList list, string key)
+	{
+		var navigator = new DataModelXPathNavigator(list);
+
+		navigator.MoveToFirstChild();
+		while (navigator.Name != key)
+		{
+			var moved = navigator.MoveToNext();
+
+			Infra.Assert(moved);
+		}
+
+		return new XPathSingleElementIterator(navigator);
+	}
+
+	public async ValueTask<XPathObject> EvalObject(XPathCompiledExpression compiledExpression, bool stripRoots)
+	{
+		Infra.Requires(compiledExpression);
+
+		var value = await Evaluate(compiledExpression).ConfigureAwait(false);
+
+		if (stripRoots && value is XPathNodeIterator iterator)
+		{
+			value = new XPathStripRootsIterator(iterator);
+		}
+
+		return new XPathObject(value);
+	}
+
+	//TODO: Assign1 => Assign
+	public async ValueTask Assign(XPathCompiledExpression compiledLeftExpression,
+								   XPathAssignType assignType,
+								   string? attributeName,
+								   IObject rightValue)
+	{
+		Infra.Requires(compiledLeftExpression);
+		Infra.Requires(rightValue);
+
+		var result = await Evaluate(compiledLeftExpression).ConfigureAwait(false);
+
+		if (result is not XPathNodeIterator iterator)
+		{
+			return;
+		}
+
+		foreach (DataModelXPathNavigator navigator in iterator)
+		{
+			Assign(navigator, assignType, attributeName, rightValue);
+		}
+	}
+
+	private async ValueTask<object> Evaluate(XPathCompiledExpression compiledExpression)
+	{
+		var xPathExpression = await compiledExpression.GetXPathExpression().ConfigureAwait(false);
+
+		var result = new DataModelXPathNavigator(_root).Evaluate(xPathExpression);
+
+		Infra.NotNull(result);
+
+		return result;
+>>>>>>> Stashed changes
 	}
 
 	private static void Assign(DataModelXPathNavigator navigator,
@@ -186,7 +276,11 @@ public class XPathEngine
 
 	public void EnterScope()
 	{
+<<<<<<< Updated upstream
 		_scopeStack.Push(new DataModelList());
+=======
+		_scopeStack.Push([]);
+>>>>>>> Stashed changes
 	}
 
 	public void LeaveScope()

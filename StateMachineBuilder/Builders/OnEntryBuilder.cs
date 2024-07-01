@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,16 +17,21 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
-using Xtate.Core;
+namespace Xtate.Builder;
 
-namespace Xtate.Builder
+public class OnEntryBuilder : BuilderBase, IOnEntryBuilder
 {
-	public class OnEntryBuilder : BuilderBase, IOnEntryBuilder
-	{
-		private ImmutableArray<IExecutableEntity>.Builder? _actions;
+	private ImmutableArray<IExecutableEntity>.Builder? _actions;
 
+#region Interface IOnEntryBuilder
+
+	public IOnEntry Build() => new OnEntryEntity { Ancestor = Ancestor, Action = _actions?.ToImmutable() ?? default };
+
+	public void AddAction(IExecutableEntity action)
+	{
+		Infra.Requires(action);
+
+<<<<<<< Updated upstream
 	#region Interface IOnEntryBuilder
 
 		public IOnEntry Build() => new OnEntryEntity { Ancestor = Ancestor, Action = _actions?.ToImmutable() ?? default };
@@ -39,5 +44,10 @@ namespace Xtate.Builder
 		}
 
 	#endregion
+=======
+		(_actions ??= ImmutableArray.CreateBuilder<IExecutableEntity>()).Add(action);
+>>>>>>> Stashed changes
 	}
+
+#endregion
 }

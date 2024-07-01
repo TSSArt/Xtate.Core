@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,13 +17,10 @@
 
 #endregion
 
-using Xtate.Core;
+namespace Xtate;
 
-namespace Xtate
+public interface IScript : IExecutableEntity
 {
-	public interface IScript : IExecutableEntity
-	{
-		IScriptExpression?         Content { get; }
-		IExternalScriptExpression? Source  { get; }
-	}
+	IScriptExpression?         Content { get; }
+	IExternalScriptExpression? Source  { get; }
 }

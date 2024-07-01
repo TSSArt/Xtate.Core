@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,25 +15,20 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
+namespace Xtate.Core;
 
-using System.Diagnostics.CodeAnalysis;
-
-namespace Xtate
+[ExcludeFromCodeCoverage]
+internal static class Res
 {
-	[PublicAPI]
-	[ExcludeFromCodeCoverage]
-	internal static class Res
-	{
-		public static string Format(string format, object? arg)                => string.Format(Resources.Culture, format, arg);
-		public static string Format(string format, object? arg0, object? arg1) => string.Format(Resources.Culture, format, arg0, arg1);
+	public static string Format(string format, object? arg) => string.Format(Resources.Culture, format, arg);
 
-		public static string Format(string format,
-									object? arg0,
-									object? arg1,
-									object? arg2) =>
-			string.Format(Resources.Culture, format, arg0, arg1, arg2);
+	public static string Format(string format, object? arg0, object? arg1) => string.Format(Resources.Culture, format, arg0, arg1);
 
-		public static string Format(string format, params object?[] args) => string.Format(Resources.Culture, format, args);
-	}
+	public static string Format(string format,
+								object? arg0,
+								object? arg1,
+								object? arg2) =>
+		string.Format(Resources.Culture, format, arg0, arg1, arg2);
+
+	public static string Format(string format, params object?[] args) => string.Format(Resources.Culture, format, args);
 }

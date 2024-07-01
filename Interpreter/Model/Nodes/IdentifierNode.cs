@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
-
+﻿// Copyright © 2019-2023 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,13 +15,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
-using System;
 using Xtate.Persistence;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public sealed class IdentifierNode(IIdentifier id) : IIdentifier, IStoreSupport, IAncestorProvider, IDebugEntityId
 {
+<<<<<<< Updated upstream
 	public sealed class IdentifierNode : IIdentifier, IStoreSupport, IAncestorProvider, IDebugEntityId
 	{
 		private readonly IIdentifier _identifier;
@@ -61,5 +61,38 @@ namespace Xtate.Core
 		public override bool Equals(object? obj) => _identifier.Equals(obj);
 
 		public override int GetHashCode() => _identifier.GetHashCode();
+=======
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => id;
+
+#endregion
+
+#region Interface IDebugEntityId
+
+	FormattableString IDebugEntityId.EntityId => @$"{id}";
+
+#endregion
+
+#region Interface IIdentifier
+
+	public string Value => id.Value;
+
+#endregion
+
+#region Interface IStoreSupport
+
+	void IStoreSupport.Store(Bucket bucket)
+	{
+		bucket.Add(Key.TypeInfo, TypeInfo.IdentifierNode);
+		bucket.Add(Key.Id, id.Value);
+>>>>>>> Stashed changes
 	}
+
+#endregion
+	public override string ToString() => id.ToString() ?? string.Empty;
+
+	public override bool Equals(object? obj) => id.Equals(obj);
+
+	public override int GetHashCode() => id.GetHashCode();
 }

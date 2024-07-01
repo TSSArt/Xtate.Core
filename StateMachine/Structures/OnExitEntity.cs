@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,36 +17,33 @@
 
 #endregion
 
-using System.Collections.Immutable;
+namespace Xtate.Core;
 
-namespace Xtate.Core
+public struct OnExitEntity : IOnExit, IVisitorEntity<OnExitEntity, IOnExit>, IAncestorProvider
 {
-	public struct OnExitEntity : IOnExit, IVisitorEntity<OnExitEntity, IOnExit>, IAncestorProvider
-	{
-		internal object? Ancestor;
+	internal object? Ancestor;
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
-	#endregion
+#endregion
 
-	#region Interface IOnExit
+#region Interface IOnExit
 
-		public ImmutableArray<IExecutableEntity> Action { get; set; }
+	public ImmutableArray<IExecutableEntity> Action { get; set; }
 
-	#endregion
+#endregion
 
-	#region Interface IVisitorEntity<OnExitEntity,IOnExit>
+#region Interface IVisitorEntity<OnExitEntity,IOnExit>
 
-		void IVisitorEntity<OnExitEntity, IOnExit>.Init(IOnExit source)
-		{
-			Ancestor = source;
-			Action = source.Action;
-		}
-
-		bool IVisitorEntity<OnExitEntity, IOnExit>.RefEquals(ref OnExitEntity other) => Action == other.Action;
-
-	#endregion
+	void IVisitorEntity<OnExitEntity, IOnExit>.Init(IOnExit source)
+	{
+		Ancestor = source;
+		Action = source.Action;
 	}
+
+	readonly bool IVisitorEntity<OnExitEntity, IOnExit>.RefEquals(ref OnExitEntity other) => Action == other.Action;
+
+#endregion
 }

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,25 +17,22 @@
 
 #endregion
 
-using System;
+namespace Xtate.Service;
 
-namespace Xtate.Service
+public class SmtpClientServiceFactory : ServiceFactoryBase
 {
-	public class SmtpClientServiceFactory : ServiceFactoryBase
+	private const string Id    = @"http://xtate.net/scxml/service/#SMTPClient";
+	private const string Alias = @"smtp";
+
+	public static IServiceFactory Instance { get; } = new SmtpClientServiceFactory();
+
+	protected override void Register(IServiceCatalog catalog)
 	{
-		private const string Id    = @"http://xtate.net/scxml/service/#SMTPClient";
-		private const string Alias = @"smtp";
+		if (catalog is null) throw new ArgumentNullException(nameof(catalog));
 
-		public static IServiceFactory Instance { get; } = new SmtpClientServiceFactory();
-
-		protected override void Register(IServiceCatalog catalog)
-		{
-			if (catalog is null) throw new ArgumentNullException(nameof(catalog));
-
-			catalog.Register(Id, SmtpClientServiceCreator);
-			catalog.Register(Alias, SmtpClientServiceCreator);
-		}
-
-		private static ServiceBase SmtpClientServiceCreator() => new SmtpClientService();
+		catalog.Register(Id, SmtpClientServiceCreator);
+		catalog.Register(Alias, SmtpClientServiceCreator);
 	}
+
+	private static ServiceBase SmtpClientServiceCreator() => new SmtpClientService();
 }

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,30 +17,28 @@
 
 #endregion
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.Core;
+namespace Xtate.Service;
 
-namespace Xtate.Service
+
+public interface IServiceCatalog
 {
-	[PublicAPI]
-	public interface IServiceCatalog
-	{
-		public delegate ServiceBase Creator();
+	public delegate ServiceBase Creator();
 
-		public delegate IService ServiceCreator(Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication);
+	public delegate IService ServiceCreator(Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication);
 
+<<<<<<< Updated upstream
 		public delegate ValueTask<IService> ServiceCreatorAsync(ServiceLocator serviceLocator,
 																Uri? baseUri,
 																InvokeData invokeData,
 																IServiceCommunication serviceCommunication,
 																CancellationToken token);
+=======
+	public delegate ValueTask<IService> ServiceCreatorAsync(Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication);
+>>>>>>> Stashed changes
 
-		void Register(string type, Creator creator);
+	void Register(string type, Creator creator);
 
-		void Register(string type, ServiceCreator creator);
+	void Register(string type, ServiceCreator creator);
 
-		void Register(string type, ServiceCreatorAsync creator);
-	}
+	void Register(string type, ServiceCreatorAsync creator);
 }

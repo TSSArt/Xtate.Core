@@ -1,5 +1,10 @@
+<<<<<<< Updated upstream
 ﻿#region Copyright © 2019-2023 Sergii Artemenko
 
+=======
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
+>>>>>>> Stashed changes
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,6 +20,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+<<<<<<< Updated upstream
 #endregion
 
 using System;
@@ -37,6 +43,15 @@ public abstract class RaiseEvaluator : IRaise, IExecEvaluator, IAncestorProvider
 #region Interface IAncestorProvider
 
 	object IAncestorProvider.Ancestor => _raise;
+=======
+namespace Xtate.DataModel;
+
+public abstract class RaiseEvaluator(IRaise raise) : IRaise, IExecEvaluator, IAncestorProvider
+{
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => raise;
+>>>>>>> Stashed changes
 
 #endregion
 
@@ -48,11 +63,16 @@ public abstract class RaiseEvaluator : IRaise, IExecEvaluator, IAncestorProvider
 
 #region Interface IRaise
 
+<<<<<<< Updated upstream
 	public IOutgoingEvent? OutgoingEvent => _raise.OutgoingEvent;
+=======
+	public virtual IOutgoingEvent? OutgoingEvent => raise.OutgoingEvent;
+>>>>>>> Stashed changes
 
 #endregion
 }
 
+<<<<<<< Updated upstream
 public class DefaultRaiseEvaluator : RaiseEvaluator
 {
 	public DefaultRaiseEvaluator(IRaise raise) : base(raise)
@@ -67,6 +87,20 @@ public class DefaultRaiseEvaluator : RaiseEvaluator
 		if (await EventSenderFactory().ConfigureAwait(false) is { } eventSender)
 		{
 			await eventSender.Send(OutgoingEvent!).ConfigureAwait(false);
+=======
+public class DefaultRaiseEvaluator(IRaise raise) : RaiseEvaluator(raise)
+{
+	public required Func<ValueTask<IEventController?>> EventSenderFactory { private get; [UsedImplicitly] init; }
+
+	public override async ValueTask Execute()
+	{
+		var outgoingEvent = base.OutgoingEvent;
+		Infra.NotNull(outgoingEvent);
+
+		if (await EventSenderFactory().ConfigureAwait(false) is { } eventSender)
+		{
+			await eventSender.Send(outgoingEvent).ConfigureAwait(false);
+>>>>>>> Stashed changes
 		}
 	}
 }

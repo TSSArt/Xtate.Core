@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,34 +17,33 @@
 
 #endregion
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public struct InlineContent : IInlineContent, IVisitorEntity<InlineContent, IInlineContent>, IAncestorProvider
 {
-	public struct InlineContent : IInlineContent, IVisitorEntity<InlineContent, IInlineContent>, IAncestorProvider
-	{
-		internal object? Ancestor;
+	internal object? Ancestor;
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
-	#endregion
+#endregion
 
-	#region Interface IInlineContent
+#region Interface IInlineContent
 
-		public string? Value { get; set; }
+	public string? Value { get; set; }
 
-	#endregion
+#endregion
 
-	#region Interface IVisitorEntity<InlineContent,IInlineContent>
+#region Interface IVisitorEntity<InlineContent,IInlineContent>
 
-		void IVisitorEntity<InlineContent, IInlineContent>.Init(IInlineContent source)
-		{
-			Ancestor = source;
-			Value = source.Value;
-		}
-
-		bool IVisitorEntity<InlineContent, IInlineContent>.RefEquals(ref InlineContent other) => ReferenceEquals(Value, other.Value);
-
-	#endregion
+	void IVisitorEntity<InlineContent, IInlineContent>.Init(IInlineContent source)
+	{
+		Ancestor = source;
+		Value = source.Value;
 	}
+
+	readonly bool IVisitorEntity<InlineContent, IInlineContent>.RefEquals(ref InlineContent other) => ReferenceEquals(Value, other.Value);
+
+#endregion
 }

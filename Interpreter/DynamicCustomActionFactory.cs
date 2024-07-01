@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,20 +17,32 @@
 
 #endregion
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.Core;
+//namespace Xtate.CustomAction;
 
-namespace Xtate.CustomAction
+//TODO: uncomment
+/*
+
+public class DynamicCustomActionFactory : DynamicFactory<ICustomActionFactory>, ICustomActionFactory
 {
+<<<<<<< Updated upstream
 	//TODO: uncomment
 	/*
 	[PublicAPI]
 	public class DynamicCustomActionFactory : DynamicFactory<ICustomActionFactory>, ICustomActionFactory
-	{
-		public DynamicCustomActionFactory(bool throwOnError = true) : base(throwOnError) { }
+=======
+	public DynamicCustomActionFactory(bool throwOnError = true) : base(throwOnError) { }
 
+#region Interface ICustomActionFactory
+
+	public async ValueTask<ICustomActionFactoryActivator?> TryGetActivator(ServiceLocator serviceLocator,
+																		   string ns,
+																		   string name,
+																		   CancellationToken token)
+>>>>>>> Stashed changes
+	{
+		var factories = await GetFactories(serviceLocator, CustomActionNamespaceToUri(ns), token).ConfigureAwait(false);
+
+<<<<<<< Updated upstream
 	#region Interface ICustomActionFactory
 
 		public async ValueTask<ICustomActionFactoryActivator?> TryGetActivator(ServiceLocator serviceLocator,
@@ -39,23 +51,37 @@ namespace Xtate.CustomAction
 																			   CancellationToken token)
 		{
 			var factories = await GetFactories(serviceLocator, CustomActionNamespaceToUri(ns), token).ConfigureAwait(false);
+=======
+		foreach (var factory in factories)
+		{
+			var activator = await factory.TryGetActivator(serviceLocator, ns, name, token).ConfigureAwait(false);
+>>>>>>> Stashed changes
 
-			foreach (var factory in factories)
+			if (activator is not null)
 			{
+<<<<<<< Updated upstream
 				var activator = await factory.TryGetActivator(serviceLocator, ns, name, token).ConfigureAwait(false);
 
 				if (activator is not null)
 				{
 					return activator;
 				}
+=======
+				return activator;
+>>>>>>> Stashed changes
 			}
-
-			return null;
 		}
 
-	#endregion
-
-		protected virtual Uri CustomActionNamespaceToUri(string customActionNamespace) => new(customActionNamespace, UriKind.RelativeOrAbsolute);
+		return null;
 	}
+<<<<<<< Updated upstream
 	*/
 }
+=======
+
+#endregion
+
+	protected virtual Uri CustomActionNamespaceToUri(string customActionNamespace) => new(customActionNamespace, UriKind.RelativeOrAbsolute);
+}
+*/
+>>>>>>> Stashed changes

@@ -1,31 +1,33 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
-// This file is part of the Xtate project. <https://xtate.net/>
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as published
-// by the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Affero General Public License for more details.
-// 
-// You should have received a copy of the GNU Affero General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+	// This file is part of the Xtate project. <https://xtate.net/>
+	// 
+	// This program is free software: you can redistribute it and/or modify
+	// it under the terms of the GNU Affero General Public License as published
+	// by the Free Software Foundation, either version 3 of the License, or
+	// (at your option) any later version.
+	// 
+	// This program is distributed in the hope that it will be useful,
+	// but WITHOUT ANY WARRANTY; without even the implied warranty of
+	// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	// GNU Affero General Public License for more details.
+	// 
+	// You should have received a copy of the GNU Affero General Public License
+	// along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #endregion
 
-using System;
-using System.Buffers.Binary;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq.Expressions;
-using System.Text;
+	using System.Buffers.Binary;
+	using System.Text;
 
+<<<<<<< Updated upstream
 namespace Xtate.Persistence
 {
 	[PublicAPI]
+=======
+	namespace Xtate.Persistence;
+
+>>>>>>> Stashed changes
 	public readonly struct Bucket
 	{
 		public static readonly RootType RootKey = RootType.Instance;
@@ -200,18 +202,6 @@ namespace Xtate.Persistence
 			private RootType() { }
 		}
 
-		private static class TypeConverter<TInput, TOutput>
-		{
-			public static readonly Func<TInput, TOutput> Convert = CreateConverter();
-
-			private static Func<TInput, TOutput> CreateConverter()
-			{
-				var parameter = Expression.Parameter(typeof(TInput), typeof(TInput).Name);
-				var method = Expression.Lambda<Func<TInput, TOutput>>(Expression.Convert(parameter, typeof(TOutput)), parameter);
-				return method.Compile();
-			}
-		}
-
 		private static class KeyHelper<T> where T : notnull
 		{
 			public static readonly ConverterBase<T> Converter = GetKeyConverter();
@@ -219,6 +209,7 @@ namespace Xtate.Persistence
 			private static ConverterBase<T> GetKeyConverter()
 			{
 				var type = typeof(T);
+			
 				switch (Type.GetTypeCode(type))
 				{
 					case TypeCode.Byte when type.IsEnum:
@@ -255,23 +246,24 @@ namespace Xtate.Persistence
 			private static ConverterBase<T> GetValueConverter()
 			{
 				var type = typeof(T);
+
 				return Type.GetTypeCode(type) switch
-					   {
-						   TypeCode.Byte                                          => new EnumIntValueConverter<T>(),
-						   TypeCode.Int16                                         => new EnumIntValueConverter<T>(),
-						   TypeCode.Int32                                         => new EnumIntValueConverter<T>(),
-						   TypeCode.SByte                                         => new EnumIntValueConverter<T>(),
-						   TypeCode.UInt16                                        => new EnumIntValueConverter<T>(),
-						   TypeCode.UInt32                                        => new EnumIntValueConverter<T>(),
-						   TypeCode.Double                                        => new DoubleValueConverter<T>(),
-						   TypeCode.Boolean                                       => new BooleanValueConverter<T>(),
-						   TypeCode.String                                        => new StringValueConverter<T>(),
-						   TypeCode.DateTime                                      => new DateTimeValueConverter<T>(),
-						   TypeCode.Object when type == typeof(Uri)               => new UriValueConverter<T>(),
-						   TypeCode.Object when type == typeof(DateTimeOffset)    => new DateTimeOffsetValueConverter<T>(),
-						   TypeCode.Object when type == typeof(DataModelDateTime) => new DataModelDateTimeValueConverter<T>(),
-						   _                                                      => new UnsupportedConverter<T>(@"value")
-					   };
+				   {
+					   TypeCode.Byte                                          => new EnumIntValueConverter<T>(),
+					   TypeCode.Int16                                         => new EnumIntValueConverter<T>(),
+					   TypeCode.Int32                                         => new EnumIntValueConverter<T>(),
+					   TypeCode.SByte                                         => new EnumIntValueConverter<T>(),
+					   TypeCode.UInt16                                        => new EnumIntValueConverter<T>(),
+					   TypeCode.UInt32                                        => new EnumIntValueConverter<T>(),
+					   TypeCode.Double                                        => new DoubleValueConverter<T>(),
+					   TypeCode.Boolean                                       => new BooleanValueConverter<T>(),
+					   TypeCode.String                                        => new StringValueConverter<T>(),
+					   TypeCode.DateTime                                      => new DateTimeValueConverter<T>(),
+					   TypeCode.Object when type == typeof(Uri)               => new UriValueConverter<T>(),
+					   TypeCode.Object when type == typeof(DateTimeOffset)    => new DateTimeOffsetValueConverter<T>(),
+					   TypeCode.Object when type == typeof(DataModelDateTime) => new DataModelDateTimeValueConverter<T>(),
+					   _                                                      => new UnsupportedConverter<T>(@"value")
+				   };
 			}
 		}
 
@@ -357,9 +349,9 @@ namespace Xtate.Persistence
 
 		private abstract class KeyConverterBase<TKey, TInternal> : ConverterBase<TKey> where TKey : notnull
 		{
-			public sealed override int GetLength(TKey key) => GetLength(TypeConverter<TKey, TInternal>.Convert(key));
+			public sealed override int GetLength(TKey key) => GetLength(ConvertHelper<TKey, TInternal>.Convert(key));
 
-			public sealed override void Write(TKey key, Span<byte> bytes) => Write(TypeConverter<TKey, TInternal>.Convert(key), bytes);
+			public sealed override void Write(TKey key, Span<byte> bytes) => Write(ConvertHelper<TKey, TInternal>.Convert(key), bytes);
 
 			public sealed override TKey Read(ReadOnlySpan<byte> bytes) => throw new NotSupportedException();
 
@@ -488,10 +480,10 @@ namespace Xtate.Persistence
 				var lastByteIndex = bytes.Length - 1;
 				bytes[lastByteIndex] = 0xFF;
 				var dest = bytes[1..^1];
-#if NET461 || NETSTANDARD2_0
-				Encoding.UTF8.GetBytes(key).CopyTo(dest);
+#if NET6_0_OR_GREATER
+			Encoding.UTF8.GetBytes(key, dest);
 #else
-				Encoding.UTF8.GetBytes(key, dest);
+				Encoding.UTF8.GetBytes(key).CopyTo(dest);
 #endif
 			}
 		}
@@ -503,13 +495,9 @@ namespace Xtate.Persistence
 			protected override void Write(RootType key, Span<byte> bytes) { }
 		}
 
-		private class UnsupportedConverter<T> : ConverterBase<T>
+		private class UnsupportedConverter<T>(string type) : ConverterBase<T>
 		{
-			private readonly string _type;
-
-			public UnsupportedConverter(string type) => _type = type;
-
-			private NotSupportedException GetNotSupportedException() => new(Res.Format(Resources.Exception_UnsupportedType, _type, typeof(T)));
+			private NotSupportedException GetNotSupportedException() => new(Res.Format(Resources.Exception_UnsupportedType, type, typeof(T)));
 
 			public override int GetLength(T key) => throw GetNotSupportedException();
 
@@ -524,16 +512,16 @@ namespace Xtate.Persistence
 			{
 				if (value is null) throw new ArgumentNullException(nameof(value));
 
-				return GetLength(TypeConverter<TValue, TInternal>.Convert(value));
+				return GetLength(ConvertHelper<TValue, TInternal>.Convert(value));
 			}
 
-			public sealed override TValue Read(ReadOnlySpan<byte> bytes) => TypeConverter<TInternal, TValue>.Convert(Get(bytes));
+			public sealed override TValue Read(ReadOnlySpan<byte> bytes) => ConvertHelper<TInternal, TValue>.Convert(Get(bytes));
 
 			public sealed override void Write(TValue value, Span<byte> bytes)
 			{
 				if (value is null) throw new ArgumentNullException(nameof(value));
 
-				Write(TypeConverter<TValue, TInternal>.Convert(value), bytes);
+				Write(ConvertHelper<TValue, TInternal>.Convert(value), bytes);
 			}
 
 			protected abstract int GetLength(TInternal value);
@@ -644,10 +632,10 @@ namespace Xtate.Persistence
 					return;
 				}
 
-#if NET461 || NETSTANDARD2_0
-				Encoding.UTF8.GetBytes(value).CopyTo(bytes);
+#if NET6_0_OR_GREATER
+			Encoding.UTF8.GetBytes(value, bytes);
 #else
-				Encoding.UTF8.GetBytes(value, bytes);
+				Encoding.UTF8.GetBytes(value).CopyTo(bytes);
 #endif
 			}
 
@@ -658,10 +646,10 @@ namespace Xtate.Persistence
 					return string.Empty;
 				}
 
-#if NET461 || NETSTANDARD2_0
-				return Encoding.UTF8.GetString(bytes.ToArray());
+#if NET6_0_OR_GREATER
+			return Encoding.UTF8.GetString(bytes);
 #else
-				return Encoding.UTF8.GetString(bytes);
+				return Encoding.UTF8.GetString(bytes.ToArray());
 #endif
 			}
 		}
@@ -684,4 +672,3 @@ namespace Xtate.Persistence
 			protected override Uri Get(ReadOnlySpan<byte> bytes) => new(StringConverter.Get(bytes), UriKind.RelativeOrAbsolute);
 		}
 	}
-}

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,19 +17,18 @@
 
 #endregion
 
-namespace Xtate
+namespace Xtate;
+
+
+public interface IStateMachineOptions
 {
-	[PublicAPI]
-	public interface IStateMachineOptions
-	{
-		string? Name { get; }
+	string? Name { get; }
 
-		PersistenceLevel? PersistenceLevel { get; }
+	PersistenceLevel? PersistenceLevel { get; }
 
-		bool? SynchronousEventProcessing { get; }
+	bool? SynchronousEventProcessing { get; }
 
-		int? ExternalQueueSize { get; }
+	int? ExternalQueueSize { get; }
 
-		UnhandledErrorBehaviour? UnhandledErrorBehaviour { get; }
-	}
+	UnhandledErrorBehaviour? UnhandledErrorBehaviour { get; }
 }

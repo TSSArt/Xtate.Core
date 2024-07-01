@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,20 +17,29 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
+namespace Xtate.Core;
 
-namespace Xtate.Core
+/// <summary>
+///     Throw an exception on first error
+/// </summary>
+public sealed class DefaultErrorProcessor : IErrorProcessor
 {
+<<<<<<< Updated upstream
 	/// <summary>
 	///     Throw an exception on first error
 	/// </summary>
 	public sealed class DefaultErrorProcessor : IErrorProcessor
 	{
 	#region Interface IErrorProcessor
+=======
+#region Interface IErrorProcessor
 
-		public void ThrowIfErrors() { }
+	public void ThrowIfErrors() { }
+>>>>>>> Stashed changes
 
+	void IErrorProcessor.AddError(ErrorItem errorItem) => throw new StateMachineValidationException([errorItem]);
+
+<<<<<<< Updated upstream
 		void IErrorProcessor.AddError(ErrorItem errorItem)
 		{
 			Infra.Requires(errorItem);
@@ -40,4 +49,7 @@ namespace Xtate.Core
 
 	#endregion
 	}
+=======
+#endregion
+>>>>>>> Stashed changes
 }

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,33 +17,31 @@
 
 #endregion
 
-using System;
 using Xtate.IoProcessor;
 
-namespace Xtate
+namespace Xtate;
+
+
+public static class NamedPipeIoProcessorExtensions
 {
-	[PublicAPI]
-	public static class NamedPipeIoProcessorExtensions
+	public static StateMachineHostBuilder AddNamedPipeIoProcessor(this StateMachineHostBuilder builder, string name, int? maxMessageSize = default)
 	{
-		public static StateMachineHostBuilder AddNamedPipeIoProcessor(this StateMachineHostBuilder builder, string name, int? maxMessageSize = default)
-		{
-			if (builder is null) throw new ArgumentNullException(nameof(builder));
+		if (builder is null) throw new ArgumentNullException(nameof(builder));
 
-			builder.AddIoProcessorFactory(new NamedPipeIoProcessorFactory(name, maxMessageSize));
+		builder.AddIoProcessorFactory(new NamedPipeIoProcessorFactory(name, maxMessageSize));
 
-			return builder;
-		}
+		return builder;
+	}
 
-		public static StateMachineHostBuilder AddNamedPipeIoProcessor(this StateMachineHostBuilder builder,
-																	  string host,
-																	  string name,
-																	  int? maxMessageSize = default)
-		{
-			if (builder is null) throw new ArgumentNullException(nameof(builder));
+	public static StateMachineHostBuilder AddNamedPipeIoProcessor(this StateMachineHostBuilder builder,
+																  string host,
+																  string name,
+																  int? maxMessageSize = default)
+	{
+		if (builder is null) throw new ArgumentNullException(nameof(builder));
 
-			builder.AddIoProcessorFactory(new NamedPipeIoProcessorFactory(host, name, maxMessageSize));
+		builder.AddIoProcessorFactory(new NamedPipeIoProcessorFactory(host, name, maxMessageSize));
 
-			return builder;
-		}
+		return builder;
 	}
 }

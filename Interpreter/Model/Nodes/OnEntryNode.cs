@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,60 +17,61 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
 using Xtate.DataModel;
 using Xtate.Persistence;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public sealed class OnEntryNode : IOnEntry, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 {
+<<<<<<< Updated upstream
 	public sealed class OnEntryNode : IOnEntry, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
+=======
+	private readonly IOnEntry       _onEntry;
+	private          DocumentIdSlot _documentIdSlot;
+
+	public OnEntryNode(DocumentIdNode documentIdNode, IOnEntry onEntry)
+>>>>>>> Stashed changes
 	{
-		private readonly IOnEntry       _onEntry;
-		private          DocumentIdSlot _documentIdSlot;
-
-		public OnEntryNode(DocumentIdNode documentIdNode, IOnEntry onEntry)
-		{
-			_onEntry = onEntry;
-			documentIdNode.SaveToSlot(out _documentIdSlot);
-			ActionEvaluators = onEntry.Action.AsArrayOf<IExecutableEntity, IExecEvaluator>();
-		}
-
-		public ImmutableArray<IExecEvaluator> ActionEvaluators { get; }
-
-	#region Interface IAncestorProvider
-
-		object IAncestorProvider.Ancestor => _onEntry;
-
-	#endregion
-
-	#region Interface IDebugEntityId
-
-		FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
-
-	#endregion
-
-	#region Interface IDocumentId
-
-		public int DocumentId => _documentIdSlot.Value;
-
-	#endregion
-
-	#region Interface IOnEntry
-
-		public ImmutableArray<IExecutableEntity> Action => _onEntry.Action;
-
-	#endregion
-
-	#region Interface IStoreSupport
-
-		void IStoreSupport.Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.OnEntryNode);
-			bucket.Add(Key.DocumentId, DocumentId);
-			bucket.AddEntityList(Key.Action, Action);
-		}
-
-	#endregion
+		_onEntry = onEntry;
+		documentIdNode.SaveToSlot(out _documentIdSlot);
+		ActionEvaluators = onEntry.Action.AsArrayOf<IExecutableEntity, IExecEvaluator>();
 	}
+
+	public ImmutableArray<IExecEvaluator> ActionEvaluators { get; }
+
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => _onEntry;
+
+#endregion
+
+#region Interface IDebugEntityId
+
+	FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
+
+#endregion
+
+#region Interface IDocumentId
+
+	public int DocumentId => _documentIdSlot.CreateValue();
+
+#endregion
+
+#region Interface IOnEntry
+
+	public ImmutableArray<IExecutableEntity> Action => _onEntry.Action;
+
+#endregion
+
+#region Interface IStoreSupport
+
+	void IStoreSupport.Store(Bucket bucket)
+	{
+		bucket.Add(Key.TypeInfo, TypeInfo.OnEntryNode);
+		bucket.Add(Key.DocumentId, DocumentId);
+		bucket.AddEntityList(Key.Action, Action);
+	}
+
+#endregion
 }

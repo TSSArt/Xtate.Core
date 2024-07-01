@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,14 +17,13 @@
 
 #endregion
 
-namespace Xtate
+namespace Xtate;
+
+
+public enum EventType
 {
-	[PublicAPI]
-	public enum EventType
-	{
-		None,
-		Platform,
-		Internal,
-		External
-	}
+	None,
+	Platform,
+	Internal,
+	External
 }

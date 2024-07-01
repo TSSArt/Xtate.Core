@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,18 +17,15 @@
 
 #endregion
 
-using System;
+namespace Xtate.Persistence;
 
-namespace Xtate.Persistence
+public interface IStorage : IDisposable
 {
-	public interface IStorage : IDisposable
-	{
-		ReadOnlyMemory<byte> Get(ReadOnlySpan<byte> key);
+	ReadOnlyMemory<byte> Get(ReadOnlySpan<byte> key);
 
-		void Set(ReadOnlySpan<byte> key, ReadOnlySpan<byte> value);
+	void Set(ReadOnlySpan<byte> key, ReadOnlySpan<byte> value);
 
-		void Remove(ReadOnlySpan<byte> key);
+	void Remove(ReadOnlySpan<byte> key);
 
-		void RemoveAll(ReadOnlySpan<byte> prefix);
-	}
+	void RemoveAll(ReadOnlySpan<byte> prefix);
 }

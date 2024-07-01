@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,34 +17,28 @@
 
 #endregion
 
-#if NET461 || NETSTANDARD2_0
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+#if !NET6_0_OR_GREATER
+namespace Xtate.Core;
 
-namespace Xtate.Core
+public static class SortedSetExtensions
 {
-	[PublicAPI]
-	public static class SortedSetExtensions
+	public static bool TryGetValue<T>(this SortedSet<T> sortedSet, T equalValue, [MaybeNullWhen(false)] out T actualValue)
 	{
-		public static bool TryGetValue<T>(this SortedSet<T> sortedSet, T equalValue, [MaybeNullWhen(false)] out T actualValue)
+		if (sortedSet is null) throw new ArgumentNullException(nameof(sortedSet));
+
+		if (sortedSet.Contains(equalValue))
 		{
-			if (sortedSet is null) throw new ArgumentNullException(nameof(sortedSet));
+			using var enumerator = sortedSet.GetViewBetween(equalValue, equalValue).GetEnumerator();
 
-			if (sortedSet.Contains(equalValue))
-			{
-				using var enumerator = sortedSet.GetViewBetween(equalValue, equalValue).GetEnumerator();
+			enumerator.MoveNext();
+			actualValue = enumerator.Current;
 
-				enumerator.MoveNext();
-				actualValue = enumerator.Current;
-
-				return true;
-			}
-
-			actualValue = default;
-
-			return false;
+			return true;
 		}
+
+		actualValue = default;
+
+		return false;
 	}
 }
 #endif

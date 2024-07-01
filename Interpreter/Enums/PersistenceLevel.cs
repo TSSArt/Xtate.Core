@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,15 +17,14 @@
 
 #endregion
 
-namespace Xtate
+namespace Xtate;
+
+
+public enum PersistenceLevel
 {
-	[PublicAPI]
-	public enum PersistenceLevel
-	{
-		None             = 0,
-		StableState      = 1,
-		Event            = 2,
-		Transition       = 3,
-		ExecutableAction = 4
-	}
+	None             = 0,
+	StableState      = 1,
+	Event            = 2,
+	Transition       = 3,
+	ExecutableAction = 4
 }

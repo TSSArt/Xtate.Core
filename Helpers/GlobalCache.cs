@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,27 +17,17 @@
 
 #endregion
 
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public class GlobalCache<TKey, TValue> where TKey : notnull
 {
-	[PublicAPI]
-	public sealed class GlobalCache<TKey, TValue> where TKey : notnull
-	{
-		private readonly IEqualityComparer<TKey> _comparer;
+	private readonly ConcurrentDictionary<TKey, CacheEntry<TValue>> _globalDictionary = new();
 
-		private readonly ConcurrentDictionary<TKey, CacheEntry<TValue>> _global;
+	public void Remove(TKey key, CacheEntry<TValue> entry) => _globalDictionary.TryRemove(new KeyValuePair<TKey, CacheEntry<TValue>>(key, entry));
 
-		public GlobalCache() : this(EqualityComparer<TKey>.Default) { }
+	public void Set(TKey key, CacheEntry<TValue> entry) => _globalDictionary[key] = entry;
 
-		public GlobalCache(IEqualityComparer<TKey> comparer)
-		{
-			_comparer = comparer ?? throw new ArgumentNullException(nameof(comparer));
-			_global = new ConcurrentDictionary<TKey, CacheEntry<TValue>>(comparer);
-		}
-
-		public LocalCache<TKey, TValue> CreateLocalCache() => new(_global, _comparer);
-	}
+	public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out CacheEntry<TValue> entry) => _globalDictionary.TryGetValue(key, out entry);
 }

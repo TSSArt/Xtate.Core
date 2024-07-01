@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,89 +17,84 @@
 
 #endregion
 
-using System.Collections.Immutable;
-using System.Threading;
-using System.Threading.Tasks;
+namespace Xtate.IoProcessor;
 
-namespace Xtate.IoProcessor
+
+public abstract class HttpIoProcessorHostBase<THost, TContext> where THost : HttpIoProcessorHostBase<THost, TContext>
 {
-	[PublicAPI]
-	public abstract class HttpIoProcessorHostBase<THost, TContext> where THost : HttpIoProcessorHostBase<THost, TContext>
+	private ImmutableList<HttpIoProcessorBase<THost, TContext>> _processors = ImmutableList<HttpIoProcessorBase<THost, TContext>>.Empty;
+
+	protected ImmutableList<HttpIoProcessorBase<THost, TContext>> Processors => _processors;
+
+	private bool AddToList(HttpIoProcessorBase<THost, TContext> processor)
 	{
-		private ImmutableList<HttpIoProcessorBase<THost, TContext>> _processors = ImmutableList<HttpIoProcessorBase<THost, TContext>>.Empty;
-
-		protected ImmutableList<HttpIoProcessorBase<THost, TContext>> Processors => _processors;
-
-		private bool AddToList(HttpIoProcessorBase<THost, TContext> processor)
+		ImmutableList<HttpIoProcessorBase<THost, TContext>> preVal, newVal;
+		do
 		{
-			ImmutableList<HttpIoProcessorBase<THost, TContext>> preVal, newVal;
-			do
+			preVal = Processors;
+
+			if (preVal.Contains(processor))
 			{
-				preVal = Processors;
-
-				if (preVal.Contains(processor))
-				{
-					return false;
-				}
-
-				newVal = preVal.Add(processor);
-			}
-			while (Interlocked.CompareExchange(ref _processors, newVal, preVal) != preVal);
-
-			return preVal.Count == 0;
-		}
-
-		private bool RemoveFromList(HttpIoProcessorBase<THost, TContext> processor)
-		{
-			ImmutableList<HttpIoProcessorBase<THost, TContext>> preVal, newVal;
-			do
-			{
-				preVal = Processors;
-
-				var index = preVal.IndexOf(processor);
-				if (index < 0)
-				{
-					return false;
-				}
-
-				newVal = preVal.RemoveAt(index);
-			}
-			while (Interlocked.CompareExchange(ref _processors, newVal, preVal) != preVal);
-
-			return newVal.Count == 0;
-		}
-
-		public async ValueTask AddProcessor(HttpIoProcessorBase<THost, TContext> processor, CancellationToken token)
-		{
-			if (AddToList(processor))
-			{
-				try
-				{
-					await StartHost(token).ConfigureAwait(false);
-				}
-				catch
-				{
-					RemoveFromList(processor);
-
-					throw;
-				}
-			}
-		}
-
-		public async ValueTask<bool> RemoveProcessor(HttpIoProcessorBase<THost, TContext> processor, CancellationToken token)
-		{
-			if (RemoveFromList(processor))
-			{
-				await StopHost(token).ConfigureAwait(false);
-
-				return true;
+				return false;
 			}
 
-			return false;
+			newVal = preVal.Add(processor);
 		}
+		while (Interlocked.CompareExchange(ref _processors, newVal, preVal) != preVal);
 
-		protected abstract ValueTask StartHost(CancellationToken token);
-
-		protected abstract ValueTask StopHost(CancellationToken token);
+		return preVal.Count == 0;
 	}
+
+	private bool RemoveFromList(HttpIoProcessorBase<THost, TContext> processor)
+	{
+		ImmutableList<HttpIoProcessorBase<THost, TContext>> preVal, newVal;
+		do
+		{
+			preVal = Processors;
+
+			var index = preVal.IndexOf(processor);
+			if (index < 0)
+			{
+				return false;
+			}
+
+			newVal = preVal.RemoveAt(index);
+		}
+		while (Interlocked.CompareExchange(ref _processors, newVal, preVal) != preVal);
+
+		return newVal.Count == 0;
+	}
+
+	public async ValueTask AddProcessor(HttpIoProcessorBase<THost, TContext> processor, CancellationToken token)
+	{
+		if (AddToList(processor))
+		{
+			try
+			{
+				await StartHost(token).ConfigureAwait(false);
+			}
+			catch
+			{
+				RemoveFromList(processor);
+
+				throw;
+			}
+		}
+	}
+
+	public async ValueTask<bool> RemoveProcessor(HttpIoProcessorBase<THost, TContext> processor, CancellationToken token)
+	{
+		if (RemoveFromList(processor))
+		{
+			await StopHost(token).ConfigureAwait(false);
+
+			return true;
+		}
+
+		return false;
+	}
+
+	protected abstract ValueTask StartHost(CancellationToken token);
+
+	protected abstract ValueTask StopHost(CancellationToken token);
 }

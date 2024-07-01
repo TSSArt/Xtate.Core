@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream
 ﻿#region Copyright © 2019-2021 Sergii Artemenko
+=======
+﻿#region Copyright © 2019-2023 Sergii Artemenko
+>>>>>>> Stashed changes
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,6 +21,7 @@
 
 #endregion
 
+<<<<<<< Updated upstream
 using System;
 using Xtate.Core;
 
@@ -63,6 +68,50 @@ namespace Xtate.DataModel.Null
 			{
 				NullErrorProcessorService.AddError(conditionExpression, Resources.ErrorMessage_IncorrectConditionExpression);
 			}
+=======
+namespace Xtate.DataModel.Null;
+
+public class NullDataModelHandler : DataModelHandlerBase
+{
+	public required IErrorProcessorService<NullDataModelHandler> NullErrorProcessorService { private get; [UsedImplicitly] init; }
+
+	public required Func<IConditionExpression, IIdentifier, NullConditionExpressionEvaluator> NullConditionExpressionEvaluatorFactory { private get; [UsedImplicitly] init; }
+
+	protected override void Visit(ref IForEach forEach) => NullErrorProcessorService.AddError(forEach, Resources.ErrorMessage_ForEachNotSupportedForNull);
+
+	protected override void Visit(ref IScript script) => NullErrorProcessorService.AddError(script, Resources.ErrorMessage_ScriptingNotSupportedForNull);
+
+	protected override void Visit(ref IDataModel dataModel) => NullErrorProcessorService.AddError(dataModel, Resources.ErrorMessage_DataModelNotSupportedForNull);
+
+	protected override void Visit(ref IDoneData doneData) => NullErrorProcessorService.AddError(doneData, Resources.ErrorMessage_DoneDataNotSupportedForNull);
+
+	protected override void Visit(ref IValueExpression expression) => NullErrorProcessorService.AddError(expression, Resources.ErrorMessage_ValueExpressionNotSupportedForNull);
+
+	protected override void Visit(ref ILocationExpression expression) => NullErrorProcessorService.AddError(expression, Resources.ErrorMessage_LocationExpressionNotSupportedForNull);
+
+	protected override void Visit(ref IConditionExpression conditionExpression)
+	{
+		base.Visit(ref conditionExpression);
+
+		var expression = conditionExpression.Expression!;
+
+		if (!expression.StartsWith(value: @"In(", StringComparison.Ordinal) || !expression.EndsWith(value: @")", StringComparison.Ordinal))
+		{
+			NullErrorProcessorService.AddError(conditionExpression, Resources.ErrorMessage_IncorrectConditionExpressionForNull);
+
+			return;
+		}
+
+		var state = expression[3..^1].Trim();
+
+		if (Identifier.TryCreate(state, out var inState))
+		{
+			conditionExpression = NullConditionExpressionEvaluatorFactory(conditionExpression, inState);
+		}
+		else
+		{
+			NullErrorProcessorService.AddError(conditionExpression, Resources.ErrorMessage_IncorrectConditionExpression);
+>>>>>>> Stashed changes
 		}
 	}
 }

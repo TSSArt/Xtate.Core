@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,111 +17,104 @@
 
 #endregion
 
-using System;
-using Xtate.Core;
+namespace Xtate.Persistence;
 
-namespace Xtate.Persistence
+internal sealed class ServiceIdSetPersistingController : IDisposable
 {
-	internal sealed class ServiceIdSetPersistingController : IDisposable
+	private const int ServiceId = 0;
+	private const int Operation = 1;
+	private const int Added     = 2;
+	private const int Removed   = 3;
+
+	private readonly Bucket       _bucket;
+	private readonly ServiceIdSet _serviceIdSet;
+	private          int          _record;
+
+	public ServiceIdSetPersistingController(in Bucket bucket, ServiceIdSet serviceIdSet)
 	{
-		private readonly Bucket       _bucket;
-		private readonly ServiceIdSet _serviceIdSet;
-		private          int          _record;
+		_bucket = bucket;
+		_serviceIdSet = serviceIdSet ?? throw new ArgumentNullException(nameof(serviceIdSet));
 
-		public ServiceIdSetPersistingController(in Bucket bucket, ServiceIdSet serviceIdSet)
+		var shrink = serviceIdSet.Count > 0;
+		while (true)
 		{
-			_bucket = bucket;
-			_serviceIdSet = serviceIdSet ?? throw new ArgumentNullException(nameof(serviceIdSet));
+			var recordBucket = bucket.Nested(_record);
 
-			var shrink = serviceIdSet.Count > 0;
-			while (true)
+			if (!recordBucket.TryGet(Operation, out int operation)
+				|| !recordBucket.TryGetServiceId(ServiceId, out var serviceId))
 			{
-				var recordBucket = bucket.Nested(_record);
+				break;
+			}
 
-				if (!recordBucket.TryGet(Key.Operation, out Key operation)
-					|| !recordBucket.TryGetServiceId(Key.ServiceId, out var serviceId))
-				{
+			switch (operation)
+			{
+				case Added:
+					_serviceIdSet.Add(serviceId);
 					break;
-				}
 
-				switch (operation)
-				{
-					case Key.Added:
-						_serviceIdSet.Add(serviceId);
-						break;
-
-					case Key.Removed:
-						_serviceIdSet.Remove(serviceId);
-						shrink = true;
-						break;
-				}
-
-				_record ++;
+				case Removed:
+					_serviceIdSet.Remove(serviceId);
+					shrink = true;
+					break;
 			}
 
-			if (shrink)
-			{
-				bucket.RemoveSubtree(Bucket.RootKey);
+			_record ++;
+		}
 
-				_record = 0;
-				foreach (var serviceId in _serviceIdSet)
-				{
-					var recordBucket = bucket.Nested(_record ++);
-					recordBucket.Add(Key.ServiceId, serviceId);
-					recordBucket.Add(Key.Operation, Key.Added);
-				}
+		if (shrink)
+		{
+			bucket.RemoveSubtree(Bucket.RootKey);
+
+			_record = 0;
+			foreach (var serviceId in _serviceIdSet)
+			{
+				var recordBucket = bucket.Nested(_record ++);
+				recordBucket.Add(ServiceId, serviceId);
+				recordBucket.Add(Operation, Added);
+			}
+		}
+
+		_serviceIdSet.Changed += OnChanged;
+	}
+
+#region Interface IDisposable
+
+	public void Dispose()
+	{
+		_serviceIdSet.Changed -= OnChanged;
+	}
+
+#endregion
+
+	private void OnChanged(ServiceIdSet.ChangedAction action, ServiceId serviceId)
+	{
+		switch (action)
+		{
+			case ServiceIdSet.ChangedAction.Add:
+			{
+				var bucket = _bucket.Nested(_record ++);
+				bucket.AddServiceId(ServiceId, serviceId);
+				bucket.Add(Operation, Added);
+				break;
 			}
 
-			_serviceIdSet.Changed += OnChanged;
-		}
-
-	#region Interface IDisposable
-
-		public void Dispose()
-		{
-			_serviceIdSet.Changed -= OnChanged;
-		}
-
-	#endregion
-
-		private void OnChanged(ServiceIdSet.ChangedAction action, ServiceId serviceId)
-		{
-			switch (action)
-			{
-				case ServiceIdSet.ChangedAction.Add:
+			case ServiceIdSet.ChangedAction.Remove:
+				if (_serviceIdSet.Count == 0)
+				{
+					_record = 0;
+					_bucket.RemoveSubtree(Bucket.RootKey);
+				}
+				else
 				{
 					var bucket = _bucket.Nested(_record ++);
-					bucket.AddServiceId(Key.ServiceId, serviceId);
-					bucket.Add(Key.Operation, Key.Added);
-					break;
+					bucket.AddServiceId(ServiceId, serviceId);
+					bucket.Add(Operation, Removed);
 				}
 
-				case ServiceIdSet.ChangedAction.Remove:
-					if (_serviceIdSet.Count == 0)
-					{
-						_record = 0;
-						_bucket.RemoveSubtree(Bucket.RootKey);
-					}
-					else
-					{
-						var bucket = _bucket.Nested(_record ++);
-						bucket.AddServiceId(Key.ServiceId, serviceId);
-						bucket.Add(Key.Operation, Key.Removed);
-					}
+				break;
 
-					break;
-
-				default:
-					throw Infra.Unexpected<Exception>(action);
-			}
-		}
-
-		private enum Key
-		{
-			ServiceId,
-			Operation,
-			Added,
-			Removed
+			default:
+				throw Infra.Unexpected<Exception>(action);
 		}
 	}
 }

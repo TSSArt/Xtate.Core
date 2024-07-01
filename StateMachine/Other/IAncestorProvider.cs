@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,19 +17,18 @@
 
 #endregion
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+/// <summary>
+///     Used as partner interface in Decorator pattern by chaining instances into ancestors chain.
+///     It is used to lookup implemented interface all the way of decorators chain. See
+///     <see cref="AncestorProviderExtensions.As{T}" /> and <see cref="AncestorProviderExtensions.Is{T}(object?)" />"/>
+/// </summary>
+public interface IAncestorProvider
 {
 	/// <summary>
-	///     Used as partner interface in Decorator pattern by chaining instances into ancestors chain.
-	///     It is used to lookup implemented interface all the way of decorators chain. See
-	///     <see cref="AncestorProviderExtensions.As{T}" /> and <see cref="AncestorProviderExtensions.Is{T}(object?)" />"/>
+	///     Return reference to ancestor instance when Decorator patter is implemented or <see langword="null" /> if current
+	///     instance has no ancestor
 	/// </summary>
-	public interface IAncestorProvider
-	{
-		/// <summary>
-		///     Return reference to ancestor instance when Decorator patter is implemented or <see langword="null" /> if current
-		///     instance has no ancestor
-		/// </summary>
-		object? Ancestor { get; }
-	}
+	object? Ancestor { get; }
 }

@@ -17,22 +17,42 @@
 
 #endregion
 
+<<<<<<< Updated upstream
 using System;
+=======
+>>>>>>> Stashed changes
 using System.Collections.Specialized;
 using System.IO;
 using System.Net.Http;
 using System.Net.Mime;
+<<<<<<< Updated upstream
 using System.Threading.Tasks;
 
 namespace Xtate.Core;
 
+=======
+
+namespace Xtate.Core;
+
+public class WebResourceLoaderProvider : ResourceLoaderProviderBase<WebResourceLoader>
+{
+	protected override bool CanHandle(Uri uri) => uri is { IsAbsoluteUri: true, Scheme: @"http" or @"https" };
+}
+
+>>>>>>> Stashed changes
 public class WebResourceLoader : IResourceLoader, IDisposable
 {
 	private readonly DisposingToken _disposingToken = new();
 
+<<<<<<< Updated upstream
 	public required Func<Stream, ContentType?, Resource> ResourceFactory { private get; init; }
 
 	public required Func<HttpClient> HttpClientFactory { private get; init; }
+=======
+	public required Func<Stream, ContentType?, Resource> ResourceFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<HttpClient> HttpClientFactory { private get; [UsedImplicitly] init; }
+>>>>>>> Stashed changes
 
 #region Interface IDisposable
 
@@ -56,10 +76,17 @@ public class WebResourceLoader : IResourceLoader, IDisposable
 		var response = await httpClient.SendAsync(request, _disposingToken.Token).ConfigureAwait(false);
 		var contentType = response.Content.Headers.ContentType?.MediaType is { Length: > 0 } value ? new ContentType(value) : null;
 
+<<<<<<< Updated upstream
 #if NET461 || NETSTANDARD2_0
 		var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
 #else
 		var stream = await response.Content.ReadAsStreamAsync(_disposingToken.Token).ConfigureAwait(false);
+=======
+#if NET6_0_OR_GREATER
+		var stream = await response.Content.ReadAsStreamAsync(_disposingToken.Token).ConfigureAwait(false);
+#else
+		var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+>>>>>>> Stashed changes
 #endif
 
 		return ResourceFactory(stream, contentType);

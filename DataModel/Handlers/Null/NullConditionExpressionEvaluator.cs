@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream
 ﻿#region Copyright © 2019-2021 Sergii Artemenko
+=======
+﻿#region Copyright © 2019-2023 Sergii Artemenko
+>>>>>>> Stashed changes
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,6 +21,7 @@
 
 #endregion
 
+<<<<<<< Updated upstream
 using System;
 using System.Threading.Tasks;
 using Xtate.Core;
@@ -68,4 +73,37 @@ namespace Xtate.DataModel.Null
 
 	#endregion
 	}
+=======
+namespace Xtate.DataModel.Null;
+
+public sealed class NullConditionExpressionEvaluator(IConditionExpression conditionExpression, IIdentifier inState) : IConditionExpression, IBooleanEvaluator, IAncestorProvider
+{
+	public required Func<ValueTask<IInStateController?>> InStateControllerFactory { private get; [UsedImplicitly] init; }
+
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => conditionExpression;
+
+#endregion
+
+#region Interface IBooleanEvaluator
+
+	async ValueTask<bool> IBooleanEvaluator.EvaluateBoolean()
+	{
+		if (await InStateControllerFactory().ConfigureAwait(false) is { } inStateController)
+		{
+			return inStateController.InState(inState);
+		}
+
+		return false;
+	}
+
+#endregion
+
+#region Interface IConditionExpression
+
+	public string? Expression => conditionExpression.Expression;
+
+#endregion
+>>>>>>> Stashed changes
 }

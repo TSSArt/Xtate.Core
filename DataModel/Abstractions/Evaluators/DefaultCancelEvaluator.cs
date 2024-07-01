@@ -1,5 +1,10 @@
+<<<<<<< Updated upstream
 ﻿#region Copyright © 2019-2023 Sergii Artemenko
 
+=======
+﻿// Copyright © 2019-2023 Sergii Artemenko
+// 
+>>>>>>> Stashed changes
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,6 +20,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+<<<<<<< Updated upstream
 #endregion
 
 using System;
@@ -37,13 +43,27 @@ public abstract class CancelEvaluator : ICancel, IExecEvaluator, IAncestorProvid
 #region Interface IAncestorProvider
 
 	object IAncestorProvider.Ancestor => _cancel;
+=======
+namespace Xtate.DataModel;
+
+public abstract class CancelEvaluator(ICancel cancel) : ICancel, IExecEvaluator, IAncestorProvider
+{
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => cancel;
+>>>>>>> Stashed changes
 
 #endregion
 
 #region Interface ICancel
 
+<<<<<<< Updated upstream
 	public virtual string?           SendId           => _cancel.SendId;
 	public virtual IValueExpression? SendIdExpression => _cancel.SendIdExpression;
+=======
+	public virtual string?           SendId           => cancel.SendId;
+	public virtual IValueExpression? SendIdExpression => cancel.SendIdExpression;
+>>>>>>> Stashed changes
 
 #endregion
 
@@ -56,6 +76,7 @@ public abstract class CancelEvaluator : ICancel, IExecEvaluator, IAncestorProvid
 
 public class DefaultCancelEvaluator : CancelEvaluator
 {
+<<<<<<< Updated upstream
 	public DefaultCancelEvaluator(ICancel cancel) : base(cancel) => SendIdExpressionEvaluator = cancel.SendIdExpression?.As<IStringEvaluator>();
 
 	public required Func<ValueTask<IEventController?>> EventSenderFactory { private get; init; }
@@ -65,6 +86,17 @@ public class DefaultCancelEvaluator : CancelEvaluator
 	public override async ValueTask Execute()
 	{
 		var sendId = SendIdExpressionEvaluator is not null ? await SendIdExpressionEvaluator.EvaluateString().ConfigureAwait(false) : SendId;
+=======
+	private readonly IStringEvaluator? _sendIdExpressionEvaluator;
+
+	public DefaultCancelEvaluator(ICancel cancel) : base(cancel) => _sendIdExpressionEvaluator = base.SendIdExpression?.As<IStringEvaluator>();
+
+	public required Func<ValueTask<IEventController?>> EventSenderFactory { private get; [UsedImplicitly] init; }
+
+	public override async ValueTask Execute()
+	{
+		var sendId = _sendIdExpressionEvaluator is not null ? await _sendIdExpressionEvaluator.EvaluateString().ConfigureAwait(false) : base.SendId;
+>>>>>>> Stashed changes
 
 		if (string.IsNullOrEmpty(sendId))
 		{

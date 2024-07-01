@@ -1,5 +1,10 @@
+<<<<<<< Updated upstream
 ﻿#region Copyright © 2019-2023 Sergii Artemenko
 
+=======
+﻿// Copyright © 2019-2023 Sergii Artemenko
+// 
+>>>>>>> Stashed changes
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,15 +20,19 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+<<<<<<< Updated upstream
 #endregion
 
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Xtate.Core;
+=======
+>>>>>>> Stashed changes
 using Xtate.CustomAction;
 
 namespace Xtate.DataModel;
 
+<<<<<<< Updated upstream
 public abstract class CustomActionEvaluator : ICustomAction, IExecEvaluator, IAncestorProvider
 {
 	private readonly ICustomAction _customAction;
@@ -38,16 +47,31 @@ public abstract class CustomActionEvaluator : ICustomAction, IExecEvaluator, IAn
 #region Interface IAncestorProvider
 
 	object IAncestorProvider.Ancestor => _customAction;
+=======
+public abstract class CustomActionEvaluator(ICustomAction customAction) : ICustomAction, IExecEvaluator, IAncestorProvider
+{
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => customAction;
+>>>>>>> Stashed changes
 
 #endregion
 
 #region Interface ICustomAction
 
+<<<<<<< Updated upstream
 	public virtual string?                             XmlNamespace => _customAction.XmlNamespace;
 	public virtual string?                             XmlName      => _customAction.XmlName;
 	public virtual string?                             Xml          => _customAction.Xml;
 	public virtual ImmutableArray<ILocationExpression> Locations    => _customAction.Locations;
 	public virtual ImmutableArray<IValueExpression>    Values       => _customAction.Values;
+=======
+	public virtual string?                             XmlNamespace => customAction.XmlNamespace;
+	public virtual string?                             XmlName      => customAction.XmlName;
+	public virtual string?                             Xml          => customAction.Xml;
+	public virtual ImmutableArray<ILocationExpression> Locations    => customAction.Locations;
+	public virtual ImmutableArray<IValueExpression>    Values       => customAction.Values;
+>>>>>>> Stashed changes
 
 #endregion
 
@@ -55,7 +79,11 @@ public abstract class CustomActionEvaluator : ICustomAction, IExecEvaluator, IAn
 
 	public abstract ValueTask Execute();
 
+<<<<<<< Updated upstream
 #endregion 
+=======
+#endregion
+>>>>>>> Stashed changes
 }
 
 public class DefaultCustomActionEvaluator : CustomActionEvaluator
@@ -66,7 +94,11 @@ public class DefaultCustomActionEvaluator : CustomActionEvaluator
 	{
 		if (customAction.Is(out _customActionContainer))
 		{
+<<<<<<< Updated upstream
 			_customActionContainer.SetEvaluators(customAction.Values, customAction.Locations);
+=======
+			_customActionContainer.SetEvaluators(base.Values, base.Locations);
+>>>>>>> Stashed changes
 		}
 	}
 

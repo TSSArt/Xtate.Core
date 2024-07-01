@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,52 +17,47 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
+namespace Xtate.Core;
 
-namespace Xtate.Core
+
+internal static class ListExtensions
 {
-	[PublicAPI]
-	internal static class ListExtensions
+	public static bool TrueForAll<T, TArg>(this List<T> list, Func<T, TArg, bool> predicate, TArg arg)
 	{
-		public static bool TrueForAll<T, TArg>(this List<T> list, Func<T, TArg, bool> predicate, TArg arg)
+		foreach (var item in list)
 		{
-			foreach (var item in list)
+			if (!predicate(item, arg))
 			{
-				if (!predicate(item, arg))
-				{
-					return false;
-				}
+				return false;
 			}
-
-			return true;
 		}
 
-		public static bool Exists<T, TArg>(this List<T> list, Func<T, TArg, bool> match, TArg arg)
-		{
-			foreach (var item in list)
-			{
-				if (match(item, arg))
-				{
-					return true;
-				}
-			}
+		return true;
+	}
 
-			return false;
+	public static bool Exists<T, TArg>(this List<T> list, Func<T, TArg, bool> match, TArg arg)
+	{
+		foreach (var item in list)
+		{
+			if (match(item, arg))
+			{
+				return true;
+			}
 		}
 
-		public static bool Any<T, TArg>(this ImmutableArray<T> array, Func<T, TArg, bool> predicate, TArg arg)
-		{
-			foreach (var item in array)
-			{
-				if (predicate(item, arg))
-				{
-					return true;
-				}
-			}
+		return false;
+	}
 
-			return false;
+	public static bool Any<T, TArg>(this ImmutableArray<T> array, Func<T, TArg, bool> predicate, TArg arg)
+	{
+		foreach (var item in array)
+		{
+			if (predicate(item, arg))
+			{
+				return true;
+			}
 		}
+
+		return false;
 	}
 }

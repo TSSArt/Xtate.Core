@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,14 +19,13 @@
 
 using System.Diagnostics;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public static class XtateCore
 {
-	public static class XtateCore
-	{
-		/// <summary>
-		///     Used for code static analysis tool (e.g. ReSharper) to prevent removing 'using Xtate.Core;' statement from header
-		/// </summary>
-		[Conditional("NotExistedIdentifier")]
-		public static void Use() { }
-	}
+	/// <summary>
+	///     Used for code static analysis tool (e.g. ReSharper) to prevent removing 'using Xtate.Core;' statement from header
+	/// </summary>
+	[Conditional("NotExistedIdentifier")]
+	public static void Use() { }
 }

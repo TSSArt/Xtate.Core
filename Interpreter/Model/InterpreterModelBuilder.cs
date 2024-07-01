@@ -17,12 +17,6 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.CustomAction;
 using Xtate.DataModel;
 using Xtate.IoC;
 using Xtate.Persistence;
@@ -30,6 +24,7 @@ using IServiceProvider = Xtate.IoC.IServiceProvider;
 
 namespace Xtate.Core;
 
+<<<<<<< Updated upstream
 public class InterpreterModelGetter : IAsyncInitialization
 {
 	private readonly AsyncInit<IInterpreterModel> _interpreterModelAsyncInit;
@@ -274,13 +269,172 @@ public class InterpreterModelBuilder : StateMachineVisitor
 	{
 		uri = _BaseUri.CombineWith(uri);
 		var resource = await _resourceLoaderService.Request(uri).ConfigureAwait(false);
+=======
+public class InterpreterModelBuilder : StateMachineVisitor
+{
+	private class EntityMap(IEntity?[] map) : IEntityMap
+	{
+		public bool TryGetEntityByDocumentId(int id, [MaybeNullWhen(false)] out IEntity entity)
+		{
+			entity = id < map.Length ? map[id] : default;
+			
+			return entity is not null;
+		}
+	}
+
+	private readonly Dictionary<IIdentifier, StateEntityNode>           _idMap     = new(Identifier.EqualityComparer);
+	private readonly List<TransitionNode>                               _targetMap = [];
+	private          int                                                _counter;
+	private          int                                                _deepLevel;
+	private          List<IEntity>?                                     _entities;
+	private          LinkedList<int>?                                   _documentIdList;
+	private          List<(Uri Uri, IExternalScriptConsumer Consumer)>? _externalScriptList;
+	private          bool                                               _inParallel;
+
+	public required IStateMachine                                   StateMachine          { private get; [UsedImplicitly] init; }
+	public required IStateMachineLocation?                          StateMachineLocation  { private get; [UsedImplicitly] init; }
+	public required IDataModelHandler                               DataModelHandler      { private get; [UsedImplicitly] init; }
+	public required IErrorProcessorService<InterpreterModelBuilder> ErrorProcessorService { private get; [UsedImplicitly] init; }
+	public required IResourceLoader                                 ResourceLoader        { private get; [UsedImplicitly] init; }
+
+	public required Func<DocumentIdNode, TransitionNode, EmptyInitialNode>                     EmptyInitialNodeFactory             { private get; [UsedImplicitly] init; }
+	public required Func<DocumentIdNode, ImmutableArray<StateEntityNode>, EmptyTransitionNode> EmptyTransitionNodeFactory          { private get; [UsedImplicitly] init; }
+	public required Func<DocumentIdNode, IInitial, InitialNode>                                InitialNodeFactory                  { private get; [UsedImplicitly] init; }
+	public required Func<DocumentIdNode, ITransition, TransitionNode>                          TransitionNodeFactory               { private get; [UsedImplicitly] init; }
+	public required Func<DocumentIdNode, IDoneData, DoneDataNode>                              DoneDataNodeFactory                 { private get; [UsedImplicitly] init; }
+	public required Func<DocumentIdNode, IState, StateNode>                                    StateNodeFactory                    { private get; [UsedImplicitly] init; }
+	public required Func<DocumentIdNode, IParallel, ParallelNode>                              ParallelNodeFactory                 { private get; [UsedImplicitly] init; }
+	public required Func<DocumentIdNode, IState, CompoundNode>                                 CompoundNodeFactory                 { private get; [UsedImplicitly] init; }
+	public required Func<DocumentIdNode, IStateMachine, StateMachineNode>                      StateMachineNodeFactory             { private get; [UsedImplicitly] init; }
+	public required Func<DocumentIdNode, IFinal, FinalNode>                                    FinalNodeFactory                    { private get; [UsedImplicitly] init; }
+	public required Func<DocumentIdNode, IHistory, HistoryNode>                                HistoryNodeFactory                  { private get; [UsedImplicitly] init; }
+	public required Func<DocumentIdNode, IDataModel, DataModelNode>                            DataModelNodeFactory                { private get; [UsedImplicitly] init; }
+	public required Func<DocumentIdNode, IOnEntry, OnEntryNode>                                OnEntryNodeFactory                  { private get; [UsedImplicitly] init; }
+	public required Func<DocumentIdNode, IOnExit, OnExitNode>                                  OnExitNodeFactory                   { private get; [UsedImplicitly] init; }
+	public required Func<DocumentIdNode, IData, DataNode>                                      DataNodeFactory                     { private get; [UsedImplicitly] init; }
+	public required Func<DocumentIdNode, IInvoke, InvokeNode>                                  InvokeNodeFactory                   { private get; [UsedImplicitly] init; }
+	public required Func<DocumentIdNode, ICancel, CancelNode>                                  CancelNodeFactory                   { private get; [UsedImplicitly] init; }
+	public required Func<DocumentIdNode, IAssign, AssignNode>                                  AssignNodeFactory                   { private get; [UsedImplicitly] init; }
+	public required Func<DocumentIdNode, IForEach, ForEachNode>                                ForEachNodeFactory                  { private get; [UsedImplicitly] init; }
+	public required Func<DocumentIdNode, IIf, IfNode>                                          IfNodeFactory                       { private get; [UsedImplicitly] init; }
+	public required Func<DocumentIdNode, IElseIf, ElseIfNode>                                  ElseIfNodeFactory                   { private get; [UsedImplicitly] init; }
+	public required Func<DocumentIdNode, IElse, ElseNode>                                      ElseNodeFactory                     { private get; [UsedImplicitly] init; }
+	public required Func<DocumentIdNode, ILog, LogNode>                                        LogNodeFactory                      { private get; [UsedImplicitly] init; }
+	public required Func<DocumentIdNode, IRaise, RaiseNode>                                    RaiseNodeFactory                    { private get; [UsedImplicitly] init; }
+	public required Func<DocumentIdNode, ISend, SendNode>                                      SendNodeFactory                     { private get; [UsedImplicitly] init; }
+	public required Func<DocumentIdNode, IScript, ScriptNode>                                  ScriptNodeFactory                   { private get; [UsedImplicitly] init; }
+	public required Func<DocumentIdNode, IExecutableEntity, RuntimeExecNode>                   RuntimeExecNodeFactory              { private get; [UsedImplicitly] init; }
+	public required Func<DocumentIdNode, ICustomAction, CustomActionNode>                      CustomActionNodeFactory             { private get; [UsedImplicitly] init; }
+	public required Func<DocumentIdNode, IParam, ParamNode>                                    ParamNodeFactory                    { private get; [UsedImplicitly] init; }
+	public required Func<IScriptExpression, ScriptExpressionNode>                              ScriptExpressionNodeFactory         { private get; [UsedImplicitly] init; }
+	public required Func<IExternalScriptExpression, ExternalScriptExpressionNode>              ExternalScriptExpressionNodeFactory { private get; [UsedImplicitly] init; }
+	public required Func<IExternalDataExpression, ExternalDataExpressionNode>                  ExternalDataExpressionNodeFactory   { private get; [UsedImplicitly] init; }
+	public required Func<IValueExpression, ValueExpressionNode>                                ValueExpressionNodeFactory          { private get; [UsedImplicitly] init; }
+	public required Func<ILocationExpression, LocationExpressionNode>                          LocationExpressionNodeFactory       { private get; [UsedImplicitly] init; }
+	public required Func<IConditionExpression, ConditionExpressionNode>                        ConditionExpressionNodeFactory      { private get; [UsedImplicitly] init; }
+	public required Func<IContent, ContentNode>                                                ContentNodeFactory                  { private get; [UsedImplicitly] init; }
+	public required Func<IFinalize, FinalizeNode>                                              FinalizeNodeFactory                 { private get; [UsedImplicitly] init; }
+	public required Func<IIdentifier, IdentifierNode>                                          IdentifierNodeFactory               { private get; [UsedImplicitly] init; }
+	public required Func<IOutgoingEvent, EventNode>                                            EventNodeFactory                    { private get; [UsedImplicitly] init; }
+	public required Func<IEventDescriptor, EventDescriptorNode>                                EventDescriptorNodeFactory          { private get; [UsedImplicitly] init; }
+
+	private void CounterBefore(bool inParallel, out (int counter, bool inParallel) saved)
+	{
+		saved.counter = _counter;
+		saved.inParallel = _inParallel;
+
+		_counter = 0;
+		_inParallel = inParallel;
+	}
+
+	private void CounterAfter((int counter, bool inParallel) saved)
+	{
+		_inParallel = saved.inParallel;
+		_counter ++;
+		_counter = _inParallel ? _counter + saved.counter : _counter > saved.counter ? _counter : saved.counter;
+	}
+
+	public async ValueTask<IInterpreterModel> BuildModel(bool withEntityMap = false)
+	{
+		_idMap.Clear();
+		_targetMap.Clear();
+		_entities = withEntityMap ? [] : default;
+		_documentIdList = withEntityMap ? [] : default;
+		_externalScriptList = default;
+		_inParallel = false;
+		_deepLevel = 0;
+		_counter = 0;
+
+		var stateMachine = StateMachine;
+
+		Visit(ref stateMachine);
+
+		foreach (var transition in _targetMap)
+		{
+			if (!transition.TryMapTarget(_idMap))
+			{
+				ErrorProcessorService.AddError(entity: null, Resources.ErrorMessage_TargetIdDoesNotExists);
+			}
+		}
+
+		var id = 0;
+
+		for (var node = _documentIdList?.First; node is not null; node = node.Next)
+		{
+			node.Value = id ++;
+		}
+
+		_documentIdList = default;
+
+		var entityMap = _entities is { } entities? GetEntityMap(entities, id) : default;
+
+		if (_externalScriptList is not null)
+		{
+			await SetExternalResources(_externalScriptList).ConfigureAwait(false);
+		}
+
+		return new InterpreterModel(stateMachine.As<StateMachineNode>(), entityMap);
+	}
+
+	private static IEntityMap GetEntityMap(List<IEntity> entities, int maxId)
+	{
+		var map = maxId > 0 ? new IEntity?[maxId] : [];
+
+		foreach (var entity in entities)
+		{
+			if (entity.Is<IDocumentId>(out var docId))
+			{
+				map[docId.DocumentId] = entity;
+			}
+		}
+
+		return new EntityMap(map);
+	}
+
+	private async ValueTask SetExternalResources(List<(Uri Uri, IExternalScriptConsumer Consumer)> externalScriptList)
+	{
+		foreach (var (uri, consumer) in externalScriptList)
+		{
+			await LoadAndSetContent(uri, consumer).ConfigureAwait(false);
+		}
+	}
+
+	private async ValueTask LoadAndSetContent(Uri uri, IExternalScriptConsumer consumer)
+	{
+		var baseUri = StateMachineLocation?.Location;
+		var resource = await ResourceLoader.Request(baseUri.CombineWith(uri)).ConfigureAwait(false);
+>>>>>>> Stashed changes
 		await using (resource.ConfigureAwait(false))
 		{
 			consumer.SetContent(await resource.GetContent().ConfigureAwait(false));
 		}
 	}
 
+<<<<<<< Updated upstream
 	private void RegisterEntity(IEntity entity) => _entities.Add(entity);
+=======
+	private void RegisterEntity(IEntity entity) => _entities?.Add(entity);
+>>>>>>> Stashed changes
 
 	private DocumentIdNode CreateDocumentId() => new(_documentIdList);
 
@@ -312,11 +466,14 @@ public class InterpreterModelBuilder : StateMachineVisitor
 
 		var newStateMachine = StateMachineNodeFactory(documentId, stateMachine);
 
+<<<<<<< Updated upstream
 		if (_dataModelNodeArray is not null && newStateMachine.DataModel is { } dataModelNode)
 		{
 			_dataModelNodeArray.Remove(dataModelNode);
 		}
 
+=======
+>>>>>>> Stashed changes
 		stateMachine = newStateMachine;
 		RegisterEntity(stateMachine);
 	}
@@ -455,11 +612,15 @@ public class InterpreterModelBuilder : StateMachineVisitor
 
 		base.Visit(ref dataModel);
 
+<<<<<<< Updated upstream
 		var dataModelNode = DataModelNodeFactory(documentId, dataModel);
 
 		(_dataModelNodeArray ??= ImmutableArray.CreateBuilder<DataModelNode>()).Add(dataModelNode);
 
 		dataModel = dataModelNode;
+=======
+		dataModel = DataModelNodeFactory(documentId, dataModel);
+>>>>>>> Stashed changes
 		RegisterEntity(dataModel);
 	}
 
@@ -485,8 +646,11 @@ public class InterpreterModelBuilder : StateMachineVisitor
 
 	protected override void Visit(ref IScriptExpression scriptExpression)
 	{
+<<<<<<< Updated upstream
 		CreateDocumentId();
 
+=======
+>>>>>>> Stashed changes
 		base.Visit(ref scriptExpression);
 
 		scriptExpression = ScriptExpressionNodeFactory(scriptExpression);
@@ -495,8 +659,11 @@ public class InterpreterModelBuilder : StateMachineVisitor
 
 	protected override void Visit(ref IExternalScriptExpression externalScriptExpression)
 	{
+<<<<<<< Updated upstream
 		CreateDocumentId();
 
+=======
+>>>>>>> Stashed changes
 		base.Visit(ref externalScriptExpression);
 
 		var externalScriptExpressionNode = ExternalScriptExpressionNodeFactory(externalScriptExpression);
@@ -512,8 +679,12 @@ public class InterpreterModelBuilder : StateMachineVisitor
 			}
 			else
 			{
+<<<<<<< Updated upstream
 				_externalScriptList ??= new List<(Uri Uri, IExternalScriptConsumer Consumer)>();
 
+=======
+				_externalScriptList ??= [];
+>>>>>>> Stashed changes
 				_externalScriptList.Add((externalScriptExpressionNode.Uri, consumer));
 			}
 		}
@@ -531,9 +702,13 @@ public class InterpreterModelBuilder : StateMachineVisitor
 
 	protected override void Visit(ref IExternalDataExpression externalDataExpression)
 	{
+<<<<<<< Updated upstream
 		_DataModelHandler.Process(ref externalDataExpression);
 
 		CreateDocumentId();
+=======
+		DataModelHandler.Process(ref externalDataExpression);
+>>>>>>> Stashed changes
 
 		base.Visit(ref externalDataExpression);
 
@@ -543,9 +718,13 @@ public class InterpreterModelBuilder : StateMachineVisitor
 
 	protected override void Visit(ref IValueExpression valueExpression)
 	{
+<<<<<<< Updated upstream
 		_DataModelHandler.Process(ref valueExpression);
 
 		CreateDocumentId();
+=======
+		DataModelHandler.Process(ref valueExpression);
+>>>>>>> Stashed changes
 
 		base.Visit(ref valueExpression);
 
@@ -555,9 +734,13 @@ public class InterpreterModelBuilder : StateMachineVisitor
 
 	protected override void Visit(ref ILocationExpression locationExpression)
 	{
+<<<<<<< Updated upstream
 		_DataModelHandler.Process(ref locationExpression);
 
 		CreateDocumentId();
+=======
+		DataModelHandler.Process(ref locationExpression);
+>>>>>>> Stashed changes
 
 		base.Visit(ref locationExpression);
 
@@ -567,9 +750,13 @@ public class InterpreterModelBuilder : StateMachineVisitor
 
 	protected override void Visit(ref IConditionExpression conditionExpression)
 	{
+<<<<<<< Updated upstream
 		_DataModelHandler.Process(ref conditionExpression);
 
 		CreateDocumentId();
+=======
+		DataModelHandler.Process(ref conditionExpression);
+>>>>>>> Stashed changes
 
 		base.Visit(ref conditionExpression);
 
@@ -579,14 +766,22 @@ public class InterpreterModelBuilder : StateMachineVisitor
 
 	protected override void Visit(ref IInlineContent inlineContent)
 	{
+<<<<<<< Updated upstream
 		_DataModelHandler.Process(ref inlineContent);
+=======
+		DataModelHandler.Process(ref inlineContent);
+>>>>>>> Stashed changes
 
 		base.Visit(ref inlineContent);
 	}
 
 	protected override void Visit(ref IContentBody contentBody)
 	{
+<<<<<<< Updated upstream
 		_DataModelHandler.Process(ref contentBody);
+=======
+		DataModelHandler.Process(ref contentBody);
+>>>>>>> Stashed changes
 
 		base.Visit(ref contentBody);
 	}
@@ -603,8 +798,11 @@ public class InterpreterModelBuilder : StateMachineVisitor
 
 	protected override void Visit(ref IContent content)
 	{
+<<<<<<< Updated upstream
 		CreateDocumentId();
 
+=======
+>>>>>>> Stashed changes
 		base.Visit(ref content);
 
 		content = ContentNodeFactory(content);
@@ -613,8 +811,11 @@ public class InterpreterModelBuilder : StateMachineVisitor
 
 	protected override void Visit(ref IFinalize finalize)
 	{
+<<<<<<< Updated upstream
 		CreateDocumentId();
 
+=======
+>>>>>>> Stashed changes
 		base.Visit(ref finalize);
 
 		finalize = FinalizeNodeFactory(finalize);
@@ -633,8 +834,11 @@ public class InterpreterModelBuilder : StateMachineVisitor
 
 	protected override void Visit(ref IIdentifier entity)
 	{
+<<<<<<< Updated upstream
 		CreateDocumentId();
 
+=======
+>>>>>>> Stashed changes
 		base.Visit(ref entity);
 
 		entity = IdentifierNodeFactory(entity);
@@ -643,8 +847,11 @@ public class InterpreterModelBuilder : StateMachineVisitor
 
 	protected override void Visit(ref IOutgoingEvent entity)
 	{
+<<<<<<< Updated upstream
 		CreateDocumentId();
 
+=======
+>>>>>>> Stashed changes
 		base.Visit(ref entity);
 
 		entity = EventNodeFactory(entity);
@@ -653,8 +860,11 @@ public class InterpreterModelBuilder : StateMachineVisitor
 
 	protected override void Visit(ref IEventDescriptor entity)
 	{
+<<<<<<< Updated upstream
 		CreateDocumentId();
 
+=======
+>>>>>>> Stashed changes
 		base.Visit(ref entity);
 
 		entity = EventDescriptorNodeFactory(entity);
@@ -778,13 +988,18 @@ public class InterpreterModelBuilder : StateMachineVisitor
 	{
 		if (_deepLevel == 0)
 		{
+<<<<<<< Updated upstream
 			_DataModelHandler.Process(ref executableEntity);
+=======
+			DataModelHandler.Process(ref executableEntity);
+>>>>>>> Stashed changes
 		}
 
 		_deepLevel ++;
 		base.Visit(ref executableEntity);
 		_deepLevel --;
 	}
+<<<<<<< Updated upstream
 
 	[PublicAPI]
 	public record Parameters
@@ -810,4 +1025,6 @@ public class InterpreterModelBuilder : StateMachineVisitor
 		public ServiceLocator ServiceLocator { get; }
 		public IStateMachine  StateMachine   { get; init; }
 	}
+=======
+>>>>>>> Stashed changes
 }

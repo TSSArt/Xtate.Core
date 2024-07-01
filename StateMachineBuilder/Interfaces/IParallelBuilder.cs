@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,20 +17,19 @@
 
 #endregion
 
-namespace Xtate.Builder
-{
-	public interface IParallelBuilder
-	{
-		IParallel Build();
+namespace Xtate.Builder;
 
-		void SetId(IIdentifier id);
-		void AddState(IState state);
-		void AddParallel(IParallel parallel);
-		void AddHistory(IHistory history);
-		void AddTransition(ITransition transition);
-		void AddOnEntry(IOnEntry onEntry);
-		void AddOnExit(IOnExit onExit);
-		void AddInvoke(IInvoke invoke);
-		void SetDataModel(IDataModel dataModel);
-	}
+public interface IParallelBuilder
+{
+	IParallel Build();
+
+	void SetId(IIdentifier id);
+	void AddState(IState state);
+	void AddParallel(IParallel parallel);
+	void AddHistory(IHistory history);
+	void AddTransition(ITransition transition);
+	void AddOnEntry(IOnEntry onEntry);
+	void AddOnExit(IOnExit onExit);
+	void AddInvoke(IInvoke invoke);
+	void SetDataModel(IDataModel dataModel);
 }
