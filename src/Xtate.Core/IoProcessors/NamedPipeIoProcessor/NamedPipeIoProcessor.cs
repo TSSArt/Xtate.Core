@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,437 +17,425 @@
 
 #endregion
 
-using System;
 using System.Buffers;
 using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Pipes;
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.Core;
 using Xtate.Persistence;
 
-namespace Xtate.IoProcessor
+namespace Xtate.IoProcessor;
+
+public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 {
-	public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
+	private const string SessionIdPrefix = "#_session_";
+	private const string InvokeIdPrefix  = "#_invoke_";
+	private const string PipePrefix      = "#xtate#";
+
+	private const PipeOptions DefaultPipeOptions = PipeOptions.WriteThrough | PipeOptions.Asynchronous;
+
+	private const string Id    = @"http://www.w3.org/TR/scxml/#NamedPipeEventProcessor";
+	private const string Alias = @"named.pipe";
+
+	private static readonly EventObject CheckPipelineEvent = new() { Type = EventType.External, NameParts = EventName.ToParts(@"$") };
+
+	private static readonly ConcurrentDictionary<string, IEventConsumer> InProcConsumers = new();
+
+	private readonly Uri            _baseUri;
+	private readonly IEventConsumer _eventConsumer;
+	private readonly int            _maxMessageSize;
+	private readonly string         _name;
+	private readonly string         _pipeName;
+
+	private readonly CancellationTokenSource _stopTokenSource = new();
+
+	public NamedPipeIoProcessor(IEventConsumer eventConsumer,
+								[Localizable(false)] string host,
+								[Localizable(false)] string name,
+								int maxMessageSize) : base(eventConsumer, Id, Alias)
 	{
-		private const string SessionIdPrefix = "#_session_";
-		private const string InvokeIdPrefix  = "#_invoke_";
-		private const string PipePrefix      = "#xtate#";
+		if (host is null) throw new ArgumentNullException(nameof(host));
+		if (maxMessageSize < 0) throw new ArgumentOutOfRangeException(nameof(maxMessageSize));
 
-		private const PipeOptions DefaultPipeOptions = PipeOptions.WriteThrough | PipeOptions.Asynchronous;
+		_eventConsumer = eventConsumer ?? throw new ArgumentNullException(nameof(eventConsumer));
+		_name = name ?? throw new ArgumentNullException(nameof(name));
+		_pipeName = PipePrefix + name;
+		_baseUri = new Uri(@"named.pipe://" + host + @"/" + name);
+		_maxMessageSize = maxMessageSize;
 
-		private const string Id    = @"http://www.w3.org/TR/scxml/#NamedPipeEventProcessor";
-		private const string Alias = @"named.pipe";
-
-		private static readonly EventObject CheckPipelineEvent = new() { Type = EventType.External, NameParts = EventName.ToParts(@"$") };
-
-		private static readonly ConcurrentDictionary<string, IEventConsumer> InProcConsumers = new();
-
-		private readonly Uri            _baseUri;
-		private readonly IEventConsumer _eventConsumer;
-		private readonly int            _maxMessageSize;
-		private readonly string         _name;
-		private readonly string         _pipeName;
-
-		private readonly CancellationTokenSource _stopTokenSource = new();
-
-		public NamedPipeIoProcessor(IEventConsumer eventConsumer,
-									[Localizable(false)] string host,
-									[Localizable(false)] string name,
-									int maxMessageSize) : base(eventConsumer, Id, Alias)
+		if (!InProcConsumers.TryAdd(name, eventConsumer))
 		{
-			if (host is null) throw new ArgumentNullException(nameof(host));
-			if (maxMessageSize < 0) throw new ArgumentOutOfRangeException(nameof(maxMessageSize));
+			throw new ProcessorException(Res.Format(Resources.Exception_NamedPipeIoProcessorWithNameAlreadyHasBeenRegistered, name));
+		}
+	}
 
-			_eventConsumer = eventConsumer ?? throw new ArgumentNullException(nameof(eventConsumer));
-			_name = name ?? throw new ArgumentNullException(nameof(name));
-			_pipeName = PipePrefix + name;
-			_baseUri = new Uri(@"named.pipe://" + host + @"/" + name);
-			_maxMessageSize = maxMessageSize;
+#region Interface IDisposable
 
-			if (!InProcConsumers.TryAdd(name, eventConsumer))
-			{
-				throw new ProcessorException(Res.Format(Resources.Exception_NamedPipeIoProcessorWithNameAlreadyHasBeenRegistered, name));
-			}
+	public void Dispose()
+	{
+		_stopTokenSource.Cancel();
+
+		InProcConsumers.TryRemove(_name, out _);
+
+		_stopTokenSource.Dispose();
+	}
+
+#endregion
+
+	protected override IHostEvent CreateHostEvent(ServiceId senderServiceId, IOutgoingEvent outgoingEvent)
+	{
+		if (outgoingEvent is null) throw new ArgumentNullException(nameof(outgoingEvent));
+
+		if (outgoingEvent.Target is null)
+		{
+			throw new ProcessorException(Resources.Exception_EventTargetDidNotSpecified);
 		}
 
-	#region Interface IDisposable
+		return base.CreateHostEvent(senderServiceId, outgoingEvent);
+	}
 
-		public void Dispose()
+	protected override async ValueTask OutgoingEvent(IHostEvent hostEvent, CancellationToken token)
+	{
+		var target = ((UriId?) hostEvent.TargetServiceId)?.Uri;
+
+		Infra.NotNull(target);
+
+		var host = target.Host;
+		var isLoopback = target.IsLoopback || host == _baseUri.Host;
+		var name = target.GetComponents(UriComponents.Path, UriFormat.Unescaped);
+
+		var targetServiceId = GetServiceId(target);
+
+		if (isLoopback && InProcConsumers.TryGetValue(name, out var eventConsumer))
 		{
-			_stopTokenSource.Cancel();
-
-			InProcConsumers.TryRemove(_name, out _);
-
-			_stopTokenSource.Dispose();
-		}
-
-	#endregion
-
-		protected override IHostEvent CreateHostEvent(ServiceId senderServiceId, IOutgoingEvent outgoingEvent)
-		{
-			if (outgoingEvent is null) throw new ArgumentNullException(nameof(outgoingEvent));
-
-			if (outgoingEvent.Target is null)
+			if (await eventConsumer.TryGetEventDispatcher(targetServiceId, token).ConfigureAwait(false) is { } eventDispatcher)
 			{
-				throw new ProcessorException(Resources.Exception_EventTargetDidNotSpecified);
-			}
-
-			return base.CreateHostEvent(senderServiceId, outgoingEvent);
-		}
-
-		protected override async ValueTask OutgoingEvent(IHostEvent hostEvent, CancellationToken token)
-		{
-			var target = ((UriId?) hostEvent.TargetServiceId)?.Uri;
-
-			Infra.NotNull(target);
-
-			var host = target.Host;
-			var isLoopback = target.IsLoopback || host == _baseUri.Host;
-			var name = target.GetComponents(UriComponents.Path, UriFormat.Unescaped);
-
-			var targetServiceId = GetServiceId(target);
-
-			if (isLoopback && InProcConsumers.TryGetValue(name, out var eventConsumer))
-			{
-				if (await eventConsumer.TryGetEventDispatcher(targetServiceId, token).ConfigureAwait(false) is { } eventDispatcher)
-				{
-					await eventDispatcher.Send(hostEvent, token).ConfigureAwait(false);
-				}
-				else
-				{
-					throw new ProcessorException(Resources.Exception_EventDispatcherNotFound);
-				}
+				await eventDispatcher.Send(hostEvent, token).ConfigureAwait(false);
 			}
 			else
 			{
-				await SendEventToPipe(isLoopback ? @"." : host, PipePrefix + name, targetServiceId, hostEvent, token).ConfigureAwait(false);
+				throw new ProcessorException(Resources.Exception_EventDispatcherNotFound);
 			}
 		}
-
-		protected override Uri? GetTarget(ServiceId serviceId)
+		else
 		{
-			return serviceId switch
-				   {
-					   SessionId sessionId => new Uri(_baseUri, SessionIdPrefix + sessionId.Value),
-					   InvokeId invokeId   => new Uri(_baseUri, InvokeIdPrefix + invokeId.Value),
-					   UriId uriId         => new Uri(_baseUri, uriId.Uri),
-					   _                   => default
-				   };
+			await SendEventToPipe(isLoopback ? @"." : host, PipePrefix + name, targetServiceId, hostEvent, token).ConfigureAwait(false);
 		}
+	}
 
-		private async ValueTask SendEventToPipe(string server,
-												string pipeName,
-												ServiceId? targetServiceId,
-												IEvent evt,
-												CancellationToken token)
+	protected override Uri? GetTarget(ServiceId serviceId)
+	{
+		return serviceId switch
+			   {
+				   SessionId sessionId => new Uri(_baseUri, SessionIdPrefix + sessionId.Value),
+				   InvokeId invokeId   => new Uri(_baseUri, InvokeIdPrefix + invokeId.Value),
+				   UriId uriId         => new Uri(_baseUri, uriId.Uri),
+				   _                   => default
+			   };
+	}
+
+	private async ValueTask SendEventToPipe(string server,
+											string pipeName,
+											ServiceId? targetServiceId,
+											IEvent evt,
+											CancellationToken token)
+	{
+		var pipeStream = new NamedPipeClientStream(server, pipeName, PipeDirection.InOut, DefaultPipeOptions);
+		var memoryStream = new MemoryStream();
+
+		await using (pipeStream.ConfigureAwait(false))
+		await using (memoryStream.ConfigureAwait(false))
 		{
-			var pipeStream = new NamedPipeClientStream(server, pipeName, PipeDirection.InOut, DefaultPipeOptions);
-			var memoryStream = new MemoryStream();
+			await pipeStream.ConnectAsync(token).ConfigureAwait(false);
 
-			await using (pipeStream.ConfigureAwait(false))
-			await using (memoryStream.ConfigureAwait(false))
+			var message = new EventMessage(targetServiceId, evt);
+
+			Serialize(message, memoryStream);
+
+			await SendMessage(memoryStream, pipeStream, token).ConfigureAwait(false);
+
+			memoryStream.SetLength(0);
+
+			await ReceiveMessage(pipeStream, memoryStream, token).ConfigureAwait(false);
+
+			memoryStream.Position = 0;
+			var responseMessage = Deserialize(memoryStream, bucket => new ResponseMessage(bucket));
+
+			switch (responseMessage.ErrorType)
 			{
-				await pipeStream.ConnectAsync(token).ConfigureAwait(false);
+				case ErrorType.None:
+					break;
 
-				var message = new EventMessage(targetServiceId, evt);
+				case ErrorType.Exception:
+					throw new ProcessorException(Res.Format(Resources.Exception_ErrorOnEventConsumerSide, responseMessage.ExceptionMessage, responseMessage.ExceptionText));
 
-				Serialize(message, memoryStream);
+				case ErrorType.EventDispatcherNotFound:
+					throw new ProcessorException(Resources.Exception_EventDispatcherNotFound);
 
-				await SendMessage(memoryStream, pipeStream, token).ConfigureAwait(false);
+				default:
+					Infra.Unexpected(responseMessage.ErrorType);
 
-				memoryStream.SetLength(0);
-
-				await ReceiveMessage(pipeStream, memoryStream, token).ConfigureAwait(false);
-
-				memoryStream.Position = 0;
-				var responseMessage = Deserialize(memoryStream, bucket => new ResponseMessage(bucket));
-
-				switch (responseMessage.ErrorType)
-				{
-					case ErrorType.None:
-						break;
-
-					case ErrorType.Exception:
-						throw new ProcessorException(Res.Format(Resources.Exception_ErrorOnEventConsumerSide, responseMessage.ExceptionMessage, responseMessage.ExceptionText));
-
-					case ErrorType.EventDispatcherNotFound:
-						throw new ProcessorException(Resources.Exception_EventDispatcherNotFound);
-
-					default:
-						Infra.Unexpected(responseMessage.ErrorType);
-
-						break;
-				}
+					break;
 			}
 		}
+	}
 
-		public async ValueTask StartListener()
+	public async ValueTask StartListener()
+	{
+		var pipeStream = new NamedPipeServerStream(_pipeName, PipeDirection.InOut, NamedPipeServerStream.MaxAllowedServerInstances, PipeTransmissionMode.Byte, DefaultPipeOptions);
+		var memoryStream = new MemoryStream();
+		await using (pipeStream.ConfigureAwait(false))
+		await using (memoryStream.ConfigureAwait(false))
 		{
-			var pipeStream = new NamedPipeServerStream(_pipeName, PipeDirection.InOut, NamedPipeServerStream.MaxAllowedServerInstances, PipeTransmissionMode.Byte, DefaultPipeOptions);
-			var memoryStream = new MemoryStream();
-			await using (pipeStream.ConfigureAwait(false))
-			await using (memoryStream.ConfigureAwait(false))
-			{
-				ResponseMessage responseMessage = default;
-				try
-				{
-					await pipeStream.WaitForConnectionAsync(_stopTokenSource.Token).ConfigureAwait(false);
-
-					StartListener().Forget();
-
-					await ReceiveMessage(pipeStream, memoryStream, _stopTokenSource.Token).ConfigureAwait(false);
-
-					memoryStream.Position = 0;
-					var message = Deserialize(memoryStream, bucket => new EventMessage(bucket));
-
-					if (message.TargetServiceId is { } targetServiceId)
-					{
-						if (await _eventConsumer.TryGetEventDispatcher(targetServiceId, _stopTokenSource.Token).ConfigureAwait(false) is { } eventDispatcher)
-						{
-							await eventDispatcher.Send(message, _stopTokenSource.Token).ConfigureAwait(false);
-						}
-						else
-						{
-							responseMessage = new ResponseMessage(ErrorType.EventDispatcherNotFound);
-						}
-					}
-				}
-				catch (Exception ex)
-				{
-					responseMessage = new ResponseMessage(ex);
-				}
-
-				memoryStream.SetLength(0);
-				Serialize(responseMessage, memoryStream);
-
-				memoryStream.Position = 0;
-				await SendMessage(memoryStream, pipeStream, _stopTokenSource.Token).ConfigureAwait(false);
-			}
-		}
-
-		private static string GetTargetString(Uri target) => target.IsAbsoluteUri ? target.Fragment : target.OriginalString;
-
-		private static bool IsTargetSessionId(Uri target, [NotNullWhen(true)] out SessionId? sessionId)
-		{
-			var value = GetTargetString(target);
-
-			if (value.StartsWith(SessionIdPrefix, StringComparison.Ordinal))
-			{
-				sessionId = SessionId.FromString(value[SessionIdPrefix.Length..]);
-
-				return true;
-			}
-
-			sessionId = default;
-
-			return false;
-		}
-
-		private static bool IsTargetInvokeId(Uri target, [NotNullWhen(true)] out InvokeId? invokeId)
-		{
-			var value = GetTargetString(target);
-
-			if (value.StartsWith(InvokeIdPrefix, StringComparison.Ordinal))
-			{
-				invokeId = InvokeId.FromString(value[InvokeIdPrefix.Length..]);
-
-				return true;
-			}
-
-			invokeId = default;
-
-			return false;
-		}
-
-		private static ServiceId GetServiceId(Uri target)
-		{
-			if (IsTargetSessionId(target, out var sessionId))
-			{
-				return sessionId;
-			}
-
-			if (IsTargetInvokeId(target, out var invokeId))
-			{
-				return invokeId;
-			}
-
-			return UriId.FromUri(target);
-		}
-
-#if !NET461 && !NETSTANDARD2_0
-		[SuppressMessage(category: "Performance", checkId: "CA1835:Prefer the 'Memory'-based overloads for 'ReadAsync' and 'WriteAsync'", Justification = "Not available in .Net 4.6")]
-#endif
-		private static async ValueTask SendMessage(MemoryStream memoryStream, PipeStream pipeStream, CancellationToken token)
-		{
-			Infra.Assert(pipeStream.IsConnected);
-
-			var sizeBuf = BitConverter.GetBytes((int) memoryStream.Length);
-			Debug.Assert(sizeBuf.Length == sizeof(int));
-			await pipeStream.WriteAsync(sizeBuf, offset: 0, sizeBuf.Length, token).ConfigureAwait(false);
-
-			memoryStream.TryGetBuffer(out var buffer);
-			Debug.Assert(buffer.Array is not null);
-
-			await pipeStream.WriteAsync(buffer.Array, buffer.Offset, buffer.Count, token).ConfigureAwait(false);
-		}
-
-#if !NET461 && !NETSTANDARD2_0
-		[SuppressMessage(category: "Performance", checkId: "CA1835:Prefer the 'Memory'-based overloads for 'ReadAsync' and 'WriteAsync'", Justification = "Not available in .Net 4.6")]
-#endif
-		[SuppressMessage(category: "ReSharper", checkId: "MethodHasAsyncOverloadWithCancellation")]
-		private async ValueTask ReceiveMessage(PipeStream pipeStream, MemoryStream memoryStream, CancellationToken token)
-		{
-			Infra.Assert(pipeStream.IsConnected);
-
-			var sizeBuf = new byte[sizeof(int)];
-			var sizeBufReadCount = await pipeStream.ReadAsync(sizeBuf, offset: 0, sizeBuf.Length, token).ConfigureAwait(false);
-			var messageSize = BitConverter.ToInt32(sizeBuf, startIndex: 0);
-
-			if (sizeBufReadCount != sizeBuf.Length || messageSize < 0 || _maxMessageSize > 0 && messageSize > _maxMessageSize)
-			{
-				throw new ProcessorException(Res.Format(Resources.Exception_NamedPipeIoProcessorMessageSizeHasWrongValueOrMissed, messageSize));
-			}
-
-			var buffer = ArrayPool<byte>.Shared.Rent(messageSize);
-
+			ResponseMessage responseMessage = default;
 			try
 			{
-				var count = await pipeStream.ReadAsync(buffer, offset: 0, messageSize, token).ConfigureAwait(false);
+				await pipeStream.WaitForConnectionAsync(_stopTokenSource.Token).ConfigureAwait(false);
 
-				if (count != messageSize)
+				StartListener().Forget();
+
+				await ReceiveMessage(pipeStream, memoryStream, _stopTokenSource.Token).ConfigureAwait(false);
+
+				memoryStream.Position = 0;
+				var message = Deserialize(memoryStream, bucket => new EventMessage(bucket));
+
+				if (message.TargetServiceId is { } targetServiceId)
 				{
-					throw new ProcessorException(Res.Format(Resources.Exception_NamedPipeIoProcessorMessageReadPartially, count, messageSize));
-				}
-
-				memoryStream.Write(buffer, offset: 0, messageSize);
-			}
-			finally
-			{
-				ArrayPool<byte>.Shared.Return(buffer);
-			}
-		}
-
-		private static T Deserialize<T>(MemoryStream memoryStream, Func<Bucket, T> creator)
-		{
-			memoryStream.TryGetBuffer(out var buffer);
-
-			using var inMemoryStorage = new InMemoryStorage(buffer);
-			var bucket = new Bucket(inMemoryStorage);
-
-			memoryStream.Seek(offset: 0, SeekOrigin.End);
-
-			return creator(bucket);
-		}
-
-		private static void Serialize<T>(T message, MemoryStream memoryStream) where T : IStoreSupport
-		{
-			using var inMemoryStorage = new InMemoryStorage();
-			var bucket = new Bucket(inMemoryStorage);
-			message.Store(bucket);
-
-			var size = inMemoryStorage.GetTransactionLogSize();
-
-			if (memoryStream.Length < memoryStream.Position + size)
-			{
-				memoryStream.SetLength(memoryStream.Position + size);
-			}
-
-			memoryStream.TryGetBuffer(out var buffer);
-			Debug.Assert(buffer.Array is not null);
-
-			var span = new Span<byte>(buffer.Array, buffer.Offset + (int) memoryStream.Position, buffer.Count);
-			inMemoryStorage.WriteTransactionLogToSpan(span, truncateLog: false);
-
-			memoryStream.Seek(size, SeekOrigin.Current);
-		}
-
-		public ValueTask CheckPipeline(CancellationToken token) => SendEventToPipe(server: @".", _pipeName, targetServiceId: default, CheckPipelineEvent, token);
-
-		private class EventMessage : EventObject
-		{
-			public EventMessage(ServiceId? targetServiceId, IEvent evt) : base(evt) => TargetServiceId = targetServiceId;
-
-			public EventMessage(in Bucket bucket) : base(bucket)
-			{
-				if (!bucket.TryGet(Key.TypeInfo, out TypeInfo storedTypeInfo) || storedTypeInfo != TypeInfo.Message)
-				{
-					throw new ArgumentException(Resources.Exception_InvalidTypeInfoValue);
-				}
-
-				TargetServiceId = bucket.TryGetServiceId(Key.Target, out var serviceId) ? serviceId : default;
-			}
-
-			public ServiceId? TargetServiceId { get; }
-
-			protected override TypeInfo TypeInfo => TypeInfo.Message;
-
-			public override void Store(Bucket bucket)
-			{
-				base.Store(bucket);
-
-				bucket.AddServiceId(Key.Target, TargetServiceId);
-			}
-		}
-
-		private enum ErrorType
-		{
-			None                    = 0,
-			Exception               = 1,
-			EventDispatcherNotFound = 2
-		}
-
-		private readonly struct ResponseMessage : IStoreSupport
-		{
-			public readonly ErrorType ErrorType;
-			public readonly string?   ExceptionMessage;
-			public readonly string?   ExceptionText;
-
-			public ResponseMessage(ErrorType errorType)
-			{
-				ErrorType = errorType;
-				ExceptionMessage = default;
-				ExceptionText = default;
-			}
-
-			public ResponseMessage(Exception exception)
-			{
-				ErrorType = ErrorType.Exception;
-				ExceptionMessage = exception.Message;
-				ExceptionText = exception.ToString();
-			}
-
-			public ResponseMessage(in Bucket bucket)
-			{
-				if (!bucket.TryGet(Key.TypeInfo, out TypeInfo storedTypeInfo) || storedTypeInfo != TypeInfo.Message)
-				{
-					throw new ArgumentException(Resources.Exception_InvalidTypeInfoValue);
-				}
-
-				ErrorType = bucket.TryGet(Key.Type, out ErrorType errorType) ? errorType : ErrorType.None;
-				ExceptionMessage = bucket.TryGet(Key.Message, out string? message) ? message : null;
-				ExceptionText = bucket.TryGet(Key.Exception, out string? text) ? text : null;
-			}
-
-		#region Interface IStoreSupport
-
-			public void Store(Bucket bucket)
-			{
-				bucket.Add(Key.TypeInfo, TypeInfo.Message);
-
-				if (ErrorType != ErrorType.None)
-				{
-					bucket.Add(Key.Type, ErrorType);
-					bucket.Add(Key.Message, ExceptionMessage);
-					bucket.Add(Key.Exception, ExceptionText);
+					if (await _eventConsumer.TryGetEventDispatcher(targetServiceId, _stopTokenSource.Token).ConfigureAwait(false) is { } eventDispatcher)
+					{
+						await eventDispatcher.Send(message, _stopTokenSource.Token).ConfigureAwait(false);
+					}
+					else
+					{
+						responseMessage = new ResponseMessage(ErrorType.EventDispatcherNotFound);
+					}
 				}
 			}
+			catch (Exception ex)
+			{
+				responseMessage = new ResponseMessage(ex);
+			}
 
-		#endregion
+			memoryStream.SetLength(0);
+			Serialize(responseMessage, memoryStream);
+
+			memoryStream.Position = 0;
+			await SendMessage(memoryStream, pipeStream, _stopTokenSource.Token).ConfigureAwait(false);
 		}
+	}
+
+	private static string GetTargetString(Uri target) => target.IsAbsoluteUri ? target.Fragment : target.OriginalString;
+
+	private static bool IsTargetSessionId(Uri target, [NotNullWhen(true)] out SessionId? sessionId)
+	{
+		var value = GetTargetString(target);
+
+		if (value.StartsWith(SessionIdPrefix, StringComparison.Ordinal))
+		{
+			sessionId = SessionId.FromString(value[SessionIdPrefix.Length..]);
+
+			return true;
+		}
+
+		sessionId = default;
+
+		return false;
+	}
+
+	private static bool IsTargetInvokeId(Uri target, [NotNullWhen(true)] out InvokeId? invokeId)
+	{
+		var value = GetTargetString(target);
+
+		if (value.StartsWith(InvokeIdPrefix, StringComparison.Ordinal))
+		{
+			invokeId = InvokeId.FromString(value[InvokeIdPrefix.Length..]);
+
+			return true;
+		}
+
+		invokeId = default;
+
+		return false;
+	}
+
+	private static ServiceId GetServiceId(Uri target)
+	{
+		if (IsTargetSessionId(target, out var sessionId))
+		{
+			return sessionId;
+		}
+
+		if (IsTargetInvokeId(target, out var invokeId))
+		{
+			return invokeId;
+		}
+
+		return UriId.FromUri(target);
+	}
+
+	private static async ValueTask SendMessage(MemoryStream memoryStream, PipeStream pipeStream, CancellationToken token)
+	{
+		Infra.Assert(pipeStream.IsConnected);
+
+		var sizeBuf = BitConverter.GetBytes((int) memoryStream.Length);
+		Debug.Assert(sizeBuf.Length == sizeof(int));
+		await pipeStream.WriteAsync(sizeBuf, offset: 0, sizeBuf.Length, token).ConfigureAwait(false);
+
+		memoryStream.TryGetBuffer(out var buffer);
+		Debug.Assert(buffer.Array is not null);
+
+		await pipeStream.WriteAsync(buffer.Array, buffer.Offset, buffer.Count, token).ConfigureAwait(false);
+	}
+
+	[SuppressMessage(category: "ReSharper", checkId: "MethodHasAsyncOverloadWithCancellation")]
+	private async ValueTask ReceiveMessage(PipeStream pipeStream, MemoryStream memoryStream, CancellationToken token)
+	{
+		Infra.Assert(pipeStream.IsConnected);
+
+		var sizeBuf = new byte[sizeof(int)];
+		var sizeBufReadCount = await pipeStream.ReadAsync(sizeBuf, offset: 0, sizeBuf.Length, token).ConfigureAwait(false);
+		var messageSize = BitConverter.ToInt32(sizeBuf, startIndex: 0);
+
+		if (sizeBufReadCount != sizeBuf.Length || messageSize < 0 || (_maxMessageSize > 0 && messageSize > _maxMessageSize))
+		{
+			throw new ProcessorException(Res.Format(Resources.Exception_NamedPipeIoProcessorMessageSizeHasWrongValueOrMissed, messageSize));
+		}
+
+		var buffer = ArrayPool<byte>.Shared.Rent(messageSize);
+
+		try
+		{
+			var count = await pipeStream.ReadAsync(buffer, offset: 0, messageSize, token).ConfigureAwait(false);
+
+			if (count != messageSize)
+			{
+				throw new ProcessorException(Res.Format(Resources.Exception_NamedPipeIoProcessorMessageReadPartially, count, messageSize));
+			}
+
+			memoryStream.Write(buffer, offset: 0, messageSize);
+		}
+		finally
+		{
+			ArrayPool<byte>.Shared.Return(buffer);
+		}
+	}
+
+	private static T Deserialize<T>(MemoryStream memoryStream, Func<Bucket, T> creator)
+	{
+		memoryStream.TryGetBuffer(out var buffer);
+
+		using var inMemoryStorage = new InMemoryStorage(buffer);
+		var bucket = new Bucket(inMemoryStorage);
+
+		memoryStream.Seek(offset: 0, SeekOrigin.End);
+
+		return creator(bucket);
+	}
+
+	private static void Serialize<T>(T message, MemoryStream memoryStream) where T : IStoreSupport
+	{
+		using var inMemoryStorage = new InMemoryStorage();
+		var bucket = new Bucket(inMemoryStorage);
+		message.Store(bucket);
+
+		var size = inMemoryStorage.GetTransactionLogSize();
+
+		if (memoryStream.Length < memoryStream.Position + size)
+		{
+			memoryStream.SetLength(memoryStream.Position + size);
+		}
+
+		memoryStream.TryGetBuffer(out var buffer);
+		Debug.Assert(buffer.Array is not null);
+
+		var span = new Span<byte>(buffer.Array, buffer.Offset + (int) memoryStream.Position, buffer.Count);
+		inMemoryStorage.WriteTransactionLogToSpan(span, truncateLog: false);
+
+		memoryStream.Seek(size, SeekOrigin.Current);
+	}
+
+	public ValueTask CheckPipeline(CancellationToken token) => SendEventToPipe(server: @".", _pipeName, targetServiceId: default, CheckPipelineEvent, token);
+
+	private class EventMessage : EventObject
+	{
+		public EventMessage(ServiceId? targetServiceId, IEvent evt) : base(evt) => TargetServiceId = targetServiceId;
+
+		public EventMessage(in Bucket bucket) : base(bucket)
+		{
+			if (!bucket.TryGet(Key.TypeInfo, out TypeInfo storedTypeInfo) || storedTypeInfo != TypeInfo.Message)
+			{
+				throw new ArgumentException(Resources.Exception_InvalidTypeInfoValue);
+			}
+
+			TargetServiceId = bucket.TryGetServiceId(Key.Target, out var serviceId) ? serviceId : default;
+		}
+
+		public ServiceId? TargetServiceId { get; }
+
+		protected override TypeInfo TypeInfo => TypeInfo.Message;
+
+		public override void Store(Bucket bucket)
+		{
+			base.Store(bucket);
+
+			bucket.AddServiceId(Key.Target, TargetServiceId);
+		}
+	}
+
+	private enum ErrorType
+	{
+		None                    = 0,
+		Exception               = 1,
+		EventDispatcherNotFound = 2
+	}
+
+	private readonly struct ResponseMessage : IStoreSupport
+	{
+		public readonly ErrorType ErrorType;
+		public readonly string?   ExceptionMessage;
+		public readonly string?   ExceptionText;
+
+		public ResponseMessage(ErrorType errorType)
+		{
+			ErrorType = errorType;
+			ExceptionMessage = default;
+			ExceptionText = default;
+		}
+
+		public ResponseMessage(Exception exception)
+		{
+			ErrorType = ErrorType.Exception;
+			ExceptionMessage = exception.Message;
+			ExceptionText = exception.ToString();
+		}
+
+		public ResponseMessage(in Bucket bucket)
+		{
+			if (!bucket.TryGet(Key.TypeInfo, out TypeInfo storedTypeInfo) || storedTypeInfo != TypeInfo.Message)
+			{
+				throw new ArgumentException(Resources.Exception_InvalidTypeInfoValue);
+			}
+
+			ErrorType = bucket.TryGet(Key.Type, out ErrorType errorType) ? errorType : ErrorType.None;
+			ExceptionMessage = bucket.TryGet(Key.Message, out string? message) ? message : null;
+			ExceptionText = bucket.TryGet(Key.Exception, out string? text) ? text : null;
+		}
+
+#region Interface IStoreSupport
+
+		public void Store(Bucket bucket)
+		{
+			bucket.Add(Key.TypeInfo, TypeInfo.Message);
+
+			if (ErrorType != ErrorType.None)
+			{
+				bucket.Add(Key.Type, ErrorType);
+				bucket.Add(Key.Message, ExceptionMessage);
+				bucket.Add(Key.Exception, ExceptionText);
+			}
+		}
+
+#endregion
 	}
 }

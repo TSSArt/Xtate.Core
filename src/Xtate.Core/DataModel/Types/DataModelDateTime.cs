@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,347 +17,344 @@
 
 #endregion
 
-using System;
 using System.Buffers.Binary;
 using System.Globalization;
-using Xtate.Core;
 
-namespace Xtate
+namespace Xtate;
+
+
+public enum DataModelDateTimeType
 {
-	[PublicAPI]
-	public enum DataModelDateTimeType
+	DateTime,
+	DateTimeOffset
+}
+
+
+[Serializable]
+public readonly struct DataModelDateTime : IConvertible, IFormattable, IEquatable<DataModelDateTime>, IComparable<DataModelDateTime>, IComparable
+{
+	private const ulong KindLocal = 0x8000000000000000;
+	private const ulong KindUtc   = 0x4000000000000000;
+	private const ulong TicksMask = 0x3FFFFFFFFFFFFFFF;
+	private const int   KindShift = 62;
+
+	private readonly ulong _data;
+	private readonly short _offset;
+
+	private DataModelDateTime(in ReadOnlySpan<byte> span)
 	{
-		DateTime,
-		DateTimeOffset
+		_data = BinaryPrimitives.ReadUInt64LittleEndian(span);
+		_offset = BinaryPrimitives.ReadInt16LittleEndian(span[8..]);
 	}
 
-	[PublicAPI]
-	[Serializable]
-	public readonly struct DataModelDateTime : IConvertible, IFormattable, IEquatable<DataModelDateTime>, IComparable<DataModelDateTime>, IComparable
+	private DataModelDateTime(long utcTicks, TimeSpan offset, DateTimeKind kind)
 	{
-		private const ulong KindLocal = 0x8000000000000000;
-		private const ulong KindUtc   = 0x4000000000000000;
-		private const ulong TicksMask = 0x3FFFFFFFFFFFFFFF;
-		private const int   KindShift = 62;
+		_data = (ulong) utcTicks | ((ulong) kind << KindShift);
+		_offset = (short) (offset.Ticks / TimeSpan.TicksPerMinute);
+	}
 
-		private readonly ulong _data;
-		private readonly short _offset;
+	private long Ticks => (long) (_data & TicksMask);
 
-		private DataModelDateTime(in ReadOnlySpan<byte> span)
+	public DataModelDateTimeType Type => (_data & KindLocal) != 0 ? DataModelDateTimeType.DateTimeOffset : DataModelDateTimeType.DateTime;
+
+#region Interface IComparable
+
+	public int CompareTo(object? value) =>
+		value switch
 		{
-			_data = BinaryPrimitives.ReadUInt64LittleEndian(span);
-			_offset = BinaryPrimitives.ReadInt16LittleEndian(span[8..]);
+			null                       => 1,
+			DataModelDateTime dateTime => Compare(this, dateTime),
+			_                          => throw new ArgumentException(Resources.Exception_ArgumentMustBeDataModelDateTimeType)
+		};
+
+#endregion
+
+#region Interface IComparable<DataModelDateTime>
+
+	public int CompareTo(DataModelDateTime value) => Compare(this, value);
+
+#endregion
+
+#region Interface IConvertible
+
+	TypeCode IConvertible.GetTypeCode() =>
+		Type switch
+		{
+			DataModelDateTimeType.DateTime       => TypeCode.DateTime,
+			DataModelDateTimeType.DateTimeOffset => TypeCode.Object,
+			_                                    => Infra.Unexpected<TypeCode>(Type)
+		};
+
+	bool IConvertible.ToBoolean(IFormatProvider? provider) => ToDateTime().ToBoolean(provider);
+
+	byte IConvertible.ToByte(IFormatProvider? provider) => ToDateTime().ToByte(provider);
+
+	char IConvertible.ToChar(IFormatProvider? provider) => ToDateTime().ToChar(provider);
+
+	DateTime IConvertible.ToDateTime(IFormatProvider? provider) => ToDateTime().ToDateTime(provider);
+
+	decimal IConvertible.ToDecimal(IFormatProvider? provider) => ToDateTime().ToDecimal(provider);
+
+	double IConvertible.ToDouble(IFormatProvider? provider) => ToDateTime().ToDouble(provider);
+
+	short IConvertible.ToInt16(IFormatProvider? provider) => ToDateTime().ToInt16(provider);
+
+	int IConvertible.ToInt32(IFormatProvider? provider) => ToDateTime().ToInt32(provider);
+
+	long IConvertible.ToInt64(IFormatProvider? provider) => ToDateTime().ToInt64(provider);
+
+	sbyte IConvertible.ToSByte(IFormatProvider? provider) => ToDateTime().ToSByte(provider);
+
+	float IConvertible.ToSingle(IFormatProvider? provider) => ToDateTime().ToSingle(provider);
+
+	ushort IConvertible.ToUInt16(IFormatProvider? provider) => ToDateTime().ToUInt16(provider);
+
+	uint IConvertible.ToUInt32(IFormatProvider? provider) => ToDateTime().ToUInt32(provider);
+
+	ulong IConvertible.ToUInt64(IFormatProvider? provider) => ToDateTime().ToUInt64(provider);
+
+	string IConvertible.ToString(IFormatProvider? provider) => ToString(format: null, provider);
+
+	object IConvertible.ToType(Type conversionType, IFormatProvider? provider) => conversionType == typeof(DateTimeOffset) ? ToDateTimeOffset() : ToDateTime().ToType(conversionType, provider);
+
+#endregion
+
+#region Interface IEquatable<DataModelDateTime>
+
+	public bool Equals(DataModelDateTime other) => Ticks == other.Ticks;
+
+#endregion
+
+#region Interface IFormattable
+
+	public string ToString(string? format, IFormatProvider? formatProvider) =>
+		Type switch
+		{
+			DataModelDateTimeType.DateTime       => ToDateTime().ToString(format, formatProvider),
+			DataModelDateTimeType.DateTimeOffset => ToDateTimeOffset().ToString(format, formatProvider),
+			_                                    => Infra.Unexpected<string>(Type)
+		};
+
+#endregion
+
+	public DateTimeOffset ToDateTimeOffset()
+	{
+		var offsetTicks = _offset * TimeSpan.TicksPerMinute;
+
+		return new DateTimeOffset(Ticks + offsetTicks, new TimeSpan(offsetTicks));
+	}
+
+	public DateTime ToDateTime()
+	{
+		var ticks = Ticks + _offset * TimeSpan.TicksPerMinute;
+
+		if ((_data & KindUtc) != 0)
+		{
+			return new DateTime(ticks, DateTimeKind.Utc);
 		}
 
-		private DataModelDateTime(long utcTicks, TimeSpan offset, DateTimeKind kind)
+		if ((_data & KindLocal) != 0)
 		{
-			_data = (ulong) utcTicks | ((ulong) kind << KindShift);
-			_offset = (short) (offset.Ticks / TimeSpan.TicksPerMinute);
+			return new DateTime(ticks, DateTimeKind.Local);
 		}
 
-		private long Ticks => (long) (_data & TicksMask);
+		return new DateTime(ticks);
+	}
 
-		public DataModelDateTimeType Type => (_data & KindLocal) != 0 ? DataModelDateTimeType.DateTimeOffset : DataModelDateTimeType.DateTime;
+	public void WriteTo(in Span<byte> span)
+	{
+		BinaryPrimitives.WriteUInt64LittleEndian(span, _data);
+		BinaryPrimitives.WriteInt16LittleEndian(span[8..], _offset);
+	}
 
-	#region Interface IComparable
+	public static DataModelDateTime ReadFrom(in ReadOnlySpan<byte> span) => new(span);
 
-		public int CompareTo(object? value) =>
-			value switch
-			{
-				null                       => 1,
-				DataModelDateTime dateTime => Compare(this, dateTime),
-				_                          => throw new ArgumentException(Resources.Exception_ArgumentMustBeDataModelDateTimeType)
-			};
+	private static int Compare(in DataModelDateTime t1, in DataModelDateTime t2)
+	{
+		var ticks1 = t1.Ticks;
+		var ticks2 = t2.Ticks;
 
-	#endregion
-
-	#region Interface IComparable<DataModelDateTime>
-
-		public int CompareTo(DataModelDateTime value) => Compare(this, value);
-
-	#endregion
-
-	#region Interface IConvertible
-
-		TypeCode IConvertible.GetTypeCode() =>
-			Type switch
-			{
-				DataModelDateTimeType.DateTime       => TypeCode.DateTime,
-				DataModelDateTimeType.DateTimeOffset => TypeCode.Object,
-				_                                    => Infra.Unexpected<TypeCode>(Type)
-			};
-
-		bool IConvertible.ToBoolean(IFormatProvider? provider) => ToDateTime().ToBoolean(provider);
-
-		byte IConvertible.ToByte(IFormatProvider? provider) => ToDateTime().ToByte(provider);
-
-		char IConvertible.ToChar(IFormatProvider? provider) => ToDateTime().ToChar(provider);
-
-		DateTime IConvertible.ToDateTime(IFormatProvider? provider) => ToDateTime().ToDateTime(provider);
-
-		decimal IConvertible.ToDecimal(IFormatProvider? provider) => ToDateTime().ToDecimal(provider);
-
-		double IConvertible.ToDouble(IFormatProvider? provider) => ToDateTime().ToDouble(provider);
-
-		short IConvertible.ToInt16(IFormatProvider? provider) => ToDateTime().ToInt16(provider);
-
-		int IConvertible.ToInt32(IFormatProvider? provider) => ToDateTime().ToInt32(provider);
-
-		long IConvertible.ToInt64(IFormatProvider? provider) => ToDateTime().ToInt64(provider);
-
-		sbyte IConvertible.ToSByte(IFormatProvider? provider) => ToDateTime().ToSByte(provider);
-
-		float IConvertible.ToSingle(IFormatProvider? provider) => ToDateTime().ToSingle(provider);
-
-		ushort IConvertible.ToUInt16(IFormatProvider? provider) => ToDateTime().ToUInt16(provider);
-
-		uint IConvertible.ToUInt32(IFormatProvider? provider) => ToDateTime().ToUInt32(provider);
-
-		ulong IConvertible.ToUInt64(IFormatProvider? provider) => ToDateTime().ToUInt64(provider);
-
-		string IConvertible.ToString(IFormatProvider? provider) => ToString(format: null, provider);
-
-		object IConvertible.ToType(Type conversionType, IFormatProvider? provider) => conversionType == typeof(DateTimeOffset) ? ToDateTimeOffset() : ToDateTime().ToType(conversionType, provider);
-
-	#endregion
-
-	#region Interface IEquatable<DataModelDateTime>
-
-		public bool Equals(DataModelDateTime other) => Ticks == other.Ticks;
-
-	#endregion
-
-	#region Interface IFormattable
-
-		public string ToString(string? format, IFormatProvider? formatProvider) =>
-			Type switch
-			{
-				DataModelDateTimeType.DateTime       => ToDateTime().ToString(format, formatProvider),
-				DataModelDateTimeType.DateTimeOffset => ToDateTimeOffset().ToString(format, formatProvider),
-				_                                    => Infra.Unexpected<string>(Type)
-			};
-
-	#endregion
-
-		public DateTimeOffset ToDateTimeOffset()
+		if (ticks1 > ticks2)
 		{
-			var offsetTicks = _offset * TimeSpan.TicksPerMinute;
-
-			return new DateTimeOffset(Ticks + offsetTicks, new TimeSpan(offsetTicks));
+			return 1;
 		}
 
-		public DateTime ToDateTime()
+		if (ticks1 < ticks2)
 		{
-			var ticks = Ticks + _offset * TimeSpan.TicksPerMinute;
-
-			if ((_data & KindUtc) != 0)
-			{
-				return new DateTime(ticks, DateTimeKind.Utc);
-			}
-
-			if ((_data & KindLocal) != 0)
-			{
-				return new DateTime(ticks, DateTimeKind.Local);
-			}
-
-			return new DateTime(ticks);
+			return -1;
 		}
 
-		public void WriteTo(in Span<byte> span)
+		return 0;
+	}
+
+	public static explicit operator DateTime(DataModelDateTime dataModelDateTime) => dataModelDateTime.ToDateTime();
+
+	public static explicit operator DateTimeOffset(DataModelDateTime dataModelDateTime) => dataModelDateTime.ToDateTimeOffset();
+
+	public static implicit operator DataModelDateTime(DateTime dateTime) => FromDateTime(dateTime);
+
+	public static implicit operator DataModelDateTime(DateTimeOffset dateTimeOffset) => FromDateTimeOffset(dateTimeOffset);
+
+	public static DataModelDateTime FromDateTime(DateTime dateTime) => new(dateTime.Ticks, TimeSpan.Zero, dateTime.Kind);
+
+	public static DataModelDateTime FromDateTimeOffset(DateTimeOffset dateTimeOffset) => new(dateTimeOffset.UtcTicks, dateTimeOffset.Offset, DateTimeKind.Local);
+
+	public string ToString(string format) => ToString(format, formatProvider: null);
+
+	public override string ToString() => ToString(format: null, formatProvider: null);
+
+	public override bool Equals(object? obj) => obj is DataModelDateTime other && Ticks == other.Ticks;
+
+	public override int GetHashCode() => Ticks.GetHashCode();
+
+	public static bool operator ==(DataModelDateTime left, DataModelDateTime right) => left.Ticks == right.Ticks;
+
+	public static bool operator !=(DataModelDateTime left, DataModelDateTime right) => left.Ticks != right.Ticks;
+
+	public static bool operator <(DataModelDateTime left, DataModelDateTime right) => Compare(left, right) < 0;
+
+	public static bool operator <=(DataModelDateTime left, DataModelDateTime right) => Compare(left, right) <= 0;
+
+	public static bool operator >(DataModelDateTime left, DataModelDateTime right) => Compare(left, right) > 0;
+
+	public static bool operator >=(DataModelDateTime left, DataModelDateTime right) => Compare(left, right) >= 0;
+
+	public object ToObject() =>
+		Type switch
 		{
-			BinaryPrimitives.WriteUInt64LittleEndian(span, _data);
-			BinaryPrimitives.WriteInt16LittleEndian(span[8..], _offset);
+			DataModelDateTimeType.DateTime       => ToDateTime(),
+			DataModelDateTimeType.DateTimeOffset => ToDateTimeOffset(),
+			_                                    => Infra.Unexpected<object>(Type)
+		};
+
+	public static bool TryParse(string value, out DataModelDateTime dataModelDateTime) => TryParse(value, provider: null, DateTimeStyles.None, out dataModelDateTime);
+
+	public static bool TryParse(string value,
+								IFormatProvider? provider,
+								DateTimeStyles style,
+								out DataModelDateTime dataModelDateTime)
+	{
+		ParseData data = default;
+
+		data.DateTimeParsed = DateTime.TryParse(value, provider, style | DateTimeStyles.RoundtripKind, out data.DateTime);
+		data.DateTimeOffsetParsed = DateTimeOffset.TryParse(value, provider, style, out data.DateTimeOffset);
+
+		return ProcessParseData(ref data, out dataModelDateTime);
+	}
+
+	public static bool TryParseExact(string value,
+									 string format,
+									 IFormatProvider? provider,
+									 DateTimeStyles style,
+									 out DataModelDateTime dataModelDateTime)
+	{
+		ParseData data = default;
+
+		data.DateTimeParsed = DateTime.TryParseExact(value, format, provider, style | DateTimeStyles.RoundtripKind, out data.DateTime);
+		data.DateTimeOffsetParsed = DateTimeOffset.TryParseExact(value, format, provider, style, out data.DateTimeOffset);
+
+		return ProcessParseData(ref data, out dataModelDateTime);
+	}
+
+	public static bool TryParseExact(string value,
+									 string[] formats,
+									 IFormatProvider? provider,
+									 DateTimeStyles style,
+									 out DataModelDateTime dataModelDateTime)
+	{
+		ParseData data = default;
+
+		data.DateTimeParsed = DateTime.TryParseExact(value, formats, provider, style | DateTimeStyles.RoundtripKind, out data.DateTime);
+		data.DateTimeOffsetParsed = DateTimeOffset.TryParseExact(value, formats, provider, style, out data.DateTimeOffset);
+
+		return ProcessParseData(ref data, out dataModelDateTime);
+	}
+
+	public static DataModelDateTime Parse(string value) => Parse(value, provider: null);
+
+	public static DataModelDateTime Parse(string value, IFormatProvider? provider) => Parse(value, provider, DateTimeStyles.None);
+
+	public static DataModelDateTime Parse(string value, IFormatProvider? provider, DateTimeStyles style)
+	{
+		var data = new ParseData
+				   {
+					   DateTimeOffset = DateTimeOffset.Parse(value, provider, style),
+					   DateTimeOffsetParsed = true
+				   };
+
+		data.DateTimeParsed = DateTime.TryParse(value, provider, style | DateTimeStyles.RoundtripKind, out data.DateTime);
+
+		ProcessParseData(ref data, out var result);
+
+		return result;
+	}
+
+	public static DataModelDateTime ParseExact(string value, string format, IFormatProvider? provider) => ParseExact(value, format, provider, DateTimeStyles.None);
+
+	public static DataModelDateTime ParseExact(string value,
+											   string format,
+											   IFormatProvider? provider,
+											   DateTimeStyles style)
+	{
+		var data = new ParseData
+				   {
+					   DateTimeOffset = DateTimeOffset.ParseExact(value, format, provider, style),
+					   DateTimeOffsetParsed = true
+				   };
+
+		data.DateTimeParsed = DateTime.TryParseExact(value, format, provider, style | DateTimeStyles.RoundtripKind, out data.DateTime);
+
+		ProcessParseData(ref data, out var result);
+
+		return result;
+	}
+
+	public static DataModelDateTime ParseExact(string value, string[] formats, IFormatProvider? provider) => ParseExact(value, formats, provider, DateTimeStyles.None);
+
+	public static DataModelDateTime ParseExact(string value,
+											   string[] formats,
+											   IFormatProvider? provider,
+											   DateTimeStyles style)
+	{
+		var data = new ParseData
+				   {
+					   DateTimeOffset = DateTimeOffset.ParseExact(value, formats, provider, style),
+					   DateTimeOffsetParsed = true
+				   };
+
+		data.DateTimeParsed = DateTime.TryParseExact(value, formats, provider, style | DateTimeStyles.RoundtripKind, out data.DateTime);
+
+		ProcessParseData(ref data, out var result);
+
+		return result;
+	}
+
+	private static bool ProcessParseData(ref ParseData data, out DataModelDateTime dataModelDateTime)
+	{
+		if (!data.DateTimeParsed && !data.DateTimeOffsetParsed)
+		{
+			dataModelDateTime = default;
+
+			return false;
 		}
 
-		public static DataModelDateTime ReadFrom(in ReadOnlySpan<byte> span) => new(span);
-
-		private static int Compare(in DataModelDateTime t1, in DataModelDateTime t2)
+		if (data.DateTimeParsed && data.DateTimeOffsetParsed)
 		{
-			var ticks1 = t1.Ticks;
-			var ticks2 = t2.Ticks;
-
-			if (ticks1 > ticks2)
-			{
-				return 1;
-			}
-
-			if (ticks1 < ticks2)
-			{
-				return -1;
-			}
-
-			return 0;
-		}
-
-		public static explicit operator DateTime(DataModelDateTime dataModelDateTime) => dataModelDateTime.ToDateTime();
-
-		public static explicit operator DateTimeOffset(DataModelDateTime dataModelDateTime) => dataModelDateTime.ToDateTimeOffset();
-
-		public static implicit operator DataModelDateTime(DateTime dateTime) => FromDateTime(dateTime);
-
-		public static implicit operator DataModelDateTime(DateTimeOffset dateTimeOffset) => FromDateTimeOffset(dateTimeOffset);
-
-		public static DataModelDateTime FromDateTime(DateTime dateTime) => new(dateTime.Ticks, TimeSpan.Zero, dateTime.Kind);
-
-		public static DataModelDateTime FromDateTimeOffset(DateTimeOffset dateTimeOffset) => new(dateTimeOffset.UtcTicks, dateTimeOffset.Offset, DateTimeKind.Local);
-
-		public string ToString(string format) => ToString(format, formatProvider: null);
-
-		public override string ToString() => ToString(format: null, formatProvider: null);
-
-		public override bool Equals(object? obj) => obj is DataModelDateTime other && Ticks == other.Ticks;
-
-		public override int GetHashCode() => Ticks.GetHashCode();
-
-		public static bool operator ==(DataModelDateTime left, DataModelDateTime right) => left.Ticks == right.Ticks;
-
-		public static bool operator !=(DataModelDateTime left, DataModelDateTime right) => left.Ticks != right.Ticks;
-
-		public static bool operator <(DataModelDateTime left, DataModelDateTime right) => Compare(left, right) < 0;
-
-		public static bool operator <=(DataModelDateTime left, DataModelDateTime right) => Compare(left, right) <= 0;
-
-		public static bool operator >(DataModelDateTime left, DataModelDateTime right) => Compare(left, right) > 0;
-
-		public static bool operator >=(DataModelDateTime left, DataModelDateTime right) => Compare(left, right) >= 0;
-
-		public object ToObject() =>
-			Type switch
-			{
-				DataModelDateTimeType.DateTime       => ToDateTime(),
-				DataModelDateTimeType.DateTimeOffset => ToDateTimeOffset(),
-				_                                    => Infra.Unexpected<object>(Type)
-			};
-
-		public static bool TryParse(string value, out DataModelDateTime dataModelDateTime) => TryParse(value, provider: null, DateTimeStyles.None, out dataModelDateTime);
-
-		public static bool TryParse(string value,
-									IFormatProvider? provider,
-									DateTimeStyles style,
-									out DataModelDateTime dataModelDateTime)
-		{
-			ParseData data = default;
-
-			data.DateTimeParsed = DateTime.TryParse(value, provider, style | DateTimeStyles.RoundtripKind, out data.DateTime);
-			data.DateTimeOffsetParsed = DateTimeOffset.TryParse(value, provider, style, out data.DateTimeOffset);
-
-			return ProcessParseData(ref data, out dataModelDateTime);
-		}
-
-		public static bool TryParseExact(string value,
-										 string format,
-										 IFormatProvider? provider,
-										 DateTimeStyles style,
-										 out DataModelDateTime dataModelDateTime)
-		{
-			ParseData data = default;
-
-			data.DateTimeParsed = DateTime.TryParseExact(value, format, provider, style | DateTimeStyles.RoundtripKind, out data.DateTime);
-			data.DateTimeOffsetParsed = DateTimeOffset.TryParseExact(value, format, provider, style, out data.DateTimeOffset);
-
-			return ProcessParseData(ref data, out dataModelDateTime);
-		}
-
-		public static bool TryParseExact(string value,
-										 string[] formats,
-										 IFormatProvider? provider,
-										 DateTimeStyles style,
-										 out DataModelDateTime dataModelDateTime)
-		{
-			ParseData data = default;
-
-			data.DateTimeParsed = DateTime.TryParseExact(value, formats, provider, style | DateTimeStyles.RoundtripKind, out data.DateTime);
-			data.DateTimeOffsetParsed = DateTimeOffset.TryParseExact(value, formats, provider, style, out data.DateTimeOffset);
-
-			return ProcessParseData(ref data, out dataModelDateTime);
-		}
-
-		public static DataModelDateTime Parse(string value) => Parse(value, provider: null);
-
-		public static DataModelDateTime Parse(string value, IFormatProvider? provider) => Parse(value, provider, DateTimeStyles.None);
-
-		public static DataModelDateTime Parse(string value, IFormatProvider? provider, DateTimeStyles style)
-		{
-			var data = new ParseData
-					   {
-						   DateTimeOffset = DateTimeOffset.Parse(value, provider, style),
-						   DateTimeOffsetParsed = true
-					   };
-
-			data.DateTimeParsed = DateTime.TryParse(value, provider, style | DateTimeStyles.RoundtripKind, out data.DateTime);
-
-			ProcessParseData(ref data, out var result);
-
-			return result;
-		}
-
-		public static DataModelDateTime ParseExact(string value, string format, IFormatProvider? provider) => ParseExact(value, format, provider, DateTimeStyles.None);
-
-		public static DataModelDateTime ParseExact(string value,
-												   string format,
-												   IFormatProvider? provider,
-												   DateTimeStyles style)
-		{
-			var data = new ParseData
-					   {
-						   DateTimeOffset = DateTimeOffset.ParseExact(value, format, provider, style),
-						   DateTimeOffsetParsed = true
-					   };
-
-			data.DateTimeParsed = DateTime.TryParseExact(value, format, provider, style | DateTimeStyles.RoundtripKind, out data.DateTime);
-
-			ProcessParseData(ref data, out var result);
-
-			return result;
-		}
-
-		public static DataModelDateTime ParseExact(string value, string[] formats, IFormatProvider? provider) => ParseExact(value, formats, provider, DateTimeStyles.None);
-
-		public static DataModelDateTime ParseExact(string value,
-												   string[] formats,
-												   IFormatProvider? provider,
-												   DateTimeStyles style)
-		{
-			var data = new ParseData
-					   {
-						   DateTimeOffset = DateTimeOffset.ParseExact(value, formats, provider, style),
-						   DateTimeOffsetParsed = true
-					   };
-
-			data.DateTimeParsed = DateTime.TryParseExact(value, formats, provider, style | DateTimeStyles.RoundtripKind, out data.DateTime);
-
-			ProcessParseData(ref data, out var result);
-
-			return result;
-		}
-
-		private static bool ProcessParseData(ref ParseData data, out DataModelDateTime dataModelDateTime)
-		{
-			if (!data.DateTimeParsed && !data.DateTimeOffsetParsed)
-			{
-				dataModelDateTime = default;
-
-				return false;
-			}
-
-			if (data.DateTimeParsed && data.DateTimeOffsetParsed)
-			{
-				dataModelDateTime = data.DateTime.Kind == DateTimeKind.Local || data.DateTimeOffset.Offset != TimeSpan.Zero ? (DataModelDateTime) data.DateTimeOffset : data.DateTime;
-
-				return true;
-			}
-
-			dataModelDateTime = data.DateTimeOffsetParsed ? (DataModelDateTime) data.DateTimeOffset : data.DateTime;
+			dataModelDateTime = data.DateTime.Kind == DateTimeKind.Local || data.DateTimeOffset.Offset != TimeSpan.Zero ? (DataModelDateTime) data.DateTimeOffset : data.DateTime;
 
 			return true;
 		}
 
-		private ref struct ParseData
-		{
-			public DateTime       DateTime;
-			public DateTimeOffset DateTimeOffset;
-			public bool           DateTimeOffsetParsed;
-			public bool           DateTimeParsed;
-		}
+		dataModelDateTime = data.DateTimeOffsetParsed ? (DataModelDateTime) data.DateTimeOffset : data.DateTime;
+
+		return true;
+	}
+
+	private ref struct ParseData
+	{
+		public DateTime       DateTime;
+		public DateTimeOffset DateTimeOffset;
+		public bool           DateTimeOffsetParsed;
+		public bool           DateTimeParsed;
 	}
 }

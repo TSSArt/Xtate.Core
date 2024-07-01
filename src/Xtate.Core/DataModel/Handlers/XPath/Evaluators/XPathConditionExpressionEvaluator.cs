@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,17 +17,35 @@
 
 #endregion
 
+<<<<<<< Updated upstream
 using System;
 using System.Threading.Tasks;
 using Xtate.Core;
+=======
+namespace Xtate.DataModel.XPath;
+>>>>>>> Stashed changes
 
-namespace Xtate.DataModel.XPath
+public class XPathConditionExpressionEvaluator(IConditionExpression conditionExpression, XPathCompiledExpression compiledExpression) : IConditionExpression, IBooleanEvaluator, IAncestorProvider
 {
+<<<<<<< Updated upstream
 	public class XPathConditionExpressionEvaluator : IConditionExpression, IBooleanEvaluator, IAncestorProvider
-	{
-		private readonly XPathCompiledExpression _compiledExpression;
-		private readonly IConditionExpression    _conditionExpression;
+=======
+	public required Func<ValueTask<XPathEngine>> EngineFactory { private get; [UsedImplicitly] init; }
 
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => conditionExpression;
+
+#endregion
+
+#region Interface IBooleanEvaluator
+
+	public async ValueTask<bool> EvaluateBoolean()
+>>>>>>> Stashed changes
+	{
+		var engine = await EngineFactory().ConfigureAwait(false);
+
+<<<<<<< Updated upstream
 		public required Func<ValueTask<XPathEngine>> EngineFactory { private get; init; }
 
 		public XPathConditionExpressionEvaluator(IConditionExpression conditionExpression, XPathCompiledExpression compiledExpression)
@@ -60,5 +78,18 @@ namespace Xtate.DataModel.XPath
 		public string? Expression => _conditionExpression.Expression;
 
 	#endregion
+=======
+		var obj = await engine.EvalObject(compiledExpression, stripRoots: true).ConfigureAwait(false);
+
+		return obj.AsBoolean();
+>>>>>>> Stashed changes
 	}
+
+#endregion
+
+#region Interface IConditionExpression
+
+	public string? Expression => conditionExpression.Expression;
+
+#endregion
 }

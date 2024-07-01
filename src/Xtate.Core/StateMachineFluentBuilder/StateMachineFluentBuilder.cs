@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,11 +17,11 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
+namespace Xtate.Builder;
 
-namespace Xtate.Builder
+public class StateMachineFluentBuilder
 {
+<<<<<<< Updated upstream
 	public class StateMachineFluentBuilder
 	{
 		public required IStateMachineBuilder Builder { private get; init; }
@@ -40,62 +40,138 @@ namespace Xtate.Builder
 		public StateMachineFluentBuilder SetInitial(params string[] initial)
 		{
 			Infra.RequiresNonEmptyCollection(initial);
+=======
+	public required IStateMachineBuilder Builder { private get; [UsedImplicitly] init; }
 
-			var builder = ImmutableArray.CreateBuilder<IIdentifier>(initial.Length);
+	public required Func<StateMachineFluentBuilder, Action<IState>, StateFluentBuilder<StateMachineFluentBuilder>>       StateFluentBuilderFactory    { private get; [UsedImplicitly] init; }
+	public required Func<StateMachineFluentBuilder, Action<IParallel>, ParallelFluentBuilder<StateMachineFluentBuilder>> ParallelFluentBuilderFactory { private get; [UsedImplicitly] init; }
+	public required Func<StateMachineFluentBuilder, Action<IFinal>, FinalFluentBuilder<StateMachineFluentBuilder>>       FinalFluentBuilderFactory    { private get; [UsedImplicitly] init; }
 
-			foreach (var s in initial)
-			{
-				builder.Add((Identifier) s);
-			}
+	public IStateMachine Build()
+	{
+		Builder.SetDataModelType(@"runtime");
 
-			Builder.SetInitial(builder.MoveToImmutable());
+		return Builder.Build();
+	}
 
-			return this;
+	public StateMachineFluentBuilder SetInitial(params string[] initial)
+	{
+		Infra.RequiresNonEmptyCollection(initial);
+
+		var builder = ImmutableArray.CreateBuilder<IIdentifier>(initial.Length);
+
+		foreach (var s in initial)
+		{
+			builder.Add((Identifier) s);
 		}
 
+		Builder.SetInitial(builder.MoveToImmutable());
+
+		return this;
+	}
+>>>>>>> Stashed changes
+
+	public StateMachineFluentBuilder SetInitial(params IIdentifier[] initial)
+	{
+		Infra.RequiresNonEmptyCollection(initial);
+
+		Builder.SetInitial([.. initial]);
+
+<<<<<<< Updated upstream
+			Builder.SetInitial(builder.MoveToImmutable());
+=======
+		return this;
+	}
+>>>>>>> Stashed changes
+
+	public StateMachineFluentBuilder SetInitial(ImmutableArray<string> initial)
+	{
+		Infra.RequiresNonEmptyCollection(initial);
+
+<<<<<<< Updated upstream
 		public StateMachineFluentBuilder SetInitial(params IIdentifier[] initial)
 		{
 			Infra.RequiresNonEmptyCollection(initial);
 
 			Builder.SetInitial(initial.ToImmutableArray());
+=======
+		Builder.SetInitial(ImmutableArray.CreateRange<string, IIdentifier>(initial, id => (Identifier) id));
 
-			return this;
-		}
+		return this;
+	}
+>>>>>>> Stashed changes
 
+	public StateMachineFluentBuilder SetInitial(ImmutableArray<IIdentifier> initial)
+	{
+		Infra.RequiresNonEmptyCollection(initial);
+
+<<<<<<< Updated upstream
 		public StateMachineFluentBuilder SetInitial(ImmutableArray<string> initial)
 		{
 			Infra.RequiresNonEmptyCollection(initial);
 
 			Builder.SetInitial(ImmutableArray.CreateRange<string, IIdentifier>(initial, id => (Identifier) id));
+=======
+		Builder.SetInitial(initial);
 
-			return this;
-		}
+		return this;
+	}
+>>>>>>> Stashed changes
 
+	public StateFluentBuilder<StateMachineFluentBuilder> BeginState() => StateFluentBuilderFactory(this, Builder.AddState);
+
+<<<<<<< Updated upstream
 		public StateMachineFluentBuilder SetInitial(ImmutableArray<IIdentifier> initial)
 		{
 			Infra.RequiresNonEmptyCollection(initial);
 
 			Builder.SetInitial(initial);
+=======
+	public ParallelFluentBuilder<StateMachineFluentBuilder> BeginParallel() => ParallelFluentBuilderFactory(this, Builder.AddParallel);
 
-			return this;
-		}
+	public FinalFluentBuilder<StateMachineFluentBuilder> BeginFinal() => FinalFluentBuilderFactory(this, Builder.AddFinal);
+>>>>>>> Stashed changes
 
+	public StateFluentBuilder<StateMachineFluentBuilder> BeginState(string id) => BeginState((Identifier) id);
+
+<<<<<<< Updated upstream
 		public StateFluentBuilder<StateMachineFluentBuilder> BeginState() => StateFluentBuilderFactory(this, Builder.AddState);
 
 		public ParallelFluentBuilder<StateMachineFluentBuilder> BeginParallel() => ParallelFluentBuilderFactory(this, Builder.AddParallel);
 
 		public FinalFluentBuilder<StateMachineFluentBuilder> BeginFinal() => FinalFluentBuilderFactory(this, Builder.AddFinal);
+=======
+	public StateFluentBuilder<StateMachineFluentBuilder> BeginState(IIdentifier id) => StateFluentBuilderFactory(this, Builder.AddState).SetId(id);
 
-		public StateFluentBuilder<StateMachineFluentBuilder> BeginState(string id) => BeginState((Identifier) id);
+	public ParallelFluentBuilder<StateMachineFluentBuilder> BeginParallel(string id) => BeginParallel((Identifier) id);
 
+	public ParallelFluentBuilder<StateMachineFluentBuilder> BeginParallel(IIdentifier id) => ParallelFluentBuilderFactory(this, Builder.AddParallel).SetId(id);
+>>>>>>> Stashed changes
+
+	public FinalFluentBuilder<StateMachineFluentBuilder> BeginFinal(string id) => BeginFinal((Identifier) id);
+
+<<<<<<< Updated upstream
 		public StateFluentBuilder<StateMachineFluentBuilder> BeginState(IIdentifier id) => StateFluentBuilderFactory(this, Builder.AddState).SetId(id);
+=======
+	public FinalFluentBuilder<StateMachineFluentBuilder> BeginFinal(IIdentifier id) => FinalFluentBuilderFactory(this, Builder.AddFinal).SetId(id);
+>>>>>>> Stashed changes
 
-		public ParallelFluentBuilder<StateMachineFluentBuilder> BeginParallel(string id) => BeginParallel((Identifier) id);
+	public StateMachineFluentBuilder SetPersistenceLevel(PersistenceLevel persistenceLevel)
+	{
+		Builder.SetPersistenceLevel(persistenceLevel);
 
+<<<<<<< Updated upstream
 		public ParallelFluentBuilder<StateMachineFluentBuilder> BeginParallel(IIdentifier id) => ParallelFluentBuilderFactory(this, Builder.AddParallel).SetId(id);
+=======
+		return this;
+	}
+>>>>>>> Stashed changes
 
-		public FinalFluentBuilder<StateMachineFluentBuilder> BeginFinal(string id) => BeginFinal((Identifier) id);
+	public StateMachineFluentBuilder SetSynchronousEventProcessing(bool value)
+	{
+		Builder.SetSynchronousEventProcessing(value);
 
+<<<<<<< Updated upstream
 		public FinalFluentBuilder<StateMachineFluentBuilder> BeginFinal(IIdentifier id) => FinalFluentBuilderFactory(this, Builder.AddFinal).SetId(id);
 
 		public StateMachineFluentBuilder SetPersistenceLevel(PersistenceLevel persistenceLevel)
@@ -118,5 +194,15 @@ namespace Xtate.Builder
 
 			return this;
 		}
+=======
+		return this;
+	}
+
+	public StateMachineFluentBuilder SetExternalQueueSize(int size)
+	{
+		Builder.SetExternalQueueSize(size);
+
+		return this;
+>>>>>>> Stashed changes
 	}
 }

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,40 +17,29 @@
 
 #endregion
 
-using System.Collections.Generic;
+namespace Xtate.Core;
 
-namespace Xtate.Core
+internal struct DocumentIdSlot(LinkedListNode<int>? node)
 {
-	internal struct DocumentIdSlot
+	private int _value = -1;
+
+	public int CreateValue()
 	{
-		private LinkedListNode<int>? _node;
-		private int                  _value;
-
-		public DocumentIdSlot(LinkedListNode<int> node)
+		if (node is not { } realNode)
 		{
-			_node = node;
-			_value = -1;
+			return _value;
 		}
 
-		public int Value
+		var value = realNode.Value;
+
+		if (value < 0)
 		{
-			get
-			{
-				if (_node is { } node)
-				{
-					var value = node.Value;
-
-					if (value >= 0)
-					{
-						_node = default;
-						_value = value;
-					}
-
-					return value;
-				}
-
-				return _value;
-			}
+			return -1;
 		}
+
+		node = default;
+		_value = value;
+
+		return value;
 	}
 }

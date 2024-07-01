@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,35 +17,32 @@
 
 #endregion
 
-using System;
 using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Threading.Tasks;
 
-namespace Xtate.Service
+namespace Xtate.Service;
+
+public class HttpClientJsonHandlerHttpContent : HttpContent
 {
-	public class HttpClientJsonHandlerHttpContent : HttpContent
+	private readonly DataModelValue _value;
+
+	public HttpClientJsonHandlerHttpContent(DataModelValue value, string contentType)
 	{
-		private readonly DataModelValue _value;
+		if (string.IsNullOrEmpty(contentType)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(contentType));
 
-		public HttpClientJsonHandlerHttpContent(DataModelValue value, string contentType)
-		{
-			if (string.IsNullOrEmpty(contentType)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(contentType));
+		_value = value;
 
-			_value = value;
+		Headers.ContentType = new MediaTypeHeaderValue(contentType);
+	}
 
-			Headers.ContentType = new MediaTypeHeaderValue(contentType);
-		}
+	protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context) => DataModelConverter.ToJsonAsync(stream, _value);
 
-		protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context) => DataModelConverter.ToJsonAsync(stream, _value);
+	protected override bool TryComputeLength(out long length)
+	{
+		length = 0;
 
-		protected override bool TryComputeLength(out long length)
-		{
-			length = 0;
-
-			return false;
-		}
+		return false;
 	}
 }

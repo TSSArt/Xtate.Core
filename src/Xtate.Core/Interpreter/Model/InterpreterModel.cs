@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,15 +17,22 @@
 
 #endregion
 
+<<<<<<< Updated upstream
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtate.IoC;
+=======
+using Xtate.Persistence;
+>>>>>>> Stashed changes
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public interface IInterpreterModel
 {
+<<<<<<< Updated upstream
 	public interface IInterpreterModel
 	{
 		StateMachineNode                  Root                   { get; }
@@ -56,13 +63,27 @@ namespace Xtate.Core
 		}
 
 		public StateMachineNode Root => _stateMachineNodeAsyncInit.Value;
+=======
+	StateMachineNode Root { get; }
 
-		public int MaxConfigurationLength { get; }
+	IEntityMap? EntityMap { get; }
+}
+>>>>>>> Stashed changes
 
-		public ImmutableDictionary<int, IEntity> EntityMap { get; }
+public class InterpreterModel(StateMachineNode root, IEntityMap? entityMap) : IInterpreterModel
+{
+#region Interface IInterpreterModel
 
+	public StateMachineNode Root { get; } = root;
+
+<<<<<<< Updated upstream
 		public ImmutableArray<DataModelNode> DataModelList  { get; }
 
 		public virtual Task Initialization => _stateMachineNodeAsyncInit.Task;
 	}
+=======
+	public IEntityMap? EntityMap { get; } = entityMap;
+
+#endregion
+>>>>>>> Stashed changes
 }

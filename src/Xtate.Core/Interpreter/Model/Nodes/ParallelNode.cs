@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,16 +17,23 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
 using Xtate.Persistence;
 
-namespace Xtate.Core
-{
-	public sealed class ParallelNode : StateEntityNode, IParallel, IAncestorProvider, IDebugEntityId
-	{
-		private readonly IParallel _parallel;
+namespace Xtate.Core;
 
+public sealed class ParallelNode : StateEntityNode, IParallel, IAncestorProvider, IDebugEntityId
+{
+<<<<<<< Updated upstream
+	public sealed class ParallelNode : StateEntityNode, IParallel, IAncestorProvider, IDebugEntityId
+=======
+	private readonly IParallel _parallel;
+
+	public ParallelNode(DocumentIdNode documentIdNode, IParallel parallel) : base(documentIdNode)
+>>>>>>> Stashed changes
+	{
+		_parallel = parallel;
+
+<<<<<<< Updated upstream
 		public ParallelNode(DocumentIdNode documentIdNode, IParallel parallel) : base(documentIdNode)
 		{
 			_parallel = parallel;
@@ -61,45 +68,79 @@ namespace Xtate.Core
 		public override ImmutableArray<OnEntryNode>     OnEntry            { get; }
 		public override ImmutableArray<OnExitNode>      OnExit             { get; }
 
+=======
+		var id = parallel.Id ?? new IdentifierNode(Identifier.New());
+		var transitions = parallel.Transitions.AsArrayOf<ITransition, TransitionNode>(true);
+		var invokeList = parallel.Invoke.AsArrayOf<IInvoke, InvokeNode>(true);
+		var states = parallel.States.AsArrayOf<IStateEntity, StateEntityNode>(true);
+		var historyStates = parallel.HistoryStates.AsArrayOf<IHistory, HistoryNode>(true);
 
-	#region Interface IAncestorProvider
+		Register(states);
+		Register(historyStates);
+		Register(transitions);
+		Register(invokeList);
 
-		object IAncestorProvider.Ancestor => _parallel;
+		Id = id;
+		States = states;
+		HistoryStates = historyStates;
+		Transitions = transitions;
+		Invoke = invokeList;
+		OnEntry = parallel.OnEntry.AsArrayOf<IOnEntry, OnEntryNode>(true);
+		OnExit = parallel.OnExit.AsArrayOf<IOnExit, OnExitNode>(true);
+		DataModel = parallel.DataModel?.As<DataModelNode>();
+	}
 
-	#endregion
+	public override bool                            IsAtomicState => false;
+	public override DataModelNode?                  DataModel     { get; }
+	public override ImmutableArray<InvokeNode>      Invoke        { get; }
+	public override ImmutableArray<TransitionNode>  Transitions   { get; }
+	public override ImmutableArray<HistoryNode>     HistoryStates { get; }
+	public override ImmutableArray<StateEntityNode> States        { get; }
+	public override ImmutableArray<OnEntryNode>     OnEntry       { get; }
+	public override ImmutableArray<OnExitNode>      OnExit        { get; }
 
-	#region Interface IDebugEntityId
+#region Interface IAncestorProvider
 
-		FormattableString IDebugEntityId.EntityId => @$"{Id}(#{DocumentId})";
+	object IAncestorProvider.Ancestor => _parallel;
+>>>>>>> Stashed changes
 
-	#endregion
+#endregion
 
-	#region Interface IParallel
+#region Interface IDebugEntityId
 
-		public override IIdentifier Id { get; }
+	FormattableString IDebugEntityId.EntityId => @$"{Id}(#{DocumentId})";
 
-		IDataModel? IParallel.                 DataModel     => DataModel;
-		ImmutableArray<IInvoke> IParallel.     Invoke        => ImmutableArray<IInvoke>.CastUp(Invoke)!;
-		ImmutableArray<IStateEntity> IParallel.States        => ImmutableArray<IStateEntity>.CastUp(States)!;
-		ImmutableArray<IHistory> IParallel.    HistoryStates => ImmutableArray<IHistory>.CastUp(HistoryStates)!;
-		ImmutableArray<ITransition> IParallel. Transitions   => ImmutableArray<ITransition>.CastUp(Transitions)!;
-		ImmutableArray<IOnEntry> IParallel.    OnEntry       => ImmutableArray<IOnEntry>.CastUp(OnEntry)!;
-		ImmutableArray<IOnExit> IParallel.     OnExit        => ImmutableArray<IOnExit>.CastUp(OnExit)!;
+#endregion
 
-	#endregion
+#region Interface IParallel
 
-		protected override void Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.ParallelNode);
-			bucket.Add(Key.DocumentId, DocumentId);
-			bucket.AddEntity(Key.Id, Id);
-			bucket.AddEntity(Key.DataModel, DataModel);
-			bucket.AddEntityList(Key.States, States);
-			bucket.AddEntityList(Key.HistoryStates, HistoryStates);
-			bucket.AddEntityList(Key.Transitions, Transitions);
-			bucket.AddEntityList(Key.OnEntry, OnEntry);
-			bucket.AddEntityList(Key.OnExit, OnExit);
-			bucket.AddEntityList(Key.Invoke, Invoke);
-		}
+	IDataModel? IParallel.                 DataModel     => DataModel;
+	ImmutableArray<IInvoke> IParallel.     Invoke        => ImmutableArray<IInvoke>.CastUp(Invoke);
+	ImmutableArray<IStateEntity> IParallel.States        => ImmutableArray<IStateEntity>.CastUp(States);
+	ImmutableArray<IHistory> IParallel.    HistoryStates => ImmutableArray<IHistory>.CastUp(HistoryStates);
+	ImmutableArray<ITransition> IParallel. Transitions   => ImmutableArray<ITransition>.CastUp(Transitions);
+	ImmutableArray<IOnEntry> IParallel.    OnEntry       => ImmutableArray<IOnEntry>.CastUp(OnEntry);
+	ImmutableArray<IOnExit> IParallel.     OnExit        => ImmutableArray<IOnExit>.CastUp(OnExit);
+
+#endregion
+
+#region Interface IStateEntity
+
+	public override IIdentifier Id { get; }
+
+#endregion
+
+	protected override void Store(Bucket bucket)
+	{
+		bucket.Add(Key.TypeInfo, TypeInfo.ParallelNode);
+		bucket.Add(Key.DocumentId, DocumentId);
+		bucket.AddEntity(Key.Id, Id);
+		bucket.AddEntity(Key.DataModel, DataModel);
+		bucket.AddEntityList(Key.States, States);
+		bucket.AddEntityList(Key.HistoryStates, HistoryStates);
+		bucket.AddEntityList(Key.Transitions, Transitions);
+		bucket.AddEntityList(Key.OnEntry, OnEntry);
+		bucket.AddEntityList(Key.OnExit, OnExit);
+		bucket.AddEntityList(Key.Invoke, Invoke);
 	}
 }

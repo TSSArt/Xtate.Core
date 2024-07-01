@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,44 +17,46 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
 using Xtate.Persistence;
 
+<<<<<<< Updated upstream
 namespace Xtate.Core
 {
 	public sealed class IfNode : ExecutableEntityNode, IIf, IAncestorProvider, IDebugEntityId
 	{
 		private readonly IIf _if;
+=======
+namespace Xtate.Core;
+>>>>>>> Stashed changes
 
-		public IfNode(DocumentIdNode documentIdNode, IIf @if) : base(documentIdNode, @if) => _if = @if;
+public sealed class IfNode(DocumentIdNode documentIdNode, IIf @if) : ExecutableEntityNode(documentIdNode, @if), IIf, IAncestorProvider, IDebugEntityId
+{
 
 	#region Interface IAncestorProvider
 
-		object IAncestorProvider.Ancestor => _if;
+	object IAncestorProvider.Ancestor => @if;
 
-	#endregion
+#endregion
 
-	#region Interface IDebugEntityId
+#region Interface IDebugEntityId
 
-		FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
+	FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
 
-	#endregion
+#endregion
 
-	#region Interface IIf
+#region Interface IIf
 
-		public IConditionExpression? Condition => _if.Condition;
+	public IConditionExpression? Condition => @if.Condition;
 
-		public ImmutableArray<IExecutableEntity> Action => _if.Action;
+	public ImmutableArray<IExecutableEntity> Action => @if.Action;
 
-	#endregion
+#endregion
 
-		protected override void Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.IfNode);
-			bucket.Add(Key.DocumentId, DocumentId);
-			bucket.AddEntity(Key.Condition, Condition);
-			bucket.AddEntityList(Key.Action, Action);
-		}
+	protected override void Store(Bucket bucket)
+	{
+		bucket.Add(Key.TypeInfo, TypeInfo.IfNode);
+		bucket.Add(Key.DocumentId, DocumentId);
+		bucket.AddEntity(Key.Condition, Condition);
+		bucket.AddEntityList(Key.Action, Action);
 	}
 }

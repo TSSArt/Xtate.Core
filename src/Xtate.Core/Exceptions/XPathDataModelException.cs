@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,20 +17,21 @@
 
 #endregion
 
-using System;
-using System.Runtime.Serialization;
+namespace Xtate.DataModel.XPath;
 
-namespace Xtate.DataModel.XPath
+[Serializable]
+public class XPathDataModelException : XtateException
 {
-	[Serializable]
-	public class XPathDataModelException : XtateException
-	{
-		public XPathDataModelException() { }
+	public XPathDataModelException() { }
 
-		public XPathDataModelException(string message) : base(message) { }
+	public XPathDataModelException(string message) : base(message) { }
 
+<<<<<<< Updated upstream
 		public XPathDataModelException(string message, Exception innerException) : base(message, innerException) { }
 
 		protected XPathDataModelException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 	}
+=======
+	public XPathDataModelException(string message, Exception innerException) : base(message, innerException) { }
+>>>>>>> Stashed changes
 }

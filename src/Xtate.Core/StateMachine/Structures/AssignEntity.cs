@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,47 +17,46 @@
 
 #endregion
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public struct AssignEntity : IAssign, IVisitorEntity<AssignEntity, IAssign>, IAncestorProvider
 {
-	public struct AssignEntity : IAssign, IVisitorEntity<AssignEntity, IAssign>, IAncestorProvider
-	{
-		internal object? Ancestor;
+	internal object? Ancestor;
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
-	#endregion
+#endregion
 
-	#region Interface IAssign
+#region Interface IAssign
 
-		public ILocationExpression? Location      { get; set; }
-		public IValueExpression?    Expression    { get; set; }
-		public IInlineContent?      InlineContent { get; set; }
-		public string?              Type          { get; set; }
-		public string?              Attribute     { get; set; }
+	public ILocationExpression? Location      { get; set; }
+	public IValueExpression?    Expression    { get; set; }
+	public IInlineContent?      InlineContent { get; set; }
+	public string?              Type          { get; set; }
+	public string?              Attribute     { get; set; }
 
-	#endregion
+#endregion
 
-	#region Interface IVisitorEntity<AssignEntity,IAssign>
+#region Interface IVisitorEntity<AssignEntity,IAssign>
 
-		void IVisitorEntity<AssignEntity, IAssign>.Init(IAssign source)
-		{
-			Ancestor = source;
-			Location = source.Location;
-			InlineContent = source.InlineContent;
-			Expression = source.Expression;
-			Type = source.Type;
-			Attribute = source.Attribute;
-		}
-
-		bool IVisitorEntity<AssignEntity, IAssign>.RefEquals(ref AssignEntity other) =>
-			ReferenceEquals(Location, other.Location) &&
-			ReferenceEquals(Expression, other.Expression) &&
-			ReferenceEquals(InlineContent, other.InlineContent) &&
-			ReferenceEquals(Type, other.Type) &&
-			ReferenceEquals(Attribute, other.Attribute);
-
-	#endregion
+	void IVisitorEntity<AssignEntity, IAssign>.Init(IAssign source)
+	{
+		Ancestor = source;
+		Location = source.Location;
+		InlineContent = source.InlineContent;
+		Expression = source.Expression;
+		Type = source.Type;
+		Attribute = source.Attribute;
 	}
+
+	readonly bool IVisitorEntity<AssignEntity, IAssign>.RefEquals(ref AssignEntity other) =>
+		ReferenceEquals(Location, other.Location) &&
+		ReferenceEquals(Expression, other.Expression) &&
+		ReferenceEquals(InlineContent, other.InlineContent) &&
+		ReferenceEquals(Type, other.Type) &&
+		ReferenceEquals(Attribute, other.Attribute);
+
+#endregion
 }

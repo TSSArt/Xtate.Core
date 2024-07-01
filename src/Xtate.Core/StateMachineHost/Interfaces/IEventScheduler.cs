@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,16 +17,12 @@
 
 #endregion
 
-using System.Threading;
-using System.Threading.Tasks;
+namespace Xtate.Core;
 
-namespace Xtate.Core
+
+public interface IEventScheduler
 {
-	[PublicAPI]
-	public interface IEventScheduler
-	{
-		ValueTask ScheduleEvent(IHostEvent hostEvent, CancellationToken token);
+	ValueTask ScheduleEvent(IHostEvent hostEvent, CancellationToken token);
 
-		ValueTask CancelEvent(ServiceId senderServiceId, SendId sendId, CancellationToken token);
-	}
+	ValueTask CancelEvent(ServiceId senderServiceId, SendId sendId, CancellationToken token);
 }

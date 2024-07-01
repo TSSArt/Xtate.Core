@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,34 +17,69 @@
 
 #endregion
 
-using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
+<<<<<<< Updated upstream
 using System.Threading.Tasks;
+=======
+>>>>>>> Stashed changes
 
-namespace Xtate.Persistence
+namespace Xtate.Persistence;
+
+public class FileStorageProvider : IStorageProvider
 {
+<<<<<<< Updated upstream
 	public class FileStorageProvider : IStorageProvider
 	{
 		public required Func<Stream, ValueTask<ITransactionalStorage>> TransactionalStorageFactory { private get; init; }
 
 		private static readonly char[]   InvalidFileNameChars   = Path.GetInvalidFileNameChars();
 		private static readonly string[] InvalidCharReplacement = GetInvalidCharReplacement();
+=======
+	private static readonly char[]   InvalidFileNameChars   = Path.GetInvalidFileNameChars();
+	private static readonly string[] InvalidCharReplacement = GetInvalidCharReplacement();
 
-		private readonly string? _extension;
-		private readonly string  _path;
+	private readonly string? _extension;
+	private readonly string  _path;
 
-		public FileStorageProvider(string path, string? extension = default)
+	public FileStorageProvider(string path, string? extension = default)
+	{
+		Infra.Requires(path);
+>>>>>>> Stashed changes
+
+		_path = path;
+		_extension = extension;
+	}
+
+	public required Func<Stream, ValueTask<ITransactionalStorage>> TransactionalStorageFactory { private get; [UsedImplicitly] init; }
+
+#region Interface IStorageProvider
+
+	public async ValueTask<ITransactionalStorage> GetTransactionalStorage(string? partition, string key)
+	{
+		Infra.RequiresNonEmptyString(key);
+
+		var dir = !string.IsNullOrEmpty(partition) ? Path.Combine(_path, Escape(partition)) : _path;
+
+		if (!Directory.Exists(dir))
 		{
+<<<<<<< Updated upstream
 			Infra.Requires(path);
 
 			_path = path;
 			_extension = extension;
+=======
+			Directory.CreateDirectory(dir);
+>>>>>>> Stashed changes
 		}
 
-	#region Interface IStorageProvider
+		var path = Path.Combine(dir, Escape(key) + _extension);
+		var fileStream = new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, bufferSize: 4096, FileOptions.Asynchronous);
+		return await TransactionalStorageFactory(fileStream).ConfigureAwait(false);
+	}
 
+<<<<<<< Updated upstream
 		public async ValueTask<ITransactionalStorage> GetTransactionalStorage(string? partition, string key)
 		{
 			Infra.RequiresNonEmptyString(key);
@@ -94,44 +129,78 @@ namespace Xtate.Persistence
 			}
 
 			return default;
-		}
+=======
+	public ValueTask RemoveTransactionalStorage(string? partition, string key)
+	{
+		Infra.RequiresNonEmptyString(key);
 
-	#endregion
+		var dir = !string.IsNullOrEmpty(partition) ? Path.Combine(_path, Escape(partition)) : _path;
+		var path = Path.Combine(dir, Escape(key) + _extension);
 
-		private static string[] GetInvalidCharReplacement()
+		try
 		{
-			var list = new string[InvalidFileNameChars.Length];
-
-			for (var i = 0; i < list.Length; i ++)
-			{
-				list[i] = @"_x" + ((int) InvalidFileNameChars[i]).ToString(format: @"X", CultureInfo.InvariantCulture);
-			}
-
-			return list;
+			File.Delete(path);
 		}
-
-		private static string Escape(string name)
+		catch (FileNotFoundException)
 		{
-			if (name.IndexOfAny(InvalidFileNameChars) < 0)
-			{
-				return name;
-			}
-
-			var sb = new StringBuilder();
-			foreach (var ch in name)
-			{
-				var index = Array.IndexOf(InvalidFileNameChars, ch);
-				if (index >= 0)
-				{
-					sb.Append(InvalidCharReplacement[index]);
-				}
-				else
-				{
-					sb.Append(ch);
-				}
-			}
-
-			return sb.ToString();
+			// Ignore
 		}
+
+		return default;
+	}
+
+	public ValueTask RemoveAllTransactionalStorage(string? partition)
+	{
+		var path = !string.IsNullOrEmpty(partition) ? Path.Combine(_path, Escape(partition)) : _path;
+
+		try
+		{
+			Directory.Delete(path, recursive: true);
+		}
+		catch (DirectoryNotFoundException)
+		{
+			// Ignore
+		}
+
+		return default;
+	}
+
+#endregion
+
+	private static string[] GetInvalidCharReplacement()
+	{
+		var list = new string[InvalidFileNameChars.Length];
+
+		for (var i = 0; i < list.Length; i ++)
+		{
+			list[i] = @"_x" + ((int) InvalidFileNameChars[i]).ToString(format: @"X", CultureInfo.InvariantCulture);
+>>>>>>> Stashed changes
+		}
+
+		return list;
+	}
+
+	private static string Escape(string name)
+	{
+		if (name.IndexOfAny(InvalidFileNameChars) < 0)
+		{
+			return name;
+		}
+
+		var sb = new StringBuilder();
+		foreach (var ch in name)
+		{
+			var index = Array.IndexOf(InvalidFileNameChars, ch);
+			if (index >= 0)
+			{
+				sb.Append(InvalidCharReplacement[index]);
+			}
+			else
+			{
+				sb.Append(ch);
+			}
+		}
+
+		return sb.ToString();
 	}
 }

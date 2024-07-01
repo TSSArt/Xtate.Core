@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,14 +17,13 @@
 
 #endregion
 
-namespace Xtate.Builder
-{
-	public interface IParamBuilder
-	{
-		IParam Build();
+namespace Xtate.Builder;
 
-		void SetName(string name);
-		void SetExpression(IValueExpression expression);
-		void SetLocation(ILocationExpression location);
-	}
+public interface IParamBuilder
+{
+	IParam Build();
+
+	void SetName(string name);
+	void SetExpression(IValueExpression expression);
+	void SetLocation(ILocationExpression location);
 }

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,45 +17,44 @@
 
 #endregion
 
-using System;
 using Xtate.Persistence;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public sealed class EventDescriptorNode(IEventDescriptor eventDescriptor) : IEventDescriptor, IStoreSupport, IAncestorProvider, IDebugEntityId
 {
+<<<<<<< Updated upstream
 	public sealed class EventDescriptorNode : IEventDescriptor, IStoreSupport, IAncestorProvider, IDebugEntityId
+=======
+
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => eventDescriptor;
+
+#endregion
+
+#region Interface IDebugEntityId
+
+	FormattableString IDebugEntityId.EntityId => @$"{eventDescriptor}";
+
+#endregion
+
+#region Interface IEventDescriptor
+
+	public bool IsEventMatch(IEvent evt) => eventDescriptor.IsEventMatch(evt);
+
+	public string Value => eventDescriptor.Value;
+
+#endregion
+
+#region Interface IStoreSupport
+
+	void IStoreSupport.Store(Bucket bucket)
+>>>>>>> Stashed changes
 	{
-		private readonly IEventDescriptor _eventDescriptor;
-
-		public EventDescriptorNode(IEventDescriptor eventDescriptor) => _eventDescriptor = eventDescriptor;
-
-	#region Interface IAncestorProvider
-
-		object IAncestorProvider.Ancestor => _eventDescriptor;
-
-	#endregion
-
-	#region Interface IDebugEntityId
-
-		FormattableString IDebugEntityId.EntityId => @$"{_eventDescriptor}";
-
-	#endregion
-
-	#region Interface IEventDescriptor
-
-		public bool IsEventMatch(IEvent evt) => _eventDescriptor.IsEventMatch(evt);
-
-		public string Value => _eventDescriptor.Value;
-
-	#endregion
-
-	#region Interface IStoreSupport
-
-		void IStoreSupport.Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.EventDescriptorNode);
-			bucket.Add(Key.Id, _eventDescriptor.Value);
-		}
-
-	#endregion
+		bucket.Add(Key.TypeInfo, TypeInfo.EventDescriptorNode);
+		bucket.Add(Key.Id, eventDescriptor.Value);
 	}
+
+#endregion
 }

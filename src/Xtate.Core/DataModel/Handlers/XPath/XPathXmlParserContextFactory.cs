@@ -17,16 +17,26 @@
 
 #endregion
 
+<<<<<<< Updated upstream
 using System;
 using System.Xml;
 using Xtate.Core;
+=======
+using System.Xml;
+>>>>>>> Stashed changes
 using Xtate.Scxml;
 
 namespace Xtate.DataModel.XPath;
 
 public class XPathXmlParserContextFactory
 {
+<<<<<<< Updated upstream
 	public required INameTableProvider? NameTableProvider { private get; init; }
+=======
+<<<<<<<< Updated upstream:src/Xtate.Core/src/Xtate.Core/Interpreter/Model/IdentifierEqualityComparer.cs
+========
+	public required INameTableProvider? NameTableProvider { private get; [UsedImplicitly] init; }
+>>>>>>> Stashed changes
 
 	public XmlParserContext CreateContext(object entity)
 	{
@@ -44,4 +54,8 @@ public class XPathXmlParserContextFactory
 
 		return new XmlParserContext(nameTable, namespaceManager, xmlLang: null, XmlSpace.None);
 	}
+<<<<<<< Updated upstream
+=======
+>>>>>>>> Stashed changes:src/Xtate.Core/src/Xtate.Core/DataModel/Handlers/XPath/XPathXmlParserContextFactory.cs
+>>>>>>> Stashed changes
 }

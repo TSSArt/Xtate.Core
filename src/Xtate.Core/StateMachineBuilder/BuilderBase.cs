@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,10 +17,18 @@
 
 #endregion
 
+<<<<<<< Updated upstream
 namespace Xtate.Builder
 {
 	public abstract class BuilderBase
 	{
 		public object? Ancestor { protected get; init; }
 	}
+=======
+namespace Xtate.Builder;
+
+public abstract class BuilderBase
+{
+	public object? Ancestor { protected get; [UsedImplicitly] init; }
+>>>>>>> Stashed changes
 }

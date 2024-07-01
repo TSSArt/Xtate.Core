@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,31 +17,29 @@
 
 #endregion
 
-using System;
 using System.Net;
 using Xtate.IoProcessor;
 
-namespace Xtate
+namespace Xtate;
+
+
+public static class HttpIoProcessorExtensions
 {
-	[PublicAPI]
-	public static class HttpIoProcessorExtensions
+	public static StateMachineHostBuilder AddHttpIoProcessor(this StateMachineHostBuilder builder, Uri baseUri)
 	{
-		public static StateMachineHostBuilder AddHttpIoProcessor(this StateMachineHostBuilder builder, Uri baseUri)
-		{
-			if (builder is null) throw new ArgumentNullException(nameof(builder));
+		if (builder is null) throw new ArgumentNullException(nameof(builder));
 
-			builder.AddIoProcessorFactory(new HttpIoProcessorFactory(baseUri, new IPEndPoint(IPAddress.None, port: 0)));
+		builder.AddIoProcessorFactory(new HttpIoProcessorFactory(baseUri, new IPEndPoint(IPAddress.None, port: 0)));
 
-			return builder;
-		}
+		return builder;
+	}
 
-		public static StateMachineHostBuilder AddHttpIoProcessor(this StateMachineHostBuilder builder, Uri baseUri, IPEndPoint ipEndPoint)
-		{
-			if (builder is null) throw new ArgumentNullException(nameof(builder));
+	public static StateMachineHostBuilder AddHttpIoProcessor(this StateMachineHostBuilder builder, Uri baseUri, IPEndPoint ipEndPoint)
+	{
+		if (builder is null) throw new ArgumentNullException(nameof(builder));
 
-			builder.AddIoProcessorFactory(new HttpIoProcessorFactory(baseUri, ipEndPoint));
+		builder.AddIoProcessorFactory(new HttpIoProcessorFactory(baseUri, ipEndPoint));
 
-			return builder;
-		}
+		return builder;
 	}
 }

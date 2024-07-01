@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,42 +17,44 @@
 
 #endregion
 
-using System;
 using Xtate.Persistence;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public sealed class ExternalDataExpressionNode : IExternalDataExpression, IStoreSupport, IAncestorProvider
 {
+<<<<<<< Updated upstream
 	public sealed class ExternalDataExpressionNode : IExternalDataExpression, IStoreSupport, IAncestorProvider
+=======
+	private readonly IExternalDataExpression _externalDataExpression;
+
+	public ExternalDataExpressionNode(IExternalDataExpression externalDataExpression)
+>>>>>>> Stashed changes
 	{
-		private readonly IExternalDataExpression _externalDataExpression;
+		Infra.NotNull(externalDataExpression.Uri);
 
-		public ExternalDataExpressionNode(IExternalDataExpression externalDataExpression)
-		{
-			Infra.NotNull(externalDataExpression.Uri);
-
-			_externalDataExpression = externalDataExpression;
-		}
-
-	#region Interface IAncestorProvider
-
-		object IAncestorProvider.Ancestor => _externalDataExpression;
-
-	#endregion
-
-	#region Interface IExternalDataExpression
-
-		public Uri Uri => _externalDataExpression.Uri!;
-
-	#endregion
-
-	#region Interface IStoreSupport
-
-		void IStoreSupport.Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.ExternalDataExpressionNode);
-			bucket.Add(Key.Uri, Uri);
-		}
-
-	#endregion
+		_externalDataExpression = externalDataExpression;
 	}
+
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => _externalDataExpression;
+
+#endregion
+
+#region Interface IExternalDataExpression
+
+	public Uri Uri => _externalDataExpression.Uri!;
+
+#endregion
+
+#region Interface IStoreSupport
+
+	void IStoreSupport.Store(Bucket bucket)
+	{
+		bucket.Add(Key.TypeInfo, TypeInfo.ExternalDataExpressionNode);
+		bucket.Add(Key.Uri, Uri);
+	}
+
+#endregion
 }

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,11 +17,16 @@
 
 #endregion
 
+<<<<<<< Updated upstream
 using System.Threading.Tasks;
 using Xtate.Core;
+=======
+namespace Xtate.DataModel.XPath;
+>>>>>>> Stashed changes
 
-namespace Xtate.DataModel.XPath
+public class XPathExternalDataExpressionEvaluator(IExternalDataExpression externalDataExpression) : DefaultExternalDataExpressionEvaluator(externalDataExpression)
 {
+<<<<<<< Updated upstream
 	public class XPathExternalDataExpressionEvaluator : DefaultExternalDataExpressionEvaluator
 	{
 		private const string MediaTypeApplicationXml = @"application/xml";
@@ -48,4 +53,25 @@ namespace Xtate.DataModel.XPath
 			throw new XPathDataModelException(string.Format(Resources.Exception_Unrecognized_MediaType, mediaType));
 		}
 	}	
+=======
+	private const string MediaTypeApplicationXml = @"application/xml";
+	private const string MediaTypeTextXml        = @"text/xml";
+
+	public required XPathXmlParserContextFactory XPathXmlParserContextFactory { private get; [UsedImplicitly] init; }
+
+	protected override async ValueTask<DataModelValue> ParseToDataModel(Resource resource)
+	{
+		var mediaType = resource.ContentType?.MediaType;
+
+		if (mediaType is MediaTypeApplicationXml or MediaTypeTextXml)
+		{
+			var stream = await resource.GetStream(true).ConfigureAwait(false);
+			var context = XPathXmlParserContextFactory.CreateContext(this);
+
+			return await XmlConverter.FromXmlStreamAsync(stream, context).ConfigureAwait(false);
+		}
+
+		throw new XPathDataModelException(string.Format(Resources.Exception_Unrecognized_MediaType, mediaType));
+	}
+>>>>>>> Stashed changes
 }

@@ -1,30 +1,29 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
-// This file is part of the Xtate project. <https://xtate.net/>
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as published
-// by the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Affero General Public License for more details.
-// 
-// You should have received a copy of the GNU Affero General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+	// This file is part of the Xtate project. <https://xtate.net/>
+	// 
+	// This program is free software: you can redistribute it and/or modify
+	// it under the terms of the GNU Affero General Public License as published
+	// by the Free Software Foundation, either version 3 of the License, or
+	// (at your option) any later version.
+	// 
+	// This program is distributed in the hope that it will be useful,
+	// but WITHOUT ANY WARRANTY; without even the implied warranty of
+	// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	// GNU Affero General Public License for more details.
+	// 
+	// You should have received a copy of the GNU Affero General Public License
+	// along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #endregion
 
-using System;
-using System.Diagnostics.CodeAnalysis;
-using Xtate.Core;
+	namespace Xtate.Persistence;
 
-namespace Xtate.Persistence
-{
 	internal sealed class EntityQueuePersistingController<T> : IDisposable where T : class
 	{
+		private const int Head = 0;
+		private const int Tail = 1;
+
 		private readonly Bucket         _bucket;
 		private readonly EntityQueue<T> _entityQueue;
 		private          int            _headIndex;
@@ -37,8 +36,8 @@ namespace Xtate.Persistence
 			_bucket = bucket;
 			_entityQueue = entityQueue ?? throw new ArgumentNullException(nameof(entityQueue));
 
-			bucket.TryGet(Key.Head, out _headIndex);
-			bucket.TryGet(Key.Tail, out _tailIndex);
+			bucket.TryGet(Head, out _headIndex);
+			bucket.TryGet(Tail, out _tailIndex);
 
 			for (var i = _headIndex; i < _tailIndex; i ++)
 			{
@@ -57,13 +56,13 @@ namespace Xtate.Persistence
 
 	#endregion
 
-		private void OnChanged(EntityQueue<T>.ChangedAction action, [AllowNull] T entity)
+		private void OnChanged(EntityQueue<T>.ChangedAction action, T? entity)
 		{
 			switch (action)
 			{
 				case EntityQueue<T>.ChangedAction.Enqueue:
 					var bucket = _bucket.Nested(_tailIndex ++);
-					_bucket.Add(Key.Tail, _tailIndex);
+					_bucket.Add(Tail, _tailIndex);
 					entity!.As<IStoreSupport>().Store(bucket);
 					break;
 
@@ -71,7 +70,7 @@ namespace Xtate.Persistence
 					if (_entityQueue.Count > 1)
 					{
 						_bucket.RemoveSubtree(_headIndex ++);
-						_bucket.Add(Key.Head, _headIndex);
+						_bucket.Add(Head, _headIndex);
 					}
 					else
 					{
@@ -85,11 +84,4 @@ namespace Xtate.Persistence
 					throw Infra.Unexpected<Exception>(action);
 			}
 		}
-
-		private enum Key
-		{
-			Head,
-			Tail
-		}
 	}
-}

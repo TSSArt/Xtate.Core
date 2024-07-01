@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,49 +17,46 @@
 
 #endregion
 
-using System;
+namespace Xtate.Core;
 
-namespace Xtate.Core
+public struct HistoryEntity : IHistory, IVisitorEntity<HistoryEntity, IHistory>, IAncestorProvider, IDebugEntityId
 {
-	public struct HistoryEntity : IHistory, IVisitorEntity<HistoryEntity, IHistory>, IAncestorProvider, IDebugEntityId
-	{
-		internal object? Ancestor;
+	internal object? Ancestor;
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 	#endregion
 
 	#region Interface IDebugEntityId
 
-		FormattableString IDebugEntityId.EntityId => @$"{Id}";
+	readonly FormattableString IDebugEntityId.EntityId => @$"{Id}";
 
-	#endregion
+#endregion
 
-	#region Interface IHistory
+#region Interface IHistory
 
-		public IIdentifier? Id         { get; set; }
-		public HistoryType  Type       { get; set; }
-		public ITransition? Transition { get; set; }
+	public IIdentifier? Id         { get; set; }
+	public HistoryType  Type       { get; set; }
+	public ITransition? Transition { get; set; }
 
-	#endregion
+#endregion
 
-	#region Interface IVisitorEntity<HistoryEntity,IHistory>
+#region Interface IVisitorEntity<HistoryEntity,IHistory>
 
-		void IVisitorEntity<HistoryEntity, IHistory>.Init(IHistory source)
-		{
-			Ancestor = source;
-			Id = source.Id;
-			Type = source.Type;
-			Transition = source.Transition;
-		}
-
-		bool IVisitorEntity<HistoryEntity, IHistory>.RefEquals(ref HistoryEntity other) =>
-			Type == other.Type &&
-			ReferenceEquals(Id, other.Id) &&
-			ReferenceEquals(Transition, other.Transition);
-
-	#endregion
+	void IVisitorEntity<HistoryEntity, IHistory>.Init(IHistory source)
+	{
+		Ancestor = source;
+		Id = source.Id;
+		Type = source.Type;
+		Transition = source.Transition;
 	}
+
+	readonly bool IVisitorEntity<HistoryEntity, IHistory>.RefEquals(ref HistoryEntity other) =>
+		Type == other.Type &&
+		ReferenceEquals(Id, other.Id) &&
+		ReferenceEquals(Transition, other.Transition);
+
+#endregion
 }

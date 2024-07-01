@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,41 +17,67 @@
 
 #endregion
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.Core;
+//TODO: uncomment
+/*
 
+<<<<<<< Updated upstream
 namespace Xtate.Service
 {  
 	//TODO: uncomment
 	/*
 	[PublicAPI]
 	public class DynamicServiceFactory : DynamicFactory<IServiceFactory>, IServiceFactory
-	{
-		public DynamicServiceFactory(bool throwOnError = true) : base(throwOnError) { }
+=======
+public class DynamicServiceFactory : DynamicFactory<IServiceFactory>, IServiceFactory
+{
+	public DynamicServiceFactory(bool throwOnError = true) : base(throwOnError) { }
 
+#region Interface IServiceFactory
+
+	public async ValueTask<IServiceFactoryActivator?> TryGetActivator(ServiceLocator serviceLocator, Uri type, CancellationToken token)
+>>>>>>> Stashed changes
+	{
+		var factories = await GetFactories(serviceLocator, InvokeTypeToUri(type), token).ConfigureAwait(false);
+
+<<<<<<< Updated upstream
 	#region Interface IServiceFactory
 
 		public async ValueTask<IServiceFactoryActivator?> TryGetActivator(ServiceLocator serviceLocator, Uri type, CancellationToken token)
 		{
 			var factories = await GetFactories(serviceLocator, InvokeTypeToUri(type), token).ConfigureAwait(false);
+=======
+		foreach (var factory in factories)
+		{
+			var activator = await factory.TryGetActivator(serviceLocator, type, token).ConfigureAwait(false);
+>>>>>>> Stashed changes
 
-			foreach (var factory in factories)
+			if (activator is not null)
 			{
+<<<<<<< Updated upstream
 				var activator = await factory.TryGetActivator(serviceLocator, type, token).ConfigureAwait(false);
 
 				if (activator is not null)
 				{
 					return activator;
 				}
+=======
+				return activator;
+>>>>>>> Stashed changes
 			}
-
-			return null;
 		}
 
+<<<<<<< Updated upstream
 	#endregion
 
 		protected virtual Uri InvokeTypeToUri(Uri invokeType) => invokeType;
 	}*/
 }
+=======
+		return null;
+	}
+
+#endregion
+
+	protected virtual Uri InvokeTypeToUri(Uri invokeType) => invokeType;
+}*/
+>>>>>>> Stashed changes

@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
-
+﻿// Copyright © 2019-2023 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,45 +15,24 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
+namespace Xtate.Core;
 
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Xtate.Core
+public static class CancellationTokenRegistrationExtensions
 {
-	[PublicAPI]
-	public static class CancellationTokenRegistrationExtensions
+	public static ConfiguredAwaitable ConfigureAwait(this CancellationTokenRegistration cancellationTokenRegistration, bool continueOnCapturedContext) =>
+		new(cancellationTokenRegistration, continueOnCapturedContext);
+
+#if !NET6_0_OR_GREATER
+	private static ValueTask DisposeAsync(this CancellationTokenRegistration cancellationTokenRegistration)
 	{
-		public static ConfiguredAwaitable ConfigureAwait(this CancellationTokenRegistration cancellationTokenRegistration, bool continueOnCapturedContext) =>
-			new(cancellationTokenRegistration, continueOnCapturedContext);
+		cancellationTokenRegistration.Dispose();
 
-#if NET461 || NETSTANDARD2_0
-		public static ValueTask DisposeAsync(this CancellationTokenRegistration cancellationTokenRegistration)
-		{
-			cancellationTokenRegistration.Dispose();
-
-			return default;
-		}
-#else
-		[UsedImplicitly]
-		internal static void IgnoreIt(ValueTask _) { }
-
+		return default;
+	}
 #endif
 
-		public struct ConfiguredAwaitable
-		{
-			private readonly CancellationTokenRegistration _cancellationTokenRegistration;
-			private readonly bool                          _continueOnCapturedContext;
-
-			public ConfiguredAwaitable(CancellationTokenRegistration cancellationTokenRegistration, bool continueOnCapturedContext)
-			{
-				_cancellationTokenRegistration = cancellationTokenRegistration;
-				_continueOnCapturedContext = continueOnCapturedContext;
-			}
-
-			public ConfiguredValueTaskAwaitable DisposeAsync() => _cancellationTokenRegistration.DisposeAsync().ConfigureAwait(_continueOnCapturedContext);
-		}
+	public readonly struct ConfiguredAwaitable(CancellationTokenRegistration cancellationTokenRegistration, bool continueOnCapturedContext)
+	{
+		public ConfiguredValueTaskAwaitable DisposeAsync() => cancellationTokenRegistration.DisposeAsync().ConfigureAwait(continueOnCapturedContext);
 	}
 }

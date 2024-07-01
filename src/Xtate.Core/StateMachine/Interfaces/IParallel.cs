@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,11 +17,11 @@
 
 #endregion
 
-using System.Collections.Immutable;
-using Xtate.Core;
+namespace Xtate;
 
-namespace Xtate
+public interface IParallel : IStateEntity
 {
+<<<<<<< Updated upstream
 	public interface IParallel : IStateEntity
 	{
 		ImmutableArray<IStateEntity> States        { get; }
@@ -32,4 +32,13 @@ namespace Xtate
 		ImmutableArray<IOnExit>      OnExit        { get; }
 		ImmutableArray<IInvoke>      Invoke        { get; }
 	}
+=======
+	ImmutableArray<IStateEntity> States        { get; }
+	ImmutableArray<IHistory>     HistoryStates { get; }
+	ImmutableArray<ITransition>  Transitions   { get; }
+	IDataModel?                  DataModel     { get; }
+	ImmutableArray<IOnEntry>     OnEntry       { get; }
+	ImmutableArray<IOnExit>      OnExit        { get; }
+	ImmutableArray<IInvoke>      Invoke        { get; }
+>>>>>>> Stashed changes
 }

@@ -31,6 +31,10 @@ public static class LoggingExtensions
 		}
 
 		services.AddImplementation<LogEntityParserService>().For<IEntityParserHandler>();
+<<<<<<< Updated upstream
+=======
+		services.AddImplementation<LogEntityParserService>().For<IEntityParserHandler>();
+>>>>>>> Stashed changes
 		services.AddImplementation<Logger<Any>>().For<ILogger<Any>>();
 	}
 }

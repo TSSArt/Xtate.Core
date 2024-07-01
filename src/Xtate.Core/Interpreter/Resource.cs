@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,31 +17,44 @@
 
 #endregion
 
-using System;
 using System.IO;
 using System.Net.Mime;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Xtate.XInclude;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public class Resource(Stream stream, ContentType? contentType = default) : IDisposable, IAsyncDisposable, IXIncludeResource
 {
+<<<<<<< Updated upstream
 	public class Resource : IDisposable, IAsyncDisposable, IXIncludeResource
 	{
 		private readonly DisposingToken _disposingToken = new();
 		private readonly Stream         _stream;
 		private          byte[]?        _bytes;
 		private          string?        _content;
+=======
+	private readonly DisposingToken _disposingToken = new();
+	private readonly Stream _stream = stream ?? throw new ArgumentNullException(nameof(stream));
+	private          byte[]?        _bytes;
+	private          string?        _content;
 
-		public Resource(Stream stream, ContentType? contentType = default)
-		{
-			_stream = stream ?? throw new ArgumentNullException(nameof(stream));
-			ContentType = contentType;
-		}
+	public Encoding Encoding => !string.IsNullOrEmpty(ContentType?.CharSet) ? Encoding.GetEncoding(ContentType.CharSet) : Encoding.UTF8;
 
-		public Encoding Encoding => !string.IsNullOrEmpty(ContentType?.CharSet) ? Encoding.GetEncoding(ContentType.CharSet) : Encoding.UTF8;
+#region Interface IAsyncDisposable
 
+	public async ValueTask DisposeAsync()
+	{
+		await DisposeAsyncCore().ConfigureAwait(false);
+>>>>>>> Stashed changes
+
+		Dispose(false);
+		GC.SuppressFinalize(this);
+	}
+
+#endregion
+
+<<<<<<< Updated upstream
 	#region Interface IDisposable
 
 		public void Dispose()
@@ -88,19 +101,42 @@ namespace Xtate.Core
 	#endregion
 
 		public async ValueTask<string> GetContent()
+=======
+#region Interface IDisposable
+
+	public void Dispose()
+	{
+		Dispose(true);
+		GC.SuppressFinalize(this);
+	}
+
+#endregion
+
+#region Interface IXIncludeResource
+
+	ValueTask<Stream> IXIncludeResource.GetStream() => GetStream(doNotCache: true);
+
+	public ContentType? ContentType { get; } = contentType;
+
+	#endregion
+
+	protected virtual void Dispose(bool disposing)
+	{
+		if (disposing)
+>>>>>>> Stashed changes
 		{
-			if (_content is not null)
-			{
-				return _content;
-			}
+			_disposingToken.Dispose();
+		}
+	}
 
-			if (_bytes is not null)
-			{
-				using var reader = new StreamReader(new MemoryStream(_bytes), Encoding, detectEncodingFromByteOrderMarks: true);
+	protected virtual ValueTask DisposeAsyncCore()
+	{
+		_disposingToken.Dispose();
 
-				return _content = await reader.ReadToEndAsync().ConfigureAwait(false);
-			}
+		return default;
+	}
 
+<<<<<<< Updated upstream
 			await using (_stream.ConfigureAwait(false))
 			{
 				using var reader = new StreamReader(_stream.InjectCancellationToken(_disposingToken.Token), Encoding, detectEncodingFromByteOrderMarks: true);
@@ -110,12 +146,20 @@ namespace Xtate.Core
 		}
 
 		public async ValueTask<byte[]> GetBytes()
+=======
+	public async ValueTask<string> GetContent()
+	{
+		if (_content is not null)
 		{
-			if (_bytes is not null)
-			{
-				return _bytes;
-			}
+			return _content;
+		}
 
+		if (_bytes is not null)
+>>>>>>> Stashed changes
+		{
+			using var reader = new StreamReader(new MemoryStream(_bytes), Encoding, detectEncodingFromByteOrderMarks: true);
+
+<<<<<<< Updated upstream
 			if (_content is not null)
 			{
 				return _bytes = Encoding.GetBytes(_content);
@@ -128,28 +172,65 @@ namespace Xtate.Core
 		}
 
 		public async ValueTask<Stream> GetStream(bool doNotCache)
+=======
+			return _content = await reader.ReadToEndAsync().ConfigureAwait(false);
+		}
+
+		await using (_stream.ConfigureAwait(false))
+>>>>>>> Stashed changes
 		{
-			if (_bytes is not null)
-			{
-				return new MemoryStream(_bytes, writable: false);
-			}
+			using var reader = new StreamReader(_stream.InjectCancellationToken(_disposingToken.Token), Encoding, detectEncodingFromByteOrderMarks: true);
 
-			if (_content is not null)
-			{
-				return new MemoryStream(Encoding.GetBytes(_content));
-			}
+			return _content = await reader.ReadToEndAsync().ConfigureAwait(false);
+		}
+	}
 
-			if (doNotCache)
-			{
-				return _stream;
-			}
+	public async ValueTask<byte[]> GetBytes()
+	{
+		if (_bytes is not null)
+		{
+			return _bytes;
+		}
 
+<<<<<<< Updated upstream
 			await using (_stream.ConfigureAwait(false))
 			{
 				_bytes = await _stream.ReadToEndAsync(_disposingToken.Token).ConfigureAwait(false);
+=======
+		if (_content is not null)
+		{
+			return _bytes = Encoding.GetBytes(_content);
+		}
+>>>>>>> Stashed changes
 
-				return new MemoryStream(_bytes, writable: false);
-			}
+		await using (_stream.ConfigureAwait(false))
+		{
+			return _bytes = await _stream.ReadToEndAsync(_disposingToken.Token).ConfigureAwait(false);
+		}
+	}
+
+	public async ValueTask<Stream> GetStream(bool doNotCache)
+	{
+		if (_bytes is not null)
+		{
+			return new MemoryStream(_bytes, writable: false);
+		}
+
+		if (_content is not null)
+		{
+			return new MemoryStream(Encoding.GetBytes(_content));
+		}
+
+		if (doNotCache)
+		{
+			return _stream;
+		}
+
+		await using (_stream.ConfigureAwait(false))
+		{
+			_bytes = await _stream.ReadToEndAsync(_disposingToken.Token).ConfigureAwait(false);
+
+			return new MemoryStream(_bytes, writable: false);
 		}
 	}
 }

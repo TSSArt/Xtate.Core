@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,75 +17,69 @@
 
 #endregion
 
-using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http;
 using System.Net.Mime;
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.Core;
 
-namespace Xtate.Service
+namespace Xtate.Service;
+
+public class HttpClientXmlHandler : HttpClientMimeTypeHandler
 {
-	public class HttpClientXmlHandler : HttpClientMimeTypeHandler
+	private const string MediaTypeTextXml        = "text/xml";
+	private const string MediaTypeApplicationXml = "application/xml";
+
+	private HttpClientXmlHandler() { }
+
+	public static HttpClientMimeTypeHandler Instance { get; } = new HttpClientXmlHandler();
+
+	private static bool CanHandle([NotNullWhen(true)] string? contentType)
 	{
-		private const string MediaTypeTextXml        = "text/xml";
-		private const string MediaTypeApplicationXml = "application/xml";
-
-		private HttpClientXmlHandler() { }
-
-		public static HttpClientMimeTypeHandler Instance { get; } = new HttpClientXmlHandler();
-
-		private static bool CanHandle([NotNullWhen(true)] string? contentType)
+		if (contentType is not { Length: > 0 })
 		{
-			if (contentType is not { Length: > 0 })
-			{
-				return false;
-			}
-
-			const StringComparison ct = StringComparison.OrdinalIgnoreCase;
-			const string text = "text/";
-			const string application = "application/";
-			const string xml = "+xml";
-
-			var mediaType = new ContentType(contentType).MediaType;
-
-			return string.Equals(mediaType, MediaTypeApplicationXml, ct)
-				   || string.Equals(mediaType, MediaTypeTextXml, ct)
-				   || (mediaType.StartsWith(text, ct) || mediaType.StartsWith(application, ct)) && mediaType.EndsWith(xml, ct);
+			return false;
 		}
 
-		public override void PrepareRequest(WebRequest webRequest,
-											string? contentType,
-											DataModelList parameters,
-											DataModelValue value) =>
-			AppendAcceptHeader(webRequest, MediaTypeApplicationXml);
+		const StringComparison ct = StringComparison.OrdinalIgnoreCase;
+		const string text = "text/";
+		const string application = "application/";
+		const string xml = "+xml";
 
-		public override HttpContent? TryCreateHttpContent(WebRequest webRequest,
-														  string? contentType,
-														  DataModelList parameters,
-														  DataModelValue value) =>
-			CanHandle(contentType) ? new HttpClientXmlHandlerHttpContent(value, contentType) : default;
+		var mediaType = new ContentType(contentType).MediaType;
 
-		public override async ValueTask<DataModelValue?> TryParseResponseAsync(WebResponse webResponse, DataModelList parameters, CancellationToken token)
+		return string.Equals(mediaType, MediaTypeApplicationXml, ct)
+			   || string.Equals(mediaType, MediaTypeTextXml, ct)
+			   || ((mediaType.StartsWith(text, ct) || mediaType.StartsWith(application, ct)) && mediaType.EndsWith(xml, ct));
+	}
+
+	public override void PrepareRequest(WebRequest webRequest,
+										string? contentType,
+										DataModelList parameters,
+										DataModelValue value) =>
+		AppendAcceptHeader(webRequest, MediaTypeApplicationXml);
+
+	public override HttpContent? TryCreateHttpContent(WebRequest webRequest,
+													  string? contentType,
+													  DataModelList parameters,
+													  DataModelValue value) =>
+		CanHandle(contentType) ? new HttpClientXmlHandlerHttpContent(value, contentType) : default;
+
+	public override async ValueTask<DataModelValue?> TryParseResponseAsync(WebResponse webResponse, DataModelList parameters, CancellationToken token)
+	{
+		if (webResponse is null) throw new ArgumentNullException(nameof(webResponse));
+
+		if (!CanHandle(webResponse.ContentType))
 		{
-			if (webResponse is null) throw new ArgumentNullException(nameof(webResponse));
+			return default;
+		}
 
-			if (!CanHandle(webResponse.ContentType))
-			{
-				return default;
-			}
+		var stream = webResponse.GetResponseStream();
 
-			var stream = webResponse.GetResponseStream();
+		Infra.NotNull(stream);
 
-			Infra.NotNull(stream);
-
-			XtateCore.Use();
-			await using (stream.ConfigureAwait(false))
-			{
-				return await DataModelConverter.FromJsonAsync(stream, token).ConfigureAwait(false);
-			}
+		XtateCore.Use();
+		await using (stream.ConfigureAwait(false))
+		{
+			return await DataModelConverter.FromJsonAsync(stream, token).ConfigureAwait(false);
 		}
 	}
 }

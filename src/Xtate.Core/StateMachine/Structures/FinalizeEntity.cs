@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,36 +17,33 @@
 
 #endregion
 
-using System.Collections.Immutable;
+namespace Xtate.Core;
 
-namespace Xtate.Core
+public struct FinalizeEntity : IFinalize, IVisitorEntity<FinalizeEntity, IFinalize>, IAncestorProvider
 {
-	public struct FinalizeEntity : IFinalize, IVisitorEntity<FinalizeEntity, IFinalize>, IAncestorProvider
-	{
-		internal object? Ancestor;
+	internal object? Ancestor;
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
-	#endregion
+#endregion
 
-	#region Interface IFinalize
+#region Interface IFinalize
 
-		public ImmutableArray<IExecutableEntity> Action { get; set; }
+	public ImmutableArray<IExecutableEntity> Action { get; set; }
 
-	#endregion
+#endregion
 
-	#region Interface IVisitorEntity<FinalizeEntity,IFinalize>
+#region Interface IVisitorEntity<FinalizeEntity,IFinalize>
 
-		void IVisitorEntity<FinalizeEntity, IFinalize>.Init(IFinalize source)
-		{
-			Ancestor = source;
-			Action = source.Action;
-		}
-
-		bool IVisitorEntity<FinalizeEntity, IFinalize>.RefEquals(ref FinalizeEntity other) => Action == other.Action;
-
-	#endregion
+	void IVisitorEntity<FinalizeEntity, IFinalize>.Init(IFinalize source)
+	{
+		Ancestor = source;
+		Action = source.Action;
 	}
+
+	readonly bool IVisitorEntity<FinalizeEntity, IFinalize>.RefEquals(ref FinalizeEntity other) => Action == other.Action;
+
+#endregion
 }

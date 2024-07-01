@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,26 +17,23 @@
 
 #endregion
 
-using System;
+namespace Xtate;
 
-namespace Xtate
+
+[Serializable]
+public sealed class UriId : ServiceId
 {
-	[PublicAPI]
-	[Serializable]
-	public sealed class UriId : ServiceId
-	{
-		private UriId(Uri uri) => Uri = uri;
+	private UriId(Uri uri) => Uri = uri;
 
-		public override string Value => Uri.ToString();
+	public override string Value => Uri.ToString();
 
-		public Uri Uri { get; }
+	public Uri Uri { get; }
 
-		protected override string GenerateId() => throw new NotSupportedException();
+	protected override string GenerateId() => throw new NotSupportedException();
 
-		public override int GetHashCode() => Uri.GetHashCode();
+	public override int GetHashCode() => Uri.GetHashCode();
 
-		public override bool Equals(object? obj) => Uri.Equals(obj);
+	public override bool Equals(object? obj) => Uri.Equals(obj);
 
-		public static UriId FromUri(Uri uri) => new(uri);
-	}
+	public static UriId FromUri(Uri uri) => new(uri);
 }

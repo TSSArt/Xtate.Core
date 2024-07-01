@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,11 +17,16 @@
 
 #endregion
 
+<<<<<<< Updated upstream
 using System;
 using Xtate.Persistence;
+=======
+namespace Xtate.Core;
+>>>>>>> Stashed changes
 
-namespace Xtate.Core
+public interface IStateMachineContext
 {
+<<<<<<< Updated upstream
 	public interface IStateMachineContext
 	{
 		EntityQueue<IEvent>         InternalQueue      { get; }
@@ -31,4 +36,13 @@ namespace Xtate.Core
 		ServiceIdSet                ActiveInvokes      { get; }
 		KeyList<StateEntityNode>    HistoryValue       { get; }
 	}
+=======
+	EntityQueue<IEvent>         InternalQueue  { get; }
+	DataModelList               DataModel      { get; }
+	OrderedSet<StateEntityNode> Configuration  { get; }
+	OrderedSet<StateEntityNode> StatesToInvoke { get; }
+	ServiceIdSet                ActiveInvokes  { get; }
+	KeyList<StateEntityNode>    HistoryValue   { get; }
+	DataModelValue              DoneData       { get; set; }
+>>>>>>> Stashed changes
 }

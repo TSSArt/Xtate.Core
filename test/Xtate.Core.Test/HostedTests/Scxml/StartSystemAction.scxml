@@ -1,0 +1,9 @@
+﻿<scxml xmlns="http://www.w3.org/2005/07/scxml"
+       xmlns:sys="http://xtate.net/scxml/system"
+       version="1.0" name="StartSystemAction" initial="final">
+  <final id="final">
+    <onentry>
+      <sys:start url="StartSystemActionChild.scxml" />
+    </onentry>
+  </final>
+</scxml>

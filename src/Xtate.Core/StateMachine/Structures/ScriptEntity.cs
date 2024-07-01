@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,38 +17,37 @@
 
 #endregion
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public struct ScriptEntity : IScript, IVisitorEntity<ScriptEntity, IScript>, IAncestorProvider
 {
-	public struct ScriptEntity : IScript, IVisitorEntity<ScriptEntity, IScript>, IAncestorProvider
-	{
-		internal object? Ancestor;
+	internal object? Ancestor;
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
-	#endregion
+#endregion
 
-	#region Interface IScript
+#region Interface IScript
 
-		public IScriptExpression?         Content { get; set; }
-		public IExternalScriptExpression? Source  { get; set; }
+	public IScriptExpression?         Content { get; set; }
+	public IExternalScriptExpression? Source  { get; set; }
 
-	#endregion
+#endregion
 
-	#region Interface IVisitorEntity<ScriptEntity,IScript>
+#region Interface IVisitorEntity<ScriptEntity,IScript>
 
-		void IVisitorEntity<ScriptEntity, IScript>.Init(IScript source)
-		{
-			Ancestor = source;
-			Content = source.Content;
-			Source = source.Source;
-		}
-
-		bool IVisitorEntity<ScriptEntity, IScript>.RefEquals(ref ScriptEntity other) =>
-			ReferenceEquals(Content, other.Content) &&
-			ReferenceEquals(Source, other.Source);
-
-	#endregion
+	void IVisitorEntity<ScriptEntity, IScript>.Init(IScript source)
+	{
+		Ancestor = source;
+		Content = source.Content;
+		Source = source.Source;
 	}
+
+	readonly bool IVisitorEntity<ScriptEntity, IScript>.RefEquals(ref ScriptEntity other) =>
+		ReferenceEquals(Content, other.Content) &&
+		ReferenceEquals(Source, other.Source);
+
+#endregion
 }

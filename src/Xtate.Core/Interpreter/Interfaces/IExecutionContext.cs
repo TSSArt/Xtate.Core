@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,13 +17,12 @@
 
 #endregion
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.Core;
+namespace Xtate;
 
-namespace Xtate
+
+public record InvokeData
 {
+<<<<<<< Updated upstream
 	[PublicAPI]
 	public record InvokeData
 	{
@@ -32,15 +31,27 @@ namespace Xtate
 			InvokeId = invokeId;
 			Type = type;
 		}
-
-		public InvokeId       InvokeId   { get; }
-		public Uri            Type       { get; }
-		public Uri?           Source     { get; init; }
-		public string?        RawContent { get; init; }
-		public DataModelValue Content    { get; init; }
-		public DataModelValue Parameters { get; init; }
+=======
+	public InvokeData(InvokeId invokeId, Uri type)
+	{
+		InvokeId = invokeId;
+		Type = type;
 	}
 
+	public InvokeId       InvokeId   { get; }
+	public Uri            Type       { get; }
+	public Uri?           Source     { get; init; }
+	public string?        RawContent { get; init; }
+	public DataModelValue Content    { get; init; }
+	public DataModelValue Parameters { get; init; }
+}
+>>>>>>> Stashed changes
+
+public interface IEventController
+{
+	ValueTask Send(IOutgoingEvent outgoingEvent);
+
+<<<<<<< Updated upstream
 	public interface IEventController
 	{
 		ValueTask Send(IOutgoingEvent outgoingEvent);
@@ -79,3 +90,24 @@ namespace Xtate
 		object? this[object key] { get; set; }
 	}
 }
+=======
+	ValueTask Cancel(SendId sendId);
+}
+
+public interface IInvokeController
+{
+	ValueTask Start(InvokeData invokeData);
+
+	ValueTask Cancel(InvokeId invokeId);
+}
+
+public interface IInStateController
+{
+	bool InState(IIdentifier id);
+}
+
+public interface IDataModelController
+{
+	DataModelList DataModel { get; }
+}
+>>>>>>> Stashed changes

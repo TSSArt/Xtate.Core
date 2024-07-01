@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
-
+﻿// Copyright © 2019-2023 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,74 +15,74 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
-using System;
 using Xtate.DataModel;
 using Xtate.Persistence;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public class DataNode : IData, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 {
+<<<<<<< Updated upstream
 	public sealed class DataNode : IData, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
+=======
+	private readonly IData _data;
+
+	private DocumentIdSlot _documentIdSlot;
+
+	public DataNode(DocumentIdNode documentIdNode, IData data)
+>>>>>>> Stashed changes
 	{
-		private readonly IData          _data;
-		private          DocumentIdSlot _documentIdSlot;
+		_data = data;
 
-		public DataNode(DocumentIdNode documentIdNode, IData data)
-		{
-			Infra.NotNull(data.Id);
+		documentIdNode.SaveToSlot(out _documentIdSlot);
 
-			documentIdNode.SaveToSlot(out _documentIdSlot);
-			_data = data;
-
-			ResourceEvaluator = data.Source?.As<IResourceEvaluator>();
-			ExpressionEvaluator = data.Expression?.As<IObjectEvaluator>();
-			InlineContentEvaluator = data.InlineContent?.As<IObjectEvaluator>();
-		}
-
-		public IResourceEvaluator? ResourceEvaluator      { get; }
-		public IObjectEvaluator?   ExpressionEvaluator    { get; }
-		public IObjectEvaluator?   InlineContentEvaluator { get; }
-
-	#region Interface IAncestorProvider
-
-		object IAncestorProvider.Ancestor => _data;
-
-	#endregion
-
-	#region Interface IData
-
-		public string                   Id            => _data.Id!;
-		public IValueExpression?        Expression    => _data.Expression;
-		public IExternalDataExpression? Source        => _data.Source;
-		public IInlineContent?          InlineContent => _data.InlineContent;
-
-	#endregion
-
-	#region Interface IDebugEntityId
-
-		FormattableString IDebugEntityId.EntityId => @$"{Id}(#{DocumentId})";
-
-	#endregion
-
-	#region Interface IDocumentId
-
-		public int DocumentId => _documentIdSlot.Value;
-
-	#endregion
-
-	#region Interface IStoreSupport
-
-		void IStoreSupport.Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.DataNode);
-			bucket.Add(Key.DocumentId, DocumentId);
-			bucket.Add(Key.Id, Id);
-			bucket.AddEntity(Key.Source, Source);
-			bucket.AddEntity(Key.Expression, Expression);
-			bucket.Add(Key.InlineContent, InlineContent?.Value);
-		}
-
-	#endregion
+		SourceEvaluator = data.Source?.As<IObjectEvaluator>();
+		ExpressionEvaluator = data.Expression?.As<IObjectEvaluator>();
+		InlineContentEvaluator = data.InlineContent?.As<IObjectEvaluator>();
 	}
+
+	public IObjectEvaluator? SourceEvaluator        { get; }
+	public IObjectEvaluator? ExpressionEvaluator    { get; }
+	public IObjectEvaluator? InlineContentEvaluator { get; }
+
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => _data;
+
+#endregion
+
+#region Interface IData
+
+	public string?                  Id            => _data.Id;
+	public IValueExpression?        Expression    => _data.Expression;
+	public IExternalDataExpression? Source        => _data.Source;
+	public IInlineContent?          InlineContent => _data.InlineContent;
+
+#endregion
+
+#region Interface IDebugEntityId
+
+	FormattableString IDebugEntityId.EntityId => @$"{Id}(#{DocumentId})";
+
+#endregion
+
+#region Interface IDocumentId
+
+	public int DocumentId => _documentIdSlot.CreateValue();
+
+#endregion
+
+#region Interface IStoreSupport
+
+	void IStoreSupport.Store(Bucket bucket)
+	{
+		bucket.Add(Key.TypeInfo, TypeInfo.DataNode);
+		bucket.Add(Key.DocumentId, DocumentId);
+		bucket.Add(Key.Id, Id);
+		bucket.AddEntity(Key.Source, Source);
+		bucket.AddEntity(Key.Expression, Expression);
+		bucket.Add(Key.InlineContent, InlineContent?.Value);
+	}
+
+#endregion
 }

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,34 +17,33 @@
 
 #endregion
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public struct ElseIfEntity : IElseIf, IVisitorEntity<ElseIfEntity, IElseIf>, IAncestorProvider
 {
-	public struct ElseIfEntity : IElseIf, IVisitorEntity<ElseIfEntity, IElseIf>, IAncestorProvider
-	{
-		internal object? Ancestor;
+	internal object? Ancestor;
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
-	#endregion
+#endregion
 
-	#region Interface IElseIf
+#region Interface IElseIf
 
-		public IConditionExpression? Condition { get; set; }
+	public IConditionExpression? Condition { get; set; }
 
-	#endregion
+#endregion
 
-	#region Interface IVisitorEntity<ElseIfEntity,IElseIf>
+#region Interface IVisitorEntity<ElseIfEntity,IElseIf>
 
-		void IVisitorEntity<ElseIfEntity, IElseIf>.Init(IElseIf source)
-		{
-			Ancestor = source;
-			Condition = source.Condition;
-		}
-
-		bool IVisitorEntity<ElseIfEntity, IElseIf>.RefEquals(ref ElseIfEntity other) => ReferenceEquals(Condition, other.Condition);
-
-	#endregion
+	void IVisitorEntity<ElseIfEntity, IElseIf>.Init(IElseIf source)
+	{
+		Ancestor = source;
+		Condition = source.Condition;
 	}
+
+	readonly bool IVisitorEntity<ElseIfEntity, IElseIf>.RefEquals(ref ElseIfEntity other) => ReferenceEquals(Condition, other.Condition);
+
+#endregion
 }

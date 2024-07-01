@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,29 +17,33 @@
 
 #endregion
 
-using System.Collections.Immutable;
-using System.Threading;
-using System.Threading.Tasks;
 using Xtate.IoProcessor;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public interface IStateMachineHost : IHostEventDispatcher
 {
+<<<<<<< Updated upstream
 	public interface IStateMachineHost : IHostEventDispatcher
 	{
 		ImmutableArray<IIoProcessor> GetIoProcessors();
 		ValueTask<SendStatus>        DispatchEvent(ServiceId serviceId, IOutgoingEvent outgoingEvent, CancellationToken token);
 		ValueTask                    CancelEvent(SessionId sessionId, SendId sendId, CancellationToken token);
+=======
+	ImmutableArray<IIoProcessor> GetIoProcessors();
+	ValueTask<SendStatus>        DispatchEvent(ServiceId serviceId, IOutgoingEvent outgoingEvent, CancellationToken token);
+	ValueTask                    CancelEvent(SessionId sessionId, SendId sendId, CancellationToken token);
+>>>>>>> Stashed changes
 
-		ValueTask StartInvoke(SessionId sessionId,
-							  InvokeData invokeData,
-							  ISecurityContext securityContext,
-							  CancellationToken token);
+	ValueTask StartInvoke(SessionId sessionId,
+						  InvokeData invokeData,
+						 // ISecurityContext securityContext,
+						  CancellationToken token);
 
-		ValueTask CancelInvoke(SessionId sessionId, InvokeId invokeId, CancellationToken token);
+	ValueTask CancelInvoke(SessionId sessionId, InvokeId invokeId, CancellationToken token);
 
-		ValueTask ForwardEvent(SessionId sessionId,
-							   IEvent evt,
-							   InvokeId invokeId,
-							   CancellationToken token);
-	}
+	ValueTask ForwardEvent(SessionId sessionId,
+						   IEvent evt,
+						   InvokeId invokeId,
+						   CancellationToken token);
 }

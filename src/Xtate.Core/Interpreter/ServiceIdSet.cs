@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,57 +17,57 @@
 
 #endregion
 
-using System.Collections;
-using System.Collections.Generic;
+namespace Xtate.Core;
 
-namespace Xtate.Core
+public sealed class ServiceIdSet : IEnumerable<ServiceId>
 {
+<<<<<<< Updated upstream
 	public sealed class ServiceIdSet : IEnumerable<ServiceId>
+=======
+	public delegate void ChangeHandler(ChangedAction action, ServiceId serviceId);
+
+	public enum ChangedAction
+>>>>>>> Stashed changes
 	{
-		public delegate void ChangeHandler(ChangedAction action, ServiceId serviceId);
-
-		public enum ChangedAction
-		{
-			Add,
-			Remove
-		}
-
-		private readonly HashSet<ServiceId> _set = new();
-
-		public int Count => _set.Count;
-
-	#region Interface IEnumerable
-
-		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-	#endregion
-
-	#region Interface IEnumerable<ServiceId>
-
-		IEnumerator<ServiceId> IEnumerable<ServiceId>.GetEnumerator() => GetEnumerator();
-
-	#endregion
-
-		public event ChangeHandler? Changed;
-
-		public void Remove(ServiceId serviceId)
-		{
-			if (_set.Remove(serviceId))
-			{
-				Changed?.Invoke(ChangedAction.Remove, serviceId);
-			}
-		}
-
-		public void Add(ServiceId serviceId)
-		{
-			if (_set.Add(serviceId))
-			{
-				Changed?.Invoke(ChangedAction.Add, serviceId);
-			}
-		}
-
-		public bool Contains(ServiceId serviceId) => _set.Contains(serviceId);
-
-		public HashSet<ServiceId>.Enumerator GetEnumerator() => _set.GetEnumerator();
+		Add,
+		Remove
 	}
+
+	private readonly HashSet<ServiceId> _set = [];
+
+	public int Count => _set.Count;
+
+#region Interface IEnumerable
+
+	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+#endregion
+
+#region Interface IEnumerable<ServiceId>
+
+	IEnumerator<ServiceId> IEnumerable<ServiceId>.GetEnumerator() => GetEnumerator();
+
+#endregion
+
+	public event ChangeHandler? Changed;
+
+	public void Remove(ServiceId serviceId)
+	{
+		if (_set.Remove(serviceId))
+		{
+			Changed?.Invoke(ChangedAction.Remove, serviceId);
+		}
+	}
+
+	public void Add(ServiceId serviceId)
+	{
+		if (_set.Add(serviceId))
+		{
+			Changed?.Invoke(ChangedAction.Add, serviceId);
+		}
+	}
+
+	public bool Contains(ServiceId serviceId) => _set.Contains(serviceId);
+
+	public HashSet<ServiceId>.Enumerator GetEnumerator() => _set.GetEnumerator();
 }

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,16 +17,13 @@
 
 #endregion
 
-using Xtate.Core;
+namespace Xtate;
 
-namespace Xtate
+public interface IAssign : IExecutableEntity
 {
-	public interface IAssign : IExecutableEntity
-	{
-		ILocationExpression? Location      { get; }
-		IValueExpression?    Expression    { get; }
-		IInlineContent?      InlineContent { get; }
-		string?              Type          { get; }
-		string?              Attribute     { get; }
-	}
+	ILocationExpression? Location      { get; }
+	IValueExpression?    Expression    { get; }
+	IInlineContent?      InlineContent { get; }
+	string?              Type          { get; }
+	string?              Attribute     { get; }
 }
