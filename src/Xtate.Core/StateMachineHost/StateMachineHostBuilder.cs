@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,6 +17,7 @@
 
 #endregion
 
+<<<<<<< Updated upstream
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -25,12 +26,22 @@ using Xtate.Core;
 using Xtate.IoC;
 using Xtate.CustomAction;
 using Xtate.DataModel;
+=======
+using System.ComponentModel;
+using Xtate.IoC;
+>>>>>>> Stashed changes
 using Xtate.IoProcessor;
 using Xtate.Persistence;
 using Xtate.Service;
 
-namespace Xtate
+namespace Xtate;
+
+public interface IStateMachineHostBuilder;
+
+
+public sealed class StateMachineHostBuilder : IStateMachineHostBuilder
 {
+<<<<<<< Updated upstream
 	public interface IStateMachineHostBuilder { }
 
 
@@ -114,26 +125,194 @@ namespace Xtate
 		public StateMachineHostBuilder SetLogger(ILoggerOld logger)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+=======
+	private readonly List<object>                                    _actions = [];
+	private Uri?                                            _baseUri;
+	private ImmutableDictionary<string, string>.Builder?    _configuration;
+	//private ImmutableArray<ICustomActionFactory>.Builder?   _customActionFactories;
+	//private HostMode                                        _hostMode;
+	private ImmutableArray<IIoProcessorFactory>.Builder?    _ioProcessorFactories;
+	//private ILoggerOld?                                     _logger;
+	private PersistenceLevel                                _persistenceLevel;
+	//private ImmutableArray<IResourceLoaderFactory>.Builder? _resourceLoaderFactories;
+	private ImmutableArray<IServiceFactory>.Builder?        _serviceFactories;
+	private IStorageProvider?                               _storageProvider;
+	private TimeSpan?                                       _suspendIdlePeriod;
+	private UnhandledErrorBehaviour                         _unhandledErrorBehaviour;
+	//private ValidationMode                                  _validationMode;
+	/*
+	public StateMachineHost Build(ServiceLocator serviceLocator)
+	{
+		var serviceScope = serviceLocator.GetService<IServiceScopeFactory>()
+										 .CreateScope(
+											 collection =>
+											 {
+												 foreach (var action in _actions)
+												 {
+													 switch (action)
+													 {
+														 case Action<IServiceCollection> action1:
+															 action1(collection);
+															 break;
+														 case Func<IServiceCollection, IServiceCollection> action2:
+															 action2(collection);
+															 break;
+													 }
+												 }
+											 });
 
-			return this;
-		}
+		serviceLocator = new ServiceLocator(serviceScope.ServiceProvider);
 
-		public StateMachineHostBuilder DisableVerboseValidation()
+		var option = new StateMachineHostOptions()
+					 {
+						 IoProcessorFactories = _ioProcessorFactories?.ToImmutable() ?? default,
+						 ServiceFactories = _serviceFactories?.ToImmutable() ?? default,
+						 CustomActionFactories = _customActionFactories?.ToImmutable() ?? default,
+						 ResourceLoaderFactories = _resourceLoaderFactories?.ToImmutable() ?? default,
+						 Configuration = _configuration?.ToImmutable() ?? ImmutableDictionary<string, string>.Empty,
+						 BaseUri = _baseUri,
+						 Logger = _logger,
+						 PersistenceLevel = _persistenceLevel,
+						 StorageProvider = _storageProvider,
+						 SuspendIdlePeriod = _suspendIdlePeriod,
+						 ValidationMode = _validationMode,
+						 UnhandledErrorBehaviour = _unhandledErrorBehaviour,
+						 HostMode = _hostMode
+					 };
+
+		return new StateMachineHost(option)
+			   { _dataConverter = new DataConverter(null), ServiceFactories = AsyncEnumerable.Empty<IServiceFactory>(), _ioProcessorFactories = AsyncEnumerable.Empty<IIoProcessorFactory>() , _scopeManager = };
+	}*/
+
+	//TODO:
+	public StateMachineHostBuilder AddServices(Action<IServiceCollection> action)
+	{
+		_actions.Add(action);
+
+		return this;
+	}
+
+	//TODO:
+	public StateMachineHostBuilder AddServices(Func<IServiceCollection, IServiceCollection> action)
+	{
+		_actions.Add(action);
+
+		return this;
+	}
+	/*
+	public StateMachineHostBuilder SetLogger(ILoggerOld logger)
+	{
+		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+		return this;
+	}*/
+
+	public StateMachineHostBuilder DisableVerboseValidation()
+	{
+		//_validationMode = ValidationMode.Default;
+
+		return this;
+	}
+
+	public StateMachineHostBuilder SetSuspendIdlePeriod(TimeSpan suspendIdlePeriod)
+	{
+		Infra.RequiresPositive(suspendIdlePeriod);
+
+		_suspendIdlePeriod = suspendIdlePeriod;
+
+		return this;
+	}
+	/*
+	public StateMachineHostBuilder AddResourceLoaderFactory(IResourceLoaderFactory resourceLoaderFactory)
+	{
+		if (resourceLoaderFactory is null) throw new ArgumentNullException(nameof(resourceLoaderFactory));
+
+		(_resourceLoaderFactories ??= ImmutableArray.CreateBuilder<IResourceLoaderFactory>()).Add(resourceLoaderFactory);
+
+		return this;
+	}*/
+
+	public StateMachineHostBuilder SetPersistence(PersistenceLevel persistenceLevel, IStorageProvider storageProvider)
+	{
+		if (persistenceLevel is < PersistenceLevel.None or > PersistenceLevel.ExecutableAction)
 		{
-			_validationMode = ValidationMode.Default;
-
-			return this;
+			throw new InvalidEnumArgumentException(nameof(persistenceLevel), (int) persistenceLevel, typeof(PersistenceLevel));
 		}
 
-		public StateMachineHostBuilder SetSuspendIdlePeriod(TimeSpan suspendIdlePeriod)
+		_persistenceLevel = persistenceLevel;
+		_storageProvider = storageProvider ?? throw new ArgumentNullException(nameof(storageProvider));
+>>>>>>> Stashed changes
+
+		return this;
+	}
+
+	public StateMachineHostBuilder AddIoProcessorFactory(IIoProcessorFactory ioProcessorFactory)
+	{
+		
+
+		(_ioProcessorFactories ??= ImmutableArray.CreateBuilder<IIoProcessorFactory>()).Add(ioProcessorFactory);
+
+		return this;
+	}
+
+	public StateMachineHostBuilder AddServiceFactory(IServiceFactory serviceFactory)
+	{
+		
+
+		(_serviceFactories ??= ImmutableArray.CreateBuilder<IServiceFactory>()).Add(serviceFactory);
+
+		return this;
+	}
+	/*
+	public StateMachineHostBuilder AddCustomActionFactory(ICustomActionFactory customActionFactory)
+	{
+		if (customActionFactory is null) throw new ArgumentNullException(nameof(customActionFactory));
+
+		(_customActionFactories ??= ImmutableArray.CreateBuilder<ICustomActionFactory>()).Add(customActionFactory);
+
+		return this;
+	}*/
+
+	public StateMachineHostBuilder SetConfigurationValue(string key, string value)
+	{
+		
+
+		(_configuration ??= ImmutableDictionary.CreateBuilder<string, string>())[key] = value ?? throw new ArgumentNullException(nameof(value));
+
+		return this;
+	}
+
+	public StateMachineHostBuilder SetBaseUri(Uri uri)
+	{
+		_baseUri = uri ?? throw new ArgumentNullException(nameof(uri));
+
+		return this;
+	}
+
+	public StateMachineHostBuilder SetUnhandledErrorBehaviour(UnhandledErrorBehaviour unhandledErrorBehaviour)
+	{
+		if (unhandledErrorBehaviour is < UnhandledErrorBehaviour.DestroyStateMachine or > UnhandledErrorBehaviour.IgnoreError)
 		{
-			if (suspendIdlePeriod <= TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(suspendIdlePeriod));
-
-			_suspendIdlePeriod = suspendIdlePeriod;
-
-			return this;
+			throw new InvalidEnumArgumentException(nameof(unhandledErrorBehaviour), (int) unhandledErrorBehaviour, typeof(UnhandledErrorBehaviour));
 		}
 
+		_unhandledErrorBehaviour = unhandledErrorBehaviour;
+
+		return this;
+	}
+
+	public StateMachineHostBuilder SetClusterHostMode()
+	{
+		//_hostMode = HostMode.Cluster;
+
+		return this;
+	}
+
+	public StateMachineHostBuilder SetStandaloneHostMode()
+	{
+		//_hostMode = HostMode.Standalone;
+
+<<<<<<< Updated upstream
 		public StateMachineHostBuilder AddResourceLoaderFactory(IResourceLoaderFactory resourceLoaderFactory)
 		{
 			if (resourceLoaderFactory is null) throw new ArgumentNullException(nameof(resourceLoaderFactory));
@@ -224,5 +403,8 @@ namespace Xtate
 
 			return this;
 		}
+=======
+		return this;
+>>>>>>> Stashed changes
 	}
 }

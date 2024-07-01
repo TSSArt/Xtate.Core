@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,34 +17,33 @@
 
 #endregion
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public struct ValueExpression : IValueExpression, IVisitorEntity<ValueExpression, IValueExpression>, IAncestorProvider
 {
-	public struct ValueExpression : IValueExpression, IVisitorEntity<ValueExpression, IValueExpression>, IAncestorProvider
-	{
-		internal object? Ancestor;
+	internal object? Ancestor;
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
-	#endregion
+#endregion
 
-	#region Interface IValueExpression
+#region Interface IValueExpression
 
-		public string? Expression { get; set; }
+	public string? Expression { get; set; }
 
-	#endregion
+#endregion
 
-	#region Interface IVisitorEntity<ValueExpression,IValueExpression>
+#region Interface IVisitorEntity<ValueExpression,IValueExpression>
 
-		void IVisitorEntity<ValueExpression, IValueExpression>.Init(IValueExpression source)
-		{
-			Ancestor = source;
-			Expression = source.Expression;
-		}
-
-		bool IVisitorEntity<ValueExpression, IValueExpression>.RefEquals(ref ValueExpression other) => ReferenceEquals(Expression, other.Expression);
-
-	#endregion
+	void IVisitorEntity<ValueExpression, IValueExpression>.Init(IValueExpression source)
+	{
+		Ancestor = source;
+		Expression = source.Expression;
 	}
+
+	readonly bool IVisitorEntity<ValueExpression, IValueExpression>.RefEquals(ref ValueExpression other) => ReferenceEquals(Expression, other.Expression);
+
+#endregion
 }

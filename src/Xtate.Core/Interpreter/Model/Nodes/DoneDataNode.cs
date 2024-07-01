@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,14 +17,20 @@
 
 #endregion
 
+<<<<<<< Updated upstream
 using System;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
+=======
+>>>>>>> Stashed changes
 using Xtate.DataModel;
 using Xtate.Persistence;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public sealed class DoneDataNode : IDoneData, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 {
+<<<<<<< Updated upstream
 	public sealed class DoneDataNode : IDoneData, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 	{
 		private readonly IDoneData                           _doneData;
@@ -45,13 +51,32 @@ namespace Xtate.Core
 			_contentBodyEvaluator = doneData.Content?.Body?.As<IValueEvaluator>();
 			_parameterList = DataConverter.AsParamArray(doneData.Parameters);
 		}
+=======
+	private readonly IValueEvaluator?                    _contentBodyEvaluator;
+	private readonly IObjectEvaluator?                   _contentExpressionEvaluator;
+	private readonly IDoneData                           _doneData;
+	private readonly ImmutableArray<DataConverter.Param> _parameterList;
+	private          DocumentIdSlot                      _documentIdSlot;
 
-	#region Interface IAncestorProvider
+	public DoneDataNode(DocumentIdNode documentIdNode, IDoneData doneData)
+	{
+		_doneData = doneData;
+		documentIdNode.SaveToSlot(out _documentIdSlot);
+		_contentExpressionEvaluator = doneData.Content?.Expression?.As<IObjectEvaluator>();
+		_contentBodyEvaluator = doneData.Content?.Body?.As<IValueEvaluator>();
+		_parameterList = DataConverter.AsParamArray(doneData.Parameters);
+	}
 
-		object IAncestorProvider.Ancestor => _doneData;
+	public required Func<ValueTask<DataConverter>> DataConverterFactory { private get; [UsedImplicitly] init; }
+>>>>>>> Stashed changes
 
-	#endregion
+#region Interface IAncestorProvider
 
+	object IAncestorProvider.Ancestor => _doneData;
+
+#endregion
+
+<<<<<<< Updated upstream
 
 	#region Interface IDebugEntityId
 
@@ -66,29 +91,52 @@ namespace Xtate.Core
 	#endregion
 
 	#region Interface IDoneData
+=======
+#region Interface IDebugEntityId
+>>>>>>> Stashed changes
 
-		public IContent? Content => _doneData.Content;
+	public FormattableString EntityId => @$"(#{DocumentId})";
 
-		public ImmutableArray<IParam> Parameters => _doneData.Parameters;
+#endregion
 
-	#endregion
+#region Interface IDocumentId
 
-	#region Interface IStoreSupport
+	public int DocumentId => _documentIdSlot.CreateValue();
 
-		void IStoreSupport.Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.DoneDataNode);
-			bucket.AddEntity(Key.Content, Content);
-			bucket.AddEntityList(Key.Parameters, Parameters);
-		}
+#endregion
 
-	#endregion
+#region Interface IDoneData
 
+<<<<<<< Updated upstream
 		public async ValueTask<DataModelValue> Evaluate()
 		{
 			var dataConverter = await DataConverterFactory().ConfigureAwait(false);
 
 			return await dataConverter.GetData(_contentBodyEvaluator, _contentExpressionEvaluator, nameEvaluatorList: default, _parameterList).ConfigureAwait(false);
 		}
+=======
+	public IContent? Content => _doneData.Content;
+
+	public ImmutableArray<IParam> Parameters => _doneData.Parameters;
+
+#endregion
+
+#region Interface IStoreSupport
+
+	void IStoreSupport.Store(Bucket bucket)
+	{
+		bucket.Add(Key.TypeInfo, TypeInfo.DoneDataNode);
+		bucket.AddEntity(Key.Content, Content);
+		bucket.AddEntityList(Key.Parameters, Parameters);
+	}
+
+#endregion
+
+	public async ValueTask<DataModelValue> Evaluate()
+	{
+		var dataConverter = await DataConverterFactory().ConfigureAwait(false);
+
+		return await dataConverter.GetData(_contentBodyEvaluator, _contentExpressionEvaluator, nameEvaluatorList: default, _parameterList).ConfigureAwait(false);
+>>>>>>> Stashed changes
 	}
 }

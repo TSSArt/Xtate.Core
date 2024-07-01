@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream
 ﻿#region Copyright © 2019-2021 Sergii Artemenko
+=======
+﻿#region Copyright © 2019-2023 Sergii Artemenko
+>>>>>>> Stashed changes
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,12 +21,15 @@
 
 #endregion
 
+<<<<<<< Updated upstream
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+=======
+>>>>>>> Stashed changes
 using Xtate.DataModel;
 
 namespace Xtate.Core.Interpreter;
@@ -41,7 +48,11 @@ public class InterpreterTest
 		var stateMachineEntity = new StateMachineEntity
 								 {
 									 Initial = new EmptyInitialNode(new DocumentIdNode(linkedList), transition),
+<<<<<<< Updated upstream
 									 States = ImmutableArray.Create<IStateEntity>(finalNode)
+=======
+									 States = [finalNode]
+>>>>>>> Stashed changes
 								 };
 		var root = new StateMachineNode(new DocumentIdNode(linkedList), stateMachineEntity);
 
@@ -52,6 +63,7 @@ public class InterpreterTest
 		var dataModelHandlerMock = new Mock<IDataModelHandler>();
 
 		var stateMachineContextMock = new Mock<IStateMachineContext>();
+<<<<<<< Updated upstream
 		stateMachineContextMock.Setup(ctx => ctx.Configuration).Returns(new OrderedSet<StateEntityNode>());
 		stateMachineContextMock.Setup(ctx => ctx.StatesToInvoke).Returns(new OrderedSet<StateEntityNode>());
 		stateMachineContextMock.Setup(ctx => ctx.InternalQueue).Returns(new EntityQueue<IEvent>());
@@ -73,6 +85,26 @@ public class InterpreterTest
 										  _stateMachineLocation = null,
 										  _unhandledErrorBehaviour = null
 
+=======
+		stateMachineContextMock.Setup(ctx => ctx.Configuration).Returns([]);
+		stateMachineContextMock.Setup(ctx => ctx.StatesToInvoke).Returns([]);
+		stateMachineContextMock.Setup(ctx => ctx.InternalQueue).Returns(new EntityQueue<IEvent>());
+
+		var loggerMock = new Mock<ILogger<IStateMachineInterpreter>>();
+
+		var stateMachineInterpreter = new StateMachineInterpreter
+									  {
+										  ContextFactory = () => new ValueTask<IStateMachineContext>(stateMachineContextMock.Object),
+										  DataConverter = new DataConverter(dataModelHandlerMock.Object),
+										  DataModelHandler = dataModelHandlerMock.Object,
+										  EventQueueReader = eventQueueMock.Object,
+										  ExternalCommunication = null,
+										  Logger = loggerMock.Object,
+										  Model = interpreterModelMock.Object,
+										  NotifyStateChanged = null,
+										  UnhandledErrorBehaviour = null,
+										  StateMachineArguments = null
+>>>>>>> Stashed changes
 									  };
 
 		// act

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,75 +17,70 @@
 
 #endregion
 
-using System;
 using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.Core;
 
-namespace Xtate.IoProcessor
+namespace Xtate.IoProcessor;
+
+
+public sealed class NamedPipeIoProcessorFactory : IIoProcessorFactory
 {
-	[PublicAPI]
-	public sealed class NamedPipeIoProcessorFactory : IIoProcessorFactory
+	private const int DefaultMaxMessageSize = 1024 * 1024;
+	private const int FreeSlotsCount        = 2;
+
+	private static readonly string HostName = GetHostName();
+
+	private readonly string _host;
+	private readonly int?   _maxMessageSize;
+	private readonly string _name;
+
+	public NamedPipeIoProcessorFactory(string name, int? maxMessageSize = default)
 	{
-		private const int DefaultMaxMessageSize = 1024 * 1024;
-		private const int FreeSlotsCount        = 2;
+		if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
 
-		private static readonly string HostName = GetHostName();
+		_name = name;
+		_maxMessageSize = maxMessageSize;
+		_host = HostName;
+	}
 
-		private readonly string _host;
-		private readonly int?   _maxMessageSize;
-		private readonly string _name;
+	public NamedPipeIoProcessorFactory(string host, string name, int? maxMessageSize = default)
+	{
+		if (string.IsNullOrEmpty(host)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(host));
+		if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
 
-		public NamedPipeIoProcessorFactory(string name, int? maxMessageSize = default)
+		_host = host;
+		_name = name;
+		_maxMessageSize = maxMessageSize;
+	}
+
+#region Interface IIoProcessorFactory
+
+	public async ValueTask<IIoProcessor> Create(IEventConsumer eventConsumer, CancellationToken token)
+	{
+		if (eventConsumer is null) throw new ArgumentNullException(nameof(eventConsumer));
+
+		var processor = new NamedPipeIoProcessor(eventConsumer, _host, _name, _maxMessageSize ?? DefaultMaxMessageSize);
+
+		for (var i = 0; i < FreeSlotsCount; i ++)
 		{
-			if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
-
-			_name = name;
-			_maxMessageSize = maxMessageSize;
-			_host = HostName;
+			processor.StartListener().Forget();
 		}
 
-		public NamedPipeIoProcessorFactory(string host, string name, int? maxMessageSize = default)
-		{
-			if (string.IsNullOrEmpty(host)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(host));
-			if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
+		await processor.CheckPipeline(token).ConfigureAwait(false);
 
-			_host = host;
-			_name = name;
-			_maxMessageSize = maxMessageSize;
+		return processor;
+	}
+
+#endregion
+
+	private static string GetHostName()
+	{
+		try
+		{
+			return Dns.GetHostName();
 		}
-
-	#region Interface IIoProcessorFactory
-
-		public async ValueTask<IIoProcessor> Create(IEventConsumer eventConsumer, CancellationToken token)
+		catch
 		{
-			if (eventConsumer is null) throw new ArgumentNullException(nameof(eventConsumer));
-
-			var processor = new NamedPipeIoProcessor(eventConsumer, _host, _name, _maxMessageSize ?? DefaultMaxMessageSize);
-
-			for (var i = 0; i < FreeSlotsCount; i ++)
-			{
-				processor.StartListener().Forget();
-			}
-
-			await processor.CheckPipeline(token).ConfigureAwait(false);
-
-			return processor;
-		}
-
-	#endregion
-
-		private static string GetHostName()
-		{
-			try
-			{
-				return Dns.GetHostName();
-			}
-			catch
-			{
-				return @".";
-			}
+			return @".";
 		}
 	}
 }

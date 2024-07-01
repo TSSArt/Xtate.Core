@@ -24,6 +24,7 @@ using System.Xml.Xsl;
 
 namespace Xtate.DataModel.XPath;
 
+<<<<<<< Updated upstream
 public class XPathVarDescriptor : IXsltContextVariable, IInitResolver
 {
 	public required Func<ValueTask<XPathEngine>> XPathEngineFactory { private get; init; }
@@ -45,4 +46,43 @@ public class XPathVarDescriptor : IXsltContextVariable, IInitResolver
 #endregion
 
 	public async ValueTask Initialize() => _engine = await XPathEngineFactory().ConfigureAwait(false);
+=======
+public class XPathVarDescriptor : IXsltContextVariable
+{
+	private class EmptyIterator : XPathNodeIterator
+	{
+		public override XPathNavigator Current => default!;
+
+		public override int CurrentPosition => 0;
+
+		public override XPathNodeIterator Clone() => this;
+
+		public override bool MoveNext() => false;
+	}
+
+	private static readonly XPathNodeIterator Empty = new EmptyIterator();
+
+	protected XPathEngine? Engine { get; private set; }
+
+	public required string Name { protected get; [UsedImplicitly] init; }
+
+	public virtual ValueTask Initialize(XPathEngine engine)
+	{
+		Engine = engine;
+
+		return default;
+	}
+
+#region Interface IXsltContextVariable
+
+	public virtual object Evaluate(XsltContext xsltContext) => Engine?.GetVariable(Name) ?? Empty;
+
+	public virtual bool IsLocal => false;
+	
+	public virtual bool IsParam => false;
+
+	public virtual XPathResultType VariableType => XPathResultType.NodeSet;
+
+#endregion
+>>>>>>> Stashed changes
 }

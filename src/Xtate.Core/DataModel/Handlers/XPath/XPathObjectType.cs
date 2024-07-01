@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,8 +17,11 @@
 
 #endregion
 
-namespace Xtate.DataModel.XPath
+namespace Xtate.DataModel.XPath;
+
+public enum XPathObjectType
 {
+<<<<<<< Updated upstream
 	public enum XPathObjectType
 	{
 		Number,
@@ -26,4 +29,10 @@ namespace Xtate.DataModel.XPath
 		Boolean,
 		NodeSet
 	}
+=======
+	Number,
+	String,
+	Boolean,
+	NodeSet
+>>>>>>> Stashed changes
 }

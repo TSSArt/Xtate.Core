@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,49 +17,54 @@
 
 #endregion
 
-using System.Collections.Immutable;
+namespace Xtate.Core;
 
-namespace Xtate.Core
+public struct TransitionEntity : ITransition, IVisitorEntity<TransitionEntity, ITransition>, IAncestorProvider
 {
-	public struct TransitionEntity : ITransition, IVisitorEntity<TransitionEntity, ITransition>, IAncestorProvider
-	{
-		internal object? Ancestor;
+	internal object? Ancestor;
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
-	#endregion
+#endregion
 
-	#region Interface ITransition
+#region Interface ITransition
 
+<<<<<<< Updated upstream
 		public ImmutableArray<IEventDescriptor>  EventDescriptors { get; set; }
 		public IConditionExpression?             Condition        { get; set; }
 		public ImmutableArray<IIdentifier>       Target           { get; set; }
 		public TransitionType                    Type             { get; set; }
 		public ImmutableArray<IExecutableEntity> Action           { get; set; }
+=======
+	public ImmutableArray<IEventDescriptor>  EventDescriptors { get; set; }
+	public IConditionExpression?             Condition        { get; set; }
+	public ImmutableArray<IIdentifier>       Target           { get; set; }
+	public TransitionType                    Type             { get; set; }
+	public ImmutableArray<IExecutableEntity> Action           { get; set; }
+>>>>>>> Stashed changes
 
-	#endregion
+#endregion
 
-	#region Interface IVisitorEntity<TransitionEntity,ITransition>
+#region Interface IVisitorEntity<TransitionEntity,ITransition>
 
-		void IVisitorEntity<TransitionEntity, ITransition>.Init(ITransition source)
-		{
-			Ancestor = source;
-			Action = source.Action;
-			Condition = source.Condition;
-			EventDescriptors = source.EventDescriptors;
-			Target = source.Target;
-			Type = source.Type;
-		}
-
-		bool IVisitorEntity<TransitionEntity, ITransition>.RefEquals(ref TransitionEntity other) =>
-			Type == other.Type &&
-			Target == other.Target &&
-			Action == other.Action &&
-			EventDescriptors == other.EventDescriptors &&
-			ReferenceEquals(Condition, other.Condition);
-
-	#endregion
+	void IVisitorEntity<TransitionEntity, ITransition>.Init(ITransition source)
+	{
+		Ancestor = source;
+		Action = source.Action;
+		Condition = source.Condition;
+		EventDescriptors = source.EventDescriptors;
+		Target = source.Target;
+		Type = source.Type;
 	}
+
+	readonly bool IVisitorEntity<TransitionEntity, ITransition>.RefEquals(ref TransitionEntity other) =>
+		Type == other.Type &&
+		Target == other.Target &&
+		Action == other.Action &&
+		EventDescriptors == other.EventDescriptors &&
+		ReferenceEquals(Condition, other.Condition);
+
+#endregion
 }

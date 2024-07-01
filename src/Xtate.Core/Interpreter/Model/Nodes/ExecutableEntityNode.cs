@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,13 +17,14 @@
 
 #endregion
 
-using System.Threading;
-using System.Threading.Tasks;
 using Xtate.DataModel;
 using Xtate.Persistence;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public abstract class ExecutableEntityNode : IExecutableEntity, IExecEvaluator, IStoreSupport, IDocumentId
 {
+<<<<<<< Updated upstream
 	public abstract class ExecutableEntityNode : IExecutableEntity, IExecEvaluator, IStoreSupport, IDocumentId
 	{
 		private readonly IExecEvaluator _execEvaluator;
@@ -54,5 +55,34 @@ namespace Xtate.Core
 	#endregion
 
 		protected abstract void Store(Bucket bucket);
+=======
+	private readonly IExecEvaluator _execEvaluator;
+	private          DocumentIdSlot _documentIdSlot;
+
+	protected ExecutableEntityNode(DocumentIdNode documentIdNode, IExecutableEntity entity)
+	{
+		_execEvaluator = entity.As<IExecEvaluator>();
+		documentIdNode.SaveToSlot(out _documentIdSlot);
+>>>>>>> Stashed changes
 	}
+
+#region Interface IDocumentId
+
+	public int DocumentId => _documentIdSlot.CreateValue();
+
+#endregion
+
+#region Interface IExecEvaluator
+
+	public ValueTask Execute() => _execEvaluator.Execute();
+
+#endregion
+
+#region Interface IStoreSupport
+
+	void IStoreSupport.Store(Bucket bucket) => Store(bucket);
+
+#endregion
+
+	protected abstract void Store(Bucket bucket);
 }

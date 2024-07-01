@@ -29,6 +29,7 @@ public sealed class InFunctionProvider : XPathFunctionProviderBase<InFunction>
 	protected override bool CanHandle(string ns, string name) => ns == string.Empty && name == @"In";
 }
 
+<<<<<<< Updated upstream
 public sealed class InFunction : XPathFunctionDescriptorBase, IInitResolver
 {
 	public InFunction() : base(XPathResultType.Boolean, XPathResultType.Any) { }
@@ -37,6 +38,22 @@ public sealed class InFunction : XPathFunctionDescriptorBase, IInitResolver
 	public required Func<ValueTask<IInStateController?>> InStateControllerFactory { private get; init; }
 
 	public          IInStateController?                  _inStateController;
+=======
+public sealed class InFunction : XPathFunctionDescriptorBase
+{
+	private IInStateController? _inStateController;
+
+	public InFunction() : base(XPathResultType.Boolean, XPathResultType.Any) { }
+
+	public required Func<ValueTask<IInStateController?>> InStateControllerFactory { private get; [UsedImplicitly] init; }
+
+	public override async ValueTask Initialize()
+	{
+		_inStateController = await InStateControllerFactory().ConfigureAwait(false);
+
+		await base.Initialize().ConfigureAwait(false);
+	}
+>>>>>>> Stashed changes
 
 	protected override object Invoke(object[] args)
 	{
@@ -56,7 +73,12 @@ public sealed class InFunction : XPathFunctionDescriptorBase, IInitResolver
 
 				do
 				{
+<<<<<<< Updated upstream
 					if (!_inStateController.InState((Identifier) iterator.Current.Value))
+=======
+					var id = iterator.Current?.Value;
+					if (string.IsNullOrEmpty(id) || !_inStateController.InState((Identifier) id))
+>>>>>>> Stashed changes
 					{
 						return false;
 					}

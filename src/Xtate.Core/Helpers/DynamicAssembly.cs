@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
-
+﻿// Copyright © 2019-2023 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,21 +15,37 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
-using System;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Loader;
+<<<<<<< Updated upstream
+=======
+using Xtate.IoC;
+>>>>>>> Stashed changes
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public class DynamicAssembly : IDisposable, IAsyncInitialization, IServiceModule
 {
+<<<<<<< Updated upstream
 	[Obsolete]
 	//TODO: delete
 	public sealed class DynamicAssembly : IDisposable
-	{
-		internal static readonly object AssemblyCacheKey = new();
+=======
+	private readonly DisposingToken _disposingToken = new();
+	private readonly Uri            _uri;
 
+	private AsyncInit<ImmutableArray<IServiceModule>>? _asyncInitServiceModules;
+	private Context?                                   _context;
+
+	public DynamicAssembly(Uri uri)
+>>>>>>> Stashed changes
+	{
+		_uri = uri;
+		_asyncInitServiceModules = AsyncInit.Run(this, static da => da.LoadAssemblyServiceModules());
+	}
+
+<<<<<<< Updated upstream
 		private Context?  _context;
 		private Assembly? _assembly;
 
@@ -53,6 +69,103 @@ namespace Xtate.Core
 		private class Context : AssemblyLoadContext
 		{
 			public Context() : base(isCollectible: true) { }
+=======
+	public required IResourceLoader ResourceLoader { private get; [UsedImplicitly] init; }
+
+#region Interface IAsyncInitialization
+
+	public Task Initialization => _asyncInitServiceModules?.Task ?? Task.CompletedTask;
+
+#endregion
+
+#region Interface IDisposable
+
+	public void Dispose()
+	{
+		Dispose(true);
+		GC.SuppressFinalize(this);
+	}
+
+#endregion
+
+#region Interface IServiceModule
+
+	public void Register(IServiceCollection servicesCollection)
+	{
+		var serviceModules = _asyncInitServiceModules?.Value ?? throw new ObjectDisposedException(nameof(DynamicAssembly));
+
+		foreach (var serviceModule in serviceModules)
+		{
+			serviceModule.Register(servicesCollection);
+>>>>>>> Stashed changes
 		}
+	}
+
+#endregion
+
+	private async ValueTask<ImmutableArray<IServiceModule>> LoadAssemblyServiceModules()
+	{
+		var resource = await ResourceLoader.Request(_uri).ConfigureAwait(false);
+		await using (resource.ConfigureAwait(false))
+		{
+			var stream = await resource.GetStream(true).ConfigureAwait(false);
+			await using (stream.ConfigureAwait(false))
+			{
+				var assembly = await LoadFromStream(stream).ConfigureAwait(false);
+
+				return CreateServiceModules(assembly);
+			}
+		}
+	}
+
+	private static ImmutableArray<IServiceModule> CreateServiceModules(Assembly assembly)
+	{
+		var attributes = assembly.GetCustomAttributes(typeof(ServiceModuleAttribute), inherit: false);
+
+		if (attributes.Length == 0)
+		{
+			return [];
+		}
+
+		var serviceModules = ImmutableArray.CreateBuilder<IServiceModule>(attributes.Length);
+
+		foreach (var attribute in attributes.Cast<ServiceModuleAttribute>())
+		{
+			serviceModules.Add((IServiceModule) Activator.CreateInstance(attribute.ServiceModuleType!)!);
+		}
+
+		return serviceModules.MoveToImmutable();
+	}
+
+	private async ValueTask<Assembly> LoadFromStream(Stream stream)
+	{
+		_context = new Context();
+
+		if (stream is MemoryStream or UnmanagedMemoryStream)
+		{
+			return _context.LoadFromStream(stream);
+		}
+
+		using var memStream = new MemoryStream(new byte[stream.Length - stream.Position]);
+		await stream.CopyToAsync(memStream, bufferSize: 81920, _disposingToken.Token).ConfigureAwait(false);
+		memStream.Position = 0;
+
+		return _context.LoadFromStream(memStream);
+	}
+
+	protected virtual void Dispose(bool disposing)
+	{
+		if (disposing)
+		{
+			_disposingToken.Dispose();
+			_context?.Unload();
+			_asyncInitServiceModules = null;
+			_context = null;
+		}
+	}
+
+	private class Context : AssemblyLoadContext
+	{
+		public Context() : base(isCollectible: true) { }
 	}
 }

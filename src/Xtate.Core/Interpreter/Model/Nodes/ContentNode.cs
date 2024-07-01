@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
-
+﻿// Copyright © 2019-2023 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,41 +15,38 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using Xtate.Persistence;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public sealed class ContentNode(IContent content) : IContent, IStoreSupport, IAncestorProvider
 {
+<<<<<<< Updated upstream
 	public sealed class ContentNode : IContent, IStoreSupport, IAncestorProvider
+=======
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => content;
+
+#endregion
+
+#region Interface IContent
+
+	public IValueExpression? Expression => content.Expression;
+
+	public IContentBody? Body => content.Body;
+
+#endregion
+
+#region Interface IStoreSupport
+
+	void IStoreSupport.Store(Bucket bucket)
+>>>>>>> Stashed changes
 	{
-		private readonly IContent _content;
-
-		public ContentNode(IContent content) => _content = content;
-
-	#region Interface IAncestorProvider
-
-		object IAncestorProvider.Ancestor => _content;
-
-	#endregion
-
-	#region Interface IContent
-
-		public IValueExpression? Expression => _content.Expression;
-
-		public IContentBody? Body => _content.Body;
-
-	#endregion
-
-	#region Interface IStoreSupport
-
-		void IStoreSupport.Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.ContentNode);
-			bucket.AddEntity(Key.Expression, Expression);
-			bucket.Add(Key.Body, Body?.Value);
-		}
-
-	#endregion
+		bucket.Add(Key.TypeInfo, TypeInfo.ContentNode);
+		bucket.AddEntity(Key.Expression, Expression);
+		bucket.Add(Key.Body, Body?.Value);
 	}
+
+#endregion
 }

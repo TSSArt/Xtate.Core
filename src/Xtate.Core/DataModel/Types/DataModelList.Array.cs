@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,124 +17,118 @@
 
 #endregion
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using Xtate.Core;
+namespace Xtate;
 
-namespace Xtate
+public partial class DataModelList : IList<DataModelValue>
 {
-	public partial class DataModelList : IList<DataModelValue>
+#region Interface ICollection<DataModelValue>
+
+	public void CopyTo(DataModelValue[] array, int index)
 	{
-	#region Interface ICollection<DataModelValue>
+		if (array is null) throw new ArgumentNullException(nameof(array));
+		if (index < 0 || index >= array.Length) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_IndexShouldBeNonNegativeAndLessThenAarraySize);
+		if (_count - index < array.Length) throw new ArgumentException(Resources.Exception_DestinationArrayIsNotLongEnough, nameof(array));
 
-		public void CopyTo(DataModelValue[] array, int index)
+		foreach (var value in Values)
 		{
-			if (array is null) throw new ArgumentNullException(nameof(array));
-			if (index < 0 || index >= array.Length) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_IndexShouldBeNonNegativeAndLessThenAarraySize);
-			if (_count - index < array.Length) throw new ArgumentException(Resources.Exception_DestinationArrayIsNotLongEnough, nameof(array));
+			array[index ++] = value;
+		}
+	}
 
-			foreach (var value in Values)
+	public void Add(DataModelValue value) => Add(key: default, value, metadata: default);
+
+	public bool Contains(DataModelValue value) => GetIndex(value) >= 0;
+
+	public bool Remove(DataModelValue item)
+	{
+		var index = GetIndex(item);
+
+		return index >= 0 && Remove(index);
+	}
+
+	bool ICollection<DataModelValue>.IsReadOnly => Access != DataModelAccess.Writable;
+
+#endregion
+
+#region Interface IEnumerable
+
+	IEnumerator IEnumerable.GetEnumerator() => new ValueEnumerator(this);
+
+#endregion
+
+#region Interface IEnumerable<DataModelValue>
+
+	IEnumerator<DataModelValue> IEnumerable<DataModelValue>.GetEnumerator() => new ValueEnumerator(this);
+
+#endregion
+
+#region Interface IList<DataModelValue>
+
+	public DataModelValue this[int index]
+	{
+		get
+		{
+			TryGet(index, out var entry);
+
+			return entry.Value;
+		}
+
+		set => Set(index, key: default, value, metadata: default);
+	}
+
+	public int IndexOf(DataModelValue item) => GetIndex(item);
+
+	public void Insert(int index, DataModelValue item) => Insert(index, key: default, item, metadata: default);
+
+	public void RemoveAt(int index) => Remove(index);
+
+#endregion
+
+	public ValueEnumerator GetEnumerator() => new(this);
+
+	public DataModelValue[] Slice(int start, int length)
+	{
+		if (start < 0 || start > _count) throw new ArgumentOutOfRangeException(nameof(start));
+		if (length < 0 || length > _count - start) throw new ArgumentOutOfRangeException(nameof(length));
+
+		if (length == 0)
+		{
+			return [];
+		}
+
+		var array = new DataModelValue[length];
+		var index = 0;
+
+		foreach (var value in Values)
+		{
+			if (start > 0)
 			{
-				array[index ++] = value;
+				start --;
+
+				continue;
+			}
+
+			array[index ++] = value;
+
+			if (index == length)
+			{
+				break;
 			}
 		}
 
-		public void Add(DataModelValue value) => Add(key: default, value, metadata: default);
+		return array;
+	}
 
-		public bool Contains(DataModelValue value) => GetIndex(value) >= 0;
-
-		public bool Remove(DataModelValue item)
+	private int GetIndex(in DataModelValue value)
+	{
+		foreach (var entry in Entries)
 		{
-			var index = GetIndex(item);
-
-			return index >= 0 && Remove(index);
+			if (entry.Value == value)
+			{
+				return entry.Index;
+			}
 		}
 
-		bool ICollection<DataModelValue>.IsReadOnly => Access != DataModelAccess.Writable;
-
-	#endregion
-
-	#region Interface IEnumerable
-
-		IEnumerator IEnumerable.GetEnumerator() => new ValueEnumerator(this);
-
-	#endregion
-
-	#region Interface IEnumerable<DataModelValue>
-
-		IEnumerator<DataModelValue> IEnumerable<DataModelValue>.GetEnumerator() => new ValueEnumerator(this);
-
-	#endregion
-
-	#region Interface IList<DataModelValue>
-
-		public DataModelValue this[int index]
-		{
-			get
-			{
-				TryGet(index, out var entry);
-
-				return entry.Value;
-			}
-
-			set => Set(index, key: default, value, metadata: default);
-		}
-
-		public int IndexOf(DataModelValue item) => GetIndex(item);
-
-		public void Insert(int index, DataModelValue item) => Insert(index, key: default, item, metadata: default);
-
-		public void RemoveAt(int index) => Remove(index);
-
-	#endregion
-
-		public ValueEnumerator GetEnumerator() => new(this);
-
-		public DataModelValue[] Slice(int start, int length)
-		{
-			if (start < 0 || start > _count) throw new ArgumentOutOfRangeException(nameof(start));
-			if (length < 0 || length > _count - start) throw new ArgumentOutOfRangeException(nameof(length));
-
-			if (length == 0)
-			{
-				return Array.Empty<DataModelValue>();
-			}
-
-			var array = new DataModelValue[length];
-			var index = 0;
-
-			foreach (var value in Values)
-			{
-				if (start > 0)
-				{
-					start --;
-
-					continue;
-				}
-
-				array[index ++] = value;
-
-				if (index == length)
-				{
-					break;
-				}
-			}
-
-			return array;
-		}
-
-		private int GetIndex(in DataModelValue value)
-		{
-			foreach (var entry in Entries)
-			{
-				if (entry.Value == value)
-				{
-					return entry.Index;
-				}
-			}
-
-			return -1;
-		}
+		return -1;
 	}
 }

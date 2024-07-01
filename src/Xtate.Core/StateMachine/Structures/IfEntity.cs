@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,40 +17,37 @@
 
 #endregion
 
-using System.Collections.Immutable;
+namespace Xtate.Core;
 
-namespace Xtate.Core
+public struct IfEntity : IIf, IVisitorEntity<IfEntity, IIf>, IAncestorProvider
 {
-	public struct IfEntity : IIf, IVisitorEntity<IfEntity, IIf>, IAncestorProvider
-	{
-		internal object? Ancestor;
+	internal object? Ancestor;
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
-	#endregion
+#endregion
 
-	#region Interface IIf
+#region Interface IIf
 
-		public ImmutableArray<IExecutableEntity> Action    { get; set; }
-		public IConditionExpression?             Condition { get; set; }
+	public ImmutableArray<IExecutableEntity> Action    { get; set; }
+	public IConditionExpression?             Condition { get; set; }
 
-	#endregion
+#endregion
 
-	#region Interface IVisitorEntity<IfEntity,IIf>
+#region Interface IVisitorEntity<IfEntity,IIf>
 
-		void IVisitorEntity<IfEntity, IIf>.Init(IIf source)
-		{
-			Ancestor = source;
-			Action = source.Action;
-			Condition = source.Condition!;
-		}
-
-		bool IVisitorEntity<IfEntity, IIf>.RefEquals(ref IfEntity other) =>
-			Action == other.Action &&
-			ReferenceEquals(Condition, other.Condition);
-
-	#endregion
+	void IVisitorEntity<IfEntity, IIf>.Init(IIf source)
+	{
+		Ancestor = source;
+		Action = source.Action;
+		Condition = source.Condition!;
 	}
+
+	readonly bool IVisitorEntity<IfEntity, IIf>.RefEquals(ref IfEntity other) =>
+		Action == other.Action &&
+		ReferenceEquals(Condition, other.Condition);
+
+#endregion
 }

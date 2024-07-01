@@ -17,18 +17,25 @@
 
 #endregion
 
-using System;
 using System.Collections.Specialized;
 using System.IO;
+<<<<<<< Updated upstream
 using System.Threading.Tasks;
+=======
+>>>>>>> Stashed changes
 using Xtate.XInclude;
 
 namespace Xtate.Core;
 
 public class RedirectXmlResolver : ScxmlXmlResolver, IDisposable
 {
+<<<<<<< Updated upstream
 	private readonly DisposingToken  _disposingToken = new();
 	public required  Func<ValueTask<IResourceLoader>> ResourceLoaderFactory { private get; init; }
+=======
+	private readonly DisposingToken                   _disposingToken = new();
+	public required  Func<ValueTask<IResourceLoader>> ResourceLoaderFactory { private get; [UsedImplicitly] init; }
+>>>>>>> Stashed changes
 
 #region Interface IDisposable
 

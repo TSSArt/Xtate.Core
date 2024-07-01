@@ -1,5 +1,10 @@
+<<<<<<< Updated upstream
 ﻿#region Copyright © 2019-2023 Sergii Artemenko
 
+=======
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
+>>>>>>> Stashed changes
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,8 +20,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
+namespace Xtate.DataModel.XPath;
 
+<<<<<<< Updated upstream
 using System;
 using System.Threading.Tasks;
 
@@ -32,15 +38,45 @@ public class XPathForEachEvaluator : DefaultForEachEvaluator
 	{
 		var engine = await EngineFactory().ConfigureAwait(false);
 
+=======
+public class XPathForEachEvaluator : DefaultForEachEvaluator
+{
+	private readonly XPathLocationExpressionEvaluator? _indexEvaluator;
+	private readonly XPathLocationExpressionEvaluator  _itemEvaluator;
+
+	public XPathForEachEvaluator(IForEach forEach) : base(forEach)
+	{
+		var itemEvaluator = base.Item?.As<XPathLocationExpressionEvaluator>();
+		Infra.NotNull(itemEvaluator);
+		_itemEvaluator = itemEvaluator;
+
+		_indexEvaluator = base.Index?.As<XPathLocationExpressionEvaluator>();
+	}
+
+	public required Func<ValueTask<XPathEngine>> EngineFactory { private get; [UsedImplicitly] init; }
+
+	public override async ValueTask Execute()
+	{
+		var engine = await EngineFactory().ConfigureAwait(false);
+
+>>>>>>> Stashed changes
 		engine.EnterScope();
 
 		try
 		{
+<<<<<<< Updated upstream
 			await ItemEvaluator.DeclareLocalVariable().ConfigureAwait(false);
 
 			if (IndexEvaluator is not null)
 			{
 				await IndexEvaluator.DeclareLocalVariable().ConfigureAwait(false);
+=======
+			await _itemEvaluator.DeclareLocalVariable().ConfigureAwait(false);
+
+			if (_indexEvaluator is not null)
+			{
+				await _indexEvaluator.DeclareLocalVariable().ConfigureAwait(false);
+>>>>>>> Stashed changes
 			}
 
 			await base.Execute().ConfigureAwait(false);

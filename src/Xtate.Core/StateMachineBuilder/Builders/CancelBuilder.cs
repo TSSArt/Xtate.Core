@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,15 +17,26 @@
 
 #endregion
 
+<<<<<<< Updated upstream
 using Xtate.Core;
+=======
+namespace Xtate.Builder;
+>>>>>>> Stashed changes
 
-namespace Xtate.Builder
+public class CancelBuilder : BuilderBase, ICancelBuilder
 {
-	public class CancelBuilder : BuilderBase, ICancelBuilder
-	{
-		private string?           _sendId;
-		private IValueExpression? _sendIdExpression;
+	private string?           _sendId;
+	private IValueExpression? _sendIdExpression;
 
+#region Interface ICancelBuilder
+
+	public ICancel Build() => new CancelEntity { Ancestor = Ancestor, SendId = _sendId, SendIdExpression = _sendIdExpression };
+
+	public void SetSendId(string sendId)
+	{
+		Infra.RequiresNonEmptyString(sendId);
+
+<<<<<<< Updated upstream
 	#region Interface ICancelBuilder
 
 		public ICancel Build() => new CancelEntity { Ancestor = Ancestor, SendId = _sendId, SendIdExpression = _sendIdExpression };
@@ -45,5 +56,17 @@ namespace Xtate.Builder
 		}
 
 	#endregion
+=======
+		_sendId = sendId;
+>>>>>>> Stashed changes
 	}
+
+	public void SetSendIdExpression(IValueExpression sendIdExpression)
+	{
+		Infra.Requires(sendIdExpression);
+
+		_sendIdExpression = sendIdExpression;
+	}
+
+#endregion
 }

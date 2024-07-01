@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,17 +17,37 @@
 
 #endregion
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.Core;
+namespace Xtate;
 
-namespace Xtate
+public sealed partial class StateMachineHost : IHost
 {
-	public sealed partial class StateMachineHost : IHost
-	{
-	#region Interface IHost
+	public required Func<ValueTask<IScopeManager>> _scopeManagerFactory { private get; [UsedImplicitly] init; }
 
+#region Interface IHost
+
+	async ValueTask<IStateMachineController> IHost.StartStateMachineAsync(SessionId sessionId,
+																		  StateMachineOrigin origin,
+																		  DataModelValue parameters,
+																		  SecurityContextType securityContextType,
+																		  //DeferredFinalizer finalizer,
+																		  CancellationToken token) =>
+		await StartStateMachine(sessionId, origin, parameters, securityContextType, token).ConfigureAwait(false);
+	
+	ValueTask IHost.DestroyStateMachine(SessionId sessionId, CancellationToken token) => DestroyStateMachine(sessionId, token);
+
+#endregion
+
+	private async ValueTask<IStateMachineController> StartStateMachine(SessionId sessionId,
+																	   StateMachineOrigin origin,
+																	   DataModelValue parameters,
+																	   SecurityContextType securityContextType,
+																	   //DeferredFinalizer? finalizer,
+																	   CancellationToken token)
+	{
+		if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
+		if (origin.Type == StateMachineOriginType.None) throw new ArgumentException(Resources.Exception_StateMachineOriginMissed, nameof(origin));
+
+<<<<<<< Updated upstream
 		async ValueTask<IStateMachineController> IHost.StartStateMachineAsync(SessionId sessionId,
 																			  StateMachineOrigin origin,
 																			  DataModelValue parameters,
@@ -65,5 +85,20 @@ namespace Xtate
 		}
 
 		private ValueTask DestroyStateMachine(SessionId sessionId, CancellationToken token) => GetCurrentContext().DestroyStateMachine(sessionId, token);
+=======
+		var stateMachineStartOptions = new StateMachineStartOptions
+									   {
+										   Origin = origin,
+										   Parameters = parameters,
+										   SessionId = sessionId,
+										   SecurityContextType = securityContextType
+									   };
+
+		var scopeManager = await _scopeManagerFactory().ConfigureAwait(false);
+
+		return await scopeManager.RunStateMachine(stateMachineStartOptions).ConfigureAwait(false);
+>>>>>>> Stashed changes
 	}
+
+	private ValueTask DestroyStateMachine(SessionId sessionId, CancellationToken token) => GetCurrentContext().DestroyStateMachine(sessionId, token);
 }

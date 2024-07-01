@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,130 +17,118 @@
 
 #endregion
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.Core;
+namespace Xtate.Service;
 
-namespace Xtate.Service
+
+public abstract class ServiceBase : IService, IAsyncDisposable, IDisposable
 {
-	[PublicAPI]
-	public abstract class ServiceBase : IService, IAsyncDisposable, IDisposable
+	private readonly TaskCompletionSource<DataModelValue> _completedTcs = new();
+	private readonly CancellationTokenSource              _tokenSource  = new();
+
+	private bool        _disposed;
+	private InvokeData? _invokeData;
+
+	protected Uri?                  BaseUri              { get; private set; }
+	protected IServiceCommunication ServiceCommunication { get; private set; } = default!;
+	protected Uri?                  Source               => _invokeData?.Source;
+	protected string?               RawContent           => _invokeData?.RawContent;
+	protected DataModelValue        Content              => _invokeData?.Content ?? default;
+	protected DataModelValue        Parameters           => _invokeData?.Parameters ?? default;
+	protected CancellationToken     StopToken            => _tokenSource.Token;
+
+#region Interface IAsyncDisposable
+
+	public async ValueTask DisposeAsync()
 	{
-		private readonly TaskCompletionSource<DataModelValue> _completedTcs = new();
-		private readonly CancellationTokenSource              _tokenSource  = new();
+		await DisposeAsyncCore().ConfigureAwait(false);
 
-		private bool        _disposed;
-		private InvokeData? _invokeData;
+		Dispose(false);
+		GC.SuppressFinalize(this);
+	}
 
-		protected ServiceBase()
+#endregion
+
+#region Interface IDisposable
+
+	public void Dispose()
+	{
+		Dispose(true);
+		GC.SuppressFinalize(this);
+	}
+
+#endregion
+
+#region Interface IEventDispatcher
+
+	ValueTask IEventDispatcher.Send(IEvent evt, CancellationToken token) => default;
+
+#endregion
+
+#region Interface IService
+
+	public ValueTask<DataModelValue> GetResult(CancellationToken token) => _completedTcs.WaitAsync(token);
+
+	ValueTask IService.Destroy(CancellationToken token)
+	{
+		_tokenSource.Cancel();
+		_completedTcs.TrySetCanceled();
+
+		return default;
+	}
+
+#endregion
+
+	internal void Start(Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication)
+	{
+		BaseUri = baseUri;
+		_invokeData = invokeData;
+		ServiceCommunication = serviceCommunication;
+
+		RunAsync().Forget();
+
+		async ValueTask RunAsync()
 		{
-			_invokeData = default!;
-			ServiceCommunication = default!;
-		}
-
-		protected Uri?                  BaseUri              { get; private set; }
-		protected IServiceCommunication ServiceCommunication { get; private set; }
-		protected Uri?                  Source               => _invokeData?.Source;
-		protected string?               RawContent           => _invokeData?.RawContent;
-		protected DataModelValue        Content              => _invokeData?.Content ?? default;
-		protected DataModelValue        Parameters           => _invokeData?.Parameters ?? default;
-		protected CancellationToken     StopToken            => _tokenSource.Token;
-
-	#region Interface IAsyncDisposable
-
-		public async ValueTask DisposeAsync()
-		{
-			await DisposeAsyncCore().ConfigureAwait(false);
-
-			Dispose(false);
-			GC.SuppressFinalize(this);
-		}
-
-	#endregion
-
-	#region Interface IDisposable
-
-		public void Dispose()
-		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-	#endregion
-
-	#region Interface IEventDispatcher
-
-		ValueTask IEventDispatcher.Send(IEvent evt, CancellationToken token) => default;
-
-	#endregion
-
-	#region Interface IService
-
-		public ValueTask<DataModelValue> GetResult(CancellationToken token) => _completedTcs.WaitAsync(token);
-
-		ValueTask IService.Destroy(CancellationToken token)
-		{
-			_tokenSource.Cancel();
-			_completedTcs.TrySetCanceled();
-
-			return default;
-		}
-
-	#endregion
-
-		internal void Start(Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication)
-		{
-			BaseUri = baseUri;
-			_invokeData = invokeData;
-			ServiceCommunication = serviceCommunication;
-
-			RunAsync().Forget();
-
-			async ValueTask RunAsync()
+			try
 			{
-				try
-				{
-					_completedTcs.TrySetResult(await Execute().ConfigureAwait(false));
-				}
-				catch (OperationCanceledException ex)
-				{
-					_completedTcs.TrySetCanceled(ex.CancellationToken);
-				}
-				catch (Exception ex)
-				{
-					_completedTcs.TrySetException(ex);
-				}
+				_completedTcs.TrySetResult(await Execute().ConfigureAwait(false));
+			}
+			catch (OperationCanceledException ex)
+			{
+				_completedTcs.TrySetCanceled(ex.CancellationToken);
+			}
+			catch (Exception ex)
+			{
+				_completedTcs.TrySetException(ex);
 			}
 		}
+	}
 
-		protected abstract ValueTask<DataModelValue> Execute();
+	protected abstract ValueTask<DataModelValue> Execute();
 
-		protected virtual ValueTask DisposeAsyncCore()
+	protected virtual ValueTask DisposeAsyncCore()
+	{
+		if (!_disposed)
 		{
-			if (!_disposed)
-			{
-				_tokenSource.Dispose();
-
-				_disposed = true;
-			}
-
-			return default;
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (_disposed)
-			{
-				return;
-			}
-
-			if (disposing)
-			{
-				_tokenSource.Dispose();
-			}
+			_tokenSource.Dispose();
 
 			_disposed = true;
 		}
+
+		return default;
+	}
+
+	protected virtual void Dispose(bool disposing)
+	{
+		if (_disposed)
+		{
+			return;
+		}
+
+		if (disposing)
+		{
+			_tokenSource.Dispose();
+		}
+
+		_disposed = true;
 	}
 }

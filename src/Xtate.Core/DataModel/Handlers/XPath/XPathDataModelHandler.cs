@@ -17,15 +17,21 @@
 
 #endregion
 
+<<<<<<< Updated upstream
 using System;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Xml.XPath;
 using Xtate.Core;
+=======
+using System.Diagnostics;
+using System.Xml.XPath;
+>>>>>>> Stashed changes
 using Xtate.Scxml;
 
 namespace Xtate.DataModel.XPath;
 
+<<<<<<< Updated upstream
 public class XPathDataModelHandler : DataModelHandlerBase
 {
 	public required Func<IForEach, XPathForEachEvaluator>                                                  XPathForEachEvaluatorFactory                { private get; init; }
@@ -38,6 +44,24 @@ public class XPathDataModelHandler : DataModelHandlerBase
 	public required Func<ILocationExpression, XPathCompiledExpression, XPathLocationExpressionEvaluator>   XPathLocationExpressionEvaluatorFactory     { private get; init; }
 
 	public required Func<string, IXmlNamespacesInfo?, XPathCompiledExpression>                             XPathCompiledExpressionFactory              { private get; init; }
+=======
+public class XPathDataModelHandlerProvider : DataModelHandlerProviderBase<XPathDataModelHandler>
+{
+	protected override bool CanHandle(string? dataModelType) => dataModelType == @"xpath";
+}
+
+public class XPathDataModelHandler : DataModelHandlerBase
+{
+	public required Func<IForEach, XPathForEachEvaluator>                                                  XPathForEachEvaluatorFactory                { private get; [UsedImplicitly] init; }
+	public required Func<IContentBody, XPathContentBodyEvaluator>                                          XPathContentBodyEvaluatorFactory            { private get; [UsedImplicitly] init; }
+	public required Func<IInlineContent, XPathInlineContentEvaluator>                                      XPathInlineContentEvaluatorFactory          { private get; [UsedImplicitly] init; }
+	public required Func<IExternalDataExpression, XPathExternalDataExpressionEvaluator>                    XPathExternalDataExpressionEvaluatorFactory { private get; [UsedImplicitly] init; }
+	public required IErrorProcessorService<XPathDataModelHandler>                                          XPathErrorProcessorService                  { private get; [UsedImplicitly] init; }
+	public required Func<IValueExpression, XPathCompiledExpression, XPathValueExpressionEvaluator>         XPathValueExpressionEvaluatorFactory        { private get; [UsedImplicitly] init; }
+	public required Func<IConditionExpression, XPathCompiledExpression, XPathConditionExpressionEvaluator> XPathConditionExpressionEvaluatorFactory    { private get; [UsedImplicitly] init; }
+	public required Func<ILocationExpression, XPathCompiledExpression, XPathLocationExpressionEvaluator>   XPathLocationExpressionEvaluatorFactory     { private get; [UsedImplicitly] init; }
+	public required Func<string, IXmlNamespacesInfo?, XPathCompiledExpression>                             XPathCompiledExpressionFactory              { private get; [UsedImplicitly] init; }
+>>>>>>> Stashed changes
 
 	public override string ConvertToText(DataModelValue value) => XmlConverter.ToXml(value, indent: true);
 
@@ -49,6 +73,7 @@ public class XPathDataModelHandler : DataModelHandlerBase
 
 	protected override IInlineContent GetEvaluator(IInlineContent inlineContent) => XPathInlineContentEvaluatorFactory(inlineContent);
 
+<<<<<<< Updated upstream
 	/*
 	private XPathExpressionContext CreateContext(object entity)
 	{
@@ -88,6 +113,29 @@ public class XPathDataModelHandler : DataModelHandlerBase
 		}
 		else
 		{
+=======
+	protected override void Visit(ref IValueExpression valueExpression)
+	{
+		base.Visit(ref valueExpression);
+
+		if (valueExpression.Expression is not null)
+		{
+			try
+			{
+				CompileValueExpression(ref valueExpression);
+			}
+			catch (XPathException ex)
+			{
+				AddErrorMessage(valueExpression, Resources.Exception_ErrorOnParsingXPathExpression, ex);
+			}
+			catch (ArgumentException ex)
+			{
+				AddErrorMessage(valueExpression, Resources.Exception_ErrorOnParsingXPathExpression, ex);
+			}
+		}
+		else
+		{
+>>>>>>> Stashed changes
 			AddErrorMessage(valueExpression, Resources.Exception_ValueExpressionMustBePresent);
 		}
 	}
@@ -112,6 +160,10 @@ public class XPathDataModelHandler : DataModelHandlerBase
 			case XPathResultType.Error:
 				AddErrorMessage(valueExpression, Resources.Exception_ResultOfXPathExpressionCantBeIdentified);
 				break;
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 			default:
 				Infra.Unexpected(compiledExpression.ReturnType);
 				break;
@@ -166,6 +218,10 @@ public class XPathDataModelHandler : DataModelHandlerBase
 			case XPathResultType.Error:
 				AddErrorMessage(conditionExpression, Resources.Exception_ResultOfXPathExpressionCantBeIdentified);
 				break;
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 			default:
 				Infra.Unexpected(compiledExpression.ReturnType);
 				break;
@@ -220,6 +276,10 @@ public class XPathDataModelHandler : DataModelHandlerBase
 			case XPathResultType.Error:
 				AddErrorMessage(locationExpression, Resources.Exception_ResultOfXPathExpressionCantBeIdentified);
 				break;
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 			default:
 				Infra.Unexpected(compiledExpression.ReturnType);
 				break;

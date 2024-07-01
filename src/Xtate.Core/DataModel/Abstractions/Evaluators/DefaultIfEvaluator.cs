@@ -1,5 +1,10 @@
+<<<<<<< Updated upstream
 ﻿#region Copyright © 2019-2023 Sergii Artemenko
 
+=======
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
+>>>>>>> Stashed changes
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,6 +20,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+<<<<<<< Updated upstream
 #endregion
 
 using System.Collections.Immutable;
@@ -37,6 +43,15 @@ public abstract class IfEvaluator : IIf, IExecEvaluator, IAncestorProvider
 #region Interface IAncestorProvider
 
 	object IAncestorProvider.Ancestor => _if;
+=======
+namespace Xtate.DataModel;
+
+public abstract class IfEvaluator(IIf iif) : IIf, IExecEvaluator, IAncestorProvider
+{
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => iif;
+>>>>>>> Stashed changes
 
 #endregion
 
@@ -48,12 +63,18 @@ public abstract class IfEvaluator : IIf, IExecEvaluator, IAncestorProvider
 
 #region Interface IIf
 
+<<<<<<< Updated upstream
 	public virtual ImmutableArray<IExecutableEntity> Action    => _if.Action;
 	public virtual IConditionExpression              Condition => _if.Condition!;
+=======
+	public virtual ImmutableArray<IExecutableEntity> Action    => iif.Action;
+	public virtual IConditionExpression?             Condition => iif.Condition;
+>>>>>>> Stashed changes
 
 #endregion
 }
 
+<<<<<<< Updated upstream
 [PublicAPI]
 public class DefaultIfEvaluator : IfEvaluator
 {
@@ -85,11 +106,51 @@ public class DefaultIfEvaluator : IfEvaluator
 				default:
 					currentActions.Add(op.As<IExecEvaluator>());
 					break;
+=======
+public class DefaultIfEvaluator : IfEvaluator
+{
+	private readonly ImmutableArray<(IBooleanEvaluator? Condition, ImmutableArray<IExecEvaluator> Actions)> _branches;
+
+	public DefaultIfEvaluator(IIf iif) : base(iif)
+	{
+		var currentCondition = base.Condition?.As<IBooleanEvaluator>();
+		Infra.NotNull(currentCondition);
+
+		var currentActions = ImmutableArray.CreateBuilder<IExecEvaluator>();
+		var branchesBuilder = ImmutableArray.CreateBuilder<(IBooleanEvaluator? Condition, ImmutableArray<IExecEvaluator> Actions)>();
+
+		var operations = base.Action;
+
+		if (!operations.IsDefaultOrEmpty)
+		{
+			foreach (var op in operations)
+			{
+				switch (op)
+				{
+					case IElseIf elseIf:
+						branchesBuilder.Add((currentCondition, currentActions.ToImmutable()));
+						currentCondition = elseIf.Condition?.As<IBooleanEvaluator>();
+						Infra.NotNull(currentCondition);
+						currentActions.Clear();
+						break;
+
+					case IElse:
+						branchesBuilder.Add((currentCondition, currentActions.ToImmutable()));
+						currentCondition = default!;
+						currentActions.Clear();
+						break;
+
+					default:
+						currentActions.Add(op.As<IExecEvaluator>());
+						break;
+				}
+>>>>>>> Stashed changes
 			}
 		}
 
 		branchesBuilder.Add((currentCondition, currentActions.ToImmutable()));
 
+<<<<<<< Updated upstream
 		Branches = branchesBuilder.ToImmutable();
 	}
 
@@ -98,6 +159,14 @@ public class DefaultIfEvaluator : IfEvaluator
 	public override async ValueTask Execute()
 	{
 		foreach (var (condition, actions) in Branches)
+=======
+		_branches = branchesBuilder.ToImmutable();
+	}
+
+	public override async ValueTask Execute()
+	{
+		foreach (var (condition, actions) in _branches)
+>>>>>>> Stashed changes
 		{
 			if (condition is null || await condition.EvaluateBoolean().ConfigureAwait(false))
 			{

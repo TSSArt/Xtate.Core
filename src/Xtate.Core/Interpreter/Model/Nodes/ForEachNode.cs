@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
-
+﻿// Copyright © 2019-2023 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,52 +15,47 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
-using System;
-using System.Collections.Immutable;
 using Xtate.Persistence;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public sealed class ForEachNode(DocumentIdNode documentIdNode, IForEach forEach) : ExecutableEntityNode(documentIdNode, forEach), IForEach, IAncestorProvider, IDebugEntityId
 {
+<<<<<<< Updated upstream
 	public sealed class ForEachNode : ExecutableEntityNode, IForEach, IAncestorProvider, IDebugEntityId
+=======
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => forEach;
+
+#endregion
+
+#region Interface IDebugEntityId
+
+	FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
+
+#endregion
+
+#region Interface IForEach
+
+	public IValueExpression? Array => forEach.Array;
+
+	public ILocationExpression? Item => forEach.Item;
+
+	public ILocationExpression? Index => forEach.Index;
+
+	public ImmutableArray<IExecutableEntity> Action => forEach.Action;
+
+#endregion
+
+	protected override void Store(Bucket bucket)
+>>>>>>> Stashed changes
 	{
-		private readonly IForEach _forEach;
-
-		public ForEachNode(DocumentIdNode documentIdNode, IForEach forEach) : base(documentIdNode, forEach) => _forEach = forEach;
-
-	#region Interface IAncestorProvider
-
-		object IAncestorProvider.Ancestor => _forEach;
-
-	#endregion
-
-	#region Interface IDebugEntityId
-
-		FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
-
-	#endregion
-
-	#region Interface IForEach
-
-		public IValueExpression? Array => _forEach.Array;
-
-		public ILocationExpression? Item => _forEach.Item;
-
-		public ILocationExpression? Index => _forEach.Index;
-
-		public ImmutableArray<IExecutableEntity> Action => _forEach.Action;
-
-	#endregion
-
-		protected override void Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.ForEachNode);
-			bucket.Add(Key.DocumentId, DocumentId);
-			bucket.AddEntity(Key.Array, _forEach.Array);
-			bucket.AddEntity(Key.Item, _forEach.Item);
-			bucket.AddEntity(Key.Index, _forEach.Index);
-			bucket.AddEntityList(Key.Action, Action);
-		}
+		bucket.Add(Key.TypeInfo, TypeInfo.ForEachNode);
+		bucket.Add(Key.DocumentId, DocumentId);
+		bucket.AddEntity(Key.Array, forEach.Array);
+		bucket.AddEntity(Key.Item, forEach.Item);
+		bucket.AddEntity(Key.Index, forEach.Index);
+		bucket.AddEntityList(Key.Action, Action);
 	}
 }

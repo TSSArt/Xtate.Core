@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,6 +17,7 @@
 
 #endregion
 
+<<<<<<< Updated upstream
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -24,10 +25,15 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Xml;
 using Xtate.Core;
+=======
+>>>>>>> Stashed changes
 using Xtate.DataModel;
 
-namespace Xtate.CustomAction
+namespace Xtate.CustomAction;
+
+public abstract class CustomActionBase
 {
+<<<<<<< Updated upstream
 	public interface ICustomActionActivator
 	{
 		CustomActionBase Activate(string xml);
@@ -127,11 +133,19 @@ namespace Xtate.CustomAction
 	}
 
 	public abstract class CustomActionBase : ICustomActionExecutor //TODO: delete ICustomActionExecutor
-	{
-		private Dictionary<string, object?>? _arguments;
-		private ICustomActionContext?        _customActionContext;
-		private ILocationAssigner?           _resultLocationAssigner;
+=======
+	public abstract ValueTask Execute();
 
+	public virtual IEnumerable<Value> GetValues() => [];
+
+	public virtual IEnumerable<Location> GetLocations() => [];
+
+	public class ArrayValue(string? expression) : Value(expression)
+>>>>>>> Stashed changes
+	{
+		private IArrayEvaluator? _arrayEvaluator;
+
+<<<<<<< Updated upstream
 		protected CustomActionBase() { }
 
 		protected CustomActionBase(ICustomActionContext customActionContext) => _customActionContext = customActionContext;
@@ -149,22 +163,126 @@ namespace Xtate.CustomAction
 										ExpectedValueType expectedValueType,
 										string? expression,
 										object? defaultValue = default)
+=======
+		internal override void SetEvaluator(IValueEvaluator valueEvaluator)
 		{
-			Infra.NotNull(_customActionContext);
+			base.SetEvaluator(valueEvaluator);
 
-			_arguments ??= new Dictionary<string, object?>();
-			_arguments.Add(key, expression is not null ? _customActionContext.RegisterValueExpression(expression, expectedValueType) : defaultValue);
+			_arrayEvaluator = valueEvaluator as IArrayEvaluator;
 		}
 
-		protected void RegisterResultLocation(string? expression)
+		public new async ValueTask<object?[]> GetValue()
+>>>>>>> Stashed changes
 		{
-			Infra.NotNull(_customActionContext);
+			var array = _arrayEvaluator is not null
+				? await _arrayEvaluator.EvaluateArray().ConfigureAwait(false)
+				: (IObject[]?) await base.GetValue().ConfigureAwait(false);
 
-			if (expression is not null)
+			return array is not null ? Array.ConvertAll(array, i => i.ToObject()) : [];
+		}
+	}
+
+	public class StringValue(string? expression, string? defaultValue = default) : Value(expression, defaultValue)
+	{
+		private IStringEvaluator? _stringEvaluator;
+
+		internal override void SetEvaluator(IValueEvaluator valueEvaluator)
+		{
+			base.SetEvaluator(valueEvaluator);
+
+			_stringEvaluator = valueEvaluator as IStringEvaluator;
+		}
+
+		public new async ValueTask<string?> GetValue() =>
+			_stringEvaluator is not null
+				? await _stringEvaluator.EvaluateString().ConfigureAwait(false)
+				: Convert.ToString(await base.GetValue().ConfigureAwait(false));
+	}
+
+	public class IntegerValue(string? expression, int? defaultValue = default) : Value(expression, defaultValue)
+	{
+		private IIntegerEvaluator? _integerEvaluator;
+
+		internal override void SetEvaluator(IValueEvaluator valueEvaluator)
+		{
+			base.SetEvaluator(valueEvaluator);
+
+			_integerEvaluator = valueEvaluator as IIntegerEvaluator;
+		}
+
+		public new async ValueTask<int> GetValue() =>
+			_integerEvaluator is not null
+				? await _integerEvaluator.EvaluateInteger().ConfigureAwait(false)
+				: Convert.ToInt32(await base.GetValue().ConfigureAwait(false));
+	}
+
+	public class BooleanValue(string? expression, bool? defaultValue = default) : Value(expression, defaultValue)
+	{
+		private IBooleanEvaluator? _booleanEvaluator;
+
+		internal override void SetEvaluator(IValueEvaluator valueEvaluator)
+		{
+			base.SetEvaluator(valueEvaluator);
+
+			_booleanEvaluator = valueEvaluator as IBooleanEvaluator;
+		}
+
+		public new async ValueTask<bool> GetValue() =>
+			_booleanEvaluator is not null
+				? await _booleanEvaluator.EvaluateBoolean().ConfigureAwait(false)
+				: Convert.ToBoolean(await base.GetValue().ConfigureAwait(false));
+	}
+
+	public class Value : IValueExpression
+	{
+		private readonly IObject _defaultValue;
+		private readonly string? _expression;
+
+		private IObjectEvaluator? _objectEvaluator;
+
+		protected Value(string? expression, object? defaultValue = default)
+		{
+			_expression = expression;
+
+			_defaultValue = expression is null ? new DefaultObject(defaultValue) : DefaultObject.Null;
+		}
+
+#region Interface IValueExpression
+
+		string? IValueExpression.Expression => _expression;
+
+#endregion
+
+		internal virtual void SetEvaluator(IValueEvaluator valueEvaluator) => _objectEvaluator = valueEvaluator as IObjectEvaluator;
+
+		internal ValueTask<IObject> GetObject() => _objectEvaluator?.EvaluateObject() ?? new ValueTask<IObject>(_defaultValue);
+
+		public async ValueTask<object?> GetValue() => (await GetObject().ConfigureAwait(false)).ToObject();
+	}
+
+	public class Location(string? expression) : ILocationExpression
+	{
+		private ILocationEvaluator? _locationEvaluator;
+
+		#region Interface ILocationExpression
+
+		string? ILocationExpression.Expression => expression;
+
+#endregion
+
+		internal void SetEvaluator(ILocationEvaluator locationEvaluator) => _locationEvaluator = locationEvaluator;
+
+		public ValueTask SetValue(object? value) => _locationEvaluator?.SetValue(new DefaultObject(value)) ?? default;
+
+		public async ValueTask CopyFrom(Value value)
+		{
+			if (_locationEvaluator is not null)
 			{
-				_resultLocationAssigner = _customActionContext.RegisterLocationExpression(expression);
+				var val = await value.GetObject().ConfigureAwait(false);
+				await _locationEvaluator.SetValue(val).ConfigureAwait(false);
 			}
 		}
+<<<<<<< Updated upstream
 
 		protected virtual ValueTask<DataModelValue> EvaluateAsync(IReadOnlyDictionary<string, DataModelValue> arguments) => new(Evaluate(arguments));
 
@@ -345,5 +463,7 @@ namespace Xtate.CustomAction
 				}
 			}
 		}
+=======
+>>>>>>> Stashed changes
 	}
 }

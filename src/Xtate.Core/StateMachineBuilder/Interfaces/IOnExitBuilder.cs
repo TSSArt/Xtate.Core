@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,14 +17,11 @@
 
 #endregion
 
-using Xtate.Core;
+namespace Xtate.Builder;
 
-namespace Xtate.Builder
+public interface IOnExitBuilder
 {
-	public interface IOnExitBuilder
-	{
-		IOnExit Build();
+	IOnExit Build();
 
-		void AddAction(IExecutableEntity action);
-	}
+	void AddAction(IExecutableEntity action);
 }

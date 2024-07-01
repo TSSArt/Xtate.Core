@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,17 +17,22 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
-using Xtate.Core;
+namespace Xtate.Builder;
 
-namespace Xtate.Builder
+public class IfBuilder : BuilderBase, IIfBuilder
 {
-	public class IfBuilder : BuilderBase, IIfBuilder
-	{
-		private ImmutableArray<IExecutableEntity>.Builder? _actions;
-		private IConditionExpression?                      _condition;
+	private ImmutableArray<IExecutableEntity>.Builder? _actions;
+	private IConditionExpression?                      _condition;
 
+#region Interface IIfBuilder
+
+	public IIf Build() => new IfEntity { Ancestor = Ancestor, Condition = _condition, Action = _actions?.ToImmutable() ?? default };
+
+	public void SetCondition(IConditionExpression condition)
+	{
+		Infra.Requires(condition);
+
+<<<<<<< Updated upstream
 	#region Interface IIfBuilder
 
 		public IIf Build() => new IfEntity { Ancestor = Ancestor, Condition = _condition, Action = _actions?.ToImmutable() ?? default };
@@ -47,5 +52,17 @@ namespace Xtate.Builder
 		}
 
 	#endregion
+=======
+		_condition = condition;
+>>>>>>> Stashed changes
 	}
+
+	public void AddAction(IExecutableEntity action)
+	{
+		Infra.Requires(action);
+
+		(_actions ??= ImmutableArray.CreateBuilder<IExecutableEntity>()).Add(action);
+	}
+
+#endregion
 }

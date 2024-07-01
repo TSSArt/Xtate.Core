@@ -1,34 +1,39 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
-// This file is part of the Xtate project. <https://xtate.net/>
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as published
-// by the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Affero General Public License for more details.
-// 
-// You should have received a copy of the GNU Affero General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+	// This file is part of the Xtate project. <https://xtate.net/>
+	// 
+	// This program is free software: you can redistribute it and/or modify
+	// it under the terms of the GNU Affero General Public License as published
+	// by the Free Software Foundation, either version 3 of the License, or
+	// (at your option) any later version.
+	// 
+	// This program is distributed in the hope that it will be useful,
+	// but WITHOUT ANY WARRANTY; without even the implied warranty of
+	// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	// GNU Affero General Public License for more details.
+	// 
+	// You should have received a copy of the GNU Affero General Public License
+	// along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using Xtate.DataModel;
-using Xtate.Persistence;
+	using Xtate.DataModel;
+	using Xtate.Persistence;
 
+<<<<<<< Updated upstream
 namespace Xtate.Core
 {
 	public class EmptyTransitionNode : TransitionNode
+=======
+	namespace Xtate.Core;
+
+	public class EmptyTransitionNode(DocumentIdNode documentIdNode, ImmutableArray<StateEntityNode> target) : TransitionNode(documentIdNode, EmptyTransition, target)
+>>>>>>> Stashed changes
 	{
 		private static readonly ITransition EmptyTransition = new TransitionEntity();
+	}
 
+<<<<<<< Updated upstream
 		public EmptyTransitionNode(DocumentIdNode documentIdNode, ImmutableArray<StateEntityNode> target) : base(documentIdNode, EmptyTransition, target) { }
 	}
 
@@ -39,10 +44,22 @@ namespace Xtate.Core
 
 		public TransitionNode(DocumentIdNode documentIdNode, ITransition transition) : this(documentIdNode, transition, default) { }
 
+=======
+	public class TransitionNode : ITransition, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
+	{
+		private readonly ITransition _transition;
+
+		private DocumentIdSlot _documentIdSlot;
+
+		public TransitionNode(DocumentIdNode documentIdNode, ITransition transition) : this(documentIdNode, transition, target: default) { }
+
+>>>>>>> Stashed changes
 		protected TransitionNode(DocumentIdNode documentIdNode, ITransition transition, ImmutableArray<StateEntityNode> target)
 		{
 			_transition = transition;
+
 			documentIdNode.SaveToSlot(out _documentIdSlot);
+
 			TargetState = target;
 			ActionEvaluators = transition.Action.AsArrayOf<IExecutableEntity, IExecEvaluator>(true);
 			ConditionEvaluator = transition.Condition?.As<IBooleanEvaluator>();
@@ -68,7 +85,7 @@ namespace Xtate.Core
 
 	#region Interface IDocumentId
 
-		public int DocumentId => _documentIdSlot.Value;
+		public int DocumentId => _documentIdSlot.CreateValue();
 
 	#endregion
 
@@ -118,4 +135,3 @@ namespace Xtate.Core
 
 		public void SetSource(StateEntityNode source) => Source = source;
 	}
-}

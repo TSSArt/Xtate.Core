@@ -17,17 +17,28 @@
 
 #endregion
 
+<<<<<<< Updated upstream
 using System;
 using System.Threading.Tasks;
 using Xtate.Core;
 
+=======
+>>>>>>> Stashed changes
 namespace Xtate.DataModel.Runtime;
 
 public class RuntimeValueEvaluator : IValueExpression, IObjectEvaluator
 {
+<<<<<<< Updated upstream
 	public required RuntimeValue Value { private get; init; }
 
 	public required Func<ValueTask<RuntimeExecutionContext>> RuntimeExecutionContextFactory { private get; init; }
+=======
+	public required RuntimeValue Value { private get; [UsedImplicitly] init; }
+
+	public required Func<ValueTask<RuntimeExecutionContext>> RuntimeExecutionContextFactory { private get; [UsedImplicitly] init; }
+
+#region Interface IObjectEvaluator
+>>>>>>> Stashed changes
 
 	public async ValueTask<IObject> EvaluateObject()
 	{
@@ -38,11 +49,30 @@ public class RuntimeValueEvaluator : IValueExpression, IObjectEvaluator
 		return await Value.Evaluate().ConfigureAwait(false);
 	}
 
+<<<<<<< Updated upstream
 	public string? Expression => Value.Expression;
+=======
+#endregion
+
+#region Interface IValueExpression
+
+	public string? Expression => Value.Expression;
+
+#endregion
+>>>>>>> Stashed changes
 }
 
 public abstract class RuntimeValue : IValueExpression
 {
+<<<<<<< Updated upstream
+=======
+#region Interface IValueExpression
+
+	public string? Expression => null;
+
+#endregion
+
+>>>>>>> Stashed changes
 	public static RuntimeValue GetValue(DataModelValue value) => new ConstantValue(value);
 
 	public static RuntimeValue GetValue(Func<DataModelValue> evaluator)
@@ -61,6 +91,7 @@ public abstract class RuntimeValue : IValueExpression
 
 	public abstract ValueTask<DataModelValue> Evaluate();
 
+<<<<<<< Updated upstream
 #region Interface IValueExpression
 
 	public string? Expression => null;
@@ -92,5 +123,20 @@ public abstract class RuntimeValue : IValueExpression
 		public EvaluatorAsync(Func<ValueTask<DataModelValue>> evaluator) => _evaluator = evaluator;
 
 		public override ValueTask<DataModelValue> Evaluate() => _evaluator();
+=======
+	private sealed class ConstantValue(DataModelValue value) : RuntimeValue
+	{
+		public override ValueTask<DataModelValue> Evaluate() => new(value);
+	}
+
+	private sealed class EvaluatorSync(Func<DataModelValue> evaluator) : RuntimeValue
+	{
+		public override ValueTask<DataModelValue> Evaluate() => new(evaluator());
+	}
+
+	private sealed class EvaluatorAsync(Func<ValueTask<DataModelValue>> evaluator) : RuntimeValue
+	{
+		public override ValueTask<DataModelValue> Evaluate() => evaluator();
+>>>>>>> Stashed changes
 	}
 }

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,32 +17,29 @@
 
 #endregion
 
-using System;
+namespace Xtate.Service;
 
-namespace Xtate.Service
+
+public class HttpClientServiceFactory : ServiceFactoryBase
 {
-	[PublicAPI]
-	public class HttpClientServiceFactory : ServiceFactoryBase
+	private const string Id    = @"http://xtate.net/scxml/service/#HTTPClient";
+	private const string Alias = @"http";
+
+	private readonly HttpClientServiceOptions _options;
+
+	private HttpClientServiceFactory(HttpClientServiceOptions options) => _options = options;
+
+	public static IServiceFactory Instance { get; } = new HttpClientServiceFactory(HttpClientServiceOptions.CreateDefault());
+
+	protected override void Register(IServiceCatalog catalog)
 	{
-		private const string Id    = @"http://xtate.net/scxml/service/#HTTPClient";
-		private const string Alias = @"http";
+		if (catalog is null) throw new ArgumentNullException(nameof(catalog));
 
-		private readonly HttpClientServiceOptions _options;
-
-		private HttpClientServiceFactory(HttpClientServiceOptions options) => _options = options;
-
-		public static IServiceFactory Instance { get; } = new HttpClientServiceFactory(HttpClientServiceOptions.CreateDefault());
-
-		protected override void Register(IServiceCatalog catalog)
-		{
-			if (catalog is null) throw new ArgumentNullException(nameof(catalog));
-
-			catalog.Register(Id, HttpClientServiceCreator);
-			catalog.Register(Alias, HttpClientServiceCreator);
-		}
-
-		private ServiceBase HttpClientServiceCreator() => new HttpClientService(_options);
-
-		public static IServiceFactory Create(HttpClientServiceOptions options) => new HttpClientServiceFactory(options);
+		catalog.Register(Id, HttpClientServiceCreator);
+		catalog.Register(Alias, HttpClientServiceCreator);
 	}
+
+	private ServiceBase HttpClientServiceCreator() => new HttpClientService(_options);
+
+	public static IServiceFactory Create(HttpClientServiceOptions options) => new HttpClientServiceFactory(options);
 }

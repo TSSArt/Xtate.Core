@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,87 +17,105 @@
 
 #endregion
 
-using System;
+namespace Xtate.Core;
 
-namespace Xtate.Core
+public enum StateMachineOriginType
 {
-	public enum StateMachineOriginType
+	None,
+	Scxml,
+	Source,
+	StateMachine
+}
+
+
+public readonly struct StateMachineOrigin
+{
+	private readonly object? _value;
+
+	public StateMachineOrigin(IStateMachine stateMachine, Uri? baseUri = default)
 	{
-		None,
-		Scxml,
-		Source,
-		StateMachine
+		Infra.Requires(stateMachine);
+
+		_value = stateMachine;
+		BaseUri = baseUri;
 	}
 
-	[PublicAPI]
-	public readonly struct StateMachineOrigin
+	public StateMachineOrigin(Uri source, Uri? baseUri = default)
 	{
-		private readonly object? _value;
+		Infra.Requires(source);
 
-		public StateMachineOrigin(IStateMachine stateMachine, Uri? baseUri = default)
+		_value = source;
+		BaseUri = baseUri;
+	}
+
+	public StateMachineOrigin(string scxml, Uri? baseUri = default)
+	{
+		Infra.Requires(scxml);
+
+		_value = scxml;
+		BaseUri = baseUri;
+	}
+
+	public StateMachineOriginType Type =>
+		_value switch
 		{
+<<<<<<< Updated upstream
 			Infra.Requires(stateMachine);
 			
 			_value = stateMachine;
 			BaseUri = baseUri;
+=======
+			string        => StateMachineOriginType.Scxml,
+			Uri           => StateMachineOriginType.Source,
+			IStateMachine => StateMachineOriginType.StateMachine,
+			null          => StateMachineOriginType.None,
+			_             => Infra.Unexpected<StateMachineOriginType>(_value)
+		};
+
+	public Uri? BaseUri { get; }
+
+	public string AsScxml()
+	{
+		if (_value is string str)
+		{
+			return str;
+>>>>>>> Stashed changes
 		}
 
-		public StateMachineOrigin(Uri source, Uri? baseUri = default)
+		throw new ArgumentException(Resources.Exception_ValueIsNotSCXML);
+	}
+
+	public Uri AsSource()
+	{
+		if (_value is Uri uri)
 		{
+<<<<<<< Updated upstream
 			Infra.Requires(source);
 			
 			_value = source;
 			BaseUri = baseUri;
+=======
+			return uri;
+>>>>>>> Stashed changes
 		}
 
-		public StateMachineOrigin(string scxml, Uri? baseUri = default)
+		throw new ArgumentException(Resources.Exception_ValueIsNotSource);
+	}
+
+	public IStateMachine AsStateMachine()
+	{
+		if (_value is IStateMachine stateMachine)
 		{
+<<<<<<< Updated upstream
 			Infra.Requires(scxml);
 			
 			_value = scxml;
 			BaseUri = baseUri;
+=======
+			return stateMachine;
+>>>>>>> Stashed changes
 		}
 
-		public StateMachineOriginType Type =>
-			_value switch
-			{
-				string        => StateMachineOriginType.Scxml,
-				Uri           => StateMachineOriginType.Source,
-				IStateMachine => StateMachineOriginType.StateMachine,
-				null          => StateMachineOriginType.None,
-				_             => Infra.Unexpected<StateMachineOriginType>(_value)
-			};
-
-		public Uri? BaseUri { get; }
-
-		public string AsScxml()
-		{
-			if (_value is string str)
-			{
-				return str;
-			}
-
-			throw new ArgumentException(Resources.Exception_ValueIsNotSCXML);
-		}
-
-		public Uri AsSource()
-		{
-			if (_value is Uri uri)
-			{
-				return uri;
-			}
-
-			throw new ArgumentException(Resources.Exception_ValueIsNotSource);
-		}
-
-		public IStateMachine AsStateMachine()
-		{
-			if (_value is IStateMachine stateMachine)
-			{
-				return stateMachine;
-			}
-
-			throw new ArgumentException(Resources.Exception_ValueIsNotStateMachine);
-		}
+		throw new ArgumentException(Resources.Exception_ValueIsNotStateMachine);
 	}
 }

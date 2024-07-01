@@ -1,5 +1,10 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+<<<<<<< Updated upstream
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
+=======
+﻿// Copyright © 2019-2023 Sergii Artemenko
+// 
+>>>>>>> Stashed changes
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,12 +20,14 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+<<<<<<< Updated upstream
 #endregion
 
-using System;
+namespace Xtate.Core;
 
-namespace Xtate
+public class HostBasedSourceStateMachine(ISourceStateMachine sourceStateMachine, IHostBaseUri? hostBaseUri) : ISourceStateMachine
 {
+<<<<<<<< Updated upstream:src/Xtate.Core/src/Xtate.Core/Helpers/ServiceModuleAttribute.cs
 	[PublicAPI]
 	[AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
 	public sealed class ServiceModuleAttribute : Attribute
@@ -29,4 +36,26 @@ namespace Xtate
 
 		public Type? ServiceModuleType { get; }
 	}
+========
+
+	#region Interface ISourceStateMachine
+
+	public Uri Location => hostBaseUri?.HostBaseUri.CombineWith(sourceStateMachine.Location)!;
+
+#endregion
+>>>>>>>> Stashed changes:src/Xtate.Core/src/Xtate.Core/IoC/HostBasedSourceStateMachine.cs
+=======
+namespace Xtate;
+
+[AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+public class ServiceModuleAttribute(Type serviceModuleType) : Attribute
+{
+	public Type? ServiceModuleType { get; } = serviceModuleType;
+}
+
+[AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+public class ServiceModuleAttribute<T> : ServiceModuleAttribute where T : IServiceModule, new()
+{
+	public ServiceModuleAttribute() : base(typeof(T)) { }
+>>>>>>> Stashed changes
 }

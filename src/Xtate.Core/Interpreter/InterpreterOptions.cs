@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,19 +17,51 @@
 
 #endregion
 
+<<<<<<< Updated upstream
 using System;
 using System.Collections.Immutable;
 using System.Threading;
 using Xtate.CustomAction;
+=======
+>>>>>>> Stashed changes
 using Xtate.Persistence;
 
-namespace Xtate.Core
-{
-	public record InterpreterOptions
-	{
-		private readonly DataModelValue _arguments;
-		private readonly DataModelValue _configuration;
+namespace Xtate.Core;
 
+public record InterpreterOptions
+{
+	private readonly DataModelValue _arguments;
+	private readonly DataModelValue _configuration;
+
+	private readonly IErrorProcessor? _errorProcessor;
+
+	private readonly DataModelValue _host;
+
+	//public static    InterpreterOptions Default { get; } = new(ServiceLocator.Default)
+
+	//public ServiceLocator                           ServiceLocator { get; init; }
+	public ISecurityContext?                      SecurityContext         { get; init; }
+	//public ImmutableArray<ICustomActionFactory>   CustomActionProviders   { get; init; }
+	//public ImmutableArray<IResourceLoaderFactory> ResourceLoaderFactories { get; init; }
+	public ImmutableDictionary<object, object>?   ContextRuntimeItems     { get; init; }
+	public IExternalCommunication?                ExternalCommunication   { get; init; }
+	public INotifyStateChanged?                   NotifyStateChanged      { get; init; }
+	public CancellationToken                      SuspendToken            { get; init; }
+	public CancellationToken                      StopToken               { get; init; }
+	public CancellationToken                      DestroyToken            { get; init; }
+	public PersistenceLevel                       PersistenceLevel        { get; init; }
+	public IStorageProvider?                      StorageProvider         { get; init; }
+	//public ILoggerOld?                            Logger                  { get; init; }
+	public UnhandledErrorBehaviour                UnhandledErrorBehaviour { get; init; }
+	public Uri?                                   BaseUri                 { get; init; }
+
+	public DataModelValue Arguments
+	{
+		get => _arguments;
+		init => _arguments = value.AsConstant();
+	}
+
+<<<<<<< Updated upstream
 		private readonly IErrorProcessor?   _errorProcessor;
 		private readonly DataModelValue     _host;
 		//public static    InterpreterOptions Default { get; } = new(ServiceLocator.Default);
@@ -54,29 +86,23 @@ namespace Xtate.Core
 		public ILoggerOld?                                 Logger                    { get; init; }
 		public UnhandledErrorBehaviour                  UnhandledErrorBehaviour   { get; init; }
 		public Uri?                                     BaseUri                   { get; init; }
+=======
+	public DataModelValue Host
+	{
+		get => _host;
+		init => _host = value.AsConstant();
+	}
 
-		public DataModelValue Arguments
-		{
-			get => _arguments;
-			init => _arguments = value.AsConstant();
-		}
+	public DataModelValue Configuration
+	{
+		get => _configuration;
+		init => _configuration = value.AsConstant();
+	}
+>>>>>>> Stashed changes
 
-		public DataModelValue Host
-		{
-			get => _host;
-			init => _host = value.AsConstant();
-		}
-
-		public DataModelValue Configuration
-		{
-			get => _configuration;
-			init => _configuration = value.AsConstant();
-		}
-
-		public IErrorProcessor? ErrorProcessor
-		{
-			get => _errorProcessor;
-			init => _errorProcessor = value is null or DefaultErrorProcessor or DetailedErrorProcessor or WrapperErrorProcessor ? value : new WrapperErrorProcessor(value);
-		}
+	public IErrorProcessor? ErrorProcessor
+	{
+		get => _errorProcessor;
+		init => _errorProcessor = value is null or DefaultErrorProcessor or DetailedErrorProcessor or WrapperErrorProcessor ? value : new WrapperErrorProcessor(value);
 	}
 }

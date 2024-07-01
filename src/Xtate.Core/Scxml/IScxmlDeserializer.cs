@@ -17,7 +17,10 @@
 
 #endregion
 
+<<<<<<< Updated upstream
 using System.Threading.Tasks;
+=======
+>>>>>>> Stashed changes
 using System.Xml;
 
 namespace Xtate.Scxml;

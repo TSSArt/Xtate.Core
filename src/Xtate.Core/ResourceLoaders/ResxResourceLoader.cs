@@ -17,6 +17,7 @@
 
 #endregion
 
+<<<<<<< Updated upstream
 using System;
 using System.Collections.Specialized;
 using System.IO;
@@ -39,6 +40,28 @@ public class ResxResourceLoader : IResourceLoader
 
 		return ResourceFactory(await GetResourceStreamAsync(uri).ConfigureAwait(false));
 	}
+=======
+using System.Collections.Specialized;
+using System.IO;
+using System.Reflection;
+
+namespace Xtate.Core;
+
+public class ResxResourceLoaderProvider : ResourceLoaderProviderBase<ResxResourceLoader>
+{
+	protected override bool CanHandle(Uri uri) => uri is { IsAbsoluteUri: true, Scheme: @"res" or @"resx" };
+}
+
+public class ResxResourceLoader : IResourceLoader
+{
+	public required IIoBoundTask IoBoundTask { private get; [UsedImplicitly] init; }
+
+	public required Func<Stream, Resource> ResourceFactory { private get; [UsedImplicitly] init; }
+
+#region Interface IResourceLoader
+
+	public async ValueTask<Resource> Request(Uri uri, NameValueCollection? headers) => ResourceFactory(await GetResourceStreamAsync(uri).ConfigureAwait(false));
+>>>>>>> Stashed changes
 
 #endregion
 
@@ -46,15 +69,22 @@ public class ResxResourceLoader : IResourceLoader
 
 	protected virtual Stream GetResourceStream(Uri uri)
 	{
+<<<<<<< Updated upstream
 		Infra.Requires(uri);
 
+=======
+>>>>>>> Stashed changes
 		var assemblyName = uri.Host;
 
 		var name = uri.GetComponents(UriComponents.Path, UriFormat.Unescaped).Replace(oldChar: '/', newChar: '.');
 
 		if (Assembly.Load(assemblyName).GetManifestResourceStream(name) is { } stream)
 		{
+<<<<<<< Updated upstream
 			return stream;	
+=======
+			return stream;
+>>>>>>> Stashed changes
 		}
 
 		throw new ResourceNotFoundException(Res.Format(Resources.Exception_ResourceNotFound, uri));

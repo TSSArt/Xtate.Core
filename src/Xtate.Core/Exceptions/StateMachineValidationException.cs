@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,56 +17,41 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
-using System.Runtime.Serialization;
 using System.Text;
-using Xtate.Core;
 
-namespace Xtate
+namespace Xtate;
+
+[Serializable]
+public class StateMachineValidationException(ImmutableArray<ErrorItem> validationMessages, SessionId? sessionId = default, StateMachineOrigin origin = default) : XtateException(GetMessage(validationMessages))
 {
-	[Serializable]
-	public class StateMachineValidationException : XtateException
+	public SessionId? SessionId { get; } = sessionId;
+	public StateMachineOrigin Origin { get; } = origin;
+	public ImmutableArray<ErrorItem> ValidationMessages { get; } = validationMessages;
+
+	private static string? GetMessage(ImmutableArray<ErrorItem> validationMessages)
 	{
-		protected StateMachineValidationException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-
-		public StateMachineValidationException(ImmutableArray<ErrorItem> validationMessages, SessionId? sessionId = default, StateMachineOrigin origin = default)
-			: base(GetMessage(validationMessages))
+		if (validationMessages.IsDefaultOrEmpty)
 		{
-			Origin = origin;
-			SessionId = sessionId;
-			ValidationMessages = validationMessages;
+			return null;
 		}
 
-		public SessionId?                SessionId          { get; }
-		public StateMachineOrigin        Origin             { get; }
-		public ImmutableArray<ErrorItem> ValidationMessages { get; }
-
-		private static string? GetMessage(ImmutableArray<ErrorItem> validationMessages)
+		if (validationMessages.Length == 1)
 		{
-			if (validationMessages.IsDefaultOrEmpty)
-			{
-				return null;
-			}
-
-			if (validationMessages.Length == 1)
-			{
-				return validationMessages[0].ToString();
-			}
-
-			var sb = new StringBuilder();
-			var index = 1;
-			foreach (var error in validationMessages)
-			{
-				if (index > 1)
-				{
-					sb.AppendLine();
-				}
-
-				sb.Append(Res.Format(Resources.Exception_StateMachineValidationExceptionMessage, index ++, validationMessages.Length, error));
-			}
-
-			return sb.ToString();
+			return validationMessages[0].ToString();
 		}
+
+		var sb = new StringBuilder();
+		var index = 1;
+		foreach (var error in validationMessages)
+		{
+			if (index > 1)
+			{
+				sb.AppendLine();
+			}
+
+			sb.Append(Res.Format(Resources.Exception_StateMachineValidationExceptionMessage, index ++, validationMessages.Length, error));
+		}
+
+		return sb.ToString();
 	}
 }

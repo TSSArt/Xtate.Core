@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,38 +17,37 @@
 
 #endregion
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public struct ContentEntity : IContent, IVisitorEntity<ContentEntity, IContent>, IAncestorProvider
 {
-	public struct ContentEntity : IContent, IVisitorEntity<ContentEntity, IContent>, IAncestorProvider
-	{
-		internal object? Ancestor;
+	internal object? Ancestor;
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
-	#endregion
+#endregion
 
-	#region Interface IContent
+#region Interface IContent
 
-		public IValueExpression? Expression { get; set; }
-		public IContentBody?     Body       { get; set; }
+	public IValueExpression? Expression { get; set; }
+	public IContentBody?     Body       { get; set; }
 
-	#endregion
+#endregion
 
-	#region Interface IVisitorEntity<ContentEntity,IContent>
+#region Interface IVisitorEntity<ContentEntity,IContent>
 
-		void IVisitorEntity<ContentEntity, IContent>.Init(IContent source)
-		{
-			Ancestor = source;
-			Expression = source.Expression;
-			Body = source.Body;
-		}
-
-		bool IVisitorEntity<ContentEntity, IContent>.RefEquals(ref ContentEntity other) =>
-			ReferenceEquals(Expression, other.Expression) &&
-			ReferenceEquals(Body, other.Body);
-
-	#endregion
+	void IVisitorEntity<ContentEntity, IContent>.Init(IContent source)
+	{
+		Ancestor = source;
+		Expression = source.Expression;
+		Body = source.Body;
 	}
+
+	readonly bool IVisitorEntity<ContentEntity, IContent>.RefEquals(ref ContentEntity other) =>
+		ReferenceEquals(Expression, other.Expression) &&
+		ReferenceEquals(Body, other.Body);
+
+#endregion
 }

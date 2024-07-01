@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,11 +17,11 @@
 
 #endregion
 
-using System.Threading;
-using System.Threading.Tasks;
+namespace Xtate.Core;
 
-namespace Xtate.Core
+public interface IPersistenceContext
 {
+<<<<<<< Updated upstream
 	public interface IPersistenceContext
 	{
 		int       GetState(int key);
@@ -32,4 +32,13 @@ namespace Xtate.Core
 		ValueTask CheckPoint(int level);
 		ValueTask Shrink();
 	}
+=======
+	int       GetState(int key);
+	int       GetState(int key, int subKey);
+	void      SetState(int key, int value);
+	void      SetState(int key, int subKey, int value);
+	void      ClearState(int key);
+	ValueTask CheckPoint(int level);
+	ValueTask Shrink();
+>>>>>>> Stashed changes
 }

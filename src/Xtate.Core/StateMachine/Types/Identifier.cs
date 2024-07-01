@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,73 +17,76 @@
 
 #endregion
 
+<<<<<<< Updated upstream
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Xtate.Core;
+=======
+using System.ComponentModel;
+>>>>>>> Stashed changes
 
-namespace Xtate
+namespace Xtate;
+
+public sealed class Identifier : LazyId, IIdentifier, IEquatable<IIdentifier>
 {
-	[PublicAPI]
-	public sealed class Identifier : LazyId, IIdentifier, IEquatable<IIdentifier>
+	private Identifier() { }
+
+	private Identifier(string value) : base(value) { }
+
+	public static IEqualityComparer<IIdentifier> EqualityComparer { get; } = new IdentifierEqualityComparer();
+
+#region Interface IEquatable<IIdentifier>
+
+	public bool Equals(IIdentifier? other) => other is Identifier identifier && FastEqualsNoTypeCheck(identifier);
+
+#endregion
+
+	public static explicit operator Identifier([Localizable(false)] string value) => FromString(value);
+
+	public static Identifier FromString([Localizable(false)] string value)
 	{
-		private Identifier() { }
-
-		private Identifier(string value) : base(value) { }
-
-	#region Interface IEquatable<IIdentifier>
-
-		public bool Equals(IIdentifier? other) => other is Identifier identifier && SameTypeEquals(identifier);
-
-	#endregion
-
-		public static explicit operator Identifier(string value) => FromString(value);
-
-		public static Identifier FromString(string value)
+		foreach (var ch in value)
 		{
+<<<<<<< Updated upstream
 			Infra.RequiresNonEmptyString(value);
 
 			foreach (var ch in value)
+=======
+			if (char.IsWhiteSpace(ch))
+>>>>>>> Stashed changes
 			{
-				if (char.IsWhiteSpace(ch))
-				{
-					throw new ArgumentException(Resources.Exception_IdentifierCannotContainsWhitespace, nameof(value));
-				}
+				throw new ArgumentException(Resources.Exception_IdentifierCannotContainsWhitespace, nameof(value));
 			}
-
-			return new Identifier(value);
 		}
 
-		public static bool TryCreate(string? value,
-									 [NotNullWhen(true)] [MaybeNullWhen(false)]
-									 out Identifier? identifier)
+		return new Identifier(value);
+	}
+
+	public static bool TryCreate([Localizable(false)] string? value, [NotNullWhen(true)] out Identifier? identifier)
+	{
+		if (string.IsNullOrEmpty(value))
 		{
-			if (string.IsNullOrEmpty(value))
+			identifier = default;
+
+			return false;
+		}
+
+		foreach (var ch in value)
+		{
+			if (char.IsWhiteSpace(ch))
 			{
 				identifier = default;
 
 				return false;
 			}
-
-			foreach (var ch in value)
-			{
-				if (char.IsWhiteSpace(ch))
-				{
-					identifier = default;
-
-					return false;
-				}
-			}
-
-			identifier = new Identifier(value);
-
-			return true;
 		}
 
-		protected override string GenerateId() => IdGenerator.NewId(GetHashCode());
+		identifier = new Identifier(value);
 
+<<<<<<< Updated upstream
 		public static IIdentifier New() => new Identifier();
 
 		public static string? ToString(ImmutableArray<IIdentifier> identifiers)
@@ -127,5 +130,51 @@ namespace Xtate
 		#endregion
 		}
 
+=======
+		return true;
+	}
+
+	protected override string GenerateId() => IdGenerator.NewId(GetHashCode());
+
+	public static IIdentifier New() => new Identifier();
+
+	public static string? ToString(ImmutableArray<IIdentifier> identifiers)
+	{
+		if (identifiers.IsDefaultOrEmpty)
+		{
+			return null;
+		}
+
+		if (identifiers.Length == 1)
+		{
+			return identifiers[0].Value;
+		}
+
+		return string.Join(separator: @" ", identifiers.Select(d => d.Value));
+	}
+
+	private class IdentifierEqualityComparer : IEqualityComparer<IIdentifier>
+	{
+#region Interface IEqualityComparer<IIdentifier>
+
+		public bool Equals(IIdentifier? x, IIdentifier? y)
+		{
+			if (ReferenceEquals(x, y))
+			{
+				return true;
+			}
+
+			if (x is null || y is null)
+			{
+				return false;
+			}
+
+			return x.As<IEquatable<IIdentifier>>().Equals(y.As<IEquatable<IIdentifier>>());
+		}
+
+		public int GetHashCode(IIdentifier obj) => obj.As<IEquatable<IIdentifier>>().GetHashCode();
+
+#endregion
+>>>>>>> Stashed changes
 	}
 }

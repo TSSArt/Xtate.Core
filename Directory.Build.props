@@ -1,23 +1,26 @@
 ﻿<Project>
 
   <PropertyGroup>
+<<<<<<< Updated upstream
+=======
+    <LangVersion>12</LangVersion>
+>>>>>>> Stashed changes
     <Product>Xtate</Product>
     <Company>T.S.S.Art</Company>
     <Authors>Sergii Artemenko</Authors>
     <RepositoryType>git</RepositoryType>
     <PackageTags>xtate;state;machine;statemachine;scxml;fsm</PackageTags>
     <Description>State Machine Framework</Description>
+<<<<<<< Updated upstream
     <Copyright>Copyright © 2019-2022 Sergii Artemenko</Copyright>
+=======
+    <Copyright>Copyright © 2019-2024 Sergii Artemenko</Copyright>
+>>>>>>> Stashed changes
     <PackageProjectUrl>https://xtate.net</PackageProjectUrl>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0' or '$(TargetFramework)'=='net461'">
-    <NoWarn>$(NoWarn);8600;8601;8602;8603;8604;8619</NoWarn>
-  </PropertyGroup>
-
   <Import Condition="Exists($([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../')))"
                    Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
-
 </Project>

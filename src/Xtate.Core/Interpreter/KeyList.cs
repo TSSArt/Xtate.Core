@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,30 +17,31 @@
 
 #endregion
 
-using System.Collections.Generic;
+namespace Xtate.Core;
 
-namespace Xtate.Core
+public sealed class KeyList<T>
 {
+<<<<<<< Updated upstream
 	public sealed class KeyList<T>
+=======
+	public delegate void ChangeHandler(ChangedAction action, IEntity entity, List<T> list);
+
+	public enum ChangedAction
+>>>>>>> Stashed changes
 	{
-		public delegate void ChangeHandler(ChangedAction action, IEntity entity, List<T> list);
-
-		public enum ChangedAction
-		{
-			Set
-		}
-
-		private readonly Dictionary<IEntity, List<T>> _dic = new();
-
-		public event ChangeHandler? Changed;
-
-		public void Set(IEntity entity, List<T> list)
-		{
-			_dic[entity] = list;
-
-			Changed?.Invoke(ChangedAction.Set, entity, list);
-		}
-
-		public bool TryGetValue(IEntity entity, out List<T> list) => _dic.TryGetValue(entity, out list!);
+		Set
 	}
+
+	private readonly Dictionary<IEntity, List<T>> _dic = [];
+
+	public event ChangeHandler? Changed;
+
+	public void Set(IEntity entity, List<T> list)
+	{
+		_dic[entity] = list;
+
+		Changed?.Invoke(ChangedAction.Set, entity, list);
+	}
+
+	public bool TryGetValue(IEntity entity, out List<T> list) => _dic.TryGetValue(entity, out list!);
 }

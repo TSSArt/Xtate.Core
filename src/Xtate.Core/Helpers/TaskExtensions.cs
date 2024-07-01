@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,35 +17,22 @@
 
 #endregion
 
-using System.Threading;
-using System.Threading.Tasks;
+namespace Xtate.Core;
 
-namespace Xtate.Core
+
+internal static class TaskExtensions
 {
-	[PublicAPI]
-	internal static class TaskExtensions
+	public static void SynchronousWait(this ValueTask valueTask)
 	{
-		public static void SynchronousWait(this ValueTask valueTask)
+		if (valueTask.IsCompleted)
 		{
-			if (valueTask.IsCompleted)
-			{
-				valueTask.GetAwaiter().GetResult();
-			}
-			else
-			{
-				valueTask.AsTask().GetAwaiter().GetResult();
-			}
+			valueTask.GetAwaiter().GetResult();
 		}
-
-		public static T SynchronousGetResult<T>(this ValueTask<T> valueTask)
+		else
 		{
-			if (valueTask.IsCompleted)
-			{
-				return valueTask.GetAwaiter().GetResult();
-			}
-
-			return valueTask.AsTask().GetAwaiter().GetResult();
+			valueTask.AsTask().GetAwaiter().GetResult();
 		}
+<<<<<<< Updated upstream
 
 		public static ValueTask<T> WaitAsync<T>(this TaskCompletionSource<T> tcs, CancellationToken token)
 		{
@@ -83,5 +70,54 @@ namespace Xtate.Core
 		/// <typeparam name="T">Type result</typeparam>
 		/// <param name="valueTask">Instance of ValueTask</param>
 		public static void Forget<T>(this ValueTask<T> valueTask) => valueTask.Preserve();
+=======
+>>>>>>> Stashed changes
 	}
+
+	public static T SynchronousGetResult<T>(this ValueTask<T> valueTask)
+	{
+		if (valueTask.IsCompleted)
+		{
+			return valueTask.GetAwaiter().GetResult();
+		}
+
+		return valueTask.AsTask().GetAwaiter().GetResult();
+	}
+
+	public static ValueTask<T> WaitAsync<T>(this TaskCompletionSource<T> tcs, CancellationToken token)
+	{
+		if (tcs.Task.IsCompleted || !token.CanBeCanceled)
+		{
+			return new ValueTask<T>(tcs.Task);
+		}
+
+		if (token.IsCancellationRequested)
+		{
+			return new ValueTask<T>(Task.FromCanceled<T>(token));
+		}
+
+		return WaitAsyncLocal();
+
+		async ValueTask<T> WaitAsyncLocal()
+		{
+			await Task.WhenAny(tcs.Task, Task.Delay(millisecondsDelay: -1, token)).ConfigureAwait(false);
+
+			token.ThrowIfCancellationRequested();
+
+			return await tcs.Task.ConfigureAwait(false);
+		}
+	}
+
+	/// <summary>
+	///     Do not wait ValueTask for completion if it is not completed. Result of execution ignored.
+	/// </summary>
+	/// <param name="valueTask">Instance of ValueTask</param>
+	public static void Forget(this ValueTask valueTask) => valueTask.Preserve();
+
+	/// <summary>
+	///     Do not wait ValueTask for completion if it is not completed. Result of execution ignored.
+	/// </summary>
+	/// <typeparam name="T">Type result</typeparam>
+	/// <param name="valueTask">Instance of ValueTask</param>
+	public static void Forget<T>(this ValueTask<T> valueTask) => valueTask.Preserve();
 }

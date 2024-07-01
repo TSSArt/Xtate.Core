@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,8 +15,40 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+namespace Xtate.DataModel.XPath;
+
+public class XPathLocationExpressionEvaluator : ILocationEvaluator, ILocationExpression, IAncestorProvider
+{
+	private readonly XPathAssignType         _assignType;
+	private readonly string?                 _attribute;
+	private readonly XPathCompiledExpression _compiledExpression;
+	private readonly ILocationExpression     _locationExpression;
+
+	public XPathLocationExpressionEvaluator(ILocationExpression locationExpression, XPathCompiledExpression compiledExpression)
+	{
+		_locationExpression = locationExpression;
+		_compiledExpression = compiledExpression;
+
+		if (_locationExpression.Is<XPathLocationExpression>(out var xPathLocationExpression))
+		{
+			_assignType = xPathLocationExpression.AssignType;
+			_attribute = xPathLocationExpression.Attribute;
+		}
+		else
+		{
+			_assignType = XPathAssignType.ReplaceChildren;
+		}
+	}
+
+	public required Func<ValueTask<XPathEngine>> EngineFactory { private get; [UsedImplicitly] init; }
+
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => _locationExpression;
+
 #endregion
 
+<<<<<<< Updated upstream
 using System;
 using System.Threading.Tasks;
 using Xtate.Core;
@@ -24,38 +56,43 @@ using Xtate.Core;
 namespace Xtate.DataModel.XPath
 {
 	public class XPathLocationExpressionEvaluator : ILocationEvaluator, ILocationExpression, IAncestorProvider
-	{
-		private readonly XPathAssignType         _assignType;
-		private readonly string?                 _attribute;
-		private readonly XPathCompiledExpression _compiledExpression;
-		private readonly ILocationExpression     _locationExpression;
+=======
+#region Interface ILocationEvaluator
 
+	public async ValueTask SetValue(IObject value)
+>>>>>>> Stashed changes
+	{
+		var engine = await EngineFactory().ConfigureAwait(false);
+
+<<<<<<< Updated upstream
 		public required Func<ValueTask<XPathEngine>> EngineFactory { private get; init; }
 
 		public XPathLocationExpressionEvaluator(ILocationExpression locationExpression, XPathCompiledExpression compiledExpression)
 		{
 			_locationExpression = locationExpression;
 			_compiledExpression = compiledExpression;
+=======
+		await engine.Assign(_compiledExpression, _assignType, _attribute, value).ConfigureAwait(false);
+	}
+>>>>>>> Stashed changes
 
-			if (_locationExpression.Is<XPathLocationExpression>(out var xPathLocationExpression))
-			{
-				_assignType = xPathLocationExpression.AssignType;
-				_attribute = xPathLocationExpression.Attribute;
-			}
-			else
-			{
-				_assignType = XPathAssignType.ReplaceChildren;
-			}
-		}
+	public async ValueTask<IObject> GetValue()
+	{
+		var engine = await EngineFactory().ConfigureAwait(false);
 
-	#region Interface IAncestorProvider
+		return await engine.EvalObject(_compiledExpression, stripRoots: true).ConfigureAwait(false);
+	}
 
-		object IAncestorProvider.Ancestor => _locationExpression;
+	public async ValueTask<string> GetName()
+	{
+		var engine = await EngineFactory().ConfigureAwait(false);
 
-	#endregion
+		return engine.GetName(_compiledExpression);
+	}
 
-	#region Interface ILocationEvaluator
+#endregion
 
+<<<<<<< Updated upstream
 		public async ValueTask DeclareLocalVariable()
 		{
 			var engine = await EngineFactory().ConfigureAwait(false);
@@ -91,5 +128,18 @@ namespace Xtate.DataModel.XPath
 		public string? Expression => _locationExpression.Expression;
 
 	#endregion
+=======
+#region Interface ILocationExpression
+
+	public string? Expression => _locationExpression.Expression;
+
+#endregion
+
+	public async ValueTask DeclareLocalVariable()
+	{
+		var engine = await EngineFactory().ConfigureAwait(false);
+
+		engine.DeclareVariable(_compiledExpression);
+>>>>>>> Stashed changes
 	}
 }

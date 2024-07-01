@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,18 +19,17 @@
 
 using System.Xml.XPath;
 
-namespace Xtate.DataModel.XPath
+namespace Xtate.DataModel.XPath;
+
+internal class AttributeNodeAdapter : NodeAdapter
 {
-	internal class AttributeNodeAdapter : NodeAdapter
-	{
-		public override XPathNodeType GetNodeType() => XPathNodeType.Attribute;
+	public override XPathNodeType GetNodeType() => XPathNodeType.Attribute;
 
-		public override string GetLocalName(in DataModelXPathNavigator.Node node) => node.ParentProperty ?? Infra.Fail<string>();
+	public override string GetLocalName(in DataModelXPathNavigator.Node node) => node.ParentProperty ?? Infra.Fail<string>();
 
-		public override string GetNamespaceUri(in DataModelXPathNavigator.Node node) => XPathMetadata.GetValue(node.Metadata, node.ParentIndex, XPathMetadata.AttributeNamespaceOffset);
+	public override string GetNamespaceUri(in DataModelXPathNavigator.Node node) => XPathMetadata.GetValue(node.Metadata, node.ParentIndex, XPathMetadata.AttributeNamespaceOffset);
 
-		public override string GetPrefix(in DataModelXPathNavigator.Node node) => XPathMetadata.GetValue(node.Metadata, node.ParentIndex, XPathMetadata.AttributePrefixOffset);
+	public override string GetPrefix(in DataModelXPathNavigator.Node node) => XPathMetadata.GetValue(node.Metadata, node.ParentIndex, XPathMetadata.AttributePrefixOffset);
 
-		public override string GetValue(in DataModelXPathNavigator.Node node) => node.DataModelValue.AsString();
-	}
+	public override string GetValue(in DataModelXPathNavigator.Node node) => node.DataModelValue.AsString();
 }

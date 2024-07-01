@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,25 +17,43 @@
 
 #endregion
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.Core;
 using Xtate.Service;
 
-namespace Xtate
+namespace Xtate;
+
+public sealed partial class StateMachineHost : IServiceFactory, IServiceFactoryActivator
 {
-	public sealed partial class StateMachineHost : IServiceFactory, IServiceFactoryActivator
+	private static readonly Uri ServiceFactoryTypeId      = new(@"http://www.w3.org/TR/scxml/");
+	private static readonly Uri ServiceFactoryAliasTypeId = new(uriString: @"scxml", UriKind.Relative);
+
+#region Interface IServiceFactory
+
+	ValueTask<IServiceFactoryActivator?> IServiceFactory.TryGetActivator(Uri type) => new(CanHandle(type) ? this : null);
+
+#endregion
+
+#region Interface IServiceFactoryActivator
+
+	async ValueTask<IService> IServiceFactoryActivator.StartService(Uri? baseUri,
+																	InvokeData invokeData,
+																	IServiceCommunication serviceCommunication)
 	{
-		private static readonly Uri ServiceFactoryTypeId      = new(@"http://www.w3.org/TR/scxml/");
-		private static readonly Uri ServiceFactoryAliasTypeId = new(uriString: @"scxml", UriKind.Relative);
+		Infra.Assert(CanHandle(invokeData.Type));
 
-	#region Interface IServiceFactory
+		var sessionId = SessionId.New();
+		var scxml = invokeData.RawContent ?? invokeData.Content.AsStringOrDefault();
+		var parameters = invokeData.Parameters;
+		var source = invokeData.Source;
 
+<<<<<<< Updated upstream
 		ValueTask<IServiceFactoryActivator?> IServiceFactory.TryGetActivator(ServiceLocator serviceLocator, Uri type, CancellationToken token) => new(CanHandle(type) ? this : null);
+=======
+		Infra.Assert(scxml is not null || source is not null);
+>>>>>>> Stashed changes
 
-	#endregion
+		var origin = scxml is not null ? new StateMachineOrigin(scxml, baseUri) : new StateMachineOrigin(source!, baseUri);
 
+<<<<<<< Updated upstream
 	#region Interface IServiceFactoryActivator
 
 		async ValueTask<IService> IServiceFactoryActivator.StartService(ServiceLocator serviceLocator,
@@ -61,5 +79,12 @@ namespace Xtate
 	#endregion
 
 		private static bool CanHandle(Uri type) => FullUriComparer.Instance.Equals(type, ServiceFactoryTypeId) || FullUriComparer.Instance.Equals(type, ServiceFactoryAliasTypeId);
+=======
+		return await StartStateMachine(sessionId, origin, parameters, SecurityContextType.InvokedService, default).ConfigureAwait(false);
+>>>>>>> Stashed changes
 	}
+
+#endregion
+
+	private static bool CanHandle(Uri type) => FullUriComparer.Instance.Equals(type, ServiceFactoryTypeId) || FullUriComparer.Instance.Equals(type, ServiceFactoryAliasTypeId);
 }

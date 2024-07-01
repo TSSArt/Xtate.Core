@@ -1,9 +1,31 @@
+<<<<<<< Updated upstream
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Xtate.DataModel;
+=======
+﻿#region Copyright © 2019-2023 Sergii Artemenko
+
+// This file is part of the Xtate project. <https://xtate.net/>
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+// 
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+#endregion
+
+>>>>>>> Stashed changes
 using Xtate.Persistence;
 
 namespace Xtate.Core;
@@ -15,6 +37,7 @@ public interface IPersistingInterpreterState
 	public ValueTask CheckPoint(int level);
 }
 
+<<<<<<< Updated upstream
 public class StateMachinePersistingInterpreterBase3 : StateMachinePersistingInterpreterBase2
 {
 	private readonly IPersistingInterpreterState _persistingInterpreterState;
@@ -81,6 +104,18 @@ public class StateMachinePersistingInterpreterBase2 : StateMachinePersistingInte
 	protected override async ValueTask<IEvent> ReadExternalEvent()
 	{
 		await _persistingInterpreterState.CheckPoint(16).ConfigureAwait(false);
+=======
+public class StateMachinePersistingInterpreterBase2(IPersistingInterpreterState persistingInterpreterState,
+												  IInterpreterModel interpreterModel) : StateMachinePersistingInterpreterBase(
+#pragma warning disable CS9107 
+	persistingInterpreterState,
+#pragma warning restore CS9107 
+	interpreterModel)
+{
+	protected override async ValueTask<IEvent> ReadExternalEvent()
+	{
+		await persistingInterpreterState.CheckPoint(16).ConfigureAwait(false);
+>>>>>>> Stashed changes
 
 		return await base.ReadExternalEvent().ConfigureAwait(false);
 	}
@@ -88,6 +123,7 @@ public class StateMachinePersistingInterpreterBase2 : StateMachinePersistingInte
 
 public class StateMachinePersistingInterpreterBase : StateMachineInterpreter
 {
+<<<<<<< Updated upstream
 	private const int KeyIndex             = 0;
 	private const int MethodCompletedIndex = 1;
 	private const int ValueIndex           = 2;
@@ -128,6 +164,24 @@ public class StateMachinePersistingInterpreterBase : StateMachineInterpreter
 			stateMachineLocation,
 			externalCommunication,
 			logger)
+=======
+	private const    int               KeyIndex             = 0;
+	private const    int               MethodCompletedIndex = 1;
+	private const    int               ValueIndex           = 2;
+	private const    int               ReturnCallIndex      = 0;
+	private readonly IInterpreterModel _interpreterModel;
+
+	private readonly IPersistingInterpreterState _persistingInterpreterState;
+	private readonly Bucket                      _stateBucket;
+	private          Bucket                      _callBucket;
+	private          int                         _callIndex = 1;
+	private          Bucket                      _methodBucket;
+	private          int                         _methodIndex = 1;
+	private          bool                        _suspending;
+
+	public StateMachinePersistingInterpreterBase(IPersistingInterpreterState persistingInterpreterState,
+												 IInterpreterModel interpreterModel)
+>>>>>>> Stashed changes
 	{
 		Infra.Requires(persistingInterpreterState);
 
@@ -146,6 +200,17 @@ public class StateMachinePersistingInterpreterBase : StateMachineInterpreter
 
 	public override async ValueTask<DataModelValue> RunAsync()
 	{
+<<<<<<< Updated upstream
+=======
+		//TODO: use correct condition
+		/*
+		if (false /*_stateMachine is null)
+		{
+			//await TraceInterpreterState(StateMachineInterpreterState.Resumed).ConfigureAwait(false);
+		}*/
+
+
+>>>>>>> Stashed changes
 		try
 		{
 			return await base.RunAsync().ConfigureAwait(false);
@@ -243,8 +308,13 @@ public class StateMachinePersistingInterpreterBase : StateMachineInterpreter
 		var stateMachineNode = _interpreterModel.Root;
 		var length = bucket.GetInt32(Bucket.RootKey);
 		var list = new List<TransitionNode>(length);
+<<<<<<< Updated upstream
 		
 		for (var i = 0; i < length; i++)
+=======
+
+		for (var i = 0; i < length; i ++)
+>>>>>>> Stashed changes
 		{
 			list.Add(FindTransitionNode(stateMachineNode, bucket.GetInt32(i)));
 		}
@@ -266,7 +336,11 @@ public class StateMachinePersistingInterpreterBase : StateMachineInterpreter
 		}
 		else if (node.States is { IsDefaultOrEmpty: false } states)
 		{
+<<<<<<< Updated upstream
 			for (var i = 1; i < states.Length; i++)
+=======
+			for (var i = 1; i < states.Length; i ++)
+>>>>>>> Stashed changes
 			{
 				if (documentId < states[i].DocumentId)
 				{
@@ -285,7 +359,11 @@ public class StateMachinePersistingInterpreterBase : StateMachineInterpreter
 		Infra.Requires(list);
 
 		bucket.Add(Bucket.RootKey, list.Count);
+<<<<<<< Updated upstream
 		for (var i = 0; i < list.Count; i++)
+=======
+		for (var i = 0; i < list.Count; i ++)
+>>>>>>> Stashed changes
 		{
 			bucket.Add(i, list[i].DocumentId);
 		}
@@ -349,7 +427,11 @@ public class StateMachinePersistingInterpreterBase : StateMachineInterpreter
 
 		Infra.Assert(_callBucket.GetEnum(KeyIndex).As<StateBagKey>() == key);
 		Infra.Assert(!_callBucket.GetBoolean(MethodCompletedIndex));
+<<<<<<< Updated upstream
 		
+=======
+
+>>>>>>> Stashed changes
 		if (iteration)
 		{
 			_callBucket.RemoveSubtree(Bucket.RootKey);

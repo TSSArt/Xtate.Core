@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,18 +17,26 @@
 
 #endregion
 
-using System.Diagnostics.CodeAnalysis;
 using System.Xml;
 using System.Xml.XPath;
+<<<<<<< Updated upstream
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+=======
+>>>>>>> Stashed changes
 using Xtate.DataModel.XPath;
 
-namespace Xtate.Core.Test
+namespace Xtate.Core.Test;
+
+[TestClass]
+public class DataModelXPathNavigatorTest
 {
-	[TestClass]
-	public class DataModelXPathNavigatorTest
+	private readonly Mock<INameTableProvider> NameTableProvider = new();
+
+	[TestInitialize]
+	public void Init()
 	{
+<<<<<<< Updated upstream
 		private readonly Mock<INameTableProvider> NameTableProvider = new();
 
 		[TestInitialize]
@@ -42,265 +50,274 @@ namespace Xtate.Core.Test
 		{
 			// arrange
 			var v = DataModelValue.FromString("StrVal");
+=======
+		NameTableProvider.Setup(n => n.GetNameTable()).Returns(new NameTable());
+	}
+>>>>>>> Stashed changes
 
-			// act
-			var value = new DataModelXPathNavigator(v).Evaluate("string(.)");
+	[TestMethod]
+	public void SimpleStringShouldBeConvertedToString_IfRootIsString()
+	{
+		// arrange
+		var v = DataModelValue.FromString("StrVal");
 
-			// assert
-			Assert.AreEqual(expected: "StrVal", value);
-		}
+		// act
+		var value = new DataModelXPathNavigator(v).Evaluate("string(.)");
 
-		[TestMethod]
-		public void NumberShouldBeConvertedToDouble_IfRootIsString()
-		{
-			// arrange
-			var v = DataModelValue.FromString("5.5");
+		// assert
+		Assert.AreEqual(expected: "StrVal", value);
+	}
 
-			// act
-			var value = new DataModelXPathNavigator(v).Evaluate("sum(.)");
+	[TestMethod]
+	public void NumberShouldBeConvertedToDouble_IfRootIsString()
+	{
+		// arrange
+		var v = DataModelValue.FromString("5.5");
 
-			// assert
-			Assert.AreEqual(expected: 5.5, value);
-		}
+		// act
+		var value = new DataModelXPathNavigator(v).Evaluate("sum(.)");
 
-		[TestMethod]
-		public void ConditionShouldBeConvertedToBoolean_IfRootIsString()
-		{
-			// arrange
-			var v = DataModelValue.FromString("5.5");
+		// assert
+		Assert.AreEqual(expected: 5.5, value);
+	}
 
-			// act
-			var value = new DataModelXPathNavigator(v).Evaluate("sum(.) > 1.0");
+	[TestMethod]
+	public void ConditionShouldBeConvertedToBoolean_IfRootIsString()
+	{
+		// arrange
+		var v = DataModelValue.FromString("5.5");
 
-			// assert
-			Assert.AreEqual(expected: true, value);
-		}
+		// act
+		var value = new DataModelXPathNavigator(v).Evaluate("sum(.) > 1.0");
 
-		[TestMethod]
-		public void ValueOfObjectPropertyShouldBeAvailableThroughValue_IfRootIsObject()
-		{
-			// arrange
-			var v = DataModelValue.FromObject(new { prop = "value" });
+		// assert
+		Assert.AreEqual(expected: true, value);
+	}
 
-			// act
-			var value = new DataModelXPathNavigator(v).Evaluate("string(prop)");
+	[TestMethod]
+	public void ValueOfObjectPropertyShouldBeAvailableThroughValue_IfRootIsObject()
+	{
+		// arrange
+		var v = DataModelValue.FromObject(new { prop = "value" });
 
-			// assert
-			Assert.AreEqual(expected: "value", value);
-		}
+		// act
+		var value = new DataModelXPathNavigator(v).Evaluate("string(prop)");
 
-		[TestMethod]
-		public void ValuesOfObjectPropertiesShouldBeConcatenatedThroughValue_IfRootIsComplexObject()
-		{
-			// arrange
-			var v = DataModelValue.FromObject(new { prop = "1", obj = new { prop1 = "1", prop2 = "1" } });
+		// assert
+		Assert.AreEqual(expected: "value", value);
+	}
 
-			// act
-			var value = new DataModelXPathNavigator(v).Evaluate("string(.)");
+	[TestMethod]
+	public void ValuesOfObjectPropertiesShouldBeConcatenatedThroughValue_IfRootIsComplexObject()
+	{
+		// arrange
+		var v = DataModelValue.FromObject(new { prop = "1", obj = new { prop1 = "1", prop2 = "1" } });
 
-			// assert
-			Assert.AreEqual(expected: "111", value);
-		}
+		// act
+		var value = new DataModelXPathNavigator(v).Evaluate("string(.)");
 
-		[TestMethod]
-		public void CanSelectSubNode_IfRootIsComplexObject()
-		{
-			// arrange
-			var v = DataModelValue.FromObject(new
-											  {
-												  /*prop = "value", */obj = new { prop1 = "val1", prop2 = "target" }
-											  });
+		// assert
+		Assert.AreEqual(expected: "111", value);
+	}
 
-			// act
-			var value = new DataModelXPathNavigator(v).Evaluate("string(obj/prop2)");
+	[TestMethod]
+	public void CanSelectSubNode_IfRootIsComplexObject()
+	{
+		// arrange
+		var v = DataModelValue.FromObject(
+			new
+			{
+				/*prop = "value", */obj = new { prop1 = "val1", prop2 = "target" }
+			});
 
-			// assert
-			Assert.AreEqual(expected: "target", value);
-		}
+		// act
+		var value = new DataModelXPathNavigator(v).Evaluate("string(obj/prop2)");
 
-		[TestMethod]
-		public void LocalNameShouldBeText_IfTypeIsString()
-		{
-			// arrange
-			var v = DataModelValue.FromObject("str");
+		// assert
+		Assert.AreEqual(expected: "target", value);
+	}
 
-			// act
-			var value = new DataModelXPathNavigator(v);
+	[TestMethod]
+	public void LocalNameShouldBeText_IfTypeIsString()
+	{
+		// arrange
+		var v = DataModelValue.FromObject("str");
 
-			// assert
-			Assert.AreEqual(expected: "#text", value.LocalName);
-		}
+		// act
+		var value = new DataModelXPathNavigator(v);
 
-		[TestMethod]
-		public void LocalNameShouldBeText_IfTypeIsNumeric()
-		{
-			// arrange
-			var v = DataModelValue.FromObject(55);
+		// assert
+		Assert.AreEqual(expected: "#text", value.LocalName);
+	}
 
-			// act
-			var value = new DataModelXPathNavigator(v);
+	[TestMethod]
+	public void LocalNameShouldBeText_IfTypeIsNumeric()
+	{
+		// arrange
+		var v = DataModelValue.FromObject(55);
 
-			// assert
-			Assert.AreEqual(expected: "#text", value.LocalName);
-		}
+		// act
+		var value = new DataModelXPathNavigator(v);
 
-		[TestMethod]
-		public void LocalNameShouldBeEmpty_IfTypeIsList()
-		{
-			// arrange
-			var v = DataModelValue.FromObject(new { key = "value" });
+		// assert
+		Assert.AreEqual(expected: "#text", value.LocalName);
+	}
 
-			// act
-			var value = new DataModelXPathNavigator(v);
+	[TestMethod]
+	public void LocalNameShouldBeEmpty_IfTypeIsList()
+	{
+		// arrange
+		var v = DataModelValue.FromObject(new { key = "value" });
 
-			// assert
-			Assert.AreEqual(expected: "", value.LocalName);
-		}
+		// act
+		var value = new DataModelXPathNavigator(v);
 
-		[TestMethod]
-		public void LocalNameShouldBePropName_IfTypeIsList()
-		{
-			// arrange
-			var v = DataModelValue.FromObject(new { key = "value" });
+		// assert
+		Assert.AreEqual(expected: "", value.LocalName);
+	}
 
-			// act
-			var value = new DataModelXPathNavigator(v);
-			value.MoveToFirstChild();
+	[TestMethod]
+	public void LocalNameShouldBePropName_IfTypeIsList()
+	{
+		// arrange
+		var v = DataModelValue.FromObject(new { key = "value" });
 
-			// assert
-			Assert.AreEqual(expected: "key", value.LocalName);
-		}
+		// act
+		var value = new DataModelXPathNavigator(v);
+		value.MoveToFirstChild();
 
-		[TestMethod]
-		public void TempTest()
-		{
-			// arrange
-			var n = DataModelValue.FromObject(new { child1 = "val1", child2 = "val2" });
-			var v = DataModelValue.FromObject(new { key = "value" });
-			var nNav = new DataModelXPathNavigator(n);
-			var vNav = new DataModelXPathNavigator(v);
-			vNav.MoveToFirstChild();
+		// assert
+		Assert.AreEqual(expected: "key", value.LocalName);
+	}
 
-			// act
-			vNav.ReplaceChildren(new XPathObject(nNav.Evaluate("child::*")!));
+	[TestMethod]
+	public void TempTest()
+	{
+		// arrange
+		var n = DataModelValue.FromObject(new { child1 = "val1", child2 = "val2" });
+		var v = DataModelValue.FromObject(new { key = "value" });
+		var nNav = new DataModelXPathNavigator(n);
+		var vNav = new DataModelXPathNavigator(v);
+		vNav.MoveToFirstChild();
 
-			// assert
-			v.AsList().TryGet(key: "key", caseInsensitive: false, out var v1);
-			v1.Value.AsList().TryGet(key: "child1", caseInsensitive: false, out var v2);
-			Assert.AreEqual(expected: "val1", v2.Value.AsString());
-		}
+		// act
+		vNav.ReplaceChildren(new XPathObject(nNav.Evaluate("child::*")));
 
-		[TestMethod]
-		public void ArrayTest()
-		{
-			// arrange
-			var list = new DataModelList { new DataModelList { ["key1"] = "val1" }, new DataModelList { ["key2"] = "val2" } };
-			var root = new DataModelList { ["root"] = list };
-			/*			list.Add("", "empty");
-						list.Add(":#$%", "symbol");
-						list.Add("b", true);
-						list.Add("n", 1.5);
-						list.Add("dttm", DateTime.UtcNow);
-						list.Add("nl", DataModelValue.Null);
-						list.Add("undef", default);
-						list.Add(null, default, default);*/
-			var nav = new DataModelXPathNavigator(root);
+		// assert
+		v.AsList().TryGet(key: "key", caseInsensitive: false, out var v1);
+		v1.Value.AsList().TryGet(key: "child1", caseInsensitive: false, out var v2);
+		Assert.AreEqual(expected: "val1", v2.Value.AsString());
+	}
 
-			// act
-			var _ = (XPathNodeIterator?) nav.Evaluate("/root/node()");
+	[TestMethod]
+	public void ArrayTest()
+	{
+		// arrange
+		var list = new DataModelList { new DataModelList { ["key1"] = "val1" }, new DataModelList { ["key2"] = "val2" } };
+		var root = new DataModelList { ["root"] = list };
+		/*			list.Add("", "empty");
+					list.Add(":#$%", "symbol");
+					list.Add("b", true);
+					list.Add("n", 1.5);
+					list.Add("dttm", DateTime.UtcNow);
+					list.Add("nl", DataModelValue.Null);
+					list.Add("undef", default);
+					list.Add(null, default, default);*/
+		var nav = new DataModelXPathNavigator(root);
 
-			// assert
-			//Assert.AreEqual(expected: "e", xml);
-		}
+		// act
+		_ = (XPathNodeIterator?) nav.Evaluate("/root/node()");
 
-		[TestMethod]
-		public void RenderValidXml()
-		{
-			// arrange
-			var root = new DataModelList
+		// assert
+		//Assert.AreEqual(expected: "e", xml);
+	}
+
+	[TestMethod]
+	public void RenderValidXml()
+	{
+		// arrange
+		var root = new DataModelList
+				   {
 					   {
+						   "root",
+						   new DataModelList
 						   {
-							   "root",
-							   new DataModelList
-							   {
-								   { "item", "val1" },
-								   { "item", "val2" }
-							   },
-							   new DataModelList
-							   {
-								   "prefix",
-								   "namespace-uri",
-								   "attr1", "aVal1", "", "",
-								   "attr2", "aVal2", "pfx", "attr-ns",
-								   "myNs", "myNamespace", "", "http://www.w3.org/2000/xmlns/"
-							   }
+							   { "item", "val1" },
+							   { "item", "val2" }
+						   },
+						   new DataModelList
+						   {
+							   "prefix",
+							   "namespace-uri",
+							   "attr1", "aVal1", "", "",
+							   "attr2", "aVal2", "pfx", "attr-ns",
+							   "myNs", "myNamespace", "", "http://www.w3.org/2000/xmlns/"
 						   }
-					   };
+					   }
+				   };
 
+		// act
+		var navigator = new DataModelXPathNavigator(root);
 
-			// act
-			var navigator = new DataModelXPathNavigator(root);
+		// assert
+		var xml = navigator.InnerXml;
 
-			// assert
-			var xml = navigator.InnerXml;
+		var value = XmlConverter.FromXml(xml);
 
-			var value = XmlConverter.FromXml(xml);
+		var n2 = new DataModelXPathNavigator(value);
+		var xml2 = n2.InnerXml;
 
-			var n2 = new DataModelXPathNavigator(value);
-			var xml2 = n2.InnerXml;
+		var dataModelValue2 = XmlConverter.FromXml(xml2);
 
-			var dataModelValue2 = XmlConverter.FromXml(xml2);
+		var n3 = new DataModelXPathNavigator(dataModelValue2);
+		_ = n3.InnerXml;
+	}
 
-			var n3 = new DataModelXPathNavigator(dataModelValue2);
-			var _ = n3.InnerXml;
-		}
+	[TestMethod]
+	[SuppressMessage(category: "ReSharper", checkId: "UnusedVariable")]
+	public void RenderValidXml2()
+	{
+#pragma warning disable IDE0059
+		const string xpath = "string(/a)";
+		var xPathExpression = XPathExpression.Compile(xpath);
 
-		[TestMethod]
-		[SuppressMessage(category: "ReSharper", checkId: "UnusedVariable")]
-		public void RenderValidXml2()
+		const string s = "<a xmlns:ss='dsf'><ss:eee/></a>";
+
+		var t = XmlConverter.FromXml(s);
+
+		var xmlDocument = new XmlDocument();
+		xmlDocument.LoadXml(s);
+		var navigatorDoc = xmlDocument.CreateNavigator();
+
+		var navigator = new DataModelXPathNavigator(t);
+
+		var s1 = navigator.MoveToFirstChild();
+		var s1a = navigator.MoveToFirstChild();
+		var navigatorIsEmptyElement = navigator.IsEmptyElement;
+		var s2q = navigator.MoveToFirstAttribute();
+		var s2qs = navigator.MoveToNextAttribute();
+		var s2qw = navigator.MoveToParent();
+		var as2q = navigator.MoveToFirstNamespace(XPathNamespaceScope.Local);
+		var as2qs = navigator.MoveToNextNamespace(XPathNamespaceScope.Local);
+		var as2qa = navigator.MoveToNextNamespace(XPathNamespaceScope.Local);
+		var as2qw = navigator.MoveToParent();
+
+		var s2 = navigator.MoveToNext();
+		var s3 = navigator.MoveToParent();
+
+		var navigatorHasAttributes = navigator.HasAttributes;
+		var moveToFirstAttribute = navigator.MoveToFirstAttribute();
+		if (moveToFirstAttribute)
 		{
-			#pragma warning disable IDE0059
-			const string xpath = "string(/a)";
-			var xPathExpression = XPathExpression.Compile(xpath);
-
-			const string s = "<a xmlns:ss='dsf'><ss:eee/></a>";
-
-			var t = XmlConverter.FromXml(s);
-
-			var xmlDocument = new XmlDocument();
-			xmlDocument.LoadXml(s);
-			var navigatorDoc = xmlDocument.CreateNavigator();
-
-			var navigator = new DataModelXPathNavigator(t);
-
-			var s1 = navigator.MoveToFirstChild();
-			var s1a = navigator.MoveToFirstChild();
-			var navigatorIsEmptyElement = navigator.IsEmptyElement;
-			var s2q = navigator.MoveToFirstAttribute();
-			var s2qs = navigator.MoveToNextAttribute();
-			var s2qw = navigator.MoveToParent();
-			var as2q = navigator.MoveToFirstNamespace(XPathNamespaceScope.Local);
-			var as2qs = navigator.MoveToNextNamespace(XPathNamespaceScope.Local);
-			var as2qa = navigator.MoveToNextNamespace(XPathNamespaceScope.Local);
-			var as2qw = navigator.MoveToParent();
-
-			var s2 = navigator.MoveToNext();
-			var s3 = navigator.MoveToParent();
-
-			var navigatorHasAttributes = navigator.HasAttributes;
-			var moveToFirstAttribute = navigator.MoveToFirstAttribute();
-			if (moveToFirstAttribute)
-			{
-				navigator.MoveToParent();
-			}
-
-			var moveToFirstNamespace = navigator.MoveToFirstNamespace(XPathNamespaceScope.ExcludeXml);
-			navigator.MoveToNextNamespace(XPathNamespaceScope.ExcludeXml);
-			if (moveToFirstNamespace)
-			{
-				navigator.MoveToParent();
-			}
-			#pragma warning restore IDE0059
+			navigator.MoveToParent();
 		}
+
+		var moveToFirstNamespace = navigator.MoveToFirstNamespace(XPathNamespaceScope.ExcludeXml);
+		navigator.MoveToNextNamespace(XPathNamespaceScope.ExcludeXml);
+		if (moveToFirstNamespace)
+		{
+			navigator.MoveToParent();
+		}
+#pragma warning restore IDE0059
 	}
 }

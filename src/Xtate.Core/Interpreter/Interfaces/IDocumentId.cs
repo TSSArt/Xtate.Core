@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,10 +17,9 @@
 
 #endregion
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+internal interface IDocumentId
 {
-	internal interface IDocumentId
-	{
-		int DocumentId { get; }
-	}
+	int DocumentId { get; }
 }

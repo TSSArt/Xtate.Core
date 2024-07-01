@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,23 +17,71 @@
 
 #endregion
 
-#if NET461 || NETSTANDARD2_0
-using System;
+#if !NET6_0_OR_GREATER
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public static class ConcurrentDictionaryExtensions
 {
-	[PublicAPI]
-	public static class ConcurrentDictionaryExtensions
+	public static bool TryRemove<TKey, TValue>(this ConcurrentDictionary<TKey, TValue> concurrentDictionary, KeyValuePair<TKey, TValue> pair)
 	{
+<<<<<<< Updated upstream
 		public static bool TryRemove<TKey, TValue>(this ConcurrentDictionary<TKey, TValue> concurrentDictionary, KeyValuePair<TKey, TValue> pair)
 		{
 			Infra.Requires(concurrentDictionary);
+=======
+		Infra.Requires(concurrentDictionary);
+>>>>>>> Stashed changes
 
-			return ((ICollection<KeyValuePair<TKey, TValue>>) concurrentDictionary).Remove(pair);
+		return ((ICollection<KeyValuePair<TKey, TValue>>) concurrentDictionary).Remove(pair);
+	}
+
+	public static TValue AddOrUpdate<TKey, TValue, TArg>(this ConcurrentDictionary<TKey, TValue> concurrentDictionary,
+														 TKey key,
+														 Func<TKey, TArg, TValue> addValueFactory,
+														 Func<TKey, TValue, TArg, TValue> updateValueFactory,
+														 TArg factoryArgument)
+	{
+		Infra.Requires(concurrentDictionary);
+		Infra.Requires(updateValueFactory);
+		Infra.Requires(addValueFactory);
+
+		while (true)
+		{
+			if(concurrentDictionary.TryGetValue(key, out var value))
+			{
+				var newValue = updateValueFactory(key, value, factoryArgument);
+
+				if (concurrentDictionary.TryUpdate(key, newValue, value))
+				{
+					return newValue;
+				}
+			}
+			else
+			{
+				var newValue = addValueFactory(key, factoryArgument);
+
+				if (concurrentDictionary.TryAdd(key, newValue))
+				{
+					return newValue;
+				}
+			}
+		}
+	}
+
+	public static TValue GetOrAdd<TKey, TValue, TArg>(this ConcurrentDictionary<TKey, TValue> concurrentDictionary,
+													  TKey key, Func<TKey, TArg, TValue> valueFactory, TArg factoryArgument)
+	{
+		Infra.Requires(concurrentDictionary);
+		Infra.Requires(valueFactory);
+
+		if (concurrentDictionary.TryGetValue(key, out var value))
+		{
+			return value;
 		}
 
+<<<<<<< Updated upstream
 		public static TValue AddOrUpdate<TKey, TValue, TArg>(this ConcurrentDictionary<TKey, TValue> concurrentDictionary,
 															 TKey key,
 															 Func<TKey, TArg, TValue> addValueFactory,
@@ -82,6 +130,11 @@ namespace Xtate.Core
 
 			return concurrentDictionary.GetOrAdd(key, newValue);
 		}
+=======
+		var newValue = valueFactory(key, factoryArgument);
+
+		return concurrentDictionary.GetOrAdd(key, newValue);
+>>>>>>> Stashed changes
 	}
 }
 #endif

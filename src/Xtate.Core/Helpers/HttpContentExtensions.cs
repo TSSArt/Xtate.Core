@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,16 +17,13 @@
 
 #endregion
 
-#if NET461 || NETSTANDARD2_0
-using System;
+#if !NET6_0_OR_GREATER
 using System.IO;
 using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xtate.Core
 {
-	[PublicAPI]
+	
 	public static class HttpContentExtensions
 	{
 		public static Task CopyToAsync(this HttpContent httpContent, Stream stream, CancellationToken token)

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,199 +17,194 @@
 
 #endregion
 
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+
+public sealed class IoBoundTaskScheduler : TaskScheduler
 {
-	[PublicAPI]
-	public sealed class IoBoundTaskScheduler : TaskScheduler
+	private const int NoWaitTimeout     = 0;
+	private const int IndefiniteTimeout = -1;
+
+	private static readonly ConcurrentQueue<IoBoundTaskScheduler> SchedulerQueue   = new();
+	private static readonly Semaphore                             WaitingSemaphore = new(initialCount: 0, int.MaxValue);
+
+	private static RegisteredWaitHandle? _startNewWorkerRegisteredWaitHandle;
+	private static int                   _waitingThreadCount;
+
+	private ConcurrentQueue<Task>? _taskQueue;
+	private Semaphore?             _taskSemaphore;
+
+	static IoBoundTaskScheduler() => RegisterStartNewWorker();
+
+	public IoBoundTaskScheduler(int maximumConcurrencyLevel)
 	{
-		private const int NoWaitTimeout     = 0;
-		private const int IndefiniteTimeout = -1;
+		if (maximumConcurrencyLevel <= 0) throw new ArgumentOutOfRangeException(nameof(maximumConcurrencyLevel));
 
-		private static readonly ConcurrentQueue<IoBoundTaskScheduler> SchedulerQueue   = new();
-		private static readonly Semaphore                             WaitingSemaphore = new(initialCount: 0, int.MaxValue);
-
-		private static RegisteredWaitHandle? _startNewWorkerRegisteredWaitHandle;
-		private static int                   _waitingThreadCount;
-
-		private ConcurrentQueue<Task>? _taskQueue;
-		private Semaphore?             _taskSemaphore;
-
-		static IoBoundTaskScheduler() => RegisterStartNewWorker();
-
-		public IoBoundTaskScheduler(int maximumConcurrencyLevel)
-		{
-			if (maximumConcurrencyLevel <= 0) throw new ArgumentOutOfRangeException(nameof(maximumConcurrencyLevel));
-
-			MaximumConcurrencyLevel = maximumConcurrencyLevel;
-		}
-
-		public static int KeepAliveThreadTimeout { get; private set; } = 30000;
-
-		public override int MaximumConcurrencyLevel { get; }
-
-		public static void SetKeepAliveThreadTimeout(int value)
-		{
-			if (value < 0) throw new ArgumentOutOfRangeException(nameof(value));
-
-			KeepAliveThreadTimeout = value;
-		}
-
-		private static void RegisterStartNewWorker()
-		{
-			var newHandle = ThreadPool.RegisterWaitForSingleObject(WaitingSemaphore, StartNewWorker, state: default, IndefiniteTimeout, executeOnlyOnce: false);
-
-			if (Interlocked.Exchange(ref _startNewWorkerRegisteredWaitHandle, newHandle) is { } oldHandle)
-			{
-				oldHandle.Unregister(WaitingSemaphore);
-			}
-		}
-
-		private static void StartNewWorker(object? _0, bool _1)
-		{
-			var thread = new Thread(WorkerThread) { IsBackground = true };
-
-			thread.Start();
-		}
-
-		private static void UnregisterStartNewWorker()
-		{
-			if (Interlocked.Exchange(ref _startNewWorkerRegisteredWaitHandle, value: default) is { } oldHandle)
-			{
-				oldHandle.Unregister(WaitingSemaphore);
-			}
-		}
-
-		private static void WorkerThread()
-		{
-			var signaled = true;
-
-			try
-			{
-				while (signaled)
-				{
-					if (SchedulerQueue.TryDequeue(out var scheduler))
-					{
-						scheduler.WorkerRunQueuedTasks();
-					}
-
-					signaled = WaitingSemaphore.WaitOne(NoWaitTimeout);
-
-					if (signaled || KeepAliveThreadTimeout == 0)
-					{
-						continue;
-					}
-
-					UnregisterStartNewWorker();
-
-					Interlocked.Increment(ref _waitingThreadCount);
-
-					try
-					{
-						signaled = WaitingSemaphore.WaitOne(KeepAliveThreadTimeout);
-					}
-					finally
-					{
-						Interlocked.Decrement(ref _waitingThreadCount);
-					}
-				}
-			}
-			finally
-			{
-				if (Interlocked.CompareExchange(ref _waitingThreadCount, value: 0, comparand: 0) == 0)
-				{
-					RegisterStartNewWorker();
-				}
-			}
-		}
-
-		private static void PublishSchedulerException(Exception _) { }
-
-		private void WorkerRunQueuedTasks()
-		{
-			try
-			{
-				ProcessTaskQueue();
-
-				Infra.NotNull(_taskQueue);
-
-				while (!_taskQueue.IsEmpty)
-				{
-					Infra.NotNull(_taskSemaphore);
-
-					if (_taskSemaphore.WaitOne(NoWaitTimeout))
-					{
-						ProcessTaskQueue();
-					}
-					else
-					{
-						break;
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				PublishSchedulerException(ex);
-
-				throw;
-			}
-		}
-
-		private void ProcessTaskQueue()
-		{
-			Infra.NotNull(_taskSemaphore);
-
-			try
-			{
-				Infra.NotNull(_taskQueue);
-
-				while (_taskQueue.TryDequeue(out var task))
-				{
-					TryExecuteTask(task);
-				}
-			}
-			finally
-			{
-				_taskSemaphore.Release();
-			}
-		}
-
-		protected override void QueueTask(Task task)
-		{
-			if (_taskQueue is not { } taskQueue)
-			{
-				taskQueue = new ConcurrentQueue<Task>();
-				taskQueue = Interlocked.CompareExchange(ref _taskQueue, taskQueue, comparand: null) ?? taskQueue;
-			}
-
-			if (_taskSemaphore is not { } taskSemaphore)
-			{
-				taskSemaphore = new Semaphore(MaximumConcurrencyLevel, MaximumConcurrencyLevel);
-
-				if (Interlocked.CompareExchange(ref _taskSemaphore, taskSemaphore, comparand: null) is { } currentTaskSemaphore)
-				{
-					taskSemaphore.Dispose();
-					taskSemaphore = currentTaskSemaphore;
-				}
-			}
-
-			taskQueue.Enqueue(task);
-
-			if (taskSemaphore.WaitOne(NoWaitTimeout))
-			{
-				SchedulerQueue.Enqueue(this);
-
-				WaitingSemaphore.Release();
-			}
-		}
-
-		protected override IEnumerable<Task> GetScheduledTasks() => _taskQueue is { } queue ? queue : Array.Empty<Task>();
-
-		protected override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued) => false;
+		MaximumConcurrencyLevel = maximumConcurrencyLevel;
 	}
+
+	public static int KeepAliveThreadTimeout { get; private set; } = 30000;
+
+	public override int MaximumConcurrencyLevel { get; }
+
+	public static void SetKeepAliveThreadTimeout(int value)
+	{
+		if (value < 0) throw new ArgumentOutOfRangeException(nameof(value));
+
+		KeepAliveThreadTimeout = value;
+	}
+
+	private static void RegisterStartNewWorker()
+	{
+		var newHandle = ThreadPool.RegisterWaitForSingleObject(WaitingSemaphore, StartNewWorker, state: default, IndefiniteTimeout, executeOnlyOnce: false);
+
+		if (Interlocked.Exchange(ref _startNewWorkerRegisteredWaitHandle, newHandle) is { } oldHandle)
+		{
+			oldHandle.Unregister(WaitingSemaphore);
+		}
+	}
+
+	private static void StartNewWorker(object? _0, bool _1)
+	{
+		var thread = new Thread(WorkerThread) { IsBackground = true };
+
+		thread.Start();
+	}
+
+	private static void UnregisterStartNewWorker()
+	{
+		if (Interlocked.Exchange(ref _startNewWorkerRegisteredWaitHandle, value: default) is { } oldHandle)
+		{
+			oldHandle.Unregister(WaitingSemaphore);
+		}
+	}
+
+	private static void WorkerThread()
+	{
+		var signaled = true;
+
+		try
+		{
+			while (signaled)
+			{
+				if (SchedulerQueue.TryDequeue(out var scheduler))
+				{
+					scheduler.WorkerRunQueuedTasks();
+				}
+
+				signaled = WaitingSemaphore.WaitOne(NoWaitTimeout);
+
+				if (signaled || KeepAliveThreadTimeout == 0)
+				{
+					continue;
+				}
+
+				UnregisterStartNewWorker();
+
+				Interlocked.Increment(ref _waitingThreadCount);
+
+				try
+				{
+					signaled = WaitingSemaphore.WaitOne(KeepAliveThreadTimeout);
+				}
+				finally
+				{
+					Interlocked.Decrement(ref _waitingThreadCount);
+				}
+			}
+		}
+		finally
+		{
+			if (Interlocked.CompareExchange(ref _waitingThreadCount, value: 0, comparand: 0) == 0)
+			{
+				RegisterStartNewWorker();
+			}
+		}
+	}
+
+	private static void PublishSchedulerException(Exception _) { }
+
+	private void WorkerRunQueuedTasks()
+	{
+		try
+		{
+			ProcessTaskQueue();
+
+			Infra.NotNull(_taskQueue);
+
+			while (!_taskQueue.IsEmpty)
+			{
+				Infra.NotNull(_taskSemaphore);
+
+				if (_taskSemaphore.WaitOne(NoWaitTimeout))
+				{
+					ProcessTaskQueue();
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+		catch (Exception ex)
+		{
+			PublishSchedulerException(ex);
+
+			throw;
+		}
+	}
+
+	private void ProcessTaskQueue()
+	{
+		Infra.NotNull(_taskSemaphore);
+
+		try
+		{
+			Infra.NotNull(_taskQueue);
+
+			while (_taskQueue.TryDequeue(out var task))
+			{
+				TryExecuteTask(task);
+			}
+		}
+		finally
+		{
+			_taskSemaphore.Release();
+		}
+	}
+
+	protected override void QueueTask(Task task)
+	{
+		if (_taskQueue is not { } taskQueue)
+		{
+			taskQueue = new ConcurrentQueue<Task>();
+			taskQueue = Interlocked.CompareExchange(ref _taskQueue, taskQueue, comparand: null) ?? taskQueue;
+		}
+
+		if (_taskSemaphore is not { } taskSemaphore)
+		{
+			taskSemaphore = new Semaphore(MaximumConcurrencyLevel, MaximumConcurrencyLevel);
+
+			if (Interlocked.CompareExchange(ref _taskSemaphore, taskSemaphore, comparand: null) is { } currentTaskSemaphore)
+			{
+				taskSemaphore.Dispose();
+				taskSemaphore = currentTaskSemaphore;
+			}
+		}
+
+		taskQueue.Enqueue(task);
+
+		if (taskSemaphore.WaitOne(NoWaitTimeout))
+		{
+			SchedulerQueue.Enqueue(this);
+
+			WaitingSemaphore.Release();
+		}
+	}
+
+	protected override IEnumerable<Task> GetScheduledTasks() => _taskQueue ?? [];
+
+	protected override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued) => false;
 }

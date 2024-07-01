@@ -17,16 +17,22 @@
 
 #endregion
 
+<<<<<<< Updated upstream
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Xml.XPath;
 using System.Xml.Xsl;
 using Xtate.Core;
+=======
+using System.Xml.XPath;
+using System.Xml.Xsl;
+>>>>>>> Stashed changes
 using Xtate.Scxml;
 
 namespace Xtate.DataModel.XPath;
 
+<<<<<<< Updated upstream
 public interface IInitResolver
 {
 	ValueTask Initialize();
@@ -47,10 +53,25 @@ public class XPathExpressionContext : XsltContext
 			foreach (var prefixNamespace in xmlNamespacesInfo.Namespaces)
 			{
 				AddNamespace(prefixNamespace.Prefix, prefixNamespace.Namespace);
+=======
+public class XPathExpressionContext : XsltContext
+{
+	private List<XPathFunctionDescriptorBase>? _functionDescriptors;
+	private List<XPathVarDescriptor>? _varDescriptors;
+
+	public XPathExpressionContext(INameTableProvider nameTableProvider, IXmlNamespacesInfo? xmlNamespacesInfo) : base(nameTableProvider.GetNameTable())
+	{
+		if (xmlNamespacesInfo?.Namespaces is { } namespaces)
+		{
+			foreach (var prefixNamespace in namespaces)
+			{
+				base.AddNamespace(prefixNamespace.Prefix, prefixNamespace.Namespace);
+>>>>>>> Stashed changes
 			}
 		}
 	}
 
+<<<<<<< Updated upstream
 	public override bool Whitespace => false;
 
 	public override IXsltContextVariable ResolveVariable(string prefix, string name)
@@ -73,11 +94,45 @@ public class XPathExpressionContext : XsltContext
 	{
 		var ns = LookupNamespace(prefix);
 
+=======
+	public required IEnumerable<IXPathFunctionProvider> FunctionProviders         { private get; [UsedImplicitly] init; }
+	public required Func<string, XPathVarDescriptor>    XPathVarDescriptorFactory { private get; [UsedImplicitly] init; }
+	public required Func<ValueTask<XPathEngine>>        XPathEngineFactory        { private get; [UsedImplicitly] init; }
+
+	public override bool Whitespace => false;
+
+	public override IXsltContextVariable ResolveVariable(string prefix, string name)
+	{
+		var ns = LookupNamespace(prefix);
+
+		if (!string.IsNullOrEmpty(ns))
+		{
+			throw new XPathDataModelException(Res.Format(Resources.Exception_UnknownXPathVariable, ns, name));
+		}
+
+		var varDescriptor = XPathVarDescriptorFactory(name);
+
+		_varDescriptors ??= [];
+		_varDescriptors.Add(varDescriptor);
+
+		return varDescriptor;
+	}
+
+	public override IXsltContextFunction ResolveFunction(string prefix, string name, XPathResultType[] _)
+	{
+		var ns = LookupNamespace(prefix);
+
+>>>>>>> Stashed changes
 		foreach (var provider in FunctionProviders)
 		{
 			if (provider.TryGetFunction(ns, name) is { } function)
 			{
+<<<<<<< Updated upstream
 				RegisterInitResolver(function);
+=======
+				_functionDescriptors ??= [];
+				_functionDescriptors.Add(function);
+>>>>>>> Stashed changes
 
 				return function;
 			}
@@ -86,6 +141,7 @@ public class XPathExpressionContext : XsltContext
 		throw new XPathDataModelException(Res.Format(Resources.Exception_UnknownXPathFunction, ns, name));
 	}
 
+<<<<<<< Updated upstream
 	private void RegisterInitResolver(object resolver)
 	{
 		if (resolver is IInitResolver initResolver)
@@ -96,12 +152,15 @@ public class XPathExpressionContext : XsltContext
 		}
 	}
 
+=======
+>>>>>>> Stashed changes
 	public override bool PreserveWhitespace(XPathNavigator node) => false;
 
 	public override int CompareDocument(string baseUri, string nextbaseUri) => string.CompareOrdinal(baseUri, nextbaseUri);
 
 	public override string LookupNamespace(string prefix) => base.LookupNamespace(prefix) ?? throw new XPathDataModelException(Res.Format(Resources.Exception_PrefixCantBeResolved, prefix));
 
+<<<<<<< Updated upstream
 	public async ValueTask InitResolvers()
 	{
 		var initResolvers = _initResolvers;
@@ -112,6 +171,41 @@ public class XPathExpressionContext : XsltContext
 			foreach (var initResolver in initResolvers)
 			{
 				await initResolver.Initialize().ConfigureAwait(false);
+=======
+	public ValueTask EnsureInitialized()
+	{
+		var varDescriptors = _varDescriptors;
+		var functionDescriptors = _functionDescriptors;
+
+		if (varDescriptors is null && functionDescriptors is null)
+		{
+			return default;
+		}
+
+		_varDescriptors = null;
+		_functionDescriptors = null;
+
+		return Initialize(varDescriptors, functionDescriptors);
+	}
+
+	private async ValueTask Initialize(List<XPathVarDescriptor>? varDescriptors, List<XPathFunctionDescriptorBase>? functionDescriptors)
+	{
+		if (varDescriptors is not null)
+		{
+			var engine = await XPathEngineFactory().ConfigureAwait(false);
+
+			foreach (var varDescriptor in varDescriptors)
+			{
+				await varDescriptor.Initialize(engine).ConfigureAwait(false);
+			}
+		}
+
+		if (functionDescriptors is not null)
+		{
+			foreach (var functionDescriptor in functionDescriptors)
+			{
+				await functionDescriptor.Initialize().ConfigureAwait(false);
+>>>>>>> Stashed changes
 			}
 		}
 	}

@@ -1,0 +1,8 @@
+﻿<scxml xmlns="http://www.w3.org/2005/07/scxml"
+       version="1.0" name="StartSystemActionChild" initial="final">
+  <final id="final">
+    <onentry>
+      <log label="StartSystemActionChild" />
+    </onentry>
+  </final>
+</scxml>

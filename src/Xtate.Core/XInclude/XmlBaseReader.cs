@@ -1,4 +1,4 @@
-#region Copyright © 2019-2021 Sergii Artemenko
+#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,24 +17,33 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
 using System.Xml;
-using Xtate.Core;
 
-namespace Xtate.XInclude
+namespace Xtate.XInclude;
+
+public class XmlBaseReader : DelegatedXmlReader
 {
+<<<<<<< Updated upstream
 	public class XmlBaseReader : DelegatedXmlReader
 	{
 		public required XmlResolver XmlResolver { private get; init; }
 
 		private readonly string _baseName;
 		private readonly string _xmlNs;
+=======
+	private readonly string _baseName;
+	private readonly string _xmlNs;
 
-		private Stack<(int Depth, Uri BaseUri)>? _baseUris;
+	private Stack<(int Depth, Uri BaseUri)>? _baseUris;
 
+	public XmlBaseReader(XmlReader xmlReader) : base(xmlReader)
+	{
+		var nameTable = xmlReader.NameTable;
+>>>>>>> Stashed changes
+
+		Infra.NotNull(nameTable);
+
+<<<<<<< Updated upstream
 		public XmlBaseReader(XmlReader xmlReader) : base(xmlReader)
 		{
 			var nameTable = xmlReader.NameTable;
@@ -87,49 +96,107 @@ namespace Xtate.XInclude
 			depth = 0;
 			baseUri = default;
 
+=======
+		_baseName = nameTable.Add(@"base");
+		_xmlNs = nameTable.Add(@"http://www.w3.org/XML/1998/namespace");
+	}
+
+	public required XmlResolver XmlResolver { private get; [UsedImplicitly] init; }
+
+	public override string BaseURI => _baseUris?.Count > 0 ? _baseUris.Peek().BaseUri.ToString() : base.BaseURI;
+
+	public override bool Read()
+	{
+		PreProcessNode();
+
+		if (!base.Read())
+		{
+>>>>>>> Stashed changes
 			return false;
 		}
 
-		private string? GetXmlBaseValue()
+		PostProcessNode();
+
+		return true;
+	}
+
+	public override async Task<bool> ReadAsync()
+	{
+		PreProcessNode();
+
+		if (!await base.ReadAsync().ConfigureAwait(false))
 		{
-			for (var ok = MoveToFirstAttribute(); ok; ok = MoveToNextAttribute())
-			{
-				if (ReferenceEquals(NamespaceURI, _xmlNs) && ReferenceEquals(LocalName, _baseName))
-				{
-					MoveToElement();
-
-					return Value;
-				}
-			}
-
-			MoveToElement();
-
-			return default;
+			return false;
 		}
 
-		private void PostProcessNode()
-		{
-			if (NodeType == XmlNodeType.Element && GetXmlBaseValue() is { } xmlBase)
-			{
-				_baseUris ??= new Stack<(int Depth, Uri BaseUri)>();
+		PostProcessNode();
 
+		return true;
+	}
+
+	private bool TryPeek(out int depth, [NotNullWhen(true)] out Uri? baseUri)
+	{
+		if (_baseUris?.Count > 0)
+		{
+			(depth, baseUri) = _baseUris.Peek();
+
+			return true;
+		}
+
+		depth = 0;
+		baseUri = default;
+
+		return false;
+	}
+
+	private string? GetXmlBaseValue()
+	{
+		for (var ok = MoveToFirstAttribute(); ok; ok = MoveToNextAttribute())
+		{
+			if (ReferenceEquals(NamespaceURI, _xmlNs) && ReferenceEquals(LocalName, _baseName))
+			{
+				MoveToElement();
+
+<<<<<<< Updated upstream
 				if (!TryPeek(out _, out var baseUri))
 				{
 					baseUri = base.BaseURI is { } uri ? new Uri(uri, UriKind.RelativeOrAbsolute) : null;
 				}
 
 				_baseUris.Push((Depth, XmlResolver.ResolveUri(baseUri!, xmlBase)));
+=======
+				return Value;
+>>>>>>> Stashed changes
 			}
 		}
 
-		private void PreProcessNode()
-		{
-			if ((NodeType == XmlNodeType.EndElement || NodeType == XmlNodeType.Element && IsEmptyElement) && TryPeek(out var depth, out _) && depth == Depth)
-			{
-				Infra.NotNull(_baseUris);
+		MoveToElement();
 
-				_baseUris.Pop();
+		return default;
+	}
+
+	private void PostProcessNode()
+	{
+		if (NodeType == XmlNodeType.Element && GetXmlBaseValue() is { } xmlBase)
+		{
+			_baseUris ??= new Stack<(int Depth, Uri BaseUri)>();
+
+			if (!TryPeek(out _, out var baseUri))
+			{
+				baseUri = base.BaseURI is { } uri ? new Uri(uri, UriKind.RelativeOrAbsolute) : null;
 			}
+
+			_baseUris.Push((Depth, XmlResolver.ResolveUri(baseUri!, xmlBase)));
+		}
+	}
+
+	private void PreProcessNode()
+	{
+		if ((NodeType == XmlNodeType.EndElement || (NodeType == XmlNodeType.Element && IsEmptyElement)) && TryPeek(out var depth, out _) && depth == Depth)
+		{
+			Infra.NotNull(_baseUris);
+
+			_baseUris.Pop();
 		}
 	}
 }

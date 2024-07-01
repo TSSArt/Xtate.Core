@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,53 +17,50 @@
 
 #endregion
 
-using System.Collections.Immutable;
+namespace Xtate.Core;
 
-namespace Xtate.Core
+public struct CustomActionEntity : ICustomAction, IVisitorEntity<CustomActionEntity, ICustomAction>, IAncestorProvider
 {
-	public struct CustomActionEntity : ICustomAction, IVisitorEntity<CustomActionEntity, ICustomAction>, IAncestorProvider
-	{
-		internal object? Ancestor;
+	internal object? Ancestor;
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
-	#endregion
+#endregion
 
-	#region Interface ICustomAction
+#region Interface ICustomAction
 
-		public string? XmlNamespace { get; set; }
+	public string? XmlNamespace { get; set; }
 
-		public string? XmlName { get; set; }
+	public string? XmlName { get; set; }
 
-		public string? Xml { get; set; }
+	public string? Xml { get; set; }
 
-		public ImmutableArray<ILocationExpression> Locations { get; set; }
+	public ImmutableArray<ILocationExpression> Locations { get; set; }
 
-		public ImmutableArray<IValueExpression> Values { get; set; }
+	public ImmutableArray<IValueExpression> Values { get; set; }
 
-	#endregion
+#endregion
 
-	#region Interface IVisitorEntity<CustomActionEntity,ICustomAction>
+#region Interface IVisitorEntity<CustomActionEntity,ICustomAction>
 
-		void IVisitorEntity<CustomActionEntity, ICustomAction>.Init(ICustomAction source)
-		{
-			Ancestor = source;
-			XmlNamespace = source.XmlNamespace;
-			XmlName = source.XmlName;
-			Xml = source.Xml;
-			Locations = source.Locations;
-			Values = source.Values;
-		}
-
-		bool IVisitorEntity<CustomActionEntity, ICustomAction>.RefEquals(ref CustomActionEntity other) =>
-			ReferenceEquals(XmlNamespace, other.XmlNamespace) &&
-			ReferenceEquals(XmlName, other.XmlName) &&
-			ReferenceEquals(Xml, other.Xml) &&
-			Locations == other.Locations &&
-			Values == other.Values;
-
-	#endregion
+	void IVisitorEntity<CustomActionEntity, ICustomAction>.Init(ICustomAction source)
+	{
+		Ancestor = source;
+		XmlNamespace = source.XmlNamespace;
+		XmlName = source.XmlName;
+		Xml = source.Xml;
+		Locations = source.Locations;
+		Values = source.Values;
 	}
+
+	readonly bool IVisitorEntity<CustomActionEntity, ICustomAction>.RefEquals(ref CustomActionEntity other) =>
+		ReferenceEquals(XmlNamespace, other.XmlNamespace) &&
+		ReferenceEquals(XmlName, other.XmlName) &&
+		ReferenceEquals(Xml, other.Xml) &&
+		Locations == other.Locations &&
+		Values == other.Values;
+
+#endregion
 }

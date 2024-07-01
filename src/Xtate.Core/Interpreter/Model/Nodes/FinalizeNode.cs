@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
-
+﻿// Copyright © 2019-2023 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,46 +15,38 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
-using System.Collections.Immutable;
 using Xtate.DataModel;
 using Xtate.Persistence;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public sealed class FinalizeNode(IFinalize finalize) : IFinalize, IStoreSupport, IAncestorProvider
 {
+<<<<<<< Updated upstream
 	public sealed class FinalizeNode : IFinalize, IStoreSupport, IAncestorProvider
+=======
+	public ImmutableArray<IExecEvaluator> ActionEvaluators { get; } = finalize.Action.AsArrayOf<IExecutableEntity, IExecEvaluator>();
+
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => finalize;
+
+#endregion
+
+#region Interface IFinalize
+
+	public ImmutableArray<IExecutableEntity> Action => finalize.Action;
+
+#endregion
+
+#region Interface IStoreSupport
+
+	void IStoreSupport.Store(Bucket bucket)
+>>>>>>> Stashed changes
 	{
-		private readonly IFinalize _finalize;
-
-		public FinalizeNode(IFinalize finalize)
-		{
-			_finalize = finalize;
-			ActionEvaluators = finalize.Action.AsArrayOf<IExecutableEntity, IExecEvaluator>();
-		}
-
-		public ImmutableArray<IExecEvaluator> ActionEvaluators { get; }
-
-	#region Interface IAncestorProvider
-
-		object IAncestorProvider.Ancestor => _finalize;
-
-	#endregion
-
-	#region Interface IFinalize
-
-		public ImmutableArray<IExecutableEntity> Action => _finalize.Action;
-
-	#endregion
-
-	#region Interface IStoreSupport
-
-		void IStoreSupport.Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.FinalizeNode);
-			bucket.AddEntityList(Key.Action, Action);
-		}
-
-	#endregion
+		bucket.Add(Key.TypeInfo, TypeInfo.FinalizeNode);
+		bucket.AddEntityList(Key.Action, Action);
 	}
+
+#endregion
 }

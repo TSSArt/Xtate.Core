@@ -1,4 +1,4 @@
-#region Copyright © 2019-2021 Sergii Artemenko
+#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,21 +17,17 @@
 
 #endregion
 
-using System;
-using System.Threading.Tasks;
+namespace Xtate.XInclude;
 
-namespace Xtate.XInclude
+public interface IXIncludeXmlResolver
 {
-	public interface IXIncludeXmlResolver
-	{
-		object? GetEntity(Uri uri,
-						  string? accept,
-						  string? acceptLanguage,
-						  Type? ofObjectToReturn);
+	object? GetEntity(Uri uri,
+					  string? accept,
+					  string? acceptLanguage,
+					  Type? ofObjectToReturn);
 
-		Task<object?> GetEntityAsync(Uri uri,
-									 string? accept,
-									 string? acceptLanguage,
-									 Type? ofObjectToReturn);
-	}
+	Task<object?> GetEntityAsync(Uri uri,
+								 string? accept,
+								 string? acceptLanguage,
+								 Type? ofObjectToReturn);
 }

@@ -17,8 +17,6 @@
 
 #endregion
 
-using System;
-using System.Threading.Tasks;
 using System.Xml;
 using Xtate.XInclude;
 

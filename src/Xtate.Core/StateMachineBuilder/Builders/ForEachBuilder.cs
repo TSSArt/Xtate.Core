@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,19 +17,24 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
-using Xtate.Core;
+namespace Xtate.Builder;
 
-namespace Xtate.Builder
+public class ForEachBuilder : BuilderBase, IForEachBuilder
 {
-	public class ForEachBuilder : BuilderBase, IForEachBuilder
-	{
-		private ImmutableArray<IExecutableEntity>.Builder? _actions;
-		private IValueExpression?                          _array;
-		private ILocationExpression?                       _index;
-		private ILocationExpression?                       _item;
+	private ImmutableArray<IExecutableEntity>.Builder? _actions;
+	private IValueExpression?                          _array;
+	private ILocationExpression?                       _index;
+	private ILocationExpression?                       _item;
 
+#region Interface IForEachBuilder
+
+	public IForEach Build() => new ForEachEntity { Ancestor = Ancestor, Array = _array, Item = _item, Index = _index, Action = _actions?.ToImmutable() ?? default };
+
+	public void SetArray(IValueExpression array)
+	{
+		Infra.Requires(array);
+
+<<<<<<< Updated upstream
 	#region Interface IForEachBuilder
 
 		public IForEach Build() => new ForEachEntity { Ancestor = Ancestor, Array = _array, Item = _item, Index = _index, Action = _actions?.ToImmutable() ?? default };
@@ -63,5 +68,31 @@ namespace Xtate.Builder
 		}
 
 	#endregion
+=======
+		_array = array;
+>>>>>>> Stashed changes
 	}
+
+	public void SetItem(ILocationExpression item)
+	{
+		Infra.Requires(item);
+
+		_item = item;
+	}
+
+	public void SetIndex(ILocationExpression index)
+	{
+		Infra.Requires(index);
+
+		_index = index;
+	}
+
+	public void AddAction(IExecutableEntity action)
+	{
+		Infra.Requires(action);
+
+		(_actions ??= ImmutableArray.CreateBuilder<IExecutableEntity>()).Add(action);
+	}
+
+#endregion
 }

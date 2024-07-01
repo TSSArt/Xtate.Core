@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,14 +17,13 @@
 
 #endregion
 
-namespace Xtate.Builder
-{
-	public interface IHistoryBuilder
-	{
-		IHistory Build();
+namespace Xtate.Builder;
 
-		void SetId(IIdentifier id);
-		void SetType(HistoryType type);
-		void SetTransition(ITransition transition);
-	}
+public interface IHistoryBuilder
+{
+	IHistory Build();
+
+	void SetId(IIdentifier id);
+	void SetType(HistoryType type);
+	void SetTransition(ITransition transition);
 }

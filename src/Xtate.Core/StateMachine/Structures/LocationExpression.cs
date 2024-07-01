@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,34 +17,33 @@
 
 #endregion
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public struct LocationExpression : ILocationExpression, IVisitorEntity<LocationExpression, ILocationExpression>, IAncestorProvider
 {
-	public struct LocationExpression : ILocationExpression, IVisitorEntity<LocationExpression, ILocationExpression>, IAncestorProvider
-	{
-		internal object? Ancestor;
+	internal object? Ancestor;
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => Ancestor;
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
 
-	#endregion
+#endregion
 
-	#region Interface ILocationExpression
+#region Interface ILocationExpression
 
-		public string? Expression { get; set; }
+	public string? Expression { get; set; }
 
-	#endregion
+#endregion
 
-	#region Interface IVisitorEntity<LocationExpression,ILocationExpression>
+#region Interface IVisitorEntity<LocationExpression,ILocationExpression>
 
-		void IVisitorEntity<LocationExpression, ILocationExpression>.Init(ILocationExpression source)
-		{
-			Ancestor = source;
-			Expression = source.Expression;
-		}
-
-		bool IVisitorEntity<LocationExpression, ILocationExpression>.RefEquals(ref LocationExpression other) => ReferenceEquals(Expression, other.Expression);
-
-	#endregion
+	void IVisitorEntity<LocationExpression, ILocationExpression>.Init(ILocationExpression source)
+	{
+		Ancestor = source;
+		Expression = source.Expression;
 	}
+
+	readonly bool IVisitorEntity<LocationExpression, ILocationExpression>.RefEquals(ref LocationExpression other) => ReferenceEquals(Expression, other.Expression);
+
+#endregion
 }

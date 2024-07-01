@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,12 +17,11 @@
 
 #endregion
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public enum DataModelAccess
 {
-	public enum DataModelAccess
-	{
-		Writable = 0,
-		ReadOnly = 1,
-		Constant = 2
-	}
+	Writable = 0,
+	ReadOnly = 1,
+	Constant = 2
 }

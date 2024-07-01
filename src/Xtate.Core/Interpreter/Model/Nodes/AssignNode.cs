@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
-
+﻿// Copyright © 2019-2023 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,54 +15,50 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
-using System;
 using Xtate.Persistence;
 
-namespace Xtate.Core
+namespace Xtate.Core;
+
+public sealed class AssignNode(DocumentIdNode documentIdNode, IAssign assign) : ExecutableEntityNode(documentIdNode, assign), IAssign, IAncestorProvider, IDebugEntityId
 {
+<<<<<<< Updated upstream
 	public sealed class AssignNode : ExecutableEntityNode, IAssign, IAncestorProvider, IDebugEntityId
+=======
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => assign;
+
+#endregion
+
+#region Interface IAssign
+
+	public ILocationExpression? Location => assign.Location;
+
+	public IValueExpression? Expression => assign.Expression;
+
+	public IInlineContent? InlineContent => assign.InlineContent;
+
+	public string? Type => assign.Type;
+
+	public string? Attribute => assign.Attribute;
+
+#endregion
+
+#region Interface IDebugEntityId
+
+	FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
+
+#endregion
+
+	protected override void Store(Bucket bucket)
+>>>>>>> Stashed changes
 	{
-		private readonly IAssign _assign;
-
-		public AssignNode(DocumentIdNode documentIdNode, IAssign assign) : base(documentIdNode, assign) => _assign = assign;
-
-	#region Interface IAncestorProvider
-
-		object IAncestorProvider.Ancestor => _assign;
-
-	#endregion
-
-	#region Interface IAssign
-
-		public ILocationExpression? Location => _assign.Location;
-
-		public IValueExpression? Expression => _assign.Expression;
-
-		public IInlineContent? InlineContent => _assign.InlineContent;
-
-		public string? Type => _assign.Type;
-
-		public string? Attribute => _assign.Attribute;
-
-	#endregion
-
-	#region Interface IDebugEntityId
-
-		FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
-
-	#endregion
-
-		protected override void Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.AssignNode);
-			bucket.Add(Key.DocumentId, DocumentId);
-			bucket.AddEntity(Key.Location, Location);
-			bucket.AddEntity(Key.Expression, Expression);
-			bucket.Add(Key.InlineContent, InlineContent?.Value);
-			bucket.Add(Key.Type, Type);
-			bucket.Add(Key.Attribute, Attribute);
-		}
+		bucket.Add(Key.TypeInfo, TypeInfo.AssignNode);
+		bucket.Add(Key.DocumentId, DocumentId);
+		bucket.AddEntity(Key.Location, Location);
+		bucket.AddEntity(Key.Expression, Expression);
+		bucket.Add(Key.InlineContent, InlineContent?.Value);
+		bucket.Add(Key.Type, Type);
+		bucket.Add(Key.Attribute, Attribute);
 	}
 }

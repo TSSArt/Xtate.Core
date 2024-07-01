@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
-
+﻿// Copyright © 2019-2023 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,61 +15,52 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
+namespace Xtate.Core;
 
-using System;
-using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
-
-namespace Xtate.Core
+public static class AncestorProviderExtensions
 {
-	internal static class AncestorProviderExtensions
+	public static T As<T>(this object entity) where T : notnull
 	{
-		[return: NotNull]
-		public static T As<T>(this object entity)
+		Infra.Requires(entity);
+
+		if (entity.Is<T>(out var result))
 		{
-			if (entity is null) throw new ArgumentNullException(nameof(entity));
-
-			if (entity.Is<T>(out var result))
-			{
-				return result;
-			}
-
-			throw new InvalidCastException(Res.Format(Resources.Exception_TypeCantBeFound, typeof(T).Name, entity.GetType().Name));
+			return result;
 		}
 
-		public static bool Is<T>(this object? entity) => entity.Is<T>(out _);
+		throw new InvalidCastException(Res.Format(Resources.Exception_TypeCantBeFound, typeof(T).Name, entity.GetType().Name));
+	}
 
-		public static bool Is<T>(this object? entity,
-								 [NotNullWhen(true)] [MaybeNullWhen(false)]
-								 out T value)
+	public static bool Is<T>(this object? entity) => entity.Is<T>(out _);
+
+	public static bool Is<T>(this object? entity, [NotNullWhen(true)] [MaybeNullWhen(false)] out T value)
+	{
+		while (true)
 		{
-			while (true)
+			switch (entity)
 			{
-				switch (entity)
-				{
-					case null:
-						value = default!;
-						return false;
+				case null:
+					value = default!;
+					return false;
 
-					case AncestorContainer { Value: T ancestorValue }:
-						value = ancestorValue;
-						return true;
+				case AncestorContainer { Value: T ancestorValue }:
+					value = ancestorValue;
+					return true;
 
-					case T tValue:
-						value = tValue;
-						return true;
+				case T tValue:
+					value = tValue;
+					return true;
 
-					case IAncestorProvider provider:
-						entity = provider.Ancestor;
-						break;
+				case IAncestorProvider provider:
+					entity = provider.Ancestor;
+					break;
 
-					default:
-						value = default!;
-						return false;
-				}
+				default:
+					value = default!;
+					return false;
 			}
 		}
+<<<<<<< Updated upstream
 
 		public static ImmutableArray<TDestination> AsArrayOf<TSource, TDestination>(this ImmutableArray<TSource> array, bool emptyArrayIfDefault = false)
 		{
@@ -80,5 +71,17 @@ namespace Xtate.Core
 
 			return ImmutableArray.CreateRange(array, item => item is not null ? item.As<TDestination>() : default!);
 		}
+=======
+	}
+
+	public static ImmutableArray<TDestination> AsArrayOf<TSource, TDestination>(this ImmutableArray<TSource> array, bool emptyArrayIfDefault = false) where TDestination : notnull
+	{
+		if (array.IsDefault)
+		{
+			return emptyArrayIfDefault ? [] : default;
+		}
+
+		return ImmutableArray.CreateRange(array, item => item is not null ? item.As<TDestination>() : default!);
+>>>>>>> Stashed changes
 	}
 }

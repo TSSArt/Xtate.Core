@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,56 +17,40 @@
 
 #endregion
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Xtate.Service;
 
-namespace Xtate.Core
-{
-	internal class ServiceCommunication : IServiceCommunication
-	{
-		private readonly IStateMachineHost _host;
-		private readonly InvokeId          _invokeId;
-		private readonly Uri?              _target;
-		private readonly Uri               _type;
+namespace Xtate.Core;
 
-		public ServiceCommunication(IStateMachineHost host,
-									Uri? target,
-									Uri type,
-									InvokeId invokeId)
-		{
-			_host = host;
-			_target = target;
-			_type = type;
-			_invokeId = invokeId;
-		}
+internal class ServiceCommunication(IStateMachineHost host,
+							Uri? target,
+							Uri type,
+							InvokeId invokeId) : IServiceCommunication
+{
 
 	#region Interface IServiceCommunication
 
-		public async ValueTask SendToCreator(IOutgoingEvent outgoingEvent, CancellationToken token)
+	public async ValueTask SendToCreator(IOutgoingEvent outgoingEvent, CancellationToken token)
+	{
+		if (outgoingEvent.Type is not null || outgoingEvent.SendId is not null || outgoingEvent.DelayMs != 0)
 		{
-			if (outgoingEvent.Type is not null || outgoingEvent.SendId is not null || outgoingEvent.DelayMs != 0)
-			{
-				throw new ProcessorException(Resources.Exception_TypeSendIdDelayMsCantBeSpecifiedForThisEvent);
-			}
-
-			if (outgoingEvent.Target != EventEntity.ParentTarget && outgoingEvent.Target is not null)
-			{
-				throw new ProcessorException(Resources.Exception_TargetShouldBeEqualToParentOrNull);
-			}
-
-			var newOutgoingEvent = new EventEntity
-								   {
-									   NameParts = outgoingEvent.NameParts,
-									   Data = outgoingEvent.Data,
-									   Type = _type,
-									   Target = _target
-								   };
-
-			await _host.DispatchEvent(_invokeId, newOutgoingEvent, token).ConfigureAwait(false);
+			throw new ProcessorException(Resources.Exception_TypeSendIdDelayMsCantBeSpecifiedForThisEvent);
 		}
 
-	#endregion
+		if (outgoingEvent.Target != EventEntity.ParentTarget && outgoingEvent.Target is not null)
+		{
+			throw new ProcessorException(Resources.Exception_TargetShouldBeEqualToParentOrNull);
+		}
+
+		var newOutgoingEvent = new EventEntity
+							   {
+								   NameParts = outgoingEvent.NameParts,
+								   Data = outgoingEvent.Data,
+								   Type = type,
+								   Target = target
+							   };
+
+		await host.DispatchEvent(invokeId, newOutgoingEvent, token).ConfigureAwait(false);
 	}
+
+#endregion
 }

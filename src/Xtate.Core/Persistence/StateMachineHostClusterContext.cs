@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,11 +17,11 @@
 
 #endregion
 
-using System;
-using Xtate.Core;
+namespace Xtate.Persistence;
 
-namespace Xtate.Persistence
+internal sealed class StateMachineHostClusterContext(StateMachineHost stateMachineHost, StateMachineHostOptions options) : StateMachineHostContext(stateMachineHost, options, new PersistedEventSchedulerFactory(options))
 {
+<<<<<<< Updated upstream
 	internal sealed class StateMachineHostClusterContext : StateMachineHostContext
 	{
 		private readonly StateMachineHost _stateMachineHost;
@@ -41,4 +41,18 @@ namespace Xtate.Persistence
 				_stateMachineInterpreterFactory = default, sd = default, EventQueueWriter = default
 			};
 	}
+=======
+	protected override StateMachineControllerBase CreateStateMachineController(SessionId sessionId,
+																			   IStateMachine? stateMachine,
+																			   IStateMachineOptions? stateMachineOptions,
+																			   Uri? stateMachineLocation,
+																			   InterpreterOptions defaultOptions
+																			   //SecurityContext securityContext,
+																			   //DeferredFinalizer finalizer
+		) =>
+		new StateMachineSingleMacroStepController(sessionId, stateMachineOptions, stateMachine, stateMachineLocation, stateMachineHost, defaultOptions)
+		{
+			_stateMachineInterpreterFactory = default!, EventQueueWriter = default!
+		};
+>>>>>>> Stashed changes
 }

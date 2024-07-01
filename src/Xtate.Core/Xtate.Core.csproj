@@ -3,24 +3,28 @@
   <Import Condition="'$(Version)'==''" Project="..\..\Version.props" />
 
   <PropertyGroup>
+<<<<<<< Updated upstream
     <TargetFrameworks>net6.0;netstandard2.0;net461</TargetFrameworks>
+=======
+    <TargetFrameworks>net8.0;netstandard2.0;net462</TargetFrameworks>
+>>>>>>> Stashed changes
     <Nullable>enable</Nullable>
     <RepositoryUrl>https://github.com/TSSArt/Xtate.Core</RepositoryUrl>
     <PackageId>Xtate.Core</PackageId>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='net461'">
-    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
+  <ItemGroup Condition="'$(TargetFramework)'=='net462'">
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0' or '$(TargetFramework)'=='net461'">
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="5.0.0" />
-    <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
-    <PackageReference Include="System.Text.Json" Version="5.0.1" />
+  <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0' or '$(TargetFramework)'=='net462'">
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="8.0.0" />
+    <PackageReference Include="System.Collections.Immutable" Version="8.0.0" />
+    <PackageReference Include="System.Text.Json" Version="8.0.3" />
   </ItemGroup>
 
   <ItemGroup>
+<<<<<<< Updated upstream
     <Compile Remove="IoC\**" />
     <EmbeddedResource Remove="IoC\**" />
     <None Remove="IoC\**" />
@@ -33,21 +37,30 @@
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="5.0.3" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeQuality.Analyzers" Version="3.3.1" PrivateAssets="all" />
     <PackageReference Include="ConfigureAwaitChecker.Analyzer" Version="5.0.0" PrivateAssets="all" />
+=======
+    <PackageReference Include="Xtate.SharedContent" Version="0.2.19" />
+    <PackageReference Include="System.Threading.Channels" Version="8.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0" PrivateAssets="all" />
+    <PackageReference Include="ConfigureAwaitChecker.Analyzer" Version="5.0.0.1" PrivateAssets="all" />
+>>>>>>> Stashed changes
   </ItemGroup>
 
   <ItemGroup>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
       <_Parameter1>$(MSBuildProjectName).Test</_Parameter1>
     </AssemblyAttribute>
-    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
-      <_Parameter1>Xtate.UnitTest</_Parameter1>
-    </AssemblyAttribute>
-    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
-      <_Parameter1>Xtate.BenchmarkTest</_Parameter1>
-    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(UseProjectReference)'=='true'">
+	  <ProjectReference Include="$(XtateIoCRepoPath)src\Xtate.IoC\Xtate.IoC.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(UseProjectReference)'==''">
+	  <PackageReference Include="Xtate.IoC" Version="0.2.40" />
   </ItemGroup>
 
   <ItemGroup>
+<<<<<<< Updated upstream
     <Compile Include="IoC\Container.cs" />
   </ItemGroup>
 
@@ -61,6 +74,8 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>MvpResources.resx</DependentUpon>
     </Compile>
+=======
+>>>>>>> Stashed changes
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -69,11 +84,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Update="Properties\MvpResources.resx">
-      <CustomToolNamespace>Mvp.Xml.Properties</CustomToolNamespace>
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>MvpResources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
     <EmbeddedResource Update="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

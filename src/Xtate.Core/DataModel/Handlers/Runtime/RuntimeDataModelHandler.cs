@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2021 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,11 +17,16 @@
 
 #endregion
 
+<<<<<<< Updated upstream
 using System;
 using Xtate.Core;
+=======
+namespace Xtate.DataModel.Runtime;
+>>>>>>> Stashed changes
 
-namespace Xtate.DataModel.Runtime
+public class RuntimeDataModelHandler : DataModelHandlerBase
 {
+<<<<<<< Updated upstream
 	public class RuntimeDataModelHandler : DataModelHandlerBase
 	{
 		public required Func<RuntimePredicate, RuntimePredicateEvaluator> RuntimePredicateEvaluatorFactory { private get; init; }
@@ -58,8 +63,30 @@ namespace Xtate.DataModel.Runtime
 			{
 				RuntimeErrorProcessorService.AddError(valueExpression, Resources.ErrorMessage_RuntimeValueOnlyAllowed);
 			}
-		}
+=======
+	public required Func<RuntimePredicate, RuntimePredicateEvaluator> RuntimePredicateEvaluatorFactory { private get; [UsedImplicitly] init; }
+	public required Func<RuntimeValue, RuntimeValueEvaluator>         RuntimeValueEvaluatorFactory     { private get; [UsedImplicitly] init; }
+	public required Func<RuntimeAction, RuntimeActionExecutor>        RuntimeActionExecutorFactory     { private get; [UsedImplicitly] init; }
+	public required IErrorProcessorService<RuntimeDataModelHandler>   RuntimeErrorProcessorService     { private get; [UsedImplicitly] init; }
 
+	protected override void Visit(ref IScript script) => RuntimeErrorProcessorService.AddError(script, Resources.ErrorMessage_ScriptingNotSupportedInRuntimeDataModel);
+
+	protected override void Visit(ref IDataModel dataModel) => RuntimeErrorProcessorService.AddError(dataModel, Resources.ErrorMessage_DataModelNotSupportedInRuntime);
+
+	protected override void Visit(ref IConditionExpression conditionExpression)
+	{
+		if (conditionExpression is RuntimePredicate runtimePredicate)
+		{
+			conditionExpression = RuntimePredicateEvaluatorFactory(runtimePredicate);
+		}
+		else
+		{
+			RuntimeErrorProcessorService.AddError(conditionExpression, Resources.ErrorMessage_RuntimePredicateOnlyAllowed);
+>>>>>>> Stashed changes
+		}
+	}
+
+<<<<<<< Updated upstream
 		protected override void VisitUnknown(ref IExecutableEntity executableEntity)
 		{
 			if (executableEntity is RuntimeAction runtimeAction)
@@ -70,6 +97,29 @@ namespace Xtate.DataModel.Runtime
 			{
 				RuntimeErrorProcessorService.AddError(executableEntity, Resources.ErrorMessage_RuntimeActionOnlyAllowed);
 			}
+=======
+	protected override void Visit(ref IValueExpression valueExpression)
+	{
+		if (valueExpression is RuntimeValue runtimeValue)
+		{
+			valueExpression = RuntimeValueEvaluatorFactory(runtimeValue);
+		}
+		else
+		{
+			RuntimeErrorProcessorService.AddError(valueExpression, Resources.ErrorMessage_RuntimeValueOnlyAllowed);
+		}
+	}
+
+	protected override void VisitUnknown(ref IExecutableEntity executableEntity)
+	{
+		if (executableEntity is RuntimeAction runtimeAction)
+		{
+			executableEntity = RuntimeActionExecutorFactory(runtimeAction);
+		}
+		else
+		{
+			RuntimeErrorProcessorService.AddError(executableEntity, Resources.ErrorMessage_RuntimeActionOnlyAllowed);
+>>>>>>> Stashed changes
 		}
 	}
 }
