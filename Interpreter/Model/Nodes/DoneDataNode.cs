@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,58 +17,71 @@
 
 #endregion
 
-using System.Collections.Immutable;
-using System.Threading;
-using System.Threading.Tasks;
 using Xtate.DataModel;
 using Xtate.Persistence;
 
-namespace Xtate
+namespace Xtate.Core;
+
+public sealed class DoneDataNode : IDoneData, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 {
-	internal sealed class DoneDataNode : IDoneData, IStoreSupport, IAncestorProvider
+	private readonly IValueEvaluator?                    _contentBodyEvaluator;
+	private readonly IObjectEvaluator?                   _contentExpressionEvaluator;
+	private readonly IDoneData                           _doneData;
+	private readonly ImmutableArray<DataConverter.Param> _parameterList;
+	private          DocumentIdSlot                      _documentIdSlot;
+
+	public DoneDataNode(DocumentIdNode documentIdNode, IDoneData doneData)
 	{
-		private readonly DoneDataEntity   _doneData;
-		private readonly IObjectEvaluator _doneDataEvaluator;
+		_doneData = doneData;
+		documentIdNode.SaveToSlot(out _documentIdSlot);
+		_contentExpressionEvaluator = doneData.Content?.Expression?.As<IObjectEvaluator>();
+		_contentBodyEvaluator = doneData.Content?.Body?.As<IValueEvaluator>();
+		_parameterList = DataConverter.AsParamArray(doneData.Parameters);
+	}
 
-		public DoneDataNode(in DoneDataEntity doneData)
-		{
-			_doneData = doneData;
+	public required Func<ValueTask<DataConverter>> DataConverterFactory { private get; [UsedImplicitly] init; }
 
-			Infrastructure.NotNull(doneData.Ancestor);
+#region Interface IAncestorProvider
 
-			_doneDataEvaluator = doneData.Ancestor.As<IObjectEvaluator>();
-		}
+	object IAncestorProvider.Ancestor => _doneData;
 
-	#region Interface IAncestorProvider
+#endregion
 
-		object? IAncestorProvider.Ancestor => _doneData.Ancestor;
+#region Interface IDebugEntityId
 
-	#endregion
+	public FormattableString EntityId => @$"(#{DocumentId})";
 
-	#region Interface IDoneData
+#endregion
 
-		public IContent? Content => _doneData.Content;
+#region Interface IDocumentId
 
-		public ImmutableArray<IParam> Parameters => _doneData.Parameters;
+	public int DocumentId => _documentIdSlot.CreateValue();
 
-	#endregion
+#endregion
 
-	#region Interface IStoreSupport
+#region Interface IDoneData
 
-		void IStoreSupport.Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.DoneDataNode);
-			bucket.AddEntity(Key.Content, Content);
-			bucket.AddEntityList(Key.Parameters, Parameters);
-		}
+	public IContent? Content => _doneData.Content;
 
-	#endregion
+	public ImmutableArray<IParam> Parameters => _doneData.Parameters;
 
-		public async ValueTask<DataModelValue> Evaluate(IExecutionContext executionContext, CancellationToken token)
-		{
-			var obj = await _doneDataEvaluator.EvaluateObject(executionContext, token).ConfigureAwait(false);
+#endregion
 
-			return DataModelValue.FromObject(obj);
-		}
+#region Interface IStoreSupport
+
+	void IStoreSupport.Store(Bucket bucket)
+	{
+		bucket.Add(Key.TypeInfo, TypeInfo.DoneDataNode);
+		bucket.AddEntity(Key.Content, Content);
+		bucket.AddEntityList(Key.Parameters, Parameters);
+	}
+
+#endregion
+
+	public async ValueTask<DataModelValue> Evaluate()
+	{
+		var dataConverter = await DataConverterFactory().ConfigureAwait(false);
+
+		return await dataConverter.GetData(_contentBodyEvaluator, _contentExpressionEvaluator, nameEvaluatorList: default, _parameterList).ConfigureAwait(false);
 	}
 }

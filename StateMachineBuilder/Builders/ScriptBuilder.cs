@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,25 +17,30 @@
 
 #endregion
 
-using System;
+namespace Xtate.Builder;
 
-namespace Xtate.Builder
+public class ScriptBuilder : BuilderBase, IScriptBuilder
 {
-	public class ScriptBuilder : BuilderBase, IScriptBuilder
+	private IScriptExpression?         _body;
+	private IExternalScriptExpression? _source;
+
+#region Interface IScriptBuilder
+
+	public IScript Build() => new ScriptEntity { Ancestor = Ancestor, Source = _source, Content = _body };
+
+	public void SetSource(IExternalScriptExpression source)
 	{
-		private IScriptExpression?         _body;
-		private IExternalScriptExpression? _source;
+		Infra.Requires(source);
 
-		public ScriptBuilder(IErrorProcessor errorProcessor, object? ancestor) : base(errorProcessor, ancestor) { }
-
-	#region Interface IScriptBuilder
-
-		public IScript Build() => new ScriptEntity { Ancestor = Ancestor, Source = _source, Content = _body };
-
-		public void SetSource(IExternalScriptExpression source) => _source = source ?? throw new ArgumentNullException(nameof(source));
-
-		public void SetBody(IScriptExpression body) => _body = body ?? throw new ArgumentNullException(nameof(body));
-
-	#endregion
+		_source = source;
 	}
+
+	public void SetBody(IScriptExpression body)
+	{
+		Infra.Requires(body);
+
+		_body = body;
+	}
+
+#endregion
 }

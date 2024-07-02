@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,19 +17,8 @@
 
 #endregion
 
-using Xtate.Annotations;
+namespace Xtate.CustomAction;
 
-namespace Xtate.CustomAction
-{
-	[PublicAPI]
-	[CustomActionProvider("http://xtate.net/scxml/system")]
-	public class SystemActionFactory : CustomActionFactoryBase
-	{
-		public static readonly ICustomActionFactory Instance = new SystemActionFactory();
+public class StartActionProvider() : CustomActionProvider<StartAction>(ns: "http://xtate.net/scxml/system", name: "start");
 
-		private SystemActionFactory()
-		{
-			Register(name: "start", (xmlReader, context) => new StartAction(xmlReader, context));
-		}
-	}
-}
+public class DestroyActionProvider() : CustomActionProvider<DestroyAction>(ns: "http://xtate.net/scxml/system", name: "destroy");

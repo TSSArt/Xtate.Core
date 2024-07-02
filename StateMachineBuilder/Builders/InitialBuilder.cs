@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,22 +17,22 @@
 
 #endregion
 
-using System;
+namespace Xtate.Builder;
 
-namespace Xtate.Builder
+public class InitialBuilder : BuilderBase, IInitialBuilder
 {
-	public class InitialBuilder : BuilderBase, IInitialBuilder
+	private ITransition? _transition;
+
+#region Interface IInitialBuilder
+
+	public IInitial Build() => new InitialEntity { Ancestor = Ancestor, Transition = _transition };
+
+	public void SetTransition(ITransition transition)
 	{
-		private ITransition? _transition;
+		Infra.Requires(transition);
 
-		public InitialBuilder(IErrorProcessor errorProcessor, object? ancestor) : base(errorProcessor, ancestor) { }
-
-	#region Interface IInitialBuilder
-
-		public IInitial Build() => new InitialEntity { Ancestor = Ancestor, Transition = _transition };
-
-		public void SetTransition(ITransition transition) => _transition = transition ?? throw new ArgumentNullException(nameof(transition));
-
-	#endregion
+		_transition = transition;
 	}
+
+#endregion
 }

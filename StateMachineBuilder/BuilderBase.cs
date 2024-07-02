@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,25 +17,9 @@
 
 #endregion
 
-using System;
+namespace Xtate.Builder;
 
-namespace Xtate.Builder
+public abstract class BuilderBase
 {
-	public abstract class BuilderBase
-	{
-		private readonly IErrorProcessor _errorProcessor;
-
-		protected BuilderBase(IErrorProcessor errorProcessor, object? ancestor)
-		{
-			_errorProcessor = errorProcessor;
-			Ancestor = ancestor;
-		}
-
-		protected object? Ancestor { get; }
-
-		protected void AddError(string message, Exception? exception = default)
-		{
-			_errorProcessor.AddError(GetType(), Ancestor, message, exception);
-		}
-	}
+	public object? Ancestor { protected get; [UsedImplicitly] init; }
 }

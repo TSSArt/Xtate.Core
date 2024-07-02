@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,12 +17,11 @@
 
 #endregion
 
-namespace Xtate.Builder
-{
-	public interface IRaiseBuilder
-	{
-		IRaise Build();
+namespace Xtate.Builder;
 
-		void SetEvent(IOutgoingEvent evt);
-	}
+public interface IRaiseBuilder
+{
+	IRaise Build();
+
+	void SetEvent(IOutgoingEvent outgoingEvent);
 }

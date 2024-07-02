@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,43 +17,46 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
+namespace Xtate.Builder;
 
-namespace Xtate.Builder
+public class FinalBuilder : BuilderBase, IFinalBuilder
 {
-	public class FinalBuilder : BuilderBase, IFinalBuilder
+	private IDoneData?                        _doneData;
+	private IIdentifier?                      _id;
+	private ImmutableArray<IOnEntry>.Builder? _onEntryList;
+	private ImmutableArray<IOnExit>.Builder?  _onExitList;
+
+#region Interface IFinalBuilder
+
+	public IFinal Build() => new FinalEntity { Ancestor = Ancestor, Id = _id, OnEntry = _onEntryList?.ToImmutable() ?? default, OnExit = _onExitList?.ToImmutable() ?? default, DoneData = _doneData };
+
+	public void SetId(IIdentifier id)
 	{
-		private IDoneData?                        _doneData;
-		private IIdentifier?                      _id;
-		private ImmutableArray<IOnEntry>.Builder? _onEntryList;
-		private ImmutableArray<IOnExit>.Builder?  _onExitList;
+		Infra.Requires(id);
 
-		public FinalBuilder(IErrorProcessor errorProcessor, object? ancestor) : base(errorProcessor, ancestor) { }
-
-	#region Interface IFinalBuilder
-
-		public IFinal Build() =>
-				new FinalEntity { Ancestor = Ancestor, Id = _id, OnEntry = _onEntryList?.ToImmutable() ?? default, OnExit = _onExitList?.ToImmutable() ?? default, DoneData = _doneData };
-
-		public void SetId(IIdentifier id) => _id = id ?? throw new ArgumentNullException(nameof(id));
-
-		public void AddOnEntry(IOnEntry onEntry)
-		{
-			if (onEntry is null) throw new ArgumentNullException(nameof(onEntry));
-
-			(_onEntryList ??= ImmutableArray.CreateBuilder<IOnEntry>()).Add(onEntry);
-		}
-
-		public void AddOnExit(IOnExit onExit)
-		{
-			if (onExit is null) throw new ArgumentNullException(nameof(onExit));
-
-			(_onExitList ??= ImmutableArray.CreateBuilder<IOnExit>()).Add(onExit);
-		}
-
-		public void SetDoneData(IDoneData doneData) => _doneData = doneData ?? throw new ArgumentNullException(nameof(doneData));
-
-	#endregion
+		_id = id;
 	}
+
+	public void AddOnEntry(IOnEntry onEntry)
+	{
+		Infra.Requires(onEntry);
+
+		(_onEntryList ??= ImmutableArray.CreateBuilder<IOnEntry>()).Add(onEntry);
+	}
+
+	public void AddOnExit(IOnExit onExit)
+	{
+		Infra.Requires(onExit);
+
+		(_onExitList ??= ImmutableArray.CreateBuilder<IOnExit>()).Add(onExit);
+	}
+
+	public void SetDoneData(IDoneData doneData)
+	{
+		Infra.Requires(doneData);
+
+		_doneData = doneData;
+	}
+
+#endregion
 }

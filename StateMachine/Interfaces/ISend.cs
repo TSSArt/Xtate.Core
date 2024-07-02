@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,25 +17,21 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
+namespace Xtate;
 
-namespace Xtate
+public interface ISend : IExecutableEntity
 {
-	public interface ISend : IExecutableEntity
-	{
-		string?                             EventName        { get; }
-		IValueExpression?                   EventExpression  { get; }
-		Uri?                                Target           { get; }
-		IValueExpression?                   TargetExpression { get; }
-		Uri?                                Type             { get; }
-		IValueExpression?                   TypeExpression   { get; }
-		string?                             Id               { get; }
-		ILocationExpression?                IdLocation       { get; }
-		int?                                DelayMs          { get; }
-		IValueExpression?                   DelayExpression  { get; }
-		ImmutableArray<ILocationExpression> NameList         { get; }
-		ImmutableArray<IParam>              Parameters       { get; }
-		IContent?                           Content          { get; }
-	}
+	string?                             EventName        { get; }
+	IValueExpression?                   EventExpression  { get; }
+	Uri?                                Target           { get; }
+	IValueExpression?                   TargetExpression { get; }
+	Uri?                                Type             { get; }
+	IValueExpression?                   TypeExpression   { get; }
+	string?                             Id               { get; }
+	ILocationExpression?                IdLocation       { get; }
+	int?                                DelayMs          { get; }
+	IValueExpression?                   DelayExpression  { get; }
+	ImmutableArray<ILocationExpression> NameList         { get; }
+	ImmutableArray<IParam>              Parameters       { get; }
+	IContent?                           Content          { get; }
 }

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,159 +17,270 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+namespace Xtate.Core;
 
-namespace Xtate
+//TODO: uncomment
+public partial class StateMachineInterpreter //: IInterpreterLoggerContext
 {
-	public sealed partial class StateMachineInterpreter : ILoggerContext
+	/*
+#region Interface IInterpreterLoggerContext
+
+	public string ConvertToText(DataModelValue value)
 	{
-	#region Interface ILoggerContext
+		Infra.NotNull(_dataModelHandler);
 
-		DataModelObject ILoggerContext.GetDataModel() => _context.DataModel.AsConstant();
+		return _dataModelHandler.ConvertToText(value);
+	}
 
-		DataModelArray ILoggerContext.GetActiveStates()
+	public DataModelValue GetDataModel()
+	{
+		if (_context == null!)
 		{
-			var list = new DataModelArray();
+			return default;
+		}
 
+		return new LazyValue<IStateMachineContext>(stateMachineContext => stateMachineContext.DataModel.AsConstant(), _context);
+	}
+
+	ImmutableArray<string> IInterpreterLoggerContext.GetActiveStates()
+	{
+		if (_context == null!)
+		{
+			return ImmutableArray<string>.Empty;
+		}
+
+		var configuration = _context.Configuration;
+
+		var list = ImmutableArray.CreateBuilder<string>(configuration.Count);
+
+		foreach (var node in configuration)
+		{
+			list.Add(node.Id.Value);
+		}
+
+		return list.MoveToImmutable();
+	}
+
+	IStateMachine IInterpreterLoggerContext.StateMachine => GetStateMachine();
+
+	SessionId IInterpreterLoggerContext.SessionId => _sessionId;
+
+#endregion
+
+#region Interface ILoggerContext
+
+	DataModelList ILoggerContext.GetProperties()
+	{
+		var properties = new DataModelList { { @"SessionId", _sessionId } };
+
+		if (GetStateMachine().Name is { } stateMachineName)
+		{
+			properties.Add(key: @"StateMachineName", stateMachineName);
+		}
+
+		if (_context.Configuration.Count > 0)
+		{
+			var activeStates = new DataModelList();
 			foreach (var node in _context.Configuration)
 			{
-				list.Add(node.Id.Value);
+				activeStates.Add(node.Id.Value);
 			}
 
-			list.MakeDeepConstant();
+			activeStates.MakeDeepConstant();
 
-			return list;
+			properties.Add(key: @"ActiveStates", activeStates);
 		}
 
-		SessionId? ILoggerContext.SessionId => _sessionId;
+		properties.Add(key: @"DataModel", GetDataModel());
 
-		string? ILoggerContext.StateMachineName => _model.Root.Name;
+		properties.MakeDeepConstant();
 
-	#endregion
+		return properties;
+	}
 
-		private bool IsPlatformError(Exception exception)
+	string ILoggerContext.LoggerContextType => nameof(IInterpreterLoggerContext);
+
+#endregion
+	*/
+	/*
+	private IStateMachine GetStateMachine()
+	{
+		if (_model is not null)
 		{
-			for (; exception is { }; exception = exception.InnerException)
-			{
-				if (exception is PlatformException ex && ex.SessionId == _sessionId)
-				{
-					return true;
-				}
-			}
-
-			return false;
+			return _model.Root;
 		}
 
-		private async ValueTask LogInformation(string? label, DataModelValue data, CancellationToken token)
+		Infra.NotNull(_stateMachine);
+
+		return _stateMachine;
+	}
+	*/
+}
+
+public abstract class EntityParserBase<TEntity> : IEntityParserProvider, IEntityParserHandler
+{
+#region Interface IEntityParserHandler
+
+	IEnumerable<LoggingParameter> IEntityParserHandler.EnumerateProperties<T>(T entity) => EnumerateProperties(ConvertHelper<T, TEntity>.Convert(entity));
+
+#endregion
+
+#region Interface IEntityParserProvider
+
+	public virtual IEntityParserHandler? TryGetEntityParserHandler<T>(T entity) => entity is TEntity ? this : default;
+
+#endregion
+
+	protected abstract IEnumerable<LoggingParameter> EnumerateProperties(TEntity entity);
+}
+
+public class StateEntityParser : EntityParserBase<IStateEntity>
+{
+	protected override IEnumerable<LoggingParameter> EnumerateProperties(IStateEntity stateEntity)
+	{
+		Infra.Requires(stateEntity);
+
+		if (stateEntity.Id is { } stateId)
 		{
-			try
-			{
-				await _logger.ExecuteLog(this, label, data, token).ConfigureAwait(false);
-			}
-			catch (Exception ex)
-			{
-				throw new PlatformException(ex, _sessionId);
-			}
+			yield return new LoggingParameter(name: @"StateId", stateId);
+		}
+	}
+}
+
+public class InvokeIdEntityParser : EntityParserBase<InvokeId?>
+{
+	protected override IEnumerable<LoggingParameter> EnumerateProperties(InvokeId? invokeId)
+	{
+		if (invokeId is not null)
+		{
+			yield return new LoggingParameter(name: @"InvokeId", invokeId);
+		}
+	}
+}
+
+public class DataModelValueEntityParser : EntityParserBase<DataModelValue>
+{
+	protected override IEnumerable<LoggingParameter> EnumerateProperties(DataModelValue value)
+	{
+		if (!value.IsUndefined())
+		{
+			yield return new LoggingParameter(name: @"Parameter", value);
+		}
+	}
+}
+
+public class ExceptionEntityParser : EntityParserBase<Exception>
+{
+	protected override IEnumerable<LoggingParameter> EnumerateProperties(Exception exception)
+	{
+		yield return new LoggingParameter(name: @"Exception", exception);
+	}
+}
+
+public class TransitionEntityParser : EntityParserBase<ITransition>
+{
+	protected override IEnumerable<LoggingParameter> EnumerateProperties(ITransition transition)
+	{
+		Infra.Requires(transition);
+
+		yield return new LoggingParameter(name: @"TransitionType", transition.Type);
+
+		if (!transition.EventDescriptors.IsDefaultOrEmpty)
+		{
+			yield return new LoggingParameter(name: @"EventDescriptors", EventDescriptor.ToString(transition.EventDescriptors));
 		}
 
-		private async ValueTask LogError(ErrorType errorType, string? sourceEntityId, Exception exception, CancellationToken token)
+		if (!transition.Target.IsDefaultOrEmpty)
 		{
-			try
-			{
-				await _logger.LogError(this, errorType, exception, sourceEntityId, token).ConfigureAwait(false);
-			}
-			catch (Exception ex)
-			{
-				throw new PlatformException(ex, _sessionId);
-			}
+			yield return new LoggingParameter(name: @"Target", Identifier.ToString(transition.Target));
+		}
+	}
+}
+
+public class InvokeDataEntityParser : EntityParserBase<InvokeData>
+{
+	protected override IEnumerable<LoggingParameter> EnumerateProperties(InvokeData invokeData)
+	{
+		Infra.Requires(invokeData);
+
+		if (invokeData.InvokeId is { } invokeId)
+		{
+			yield return new LoggingParameter(name: @"InvokeId", invokeId);
 		}
 
-		private void LogProcessingEvent(IEvent evt)
+		yield return new LoggingParameter(name: @"InvokeType", invokeData.Type);
+
+		if (invokeData.Source is { } source)
 		{
-			if (_logger.IsTracingEnabled)
-			{
-				_logger.TraceProcessingEvent(this, evt);
-			}
+			yield return new LoggingParameter(name: @"InvokeSource", source);
+		}
+	}
+}
+
+public class EventEntityParser : EntityParserBase<IEvent>
+{
+	protected override IEnumerable<LoggingParameter> EnumerateProperties(IEvent evt)
+	{
+		Infra.Requires(evt);
+
+		if (!evt.NameParts.IsDefaultOrEmpty)
+		{
+			yield return new LoggingParameter(name: @"EventName", EventName.ToName(evt.NameParts));
 		}
 
-		private void LogEnteringState(StateEntityNode state)
+		yield return new LoggingParameter(name: @"EventType", evt.Type);
+
+		if (evt.Origin is { } origin)
 		{
-			if (_logger.IsTracingEnabled)
-			{
-				_logger.TraceEnteringState(this, state.Id);
-			}
+			yield return new LoggingParameter(name: @"Origin", origin);
 		}
 
-		private void LogEnteredState(StateEntityNode state)
+		if (evt.OriginType is { } originType)
 		{
-			if (_logger.IsTracingEnabled)
-			{
-				_logger.TraceEnteredState(this, state.Id);
-			}
+			yield return new LoggingParameter(name: @"OriginType", originType);
 		}
 
-		private void LogExitingState(StateEntityNode state)
+		if (evt.SendId is { } sendId)
 		{
-			if (_logger.IsTracingEnabled)
-			{
-				_logger.TraceExitingState(this, state.Id);
-			}
+			yield return new LoggingParameter(name: @"SendId", sendId);
 		}
 
-		private void LogExitedState(StateEntityNode state)
+		if (evt.InvokeId is { } invokeId)
 		{
-			if (_logger.IsTracingEnabled)
-			{
-				_logger.TraceExitedState(this, state.Id);
-			}
+			yield return new LoggingParameter(name: @"InvokeId", invokeId);
+		}
+	}
+}
+
+public class OutgoingEventEntityParser : EntityParserBase<IOutgoingEvent>
+{
+	protected override IEnumerable<LoggingParameter> EnumerateProperties(IOutgoingEvent evt)
+	{
+		Infra.Requires(evt);
+
+		if (!evt.NameParts.IsDefaultOrEmpty)
+		{
+			yield return new LoggingParameter(name: @"EventName", EventName.ToName(evt.NameParts));
 		}
 
-		private void LogPerformingTransition(TransitionNode transition)
+		if (evt.SendId is { } sendId)
 		{
-			if (_logger.IsTracingEnabled)
-			{
-				_logger.TracePerformingTransition(this, transition.Type, EventDescriptorToString(transition.EventDescriptors), TargetToString(transition.Target));
-			}
+			yield return new LoggingParameter(name: @"SendId", sendId);
 		}
 
-		private void LogPerformedTransition(TransitionNode transition)
+		if (evt.Type is { } type)
 		{
-			if (_logger.IsTracingEnabled)
-			{
-				_logger.TracePerformedTransition(this, transition.Type, EventDescriptorToString(transition.EventDescriptors), TargetToString(transition.Target));
-			}
+			yield return new LoggingParameter(name: @"Type", type);
 		}
 
-		private static string? TargetToString(ImmutableArray<IIdentifier> list)
+		if (evt.Target is { } target)
 		{
-			if (list.IsDefault)
-			{
-				return null;
-			}
-
-			return string.Join(separator: @" ", list.Select(id => id.Value));
+			yield return new LoggingParameter(name: @"Target", target);
 		}
 
-		private static string? EventDescriptorToString(ImmutableArray<IEventDescriptor> list)
+		if (evt.DelayMs is var delayMs and > 0)
 		{
-			if (list.IsDefault)
-			{
-				return null;
-			}
-
-			return string.Join(separator: @" ", list.Select(id => id.Value));
-		}
-
-		private void LogInterpreterState(StateMachineInterpreterState state)
-		{
-			if (_logger.IsTracingEnabled)
-			{
-				_logger.TraceInterpreterState(this, state);
-			}
+			yield return new LoggingParameter(name: @"DelayMs", delayMs);
 		}
 	}
 }

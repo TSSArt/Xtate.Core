@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,13 +17,9 @@
 
 #endregion
 
-using System.Threading;
-using System.Threading.Tasks;
+namespace Xtate.IoProcessor;
 
-namespace Xtate.IoProcessor
+public interface IIoProcessorFactory
 {
-	public interface IIoProcessorFactory
-	{
-		ValueTask<IIoProcessor> Create(IEventConsumer eventConsumer, CancellationToken token);
-	}
+	ValueTask<IIoProcessor> Create(IEventConsumer eventConsumer, CancellationToken token);
 }

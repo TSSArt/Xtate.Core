@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,28 +17,24 @@
 
 #endregion
 
-using System.Collections.Immutable;
-using Xtate.Annotations;
+using Xtate.Persistence;
 
-namespace Xtate
+namespace Xtate.Core;
+
+public interface IInterpreterModel
 {
-	[PublicAPI]
-	internal class InterpreterModel
-	{
-		public InterpreterModel(StateMachineNode root, int maxConfigurationLength, ImmutableDictionary<int, IEntity> entityMap, ImmutableArray<DataModelNode> dataModelList)
-		{
-			Root = root;
-			MaxConfigurationLength = maxConfigurationLength;
-			EntityMap = entityMap;
-			DataModelList = dataModelList;
-		}
+	StateMachineNode Root { get; }
 
-		public StateMachineNode Root { get; }
+	IEntityMap? EntityMap { get; }
+}
 
-		public int MaxConfigurationLength { get; }
+public class InterpreterModel(StateMachineNode root, IEntityMap? entityMap) : IInterpreterModel
+{
+#region Interface IInterpreterModel
 
-		public ImmutableDictionary<int, IEntity> EntityMap { get; }
+	public StateMachineNode Root { get; } = root;
 
-		public ImmutableArray<DataModelNode> DataModelList { get; }
-	}
+	public IEntityMap? EntityMap { get; } = entityMap;
+
+#endregion
 }

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,43 +17,38 @@
 
 #endregion
 
-using System;
 using Xtate.Persistence;
 
-namespace Xtate
-{
-	internal sealed class LogNode : ExecutableEntityNode, ILog, IAncestorProvider, IDebugEntityId
-	{
-		private readonly LogEntity _entity;
+namespace Xtate.Core;
 
-		public LogNode(in DocumentIdRecord documentIdNode, in LogEntity entity) : base(documentIdNode, (ILog?) entity.Ancestor) => _entity = entity;
+public sealed class LogNode(DocumentIdNode documentIdNode, ILog log) : ExecutableEntityNode(documentIdNode, log), ILog, IAncestorProvider, IDebugEntityId
+{
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _entity.Ancestor;
+	object IAncestorProvider.Ancestor => log;
 
-	#endregion
+#endregion
 
-	#region Interface IDebugEntityId
+#region Interface IDebugEntityId
 
-		FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
+	FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
 
-	#endregion
+#endregion
 
-	#region Interface ILog
+#region Interface ILog
 
-		public string? Label => _entity.Label;
+	public string? Label => log.Label;
 
-		public IValueExpression? Expression => _entity.Expression;
+	public IValueExpression? Expression => log.Expression;
 
-	#endregion
+#endregion
 
-		protected override void Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.LogNode);
-			bucket.Add(Key.DocumentId, DocumentId);
-			bucket.Add(Key.Label, Label);
-			bucket.AddEntity(Key.Expression, Expression);
-		}
+	protected override void Store(Bucket bucket)
+	{
+		bucket.Add(Key.TypeInfo, TypeInfo.LogNode);
+		bucket.Add(Key.DocumentId, DocumentId);
+		bucket.Add(Key.Label, Label);
+		bucket.AddEntity(Key.Expression, Expression);
 	}
 }

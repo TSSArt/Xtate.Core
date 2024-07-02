@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
-
+﻿// Copyright © 2019-2023 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,45 +15,65 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
+#if NET6_0_OR_GREATER
+#pragma warning disable CA1835
+#endif
 
+using System.Buffers;
 using System.IO;
-using System.Runtime.CompilerServices;
-using Xtate.Annotations;
-#if !NETSTANDARD2_1
-using System.Threading.Tasks;
 
-#endif
+namespace Xtate.Core;
 
-namespace Xtate
+public static class StreamExtensions
 {
-	[PublicAPI]
-	public static class StreamExtensions
+	public static Stream InjectCancellationToken(this Stream stream, CancellationToken token) => new InjectedCancellationStream(stream, token);
+
+	[SuppressMessage("ReSharper", "MethodHasAsyncOverloadWithCancellation")]
+	public static async ValueTask<byte[]> ReadToEndAsync(this Stream stream, CancellationToken token)
 	{
-		public static ConfiguredStreamAwaitable ConfigureAwait(this Stream stream, bool continueOnCapturedContext) => new ConfiguredStreamAwaitable(stream, continueOnCapturedContext);
+		if (stream is null) throw new ArgumentNullException(nameof(stream));
+
+		var longLength = stream.Length - stream.Position;
+		var capacity = longLength is >= 0 and <= int.MaxValue ? (int) longLength : 0;
+
+		var memoryStream = new MemoryStream(capacity);
+		var buffer = ArrayPool<byte>.Shared.Rent(4096);
+		try
+		{
+			while (true)
+			{
+				var bytesRead = await stream.ReadAsync(buffer, offset: 0, buffer.Length, token).ConfigureAwait(false);
+				if (bytesRead == 0)
+				{
+					return memoryStream.Length == memoryStream.Capacity ? memoryStream.GetBuffer() : memoryStream.ToArray();
+				}
+
+				memoryStream.Write(buffer, offset: 0, bytesRead);
+			}
+		}
+		finally
+		{
+			ArrayPool<byte>.Shared.Return(buffer);
+		}
 	}
 
-	[PublicAPI]
-	public readonly struct ConfiguredStreamAwaitable
+#if !NET6_0_OR_GREATER
+
+	public static ConfiguredAwaitable ConfigureAwait(this Stream stream, bool continueOnCapturedContext) => new(stream, continueOnCapturedContext);
+
+	public static ValueTask DisposeAsync(this Stream stream)
 	{
-		private readonly Stream _stream;
-		private readonly bool   _continueOnCapturedContext;
+		if (stream is null) throw new ArgumentNullException(nameof(stream));
 
-		public ConfiguredStreamAwaitable(Stream stream, bool continueOnCapturedContext)
-		{
-			_stream = stream;
-			_continueOnCapturedContext = continueOnCapturedContext;
-		}
+		stream.Dispose();
 
-#if NETSTANDARD2_1
-		public ConfiguredValueTaskAwaitable DisposeAsync() => _stream.DisposeAsync().ConfigureAwait(_continueOnCapturedContext);
-#else
-		public ConfiguredValueTaskAwaitable DisposeAsync()
-		{
-			_stream.Dispose();
+		return default;
+	}
 
-			return new ValueTask().ConfigureAwait(_continueOnCapturedContext);
-		}
+	public readonly struct ConfiguredAwaitable(Stream stream, bool continueOnCapturedContext)
+	{
+		public ConfiguredValueTaskAwaitable DisposeAsync() => stream.DisposeAsync().ConfigureAwait(continueOnCapturedContext);
+	}
+
 #endif
-	}
 }

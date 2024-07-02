@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,23 +17,32 @@
 
 #endregion
 
-using System;
-using System.Diagnostics.CodeAnalysis;
+using System.ComponentModel;
 
-namespace Xtate
+namespace Xtate;
+
+
+[Serializable]
+public sealed class SendId : LazyId, IEquatable<SendId>
 {
-	[Serializable]
-	public sealed class SendId : LazyId
-	{
-		private SendId() { }
+	private SendId() { }
 
-		private SendId(string val) : base(val) { }
+	private SendId(string value) : base(value) { }
 
-		protected override string GenerateId() => IdGenerator.NewSendId(GetHashCode());
+#region Interface IEquatable<SendId>
 
-		public static SendId New() => new SendId();
+	public bool Equals(SendId? other) => FastEqualsNoTypeCheck(other);
 
-		[return: NotNullIfNotNull("val")]
-		public static SendId? FromString(string? val) => val is { } ? new SendId(val) : null;
-	}
+	#endregion
+
+	public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is SendId other && Equals(other);
+
+	public override int GetHashCode() => base.GetHashCode();
+
+	protected override string GenerateId() => IdGenerator.NewSendId(GetHashCode());
+
+	public static SendId New() => new();
+
+	[return: NotNullIfNotNull(nameof(value))]
+	public static SendId? FromString([Localizable(false)] string? value) => value is not null ? new SendId(value) : null;
 }

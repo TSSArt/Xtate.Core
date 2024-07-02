@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,15 +17,11 @@
 
 #endregion
 
-using System.Threading;
-using System.Threading.Tasks;
+namespace Xtate.Service;
 
-namespace Xtate.Service
+public interface IService : IEventDispatcher
 {
-	public interface IService
-	{
-		Task<DataModelValue> Result { get; }
-		ValueTask            Send(IEvent evt, CancellationToken token);
-		ValueTask            Destroy(CancellationToken token);
-	}
+	ValueTask<DataModelValue> GetResult(CancellationToken token);
+
+	ValueTask Destroy(CancellationToken token);
 }

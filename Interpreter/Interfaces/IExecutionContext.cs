@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,32 +17,45 @@
 
 #endregion
 
-using System.Threading;
-using System.Threading.Tasks;
+namespace Xtate;
 
-namespace Xtate
+
+public record InvokeData
 {
-	public interface IExecutionContext
+	public InvokeData(InvokeId invokeId, Uri type)
 	{
-		IContextItems RuntimeItems { get; }
-
-		DataModelObject DataModel { get; }
-
-		bool InState(IIdentifier id);
-
-		ValueTask Cancel(SendId sendId, CancellationToken token = default);
-
-		ValueTask Log(string? label, DataModelValue arguments = default, CancellationToken token = default);
-
-		ValueTask Send(IOutgoingEvent evt, CancellationToken token = default);
-
-		ValueTask StartInvoke(InvokeData invokeData, CancellationToken token = default);
-
-		ValueTask CancelInvoke(InvokeId invokeId, CancellationToken token = default);
+		InvokeId = invokeId;
+		Type = type;
 	}
 
-	public interface IContextItems
-	{
-		object? this[object key] { get; set; }
-	}
+	public InvokeId       InvokeId   { get; }
+	public Uri            Type       { get; }
+	public Uri?           Source     { get; init; }
+	public string?        RawContent { get; init; }
+	public DataModelValue Content    { get; init; }
+	public DataModelValue Parameters { get; init; }
+}
+
+public interface IEventController
+{
+	ValueTask Send(IOutgoingEvent outgoingEvent);
+
+	ValueTask Cancel(SendId sendId);
+}
+
+public interface IInvokeController
+{
+	ValueTask Start(InvokeData invokeData);
+
+	ValueTask Cancel(InvokeId invokeId);
+}
+
+public interface IInStateController
+{
+	bool InState(IIdentifier id);
+}
+
+public interface IDataModelController
+{
+	DataModelList DataModel { get; }
 }

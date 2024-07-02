@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,18 +17,15 @@
 
 #endregion
 
-using System.Collections.Immutable;
+namespace Xtate.Builder;
 
-namespace Xtate.Builder
+public interface ITransitionBuilder
 {
-	public interface ITransitionBuilder
-	{
-		ITransition Build();
+	ITransition Build();
 
-		void SetEvent(ImmutableArray<IEventDescriptor> eventsDescriptor);
-		void SetCondition(IExecutableEntity condition);
-		void SetTarget(ImmutableArray<IIdentifier> target);
-		void SetType(TransitionType type);
-		void AddAction(IExecutableEntity action);
-	}
+	void SetEvent(ImmutableArray<IEventDescriptor> eventsDescriptor);
+	void SetCondition(IConditionExpression condition);
+	void SetTarget(ImmutableArray<IIdentifier> target);
+	void SetType(TransitionType type);
+	void AddAction(IExecutableEntity action);
 }

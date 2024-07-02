@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,56 +17,54 @@
 
 #endregion
 
-using System;
 using Xtate.Persistence;
 
-namespace Xtate
+namespace Xtate.Core;
+
+public sealed class HistoryNode : StateEntityNode, IHistory, IAncestorProvider, IDebugEntityId
 {
-	internal sealed class HistoryNode : StateEntityNode, IHistory, IAncestorProvider, IDebugEntityId
+	private readonly IHistory _history;
+
+	public HistoryNode(DocumentIdNode documentIdNode, IHistory history) : base(documentIdNode)
 	{
-		private readonly HistoryEntity _history;
+		Infra.NotNull(history.Transition);
 
-		public HistoryNode(in DocumentIdRecord documentIdNode, in HistoryEntity history) : base(documentIdNode, children: null)
-		{
-			Infrastructure.NotNull(history.Transition);
+		_history = history;
 
-			_history = history;
+		Id = history.Id ?? new IdentifierNode(Identifier.New());
+		Transition = history.Transition.As<TransitionNode>();
+		Transition.SetSource(this);
+	}
 
-			Id = history.Id ?? new IdentifierNode(Identifier.New());
-			Transition = history.Transition.As<TransitionNode>();
-			Transition.SetSource(this);
-		}
+	public TransitionNode Transition { get; }
 
-		public TransitionNode Transition { get; }
+#region Interface IAncestorProvider
 
-	#region Interface IAncestorProvider
+	object IAncestorProvider.Ancestor => _history;
 
-		object? IAncestorProvider.Ancestor => _history.Ancestor;
+#endregion
 
-	#endregion
+#region Interface IDebugEntityId
 
-	#region Interface IDebugEntityId
+	FormattableString IDebugEntityId.EntityId => @$"{Id}(#{DocumentId})";
 
-		FormattableString IDebugEntityId.EntityId => @$"{Id}(#{DocumentId})";
+#endregion
 
-	#endregion
+#region Interface IHistory
 
-	#region Interface IHistory
+	public override IIdentifier Id   { get; }
+	public          HistoryType Type => _history.Type;
 
-		public override IIdentifier Id   { get; }
-		public          HistoryType Type => _history.Type;
+	ITransition IHistory.Transition => _history.Transition!;
 
-		ITransition IHistory.Transition => _history.Transition!;
+#endregion
 
-	#endregion
-
-		protected override void Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.HistoryNode);
-			bucket.Add(Key.DocumentId, DocumentId);
-			bucket.Add(Key.HistoryType, Type);
-			bucket.AddEntity(Key.Id, Id);
-			bucket.AddEntity(Key.Transition, Transition);
-		}
+	protected override void Store(Bucket bucket)
+	{
+		bucket.Add(Key.TypeInfo, TypeInfo.HistoryNode);
+		bucket.Add(Key.DocumentId, DocumentId);
+		bucket.Add(Key.HistoryType, Type);
+		bucket.AddEntity(Key.Id, Id);
+		bucket.AddEntity(Key.Transition, Transition);
 	}
 }

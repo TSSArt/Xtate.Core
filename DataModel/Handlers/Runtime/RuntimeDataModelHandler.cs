@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,52 +17,52 @@
 
 #endregion
 
-using System.Threading;
-using System.Threading.Tasks;
+namespace Xtate.DataModel.Runtime;
 
-namespace Xtate.DataModel.Runtime
+public class RuntimeDataModelHandler : DataModelHandlerBase
 {
-	internal sealed class RuntimeDataModelHandler : DataModelHandlerBase
+	public required Func<RuntimePredicate, RuntimePredicateEvaluator> RuntimePredicateEvaluatorFactory { private get; [UsedImplicitly] init; }
+	public required Func<RuntimeValue, RuntimeValueEvaluator>         RuntimeValueEvaluatorFactory     { private get; [UsedImplicitly] init; }
+	public required Func<RuntimeAction, RuntimeActionExecutor>        RuntimeActionExecutorFactory     { private get; [UsedImplicitly] init; }
+	public required IErrorProcessorService<RuntimeDataModelHandler>   RuntimeErrorProcessorService     { private get; [UsedImplicitly] init; }
+
+	protected override void Visit(ref IScript script) => RuntimeErrorProcessorService.AddError(script, Resources.ErrorMessage_ScriptingNotSupportedInRuntimeDataModel);
+
+	protected override void Visit(ref IDataModel dataModel) => RuntimeErrorProcessorService.AddError(dataModel, Resources.ErrorMessage_DataModelNotSupportedInRuntime);
+
+	protected override void Visit(ref IConditionExpression conditionExpression)
 	{
-		private const string DataModelType = "runtime";
-
-		public static readonly IDataModelHandlerFactory Factory = new DataModelHandlerFactory();
-
-		private RuntimeDataModelHandler(IErrorProcessor errorProcessor) : base(errorProcessor) { }
-
-		protected override void Visit(ref IScript script) => AddErrorMessage(script, Resources.ErrorMessage_ScriptingNotSupportedInRuntimeDataModel);
-
-		protected override void Visit(ref IDataModel dataModel) => AddErrorMessage(dataModel, Resources.ErrorMessage_DataModelNotSupportedInRuntime);
-
-		protected override void Visit(ref IExecutableEntity executableEntity)
+		if (conditionExpression is RuntimePredicate runtimePredicate)
 		{
-			if (!(executableEntity is RuntimeAction) && !(executableEntity is RuntimePredicate))
-			{
-				AddErrorMessage(executableEntity, Resources.ErrorMessage_RuntimeActionAndPredicateOnlyAllowed);
-			}
+			conditionExpression = RuntimePredicateEvaluatorFactory(runtimePredicate);
 		}
-
-		private class DataModelHandlerFactory : IDataModelHandlerFactory, IDataModelHandlerFactoryActivator
+		else
 		{
-		#region Interface IDataModelHandlerFactory
+			RuntimeErrorProcessorService.AddError(conditionExpression, Resources.ErrorMessage_RuntimePredicateOnlyAllowed);
+		}
+	}
 
-			public ValueTask<IDataModelHandlerFactoryActivator?> TryGetActivator(IFactoryContext factoryContext, string dataModelType, CancellationToken token) =>
-					new ValueTask<IDataModelHandlerFactoryActivator?>(CanHandle(dataModelType) ? this : null);
+	protected override void Visit(ref IValueExpression valueExpression)
+	{
+		if (valueExpression is RuntimeValue runtimeValue)
+		{
+			valueExpression = RuntimeValueEvaluatorFactory(runtimeValue);
+		}
+		else
+		{
+			RuntimeErrorProcessorService.AddError(valueExpression, Resources.ErrorMessage_RuntimeValueOnlyAllowed);
+		}
+	}
 
-		#endregion
-
-		#region Interface IDataModelHandlerFactoryActivator
-
-			public ValueTask<IDataModelHandler> CreateHandler(IFactoryContext factoryContext, string dataModelType, IErrorProcessor errorProcessor, CancellationToken token)
-			{
-				Infrastructure.Assert(CanHandle(dataModelType));
-
-				return new ValueTask<IDataModelHandler>(new RuntimeDataModelHandler(errorProcessor));
-			}
-
-		#endregion
-
-			private static bool CanHandle(string dataModelType) => dataModelType == DataModelType;
+	protected override void VisitUnknown(ref IExecutableEntity executableEntity)
+	{
+		if (executableEntity is RuntimeAction runtimeAction)
+		{
+			executableEntity = RuntimeActionExecutorFactory(runtimeAction);
+		}
+		else
+		{
+			RuntimeErrorProcessorService.AddError(executableEntity, Resources.ErrorMessage_RuntimeActionOnlyAllowed);
 		}
 	}
 }

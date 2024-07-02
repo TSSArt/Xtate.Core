@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,13 +17,9 @@
 
 #endregion
 
-using Xtate.Annotations;
+namespace Xtate.Core;
 
-namespace Xtate
+public interface IStateMachineValidator
 {
-	[PublicAPI]
-	public interface IStateMachineValidator
-	{
-		void Validate(IStateMachine stateMachine, IErrorProcessor errorProcessor);
-	}
+	void Validate(IStateMachine stateMachine);
 }

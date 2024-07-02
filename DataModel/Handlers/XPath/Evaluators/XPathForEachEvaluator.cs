@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,34 +15,44 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
+namespace Xtate.DataModel.XPath;
 
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Xtate.DataModel.XPath
+public class XPathForEachEvaluator : DefaultForEachEvaluator
 {
-	internal class XPathForEachEvaluator : DefaultForEachEvaluator
+	private readonly XPathLocationExpressionEvaluator? _indexEvaluator;
+	private readonly XPathLocationExpressionEvaluator  _itemEvaluator;
+
+	public XPathForEachEvaluator(IForEach forEach) : base(forEach)
 	{
-		public XPathForEachEvaluator(in ForEachEntity forEach) : base(forEach) { }
+		var itemEvaluator = base.Item?.As<XPathLocationExpressionEvaluator>();
+		Infra.NotNull(itemEvaluator);
+		_itemEvaluator = itemEvaluator;
 
-		public override async ValueTask Execute(IExecutionContext executionContext, CancellationToken token)
+		_indexEvaluator = base.Index?.As<XPathLocationExpressionEvaluator>();
+	}
+
+	public required Func<ValueTask<XPathEngine>> EngineFactory { private get; [UsedImplicitly] init; }
+
+	public override async ValueTask Execute()
+	{
+		var engine = await EngineFactory().ConfigureAwait(false);
+
+		engine.EnterScope();
+
+		try
 		{
-			var engine = executionContext.Engine();
+			await _itemEvaluator.DeclareLocalVariable().ConfigureAwait(false);
 
-			engine.EnterScope();
-
-			try
+			if (_indexEvaluator is not null)
 			{
-				ItemEvaluator.DeclareLocalVariable(executionContext);
-				IndexEvaluator?.DeclareLocalVariable(executionContext);
+				await _indexEvaluator.DeclareLocalVariable().ConfigureAwait(false);
+			}
 
-				await base.Execute(executionContext, token).ConfigureAwait(false);
-			}
-			finally
-			{
-				engine.LeaveScope();
-			}
+			await base.Execute().ConfigureAwait(false);
+		}
+		finally
+		{
+			engine.LeaveScope();
 		}
 	}
 }

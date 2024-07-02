@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,32 +17,58 @@
 
 #endregion
 
-using System.Collections.Immutable;
-using System.Threading;
-using Xtate.CustomAction;
-using Xtate.DataModel;
 using Xtate.Persistence;
 
-namespace Xtate
+namespace Xtate.Core;
+
+public record InterpreterOptions
 {
-	public struct InterpreterOptions
+	private readonly DataModelValue _arguments;
+	private readonly DataModelValue _configuration;
+
+	private readonly IErrorProcessor? _errorProcessor;
+
+	private readonly DataModelValue _host;
+
+	//public static    InterpreterOptions Default { get; } = new(ServiceLocator.Default)
+
+	//public ServiceLocator                           ServiceLocator { get; init; }
+	public ISecurityContext?                      SecurityContext         { get; init; }
+	//public ImmutableArray<ICustomActionFactory>   CustomActionProviders   { get; init; }
+	//public ImmutableArray<IResourceLoaderFactory> ResourceLoaderFactories { get; init; }
+	public ImmutableDictionary<object, object>?   ContextRuntimeItems     { get; init; }
+	public IExternalCommunication?                ExternalCommunication   { get; init; }
+	public INotifyStateChanged?                   NotifyStateChanged      { get; init; }
+	public CancellationToken                      SuspendToken            { get; init; }
+	public CancellationToken                      StopToken               { get; init; }
+	public CancellationToken                      DestroyToken            { get; init; }
+	public PersistenceLevel                       PersistenceLevel        { get; init; }
+	public IStorageProvider?                      StorageProvider         { get; init; }
+	//public ILoggerOld?                            Logger                  { get; init; }
+	public UnhandledErrorBehaviour                UnhandledErrorBehaviour { get; init; }
+	public Uri?                                   BaseUri                 { get; init; }
+
+	public DataModelValue Arguments
 	{
-		public ImmutableArray<IDataModelHandlerFactory> DataModelHandlerFactories { get; set; }
-		public ImmutableArray<ICustomActionFactory>     CustomActionProviders     { get; set; }
-		public ImmutableArray<IResourceLoader>          ResourceLoaders           { get; set; }
-		public DataModelObject?                         Host                      { get; set; }
-		public DataModelObject?                         Configuration             { get; set; }
-		public ImmutableDictionary<object, object>?     ContextRuntimeItems       { get; set; }
-		public DataModelValue                           Arguments                 { get; set; }
-		public IExternalCommunication?                  ExternalCommunication     { get; set; }
-		public INotifyStateChanged?                     NotifyStateChanged        { get; set; }
-		public CancellationToken                        SuspendToken              { get; set; }
-		public CancellationToken                        StopToken                 { get; set; }
-		public CancellationToken                        DestroyToken              { get; set; }
-		public PersistenceLevel                         PersistenceLevel          { get; set; }
-		public IStorageProvider?                        StorageProvider           { get; set; }
-		public ILogger?                                 Logger                    { get; set; }
-		public IErrorProcessor?                         ErrorProcessor            { get; set; }
-		public UnhandledErrorBehaviour                  UnhandledErrorBehaviour   { get; set; }
+		get => _arguments;
+		init => _arguments = value.AsConstant();
+	}
+
+	public DataModelValue Host
+	{
+		get => _host;
+		init => _host = value.AsConstant();
+	}
+
+	public DataModelValue Configuration
+	{
+		get => _configuration;
+		init => _configuration = value.AsConstant();
+	}
+
+	public IErrorProcessor? ErrorProcessor
+	{
+		get => _errorProcessor;
+		init => _errorProcessor = value is null or DefaultErrorProcessor or DetailedErrorProcessor or WrapperErrorProcessor ? value : new WrapperErrorProcessor(value);
 	}
 }

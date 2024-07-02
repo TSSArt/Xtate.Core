@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,47 +17,33 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
-using Xtate.Annotations;
+namespace Xtate.Core;
 
-namespace Xtate
+/// <summary>
+///     Aggregates all errors and throw single exception with previously added errors
+/// </summary>
+public sealed class DetailedErrorProcessor(SessionId? sessionId, StateMachineOrigin origin) : IErrorProcessor
 {
-	[PublicAPI]
-	public sealed class DetailedErrorProcessor : IErrorProcessor
-	{
-		private readonly StateMachineOrigin _origin;
-		private readonly SessionId?         _sessionId;
-
-		private ImmutableArray<ErrorItem>.Builder? _errors;
-
-		public DetailedErrorProcessor(SessionId? sessionId, StateMachineOrigin origin)
-		{
-			_sessionId = sessionId;
-			_origin = origin;
-		}
+	private ImmutableArray<ErrorItem>.Builder? _errors;
 
 	#region Interface IErrorProcessor
 
-		public void ThrowIfErrors()
+	public void ThrowIfErrors()
+	{
+		if (_errors is { } errors)
 		{
-			if (_errors is { } errors)
-			{
-				_errors = null;
+			_errors = default;
 
-				throw new StateMachineValidationException(errors.ToImmutable(), _sessionId, _origin);
-			}
+			throw new StateMachineValidationException(errors.ToImmutable(), sessionId, origin);
 		}
-
-		void IErrorProcessor.AddError(ErrorItem errorItem)
-		{
-			if (errorItem is null) throw new ArgumentNullException(nameof(errorItem));
-
-			(_errors ??= ImmutableArray.CreateBuilder<ErrorItem>()).Add(errorItem);
-		}
-
-		bool IErrorProcessor.LineInfoRequired => true;
-
-	#endregion
 	}
+
+	void IErrorProcessor.AddError(ErrorItem errorItem)
+	{
+		Infra.Requires(errorItem);
+
+		(_errors ??= ImmutableArray.CreateBuilder<ErrorItem>()).Add(errorItem);
+	}
+
+#endregion
 }

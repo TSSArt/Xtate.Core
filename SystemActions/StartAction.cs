@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,122 +15,153 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Xml;
 
-namespace Xtate.CustomAction
+namespace Xtate.CustomAction;
+
+public class StartAction : CustomActionBase, IDisposable
 {
-	public class StartAction : ICustomActionExecutor
+	private readonly DisposingToken _disposingToken = new();
+	private readonly Location?      _sessionIdLocation;
+	private readonly StringValue?   _sessionIdValue;
+	private readonly bool           _trusted;
+	private readonly StringValue    _urlValue;
+
+	public StartAction(XmlReader xmlReader, IErrorProcessorService<StartAction> errorProcessorService)
 	{
-		private const string Source     = "src";
-		private const string SourceExpr = "srcexpr";
-		private const string IdLocation = "idlocation";
+		var url = xmlReader.GetAttribute("url");
+		var urlExpression = xmlReader.GetAttribute("urlExpr");
+		var sessionId = xmlReader.GetAttribute("sessionId");
+		var sessionIdExpression = xmlReader.GetAttribute("sessionIdExpr");
+		var sessionIdLocation = xmlReader.GetAttribute("sessionIdLocation");
 
-		private readonly ILocationAssigner? _idLocation;
-		private readonly Uri?               _source;
-
-		private readonly IExpressionEvaluator? _sourceExpression;
-
-		public StartAction(XmlReader xmlReader, ICustomActionContext access)
+		if (url is null && urlExpression is null)
 		{
-			if (xmlReader is null) throw new ArgumentNullException(nameof(xmlReader));
-			if (access is null) throw new ArgumentNullException(nameof(access));
-
-			var source = xmlReader.GetAttribute(Source);
-			var sourceExpression = xmlReader.GetAttribute(SourceExpr);
-			var idLocation = xmlReader.GetAttribute(IdLocation);
-
-			if (source is null && sourceExpression is null)
-			{
-				access.AddValidationError<StartAction>(Resources.ErrorMessage_At_least_one_source_must_be_specified);
-			}
-
-			if (source is { } && sourceExpression is { })
-			{
-				access.AddValidationError<StartAction>(Resources.ErrorMessage_src_and_srcexpr_attributes_should_not_be_assigned_in_Start_element);
-			}
-
-			if (source is { } && !Uri.TryCreate(source, UriKind.RelativeOrAbsolute, out _source))
-			{
-				access.AddValidationError<StartAction>(Resources.ErrorMessage_source__has_invalid_URI_format);
-			}
-
-			if (sourceExpression is { })
-			{
-				_sourceExpression = access.RegisterValueExpression(sourceExpression);
-			}
-
-			if (idLocation is { })
-			{
-				_idLocation = access.RegisterLocationExpression(idLocation);
-			}
+			errorProcessorService.AddError(this, Resources.ErrorMessage_AtLeastOneUrlMustBeSpecified);
 		}
 
-	#region Interface ICustomActionExecutor
-
-		public async ValueTask Execute(IExecutionContext executionContext, CancellationToken token)
+		if (url is not null && urlExpression is not null)
 		{
-			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
-
-			var host = GetHost(executionContext);
-			var baseUri = GetBaseUri(executionContext);
-			var source = await GetSource(executionContext, token).ConfigureAwait(false);
-
-			if (source is null)
-			{
-				throw new ProcessorException(Resources.StartAction_Execute_Source_not_specified);
-			}
-
-			var sessionId = SessionId.New();
-			await host.StartStateMachineAsync(sessionId, new StateMachineOrigin(source, baseUri), parameters: default, token).ConfigureAwait(false);
-
-			if (_idLocation is { })
-			{
-				await _idLocation.Assign(executionContext, sessionId, token).ConfigureAwait(false);
-			}
+			errorProcessorService.AddError(this, Resources.ErrorMessage_UrlAndUrlExprAttributesShouldNotBeAssignedInStartElement);
 		}
 
-	#endregion
-
-		private static Uri? GetBaseUri(IExecutionContext executionContext)
+		if (url is not null && !Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out _))
 		{
-			var val = executionContext.DataModel[key: "_x", caseInsensitive: false]
-									  .AsObjectOrEmpty()[key: "host", caseInsensitive: false]
-									  .AsObjectOrEmpty()[key: "location", caseInsensitive: false]
-									  .AsStringOrDefault();
-
-			return val is { } ? new Uri(val) : null;
+			errorProcessorService.AddError(this, Resources.ErrorMessage_UrlHasInvalidURIFormat);
 		}
 
-		private static IHost GetHost(IExecutionContext executionContext)
-		{
-			if (executionContext.RuntimeItems[typeof(IHost)] is IHost host)
-			{
-				return host;
-			}
+		_urlValue = new StringValue(urlExpression, url);
 
-			throw new ProcessorException(Resources.Exception_Can_t_get_access_to_IHost_interface);
+		if (sessionId is { Length: 0 })
+		{
+			errorProcessorService.AddError(this, Resources.ErrorMessage_SessionIdCouldNotBeEmpty);
 		}
 
-		private async ValueTask<Uri?> GetSource(IExecutionContext executionContext, CancellationToken token)
+		if (sessionId is not null && sessionIdExpression is not null)
 		{
-			if (_source is { })
-			{
-				return _source;
-			}
-
-			if (_sourceExpression is { })
-			{
-				var val = await _sourceExpression.Evaluate(executionContext, token).ConfigureAwait(false);
-
-				return new Uri(val.AsString(), UriKind.RelativeOrAbsolute);
-			}
-
-			return null;
+			errorProcessorService.AddError(this, Resources.ErrorMessage_SessionIdAndSessionIdExprAttributesShouldNotBeAssignedInStartElement);
 		}
+
+		if (sessionId is not null || sessionIdExpression is not null)
+		{
+			_sessionIdValue = new StringValue(sessionIdExpression, sessionId);
+		}
+
+		if (sessionIdLocation is not null)
+		{
+			_sessionIdLocation = new Location(sessionIdExpression);
+		}
+
+		_trusted = xmlReader.GetAttribute("trusted") is { } trusted && XmlConvert.ToBoolean(trusted);
+	}
+
+	public required IDataModelController DataModelController { private get; [UsedImplicitly] init; }
+	public required IHost                Host                { private get; [UsedImplicitly] init; }
+
+#region Interface IDisposable
+
+	public void Dispose()
+	{
+		Dispose(true);
+		GC.SuppressFinalize(this);
+	}
+
+#endregion
+
+	protected virtual void Dispose(bool disposing)
+	{
+		if (disposing)
+		{
+			_disposingToken.Dispose();
+		}
+	}
+
+	public override IEnumerable<Location> GetLocations()
+	{
+		if (_sessionIdLocation is not null)
+		{
+			yield return _sessionIdLocation;
+		}
+	}
+
+	public override IEnumerable<Value> GetValues()
+	{
+		yield return _urlValue;
+
+		if (_sessionIdValue is not null)
+		{
+			yield return _sessionIdValue;
+		}
+	}
+
+	public override async ValueTask Execute()
+	{
+		var sessionId = await GetSessionId().ConfigureAwait(false);
+		var securityContextType = _trusted ? SecurityContextType.NewTrustedStateMachine : SecurityContextType.NewStateMachine;
+		var source = await GetSource().ConfigureAwait(false);
+		var stateMachineOrigin = new StateMachineOrigin(source, GetBaseUri());
+
+		await Host.StartStateMachineAsync(sessionId, stateMachineOrigin, parameters: default, securityContextType, _disposingToken.Token).ConfigureAwait(false);
+
+		if (_sessionIdLocation is not null)
+		{
+			await _sessionIdLocation.SetValue(sessionId).ConfigureAwait(false);
+		}
+	}
+
+	private Uri? GetBaseUri()
+	{
+		var value = DataModelController.DataModel["_x"].AsListOrEmpty()["host"].AsListOrEmpty()["location"].AsStringOrDefault();
+
+		return value is not null ? new Uri(value, UriKind.RelativeOrAbsolute) : null;
+	}
+
+	private async ValueTask<Uri> GetSource()
+	{
+		var url = await _urlValue.GetValue().ConfigureAwait(false);
+
+		if (Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out var uri))
+		{
+			return uri;
+		}
+
+		throw new ProcessorException(Resources.Exception_StartActionExecuteSourceNotSpecified);
+	}
+
+	private async ValueTask<SessionId> GetSessionId()
+	{
+		if (_sessionIdValue is null)
+		{
+			return SessionId.New();
+		}
+
+		var sessionId = await _sessionIdValue.GetValue().ConfigureAwait(false);
+
+		if (string.IsNullOrEmpty(sessionId))
+		{
+			throw new ProcessorException(Resources.Exception_SessionIdCouldNotBeEmpty);
+		}
+
+		return SessionId.FromString(sessionId);
 	}
 }

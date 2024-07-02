@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,159 +17,172 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
-using System.Net.Mime;
-using System.Threading;
-using System.Threading.Tasks;
+namespace Xtate.DataModel;
 
-namespace Xtate.DataModel
+public class DataConverter(IDataModelHandler? dataModelHandler)
 {
-	internal static class DataConverter
+	private readonly bool _caseInsensitive = dataModelHandler?.CaseInsensitive ?? false;
+
+	public static ImmutableArray<Param> AsParamArray(ImmutableArray<IParam> parameters)
 	{
-		public static ValueTask<DataModelValue> GetData(IValueEvaluator? contentBodyEvaluator, IObjectEvaluator? contentExpressionEvaluator, ImmutableArray<ILocationEvaluator> nameEvaluatorList,
-														ImmutableArray<DefaultParam> parameterList, IExecutionContext executionContext, CancellationToken token)
+		return !parameters.IsDefault
+			? ImmutableArray.CreateRange(parameters, param => new Param(param))
+			: default;
+	}
+
+	public ValueTask<DataModelValue> GetData(IValueEvaluator? contentBodyEvaluator,
+											 IObjectEvaluator? contentExpressionEvaluator,
+											 ImmutableArray<ILocationEvaluator> nameEvaluatorList,
+											 ImmutableArray<Param> parameterList)
+	{
+		if (nameEvaluatorList.IsDefaultOrEmpty && parameterList.IsDefaultOrEmpty)
 		{
-			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
-
-			if (nameEvaluatorList.IsDefaultOrEmpty && parameterList.IsDefaultOrEmpty)
-			{
-				return GetContent(contentBodyEvaluator, contentExpressionEvaluator, executionContext, token);
-			}
-
-			return GetParameters(nameEvaluatorList, parameterList, executionContext, token);
+			return GetContent(contentBodyEvaluator, contentExpressionEvaluator);
 		}
 
-		public static async ValueTask<DataModelValue> GetContent(IValueEvaluator? contentBodyEvaluator, IObjectEvaluator? contentExpressionEvaluator,
-																 IExecutionContext executionContext, CancellationToken token)
+		return GetParameters(nameEvaluatorList, parameterList);
+	}
+
+	public async ValueTask<DataModelValue> GetContent(IValueEvaluator? contentBodyEvaluator, IObjectEvaluator? contentExpressionEvaluator)
+	{
+		if (contentExpressionEvaluator is not null)
 		{
-			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
+			var obj = await contentExpressionEvaluator.EvaluateObject().ConfigureAwait(false);
 
-			if (contentExpressionEvaluator is { })
-			{
-				var obj = await contentExpressionEvaluator.EvaluateObject(executionContext, token).ConfigureAwait(false);
+			return DataModelValue.FromObject(obj).AsConstant();
+		}
 
-				return DataModelValue.FromObject(obj.ToObject()).AsConstant();
-			}
+		if (contentBodyEvaluator is IObjectEvaluator objectEvaluator)
+		{
+			var obj = await objectEvaluator.EvaluateObject().ConfigureAwait(false);
 
-			if (contentBodyEvaluator is IObjectEvaluator objectEvaluator)
-			{
-				var obj = await objectEvaluator.EvaluateObject(executionContext, token).ConfigureAwait(false);
+			return DataModelValue.FromObject(obj).AsConstant();
+		}
 
-				return DataModelValue.FromObject(obj.ToObject()).AsConstant();
-			}
+		if (contentBodyEvaluator is IStringEvaluator stringEvaluator)
+		{
+			var str = await stringEvaluator.EvaluateString().ConfigureAwait(false);
 
-			if (contentBodyEvaluator is IStringEvaluator stringEvaluator)
-			{
-				var str = await stringEvaluator.EvaluateString(executionContext, token).ConfigureAwait(false);
+			return new DataModelValue(str);
+		}
 
-				return new DataModelValue(str);
-			}
+		return default;
+	}
 
+	public async ValueTask<DataModelValue> GetParameters(ImmutableArray<ILocationEvaluator> nameEvaluatorList,
+														 ImmutableArray<Param> parameterList)
+	{
+		if (nameEvaluatorList.IsDefaultOrEmpty && parameterList.IsDefaultOrEmpty)
+		{
 			return default;
 		}
 
-		public static async ValueTask<DataModelValue> GetParameters(ImmutableArray<ILocationEvaluator> nameEvaluatorList, ImmutableArray<DefaultParam> parameterList,
-																	IExecutionContext executionContext, CancellationToken token)
+		var attributes = new DataModelList(_caseInsensitive);
+
+		if (!nameEvaluatorList.IsDefaultOrEmpty)
 		{
-			if (executionContext is null) throw new ArgumentNullException(nameof(executionContext));
-
-			if (nameEvaluatorList.IsDefaultOrEmpty && parameterList.IsDefaultOrEmpty)
+			foreach (var locationEvaluator in nameEvaluatorList)
 			{
-				return default;
+				var name = await locationEvaluator.GetName().ConfigureAwait(false);
+				var value = await locationEvaluator.GetValue().ConfigureAwait(false);
+
+				attributes.Add(name, DataModelValue.FromObject(value).AsConstant());
 			}
-
-			var attributes = new DataModelObject(executionContext.DataModel.CaseInsensitive);
-
-			if (!nameEvaluatorList.IsDefaultOrEmpty)
-			{
-				foreach (var locationEvaluator in nameEvaluatorList)
-				{
-					var name = locationEvaluator.GetName(executionContext);
-					var value = await locationEvaluator.GetValue(executionContext, token).ConfigureAwait(false);
-
-					attributes.Add(name, DataModelValue.FromObject(value).AsConstant());
-				}
-			}
-
-			if (!parameterList.IsDefaultOrEmpty)
-			{
-				foreach (var param in parameterList)
-				{
-					var name = param.Name;
-					object? value = null;
-
-					if (param.ExpressionEvaluator is { })
-					{
-						value = (await param.ExpressionEvaluator.EvaluateObject(executionContext, token).ConfigureAwait(false)).ToObject();
-					}
-					else if (param.LocationEvaluator is { })
-					{
-						value = await param.LocationEvaluator.GetValue(executionContext, token).ConfigureAwait(false);
-					}
-
-					attributes.Add(name, DataModelValue.FromObject(value).AsConstant());
-				}
-			}
-
-			return new DataModelValue(attributes);
 		}
 
-		public static DataModelValue FromContent(string content, ContentType? contentType)
+		if (!parameterList.IsDefaultOrEmpty)
 		{
-			var _ = contentType;
+			foreach (var param in parameterList)
+			{
+				var value = DefaultObject.Null;
 
+				if (param.ExpressionEvaluator is { } expressionEvaluator)
+				{
+					value = await expressionEvaluator.EvaluateObject().ConfigureAwait(false);
+				}
+				else if (param.LocationEvaluator is { } locationEvaluator)
+				{
+					value = await locationEvaluator.GetValue().ConfigureAwait(false);
+				}
+
+				attributes.Add(param.Name, DataModelValue.FromObject(value).AsConstant());
+			}
+		}
+
+		return new DataModelValue(attributes);
+	}
+
+	public async ValueTask<DataModelValue> FromContent(Resource resource)
+	{
+		Infra.Requires(resource);
+
+		if (await resource.GetContent().ConfigureAwait(false) is { } content)
+		{
 			return new DataModelValue(content);
 		}
 
-		public static DataModelValue FromEvent(IEvent evt, bool caseInsensitive)
+		return DataModelValue.Null;
+	}
+
+	public DataModelValue FromEvent(IEvent evt)
+	{
+		Infra.Requires(evt);
+
+		var eventList = new DataModelList(_caseInsensitive)
+						{
+							{ @"name", EventName.ToName(evt.NameParts) },
+							{ @"type", GetTypeString(evt.Type) },
+							{ @"sendid", evt.SendId },
+							{ @"origin", evt.Origin?.ToString() },
+							{ @"origintype", evt.OriginType?.ToString() },
+							{ @"invokeid", evt.InvokeId },
+							{ @"data", evt.Data.AsConstant() }
+						};
+
+		eventList.MakeDeepConstant();
+
+		return eventList;
+
+		static string GetTypeString(EventType eventType)
 		{
-			if (evt is null) throw new ArgumentNullException(nameof(evt));
-
-			var eventObject = new DataModelObject(caseInsensitive)
-							  {
-									  { @"name", EventName.ToName(evt.NameParts) },
-									  { @"type", GetTypeString(evt.Type) },
-									  { @"sendid", evt.SendId },
-									  { @"origin", evt.Origin?.ToString() },
-									  { @"origintype", evt.OriginType?.ToString() },
-									  { @"invokeid", evt.InvokeId },
-									  { @"data", evt.Data.AsConstant() }
-							  };
-
-			eventObject.MakeDeepConstant();
-
-			return new DataModelValue(eventObject);
-
-			static string GetTypeString(EventType eventType)
-			{
-				return eventType switch
-				{
-						EventType.Platform => @"platform",
-						EventType.Internal => @"internal",
-						EventType.External => @"external",
-						_ => throw new ArgumentOutOfRangeException(nameof(eventType), eventType, message: null)
-				};
-			}
+			return eventType switch
+				   {
+					   EventType.Platform => @"platform",
+					   EventType.Internal => @"internal",
+					   EventType.External => @"external",
+					   _                  => Infra.Unexpected<string>(eventType)
+				   };
 		}
+	}
 
-		public static DataModelValue FromException(Exception exception, bool caseInsensitive)
+	public DataModelValue FromException(Exception exception)
+	{
+		Infra.Requires(exception);
+
+		return LazyValue.Create(exception, _caseInsensitive, ValueFactory);
+
+		static DataModelValue ValueFactory(Exception exception, bool caseInsensitive)
 		{
-			if (exception is null) throw new ArgumentNullException(nameof(exception));
-
-			var exceptionData = new DataModelObject(caseInsensitive)
+			var exceptionData = new DataModelList(caseInsensitive)
 								{
-										{ @"message", exception.Message },
-										{ @"typeName", exception.GetType().Name },
-										{ @"source", exception.Source },
-										{ @"typeFullName", exception.GetType().FullName },
-										{ @"stackTrace", exception.StackTrace },
-										{ @"text", exception.ToString() }
+									{ @"message", exception.Message },
+									{ @"typeName", exception.GetType().Name },
+									{ @"source", exception.Source },
+									{ @"typeFullName", exception.GetType().FullName },
+									{ @"stackTrace", exception.StackTrace },
+									{ @"text", exception.ToString() }
 								};
 
 			exceptionData.MakeDeepConstant();
 
 			return new DataModelValue(exceptionData);
 		}
+	}
+
+	public readonly struct Param(IParam param)
+	{
+		public string Name { get; } = param.Name!;
+		public IObjectEvaluator? ExpressionEvaluator { get; } = param.Expression?.As<IObjectEvaluator>();
+		public ILocationEvaluator? LocationEvaluator { get; } = param.Location?.As<ILocationEvaluator>();
 	}
 }

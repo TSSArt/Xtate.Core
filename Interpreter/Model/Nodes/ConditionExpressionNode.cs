@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
-
+﻿// Copyright © 2019-2023 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,38 +15,31 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using Xtate.Persistence;
 
-namespace Xtate
+namespace Xtate.Core;
+
+public sealed class ConditionExpressionNode(IConditionExpression conditionExpression) : IConditionExpression, IStoreSupport, IAncestorProvider
 {
-	internal sealed class ConditionExpressionNode : IConditionExpression, IStoreSupport, IAncestorProvider
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => conditionExpression;
+
+#endregion
+
+#region Interface IConditionExpression
+
+	public string? Expression => conditionExpression.Expression;
+
+#endregion
+
+#region Interface IStoreSupport
+
+	void IStoreSupport.Store(Bucket bucket)
 	{
-		private readonly ConditionExpression _conditionExpression;
-
-		public ConditionExpressionNode(in ConditionExpression conditionExpression) => _conditionExpression = conditionExpression;
-
-	#region Interface IAncestorProvider
-
-		object? IAncestorProvider.Ancestor => _conditionExpression.Ancestor;
-
-	#endregion
-
-	#region Interface IConditionExpression
-
-		public string? Expression => _conditionExpression.Expression;
-
-	#endregion
-
-	#region Interface IStoreSupport
-
-		void IStoreSupport.Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.ConditionExpressionNode);
-			bucket.Add(Key.Expression, Expression);
-		}
-
-	#endregion
+		bucket.Add(Key.TypeInfo, TypeInfo.ConditionExpressionNode);
+		bucket.Add(Key.Expression, Expression);
 	}
+
+#endregion
 }

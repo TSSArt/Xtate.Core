@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,12 +17,11 @@
 
 #endregion
 
-namespace Xtate
-{
-	public interface IEventDescriptor : IEntity
-	{
-		string Value { get; }
+namespace Xtate;
 
-		bool IsEventMatch(IEvent evt);
-	}
+public interface IEventDescriptor : IEntity
+{
+	string Value { get; }
+
+	bool IsEventMatch(IEvent evt);
 }

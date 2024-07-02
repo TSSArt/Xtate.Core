@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,39 +17,34 @@
 
 #endregion
 
-using System.Threading;
-using System.Threading.Tasks;
+namespace Xtate.DataModel.XPath;
 
-namespace Xtate.DataModel.XPath
+public class XPathConditionExpressionEvaluator(IConditionExpression conditionExpression, XPathCompiledExpression compiledExpression) : IConditionExpression, IBooleanEvaluator, IAncestorProvider
 {
-	internal class XPathConditionExpressionEvaluator : IConditionExpression, IBooleanEvaluator, IAncestorProvider
+	public required Func<ValueTask<XPathEngine>> EngineFactory { private get; [UsedImplicitly] init; }
+
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => conditionExpression;
+
+#endregion
+
+#region Interface IBooleanEvaluator
+
+	public async ValueTask<bool> EvaluateBoolean()
 	{
-		private readonly XPathCompiledExpression _compiledExpression;
-		private readonly ConditionExpression     _conditionExpression;
+		var engine = await EngineFactory().ConfigureAwait(false);
 
-		public XPathConditionExpressionEvaluator(ConditionExpression conditionExpression, XPathCompiledExpression compiledExpression)
-		{
-			_conditionExpression = conditionExpression;
-			_compiledExpression = compiledExpression;
-		}
+		var obj = await engine.EvalObject(compiledExpression, stripRoots: true).ConfigureAwait(false);
 
-	#region Interface IAncestorProvider
-
-		object? IAncestorProvider.Ancestor => _conditionExpression.Ancestor;
-
-	#endregion
-
-	#region Interface IBooleanEvaluator
-
-		ValueTask<bool> IBooleanEvaluator.EvaluateBoolean(IExecutionContext executionContext, CancellationToken token) =>
-				new ValueTask<bool>(executionContext.Engine().EvalObject(_compiledExpression).AsBoolean());
-
-	#endregion
-
-	#region Interface IConditionExpression
-
-		public string? Expression => _conditionExpression.Expression;
-
-	#endregion
+		return obj.AsBoolean();
 	}
+
+#endregion
+
+#region Interface IConditionExpression
+
+	public string? Expression => conditionExpression.Expression;
+
+#endregion
 }

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,91 +17,75 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
-using Xtate.Annotations;
+using Xtate.DataModel.Runtime;
 
-namespace Xtate.Builder
+namespace Xtate.Builder;
+
+public class FinalFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 {
-	[PublicAPI]
-	public class FinalFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
+	public required IFinalBuilder  Builder      { private get; [UsedImplicitly] init; }
+	public required Action<IFinal> BuiltAction  { private get; [UsedImplicitly] init; }
+	public required TOuterBuilder  OuterBuilder { private get; [UsedImplicitly] init; }
+
+	public required Func<IContentBuilder>  ContentBuilderFactory  { private get; [UsedImplicitly] init; }
+	public required Func<IDoneDataBuilder> DoneDataBuilderFactory { private get; [UsedImplicitly] init; }
+
+	public TOuterBuilder EndFinal()
 	{
-		private readonly IFinalBuilder   _builder;
-		private readonly Action<IFinal>  _builtAction;
-		private readonly IBuilderFactory _factory;
-		private readonly TOuterBuilder   _outerBuilder;
+		BuiltAction(Builder.Build());
 
-		public FinalFluentBuilder(IBuilderFactory factory, TOuterBuilder outerBuilder, Action<IFinal> builtAction)
-		{
-			_factory = factory ?? throw new ArgumentNullException(nameof(factory));
-			_builder = factory.CreateFinalBuilder(null);
-			_outerBuilder = outerBuilder;
-			_builtAction = builtAction;
-		}
-
-		[return: NotNull]
-		public TOuterBuilder EndFinal()
-		{
-			_builtAction(_builder.Build());
-
-			return _outerBuilder;
-		}
-
-		public FinalFluentBuilder<TOuterBuilder> SetId(string id) => SetId((Identifier) id);
-
-		public FinalFluentBuilder<TOuterBuilder> SetId(IIdentifier id)
-		{
-			if (id is null) throw new ArgumentNullException(nameof(id));
-
-			_builder.SetId(id);
-
-			return this;
-		}
-
-		private FinalFluentBuilder<TOuterBuilder> SetDoneData(IValueExpression evaluator)
-		{
-			var contentBuilder = _factory.CreateContentBuilder(null);
-			contentBuilder.SetExpression(evaluator);
-
-			var doneData = _factory.CreateDoneDataBuilder(null);
-			doneData.SetContent(contentBuilder.Build());
-
-			_builder.SetDoneData(doneData.Build());
-
-			return this;
-		}
-
-		public FinalFluentBuilder<TOuterBuilder> SetDoneData(Evaluator evaluator) => SetDoneData(new RuntimeEvaluator(evaluator));
-
-		public FinalFluentBuilder<TOuterBuilder> SetDoneData(EvaluatorTask task) => SetDoneData(new RuntimeEvaluator(task));
-
-		public FinalFluentBuilder<TOuterBuilder> SetDoneData(EvaluatorCancellableTask task) => SetDoneData(new RuntimeEvaluator(task));
-
-		private FinalFluentBuilder<TOuterBuilder> AddOnEntry(RuntimeAction action)
-		{
-			_builder.AddOnEntry(new OnEntryEntity { Action = ImmutableArray.Create<IExecutableEntity>(action) });
-
-			return this;
-		}
-
-		public FinalFluentBuilder<TOuterBuilder> AddOnEntry(ExecutableAction action) => AddOnEntry(new RuntimeAction(action));
-
-		public FinalFluentBuilder<TOuterBuilder> AddOnEntry(ExecutableTask task) => AddOnEntry(new RuntimeAction(task));
-
-		public FinalFluentBuilder<TOuterBuilder> AddOnEntry(ExecutableCancellableTask task) => AddOnEntry(new RuntimeAction(task));
-
-		private FinalFluentBuilder<TOuterBuilder> AddOnExit(RuntimeAction action)
-		{
-			_builder.AddOnExit(new OnExitEntity { Action = ImmutableArray.Create<IExecutableEntity>(action) });
-
-			return this;
-		}
-
-		public FinalFluentBuilder<TOuterBuilder> AddOnExit(ExecutableAction action) => AddOnExit(new RuntimeAction(action));
-
-		public FinalFluentBuilder<TOuterBuilder> AddOnExit(ExecutableTask task) => AddOnExit(new RuntimeAction(task));
-
-		public FinalFluentBuilder<TOuterBuilder> AddOnExit(ExecutableCancellableTask task) => AddOnExit(new RuntimeAction(task));
+		return OuterBuilder;
 	}
+
+	public FinalFluentBuilder<TOuterBuilder> SetId(string id) => SetId((Identifier) id);
+
+	public FinalFluentBuilder<TOuterBuilder> SetId(IIdentifier id)
+	{
+		Infra.Requires(id);
+
+		Builder.SetId(id);
+
+		return this;
+	}
+
+	private FinalFluentBuilder<TOuterBuilder> SetDoneData(IValueExpression evaluator)
+	{
+		var contentBuilder = ContentBuilderFactory();
+		contentBuilder.SetExpression(evaluator);
+
+		var doneData = DoneDataBuilderFactory();
+		doneData.SetContent(contentBuilder.Build());
+
+		Builder.SetDoneData(doneData.Build());
+
+		return this;
+	}
+
+	public FinalFluentBuilder<TOuterBuilder> SetDoneDataValue(DataModelValue value) => SetDoneData(RuntimeValue.GetValue(value));
+
+	public FinalFluentBuilder<TOuterBuilder> SetDoneDataFunc(Func<DataModelValue> evaluator) => SetDoneData(RuntimeValue.GetValue(evaluator));
+
+	public FinalFluentBuilder<TOuterBuilder> SetDoneDataFuncAsync(Func<ValueTask<DataModelValue>> evaluator) => SetDoneData(RuntimeValue.GetValue(evaluator));
+
+	private FinalFluentBuilder<TOuterBuilder> AddOnEntry(IExecutableEntity action)
+	{
+		Builder.AddOnEntry(new OnEntryEntity { Action = [action] });
+
+		return this;
+	}
+
+	public FinalFluentBuilder<TOuterBuilder> AddOnEntry(Action action) => AddOnEntry(RuntimeAction.GetAction(action));
+
+	public FinalFluentBuilder<TOuterBuilder> AddOnEntryAsync(Func<ValueTask> action) => AddOnEntry(RuntimeAction.GetAction(action));
+
+	private FinalFluentBuilder<TOuterBuilder> AddOnExit(IExecutableEntity action)
+	{
+		Builder.AddOnExit(new OnExitEntity { Action = [action] });
+
+		return this;
+	}
+
+	public FinalFluentBuilder<TOuterBuilder> AddOnExit(Action action) => AddOnExit(RuntimeAction.GetAction(action));
+
+	public FinalFluentBuilder<TOuterBuilder> AddOnExitAsync(Func<ValueTask> action) => AddOnExit(RuntimeAction.GetAction(action));
 }

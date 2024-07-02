@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,22 +17,31 @@
 
 #endregion
 
-using System;
-using System.Diagnostics.CodeAnalysis;
+using System.ComponentModel;
 
-namespace Xtate
+namespace Xtate;
+
+
+[Serializable]
+public sealed class SessionId : ServiceId, IEquatable<SessionId>
 {
-	[Serializable]
-	public sealed class SessionId : LazyId
-	{
-		private SessionId() { }
+	private SessionId() { }
 
-		private SessionId(string val) : base(val) { }
-		protected override string GenerateId() => IdGenerator.NewSessionId(GetHashCode());
+	private SessionId(string value) : base(value) { }
 
-		public static SessionId New() => new SessionId();
+#region Interface IEquatable<SessionId>
 
-		[return: NotNullIfNotNull("val")]
-		public static SessionId? FromString(string? val) => val is { } ? new SessionId(val) : null;
-	}
+	public bool Equals(SessionId? other) => FastEqualsNoTypeCheck(other);
+
+	#endregion
+
+	public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is SessionId other && Equals(other);
+
+	public override int GetHashCode() => base.GetHashCode();
+
+	protected override string GenerateId() => IdGenerator.NewSessionId(GetHashCode());
+
+	public static SessionId New() => new();
+
+	public static SessionId FromString([Localizable(false)] string value) => new(value);
 }

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,18 +17,15 @@
 
 #endregion
 
-using System;
+namespace Xtate.Core;
 
-namespace Xtate
+public interface IStateMachineContext
 {
-	internal interface IStateMachineContext : IAsyncDisposable
-	{
-		IPersistenceContext         PersistenceContext { get; }
-		IExecutionContext           ExecutionContext   { get; }
-		EntityQueue<IEvent>         InternalQueue      { get; }
-		DataModelObject             DataModel          { get; }
-		OrderedSet<StateEntityNode> Configuration      { get; }
-		OrderedSet<StateEntityNode> StatesToInvoke     { get; }
-		KeyList<StateEntityNode>    HistoryValue       { get; }
-	}
+	EntityQueue<IEvent>         InternalQueue  { get; }
+	DataModelList               DataModel      { get; }
+	OrderedSet<StateEntityNode> Configuration  { get; }
+	OrderedSet<StateEntityNode> StatesToInvoke { get; }
+	ServiceIdSet                ActiveInvokes  { get; }
+	KeyList<StateEntityNode>    HistoryValue   { get; }
+	DataModelValue              DoneData       { get; set; }
 }

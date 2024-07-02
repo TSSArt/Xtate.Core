@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,25 +17,14 @@
 
 #endregion
 
-using System;
-using System.Runtime.Serialization;
+namespace Xtate;
 
-namespace Xtate
+[Serializable]
+public class StateMachineUnhandledErrorException : XtateException
 {
-	[Serializable]
-	public class StateMachineUnhandledErrorException : XtateException
-	{
-		public StateMachineUnhandledErrorException() { }
+	public StateMachineUnhandledErrorException() { }
 
-		public StateMachineUnhandledErrorException(string? message) : base(message) { }
+	public StateMachineUnhandledErrorException(string? message) : base(message) { }
 
-		public StateMachineUnhandledErrorException(string? message, Exception? inner) : base(message, inner) { }
-
-		protected StateMachineUnhandledErrorException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-
-		public StateMachineUnhandledErrorException(string message, Exception? innerException, UnhandledErrorBehaviour unhandledErrorBehaviour) : base(message, innerException) =>
-				UnhandledErrorBehaviour = unhandledErrorBehaviour;
-
-		public UnhandledErrorBehaviour UnhandledErrorBehaviour { get; }
-	}
+	public StateMachineUnhandledErrorException(string? message, Exception? innerException) : base(message, innerException) { }
 }

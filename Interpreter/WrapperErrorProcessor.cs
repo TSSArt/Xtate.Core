@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,38 +17,34 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
+namespace Xtate.Core;
 
-namespace Xtate
+/// <summary>
+///     Makes sure error is thrown by <see cref="ThrowIfErrors()" /> in case of underlying error processor does not throw
+///     exception in it.
+/// </summary>
+internal sealed class WrapperErrorProcessor(IErrorProcessor errorProcessor) : IErrorProcessor
 {
-	internal sealed class WrapperErrorProcessor : IErrorProcessor
-	{
-		private readonly IErrorProcessor _errorProcessor;
-
-		private ErrorItem? _error;
-
-		public WrapperErrorProcessor(IErrorProcessor errorProcessor) => _errorProcessor = errorProcessor;
+	private ErrorItem? _error;
 
 	#region Interface IErrorProcessor
 
-		public void AddError(ErrorItem errorItem)
-		{
-			_error ??= errorItem ?? throw new ArgumentNullException(nameof(errorItem));
+	public void AddError(ErrorItem errorItem)
+	{
+		_error ??= errorItem ?? throw new ArgumentNullException(nameof(errorItem));
 
-			_errorProcessor.AddError(errorItem);
-		}
-
-		public void ThrowIfErrors()
-		{
-			if (_error is { } error)
-			{
-				throw new StateMachineValidationException(ImmutableArray.Create(error));
-			}
-		}
-
-		public bool LineInfoRequired => _errorProcessor.LineInfoRequired;
-
-	#endregion
+		errorProcessor.AddError(errorItem);
 	}
+
+	public void ThrowIfErrors()
+	{
+		errorProcessor.ThrowIfErrors();
+
+		if (_error is { } error)
+		{
+			throw new StateMachineValidationException([error]);
+		}
+	}
+
+#endregion
 }

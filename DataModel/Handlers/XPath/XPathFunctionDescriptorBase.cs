@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -20,36 +20,31 @@
 using System.Xml.XPath;
 using System.Xml.Xsl;
 
-namespace Xtate.DataModel.XPath
+namespace Xtate.DataModel.XPath;
+
+public abstract class XPathFunctionDescriptorBase : IXsltContextFunction
 {
-	internal abstract class XPathFunctionDescriptorBase : IXsltContextFunction
+	protected XPathFunctionDescriptorBase(XPathResultType returnType, params XPathResultType[] argTypes)
 	{
-		protected XPathFunctionDescriptorBase(string ns, string name, XPathResultType[] argTypes, XPathResultType returnType)
-		{
-			Namespace = ns;
-			Name = name;
-			ArgTypes = argTypes;
-			ReturnType = returnType;
-		}
-
-		public virtual string Namespace { get; }
-
-		public virtual string Name { get; }
-
-	#region Interface IXsltContextFunction
-
-		object IXsltContextFunction.Invoke(XsltContext xsltContext, object[] args, XPathNavigator docContext) => Invoke(((XPathExpressionContext) xsltContext).Resolver, args);
-
-		public virtual XPathResultType[] ArgTypes { get; }
-
-		public virtual XPathResultType ReturnType { get; }
-
-		public virtual int Maxargs => ArgTypes.Length;
-
-		public virtual int Minargs => ArgTypes.Length;
-
-	#endregion
-
-		protected abstract object Invoke(XPathResolver resolver, object[] args);
+		ArgTypes = argTypes;
+		ReturnType = returnType;
 	}
+
+	public virtual ValueTask Initialize() => default;
+
+#region Interface IXsltContextFunction
+
+	public virtual object Invoke(XsltContext xsltContext, object[] args, XPathNavigator docContext) => Invoke(args)!;
+
+	public virtual XPathResultType[] ArgTypes { get; }
+
+	public virtual XPathResultType ReturnType { get; }
+
+	public virtual int Maxargs => ArgTypes.Length;
+
+	public virtual int Minargs => ArgTypes.Length;
+
+#endregion
+
+	protected abstract object? Invoke(object[] args);
 }

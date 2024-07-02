@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,16 +17,13 @@
 
 #endregion
 
-namespace Xtate.Builder
+namespace Xtate.Builder;
+
+public class ElseBuilder : BuilderBase, IElseBuilder
 {
-	public class ElseBuilder : BuilderBase, IElseBuilder
-	{
-		public ElseBuilder(IErrorProcessor errorProcessor, object? ancestor) : base(errorProcessor, ancestor) { }
+#region Interface IElseBuilder
 
-	#region Interface IElseBuilder
+	public IElse Build() => new ElseEntity { Ancestor = Ancestor };
 
-		public IElse Build() => new ElseEntity { Ancestor = Ancestor };
-
-	#endregion
-	}
+#endregion
 }

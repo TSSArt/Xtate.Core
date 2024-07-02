@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,20 +17,17 @@
 
 #endregion
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
+namespace Xtate.IoProcessor;
 
-namespace Xtate.IoProcessor
+public interface IIoProcessor
 {
-	public interface IIoProcessor
-	{
-		Uri Id { get; }
+	Uri Id { get; }
 
-		bool CanHandle(Uri? type, Uri? target);
+	bool CanHandle(Uri? type);
 
-		Uri GetTarget(SessionId sessionId);
+	Uri? GetTarget(ServiceId serviceId);
 
-		ValueTask Dispatch(SessionId sessionId, IOutgoingEvent evt, CancellationToken token);
-	}
+	ValueTask<IHostEvent> GetHostEvent(ServiceId senderServiceId, IOutgoingEvent outgoingEvent, CancellationToken token);
+
+	ValueTask Dispatch(IHostEvent hostEvent, CancellationToken token);
 }

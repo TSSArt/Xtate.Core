@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,13 +17,12 @@
 
 #endregion
 
-namespace Xtate.Builder
-{
-	public interface IIfBuilder
-	{
-		IIf Build();
+namespace Xtate.Builder;
 
-		void SetCondition(IConditionExpression condition);
-		void AddAction(IExecutableEntity action);
-	}
+public interface IIfBuilder
+{
+	IIf Build();
+
+	void SetCondition(IConditionExpression condition);
+	void AddAction(IExecutableEntity action);
 }

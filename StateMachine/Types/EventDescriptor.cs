@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,67 +17,77 @@
 
 #endregion
 
-using System;
-using Xtate.Annotations;
+namespace Xtate.Core;
 
-namespace Xtate
+public sealed class EventDescriptor : IEventDescriptor
 {
-	[PublicAPI]
-	public sealed class EventDescriptor : IEventDescriptor
+	private static readonly char[] Dot = ['.'];
+
+	private readonly IIdentifier[] _parts;
+
+	private EventDescriptor(string value)
 	{
-		private static readonly char[] Dot = { '.' };
+		if (string.IsNullOrEmpty(value)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(value));
 
-		private readonly IIdentifier[] _parts;
+		Value = value;
 
-		private EventDescriptor(string val)
+		var parts = value.Split(Dot, StringSplitOptions.None);
+		var length = parts.Length;
+		if (length > 0 && parts[length - 1] == @"*")
 		{
-			if (string.IsNullOrEmpty(val)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(val));
-
-			Value = val;
-
-			var parts = val.Split(Dot, StringSplitOptions.None);
-			var length = parts.Length;
-			if (length > 0 && parts[length - 1] == @"*")
-			{
-				length --;
-			}
-
-			_parts = new IIdentifier[length];
-
-			for (var i = 0; i < _parts.Length; i ++)
-			{
-				_parts[i] = (Identifier) parts[i];
-			}
+			length --;
 		}
 
-	#region Interface IEventDescriptor
+		_parts = new IIdentifier[length];
 
-		public bool IsEventMatch(IEvent evt)
+		for (var i = 0; i < _parts.Length; i ++)
 		{
-			if (evt is null) throw new ArgumentNullException(nameof(evt));
+			_parts[i] = (Identifier) parts[i];
+		}
+	}
 
-			if (evt.NameParts.Length < _parts.Length)
+#region Interface IEventDescriptor
+
+	public bool IsEventMatch(IEvent evt)
+	{
+		if (evt is null) throw new ArgumentNullException(nameof(evt));
+
+		if (evt.NameParts.Length < _parts.Length)
+		{
+			return false;
+		}
+
+		for (var i = 0; i < _parts.Length; i ++)
+		{
+			if (!Equals(evt.NameParts[i], _parts[i]))
 			{
 				return false;
 			}
-
-			for (var i = 0; i < _parts.Length; i ++)
-			{
-				if (!Equals(evt.NameParts[i], _parts[i]))
-				{
-					return false;
-				}
-			}
-
-			return true;
 		}
 
-		public string Value { get; }
+		return true;
+	}
 
-	#endregion
+	public string Value { get; }
 
-		public static explicit operator EventDescriptor(string val) => new EventDescriptor(val);
+#endregion
 
-		public static EventDescriptor FromString(string val) => new EventDescriptor(val);
+	public static explicit operator EventDescriptor(string value) => new(value);
+
+	public static EventDescriptor FromString(string value) => new(value);
+
+	public static string? ToString(ImmutableArray<IEventDescriptor> eventDescriptors)
+	{
+		if (eventDescriptors.IsDefaultOrEmpty)
+		{
+			return null;
+		}
+
+		if (eventDescriptors.Length == 1)
+		{
+			return eventDescriptors[0].Value;
+		}
+
+		return string.Join(separator: @" ", eventDescriptors.Select(d => d.Value));
 	}
 }

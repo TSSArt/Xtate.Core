@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,40 +17,35 @@
 
 #endregion
 
-using System;
 using Xtate.Persistence;
 
-namespace Xtate
-{
-	internal sealed class RaiseNode : ExecutableEntityNode, IRaise, IAncestorProvider, IDebugEntityId
-	{
-		private readonly RaiseEntity _entity;
+namespace Xtate.Core;
 
-		public RaiseNode(in DocumentIdRecord documentIdNode, in RaiseEntity entity) : base(documentIdNode, (IRaise?) entity.Ancestor) => _entity = entity;
+public sealed class RaiseNode(DocumentIdNode documentIdNode, IRaise raise) : ExecutableEntityNode(documentIdNode, raise), IRaise, IAncestorProvider, IDebugEntityId
+{
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _entity.Ancestor;
+	object IAncestorProvider.Ancestor => raise;
 
-	#endregion
+#endregion
 
-	#region Interface IDebugEntityId
+#region Interface IDebugEntityId
 
-		FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
+	FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
 
-	#endregion
+#endregion
 
-	#region Interface IRaise
+#region Interface IRaise
 
-		public IOutgoingEvent? OutgoingEvent => _entity.OutgoingEvent;
+	public IOutgoingEvent? OutgoingEvent => raise.OutgoingEvent;
 
-	#endregion
+#endregion
 
-		protected override void Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.RaiseNode);
-			bucket.Add(Key.DocumentId, DocumentId);
-			bucket.AddEntity(Key.Event, OutgoingEvent);
-		}
+	protected override void Store(Bucket bucket)
+	{
+		bucket.Add(Key.TypeInfo, TypeInfo.RaiseNode);
+		bucket.Add(Key.DocumentId, DocumentId);
+		bucket.AddEntity(Key.Event, OutgoingEvent);
 	}
 }

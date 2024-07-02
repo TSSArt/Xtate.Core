@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,20 +17,17 @@
 
 #endregion
 
-using System.Collections.Immutable;
+namespace Xtate;
 
-namespace Xtate
+public interface ICustomAction : IExecutableEntity
 {
-	public interface ICustomAction : IExecutableEntity
-	{
-		string? XmlNamespace { get; }
+	string? XmlNamespace { get; }
 
-		string? XmlName { get; }
+	string? XmlName { get; }
 
-		string? Xml { get; }
+	string? Xml { get; }
 
-		ImmutableArray<ILocationExpression> Locations { get; }
+	ImmutableArray<ILocationExpression> Locations { get; }
 
-		ImmutableArray<IValueExpression> Values { get; }
-	}
+	ImmutableArray<IValueExpression> Values { get; }
 }

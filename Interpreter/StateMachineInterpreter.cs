@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,1253 +17,805 @@
 
 #endregion
 
-using System;
 using System.Buffers;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Channels;
-using System.Threading.Tasks;
-using Xtate.Annotations;
-using Xtate.CustomAction;
 using Xtate.DataModel;
-using Xtate.DataModel.None;
-using Xtate.DataModel.Runtime;
-using Xtate.Persistence;
 
-namespace Xtate
+namespace Xtate.Core;
+
+using DefaultHistoryContent = Dictionary<IIdentifier, ImmutableArray<IExecEvaluator>>;
+
+public partial class StateMachineInterpreter : IStateMachineInterpreter
 {
-	using DefaultHistoryContent = Dictionary<IIdentifier, ImmutableArray<IExecEvaluator>>;
+	private readonly object                          _stateMachineToken = new();
+	private          IStateMachineContext            _context = default!;
+	private          bool                            _running = true;
+	private          StateMachineDestroyedException? _stateMachineDestroyedException;
 
-	[PublicAPI]
-	public sealed partial class StateMachineInterpreter : IDataModelValueProvider
+	public required IStateMachineArguments?               StateMachineArguments   { private get; [UsedImplicitly] init; }
+	public required DataConverter                         DataConverter           { private get; [UsedImplicitly] init; }
+	public required IDataModelHandler                     DataModelHandler        { private get; [UsedImplicitly] init; }
+	public required IEventQueueReader                     EventQueueReader        { private get; [UsedImplicitly] init; }
+	public required IExternalCommunication?               ExternalCommunication   { private get; [UsedImplicitly] init; }
+	public required ILogger<IStateMachineInterpreter>     Logger                  { private get; [UsedImplicitly] init; }
+	public required IInterpreterModel                     Model                   { private get; [UsedImplicitly] init; }
+	public required INotifyStateChanged?                  NotifyStateChanged      { private get; [UsedImplicitly] init; }
+	public required IUnhandledErrorBehaviour?             UnhandledErrorBehaviour { private get; [UsedImplicitly] init; }
+	public required Func<ValueTask<IStateMachineContext>> ContextFactory          { private get; [UsedImplicitly] init; }
+
+#region Interface IStateMachineInterpreter
+
+	public virtual async ValueTask<DataModelValue> RunAsync()
 	{
-		private const string StateStorageKey                  = "state";
-		private const string StateMachineDefinitionStorageKey = "smd";
+		_context = await ContextFactory().ConfigureAwait(false);
 
-		private static readonly ImmutableArray<IDataModelHandlerFactory> PredefinedDataModelHandlerFactories =
-				ImmutableArray.Create(NoneDataModelHandler.Factory, RuntimeDataModelHandler.Factory);
+		await Interpret().ConfigureAwait(false);
 
-		private readonly ImmutableDictionary<object, object>      _contextRuntimeItems;
-		private readonly ImmutableArray<ICustomActionFactory>     _customActionProviders;
-		private readonly ImmutableArray<IDataModelHandlerFactory> _dataModelHandlerFactories;
-		private readonly CancellationToken                        _destroyToken;
-		private readonly IErrorProcessor                          _errorProcessor;
-		private readonly ChannelReader<IEvent>                    _eventChannel;
-		private readonly IExternalCommunication?                  _externalCommunication;
-		private readonly ILogger                                  _logger;
-		private readonly INotifyStateChanged?                     _notifyStateChanged;
-		private readonly PersistenceLevel                         _persistenceLevel;
-		private readonly ImmutableArray<IResourceLoader>          _resourceLoaders;
-		private readonly SessionId                                _sessionId;
-		private readonly IStateMachineValidator                   _stateMachineValidator;
-		private readonly CancellationToken                        _stopToken;
-		private readonly IStorageProvider                         _storageProvider;
-		private readonly CancellationToken                        _suspendToken;
-		private readonly UnhandledErrorBehaviour                  _unhandledErrorBehaviour;
-		private          CancellationTokenSource                  _anyTokenSource;
-		private          IStateMachineContext                     _context;
-		private          IDataModelHandler                        _dataModelHandler;
-		private          ImmutableDictionary<string, string>      _dataModelVars;
-		private          DataModelValue                           _doneData;
-		private          InterpreterModel                         _model;
-		private          bool                                     _stop;
+		return _context.DoneData;
+	}
 
-		private StateMachineInterpreter(SessionId sessionId, ChannelReader<IEvent> eventChannel, in InterpreterOptions options)
+#endregion
+
+	protected virtual ValueTask NotifyAccepted() => NotifyInterpreterState(StateMachineInterpreterState.Accepted);
+	protected virtual ValueTask NotifyStarted()  => NotifyInterpreterState(StateMachineInterpreterState.Started);
+	protected virtual ValueTask NotifyExited()   => NotifyInterpreterState(StateMachineInterpreterState.Exited);
+	protected virtual ValueTask NotifyWaiting()  => NotifyInterpreterState(StateMachineInterpreterState.Waiting);
+
+	protected ValueTask TraceInterpreterState(StateMachineInterpreterState state) => Logger.Write(Level.Trace, $@"Interpreter state has changed to '{state}'");
+
+	private async ValueTask NotifyInterpreterState(StateMachineInterpreterState state)
+	{
+		await TraceInterpreterState(state).ConfigureAwait(false);
+
+		if (NotifyStateChanged is not null)
 		{
-			_sessionId = sessionId;
-			_eventChannel = eventChannel;
-			_suspendToken = options.SuspendToken;
-			_stopToken = options.StopToken;
-			_destroyToken = options.DestroyToken;
-			_resourceLoaders = options.ResourceLoaders;
-			_customActionProviders = options.CustomActionProviders;
-			_dataModelHandlerFactories = options.DataModelHandlerFactories;
-			_logger = options.Logger ?? DefaultLogger.Instance;
-			_externalCommunication = options.ExternalCommunication;
-			_storageProvider = options.StorageProvider ?? NullStorageProvider.Instance;
-			_contextRuntimeItems = options.ContextRuntimeItems ?? ImmutableDictionary<object, object>.Empty;
-			_errorProcessor = options.ErrorProcessor ?? DefaultErrorProcessor.Instance;
-			_persistenceLevel = options.PersistenceLevel;
-			_notifyStateChanged = options.NotifyStateChanged;
-			_stateMachineValidator = StateMachineValidator.Instance;
-			_dataModelVars = ImmutableDictionary<string, string>.Empty;
-			_unhandledErrorBehaviour = options.UnhandledErrorBehaviour;
-			Interpreter = new DataModelValue(new LazyValue(CreateInterpreterObject));
-			DataModelHandler = new DataModelValue(new LazyValue(CreateDataModelHandlerObject));
-			Configuration = new DataModelValue(options.Configuration?.AsConstant() ?? DataModelObject.Empty);
-			Host = new DataModelValue(options.Host?.AsConstant() ?? DataModelObject.Empty);
-			Arguments = options.Arguments.AsConstant();
-
-			_anyTokenSource = null!;
-			_dataModelHandler = null!;
-			_context = null!;
-			_model = null!;
+			await NotifyStateChanged.OnChanged(state).ConfigureAwait(false);
 		}
+	}
 
-		private bool IsPersistingEnabled => _persistenceLevel != PersistenceLevel.None;
-
-		private bool Running
+	protected virtual async ValueTask Interpret()
+	{
+		try
 		{
-			get => !_stop && (!IsPersistingEnabled || _context.PersistenceContext.GetState((int) StateBagKey.Stop) == 0);
-			set
-			{
-				_stop = !value;
-
-				if (IsPersistingEnabled)
-				{
-					_context.PersistenceContext.SetState((int) StateBagKey.Stop, value ? 0 : 1);
-				}
-			}
+			await EnterSteps().ConfigureAwait(false);
+			await MainEventLoop().ConfigureAwait(false);
 		}
-
-	#region Interface IDataModelValueProvider
-
-		public DataModelValue Arguments { get; }
-
-		public DataModelValue Interpreter { get; }
-
-		public DataModelValue Configuration { get; }
-
-		public DataModelValue Host { get; }
-
-		public DataModelValue DataModelHandler { get; }
-
-		public bool CaseInsensitive => _dataModelHandler.CaseInsensitive;
-
-	#endregion
-
-		public static ValueTask<DataModelValue> RunAsync(IStateMachine? stateMachine, ChannelReader<IEvent> eventChannel, in InterpreterOptions options = default)
+		catch (StateMachineDestroyedException)
 		{
-			if (eventChannel is null) throw new ArgumentNullException(nameof(eventChannel));
-
-			return new StateMachineInterpreter(SessionId.New(), eventChannel, options).Run(stateMachine);
-		}
-
-		public static ValueTask<DataModelValue> RunAsync(SessionId sessionId, IStateMachine? stateMachine, ChannelReader<IEvent> eventChannel, in InterpreterOptions options = default)
-		{
-			if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
-			if (eventChannel is null) throw new ArgumentNullException(nameof(eventChannel));
-
-			return new StateMachineInterpreter(sessionId, eventChannel, options).Run(stateMachine);
-		}
-
-		private async ValueTask<InterpreterModel> BuildInterpreterModel(IStateMachine? stateMachine)
-		{
-			var wrapperErrorProcessor = new WrapperErrorProcessor(_errorProcessor);
-			using var factoryContext = new FactoryContext(_resourceLoaders);
-
-			var interpreterModel = IsPersistingEnabled ? await TryRestoreInterpreterModel(stateMachine, factoryContext, wrapperErrorProcessor).ConfigureAwait(false) : null;
-
-			if (interpreterModel is { })
-			{
-				return interpreterModel;
-			}
-
-			Infrastructure.NotNull(stateMachine);
-
-			_dataModelHandler = await CreateDataModelHandler(stateMachine.DataModelType, _dataModelHandlerFactories, factoryContext, wrapperErrorProcessor).ConfigureAwait(false);
-
-			_stateMachineValidator.Validate(stateMachine, wrapperErrorProcessor);
-
-			var interpreterModelBuilder = new InterpreterModelBuilder(stateMachine, _dataModelHandler, _customActionProviders, factoryContext, wrapperErrorProcessor);
-
-			try
-			{
-				interpreterModel = await interpreterModelBuilder.Build(_resourceLoaders, _stopToken).ConfigureAwait(false);
-			}
-			finally
-			{
-				_errorProcessor.ThrowIfErrors();
-				wrapperErrorProcessor.ThrowIfErrors();
-			}
-
-			if (IsPersistingEnabled)
-			{
-				await SaveInterpreterModel(interpreterModel).ConfigureAwait(false);
-			}
-
-			return interpreterModel;
-		}
-
-		private async ValueTask<InterpreterModel?> TryRestoreInterpreterModel(IStateMachine? stateMachine, FactoryContext factoryContext, IErrorProcessor errorProcessor)
-		{
-			var storage = await _storageProvider.GetTransactionalStorage(partition: default, StateMachineDefinitionStorageKey, _stopToken).ConfigureAwait(false);
-			await using (storage.ConfigureAwait(false))
-			{
-				var bucket = new Bucket(storage);
-
-				if (bucket.TryGet(Key.Version, out int version) && version != 1)
-				{
-					throw new PersistenceException(Resources.Exception_Persisted_state_can_t_be_read__Unsupported_version_);
-				}
-
-				var storedSessionId = bucket.GetSessionId(Key.SessionId);
-				if (storedSessionId is { } && storedSessionId != _sessionId)
-				{
-					throw new PersistenceException(Resources.Exception_Persisted_state_can_t_be_read__Stored_and_provided_SessionIds_does_not_match);
-				}
-
-				if (!bucket.TryGet(Key.StateMachineDefinition, out var memory))
-				{
-					return null;
-				}
-
-				var smdBucket = new Bucket(new InMemoryStorage(memory.Span));
-
-				_dataModelHandler = await CreateDataModelHandler(smdBucket.GetString(Key.DataModelType), _dataModelHandlerFactories, factoryContext, errorProcessor).ConfigureAwait(false);
-
-				ImmutableDictionary<int, IEntity>? entityMap = null;
-
-				if (stateMachine is { })
-				{
-					var builder = new InterpreterModelBuilder(stateMachine, _dataModelHandler, _customActionProviders, factoryContext, DefaultErrorProcessor.Instance);
-					var model = await builder.Build(_stopToken).ConfigureAwait(false);
-					entityMap = model.EntityMap;
-				}
-
-				var restoredStateMachine = new StateMachineReader().Build(smdBucket, entityMap);
-
-				if (stateMachine is { })
-				{
-					//TODO: Validate stateMachine vs restoredStateMachine (number of elements should be the same and documentId should point to the same entity type)
-				}
-
-				var wrapperErrorProcessor = new WrapperErrorProcessor(_errorProcessor);
-
-				var interpreterModelBuilder = new InterpreterModelBuilder(restoredStateMachine, _dataModelHandler, _customActionProviders, factoryContext, wrapperErrorProcessor);
-
-				_errorProcessor.ThrowIfErrors();
-				wrapperErrorProcessor.ThrowIfErrors();
-
-				return await interpreterModelBuilder.Build(_stopToken).ConfigureAwait(false);
-			}
-		}
-
-		private async ValueTask SaveInterpreterModel(InterpreterModel interpreterModel)
-		{
-			var storage = await _storageProvider.GetTransactionalStorage(partition: default, StateMachineDefinitionStorageKey, _stopToken).ConfigureAwait(false);
-			await using (storage.ConfigureAwait(false))
-			{
-				SaveToStorage(interpreterModel.Root.As<IStoreSupport>(), new Bucket(storage));
-
-				await storage.CheckPoint(level: 0, _stopToken).ConfigureAwait(false);
-			}
-		}
-
-		[SuppressMessage(category: "ReSharper", checkId: "SuggestVarOrType_Elsewhere", Justification = "Span<> must be explicit")]
-		private void SaveToStorage(IStoreSupport root, Bucket bucket)
-		{
-			var memoryStorage = new InMemoryStorage();
-			root.Store(new Bucket(memoryStorage));
-
-			Span<byte> span = stackalloc byte[memoryStorage.GetTransactionLogSize()];
-			memoryStorage.WriteTransactionLogToSpan(span);
-
-			bucket.Add(Key.Version, value: 1);
-			bucket.AddId(Key.SessionId, _sessionId);
-			bucket.Add(Key.StateMachineDefinition, span);
-		}
-
-		private async ValueTask<IDataModelHandler> CreateDataModelHandler(string? dataModelType, ImmutableArray<IDataModelHandlerFactory> factories, FactoryContext factoryContext,
-																		  IErrorProcessor errorProcessor)
-		{
-			dataModelType ??= NoneDataModelHandler.DataModelType;
-			var activator = await FindDataModelHandlerFactoryActivator(factoryContext, dataModelType, factories).ConfigureAwait(false);
-
-			if (activator is { })
-			{
-				return await activator.CreateHandler(factoryContext, dataModelType, errorProcessor, _stopToken).ConfigureAwait(false);
-			}
-
-			errorProcessor.AddError<StateMachineInterpreter>(entity: null, Res.Format(Resources.Exception_Cant_find_DataModelHandlerFactory_for_DataModel_type, dataModelType));
-
-			return new NoneDataModelHandler(errorProcessor);
-		}
-
-		private async ValueTask<IDataModelHandlerFactoryActivator?> FindDataModelHandlerFactoryActivator(IFactoryContext factoryContext, string dataModelType,
-																										 ImmutableArray<IDataModelHandlerFactory> factories)
-		{
-			if (!factories.IsDefaultOrEmpty)
-			{
-				foreach (var factory in factories)
-				{
-					var activator = await factory.TryGetActivator(factoryContext, dataModelType, _stopToken).ConfigureAwait(false);
-
-					if (activator is { })
-					{
-						return activator;
-					}
-				}
-			}
-
-			foreach (var factory in PredefinedDataModelHandlerFactories)
-			{
-				var activator = await factory.TryGetActivator(factoryContext, dataModelType ?? NoneDataModelHandler.DataModelType, _stopToken).ConfigureAwait(false);
-
-				if (activator is { })
-				{
-					return activator;
-				}
-			}
-
-			return null;
-		}
-
-		private ValueTask DoOperation(StateBagKey key, Func<ValueTask> func)
-		{
-			return IsPersistingEnabled ? DoOperationAsync() : func();
-
-			async ValueTask DoOperationAsync()
-			{
-				var persistenceContext = _context.PersistenceContext;
-				if (persistenceContext.GetState((int) key) == 0)
-				{
-					await func().ConfigureAwait(false);
-
-					persistenceContext.SetState((int) key, value: 1);
-				}
-			}
-		}
-
-		private ValueTask DoOperation<TArg>(StateBagKey key, Func<TArg, ValueTask> func, TArg arg)
-		{
-			return IsPersistingEnabled ? DoOperationAsync() : func(arg);
-
-			async ValueTask DoOperationAsync()
-			{
-				var persistenceContext = _context.PersistenceContext;
-				if (persistenceContext.GetState((int) key) == 0)
-				{
-					await func(arg).ConfigureAwait(false);
-
-					persistenceContext.SetState((int) key, value: 1);
-				}
-			}
-		}
-
-		private ValueTask DoOperation<TArg>(StateBagKey key, IEntity entity, Func<TArg, ValueTask> func, TArg arg)
-		{
-			return IsPersistingEnabled ? DoOperationAsync() : func(arg);
-
-			async ValueTask DoOperationAsync()
-			{
-				var documentId = entity.As<IDocumentId>().DocumentId;
-
-				var persistenceContext = _context.PersistenceContext;
-				if (persistenceContext.GetState((int) key, documentId) == 0)
-				{
-					await func(arg).ConfigureAwait(false);
-
-					persistenceContext.SetState((int) key, documentId, value: 1);
-				}
-			}
-		}
-
-		private void Complete(StateBagKey key)
-		{
-			if (IsPersistingEnabled)
-			{
-				_context.PersistenceContext.ClearState((int) key);
-			}
-		}
-
-		private bool Capture(StateBagKey key, bool value)
-		{
-			if (IsPersistingEnabled)
-			{
-				var persistenceContext = _context.PersistenceContext;
-				if (persistenceContext.GetState((int) key) == 1)
-				{
-					return persistenceContext.GetState((int) key, subKey: 0) == 1;
-				}
-
-				persistenceContext.SetState((int) key, subKey: 0, value ? 1 : 0);
-				persistenceContext.SetState((int) key, value: 1);
-			}
-
-			return value;
-		}
-
-		private ValueTask<List<TransitionNode>> Capture(StateBagKey key, Func<ValueTask<List<TransitionNode>>> value)
-		{
-			return IsPersistingEnabled ? CaptureAsync() : value();
-
-			async ValueTask<List<TransitionNode>> CaptureAsync()
-			{
-				var persistenceContext = _context.PersistenceContext;
-				if (persistenceContext.GetState((int) key) == 0)
-				{
-					var list = await value().ConfigureAwait(false);
-					persistenceContext.SetState((int) key, subKey: 0, list.Count);
-
-					for (var i = 0; i < list.Count; i ++)
-					{
-						persistenceContext.SetState((int) key, i + 1, list[i].As<IDocumentId>().DocumentId);
-					}
-
-					persistenceContext.SetState((int) key, value: 1);
-
-					return list;
-				}
-
-				var length = persistenceContext.GetState((int) key, subKey: 0);
-				var capturedSet = new List<TransitionNode>(length);
-
-				for (var i = 0; i < length; i ++)
-				{
-					var documentId = persistenceContext.GetState((int) key, i + 1);
-					capturedSet.Add(_model.EntityMap[documentId].As<TransitionNode>());
-				}
-
-				return capturedSet;
-			}
-		}
-
-		private ValueTask NotifyAccepted() => NotifyInterpreterState(StateMachineInterpreterState.Accepted);
-		private ValueTask NotifyStarted()  => NotifyInterpreterState(StateMachineInterpreterState.Started);
-		private ValueTask NotifyExited()   => NotifyInterpreterState(StateMachineInterpreterState.Exited);
-		private ValueTask NotifyWaiting()  => NotifyInterpreterState(StateMachineInterpreterState.Waiting);
-
-		private ValueTask NotifyInterpreterState(StateMachineInterpreterState state)
-		{
-			LogInterpreterState(state);
-
-			return _notifyStateChanged?.OnChanged(state) ?? default;
-		}
-
-		private async ValueTask RunSteps()
-		{
-			try
-			{
-				await DoOperation(StateBagKey.NotifyAccepted, NotifyAccepted).ConfigureAwait(false);
-				await DoOperation(StateBagKey.InitializeRootDataModel, InitializeRootDataModel).ConfigureAwait(false);
-				await DoOperation(StateBagKey.EarlyInitializeDataModel, InitializeAllDataModels).ConfigureAwait(false);
-				await DoOperation(StateBagKey.ExecuteGlobalScript, ExecuteGlobalScript).ConfigureAwait(false);
-				await DoOperation(StateBagKey.NotifyStarted, NotifyStarted).ConfigureAwait(false);
-				await DoOperation(StateBagKey.InitialEnterStates, InitialEnterStates).ConfigureAwait(false);
-				await DoOperation(StateBagKey.MainEventLoop, MainEventLoop).ConfigureAwait(false);
-			}
-			catch (StateMachineLiveLockException ex)
-			{
-				throw await DestroyingSteps(ex).ConfigureAwait(false);
-			}
-			catch (OperationCanceledException ex) when (ex.CancellationToken == _destroyToken || ex.CancellationToken == _anyTokenSource.Token && _destroyToken.IsCancellationRequested)
-			{
-				throw await DestroyingSteps(ex).ConfigureAwait(false);
-			}
-			catch (StateMachineUnhandledErrorException ex) when (ex.UnhandledErrorBehaviour == UnhandledErrorBehaviour.DestroyStateMachine)
-			{
-				throw await DestroyingSteps(ex).ConfigureAwait(false);
-			}
-
-			await ExitSteps().ConfigureAwait(false);
-		}
-
-		private async ValueTask ExitSteps()
-		{
-			await DoOperation(StateBagKey.ExitInterpreter, ExitInterpreter).ConfigureAwait(false);
-			await DoOperation(StateBagKey.NotifyExited, NotifyExited).ConfigureAwait(false);
-			await CleanupPersistedData().ConfigureAwait(false);
-		}
-
-		private async ValueTask<StateMachineDestroyedException> DestroyingSteps(Exception destroyException)
-		{
-			LogInterpreterState(StateMachineInterpreterState.Destroying);
-
+			await TraceInterpreterState(StateMachineInterpreterState.Destroying).ConfigureAwait(false);
 			await ExitSteps().ConfigureAwait(false);
 
-			return new StateMachineDestroyedException(Resources.Exception_State_Machine_has_been_destroyed, destroyException);
+			throw;
+		}
+		catch
+		{
+			await TraceInterpreterState(StateMachineInterpreterState.Halted).ConfigureAwait(false);
+
+			throw;
 		}
 
-		private async ValueTask<DataModelValue> Run(IStateMachine? stateMachine)
+		await ExitSteps().ConfigureAwait(false);
+	}
+
+	protected virtual async ValueTask EnterSteps()
+	{
+		await NotifyAccepted().ConfigureAwait(false);
+		await InitializeDataModels().ConfigureAwait(false);
+		await ExecuteGlobalScript().ConfigureAwait(false);
+		await NotifyStarted().ConfigureAwait(false);
+		await InitialEnterStates().ConfigureAwait(false);
+	}
+
+	protected virtual async ValueTask ExitSteps()
+	{
+		await ExitInterpreter().ConfigureAwait(false);
+		await NotifyExited().ConfigureAwait(false);
+	}
+
+	public virtual void TriggerDestroySignal(Exception? innerException = default)
+	{
+		_stateMachineDestroyedException = new StateMachineDestroyedException(Resources.Exception_StateMachineHasBeenDestroyed, innerException);
+
+		StopWaitingExternalEvents();
+	}
+
+	protected void StopWaitingExternalEvents() => EventQueueReader.Complete();
+
+	protected virtual async ValueTask InitializeDataModels()
+	{
+		if (Model.Root.DataModel is { } dataModel)
 		{
-			_model = await BuildInterpreterModel(stateMachine).ConfigureAwait(false);
-			_context = await CreateContext().ConfigureAwait(false);
-			_anyTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_suspendToken, _destroyToken, _stopToken);
-			await using var _ = _context.ConfigureAwait(false);
-
-			if (stateMachine is null)
-			{
-				LogInterpreterState(StateMachineInterpreterState.Resumed);
-			}
-
-			try
-			{
-				await RunSteps().ConfigureAwait(false);
-			}
-			catch (ChannelClosedException ex)
-			{
-				LogInterpreterState(StateMachineInterpreterState.QueueClosed);
-
-				throw new StateMachineQueueClosedException(Resources.Exception_State_Machine_external_queue_has_been_closed, ex);
-			}
-			catch (OperationCanceledException ex) when (ex.CancellationToken == _stopToken || ex.CancellationToken == _anyTokenSource.Token && _stopToken.IsCancellationRequested)
-			{
-				LogInterpreterState(StateMachineInterpreterState.Halted);
-
-				throw new OperationCanceledException(Resources.Exception_State_Machine_has_been_halted, ex, _stopToken);
-			}
-			catch (StateMachineUnhandledErrorException ex) when (ex.UnhandledErrorBehaviour == UnhandledErrorBehaviour.HaltStateMachine)
-			{
-				LogInterpreterState(StateMachineInterpreterState.Halted);
-
-				throw;
-			}
-			catch (OperationCanceledException ex) when (ex.CancellationToken == _suspendToken || ex.CancellationToken == _anyTokenSource.Token && _suspendToken.IsCancellationRequested)
-			{
-				LogInterpreterState(StateMachineInterpreterState.Suspended);
-
-				throw new StateMachineSuspendedException(Resources.Exception_State_Machine_has_been_suspended, ex);
-			}
-
-			return _doneData;
+			await InitializeDataModel(dataModel, StateMachineArguments?.Arguments.AsListOrDefault()).ConfigureAwait(false);
 		}
 
-		private async ValueTask CleanupPersistedData()
+		if (Model.Root is { Binding: BindingType.Early } stateMachineNode)
 		{
-			if (IsPersistingEnabled)
+			foreach (var stateNode in stateMachineNode.States)
 			{
-				await _storageProvider.RemoveTransactionalStorage(partition: default, StateStorageKey, _stopToken).ConfigureAwait(false);
-				await _storageProvider.RemoveTransactionalStorage(partition: default, StateMachineDefinitionStorageKey, _stopToken).ConfigureAwait(false);
+				await InitializeDataModelRecursive(stateNode).ConfigureAwait(false);
 			}
 		}
+	}
 
-		private async ValueTask InitializeAllDataModels()
+	private async ValueTask InitializeDataModelRecursive(StateEntityNode stateEntityNode)
+	{
+		if (stateEntityNode is ParallelNode or StateNode)
 		{
-			if (_model.Root.Binding == BindingType.Early && !_model.DataModelList.IsDefaultOrEmpty)
+			if (stateEntityNode.DataModel is { } dataModelNode)
 			{
-				foreach (var node in _model.DataModelList)
+				await InitializeDataModel(dataModelNode).ConfigureAwait(false);
+			}
+
+			if (stateEntityNode.States is { IsDefaultOrEmpty: false } states)
+			{
+				foreach (var stateNode in states)
 				{
-					await DoOperation(StateBagKey.InitializeDataModel, node, InitializeDataModel, node).ConfigureAwait(false);
+					await InitializeDataModelRecursive(stateNode).ConfigureAwait(false);
 				}
 			}
 		}
+	}
 
-		private ValueTask InitialEnterStates() => EnterStates(new List<TransitionNode>(1) { _model.Root.Initial.Transition });
+	protected virtual ValueTask InitialEnterStates() => EnterStates([Model.Root.Initial.Transition]);
 
-		private async ValueTask MainEventLoop()
+	protected virtual async ValueTask MainEventLoop()
+	{
+		while (await MainEventLoopIteration().ConfigureAwait(false)) { }
+	}
+
+	protected virtual async ValueTask<bool> MainEventLoopIteration()
+	{
+		if (!await Macrostep().ConfigureAwait(false))
 		{
-			var exit = false;
-
-			while (Capture(StateBagKey.Running, Running && !exit))
-			{
-				_anyTokenSource.Token.ThrowIfCancellationRequested();
-
-				await DoOperation(StateBagKey.InternalQueueProcessing, InternalQueueProcessing).ConfigureAwait(false);
-
-				exit = await ExternalQueueProcessing().ConfigureAwait(false);
-
-				Complete(StateBagKey.InternalQueueProcessing);
-				Complete(StateBagKey.Running);
-			}
-
-			Complete(StateBagKey.Running);
-		}
-
-		private async ValueTask InternalQueueProcessing()
-		{
-			var liveLockDetector = LiveLockDetector.Create();
-			var exit = false;
-
-			try
-			{
-				while (Capture(StateBagKey.Running, Running && !exit))
-				{
-					_anyTokenSource.Token.ThrowIfCancellationRequested();
-
-					liveLockDetector.Iteration(_context.InternalQueue.Count);
-
-					exit = await InternalQueueProcessingIteration().ConfigureAwait(false);
-
-					Complete(StateBagKey.Running);
-				}
-
-				Complete(StateBagKey.Running);
-			}
-			finally
-			{
-				liveLockDetector.Dispose();
-			}
-		}
-
-		private async ValueTask<List<TransitionNode>> SelectInternalEventTransitions()
-		{
-			var internalEvent = _context.InternalQueue.Dequeue();
-
-			var eventObject = DataConverter.FromEvent(internalEvent, _dataModelHandler.CaseInsensitive);
-			_context.DataModel.SetInternal(key: @"_event", _dataModelHandler.CaseInsensitive, eventObject, DataModelAccess.ReadOnly);
-
-			LogProcessingEvent(internalEvent);
-
-			var transitions = await SelectTransitions(internalEvent).ConfigureAwait(false);
-
-			if (transitions.Count == 0 && EventName.IsError(internalEvent.NameParts))
-			{
-				UnhandledErrorEvent(internalEvent);
-			}
-
-			return transitions;
-		}
-
-		private void UnhandledErrorEvent(IEvent evt)
-		{
-			switch (_unhandledErrorBehaviour)
-			{
-				case UnhandledErrorBehaviour.IgnoreError:
-					return;
-
-				case UnhandledErrorBehaviour.HaltStateMachine:
-				case UnhandledErrorBehaviour.DestroyStateMachine:
-
-					evt.Is<Exception>(out var exception);
-
-					throw new StateMachineUnhandledErrorException(Resources.Exception_Unhandled_exception, exception, _unhandledErrorBehaviour);
-
-				default:
-					Infrastructure.UnexpectedValue();
-					break;
-			}
-		}
-
-		private async ValueTask<bool> InternalQueueProcessMessage()
-		{
-			var exit = false;
-
-			if (Capture(StateBagKey.InternalQueueNonEmpty, _context.InternalQueue.Count > 0))
-			{
-				var transitions = await Capture(StateBagKey.SelectInternalEventTransitions, SelectInternalEventTransitions).ConfigureAwait(false);
-
-				if (transitions.Count > 0)
-				{
-					await Microstep(transitions).ConfigureAwait(false);
-
-					await CheckPoint(PersistenceLevel.Transition).ConfigureAwait(false);
-				}
-
-				Complete(StateBagKey.SelectInternalEventTransitions);
-			}
-			else
-			{
-				exit = true;
-			}
-
-			Complete(StateBagKey.InternalQueueNonEmpty);
-
-			return exit;
-		}
-
-		private async ValueTask<bool> InternalQueueProcessingIteration()
-		{
-			var exit = false;
-			var transitions = await Capture(StateBagKey.EventlessTransitions, SelectEventlessTransitions).ConfigureAwait(false);
-
-			if (transitions.Count > 0)
-			{
-				await Microstep(transitions).ConfigureAwait(false);
-
-				await CheckPoint(PersistenceLevel.Transition).ConfigureAwait(false);
-			}
-			else
-			{
-				exit = await InternalQueueProcessMessage().ConfigureAwait(false);
-			}
-
-			Complete(StateBagKey.EventlessTransitions);
-
-			return exit;
-		}
-
-		private async ValueTask<bool> ExternalQueueProcessing()
-		{
-			var exit = false;
-
-			if (Capture(StateBagKey.Running2, Running))
-			{
-				foreach (var state in _context.StatesToInvoke.ToSortedList(StateEntityNode.EntryOrder))
-				{
-					foreach (var invoke in state.Invoke)
-					{
-						await DoOperation(StateBagKey.Invoke, invoke, Invoke, invoke).ConfigureAwait(false);
-					}
-				}
-
-				_context.StatesToInvoke.Clear();
-				Complete(StateBagKey.Invoke);
-
-				if (Capture(StateBagKey.InternalQueueEmpty, _context.InternalQueue.Count == 0))
-				{
-					_anyTokenSource.Token.ThrowIfCancellationRequested();
-
-					var transitions = await Capture(StateBagKey.ExternalEventTransitions, ExternalEventTransitions).ConfigureAwait(false);
-
-					if (transitions.Count > 0)
-					{
-						await Microstep(transitions).ConfigureAwait(false);
-
-						await CheckPoint(PersistenceLevel.Event).ConfigureAwait(false);
-					}
-
-					Complete(StateBagKey.ExternalEventTransitions);
-				}
-
-				Complete(StateBagKey.InternalQueueEmpty);
-			}
-			else
-			{
-				exit = true;
-			}
-
-			Complete(StateBagKey.Running2);
-
-			return exit;
-		}
-
-		private async ValueTask<List<TransitionNode>> ExternalEventTransitions()
-		{
-			var externalEvent = await ReadExternalEvent().ConfigureAwait(false);
-
-			var eventObject = DataConverter.FromEvent(externalEvent, _dataModelHandler.CaseInsensitive);
-			_context.DataModel.SetInternal(key: @"_event", _dataModelHandler.CaseInsensitive, eventObject, DataModelAccess.ReadOnly);
-
-			LogProcessingEvent(externalEvent);
-
-			foreach (var state in _context.Configuration)
-			{
-				foreach (var invoke in state.Invoke)
-				{
-					if (InvokeId.InvokeUniqueIdComparer.Equals(invoke.InvokeId, externalEvent.InvokeId))
-					{
-						await ApplyFinalize(invoke).ConfigureAwait(false);
-					}
-
-					if (invoke.AutoForward)
-					{
-						await ForwardEvent(invoke, externalEvent).ConfigureAwait(false);
-					}
-				}
-			}
-
-			return await SelectTransitions(externalEvent).ConfigureAwait(false);
-		}
-
-		private async ValueTask CheckPoint(PersistenceLevel level)
-		{
-			if (!IsPersistingEnabled || _persistenceLevel < level)
-			{
-				return;
-			}
-
-			var persistenceContext = _context.PersistenceContext;
-			await persistenceContext.CheckPoint((int) level, _stopToken).ConfigureAwait(false);
-
-			if (level == PersistenceLevel.StableState)
-			{
-				await persistenceContext.Shrink(_stopToken).ConfigureAwait(false);
-			}
-		}
-
-		private async ValueTask<IEvent> ReadExternalEvent()
-		{
-			while (true)
-			{
-				var evt = await ReadExternalEventUnfiltered().ConfigureAwait(false);
-
-				if (evt.InvokeId is null)
-				{
-					return evt;
-				}
-
-				if (IsInvokeActive(evt.InvokeId))
-				{
-					return evt;
-				}
-			}
-		}
-
-		private async ValueTask<IEvent> ReadExternalEventUnfiltered()
-		{
-			var valueTask = _eventChannel.ReadAsync(_anyTokenSource.Token);
-
-			if (valueTask.IsCompleted)
-			{
-				return await valueTask.ConfigureAwait(false);
-			}
-
-			await CheckPoint(PersistenceLevel.StableState).ConfigureAwait(false);
-
-			await NotifyWaiting().ConfigureAwait(false);
-
-			return await valueTask.ConfigureAwait(false);
-		}
-
-		private async ValueTask ExitInterpreter()
-		{
-			var statesToExit = _context.Configuration.ToSortedList(StateEntityNode.ExitOrder);
-
-			foreach (var state in statesToExit)
-			{
-				foreach (var onExit in state.OnExit)
-				{
-					await DoOperation(StateBagKey.OnExit, onExit, RunExecutableEntity, onExit.ActionEvaluators).ConfigureAwait(false);
-				}
-
-				foreach (var invoke in state.Invoke)
-				{
-					await CancelInvoke(invoke).ConfigureAwait(false);
-				}
-
-				_context.Configuration.Delete(state);
-
-				if (state is FinalNode final && final.Parent is StateMachineNode)
-				{
-					await DoOperation(StateBagKey.ReturnDoneEvent, state, EvaluateDoneData, final).ConfigureAwait(false);
-				}
-			}
-
-			Complete(StateBagKey.ReturnDoneEvent);
-			Complete(StateBagKey.OnExit);
-		}
-
-		private ValueTask<List<TransitionNode>> SelectEventlessTransitions() => SelectTransitions(evt: null);
-
-		private async ValueTask<List<TransitionNode>> SelectTransitions(IEvent? evt)
-		{
-			var transitions = new List<TransitionNode>();
-
-			foreach (var state in _context.Configuration.ToFilteredSortedList(s => s.IsAtomicState, StateEntityNode.EntryOrder))
-			{
-				await FindTransitionForState(transitions, state, evt).ConfigureAwait(false);
-			}
-
-			return RemoveConflictingTransitions(transitions);
-		}
-
-		private async ValueTask FindTransitionForState(List<TransitionNode> transitionNodes, StateEntityNode state, IEvent? evt)
-		{
-			foreach (var transition in state.Transitions)
-			{
-				if (EventMatch(transition.EventDescriptors, evt) && await ConditionMatch(transition).ConfigureAwait(false))
-				{
-					transitionNodes.Add(transition);
-
-					return;
-				}
-			}
-
-			if (!(state.Parent is StateMachineNode))
-			{
-				await FindTransitionForState(transitionNodes, state.Parent!, evt).ConfigureAwait(false);
-			}
-		}
-
-		private static bool EventMatch(ImmutableArray<IEventDescriptor> eventDescriptors, IEvent? evt)
-		{
-			if (evt is null)
-			{
-				return eventDescriptors.IsDefaultOrEmpty;
-			}
-
-			if (eventDescriptors.IsDefaultOrEmpty)
-			{
-				return false;
-			}
-
-			foreach (var eventDescriptor in eventDescriptors)
-			{
-				if (eventDescriptor.IsEventMatch(evt))
-				{
-					return true;
-				}
-			}
-
 			return false;
 		}
 
-		private async ValueTask<bool> ConditionMatch(TransitionNode transition)
+		if (await StartInvokeLoop().ConfigureAwait(false))
 		{
-			var condition = transition.ConditionEvaluator;
+			return true;
+		}
 
-			if (condition is null)
+		return await ExternalQueueProcess().ConfigureAwait(false);
+	}
+
+	protected virtual async ValueTask<bool> StartInvokeLoop()
+	{
+		foreach (var state in _context.StatesToInvoke.ToSortedList(StateEntityNode.EntryOrder))
+		{
+			foreach (var invoke in state.Invoke)
+			{
+				await Invoke(invoke).ConfigureAwait(false);
+			}
+		}
+
+		_context.StatesToInvoke.Clear();
+
+		return !await IsInternalQueueEmpty().ConfigureAwait(false);
+	}
+
+	protected virtual async ValueTask<bool> ExternalQueueProcess()
+	{
+		if (await ExternalEventTransitions().ConfigureAwait(false) is { Count: > 0 } transitions)
+		{
+			return await Microstep(transitions).ConfigureAwait(false);
+		}
+
+		return _running;
+	}
+
+	protected virtual async ValueTask<bool> Macrostep()
+	{
+		using var liveLockDetector = LiveLockDetector.Create();
+
+		while (await MacrostepIteration().ConfigureAwait(false))
+		{
+			if (liveLockDetector.IsLiveLockDetected(_context.InternalQueue.Count))
+			{
+				throw new StateMachineDestroyedException(Resources.Exception_LivelockDetected);
+			}
+		}
+
+		return _running;
+	}
+
+	protected virtual async ValueTask<bool> MacrostepIteration()
+	{
+		if (await SelectTransitions(evt: default).ConfigureAwait(false) is { Count: > 0 } transitions)
+		{
+			return await Microstep(transitions).ConfigureAwait(false);
+		}
+
+		return await InternalQueueProcess().ConfigureAwait(false);
+	}
+
+	protected virtual ValueTask<bool> IsInternalQueueEmpty() => new(_context.InternalQueue.Count == 0);
+
+	protected virtual async ValueTask<bool> InternalQueueProcess()
+	{
+		if (await IsInternalQueueEmpty().ConfigureAwait(false))
+		{
+			return false;
+		}
+
+		if (await SelectInternalEventTransitions().ConfigureAwait(false) is { Count: > 0 } transitions)
+		{
+			return await Microstep(transitions).ConfigureAwait(false);
+		}
+
+		return _running;
+	}
+
+	private ValueTask TraceProcessingEvent(IEvent evt) => Logger.Write(Level.Trace, $@"Processing {evt.Type} event '{EventName.ToName(evt.NameParts)}'", evt);
+
+	protected virtual async ValueTask<List<TransitionNode>> SelectInternalEventTransitions()
+	{
+		var internalEvent = _context.InternalQueue.Dequeue();
+
+		var eventModel = DataConverter.FromEvent(internalEvent);
+		_context.DataModel.SetInternal(key: @"_event", DataModelHandler.CaseInsensitive, eventModel, DataModelAccess.ReadOnly);
+
+		await TraceProcessingEvent(internalEvent).ConfigureAwait(false);
+
+		var transitions = await SelectTransitions(internalEvent).ConfigureAwait(false);
+
+		if (transitions.Count == 0 && EventName.IsError(internalEvent.NameParts))
+		{
+			ProcessUnhandledError(internalEvent);
+		}
+
+		return transitions;
+	}
+
+	private void ProcessUnhandledError(IEvent evt)
+	{
+		var behaviour = UnhandledErrorBehaviour?.Behaviour ?? Xtate.UnhandledErrorBehaviour.DestroyStateMachine;
+
+		switch (behaviour)
+		{
+			case Xtate.UnhandledErrorBehaviour.IgnoreError:
+				break;
+
+			case Xtate.UnhandledErrorBehaviour.DestroyStateMachine:
+				TriggerDestroySignal(GetUnhandledErrorException());
+				break;
+
+			case Xtate.UnhandledErrorBehaviour.HaltStateMachine:
+				throw GetUnhandledErrorException();
+
+			default:
+				throw Infra.Unexpected<Exception>(behaviour);
+		}
+
+		StateMachineUnhandledErrorException GetUnhandledErrorException()
+		{
+			evt.Is<Exception>(out var exception);
+
+			return new StateMachineUnhandledErrorException(Resources.Exception_UnhandledException, exception);
+		}
+	}
+
+	protected virtual async ValueTask<List<TransitionNode>> SelectTransitions(IEvent? evt)
+	{
+		var transitions = new List<TransitionNode>();
+
+		foreach (var state in _context.Configuration.ToFilteredSortedList(s => s.IsAtomicState, StateEntityNode.EntryOrder))
+		{
+			await FindTransitionForState(transitions, state, evt).ConfigureAwait(false);
+		}
+
+		return RemoveConflictingTransitions(transitions);
+	}
+
+	protected virtual async ValueTask<List<TransitionNode>> ExternalEventTransitions()
+	{
+		var externalEvent = await ReadExternalEventFiltered().ConfigureAwait(false);
+
+		var eventModel = DataConverter.FromEvent(externalEvent);
+		_context.DataModel.SetInternal(key: @"_event", DataModelHandler.CaseInsensitive, eventModel, DataModelAccess.ReadOnly);
+
+		await TraceProcessingEvent(externalEvent).ConfigureAwait(false);
+
+		foreach (var state in _context.Configuration)
+		{
+			foreach (var invoke in state.Invoke)
+			{
+				if (InvokeId.InvokeUniqueIdComparer.Equals(invoke.InvokeId, externalEvent.InvokeId))
+				{
+					await ApplyFinalize(invoke).ConfigureAwait(false);
+				}
+
+				if (invoke.AutoForward)
+				{
+					await ForwardEvent(invoke, externalEvent).ConfigureAwait(false);
+				}
+			}
+		}
+
+		return await SelectTransitions(externalEvent).ConfigureAwait(false);
+	}
+
+	//protected virtual ValueTask CheckPoint(PersistenceLevel level) => default;
+
+	private async ValueTask<IEvent> ReadExternalEventFiltered()
+	{
+		while (true)
+		{
+			var evt = await ReadExternalEvent().ConfigureAwait(false);
+
+			if (evt.InvokeId is null)
+			{
+				return evt;
+			}
+
+			if (IsInvokeActive(evt.InvokeId))
+			{
+				return evt;
+			}
+		}
+	}
+
+	private bool IsInvokeActive(InvokeId invokeId) => _context.ActiveInvokes.Contains(invokeId);
+
+	protected virtual async ValueTask<IEvent> ReadExternalEvent()
+	{
+		ThrowIfDestroying();
+
+		if (EventQueueReader.TryReadEvent(out var evt))
+		{
+			return evt;
+		}
+
+		return await WaitForExternalEvent().ConfigureAwait(false);
+	}
+
+	protected virtual async ValueTask<IEvent> WaitForExternalEvent()
+	{
+		await NotifyWaiting().ConfigureAwait(false);
+
+		while (await EventQueueReader.WaitToEvent().ConfigureAwait(false))
+		{
+			if (EventQueueReader.TryReadEvent(out var evt))
+			{
+				return evt;
+			}
+		}
+
+		await ExternalQueueCompleted().ConfigureAwait(false);
+
+		throw new StateMachineQueueClosedException(Resources.Exception_StateMachineExternalQueueHasBeenClosed);
+	}
+
+	protected virtual ValueTask ExternalQueueCompleted()
+	{
+		ThrowIfDestroying();
+
+		return default;
+	}
+
+	private void ThrowIfDestroying()
+	{
+		if (_stateMachineDestroyedException is { } exception)
+		{
+			throw exception;
+		}
+	}
+
+	protected virtual async ValueTask ExitInterpreter()
+	{
+		var statesToExit = _context.Configuration.ToSortedList(StateEntityNode.ExitOrder);
+
+		foreach (var state in statesToExit)
+		{
+			foreach (var onExit in state.OnExit)
+			{
+				await RunExecutableEntity(onExit.ActionEvaluators).ConfigureAwait(false);
+			}
+
+			foreach (var invoke in state.Invoke)
+			{
+				await CancelInvoke(invoke).ConfigureAwait(false);
+			}
+
+			_context.Configuration.Delete(state);
+
+			if (state is FinalNode { Parent: StateMachineNode } final)
+			{
+				await EvaluateDoneData(final).ConfigureAwait(false);
+			}
+		}
+	}
+
+	private async ValueTask FindTransitionForState(List<TransitionNode> transitionNodes, StateEntityNode state, IEvent? evt)
+	{
+		foreach (var transition in state.Transitions)
+		{
+			if (EventMatch(transition.EventDescriptors, evt) && await ConditionMatch(transition).ConfigureAwait(false))
+			{
+				transitionNodes.Add(transition);
+
+				return;
+			}
+		}
+
+		if (state.Parent is not StateMachineNode)
+		{
+			await FindTransitionForState(transitionNodes, state.Parent!, evt).ConfigureAwait(false);
+		}
+	}
+
+	private static bool EventMatch(ImmutableArray<IEventDescriptor> eventDescriptors, IEvent? evt)
+	{
+		if (evt is null)
+		{
+			return eventDescriptors.IsDefaultOrEmpty;
+		}
+
+		if (eventDescriptors.IsDefaultOrEmpty)
+		{
+			return false;
+		}
+
+		foreach (var eventDescriptor in eventDescriptors)
+		{
+			if (eventDescriptor.IsEventMatch(evt))
 			{
 				return true;
 			}
-
-			_stopToken.ThrowIfCancellationRequested();
-
-			try
-			{
-				return await condition.EvaluateBoolean(_context.ExecutionContext, _stopToken).ConfigureAwait(false);
-			}
-			catch (Exception ex) when (IsError(ex))
-			{
-				await Error(transition, ex).ConfigureAwait(false);
-
-				return false;
-			}
 		}
 
-		private List<TransitionNode> RemoveConflictingTransitions(List<TransitionNode> enabledTransitions)
+		return false;
+	}
+
+	private async ValueTask<bool> ConditionMatch(TransitionNode transition)
+	{
+		var condition = transition.ConditionEvaluator;
+
+		if (condition is null)
 		{
-			var filteredTransitions = new List<TransitionNode>();
-			List<TransitionNode>? transitionsToRemove = null;
-			List<TransitionNode>? tr1 = null;
-			List<TransitionNode>? tr2 = null;
-
-			foreach (var t1 in enabledTransitions)
-			{
-				var t1Preempted = false;
-				transitionsToRemove?.Clear();
-
-				foreach (var t2 in filteredTransitions)
-				{
-					(tr1 ??= new List<TransitionNode>(1) { default! })[0] = t1;
-					(tr2 ??= new List<TransitionNode>(1) { default! })[0] = t2;
-
-					if (HasIntersection(ComputeExitSet(tr1), ComputeExitSet(tr2)))
-					{
-						if (IsDescendant(t1.Source, t2.Source))
-						{
-							(transitionsToRemove ??= new List<TransitionNode>()).Add(t2);
-						}
-						else
-						{
-							t1Preempted = true;
-							break;
-						}
-					}
-				}
-
-				if (!t1Preempted)
-				{
-					if (transitionsToRemove is { })
-					{
-						foreach (var t3 in transitionsToRemove)
-						{
-							filteredTransitions.Remove(t3);
-						}
-					}
-
-					filteredTransitions.Add(t1);
-				}
-			}
-
-			return filteredTransitions;
+			return true;
 		}
 
-		private async ValueTask Microstep(List<TransitionNode> enabledTransitions)
+		try
 		{
-			await DoOperation(StateBagKey.ExitStates, ExitStates, enabledTransitions).ConfigureAwait(false);
-
-			await DoOperation(StateBagKey.ExecuteTransitionContent, ExecuteTransitionContent, enabledTransitions).ConfigureAwait(false);
-
-			await DoOperation(StateBagKey.EnterStates, EnterStates, enabledTransitions).ConfigureAwait(false);
+			return await condition.EvaluateBoolean().ConfigureAwait(false);
 		}
-
-		private async ValueTask ExitStates(List<TransitionNode> enabledTransitions)
+		catch (Exception ex) when (IsError(ex))
 		{
-			var statesToExit = ComputeExitSet(enabledTransitions);
-
-			foreach (var state in statesToExit)
-			{
-				_context.StatesToInvoke.Delete(state);
-			}
-
-			var states = ToSortedList(statesToExit, StateEntityNode.ExitOrder);
-
-			foreach (var state in states)
-			{
-				foreach (var history in state.HistoryStates)
-				{
-					var predicate = history.Type == HistoryType.Deep ? (Predicate<StateEntityNode>) Deep : Shallow;
-
-					bool Deep(StateEntityNode node)    => node.IsAtomicState && IsDescendant(node, state);
-					bool Shallow(StateEntityNode node) => node.Parent == state;
-
-					_context.HistoryValue.Set(history.Id, _context.Configuration.ToFilteredList(predicate));
-				}
-			}
-
-			foreach (var state in states)
-			{
-				LogExitingState(state);
-
-				foreach (var onExit in state.OnExit)
-				{
-					await DoOperation(StateBagKey.OnExit, onExit, RunExecutableEntity, onExit.ActionEvaluators).ConfigureAwait(false);
-				}
-
-				foreach (var invoke in state.Invoke)
-				{
-					await CancelInvoke(invoke).ConfigureAwait(false);
-				}
-
-				_context.Configuration.Delete(state);
-
-				LogExitedState(state);
-			}
-
-			Complete(StateBagKey.OnExit);
-		}
-
-		private static void AddIfNotExists<T>(List<T> list, T item)
-		{
-			if (!list.Contains(item))
-			{
-				list.Add(item);
-			}
-		}
-
-		private static List<T> ToSortedList<T>(List<T> list, IComparer<T> comparer)
-		{
-			var result = new List<T>(list);
-			result.Sort(comparer);
-
-			return result;
-		}
-
-		private static bool HasIntersection<T>(List<T> list1, List<T> list2)
-		{
-			foreach (var item in list1)
-			{
-				if (list2.Contains(item))
-				{
-					return true;
-				}
-			}
+			await Error(transition, ex).ConfigureAwait(false);
 
 			return false;
 		}
+	}
 
-		private async ValueTask EnterStates(List<TransitionNode> enabledTransitions)
+	private List<TransitionNode> RemoveConflictingTransitions(List<TransitionNode> enabledTransitions)
+	{
+		var filteredTransitions = new List<TransitionNode>();
+		List<TransitionNode>? transitionsToRemove = default;
+		List<TransitionNode>? tr1 = default;
+		List<TransitionNode>? tr2 = default;
+
+		foreach (var t1 in enabledTransitions)
 		{
-			var statesToEnter = new List<StateEntityNode>();
-			var statesForDefaultEntry = new List<CompoundNode>();
-			var defaultHistoryContent = new DefaultHistoryContent();
+			var t1Preempted = false;
+			transitionsToRemove?.Clear();
 
-			ComputeEntrySet(enabledTransitions, statesToEnter, statesForDefaultEntry, defaultHistoryContent);
-
-			foreach (var state in ToSortedList(statesToEnter, StateEntityNode.EntryOrder))
+			foreach (var t2 in filteredTransitions)
 			{
-				LogEnteringState(state);
+				(tr1 ??= [default!])[0] = t1;
+				(tr2 ??= [default!])[0] = t2;
 
-				_context.Configuration.AddIfNotExists(state);
-				_context.StatesToInvoke.AddIfNotExists(state);
-
-				if (_model.Root.Binding == BindingType.Late && state.DataModel is { } dataModel)
+				if (HasIntersection(ComputeExitSet(tr1), ComputeExitSet(tr2)))
 				{
-					await DoOperation(StateBagKey.InitializeDataModel, dataModel, InitializeDataModel, dataModel).ConfigureAwait(false);
-				}
-
-				foreach (var onEntry in state.OnEntry)
-				{
-					await DoOperation(StateBagKey.OnEntry, onEntry, RunExecutableEntity, onEntry.ActionEvaluators).ConfigureAwait(false);
-				}
-
-				if (state is CompoundNode compound && statesForDefaultEntry.Contains(compound))
-				{
-					await DoOperation(StateBagKey.DefaultEntry, state, RunExecutableEntity, compound.Initial.Transition.ActionEvaluators).ConfigureAwait(false);
-				}
-
-				if (defaultHistoryContent.TryGetValue(state.Id, out var action))
-				{
-					await DoOperation(StateBagKey.DefaultHistoryContent, state, RunExecutableEntity, action).ConfigureAwait(false);
-				}
-
-				if (state is FinalNode final)
-				{
-					if (final.Parent is StateMachineNode)
+					if (IsDescendant(t1.Source, t2.Source))
 					{
-						Running = false;
+						(transitionsToRemove ??= []).Add(t2);
 					}
 					else
 					{
-						var parent = final.Parent;
-						var grandparent = parent!.Parent;
-
-						DataModelValue doneData = default;
-						if (final.DoneData is { })
-						{
-							doneData = await EvaluateDoneData(final.DoneData).ConfigureAwait(false);
-						}
-
-						_context.InternalQueue.Enqueue(new EventObject(EventType.Internal, EventName.GetDoneStateNameParts(parent.Id), doneData));
-
-						if (grandparent is ParallelNode)
-						{
-							if (grandparent.States.All(IsInFinalState))
-							{
-								_context.InternalQueue.Enqueue(new EventObject(EventType.Internal, EventName.GetDoneStateNameParts(grandparent.Id)));
-							}
-						}
+						t1Preempted = true;
+						break;
 					}
 				}
-
-				LogEnteredState(state);
 			}
 
-			Complete(StateBagKey.OnEntry);
-			Complete(StateBagKey.DefaultEntry);
-			Complete(StateBagKey.DefaultHistoryContent);
-		}
-
-		private async ValueTask<DataModelValue> EvaluateDoneData(DoneDataNode doneData)
-		{
-			try
+			if (!t1Preempted)
 			{
-				return await doneData.Evaluate(_context.ExecutionContext, _stopToken).ConfigureAwait(false);
-			}
-			catch (Exception ex) when (IsError(ex))
-			{
-				await Error(doneData, ex).ConfigureAwait(false);
-			}
-
-			return default;
-		}
-
-		private bool IsInFinalState(StateEntityNode state)
-		{
-			if (state is CompoundNode)
-			{
-				return state.States.Any(s => s is FinalNode && _context.Configuration.IsMember(s));
-			}
-
-			if (state is ParallelNode)
-			{
-				return state.States.All(IsInFinalState);
-			}
-
-			return false;
-		}
-
-		private void ComputeEntrySet(List<TransitionNode> transitions, List<StateEntityNode> statesToEnter, List<CompoundNode> statesForDefaultEntry,
-									 DefaultHistoryContent defaultHistoryContent)
-		{
-			foreach (var transition in transitions)
-			{
-				foreach (var state in transition.TargetState)
+				if (transitionsToRemove is not null)
 				{
-					AddDescendantStatesToEnter(state, statesToEnter, statesForDefaultEntry, defaultHistoryContent);
-				}
-
-				var ancestor = GetTransitionDomain(transition);
-
-				foreach (var state in GetEffectiveTargetStates(transition))
-				{
-					AddAncestorStatesToEnter(state, ancestor, statesToEnter, statesForDefaultEntry, defaultHistoryContent);
-				}
-			}
-		}
-
-		private List<StateEntityNode> ComputeExitSet(List<TransitionNode> transitions)
-		{
-			var statesToExit = new List<StateEntityNode>();
-			foreach (var transition in transitions)
-			{
-				if (!transition.Target.IsDefaultOrEmpty)
-				{
-					var domain = GetTransitionDomain(transition);
-					foreach (var state in _context.Configuration)
+					foreach (var t3 in transitionsToRemove)
 					{
-						if (IsDescendant(state, domain))
-						{
-							AddIfNotExists(statesToExit, state);
-						}
+						filteredTransitions.Remove(t3);
 					}
 				}
-			}
 
-			return statesToExit;
+				filteredTransitions.Add(t1);
+			}
 		}
 
-		private void AddDescendantStatesToEnter(StateEntityNode state, List<StateEntityNode> statesToEnter, List<CompoundNode> statesForDefaultEntry,
-												DefaultHistoryContent defaultHistoryContent)
-		{
-			if (state is HistoryNode history)
-			{
-				if (_context.HistoryValue.TryGetValue(history.Id, out var states))
-				{
-					foreach (var s in states)
-					{
-						AddDescendantStatesToEnter(s, statesToEnter, statesForDefaultEntry, defaultHistoryContent);
-					}
+		return filteredTransitions;
+	}
 
-					foreach (var s in states)
-					{
-						AddAncestorStatesToEnter(s, state.Parent, statesToEnter, statesForDefaultEntry, defaultHistoryContent);
-					}
+	protected virtual async ValueTask<bool> Microstep(List<TransitionNode> enabledTransitions)
+	{
+		await ExitStates(enabledTransitions).ConfigureAwait(false);
+		await ExecuteTransitionContent(enabledTransitions).ConfigureAwait(false);
+		await EnterStates(enabledTransitions).ConfigureAwait(false);
+
+		return _running;
+	}
+
+	protected virtual async ValueTask ExitStates(List<TransitionNode> enabledTransitions)
+	{
+		var statesToExit = ComputeExitSet(enabledTransitions);
+
+		foreach (var state in statesToExit)
+		{
+			_context.StatesToInvoke.Delete(state);
+		}
+
+		var states = ToSortedList(statesToExit, StateEntityNode.ExitOrder);
+
+		foreach (var state in states)
+		{
+			foreach (var history in state.HistoryStates)
+			{
+				static bool Deep(StateEntityNode node, StateEntityNode state)    => node.IsAtomicState && IsDescendant(node, state);
+				static bool Shallow(StateEntityNode node, StateEntityNode state) => node.Parent == state;
+
+				var list = history.Type == HistoryType.Deep
+					? _context.Configuration.ToFilteredList(Deep, state)
+					: _context.Configuration.ToFilteredList(Shallow, state);
+
+				_context.HistoryValue.Set(history.Id, list);
+			}
+		}
+
+		foreach (var state in states)
+		{
+			await Logger.Write(Level.Trace, $@"Exiting state '{state.Id}'", state).ConfigureAwait(false);
+
+			foreach (var onExit in state.OnExit)
+			{
+				await RunExecutableEntity(onExit.ActionEvaluators).ConfigureAwait(false);
+			}
+
+			foreach (var invoke in state.Invoke)
+			{
+				await CancelInvoke(invoke).ConfigureAwait(false);
+			}
+
+			_context.Configuration.Delete(state);
+
+			await Logger.Write(Level.Trace, $@"Exited state '{state.Id}'", state).ConfigureAwait(false);
+		}
+	}
+
+	private static void AddIfNotExists<T>(List<T> list, T item)
+	{
+		if (!list.Contains(item))
+		{
+			list.Add(item);
+		}
+	}
+
+	private static List<StateEntityNode> ToSortedList(List<StateEntityNode> list, IComparer<StateEntityNode> comparer)
+	{
+		var result = new List<StateEntityNode>(list);
+		result.Sort(comparer);
+
+		return result;
+	}
+
+	private static bool HasIntersection(List<StateEntityNode> list1, List<StateEntityNode> list2)
+	{
+		foreach (var item in list1)
+		{
+			if (list2.Contains(item))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	protected virtual async ValueTask EnterStates(List<TransitionNode> enabledTransitions)
+	{
+		var statesToEnter = new List<StateEntityNode>();
+		var statesForDefaultEntry = new List<CompoundNode>();
+		var defaultHistoryContent = new DefaultHistoryContent();
+
+		ComputeEntrySet(enabledTransitions, statesToEnter, statesForDefaultEntry, defaultHistoryContent);
+
+		foreach (var state in ToSortedList(statesToEnter, StateEntityNode.EntryOrder))
+		{
+			await Logger.Write(Level.Trace, $@"Entering state '{state.Id}'", state).ConfigureAwait(false);
+
+			_context.Configuration.AddIfNotExists(state);
+			_context.StatesToInvoke.AddIfNotExists(state);
+
+			if (Model.Root.Binding == BindingType.Late && state.DataModel is { } dataModel)
+			{
+				await InitializeDataModel(dataModel).ConfigureAwait(false);
+			}
+
+			foreach (var onEntry in state.OnEntry)
+			{
+				await RunExecutableEntity(onEntry.ActionEvaluators).ConfigureAwait(false);
+			}
+
+			if (state is CompoundNode compound && statesForDefaultEntry.Contains(compound))
+			{
+				await RunExecutableEntity(compound.Initial.Transition.ActionEvaluators).ConfigureAwait(false);
+			}
+
+			if (defaultHistoryContent.TryGetValue(state.Id, out var action))
+			{
+				await RunExecutableEntity(action).ConfigureAwait(false);
+			}
+
+			if (state is FinalNode final)
+			{
+				if (final.Parent is StateMachineNode)
+				{
+					_running = false;
 				}
 				else
 				{
-					defaultHistoryContent[state.Parent!.Id] = history.Transition.ActionEvaluators;
+					var parent = final.Parent;
+					var grandparent = parent!.Parent;
 
-					foreach (var s in history.Transition.TargetState)
+					DataModelValue doneData = default;
+					if (final.DoneData is not null)
 					{
-						AddDescendantStatesToEnter(s, statesToEnter, statesForDefaultEntry, defaultHistoryContent);
+						doneData = await EvaluateDoneData(final.DoneData).ConfigureAwait(false);
 					}
 
-					foreach (var s in history.Transition.TargetState)
+					_context.InternalQueue.Enqueue(new EventObject { Type = EventType.Internal, NameParts = EventName.GetDoneStateNameParts(parent.Id), Data = doneData });
+
+					if (grandparent is ParallelNode)
 					{
-						AddAncestorStatesToEnter(s, state.Parent, statesToEnter, statesForDefaultEntry, defaultHistoryContent);
+						if (grandparent.States.All(IsInFinalState))
+						{
+							_context.InternalQueue.Enqueue(new EventObject { Type = EventType.Internal, NameParts = EventName.GetDoneStateNameParts(grandparent.Id) });
+						}
 					}
+				}
+			}
+
+			await Logger.Write(Level.Trace, $@"Entered state '{state.Id}'", state).ConfigureAwait(false);
+		}
+	}
+
+	private async ValueTask<DataModelValue> EvaluateDoneData(DoneDataNode doneData)
+	{
+		try
+		{
+			return await doneData.Evaluate().ConfigureAwait(false);
+		}
+		catch (Exception ex) when (IsError(ex))
+		{
+			await Error(doneData, ex).ConfigureAwait(false);
+		}
+
+		return default;
+	}
+
+	private bool IsInFinalState(StateEntityNode state)
+	{
+		if (state is CompoundNode)
+		{
+			static bool Predicate(StateEntityNode s, OrderedSet<StateEntityNode> cfg) => s is FinalNode && cfg.IsMember(s);
+			return state.States.Any(Predicate, _context.Configuration);
+		}
+
+		if (state is ParallelNode)
+		{
+			return state.States.All(IsInFinalState);
+		}
+
+		return false;
+	}
+
+	private void ComputeEntrySet(List<TransitionNode> transitions,
+								 List<StateEntityNode> statesToEnter,
+								 List<CompoundNode> statesForDefaultEntry,
+								 DefaultHistoryContent defaultHistoryContent)
+	{
+		foreach (var transition in transitions)
+		{
+			foreach (var state in transition.TargetState)
+			{
+				AddDescendantStatesToEnter(state, statesToEnter, statesForDefaultEntry, defaultHistoryContent);
+			}
+
+			var ancestor = GetTransitionDomain(transition);
+
+			foreach (var state in GetEffectiveTargetStates(transition))
+			{
+				AddAncestorStatesToEnter(state, ancestor, statesToEnter, statesForDefaultEntry, defaultHistoryContent);
+			}
+		}
+	}
+
+	private List<StateEntityNode> ComputeExitSet(List<TransitionNode> transitions)
+	{
+		var statesToExit = new List<StateEntityNode>();
+		foreach (var transition in transitions)
+		{
+			if (!transition.Target.IsDefaultOrEmpty)
+			{
+				var domain = GetTransitionDomain(transition);
+				foreach (var state in _context.Configuration)
+				{
+					if (IsDescendant(state, domain))
+					{
+						AddIfNotExists(statesToExit, state);
+					}
+				}
+			}
+		}
+
+		return statesToExit;
+	}
+
+	private void AddDescendantStatesToEnter(StateEntityNode state,
+											List<StateEntityNode> statesToEnter,
+											List<CompoundNode> statesForDefaultEntry,
+											DefaultHistoryContent defaultHistoryContent)
+	{
+		if (state is HistoryNode history)
+		{
+			if (_context.HistoryValue.TryGetValue(history.Id, out var states))
+			{
+				foreach (var s in states)
+				{
+					AddDescendantStatesToEnter(s, statesToEnter, statesForDefaultEntry, defaultHistoryContent);
+				}
+
+				foreach (var s in states)
+				{
+					AddAncestorStatesToEnter(s, state.Parent, statesToEnter, statesForDefaultEntry, defaultHistoryContent);
 				}
 			}
 			else
 			{
-				AddIfNotExists(statesToEnter, state);
-				if (state is CompoundNode compound)
+				defaultHistoryContent[state.Parent!.Id] = history.Transition.ActionEvaluators;
+
+				foreach (var s in history.Transition.TargetState)
 				{
-					AddIfNotExists(statesForDefaultEntry, compound);
-
-					foreach (var s in compound.Initial.Transition.TargetState)
-					{
-						AddDescendantStatesToEnter(s, statesToEnter, statesForDefaultEntry, defaultHistoryContent);
-					}
-
-					foreach (var s in compound.Initial.Transition.TargetState)
-					{
-						AddAncestorStatesToEnter(s, state, statesToEnter, statesForDefaultEntry, defaultHistoryContent);
-					}
+					AddDescendantStatesToEnter(s, statesToEnter, statesForDefaultEntry, defaultHistoryContent);
 				}
-				else
+
+				foreach (var s in history.Transition.TargetState)
 				{
-					if (state is ParallelNode)
-					{
-						foreach (var child in state.States)
-						{
-							if (!statesToEnter.Exists(s => IsDescendant(s, child)))
-							{
-								AddDescendantStatesToEnter(child, statesToEnter, statesForDefaultEntry, defaultHistoryContent);
-							}
-						}
-					}
+					AddAncestorStatesToEnter(s, state.Parent, statesToEnter, statesForDefaultEntry, defaultHistoryContent);
 				}
 			}
 		}
-
-		private void AddAncestorStatesToEnter(StateEntityNode state, StateEntityNode? ancestor, List<StateEntityNode> statesToEnter, List<CompoundNode> statesForDefaultEntry,
-											  DefaultHistoryContent defaultHistoryContent)
+		else
 		{
-			var ancestors = GetProperAncestors(state, ancestor);
-
-			if (ancestors is null)
+			AddIfNotExists(statesToEnter, state);
+			if (state is CompoundNode compound)
 			{
-				return;
-			}
+				AddIfNotExists(statesForDefaultEntry, compound);
 
-			foreach (var anc in ancestors)
-			{
-				AddIfNotExists(statesToEnter, anc);
-
-				if (anc is ParallelNode)
+				foreach (var s in compound.Initial.Transition.TargetState)
 				{
-					foreach (var child in anc.States)
+					AddDescendantStatesToEnter(s, statesToEnter, statesForDefaultEntry, defaultHistoryContent);
+				}
+
+				foreach (var s in compound.Initial.Transition.TargetState)
+				{
+					AddAncestorStatesToEnter(s, state, statesToEnter, statesForDefaultEntry, defaultHistoryContent);
+				}
+			}
+			else
+			{
+				if (state is ParallelNode)
+				{
+					foreach (var child in state.States)
 					{
-						if (!statesToEnter.Exists(s => IsDescendant(s, child)))
+						if (!statesToEnter.Exists(IsDescendant, child))
 						{
 							AddDescendantStatesToEnter(child, statesToEnter, statesForDefaultEntry, defaultHistoryContent);
 						}
@@ -1271,182 +823,267 @@ namespace Xtate
 				}
 			}
 		}
+	}
 
-		private static bool IsDescendant(StateEntityNode state1, StateEntityNode? state2)
+	private void AddAncestorStatesToEnter(StateEntityNode state,
+										  StateEntityNode? ancestor,
+										  List<StateEntityNode> statesToEnter,
+										  List<CompoundNode> statesForDefaultEntry,
+										  DefaultHistoryContent defaultHistoryContent)
+	{
+		var ancestors = GetProperAncestors(state, ancestor);
+
+		if (ancestors is null)
 		{
-			for (var s = state1.Parent; s is { }; s = s.Parent)
-			{
-				if (s == state2)
-				{
-					return true;
-				}
-			}
-
-			return false;
+			return;
 		}
 
-		private StateEntityNode? GetTransitionDomain(TransitionNode transition)
+		foreach (var anc in ancestors)
 		{
-			var tstates = GetEffectiveTargetStates(transition);
+			AddIfNotExists(statesToEnter, anc);
 
-			if (tstates.Count == 0)
+			if (anc is ParallelNode)
 			{
-				return null;
-			}
-
-			if (transition.Type == TransitionType.Internal && transition.Source is CompoundNode && tstates.TrueForAll(s => IsDescendant(s, transition.Source)))
-			{
-				return transition.Source;
-			}
-
-			return FindLcca(transition.Source, tstates);
-		}
-
-		private static StateEntityNode? FindLcca(StateEntityNode headState, List<StateEntityNode> tailStates)
-		{
-			var ancestors = GetProperAncestors(headState, state2: null);
-
-			if (ancestors is null)
-			{
-				return null;
-			}
-
-			foreach (var anc in ancestors)
-			{
-				if (tailStates.TrueForAll(s => IsDescendant(s, anc)))
+				foreach (var child in anc.States)
 				{
-					return anc;
+					if (!statesToEnter.Exists(IsDescendant, child))
+					{
+						AddDescendantStatesToEnter(child, statesToEnter, statesForDefaultEntry, defaultHistoryContent);
+					}
 				}
 			}
+		}
+	}
 
+	private static bool IsDescendant(StateEntityNode state1, StateEntityNode? state2)
+	{
+		for (var s = state1.Parent; s is not null; s = s.Parent)
+		{
+			if (s == state2)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private StateEntityNode? GetTransitionDomain(TransitionNode transition)
+	{
+		var tstates = GetEffectiveTargetStates(transition);
+
+		if (tstates.Count == 0)
+		{
 			return null;
 		}
 
-		private static List<StateEntityNode>? GetProperAncestors(StateEntityNode state1, StateEntityNode? state2)
+		if (transition.Type == TransitionType.Internal && transition.Source is CompoundNode && tstates.TrueForAll(IsDescendant, transition.Source))
 		{
-			List<StateEntityNode>? states = null;
-
-			for (var s = state1.Parent; s is { }; s = s.Parent)
-			{
-				if (s == state2)
-				{
-					return states;
-				}
-
-				(states ??= new List<StateEntityNode>()).Add(s);
-			}
-
-			return state2 is null ? states : null;
+			return transition.Source;
 		}
 
-		private List<StateEntityNode> GetEffectiveTargetStates(TransitionNode transition)
+		return FindLcca(transition.Source, tstates);
+	}
+
+	private static StateEntityNode? FindLcca(StateEntityNode headState, List<StateEntityNode> tailStates)
+	{
+		var ancestors = GetProperAncestors(headState, state2: null);
+
+		if (ancestors is null)
 		{
-			var targets = new List<StateEntityNode>();
+			return null;
+		}
 
-			foreach (var state in transition.TargetState)
+		foreach (var anc in ancestors)
+		{
+			if (tailStates.TrueForAll(IsDescendant, anc))
 			{
-				if (state is HistoryNode history)
-				{
-					if (!_context.HistoryValue.TryGetValue(history.Id, out var values))
-					{
-						values = GetEffectiveTargetStates(history.Transition);
-					}
+				return anc;
+			}
+		}
 
-					foreach (var s in values)
-					{
-						AddIfNotExists(targets, s);
-					}
+		return null;
+	}
+
+	private static List<StateEntityNode>? GetProperAncestors(StateEntityNode state1, StateEntityNode? state2)
+	{
+		List<StateEntityNode>? states = default;
+
+		for (var s = state1.Parent; s is not null; s = s.Parent)
+		{
+			if (s == state2)
+			{
+				return states;
+			}
+
+			(states ??= []).Add(s);
+		}
+
+		return state2 is null ? states : null;
+	}
+
+	private List<StateEntityNode> GetEffectiveTargetStates(TransitionNode transition)
+	{
+		var targets = new List<StateEntityNode>();
+
+		foreach (var state in transition.TargetState)
+		{
+			if (state is HistoryNode history)
+			{
+				if (!_context.HistoryValue.TryGetValue(history.Id, out var values))
+				{
+					values = GetEffectiveTargetStates(history.Transition);
+				}
+
+				foreach (var s in values)
+				{
+					AddIfNotExists(targets, s);
+				}
+			}
+			else
+			{
+				AddIfNotExists(targets, state);
+			}
+		}
+
+		return targets;
+	}
+
+	protected virtual async ValueTask ExecuteTransitionContent(List<TransitionNode> transitions)
+	{
+		foreach (var transition in transitions)
+		{
+			string? eventDescriptor = default;
+			string? target = default;
+			var traceEnabled = Logger.IsEnabled(Level.Trace);
+
+			if (traceEnabled)
+			{
+				eventDescriptor = EventDescriptor.ToString(transition.EventDescriptors);
+				target = Identifier.ToString(transition.Target);
+
+				if (eventDescriptor is not null)
+				{
+					await Logger.Write(Level.Trace, $@"Performing eventless {transition.Type} transition to '{target}'", transition).ConfigureAwait(false);
 				}
 				else
 				{
-					AddIfNotExists(targets, state);
+					await Logger.Write(Level.Trace, $@"Performing {transition.Type} transition to '{target}'. Event descriptor '{eventDescriptor}'", transition).ConfigureAwait(false);
 				}
 			}
-
-			return targets;
-		}
-
-		private async ValueTask ExecuteTransitionContent(List<TransitionNode> transitions)
-		{
-			foreach (var transition in transitions)
-			{
-				await DoOperation(StateBagKey.RunExecutableEntity, transition, ExecuteTransitionContent, transition).ConfigureAwait(false);
-			}
-
-			Complete(StateBagKey.RunExecutableEntity);
-		}
-
-		private async ValueTask ExecuteTransitionContent(TransitionNode transition)
-		{
-			LogPerformingTransition(transition);
 
 			await RunExecutableEntity(transition.ActionEvaluators).ConfigureAwait(false);
 
-			LogPerformedTransition(transition);
-		}
-
-		private async ValueTask RunExecutableEntity(ImmutableArray<IExecEvaluator> action)
-		{
-			if (!action.IsDefaultOrEmpty)
+			if (traceEnabled)
 			{
-				foreach (var executableEntity in action)
+				if (eventDescriptor is not null)
 				{
-					_stopToken.ThrowIfCancellationRequested();
-
-					try
-					{
-						await executableEntity.Execute(_context.ExecutionContext, _stopToken).ConfigureAwait(false);
-					}
-					catch (Exception ex) when (IsError(ex))
-					{
-						await Error(executableEntity, ex).ConfigureAwait(false);
-
-						break;
-					}
+					await Logger.Write(Level.Trace, $@"Performing eventless {transition.Type} transition to '{target}'", transition).ConfigureAwait(false);
+				}
+				else
+				{
+					await Logger.Write(Level.Trace, $@"Performing {transition.Type} transition to '{target}'. Event descriptor '{eventDescriptor}'", transition).ConfigureAwait(false);
 				}
 			}
+		}
+	}
 
-			await CheckPoint(PersistenceLevel.ExecutableAction).ConfigureAwait(false);
+	protected virtual async ValueTask RunExecutableEntity(ImmutableArray<IExecEvaluator> action)
+	{
+		if (!action.IsDefaultOrEmpty)
+		{
+			foreach (var executableEntity in action)
+			{
+				try
+				{
+					await executableEntity.Execute().ConfigureAwait(false);
+				}
+				catch (Exception ex) when (IsError(ex))
+				{
+					await Error(executableEntity, ex).ConfigureAwait(false);
+
+					break;
+				}
+			}
+		}
+	}
+
+	private static bool IsError(Exception _) => true; // TODO: Is not OperationCanceled or ObjectDisposed when SM halted?
+
+	private bool IsPlatformError(Exception exception)
+	{
+		for (var ex = exception; ex is not null; ex = ex.InnerException)
+		{
+			if (ex is PlatformException platformException)
+			{
+				if (platformException.Token == _stateMachineToken)
+				{
+					return true;
+				}
+
+				break;
+			}
 		}
 
-		private bool IsOperationCancelled(Exception exception)
+		return false;
+	}
+
+	private bool IsCommunicationError(Exception? exception, out SendId? sendId)
+	{
+		for (var ex = exception; ex is not null; ex = ex.InnerException)
 		{
-			return exception switch
+			if (ex is CommunicationException communicationException)
 			{
-					OperationCanceledException ex => ex.CancellationToken == _stopToken,
-					_ => false
-			};
+				if (communicationException.Token == _stateMachineToken)
+				{
+					sendId = communicationException.SendId;
+
+					return true;
+				}
+
+				break;
+			}
 		}
 
-		private bool IsError(Exception ex) => !IsOperationCancelled(ex);
+		sendId = default;
 
-		private async ValueTask Error(object source, Exception exception, bool logLoggerErrors = true)
+		return false;
+	}
+
+	private async ValueTask Error(object source, Exception exception, bool logLoggerErrors = true)
+	{
+		SendId? sendId = default;
+
+		var errorType = IsPlatformError(exception)
+			? ErrorType.Platform
+			: IsCommunicationError(exception, out sendId)
+				? ErrorType.Communication
+				: ErrorType.Execution;
+
+		var nameParts = errorType switch
+						{
+							ErrorType.Execution     => EventName.ErrorExecution,
+							ErrorType.Communication => EventName.ErrorCommunication,
+							ErrorType.Platform      => EventName.ErrorPlatform,
+							_                       => throw Infra.Unexpected<Exception>(errorType)
+						};
+
+		var evt = new EventObject
+				  {
+					  Type = EventType.Platform,
+					  NameParts = nameParts,
+					  Data = DataConverter.FromException(exception),
+					  SendId = sendId,
+					  Ancestor = exception
+				  };
+
+		_context.InternalQueue.Enqueue(evt);
+
+		if (Logger.IsEnabled(Level.Error))
 		{
-			var sourceEntityId = (source as IEntity).Is(out IDebugEntityId? id) ? id.EntityId?.ToString(CultureInfo.InvariantCulture) : null;
-
-			SendId? sendId = null;
-
-			var errorType = IsPlatformError(exception)
-					? ErrorType.Platform
-					: IsCommunicationError(exception, out sendId)
-							? ErrorType.Communication
-							: ErrorType.Execution;
-
-			var nameParts = errorType switch
-			{
-					ErrorType.Execution => EventName.ErrorExecution,
-					ErrorType.Communication => EventName.ErrorCommunication,
-					ErrorType.Platform => EventName.ErrorPlatform,
-					_ => Infrastructure.UnexpectedValue<ImmutableArray<IIdentifier>>()
-			};
-
-			var eventObject = new EventObject(EventType.Platform, nameParts, DataConverter.FromException(exception, _dataModelHandler.CaseInsensitive), sendId, invokeId: default, exception);
-
-			_context.InternalQueue.Enqueue(eventObject);
-
 			try
 			{
-				await LogError(errorType, sourceEntityId, exception, _stopToken).ConfigureAwait(false);
+				await LogError(errorType, source, exception).ConfigureAwait(false);
 			}
 			catch (Exception ex)
 			{
@@ -1463,306 +1100,230 @@ namespace Xtate
 				}
 			}
 		}
+	}
 
-		private async ValueTask ExecuteGlobalScript()
+	private async ValueTask LogError(ErrorType errorType, object source, Exception exception)
+	{
+		try
 		{
-			if (_model.Root.ScriptEvaluator is { } scriptEvaluator)
-			{
-				try
-				{
-					await scriptEvaluator.Execute(_context.ExecutionContext, _stopToken).ConfigureAwait(false);
-				}
-				catch (Exception ex) when (IsError(ex))
-				{
-					await Error(scriptEvaluator, ex).ConfigureAwait(false);
-				}
-			}
-		}
+			var entityId = source.Is(out IDebugEntityId? id) ? id.EntityId : default;
 
-		private async ValueTask EvaluateDoneData(FinalNode final)
+			await Logger.Write(Level.Error, $@"{errorType} error in entity '{entityId}'.", exception).ConfigureAwait(false);
+		}
+		catch (Exception ex)
 		{
-			if (final.DoneData is { })
-			{
-				_doneData = await EvaluateDoneData(final.DoneData).ConfigureAwait(false);
-			}
+			throw new PlatformException(ex) { Token = _stateMachineToken };
 		}
+	}
 
-		private async ValueTask ForwardEvent(InvokeNode invoke, IEvent evt)
+	protected virtual async ValueTask ExecuteGlobalScript()
+	{
+		if (Model.Root.ScriptEvaluator is { } scriptEvaluator)
 		{
 			try
 			{
-				Infrastructure.NotNull(invoke.InvokeId);
-
-				await ForwardEvent(evt, invoke.InvokeId, _stopToken).ConfigureAwait(false);
+				await scriptEvaluator.Execute().ConfigureAwait(false);
 			}
 			catch (Exception ex) when (IsError(ex))
 			{
-				await Error(invoke, ex).ConfigureAwait(false);
+				await Error(scriptEvaluator, ex).ConfigureAwait(false);
 			}
 		}
+	}
 
-		private ValueTask ApplyFinalize(InvokeNode invoke) => invoke.Finalize is { } ? RunExecutableEntity(invoke.Finalize.ActionEvaluators) : default;
+	private async ValueTask EvaluateDoneData(FinalNode final)
+	{
+		if (final.DoneData is not null)
+		{
+			_context.DoneData = await EvaluateDoneData(final.DoneData).ConfigureAwait(false);
+		}
+	}
 
-		private async ValueTask Invoke(InvokeNode invoke)
+	private async ValueTask ForwardEvent(InvokeNode invoke, IEvent evt)
+	{
+		try
+		{
+			Infra.NotNull(invoke.InvokeId);
+
+			await ForwardEvent(evt, invoke.InvokeId).ConfigureAwait(false);
+		}
+		catch (Exception ex) when (IsError(ex))
+		{
+			await Error(invoke, ex).ConfigureAwait(false);
+		}
+	}
+
+	private ValueTask ApplyFinalize(InvokeNode invoke) => invoke.Finalize is not null ? RunExecutableEntity(invoke.Finalize.ActionEvaluators) : default;
+
+	protected virtual async ValueTask Invoke(InvokeNode invoke)
+	{
+		try
+		{
+			await invoke.Start().ConfigureAwait(false);
+
+			Infra.NotNull(invoke.InvokeId);
+
+			_context.ActiveInvokes.Add(invoke.InvokeId);
+		}
+		catch (Exception ex) when (IsError(ex))
+		{
+			await Error(invoke, ex).ConfigureAwait(false);
+		}
+	}
+
+	protected virtual async ValueTask CancelInvoke(InvokeNode invoke)
+	{
+		try
+		{
+			Infra.NotNull(invoke.InvokeId);
+
+			_context.ActiveInvokes.Remove(invoke.InvokeId);
+
+			await invoke.Cancel().ConfigureAwait(false);
+		}
+		catch (Exception ex) when (IsError(ex))
+		{
+			await Error(invoke, ex).ConfigureAwait(false);
+		}
+	}
+
+	protected virtual async ValueTask InitializeDataModel(DataModelNode rootDataModel, DataModelList? defaultValues = default)
+	{
+		foreach (var node in rootDataModel.Data)
+		{
+			await InitializeData(node, defaultValues).ConfigureAwait(false);
+		}
+	}
+
+	protected virtual async ValueTask InitializeData(DataNode data, DataModelList? defaultValues)
+	{
+		Infra.Requires(data);
+
+		var id = data.Id;
+		Infra.NotNull(id);
+
+		if (defaultValues?[id, DataModelHandler.CaseInsensitive] is not { Type: not DataModelValueType.Undefined } value)
 		{
 			try
 			{
-				await invoke.Start(_context.ExecutionContext, _stopToken).ConfigureAwait(false);
-			}
-			catch (Exception ex) when (IsError(ex))
-			{
-				await Error(invoke, ex).ConfigureAwait(false);
-			}
-		}
-
-		private async ValueTask CancelInvoke(InvokeNode invoke)
-		{
-			try
-			{
-				await invoke.Cancel(_context.ExecutionContext, _stopToken).ConfigureAwait(false);
-			}
-			catch (Exception ex) when (IsError(ex))
-			{
-				await Error(invoke, ex).ConfigureAwait(false);
-			}
-		}
-
-		private async ValueTask InitializeRootDataModel()
-		{
-			var rootDataModel = _model.Root.DataModel;
-
-			if (rootDataModel is null)
-			{
-				return;
-			}
-
-			if (Arguments.Type != DataModelValueType.Object)
-			{
-				await InitializeDataModel(rootDataModel).ConfigureAwait(false);
-
-				return;
-			}
-
-			var dictionary = Arguments.AsObject();
-			var caseInsensitive = _dataModelHandler.CaseInsensitive;
-
-			foreach (var node in rootDataModel.Data)
-			{
-				await InitializeData(node, dictionary[node.Id, caseInsensitive]).ConfigureAwait(false);
-			}
-		}
-
-		private async ValueTask InitializeDataModel(DataModelNode dataModel)
-		{
-			foreach (var node in dataModel.Data)
-			{
-				await InitializeData(node).ConfigureAwait(false);
-			}
-		}
-
-		private async ValueTask InitializeData(DataNode data, DataModelValue overrideValue = default)
-		{
-			try
-			{
-				_context.DataModel[data.Id, _dataModelHandler.CaseInsensitive] = await GetValue(data, overrideValue).ConfigureAwait(false);
+				value = await GetValue(data).ConfigureAwait(false);
 			}
 			catch (Exception ex) when (IsError(ex))
 			{
 				await Error(data, ex).ConfigureAwait(false);
+
+				return;
 			}
 		}
 
-		private async ValueTask<DataModelValue> GetValue(DataNode data, DataModelValue overrideValue)
+		_context.DataModel[id] = value;
+	}
+
+	private static async ValueTask<DataModelValue> GetValue(DataNode data)
+	{
+		if (data.SourceEvaluator is { } resourceEvaluator)
 		{
-			if (!overrideValue.IsUndefined())
+			var obj = await resourceEvaluator.EvaluateObject().ConfigureAwait(false);
+
+			return DataModelValue.FromObject(obj);
+		}
+
+		if (data.ExpressionEvaluator is { } expressionEvaluator)
+		{
+			var obj = await expressionEvaluator.EvaluateObject().ConfigureAwait(false);
+
+			return DataModelValue.FromObject(obj);
+		}
+
+		if (data.InlineContentEvaluator is { } inlineContentEvaluator)
+		{
+			var obj = await inlineContentEvaluator.EvaluateObject().ConfigureAwait(false);
+
+			return DataModelValue.FromObject(obj);
+		}
+
+		return default;
+	}
+
+	/*
+	private async ValueTask<IStateMachineContext> CreateContext()
+	{
+		Infra.NotNull(_model);
+		Infra.NotNull(_dataModelHandler);
+
+		IStateMachineContext context;
+		var parameters = CreateStateMachineContextParameters();
+
+		if (_isPersistingEnabled)
+		{
+			Infra.NotNull(_options.StorageProvider);
+
+			var storage = await _options.StorageProvider.GetTransactionalStorage(partition: default, StateStorageKey, _stopCts.Token).ConfigureAwait(false);
+			context = new StateMachinePersistedContext(storage, _model.EntityMap, parameters);
+		}
+		else
+		{
+			context = new StateMachineContext(parameters);
+		}
+
+		_dataModelHandler.ExecutionContextCreated(_executionContext, out _dataModelVars);
+
+		return context;
+	}*/
+
+	private struct LiveLockDetector : IDisposable
+	{
+		private const int IterationCount = 36;
+
+		private int[]? _data;
+		private int    _index;
+		private int    _queueLength;
+		private int    _sum;
+
+#region Interface IDisposable
+
+		public void Dispose()
+		{
+			if (_data is { } data)
 			{
-				return overrideValue;
+				ArrayPool<int>.Shared.Return(data);
+
+				_data = default;
+			}
+		}
+
+#endregion
+
+		public static LiveLockDetector Create() => new() { _index = -1 };
+
+		public bool IsLiveLockDetected(int queueLength)
+		{
+			if (_index == -1)
+			{
+				_queueLength = queueLength;
+				_index = _sum = 0;
+
+				return false;
 			}
 
-			if (data.Source is { } source)
-			{
-				var resource = await LoadData(source).ConfigureAwait(false);
+			_data ??= ArrayPool<int>.Shared.Rent(IterationCount);
 
-				if (resource.Content is { } content)
+			if (_index >= IterationCount)
+			{
+				if (_sum >= 0)
 				{
-					return DataConverter.FromContent(content, resource.ContentType);
+					return true;
 				}
 
-				return default;
+				_sum -= _data[_index % IterationCount];
 			}
 
-			if (data.ExpressionEvaluator is { } expressionEvaluator)
-			{
-				var obj = await expressionEvaluator.EvaluateObject(_context.ExecutionContext, _stopToken).ConfigureAwait(false);
+			var delta = queueLength - _queueLength;
+			_queueLength = queueLength;
+			_sum += delta;
+			_data[_index ++ % IterationCount] = delta;
 
-				return DataModelValue.FromObject(obj.ToObject());
-			}
-
-			if (data.InlineContentEvaluator is { } inlineContentEvaluator)
-			{
-				var obj = await inlineContentEvaluator.EvaluateObject(_context.ExecutionContext, _stopToken).ConfigureAwait(false);
-
-				return DataModelValue.FromObject(obj.ToObject());
-			}
-
-			return default;
-		}
-
-		private async ValueTask<Resource> LoadData(IExternalDataExpression externalDataExpression)
-		{
-			if (!_resourceLoaders.IsDefaultOrEmpty)
-			{
-				var uri = externalDataExpression.Uri!;
-
-				foreach (var resourceLoader in _resourceLoaders)
-				{
-					if (resourceLoader.CanHandle(uri))
-					{
-						return await resourceLoader.Request(uri, _stopToken).ConfigureAwait(false);
-					}
-				}
-			}
-
-			throw new ProcessorException(Resources.Exception_Cannot_find_ResourceLoader_to_load_external_resource);
-		}
-
-		private async ValueTask<IStateMachineContext> CreateContext()
-		{
-			IStateMachineContext context;
-			if (IsPersistingEnabled)
-			{
-				var storage = await _storageProvider.GetTransactionalStorage(partition: default, StateStorageKey, _stopToken).ConfigureAwait(false);
-				context = new StateMachinePersistedContext(_model.Root.Name, _sessionId, this, storage, _model.EntityMap, _logger, this, this, _contextRuntimeItems);
-			}
-			else
-			{
-				context = new StateMachineContext(_model.Root.Name, _sessionId, this, _logger, this, this, _contextRuntimeItems);
-			}
-
-			_dataModelHandler.ExecutionContextCreated(context.ExecutionContext, out _dataModelVars);
-
-			return context;
-		}
-
-		private DataModelValue CreateInterpreterObject()
-		{
-			var type = typeof(StateMachineInterpreter);
-			var version = type.Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
-
-			var interpreterObject = new DataModelObject(isReadOnly: false, _dataModelHandler.CaseInsensitive)
-									{
-											{ @"name", type.FullName },
-											{ @"version", version }
-									};
-
-			interpreterObject.MakeDeepConstant();
-
-			return new DataModelValue(interpreterObject);
-		}
-
-		private DataModelValue CreateDataModelHandlerObject()
-		{
-			var type = _dataModelHandler.GetType();
-			var version = type.Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
-
-			var dataModelHandlerObject = new DataModelObject(isReadOnly: false, _dataModelHandler.CaseInsensitive)
-										 {
-												 { @"name", type.FullName },
-												 { @"assembly", type.Assembly.GetName().Name },
-												 { @"version", version },
-												 { @"vars", DataModelValue.FromObject(_dataModelVars) }
-										 };
-
-			dataModelHandlerObject.MakeDeepConstant();
-
-			return new DataModelValue(dataModelHandlerObject);
-		}
-
-		private enum StateBagKey
-		{
-			Stop,
-			Running,
-			Running2,
-			EventlessTransitions,
-			InternalQueueNonEmpty,
-			SelectInternalEventTransitions,
-			InternalQueueEmpty,
-			InitializeRootDataModel,
-			EarlyInitializeDataModel,
-			ExecuteGlobalScript,
-			ExternalEventTransitions,
-			InitialEnterStates,
-			ExitInterpreter,
-			InternalQueueProcessing,
-			MainEventLoop,
-			ExitStates,
-			ExecuteTransitionContent,
-			EnterStates,
-			RunExecutableEntity,
-			InitializeDataModel,
-			OnExit,
-			OnEntry,
-			DefaultEntry,
-			DefaultHistoryContent,
-			Invoke,
-			ReturnDoneEvent,
-			NotifyAccepted,
-			NotifyStarted,
-			NotifyExited
-		}
-
-		private struct LiveLockDetector : IDisposable
-		{
-			private const int IterationCount = 36;
-
-			private int[]? _data;
-			private int    _index;
-			private int    _internalQueueLength;
-			private int    _sum;
-
-		#region Interface IDisposable
-
-			public void Dispose()
-			{
-				if (_data is { } data)
-				{
-					ArrayPool<int>.Shared.Return(data);
-
-					_data = null;
-				}
-			}
-
-		#endregion
-
-			public static LiveLockDetector Create() => new LiveLockDetector { _index = -1 };
-
-			public void Iteration(int internalQueueCount)
-			{
-				if (_index == -1)
-				{
-					_internalQueueLength = internalQueueCount;
-					_index = _sum = 0;
-
-					return;
-				}
-
-				_data ??= ArrayPool<int>.Shared.Rent(IterationCount);
-
-				if (_index >= IterationCount)
-				{
-					if (_sum >= 0)
-					{
-						throw new StateMachineLiveLockException();
-					}
-
-					_sum -= _data[_index % IterationCount];
-				}
-
-				var delta = internalQueueCount - _internalQueueLength;
-				_internalQueueLength = internalQueueCount;
-				_sum += delta;
-				_data[_index ++ % IterationCount] = delta;
-			}
+			return false;
 		}
 	}
 }

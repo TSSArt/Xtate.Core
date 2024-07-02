@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,67 +17,129 @@
 
 #endregion
 
-using System;
+using System.IO;
 using System.Net.Mime;
 using System.Text;
-using Xtate.Annotations;
+using Xtate.XInclude;
 
-namespace Xtate
+namespace Xtate.Core;
+
+public class Resource(Stream stream, ContentType? contentType = default) : IDisposable, IAsyncDisposable, IXIncludeResource
 {
-	[PublicAPI]
-	public class Resource
+	private readonly DisposingToken _disposingToken = new();
+	private readonly Stream _stream = stream ?? throw new ArgumentNullException(nameof(stream));
+	private          byte[]?        _bytes;
+	private          string?        _content;
+
+	public Encoding Encoding => !string.IsNullOrEmpty(ContentType?.CharSet) ? Encoding.GetEncoding(ContentType.CharSet) : Encoding.UTF8;
+
+#region Interface IAsyncDisposable
+
+	public async ValueTask DisposeAsync()
 	{
-		private byte[]? _bytes;
-		private string? _content;
+		await DisposeAsyncCore().ConfigureAwait(false);
 
-		public Resource(Uri uri, ContentType? contentType = default, DateTimeOffset? modifiedDate = default, string? content = default, byte[]? bytes = default)
+		Dispose(false);
+		GC.SuppressFinalize(this);
+	}
+
+#endregion
+
+#region Interface IDisposable
+
+	public void Dispose()
+	{
+		Dispose(true);
+		GC.SuppressFinalize(this);
+	}
+
+#endregion
+
+#region Interface IXIncludeResource
+
+	ValueTask<Stream> IXIncludeResource.GetStream() => GetStream(doNotCache: true);
+
+	public ContentType? ContentType { get; } = contentType;
+
+	#endregion
+
+	protected virtual void Dispose(bool disposing)
+	{
+		if (disposing)
 		{
-			Uri = uri;
-			ContentType = contentType;
-			ModifiedDate = modifiedDate;
-			_content = content;
-			_bytes = bytes;
+			_disposingToken.Dispose();
+		}
+	}
+
+	protected virtual ValueTask DisposeAsyncCore()
+	{
+		_disposingToken.Dispose();
+
+		return default;
+	}
+
+	public async ValueTask<string> GetContent()
+	{
+		if (_content is not null)
+		{
+			return _content;
 		}
 
-		public Uri             Uri          { get; }
-		public ContentType?    ContentType  { get; }
-		public DateTimeOffset? ModifiedDate { get; }
-
-		public string? Content
+		if (_bytes is not null)
 		{
-			get
-			{
-				if (_content is { })
-				{
-					return _content;
-				}
+			using var reader = new StreamReader(new MemoryStream(_bytes), Encoding, detectEncodingFromByteOrderMarks: true);
 
-				if (_bytes is { })
-				{
-					var encoding = !string.IsNullOrEmpty(ContentType?.CharSet) ? Encoding.GetEncoding(ContentType.CharSet) : Encoding.UTF8;
-
-					_content = encoding.GetString(_bytes);
-				}
-
-				return _content;
-			}
+			return _content = await reader.ReadToEndAsync().ConfigureAwait(false);
 		}
 
-		public byte[]? GetBytes()
+		await using (_stream.ConfigureAwait(false))
 		{
-			if (_bytes is { })
-			{
-				return _bytes;
-			}
+			using var reader = new StreamReader(_stream.InjectCancellationToken(_disposingToken.Token), Encoding, detectEncodingFromByteOrderMarks: true);
 
-			if (_content is { })
-			{
-				var encoding = !string.IsNullOrEmpty(ContentType?.CharSet) ? Encoding.GetEncoding(ContentType.CharSet) : Encoding.UTF8;
+			return _content = await reader.ReadToEndAsync().ConfigureAwait(false);
+		}
+	}
 
-				_bytes = encoding.GetBytes(_content);
-			}
-
+	public async ValueTask<byte[]> GetBytes()
+	{
+		if (_bytes is not null)
+		{
 			return _bytes;
+		}
+
+		if (_content is not null)
+		{
+			return _bytes = Encoding.GetBytes(_content);
+		}
+
+		await using (_stream.ConfigureAwait(false))
+		{
+			return _bytes = await _stream.ReadToEndAsync(_disposingToken.Token).ConfigureAwait(false);
+		}
+	}
+
+	public async ValueTask<Stream> GetStream(bool doNotCache)
+	{
+		if (_bytes is not null)
+		{
+			return new MemoryStream(_bytes, writable: false);
+		}
+
+		if (_content is not null)
+		{
+			return new MemoryStream(Encoding.GetBytes(_content));
+		}
+
+		if (doNotCache)
+		{
+			return _stream;
+		}
+
+		await using (_stream.ConfigureAwait(false))
+		{
+			_bytes = await _stream.ReadToEndAsync(_disposingToken.Token).ConfigureAwait(false);
+
+			return new MemoryStream(_bytes, writable: false);
 		}
 	}
 }

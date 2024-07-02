@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,27 +17,11 @@
 
 #endregion
 
-using System;
-using System.Xml;
+namespace Xtate.DataModel.XPath;
 
-namespace Xtate.DataModel.XPath
+public class XPathContentBodyEvaluator(IContentBody contentBody) : DefaultContentBodyEvaluator(contentBody)
 {
-	internal class XPathContentBodyEvaluator : DefaultContentBodyEvaluator
-	{
-		public XPathContentBodyEvaluator(in ContentBody contentBody) : base(contentBody) { }
+	public required XPathXmlParserContextFactory XPathXmlParserContextFactory { private get; [UsedImplicitly] init; }
 
-		protected override DataModelValue ParseToDataModel(ref Exception? parseException)
-		{
-			try
-			{
-				return XmlConverter.FromXml(Value, this);
-			}
-			catch (XmlException ex)
-			{
-				parseException = ex;
-
-				return Value.NormalizeSpaces();
-			}
-		}
-	}
+	protected override DataModelValue ParseToDataModel() => Value is not null ? XmlConverter.FromXml(Value, XPathXmlParserContextFactory.CreateContext(this)) : DataModelValue.Null;
 }

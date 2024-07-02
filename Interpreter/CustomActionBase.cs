@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,86 +17,138 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.Annotations;
+using Xtate.DataModel;
 
-namespace Xtate.CustomAction
+namespace Xtate.CustomAction;
+
+public abstract class CustomActionBase
 {
-	[PublicAPI]
-	public class CustomActionBase : ICustomActionExecutor
+	public abstract ValueTask Execute();
+
+	public virtual IEnumerable<Value> GetValues() => [];
+
+	public virtual IEnumerable<Location> GetLocations() => [];
+
+	public class ArrayValue(string? expression) : Value(expression)
 	{
-		private readonly ICustomActionContext         _customActionContext;
-		private          Dictionary<string, object?>? _arguments;
-		private          ILocationAssigner?           _resultLocationAssigner;
+		private IArrayEvaluator? _arrayEvaluator;
 
-		protected CustomActionBase(ICustomActionContext customActionContext) => _customActionContext = customActionContext ?? throw new ArgumentNullException(nameof(customActionContext));
-
-	#region Interface ICustomActionExecutor
-
-		ValueTask ICustomActionExecutor.Execute(IExecutionContext context, CancellationToken token)
+		internal override void SetEvaluator(IValueEvaluator valueEvaluator)
 		{
-			if (context is null) throw new ArgumentNullException(nameof(context));
+			base.SetEvaluator(valueEvaluator);
 
-			return Execute(context, token);
+			_arrayEvaluator = valueEvaluator as IArrayEvaluator;
 		}
 
-	#endregion
-
-		protected void RegisterArgument(string key, string? expression, string? constant = default)
+		public new async ValueTask<object?[]> GetValue()
 		{
-			_arguments ??= new Dictionary<string, object?>();
-			_arguments.Add(key, expression is { } ? (object) _customActionContext.RegisterValueExpression(expression) : constant);
+			var array = _arrayEvaluator is not null
+				? await _arrayEvaluator.EvaluateArray().ConfigureAwait(false)
+				: (IObject[]?) await base.GetValue().ConfigureAwait(false);
+
+			return array is not null ? Array.ConvertAll(array, i => i.ToObject()) : [];
+		}
+	}
+
+	public class StringValue(string? expression, string? defaultValue = default) : Value(expression, defaultValue)
+	{
+		private IStringEvaluator? _stringEvaluator;
+
+		internal override void SetEvaluator(IValueEvaluator valueEvaluator)
+		{
+			base.SetEvaluator(valueEvaluator);
+
+			_stringEvaluator = valueEvaluator as IStringEvaluator;
 		}
 
-		protected void RegisterResultLocation(string? expression)
+		public new async ValueTask<string?> GetValue() =>
+			_stringEvaluator is not null
+				? await _stringEvaluator.EvaluateString().ConfigureAwait(false)
+				: Convert.ToString(await base.GetValue().ConfigureAwait(false));
+	}
+
+	public class IntegerValue(string? expression, int? defaultValue = default) : Value(expression, defaultValue)
+	{
+		private IIntegerEvaluator? _integerEvaluator;
+
+		internal override void SetEvaluator(IValueEvaluator valueEvaluator)
 		{
-			if (expression is { })
+			base.SetEvaluator(valueEvaluator);
+
+			_integerEvaluator = valueEvaluator as IIntegerEvaluator;
+		}
+
+		public new async ValueTask<int> GetValue() =>
+			_integerEvaluator is not null
+				? await _integerEvaluator.EvaluateInteger().ConfigureAwait(false)
+				: Convert.ToInt32(await base.GetValue().ConfigureAwait(false));
+	}
+
+	public class BooleanValue(string? expression, bool? defaultValue = default) : Value(expression, defaultValue)
+	{
+		private IBooleanEvaluator? _booleanEvaluator;
+
+		internal override void SetEvaluator(IValueEvaluator valueEvaluator)
+		{
+			base.SetEvaluator(valueEvaluator);
+
+			_booleanEvaluator = valueEvaluator as IBooleanEvaluator;
+		}
+
+		public new async ValueTask<bool> GetValue() =>
+			_booleanEvaluator is not null
+				? await _booleanEvaluator.EvaluateBoolean().ConfigureAwait(false)
+				: Convert.ToBoolean(await base.GetValue().ConfigureAwait(false));
+	}
+
+	public class Value : IValueExpression
+	{
+		private readonly IObject _defaultValue;
+		private readonly string? _expression;
+
+		private IObjectEvaluator? _objectEvaluator;
+
+		protected Value(string? expression, object? defaultValue = default)
+		{
+			_expression = expression;
+
+			_defaultValue = expression is null ? new DefaultObject(defaultValue) : DefaultObject.Null;
+		}
+
+#region Interface IValueExpression
+
+		string? IValueExpression.Expression => _expression;
+
+#endregion
+
+		internal virtual void SetEvaluator(IValueEvaluator valueEvaluator) => _objectEvaluator = valueEvaluator as IObjectEvaluator;
+
+		internal ValueTask<IObject> GetObject() => _objectEvaluator?.EvaluateObject() ?? new ValueTask<IObject>(_defaultValue);
+
+		public async ValueTask<object?> GetValue() => (await GetObject().ConfigureAwait(false)).ToObject();
+	}
+
+	public class Location(string? expression) : ILocationExpression
+	{
+		private ILocationEvaluator? _locationEvaluator;
+
+		#region Interface ILocationExpression
+
+		string? ILocationExpression.Expression => expression;
+
+#endregion
+
+		internal void SetEvaluator(ILocationEvaluator locationEvaluator) => _locationEvaluator = locationEvaluator;
+
+		public ValueTask SetValue(object? value) => _locationEvaluator?.SetValue(new DefaultObject(value)) ?? default;
+
+		public async ValueTask CopyFrom(Value value)
+		{
+			if (_locationEvaluator is not null)
 			{
-				_resultLocationAssigner = _customActionContext.RegisterLocationExpression(expression);
+				var val = await value.GetObject().ConfigureAwait(false);
+				await _locationEvaluator.SetValue(val).ConfigureAwait(false);
 			}
 		}
-
-		protected virtual async ValueTask Execute(IExecutionContext executionContext, CancellationToken token)
-		{
-			var arguments = ImmutableDictionary<string, DataModelValue>.Empty;
-
-			if (_arguments is { })
-			{
-				var builder = ImmutableDictionary.CreateBuilder<string, DataModelValue>();
-
-				foreach (var pair in _arguments)
-				{
-					switch (pair.Value)
-					{
-						case IExpressionEvaluator expressionEvaluator:
-							builder.Add(pair.Key, await expressionEvaluator.Evaluate(executionContext, token).ConfigureAwait(false));
-							break;
-
-						case string str:
-							builder.Add(pair.Key, str);
-							break;
-
-						default:
-							builder.Add(pair.Key, value: default);
-							break;
-					}
-				}
-
-				arguments = builder.ToImmutable();
-			}
-
-			var result = Evaluate(arguments);
-
-			if (_resultLocationAssigner is { })
-			{
-				await _resultLocationAssigner.Assign(executionContext, result, token).ConfigureAwait(false);
-			}
-		}
-
-		protected virtual DataModelValue Evaluate(IReadOnlyDictionary<string, DataModelValue> arguments) => throw new NotSupportedException(Resources.Exception_CustomActionDoesNotSupported);
 	}
 }

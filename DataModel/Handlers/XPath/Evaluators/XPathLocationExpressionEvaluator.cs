@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,51 +15,74 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+namespace Xtate.DataModel.XPath;
+
+public class XPathLocationExpressionEvaluator : ILocationEvaluator, ILocationExpression, IAncestorProvider
+{
+	private readonly XPathAssignType         _assignType;
+	private readonly string?                 _attribute;
+	private readonly XPathCompiledExpression _compiledExpression;
+	private readonly ILocationExpression     _locationExpression;
+
+	public XPathLocationExpressionEvaluator(ILocationExpression locationExpression, XPathCompiledExpression compiledExpression)
+	{
+		_locationExpression = locationExpression;
+		_compiledExpression = compiledExpression;
+
+		if (_locationExpression.Is<XPathLocationExpression>(out var xPathLocationExpression))
+		{
+			_assignType = xPathLocationExpression.AssignType;
+			_attribute = xPathLocationExpression.Attribute;
+		}
+		else
+		{
+			_assignType = XPathAssignType.ReplaceChildren;
+		}
+	}
+
+	public required Func<ValueTask<XPathEngine>> EngineFactory { private get; [UsedImplicitly] init; }
+
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => _locationExpression;
+
 #endregion
 
-using System.Threading;
-using System.Threading.Tasks;
+#region Interface ILocationEvaluator
 
-namespace Xtate.DataModel.XPath
-{
-	internal class XPathLocationExpressionEvaluator : ILocationEvaluator, ILocationExpression, IAncestorProvider
+	public async ValueTask SetValue(IObject value)
 	{
-		private readonly XPathCompiledExpression _compiledExpression;
-		private readonly LocationExpression      _locationExpression;
+		var engine = await EngineFactory().ConfigureAwait(false);
 
-		public XPathLocationExpressionEvaluator(in LocationExpression locationExpression, XPathCompiledExpression compiledExpression)
-		{
-			_locationExpression = locationExpression;
-			_compiledExpression = compiledExpression;
-		}
+		await engine.Assign(_compiledExpression, _assignType, _attribute, value).ConfigureAwait(false);
+	}
 
-	#region Interface IAncestorProvider
+	public async ValueTask<IObject> GetValue()
+	{
+		var engine = await EngineFactory().ConfigureAwait(false);
 
-		object? IAncestorProvider.Ancestor => _locationExpression.Ancestor;
+		return await engine.EvalObject(_compiledExpression, stripRoots: true).ConfigureAwait(false);
+	}
 
-	#endregion
+	public async ValueTask<string> GetName()
+	{
+		var engine = await EngineFactory().ConfigureAwait(false);
 
-	#region Interface ILocationEvaluator
+		return engine.GetName(_compiledExpression);
+	}
 
-		public void DeclareLocalVariable(IExecutionContext executionContext) => executionContext.Engine().DeclareVariable(_compiledExpression);
+#endregion
 
-		public ValueTask SetValue(IObject value, IExecutionContext executionContext, CancellationToken token)
-		{
-			executionContext.Engine().Assign(_compiledExpression, value);
+#region Interface ILocationExpression
 
-			return default;
-		}
+	public string? Expression => _locationExpression.Expression;
 
-		public ValueTask<IObject> GetValue(IExecutionContext executionContext, CancellationToken token) => new ValueTask<IObject>(executionContext.Engine().EvalObject(_compiledExpression));
+#endregion
 
-		public string GetName(IExecutionContext executionContext) => executionContext.Engine().GetName(_compiledExpression);
+	public async ValueTask DeclareLocalVariable()
+	{
+		var engine = await EngineFactory().ConfigureAwait(false);
 
-	#endregion
-
-	#region Interface ILocationExpression
-
-		public string? Expression => _locationExpression.Expression;
-
-	#endregion
+		engine.DeclareVariable(_compiledExpression);
 	}
 }

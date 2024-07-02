@@ -1,34 +1,28 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
-// This file is part of the Xtate project. <https://xtate.net/>
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as published
-// by the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Affero General Public License for more details.
-// 
-// You should have received a copy of the GNU Affero General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+	// This file is part of the Xtate project. <https://xtate.net/>
+	// 
+	// This program is free software: you can redistribute it and/or modify
+	// it under the terms of the GNU Affero General Public License as published
+	// by the Free Software Foundation, either version 3 of the License, or
+	// (at your option) any later version.
+	// 
+	// This program is distributed in the hope that it will be useful,
+	// but WITHOUT ANY WARRANTY; without even the implied warranty of
+	// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	// GNU Affero General Public License for more details.
+	// 
+	// You should have received a copy of the GNU Affero General Public License
+	// along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #endregion
 
-using System;
-using System.Buffers.Binary;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq.Expressions;
-using System.Text;
-using Xtate.Annotations;
+	using System.Buffers.Binary;
+	using System.Text;
 
-namespace Xtate.Persistence
-{
-	[PublicAPI]
-	[SuppressMessage(category: "ReSharper", checkId: "SuggestVarOrType_Elsewhere", Justification = "Span<> must be explicit")]
-	internal readonly struct Bucket
+	namespace Xtate.Persistence;
+
+	public readonly struct Bucket
 	{
 		public static readonly RootType RootKey = RootType.Instance;
 
@@ -93,7 +87,7 @@ namespace Xtate.Persistence
 		{
 			var size = KeyHelper<TKey>.Converter.GetLength(key) + GetSize(_block);
 
-			for (var n = _node; n is { }; n = n.Previous!)
+			for (var n = _node; n is not null; n = n.Previous)
 			{
 				size += n.Size;
 			}
@@ -112,16 +106,16 @@ namespace Xtate.Persistence
 			BinaryPrimitives.WriteUInt64LittleEndian(nextBuf, _block);
 			KeyHelper<TKey>.Converter.Write(key, nextBuf.Slice(size, len));
 
-			return buf.Slice(start: 0, length);
+			return buf[..length];
 		}
 
 		private static Span<byte> WritePrevious(Node? node, int size, ref Span<byte> buf)
 		{
-			if (node is { })
+			if (node is not null)
 			{
 				var nextBuf = WritePrevious(node.Previous, size + node.Size, ref buf);
 				node.WriteTo(nextBuf);
-				return nextBuf.Slice(node.Size);
+				return nextBuf[node.Size..];
 			}
 
 			if (buf.Length < size)
@@ -141,7 +135,7 @@ namespace Xtate.Persistence
 			}
 
 			Span<byte> buf = stackalloc byte[GetFullKeySize(key)];
-			_node.Storage.Write(CreateFullKey(buf, key), value);
+			_node.Storage.Set(CreateFullKey(buf, key), value);
 		}
 
 		public void Add<TKey, TValue>(TKey key, TValue value) where TKey : notnull
@@ -156,33 +150,34 @@ namespace Xtate.Persistence
 
 			Span<byte> bufVal = stackalloc byte[ValueHelper<TValue>.Converter.GetLength(value)];
 			ValueHelper<TValue>.Converter.Write(value, bufVal);
-			_node.Storage.Write(CreateFullKey(buf, key), bufVal);
+			_node.Storage.Set(CreateFullKey(buf, key), bufVal);
 		}
 
 		public void Remove<TKey>(TKey key) where TKey : notnull
 		{
 			Span<byte> buf = stackalloc byte[GetFullKeySize(key)];
-			_node.Storage.Write(CreateFullKey(buf, key), ReadOnlySpan<byte>.Empty);
+			_node.Storage.Remove(CreateFullKey(buf, key));
 		}
 
 		public void RemoveSubtree<TKey>(TKey key) where TKey : notnull
 		{
 			Span<byte> buf = stackalloc byte[GetFullKeySize(key)];
-			_node.Storage.Write(ReadOnlySpan<byte>.Empty, CreateFullKey(buf, key));
+			_node.Storage.RemoveAll(CreateFullKey(buf, key));
 		}
 
 		public bool TryGet<TKey>(TKey key, out ReadOnlyMemory<byte> value) where TKey : notnull
 		{
 			Span<byte> buf = stackalloc byte[GetFullKeySize(key)];
-			value = _node.Storage.Read(CreateFullKey(buf, key));
+			value = _node.Storage.Get(CreateFullKey(buf, key));
 			return !value.IsEmpty;
 		}
 
-		public bool TryGet<TKey, TValue>(TKey key, [NotNullWhen(true)] [MaybeNullWhen(false)]
+		public bool TryGet<TKey, TValue>(TKey key,
+										 [NotNullWhen(true)] [MaybeNullWhen(false)]
 										 out TValue value) where TKey : notnull
 		{
 			Span<byte> buf = stackalloc byte[GetFullKeySize(key)];
-			var memory = _node.Storage.Read(CreateFullKey(buf, key));
+			var memory = _node.Storage.Get(CreateFullKey(buf, key));
 
 			if (memory.Length == 0)
 			{
@@ -191,26 +186,14 @@ namespace Xtate.Persistence
 			}
 
 			value = ValueHelper<TValue>.Converter.Read(memory.Span);
-			return value is { };
+			return value is not null;
 		}
 
 		public class RootType
 		{
-			public static readonly RootType Instance = new RootType();
+			public static readonly RootType Instance = new();
 
 			private RootType() { }
-		}
-
-		private static class TypeConverter<TInput, TOutput>
-		{
-			public static readonly Func<TInput, TOutput> Convert = CreateConverter();
-
-			private static Func<TInput, TOutput> CreateConverter()
-			{
-				var parameter = Expression.Parameter(typeof(TInput), typeof(TInput).Name);
-				var method = Expression.Lambda<Func<TInput, TOutput>>(Expression.Convert(parameter, typeof(TOutput)), parameter);
-				return method.Compile();
-			}
 		}
 
 		private static class KeyHelper<T> where T : notnull
@@ -220,6 +203,7 @@ namespace Xtate.Persistence
 			private static ConverterBase<T> GetKeyConverter()
 			{
 				var type = typeof(T);
+			
 				switch (Type.GetTypeCode(type))
 				{
 					case TypeCode.Byte when type.IsEnum:
@@ -256,26 +240,24 @@ namespace Xtate.Persistence
 			private static ConverterBase<T> GetValueConverter()
 			{
 				var type = typeof(T);
-				switch (Type.GetTypeCode(type))
-				{
-					case TypeCode.Byte:
-					case TypeCode.Int16:
-					case TypeCode.Int32:
-					case TypeCode.SByte:
-					case TypeCode.UInt16:
-					case TypeCode.UInt32:
-						return new EnumIntValueConverter<T>();
 
-					case TypeCode.Double: return new DoubleValueConverter<T>();
-					case TypeCode.Boolean: return new BooleanValueConverter<T>();
-					case TypeCode.String: return new StringValueConverter<T>();
-					case TypeCode.DateTime: return new DateTimeValueConverter<T>();
-					case TypeCode.Object when type == typeof(Uri): return new UriValueConverter<T>();
-					case TypeCode.Object when type == typeof(DateTimeOffset): return new DateTimeOffsetValueConverter<T>();
-					case TypeCode.Object when type == typeof(DataModelDateTime): return new DataModelDateTimeValueConverter<T>();
-
-					default: return new UnsupportedConverter<T>(@"value");
-				}
+				return Type.GetTypeCode(type) switch
+				   {
+					   TypeCode.Byte                                          => new EnumIntValueConverter<T>(),
+					   TypeCode.Int16                                         => new EnumIntValueConverter<T>(),
+					   TypeCode.Int32                                         => new EnumIntValueConverter<T>(),
+					   TypeCode.SByte                                         => new EnumIntValueConverter<T>(),
+					   TypeCode.UInt16                                        => new EnumIntValueConverter<T>(),
+					   TypeCode.UInt32                                        => new EnumIntValueConverter<T>(),
+					   TypeCode.Double                                        => new DoubleValueConverter<T>(),
+					   TypeCode.Boolean                                       => new BooleanValueConverter<T>(),
+					   TypeCode.String                                        => new StringValueConverter<T>(),
+					   TypeCode.DateTime                                      => new DateTimeValueConverter<T>(),
+					   TypeCode.Object when type == typeof(Uri)               => new UriValueConverter<T>(),
+					   TypeCode.Object when type == typeof(DateTimeOffset)    => new DateTimeOffsetValueConverter<T>(),
+					   TypeCode.Object when type == typeof(DataModelDateTime) => new DataModelDateTimeValueConverter<T>(),
+					   _                                                      => new UnsupportedConverter<T>(@"value")
+				   };
 			}
 		}
 
@@ -286,7 +268,7 @@ namespace Xtate.Persistence
 
 			public Node(IStorage storage)
 			{
-				Previous = null;
+				Previous = default;
 				Storage = storage;
 			}
 
@@ -316,7 +298,7 @@ namespace Xtate.Persistence
 				if (length > 8)
 				{
 					_bytes = new byte[length - 8];
-					span.Slice(8).CopyTo(_bytes.AsSpan());
+					span[8..].CopyTo(_bytes.AsSpan());
 					length = 8;
 				}
 
@@ -346,7 +328,7 @@ namespace Xtate.Persistence
 				WriteBlock(_block1, ref index, buf);
 				WriteBlock(_block2, ref index, buf);
 
-				_bytes?.AsSpan().CopyTo(buf.Slice(index));
+				_bytes?.AsSpan().CopyTo(buf[index..]);
 			}
 		}
 
@@ -361,9 +343,9 @@ namespace Xtate.Persistence
 
 		private abstract class KeyConverterBase<TKey, TInternal> : ConverterBase<TKey> where TKey : notnull
 		{
-			public sealed override int GetLength(TKey key) => GetLength(TypeConverter<TKey, TInternal>.Convert(key));
+			public sealed override int GetLength(TKey key) => GetLength(ConvertHelper<TKey, TInternal>.Convert(key));
 
-			public sealed override void Write(TKey key, Span<byte> bytes) => Write(TypeConverter<TKey, TInternal>.Convert(key), bytes);
+			public sealed override void Write(TKey key, Span<byte> bytes) => Write(ConvertHelper<TKey, TInternal>.Convert(key), bytes);
 
 			public sealed override TKey Read(ReadOnlySpan<byte> bytes) => throw new NotSupportedException();
 
@@ -491,9 +473,9 @@ namespace Xtate.Persistence
 				bytes[0] = 7;
 				var lastByteIndex = bytes.Length - 1;
 				bytes[lastByteIndex] = 0xFF;
-				var dest = bytes.Slice(start: 1, bytes.Length - 2);
-#if NETSTANDARD2_1
-				Encoding.UTF8.GetBytes(key, dest);
+				var dest = bytes[1..^1];
+#if NET6_0_OR_GREATER
+			Encoding.UTF8.GetBytes(key, dest);
 #else
 				Encoding.UTF8.GetBytes(key).CopyTo(dest);
 #endif
@@ -507,13 +489,9 @@ namespace Xtate.Persistence
 			protected override void Write(RootType key, Span<byte> bytes) { }
 		}
 
-		private class UnsupportedConverter<T> : ConverterBase<T>
+		private class UnsupportedConverter<T>(string type) : ConverterBase<T>
 		{
-			private readonly string _type;
-
-			public UnsupportedConverter(string type) => _type = type;
-
-			private NotSupportedException GetNotSupportedException() => new NotSupportedException(Res.Format(Resources.Exception_UnsupportedType, _type, typeof(T)));
+			private NotSupportedException GetNotSupportedException() => new(Res.Format(Resources.Exception_UnsupportedType, type, typeof(T)));
 
 			public override int GetLength(T key) => throw GetNotSupportedException();
 
@@ -524,134 +502,134 @@ namespace Xtate.Persistence
 
 		private abstract class ValueConverterBase<TValue, TInternal> : ConverterBase<TValue>
 		{
-			public sealed override int GetLength(TValue val)
+			public sealed override int GetLength(TValue value)
 			{
-				if (val is null) throw new ArgumentNullException(nameof(val));
+				if (value is null) throw new ArgumentNullException(nameof(value));
 
-				return GetLength(TypeConverter<TValue, TInternal>.Convert(val));
+				return GetLength(ConvertHelper<TValue, TInternal>.Convert(value));
 			}
 
-			public sealed override TValue Read(ReadOnlySpan<byte> bytes) => TypeConverter<TInternal, TValue>.Convert(Get(bytes));
+			public sealed override TValue Read(ReadOnlySpan<byte> bytes) => ConvertHelper<TInternal, TValue>.Convert(Get(bytes));
 
-			public sealed override void Write(TValue val, Span<byte> bytes)
+			public sealed override void Write(TValue value, Span<byte> bytes)
 			{
-				if (val is null) throw new ArgumentNullException(nameof(val));
+				if (value is null) throw new ArgumentNullException(nameof(value));
 
-				Write(TypeConverter<TValue, TInternal>.Convert(val), bytes);
+				Write(ConvertHelper<TValue, TInternal>.Convert(value), bytes);
 			}
 
-			protected abstract int GetLength(TInternal val);
+			protected abstract int GetLength(TInternal value);
 
 			protected abstract TInternal Get(ReadOnlySpan<byte> bytes);
 
-			protected abstract void Write(TInternal val, Span<byte> bytes);
+			protected abstract void Write(TInternal value, Span<byte> bytes);
 		}
 
 		private class EnumIntValueConverter<TValue> : ValueConverterBase<TValue, int>
 		{
-			protected override int GetLength(int val)
+			protected override int GetLength(int value)
 			{
-				var uval = unchecked((uint) val);
+				var uval = unchecked((uint) value);
 				if (uval <= 0xFFU) return 1;
 				if (uval <= 0xFFFFU) return 2;
 				if (uval <= 0xFFFFFFU) return 3;
 				return 4;
 			}
 
-			protected override void Write(int val, Span<byte> bytes)
+			protected override void Write(int value, Span<byte> bytes)
 			{
-				var uval = unchecked((uint) val);
+				var uValue = unchecked((uint) value);
 
 				for (var i = 0; i < bytes.Length; i ++)
 				{
-					bytes[i] = unchecked((byte) uval);
-					uval >>= 8;
+					bytes[i] = unchecked((byte) uValue);
+					uValue >>= 8;
 				}
 			}
 
 			protected override int Get(ReadOnlySpan<byte> bytes)
 			{
-				var uval = 0U;
+				var uValue = 0U;
 
 				for (var i = bytes.Length - 1; i >= 0; i --)
 				{
-					uval = (uval << 8) | bytes[i];
+					uValue = (uValue << 8) | bytes[i];
 				}
 
-				return unchecked((int) uval);
+				return unchecked((int) uValue);
 			}
 		}
 
 		private class BooleanValueConverter<TValue> : ValueConverterBase<TValue, bool>
 		{
-			protected override int GetLength(bool val) => 1;
+			protected override int GetLength(bool value) => 1;
 
-			protected override void Write(bool val, Span<byte> bytes) => bytes[0] = val ? (byte) 1 : (byte) 0;
+			protected override void Write(bool value, Span<byte> bytes) => bytes[0] = value ? (byte) 1 : (byte) 0;
 
 			protected override bool Get(ReadOnlySpan<byte> bytes) => bytes[0] != 0;
 		}
 
 		private class DoubleValueConverter<TValue> : ValueConverterBase<TValue, double>
 		{
-			protected override int GetLength(double val) => 8;
+			protected override int GetLength(double value) => 8;
 
-			protected override void Write(double val, Span<byte> bytes) => BinaryPrimitives.WriteInt64LittleEndian(bytes, BitConverter.DoubleToInt64Bits(val));
+			protected override void Write(double value, Span<byte> bytes) => BinaryPrimitives.WriteInt64LittleEndian(bytes, BitConverter.DoubleToInt64Bits(value));
 
 			protected override double Get(ReadOnlySpan<byte> bytes) => BitConverter.Int64BitsToDouble(BinaryPrimitives.ReadInt64LittleEndian(bytes));
 		}
 
 		private class DataModelDateTimeValueConverter<TValue> : ValueConverterBase<TValue, DataModelDateTime>
 		{
-			protected override int GetLength(DataModelDateTime val) => 10;
+			protected override int GetLength(DataModelDateTime value) => 10;
 
-			protected override void Write(DataModelDateTime val, Span<byte> bytes) => val.WriteTo(bytes);
+			protected override void Write(DataModelDateTime value, Span<byte> bytes) => value.WriteTo(bytes);
 
 			protected override DataModelDateTime Get(ReadOnlySpan<byte> bytes) => DataModelDateTime.ReadFrom(bytes);
 		}
 
 		private class DateTimeValueConverter<TValue> : ValueConverterBase<TValue, DateTime>
 		{
-			protected override int GetLength(DateTime val) => 8;
+			protected override int GetLength(DateTime value) => 8;
 
-			protected override void Write(DateTime val, Span<byte> bytes) => BinaryPrimitives.WriteInt64LittleEndian(bytes, val.ToBinary());
+			protected override void Write(DateTime value, Span<byte> bytes) => BinaryPrimitives.WriteInt64LittleEndian(bytes, value.ToBinary());
 
 			protected override DateTime Get(ReadOnlySpan<byte> bytes) => DateTime.FromBinary(BinaryPrimitives.ReadInt64LittleEndian(bytes));
 		}
 
 		private class DateTimeOffsetValueConverter<TValue> : ValueConverterBase<TValue, DateTimeOffset>
 		{
-			protected override int GetLength(DateTimeOffset val) => 10;
+			protected override int GetLength(DateTimeOffset value) => 10;
 
-			protected override void Write(DateTimeOffset val, Span<byte> bytes)
+			protected override void Write(DateTimeOffset value, Span<byte> bytes)
 			{
-				BinaryPrimitives.WriteInt64LittleEndian(bytes, val.Ticks);
-				BinaryPrimitives.WriteInt16LittleEndian(bytes.Slice(8), (short) (val.Offset.Ticks / TimeSpan.TicksPerMinute));
+				BinaryPrimitives.WriteInt64LittleEndian(bytes, value.Ticks);
+				BinaryPrimitives.WriteInt16LittleEndian(bytes[8..], (short) (value.Offset.Ticks / TimeSpan.TicksPerMinute));
 			}
 
 			protected override DateTimeOffset Get(ReadOnlySpan<byte> bytes)
 			{
 				var ticks = BinaryPrimitives.ReadInt64LittleEndian(bytes);
-				var offsetMinutes = BinaryPrimitives.ReadInt16LittleEndian(bytes.Slice(8));
+				var offsetMinutes = BinaryPrimitives.ReadInt16LittleEndian(bytes[8..]);
 				return new DateTimeOffset(ticks, new TimeSpan(hours: 0, offsetMinutes, seconds: 0));
 			}
 		}
 
 		private static class StringConverter
 		{
-			public static int GetLength(string val) => val.Length == 0 ? 1 : Encoding.UTF8.GetByteCount(val);
+			public static int GetLength(string value) => value.Length == 0 ? 1 : Encoding.UTF8.GetByteCount(value);
 
-			public static void Write(string val, Span<byte> bytes)
+			public static void Write(string value, Span<byte> bytes)
 			{
-				if (val.Length == 0)
+				if (value.Length == 0)
 				{
 					bytes[0] = 0xFF;
 					return;
 				}
 
-#if NETSTANDARD2_1
-				Encoding.UTF8.GetBytes(val, bytes);
+#if NET6_0_OR_GREATER
+			Encoding.UTF8.GetBytes(value, bytes);
 #else
-				Encoding.UTF8.GetBytes(val).CopyTo(bytes);
+				Encoding.UTF8.GetBytes(value).CopyTo(bytes);
 #endif
 			}
 
@@ -662,8 +640,8 @@ namespace Xtate.Persistence
 					return string.Empty;
 				}
 
-#if NETSTANDARD2_1
-				return Encoding.UTF8.GetString(bytes);
+#if NET6_0_OR_GREATER
+			return Encoding.UTF8.GetString(bytes);
 #else
 				return Encoding.UTF8.GetString(bytes.ToArray());
 #endif
@@ -672,20 +650,19 @@ namespace Xtate.Persistence
 
 		private class StringValueConverter<TString> : ValueConverterBase<TString, string>
 		{
-			protected override int GetLength(string val) => StringConverter.GetLength(val);
+			protected override int GetLength(string value) => StringConverter.GetLength(value);
 
-			protected override void Write(string val, Span<byte> bytes) => StringConverter.Write(val, bytes);
+			protected override void Write(string value, Span<byte> bytes) => StringConverter.Write(value, bytes);
 
 			protected override string Get(ReadOnlySpan<byte> bytes) => StringConverter.Get(bytes);
 		}
 
 		private class UriValueConverter<TString> : ValueConverterBase<TString, Uri>
 		{
-			protected override int GetLength(Uri val) => StringConverter.GetLength(val.ToString());
+			protected override int GetLength(Uri value) => StringConverter.GetLength(value.ToString());
 
-			protected override void Write(Uri val, Span<byte> bytes) => StringConverter.Write(val.ToString(), bytes);
+			protected override void Write(Uri value, Span<byte> bytes) => StringConverter.Write(value.ToString(), bytes);
 
-			protected override Uri Get(ReadOnlySpan<byte> bytes) => new Uri(StringConverter.Get(bytes), UriKind.RelativeOrAbsolute);
+			protected override Uri Get(ReadOnlySpan<byte> bytes) => new(StringConverter.Get(bytes), UriKind.RelativeOrAbsolute);
 		}
 	}
-}

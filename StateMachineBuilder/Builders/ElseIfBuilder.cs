@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,22 +17,22 @@
 
 #endregion
 
-using System;
+namespace Xtate.Builder;
 
-namespace Xtate.Builder
+public class ElseIfBuilder : BuilderBase, IElseIfBuilder
 {
-	public class ElseIfBuilder : BuilderBase, IElseIfBuilder
+	private IConditionExpression? _condition;
+
+#region Interface IElseIfBuilder
+
+	public IElseIf Build() => new ElseIfEntity { Ancestor = Ancestor, Condition = _condition };
+
+	public void SetCondition(IConditionExpression condition)
 	{
-		private IConditionExpression? _condition;
+		Infra.Requires(condition);
 
-		public ElseIfBuilder(IErrorProcessor errorProcessor, object? ancestor) : base(errorProcessor, ancestor) { }
-
-	#region Interface IElseIfBuilder
-
-		public IElseIf Build() => new ElseIfEntity { Ancestor = Ancestor, Condition = _condition };
-
-		public void SetCondition(IConditionExpression condition) => _condition = condition ?? throw new ArgumentNullException(nameof(condition));
-
-	#endregion
+		_condition = condition;
 	}
+
+#endregion
 }

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,49 +17,58 @@
 
 #endregion
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.DataModel;
+namespace Xtate.DataModel.Runtime;
 
-namespace Xtate
+public class RuntimeActionExecutor : IExecutableEntity, IExecEvaluator
 {
-	public delegate void ExecutableAction(IExecutionContext executionContext);
+	public required RuntimeAction Action { private get; [UsedImplicitly] init; }
 
-	public delegate ValueTask ExecutableTask(IExecutionContext executionContext);
+	public required Func<ValueTask<RuntimeExecutionContext>> RuntimeExecutionContextFactory { private get; [UsedImplicitly] init; }
 
-	public delegate ValueTask ExecutableCancellableTask(IExecutionContext executionContext, CancellationToken token);
+#region Interface IExecEvaluator
 
-	public class RuntimeAction : IExecutableEntity, IExecEvaluator
+	public async ValueTask Execute()
 	{
-		private readonly object _action;
+		var executionContext = await RuntimeExecutionContextFactory().ConfigureAwait(false);
 
-		public RuntimeAction(ExecutableAction action) => _action = action ?? throw new ArgumentNullException(nameof(action));
+		Xtate.Runtime.SetCurrentExecutionContext(executionContext);
 
-		public RuntimeAction(ExecutableTask task) => _action = task ?? throw new ArgumentNullException(nameof(task));
+		await Action.DoAction().ConfigureAwait(false);
+	}
 
-		public RuntimeAction(ExecutableCancellableTask task) => _action = task ?? throw new ArgumentNullException(nameof(task));
+#endregion
+}
 
-	#region Interface IExecEvaluator
+public abstract class RuntimeAction : IExecutableEntity
+{
+	public static RuntimeAction GetAction(Action action)
+	{
+		Infra.Requires(action);
 
-		public async ValueTask Execute(IExecutionContext executionContext, CancellationToken token)
+		return new ActionSync(action);
+	}
+
+	public static RuntimeAction GetAction(Func<ValueTask> action)
+	{
+		Infra.Requires(action);
+
+		return new ActionAsync(action);
+	}
+
+	public abstract ValueTask DoAction();
+
+	private sealed class ActionSync(Action action) : RuntimeAction
+	{
+		public override ValueTask DoAction()
 		{
-			switch (_action)
-			{
-				case ExecutableAction action:
-					action(executionContext);
-					break;
+			action();
 
-				case ExecutableTask task:
-					await task(executionContext).ConfigureAwait(false);
-					break;
-
-				case ExecutableCancellableTask task:
-					await task(executionContext, token).ConfigureAwait(false);
-					break;
-			}
+			return default;
 		}
+	}
 
-	#endregion
+	private sealed class ActionAsync(Func<ValueTask> action) : RuntimeAction
+	{
+		public override ValueTask DoAction() => action();
 	}
 }

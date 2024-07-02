@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,13 +17,10 @@
 
 #endregion
 
-using System.Collections.Immutable;
+namespace Xtate;
 
-namespace Xtate
+public interface IIf : IExecutableEntity
 {
-	public interface IIf : IExecutableEntity
-	{
-		IConditionExpression?             Condition { get; }
-		ImmutableArray<IExecutableEntity> Action    { get; }
-	}
+	IConditionExpression?             Condition { get; }
+	ImmutableArray<IExecutableEntity> Action    { get; }
 }

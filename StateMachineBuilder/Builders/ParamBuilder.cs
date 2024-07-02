@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,33 +17,38 @@
 
 #endregion
 
-using System;
+namespace Xtate.Builder;
 
-namespace Xtate.Builder
+public class ParamBuilder : BuilderBase, IParamBuilder
 {
-	public class ParamBuilder : BuilderBase, IParamBuilder
+	private IValueExpression?    _expression;
+	private ILocationExpression? _location;
+	private string?              _name;
+
+#region Interface IParamBuilder
+
+	public IParam Build() => new ParamEntity { Ancestor = Ancestor, Name = _name, Expression = _expression, Location = _location };
+
+	public void SetName(string name)
 	{
-		private IValueExpression?    _expression;
-		private ILocationExpression? _location;
-		private string?              _name;
+		Infra.RequiresNonEmptyString(name);
 
-		public ParamBuilder(IErrorProcessor errorProcessor, object? ancestor) : base(errorProcessor, ancestor) { }
-
-	#region Interface IParamBuilder
-
-		public IParam Build() => new ParamEntity { Ancestor = Ancestor, Name = _name, Expression = _expression, Location = _location };
-
-		public void SetName(string name)
-		{
-			if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
-
-			_name = name;
-		}
-
-		public void SetExpression(IValueExpression expression) => _expression = expression ?? throw new ArgumentNullException(nameof(expression));
-
-		public void SetLocation(ILocationExpression location) => _location = location ?? throw new ArgumentNullException(nameof(location));
-
-	#endregion
+		_name = name;
 	}
+
+	public void SetExpression(IValueExpression expression)
+	{
+		Infra.Requires(expression);
+
+		_expression = expression;
+	}
+
+	public void SetLocation(ILocationExpression location)
+	{
+		Infra.Requires(location);
+
+		_location = location;
+	}
+
+#endregion
 }

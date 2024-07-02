@@ -1,43 +1,50 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
-// This file is part of the Xtate project. <https://xtate.net/>
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as published
-// by the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Affero General Public License for more details.
-// 
-// You should have received a copy of the GNU Affero General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+	// This file is part of the Xtate project. <https://xtate.net/>
+	// 
+	// This program is free software: you can redistribute it and/or modify
+	// it under the terms of the GNU Affero General Public License as published
+	// by the Free Software Foundation, either version 3 of the License, or
+	// (at your option) any later version.
+	// 
+	// This program is distributed in the hope that it will be useful,
+	// but WITHOUT ANY WARRANTY; without even the implied warranty of
+	// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	// GNU Affero General Public License for more details.
+	// 
+	// You should have received a copy of the GNU Affero General Public License
+	// along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using Xtate.DataModel;
-using Xtate.Persistence;
+	using Xtate.DataModel;
+	using Xtate.Persistence;
 
-namespace Xtate
-{
-	internal sealed class TransitionNode : ITransition, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
+	namespace Xtate.Core;
+
+	public class EmptyTransitionNode(DocumentIdNode documentIdNode, ImmutableArray<StateEntityNode> target) : TransitionNode(documentIdNode, EmptyTransition, target)
 	{
-		private readonly TransitionEntity _transition;
-		private          DocumentIdRecord _documentIdNode;
+		private static readonly ITransition EmptyTransition = new TransitionEntity();
+	}
 
-		public TransitionNode(in DocumentIdRecord documentIdNode, in TransitionEntity transition, ImmutableArray<StateEntityNode> target = default)
+	public class TransitionNode : ITransition, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
+	{
+		private readonly ITransition _transition;
+
+		private DocumentIdSlot _documentIdSlot;
+
+		public TransitionNode(DocumentIdNode documentIdNode, ITransition transition) : this(documentIdNode, transition, target: default) { }
+
+		protected TransitionNode(DocumentIdNode documentIdNode, ITransition transition, ImmutableArray<StateEntityNode> target)
 		{
 			_transition = transition;
-			_documentIdNode = documentIdNode;
+
+			documentIdNode.SaveToSlot(out _documentIdSlot);
+
 			TargetState = target;
 			ActionEvaluators = transition.Action.AsArrayOf<IExecutableEntity, IExecEvaluator>(true);
 			ConditionEvaluator = transition.Condition?.As<IBooleanEvaluator>();
-			Source = null!;
+			Source = default!;
 		}
 
 		public ImmutableArray<StateEntityNode> TargetState        { get; private set; }
@@ -47,7 +54,7 @@ namespace Xtate
 
 	#region Interface IAncestorProvider
 
-		object? IAncestorProvider.Ancestor => _transition.Ancestor;
+		object IAncestorProvider.Ancestor => _transition;
 
 	#endregion
 
@@ -59,7 +66,7 @@ namespace Xtate
 
 	#region Interface IDocumentId
 
-		public int DocumentId => _documentIdNode.Value;
+		public int DocumentId => _documentIdSlot.CreateValue();
 
 	#endregion
 
@@ -82,7 +89,7 @@ namespace Xtate
 
 		public ImmutableArray<IEventDescriptor> EventDescriptors => _transition.EventDescriptors;
 
-		public IExecutableEntity? Condition => _transition.Condition;
+		public IConditionExpression? Condition => _transition.Condition;
 
 		public ImmutableArray<IIdentifier> Target => _transition.Target;
 
@@ -98,7 +105,7 @@ namespace Xtate
 
 			foreach (var node in TargetState)
 			{
-				if (node is null)
+				if (node == null!)
 				{
 					return false;
 				}
@@ -109,4 +116,3 @@ namespace Xtate
 
 		public void SetSource(StateEntityNode source) => Source = source;
 	}
-}

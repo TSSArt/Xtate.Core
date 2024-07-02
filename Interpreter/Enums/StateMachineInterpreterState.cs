@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,18 +17,16 @@
 
 #endregion
 
-namespace Xtate
+namespace Xtate.Core;
+
+public enum StateMachineInterpreterState
 {
-	public enum StateMachineInterpreterState
-	{
-		Accepted,
-		Started,
-		Exited,
-		Waiting,
-		Resumed,
-		Halted,
-		Destroying,
-		Suspended,
-		QueueClosed
-	}
+	Accepted,
+	Started,
+	Exited,
+	Waiting,
+	Destroying,
+	Halted,
+	Suspended,
+	Resumed
 }

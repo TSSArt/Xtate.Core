@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,39 +17,59 @@
 
 #endregion
 
-using System;
+namespace Xtate.Builder;
 
-namespace Xtate.Builder
+public class AssignBuilder : BuilderBase, IAssignBuilder
 {
-	public class AssignBuilder : BuilderBase, IAssignBuilder
+	private string?              _attribute;
+	private IValueExpression?    _expression;
+	private IInlineContent?      _inlineContent;
+	private ILocationExpression? _location;
+	private string?              _type;
+
+#region Interface IAssignBuilder
+
+	public IAssign Build() =>
+		new AssignEntity
+		{
+			Ancestor = Ancestor, Location = _location, Expression = _expression,
+			InlineContent = _inlineContent, Type = _type, Attribute = _attribute
+		};
+
+	public void SetLocation(ILocationExpression location)
 	{
-		private string?              _attribute;
-		private IValueExpression?    _expression;
-		private IInlineContent?      _inlineContent;
-		private ILocationExpression? _location;
-		private string?              _type;
+		Infra.Requires(location);
 
-		public AssignBuilder(IErrorProcessor errorProcessor, object? ancestor) : base(errorProcessor, ancestor) { }
-
-	#region Interface IAssignBuilder
-
-		public IAssign Build() =>
-				new AssignEntity
-				{
-						Ancestor = Ancestor, Location = _location, Expression = _expression,
-						InlineContent = _inlineContent, Type = _type, Attribute = _attribute
-				};
-
-		public void SetLocation(ILocationExpression location) => _location = location ?? throw new ArgumentNullException(nameof(location));
-
-		public void SetExpression(IValueExpression expression) => _expression = expression ?? throw new ArgumentNullException(nameof(expression));
-
-		public void SetInlineContent(IInlineContent inlineContent) => _inlineContent = inlineContent ?? throw new ArgumentNullException(nameof(inlineContent));
-
-		public void SetType(string type) => _type = type ?? throw new ArgumentNullException(nameof(type));
-
-		public void SetAttribute(string attribute) => _attribute = attribute ?? throw new ArgumentNullException(nameof(attribute));
-
-	#endregion
+		_location = location;
 	}
+
+	public void SetExpression(IValueExpression expression)
+	{
+		Infra.Requires(expression);
+
+		_expression = expression;
+	}
+
+	public void SetInlineContent(IInlineContent inlineContent)
+	{
+		Infra.Requires(inlineContent);
+
+		_inlineContent = inlineContent;
+	}
+
+	public void SetType(string type)
+	{
+		Infra.Requires(type);
+
+		_type = type;
+	}
+
+	public void SetAttribute(string attribute)
+	{
+		Infra.Requires(attribute);
+
+		_attribute = attribute;
+	}
+
+#endregion
 }

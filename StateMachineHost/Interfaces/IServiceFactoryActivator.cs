@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,14 +17,11 @@
 
 #endregion
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
+namespace Xtate.Service;
 
-namespace Xtate.Service
+public interface IServiceFactoryActivator
 {
-	public interface IServiceFactoryActivator
-	{
-		ValueTask<IService> StartService(IFactoryContext factoryContext, Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication, CancellationToken token);
-	}
+	ValueTask<IService> StartService(Uri? baseUri,
+									 InvokeData invokeData,
+									 IServiceCommunication serviceCommunication);
 }

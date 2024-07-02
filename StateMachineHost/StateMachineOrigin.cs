@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,58 +17,84 @@
 
 #endregion
 
-using System;
-using Xtate.Annotations;
+namespace Xtate.Core;
 
-namespace Xtate
+public enum StateMachineOriginType
 {
-	public enum StateMachineOriginType
+	None,
+	Scxml,
+	Source,
+	StateMachine
+}
+
+
+public readonly struct StateMachineOrigin
+{
+	private readonly object? _value;
+
+	public StateMachineOrigin(IStateMachine stateMachine, Uri? baseUri = default)
 	{
-		None,
-		Scxml,
-		Source,
-		StateMachine
+		Infra.Requires(stateMachine);
+
+		_value = stateMachine;
+		BaseUri = baseUri;
 	}
 
-	[PublicAPI]
-	public readonly struct StateMachineOrigin
+	public StateMachineOrigin(Uri source, Uri? baseUri = default)
 	{
-		private readonly object? _val;
+		Infra.Requires(source);
 
-		public StateMachineOrigin(IStateMachine stateMachine, Uri? baseUri = null)
+		_value = source;
+		BaseUri = baseUri;
+	}
+
+	public StateMachineOrigin(string scxml, Uri? baseUri = default)
+	{
+		Infra.Requires(scxml);
+
+		_value = scxml;
+		BaseUri = baseUri;
+	}
+
+	public StateMachineOriginType Type =>
+		_value switch
 		{
-			_val = stateMachine ?? throw new ArgumentNullException(nameof(stateMachine));
-			BaseUri = baseUri;
+			string        => StateMachineOriginType.Scxml,
+			Uri           => StateMachineOriginType.Source,
+			IStateMachine => StateMachineOriginType.StateMachine,
+			null          => StateMachineOriginType.None,
+			_             => Infra.Unexpected<StateMachineOriginType>(_value)
+		};
+
+	public Uri? BaseUri { get; }
+
+	public string AsScxml()
+	{
+		if (_value is string str)
+		{
+			return str;
 		}
 
-		public StateMachineOrigin(Uri source, Uri? baseUri = null)
+		throw new ArgumentException(Resources.Exception_ValueIsNotSCXML);
+	}
+
+	public Uri AsSource()
+	{
+		if (_value is Uri uri)
 		{
-			_val = source ?? throw new ArgumentNullException(nameof(source));
-			BaseUri = baseUri;
+			return uri;
 		}
 
-		public StateMachineOrigin(string scxml, Uri? baseUri = null)
+		throw new ArgumentException(Resources.Exception_ValueIsNotSource);
+	}
+
+	public IStateMachine AsStateMachine()
+	{
+		if (_value is IStateMachine stateMachine)
 		{
-			_val = scxml ?? throw new ArgumentNullException(nameof(scxml));
-			BaseUri = baseUri;
+			return stateMachine;
 		}
 
-		public StateMachineOriginType Type =>
-				_val switch
-				{
-						string _ => StateMachineOriginType.Scxml,
-						Uri _ => StateMachineOriginType.Source,
-						IStateMachine _ => StateMachineOriginType.StateMachine,
-						null => StateMachineOriginType.None,
-						_ => Infrastructure.UnexpectedValue<StateMachineOriginType>()
-				};
-
-		public Uri? BaseUri { get; }
-
-		public string AsScxml() => (string?) _val ?? throw new ArgumentException(Resources.Exception_Value_is_not_SCXML);
-
-		public Uri AsSource() => (Uri?) _val ?? throw new ArgumentException(Resources.Exception_Value_is_not_Source);
-
-		public IStateMachine AsStateMachine() => (IStateMachine?) _val ?? throw new ArgumentException(Resources.Exception_Value_is_not_StateMachine);
+		throw new ArgumentException(Resources.Exception_ValueIsNotStateMachine);
 	}
 }

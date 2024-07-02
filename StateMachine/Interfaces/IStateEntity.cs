@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,7 +17,9 @@
 
 #endregion
 
-namespace Xtate
+namespace Xtate.Core;
+
+public interface IStateEntity : IEntity
 {
-	public interface IStateEntity : IEntity { }
+	IIdentifier? Id { get; }
 }

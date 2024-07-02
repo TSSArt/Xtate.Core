@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,86 +17,42 @@
 
 #endregion
 
-using System;
+using System.Collections.Specialized;
 using System.IO;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Xml;
-using Xtate.Annotations;
 
-namespace Xtate
+namespace Xtate.Core;
+
+public class ResxResourceLoaderProvider : ResourceLoaderProviderBase<ResxResourceLoader>
 {
-	[PublicAPI]
-	public sealed class ResxResourceLoader : IResourceLoader
+	protected override bool CanHandle(Uri uri) => uri is { IsAbsoluteUri: true, Scheme: @"res" or @"resx" };
+}
+
+public class ResxResourceLoader : IResourceLoader
+{
+	public required IIoBoundTask IoBoundTask { private get; [UsedImplicitly] init; }
+
+	public required Func<Stream, Resource> ResourceFactory { private get; [UsedImplicitly] init; }
+
+#region Interface IResourceLoader
+
+	public async ValueTask<Resource> Request(Uri uri, NameValueCollection? headers) => ResourceFactory(await GetResourceStreamAsync(uri).ConfigureAwait(false));
+
+#endregion
+
+	private Task<Stream> GetResourceStreamAsync(Uri uri) => IoBoundTask.Factory.StartNew(() => GetResourceStream(uri));
+
+	protected virtual Stream GetResourceStream(Uri uri)
 	{
-		public static readonly ResxResourceLoader Instance = new ResxResourceLoader();
+		var assemblyName = uri.Host;
 
-		private static readonly XmlReaderSettings CloseInputReaderSettings = new XmlReaderSettings { CloseInput = true };
+		var name = uri.GetComponents(UriComponents.Path, UriFormat.Unescaped).Replace(oldChar: '/', newChar: '.');
 
-	#region Interface IResourceLoader
-
-		public bool CanHandle(Uri uri)
+		if (Assembly.Load(assemblyName).GetManifestResourceStream(name) is { } stream)
 		{
-			if (uri is null) throw new ArgumentNullException(nameof(uri));
-
-			return uri.IsAbsoluteUri && (uri.Scheme == "res" || uri.Scheme == "resx");
-		}
-
-		public async ValueTask<Resource> Request(Uri uri, CancellationToken token)
-		{
-			if (uri is null) throw new ArgumentNullException(nameof(uri));
-
-			var stream = GetResourceStream(uri);
-
-			await using (stream.ConfigureAwait(false))
-			{
-				var buffer = new byte[stream.Length];
-				await stream.ReadAsync(buffer, offset: 0, buffer.Length, token).ConfigureAwait(false);
-				return new Resource(uri, bytes: buffer);
-			}
-		}
-
-		public ValueTask<XmlReader> RequestXmlReader(Uri uri, XmlReaderSettings? readerSettings = default, XmlParserContext? parserContext = default, CancellationToken token = default)
-		{
-			if (uri is null) throw new ArgumentNullException(nameof(uri));
-
-			try
-			{
-				var stream = GetResourceStream(uri);
-
-				readerSettings ??= CloseInputReaderSettings;
-
-				if (!readerSettings.CloseInput)
-				{
-					readerSettings = readerSettings.Clone();
-					readerSettings.CloseInput = true;
-				}
-
-				return new ValueTask<XmlReader>(XmlReader.Create(stream, readerSettings, parserContext));
-			}
-			catch (Exception ex)
-			{
-				return new ValueTask<XmlReader>(Task.FromException<XmlReader>(ex));
-			}
-		}
-
-	#endregion
-
-		private static Stream GetResourceStream(Uri uri)
-		{
-			var assemblyName = uri.Host;
-			var assembly = Assembly.Load(assemblyName);
-			var name = uri.GetComponents(UriComponents.Path, UriFormat.Unescaped).Replace(oldChar: '/', newChar: '.');
-
-			var stream = assembly.GetManifestResourceStream(name);
-
-			if (stream is null)
-			{
-				throw new ResourceNotFoundException(Res.Format(Resources.Exception_Resource_not_found, uri));
-			}
-
 			return stream;
 		}
+
+		throw new ResourceNotFoundException(Res.Format(Resources.Exception_ResourceNotFound, uri));
 	}
 }

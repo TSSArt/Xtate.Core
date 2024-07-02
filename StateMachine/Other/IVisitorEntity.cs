@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,15 +17,12 @@
 
 #endregion
 
-using System.Diagnostics.Contracts;
+namespace Xtate.Core;
 
-namespace Xtate
+internal interface IVisitorEntity<TEntity, in TIEntity> where TEntity : struct, IVisitorEntity<TEntity, TIEntity>, TIEntity
 {
-	internal interface IVisitorEntity<TEntity, in TIEntity> where TEntity : struct, IVisitorEntity<TEntity, TIEntity>, TIEntity
-	{
-		void Init(TIEntity source);
+	void Init(TIEntity source);
 
-		[Pure]
-		bool RefEquals(ref TEntity other);
-	}
+	[Pure]
+	bool RefEquals(ref TEntity other);
 }

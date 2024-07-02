@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,44 +17,39 @@
 
 #endregion
 
-using System.Threading;
-using System.Threading.Tasks;
 using Xtate.DataModel;
 using Xtate.Persistence;
 
-namespace Xtate
+namespace Xtate.Core;
+
+public abstract class ExecutableEntityNode : IExecutableEntity, IExecEvaluator, IStoreSupport, IDocumentId
 {
-	internal abstract class ExecutableEntityNode : IExecutableEntity, IExecEvaluator, IStoreSupport, IDocumentId
+	private readonly IExecEvaluator _execEvaluator;
+	private          DocumentIdSlot _documentIdSlot;
+
+	protected ExecutableEntityNode(DocumentIdNode documentIdNode, IExecutableEntity entity)
 	{
-		private readonly IExecEvaluator   _execEvaluator;
-		private          DocumentIdRecord _documentIdNode;
-
-		protected ExecutableEntityNode(in DocumentIdRecord documentIdNode, IExecutableEntity? entity)
-		{
-			Infrastructure.NotNull(entity);
-
-			_execEvaluator = entity.As<IExecEvaluator>();
-			_documentIdNode = documentIdNode;
-		}
-
-	#region Interface IDocumentId
-
-		public int DocumentId => _documentIdNode.Value;
-
-	#endregion
-
-	#region Interface IExecEvaluator
-
-		public ValueTask Execute(IExecutionContext executionContext, CancellationToken token) => _execEvaluator.Execute(executionContext, token);
-
-	#endregion
-
-	#region Interface IStoreSupport
-
-		void IStoreSupport.Store(Bucket bucket) => Store(bucket);
-
-	#endregion
-
-		protected abstract void Store(Bucket bucket);
+		_execEvaluator = entity.As<IExecEvaluator>();
+		documentIdNode.SaveToSlot(out _documentIdSlot);
 	}
+
+#region Interface IDocumentId
+
+	public int DocumentId => _documentIdSlot.CreateValue();
+
+#endregion
+
+#region Interface IExecEvaluator
+
+	public ValueTask Execute() => _execEvaluator.Execute();
+
+#endregion
+
+#region Interface IStoreSupport
+
+	void IStoreSupport.Store(Bucket bucket) => Store(bucket);
+
+#endregion
+
+	protected abstract void Store(Bucket bucket);
 }

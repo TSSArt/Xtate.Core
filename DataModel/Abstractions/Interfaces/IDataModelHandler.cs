@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,22 +17,27 @@
 
 #endregion
 
-using System.Collections.Immutable;
+namespace Xtate.DataModel;
 
-namespace Xtate.DataModel
+public interface IDataModelHandler
 {
-	public interface IDataModelHandler
-	{
-		bool CaseInsensitive { get; }
+	bool CaseInsensitive { get; }
 
-		void Process(ref IExecutableEntity executableEntity);
+	ImmutableDictionary<string, string> DataModelVars { get; }
 
-		void Process(ref IDataModel dataModel);
+	void Process(ref IExecutableEntity executableEntity);
 
-		void Process(ref IDoneData doneData);
+	void Process(ref IValueExpression valueExpression);
 
-		void Process(ref IInvoke invoke);
+	void Process(ref ILocationExpression locationExpression);
 
-		void ExecutionContextCreated(IExecutionContext executionContext, out ImmutableDictionary<string, string> dataModelVars);
-	}
+	void Process(ref IConditionExpression conditionExpression);
+
+	void Process(ref IContentBody contentBody);
+
+	void Process(ref IInlineContent inlineContent);
+
+	void Process(ref IExternalDataExpression externalDataExpression);
+
+	string ConvertToText(DataModelValue value);
 }

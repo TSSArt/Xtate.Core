@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,91 +17,82 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
-using System.Net;
+using System.Collections.Specialized;
+using System.IO;
 using System.Net.Http;
 using System.Net.Mime;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Xml;
-using Xtate.Annotations;
 
-namespace Xtate
+namespace Xtate.Core;
+
+public class WebResourceLoaderProvider : ResourceLoaderProviderBase<WebResourceLoader>
 {
-	[PublicAPI]
-	public sealed class WebResourceLoader : IResourceLoader
+	protected override bool CanHandle(Uri uri) => uri is { IsAbsoluteUri: true, Scheme: @"http" or @"https" };
+}
+
+public class WebResourceLoader : IResourceLoader, IDisposable
+{
+	private readonly DisposingToken _disposingToken = new();
+
+	public required Func<Stream, ContentType?, Resource> ResourceFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<HttpClient> HttpClientFactory { private get; [UsedImplicitly] init; }
+
+#region Interface IDisposable
+
+	public void Dispose()
 	{
-		public static readonly WebResourceLoader Instance = new WebResourceLoader();
+		Dispose(true);
+		GC.SuppressFinalize(this);
+	}
 
-		private ImmutableDictionary<Uri, WeakReference<Resource>> _cachedWebResources = ImmutableDictionary<Uri, WeakReference<Resource>>.Empty;
+#endregion
 
-	#region Interface IResourceLoader
+#region Interface IResourceLoader
 
-		public bool CanHandle(Uri uri)
+	public virtual async ValueTask<Resource> Request(Uri uri, NameValueCollection? headers)
+	{
+		Infra.Requires(uri);
+
+		using var request = CreateRequestMessage(uri, headers);
+		using var httpClient = HttpClientFactory();
+
+		var response = await httpClient.SendAsync(request, _disposingToken.Token).ConfigureAwait(false);
+		var contentType = response.Content.Headers.ContentType?.MediaType is { Length: > 0 } value ? new ContentType(value) : null;
+
+#if NET6_0_OR_GREATER
+		var stream = await response.Content.ReadAsStreamAsync(_disposingToken.Token).ConfigureAwait(false);
+#else
+		var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+#endif
+
+		return ResourceFactory(stream, contentType);
+	}
+
+#endregion
+
+	protected virtual HttpRequestMessage CreateRequestMessage(Uri uri, NameValueCollection? headers)
+	{
+		var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+		if (headers is not null)
 		{
-			if (uri is null) throw new ArgumentNullException(nameof(uri));
-
-			return uri.IsAbsoluteUri && (uri.Scheme == "http" || uri.Scheme == "https");
-		}
-
-		public async ValueTask<Resource> Request(Uri uri, CancellationToken token)
-		{
-			if (uri is null) throw new ArgumentNullException(nameof(uri));
-
-			using var client = new HttpClient();
-			HttpResponseMessage responseMessage;
-
-			var cachedWebResources = _cachedWebResources;
-			if (cachedWebResources.TryGetValue(uri, out var weakReference) && weakReference.TryGetTarget(out var resource))
+			for (var i = 0; i < headers.Count; i ++)
 			{
-				client.DefaultRequestHeaders.IfModifiedSince = resource.ModifiedDate;
-				responseMessage = await client.GetAsync(uri, token).ConfigureAwait(false);
-				if (responseMessage.StatusCode == HttpStatusCode.NotModified)
+				if (headers.GetKey(i) is { Length: > 0 } key)
 				{
-					return resource;
+					httpRequestMessage.Headers.Add(key, headers.Get(i));
 				}
 			}
-			else
-			{
-				responseMessage = await client.GetAsync(uri, token).ConfigureAwait(false);
-			}
-
-			responseMessage.EnsureSuccessStatusCode();
-
-			var contentType = new ContentType(responseMessage.Content.Headers.ContentType.ToString());
-			var lastModified = responseMessage.Content.Headers.LastModified;
-			var bytes = await responseMessage.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
-			resource = new Resource(uri, contentType, lastModified, bytes: bytes);
-
-			if (weakReference is null)
-			{
-				weakReference = new WeakReference<Resource>(resource);
-			}
-			else
-			{
-				weakReference.SetTarget(resource);
-			}
-
-			_cachedWebResources = cachedWebResources.SetItem(uri, weakReference);
-
-			return resource;
 		}
 
-		public ValueTask<XmlReader> RequestXmlReader(Uri uri, XmlReaderSettings? readerSettings = default, XmlParserContext? parserContext = default, CancellationToken token = default)
+		return httpRequestMessage;
+	}
+
+	protected virtual void Dispose(bool disposing)
+	{
+		if (disposing)
 		{
-			if (uri is null) throw new ArgumentNullException(nameof(uri));
-
-			try
-			{
-				return new ValueTask<XmlReader>(XmlReader.Create(uri.ToString(), readerSettings, parserContext));
-			}
-			catch (Exception ex)
-			{
-				return new ValueTask<XmlReader>(Task.FromException<XmlReader>(ex));
-			}
+			_disposingToken.Dispose();
 		}
-
-	#endregion
 	}
 }

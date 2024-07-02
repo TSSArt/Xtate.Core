@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,12 +17,11 @@
 
 #endregion
 
-namespace Xtate
+namespace Xtate.Core;
+
+public interface IErrorProcessor
 {
-	public interface IErrorProcessor
-	{
-		bool LineInfoRequired { get; }
-		void AddError(ErrorItem errorItem);
-		void ThrowIfErrors();
-	}
+	void AddError(ErrorItem errorItem);
+
+	void ThrowIfErrors();
 }

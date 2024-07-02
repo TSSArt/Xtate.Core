@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,30 +17,30 @@
 
 #endregion
 
-using System;
+namespace Xtate.Builder;
 
-namespace Xtate.Builder
+public class LogBuilder : BuilderBase, ILogBuilder
 {
-	public class LogBuilder : BuilderBase, ILogBuilder
+	private IValueExpression? _expression;
+	private string?           _label;
+
+#region Interface ILogBuilder
+
+	public ILog Build() => new LogEntity { Ancestor = Ancestor, Label = _label, Expression = _expression };
+
+	public void SetLabel(string label)
 	{
-		private IValueExpression? _expression;
-		private string?           _label;
+		Infra.RequiresNonEmptyString(label);
 
-		public LogBuilder(IErrorProcessor errorProcessor, object? ancestor) : base(errorProcessor, ancestor) { }
-
-	#region Interface ILogBuilder
-
-		public ILog Build() => new LogEntity { Ancestor = Ancestor, Label = _label, Expression = _expression };
-
-		public void SetLabel(string label)
-		{
-			if (string.IsNullOrEmpty(label)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(label));
-
-			_label = label;
-		}
-
-		public void SetExpression(IValueExpression expression) => _expression = expression ?? throw new ArgumentNullException(nameof(expression));
-
-	#endregion
+		_label = label;
 	}
+
+	public void SetExpression(IValueExpression expression)
+	{
+		Infra.Requires(expression);
+
+		_expression = expression;
+	}
+
+#endregion
 }

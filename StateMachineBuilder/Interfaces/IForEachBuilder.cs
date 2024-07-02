@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,15 +17,14 @@
 
 #endregion
 
-namespace Xtate.Builder
-{
-	public interface IForEachBuilder
-	{
-		IForEach Build();
+namespace Xtate.Builder;
 
-		void SetArray(IValueExpression array);
-		void SetItem(ILocationExpression item);
-		void SetIndex(ILocationExpression index);
-		void AddAction(IExecutableEntity action);
-	}
+public interface IForEachBuilder
+{
+	IForEach Build();
+
+	void SetArray(IValueExpression array);
+	void SetItem(ILocationExpression item);
+	void SetIndex(ILocationExpression index);
+	void AddAction(IExecutableEntity action);
 }

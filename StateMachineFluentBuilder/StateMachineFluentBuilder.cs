@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,109 +17,102 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
-using Xtate.Annotations;
+namespace Xtate.Builder;
 
-namespace Xtate.Builder
+public class StateMachineFluentBuilder
 {
-	[PublicAPI]
-	public class StateMachineFluentBuilder
+	public required IStateMachineBuilder Builder { private get; [UsedImplicitly] init; }
+
+	public required Func<StateMachineFluentBuilder, Action<IState>, StateFluentBuilder<StateMachineFluentBuilder>>       StateFluentBuilderFactory    { private get; [UsedImplicitly] init; }
+	public required Func<StateMachineFluentBuilder, Action<IParallel>, ParallelFluentBuilder<StateMachineFluentBuilder>> ParallelFluentBuilderFactory { private get; [UsedImplicitly] init; }
+	public required Func<StateMachineFluentBuilder, Action<IFinal>, FinalFluentBuilder<StateMachineFluentBuilder>>       FinalFluentBuilderFactory    { private get; [UsedImplicitly] init; }
+
+	public IStateMachine Build()
 	{
-		private readonly IStateMachineBuilder _builder;
-		private readonly IBuilderFactory      _factory;
+		Builder.SetDataModelType(@"runtime");
 
-		public StateMachineFluentBuilder(IBuilderFactory factory)
+		return Builder.Build();
+	}
+
+	public StateMachineFluentBuilder SetInitial(params string[] initial)
+	{
+		Infra.RequiresNonEmptyCollection(initial);
+
+		var builder = ImmutableArray.CreateBuilder<IIdentifier>(initial.Length);
+
+		foreach (var s in initial)
 		{
-			_factory = factory ?? throw new ArgumentNullException(nameof(factory));
-			_builder = factory.CreateStateMachineBuilder(null);
-			_builder.SetDataModelType(@"runtime");
+			builder.Add((Identifier) s);
 		}
 
-		public IStateMachine Build() => _builder.Build();
+		Builder.SetInitial(builder.MoveToImmutable());
 
-		public StateMachineFluentBuilder SetInitial(params string[] initial)
-		{
-			if (initial is null) throw new ArgumentNullException(nameof(initial));
-			if (initial.Length == 0) throw new ArgumentException(Resources.Exception_ValueCannotBeAnEmptyCollection, nameof(initial));
+		return this;
+	}
 
-			var builder = ImmutableArray.CreateBuilder<IIdentifier>(initial.Length);
+	public StateMachineFluentBuilder SetInitial(params IIdentifier[] initial)
+	{
+		Infra.RequiresNonEmptyCollection(initial);
 
-			foreach (var s in initial)
-			{
-				builder.Add((Identifier) s);
-			}
+		Builder.SetInitial([.. initial]);
 
-			_builder.SetInitial(builder.MoveToImmutable());
+		return this;
+	}
 
-			return this;
-		}
+	public StateMachineFluentBuilder SetInitial(ImmutableArray<string> initial)
+	{
+		Infra.RequiresNonEmptyCollection(initial);
 
-		public StateMachineFluentBuilder SetInitial(params IIdentifier[] initial)
-		{
-			if (initial is null) throw new ArgumentNullException(nameof(initial));
-			if (initial.Length == 0) throw new ArgumentException(Resources.Exception_ValueCannotBeAnEmptyCollection, nameof(initial));
+		Builder.SetInitial(ImmutableArray.CreateRange<string, IIdentifier>(initial, id => (Identifier) id));
 
-			_builder.SetInitial(initial.ToImmutableArray());
+		return this;
+	}
 
-			return this;
-		}
+	public StateMachineFluentBuilder SetInitial(ImmutableArray<IIdentifier> initial)
+	{
+		Infra.RequiresNonEmptyCollection(initial);
 
-		public StateMachineFluentBuilder SetInitial(ImmutableArray<string> initial)
-		{
-			if (initial.IsDefaultOrEmpty) throw new ArgumentException(Resources.Exception_ValueCannotBeAnEmptyList, nameof(initial));
+		Builder.SetInitial(initial);
 
-			_builder.SetInitial(ImmutableArray.CreateRange<string, IIdentifier>(initial, id => (Identifier) id));
+		return this;
+	}
 
-			return this;
-		}
+	public StateFluentBuilder<StateMachineFluentBuilder> BeginState() => StateFluentBuilderFactory(this, Builder.AddState);
 
-		public StateMachineFluentBuilder SetInitial(ImmutableArray<IIdentifier> initial)
-		{
-			if (initial.IsDefaultOrEmpty) throw new ArgumentException(Resources.Exception_ValueCannotBeAnEmptyList, nameof(initial));
+	public ParallelFluentBuilder<StateMachineFluentBuilder> BeginParallel() => ParallelFluentBuilderFactory(this, Builder.AddParallel);
 
-			_builder.SetInitial(initial);
+	public FinalFluentBuilder<StateMachineFluentBuilder> BeginFinal() => FinalFluentBuilderFactory(this, Builder.AddFinal);
 
-			return this;
-		}
+	public StateFluentBuilder<StateMachineFluentBuilder> BeginState(string id) => BeginState((Identifier) id);
 
-		public StateFluentBuilder<StateMachineFluentBuilder> BeginState() => new StateFluentBuilder<StateMachineFluentBuilder>(_factory, this, _builder.AddState);
+	public StateFluentBuilder<StateMachineFluentBuilder> BeginState(IIdentifier id) => StateFluentBuilderFactory(this, Builder.AddState).SetId(id);
 
-		public ParallelFluentBuilder<StateMachineFluentBuilder> BeginParallel() => new ParallelFluentBuilder<StateMachineFluentBuilder>(_factory, this, _builder.AddParallel);
+	public ParallelFluentBuilder<StateMachineFluentBuilder> BeginParallel(string id) => BeginParallel((Identifier) id);
 
-		public FinalFluentBuilder<StateMachineFluentBuilder> BeginFinal() => new FinalFluentBuilder<StateMachineFluentBuilder>(_factory, this, _builder.AddFinal);
+	public ParallelFluentBuilder<StateMachineFluentBuilder> BeginParallel(IIdentifier id) => ParallelFluentBuilderFactory(this, Builder.AddParallel).SetId(id);
 
-		public StateFluentBuilder<StateMachineFluentBuilder> BeginState(string id) => BeginState((Identifier) id);
+	public FinalFluentBuilder<StateMachineFluentBuilder> BeginFinal(string id) => BeginFinal((Identifier) id);
 
-		public StateFluentBuilder<StateMachineFluentBuilder> BeginState(IIdentifier id) => new StateFluentBuilder<StateMachineFluentBuilder>(_factory, this, _builder.AddState).SetId(id);
+	public FinalFluentBuilder<StateMachineFluentBuilder> BeginFinal(IIdentifier id) => FinalFluentBuilderFactory(this, Builder.AddFinal).SetId(id);
 
-		public ParallelFluentBuilder<StateMachineFluentBuilder> BeginParallel(string id) => BeginParallel((Identifier) id);
+	public StateMachineFluentBuilder SetPersistenceLevel(PersistenceLevel persistenceLevel)
+	{
+		Builder.SetPersistenceLevel(persistenceLevel);
 
-		public ParallelFluentBuilder<StateMachineFluentBuilder> BeginParallel(IIdentifier id) => new ParallelFluentBuilder<StateMachineFluentBuilder>(_factory, this, _builder.AddParallel).SetId(id);
+		return this;
+	}
 
-		public FinalFluentBuilder<StateMachineFluentBuilder> BeginFinal(string id) => BeginFinal((Identifier) id);
+	public StateMachineFluentBuilder SetSynchronousEventProcessing(bool value)
+	{
+		Builder.SetSynchronousEventProcessing(value);
 
-		public FinalFluentBuilder<StateMachineFluentBuilder> BeginFinal(IIdentifier id) => new FinalFluentBuilder<StateMachineFluentBuilder>(_factory, this, _builder.AddFinal).SetId(id);
+		return this;
+	}
 
-		public StateMachineFluentBuilder SetPersistenceLevel(PersistenceLevel persistenceLevel)
-		{
-			_builder.SetPersistenceLevel(persistenceLevel);
+	public StateMachineFluentBuilder SetExternalQueueSize(int size)
+	{
+		Builder.SetExternalQueueSize(size);
 
-			return this;
-		}
-
-		public StateMachineFluentBuilder SetSynchronousEventProcessing(bool value)
-		{
-			_builder.SetSynchronousEventProcessing(value);
-
-			return this;
-		}
-
-		public StateMachineFluentBuilder SetExternalQueueSize(int size)
-		{
-			_builder.SetExternalQueueSize(size);
-
-			return this;
-		}
+		return this;
 	}
 }

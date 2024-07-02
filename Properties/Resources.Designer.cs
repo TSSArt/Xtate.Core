@@ -19,7 +19,7 @@ namespace Xtate {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -79,11 +79,31 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Validation failed. Result of operation must be true..
+        ///   Looks up a localized string similar to {0}: {1}
+        ///Arguments: {2}
+        ///Exception: {3}.
         /// </summary>
-        internal static string Assertion_ValidationFailed {
+        internal static string DefaultLogEvent_Message {
             get {
-                return ResourceManager.GetString("Assertion_ValidationFailed", resourceCulture);
+                return ResourceManager.GetString("DefaultLogEvent_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Name: [{0}]. SessionId: [{1}]. Message: &quot;{2}&quot;. Arguments: {3} Exception: {4}.
+        /// </summary>
+        internal static string DefaultLogger_InterpreterLogEntry {
+            get {
+                return ResourceManager.GetString("DefaultLogger_InterpreterLogEntry", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Message: &quot;{0}&quot;. Arguments: {1} Exception: {2} LoggerContextType: {3} Properties: {4}.
+        /// </summary>
+        internal static string DefaultLogger_LogEntry {
+            get {
+                return ResourceManager.GetString("DefaultLogger_LogEntry", resourceCulture);
             }
         }
         
@@ -97,11 +117,20 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Name: [{0}]. SessionId: [{1}]. Label: &quot;{2}&quot;. Data: {3}.
+        ///   Looks up a localized string similar to Cancel event. SendId: [{0}]..
         /// </summary>
-        internal static string DefaultLogger_LogInfo {
+        internal static string DefaultLogger_TraceCancelEvent {
             get {
-                return ResourceManager.GetString("DefaultLogger_LogInfo", resourceCulture);
+                return ResourceManager.GetString("DefaultLogger_TraceCancelEvent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel invoke. InvokeId: [{0}]..
+        /// </summary>
+        internal static string DefaultLogger_TraceCancelInvoke {
+            get {
+                return ResourceManager.GetString("DefaultLogger_TraceCancelInvoke", resourceCulture);
             }
         }
         
@@ -178,74 +207,20 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to DataModel not supported in NONE data model..
+        ///   Looks up a localized string similar to Send event: [{0}]. SendId: [{1}]..
         /// </summary>
-        internal static string ErrorMesasge_DataModelNotSupportedForNone {
+        internal static string DefaultLogger_TraceSendEvent {
             get {
-                return ResourceManager.GetString("ErrorMesasge_DataModelNotSupportedForNone", resourceCulture);
+                return ResourceManager.GetString("DefaultLogger_TraceSendEvent", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to DoneData not supported in NONE data model..
+        ///   Looks up a localized string similar to Start invoke. InvokeId: [{0}]..
         /// </summary>
-        internal static string ErrorMesasge_DoneDataNotSupportedForNone {
+        internal static string DefaultLogger_TraceStartInvoke {
             get {
-                return ResourceManager.GetString("ErrorMesasge_DoneDataNotSupportedForNone", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to ForEach not supported in NONE data model..
-        /// </summary>
-        internal static string ErrorMesasge_ForEachNotSupportedForNone {
-            get {
-                return ResourceManager.GetString("ErrorMesasge_ForEachNotSupportedForNone", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Incorrect condition expression..
-        /// </summary>
-        internal static string ErrorMesasge_IncorrectConditionExpression {
-            get {
-                return ResourceManager.GetString("ErrorMesasge_IncorrectConditionExpression", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Incorrect format of condition expression for NONE data model..
-        /// </summary>
-        internal static string ErrorMesasge_IncorrectConditionExpressionForNone {
-            get {
-                return ResourceManager.GetString("ErrorMesasge_IncorrectConditionExpressionForNone", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &apos;Location expression&apos; not supported in NONE data model..
-        /// </summary>
-        internal static string ErrorMesasge_LocationExpressionNotSupportedForNone {
-            get {
-                return ResourceManager.GetString("ErrorMesasge_LocationExpressionNotSupportedForNone", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Scripting not supported in NONE data model..
-        /// </summary>
-        internal static string ErrorMesasge_ScriptingNotSupportedForNone {
-            get {
-                return ResourceManager.GetString("ErrorMesasge_ScriptingNotSupportedForNone", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &apos;Value expression&apos; not supported in NONE data model..
-        /// </summary>
-        internal static string ErrorMesasge_ValueExpressionNotSupportedForNone {
-            get {
-                return ResourceManager.GetString("ErrorMesasge_ValueExpressionNotSupportedForNone", resourceCulture);
+                return ResourceManager.GetString("DefaultLogger_TraceStartInvoke", resourceCulture);
             }
         }
         
@@ -286,20 +261,20 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to At least one source must be specified.
+        ///   Looks up a localized string similar to At least one attribute url or urlExpr must be specified.
         /// </summary>
-        internal static string ErrorMessage_At_least_one_source_must_be_specified {
+        internal static string ErrorMessage_AtLeastOneUrlMustBeSpecified {
             get {
-                return ResourceManager.GetString("ErrorMessage_At_least_one_source_must_be_specified", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_AtLeastOneUrlMustBeSpecified", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to attr attribute should no be empty..
+        ///   Looks up a localized string similar to &apos;attr&apos; attribute should not be empty..
         /// </summary>
-        internal static string ErrorMessage_attr_attribute_should_no_be_empty {
+        internal static string ErrorMessage_AttrAttributeShouldNotBeEmpty {
             get {
-                return ResourceManager.GetString("ErrorMessage_attr_attribute_should_no_be_empty", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_AttrAttributeShouldNotBeEmpty", resourceCulture);
             }
         }
         
@@ -318,6 +293,15 @@ namespace Xtate {
         internal static string ErrorMessage_CancelItemSendIdAndExpressionSpecified {
             get {
                 return ResourceManager.GetString("ErrorMessage_CancelItemSendIdAndExpressionSpecified", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t find DataModelHandlerFactory for DataModel type &apos;{0}&apos;..
+        /// </summary>
+        internal static string ErrorMessage_CantFindDataModelHandlerFactoryForDataModelType {
+            get {
+                return ResourceManager.GetString("ErrorMessage_CantFindDataModelHandlerFactoryForDataModelType", resourceCulture);
             }
         }
         
@@ -349,6 +333,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Condition property required for If element..
+        /// </summary>
+        internal static string ErrorMessage_ConditionRequiredForIf {
+            get {
+                return ResourceManager.GetString("ErrorMessage_ConditionRequiredForIf", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Content value can&apos;t be null..
         /// </summary>
         internal static string ErrorMessage_ContentValueCantBeNull {
@@ -360,9 +353,18 @@ namespace Xtate {
         /// <summary>
         ///   Looks up a localized string similar to Custom action executor can&apos;t be found..
         /// </summary>
-        internal static string ErrorMessage_Custom_action_executor_can_t_be_found {
+        internal static string ErrorMessage_CustomActionExecutorCantBeFound {
             get {
-                return ResourceManager.GetString("ErrorMessage_Custom_action_executor_can_t_be_found", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_CustomActionExecutorCantBeFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DataModel not supported in NULL data model..
+        /// </summary>
+        internal static string ErrorMessage_DataModelNotSupportedForNull {
+            get {
+                return ResourceManager.GetString("ErrorMessage_DataModelNotSupportedForNull", resourceCulture);
             }
         }
         
@@ -381,6 +383,15 @@ namespace Xtate {
         internal static string ErrorMessage_DetectedUnknownElement {
             get {
                 return ResourceManager.GetString("ErrorMessage_DetectedUnknownElement", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DoneData not supported in NULL data model..
+        /// </summary>
+        internal static string ErrorMessage_DoneDataNotSupportedForNull {
+            get {
+                return ResourceManager.GetString("ErrorMessage_DoneDataNotSupportedForNull", resourceCulture);
             }
         }
         
@@ -405,9 +416,9 @@ namespace Xtate {
         /// <summary>
         ///   Looks up a localized string similar to Error on creation CustomAction executor..
         /// </summary>
-        internal static string ErrorMessage_Error_on_creation_CustomAction_executor {
+        internal static string ErrorMessage_ErrorOnCreationCustomActionExecutor {
             get {
-                return ResourceManager.GetString("ErrorMessage_Error_on_creation_CustomAction_executor", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_ErrorOnCreationCustomActionExecutor", resourceCulture);
             }
         }
         
@@ -511,6 +522,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to ForEach not supported in NULL data model..
+        /// </summary>
+        internal static string ErrorMessage_ForEachNotSupportedForNull {
+            get {
+                return ResourceManager.GetString("ErrorMessage_ForEachNotSupportedForNull", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Found duplicate attribute &apos;{0}&apos;..
         /// </summary>
         internal static string ErrorMessage_FoundDuplicateAttribute {
@@ -522,45 +542,45 @@ namespace Xtate {
         /// <summary>
         ///   Looks up a localized string similar to Id and IdLocation can&apos;t be used at the same time in Invoke element..
         /// </summary>
-        internal static string ErrorMessage_Id_and_IdLocation_can_t_be_used_at_the_same_time_in_Invoke_element {
+        internal static string ErrorMessage_IdAndIdLocationCantBeUsedAtTheSameTimeInInvokeElement {
             get {
-                return ResourceManager.GetString("ErrorMessage_Id_and_IdLocation_can_t_be_used_at_the_same_time_in_Invoke_element", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_IdAndIdLocationCantBeUsedAtTheSameTimeInInvokeElement", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Id and IdLocation can&apos;t be used at the same time in Send element..
         /// </summary>
-        internal static string ErrorMessage_Id_and_IdLocation_can_t_be_used_at_the_same_time_in_Send_element {
+        internal static string ErrorMessage_IdAndIdLocationCantBeUsedAtTheSameTimeInSendElement {
             get {
-                return ResourceManager.GetString("ErrorMessage_Id_and_IdLocation_can_t_be_used_at_the_same_time_in_Send_element", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_IdAndIdLocationCantBeUsedAtTheSameTimeInSendElement", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Id property required in Data element..
         /// </summary>
-        internal static string ErrorMessage_Id_property_required_in_Data_element {
+        internal static string ErrorMessage_IdPropertyRequiredInDataElement {
             get {
-                return ResourceManager.GetString("ErrorMessage_Id_property_required_in_Data_element", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_IdPropertyRequiredInDataElement", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Initial state/property can be used only in complex (compound) states..
+        ///   Looks up a localized string similar to Incorrect condition expression..
         /// </summary>
-        internal static string ErrorMessage_Initial_state_property_can_be_used_only_in_complex_states {
+        internal static string ErrorMessage_IncorrectConditionExpression {
             get {
-                return ResourceManager.GetString("ErrorMessage_Initial_state_property_can_be_used_only_in_complex_states", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_IncorrectConditionExpression", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Initial state/property cannot be used without any states..
+        ///   Looks up a localized string similar to Incorrect format of condition expression for NULL data model..
         /// </summary>
-        internal static string ErrorMessage_Initial_state_property_cannot_be_used_without_any_states {
+        internal static string ErrorMessage_IncorrectConditionExpressionForNull {
             get {
-                return ResourceManager.GetString("ErrorMessage_Initial_state_property_cannot_be_used_without_any_states", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_IncorrectConditionExpressionForNull", resourceCulture);
             }
         }
         
@@ -575,167 +595,209 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Initial state/property can be used only in complex (compound) states..
+        /// </summary>
+        internal static string ErrorMessage_InitialStatePropertyCanBeUsedOnlyInComplexStates {
+            get {
+                return ResourceManager.GetString("ErrorMessage_InitialStatePropertyCanBeUsedOnlyInComplexStates", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Initial state/property cannot be used without any states..
+        /// </summary>
+        internal static string ErrorMessage_InitialStatePropertyCannotBeUsedWithoutAnyStates {
+            get {
+                return ResourceManager.GetString("ErrorMessage_InitialStatePropertyCannotBeUsedWithoutAnyStates", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid BindingType value in StateMachine element..
         /// </summary>
-        internal static string ErrorMessage_Invalid_BindingType_value_in_StateMachine_element {
+        internal static string ErrorMessage_InvalidBindingTypeValueInStateMachineElement {
             get {
-                return ResourceManager.GetString("ErrorMessage_Invalid_BindingType_value_in_StateMachine_element", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_InvalidBindingTypeValueInStateMachineElement", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Invalid Type value in History element..
         /// </summary>
-        internal static string ErrorMessage_Invalid_Type_value_in_History_element {
+        internal static string ErrorMessage_InvalidTypeValueInHistoryElement {
             get {
-                return ResourceManager.GetString("ErrorMessage_Invalid_Type_value_in_History_element", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &apos;Location expression&apos; does not implement ILocationEvaluator..
-        /// </summary>
-        internal static string ErrorMessage_Location_expression__does_not_implement_ILocationEvaluator {
-            get {
-                return ResourceManager.GetString("ErrorMessage_Location_expression__does_not_implement_ILocationEvaluator", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_InvalidTypeValueInHistoryElement", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Location expression can&apos;t be null..
         /// </summary>
-        internal static string ErrorMessage_Location_expression_can_t_be_null {
+        internal static string ErrorMessage_LocationExpressionCantBeNull {
             get {
-                return ResourceManager.GetString("ErrorMessage_Location_expression_can_t_be_null", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_LocationExpressionCantBeNull", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;Location expression&apos; does not implement ILocationEvaluator..
+        /// </summary>
+        internal static string ErrorMessage_LocationExpressionDoesNotImplementILocationEvaluator {
+            get {
+                return ResourceManager.GetString("ErrorMessage_LocationExpressionDoesNotImplementILocationEvaluator", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;Location expression&apos; not supported in NULL data model..
+        /// </summary>
+        internal static string ErrorMessage_LocationExpressionNotSupportedForNull {
+            get {
+                return ResourceManager.GetString("ErrorMessage_LocationExpressionNotSupportedForNull", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Missed required attributes &apos;{0}&apos;..
         /// </summary>
-        internal static string ErrorMessage_Missed_required_attributes {
+        internal static string ErrorMessage_MissedRequiredAttributes {
             get {
-                return ResourceManager.GetString("ErrorMessage_Missed_required_attributes", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_MissedRequiredAttributes", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Missed required elements &lt;{0}&gt;..
         /// </summary>
-        internal static string ErrorMessage_Missed_required_elements {
+        internal static string ErrorMessage_MissedRequiredElements {
             get {
-                return ResourceManager.GetString("ErrorMessage_Missed_required_elements", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_MissedRequiredElements", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Must be present at least Event or Condition or Target in Transition element..
         /// </summary>
-        internal static string ErrorMessage_Must_be_present_at_least_Event_or_Condition_or_Target_in_Transition_element {
+        internal static string ErrorMessage_MustBePresentAtLeastEventOrConditionOrTargetInTransitionElement {
             get {
-                return ResourceManager.GetString("ErrorMessage_Must_be_present_at_least_Event_or_Condition_or_Target_in_Transition_" +
-                        "element", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_MustBePresentAtLeastEventOrConditionOrTargetInTransitionElement", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Must be present Event or EventExpression or Content in Send element..
         /// </summary>
-        internal static string ErrorMessage_Must_be_present_Event_or_EventExpression_or_Content_in_Send_element {
+        internal static string ErrorMessage_MustBePresentEventOrEventExpressionOrContentInSendElement {
             get {
-                return ResourceManager.GetString("ErrorMessage_Must_be_present_Event_or_EventExpression_or_Content_in_Send_element", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_MustBePresentEventOrEventExpressionOrContentInSendElement", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Name attributes required in Param element..
         /// </summary>
-        internal static string ErrorMessage_Name_attributes_required_in_Param_element {
+        internal static string ErrorMessage_NameAttributesRequiredInParamElement {
             get {
-                return ResourceManager.GetString("ErrorMessage_Name_attributes_required_in_Param_element", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_NameAttributesRequiredInParamElement", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to NameList and Content can&apos;t be used at the same time in Send element..
         /// </summary>
-        internal static string ErrorMessage_NameList_and_Content_can_t_be_used_at_the_same_time_in_Send_element {
+        internal static string ErrorMessage_NameListAndContentCantBeUsedAtTheSameTimeInSendElement {
             get {
-                return ResourceManager.GetString("ErrorMessage_NameList_and_Content_can_t_be_used_at_the_same_time_in_Send_element", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_NameListAndContentCantBeUsedAtTheSameTimeInSendElement", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to NameList and Parameters can&apos;t be used at the same time in Invoke element..
         /// </summary>
-        internal static string ErrorMessage_NameList_and_Parameters_can_t_be_used_at_the_same_time_in_Invoke_element {
+        internal static string ErrorMessage_NameListAndParametersCantBeUsedAtTheSameTimeInInvokeElement {
             get {
-                return ResourceManager.GetString("ErrorMessage_NameList_and_Parameters_can_t_be_used_at_the_same_time_in_Invoke_ele" +
-                        "ment", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_NameListAndParametersCantBeUsedAtTheSameTimeInInvokeElement", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Condition property required for If element..
+        ///   Looks up a localized string similar to Not initialized..
         /// </summary>
-        internal static string ErrorMessage_onditionRequiredForIf {
+        internal static string ErrorMessage_Not_initialized {
             get {
-                return ResourceManager.GetString("ErrorMessage_onditionRequiredForIf", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_Not_initialized", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Only one &lt;{0}&gt; element allowed..
         /// </summary>
-        internal static string ErrorMessage_Only_one_element_allowed {
+        internal static string ErrorMessage_OnlyOneElementAllowed {
             get {
-                return ResourceManager.GetString("ErrorMessage_Only_one_element_allowed", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_OnlyOneElementAllowed", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Parameters and Content can&apos;t be used at the same time in Send element..
         /// </summary>
-        internal static string ErrorMessage_Parameters_and_Content_can_t_be_used_at_the_same_time_in_Send_element {
+        internal static string ErrorMessage_ParametersAndContentCantBeUsedAtTheSameTimeInSendElement {
             get {
-                return ResourceManager.GetString("ErrorMessage_Parameters_and_Content_can_t_be_used_at_the_same_time_in_Send_elemen" +
-                        "t", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_ParametersAndContentCantBeUsedAtTheSameTimeInSendElement", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Raise can&apos;t be used in Finalize element..
         /// </summary>
-        internal static string ErrorMessage_Raise_can_t_be_used_in_Finalize_element {
+        internal static string ErrorMessage_RaiseCantBeUsedInFinalizeElement {
             get {
-                return ResourceManager.GetString("ErrorMessage_Raise_can_t_be_used_in_Finalize_element", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_RaiseCantBeUsedInFinalizeElement", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to RuntimeAction and RuntimePredicate objects only allowed as action and condition in &apos;runtime&apos; data model..
+        ///   Looks up a localized string similar to RuntimeAction object only allowed as action in &apos;runtime&apos; data model..
         /// </summary>
-        internal static string ErrorMessage_RuntimeActionAndPredicateOnlyAllowed {
+        internal static string ErrorMessage_RuntimeActionOnlyAllowed {
             get {
-                return ResourceManager.GetString("ErrorMessage_RuntimeActionAndPredicateOnlyAllowed", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_RuntimeActionOnlyAllowed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to RuntimePredicate object only allowed as condition in &apos;runtime&apos; data model..
+        /// </summary>
+        internal static string ErrorMessage_RuntimePredicateOnlyAllowed {
+            get {
+                return ResourceManager.GetString("ErrorMessage_RuntimePredicateOnlyAllowed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to RuntimeValue object only allowed as value in &apos;runtime&apos; data model..
+        /// </summary>
+        internal static string ErrorMessage_RuntimeValueOnlyAllowed {
+            get {
+                return ResourceManager.GetString("ErrorMessage_RuntimeValueOnlyAllowed", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Script expression can&apos;t be null..
         /// </summary>
-        internal static string ErrorMessage_Script_expression_can_t_be_null {
+        internal static string ErrorMessage_ScriptExpressionCantBeNull {
             get {
-                return ResourceManager.GetString("ErrorMessage_Script_expression_can_t_be_null", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_ScriptExpressionCantBeNull", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Scripting not supported in XPATH data model..
+        ///   Looks up a localized string similar to Scripting not supported in NULL data model..
         /// </summary>
-        internal static string ErrorMessage_Scripting_not_supported_in_XPATH_data_model {
+        internal static string ErrorMessage_ScriptingNotSupportedForNull {
             get {
-                return ResourceManager.GetString("ErrorMessage_Scripting_not_supported_in_XPATH_data_model", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_ScriptingNotSupportedForNull", resourceCulture);
             }
         }
         
@@ -749,11 +811,20 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Scripting not supported in XPATH data model..
+        /// </summary>
+        internal static string ErrorMessage_ScriptingNotSupportedInXPATHDataModel {
+            get {
+                return ResourceManager.GetString("ErrorMessage_ScriptingNotSupportedInXPATHDataModel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Send can&apos;t be used in Finalize element..
         /// </summary>
-        internal static string ErrorMessage_Send_can_t_be_used_in_Finalize_element {
+        internal static string ErrorMessage_SendCantBeUsedInFinalizeElement {
             get {
-                return ResourceManager.GetString("ErrorMessage_Send_can_t_be_used_in_Finalize_element", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_SendCantBeUsedInFinalizeElement", resourceCulture);
             }
         }
         
@@ -767,114 +838,147 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to [source] has invalid URI format..
+        ///   Looks up a localized string similar to [sessionId] and [sessionIdExpr] attributes should not be assigned in Start element..
         /// </summary>
-        internal static string ErrorMessage_source__has_invalid_URI_format {
+        internal static string ErrorMessage_SessionIdAndSessionIdExprAttributesShouldNotBeAssignedInStartElement {
             get {
-                return ResourceManager.GetString("ErrorMessage_source__has_invalid_URI_format", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_SessionIdAndSessionIdExprAttributesShouldNotBeAssignedInStartElement" +
+                        "", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [sessionId] could not be empty..
+        /// </summary>
+        internal static string ErrorMessage_SessionIdCouldNotBeEmpty {
+            get {
+                return ResourceManager.GetString("ErrorMessage_SessionIdCouldNotBeEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [sessionId] or [sessionIdExpr] must be specified..
+        /// </summary>
+        internal static string ErrorMessage_SessionIdOrSessionIdExprMustBeSpecified {
+            get {
+                return ResourceManager.GetString("ErrorMessage_SessionIdOrSessionIdExprMustBeSpecified", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Source and Body can&apos;t be used at the same time in Assign element..
         /// </summary>
-        internal static string ErrorMessage_Source_and_Body_can_t_be_used_at_the_same_time_in_Assign_element {
+        internal static string ErrorMessage_SourceAndBodyCantBeUsedAtTheSameTimeInAssignElement {
             get {
-                return ResourceManager.GetString("ErrorMessage_Source_and_Body_can_t_be_used_at_the_same_time_in_Assign_element", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_SourceAndBodyCantBeUsedAtTheSameTimeInAssignElement", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Source and SourceExpression can&apos;t be used at the same time in Invoke element..
         /// </summary>
-        internal static string ErrorMessage_Source_and_SourceExpression_can_t_be_used_at_the_same_time_in_Invoke_element {
+        internal static string ErrorMessage_SourceAndSourceExpressionCantBeUsedAtTheSameTimeInInvokeElement {
             get {
-                return ResourceManager.GetString("ErrorMessage_Source_and_SourceExpression_can_t_be_used_at_the_same_time_in_Invoke" +
-                        "_element", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to [src] and [srcexpr] attributes should not be assigned in Start element..
-        /// </summary>
-        internal static string ErrorMessage_src_and_srcexpr_attributes_should_not_be_assigned_in_Start_element {
-            get {
-                return ResourceManager.GetString("ErrorMessage_src_and_srcexpr_attributes_should_not_be_assigned_in_Start_element", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_SourceAndSourceExpressionCantBeUsedAtTheSameTimeInInvokeElement", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Target and TargetExpression can&apos;t be used at the same time in Send element..
         /// </summary>
-        internal static string ErrorMessage_Target_and_TargetExpression_can_t_be_used_at_the_same_time_in_Send_element {
+        internal static string ErrorMessage_TargetAndTargetExpressionCantBeUsedAtTheSameTimeInSendElement {
             get {
-                return ResourceManager.GetString("ErrorMessage_Target_and_TargetExpression_can_t_be_used_at_the_same_time_in_Send_e" +
-                        "lement", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_TargetAndTargetExpressionCantBeUsedAtTheSameTimeInSendElement", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Target Id does not exists..
         /// </summary>
-        internal static string ErrorMessage_Target_Id_does_not_exists {
+        internal static string ErrorMessage_TargetIdDoesNotExists {
             get {
-                return ResourceManager.GetString("ErrorMessage_Target_Id_does_not_exists", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_TargetIdDoesNotExists", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Transition must be present in History element..
         /// </summary>
-        internal static string ErrorMessage_Transition_must_be_present_in_History_element {
+        internal static string ErrorMessage_TransitionMustBePresentInHistoryElement {
             get {
-                return ResourceManager.GetString("ErrorMessage_Transition_must_be_present_in_History_element", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_TransitionMustBePresentInHistoryElement", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Transition must be present in Initial element..
         /// </summary>
-        internal static string ErrorMessage_Transition_must_be_present_in_Initial_element {
+        internal static string ErrorMessage_TransitionMustBePresentInInitialElement {
             get {
-                return ResourceManager.GetString("ErrorMessage_Transition_must_be_present_in_Initial_element", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_TransitionMustBePresentInInitialElement", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Type and TypeExpression can&apos;t be used at the same time in Invoke element..
         /// </summary>
-        internal static string ErrorMessage_Type_and_TypeExpression_can_t_be_used_at_the_same_time_in_Invoke_element {
+        internal static string ErrorMessage_TypeAndTypeExpressionCantBeUsedAtTheSameTimeInInvokeElement {
             get {
-                return ResourceManager.GetString("ErrorMessage_Type_and_TypeExpression_can_t_be_used_at_the_same_time_in_Invoke_ele" +
-                        "ment", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_TypeAndTypeExpressionCantBeUsedAtTheSameTimeInInvokeElement", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Type and TypeExpression can&apos;t be used at the same time in Send element..
         /// </summary>
-        internal static string ErrorMessage_Type_and_TypeExpression_can_t_be_used_at_the_same_time_in_Send_element {
+        internal static string ErrorMessage_TypeAndTypeExpressionCantBeUsedAtTheSameTimeInSendElement {
             get {
-                return ResourceManager.GetString("ErrorMessage_Type_and_TypeExpression_can_t_be_used_at_the_same_time_in_Send_eleme" +
-                        "nt", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_TypeAndTypeExpressionCantBeUsedAtTheSameTimeInSendElement", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Type or TypeExpression must be specified in Invoke element..
         /// </summary>
-        internal static string ErrorMessage_Type_or_TypeExpression_must_be_specified_in_Invoke_element {
+        internal static string ErrorMessage_TypeOrTypeExpressionMustBeSpecifiedInInvokeElement {
             get {
-                return ResourceManager.GetString("ErrorMessage_Type_or_TypeExpression_must_be_specified_in_Invoke_element", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_TypeOrTypeExpressionMustBeSpecifiedInInvokeElement", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [url] and [urlExpr] attributes should not be assigned in Start element..
+        /// </summary>
+        internal static string ErrorMessage_UrlAndUrlExprAttributesShouldNotBeAssignedInStartElement {
+            get {
+                return ResourceManager.GetString("ErrorMessage_UrlAndUrlExprAttributesShouldNotBeAssignedInStartElement", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [url] has invalid URI format..
+        /// </summary>
+        internal static string ErrorMessage_UrlHasInvalidURIFormat {
+            get {
+                return ResourceManager.GetString("ErrorMessage_UrlHasInvalidURIFormat", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to &apos;Value expression&apos; does not implement IValueEvaluator..
         /// </summary>
-        internal static string ErrorMessage_Value_expression__does_not_implement_IValueEvaluator_ {
+        internal static string ErrorMessage_ValueExpressionDoesNotImplementIValueEvaluator {
             get {
-                return ResourceManager.GetString("ErrorMessage_Value_expression__does_not_implement_IValueEvaluator_", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_ValueExpressionDoesNotImplementIValueEvaluator", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;Value expression&apos; not supported in NULL data model..
+        /// </summary>
+        internal static string ErrorMessage_ValueExpressionNotSupportedForNull {
+            get {
+                return ResourceManager.GetString("ErrorMessage_ValueExpressionNotSupportedForNull", resourceCulture);
             }
         }
         
@@ -890,36 +994,45 @@ namespace Xtate {
         /// <summary>
         ///   Looks up a localized string similar to Access can&apos;t be changed..
         /// </summary>
-        internal static string Exception_Access_can_t_be_changed {
+        internal static string Exception_AccessCantBeChanged {
             get {
-                return ResourceManager.GetString("Exception_Access_can_t_be_changed", resourceCulture);
+                return ResourceManager.GetString("Exception_AccessCantBeChanged", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Adjusted with offset value does not fall into acceptable range..
+        ///   Looks up a localized string similar to Access denied. Permission [{0}] required..
         /// </summary>
-        internal static string Exception_Adjusted_with_offset_value_does_not_fall_into_acceptable_range {
+        internal static string Exception_AccessDeniedPermissionRequired {
             get {
-                return ResourceManager.GetString("Exception_Adjusted_with_offset_value_does_not_fall_into_acceptable_range", resourceCulture);
+                return ResourceManager.GetString("Exception_AccessDeniedPermissionRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Access to IO bound threads denied..
+        /// </summary>
+        internal static string Exception_AccessToIOBoundThreadsDenied {
+            get {
+                return ResourceManager.GetString("Exception_AccessToIOBoundThreadsDenied", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Another asynchronous operation in progress..
         /// </summary>
-        internal static string Exception_Another_asynchronous_operation_in_progress {
+        internal static string Exception_AnotherAsynchronousOperationInProgress {
             get {
-                return ResourceManager.GetString("Exception_Another_asynchronous_operation_in_progress", resourceCulture);
+                return ResourceManager.GetString("Exception_AnotherAsynchronousOperationInProgress", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Argument must be DataModelDateTime type..
         /// </summary>
-        internal static string Exception_Argument_must_be_DataModelDateTime_type {
+        internal static string Exception_ArgumentMustBeDataModelDateTimeType {
             get {
-                return ResourceManager.GetString("Exception_Argument_must_be_DataModelDateTime_type", resourceCulture);
+                return ResourceManager.GetString("Exception_ArgumentMustBeDataModelDateTimeType", resourceCulture);
             }
         }
         
@@ -933,110 +1046,146 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can not read raw content due to registered elements..
+        ///   Looks up a localized string similar to {0} ({1})..
         /// </summary>
-        internal static string Exception_Can_not_read_raw_content_due_to_registered_elements {
+        internal static string Exception_AssertUnexpected {
             get {
-                return ResourceManager.GetString("Exception_Can_not_read_raw_content_due_to_registered_elements", resourceCulture);
+                return ResourceManager.GetString("Exception_AssertUnexpected", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can not register component due to registered raw content..
+        ///   Looks up a localized string similar to {0} ({1}:{2})..
         /// </summary>
-        internal static string Exception_Can_not_register_component_due_to_registered_raw_content {
+        internal static string Exception_AssertUnexpectedWithType {
             get {
-                return ResourceManager.GetString("Exception_Can_not_register_component_due_to_registered_raw_content", resourceCulture);
+                return ResourceManager.GetString("Exception_AssertUnexpectedWithType", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can not register raw content more than one time..
+        ///   Looks up a localized string similar to Cannot find ResourceLoader to load external resource: {0}.
         /// </summary>
-        internal static string Exception_Can_not_register_raw_content_more_than_one_time {
+        internal static string Exception_CannotFindResourceLoaderToLoadExternalResource {
             get {
-                return ResourceManager.GetString("Exception_Can_not_register_raw_content_more_than_one_time", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Can&apos;t get access to IHost interface..
-        /// </summary>
-        internal static string Exception_Can_t_get_access_to_IHost_interface {
-            get {
-                return ResourceManager.GetString("Exception_Can_t_get_access_to_IHost_interface", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Can&apos;t restore element..
-        /// </summary>
-        internal static string Exception_Can_t_restore_element {
-            get {
-                return ResourceManager.GetString("Exception_Can_t_restore_element", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Cannot find ResourceLoader to load external resource..
-        /// </summary>
-        internal static string Exception_Cannot_find_ResourceLoader_to_load_external_resource {
-            get {
-                return ResourceManager.GetString("Exception_Cannot_find_ResourceLoader_to_load_external_resource", resourceCulture);
+                return ResourceManager.GetString("Exception_CannotFindResourceLoaderToLoadExternalResource", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Cannot find target..
         /// </summary>
-        internal static string Exception_Cannot_find_target {
+        internal static string Exception_CannotFindTarget {
             get {
-                return ResourceManager.GetString("Exception_Cannot_find_target", resourceCulture);
+                return ResourceManager.GetString("Exception_CannotFindTarget", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can&apos;t find DataModelHandlerFactory for DataModel type &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Can not read raw content due to registered elements..
         /// </summary>
-        internal static string Exception_Cant_find_DataModelHandlerFactory_for_DataModel_type {
+        internal static string Exception_CanNotReadRawContentDueToRegisteredElements {
             get {
-                return ResourceManager.GetString("Exception_Cant_find_DataModelHandlerFactory_for_DataModel_type", resourceCulture);
+                return ResourceManager.GetString("Exception_CanNotReadRawContentDueToRegisteredElements", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Capacity can&apos;t be less then properties count..
+        ///   Looks up a localized string similar to Can not register component due to registered raw content..
         /// </summary>
-        internal static string Exception_Capacity_can_t_be_less_then_properties_count {
+        internal static string Exception_CanNotRegisterComponentDueToRegisteredRawContent {
             get {
-                return ResourceManager.GetString("Exception_Capacity_can_t_be_less_then_properties_count", resourceCulture);
+                return ResourceManager.GetString("Exception_CanNotRegisterComponentDueToRegisteredRawContent", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Capacity can&apos;t be less then size of list..
+        ///   Looks up a localized string similar to Can not register raw content more than one time..
         /// </summary>
-        internal static string Exception_Capacity_can_t_be_less_then_size_of_array {
+        internal static string Exception_CanNotRegisterRawContentMoreThanOneTime {
             get {
-                return ResourceManager.GetString("Exception_Capacity_can_t_be_less_then_size_of_array", resourceCulture);
+                return ResourceManager.GetString("Exception_CanNotRegisterRawContentMoreThanOneTime", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Capcity should not be negative..
+        ///   Looks up a localized string similar to Can&apos;t cast/forward delegate {0} to {1}..
         /// </summary>
-        internal static string Exception_Capcity_should_not_be_negative {
+        internal static string Exception_CantCastForwardDelegate {
             get {
-                return ResourceManager.GetString("Exception_Capcity_should_not_be_negative", resourceCulture);
+                return ResourceManager.GetString("Exception_CantCastForwardDelegate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t find entity parser for type {0}..
+        /// </summary>
+        internal static string Exception_CantFindEntityParser {
+            get {
+                return ResourceManager.GetString("Exception_CantFindEntityParser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t find factory for type [{0}]..
+        /// </summary>
+        internal static string Exception_CantFindFactoryForType {
+            get {
+                return ResourceManager.GetString("Exception_CantFindFactoryForType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t find State Machine provider..
+        /// </summary>
+        internal static string Exception_CantFindStateMachineProvider {
+            get {
+                return ResourceManager.GetString("Exception_CantFindStateMachineProvider", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t get access to IHost interface..
+        /// </summary>
+        internal static string Exception_CantGetAccessToIHostInterface {
+            get {
+                return ResourceManager.GetString("Exception_CantGetAccessToIHostInterface", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t match network interface to listen..
+        /// </summary>
+        internal static string Exception_CantMatchNetworkInterfaceToListen {
+            get {
+                return ResourceManager.GetString("Exception_CantMatchNetworkInterfaceToListen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t restore element..
+        /// </summary>
+        internal static string Exception_CantRestoreElement {
+            get {
+                return ResourceManager.GetString("Exception_CantRestoreElement", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Catalog closed for modifications..
+        /// </summary>
+        internal static string Exception_CatalogClosedForModifications {
+            get {
+                return ResourceManager.GetString("Exception_CatalogClosedForModifications", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Channel can&apos;t consume previously persisted object..
         /// </summary>
-        internal static string Exception_Channel_can_t_consume_previously_persisted_object {
+        internal static string Exception_ChannelCantConsumePreviouslyPersistedObject {
             get {
-                return ResourceManager.GetString("Exception_Channel_can_t_consume_previously_persisted_object", resourceCulture);
+                return ResourceManager.GetString("Exception_ChannelCantConsumePreviouslyPersistedObject", resourceCulture);
             }
         }
         
@@ -1050,6 +1199,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Context is not available at this place..
+        /// </summary>
+        internal static string Exception_ContextIsNotAvailableAtThisPlace {
+            get {
+                return ResourceManager.GetString("Exception_ContextIsNotAvailableAtThisPlace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Custom action does not supported..
         /// </summary>
         internal static string Exception_CustomActionDoesNotSupported {
@@ -1059,83 +1217,74 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to CustomActionProviderAttribute was not provided for type {0}..
+        ///   Looks up a localized string similar to Cycle reference detected..
         /// </summary>
-        internal static string Exception_CustomActionProviderAttributeWasNotProvided {
+        internal static string Exception_CycleReferenceDetected {
             get {
-                return ResourceManager.GetString("Exception_CustomActionProviderAttributeWasNotProvided", resourceCulture);
+                return ResourceManager.GetString("Exception_CycleReferenceDetected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Data format not supported..
+        /// </summary>
+        internal static string Exception_DataFormatNotSupported {
+            get {
+                return ResourceManager.GetString("Exception_DataFormatNotSupported", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to DataModelValue is not Boolean..
         /// </summary>
-        internal static string Exception_DataModelValue_is_not_Boolean {
+        internal static string Exception_DataModelValueIsNotBoolean {
             get {
-                return ResourceManager.GetString("Exception_DataModelValue_is_not_Boolean", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to DataModelValue is not DataModelArray..
-        /// </summary>
-        internal static string Exception_DataModelValue_is_not_DataModelArray {
-            get {
-                return ResourceManager.GetString("Exception_DataModelValue_is_not_DataModelArray", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to DataModelValue is not MetadataModelElement..
-        /// </summary>
-        internal static string Exception_DataModelValue_is_not_DataModelElement {
-            get {
-                return ResourceManager.GetString("Exception_DataModelValue_is_not_DataModelElement", resourceCulture);
+                return ResourceManager.GetString("Exception_DataModelValueIsNotBoolean", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to DataModelValue is not DataModelList..
         /// </summary>
-        internal static string Exception_DataModelValue_is_not_DataModelList {
+        internal static string Exception_DataModelValueIsNotDataModelList {
             get {
-                return ResourceManager.GetString("Exception_DataModelValue_is_not_DataModelList", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to DataModelValue is not DataModelObject..
-        /// </summary>
-        internal static string Exception_DataModelValue_is_not_DataModelObject {
-            get {
-                return ResourceManager.GetString("Exception_DataModelValue_is_not_DataModelObject", resourceCulture);
+                return ResourceManager.GetString("Exception_DataModelValueIsNotDataModelList", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to DataModelValue is not DateTime..
         /// </summary>
-        internal static string Exception_DataModelValue_is_not_DateTime {
+        internal static string Exception_DataModelValueIsNotDateTime {
             get {
-                return ResourceManager.GetString("Exception_DataModelValue_is_not_DateTime", resourceCulture);
+                return ResourceManager.GetString("Exception_DataModelValueIsNotDateTime", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to DataModelValue is not Number..
         /// </summary>
-        internal static string Exception_DataModelValue_is_not_Number {
+        internal static string Exception_DataModelValueIsNotNumber {
             get {
-                return ResourceManager.GetString("Exception_DataModelValue_is_not_Number", resourceCulture);
+                return ResourceManager.GetString("Exception_DataModelValueIsNotNumber", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to DataModelValue is not String..
         /// </summary>
-        internal static string Exception_DataModelValue_is_not_String {
+        internal static string Exception_DataModelValueIsNotString {
             get {
-                return ResourceManager.GetString("Exception_DataModelValue_is_not_String", resourceCulture);
+                return ResourceManager.GetString("Exception_DataModelValueIsNotString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Decorated object missed..
+        /// </summary>
+        internal static string Exception_DecoratedObjectMissed {
+            get {
+                return ResourceManager.GetString("Exception_DecoratedObjectMissed", resourceCulture);
             }
         }
         
@@ -1151,91 +1300,127 @@ namespace Xtate {
         /// <summary>
         ///   Looks up a localized string similar to Destination list is not long enough to copy all the items in the collection. Check list index and length..
         /// </summary>
-        internal static string Exception_Destination_array_is_not_long_enough {
+        internal static string Exception_DestinationArrayIsNotLongEnough {
             get {
-                return ResourceManager.GetString("Exception_Destination_array_is_not_long_enough", resourceCulture);
+                return ResourceManager.GetString("Exception_DestinationArrayIsNotLongEnough", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Error on event consumer side..
+        ///   Looks up a localized string similar to Error on dispatching event. SendId: {0}..
         /// </summary>
-        internal static string Exception_Error_on_event_consumer_side {
+        internal static string Exception_ErrorOnDispatchingEvent {
             get {
-                return ResourceManager.GetString("Exception_Error_on_event_consumer_side", resourceCulture);
+                return ResourceManager.GetString("Exception_ErrorOnDispatchingEvent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error on event consumer side. Exception message: {0}.
+        ///{1}.
+        /// </summary>
+        internal static string Exception_ErrorOnEventConsumerSide {
+            get {
+                return ResourceManager.GetString("Exception_ErrorOnEventConsumerSide", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Error on parsing XPath expression..
         /// </summary>
-        internal static string Exception_Error_on_parsing_XPath_expression {
+        internal static string Exception_ErrorOnParsingXPathExpression {
             get {
-                return ResourceManager.GetString("Exception_Error_on_parsing_XPath_expression", resourceCulture);
+                return ResourceManager.GetString("Exception_ErrorOnParsingXPathExpression", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Event dispatcher not found..
+        /// </summary>
+        internal static string Exception_EventDispatcherNotFound {
+            get {
+                return ResourceManager.GetString("Exception_EventDispatcherNotFound", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Event Target did not specified..
         /// </summary>
-        internal static string Exception_Event_Target_did_not_specified {
+        internal static string Exception_EventTargetDidNotSpecified {
             get {
-                return ResourceManager.GetString("Exception_Event_Target_did_not_specified", resourceCulture);
+                return ResourceManager.GetString("Exception_EventTargetDidNotSpecified", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to External communication does not configured for state machine interpreter..
         /// </summary>
-        internal static string Exception_External_communication_does_not_configured_for_state_machine_interpreter {
+        internal static string Exception_ExternalCommunicationDoesNotConfiguredForStateMachineInterpreter {
             get {
-                return ResourceManager.GetString("Exception_External_communication_does_not_configured_for_state_machine_interprete" +
-                        "r", resourceCulture);
+                return ResourceManager.GetString("Exception_ExternalCommunicationDoesNotConfiguredForStateMachineInterpreter", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to File is more then 2GB length..
+        ///   Looks up a localized string similar to Factory of [{0}] raised exception..
         /// </summary>
-        internal static string Exception_File_is_more_then_2GB_length {
+        internal static string Exception_FactoryOfRaisedException {
             get {
-                return ResourceManager.GetString("Exception_File_is_more_then_2GB_length", resourceCulture);
+                return ResourceManager.GetString("Exception_FactoryOfRaisedException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Factory should not return {null} value..
+        /// </summary>
+        internal static string Exception_FactoryShouldNotReturnNullValue {
+            get {
+                return ResourceManager.GetString("Exception_FactoryShouldNotReturnNullValue", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Forward entities required to restore state machine..
         /// </summary>
-        internal static string Exception_Forward_entities_required_to_restore_state_machine {
+        internal static string Exception_ForwardEntitiesRequiredToRestoreStateMachine {
             get {
-                return ResourceManager.GetString("Exception_Forward_entities_required_to_restore_state_machine", resourceCulture);
+                return ResourceManager.GetString("Exception_ForwardEntitiesRequiredToRestoreStateMachine", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Forward entity can not be found..
         /// </summary>
-        internal static string Exception_Forward_entity_can_not_be_found {
+        internal static string Exception_ForwardEntityCanNotBeFound {
             get {
-                return ResourceManager.GetString("Exception_Forward_entity_can_not_be_found", resourceCulture);
+                return ResourceManager.GetString("Exception_ForwardEntityCanNotBeFound", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Forward entity has incorrect type..
         /// </summary>
-        internal static string Exception_Forward_entity_has_incorrect_type {
+        internal static string Exception_ForwardEntityHasIncorrectType {
             get {
-                return ResourceManager.GetString("Exception_Forward_entity_has_incorrect_type", resourceCulture);
+                return ResourceManager.GetString("Exception_ForwardEntityHasIncorrectType", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Identifier cannot be empty..
+        ///   Looks up a localized string similar to Found more then one interface to listen..
         /// </summary>
-        internal static string Exception_IdentifierCannotBeEmpty {
+        internal static string Exception_FoundMoreThenOneInterfaceToListen {
             get {
-                return ResourceManager.GetString("Exception_IdentifierCannotBeEmpty", resourceCulture);
+                return ResourceManager.GetString("Exception_FoundMoreThenOneInterfaceToListen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Generic type {0} can&apos;t be constructed from interface {1}..
+        /// </summary>
+        internal static string Exception_GenericTypeCantBeConstructedFromInterface {
+            get {
+                return ResourceManager.GetString("Exception_GenericTypeCantBeConstructedFromInterface", resourceCulture);
             }
         }
         
@@ -1251,126 +1436,135 @@ namespace Xtate {
         /// <summary>
         ///   Looks up a localized string similar to Incorrect data format..
         /// </summary>
-        internal static string Exception_Incorrect_data_format {
+        internal static string Exception_IncorrectDataFormat {
             get {
-                return ResourceManager.GetString("Exception_Incorrect_data_format", resourceCulture);
+                return ResourceManager.GetString("Exception_IncorrectDataFormat", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Incorrect encoding..
         /// </summary>
-        internal static string Exception_Incorrect_encoding {
+        internal static string Exception_IncorrectEncoding {
             get {
-                return ResourceManager.GetString("Exception_Incorrect_encoding", resourceCulture);
+                return ResourceManager.GetString("Exception_IncorrectEncoding", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Index should be non-negative and less then array size..
         /// </summary>
-        internal static string Exception_Index_should_be_non_negative_and_less_then_aarray_size {
+        internal static string Exception_IndexShouldBeNonNegativeAndLessThenAarraySize {
             get {
-                return ResourceManager.GetString("Exception_Index_should_be_non_negative_and_less_then_aarray_size", resourceCulture);
+                return ResourceManager.GetString("Exception_IndexShouldBeNonNegativeAndLessThenAarraySize", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Index value must be non-negative integer..
         /// </summary>
-        internal static string Exception_Index_value_must_be_non_negative_integer {
+        internal static string Exception_IndexValueMustBeNonNegativeInteger {
             get {
-                return ResourceManager.GetString("Exception_Index_value_must_be_non_negative_integer", resourceCulture);
+                return ResourceManager.GetString("Exception_IndexValueMustBeNonNegativeInteger", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to XIncludeReader does not support in-document references..
+        /// </summary>
+        internal static string Exception_IndocumentReferencesNotSupported {
+            get {
+                return ResourceManager.GetString("Exception_IndocumentReferencesNotSupported", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Internal events can&apos;t be delayed..
         /// </summary>
-        internal static string Exception_Internal_events_can_t_be_delayed {
+        internal static string Exception_InternalEventsCantBeDelayed {
             get {
-                return ResourceManager.GetString("Exception_Internal_events_can_t_be_delayed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Internal events can&apos;t be delayed..
-        /// </summary>
-        internal static string Exception_Internal_events_can_t_be_delayed_ {
-            get {
-                return ResourceManager.GetString("Exception_Internal_events_can_t_be_delayed_", resourceCulture);
+                return ResourceManager.GetString("Exception_InternalEventsCantBeDelayed", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Invalid InvokeId..
         /// </summary>
-        internal static string Exception_Invalid_InvokeId {
+        internal static string Exception_InvalidInvokeId {
             get {
-                return ResourceManager.GetString("Exception_Invalid_InvokeId", resourceCulture);
+                return ResourceManager.GetString("Exception_InvalidInvokeId", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Invalid type..
         /// </summary>
-        internal static string Exception_Invalid_type {
+        internal static string Exception_InvalidType {
             get {
-                return ResourceManager.GetString("Exception_Invalid_type", resourceCulture);
+                return ResourceManager.GetString("Exception_InvalidType", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Invalid TypeInfo value..
         /// </summary>
-        internal static string Exception_Invalid_TypeInfo_value {
+        internal static string Exception_InvalidTypeInfoValue {
             get {
-                return ResourceManager.GetString("Exception_Invalid_TypeInfo_value", resourceCulture);
+                return ResourceManager.GetString("Exception_InvalidTypeInfoValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid URI &apos;{0}&apos;..
+        /// </summary>
+        internal static string Exception_InvalidURI {
+            get {
+                return ResourceManager.GetString("Exception_InvalidURI", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Missed InvokeId..
         /// </summary>
-        internal static string Exception_InvokedServiceMeta_Missed_InvokeId {
+        internal static string Exception_InvokedServiceMetaMissedInvokeId {
             get {
-                return ResourceManager.GetString("Exception_InvokedServiceMeta_Missed_InvokeId", resourceCulture);
+                return ResourceManager.GetString("Exception_InvokedServiceMetaMissedInvokeId", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to IO Processor has not been started..
         /// </summary>
-        internal static string Exception_IO_Processor_has_not_been_started {
+        internal static string Exception_IOProcessorHasNotBeenStarted {
             get {
-                return ResourceManager.GetString("Exception_IO_Processor_has_not_been_started", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to IoProcessorAttribute was not provided for type {0}..
-        /// </summary>
-        internal static string Exception_IoProcessorAttributeWasNotProvided {
-            get {
-                return ResourceManager.GetString("Exception_IoProcessorAttributeWasNotProvided", resourceCulture);
+                return ResourceManager.GetString("Exception_IOProcessorHasNotBeenStarted", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Item can&apos;t be null..
         /// </summary>
-        internal static string Exception_Item_can_t_be_null {
+        internal static string Exception_ItemCantBeNull {
             get {
-                return ResourceManager.GetString("Exception_Item_can_t_be_null", resourceCulture);
+                return ResourceManager.GetString("Exception_ItemCantBeNull", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to &apos;{0}&apos; key not found..
         /// </summary>
-        internal static string Exception_key_not_found {
+        internal static string Exception_KeyNotFound {
             get {
-                return ResourceManager.GetString("Exception_key_not_found", resourceCulture);
+                return ResourceManager.GetString("Exception_KeyNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Key should not be empty.
+        /// </summary>
+        internal static string Exception_KeyShouldNotBeEmpty {
+            get {
+                return ResourceManager.GetString("Exception_KeyShouldNotBeEmpty", resourceCulture);
             }
         }
         
@@ -1402,6 +1596,24 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Live lock detected..
+        /// </summary>
+        internal static string Exception_LivelockDetected {
+            get {
+                return ResourceManager.GetString("Exception_LivelockDetected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Loading external resources does not supported. Derive class from ScxmlXmlResolver and pass instance of it to ScxmlDirector..
+        /// </summary>
+        internal static string Exception_LoadingExternalResourcesDoesNotSupported {
+            get {
+                return ResourceManager.GetString("Exception_LoadingExternalResourcesDoesNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Location does not specified..
         /// </summary>
         internal static string Exception_LocationDoesNotSpecified {
@@ -1411,147 +1623,218 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Missed InvokeUniqueId..
+        ///   Looks up a localized string similar to Missed default activation for service [{0}]..
         /// </summary>
-        internal static string Exception_Missed_InvokeUniqueId {
+        internal static string Exception_MissedDefaultActivationForService {
             get {
-                return ResourceManager.GetString("Exception_Missed_InvokeUniqueId", resourceCulture);
+                return ResourceManager.GetString("Exception_MissedDefaultActivationForService", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Missed parameterized activation [{0}] for service [{1}]..
+        /// </summary>
+        internal static string Exception_MissedParameterizedActivationForService {
+            get {
+                return ResourceManager.GetString("Exception_MissedParameterizedActivationForService", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Missed ParentSessionId..
         /// </summary>
-        internal static string Exception_Missed_ParentSessionId {
+        internal static string Exception_MissedParentSessionId {
             get {
-                return ResourceManager.GetString("Exception_Missed_ParentSessionId", resourceCulture);
+                return ResourceManager.GetString("Exception_MissedParentSessionId", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Missed SessionId..
         /// </summary>
-        internal static string Exception_Missed_SessionId {
+        internal static string Exception_MissedSessionId {
             get {
-                return ResourceManager.GetString("Exception_Missed_SessionId", resourceCulture);
+                return ResourceManager.GetString("Exception_MissedSessionId", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to NamedIoProcessor with name &apos;{0}&apos; already has been registered..
+        ///   Looks up a localized string similar to More then one CustomActionProvider registered for processing custom action node: &lt;{0}:{1}&gt;..
         /// </summary>
-        internal static string Exception_NamedIoProcessor_with_name_already_has_been_registered {
+        internal static string Exception_MoreThenOneCustomActionProviderRegisteredForProcessingCustomActionNode {
             get {
-                return ResourceManager.GetString("Exception_NamedIoProcessor_with_name_already_has_been_registered", resourceCulture);
+                return ResourceManager.GetString("Exception_MoreThenOneCustomActionProviderRegisteredForProcessingCustomActionNode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Message read partially. {0} of {1} bytes..
+        /// </summary>
+        internal static string Exception_NamedPipeIoProcessorMessageReadPartially {
+            get {
+                return ResourceManager.GetString("Exception_NamedPipeIoProcessorMessageReadPartially", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Message size has wrong value or missed. Size: {0} bytes..
+        /// </summary>
+        internal static string Exception_NamedPipeIoProcessorMessageSizeHasWrongValueOrMissed {
+            get {
+                return ResourceManager.GetString("Exception_NamedPipeIoProcessorMessageSizeHasWrongValueOrMissed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to NamedPipeIoProcessor with name &apos;{0}&apos; already has been registered..
+        /// </summary>
+        internal static string Exception_NamedPipeIoProcessorWithNameAlreadyHasBeenRegistered {
+            get {
+                return ResourceManager.GetString("Exception_NamedPipeIoProcessorWithNameAlreadyHasBeenRegistered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nesting level reached, probably circular inclusion..
+        /// </summary>
+        internal static string Exception_NestingReachedLevelInclusion {
+            get {
+                return ResourceManager.GetString("Exception_NestingReachedLevelInclusion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not expected token type..
+        /// </summary>
+        internal static string Exception_NotExpectedTokenType {
+            get {
+                return ResourceManager.GetString("Exception_NotExpectedTokenType", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Object can not be modified..
         /// </summary>
-        internal static string Exception_Object_can_not_be_modified {
+        internal static string Exception_ObjectCanNotBeModified {
             get {
-                return ResourceManager.GetString("Exception_Object_can_not_be_modified", resourceCulture);
+                return ResourceManager.GetString("Exception_ObjectCanNotBeModified", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Object disposed during initialization..
+        /// </summary>
+        internal static string Exception_ObjectDisposedDuringInitialization {
+            get {
+                return ResourceManager.GetString("Exception_ObjectDisposedDuringInitialization", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to OriginType must be provided in ioProcessorEvent..
+        /// </summary>
+        internal static string Exception_OriginTypeMustBeProvidedInIoProcessorEvent {
+            get {
+                return ResourceManager.GetString("Exception_OriginTypeMustBeProvidedInIoProcessorEvent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Partially closed type not supported..
+        /// </summary>
+        internal static string Exception_PartiallyClosedTypeNotSupported {
+            get {
+                return ResourceManager.GetString("Exception_PartiallyClosedTypeNotSupported", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Partition argument should be null..
         /// </summary>
-        internal static string Exception_Partition_argument_should_be_null {
+        internal static string Exception_PartitionArgumentShouldBeNull {
             get {
-                return ResourceManager.GetString("Exception_Partition_argument_should_be_null", resourceCulture);
+                return ResourceManager.GetString("Exception_PartitionArgumentShouldBeNull", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Persisted state can&apos;t be read. Stored and provided SessionIds does not match..
         /// </summary>
-        internal static string Exception_Persisted_state_can_t_be_read__Stored_and_provided_SessionIds_does_not_match {
+        internal static string Exception_PersistedStateCantBeReadStoredAndProvidedSessionIdsDoesNotMatch {
             get {
-                return ResourceManager.GetString("Exception_Persisted_state_can_t_be_read__Stored_and_provided_SessionIds_does_not_" +
-                        "match", resourceCulture);
+                return ResourceManager.GetString("Exception_PersistedStateCantBeReadStoredAndProvidedSessionIdsDoesNotMatch", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Persisted state can&apos;t be read. Unsupported version..
         /// </summary>
-        internal static string Exception_Persisted_state_can_t_be_read__Unsupported_version_ {
+        internal static string Exception_PersistedStateCantBeReadUnsupportedVersion {
             get {
-                return ResourceManager.GetString("Exception_Persisted_state_can_t_be_read__Unsupported_version_", resourceCulture);
+                return ResourceManager.GetString("Exception_PersistedStateCantBeReadUnsupportedVersion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Prefix {0} can&apos;t be resolved..
+        /// </summary>
+        internal static string Exception_PrefixCantBeResolved {
+            get {
+                return ResourceManager.GetString("Exception_PrefixCantBeResolved", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Registration should no occur after initialization..
         /// </summary>
-        internal static string Exception_Registration_should_no_occur_after_initialization {
+        internal static string Exception_RegistrationShouldNoOccurAfterInitialization {
             get {
-                return ResourceManager.GetString("Exception_Registration_should_no_occur_after_initialization", resourceCulture);
+                return ResourceManager.GetString("Exception_RegistrationShouldNoOccurAfterInitialization", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Resource &apos;{0}&apos; not found..
         /// </summary>
-        internal static string Exception_Resource_not_found {
+        internal static string Exception_ResourceNotFound {
             get {
-                return ResourceManager.GetString("Exception_Resource_not_found", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to ResourceLoader did not specified..
-        /// </summary>
-        internal static string Exception_ResourceLoader_did_not_specified {
-            get {
-                return ResourceManager.GetString("Exception_ResourceLoader_did_not_specified", resourceCulture);
+                return ResourceManager.GetString("Exception_ResourceNotFound", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Result of XPath expression can&apos;t be identified..
         /// </summary>
-        internal static string Exception_Result_of_XPath_expression_can_t_be_identified {
+        internal static string Exception_ResultOfXPathExpressionCantBeIdentified {
             get {
-                return ResourceManager.GetString("Exception_Result_of_XPath_expression_can_t_be_identified", resourceCulture);
+                return ResourceManager.GetString("Exception_ResultOfXPathExpressionCantBeIdentified", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Result of XPath expression should be boolean value..
         /// </summary>
-        internal static string Exception_Result_of_XPath_expression_should_be_boolean_value {
+        internal static string Exception_ResultOfXPathExpressionShouldBeBooleanValue {
             get {
-                return ResourceManager.GetString("Exception_Result_of_XPath_expression_should_be_boolean_value", resourceCulture);
+                return ResourceManager.GetString("Exception_ResultOfXPathExpressionShouldBeBooleanValue", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Result of XPath expression should be element..
         /// </summary>
-        internal static string Exception_Result_of_XPath_expression_should_be_element {
+        internal static string Exception_ResultOfXPathExpressionShouldBeElement {
             get {
-                return ResourceManager.GetString("Exception_Result_of_XPath_expression_should_be_element", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Result of XPath expression should be string value..
-        /// </summary>
-        internal static string Exception_Result_of_XPath_expression_should_be_string_value {
-            get {
-                return ResourceManager.GetString("Exception_Result_of_XPath_expression_should_be_string_value", resourceCulture);
+                return ResourceManager.GetString("Exception_ResultOfXPathExpressionShouldBeElement", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Root path can be set only before visiting..
         /// </summary>
-        internal static string Exception_Root_path_can_be_set_only_before_visiting {
+        internal static string Exception_RootPathCanBeSetOnlyBeforeVisiting {
             get {
-                return ResourceManager.GetString("Exception_Root_path_can_be_set_only_before_visiting", resourceCulture);
+                return ResourceManager.GetString("Exception_RootPathCanBeSetOnlyBeforeVisiting", resourceCulture);
             }
         }
         
@@ -1565,110 +1848,183 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ServiceAttribute did not provided for type {0}.
+        ///   Looks up a localized string similar to Service [{0} (Argument: {1})] missed in container..
         /// </summary>
-        internal static string Exception_ServiceAttribute_did_not_provided_for_type {
+        internal static string Exception_ServiceArgMissedInContainer {
             get {
-                return ResourceManager.GetString("Exception_ServiceAttribute_did_not_provided_for_type", resourceCulture);
+                return ResourceManager.GetString("Exception_ServiceArgMissedInContainer", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to SessionId is empty..
+        ///   Looks up a localized string similar to Service can&apos;t be instantiated since at least one parameter required asynchronous call..
         /// </summary>
-        internal static string Exception_SessionId_is_empty {
+        internal static string Exception_ServiceCantBeInstantiatedSinceAtLeastOneParameterRequiredAsynchronousCall {
             get {
-                return ResourceManager.GetString("Exception_SessionId_is_empty", resourceCulture);
+                return ResourceManager.GetString("Exception_ServiceCantBeInstantiatedSinceAtLeastOneParameterRequiredAsynchronousCa" +
+                        "ll", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Service [{0}] missed in container..
+        /// </summary>
+        internal static string Exception_ServiceMissedInContainer {
+            get {
+                return ResourceManager.GetString("Exception_ServiceMissedInContainer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Service not available in synchronous context..
+        /// </summary>
+        internal static string Exception_ServiceNotAvailableInSynchronousContext {
+            get {
+                return ResourceManager.GetString("Exception_ServiceNotAvailableInSynchronousContext", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ServiceType not initialized..
+        /// </summary>
+        internal static string Exception_ServiceTypeNotInitialized {
+            get {
+                return ResourceManager.GetString("Exception_ServiceTypeNotInitialized", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SessionId could not be empty..
+        /// </summary>
+        internal static string Exception_SessionIdCouldNotBeEmpty {
+            get {
+                return ResourceManager.GetString("Exception_SessionIdCouldNotBeEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Singleton/scoped types does not supported for syncronous instantination..
+        /// </summary>
+        internal static string Exception_SingletonScopedTypesDoesNotSupportedForSyncronousInstantination {
+            get {
+                return ResourceManager.GetString("Exception_SingletonScopedTypesDoesNotSupportedForSyncronousInstantination", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Source not initialized..
+        /// </summary>
+        internal static string Exception_SourceNotInitialized {
+            get {
+                return ResourceManager.GetString("Exception_SourceNotInitialized", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Specified method is not supported in type {0}..
         /// </summary>
-        internal static string Exception_Specified_method_is_not_supported_in_type {
+        internal static string Exception_SpecifiedMethodIsNotSupportedInType {
             get {
-                return ResourceManager.GetString("Exception_Specified_method_is_not_supported_in_type", resourceCulture);
+                return ResourceManager.GetString("Exception_SpecifiedMethodIsNotSupportedInType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Source not specified..
+        /// </summary>
+        internal static string Exception_StartActionExecuteSourceNotSpecified {
+            get {
+                return ResourceManager.GetString("Exception_StartActionExecuteSourceNotSpecified", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Starting State Machine denied..
+        /// </summary>
+        internal static string Exception_StartingStateMachineDenied {
+            get {
+                return ResourceManager.GetString("Exception_StartingStateMachineDenied", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to State Machine external queue has been closed..
         /// </summary>
-        internal static string Exception_State_Machine_external_queue_has_been_closed {
+        internal static string Exception_StateMachineExternalQueueHasBeenClosed {
             get {
-                return ResourceManager.GetString("Exception_State_Machine_external_queue_has_been_closed", resourceCulture);
+                return ResourceManager.GetString("Exception_StateMachineExternalQueueHasBeenClosed", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to State Machine has been destroyed..
         /// </summary>
-        internal static string Exception_State_Machine_has_been_destroyed {
+        internal static string Exception_StateMachineHasBeenDestroyed {
             get {
-                return ResourceManager.GetString("Exception_State_Machine_has_been_destroyed", resourceCulture);
+                return ResourceManager.GetString("Exception_StateMachineHasBeenDestroyed", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to State Machine has been halted..
         /// </summary>
-        internal static string Exception_State_Machine_has_been_halted {
+        internal static string Exception_StateMachineHasBeenHalted {
             get {
-                return ResourceManager.GetString("Exception_State_Machine_has_been_halted", resourceCulture);
+                return ResourceManager.GetString("Exception_StateMachineHasBeenHalted", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to State Machine has been suspended..
         /// </summary>
-        internal static string Exception_State_Machine_has_been_suspended {
+        internal static string Exception_StateMachineHasBeenSuspended {
             get {
-                return ResourceManager.GetString("Exception_State_Machine_has_been_suspended", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to StateId not initialized..
-        /// </summary>
-        internal static string Exception_StateId_not_initialized {
-            get {
-                return ResourceManager.GetString("Exception_StateId_not_initialized", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to StateMachine origin missed..
-        /// </summary>
-        internal static string Exception_StateMachine_origin_missed {
-            get {
-                return ResourceManager.GetString("Exception_StateMachine_origin_missed", resourceCulture);
+                return ResourceManager.GetString("Exception_StateMachineHasBeenSuspended", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to StateMachineHost stopped..
         /// </summary>
-        internal static string Exception_StateMachineHost_stopped {
+        internal static string Exception_StateMachineHostStopped {
             get {
-                return ResourceManager.GetString("Exception_StateMachineHost_stopped", resourceCulture);
+                return ResourceManager.GetString("Exception_StateMachineHostStopped", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to StateMachine interpreter has been disposed..
+        /// </summary>
+        internal static string Exception_StateMachineInterpreterHasBeenDisposed {
+            get {
+                return ResourceManager.GetString("Exception_StateMachineInterpreterHasBeenDisposed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to StateMachine origin missed..
+        /// </summary>
+        internal static string Exception_StateMachineOriginMissed {
+            get {
+                return ResourceManager.GetString("Exception_StateMachineOriginMissed", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Message #{0} of {1}: {2}.
         /// </summary>
-        internal static string Exception_StateMachineValidationException_Message {
+        internal static string Exception_StateMachineValidationExceptionMessage {
             get {
-                return ResourceManager.GetString("Exception_StateMachineValidationException_Message", resourceCulture);
+                return ResourceManager.GetString("Exception_StateMachineValidationExceptionMessage", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Storage not available for read operations.
         /// </summary>
-        internal static string Exception_Storage_not_available_for_read_operations {
+        internal static string Exception_StorageNotAvailableForReadOperations {
             get {
-                return ResourceManager.GetString("Exception_Storage_not_available_for_read_operations", resourceCulture);
+                return ResourceManager.GetString("Exception_StorageNotAvailableForReadOperations", resourceCulture);
             }
         }
         
@@ -1682,29 +2038,66 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Target should be equal to &apos;_parent&apos; or null..
+        ///   Looks up a localized string similar to Target is not defined.
         /// </summary>
-        internal static string Exception_Target_should_be_equal_to___parent__or_null {
+        internal static string Exception_TargetIsNotDefined {
             get {
-                return ResourceManager.GetString("Exception_Target_should_be_equal_to___parent__or_null", resourceCulture);
+                return ResourceManager.GetString("Exception_TargetIsNotDefined", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Target wrong format..
+        ///   Looks up a localized string similar to Target should be equal to &apos;Parent&apos; or null..
         /// </summary>
-        internal static string Exception_Target_wrong_format {
+        internal static string Exception_TargetShouldBeEqualToParentOrNull {
             get {
-                return ResourceManager.GetString("Exception_Target_wrong_format", resourceCulture);
+                return ResourceManager.GetString("Exception_TargetShouldBeEqualToParentOrNull", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Type, SendId, DelayMs can&apos;t be specified for this event..
+        ///   Looks up a localized string similar to There is no any CustomActionProvider registered for processing custom action node: &lt;{0}:{1}&gt;.
         /// </summary>
-        internal static string Exception_Type__SendId__DelayMs_can_t_be_specified_for_this_event {
+        internal static string Exception_ThereIsNoAnyCustomActionProviderRegisteredForProcessingCustomActionNode {
             get {
-                return ResourceManager.GetString("Exception_Type__SendId__DelayMs_can_t_be_specified_for_this_event", resourceCulture);
+                return ResourceManager.GetString("Exception_ThereIsNoAnyCustomActionProviderRegisteredForProcessingCustomActionNode" +
+                        "", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This exception should never happen..
+        /// </summary>
+        internal static string Exception_ThisExceptionShouldNeverHappen {
+            get {
+                return ResourceManager.GetString("Exception_ThisExceptionShouldNeverHappen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TransitionNode with DocumentId: {0} not found..
+        /// </summary>
+        internal static string Exception_TransitionNodeWithDocumentIdNotFound {
+            get {
+                return ResourceManager.GetString("Exception_TransitionNodeWithDocumentIdNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type {0} can&apos;t be cast to {1}..
+        /// </summary>
+        internal static string Exception_TypeCantBeCastedTo {
+            get {
+                return ResourceManager.GetString("Exception_TypeCantBeCastedTo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type {0} can&apos;t be constructed based on service type {1}..
+        /// </summary>
+        internal static string Exception_TypeCantBeConstructedBasedOnServiceType {
+            get {
+                return ResourceManager.GetString("Exception_TypeCantBeConstructedBasedOnServiceType", resourceCulture);
             }
         }
         
@@ -1718,11 +2111,56 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Type {0} does not contains method (or ambiguity) with return type: (ValueTask&lt;{1}&gt; or {1}) and empty or single CancellationToken input parameter..
+        /// </summary>
+        internal static string Exception_TypeDoesNotContainsMethodWithSignatureMethodCancellationToken {
+            get {
+                return ResourceManager.GetString("Exception_TypeDoesNotContainsMethodWithSignatureMethodCancellationToken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type, SendId, DelayMs can&apos;t be specified for this event..
+        /// </summary>
+        internal static string Exception_TypeSendIdDelayMsCantBeSpecifiedForThisEvent {
+            get {
+                return ResourceManager.GetString("Exception_TypeSendIdDelayMsCantBeSpecifiedForThisEvent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type should be GenericTypeDefinition..
+        /// </summary>
+        internal static string Exception_TypeShouldBeGenericTypeDefinition {
+            get {
+                return ResourceManager.GetString("Exception_TypeShouldBeGenericTypeDefinition", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type {0} used in synchronous instantiation and can&apos;t implement IAsyncInitialization interface..
+        /// </summary>
+        internal static string Exception_TypeUsedInSynchronousInstantiation {
+            get {
+                return ResourceManager.GetString("Exception_TypeUsedInSynchronousInstantiation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Undefined value not allowed..
+        /// </summary>
+        internal static string Exception_UndefinedValueNotAllowed {
+            get {
+                return ResourceManager.GetString("Exception_UndefinedValueNotAllowed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unexpected type attribute value: {0}..
         /// </summary>
-        internal static string Exception_Unexpected_type_attribute_value {
+        internal static string Exception_UnexpectedTypeAttributeValue {
             get {
-                return ResourceManager.GetString("Exception_Unexpected_type_attribute_value", resourceCulture);
+                return ResourceManager.GetString("Exception_UnexpectedTypeAttributeValue", resourceCulture);
             }
         }
         
@@ -1730,9 +2168,9 @@ namespace Xtate {
         ///   Looks up a localized string similar to Unexpected TypeInfo value.
         ///.
         /// </summary>
-        internal static string Exception_Unexpected_TypeInfo_value {
+        internal static string Exception_UnexpectedTypeInfoValue {
             get {
-                return ResourceManager.GetString("Exception_Unexpected_TypeInfo_value", resourceCulture);
+                return ResourceManager.GetString("Exception_UnexpectedTypeInfoValue", resourceCulture);
             }
         }
         
@@ -1748,72 +2186,108 @@ namespace Xtate {
         /// <summary>
         ///   Looks up a localized string similar to Unhandled exception..
         /// </summary>
-        internal static string Exception_Unhandled_exception {
+        internal static string Exception_UnhandledException {
             get {
-                return ResourceManager.GetString("Exception_Unhandled_exception", resourceCulture);
+                return ResourceManager.GetString("Exception_UnhandledException", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Unknown Condition type..
         /// </summary>
-        internal static string Exception_Unknown_Condition_type {
+        internal static string Exception_UnknownConditionType {
             get {
-                return ResourceManager.GetString("Exception_Unknown_Condition_type", resourceCulture);
+                return ResourceManager.GetString("Exception_UnknownConditionType", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Unknown Executable Entity type..
         /// </summary>
-        internal static string Exception_Unknown_Executable_Entity_type {
+        internal static string Exception_UnknownExecutableEntityType {
             get {
-                return ResourceManager.GetString("Exception_Unknown_Executable_Entity_type", resourceCulture);
+                return ResourceManager.GetString("Exception_UnknownExecutableEntityType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown &apos;parse&apos; attribute value: &apos;{0}&apos;..
+        /// </summary>
+        internal static string Exception_UnknownParseAttrValue {
+            get {
+                return ResourceManager.GetString("Exception_UnknownParseAttrValue", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Unknown State Entity type..
         /// </summary>
-        internal static string Exception_Unknown_State_Entity_type {
+        internal static string Exception_UnknownStateEntityType {
             get {
-                return ResourceManager.GetString("Exception_Unknown_State_Entity_type", resourceCulture);
+                return ResourceManager.GetString("Exception_UnknownStateEntityType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown type for serialization..
+        /// </summary>
+        internal static string Exception_UnknownTypeForSerialization {
+            get {
+                return ResourceManager.GetString("Exception_UnknownTypeForSerialization", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Unknown XPath function. Namespace:&apos;{0}&apos;, Name:&apos;{1}&apos;..
         /// </summary>
-        internal static string Exception_Unknown_XPath_function {
+        internal static string Exception_UnknownXPathFunction {
             get {
-                return ResourceManager.GetString("Exception_Unknown_XPath_function", resourceCulture);
+                return ResourceManager.GetString("Exception_UnknownXPathFunction", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Unknown XPath variable. Namespace:&apos;{0}&apos;, Name:&apos;{1}&apos;..
         /// </summary>
-        internal static string Exception_Unknown_XPath_variable {
+        internal static string Exception_UnknownXPathVariable {
             get {
-                return ResourceManager.GetString("Exception_Unknown_XPath_variable", resourceCulture);
+                return ResourceManager.GetString("Exception_UnknownXPathVariable", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unspecified or UTC kind should have zero offset..
+        ///   Looks up a localized string similar to Unrecognized MediaType: {0}..
         /// </summary>
-        internal static string Exception_Unspecified_or_UTC_kind_should_have_zero_offset {
+        internal static string Exception_Unrecognized_MediaType {
             get {
-                return ResourceManager.GetString("Exception_Unspecified_or_UTC_kind_should_have_zero_offset", resourceCulture);
+                return ResourceManager.GetString("Exception_Unrecognized_MediaType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to resolve URI reference &apos;{0}&apos;..
+        /// </summary>
+        internal static string Exception_UnresolvableURI {
+            get {
+                return ResourceManager.GetString("Exception_UnresolvableURI", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to RedirectXmlResolver not supported class: {0}..
+        /// </summary>
+        internal static string Exception_UnsupportedClass {
+            get {
+                return ResourceManager.GetString("Exception_UnsupportedClass", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Unsupported object type..
         /// </summary>
-        internal static string Exception_Unsupported_object_type {
+        internal static string Exception_UnsupportedObjectType {
             get {
-                return ResourceManager.GetString("Exception_Unsupported_object_type", resourceCulture);
+                return ResourceManager.GetString("Exception_UnsupportedObjectType", resourceCulture);
             }
         }
         
@@ -1838,72 +2312,27 @@ namespace Xtate {
         /// <summary>
         ///   Looks up a localized string similar to Use ReadAsync() instead..
         /// </summary>
-        internal static string Exception_Use_ReadAsync___instead {
+        internal static string Exception_UseReadAsyncInstead {
             get {
-                return ResourceManager.GetString("Exception_Use_ReadAsync___instead", resourceCulture);
+                return ResourceManager.GetString("Exception_UseReadAsyncInstead", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Use WriteAsync() instead..
         /// </summary>
-        internal static string Exception_Use_WriteAsync___instead {
+        internal static string Exception_UseWriteAsyncInstead {
             get {
-                return ResourceManager.GetString("Exception_Use_WriteAsync___instead", resourceCulture);
+                return ResourceManager.GetString("Exception_UseWriteAsyncInstead", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Value cannot be null or empty..
+        ///   Looks up a localized string similar to Valid range is [{0}..{1}]..
         /// </summary>
-        internal static string Exception_Value_cannot_be_null_or_empty_ {
+        internal static string Exception_ValidRangeIsMinMax {
             get {
-                return ResourceManager.GetString("Exception_Value_cannot_be_null_or_empty_", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Value Expression must be present..
-        /// </summary>
-        internal static string Exception_Value_Expression_must_be_present {
-            get {
-                return ResourceManager.GetString("Exception_Value_Expression_must_be_present", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Value is not SCXML..
-        /// </summary>
-        internal static string Exception_Value_is_not_SCXML {
-            get {
-                return ResourceManager.GetString("Exception_Value_is_not_SCXML", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Value is not Source..
-        /// </summary>
-        internal static string Exception_Value_is_not_Source {
-            get {
-                return ResourceManager.GetString("Exception_Value_is_not_Source", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Value is not StateMachine..
-        /// </summary>
-        internal static string Exception_Value_is_not_StateMachine {
-            get {
-                return ResourceManager.GetString("Exception_Value_is_not_StateMachine", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Value must be non negative integer..
-        /// </summary>
-        internal static string Exception_Value_must_be_non_negative_integer {
-            get {
-                return ResourceManager.GetString("Exception_Value_must_be_non_negative_integer", resourceCulture);
+                return ResourceManager.GetString("Exception_ValidRangeIsMinMax", resourceCulture);
             }
         }
         
@@ -1962,11 +2391,119 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Source not specified..
+        ///   Looks up a localized string similar to Value Expression must be present..
         /// </summary>
-        internal static string StartAction_Execute_Source_not_specified {
+        internal static string Exception_ValueExpressionMustBePresent {
             get {
-                return ResourceManager.GetString("StartAction_Execute_Source_not_specified", resourceCulture);
+                return ResourceManager.GetString("Exception_ValueExpressionMustBePresent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Value is not SCXML..
+        /// </summary>
+        internal static string Exception_ValueIsNotSCXML {
+            get {
+                return ResourceManager.GetString("Exception_ValueIsNotSCXML", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Value is not Source..
+        /// </summary>
+        internal static string Exception_ValueIsNotSource {
+            get {
+                return ResourceManager.GetString("Exception_ValueIsNotSource", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Value is not StateMachine..
+        /// </summary>
+        internal static string Exception_ValueIsNotStateMachine {
+            get {
+                return ResourceManager.GetString("Exception_ValueIsNotStateMachine", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Value must be non negative integer..
+        /// </summary>
+        internal static string Exception_ValueMustBeNonNegativeInteger {
+            get {
+                return ResourceManager.GetString("Exception_ValueMustBeNonNegativeInteger", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} Line {1}, Position {2}..
+        /// </summary>
+        internal static string Exception_XIncludeExceptionLinePosition {
+            get {
+                return ResourceManager.GetString("Exception_XIncludeExceptionLinePosition", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} Location: {1}..
+        /// </summary>
+        internal static string Exception_XIncludeExceptionLocation {
+            get {
+                return ResourceManager.GetString("Exception_XIncludeExceptionLocation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} Location: {1}, Line {2}, Position {3}..
+        /// </summary>
+        internal static string Exception_XIncludeExceptionLocationLinePosition {
+            get {
+                return ResourceManager.GetString("Exception_XIncludeExceptionLocationLinePosition", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An exception has occurred during GetEntity call to XmlResolver..
+        /// </summary>
+        internal static string Exception_XmlResolverGetEntity {
+            get {
+                return ResourceManager.GetString("Exception_XmlResolverGetEntity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to XmlResolver returned null..
+        /// </summary>
+        internal static string Exception_XmlResolverReturnedNull {
+            get {
+                return ResourceManager.GetString("Exception_XmlResolverReturnedNull", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown Data Model..
+        /// </summary>
+        internal static string Message_UnknownDataModel {
+            get {
+                return ResourceManager.GetString("Message_UnknownDataModel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error on creation factories..
+        /// </summary>
+        internal static string Warning_ErrorOnCreationFactories {
+            get {
+                return ResourceManager.GetString("Warning_ErrorOnCreationFactories", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error on loading assembly..
+        /// </summary>
+        internal static string Warning_ErrorOnLoadingAssembly {
+            get {
+                return ResourceManager.GetString("Warning_ErrorOnLoadingAssembly", resourceCulture);
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,57 +17,59 @@
 
 #endregion
 
-using System;
 using Xtate.Persistence;
 
-namespace Xtate
+namespace Xtate.Core;
+
+public class EmptyInitialNode(DocumentIdNode documentIdNode, TransitionNode transition) : InitialNode(documentIdNode, transition);
+
+public class InitialNode : StateEntityNode, IInitial, IAncestorProvider, IDebugEntityId
 {
-	internal sealed class InitialNode : StateEntityNode, IInitial, IAncestorProvider, IDebugEntityId
+	private readonly IInitial? _initial;
+
+	[UsedImplicitly]
+	public InitialNode(DocumentIdNode documentIdNode, IInitial initial) : this(documentIdNode, GetTransitionNode(initial)) => _initial = initial;
+
+	protected InitialNode(DocumentIdNode documentIdNode, TransitionNode transition) : base(documentIdNode)
 	{
-		private readonly InitialEntity _initial;
+		Transition = transition;
 
-		public InitialNode(in DocumentIdRecord documentIdNode, in InitialEntity initial) : base(documentIdNode, children: null)
-		{
-			Infrastructure.NotNull(initial.Transition);
+		Transition.SetSource(this);
+	}
 
-			_initial = initial;
-			Transition = initial.Transition.As<TransitionNode>();
+	public TransitionNode Transition { get; }
 
-			Transition.SetSource(this);
-		}
+#region Interface IAncestorProvider
 
-		public InitialNode(in DocumentIdRecord documentIdNode, TransitionNode transition) : base(documentIdNode, children: null)
-		{
-			Transition = transition ?? throw new ArgumentNullException(nameof(transition));
+	object? IAncestorProvider.Ancestor => _initial;
 
-			Transition.SetSource(this);
-		}
+#endregion
 
-		public TransitionNode Transition { get; }
+#region Interface IDebugEntityId
 
-	#region Interface IAncestorProvider
+	public FormattableString EntityId => @$"(#{DocumentId})";
 
-		object? IAncestorProvider.Ancestor => _initial.Ancestor;
+#endregion
 
-	#endregion
+#region Interface IInitial
 
-	#region Interface IDebugEntityId
+	ITransition IInitial.Transition => _initial?.Transition ?? Infra.Fail<ITransition>();
 
-		public FormattableString EntityId => @$"(#{DocumentId})";
+#endregion
 
-	#endregion
+	private static TransitionNode GetTransitionNode(IInitial initial)
+	{
+		Infra.Requires(initial);
 
-	#region Interface IInitial
+		Infra.NotNull(initial.Transition);
 
-		ITransition IInitial.Transition => _initial.Transition!;
+		return initial.Transition.As<TransitionNode>();
+	}
 
-	#endregion
-
-		protected override void Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.InitialNode);
-			bucket.Add(Key.DocumentId, DocumentId);
-			bucket.AddEntity(Key.Transition, Transition);
-		}
+	protected override void Store(Bucket bucket)
+	{
+		bucket.Add(Key.TypeInfo, TypeInfo.InitialNode);
+		bucket.Add(Key.DocumentId, DocumentId);
+		bucket.AddEntity(Key.Transition, Transition);
 	}
 }

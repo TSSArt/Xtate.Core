@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,103 +17,86 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using Xtate.Annotations;
+namespace Xtate.Core;
 
-namespace Xtate
+public sealed class OrderedSet<T> : List<T>
 {
-	[PublicAPI]
-	internal sealed class OrderedSet<T> : List<T>
+	public delegate void ChangedHandler(ChangedAction action, T? item);
+
+	public enum ChangedAction
 	{
-		public delegate void ChangedHandler(ChangedAction action, [AllowNull] T item);
+		Add,
+		Clear,
+		Delete
+	}
 
-		public enum ChangedAction
-		{
-			Add,
-			Clear,
-			Delete
-		}
+	public bool IsEmpty => Count == 0;
 
-		public bool IsEmpty => Count == 0;
+	public event ChangedHandler? Changed;
 
-		public event ChangedHandler? Changed;
-
-		public void AddIfNotExists(T item)
-		{
-			if (!Contains(item))
-			{
-				base.Add(item);
-
-				Changed?.Invoke(ChangedAction.Add, item);
-			}
-		}
-
-		public new void Add(T item)
+	public void AddIfNotExists(T item)
+	{
+		if (!Contains(item))
 		{
 			base.Add(item);
 
 			Changed?.Invoke(ChangedAction.Add, item);
 		}
+	}
 
-		public new void Clear()
+	public new void Add(T item)
+	{
+		base.Add(item);
+
+		Changed?.Invoke(ChangedAction.Add, item);
+	}
+
+	public new void Clear()
+	{
+		base.Clear();
+
+		Changed?.Invoke(ChangedAction.Clear, item: default);
+	}
+
+	public bool IsMember(T item) => Contains(item);
+
+	public void Delete(T item)
+	{
+		Remove(item);
+
+		Changed?.Invoke(ChangedAction.Delete, item);
+	}
+
+	public List<T> ToSortedList(IComparer<T> comparer)
+	{
+		var list = new List<T>(this);
+		list.Sort(comparer);
+
+		return list;
+	}
+
+	public List<T> ToFilteredSortedList(Predicate<T> predicate, IComparer<T> comparer)
+	{
+		var list = FindAll(predicate);
+		list.Sort(comparer);
+
+		return list;
+	}
+
+	public List<T> ToFilteredList<TArg>(Func<T, TArg, bool> predicate, TArg arg)
+	{
+		Infra.Requires(predicate);
+
+		var list = new List<T>();
+
+		foreach (var item in this)
 		{
-			base.Clear();
-
-			Changed?.Invoke(ChangedAction.Clear, item: default);
-		}
-
-		public bool IsMember(T item) => Contains(item);
-
-		public void Delete(T item)
-		{
-			Remove(item);
-
-			Changed?.Invoke(ChangedAction.Delete, item);
-		}
-
-		public void Union(List<T> orderedSet)
-		{
-			if (orderedSet is null) throw new ArgumentNullException(nameof(orderedSet));
-
-			foreach (var item in orderedSet)
+			if (predicate(item, arg))
 			{
-				AddIfNotExists(item);
+				list.Add(item);
 			}
 		}
 
-		public bool HasIntersection(List<T> orderedSet)
-		{
-			if (orderedSet is null) throw new ArgumentNullException(nameof(orderedSet));
-
-			foreach (var item in orderedSet)
-			{
-				if (Contains(item))
-				{
-					return true;
-				}
-			}
-
-			return false;
-		}
-
-		public List<T> ToSortedList(IComparer<T> comparer)
-		{
-			var list = new List<T>(this);
-			list.Sort(comparer);
-
-			return list;
-		}
-
-		public List<T> ToFilteredSortedList(Predicate<T> predicate, IComparer<T> comparer)
-		{
-			var list = FindAll(predicate);
-			list.Sort(comparer);
-
-			return list;
-		}
-
-		public List<T> ToFilteredList(Predicate<T> predicate) => FindAll(predicate);
+		return list;
 	}
 }

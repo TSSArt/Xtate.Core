@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
-
+﻿// Copyright © 2019-2023 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,45 +15,37 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
-using System;
 using Xtate.Persistence;
 
-namespace Xtate
+namespace Xtate.Core;
+
+public sealed class CancelNode(DocumentIdNode documentIdNode, ICancel cancel) : ExecutableEntityNode(documentIdNode, cancel), ICancel, IAncestorProvider, IDebugEntityId
 {
-	internal sealed class CancelNode : ExecutableEntityNode, ICancel, IAncestorProvider, IDebugEntityId
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => cancel;
+
+#endregion
+
+#region Interface ICancel
+
+	public string? SendId => cancel.SendId;
+
+	public IValueExpression? SendIdExpression => cancel.SendIdExpression;
+
+#endregion
+
+#region Interface IDebugEntityId
+
+	FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
+
+#endregion
+
+	protected override void Store(Bucket bucket)
 	{
-		private readonly CancelEntity _entity;
-
-		public CancelNode(in DocumentIdRecord documentIdNode, in CancelEntity entity) : base(documentIdNode, (ICancel?) entity.Ancestor) => _entity = entity;
-
-	#region Interface IAncestorProvider
-
-		object? IAncestorProvider.Ancestor => _entity.Ancestor;
-
-	#endregion
-
-	#region Interface ICancel
-
-		public string? SendId => _entity.SendId;
-
-		public IValueExpression? SendIdExpression => _entity.SendIdExpression;
-
-	#endregion
-
-	#region Interface IDebugEntityId
-
-		FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
-
-	#endregion
-
-		protected override void Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.CancelNode);
-			bucket.Add(Key.DocumentId, DocumentId);
-			bucket.Add(Key.SendId, SendId);
-			bucket.AddEntity(Key.SendIdExpression, SendIdExpression);
-		}
+		bucket.Add(Key.TypeInfo, TypeInfo.CancelNode);
+		bucket.Add(Key.DocumentId, DocumentId);
+		bucket.Add(Key.SendId, SendId);
+		bucket.AddEntity(Key.SendIdExpression, SendIdExpression);
 	}
 }

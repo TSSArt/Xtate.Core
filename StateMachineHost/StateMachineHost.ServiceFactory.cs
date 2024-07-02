@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,46 +17,42 @@
 
 #endregion
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Xtate.Service;
 
-namespace Xtate
+namespace Xtate;
+
+public sealed partial class StateMachineHost : IServiceFactory, IServiceFactoryActivator
 {
-	public sealed partial class StateMachineHost : IServiceFactory, IServiceFactoryActivator
+	private static readonly Uri ServiceFactoryTypeId      = new(@"http://www.w3.org/TR/scxml/");
+	private static readonly Uri ServiceFactoryAliasTypeId = new(uriString: @"scxml", UriKind.Relative);
+
+#region Interface IServiceFactory
+
+	ValueTask<IServiceFactoryActivator?> IServiceFactory.TryGetActivator(Uri type) => new(CanHandle(type) ? this : null);
+
+#endregion
+
+#region Interface IServiceFactoryActivator
+
+	async ValueTask<IService> IServiceFactoryActivator.StartService(Uri? baseUri,
+																	InvokeData invokeData,
+																	IServiceCommunication serviceCommunication)
 	{
-		private static readonly Uri ServiceFactoryTypeId      = new Uri("http://www.w3.org/TR/scxml/");
-		private static readonly Uri ServiceFactoryAliasTypeId = new Uri(uriString: "scxml", UriKind.Relative);
+		Infra.Assert(CanHandle(invokeData.Type));
 
-	#region Interface IServiceFactory
+		var sessionId = SessionId.New();
+		var scxml = invokeData.RawContent ?? invokeData.Content.AsStringOrDefault();
+		var parameters = invokeData.Parameters;
+		var source = invokeData.Source;
 
-		ValueTask<IServiceFactoryActivator?> IServiceFactory.TryGetActivator(IFactoryContext factoryContext, Uri type, CancellationToken token) =>
-				new ValueTask<IServiceFactoryActivator?>(CanHandle(type) ? this : null);
+		Infra.Assert(scxml is not null || source is not null);
 
-	#endregion
+		var origin = scxml is not null ? new StateMachineOrigin(scxml, baseUri) : new StateMachineOrigin(source!, baseUri);
 
-	#region Interface IServiceFactoryActivator
-
-		async ValueTask<IService> IServiceFactoryActivator.StartService(IFactoryContext factoryContext, Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication,
-																		CancellationToken token)
-		{
-			Infrastructure.Assert(CanHandle(invokeData.Type));
-
-			var sessionId = SessionId.FromString(invokeData.InvokeId.Value); // using InvokeId as SessionId
-			var scxml = invokeData.RawContent ?? invokeData.Content.AsStringOrDefault();
-			var parameters = invokeData.Parameters;
-			var source = invokeData.Source;
-
-			Infrastructure.Assert(scxml is { } || source is { });
-
-			var origin = scxml is { } ? new StateMachineOrigin(scxml, baseUri) : new StateMachineOrigin(source!, baseUri);
-
-			return await StartStateMachine(sessionId, origin, parameters, token).ConfigureAwait(false);
-		}
-
-	#endregion
-
-		private static bool CanHandle(Uri type) => FullUriComparer.Instance.Equals(type, ServiceFactoryTypeId) || FullUriComparer.Instance.Equals(type, ServiceFactoryAliasTypeId);
+		return await StartStateMachine(sessionId, origin, parameters, SecurityContextType.InvokedService, default).ConfigureAwait(false);
 	}
+
+#endregion
+
+	private static bool CanHandle(Uri type) => FullUriComparer.Instance.Equals(type, ServiceFactoryTypeId) || FullUriComparer.Instance.Equals(type, ServiceFactoryAliasTypeId);
 }

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -20,23 +20,43 @@
 using System.Xml.XPath;
 using System.Xml.Xsl;
 
-namespace Xtate.DataModel.XPath
+namespace Xtate.DataModel.XPath;
+
+public class XPathVarDescriptor : IXsltContextVariable
 {
-	internal sealed class XPathVarDescriptor : IXsltContextVariable
+	private class EmptyIterator : XPathNodeIterator
 	{
-		private readonly string _name;
+		public override XPathNavigator Current => default!;
 
-		public XPathVarDescriptor(string name) => _name = name;
+		public override int CurrentPosition => 0;
 
-	#region Interface IXsltContextVariable
+		public override XPathNodeIterator Clone() => this;
 
-		public object Evaluate(XsltContext xsltContext) => ((XPathExpressionContext) xsltContext).Resolver.GetVariable(_name);
-
-		public bool IsLocal => false;
-		public bool IsParam => false;
-
-		public XPathResultType VariableType => XPathResultType.NodeSet;
-
-	#endregion
+		public override bool MoveNext() => false;
 	}
+
+	private static readonly XPathNodeIterator Empty = new EmptyIterator();
+
+	protected XPathEngine? Engine { get; private set; }
+
+	public required string Name { protected get; [UsedImplicitly] init; }
+
+	public virtual ValueTask Initialize(XPathEngine engine)
+	{
+		Engine = engine;
+
+		return default;
+	}
+
+#region Interface IXsltContextVariable
+
+	public virtual object Evaluate(XsltContext xsltContext) => Engine?.GetVariable(Name) ?? Empty;
+
+	public virtual bool IsLocal => false;
+	
+	public virtual bool IsParam => false;
+
+	public virtual XPathResultType VariableType => XPathResultType.NodeSet;
+
+#endregion
 }

@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,117 +15,159 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
-using System;
-using System.Collections.Immutable;
-using System.Threading;
-using System.Threading.Tasks;
 using Xtate.DataModel;
 using Xtate.Persistence;
 
-namespace Xtate
+namespace Xtate.Core;
+
+public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 {
-	internal sealed class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
+	private readonly IValueEvaluator?                    _contentBodyEvaluator;
+	private readonly IObjectEvaluator?                   _contentExpressionEvaluator;
+	private readonly ILocationEvaluator?                 _idLocationEvaluator;
+	private readonly IInvoke                             _invoke;
+	private readonly ImmutableArray<ILocationEvaluator>  _nameEvaluatorList;
+	private readonly ImmutableArray<DataConverter.Param> _parameterList;
+	private readonly IStringEvaluator?                   _sourceExpressionEvaluator;
+	private readonly IStringEvaluator?                   _typeExpressionEvaluator;
+	private          DocumentIdSlot                      _documentIdSlot;
+	private          StateEntityNode?                    _source;
+
+	public InvokeNode(DocumentIdNode documentIdNode, IInvoke invoke)
 	{
-		private readonly ICancelInvokeEvaluator _cancelInvokeEvaluator;
-		private readonly InvokeEntity           _invoke;
-		private readonly IStartInvokeEvaluator  _startInvokeEvaluator;
-		private          DocumentIdRecord       _documentIdNode;
-		private          IIdentifier?           _stateId;
+		_invoke = invoke;
 
-		public InvokeNode(in DocumentIdRecord documentIdNode, in InvokeEntity invoke)
+		documentIdNode.SaveToSlot(out _documentIdSlot);
+
+		_typeExpressionEvaluator = invoke.TypeExpression?.As<IStringEvaluator>();
+		_sourceExpressionEvaluator = invoke.SourceExpression?.As<IStringEvaluator>();
+		_contentExpressionEvaluator = invoke.Content?.Expression?.As<IObjectEvaluator>();
+		_contentBodyEvaluator = invoke.Content?.Body?.As<IValueEvaluator>();
+		_idLocationEvaluator = invoke.IdLocation?.As<ILocationEvaluator>();
+		_nameEvaluatorList = invoke.NameList.AsArrayOf<ILocationExpression, ILocationEvaluator>();
+		_parameterList = DataConverter.AsParamArray(invoke.Parameters);
+
+		Finalize = invoke.Finalize?.As<FinalizeNode>();
+	}
+
+	public required Func<ValueTask<DataConverter>>      DataConverterFactory    { private get; [UsedImplicitly] init; }
+	public required Func<ValueTask<IInvokeController?>> InvokeControllerFactory { private get; [UsedImplicitly] init; }
+	public required Func<ValueTask<ILogger<IInvoke>>>   LoggerFactory           { private get; [UsedImplicitly] init; }
+
+	public InvokeId? InvokeId { get; private set; }
+
+	public FinalizeNode? Finalize { get; }
+
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => _invoke;
+
+#endregion
+
+#region Interface IDebugEntityId
+
+	FormattableString IDebugEntityId.EntityId => @$"{Id}(#{DocumentId})";
+
+#endregion
+
+#region Interface IDocumentId
+
+	public int DocumentId => _documentIdSlot.CreateValue();
+
+#endregion
+
+#region Interface IInvoke
+
+	public Uri?                                Type             => _invoke.Type;
+	public IValueExpression?                   TypeExpression   => _invoke.TypeExpression;
+	public Uri?                                Source           => _invoke.Source;
+	public IValueExpression?                   SourceExpression => _invoke.SourceExpression;
+	public string?                             Id               => _invoke.Id;
+	public ILocationExpression?                IdLocation       => _invoke.IdLocation;
+	public bool                                AutoForward      => _invoke.AutoForward;
+	public ImmutableArray<ILocationExpression> NameList         => _invoke.NameList;
+	public ImmutableArray<IParam>              Parameters       => _invoke.Parameters;
+	public IContent?                           Content          => _invoke.Content;
+	IFinalize? IInvoke.                        Finalize         => _invoke.Finalize;
+
+#endregion
+
+#region Interface IStoreSupport
+
+	void IStoreSupport.Store(Bucket bucket)
+	{
+		bucket.Add(Key.TypeInfo, TypeInfo.InvokeNode);
+		bucket.Add(Key.DocumentId, DocumentId);
+		bucket.Add(Key.Id, Id);
+		bucket.Add(Key.Type, Type);
+		bucket.Add(Key.Source, Source);
+		bucket.Add(Key.AutoForward, AutoForward);
+		bucket.AddEntity(Key.TypeExpression, TypeExpression);
+		bucket.AddEntity(Key.SourceExpression, SourceExpression);
+		bucket.AddEntity(Key.IdLocation, IdLocation);
+		bucket.AddEntityList(Key.NameList, NameList);
+		bucket.AddEntityList(Key.Parameters, Parameters);
+		bucket.AddEntity(Key.Finalize, Finalize);
+		bucket.AddEntity(Key.Content, Content);
+	}
+
+#endregion
+
+	public void SetSource(StateEntityNode source) => _source = source;
+
+	public async ValueTask Start()
+	{
+		Infra.NotNull(_source, Resources.Exception_SourceNotInitialized);
+
+		InvokeId = InvokeId.New(_source.Id, _invoke.Id);
+
+		if (_idLocationEvaluator is not null)
 		{
-			_documentIdNode = documentIdNode;
-			_invoke = invoke;
-
-			Finalize = invoke.Finalize?.As<FinalizeNode>();
-
-			var startInvokeEvaluator = invoke.Ancestor?.As<IStartInvokeEvaluator>();
-			Infrastructure.NotNull(startInvokeEvaluator);
-			_startInvokeEvaluator = startInvokeEvaluator;
-
-			var cancelInvokeEvaluator = invoke.Ancestor?.As<ICancelInvokeEvaluator>();
-			Infrastructure.NotNull(cancelInvokeEvaluator);
-			_cancelInvokeEvaluator = cancelInvokeEvaluator;
+			await _idLocationEvaluator.SetValue(InvokeId).ConfigureAwait(false);
 		}
 
-		public InvokeId? InvokeId { get; private set; }
+		var type = _typeExpressionEvaluator is not null ? ToUri(await _typeExpressionEvaluator.EvaluateString().ConfigureAwait(false)) : _invoke.Type;
+		var source = _sourceExpressionEvaluator is not null ? ToUri(await _sourceExpressionEvaluator.EvaluateString().ConfigureAwait(false)) : _invoke.Source;
+		var rawContent = _contentBodyEvaluator is IStringEvaluator rawContentEvaluator ? await rawContentEvaluator.EvaluateString().ConfigureAwait(false) : null;
 
-		public FinalizeNode? Finalize { get; }
+		var dataConverter = await DataConverterFactory().ConfigureAwait(false);
+		var content = await dataConverter.GetContent(_contentBodyEvaluator, _contentExpressionEvaluator).ConfigureAwait(false);
+		var parameters = await dataConverter.GetParameters(_nameEvaluatorList, _parameterList).ConfigureAwait(false);
 
-	#region Interface IAncestorProvider
+		Infra.NotNull(type);
 
-		object? IAncestorProvider.Ancestor => _invoke.Ancestor;
+		var invokeData = new InvokeData(InvokeId, type)
+						 {
+							 Source = source,
+							 RawContent = rawContent,
+							 Content = content,
+							 Parameters = parameters
+						 };
 
-	#endregion
+		var logger = await LoggerFactory().ConfigureAwait(false);
+		await logger.Write(Level.Trace, $@"Start invoke. InvokeId: [{InvokeId}]", invokeData).ConfigureAwait(false);
 
-	#region Interface IDebugEntityId
-
-		FormattableString IDebugEntityId.EntityId => @$"{Id}(#{DocumentId})";
-
-	#endregion
-
-	#region Interface IDocumentId
-
-		public int DocumentId => _documentIdNode.Value;
-
-	#endregion
-
-	#region Interface IInvoke
-
-		public Uri?                                Type             => _invoke.Type;
-		public IValueExpression?                   TypeExpression   => _invoke.TypeExpression;
-		public Uri?                                Source           => _invoke.Source;
-		public IValueExpression?                   SourceExpression => _invoke.SourceExpression;
-		public string?                             Id               => _invoke.Id;
-		public ILocationExpression?                IdLocation       => _invoke.IdLocation;
-		public bool                                AutoForward      => _invoke.AutoForward;
-		public ImmutableArray<ILocationExpression> NameList         => _invoke.NameList;
-		public ImmutableArray<IParam>              Parameters       => _invoke.Parameters;
-		public IContent?                           Content          => _invoke.Content;
-		IFinalize? IInvoke.                        Finalize         => _invoke.Finalize;
-
-	#endregion
-
-	#region Interface IStoreSupport
-
-		void IStoreSupport.Store(Bucket bucket)
+		if (await InvokeControllerFactory().ConfigureAwait(false) is { } invokeController)
 		{
-			bucket.Add(Key.TypeInfo, TypeInfo.InvokeNode);
-			bucket.Add(Key.DocumentId, DocumentId);
-			bucket.Add(Key.Id, Id);
-			bucket.Add(Key.Type, Type);
-			bucket.Add(Key.Source, Source);
-			bucket.Add(Key.AutoForward, AutoForward);
-			bucket.AddEntity(Key.TypeExpression, TypeExpression);
-			bucket.AddEntity(Key.SourceExpression, SourceExpression);
-			bucket.AddEntity(Key.IdLocation, IdLocation);
-			bucket.AddEntityList(Key.NameList, NameList);
-			bucket.AddEntityList(Key.Parameters, Parameters);
-			bucket.AddEntity(Key.Finalize, Finalize);
-			bucket.AddEntity(Key.Content, Content);
+			await invokeController.Start(invokeData).ConfigureAwait(false);
 		}
+	}
 
-	#endregion
+	private static Uri ToUri(string uri) => new(uri, UriKind.RelativeOrAbsolute);
 
-		public void SetStateId(IIdentifier stateId) => _stateId = stateId;
+	public async ValueTask Cancel()
+	{
+		var logger = await LoggerFactory().ConfigureAwait(false);
+		await logger.Write(Level.Trace, $@"Cancel invoke. InvokeId: [{InvokeId}]", InvokeId).ConfigureAwait(false);
 
-		public async ValueTask Start(IExecutionContext executionContext, CancellationToken token)
+		var tmpInvokeId = InvokeId;
+		InvokeId = default;
+
+		if (tmpInvokeId is not null)
 		{
-			Infrastructure.NotNull(_stateId, Resources.Exception_StateId_not_initialized);
-
-			InvokeId = await _startInvokeEvaluator.Start(_stateId, executionContext, token).ConfigureAwait(false);
-		}
-
-		public async ValueTask Cancel(IExecutionContext executionContext, CancellationToken token)
-		{
-			var tmpInvokeId = InvokeId;
-			InvokeId = null;
-
-			if (tmpInvokeId is { })
+			if (await InvokeControllerFactory().ConfigureAwait(false) is { } invokeController)
 			{
-				await _cancelInvokeEvaluator.Cancel(tmpInvokeId, executionContext, token).ConfigureAwait(false);
+				await invokeController.Cancel(tmpInvokeId).ConfigureAwait(false);
 			}
 		}
 	}

@@ -1,4 +1,4 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
+﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,132 +17,100 @@
 
 #endregion
 
-using System;
-using System.Collections.Immutable;
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.IoProcessor;
+namespace Xtate.Core;
 
-namespace Xtate
+public partial class StateMachineInterpreter : IExternalCommunication2
 {
-	public sealed partial class StateMachineInterpreter : IExternalCommunication
+#region Interface IExternalCommunication2
+
+	async ValueTask IExternalCommunication2.StartInvoke(InvokeData invokeData)
 	{
-	#region Interface IExternalCommunication
-
-		ImmutableArray<IIoProcessor> IExternalCommunication.GetIoProcessors() => _externalCommunication?.GetIoProcessors() ?? default;
-
-		async ValueTask IExternalCommunication.StartInvoke(InvokeData invokeData, CancellationToken token)
+		try
 		{
-			try
+			if (ExternalCommunication is null)
 			{
-				if (_externalCommunication is null)
-				{
-					throw NoExternalCommunication();
-				}
+				throw NoExternalCommunication();
+			}
 
-				await _externalCommunication.StartInvoke(invokeData, token).ConfigureAwait(false);
-			}
-			catch (Exception ex)
-			{
-				throw new CommunicationException(ex, _sessionId);
-			}
+			await ExternalCommunication.StartInvoke(invokeData).ConfigureAwait(false);
 		}
-
-		async ValueTask IExternalCommunication.CancelInvoke(InvokeId invokeId, CancellationToken token)
+		catch (Exception ex)
 		{
-			try
-			{
-				if (_externalCommunication is null)
-				{
-					throw NoExternalCommunication();
-				}
-
-				await _externalCommunication.CancelInvoke(invokeId, token).ConfigureAwait(false);
-			}
-			catch (Exception ex)
-			{
-				throw new CommunicationException(ex, _sessionId);
-			}
+			throw new CommunicationException(ex) { Token = _stateMachineToken };
 		}
-
-		bool IExternalCommunication.IsInvokeActive(InvokeId invokeId) => IsInvokeActive(invokeId);
-
-		async ValueTask<SendStatus> IExternalCommunication.TrySendEvent(IOutgoingEvent evt, CancellationToken token)
-		{
-			if (evt is null) throw new ArgumentNullException(nameof(evt));
-
-			try
-			{
-				if (_externalCommunication is null)
-				{
-					throw NoExternalCommunication();
-				}
-
-				return await _externalCommunication.TrySendEvent(evt, token).ConfigureAwait(false);
-			}
-			catch (Exception ex)
-			{
-				throw new CommunicationException(ex, _sessionId, evt.SendId);
-			}
-		}
-
-		ValueTask IExternalCommunication.ForwardEvent(IEvent evt, InvokeId invokeId, CancellationToken token) => ForwardEvent(evt, invokeId, token);
-
-		async ValueTask IExternalCommunication.CancelEvent(SendId sendId, CancellationToken token)
-		{
-			try
-			{
-				if (_externalCommunication is null)
-				{
-					throw NoExternalCommunication();
-				}
-
-				await _externalCommunication.CancelEvent(sendId, token).ConfigureAwait(false);
-			}
-			catch (Exception ex)
-			{
-				throw new CommunicationException(ex, _sessionId, sendId);
-			}
-		}
-
-	#endregion
-
-		private bool IsInvokeActive(InvokeId invokeId) => _externalCommunication?.IsInvokeActive(invokeId) == true;
-
-		private bool IsCommunicationError(Exception exception, out SendId? sendId)
-		{
-			for (; exception is { }; exception = exception.InnerException)
-			{
-				if (exception is CommunicationException ex && ex.SessionId == _sessionId)
-				{
-					sendId = ex.SendId;
-
-					return true;
-				}
-			}
-
-			sendId = null;
-
-			return false;
-		}
-
-		private async ValueTask ForwardEvent(IEvent evt, InvokeId invokeId, CancellationToken token)
-		{
-			try
-			{
-				if (_externalCommunication is null)
-				{
-					throw NoExternalCommunication();
-				}
-
-				await _externalCommunication.ForwardEvent(evt, invokeId, token).ConfigureAwait(false);
-			}
-			catch (Exception ex)
-			{
-				throw new CommunicationException(ex, _sessionId);
-			}
-		}
-
-		private static NotSupportedException NoExternalCommunication() => new NotSupportedException(Resources.Exception_External_communication_does_not_configured_for_state_machine_interpreter);
 	}
+
+	async ValueTask IExternalCommunication2.CancelInvoke(InvokeId invokeId)
+	{
+		try
+		{
+			if (ExternalCommunication is null)
+			{
+				throw NoExternalCommunication();
+			}
+
+			await ExternalCommunication.CancelInvoke(invokeId).ConfigureAwait(false);
+		}
+		catch (Exception ex)
+		{
+			throw new CommunicationException(ex) { Token = _stateMachineToken };
+		}
+	}
+
+	async ValueTask<SendStatus> IExternalCommunication2.TrySendEvent(IOutgoingEvent outgoingEvent)
+	{
+		if (outgoingEvent is null) throw new ArgumentNullException(nameof(outgoingEvent));
+
+		try
+		{
+			if (ExternalCommunication is null)
+			{
+				throw NoExternalCommunication();
+			}
+
+			return await ExternalCommunication.TrySendEvent(outgoingEvent).ConfigureAwait(false);
+		}
+		catch (Exception ex)
+		{
+			throw new CommunicationException(ex, outgoingEvent.SendId) { Token = _stateMachineToken };
+		}
+	}
+
+	async ValueTask IExternalCommunication2.CancelEvent(SendId sendId)
+	{
+		try
+		{
+			if (ExternalCommunication is null)
+			{
+				throw NoExternalCommunication();
+			}
+
+			await ExternalCommunication.CancelEvent(sendId).ConfigureAwait(false);
+		}
+		catch (Exception ex)
+		{
+			throw new CommunicationException(ex, sendId) { Token = _stateMachineToken };
+		}
+	}
+
+#endregion
+
+	private async ValueTask ForwardEvent(IEvent evt, InvokeId invokeId)
+	{
+		try
+		{
+			if (ExternalCommunication is null)
+			{
+				throw NoExternalCommunication();
+			}
+
+			await ExternalCommunication.ForwardEvent(evt, invokeId).ConfigureAwait(false);
+		}
+		catch (Exception ex)
+		{
+			throw new CommunicationException(ex) { Token = _stateMachineToken };
+		}
+	}
+
+	private static NotSupportedException NoExternalCommunication() => new(Resources.Exception_ExternalCommunicationDoesNotConfiguredForStateMachineInterpreter);
 }
