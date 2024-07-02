@@ -28,16 +28,7 @@ public class PlatformException : XtateException
 
 	public PlatformException(string message, Exception innerException) : base(message, innerException) { }
 
-<<<<<<< Updated upstream
-		public PlatformException(Exception innerException) : base(message: null, innerException) { }
-
-		protected PlatformException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-
-		internal object? Token { get; init; }
-	}
-=======
 	public PlatformException(Exception innerException) : base(message: null, innerException) { }
 
 	internal object? Token { get; init; }
->>>>>>> Stashed changes
 }

@@ -21,12 +21,5 @@ namespace Xtate.Core;
 
 public interface IEventDispatcher
 {
-<<<<<<< Updated upstream
-	public interface IEventDispatcher
-	{
-		ValueTask Send(IEvent evt, CancellationToken token);
-	}
-=======
 	ValueTask Send(IEvent evt, CancellationToken token);
->>>>>>> Stashed changes
 }

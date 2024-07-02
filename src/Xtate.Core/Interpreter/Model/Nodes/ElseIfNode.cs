@@ -23,14 +23,10 @@ namespace Xtate.Core;
 
 public sealed class ElseIfNode : IElseIf, IAncestorProvider, IStoreSupport, IDocumentId, IDebugEntityId
 {
-<<<<<<< Updated upstream
-	public sealed class ElseIfNode : IElseIf, IAncestorProvider, IStoreSupport, IDocumentId, IDebugEntityId
-=======
 	private readonly IElseIf        _elseIf;
 	private          DocumentIdSlot _documentIdSlot;
 
 	public ElseIfNode(DocumentIdNode documentIdNode, IElseIf elseIf)
->>>>>>> Stashed changes
 	{
 		Infra.NotNull(elseIf.Condition);
 

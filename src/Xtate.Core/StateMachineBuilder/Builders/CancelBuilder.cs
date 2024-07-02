@@ -17,11 +17,7 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using Xtate.Core;
-=======
 namespace Xtate.Builder;
->>>>>>> Stashed changes
 
 public class CancelBuilder : BuilderBase, ICancelBuilder
 {
@@ -36,29 +32,7 @@ public class CancelBuilder : BuilderBase, ICancelBuilder
 	{
 		Infra.RequiresNonEmptyString(sendId);
 
-<<<<<<< Updated upstream
-	#region Interface ICancelBuilder
-
-		public ICancel Build() => new CancelEntity { Ancestor = Ancestor, SendId = _sendId, SendIdExpression = _sendIdExpression };
-
-		public void SetSendId(string sendId)
-		{
-			Infra.RequiresNonEmptyString(sendId);
-
-			_sendId = sendId;
-		}
-
-		public void SetSendIdExpression(IValueExpression sendIdExpression)
-		{
-			Infra.Requires(sendIdExpression);
-
-			_sendIdExpression = sendIdExpression;
-		}
-
-	#endregion
-=======
 		_sendId = sendId;
->>>>>>> Stashed changes
 	}
 
 	public void SetSendIdExpression(IValueExpression sendIdExpression)

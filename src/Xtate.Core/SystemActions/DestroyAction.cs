@@ -59,29 +59,6 @@ public class DestroyAction : CustomActionBase, IDisposable
 
 #endregion
 
-<<<<<<< Updated upstream
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Xml;
-using Xtate.Core;
-
-namespace Xtate.CustomAction
-{
-	public class DestroyAction : CustomActionBase, IDisposable
-	{
-
-		private const string SessionId     = "sessionId";
-		private const string SessionIdExpr = "sessionIdExpr";
-
-		private readonly DisposingToken        _disposingToken = new();
-		private readonly string?               _sessionId;
-		private readonly IExpressionEvaluator? _sessionIdExpression;
-
-		public required Func<ValueTask<IExecutionContext>> ExecutionContextFactory { private get; init; }
-
-		public DestroyAction(ICustomActionContext access, XmlReader xmlReader)
-=======
 	public override async ValueTask Execute()
 	{
 		var sessionId = await GetSessionId().ConfigureAwait(false);
@@ -94,7 +71,6 @@ namespace Xtate.CustomAction
 		var sessionId = await _sessionIdValue.GetValue().ConfigureAwait(false);
 
 		if (string.IsNullOrEmpty(sessionId))
->>>>>>> Stashed changes
 		{
 			throw new ProcessorException(Resources.Exception_SessionIdCouldNotBeEmpty);
 		}
@@ -102,70 +78,11 @@ namespace Xtate.CustomAction
 		return SessionId.FromString(sessionId);
 	}
 
-<<<<<<< Updated upstream
-		public async ValueTask Execute()
-		{
-			var executionContext = await ExecutionContextFactory().ConfigureAwait(false);
-
-			var host = GetHost(executionContext);
-			var sessionId = await GetSessionId().ConfigureAwait(false);
-
-			if (sessionId is { Length: 0 })
-			{
-				throw new ProcessorException(Resources.Exception_SessionIdCouldNotBeEmpty);
-			}
-
-			await host.DestroyStateMachine(Xtate.SessionId.FromString(sessionId), _disposingToken.Token).ConfigureAwait(false);
-		}
-
-	#endregion
-
-		private static IHost GetHost(IExecutionContext executionContext)
-		{
-			if (executionContext.RuntimeItems[typeof(IHost)] is IHost host)
-			{
-				return host;
-			}
-
-			throw new ProcessorException(Resources.Exception_CantGetAccessToIHostInterface);
-		}
-
-		private async ValueTask<string> GetSessionId()
-		{
-			if (_sessionId is not null)
-			{
-				return _sessionId;
-			}
-
-			if (_sessionIdExpression is not null)
-			{
-				var value = await _sessionIdExpression.Evaluate().ConfigureAwait(false);
-
-				return value.AsString();
-			}
-
-			return Infra.Fail<string>();
-=======
 	protected virtual void Dispose(bool disposing)
 	{
 		if (disposing)
 		{
 			_disposingToken.Dispose();
->>>>>>> Stashed changes
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				_disposingToken.Dispose();
-			}
-		}
-
-		public void Dispose()
-		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
 		}
 	}
 }

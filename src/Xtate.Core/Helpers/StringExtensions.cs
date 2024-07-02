@@ -39,32 +39,9 @@ public static class StringExtensions
 
 		if (str.Length <= 32768)
 		{
-<<<<<<< Updated upstream
-			Infra.Requires(str);
-
-			if (str.Length == 0) return string.Empty;
-
-			if (str.Length <= 32768)
-			{
-				Span<char> buf = stackalloc char[str.Length];
-
-				return RemoveSpaces(str, buf);
-			}
-
-			var array = ArrayPool<char>.Shared.Rent(str.Length);
-			try
-			{
-				return RemoveSpaces(str, array);
-			}
-			finally
-			{
-				ArrayPool<char>.Shared.Return(array, true);
-			}
-=======
 			Span<char> buf = stackalloc char[str.Length];
 
 			return RemoveSpaces(str, buf);
->>>>>>> Stashed changes
 		}
 
 		var array = ArrayPool<char>.Shared.Rent(str.Length);

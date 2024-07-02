@@ -21,12 +21,5 @@ namespace Xtate;
 
 public interface IInlineContent : IEntity
 {
-<<<<<<< Updated upstream
-	public interface IInlineContent : IEntity
-	{
-		string? Value { get; }
-	}
-=======
 	string? Value { get; }
->>>>>>> Stashed changes
 }

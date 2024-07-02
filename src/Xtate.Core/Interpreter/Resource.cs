@@ -26,14 +26,6 @@ namespace Xtate.Core;
 
 public class Resource(Stream stream, ContentType? contentType = default) : IDisposable, IAsyncDisposable, IXIncludeResource
 {
-<<<<<<< Updated upstream
-	public class Resource : IDisposable, IAsyncDisposable, IXIncludeResource
-	{
-		private readonly DisposingToken _disposingToken = new();
-		private readonly Stream         _stream;
-		private          byte[]?        _bytes;
-		private          string?        _content;
-=======
 	private readonly DisposingToken _disposingToken = new();
 	private readonly Stream _stream = stream ?? throw new ArgumentNullException(nameof(stream));
 	private          byte[]?        _bytes;
@@ -46,7 +38,6 @@ public class Resource(Stream stream, ContentType? contentType = default) : IDisp
 	public async ValueTask DisposeAsync()
 	{
 		await DisposeAsyncCore().ConfigureAwait(false);
->>>>>>> Stashed changes
 
 		Dispose(false);
 		GC.SuppressFinalize(this);
@@ -54,54 +45,6 @@ public class Resource(Stream stream, ContentType? contentType = default) : IDisp
 
 #endregion
 
-<<<<<<< Updated upstream
-	#region Interface IDisposable
-
-		public void Dispose()
-		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-	#endregion
-
-	#region Interface IAsyncDisposable
-
-		public async ValueTask DisposeAsync()
-		{
-			await DisposeAsyncCore().ConfigureAwait(false);
-
-			Dispose(false);
-			GC.SuppressFinalize(this);
-		}
-
-	#endregion
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				_disposingToken.Dispose();
-			}
-		}
-
-		protected virtual ValueTask DisposeAsyncCore()
-		{
-			_disposingToken.Dispose();
-
-			return default;
-		}
-
-	#region Interface IXIncludeResource
-
-		ValueTask<Stream> IXIncludeResource.GetStream() => GetStream(doNotCache: true);
-
-		public ContentType? ContentType { get; }
-
-	#endregion
-
-		public async ValueTask<string> GetContent()
-=======
 #region Interface IDisposable
 
 	public void Dispose()
@@ -123,7 +66,6 @@ public class Resource(Stream stream, ContentType? contentType = default) : IDisp
 	protected virtual void Dispose(bool disposing)
 	{
 		if (disposing)
->>>>>>> Stashed changes
 		{
 			_disposingToken.Dispose();
 		}
@@ -136,17 +78,6 @@ public class Resource(Stream stream, ContentType? contentType = default) : IDisp
 		return default;
 	}
 
-<<<<<<< Updated upstream
-			await using (_stream.ConfigureAwait(false))
-			{
-				using var reader = new StreamReader(_stream.InjectCancellationToken(_disposingToken.Token), Encoding, detectEncodingFromByteOrderMarks: true);
-
-				return _content = await reader.ReadToEndAsync().ConfigureAwait(false);
-			}
-		}
-
-		public async ValueTask<byte[]> GetBytes()
-=======
 	public async ValueTask<string> GetContent()
 	{
 		if (_content is not null)
@@ -155,29 +86,13 @@ public class Resource(Stream stream, ContentType? contentType = default) : IDisp
 		}
 
 		if (_bytes is not null)
->>>>>>> Stashed changes
 		{
 			using var reader = new StreamReader(new MemoryStream(_bytes), Encoding, detectEncodingFromByteOrderMarks: true);
 
-<<<<<<< Updated upstream
-			if (_content is not null)
-			{
-				return _bytes = Encoding.GetBytes(_content);
-			}
-
-			await using (_stream.ConfigureAwait(false))
-			{
-				return _bytes = await _stream.ReadToEndAsync(_disposingToken.Token).ConfigureAwait(false);
-			}
-		}
-
-		public async ValueTask<Stream> GetStream(bool doNotCache)
-=======
 			return _content = await reader.ReadToEndAsync().ConfigureAwait(false);
 		}
 
 		await using (_stream.ConfigureAwait(false))
->>>>>>> Stashed changes
 		{
 			using var reader = new StreamReader(_stream.InjectCancellationToken(_disposingToken.Token), Encoding, detectEncodingFromByteOrderMarks: true);
 
@@ -192,16 +107,10 @@ public class Resource(Stream stream, ContentType? contentType = default) : IDisp
 			return _bytes;
 		}
 
-<<<<<<< Updated upstream
-			await using (_stream.ConfigureAwait(false))
-			{
-				_bytes = await _stream.ReadToEndAsync(_disposingToken.Token).ConfigureAwait(false);
-=======
 		if (_content is not null)
 		{
 			return _bytes = Encoding.GetBytes(_content);
 		}
->>>>>>> Stashed changes
 
 		await using (_stream.ConfigureAwait(false))
 		{

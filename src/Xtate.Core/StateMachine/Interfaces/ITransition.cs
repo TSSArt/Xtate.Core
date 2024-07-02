@@ -21,20 +21,9 @@ namespace Xtate;
 
 public interface ITransition : IEntity
 {
-<<<<<<< Updated upstream
-	public interface ITransition : IEntity
-	{
-		ImmutableArray<IEventDescriptor>  EventDescriptors { get; }
-		IConditionExpression?             Condition        { get; }
-		ImmutableArray<IIdentifier>       Target           { get; }
-		TransitionType                    Type             { get; }
-		ImmutableArray<IExecutableEntity> Action           { get; }
-	}
-=======
 	ImmutableArray<IEventDescriptor>  EventDescriptors { get; }
 	IConditionExpression?             Condition        { get; }
 	ImmutableArray<IIdentifier>       Target           { get; }
 	TransitionType                    Type             { get; }
 	ImmutableArray<IExecutableEntity> Action           { get; }
->>>>>>> Stashed changes
 }

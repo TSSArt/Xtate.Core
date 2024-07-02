@@ -32,9 +32,6 @@ public abstract class ServiceFactoryBase : IServiceFactory
 		return new ValueTask<IServiceFactoryActivator?>(_activator.CanHandle(type) ? _activator : null);
 	}
 
-<<<<<<< Updated upstream
-		public ValueTask<IServiceFactoryActivator?> TryGetActivator(ServiceLocator serviceLocator, Uri type, CancellationToken token)
-=======
 #endregion
 
 	private Activator CreateActivator()
@@ -55,7 +52,6 @@ public abstract class ServiceFactoryBase : IServiceFactory
 #region Interface IServiceCatalog
 
 		public void Register(string type, IServiceCatalog.Creator creator)
->>>>>>> Stashed changes
 		{
 			if (string.IsNullOrEmpty(type)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(type));
 			if (creator is null) throw new ArgumentNullException(nameof(creator));
@@ -76,65 +72,7 @@ public abstract class ServiceFactoryBase : IServiceFactory
 			if (string.IsNullOrEmpty(type)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(type));
 			if (creator is null) throw new ArgumentNullException(nameof(creator));
 
-<<<<<<< Updated upstream
-		#region Interface IServiceCatalog
-
-			public void Register(string type, IServiceCatalog.Creator creator)
-			{
-				if (string.IsNullOrEmpty(type)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(type));
-				if (creator is null) throw new ArgumentNullException(nameof(creator));
-
-				_creators.Add(new Uri(type, UriKind.RelativeOrAbsolute), creator);
-			}
-
-			public void Register(string type, IServiceCatalog.ServiceCreator creator)
-			{
-				if (string.IsNullOrEmpty(type)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(type));
-				if (creator is null) throw new ArgumentNullException(nameof(creator));
-
-				_creators.Add(new Uri(type, UriKind.RelativeOrAbsolute), creator);
-			}
-
-			public void Register(string type, IServiceCatalog.ServiceCreatorAsync creator)
-			{
-				if (string.IsNullOrEmpty(type)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(type));
-				if (creator is null) throw new ArgumentNullException(nameof(creator));
-
-				_creators.Add(new Uri(type, UriKind.RelativeOrAbsolute), creator);
-			}
-
-		#endregion
-
-			public bool CanHandle(Uri type) => _creators.ContainsKey(type);
-
-			public ValueTask<IService> CreateService(ServiceLocator serviceLocator,
-													 Uri? baseUri,
-													 InvokeData invokeData,
-													 IServiceCommunication serviceCommunication,
-													 CancellationToken token)
-			{
-				switch (_creators[invokeData.Type])
-				{
-					case IServiceCatalog.Creator creator:
-						var service = creator();
-
-						service.Start(baseUri, invokeData, serviceCommunication);
-
-						return new ValueTask<IService>(service);
-
-					case IServiceCatalog.ServiceCreator creator:
-						return new ValueTask<IService>(creator(baseUri, invokeData, serviceCommunication));
-
-					case IServiceCatalog.ServiceCreatorAsync creator:
-						return creator(serviceLocator, baseUri, invokeData, serviceCommunication, token);
-
-					default:
-						return Infra.Unexpected<ValueTask<IService>>(_creators[invokeData.Type].GetType());
-				}
-			}
-=======
 			_creators.Add(new Uri(type, UriKind.RelativeOrAbsolute), creator);
->>>>>>> Stashed changes
 		}
 
 #endregion
@@ -171,32 +109,13 @@ public abstract class ServiceFactoryBase : IServiceFactory
 
 		#region Interface IServiceFactoryActivator
 
-<<<<<<< Updated upstream
-			public ValueTask<IService> StartService(ServiceLocator serviceLocator,
-													Uri? baseUri,
-													InvokeData invokeData,
-													IServiceCommunication serviceCommunication,
-													CancellationToken token)
-			{
-				if (invokeData is null) throw new ArgumentNullException(nameof(invokeData));
-=======
 		public ValueTask<IService> StartService(Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication)
 		{
 			if (invokeData is null) throw new ArgumentNullException(nameof(invokeData));
->>>>>>> Stashed changes
 
 			Infra.Assert(CanHandle(invokeData.Type));
 
-<<<<<<< Updated upstream
-				return _catalog.CreateService(serviceLocator, baseUri, invokeData, serviceCommunication, token);
-			}
-
-		#endregion
-
-			public bool CanHandle(Uri type) => _catalog.CanHandle(type);
-=======
 			return catalog.CreateService(baseUri, invokeData, serviceCommunication);
->>>>>>> Stashed changes
 		}
 
 #endregion

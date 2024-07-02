@@ -21,12 +21,5 @@ namespace Xtate.Core;
 
 public interface IDebugEntityId
 {
-<<<<<<< Updated upstream
-	public interface IDebugEntityId
-	{
-		FormattableString EntityId { get; }
-	}
-=======
 	FormattableString EntityId { get; }
->>>>>>> Stashed changes
 }

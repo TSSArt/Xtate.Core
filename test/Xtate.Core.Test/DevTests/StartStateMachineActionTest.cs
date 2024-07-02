@@ -17,17 +17,6 @@
 
 #endregion
 
-<<<<<<<< Updated upstream:src/Xtate.DataModel.EcmaScript/src/Xtate.DataModel.EcmaScript/ServiceModule.cs
-using Xtate.Core;
-using Xtate.IoC;
-
-namespace Xtate.DataModel.EcmaScript
-{
-	[UsedImplicitly]
-	public class ServiceModule : IServiceModule
-	{
-		public void Register(IServiceCollection servicesCollection) => servicesCollection.AddEcmaScript();
-========
 namespace Xtate.Test.DevTests
 {
 	[TestClass]
@@ -41,6 +30,5 @@ namespace Xtate.Test.DevTests
 			// act
 			//await Host.ExecuteAsync(".\\Resources\\All.xml");
 		}
->>>>>>>> Stashed changes:src/Xtate.Core/test/Xtate.Core.Test/DevTests/StartStateMachineActionTest.cs
 	}
 }

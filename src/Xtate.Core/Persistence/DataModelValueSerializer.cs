@@ -21,24 +21,6 @@ namespace Xtate.Persistence;
 
 public static class DataModelValueSerializer
 {
-<<<<<<< Updated upstream
-	public static class DataModelValueSerializer
-	{
-		public static void Save(IStorage storage, string key, in DataModelValue value)
-		{
-			var bucket = new Bucket(storage).Nested(key);
-			using var tracker = new DataModelReferenceTracker(bucket.Nested(Key.DataReferences));
-			bucket.SetDataModelValue(tracker, value);
-		}
-
-		public static DataModelValue Load(IStorage storage, string key)
-		{
-			var bucket = new Bucket(storage).Nested(key);
-			using var tracker = new DataModelReferenceTracker(bucket.Nested(Key.DataReferences));
-
-			return bucket.GetDataModelValue(tracker, baseValue: default);
-		}
-=======
 	public static void Save(IStorage storage, string key, in DataModelValue value)
 	{
 		var bucket = new Bucket(storage).Nested(key);
@@ -52,6 +34,5 @@ public static class DataModelValueSerializer
 		using var tracker = new DataModelReferenceTracker(bucket.Nested(Key.DataReferences));
 
 		return bucket.GetDataModelValue(tracker, baseValue: default);
->>>>>>> Stashed changes
 	}
 }

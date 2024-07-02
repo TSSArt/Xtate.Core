@@ -19,7 +19,6 @@
 
 using System.Buffers;
 using System.IO;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Xtate.DataModel.XPath;
@@ -79,16 +78,6 @@ public static class DataModelConverter
 		{
 			Converters =
 			{
-<<<<<<< Updated upstream
-				Converters =
-				{
-					new JsonValueConverter(options),
-					new JsonListConverter(options)
-				},
-				WriteIndented = (options & DataModelConverterJsonOptions.WriteIndented) != 0,
-				MaxDepth = 64,
-				
-=======
 				new JsonValueConverter(options),
 				new JsonListConverter(options)
 			},
@@ -257,45 +246,16 @@ public static class DataModelConverter
 				JsonTokenType.StartObject => JsonSerializer.Deserialize<DataModelList>(ref reader, options),
 				JsonTokenType.StartArray => JsonSerializer.Deserialize<DataModelList>(ref reader, options),
 				_ => Infra.Unexpected<DataModelValue>(reader.TokenType, Resources.Exception_NotExpectedTokenType)
->>>>>>> Stashed changes
 			};
 
 		public override void Write(Utf8JsonWriter writer, DataModelValue value, JsonSerializerOptions options)
 		{
-<<<<<<< Updated upstream
-			Infra.Requires(list);
-
-			if (list.GetMetadata() is { } metadata && metadata[TypeMetaKey, caseInsensitive: false] is { } value)
-=======
 			switch (value.Type)
->>>>>>> Stashed changes
 			{
 				case DataModelValueType.Undefined when (converterOptions & DataModelConverterJsonOptions.UndefinedToNull) != 0:
 					writer.WriteNullValue();
 					break;
 
-<<<<<<< Updated upstream
-			return list is { Count: > 0, HasKeys: false };
-		}
-
-		public static bool IsObject(DataModelList list)
-		{
-			Infra.Requires(list);
-
-			if (list.GetMetadata() is { } metadata && metadata[TypeMetaKey, caseInsensitive: false] is { } value)
-			{
-				switch (value.AsStringOrDefault())
-				{
-					case ObjectMetaValue: return true;
-					case ArrayMetaValue:  return false;
-				}
-			}
-
-			return list.Count > 0 && list.HasKeys;
-		}
-
-		public static DataModelList CreateAsObject()
-=======
 				case DataModelValueType.Undefined when (converterOptions & DataModelConverterJsonOptions.UndefinedToSkip) == 0:
 					throw new JsonException(Resources.Exception_UndefinedValueNotAllowed);
 
@@ -371,7 +331,6 @@ public static class DataModelConverter
 		}
 
 		private static DataModelList ReadObject(ref Utf8JsonReader reader, JsonSerializerOptions options)
->>>>>>> Stashed changes
 		{
 			var list = new DataModelList();
 
@@ -447,121 +406,15 @@ public static class DataModelConverter
 			return list;
 		}
 
-<<<<<<< Updated upstream
-		public static string ToJson(DataModelValue value, DataModelConverterJsonOptions options = default) => JsonSerializer.Serialize(value, GetOptions(options));
-
-		public static byte[] ToJsonUtf8Bytes(DataModelValue value, DataModelConverterJsonOptions options = default) => JsonSerializer.SerializeToUtf8Bytes(value, GetOptions(options));
-
-		public static Task ToJsonAsync(Stream stream,
-									   DataModelValue value,
-									   DataModelConverterJsonOptions options = default,
-									   CancellationToken token = default)
-		{
-			Infra.Requires(stream);
-
-			return JsonSerializer.SerializeAsync(stream, value, GetOptions(options), token);
-		}
-
-		public static DataModelValue FromJson(string json)
-		{
-			Infra.Requires(json);
-
-			return JsonSerializer.Deserialize<DataModelValue>(json, DefaultOptions);
-		}
-
-		public static async ValueTask<DataModelValue> FromJsonContentAsync(Resource resource)
-		{
-			Infra.Requires(resource);
-
-			if (resource.Encoding.CodePage == 65001)
-			{
-				var stream = await resource.GetStream(true).ConfigureAwait(false);
-
-				return await JsonSerializer.DeserializeAsync<DataModelValue>(stream, DefaultOptions).ConfigureAwait(false);
-			}
-
-			var content = await resource.GetContent().ConfigureAwait(false);
-
-			return JsonSerializer.Deserialize<DataModelValue>(content, DefaultOptions);
-		}
-
-		public static DataModelValue FromJson(ReadOnlySpan<byte> utf8Json) => JsonSerializer.Deserialize<DataModelValue>(utf8Json, DefaultOptions);
-
-		public static ValueTask<DataModelValue> FromJsonAsync(Stream stream, CancellationToken token = default)
-		{
-			Infra.Requires(stream);
-
-			return JsonSerializer.DeserializeAsync<DataModelValue>(stream, DefaultOptions, token);
-		}
-
-		public static string ToXml(DataModelValue value, DataModelConverterXmlOptions options = default) => XmlConverter.ToXml(value, (options & DataModelConverterXmlOptions.WriteIndented) != 0);
-
-		public static byte[] ToXmlUtf8Bytes(DataModelValue value, DataModelConverterXmlOptions options = default)
-=======
 		private void WriteArray(Utf8JsonWriter writer, DataModelList list, JsonSerializerOptions options)
->>>>>>> Stashed changes
 		{
 			writer.WriteStartArray();
 
-<<<<<<< Updated upstream
-			return memoryStream.ToArray();
-		}
-
-		public static Task ToXmlAsync(Stream stream,
-									  DataModelValue value,
-									  DataModelConverterXmlOptions options = default,
-									  CancellationToken token = default)
-		{
-			Infra.Requires(stream);
-
-			return XmlConverter.AsXmlToStreamAsync(value, (options & DataModelConverterXmlOptions.WriteIndented) != 0, stream.InjectCancellationToken(token));
-		}
-
-		public static DataModelValue FromXml(string xml)
-		{
-			Infra.Requires(xml);
-
-			return XmlConverter.FromXml(xml);
-		}
-
-		public static DataModelValue FromXml(ReadOnlySpan<byte> xml)
-		{
-			var bytes = ArrayPool<byte>.Shared.Rent(xml.Length);
-			try
-			{
-				xml.CopyTo(bytes);
-				var memoryStream = new MemoryStream(bytes, index: 0, xml.Length);
-
-				return XmlConverter.FromXmlStream(memoryStream);
-			}
-			finally
-			{
-				ArrayPool<byte>.Shared.Return(bytes);
-			}
-		}
-
-		public static ValueTask<DataModelValue> FromXmlAsync(Stream stream, CancellationToken token = default)
-		{
-			Infra.Requires(stream);
-
-			return XmlConverter.FromXmlStreamAsync(stream.InjectCancellationToken(token));
-		}
-
-		private class JsonValueConverter : JsonConverter<DataModelValue>
-		{
-			private readonly DataModelConverterJsonOptions _options;
-
-			public JsonValueConverter(DataModelConverterJsonOptions options) => _options = options;
-
-			public override DataModelValue Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
-				reader.TokenType switch
-=======
 			var arrayLength = list.Count;
 			for (var i = 0; i < arrayLength; i ++)
 			{
 				var value = list[i];
 				if (!value.IsUndefined())
->>>>>>> Stashed changes
 				{
 					JsonSerializer.Serialize(writer, value, options);
 				}

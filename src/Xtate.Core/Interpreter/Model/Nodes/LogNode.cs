@@ -19,15 +19,7 @@
 
 using Xtate.Persistence;
 
-<<<<<<< Updated upstream
-namespace Xtate.Core
-{
-	public sealed class LogNode : ExecutableEntityNode, ILog, IAncestorProvider, IDebugEntityId
-	{
-		private readonly ILog _log;
-=======
 namespace Xtate.Core;
->>>>>>> Stashed changes
 
 public sealed class LogNode(DocumentIdNode documentIdNode, ILog log) : ExecutableEntityNode(documentIdNode, log), ILog, IAncestorProvider, IDebugEntityId
 {

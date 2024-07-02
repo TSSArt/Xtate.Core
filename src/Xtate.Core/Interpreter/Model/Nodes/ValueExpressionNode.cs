@@ -19,15 +19,7 @@
 
 using Xtate.Persistence;
 
-<<<<<<< Updated upstream
-namespace Xtate.Core
-{
-	public sealed class ValueExpressionNode : IValueExpression, IStoreSupport, IAncestorProvider
-	{
-		private readonly IValueExpression _valueExpression;
-=======
 namespace Xtate.Core;
->>>>>>> Stashed changes
 
 public sealed class ValueExpressionNode(IValueExpression valueExpression) : IValueExpression, IStoreSupport, IAncestorProvider
 {

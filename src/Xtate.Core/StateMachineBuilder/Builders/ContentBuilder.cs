@@ -32,29 +32,7 @@ public class ContentBuilder : BuilderBase, IContentBuilder
 	{
 		Infra.Requires(expression);
 
-<<<<<<< Updated upstream
-	#region Interface IContentBuilder
-
-		public IContent Build() => new ContentEntity { Ancestor = Ancestor, Expression = _expression, Body = _body };
-
-		public void SetExpression(IValueExpression expression)
-		{
-			Infra.Requires(expression);
-
-			_expression = expression;
-		}
-
-		public void SetBody(IContentBody body)
-		{
-			Infra.Requires(body);
-
-			_body = body;
-		}
-
-	#endregion
-=======
 		_expression = expression;
->>>>>>> Stashed changes
 	}
 
 	public void SetBody(IContentBody body)

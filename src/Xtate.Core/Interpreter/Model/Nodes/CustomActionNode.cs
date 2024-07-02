@@ -23,13 +23,9 @@ namespace Xtate.Core;
 
 public sealed class CustomActionNode : ExecutableEntityNode, ICustomAction, IAncestorProvider
 {
-<<<<<<< Updated upstream
-	public sealed class CustomActionNode : ExecutableEntityNode, ICustomAction, IAncestorProvider
-=======
 	private readonly ICustomAction _customAction;
 
 	public CustomActionNode(DocumentIdNode documentIdNode, ICustomAction customAction) : base(documentIdNode, customAction)
->>>>>>> Stashed changes
 	{
 		Infra.NotNull(customAction.Xml);
 

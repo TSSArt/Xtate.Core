@@ -21,9 +21,6 @@ namespace Xtate.Core;
 
 public sealed class CancelNode(DocumentIdNode documentIdNode, ICancel cancel) : ExecutableEntityNode(documentIdNode, cancel), ICancel, IAncestorProvider, IDebugEntityId
 {
-<<<<<<< Updated upstream
-	public sealed class CancelNode : ExecutableEntityNode, ICancel, IAncestorProvider, IDebugEntityId
-=======
 #region Interface IAncestorProvider
 
 	object IAncestorProvider.Ancestor => cancel;
@@ -45,7 +42,6 @@ public sealed class CancelNode(DocumentIdNode documentIdNode, ICancel cancel) : 
 #endregion
 
 	protected override void Store(Bucket bucket)
->>>>>>> Stashed changes
 	{
 		bucket.Add(Key.TypeInfo, TypeInfo.CancelNode);
 		bucket.Add(Key.DocumentId, DocumentId);

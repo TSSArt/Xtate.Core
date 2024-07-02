@@ -26,12 +26,5 @@ public class StateMachineLiveLockException : XtateException
 
 	public StateMachineLiveLockException(string message) : base(message) { }
 
-<<<<<<< Updated upstream
-		public StateMachineLiveLockException(string message, Exception innerException) : base(message, innerException) { }
-
-		protected StateMachineLiveLockException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-	}
-=======
 	public StateMachineLiveLockException(string message, Exception innerException) : base(message, innerException) { }
->>>>>>> Stashed changes
 }

@@ -17,106 +17,12 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using System;
-using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
-using Xtate.Core;
-=======
->>>>>>> Stashed changes
 using Xtate.DataModel.Runtime;
 
 namespace Xtate.Builder;
 
 public class ParallelFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 {
-<<<<<<< Updated upstream
-	public class ParallelFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
-	{
-		public required IParallelBuilder  Builder { private get; init; }
-		public required Action<IParallel> BuiltAction     { private get; init; }
-		public required TOuterBuilder     OuterBuilder    { private get; init; }
-
-		public required Func<ParallelFluentBuilder<TOuterBuilder>, Action<IState>, StateFluentBuilder<ParallelFluentBuilder<TOuterBuilder>>>       StateFluentBuilderFactory    { private get; init; }
-		public required Func<ParallelFluentBuilder<TOuterBuilder>, Action<IParallel>, ParallelFluentBuilder<ParallelFluentBuilder<TOuterBuilder>>> ParallelFluentBuilderFactory { private get; init; }
-		public required Func<ParallelFluentBuilder<TOuterBuilder>, Action<IHistory>, HistoryFluentBuilder<ParallelFluentBuilder<TOuterBuilder>>>   HistoryFluentBuilderFactory  { private get; init; }
-
-		public required Func<ParallelFluentBuilder<TOuterBuilder>, Action<ITransition>, TransitionFluentBuilder<ParallelFluentBuilder<TOuterBuilder>>> TransitionFluentBuilderFactory
-		{
-			private get;
-			init;
-		}
-
-		[return: NotNull]
-		public TOuterBuilder EndParallel()
-		{
-			BuiltAction(Builder.Build());
-
-			return OuterBuilder;
-		}
-
-		public ParallelFluentBuilder<TOuterBuilder> SetId(string id) => SetId((Identifier) id);
-
-		public ParallelFluentBuilder<TOuterBuilder> SetId(IIdentifier id)
-		{
-			Infra.Requires(id);
-
-			Builder.SetId(id);
-
-			return this;
-		}
-
-		private ParallelFluentBuilder<TOuterBuilder> AddOnEntry(IExecutableEntity action)
-		{
-			Builder.AddOnEntry(new OnEntryEntity { Action = ImmutableArray.Create(action) });
-
-			return this;
-		}
-
-		public ParallelFluentBuilder<TOuterBuilder> AddOnEntry(Action action) => AddOnEntry(RuntimeAction.GetAction(action));
-
-		public ParallelFluentBuilder<TOuterBuilder> AddOnEntryAsync(Func<ValueTask> action) => AddOnEntry(RuntimeAction.GetAction(action));
-
-		private ParallelFluentBuilder<TOuterBuilder> AddOnExit(IExecutableEntity action)
-		{
-			Builder.AddOnExit(new OnExitEntity { Action = ImmutableArray.Create(action) });
-
-			return this;
-		}
-
-		public ParallelFluentBuilder<TOuterBuilder> AddOnExit(Action action) => AddOnExit(RuntimeAction.GetAction(action));
-
-		public ParallelFluentBuilder<TOuterBuilder> AddOnExitAsync(Func<ValueTask> action) => AddOnExit(RuntimeAction.GetAction(action));
-
-		public StateFluentBuilder<ParallelFluentBuilder<TOuterBuilder>> BeginState() => StateFluentBuilderFactory(this, Builder.AddState);
-
-		public ParallelFluentBuilder<ParallelFluentBuilder<TOuterBuilder>> BeginParallel() => ParallelFluentBuilderFactory(this, Builder.AddParallel);
-
-		public HistoryFluentBuilder<ParallelFluentBuilder<TOuterBuilder>> BeginHistory() => HistoryFluentBuilderFactory(this, Builder.AddHistory);
-
-		public StateFluentBuilder<ParallelFluentBuilder<TOuterBuilder>> BeginState(string id) => BeginState((Identifier) id);
-
-		public StateFluentBuilder<ParallelFluentBuilder<TOuterBuilder>> BeginState(IIdentifier id) => StateFluentBuilderFactory(this, Builder.AddState).SetId(id);
-
-		public ParallelFluentBuilder<ParallelFluentBuilder<TOuterBuilder>> BeginParallel(string id) => BeginParallel((Identifier) id);
-
-		public ParallelFluentBuilder<ParallelFluentBuilder<TOuterBuilder>> BeginParallel(IIdentifier id) => ParallelFluentBuilderFactory(this, Builder.AddParallel).SetId(id);
-
-		public HistoryFluentBuilder<ParallelFluentBuilder<TOuterBuilder>> BeginHistory(string id) => BeginHistory((Identifier) id);
-
-		public HistoryFluentBuilder<ParallelFluentBuilder<TOuterBuilder>> BeginHistory(IIdentifier id) => HistoryFluentBuilderFactory(this, Builder.AddHistory).SetId(id);
-
-		public TransitionFluentBuilder<ParallelFluentBuilder<TOuterBuilder>> BeginTransition() => TransitionFluentBuilderFactory(this, Builder.AddTransition);
-
-		public ParallelFluentBuilder<TOuterBuilder> AddTransition(EventDescriptor eventDescriptor, string target) => AddTransition(eventDescriptor, (Identifier) target);
-
-		public ParallelFluentBuilder<TOuterBuilder> AddTransition(EventDescriptor eventDescriptor, IIdentifier target) => BeginTransition().SetEvent(eventDescriptor).SetTarget(target).EndTransition();
-
-		public ParallelFluentBuilder<TOuterBuilder> AddTransition(Func<bool> condition, string target) => AddTransition(condition, (Identifier) target);
-
-		public ParallelFluentBuilder<TOuterBuilder> AddTransition(Func<bool> condition, IIdentifier target) => BeginTransition().SetConditionFunc(condition).SetTarget(target).EndTransition();
-=======
 	public required IParallelBuilder  Builder      { private get; [UsedImplicitly] init; }
 	public required Action<IParallel> BuiltAction  { private get; [UsedImplicitly] init; }
 	public required TOuterBuilder     OuterBuilder { private get; [UsedImplicitly] init; }
@@ -129,7 +35,6 @@ public class ParallelFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 	{
 		private get;
 		init;
->>>>>>> Stashed changes
 	}
 
 	public TOuterBuilder EndParallel()

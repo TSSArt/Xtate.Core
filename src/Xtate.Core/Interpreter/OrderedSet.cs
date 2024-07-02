@@ -17,20 +17,10 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using System;
-using System.Collections.Generic;
-=======
 namespace Xtate.Core;
->>>>>>> Stashed changes
 
 public sealed class OrderedSet<T> : List<T>
 {
-<<<<<<< Updated upstream
-	public sealed class OrderedSet<T> : List<T>
-	{
-		public delegate void ChangedHandler(ChangedAction action, T? item);
-=======
 	public delegate void ChangedHandler(ChangedAction action, T? item);
 
 	public enum ChangedAction
@@ -39,7 +29,6 @@ public sealed class OrderedSet<T> : List<T>
 		Clear,
 		Delete
 	}
->>>>>>> Stashed changes
 
 	public bool IsEmpty => Count == 0;
 
@@ -102,47 +91,7 @@ public sealed class OrderedSet<T> : List<T>
 
 		foreach (var item in this)
 		{
-<<<<<<< Updated upstream
-			base.Clear();
-
-			Changed?.Invoke(ChangedAction.Clear, item: default);
-		}
-
-		public bool IsMember(T item) => Contains(item);
-
-		public void Delete(T item)
-		{
-			Remove(item);
-
-			Changed?.Invoke(ChangedAction.Delete, item);
-		}
-
-		public List<T> ToSortedList(IComparer<T> comparer)
-		{
-			var list = new List<T>(this);
-			list.Sort(comparer);
-
-			return list;
-		}
-
-		public List<T> ToFilteredSortedList(Predicate<T> predicate, IComparer<T> comparer)
-		{
-			var list = FindAll(predicate);
-			list.Sort(comparer);
-
-			return list;
-		}
-
-		public List<T> ToFilteredList<TArg>(Func<T, TArg, bool> predicate, TArg arg)
-		{
-			Infra.Requires(predicate);
-
-			var list = new List<T>();
-
-			foreach (var item in this)
-=======
 			if (predicate(item, arg))
->>>>>>> Stashed changes
 			{
 				list.Add(item);
 			}

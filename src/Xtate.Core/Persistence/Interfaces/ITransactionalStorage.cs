@@ -17,23 +17,10 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using System;
-using System.Threading.Tasks;
-=======
 namespace Xtate.Persistence;
->>>>>>> Stashed changes
 
 public interface ITransactionalStorage : IStorage, IAsyncDisposable
 {
-<<<<<<< Updated upstream
-	public interface ITransactionalStorage : IStorage, IAsyncDisposable
-	{
-		ValueTask CheckPoint(int level);
-		ValueTask Shrink();
-	}
-=======
 	ValueTask CheckPoint(int level);
 	ValueTask Shrink();
->>>>>>> Stashed changes
 }

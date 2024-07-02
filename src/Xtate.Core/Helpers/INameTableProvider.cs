@@ -1,6 +1,3 @@
-<<<<<<< Updated upstream
-﻿using System.Xml;
-=======
 ﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
@@ -20,27 +17,11 @@
 
 #endregion
 
-<<<<<<<< Updated upstream:src/Xtate.Core/src/Xtate.Core/Helpers/IAsyncInitialization.cs
-using System.Threading.Tasks;
-
-namespace Xtate.Core
-{
-	//TODO: Delete
-	public interface IAsyncInitializationOld
-	{
-		Task Initialization { get; }
-	}
-========
 using System.Xml;
->>>>>>> Stashed changes
 
 namespace Xtate.Core;
 
 public interface INameTableProvider
 {
 	NameTable GetNameTable();
-<<<<<<< Updated upstream
-=======
->>>>>>>> Stashed changes:src/Xtate.Core/src/Xtate.Core/Helpers/INameTableProvider.cs
->>>>>>> Stashed changes
 }

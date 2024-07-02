@@ -21,12 +21,5 @@ namespace Xtate;
 
 public interface IConditionExpression : IEntity
 {
-<<<<<<< Updated upstream
-	public interface IConditionExpression : IEntity
-	{
-		string? Expression { get; }
-	}
-=======
 	string? Expression { get; }
->>>>>>> Stashed changes
 }

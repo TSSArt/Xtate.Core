@@ -1,30 +1,3 @@
-<<<<<<< Updated upstream
-﻿using System;
-using System.Buffers;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.Encodings.Web;
-using System.Text.Json;
-using Xtate.IoC;
-
-namespace Xtate.Core.Test
-{
-public class ServiceProviderDebugger : IServiceProviderDebugger
-{
-	private          int                                 _prevLevel;
-	private          int                                 _level = 1;
-	private          bool                                _noFactory;
-	private          bool                                _factoryCalled;
-	private readonly ConcurrentDictionary<TypeKey, Stat> _stats = new();
-	private readonly TextWriter                          _writer;
-
-	public ServiceProviderDebugger(TextWriter writer) => _writer = writer;
-		
-#region Interface IServiceProviderDebugger
-=======
 ﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
@@ -58,17 +31,12 @@ public class ServiceProviderDebugger(TextWriter writer) : IServiceProviderDebugg
 	private          int                                 _prevLevel;
 
 	#region Interface IServiceProviderDebugger
->>>>>>> Stashed changes
 
 	public void RegisterService(ServiceEntry serviceEntry)
 	{
 		GetStat(serviceEntry.Key).RegisterService(serviceEntry);
 
-<<<<<<< Updated upstream
-		_writer.WriteLine($"REG: {serviceEntry.InstanceScope,-10} - {serviceEntry.Key}");
-=======
 		writer.WriteLine($"REG: {serviceEntry.InstanceScope,-10} - {serviceEntry.Key}");
->>>>>>> Stashed changes
 	}
 
 	public void BeforeFactory(TypeKey serviceKey)
@@ -77,29 +45,19 @@ public class ServiceProviderDebugger(TextWriter writer) : IServiceProviderDebugg
 
 		if (_factoryCalled)
 		{
-<<<<<<< Updated upstream
-			_writer.WriteLine();
-=======
 			writer.WriteLine();
->>>>>>> Stashed changes
 
 			_factoryCalled = false;
 		}
 
 		WriteIdent();
-<<<<<<< Updated upstream
-		_writer.Write($@"GET: {serviceKey}");
-=======
 		writer.Write($@"GET: {serviceKey}");
->>>>>>> Stashed changes
 
 		_level ++;
 
 		_noFactory = true;
 	}
 
-<<<<<<< Updated upstream
-=======
 	public void FactoryCalled(TypeKey serviceKey)
 	{
 		var stat = GetStat(serviceKey);
@@ -139,7 +97,6 @@ public class ServiceProviderDebugger(TextWriter writer) : IServiceProviderDebugg
 
 #endregion
 
->>>>>>> Stashed changes
 	private void WriteIdent()
 	{
 		var padding = false;
@@ -160,55 +117,6 @@ public class ServiceProviderDebugger(TextWriter writer) : IServiceProviderDebugg
 		{
 			if (padding)
 			{
-<<<<<<< Updated upstream
-				_writer.Write("  ");
-			}
-
-			padding = true;
-			_writer.Write(ch);
-		}
-	}
-
-	public void FactoryCalled(TypeKey serviceKey)
-	{
-		var stat = GetStat(serviceKey);
-		stat.FactoryCalled();
-
-		_writer.Write($" {{ #{stat.InstancesCreated} ");
-		_factoryCalled = true;
-		_noFactory = false;
-	}
-
-	public void AfterFactory(TypeKey serviceKey)
-	{
-		_level --;
-
-		if (_noFactory)
-		{
-			_writer.WriteLine(" - USE CACHED");
-		}
-		else
-		{
-			if (_factoryCalled)
-			{
-				_writer.WriteLine('}');
-				_factoryCalled = false;
-			}
-			else
-			{
-				WriteIdent();
-				_writer.WriteLine('}');
-			}
-		}
-
-		_noFactory = false;
-
-		GetStat(serviceKey).AfterFactory();
-	}
-
-#endregion
-
-=======
 				writer.Write("  ");
 			}
 
@@ -217,30 +125,12 @@ public class ServiceProviderDebugger(TextWriter writer) : IServiceProviderDebugg
 		}
 	}
 
->>>>>>> Stashed changes
 	private Stat GetStat(TypeKey serviceKey) => _stats.GetOrAdd(serviceKey, key => new Stat(key));
 
 	public void Dump()
 	{
 		foreach (var pair in _stats.OrderByDescending(p => p.Value.InstancesCreated).ThenBy(p => p.Value.TypeKey.ToString()))
 		{
-<<<<<<< Updated upstream
-			_writer.WriteLine($"STAT: {pair.Value.TypeKey}:\t{pair.Value.InstancesCreated}");
-		}
-	}
-
-	private class Stat
-	{
-		private int _deepLevel;
-
-		public Stat(TypeKey key)
-		{
-			TypeKey = key;
-		}
-
-		public List<ServiceEntry> Registrations    { get; }              = new();
-		public TypeKey            TypeKey          { get; }
-=======
 			writer.WriteLine($"STAT: {pair.Value.TypeKey}:\t{pair.Value.InstancesCreated}");
 		}
 	}
@@ -251,7 +141,6 @@ public class ServiceProviderDebugger(TextWriter writer) : IServiceProviderDebugg
 
 		public List<ServiceEntry> Registrations    { get; } = [];
 		public TypeKey TypeKey { get; } = key;
->>>>>>> Stashed changes
 		public int                InstancesCreated { get; private set; }
 
 		public void BeforeFactory()
@@ -268,8 +157,4 @@ public class ServiceProviderDebugger(TextWriter writer) : IServiceProviderDebugg
 
 		public void RegisterService(in ServiceEntry serviceEntry) => Registrations.Add(serviceEntry);
 	}
-<<<<<<< Updated upstream
-}}
-=======
 }
->>>>>>> Stashed changes

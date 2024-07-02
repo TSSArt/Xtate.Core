@@ -26,12 +26,5 @@ public class ResourceNotFoundException : XtateException
 
 	public ResourceNotFoundException(string? message) : base(message) { }
 
-<<<<<<< Updated upstream
-		public ResourceNotFoundException(string? message, Exception? innerException) : base(message, innerException) { }
-
-		protected ResourceNotFoundException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-	}
-=======
 	public ResourceNotFoundException(string? message, Exception? innerException) : base(message, innerException) { }
->>>>>>> Stashed changes
 }

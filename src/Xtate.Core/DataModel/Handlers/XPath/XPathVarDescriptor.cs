@@ -17,36 +17,11 @@
 
 #endregion
 
-using System;
-using System.Threading.Tasks;
 using System.Xml.XPath;
 using System.Xml.Xsl;
 
 namespace Xtate.DataModel.XPath;
 
-<<<<<<< Updated upstream
-public class XPathVarDescriptor : IXsltContextVariable, IInitResolver
-{
-	public required Func<ValueTask<XPathEngine>> XPathEngineFactory { private get; init; }
-
-	private readonly string       _name;
-	private          XPathEngine? _engine;
-
-	public XPathVarDescriptor(string name) => _name = name;
-
-#region Interface IXsltContextVariable
-
-	public virtual object Evaluate(XsltContext xsltContext) => _engine?.GetVariable(_name);
-
-	public bool IsLocal => false;
-	public bool IsParam => false;
-
-	public XPathResultType VariableType => XPathResultType.NodeSet;
-
-#endregion
-
-	public async ValueTask Initialize() => _engine = await XPathEngineFactory().ConfigureAwait(false);
-=======
 public class XPathVarDescriptor : IXsltContextVariable
 {
 	private class EmptyIterator : XPathNodeIterator
@@ -84,5 +59,4 @@ public class XPathVarDescriptor : IXsltContextVariable
 	public virtual XPathResultType VariableType => XPathResultType.NodeSet;
 
 #endregion
->>>>>>> Stashed changes
 }

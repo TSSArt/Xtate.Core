@@ -26,24 +26,6 @@ public enum SendStatus
 	ToInternalQueue
 }
 
-<<<<<<< Updated upstream
-	public interface IExternalCommunication
-	{
-		ValueTask             StartInvoke(InvokeData invokeData);
-		ValueTask             CancelInvoke(InvokeId invokeId);
-		ValueTask<SendStatus> TrySendEvent(IOutgoingEvent outgoingEvent);
-		ValueTask             ForwardEvent(IEvent evt, InvokeId invokeId);
-		ValueTask             CancelEvent(SendId sendId);
-	}
-
-	public interface IExternalCommunication2
-	{
-		ValueTask             StartInvoke(InvokeData invokeData);
-		ValueTask             CancelInvoke(InvokeId invokeId);
-		ValueTask<SendStatus> TrySendEvent(IOutgoingEvent outgoingEvent);
-		ValueTask             CancelEvent(SendId sendId);
-	}
-=======
 public interface IExternalCommunication
 {
 	ValueTask             StartInvoke(InvokeData invokeData);
@@ -59,5 +41,4 @@ public interface IExternalCommunication2
 	ValueTask             CancelInvoke(InvokeId invokeId);
 	ValueTask<SendStatus> TrySendEvent(IOutgoingEvent outgoingEvent);
 	ValueTask             CancelEvent(SendId sendId);
->>>>>>> Stashed changes
 }

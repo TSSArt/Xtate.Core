@@ -1,6 +1,3 @@
-<<<<<<< Updated upstream
-﻿using Xtate.IoC;
-=======
 ﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
@@ -21,20 +18,11 @@
 #endregion
 
 using Xtate.IoC;
->>>>>>> Stashed changes
 
 namespace Xtate.Core;
 
 public static class NameTableExtensions
 {
-<<<<<<< Updated upstream
-=======
-<<<<<<<< Updated upstream:src/Xtate.Core/src/Xtate.Core/Interpreter/Interfaces/IResourceLoaderFactory.cs
-	public interface IResourceLoaderFactory
-	{
-		ValueTask<IResourceLoaderFactoryActivator?> TryGetActivator(Uri uri);
-========
->>>>>>> Stashed changes
 	public static void RegisterNameTable(this IServiceCollection services)
 	{
 		if (services.IsRegistered<INameTableProvider>())
@@ -43,9 +31,5 @@ public static class NameTableExtensions
 		}
 
 		services.AddSharedImplementationSync<NameTableProvider>(SharedWithin.Scope).For<INameTableProvider>();
-<<<<<<< Updated upstream
-=======
->>>>>>>> Stashed changes:src/Xtate.Core/src/Xtate.Core/Helpers/NameTableExtensions.cs
->>>>>>> Stashed changes
 	}
 }

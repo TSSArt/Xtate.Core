@@ -21,13 +21,9 @@ namespace Xtate.Core;
 
 public sealed class KeyList<T>
 {
-<<<<<<< Updated upstream
-	public sealed class KeyList<T>
-=======
 	public delegate void ChangeHandler(ChangedAction action, IEntity entity, List<T> list);
 
 	public enum ChangedAction
->>>>>>> Stashed changes
 	{
 		Set
 	}

@@ -92,28 +92,6 @@ internal sealed class StateMachinePersistedController : StateMachineRuntimeContr
 
 		_channelPersistingController.Dispose();
 
-<<<<<<< Updated upstream
-		ValueTask<ITransactionalStorage> IStorageProvider.GetTransactionalStorage(string? partition, string key)
-		{
-			if (partition is not null) throw new ArgumentException(Resources.Exception_PartitionArgumentShouldBeNull, nameof(partition));
-
-			return _storageProvider.GetTransactionalStorage(SessionId.Value, key);
-		}
-
-		ValueTask IStorageProvider.RemoveTransactionalStorage(string? partition, string key)
-		{
-			if (partition is not null) throw new ArgumentException(Resources.Exception_PartitionArgumentShouldBeNull, nameof(partition));
-
-			return _storageProvider.RemoveTransactionalStorage(SessionId.Value, key);
-		}
-
-		ValueTask IStorageProvider.RemoveAllTransactionalStorage(string? partition)
-		{
-			if (partition is not null) throw new ArgumentException(Resources.Exception_PartitionArgumentShouldBeNull, nameof(partition));
-
-			return _storageProvider.RemoveAllTransactionalStorage(SessionId.Value);
-		}
-=======
 		if (_storage is { } storage)
 		{
 			await storage.DisposeAsync().ConfigureAwait(false);
@@ -129,44 +107,9 @@ internal sealed class StateMachinePersistedController : StateMachineRuntimeContr
 		await base.Initialize().ConfigureAwait(false);
 
 		_storage = await _storageProvider.GetTransactionalStorage(SessionId.Value, ControllerStateKey /*, _stopToken*/).ConfigureAwait(false);
->>>>>>> Stashed changes
 
 		_channelPersistingController.Initialize(new Bucket(_storage).Nested(ExternalEventsKey), bucket => new EventObject(bucket), _storageLock, token => _storage.CheckPoint(level: 0));
 
-<<<<<<< Updated upstream
-		protected override async ValueTask DisposeAsyncCore()
-		{
-			if (_disposed)
-			{
-				return;
-			}
-
-			_storageLock.Dispose();
-
-			_channelPersistingController.Dispose();
-
-			if (_storage is { } storage)
-			{
-				await storage.DisposeAsync().ConfigureAwait(false);
-			}
-
-			_disposed = true;
-
-			await base.DisposeAsyncCore().ConfigureAwait(false);
-		}
-
-		protected override async ValueTask Initialize()
-		{
-			await base.Initialize().ConfigureAwait(false);
-
-			_storage = await _storageProvider.GetTransactionalStorage(SessionId.Value, ControllerStateKey/*, _stopToken*/).ConfigureAwait(false);
-
-			_channelPersistingController.Initialize(new Bucket(_storage).Nested(ExternalEventsKey), bucket => new EventObject(bucket), _storageLock, token => _storage.CheckPoint(level: 0));
-
-			_storageLock.Release();
-		}
-=======
 		_storageLock.Release();
->>>>>>> Stashed changes
 	}
 }

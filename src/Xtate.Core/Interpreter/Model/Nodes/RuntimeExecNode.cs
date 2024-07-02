@@ -23,14 +23,10 @@ namespace Xtate.Core;
 
 public sealed class RuntimeExecNode : IExecutableEntity, IStoreSupport, IAncestorProvider, IDocumentId
 {
-<<<<<<< Updated upstream
-	public sealed class RuntimeExecNode : IExecutableEntity, IStoreSupport, IAncestorProvider, IDocumentId
-=======
 	private readonly IExecutableEntity _entity;
 	private          DocumentIdSlot    _documentIdSlot;
 
 	public RuntimeExecNode(DocumentIdNode documentIdNode, IExecutableEntity entity)
->>>>>>> Stashed changes
 	{
 		_entity = entity;
 		documentIdNode.SaveToSlot(out _documentIdSlot);

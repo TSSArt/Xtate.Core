@@ -17,18 +17,9 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-namespace Xtate.Builder
-{
-	public abstract class BuilderBase
-	{
-		public object? Ancestor { protected get; init; }
-	}
-=======
 namespace Xtate.Builder;
 
 public abstract class BuilderBase
 {
 	public object? Ancestor { protected get; [UsedImplicitly] init; }
->>>>>>> Stashed changes
 }

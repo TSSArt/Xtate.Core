@@ -17,18 +17,6 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-namespace Xtate.DataModel.XPath
-{
-	public class XPathContentBodyEvaluator : DefaultContentBodyEvaluator
-	{
-		public required XPathXmlParserContextFactory XPathXmlParserContextFactory { private get; init; }
-
-		public XPathContentBodyEvaluator(IContentBody contentBody) : base(contentBody) { }
-
-		protected override DataModelValue ParseToDataModel() => Value is not null ? XmlConverter.FromXml(Value, XPathXmlParserContextFactory.CreateContext(this)) : DataModelValue.Null;
-	}
-=======
 namespace Xtate.DataModel.XPath;
 
 public class XPathContentBodyEvaluator(IContentBody contentBody) : DefaultContentBodyEvaluator(contentBody)
@@ -36,5 +24,4 @@ public class XPathContentBodyEvaluator(IContentBody contentBody) : DefaultConten
 	public required XPathXmlParserContextFactory XPathXmlParserContextFactory { private get; [UsedImplicitly] init; }
 
 	protected override DataModelValue ParseToDataModel() => Value is not null ? XmlConverter.FromXml(Value, XPathXmlParserContextFactory.CreateContext(this)) : DataModelValue.Null;
->>>>>>> Stashed changes
 }

@@ -21,19 +21,6 @@ namespace Xtate;
 
 public interface IState : IStateEntity
 {
-<<<<<<< Updated upstream
-	public interface IState : IStateEntity
-	{
-		IInitial?                    Initial       { get; }
-		ImmutableArray<IStateEntity> States        { get; }
-		ImmutableArray<IHistory>     HistoryStates { get; }
-		ImmutableArray<ITransition>  Transitions   { get; }
-		IDataModel?                  DataModel     { get; }
-		ImmutableArray<IOnEntry>     OnEntry       { get; }
-		ImmutableArray<IOnExit>      OnExit        { get; }
-		ImmutableArray<IInvoke>      Invoke        { get; }
-	}
-=======
 	IInitial?                    Initial       { get; }
 	ImmutableArray<IStateEntity> States        { get; }
 	ImmutableArray<IHistory>     HistoryStates { get; }
@@ -42,5 +29,4 @@ public interface IState : IStateEntity
 	ImmutableArray<IOnEntry>     OnEntry       { get; }
 	ImmutableArray<IOnExit>      OnExit        { get; }
 	ImmutableArray<IInvoke>      Invoke        { get; }
->>>>>>> Stashed changes
 }

@@ -26,12 +26,5 @@ public class XPathDataModelException : XtateException
 
 	public XPathDataModelException(string message) : base(message) { }
 
-<<<<<<< Updated upstream
-		public XPathDataModelException(string message, Exception innerException) : base(message, innerException) { }
-
-		protected XPathDataModelException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-	}
-=======
 	public XPathDataModelException(string message, Exception innerException) : base(message, innerException) { }
->>>>>>> Stashed changes
 }

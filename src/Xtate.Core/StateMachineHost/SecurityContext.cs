@@ -55,10 +55,6 @@ public sealed class SecurityContext : ISecurityContext, IAsyncDisposable
 		_parent = parentSecurityContext;
 	}
 
-<<<<<<< Updated upstream
-	[PublicAPI]
-	public sealed class SecurityContext : ISecurityContext, IAsyncDisposable
-=======
 	public SecurityContextType Type { get; }
 
 	public SecurityContextPermissions Permissions { get; }
@@ -68,136 +64,9 @@ public sealed class SecurityContext : ISecurityContext, IAsyncDisposable
 #region Interface IAsyncDisposable
 
 	public ValueTask DisposeAsync()
->>>>>>> Stashed changes
 	{
 		if (_localCache is { } localCache)
 		{
-<<<<<<< Updated upstream
-			Type = type;
-			Permissions = permissions;
-			_parent = parentSecurityContext;
-		}
-
-		public SecurityContextType Type { get; }
-
-		public SecurityContextPermissions Permissions { get; }
-
-		public static SecurityContext NoAccess { get; } = new(SecurityContextType.NoAccess, SecurityContextPermissions.None, parentSecurityContext: default);
-
-	#region Interface ISecurityContext
-
-		public ISecurityContext CreateNested(SecurityContextType type)
-		{
-			SecurityContext securityContext;
-			switch (type)
-			{
-				case SecurityContextType.NewTrustedStateMachine:
-					CheckPermissions(SecurityContextPermissions.CreateTrustedStateMachine);
-
-					securityContext = new SecurityContext(type, Permissions, this);
-
-					break;
-
-				case SecurityContextType.NewStateMachine:
-					CheckPermissions(SecurityContextPermissions.CreateStateMachine);
-
-					securityContext = new SecurityContext(type, SecurityContextPermissions.RunIoBoundTask, this);
-
-					break;
-
-				case SecurityContextType.InvokedService:
-					securityContext = new SecurityContext(type, Permissions, this);
-
-					break;
-
-				default:
-					throw Infra.Unexpected<Exception>(type);
-			}
-
-			return securityContext;
-		}
-
-		public ValueTask SetValue<T>(object key,
-									 object subKey,
-									 [DisallowNull] T value,
-									 ValueOptions options) =>
-			GetLocalCache().SetValue((key, subKey), value, options);
-
-		public bool TryGetValue<T>(object key, object subKey, [NotNullWhen(true)] out T? value)
-		{
-			if (GetLocalCache().TryGetValue((key, subKey), out var obj))
-			{
-				value = (T) obj;
-
-				return true;
-			}
-
-			value = default;
-
-			return false;
-		}
-
-		public TaskFactory Factory => _ioBoundTaskFactory ??= CreateTaskFactory();
-
-	#endregion
-
-		private TaskFactory CreateTaskFactory()
-		{
-			var taskScheduler = HasPermissions(SecurityContextPermissions.RunIoBoundTask)
-				? new IoBoundTaskScheduler(IoBoundTaskSchedulerMaximumConcurrencyLevel)
-				: NoAccessTaskScheduler.Instance;
-
-			return new TaskFactory(cancellationToken: default, CreationOptions, ContinuationOptions, taskScheduler);
-		}
-
-		public bool HasPermissions(SecurityContextPermissions permissions) => (Permissions & permissions) == permissions;
-
-		public void CheckPermissions(SecurityContextPermissions permissions)
-		{
-			if (!HasPermissions(permissions))
-			{
-				throw new StateMachineSecurityException(Res.Format(Resources.Exception_AccessDeniedPermissionRequired, permissions));
-			}
-		}
-
-		private LocalCache<(object Key, object SubKey), object> GetLocalCache()
-		{
-			if (_localCache is { } localCache)
-			{
-				return localCache;
-			}
-
-			var root = this;
-			while (root._parent is { } parent)
-			{
-				root = parent;
-			}
-
-			var globalCache = root._globalCache;
-
-			if (globalCache is null)
-			{
-				var newGlobalCache = new GlobalCache<(object Key, object SubKey), object>();
-				globalCache = Interlocked.CompareExchange(ref root._globalCache, newGlobalCache, comparand: null) ?? newGlobalCache;
-			}
-
-			return _localCache = globalCache.CreateLocalCache();
-		}
-
-		public ValueTask DisposeAsync()
-		{
-			if (_localCache is { } localCache)
-			{
-				_localCache = default;
-
-				return localCache.DisposeAsync();
-			}
-
-			return default;
-		}
-
-		internal static SecurityContext Create(SecurityContextType type)
-=======
 			_localCache = default;
 
 			return localCache.DisposeAsync();
@@ -220,17 +89,10 @@ public sealed class SecurityContext : ISecurityContext, IAsyncDisposable
 	{
 		SecurityContext securityContext;
 		switch (type)
->>>>>>> Stashed changes
 		{
 			case SecurityContextType.NewTrustedStateMachine:
 				CheckPermissions(SecurityContextPermissions.CreateTrustedStateMachine);
 
-<<<<<<< Updated upstream
-			return Create(type, permissions);
-		}
-
-		internal static SecurityContext Create(SecurityContextType type, SecurityContextPermissions permissions) => new(type, permissions, parentSecurityContext: default);
-=======
 				securityContext = new SecurityContext(type, Permissions, this);
 
 				break;
@@ -268,7 +130,6 @@ public sealed class SecurityContext : ISecurityContext, IAsyncDisposable
 
 			return true;
 		}
->>>>>>> Stashed changes
 
 		value = default;
 
@@ -294,8 +155,6 @@ public sealed class SecurityContext : ISecurityContext, IAsyncDisposable
 		{
 			throw new StateMachineSecurityException(Res.Format(Resources.Exception_AccessDeniedPermissionRequired, permissions));
 		}
-<<<<<<< Updated upstream
-=======
 	}
 
 	private LocalCache<(object Key, object SubKey), object> GetLocalCache()
@@ -348,6 +207,5 @@ public sealed class SecurityContext : ISecurityContext, IAsyncDisposable
 		protected override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued) => throw GetSecurityException();
 
 		private static Exception GetSecurityException() => throw new StateMachineSecurityException(Resources.Exception_AccessToIOBoundThreadsDenied);
->>>>>>> Stashed changes
 	}
 }

@@ -17,28 +17,15 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using System;
-using System.Threading.Tasks;
-using Xtate.Core;
-
-=======
->>>>>>> Stashed changes
 namespace Xtate.DataModel.Runtime;
 
 public class RuntimeValueEvaluator : IValueExpression, IObjectEvaluator
 {
-<<<<<<< Updated upstream
-	public required RuntimeValue Value { private get; init; }
-
-	public required Func<ValueTask<RuntimeExecutionContext>> RuntimeExecutionContextFactory { private get; init; }
-=======
 	public required RuntimeValue Value { private get; [UsedImplicitly] init; }
 
 	public required Func<ValueTask<RuntimeExecutionContext>> RuntimeExecutionContextFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IObjectEvaluator
->>>>>>> Stashed changes
 
 	public async ValueTask<IObject> EvaluateObject()
 	{
@@ -49,9 +36,6 @@ public class RuntimeValueEvaluator : IValueExpression, IObjectEvaluator
 		return await Value.Evaluate().ConfigureAwait(false);
 	}
 
-<<<<<<< Updated upstream
-	public string? Expression => Value.Expression;
-=======
 #endregion
 
 #region Interface IValueExpression
@@ -59,20 +43,16 @@ public class RuntimeValueEvaluator : IValueExpression, IObjectEvaluator
 	public string? Expression => Value.Expression;
 
 #endregion
->>>>>>> Stashed changes
 }
 
 public abstract class RuntimeValue : IValueExpression
 {
-<<<<<<< Updated upstream
-=======
 #region Interface IValueExpression
 
 	public string? Expression => null;
 
 #endregion
 
->>>>>>> Stashed changes
 	public static RuntimeValue GetValue(DataModelValue value) => new ConstantValue(value);
 
 	public static RuntimeValue GetValue(Func<DataModelValue> evaluator)
@@ -91,39 +71,6 @@ public abstract class RuntimeValue : IValueExpression
 
 	public abstract ValueTask<DataModelValue> Evaluate();
 
-<<<<<<< Updated upstream
-#region Interface IValueExpression
-
-	public string? Expression => null;
-
-#endregion
-
-	private sealed class ConstantValue : RuntimeValue
-	{
-		private readonly DataModelValue _value;
-
-		public ConstantValue(DataModelValue value) => _value = value;
-
-		public override ValueTask<DataModelValue> Evaluate() => new(_value);
-	}
-
-	private sealed class EvaluatorSync : RuntimeValue
-	{
-		private readonly Func<DataModelValue> _evaluator;
-
-		public EvaluatorSync(Func<DataModelValue> evaluator) => _evaluator = evaluator;
-
-		public override ValueTask<DataModelValue> Evaluate() => new(_evaluator());
-	}
-
-	private sealed class EvaluatorAsync : RuntimeValue
-	{
-		private readonly Func<ValueTask<DataModelValue>> _evaluator;
-
-		public EvaluatorAsync(Func<ValueTask<DataModelValue>> evaluator) => _evaluator = evaluator;
-
-		public override ValueTask<DataModelValue> Evaluate() => _evaluator();
-=======
 	private sealed class ConstantValue(DataModelValue value) : RuntimeValue
 	{
 		public override ValueTask<DataModelValue> Evaluate() => new(value);
@@ -137,6 +84,5 @@ public abstract class RuntimeValue : IValueExpression
 	private sealed class EvaluatorAsync(Func<ValueTask<DataModelValue>> evaluator) : RuntimeValue
 	{
 		public override ValueTask<DataModelValue> Evaluate() => evaluator();
->>>>>>> Stashed changes
 	}
 }

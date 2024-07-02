@@ -19,15 +19,7 @@
 
 using Xtate.Persistence;
 
-<<<<<<< Updated upstream
-namespace Xtate.Core
-{
-	public sealed class RaiseNode : ExecutableEntityNode, IRaise, IAncestorProvider, IDebugEntityId
-	{
-		private readonly IRaise _raise;
-=======
 namespace Xtate.Core;
->>>>>>> Stashed changes
 
 public sealed class RaiseNode(DocumentIdNode documentIdNode, IRaise raise) : ExecutableEntityNode(documentIdNode, raise), IRaise, IAncestorProvider, IDebugEntityId
 {

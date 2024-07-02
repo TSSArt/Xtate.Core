@@ -21,18 +21,8 @@ namespace Xtate.DataModel.XPath;
 
 public enum XPathObjectType
 {
-<<<<<<< Updated upstream
-	public enum XPathObjectType
-	{
-		Number,
-		String,
-		Boolean,
-		NodeSet
-	}
-=======
 	Number,
 	String,
 	Boolean,
 	NodeSet
->>>>>>> Stashed changes
 }

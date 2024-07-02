@@ -24,36 +24,14 @@ namespace Xtate.Core;
 
 public interface IEventSchedulerLogger
 {
-<<<<<<< Updated upstream
-	public interface IEventSchedulerLogger
-	{
-		bool IsEnabled { get; }
-
-		ValueTask LogError(string message, Exception exception, IHostEvent scheduledEvent);
-	}
-
-	internal class InProcEventScheduler : IEventScheduler
-	{
-		private readonly IHostEventDispatcher   _hostEventDispatcher;
-		private readonly IEventSchedulerLogger _logger;
-=======
 	bool IsEnabled { get; }
->>>>>>> Stashed changes
 
 	ValueTask LogError(string message, Exception exception, IHostEvent scheduledEvent);
 }
 
-<<<<<<< Updated upstream
-		public InProcEventScheduler(IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger logger)
-		{
-			_hostEventDispatcher = hostEventDispatcher;
-			_logger = logger;
-		}
-=======
 internal class InProcEventScheduler(IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger logger) : IEventScheduler
 {
 	private readonly ConcurrentDictionary<(ServiceId, SendId), object> _scheduledEvents = new();
->>>>>>> Stashed changes
 
 	#region Interface IEventScheduler
 
@@ -120,24 +98,7 @@ internal class InProcEventScheduler(IHostEventDispatcher hostEventDispatcher, IE
 
 			try
 			{
-<<<<<<< Updated upstream
-				await Task.Delay(scheduledEvent.DelayMs, scheduledEvent.CancellationToken).ConfigureAwait(false);
-
-				try
-				{
-					await _hostEventDispatcher.DispatchEvent(scheduledEvent, token: default).ConfigureAwait(false);
-				}
-				catch (Exception ex)
-				{
-					if (_logger.IsEnabled)
-					{
-						var message = Res.Format(Resources.Exception_ErrorOnDispatchingEvent, scheduledEvent.SendId?.Value);
-						await _logger.LogError(message, ex, scheduledEvent).ConfigureAwait(false);
-					}
-				}
-=======
 				await hostEventDispatcher.DispatchEvent(scheduledEvent, token: default).ConfigureAwait(false);
->>>>>>> Stashed changes
 			}
 			catch (Exception ex)
 			{
@@ -215,10 +176,6 @@ internal class InProcEventScheduler(IHostEventDispatcher hostEventDispatcher, IE
 			return DataModelList.Empty;
 		}
 
-<<<<<<< Updated upstream
-		[PublicAPI]
-		internal class ScheduledEvent : HostEvent
-=======
 		public string LoggerContextType => nameof(IEventSchedulerLoggerContext);
 
 #endregion
@@ -238,7 +195,6 @@ internal class InProcEventScheduler(IHostEventDispatcher hostEventDispatcher, IE
 		public void Cancel() => _cancellationTokenSource.Cancel();
 
 		public virtual ValueTask Dispose(CancellationToken token)
->>>>>>> Stashed changes
 		{
 			_cancellationTokenSource.Dispose();
 

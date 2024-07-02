@@ -26,12 +26,5 @@ public class PersistenceException : XtateException
 
 	public PersistenceException(string? message) : base(message) { }
 
-<<<<<<< Updated upstream
-		public PersistenceException(string? message, Exception? innerException) : base(message, innerException) { }
-
-		protected PersistenceException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-	}
-=======
 	public PersistenceException(string? message, Exception? innerException) : base(message, innerException) { }
->>>>>>> Stashed changes
 }

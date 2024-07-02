@@ -17,13 +17,6 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using System;
-using System.Collections.Immutable;
-using System.Threading;
-using Xtate.CustomAction;
-=======
->>>>>>> Stashed changes
 using Xtate.Persistence;
 
 namespace Xtate.Core;
@@ -61,32 +54,6 @@ public record InterpreterOptions
 		init => _arguments = value.AsConstant();
 	}
 
-<<<<<<< Updated upstream
-		private readonly IErrorProcessor?   _errorProcessor;
-		private readonly DataModelValue     _host;
-		//public static    InterpreterOptions Default { get; } = new(ServiceLocator.Default);
-
-		public InterpreterOptions(ServiceLocator serviceLocator)
-		{
-			//ServiceLocator = serviceLocator;
-		}
-
-		//public ServiceLocator                           ServiceLocator { get; init; }
-		public ISecurityContext?                        SecurityContext           { get; init; }
-		public ImmutableArray<ICustomActionFactory>     CustomActionProviders     { get; init; }
-		public ImmutableArray<IResourceLoaderFactory>   ResourceLoaderFactories   { get; init; }
-		public ImmutableDictionary<object, object>?     ContextRuntimeItems       { get; init; }
-		public IExternalCommunication?                  ExternalCommunication     { get; init; }
-		public INotifyStateChanged?                     NotifyStateChanged        { get; init; }
-		public CancellationToken                        SuspendToken              { get; init; }
-		public CancellationToken                        StopToken                 { get; init; }
-		public CancellationToken                        DestroyToken              { get; init; }
-		public PersistenceLevel                         PersistenceLevel          { get; init; }
-		public IStorageProvider?                        StorageProvider           { get; init; }
-		public ILoggerOld?                                 Logger                    { get; init; }
-		public UnhandledErrorBehaviour                  UnhandledErrorBehaviour   { get; init; }
-		public Uri?                                     BaseUri                   { get; init; }
-=======
 	public DataModelValue Host
 	{
 		get => _host;
@@ -98,7 +65,6 @@ public record InterpreterOptions
 		get => _configuration;
 		init => _configuration = value.AsConstant();
 	}
->>>>>>> Stashed changes
 
 	public IErrorProcessor? ErrorProcessor
 	{

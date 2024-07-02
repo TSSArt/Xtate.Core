@@ -19,15 +19,7 @@
 
 using Xtate.Persistence;
 
-<<<<<<< Updated upstream
-namespace Xtate.Core
-{
-	public sealed class ScriptNode : ExecutableEntityNode, IScript, IAncestorProvider
-	{
-		private readonly IScript _script;
-=======
 namespace Xtate.Core;
->>>>>>> Stashed changes
 
 public sealed class ScriptNode(DocumentIdNode documentIdNode, IScript script) : ExecutableEntityNode(documentIdNode, script), IScript, IAncestorProvider
 {

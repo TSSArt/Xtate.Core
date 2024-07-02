@@ -129,16 +129,6 @@ public class CacheEntry<T>
 					break;
 				}
 			}
-<<<<<<< Updated upstream
-
-			if (DisposeRequired && TryGetValue(out var value))
-			{
-				await Disposer.DisposeAsync(value).ConfigureAwait(false);
-			}
-
-			return true;
-=======
->>>>>>> Stashed changes
 		}
 
 		if (DisposeRequired && TryGetValue(out var value))

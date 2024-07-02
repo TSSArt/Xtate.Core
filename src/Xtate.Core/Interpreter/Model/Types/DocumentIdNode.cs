@@ -21,34 +21,14 @@ namespace Xtate.Core;
 
 public readonly struct DocumentIdNode(LinkedList<int>? list)
 {
-<<<<<<< Updated upstream
-	public readonly struct DocumentIdNode
-	{
-		private readonly LinkedListNode<int> _node;
-
-		public DocumentIdNode(LinkedList<int> list)
-		{
-			Infra.Requires(list);
-
-			_node = list.AddLast(-1);
-		}
-
-		public void Discard()
-=======
 	private readonly LinkedListNode<int>? _node = list?.AddLast(-1) ?? default;
 
 	public void Discard()
 	{
 		if (_node?.List is { } list)
->>>>>>> Stashed changes
 		{
 			list.Remove(_node);
 		}
-<<<<<<< Updated upstream
-
-		internal void SaveToSlot(out DocumentIdSlot slot) => slot = new DocumentIdSlot(_node);
-=======
->>>>>>> Stashed changes
 	}
 
 	internal void SaveToSlot(out DocumentIdSlot slot) => slot = new DocumentIdSlot(_node);

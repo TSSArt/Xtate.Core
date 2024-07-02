@@ -47,45 +47,6 @@ public sealed partial class StateMachineHost : IHost
 		if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
 		if (origin.Type == StateMachineOriginType.None) throw new ArgumentException(Resources.Exception_StateMachineOriginMissed, nameof(origin));
 
-<<<<<<< Updated upstream
-		async ValueTask<IStateMachineController> IHost.StartStateMachineAsync(SessionId sessionId,
-																			  StateMachineOrigin origin,
-																			  DataModelValue parameters,
-																			  SecurityContextType securityContextType,
-																			  DeferredFinalizer finalizer, 
-																			  CancellationToken token)
-		{
-			return await StartStateMachine(sessionId, origin, parameters, securityContextType, finalizer, token).ConfigureAwait(false);
-		}
-
-		ValueTask IHost.DestroyStateMachine(SessionId sessionId, CancellationToken token) => DestroyStateMachine(sessionId, token);
-
-	#endregion
-
-		private async ValueTask<IStateMachineController> StartStateMachine(SessionId sessionId,
-																		   StateMachineOrigin origin,
-																		   DataModelValue parameters,
-																		   SecurityContextType securityContextType,
-																		   DeferredFinalizer? finalizer, 
-																		   CancellationToken token)
-		{
-			if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
-			if (origin.Type == StateMachineOriginType.None) throw new ArgumentException(Resources.Exception_StateMachineOriginMissed, nameof(origin));
-
-			var scopeManager = _options.ServiceLocator.GetService<IScopeManager>();
-			var stateMachineStartOptions = new StateMachineStartOptions()
-										   {
-											   Origin = origin, 
-											   Parameters = parameters, 
-											   SessionId = sessionId, 
-											   SecurityContextType = securityContextType
-										   };
-			
-			return await scopeManager.RunStateMachine(stateMachineStartOptions).ConfigureAwait(false);
-		}
-
-		private ValueTask DestroyStateMachine(SessionId sessionId, CancellationToken token) => GetCurrentContext().DestroyStateMachine(sessionId, token);
-=======
 		var stateMachineStartOptions = new StateMachineStartOptions
 									   {
 										   Origin = origin,
@@ -97,7 +58,6 @@ public sealed partial class StateMachineHost : IHost
 		var scopeManager = await _scopeManagerFactory().ConfigureAwait(false);
 
 		return await scopeManager.RunStateMachine(stateMachineStartOptions).ConfigureAwait(false);
->>>>>>> Stashed changes
 	}
 
 	private ValueTask DestroyStateMachine(SessionId sessionId, CancellationToken token) => GetCurrentContext().DestroyStateMachine(sessionId, token);

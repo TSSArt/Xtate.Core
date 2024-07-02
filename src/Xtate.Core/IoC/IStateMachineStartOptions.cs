@@ -21,16 +21,8 @@ namespace Xtate.Core;
 
 public interface IStateMachineStartOptions
 {
-<<<<<<< Updated upstream:src/Xtate.Core/src/Xtate.Core/DataModel/Abstractions/Interfaces/Evaluators/IResourceEvaluator.cs
-	[PublicAPI]
-	public interface IResourceEvaluator : IValueEvaluator
-	{
-		ValueTask<IObject> EvaluateObject(Resource resource);
-	}
-=======
 	SessionId           SessionId           { get; init; }
 	StateMachineOrigin  Origin              { get; init; }
 	DataModelValue      Parameters          { get; init; }
 	SecurityContextType SecurityContextType { get; init; }
->>>>>>> Stashed changes:src/Xtate.Core/src/Xtate.Core/IoC/IStateMachineStartOptions.cs
 }

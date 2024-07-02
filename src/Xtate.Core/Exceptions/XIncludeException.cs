@@ -40,19 +40,7 @@ public class XIncludeException : XtateException
 
 	private static string? AddLocationInfo(string? message, XmlReader? xmlReader)
 	{
-<<<<<<< Updated upstream
-		public XIncludeException() { }
-
-		public XIncludeException(string? message) : base(message) { }
-
-		public XIncludeException(string? message, XmlReader? xmlReader) : base(AddLocationInfo(message, xmlReader)) => Init(xmlReader);
-
-		public XIncludeException(string? message, Exception? innerException) : base(message, innerException) { }
-
-		protected XIncludeException(SerializationInfo info, StreamingContext context) : base(info, context)
-=======
 		if (xmlReader is null)
->>>>>>> Stashed changes
 		{
 			return message;
 		}

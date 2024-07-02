@@ -31,22 +31,7 @@ public class FinalizeBuilder : BuilderBase, IFinalizeBuilder
 	{
 		Infra.Requires(action);
 
-<<<<<<< Updated upstream
-	#region Interface IFinalizeBuilder
-
-		public IFinalize Build() => new FinalizeEntity { Ancestor = Ancestor, Action = _actions?.ToImmutable() ?? default };
-
-		public void AddAction(IExecutableEntity action)
-		{
-			Infra.Requires(action);
-
-			(_actions ??= ImmutableArray.CreateBuilder<IExecutableEntity>()).Add(action);
-		}
-
-	#endregion
-=======
 		(_actions ??= ImmutableArray.CreateBuilder<IExecutableEntity>()).Add(action);
->>>>>>> Stashed changes
 	}
 
 #endregion

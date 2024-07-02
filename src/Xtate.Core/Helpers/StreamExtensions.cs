@@ -15,55 +15,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-<<<<<<< Updated upstream
-#endregion
-
-using System;
-using System.Buffers;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Xtate.Core
-{
-	public static class StreamExtensions
-	{
-#if NET461 || NETSTANDARD2_0
-		public static ConfiguredAwaitable ConfigureAwait(this Stream stream, bool continueOnCapturedContext) => new(stream, continueOnCapturedContext);
-
-		public static ValueTask DisposeAsync(this Stream stream)
-		{
-			if (stream is null) throw new ArgumentNullException(nameof(stream));
-
-			stream.Dispose();
-
-			return default;
-		}
-
-		[SuppressMessage(category: "Design", checkId: "CA1034:Nested types should not be visible")]
-		[SuppressMessage(category: "Performance", checkId: "CA1815:Override equals and operator equals on value types")]
-		public readonly struct ConfiguredAwaitable
-		{
-			private readonly bool _continueOnCapturedContext;
-
-			private readonly Stream _stream;
-
-			public ConfiguredAwaitable(Stream stream, bool continueOnCapturedContext)
-			{
-				_stream = stream;
-				_continueOnCapturedContext = continueOnCapturedContext;
-			}
-
-			public ConfiguredValueTaskAwaitable DisposeAsync() => _stream.DisposeAsync().ConfigureAwait(_continueOnCapturedContext);
-		}
-#else
-		internal static void IgnoreIt(ConfiguredValueTaskAwaitable _) { }
-=======
 #if NET6_0_OR_GREATER
 #pragma warning disable CA1835
->>>>>>> Stashed changes
 #endif
 
 using System.Buffers;
@@ -87,18 +40,7 @@ public static class StreamExtensions
 		var buffer = ArrayPool<byte>.Shared.Rent(4096);
 		try
 		{
-<<<<<<< Updated upstream
-			if (stream is null) throw new ArgumentNullException(nameof(stream));
-
-			var longLength = stream.Length - stream.Position;
-			var capacity = longLength is >= 0 and <= int.MaxValue ? (int) longLength : 0;
-
-			var memoryStream = new MemoryStream(capacity);
-			var buffer = ArrayPool<byte>.Shared.Rent(4096);
-			try
-=======
 			while (true)
->>>>>>> Stashed changes
 			{
 				var bytesRead = await stream.ReadAsync(buffer, offset: 0, buffer.Length, token).ConfigureAwait(false);
 				if (bytesRead == 0)

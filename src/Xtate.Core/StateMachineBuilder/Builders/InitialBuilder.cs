@@ -31,22 +31,7 @@ public class InitialBuilder : BuilderBase, IInitialBuilder
 	{
 		Infra.Requires(transition);
 
-<<<<<<< Updated upstream
-	#region Interface IInitialBuilder
-
-		public IInitial Build() => new InitialEntity { Ancestor = Ancestor, Transition = _transition };
-
-		public void SetTransition(ITransition transition)
-		{
-			Infra.Requires(transition);
-
-			_transition = transition;
-		}
-
-	#endregion
-=======
 		_transition = transition;
->>>>>>> Stashed changes
 	}
 
 #endregion

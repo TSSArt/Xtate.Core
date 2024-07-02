@@ -30,31 +30,9 @@ public class InitialFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 
 	public TOuterBuilder EndInitial()
 	{
-<<<<<<< Updated upstream
-		public required IInitialBuilder  Builder      { private get; init; }
-		public required Action<IInitial> BuiltAction  { private get; init; }
-		public required TOuterBuilder    OuterBuilder { private get; init; }
-
-		public required Func<InitialFluentBuilder<TOuterBuilder>, Action<ITransition>, TransitionFluentBuilder<InitialFluentBuilder<TOuterBuilder>>> TransitionFluentBuilderFactory { private get; init; }
-
-		[return: NotNull]
-		public TOuterBuilder EndInitial()
-		{
-			BuiltAction(Builder.Build());
-
-			return OuterBuilder;
-		}
-
-		public TransitionFluentBuilder<InitialFluentBuilder<TOuterBuilder>> BeginTransition() => TransitionFluentBuilderFactory(this, Builder.SetTransition);
-
-		public InitialFluentBuilder<TOuterBuilder> AddTransition(string target) => AddTransition((Identifier) target);
-
-		public InitialFluentBuilder<TOuterBuilder> AddTransition(IIdentifier target) => BeginTransition().SetTarget(target).EndTransition();
-=======
 		BuiltAction(Builder.Build());
 
 		return OuterBuilder;
->>>>>>> Stashed changes
 	}
 
 	public TransitionFluentBuilder<InitialFluentBuilder<TOuterBuilder>> BeginTransition() => TransitionFluentBuilderFactory(this, Builder.SetTransition);

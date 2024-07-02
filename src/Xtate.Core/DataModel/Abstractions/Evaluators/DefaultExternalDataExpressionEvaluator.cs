@@ -1,10 +1,5 @@
-<<<<<<< Updated upstream
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
-=======
 ﻿// Copyright © 2019-2023 Sergii Artemenko
 // 
->>>>>>> Stashed changes
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -20,30 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-<<<<<<< Updated upstream
-#endregion
-
-using System;
-using System.Threading.Tasks;
-using Xtate.Core;
-
-namespace Xtate.DataModel;
-
-public abstract class ExternalDataExpressionEvaluator : IExternalDataExpression, IResourceEvaluator, IAncestorProvider
-{
-	private readonly IExternalDataExpression _externalDataExpression;
-
-	protected ExternalDataExpressionEvaluator(IExternalDataExpression externalDataExpression)
-	{
-		Infra.Requires(externalDataExpression);
-
-		_externalDataExpression = externalDataExpression;
-	}
-
-#region Interface IAncestorProvider
-
-	object IAncestorProvider.Ancestor => _externalDataExpression;
-=======
 namespace Xtate.DataModel;
 
 public abstract class ExternalDataExpressionEvaluator(IExternalDataExpression externalDataExpression) : IExternalDataExpression, IObjectEvaluator, IAncestorProvider
@@ -51,21 +22,11 @@ public abstract class ExternalDataExpressionEvaluator(IExternalDataExpression ex
 #region Interface IAncestorProvider
 
 	object IAncestorProvider.Ancestor => externalDataExpression;
->>>>>>> Stashed changes
 
 #endregion
 
 #region Interface IExternalDataExpression
 
-<<<<<<< Updated upstream
-	public virtual Uri? Uri => _externalDataExpression.Uri;
-
-#endregion
-
-#region Interface IResourceEvaluator
-
-	public abstract ValueTask<IObject> EvaluateObject(Resource resource);
-=======
 	public virtual Uri? Uri => externalDataExpression.Uri;
 
 #endregion
@@ -73,25 +34,10 @@ public abstract class ExternalDataExpressionEvaluator(IExternalDataExpression ex
 #region Interface IObjectEvaluator
 
 	public abstract ValueTask<IObject> EvaluateObject();
->>>>>>> Stashed changes
 
 #endregion
 }
 
-<<<<<<< Updated upstream
-public class DefaultExternalDataExpressionEvaluator : ExternalDataExpressionEvaluator
-{
-	public DefaultExternalDataExpressionEvaluator(IExternalDataExpression externalDataExpression) : base(externalDataExpression) { }
-
-	public required Func<ValueTask<DataConverter>> DataConverterFactory { private get; init; }
-
-	public override async ValueTask<IObject> EvaluateObject(Resource resource) => await ParseToDataModel(resource).ConfigureAwait(false);
-
-	protected virtual async ValueTask<DataModelValue> ParseToDataModel(Resource resource)
-	{
-		Infra.Requires(resource);
-
-=======
 public class DefaultExternalDataExpressionEvaluator(IExternalDataExpression externalDataExpression) : ExternalDataExpressionEvaluator(externalDataExpression)
 {
 	public required Func<ValueTask<DataConverter>>          DataConverterFactory        { private get; [UsedImplicitly] init; }
@@ -124,7 +70,6 @@ public class DefaultExternalDataExpressionEvaluator(IExternalDataExpression exte
 
 	protected virtual async ValueTask<DataModelValue> ParseToDataModel(Resource resource)
 	{
->>>>>>> Stashed changes
 		var dataConverter = await DataConverterFactory().ConfigureAwait(false);
 
 		return await dataConverter.FromContent(resource).ConfigureAwait(false);

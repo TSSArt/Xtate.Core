@@ -45,43 +45,11 @@ public sealed partial class StateMachineHost : IServiceFactory, IServiceFactoryA
 		var parameters = invokeData.Parameters;
 		var source = invokeData.Source;
 
-<<<<<<< Updated upstream
-		ValueTask<IServiceFactoryActivator?> IServiceFactory.TryGetActivator(ServiceLocator serviceLocator, Uri type, CancellationToken token) => new(CanHandle(type) ? this : null);
-=======
 		Infra.Assert(scxml is not null || source is not null);
->>>>>>> Stashed changes
 
 		var origin = scxml is not null ? new StateMachineOrigin(scxml, baseUri) : new StateMachineOrigin(source!, baseUri);
 
-<<<<<<< Updated upstream
-	#region Interface IServiceFactoryActivator
-
-		async ValueTask<IService> IServiceFactoryActivator.StartService(ServiceLocator serviceLocator,
-																		Uri? baseUri,
-																		InvokeData invokeData,
-																		IServiceCommunication serviceCommunication,
-																		CancellationToken token)
-		{
-			Infra.Assert(CanHandle(invokeData.Type));
-
-			var sessionId = SessionId.New();
-			var scxml = invokeData.RawContent ?? invokeData.Content.AsStringOrDefault();
-			var parameters = invokeData.Parameters;
-			var source = invokeData.Source;
-
-			Infra.Assert(scxml is not null || source is not null);
-
-			var origin = scxml is not null ? new StateMachineOrigin(scxml, baseUri) : new StateMachineOrigin(source!, baseUri);
-
-			return await StartStateMachine(sessionId, origin, parameters, SecurityContextType.InvokedService, finalizer: default, token).ConfigureAwait(false);
-		}
-
-	#endregion
-
-		private static bool CanHandle(Uri type) => FullUriComparer.Instance.Equals(type, ServiceFactoryTypeId) || FullUriComparer.Instance.Equals(type, ServiceFactoryAliasTypeId);
-=======
 		return await StartStateMachine(sessionId, origin, parameters, SecurityContextType.InvokedService, default).ConfigureAwait(false);
->>>>>>> Stashed changes
 	}
 
 #endregion

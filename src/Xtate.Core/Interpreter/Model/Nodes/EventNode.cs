@@ -21,9 +21,6 @@ namespace Xtate.Core;
 
 public sealed class EventNode(IOutgoingEvent outgoingEvent) : IOutgoingEvent, IStoreSupport, IAncestorProvider
 {
-<<<<<<< Updated upstream
-	public sealed class EventNode : IOutgoingEvent, IStoreSupport, IAncestorProvider
-=======
 #region Interface IAncestorProvider
 
 	object IAncestorProvider.Ancestor => outgoingEvent;
@@ -44,7 +41,6 @@ public sealed class EventNode(IOutgoingEvent outgoingEvent) : IOutgoingEvent, IS
 #region Interface IStoreSupport
 
 	void IStoreSupport.Store(Bucket bucket)
->>>>>>> Stashed changes
 	{
 		bucket.Add(Key.Id, EventName.ToName(outgoingEvent.NameParts));
 	}

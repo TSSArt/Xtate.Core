@@ -17,58 +17,16 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.IoC;
-=======
 using Xtate.Persistence;
->>>>>>> Stashed changes
 
 namespace Xtate.Core;
 
 public interface IInterpreterModel
 {
-<<<<<<< Updated upstream
-	public interface IInterpreterModel
-	{
-		StateMachineNode                  Root                   { get; }
-		//ImmutableArray<DataModelNode>     DataModelList          { get; }
-		ImmutableDictionary<int, IEntity> EntityMap { get; }
-	}
-
-	public class InterpreterModel : IInterpreterModel, IAsyncInitialization
-	{
-		private readonly InterpreterModelBuilder     _interpreterModelBuilder;
-		private readonly AsyncInit<StateMachineNode> _stateMachineNodeAsyncInit;
-
-		[Obsolete]
-		public InterpreterModel(StateMachineNode root,
-								int maxConfigurationLength,
-								ImmutableDictionary<int, IEntity> entityMap,
-								ImmutableArray<DataModelNode> dataModelList)
-		{
-			MaxConfigurationLength = maxConfigurationLength;
-			EntityMap = entityMap;
-			DataModelList = dataModelList;
-		}
-
-		public InterpreterModel(InterpreterModelBuilder interpreterModelBuilder) 
-		{
-			_interpreterModelBuilder = interpreterModelBuilder;
-			_stateMachineNodeAsyncInit = AsyncInit.RunAfter(_interpreterModelBuilder, builder => builder.Build2(null));
-		}
-
-		public StateMachineNode Root => _stateMachineNodeAsyncInit.Value;
-=======
 	StateMachineNode Root { get; }
 
 	IEntityMap? EntityMap { get; }
 }
->>>>>>> Stashed changes
 
 public class InterpreterModel(StateMachineNode root, IEntityMap? entityMap) : IInterpreterModel
 {
@@ -76,14 +34,7 @@ public class InterpreterModel(StateMachineNode root, IEntityMap? entityMap) : II
 
 	public StateMachineNode Root { get; } = root;
 
-<<<<<<< Updated upstream
-		public ImmutableArray<DataModelNode> DataModelList  { get; }
-
-		public virtual Task Initialization => _stateMachineNodeAsyncInit.Task;
-	}
-=======
 	public IEntityMap? EntityMap { get; } = entityMap;
 
 #endregion
->>>>>>> Stashed changes
 }

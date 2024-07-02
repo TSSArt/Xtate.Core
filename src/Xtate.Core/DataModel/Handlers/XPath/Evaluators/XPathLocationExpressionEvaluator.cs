@@ -48,33 +48,14 @@ public class XPathLocationExpressionEvaluator : ILocationEvaluator, ILocationExp
 
 #endregion
 
-<<<<<<< Updated upstream
-using System;
-using System.Threading.Tasks;
-using Xtate.Core;
-
-namespace Xtate.DataModel.XPath
-{
-	public class XPathLocationExpressionEvaluator : ILocationEvaluator, ILocationExpression, IAncestorProvider
-=======
 #region Interface ILocationEvaluator
 
 	public async ValueTask SetValue(IObject value)
->>>>>>> Stashed changes
 	{
 		var engine = await EngineFactory().ConfigureAwait(false);
 
-<<<<<<< Updated upstream
-		public required Func<ValueTask<XPathEngine>> EngineFactory { private get; init; }
-
-		public XPathLocationExpressionEvaluator(ILocationExpression locationExpression, XPathCompiledExpression compiledExpression)
-		{
-			_locationExpression = locationExpression;
-			_compiledExpression = compiledExpression;
-=======
 		await engine.Assign(_compiledExpression, _assignType, _attribute, value).ConfigureAwait(false);
 	}
->>>>>>> Stashed changes
 
 	public async ValueTask<IObject> GetValue()
 	{
@@ -92,43 +73,6 @@ namespace Xtate.DataModel.XPath
 
 #endregion
 
-<<<<<<< Updated upstream
-		public async ValueTask DeclareLocalVariable()
-		{
-			var engine = await EngineFactory().ConfigureAwait(false);
-
-			engine.DeclareVariable(_compiledExpression);
-		}
-
-		public async ValueTask SetValue(IObject value)
-		{
-			var engine = await EngineFactory().ConfigureAwait(false);
-
-			await engine.Assign1(_compiledExpression, _assignType, _attribute, value).ConfigureAwait(false);
-		}
-
-		public async ValueTask<IObject> GetValue()
-		{
-			var engine = await EngineFactory().ConfigureAwait(false);
-
-			return await engine.EvalObject(_compiledExpression, stripRoots: true).ConfigureAwait(false);
-		}
-
-		public async ValueTask<string> GetName()
-		{
-			var engine = await EngineFactory().ConfigureAwait(false);
-
-			return engine.GetName(_compiledExpression);
-		}
-
-	#endregion
-
-	#region Interface ILocationExpression
-
-		public string? Expression => _locationExpression.Expression;
-
-	#endregion
-=======
 #region Interface ILocationExpression
 
 	public string? Expression => _locationExpression.Expression;
@@ -140,6 +84,5 @@ namespace Xtate.DataModel.XPath
 		var engine = await EngineFactory().ConfigureAwait(false);
 
 		engine.DeclareVariable(_compiledExpression);
->>>>>>> Stashed changes
 	}
 }

@@ -25,40 +25,15 @@ public class EmptyInitialNode(DocumentIdNode documentIdNode, TransitionNode tran
 
 public class InitialNode : StateEntityNode, IInitial, IAncestorProvider, IDebugEntityId
 {
-<<<<<<< Updated upstream
-	public class EmptyInitialNode : InitialNode
-	{
-		public EmptyInitialNode(DocumentIdNode documentIdNode, TransitionNode transition) : base(documentIdNode, transition) { }
-	}
-
-	public class InitialNode : StateEntityNode, IInitial, IAncestorProvider, IDebugEntityId
-=======
 	private readonly IInitial? _initial;
 
 	[UsedImplicitly]
 	public InitialNode(DocumentIdNode documentIdNode, IInitial initial) : this(documentIdNode, GetTransitionNode(initial)) => _initial = initial;
 
 	protected InitialNode(DocumentIdNode documentIdNode, TransitionNode transition) : base(documentIdNode)
->>>>>>> Stashed changes
 	{
 		Transition = transition;
 
-<<<<<<< Updated upstream
-		public InitialNode(DocumentIdNode documentIdNode, IInitial initial) : this(documentIdNode, GetTransitionNode(initial)) => _initial = initial;
-
-		private static TransitionNode GetTransitionNode(IInitial initial)
-		{
-			Infra.Requires(initial);
-
-			Infra.NotNull(initial.Transition);
-
-			return initial.Transition.As<TransitionNode>();
-		}
-
-		protected InitialNode(DocumentIdNode documentIdNode, TransitionNode transition) : base(documentIdNode)
-		{
-			Transition = transition;
-=======
 		Transition.SetSource(this);
 	}
 
@@ -67,7 +42,6 @@ public class InitialNode : StateEntityNode, IInitial, IAncestorProvider, IDebugE
 #region Interface IAncestorProvider
 
 	object? IAncestorProvider.Ancestor => _initial;
->>>>>>> Stashed changes
 
 #endregion
 

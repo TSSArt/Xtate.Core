@@ -31,22 +31,7 @@ public class ElseIfBuilder : BuilderBase, IElseIfBuilder
 	{
 		Infra.Requires(condition);
 
-<<<<<<< Updated upstream
-	#region Interface IElseIfBuilder
-
-		public IElseIf Build() => new ElseIfEntity { Ancestor = Ancestor, Condition = _condition };
-
-		public void SetCondition(IConditionExpression condition)
-		{
-			Infra.Requires(condition);
-
-			_condition = condition;
-		}
-
-	#endregion
-=======
 		_condition = condition;
->>>>>>> Stashed changes
 	}
 
 #endregion

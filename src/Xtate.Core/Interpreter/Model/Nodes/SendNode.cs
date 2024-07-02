@@ -19,15 +19,7 @@
 
 using Xtate.Persistence;
 
-<<<<<<< Updated upstream
-namespace Xtate.Core
-{
-	public sealed class SendNode : ExecutableEntityNode, ISend, IAncestorProvider, IDebugEntityId
-	{
-		private readonly ISend _send;
-=======
 namespace Xtate.Core;
->>>>>>> Stashed changes
 
 public sealed class SendNode(DocumentIdNode documentIdNode, ISend send) : ExecutableEntityNode(documentIdNode, send), ISend, IAncestorProvider, IDebugEntityId
 {

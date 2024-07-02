@@ -32,29 +32,7 @@ public class LogBuilder : BuilderBase, ILogBuilder
 	{
 		Infra.RequiresNonEmptyString(label);
 
-<<<<<<< Updated upstream
-	#region Interface ILogBuilder
-
-		public ILog Build() => new LogEntity { Ancestor = Ancestor, Label = _label, Expression = _expression };
-
-		public void SetLabel(string label)
-		{
-			Infra.RequiresNonEmptyString(label);
-
-			_label = label;
-		}
-
-		public void SetExpression(IValueExpression expression)
-		{
-			Infra.Requires(expression);
-
-			_expression = expression;
-		}
-
-	#endregion
-=======
 		_label = label;
->>>>>>> Stashed changes
 	}
 
 	public void SetExpression(IValueExpression expression)

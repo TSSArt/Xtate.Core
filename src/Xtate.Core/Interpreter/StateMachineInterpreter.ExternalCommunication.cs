@@ -21,110 +21,14 @@ namespace Xtate.Core;
 
 public partial class StateMachineInterpreter : IExternalCommunication2
 {
-<<<<<<< Updated upstream
-	public partial class StateMachineInterpreter : IExternalCommunication2
-	{
-	#region Interface IExternalCommunication
-
-		async ValueTask IExternalCommunication2.StartInvoke(InvokeData invokeData)
-=======
 #region Interface IExternalCommunication2
 
 	async ValueTask IExternalCommunication2.StartInvoke(InvokeData invokeData)
 	{
 		try
->>>>>>> Stashed changes
 		{
 			if (ExternalCommunication is null)
 			{
-<<<<<<< Updated upstream
-				if (_externalCommunication is null)
-				{
-					throw NoExternalCommunication();
-				}
-
-				await _externalCommunication.StartInvoke(invokeData).ConfigureAwait(false);
-			}
-			catch (Exception ex)
-			{
-				throw new CommunicationException(ex) { Token = _stateMachineToken };
-			}
-		}
-
-		async ValueTask IExternalCommunication2.CancelInvoke(InvokeId invokeId)
-		{
-			try
-			{
-				if (_externalCommunication is null)
-				{
-					throw NoExternalCommunication();
-				}
-
-				await _externalCommunication.CancelInvoke(invokeId).ConfigureAwait(false);
-			}
-			catch (Exception ex)
-			{
-				throw new CommunicationException(ex) { Token = _stateMachineToken };
-			}
-		}
-
-		async ValueTask<SendStatus> IExternalCommunication2.TrySendEvent(IOutgoingEvent outgoingEvent)
-		{
-			if (outgoingEvent is null) throw new ArgumentNullException(nameof(outgoingEvent));
-
-			try
-			{
-				if (_externalCommunication is null)
-				{
-					throw NoExternalCommunication();
-				}
-
-				return await _externalCommunication.TrySendEvent(outgoingEvent).ConfigureAwait(false);
-			}
-			catch (Exception ex)
-			{
-				throw new CommunicationException(ex, outgoingEvent.SendId) { Token = _stateMachineToken };
-			}
-		}
-
-		async ValueTask IExternalCommunication2.CancelEvent(SendId sendId)
-		{
-			try
-			{
-				if (_externalCommunication is null)
-				{
-					throw NoExternalCommunication();
-				}
-
-				await _externalCommunication.CancelEvent(sendId).ConfigureAwait(false);
-			}
-			catch (Exception ex)
-			{
-				throw new CommunicationException(ex, sendId) { Token = _stateMachineToken };
-			}
-		}
-
-	#endregion
-
-		private async ValueTask ForwardEvent(IEvent evt, InvokeId invokeId)
-		{
-			try
-			{
-				if (_externalCommunication is null)
-				{
-					throw NoExternalCommunication();
-				}
-
-				await _externalCommunication.ForwardEvent(evt, invokeId).ConfigureAwait(false);
-			}
-			catch (Exception ex)
-			{
-				throw new CommunicationException(ex) {Token = _stateMachineToken};
-			}
-		}
-
-		private static NotSupportedException NoExternalCommunication() => new(Resources.Exception_ExternalCommunicationDoesNotConfiguredForStateMachineInterpreter);
-=======
 				throw NoExternalCommunication();
 			}
 
@@ -134,7 +38,6 @@ public partial class StateMachineInterpreter : IExternalCommunication2
 		{
 			throw new CommunicationException(ex) { Token = _stateMachineToken };
 		}
->>>>>>> Stashed changes
 	}
 
 	async ValueTask IExternalCommunication2.CancelInvoke(InvokeId invokeId)

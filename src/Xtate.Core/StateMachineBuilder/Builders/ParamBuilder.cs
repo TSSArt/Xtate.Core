@@ -17,13 +17,7 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using System;
-using System.Reflection.Emit;
-using Xtate.Core;
-=======
 namespace Xtate.Builder;
->>>>>>> Stashed changes
 
 public class ParamBuilder : BuilderBase, IParamBuilder
 {
@@ -39,36 +33,7 @@ public class ParamBuilder : BuilderBase, IParamBuilder
 	{
 		Infra.RequiresNonEmptyString(name);
 
-<<<<<<< Updated upstream
-	#region Interface IParamBuilder
-
-		public IParam Build() => new ParamEntity { Ancestor = Ancestor, Name = _name, Expression = _expression, Location = _location };
-
-		public void SetName(string name)
-		{
-			Infra.RequiresNonEmptyString(name);
-
-			_name = name;
-		}
-
-		public void SetExpression(IValueExpression expression)
-		{
-			Infra.Requires(expression);
-
-			_expression = expression;
-		}
-
-		public void SetLocation(ILocationExpression location)
-		{
-			Infra.Requires(location);
-			
-			_location = location;
-		}
-
-	#endregion
-=======
 		_name = name;
->>>>>>> Stashed changes
 	}
 
 	public void SetExpression(IValueExpression expression)

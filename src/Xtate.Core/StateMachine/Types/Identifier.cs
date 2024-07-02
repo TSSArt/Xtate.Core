@@ -17,16 +17,7 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using Xtate.Core;
-=======
 using System.ComponentModel;
->>>>>>> Stashed changes
 
 namespace Xtate;
 
@@ -50,13 +41,7 @@ public sealed class Identifier : LazyId, IIdentifier, IEquatable<IIdentifier>
 	{
 		foreach (var ch in value)
 		{
-<<<<<<< Updated upstream
-			Infra.RequiresNonEmptyString(value);
-
-			foreach (var ch in value)
-=======
 			if (char.IsWhiteSpace(ch))
->>>>>>> Stashed changes
 			{
 				throw new ArgumentException(Resources.Exception_IdentifierCannotContainsWhitespace, nameof(value));
 			}
@@ -86,51 +71,6 @@ public sealed class Identifier : LazyId, IIdentifier, IEquatable<IIdentifier>
 
 		identifier = new Identifier(value);
 
-<<<<<<< Updated upstream
-		public static IIdentifier New() => new Identifier();
-
-		public static string? ToString(ImmutableArray<IIdentifier> identifiers)
-		{
-			if (identifiers.IsDefaultOrEmpty)
-			{
-				return null;
-			}
-
-			if (identifiers.Length == 1)
-			{
-				return identifiers[0].Value;
-			}
-
-			return string.Join(@" ", identifiers.Select(d => d.Value));
-		}
-
-		public static IEqualityComparer<IIdentifier> EqualityComparer { get; } = new IdentifierEqualityComparer();
-
-		private class IdentifierEqualityComparer : IEqualityComparer<IIdentifier>
-		{
-		#region Interface IEqualityComparer<IIdentifier>
-
-			public bool Equals(IIdentifier? x, IIdentifier? y)
-			{
-				if (ReferenceEquals(x, y))
-				{
-					return true;
-				}
-
-				if (x is null || y is null)
-				{
-					return false;
-				}
-
-				return x.As<IEquatable<IIdentifier>>().Equals(y.As<IEquatable<IIdentifier>>());
-			}
-
-			public int GetHashCode(IIdentifier obj) => obj.As<IEquatable<IIdentifier>>().GetHashCode();
-
-		#endregion
-		}
-
-=======
 		return true;
 	}
 
@@ -175,6 +115,5 @@ public sealed class Identifier : LazyId, IIdentifier, IEquatable<IIdentifier>
 		public int GetHashCode(IIdentifier obj) => obj.As<IEquatable<IIdentifier>>().GetHashCode();
 
 #endregion
->>>>>>> Stashed changes
 	}
 }

@@ -21,9 +21,6 @@ namespace Xtate.Core;
 
 public sealed class ContentNode(IContent content) : IContent, IStoreSupport, IAncestorProvider
 {
-<<<<<<< Updated upstream
-	public sealed class ContentNode : IContent, IStoreSupport, IAncestorProvider
-=======
 #region Interface IAncestorProvider
 
 	object IAncestorProvider.Ancestor => content;
@@ -41,7 +38,6 @@ public sealed class ContentNode(IContent content) : IContent, IStoreSupport, IAn
 #region Interface IStoreSupport
 
 	void IStoreSupport.Store(Bucket bucket)
->>>>>>> Stashed changes
 	{
 		bucket.Add(Key.TypeInfo, TypeInfo.ContentNode);
 		bucket.AddEntity(Key.Expression, Expression);

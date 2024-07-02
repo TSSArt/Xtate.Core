@@ -3,11 +3,7 @@
   <Import Condition="'$(Version)'==''" Project="..\..\Version.props" />
 
   <PropertyGroup>
-<<<<<<< Updated upstream
-    <TargetFrameworks>net6.0;netstandard2.0;net461</TargetFrameworks>
-=======
     <TargetFrameworks>net8.0;netstandard2.0;net462</TargetFrameworks>
->>>>>>> Stashed changes
     <Nullable>enable</Nullable>
     <RepositoryUrl>https://github.com/TSSArt/Xtate.Core</RepositoryUrl>
     <PackageId>Xtate.Core</PackageId>
@@ -24,25 +20,10 @@
   </ItemGroup>
 
   <ItemGroup>
-<<<<<<< Updated upstream
-    <Compile Remove="IoC\**" />
-    <EmbeddedResource Remove="IoC\**" />
-    <None Remove="IoC\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Portable.BouncyCastle" Version="1.8.10" />
-    <PackageReference Include="System.Threading.Channels" Version="5.0.0" />
-
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="5.0.3" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.CodeQuality.Analyzers" Version="3.3.1" PrivateAssets="all" />
-    <PackageReference Include="ConfigureAwaitChecker.Analyzer" Version="5.0.0" PrivateAssets="all" />
-=======
     <PackageReference Include="Xtate.SharedContent" Version="0.2.19" />
     <PackageReference Include="System.Threading.Channels" Version="8.0.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0" PrivateAssets="all" />
     <PackageReference Include="ConfigureAwaitChecker.Analyzer" Version="5.0.0.1" PrivateAssets="all" />
->>>>>>> Stashed changes
   </ItemGroup>
 
   <ItemGroup>
@@ -60,22 +41,6 @@
   </ItemGroup>
 
   <ItemGroup>
-<<<<<<< Updated upstream
-    <Compile Include="IoC\Container.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Xtate.IoC\Xtate.IoC.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="Properties\MvpResources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>MvpResources.resx</DependentUpon>
-    </Compile>
-=======
->>>>>>> Stashed changes
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

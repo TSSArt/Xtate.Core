@@ -21,12 +21,5 @@ namespace Xtate.Core;
 
 public interface ILocationAssigner
 {
-<<<<<<< Updated upstream
-	public interface ILocationAssigner
-	{
-		ValueTask Assign(DataModelValue value);
-	}
-=======
 	ValueTask Assign(DataModelValue value);
->>>>>>> Stashed changes
 }

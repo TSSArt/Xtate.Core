@@ -1,8 +1,4 @@
-<<<<<<< Updated upstream
-﻿#region Copyright © 2019-2021 Sergii Artemenko
-=======
 ﻿#region Copyright © 2019-2023 Sergii Artemenko
->>>>>>> Stashed changes
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,34 +17,6 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using System;
-using System.Threading.Tasks;
-
-namespace Xtate
-{
-	public enum LogLevel
-	{
-		Info,
-		Warning,
-		Error
-	}
-
-
-	public interface ILogController
-	{
-		bool IsEnabled { get; }
-
-		ValueTask Log(string? message = default, DataModelValue arguments = default);
-
-		//TODO:delete
-		[Obsolete]
-		ValueTask LogOld(LogLevel logLevel,
-					  string? message = default,
-					  DataModelValue arguments = default,
-					  Exception? exception = default);
-	}
-=======
 namespace Xtate;
 
 public interface ILogController
@@ -56,5 +24,4 @@ public interface ILogController
 	bool IsEnabled { get; }
 
 	ValueTask Log(string? message = default, DataModelValue arguments = default);
->>>>>>> Stashed changes
 }

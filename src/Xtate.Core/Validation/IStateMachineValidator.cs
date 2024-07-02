@@ -21,12 +21,5 @@ namespace Xtate.Core;
 
 public interface IStateMachineValidator
 {
-<<<<<<< Updated upstream
-	public interface IStateMachineValidator
-	{
-		void Validate(IStateMachine stateMachine);
-	}
-=======
 	void Validate(IStateMachine stateMachine);
->>>>>>> Stashed changes
 }

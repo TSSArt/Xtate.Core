@@ -21,47 +21,6 @@ namespace Xtate.Core;
 
 public sealed class IdentifierNode(IIdentifier id) : IIdentifier, IStoreSupport, IAncestorProvider, IDebugEntityId
 {
-<<<<<<< Updated upstream
-	public sealed class IdentifierNode : IIdentifier, IStoreSupport, IAncestorProvider, IDebugEntityId
-	{
-		private readonly IIdentifier _identifier;
-
-		public IdentifierNode(IIdentifier id) => _identifier = id ?? throw new ArgumentNullException(nameof(id));
-
-	#region Interface IAncestorProvider
-
-		object IAncestorProvider.Ancestor => _identifier;
-
-	#endregion
-
-	#region Interface IDebugEntityId
-
-		FormattableString IDebugEntityId.EntityId => @$"{_identifier}";
-
-	#endregion
-
-	#region Interface IIdentifier
-
-		public string Value => _identifier.Value;
-
-	#endregion
-
-	#region Interface IStoreSupport
-
-		void IStoreSupport.Store(Bucket bucket)
-		{
-			bucket.Add(Key.TypeInfo, TypeInfo.IdentifierNode);
-			bucket.Add(Key.Id, _identifier.Value);
-		}
-
-	#endregion
-
-		public override string ToString() => _identifier.ToString();
-
-		public override bool Equals(object? obj) => _identifier.Equals(obj);
-
-		public override int GetHashCode() => _identifier.GetHashCode();
-=======
 #region Interface IAncestorProvider
 
 	object IAncestorProvider.Ancestor => id;
@@ -86,7 +45,6 @@ public sealed class IdentifierNode(IIdentifier id) : IIdentifier, IStoreSupport,
 	{
 		bucket.Add(Key.TypeInfo, TypeInfo.IdentifierNode);
 		bucket.Add(Key.Id, id.Value);
->>>>>>> Stashed changes
 	}
 
 #endregion

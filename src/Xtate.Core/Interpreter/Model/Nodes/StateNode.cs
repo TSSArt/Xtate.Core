@@ -23,54 +23,12 @@ namespace Xtate.Core;
 
 public class StateNode : StateEntityNode, IState, IAncestorProvider, IDebugEntityId
 {
-<<<<<<< Updated upstream
-	public class StateNode : StateEntityNode, IState, IAncestorProvider, IDebugEntityId
-=======
 	private readonly IState _state;
 
 	public StateNode(DocumentIdNode documentIdNode, IState state) : base(documentIdNode)
->>>>>>> Stashed changes
 	{
 		_state = state;
 
-<<<<<<< Updated upstream
-		public StateNode(DocumentIdNode documentIdNode, IState state) : base(documentIdNode)
-		{
-			_state = state;
-
-			var id = state.Id ?? new IdentifierNode(Identifier.New());
-			var initial = state.Initial?.As<InitialNode>();
-			var states = state.States.AsArrayOf<IStateEntity, StateEntityNode>(true);
-			var historyStates = state.HistoryStates.AsArrayOf<IHistory, HistoryNode>(true);
-			var transitions = state.Transitions.AsArrayOf<ITransition, TransitionNode>(true);
-			var invokeList = state.Invoke.AsArrayOf<IInvoke, InvokeNode>(true);
-
-			Register(initial);
-			Register(states);
-			Register(historyStates);
-			Register(transitions);
-			Register(invokeList);
-
-			Id = id;
-			Initial = initial;
-			States = states;
-			HistoryStates = historyStates;
-			Transitions = transitions;
-			Invoke = invokeList;
-			OnEntry = state.OnEntry.AsArrayOf<IOnEntry, OnEntryNode>(true);
-			OnExit = state.OnExit.AsArrayOf<IOnExit, OnExitNode>(true);
-			DataModel = state.DataModel?.As<DataModelNode>();
-		}
-
-		public override bool                            IsAtomicState      => true;
-		public override DataModelNode?                  DataModel          { get; }
-		public override ImmutableArray<InvokeNode>      Invoke             { get; }
-		public override ImmutableArray<TransitionNode>  Transitions        { get; }
-		public override ImmutableArray<HistoryNode>     HistoryStates      { get; }
-		public override ImmutableArray<StateEntityNode> States             { get; }
-		public override ImmutableArray<OnEntryNode>     OnEntry            { get; }
-		public override ImmutableArray<OnExitNode>      OnExit             { get; }
-=======
 		var id = state.Id ?? new IdentifierNode(Identifier.New());
 		var initial = state.Initial?.As<InitialNode>();
 		var states = state.States.AsArrayOf<IStateEntity, StateEntityNode>(true);
@@ -107,7 +65,6 @@ public class StateNode : StateEntityNode, IState, IAncestorProvider, IDebugEntit
 	protected InitialNode? Initial { get; }
 
 #region Interface IAncestorProvider
->>>>>>> Stashed changes
 
 	object IAncestorProvider.Ancestor => _state;
 
@@ -134,18 +91,7 @@ public class StateNode : StateEntityNode, IState, IAncestorProvider, IDebugEntit
 
 #region Interface IStateEntity
 
-<<<<<<< Updated upstream
-		IInitial? IState.                   Initial       => Initial;
-		IDataModel? IState.                 DataModel     => DataModel;
-		ImmutableArray<IInvoke> IState.     Invoke        => ImmutableArray<IInvoke>.CastUp(Invoke);
-		ImmutableArray<IStateEntity> IState.States        => ImmutableArray<IStateEntity>.CastUp(States);
-		ImmutableArray<IHistory> IState.    HistoryStates => ImmutableArray<IHistory>.CastUp(HistoryStates);
-		ImmutableArray<ITransition> IState. Transitions   => ImmutableArray<ITransition>.CastUp(Transitions);
-		ImmutableArray<IOnEntry> IState.    OnEntry       => ImmutableArray<IOnEntry>.CastUp(OnEntry);
-		ImmutableArray<IOnExit> IState.     OnExit        => ImmutableArray<IOnExit>.CastUp(OnExit);
-=======
 	public override IIdentifier Id { get; }
->>>>>>> Stashed changes
 
 #endregion
 

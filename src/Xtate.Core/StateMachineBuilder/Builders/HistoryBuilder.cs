@@ -17,11 +17,7 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using Xtate.Core;
-=======
 namespace Xtate.Builder;
->>>>>>> Stashed changes
 
 public class HistoryBuilder : BuilderBase, IHistoryBuilder
 {
@@ -37,36 +33,7 @@ public class HistoryBuilder : BuilderBase, IHistoryBuilder
 	{
 		Infra.Requires(id);
 
-<<<<<<< Updated upstream
-	#region Interface IHistoryBuilder
-
-		public IHistory Build() => new HistoryEntity { Ancestor = Ancestor, Id = _id, Type = _type, Transition = _transition };
-
-		public void SetId(IIdentifier id)
-		{
-			Infra.Requires(id);
-
-			_id = id;
-		}
-
-		public void SetType(HistoryType type)
-		{
-			Infra.RequiresValidEnum(type);
-
-			_type = type;
-		}
-
-		public void SetTransition(ITransition transition)
-		{
-			Infra.Requires(transition);
-
-			_transition = transition;
-		}
-
-	#endregion
-=======
 		_id = id;
->>>>>>> Stashed changes
 	}
 
 	public void SetType(HistoryType type)

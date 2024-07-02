@@ -26,12 +26,5 @@ public class StateMachineSecurityException : XtateException
 
 	public StateMachineSecurityException(string? message) : base(message) { }
 
-<<<<<<< Updated upstream
-		public StateMachineSecurityException(string? message, Exception? innerException) : base(message, innerException) { }
-
-		protected StateMachineSecurityException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-	}
-=======
 	public StateMachineSecurityException(string? message, Exception? innerException) : base(message, innerException) { }
->>>>>>> Stashed changes
 }

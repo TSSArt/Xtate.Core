@@ -59,12 +59,6 @@ public readonly struct StateMachineOrigin
 	public StateMachineOriginType Type =>
 		_value switch
 		{
-<<<<<<< Updated upstream
-			Infra.Requires(stateMachine);
-			
-			_value = stateMachine;
-			BaseUri = baseUri;
-=======
 			string        => StateMachineOriginType.Scxml,
 			Uri           => StateMachineOriginType.Source,
 			IStateMachine => StateMachineOriginType.StateMachine,
@@ -79,7 +73,6 @@ public readonly struct StateMachineOrigin
 		if (_value is string str)
 		{
 			return str;
->>>>>>> Stashed changes
 		}
 
 		throw new ArgumentException(Resources.Exception_ValueIsNotSCXML);
@@ -89,14 +82,7 @@ public readonly struct StateMachineOrigin
 	{
 		if (_value is Uri uri)
 		{
-<<<<<<< Updated upstream
-			Infra.Requires(source);
-			
-			_value = source;
-			BaseUri = baseUri;
-=======
 			return uri;
->>>>>>> Stashed changes
 		}
 
 		throw new ArgumentException(Resources.Exception_ValueIsNotSource);
@@ -106,14 +92,7 @@ public readonly struct StateMachineOrigin
 	{
 		if (_value is IStateMachine stateMachine)
 		{
-<<<<<<< Updated upstream
-			Infra.Requires(scxml);
-			
-			_value = scxml;
-			BaseUri = baseUri;
-=======
 			return stateMachine;
->>>>>>> Stashed changes
 		}
 
 		throw new ArgumentException(Resources.Exception_ValueIsNotStateMachine);

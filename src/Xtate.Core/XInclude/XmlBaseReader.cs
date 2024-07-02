@@ -23,14 +23,6 @@ namespace Xtate.XInclude;
 
 public class XmlBaseReader : DelegatedXmlReader
 {
-<<<<<<< Updated upstream
-	public class XmlBaseReader : DelegatedXmlReader
-	{
-		public required XmlResolver XmlResolver { private get; init; }
-
-		private readonly string _baseName;
-		private readonly string _xmlNs;
-=======
 	private readonly string _baseName;
 	private readonly string _xmlNs;
 
@@ -39,64 +31,9 @@ public class XmlBaseReader : DelegatedXmlReader
 	public XmlBaseReader(XmlReader xmlReader) : base(xmlReader)
 	{
 		var nameTable = xmlReader.NameTable;
->>>>>>> Stashed changes
 
 		Infra.NotNull(nameTable);
 
-<<<<<<< Updated upstream
-		public XmlBaseReader(XmlReader xmlReader) : base(xmlReader)
-		{
-			var nameTable = xmlReader.NameTable;
-
-			Infra.NotNull(nameTable);
-
-			_baseName = nameTable.Add(@"base");
-			_xmlNs = nameTable.Add(@"http://www.w3.org/XML/1998/namespace");
-		}
-
-		public override string? BaseURI => _baseUris?.Count > 0 ? _baseUris.Peek().BaseUri.ToString() : base.BaseURI;
-
-		public override bool Read()
-		{
-			PreProcessNode();
-
-			if (!base.Read())
-			{
-				return false;
-			}
-
-			PostProcessNode();
-
-			return true;
-		}
-
-		public override async Task<bool> ReadAsync()
-		{
-			PreProcessNode();
-
-			if (!await base.ReadAsync().ConfigureAwait(false))
-			{
-				return false;
-			}
-
-			PostProcessNode();
-
-			return true;
-		}
-
-		private bool TryPeek(out int depth, [NotNullWhen(true)] out Uri? baseUri)
-		{
-			if (_baseUris?.Count > 0)
-			{
-				(depth, baseUri) = _baseUris.Peek();
-
-				return true;
-			}
-
-			depth = 0;
-			baseUri = default;
-
-=======
 		_baseName = nameTable.Add(@"base");
 		_xmlNs = nameTable.Add(@"http://www.w3.org/XML/1998/namespace");
 	}
@@ -111,7 +48,6 @@ public class XmlBaseReader : DelegatedXmlReader
 
 		if (!base.Read())
 		{
->>>>>>> Stashed changes
 			return false;
 		}
 
@@ -157,16 +93,7 @@ public class XmlBaseReader : DelegatedXmlReader
 			{
 				MoveToElement();
 
-<<<<<<< Updated upstream
-				if (!TryPeek(out _, out var baseUri))
-				{
-					baseUri = base.BaseURI is { } uri ? new Uri(uri, UriKind.RelativeOrAbsolute) : null;
-				}
-
-				_baseUris.Push((Depth, XmlResolver.ResolveUri(baseUri!, xmlBase)));
-=======
 				return Value;
->>>>>>> Stashed changes
 			}
 		}
 

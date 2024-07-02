@@ -21,9 +21,6 @@ namespace Xtate.Core;
 
 public sealed class ForEachNode(DocumentIdNode documentIdNode, IForEach forEach) : ExecutableEntityNode(documentIdNode, forEach), IForEach, IAncestorProvider, IDebugEntityId
 {
-<<<<<<< Updated upstream
-	public sealed class ForEachNode : ExecutableEntityNode, IForEach, IAncestorProvider, IDebugEntityId
-=======
 #region Interface IAncestorProvider
 
 	object IAncestorProvider.Ancestor => forEach;
@@ -49,7 +46,6 @@ public sealed class ForEachNode(DocumentIdNode documentIdNode, IForEach forEach)
 #endregion
 
 	protected override void Store(Bucket bucket)
->>>>>>> Stashed changes
 	{
 		bucket.Add(Key.TypeInfo, TypeInfo.ForEachNode);
 		bucket.Add(Key.DocumentId, DocumentId);

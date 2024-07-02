@@ -32,29 +32,7 @@ public class IfBuilder : BuilderBase, IIfBuilder
 	{
 		Infra.Requires(condition);
 
-<<<<<<< Updated upstream
-	#region Interface IIfBuilder
-
-		public IIf Build() => new IfEntity { Ancestor = Ancestor, Condition = _condition, Action = _actions?.ToImmutable() ?? default };
-
-		public void SetCondition(IConditionExpression condition)
-		{
-			Infra.Requires(condition);
-
-			_condition = condition;
-		}
-
-		public void AddAction(IExecutableEntity action)
-		{
-			Infra.Requires(action);
-
-			(_actions ??= ImmutableArray.CreateBuilder<IExecutableEntity>()).Add(action);
-		}
-
-	#endregion
-=======
 		_condition = condition;
->>>>>>> Stashed changes
 	}
 
 	public void AddAction(IExecutableEntity action)

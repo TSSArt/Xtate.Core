@@ -29,11 +29,7 @@ public static class DynamicAssemblyExtensions
 			return;
 		}
 
-<<<<<<< Updated upstream:src/Xtate.Core/src/Xtate.Core/Interpreter/Interfaces/ICustomActionDispatcher.cs
-		ValueTask Execute();
-=======
 		services.AddSharedType<DynamicAssembly, Uri>(SharedWithin.Scope);
 		services.AddSharedType<AssemblyContainerProvider, Uri>(SharedWithin.Scope);
->>>>>>> Stashed changes:src/Xtate.Core/src/Xtate.Core/Helpers/DynamicAssemblyExtensions.cs
 	}
 }

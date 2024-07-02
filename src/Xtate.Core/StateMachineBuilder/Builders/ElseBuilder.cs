@@ -21,15 +21,9 @@ namespace Xtate.Builder;
 
 public class ElseBuilder : BuilderBase, IElseBuilder
 {
-<<<<<<< Updated upstream
-	public class ElseBuilder : BuilderBase, IElseBuilder
-	{
-	#region Interface IElseBuilder
-=======
 #region Interface IElseBuilder
 
 	public IElse Build() => new ElseEntity { Ancestor = Ancestor };
->>>>>>> Stashed changes
 
 #endregion
 }

@@ -21,18 +21,7 @@ namespace Xtate.Service;
 
 public interface IServiceFactoryActivator
 {
-<<<<<<< Updated upstream
-	public interface IServiceFactoryActivator
-	{
-		ValueTask<IService> StartService(ServiceLocator serviceLocator,
-										 Uri? baseUri,
-										 InvokeData invokeData,
-										 IServiceCommunication serviceCommunication,
-										 CancellationToken token);
-	}
-=======
 	ValueTask<IService> StartService(Uri? baseUri,
 									 InvokeData invokeData,
 									 IServiceCommunication serviceCommunication);
->>>>>>> Stashed changes
 }

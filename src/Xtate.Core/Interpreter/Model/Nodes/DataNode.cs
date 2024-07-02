@@ -22,15 +22,11 @@ namespace Xtate.Core;
 
 public class DataNode : IData, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 {
-<<<<<<< Updated upstream
-	public sealed class DataNode : IData, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
-=======
 	private readonly IData _data;
 
 	private DocumentIdSlot _documentIdSlot;
 
 	public DataNode(DocumentIdNode documentIdNode, IData data)
->>>>>>> Stashed changes
 	{
 		_data = data;
 

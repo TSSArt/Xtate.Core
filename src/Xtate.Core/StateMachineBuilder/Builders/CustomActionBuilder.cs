@@ -35,28 +35,9 @@ public class CustomActionBuilder : BuilderBase, ICustomActionBuilder
 		Infra.Requires(name);
 		Infra.Requires(ns);
 
-<<<<<<< Updated upstream
-	#region Interface ICustomActionBuilder
-
-		public ICustomAction Build() => new CustomActionEntity { Ancestor = Ancestor, XmlNamespace = _ns, XmlName = _name, Xml = _xml };
-
-		public void SetXml(string ns, string name, string xml)
-		{
-			Infra.Requires(xml);
-			Infra.Requires(name);
-			Infra.Requires(ns);
-
-			_ns = ns;
-			_name = name;
-			_xml = xml;
-		}
-
-	#endregion
-=======
 		_ns = ns;
 		_name = name;
 		_xml = xml;
->>>>>>> Stashed changes
 	}
 
 #endregion

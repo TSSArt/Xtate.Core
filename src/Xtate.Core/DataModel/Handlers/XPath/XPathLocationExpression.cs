@@ -21,13 +21,7 @@ namespace Xtate.DataModel.XPath;
 
 public class XPathLocationExpression(ILocationExpression locationExpression, XPathAssignType assignType, string? attribute) : ILocationExpression, IAncestorProvider
 {
-<<<<<<< Updated upstream
-	public class XPathLocationExpression : ILocationExpression, IAncestorProvider
-	{
-		private readonly ILocationExpression _locationExpression;
-=======
 	public XPathAssignType AssignType { get; } = assignType;
->>>>>>> Stashed changes
 
 	public string? Attribute { get; } = attribute;
 

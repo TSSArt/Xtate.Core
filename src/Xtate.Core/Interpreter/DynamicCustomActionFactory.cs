@@ -24,12 +24,6 @@
 
 public class DynamicCustomActionFactory : DynamicFactory<ICustomActionFactory>, ICustomActionFactory
 {
-<<<<<<< Updated upstream
-	//TODO: uncomment
-	/*
-	[PublicAPI]
-	public class DynamicCustomActionFactory : DynamicFactory<ICustomActionFactory>, ICustomActionFactory
-=======
 	public DynamicCustomActionFactory(bool throwOnError = true) : base(throwOnError) { }
 
 #region Interface ICustomActionFactory
@@ -38,50 +32,24 @@ public class DynamicCustomActionFactory : DynamicFactory<ICustomActionFactory>, 
 																		   string ns,
 																		   string name,
 																		   CancellationToken token)
->>>>>>> Stashed changes
 	{
 		var factories = await GetFactories(serviceLocator, CustomActionNamespaceToUri(ns), token).ConfigureAwait(false);
 
-<<<<<<< Updated upstream
-	#region Interface ICustomActionFactory
-
-		public async ValueTask<ICustomActionFactoryActivator?> TryGetActivator(ServiceLocator serviceLocator,
-																			   string ns,
-																			   string name,
-																			   CancellationToken token)
-		{
-			var factories = await GetFactories(serviceLocator, CustomActionNamespaceToUri(ns), token).ConfigureAwait(false);
-=======
 		foreach (var factory in factories)
 		{
 			var activator = await factory.TryGetActivator(serviceLocator, ns, name, token).ConfigureAwait(false);
->>>>>>> Stashed changes
 
 			if (activator is not null)
 			{
-<<<<<<< Updated upstream
-				var activator = await factory.TryGetActivator(serviceLocator, ns, name, token).ConfigureAwait(false);
-
-				if (activator is not null)
-				{
-					return activator;
-				}
-=======
 				return activator;
->>>>>>> Stashed changes
 			}
 		}
 
 		return null;
 	}
-<<<<<<< Updated upstream
-	*/
-}
-=======
 
 #endregion
 
 	protected virtual Uri CustomActionNamespaceToUri(string customActionNamespace) => new(customActionNamespace, UriKind.RelativeOrAbsolute);
 }
 */
->>>>>>> Stashed changes

@@ -21,9 +21,6 @@ namespace Xtate.Core;
 
 public sealed class AssignNode(DocumentIdNode documentIdNode, IAssign assign) : ExecutableEntityNode(documentIdNode, assign), IAssign, IAncestorProvider, IDebugEntityId
 {
-<<<<<<< Updated upstream
-	public sealed class AssignNode : ExecutableEntityNode, IAssign, IAncestorProvider, IDebugEntityId
-=======
 #region Interface IAncestorProvider
 
 	object IAncestorProvider.Ancestor => assign;
@@ -51,7 +48,6 @@ public sealed class AssignNode(DocumentIdNode documentIdNode, IAssign assign) : 
 #endregion
 
 	protected override void Store(Bucket bucket)
->>>>>>> Stashed changes
 	{
 		bucket.Add(Key.TypeInfo, TypeInfo.AssignNode);
 		bucket.Add(Key.DocumentId, DocumentId);

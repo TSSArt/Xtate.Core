@@ -26,12 +26,5 @@ public class StateMachineQueueClosedException : XtateException
 
 	public StateMachineQueueClosedException(string? message) : base(message) { }
 
-<<<<<<< Updated upstream
-		public StateMachineQueueClosedException(string? message, Exception? innerException) : base(message, innerException) { }
-
-		protected StateMachineQueueClosedException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-	}
-=======
 	public StateMachineQueueClosedException(string? message, Exception? innerException) : base(message, innerException) { }
->>>>>>> Stashed changes
 }

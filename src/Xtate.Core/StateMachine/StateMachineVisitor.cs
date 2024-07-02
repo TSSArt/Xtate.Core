@@ -21,9 +21,6 @@ namespace Xtate.Core;
 
 public abstract class StateMachineVisitor
 {
-<<<<<<< Updated upstream
-	public abstract class StateMachineVisitor
-=======
 	private readonly Stack<(object, ImmutableArray<object?>)>? _path;
 
 	protected StateMachineVisitor(bool trackPath = false) => _path = trackPath ? new Stack<(object, ImmutableArray<object?>)>() : null;
@@ -31,7 +28,6 @@ public abstract class StateMachineVisitor
 	protected string? CurrentPath => _path is not null ? string.Join(separator: @"/", _path.Reverse().Select(EntityName)) : null;
 
 	private static string EntityName((object obj, ImmutableArray<object?> array) entry)
->>>>>>> Stashed changes
 	{
 		if (entry.array.IsDefault)
 		{
@@ -90,16 +86,12 @@ public abstract class StateMachineVisitor
 		}
 	}
 
-<<<<<<< Updated upstream
-		protected ref struct TrackList<T> where T : class
-=======
 	private ref struct VisitListData<T> where T : class
 	{
 		private readonly ImmutableArray<T> _original;
 		public           TrackList<T>      List;
 
 		public VisitListData(ImmutableArray<T> list)
->>>>>>> Stashed changes
 		{
 			if (list.IsDefault)
 			{
@@ -182,66 +174,6 @@ public abstract class StateMachineVisitor
 				return;
 			}
 
-<<<<<<< Updated upstream
-				case ICancel cancel:
-					Visit(ref cancel);
-					entity = cancel;
-					break;
-
-				/*case IConditionExpression conditionExpression:
-					Visit(ref conditionExpression);
-					entity = conditionExpression;
-					break;*/ //TODO:delete
-
-				case ICustomAction customAction:
-					Visit(ref customAction);
-					entity = customAction;
-					break;
-
-				case IElse @else:
-					Visit(ref @else);
-					entity = @else;
-					break;
-
-				case IElseIf elseIf:
-					Visit(ref elseIf);
-					entity = elseIf;
-					break;
-
-				case IForEach forEach:
-					Visit(ref forEach);
-					entity = forEach;
-					break;
-
-				case IIf @if:
-					Visit(ref @if);
-					entity = @if;
-					break;
-
-				case ILog log:
-					Visit(ref log);
-					entity = log;
-					break;
-
-				case IRaise raise:
-					Visit(ref raise);
-					entity = raise;
-					break;
-
-				case IScript script:
-					Visit(ref script);
-					entity = script;
-					break;
-
-				case ISend send:
-					Visit(ref send);
-					entity = send;
-					break;
-
-				default:
-					VisitUnknown(ref entity);
-					break;
-=======
 			if (ModifiedItems is null)
 			{
 				var empty = ImmutableArray<T>.Empty;
@@ -250,7 +182,6 @@ public abstract class StateMachineVisitor
 			else
 			{
 				ModifiedItems.Clear();
->>>>>>> Stashed changes
 			}
 		}
 

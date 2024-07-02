@@ -17,14 +17,6 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Xtate.DataModel.XPath;
-=======
->>>>>>> Stashed changes
 using Xtate.IoC;
 
 namespace Xtate.Core.Test;
@@ -65,23 +57,10 @@ public class XPathDataModelTest
 </scxml>
 					";
 
-<<<<<<< Updated upstream
-			var hostOld = new StateMachineHostBuilder()
-					   //TODO:
-					   //.AddResourceLoaderFactory(WebResourceLoaderFactory.Instance)
-					   .Build(ServiceLocator.Create(s => s.AddXPath()));
-
-			var services = new ServiceCollection();
-			services.RegisterStateMachineHost();
-			var serviceProvider = services.BuildProvider();
-
-			var host = await serviceProvider.GetRequiredService<StateMachineHost>();
-=======
 		var services = new ServiceCollection();
 		services.RegisterStateMachineHost();
 		//services.AddForwarding<IServiceProviderDebugger>(_ => new ServiceProviderDebugger(new StreamWriter(File.Create(@"D:\Ser\s1.txt"))));
 		var serviceProvider = services.BuildProvider();
->>>>>>> Stashed changes
 
 		var host = await serviceProvider.GetRequiredService<StateMachineHost>();
 
@@ -115,33 +94,10 @@ public class XPathDataModelTest
 </scxml>
 					";
 
-<<<<<<< Updated upstream
-			var ub = new Moq.Mock<IUnhandledErrorBehaviour>();
-			ub.Setup(s => s.Behaviour).Returns(UnhandledErrorBehaviour.HaltStateMachine);
-
-			var services = new ServiceCollection();
-			//var fileLogWriter = new FileLogWriter("D:\\Ser\\sss5.txt");
-			//var d = new ServiceProviderDebugger(new StreamWriter(File.Create("D:\\Ser\\sss6.txt", 1, FileOptions.WriteThrough), Encoding.UTF8, 1));
-			//services.AddForwarding<ILogWriter>(_ => fileLogWriter);
-			services.AddForwarding(_ => ub.Object);
-			//services.AddForwarding<IServiceProviderDebugger>(_ => d);
-			services.RegisterStateMachineHost();
-			var serviceProvider = services.BuildProvider();
-
-			var host = await serviceProvider.GetRequiredService<StateMachineHost>();
-			/*
-			var host = new StateMachineHostBuilder()
-					   //TODO:
-					   //.AddResourceLoaderFactory(WebResourceLoaderFactory.Instance)
-					   .Build(ServiceLocator.Create(s => s.AddXPath()));
-			*/
-			await host.StartHostAsync();
-=======
 		var ub = new Mock<IUnhandledErrorBehaviour>();
 		ub.Setup(s => s.Behaviour).Returns(UnhandledErrorBehaviour.HaltStateMachine);
 
 		var services = new ServiceCollection();
->>>>>>> Stashed changes
 
 		//var fileLogWriter = new FileLogWriter("D:\\Ser\\sss5.txt");
 		//var d = new ServiceProviderDebugger(new StreamWriter(File.Create("D:\\Ser\\sss6.txt", 1, FileOptions.WriteThrough), Encoding.UTF8, 1));

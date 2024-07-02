@@ -20,31 +20,13 @@
 	using Xtate.DataModel;
 	using Xtate.Persistence;
 
-<<<<<<< Updated upstream
-namespace Xtate.Core
-{
-	public class EmptyTransitionNode : TransitionNode
-=======
 	namespace Xtate.Core;
 
 	public class EmptyTransitionNode(DocumentIdNode documentIdNode, ImmutableArray<StateEntityNode> target) : TransitionNode(documentIdNode, EmptyTransition, target)
->>>>>>> Stashed changes
 	{
 		private static readonly ITransition EmptyTransition = new TransitionEntity();
 	}
 
-<<<<<<< Updated upstream
-		public EmptyTransitionNode(DocumentIdNode documentIdNode, ImmutableArray<StateEntityNode> target) : base(documentIdNode, EmptyTransition, target) { }
-	}
-
-	public class TransitionNode : ITransition, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
-	{
-		private readonly ITransition    _transition;
-		private          DocumentIdSlot _documentIdSlot;
-
-		public TransitionNode(DocumentIdNode documentIdNode, ITransition transition) : this(documentIdNode, transition, default) { }
-
-=======
 	public class TransitionNode : ITransition, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 	{
 		private readonly ITransition _transition;
@@ -53,7 +35,6 @@ namespace Xtate.Core
 
 		public TransitionNode(DocumentIdNode documentIdNode, ITransition transition) : this(documentIdNode, transition, target: default) { }
 
->>>>>>> Stashed changes
 		protected TransitionNode(DocumentIdNode documentIdNode, ITransition transition, ImmutableArray<StateEntityNode> target)
 		{
 			_transition = transition;

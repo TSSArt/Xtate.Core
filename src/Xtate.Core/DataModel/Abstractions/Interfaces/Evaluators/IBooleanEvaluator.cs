@@ -22,13 +22,5 @@ namespace Xtate.DataModel;
 
 public interface IBooleanEvaluator : IValueEvaluator
 {
-<<<<<<< Updated upstream
-	[PublicAPI]
-	public interface IBooleanEvaluator : IValueEvaluator
-	{
-		ValueTask<bool> EvaluateBoolean();
-	}
-=======
 	ValueTask<bool> EvaluateBoolean();
->>>>>>> Stashed changes
 }

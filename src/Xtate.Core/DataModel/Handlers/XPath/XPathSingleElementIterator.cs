@@ -36,24 +36,6 @@ internal class XPathSingleElementIterator(XPathNavigator navigator) : XPathNodeI
 		var completed = _completed;
 		_completed = true;
 
-<<<<<<< Updated upstream
-		public XPathSingleElementIterator(XPathNavigator navigator) => _navigator = navigator;
-
-		public override XPathNavigator? Current => _completed  ? _navigator : default;
-
-		public override int CurrentPosition => _completed ? 1 : 0;
-
-		public override XPathNodeIterator Clone() => new XPathSingleElementIterator(_navigator.Clone());
-
-		public override bool MoveNext()
-		{
-			var completed = _completed;
-			_completed = true;
-
-			return !completed;
-		}
-=======
 		return !completed;
->>>>>>> Stashed changes
 	}
 }

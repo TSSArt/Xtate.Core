@@ -26,15 +26,7 @@ public interface IServiceCatalog
 
 	public delegate IService ServiceCreator(Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication);
 
-<<<<<<< Updated upstream
-		public delegate ValueTask<IService> ServiceCreatorAsync(ServiceLocator serviceLocator,
-																Uri? baseUri,
-																InvokeData invokeData,
-																IServiceCommunication serviceCommunication,
-																CancellationToken token);
-=======
 	public delegate ValueTask<IService> ServiceCreatorAsync(Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication);
->>>>>>> Stashed changes
 
 	void Register(string type, Creator creator);
 

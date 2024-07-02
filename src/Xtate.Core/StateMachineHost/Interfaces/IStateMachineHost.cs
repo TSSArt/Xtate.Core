@@ -23,17 +23,9 @@ namespace Xtate.Core;
 
 public interface IStateMachineHost : IHostEventDispatcher
 {
-<<<<<<< Updated upstream
-	public interface IStateMachineHost : IHostEventDispatcher
-	{
-		ImmutableArray<IIoProcessor> GetIoProcessors();
-		ValueTask<SendStatus>        DispatchEvent(ServiceId serviceId, IOutgoingEvent outgoingEvent, CancellationToken token);
-		ValueTask                    CancelEvent(SessionId sessionId, SendId sendId, CancellationToken token);
-=======
 	ImmutableArray<IIoProcessor> GetIoProcessors();
 	ValueTask<SendStatus>        DispatchEvent(ServiceId serviceId, IOutgoingEvent outgoingEvent, CancellationToken token);
 	ValueTask                    CancelEvent(SessionId sessionId, SendId sendId, CancellationToken token);
->>>>>>> Stashed changes
 
 	ValueTask StartInvoke(SessionId sessionId,
 						  InvokeData invokeData,

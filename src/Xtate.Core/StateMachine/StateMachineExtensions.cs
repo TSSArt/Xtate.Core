@@ -1,27 +1,3 @@
-<<<<<<< Updated upstream
-﻿using Xtate.IoC;
-using Xtate.Scxml;
-
-namespace Xtate.Core
-{
-	public static class StateMachineExtensions
-	{
-		public static void RegisterStateMachineFactory(this IServiceCollection services)
-		{
-			if (!services.IsRegistered<IStateMachine>())
-			{
-				services.RegisterScxml();
-
-				services.AddSharedFactory<StateMachineGetter>(SharedWithin.Scope).For<IStateMachine>();
-				services.AddImplementation<StateMachineService>().For<IStateMachineService>();
-
-				services.AddType<ScxmlReaderStateMachineGetter>();
-				services.AddImplementation<ScxmlStateMachineProvider>().For<IStateMachineProvider>();
-
-				services.AddType<ScxmlLocationStateMachineGetter>();
-				services.AddImplementation<SourceStateMachineProvider>().For<IStateMachineProvider>();
-			}
-=======
 ﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
@@ -62,7 +38,6 @@ public static class StateMachineExtensions
 
 			services.AddType<ScxmlLocationStateMachineGetter>();
 			services.AddImplementation<SourceStateMachineProvider>().For<IStateMachineProvider>();
->>>>>>> Stashed changes
 		}
 	}
 }

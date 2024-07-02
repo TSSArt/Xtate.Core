@@ -21,18 +21,12 @@ namespace Xtate.Core;
 
 public record StateMachineStartOptions : IStateMachineStartOptions
 {
-<<<<<<< Updated upstream:src/Xtate.Core/src/Xtate.Core/DataModel/Handlers/XPath/XPathEmptyIterator.cs
-	public class XPathEmptyIterator : XPathNodeIterator
-	{
-		public override XPathNavigator Current => default!;
-=======
 #region Interface IStateMachineStartOptions
 
 	public SessionId           SessionId           { get; init; } = default!;
 	public StateMachineOrigin  Origin              { get; init; }
 	public DataModelValue      Parameters          { get; init; }
 	public SecurityContextType SecurityContextType { get; init; }
->>>>>>> Stashed changes:src/Xtate.Core/src/Xtate.Core/IoC/StateMachineStartOptions.cs
 
 #endregion
 }

@@ -25,11 +25,7 @@ namespace Xtate.DataModel.XPath;
 
 public class XPathObject(object value) : IObject
 {
-<<<<<<< Updated upstream
-	public class XPathObject : IObject
-=======
 	private readonly object _value = value switch
->>>>>>> Stashed changes
 	{
 		XPathNodeIterator => value,
 		string => value,

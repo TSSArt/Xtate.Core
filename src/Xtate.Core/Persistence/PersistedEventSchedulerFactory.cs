@@ -27,29 +27,7 @@ internal sealed class PersistedEventSchedulerFactory : IEventSchedulerFactory
 	{
 		Infra.NotNull(options.StorageProvider);
 
-<<<<<<< Updated upstream
-		public PersistedEventSchedulerFactory(StateMachineHostOptions options)
-		{
-			Infra.NotNull(options.StorageProvider);
-
-			_storageProvider = options.StorageProvider;
-		}
-
-	#region Interface IEventSchedulerFactory
-
-		public async ValueTask<IEventScheduler> CreateEventScheduler(IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger? logger, CancellationToken token)
-		{
-			var persistedEventScheduler = new PersistedEventScheduler(_storageProvider, hostEventDispatcher, logger);
-
-			await persistedEventScheduler.Initialize(token).ConfigureAwait(false);
-
-			return persistedEventScheduler;
-		}
-
-	#endregion
-=======
 		_storageProvider = options.StorageProvider;
->>>>>>> Stashed changes
 	}
 
 #region Interface IEventSchedulerFactory
