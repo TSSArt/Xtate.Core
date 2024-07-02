@@ -31,22 +31,7 @@ public class DataModelBuilder : BuilderBase, IDataModelBuilder
 	{
 		Infra.Requires(data);
 
-<<<<<<< Updated upstream
-	#region Interface IDataModelBuilder
-
-		public IDataModel Build() => new DataModelEntity { Ancestor = Ancestor, Data = _dataList?.ToImmutable() ?? default };
-
-		public void AddData(IData data)
-		{
-			Infra.Requires(data);
-
-			(_dataList ??= ImmutableArray.CreateBuilder<IData>()).Add(data);
-		}
-
-	#endregion
-=======
 		(_dataList ??= ImmutableArray.CreateBuilder<IData>()).Add(data);
->>>>>>> Stashed changes
 	}
 
 #endregion

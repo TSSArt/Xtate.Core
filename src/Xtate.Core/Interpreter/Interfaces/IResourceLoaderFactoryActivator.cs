@@ -22,13 +22,5 @@ namespace Xtate.Core;
 
 public interface IResourceLoaderFactoryActivator
 {
-<<<<<<< Updated upstream
-	[PublicAPI]
-	public interface IResourceLoaderFactoryActivator
-	{
-		ValueTask<IResourceLoader> CreateResourceLoader(ServiceLocator serviceLocator);
-	}
-=======
 	//ValueTask<IResourceLoader> CreateResourceLoader(ServiceLocator serviceLocator);
->>>>>>> Stashed changes
 }

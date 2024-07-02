@@ -42,9 +42,6 @@ public class DataModelXPathNavigator : XPathNavigator
 		PathItem(index: 0) = new Node(root, AdapterFactory.GetDefaultAdapter(root));
 	}
 
-<<<<<<< Updated upstream
-		public DataModelXPathNavigator(DataModelValue root)
-=======
 	private DataModelXPathNavigator(DataModelXPathNavigator source)
 	{
 		NameTable = source.NameTable;
@@ -79,7 +76,6 @@ public class DataModelXPathNavigator : XPathNavigator
 		var otherCount = source._pathLength - PathFieldCount + 1;
 
 		if (otherCount < 0)
->>>>>>> Stashed changes
 		{
 			otherCount = 0;
 		}

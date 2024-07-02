@@ -21,13 +21,9 @@ namespace Xtate.Core;
 
 public sealed class ServiceIdSet : IEnumerable<ServiceId>
 {
-<<<<<<< Updated upstream
-	public sealed class ServiceIdSet : IEnumerable<ServiceId>
-=======
 	public delegate void ChangeHandler(ChangedAction action, ServiceId serviceId);
 
 	public enum ChangedAction
->>>>>>> Stashed changes
 	{
 		Add,
 		Remove

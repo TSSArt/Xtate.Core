@@ -24,32 +24,11 @@ namespace Xtate.Core;
 /// </summary>
 public sealed class DefaultErrorProcessor : IErrorProcessor
 {
-<<<<<<< Updated upstream
-	/// <summary>
-	///     Throw an exception on first error
-	/// </summary>
-	public sealed class DefaultErrorProcessor : IErrorProcessor
-	{
-	#region Interface IErrorProcessor
-=======
 #region Interface IErrorProcessor
 
 	public void ThrowIfErrors() { }
->>>>>>> Stashed changes
 
 	void IErrorProcessor.AddError(ErrorItem errorItem) => throw new StateMachineValidationException([errorItem]);
 
-<<<<<<< Updated upstream
-		void IErrorProcessor.AddError(ErrorItem errorItem)
-		{
-			Infra.Requires(errorItem);
-
-			throw new StateMachineValidationException(ImmutableArray.Create(errorItem));
-		}
-
-	#endregion
-	}
-=======
 #endregion
->>>>>>> Stashed changes
 }

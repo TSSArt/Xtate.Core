@@ -33,24 +33,7 @@ internal sealed class WrapperErrorProcessor(IErrorProcessor errorProcessor) : IE
 	{
 		_error ??= errorItem ?? throw new ArgumentNullException(nameof(errorItem));
 
-<<<<<<< Updated upstream
-			_errorProcessor.AddError(errorItem);
-		}
-
-		public void ThrowIfErrors()
-		{
-			_errorProcessor.ThrowIfErrors();
-
-			if (_error is { } error)
-			{
-				throw new StateMachineValidationException(ImmutableArray.Create(error));
-			}
-		}
-
-	#endregion
-=======
 		errorProcessor.AddError(errorItem);
->>>>>>> Stashed changes
 	}
 
 	public void ThrowIfErrors()

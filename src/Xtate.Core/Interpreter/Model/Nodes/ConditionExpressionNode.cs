@@ -21,9 +21,6 @@ namespace Xtate.Core;
 
 public sealed class ConditionExpressionNode(IConditionExpression conditionExpression) : IConditionExpression, IStoreSupport, IAncestorProvider
 {
-<<<<<<< Updated upstream
-	public sealed class ConditionExpressionNode : IConditionExpression, IStoreSupport, IAncestorProvider
-=======
 #region Interface IAncestorProvider
 
 	object IAncestorProvider.Ancestor => conditionExpression;
@@ -39,7 +36,6 @@ public sealed class ConditionExpressionNode(IConditionExpression conditionExpres
 #region Interface IStoreSupport
 
 	void IStoreSupport.Store(Bucket bucket)
->>>>>>> Stashed changes
 	{
 		bucket.Add(Key.TypeInfo, TypeInfo.ConditionExpressionNode);
 		bucket.Add(Key.Expression, Expression);

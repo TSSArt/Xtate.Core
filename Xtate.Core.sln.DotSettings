@@ -278,16 +278,11 @@
     &lt;/Entry&gt;&#xD;
   &lt;/TypePattern&gt;&#xD;
 &lt;/Patterns&gt;</s:String>
-<<<<<<< Updated upstream
-	<s:String x:Key="/Default/CodeStyle/FileHeader/FileHeaderRegionName/@EntryValue">Copyright © 2019-2022 Sergii Artemenko</s:String>
-	<s:String x:Key="/Default/CodeStyle/FileHeader/FileHeaderText/@EntryValue">This file is part of the Xtate project. &lt;https://xtate.net/&gt;&#xD;
-=======
 	<s:String x:Key="/Default/CodeStyle/FileHeader/FileHeaderRegex/@EntryValue">.*</s:String>
 	<s:String x:Key="/Default/CodeStyle/FileHeader/FileHeaderRegionName/@EntryValue"></s:String>
 	<s:String x:Key="/Default/CodeStyle/FileHeader/FileHeaderText/@EntryValue">Copyright © 2019-${CurrentDate.Year} Sergii Artemenko&#xD;
 &#xD;
 This file is part of the Xtate project. &lt;https://xtate.net/&gt;&#xD;
->>>>>>> Stashed changes
 &#xD;
 This program is free software: you can redistribute it and/or modify&#xD;
 it under the terms of the GNU Affero General Public License as published&#xD;

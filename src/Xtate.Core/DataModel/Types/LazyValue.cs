@@ -21,21 +21,6 @@ namespace Xtate.Core;
 
 public abstract class LazyValue : ILazyValue
 {
-<<<<<<< Updated upstream
-	public abstract class LazyValue : ILazyValue
-	{
-		private volatile int _state;
-
-		private DataModelValue _value;
-
-		public static DataModelValue Create(Func<DataModelValue> factory) => new (new NoArg(factory));
-
-		public static DataModelValue Create<TArg>(TArg arg, Func<TArg, DataModelValue> factory) => new(new OneArg<TArg>(factory, arg));
-
-		public static DataModelValue Create<TArg1, TArg2>(TArg1 arg1, TArg2 arg2, Func<TArg1, TArg2, DataModelValue> factory) => new(new TwoArgs<TArg1, TArg2>(factory, arg1, arg2));
-
-		protected abstract DataModelValue Create();
-=======
 	private volatile int _state;
 
 	private DataModelValue _value;
@@ -50,7 +35,6 @@ public abstract class LazyValue : ILazyValue
 			{
 				return _value;
 			}
->>>>>>> Stashed changes
 
 			var newValue = Create();
 			if (Interlocked.CompareExchange(ref _state, value: 1, comparand: 0) == 0)
@@ -58,38 +42,8 @@ public abstract class LazyValue : ILazyValue
 				_value = newValue;
 				_state = 2;
 
-<<<<<<< Updated upstream
-		DataModelValue ILazyValue.Value
-		{
-			get
-			{
-				if (_state == 2)
-				{
-					return _value;
-				}
-
-				var newValue = Create();
-				if (Interlocked.CompareExchange(ref _state, 1, 0) == 0)
-				{
-					_value = newValue;
-					_state = 2;
-
-					return _value;
-				}
-
-				SpinWait spinWait = default;
-				while (_state != 2)
-				{
-					spinWait.SpinOnce();
-				}
-
 				return _value;
 			}
-		}
-=======
-				return _value;
-			}
->>>>>>> Stashed changes
 
 			SpinWait spinWait = default;
 			while (_state != 2)
@@ -97,48 +51,6 @@ public abstract class LazyValue : ILazyValue
 				spinWait.SpinOnce();
 			}
 
-<<<<<<< Updated upstream
-		private class NoArg: LazyValue
-		{
-			private readonly Func<DataModelValue> _factory;
-
-			public NoArg(Func<DataModelValue> factory) => _factory = factory;
-
-			protected override DataModelValue Create() => _factory();
-		}
-
-		private class OneArg<TArg> : LazyValue
-		{
-			private readonly Func<TArg, DataModelValue> _factory;
-			private readonly TArg                       _arg;
-
-			public OneArg(Func<TArg, DataModelValue> factory, TArg arg)
-			{
-				_factory = factory;
-				_arg = arg;
-			}
-
-			protected override DataModelValue Create() => _factory(_arg);
-		}
-
-		private class TwoArgs<TArg1, TArg2> : LazyValue
-		{
-			private readonly Func<TArg1, TArg2, DataModelValue> _factory;
-			private readonly TArg1                              _arg1;
-			private readonly TArg2                              _arg2;
-
-			public TwoArgs(Func<TArg1, TArg2, DataModelValue> factory, TArg1 arg1, TArg2 arg2)
-			{
-				_factory = factory;
-				_arg1 = arg1;
-				_arg2 = arg2;
-			}
-
-			protected override DataModelValue Create() => _factory(_arg1, _arg2);
-		}
-	}
-}
-=======
 			return _value;
 		}
 	}
@@ -168,4 +80,3 @@ public abstract class LazyValue : ILazyValue
 		protected override DataModelValue Create() => factory(arg1, arg2);
 	}
 }
->>>>>>> Stashed changes

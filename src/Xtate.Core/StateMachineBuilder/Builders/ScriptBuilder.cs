@@ -32,29 +32,7 @@ public class ScriptBuilder : BuilderBase, IScriptBuilder
 	{
 		Infra.Requires(source);
 
-<<<<<<< Updated upstream
-	#region Interface IScriptBuilder
-
-		public IScript Build() => new ScriptEntity { Ancestor = Ancestor, Source = _source, Content = _body };
-
-		public void SetSource(IExternalScriptExpression source)
-		{
-			Infra.Requires(source);
-
-			_source = source;
-		}
-
-		public void SetBody(IScriptExpression body)
-		{
-			Infra.Requires(body);
-
-			_body = body;
-		}
-
-	#endregion
-=======
 		_source = source;
->>>>>>> Stashed changes
 	}
 
 	public void SetBody(IScriptExpression body)

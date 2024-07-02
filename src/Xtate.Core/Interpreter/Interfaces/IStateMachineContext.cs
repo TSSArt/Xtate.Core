@@ -17,26 +17,10 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using System;
-using Xtate.Persistence;
-=======
 namespace Xtate.Core;
->>>>>>> Stashed changes
 
 public interface IStateMachineContext
 {
-<<<<<<< Updated upstream
-	public interface IStateMachineContext
-	{
-		EntityQueue<IEvent>         InternalQueue      { get; }
-		DataModelList               DataModel          { get; }
-		OrderedSet<StateEntityNode> Configuration      { get; }
-		OrderedSet<StateEntityNode> StatesToInvoke     { get; }
-		ServiceIdSet                ActiveInvokes      { get; }
-		KeyList<StateEntityNode>    HistoryValue       { get; }
-	}
-=======
 	EntityQueue<IEvent>         InternalQueue  { get; }
 	DataModelList               DataModel      { get; }
 	OrderedSet<StateEntityNode> Configuration  { get; }
@@ -44,5 +28,4 @@ public interface IStateMachineContext
 	ServiceIdSet                ActiveInvokes  { get; }
 	KeyList<StateEntityNode>    HistoryValue   { get; }
 	DataModelValue              DoneData       { get; set; }
->>>>>>> Stashed changes
 }

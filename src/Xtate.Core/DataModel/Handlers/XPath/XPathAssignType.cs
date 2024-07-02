@@ -21,19 +21,6 @@ namespace Xtate.DataModel.XPath;
 
 public enum XPathAssignType
 {
-<<<<<<< Updated upstream
-	public enum XPathAssignType
-	{
-		ReplaceChildren,
-		FirstChild,
-		LastChild,
-		PreviousSibling,
-		NextSibling,
-		Replace,
-		Delete,
-		AddAttribute
-	}
-=======
 	ReplaceChildren,
 	FirstChild,
 	LastChild,
@@ -42,5 +29,4 @@ public enum XPathAssignType
 	Replace,
 	Delete,
 	AddAttribute
->>>>>>> Stashed changes
 }

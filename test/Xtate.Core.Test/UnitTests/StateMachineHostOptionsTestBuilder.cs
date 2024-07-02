@@ -17,45 +17,10 @@
 
 #endregion
 
-<<<<<<< Updated upstream:src/Xtate.Core/src/Xtate.Core/DataModel/Handlers/XPath/XPathExtensions.cs
-using System;
-using Xtate.Core;
-using Xtate.IoC;
-using Xtate.DataModel;
-using Xtate.DataModel.XPath;
-
-namespace Xtate
-=======
 namespace Xtate.Test
->>>>>>> Stashed changes:src/Xtate.Core/test/Xtate.Core.Test/UnitTests/StateMachineHostOptionsTestBuilder.cs
 {
 	public static class StateMachineHostOptionsTestBuilder
 	{
-<<<<<<< Updated upstream:src/Xtate.Core/src/Xtate.Core/DataModel/Handlers/XPath/XPathExtensions.cs
-		public static IServiceCollection AddXPath(this IServiceCollection services)
-		{
-			if (services is null) throw new ArgumentNullException(nameof(services));
-
-			//services.AddIErrorProcessorService<XPathDataModelHandler>();
-
-			//services.AddTransient(
-				//async provider => new XPathDataModelHandler(await provider.GetRequiredService<IErrorProcessorService<XPathDataModelHandler>>().ConfigureAwait(false)));
-
-				services.AddType<XPathDataModelHandler>();
-
-			//TODO:delete
-			/*services.AddForwarding<IDataModelHandler?, string?>(
-				async (provider, dataModel) => dataModel == XPathDataModelHandler.DataModelType
-					? await provider.GetRequiredService<XPathDataModelHandler>().ConfigureAwait(false)
-					: default);*/
-
-			services.AddShared<IDataModelHandlerProvider>(SharedWithin.Container, sp => new XPathDataModelHandlerProvider
-																					    {
-																						    DataModelHandlerFactory = sp.GetRequiredFactory<XPathDataModelHandler>()
-																					    });
-
-			return services;
-=======
 		public delegate void StateMachineHostOptionsSetup(StateMachineHostOptions options);
 
 		public static StateMachineHostOptions Create(StateMachineHostOptionsSetup build)
@@ -65,7 +30,6 @@ namespace Xtate.Test
 			build(options);
 
 			return options;
->>>>>>> Stashed changes:src/Xtate.Core/test/Xtate.Core.Test/UnitTests/StateMachineHostOptionsTestBuilder.cs
 		}
 	}
 }

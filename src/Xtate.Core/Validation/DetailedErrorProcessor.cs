@@ -36,18 +36,6 @@ public sealed class DetailedErrorProcessor(SessionId? sessionId, StateMachineOri
 
 			throw new StateMachineValidationException(errors.ToImmutable(), sessionId, origin);
 		}
-<<<<<<< Updated upstream
-
-		void IErrorProcessor.AddError(ErrorItem errorItem)
-		{
-			Infra.Requires(errorItem);
-
-			(_errors ??= ImmutableArray.CreateBuilder<ErrorItem>()).Add(errorItem);
-		}
-
-	#endregion
-=======
->>>>>>> Stashed changes
 	}
 
 	void IErrorProcessor.AddError(ErrorItem errorItem)

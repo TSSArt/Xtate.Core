@@ -24,34 +24,13 @@ namespace Xtate.Core;
 
 public sealed class StateMachineNode : StateEntityNode, IStateMachine, IAncestorProvider, IDebugEntityId
 {
-<<<<<<< Updated upstream
-	public sealed class StateMachineNode : StateEntityNode, IStateMachine, IAncestorProvider, IDebugEntityId
-=======
 	private readonly IStateMachine _stateMachine;
 
 	public StateMachineNode(DocumentIdNode documentIdNode, IStateMachine stateMachine) : base(documentIdNode)
->>>>>>> Stashed changes
 	{
 		Infra.Requires(stateMachine);
 		Infra.Requires(stateMachine.Initial);
 
-<<<<<<< Updated upstream
-		public StateMachineNode(DocumentIdNode documentIdNode, IStateMachine stateMachine) : base(documentIdNode)
-		{
-			Infra.Requires(stateMachine);
-			Infra.Requires(stateMachine.Initial);
-
-			_stateMachine = stateMachine;
-
-			Initial = stateMachine.Initial.As<InitialNode>();
-			ScriptEvaluator = _stateMachine.Script?.As<ScriptNode>();
-			DataModel = _stateMachine.DataModel?.As<DataModelNode>();
-			States = _stateMachine.States.AsArrayOf<IStateEntity, StateEntityNode>(true);
-
-			Register(Initial);
-			Register(States);
-		}
-=======
 		_stateMachine = stateMachine;
 
 		Initial = stateMachine.Initial.As<InitialNode>();
@@ -62,19 +41,10 @@ public sealed class StateMachineNode : StateEntityNode, IStateMachine, IAncestor
 		Register(Initial);
 		Register(States);
 	}
->>>>>>> Stashed changes
 
 	public override DataModelNode? DataModel { get; }
 
-<<<<<<< Updated upstream
-		public override ImmutableArray<StateEntityNode> States { get; }
-
-		public InitialNode Initial { get; }
-
-		public IExecEvaluator? ScriptEvaluator { get; }
-=======
 	public override ImmutableArray<StateEntityNode> States { get; }
->>>>>>> Stashed changes
 
 	public InitialNode Initial { get; }
 
@@ -90,17 +60,7 @@ public sealed class StateMachineNode : StateEntityNode, IStateMachine, IAncestor
 
 	FormattableString IDebugEntityId.EntityId => @$"{Name}(#{DocumentId})";
 
-<<<<<<< Updated upstream
-		public BindingType                         Binding       => _stateMachine.Binding;
-		public string?                             Name          => _stateMachine.Name;
-		public string?                             DataModelType => _stateMachine.DataModelType;
-		public IExecutableEntity?                  Script        => _stateMachine.Script;
-		IDataModel? IStateMachine.                 DataModel     => DataModel;
-		IInitial? IStateMachine.                   Initial       => Initial;
-		ImmutableArray<IStateEntity> IStateMachine.States        => ImmutableArray<IStateEntity>.CastUp(States);
-=======
 #endregion
->>>>>>> Stashed changes
 
 #region Interface IStateMachine
 

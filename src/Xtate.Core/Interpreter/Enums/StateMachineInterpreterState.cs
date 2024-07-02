@@ -21,19 +21,6 @@ namespace Xtate.Core;
 
 public enum StateMachineInterpreterState
 {
-<<<<<<< Updated upstream
-	public enum StateMachineInterpreterState
-	{
-		Accepted,
-		Started,
-		Exited,
-		Waiting,
-		Destroying,
-		Halted,
-		Suspended,
-		Resumed
-	}
-=======
 	Accepted,
 	Started,
 	Exited,
@@ -42,5 +29,4 @@ public enum StateMachineInterpreterState
 	Halted,
 	Suspended,
 	Resumed
->>>>>>> Stashed changes
 }

@@ -17,13 +17,6 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.Core;
-=======
->>>>>>> Stashed changes
 using Xtate.DataModel.Runtime;
 
 namespace Xtate;
@@ -32,11 +25,8 @@ public static class Runtime
 {
 	private static readonly AsyncLocal<RuntimeExecutionContext> Current = new();
 
-<<<<<<< Updated upstream
-=======
 	public static DataModelList DataModel => GetContext().DataModelController?.DataModel ?? DataModelList.Empty;
 
->>>>>>> Stashed changes
 	private static RuntimeExecutionContext GetContext()
 	{
 		if (Current.Value is { } context)
@@ -60,9 +50,4 @@ public static class Runtime
 	public static ValueTask StartInvoke(InvokeData invokeData) => GetContext().InvokeController?.Start(invokeData) ?? default;
 
 	public static ValueTask CancelInvoke(InvokeId invokeId) => GetContext().InvokeController?.Cancel(invokeId) ?? default;
-<<<<<<< Updated upstream
-
-	public static DataModelList DataModel => GetContext().DataModelController?.DataModel ?? DataModelList.Empty;
-=======
->>>>>>> Stashed changes
 }

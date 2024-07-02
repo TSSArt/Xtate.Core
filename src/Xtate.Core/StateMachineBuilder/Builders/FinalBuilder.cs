@@ -34,44 +34,7 @@ public class FinalBuilder : BuilderBase, IFinalBuilder
 	{
 		Infra.Requires(id);
 
-<<<<<<< Updated upstream
-	#region Interface IFinalBuilder
-
-		public IFinal Build() =>
-			new FinalEntity { Ancestor = Ancestor, Id = _id, OnEntry = _onEntryList?.ToImmutable() ?? default, OnExit = _onExitList?.ToImmutable() ?? default, DoneData = _doneData };
-
-		public void SetId(IIdentifier id)
-		{
-			Infra.Requires(id);
-			
-			_id = id;
-		}
-
-		public void AddOnEntry(IOnEntry onEntry)
-		{
-			Infra.Requires(onEntry);
-
-			(_onEntryList ??= ImmutableArray.CreateBuilder<IOnEntry>()).Add(onEntry);
-		}
-
-		public void AddOnExit(IOnExit onExit)
-		{
-			Infra.Requires(onExit);
-
-			(_onExitList ??= ImmutableArray.CreateBuilder<IOnExit>()).Add(onExit);
-		}
-
-		public void SetDoneData(IDoneData doneData)
-		{
-			Infra.Requires(doneData);
-			
-			_doneData = doneData;
-		}
-
-	#endregion
-=======
 		_id = id;
->>>>>>> Stashed changes
 	}
 
 	public void AddOnEntry(IOnEntry onEntry)

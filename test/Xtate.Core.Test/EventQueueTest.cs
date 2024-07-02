@@ -1,9 +1,5 @@
-<<<<<<< Updated upstream
-﻿#region Copyright © 2019-2022 Sergii Artemenko
-=======
 ﻿#region Copyright © 2019-2023 Sergii Artemenko
 
->>>>>>> Stashed changes
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -18,15 +14,8 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-<<<<<<< Updated upstream
-#endregion
-
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-=======
 
 #endregion
->>>>>>> Stashed changes
 
 namespace Xtate.Core.Test;
 
@@ -54,10 +43,7 @@ public class EventQueueTest
 		Assert.IsTrue(result);
 		Assert.IsFalse(result2);
 		Assert.AreSame(eventObject, evt);
-<<<<<<< Updated upstream
-=======
 		Assert.IsNull(evt2);
->>>>>>> Stashed changes
 	}
 
 	[TestMethod]

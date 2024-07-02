@@ -20,14 +20,6 @@
 //TODO: uncomment
 /*
 
-<<<<<<< Updated upstream
-namespace Xtate.Service
-{  
-	//TODO: uncomment
-	/*
-	[PublicAPI]
-	public class DynamicServiceFactory : DynamicFactory<IServiceFactory>, IServiceFactory
-=======
 public class DynamicServiceFactory : DynamicFactory<IServiceFactory>, IServiceFactory
 {
 	public DynamicServiceFactory(bool throwOnError = true) : base(throwOnError) { }
@@ -35,44 +27,19 @@ public class DynamicServiceFactory : DynamicFactory<IServiceFactory>, IServiceFa
 #region Interface IServiceFactory
 
 	public async ValueTask<IServiceFactoryActivator?> TryGetActivator(ServiceLocator serviceLocator, Uri type, CancellationToken token)
->>>>>>> Stashed changes
 	{
 		var factories = await GetFactories(serviceLocator, InvokeTypeToUri(type), token).ConfigureAwait(false);
 
-<<<<<<< Updated upstream
-	#region Interface IServiceFactory
-
-		public async ValueTask<IServiceFactoryActivator?> TryGetActivator(ServiceLocator serviceLocator, Uri type, CancellationToken token)
-		{
-			var factories = await GetFactories(serviceLocator, InvokeTypeToUri(type), token).ConfigureAwait(false);
-=======
 		foreach (var factory in factories)
 		{
 			var activator = await factory.TryGetActivator(serviceLocator, type, token).ConfigureAwait(false);
->>>>>>> Stashed changes
 
 			if (activator is not null)
 			{
-<<<<<<< Updated upstream
-				var activator = await factory.TryGetActivator(serviceLocator, type, token).ConfigureAwait(false);
-
-				if (activator is not null)
-				{
-					return activator;
-				}
-=======
 				return activator;
->>>>>>> Stashed changes
 			}
 		}
 
-<<<<<<< Updated upstream
-	#endregion
-
-		protected virtual Uri InvokeTypeToUri(Uri invokeType) => invokeType;
-	}*/
-}
-=======
 		return null;
 	}
 
@@ -80,4 +47,3 @@ public class DynamicServiceFactory : DynamicFactory<IServiceFactory>, IServiceFa
 
 	protected virtual Uri InvokeTypeToUri(Uri invokeType) => invokeType;
 }*/
->>>>>>> Stashed changes

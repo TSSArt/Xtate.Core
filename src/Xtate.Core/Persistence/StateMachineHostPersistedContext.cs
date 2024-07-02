@@ -67,33 +67,6 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 		}
 		catch (OperationCanceledException ex) when (ex.CancellationToken == token)
 		{
-<<<<<<< Updated upstream
-			try
-			{
-				_storage = await _storageProvider.GetTransactionalStorage(HostPartition, ContextKey).ConfigureAwait(false);
-
-				await LoadStateMachines(token).ConfigureAwait(false);
-				await LoadInvokedServices(token).ConfigureAwait(false);
-
-				await base.InitializeAsync(token).ConfigureAwait(false);
-			}
-			catch (OperationCanceledException ex) when (ex.CancellationToken == token)
-			{
-				Stop();
-
-				throw;
-			}
-		}
-
-		protected override async ValueTask DisposeAsyncCore()
-		{
-			if (_disposed)
-			{
-				return;
-			}
-
-=======
->>>>>>> Stashed changes
 			Stop();
 
 			throw;
@@ -111,35 +84,7 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 
 		if (_storage is { } storage)
 		{
-<<<<<<< Updated upstream
-			Infra.NotNull(_storage);
-
-			await _lockInvokedServices.WaitAsync(token).ConfigureAwait(false);
-			try
-			{
-				await base.AddService(sessionId, invokeId, service, token).ConfigureAwait(false);
-
-				var bucket = new Bucket(_storage).Nested(InvokedServicesKey);
-				var recordId = _invokedServiceRecordId ++;
-
-				var invokedSessionId = service is StateMachineControllerBase stateMachineController ? stateMachineController.SessionId : null;
-				var invokedService = new InvokedServiceMeta(sessionId, invokeId, invokedSessionId) { RecordId = recordId };
-				_invokedServices.Add((sessionId, invokeId), invokedService);
-
-				bucket.Add(Bucket.RootKey, _invokedServiceRecordId);
-
-				invokedService.Store(bucket.Nested(recordId));
-
-				//TODO:
-				await _storage.CheckPoint(level: 0/*, StopToken*/).ConfigureAwait(false);
-			}
-			finally
-			{
-				_lockInvokedServices.Release();
-			}
-=======
 			await storage.DisposeAsync().ConfigureAwait(false);
->>>>>>> Stashed changes
 		}
 
 		_lockInvokedServices.Dispose();
@@ -315,11 +260,7 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 				bucket.RemoveSubtree(recordId);
 
 				//TODO:
-<<<<<<< Updated upstream
-				await _storage.CheckPoint(level: 0/*, StopToken*/).ConfigureAwait(false);
-=======
 				await _storage.CheckPoint(level: 0).ConfigureAwait(false);
->>>>>>> Stashed changes
 			}
 
 			await ShrinkStateMachines().ConfigureAwait(false);
@@ -356,70 +297,6 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 			rootBucket.Add(Bucket.RootKey, _stateMachineRecordId);
 		}
 
-<<<<<<< Updated upstream
-		protected override StateMachineControllerBase CreateStateMachineController(SessionId sessionId,
-																				   IStateMachine? stateMachine,
-																				   IStateMachineOptions? stateMachineOptions,
-																				   Uri? stateMachineLocation,
-																				   InterpreterOptions defaultOptions,
-																				   SecurityContext securityContext,
-																				   DeferredFinalizer finalizer) =>
-			stateMachineOptions.IsStateMachinePersistable()
-				? new StateMachinePersistedController(sessionId, stateMachineOptions, stateMachine, stateMachineLocation, _stateMachineHost,
-													  _storageProvider, _idlePeriod, defaultOptions, securityContext, finalizer)
-				  {
-					  _stateMachineInterpreterFactory = default, sd = default, EventQueueWriter = default
-				  }
-				: base.CreateStateMachineController(sessionId, stateMachine, stateMachineOptions, stateMachineLocation, defaultOptions, securityContext, finalizer);
-
-		public override async ValueTask<StateMachineControllerBase> CreateAndAddStateMachine(ServiceLocator serviceLocator, 
-																							 SessionId sessionId,
-																							 StateMachineOrigin origin,
-																							 DataModelValue parameters,
-																							 SecurityContext securityContext,
-																							 DeferredFinalizer finalizer,
-																							 IErrorProcessor errorProcessor,
-																							 CancellationToken token)
-		{
-			Infra.NotNull(_storage);
-
-			var (stateMachine, location) = await LoadStateMachine(origin, _baseUri, securityContext, errorProcessor, token).ConfigureAwait(false);
-
-			stateMachine.Is<IStateMachineOptions>(out var options);
-
-			if (!options.IsStateMachinePersistable())
-			{
-				return await base.CreateAndAddStateMachine(serviceLocator, sessionId, origin, parameters, securityContext, finalizer, errorProcessor, token).ConfigureAwait(false);
-			}
-
-			await _lockStateMachines.WaitAsync(token).ConfigureAwait(false);
-			try
-			{
-				var stateMachineController = await base.CreateAndAddStateMachine(serviceLocator, sessionId, origin, parameters, securityContext, finalizer, errorProcessor, token).ConfigureAwait(false);
-
-				var bucket = new Bucket(_storage).Nested(StateMachinesKey);
-				var recordId = _stateMachineRecordId ++;
-
-				var stateMachineMeta = new StateMachineMeta(sessionId, options, location, securityContext) { RecordId = recordId, Controller = stateMachineController };
-				_stateMachines.Add(sessionId, stateMachineMeta);
-
-				bucket.Add(Bucket.RootKey, _stateMachineRecordId);
-
-				stateMachineMeta.Store(bucket.Nested(recordId));
-
-				//TODO:
-				await _storage.CheckPoint(level: 0 /*, StopToken*/).ConfigureAwait(false);
-
-				return stateMachineController;
-			}
-			finally
-			{
-				_lockStateMachines.Release();
-			}
-		}
-
-		public override async ValueTask RemoveStateMachineController(IStateMachineController stateMachineController)
-=======
 		//TODO:
 
 		await _storage.CheckPoint(level: 0 /*, StopToken*/).ConfigureAwait(false);
@@ -441,7 +318,6 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 
 		await _lockStateMachines.WaitAsync(token).ConfigureAwait(false);
 		try
->>>>>>> Stashed changes
 		{
 			for (var i = 0; i < _stateMachineRecordId; i ++)
 			{
@@ -450,10 +326,6 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 				{
 					var meta = new StateMachineMeta(stateMachineBucket) { RecordId = i };
 
-<<<<<<< Updated upstream
-					//TODO:
-					await _storage.CheckPoint(level: 0/*, StopToken*/).ConfigureAwait(false);
-=======
 					//var finalizer = new DeferredFinalizer();
 					var securityContext = SecurityContext.Create(meta.SecurityContextType, meta.Permissions);
 
@@ -467,310 +339,12 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 					meta.Controller = controller;
 
 					_stateMachines.Add(meta.SessionId, meta);
->>>>>>> Stashed changes
 				}
 			}
 		}
 		finally
 		{
-<<<<<<< Updated upstream
-			Infra.NotNull(_storage);
-
-			if (_stateMachines.Count * 2 > _stateMachineRecordId)
-			{
-				return;
-			}
-
-			_stateMachineRecordId = 0;
-			var rootBucket = new Bucket(_storage).Nested(StateMachinesKey);
-			rootBucket.RemoveSubtree(Bucket.RootKey);
-
-			foreach (var stateMachine in _stateMachines.Values)
-			{
-				stateMachine.RecordId = _stateMachineRecordId ++;
-				stateMachine.Store(rootBucket.Nested(stateMachine.RecordId));
-			}
-
-			if (_stateMachineRecordId > 0)
-			{
-				rootBucket.Add(Bucket.RootKey, _stateMachineRecordId);
-			}
-
-			//TODO:
-
-			await _storage.CheckPoint(level: 0/*, StopToken*/).ConfigureAwait(false);
-			await _storage.Shrink(/*StopToken*/).ConfigureAwait(false);
-		}
-
-		private async ValueTask LoadStateMachines(CancellationToken token)
-		{
-			Infra.NotNull(_storage);
-
-			var bucket = new Bucket(_storage).Nested(StateMachinesKey);
-
-			bucket.TryGet(Bucket.RootKey, out _stateMachineRecordId);
-
-			if (_stateMachineRecordId == 0)
-			{
-				return;
-			}
-
-			await _lockStateMachines.WaitAsync(token).ConfigureAwait(false);
-			try
-			{
-				for (var i = 0; i < _stateMachineRecordId; i ++)
-				{
-					var stateMachineBucket = bucket.Nested(i);
-					if (stateMachineBucket.TryGet(Key.TypeInfo, out TypeInfo typeInfo) && typeInfo == TypeInfo.StateMachine)
-					{
-						var meta = new StateMachineMeta(stateMachineBucket) { RecordId = i };
-
-						var finalizer = new DeferredFinalizer();
-						var securityContext = SecurityContext.Create(meta.SecurityContextType, meta.Permissions);
-
-						var controller = AddSavedStateMachine(default/*TODO*/, meta.SessionId, meta.Location, meta, securityContext, finalizer, default/*TODO*/);
-						AddStateMachineController(controller);
-
-						finalizer.Add(static(ctx, ctrl) => ((StateMachineHostContext) ctx).RemoveStateMachineController((StateMachineControllerBase) ctrl), this, controller);
-						finalizer.Add(controller);
-
-						meta.Controller = controller;
-
-						_stateMachines.Add(meta.SessionId, meta);
-					}
-				}
-			}
-			finally
-			{
-				_lockStateMachines.Release();
-			}
-		}
-
-		private async ValueTask ShrinkInvokedServices()
-		{
-			Infra.NotNull(_storage);
-
-			if (_invokedServices.Count * 2 > _invokedServiceRecordId)
-			{
-				return;
-			}
-
-			_invokedServiceRecordId = 0;
-			var rootBucket = new Bucket(_storage).Nested(InvokedServicesKey);
-			rootBucket.RemoveSubtree(Bucket.RootKey);
-
-			foreach (var invokedService in _invokedServices.Values)
-			{
-				invokedService.RecordId = _invokedServiceRecordId ++;
-				invokedService.Store(rootBucket.Nested(invokedService.RecordId));
-			}
-
-			if (_invokedServiceRecordId > 0)
-			{
-				rootBucket.Add(Bucket.RootKey, _invokedServiceRecordId);
-			}
-
-			//TODO:
-			await _storage.CheckPoint(level: 0/*, StopToken*/).ConfigureAwait(false);
-			await _storage.Shrink(/*StopToken*/).ConfigureAwait(false);
-		}
-
-		private async ValueTask LoadInvokedServices(CancellationToken token)
-		{
-			Infra.NotNull(_storage);
-
-			var bucket = new Bucket(_storage).Nested(InvokedServicesKey);
-
-			bucket.TryGet(Bucket.RootKey, out _invokedServiceRecordId);
-
-			if (_invokedServiceRecordId == 0)
-			{
-				return;
-			}
-
-			await _lockInvokedServices.WaitAsync(token).ConfigureAwait(false);
-			try
-			{
-				for (var i = 0; i < _invokedServiceRecordId; i ++)
-				{
-					var eventBucket = bucket.Nested(i);
-					if (eventBucket.TryGet(Key.TypeInfo, out TypeInfo typeInfo) && typeInfo == TypeInfo.InvokedService)
-					{
-						var invokedService = new InvokedServiceMeta(bucket) { RecordId = i };
-
-						if (invokedService.SessionId is not null)
-						{
-							var stateMachine = _stateMachines[invokedService.SessionId];
-							Infra.NotNull(stateMachine.Controller);
-							await base.AddService(invokedService.ParentSessionId, invokedService.InvokeId, stateMachine.Controller, token).ConfigureAwait(false);
-
-							_invokedServices.Add((invokedService.ParentSessionId, invokedService.InvokeId), invokedService);
-						}
-						else if (_stateMachines.TryGetValue(invokedService.ParentSessionId, out var invokingStateMachine))
-						{
-							Infra.NotNull(invokingStateMachine.Controller);
-							var evt = new EventObject { Type = EventType.External, NameParts = EventName.ErrorExecution, InvokeId = invokedService.InvokeId };
-							await invokingStateMachine.Controller.Send(evt, token).ConfigureAwait(false);
-						}
-					}
-				}
-			}
-			finally
-			{
-				_lockInvokedServices.Release();
-			}
-		}
-
-		private class StateMachineMeta : IStoreSupport, IStateMachineOptions
-		{
-			public StateMachineMeta(SessionId sessionId,
-									IStateMachineOptions? options,
-									Uri? stateMachineLocation,
-									SecurityContext securityContext)
-			{
-				SessionId = sessionId;
-				Location = stateMachineLocation;
-				SecurityContextType = securityContext.Type;
-				Permissions = securityContext.Permissions;
-
-				if (options is not null)
-				{
-					PersistenceLevel = options.PersistenceLevel;
-					SynchronousEventProcessing = options.SynchronousEventProcessing;
-					ExternalQueueSize = options.ExternalQueueSize;
-					UnhandledErrorBehaviour = options.UnhandledErrorBehaviour;
-				}
-			}
-
-			public StateMachineMeta(in Bucket bucket)
-			{
-				SessionId = bucket.GetSessionId(Key.SessionId) ?? throw new PersistenceException(Resources.Exception_MissedSessionId);
-				Location = bucket.GetUri(Key.Location);
-				Name = bucket.GetString(Key.Name);
-
-				if (bucket.TryGet(Key.SecurityContextType, out SecurityContextType securityContextType))
-				{
-					SecurityContextType = securityContextType;
-				}
-
-				if (bucket.TryGet(Key.SecurityContextPermissions, out SecurityContextPermissions permissions))
-				{
-					Permissions = permissions;
-				}
-
-				if (bucket.TryGet(Key.OptionPersistenceLevel, out PersistenceLevel persistenceLevel))
-				{
-					PersistenceLevel = persistenceLevel;
-				}
-
-				if (bucket.TryGet(Key.OptionSynchronousEventProcessing, out bool synchronousEventProcessing))
-				{
-					SynchronousEventProcessing = synchronousEventProcessing;
-				}
-
-				if (bucket.TryGet(Key.OptionExternalQueueSize, out int externalQueueSize))
-				{
-					ExternalQueueSize = externalQueueSize;
-				}
-
-				if (bucket.TryGet(Key.UnhandledErrorBehaviour, out UnhandledErrorBehaviour unhandledErrorBehaviour))
-				{
-					UnhandledErrorBehaviour = unhandledErrorBehaviour;
-				}
-			}
-
-			public SessionId                   SessionId           { get; }
-			public Uri?                        Location            { get; }
-			public int                         RecordId            { get; set; }
-			public StateMachineControllerBase? Controller          { get; set; }
-			public SecurityContextType         SecurityContextType { get; }
-			public SecurityContextPermissions  Permissions         { get; }
-
-		#region Interface IStateMachineOptions
-
-			public string?                  Name                       { get; }
-			public PersistenceLevel?        PersistenceLevel           { get; }
-			public bool?                    SynchronousEventProcessing { get; }
-			public int?                     ExternalQueueSize          { get; }
-			public UnhandledErrorBehaviour? UnhandledErrorBehaviour    { get; }
-
-		#endregion
-
-		#region Interface IStoreSupport
-
-			public void Store(Bucket bucket)
-			{
-				bucket.Add(Key.TypeInfo, TypeInfo.StateMachine);
-				bucket.AddId(Key.SessionId, SessionId);
-				bucket.Add(Key.Location, Location);
-				bucket.Add(Key.SecurityContextType, SecurityContextType);
-				bucket.Add(Key.SecurityContextPermissions, Permissions);
-
-				if (Name is { } name)
-				{
-					bucket.Add(Key.Name, name);
-				}
-
-				if (PersistenceLevel is { } persistenceLevel)
-				{
-					bucket.Add(Key.OptionPersistenceLevel, persistenceLevel);
-				}
-
-				if (SynchronousEventProcessing is { } synchronousEventProcessing)
-				{
-					bucket.Add(Key.OptionSynchronousEventProcessing, synchronousEventProcessing);
-				}
-
-				if (ExternalQueueSize is { } externalQueueSize)
-				{
-					bucket.Add(Key.OptionExternalQueueSize, externalQueueSize);
-				}
-
-				if (UnhandledErrorBehaviour is { } unhandledErrorBehaviour)
-				{
-					bucket.Add(Key.UnhandledErrorBehaviour, unhandledErrorBehaviour);
-				}
-			}
-
-		#endregion
-		}
-
-		private class InvokedServiceMeta : IStoreSupport
-		{
-			public InvokedServiceMeta(SessionId parentSessionId, InvokeId invokeId, SessionId? sessionId)
-			{
-				ParentSessionId = parentSessionId;
-				InvokeId = invokeId;
-				SessionId = sessionId;
-			}
-
-			public InvokedServiceMeta(in Bucket bucket)
-			{
-				ParentSessionId = bucket.GetSessionId(Key.ParentSessionId) ?? throw new PersistenceException(Resources.Exception_MissedParentSessionId);
-				InvokeId = bucket.GetInvokeId(Key.InvokeId) ?? throw new PersistenceException(Resources.Exception_InvokedServiceMetaMissedInvokeId);
-				SessionId = bucket.GetSessionId(Key.SessionId);
-			}
-
-			public SessionId  ParentSessionId { get; }
-			public InvokeId   InvokeId        { get; }
-			public SessionId? SessionId       { get; }
-			public int        RecordId        { get; set; }
-
-		#region Interface IStoreSupport
-
-			public void Store(Bucket bucket)
-			{
-				bucket.Add(Key.TypeInfo, TypeInfo.InvokedService);
-				bucket.AddId(Key.ParentSessionId, ParentSessionId);
-				bucket.AddId(Key.InvokeId, InvokeId);
-				bucket.AddId(Key.InvokeUniqueId, InvokeId);
-				bucket.AddId(Key.SessionId, SessionId);
-			}
-
-		#endregion
-=======
 			_lockStateMachines.Release();
->>>>>>> Stashed changes
 		}
 	}
 

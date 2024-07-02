@@ -17,13 +17,6 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using System;
-using System.Collections.Immutable;
-using System.Threading.Tasks;
-using Xtate.Core;
-=======
->>>>>>> Stashed changes
 using Xtate.DataModel;
 
 namespace Xtate.CustomAction;
@@ -33,16 +26,9 @@ public class CustomActionContainer : ICustomAction, IAncestorProvider
 	private readonly ICustomAction    _customAction;
 	private readonly CustomActionBase _customActionBase;
 
-<<<<<<< Updated upstream
-	public CustomActionContainer(ICustomAction customAction , Func<ICustomAction, CustomActionBase> customActionFactory)
-	{
-		Infra.Requires(customAction);
-
-=======
 	public CustomActionContainer(ICustomAction customAction, Func<ICustomAction, CustomActionBase> customActionFactory)
 	{
 		Infra.Requires(customAction);
->>>>>>> Stashed changes
 		Infra.Requires(customActionFactory);
 
 		Infra.Assert(customAction.Locations.IsDefault);
@@ -57,11 +43,7 @@ public class CustomActionContainer : ICustomAction, IAncestorProvider
 		{
 			if (value is IValueExpression { Expression: not null } valueExpression)
 			{
-<<<<<<< Updated upstream
-				valueExpressions.Add(valueExpression); 
-=======
 				valueExpressions.Add(valueExpression);
->>>>>>> Stashed changes
 			}
 		}
 
@@ -72,11 +54,7 @@ public class CustomActionContainer : ICustomAction, IAncestorProvider
 		{
 			if (location is ILocationExpression { Expression: not null } locationExpression)
 			{
-<<<<<<< Updated upstream
-				locationExpressions.Add(locationExpression); 
-=======
 				locationExpressions.Add(locationExpression);
->>>>>>> Stashed changes
 			}
 		}
 

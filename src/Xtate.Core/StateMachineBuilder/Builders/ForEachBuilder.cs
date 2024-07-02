@@ -34,43 +34,7 @@ public class ForEachBuilder : BuilderBase, IForEachBuilder
 	{
 		Infra.Requires(array);
 
-<<<<<<< Updated upstream
-	#region Interface IForEachBuilder
-
-		public IForEach Build() => new ForEachEntity { Ancestor = Ancestor, Array = _array, Item = _item, Index = _index, Action = _actions?.ToImmutable() ?? default };
-
-		public void SetArray(IValueExpression array)
-		{
-			Infra.Requires(array);
-			
-			_array = array;
-		}
-
-		public void SetItem(ILocationExpression item)
-		{
-			Infra.Requires(item);
-				
-			_item = item;
-		}
-
-		public void SetIndex(ILocationExpression index)
-		{
-			Infra.Requires(index);
-			
-			_index = index;
-		}
-
-		public void AddAction(IExecutableEntity action)
-		{
-			Infra.Requires(action);
-
-			(_actions ??= ImmutableArray.CreateBuilder<IExecutableEntity>()).Add(action);
-		}
-
-	#endregion
-=======
 		_array = array;
->>>>>>> Stashed changes
 	}
 
 	public void SetItem(ILocationExpression item)

@@ -21,16 +21,7 @@ namespace Xtate.Core;
 
 public interface IErrorProcessor
 {
-<<<<<<< Updated upstream
-	public interface IErrorProcessor
-	{
-		void AddError(ErrorItem errorItem);
-
-		void ThrowIfErrors();
-	}
-=======
 	void AddError(ErrorItem errorItem);
 
 	void ThrowIfErrors();
->>>>>>> Stashed changes
 }

@@ -17,43 +17,17 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using System;
-using System.Buffers;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
-using System.Text;
-using System.Threading.Tasks;
-using Xtate.DataModel;
-=======
 namespace Xtate.Core;
->>>>>>> Stashed changes
 
 //TODO: uncomment
 public partial class StateMachineInterpreter //: IInterpreterLoggerContext
 {
-<<<<<<< Updated upstream
-	//TODO: uncomment
-	public partial class StateMachineInterpreter //: IInterpreterLoggerContext
-	{
-		/*
-	#region Interface IInterpreterLoggerContext
-=======
 	/*
 #region Interface IInterpreterLoggerContext
 
 	public string ConvertToText(DataModelValue value)
 	{
 		Infra.NotNull(_dataModelHandler);
->>>>>>> Stashed changes
 
 		return _dataModelHandler.ConvertToText(value);
 	}
@@ -65,17 +39,8 @@ public partial class StateMachineInterpreter //: IInterpreterLoggerContext
 			return default;
 		}
 
-<<<<<<< Updated upstream
-		public DataModelValue GetDataModel()
-		{
-			if (_context == null!)
-			{
-				return default;
-			}
-=======
 		return new LazyValue<IStateMachineContext>(stateMachineContext => stateMachineContext.DataModel.AsConstant(), _context);
 	}
->>>>>>> Stashed changes
 
 	ImmutableArray<string> IInterpreterLoggerContext.GetActiveStates()
 	{
@@ -90,25 +55,7 @@ public partial class StateMachineInterpreter //: IInterpreterLoggerContext
 
 		foreach (var node in configuration)
 		{
-<<<<<<< Updated upstream
-			if (_context == null!)
-			{
-				return ImmutableArray<string>.Empty;
-			}
-
-			var configuration = _context.Configuration;
-
-			var list = ImmutableArray.CreateBuilder<string>(configuration.Count);
-
-			foreach (var node in configuration)
-			{
-				list.Add(node.Id.Value);
-			}
-
-			return list.MoveToImmutable();
-=======
 			list.Add(node.Id.Value);
->>>>>>> Stashed changes
 		}
 
 		return list.MoveToImmutable();
@@ -131,16 +78,7 @@ public partial class StateMachineInterpreter //: IInterpreterLoggerContext
 			properties.Add(key: @"StateMachineName", stateMachineName);
 		}
 
-<<<<<<< Updated upstream
-		string ILoggerContext.LoggerContextType => nameof(IInterpreterLoggerContext);
-
-	#endregion
-		*/
-		/*
-		private IStateMachine GetStateMachine()
-=======
 		if (_context.Configuration.Count > 0)
->>>>>>> Stashed changes
 		{
 			var activeStates = new DataModelList();
 			foreach (var node in _context.Configuration)
@@ -152,33 +90,7 @@ public partial class StateMachineInterpreter //: IInterpreterLoggerContext
 
 			properties.Add(key: @"ActiveStates", activeStates);
 		}
-		*/
-	}
 
-<<<<<<< Updated upstream
-	public abstract class EntityParserBase<TEntity> : IEntityParserProvider, IEntityParserHandler
-	{
-		public virtual IEntityParserHandler TryGetEntityParserHandler<T>(T entity) => entity is TEntity ? this : default;
-
-		IEnumerable<LoggingParameter> IEntityParserHandler.EnumerateProperties<T>(T entity)
-		{
-			return EnumerateProperties(ConvertHelper<T, TEntity>.Convert(entity));
-		}
-
-		protected abstract IEnumerable<LoggingParameter> EnumerateProperties(TEntity entity);
-	}
-
-	public class StateEntityParser : EntityParserBase<IStateEntity>
-	{
-		protected override IEnumerable<LoggingParameter> EnumerateProperties(IStateEntity stateEntity)
-		{
-			Infra.Requires(stateEntity);
-
-			if (stateEntity.Id is { } stateId)
-			{
-				yield return new LoggingParameter(@"StateId", stateId);
-			}
-=======
 		properties.Add(key: @"DataModel", GetDataModel());
 
 		properties.MakeDeepConstant();
@@ -276,147 +188,8 @@ public class TransitionEntityParser : EntityParserBase<ITransition>
 		if (!transition.EventDescriptors.IsDefaultOrEmpty)
 		{
 			yield return new LoggingParameter(name: @"EventDescriptors", EventDescriptor.ToString(transition.EventDescriptors));
->>>>>>> Stashed changes
 		}
-	}
 
-<<<<<<< Updated upstream
-	public class InvokeIdEntityParser : EntityParserBase<InvokeId?>
-	{
-		protected override IEnumerable<LoggingParameter> EnumerateProperties(InvokeId? invokeId)
-		{
-			if (invokeId is not null)
-			{
-				yield return new LoggingParameter(@"InvokeId", invokeId);
-			}
-		}
-	}
-
-	public class DataModelValueEntityParser : EntityParserBase<DataModelValue>
-	{
-		protected override IEnumerable<LoggingParameter> EnumerateProperties(DataModelValue value)
-		{
-			if (!value.IsUndefined())
-			{
-				yield return new LoggingParameter(@"Parameter", value);
-			}
-		}
-	}
-
-	public class ExceptionEntityParser : EntityParserBase<Exception>
-	{
-		protected override IEnumerable<LoggingParameter> EnumerateProperties(Exception exception)
-		{
-			yield return new LoggingParameter(@"Exception", exception);
-		}
-	}
-
-	public class TransitionEntityParser : EntityParserBase<ITransition>
-	{
-		protected override IEnumerable<LoggingParameter> EnumerateProperties(ITransition transition)
-		{
-			Infra.Requires(transition);
-
-			yield return new LoggingParameter(@"TransitionType", transition.Type);
-
-			if (!transition.EventDescriptors.IsDefaultOrEmpty)
-			{
-				yield return new LoggingParameter(@"EventDescriptors", EventDescriptor.ToString(transition.EventDescriptors));
-			}
-
-			if (!transition.Target.IsDefaultOrEmpty)
-			{
-				yield return new LoggingParameter(@"Target", Identifier.ToString(transition.Target));
-			}
-		}
-	}
-
-	public class InvokeDataEntityParser : EntityParserBase<InvokeData>
-	{
-		protected override IEnumerable<LoggingParameter> EnumerateProperties(InvokeData invokeData)
-		{
-			Infra.Requires(invokeData);
-
-			if (invokeData.InvokeId is { } invokeId)
-			{
-				yield return new LoggingParameter(@"InvokeId", invokeId);
-			}
-
-			yield return new LoggingParameter(@"InvokeType", invokeData.Type);
-
-			if (invokeData.Source is { } source)
-			{
-				yield return new LoggingParameter(@"InvokeSource", source);
-			}
-		}
-	}
-
-	public class EventEntityParser : EntityParserBase<IEvent>
-	{
-		protected override IEnumerable<LoggingParameter> EnumerateProperties(IEvent evt)
-		{
-			Infra.Requires(evt);
-
-			if (!evt.NameParts.IsDefaultOrEmpty)
-			{
-				yield return new LoggingParameter(@"EventName", EventName.ToName(evt.NameParts));
-			}
-
-			yield return new LoggingParameter(@"EventType", evt.Type);
-
-			if (evt.Origin is { } origin)
-			{
-				yield return new LoggingParameter(@"Origin", origin);
-			}
-
-			if (evt.OriginType is { } originType)
-			{
-				yield return new LoggingParameter(@"OriginType", originType);
-			}
-
-			if (evt.SendId is { } sendId)
-			{
-				yield return new LoggingParameter(@"SendId", sendId);
-			}
-
-			if (evt.InvokeId is { } invokeId)
-			{
-				yield return new LoggingParameter(@"InvokeId", invokeId);
-			}
-		}
-	}
-
-	public class OutgoingEventEntityParser : EntityParserBase<IOutgoingEvent>
-	{
-		protected override IEnumerable<LoggingParameter> EnumerateProperties(IOutgoingEvent evt)
-		{
-			Infra.Requires(evt);
-
-			if (!evt.NameParts.IsDefaultOrEmpty)
-			{
-				yield return new LoggingParameter(@"EventName", EventName.ToName(evt.NameParts));
-			}
-
-			if (evt.SendId is { } sendId)
-			{
-				yield return new LoggingParameter(@"SendId", sendId);
-			}
-
-			if (evt.Type is { } type)
-			{
-				yield return new LoggingParameter(@"Type", type);
-			}
-
-			if (evt.Target is { } target)
-			{
-				yield return new LoggingParameter(@"Target", target);
-			}
-
-			if (evt.DelayMs is var delayMs and > 0)
-			{
-				yield return new LoggingParameter(@"DelayMs", delayMs);
-			}
-=======
 		if (!transition.Target.IsDefaultOrEmpty)
 		{
 			yield return new LoggingParameter(name: @"Target", Identifier.ToString(transition.Target));
@@ -508,7 +281,6 @@ public class OutgoingEventEntityParser : EntityParserBase<IOutgoingEvent>
 		if (evt.DelayMs is var delayMs and > 0)
 		{
 			yield return new LoggingParameter(name: @"DelayMs", delayMs);
->>>>>>> Stashed changes
 		}
 	}
 }

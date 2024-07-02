@@ -24,14 +24,10 @@ namespace Xtate.Core;
 
 public sealed class ExternalScriptExpressionNode : IExternalScriptExpression, IExternalScriptConsumer, IStoreSupport, IAncestorProvider
 {
-<<<<<<< Updated upstream
-	public sealed class ExternalScriptExpressionNode : IExternalScriptExpression, IExternalScriptConsumer, IStoreSupport, IAncestorProvider
-=======
 	private readonly IExternalScriptExpression _externalScriptExpression;
 	private          string?                   _content;
 
 	public ExternalScriptExpressionNode(IExternalScriptExpression externalScriptExpression)
->>>>>>> Stashed changes
 	{
 		Infra.NotNull(externalScriptExpression.Uri);
 

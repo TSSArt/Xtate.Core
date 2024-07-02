@@ -22,13 +22,5 @@ namespace Xtate.DataModel;
 
 public interface ICancelInvokeEvaluator
 {
-<<<<<<< Updated upstream
-	[PublicAPI]
-	public interface ICancelInvokeEvaluator
-	{
-		ValueTask Cancel(InvokeId invokeId);
-	}
-=======
 	ValueTask Cancel(InvokeId invokeId);
->>>>>>> Stashed changes
 }

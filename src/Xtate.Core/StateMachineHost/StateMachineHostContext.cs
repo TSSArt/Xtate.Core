@@ -27,16 +27,6 @@ namespace Xtate.Core;
 
 public interface IStateMachineHostContext
 {
-<<<<<<< Updated upstream
-	public interface IStateMachineHostContext
-	{
-		void AddStateMachineController(IStateMachineController controller);
-		ValueTask RemoveStateMachineController(IStateMachineController controller);
-	}
-
-	[PublicAPI]
-	internal class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposable
-=======
 	void AddStateMachineController(IStateMachineController controller);
 	void RemoveStateMachineController(IStateMachineController controller);
 }
@@ -59,7 +49,6 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 	private          IEventScheduler?                                         _eventScheduler;
 
 	public StateMachineHostContext(IStateMachineHost stateMachineHost, StateMachineHostOptions options, IEventSchedulerFactory defaultEventSchedulerFactory)
->>>>>>> Stashed changes
 	{
 		_stateMachineHost = stateMachineHost;
 		_options = options;
@@ -67,24 +56,8 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 		_suspendTokenSource = new CancellationTokenSource();
 		_stopTokenSource = new CancellationTokenSource();
 
-<<<<<<< Updated upstream
-		private readonly DataModelList?                                              _configuration;
-		private readonly ImmutableDictionary<object, object>                         _contextRuntimeItems;
-		private readonly IEventSchedulerFactory                                      _defaultEventSchedulerFactory;
-		private readonly StateMachineHostOptions                                     _options;
-		private readonly ConcurrentDictionary<SessionId, SessionId>                  _parentSessionIdBySessionId = new();
-		private readonly ConcurrentDictionary<InvokeId, IService?>                   _serviceByInvokeId          = new();
-		private readonly ConcurrentDictionary<SessionId, IStateMachineController> _stateMachineBySessionId    = new();
-		private readonly IStateMachineHost                                           _stateMachineHost;
-		private readonly CancellationTokenSource                                     _stopTokenSource;
-		private readonly CancellationTokenSource                                     _suspendTokenSource;
-		private          IEventScheduler?                                            _eventScheduler;
-
-		public StateMachineHostContext(IStateMachineHost stateMachineHost, StateMachineHostOptions options, IEventSchedulerFactory defaultEventSchedulerFactory)
-=======
 		_contextRuntimeItems = ImmutableDictionary<object, object>.Empty;
 		if (stateMachineHost is IHost host)
->>>>>>> Stashed changes
 		{
 			_contextRuntimeItems = _contextRuntimeItems.Add(typeof(IHost), host);
 		}
@@ -213,16 +186,11 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 			DtdProcessing = DtdProcessing.Parse
 		};
 
-<<<<<<< Updated upstream
-			_eventScheduler = await eventSchedulerFactory.CreateEventScheduler(_stateMachineHost, _options.EsLogger, token).ConfigureAwait(false);
-		}
-=======
 	private static XmlParserContext GetXmlParserContext(XmlNameTable nameTable, Uri? baseUri)
 	{
 		var nsManager = new XmlNamespaceManager(nameTable);
 		return new XmlParserContext(nameTable, nsManager, xmlLang: null, XmlSpace.None) { BaseURI = baseUri?.ToString() };
 	}
->>>>>>> Stashed changes
 
 
 	private async ValueTask<IStateMachine> GetStateMachine(Uri? uri,
@@ -255,138 +223,6 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 		else
 			services.AddForwarding<IScxmlStateMachine>(_ => new ScxmlStateMachine(scxml));
 
-<<<<<<< Updated upstream
-		private InterpreterOptions CreateInterpreterOptions(ServiceLocator serviceLocator,
-															Uri? baseUri,
-															DataModelList? hostData,
-															IErrorProcessor errorProcessor,
-															DataModelValue arguments = default) =>
-			new(serviceLocator)
-			{
-				Configuration = _configuration,
-				PersistenceLevel = _options.PersistenceLevel,
-				StorageProvider = _options.StorageProvider,
-				ResourceLoaderFactories = _options.ResourceLoaderFactories,
-				CustomActionProviders = _options.CustomActionFactories,
-				StopToken = _stopTokenSource.Token,
-				SuspendToken = _suspendTokenSource.Token,
-				Logger = _options.Logger,
-				UnhandledErrorBehaviour = _options.UnhandledErrorBehaviour,
-				ContextRuntimeItems = _contextRuntimeItems,
-				BaseUri = baseUri,
-				Host = hostData,
-				ErrorProcessor = errorProcessor,
-				Arguments = arguments
-			};
-
-		protected virtual StateMachineControllerBase CreateStateMachineController(SessionId sessionId,
-																				  IStateMachine? stateMachine,
-																				  IStateMachineOptions? stateMachineOptions,
-																				  Uri? stateMachineLocation,
-																				  InterpreterOptions defaultOptions,
-																				  SecurityContext securityContext,
-																				  DeferredFinalizer finalizer) =>
-			new StateMachineRuntimeController(sessionId, stateMachineOptions, stateMachine, stateMachineLocation, _stateMachineHost,
-											  _options.SuspendIdlePeriod, defaultOptions, securityContext, finalizer)
-			{
-				_stateMachineInterpreterFactory = default, sd = default, EventQueueWriter = default
-			};
-
-		private static XmlReaderSettings GetXmlReaderSettings(XmlNameTable nameTable, ScxmlXmlResolver xmlResolver) =>
-			new()
-			{
-				Async = true,
-				CloseInput = true,
-				NameTable = nameTable,
-				XmlResolver = xmlResolver,
-				DtdProcessing = DtdProcessing.Parse
-			};
-
-		private static XmlParserContext GetXmlParserContext(XmlNameTable nameTable, Uri? baseUri)
-		{
-			var nsManager = new XmlNamespaceManager(nameTable);
-			return new XmlParserContext(nameTable, nsManager, xmlLang: null, XmlSpace.None) { BaseURI = baseUri?.ToString() };
-		}
-
-		private IBuilderFactory GetBuilderFactory() => _options.ServiceLocator.GetService<IBuilderFactory>();
-
-		private static ScxmlDirectorOptions GetScxmlDirectorOptions(ServiceLocator serviceLocator,
-																	XmlParserContext xmlParserContext,
-																	XmlReaderSettings xmlReaderSettings,
-																	ScxmlXmlResolver xmlResolver) =>
-			new(serviceLocator)
-			{
-				NamespaceResolver = xmlParserContext.NamespaceManager,
-				XmlReaderSettings = xmlReaderSettings,
-				XmlResolver = xmlResolver,
-				XIncludeAllowed = true,
-				Async = true
-			};
-
-		private async ValueTask<IStateMachine> GetStateMachine(Uri? uri,
-															   string? scxml,
-															   ISecurityContext securityContext,
-															   IErrorProcessor errorProcessor,
-															   CancellationToken token)
-		{
-			var nameTable = new NameTable();
-			//var loggerContext = new LoadStateMachineLoggerContext(uri, scxml);
-			//var factoryContext = new FactoryContext(_options.ResourceLoaderFactories, securityContext, _options.Logger, loggerContext);
-			//TODO:
-			var xmlResolver = ServiceLocator.Default.GetService<RedirectXmlResolver>();
-			var xmlParserContext = GetXmlParserContext(nameTable, uri);
-			var xmlReaderSettings = GetXmlReaderSettings(nameTable, xmlResolver);
-			var directorOptions = GetScxmlDirectorOptions(_options.ServiceLocator, xmlParserContext, xmlReaderSettings, xmlResolver);
-
-			using var xmlReader = scxml is null
-				? XmlReader.Create(uri!.ToString(), xmlReaderSettings, xmlParserContext)
-				: XmlReader.Create(new StringReader(scxml), xmlReaderSettings, xmlParserContext);
-
-			var scxmlDirector = ServiceLocator.Default.GetService<ScxmlDirector, XmlReader>(xmlReader);
-
-			return await scxmlDirector.ConstructStateMachine().ConfigureAwait(false);
-		}
-
-		//TODO:delete
-		protected async ValueTask<(IStateMachine StateMachine, Uri? Location)> LoadStateMachine(StateMachineOrigin origin,
-																								Uri? hostBaseUri,
-																								ISecurityContext securityContext,
-																								IErrorProcessor errorProcessor,
-																								CancellationToken token)
-		{
-			var location = hostBaseUri.CombineWith(origin.BaseUri);
-
-			switch (origin.Type)
-			{
-				case StateMachineOriginType.StateMachine:
-					return (origin.AsStateMachine(), location);
-
-				case StateMachineOriginType.Scxml:
-				{
-					var stateMachine = await GetStateMachine(location, origin.AsScxml(), securityContext, errorProcessor, token).ConfigureAwait(false);
-
-					return (stateMachine, location);
-				}
-				case StateMachineOriginType.Source:
-				{
-					location = location.CombineWith(origin.AsSource());
-					var stateMachine = await GetStateMachine(location, scxml: default, securityContext, errorProcessor, token).ConfigureAwait(false);
-
-					return (stateMachine, location);
-				}
-				default:
-					throw new ArgumentException(Resources.Exception_StateMachineOriginMissed);
-			}
-		}
-
-		//TODO:remove
-		public virtual async ValueTask<StateMachineControllerBase> CreateAndAddStateMachine(ServiceLocator serviceLocator,
-																							SessionId sessionId,
-																							StateMachineOrigin origin,
-																							DataModelValue parameters,
-																							SecurityContext securityContext,
-																							DeferredFinalizer finalizer,
-=======
 		var serviceProvider = services.BuildProvider();
 		return await serviceProvider.GetRequiredService<IStateMachine>().ConfigureAwait(false);
 
@@ -397,7 +233,6 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 	protected async ValueTask<(IStateMachine StateMachine, Uri? Location)> LoadStateMachine(StateMachineOrigin origin,
 																							Uri? hostBaseUri,
 																							ISecurityContext securityContext,
->>>>>>> Stashed changes
 																							IErrorProcessor errorProcessor,
 																							CancellationToken token)
 	{
@@ -408,33 +243,7 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 			case StateMachineOriginType.StateMachine:
 				return (origin.AsStateMachine(), location);
 
-<<<<<<< Updated upstream
-			var interpreterOptions = CreateInterpreterOptions(serviceLocator, location, CreateHostData(location), errorProcessor, parameters);
-
-			stateMachine.Is<IStateMachineOptions>(out var stateMachineOptions);
-
-			return CreateStateMachineController(sessionId, stateMachine, stateMachineOptions, location, interpreterOptions, securityContext, finalizer);
-		}
-
-		protected StateMachineControllerBase AddSavedStateMachine(ServiceLocator serviceLocator, 
-																  SessionId sessionId,
-																  Uri? stateMachineLocation,
-																  IStateMachineOptions stateMachineOptions,
-																  SecurityContext securityContext,
-																  DeferredFinalizer finalizer,
-																  IErrorProcessor errorProcessor)
-		{
-			var interpreterOptions = CreateInterpreterOptions(serviceLocator, stateMachineLocation, CreateHostData(stateMachineLocation), errorProcessor);
-
-			return CreateStateMachineController(sessionId, stateMachine: default, stateMachineOptions, stateMachineLocation, interpreterOptions, securityContext, finalizer);
-		}
-
-		private static DataModelList? CreateHostData(Uri? stateMachineLocation)
-		{
-			if (stateMachineLocation is not null)
-=======
 			case StateMachineOriginType.Scxml:
->>>>>>> Stashed changes
 			{
 				var stateMachine = await GetStateMachine(location, origin.AsScxml(), securityContext, errorProcessor, token).ConfigureAwait(false);
 
@@ -494,9 +303,6 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 			return list;
 		}
 
-<<<<<<< Updated upstream
-		public void AddStateMachineController(IStateMachineController stateMachineController)
-=======
 		return null;
 	}
 
@@ -525,44 +331,28 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 		Infra.Assert(result);
 
 		if (service is StateMachineControllerBase stateMachineController)
->>>>>>> Stashed changes
 		{
 			result = _parentSessionIdBySessionId.TryAdd(stateMachineController.SessionId, sessionId);
 
 			Infra.Assert(result);
 		}
 
-<<<<<<< Updated upstream
-		public virtual ValueTask RemoveStateMachineController(IStateMachineController stateMachineController)
-=======
 		return default;
 	}
 
 	public virtual ValueTask<IService?> TryCompleteService(SessionId sessionId, InvokeId invokeId)
 	{
 		if (!_serviceByInvokeId.TryGetValue(invokeId, out var service))
->>>>>>> Stashed changes
 		{
 			return new ValueTask<IService?>((IService?) null);
 		}
 
-<<<<<<< Updated upstream
-		public virtual ValueTask<IStateMachineController?> FindStateMachineController(SessionId sessionId, CancellationToken token)
-		{
-			if (sessionId is null) throw new ArgumentNullException(nameof(sessionId));
-
-			return _stateMachineBySessionId.TryGetValue(sessionId, out var controller) ? new ValueTask<IStateMachineController?>(controller) : default;
-		}
-
-		public void ValidateSessionId(SessionId sessionId, out IStateMachineController controller)
-=======
 		if (!_serviceByInvokeId.TryUpdate(invokeId, newValue: null, service))
 		{
 			return new ValueTask<IService?>((IService?) null);
 		}
 
 		if (service is StateMachineControllerBase stateMachineController)
->>>>>>> Stashed changes
 		{
 			_parentSessionIdBySessionId.TryRemove(stateMachineController.SessionId, out _);
 		}

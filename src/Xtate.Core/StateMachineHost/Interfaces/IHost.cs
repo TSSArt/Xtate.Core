@@ -22,24 +22,12 @@ namespace Xtate.Core;
 
 public interface IHost
 {
-<<<<<<< Updated upstream
-	[PublicAPI]
-	public interface IHost
-	{
-		ValueTask<IStateMachineController> StartStateMachineAsync(SessionId sessionId,
-																  StateMachineOrigin origin,
-																  DataModelValue parameters,
-																  SecurityContextType securityContextType,
-																  DeferredFinalizer finalizer,
-																CancellationToken token);
-=======
 	ValueTask<IStateMachineController> StartStateMachineAsync(SessionId sessionId,
 															  StateMachineOrigin origin,
 															  DataModelValue parameters,
 															  SecurityContextType securityContextType,
 															  //DeferredFinalizer finalizer,
 															  CancellationToken token);
->>>>>>> Stashed changes
 
 	ValueTask DestroyStateMachine(SessionId sessionId, CancellationToken token);
 }

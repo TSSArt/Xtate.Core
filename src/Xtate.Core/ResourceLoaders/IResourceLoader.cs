@@ -17,13 +17,7 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using System;
 using System.Collections.Specialized;
-using System.Threading.Tasks;
-=======
-using System.Collections.Specialized;
->>>>>>> Stashed changes
 
 namespace Xtate.Core;
 

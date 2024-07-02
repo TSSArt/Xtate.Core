@@ -20,14 +20,8 @@
 	using System.Buffers.Binary;
 	using System.Text;
 
-<<<<<<< Updated upstream
-namespace Xtate.Persistence
-{
-	[PublicAPI]
-=======
 	namespace Xtate.Persistence;
 
->>>>>>> Stashed changes
 	public readonly struct Bucket
 	{
 		public static readonly RootType RootKey = RootType.Instance;

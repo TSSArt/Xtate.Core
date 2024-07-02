@@ -32,46 +32,6 @@ internal static class TaskExtensions
 		{
 			valueTask.AsTask().GetAwaiter().GetResult();
 		}
-<<<<<<< Updated upstream
-
-		public static ValueTask<T> WaitAsync<T>(this TaskCompletionSource<T> tcs, CancellationToken token)
-		{
-			if (tcs.Task.IsCompleted || !token.CanBeCanceled)
-			{
-				return new ValueTask<T>(tcs.Task);
-			}
-
-			if (token.IsCancellationRequested)
-			{
-				return new ValueTask<T>(Task.FromCanceled<T>(token));
-			}
-
-			return WaitAsyncLocal();
-
-			async ValueTask<T> WaitAsyncLocal()
-			{
-				await Task.WhenAny(tcs.Task, Task.Delay(millisecondsDelay: -1, token)).ConfigureAwait(false);
-
-				token.ThrowIfCancellationRequested();
-
-				return await tcs.Task.ConfigureAwait(false);
-			}
-		}
-
-		/// <summary>
-		/// Do not wait ValueTask for completion if it is not completed. Result of execution ignored.
-		/// </summary>
-		/// <param name="valueTask">Instance of ValueTask</param>
-		public static void Forget(this ValueTask valueTask) => valueTask.Preserve();
-
-		/// <summary>
-		/// Do not wait ValueTask for completion if it is not completed. Result of execution ignored.
-		/// </summary>
-		/// <typeparam name="T">Type result</typeparam>
-		/// <param name="valueTask">Instance of ValueTask</param>
-		public static void Forget<T>(this ValueTask<T> valueTask) => valueTask.Preserve();
-=======
->>>>>>> Stashed changes
 	}
 
 	public static T SynchronousGetResult<T>(this ValueTask<T> valueTask)

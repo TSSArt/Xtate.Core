@@ -19,11 +19,6 @@
 
 using System.Xml;
 using System.Xml.XPath;
-<<<<<<< Updated upstream
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-=======
->>>>>>> Stashed changes
 using Xtate.DataModel.XPath;
 
 namespace Xtate.Core.Test;
@@ -36,24 +31,8 @@ public class DataModelXPathNavigatorTest
 	[TestInitialize]
 	public void Init()
 	{
-<<<<<<< Updated upstream
-		private readonly Mock<INameTableProvider> NameTableProvider = new();
-
-		[TestInitialize]
-		public void Init()
-		{
-			NameTableProvider.Setup(n => n.GetNameTable()).Returns(new NameTable());
-		}
-
-		[TestMethod]
-		public void SimpleStringShouldBeConvertedToString_IfRootIsString()
-		{
-			// arrange
-			var v = DataModelValue.FromString("StrVal");
-=======
 		NameTableProvider.Setup(n => n.GetNameTable()).Returns(new NameTable());
 	}
->>>>>>> Stashed changes
 
 	[TestMethod]
 	public void SimpleStringShouldBeConvertedToString_IfRootIsString()

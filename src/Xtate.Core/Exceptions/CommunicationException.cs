@@ -28,20 +28,9 @@ public class CommunicationException : XtateException
 
 	public CommunicationException(string message, Exception innerException) : base(message, innerException) { }
 
-<<<<<<< Updated upstream
-		public CommunicationException(Exception innerException, SendId? sendId = default) : base(message: null, innerException) => SendId = sendId;
-
-		protected CommunicationException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-		
-		public SendId? SendId { get; }
-
-		internal object? Token { get; init; }
-	}
-=======
 	public CommunicationException(Exception innerException, SendId? sendId = default) : base(message: null, innerException) => SendId = sendId;
 
 	public SendId? SendId { get; }
 
 	internal object? Token { get; init; }
->>>>>>> Stashed changes
 }

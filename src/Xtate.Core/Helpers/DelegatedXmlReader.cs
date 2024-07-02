@@ -24,20 +24,9 @@ namespace Xtate.Core;
 
 public abstract class DelegatedXmlReader : XmlReader, IXmlLineInfo
 {
-<<<<<<< Updated upstream
-	public abstract class DelegatedXmlReader : XmlReader, IXmlLineInfo
-	{
-		protected DelegatedXmlReader(XmlReader innerReader)
-		{
-			Infra.Requires(innerReader);
-			
-			InnerReader = innerReader;
-		}
-=======
 	protected DelegatedXmlReader(XmlReader innerReader)
 	{
 		Infra.Requires(innerReader);
->>>>>>> Stashed changes
 
 		InnerReader = innerReader;
 	}

@@ -17,20 +17,6 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using System;
-using System.Threading.Tasks;
-using Xtate.Core;
-
-namespace Xtate.DataModel.Runtime;
-
-public class RuntimeActionExecutor : IExecutableEntity, IExecEvaluator
-{
-	public required RuntimeAction Action { private get; init; }
-
-	public required Func<ValueTask<RuntimeExecutionContext>> RuntimeExecutionContextFactory { private get; init; }
-
-=======
 namespace Xtate.DataModel.Runtime;
 
 public class RuntimeActionExecutor : IExecutableEntity, IExecEvaluator
@@ -41,7 +27,6 @@ public class RuntimeActionExecutor : IExecutableEntity, IExecEvaluator
 
 #region Interface IExecEvaluator
 
->>>>>>> Stashed changes
 	public async ValueTask Execute()
 	{
 		var executionContext = await RuntimeExecutionContextFactory().ConfigureAwait(false);
@@ -50,19 +35,6 @@ public class RuntimeActionExecutor : IExecutableEntity, IExecEvaluator
 
 		await Action.DoAction().ConfigureAwait(false);
 	}
-<<<<<<< Updated upstream
-}
-
-public abstract class RuntimeAction : IExecutableEntity
-{
-	public static RuntimeAction GetAction(Action action)
-	{
-		Infra.Requires(action);
-
-		return new ActionSync(action);
-	}
-
-=======
 
 #endregion
 }
@@ -76,7 +48,6 @@ public abstract class RuntimeAction : IExecutableEntity
 		return new ActionSync(action);
 	}
 
->>>>>>> Stashed changes
 	public static RuntimeAction GetAction(Func<ValueTask> action)
 	{
 		Infra.Requires(action);
@@ -86,40 +57,18 @@ public abstract class RuntimeAction : IExecutableEntity
 
 	public abstract ValueTask DoAction();
 
-<<<<<<< Updated upstream
-	private sealed class ActionSync : RuntimeAction
-	{
-		private readonly Action _action;
-		
-		public ActionSync(Action action) => _action = action;
-
-		public override ValueTask DoAction()
-		{
-			_action();
-=======
 	private sealed class ActionSync(Action action) : RuntimeAction
 	{
 		public override ValueTask DoAction()
 		{
 			action();
->>>>>>> Stashed changes
 
 			return default;
 		}
 	}
 
-<<<<<<< Updated upstream
-	private sealed class ActionAsync : RuntimeAction
-	{
-		private readonly Func<ValueTask> _action;
-		
-		public ActionAsync(Func<ValueTask> action) => _action = action;
-
-		public override ValueTask DoAction() => _action();
-=======
 	private sealed class ActionAsync(Func<ValueTask> action) : RuntimeAction
 	{
 		public override ValueTask DoAction() => action();
->>>>>>> Stashed changes
 	}
 }

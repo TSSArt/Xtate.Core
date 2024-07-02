@@ -1,10 +1,5 @@
-<<<<<<< Updated upstream
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
-=======
 ﻿// Copyright © 2019-2024 Sergii Artemenko
 // 
->>>>>>> Stashed changes
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -20,30 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-<<<<<<< Updated upstream
-#endregion
-
-using System.Collections.Immutable;
-using System.Threading.Tasks;
-using Xtate.Core;
-
-namespace Xtate.DataModel;
-
-public abstract class ForEachEvaluator : IForEach, IExecEvaluator, IAncestorProvider
-{
-	private readonly IForEach _forEach;
-
-	protected ForEachEvaluator(IForEach forEach)
-	{
-		Infra.Requires(forEach);
-
-		_forEach = forEach;
-	}
-
-#region Interface IAncestorProvider
-
-	object IAncestorProvider.Ancestor => _forEach;
-=======
 namespace Xtate.DataModel;
 
 public abstract class ForEachEvaluator(IForEach forEach) : IForEach, IExecEvaluator, IAncestorProvider
@@ -51,7 +22,6 @@ public abstract class ForEachEvaluator(IForEach forEach) : IForEach, IExecEvalua
 #region Interface IAncestorProvider
 
 	object IAncestorProvider.Ancestor => forEach;
->>>>>>> Stashed changes
 
 #endregion
 
@@ -63,60 +33,16 @@ public abstract class ForEachEvaluator(IForEach forEach) : IForEach, IExecEvalua
 
 #region Interface IForEach
 
-<<<<<<< Updated upstream
-	public virtual IValueExpression?                 Array  => _forEach.Array;
-	public virtual ILocationExpression?              Item   => _forEach.Item;
-	public virtual ILocationExpression?              Index  => _forEach.Index;
-	public virtual ImmutableArray<IExecutableEntity> Action => _forEach.Action;
-=======
 	public virtual IValueExpression?                 Array  => forEach.Array;
 	public virtual ILocationExpression?              Item   => forEach.Item;
 	public virtual ILocationExpression?              Index  => forEach.Index;
 	public virtual ImmutableArray<IExecutableEntity> Action => forEach.Action;
->>>>>>> Stashed changes
 
 #endregion
 }
 
 public class DefaultForEachEvaluator : ForEachEvaluator
 {
-<<<<<<< Updated upstream
-	public DefaultForEachEvaluator(IForEach forEach) : base(forEach)
-	{
-		Infra.NotNull(forEach.Array);
-		Infra.NotNull(forEach.Item);
-
-		ArrayEvaluator = forEach.Array.As<IArrayEvaluator>();
-		ItemEvaluator = forEach.Item.As<ILocationEvaluator>();
-		IndexEvaluator = forEach.Index?.As<ILocationEvaluator>();
-		ActionEvaluatorList = forEach.Action.AsArrayOf<IExecutableEntity, IExecEvaluator>();
-	}
-
-	public IArrayEvaluator                ArrayEvaluator      { get; }
-	public ILocationEvaluator             ItemEvaluator       { get; }
-	public ILocationEvaluator?            IndexEvaluator      { get; }
-	public ImmutableArray<IExecEvaluator> ActionEvaluatorList { get; }
-
-	public override async ValueTask Execute()
-	{
-		var array = await ArrayEvaluator.EvaluateArray().ConfigureAwait(false);
-
-		for (var i = 0; i < array.Length; i ++)
-		{
-			var instance = array[i];
-
-			await ItemEvaluator.SetValue(instance).ConfigureAwait(false);
-
-			if (IndexEvaluator is not null)
-			{
-				await IndexEvaluator.SetValue(new DefaultObject(i)).ConfigureAwait(false);
-			}
-
-			foreach (var execEvaluator in ActionEvaluatorList)
-			{
-				await execEvaluator.Execute().ConfigureAwait(false);
-			}
-=======
 	private static readonly IObject[] Indexes = new IObject[16];
 
 	private readonly ImmutableArray<IExecEvaluator> _actionEvaluatorList;
@@ -167,7 +93,6 @@ public class DefaultForEachEvaluator : ForEachEvaluator
 		foreach (var execEvaluator in _actionEvaluatorList)
 		{
 			await execEvaluator.Execute().ConfigureAwait(false);
->>>>>>> Stashed changes
 		}
 	}
 }

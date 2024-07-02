@@ -1,8 +1,4 @@
-<<<<<<< Updated upstream
-﻿#region Copyright © 2019-2021 Sergii Artemenko
-=======
 ﻿#region Copyright © 2019-2023 Sergii Artemenko
->>>>>>> Stashed changes
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,22 +17,6 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using Xtate.Core;
-
-namespace Xtate.DataModel.Runtime
-{
-	public sealed class UnknownDataModelHandler : DataModelHandlerBase
-	{
-		public required IErrorProcessorService<UnknownDataModelHandler> UnknownErrorProcessorService { private get; init; }
-
-		protected override void Visit(ref IScript script) => UnknownErrorProcessorService.AddError(script, Resources.Message_UnknownDataModel);
-
-		protected override void Visit(ref IDataModel dataModel) => UnknownErrorProcessorService.AddError(dataModel, Resources.Message_UnknownDataModel);
-
-		protected override void Visit(ref IExecutableEntity executableEntity) => UnknownErrorProcessorService.AddError(executableEntity,Resources.Message_UnknownDataModel);
-	}
-=======
 namespace Xtate.DataModel.Runtime;
 
 public sealed class UnknownDataModelHandler : DataModelHandlerBase
@@ -48,5 +28,4 @@ public sealed class UnknownDataModelHandler : DataModelHandlerBase
 	protected override void Visit(ref IDataModel dataModel) => UnknownErrorProcessorService.AddError(dataModel, Resources.Message_UnknownDataModel);
 
 	protected override void Visit(ref IExecutableEntity executableEntity) => UnknownErrorProcessorService.AddError(executableEntity, Resources.Message_UnknownDataModel);
->>>>>>> Stashed changes
 }

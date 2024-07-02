@@ -17,43 +17,10 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using System.Threading.Tasks;
-using Xtate.Core;
-=======
 namespace Xtate.DataModel.XPath;
->>>>>>> Stashed changes
 
 public class XPathExternalDataExpressionEvaluator(IExternalDataExpression externalDataExpression) : DefaultExternalDataExpressionEvaluator(externalDataExpression)
 {
-<<<<<<< Updated upstream
-	public class XPathExternalDataExpressionEvaluator : DefaultExternalDataExpressionEvaluator
-	{
-		private const string MediaTypeApplicationXml = @"application/xml";
-		private const string MediaTypeTextXml = @"text/xml";
-
-		public XPathExternalDataExpressionEvaluator(IExternalDataExpression externalDataExpression) : base(externalDataExpression) { }
-
-		public required XPathXmlParserContextFactory XPathXmlParserContextFactory { private get; init; }
-
-		protected override async ValueTask<DataModelValue> ParseToDataModel(Resource resource)
-		{
-			Infra.Requires(resource);
-
-			var mediaType = resource.ContentType?.MediaType;
-
-			if (mediaType is MediaTypeApplicationXml or MediaTypeTextXml)
-			{
-				var stream = await resource.GetStream(true).ConfigureAwait(false);
-				var context = XPathXmlParserContextFactory.CreateContext(this);
-
-				return await XmlConverter.FromXmlStreamAsync(stream, context).ConfigureAwait(false);
-			}
-
-			throw new XPathDataModelException(string.Format(Resources.Exception_Unrecognized_MediaType, mediaType));
-		}
-	}	
-=======
 	private const string MediaTypeApplicationXml = @"application/xml";
 	private const string MediaTypeTextXml        = @"text/xml";
 
@@ -73,5 +40,4 @@ public class XPathExternalDataExpressionEvaluator(IExternalDataExpression extern
 
 		throw new XPathDataModelException(string.Format(Resources.Exception_Unrecognized_MediaType, mediaType));
 	}
->>>>>>> Stashed changes
 }

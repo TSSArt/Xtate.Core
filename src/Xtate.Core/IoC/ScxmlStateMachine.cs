@@ -23,17 +23,10 @@ namespace Xtate.Core;
 
 public class ScxmlStateMachine(string scxml) : IScxmlStateMachine
 {
-<<<<<<< Updated upstream:src/Xtate.DataModel.EcmaScript/src/Xtate.DataModel.EcmaScript/EcmaScriptEngineExtensions.cs
-	internal static class EcmaScriptEngineExtensions
-	{
-		//public static EcmaScriptEngine Engine(this IExecutionContext executionContext) => EcmaScriptEngine.GetEngine(executionContext);
-	}
-=======
 
 	#region Interface IScxmlStateMachine
 
 	public TextReader CreateTextReader() => new StringReader(scxml);
 
 #endregion
->>>>>>> Stashed changes:src/Xtate.Core/src/Xtate.Core/IoC/ScxmlStateMachine.cs
 }

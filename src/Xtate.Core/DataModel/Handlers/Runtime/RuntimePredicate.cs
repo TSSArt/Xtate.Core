@@ -17,18 +17,6 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using System;
-using System.Threading.Tasks;
-
-namespace Xtate.DataModel.Runtime;
-
-public class RuntimePredicateEvaluator : IConditionExpression, IBooleanEvaluator
-{
-	public required RuntimePredicate Predicate { private get; init; }
-
-	public required Func<ValueTask<RuntimeExecutionContext>> RuntimeExecutionContextFactory { private get; init; }
-=======
 namespace Xtate.DataModel.Runtime;
 
 public class RuntimePredicateEvaluator : IConditionExpression, IBooleanEvaluator
@@ -36,7 +24,6 @@ public class RuntimePredicateEvaluator : IConditionExpression, IBooleanEvaluator
 	public required RuntimePredicate Predicate { private get; [UsedImplicitly] init; }
 
 	public required Func<ValueTask<RuntimeExecutionContext>> RuntimeExecutionContextFactory { private get; [UsedImplicitly] init; }
->>>>>>> Stashed changes
 
 #region Interface IBooleanEvaluator
 
@@ -82,24 +69,6 @@ public abstract class RuntimePredicate : IConditionExpression
 
 	public abstract ValueTask<bool> Evaluate();
 
-<<<<<<< Updated upstream
-	private sealed class EvaluatorSync : RuntimePredicate
-	{
-		private readonly Func<bool> _predicate;
-
-		public EvaluatorSync(Func<bool> predicate) => _predicate = predicate;
-
-		public override ValueTask<bool> Evaluate() => new(_predicate());
-	}
-
-	private sealed class EvaluatorAsync : RuntimePredicate
-	{
-		private readonly Func<ValueTask<bool>> _predicate;
-
-		public EvaluatorAsync(Func<ValueTask<bool>> predicate) => _predicate = predicate;
-
-		public override ValueTask<bool> Evaluate() => _predicate();
-=======
 	private sealed class EvaluatorSync(Func<bool> predicate) : RuntimePredicate
 	{
 		public override ValueTask<bool> Evaluate() => new(predicate());
@@ -108,6 +77,5 @@ public abstract class RuntimePredicate : IConditionExpression
 	private sealed class EvaluatorAsync(Func<ValueTask<bool>> predicate) : RuntimePredicate
 	{
 		public override ValueTask<bool> Evaluate() => predicate();
->>>>>>> Stashed changes
 	}
 }

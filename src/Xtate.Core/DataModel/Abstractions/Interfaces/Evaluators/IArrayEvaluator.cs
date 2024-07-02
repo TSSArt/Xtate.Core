@@ -22,13 +22,5 @@ namespace Xtate.DataModel;
 
 public interface IArrayEvaluator : IValueEvaluator
 {
-<<<<<<< Updated upstream
-	[PublicAPI]
-	public interface IArrayEvaluator : IValueEvaluator
-	{
-		ValueTask<IObject[]> EvaluateArray();
-	}
-=======
 	ValueTask<IObject[]> EvaluateArray();
->>>>>>> Stashed changes
 }

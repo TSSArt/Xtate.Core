@@ -17,23 +17,6 @@
 
 #endregion
 
-<<<<<<< Updated upstream:src/Xtate.Core/src/Xtate.Core/DataModel/Abstractions/Interfaces/IDataModelHandlerFactoryActivator.cs
-using System.Threading;
-using System.Threading.Tasks;
-using Xtate.Core;
-
-namespace Xtate.DataModel
-{
-	[PublicAPI]
-	public interface IDataModelHandlerFactoryActivator
-	{
-		ValueTask<IDataModelHandler> CreateHandler(ServiceLocator serviceLocator,
-												   string dataModelType,
-												   IErrorProcessor? errorProcessor,
-												   CancellationToken token);
-	}
-}
-=======
 global using System;
 global using System.Collections.Generic;
 global using System.Collections.Immutable;
@@ -45,4 +28,3 @@ global using System.Runtime.CompilerServices;
 global using JetBrains.Annotations;
 global using Microsoft.VisualStudio.TestTools.UnitTesting;
 global using Moq;
->>>>>>> Stashed changes:src/Xtate.Core/test/Xtate.Core.Test/GlobalUsing.cs
