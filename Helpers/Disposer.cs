@@ -1,8 +1,4 @@
-<<<<<<< Updated upstream
-﻿#region Copyright © 2019-2021 Sergii Artemenko
-=======
 ﻿#region Copyright © 2019-2023 Sergii Artemenko
->>>>>>> Stashed changes
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,48 +17,6 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
-using Xtate.Core;
-
-namespace Xtate
-{
-	public static class Disposer
-	{
-		public static bool IsDisposable<T>([NotNullWhen(true)] T instance) => instance is IDisposable or IAsyncDisposable;
-
-		public static void Dispose<T>(T instance)
-		{
-			switch (instance)
-			{
-				case IDisposable disposable:
-					disposable.Dispose();
-					break;
-
-				case IAsyncDisposable asyncDisposable:
-					asyncDisposable.DisposeAsync().SynchronousWait();
-					break;
-			}
-		}
-
-		public static ValueTask DisposeAsync<T>(T instance)
-		{
-			switch (instance)
-			{
-				case IAsyncDisposable asyncDisposable:
-					return asyncDisposable.DisposeAsync();
-
-				case IDisposable disposable:
-					disposable.Dispose();
-
-					return default;
-
-				default:
-					return default;
-			}
-=======
 namespace Xtate;
 
 public static class Disposer
@@ -95,7 +49,6 @@ public static class Disposer
 
 			default:
 				return default;
->>>>>>> Stashed changes
 		}
 	}
 }

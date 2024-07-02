@@ -21,12 +21,5 @@ namespace Xtate.Core;
 
 public interface IStateEntity : IEntity
 {
-<<<<<<< Updated upstream
-	public interface IStateEntity : IEntity
-	{
-		IIdentifier? Id { get; }
-	}
-=======
 	IIdentifier? Id { get; }
->>>>>>> Stashed changes
 }

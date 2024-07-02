@@ -26,12 +26,5 @@ public class StateMachineDestroyedException : XtateException
 
 	public StateMachineDestroyedException(string? message) : base(message) { }
 
-<<<<<<< Updated upstream
-		public StateMachineDestroyedException(string? message, Exception? innerException) : base(message, innerException) { }
-
-		protected StateMachineDestroyedException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-	}
-=======
 	public StateMachineDestroyedException(string? message, Exception? innerException) : base(message, innerException) { }
->>>>>>> Stashed changes
 }

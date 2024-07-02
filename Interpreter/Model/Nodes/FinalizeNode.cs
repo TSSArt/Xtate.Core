@@ -22,9 +22,6 @@ namespace Xtate.Core;
 
 public sealed class FinalizeNode(IFinalize finalize) : IFinalize, IStoreSupport, IAncestorProvider
 {
-<<<<<<< Updated upstream
-	public sealed class FinalizeNode : IFinalize, IStoreSupport, IAncestorProvider
-=======
 	public ImmutableArray<IExecEvaluator> ActionEvaluators { get; } = finalize.Action.AsArrayOf<IExecutableEntity, IExecEvaluator>();
 
 #region Interface IAncestorProvider
@@ -42,7 +39,6 @@ public sealed class FinalizeNode(IFinalize finalize) : IFinalize, IStoreSupport,
 #region Interface IStoreSupport
 
 	void IStoreSupport.Store(Bucket bucket)
->>>>>>> Stashed changes
 	{
 		bucket.Add(Key.TypeInfo, TypeInfo.FinalizeNode);
 		bucket.AddEntityList(Key.Action, Action);

@@ -20,23 +20,11 @@
 using System.Globalization;
 using System.IO;
 using System.Text;
-<<<<<<< Updated upstream
-using System.Threading.Tasks;
-=======
->>>>>>> Stashed changes
 
 namespace Xtate.Persistence;
 
 public class FileStorageProvider : IStorageProvider
 {
-<<<<<<< Updated upstream
-	public class FileStorageProvider : IStorageProvider
-	{
-		public required Func<Stream, ValueTask<ITransactionalStorage>> TransactionalStorageFactory { private get; init; }
-
-		private static readonly char[]   InvalidFileNameChars   = Path.GetInvalidFileNameChars();
-		private static readonly string[] InvalidCharReplacement = GetInvalidCharReplacement();
-=======
 	private static readonly char[]   InvalidFileNameChars   = Path.GetInvalidFileNameChars();
 	private static readonly string[] InvalidCharReplacement = GetInvalidCharReplacement();
 
@@ -46,7 +34,6 @@ public class FileStorageProvider : IStorageProvider
 	public FileStorageProvider(string path, string? extension = default)
 	{
 		Infra.Requires(path);
->>>>>>> Stashed changes
 
 		_path = path;
 		_extension = extension;
@@ -64,14 +51,7 @@ public class FileStorageProvider : IStorageProvider
 
 		if (!Directory.Exists(dir))
 		{
-<<<<<<< Updated upstream
-			Infra.Requires(path);
-
-			_path = path;
-			_extension = extension;
-=======
 			Directory.CreateDirectory(dir);
->>>>>>> Stashed changes
 		}
 
 		var path = Path.Combine(dir, Escape(key) + _extension);
@@ -79,57 +59,6 @@ public class FileStorageProvider : IStorageProvider
 		return await TransactionalStorageFactory(fileStream).ConfigureAwait(false);
 	}
 
-<<<<<<< Updated upstream
-		public async ValueTask<ITransactionalStorage> GetTransactionalStorage(string? partition, string key)
-		{
-			Infra.RequiresNonEmptyString(key);
-
-			var dir = !string.IsNullOrEmpty(partition) ? Path.Combine(_path, Escape(partition)) : _path;
-
-			if (!Directory.Exists(dir))
-			{
-				Directory.CreateDirectory(dir);
-			}
-
-			var path = Path.Combine(dir, Escape(key) + _extension);
-			var fileStream = new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, bufferSize: 4096, FileOptions.Asynchronous);
-			return await TransactionalStorageFactory(fileStream).ConfigureAwait(false);
-		}
-
-		public ValueTask RemoveTransactionalStorage(string? partition, string key)
-		{
-			Infra.RequiresNonEmptyString(key);
-
-			var dir = !string.IsNullOrEmpty(partition) ? Path.Combine(_path, Escape(partition)) : _path;
-			var path = Path.Combine(dir, Escape(key) + _extension);
-
-			try
-			{
-				File.Delete(path);
-			}
-			catch (FileNotFoundException)
-			{
-				// Ignore
-			}
-
-			return default;
-		}
-
-		public ValueTask RemoveAllTransactionalStorage(string? partition)
-		{
-			var path = !string.IsNullOrEmpty(partition) ? Path.Combine(_path, Escape(partition)) : _path;
-
-			try
-			{
-				Directory.Delete(path, recursive: true);
-			}
-			catch (DirectoryNotFoundException)
-			{
-				// Ignore
-			}
-
-			return default;
-=======
 	public ValueTask RemoveTransactionalStorage(string? partition, string key)
 	{
 		Infra.RequiresNonEmptyString(key);
@@ -174,7 +103,6 @@ public class FileStorageProvider : IStorageProvider
 		for (var i = 0; i < list.Length; i ++)
 		{
 			list[i] = @"_x" + ((int) InvalidFileNameChars[i]).ToString(format: @"X", CultureInfo.InvariantCulture);
->>>>>>> Stashed changes
 		}
 
 		return list;

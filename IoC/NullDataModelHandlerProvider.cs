@@ -17,26 +17,11 @@
 
 #endregion
 
-<<<<<<< Updated upstream:src/Xtate.Core/src/Xtate.Core/Interpreter/Interfaces/ICustomActionExecutor.cs
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-=======
 using Xtate.DataModel.Null;
->>>>>>> Stashed changes:src/Xtate.Core/src/Xtate.Core/IoC/NullDataModelHandlerProvider.cs
 
 namespace Xtate.Core;
 
 public class NullDataModelHandlerProvider : DataModelHandlerProviderBase<NullDataModelHandler>
 {
-<<<<<<< Updated upstream:src/Xtate.Core/src/Xtate.Core/Interpreter/Interfaces/ICustomActionExecutor.cs
-	[Obsolete]
-	public interface ICustomActionExecutor
-	{
-		[Obsolete]
-		ValueTask Execute();
-	}
-=======
 	protected override bool CanHandle(string? dataModelType) => dataModelType is null or "null";
->>>>>>> Stashed changes:src/Xtate.Core/src/Xtate.Core/IoC/NullDataModelHandlerProvider.cs
 }

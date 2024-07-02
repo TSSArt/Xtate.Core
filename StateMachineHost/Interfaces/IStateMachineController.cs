@@ -17,12 +17,6 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-=======
->>>>>>> Stashed changes
 using Xtate.Service;
 
 namespace Xtate.Core;
@@ -30,20 +24,8 @@ namespace Xtate.Core;
 //TODO: ????
 public interface IStateMachineController : IService, IAsyncDisposable
 {
-<<<<<<< Updated upstream
-	//TODO: ????
-	public interface IStateMachineController : IService, IAsyncDisposable
-	{
-		SessionId                 SessionId            { get; }
-		Uri                       StateMachineLocation { get; }
-		void                      TriggerDestroySignal();
-		ValueTask                 StartAsync(CancellationToken token);
-		ValueTask<DataModelValue> GetResult(CancellationToken token);
-	}
-=======
 	SessionId                 SessionId            { get; }
 	Uri                       StateMachineLocation { get; }
 	void                      TriggerDestroySignal();
 	ValueTask                 StartAsync(CancellationToken token);
->>>>>>> Stashed changes
 }

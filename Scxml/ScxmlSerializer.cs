@@ -17,24 +17,15 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using System;
-using System.Threading.Tasks;
-=======
->>>>>>> Stashed changes
 using System.Xml;
 
 namespace Xtate.Scxml;
 
 public class ScxmlSerializer : IScxmlSerializer
 {
-<<<<<<< Updated upstream
-	public required Func<XmlWriter, ValueTask<ScxmlSerializerWriter>> ScxmlSerializerWriterFactory { private get; init; }
-=======
 	public required Func<XmlWriter, ValueTask<ScxmlSerializerWriter>> ScxmlSerializerWriterFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IScxmlSerializer
->>>>>>> Stashed changes
 
 	public async ValueTask Serialize(IStateMachine stateMachine, XmlWriter xmlWriter)
 	{

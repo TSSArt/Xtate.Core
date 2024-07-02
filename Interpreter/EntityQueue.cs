@@ -21,13 +21,9 @@ namespace Xtate.Core;
 
 public sealed class EntityQueue<T>
 {
-<<<<<<< Updated upstream
-	public sealed class EntityQueue<T>
-=======
 	public delegate void ChangeHandler(ChangedAction action, T? entity);
 
 	public enum ChangedAction
->>>>>>> Stashed changes
 	{
 		Enqueue,
 		Dequeue

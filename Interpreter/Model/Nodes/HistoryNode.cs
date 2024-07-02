@@ -23,23 +23,13 @@ namespace Xtate.Core;
 
 public sealed class HistoryNode : StateEntityNode, IHistory, IAncestorProvider, IDebugEntityId
 {
-<<<<<<< Updated upstream
-	public sealed class HistoryNode : StateEntityNode, IHistory, IAncestorProvider, IDebugEntityId
-=======
 	private readonly IHistory _history;
 
 	public HistoryNode(DocumentIdNode documentIdNode, IHistory history) : base(documentIdNode)
->>>>>>> Stashed changes
 	{
 		Infra.NotNull(history.Transition);
 
-<<<<<<< Updated upstream
-		public HistoryNode(DocumentIdNode documentIdNode, IHistory history) : base(documentIdNode)
-		{
-			Infra.NotNull(history.Transition);
-=======
 		_history = history;
->>>>>>> Stashed changes
 
 		Id = history.Id ?? new IdentifierNode(Identifier.New());
 		Transition = history.Transition.As<TransitionNode>();

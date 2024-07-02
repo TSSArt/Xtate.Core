@@ -17,60 +17,6 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Xtate.Core;
-
-namespace Xtate.DataModel.XPath;
-
-public class XPathValueExpressionEvaluator : IValueExpression, IObjectEvaluator, IStringEvaluator, IIntegerEvaluator, IArrayEvaluator, IAncestorProvider, IDebugEntityId
-{
-	private readonly XPathCompiledExpression _compiledExpression;
-	private readonly IValueExpression        _valueExpression;
-
-	public XPathValueExpressionEvaluator(IValueExpression valueExpression, XPathCompiledExpression compiledExpression)
-	{
-		_valueExpression = valueExpression;
-		_compiledExpression = compiledExpression;
-	}
-
-	public required Func<ValueTask<XPathEngine>> EngineFactory { private get; init; }
-
-#region Interface IAncestorProvider
-
-	object IAncestorProvider.Ancestor => _valueExpression;
-
-#endregion
-
-#region Interface IArrayEvaluator
-
-	public async ValueTask<IObject[]> EvaluateArray()
-	{
-		var engine = await EngineFactory().ConfigureAwait(false);
-
-		var obj = await engine.EvalObject(_compiledExpression, stripRoots: true).ConfigureAwait(false);
-
-		var iterator = obj.AsIterator();
-
-		var list = new List<IObject>();
-
-		foreach (DataModelXPathNavigator navigator in iterator)
-		{
-			list.Add(new XPathObject(new XPathSingleElementIterator(navigator)));
-		}
-
-		return list.ToArray();
-	}
-
-#endregion
-
-#region Interface IDebugEntityId
-
-	FormattableString? IDebugEntityId.EntityId => null;
-
-=======
 namespace Xtate.DataModel.XPath;
 
 public class XPathValueExpressionEvaluator(IValueExpression valueExpression, XPathCompiledExpression compiledExpression) : IValueExpression, IObjectEvaluator, IStringEvaluator, IIntegerEvaluator, IArrayEvaluator, IAncestorProvider
@@ -103,7 +49,6 @@ public class XPathValueExpressionEvaluator(IValueExpression valueExpression, XPa
 		return [.. list];
 	}
 
->>>>>>> Stashed changes
 #endregion
 
 #region Interface IIntegerEvaluator
@@ -112,11 +57,7 @@ public class XPathValueExpressionEvaluator(IValueExpression valueExpression, XPa
 	{
 		var engine = await EngineFactory().ConfigureAwait(false);
 
-<<<<<<< Updated upstream
-		var obj = await engine.EvalObject(_compiledExpression, stripRoots: true).ConfigureAwait(false);
-=======
 		var obj = await engine.EvalObject(compiledExpression, stripRoots: true).ConfigureAwait(false);
->>>>>>> Stashed changes
 
 		return obj.AsInteger();
 	}
@@ -129,11 +70,7 @@ public class XPathValueExpressionEvaluator(IValueExpression valueExpression, XPa
 	{
 		var engine = await EngineFactory().ConfigureAwait(false);
 
-<<<<<<< Updated upstream
-		return await engine.EvalObject(_compiledExpression, stripRoots: true).ConfigureAwait(false);
-=======
 		return await engine.EvalObject(compiledExpression, stripRoots: true).ConfigureAwait(false);
->>>>>>> Stashed changes
 	}
 
 #endregion
@@ -144,11 +81,7 @@ public class XPathValueExpressionEvaluator(IValueExpression valueExpression, XPa
 	{
 		var engine = await EngineFactory().ConfigureAwait(false);
 
-<<<<<<< Updated upstream
-		var obj = await engine.EvalObject(_compiledExpression, stripRoots: true).ConfigureAwait(false);
-=======
 		var obj = await engine.EvalObject(compiledExpression, stripRoots: true).ConfigureAwait(false);
->>>>>>> Stashed changes
 
 		return obj.AsString();
 	}
@@ -157,11 +90,7 @@ public class XPathValueExpressionEvaluator(IValueExpression valueExpression, XPa
 
 #region Interface IValueExpression
 
-<<<<<<< Updated upstream
-	public string? Expression => _valueExpression.Expression;
-=======
 	public string? Expression => valueExpression.Expression;
->>>>>>> Stashed changes
 
 #endregion
 }

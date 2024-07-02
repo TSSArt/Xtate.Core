@@ -1,6 +1,3 @@
-<<<<<<< Updated upstream
-﻿using System.Xml;
-=======
 ﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
@@ -21,23 +18,11 @@
 #endregion
 
 using System.Xml;
->>>>>>> Stashed changes
 
 namespace Xtate.Core;
 
 public class NameTableProvider : INameTableProvider
 {
-<<<<<<< Updated upstream
-	private readonly NameTable _nameTable = new();
-
-	public NameTable GetNameTable() => _nameTable;
-=======
-<<<<<<<< Updated upstream:src/Xtate.Core/src/Xtate.Core/StateMachineHost/Interfaces/IFactoryContext.cs
-	public interface IFactoryContext : ILogController
-	{
-		ISecurityContext SecurityContext { get; }
-	}
-========
 	private readonly NameTable _nameTable = new();
 
 #region Interface INameTableProvider
@@ -45,6 +30,4 @@ public class NameTableProvider : INameTableProvider
 	public NameTable GetNameTable() => _nameTable;
 
 #endregion
->>>>>>>> Stashed changes:src/Xtate.Core/src/Xtate.Core/Helpers/NameTableProvider.cs
->>>>>>> Stashed changes
 }

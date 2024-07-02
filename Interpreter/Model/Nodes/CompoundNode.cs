@@ -23,11 +23,7 @@ namespace Xtate.Core;
 
 public sealed class CompoundNode : StateNode, IStoreSupport, IDebugEntityId
 {
-<<<<<<< Updated upstream
-	public sealed class CompoundNode : StateNode, IStoreSupport, IDebugEntityId
-=======
 	public CompoundNode(DocumentIdNode documentIdNode, IState state) : base(documentIdNode, state)
->>>>>>> Stashed changes
 	{
 		Infra.NotNull(base.Initial);
 	}

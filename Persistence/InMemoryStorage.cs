@@ -21,46 +21,6 @@ namespace Xtate.Persistence;
 
 public class InMemoryStorage : IStorage
 {
-<<<<<<< Updated upstream
-	public class InMemoryStorage : IStorage
-	{
-		private IMemoryOwner<byte>?                         _baselineOwner;
-		private Memory<byte>                                _buffer;
-		private List<(IMemoryOwner<byte> Owner, int Size)>? _buffers;
-		private bool                                        _disposed;
-		private IMemoryOwner<byte>?                         _owner;
-		private SortedSet<Entry>?                           _readModel;
-
-		public InMemoryStorage(ReadOnlySpan<byte> baseline) : this(false)
-		{
-			if (!baseline.IsEmpty)
-			{
-				InitFromBaseline(baseline);
-			}
-		}
-
-		private void InitFromBaseline(ReadOnlySpan<byte> baseline)
-		{
-			_baselineOwner = MemoryPool<byte>.Shared.Rent(baseline.Length);
-			var memory = _baselineOwner.Memory[..baseline.Length];
-			baseline.CopyTo(memory.Span);
-			while (!baseline.IsEmpty)
-			{
-				var keyLengthLength = Encode.GetLength(baseline[0]);
-				var keyLength = Encode.Decode(baseline[..keyLengthLength]);
-				var key = memory.Slice(keyLengthLength, keyLength);
-
-				var valueLengthLength = Encode.GetLength(baseline[keyLengthLength + keyLength]);
-				var valueLength = Encode.Decode(baseline.Slice(keyLengthLength + keyLength, valueLengthLength));
-				var value = memory.Slice(keyLengthLength + keyLength + valueLengthLength, valueLength);
-
-				AddToReadModel(key, value);
-
-				var rowSize = keyLengthLength + keyLength + valueLengthLength + valueLength;
-				baseline = baseline[rowSize..];
-				memory = memory[rowSize..];
-			}
-=======
 	private IMemoryOwner<byte>?                         _baselineOwner;
 	private Memory<byte>                                _buffer;
 	private List<(IMemoryOwner<byte> Owner, int Size)>? _buffers;
@@ -118,7 +78,6 @@ public class InMemoryStorage : IStorage
 		if (_readModel is null)
 		{
 			throw new InvalidOperationException(Resources.Exception_StorageNotAvailableForReadOperations);
->>>>>>> Stashed changes
 		}
 
 		var buffer = AllocateBuffer(key.Length, share: true);
@@ -152,27 +111,6 @@ public class InMemoryStorage : IStorage
 		}
 	}
 
-<<<<<<< Updated upstream
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing && !_disposed)
-			{
-				TruncateLog(true);
-
-				_baselineOwner?.Dispose();
-
-				_disposed = true;
-			}
-		}
-
-	#region Interface IDisposable
-
-		public void Dispose()
-		{
-			Dispose(true);
-
-			GC.SuppressFinalize(this);
-=======
 	protected virtual void Dispose(bool disposing)
 	{
 		if (disposing && !_disposed)
@@ -182,7 +120,6 @@ public class InMemoryStorage : IStorage
 			_baselineOwner?.Dispose();
 
 			_disposed = true;
->>>>>>> Stashed changes
 		}
 	}
 
@@ -219,78 +156,7 @@ public class InMemoryStorage : IStorage
 		{
 			if (value.IsEmpty)
 			{
-<<<<<<< Updated upstream
-				throw new InvalidOperationException(Resources.Exception_StorageNotAvailableForReadOperations);
-			}
-
-			var buffer = AllocateBuffer(key.Length, share: true);
-			key.CopyTo(buffer.Span);
-
-			return _readModel.TryGetValue(new Entry(buffer), out var result) ? result.Value : ReadOnlyMemory<byte>.Empty;
-		}
-
-	#endregion
-
-		private void Write(in ReadOnlySpan<byte> key, in ReadOnlySpan<byte> value)
-		{
-			var keyLengthLength = Encode.GetEncodedLength(key.Length);
-			var valueLengthLength = Encode.GetEncodedLength(value.Length);
-
-			var memory = AllocateBuffer(key.Length + value.Length + keyLengthLength + valueLengthLength);
-
-			var keyLenMemory = memory[..keyLengthLength];
-			var keyMemory = memory.Slice(keyLengthLength, key.Length);
-			var valueLenMemory = memory.Slice(keyLengthLength + key.Length, valueLengthLength);
-			var valueMemory = memory.Slice(keyLengthLength + key.Length + valueLengthLength, value.Length);
-
-			Encode.WriteEncodedValue(keyLenMemory.Span, key.Length);
-			key.CopyTo(keyMemory.Span);
-			Encode.WriteEncodedValue(valueLenMemory.Span, value.Length);
-			value.CopyTo(valueMemory.Span);
-
-			AddToReadModel(keyMemory, valueMemory);
-		}
-
-		private static SortedSet<Entry> CreateReadModel() => new();
-
-		private void AddToReadModel(in Memory<byte> key, in Memory<byte> value)
-		{
-			if (_readModel is null)
-			{
-				return;
-			}
-
-			if (key.IsEmpty)
-			{
-				if (value.IsEmpty)
-				{
-					_readModel.Clear();
-				}
-				else
-				{
-					var toDelete = new List<ReadOnlyMemory<byte>>();
-					foreach (var entry in _readModel.GetViewBetween(new Entry(value), upperValue: default))
-					{
-						if (entry.Key.Length < value.Length || !value.Span.SequenceEqual(entry.Key[..value.Length].Span))
-						{
-							break;
-						}
-
-						toDelete.Add(entry.Key);
-					}
-
-					foreach (var keyToDelete in toDelete)
-					{
-						_readModel.Remove(new Entry(keyToDelete));
-					}
-				}
-			}
-			else if (value.IsEmpty)
-			{
-				_readModel.Remove(new Entry(key));
-=======
 				_readModel.Clear();
->>>>>>> Stashed changes
 			}
 			else
 			{
@@ -311,12 +177,7 @@ public class InMemoryStorage : IStorage
 				}
 			}
 		}
-<<<<<<< Updated upstream
-
-		private Memory<byte> AllocateBuffer(int size, bool share = false)
-=======
 		else if (value.IsEmpty)
->>>>>>> Stashed changes
 		{
 			_readModel.Remove(new Entry(key));
 		}
@@ -340,11 +201,7 @@ public class InMemoryStorage : IStorage
 
 			_owner = MemoryPool<byte>.Shared.Rent();
 
-<<<<<<< Updated upstream
-			if (!share)
-=======
 			if (_owner.Memory.Length < size)
->>>>>>> Stashed changes
 			{
 				_owner.Dispose();
 				_owner = MemoryPool<byte>.Shared.Rent(size);

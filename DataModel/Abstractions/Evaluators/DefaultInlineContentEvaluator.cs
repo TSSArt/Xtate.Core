@@ -1,10 +1,5 @@
-<<<<<<< Updated upstream
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
-=======
 ﻿// Copyright © 2019-2024 Sergii Artemenko
 // 
->>>>>>> Stashed changes
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -20,29 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-<<<<<<< Updated upstream
-#endregion
-
-using System.Threading.Tasks;
-using Xtate.Core;
-
-namespace Xtate.DataModel;
-
-public abstract class InlineContentEvaluator : IInlineContent, IObjectEvaluator, IStringEvaluator, IAncestorProvider
-{
-	private readonly IInlineContent _inlineContent;
-
-	protected InlineContentEvaluator(IInlineContent inlineContent)
-	{
-		Infra.Requires(inlineContent);
-
-		_inlineContent = inlineContent;
-	}
-
-#region Interface IAncestorProvider
-
-	object IAncestorProvider.Ancestor => _inlineContent;
-=======
 namespace Xtate.DataModel;
 
 public abstract class InlineContentEvaluator(IInlineContent inlineContent) : IInlineContent, IObjectEvaluator, IStringEvaluator, IAncestorProvider
@@ -50,17 +22,12 @@ public abstract class InlineContentEvaluator(IInlineContent inlineContent) : IIn
 #region Interface IAncestorProvider
 
 	object IAncestorProvider.Ancestor => inlineContent;
->>>>>>> Stashed changes
 
 #endregion
 
 #region Interface IInlineContent
 
-<<<<<<< Updated upstream
-	public virtual string? Value => _inlineContent.Value;
-=======
 	public virtual string? Value => inlineContent.Value;
->>>>>>> Stashed changes
 
 #endregion
 
@@ -77,26 +44,6 @@ public abstract class InlineContentEvaluator(IInlineContent inlineContent) : IIn
 #endregion
 }
 
-<<<<<<< Updated upstream
-public class DefaultInlineContentEvaluator : InlineContentEvaluator
-{
-	private DataModelValue _parsedValue;
-
-	public DefaultInlineContentEvaluator(IInlineContent inlineContent) : base(inlineContent) { }
-
-	public override ValueTask<IObject> EvaluateObject()
-	{
-		if (_parsedValue.IsUndefined())
-		{
-			_parsedValue = ParseToDataModel();
-			_parsedValue.MakeDeepConstant();
-		}
-
-		return new(_parsedValue.CloneAsWritable());
-	}
-
-	protected virtual DataModelValue ParseToDataModel() => Value;
-=======
 public class DefaultInlineContentEvaluator(IInlineContent inlineContent) : InlineContentEvaluator(inlineContent)
 {
 	private DataModelValue _contentValue;
@@ -113,5 +60,4 @@ public class DefaultInlineContentEvaluator(IInlineContent inlineContent) : Inlin
 	}
 
 	protected virtual DataModelValue ParseToDataModel() => DataModelValue.FromString(base.Value);
->>>>>>> Stashed changes
 }

@@ -22,13 +22,5 @@ namespace Xtate.DataModel;
 
 public interface IExecEvaluator
 {
-<<<<<<< Updated upstream
-	[PublicAPI]
-	public interface IExecEvaluator
-	{
-		ValueTask Execute();
-	}
-=======
 	ValueTask Execute();
->>>>>>> Stashed changes
 }

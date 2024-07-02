@@ -17,46 +17,16 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using System;
-using System.Collections.Immutable;
-using Xtate.Core;
-=======
 namespace Xtate.DataModel;
->>>>>>> Stashed changes
 
 public interface IDataModelHandler
 {
-<<<<<<< Updated upstream
-	public interface IDataModelHandler
-	{
-		bool CaseInsensitive { get; }
-=======
 	bool CaseInsensitive { get; }
 
 	ImmutableDictionary<string, string> DataModelVars { get; }
->>>>>>> Stashed changes
 
 	void Process(ref IExecutableEntity executableEntity);
 
-<<<<<<< Updated upstream
-		void Process(ref IValueExpression valueExpression);
-		
-		void Process(ref ILocationExpression locationExpression);
-
-		void Process(ref IConditionExpression conditionExpression);
-		
-		void Process(ref IContentBody contentBody);
-
-		void Process(ref IInlineContent inlineContent);
-		
-		void Process(ref IExternalDataExpression externalDataExpression);
-
-		string ConvertToText(DataModelValue value);
-
-		ImmutableDictionary<string, string> DataModelVars { get; }
-	}
-=======
 	void Process(ref IValueExpression valueExpression);
 
 	void Process(ref ILocationExpression locationExpression);
@@ -70,5 +40,4 @@ public interface IDataModelHandler
 	void Process(ref IExternalDataExpression externalDataExpression);
 
 	string ConvertToText(DataModelValue value);
->>>>>>> Stashed changes
 }

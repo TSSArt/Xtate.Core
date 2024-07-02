@@ -23,14 +23,10 @@ namespace Xtate.Core;
 
 public sealed class ElseNode : IElse, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 {
-<<<<<<< Updated upstream
-	public sealed class ElseNode : IElse, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
-=======
 	private readonly IElse          _else;
 	private          DocumentIdSlot _documentIdSlot;
 
 	public ElseNode(DocumentIdNode documentIdNode, IElse @else)
->>>>>>> Stashed changes
 	{
 		documentIdNode.SaveToSlot(out _documentIdSlot);
 		_else = @else;

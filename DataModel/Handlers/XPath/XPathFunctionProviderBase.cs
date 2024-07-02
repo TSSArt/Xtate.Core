@@ -1,17 +1,3 @@
-<<<<<<< Updated upstream
-﻿using System;
-using System.Xml.Xsl;
-
-namespace Xtate.DataModel.XPath;
-
-public abstract class XPathFunctionProviderBase<TXPathFunction> : IXPathFunctionProvider where TXPathFunction : class, IXsltContextFunction
-{
-	public required Func<TXPathFunction> XPathFunctionFactory { private get; init; }
-
-#region Interface IXPathFunctionProvider
-
-	public IXsltContextFunction? TryGetFunction(string ns, string name) => CanHandle(ns, name) ? XPathFunctionFactory() : default;
-=======
 ﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
@@ -40,7 +26,6 @@ public abstract class XPathFunctionProviderBase<TXPathFunction> : IXPathFunction
 #region Interface IXPathFunctionProvider
 
 	public XPathFunctionDescriptorBase? TryGetFunction(string ns, string name) => CanHandle(ns, name) ? XPathFunctionFactory() : default;
->>>>>>> Stashed changes
 
 #endregion
 

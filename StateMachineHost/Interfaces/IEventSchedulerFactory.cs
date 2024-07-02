@@ -22,13 +22,5 @@ namespace Xtate.Core;
 
 public interface IEventSchedulerFactory
 {
-<<<<<<< Updated upstream
-	[PublicAPI]
-	public interface IEventSchedulerFactory
-	{
-		ValueTask<IEventScheduler> CreateEventScheduler(IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger? logger, CancellationToken token);
-	}
-=======
 	ValueTask<IEventScheduler> CreateEventScheduler(IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger? logger, CancellationToken token);
->>>>>>> Stashed changes
 }

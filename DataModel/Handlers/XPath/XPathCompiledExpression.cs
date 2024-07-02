@@ -17,11 +17,6 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using System;
-using System.Threading.Tasks;
-=======
->>>>>>> Stashed changes
 using System.Xml.XPath;
 using Xtate.Scxml;
 
@@ -29,36 +24,6 @@ namespace Xtate.DataModel.XPath;
 
 public class XPathCompiledExpression
 {
-<<<<<<< Updated upstream
-	public class XPathCompiledExpression
-	{
-		private readonly XPathExpression         _xPathExpression;
-		private          XPathExpressionContext? _expressionContext;
-
-		public XPathCompiledExpression(string expression,
-									   IXmlNamespacesInfo? xmlNamespacesInfo,
-									   Func<IXmlNamespacesInfo?, XPathExpressionContext> xPathExpressionContextFactory)
-		{
-			_expressionContext = xPathExpressionContextFactory(xmlNamespacesInfo);
-			_xPathExpression = XPathExpression.Compile(expression, _expressionContext);
-		}
-
-		public XPathResultType ReturnType => _xPathExpression.ReturnType;
-
-		public string Expression => _xPathExpression.Expression;
-
-		public async ValueTask<XPathExpression> GetXPathExpression()
-		{
-			if (_expressionContext is { } context)
-			{
-				await context.InitResolvers().ConfigureAwait(false);
-
-				_expressionContext = default;
-			}
-
-			return _xPathExpression;
-		}
-=======
 	private readonly XPathExpression        _xPathExpression;
 	private readonly XPathExpressionContext _expressionContext;
 
@@ -79,6 +44,5 @@ public class XPathCompiledExpression
 		await _expressionContext.EnsureInitialized().ConfigureAwait(false);
 
 		return _xPathExpression;
->>>>>>> Stashed changes
 	}
 }

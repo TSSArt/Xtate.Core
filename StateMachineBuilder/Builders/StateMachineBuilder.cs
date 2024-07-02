@@ -17,18 +17,10 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using System.Collections.Immutable;
-using Xtate.Core;
-=======
 namespace Xtate.Builder;
->>>>>>> Stashed changes
 
 public class StateMachineBuilder : BuilderBase, IStateMachineBuilder
 {
-<<<<<<< Updated upstream
-	public class StateMachineBuilder : BuilderBase, IStateMachineBuilder
-=======
 	private BindingType                           _bindingType;
 	private IDataModel?                           _dataModel;
 	private string?                               _dataModelType;
@@ -42,123 +34,9 @@ public class StateMachineBuilder : BuilderBase, IStateMachineBuilder
 #region Interface IStateMachineBuilder
 
 	public IStateMachine Build()
->>>>>>> Stashed changes
 	{
 		var initial = !_initialId.IsDefaultOrEmpty ? (IInitial) new InitialEntity { Transition = new TransitionEntity { Target = _initialId } } : null;
 
-<<<<<<< Updated upstream
-	#region Interface IStateMachineBuilder
-
-		public IStateMachine Build()
-		{
-			var initial = !_initialId.IsDefaultOrEmpty ? (IInitial) new InitialEntity { Transition = new TransitionEntity { Target = _initialId } } : null;
-
-			var ancestor = _injectOptions ? new AncestorContainer(_options, Ancestor) : Ancestor;
-
-			return new StateMachineEntity
-				   {
-					   Ancestor = ancestor, Name = _name, Initial = initial, DataModelType = _dataModelType,
-					   Binding = _bindingType, States = _states?.ToImmutable() ?? default, DataModel = _dataModel, Script = _script
-				   };
-		}
-
-		public void SetInitial(ImmutableArray<IIdentifier> initialId)
-		{
-			Infra.RequiresNonEmptyCollection(initialId);
-
-			_initialId = initialId;
-		}
-
-		public void SetName(string name)
-		{
-			Infra.RequiresNonEmptyString(name);
-
-			_name = name;
-			_options.Name = name;
-			_injectOptions = true;
-		}
-
-		public void SetBindingType(BindingType bindingType)
-		{
-			Infra.RequiresValidEnum(bindingType);
-
-			_bindingType = bindingType;
-		}
-
-		public void AddState(IState state)
-		{
-			Infra.Requires(state);
-			
-			(_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(state);
-		}
-
-		public void AddParallel(IParallel parallel)
-		{
-			Infra.Requires(parallel);
-
-			(_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(parallel);
-		}
-
-		public void AddFinal(IFinal final)
-		{
-			Infra.Requires(final);
-			
-			(_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(final);
-		}
-
-		public void SetDataModel(IDataModel dataModel)
-		{
-			Infra.Requires(dataModel);
-
-			_dataModel = dataModel;
-		}
-
-		public void SetScript(IScript script)
-		{
-			Infra.Requires(script);
-			
-			_script = script;
-		}
-
-		public void SetDataModelType(string dataModelType)
-		{
-			Infra.Requires(dataModelType);
-			
-			_dataModelType = dataModelType;
-		}
-
-		public void SetPersistenceLevel(PersistenceLevel persistenceLevel)
-		{
-			Infra.RequiresValidEnum(persistenceLevel);
-
-			_options.PersistenceLevel = persistenceLevel;
-			_injectOptions = true;
-		}
-
-		public void SetSynchronousEventProcessing(bool value)
-		{
-			_options.SynchronousEventProcessing = value;
-			_injectOptions = true;
-		}
-
-		public void SetExternalQueueSize(int size)
-		{
-			Infra.RequiresNonNegative(size);
-
-			_options.ExternalQueueSize = size;
-			_injectOptions = true;
-		}
-
-		public void SetUnhandledErrorBehaviour(UnhandledErrorBehaviour unhandledErrorBehaviour)
-		{
-			Infra.RequiresValidEnum(unhandledErrorBehaviour);
-			
-			_options.UnhandledErrorBehaviour = unhandledErrorBehaviour;
-			_injectOptions = true;
-		}
-
-	#endregion
-=======
 		var ancestor = _injectOptions ? new AncestorContainer(_options, Ancestor) : Ancestor;
 
 		return new StateMachineEntity
@@ -166,7 +44,6 @@ public class StateMachineBuilder : BuilderBase, IStateMachineBuilder
 				   Ancestor = ancestor, Name = _name, Initial = initial, DataModelType = _dataModelType,
 				   Binding = _bindingType, States = _states?.ToImmutable() ?? default, DataModel = _dataModel, Script = _script
 			   };
->>>>>>> Stashed changes
 	}
 
 	public void SetInitial(ImmutableArray<IIdentifier> initialId)

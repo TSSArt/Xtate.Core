@@ -31,22 +31,7 @@ public class OnExitBuilder : BuilderBase, IOnExitBuilder
 	{
 		Infra.Requires(action);
 
-<<<<<<< Updated upstream
-	#region Interface IOnExitBuilder
-
-		public IOnExit Build() => new OnExitEntity { Ancestor = Ancestor, Action = _actions?.ToImmutable() ?? default };
-
-		public void AddAction(IExecutableEntity action)
-		{
-			Infra.Requires(action);
-
-			(_actions ??= ImmutableArray.CreateBuilder<IExecutableEntity>()).Add(action);
-		}
-
-	#endregion
-=======
 		(_actions ??= ImmutableArray.CreateBuilder<IExecutableEntity>()).Add(action);
->>>>>>> Stashed changes
 	}
 
 #endregion

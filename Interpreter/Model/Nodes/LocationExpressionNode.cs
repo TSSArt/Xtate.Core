@@ -23,13 +23,9 @@ namespace Xtate.Core;
 
 public sealed class LocationExpressionNode : ILocationExpression, IStoreSupport, IAncestorProvider
 {
-<<<<<<< Updated upstream
-	public sealed class LocationExpressionNode : ILocationExpression, IStoreSupport, IAncestorProvider
-=======
 	private readonly ILocationExpression _locationExpression;
 
 	public LocationExpressionNode(ILocationExpression locationExpression)
->>>>>>> Stashed changes
 	{
 		Infra.NotNull(locationExpression.Expression);
 

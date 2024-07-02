@@ -21,17 +21,9 @@ namespace Xtate.Core;
 
 public interface IEventQueueReader
 {
-<<<<<<< Updated upstream:src/Xtate.Core/src/Xtate.Core/StateMachineFluentBuilder/FluentBuilderFactory.cs
-	//TODO: Delete class
-	public static class FluentBuilderFactory
-	{
-		public static StateMachineFluentBuilder Create() => ServiceLocator.Default.GetService<StateMachineFluentBuilder>();
-	}
-=======
 	bool TryReadEvent([MaybeNullWhen(false)] out IEvent evt);
 
 	ValueTask<bool> WaitToEvent();
 
 	void Complete();
->>>>>>> Stashed changes:src/Xtate.Core/src/Xtate.Core/Interpreter/Interfaces/IEventQueueReader.cs
 }

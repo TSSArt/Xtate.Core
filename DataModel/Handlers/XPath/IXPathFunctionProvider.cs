@@ -1,13 +1,3 @@
-<<<<<<< Updated upstream
-﻿using System.Xml.Xsl;
-
-namespace Xtate.DataModel.XPath;
-
-public interface IXPathFunctionProvider
-{
-	IXsltContextFunction? TryGetFunction(string ns, string name);
-}
-=======
 ﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
@@ -29,13 +19,7 @@ public interface IXPathFunctionProvider
 
 namespace Xtate.DataModel.XPath;
 
-<<<<<<<< Updated upstream:src/Xtate.DataModel.EcmaScript/src/Xtate.DataModel.EcmaScript/Properties/AssemblyAttributes.cs
-[assembly: NeutralResourcesLanguage("en-US")]
-[assembly: ServiceModule(typeof(ServiceModule))]
-========
 public interface IXPathFunctionProvider
 {
 	XPathFunctionDescriptorBase? TryGetFunction(string ns, string name);
 }
->>>>>>>> Stashed changes:src/Xtate.Core/src/Xtate.Core/DataModel/Handlers/XPath/IXPathFunctionProvider.cs
->>>>>>> Stashed changes

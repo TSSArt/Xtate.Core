@@ -22,28 +22,6 @@ namespace Xtate.Core;
 
 public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 {
-<<<<<<< Updated upstream
-	public sealed class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
-	{
-		public required Func<ValueTask<DataConverter>>      DataConverterFactory    { private get; init; }
-		public required Func<ValueTask<IInvokeController?>> InvokeControllerFactory { private get; init; }
-		public required Func<ValueTask<ILogger<IInvoke>>> LoggerFactory { private get; init; }
-
-		private readonly ICancelInvokeEvaluator _cancelInvokeEvaluator;
-		private readonly IInvoke                _invoke;
-		private readonly IStartInvokeEvaluator  _startInvokeEvaluator;
-		private          DocumentIdSlot         _documentIdSlot;
-		private          StateEntityNode?       _source;
-
-		public IObjectEvaluator?                  ContentExpressionEvaluator { get; }
-		public IValueEvaluator?                   ContentBodyEvaluator       { get; }
-		public ILocationEvaluator?                IdLocationEvaluator        { get; }
-		public ImmutableArray<ILocationEvaluator> NameEvaluatorList          { get; }
-		public ImmutableArray<DataConverter.Param>          ParameterList              { get; }
-		public IStringEvaluator?                  SourceExpressionEvaluator  { get; }
-		public IStringEvaluator?                  TypeExpressionEvaluator    { get; }
-
-=======
 	private readonly IValueEvaluator?                    _contentBodyEvaluator;
 	private readonly IObjectEvaluator?                   _contentExpressionEvaluator;
 	private readonly ILocationEvaluator?                 _idLocationEvaluator;
@@ -58,7 +36,6 @@ public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId
 	public InvokeNode(DocumentIdNode documentIdNode, IInvoke invoke)
 	{
 		_invoke = invoke;
->>>>>>> Stashed changes
 
 		documentIdNode.SaveToSlot(out _documentIdSlot);
 
@@ -146,35 +123,7 @@ public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId
 
 		if (_idLocationEvaluator is not null)
 		{
-<<<<<<< Updated upstream
-			Infra.Requires(invoke);
-
-			documentIdNode.SaveToSlot(out _documentIdSlot);
-			
-			_invoke = invoke;
-
-			Finalize = invoke.Finalize?.As<FinalizeNode>();
-			
-			TypeExpressionEvaluator = invoke.TypeExpression?.As<IStringEvaluator>();
-			SourceExpressionEvaluator = invoke.SourceExpression?.As<IStringEvaluator>();
-			ContentExpressionEvaluator = invoke.Content?.Expression?.As<IObjectEvaluator>();
-			ContentBodyEvaluator = invoke.Content?.Body?.As<IValueEvaluator>();
-			IdLocationEvaluator = invoke.IdLocation?.As<ILocationEvaluator>();
-			NameEvaluatorList = invoke.NameList.AsArrayOf<ILocationExpression, ILocationEvaluator>();
-			ParameterList = DataConverter.AsParamArray(invoke.Parameters);
-			//TODO: delete
-			/*
-			var startInvokeEvaluator = invoke.As<IStartInvokeEvaluator>();
-			Infra.NotNull(startInvokeEvaluator);
-			_startInvokeEvaluator = startInvokeEvaluator;
-
-			var cancelInvokeEvaluator = invoke.As<ICancelInvokeEvaluator>();
-			Infra.NotNull(cancelInvokeEvaluator);
-			_cancelInvokeEvaluator = cancelInvokeEvaluator;
-			*/
-=======
 			await _idLocationEvaluator.SetValue(InvokeId).ConfigureAwait(false);
->>>>>>> Stashed changes
 		}
 
 		var type = _typeExpressionEvaluator is not null ? ToUri(await _typeExpressionEvaluator.EvaluateString().ConfigureAwait(false)) : _invoke.Type;
@@ -206,65 +155,6 @@ public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId
 
 	private static Uri ToUri(string uri) => new(uri, UriKind.RelativeOrAbsolute);
 
-<<<<<<< Updated upstream
-		public void SetSource(StateEntityNode source) => _source = source;
-		
-		public async ValueTask Start()
-		{
-			Infra.NotNull(_source, Resources.Exception_SourceNotInitialized);
-
-			InvokeId = InvokeId.New(_source.Id, _invoke.Id);
-
-			if (IdLocationEvaluator is not null)
-			{
-				await IdLocationEvaluator.SetValue(InvokeId).ConfigureAwait(false);
-			}
-
-			var type = TypeExpressionEvaluator is not null ? ToUri(await TypeExpressionEvaluator.EvaluateString().ConfigureAwait(false)) : _invoke.Type;
-			var source = SourceExpressionEvaluator is not null ? ToUri(await SourceExpressionEvaluator.EvaluateString().ConfigureAwait(false)) : _invoke.Source;
-
-			var rawContent = ContentBodyEvaluator is IStringEvaluator rawContentEvaluator ? await rawContentEvaluator.EvaluateString().ConfigureAwait(false) : null;
-
-			var dataConverter = await DataConverterFactory().ConfigureAwait(false);
-			var content = await dataConverter.GetContent(ContentBodyEvaluator, ContentExpressionEvaluator).ConfigureAwait(false);
-			var parameters = await dataConverter.GetParameters(NameEvaluatorList, ParameterList).ConfigureAwait(false);
-
-			Infra.NotNull(type);
-
-			var invokeData = new InvokeData(InvokeId, type)
-							 {
-								 Source = source,
-								 RawContent = rawContent,
-								 Content = content,
-								 Parameters = parameters
-							 };
-
-			var logger = await LoggerFactory().ConfigureAwait(false);
-			await logger.Write(Level.Trace, $@"Start invoke. InvokeId: [{InvokeId}]", invokeData).ConfigureAwait(false);
-
-			if (await InvokeControllerFactory().ConfigureAwait(false) is { } invokeController)
-			{
-				await invokeController.Start(invokeData).ConfigureAwait(false);
-			}
-		}
-
-		private static Uri ToUri(string uri) => new(uri, UriKind.RelativeOrAbsolute);
-
-		public async ValueTask Cancel()
-		{
-			var logger = await LoggerFactory().ConfigureAwait(false);
-			await logger.Write(Level.Trace, $@"Cancel invoke. InvokeId: [{InvokeId}]", InvokeId).ConfigureAwait(false);
-
-			var tmpInvokeId = InvokeId;
-			InvokeId = default;
-
-			if (tmpInvokeId is not null)
-			{
-				if (await InvokeControllerFactory().ConfigureAwait(false) is { } invokeController)
-				{
-					await invokeController.Cancel(tmpInvokeId).ConfigureAwait(false);
-				}
-=======
 	public async ValueTask Cancel()
 	{
 		var logger = await LoggerFactory().ConfigureAwait(false);
@@ -278,7 +168,6 @@ public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId
 			if (await InvokeControllerFactory().ConfigureAwait(false) is { } invokeController)
 			{
 				await invokeController.Cancel(tmpInvokeId).ConfigureAwait(false);
->>>>>>> Stashed changes
 			}
 		}
 	}

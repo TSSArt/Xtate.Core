@@ -23,9 +23,6 @@ namespace Xtate.Core;
 
 public class StateMachineRuntimeController : StateMachineControllerBase
 {
-<<<<<<< Updated upstream
-	public class StateMachineRuntimeController : StateMachineControllerBase
-=======
 	private static readonly UnboundedChannelOptions UnboundedSynchronousChannelOptions  = new() { SingleReader = true, AllowSynchronousContinuations = true };
 	private static readonly UnboundedChannelOptions UnboundedAsynchronousChannelOptions = new() { SingleReader = true, AllowSynchronousContinuations = false };
 
@@ -44,7 +41,6 @@ public class StateMachineRuntimeController : StateMachineControllerBase
 										 TimeSpan? idlePeriod,
 										 InterpreterOptions defaultOptions)
 		: base(sessionId, options, stateMachine, stateMachineLocation, stateMachineHost, defaultOptions)
->>>>>>> Stashed changes
 	{
 		_idlePeriod = idlePeriod;
 
@@ -62,20 +58,6 @@ public class StateMachineRuntimeController : StateMachineControllerBase
 	{
 		_idlePeriod = idlePeriod?.IdlePeriod;
 
-<<<<<<< Updated upstream
-		//TODO:delete
-		[Obsolete]
-		public StateMachineRuntimeController(SessionId sessionId,
-											 IStateMachineOptions? options,
-											 IStateMachine? stateMachine,
-											 Uri? stateMachineLocation,
-											 IStateMachineHost stateMachineHost,
-											 TimeSpan? idlePeriod,
-											 InterpreterOptions defaultOptions,
-											 ISecurityContext securityContext,
-											 DeferredFinalizer finalizer)
-			: base(sessionId, options, stateMachine, stateMachineLocation, stateMachineHost, defaultOptions, securityContext, finalizer)
-=======
 		EventChannel = CreateChannel(options);
 	}
 
@@ -84,33 +66,12 @@ public class StateMachineRuntimeController : StateMachineControllerBase
 	private static Channel<IEvent> CreateChannel(IStateMachineOptions? options)
 	{
 		if (options is null)
->>>>>>> Stashed changes
 		{
 			return Channel.CreateUnbounded<IEvent>(UnboundedAsynchronousChannelOptions);
 		}
 
-<<<<<<< Updated upstream
-		public StateMachineRuntimeController(IStateMachineStartOptions stateMachineStartOptions,
-											 IStateMachineSessionId sessionId,
-											 IStateMachineOptions? options,
-											 IStateMachine? stateMachine,
-											 IStateMachineLocation? stateMachineLocation,
-											 IStateMachineHost stateMachineHost,
-											 IStateMachineIdlePeriod? idlePeriod,
-											 /* IStateMachineInterpreterOptions defaultOptions, */
-											 ISecurityContext securityContext)
-			: base(stateMachineStartOptions.SessionId, options, stateMachine, stateMachineLocation?.Location, stateMachineHost,/* defaultOptions.options*/new InterpreterOptions(ServiceLocator.Default), securityContext, null)
-		{
-			_idlePeriod = idlePeriod?.IdlePeriod;
-
-			EventChannel = CreateChannel(options);
-		}
-
-		protected override Channel<IEvent> EventChannel { get; }
-=======
 		var sync = options.SynchronousEventProcessing ?? false;
 		var queueSize = options.ExternalQueueSize ?? 0;
->>>>>>> Stashed changes
 
 		if (options.IsStateMachinePersistable() || queueSize <= 0)
 		{
@@ -132,22 +93,6 @@ public class StateMachineRuntimeController : StateMachineControllerBase
 		}
 	}
 
-<<<<<<< Updated upstream
-	public interface IStateMachineIdlePeriod
-	{
-		TimeSpan? IdlePeriod { get; }
-	}
-
-	public interface IStateMachineLocation
-	{
-		Uri Location { get; }
-	}
-
-	public interface IStateMachineSessionId
-	{
-		SessionId SessionId { get; }
-	}
-=======
 	protected override ValueTask DisposeAsyncCore()
 	{
 		_suspendTokenSource?.Dispose();
@@ -191,5 +136,4 @@ public interface IStateMachineLocation
 public interface IStateMachineSessionId
 {
 	SessionId SessionId { get; }
->>>>>>> Stashed changes
 }

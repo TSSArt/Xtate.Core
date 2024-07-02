@@ -60,18 +60,6 @@ public static class AncestorProviderExtensions
 					return false;
 			}
 		}
-<<<<<<< Updated upstream
-
-		public static ImmutableArray<TDestination> AsArrayOf<TSource, TDestination>(this ImmutableArray<TSource> array, bool emptyArrayIfDefault = false)
-		{
-			if (array.IsDefault)
-			{
-				return emptyArrayIfDefault ? ImmutableArray<TDestination>.Empty : default;
-			}
-
-			return ImmutableArray.CreateRange(array, item => item is not null ? item.As<TDestination>() : default!);
-		}
-=======
 	}
 
 	public static ImmutableArray<TDestination> AsArrayOf<TSource, TDestination>(this ImmutableArray<TSource> array, bool emptyArrayIfDefault = false) where TDestination : notnull
@@ -82,6 +70,5 @@ public static class AncestorProviderExtensions
 		}
 
 		return ImmutableArray.CreateRange(array, item => item is not null ? item.As<TDestination>() : default!);
->>>>>>> Stashed changes
 	}
 }

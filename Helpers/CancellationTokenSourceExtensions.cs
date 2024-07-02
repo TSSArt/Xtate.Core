@@ -17,23 +17,10 @@
 
 #if !NET8_0
 
-<<<<<<< Updated upstream:src/Xtate.Core/src/Xtate.Core/DataModel/Abstractions/Interfaces/IDataModelHandlerFactory.cs
-using System.Threading;
-using System.Threading.Tasks;
-=======
 namespace Xtate.Core;
->>>>>>> Stashed changes:src/Xtate.Core/src/Xtate.Core/Helpers/CancellationTokenSourceExtensions.cs
 
 public static class CancellationTokenSourceExtensions
 {
-<<<<<<< Updated upstream:src/Xtate.Core/src/Xtate.Core/DataModel/Abstractions/Interfaces/IDataModelHandlerFactory.cs
-	//TODO:delete
-	public interface IDataModelHandlerFactory1
-	{
-		ValueTask<IDataModelHandlerFactoryActivator?> TryGetActivator(ServiceLocator serviceLocator, string dataModelType, CancellationToken token);
-	}
-}
-=======
 	public static Task CancelAsync(this CancellationTokenSource cancellationTokenSource) =>
 		!cancellationTokenSource.IsCancellationRequested
 			? Task.Run(cancellationTokenSource.Cancel)
@@ -41,4 +28,3 @@ public static class CancellationTokenSourceExtensions
 }
 
 #endif
->>>>>>> Stashed changes:src/Xtate.Core/src/Xtate.Core/Helpers/CancellationTokenSourceExtensions.cs

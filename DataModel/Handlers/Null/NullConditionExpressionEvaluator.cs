@@ -1,8 +1,4 @@
-<<<<<<< Updated upstream
-﻿#region Copyright © 2019-2021 Sergii Artemenko
-=======
 ﻿#region Copyright © 2019-2023 Sergii Artemenko
->>>>>>> Stashed changes
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,59 +17,6 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using System;
-using System.Threading.Tasks;
-using Xtate.Core;
-
-namespace Xtate.DataModel.Null
-{
-	public sealed class NullConditionExpressionEvaluator : IConditionExpression, IBooleanEvaluator, IAncestorProvider, IDebugEntityId
-	{
-		private readonly IConditionExpression _conditionExpression;
-		private readonly IIdentifier          _inState;
-
-		public required Func<ValueTask<IInStateController?>> InStateControllerFactory { private get; init; }
-
-		public NullConditionExpressionEvaluator(IConditionExpression conditionExpression, IIdentifier inState)
-		{
-			_conditionExpression = conditionExpression;
-			_inState = inState;
-		}
-
-	#region Interface IAncestorProvider
-
-		object IAncestorProvider.Ancestor => _conditionExpression;
-
-	#endregion
-
-	#region Interface IBooleanEvaluator
-
-		async ValueTask<bool> IBooleanEvaluator.EvaluateBoolean()
-		{
-			if (await InStateControllerFactory().ConfigureAwait(false) is { } inStateController)
-			{
-				return inStateController.InState(_inState);
-			}
-
-			return false;
-		}
-
-	#endregion
-
-	#region Interface IConditionExpression
-
-		public string? Expression => _conditionExpression.Expression;
-
-	#endregion
-
-	#region Interface IDebugEntityId
-
-		FormattableString IDebugEntityId.EntityId => @$"{_inState}";
-
-	#endregion
-	}
-=======
 namespace Xtate.DataModel.Null;
 
 public sealed class NullConditionExpressionEvaluator(IConditionExpression conditionExpression, IIdentifier inState) : IConditionExpression, IBooleanEvaluator, IAncestorProvider
@@ -105,5 +48,4 @@ public sealed class NullConditionExpressionEvaluator(IConditionExpression condit
 	public string? Expression => conditionExpression.Expression;
 
 #endregion
->>>>>>> Stashed changes
 }

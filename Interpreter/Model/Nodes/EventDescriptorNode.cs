@@ -23,9 +23,6 @@ namespace Xtate.Core;
 
 public sealed class EventDescriptorNode(IEventDescriptor eventDescriptor) : IEventDescriptor, IStoreSupport, IAncestorProvider, IDebugEntityId
 {
-<<<<<<< Updated upstream
-	public sealed class EventDescriptorNode : IEventDescriptor, IStoreSupport, IAncestorProvider, IDebugEntityId
-=======
 
 #region Interface IAncestorProvider
 
@@ -50,7 +47,6 @@ public sealed class EventDescriptorNode(IEventDescriptor eventDescriptor) : IEve
 #region Interface IStoreSupport
 
 	void IStoreSupport.Store(Bucket bucket)
->>>>>>> Stashed changes
 	{
 		bucket.Add(Key.TypeInfo, TypeInfo.EventDescriptorNode);
 		bucket.Add(Key.Id, eventDescriptor.Value);

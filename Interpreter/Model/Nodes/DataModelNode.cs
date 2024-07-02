@@ -23,14 +23,10 @@ namespace Xtate.Core;
 
 public sealed class DataModelNode : IDataModel, IStoreSupport, IAncestorProvider, IDocumentId
 {
-<<<<<<< Updated upstream
-	public sealed class DataModelNode : IDataModel, IStoreSupport, IAncestorProvider, IDocumentId
-=======
 	private readonly IDataModel     _dataModel;
 	private          DocumentIdSlot _documentIdSlot;
 
 	public DataModelNode(DocumentIdNode documentIdNode, IDataModel dataModel)
->>>>>>> Stashed changes
 	{
 		documentIdNode.SaveToSlot(out _documentIdSlot);
 		_dataModel = dataModel;

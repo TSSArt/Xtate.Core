@@ -17,90 +17,12 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using System;
-using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
-using Xtate.Core;
-=======
->>>>>>> Stashed changes
 using Xtate.DataModel.Runtime;
 
 namespace Xtate.Builder;
 
 public class FinalFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 {
-<<<<<<< Updated upstream
-	public class FinalFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
-	{
-		public required IFinalBuilder  Builder      { private get; init; }
-		public required Action<IFinal> BuiltAction  { private get; init; }
-		public required TOuterBuilder  OuterBuilder { private get; init; }
-
-		public required Func<IContentBuilder>  ContentBuilderFactory  { private get; init; }
-		public required Func<IDoneDataBuilder> DoneDataBuilderFactory { private get; init; }
-
-		[return: NotNull]
-		public TOuterBuilder EndFinal()
-		{
-			BuiltAction(Builder.Build());
-
-			return OuterBuilder;
-		}
-
-		public FinalFluentBuilder<TOuterBuilder> SetId(string id) => SetId((Identifier) id);
-
-		public FinalFluentBuilder<TOuterBuilder> SetId(IIdentifier id)
-		{
-			Infra.Requires(id);
-
-			Builder.SetId(id);
-
-			return this;
-		}
-
-		private FinalFluentBuilder<TOuterBuilder> SetDoneData(IValueExpression evaluator)
-		{
-			var contentBuilder = ContentBuilderFactory();
-			contentBuilder.SetExpression(evaluator);
-
-			var doneData = DoneDataBuilderFactory();
-			doneData.SetContent(contentBuilder.Build());
-
-			Builder.SetDoneData(doneData.Build());
-
-			return this;
-		}
-
-		public FinalFluentBuilder<TOuterBuilder> SetDoneDataValue(DataModelValue value) => SetDoneData(RuntimeValue.GetValue(value));
-
-		public FinalFluentBuilder<TOuterBuilder> SetDoneDataFunc(Func<DataModelValue> evaluator) => SetDoneData(RuntimeValue.GetValue(evaluator));
-
-		public FinalFluentBuilder<TOuterBuilder> SetDoneDataFuncAsync(Func<ValueTask<DataModelValue>> evaluator) => SetDoneData(RuntimeValue.GetValue(evaluator));
-
-		private FinalFluentBuilder<TOuterBuilder> AddOnEntry(IExecutableEntity action)
-		{
-			Builder.AddOnEntry(new OnEntryEntity { Action = ImmutableArray.Create(action) });
-
-			return this;
-		}
-
-		public FinalFluentBuilder<TOuterBuilder> AddOnEntry(Action action) => AddOnEntry(RuntimeAction.GetAction(action));
-
-		public FinalFluentBuilder<TOuterBuilder> AddOnEntryAsync(Func<ValueTask> action) => AddOnEntry(RuntimeAction.GetAction(action));
-
-		private FinalFluentBuilder<TOuterBuilder> AddOnExit(IExecutableEntity action)
-		{
-			Builder.AddOnExit(new OnExitEntity { Action = ImmutableArray.Create(action) });
-
-			return this;
-		}
-
-		public FinalFluentBuilder<TOuterBuilder> AddOnExit(Action action) => AddOnExit(RuntimeAction.GetAction(action));
-
-		public FinalFluentBuilder<TOuterBuilder> AddOnExitAsync(Func<ValueTask> action) => AddOnExit(RuntimeAction.GetAction(action));
-=======
 	public required IFinalBuilder  Builder      { private get; [UsedImplicitly] init; }
 	public required Action<IFinal> BuiltAction  { private get; [UsedImplicitly] init; }
 	public required TOuterBuilder  OuterBuilder { private get; [UsedImplicitly] init; }
@@ -113,7 +35,6 @@ public class FinalFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 		BuiltAction(Builder.Build());
 
 		return OuterBuilder;
->>>>>>> Stashed changes
 	}
 
 	public FinalFluentBuilder<TOuterBuilder> SetId(string id) => SetId((Identifier) id);

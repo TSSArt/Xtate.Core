@@ -17,12 +17,7 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
-=======
 namespace Xtate;
->>>>>>> Stashed changes
 
 
 public enum SecurityContextType
@@ -33,21 +28,6 @@ public enum SecurityContextType
 	InvokedService
 }
 
-<<<<<<< Updated upstream
-	public interface IIoBoundTask
-	{
-		TaskFactory Factory { get; }
-	}
-
-	public class DefaultIoBoundTask : IIoBoundTask
-	{
-		public TaskFactory Factory => new(TaskScheduler.Default);
-	}
-
-	public interface ISecurityContext : IIoBoundTask
-	{
-		ISecurityContext CreateNested(SecurityContextType type);
-=======
 public interface IIoBoundTask
 {
 	TaskFactory Factory { get; }
@@ -56,7 +36,6 @@ public interface IIoBoundTask
 public class DefaultIoBoundTask : IIoBoundTask
 {
 #region Interface IIoBoundTask
->>>>>>> Stashed changes
 
 	public TaskFactory Factory => new(TaskScheduler.Default);
 

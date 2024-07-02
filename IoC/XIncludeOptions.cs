@@ -17,13 +17,6 @@
 
 #endregion
 
-<<<<<<<< Updated upstream:src/Xtate.MidCustomAction/MidCustomActionProvider.cs
-using System;
-
-namespace Xtate.CustomAction
-{
-	public class MidCustomActionProvider() : CustomActionProvider<StorageAction>("http://xtate.net/scxml/customaction/mid", "storage") { }
-========
 using Xtate.XInclude;
 
 namespace Xtate.Core;
@@ -36,5 +29,4 @@ public class XIncludeOptions : IXIncludeOptions
 	public int  MaxNestingLevel => 10;
 
 #endregion
->>>>>>>> Stashed changes:src/Xtate.Core/src/Xtate.Core/IoC/XIncludeOptions.cs
 }

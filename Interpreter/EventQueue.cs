@@ -1,8 +1,4 @@
-<<<<<<< Updated upstream
-﻿#region Copyright © 2019-2022 Sergii Artemenko
-=======
 ﻿#region Copyright © 2019-2023 Sergii Artemenko
->>>>>>> Stashed changes
 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,13 +17,7 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Channels;
-using System.Threading.Tasks;
-=======
-using System.Threading.Channels;
->>>>>>> Stashed changes
 
 namespace Xtate.Core;
 
@@ -35,20 +25,14 @@ public class EventQueue : IEventQueueReader, IEventQueueWriter
 {
 	private readonly Channel<IEvent> _channel = Channel.CreateUnbounded<IEvent>();
 
-<<<<<<< Updated upstream
-=======
 #region Interface IEventQueueReader
 
->>>>>>> Stashed changes
 	public bool TryReadEvent([MaybeNullWhen(false)] out IEvent evt) => _channel.Reader.TryRead(out evt);
 
 	public ValueTask<bool> WaitToEvent() => _channel.Reader.WaitToReadAsync();
 
 	public void Complete() => _channel.Writer.TryComplete();
 
-<<<<<<< Updated upstream
-	public ValueTask WriteAsync(IEvent evt) => _channel.Writer.WriteAsync(evt);
-=======
 #endregion
 
 #region Interface IEventQueueWriter
@@ -56,5 +40,4 @@ public class EventQueue : IEventQueueReader, IEventQueueWriter
 	public ValueTask WriteAsync(IEvent evt) => _channel.Writer.WriteAsync(evt);
 
 #endregion
->>>>>>> Stashed changes
 }

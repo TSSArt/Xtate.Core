@@ -24,20 +24,6 @@ namespace Xtate.Core;
 
 public static class ResourceLoaderExtensions
 {
-<<<<<<< Updated upstream
-	public static void RegisterResource(this IServiceCollection services)
-	{
-		if (services.IsRegistered<Resource, Stream>())
-		{
-			return;
-		}
-
-		services.AddSharedImplementation<DefaultIoBoundTask>(SharedWithin.Scope).For<IIoBoundTask>();
-		services.AddTypeSync<Resource, Stream>();
-	}
-
-=======
->>>>>>> Stashed changes
 	public static void RegisterResourceLoaders(this IServiceCollection services)
 	{
 		if (services.IsRegistered<ResourceLoaderService>())
@@ -52,9 +38,6 @@ public static class ResourceLoaderExtensions
 		services.AddImplementation<ResourceLoaderService>().For<ResourceLoaderService>().For<IResourceLoader>();
 	}
 
-<<<<<<< Updated upstream
-	public static void RegisterFileResourceLoader(this IServiceCollection services)
-=======
 	private static void RegisterResource(this IServiceCollection services)
 	{
 		if (services.IsRegistered<Resource, Stream>())
@@ -67,7 +50,6 @@ public static class ResourceLoaderExtensions
 	}
 
 	private static void RegisterFileResourceLoader(this IServiceCollection services)
->>>>>>> Stashed changes
 	{
 		if (services.IsRegistered<FileResourceLoader>())
 		{
@@ -79,11 +61,7 @@ public static class ResourceLoaderExtensions
 		services.AddImplementation<FileResourceLoader>().For<FileResourceLoader>().For<IResourceLoader>();
 	}
 
-<<<<<<< Updated upstream
-	public static void RegisterResxResourceLoader(this IServiceCollection services)
-=======
 	private static void RegisterResxResourceLoader(this IServiceCollection services)
->>>>>>> Stashed changes
 	{
 		if (services.IsRegistered<ResxResourceLoader>())
 		{
@@ -95,11 +73,7 @@ public static class ResourceLoaderExtensions
 		services.AddImplementation<ResxResourceLoader>().For<ResxResourceLoader>().For<IResourceLoader>();
 	}
 
-<<<<<<< Updated upstream
-	public static void RegisterWebResourceLoader(this IServiceCollection services)
-=======
 	private static void RegisterWebResourceLoader(this IServiceCollection services)
->>>>>>> Stashed changes
 	{
 		if (services.IsRegistered<WebResourceLoader>())
 		{

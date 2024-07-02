@@ -32,29 +32,7 @@ public class DoneDataBuilder : BuilderBase, IDoneDataBuilder
 	{
 		Infra.Requires(content);
 
-<<<<<<< Updated upstream
-	#region Interface IDoneDataBuilder
-
-		public IDoneData Build() => new DoneDataEntity { Ancestor = Ancestor, Content = _content, Parameters = _parameters?.ToImmutable() ?? default };
-
-		public void SetContent(IContent content)
-		{
-			Infra.Requires(content);
-			
-			_content = content;
-		}
-
-		public void AddParameter(IParam parameter)
-		{
-			Infra.Requires(parameter);
-			
-			(_parameters ??= ImmutableArray.CreateBuilder<IParam>()).Add(parameter);
-		}
-
-	#endregion
-=======
 		_content = content;
->>>>>>> Stashed changes
 	}
 
 	public void AddParameter(IParam parameter)

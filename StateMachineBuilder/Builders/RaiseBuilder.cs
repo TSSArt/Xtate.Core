@@ -31,22 +31,7 @@ public class RaiseBuilder : BuilderBase, IRaiseBuilder
 	{
 		Infra.Requires(outgoingEvent);
 
-<<<<<<< Updated upstream
-	#region Interface IRaiseBuilder
-
-		public IRaise Build() => new RaiseEntity { OutgoingEvent = _outgoingEvent };
-
-		public void SetEvent(IOutgoingEvent outgoingEvent)
-		{
-			Infra.Requires(outgoingEvent);
-			
-			_outgoingEvent = outgoingEvent;
-		}
-
-	#endregion
-=======
 		_outgoingEvent = outgoingEvent;
->>>>>>> Stashed changes
 	}
 
 #endregion

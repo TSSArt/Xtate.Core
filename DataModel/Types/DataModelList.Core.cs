@@ -77,34 +77,9 @@ public sealed partial class DataModelList
 		}
 	}
 
-<<<<<<< Updated upstream
-		private const int CaseInsensitiveBit = 0x10;
-		private const int AccessMask         = 0xF;
-		private const int AccessConstant     = (int) DataModelAccess.Constant;
-		private const int AccessReadOnly     = (int) DataModelAccess.ReadOnly;
-
-		public static readonly DataModelList Empty = new(DataModelAccess.Constant);
-
-		private static readonly ValueAdapter        ValueAdapterInstance        = new();
-		private static readonly KeyValueAdapter     KeyValueAdapterInstance     = new();
-		private static readonly MetaValueAdapter    MetaValueAdapterInstance    = new();
-		private static readonly KeyMetaValueAdapter KeyMetaValueAdapterInstance = new();
-
-		private Array          _array;
-		private int            _count;
-		private int            _flags;
-		private DataModelList? _metadata;
-
-		public DataModelList() : this(DataModelAccess.Writable) { }
-
-		public DataModelList(bool caseInsensitive) : this(DataModelAccess.Writable, caseInsensitive) { }
-
-		internal DataModelList(DataModelAccess access, bool caseInsensitive = false)
-=======
 	public bool HasKeys
 	{
 		get
->>>>>>> Stashed changes
 		{
 			if (_count == 0 || _array.Length == 0)
 			{

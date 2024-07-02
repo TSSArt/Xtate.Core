@@ -26,12 +26,5 @@ public class StateMachineUnhandledErrorException : XtateException
 
 	public StateMachineUnhandledErrorException(string? message) : base(message) { }
 
-<<<<<<< Updated upstream
-		public StateMachineUnhandledErrorException(string? message, Exception? innerException) : base(message, innerException) { }
-
-		protected StateMachineUnhandledErrorException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-	}
-=======
 	public StateMachineUnhandledErrorException(string? message, Exception? innerException) : base(message, innerException) { }
->>>>>>> Stashed changes
 }

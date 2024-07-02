@@ -17,31 +17,13 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using System;
-using System.Threading.Tasks;
 using System.Xml;
-using Xtate.Core;
-=======
-using System.Xml;
->>>>>>> Stashed changes
 using Xtate.XInclude;
 
 namespace Xtate.Scxml;
 
 public class ScxmlDeserializer : IScxmlDeserializer
 {
-<<<<<<< Updated upstream
-	public required Func<XmlReader, ValueTask<ScxmlDirector>>  ScxmlDirectorFactory  { private get; init; }
-	public required Func<XmlReader, ValueTask<XIncludeReader>> XIncludeReaderFactory { private get; init; }
-	public required IStateMachineValidator                     StateMachineValidator { private get; init; }
-	public required IXIncludeOptions?                          XIncludeOptions       { private get; init; }
-
-	public async ValueTask<IStateMachine> Deserialize(XmlReader xmlReader)
-	{
-		Infra.Requires(xmlReader);
-
-=======
 	public required Func<XmlReader, ValueTask<ScxmlDirector>>  ScxmlDirectorFactory  { private get; [UsedImplicitly] init; }
 	public required Func<XmlReader, ValueTask<XIncludeReader>> XIncludeReaderFactory { private get; [UsedImplicitly] init; }
 	public required IStateMachineValidator                     StateMachineValidator { private get; [UsedImplicitly] init; }
@@ -51,7 +33,6 @@ public class ScxmlDeserializer : IScxmlDeserializer
 
 	public async ValueTask<IStateMachine> Deserialize(XmlReader xmlReader)
 	{
->>>>>>> Stashed changes
 		if (XIncludeOptions?.XIncludeAllowed == true)
 		{
 			xmlReader = await XIncludeReaderFactory(xmlReader).ConfigureAwait(false);
@@ -65,9 +46,6 @@ public class ScxmlDeserializer : IScxmlDeserializer
 
 		return stateMachine;
 	}
-<<<<<<< Updated upstream
-=======
 
 #endregion
->>>>>>> Stashed changes
 }

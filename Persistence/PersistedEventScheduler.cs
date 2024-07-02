@@ -35,106 +35,21 @@ internal sealed class PersistedEventScheduler(IStorageProvider storageProvider, 
 	{
 		var persistedScheduledEvent = new PersistedScheduledEvent(this, hostEvent);
 
-<<<<<<< Updated upstream
-		private readonly HashSet<PersistedScheduledEvent> _scheduledEvents = new();
-		private readonly IStorageProvider                 _storageProvider;
-		private          int                              _recordId;
-		private          int                              _scheduledEventRecordId;
-		private          ITransactionalStorage            _storage = default!;
-
-		public PersistedEventScheduler(IStorageProvider storageProvider, IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger logger) : base(hostEventDispatcher, logger) =>
-			_storageProvider = storageProvider;
-
-		protected override async ValueTask<ScheduledEvent> CreateScheduledEvent(IHostEvent hostEvent, CancellationToken token)
-=======
 		await _lockScheduledEvents.WaitAsync(token).ConfigureAwait(false);
 		try
->>>>>>> Stashed changes
 		{
 			_scheduledEvents.Add(persistedScheduledEvent);
 
 			persistedScheduledEvent.RecordId = _scheduledEventRecordId ++;
 
-<<<<<<< Updated upstream
-				persistedScheduledEvent.RecordId = _scheduledEventRecordId ++;
-
-				var rootBucket = new Bucket(_storage).Nested(ScheduledEventsKey);
-				rootBucket.Add(Bucket.RootKey, _scheduledEventRecordId);
-				persistedScheduledEvent.Store(rootBucket.Nested(persistedScheduledEvent.RecordId));
-
-				await _storage.CheckPoint(level: 0).ConfigureAwait(false);
-			}
-			finally
-			{
-				_lockScheduledEvents.Release();
-			}
-
-			return persistedScheduledEvent;
-		}
-
-		private async ValueTask DeleteEvent(PersistedScheduledEvent persistedScheduledEvent, CancellationToken token)
-		{
-			if (persistedScheduledEvent is null) throw new ArgumentNullException(nameof(persistedScheduledEvent));
-
-			await _lockScheduledEvents.WaitAsync(token).ConfigureAwait(false);
-			try
-			{
-				_scheduledEvents.Remove(persistedScheduledEvent);
-
-				var rootBucket = new Bucket(_storage).Nested(ScheduledEventsKey);
-				rootBucket.RemoveSubtree(persistedScheduledEvent.RecordId);
-
-				await _storage.CheckPoint(level: 0).ConfigureAwait(false);
-
-				await ShrinkScheduledEvents(token).ConfigureAwait(false);
-			}
-			finally
-			{
-				_lockScheduledEvents.Release();
-			}
-		}
-
-		private async ValueTask ShrinkScheduledEvents(CancellationToken token)
-		{
-			if (_scheduledEvents.Count * 2 > _recordId)
-			{
-				return;
-			}
-
-			_recordId = 0;
-=======
->>>>>>> Stashed changes
 			var rootBucket = new Bucket(_storage).Nested(ScheduledEventsKey);
 			rootBucket.Add(Bucket.RootKey, _scheduledEventRecordId);
 			persistedScheduledEvent.Store(rootBucket.Nested(persistedScheduledEvent.RecordId));
 
-<<<<<<< Updated upstream
-			foreach (var scheduledEvent in _scheduledEvents)
-			{
-				scheduledEvent.RecordId = _recordId ++;
-				scheduledEvent.Store(rootBucket.Nested(scheduledEvent.RecordId));
-			}
-
-			if (_recordId > 0)
-			{
-				rootBucket.Add(Bucket.RootKey, _recordId);
-			}
-
 			await _storage.CheckPoint(level: 0).ConfigureAwait(false);
-			await _storage.Shrink().ConfigureAwait(false);
-=======
-			await _storage.CheckPoint(level: 0).ConfigureAwait(false);
->>>>>>> Stashed changes
 		}
 		finally
 		{
-<<<<<<< Updated upstream
-			_storage = await _storageProvider.GetTransactionalStorage(HostPartition, PersistedEventSchedulerKey).ConfigureAwait(false);
-
-			await LoadScheduledEvents(_storage, token).ConfigureAwait(false);
-
-=======
->>>>>>> Stashed changes
 			_lockScheduledEvents.Release();
 		}
 

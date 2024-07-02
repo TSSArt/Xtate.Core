@@ -26,12 +26,5 @@ public class ExecutionException : XtateException
 
 	public ExecutionException(string? message) : base(message) { }
 
-<<<<<<< Updated upstream
-		public ExecutionException(string? message, Exception? innerException) : base(message, innerException) { }
-
-		protected ExecutionException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-	}
-=======
 	public ExecutionException(string? message, Exception? innerException) : base(message, innerException) { }
->>>>>>> Stashed changes
 }

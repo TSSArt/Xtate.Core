@@ -18,20 +18,12 @@
 using System.IO;
 using System.Reflection;
 using System.Runtime.Loader;
-<<<<<<< Updated upstream
-=======
 using Xtate.IoC;
->>>>>>> Stashed changes
 
 namespace Xtate.Core;
 
 public class DynamicAssembly : IDisposable, IAsyncInitialization, IServiceModule
 {
-<<<<<<< Updated upstream
-	[Obsolete]
-	//TODO: delete
-	public sealed class DynamicAssembly : IDisposable
-=======
 	private readonly DisposingToken _disposingToken = new();
 	private readonly Uri            _uri;
 
@@ -39,37 +31,11 @@ public class DynamicAssembly : IDisposable, IAsyncInitialization, IServiceModule
 	private Context?                                   _context;
 
 	public DynamicAssembly(Uri uri)
->>>>>>> Stashed changes
 	{
 		_uri = uri;
 		_asyncInitServiceModules = AsyncInit.Run(this, static da => da.LoadAssemblyServiceModules());
 	}
 
-<<<<<<< Updated upstream
-		private Context?  _context;
-		private Assembly? _assembly;
-
-		public DynamicAssembly(Stream stream)
-		{
-			_context = new Context();
-			_assembly = _context.LoadFromStream(stream);
-		}
-
-		public void Dispose()
-		{
-			_context?.Unload();
-			_assembly = null;
-			_context = null;
-		}
-
-
-
-		public Assembly Assembly => _assembly ?? throw new ObjectDisposedException(nameof(DynamicAssembly));
-
-		private class Context : AssemblyLoadContext
-		{
-			public Context() : base(isCollectible: true) { }
-=======
 	public required IResourceLoader ResourceLoader { private get; [UsedImplicitly] init; }
 
 #region Interface IAsyncInitialization
@@ -97,7 +63,6 @@ public class DynamicAssembly : IDisposable, IAsyncInitialization, IServiceModule
 		foreach (var serviceModule in serviceModules)
 		{
 			serviceModule.Register(servicesCollection);
->>>>>>> Stashed changes
 		}
 	}
 

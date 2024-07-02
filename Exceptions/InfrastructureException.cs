@@ -26,12 +26,5 @@ public class InfrastructureException : XtateException
 
 	public InfrastructureException(string? message) : base(message) { }
 
-<<<<<<< Updated upstream
-		public InfrastructureException(string? message, Exception? innerException) : base(message, innerException) { }
-
-		protected InfrastructureException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-	}
-=======
 	public InfrastructureException(string? message, Exception? innerException) : base(message, innerException) { }
->>>>>>> Stashed changes
 }

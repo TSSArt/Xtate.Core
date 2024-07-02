@@ -21,21 +21,10 @@ namespace Xtate.Core;
 
 public class HostBasedSourceStateMachine(ISourceStateMachine sourceStateMachine, IHostBaseUri? hostBaseUri) : ISourceStateMachine
 {
-<<<<<<<< Updated upstream:src/Xtate.Core/src/Xtate.Core/Helpers/ServiceModuleAttribute.cs
-	[PublicAPI]
-	[AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
-	public sealed class ServiceModuleAttribute : Attribute
-	{
-		public ServiceModuleAttribute(Type serviceModuleType) => ServiceModuleType = serviceModuleType;
-
-		public Type? ServiceModuleType { get; }
-	}
-========
 
 	#region Interface ISourceStateMachine
 
 	public Uri Location => hostBaseUri?.HostBaseUri.CombineWith(sourceStateMachine.Location)!;
 
 #endregion
->>>>>>>> Stashed changes:src/Xtate.Core/src/Xtate.Core/IoC/HostBasedSourceStateMachine.cs
 }

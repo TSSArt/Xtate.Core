@@ -22,13 +22,5 @@ namespace Xtate.DataModel;
 
 public interface IStartInvokeEvaluator
 {
-<<<<<<< Updated upstream
-	[PublicAPI]
-	public interface IStartInvokeEvaluator
-	{
-		ValueTask<InvokeId> Start(IIdentifier stateId);
-	}
-=======
 	ValueTask<InvokeId> Start(IIdentifier stateId);
->>>>>>> Stashed changes
 }

@@ -26,30 +26,6 @@ namespace Xtate;
 
 public record StateMachineHostOptions
 {
-<<<<<<< Updated upstream
-	[PublicAPI]
-	public record StateMachineHostOptions
-	{
-		public StateMachineHostOptions(ServiceLocator serviceLocator) => ServiceLocator = serviceLocator;
-
-		public ServiceLocator     ServiceLocator { get; set; }
-		public ImmutableArray<IIoProcessorFactory>      IoProcessorFactories      { get; set; }
-		public ImmutableArray<IServiceFactory>          ServiceFactories          { get; set; }
-		public ImmutableArray<ICustomActionFactory>     CustomActionFactories     { get; set; }
-		public ImmutableArray<IResourceLoaderFactory>   ResourceLoaderFactories   { get; set; }
-		public ImmutableDictionary<string, string>?     Configuration             { get; set; }
-		public Uri?                                     BaseUri                   { get; set; }
-		public ILoggerOld?                                 Logger                    { get; set; }
-		public IEventSchedulerLogger?                                 EsLogger                    { get; set; }
-		public PersistenceLevel                         PersistenceLevel          { get; set; }
-		public IStorageProvider?                        StorageProvider           { get; set; }
-		public IEventSchedulerFactory?                  EventSchedulerFactory     { get; set; }
-		public TimeSpan?                                SuspendIdlePeriod         { get; set; }
-		public ValidationMode                           ValidationMode            { get; set; }
-		public HostMode                                 HostMode                  { get; set; }
-		public UnhandledErrorBehaviour                  UnhandledErrorBehaviour   { get; set; }
-	}
-=======
 	//public StateMachineHostOptions(ServiceLocator serviceLocator) => ServiceLocator = serviceLocator;
 
 	//public ServiceLocator                         ServiceLocator          { get; set; }
@@ -68,5 +44,4 @@ public record StateMachineHostOptions
 	public ValidationMode                         ValidationMode          { get; set; }
 	public HostMode                               HostMode                { get; set; }
 	public UnhandledErrorBehaviour                UnhandledErrorBehaviour { get; set; }
->>>>>>> Stashed changes
 }

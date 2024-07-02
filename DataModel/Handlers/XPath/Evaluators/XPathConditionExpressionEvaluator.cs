@@ -17,19 +17,10 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using System;
-using System.Threading.Tasks;
-using Xtate.Core;
-=======
 namespace Xtate.DataModel.XPath;
->>>>>>> Stashed changes
 
 public class XPathConditionExpressionEvaluator(IConditionExpression conditionExpression, XPathCompiledExpression compiledExpression) : IConditionExpression, IBooleanEvaluator, IAncestorProvider
 {
-<<<<<<< Updated upstream
-	public class XPathConditionExpressionEvaluator : IConditionExpression, IBooleanEvaluator, IAncestorProvider
-=======
 	public required Func<ValueTask<XPathEngine>> EngineFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IAncestorProvider
@@ -41,48 +32,12 @@ public class XPathConditionExpressionEvaluator(IConditionExpression conditionExp
 #region Interface IBooleanEvaluator
 
 	public async ValueTask<bool> EvaluateBoolean()
->>>>>>> Stashed changes
 	{
 		var engine = await EngineFactory().ConfigureAwait(false);
 
-<<<<<<< Updated upstream
-		public required Func<ValueTask<XPathEngine>> EngineFactory { private get; init; }
-
-		public XPathConditionExpressionEvaluator(IConditionExpression conditionExpression, XPathCompiledExpression compiledExpression)
-		{
-			_conditionExpression = conditionExpression;
-			_compiledExpression = compiledExpression;
-		}
-
-	#region Interface IAncestorProvider
-
-		object IAncestorProvider.Ancestor => _conditionExpression;
-
-	#endregion
-
-	#region Interface IBooleanEvaluator
-
-		async ValueTask<bool> IBooleanEvaluator.EvaluateBoolean()
-		{
-			var engine = await EngineFactory().ConfigureAwait(false);
-			
-			var obj = await engine.EvalObject(_compiledExpression, stripRoots: true).ConfigureAwait(false);
-
-			return obj.AsBoolean();
-		}
-
-	#endregion
-
-	#region Interface IConditionExpression
-
-		public string? Expression => _conditionExpression.Expression;
-
-	#endregion
-=======
 		var obj = await engine.EvalObject(compiledExpression, stripRoots: true).ConfigureAwait(false);
 
 		return obj.AsBoolean();
->>>>>>> Stashed changes
 	}
 
 #endregion

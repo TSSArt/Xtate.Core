@@ -23,13 +23,9 @@ namespace Xtate.Core;
 
 public sealed class ExternalDataExpressionNode : IExternalDataExpression, IStoreSupport, IAncestorProvider
 {
-<<<<<<< Updated upstream
-	public sealed class ExternalDataExpressionNode : IExternalDataExpression, IStoreSupport, IAncestorProvider
-=======
 	private readonly IExternalDataExpression _externalDataExpression;
 
 	public ExternalDataExpressionNode(IExternalDataExpression externalDataExpression)
->>>>>>> Stashed changes
 	{
 		Infra.NotNull(externalDataExpression.Uri);
 

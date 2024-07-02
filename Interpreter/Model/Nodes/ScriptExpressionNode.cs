@@ -23,13 +23,9 @@ namespace Xtate.Core;
 
 public sealed class ScriptExpressionNode : IScriptExpression, IStoreSupport, IAncestorProvider
 {
-<<<<<<< Updated upstream
-	public sealed class ScriptExpressionNode : IScriptExpression, IStoreSupport, IAncestorProvider
-=======
 	private readonly IScriptExpression _scriptExpression;
 
 	public ScriptExpressionNode(IScriptExpression scriptExpression)
->>>>>>> Stashed changes
 	{
 		Infra.NotNull(scriptExpression.Expression);
 

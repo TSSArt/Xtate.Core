@@ -29,14 +29,6 @@ public class DisposingToken : CancellationTokenSource
 	{
 		if (disposing)
 		{
-<<<<<<< Updated upstream:src/Xtate.Core/src/Xtate.Core/SystemActions/SystemActionExtensions.cs
-			if (builder is null) throw new ArgumentNullException(nameof(builder));
-
-			//TODO:
-			//builder.AddCustomActionFactory(SystemActionFactory.Instance);
-
-			return builder;
-=======
 			try
 			{
 				if (!IsCancellationRequested)
@@ -48,7 +40,6 @@ public class DisposingToken : CancellationTokenSource
 			{
 				// Ignore
 			}
->>>>>>> Stashed changes:src/Xtate.Core/src/Xtate.Core/IoC/DisposingToken.cs
 		}
 
 		base.Dispose(disposing);

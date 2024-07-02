@@ -17,12 +17,7 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using System.Collections.Immutable;
-using Xtate.Core;
-=======
 namespace Xtate.Builder;
->>>>>>> Stashed changes
 
 public class ParallelBuilder : BuilderBase, IParallelBuilder
 {
@@ -49,84 +44,7 @@ public class ParallelBuilder : BuilderBase, IParallelBuilder
 	{
 		Infra.Requires(id);
 
-<<<<<<< Updated upstream
-	#region Interface IParallelBuilder
-
-		public IParallel Build() =>
-			new ParallelEntity
-			{
-				Ancestor = Ancestor, Id = _id, States = _states?.ToImmutable() ?? default, HistoryStates = _historyStates?.ToImmutable() ?? default,
-				Transitions = _transitions?.ToImmutable() ?? default, DataModel = _dataModel, OnEntry = _onEntryList?.ToImmutable() ?? default,
-				OnExit = _onExitList?.ToImmutable() ?? default, Invoke = _invokeList?.ToImmutable() ?? default
-			};
-
-		public void SetId(IIdentifier id)
-		{
-			Infra.Requires(id);
-
-			_id = id;
-		}
-
-		public void AddState(IState state)
-		{
-			Infra.Requires(state);
-
-			(_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(state);
-		}
-
-		public void AddParallel(IParallel parallel)
-		{
-			Infra.Requires(parallel);
-
-			(_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(parallel);
-		}
-
-		public void AddHistory(IHistory history)
-		{
-			Infra.Requires(history);
-
-			(_historyStates ??= ImmutableArray.CreateBuilder<IHistory>()).Add(history);
-		}
-
-		public void AddTransition(ITransition transition)
-		{
-			Infra.Requires(transition);
-
-			(_transitions ??= ImmutableArray.CreateBuilder<ITransition>()).Add(transition);
-		}
-
-		public void AddOnEntry(IOnEntry onEntry)
-		{
-			Infra.Requires(onEntry);
-
-			(_onEntryList ??= ImmutableArray.CreateBuilder<IOnEntry>()).Add(onEntry);
-		}
-
-		public void AddOnExit(IOnExit onExit)
-		{
-			Infra.Requires(onExit);
-
-			(_onExitList ??= ImmutableArray.CreateBuilder<IOnExit>()).Add(onExit);
-		}
-
-		public void AddInvoke(IInvoke invoke)
-		{
-			Infra.Requires(invoke);
-
-			(_invokeList ??= ImmutableArray.CreateBuilder<IInvoke>()).Add(invoke);
-		}
-
-		public void SetDataModel(IDataModel dataModel)
-		{
-			Infra.Requires(dataModel);
-
-			_dataModel = dataModel;
-		}
-
-	#endregion
-=======
 		_id = id;
->>>>>>> Stashed changes
 	}
 
 	public void AddState(IState state)

@@ -17,32 +17,13 @@
 
 #endregion
 
-<<<<<<< Updated upstream
-using System.Threading.Tasks;
-using Xtate.Core;
-=======
 namespace Xtate.DataModel;
->>>>>>> Stashed changes
 
 public interface ILocationEvaluator
 {
-<<<<<<< Updated upstream
-	[PublicAPI]
-	public interface ILocationEvaluator
-	{
-		ValueTask DeclareLocalVariable();
-
-		ValueTask SetValue(IObject value);
-
-		ValueTask<IObject> GetValue();
-
-		ValueTask<string> GetName();
-	}
-=======
 	ValueTask SetValue(IObject value);
 
 	ValueTask<IObject> GetValue();
 
 	ValueTask<string> GetName();
->>>>>>> Stashed changes
 }

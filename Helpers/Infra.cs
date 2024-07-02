@@ -1,10 +1,5 @@
-<<<<<<< Updated upstream
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
-=======
 ﻿// Copyright © 2019-2024 Sergii Artemenko
 // 
->>>>>>> Stashed changes
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -22,20 +17,8 @@
 
 using System.ComponentModel;
 
-<<<<<<< Updated upstream
-using System;
-using System.Collections.Immutable;
-using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
-
 namespace Xtate;
 
-[PublicAPI]
-=======
-namespace Xtate;
-
->>>>>>> Stashed changes
 [ExcludeFromCodeCoverage]
 public static class Infra
 {
@@ -112,22 +95,13 @@ public static class Infra
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void RequiresValidEnum<T>(T parameter, [CallerArgumentExpression(nameof(parameter))] string? parameterName = default) where T : struct, Enum
 	{
-<<<<<<< Updated upstream
-#if NET461 || NETSTANDARD2_0
-		if (!Enum.IsDefined(typeof(T), parameter))
-=======
 #if NET6_0_OR_GREATER
 		if (!Enum.IsDefined(parameter))
->>>>>>> Stashed changes
 		{
 			ThrowInvalidEnumException(parameterName, parameter);
 		}
 #else
-<<<<<<< Updated upstream
-		if (!Enum.IsDefined(parameter))
-=======
 		if (!Enum.IsDefined(typeof(T), parameter))
->>>>>>> Stashed changes
 		{
 			ThrowInvalidEnumException(parameterName, parameter);
 		}
@@ -155,8 +129,6 @@ public static class Infra
 	}
 
 	/// <summary>
-<<<<<<< Updated upstream
-=======
 	///     Checks value for a positive value; if the value is negative or zero, throws
 	///     <see cref="ArgumentOutOfRangeException" /> exception.
 	/// </summary>
@@ -176,7 +148,6 @@ public static class Infra
 	}
 
 	/// <summary>
->>>>>>> Stashed changes
 	///     Checks value for a null and empty collection; if the value is <see langword="null" />, throws
 	///     <see cref="ArgumentNullException" /> exception. if the value is empty collection, throws
 	///     <see cref="ArgumentException" /> exception.
@@ -192,12 +163,8 @@ public static class Infra
 	[AssertionMethod]
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void RequiresNonEmptyCollection<T>([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] [NotNull] T[]? parameter,
-<<<<<<< Updated upstream
-													 [CallerArgumentExpression(nameof(parameter))] string? parameterName = default)
-=======
 													 [CallerArgumentExpression(nameof(parameter))]
 													 string? parameterName = default)
->>>>>>> Stashed changes
 	{
 		if (parameter is null)
 		{
@@ -244,16 +211,10 @@ public static class Infra
 	[AssertionMethod]
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void RequiresNonEmptyString([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] [NotNull] string? parameter,
-<<<<<<< Updated upstream
-											  [CallerArgumentExpression(nameof(parameter))] string? parameterName = default)
-	{
-		if (string.IsNullOrEmpty(parameter))
-=======
 											  [CallerArgumentExpression(nameof(parameter))]
 											  string? parameterName = default)
 	{
 		if (parameter is not { Length: > 0 })
->>>>>>> Stashed changes
 		{
 			ThrowNullOrEmptyString(parameterName);
 		}
@@ -334,11 +295,7 @@ public static class Infra
 		throw WrongExecutionPath();
 	}
 
-<<<<<<< Updated upstream
-	private static Exception WrongExecutionPath() => new NotSupportedException(Resources.Exception_ThisExceptionShouldNeverHappen);
-=======
 	private static NotSupportedException WrongExecutionPath() => new (Resources.Exception_ThisExceptionShouldNeverHappen);
->>>>>>> Stashed changes
 
 	[DoesNotReturn]
 	private static void ThrowInfrastructureException() => throw new InfrastructureException(Resources.Exception_AssertionFailed);
@@ -359,17 +316,10 @@ public static class Infra
 	private static void ThrowInvalidEnumException<T>(string? paramName, T value) where T : struct, Enum => throw new InvalidEnumArgumentException(paramName, Convert.ToInt32(value), typeof(T));
 
 	[DoesNotReturn]
-<<<<<<< Updated upstream
-	private static void ThrowOutOfRangeException(string? paramName,
-												 int value,
-												 int min,
-												 int max) =>
-=======
 	private static void ThrowOutOfRangeException<T>(string? paramName,
 												 T value,
 												 T min,
 												 T max) =>
->>>>>>> Stashed changes
 		throw new ArgumentOutOfRangeException(paramName, value, Res.Format(Resources.Exception_ValidRangeIsMinMax, min, max));
 
 	[DoesNotReturn]

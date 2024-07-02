@@ -1,7 +1,3 @@
-<<<<<<< Updated upstream
-﻿using System;
-using System.Threading.Tasks;
-=======
 ﻿#region Copyright © 2019-2023 Sergii Artemenko
 
 // This file is part of the Xtate project. <https://xtate.net/>
@@ -20,7 +16,6 @@ using System.Threading.Tasks;
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #endregion
->>>>>>> Stashed changes
 
 namespace Xtate.Core;
 

@@ -21,26 +21,12 @@ namespace Xtate.Core;
 
 public sealed class InProcEventSchedulerFactory : IEventSchedulerFactory
 {
-<<<<<<< Updated upstream
-	public sealed class InProcEventSchedulerFactory : IEventSchedulerFactory
-	{
-		public InProcEventSchedulerFactory() { }
-=======
 	public static IEventSchedulerFactory Instance { get; } = new InProcEventSchedulerFactory();
->>>>>>> Stashed changes
 
 #region Interface IEventSchedulerFactory
 
 	public ValueTask<IEventScheduler> CreateEventScheduler(IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger? logger, CancellationToken token) =>
 		new(new InProcEventScheduler(hostEventDispatcher, logger: null!)); //TODO: move factory to IoC
 
-<<<<<<< Updated upstream
-		public ValueTask<IEventScheduler> CreateEventScheduler(IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger? logger, CancellationToken token) =>
-			new(new InProcEventScheduler(hostEventDispatcher, null)); //TODO: move factory to IoC
-
-	#endregion
-	}
-=======
 #endregion
->>>>>>> Stashed changes
 }

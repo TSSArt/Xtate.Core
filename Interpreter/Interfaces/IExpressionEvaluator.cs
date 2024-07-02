@@ -21,12 +21,5 @@ namespace Xtate.Core;
 
 public interface IExpressionEvaluator
 {
-<<<<<<< Updated upstream
-	public interface IExpressionEvaluator
-	{
-		ValueTask<DataModelValue> Evaluate();
-	}
-=======
 	ValueTask<DataModelValue> Evaluate();
->>>>>>> Stashed changes
 }

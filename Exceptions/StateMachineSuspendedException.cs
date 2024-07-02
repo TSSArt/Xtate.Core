@@ -26,12 +26,5 @@ public class StateMachineSuspendedException : XtateException
 
 	public StateMachineSuspendedException(string? message) : base(message) { }
 
-<<<<<<< Updated upstream
-		public StateMachineSuspendedException(string? message, Exception? innerException) : base(message, innerException) { }
-
-		protected StateMachineSuspendedException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-	}
-=======
 	public StateMachineSuspendedException(string? message, Exception? innerException) : base(message, innerException) { }
->>>>>>> Stashed changes
 }

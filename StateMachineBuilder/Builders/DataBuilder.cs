@@ -34,43 +34,7 @@ public class DataBuilder : BuilderBase, IDataBuilder
 	{
 		Infra.RequiresNonEmptyString(id);
 
-<<<<<<< Updated upstream
-	#region Interface IDataBuilder
-
-		public IData Build() => new DataEntity { Ancestor = Ancestor, Id = _id, Source = _source, Expression = _expression, InlineContent = _inlineContent };
-
-		public void SetId(string id)
-		{
-			Infra.RequiresNonEmptyString(id);
-
-			_id = id;
-		}
-
-		public void SetSource(IExternalDataExpression source)
-		{
-			Infra.Requires(source);
-
-			_source = source;
-		}
-
-		public void SetExpression(IValueExpression expression)
-		{
-			Infra.Requires(expression);
-
-			_expression = expression;
-		}
-
-		public void SetInlineContent(IInlineContent inlineContent)
-		{
-			Infra.Requires(inlineContent);
-
-			_inlineContent = inlineContent;
-		}
-
-	#endregion
-=======
 		_id = id;
->>>>>>> Stashed changes
 	}
 
 	public void SetSource(IExternalDataExpression source)

@@ -23,23 +23,12 @@ internal static class Encode
 {
 	public static int GetLength(byte value)
 	{
-<<<<<<< Updated upstream
-		public static int GetLength(byte value)
-		{
-			if ((value & 0x80) == 0x00) return 1;
-			if ((value & 0xE0) == 0xC0) return 2;
-			if ((value & 0xF0) == 0xE0) return 3;
-			if ((value & 0xF8) == 0xF0) return 4;
-			if ((value & 0xFC) == 0xF8) return 5;
-			if ((value & 0xFE) == 0xFC) return 6;
-=======
 		if ((value & 0x80) == 0x00) return 1;
 		if ((value & 0xE0) == 0xC0) return 2;
 		if ((value & 0xF0) == 0xE0) return 3;
 		if ((value & 0xF8) == 0xF0) return 4;
 		if ((value & 0xFC) == 0xF8) return 5;
 		if ((value & 0xFE) == 0xFC) return 6;
->>>>>>> Stashed changes
 
 		throw new ArgumentException(Resources.Exception_IncorrectEncoding, nameof(value));
 	}
@@ -66,9 +55,6 @@ internal static class Encode
 				return ((span[0] & 0x01) << 30) + ((span[1] & 0x3F) << 24) + ((span[2] & 0x3F) << 18) + ((span[3] & 0x3F) << 12) + ((span[4] & 0x3F) << 6) + (span[5] & 0x3F);
 		}
 
-<<<<<<< Updated upstream
-		public static int Decode(ReadOnlySpan<byte> span)
-=======
 		throw new ArgumentException(Resources.Exception_IncorrectEncoding, nameof(span));
 	}
 
@@ -81,16 +67,11 @@ internal static class Encode
 		var uValue = (ulong) value;
 
 		if (uValue <= 0x7F)
->>>>>>> Stashed changes
 		{
 			return uValue;
 		}
 
-<<<<<<< Updated upstream
-		public static int GetEncodedLength(int value)
-=======
 		if (uValue <= 0x7FF)
->>>>>>> Stashed changes
 		{
 			return 0x80C0U + (uValue >> 6) +
 				   ((uValue & 0x3FU) << 8);
@@ -103,11 +84,7 @@ internal static class Encode
 				   ((uValue & 0x3FU) << 16);
 		}
 
-<<<<<<< Updated upstream
-		public static void WriteEncodedValue(Span<byte> span, int value)
-=======
 		if (uValue <= 0x1FFFFF)
->>>>>>> Stashed changes
 		{
 			return 0x808080F0U + (uValue >> 18) +
 				   ((uValue & 0x3F000U) >> 4) +

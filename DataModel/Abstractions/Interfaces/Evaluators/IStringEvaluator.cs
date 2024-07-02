@@ -22,13 +22,5 @@ namespace Xtate.DataModel;
 
 public interface IStringEvaluator : IValueEvaluator
 {
-<<<<<<< Updated upstream
-	[PublicAPI]
-	public interface IStringEvaluator : IValueEvaluator
-	{
-		ValueTask<string> EvaluateString();
-	}
-=======
 	ValueTask<string> EvaluateString();
->>>>>>> Stashed changes
 }
