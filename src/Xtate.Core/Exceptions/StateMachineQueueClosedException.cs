@@ -20,7 +20,7 @@
 namespace Xtate;
 
 [Serializable]
-public class StateMachineQueueClosedException : XtateException
+public class StateMachineQueueClosedException : StateMachineDestroyedException
 {
 	public StateMachineQueueClosedException() { }
 
