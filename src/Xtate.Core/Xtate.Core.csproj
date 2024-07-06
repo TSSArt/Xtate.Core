@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Xtate.SharedContent" Version="0.2.19" />
+    <PackageReference Include="Xtate.SharedContent" Version="0.2.20" />
     <PackageReference Include="System.Threading.Channels" Version="8.0.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0" PrivateAssets="all" />
     <PackageReference Include="ConfigureAwaitChecker.Analyzer" Version="5.0.0.1" PrivateAssets="all" />
