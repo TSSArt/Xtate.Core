@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,19 +15,17 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using Xtate.Service;
 
 namespace Xtate.Core;
 
-internal class ServiceCommunication(IStateMachineHost host,
-							Uri? target,
-							Uri type,
-							InvokeId invokeId) : IServiceCommunication
+internal class ServiceCommunication(
+	IStateMachineHost host,
+	Uri? target,
+	Uri type,
+	InvokeId invokeId) : IServiceCommunication
 {
-
-	#region Interface IServiceCommunication
+#region Interface IServiceCommunication
 
 	public async ValueTask SendToCreator(IOutgoingEvent outgoingEvent, CancellationToken token)
 	{

@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,8 +14,6 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-#endregion
 
 using System.Globalization;
 using Xtate.IoC;
@@ -38,9 +36,9 @@ public class DynamicDataModelHandlerProvider : IDataModelHandlerProvider
 		}
 
 		var uri = DataModelTypeToUriConverter.GetUri(dataModelType);
-	
+
 		var providers = AssemblyContainerProviderFactory(uri).GetDataModelHandlerProviders();
-		
+
 		await foreach (var dataModelHandlerProvider in providers.ConfigureAwait(false))
 		{
 			if (await dataModelHandlerProvider.TryGetDataModelHandler(dataModelType).ConfigureAwait(false) is { } dataModelHandler)
@@ -62,12 +60,16 @@ public interface IDataModelTypeToUriConverter
 
 public class DataModelTypeToUriConverter(string uriFormat) : IDataModelTypeToUriConverter
 {
+#region Interface IDataModelTypeToUriConverter
+
 	public virtual Uri GetUri(string dataModelType)
 	{
 		var uriString = string.Format(CultureInfo.InvariantCulture, uriFormat, dataModelType);
 
 		return new Uri(uriString, UriKind.RelativeOrAbsolute);
 	}
+
+#endregion
 }
 
 public interface IAssemblyContainerProvider
@@ -77,12 +79,8 @@ public interface IAssemblyContainerProvider
 
 public class AssemblyContainerProvider : IAsyncInitialization, IAssemblyContainerProvider, IDisposable
 {
-	private readonly Uri                                   _uri;
-
-	public required  IServiceScopeFactory                  ServiceScopeFactory    { private get; [UsedImplicitly] init; }
-	public required  Func<Uri, ValueTask<DynamicAssembly>> DynamicAssemblyFactory { private get; [UsedImplicitly] init; }
-
 	private readonly AsyncInit<IServiceScope> _asyncInitServiceScope;
+	private readonly Uri                      _uri;
 
 	public AssemblyContainerProvider(Uri uri)
 	{
@@ -90,7 +88,30 @@ public class AssemblyContainerProvider : IAsyncInitialization, IAssemblyContaine
 		_asyncInitServiceScope = AsyncInit.Run(this, acp => acp.CreateServiceScope());
 	}
 
+	public required IServiceScopeFactory                  ServiceScopeFactory    { private get; [UsedImplicitly] init; }
+	public required Func<Uri, ValueTask<DynamicAssembly>> DynamicAssemblyFactory { private get; [UsedImplicitly] init; }
+
+#region Interface IAssemblyContainerProvider
+
+	public virtual IAsyncEnumerable<IDataModelHandlerProvider> GetDataModelHandlerProviders() => _asyncInitServiceScope.Value.ServiceProvider.GetServices<IDataModelHandlerProvider>();
+
+#endregion
+
+#region Interface IAsyncInitialization
+
 	public Task Initialization => _asyncInitServiceScope.Task;
+
+#endregion
+
+#region Interface IDisposable
+
+	public void Dispose()
+	{
+		Dispose(true);
+		GC.SuppressFinalize(this);
+	}
+
+#endregion
 
 	private async ValueTask<IServiceScope> CreateServiceScope()
 	{
@@ -99,23 +120,12 @@ public class AssemblyContainerProvider : IAsyncInitialization, IAssemblyContaine
 		return ServiceScopeFactory.CreateScope(dynamicAssembly.Register);
 	}
 
-	public virtual IAsyncEnumerable<IDataModelHandlerProvider> GetDataModelHandlerProviders()
-	{
-		return _asyncInitServiceScope.Value.ServiceProvider.GetServices<IDataModelHandlerProvider>();
-	}
-
 	protected virtual void Dispose(bool disposing)
 	{
 		if (disposing)
 		{
 			_asyncInitServiceScope.Value.Dispose();
 		}
-	}
-
-	public void Dispose()
-	{
-		Dispose(true);
-		GC.SuppressFinalize(this);
 	}
 }
 

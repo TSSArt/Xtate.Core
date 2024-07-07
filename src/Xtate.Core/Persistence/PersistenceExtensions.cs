@@ -24,20 +24,26 @@ namespace Xtate.Core;
 
 public class PersistedInterpreterModelGetter : IAsyncInitialization
 {
-	public required Func<IStateMachine, IDataModelHandler, ValueTask<InterpreterModelBuilder>> InterpreterModelBuilderFactory { private get; [UsedImplicitly] init; }
-	public required IDataModelHandlerService                                                    DataModelHandlerService            { private get; [UsedImplicitly] init; }
-	public required IStateMachineSessionId                                                     StateMachineSessionId              { private get; [UsedImplicitly] init; }
-	public required IStateMachine?                                                             StateMachine                       { private get; [UsedImplicitly] init; }
-	public required IErrorProcessor                                                            ErrorProcessor                     { private get; [UsedImplicitly] init; }
-	public required IStorageProvider                                                           StorageProvider                    { private get; [UsedImplicitly] init; }
-	public required Func<ReadOnlyMemory<byte>, InMemoryStorage>                                InMemoryStorageFactory             { private get; [UsedImplicitly] init; }
-
 	private readonly AsyncInit<IInterpreterModel> _interpreterModelAsyncInit;
 
 	public PersistedInterpreterModelGetter()
 	{
 		_interpreterModelAsyncInit = AsyncInit.Run(this, getter => getter.CreateInterpreterModel());
 	}
+
+	public required Func<IStateMachine, IDataModelHandler, ValueTask<InterpreterModelBuilder>> InterpreterModelBuilderFactory { private get; [UsedImplicitly] init; }
+	public required IDataModelHandlerService                                                   DataModelHandlerService        { private get; [UsedImplicitly] init; }
+	public required IStateMachineSessionId                                                     StateMachineSessionId          { private get; [UsedImplicitly] init; }
+	public required IStateMachine?                                                             StateMachine                   { private get; [UsedImplicitly] init; }
+	public required IErrorProcessor                                                            ErrorProcessor                 { private get; [UsedImplicitly] init; }
+	public required IStorageProvider                                                           StorageProvider                { private get; [UsedImplicitly] init; }
+	public required Func<ReadOnlyMemory<byte>, InMemoryStorage>                                InMemoryStorageFactory         { private get; [UsedImplicitly] init; }
+
+#region Interface IAsyncInitialization
+
+	public Task Initialization => _interpreterModelAsyncInit.Task;
+
+#endregion
 
 	private async ValueTask<IInterpreterModel> CreateInterpreterModel()
 	{
@@ -67,7 +73,7 @@ public class PersistedInterpreterModelGetter : IAsyncInitialization
 	private async ValueTask<IInterpreterModel?> TryRestoreInterpreterModel()
 	{
 		//var storage = await StorageProvider.GetTransactionalStorage(partition: default, StateMachineDefinitionStorageKey).ConfigureAwait(false);
-		var storage = await StorageProvider.GetTransactionalStorage(partition: default, @"StateMachineDefinitionStorageKey").ConfigureAwait(false); //TODO:
+		var storage = await StorageProvider.GetTransactionalStorage(partition: default, key: @"StateMachineDefinitionStorageKey").ConfigureAwait(false); //TODO:
 		await using (storage.ConfigureAwait(false))
 		{
 			var bucket = new Bucket(storage);
@@ -93,7 +99,7 @@ public class PersistedInterpreterModelGetter : IAsyncInitialization
 			var dataModelHandler = await DataModelHandlerService.GetDataModelHandler(dataModelType).ConfigureAwait(false); // TODO: uncomment
 
 			IEntityMap? entityMap = default;
-			
+
 			if (StateMachine is not null)
 			{
 				//var parameters = CreateInterpreterModelBuilderParameters();
@@ -122,6 +128,7 @@ public class PersistedInterpreterModelGetter : IAsyncInitialization
 
 				return await interpreterModelBuilder.BuildModel().ConfigureAwait(false);
 			}
+			// ReSharper disable once RedundantEmptyFinallyBlock
 			finally
 			{
 				//_options.ErrorProcessor?.ThrowIfErrors(); //TODO:uncomment
@@ -132,7 +139,7 @@ public class PersistedInterpreterModelGetter : IAsyncInitialization
 	private async ValueTask SaveInterpreterModel(IInterpreterModel interpreterModel)
 	{
 		//var storage = await StorageProvider.GetTransactionalStorage(partition: default, StateMachineDefinitionStorageKey).ConfigureAwait(false);
-		var storage = await StorageProvider.GetTransactionalStorage(partition: default, @"StateMachineDefinitionStorageKey").ConfigureAwait(false); //TODO:
+		var storage = await StorageProvider.GetTransactionalStorage(partition: default, key: @"StateMachineDefinitionStorageKey").ConfigureAwait(false); //TODO:
 		await using (storage.ConfigureAwait(false))
 		{
 			SaveToStorage(interpreterModel.Root, new Bucket(storage));
@@ -153,12 +160,6 @@ public class PersistedInterpreterModelGetter : IAsyncInitialization
 		bucket.AddId(Key.SessionId, StateMachineSessionId.SessionId);
 		bucket.Add(Key.StateMachineDefinition, span);
 	}
-
-#region Interface IAsyncInitialization
-
-	public Task Initialization => _interpreterModelAsyncInit.Task;
-
-#endregion
 
 	[UsedImplicitly]
 	public IInterpreterModel GetInterpreterModel() => _interpreterModelAsyncInit.Value;

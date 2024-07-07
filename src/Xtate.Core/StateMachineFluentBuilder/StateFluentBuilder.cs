@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,8 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using Xtate.DataModel.Runtime;
 
 namespace Xtate.Builder;
@@ -27,12 +25,33 @@ public class StateFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 	public required Action<IState> BuiltAction  { private get; [UsedImplicitly] init; }
 	public required TOuterBuilder  OuterBuilder { private get; [UsedImplicitly] init; }
 
-	public required Func<StateFluentBuilder<TOuterBuilder>, Action<IInitial>, InitialFluentBuilder<StateFluentBuilder<TOuterBuilder>>>       InitialFluentBuilderFactory    { private get; [UsedImplicitly] init; }
-	public required Func<StateFluentBuilder<TOuterBuilder>, Action<IState>, StateFluentBuilder<StateFluentBuilder<TOuterBuilder>>>           StateFluentBuilderFactory      { private get; [UsedImplicitly] init; }
-	public required Func<StateFluentBuilder<TOuterBuilder>, Action<IParallel>, ParallelFluentBuilder<StateFluentBuilder<TOuterBuilder>>>     ParallelFluentBuilderFactory   { private get; [UsedImplicitly] init; }
-	public required Func<StateFluentBuilder<TOuterBuilder>, Action<IFinal>, FinalFluentBuilder<StateFluentBuilder<TOuterBuilder>>>           FinalFluentBuilderFactory      { private get; [UsedImplicitly] init; }
-	public required Func<StateFluentBuilder<TOuterBuilder>, Action<IHistory>, HistoryFluentBuilder<StateFluentBuilder<TOuterBuilder>>>       HistoryFluentBuilderFactory    { private get; [UsedImplicitly] init; }
-	public required Func<StateFluentBuilder<TOuterBuilder>, Action<ITransition>, TransitionFluentBuilder<StateFluentBuilder<TOuterBuilder>>> TransitionFluentBuilderFactory { private get; [UsedImplicitly] init; }
+	public required Func<StateFluentBuilder<TOuterBuilder>, Action<IInitial>, InitialFluentBuilder<StateFluentBuilder<TOuterBuilder>>> InitialFluentBuilderFactory
+	{
+		private get;
+		[UsedImplicitly] init;
+	}
+
+	public required Func<StateFluentBuilder<TOuterBuilder>, Action<IState>, StateFluentBuilder<StateFluentBuilder<TOuterBuilder>>> StateFluentBuilderFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<StateFluentBuilder<TOuterBuilder>, Action<IParallel>, ParallelFluentBuilder<StateFluentBuilder<TOuterBuilder>>> ParallelFluentBuilderFactory
+	{
+		private get;
+		[UsedImplicitly] init;
+	}
+
+	public required Func<StateFluentBuilder<TOuterBuilder>, Action<IFinal>, FinalFluentBuilder<StateFluentBuilder<TOuterBuilder>>> FinalFluentBuilderFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<StateFluentBuilder<TOuterBuilder>, Action<IHistory>, HistoryFluentBuilder<StateFluentBuilder<TOuterBuilder>>> HistoryFluentBuilderFactory
+	{
+		private get;
+		[UsedImplicitly] init;
+	}
+
+	public required Func<StateFluentBuilder<TOuterBuilder>, Action<ITransition>, TransitionFluentBuilder<StateFluentBuilder<TOuterBuilder>>> TransitionFluentBuilderFactory
+	{
+		private get;
+		[UsedImplicitly] init;
+	}
 
 	public TOuterBuilder EndState()
 	{

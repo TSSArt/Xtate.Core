@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,8 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 namespace Xtate.Core;
 
 [Flags]
@@ -28,7 +26,6 @@ public enum SecurityContextPermissions
 	CreateTrustedStateMachine = 0x0000_0004,
 	Full                      = 0x7FFF_FFFF
 }
-
 
 public sealed class SecurityContext : ISecurityContext, IAsyncDisposable
 {
@@ -43,10 +40,11 @@ public sealed class SecurityContext : ISecurityContext, IAsyncDisposable
 																TaskContinuationOptions.HideScheduler |
 																TaskContinuationOptions.LongRunning;
 
-	private readonly SecurityContext?                                  _parent;
+	private readonly SecurityContext? _parent;
+
 	//private          GlobalCache<(object Key, object SubKey), object>? _globalCache;
-	private          TaskFactory?                                      _ioBoundTaskFactory;
-	private          LocalCache<(object Key, object SubKey), object>?  _localCache;
+	private TaskFactory?                                     _ioBoundTaskFactory;
+	private LocalCache<(object Key, object SubKey), object>? _localCache;
 
 	private SecurityContext(SecurityContextType type, SecurityContextPermissions permissions, SecurityContext? parentSecurityContext)
 	{
@@ -116,6 +114,8 @@ public sealed class SecurityContext : ISecurityContext, IAsyncDisposable
 		return securityContext;
 	}
 
+#endregion
+
 	public ValueTask SetValue<T>(object key,
 								 object subKey,
 								 [DisallowNull] T value,
@@ -135,8 +135,6 @@ public sealed class SecurityContext : ISecurityContext, IAsyncDisposable
 
 		return false;
 	}
-
-#endregion
 
 	private TaskFactory CreateTaskFactory()
 	{
@@ -179,7 +177,7 @@ public sealed class SecurityContext : ISecurityContext, IAsyncDisposable
 		}*/
 
 		//TODO:uncomment
-		return _localCache!;// = globalCache.CreateLocalCache();
+		return _localCache!; // = globalCache.CreateLocalCache();
 	}
 
 	internal static SecurityContext Create(SecurityContextType type)

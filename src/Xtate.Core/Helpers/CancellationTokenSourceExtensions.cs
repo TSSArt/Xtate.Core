@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2023 Sergii Artemenko
+﻿// Copyright © 2019-2024 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -16,7 +16,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #if !NET8_0
-
 namespace Xtate.Core;
 
 public static class CancellationTokenSourceExtensions

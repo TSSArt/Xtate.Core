@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,8 +14,6 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-#endregion
 
 using Xtate.DataModel;
 using Xtate.IoProcessor;
@@ -98,7 +96,8 @@ public sealed partial class StateMachineHost : IStateMachineHost
 
 	async ValueTask IStateMachineHost.StartInvoke(SessionId sessionId,
 												  InvokeData data,
-												 // ISecurityContext securityContext,
+
+												  // ISecurityContext securityContext,
 												  CancellationToken token)
 	{
 		var context = GetCurrentContext();
@@ -124,7 +123,8 @@ public sealed partial class StateMachineHost : IStateMachineHost
 											 IEventDispatcher service,
 											 SessionId sessionId,
 											 InvokeId invokeId,
-											// DeferredFinalizer finalizer,
+
+											 // DeferredFinalizer finalizer,
 											 DataConverter dataConverter,
 											 CancellationToken token)
 		{
@@ -360,8 +360,15 @@ public sealed partial class StateMachineHost : IStateMachineHost
 
 	private class StartInvokeLoggerContext(SessionId sessionId, Uri type, Uri? source) : IStartInvokeLoggerContext
 	{
+		public string LoggerContextType => nameof(IStartInvokeLoggerContext);
 
-		#region Interface ILoggerContext
+	#region Interface IStartInvokeLoggerContext
+
+		public SessionId SessionId { get; } = sessionId;
+		public Uri       Type      { get; } = type;
+		public Uri?      Source    { get; } = source;
+
+	#endregion
 
 		public DataModelList GetProperties()
 		{
@@ -380,17 +387,5 @@ public sealed partial class StateMachineHost : IStateMachineHost
 
 			return properties;
 		}
-
-		public string LoggerContextType => nameof(IStartInvokeLoggerContext);
-
-		#endregion
-
-		#region Interface IStartInvokeLoggerContext
-
-		public SessionId SessionId { get; } = sessionId;
-		public Uri Type { get; } = type;
-		public Uri? Source { get; } = source;
-
-		#endregion
 	}
 }

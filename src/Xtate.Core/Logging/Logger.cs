@@ -68,7 +68,10 @@ public class Logger<TSource> : ILogger<TSource>, IAsyncInitialization
 		return default;
 	}
 
-	public virtual ValueTask Write<TEntity>(Level level, int eventId, string? message, TEntity entity)
+	public virtual ValueTask Write<TEntity>(Level level,
+											int eventId,
+											string? message,
+											TEntity entity)
 	{
 		if (IsEnabled(level))
 		{
@@ -78,7 +81,10 @@ public class Logger<TSource> : ILogger<TSource>, IAsyncInitialization
 		return default;
 	}
 
-	public virtual ValueTask Write<TEntity>(Level level, int eventId, [InterpolatedStringHandlerArgument("", "level")] LoggingInterpolatedStringHandler formattedMessage, TEntity entity)
+	public virtual ValueTask Write<TEntity>(Level level,
+											int eventId,
+											[InterpolatedStringHandlerArgument("", "level")] LoggingInterpolatedStringHandler formattedMessage,
+											TEntity entity)
 	{
 		if (IsEnabled(level))
 		{

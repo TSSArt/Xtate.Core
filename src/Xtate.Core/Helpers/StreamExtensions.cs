@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2023 Sergii Artemenko
+﻿// Copyright © 2019-2024 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -28,7 +28,7 @@ public static class StreamExtensions
 {
 	public static Stream InjectCancellationToken(this Stream stream, CancellationToken token) => new InjectedCancellationStream(stream, token);
 
-	[SuppressMessage("ReSharper", "MethodHasAsyncOverloadWithCancellation")]
+	[SuppressMessage(category: "ReSharper", checkId: "MethodHasAsyncOverloadWithCancellation")]
 	public static async ValueTask<byte[]> ReadToEndAsync(this Stream stream, CancellationToken token)
 	{
 		if (stream is null) throw new ArgumentNullException(nameof(stream));
@@ -58,7 +58,6 @@ public static class StreamExtensions
 	}
 
 #if !NET6_0_OR_GREATER
-
 	public static ConfiguredAwaitable ConfigureAwait(this Stream stream, bool continueOnCapturedContext) => new(stream, continueOnCapturedContext);
 
 	public static ValueTask DisposeAsync(this Stream stream)

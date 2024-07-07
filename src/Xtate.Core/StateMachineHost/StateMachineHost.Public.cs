@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,22 +15,19 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using Xtate.Persistence;
 
 namespace Xtate;
 
-
 public sealed partial class StateMachineHost(StateMachineHostOptions options) : IAsyncDisposable, IDisposable
 {
-	private         bool                                     _asyncOperationInProgress;
-	private         StateMachineHostContext?                 _context;
-	public required Func<ValueTask<StateMachineHostContext>> ContextFactory;
-	private         bool                                     _disposed;
-	private         readonly StateMachineHostOptions _options = options ?? throw new ArgumentNullException(nameof(options));
+	private readonly StateMachineHostOptions                  _options = options ?? throw new ArgumentNullException(nameof(options));
+	private          bool                                     _asyncOperationInProgress;
+	private          StateMachineHostContext?                 _context;
+	private          bool                                     _disposed;
+	public required  Func<ValueTask<StateMachineHostContext>> ContextFactory;
 
-	#region Interface IAsyncDisposable
+#region Interface IAsyncDisposable
 
 	public async ValueTask DisposeAsync()
 	{
@@ -243,14 +240,11 @@ public sealed partial class StateMachineHost(StateMachineHostOptions options) : 
 																	 DataModelValue parameters = default) =>
 		StartStateMachineWrapper(SessionId.FromString(sessionId), new StateMachineOrigin(stateMachine, baseUri), parameters);
 
-	private async ValueTask<IStateMachineController> StartStateMachineWrapper(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters)
-	{
+	private async ValueTask<IStateMachineController> StartStateMachineWrapper(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters) =>
+
 		//var finalizer = new DeferredFinalizer();
 		//await using (finalizer.ConfigureAwait(false))
-		{
-			return await StartStateMachine(sessionId, origin, parameters, SecurityContextType.NewTrustedStateMachine, CancellationToken.None).ConfigureAwait(false);
-		}
-	}
+		await StartStateMachine(sessionId, origin, parameters, SecurityContextType.NewTrustedStateMachine, CancellationToken.None).ConfigureAwait(false);
 
 	private async ValueTask<DataModelValue> ExecuteStateMachineWrapper(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters)
 	{

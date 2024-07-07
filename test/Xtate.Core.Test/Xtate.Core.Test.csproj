@@ -1,31 +1,31 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>net8.0;net462</TargetFrameworks>
-    <IsPackable>false</IsPackable>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>net8.0;net462</TargetFrameworks>
+		<IsPackable>false</IsPackable>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="Legacy\test.scxml" />
-    <EmbeddedResource Include="Scxml\XInclude\SingleIncludeItem1.scxml" />
-    <EmbeddedResource Include="Scxml\XInclude\DtdSingleIncludeSource.scxml" />
-    <EmbeddedResource Include="Scxml\XInclude\SingleIncludeSource.scxml" />
-  </ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Legacy\test.scxml" />
+		<EmbeddedResource Include="Scxml\XInclude\SingleIncludeItem1.scxml" />
+		<EmbeddedResource Include="Scxml\XInclude\DtdSingleIncludeSource.scxml" />
+		<EmbeddedResource Include="Scxml\XInclude\SingleIncludeSource.scxml" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
-    <PackageReference Include="Moq" Version="4.20.70" />
-    <PackageReference Include="MSTest.TestAdapter" Version="3.4.3" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.4.3" />
-    <PackageReference Include="coverlet.collector" Version="6.0.2">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
+		<PackageReference Include="Moq" Version="4.20.70" />
+		<PackageReference Include="MSTest.TestAdapter" Version="3.4.3" />
+		<PackageReference Include="MSTest.TestFramework" Version="3.4.3" />
+		<PackageReference Include="coverlet.collector" Version="6.0.2">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\Xtate.Core\Xtate.Core.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\src\Xtate.Core\Xtate.Core.csproj" />
+	</ItemGroup>
 
 </Project>
