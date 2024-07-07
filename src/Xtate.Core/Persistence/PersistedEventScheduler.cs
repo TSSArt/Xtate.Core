@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,11 +15,10 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 namespace Xtate.Persistence;
 
-internal sealed class PersistedEventScheduler(IStorageProvider storageProvider, IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger logger) : InProcEventScheduler(hostEventDispatcher, logger)
+internal sealed class PersistedEventScheduler(IStorageProvider storageProvider, IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger logger)
+	: InProcEventScheduler(hostEventDispatcher, logger)
 {
 	private const    string        HostPartition              = "StateMachineHost";
 	private const    string        PersistedEventSchedulerKey = "scheduler";
@@ -27,7 +26,7 @@ internal sealed class PersistedEventScheduler(IStorageProvider storageProvider, 
 	private readonly SemaphoreSlim _lockScheduledEvents       = new(initialCount: 1, maxCount: 1);
 
 	private readonly HashSet<PersistedScheduledEvent> _scheduledEvents = [];
-	private int                              _recordId;
+	private          int                              _recordId;
 	private          int                              _scheduledEventRecordId;
 	private          ITransactionalStorage            _storage = default!;
 
@@ -159,11 +158,11 @@ internal sealed class PersistedEventScheduler(IStorageProvider storageProvider, 
 
 		protected override TypeInfo TypeInfo => TypeInfo.ScheduledEvent;
 
-#region Interface IAsyncDisposable
+	#region Interface IAsyncDisposable
 
 		public ValueTask DisposeAsync() => _eventScheduler.DeleteEvent(this, token: default);
 
-#endregion
+	#endregion
 
 		public override void Store(Bucket bucket)
 		{

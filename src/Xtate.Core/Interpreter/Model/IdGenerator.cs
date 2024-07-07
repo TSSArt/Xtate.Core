@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,10 +15,10 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using System.ComponentModel;
+#if !NET6_0_OR_GREATER
 using System.Text;
+#endif
 
 namespace Xtate.Core;
 
@@ -33,7 +33,6 @@ internal static class IdGenerator
 	public static string NewId(int hash) => NewGuidWithHash(hash);
 
 #if NET6_0_OR_GREATER
-	
 	public static string NewInvokeId([Localizable(false)] string id, int hash) =>
 		string.Create(
 			41 + id.Length, (id, hash), static (span, arg) =>
@@ -53,18 +52,18 @@ internal static class IdGenerator
 								  hash.TryFormat(span[pos..], out pos, format: @"x8");
 							  });
 #else
-		public static string NewInvokeId([Localizable(false)] string id, int hash) =>
-			new StringBuilder(id.Length + 33)
-				.Append(id)
-				.Append('.')
-				.Append(Guid.NewGuid().ToString("N"))
-				.Append(hash.ToString(@"x8"))
-				.ToString();
+	public static string NewInvokeId([Localizable(false)] string id, int hash) =>
+		new StringBuilder(id.Length + 33)
+			.Append(id)
+			.Append('.')
+			.Append(Guid.NewGuid().ToString("N"))
+			.Append(hash.ToString(@"x8"))
+			.ToString();
 
-		private static string NewGuidWithHash(int hash) =>
-			new StringBuilder(32)
-				.Append(Guid.NewGuid().ToString("N"))
-				.Append(hash.ToString(@"x8"))
-				.ToString();
+	private static string NewGuidWithHash(int hash) =>
+		new StringBuilder(32)
+			.Append(Guid.NewGuid().ToString("N"))
+			.Append(hash.ToString(@"x8"))
+			.ToString();
 #endif
 }

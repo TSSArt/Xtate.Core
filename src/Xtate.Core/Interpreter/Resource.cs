@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,8 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using System.IO;
 using System.Net.Mime;
 using System.Text;
@@ -27,7 +25,7 @@ namespace Xtate.Core;
 public class Resource(Stream stream, ContentType? contentType = default) : IDisposable, IAsyncDisposable, IXIncludeResource
 {
 	private readonly DisposingToken _disposingToken = new();
-	private readonly Stream _stream = stream ?? throw new ArgumentNullException(nameof(stream));
+	private readonly Stream         _stream         = stream ?? throw new ArgumentNullException(nameof(stream));
 	private          byte[]?        _bytes;
 	private          string?        _content;
 
@@ -61,7 +59,7 @@ public class Resource(Stream stream, ContentType? contentType = default) : IDisp
 
 	public ContentType? ContentType { get; } = contentType;
 
-	#endregion
+#endregion
 
 	protected virtual void Dispose(bool disposing)
 	{

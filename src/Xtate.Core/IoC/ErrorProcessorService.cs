@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,8 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using System.Xml;
 using Xtate.Scxml;
 
@@ -28,7 +26,7 @@ public class ErrorProcessorService<TSource> : IErrorProcessorService<TSource>
 
 	public required ILineInfoRequired? LineInfoRequired { private get; [UsedImplicitly] init; }
 
-#region Interface IErrorProcessorService
+#region Interface IErrorProcessorService<TSource>
 
 	public virtual void AddError(object? entity, string message, Exception? exception = default)
 	{

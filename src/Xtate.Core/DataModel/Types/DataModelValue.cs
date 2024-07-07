@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,8 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using System.Diagnostics;
 using System.Dynamic;
 using System.Globalization;
@@ -24,7 +22,6 @@ using System.Reflection;
 using System.Runtime.Serialization;
 
 namespace Xtate;
-
 
 [DebuggerTypeProxy(typeof(DebugView))]
 [DebuggerDisplay(value: "{ToObject()} ({Type})")]
@@ -586,16 +583,16 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 	private static DataModelValue FromUnknownObjectWithMap(object obj, ref Dictionary<object, DataModelList>? map) =>
 		obj switch
 		{
-			DateTimeOffset dateTimeOffset                              => new DataModelValue(dateTimeOffset),
-			DataModelValue value                                       => value,
-			IObject value                                              => FromObjectWithMap(value.ToObject(), ref map),
-			DataModelList list                                         => new DataModelValue(list),
-			IDictionary<string, object> dictionary                     => CreateDataModelObject(dictionary, ref map),
-			IDictionary<string, string> dictionary                     => CreateDataModelObject(dictionary, ref map),
-			IEnumerable array                                          => CreateDataModelList(array, ref map),
-			ILazyValue lazyValue                                       => new DataModelValue(lazyValue),
-			{ } when TryFromAnonymousType(obj, ref map, out var value) => value,
-			_                                                          => throw new ArgumentException(Resources.Exception_UnsupportedObjectType, nameof(obj))
+			DateTimeOffset dateTimeOffset                                   => new DataModelValue(dateTimeOffset),
+			DataModelValue value                                            => value,
+			IObject value                                                   => FromObjectWithMap(value.ToObject(), ref map),
+			DataModelList list                                              => new DataModelValue(list),
+			IDictionary<string, object> dictionary                          => CreateDataModelObject(dictionary, ref map),
+			IDictionary<string, string> dictionary                          => CreateDataModelObject(dictionary, ref map),
+			IEnumerable array                                               => CreateDataModelList(array, ref map),
+			ILazyValue lazyValue                                            => new DataModelValue(lazyValue),
+			not null when TryFromAnonymousType(obj, ref map, out var value) => value,
+			_                                                               => throw new ArgumentException(Resources.Exception_UnsupportedObjectType, nameof(obj))
 		};
 
 	private static bool TryFromAnonymousType(object obj, ref Dictionary<object, DataModelList>? map, out DataModelValue result)
@@ -783,7 +780,6 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 		public override bool Equals(object? obj) => obj is DateTimeValue;
 	}
 
-	
 	[ExcludeFromCodeCoverage]
 	private class DebugView(DataModelValue value)
 	{
@@ -797,7 +793,7 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 
 	internal class Dynamic(DataModelValue value) : DynamicObject
 	{
-		private static readonly Dynamic Instance = new (default);
+		private static readonly Dynamic Instance = new(default);
 
 		private static readonly ConstructorInfo ConstructorInfo = typeof(Dynamic).GetConstructor([typeof(DataModelValue)])!;
 

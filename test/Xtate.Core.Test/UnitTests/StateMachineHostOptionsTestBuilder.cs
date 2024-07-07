@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,21 +15,18 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
+namespace Xtate.Test;
 
-namespace Xtate.Test
+public static class StateMachineHostOptionsTestBuilder
 {
-	public static class StateMachineHostOptionsTestBuilder
+	public delegate void StateMachineHostOptionsSetup(StateMachineHostOptions options);
+
+	public static StateMachineHostOptions Create(StateMachineHostOptionsSetup build)
 	{
-		public delegate void StateMachineHostOptionsSetup(StateMachineHostOptions options);
+		var options = new StateMachineHostOptions { IoProcessorFactories = [], ServiceFactories = [] };
 
-		public static StateMachineHostOptions Create(StateMachineHostOptionsSetup build)
-		{
-			var options = new StateMachineHostOptions { IoProcessorFactories = [], ServiceFactories = [] };
+		build(options);
 
-			build(options);
-
-			return options;
-		}
+		return options;
 	}
 }

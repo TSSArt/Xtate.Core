@@ -1,5 +1,5 @@
-#region Copyright © 2019-2023 Sergii Artemenko
-
+// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,8 +14,6 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-#endregion
 
 using System.Xml;
 using System.Xml.Schema;
@@ -33,7 +31,7 @@ public abstract class DelegatedXmlReader : XmlReader, IXmlLineInfo
 
 	protected XmlReader InnerReader { get; set; }
 
-	[SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")]
+	[SuppressMessage(category: "ReSharper", checkId: "AssignNullToNotNullAttribute")]
 	public override string BaseURI => InnerReader.BaseURI;
 
 	public override int AttributeCount => InnerReader.AttributeCount;
@@ -48,7 +46,7 @@ public abstract class DelegatedXmlReader : XmlReader, IXmlLineInfo
 
 	public override bool IsEmptyElement => InnerReader.IsEmptyElement;
 
-	[SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")]
+	[SuppressMessage(category: "ReSharper", checkId: "AssignNullToNotNullAttribute")]
 	public override string this[int i] => InnerReader[i];
 
 	public override string? this[string name] => InnerReader[name];
@@ -61,7 +59,7 @@ public abstract class DelegatedXmlReader : XmlReader, IXmlLineInfo
 
 	public override string NamespaceURI => InnerReader.NamespaceURI;
 
-	[SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")]
+	[SuppressMessage(category: "ReSharper", checkId: "AssignNullToNotNullAttribute")]
 	public override XmlNameTable NameTable => InnerReader.NameTable;
 
 	public override XmlNodeType NodeType => InnerReader.NodeType;
@@ -104,7 +102,7 @@ public abstract class DelegatedXmlReader : XmlReader, IXmlLineInfo
 
 	public override void Close() => InnerReader.Close();
 
-	[SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")]
+	[SuppressMessage(category: "ReSharper", checkId: "AssignNullToNotNullAttribute")]
 	public override string GetAttribute(int i) => InnerReader.GetAttribute(i);
 
 	public override string? GetAttribute(string name) => InnerReader.GetAttribute(name);

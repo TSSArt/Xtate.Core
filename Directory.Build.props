@@ -1,19 +1,20 @@
 ﻿<Project>
 
-  <PropertyGroup>
-    <LangVersion>12</LangVersion>
-    <Product>Xtate</Product>
-    <Company>T.S.S.Art</Company>
-    <Authors>Sergii Artemenko</Authors>
-    <RepositoryType>git</RepositoryType>
-    <PackageTags>xtate;state;machine;statemachine;scxml;fsm</PackageTags>
-    <Description>State Machine Framework</Description>
-    <Copyright>Copyright © 2019-2024 Sergii Artemenko</Copyright>
-    <PackageProjectUrl>https://xtate.net</PackageProjectUrl>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
-  </PropertyGroup>
+	<PropertyGroup>
+		<LangVersion>12</LangVersion>
+		<Product>Xtate</Product>
+		<Company>T.S.S.Art</Company>
+		<Authors>Sergii Artemenko</Authors>
+		<RepositoryType>git</RepositoryType>
+		<PackageTags>xtate;state;machine;statemachine;scxml;fsm</PackageTags>
+		<Description>State Machine Framework</Description>
+		<Copyright>Copyright © 2019-2024 Sergii Artemenko</Copyright>
+		<PackageProjectUrl>https://xtate.net</PackageProjectUrl>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
+	</PropertyGroup>
 
-  <Import Condition="Exists($([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../')))"
-                   Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+	<Import
+		Condition="Exists($([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../')))"
+		Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
 </Project>

@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,8 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 namespace Xtate.Core;
 
 public sealed class InProcEventSchedulerFactory : IEventSchedulerFactory
@@ -26,7 +24,7 @@ public sealed class InProcEventSchedulerFactory : IEventSchedulerFactory
 #region Interface IEventSchedulerFactory
 
 	public ValueTask<IEventScheduler> CreateEventScheduler(IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger? logger, CancellationToken token) =>
-		new(new InProcEventScheduler(hostEventDispatcher, logger: null!)); //TODO: move factory to IoC
+		new(new InProcEventScheduler(hostEventDispatcher, null!)); //TODO: move factory to IoC
 
 #endregion
 }

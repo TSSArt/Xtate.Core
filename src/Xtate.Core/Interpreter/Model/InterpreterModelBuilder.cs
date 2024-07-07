@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,8 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using Xtate.DataModel;
 using Xtate.Persistence;
 
@@ -24,22 +22,12 @@ namespace Xtate.Core;
 
 public class InterpreterModelBuilder : StateMachineVisitor
 {
-	private class EntityMap(IEntity?[] map) : IEntityMap
-	{
-		public bool TryGetEntityByDocumentId(int id, [MaybeNullWhen(false)] out IEntity entity)
-		{
-			entity = id < map.Length ? map[id] : default;
-			
-			return entity is not null;
-		}
-	}
-
 	private readonly Dictionary<IIdentifier, StateEntityNode>           _idMap     = new(Identifier.EqualityComparer);
 	private readonly List<TransitionNode>                               _targetMap = [];
 	private          int                                                _counter;
 	private          int                                                _deepLevel;
-	private          List<IEntity>?                                     _entities;
 	private          LinkedList<int>?                                   _documentIdList;
+	private          List<IEntity>?                                     _entities;
 	private          List<(Uri Uri, IExternalScriptConsumer Consumer)>? _externalScriptList;
 	private          bool                                               _inParallel;
 
@@ -138,7 +126,7 @@ public class InterpreterModelBuilder : StateMachineVisitor
 
 		_documentIdList = default;
 
-		var entityMap = _entities is { } entities? GetEntityMap(entities, id) : default;
+		var entityMap = _entities is { } entities ? GetEntityMap(entities, id) : default;
 
 		if (_externalScriptList is not null)
 		{
@@ -653,5 +641,19 @@ public class InterpreterModelBuilder : StateMachineVisitor
 		_deepLevel ++;
 		base.Visit(ref executableEntity);
 		_deepLevel --;
+	}
+
+	private class EntityMap(IEntity?[] map) : IEntityMap
+	{
+	#region Interface IEntityMap
+
+		public bool TryGetEntityByDocumentId(int id, [MaybeNullWhen(false)] out IEntity entity)
+		{
+			entity = id < map.Length ? map[id] : default;
+
+			return entity is not null;
+		}
+
+	#endregion
 	}
 }

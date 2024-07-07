@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,8 +14,6 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-#endregion
 
 namespace Xtate.Service;
 
@@ -49,7 +47,7 @@ public abstract class ServiceFactoryBase : IServiceFactory
 	{
 		private readonly Dictionary<Uri, Delegate> _creators = new(FullUriComparer.Instance);
 
-#region Interface IServiceCatalog
+	#region Interface IServiceCatalog
 
 		public void Register(string type, IServiceCatalog.Creator creator)
 		{
@@ -75,7 +73,7 @@ public abstract class ServiceFactoryBase : IServiceFactory
 			_creators.Add(new Uri(type, UriKind.RelativeOrAbsolute), creator);
 		}
 
-#endregion
+	#endregion
 
 		public bool CanHandle(Uri type) => _creators.ContainsKey(type);
 
@@ -106,8 +104,7 @@ public abstract class ServiceFactoryBase : IServiceFactory
 
 	private class Activator(Catalog catalog) : IServiceFactoryActivator
 	{
-
-		#region Interface IServiceFactoryActivator
+	#region Interface IServiceFactoryActivator
 
 		public ValueTask<IService> StartService(Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication)
 		{
@@ -118,7 +115,7 @@ public abstract class ServiceFactoryBase : IServiceFactory
 			return catalog.CreateService(baseUri, invokeData, serviceCommunication);
 		}
 
-#endregion
+	#endregion
 
 		public bool CanHandle(Uri type) => catalog.CanHandle(type);
 	}

@@ -1,4 +1,21 @@
-﻿using System.Globalization;
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
+// This file is part of the Xtate project. <https://xtate.net/>
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+// 
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+using System.Globalization;
 using System.Text;
 
 namespace Xtate.Core;
@@ -44,8 +61,8 @@ public readonly struct LoggingInterpolatedStringHandler
 
 	public void AppendLiteral(string value) => _stringBuilder!.Append(value);
 
-	[SuppressMessage("Style", "IDE0038:Use pattern matching", Justification = "Avoid boxing if T is struct")]
-	[SuppressMessage("ReSharper", "MergeCastWithTypeCheck", Justification = "Avoid boxing if T is struct")]
+	[SuppressMessage(category: "Style", checkId: "IDE0038:Use pattern matching", Justification = "Avoid boxing if T is struct")]
+	[SuppressMessage(category: "ReSharper", checkId: "MergeCastWithTypeCheck", Justification = "Avoid boxing if T is struct")]
 	private string? ToStringFormatted<T>(T value, string? format)
 	{
 		if (_provider is not null && _provider.GetType() != typeof(CultureInfo) && _provider.GetFormat(typeof(ICustomFormatter)) is ICustomFormatter customFormatter)

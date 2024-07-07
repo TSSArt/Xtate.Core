@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,8 +14,6 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-#endregion
 
 using Xtate.Service;
 
@@ -183,9 +181,10 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 																			   IStateMachineOptions? stateMachineOptions,
 																			   Uri? stateMachineLocation,
 																			   InterpreterOptions defaultOptions
-																			  // SecurityContext securityContext,
-																			  // DeferredFinalizer finalizer
-																			  ) =>
+
+		// SecurityContext securityContext,
+		// DeferredFinalizer finalizer
+	) =>
 		stateMachineOptions.IsStateMachinePersistable()
 			? new StateMachinePersistedController(
 				  sessionId, stateMachineOptions, stateMachine, stateMachineLocation, _stateMachineHost,
@@ -195,14 +194,15 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 			  }
 			: base.CreateStateMachineController(sessionId, stateMachine, stateMachineOptions, stateMachineLocation, defaultOptions);
 
-	public override async ValueTask<StateMachineControllerBase> CreateAndAddStateMachine(//ServiceLocator serviceLocator,
-																						 SessionId sessionId,
-																						 StateMachineOrigin origin,
-																						 DataModelValue parameters,
-																						 SecurityContext securityContext,
-																						 //DeferredFinalizer finalizer,
-																						 IErrorProcessor errorProcessor,
-																						 CancellationToken token)
+	public override async ValueTask<StateMachineControllerBase> CreateAndAddStateMachine( //ServiceLocator serviceLocator,
+		SessionId sessionId,
+		StateMachineOrigin origin,
+		DataModelValue parameters,
+		SecurityContext securityContext,
+
+		//DeferredFinalizer finalizer,
+		IErrorProcessor errorProcessor,
+		CancellationToken token)
 	{
 		Infra.NotNull(_storage);
 
@@ -329,7 +329,7 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 					//var finalizer = new DeferredFinalizer();
 					var securityContext = SecurityContext.Create(meta.SecurityContextType, meta.Permissions);
 
-					var controller = AddSavedStateMachine( meta.SessionId, meta.Location, meta, securityContext, errorProcessor: default! /*TODO*/);
+					var controller = AddSavedStateMachine(meta.SessionId, meta.Location, meta, securityContext, default! /*TODO*/);
 					AddStateMachineController(controller);
 
 					//TODO:
@@ -488,7 +488,7 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 		public SecurityContextType         SecurityContextType { get; }
 		public SecurityContextPermissions  Permissions         { get; }
 
-#region Interface IStateMachineOptions
+	#region Interface IStateMachineOptions
 
 		public string?                  Name                       { get; }
 		public PersistenceLevel?        PersistenceLevel           { get; }
@@ -496,9 +496,9 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 		public int?                     ExternalQueueSize          { get; }
 		public UnhandledErrorBehaviour? UnhandledErrorBehaviour    { get; }
 
-#endregion
+	#endregion
 
-#region Interface IStoreSupport
+	#region Interface IStoreSupport
 
 		public void Store(Bucket bucket)
 		{
@@ -534,7 +534,7 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 			}
 		}
 
-#endregion
+	#endregion
 	}
 
 	private class InvokedServiceMeta : IStoreSupport
@@ -558,7 +558,7 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 		public SessionId? SessionId       { get; }
 		public int        RecordId        { get; set; }
 
-#region Interface IStoreSupport
+	#region Interface IStoreSupport
 
 		public void Store(Bucket bucket)
 		{
@@ -569,6 +569,6 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 			bucket.AddId(Key.SessionId, SessionId);
 		}
 
-#endregion
+	#endregion
 	}
 }
