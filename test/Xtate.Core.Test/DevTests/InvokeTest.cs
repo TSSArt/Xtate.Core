@@ -97,7 +97,7 @@ public class InvokeTest
 
 		_loggerMock.Verify(l => l.Write(Level.Info, 1, "FinalizeExecuted", It.IsAny<IEnumerable<LoggingParameter>>()));
 		_loggerMock.Verify(l => l.Write(Level.Trace, 1, It.Is<string>(v => v.StartsWith("Start")), It.IsAny<IEnumerable<LoggingParameter>>()));
-		_loggerMock.Verify(l => l.Write(Level.Trace,2,  It.Is<string>(v => v.StartsWith("Cancel")), It.IsAny<IEnumerable<LoggingParameter>>()));
+		_loggerMock.Verify(l => l.Write(Level.Trace, 2, It.Is<string>(v => v.StartsWith("Cancel")), It.IsAny<IEnumerable<LoggingParameter>>()));
 		_loggerMock.Verify(l => l.IsEnabled(It.IsAny<Level>()));
 		_loggerMock.Verify(l => l.Write(Level.Trace, It.IsAny<int>(), It.IsAny<string>(), It.IsAny<IEnumerable<LoggingParameter>>()));
 		_loggerMock.VerifyNoOtherCalls();

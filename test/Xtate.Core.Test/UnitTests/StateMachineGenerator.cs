@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2020 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,35 +15,32 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using System.IO;
 using System.Xml;
 using Xtate.IoC;
 using Xtate.Scxml;
 
-namespace Xtate.Test
+namespace Xtate.Test;
+
+public static class StateMachineGenerator
 {
-	public static class StateMachineGenerator
+	private static IStateMachine FromScxml(string scxml)
 	{
-		private static IStateMachine FromScxml(string scxml)
-		{
-			using var stringReader = new StringReader(scxml);
-			XmlNameTable nt = new NameTable();
-			var xmlNamespaceManager = new XmlNamespaceManager(nt);
-			using var xmlReader = XmlReader.Create(stringReader, settings: null, new XmlParserContext(nt, xmlNamespaceManager, xmlLang: default, xmlSpace: default));
+		using var stringReader = new StringReader(scxml);
+		XmlNameTable nt = new NameTable();
+		var xmlNamespaceManager = new XmlNamespaceManager(nt);
+		using var xmlReader = XmlReader.Create(stringReader, settings: null, new XmlParserContext(nt, xmlNamespaceManager, xmlLang: default, xmlSpace: default));
 
-			var services = new ServiceCollection();
-			services.RegisterScxml();
+		var services = new ServiceCollection();
+		services.RegisterScxml();
 
-			var provider = services.BuildProvider();
+		var provider = services.BuildProvider();
 
-			var sd = provider.GetRequiredServiceSync<IScxmlDeserializer>();
+		var sd = provider.GetRequiredServiceSync<IScxmlDeserializer>();
 
-			return sd.Deserialize(xmlReader).Result;
-		}
-
-		public static IStateMachine FromInnerScxml_EcmaScript(string innerScxml) =>
-				FromScxml("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' datamodel='ecmascript'>" + innerScxml + "</scxml>");
+		return sd.Deserialize(xmlReader).Result;
 	}
+
+	public static IStateMachine FromInnerScxml_EcmaScript(string innerScxml) =>
+		FromScxml("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' datamodel='ecmascript'>" + innerScxml + "</scxml>");
 }

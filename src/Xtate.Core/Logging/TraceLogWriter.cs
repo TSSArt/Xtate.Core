@@ -31,7 +31,10 @@ public class TraceLogWriter(Type source, SourceLevels sourceLevels) : ILogWriter
 
 	public virtual bool IsEnabled(Level level) => _traceSource.Switch.ShouldTrace(GetTraceEventType(level));
 
-	public ValueTask Write(Level level, int eventId, string? message, IEnumerable<LoggingParameter>? parameters)
+	public ValueTask Write(Level level,
+						   int eventId,
+						   string? message,
+						   IEnumerable<LoggingParameter>? parameters)
 	{
 		var traceEventType = GetTraceEventType(level);
 
@@ -39,7 +42,7 @@ public class TraceLogWriter(Type source, SourceLevels sourceLevels) : ILogWriter
 		{
 			object?[] args = parameters is not null ? [message, ..parameters] : [message];
 
-			_traceSource.TraceEvent(traceEventType, id: eventId, GetFormat(args.Length - 1), args);
+			_traceSource.TraceEvent(traceEventType, eventId, GetFormat(args.Length - 1), args);
 		}
 
 		return default;

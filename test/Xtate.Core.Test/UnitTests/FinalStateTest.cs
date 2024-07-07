@@ -1,5 +1,5 @@
-#region Copyright © 2019-2020 Sergii Artemenko
-
+// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,75 +15,75 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using Xtate.Builder;
 using Xtate.Core;
 using Xtate.IoC;
 
-namespace Xtate.Test
+namespace Xtate.Test;
+
+[TestClass]
+public class FinalStateTest
 {
-	[TestClass]
-	public class FinalStateTest
+	[TestMethod]
+	public async Task Final_state_with_number_as_done_data_Should_return_same_value()
 	{
-		[TestMethod]
-		public async Task Final_state_with_number_as_done_data_Should_return_same_value()
-		{
-			// Arrange
-			var services = new ServiceCollection();
-			services.RegisterStateMachineFluentBuilder();
-			services.RegisterStateMachineHost();
-			var serviceProvider = services.BuildProvider();
-			var builder = await serviceProvider.GetRequiredService<StateMachineFluentBuilder>();
+		// Arrange
+		var services = new ServiceCollection();
+		services.RegisterStateMachineFluentBuilder();
+		services.RegisterStateMachineHost();
+		var serviceProvider = services.BuildProvider();
+		var builder = await serviceProvider.GetRequiredService<StateMachineFluentBuilder>();
 
-			var stateMachine = builder
-							   .BeginFinal()
-							   .SetDoneDataValue(22)
-							   .EndFinal()
-							   .Build();
+		var stateMachine = builder
+						   .BeginFinal()
+						   .SetDoneDataValue(22)
+						   .EndFinal()
+						   .Build();
 
-			var stateMachineHost = await serviceProvider.GetRequiredService<StateMachineHost>();
-			//await using var stateMachineHost = new StateMachineHost(new StateMachineHostOptions());
+		var stateMachineHost = await serviceProvider.GetRequiredService<StateMachineHost>();
 
-			await stateMachineHost.StartHostAsync();
+		//await using var stateMachineHost = new StateMachineHost(new StateMachineHostOptions());
 
-			// Act
-			var result = await stateMachineHost.ExecuteStateMachineAsync(stateMachine);
+		await stateMachineHost.StartHostAsync();
 
-			//Assert
-			Assert.AreEqual(expected: 22, result.AsNumber());
-		}
+		// Act
+		var result = await stateMachineHost.ExecuteStateMachineAsync(stateMachine);
 
-		[TestMethod]
-		public async Task Input_argument_Should_be_passed_as_return_value()
-		{
-			var services = new ServiceCollection();
-			services.RegisterStateMachineFluentBuilder();
-			services.RegisterStateMachineHost();
-			var serviceProvider = services.BuildProvider();
-			var builder = await serviceProvider.GetRequiredService<StateMachineFluentBuilder>();
+		//Assert
+		Assert.AreEqual(expected: 22, result.AsNumber());
+	}
 
-			// Arrange
-			var stateMachine = builder
-							   .BeginFinal()
-							   .SetDoneDataFunc(() =>
-											{
-												var val = Runtime.DataModel["_x"].AsListOrEmpty()["args"].AsNumber();
-												return new DataModelValue(val);
-											})
-							   .EndFinal()
-							   .Build();
+	[TestMethod]
+	public async Task Input_argument_Should_be_passed_as_return_value()
+	{
+		var services = new ServiceCollection();
+		services.RegisterStateMachineFluentBuilder();
+		services.RegisterStateMachineHost();
+		var serviceProvider = services.BuildProvider();
+		var builder = await serviceProvider.GetRequiredService<StateMachineFluentBuilder>();
 
-			var stateMachineHost = await serviceProvider.GetRequiredService<StateMachineHost>();
-			//await using var stateMachineHost = new StateMachineHost(new StateMachineHostOptions());
+		// Arrange
+		var stateMachine = builder
+						   .BeginFinal()
+						   .SetDoneDataFunc(
+							   () =>
+							   {
+								   var val = Runtime.DataModel["_x"].AsListOrEmpty()["args"].AsNumber();
+								   return new DataModelValue(val);
+							   })
+						   .EndFinal()
+						   .Build();
 
-			await stateMachineHost.StartHostAsync();
+		var stateMachineHost = await serviceProvider.GetRequiredService<StateMachineHost>();
 
-			// Act
-			var result = await stateMachineHost.ExecuteStateMachineAsync(stateMachine, new DataModelValue(33));
+		//await using var stateMachineHost = new StateMachineHost(new StateMachineHostOptions());
 
-			//Assert
-			Assert.AreEqual(expected: 33, result.AsNumber());
-		}
+		await stateMachineHost.StartHostAsync();
+
+		// Act
+		var result = await stateMachineHost.ExecuteStateMachineAsync(stateMachine, new DataModelValue(33));
+
+		//Assert
+		Assert.AreEqual(expected: 33, result.AsNumber());
 	}
 }

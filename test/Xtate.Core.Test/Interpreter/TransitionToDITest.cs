@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,84 +15,83 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using Xtate.IoC;
 
 namespace Xtate.Core.Test.Interpreter;
 
 public static class ContainerBuilder
-{/*
-	public static void AddDataModelHandler(this IServiceCollection services)
-	{
-		services.AddTypeSync<DefaultAssignEvaluator, IAssign>();
-		services.AddTypeSync<DefaultCancelEvaluator, ICancel>();
-		services.AddTypeSync<DefaultContentBodyEvaluator, IContentBody>();
-		services.AddTypeSync<DefaultCustomActionEvaluator, ICustomAction>();
-		services.AddTypeSync<DefaultExternalDataExpressionEvaluator, IExternalDataExpression>();
-		services.AddTypeSync<DefaultForEachEvaluator, IForEach>();
-		services.AddTypeSync<DefaultIfEvaluator, IIf>();
-		services.AddTypeSync<DefaultInlineContentEvaluator, IInlineContent>();
-		services.AddTypeSync<DefaultInvokeEvaluator, IInvoke>();
-		services.AddTypeSync<DefaultLogEvaluator, ILog>();
-		services.AddTypeSync<DefaultParamEvaluator, IParam>();
-		services.AddTypeSync<DefaultRaiseEvaluator, IRaise>();
-		services.AddTypeSync<DefaultScriptEvaluator, IScript>();
-		services.AddTypeSync<DefaultSendEvaluator, ISend>();
+{
+	/*
+		public static void AddDataModelHandler(this IServiceCollection services)
+		{
+			services.AddTypeSync<DefaultAssignEvaluator, IAssign>();
+			services.AddTypeSync<DefaultCancelEvaluator, ICancel>();
+			services.AddTypeSync<DefaultContentBodyEvaluator, IContentBody>();
+			services.AddTypeSync<DefaultCustomActionEvaluator, ICustomAction>();
+			services.AddTypeSync<DefaultExternalDataExpressionEvaluator, IExternalDataExpression>();
+			services.AddTypeSync<DefaultForEachEvaluator, IForEach>();
+			services.AddTypeSync<DefaultIfEvaluator, IIf>();
+			services.AddTypeSync<DefaultInlineContentEvaluator, IInlineContent>();
+			services.AddTypeSync<DefaultInvokeEvaluator, IInvoke>();
+			services.AddTypeSync<DefaultLogEvaluator, ILog>();
+			services.AddTypeSync<DefaultParamEvaluator, IParam>();
+			services.AddTypeSync<DefaultRaiseEvaluator, IRaise>();
+			services.AddTypeSync<DefaultScriptEvaluator, IScript>();
+			services.AddTypeSync<DefaultSendEvaluator, ISend>();
 
-		services.AddType<UnknownDataModelHandler>();
-		services.AddType<NullDataModelHandler>();
-		services.AddType<RuntimeDataModelHandler>();
+			services.AddType<UnknownDataModelHandler>();
+			services.AddType<NullDataModelHandler>();
+			services.AddType<RuntimeDataModelHandler>();
 
-		services.AddImplementation<NullDataModelHandlerProvider>().For<IDataModelHandlerProvider>();
-		services.AddImplementation<RuntimeDataModelHandlerProvider>().For<IDataModelHandlerProvider>();
+			services.AddImplementation<NullDataModelHandlerProvider>().For<IDataModelHandlerProvider>();
+			services.AddImplementation<RuntimeDataModelHandlerProvider>().For<IDataModelHandlerProvider>();
 
-		services.AddXPathDataModelHandler();
+			services.AddXPathDataModelHandler();
 
-		services.AddImplementation<DataModelHandlerService>().For<IDataModelHandlerService>();
-		services.AddFactory<DataModelHandlerGetter>().For<IDataModelHandler>();
-	}
+			services.AddImplementation<DataModelHandlerService>().For<IDataModelHandlerService>();
+			services.AddFactory<DataModelHandlerGetter>().For<IDataModelHandler>();
+		}
 
-	public static void AddXPathDataModelHandler(this IServiceCollection services)
-	{
-		services.AddTypeSync<XPathValueExpressionEvaluator, IValueExpression, XPathCompiledExpression>();
-		services.AddTypeSync<XPathConditionExpressionEvaluator, IConditionExpression, XPathCompiledExpression>();
-		services.AddTypeSync<XPathLocationExpressionEvaluator, ILocationExpression, XPathCompiledExpression>();
-		services.AddTypeSync<XPathContentBodyEvaluator, IContentBody>();
-		services.AddTypeSync<XPathLocationExpression, ILocationExpression, (XPathAssignType, string?)>();
-		services.AddTypeSync<XPathExternalDataExpressionEvaluator, IExternalDataExpression>();
-		services.AddTypeSync<XPathForEachEvaluator, IForEach>();
-		services.AddTypeSync<XPathInlineContentEvaluator, IInlineContent>();
+		public static void AddXPathDataModelHandler(this IServiceCollection services)
+		{
+			services.AddTypeSync<XPathValueExpressionEvaluator, IValueExpression, XPathCompiledExpression>();
+			services.AddTypeSync<XPathConditionExpressionEvaluator, IConditionExpression, XPathCompiledExpression>();
+			services.AddTypeSync<XPathLocationExpressionEvaluator, ILocationExpression, XPathCompiledExpression>();
+			services.AddTypeSync<XPathContentBodyEvaluator, IContentBody>();
+			services.AddTypeSync<XPathLocationExpression, ILocationExpression, (XPathAssignType, string?)>();
+			services.AddTypeSync<XPathExternalDataExpressionEvaluator, IExternalDataExpression>();
+			services.AddTypeSync<XPathForEachEvaluator, IForEach>();
+			services.AddTypeSync<XPathInlineContentEvaluator, IInlineContent>();
 
-		services.AddType<XPathDataModelHandler>();
+			services.AddType<XPathDataModelHandler>();
 
-		services.AddImplementation<XPathDataModelHandlerProvider>().For<IDataModelHandlerProvider>();
-	}
+			services.AddImplementation<XPathDataModelHandlerProvider>().For<IDataModelHandlerProvider>();
+		}
 
-	public static void AddStateMachineContext(this IServiceCollection services, SharedWithin sharedWithin)
-	{
-		services.AddSharedImplementation<StateMachineContext>(sharedWithin).For<IStateMachineContext>();
-	}
+		public static void AddStateMachineContext(this IServiceCollection services, SharedWithin sharedWithin)
+		{
+			services.AddSharedImplementation<StateMachineContext>(sharedWithin).For<IStateMachineContext>();
+		}
 
-	public static void AddInterpreterModel(this IServiceCollection services)
-	{
-		//services.AddForwarding(_ => new Mock<IPreDataModelProcessor>().Object);
-		services.AddFactory<InterpreterModelBuilder>().For<IInterpreterModel>();
-	}
+		public static void AddInterpreterModel(this IServiceCollection services)
+		{
+			//services.AddForwarding(_ => new Mock<IPreDataModelProcessor>().Object);
+			services.AddFactory<InterpreterModelBuilder>().For<IInterpreterModel>();
+		}
 
-	public static void AddStateMachineInterpreter(this IServiceCollection services)
-	{
-		//services.AddForwarding(_ => new Mock<ILoggerOld>().Object);
-		services.AddForwarding(_ => new Mock<IResourceLoader>().Object);
-		services.AddForwarding(_ => new Mock<IEventQueueReader>().Object);
+		public static void AddStateMachineInterpreter(this IServiceCollection services)
+		{
+			//services.AddForwarding(_ => new Mock<ILoggerOld>().Object);
+			services.AddForwarding(_ => new Mock<IResourceLoader>().Object);
+			services.AddForwarding(_ => new Mock<IEventQueueReader>().Object);
 
-		services.AddImplementation<ErrorProcessorService<Any>>().For<IErrorProcessorService<Any>>();
-		services.AddDataModelHandler();
-		services.AddInterpreterModel();
-		services.AddStateMachineContext(SharedWithin.Scope);
+			services.AddImplementation<ErrorProcessorService<Any>>().For<IErrorProcessorService<Any>>();
+			services.AddDataModelHandler();
+			services.AddInterpreterModel();
+			services.AddStateMachineContext(SharedWithin.Scope);
 
-		services.AddImplementation<StateMachineInterpreter>().For<IStateMachineInterpreter>();
-	}*/
+			services.AddImplementation<StateMachineInterpreter>().For<IStateMachineInterpreter>();
+		}*/
 }
 
 [TestClass]
@@ -122,20 +121,20 @@ public class TransitionToDiTest
 							   DataModelType = "xpath", States =
 							   [
 								   new FinalEntity
-								   						   {
-								   							   DoneData = new DoneDataEntity
-								   										  {
-								   											  Content = new ContentEntity
-								   														{
-								   															Body = new ContentBody
-								   																   {
-								   																	   Value = "DONE-DATA"
-								   																   }
-								   														}
-								   										  }
-								   						   },
+								   {
+									   DoneData = new DoneDataEntity
+												  {
+													  Content = new ContentEntity
+																{
+																	Body = new ContentBody
+																		   {
+																			   Value = "DONE-DATA"
+																		   }
+																}
+												  }
+								   }
 							   ]
-		};
+						   };
 
 		var services = new ServiceCollection();
 		services.RegisterStateMachineInterpreter();

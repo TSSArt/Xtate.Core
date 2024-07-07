@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,8 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 namespace Xtate.Core;
 
 /// <summary>
@@ -27,7 +25,7 @@ internal sealed class WrapperErrorProcessor(IErrorProcessor errorProcessor) : IE
 {
 	private ErrorItem? _error;
 
-	#region Interface IErrorProcessor
+#region Interface IErrorProcessor
 
 	public void AddError(ErrorItem errorItem)
 	{
