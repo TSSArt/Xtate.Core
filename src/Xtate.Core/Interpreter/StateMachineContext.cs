@@ -168,6 +168,9 @@ public class DataModelController : IDataModelController
 
 public class EventController : IEventController
 {
+	private const int SendEventId   = 1;
+	private const int CancelEventId = 2;
+
 	private static readonly Uri InternalTarget = new(uriString: "_internal", UriKind.Relative);
 
 	public required IExternalCommunication?   ExternalCommunication { private get; [UsedImplicitly] init; }
@@ -179,7 +182,7 @@ public class EventController : IEventController
 
 	public virtual async ValueTask Cancel(SendId sendId)
 	{
-		await Logger.Write(Level.Trace, $@"Cancel Event '{sendId}'", sendId).ConfigureAwait(false);
+		await Logger.Write(Level.Trace, CancelEventId, $@"Cancel Event '{sendId}'", sendId).ConfigureAwait(false);
 
 		if (ExternalCommunication is not null)
 		{
@@ -189,7 +192,7 @@ public class EventController : IEventController
 
 	public virtual async ValueTask Send(IOutgoingEvent outgoingEvent)
 	{
-		await Logger.Write(Level.Trace, $@"Send event: '{EventName.ToName(outgoingEvent.NameParts)}'", outgoingEvent).ConfigureAwait(false);
+		await Logger.Write(Level.Trace, SendEventId, $@"Send event: '{EventName.ToName(outgoingEvent.NameParts)}'", outgoingEvent).ConfigureAwait(false);
 
 		if (IsInternalEvent(outgoingEvent))
 		{
@@ -233,9 +236,9 @@ public interface IXDataModelProperty
 
 public class InterpreterXDataModelProperty : IXDataModelProperty
 {
-	public required IDataModelHandler        DataModelHandler        { private get; [UsedImplicitly] init; }
-	public required IStateMachineInterpreter StateMachineInterpreter { private get; [UsedImplicitly] init; }
-	public required Func<Type, IAssemblyTypeInfo>    TypeInfoFactory         { private get; [UsedImplicitly] init; }
+	public required IDataModelHandler             DataModelHandler        { private get; [UsedImplicitly] init; }
+	public required IStateMachineInterpreter      StateMachineInterpreter { private get; [UsedImplicitly] init; }
+	public required Func<Type, IAssemblyTypeInfo> TypeInfoFactory         { private get; [UsedImplicitly] init; }
 
 #region Interface IXDataModelProperty
 
@@ -264,7 +267,7 @@ public class InterpreterXDataModelProperty : IXDataModelProperty
 
 public class DataModelXDataModelProperty : IXDataModelProperty
 {
-	public required IDataModelHandler     DataModelHandler { private get; [UsedImplicitly] init; }
+	public required IDataModelHandler             DataModelHandler { private get; [UsedImplicitly] init; }
 	public required Func<Type, IAssemblyTypeInfo> TypeInfoFactory  { private get; [UsedImplicitly] init; }
 
 #region Interface IXDataModelProperty

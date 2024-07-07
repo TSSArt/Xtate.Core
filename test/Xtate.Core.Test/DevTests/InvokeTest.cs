@@ -78,7 +78,7 @@ public class InvokeTest
 		var services = new ServiceCollection();
 		services.AddForwarding<IStateMachine>(_ => _stateMachine);
 		services.AddForwarding(_ => _invokeControllerMock.Object);
-		services.AddForwarding<ILogWriter, string>((_, _) => _loggerMock.Object);
+		services.AddForwarding<ILogWriter, Type>((_, _) => _loggerMock.Object);
 		services.RegisterStateMachineInterpreter();
 
 		var serviceProvider = services.BuildProvider();
@@ -95,11 +95,11 @@ public class InvokeTest
 		_invokeControllerMock.Verify(l => l.Cancel(InvokeId.FromString("invoke_id", invokeUniqueId)));
 		_invokeControllerMock.VerifyNoOtherCalls();
 
-		_loggerMock.Verify(l => l.Write(Level.Info, "FinalizeExecuted", It.IsAny<IEnumerable<LoggingParameter>>()));
-		_loggerMock.Verify(l => l.Write(Level.Trace, It.Is<string>(v => v.StartsWith("Start")), It.IsAny<IEnumerable<LoggingParameter>>()));
-		_loggerMock.Verify(l => l.Write(Level.Trace, It.Is<string>(v => v.StartsWith("Cancel")), It.IsAny<IEnumerable<LoggingParameter>>()));
+		_loggerMock.Verify(l => l.Write(Level.Info, 1, "FinalizeExecuted", It.IsAny<IEnumerable<LoggingParameter>>()));
+		_loggerMock.Verify(l => l.Write(Level.Trace, 1, It.Is<string>(v => v.StartsWith("Start")), It.IsAny<IEnumerable<LoggingParameter>>()));
+		_loggerMock.Verify(l => l.Write(Level.Trace,2,  It.Is<string>(v => v.StartsWith("Cancel")), It.IsAny<IEnumerable<LoggingParameter>>()));
 		_loggerMock.Verify(l => l.IsEnabled(It.IsAny<Level>()));
-		_loggerMock.Verify(l => l.Write(Level.Trace, It.IsAny<string>(), It.IsAny<IEnumerable<LoggingParameter>>()));
+		_loggerMock.Verify(l => l.Write(Level.Trace, It.IsAny<int>(), It.IsAny<string>(), It.IsAny<IEnumerable<LoggingParameter>>()));
 		_loggerMock.VerifyNoOtherCalls();
 	}
 }

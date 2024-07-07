@@ -21,17 +21,17 @@ using System.Text;
 
 namespace Xtate.Core;
 
-public class TraceLogWriter(string source, SourceLevels sourceLevels) : ILogWriter
+public class TraceLogWriter(Type source, SourceLevels sourceLevels) : ILogWriter
 {
 	private static readonly ConcurrentDictionary<int, string> Formats = new();
 
-	private readonly TraceSource _traceSource = new(source, sourceLevels);
+	private readonly TraceSource _traceSource = new(source.FullName, sourceLevels);
 
 #region Interface ILogWriter
 
 	public virtual bool IsEnabled(Level level) => _traceSource.Switch.ShouldTrace(GetTraceEventType(level));
 
-	public ValueTask Write(Level level, string? message, IEnumerable<LoggingParameter>? parameters)
+	public ValueTask Write(Level level, int eventId, string? message, IEnumerable<LoggingParameter>? parameters)
 	{
 		var traceEventType = GetTraceEventType(level);
 
@@ -39,7 +39,7 @@ public class TraceLogWriter(string source, SourceLevels sourceLevels) : ILogWrit
 		{
 			object?[] args = parameters is not null ? [message, ..parameters] : [message];
 
-			_traceSource.TraceEvent(traceEventType, id: 0, GetFormat(args.Length - 1), args);
+			_traceSource.TraceEvent(traceEventType, id: eventId, GetFormat(args.Length - 1), args);
 		}
 
 		return default;
