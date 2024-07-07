@@ -22,6 +22,9 @@ namespace Xtate.Core;
 
 public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 {
+	private const int StartInvokeEventId = 1;
+	private const int CancelInvokeEventId = 2;
+
 	private readonly IValueEvaluator?                    _contentBodyEvaluator;
 	private readonly IObjectEvaluator?                   _contentExpressionEvaluator;
 	private readonly ILocationEvaluator?                 _idLocationEvaluator;
@@ -145,7 +148,7 @@ public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId
 						 };
 
 		var logger = await LoggerFactory().ConfigureAwait(false);
-		await logger.Write(Level.Trace, $@"Start invoke. InvokeId: [{InvokeId}]", invokeData).ConfigureAwait(false);
+		await logger.Write(Level.Trace, StartInvokeEventId, $@"Start invoke. InvokeId: [{InvokeId}]", invokeData).ConfigureAwait(false);
 
 		if (await InvokeControllerFactory().ConfigureAwait(false) is { } invokeController)
 		{
@@ -158,7 +161,7 @@ public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId
 	public async ValueTask Cancel()
 	{
 		var logger = await LoggerFactory().ConfigureAwait(false);
-		await logger.Write(Level.Trace, $@"Cancel invoke. InvokeId: [{InvokeId}]", InvokeId).ConfigureAwait(false);
+		await logger.Write(Level.Trace, CancelInvokeEventId, $@"Cancel invoke. InvokeId: [{InvokeId}]", InvokeId).ConfigureAwait(false);
 
 		var tmpInvokeId = InvokeId;
 		InvokeId = default;

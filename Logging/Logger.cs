@@ -24,9 +24,9 @@ public class Logger<TSource> : ILogger<TSource>, IAsyncInitialization
 {
 	private readonly AsyncInit<ILogWriter?> _logWriterAsyncInit;
 
-	public Logger() => _logWriterAsyncInit = AsyncInit.Run(this, logger => logger.LogWriterFactory(typeof(TSource).Name));
+	public Logger() => _logWriterAsyncInit = AsyncInit.Run(this, logger => logger.LogWriterFactory(typeof(TSource)));
 
-	public required Func<string, ValueTask<ILogWriter?>> LogWriterFactory { private get; [UsedImplicitly] init; }
+	public required Func<Type, ValueTask<ILogWriter?>> LogWriterFactory { private get; [UsedImplicitly] init; }
 
 	public required IEntityParserHandler EntityParserHandler { private get; [UsedImplicitly] init; }
 
@@ -46,46 +46,46 @@ public class Logger<TSource> : ILogger<TSource>, IAsyncInitialization
 
 #region Interface ILogger<TSource>
 
-	public virtual ValueTask Write(Level level, string? message)
+	public virtual ValueTask Write(Level level, int eventId, string? message)
 	{
 		if (IsEnabled(level))
 		{
-			return _logWriterAsyncInit.Value!.Write(level, message);
+			return _logWriterAsyncInit.Value!.Write(level, eventId, message);
 		}
 
 		return default;
 	}
 
-	public virtual ValueTask Write(Level level, [InterpolatedStringHandlerArgument("", "level")] LoggingInterpolatedStringHandler formattedMessage)
+	public virtual ValueTask Write(Level level, int eventId, [InterpolatedStringHandlerArgument("", "level")] LoggingInterpolatedStringHandler formattedMessage)
 	{
 		if (IsEnabled(level))
 		{
 			var message = formattedMessage.ToString(out var parameters);
 
-			return _logWriterAsyncInit.Value!.Write(level, message, parameters);
+			return _logWriterAsyncInit.Value!.Write(level, eventId, message, parameters);
 		}
 
 		return default;
 	}
 
-	public virtual ValueTask Write<TEntity>(Level level, string? message, TEntity entity)
+	public virtual ValueTask Write<TEntity>(Level level, int eventId, string? message, TEntity entity)
 	{
 		if (IsEnabled(level))
 		{
-			return _logWriterAsyncInit.Value!.Write(level, message, EntityParserHandler.EnumerateProperties(entity));
+			return _logWriterAsyncInit.Value!.Write(level, eventId, message, EntityParserHandler.EnumerateProperties(entity));
 		}
 
 		return default;
 	}
 
-	public virtual ValueTask Write<TEntity>(Level level, [InterpolatedStringHandlerArgument("", "level")] LoggingInterpolatedStringHandler formattedMessage, TEntity entity)
+	public virtual ValueTask Write<TEntity>(Level level, int eventId, [InterpolatedStringHandlerArgument("", "level")] LoggingInterpolatedStringHandler formattedMessage, TEntity entity)
 	{
 		if (IsEnabled(level))
 		{
 			var message = formattedMessage.ToString(out var parameters);
 			var loggingParameters = parameters.Concat(EntityParserHandler.EnumerateProperties(entity));
 
-			return _logWriterAsyncInit.Value!.Write(level, message, loggingParameters);
+			return _logWriterAsyncInit.Value!.Write(level, eventId, message, loggingParameters);
 		}
 
 		return default;

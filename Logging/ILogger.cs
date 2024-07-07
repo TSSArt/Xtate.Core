@@ -9,11 +9,11 @@ public interface ILogger
 
 public interface ILogger<[UsedImplicitly] TSource> : ILogger
 {
-	ValueTask Write(Level level, string? message);
+	ValueTask Write(Level level, int eventId, string? message);
 
-	ValueTask Write<TEntity>(Level level, string? message, TEntity entity);
+	ValueTask Write<TEntity>(Level level, int eventId, string? message, TEntity entity);
 
-	ValueTask Write(Level level, [InterpolatedStringHandlerArgument("", "level")] LoggingInterpolatedStringHandler formattedMessage);
+	ValueTask Write(Level level, int eventId, [InterpolatedStringHandlerArgument("", "level")] LoggingInterpolatedStringHandler formattedMessage);
 
-	ValueTask Write<TEntity>(Level level, [InterpolatedStringHandlerArgument("", "level")] LoggingInterpolatedStringHandler formattedMessage, TEntity entity);
+	ValueTask Write<TEntity>(Level level, int eventId, [InterpolatedStringHandlerArgument("", "level")] LoggingInterpolatedStringHandler formattedMessage, TEntity entity);
 }

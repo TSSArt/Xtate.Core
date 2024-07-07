@@ -9,7 +9,7 @@ public class FileLogWriter : TraceLogWriter
 		public string FileName { get; } = fileName;
 	}
 
-	public FileLogWriter(string file, string source) : base(source, SourceLevels.All)
+	public FileLogWriter(string file, Type source) : base(source, SourceLevels.All)
 	{
 		var listenerCollection = Trace.Listeners;
 
