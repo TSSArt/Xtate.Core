@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,15 +15,12 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using System.IO;
 using Xtate.Builder;
 using Xtate.DataModel;
 using Xtate.IoC;
 using Xtate.Persistence;
 using Xtate.Test;
-using IServiceProvider = System.IServiceProvider;
 
 namespace Xtate.Core.Test.Legacy;
 
@@ -233,6 +230,7 @@ public class InterpreterModelPersistenceTest
 		//var writer = new StreamWriter("C:\\Projects\\1.log");
 		//var debugger = new ServiceProviderDebugger(writer);
 		var services = new ServiceCollection();
+
 		//services.AddForwarding<IServiceProviderDebugger>(s => debugger);
 		services.RegisterStateMachineInterpreter();
 		services.RegisterPersistence();
@@ -280,7 +278,7 @@ public class InterpreterModelPersistenceTest
 			catch
 			{
 				return new MemoryStream();
-			}	
+			}
 		}
 	}
 }

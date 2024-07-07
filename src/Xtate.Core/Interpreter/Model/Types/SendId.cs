@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,12 +15,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using System.ComponentModel;
 
 namespace Xtate;
-
 
 [Serializable]
 public sealed class SendId : LazyId, IEquatable<SendId>
@@ -33,9 +30,9 @@ public sealed class SendId : LazyId, IEquatable<SendId>
 
 	public bool Equals(SendId? other) => FastEqualsNoTypeCheck(other);
 
-	#endregion
+#endregion
 
-	public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is SendId other && Equals(other);
+	public override bool Equals(object? obj) => ReferenceEquals(this, obj) || (obj is SendId other && Equals(other));
 
 	public override int GetHashCode() => base.GetHashCode();
 

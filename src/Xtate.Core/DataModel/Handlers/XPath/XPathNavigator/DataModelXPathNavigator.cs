@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,8 +14,6 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-#endregion
 
 using System.Xml;
 using System.Xml.XPath;
@@ -548,23 +546,24 @@ public class DataModelXPathNavigator : XPathNavigator
 
 	private readonly struct Element(string? key, in DataModelValue value)
 	{
-		public readonly string? Key = key;
+		public readonly string?        Key   = key;
 		public readonly DataModelValue Value = value;
 	}
 
-	internal readonly struct Node(in DataModelValue value,
-				NodeAdapter adapter,
-				int parentCursor = -1,
-				int parentIndex = -1,
-				string? parentProperty = default,
-				DataModelList? metadata = default)
+	internal readonly struct Node(
+		in DataModelValue value,
+		NodeAdapter adapter,
+		int parentCursor = -1,
+		int parentIndex = -1,
+		string? parentProperty = default,
+		DataModelList? metadata = default)
 	{
-		public readonly NodeAdapter Adapter = adapter;
+		public readonly NodeAdapter    Adapter        = adapter;
 		public readonly DataModelValue DataModelValue = value;
-		public readonly DataModelList? Metadata = metadata;
-		public readonly int ParentCursor = parentCursor;
-		public readonly int ParentIndex = parentIndex;
-		public readonly string? ParentProperty = parentProperty;
+		public readonly DataModelList? Metadata       = metadata;
+		public readonly int            ParentCursor   = parentCursor;
+		public readonly int            ParentIndex    = parentIndex;
+		public readonly string?        ParentProperty = parentProperty;
 
 		public bool Equals(Node node) => ParentCursor >= 0 ? ParentCursor == node.ParentCursor : DataModelValue == node.DataModelValue;
 

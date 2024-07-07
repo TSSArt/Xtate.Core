@@ -143,7 +143,7 @@ public static class Infra
 	{
 		if (parameter <= TimeSpan.Zero)
 		{
-			ThrowOutOfRangeException(parameterName, parameter, min: new TimeSpan(1), TimeSpan.MaxValue);
+			ThrowOutOfRangeException(parameterName, parameter, new TimeSpan(1), TimeSpan.MaxValue);
 		}
 	}
 
@@ -295,7 +295,7 @@ public static class Infra
 		throw WrongExecutionPath();
 	}
 
-	private static NotSupportedException WrongExecutionPath() => new (Resources.Exception_ThisExceptionShouldNeverHappen);
+	private static NotSupportedException WrongExecutionPath() => new(Resources.Exception_ThisExceptionShouldNeverHappen);
 
 	[DoesNotReturn]
 	private static void ThrowInfrastructureException() => throw new InfrastructureException(Resources.Exception_AssertionFailed);
@@ -317,9 +317,9 @@ public static class Infra
 
 	[DoesNotReturn]
 	private static void ThrowOutOfRangeException<T>(string? paramName,
-												 T value,
-												 T min,
-												 T max) =>
+													T value,
+													T min,
+													T max) =>
 		throw new ArgumentOutOfRangeException(paramName, value, Res.Format(Resources.Exception_ValidRangeIsMinMax, min, max));
 
 	[DoesNotReturn]

@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,21 +15,21 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using System.Threading.Channels;
 
 namespace Xtate.Persistence;
 
-internal sealed class StateMachineSingleMacroStepController(SessionId sessionId,
-												 IStateMachineOptions? options,
-												 IStateMachine? stateMachine,
-												 Uri? stateMachineLocation,
-												 IStateMachineHost stateMachineHost,
-												 InterpreterOptions defaultOptions
-		// ISecurityContext securityContext,
-		//										 DeferredFinalizer finalizer
-		) : StateMachineControllerBase(sessionId, options, stateMachine, stateMachineLocation, stateMachineHost, defaultOptions)
+internal sealed class StateMachineSingleMacroStepController(
+	SessionId sessionId,
+	IStateMachineOptions? options,
+	IStateMachine? stateMachine,
+	Uri? stateMachineLocation,
+	IStateMachineHost stateMachineHost,
+	InterpreterOptions defaultOptions
+
+	// ISecurityContext securityContext,
+	//										 DeferredFinalizer finalizer
+) : StateMachineControllerBase(sessionId, options, stateMachine, stateMachineLocation, stateMachineHost, defaultOptions)
 {
 	private readonly TaskCompletionSource<StateMachineInterpreterState> _doneCompletionSource = new();
 	private readonly CancellationTokenSource                            _suspendTokenSource   = new();
