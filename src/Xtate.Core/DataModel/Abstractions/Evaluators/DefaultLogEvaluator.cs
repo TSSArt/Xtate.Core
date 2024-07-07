@@ -42,6 +42,8 @@ public abstract class LogEvaluator(ILog log) : ILog, IExecEvaluator, IAncestorPr
 
 public class DefaultLogEvaluator : LogEvaluator
 {
+	private const int EventId = 1;
+
 	private readonly IObjectEvaluator? _expressionEvaluator;
 
 	public DefaultLogEvaluator(ILog log) : base(log) => _expressionEvaluator = base.Expression?.As<IObjectEvaluator>();
@@ -59,6 +61,6 @@ public class DefaultLogEvaluator : LogEvaluator
 		}
 
 		var logger = await LoggerFactory().ConfigureAwait(false);
-		await logger.Write(Level.Info, base.Label, data).ConfigureAwait(false);
+		await logger.Write(Level.Info, EventId, base.Label, data).ConfigureAwait(false);
 	}
 }

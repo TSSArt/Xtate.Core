@@ -2,9 +2,9 @@
 
 public enum Level
 {
-	Error,
-	Warning,
 	Info,
+	Warning,
+	Error,
 	Debug,
 	Trace,
 	Verbose

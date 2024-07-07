@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,8 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using System.Buffers;
 using Xtate.DataModel;
 
@@ -26,9 +24,22 @@ using DefaultHistoryContent = Dictionary<IIdentifier, ImmutableArray<IExecEvalua
 
 public partial class StateMachineInterpreter : IStateMachineInterpreter
 {
+	private const int InterpreterStateEventId   = 4;
+	private const int PlatformErrorEventId      = 1;
+	private const int ExecutionErrorEventId     = 2;
+	private const int CommunicationErrorEventId = 3;
+	private const int EventProcessingEventId    = 5;
+	private const int EnteringStateEventId      = 6;
+	private const int EnteredStateEventId       = 7;
+	private const int ExitingStateEventId       = 8;
+	private const int ExitedStateEventId        = 9;
+
+	private const int ExecutingTransitionEventId = 10;
+	private const int ExecutedTransitionEventId  = 11;
+
 	private readonly object                          _stateMachineToken = new();
-	private          IStateMachineContext            _context = default!;
-	private          bool                            _running = true;
+	private          IStateMachineContext            _context           = default!;
+	private          bool                            _running           = true;
 	private          StateMachineDestroyedException? _stateMachineDestroyedException;
 
 	public required IStateMachineArguments?               StateMachineArguments   { private get; [UsedImplicitly] init; }
@@ -60,7 +71,7 @@ public partial class StateMachineInterpreter : IStateMachineInterpreter
 	protected virtual ValueTask NotifyExited()   => NotifyInterpreterState(StateMachineInterpreterState.Exited);
 	protected virtual ValueTask NotifyWaiting()  => NotifyInterpreterState(StateMachineInterpreterState.Waiting);
 
-	protected ValueTask TraceInterpreterState(StateMachineInterpreterState state) => Logger.Write(Level.Trace, $@"Interpreter state has changed to '{state}'");
+	protected ValueTask TraceInterpreterState(StateMachineInterpreterState state) => Logger.Write(Level.Trace, InterpreterStateEventId, $@"Interpreter state has changed to '{state}'");
 
 	private async ValueTask NotifyInterpreterState(StateMachineInterpreterState state)
 	{
@@ -244,7 +255,7 @@ public partial class StateMachineInterpreter : IStateMachineInterpreter
 		return _running;
 	}
 
-	private ValueTask TraceProcessingEvent(IEvent evt) => Logger.Write(Level.Trace, $@"Processing {evt.Type} event '{EventName.ToName(evt.NameParts)}'", evt);
+	private ValueTask TraceProcessingEvent(IEvent evt) => Logger.Write(Level.Trace, EventProcessingEventId, $@"Processing {evt.Type} event '{EventName.ToName(evt.NameParts)}'", evt);
 
 	protected virtual async ValueTask<List<TransitionNode>> SelectInternalEventTransitions()
 	{
@@ -571,7 +582,7 @@ public partial class StateMachineInterpreter : IStateMachineInterpreter
 
 		foreach (var state in states)
 		{
-			await Logger.Write(Level.Trace, $@"Exiting state '{state.Id}'", state).ConfigureAwait(false);
+			await Logger.Write(Level.Trace, ExitingStateEventId, $@"Exiting state '{state.Id}'", state).ConfigureAwait(false);
 
 			foreach (var onExit in state.OnExit)
 			{
@@ -585,7 +596,7 @@ public partial class StateMachineInterpreter : IStateMachineInterpreter
 
 			_context.Configuration.Delete(state);
 
-			await Logger.Write(Level.Trace, $@"Exited state '{state.Id}'", state).ConfigureAwait(false);
+			await Logger.Write(Level.Trace, ExitedStateEventId, $@"Exited state '{state.Id}'", state).ConfigureAwait(false);
 		}
 	}
 
@@ -628,7 +639,7 @@ public partial class StateMachineInterpreter : IStateMachineInterpreter
 
 		foreach (var state in ToSortedList(statesToEnter, StateEntityNode.EntryOrder))
 		{
-			await Logger.Write(Level.Trace, $@"Entering state '{state.Id}'", state).ConfigureAwait(false);
+			await Logger.Write(Level.Trace, EnteringStateEventId, $@"Entering state '{state.Id}'", state).ConfigureAwait(false);
 
 			_context.Configuration.AddIfNotExists(state);
 			_context.StatesToInvoke.AddIfNotExists(state);
@@ -682,7 +693,7 @@ public partial class StateMachineInterpreter : IStateMachineInterpreter
 				}
 			}
 
-			await Logger.Write(Level.Trace, $@"Entered state '{state.Id}'", state).ConfigureAwait(false);
+			await Logger.Write(Level.Trace, EnteredStateEventId, $@"Entered state '{state.Id}'", state).ConfigureAwait(false);
 		}
 	}
 
@@ -964,11 +975,12 @@ public partial class StateMachineInterpreter : IStateMachineInterpreter
 
 				if (eventDescriptor is not null)
 				{
-					await Logger.Write(Level.Trace, $@"Performing eventless {transition.Type} transition to '{target}'", transition).ConfigureAwait(false);
+					await Logger.Write(Level.Trace, ExecutingTransitionEventId, $@"Executing eventless {transition.Type} transition to '{target}'", transition).ConfigureAwait(false);
 				}
 				else
 				{
-					await Logger.Write(Level.Trace, $@"Performing {transition.Type} transition to '{target}'. Event descriptor '{eventDescriptor}'", transition).ConfigureAwait(false);
+					await Logger.Write(Level.Trace, ExecutingTransitionEventId, $@"Executing {transition.Type} transition to '{target}'. Event descriptor '{eventDescriptor}'", transition)
+								.ConfigureAwait(false);
 				}
 			}
 
@@ -978,11 +990,12 @@ public partial class StateMachineInterpreter : IStateMachineInterpreter
 			{
 				if (eventDescriptor is not null)
 				{
-					await Logger.Write(Level.Trace, $@"Performing eventless {transition.Type} transition to '{target}'", transition).ConfigureAwait(false);
+					await Logger.Write(Level.Trace, ExecutedTransitionEventId, $@"Executed eventless {transition.Type} transition to '{target}'", transition).ConfigureAwait(false);
 				}
 				else
 				{
-					await Logger.Write(Level.Trace, $@"Performing {transition.Type} transition to '{target}'. Event descriptor '{eventDescriptor}'", transition).ConfigureAwait(false);
+					await Logger.Write(Level.Trace, ExecutedTransitionEventId, $@"Executed {transition.Type} transition to '{target}'. Event descriptor '{eventDescriptor}'", transition)
+								.ConfigureAwait(false);
 				}
 			}
 		}
@@ -1108,7 +1121,15 @@ public partial class StateMachineInterpreter : IStateMachineInterpreter
 		{
 			var entityId = source.Is(out IDebugEntityId? id) ? id.EntityId : default;
 
-			await Logger.Write(Level.Error, $@"{errorType} error in entity '{entityId}'.", exception).ConfigureAwait(false);
+			var eventId = errorType switch
+						  {
+							  ErrorType.Platform      => PlatformErrorEventId,
+							  ErrorType.Execution     => ExecutionErrorEventId,
+							  ErrorType.Communication => CommunicationErrorEventId,
+							  _                       => Infra.Unexpected<int>(errorType)
+						  };
+
+			await Logger.Write(Level.Error, eventId, $@"{errorType} error in entity '{entityId}'.", exception).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{
@@ -1280,7 +1301,7 @@ public partial class StateMachineInterpreter : IStateMachineInterpreter
 		private int    _queueLength;
 		private int    _sum;
 
-#region Interface IDisposable
+	#region Interface IDisposable
 
 		public void Dispose()
 		{
@@ -1292,7 +1313,7 @@ public partial class StateMachineInterpreter : IStateMachineInterpreter
 			}
 		}
 
-#endregion
+	#endregion
 
 		public static LiveLockDetector Create() => new() { _index = -1 };
 
