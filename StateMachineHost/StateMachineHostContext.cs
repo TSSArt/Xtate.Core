@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,8 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using System.Collections.Concurrent;
 using System.Xml;
 using Xtate.Builder;
@@ -30,7 +28,6 @@ public interface IStateMachineHostContext
 	void AddStateMachineController(IStateMachineController controller);
 	void RemoveStateMachineController(IStateMachineController controller);
 }
-
 
 public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposable
 {
@@ -137,20 +134,22 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 		return _eventScheduler.CancelEvent(sessionId, sendId, token);
 	}
 
-	private InterpreterOptions CreateInterpreterOptions(//ServiceLocator serviceLocator,
-														Uri? baseUri,
-														DataModelList? hostData,
-														IErrorProcessor errorProcessor,
-														DataModelValue arguments = default) =>
+	private InterpreterOptions CreateInterpreterOptions( //ServiceLocator serviceLocator,
+		Uri? baseUri,
+		DataModelList? hostData,
+		IErrorProcessor errorProcessor,
+		DataModelValue arguments = default) =>
 		new()
 		{
 			Configuration = _configuration,
 			PersistenceLevel = _options.PersistenceLevel,
 			StorageProvider = _options.StorageProvider,
+
 			//ResourceLoaderFactories = _options.ResourceLoaderFactories,
 			//CustomActionProviders = _options.CustomActionFactories,
 			StopToken = _stopTokenSource.Token,
 			SuspendToken = _suspendTokenSource.Token,
+
 			//Logger = _options.Logger,
 			UnhandledErrorBehaviour = _options.UnhandledErrorBehaviour,
 			ContextRuntimeItems = _contextRuntimeItems,
@@ -166,9 +165,10 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 																			  IStateMachineOptions? stateMachineOptions,
 																			  Uri? stateMachineLocation,
 																			  InterpreterOptions defaultOptions
-																			  //SecurityContext securityContext,
+
+		//SecurityContext securityContext,
 		//																	  DeferredFinalizer finalizer
-		) =>
+	) =>
 		new StateMachineRuntimeController(
 			sessionId, stateMachineOptions, stateMachine, stateMachineLocation, _stateMachineHost,
 			_options.SuspendIdlePeriod, defaultOptions)
@@ -192,7 +192,6 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 		return new XmlParserContext(nameTable, nsManager, xmlLang: null, XmlSpace.None) { BaseURI = baseUri?.ToString() };
 	}
 
-
 	private async ValueTask<IStateMachine> GetStateMachine(Uri? uri,
 														   string? scxml,
 														   ISecurityContext securityContext,
@@ -204,7 +203,7 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 		//var loggerContext = new LoadStateMachineLoggerContext(uri, scxml);
 		//var factoryContext = new FactoryContext(_options.ResourceLoaderFactories, securityContext, _options.Logger, loggerContext);
 		//TODO:
-	//	var xmlResolver = ServiceLocator.Default.GetService<RedirectXmlResolver>();
+		//	var xmlResolver = ServiceLocator.Default.GetService<RedirectXmlResolver>();
 		//var xmlParserContext = GetXmlParserContext(nameTable, uri);
 		//var xmlReaderSettings = GetXmlReaderSettings(nameTable, xmlResolver);
 		//var directorOptions = GetScxmlDirectorOptions(_options.ServiceLocator, xmlParserContext, xmlReaderSettings, xmlResolver);
@@ -213,15 +212,19 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 			? XmlReader.Create(uri!.ToString(), xmlReaderSettings, xmlParserContext)
 			: XmlReader.Create(new StringReader(scxml), xmlReaderSettings, xmlParserContext);*/
 
-	//	var scxmlDirector = ServiceLocator.Default.GetService<ScxmlDirector, XmlReader>(xmlReader);
+		//	var scxmlDirector = ServiceLocator.Default.GetService<ScxmlDirector, XmlReader>(xmlReader);
 
 		var services = new ServiceCollection();
 		services.RegisterStateMachineBuilder();
 
-		if(scxml is null)
+		if (scxml is null)
+		{
 			services.AddForwarding<IStateMachineLocation>(_ => new StateMachineLocation(uri!));
+		}
 		else
+		{
 			services.AddForwarding<IScxmlStateMachine>(_ => new ScxmlStateMachine(scxml));
+		}
 
 		var serviceProvider = services.BuildProvider();
 		return await serviceProvider.GetRequiredService<IStateMachine>().ConfigureAwait(false);
@@ -262,14 +265,15 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 	}
 
 	//TODO:remove
-	public virtual async ValueTask<StateMachineControllerBase> CreateAndAddStateMachine(//ServiceLocator serviceLocator,
-																						SessionId sessionId,
-																						StateMachineOrigin origin,
-																						DataModelValue parameters,
-																						SecurityContext securityContext,
-																						//DeferredFinalizer finalizer,
-																						IErrorProcessor errorProcessor,
-																						CancellationToken token)
+	public virtual async ValueTask<StateMachineControllerBase> CreateAndAddStateMachine( //ServiceLocator serviceLocator,
+		SessionId sessionId,
+		StateMachineOrigin origin,
+		DataModelValue parameters,
+		SecurityContext securityContext,
+
+		//DeferredFinalizer finalizer,
+		IErrorProcessor errorProcessor,
+		CancellationToken token)
 	{
 		var (stateMachine, location) = await LoadStateMachine(origin, _options.BaseUri, securityContext, errorProcessor, token).ConfigureAwait(false);
 
@@ -280,13 +284,14 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 		return CreateStateMachineController(sessionId, stateMachine, stateMachineOptions, location, interpreterOptions);
 	}
 
-	protected StateMachineControllerBase AddSavedStateMachine(//ServiceLocator serviceLocator,
-															  SessionId sessionId,
-															  Uri? stateMachineLocation,
-															  IStateMachineOptions stateMachineOptions,
-															  SecurityContext securityContext,
-															  //DeferredFinalizer finalizer,
-															  IErrorProcessor errorProcessor)
+	protected StateMachineControllerBase AddSavedStateMachine( //ServiceLocator serviceLocator,
+		SessionId sessionId,
+		Uri? stateMachineLocation,
+		IStateMachineOptions stateMachineOptions,
+		SecurityContext securityContext,
+
+		//DeferredFinalizer finalizer,
+		IErrorProcessor errorProcessor)
 	{
 		var interpreterOptions = CreateInterpreterOptions(stateMachineLocation, CreateHostData(stateMachineLocation), errorProcessor);
 
@@ -306,10 +311,8 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 		return null;
 	}
 
-	public virtual ValueTask<IStateMachineController?> FindStateMachineController(SessionId sessionId, CancellationToken token)
-	{
-		return _stateMachineBySessionId.TryGetValue(sessionId, out var controller) ? new ValueTask<IStateMachineController?>(controller) : default;
-	}
+	public virtual ValueTask<IStateMachineController?> FindStateMachineController(SessionId sessionId, CancellationToken token) =>
+		_stateMachineBySessionId.TryGetValue(sessionId, out var controller) ? new ValueTask<IStateMachineController?>(controller) : default;
 
 	public void ValidateSessionId(SessionId sessionId, out IStateMachineController controller)
 	{
@@ -435,14 +438,14 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 
 	private class LoadStateMachineLoggerContext(Uri? uri, string? scxml) : ILoadStateMachineLoggerContext
 	{
-		#region Interface ILoadStateMachineLoggerContext
+		public string LoggerContextType => nameof(ILoadStateMachineLoggerContext);
 
-		public Uri? Uri { get; } = uri;
+	#region Interface ILoadStateMachineLoggerContext
+
+		public Uri?    Uri   { get; } = uri;
 		public string? Scxml { get; } = scxml;
 
-		#endregion
-
-		#region Interface ILoggerContext
+	#endregion
 
 		public DataModelList GetProperties()
 		{
@@ -462,9 +465,5 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 
 			return properties;
 		}
-
-		public string LoggerContextType => nameof(ILoadStateMachineLoggerContext);
-
-#endregion
 	}
 }

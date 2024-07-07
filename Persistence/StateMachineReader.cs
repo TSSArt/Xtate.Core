@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,8 +14,6 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-#endregion
 
 using Xtate.DataModel;
 
@@ -545,32 +543,31 @@ public class StateMachineReader
 			}
 		}
 
-#region Interface IPersistedDocumentId
+	#region Interface IPersistedDocumentId
 
 		public int DocumentId { get; }
 
-#endregion
+	#endregion
 	}
 
 	private class ExternalScriptExpressionWithContent(object ancestor, Uri? uri, string content) : IExternalScriptExpression, IExternalScriptProvider, IAncestorProvider
 	{
-
-		#region Interface IAncestorProvider
+	#region Interface IAncestorProvider
 
 		public object Ancestor { get; } = ancestor;
 
-		#endregion
+	#endregion
 
-		#region Interface IExternalScriptExpression
+	#region Interface IExternalScriptExpression
 
 		public Uri? Uri { get; } = uri;
 
-		#endregion
+	#endregion
 
-		#region Interface IExternalScriptProvider
+	#region Interface IExternalScriptProvider
 
 		public string Content { get; } = content;
 
-		#endregion
+	#endregion
 	}
 }

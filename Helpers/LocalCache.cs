@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,15 +15,34 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 namespace Xtate.Core;
 
 public class LocalCache<TKey, TValue> : IDisposable, IAsyncDisposable where TKey : notnull
 {
-	public required GlobalCache<TKey, TValue> GlobalCache { private get; [UsedImplicitly] init; }
-
 	private readonly Dictionary<TKey, CacheEntry<TValue>> _localDictionary = [];
+	public required  GlobalCache<TKey, TValue>            GlobalCache { private get; [UsedImplicitly] init; }
+
+#region Interface IAsyncDisposable
+
+	public async ValueTask DisposeAsync()
+	{
+		await DisposeAsyncCore().ConfigureAwait(false);
+
+		GC.SuppressFinalize(this);
+	}
+
+#endregion
+
+#region Interface IDisposable
+
+	public void Dispose()
+	{
+		Dispose(true);
+
+		GC.SuppressFinalize(this);
+	}
+
+#endregion
 
 	protected virtual void Dispose(bool disposing)
 	{
@@ -31,13 +50,6 @@ public class LocalCache<TKey, TValue> : IDisposable, IAsyncDisposable where TKey
 		{
 			DisposeAsync().SynchronousWait();
 		}
-	}
-
-	public void Dispose()
-	{
-		Dispose(true);
-
-		GC.SuppressFinalize(this);
 	}
 
 	protected virtual async ValueTask DisposeAsyncCore()
@@ -48,13 +60,6 @@ public class LocalCache<TKey, TValue> : IDisposable, IAsyncDisposable where TKey
 		}
 
 		_localDictionary.Clear();
-	}
-
-	public async ValueTask DisposeAsync()
-	{
-		await DisposeAsyncCore().ConfigureAwait(false);
-
-		GC.SuppressFinalize(this);
 	}
 
 	private async ValueTask DropEntry(TKey key, CacheEntry<TValue> entry)

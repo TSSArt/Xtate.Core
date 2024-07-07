@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,8 +14,6 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-#endregion
 
 using System.ComponentModel;
 using System.Diagnostics;
@@ -457,7 +455,7 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 	{
 		private bool? _rawContent;
 
-		#region Interface XmlDirector<TDirector>.IPolicyBuilder<TEntity>
+	#region Interface XmlDirector<TDirector>.IPolicyBuilder<TEntity>
 
 		public IPolicyBuilder<TEntity> IgnoreUnknownElements(bool value)
 		{
@@ -577,7 +575,7 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 			return this;
 		}
 
-#endregion
+	#endregion
 
 		private void UseRawContent(bool value)
 		{
@@ -609,14 +607,14 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 
 	private readonly struct QualifiedName(string ns, string name) : IEquatable<QualifiedName>
 	{
-		public readonly string Name = name;
+		public readonly string Name      = name;
 		public readonly string Namespace = ns;
 
-		#region Interface IEquatable<XmlDirector<TDirector>.QualifiedName>
+	#region Interface IEquatable<XmlDirector<TDirector>.QualifiedName>
 
 		public bool Equals(QualifiedName other) => ReferenceEquals(Namespace, other.Namespace) && ReferenceEquals(Name, other.Name);
 
-#endregion
+	#endregion
 
 		public override bool Equals(object? obj) => obj is QualifiedName other && Equals(other);
 
