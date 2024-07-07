@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,8 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using System.ComponentModel;
 using Xtate.IoC;
 using Xtate.IoProcessor;
@@ -27,22 +25,27 @@ namespace Xtate;
 
 public interface IStateMachineHostBuilder;
 
-
 public sealed class StateMachineHostBuilder : IStateMachineHostBuilder
 {
-	private readonly List<object>                                    _actions = [];
-	private Uri?                                            _baseUri;
-	private ImmutableDictionary<string, string>.Builder?    _configuration;
+	private readonly List<object> _actions = [];
+	private          Uri?         _baseUri;
+
+	private ImmutableDictionary<string, string>.Builder? _configuration;
+
 	//private ImmutableArray<ICustomActionFactory>.Builder?   _customActionFactories;
 	//private HostMode                                        _hostMode;
-	private ImmutableArray<IIoProcessorFactory>.Builder?    _ioProcessorFactories;
+	private ImmutableArray<IIoProcessorFactory>.Builder? _ioProcessorFactories;
+
 	//private ILoggerOld?                                     _logger;
-	private PersistenceLevel                                _persistenceLevel;
+	private PersistenceLevel _persistenceLevel;
+
 	//private ImmutableArray<IResourceLoaderFactory>.Builder? _resourceLoaderFactories;
-	private ImmutableArray<IServiceFactory>.Builder?        _serviceFactories;
-	private IStorageProvider?                               _storageProvider;
-	private TimeSpan?                                       _suspendIdlePeriod;
-	private UnhandledErrorBehaviour                         _unhandledErrorBehaviour;
+	private ImmutableArray<IServiceFactory>.Builder? _serviceFactories;
+	private IStorageProvider?                        _storageProvider;
+	private TimeSpan?                                _suspendIdlePeriod;
+
+	private UnhandledErrorBehaviour _unhandledErrorBehaviour;
+
 	//private ValidationMode                                  _validationMode;
 	/*
 	public StateMachineHost Build(ServiceLocator serviceLocator)
@@ -111,12 +114,10 @@ public sealed class StateMachineHostBuilder : IStateMachineHostBuilder
 		return this;
 	}*/
 
-	public StateMachineHostBuilder DisableVerboseValidation()
-	{
-		//_validationMode = ValidationMode.Default;
+	public StateMachineHostBuilder DisableVerboseValidation() =>
 
-		return this;
-	}
+		//_validationMode = ValidationMode.Default;
+		this;
 
 	public StateMachineHostBuilder SetSuspendIdlePeriod(TimeSpan suspendIdlePeriod)
 	{
@@ -151,8 +152,6 @@ public sealed class StateMachineHostBuilder : IStateMachineHostBuilder
 
 	public StateMachineHostBuilder AddIoProcessorFactory(IIoProcessorFactory ioProcessorFactory)
 	{
-		
-
 		(_ioProcessorFactories ??= ImmutableArray.CreateBuilder<IIoProcessorFactory>()).Add(ioProcessorFactory);
 
 		return this;
@@ -160,8 +159,6 @@ public sealed class StateMachineHostBuilder : IStateMachineHostBuilder
 
 	public StateMachineHostBuilder AddServiceFactory(IServiceFactory serviceFactory)
 	{
-		
-
 		(_serviceFactories ??= ImmutableArray.CreateBuilder<IServiceFactory>()).Add(serviceFactory);
 
 		return this;
@@ -178,8 +175,6 @@ public sealed class StateMachineHostBuilder : IStateMachineHostBuilder
 
 	public StateMachineHostBuilder SetConfigurationValue(string key, string value)
 	{
-		
-
 		(_configuration ??= ImmutableDictionary.CreateBuilder<string, string>())[key] = value ?? throw new ArgumentNullException(nameof(value));
 
 		return this;
@@ -204,17 +199,13 @@ public sealed class StateMachineHostBuilder : IStateMachineHostBuilder
 		return this;
 	}
 
-	public StateMachineHostBuilder SetClusterHostMode()
-	{
+	public StateMachineHostBuilder SetClusterHostMode() =>
+
 		//_hostMode = HostMode.Cluster;
+		this;
 
-		return this;
-	}
+	public StateMachineHostBuilder SetStandaloneHostMode() =>
 
-	public StateMachineHostBuilder SetStandaloneHostMode()
-	{
 		//_hostMode = HostMode.Standalone;
-
-		return this;
-	}
+		this;
 }

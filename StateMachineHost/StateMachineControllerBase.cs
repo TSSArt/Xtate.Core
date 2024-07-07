@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,8 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using System.Threading.Channels;
 using Xtate.Service;
 
@@ -26,7 +24,7 @@ public class StateMachineControllerProxy(StateMachineRuntimeController stateMach
 {
 	private readonly IStateMachineController _baseStateMachineController = stateMachineRuntimeController;
 
-	#region Interface IAsyncDisposable
+#region Interface IAsyncDisposable
 
 	public ValueTask DisposeAsync() => _baseStateMachineController.DisposeAsync();
 
@@ -63,20 +61,22 @@ public abstract class StateMachineControllerBase : IStateMachineController, ISer
 	private readonly TaskCompletionSource<int>            _acceptedTcs  = new();
 	private readonly TaskCompletionSource<DataModelValue> _completedTcs = new();
 	private readonly InterpreterOptions                   _defaultOptions;
-	private readonly CancellationTokenSource              _destroyTokenSource;
+
+	private readonly CancellationTokenSource _destroyTokenSource;
+
 	//private readonly DeferredFinalizer                    _finalizer;
-	private readonly IStateMachineOptions?                _options;
+	private readonly IStateMachineOptions? _options;
+
 	//private readonly ISecurityContext                     _securityContext;
-	private readonly IStateMachine?                       _stateMachine;
-	private readonly IStateMachineHost                    _stateMachineHost;
+	private readonly IStateMachine?    _stateMachine;
+	private readonly IStateMachineHost _stateMachineHost;
 
 	protected StateMachineControllerBase(SessionId sessionId,
 										 IStateMachineOptions? options,
 										 IStateMachine? stateMachine,
 										 Uri? stateMachineLocation,
 										 IStateMachineHost stateMachineHost,
-										 InterpreterOptions defaultOptions
-										 )
+										 InterpreterOptions defaultOptions)
 	{
 		SessionId = sessionId;
 		StateMachineLocation = stateMachineLocation;
@@ -84,6 +84,7 @@ public abstract class StateMachineControllerBase : IStateMachineController, ISer
 		_stateMachine = stateMachine;
 		_stateMachineHost = stateMachineHost;
 		_defaultOptions = defaultOptions;
+
 		//_securityContext = securityContext;
 		//_finalizer = finalizer;
 
@@ -153,6 +154,8 @@ public abstract class StateMachineControllerBase : IStateMachineController, ISer
 
 #region Interface IService
 
+	public ValueTask<DataModelValue> GetResult(CancellationToken token) => _completedTcs.WaitAsync(token);
+
 	ValueTask IService.Destroy(CancellationToken token)
 	{
 		TriggerDestroySignal();
@@ -165,8 +168,6 @@ public abstract class StateMachineControllerBase : IStateMachineController, ISer
 #endregion
 
 #region Interface IStateMachineController
-
-	public ValueTask<DataModelValue> GetResult(CancellationToken token) => _completedTcs.WaitAsync(token);
 
 	public async ValueTask StartAsync(CancellationToken token)
 	{

@@ -22,7 +22,7 @@ namespace Xtate.Core;
 
 public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 {
-	private const int StartInvokeEventId = 1;
+	private const int StartInvokeEventId  = 1;
 	private const int CancelInvokeEventId = 2;
 
 	private readonly IValueEvaluator?                    _contentBodyEvaluator;

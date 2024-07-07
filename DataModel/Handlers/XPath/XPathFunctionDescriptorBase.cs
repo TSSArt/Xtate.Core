@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,8 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using System.Xml.XPath;
 using System.Xml.Xsl;
 
@@ -29,8 +27,6 @@ public abstract class XPathFunctionDescriptorBase : IXsltContextFunction
 		ArgTypes = argTypes;
 		ReturnType = returnType;
 	}
-
-	public virtual ValueTask Initialize() => default;
 
 #region Interface IXsltContextFunction
 
@@ -45,6 +41,8 @@ public abstract class XPathFunctionDescriptorBase : IXsltContextFunction
 	public virtual int Minargs => ArgTypes.Length;
 
 #endregion
+
+	public virtual ValueTask Initialize() => default;
 
 	protected abstract object? Invoke(object[] args);
 }
