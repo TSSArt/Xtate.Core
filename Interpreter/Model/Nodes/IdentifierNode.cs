@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2023 Sergii Artemenko
+﻿// Copyright © 2019-2024 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -48,6 +48,7 @@ public sealed class IdentifierNode(IIdentifier id) : IIdentifier, IStoreSupport,
 	}
 
 #endregion
+
 	public override string ToString() => id.ToString() ?? string.Empty;
 
 	public override bool Equals(object? obj) => id.Equals(obj);

@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,12 +15,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using System.Xml;
 
 namespace Xtate;
-
 
 public static class EventName
 {
@@ -42,7 +39,7 @@ public static class EventName
 
 	private static ImmutableArray<IIdentifier> GetNameParts(IIdentifier id1, IIdentifier id2, string name)
 	{
-		if (name is null) throw new ArgumentNullException(nameof(name));
+		Infra.Requires(name);
 
 		var invokeIdPartCount = GetCount(name);
 		var parts = new IIdentifier[2 + invokeIdPartCount];
@@ -52,7 +49,7 @@ public static class EventName
 
 		SetParts(parts.AsSpan(start: 2, invokeIdPartCount), name);
 
-		return ImmutableArray.Create(parts);
+		return [..parts];
 	}
 
 	private static void SetParts(Span<IIdentifier> span, string? id)
@@ -96,7 +93,7 @@ public static class EventName
 
 	public static ImmutableArray<IIdentifier> GetErrorPlatform(string suffix)
 	{
-		if (suffix is null) throw new ArgumentNullException(nameof(suffix));
+		Infra.Requires(suffix);
 
 		var suffixPartCount = GetCount(suffix);
 		var parts = new IIdentifier[2 + suffixPartCount];
@@ -106,20 +103,30 @@ public static class EventName
 
 		SetParts(parts.AsSpan(start: 2, suffixPartCount), suffix);
 
-		return ImmutableArray.Create(parts);
+		return [..parts];
 	}
 
-	public static string ToName(ImmutableArray<IIdentifier> nameParts)
+	public static string? ToName(ImmutableArray<IIdentifier> nameParts)
 	{
-		if (nameParts.IsDefaultOrEmpty) throw new ArgumentException(Resources.Exception_ValueCantBeEmpty, nameof(nameParts));
+		if (nameParts.IsDefault)
+		{
+			return default;
+		}
+
+		if (nameParts.IsEmpty)
+		{
+			return string.Empty;
+		}
 
 		return string.Join(separator: @".", nameParts.Select(namePart => namePart.Value));
 	}
 
 	public static void WriteXml(XmlWriter writer, ImmutableArray<IIdentifier> nameParts)
 	{
-		if (writer is null) throw new ArgumentNullException(nameof(writer));
-		if (nameParts.IsDefaultOrEmpty) throw new ArgumentException(Resources.Exception_ValueCantBeEmpty, nameof(nameParts));
+		if (nameParts.IsDefaultOrEmpty)
+		{
+			return;
+		}
 
 		var writeDelimiter = false;
 		foreach (var part in nameParts)
@@ -137,9 +144,15 @@ public static class EventName
 
 	public static ImmutableArray<IIdentifier> ToParts(string name)
 	{
-		if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
+		if (name is null)
+		{
+			return default;
+		}
 
-		if (name is null) throw new ArgumentNullException(nameof(name));
+		if (name.Length == 0)
+		{
+			return [];
+		}
 
 		var length = GetCount(name);
 
@@ -152,7 +165,7 @@ public static class EventName
 
 		SetParts(parts, name);
 
-		return ImmutableArray.Create(parts);
+		return [..parts];
 	}
 
 	public static bool IsError(ImmutableArray<IIdentifier> nameParts) => !nameParts.IsDefaultOrEmpty && Identifier.EqualityComparer.Equals(nameParts[0], ErrorIdentifier);

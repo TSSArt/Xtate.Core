@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,8 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 namespace Xtate.Persistence;
 
 internal sealed class OrderedSetPersistingController<T> : IDisposable where T : class, IDocumentId
@@ -25,7 +23,6 @@ internal sealed class OrderedSetPersistingController<T> : IDisposable where T : 
 	private const int Operation  = 1;
 	private const int Added      = 2;
 	private const int Deleted    = 3;
-
 
 	private readonly Bucket        _bucket;
 	private readonly OrderedSet<T> _orderedSet;

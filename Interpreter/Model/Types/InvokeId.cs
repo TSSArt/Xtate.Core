@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,12 +15,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#endregion
-
 using System.ComponentModel;
 
 namespace Xtate;
-
 
 [Serializable]
 public sealed class InvokeId : ServiceId, IEquatable<InvokeId>
@@ -59,7 +56,7 @@ public sealed class InvokeId : ServiceId, IEquatable<InvokeId>
 
 #endregion
 
-	public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is InvokeId other && Equals(other);
+	public override bool Equals(object? obj) => ReferenceEquals(this, obj) || (obj is InvokeId other && Equals(other));
 
 	public override int GetHashCode() => base.GetHashCode();
 
@@ -78,7 +75,7 @@ public sealed class InvokeId : ServiceId, IEquatable<InvokeId>
 
 	internal sealed class InvokeUniqueIdEqualityComparer : IEqualityComparer<InvokeId>
 	{
-#region Interface IEqualityComparer<InvokeId>
+	#region Interface IEqualityComparer<InvokeId>
 
 		public bool Equals(InvokeId? x, InvokeId? y)
 		{
@@ -102,6 +99,6 @@ public sealed class InvokeId : ServiceId, IEquatable<InvokeId>
 			return obj.GetHashCode();
 		}
 
-#endregion
+	#endregion
 	}
 }

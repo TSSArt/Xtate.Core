@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,8 +14,6 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-#endregion
 
 using System.Buffers;
 using System.Globalization;
@@ -68,7 +66,7 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 		_xmlReader = xmlReader;
 
 		var nameTable = xmlReader.NameTable;
-		
+
 		Infra.Requires(nameTable);
 
 		FillNameTable(nameTable);
@@ -719,37 +717,35 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 
 	private class XmlNamespacesInfo(ImmutableArray<PrefixNamespace> namespaces, object? ancestor) : IXmlNamespacesInfo, IAncestorProvider
 	{
-
-		#region Interface IAncestorProvider
+	#region Interface IAncestorProvider
 
 		public object? Ancestor { get; } = ancestor;
 
-		#endregion
+	#endregion
 
-		#region Interface IXmlNamespacesInfo
+	#region Interface IXmlNamespacesInfo
 
 		public ImmutableArray<PrefixNamespace> Namespaces { get; } = namespaces;
 
-		#endregion
+	#endregion
 	}
 
 	private class XmlLineInfo(int lineNumber, int linePosition, object? ancestor) : IXmlLineInfo, IAncestorProvider
 	{
-
-		#region Interface IAncestorProvider
+	#region Interface IAncestorProvider
 
 		public object? Ancestor { get; } = ancestor;
 
-		#endregion
+	#endregion
 
-		#region Interface IXmlLineInfo
+	#region Interface IXmlLineInfo
 
 		public bool HasLineInfo() => true;
 
-		public int LineNumber { get; } = lineNumber;
+		public int LineNumber   { get; } = lineNumber;
 		public int LinePosition { get; } = linePosition;
 
-		#endregion
+	#endregion
 	}
 }
 

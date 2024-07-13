@@ -1,5 +1,5 @@
-﻿#region Copyright © 2019-2023 Sergii Artemenko
-
+﻿// Copyright © 2019-2024 Sergii Artemenko
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,8 +14,6 @@
 // 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-#endregion
 
 namespace Xtate;
 
@@ -77,11 +75,11 @@ public partial class DataModelList
 		public DataModelList?  Metadata { get; }
 		public DataModelValue  Value    { get; }
 
-#region Interface IEquatable<Entry>
+	#region Interface IEquatable<Entry>
 
 		public bool Equals(Entry other) => Index == other.Index && Key == other.Key && Access == other.Access && Equals(Metadata, other.Metadata) && Value.Equals(other.Value);
 
-#endregion
+	#endregion
 
 		public override bool Equals(object? obj) => obj is Entry other && Equals(other);
 
@@ -115,11 +113,11 @@ public partial class DataModelList
 		public string?        Key   { get; }
 		public DataModelValue Value { get; }
 
-#region Interface IEquatable<KeyValue>
+	#region Interface IEquatable<KeyValue>
 
 		public bool Equals(KeyValue other) => Key == other.Key && Value.Equals(other.Value);
 
-#endregion
+	#endregion
 
 		public override bool Equals(object? obj) => obj is KeyValue other && Equals(other);
 
@@ -148,36 +146,36 @@ public partial class DataModelList
 	[Serializable]
 	private readonly struct KeyMetaValue(in HashKey hashKey, in Meta meta, in DataModelValue value)
 	{
-		public readonly HashKey HashKey = hashKey;
-		public readonly Meta Meta = meta;
-		public readonly DataModelValue Value = value;
+		public readonly HashKey        HashKey = hashKey;
+		public readonly Meta           Meta    = meta;
+		public readonly DataModelValue Value   = value;
 	}
 
 	[Serializable]
 	private readonly struct MetaValue(in Meta meta, in DataModelValue value)
 	{
-		public readonly Meta Meta = meta;
+		public readonly Meta           Meta  = meta;
 		public readonly DataModelValue Value = value;
 	}
 
 	[Serializable]
 	private readonly struct HashKeyValue(in HashKey hashKey, in DataModelValue value)
 	{
-		public readonly HashKey HashKey = hashKey;
-		public readonly DataModelValue Value = value;
+		public readonly HashKey        HashKey = hashKey;
+		public readonly DataModelValue Value   = value;
 	}
 
 	[Serializable]
 	private readonly struct HashKey(int hash, string? key)
 	{
-		public readonly int Hash = hash;
-		public readonly string? Key = key;
+		public readonly int     Hash = hash;
+		public readonly string? Key  = key;
 	}
 
 	[Serializable]
 	private readonly struct Meta(DataModelAccess access, DataModelList? metadata)
 	{
-		public readonly DataModelAccess Access = access;
-		public readonly DataModelList? Metadata = metadata;
+		public readonly DataModelAccess Access   = access;
+		public readonly DataModelList?  Metadata = metadata;
 	}
 }
