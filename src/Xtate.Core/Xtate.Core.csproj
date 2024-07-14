@@ -16,11 +16,11 @@
 	<ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0' or '$(TargetFramework)'=='net462'">
 		<PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="8.0.0" />
 		<PackageReference Include="System.Collections.Immutable" Version="8.0.0" />
-		<PackageReference Include="System.Text.Json" Version="8.0.3" />
+		<PackageReference Include="System.Text.Json" Version="8.0.4" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Xtate.SharedContent" Version="0.2.20" />
+		<PackageReference Include="Xtate.SharedContent" Version="0.*" />
 		<PackageReference Include="System.Threading.Channels" Version="8.0.0" />
 		<PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0" PrivateAssets="all" />
 		<PackageReference Include="ConfigureAwaitChecker.Analyzer" Version="5.0.0.1" PrivateAssets="all" />
@@ -37,7 +37,7 @@
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(UseProjectReference)'==''">
-		<PackageReference Include="Xtate.IoC" Version="0.2.40" />
+		<PackageReference Include="Xtate.IoC" Version="0.*" />
 	</ItemGroup>
 
 	<ItemGroup>
