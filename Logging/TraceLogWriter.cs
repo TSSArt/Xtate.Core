@@ -21,46 +21,13 @@ using System.Text;
 
 namespace Xtate.Core;
 
-public class TraceLogWriter(Type source, SourceLevels sourceLevels) : ILogWriter
+public class TraceLogWriter(string name)
 {
 	private static readonly ConcurrentDictionary<int, string> Formats = new();
 
-	private readonly TraceSource _traceSource = new(source.FullName, sourceLevels);
-
-#region Interface ILogWriter
+	private readonly TraceSource _traceSource = new(name, SourceLevels.All);
 
 	public virtual bool IsEnabled(Level level) => _traceSource.Switch.ShouldTrace(GetTraceEventType(level));
-
-	public ValueTask Write(Level level,
-						   int eventId,
-						   string? message,
-						   IEnumerable<LoggingParameter>? parameters)
-	{
-		var traceEventType = GetTraceEventType(level);
-
-		if (_traceSource.Switch.ShouldTrace(traceEventType))
-		{
-			object?[] args = parameters is not null ? [message, ..parameters] : [message];
-
-			_traceSource.TraceEvent(traceEventType, eventId, GetFormat(args.Length - 1), args);
-		}
-
-		return default;
-	}
-
-#endregion
-
-	private static TraceEventType GetTraceEventType(Level level) =>
-		level switch
-		{
-			Level.Error   => TraceEventType.Error,
-			Level.Warning => TraceEventType.Warning,
-			Level.Info    => TraceEventType.Information,
-			Level.Debug   => TraceEventType.Verbose,
-			Level.Trace   => TraceEventType.Verbose,
-			Level.Verbose => TraceEventType.Verbose,
-			_             => Infra.Unexpected<TraceEventType>(level)
-		};
 
 	private static string GetFormat(int len) =>
 		Formats.GetOrAdd(
@@ -77,4 +44,54 @@ public class TraceLogWriter(Type source, SourceLevels sourceLevels) : ILogWriter
 
 					 return sb.ToString();
 				 });
+
+	private static TraceEventType GetTraceEventType(Level level) =>
+		level switch
+		{
+			Level.Error   => TraceEventType.Error,
+			Level.Warning => TraceEventType.Warning,
+			Level.Info    => TraceEventType.Information,
+			Level.Debug   => TraceEventType.Verbose,
+			Level.Trace   => TraceEventType.Verbose,
+			Level.Verbose => TraceEventType.Verbose,
+			_             => Infra.Unexpected<TraceEventType>(level)
+		};
+
+	protected async ValueTask Write(Level level,
+							  int eventId,
+							  string? message,
+							  IAsyncEnumerable<LoggingParameter>? parameters)
+	{
+		var traceEventType = GetTraceEventType(level);
+
+		if (_traceSource.Switch.ShouldTrace(traceEventType))
+		{
+			var args = new List<LoggingParameter>();
+
+			if (!string.IsNullOrEmpty(message))
+			{
+				args.Add(new LoggingParameter(string.Empty, message));
+			}
+
+			if (parameters is not null)
+			{
+				await parameters.AppendCollectionAsync(args).ConfigureAwait(false);
+			}
+
+			_traceSource.TraceEvent(traceEventType, eventId, GetFormat(args.Count - 1), args);
+		}
+	}
+}
+
+public class TraceLogWriter<TSource>() : TraceLogWriter(typeof(TSource).FullName!), ILogWriter<TSource>
+{
+#region Interface ILogWriter<TSource>
+
+	ValueTask ILogWriter<TSource>.Write(Level level,
+										int eventId,
+										string? message,
+										IAsyncEnumerable<LoggingParameter>? parameters) =>
+		Write(level, eventId, message, parameters);
+
+#endregion
 }
