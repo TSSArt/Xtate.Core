@@ -446,7 +446,7 @@ public class RegisterClassTest
 		services.AddForwarding<IScxmlStateMachine>(_ => new ScxmlStateMachine(xml));
 		services.RegisterStateMachineFactory();
 		services.RegisterStateMachineInterpreter();
-		services.AddImplementation<TraceLogWriter>().For<ILogWriter>();
+		services.AddImplementation<TraceLogWriter<Any>>().For<ILogWriter<Any>>();
 
 		var provider = services.BuildProvider();
 

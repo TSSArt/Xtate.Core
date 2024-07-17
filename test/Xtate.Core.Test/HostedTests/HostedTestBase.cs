@@ -26,12 +26,12 @@ namespace Xtate.Test.HostedTests;
 public abstract class HostedTestBase
 {
 	protected StateMachineHost Host      { get; private set; } = default!;
-	protected Mock<ILogWriter> LogWriter { get; private set; } = default!;
+	protected Mock<ILogWriter<ILog>> LogWriter { get; private set; } = default!;
 
 	[TestInitialize]
 	public async Task Initialize()
 	{
-		LogWriter = new Mock<ILogWriter>();
+		LogWriter = new Mock<ILogWriter<ILog>>();
 		/*
 		Host = new StateMachineHostBuilder()
 			   //TODO:

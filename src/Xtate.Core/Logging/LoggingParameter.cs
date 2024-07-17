@@ -19,17 +19,31 @@ namespace Xtate.Core;
 
 public readonly struct LoggingParameter(string name, object? value, string? format = default) : IFormattable
 {
-	public string  Name   { get; } = name;
-	public object? Value  { get; } = value;
-	public string? Format { get; } = format;
+	public string  Name      { get; } = name;
+	public object? Value     { get; } = value;
+	public string? Format    { get; } = format;
+	public string? Namespace { get; init; }
+
 
 #region Interface IFormattable
 
-	public string ToString(string? format, IFormatProvider? formatProvider) => Name + @":" + ValueToString(formatProvider);
+	public string ToString(string? format, IFormatProvider? formatProvider)
+	{
+		if (string.IsNullOrEmpty(Name))
+		{
+			return ValueToString(formatProvider);
+		}
+
+		return string.IsNullOrEmpty(Namespace)
+			? Name + @":" + ValueToString(formatProvider)
+			: Namespace + @"::" + Name + @":" + ValueToString(formatProvider);
+	}
 
 #endregion
 
-	private string? ValueToString(IFormatProvider? formatProvider)
+	public string FullName() => string.IsNullOrEmpty(Namespace) ? Name : Namespace + @"::" + Name;
+	
+	public string ValueToString(IFormatProvider? formatProvider)
 	{
 		if (Format is not null)
 		{
@@ -46,7 +60,7 @@ public readonly struct LoggingParameter(string name, object? value, string? form
 			}
 		}
 
-		return Value?.ToString();
+		return Value?.ToString() ?? string.Empty;
 	}
 
 	public override string ToString() => ToString(format: default, formatProvider: default);

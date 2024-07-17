@@ -19,9 +19,9 @@ using System.Diagnostics;
 
 namespace Xtate.Core;
 
-public class FileLogWriter : TraceLogWriter
+public class FileLogWriter<TSource> : TraceLogWriter<TSource>
 {
-	public FileLogWriter(string file, Type source) : base(source, SourceLevels.All)
+	public FileLogWriter(string file)
 	{
 		var listenerCollection = Trace.Listeners;
 

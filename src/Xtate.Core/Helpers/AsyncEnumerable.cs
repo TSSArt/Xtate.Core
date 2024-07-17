@@ -31,4 +31,12 @@ internal static class AsyncEnumerable
 
 		return builder.ToImmutable();
 	}
+
+	public static async ValueTask AppendCollectionAsync<T>(this IAsyncEnumerable<T> asyncEnumerable, ICollection<T> collection)
+	{
+		await foreach (var item in asyncEnumerable.ConfigureAwait(false))
+		{
+			collection.Add(item);
+		}
+	}
 }
