@@ -29,21 +29,21 @@ public class TraceLogWriter(string name)
 
 	public virtual bool IsEnabled(Level level) => _traceSource.Switch.ShouldTrace(GetTraceEventType(level));
 
-	private static string GetFormat(int len) =>
-		Formats.GetOrAdd(
-			len, static argsCount =>
-				 {
-					 var sb = new StringBuilder(argsCount * 8 + 8);
+	private static string GetFormat(int len) => len == 0 ? string.Empty : Formats.GetOrAdd(len, FormatFactory);
 
-					 sb.AppendLine(@"{0}");
+	private static string FormatFactory(int argsCount)
+	{
+		var sb = new StringBuilder(argsCount * 8 + 8);
 
-					 for (var i = 1; i <= argsCount; i ++)
-					 {
-						 sb.Append(@"  {").Append(i).Append('}').AppendLine();
-					 }
+		sb.AppendLine(@"{0}");
 
-					 return sb.ToString();
-				 });
+		for (var i = 1; i <= argsCount; i ++)
+		{
+			sb.Append(@"  {").Append(i).Append('}').AppendLine();
+		}
+
+		return sb.ToString();
+	}
 
 	private static TraceEventType GetTraceEventType(Level level) =>
 		level switch
@@ -78,7 +78,7 @@ public class TraceLogWriter(string name)
 				await parameters.AppendCollectionAsync(args).ConfigureAwait(false);
 			}
 
-			_traceSource.TraceEvent(traceEventType, eventId, GetFormat(args.Count - 1), args);
+			_traceSource.TraceEvent(traceEventType, eventId, GetFormat(args.Count - 1), [..args]);
 		}
 	}
 }
