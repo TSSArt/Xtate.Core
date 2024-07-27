@@ -16,34 +16,23 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Globalization;
-using Xtate.IoC;
 
 namespace Xtate.Core;
 
-public interface ILogEnricher<[UsedImplicitly]TSource>
+public interface ILogEnricher<[UsedImplicitly] TSource>
 {
 	string? Namespace { get; }
 
-	IEnumerable<LoggingParameter> EnumerateProperties(Level level, int eventId);
+	IAsyncEnumerable<LoggingParameter> EnumerateProperties(Level level, int eventId);
 }
 
-public class Logger<TSource> : ILogger<TSource>, IAsyncInitialization
+public class Logger<TSource> : ILogger<TSource>
 {
-	public required ILogWriter<TSource>?                    LogWriter   { private get; [UsedImplicitly]init; }
+	public required ILogWriter<TSource>? LogWriter { private get; [UsedImplicitly] init; }
 
-	public required IAsyncEnumerable<ILogEnricher<TSource>> LogEnrichers { private get; [UsedImplicitly]init; }
+	public required IAsyncEnumerable<ILogEnricher<TSource>> LogEnrichers { private get; [UsedImplicitly] init; }
 
-	private readonly AsyncInit<ImmutableArray<ILogEnricher<TSource>>>  _logEnrichers;
-
-	public Logger() => _logEnrichers = AsyncInit.Run(this, logger => logger.LogEnrichers.ToImmutableArrayAsync());
-
-	public required IEntityParserHandler EntityParserHandler { private get; [UsedImplicitly] init; }
-
-#region Interface IAsyncInitialization
-
-	public Task Initialization => _logEnrichers.Task;
-
-#endregion
+	public required IEntityParserHandler<TSource> EntityParserHandler { private get; [UsedImplicitly] init; }
 
 #region Interface ILogger
 
@@ -87,26 +76,31 @@ public class Logger<TSource> : ILogger<TSource>, IAsyncInitialization
 			return default;
 		}
 
-		return LogWriter!.Write(level, eventId, message, EnumerateParameters(level, eventId, default, EntityParserHandler.EnumerateProperties(entity)));
+		return LogWriter!.Write(level, eventId, message, EnumerateParameters(level, eventId, parameters: default, EntityParserHandler.EnumerateProperties(entity)));
 	}
 
 	public virtual ValueTask Write<TEntity>(Level level,
 											int eventId,
-											[InterpolatedStringHandlerArgument("", "level")] LoggingInterpolatedStringHandler formattedMessage,
+											[InterpolatedStringHandlerArgument("", "level")]
+											LoggingInterpolatedStringHandler formattedMessage,
 											TEntity entity)
 	{
 		if (!IsEnabled(level))
 		{
 			return default;
 		}
-		
+
 		var message = formattedMessage.ToString(out var parameters);
 
 		return LogWriter!.Write(level, eventId, message, EnumerateParameters(level, eventId, parameters, EntityParserHandler.EnumerateProperties(entity)));
 	}
+
 #endregion
-	
-	private async IAsyncEnumerable<LoggingParameter> EnumerateParameters(Level level, int eventId, ImmutableArray<LoggingParameter> parameters = default, IEnumerable<LoggingParameter>? entityProperties = default)
+
+	private async IAsyncEnumerable<LoggingParameter> EnumerateParameters(Level level,
+																		 int eventId,
+																		 ImmutableArray<LoggingParameter> parameters = default,
+																		 IAsyncEnumerable<LoggingParameter>? entityProperties = default)
 	{
 		if (!parameters.IsDefaultOrEmpty)
 		{
@@ -118,26 +112,23 @@ public class Logger<TSource> : ILogger<TSource>, IAsyncInitialization
 
 		if (entityProperties is not null)
 		{
-			foreach (var parameter in entityProperties)
+			await foreach (var parameter in entityProperties.ConfigureAwait(false))
 			{
 				yield return parameter;
 			}
 		}
 
-		if (!_logEnrichers.Value.IsDefaultOrEmpty)
+		await foreach (var enricher in LogEnrichers.ConfigureAwait(false))
 		{
-			foreach (var enricher in _logEnrichers.Value)
+			string? ns = default;
+
+			if (enricher.EnumerateProperties(level, eventId) is { } properties)
 			{
-				string? ns = default;
+				ns ??= enricher.Namespace ?? enricher.GetType().Name;
 
-				if (enricher.EnumerateProperties(level, eventId) is { } properties)
+				await foreach (var parameter in properties.ConfigureAwait(false))
 				{
-					ns ??= enricher.Namespace ?? enricher.GetType().Name;
-
-					foreach (var parameter in properties)
-					{
-						yield return parameter with { Namespace = ns };
-					}
+					yield return parameter with { Namespace = ns };
 				}
 			}
 		}

@@ -17,7 +17,10 @@
 
 namespace Xtate.Core;
 
-public interface IEntityParserHandler<TSource>
+public class InterpreterStateParser<TSource> : EntityParserBase<TSource, StateMachineInterpreterState>
 {
-	IAsyncEnumerable<LoggingParameter> EnumerateProperties<T>(T entity);
+	protected override IEnumerable<LoggingParameter> EnumerateProperties(StateMachineInterpreterState interpreterState)
+	{
+		yield return new LoggingParameter(name: @"InterpreterState", interpreterState);
+	}
 }

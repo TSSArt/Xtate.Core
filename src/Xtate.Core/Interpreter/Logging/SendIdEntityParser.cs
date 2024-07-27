@@ -17,7 +17,13 @@
 
 namespace Xtate.Core;
 
-public interface IEntityParserHandler<TSource>
+public class SendIdEntityParser<TSource> : EntityParserBase<TSource, SendId?>
 {
-	IAsyncEnumerable<LoggingParameter> EnumerateProperties<T>(T entity);
+	protected override IEnumerable<LoggingParameter> EnumerateProperties(SendId? sendId)
+	{
+		if (sendId is not null)
+		{
+			yield return new LoggingParameter(name: @"SendId", sendId);
+		}
+	}
 }
