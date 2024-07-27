@@ -17,7 +17,13 @@
 
 namespace Xtate.Core;
 
-public interface IEntityParserHandler<TSource>
+public class DataModelValueEntityParser<TSource> : EntityParserBase<TSource, DataModelValue>
 {
-	IAsyncEnumerable<LoggingParameter> EnumerateProperties<T>(T entity);
+	protected override IEnumerable<LoggingParameter> EnumerateProperties(DataModelValue value)
+	{
+		if (!value.IsUndefined())
+		{
+			yield return new LoggingParameter(name: @"Parameter", value);
+		}
+	}
 }

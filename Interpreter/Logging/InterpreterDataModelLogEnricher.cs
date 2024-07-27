@@ -17,7 +17,20 @@
 
 namespace Xtate.Core;
 
-public interface IEntityParserHandler<TSource>
+public class InterpreterDataModelLogEnricher<TSource> : ILogEnricher<TSource>
 {
-	IAsyncEnumerable<LoggingParameter> EnumerateProperties<T>(T entity);
+	public required Func<ValueTask<IDataModelController>> DataModelControllerFactory { private get; [UsedImplicitly] init; }
+
+#region Interface ILogEnricher<TSource>
+
+	public async IAsyncEnumerable<LoggingParameter> EnumerateProperties(Level level, int eventId)
+	{
+		var dataModelController = await DataModelControllerFactory().ConfigureAwait(false);
+
+		yield return new LoggingParameter(name: @"DataModel", dataModelController.DataModel.AsConstant());
+	}
+
+	public string? Namespace => string.Empty;
+
+#endregion
 }
