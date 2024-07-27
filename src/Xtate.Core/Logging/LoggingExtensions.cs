@@ -28,8 +28,7 @@ public static class LoggingExtensions
 			return;
 		}
 
-		services.AddImplementation<LogEntityParserService>().For<IEntityParserHandler>();
+		services.AddImplementation<LogEntityParserService<Any>>().For<IEntityParserHandler<Any>>();
 		services.AddImplementation<Logger<Any>>().For<ILogger<Any>>();
-		//services.AddImplementation<InterpreterBasicLogEnricher<Any>>().For<ILogEnricher<Any>>();
 	}
 }

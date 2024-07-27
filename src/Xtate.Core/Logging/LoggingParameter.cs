@@ -24,7 +24,6 @@ public readonly struct LoggingParameter(string name, object? value, string? form
 	public string? Format    { get; } = format;
 	public string? Namespace { get; init; }
 
-
 #region Interface IFormattable
 
 	public string ToString(string? format, IFormatProvider? formatProvider)
@@ -42,7 +41,7 @@ public readonly struct LoggingParameter(string name, object? value, string? form
 #endregion
 
 	public string FullName() => string.IsNullOrEmpty(Namespace) ? Name : Namespace + @"::" + Name;
-	
+
 	public string ValueToString(IFormatProvider? formatProvider)
 	{
 		if (Format is not null)

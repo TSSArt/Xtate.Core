@@ -128,6 +128,7 @@ public class PersistedInterpreterModelGetter : IAsyncInitialization
 
 				return await interpreterModelBuilder.BuildModel().ConfigureAwait(false);
 			}
+
 			// ReSharper disable once RedundantEmptyFinallyBlock
 			finally
 			{

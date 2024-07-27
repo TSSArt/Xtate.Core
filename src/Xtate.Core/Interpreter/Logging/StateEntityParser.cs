@@ -17,7 +17,15 @@
 
 namespace Xtate.Core;
 
-public interface IEntityParserHandler<TSource>
+public class StateEntityParser<TSource> : EntityParserBase<TSource, IStateEntity>
 {
-	IAsyncEnumerable<LoggingParameter> EnumerateProperties<T>(T entity);
+	protected override IEnumerable<LoggingParameter> EnumerateProperties(IStateEntity stateEntity)
+	{
+		Infra.Requires(stateEntity);
+
+		if (stateEntity.Id is { } stateId)
+		{
+			yield return new LoggingParameter(name: @"StateId", stateId);
+		}
+	}
 }

@@ -25,7 +25,7 @@ namespace Xtate.Test.HostedTests;
 
 public abstract class HostedTestBase
 {
-	protected StateMachineHost Host      { get; private set; } = default!;
+	protected StateMachineHost       Host      { get; private set; } = default!;
 	protected Mock<ILogWriter<ILog>> LogWriter { get; private set; } = default!;
 
 	[TestInitialize]

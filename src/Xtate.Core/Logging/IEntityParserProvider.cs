@@ -17,7 +17,7 @@
 
 namespace Xtate.Core;
 
-public interface IEntityParserProvider
+public interface IEntityParserProvider<TSource>
 {
-	IEntityParserHandler? TryGetEntityParserHandler<T>(T entity);
+	IEntityParserHandler<TSource>? TryGetEntityParserHandler<T>(T entity);
 }

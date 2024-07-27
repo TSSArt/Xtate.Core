@@ -17,19 +17,24 @@
 
 namespace Xtate.Core;
 
-public class LogEntityParserService : IEntityParserHandler
+public class LogEntityParserService<TSource> : IEntityParserHandler<TSource>
 {
-	public required IEnumerable<IEntityParserProvider> Providers { private get; [UsedImplicitly] init; }
+	public required IAsyncEnumerable<IEntityParserProvider<TSource>> Providers { private get; [UsedImplicitly] init; }
 
 #region Interface IEntityParserHandler
 
-	public IEnumerable<LoggingParameter> EnumerateProperties<T>(T entity)
+	public async IAsyncEnumerable<LoggingParameter> EnumerateProperties<T>(T entity)
 	{
-		foreach (var provider in Providers)
+		await foreach (var provider in Providers.ConfigureAwait(false))
 		{
 			if (provider.TryGetEntityParserHandler(entity) is { } handler)
 			{
-				return handler.EnumerateProperties(entity);
+				await foreach (var property in handler.EnumerateProperties(entity).ConfigureAwait(false))
+				{
+					yield return property;
+				}
+
+				yield break;
 			}
 		}
 

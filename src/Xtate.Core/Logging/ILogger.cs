@@ -37,6 +37,7 @@ public interface ILogger<[UsedImplicitly] TSource> : ILogger
 
 	ValueTask Write<TEntity>(Level level,
 							 int eventId,
-							 [InterpolatedStringHandlerArgument("", "level")] LoggingInterpolatedStringHandler formattedMessage,
+							 [InterpolatedStringHandlerArgument("", "level")]
+							 LoggingInterpolatedStringHandler formattedMessage,
 							 TEntity entity);
 }

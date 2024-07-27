@@ -24,10 +24,10 @@ namespace Xtate.Test;
 public class InvokeTest
 {
 	private Mock<IInvokeController>                    _invokeControllerMock = default!;
-	private Mock<ILogWriter<ILog>>                     _loggerMockL          = default!;
-	private Mock<ILogWriter<IStateMachineInterpreter>> _loggerMockI          = default!;
 	private Mock<ILogWriter<IEventController>>         _loggerMockE          = default!;
-	private Mock<ILogWriter<IInvoke>>         _loggerMockV          = default!;
+	private Mock<ILogWriter<IStateMachineInterpreter>> _loggerMockI          = default!;
+	private Mock<ILogWriter<ILog>>                     _loggerMockL          = default!;
+	private Mock<ILogWriter<IInvoke>>                  _loggerMockV          = default!;
 	private StateMachineEntity                         _stateMachine;
 
 	[TestInitialize]

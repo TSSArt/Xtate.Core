@@ -89,6 +89,16 @@ public static class InterpreterExtensions
 		services.RegisterInterpreterModelBuilder();
 		services.RegisterLogging();
 
+		services.AddSharedImplementation<InterpreterBasicLogEnricher<IStateMachineInterpreter>>(SharedWithin.Scope).For<ILogEnricher<IStateMachineInterpreter>>();
+		services.AddSharedImplementation<InterpreterBasicLogEnricher<ILog>>(SharedWithin.Scope).For<ILogEnricher<ILog>>();
+		services.AddSharedImplementation<InterpreterBasicLogEnricher<IInvoke>>(SharedWithin.Scope).For<ILogEnricher<IInvoke>>();
+		services.AddSharedImplementation<InterpreterBasicLogEnricher<IEventController>>(SharedWithin.Scope).For<ILogEnricher<IEventController>>();
+
+		services.AddSharedImplementation<InterpreterDataModelLogEnricher<IStateMachineInterpreter>>(SharedWithin.Scope).For<ILogEnricher<IStateMachineInterpreter>>();
+		services.AddSharedImplementation<InterpreterDataModelLogEnricher<ILog>>(SharedWithin.Scope).For<ILogEnricher<ILog>>();
+		services.AddSharedImplementation<InterpreterDataModelLogEnricher<IInvoke>>(SharedWithin.Scope).For<ILogEnricher<IInvoke>>();
+		services.AddSharedImplementation<InterpreterDataModelLogEnricher<IEventController>>(SharedWithin.Scope).For<ILogEnricher<IEventController>>();
+
 		services.AddSharedImplementationSync<AssemblyTypeInfo, Type>(SharedWithin.Scope).For<IAssemblyTypeInfo>();
 
 		services.AddImplementation<InterpreterXDataModelProperty>().For<IXDataModelProperty>();
@@ -102,14 +112,16 @@ public static class InterpreterExtensions
 		services.AddImplementation<DataModelController>().For<IDataModelController>();
 		services.AddImplementation<EventController>().For<IEventController>();
 
-		services.AddSharedImplementationSync<DataModelValueEntityParser>(SharedWithin.Scope).For<IEntityParserProvider>();
-		services.AddSharedImplementationSync<ExceptionEntityParser>(SharedWithin.Scope).For<IEntityParserProvider>();
-		services.AddSharedImplementationSync<StateEntityParser>(SharedWithin.Scope).For<IEntityParserProvider>();
-		services.AddSharedImplementationSync<TransitionEntityParser>(SharedWithin.Scope).For<IEntityParserProvider>();
-		services.AddSharedImplementationSync<EventEntityParser>(SharedWithin.Scope).For<IEntityParserProvider>();
-		services.AddSharedImplementationSync<OutgoingEventEntityParser>(SharedWithin.Scope).For<IEntityParserProvider>();
-		services.AddSharedImplementationSync<InvokeDataEntityParser>(SharedWithin.Scope).For<IEntityParserProvider>();
-		services.AddSharedImplementationSync<InvokeIdEntityParser>(SharedWithin.Scope).For<IEntityParserProvider>();
+		services.AddSharedImplementation<DataModelValueEntityParser<Any>>(SharedWithin.Scope).For<IEntityParserProvider<Any>>();
+		services.AddSharedImplementation<ExceptionEntityParser<Any>>(SharedWithin.Scope).For<IEntityParserProvider<Any>>();
+		services.AddSharedImplementation<StateEntityParser<Any>>(SharedWithin.Scope).For<IEntityParserProvider<Any>>();
+		services.AddSharedImplementation<TransitionEntityParser<Any>>(SharedWithin.Scope).For<IEntityParserProvider<Any>>();
+		services.AddSharedImplementation<EventEntityParser<Any>>(SharedWithin.Scope).For<IEntityParserProvider<Any>>();
+		services.AddSharedImplementation<OutgoingEventEntityParser<Any>>(SharedWithin.Scope).For<IEntityParserProvider<Any>>();
+		services.AddSharedImplementation<InvokeDataEntityParser<Any>>(SharedWithin.Scope).For<IEntityParserProvider<Any>>();
+		services.AddSharedImplementation<InvokeIdEntityParser<Any>>(SharedWithin.Scope).For<IEntityParserProvider<Any>>();
+		services.AddSharedImplementation<SendIdEntityParser<Any>>(SharedWithin.Scope).For<IEntityParserProvider<Any>>();
+		services.AddSharedImplementation<InterpreterStateParser<Any>>(SharedWithin.Scope).For<IEntityParserProvider<Any>>();
 
 		services.AddSharedFactory<InterpreterModelGetter>(SharedWithin.Scope).For<IInterpreterModel>();
 		services.AddSharedImplementation<EventQueue>(SharedWithin.Scope).For<IEventQueueReader>().For<IEventQueueWriter>();

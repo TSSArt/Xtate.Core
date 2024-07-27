@@ -17,7 +17,13 @@
 
 namespace Xtate.Core;
 
-public interface IEntityParserHandler<TSource>
+public class InvokeIdEntityParser<TSource> : EntityParserBase<TSource, InvokeId?>
 {
-	IAsyncEnumerable<LoggingParameter> EnumerateProperties<T>(T entity);
+	protected override IEnumerable<LoggingParameter> EnumerateProperties(InvokeId? invokeId)
+	{
+		if (invokeId is not null)
+		{
+			yield return new LoggingParameter(name: @"InvokeId", invokeId);
+		}
+	}
 }
