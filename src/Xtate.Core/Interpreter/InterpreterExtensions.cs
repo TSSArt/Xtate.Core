@@ -89,15 +89,10 @@ public static class InterpreterExtensions
 		services.RegisterInterpreterModelBuilder();
 		services.RegisterLogging();
 
-		services.AddSharedImplementation<InterpreterBasicLogEnricher<IStateMachineInterpreter>>(SharedWithin.Scope).For<ILogEnricher<IStateMachineInterpreter>>();
-		services.AddSharedImplementation<InterpreterBasicLogEnricher<ILog>>(SharedWithin.Scope).For<ILogEnricher<ILog>>();
-		services.AddSharedImplementation<InterpreterBasicLogEnricher<IInvoke>>(SharedWithin.Scope).For<ILogEnricher<IInvoke>>();
-		services.AddSharedImplementation<InterpreterBasicLogEnricher<IEventController>>(SharedWithin.Scope).For<ILogEnricher<IEventController>>();
-
-		services.AddSharedImplementation<InterpreterDataModelLogEnricher<IStateMachineInterpreter>>(SharedWithin.Scope).For<ILogEnricher<IStateMachineInterpreter>>();
-		services.AddSharedImplementation<InterpreterDataModelLogEnricher<ILog>>(SharedWithin.Scope).For<ILogEnricher<ILog>>();
-		services.AddSharedImplementation<InterpreterDataModelLogEnricher<IInvoke>>(SharedWithin.Scope).For<ILogEnricher<IInvoke>>();
-		services.AddSharedImplementation<InterpreterDataModelLogEnricher<IEventController>>(SharedWithin.Scope).For<ILogEnricher<IEventController>>();
+		services.AddSharedImplementation<InterpreterLogEnricher<IStateMachineInterpreter>>(SharedWithin.Scope).For<ILogEnricher<IStateMachineInterpreter>>();
+		services.AddSharedImplementation<InterpreterLogEnricher<ILog>>(SharedWithin.Scope).For<ILogEnricher<ILog>>();
+		services.AddSharedImplementation<InterpreterLogEnricher<IInvoke>>(SharedWithin.Scope).For<ILogEnricher<IInvoke>>();
+		services.AddSharedImplementation<InterpreterLogEnricher<IEventController>>(SharedWithin.Scope).For<ILogEnricher<IEventController>>();
 
 		services.AddSharedImplementationSync<AssemblyTypeInfo, Type>(SharedWithin.Scope).For<IAssemblyTypeInfo>();
 

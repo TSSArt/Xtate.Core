@@ -17,13 +17,17 @@
 
 namespace Xtate.Core;
 
-public class InterpreterBasicLogEnricher<TSource> : ILogEnricher<TSource>
+public class InterpreterLogEnricher<TSource> : ILogEnricher<TSource>
 {
 	public required Func<ValueTask<IStateMachineSessionId>> StateMachineSessionIdFactory { private get; [UsedImplicitly] init; }
 
 	public required Func<ValueTask<IStateMachine>> StateMachineFactory { private get; [UsedImplicitly] init; }
 
 	public required Func<ValueTask<IStateMachineContext>> StateMachineContextFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<ValueTask<IDataModelController>> DataModelControllerFactory { private get; [UsedImplicitly] init; }
+
+	public required ILogger<TSource> Logger { private get; [UsedImplicitly] init; }
 
 #region Interface ILogEnricher<TSource>
 
@@ -51,9 +55,16 @@ public class InterpreterBasicLogEnricher<TSource> : ILogEnricher<TSource>
 
 			yield return new LoggingParameter(name: @"ActiveStates", activeStates);
 		}
+
+		if (Logger.IsEnabled(Level.Verbose))
+		{
+			var dataModelController = await DataModelControllerFactory().ConfigureAwait(false);
+
+			yield return new LoggingParameter(name: @"DataModel", dataModelController.DataModel.AsConstant());
+		}
 	}
 
-	public string? Namespace => string.Empty;
+	public string Namespace => @"ctx";
 
 #endregion
 }
