@@ -114,7 +114,7 @@ public class Logger<TSource> : ILogger<TSource>
 		{
 			await foreach (var parameter in entityProperties.ConfigureAwait(false))
 			{
-				yield return parameter;
+				yield return parameter with { Namespace = @"prop" };
 			}
 		}
 
