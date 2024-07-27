@@ -17,7 +17,22 @@
 
 namespace Xtate.Core;
 
-public interface IEntityParserHandler<TSource>
+public class TransitionEntityParser<TSource> : EntityParserBase<TSource, ITransition>
 {
-	IAsyncEnumerable<LoggingParameter> EnumerateProperties<T>(T entity);
+	protected override IEnumerable<LoggingParameter> EnumerateProperties(ITransition transition)
+	{
+		Infra.Requires(transition);
+
+		yield return new LoggingParameter(name: @"TransitionType", transition.Type);
+
+		if (!transition.EventDescriptors.IsDefaultOrEmpty)
+		{
+			yield return new LoggingParameter(name: @"EventDescriptors", EventDescriptor.ToString(transition.EventDescriptors));
+		}
+
+		if (!transition.Target.IsDefaultOrEmpty)
+		{
+			yield return new LoggingParameter(name: @"Target", Identifier.ToString(transition.Target));
+		}
+	}
 }

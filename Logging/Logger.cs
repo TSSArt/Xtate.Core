@@ -16,29 +16,27 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Globalization;
-using Xtate.IoC;
 
 namespace Xtate.Core;
 
-public class Logger<TSource> : ILogger<TSource>, IAsyncInitialization
+public interface ILogEnricher<[UsedImplicitly] TSource>
 {
-	private readonly AsyncInit<ILogWriter?> _logWriterAsyncInit;
+	string? Namespace { get; }
 
-	public Logger() => _logWriterAsyncInit = AsyncInit.Run(this, logger => logger.LogWriterFactory(typeof(TSource)));
+	IAsyncEnumerable<LoggingParameter> EnumerateProperties(Level level, int eventId);
+}
 
-	public required Func<Type, ValueTask<ILogWriter?>> LogWriterFactory { private get; [UsedImplicitly] init; }
+public class Logger<TSource> : ILogger<TSource>
+{
+	public required ILogWriter<TSource>? LogWriter { private get; [UsedImplicitly] init; }
 
-	public required IEntityParserHandler EntityParserHandler { private get; [UsedImplicitly] init; }
+	public required IAsyncEnumerable<ILogEnricher<TSource>> LogEnrichers { private get; [UsedImplicitly] init; }
 
-#region Interface IAsyncInitialization
-
-	public Task Initialization => _logWriterAsyncInit.Task;
-
-#endregion
+	public required IEntityParserHandler<TSource> EntityParserHandler { private get; [UsedImplicitly] init; }
 
 #region Interface ILogger
 
-	public virtual bool IsEnabled(Level level) => _logWriterAsyncInit.Value?.IsEnabled(level) ?? false;
+	public virtual bool IsEnabled(Level level) => LogWriter?.IsEnabled(level) ?? false;
 
 	public virtual IFormatProvider FormatProvider => CultureInfo.InvariantCulture;
 
@@ -48,24 +46,24 @@ public class Logger<TSource> : ILogger<TSource>, IAsyncInitialization
 
 	public virtual ValueTask Write(Level level, int eventId, string? message)
 	{
-		if (IsEnabled(level))
+		if (!IsEnabled(level))
 		{
-			return _logWriterAsyncInit.Value!.Write(level, eventId, message);
+			return default;
 		}
 
-		return default;
+		return LogWriter!.Write(level, eventId, message, EnumerateParameters(level, eventId));
 	}
 
 	public virtual ValueTask Write(Level level, int eventId, [InterpolatedStringHandlerArgument("", "level")] LoggingInterpolatedStringHandler formattedMessage)
 	{
-		if (IsEnabled(level))
+		if (!IsEnabled(level))
 		{
-			var message = formattedMessage.ToString(out var parameters);
-
-			return _logWriterAsyncInit.Value!.Write(level, eventId, message, parameters);
+			return default;
 		}
 
-		return default;
+		var message = formattedMessage.ToString(out var parameters);
+
+		return LogWriter!.Write(level, eventId, message, EnumerateParameters(level, eventId, parameters));
 	}
 
 	public virtual ValueTask Write<TEntity>(Level level,
@@ -73,29 +71,66 @@ public class Logger<TSource> : ILogger<TSource>, IAsyncInitialization
 											string? message,
 											TEntity entity)
 	{
-		if (IsEnabled(level))
+		if (!IsEnabled(level))
 		{
-			return _logWriterAsyncInit.Value!.Write(level, eventId, message, EntityParserHandler.EnumerateProperties(entity));
+			return default;
 		}
 
-		return default;
+		return LogWriter!.Write(level, eventId, message, EnumerateParameters(level, eventId, parameters: default, EntityParserHandler.EnumerateProperties(entity)));
 	}
 
 	public virtual ValueTask Write<TEntity>(Level level,
 											int eventId,
-											[InterpolatedStringHandlerArgument("", "level")] LoggingInterpolatedStringHandler formattedMessage,
+											[InterpolatedStringHandlerArgument("", "level")]
+											LoggingInterpolatedStringHandler formattedMessage,
 											TEntity entity)
 	{
-		if (IsEnabled(level))
+		if (!IsEnabled(level))
 		{
-			var message = formattedMessage.ToString(out var parameters);
-			var loggingParameters = parameters.Concat(EntityParserHandler.EnumerateProperties(entity));
-
-			return _logWriterAsyncInit.Value!.Write(level, eventId, message, loggingParameters);
+			return default;
 		}
 
-		return default;
+		var message = formattedMessage.ToString(out var parameters);
+
+		return LogWriter!.Write(level, eventId, message, EnumerateParameters(level, eventId, parameters, EntityParserHandler.EnumerateProperties(entity)));
 	}
 
 #endregion
+
+	private async IAsyncEnumerable<LoggingParameter> EnumerateParameters(Level level,
+																		 int eventId,
+																		 ImmutableArray<LoggingParameter> parameters = default,
+																		 IAsyncEnumerable<LoggingParameter>? entityProperties = default)
+	{
+		if (!parameters.IsDefaultOrEmpty)
+		{
+			foreach (var parameter in parameters)
+			{
+				yield return parameter;
+			}
+		}
+
+		if (entityProperties is not null)
+		{
+			await foreach (var parameter in entityProperties.ConfigureAwait(false))
+			{
+				yield return parameter with { Namespace = @"prop" };
+			}
+		}
+
+		await foreach (var enricher in LogEnrichers.ConfigureAwait(false))
+		{
+			string? ns = default;
+
+			if (enricher.EnumerateProperties(level, eventId) is { } properties)
+			{
+				ns ??= enricher.Namespace ?? enricher.GetType().Name;
+
+				await foreach (var parameter in properties.ConfigureAwait(false))
+				{
+					yield return parameter with { Namespace = ns };
+				}
+			}
+		}
+	}
 }

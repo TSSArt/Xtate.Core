@@ -17,7 +17,10 @@
 
 namespace Xtate.Core;
 
-public interface IEntityParserHandler<TSource>
+public class ExceptionEntityParser<TSource> : EntityParserBase<TSource, Exception>
 {
-	IAsyncEnumerable<LoggingParameter> EnumerateProperties<T>(T entity);
+	protected override IEnumerable<LoggingParameter> EnumerateProperties(Exception exception)
+	{
+		yield return new LoggingParameter(name: @"Exception", exception);
+	}
 }

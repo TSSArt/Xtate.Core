@@ -15,40 +15,34 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text;
 
 namespace Xtate.Core;
 
-public class TraceLogWriter(Type source, SourceLevels sourceLevels) : ILogWriter
+public class TraceLogWriter(string name)
 {
-	private static readonly ConcurrentDictionary<int, string> Formats = new();
+	private static readonly string[] Formats = new string[16];
 
-	private readonly TraceSource _traceSource = new(source.FullName, sourceLevels);
-
-#region Interface ILogWriter
+	private readonly TraceSource _traceSource = new(name, SourceLevels.All);
 
 	public virtual bool IsEnabled(Level level) => _traceSource.Switch.ShouldTrace(GetTraceEventType(level));
 
-	public ValueTask Write(Level level,
-						   int eventId,
-						   string? message,
-						   IEnumerable<LoggingParameter>? parameters)
+	private static string GetFormat(int len) => len < Formats.Length ? Formats[len] ??= FormatFactory(len) : FormatFactory(len);
+
+	private static string FormatFactory(int argsCount)
 	{
-		var traceEventType = GetTraceEventType(level);
+		var sb = new StringBuilder(argsCount * 10);
 
-		if (_traceSource.Switch.ShouldTrace(traceEventType))
+		sb.Append(@"{0}");
+
+		for (var i = 1; i < argsCount; i ++)
 		{
-			object?[] args = parameters is not null ? [message, ..parameters] : [message];
-
-			_traceSource.TraceEvent(traceEventType, eventId, GetFormat(args.Length - 1), args);
+			sb.AppendLine().Append(@"  {").Append(i).Append('}');
 		}
 
-		return default;
+		return sb.ToString();
 	}
-
-#endregion
 
 	private static TraceEventType GetTraceEventType(Level level) =>
 		level switch
@@ -62,19 +56,25 @@ public class TraceLogWriter(Type source, SourceLevels sourceLevels) : ILogWriter
 			_             => Infra.Unexpected<TraceEventType>(level)
 		};
 
-	private static string GetFormat(int len) =>
-		Formats.GetOrAdd(
-			len, static argsCount =>
-				 {
-					 var sb = new StringBuilder(argsCount * 8 + 8);
+	public async ValueTask Write(Level level,
+								 int eventId,
+								 string? message,
+								 IAsyncEnumerable<LoggingParameter>? parameters)
+	{
+		var traceEventType = GetTraceEventType(level);
 
-					 sb.AppendLine(@"{0}");
+		if (_traceSource.Switch.ShouldTrace(traceEventType))
+		{
+			var args = new List<LoggingParameter> { new(string.Empty, message ?? string.Empty) };
 
-					 for (var i = 1; i <= argsCount; i ++)
-					 {
-						 sb.Append(@"  {").Append(i).Append('}').AppendLine();
-					 }
+			if (parameters is not null)
+			{
+				await parameters.AppendCollectionAsync(args).ConfigureAwait(false);
+			}
 
-					 return sb.ToString();
-				 });
+			_traceSource.TraceEvent(traceEventType, eventId, GetFormat(args.Count), [..args]);
+		}
+	}
 }
+
+public class TraceLogWriter<TSource>() : TraceLogWriter(typeof(TSource).FullName!), ILogWriter<TSource>;
