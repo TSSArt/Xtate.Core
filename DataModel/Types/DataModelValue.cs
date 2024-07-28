@@ -25,6 +25,7 @@ namespace Xtate;
 
 [DebuggerTypeProxy(typeof(DebugView))]
 [DebuggerDisplay(value: "{ToObject()} ({Type})")]
+[CollectionBuilder(typeof(DataModelList), nameof(DataModelList.Create))]
 [Serializable]
 public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFormattable, IDynamicMetaObjectProvider, IConvertible, ISerializable
 {
