@@ -17,6 +17,7 @@
 
 namespace Xtate;
 
+[CollectionBuilder(typeof(DataModelList), nameof(Create))]
 public partial class DataModelList : IList<DataModelValue>
 {
 #region Interface ICollection<DataModelValue>
@@ -81,6 +82,18 @@ public partial class DataModelList : IList<DataModelValue>
 	public void RemoveAt(int index) => Remove(index);
 
 #endregion
+
+	public static DataModelList Create(ReadOnlySpan<DataModelValue> values)
+	{
+		var array = new DataModelList();
+
+		foreach (var value in values)
+		{
+			array.Add(value);
+		}
+
+		return array;
+	}
 
 	public ValueEnumerator GetEnumerator() => new(this);
 

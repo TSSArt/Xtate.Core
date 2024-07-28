@@ -99,23 +99,15 @@ public abstract class CustomActionBase
 				: Convert.ToBoolean(await base.GetValue().ConfigureAwait(false));
 	}
 
-	public class Value : IValueExpression
+	public class Value(string? expression, object? defaultValue = default) : IValueExpression
 	{
-		private readonly IObject _defaultValue;
-		private readonly string? _expression;
-
+		private readonly IObject _defaultValue = expression is null ? new DefaultObject(defaultValue) : DefaultObject.Null;
+		
 		private IObjectEvaluator? _objectEvaluator;
 
-		protected Value(string? expression, object? defaultValue = default)
-		{
-			_expression = expression;
+		#region Interface IValueExpression
 
-			_defaultValue = expression is null ? new DefaultObject(defaultValue) : DefaultObject.Null;
-		}
-
-	#region Interface IValueExpression
-
-		string? IValueExpression.Expression => _expression;
+		string? IValueExpression.Expression => expression;
 
 	#endregion
 
