@@ -6,11 +6,15 @@ on:
   workflow_dispatch:
 
 env:
-  VERSION: ${{ vars.MM_VERSION }}.${{ github.run_number }}
+  VERSION: ${{ vars.XTATE_VERSION }}.${{ github.run_number }}
   CONFIGURATION: Release
 
-run-name: "[v${{ vars.MM_VERSION }}.${{ github.run_number }}] ${{ github.event.head_commit.message }}"
+run-name: "[v${{ vars.XTATE_VERSION }}.${{ github.run_number }}] ${{ github.event.head_commit.message || '<Workflow Dispatch>' }}"
 
+concurrency:
+  group: Publish
+  cancel-in-progress: true
+  
 jobs:
   publish:
     name: Build & Publish
@@ -31,12 +35,12 @@ jobs:
       run: dotnet test --configuration ${{ env.CONFIGURATION }} --no-restore --no-build
     - name: Pack
       run: dotnet pack --configuration ${{ env.CONFIGURATION }} --no-restore --no-build -p:PackageVersion=${{ env.VERSION }} --include-symbols -p:SymbolPackageFormat=snupkg -o bin/packages
-    - name: Publish to GitHub
-      run: dotnet nuget push bin/packages/*.nupkg -s https://nuget.pkg.github.com/TSSArt/index.json -k ${{ secrets.GITHUB_TOKEN }}
-    - name: Publish to NuGet.org
-      run: dotnet nuget push bin/packages/*.nupkg -s https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_ORG_API_KEY }}
     - name: GitHub Tag
       uses: mathieudutour/github-tag-action@v6.2
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         custom_tag : ${{ env.VERSION }}
+    - name: Publish to NuGet.org
+      run: dotnet nuget push bin/packages/*.nupkg -s https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_ORG_TOKEN }}
+    - name: Publish to GitHub
+      run: dotnet nuget push bin/packages/*.nupkg -s https://nuget.pkg.github.com/TSSArt/index.json -k ${{ secrets.XTATE_GITHUB_TOKEN }}

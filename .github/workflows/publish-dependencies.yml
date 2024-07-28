@@ -1,0 +1,28 @@
+name: Publish Dependencies
+
+on:
+  registry_package:
+    types: [published]
+
+jobs:
+  trigger:
+    name: Build & Publish - ${{ matrix.repo }}
+    strategy:
+      matrix:
+        repo:
+          - Xtate.DataModel.EcmaScript
+          - Xtate.Logger.Serilog
+          - Xtate.IoProcessor.Http
+          - Xtate.IoProcessor.Http.Kestrel
+          - Xtate.Web.Tools
+    
+    runs-on: ubuntu-latest
+  
+    steps:
+      - name: Workflow Dispatch
+        uses: benc-uk/workflow-dispatch@v1.2.3
+        with:
+          workflow: Publish
+          token: ${{ secrets.XTATE_GITHUB_TOKEN }}
+          repo: TSSArt/${{ matrix.repo }}
+          ref: main
