@@ -31,14 +31,14 @@ public class MyActionProvider() : CustomActionProvider<MyAction>(ns: "http://xta
 
 public class MyAction(XmlReader xmlReader) : CustomActionBase
 {
-	private readonly Value    _input  = new StringValue(xmlReader.GetAttribute("sourceExpr"), xmlReader.GetAttribute("source"));
-	private readonly Location _output = new(xmlReader.GetAttribute("destination"));
+	private readonly ObjectValue _input  = new (xmlReader.GetAttribute("sourceExpr"), xmlReader.GetAttribute("source"));
+	private readonly Location    _output = new (xmlReader.GetAttribute("destination"));
 
 	public override IEnumerable<Value> GetValues() { yield return _input; }
 
 	public override IEnumerable<Location> GetLocations() { yield return _output; }
 
-	public override ValueTask Execute() => _output.CopyFrom(_input);
+	public override async ValueTask Execute() => await _output.SetValue(await _input.GetValue());
 }
 
 [TestClass]

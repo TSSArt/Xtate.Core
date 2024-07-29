@@ -15,6 +15,9 @@ jobs:
           - Xtate.IoProcessor.Http
           - Xtate.IoProcessor.Http.Kestrel
           - Xtate.Web.Tools
+          - Xtate.Service.HttpClient
+          - Xtate.Service.SmtpClient
+          - Xtate
     
     runs-on: ubuntu-latest
   
