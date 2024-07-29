@@ -480,6 +480,13 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 			_                   => null
 		};
 
+	public IObject AsIObject() =>
+		_value switch
+		{
+			ObjectContainer container => container.GetIObject(),
+			_ => this
+		};
+
 	public override bool Equals(object? obj) => obj is DataModelValue other && Equals(other);
 
 	public override int GetHashCode()
@@ -586,7 +593,7 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 		{
 			DateTimeOffset dateTimeOffset                                   => new DataModelValue(dateTimeOffset),
 			DataModelValue value                                            => value,
-			IObject value                                                   => FromObjectWithMap(value.ToObject(), ref map),
+			IObject value                                                   => new DataModelValue(new ObjectContainer(value)),
 			DataModelList list                                              => new DataModelValue(list),
 			IDictionary<string, object> dictionary                          => CreateDataModelObject(dictionary, ref map),
 			IDictionary<string, string> dictionary                          => CreateDataModelObject(dictionary, ref map),
@@ -696,6 +703,16 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 	}
 
 	public override string ToString() => ToString(format: null, formatProvider: null);
+
+	[Serializable]
+	public class ObjectContainer(IObject obj) : ILazyValue
+	{
+		private DataModelValue? _value;
+
+		public DataModelValue Value => _value ??= FromObject(obj.ToObject());
+
+		public IObject GetIObject() => obj;
+	}
 
 	[Serializable]
 	private sealed class Marker(DataModelValueType mark)
