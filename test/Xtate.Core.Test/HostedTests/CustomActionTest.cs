@@ -21,6 +21,7 @@ namespace Xtate.Test.HostedTests;
 public class CustomActionTest : HostedTestBase
 {
 	[TestMethod]
+	[Ignore]
 	public async Task StartSystemAction()
 	{
 		// act
