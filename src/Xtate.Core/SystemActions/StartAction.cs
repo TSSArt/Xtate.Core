@@ -75,8 +75,8 @@ public class StartAction : CustomActionBase, IDisposable
 		_trusted = xmlReader.GetAttribute("trusted") is { } trusted && XmlConvert.ToBoolean(trusted);
 	}
 
-	public required IDataModelController DataModelController { private get; [UsedImplicitly] init; }
-	public required IHost                Host                { private get; [UsedImplicitly] init; }
+	public required Func<ValueTask<IDataModelController>> DataModelControllerFactory { private get; [UsedImplicitly] init; }
+	public required Func<ValueTask<IHost>>              HostFactory                { private get; [UsedImplicitly] init; }
 
 #region Interface IDisposable
 
@@ -119,9 +119,11 @@ public class StartAction : CustomActionBase, IDisposable
 		var sessionId = await GetSessionId().ConfigureAwait(false);
 		var securityContextType = _trusted ? SecurityContextType.NewTrustedStateMachine : SecurityContextType.NewStateMachine;
 		var source = await GetSource().ConfigureAwait(false);
-		var stateMachineOrigin = new StateMachineOrigin(source, GetBaseUri());
+		var stateMachineOrigin = new StateMachineOrigin(source, await GetBaseUri().ConfigureAwait(false));
 
-		await Host.StartStateMachineAsync(sessionId, stateMachineOrigin, parameters: default, securityContextType, _disposingToken.Token).ConfigureAwait(false);
+		var host = await HostFactory().ConfigureAwait(false);
+
+		await host.StartStateMachineAsync(sessionId, stateMachineOrigin, parameters: default, securityContextType, _disposingToken.Token).ConfigureAwait(false);
 
 		if (_sessionIdLocation is not null)
 		{
@@ -129,9 +131,11 @@ public class StartAction : CustomActionBase, IDisposable
 		}
 	}
 
-	private Uri? GetBaseUri()
+	private async ValueTask<Uri?> GetBaseUri()
 	{
-		var value = DataModelController.DataModel["_x"].AsListOrEmpty()["host"].AsListOrEmpty()["location"].AsStringOrDefault();
+		var dataModelController = await DataModelControllerFactory().ConfigureAwait(false);
+
+		var value = dataModelController.DataModel["_x"].AsListOrEmpty()["host"].AsListOrEmpty()["location"].AsStringOrDefault();
 
 		return value is not null ? new Uri(value, UriKind.RelativeOrAbsolute) : null;
 	}
