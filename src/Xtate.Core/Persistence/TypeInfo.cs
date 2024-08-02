@@ -17,7 +17,7 @@
 
 namespace Xtate.Persistence;
 
-internal enum TypeInfo
+public enum TypeInfo
 {
 	AssignNode,
 	CancelNode,

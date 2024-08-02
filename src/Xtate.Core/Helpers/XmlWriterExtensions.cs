@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#if !NET6_0_OR_GREATER
+#if !NET5_0_OR_GREATER
 using System.Xml;
 
 namespace Xtate.Core;

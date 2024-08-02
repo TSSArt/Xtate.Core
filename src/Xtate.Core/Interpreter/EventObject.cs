@@ -19,7 +19,7 @@ using Xtate.Persistence;
 
 namespace Xtate.Core;
 
-internal class EventObject : IEvent, IStoreSupport, IAncestorProvider
+public class EventObject : IEvent, IStoreSupport, IAncestorProvider
 {
 	private readonly DataModelValue _data;
 	private          Uri?           _origin;

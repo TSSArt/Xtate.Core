@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#if NET6_0_OR_GREATER
+#if NETCOREAPP3_0_OR_GREATER || NETSTANDARD2_1
 #pragma warning disable CA1835
 #endif
 
@@ -57,7 +57,8 @@ public static class StreamExtensions
 		}
 	}
 
-#if !NET6_0_OR_GREATER
+#if !NETCOREAPP3_0_OR_GREATER && !NETSTANDARD2_1
+
 	public static ConfiguredAwaitable ConfigureAwait(this Stream stream, bool continueOnCapturedContext) => new(stream, continueOnCapturedContext);
 
 	public static ValueTask DisposeAsync(this Stream stream)
