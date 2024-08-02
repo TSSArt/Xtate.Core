@@ -7,6 +7,13 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="HostedTests\Scxml\StartSystemAction.scxml" />
+	  <None Remove="HostedTests\Scxml\StartSystemActionChild.scxml" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="HostedTests\Scxml\StartSystemAction.scxml" />
+		<EmbeddedResource Include="HostedTests\Scxml\StartSystemActionChild.scxml" />
 		<EmbeddedResource Include="Legacy\test.scxml" />
 		<EmbeddedResource Include="Scxml\XInclude\SingleIncludeItem1.scxml" />
 		<EmbeddedResource Include="Scxml\XInclude\DtdSingleIncludeSource.scxml" />

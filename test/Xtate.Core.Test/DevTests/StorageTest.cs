@@ -95,27 +95,16 @@ public class StorageTest
 
 	private static int DecodeLength(ReadOnlySpan<byte> key)
 	{
-		switch (key.Length)
+		return key.Length switch
 		{
-			case 1: return key[0] & 0x7F;
-
-			case 2 when (key[0] & 0xE0) == 0xC0 && (key[1] & 0xC0) == 0x80:
-				return ((key[0] & 0x1F) << 6) + (key[1] & 0x3F);
-
-			case 3 when (key[0] & 0xF0) == 0xE0 && (key[1] & 0xC0) == 0x80 && (key[2] & 0xC0) == 0x80:
-				return ((key[0] & 0x0F) << 12) + ((key[1] & 0x3F) << 6) + (key[2] & 0x3F);
-
-			case 4 when (key[0] & 0xF8) == 0xF0 && (key[1] & 0xC0) == 0x80 && (key[2] & 0xC0) == 0x80 && (key[3] & 0xC0) == 0x80:
-				return ((key[0] & 0x07) << 18) + ((key[1] & 0x3F) << 12) + ((key[2] & 0x3F) << 6) + (key[3] & 0x3F);
-
-			case 5 when (key[0] & 0xFC) == 0xF8 && (key[1] & 0xC0) == 0x80 && (key[2] & 0xC0) == 0x80 && (key[3] & 0xC0) == 0x80 && (key[4] & 0xC0) == 0x80:
-				return ((key[0] & 0x03) << 24) + ((key[1] & 0x3F) << 18) + ((key[2] & 0x3F) << 12) + ((key[3] & 0x3F) << 6) + (key[4] & 0x3F);
-
-			case 6 when (key[0] & 0xFE) == 0xFC && (key[1] & 0xC0) == 0x80 && (key[2] & 0xC0) == 0x80 && (key[3] & 0xC0) == 0x80 && (key[4] & 0xC0) == 0x80 && (key[5] & 0xC0) == 0x80:
-				return ((key[0] & 0x01) << 30) + ((key[1] & 0x3F) << 24) + ((key[2] & 0x3F) << 18) + ((key[3] & 0x3F) << 12) + ((key[4] & 0x3F) << 6) + (key[5] & 0x3F);
-		}
-
-		throw new ArgumentException("Incorrect key encoding");
+			1 => key[0] & 0x7F,
+			2 when (key[0] & 0xE0) == 0xC0 && (key[1] & 0xC0) == 0x80 => ((key[0] & 0x1F) << 6) + (key[1] & 0x3F),
+			3 when (key[0] & 0xF0) == 0xE0 && (key[1] & 0xC0) == 0x80 && (key[2] & 0xC0) == 0x80 => ((key[0] & 0x0F) << 12) + ((key[1] & 0x3F) << 6) + (key[2] & 0x3F),
+			4 when (key[0] & 0xF8) == 0xF0 && (key[1] & 0xC0) == 0x80 && (key[2] & 0xC0) == 0x80 && (key[3] & 0xC0) == 0x80 => ((key[0] & 0x07) << 18) + ((key[1] & 0x3F) << 12) + ((key[2] & 0x3F) << 6) + (key[3] & 0x3F),
+			5 when (key[0] & 0xFC) == 0xF8 && (key[1] & 0xC0) == 0x80 && (key[2] & 0xC0) == 0x80 && (key[3] & 0xC0) == 0x80 && (key[4] & 0xC0) == 0x80 => ((key[0] & 0x03) << 24) + ((key[1] & 0x3F) << 18) + ((key[2] & 0x3F) << 12) + ((key[3] & 0x3F) << 6) + (key[4] & 0x3F),
+			6 when (key[0] & 0xFE) == 0xFC && (key[1] & 0xC0) == 0x80 && (key[2] & 0xC0) == 0x80 && (key[3] & 0xC0) == 0x80 && (key[4] & 0xC0) == 0x80 && (key[5] & 0xC0) == 0x80 => ((key[0] & 0x01) << 30) + ((key[1] & 0x3F) << 24) + ((key[2] & 0x3F) << 18) + ((key[3] & 0x3F) << 12) + ((key[4] & 0x3F) << 6) + (key[5] & 0x3F),
+			_ => throw new ArgumentException("Incorrect key encoding"),
+		};
 	}
 
 	private static void AppendKey(StringBuilder sb, byte[] key)
@@ -150,32 +139,19 @@ public class StorageTest
 
 	private static ulong DecodeUInt64(Span<byte> key)
 	{
-		switch (key.Length)
+		return key.Length switch
 		{
-			case 1: return key[0] & 0x7FUL;
-
-			case 2 when (key[0] & 0xE0) == 0xC0 && (key[1] & 0xC0) == 0x80:
-				return ((key[0] & 0x1FUL) << 6) + (key[1] & 0x3FUL);
-
-			case 3 when (key[0] & 0xF0) == 0xE0 && (key[1] & 0xC0) == 0x80 && (key[2] & 0xC0) == 0x80:
-				return ((key[0] & 0x0FUL) << 12) + ((key[1] & 0x3FUL) << 6) + (key[2] & 0x3FUL);
-
-			case 4 when (key[0] & 0xF8) == 0xF0 && (key[1] & 0xC0) == 0x80 && (key[2] & 0xC0) == 0x80 && (key[3] & 0xC0) == 0x80:
-				return ((key[0] & 0x07UL) << 18) + ((key[1] & 0x3FUL) << 12) + ((key[2] & 0x3FUL) << 6) + (key[3] & 0x3FUL);
-
-			case 5 when (key[0] & 0xFC) == 0xF8 && (key[1] & 0xC0) == 0x80 && (key[2] & 0xC0) == 0x80 && (key[3] & 0xC0) == 0x80 && (key[4] & 0xC0) == 0x80:
-				return ((key[0] & 0x03UL) << 24) + ((key[1] & 0x3FUL) << 18) + ((key[2] & 0x3FUL) << 12) + ((key[3] & 0x3FUL) << 6) + (key[4] & 0x3FUL);
-
-			case 6 when (key[0] & 0xFE) == 0xFC && (key[1] & 0xC0) == 0x80 && (key[2] & 0xC0) == 0x80 && (key[3] & 0xC0) == 0x80 && (key[4] & 0xC0) == 0x80 && (key[5] & 0xC0) == 0x80:
-				return ((key[0] & 0x01UL) << 30) + ((key[1] & 0x3FUL) << 24) + ((key[2] & 0x3FUL) << 18) + ((key[3] & 0x3FUL) << 12) + ((key[4] & 0x3FUL) << 6) + (key[5] & 0x3FUL);
-
-			case 7 when (key[0] & 0xFF) == 0xFE && (key[1] & 0xC0) == 0x80 && (key[2] & 0xC0) == 0x80 && (key[3] & 0xC0) == 0x80 && (key[4] & 0xC0) == 0x80 && (key[5] & 0xC0) == 0x80 &&
-						(key[6] & 0xC0) == 0x80:
-				return ((key[0] & 0x00UL) << 36) + ((key[1] & 0x3FUL) << 30) + ((key[2] & 0x3FUL) << 24) + ((key[3] & 0x3FUL) << 18) + ((key[4] & 0x3FUL) << 12) + ((key[5] & 0x3FUL) << 6) +
-					   (key[6] & 0x3FUL);
-		}
-
-		throw new ArgumentException("Incorrect key encoding");
+			1 => key[0] & 0x7FUL,
+			2 when (key[0] & 0xE0) == 0xC0 && (key[1] & 0xC0) == 0x80 => ((key[0] & 0x1FUL) << 6) + (key[1] & 0x3FUL),
+			3 when (key[0] & 0xF0) == 0xE0 && (key[1] & 0xC0) == 0x80 && (key[2] & 0xC0) == 0x80 => ((key[0] & 0x0FUL) << 12) + ((key[1] & 0x3FUL) << 6) + (key[2] & 0x3FUL),
+			4 when (key[0] & 0xF8) == 0xF0 && (key[1] & 0xC0) == 0x80 && (key[2] & 0xC0) == 0x80 && (key[3] & 0xC0) == 0x80 => ((key[0] & 0x07UL) << 18) + ((key[1] & 0x3FUL) << 12) + ((key[2] & 0x3FUL) << 6) + (key[3] & 0x3FUL),
+			5 when (key[0] & 0xFC) == 0xF8 && (key[1] & 0xC0) == 0x80 && (key[2] & 0xC0) == 0x80 && (key[3] & 0xC0) == 0x80 && (key[4] & 0xC0) == 0x80 => ((key[0] & 0x03UL) << 24) + ((key[1] & 0x3FUL) << 18) + ((key[2] & 0x3FUL) << 12) + ((key[3] & 0x3FUL) << 6) + (key[4] & 0x3FUL),
+			6 when (key[0] & 0xFE) == 0xFC && (key[1] & 0xC0) == 0x80 && (key[2] & 0xC0) == 0x80 && (key[3] & 0xC0) == 0x80 && (key[4] & 0xC0) == 0x80 && (key[5] & 0xC0) == 0x80 => ((key[0] & 0x01UL) << 30) + ((key[1] & 0x3FUL) << 24) + ((key[2] & 0x3FUL) << 18) + ((key[3] & 0x3FUL) << 12) + ((key[4] & 0x3FUL) << 6) + (key[5] & 0x3FUL),
+			7 when (key[0] & 0xFF) == 0xFE && (key[1] & 0xC0) == 0x80 && (key[2] & 0xC0) == 0x80 && (key[3] & 0xC0) == 0x80 && (key[4] & 0xC0) == 0x80 && (key[5] & 0xC0) == 0x80 &&
+									(key[6] & 0xC0) == 0x80 => ((key[0] & 0x00UL) << 36) + ((key[1] & 0x3FUL) << 30) + ((key[2] & 0x3FUL) << 24) + ((key[3] & 0x3FUL) << 18) + ((key[4] & 0x3FUL) << 12) + ((key[5] & 0x3FUL) << 6) +
+								   (key[6] & 0x3FUL),
+			_ => throw new ArgumentException("Incorrect key encoding"),
+		};
 	}
 
 	private static string DecodeUtf8String(Span<byte> key) => Encoding.UTF8.GetString(key.ToArray());
