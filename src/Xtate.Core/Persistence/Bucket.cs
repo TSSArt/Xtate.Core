@@ -472,7 +472,7 @@ public readonly struct Bucket
 			var lastByteIndex = bytes.Length - 1;
 			bytes[lastByteIndex] = 0xFF;
 			var dest = bytes[1..^1];
-#if NET6_0_OR_GREATER
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
 			Encoding.UTF8.GetBytes(key, dest);
 #else
 			Encoding.UTF8.GetBytes(key).CopyTo(dest);
@@ -624,7 +624,7 @@ public readonly struct Bucket
 				return;
 			}
 
-#if NET6_0_OR_GREATER
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
 			Encoding.UTF8.GetBytes(value, bytes);
 #else
 			Encoding.UTF8.GetBytes(value).CopyTo(bytes);
@@ -638,7 +638,7 @@ public readonly struct Bucket
 				return string.Empty;
 			}
 
-#if NET6_0_OR_GREATER
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
 			return Encoding.UTF8.GetString(bytes);
 #else
 			return Encoding.UTF8.GetString(bytes.ToArray());

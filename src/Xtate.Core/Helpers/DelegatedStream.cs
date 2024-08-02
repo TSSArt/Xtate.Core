@@ -101,9 +101,12 @@ internal abstract class DelegatedStream : Stream
 									CancellationToken token) =>
 		InnerStream.WriteAsync(buffer, offset, count, token);
 
-#if NET6_0_OR_GREATER
+#if NET5_0_OR_GREATER
 	public override void CopyTo(Stream destination, int bufferSize) => InnerStream.CopyTo(destination, bufferSize);
 
+#endif
+
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
 	public override int Read(Span<byte> buffer) => InnerStream.Read(buffer);
 
 	public override void Write(ReadOnlySpan<byte> buffer) => InnerStream.Write(buffer);
@@ -111,5 +114,6 @@ internal abstract class DelegatedStream : Stream
 	public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken token = default) => InnerStream.ReadAsync(buffer, token);
 
 	public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken token = default) => InnerStream.WriteAsync(buffer, token);
+
 #endif
 }

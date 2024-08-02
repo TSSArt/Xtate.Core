@@ -31,8 +31,8 @@ public class MyActionProvider() : CustomActionProvider<MyAction>(ns: "http://xta
 
 public class MyAction(XmlReader xmlReader) : CustomActionBase
 {
-	private readonly ObjectValue _input  = new (xmlReader.GetAttribute("sourceExpr"), xmlReader.GetAttribute("source"));
-	private readonly Location    _output = new (xmlReader.GetAttribute("destination"));
+	private readonly ObjectValue _input  = new(xmlReader.GetAttribute("sourceExpr"), xmlReader.GetAttribute("source"));
+	private readonly Location    _output = new(xmlReader.GetAttribute("destination"));
 
 	public override IEnumerable<Value> GetValues() { yield return _input; }
 

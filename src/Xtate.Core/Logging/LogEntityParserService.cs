@@ -21,7 +21,7 @@ public class LogEntityParserService<TSource> : IEntityParserHandler<TSource>
 {
 	public required IAsyncEnumerable<IEntityParserProvider<TSource>> Providers { private get; [UsedImplicitly] init; }
 
-#region Interface IEntityParserHandler
+#region Interface IEntityParserHandler<TSource>
 
 	public async IAsyncEnumerable<LoggingParameter> EnumerateProperties<T>(T entity)
 	{

@@ -57,7 +57,7 @@ public class WebResourceLoader : IResourceLoader, IDisposable
 		var response = await httpClient.SendAsync(request, _disposingToken.Token).ConfigureAwait(false);
 		var contentType = response.Content.Headers.ContentType?.MediaType is { Length: > 0 } value ? new ContentType(value) : null;
 
-#if NET6_0_OR_GREATER
+#if NET5_0_OR_GREATER
 		var stream = await response.Content.ReadAsStreamAsync(_disposingToken.Token).ConfigureAwait(false);
 #else
 		var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);

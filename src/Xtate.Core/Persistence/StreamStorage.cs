@@ -15,10 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#if NET6_0_OR_GREATER
-#pragma warning disable CA1835
-#endif
-
 using System.Buffers;
 using System.IO;
 using Xtate.IoC;

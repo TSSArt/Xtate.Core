@@ -22,7 +22,7 @@ public static class CancellationTokenRegistrationExtensions
 	public static ConfiguredAwaitable ConfigureAwait(this CancellationTokenRegistration cancellationTokenRegistration, bool continueOnCapturedContext) =>
 		new(cancellationTokenRegistration, continueOnCapturedContext);
 
-#if !NET6_0_OR_GREATER
+#if !NETCOREAPP3_0_OR_GREATER && !NETSTANDARD2_1
 	private static ValueTask DisposeAsync(this CancellationTokenRegistration cancellationTokenRegistration)
 	{
 		cancellationTokenRegistration.Dispose();

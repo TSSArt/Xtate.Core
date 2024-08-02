@@ -55,6 +55,8 @@ public sealed partial class StateMachineHost(StateMachineHostOptions options) : 
 
 #endregion
 
+#region Interface IHost
+
 	public async Task StartHostAsync(CancellationToken token = default)
 	{
 		_context = await ContextFactory().ConfigureAwait(false);
@@ -139,6 +141,8 @@ public sealed partial class StateMachineHost(StateMachineHostOptions options) : 
 			_asyncOperationInProgress = false;
 		}
 	}
+
+#endregion
 
 	public async Task WaitAllStateMachinesAsync(CancellationToken token = default)
 	{

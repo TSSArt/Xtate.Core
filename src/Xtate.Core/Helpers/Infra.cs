@@ -95,7 +95,7 @@ public static class Infra
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void RequiresValidEnum<T>(T parameter, [CallerArgumentExpression(nameof(parameter))] string? parameterName = default) where T : struct, Enum
 	{
-#if NET6_0_OR_GREATER
+#if NET5_0_OR_GREATER
 		if (!Enum.IsDefined(parameter))
 		{
 			ThrowInvalidEnumException(parameterName, parameter);

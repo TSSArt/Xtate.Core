@@ -15,19 +15,24 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#if !NET6_0_OR_GREATER
+#if !NETCOREAPP2_0 && !NETCOREAPP2_1_OR_GREATER && !NETSTANDARD2_1 && !NET472 && !NET48
+
 using System.Collections.Concurrent;
 
 namespace Xtate.Core;
 
 public static class ConcurrentDictionaryExtensions
 {
+#if !NET5_0_OR_GREATER
+
 	public static bool TryRemove<TKey, TValue>(this ConcurrentDictionary<TKey, TValue> concurrentDictionary, KeyValuePair<TKey, TValue> pair)
 	{
 		Infra.Requires(concurrentDictionary);
 
 		return ((ICollection<KeyValuePair<TKey, TValue>>) concurrentDictionary).Remove(pair);
 	}
+
+#endif
 
 	public static TValue AddOrUpdate<TKey, TValue, TArg>(this ConcurrentDictionary<TKey, TValue> concurrentDictionary,
 														 TKey key,
