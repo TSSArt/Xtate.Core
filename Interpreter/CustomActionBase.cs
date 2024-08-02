@@ -21,101 +21,196 @@ namespace Xtate.CustomAction;
 
 public abstract class CustomActionBase
 {
-	public abstract ValueTask Execute();
+	public virtual async ValueTask Execute()
+	{
+		foreach (var value in GetValues())
+		{
+			await value.Evaluate().ConfigureAwait(false);
+		}
+
+		var result = Evaluate();
+
+		foreach (var location in GetLocations())
+		{
+			await location.SetValue(result).ConfigureAwait(false);
+		}
+
+		foreach (var value in GetValues())
+		{
+			value.Reset();
+		}
+	}
+
+	public virtual DataModelValue Evaluate() => default;
 
 	public virtual IEnumerable<Value> GetValues() => [];
 
 	public virtual IEnumerable<Location> GetLocations() => [];
 
-	public class ArrayValue(string? expression) : Value(expression)
+	public class ArrayValue(string? expression) : TypedValue<object?[]>(expression)
 	{
-		private IArrayEvaluator? _arrayEvaluator;
+		private IArrayEvaluator?  _arrayEvaluator;
+		private IObjectEvaluator? _objectEvaluator;
 
 		internal override void SetEvaluator(IValueEvaluator valueEvaluator)
 		{
-			base.SetEvaluator(valueEvaluator);
-
-			_arrayEvaluator = valueEvaluator as IArrayEvaluator;
+			valueEvaluator.Is(out _objectEvaluator);
+			valueEvaluator.Is(out _arrayEvaluator);
 		}
 
-		public new async ValueTask<object?[]> GetValue()
+		public override async ValueTask<object?[]> GetValue()
 		{
-			var array = _arrayEvaluator is not null
-				? await _arrayEvaluator.EvaluateArray().ConfigureAwait(false)
-				: (IObject[]?) await base.GetValue().ConfigureAwait(false);
+			if (_arrayEvaluator is not null)
+			{
+				var array = await _arrayEvaluator.EvaluateArray().ConfigureAwait(false);
 
-			return array is not null ? Array.ConvertAll(array, i => i.ToObject()) : [];
+				return array is not null ? Array.ConvertAll(array, i => i.ToObject()) : [];
+			}
+
+			if (_objectEvaluator is not null)
+			{
+				var obj = (await _objectEvaluator.EvaluateObject().ConfigureAwait(false)).ToObject();
+
+				return obj switch
+					   {
+						   IEnumerable<object> e1 => e1.ToArray(),
+						   IEnumerable e2         => e2.Cast<object>().ToArray(),
+						   not null               => [obj],
+						   _                      => []
+					   };
+			}
+
+			return [];
 		}
 	}
 
-	public class StringValue(string? expression, string? defaultValue = default) : Value(expression, defaultValue)
+	public class StringValue(string? expression, string? defaultValue = default) : TypedValue<string>(expression)
 	{
+		private IObjectEvaluator? _objectEvaluator;
 		private IStringEvaluator? _stringEvaluator;
 
 		internal override void SetEvaluator(IValueEvaluator valueEvaluator)
 		{
-			base.SetEvaluator(valueEvaluator);
-
-			_stringEvaluator = valueEvaluator as IStringEvaluator;
+			valueEvaluator.Is(out _objectEvaluator);
+			valueEvaluator.Is(out _stringEvaluator);
 		}
 
-		public new async ValueTask<string?> GetValue() =>
-			_stringEvaluator is not null
-				? await _stringEvaluator.EvaluateString().ConfigureAwait(false)
-				: Convert.ToString(await base.GetValue().ConfigureAwait(false));
+		public override async ValueTask<string> GetValue()
+		{
+			if (_stringEvaluator is not null)
+			{
+				return await _stringEvaluator.EvaluateString().ConfigureAwait(false);
+			}
+
+			if (_objectEvaluator is not null)
+			{
+				var obj = await _objectEvaluator.EvaluateObject().ConfigureAwait(false);
+
+				return Convert.ToString(obj?.ToObject()) ?? string.Empty;
+			}
+
+			return defaultValue ?? string.Empty;
+		}
 	}
 
-	public class IntegerValue(string? expression, int? defaultValue = default) : Value(expression, defaultValue)
+	public class IntegerValue(string? expression, int? defaultValue = default) : TypedValue<int>(expression)
 	{
 		private IIntegerEvaluator? _integerEvaluator;
+		private IObjectEvaluator?  _objectEvaluator;
 
 		internal override void SetEvaluator(IValueEvaluator valueEvaluator)
 		{
-			base.SetEvaluator(valueEvaluator);
-
-			_integerEvaluator = valueEvaluator as IIntegerEvaluator;
+			valueEvaluator.Is(out _objectEvaluator);
+			valueEvaluator.Is(out _integerEvaluator);
 		}
 
-		public new async ValueTask<int> GetValue() =>
-			_integerEvaluator is not null
-				? await _integerEvaluator.EvaluateInteger().ConfigureAwait(false)
-				: Convert.ToInt32(await base.GetValue().ConfigureAwait(false));
+		public override async ValueTask<int> GetValue()
+		{
+			if (_integerEvaluator is not null)
+			{
+				return await _integerEvaluator.EvaluateInteger().ConfigureAwait(false);
+			}
+
+			if (_objectEvaluator is not null)
+			{
+				var obj = await _objectEvaluator.EvaluateObject().ConfigureAwait(false);
+
+				return Convert.ToInt32(obj?.ToObject());
+			}
+
+			return defaultValue ?? default;
+		}
 	}
 
-	public class BooleanValue(string? expression, bool? defaultValue = default) : Value(expression, defaultValue)
+	public class BooleanValue(string? expression, bool? defaultValue = default) : TypedValue<bool>(expression)
 	{
 		private IBooleanEvaluator? _booleanEvaluator;
+		private IObjectEvaluator?  _objectEvaluator;
 
 		internal override void SetEvaluator(IValueEvaluator valueEvaluator)
 		{
-			base.SetEvaluator(valueEvaluator);
-
-			_booleanEvaluator = valueEvaluator as IBooleanEvaluator;
+			valueEvaluator.Is(out _objectEvaluator);
+			valueEvaluator.Is(out _booleanEvaluator);
 		}
 
-		public new async ValueTask<bool> GetValue() =>
-			_booleanEvaluator is not null
-				? await _booleanEvaluator.EvaluateBoolean().ConfigureAwait(false)
-				: Convert.ToBoolean(await base.GetValue().ConfigureAwait(false));
+		public override async ValueTask<bool> GetValue()
+		{
+			if (_booleanEvaluator is not null)
+			{
+				return await _booleanEvaluator.EvaluateBoolean().ConfigureAwait(false);
+			}
+
+			if (_objectEvaluator is not null)
+			{
+				var obj = await _objectEvaluator.EvaluateObject().ConfigureAwait(false);
+
+				return Convert.ToBoolean(obj?.ToObject());
+			}
+
+			return defaultValue ?? default;
+		}
 	}
 
-	public class Value(string? expression, object? defaultValue = default) : IValueExpression
+	public class ObjectValue(string? expression, object? defaultValue = default) : TypedValue<DataModelValue>(expression)
 	{
-		private readonly IObject _defaultValue = expression is null ? new DefaultObject(defaultValue) : DefaultObject.Null;
-		
 		private IObjectEvaluator? _objectEvaluator;
 
-		#region Interface IValueExpression
+		internal override void SetEvaluator(IValueEvaluator valueEvaluator) => valueEvaluator.Is(out _objectEvaluator);
+
+		public override async ValueTask<DataModelValue> GetValue()
+		{
+			var obj = _objectEvaluator is not null ? await _objectEvaluator.EvaluateObject().ConfigureAwait(false) : defaultValue;
+
+			return DataModelValue.FromObject(obj);
+		}
+	}
+
+	public abstract class TypedValue<T>(string? expression) : Value(expression)
+	{
+		private ValueTuple<T>? _value;
+
+		public T Value => _value.HasValue ? _value.Value.Item1 : throw new InfrastructureException("Property available in Evaluate() method");
+
+		internal override void Reset() => _value = default;
+
+		internal override async ValueTask Evaluate() => _value = new ValueTuple<T>(await GetValue().ConfigureAwait(false));
+
+		public abstract ValueTask<T> GetValue();
+	}
+
+	public abstract class Value(string? expression) : IValueExpression
+	{
+	#region Interface IValueExpression
 
 		string? IValueExpression.Expression => expression;
 
 	#endregion
 
-		internal virtual void SetEvaluator(IValueEvaluator valueEvaluator) => _objectEvaluator = valueEvaluator as IObjectEvaluator;
+		internal abstract void SetEvaluator(IValueEvaluator valueEvaluator);
 
-		internal ValueTask<IObject> GetObject() => _objectEvaluator?.EvaluateObject() ?? new ValueTask<IObject>(_defaultValue);
+		internal abstract void Reset();
 
-		public async ValueTask<object?> GetValue() => (await GetObject().ConfigureAwait(false)).ToObject();
+		internal abstract ValueTask Evaluate();
 	}
 
 	public class Location(string? expression) : ILocationExpression
@@ -130,15 +225,13 @@ public abstract class CustomActionBase
 
 		internal void SetEvaluator(ILocationEvaluator locationEvaluator) => _locationEvaluator = locationEvaluator;
 
-		public ValueTask SetValue(object? value) => _locationEvaluator?.SetValue(new DefaultObject(value)) ?? default;
+		public ValueTask SetValue(DataModelValue value) => _locationEvaluator?.SetValue(value.AsIObject()) ?? default;
 
-		public async ValueTask CopyFrom(Value value)
+		public async ValueTask<DataModelValue> GetValue()
 		{
-			if (_locationEvaluator is not null)
-			{
-				var val = await value.GetObject().ConfigureAwait(false);
-				await _locationEvaluator.SetValue(val).ConfigureAwait(false);
-			}
+			var obj = _locationEvaluator is not null ? await _locationEvaluator.GetValue().ConfigureAwait(false) : null;
+
+			return DataModelValue.FromObject(obj);
 		}
 	}
 }
