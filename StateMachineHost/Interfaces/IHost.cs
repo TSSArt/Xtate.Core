@@ -28,4 +28,7 @@ public interface IHost
 															  CancellationToken token);
 
 	ValueTask DestroyStateMachine(SessionId sessionId, CancellationToken token);
+
+	Task StartHostAsync(CancellationToken token = default);
+	Task StopHostAsync(CancellationToken token = default);
 }

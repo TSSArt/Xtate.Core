@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#if !NET8_0
+#if !NET8_0_OR_GREATER
 namespace Xtate.Core;
 
 public static class CancellationTokenSourceExtensions

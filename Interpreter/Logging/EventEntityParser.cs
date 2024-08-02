@@ -57,9 +57,9 @@ public class EventEntityParser<TSource> : EntityParserBase<TSource, IEvent>
 	{
 		if (!evt.Data.IsUndefined())
 		{
-			yield return new LoggingParameter(@"Data", evt.Data.ToObject());
+			yield return new LoggingParameter(name: @"Data", evt.Data.ToObject());
 
-			yield return new LoggingParameter(@"DataText", DataModelHandler.ConvertToText(evt.Data));
+			yield return new LoggingParameter(name: @"DataText", DataModelHandler.ConvertToText(evt.Data));
 		}
 	}
 }

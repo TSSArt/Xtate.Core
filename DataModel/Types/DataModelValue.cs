@@ -484,7 +484,7 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 		_value switch
 		{
 			ObjectContainer container => container.GetIObject(),
-			_ => this
+			_                         => this
 		};
 
 	public override bool Equals(object? obj) => obj is DataModelValue other && Equals(other);
@@ -709,7 +709,11 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 	{
 		private DataModelValue? _value;
 
+	#region Interface ILazyValue
+
 		public DataModelValue Value => _value ??= FromObject(obj.ToObject());
+
+	#endregion
 
 		public IObject GetIObject() => obj;
 	}
