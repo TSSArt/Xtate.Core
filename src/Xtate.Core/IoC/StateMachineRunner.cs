@@ -42,7 +42,10 @@ public class StateMachineRunner : IStateMachineRunner, IDisposable
 	{
 		lock (_sync)
 		{
-			XtateObjectDisposedException.ThrowIf(_disposed, this);
+			if (_disposed)
+			{
+				throw new ObjectDisposedException(typeof(StateMachineRunner).FullName);
+			}
 
 			_context.AddStateMachineController(_controller);
 		}
