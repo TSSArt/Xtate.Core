@@ -27,7 +27,7 @@ public class FluentBuilderTest
 	public async Task BasicTest()
 	{
 		var services = new ServiceCollection();
-		services.RegisterStateMachineFluentBuilder();
+		services.AddModule<StateMachineFluentBuilderModule>();
 
 		var provider = services.BuildProvider();
 

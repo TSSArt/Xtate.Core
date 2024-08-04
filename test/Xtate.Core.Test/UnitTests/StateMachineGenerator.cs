@@ -32,7 +32,7 @@ public static class StateMachineGenerator
 		using var xmlReader = XmlReader.Create(stringReader, settings: null, new XmlParserContext(nt, xmlNamespaceManager, xmlLang: default, xmlSpace: default));
 
 		var services = new ServiceCollection();
-		services.RegisterScxml();
+		services.AddModule<ScxmlModule>();
 
 		var provider = services.BuildProvider();
 

@@ -19,19 +19,22 @@ using Xtate.IoC;
 
 namespace Xtate.Builder;
 
-public static class StateMachineFluentBuilderExtensions
+public class StateMachineFluentBuilderModule : Module
 {
-	public static void RegisterStateMachineFluentBuilder(this IServiceCollection services)
+	protected override void AddModules()
 	{
-		services.RegisterStateMachineBuilder();
+		AddModule<StateMachineBuilderModule>();
+	}
 
-		services.AddTypeSync<StateMachineFluentBuilder>();
-		services.AddTypeSync<StateFluentBuilder<OuterBuilderStub>, OuterBuilderStub, Action<IState>>();
-		services.AddTypeSync<ParallelFluentBuilder<OuterBuilderStub>, OuterBuilderStub, Action<IParallel>>();
-		services.AddTypeSync<FinalFluentBuilder<OuterBuilderStub>, OuterBuilderStub, Action<IFinal>>();
-		services.AddTypeSync<InitialFluentBuilder<OuterBuilderStub>, OuterBuilderStub, Action<IInitial>>();
-		services.AddTypeSync<HistoryFluentBuilder<OuterBuilderStub>, OuterBuilderStub, Action<IHistory>>();
-		services.AddTypeSync<TransitionFluentBuilder<OuterBuilderStub>, OuterBuilderStub, Action<ITransition>>();
+	protected override void AddServices()
+	{
+		Services.AddTypeSync<StateMachineFluentBuilder>();
+		Services.AddTypeSync<StateFluentBuilder<OuterBuilderStub>, OuterBuilderStub, Action<IState>>();
+		Services.AddTypeSync<ParallelFluentBuilder<OuterBuilderStub>, OuterBuilderStub, Action<IParallel>>();
+		Services.AddTypeSync<FinalFluentBuilder<OuterBuilderStub>, OuterBuilderStub, Action<IFinal>>();
+		Services.AddTypeSync<InitialFluentBuilder<OuterBuilderStub>, OuterBuilderStub, Action<IInitial>>();
+		Services.AddTypeSync<HistoryFluentBuilder<OuterBuilderStub>, OuterBuilderStub, Action<IHistory>>();
+		Services.AddTypeSync<TransitionFluentBuilder<OuterBuilderStub>, OuterBuilderStub, Action<ITransition>>();
 	}
 
 	[UsedImplicitly]

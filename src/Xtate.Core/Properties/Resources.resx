@@ -934,4 +934,7 @@ Exception: {3}</value>
   <data name="Exception_CantFindEntityParser" xml:space="preserve">
 	  <value>Can't find entity parser for type {0}.</value>
   </data>
+  <data name="Exception_PropertyAvailableInEvaluateMethod" xml:space="preserve">
+	  <value>Property available in Evaluate() method.</value>
+  </data>
 </root>

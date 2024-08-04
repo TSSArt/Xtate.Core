@@ -15,16 +15,18 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.DataModel;
+using Xtate.IoC;
 
 namespace Xtate.Core;
 
-public class DataModelHandlerGetter
+public class ErrorProcessorModule : Module
 {
-	public required IDataModelHandlerService DataModelHandlerService { private get; [UsedImplicitly] init; }
+	protected override void AddModules() { }
 
-	public required IStateMachine? StateMachine { private get; [UsedImplicitly] init; }
-
-	[UsedImplicitly]
-	public virtual ValueTask<IDataModelHandler?> GetDataModelHandler() => StateMachine is not null ? DataModelHandlerService.GetDataModelHandler(StateMachine.DataModelType) : default;
+	protected override void AddServices()
+	{
+		Services.AddImplementationSync<DefaultErrorProcessor>().For<IErrorProcessor>();
+		Services.AddImplementationSync<ErrorProcessorService<Any>>().For<IErrorProcessorService<Any>>();
+		Services.AddImplementation<StateMachineValidator>().For<IStateMachineValidator>();
+	}
 }

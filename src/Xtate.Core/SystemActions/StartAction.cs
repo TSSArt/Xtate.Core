@@ -19,6 +19,8 @@ using System.Xml;
 
 namespace Xtate.CustomAction;
 
+public class StartActionProvider() : CustomActionProvider<StartAction>(ns: "http://xtate.net/scxml/system", name: "start");
+
 public class StartAction : CustomActionBase, IDisposable
 {
 	private readonly DisposingToken _disposingToken = new();
@@ -75,8 +77,11 @@ public class StartAction : CustomActionBase, IDisposable
 		_trusted = xmlReader.GetAttribute("trusted") is { } trusted && XmlConvert.ToBoolean(trusted);
 	}
 
-	public required Func<ValueTask<IDataModelController>> DataModelControllerFactory { private get; [UsedImplicitly] init; }
-	public required Func<ValueTask<IHost>>              HostFactory                { private get; [UsedImplicitly] init; }
+	public required Func<ValueTask<IDataModelController>>  DataModelControllerFactory  { private get; [UsedImplicitly] init; }
+	
+	public required Func<ValueTask<IStateMachineLocation?>> StateMachineLocationFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<ValueTask<IHost>> HostFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IDisposable
 
@@ -133,11 +138,13 @@ public class StartAction : CustomActionBase, IDisposable
 
 	private async ValueTask<Uri?> GetBaseUri()
 	{
-		var dataModelController = await DataModelControllerFactory().ConfigureAwait(false);
+		//var dataModelController = await DataModelControllerFactory().ConfigureAwait(false);
 
-		var value = dataModelController.DataModel["_x"].AsListOrEmpty()["host"].AsListOrEmpty()["location"].AsStringOrDefault();
+		return (await StateMachineLocationFactory().ConfigureAwait(false))?.Location;
 
-		return value is not null ? new Uri(value, UriKind.RelativeOrAbsolute) : null;
+		//var value = dataModelController.DataModel["_x"].AsListOrEmpty()["host"].AsListOrEmpty()["location"].AsStringOrDefault();
+
+		//return value is not null ? new Uri(value, UriKind.RelativeOrAbsolute) : null;
 	}
 
 	private async ValueTask<Uri> GetSource()

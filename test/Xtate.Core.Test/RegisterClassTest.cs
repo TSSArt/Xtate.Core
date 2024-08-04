@@ -50,7 +50,7 @@ public class RegisterClassTest
 		// Arrange
 
 		var services = new ServiceCollection();
-		services.RegisterNullDataModelHandler();
+		services.AddModule<NullDataModelHandlerModule>();
 		services.AddSharedImplementationSync<AssemblyTypeInfo, Type>(SharedWithin.Container).For<IAssemblyTypeInfo>();
 		var provider = services.BuildProvider();
 
@@ -75,7 +75,7 @@ public class RegisterClassTest
 		// Arrange
 
 		var services = new ServiceCollection();
-		services.RegisterRuntimeDataModelHandler();
+		services.AddModule<RuntimeDataModelHandlerModule>();
 		services.AddSharedImplementationSync<AssemblyTypeInfo, Type>(SharedWithin.Container).For<IAssemblyTypeInfo>();
 		var provider = services.BuildProvider();
 
@@ -104,7 +104,7 @@ public class RegisterClassTest
 		// Arrange
 
 		var services = new ServiceCollection();
-		services.RegisterXPathDataModelHandler();
+		services.AddModule<XPathDataModelHandlerModule>();
 		services.AddSharedImplementationSync<AssemblyTypeInfo, Type>(SharedWithin.Container).For<IAssemblyTypeInfo>();
 		var provider = services.BuildProvider();
 
@@ -139,7 +139,7 @@ public class RegisterClassTest
 		// Arrange
 
 		var services = new ServiceCollection();
-		services.RegisterStateMachineBuilder();
+		services.AddModule<StateMachineBuilderModule>();
 		var provider = services.BuildProvider();
 
 		var stateMachineBuilder = provider.GetRequiredServiceSync<IStateMachineBuilder>();
@@ -168,7 +168,7 @@ public class RegisterClassTest
 		// Arrange
 
 		var services = new ServiceCollection();
-		services.RegisterStateMachineFluentBuilder();
+		services.AddModule<StateMachineFluentBuilderModule>();
 		var provider = services.BuildProvider();
 
 		var stateMachineBuilder = provider.GetRequiredServiceSync<StateMachineFluentBuilder>();
@@ -191,7 +191,7 @@ public class RegisterClassTest
 		// Arrange
 
 		var services = new ServiceCollection();
-		services.RegisterScxml();
+		services.AddModule<ScxmlModule>();
 		var provider = services.BuildProvider();
 
 		const string xml = @"<scxml version='1.0' xmlns='http://www.w3.org/2005/07/scxml' datamodel='xpath'><state xmlns:eee='qval' id='test'></state></scxml>";
@@ -219,7 +219,7 @@ public class RegisterClassTest
 		// Arrange
 
 		var services = new ServiceCollection();
-		services.RegisterScxml();
+		services.AddModule<ScxmlModule>();
 		services.AddImplementation<DefaultIoBoundTask>().For<IIoBoundTask>();
 		var provider = services.BuildProvider();
 
@@ -254,7 +254,7 @@ public class RegisterClassTest
 		// Arrange
 
 		var services = new ServiceCollection();
-		services.RegisterScxml();
+		services.AddModule<ScxmlModule>();
 		services.AddImplementation<DefaultIoBoundTask>().For<IIoBoundTask>();
 		services.AddForwarding<IXIncludeOptions>(_ => new XIncludeOptions());
 		var provider = services.BuildProvider();
@@ -290,7 +290,7 @@ public class RegisterClassTest
 		// Arrange
 
 		var services = new ServiceCollection();
-		services.RegisterScxml();
+		services.AddModule<ScxmlModule>();
 		var provider = services.BuildProvider();
 
 		// ReSharper disable once UseAwaitUsing
@@ -319,7 +319,7 @@ public class RegisterClassTest
 		// Arrange
 
 		var services = new ServiceCollection();
-		services.RegisterDataModelHandlers();
+		services.AddModule<DataModelHandlersModule>();
 		services.AddSharedImplementationSync<AssemblyTypeInfo, Type>(SharedWithin.Container).For<IAssemblyTypeInfo>();
 		var provider = services.BuildProvider();
 
@@ -341,7 +341,7 @@ public class RegisterClassTest
 		// Arrange
 
 		var services = new ServiceCollection();
-		services.RegisterDataModelHandlers();
+		services.AddModule<DataModelHandlersModule>();
 		services.AddForwarding<IStateMachine>(_ => new StateMachineEntity { DataModelType = "xpath" });
 		services.AddSharedImplementationSync<AssemblyTypeInfo, Type>(SharedWithin.Container).For<IAssemblyTypeInfo>();
 		var provider = services.BuildProvider();
@@ -362,7 +362,7 @@ public class RegisterClassTest
 		// Arrange
 
 		var services = new ServiceCollection();
-		services.RegisterScxml();
+		services.AddModule<ScxmlModule>();
 		var provider = services.BuildProvider();
 
 		const string xml = """
@@ -382,7 +382,7 @@ public class RegisterClassTest
 		var stateMachine = await scxmlDeserializer.Deserialize(reader);
 
 		var services2 = new ServiceCollection();
-		services2.RegisterInterpreterModelBuilder();
+		services2.AddModule<InterpreterModelBuilderModule>();
 		services2.AddSharedImplementationSync<MyActionProvider>(SharedWithin.Scope).For<ICustomActionProvider>();
 		services2.AddTypeSync<MyAction, XmlReader>();
 		services2.AddForwarding(_ => provider.GetRequiredServiceSync<INameTableProvider>());
@@ -413,8 +413,8 @@ public class RegisterClassTest
 						   """;
 
 		var services = new ServiceCollection();
-		services.RegisterStateMachineFactory();
-		services.RegisterInterpreterModelBuilder();
+		services.AddModule<StateMachineFactoryModule>();
+		services.AddModule<InterpreterModelBuilderModule>();
 		services.AddForwarding<IScxmlStateMachine>(_ => new ScxmlStateMachine(xml));
 		var provider = services.BuildProvider();
 
@@ -444,8 +444,8 @@ public class RegisterClassTest
 
 		var services = new ServiceCollection();
 		services.AddForwarding<IScxmlStateMachine>(_ => new ScxmlStateMachine(xml));
-		services.RegisterStateMachineFactory();
-		services.RegisterStateMachineInterpreter();
+		services.AddModule<StateMachineFactoryModule>();
+		services.AddModule<StateMachineInterpreterModule>();
 		services.AddImplementation<TraceLogWriter<Any>>().For<ILogWriter<Any>>();
 
 		var provider = services.BuildProvider();

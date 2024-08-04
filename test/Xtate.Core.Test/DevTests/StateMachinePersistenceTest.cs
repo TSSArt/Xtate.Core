@@ -46,7 +46,7 @@ public class StateMachinePersistenceTest
 		//var director = new ScxmlDirector(xmlReader, serviceLocator.GetService<IBuilderFactory>(), new ScxmlDirectorOptions(serviceLocator) { NamespaceResolver = xmlNamespaceManager });
 
 		var sc = new ServiceCollection();
-		sc.RegisterStateMachineFactory();
+		sc.AddModule<StateMachineFactoryModule>();
 		sc.AddForwarding<IStateMachineLocation>(_ => new StateMachineLocation(new Uri("res://Xtate.UnitTest/Xtate.UnitTest/Resources/All.xml")));
 		var sp = sc.BuildProvider();
 

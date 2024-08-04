@@ -15,13 +15,14 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using Xtate.Core;
+
 namespace Xtate.Test.HostedTests;
 
 [TestClass]
 public class CustomActionTest : HostedTestBase
 {
 	[TestMethod]
-	[Ignore]
 	public async Task StartSystemAction()
 	{
 		// act
@@ -29,6 +30,6 @@ public class CustomActionTest : HostedTestBase
 		await Host.WaitAllStateMachinesAsync();
 
 		// assert
-		//LogWriter.Verify(l => l.Write(Level.Info, "StartSystemActionChild", "", It.IsAny<IEnumerable<LoggingParameter>>()));
+		LogWriter.Verify(l => l.Write(It.IsAny<Type>(), Level.Info, It.IsAny<int>(), "StartSystemActionChild", It.IsAny<IAsyncEnumerable<LoggingParameter>>()));
 	}
 }

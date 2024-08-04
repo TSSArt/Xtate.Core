@@ -30,7 +30,7 @@ public class StateMachineFluentBuilderTest
 	public static ValueTask<StateMachineFluentBuilder> GetStateMachineFluentBuilder()
 	{
 		var services = new ServiceCollection();
-		services.RegisterStateMachineFluentBuilder();
+		services.AddModule<StateMachineFluentBuilderModule>();
 		var sp = services.BuildProvider();
 
 		return sp.GetRequiredService<StateMachineFluentBuilder>();
@@ -98,8 +98,8 @@ public class StateMachineFluentBuilderTest
 
 		var services = new ServiceCollection();
 		services.AddForwarding(_ => stateMachine);
-		services.RegisterStateMachineInterpreter();
-		services.RegisterStateMachineFluentBuilder();
+		services.AddModule<StateMachineInterpreterModule>();
+		services.AddModule<StateMachineFluentBuilderModule>();
 		var serviceProvider = services.BuildProvider();
 
 		var fluentBuilder = await serviceProvider.GetRequiredService<StateMachineFluentBuilder>();
@@ -136,8 +136,8 @@ public class StateMachineFluentBuilderTest
 
 		var services = new ServiceCollection();
 		services.AddForwarding(_ => stateMachine);
-		services.RegisterStateMachineInterpreter();
-		services.RegisterStateMachineFluentBuilder();
+		services.AddModule<StateMachineInterpreterModule>();
+		services.AddModule<StateMachineFluentBuilderModule>();
 		var serviceProvider = services.BuildProvider();
 
 		var fluentBuilder = await serviceProvider.GetRequiredService<StateMachineFluentBuilder>();
@@ -169,8 +169,8 @@ public class StateMachineFluentBuilderTest
 
 		var services = new ServiceCollection();
 		services.AddForwarding(_ => stateMachine);
-		services.RegisterStateMachineInterpreter();
-		services.RegisterStateMachineFluentBuilder();
+		services.AddModule<StateMachineInterpreterModule>();
+		services.AddModule<StateMachineFluentBuilderModule>();
 		var serviceProvider = services.BuildProvider();
 
 		var fluentBuilder = await serviceProvider.GetRequiredService<StateMachineFluentBuilder>();

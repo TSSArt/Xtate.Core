@@ -29,8 +29,8 @@ public class FinalStateTest
 	{
 		// Arrange
 		var services = new ServiceCollection();
-		services.RegisterStateMachineFluentBuilder();
-		services.RegisterStateMachineHost();
+		services.AddModule<StateMachineFluentBuilderModule>();
+		services.AddModule<StateMachineHostModule>();
 		var serviceProvider = services.BuildProvider();
 		var builder = await serviceProvider.GetRequiredService<StateMachineFluentBuilder>();
 
@@ -57,8 +57,8 @@ public class FinalStateTest
 	public async Task Input_argument_Should_be_passed_as_return_value()
 	{
 		var services = new ServiceCollection();
-		services.RegisterStateMachineFluentBuilder();
-		services.RegisterStateMachineHost();
+		services.AddModule<StateMachineFluentBuilderModule>();
+		services.AddModule<StateMachineHostModule>();
 		var serviceProvider = services.BuildProvider();
 		var builder = await serviceProvider.GetRequiredService<StateMachineFluentBuilder>();
 

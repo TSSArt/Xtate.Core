@@ -15,8 +15,25 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.CustomAction;
+using Xtate.IoC;
 
-public class StartActionProvider() : CustomActionProvider<StartAction>(ns: "http://xtate.net/scxml/system", name: "start");
+namespace Xtate.Core;
 
-public class DestroyActionProvider() : CustomActionProvider<DestroyAction>(ns: "http://xtate.net/scxml/system", name: "destroy");
+public class ResourceLoadersModule : Module
+{
+#region Interface IModule
+
+	protected override void AddModules()
+	{
+		AddModule<FileResourceLoaderModule>();
+		AddModule<ResxResourceLoaderModule>();
+		AddModule<WebResourceLoaderModule>();
+	}
+
+	protected override void AddServices()
+	{
+		Services.AddImplementation<ResourceLoaderService>().For<ResourceLoaderService>().For<IResourceLoader>();
+	}
+
+#endregion
+}

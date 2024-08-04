@@ -189,7 +189,7 @@ public abstract class CustomActionBase
 	{
 		private ValueTuple<T>? _value;
 
-		public T Value => _value.HasValue ? _value.Value.Item1 : throw new InfrastructureException("Property available in Evaluate() method");
+		public T Value => _value.HasValue ? _value.Value.Item1 : throw new InfrastructureException(Resources.Exception_PropertyAvailableInEvaluateMethod);
 
 		internal override void Reset() => _value = default;
 

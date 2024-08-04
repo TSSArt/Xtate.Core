@@ -103,7 +103,7 @@ public class TransitionToDiTest
 		var stateMachine = new StateMachineEntity { States = [new FinalEntity()] };
 
 		var services = new ServiceCollection();
-		services.RegisterStateMachineInterpreter();
+		services.AddModule<StateMachineInterpreterModule>();
 		services.AddForwarding<IStateMachine>(_ => stateMachine);
 
 		var provider = services.BuildProvider();
@@ -137,7 +137,7 @@ public class TransitionToDiTest
 						   };
 
 		var services = new ServiceCollection();
-		services.RegisterStateMachineInterpreter();
+		services.AddModule<StateMachineInterpreterModule>();
 		services.AddForwarding<IStateMachine>(_ => stateMachine);
 
 		var provider = services.BuildProvider();
@@ -183,7 +183,7 @@ public class TransitionToDiTest
 
 		var services = new ServiceCollection();
 
-		services.RegisterStateMachineFactory();
+		services.AddModule<StateMachineFactoryModule>();
 
 		services.AddForwarding<IScxmlStateMachine>(_ => new ScxmlStateMachine(xml));
 
