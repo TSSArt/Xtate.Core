@@ -88,12 +88,12 @@ public class InvokeTest
 							 .Callback<InvokeData>(data => invokeUniqueId = data.InvokeId.InvokeUniqueIdValue);
 
 		var services = new ServiceCollection();
-		services.AddForwarding<IStateMachine>(_ => _stateMachine);
-		services.AddForwarding(_ => _invokeControllerMock.Object);
-		services.AddForwarding(_ => _loggerMockL.Object);
-		services.AddForwarding(_ => _loggerMockI.Object);
-		services.AddForwarding(_ => _loggerMockE.Object);
-		services.AddForwarding(_ => _loggerMockV.Object);
+		services.AddConstant<IStateMachine>(_stateMachine);
+		services.AddConstant(_invokeControllerMock.Object);
+		services.AddConstant(_loggerMockL.Object);
+		services.AddConstant(_loggerMockI.Object);
+		services.AddConstant(_loggerMockE.Object);
+		services.AddConstant(_loggerMockV.Object);
 		services.AddModule<StateMachineInterpreterModule>();
 
 		var serviceProvider = services.BuildProvider();

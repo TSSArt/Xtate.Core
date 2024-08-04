@@ -48,7 +48,7 @@ public abstract class HostedTestBase
 		sc.AddSharedImplementationSync<DestroyActionProvider>(SharedWithin.Scope).For<ICustomActionProvider>();
 		sc.AddTypeSync<StartAction, XmlReader>();
 		sc.AddTypeSync<DestroyAction, XmlReader>();
-		sc.AddForwarding(_ => LogWriter.Object);
+		sc.AddConstant(LogWriter.Object);
 		var sp = sc.BuildProvider();
 		Host = await sp.GetRequiredService<StateMachineHost>();
 	}

@@ -28,7 +28,7 @@ public class ScxmlToDomTest
 	{
 		var services = new ServiceCollection();
 		services.AddModule<StateMachineFactoryModule>();
-		services.AddForwarding<IScxmlStateMachine>(_ => new ScxmlStateMachine(scxml));
+		services.AddConstant<IScxmlStateMachine>(new ScxmlStateMachine(scxml));
 		var serviceProvider = services.BuildProvider();
 
 		return serviceProvider.GetRequiredService<IStateMachine>().Result;

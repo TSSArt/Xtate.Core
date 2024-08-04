@@ -256,7 +256,7 @@ public class RegisterClassTest
 		var services = new ServiceCollection();
 		services.AddModule<ScxmlModule>();
 		services.AddImplementation<DefaultIoBoundTask>().For<IIoBoundTask>();
-		services.AddForwarding<IXIncludeOptions>(_ => new XIncludeOptions());
+		services.AddConstant<IXIncludeOptions>(new XIncludeOptions());
 		var provider = services.BuildProvider();
 
 		var uri = new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Scxml/XInclude/SingleIncludeSource.scxml");
@@ -342,7 +342,7 @@ public class RegisterClassTest
 
 		var services = new ServiceCollection();
 		services.AddModule<DataModelHandlersModule>();
-		services.AddForwarding<IStateMachine>(_ => new StateMachineEntity { DataModelType = "xpath" });
+		services.AddConstant<IStateMachine>(new StateMachineEntity { DataModelType = "xpath" });
 		services.AddSharedImplementationSync<AssemblyTypeInfo, Type>(SharedWithin.Container).For<IAssemblyTypeInfo>();
 		var provider = services.BuildProvider();
 
@@ -385,8 +385,8 @@ public class RegisterClassTest
 		services2.AddModule<InterpreterModelBuilderModule>();
 		services2.AddSharedImplementationSync<MyActionProvider>(SharedWithin.Scope).For<ICustomActionProvider>();
 		services2.AddTypeSync<MyAction, XmlReader>();
-		services2.AddForwarding(_ => provider.GetRequiredServiceSync<INameTableProvider>());
-		services2.AddForwarding(_ => stateMachine);
+		services2.AddConstant(provider.GetRequiredServiceSync<INameTableProvider>());
+		services2.AddConstant(stateMachine);
 		var provider2 = services2.BuildProvider();
 
 		var interpreterModelBuilder = await provider2.GetRequiredService<InterpreterModelBuilder>();
@@ -415,7 +415,7 @@ public class RegisterClassTest
 		var services = new ServiceCollection();
 		services.AddModule<StateMachineFactoryModule>();
 		services.AddModule<InterpreterModelBuilderModule>();
-		services.AddForwarding<IScxmlStateMachine>(_ => new ScxmlStateMachine(xml));
+		services.AddConstant<IScxmlStateMachine>(new ScxmlStateMachine(xml));
 		var provider = services.BuildProvider();
 
 		var interpreterModelBuilder = await provider.GetRequiredService<InterpreterModelBuilder>();
@@ -443,7 +443,7 @@ public class RegisterClassTest
 						   """;
 
 		var services = new ServiceCollection();
-		services.AddForwarding<IScxmlStateMachine>(_ => new ScxmlStateMachine(xml));
+		services.AddConstant<IScxmlStateMachine>(new ScxmlStateMachine(xml));
 		services.AddModule<StateMachineFactoryModule>();
 		services.AddModule<StateMachineInterpreterModule>();
 		services.AddImplementation<TraceLogWriter<Any>>().For<ILogWriter<Any>>();

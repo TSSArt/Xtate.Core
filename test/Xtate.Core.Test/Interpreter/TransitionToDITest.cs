@@ -75,15 +75,15 @@ public static class ContainerBuilder
 
 		public static void AddInterpreterModel(this IServiceCollection services)
 		{
-			//services.AddForwarding(_ => new Mock<IPreDataModelProcessor>().Object);
+			//services.AddConstant(_ => new Mock<IPreDataModelProcessor>().Object);
 			services.AddFactory<InterpreterModelBuilder>().For<IInterpreterModel>();
 		}
 
 		public static void AddStateMachineInterpreter(this IServiceCollection services)
 		{
-			//services.AddForwarding(_ => new Mock<ILoggerOld>().Object);
-			services.AddForwarding(_ => new Mock<IResourceLoader>().Object);
-			services.AddForwarding(_ => new Mock<IEventQueueReader>().Object);
+			//services.AddConstant(_ => new Mock<ILoggerOld>().Object);
+			services.AddConstant(_ => new Mock<IResourceLoader>().Object);
+			services.AddConstant(_ => new Mock<IEventQueueReader>().Object);
 
 			services.AddImplementation<ErrorProcessorService<Any>>().For<IErrorProcessorService<Any>>();
 			services.AddDataModelHandler();
@@ -104,7 +104,7 @@ public class TransitionToDiTest
 
 		var services = new ServiceCollection();
 		services.AddModule<StateMachineInterpreterModule>();
-		services.AddForwarding<IStateMachine>(_ => stateMachine);
+		services.AddConstant<IStateMachine>(stateMachine);
 
 		var provider = services.BuildProvider();
 
@@ -138,7 +138,7 @@ public class TransitionToDiTest
 
 		var services = new ServiceCollection();
 		services.AddModule<StateMachineInterpreterModule>();
-		services.AddForwarding<IStateMachine>(_ => stateMachine);
+		services.AddConstant<IStateMachine>(stateMachine);
 
 		var provider = services.BuildProvider();
 
@@ -185,7 +185,7 @@ public class TransitionToDiTest
 
 		services.AddModule<StateMachineFactoryModule>();
 
-		services.AddForwarding<IScxmlStateMachine>(_ => new ScxmlStateMachine(xml));
+		services.AddConstant<IScxmlStateMachine>(new ScxmlStateMachine(xml));
 
 		var provider = services.BuildProvider();
 
