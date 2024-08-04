@@ -21,8 +21,6 @@ namespace Xtate.Core;
 
 public class LoggingModule : Module
 {
-	protected override void AddModules() { }
-
 	protected override void AddServices()
 	{
 		Services.AddImplementation<LogEntityParserService<Any>>().For<IEntityParserHandler<Any>>();

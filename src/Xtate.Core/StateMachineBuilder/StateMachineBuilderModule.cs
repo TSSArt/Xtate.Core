@@ -19,13 +19,8 @@ using Xtate.IoC;
 
 namespace Xtate.Builder;
 
-public class StateMachineBuilderModule : Module
+public class StateMachineBuilderModule : Module<ErrorProcessorModule>
 {
-	protected override void AddModules()
-	{
-		AddModule<ErrorProcessorModule>();
-	}
-
 	protected override void AddServices()
 	{
 		Services.AddImplementationSync<StateMachineBuilder>().For<IStateMachineBuilder>();

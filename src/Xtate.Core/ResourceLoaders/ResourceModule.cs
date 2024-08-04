@@ -22,8 +22,6 @@ namespace Xtate.Core;
 
 public class ResourceModule : Module
 {
-	protected override void AddModules() { }
-
 	protected override void AddServices()
 	{
 		Services.AddSharedImplementation<DefaultIoBoundTask>(SharedWithin.Scope).For<IIoBoundTask>();

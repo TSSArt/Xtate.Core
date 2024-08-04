@@ -20,14 +20,8 @@ using Xtate.Service;
 
 namespace Xtate.Core;
 
-public class StateMachineHostModule : Module
+public class StateMachineHostModule : Module<StateMachineFactoryModule, StateMachineInterpreterModule>
 {
-	protected override void AddModules()
-	{
-		AddModule<StateMachineFactoryModule>();
-		AddModule<StateMachineInterpreterModule>();
-	}
-
 	protected override void AddServices()
 	{
 		//TODO: tmp ----

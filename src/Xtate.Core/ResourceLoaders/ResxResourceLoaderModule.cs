@@ -19,13 +19,8 @@ using Xtate.IoC;
 
 namespace Xtate.Core;
 
-public class ResxResourceLoaderModule : Module
+public class ResxResourceLoaderModule : Module<ResourceModule>
 {
-	protected override void AddModules()
-	{
-		AddModule<ResourceModule>();
-	}
-
 	protected override void AddServices()
 	{
 		Services.AddSharedImplementation<ResxResourceLoaderProvider>(SharedWithin.Container).For<IResourceLoaderProvider>();

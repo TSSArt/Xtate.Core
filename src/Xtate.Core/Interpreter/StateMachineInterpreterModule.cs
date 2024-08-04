@@ -20,15 +20,8 @@ using Xtate.IoC;
 
 namespace Xtate.Core;
 
-public class StateMachineInterpreterModule : Module
+public class StateMachineInterpreterModule : Module<DataModelHandlersModule, InterpreterModelBuilderModule, LoggingModule>
 {
-	protected override void AddModules()
-	{
-		AddModule<DataModelHandlersModule>();
-		AddModule<InterpreterModelBuilderModule>();
-		AddModule<LoggingModule>();
-	}
-
 	protected override void AddServices()
 	{
 		Services.AddSharedImplementation<InterpreterLogEnricher<IStateMachineInterpreter>>(SharedWithin.Scope).For<ILogEnricher<IStateMachineInterpreter>>();

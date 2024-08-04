@@ -19,13 +19,8 @@ using Xtate.IoC;
 
 namespace Xtate.Core;
 
-public class FileResourceLoaderModule : Module
+public class FileResourceLoaderModule : Module<ResourceModule>
 {
-	protected override void AddModules()
-	{
-		AddModule<ResourceModule>();
-	}
-
 	protected override void AddServices()
 	{
 		Services.AddSharedImplementation<FileResourceLoaderProvider>(SharedWithin.Container).For<IResourceLoaderProvider>();

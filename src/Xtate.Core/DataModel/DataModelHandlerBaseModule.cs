@@ -20,13 +20,8 @@ using Xtate.IoC;
 
 namespace Xtate.DataModel;
 
-public class DataModelHandlerBaseModule : Module
+public class DataModelHandlerBaseModule : Module<LoggingModule>
 {
-	protected override void AddModules()
-	{
-		AddModule<LoggingModule>();
-	}
-
 	protected override void AddServices()
 	{
 		Services.AddTypeSync<DefaultAssignEvaluator, IAssign>();

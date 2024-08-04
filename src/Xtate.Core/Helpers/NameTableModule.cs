@@ -21,8 +21,6 @@ namespace Xtate.Core;
 
 public class NameTableModule : Module
 {
-	protected override void AddModules() { }
-
 	protected override void AddServices()
 	{
 		Services.AddSharedImplementationSync<NameTableProvider>(SharedWithin.Scope).For<INameTableProvider>();

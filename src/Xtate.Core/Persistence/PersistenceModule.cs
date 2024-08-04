@@ -166,15 +166,8 @@ public class PersistedInterpreterModelGetter : IAsyncInitialization
 	public IInterpreterModel GetInterpreterModel() => _interpreterModelAsyncInit.Value;
 }
 
-public class PersistenceModule : Module
+public class PersistenceModule : Module<InterpreterModelBuilderModule, StateMachineFactoryModule, DataModelHandlersModule>
 {
-	protected override void AddModules()
-	{
-		AddModule<InterpreterModelBuilderModule>();
-		AddModule<StateMachineFactoryModule>();
-		AddModule<DataModelHandlersModule>();
-	}
-
 	protected override void AddServices()
 	{
 		Services.AddImplementationSync<InMemoryStorageNew, bool>().For<InMemoryStorage>().For<IStorage>();

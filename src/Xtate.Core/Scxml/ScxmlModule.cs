@@ -22,16 +22,8 @@ using Xtate.XInclude;
 
 namespace Xtate.Scxml;
 
-public class ScxmlModule : Module
+public class ScxmlModule : Module<ErrorProcessorModule, StateMachineBuilderModule, ResourceLoadersModule, NameTableModule>
 {
-	protected override void AddModules()
-	{
-		AddModule<ErrorProcessorModule>();
-		AddModule<StateMachineBuilderModule>();
-		AddModule<ResourceLoadersModule>();
-		AddModule<NameTableModule>();
-	}
-
 	protected override void AddServices()
 	{
 		Services.AddType<ScxmlSerializerWriter, XmlWriter>();

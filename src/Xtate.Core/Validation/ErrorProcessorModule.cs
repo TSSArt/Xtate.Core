@@ -21,8 +21,6 @@ namespace Xtate.Core;
 
 public class ErrorProcessorModule : Module
 {
-	protected override void AddModules() { }
-
 	protected override void AddServices()
 	{
 		Services.AddImplementationSync<DefaultErrorProcessor>().For<IErrorProcessor>();
