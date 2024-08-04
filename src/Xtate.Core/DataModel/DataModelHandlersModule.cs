@@ -20,16 +20,8 @@ using Xtate.IoC;
 
 namespace Xtate.DataModel;
 
-public class DataModelHandlersModule : Module
+public class DataModelHandlersModule : Module<NullDataModelHandlerModule, RuntimeDataModelHandlerModule, XPathDataModelHandlerModule, ErrorProcessorModule>
 {
-	protected override void AddModules()
-	{
-		AddModule<NullDataModelHandlerModule>();
-		AddModule<RuntimeDataModelHandlerModule>();
-		AddModule<XPathDataModelHandlerModule>();
-		AddModule<ErrorProcessorModule>();
-	}
-
 	protected override void AddServices()
 	{
 		Services.AddType<UnknownDataModelHandler>();

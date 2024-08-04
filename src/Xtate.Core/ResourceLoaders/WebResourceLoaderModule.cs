@@ -19,13 +19,8 @@ using Xtate.IoC;
 
 namespace Xtate.Core;
 
-public class WebResourceLoaderModule : Module
+public class WebResourceLoaderModule : Module<ResourceModule>
 {
-	protected override void AddModules()
-	{
-		AddModule<ResourceModule>();
-	}
-
 	protected override void AddServices()
 	{
 		Services.AddSharedImplementation<WebResourceLoaderProvider>(SharedWithin.Container).For<IResourceLoaderProvider>();

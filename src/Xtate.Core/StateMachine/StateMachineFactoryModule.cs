@@ -20,13 +20,8 @@ using Xtate.Scxml;
 
 namespace Xtate.Core;
 
-public class StateMachineFactoryModule : Module
+public class StateMachineFactoryModule : Module<ScxmlModule>
 {
-	protected override void AddModules()
-	{
-		AddModule<ScxmlModule>();
-	}
-
 	protected override void AddServices()
 	{
 		Services.AddSharedFactory<StateMachineGetter>(SharedWithin.Scope).For<IStateMachine>();

@@ -20,21 +20,21 @@ using Xtate.IoC;
 
 namespace Xtate.DataModel;
 
-public class RuntimeDataModelHandlerModule : Module
+public class RuntimeDataModelHandlerModule : Module<DataModelHandlerBaseModule, ErrorProcessorModule>
 {
-	protected override void AddModules()
-	{
-		AddModule<DataModelHandlerBaseModule>();
-		AddModule<ErrorProcessorModule>();
-	}
-
 	protected override void AddServices()
 	{
 		Services.AddTypeSync<RuntimeActionExecutor, RuntimeAction>();
 		Services.AddTypeSync<RuntimeValueEvaluator, RuntimeValue>();
 		Services.AddTypeSync<RuntimePredicateEvaluator, RuntimePredicate>();
 		Services.AddSharedType<RuntimeExecutionContext>(SharedWithin.Scope);
-		Services.AddImplementation<RuntimeDataModelHandler>().For<RuntimeDataModelHandler>().For<IDataModelHandler>();
 		Services.AddImplementation<RuntimeDataModelHandlerProvider>().For<IDataModelHandlerProvider>();
+		
+		var implementation = Services.AddImplementation<RuntimeDataModelHandler>().For<RuntimeDataModelHandler>();
+		
+		if (!Services.IsRegistered<IDataModelHandler>())
+		{
+			implementation.For<IDataModelHandler>();
+		}
 	}
 }
