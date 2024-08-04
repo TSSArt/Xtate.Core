@@ -1785,6 +1785,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Property available in Evaluate() method..
+        /// </summary>
+        internal static string Exception_PropertyAvailableInEvaluateMethod {
+            get {
+                return ResourceManager.GetString("Exception_PropertyAvailableInEvaluateMethod", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Registration should no occur after initialization..
         /// </summary>
         internal static string Exception_RegistrationShouldNoOccurAfterInitialization {

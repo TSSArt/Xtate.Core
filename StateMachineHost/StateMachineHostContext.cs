@@ -215,7 +215,7 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 		//	var scxmlDirector = ServiceLocator.Default.GetService<ScxmlDirector, XmlReader>(xmlReader);
 
 		var services = new ServiceCollection();
-		services.RegisterStateMachineBuilder();
+		services.AddModule<StateMachineBuilderModule>();
 
 		if (scxml is null)
 		{

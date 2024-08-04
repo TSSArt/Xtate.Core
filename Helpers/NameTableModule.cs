@@ -16,26 +16,15 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using Xtate.IoC;
-using Xtate.Scxml;
 
 namespace Xtate.Core;
 
-public static class StateMachineExtensions
+public class NameTableModule : Module
 {
-	public static void RegisterStateMachineFactory(this IServiceCollection services)
+	protected override void AddModules() { }
+
+	protected override void AddServices()
 	{
-		if (!services.IsRegistered<IStateMachine>())
-		{
-			services.RegisterScxml();
-
-			services.AddSharedFactory<StateMachineGetter>(SharedWithin.Scope).For<IStateMachine>();
-			services.AddImplementation<StateMachineService>().For<IStateMachineService>();
-
-			services.AddType<ScxmlReaderStateMachineGetter>();
-			services.AddImplementation<ScxmlStateMachineProvider>().For<IStateMachineProvider>();
-
-			services.AddType<ScxmlLocationStateMachineGetter>();
-			services.AddImplementation<SourceStateMachineProvider>().For<IStateMachineProvider>();
-		}
+		Services.AddSharedImplementationSync<NameTableProvider>(SharedWithin.Scope).For<INameTableProvider>();
 	}
 }

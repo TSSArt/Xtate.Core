@@ -15,20 +15,18 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using System.IO;
 using Xtate.IoC;
 
 namespace Xtate.Core;
 
-public static class LoggingExtensions
+public class ResourceModule : Module
 {
-	public static void RegisterLogging(this IServiceCollection services)
-	{
-		if (services.IsRegistered<ILogger<Any>>())
-		{
-			return;
-		}
+	protected override void AddModules() { }
 
-		services.AddImplementation<LogEntityParserService<Any>>().For<IEntityParserHandler<Any>>();
-		services.AddImplementation<Logger<Any>>().For<ILogger<Any>>();
+	protected override void AddServices()
+	{
+		Services.AddSharedImplementation<DefaultIoBoundTask>(SharedWithin.Scope).For<IIoBoundTask>();
+		Services.AddTypeSync<Resource, Stream>();
 	}
 }
