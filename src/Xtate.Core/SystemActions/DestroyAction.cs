@@ -19,6 +19,8 @@ using System.Xml;
 
 namespace Xtate.CustomAction;
 
+public class DestroyActionProvider() : CustomActionProvider<DestroyAction>(ns: "http://xtate.net/scxml/system", name: "destroy");
+
 public class DestroyAction : CustomActionBase, IDisposable
 {
 	private readonly DisposingToken _disposingToken = new();

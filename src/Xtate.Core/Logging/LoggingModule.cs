@@ -19,15 +19,13 @@ using Xtate.IoC;
 
 namespace Xtate.Core;
 
-public static class NameTableExtensions
+public class LoggingModule : Module
 {
-	public static void RegisterNameTable(this IServiceCollection services)
-	{
-		if (services.IsRegistered<INameTableProvider>())
-		{
-			return;
-		}
+	protected override void AddModules() { }
 
-		services.AddSharedImplementationSync<NameTableProvider>(SharedWithin.Scope).For<INameTableProvider>();
+	protected override void AddServices()
+	{
+		Services.AddImplementation<LogEntityParserService<Any>>().For<IEntityParserHandler<Any>>();
+		Services.AddImplementation<Logger<Any>>().For<ILogger<Any>>();
 	}
 }

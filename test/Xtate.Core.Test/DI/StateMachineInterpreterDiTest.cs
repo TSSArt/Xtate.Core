@@ -27,7 +27,7 @@ public class StateMachineInterpreterDiTest
 	{
 		var services = new ServiceCollection();
 		services.AddTransient<IStateMachine>(_ => new StateMachineEntity { States = [new FinalEntity()] });
-		services.RegisterStateMachineInterpreter();
+		services.AddModule<StateMachineInterpreterModule>();
 
 		var serviceProvider = services.BuildProvider();
 
@@ -59,7 +59,7 @@ public class StateMachineInterpreterDiTest
 								 };
 
 		services.AddTransient<IStateMachine>(_ => stateMachineEntity);
-		services.RegisterStateMachineInterpreter();
+		services.AddModule<StateMachineInterpreterModule>();
 
 		var serviceProvider = services.BuildProvider();
 

@@ -28,6 +28,8 @@ public interface ILogEnricher<[UsedImplicitly] TSource>
 
 public class Logger<TSource> : ILogger<TSource>
 {
+	public required ILogWriter? NonGenericLogWriter { private get; [UsedImplicitly] init; }
+
 	public required ILogWriter<TSource>? LogWriter { private get; [UsedImplicitly] init; }
 
 	public required IAsyncEnumerable<ILogEnricher<TSource>> LogEnrichers { private get; [UsedImplicitly] init; }
@@ -36,7 +38,7 @@ public class Logger<TSource> : ILogger<TSource>
 
 #region Interface ILogger
 
-	public virtual bool IsEnabled(Level level) => LogWriter?.IsEnabled(level) ?? false;
+	public virtual bool IsEnabled(Level level) => LogWriter?.IsEnabled(level) ?? NonGenericLogWriter?.IsEnabled(typeof(TSource), level) ?? false;
 
 	public virtual IFormatProvider FormatProvider => CultureInfo.InvariantCulture;
 
@@ -46,24 +48,36 @@ public class Logger<TSource> : ILogger<TSource>
 
 	public virtual ValueTask Write(Level level, int eventId, string? message)
 	{
-		if (!IsEnabled(level))
+		if (LogWriter?.IsEnabled(level) == true)
 		{
-			return default;
+			return LogWriter.Write(level, eventId, message, EnumerateParameters(level, eventId));
 		}
 
-		return LogWriter!.Write(level, eventId, message, EnumerateParameters(level, eventId));
+		if (NonGenericLogWriter?.IsEnabled(typeof(TSource), level) == true)
+		{
+			return NonGenericLogWriter.Write(typeof(TSource), level, eventId, message, EnumerateParameters(level, eventId));
+		}
+
+		return default;
 	}
 
 	public virtual ValueTask Write(Level level, int eventId, [InterpolatedStringHandlerArgument("", "level")] LoggingInterpolatedStringHandler formattedMessage)
 	{
-		if (!IsEnabled(level))
+		if (LogWriter?.IsEnabled(level) == true)
 		{
-			return default;
+			var message = formattedMessage.ToString(out var parameters);
+
+			return LogWriter.Write(level, eventId, message, EnumerateParameters(level, eventId, parameters));
 		}
 
-		var message = formattedMessage.ToString(out var parameters);
+		if (NonGenericLogWriter?.IsEnabled(typeof(TSource), level) == true)
+		{
+			var message = formattedMessage.ToString(out var parameters);
 
-		return LogWriter!.Write(level, eventId, message, EnumerateParameters(level, eventId, parameters));
+			return NonGenericLogWriter.Write(typeof(TSource), level, eventId, message, EnumerateParameters(level, eventId, parameters));
+		}
+
+		return default;
 	}
 
 	public virtual ValueTask Write<TEntity>(Level level,
@@ -71,12 +85,17 @@ public class Logger<TSource> : ILogger<TSource>
 											string? message,
 											TEntity entity)
 	{
-		if (!IsEnabled(level))
+		if (LogWriter?.IsEnabled(level) == true)
 		{
-			return default;
+			return LogWriter!.Write(level, eventId, message, EnumerateParameters(level, eventId, parameters: default, EntityParserHandler.EnumerateProperties(entity)));
 		}
 
-		return LogWriter!.Write(level, eventId, message, EnumerateParameters(level, eventId, parameters: default, EntityParserHandler.EnumerateProperties(entity)));
+		if (NonGenericLogWriter?.IsEnabled(typeof(TSource), level) == true)
+		{
+			return NonGenericLogWriter.Write(typeof(TSource), level, eventId, message, EnumerateParameters(level, eventId, parameters: default, EntityParserHandler.EnumerateProperties(entity)));
+		}
+
+		return default;
 	}
 
 	public virtual ValueTask Write<TEntity>(Level level,
@@ -85,14 +104,21 @@ public class Logger<TSource> : ILogger<TSource>
 											LoggingInterpolatedStringHandler formattedMessage,
 											TEntity entity)
 	{
-		if (!IsEnabled(level))
+		if (LogWriter?.IsEnabled(level) == true)
 		{
-			return default;
+			var message = formattedMessage.ToString(out var parameters);
+
+			return LogWriter.Write(level, eventId, message, EnumerateParameters(level, eventId, parameters, EntityParserHandler.EnumerateProperties(entity)));
 		}
 
-		var message = formattedMessage.ToString(out var parameters);
+		if (NonGenericLogWriter?.IsEnabled(typeof(TSource), level) == true)
+		{
+			var message = formattedMessage.ToString(out var parameters);
 
-		return LogWriter!.Write(level, eventId, message, EnumerateParameters(level, eventId, parameters, EntityParserHandler.EnumerateProperties(entity)));
+			return NonGenericLogWriter.Write(typeof(TSource), level, eventId, message, EnumerateParameters(level, eventId, parameters, EntityParserHandler.EnumerateProperties(entity)));
+		}
+
+		return default;
 	}
 
 #endregion

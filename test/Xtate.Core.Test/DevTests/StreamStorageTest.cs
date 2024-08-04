@@ -119,7 +119,7 @@ public class StreamStorageTest
 		_stream = new ProxyMemoryStream(_streamCaptureMock.Object);
 
 		var serviceCollection = new ServiceCollection();
-		serviceCollection.RegisterPersistence();
+		serviceCollection.AddModule<PersistenceModule>();
 
 		_serviceProvider = serviceCollection.BuildProvider();
 		_streamStorageFactory = _serviceProvider.GetRequiredFactory<ITransactionalStorage, Stream>();

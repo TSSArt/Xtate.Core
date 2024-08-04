@@ -26,12 +26,13 @@ namespace Xtate.Test.HostedTests;
 public abstract class HostedTestBase
 {
 	protected StateMachineHost       Host      { get; private set; } = default!;
-	protected Mock<ILogWriter<ILog>> LogWriter { get; private set; } = default!;
+	protected Mock<ILogWriter> LogWriter { get; private set; } = default!;
 
 	[TestInitialize]
 	public async Task Initialize()
 	{
-		LogWriter = new Mock<ILogWriter<ILog>>();
+		LogWriter = new Mock<ILogWriter>();
+		LogWriter.Setup(s => s.IsEnabled(It.IsAny<Type>(), It.IsAny<Level>())).Returns(true);
 		/*
 		Host = new StateMachineHostBuilder()
 			   //TODO:
@@ -42,7 +43,7 @@ public abstract class HostedTestBase
 		return Host.StartHostAsync();
 		*/
 		var sc = new ServiceCollection();
-		sc.RegisterStateMachineHost();
+		sc.AddModule<StateMachineHostModule>();
 		sc.AddSharedImplementationSync<StartActionProvider>(SharedWithin.Scope).For<ICustomActionProvider>();
 		sc.AddSharedImplementationSync<DestroyActionProvider>(SharedWithin.Scope).For<ICustomActionProvider>();
 		sc.AddTypeSync<StartAction, XmlReader>();

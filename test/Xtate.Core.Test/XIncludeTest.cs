@@ -30,7 +30,7 @@ public class XIncludeTest
 	public async Task CreateStateMachineWithXInclude()
 	{
 		var services = new ServiceCollection();
-		services.RegisterStateMachineHost();
+		services.AddModule<StateMachineHostModule>();
 		services.AddImplementationSync<XIncludeOptions>().For<IXIncludeOptions>();
 		var serviceProvider = services.BuildProvider();
 		var host = await serviceProvider.GetRequiredService<StateMachineHost>();
@@ -48,7 +48,7 @@ public class XIncludeTest
 		var uri = new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Scxml/XInclude/DtdSingleIncludeSource.scxml");
 
 		var services = new ServiceCollection();
-		services.RegisterScxml();
+		services.AddModule<ScxmlModule>();
 		var serviceProvider = services.BuildProvider();
 
 		var resourceLoaderService = await serviceProvider.GetRequiredService<IResourceLoader>();
@@ -79,7 +79,7 @@ public class XIncludeTest
 		var uri = new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Scxml/XInclude/SingleIncludeSource.scxml");
 
 		var services = new ServiceCollection();
-		services.RegisterScxml();
+		services.AddModule<ScxmlModule>();
 		var serviceProvider = services.BuildProvider();
 
 		var resourceLoaderService = await serviceProvider.GetRequiredService<IResourceLoader>();

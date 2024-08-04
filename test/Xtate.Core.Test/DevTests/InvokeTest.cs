@@ -94,7 +94,7 @@ public class InvokeTest
 		services.AddForwarding(_ => _loggerMockI.Object);
 		services.AddForwarding(_ => _loggerMockE.Object);
 		services.AddForwarding(_ => _loggerMockV.Object);
-		services.RegisterStateMachineInterpreter();
+		services.AddModule<StateMachineInterpreterModule>();
 
 		var serviceProvider = services.BuildProvider();
 		var stateMachineInterpreter = await serviceProvider.GetRequiredService<IStateMachineInterpreter>();

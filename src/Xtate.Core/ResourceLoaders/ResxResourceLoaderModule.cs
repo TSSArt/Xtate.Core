@@ -15,16 +15,20 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.DataModel;
+using Xtate.IoC;
 
 namespace Xtate.Core;
 
-public class DataModelHandlerGetter
+public class ResxResourceLoaderModule : Module
 {
-	public required IDataModelHandlerService DataModelHandlerService { private get; [UsedImplicitly] init; }
+	protected override void AddModules()
+	{
+		AddModule<ResourceModule>();
+	}
 
-	public required IStateMachine? StateMachine { private get; [UsedImplicitly] init; }
-
-	[UsedImplicitly]
-	public virtual ValueTask<IDataModelHandler?> GetDataModelHandler() => StateMachine is not null ? DataModelHandlerService.GetDataModelHandler(StateMachine.DataModelType) : default;
+	protected override void AddServices()
+	{
+		Services.AddSharedImplementation<ResxResourceLoaderProvider>(SharedWithin.Container).For<IResourceLoaderProvider>();
+		Services.AddImplementation<ResxResourceLoader>().For<ResxResourceLoader>().For<IResourceLoader>();
+	}
 }
