@@ -20,15 +20,8 @@ using Xtate.IoC;
 
 namespace Xtate.Core;
 
-public class InterpreterModelBuilderModule : Module
+public class InterpreterModelBuilderModule : Module<ErrorProcessorModule, DataModelHandlersModule, ResourceLoadersModule>
 {
-	protected override void AddModules()
-	{
-		AddModule<ErrorProcessorModule>();
-		AddModule<DataModelHandlersModule>();
-		AddModule<ResourceLoadersModule>();
-	}
-
 	protected override void AddServices()
 	{
 		Services.AddTypeSync<EmptyInitialNode, DocumentIdNode, TransitionNode>();

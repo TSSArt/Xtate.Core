@@ -20,18 +20,18 @@ using Xtate.IoC;
 
 namespace Xtate.DataModel;
 
-public class NullDataModelHandlerModule : Module
+public class NullDataModelHandlerModule : Module<DataModelHandlerBaseModule, ErrorProcessorModule>
 {
-	protected override void AddModules()
-	{
-		AddModule<DataModelHandlerBaseModule>();
-		AddModule<ErrorProcessorModule>();
-	}
-
 	protected override void AddServices()
 	{
 		Services.AddTypeSync<NullConditionExpressionEvaluator, IConditionExpression, IIdentifier>();
-		Services.AddImplementation<NullDataModelHandler>().For<NullDataModelHandler>().For<IDataModelHandler>();
 		Services.AddImplementation<NullDataModelHandlerProvider>().For<IDataModelHandlerProvider>();
+
+		var implementation = Services.AddImplementation<NullDataModelHandler>().For<NullDataModelHandler>();
+
+		if (!Services.IsRegistered<IDataModelHandler>())
+		{
+			implementation.For<IDataModelHandler>();
+		}
 	}
 }

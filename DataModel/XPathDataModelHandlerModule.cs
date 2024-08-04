@@ -21,15 +21,8 @@ using Xtate.Scxml;
 
 namespace Xtate.DataModel;
 
-public class XPathDataModelHandlerModule : Module
+public class XPathDataModelHandlerModule : Module<DataModelHandlerBaseModule, ErrorProcessorModule, NameTableModule>
 {
-	protected override void AddModules()
-	{
-		AddModule<DataModelHandlerBaseModule>();
-		AddModule<ErrorProcessorModule>();
-		AddModule<NameTableModule>();
-	}
-
 	protected override void AddServices()
 	{
 		Services.AddTypeSync<XPathValueExpressionEvaluator, IValueExpression, XPathCompiledExpression>();
@@ -53,7 +46,13 @@ public class XPathDataModelHandlerModule : Module
 		Services.AddImplementationSync<InFunctionProvider>().For<IXPathFunctionProvider>();
 		Services.AddTypeSync<InFunction>();
 
-		Services.AddImplementation<XPathDataModelHandler>().For<XPathDataModelHandler>().For<IDataModelHandler>();
 		Services.AddImplementation<XPathDataModelHandlerProvider>().For<IDataModelHandlerProvider>();
+
+		var implementation = Services.AddImplementation<XPathDataModelHandler>().For<XPathDataModelHandler>();
+
+		if (!Services.IsRegistered<IDataModelHandler>())
+		{
+			implementation.For<IDataModelHandler>();
+		}
 	}
 }

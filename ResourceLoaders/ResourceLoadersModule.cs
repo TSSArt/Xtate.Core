@@ -19,21 +19,10 @@ using Xtate.IoC;
 
 namespace Xtate.Core;
 
-public class ResourceLoadersModule : Module
+public class ResourceLoadersModule : Module<FileResourceLoaderModule, ResxResourceLoaderModule, WebResourceLoaderModule>
 {
-#region Interface IModule
-
-	protected override void AddModules()
-	{
-		AddModule<FileResourceLoaderModule>();
-		AddModule<ResxResourceLoaderModule>();
-		AddModule<WebResourceLoaderModule>();
-	}
-
 	protected override void AddServices()
 	{
 		Services.AddImplementation<ResourceLoaderService>().For<ResourceLoaderService>().For<IResourceLoader>();
 	}
-
-#endregion
 }

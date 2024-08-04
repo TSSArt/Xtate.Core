@@ -19,13 +19,8 @@ using Xtate.IoC;
 
 namespace Xtate.Builder;
 
-public class StateMachineFluentBuilderModule : Module
+public class StateMachineFluentBuilderModule : Module<StateMachineBuilderModule>
 {
-	protected override void AddModules()
-	{
-		AddModule<StateMachineBuilderModule>();
-	}
-
 	protected override void AddServices()
 	{
 		Services.AddTypeSync<StateMachineFluentBuilder>();
