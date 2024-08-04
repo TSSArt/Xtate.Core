@@ -71,10 +71,10 @@ public class ScopeManager : IScopeManager
 				return _serviceScopeFactory.CreateScope(
 					services =>
 					{
-						services.AddForwarding(_ => stateMachine);
-						services.AddForwarding(_ => stateMachineStartOptions);
-						services.AddForwarding(_ => _stateMachineHost);
-						services.AddForwarding(_ => _stateMachineHostContext);
+						services.AddConstant(stateMachine);
+						services.AddConstant(stateMachineStartOptions);
+						services.AddConstant(_stateMachineHost);
+						services.AddConstant(_stateMachineHostContext);
 						services.AddImplementation<StateMachineRunner>().For<IStateMachineRunner>();
 					});
 			}
@@ -86,15 +86,15 @@ public class ScopeManager : IScopeManager
 				return _serviceScopeFactory.CreateScope(
 					services =>
 					{
-						services.AddForwarding<IScxmlStateMachine>(_ => scxmlStateMachine);
+						services.AddConstant<IScxmlStateMachine>(scxmlStateMachine);
 						if (stateMachineLocation is not null)
 						{
 							services.AddForwarding<IStateMachineLocation>(_ => stateMachineLocation);
 						}
 
-						services.AddForwarding(_ => stateMachineStartOptions);
-						services.AddForwarding(_ => _stateMachineHost);
-						services.AddForwarding(_ => _stateMachineHostContext);
+						services.AddConstant(stateMachineStartOptions);
+						services.AddConstant(_stateMachineHost);
+						services.AddConstant(_stateMachineHostContext);
 						services.AddImplementation<StateMachineRunner>().For<IStateMachineRunner>();
 					});
 			}
@@ -106,10 +106,10 @@ public class ScopeManager : IScopeManager
 				return _serviceScopeFactory.CreateScope(
 					services =>
 					{
-						services.AddForwarding<IStateMachineLocation>(_ => stateMachineLocation);
-						services.AddForwarding(_ => stateMachineStartOptions);
-						services.AddForwarding(_ => _stateMachineHost);
-						services.AddForwarding(_ => _stateMachineHostContext);
+						services.AddConstant<IStateMachineLocation>(stateMachineLocation);
+						services.AddConstant(stateMachineStartOptions);
+						services.AddConstant(_stateMachineHost);
+						services.AddConstant(_stateMachineHostContext);
 						services.AddImplementation<StateMachineRunner>().For<IStateMachineRunner>();
 					});
 			}

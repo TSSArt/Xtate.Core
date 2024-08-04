@@ -219,11 +219,11 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 
 		if (scxml is null)
 		{
-			services.AddForwarding<IStateMachineLocation>(_ => new StateMachineLocation(uri!));
+			services.AddConstant<IStateMachineLocation>(new StateMachineLocation(uri!));
 		}
 		else
 		{
-			services.AddForwarding<IScxmlStateMachine>(_ => new ScxmlStateMachine(scxml));
+			services.AddConstant<IScxmlStateMachine>(new ScxmlStateMachine(scxml));
 		}
 
 		var serviceProvider = services.BuildProvider();

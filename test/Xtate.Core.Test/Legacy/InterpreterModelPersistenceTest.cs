@@ -159,7 +159,7 @@ public class InterpreterModelPersistenceTest
 		var services = new ServiceCollection();
 		services.AddModule<StateMachineInterpreterModule>();
 		services.AddModule<StateMachineFactoryModule>();
-		services.AddForwarding<IStateMachineLocation>(_ => new StateMachineLocation(new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Legacy/test.scxml")));
+		services.AddConstant<IStateMachineLocation>(new StateMachineLocation(new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Legacy/test.scxml")));
 		services.AddImplementation<TestDataModelHandler>().For<IDataModelHandler>();
 		services.AddImplementation<DummyResourceLoader>().For<IResourceLoader>();
 		var serviceProvider = services.BuildProvider();
@@ -178,7 +178,7 @@ public class InterpreterModelPersistenceTest
 		var services = new ServiceCollection();
 		services.AddModule<StateMachineInterpreterModule>();
 		services.AddModule<StateMachineFactoryModule>();
-		services.AddForwarding<IStateMachineLocation>(_ => new StateMachineLocation(new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Legacy/test.scxml")));
+		services.AddConstant<IStateMachineLocation>(new StateMachineLocation(new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Legacy/test.scxml")));
 		services.AddImplementation<TestDataModelHandler>().For<IDataModelHandler>();
 		services.AddImplementation<DummyResourceLoader>().For<IResourceLoader>();
 		var serviceProvider = services.BuildProvider();
@@ -204,7 +204,7 @@ public class InterpreterModelPersistenceTest
 		var services2 = new ServiceCollection();
 		services2.AddModule<StateMachineInterpreterModule>();
 		services2.AddModule<StateMachineFactoryModule>();
-		services2.AddForwarding(_ => restoredStateMachine);
+		services2.AddConstant(restoredStateMachine);
 		services2.AddImplementation<TestDataModelHandler>().For<IDataModelHandler>();
 		services2.AddImplementation<DummyResourceLoader>().For<IResourceLoader>();
 		var serviceProvider2 = services2.BuildProvider();
@@ -231,12 +231,12 @@ public class InterpreterModelPersistenceTest
 		//var debugger = new ServiceProviderDebugger(writer);
 		var services = new ServiceCollection();
 
-		//services.AddForwarding<IServiceProviderDebugger>(s => debugger);
+		//services.AddConstant<IServiceProviderDebugger>(s => debugger);
 		services.AddModule<StateMachineInterpreterModule>();
 		services.AddModule<PersistenceModule>();
-		services.AddForwarding(_ => stateMachine);
+		services.AddConstant(stateMachine);
 		var storageProvider = new StateMachinePersistenceTest.TestStorage();
-		services.AddForwarding<IStorageProvider>(_ => storageProvider);
+		services.AddConstant<IStorageProvider>(storageProvider);
 		var serviceProvider = services.BuildProvider();
 		var model = await serviceProvider.GetRequiredService<IInterpreterModel>();
 		var storeSupport = model.Root.As<IStoreSupport>();
@@ -258,7 +258,7 @@ public class InterpreterModelPersistenceTest
 		var services2 = new ServiceCollection();
 		services2.AddModule<StateMachineInterpreterModule>();
 		services2.AddModule<StateMachineFactoryModule>();
-		services2.AddForwarding(_ => restoredStateMachine);
+		services2.AddConstant(restoredStateMachine);
 		services2.AddImplementation<TestDataModelHandler>().For<IDataModelHandler>();
 		services2.AddImplementation<DummyResourceLoader>().For<IResourceLoader>();
 		var serviceProvider2 = services2.BuildProvider();

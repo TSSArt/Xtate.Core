@@ -58,7 +58,7 @@ public class XPathDataModelTest
 		var services = new ServiceCollection();
 		services.AddModule<StateMachineHostModule>();
 
-		//services.AddForwarding<IServiceProviderDebugger>(_ => new ServiceProviderDebugger(new StreamWriter(File.Create(@"D:\Ser\s1.txt"))));
+		//services.AddConstant<IServiceProviderDebugger>(_ => new ServiceProviderDebugger(new StreamWriter(File.Create(@"D:\Ser\s1.txt"))));
 		var serviceProvider = services.BuildProvider();
 
 		var host = await serviceProvider.GetRequiredService<StateMachineHost>();
@@ -100,10 +100,10 @@ public class XPathDataModelTest
 
 		//var fileLogWriter = new FileLogWriter("D:\\Ser\\sss5.txt");
 		//var d = new ServiceProviderDebugger(new StreamWriter(File.Create("D:\\Ser\\sss6.txt", 1, FileOptions.WriteThrough), Encoding.UTF8, 1));
-		//services.AddForwarding<ILogWriter>(_ => fileLogWriter);
-		services.AddForwarding(_ => ub.Object);
+		//services.AddConstant<ILogWriter>(_ => fileLogWriter);
+		services.AddConstant(ub.Object);
 
-		//services.AddForwarding<IServiceProviderDebugger>(_ => d);
+		//services.AddConstant<IServiceProviderDebugger>(_ => d);
 		services.AddModule<StateMachineHostModule>();
 		var serviceProvider = services.BuildProvider();
 

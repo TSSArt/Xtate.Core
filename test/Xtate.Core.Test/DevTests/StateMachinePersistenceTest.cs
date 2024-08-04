@@ -47,7 +47,7 @@ public class StateMachinePersistenceTest
 
 		var sc = new ServiceCollection();
 		sc.AddModule<StateMachineFactoryModule>();
-		sc.AddForwarding<IStateMachineLocation>(_ => new StateMachineLocation(new Uri("res://Xtate.UnitTest/Xtate.UnitTest/Resources/All.xml")));
+		sc.AddConstant<IStateMachineLocation>(new StateMachineLocation(new Uri("res://Xtate.UnitTest/Xtate.UnitTest/Resources/All.xml")));
 		var sp = sc.BuildProvider();
 
 		_allStateMachine = sp.GetRequiredService<IStateMachine>().Result;
