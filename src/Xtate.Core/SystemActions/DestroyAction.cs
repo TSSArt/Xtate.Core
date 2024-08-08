@@ -19,9 +19,9 @@ using System.Xml;
 
 namespace Xtate.CustomAction;
 
-public class DestroyActionProvider() : CustomActionProvider<DestroyAction>(ns: "http://xtate.net/scxml/system", name: "destroy");
+public class DestroyActionProvider() : ActionProvider<DestroyAction>(ns: "http://xtate.net/scxml/system", name: "destroy");
 
-public class DestroyAction : CustomActionBase, IDisposable
+public class DestroyAction : AsyncAction, IDisposable
 {
 	private readonly DisposingToken _disposingToken = new();
 	private readonly StringValue    _sessionIdValue;
@@ -61,7 +61,9 @@ public class DestroyAction : CustomActionBase, IDisposable
 
 #endregion
 
-	public override async ValueTask Execute()
+	protected override IEnumerable<Value> GetValues() { yield return _sessionIdValue; }
+
+	protected override async ValueTask Execute()
 	{
 		var sessionId = await GetSessionId().ConfigureAwait(false);
 

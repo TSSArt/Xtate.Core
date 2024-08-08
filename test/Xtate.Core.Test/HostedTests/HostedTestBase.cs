@@ -25,7 +25,7 @@ namespace Xtate.Test.HostedTests;
 
 public abstract class HostedTestBase
 {
-	protected StateMachineHost       Host      { get; private set; } = default!;
+	protected StateMachineHost Host      { get; private set; } = default!;
 	protected Mock<ILogWriter> LogWriter { get; private set; } = default!;
 
 	[TestInitialize]
@@ -44,8 +44,8 @@ public abstract class HostedTestBase
 		*/
 		var sc = new ServiceCollection();
 		sc.AddModule<StateMachineHostModule>();
-		sc.AddSharedImplementationSync<StartActionProvider>(SharedWithin.Scope).For<ICustomActionProvider>();
-		sc.AddSharedImplementationSync<DestroyActionProvider>(SharedWithin.Scope).For<ICustomActionProvider>();
+		sc.AddSharedImplementationSync<StartActionProvider>(SharedWithin.Scope).For<IActionProvider>();
+		sc.AddSharedImplementationSync<DestroyActionProvider>(SharedWithin.Scope).For<IActionProvider>();
 		sc.AddTypeSync<StartAction, XmlReader>();
 		sc.AddTypeSync<DestroyAction, XmlReader>();
 		sc.AddConstant(LogWriter.Object);

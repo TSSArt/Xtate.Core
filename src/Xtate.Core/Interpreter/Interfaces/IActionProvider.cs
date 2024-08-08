@@ -17,7 +17,7 @@
 
 namespace Xtate.CustomAction;
 
-public interface ICustomActionProvider
+public interface IActionProvider
 {
-	ICustomActionActivator? TryGetActivator(string ns, string name);
+	IActionActivator? TryGetActivator(string ns, string name);
 }
