@@ -38,6 +38,6 @@ public class DataModelHandlerBaseModule : Module<LoggingModule>
 		Services.AddTypeSync<DefaultSendEvaluator, ISend>();
 
 		Services.AddTypeSync<CustomActionContainer, ICustomAction>();
-		Services.AddFactorySync<CustomActionFactory>().For<CustomActionBase, ICustomAction>();
+		Services.AddFactorySync<CustomActionFactory>().For<IAction, ICustomAction>();
 	}
 }
