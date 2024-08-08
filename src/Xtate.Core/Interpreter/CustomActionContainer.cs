@@ -21,10 +21,10 @@ namespace Xtate.CustomAction;
 
 public class CustomActionContainer : ICustomAction, IAncestorProvider
 {
-	private readonly ICustomAction    _customAction;
-	private readonly CustomActionBase _customActionBase;
+	private readonly IAction       _action;
+	private readonly ICustomAction _customAction;
 
-	public CustomActionContainer(ICustomAction customAction, Func<ICustomAction, CustomActionBase> customActionFactory)
+	public CustomActionContainer(ICustomAction customAction, Func<ICustomAction, IAction> customActionFactory)
 	{
 		Infra.Requires(customAction);
 		Infra.Requires(customActionFactory);
@@ -34,10 +34,10 @@ public class CustomActionContainer : ICustomAction, IAncestorProvider
 
 		_customAction = customAction;
 
-		_customActionBase = customActionFactory(customAction);
+		_action = customActionFactory(customAction);
 
 		var valueExpressions = ImmutableArray.CreateBuilder<IValueExpression>();
-		foreach (var value in _customActionBase.GetValues())
+		foreach (var value in _action.GetValues())
 		{
 			if (value is IValueExpression { Expression: not null } valueExpression)
 			{
@@ -48,7 +48,7 @@ public class CustomActionContainer : ICustomAction, IAncestorProvider
 		Values = valueExpressions.ToImmutable();
 
 		var locationExpressions = ImmutableArray.CreateBuilder<ILocationExpression>();
-		foreach (var location in _customActionBase.GetLocations())
+		foreach (var location in _action.GetLocations())
 		{
 			if (location is ILocationExpression { Expression: not null } locationExpression)
 			{
@@ -83,14 +83,14 @@ public class CustomActionContainer : ICustomAction, IAncestorProvider
 	{
 		foreach (var value in values)
 		{
-			value.As<CustomActionBase.Value>().SetEvaluator(value.As<IValueEvaluator>());
+			value.As<IActionValue>().SetEvaluator(value.As<IValueEvaluator>());
 		}
 
 		foreach (var location in locations)
 		{
-			location.As<CustomActionBase.Location>().SetEvaluator(location.As<ILocationEvaluator>());
+			location.As<IActionLocation>().SetEvaluator(location.As<ILocationEvaluator>());
 		}
 	}
 
-	public virtual ValueTask Execute() => _customActionBase.Execute();
+	public virtual ValueTask Execute() => _action.Execute();
 }

@@ -19,9 +19,9 @@ using System.Xml;
 
 namespace Xtate.CustomAction;
 
-public class StartActionProvider() : CustomActionProvider<StartAction>(ns: "http://xtate.net/scxml/system", name: "start");
+public class StartActionProvider() : ActionProvider<StartAction>(ns: "http://xtate.net/scxml/system", name: "start");
 
-public class StartAction : CustomActionBase, IDisposable
+public class StartAction : AsyncAction, IDisposable
 {
 	private readonly DisposingToken _disposingToken = new();
 	private readonly Location?      _sessionIdLocation;
@@ -77,8 +77,8 @@ public class StartAction : CustomActionBase, IDisposable
 		_trusted = xmlReader.GetAttribute("trusted") is { } trusted && XmlConvert.ToBoolean(trusted);
 	}
 
-	public required Func<ValueTask<IDataModelController>>  DataModelControllerFactory  { private get; [UsedImplicitly] init; }
-	
+	public required Func<ValueTask<IDataModelController>> DataModelControllerFactory { private get; [UsedImplicitly] init; }
+
 	public required Func<ValueTask<IStateMachineLocation?>> StateMachineLocationFactory { private get; [UsedImplicitly] init; }
 
 	public required Func<ValueTask<IHost>> HostFactory { private get; [UsedImplicitly] init; }
@@ -101,7 +101,7 @@ public class StartAction : CustomActionBase, IDisposable
 		}
 	}
 
-	public override IEnumerable<Location> GetLocations()
+	protected override IEnumerable<Location> GetLocations()
 	{
 		if (_sessionIdLocation is not null)
 		{
@@ -109,7 +109,7 @@ public class StartAction : CustomActionBase, IDisposable
 		}
 	}
 
-	public override IEnumerable<Value> GetValues()
+	protected override IEnumerable<Value> GetValues()
 	{
 		yield return _urlValue;
 
@@ -119,7 +119,7 @@ public class StartAction : CustomActionBase, IDisposable
 		}
 	}
 
-	public override async ValueTask Execute()
+	protected override async ValueTask Execute()
 	{
 		var sessionId = await GetSessionId().ConfigureAwait(false);
 		var securityContextType = _trusted ? SecurityContextType.NewTrustedStateMachine : SecurityContextType.NewStateMachine;
@@ -136,17 +136,13 @@ public class StartAction : CustomActionBase, IDisposable
 		}
 	}
 
-	private async ValueTask<Uri?> GetBaseUri()
-	{
+	private async ValueTask<Uri?> GetBaseUri() =>
+
 		//var dataModelController = await DataModelControllerFactory().ConfigureAwait(false);
+		(await StateMachineLocationFactory().ConfigureAwait(false))?.Location;
 
-		return (await StateMachineLocationFactory().ConfigureAwait(false))?.Location;
-
-		//var value = dataModelController.DataModel["_x"].AsListOrEmpty()["host"].AsListOrEmpty()["location"].AsStringOrDefault();
-
-		//return value is not null ? new Uri(value, UriKind.RelativeOrAbsolute) : null;
-	}
-
+	//var value = dataModelController.DataModel["_x"].AsListOrEmpty()["host"].AsListOrEmpty()["location"].AsStringOrDefault();
+	//return value is not null ? new Uri(value, UriKind.RelativeOrAbsolute) : null;
 	private async ValueTask<Uri> GetSource()
 	{
 		var url = await _urlValue.GetValue().ConfigureAwait(false);

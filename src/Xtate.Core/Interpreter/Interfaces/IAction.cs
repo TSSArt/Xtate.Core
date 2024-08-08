@@ -17,7 +17,11 @@
 
 namespace Xtate.CustomAction;
 
-public interface ICustomActionActivator
+public interface IAction
 {
-	CustomActionBase Activate(string xml);
+	IEnumerable<IActionValue> GetValues();
+
+	IEnumerable<IActionLocation> GetLocations();
+
+	ValueTask Execute();
 }

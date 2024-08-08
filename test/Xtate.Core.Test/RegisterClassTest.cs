@@ -27,18 +27,18 @@ using Xtate.XInclude;
 
 namespace Xtate.Core.Test;
 
-public class MyActionProvider() : CustomActionProvider<MyAction>(ns: "http://xtate.net/scxml/customaction/my", name: "myAction");
+public class MyActionProvider() : ActionProvider<MyAction>(ns: "http://xtate.net/scxml/customaction/my", name: "myAction");
 
-public class MyAction(XmlReader xmlReader) : CustomActionBase
+public class MyAction(XmlReader xmlReader) : SyncAction
 {
 	private readonly ObjectValue _input  = new(xmlReader.GetAttribute("sourceExpr"), xmlReader.GetAttribute("source"));
 	private readonly Location    _output = new(xmlReader.GetAttribute("destination"));
 
-	public override IEnumerable<Value> GetValues() { yield return _input; }
+	protected override IEnumerable<Value> GetValues() { yield return _input; }
 
-	public override IEnumerable<Location> GetLocations() { yield return _output; }
+	protected override IEnumerable<Location> GetLocations() { yield return _output; }
 
-	public override async ValueTask Execute() => await _output.SetValue(await _input.GetValue());
+	protected override DataModelValue Evaluate() => _input.Value;
 }
 
 [TestClass]
@@ -383,7 +383,7 @@ public class RegisterClassTest
 
 		var services2 = new ServiceCollection();
 		services2.AddModule<InterpreterModelBuilderModule>();
-		services2.AddSharedImplementationSync<MyActionProvider>(SharedWithin.Scope).For<ICustomActionProvider>();
+		services2.AddSharedImplementationSync<MyActionProvider>(SharedWithin.Scope).For<IActionProvider>();
 		services2.AddTypeSync<MyAction, XmlReader>();
 		services2.AddConstant(provider.GetRequiredServiceSync<INameTableProvider>());
 		services2.AddConstant(stateMachine);
