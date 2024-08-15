@@ -22,6 +22,9 @@ namespace Xtate;
 [ExcludeFromCodeCoverage]
 public static class Infra
 {
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static bool IsNullOrEmpty([NotNullWhen(false)] string? value) => string.IsNullOrEmpty(value);
+
 	/// <summary>
 	///     Checks for a condition; if the condition is <see langword="false" />, throws
 	///     <see cref="InfrastructureException" /> exception.

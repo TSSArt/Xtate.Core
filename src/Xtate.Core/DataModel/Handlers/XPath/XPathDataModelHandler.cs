@@ -15,7 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.Diagnostics;
 using System.Xml.XPath;
 using Xtate.Scxml;
 
@@ -75,7 +74,7 @@ public class XPathDataModelHandler : DataModelHandlerBase
 
 	private void CompileValueExpression(ref IValueExpression valueExpression)
 	{
-		Debug.Assert(valueExpression.Expression is not null);
+		Infra.NotNull(valueExpression.Expression);
 
 		var xmlNamespacesInfo = valueExpression.Is<IXmlNamespacesInfo>(out var info) ? info : default;
 		var compiledExpression = XPathCompiledExpressionFactory(valueExpression.Expression, xmlNamespacesInfo);
@@ -127,7 +126,7 @@ public class XPathDataModelHandler : DataModelHandlerBase
 
 	private void CompileConditionExpression(ref IConditionExpression conditionExpression)
 	{
-		Debug.Assert(conditionExpression.Expression is not null);
+		Infra.NotNull(conditionExpression.Expression);
 
 		var xmlNamespacesInfo = conditionExpression.Is<IXmlNamespacesInfo>(out var info) ? info : default;
 		var compiledExpression = XPathCompiledExpressionFactory(conditionExpression.Expression, xmlNamespacesInfo);
@@ -182,7 +181,7 @@ public class XPathDataModelHandler : DataModelHandlerBase
 
 	private void CompileLocationExpression(ref ILocationExpression locationExpression)
 	{
-		Debug.Assert(locationExpression.Expression is not null);
+		Infra.NotNull(locationExpression.Expression);
 
 		var xmlNamespacesInfo = locationExpression.Is<IXmlNamespacesInfo>(out var info) ? info : default;
 		var compiledExpression = XPathCompiledExpressionFactory(locationExpression.Expression, xmlNamespacesInfo);

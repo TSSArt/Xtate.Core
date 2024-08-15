@@ -20,14 +20,12 @@ namespace Xtate.Persistence;
 internal sealed class StateMachineHostClusterContext(StateMachineHost stateMachineHost, StateMachineHostOptions options)
 	: StateMachineHostContext(stateMachineHost, options, new PersistedEventSchedulerFactory(options))
 {
+	[Obsolete]
 	protected override StateMachineControllerBase CreateStateMachineController(SessionId sessionId,
 																			   IStateMachine? stateMachine,
 																			   IStateMachineOptions? stateMachineOptions,
 																			   Uri? stateMachineLocation,
 																			   InterpreterOptions defaultOptions
-
-		//SecurityContext securityContext,
-		//DeferredFinalizer finalizer
 	) =>
 		new StateMachineSingleMacroStepController(sessionId, stateMachineOptions, stateMachine, stateMachineLocation, stateMachineHost, defaultOptions)
 		{

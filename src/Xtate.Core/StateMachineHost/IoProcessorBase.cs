@@ -43,23 +43,21 @@ public abstract class IoProcessorBase : IIoProcessor
 
 	ValueTask IIoProcessor.Dispatch(IHostEvent hostEvent, CancellationToken token) => OutgoingEvent(hostEvent, token);
 
-	bool IIoProcessor.CanHandle(Uri? type) => FullUriComparer.Instance.Equals(type, IoProcessorId) || FullUriComparer.Instance.Equals(type, _ioProcessorAliasId);
+	bool IIoProcessor.CanHandle(Uri? type) => IsTypesEquals(type, IoProcessorId) || IsTypesEquals(type, _ioProcessorAliasId);
 
 	Uri IIoProcessor.Id => IoProcessorId;
 
 #endregion
+
+	private static bool IsTypesEquals(Uri? typeA, Uri? typeB) => typeA is not null && typeB is not null && FullUriComparer.Instance.Equals(typeA, typeB);
 
 	protected abstract Uri? GetTarget(ServiceId serviceId);
 
 	protected virtual ValueTask<IHostEvent> CreateHostEventAsync(ServiceId senderServiceId, IOutgoingEvent outgoingEvent, CancellationToken token) =>
 		new(CreateHostEvent(senderServiceId, outgoingEvent));
 
-	protected virtual IHostEvent CreateHostEvent(ServiceId senderServiceId, IOutgoingEvent outgoingEvent)
-	{
-		if (outgoingEvent is null) throw new ArgumentNullException(nameof(outgoingEvent));
-
-		return new HostEvent(this, senderServiceId, outgoingEvent.Target is { } target ? UriId.FromUri(target) : null, outgoingEvent);
-	}
+	protected virtual IHostEvent CreateHostEvent(ServiceId senderServiceId, IOutgoingEvent outgoingEvent) =>
+		new HostEvent(this, senderServiceId, outgoingEvent.Target is { } target ? UriId.FromUri(target) : null, outgoingEvent);
 
 	protected abstract ValueTask OutgoingEvent(IHostEvent hostEvent, CancellationToken token);
 

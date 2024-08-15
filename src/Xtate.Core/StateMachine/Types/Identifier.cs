@@ -50,7 +50,7 @@ public sealed class Identifier : LazyId, IIdentifier, IEquatable<IIdentifier>
 
 	public static bool TryCreate([Localizable(false)] string? value, [NotNullWhen(true)] out Identifier? identifier)
 	{
-		if (string.IsNullOrEmpty(value))
+		if (Infra.IsNullOrEmpty(value))
 		{
 			identifier = default;
 

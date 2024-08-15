@@ -58,7 +58,7 @@ public sealed class InFunction : XPathFunctionDescriptorBase
 				do
 				{
 					var id = iterator.Current?.Value;
-					if (string.IsNullOrEmpty(id) || !_inStateController.InState((Identifier) id))
+					if (Infra.IsNullOrEmpty(id) || !_inStateController.InState((Identifier) id))
 					{
 						return false;
 					}

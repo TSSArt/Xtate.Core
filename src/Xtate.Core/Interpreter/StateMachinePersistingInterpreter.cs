@@ -69,12 +69,12 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 	private const int KeyIndex   = 0;
 	private const int ValueIndex = 1;
 
-	private readonly IInterpreterModel? _interpreterModel;
+	private readonly IInterpreterModel? _interpreterModel = default;
 
 	//private readonly IStateMachineInterpreterOptions? _options;
 	//private readonly IPersistenceContext?             _persistenceContext;
 
-	private readonly Bucket _stateBucket;
+	private readonly Bucket _stateBucket = default;
 	private          int    _stateBucketIndex;
 	private          int    _stateBucketSubIndex;
 

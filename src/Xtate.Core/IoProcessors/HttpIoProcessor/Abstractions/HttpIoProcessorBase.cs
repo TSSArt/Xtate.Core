@@ -27,7 +27,14 @@ using System.Text;
 
 namespace Xtate.IoProcessor;
 
-public abstract class HttpIoProcessorBase<THost, TContext> : IoProcessorBase, IDisposable, IAsyncDisposable where THost : HttpIoProcessorHostBase<THost, TContext>
+public abstract class HttpIoProcessorBase<THost, TContext>(
+	IEventConsumer eventConsumer,
+	Uri baseUri,
+	IPEndPoint ipEndPoint,
+	string id,
+	string? alias,
+	string errorSuffix)
+	: IoProcessorBase(eventConsumer, id, alias), IDisposable, IAsyncDisposable where THost : HttpIoProcessorHostBase<THost, TContext>
 {
 	private const string MediaTypeTextPlain                 = @"text/plain";
 	private const string MediaTypeApplicationJson           = @"application/json";
@@ -40,23 +47,10 @@ public abstract class HttpIoProcessorBase<THost, TContext> : IoProcessorBase, ID
 
 	private static readonly ConcurrentDictionary<IPEndPoint, THost> Hosts = new();
 
-	private readonly Uri        _baseUri;
-	private readonly string     _errorSuffix;
-	private readonly string     _path;
-	private          IPEndPoint _ipEndPoint;
-
-	protected HttpIoProcessorBase(IEventConsumer eventConsumer,
-								  Uri baseUri,
-								  IPEndPoint ipEndPoint,
-								  string id,
-								  string? alias,
-								  string errorSuffix) : base(eventConsumer, id, alias)
-	{
-		_baseUri = baseUri ?? throw new ArgumentNullException(nameof(baseUri));
-		_path = baseUri.GetComponents(UriComponents.Path, UriFormat.Unescaped);
-		_ipEndPoint = ipEndPoint;
-		_errorSuffix = errorSuffix;
-	}
+	private readonly Uri        _baseUri     = baseUri ?? throw new ArgumentNullException(nameof(baseUri));
+	private readonly string     _errorSuffix = errorSuffix;
+	private readonly string     _path        = baseUri.GetComponents(UriComponents.Path, UriFormat.Unescaped);
+	private          IPEndPoint _ipEndPoint  = ipEndPoint;
 
 #region Interface IAsyncDisposable
 
@@ -79,7 +73,6 @@ public abstract class HttpIoProcessorBase<THost, TContext> : IoProcessorBase, ID
 
 #endregion
 
-	[SuppressMessage(category: "ReSharper", checkId: "SuspiciousTypeConversion.Global")]
 	protected virtual async ValueTask DisposeAsyncCore()
 	{
 		if (Hosts.TryGetValue(_ipEndPoint, out var host))
@@ -92,7 +85,6 @@ public abstract class HttpIoProcessorBase<THost, TContext> : IoProcessorBase, ID
 		}
 	}
 
-	[SuppressMessage(category: "ReSharper", checkId: "SuspiciousTypeConversion.Global")]
 	protected virtual void Dispose(bool dispose)
 	{
 		if (Hosts.TryGetValue(_ipEndPoint, out var host))
@@ -191,7 +183,7 @@ public abstract class HttpIoProcessorBase<THost, TContext> : IoProcessorBase, ID
 		var content = GetContent(hostEvent, out var eventNameInContent);
 		if (!hostEvent.NameParts.IsDefaultOrEmpty && !eventNameInContent)
 		{
-			targetUri = QueryStringHelper.AddQueryString(targetUri, EventNameParameterName, EventName.ToName(hostEvent.NameParts));
+			targetUri = QueryStringHelper.AddQueryString(targetUri, EventNameParameterName, EventName.ToName(hostEvent.NameParts)!);
 		}
 
 		using var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, targetUri);

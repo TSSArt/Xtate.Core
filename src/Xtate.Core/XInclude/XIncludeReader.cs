@@ -201,7 +201,7 @@ public class XIncludeReader : DelegatedXmlReader
 	{
 		ExtractIncludeElementAttributes();
 
-		if (string.IsNullOrEmpty(_hrefValue))
+		if (Infra.IsNullOrEmpty(_hrefValue))
 		{
 			throw new XIncludeException(Resources.Exception_IndocumentReferencesNotSupported, InnerReader);
 		}
@@ -403,10 +403,8 @@ public class XIncludeReader : DelegatedXmlReader
 		return Encoding.UTF8;
 	}
 
-	private struct Strings
+	private struct Strings(XmlNameTable nameTable)
 	{
-		private readonly XmlNameTable _nameTable;
-
 		private string? _accept;
 		private string? _acceptLanguage;
 		private string? _encoding;
@@ -416,16 +414,14 @@ public class XIncludeReader : DelegatedXmlReader
 		private string? _xInclude1Ns;
 		private string? _xInclude2Ns;
 
-		public Strings(XmlNameTable nameTable) : this() => _nameTable = nameTable;
-
-		public string Accept         => _accept ??= _nameTable.Add(@"accept");
-		public string AcceptLanguage => _acceptLanguage ??= _nameTable.Add(@"accept-language");
-		public string Encoding       => _encoding ??= _nameTable.Add(@"encoding");
-		public string Href           => _href ??= _nameTable.Add(@"href");
-		public string Include        => _include ??= _nameTable.Add(@"include");
-		public string Parse          => _parse ??= _nameTable.Add(@"parse");
-		public string XInclude1Ns    => _xInclude1Ns ??= _nameTable.Add(@"http://www.w3.org/2001/XInclude");
-		public string XInclude2Ns    => _xInclude2Ns ??= _nameTable.Add(@"http://www.w3.org/2003/XInclude");
+		public string Accept         => _accept ??= nameTable.Add(@"accept");
+		public string AcceptLanguage => _acceptLanguage ??= nameTable.Add(@"accept-language");
+		public string Encoding       => _encoding ??= nameTable.Add(@"encoding");
+		public string Href           => _href ??= nameTable.Add(@"href");
+		public string Include        => _include ??= nameTable.Add(@"include");
+		public string Parse          => _parse ??= nameTable.Add(@"parse");
+		public string XInclude1Ns    => _xInclude1Ns ??= nameTable.Add(@"http://www.w3.org/2001/XInclude");
+		public string XInclude2Ns    => _xInclude2Ns ??= nameTable.Add(@"http://www.w3.org/2003/XInclude");
 	}
 
 	private class StreamResource(Stream stream) : IXIncludeResource
