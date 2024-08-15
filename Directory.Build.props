@@ -1,7 +1,13 @@
 ﻿<Project>
 
 	<PropertyGroup>
-		<LangVersion>12</LangVersion>
+		<LangVersion Condition="$(LangVersion)==''">12</LangVersion>
+		<Nullable Condition="$(Nullable)==''">enable</Nullable>
+		<EnableNETAnalyzers Condition="$(EnableNETAnalyzers)==''">true</EnableNETAnalyzers>
+		<EnforceCodeStyleInBuild Condition="$(EnforceCodeStyleInBuild)==''">true</EnforceCodeStyleInBuild>
+	</PropertyGroup>
+
+	<PropertyGroup>
 		<Product>Xtate</Product>
 		<Company>T.S.S.Art</Company>
 		<Authors>Sergii Artemenko</Authors>
