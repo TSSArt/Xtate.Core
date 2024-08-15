@@ -51,7 +51,7 @@ public class DefaultCancelEvaluator : CancelEvaluator
 	{
 		var sendId = _sendIdExpressionEvaluator is not null ? await _sendIdExpressionEvaluator.EvaluateString().ConfigureAwait(false) : base.SendId;
 
-		if (string.IsNullOrEmpty(sendId))
+		if (Infra.IsNullOrEmpty(sendId))
 		{
 			throw new ExecutionException(Resources.Exception_SendIdIsEmpty);
 		}
