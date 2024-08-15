@@ -26,5 +26,8 @@ public class DataModelHandlerGetter
 	public required IStateMachine? StateMachine { private get; [UsedImplicitly] init; }
 
 	[UsedImplicitly]
-	public virtual ValueTask<IDataModelHandler?> GetDataModelHandler() => StateMachine is not null ? DataModelHandlerService.GetDataModelHandler(StateMachine.DataModelType) : default;
+	public virtual async ValueTask<IDataModelHandler?> GetDataModelHandler() =>
+		StateMachine is not null
+			? await DataModelHandlerService.GetDataModelHandler(StateMachine.DataModelType).ConfigureAwait(false)
+			: default;
 }
