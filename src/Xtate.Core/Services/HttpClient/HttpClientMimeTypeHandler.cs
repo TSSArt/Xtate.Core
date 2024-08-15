@@ -24,7 +24,7 @@ public abstract class HttpClientMimeTypeHandler
 {
 	protected static bool ContentTypeEquals(string? contentTypeA, string? contentTypeB)
 	{
-		if (string.IsNullOrEmpty(contentTypeA) || string.IsNullOrEmpty(contentTypeB))
+		if (Infra.IsNullOrEmpty(contentTypeA) || Infra.IsNullOrEmpty(contentTypeB))
 		{
 			return false;
 		}
