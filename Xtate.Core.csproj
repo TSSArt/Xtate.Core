@@ -4,7 +4,6 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>net8.0;netstandard2.0;net462</TargetFrameworks>
-		<Nullable>enable</Nullable>
 		<RepositoryUrl>https://github.com/TSSArt/Xtate.Core</RepositoryUrl>
 		<PackageId>Xtate.Core</PackageId>
 	</PropertyGroup>
@@ -22,7 +21,6 @@
 	<ItemGroup>
 		<PackageReference Include="Xtate.SharedContent" Version="0.*" />
 		<PackageReference Include="System.Threading.Channels" Version="8.0.0" />
-		<PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0" PrivateAssets="all" />
 		<PackageReference Include="ConfigureAwaitChecker.Analyzer" Version="5.0.0.1" PrivateAssets="all" />
 	</ItemGroup>
 
@@ -34,6 +32,7 @@
 
 	<ItemGroup Condition="'$(UseProjectReference)'=='true'">
 		<ProjectReference Include="$(XtateIoCRepoPath)src\Xtate.IoC\Xtate.IoC.csproj" />
+		<ProjectReference Include="$(XtateAnalyzersRepoPath)\src\Xtate.Analyzers\Xtate.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(UseProjectReference)'==''">
@@ -41,20 +40,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Compile Update="Properties\Resources.Designer.cs">
-			<DesignTime>True</DesignTime>
-			<AutoGen>True</AutoGen>
-			<DependentUpon>Resources.resx</DependentUpon>
-		</Compile>
-	</ItemGroup>
-
-	<ItemGroup>
-		<EmbeddedResource Update="Properties\Resources.resx">
-			<Generator>ResXFileCodeGenerator</Generator>
-			<LastGenOutput>Resources.Designer.cs</LastGenOutput>
-			<CustomToolNamespace>Xtate</CustomToolNamespace>
-			<SubType>Designer</SubType>
-		</EmbeddedResource>
+		<Compile Update="Properties\Resources.Designer.cs" DesignTime="True" AutoGen="True" DependentUpon="Resources.resx" />
+		<EmbeddedResource Update="Properties\Resources.resx" Generator="ResXFileCodeGenerator" LastGenOutput="Resources.Designer.cs" CustomToolNamespace="Xtate" SubType="Designer" />
 	</ItemGroup>
 
 </Project>
