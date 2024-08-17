@@ -178,6 +178,7 @@ public class DataModelXPathNavigatorTest
 		vNav.MoveToFirstChild();
 
 		// act
+		// ReSharper disable once AssignNullToNotNullAttribute
 		vNav.ReplaceChildren(new XPathObject(nNav.Evaluate("child::*")));
 
 		// assert
@@ -222,14 +223,13 @@ public class DataModelXPathNavigatorTest
 							   { "item", "val1" },
 							   { "item", "val2" }
 						   },
-						   new DataModelList
-						   {
+						   [
 							   "prefix",
 							   "namespace-uri",
 							   "attr1", "aVal1", "", "",
 							   "attr2", "aVal2", "pfx", "attr-ns",
 							   "myNs", "myNamespace", "", "http://www.w3.org/2000/xmlns/"
-						   }
+						   ]
 					   }
 				   };
 

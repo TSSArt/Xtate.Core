@@ -21,10 +21,11 @@ using System.Xml;
 
 namespace Xtate.CustomAction;
 
-public abstract class ActionProvider<TCustomAction>([Localizable(false)] string ns, [Localizable(false)] string name)
-	: IActionProvider, IActionActivator where TCustomAction : IAction
+public abstract class ActionProvider<TCustomAction>([Localizable(false)] string ns, [Localizable(false)] string name) : IActionProvider, IActionActivator
+	where TCustomAction : IAction
 {
-	private readonly NameTable _nameTable = default!;
+	private readonly (string, string) _fqName    = (ns, name);
+	private readonly NameTable        _nameTable = default!;
 
 	public required Func<XmlReader, TCustomAction> CustomActionFactory { private get; [UsedImplicitly] init; }
 
@@ -35,10 +36,9 @@ public abstract class ActionProvider<TCustomAction>([Localizable(false)] string 
 		{
 			Infra.Requires(value);
 
-			_nameTable = value.GetNameTable();
+			var nt = _nameTable = value.GetNameTable();
 
-			ns = _nameTable.Add(ns);
-			name = _nameTable.Add(name);
+			_fqName = (nt.Add(_fqName.Item1), nt.Add(_fqName.Item2));
 		}
 	}
 
@@ -55,8 +55,7 @@ public abstract class ActionProvider<TCustomAction>([Localizable(false)] string 
 
 		xmlReader.MoveToContent();
 
-		Infra.Assert(xmlReader.NamespaceURI == ns);
-		Infra.Assert(xmlReader.LocalName == name);
+		Infra.Assert((xmlReader.NamespaceURI, xmlReader.LocalName) == _fqName);
 
 		return CustomActionFactory(xmlReader);
 	}
@@ -65,7 +64,7 @@ public abstract class ActionProvider<TCustomAction>([Localizable(false)] string 
 
 #region Interface IActionProvider
 
-	public virtual IActionActivator? TryGetActivator(string ns1, string name1) => ns == ns1 && name1 == name ? this : default;
+	public virtual IActionActivator? TryGetActivator(string ns, string name) => (ns, name) == _fqName ? this : default;
 
 #endregion
 }

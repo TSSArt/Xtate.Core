@@ -118,7 +118,7 @@ internal sealed class OrderedSetPersistingController<T> : IDisposable where T : 
 				break;
 
 			default:
-				throw Infra.Unexpected<Exception>(action);
+				throw Infra.Unmatched(action);
 		}
 	}
 }

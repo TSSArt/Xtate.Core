@@ -94,8 +94,7 @@ public class XPathDataModelHandler : DataModelHandlerBase
 				break;
 
 			default:
-				Infra.Unexpected(compiledExpression.ReturnType);
-				break;
+				throw Infra.Unmatched(compiledExpression.ReturnType);
 		}
 	}
 
@@ -149,8 +148,7 @@ public class XPathDataModelHandler : DataModelHandlerBase
 				break;
 
 			default:
-				Infra.Unexpected(compiledExpression.ReturnType);
-				break;
+				throw Infra.Unmatched(compiledExpression.ReturnType);
 		}
 	}
 
@@ -204,8 +202,7 @@ public class XPathDataModelHandler : DataModelHandlerBase
 				break;
 
 			default:
-				Infra.Unexpected(compiledExpression.ReturnType);
-				break;
+				throw Infra.Unmatched(compiledExpression.ReturnType);
 		}
 	}
 

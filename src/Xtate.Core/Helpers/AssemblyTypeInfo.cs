@@ -19,6 +19,7 @@ using System.Reflection;
 
 namespace Xtate.Core;
 
+[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
 public class AssemblyTypeInfo(Type type) : IAssemblyTypeInfo
 {
 #region Interface IAssemblyTypeInfo

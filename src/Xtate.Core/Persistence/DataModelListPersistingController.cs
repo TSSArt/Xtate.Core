@@ -80,10 +80,11 @@ internal sealed class DataModelListPersistingController : DataModelPersistingCon
 
 				break;
 
-			case DataModelList.ChangeAction.SetMetadata: break;
-			default:
-				Infra.Unexpected(action);
+			case DataModelList.ChangeAction.SetMetadata: 
 				break;
+			
+			default:
+				throw Infra.Unmatched(action);
 		}
 	}
 
@@ -181,8 +182,7 @@ internal sealed class DataModelListPersistingController : DataModelPersistingCon
 					break;
 				}
 				default:
-					Infra.Unexpected(operation);
-					break;
+					throw Infra.Unmatched(operation);
 			}
 
 			_record ++;
@@ -354,7 +354,8 @@ internal sealed class DataModelListPersistingController : DataModelPersistingCon
 				break;
 			}
 
-			default: throw Infra.Unexpected<Exception>(action);
+			default: 
+				throw Infra.Unmatched(action);
 		}
 	}
 

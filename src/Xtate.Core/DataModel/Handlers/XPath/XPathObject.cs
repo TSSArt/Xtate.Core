@@ -29,7 +29,7 @@ public class XPathObject(object value) : IObject
 										 string            => value,
 										 double            => value,
 										 bool              => value,
-										 _                 => Infra.Unexpected<object>(value)
+										 _                 => throw Infra.Unmatched(value?.GetType())
 									 };
 
 	public XPathObjectType Type =>
@@ -39,7 +39,7 @@ public class XPathObject(object value) : IObject
 			double            => XPathObjectType.Number,
 			string            => XPathObjectType.String,
 			bool              => XPathObjectType.Boolean,
-			_                 => Infra.Unexpected<XPathObjectType>(_value)
+			_                 => throw Infra.Unmatched(_value?.GetType())
 		};
 
 #region Interface IObject
@@ -72,7 +72,7 @@ public class XPathObject(object value) : IObject
 			string value               => XmlConvert.ToInt32(value),
 			double value               => (int) value,
 			bool value                 => value ? 1 : 0,
-			_                          => Infra.Unexpected<int>(_value)
+			_                          => throw Infra.Unmatched(_value?.GetType())
 		};
 
 	public string AsString() =>
@@ -82,7 +82,7 @@ public class XPathObject(object value) : IObject
 			string value               => value,
 			double value               => XmlConvert.ToString(value),
 			bool value                 => XmlConvert.ToString(value),
-			_                          => Infra.Unexpected<string>(_value)
+			_                          => throw Infra.Unmatched(_value?.GetType())
 		};
 
 	public bool AsBoolean() =>
@@ -92,7 +92,7 @@ public class XPathObject(object value) : IObject
 			string value               => XmlConvert.ToBoolean(value),
 			double value               => value != 0,
 			bool value                 => value,
-			_                          => Infra.Unexpected<bool>(_value)
+			_                          => throw Infra.Unmatched(_value?.GetType())
 		};
 
 	public XPathNodeIterator AsIterator() => ((XPathNodeIterator) _value).Clone();
@@ -121,7 +121,7 @@ public class XPathObject(object value) : IObject
 					break;
 
 				default:
-					return Infra.Unexpected<DataModelList>(navigator.NodeType);
+					throw Infra.Unmatched(navigator.NodeType);
 			}
 		}
 
@@ -173,7 +173,7 @@ public class XPathObject(object value) : IObject
 					break;
 
 				default:
-					return Infra.Unexpected<DataModelList>(navigator.NodeType);
+					throw Infra.Unmatched(navigator.NodeType);
 			}
 		}
 

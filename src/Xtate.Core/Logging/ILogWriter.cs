@@ -28,7 +28,7 @@ public interface ILogWriter
 					IAsyncEnumerable<LoggingParameter>? parameters = default);
 }
 
-public interface ILogWriter<TSource>
+public interface ILogWriter<[UsedImplicitly] TSource>
 {
 	bool IsEnabled(Level level);
 

@@ -41,7 +41,7 @@ public sealed class Identifier : LazyId, IIdentifier, IEquatable<IIdentifier>
 		{
 			if (char.IsWhiteSpace(ch))
 			{
-				throw new ArgumentException(Resources.Exception_IdentifierCannotContainsWhitespace, nameof(value));
+				throw new ArgumentException(Resources.Exception_IdentifierCannotContainWhitespace, nameof(value));
 			}
 		}
 

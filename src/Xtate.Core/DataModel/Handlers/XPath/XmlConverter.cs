@@ -240,13 +240,10 @@ public static class XmlConverter
 					return text;
 
 				case XmlNodeType.None:
-
 					return list;
 
 				default:
-					Infra.Unexpected(xmlReader.NodeType);
-
-					break;
+					throw Infra.Unmatched(xmlReader.NodeType);
 			}
 		}
 		while (await xmlReader.ReadAsync().ConfigureAwait(false));
@@ -326,9 +323,7 @@ public static class XmlConverter
 					return list;
 
 				default:
-					Infra.Unexpected(xmlReader.NodeType);
-
-					break;
+					throw Infra.Unmatched(xmlReader.NodeType);
 			}
 		}
 		while (xmlReader.Read());
@@ -346,7 +341,7 @@ public static class XmlConverter
 				   NumberTypeValue    => XmlConvert.ToDouble(value.AsString()),
 				   NullTypeValue      => DataModelValue.Null,
 				   UndefinedTypeValue => default,
-				   _                  => Infra.Unexpected<DataModelValue>(type)
+				   _                  => throw Infra.Unmatched(type)
 			   };
 	}
 
@@ -359,7 +354,7 @@ public static class XmlConverter
 			DataModelValueType.Number    => XmlConvert.ToString(value.AsNumber()),
 			DataModelValueType.Boolean   => value.AsBoolean() ? @"true" : @"false",
 			DataModelValueType.DateTime  => DateTimeToXmlString(value.AsDateTime()),
-			_                            => Infra.Unexpected<string>(value.Type)
+			_                            => throw Infra.Unmatched(value.Type)
 		};
 
 	private static string DateTimeToXmlString(in DataModelDateTime dttm) =>
@@ -367,7 +362,7 @@ public static class XmlConverter
 		{
 			DataModelDateTimeType.DateTime       => XmlConvert.ToString(dttm.ToDateTime(), XmlDateTimeSerializationMode.RoundtripKind),
 			DataModelDateTimeType.DateTimeOffset => XmlConvert.ToString(dttm.ToDateTimeOffset()),
-			_                                    => Infra.Unexpected<string>(dttm.Type)
+			_                                    => throw Infra.Unmatched(dttm.Type)
 		};
 
 	public static int GetBufferSizeForValue(in DataModelValue value) =>
@@ -379,7 +374,7 @@ public static class XmlConverter
 			DataModelValueType.Number    => 24, // -1.2345678901234567e+123 (G17)
 			DataModelValueType.DateTime  => 33, // YYYY-MM-DDThh:mm:ss.1234567+hh:mm (DateTime with Offset)
 			DataModelValueType.Boolean   => 5,  // 'false' - longest value
-			_                            => Infra.Unexpected<int>(value.Type)
+			_                            => throw Infra.Unmatched(value.Type)
 		};
 
 	public static int WriteValueToSpan(in DataModelValue value, in Span<char> span)
@@ -392,7 +387,7 @@ public static class XmlConverter
 				   DataModelValueType.Number    => WriteString(XmlConvert.ToString(value.AsNumber()), span),
 				   DataModelValueType.DateTime  => WriteDataModelDateTime(value.AsDateTime(), span),
 				   DataModelValueType.Boolean   => WriteString(value.AsBoolean() ? @"true" : @"false", span),
-				   _                            => Infra.Unexpected<int>(value.Type)
+				   _                            => throw Infra.Unmatched(value.Type)
 			   };
 
 		static int WriteDataModelDateTime(in DataModelDateTime value, in Span<char> span) =>
@@ -400,7 +395,7 @@ public static class XmlConverter
 			{
 				DataModelDateTimeType.DateTime       => WriteString(XmlConvert.ToString(value.ToDateTime(), XmlDateTimeSerializationMode.RoundtripKind), span),
 				DataModelDateTimeType.DateTimeOffset => WriteString(XmlConvert.ToString(value.ToDateTimeOffset()), span),
-				_                                    => Infra.Unexpected<int>(value.Type)
+				_                                    => throw Infra.Unmatched(value.Type)
 			};
 
 		static int WriteString(string value, in Span<char> span)
@@ -418,7 +413,7 @@ public static class XmlConverter
 			DataModelValueType.Number    => NumberTypeValue,
 			DataModelValueType.Null      => NullTypeValue,
 			DataModelValueType.Undefined => UndefinedTypeValue,
-			_                            => Infra.Unexpected<bool>(value.Type)
+			_                            => throw Infra.Unmatched(value.Type)
 		};
 
 	private static DataModelList? GetMetaData(XmlReader xmlReader)

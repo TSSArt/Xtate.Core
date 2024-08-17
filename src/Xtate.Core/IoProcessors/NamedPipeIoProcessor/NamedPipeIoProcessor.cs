@@ -87,7 +87,7 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 
 		if (outgoingEvent.Target is null)
 		{
-			throw new ProcessorException(Resources.Exception_EventTargetDidNotSpecified);
+			throw new ProcessorException(Resources.Exception_EventTargetDidNotSpecify);
 		}
 
 		return base.CreateHostEvent(senderServiceId, outgoingEvent);
@@ -172,9 +172,7 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 					throw new ProcessorException(Resources.Exception_EventDispatcherNotFound);
 
 				default:
-					Infra.Unexpected(responseMessage.ErrorType);
-
-					break;
+					throw Infra.Unmatched(responseMessage.ErrorType);
 			}
 		}
 	}
