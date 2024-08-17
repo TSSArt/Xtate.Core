@@ -130,7 +130,7 @@ public class RegisterClassTest
 	[TestMethod]
 	public void RuntimeNotInActionTest()
 	{
-		Assert.ThrowsException<InfrastructureException>(() => Runtime.InState("2"));
+		Assert.ThrowsException<InvalidOperationException>(() => Runtime.InState("2"));
 	}
 
 	[TestMethod]

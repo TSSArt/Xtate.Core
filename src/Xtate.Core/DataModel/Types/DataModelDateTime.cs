@@ -78,7 +78,7 @@ public readonly struct DataModelDateTime : IConvertible, IFormattable, IEquatabl
 		{
 			DataModelDateTimeType.DateTime       => TypeCode.DateTime,
 			DataModelDateTimeType.DateTimeOffset => TypeCode.Object,
-			_                                    => Infra.Unexpected<TypeCode>(Type)
+			_                                    => throw Infra.Unmatched(Type)
 		};
 
 	bool IConvertible.ToBoolean(IFormatProvider? provider) => ToDateTime().ToBoolean(provider);
@@ -128,7 +128,7 @@ public readonly struct DataModelDateTime : IConvertible, IFormattable, IEquatabl
 		{
 			DataModelDateTimeType.DateTime       => ToDateTime().ToString(format, formatProvider),
 			DataModelDateTimeType.DateTimeOffset => ToDateTimeOffset().ToString(format, formatProvider),
-			_                                    => Infra.Unexpected<string>(Type)
+			_                                    => throw Infra.Unmatched(Type)
 		};
 
 #endregion
@@ -218,9 +218,9 @@ public readonly struct DataModelDateTime : IConvertible, IFormattable, IEquatabl
 	public object ToObject() =>
 		Type switch
 		{
-			DataModelDateTimeType.DateTime       => ToDateTime(),
+			DataModelDateTimeType.DateTime       => (object)ToDateTime(),
 			DataModelDateTimeType.DateTimeOffset => ToDateTimeOffset(),
-			_                                    => Infra.Unexpected<object>(Type)
+			_                                    => throw Infra.Unmatched(Type)
 		};
 
 	public static bool TryParse(string value, out DataModelDateTime dataModelDateTime) => TryParse(value, provider: null, DateTimeStyles.None, out dataModelDateTime);

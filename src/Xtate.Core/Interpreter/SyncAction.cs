@@ -140,7 +140,8 @@ public abstract class SyncAction : ActionBase, IAction
 	{
 		private ValueTuple<T>? _value;
 
-		public T Value => _value.HasValue ? _value.Value.Item1 : throw new InfrastructureException(Resources.Exception_PropertyAvailableInEvaluateMethod);
+		// ReSharper disable once MemberHidesStaticFromOuterClass
+		public T Value => _value.HasValue ? _value.Value.Item1 : throw new InvalidOperationException(Resources.Exception_PropertyAvailableInEvaluateMethod);
 
 		internal override void Reset() => _value = default;
 

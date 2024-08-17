@@ -17,7 +17,7 @@
 
 namespace Xtate.Core;
 
-public interface IEntityParserHandler<TSource>
+public interface IEntityParserHandler<[UsedImplicitly] TSource>
 {
 	IAsyncEnumerable<LoggingParameter> EnumerateProperties<T>(T entity);
 }

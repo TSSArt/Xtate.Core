@@ -241,7 +241,7 @@ public static class DataModelConverter
 				JsonTokenType.Number => reader.GetDouble(),
 				JsonTokenType.StartObject => JsonSerializer.Deserialize<DataModelList>(ref reader, options),
 				JsonTokenType.StartArray => JsonSerializer.Deserialize<DataModelList>(ref reader, options),
-				_ => Infra.Unexpected<DataModelValue>(reader.TokenType, Resources.Exception_NotExpectedTokenType)
+				_ => throw Infra.Unmatched(reader.TokenType, Resources.Exception_NotExpectedTokenType)
 			};
 
 		public override void Write(Utf8JsonWriter writer, DataModelValue value, JsonSerializerOptions options)
@@ -283,8 +283,7 @@ public static class DataModelConverter
 							break;
 
 						default:
-							Infra.Unexpected(dataModelDateTime.Type);
-							break;
+							throw Infra.Unmatched(dataModelDateTime.Type);
 					}
 
 					break;
@@ -298,8 +297,7 @@ public static class DataModelConverter
 					break;
 
 				default:
-					Infra.Unexpected(value.Type, Resources.Exception_UnknownTypeForSerialization);
-					break;
+					throw Infra.Unmatched(value.Type, Resources.Exception_UnknownTypeForSerialization);
 			}
 		}
 	}
@@ -311,7 +309,7 @@ public static class DataModelConverter
 			{
 				JsonTokenType.StartObject => ReadObject(ref reader, options),
 				JsonTokenType.StartArray  => ReadArray(ref reader, options),
-				_                         => Infra.Unexpected<DataModelList>(reader.TokenType)
+				_                         => throw Infra.Unmatched(reader.TokenType)
 			};
 
 		public override void Write(Utf8JsonWriter writer, DataModelList list, JsonSerializerOptions options)

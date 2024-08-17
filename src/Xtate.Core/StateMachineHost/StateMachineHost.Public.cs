@@ -77,7 +77,7 @@ public sealed partial class StateMachineHost(StateMachineHostOptions options) : 
 						  HostMode.Standalone => _options.PersistenceLevel != PersistenceLevel.None && _options.StorageProvider is not null
 							  ? new StateMachineHostPersistedContext(this, _options)
 							  : new StateMachineHostContext(this, _options, InProcEventSchedulerFactory.Instance),
-						  _ => Infra.Unexpected<StateMachineHostContext>(_options.HostMode)
+						  _ => throw Infra.Unmatched(_options.HostMode)
 					  };
 
 		try

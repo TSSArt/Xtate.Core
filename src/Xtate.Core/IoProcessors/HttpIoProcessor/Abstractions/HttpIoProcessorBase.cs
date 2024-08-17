@@ -143,7 +143,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 			{
 				if (listenAddress is not null)
 				{
-					throw new ProcessorException(Resources.Exception_FoundMoreThenOneInterfaceToListen);
+					throw new ProcessorException(Resources.Exception_FoundMoreThanOneInterfaceToListen);
 				}
 
 				listenAddress = address;
@@ -264,8 +264,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 					break;
 
 				default:
-					Infra.Unexpected(pair.Value.Type);
-					break;
+					throw Infra.Unmatched(pair.Value.Type);
 			}
 		}
 

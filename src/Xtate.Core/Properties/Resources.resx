@@ -132,11 +132,11 @@
   <data name="ErrorMessage_CancelItemSendIdAndExpressionSpecified" xml:space="preserve">
     <value>SendId and SendIdExpression can't be used at the same time in Cancel element.</value>
   </data>
-  <data name="Exception_ConditionDoesNotSpecified" xml:space="preserve">
-    <value>Condition does not specified.</value>
+  <data name="Exception_ConditionDoesNotSpecify" xml:space="preserve">
+    <value>Condition does not specify.</value>
   </data>
-  <data name="Exception_LocationDoesNotSpecified" xml:space="preserve">
-    <value>Location does not specified.</value>
+  <data name="Exception_LocationDoesNotSpecify" xml:space="preserve">
+    <value>Location does not specify.</value>
   </data>
   <data name="Exception_ListOfLocationsCannotBeEmpty" xml:space="preserve">
     <value>List of locations cannot be empty.</value>
@@ -198,8 +198,8 @@
   <data name="Exception_StreamShouldSupportReadWriteSeekOperations" xml:space="preserve">
     <value>Stream should support Read, Write, Seek operations.</value>
   </data>
-  <data name="Exception_IdentifierCannotContainsWhitespace" xml:space="preserve">
-    <value>Identifier cannot contains whitespace.</value>
+  <data name="Exception_IdentifierCannotContainWhitespace" xml:space="preserve">
+    <value>Identifier cannot contain whitespace.</value>
   </data>
   <data name="Exception_TypeCantBeFound" xml:space="preserve">
     <value>Type '{0}' can't be found in type '{1}' or in its ancestors.</value>
@@ -387,9 +387,6 @@
   <data name="Exception_AssertionFailed" xml:space="preserve">
     <value>Assertion failed.</value>
   </data>
-  <data name="Exception_UnexpectedValue" xml:space="preserve">
-    <value>Unexpected value.</value>
-  </data>
   <data name="Exception_ExternalCommunicationDoesNotConfiguredForStateMachineInterpreter" xml:space="preserve">
     <value>External communication does not configured for state machine interpreter.</value>
   </data>
@@ -444,8 +441,8 @@
   <data name="Exception_InvalidTypeInfoValue" xml:space="preserve">
     <value>Invalid TypeInfo value.</value>
   </data>
-  <data name="ErrorMessage_TargetIdDoesNotExists" xml:space="preserve">
-    <value>Target Id does not exists.</value>
+  <data name="ErrorMessage_TargetIdDoesNotExist" xml:space="preserve">
+    <value>Target Id does not exist.</value>
   </data>
   <data name="Exception_SourceNotInitialized" xml:space="preserve">
     <value>Source not initialized.</value>
@@ -529,8 +526,8 @@
   <data name="Exception_IOProcessorHasNotBeenStarted" xml:space="preserve">
     <value>IO Processor has not been started.</value>
   </data>
-  <data name="Exception_EventTargetDidNotSpecified" xml:space="preserve">
-    <value>Event Target did not specified.</value>
+  <data name="Exception_EventTargetDidNotSpecify" xml:space="preserve">
+    <value>Event Target did not specify.</value>
   </data>
   <data name="Exception_InternalEventsCantBeDelayed" xml:space="preserve">
     <value>Internal events can't be delayed.</value>
@@ -605,8 +602,8 @@
   <data name="Exception_AccessCantBeChanged" xml:space="preserve">
     <value>Access can't be changed.</value>
   </data>
-  <data name="Exception_RegistrationShouldNoOccurAfterInitialization" xml:space="preserve">
-    <value>Registration should no occur after initialization.</value>
+  <data name="Exception_RegistrationShouldNotOccurAfterInitialization" xml:space="preserve">
+    <value>Registration should not occur after initialization.</value>
   </data>
   <data name="Exception_CantGetAccessToIHostInterface" xml:space="preserve">
     <value>Can't get access to IHost interface.</value>
@@ -674,8 +671,8 @@
   <data name="Exception_DestinationArrayIsNotLongEnough" xml:space="preserve">
     <value>Destination list is not long enough to copy all the items in the collection. Check list index and length.</value>
   </data>
-  <data name="Exception_IndexShouldBeNonNegativeAndLessThenAarraySize" xml:space="preserve">
-    <value>Index should be non-negative and less then array size.</value>
+  <data name="Exception_IndexShouldBeNonNegativeAndLessThanAarraySize" xml:space="preserve">
+    <value>Index should be non-negative and less than array size.</value>
   </data>
   <data name="Exception_IndexValueMustBeNonNegativeInteger" xml:space="preserve">
     <value>Index value must be non-negative integer.</value>
@@ -797,8 +794,8 @@
   <data name="Exception_TargetIsNotDefined" xml:space="preserve">
     <value>Target is not defined</value>
   </data>
-  <data name="Exception_FoundMoreThenOneInterfaceToListen" xml:space="preserve">
-    <value>Found more then one interface to listen.</value>
+  <data name="Exception_FoundMoreThanOneInterfaceToListen" xml:space="preserve">
+    <value>Found more than one interface to listen.</value>
   </data>
   <data name="Exception_CantMatchNetworkInterfaceToListen" xml:space="preserve">
     <value>Can't match network interface to listen.</value>
@@ -878,20 +875,20 @@
   <data name="Exception_TypeCantBeConstructedBasedOnServiceType" xml:space="preserve">
 	  <value>Type {0} can't be constructed based on service type {1}.</value>
   </data>
-	<data name="Exception_AssertUnexpected" xml:space="preserve">
-	  <value>{0} ({1}).</value>
+  <data name="Exception_AssertUnmatched" xml:space="preserve">
+	  <value>Unmatched value ({0}:{1}).</value>
   </data>
-  <data name="Exception_AssertUnexpectedWithType" xml:space="preserve">
+  <data name="Exception_AssertUnmatchedMessage" xml:space="preserve">
 	  <value>{0} ({1}:{2}).</value>
   </data>
-  <data name="Exception_TypeDoesNotContainsMethodWithSignatureMethodCancellationToken" xml:space="preserve">
-	  <value>Type {0} does not contains method (or ambiguity) with return type: (ValueTask&lt;{1}&gt; or {1}) and empty or single CancellationToken input parameter.</value>
+  <data name="Exception_TypeDoesNotContainMethodWithSignatureMethodCancellationToken" xml:space="preserve">
+	  <value>Type {0} does not contain method (or ambiguity) with return type: (ValueTask&lt;{1}&gt; or {1}) and empty or single CancellationToken input parameter.</value>
   </data>
   <data name="Exception_TypeUsedInSynchronousInstantiation" xml:space="preserve">
 	  <value>Type {0} used in synchronous instantiation and can't implement IAsyncInitialization interface.</value>
   </data>
-  <data name="Exception_SingletonScopedTypesDoesNotSupportedForSyncronousInstantination" xml:space="preserve">
-	  <value>Singleton/scoped types does not supported for syncronous instantination.</value>
+  <data name="Exception_SingletonScopedTypesDoesNotSupportedForSynchronousInstantiation" xml:space="preserve">
+	  <value>Singleton/scoped types does not supported for synchronous instantiation.</value>
   </data>
   <data name="Exception_CantCastForwardDelegate" xml:space="preserve">
 	  <value>Can't cast/forward delegate {0} to {1}.</value>
@@ -922,8 +919,8 @@ Exception: {3}</value>
   <data name="Exception_ContextIsNotAvailableAtThisPlace" xml:space="preserve">
     <value>Context is not available at this place.</value>
   </data>
-  <data name="Exception_MoreThenOneCustomActionProviderRegisteredForProcessingCustomActionNode" xml:space="preserve">
-    <value>More then one CustomActionProvider registered for processing custom action node: &lt;{0}:{1}&gt;.</value>
+  <data name="Exception_MoreThanOneCustomActionProviderRegisteredForProcessingCustomActionNode" xml:space="preserve">
+    <value>More than one CustomActionProvider registered for processing custom action node: &lt;{0}:{1}&gt;.</value>
   </data>
   <data name="Exception_ThereIsNoAnyCustomActionProviderRegisteredForProcessingCustomActionNode" xml:space="preserve">
     <value>There is no any CustomActionProvider registered for processing custom action node: &lt;{0}:{1}&gt;</value>

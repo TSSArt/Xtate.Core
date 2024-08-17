@@ -108,7 +108,8 @@ public class XIncludeReader : DelegatedXmlReader
 				case ProcessNodeResult.Ready:    return true;
 				case ProcessNodeResult.Complete: return false;
 				case ProcessNodeResult.Continue: break;
-				default:                         return Infra.Unexpected<bool>(result);
+				
+				default: throw Infra.Unmatched(result);
 			}
 		}
 	}

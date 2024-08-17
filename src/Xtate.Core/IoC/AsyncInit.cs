@@ -23,7 +23,7 @@ public abstract class AsyncInit<T>
 
 	public abstract Task Task { get; }
 
-	public T Value => Task.Status == TaskStatus.RanToCompletion ? _value! : throw new InfrastructureException(Resources.ErrorMessage_Not_initialized);
+	public T Value => Task.Status == TaskStatus.RanToCompletion ? _value! : throw new InvalidOperationException(Resources.ErrorMessage_Not_initialized);
 
 	protected void SetValue(T value) => _value = value;
 }

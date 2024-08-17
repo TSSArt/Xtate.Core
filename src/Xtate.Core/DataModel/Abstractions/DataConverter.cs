@@ -148,7 +148,7 @@ public class DataConverter(IDataModelHandler? dataModelHandler)
 					   EventType.Platform => @"platform",
 					   EventType.Internal => @"internal",
 					   EventType.External => @"external",
-					   _                  => Infra.Unexpected<string>(eventType)
+					   _                  => throw Infra.Unmatched(eventType)
 				   };
 		}
 	}

@@ -225,7 +225,7 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 	{
 		if (string.IsNullOrEmpty(expression))
 		{
-			throw new ArgumentException(Resources.Exception_ConditionDoesNotSpecified, nameof(expression));
+			throw new ArgumentException(Resources.Exception_ConditionDoesNotSpecify, nameof(expression));
 		}
 
 		return new ConditionExpression { Expression = expression, Ancestor = CreateAncestor(namespaces: true) };
@@ -235,7 +235,7 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 	{
 		if (string.IsNullOrEmpty(expression))
 		{
-			throw new ArgumentException(Resources.Exception_LocationDoesNotSpecified, nameof(expression));
+			throw new ArgumentException(Resources.Exception_LocationDoesNotSpecify, nameof(expression));
 		}
 
 		return new LocationExpression { Expression = expression, Ancestor = CreateAncestor(namespaces: true) };

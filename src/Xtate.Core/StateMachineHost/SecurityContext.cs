@@ -108,7 +108,7 @@ public sealed class SecurityContext : ISecurityContext, IAsyncDisposable
 				break;
 
 			default:
-				throw Infra.Unexpected<Exception>(type);
+				throw Infra.Unmatched(type);
 		}
 
 		return securityContext;
@@ -186,7 +186,7 @@ public sealed class SecurityContext : ISecurityContext, IAsyncDisposable
 						  {
 							  SecurityContextType.NewTrustedStateMachine => SecurityContextPermissions.Full,
 							  SecurityContextType.NewStateMachine        => SecurityContextPermissions.RunIoBoundTask,
-							  _                                          => Infra.Unexpected<SecurityContextPermissions>(type)
+							  _                                          => throw Infra.Unmatched(type)
 						  };
 
 		return Create(type, permissions);

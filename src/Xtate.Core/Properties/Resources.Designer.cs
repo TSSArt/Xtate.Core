@@ -893,11 +893,11 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Target Id does not exists..
+        ///   Looks up a localized string similar to Target Id does not exist..
         /// </summary>
-        internal static string ErrorMessage_TargetIdDoesNotExists {
+        internal static string ErrorMessage_TargetIdDoesNotExist {
             get {
-                return ResourceManager.GetString("ErrorMessage_TargetIdDoesNotExists", resourceCulture);
+                return ResourceManager.GetString("ErrorMessage_TargetIdDoesNotExist", resourceCulture);
             }
         }
         
@@ -1046,20 +1046,20 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0} ({1})..
+        ///   Looks up a localized string similar to Unmatched value ({0}:{1})..
         /// </summary>
-        internal static string Exception_AssertUnexpected {
+        internal static string Exception_AssertUnmatched {
             get {
-                return ResourceManager.GetString("Exception_AssertUnexpected", resourceCulture);
+                return ResourceManager.GetString("Exception_AssertUnmatched", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to {0} ({1}:{2})..
         /// </summary>
-        internal static string Exception_AssertUnexpectedWithType {
+        internal static string Exception_AssertUnmatchedMessage {
             get {
-                return ResourceManager.GetString("Exception_AssertUnexpectedWithType", resourceCulture);
+                return ResourceManager.GetString("Exception_AssertUnmatchedMessage", resourceCulture);
             }
         }
         
@@ -1190,11 +1190,11 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Condition does not specified..
+        ///   Looks up a localized string similar to Condition does not specify..
         /// </summary>
-        internal static string Exception_ConditionDoesNotSpecified {
+        internal static string Exception_ConditionDoesNotSpecify {
             get {
-                return ResourceManager.GetString("Exception_ConditionDoesNotSpecified", resourceCulture);
+                return ResourceManager.GetString("Exception_ConditionDoesNotSpecify", resourceCulture);
             }
         }
         
@@ -1344,11 +1344,11 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Event Target did not specified..
+        ///   Looks up a localized string similar to Event Target did not specify..
         /// </summary>
-        internal static string Exception_EventTargetDidNotSpecified {
+        internal static string Exception_EventTargetDidNotSpecify {
             get {
-                return ResourceManager.GetString("Exception_EventTargetDidNotSpecified", resourceCulture);
+                return ResourceManager.GetString("Exception_EventTargetDidNotSpecify", resourceCulture);
             }
         }
         
@@ -1407,11 +1407,11 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Found more then one interface to listen..
+        ///   Looks up a localized string similar to Found more than one interface to listen..
         /// </summary>
-        internal static string Exception_FoundMoreThenOneInterfaceToListen {
+        internal static string Exception_FoundMoreThanOneInterfaceToListen {
             get {
-                return ResourceManager.GetString("Exception_FoundMoreThenOneInterfaceToListen", resourceCulture);
+                return ResourceManager.GetString("Exception_FoundMoreThanOneInterfaceToListen", resourceCulture);
             }
         }
         
@@ -1425,11 +1425,11 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Identifier cannot contains whitespace..
+        ///   Looks up a localized string similar to Identifier cannot contain whitespace..
         /// </summary>
-        internal static string Exception_IdentifierCannotContainsWhitespace {
+        internal static string Exception_IdentifierCannotContainWhitespace {
             get {
-                return ResourceManager.GetString("Exception_IdentifierCannotContainsWhitespace", resourceCulture);
+                return ResourceManager.GetString("Exception_IdentifierCannotContainWhitespace", resourceCulture);
             }
         }
         
@@ -1452,11 +1452,11 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Index should be non-negative and less then array size..
+        ///   Looks up a localized string similar to Index should be non-negative and less than array size..
         /// </summary>
-        internal static string Exception_IndexShouldBeNonNegativeAndLessThenAarraySize {
+        internal static string Exception_IndexShouldBeNonNegativeAndLessThanAarraySize {
             get {
-                return ResourceManager.GetString("Exception_IndexShouldBeNonNegativeAndLessThenAarraySize", resourceCulture);
+                return ResourceManager.GetString("Exception_IndexShouldBeNonNegativeAndLessThanAarraySize", resourceCulture);
             }
         }
         
@@ -1614,11 +1614,11 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Location does not specified..
+        ///   Looks up a localized string similar to Location does not specify..
         /// </summary>
-        internal static string Exception_LocationDoesNotSpecified {
+        internal static string Exception_LocationDoesNotSpecify {
             get {
-                return ResourceManager.GetString("Exception_LocationDoesNotSpecified", resourceCulture);
+                return ResourceManager.GetString("Exception_LocationDoesNotSpecify", resourceCulture);
             }
         }
         
@@ -1659,11 +1659,11 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to More then one CustomActionProvider registered for processing custom action node: &lt;{0}:{1}&gt;..
+        ///   Looks up a localized string similar to More than one CustomActionProvider registered for processing custom action node: &lt;{0}:{1}&gt;..
         /// </summary>
-        internal static string Exception_MoreThenOneCustomActionProviderRegisteredForProcessingCustomActionNode {
+        internal static string Exception_MoreThanOneCustomActionProviderRegisteredForProcessingCustomActionNode {
             get {
-                return ResourceManager.GetString("Exception_MoreThenOneCustomActionProviderRegisteredForProcessingCustomActionNode", resourceCulture);
+                return ResourceManager.GetString("Exception_MoreThanOneCustomActionProviderRegisteredForProcessingCustomActionNode", resourceCulture);
             }
         }
         
@@ -1794,11 +1794,11 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Registration should no occur after initialization..
+        ///   Looks up a localized string similar to Registration should not occur after initialization..
         /// </summary>
-        internal static string Exception_RegistrationShouldNoOccurAfterInitialization {
+        internal static string Exception_RegistrationShouldNotOccurAfterInitialization {
             get {
-                return ResourceManager.GetString("Exception_RegistrationShouldNoOccurAfterInitialization", resourceCulture);
+                return ResourceManager.GetString("Exception_RegistrationShouldNotOccurAfterInitialization", resourceCulture);
             }
         }
         
@@ -1912,11 +1912,11 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Singleton/scoped types does not supported for syncronous instantination..
+        ///   Looks up a localized string similar to Singleton/scoped types does not supported for synchronous instantiation..
         /// </summary>
-        internal static string Exception_SingletonScopedTypesDoesNotSupportedForSyncronousInstantination {
+        internal static string Exception_SingletonScopedTypesDoesNotSupportedForSynchronousInstantiation {
             get {
-                return ResourceManager.GetString("Exception_SingletonScopedTypesDoesNotSupportedForSyncronousInstantination", resourceCulture);
+                return ResourceManager.GetString("Exception_SingletonScopedTypesDoesNotSupportedForSynchronousInstantiation", resourceCulture);
             }
         }
         
@@ -2120,11 +2120,11 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Type {0} does not contains method (or ambiguity) with return type: (ValueTask&lt;{1}&gt; or {1}) and empty or single CancellationToken input parameter..
+        ///   Looks up a localized string similar to Type {0} does not contain method (or ambiguity) with return type: (ValueTask&lt;{1}&gt; or {1}) and empty or single CancellationToken input parameter..
         /// </summary>
-        internal static string Exception_TypeDoesNotContainsMethodWithSignatureMethodCancellationToken {
+        internal static string Exception_TypeDoesNotContainMethodWithSignatureMethodCancellationToken {
             get {
-                return ResourceManager.GetString("Exception_TypeDoesNotContainsMethodWithSignatureMethodCancellationToken", resourceCulture);
+                return ResourceManager.GetString("Exception_TypeDoesNotContainMethodWithSignatureMethodCancellationToken", resourceCulture);
             }
         }
         
@@ -2180,15 +2180,6 @@ namespace Xtate {
         internal static string Exception_UnexpectedTypeInfoValue {
             get {
                 return ResourceManager.GetString("Exception_UnexpectedTypeInfoValue", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unexpected value..
-        /// </summary>
-        internal static string Exception_UnexpectedValue {
-            get {
-                return ResourceManager.GetString("Exception_UnexpectedValue", resourceCulture);
             }
         }
         

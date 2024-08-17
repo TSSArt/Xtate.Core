@@ -203,7 +203,8 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 
 				return true;
 
-			default: throw Infra.Unexpected<Exception>(methodState);
+			default: 
+				throw Infra.Unmatched(methodState);
 		}
 	}
 

@@ -216,7 +216,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 		{
 			ValidationMode.Default => new DefaultErrorProcessor(),
 			ValidationMode.Verbose => new DetailedErrorProcessor(sessionId, origin),
-			_                      => Infra.Unexpected<IErrorProcessor>(_options.ValidationMode)
+			_                      => throw Infra.Unmatched(_options.ValidationMode)
 		};
 
 	private StateMachineHostContext GetCurrentContext() => _context ?? throw new InvalidOperationException(Resources.Exception_IOProcessorHasNotBeenStarted);

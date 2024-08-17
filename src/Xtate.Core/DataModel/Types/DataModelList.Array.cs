@@ -25,7 +25,7 @@ public partial class DataModelList : IList<DataModelValue>
 	public void CopyTo(DataModelValue[] array, int index)
 	{
 		if (array is null) throw new ArgumentNullException(nameof(array));
-		if (index < 0 || index >= array.Length) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_IndexShouldBeNonNegativeAndLessThenAarraySize);
+		if (index < 0 || index >= array.Length) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_IndexShouldBeNonNegativeAndLessThanAarraySize);
 		if (_count - index < array.Length) throw new ArgumentException(Resources.Exception_DestinationArrayIsNotLongEnough, nameof(array));
 
 		foreach (var value in Values)

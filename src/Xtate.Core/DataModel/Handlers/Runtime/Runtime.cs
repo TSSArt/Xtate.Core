@@ -32,7 +32,7 @@ public static class Runtime
 			return context;
 		}
 
-		throw new InfrastructureException(Resources.Exception_ContextIsNotAvailableAtThisPlace);
+		throw new InvalidOperationException(Resources.Exception_ContextIsNotAvailableAtThisPlace);
 	}
 
 	internal static void SetCurrentExecutionContext(RuntimeExecutionContext executionContext) => Current.Value = executionContext;

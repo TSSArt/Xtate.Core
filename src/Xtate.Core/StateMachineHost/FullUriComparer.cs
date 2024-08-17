@@ -19,7 +19,7 @@ namespace Xtate.Core;
 
 internal class FullUriComparer : IEqualityComparer<Uri>
 {
-	public static IEqualityComparer<Uri> Instance { get; } = new FullUriComparer();
+	public static FullUriComparer Instance { get; } = new();
 
 #region Interface IEqualityComparer<Uri>
 

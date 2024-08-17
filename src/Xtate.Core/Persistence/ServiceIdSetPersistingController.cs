@@ -112,7 +112,7 @@ internal sealed class ServiceIdSetPersistingController : IDisposable
 				break;
 
 			default:
-				throw Infra.Unexpected<Exception>(action);
+				throw Infra.Unmatched(action);
 		}
 	}
 }

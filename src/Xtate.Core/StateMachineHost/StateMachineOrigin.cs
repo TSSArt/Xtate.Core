@@ -60,7 +60,7 @@ public readonly struct StateMachineOrigin
 			Uri           => StateMachineOriginType.Source,
 			IStateMachine => StateMachineOriginType.StateMachine,
 			null          => StateMachineOriginType.None,
-			_             => Infra.Unexpected<StateMachineOriginType>(_value)
+			_             => throw Infra.Unmatched(_value?.GetType())
 		};
 
 	public Uri? BaseUri { get; }

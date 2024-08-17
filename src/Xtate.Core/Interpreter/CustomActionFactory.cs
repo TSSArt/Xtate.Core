@@ -49,7 +49,7 @@ public class CustomActionFactory
 			{
 				if (enumerator.Current.TryGetActivator(ns, name) is not null)
 				{
-					Infra.Fail(Res.Format(Resources.Exception_MoreThenOneCustomActionProviderRegisteredForProcessingCustomActionNode, ns, name));
+					Infra.Fail(Res.Format(Resources.Exception_MoreThanOneCustomActionProviderRegisteredForProcessingCustomActionNode, ns, name));
 				}
 			}
 

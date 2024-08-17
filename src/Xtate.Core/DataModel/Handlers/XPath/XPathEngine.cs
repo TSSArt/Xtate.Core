@@ -117,32 +117,39 @@ public class XPathEngine(IDataModelController? dataModelController)
 			case XPathAssignType.ReplaceChildren:
 				navigator.ReplaceChildren(valueObject);
 				break;
+			
 			case XPathAssignType.FirstChild:
 				navigator.FirstChild(valueObject);
 				break;
+			
 			case XPathAssignType.LastChild:
 				navigator.LastChild(valueObject);
 				break;
+			
 			case XPathAssignType.PreviousSibling:
 				navigator.PreviousSibling(valueObject);
 				break;
+			
 			case XPathAssignType.NextSibling:
 				navigator.NextSibling(valueObject);
 				break;
+			
 			case XPathAssignType.Replace:
 				navigator.Replace(valueObject);
 				break;
+			
 			case XPathAssignType.Delete:
 				navigator.DeleteSelf();
 				break;
+			
 			case XPathAssignType.AddAttribute:
 				Infra.NotNull(attributeName);
 				var value = Convert.ToString(valueObject.ToObject(), CultureInfo.InvariantCulture);
 				navigator.CreateAttribute(string.Empty, attributeName, string.Empty, value ?? string.Empty);
 				break;
+			
 			default:
-				Infra.Unexpected(assignType);
-				break;
+				throw Infra.Unmatched(assignType);
 		}
 	}
 
