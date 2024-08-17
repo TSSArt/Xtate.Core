@@ -138,6 +138,8 @@ public class StartAction : AsyncAction, IDisposable
 
 	private async ValueTask<Uri?> GetBaseUri() => (await StateMachineLocationFactory().ConfigureAwait(false))?.Location;
 
+	//var value = dataModelController.DataModel["_x"].AsListOrEmpty()["host"].AsListOrEmpty()["location"].AsStringOrDefault();
+	//return value is not null ? new Uri(value, UriKind.RelativeOrAbsolute) : null;
 	private async ValueTask<Uri> GetSource()
 	{
 		var url = await _urlValue.GetValue().ConfigureAwait(false);
