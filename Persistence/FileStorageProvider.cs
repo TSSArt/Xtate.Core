@@ -45,7 +45,7 @@ public class FileStorageProvider : IStorageProvider
 	{
 		Infra.RequiresNonEmptyString(key);
 
-		var dir = !Infra.IsNullOrEmpty(partition) ? Path.Combine(_path, Escape(partition)) : _path;
+		var dir = !string.IsNullOrEmpty(partition) ? Path.Combine(_path, Escape(partition)) : _path;
 
 		if (!Directory.Exists(dir))
 		{
@@ -61,7 +61,7 @@ public class FileStorageProvider : IStorageProvider
 	{
 		Infra.RequiresNonEmptyString(key);
 
-		var dir = !Infra.IsNullOrEmpty(partition) ? Path.Combine(_path, Escape(partition)) : _path;
+		var dir = !string.IsNullOrEmpty(partition) ? Path.Combine(_path, Escape(partition)) : _path;
 		var path = Path.Combine(dir, Escape(key) + _extension);
 
 		try
@@ -78,7 +78,7 @@ public class FileStorageProvider : IStorageProvider
 
 	public ValueTask RemoveAllTransactionalStorage(string? partition)
 	{
-		var path = !Infra.IsNullOrEmpty(partition) ? Path.Combine(_path, Escape(partition)) : _path;
+		var path = !string.IsNullOrEmpty(partition) ? Path.Combine(_path, Escape(partition)) : _path;
 
 		try
 		{
