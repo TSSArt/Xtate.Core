@@ -21,9 +21,11 @@ internal struct DocumentIdSlot(LinkedListNode<int>? node)
 {
 	private int _value = -1;
 
+	private LinkedListNode<int>? _node = node;
+
 	public int CreateValue()
 	{
-		if (node is not { } realNode)
+		if (_node is not { } realNode)
 		{
 			return _value;
 		}
@@ -35,7 +37,7 @@ internal struct DocumentIdSlot(LinkedListNode<int>? node)
 			return -1;
 		}
 
-		node = default;
+		_node = default;
 		_value = value;
 
 		return value;

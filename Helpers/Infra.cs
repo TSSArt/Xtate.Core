@@ -20,47 +20,47 @@ using System.ComponentModel;
 namespace Xtate;
 
 [ExcludeFromCodeCoverage]
-public static class Infra
+internal static class Infra
 {
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static bool IsNullOrEmpty([NotNullWhen(false)] string? value) => string.IsNullOrEmpty(value);
 
 	/// <summary>
 	///     Checks for a condition; if the condition is <see langword="false" />, throws
-	///     <see cref="InfrastructureException" /> exception.
+	///     <see cref="InvalidOperationException" /> exception.
 	/// </summary>
 	/// <param name="condition">
 	///     The conditional expression to evaluate. If the condition is <see langword="true" />, execution
 	///     returned to caller.
 	/// </param>
-	/// <exception cref="InfrastructureException"></exception>
+	/// <exception cref="InvalidOperationException"></exception>
 	[AssertionMethod]
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void Assert([AssertionCondition(AssertionConditionType.IS_TRUE)] [DoesNotReturnIf(false)] bool condition)
 	{
 		if (!condition)
 		{
-			ThrowInfrastructureException();
+			ThrowAssertion();
 		}
 	}
 
 	/// <summary>
 	///     Checks for a condition; if the condition is <see langword="false" />, throws
-	///     <see cref="InfrastructureException" /> exception.
+	///     <see cref="InvalidOperationException" /> exception.
 	/// </summary>
 	/// <param name="condition">
 	///     The conditional expression to evaluate. If the condition is <see langword="true" />, execution
 	///     returned to caller.
 	/// </param>
-	/// <param name="message">The message for <see cref="InfrastructureException" />. </param>
-	/// <exception cref="InfrastructureException"></exception>
+	/// <param name="message">The message for <see cref="InvalidOperationException" />. </param>
+	/// <exception cref="InvalidOperationException"></exception>
 	[AssertionMethod]
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void Assert([AssertionCondition(AssertionConditionType.IS_TRUE)] [DoesNotReturnIf(false)] bool condition, string message)
 	{
 		if (!condition)
 		{
-			ThrowInfrastructureException(message);
+			ThrowAssertion(message);
 		}
 	}
 
@@ -225,83 +225,74 @@ public static class Infra
 
 	/// <summary>
 	///     Checks value for a null; if the value is <see langword="null" />, throws
-	///     <see cref="InfrastructureException" /> exception.
+	///     <see cref="InvalidOperationException" /> exception.
 	/// </summary>
 	/// <param name="value">
 	///     The value to check for null. If the value is not <see langword="null" />, execution returned to
 	///     caller.
 	/// </param>
-	/// <exception cref="InfrastructureException"></exception>
+	/// <exception cref="InvalidOperationException"></exception>
 	[AssertionMethod]
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void NotNull<T>([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] [NotNull] T? value)
 	{
 		if (value is null)
 		{
-			ThrowInfrastructureException();
+			ThrowAssertion();
 		}
 	}
 
 	/// <summary>
 	///     Checks value for a null; if the value is <see langword="null" />, throws
-	///     <see cref="InfrastructureException" /> exception.
+	///     <see cref="InvalidOperationException" /> exception.
 	/// </summary>
 	/// <param name="value">
 	///     The value to check for null. If the value is not <see langword="null" />, execution returned to
 	///     caller.
 	/// </param>
-	/// <param name="message">The message for <see cref="InfrastructureException" />. </param>
-	/// <exception cref="InfrastructureException"></exception>
+	/// <param name="message">The message for <see cref="InvalidOperationException" />. </param>
+	/// <exception cref="InvalidOperationException"></exception>
 	[AssertionMethod]
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void NotNull<T>([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] [NotNull] T? value, string message)
 	{
 		if (value is null)
 		{
-			ThrowInfrastructureException(message);
+			ThrowAssertion(message);
 		}
 	}
 
 	[AssertionMethod]
 	[DoesNotReturn]
-	public static void Fail()
-	{
-		ThrowInfrastructureException();
-
-		throw WrongExecutionPath();
-	}
+	public static void Fail() => ThrowAssertion();
 
 	[AssertionMethod]
 	[DoesNotReturn]
-	public static void Fail(string message)
-	{
-		ThrowInfrastructureException(message);
-
-		throw WrongExecutionPath();
-	}
+	public static void Fail(string message) => ThrowAssertion(message);
 
 	[AssertionMethod]
 	[DoesNotReturn]
 	public static T Fail<T>()
 	{
-		ThrowInfrastructureException();
+		ThrowAssertion();
 
-		throw WrongExecutionPath();
+		return default;
 	}
 
 	[AssertionMethod]
 	[DoesNotReturn]
 	public static T Fail<T>(string message)
 	{
-		ThrowInfrastructureException(message);
+		ThrowAssertion(message);
 
-		throw WrongExecutionPath();
+		return default;
 	}
 
-	private static NotSupportedException WrongExecutionPath() => new(Resources.Exception_ThisExceptionShouldNeverHappen);
+	[DoesNotReturn]
+	private static void ThrowAssertion() => throw new InvalidOperationException(Resources.Exception_AssertionFailed);
 
 	[DoesNotReturn]
-	private static void ThrowInfrastructureException() => throw new InfrastructureException(Resources.Exception_AssertionFailed);
+	private static void ThrowAssertion(string message) => throw new InvalidOperationException(message);
 
 	[DoesNotReturn]
 	private static void ThrowArgumentNullException(string? paramName) => throw new ArgumentNullException(paramName);
@@ -325,72 +316,7 @@ public static class Infra
 													T max) =>
 		throw new ArgumentOutOfRangeException(paramName, value, Res.Format(Resources.Exception_ValidRangeIsMinMax, min, max));
 
-	[DoesNotReturn]
-	private static void ThrowInfrastructureException(string message) => throw new InfrastructureException(message);
+	public static InvalidOperationException Unmatched<T>(T value) => new(Res.Format(Resources.Exception_AssertUnmatched, typeof(T).FullName, value));
 
-	[DoesNotReturn]
-	private static void AssertUnexpected(object? value, string message)
-	{
-		if (value is null)
-		{
-			ThrowInfrastructureException(Res.Format(Resources.Exception_AssertUnexpected, message, arg1: @"null"));
-
-			throw WrongExecutionPath();
-		}
-
-		var type = value.GetType();
-		if (type.IsPrimitive || type.IsEnum)
-		{
-			ThrowInfrastructureException(Res.Format(Resources.Exception_AssertUnexpectedWithType, message, type, value));
-
-			throw WrongExecutionPath();
-		}
-
-		if (value is Delegate)
-		{
-			ThrowInfrastructureException(Res.Format(Resources.Exception_AssertUnexpectedWithType, message, arg1: @"Delegate", value));
-
-			throw WrongExecutionPath();
-		}
-
-		ThrowInfrastructureException(Res.Format(Resources.Exception_AssertUnexpected, message, type));
-
-		throw WrongExecutionPath();
-	}
-
-	[AssertionMethod]
-	[DoesNotReturn]
-	public static void Unexpected(object? value)
-	{
-		AssertUnexpected(value, Resources.Exception_UnexpectedValue);
-
-		throw WrongExecutionPath();
-	}
-
-	[AssertionMethod]
-	[DoesNotReturn]
-	public static void Unexpected(object? value, string message)
-	{
-		AssertUnexpected(value, message);
-
-		throw WrongExecutionPath();
-	}
-
-	[AssertionMethod]
-	[DoesNotReturn]
-	public static T Unexpected<T>(object? value)
-	{
-		AssertUnexpected(value, Resources.Exception_UnexpectedValue);
-
-		throw WrongExecutionPath();
-	}
-
-	[AssertionMethod]
-	[DoesNotReturn]
-	public static T Unexpected<T>(object? value, string message)
-	{
-		AssertUnexpected(value, message);
-
-		throw WrongExecutionPath();
-	}
+	public static InvalidOperationException Unmatched<T>(T value, string message) => new(Res.Format(Resources.Exception_AssertUnmatchedMessage, message, typeof(T).FullName, value));
 }

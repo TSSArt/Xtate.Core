@@ -75,7 +75,7 @@ internal sealed class DataModelReferenceTracker : IDisposable
 		var controller = type switch
 						 {
 							 DataModelValueType.List => ListControllerCreator(_bucket.Nested(refId), list),
-							 _                       => Infra.Unexpected<DataModelPersistingController>(type)
+							 _                       => throw Infra.Unmatched(type)
 						 };
 
 		_lists[list] = new Entry { RefCount = default, RefId = refId, Controller = controller };
@@ -99,7 +99,8 @@ internal sealed class DataModelReferenceTracker : IDisposable
 
 				return list;
 
-			default: return Infra.Unexpected<DataModelList>(type);
+			default: 
+				throw Infra.Unmatched(type);
 		}
 	}
 
@@ -128,7 +129,7 @@ internal sealed class DataModelReferenceTracker : IDisposable
 		value.Type switch
 		{
 			DataModelValueType.List => GetRefId(value.AsList(), ListControllerCreator, incrementReference: false),
-			_                       => Infra.Unexpected<int>(value.Type)
+			_                       => throw Infra.Unmatched(value.Type)
 		};
 
 	public void AddReference(in DataModelValue value)

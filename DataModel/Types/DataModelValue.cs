@@ -94,7 +94,7 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 			DateTimeValue                        => DataModelValueType.DateTime,
 			DataModelList                        => DataModelValueType.List,
 			ILazyValue lazyValue                 => lazyValue.Value.Type,
-			_                                    => Infra.Unexpected<DataModelValueType>(_value)
+			_                                    => throw Infra.Unmatched(_value?.GetType())
 		};
 
 #region Interface IConvertible
@@ -111,7 +111,7 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 			DataModelValueType.Number    => TypeCode.Double,
 			DataModelValueType.DateTime  => AsDateTime().GetTypeCode(),
 			DataModelValueType.Boolean   => TypeCode.Boolean,
-			_                            => Infra.Unexpected<TypeCode>(Type)
+			_                            => throw Infra.Unmatched(Type)
 		};
 
 	bool IConvertible.ToBoolean(IFormatProvider? provider) =>
@@ -332,7 +332,7 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 			DateTimeValue value                  => value.GetDataModelDateTime(_int64).ToObject(),
 			DataModelList list                   => list,
 			ILazyValue lazyValue                 => lazyValue.Value.ToObject(),
-			_                                    => Infra.Unexpected<object>(_value)
+			_                                    => throw Infra.Unmatched(_value?.GetType())
 		};
 
 #endregion
@@ -764,8 +764,7 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 					break;
 
 				default:
-					utcTicks = 0;
-					return Infra.Unexpected<DateTimeValue>(dataModelDateTime.Type);
+					throw Infra.Unmatched(dataModelDateTime.Type);
 			}
 
 			if (data % CacheGranularity != 0)

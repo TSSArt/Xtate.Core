@@ -97,7 +97,7 @@ public abstract class ServiceFactoryBase : IServiceFactory
 					return creator(baseUri, invokeData, serviceCommunication);
 
 				default:
-					return Infra.Unexpected<ValueTask<IService>>(_creators[invokeData.Type].GetType());
+					throw Infra.Unmatched(_creators[invokeData.Type].GetType());
 			}
 		}
 	}

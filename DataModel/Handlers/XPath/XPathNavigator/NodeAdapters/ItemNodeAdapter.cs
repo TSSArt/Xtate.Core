@@ -111,6 +111,6 @@ internal class ItemNodeAdapter : ElementNodeAdapter
 			DataModelValueType.Null      => true,
 			DataModelValueType.Undefined => true,
 			DataModelValueType.List      => false,
-			_                            => Infra.Unexpected<bool>(node.DataModelValue.Type)
+			_                            => throw Infra.Unmatched(node.DataModelValue.Type)
 		};
 }

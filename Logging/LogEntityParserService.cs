@@ -38,7 +38,7 @@ public class LogEntityParserService<TSource> : IEntityParserHandler<TSource>
 			}
 		}
 
-		throw new InfrastructureException(Res.Format(Resources.Exception_CantFindEntityParser, typeof(T)));
+		throw new InvalidOperationException(Res.Format(Resources.Exception_CantFindEntityParser, typeof(T)));
 	}
 
 #endregion
