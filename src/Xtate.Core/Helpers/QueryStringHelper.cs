@@ -48,7 +48,7 @@ internal static class QueryStringHelper
 	{
 		var collection = new NameValueCollection();
 
-		if (Infra.IsNullOrEmpty(query) || query == @"?")
+		if (string.IsNullOrEmpty(query) || query == @"?")
 		{
 			return collection;
 		}

@@ -24,7 +24,7 @@ public struct EventEntity : IOutgoingEvent
 
 	public EventEntity(string? value) : this()
 	{
-		if (!Infra.IsNullOrEmpty(value))
+		if (!string.IsNullOrEmpty(value))
 		{
 			NameParts = EventName.ToParts(value);
 		}
