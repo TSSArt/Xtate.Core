@@ -15,8 +15,23 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.CustomAction;
+using Xtate.DataModel.Null;
+using Xtate.IoC;
 
-public class StartActionProvider() : CustomActionProvider<StartAction>(ns: "http://xtate.net/scxml/system", name: "start");
+namespace Xtate.DataModel;
 
-public class DestroyActionProvider() : CustomActionProvider<DestroyAction>(ns: "http://xtate.net/scxml/system", name: "destroy");
+public class NullDataModelHandlerModule : Module<DataModelHandlerBaseModule, ErrorProcessorModule>
+{
+	protected override void AddServices()
+	{
+		Services.AddTypeSync<NullConditionExpressionEvaluator, IConditionExpression, IIdentifier>();
+		Services.AddImplementation<NullDataModelHandlerProvider>().For<IDataModelHandlerProvider>();
+
+		var implementation = Services.AddImplementation<NullDataModelHandler>().For<NullDataModelHandler>();
+
+		if (!Services.IsRegistered<IDataModelHandler>())
+		{
+			implementation.For<IDataModelHandler>();
+		}
+	}
+}

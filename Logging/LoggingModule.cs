@@ -15,9 +15,15 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.CustomAction;
+using Xtate.IoC;
 
-public interface ICustomActionActivator
+namespace Xtate.Core;
+
+public class LoggingModule : Module
 {
-	CustomActionBase Activate(string xml);
+	protected override void AddServices()
+	{
+		Services.AddImplementation<LogEntityParserService<Any>>().For<IEntityParserHandler<Any>>();
+		Services.AddImplementation<Logger<Any>>().For<ILogger<Any>>();
+	}
 }

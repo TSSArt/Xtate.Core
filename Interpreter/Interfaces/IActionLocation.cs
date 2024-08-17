@@ -15,25 +15,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Core;
+using Xtate.DataModel;
 
-public interface ILogWriter
+namespace Xtate.CustomAction;
+
+public interface IActionLocation : ILocationExpression
 {
-	bool IsEnabled(Type source, Level level);
-
-	ValueTask Write(Type source, 
-					Level level,
-					int eventId,
-					string? message,
-					IAsyncEnumerable<LoggingParameter>? parameters = default);
-}
-
-public interface ILogWriter<TSource>
-{
-	bool IsEnabled(Level level);
-
-	ValueTask Write(Level level,
-					int eventId,
-					string? message,
-					IAsyncEnumerable<LoggingParameter>? parameters = default);
+	void SetEvaluator(ILocationEvaluator locationEvaluator);
 }

@@ -15,19 +15,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.IoC;
+using Xtate.DataModel;
 
-namespace Xtate.Core;
+namespace Xtate.CustomAction;
 
-public static class NameTableExtensions
+public interface IActionValue : IValueExpression
 {
-	public static void RegisterNameTable(this IServiceCollection services)
-	{
-		if (services.IsRegistered<INameTableProvider>())
-		{
-			return;
-		}
-
-		services.AddSharedImplementationSync<NameTableProvider>(SharedWithin.Scope).For<INameTableProvider>();
-	}
+	void SetEvaluator(IValueEvaluator valueEvaluator);
 }

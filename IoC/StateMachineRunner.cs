@@ -15,8 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.IoC;
-
 namespace Xtate.Core;
 
 public class StateMachineRunner : IStateMachineRunner, IDisposable
@@ -42,7 +40,10 @@ public class StateMachineRunner : IStateMachineRunner, IDisposable
 	{
 		lock (_sync)
 		{
-			XtateObjectDisposedException.ThrowIf(_disposed, this);
+			if (_disposed)
+			{
+				throw new ObjectDisposedException(typeof(StateMachineRunner).FullName);
+			}
 
 			_context.AddStateMachineController(_controller);
 		}

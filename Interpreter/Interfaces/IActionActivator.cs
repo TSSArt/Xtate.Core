@@ -15,25 +15,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Core;
+namespace Xtate.CustomAction;
 
-public interface ILogWriter
+public interface IActionActivator
 {
-	bool IsEnabled(Type source, Level level);
-
-	ValueTask Write(Type source, 
-					Level level,
-					int eventId,
-					string? message,
-					IAsyncEnumerable<LoggingParameter>? parameters = default);
-}
-
-public interface ILogWriter<TSource>
-{
-	bool IsEnabled(Level level);
-
-	ValueTask Write(Level level,
-					int eventId,
-					string? message,
-					IAsyncEnumerable<LoggingParameter>? parameters = default);
+	IAction Activate(string xml);
 }

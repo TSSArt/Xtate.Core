@@ -15,25 +15,22 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using Xtate.IoC;
+using Xtate.Scxml;
+
 namespace Xtate.Core;
 
-public interface ILogWriter
+public class StateMachineFactoryModule : Module<ScxmlModule>
 {
-	bool IsEnabled(Type source, Level level);
+	protected override void AddServices()
+	{
+		Services.AddSharedFactory<StateMachineGetter>(SharedWithin.Scope).For<IStateMachine>();
+		Services.AddImplementation<StateMachineService>().For<IStateMachineService>();
 
-	ValueTask Write(Type source, 
-					Level level,
-					int eventId,
-					string? message,
-					IAsyncEnumerable<LoggingParameter>? parameters = default);
-}
+		Services.AddType<ScxmlReaderStateMachineGetter>();
+		Services.AddImplementation<ScxmlStateMachineProvider>().For<IStateMachineProvider>();
 
-public interface ILogWriter<TSource>
-{
-	bool IsEnabled(Level level);
-
-	ValueTask Write(Level level,
-					int eventId,
-					string? message,
-					IAsyncEnumerable<LoggingParameter>? parameters = default);
+		Services.AddType<ScxmlLocationStateMachineGetter>();
+		Services.AddImplementation<SourceStateMachineProvider>().For<IStateMachineProvider>();
+	}
 }

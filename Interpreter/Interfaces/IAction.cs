@@ -15,20 +15,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.IoC;
+namespace Xtate.CustomAction;
 
-namespace Xtate.Core;
-
-public static class LoggingExtensions
+public interface IAction
 {
-	public static void RegisterLogging(this IServiceCollection services)
-	{
-		if (services.IsRegistered<ILogger<Any>>())
-		{
-			return;
-		}
+	IEnumerable<IActionValue> GetValues();
 
-		services.AddImplementation<LogEntityParserService<Any>>().For<IEntityParserHandler<Any>>();
-		services.AddImplementation<Logger<Any>>().For<ILogger<Any>>();
-	}
+	IEnumerable<IActionLocation> GetLocations();
+
+	ValueTask Execute();
 }

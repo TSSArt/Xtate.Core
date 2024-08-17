@@ -15,23 +15,26 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using Xtate.DataModel.Runtime;
 using Xtate.IoC;
 
-namespace Xtate.Core;
+namespace Xtate.DataModel;
 
-public static class ContainerExtensions
+public class RuntimeDataModelHandlerModule : Module<DataModelHandlerBaseModule, ErrorProcessorModule>
 {
-	public static void AddForwarding<TFrom, TTo>(this IServiceCollection services) where TFrom : class where TTo : class, TFrom
+	protected override void AddServices()
 	{
-		if (services is null) throw new ArgumentNullException(nameof(services));
+		Services.AddTypeSync<RuntimeActionExecutor, RuntimeAction>();
+		Services.AddTypeSync<RuntimeValueEvaluator, RuntimeValue>();
+		Services.AddTypeSync<RuntimePredicateEvaluator, RuntimePredicate>();
+		Services.AddSharedType<RuntimeExecutionContext>(SharedWithin.Scope);
+		Services.AddImplementation<RuntimeDataModelHandlerProvider>().For<IDataModelHandlerProvider>();
 
-		services.AddForwarding<TFrom?>(static async serviceProvider => await serviceProvider.GetOptionalService<TTo>().ConfigureAwait(false));
-	}
+		var implementation = Services.AddImplementation<RuntimeDataModelHandler>().For<RuntimeDataModelHandler>();
 
-	public static void AddForwarding<TFrom, TTo, TArg>(this IServiceCollection services) where TFrom : class where TTo : class, TFrom
-	{
-		if (services is null) throw new ArgumentNullException(nameof(services));
-
-		services.AddForwarding<TFrom?, TArg>(static async (serviceProvider, argument) => await serviceProvider.GetOptionalService<TTo, TArg>(argument).ConfigureAwait(false));
+		if (!Services.IsRegistered<IDataModelHandler>())
+		{
+			implementation.For<IDataModelHandler>();
+		}
 	}
 }

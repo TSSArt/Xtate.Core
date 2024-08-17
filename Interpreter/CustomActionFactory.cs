@@ -19,10 +19,10 @@ namespace Xtate.CustomAction;
 
 public class CustomActionFactory
 {
-	public required IEnumerable<ICustomActionProvider> CustomActionProviders { private get; [UsedImplicitly] init; }
+	public required IEnumerable<IActionProvider> ActionProviders { private get; [UsedImplicitly] init; }
 
 	[UsedImplicitly]
-	public CustomActionBase GetCustomAction(ICustomAction customAction)
+	public IAction GetAction(ICustomAction customAction)
 	{
 		Infra.Requires(customAction);
 
@@ -34,7 +34,7 @@ public class CustomActionFactory
 		Infra.NotNull(name);
 		Infra.NotNull(xml);
 
-		using var enumerator = CustomActionProviders.GetEnumerator();
+		using var enumerator = ActionProviders.GetEnumerator();
 
 		while (enumerator.MoveNext())
 		{
@@ -49,7 +49,7 @@ public class CustomActionFactory
 			{
 				if (enumerator.Current.TryGetActivator(ns, name) is not null)
 				{
-					throw Infra.Fail<Exception>(Res.Format(Resources.Exception_MoreThenOneCustomActionProviderRegisteredForProcessingCustomActionNode, ns, name));
+					Infra.Fail(Res.Format(Resources.Exception_MoreThenOneCustomActionProviderRegisteredForProcessingCustomActionNode, ns, name));
 				}
 			}
 

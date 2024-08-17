@@ -166,31 +166,22 @@ public class PersistedInterpreterModelGetter : IAsyncInitialization
 	public IInterpreterModel GetInterpreterModel() => _interpreterModelAsyncInit.Value;
 }
 
-public static class PersistenceExtensions
+public class PersistenceModule : Module<InterpreterModelBuilderModule, StateMachineFactoryModule, DataModelHandlersModule>
 {
-	public static void RegisterPersistence(this IServiceCollection services)
+	protected override void AddServices()
 	{
-		if (services.IsRegistered<int>()) //TODO:replace int
-		{
-			return;
-		}
+		Services.AddImplementationSync<InMemoryStorageNew, bool>().For<InMemoryStorage>().For<IStorage>();
+		Services.AddImplementationSync<InMemoryStorageBaseline, ReadOnlyMemory<byte>>().For<InMemoryStorage>().For<IStorage>();
+		Services.AddImplementation<StreamStorageNoRollback, Stream>().For<ITransactionalStorage>();
+		Services.AddImplementation<StreamStorageWithRollback, Stream, int>().For<ITransactionalStorage>();
 
-		services.RegisterInterpreterModelBuilder();
-		services.RegisterStateMachineFactory();
-		services.RegisterDataModelHandlers();
+		Services.AddDecorator<PersistedStateMachineService>().For<IStateMachineService>();
+		Services.AddFactory<PersistedDataModelHandlerGetter>().For<IDataModelHandler>();
+		Services.AddImplementation<PersistedStateMachineRunState>().For<IPersistedStateMachineRunState>();
 
-		services.AddImplementationSync<InMemoryStorageNew, bool>().For<InMemoryStorage>().For<IStorage>();
-		services.AddImplementationSync<InMemoryStorageBaseline, ReadOnlyMemory<byte>>().For<InMemoryStorage>().For<IStorage>();
-		services.AddImplementation<StreamStorageNoRollback, Stream>().For<ITransactionalStorage>();
-		services.AddImplementation<StreamStorageWithRollback, Stream, int>().For<ITransactionalStorage>();
+		Services.AddType<InterpreterModelBuilder, IStateMachine, IDataModelHandler>();
 
-		services.AddDecorator<PersistedStateMachineService>().For<IStateMachineService>();
-		services.AddFactory<PersistedDataModelHandlerGetter>().For<IDataModelHandler>();
-		services.AddImplementation<PersistedStateMachineRunState>().For<IPersistedStateMachineRunState>();
-
-		services.AddType<InterpreterModelBuilder, IStateMachine, IDataModelHandler>();
-
-		services.AddSharedFactory<PersistedInterpreterModelGetter>(SharedWithin.Scope).For<IInterpreterModel>();
+		Services.AddSharedFactory<PersistedInterpreterModelGetter>(SharedWithin.Scope).For<IInterpreterModel>();
 	}
 
 	[UsedImplicitly]

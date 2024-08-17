@@ -15,9 +15,16 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.CustomAction;
+using System.IO;
+using Xtate.IoC;
 
-public interface ICustomActionProvider
+namespace Xtate.Core;
+
+public class ResourceModule : Module
 {
-	ICustomActionActivator? TryGetActivator(string ns, string name);
+	protected override void AddServices()
+	{
+		Services.AddSharedImplementation<DefaultIoBoundTask>(SharedWithin.Scope).For<IIoBoundTask>();
+		Services.AddTypeSync<Resource, Stream>();
+	}
 }

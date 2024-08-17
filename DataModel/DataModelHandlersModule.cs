@@ -15,25 +15,17 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Core;
+using Xtate.DataModel.Runtime;
+using Xtate.IoC;
 
-public interface ILogWriter
+namespace Xtate.DataModel;
+
+public class DataModelHandlersModule : Module<NullDataModelHandlerModule, RuntimeDataModelHandlerModule, XPathDataModelHandlerModule, ErrorProcessorModule>
 {
-	bool IsEnabled(Type source, Level level);
-
-	ValueTask Write(Type source, 
-					Level level,
-					int eventId,
-					string? message,
-					IAsyncEnumerable<LoggingParameter>? parameters = default);
-}
-
-public interface ILogWriter<TSource>
-{
-	bool IsEnabled(Level level);
-
-	ValueTask Write(Level level,
-					int eventId,
-					string? message,
-					IAsyncEnumerable<LoggingParameter>? parameters = default);
+	protected override void AddServices()
+	{
+		Services.AddType<UnknownDataModelHandler>();
+		Services.AddImplementation<DataModelHandlerService>().For<IDataModelHandlerService>();
+		Services.AddFactory<DataModelHandlerGetter>().For<IDataModelHandler>();
+	}
 }

@@ -15,25 +15,16 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using Xtate.IoC;
+
 namespace Xtate.Core;
 
-public interface ILogWriter
+public class ErrorProcessorModule : Module
 {
-	bool IsEnabled(Type source, Level level);
-
-	ValueTask Write(Type source, 
-					Level level,
-					int eventId,
-					string? message,
-					IAsyncEnumerable<LoggingParameter>? parameters = default);
-}
-
-public interface ILogWriter<TSource>
-{
-	bool IsEnabled(Level level);
-
-	ValueTask Write(Level level,
-					int eventId,
-					string? message,
-					IAsyncEnumerable<LoggingParameter>? parameters = default);
+	protected override void AddServices()
+	{
+		Services.AddImplementationSync<DefaultErrorProcessor>().For<IErrorProcessor>();
+		Services.AddImplementationSync<ErrorProcessorService<Any>>().For<IErrorProcessorService<Any>>();
+		Services.AddImplementation<StateMachineValidator>().For<IStateMachineValidator>();
+	}
 }

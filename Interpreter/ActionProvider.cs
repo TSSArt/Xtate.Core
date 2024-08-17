@@ -21,8 +21,8 @@ using System.Xml;
 
 namespace Xtate.CustomAction;
 
-public abstract class CustomActionProvider<TCustomAction>([Localizable(false)] string ns, [Localizable(false)] string name)
-	: ICustomActionProvider, ICustomActionActivator where TCustomAction : CustomActionBase
+public abstract class ActionProvider<TCustomAction>([Localizable(false)] string ns, [Localizable(false)] string name)
+	: IActionProvider, IActionActivator where TCustomAction : IAction
 {
 	private readonly NameTable _nameTable = default!;
 
@@ -42,9 +42,9 @@ public abstract class CustomActionProvider<TCustomAction>([Localizable(false)] s
 		}
 	}
 
-#region Interface ICustomActionActivator
+#region Interface IActionActivator
 
-	public virtual CustomActionBase Activate(string xml)
+	public virtual IAction Activate(string xml)
 	{
 		using var stringReader = new StringReader(xml);
 
@@ -63,9 +63,9 @@ public abstract class CustomActionProvider<TCustomAction>([Localizable(false)] s
 
 #endregion
 
-#region Interface ICustomActionProvider
+#region Interface IActionProvider
 
-	public virtual ICustomActionActivator? TryGetActivator(string ns1, string name1) => ns == ns1 && name1 == name ? this : default;
+	public virtual IActionActivator? TryGetActivator(string ns1, string name1) => ns == ns1 && name1 == name ? this : default;
 
 #endregion
 }
