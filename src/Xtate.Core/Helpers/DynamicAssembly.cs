@@ -129,8 +129,5 @@ public class DynamicAssembly : IDisposable, IAsyncInitialization, IServiceModule
 		}
 	}
 
-	private class Context : AssemblyLoadContext
-	{
-		public Context() : base(isCollectible: true) { }
-	}
+	private class Context() : AssemblyLoadContext(isCollectible: true);
 }

@@ -575,16 +575,16 @@ public class StorageTest
 		var storage = new InMemoryStorage(false);
 
 		storage.Set(key: "\t"u8, value: "7"u8);
-		storage.Set(new byte[] { 10, 255 }, value: "7"u8);
-		storage.Set(new byte[] { 10, 255, 13 }, value: "7"u8);
+		storage.Set([10, 255], value: "7"u8);
+		storage.Set([10, 255, 13], value: "7"u8);
 		storage.Set(key: "\r"u8, value: "7"u8);
 		storage.Set(key: "A"u8, value: "7"u8);
 
-		storage.RemoveAll(new byte[] { 10, 255 });
+		storage.RemoveAll([10, 255]);
 
 		Assert.IsFalse(storage.Get("\t"u8).IsEmpty);
-		Assert.IsTrue(storage.Get(new byte[] { 10, 255 }).IsEmpty);
-		Assert.IsTrue(storage.Get(new byte[] { 10, 255, 13 }).IsEmpty);
+		Assert.IsTrue(storage.Get([10, 255]).IsEmpty);
+		Assert.IsTrue(storage.Get([10, 255, 13]).IsEmpty);
 		Assert.IsFalse(storage.Get("\r"u8).IsEmpty);
 		Assert.IsFalse(storage.Get("A"u8).IsEmpty);
 	}
@@ -595,14 +595,14 @@ public class StorageTest
 		var storage = new InMemoryStorage(false);
 
 		storage.Set(key: "\t"u8, value: "7"u8);
-		storage.Set(new byte[] { 255 }, value: "7"u8);
-		storage.Set(new byte[] { 255, 13 }, value: "7"u8);
+		storage.Set([255], value: "7"u8);
+		storage.Set([255, 13], value: "7"u8);
 
-		storage.RemoveAll(new byte[] { 255 });
+		storage.RemoveAll([255]);
 
 		Assert.IsFalse(storage.Get("\t"u8).IsEmpty);
-		Assert.IsTrue(storage.Get(new byte[] { 255 }).IsEmpty);
-		Assert.IsTrue(storage.Get(new byte[] { 255, 13 }).IsEmpty);
+		Assert.IsTrue(storage.Get([255]).IsEmpty);
+		Assert.IsTrue(storage.Get([255, 13]).IsEmpty);
 	}
 
 	[TestMethod]
