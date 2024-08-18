@@ -53,7 +53,7 @@ internal static class IdGenerator
 							  });
 #else
 	public static string NewInvokeId([Localizable(false)] string id, int hash) =>
-		new StringBuilder(id.Length + 33)
+		new StringBuilder(id.Length + 41)
 			.Append(id)
 			.Append('.')
 			.Append(Guid.NewGuid().ToString("N"))
@@ -61,7 +61,7 @@ internal static class IdGenerator
 			.ToString();
 
 	private static string NewGuidWithHash(int hash) =>
-		new StringBuilder(32)
+		new StringBuilder(40)
 			.Append(Guid.NewGuid().ToString("N"))
 			.Append(hash.ToString(@"x8"))
 			.ToString();

@@ -23,12 +23,11 @@ public interface IHost
 															  StateMachineOrigin origin,
 															  DataModelValue parameters,
 															  SecurityContextType securityContextType,
-
-															  //DeferredFinalizer finalizer,
 															  CancellationToken token);
 
-	ValueTask DestroyStateMachine(SessionId sessionId, CancellationToken token);
+	ValueTask DestroyStateMachineAsync(SessionId sessionId, CancellationToken token);
 
-	Task StartHostAsync(CancellationToken token = default);
-	Task StopHostAsync(CancellationToken token = default);
+	Task StartHost(CancellationToken token = default);
+	
+	Task StopHost(CancellationToken token = default);
 }
