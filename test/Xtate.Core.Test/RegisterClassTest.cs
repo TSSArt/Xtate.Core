@@ -323,7 +323,7 @@ public class RegisterClassTest
 		services.AddSharedImplementationSync<AssemblyTypeInfo, Type>(SharedWithin.Container).For<IAssemblyTypeInfo>();
 		var provider = services.BuildProvider();
 
-		var dataModelHandler = await provider.GetOptionalService<IDataModelHandler>();
+		var dataModelHandler = await provider.GetService<IDataModelHandler>();
 
 		//var typeInfo = provider.GetRequiredServiceSync<ITypeInfo, Type>(dataModelHandler.GetType());
 
