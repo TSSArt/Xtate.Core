@@ -44,7 +44,7 @@ public class FinalStateTest
 
 		//await using var stateMachineHost = new StateMachineHost(new StateMachineHostOptions());
 
-		await stateMachineHost.StartHostAsync();
+		await stateMachineHost.StartHost();
 
 		// Act
 		var result = await stateMachineHost.ExecuteStateMachineAsync(stateMachine);
@@ -78,7 +78,7 @@ public class FinalStateTest
 
 		//await using var stateMachineHost = new StateMachineHost(new StateMachineHostOptions());
 
-		await stateMachineHost.StartHostAsync();
+		await stateMachineHost.StartHost();
 
 		// Act
 		var result = await stateMachineHost.ExecuteStateMachineAsync(stateMachine, new DataModelValue(33));
