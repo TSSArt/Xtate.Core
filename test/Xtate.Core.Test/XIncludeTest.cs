@@ -35,11 +35,11 @@ public class XIncludeTest
 		var serviceProvider = services.BuildProvider();
 		var host = await serviceProvider.GetRequiredService<StateMachineHost>();
 
-		await host.StartHostAsync();
+		await host.StartHost();
 
 		_ = await host.ExecuteStateMachineAsync(new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Scxml/XInclude/SingleIncludeSource.scxml"));
 
-		await host.StopHostAsync();
+		await host.StopHost();
 	}
 
 	[TestMethod]
