@@ -17,6 +17,7 @@
 
 namespace Xtate.Builder;
 
+[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
 public class LogBuilder : BuilderBase, ILogBuilder
 {
 	private IValueExpression? _expression;

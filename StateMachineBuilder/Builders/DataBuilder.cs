@@ -17,6 +17,7 @@
 
 namespace Xtate.Builder;
 
+[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
 public class DataBuilder : BuilderBase, IDataBuilder
 {
 	private IValueExpression?        _expression;

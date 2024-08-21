@@ -73,9 +73,9 @@ public class TransitionFluentBuilder<TOuterBuilder> where TOuterBuilder : notnul
 		return this;
 	}
 
-	public TransitionFluentBuilder<TOuterBuilder> SetConditionFunc(Func<bool> predicate) => SetCondition(RuntimePredicate.GetPredicate(predicate));
+	public TransitionFluentBuilder<TOuterBuilder> SetCondition(Func<bool> predicate) => SetCondition(RuntimePredicate.GetPredicate(predicate));
 
-	public TransitionFluentBuilder<TOuterBuilder> SetConditionFuncAsync(Func<ValueTask<bool>> predicate) => SetCondition(RuntimePredicate.GetPredicate(predicate));
+	public TransitionFluentBuilder<TOuterBuilder> SetCondition(Func<ValueTask<bool>> predicate) => SetCondition(RuntimePredicate.GetPredicate(predicate));
 
 	public TransitionFluentBuilder<TOuterBuilder> SetTarget(params string[] target)
 	{
@@ -136,5 +136,5 @@ public class TransitionFluentBuilder<TOuterBuilder> where TOuterBuilder : notnul
 
 	public TransitionFluentBuilder<TOuterBuilder> AddOnTransition(Action action) => AddOnTransition(RuntimeAction.GetAction(action));
 
-	public TransitionFluentBuilder<TOuterBuilder> AddOnTransitionAsync(Func<ValueTask> action) => AddOnTransition(RuntimeAction.GetAction(action));
+	public TransitionFluentBuilder<TOuterBuilder> AddOnTransition(Func<ValueTask> action) => AddOnTransition(RuntimeAction.GetAction(action));
 }

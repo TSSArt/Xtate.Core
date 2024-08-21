@@ -17,6 +17,7 @@
 
 namespace Xtate.Builder;
 
+[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
 public class AssignBuilder : BuilderBase, IAssignBuilder
 {
 	private string?              _attribute;

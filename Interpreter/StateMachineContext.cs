@@ -320,13 +320,13 @@ public class HostXDataModelProperty : IXDataModelProperty
 
 public class ArgsXDataModelProperty : IXDataModelProperty
 {
-	public required IStateMachineStartOptions? StartOptions { private get; [UsedImplicitly] init; }
+	public required IStateMachineArguments? StateMachineArguments { private get; [UsedImplicitly] init; }
 
 #region Interface IXDataModelProperty
 
 	public string Name => @"args";
 
-	public DataModelValue Value => StartOptions?.Parameters ?? default;
+	public DataModelValue Value => StateMachineArguments?.Arguments ?? default;
 
 #endregion
 }
