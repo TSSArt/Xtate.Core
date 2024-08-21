@@ -17,6 +17,7 @@
 
 namespace Xtate.Builder;
 
+[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
 public class StateMachineBuilder : BuilderBase, IStateMachineBuilder
 {
 	private BindingType                           _bindingType;

@@ -59,11 +59,11 @@ public class FinalFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 		return this;
 	}
 
-	public FinalFluentBuilder<TOuterBuilder> SetDoneDataValue(DataModelValue value) => SetDoneData(RuntimeValue.GetValue(value));
+	public FinalFluentBuilder<TOuterBuilder> SetDoneData(DataModelValue value) => SetDoneData(RuntimeValue.GetValue(value));
 
-	public FinalFluentBuilder<TOuterBuilder> SetDoneDataFunc(Func<DataModelValue> evaluator) => SetDoneData(RuntimeValue.GetValue(evaluator));
+	public FinalFluentBuilder<TOuterBuilder> SetDoneData(Func<DataModelValue> evaluator) => SetDoneData(RuntimeValue.GetValue(evaluator));
 
-	public FinalFluentBuilder<TOuterBuilder> SetDoneDataFuncAsync(Func<ValueTask<DataModelValue>> evaluator) => SetDoneData(RuntimeValue.GetValue(evaluator));
+	public FinalFluentBuilder<TOuterBuilder> SetDoneData(Func<ValueTask<DataModelValue>> evaluator) => SetDoneData(RuntimeValue.GetValue(evaluator));
 
 	private FinalFluentBuilder<TOuterBuilder> AddOnEntry(IExecutableEntity action)
 	{
@@ -74,7 +74,7 @@ public class FinalFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 
 	public FinalFluentBuilder<TOuterBuilder> AddOnEntry(Action action) => AddOnEntry(RuntimeAction.GetAction(action));
 
-	public FinalFluentBuilder<TOuterBuilder> AddOnEntryAsync(Func<ValueTask> action) => AddOnEntry(RuntimeAction.GetAction(action));
+	public FinalFluentBuilder<TOuterBuilder> AddOnEntry(Func<ValueTask> action) => AddOnEntry(RuntimeAction.GetAction(action));
 
 	private FinalFluentBuilder<TOuterBuilder> AddOnExit(IExecutableEntity action)
 	{
@@ -85,5 +85,5 @@ public class FinalFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 
 	public FinalFluentBuilder<TOuterBuilder> AddOnExit(Action action) => AddOnExit(RuntimeAction.GetAction(action));
 
-	public FinalFluentBuilder<TOuterBuilder> AddOnExitAsync(Func<ValueTask> action) => AddOnExit(RuntimeAction.GetAction(action));
+	public FinalFluentBuilder<TOuterBuilder> AddOnExit(Func<ValueTask> action) => AddOnExit(RuntimeAction.GetAction(action));
 }

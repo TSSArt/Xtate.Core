@@ -81,7 +81,7 @@ public class StartAction : AsyncAction, IDisposable
 
 	public required Func<ValueTask<IStateMachineLocation?>> StateMachineLocationFactory { private get; [UsedImplicitly] init; }
 
-	public required Func<ValueTask<IHost>> HostFactory { private get; [UsedImplicitly] init; }
+	public required Func<ValueTask<IHostController>> HostFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IDisposable
 
@@ -128,7 +128,7 @@ public class StartAction : AsyncAction, IDisposable
 
 		var host = await HostFactory().ConfigureAwait(false);
 
-		await host.StartStateMachineAsync(sessionId, stateMachineOrigin, parameters: default, securityContextType, _disposingToken.Token).ConfigureAwait(false);
+		await host.StartStateMachine(sessionId, stateMachineOrigin, parameters: default, securityContextType, _disposingToken.Token).ConfigureAwait(false);
 
 		if (_sessionIdLocation is not null)
 		{

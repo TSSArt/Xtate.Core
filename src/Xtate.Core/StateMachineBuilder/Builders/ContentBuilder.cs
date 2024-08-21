@@ -17,6 +17,7 @@
 
 namespace Xtate.Builder;
 
+[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
 public class ContentBuilder : BuilderBase, IContentBuilder
 {
 	private IContentBody?     _body;

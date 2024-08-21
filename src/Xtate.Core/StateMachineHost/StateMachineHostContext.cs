@@ -54,9 +54,9 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 		_stopTokenSource = new CancellationTokenSource();
 
 		_contextRuntimeItems = ImmutableDictionary<object, object>.Empty;
-		if (stateMachineHost is IHost host)
+		if (stateMachineHost is IHostController host)
 		{
-			_contextRuntimeItems = _contextRuntimeItems.Add(typeof(IHost), host);
+			_contextRuntimeItems = _contextRuntimeItems.Add(typeof(IHostController), host);
 		}
 
 		if (options.Configuration is { Count : > 0 } configuration)

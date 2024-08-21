@@ -17,6 +17,7 @@
 
 namespace Xtate.Builder;
 
+[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
 public class IfBuilder : BuilderBase, IIfBuilder
 {
 	private ImmutableArray<IExecutableEntity>.Builder? _actions;
