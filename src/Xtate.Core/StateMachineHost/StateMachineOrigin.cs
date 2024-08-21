@@ -19,7 +19,6 @@ namespace Xtate.Core;
 
 public enum StateMachineOriginType
 {
-	None,
 	Scxml,
 	Source,
 	StateMachine
@@ -59,7 +58,6 @@ public readonly struct StateMachineOrigin
 			string        => StateMachineOriginType.Scxml,
 			Uri           => StateMachineOriginType.Source,
 			IStateMachine => StateMachineOriginType.StateMachine,
-			null          => StateMachineOriginType.None,
 			_             => throw Infra.Unmatched(_value?.GetType())
 		};
 

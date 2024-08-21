@@ -29,6 +29,8 @@ public partial class DataModelList : IDynamicMetaObjectProvider
 
 #endregion
 
+	public dynamic AsDynamic() => this;
+
 	internal class Dynamic(DataModelList list) : DynamicObject
 	{
 		private const string GetLength   = "GetLength";

@@ -25,6 +25,8 @@ public static class Runtime
 
 	public static DataModelList DataModel => GetContext().DataModelController?.DataModel ?? DataModelList.Empty;
 
+	public static DataModelValue Arguments => GetContext().DataModelController?.DataModel[@"_x"].AsListOrDefault()?["args"] ?? default;
+
 	private static RuntimeExecutionContext GetContext()
 	{
 		if (Current.Value is { } context)

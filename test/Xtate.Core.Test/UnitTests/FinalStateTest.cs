@@ -36,7 +36,7 @@ public class FinalStateTest
 
 		var stateMachine = builder
 						   .BeginFinal()
-						   .SetDoneDataValue(22)
+						   .SetDoneData(22)
 						   .EndFinal()
 						   .Build();
 
@@ -65,7 +65,7 @@ public class FinalStateTest
 		// Arrange
 		var stateMachine = builder
 						   .BeginFinal()
-						   .SetDoneDataFunc(
+						   .SetDoneData(
 							   () =>
 							   {
 								   var val = Runtime.DataModel["_x"].AsListOrEmpty()["args"].AsNumber();

@@ -68,10 +68,12 @@ public class ScopeManager : IScopeManager
 			case StateMachineOriginType.StateMachine:
 			{
 				var stateMachine = stateMachineStartOptions.Origin.AsStateMachine();
+				
 				return _serviceScopeFactory.CreateScope(
 					services =>
 					{
 						services.AddConstant(stateMachine);
+						services.AddConstant<IStateMachineArguments>(new StateMachineArguments(stateMachineStartOptions.Parameters));
 						services.AddConstant(stateMachineStartOptions);
 						services.AddConstant(_stateMachineHost);
 						services.AddConstant(_stateMachineHostContext);
@@ -83,10 +85,12 @@ public class ScopeManager : IScopeManager
 			{
 				var scxmlStateMachine = new ScxmlStateMachine(stateMachineStartOptions.Origin.AsScxml());
 				var stateMachineLocation = stateMachineStartOptions.Origin.BaseUri is { } uri ? new StateMachineLocation(uri) : null;
+				
 				return _serviceScopeFactory.CreateScope(
 					services =>
 					{
 						services.AddConstant<IScxmlStateMachine>(scxmlStateMachine);
+						services.AddConstant<IStateMachineArguments>(new StateMachineArguments(stateMachineStartOptions.Parameters));
 						if (stateMachineLocation is not null)
 						{
 							services.AddForwarding<IStateMachineLocation>(_ => stateMachineLocation);
@@ -103,10 +107,12 @@ public class ScopeManager : IScopeManager
 			{
 				var location = stateMachineStartOptions.Origin.BaseUri.CombineWith(stateMachineStartOptions.Origin.AsSource());
 				var stateMachineLocation = new StateMachineLocation(location);
+				
 				return _serviceScopeFactory.CreateScope(
 					services =>
 					{
 						services.AddConstant<IStateMachineLocation>(stateMachineLocation);
+						services.AddConstant<IStateMachineArguments>(new StateMachineArguments(stateMachineStartOptions.Parameters));
 						services.AddConstant(stateMachineStartOptions);
 						services.AddConstant(_stateMachineHost);
 						services.AddConstant(_stateMachineHostContext);

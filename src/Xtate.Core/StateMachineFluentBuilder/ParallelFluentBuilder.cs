@@ -76,7 +76,7 @@ public class ParallelFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 
 	public ParallelFluentBuilder<TOuterBuilder> AddOnEntry(Action action) => AddOnEntry(RuntimeAction.GetAction(action));
 
-	public ParallelFluentBuilder<TOuterBuilder> AddOnEntryAsync(Func<ValueTask> action) => AddOnEntry(RuntimeAction.GetAction(action));
+	public ParallelFluentBuilder<TOuterBuilder> AddOnEntry(Func<ValueTask> action) => AddOnEntry(RuntimeAction.GetAction(action));
 
 	private ParallelFluentBuilder<TOuterBuilder> AddOnExit(IExecutableEntity action)
 	{
@@ -87,7 +87,7 @@ public class ParallelFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 
 	public ParallelFluentBuilder<TOuterBuilder> AddOnExit(Action action) => AddOnExit(RuntimeAction.GetAction(action));
 
-	public ParallelFluentBuilder<TOuterBuilder> AddOnExitAsync(Func<ValueTask> action) => AddOnExit(RuntimeAction.GetAction(action));
+	public ParallelFluentBuilder<TOuterBuilder> AddOnExit(Func<ValueTask> action) => AddOnExit(RuntimeAction.GetAction(action));
 
 	public StateFluentBuilder<ParallelFluentBuilder<TOuterBuilder>> BeginState() => StateFluentBuilderFactory(this, Builder.AddState);
 
@@ -115,5 +115,5 @@ public class ParallelFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 
 	public ParallelFluentBuilder<TOuterBuilder> AddTransition(Func<bool> condition, string target) => AddTransition(condition, (Identifier) target);
 
-	public ParallelFluentBuilder<TOuterBuilder> AddTransition(Func<bool> condition, IIdentifier target) => BeginTransition().SetConditionFunc(condition).SetTarget(target).EndTransition();
+	public ParallelFluentBuilder<TOuterBuilder> AddTransition(Func<bool> condition, IIdentifier target) => BeginTransition().SetCondition(condition).SetTarget(target).EndTransition();
 }

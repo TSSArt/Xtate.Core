@@ -40,7 +40,7 @@ public class StateMachineHostModule : Module<StateMachineFactoryModule, StateMac
 				.For<INotifyStateChanged>()
 				.For<IExternalCommunication>();
 
-		Services.AddSharedImplementation<StateMachineHost>(SharedWithin.Container).For<StateMachineHost>().For<IStateMachineHost>().For<IServiceFactory>().For<IHost>(); //TODO: Make only interface
+		Services.AddSharedImplementation<StateMachineHost>(SharedWithin.Container).For<StateMachineHost>().For<IStateMachineHost>().For<IServiceFactory>().For<IHostController>(); //TODO: Make only interface
 		Services.AddSharedImplementation<StateMachineHostContext>(SharedWithin.Container).For<StateMachineHostContext>().For<IStateMachineHostContext>();                //TODO: Make only interface
 	}
 }

@@ -17,6 +17,7 @@
 
 namespace Xtate.Builder;
 
+[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
 public class ParamBuilder : BuilderBase, IParamBuilder
 {
 	private IValueExpression?    _expression;

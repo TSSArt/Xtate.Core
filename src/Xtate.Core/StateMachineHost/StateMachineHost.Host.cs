@@ -17,20 +17,20 @@
 
 namespace Xtate;
 
-public sealed partial class StateMachineHost : IHost
+public sealed partial class StateMachineHost : IHostController
 {
-	public required Func<ValueTask<IScopeManager>> _scopeManagerFactory { private get; [UsedImplicitly] init; }
+	public required Func<ValueTask<IScopeManager>> ScopeManagerFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IHost
 
-	async ValueTask<IStateMachineController> IHost.StartStateMachineAsync(SessionId sessionId,
+	async ValueTask<IStateMachineController> IHostController.StartStateMachine(SessionId sessionId,
 																		  StateMachineOrigin origin,
 																		  DataModelValue parameters,
 																		  SecurityContextType securityContextType,
 																		  CancellationToken token) =>
 		await StartStateMachine(sessionId, origin, parameters, securityContextType, token).ConfigureAwait(false);
 
-	ValueTask IHost.DestroyStateMachineAsync(SessionId sessionId, CancellationToken token) => DestroyStateMachine(sessionId, token);
+	ValueTask IHostController.DestroyStateMachine(SessionId sessionId, CancellationToken token) => DestroyStateMachine(sessionId, token);
 
 #endregion
 
@@ -40,8 +40,6 @@ public sealed partial class StateMachineHost : IHost
 																	   SecurityContextType securityContextType,
 																	   CancellationToken token)
 	{
-		if (origin.Type == StateMachineOriginType.None) throw new ArgumentException(Resources.Exception_StateMachineOriginMissed, nameof(origin));
-
 		var stateMachineStartOptions = new StateMachineStartOptions
 									   {
 										   Origin = origin,
@@ -50,7 +48,7 @@ public sealed partial class StateMachineHost : IHost
 										   SecurityContextType = securityContextType
 									   };
 
-		var scopeManager = await _scopeManagerFactory().ConfigureAwait(false);
+		var scopeManager = await ScopeManagerFactory().ConfigureAwait(false);
 
 		return await scopeManager.RunStateMachine(stateMachineStartOptions).ConfigureAwait(false);
 	}

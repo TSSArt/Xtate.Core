@@ -17,15 +17,15 @@
 
 namespace Xtate.Core;
 
-public interface IHost
+public interface IHostController
 {
-	ValueTask<IStateMachineController> StartStateMachineAsync(SessionId sessionId,
-															  StateMachineOrigin origin,
-															  DataModelValue parameters,
-															  SecurityContextType securityContextType,
-															  CancellationToken token);
+	ValueTask<IStateMachineController> StartStateMachine(SessionId sessionId,
+														 StateMachineOrigin origin,
+														 DataModelValue parameters,
+														 SecurityContextType securityContextType,
+														 CancellationToken token);
 
-	ValueTask DestroyStateMachineAsync(SessionId sessionId, CancellationToken token);
+	ValueTask DestroyStateMachine(SessionId sessionId, CancellationToken token);
 
 	Task StartHost(CancellationToken token = default);
 	

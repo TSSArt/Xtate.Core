@@ -17,6 +17,7 @@
 
 namespace Xtate.Builder;
 
+[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
 public class StateBuilder : BuilderBase, IStateBuilder
 {
 	private         IDataModel?                           _dataModel;

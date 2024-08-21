@@ -49,7 +49,7 @@ public class DestroyAction : AsyncAction, IDisposable
 		_sessionIdValue = new StringValue(sessionIdExpression, sessionId);
 	}
 
-	public required IHost Host { private get; [UsedImplicitly] init; }
+	public required IHostController Host { private get; [UsedImplicitly] init; }
 
 #region Interface IDisposable
 
@@ -67,7 +67,7 @@ public class DestroyAction : AsyncAction, IDisposable
 	{
 		var sessionId = await GetSessionId().ConfigureAwait(false);
 
-		await Host.DestroyStateMachineAsync(sessionId, _disposingToken.Token).ConfigureAwait(false);
+		await Host.DestroyStateMachine(sessionId, _disposingToken.Token).ConfigureAwait(false);
 	}
 
 	private async ValueTask<SessionId> GetSessionId()

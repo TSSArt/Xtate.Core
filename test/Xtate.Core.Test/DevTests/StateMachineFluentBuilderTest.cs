@@ -147,7 +147,7 @@ public class StateMachineFluentBuilderTest
 		stateMachine = fluentBuilder
 					   .BeginState((Identifier) "S1")
 					   .BeginTransition()
-					   .SetConditionFunc(() => throw new InvalidOperationException("some exception"))
+					   .SetCondition(new Func<bool>(() => throw new InvalidOperationException("some exception")))
 					   .EndTransition()
 					   .EndState()
 					   .Build();

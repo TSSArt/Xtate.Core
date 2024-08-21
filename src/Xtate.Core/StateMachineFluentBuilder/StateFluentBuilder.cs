@@ -123,7 +123,7 @@ public class StateFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 
 	public StateFluentBuilder<TOuterBuilder> AddOnEntry(Action action) => AddOnEntry(RuntimeAction.GetAction(action));
 
-	public StateFluentBuilder<TOuterBuilder> AddOnEntryAsync(Func<ValueTask> action) => AddOnEntry(RuntimeAction.GetAction(action));
+	public StateFluentBuilder<TOuterBuilder> AddOnEntry(Func<ValueTask> action) => AddOnEntry(RuntimeAction.GetAction(action));
 
 	private StateFluentBuilder<TOuterBuilder> AddOnExit(IExecutableEntity action)
 	{
@@ -134,7 +134,7 @@ public class StateFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 
 	public StateFluentBuilder<TOuterBuilder> AddOnExit(Action action) => AddOnExit(RuntimeAction.GetAction(action));
 
-	public StateFluentBuilder<TOuterBuilder> AddOnExitAsync(Func<ValueTask> action) => AddOnExit(RuntimeAction.GetAction(action));
+	public StateFluentBuilder<TOuterBuilder> AddOnExit(Func<ValueTask> action) => AddOnExit(RuntimeAction.GetAction(action));
 
 	public InitialFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginInitial() => InitialFluentBuilderFactory(this, Builder.SetInitial);
 
@@ -170,5 +170,5 @@ public class StateFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 
 	public StateFluentBuilder<TOuterBuilder> AddTransition(Func<bool> condition, string target) => AddTransition(condition, (Identifier) target);
 
-	public StateFluentBuilder<TOuterBuilder> AddTransition(Func<bool> condition, IIdentifier target) => BeginTransition().SetConditionFunc(condition).SetTarget(target).EndTransition();
+	public StateFluentBuilder<TOuterBuilder> AddTransition(Func<bool> condition, IIdentifier target) => BeginTransition().SetCondition(condition).SetTarget(target).EndTransition();
 }

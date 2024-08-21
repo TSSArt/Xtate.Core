@@ -45,13 +45,13 @@ public class StateMachineRuntimeController : StateMachineControllerBase
 		EventChannel = CreateChannel(options);
 	}
 
-	public StateMachineRuntimeController(IStateMachineStartOptions stateMachineStartOptions,
+	public StateMachineRuntimeController(IStateMachineSessionId stateMachineSessionId,
 										 IStateMachineOptions? options,
 										 IStateMachine? stateMachine,
 										 IStateMachineLocation? stateMachineLocation,
 										 IStateMachineHost stateMachineHost,
 										 IStateMachineIdlePeriod? idlePeriod)
-		: base(stateMachineStartOptions.SessionId, options, stateMachine, stateMachineLocation?.Location, stateMachineHost, /* defaultOptions.options*/new InterpreterOptions())
+		: base(stateMachineSessionId.SessionId, options, stateMachine, stateMachineLocation?.Location, stateMachineHost, /* defaultOptions.options*/new InterpreterOptions())
 	{
 		_idlePeriod = idlePeriod?.IdlePeriod;
 

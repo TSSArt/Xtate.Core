@@ -526,6 +526,8 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 		return DeepCloneWithMap(DataModelAccess.Constant, ref map);
 	}
 
+	public dynamic AsDynamic() => this;
+
 	internal DataModelValue DeepCloneWithMap(DataModelAccess targetAccess, ref Dictionary<object, DataModelList>? map) =>
 		_value switch
 		{

@@ -17,6 +17,7 @@
 
 namespace Xtate.Builder;
 
+[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
 public class CancelBuilder : BuilderBase, ICancelBuilder
 {
 	private string?           _sendId;
