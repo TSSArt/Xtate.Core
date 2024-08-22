@@ -19,7 +19,7 @@ namespace Xtate.Core;
 
 public interface IStateMachineArguments
 {
-	DataModelValue Arguments { get; init; }
+	DataModelValue Arguments { get; }
 }
 
 public class StateMachineArguments(DataModelValue arguments) : IStateMachineArguments
