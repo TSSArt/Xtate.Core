@@ -15,9 +15,22 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using Xtate.IoC;
+
 namespace Xtate.Core;
 
-public interface IScopeManager
+public class LocationStateMachine(Uri location) : StateMachineClass, IStateMachineLocation, IStateMachineArguments
 {
-	ValueTask<IStateMachineController> RunStateMachine(IStateMachineStartOptions stateMachineStartOptions);
+	public DataModelValue Arguments { get; init; }
+
+	public override void AddServices(IServiceCollection services)
+	{
+		base.AddServices(services);
+
+		services.AddModule<SourceStateMachineModule>();
+		services.AddConstant<IStateMachineLocation>(this);
+		services.AddConstant<IStateMachineArguments>(this);
+	}
+
+	public Uri Location  => location;
 }

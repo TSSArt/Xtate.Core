@@ -25,8 +25,8 @@ namespace Xtate.Core;
 
 public interface IStateMachineHostContext
 {
-	void AddStateMachineController(IStateMachineController controller);
-	void RemoveStateMachineController(IStateMachineController controller);
+	void AddStateMachineController(SessionId sessionId, IStateMachineController controller);
+	void RemoveStateMachineController(SessionId sessionId);
 }
 
 public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposable
@@ -87,17 +87,16 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 
 #region Interface IStateMachineHostContext
 
-	public void AddStateMachineController(IStateMachineController stateMachineController)
+	public void AddStateMachineController(SessionId sessionId, IStateMachineController stateMachineController)
 	{
-		var sessionId = stateMachineController.SessionId;
 		var result = _stateMachineBySessionId.TryAdd(sessionId, stateMachineController);
 
 		Infra.Assert(result);
 	}
 
-	public virtual void RemoveStateMachineController(IStateMachineController stateMachineController)
+	public virtual void RemoveStateMachineController(SessionId sessionId)
 	{
-		var result = _stateMachineBySessionId.TryRemove(stateMachineController.SessionId, out var controller);
+		var result = _stateMachineBySessionId.TryRemove(sessionId, out var controller);
 
 		Infra.Assert(result);
 		Infra.NotNull(controller);
@@ -219,7 +218,7 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 
 		if (scxml is null)
 		{
-			services.AddConstant<IStateMachineLocation>(new StateMachineLocation(uri!));
+			services.AddConstant<IStateMachineLocation>(new LocationStateMachine(uri!));
 		}
 		else
 		{
@@ -386,13 +385,13 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 	{
 		if (_stateMachineBySessionId.TryGetValue(sessionId, out var controller))
 		{
-			controller.TriggerDestroySignal();
+			await controller.Destroy().ConfigureAwait(false);
 
 			try
 			{
-				await controller.GetResult(token).ConfigureAwait(false);
+				await controller.GetResult().ConfigureAwait(false);
 			}
-			catch (OperationCanceledException ex) when (ex.CancellationToken == token)
+			catch (OperationCanceledException ex) when (ex.CancellationToken == token)//todo:delete
 			{
 				throw;
 			}
@@ -416,7 +415,7 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 				var controller = pair.Value;
 				try
 				{
-					await controller.GetResult(token).ConfigureAwait(false);
+					await controller.GetResult().ConfigureAwait(false);
 				}
 				catch (OperationCanceledException ex) when (ex.CancellationToken == token)
 				{

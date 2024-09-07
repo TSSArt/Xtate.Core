@@ -23,7 +23,7 @@ public static class CancellationTokenRegistrationExtensions
 		new(cancellationTokenRegistration, continueOnCapturedContext);
 
 #if !NETCOREAPP3_0_OR_GREATER && !NETSTANDARD2_1
-	private static ValueTask DisposeAsync(this CancellationTokenRegistration cancellationTokenRegistration)
+	public static ValueTask DisposeAsync(this CancellationTokenRegistration cancellationTokenRegistration)
 	{
 		cancellationTokenRegistration.Dispose();
 

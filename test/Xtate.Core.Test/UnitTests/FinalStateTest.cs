@@ -40,14 +40,14 @@ public class FinalStateTest
 						   .EndFinal()
 						   .Build();
 
-		var stateMachineHost = await serviceProvider.GetRequiredService<StateMachineHost>();
+		var stateMachineHost = (IHostController)await serviceProvider.GetRequiredService<StateMachineHost>();
 
 		//await using var stateMachineHost = new StateMachineHost(new StateMachineHostOptions());
 
 		await stateMachineHost.StartHost();
 
 		// Act
-		var result = await stateMachineHost.ExecuteStateMachineAsync(stateMachine);
+		var result = await stateMachineHost.ExecuteStateMachine(new RuntimeStateMachine(stateMachine), SecurityContextType.NewStateMachine);
 
 		//Assert
 		Assert.AreEqual(expected: 22, result.AsNumber());
@@ -74,14 +74,14 @@ public class FinalStateTest
 						   .EndFinal()
 						   .Build();
 
-		var stateMachineHost = await serviceProvider.GetRequiredService<StateMachineHost>();
-
+		var stateMachineHost = (IHostController)await serviceProvider.GetRequiredService<StateMachineHost>();
+		var smc = new RuntimeStateMachine(stateMachine) { Arguments = 33 };
 		//await using var stateMachineHost = new StateMachineHost(new StateMachineHostOptions());
 
 		await stateMachineHost.StartHost();
 
 		// Act
-		var result = await stateMachineHost.ExecuteStateMachineAsync(stateMachine, new DataModelValue(33));
+		var result = await stateMachineHost.ExecuteStateMachine(smc, SecurityContextType.NewStateMachine);
 
 		//Assert
 		Assert.AreEqual(expected: 33, result.AsNumber());

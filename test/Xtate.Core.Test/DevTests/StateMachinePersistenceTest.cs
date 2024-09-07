@@ -46,8 +46,8 @@ public class StateMachinePersistenceTest
 		//var director = new ScxmlDirector(xmlReader, serviceLocator.GetService<IBuilderFactory>(), new ScxmlDirectorOptions(serviceLocator) { NamespaceResolver = xmlNamespaceManager });
 
 		var sc = new ServiceCollection();
-		sc.AddModule<StateMachineFactoryModule>();
-		sc.AddConstant<IStateMachineLocation>(new StateMachineLocation(new Uri("res://Xtate.UnitTest/Xtate.UnitTest/Resources/All.xml")));
+		sc.AddModule<StateMachineFactoryModuleForTests>();
+		sc.AddConstant<IStateMachineLocation>(new LocationStateMachine(new Uri("res://Xtate.UnitTest/Xtate.UnitTest/Resources/All.xml")));
 		var sp = sc.BuildProvider();
 
 		_allStateMachine = sp.GetRequiredService<IStateMachine>().Result;

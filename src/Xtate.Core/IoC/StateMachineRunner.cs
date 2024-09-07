@@ -17,12 +17,21 @@
 
 namespace Xtate.Core;
 
+[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
 public class StateMachineRunner : IStateMachineRunner, IDisposable
 {
-	private readonly object                   _sync = new();
-	private          bool                     _disposed;
-	public required  IStateMachineHostContext _context    { private get; [UsedImplicitly] init; }
-	public required  IStateMachineController  _controller { private get; [UsedImplicitly] init; }
+	private readonly IStateMachineHostContext _context;
+	private readonly IStateMachineController  _controller;
+	private          SessionId?               _sessionId;
+
+	public StateMachineRunner(IStateMachineHostContext context, IStateMachineController controller, IStateMachineSessionId sessionId)
+	{
+		_context = context;
+		_controller = controller;
+		_sessionId = sessionId.SessionId;
+
+		_context.AddStateMachineController(_sessionId, controller);
+	}
 
 #region Interface IDisposable
 
@@ -36,42 +45,7 @@ public class StateMachineRunner : IStateMachineRunner, IDisposable
 
 #region Interface IStateMachineRunner
 
-	public async ValueTask<IStateMachineController> Run(CancellationToken token)
-	{
-		lock (_sync)
-		{
-			if (_disposed)
-			{
-				throw new ObjectDisposedException(typeof(StateMachineRunner).FullName);
-			}
-
-			_context.AddStateMachineController(_controller);
-		}
-
-		await _controller.StartAsync(token).ConfigureAwait(false);
-
-		return _controller;
-	}
-
-	public async ValueTask Wait(CancellationToken token)
-	{
-		IStateMachineController? controller;
-
-		lock (_sync)
-		{
-			if (_disposed)
-			{
-				return;
-			}
-
-			controller = _controller;
-		}
-
-		if (controller is not null)
-		{
-			await controller.GetResult(token).ConfigureAwait(false);
-		}
-	}
+	public ValueTask<DataModelValue> GetResult() => _controller.GetResult();
 
 #endregion
 
@@ -79,19 +53,9 @@ public class StateMachineRunner : IStateMachineRunner, IDisposable
 	{
 		if (disposing)
 		{
-			lock (_sync)
+			if (Interlocked.Exchange(ref _sessionId, value: default) is { } sessionId)
 			{
-				if (_disposed)
-				{
-					return;
-				}
-
-				if (_controller is { } controller)
-				{
-					_context.RemoveStateMachineController(controller);
-				}
-
-				_disposed = true;
+				_context.RemoveStateMachineController(sessionId);
 			}
 		}
 	}

@@ -15,25 +15,82 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using Xtate.IoC;
+using Xtate.Service;
+
 namespace Xtate;
 
 public sealed partial class StateMachineHost : IHostController
 {
-	public required Func<ValueTask<IScopeManager>> ScopeManagerFactory { private get; [UsedImplicitly] init; }
+	//public required Func<ValueTask<IScopeManagerOld>> ScopeManagerFactoryOld { private get; [UsedImplicitly] init; }
 
-#region Interface IHost
+	//public required Func<Action<IServiceCollection>, ValueTask<IScopeManager>> ScopeManagerFactory { private get; [UsedImplicitly] init; }
 
-	async ValueTask<IStateMachineController> IHostController.StartStateMachine(SessionId sessionId,
-																		  StateMachineOrigin origin,
-																		  DataModelValue parameters,
-																		  SecurityContextType securityContextType,
-																		  CancellationToken token) =>
-		await StartStateMachine(sessionId, origin, parameters, securityContextType, token).ConfigureAwait(false);
+	public required IServiceScopeFactory ServiceScopeFactory { private get; [UsedImplicitly] init; }
+
+#region Interface IHostController
+
+	ValueTask IHostController.StartStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType) => 
+		StartStateMachine(stateMachineClass, securityContextType);
+
+	ValueTask<DataModelValue> IHostController.ExecuteStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType) =>
+		ExecuteStateMachine(stateMachineClass, securityContextType);
 
 	ValueTask IHostController.DestroyStateMachine(SessionId sessionId, CancellationToken token) => DestroyStateMachine(sessionId, token);
 
 #endregion
 
+	private async ValueTask StartStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType)
+	{
+		var serviceScope = ServiceScopeFactory.CreateScope(stateMachineClass.AddServices);
+
+		var stateMachineRunner = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineRunner>().ConfigureAwait(false);
+
+		DisposeScopeOnComplete(stateMachineRunner, serviceScope).Forget();
+	}
+
+	private async ValueTask<IService> StartStateMachineAsService(StateMachineClass stateMachineClass, SecurityContextType securityContextType)
+	{
+		var serviceScope = ServiceScopeFactory.CreateScope(stateMachineClass.AddServices);
+
+		try 
+		{ 		
+			return await serviceScope.ServiceProvider.GetRequiredService<IService>().ConfigureAwait(false);
+		}
+		finally
+		{
+			var stateMachineRunner = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineRunner>().ConfigureAwait(false);
+
+			DisposeScopeOnComplete(stateMachineRunner, serviceScope).Forget();
+		}
+	}
+
+	private static async ValueTask DisposeScopeOnComplete(IStateMachineRunner stateMachineRunner, IServiceScope scope)
+	{
+		try
+		{
+			await stateMachineRunner.GetResult().ConfigureAwait(false);
+		}
+		finally
+		{
+			await scope.DisposeAsync().ConfigureAwait(false);
+		}
+	}
+
+	private async ValueTask<DataModelValue> ExecuteStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType)
+	{
+		var serviceScope = ServiceScopeFactory.CreateScope(stateMachineClass.AddServices);
+
+		await using (serviceScope.ConfigureAwait(false))
+		{
+			var stateMachineRunner = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineRunner>().ConfigureAwait(false);
+
+			return await stateMachineRunner.GetResult().ConfigureAwait(false);
+		}
+	}
+
+	/*
+	[Obsolete]
 	private async ValueTask<IStateMachineController> StartStateMachine(SessionId sessionId,
 																	   StateMachineOrigin origin,
 																	   DataModelValue parameters,
@@ -48,10 +105,10 @@ public sealed partial class StateMachineHost : IHostController
 										   SecurityContextType = securityContextType
 									   };
 
-		var scopeManager = await ScopeManagerFactory().ConfigureAwait(false);
+		var scopeManager = await ScopeManagerFactoryOld().ConfigureAwait(false);
 
 		return await scopeManager.RunStateMachine(stateMachineStartOptions).ConfigureAwait(false);
-	}
+	}*/
 
 	private ValueTask DestroyStateMachine(SessionId sessionId, CancellationToken token) => GetCurrentContext().DestroyStateMachine(sessionId, token);
 }

@@ -15,16 +15,26 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.IO;
+#if !NET5_0_OR_GREATER
 
-namespace Xtate.Core;
-
-//TODO: delete
-public class ScxmlStateMachineOld(string scxml) : IScxmlStateMachine
+namespace System.Threading.Tasks
 {
-#region Interface IScxmlStateMachine
+	internal class TaskCompletionSource : TaskCompletionSource<ValueTuple>
+	{
+		public TaskCompletionSource() { }
 
-	public TextReader CreateTextReader() => new StringReader(scxml);
+		public TaskCompletionSource(object? state) : base(state) { }
 
-#endregion
+		public TaskCompletionSource(object? state, TaskCreationOptions creationOptions) : base(state, creationOptions) { }
+
+		public TaskCompletionSource(TaskCreationOptions creationOptions) : base(creationOptions) { }
+
+		public new Task Task => base.Task;
+
+		public void SetResult() => SetResult(default);
+
+		public bool TrySetResult() => TrySetResult(default);
+	}
 }
+
+#endif

@@ -59,6 +59,10 @@ public abstract class HostedTestBase
 	protected async Task Execute([PathReference("~/HostedTests/Scxml/")] string scxmlPath)
 	{
 		var name = Assembly.GetExecutingAssembly().GetName().Name;
-		await Host.ExecuteStateMachineAsync(new Uri($"resx://{name}/{name}/HostedTests/Scxml/" + scxmlPath));
+
+		var uri = new Uri($"resx://{name}/{name}/HostedTests/Scxml/" + scxmlPath);
+		var locationStateMachine = new LocationStateMachine(uri);
+
+		await ((IHostController)Host).ExecuteStateMachine(locationStateMachine, SecurityContextType.NewStateMachine);
 	}
 }

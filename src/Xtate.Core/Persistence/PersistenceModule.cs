@@ -166,7 +166,7 @@ public class PersistedInterpreterModelGetter : IAsyncInitialization
 	public IInterpreterModel GetInterpreterModel() => _interpreterModelAsyncInit.Value;
 }
 
-public class PersistenceModule : Module<InterpreterModelBuilderModule, StateMachineFactoryModule, DataModelHandlersModule>
+public class PersistenceModule : Module<InterpreterModelBuilderModule, StateMachineFactoryModuleForTests, DataModelHandlersModule>
 {
 	protected override void AddServices()
 	{

@@ -61,13 +61,14 @@ public class XPathDataModelTest
 		//services.AddConstant<IServiceProviderDebugger>(_ => new ServiceProviderDebugger(new StreamWriter(File.Create(@"D:\Ser\s1.txt"))));
 		var serviceProvider = services.BuildProvider();
 
-		var host = await serviceProvider.GetRequiredService<StateMachineHost>();
+		var host = (IHostController)await serviceProvider.GetRequiredService<StateMachineHost>();
 
 		await host.StartHost();
 
-		_ = await host.ExecuteStateMachineAsync(xml);
+		var smc = new ScxmlStateMachine(xml);
+		_ = await host.ExecuteStateMachine(smc, SecurityContextType.NewStateMachine);
 
-		await host.WaitAllStateMachinesAsync();
+		//await host.WaitAllStateMachinesAsync();
 
 		await host.StopHost();
 	}
@@ -106,13 +107,14 @@ public class XPathDataModelTest
 		//services.AddConstant<IServiceProviderDebugger>(_ => d);
 		services.AddModule<StateMachineHostModule>();
 		var serviceProvider = services.BuildProvider();
+		var smc = new ScxmlStateMachine(xml);
 
-		var host = await serviceProvider.GetRequiredService<StateMachineHost>();
+		var host = (IHostController)await serviceProvider.GetRequiredService<StateMachineHost>();
 		await host.StartHost();
 
-		_ = await host.ExecuteStateMachineAsync(xml);
+		_ = await host.ExecuteStateMachine(smc, SecurityContextType.NewStateMachine);
 
-		await host.WaitAllStateMachinesAsync();
+		//await host.WaitAllStateMachinesAsync();
 
 		await host.StopHost();
 	}
