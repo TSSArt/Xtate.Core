@@ -33,11 +33,12 @@ public class XIncludeTest
 		services.AddModule<StateMachineHostModule>();
 		services.AddImplementationSync<XIncludeOptions>().For<IXIncludeOptions>();
 		var serviceProvider = services.BuildProvider();
-		var host = await serviceProvider.GetRequiredService<StateMachineHost>();
+		var host = (IHostController)await serviceProvider.GetRequiredService<StateMachineHost>();
 
 		await host.StartHost();
 
-		_ = await host.ExecuteStateMachineAsync(new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Scxml/XInclude/SingleIncludeSource.scxml"));
+		var smc = new LocationStateMachine(new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Scxml/XInclude/SingleIncludeSource.scxml"));
+		_ = await host.ExecuteStateMachine(smc, SecurityContextType.NewStateMachine);
 
 		await host.StopHost();
 	}

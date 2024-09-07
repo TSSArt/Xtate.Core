@@ -24,6 +24,8 @@ public class StateMachineInterpreterModule : Module<DataModelHandlersModule, Int
 {
 	protected override void AddServices()
 	{
+		Services.AddSharedImplementation<StateMachineSessionId>(SharedWithin.Scope).For<IStateMachineSessionId>();
+
 		Services.AddSharedImplementation<InterpreterLogEnricher<IStateMachineInterpreter>>(SharedWithin.Scope).For<ILogEnricher<IStateMachineInterpreter>>();
 		Services.AddSharedImplementation<InterpreterLogEnricher<ILog>>(SharedWithin.Scope).For<ILogEnricher<ILog>>();
 		Services.AddSharedImplementation<InterpreterLogEnricher<IInvoke>>(SharedWithin.Scope).For<ILogEnricher<IInvoke>>();
@@ -37,7 +39,6 @@ public class StateMachineInterpreterModule : Module<DataModelHandlersModule, Int
 		Services.AddImplementation<ConfigurationXDataModelProperty>().For<IXDataModelProperty>();
 		Services.AddImplementation<HostXDataModelProperty>().For<IXDataModelProperty>();
 
-		Services.AddSharedImplementation<StateMachineSessionId>(SharedWithin.Scope).For<IStateMachineSessionId>();
 		Services.AddImplementation<InStateController>().For<IInStateController>();
 		Services.AddImplementation<DataModelController>().For<IDataModelController>();
 		Services.AddImplementation<EventController>().For<IEventController>();

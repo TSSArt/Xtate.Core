@@ -16,15 +16,32 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.IO;
+using Xtate.IoC;
 
 namespace Xtate.Core;
 
-//TODO: delete
-public class ScxmlStateMachineOld(string scxml) : IScxmlStateMachine
+public class ScxmlStateMachine(string scxml) : StateMachineClass, IScxmlStateMachine, IStateMachineLocation, IStateMachineArguments
 {
-#region Interface IScxmlStateMachine
+	public string Scxml { get; } = scxml;
+	
+	public Uri Location { get; init; } = default!;
 
-	public TextReader CreateTextReader() => new StringReader(scxml);
+	public DataModelValue Arguments { get; init; }
 
-#endregion
+
+	public override void AddServices(IServiceCollection services)
+	{
+		base.AddServices(services);
+
+		services.AddModule<ScxmlStateMachineModule>();
+		services.AddConstant<IScxmlStateMachine>(this);
+		services.AddConstant<IStateMachineArguments>(this);
+
+		if (Location is not null)
+		{
+			services.AddConstant<IStateMachineLocation>(this);
+		}
+	}
+
+	TextReader IScxmlStateMachine.CreateTextReader() => new StringReader(Scxml);
 }

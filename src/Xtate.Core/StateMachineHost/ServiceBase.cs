@@ -63,9 +63,9 @@ public abstract class ServiceBase : IService, IAsyncDisposable, IDisposable
 
 #region Interface IService
 
-	public ValueTask<DataModelValue> GetResult(CancellationToken token) => _completedTcs.WaitAsync(token);
+	public ValueTask<DataModelValue> GetResult() => new(_completedTcs.Task);
 
-	ValueTask IService.Destroy(CancellationToken token)
+	ValueTask IService.Destroy()
 	{
 		_tokenSource.Cancel();
 		_completedTcs.TrySetCanceled();

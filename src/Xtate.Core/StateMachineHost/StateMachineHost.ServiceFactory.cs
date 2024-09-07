@@ -45,9 +45,11 @@ public sealed partial class StateMachineHost : IServiceFactory, IServiceFactoryA
 
 		Infra.Assert(scxml is not null || source is not null);
 
-		var origin = scxml is not null ? new StateMachineOrigin(scxml, baseUri) : new StateMachineOrigin(source!, baseUri);
+		var stateMachineClass = scxml is not null 
+			? (StateMachineClass)new ScxmlStateMachine(scxml) {Location = baseUri!, Arguments = parameters}
+			: new LocationStateMachine(baseUri.CombineWith(source!)){Arguments = parameters};
 
-		return await StartStateMachine(sessionId, origin, parameters, SecurityContextType.InvokedService, token: default).ConfigureAwait(false);
+		return await StartStateMachineAsService(stateMachineClass, SecurityContextType.InvokedService).ConfigureAwait(false);
 	}
 
 #endregion

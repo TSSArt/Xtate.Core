@@ -241,7 +241,7 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 		}
 	}
 
-	public override void RemoveStateMachineController(IStateMachineController stateMachineController)
+	public override void RemoveStateMachineController(SessionId sessionId) 
 	{
 		//TODO:uncomment
 		/*
@@ -330,7 +330,7 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 					var securityContext = SecurityContext.Create(meta.SecurityContextType, meta.Permissions);
 
 					var controller = AddSavedStateMachine(meta.SessionId, meta.Location, meta, securityContext, default! /*TODO*/);
-					AddStateMachineController(controller);
+					AddStateMachineController(meta.SessionId, controller);
 
 					//TODO:
 					//finalizer.Add(static (ctx, ctrl) => ((StateMachineHostContext) ctx).RemoveStateMachineController((StateMachineControllerBase) ctrl), this, controller);

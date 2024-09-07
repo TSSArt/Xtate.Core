@@ -79,7 +79,7 @@ internal sealed class ChannelPersistingController<T> : Channel<T>, IDisposable
 
 		public override async ValueTask<bool> WaitToReadAsync(CancellationToken token = default)
 		{
-			await parent._initializedTcs.WaitAsync(token).ConfigureAwait(false);
+			await parent._initializedTcs.Task.WaitAsync(token).ConfigureAwait(false);
 
 			await parent._storageLock!.WaitAsync(token).ConfigureAwait(false);
 			try
@@ -94,7 +94,7 @@ internal sealed class ChannelPersistingController<T> : Channel<T>, IDisposable
 
 		public override async ValueTask<T> ReadAsync(CancellationToken token = default)
 		{
-			await parent._initializedTcs.WaitAsync(token).ConfigureAwait(false);
+			await parent._initializedTcs.Task.WaitAsync(token).ConfigureAwait(false);
 
 			await parent._storageLock!.WaitAsync(token).ConfigureAwait(false);
 			try
@@ -131,7 +131,7 @@ internal sealed class ChannelPersistingController<T> : Channel<T>, IDisposable
 
 		public override async ValueTask<bool> WaitToWriteAsync(CancellationToken token = default)
 		{
-			await parent._initializedTcs.WaitAsync(token).ConfigureAwait(false);
+			await parent._initializedTcs.Task.WaitAsync(token).ConfigureAwait(false);
 
 			await parent._storageLock!.WaitAsync(token).ConfigureAwait(false);
 			try
@@ -148,7 +148,7 @@ internal sealed class ChannelPersistingController<T> : Channel<T>, IDisposable
 		{
 			if (item is null) throw new ArgumentNullException(nameof(item));
 
-			await parent._initializedTcs.WaitAsync(token).ConfigureAwait(false);
+			await parent._initializedTcs.Task.WaitAsync(token).ConfigureAwait(false);
 
 			await parent._storageLock!.WaitAsync(token).ConfigureAwait(false);
 			try

@@ -17,19 +17,19 @@
 
 namespace Xtate.Core;
 
-public abstract class AsyncInit<T>
+public abstract class AsyncInit<T> : AsyncInit
 {
 	private T? _value;
-
-	public abstract Task Task { get; }
 
 	public T Value => Task.Status == TaskStatus.RanToCompletion ? _value! : throw new InvalidOperationException(Resources.ErrorMessage_Not_initialized);
 
 	protected void SetValue(T value) => _value = value;
 }
 
-public static class AsyncInit
+public abstract class AsyncInit
 {
+	public abstract Task Task { get; }
+
 	/// <summary>
 	///     Runs delegate
 	///     <param name="init">init</param>
@@ -41,6 +41,15 @@ public static class AsyncInit
 	/// <param name="init">Initialization action</param>
 	/// <returns></returns>
 	public static AsyncInit<T> Run<T, TArg>(TArg arg, Func<TArg, ValueTask<T>> init) => new InitAfter<T, TArg>(arg, init);
+
+	/// <summary>
+	///     Runs delegate
+	///     <param name="init">init</param>
+	///     after completing constructors and setting up required fields and properties.
+	/// </summary>
+	/// <param name="init">Initialization action</param>
+	/// <returns></returns>
+	public static AsyncInit Run(Func<ValueTask> init) => new InitAfter(init);
 
 	private sealed class InitAfter<T, TArg>(TArg arg, Func<TArg, ValueTask<T>> func) : AsyncInit<T>
 	{
@@ -64,4 +73,28 @@ public static class AsyncInit
 
 		private async Task Init() => SetValue(await func(arg).ConfigureAwait(false));
 	}
+	
+	private sealed class InitAfter(Func<ValueTask> func) : AsyncInit
+	{
+		private Task? _task;
+
+		public override Task Task
+		{
+			get
+			{
+				if (_task is { } task)
+				{
+					return task;
+				}
+
+				lock (this)
+				{
+					return _task ??= Init();
+				}
+			}
+		}
+
+		private Task Init() => func().AsTask();
+	}
+
 }

@@ -15,16 +15,21 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.IO;
-
 namespace Xtate.Core;
 
-//TODO: delete
-public class ScxmlStateMachineOld(string scxml) : IScxmlStateMachine
+public interface IKeepAlive
 {
-#region Interface IScxmlStateMachine
-
-	public TextReader CreateTextReader() => new StringReader(scxml);
-
-#endregion
+	Task Wait();
 }
+
+public interface IScopeManager1
+{
+	ValueTask<T> GetService<T>() where T : notnull;
+}
+/*
+[Obsolete]
+public interface IScopeManagerOld
+{
+	[Obsolete]
+	ValueTask<IStateMachineController> RunStateMachine(IStateMachineStartOptions stateMachineStartOptions);
+}*/
