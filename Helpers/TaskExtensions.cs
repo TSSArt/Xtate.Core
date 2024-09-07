@@ -15,6 +15,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using System.Diagnostics;
+using InvalidOperationException = System.InvalidOperationException;
+
 namespace Xtate.Core;
 
 internal static class TaskExtensions
@@ -41,29 +44,55 @@ internal static class TaskExtensions
 		return valueTask.AsTask().GetAwaiter().GetResult();
 	}
 
-	public static ValueTask<T> WaitAsync<T>(this TaskCompletionSource<T> tcs, CancellationToken token)
+	#if !NET6_0_OR_GREATER
+
+	public static Task WaitAsync(this Task task, CancellationToken token)
 	{
-		if (tcs.Task.IsCompleted || !token.CanBeCanceled)
+		if (task.IsCompleted || !token.CanBeCanceled)
 		{
-			return new ValueTask<T>(tcs.Task);
+			return task;
 		}
 
 		if (token.IsCancellationRequested)
 		{
-			return new ValueTask<T>(Task.FromCanceled<T>(token));
+			return Task.FromCanceled(token);
 		}
 
-		return WaitAsyncLocal();
+		return Task.WhenAny(task, Task.Delay(Timeout.Infinite, token));
+	}
 
-		async ValueTask<T> WaitAsyncLocal()
+	public static Task<T> WaitAsync<T>(this Task<T> task, CancellationToken token)
+	{
+		if (task.IsCompleted || !token.CanBeCanceled)
 		{
-			await Task.WhenAny(tcs.Task, Task.Delay(millisecondsDelay: -1, token)).ConfigureAwait(false);
+			return task;
+		}
 
-			token.ThrowIfCancellationRequested();
+		if (token.IsCancellationRequested)
+		{
+			return Task.FromCanceled<T>(token);
+		}
 
-			return await tcs.Task.ConfigureAwait(false);
+		return WaitAsyncLocal(Task.WhenAny(task, Task.Delay(Timeout.Infinite, token)));
+
+		static async Task<T> WaitAsyncLocal(Task<Task> waitAnyTask)
+		{
+			var completedTask = await waitAnyTask.ConfigureAwait(false);
+
+			Debug.Assert(completedTask.IsCompleted);
+
+			if (completedTask is Task<T> task)
+			{
+				return task.GetAwaiter().GetResult();
+			}
+
+			completedTask.GetAwaiter().GetResult();
+
+			throw new InvalidOperationException();
 		}
 	}
+
+#endif
 
 	/// <summary>
 	///     Do not wait ValueTask for completion if it is not completed. Result of execution ignored.

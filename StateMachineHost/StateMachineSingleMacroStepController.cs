@@ -40,7 +40,7 @@ internal sealed class StateMachineSingleMacroStepController(
 	{
 		await base.Send(evt, token).ConfigureAwait(false);
 
-		var state = await _doneCompletionSource.WaitAsync(token).ConfigureAwait(false);
+		var state = await _doneCompletionSource.Task.WaitAsync(token).ConfigureAwait(false);
 
 		if (state == StateMachineInterpreterState.Waiting)
 		{
@@ -49,7 +49,7 @@ internal sealed class StateMachineSingleMacroStepController(
 
 		try
 		{
-			await GetResult(token).ConfigureAwait(false);
+			await GetResult().ConfigureAwait(false);
 		}
 		catch (StateMachineSuspendedException) { }
 	}
@@ -102,7 +102,7 @@ internal sealed class StateMachineSingleMacroStepController(
 					return false;
 				}
 
-				await tcs.WaitAsync(token).ConfigureAwait(false);
+				await tcs.Task.WaitAsync(token).ConfigureAwait(false);
 
 				return true;
 			}

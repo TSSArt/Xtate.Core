@@ -153,7 +153,7 @@ public sealed partial class StateMachineHost(StateMachineHostOptions options) : 
 			await context.WaitAllAsync(token).ConfigureAwait(false);
 		}
 	}
-
+	/*
 	public ValueTask<DataModelValue> ExecuteStateMachineAsync(string scxml, DataModelValue parameters = default) =>
 		ExecuteStateMachineWrapper(SessionId.New(), new StateMachineOrigin(scxml), parameters);
 
@@ -242,8 +242,8 @@ public sealed partial class StateMachineHost(StateMachineHostOptions options) : 
 																	 Uri? baseUri,
 																	 string sessionId,
 																	 DataModelValue parameters = default) =>
-		StartStateMachineWrapper(SessionId.FromString(sessionId), new StateMachineOrigin(stateMachine, baseUri), parameters);
-
+		StartStateMachineWrapper(SessionId.FromString(sessionId), new StateMachineOrigin(stateMachine, baseUri), parameters);*/
+	/*
 	private async ValueTask<IStateMachineController> StartStateMachineWrapper(SessionId sessionId, StateMachineOrigin origin, DataModelValue parameters) =>
 
 		//var finalizer = new DeferredFinalizer();
@@ -254,8 +254,8 @@ public sealed partial class StateMachineHost(StateMachineHostOptions options) : 
 	{
 		var controller = await StartStateMachineWrapper(sessionId, origin, parameters).ConfigureAwait(false);
 
-		return await controller.GetResult(CancellationToken.None).ConfigureAwait(false);
-	}
+		return await controller.GetResult().ConfigureAwait(false);
+	}*/
 
 	public ValueTask DestroyStateMachineAsync(string sessionId) => DestroyStateMachine(SessionId.FromString(sessionId), CancellationToken.None);
 }

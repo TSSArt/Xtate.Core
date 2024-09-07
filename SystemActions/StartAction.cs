@@ -128,7 +128,13 @@ public class StartAction : AsyncAction, IDisposable
 
 		var host = await HostFactory().ConfigureAwait(false);
 
-		await host.StartStateMachine(sessionId, stateMachineOrigin, parameters: default, securityContextType, _disposingToken.Token).ConfigureAwait(false);
+		//await host.StartStateMachine(sessionId, stateMachineOrigin, parameters: default, securityContextType, _disposingToken.Token).ConfigureAwait(false);
+
+		var baseUri = await GetBaseUri().ConfigureAwait(false);
+
+		var locationStateMachine = new LocationStateMachine(baseUri.CombineWith(source));
+
+		await host.StartStateMachine(locationStateMachine, securityContextType).ConfigureAwait(false);
 
 		if (_sessionIdLocation is not null)
 		{

@@ -28,6 +28,7 @@ public interface IStateMachineHost : IHostEventDispatcher
 	ValueTask CancelEvent(SessionId sessionId, SendId sendId, CancellationToken token);
 
 	ValueTask StartInvoke(SessionId sessionId,
+						  Uri? location,
 						  InvokeData invokeData,
 						  CancellationToken token);
 
