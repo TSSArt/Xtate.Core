@@ -15,30 +15,22 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.IO;
 using Xtate.IoC;
+using Xtate.Scxml;
 
 namespace Xtate.Core;
 
-public class ScxmlStreamStateMachine(Stream stream) : StateMachineClass, IScxmlStateMachine, IStateMachineLocation, IStateMachineArguments
+public class StateMachineFactoryModule : Module<ScxmlModule>
 {
-	public Uri Location { get; init; } = default!;
-
-	public DataModelValue Arguments { get; init; }
-
-	public override void AddServices(IServiceCollection services)
+	protected override void AddServices()
 	{
-		base.AddServices(services);
+		Services.AddSharedFactory<StateMachineGetter>(SharedWithin.Scope).For<IStateMachine>();
+		Services.AddImplementation<StateMachineService>().For<IStateMachineService>();
 
-		services.AddModule<ScxmlStateMachineModule>();
-		services.AddConstant<IScxmlStateMachine>(this);
-		services.AddConstant<IStateMachineArguments>(this);
+		Services.AddType<ScxmlReaderStateMachineGetter>();
+		Services.AddImplementation<ScxmlStateMachineProvider>().For<IStateMachineProvider>();
 
-		if (Location is not null)
-		{
-			services.AddConstant<IStateMachineLocation>(this);
-		}
+		Services.AddType<ScxmlLocationStateMachineGetter>();
+		Services.AddImplementation<SourceStateMachineProvider>().For<IStateMachineProvider>();
 	}
-
-	TextReader IScxmlStateMachine.CreateTextReader() => new StreamReader(stream);
 }

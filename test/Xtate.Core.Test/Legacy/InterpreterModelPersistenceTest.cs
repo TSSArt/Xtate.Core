@@ -158,7 +158,7 @@ public class InterpreterModelPersistenceTest
 	{
 		var services = new ServiceCollection();
 		services.AddModule<StateMachineInterpreterModule>();
-		services.AddModule<StateMachineFactoryModuleForTests>();
+		services.AddModule<StateMachineFactoryModule>();
 		services.AddConstant<IStateMachineLocation>(new LocationStateMachine(new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Legacy/test.scxml")));
 		services.AddImplementation<TestDataModelHandler>().For<IDataModelHandler>();
 		services.AddImplementation<DummyResourceLoader>().For<IResourceLoader>();
@@ -177,7 +177,7 @@ public class InterpreterModelPersistenceTest
 	{
 		var services = new ServiceCollection();
 		services.AddModule<StateMachineInterpreterModule>();
-		services.AddModule<StateMachineFactoryModuleForTests>();
+		services.AddModule<StateMachineFactoryModule>();
 		services.AddConstant<IStateMachineLocation>(new LocationStateMachine(new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Legacy/test.scxml")));
 		services.AddImplementation<TestDataModelHandler>().For<IDataModelHandler>();
 		services.AddImplementation<DummyResourceLoader>().For<IResourceLoader>();
@@ -203,7 +203,7 @@ public class InterpreterModelPersistenceTest
 
 		var services2 = new ServiceCollection();
 		services2.AddModule<StateMachineInterpreterModule>();
-		services2.AddModule<StateMachineFactoryModuleForTests>();
+		services2.AddModule<StateMachineFactoryModule>();
 		services2.AddConstant(restoredStateMachine);
 		services2.AddImplementation<TestDataModelHandler>().For<IDataModelHandler>();
 		services2.AddImplementation<DummyResourceLoader>().For<IResourceLoader>();
@@ -257,7 +257,7 @@ public class InterpreterModelPersistenceTest
 
 		var services2 = new ServiceCollection();
 		services2.AddModule<StateMachineInterpreterModule>();
-		services2.AddModule<StateMachineFactoryModuleForTests>();
+		services2.AddModule<StateMachineFactoryModule>();
 		services2.AddConstant(restoredStateMachine);
 		services2.AddImplementation<TestDataModelHandler>().For<IDataModelHandler>();
 		services2.AddImplementation<DummyResourceLoader>().For<IResourceLoader>();

@@ -183,9 +183,9 @@ public class TransitionToDiTest
 
 		var services = new ServiceCollection();
 
-		services.AddModule<ScxmlStateMachineModule>();
+		services.AddModule<StateMachineFactoryModule>();
 
-		services.AddConstant<IScxmlStateMachine>(new ScxmlStateMachine(xml));
+		services.AddConstant<IScxmlStateMachine>(new ScxmlStringStateMachine(xml));
 
 		var provider = services.BuildProvider();
 

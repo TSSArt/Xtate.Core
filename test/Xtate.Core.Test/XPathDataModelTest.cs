@@ -65,7 +65,7 @@ public class XPathDataModelTest
 
 		await host.StartHost();
 
-		var smc = new ScxmlStateMachine(xml);
+		var smc = new ScxmlStringStateMachine(xml);
 		_ = await host.ExecuteStateMachine(smc, SecurityContextType.NewStateMachine);
 
 		//await host.WaitAllStateMachinesAsync();
@@ -107,7 +107,7 @@ public class XPathDataModelTest
 		//services.AddConstant<IServiceProviderDebugger>(_ => d);
 		services.AddModule<StateMachineHostModule>();
 		var serviceProvider = services.BuildProvider();
-		var smc = new ScxmlStateMachine(xml);
+		var smc = new ScxmlStringStateMachine(xml);
 
 		var host = (IHostController)await serviceProvider.GetRequiredService<StateMachineHost>();
 		await host.StartHost();

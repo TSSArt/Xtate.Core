@@ -20,8 +20,11 @@ using Xtate.Scxml;
 
 namespace Xtate.Core;
 
+[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
 public class ScxmlReaderStateMachineGetter
 {
+	private ValueTask<IStateMachine>? _stateMachine;
+
 	public required IScxmlDeserializer     ScxmlDeserializer     { private get; [UsedImplicitly] init; }
 	public required IScxmlStateMachine     ScxmlStateMachine     { private get; [UsedImplicitly] init; }
 	public required ScxmlXmlResolver       ScxmlXmlResolver      { private get; [UsedImplicitly] init; }
@@ -29,7 +32,9 @@ public class ScxmlReaderStateMachineGetter
 	public required INameTableProvider?    NameTableProvider     { private get; [UsedImplicitly] init; }
 	public required IStateMachineValidator StateMachineValidator { private get; [UsedImplicitly] init; }
 
-	public async ValueTask<IStateMachine> GetStateMachine()
+	public ValueTask<IStateMachine> GetStateMachine() => _stateMachine ??= CreateStateMachine().Preserve();
+
+	protected virtual async ValueTask<IStateMachine> CreateStateMachine()
 	{
 		using var xmlReader = CreateXmlReader();
 

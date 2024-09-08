@@ -16,21 +16,21 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using Xtate.IoC;
+using Xtate.Scxml;
 
 namespace Xtate.Core;
 
-public class LocationStateMachine(Uri location) : StateMachineClass, IStateMachineLocation, IStateMachineArguments
+public class LocationStateMachine : StateMachineClass
 {
-	public DataModelValue Arguments { get; init; }
+	public LocationStateMachine(Uri location) => Location = location;
 
 	public override void AddServices(IServiceCollection services)
 	{
 		base.AddServices(services);
 
-		services.AddModule<SourceStateMachineModule>();
 		services.AddConstant<IStateMachineLocation>(this);
-		services.AddConstant<IStateMachineArguments>(this);
-	}
 
-	public Uri Location  => location;
+		services.AddModule<ScxmlModule>();
+		services.AddSharedFactory<ScxmlLocationStateMachineGetter>(SharedWithin.Scope).For<IStateMachine>();
+	}
 }

@@ -413,9 +413,9 @@ public class RegisterClassTest
 						   """;
 
 		var services = new ServiceCollection();
-		services.AddModule<ScxmlStateMachineModule>();
+		services.AddModule<StateMachineFactoryModule>();
 		services.AddModule<InterpreterModelBuilderModule>();
-		services.AddConstant<IScxmlStateMachine>(new ScxmlStateMachine(xml));
+		services.AddConstant<IScxmlStateMachine>(new ScxmlStringStateMachine(xml));
 		var provider = services.BuildProvider();
 
 		var interpreterModelBuilder = await provider.GetRequiredService<InterpreterModelBuilder>();
@@ -443,8 +443,8 @@ public class RegisterClassTest
 						   """;
 
 		var services = new ServiceCollection();
-		services.AddConstant<IScxmlStateMachine>(new ScxmlStateMachine(xml));
-		services.AddModule<ScxmlStateMachineModule>();
+		services.AddConstant<IScxmlStateMachine>(new ScxmlStringStateMachine(xml));
+		services.AddModule<StateMachineFactoryModule>();
 		services.AddModule<StateMachineInterpreterModule>();
 		services.AddImplementation<TraceLogWriter<Any>>().For<ILogWriter<Any>>();
 

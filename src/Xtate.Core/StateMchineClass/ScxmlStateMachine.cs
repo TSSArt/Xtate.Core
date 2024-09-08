@@ -17,31 +17,37 @@
 
 using System.IO;
 using Xtate.IoC;
+using Xtate.Scxml;
 
 namespace Xtate.Core;
 
-public class ScxmlStateMachine(string scxml) : StateMachineClass, IScxmlStateMachine, IStateMachineLocation, IStateMachineArguments
+public class ScxmlStringStateMachine(string scxml) : ScxmlStateMachine
 {
-	public string Scxml { get; } = scxml;
-	
-	public Uri Location { get; init; } = default!;
+	protected override TextReader CreateTextReader() => new StringReader(scxml);
+}
 
-	public DataModelValue Arguments { get; init; }
+public class ScxmlStreamStateMachine(Stream stream) : ScxmlStateMachine
+{
+	protected override TextReader CreateTextReader() => new StreamReader(stream);
+}
 
+public abstract class ScxmlStateMachine : StateMachineClass, IScxmlStateMachine
+{
+#region Interface IScxmlStateMachine
+
+	TextReader IScxmlStateMachine.CreateTextReader() => CreateTextReader();
+
+#endregion
+
+	protected abstract TextReader CreateTextReader();
 
 	public override void AddServices(IServiceCollection services)
 	{
 		base.AddServices(services);
 
-		services.AddModule<ScxmlStateMachineModule>();
 		services.AddConstant<IScxmlStateMachine>(this);
-		services.AddConstant<IStateMachineArguments>(this);
 
-		if (Location is not null)
-		{
-			services.AddConstant<IStateMachineLocation>(this);
-		}
+		services.AddModule<ScxmlModule>();
+		services.AddSharedFactory<ScxmlReaderStateMachineGetter>(SharedWithin.Scope).For<IStateMachine>();
 	}
-
-	TextReader IScxmlStateMachine.CreateTextReader() => new StringReader(Scxml);
 }
