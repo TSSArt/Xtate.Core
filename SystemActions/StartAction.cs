@@ -81,7 +81,7 @@ public class StartAction : AsyncAction, IDisposable
 
 	public required Func<ValueTask<IStateMachineLocation?>> StateMachineLocationFactory { private get; [UsedImplicitly] init; }
 
-	public required Func<ValueTask<IHostController>> HostFactory { private get; [UsedImplicitly] init; }
+	public required Func<ValueTask<IHostController>> HostControllerFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IDisposable
 
@@ -122,19 +122,13 @@ public class StartAction : AsyncAction, IDisposable
 	protected override async ValueTask Execute()
 	{
 		var sessionId = await GetSessionId().ConfigureAwait(false);
+		var location = await GetLocation().ConfigureAwait(false);
 		var securityContextType = _trusted ? SecurityContextType.NewTrustedStateMachine : SecurityContextType.NewStateMachine;
-		var source = await GetSource().ConfigureAwait(false);
-		var stateMachineOrigin = new StateMachineOrigin(source, await GetBaseUri().ConfigureAwait(false));
 
-		var host = await HostFactory().ConfigureAwait(false);
+		var locationStateMachine = new LocationStateMachine(location) { SessionId = sessionId };
 
-		//await host.StartStateMachine(sessionId, stateMachineOrigin, parameters: default, securityContextType, _disposingToken.Token).ConfigureAwait(false);
-
-		var baseUri = await GetBaseUri().ConfigureAwait(false);
-
-		var locationStateMachine = new LocationStateMachine(baseUri.CombineWith(source));
-
-		await host.StartStateMachine(locationStateMachine, securityContextType).ConfigureAwait(false);
+		var hostController = await HostControllerFactory().ConfigureAwait(false);
+		await hostController.StartStateMachine(locationStateMachine, securityContextType).ConfigureAwait(false);
 
 		if (_sessionIdLocation is not null)
 		{
@@ -142,17 +136,14 @@ public class StartAction : AsyncAction, IDisposable
 		}
 	}
 
-	private async ValueTask<Uri?> GetBaseUri() => (await StateMachineLocationFactory().ConfigureAwait(false))?.Location;
-
-	//var value = dataModelController.DataModel["_x"].AsListOrEmpty()["host"].AsListOrEmpty()["location"].AsStringOrDefault();
-	//return value is not null ? new Uri(value, UriKind.RelativeOrAbsolute) : null;
-	private async ValueTask<Uri> GetSource()
+	private async ValueTask<Uri> GetLocation()
 	{
 		var url = await _urlValue.GetValue().ConfigureAwait(false);
 
 		if (Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out var uri))
 		{
-			return uri;
+			var baseUri = (await StateMachineLocationFactory().ConfigureAwait(false))?.Location;
+			return baseUri.CombineWith(uri);
 		}
 
 		throw new ProcessorException(Resources.Exception_StartActionExecuteSourceNotSpecified);

@@ -28,6 +28,7 @@ public class StateMachineHostModule : Module<StateMachineInterpreterModule>
 		Services.AddType<StateMachineHostOptions>();
 		//TODO: tmp ----
 
+		Services.AddImplementation<SecurityContext>().For<ISecurityContext>();
 		Services.AddImplementation<InProcEventSchedulerFactory>().For<IEventSchedulerFactory>();
 
 		//Services.AddImplementation<ScopeManager, Action<IServiceCollection>>().For<IScopeManager>();
