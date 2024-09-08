@@ -22,10 +22,6 @@ namespace Xtate;
 
 public sealed partial class StateMachineHost : IHostController
 {
-	//public required Func<ValueTask<IScopeManagerOld>> ScopeManagerFactoryOld { private get; [UsedImplicitly] init; }
-
-	//public required Func<Action<IServiceCollection>, ValueTask<IScopeManager>> ScopeManagerFactory { private get; [UsedImplicitly] init; }
-
 	public required IServiceScopeFactory ServiceScopeFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IHostController
