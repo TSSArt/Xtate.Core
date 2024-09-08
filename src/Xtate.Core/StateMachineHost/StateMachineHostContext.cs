@@ -222,7 +222,7 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 		}
 		else
 		{
-			services.AddConstant<IScxmlStateMachine>(new ScxmlStateMachine(scxml));
+			services.AddConstant<IScxmlStateMachine>(new ScxmlStringStateMachine(scxml));
 		}
 
 		var serviceProvider = services.BuildProvider();

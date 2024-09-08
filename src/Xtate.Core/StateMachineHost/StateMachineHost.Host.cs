@@ -89,26 +89,5 @@ public sealed partial class StateMachineHost : IHostController
 		}
 	}
 
-	/*
-	[Obsolete]
-	private async ValueTask<IStateMachineController> StartStateMachine(SessionId sessionId,
-																	   StateMachineOrigin origin,
-																	   DataModelValue parameters,
-																	   SecurityContextType securityContextType,
-																	   CancellationToken token)
-	{
-		var stateMachineStartOptions = new StateMachineStartOptions
-									   {
-										   Origin = origin,
-										   Parameters = parameters,
-										   SessionId = sessionId,
-										   SecurityContextType = securityContextType
-									   };
-
-		var scopeManager = await ScopeManagerFactoryOld().ConfigureAwait(false);
-
-		return await scopeManager.RunStateMachine(stateMachineStartOptions).ConfigureAwait(false);
-	}*/
-
 	private ValueTask DestroyStateMachine(SessionId sessionId, CancellationToken token) => GetCurrentContext().DestroyStateMachine(sessionId, token);
 }
