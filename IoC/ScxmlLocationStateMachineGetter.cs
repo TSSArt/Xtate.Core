@@ -20,14 +20,19 @@ using Xtate.Scxml;
 
 namespace Xtate.Core;
 
+[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
 public class ScxmlLocationStateMachineGetter
 {
+	private ValueTask<IStateMachine>? _stateMachine;
+
 	public required ScxmlXmlResolver       ScxmlXmlResolver      { private get; [UsedImplicitly] init; }
 	public required IStateMachineLocation  StateMachineLocation  { private get; [UsedImplicitly] init; }
 	public required IScxmlDeserializer     ScxmlDeserializer     { private get; [UsedImplicitly] init; }
 	public required IStateMachineValidator StateMachineValidator { private get; [UsedImplicitly] init; }
 
-	public virtual async ValueTask<IStateMachine> GetStateMachine()
+	public virtual ValueTask<IStateMachine> GetStateMachine() => _stateMachine ??= CreateStateMachine().Preserve();
+
+	protected virtual async ValueTask<IStateMachine> CreateStateMachine()
 	{
 		using var xmlReader = CreateXmlReader();
 
