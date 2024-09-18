@@ -23,6 +23,8 @@ namespace Xtate;
 public sealed partial class StateMachineHost : IHostController
 {
 	public required IServiceScopeFactory ServiceScopeFactory { private get; [UsedImplicitly] init; }
+	
+	public required Func<SecurityContextType, SecurityContextRegistration> SecurityContextRegistrationFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IHostController
 
@@ -38,6 +40,8 @@ public sealed partial class StateMachineHost : IHostController
 
 	private async ValueTask StartStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType)
 	{
+		await using var registration = SecurityContextRegistrationFactory(securityContextType).ConfigureAwait(false);
+
 		var serviceScope = ServiceScopeFactory.CreateScope(stateMachineClass.AddServices);
 
 		var stateMachineRunner = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineRunner>().ConfigureAwait(false);
@@ -47,6 +51,8 @@ public sealed partial class StateMachineHost : IHostController
 
 	private async ValueTask<IService> StartStateMachineAsService(StateMachineClass stateMachineClass, SecurityContextType securityContextType)
 	{
+		await using var registration = SecurityContextRegistrationFactory(securityContextType).ConfigureAwait(false);
+
 		var serviceScope = ServiceScopeFactory.CreateScope(stateMachineClass.AddServices);
 
 		try 
@@ -75,8 +81,10 @@ public sealed partial class StateMachineHost : IHostController
 
 	private async ValueTask<DataModelValue> ExecuteStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType)
 	{
-		var serviceScope = ServiceScopeFactory.CreateScope(stateMachineClass.AddServices);
+		await using var registration = SecurityContextRegistrationFactory(securityContextType).ConfigureAwait(false);
 
+		var serviceScope = ServiceScopeFactory.CreateScope(stateMachineClass.AddServices);
+		
 		await using (serviceScope.ConfigureAwait(false))
 		{
 			var stateMachineRunner = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineRunner>().ConfigureAwait(false);

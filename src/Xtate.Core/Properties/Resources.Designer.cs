@@ -1452,6 +1452,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Incorrect security context.
+        /// </summary>
+        internal static string Exception_IncorrectSecurityContext {
+            get {
+                return ResourceManager.GetString("Exception_IncorrectSecurityContext", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Index should be non-negative and less than array size..
         /// </summary>
         internal static string Exception_IndexShouldBeNonNegativeAndLessThanAarraySize {

@@ -27,7 +27,47 @@ public enum SecurityContextPermissions
 	Full                      = 0x7FFF_FFFF
 }
 
-public sealed class SecurityContext : ISecurityContext, IAsyncDisposable
+[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
+public sealed class SecurityContextFactory
+{
+	private readonly AsyncLocal<SecurityContext> _securityContext = new();
+
+	[UsedImplicitly]
+	public SecurityContext GetSecurityContext() => _securityContext.Value ?? SecurityContext.FullAccess;
+
+	[UsedImplicitly]
+	public SecurityContextRegistration GetRegistration(SecurityContextType securityContextType) => new(_securityContext, securityContextType);
+}
+
+public sealed class SecurityContextRegistration : IAsyncDisposable
+{
+	private readonly AsyncLocal<SecurityContext> _asyncLocal;
+	private readonly SecurityContext             _newContext;
+	private readonly SecurityContext?            _parentContext;
+
+	internal SecurityContextRegistration(AsyncLocal<SecurityContext> asyncLocal, SecurityContextType securityContextType)
+	{
+		_asyncLocal = asyncLocal;
+		_parentContext = asyncLocal.Value;
+		asyncLocal.Value = _newContext = (_parentContext ?? SecurityContext.FullAccess).CreateNested(securityContextType);
+	}
+
+#region Interface IAsyncDisposable
+
+	public async ValueTask DisposeAsync()
+	{
+		if (_asyncLocal.Value == _newContext)
+		{
+			_asyncLocal.Value = _parentContext;
+
+			await _newContext.DisposeAsync().ConfigureAwait(false);
+		}
+	}
+
+#endregion
+}
+
+public sealed class SecurityContext : IAsyncDisposable
 {
 	private const int IoBoundTaskSchedulerMaximumConcurrencyLevel = 2;
 
@@ -59,6 +99,10 @@ public sealed class SecurityContext : ISecurityContext, IAsyncDisposable
 
 	public static SecurityContext NoAccess { get; } = new(SecurityContextType.NoAccess, SecurityContextPermissions.None, parentSecurityContext: default);
 
+	internal static SecurityContext FullAccess { get; } = new(SecurityContextType.NewTrustedStateMachine, SecurityContextPermissions.Full, parentSecurityContext: default);
+
+	public TaskFactory Factory => _ioBoundTaskFactory ??= CreateTaskFactory();
+
 #region Interface IAsyncDisposable
 
 	public ValueTask DisposeAsync()
@@ -75,15 +119,7 @@ public sealed class SecurityContext : ISecurityContext, IAsyncDisposable
 
 #endregion
 
-#region Interface IIoBoundTask
-
-	public TaskFactory Factory => _ioBoundTaskFactory ??= CreateTaskFactory();
-
-#endregion
-
-#region Interface ISecurityContext
-
-	public ISecurityContext CreateNested(SecurityContextType type)
+	internal SecurityContext CreateNested(SecurityContextType type)
 	{
 		SecurityContext securityContext;
 		switch (type)
@@ -113,8 +149,6 @@ public sealed class SecurityContext : ISecurityContext, IAsyncDisposable
 
 		return securityContext;
 	}
-
-#endregion
 
 	public ValueTask SetValue<T>(object key,
 								 object subKey,

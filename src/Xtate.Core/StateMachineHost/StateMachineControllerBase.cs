@@ -72,7 +72,7 @@ public abstract class StateMachineControllerBase : IStateMachineController, ISer
 	//private readonly DeferredFinalizer                    _finalizer;
 	private readonly IStateMachineOptions? _options;
 
-	//private readonly ISecurityContext                     _securityContext;
+	//private readonly SecurityContext                     _securityContext;
 	private readonly IStateMachine?    _stateMachine;
 	private readonly IStateMachineHost _stateMachineHost;
 

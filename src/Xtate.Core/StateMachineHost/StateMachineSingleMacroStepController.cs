@@ -27,7 +27,7 @@ internal sealed class StateMachineSingleMacroStepController(
 	IStateMachineHost stateMachineHost,
 	InterpreterOptions defaultOptions
 
-	// ISecurityContext securityContext,
+	// SecurityContext securityContext,
 	//										 DeferredFinalizer finalizer
 ) : StateMachineControllerBase(sessionId, options, stateMachine, stateMachineLocation, stateMachineHost, defaultOptions)
 {

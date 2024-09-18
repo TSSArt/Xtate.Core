@@ -42,7 +42,7 @@ internal sealed class StateMachinePersistedController : StateMachineRuntimeContr
 										   TimeSpan? idlePeriod,
 										   InterpreterOptions defaultOptions
 
-		//ISecurityContext securityContext,
+		//SecurityContext securityContext,
 		//								   DeferredFinalizer finalizer
 	)
 		: base(sessionId, options, stateMachine, stateMachineLocation, stateMachineHost, idlePeriod, defaultOptions)

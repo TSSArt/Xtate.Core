@@ -95,7 +95,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 												  Uri? location,
 												  InvokeData data,
 
-												  // ISecurityContext securityContext,
+												  // SecurityContext securityContext,
 												  CancellationToken token)
 	{
 		var context = GetCurrentContext();
