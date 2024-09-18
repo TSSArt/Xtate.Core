@@ -31,7 +31,7 @@ public record InterpreterOptions
 	//public static    InterpreterOptions Default { get; } = new(ServiceLocator.Default)
 
 	//public ServiceLocator                           ServiceLocator { get; init; }
-	public ISecurityContext? SecurityContext { get; init; }
+	public SecurityContext? SecurityContext { get; init; }
 
 	//public ImmutableArray<ICustomActionFactory>   CustomActionProviders   { get; init; }
 	//public ImmutableArray<IResourceLoaderFactory> ResourceLoaderFactories { get; init; }

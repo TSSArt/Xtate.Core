@@ -434,7 +434,7 @@ public class StateMachineContext : IStateMachineContext, IAsyncInitialization //
 	/*public ILogger?                             Logger                   { get; init; }
 		public IInterpreterLoggerContext?           LoggerContext            { get; init; }
 		public IExternalCommunication?              ExternalCommunication    { get; init; }
-		public ISecurityContext?                    SecurityContext          { get; init; }*/
+		public SecurityContext?                    SecurityContext          { get; init; }*/
 
 	/*public StateMachineContext(
 		/*IStateMachineContextOptions options, ILogger logger,
@@ -467,7 +467,7 @@ public class StateMachineContext : IStateMachineContext, IAsyncInitialization //
 		public ILoggerOld?                             Logger                   { get; init; }
 		public IInterpreterLoggerContext?           LoggerContext            { get; init; }
 		public IExternalCommunication?              ExternalCommunication    { get; init; }
-		public ISecurityContext?                    SecurityContext          { get; init; }
+		public SecurityContext?                    SecurityContext          { get; init; }
 		public ImmutableDictionary<object, object>? ContextRuntimeItems      { get; init; }
 	}*/
 }
