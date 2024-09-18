@@ -934,4 +934,7 @@ Exception: {3}</value>
   <data name="Exception_PropertyAvailableInEvaluateMethod" xml:space="preserve">
 	  <value>Property available in Evaluate() method.</value>
   </data>
+  <data name="Exception_IncorrectSecurityContext" xml:space="preserve">
+	  <value>Incorrect security context</value>
+  </data>
 </root>

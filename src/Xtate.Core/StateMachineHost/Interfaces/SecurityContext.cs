@@ -38,8 +38,3 @@ public class DefaultIoBoundTask : IIoBoundTask
 
 #endregion
 }
-
-public interface ISecurityContext : IIoBoundTask
-{
-	ISecurityContext CreateNested(SecurityContextType type);
-}

@@ -193,7 +193,7 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 
 	private async ValueTask<IStateMachine> GetStateMachine(Uri? uri,
 														   string? scxml,
-														   ISecurityContext securityContext,
+														   SecurityContext securityContext,
 														   IErrorProcessor errorProcessor,
 														   CancellationToken token)
 	{
@@ -234,7 +234,7 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 	//TODO:delete
 	protected async ValueTask<(IStateMachine StateMachine, Uri? Location)> LoadStateMachine(StateMachineOrigin origin,
 																							Uri? hostBaseUri,
-																							ISecurityContext securityContext,
+																							SecurityContext securityContext,
 																							IErrorProcessor errorProcessor,
 																							CancellationToken token)
 	{
