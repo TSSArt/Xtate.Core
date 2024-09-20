@@ -44,6 +44,52 @@ internal static class TaskExtensions
 		return valueTask.AsTask().GetAwaiter().GetResult();
 	}
 
+	public static ValueTask WaitAsync(this ValueTask valueTask, CancellationToken token)
+	{
+		if (valueTask.IsCompleted || !token.CanBeCanceled)
+		{
+			return valueTask;
+		}
+
+		if (token.IsCancellationRequested)
+		{
+			return new ValueTask(Task.FromCanceled(token));
+		}
+
+		return new ValueTask(Task.WhenAny(valueTask.AsTask(), Task.Delay(Timeout.Infinite, token)));
+	}
+
+	public static ValueTask<T> WaitAsync<T>(this ValueTask<T> valueTask, CancellationToken token)
+	{
+		if (valueTask.IsCompleted || !token.CanBeCanceled)
+		{
+			return valueTask;
+		}
+
+		if (token.IsCancellationRequested)
+		{
+			return new ValueTask<T>(Task.FromCanceled<T>(token));
+		}
+
+		return WaitAsyncLocal(Task.WhenAny(valueTask.AsTask(), Task.Delay(Timeout.Infinite, token)));
+
+		static async ValueTask<T> WaitAsyncLocal(Task<Task> waitAnyTask)
+		{
+			var completedTask = await waitAnyTask.ConfigureAwait(false);
+
+			Debug.Assert(completedTask.IsCompleted);
+
+			if (completedTask is Task<T> task)
+			{
+				return task.GetAwaiter().GetResult();
+			}
+
+			completedTask.GetAwaiter().GetResult();
+
+			throw new InvalidOperationException();
+		}
+	}
+
 	#if !NET6_0_OR_GREATER
 
 	public static Task WaitAsync(this Task task, CancellationToken token)

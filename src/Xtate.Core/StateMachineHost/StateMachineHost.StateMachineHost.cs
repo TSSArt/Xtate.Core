@@ -251,7 +251,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 		_serviceFactories = serviceFactories.MoveToImmutable();
 	}*/
 
-	private async ValueTask StateMachineHostStartAsync(CancellationToken token)
+	private async ValueTask StateMachineHostStartAsync()
 	{
 		//var factories = _options.IoProcessorFactories;
 		var factories = await _ioProcessorFactories.ToImmutableArrayAsync().ConfigureAwait(false);
@@ -265,7 +265,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 		{
 			foreach (var ioProcessorFactory in factories)
 			{
-				ioProcessors.Add(await ioProcessorFactory.Create(this, token).ConfigureAwait(false));
+				ioProcessors.Add(await ioProcessorFactory.Create(this, default/*??*/).ConfigureAwait(false));
 			}
 		}
 

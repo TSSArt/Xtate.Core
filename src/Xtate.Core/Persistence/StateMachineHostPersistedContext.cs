@@ -52,18 +52,18 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 		_baseUri = options.BaseUri;
 	}
 
-	public override async ValueTask InitializeAsync(CancellationToken token)
+	public override async ValueTask InitializeAsync()
 	{
 		try
 		{
 			_storage = await _storageProvider.GetTransactionalStorage(HostPartition, ContextKey).ConfigureAwait(false);
 
-			await LoadStateMachines(token).ConfigureAwait(false);
-			await LoadInvokedServices(token).ConfigureAwait(false);
+			await LoadStateMachines(default).ConfigureAwait(false);
+			await LoadInvokedServices(default).ConfigureAwait(false);
 
-			await base.InitializeAsync(token).ConfigureAwait(false);
+			await base.InitializeAsync().ConfigureAwait(false);
 		}
-		catch (OperationCanceledException ex) when (ex.CancellationToken == token)
+		catch (OperationCanceledException ex) when (ex.CancellationToken == default) //TODO:
 		{
 			Stop();
 
