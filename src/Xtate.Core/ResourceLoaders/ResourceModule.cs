@@ -24,7 +24,7 @@ public class ResourceModule : Module
 {
 	protected override void AddServices()
 	{
-		Services.AddSharedImplementation<DefaultIoBoundTask>(SharedWithin.Scope).For<IIoBoundTask>();
+		Services.AddSharedImplementation<DefaultIoBoundTask>(SharedWithin.Container).For<IIoBoundTask>();
 		Services.AddTypeSync<Resource, Stream>();
 	}
 }

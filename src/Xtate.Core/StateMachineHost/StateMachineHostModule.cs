@@ -41,7 +41,7 @@ public class StateMachineHostModule : Module<StateMachineInterpreterModule>
 		Services.AddSharedImplementation<StateMachineHost>(SharedWithin.Container).For<StateMachineHost>().For<IStateMachineHost>().For<IServiceFactory>().For<IHostController>(); //TODO: Make only interface
 		Services.AddSharedImplementation<StateMachineHostContext>(SharedWithin.Container).For<StateMachineHostContext>().For<IStateMachineHostContext>();                //TODO: Make only interface
 
-		Services.AddSharedFactorySync<SecurityContextFactory>(SharedWithin.Container).For<SecurityContext>().For<SecurityContextRegistration, SecurityContextType>();
+		Services.AddSharedFactorySync<SecurityContextFactory>(SharedWithin.Container).For<IIoBoundTask>().For<SecurityContextRegistration, SecurityContextType>();
 		//Services.AddSharedType<SecurityContextController>(SharedWithin.Container);
 
 	}

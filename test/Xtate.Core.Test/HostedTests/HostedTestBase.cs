@@ -54,7 +54,7 @@ public abstract class HostedTestBase
 	}
 
 	[TestCleanup]
-	public Task Cleanup() => Host.StopHost();
+	public Task Cleanup() => Host.StopHost().AsTask();
 
 	protected async Task Execute([PathReference("~/HostedTests/Scxml/")] string scxmlPath)
 	{
