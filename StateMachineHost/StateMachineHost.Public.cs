@@ -25,6 +25,7 @@ public sealed partial class StateMachineHost(StateMachineHostOptions options) : 
 	private          bool                                     _asyncOperationInProgress;
 	private          StateMachineHostContext?                 _context;
 	private          bool                                     _disposed;
+	
 	public required  Func<ValueTask<StateMachineHostContext>> ContextFactory;
 
 #region Interface IAsyncDisposable
@@ -57,49 +58,29 @@ public sealed partial class StateMachineHost(StateMachineHostOptions options) : 
 
 #region Interface IHost
 
-	public async Task StartHost(CancellationToken token = default)
+	public async ValueTask StartHost()
 	{
-		_context = await ContextFactory().ConfigureAwait(false);
-
-		if (_asyncOperationInProgress)
-		{
-			throw new InvalidOperationException(Resources.Exception_AnotherAsynchronousOperationInProgress);
-		}
-
 		if (_context is not null)
 		{
 			return;
 		}
 
-		var context = _options.HostMode switch
-					  {
-						  HostMode.Cluster => new StateMachineHostClusterContext(this, _options),
-						  HostMode.Standalone => _options.PersistenceLevel != PersistenceLevel.None && _options.StorageProvider is not null
-							  ? new StateMachineHostPersistedContext(this, _options)
-							  : new StateMachineHostContext(this, _options, InProcEventSchedulerFactory.Instance),
-						  _ => throw Infra.Unmatched(_options.HostMode)
-					  };
+		if (_asyncOperationInProgress)
+		{
+			throw new InvalidOperationException(Resources.Exception_AnotherAsynchronousOperationInProgress);
+
+		}
 
 		try
 		{
 			_asyncOperationInProgress = true;
 
-			await context.InitializeAsync(token).ConfigureAwait(false);
-			await StateMachineHostStartAsync(token).ConfigureAwait(false);
+			var context = await ContextFactory().ConfigureAwait(false); //TODO:? move after startAsync()?
+
+			await StateMachineHostStartAsync().ConfigureAwait(false);
 
 			_context = context;
 
-			//TODO: start
-			//var serviceScopeFactory = _options.ServiceLocator.GetService<IServiceScopeFactory>();
-			//var serviceScope = serviceScopeFactory.CreateScope(s => s.AddForwarding<StateMachineHostContext>(_ => context));
-			//_options = _options with { ServiceLocator = new ServiceLocator(serviceScope.ServiceProvider) };
-
-			//TODO: end
-		}
-		catch (OperationCanceledException ex) when (ex.CancellationToken == token)
-		{
-			context.Stop();
-			await context.DisposeAsync().ConfigureAwait(false);
 		}
 		finally
 		{
@@ -107,7 +88,7 @@ public sealed partial class StateMachineHost(StateMachineHostOptions options) : 
 		}
 	}
 
-	public async Task StopHost(CancellationToken token = default)
+	public async ValueTask StopHost()
 	{
 		if (_asyncOperationInProgress)
 		{
@@ -127,9 +108,9 @@ public sealed partial class StateMachineHost(StateMachineHostOptions options) : 
 		{
 			context.Suspend();
 
-			await context.WaitAllAsync(token).ConfigureAwait(false);
+			await context.WaitAllAsync(default).ConfigureAwait(false); //TODO:
 		}
-		catch (OperationCanceledException ex) when (ex.CancellationToken == token)
+		catch (OperationCanceledException ex) when (ex.CancellationToken == default) //TODO:
 		{
 			context.Stop();
 		}
@@ -257,5 +238,5 @@ public sealed partial class StateMachineHost(StateMachineHostOptions options) : 
 		return await controller.GetResult().ConfigureAwait(false);
 	}*/
 
-	public ValueTask DestroyStateMachineAsync(string sessionId) => DestroyStateMachine(SessionId.FromString(sessionId), CancellationToken.None);
+	public ValueTask DestroyStateMachineAsync(string sessionId) => DestroyStateMachine(SessionId.FromString(sessionId));
 }

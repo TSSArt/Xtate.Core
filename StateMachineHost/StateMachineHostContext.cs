@@ -112,11 +112,11 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 		return default;
 	}
 
-	public virtual async ValueTask InitializeAsync(CancellationToken token)
+	public virtual async ValueTask InitializeAsync()//TODO: make it asycinitialization
 	{
 		var eventSchedulerFactory = _options.EventSchedulerFactory ?? _defaultEventSchedulerFactory;
 
-		_eventScheduler = await eventSchedulerFactory.CreateEventScheduler(_stateMachineHost, _options.EsLogger, token).ConfigureAwait(false);
+		_eventScheduler = await eventSchedulerFactory.CreateEventScheduler(_stateMachineHost, _options.EsLogger, default).ConfigureAwait(false);
 	}
 
 	public ValueTask ScheduleEvent(IHostEvent hostEvent, CancellationToken token)
@@ -381,7 +381,7 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 
 	public bool TryGetService(InvokeId invokeId, out IService? service) => _serviceByInvokeId.TryGetValue(invokeId, out service);
 
-	public async ValueTask DestroyStateMachine(SessionId sessionId, CancellationToken token)
+	public async ValueTask DestroyStateMachine(SessionId sessionId)
 	{
 		if (_stateMachineBySessionId.TryGetValue(sessionId, out var controller))
 		{
@@ -390,10 +390,6 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 			try
 			{
 				await controller.GetResult().ConfigureAwait(false);
-			}
-			catch (OperationCanceledException ex) when (ex.CancellationToken == token)//todo:delete
-			{
-				throw;
 			}
 			catch
 			{

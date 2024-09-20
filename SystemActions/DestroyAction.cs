@@ -67,7 +67,7 @@ public class DestroyAction : AsyncAction, IDisposable
 	{
 		var sessionId = await GetSessionId().ConfigureAwait(false);
 
-		await Host.DestroyStateMachine(sessionId, _disposingToken.Token).ConfigureAwait(false);
+		await Host.DestroyStateMachine(sessionId).WaitAsync(_disposingToken.Token).ConfigureAwait(false);
 	}
 
 	private async ValueTask<SessionId> GetSessionId()

@@ -23,9 +23,9 @@ public interface IHostController
 
 	ValueTask<DataModelValue> ExecuteStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType);
 
-	ValueTask DestroyStateMachine(SessionId sessionId, CancellationToken token);
+	ValueTask DestroyStateMachine(SessionId sessionId);
 
-	Task StartHost(CancellationToken token = default);
+	ValueTask StartHost();
 	
-	Task StopHost(CancellationToken token = default);
+	ValueTask StopHost();
 }

@@ -34,7 +34,7 @@ public sealed partial class StateMachineHost : IHostController
 	ValueTask<DataModelValue> IHostController.ExecuteStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType) =>
 		ExecuteStateMachine(stateMachineClass, securityContextType);
 
-	ValueTask IHostController.DestroyStateMachine(SessionId sessionId, CancellationToken token) => DestroyStateMachine(sessionId, token);
+	ValueTask IHostController.DestroyStateMachine(SessionId sessionId) => DestroyStateMachine(sessionId);
 
 #endregion
 
@@ -93,5 +93,5 @@ public sealed partial class StateMachineHost : IHostController
 		}
 	}
 
-	private ValueTask DestroyStateMachine(SessionId sessionId, CancellationToken token) => GetCurrentContext().DestroyStateMachine(sessionId, token);
+	private ValueTask DestroyStateMachine(SessionId sessionId) => GetCurrentContext().DestroyStateMachine(sessionId);
 }

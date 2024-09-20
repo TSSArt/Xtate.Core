@@ -32,8 +32,10 @@ public sealed class SecurityContextFactory
 {
 	private readonly AsyncLocal<SecurityContext> _securityContext = new();
 
+	private SecurityContext CurrentSecurityContext => _securityContext.Value ?? SecurityContext.FullAccess;
+
 	[UsedImplicitly]
-	public SecurityContext GetSecurityContext() => _securityContext.Value ?? SecurityContext.FullAccess;
+	public IIoBoundTask GetIIoBoundTask() => CurrentSecurityContext;
 
 	[UsedImplicitly]
 	public SecurityContextRegistration GetRegistration(SecurityContextType securityContextType) => new(_securityContext, securityContextType);
@@ -67,7 +69,7 @@ public sealed class SecurityContextRegistration : IAsyncDisposable
 #endregion
 }
 
-public sealed class SecurityContext : IAsyncDisposable
+public sealed class SecurityContext : IIoBoundTask, IAsyncDisposable
 {
 	private const int IoBoundTaskSchedulerMaximumConcurrencyLevel = 2;
 
