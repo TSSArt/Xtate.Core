@@ -1488,6 +1488,24 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Shared instance of {0} is not created..
+        /// </summary>
+        internal static string Exception_InstanceIsNotCreated {
+            get {
+                return ResourceManager.GetString("Exception_InstanceIsNotCreated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Instance of {0} is not shared..
+        /// </summary>
+        internal static string Exception_InstanceIsNotShared {
+            get {
+                return ResourceManager.GetString("Exception_InstanceIsNotShared", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Internal events can&apos;t be delayed..
         /// </summary>
         internal static string Exception_InternalEventsCantBeDelayed {
@@ -1917,6 +1935,15 @@ namespace Xtate {
         internal static string Exception_SessionIdCouldNotBeEmpty {
             get {
                 return ResourceManager.GetString("Exception_SessionIdCouldNotBeEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Shared instance already assigned for type {0}..
+        /// </summary>
+        internal static string Exception_SharedInstanceAlreadyAssigned {
+            get {
+                return ResourceManager.GetString("Exception_SharedInstanceAlreadyAssigned", resourceCulture);
             }
         }
         

@@ -28,6 +28,8 @@ public abstract class AsyncInit<T> : AsyncInit
 
 public abstract class AsyncInit
 {
+	public AsyncInit Then(AsyncInit asyncInit) => new Wrapper(this, asyncInit);
+
 	public abstract Task Task { get; }
 
 	/// <summary>
@@ -96,5 +98,31 @@ public abstract class AsyncInit
 
 		private Task Init() => func().AsTask();
 	}
+	
+	private sealed class Wrapper(AsyncInit asyncInit1, AsyncInit asyncInit2) : AsyncInit
+	{
+		private Task? _task;
 
+		public override Task Task
+		{
+			get
+			{
+				if (_task is { } task)
+				{
+					return task;
+				}
+
+				lock (this)
+				{
+					return _task ??= Init();
+				}
+			}
+		}
+
+		private async Task Init()
+		{
+			await asyncInit1.Task.ConfigureAwait(false);
+			await asyncInit2.Task.ConfigureAwait(false);
+		}
+	}
 }
