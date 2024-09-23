@@ -52,7 +52,7 @@ public class InterpreterTest
 
 		var stateMachineInterpreter = new StateMachineInterpreter
 									  {
-										  ContextFactory = () => new ValueTask<IStateMachineContext>(stateMachineContextMock.Object),
+										  StateMachineContext = stateMachineContextMock.Object,
 										  DataConverter = new DataConverter(dataModelHandlerMock.Object),
 										  DataModelHandler = dataModelHandlerMock.Object,
 										  EventQueueReader = eventQueueMock.Object,

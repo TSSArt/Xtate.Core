@@ -190,7 +190,7 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 				  sessionId, stateMachineOptions, stateMachine, stateMachineLocation, _stateMachineHost,
 				  _storageProvider, _idlePeriod, defaultOptions)
 			  {
-				  _stateMachineInterpreterFactory = default!, EventQueueWriter = default!
+				  _stateMachineInterpreterFactory = default!, EventQueueWriter = default!, StateMachineInterpreterSharedInstanceSetter = default
 			  }
 			: base.CreateStateMachineController(sessionId, stateMachine, stateMachineOptions, stateMachineLocation, defaultOptions);
 
