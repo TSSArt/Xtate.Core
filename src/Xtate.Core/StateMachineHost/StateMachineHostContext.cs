@@ -172,7 +172,7 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 			sessionId, stateMachineOptions, stateMachine, stateMachineLocation, _stateMachineHost,
 			_options.SuspendIdlePeriod, defaultOptions)
 		{
-			_stateMachineInterpreterFactory = default!, EventQueueWriter = default!
+			_stateMachineInterpreterFactory = default!, EventQueueWriter = default!, StateMachineInterpreterSharedInstanceSetter = default
 		};
 
 	private static XmlReaderSettings GetXmlReaderSettings(XmlNameTable nameTable, ScxmlXmlResolver xmlResolver) =>

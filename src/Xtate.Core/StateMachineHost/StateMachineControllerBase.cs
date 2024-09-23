@@ -100,6 +100,8 @@ public abstract class StateMachineControllerBase : IStateMachineController, ISer
 
 	public Task Wait() => GetResult().AsTask();
 
+	public required ISharedInstanceSetter<IStateMachineInterpreter>? StateMachineInterpreterSharedInstanceSetter { private get; [UsedImplicitly]init; }
+
 	public required Func<ValueTask<IStateMachineInterpreter>> _stateMachineInterpreterFactory { private get; [UsedImplicitly] init; }
 
 	protected abstract Channel<IEvent>   EventChannel     { get; }
@@ -236,6 +238,9 @@ public abstract class StateMachineControllerBase : IStateMachineController, ISer
 				{
 					//var stateMachineInterpreter = _defaultOptions.ServiceLocator.GetService<IStateMachineInterpreter>();
 					var stateMachineInterpreter = await _stateMachineInterpreterFactory().ConfigureAwait(false);
+
+					StateMachineInterpreterSharedInstanceSetter?.SetValue(stateMachineInterpreter);
+
 					var result = await stateMachineInterpreter.RunAsync().ConfigureAwait(false);
 
 					//var result = await stateMachineInterpreter.RunAsync(SessionId, _stateMachine, EventChannel.Reader, GetOptions()).ConfigureAwait(false);

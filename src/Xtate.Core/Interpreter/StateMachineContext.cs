@@ -230,15 +230,67 @@ public class EventController : IEventController
 
 public interface IXDataModelProperty
 {
-	string         Name  { get; }
+	string Name { get; }
+
 	DataModelValue Value { get; }
+}
+
+public class SharedInstanceModule : Module
+{
+	protected override void AddServices()
+	{
+		Services.AddSharedImplementation<SharedInstance<Any>>(SharedWithin.Scope).For<ISharedInstance<Any>>().For<ISharedInstanceSetter<Any>>();
+	}
+}
+
+[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
+public class SharedInstance<T> : ISharedInstance<T>, ISharedInstanceSetter<T> where T : class
+{
+	private T? _value;
+
+#region Interface ISharedInstance<T>
+
+	public T? Value => _value;
+
+#endregion
+
+#region Interface ISharedInstanceSetter<T>
+
+	public void SetValue(T value)
+	{
+		Infra.Requires(value);
+
+		if (ReferenceEquals(value, _value))
+		{
+			return;
+		}
+
+		if (_value is not null)
+		{
+			Infra.Fail(Res.Format(Resources.Exception_SharedInstanceAlreadyAssigned, typeof(T)));
+		}
+
+		_value = value;
+	}
+
+#endregion
+}
+
+public interface ISharedInstance<out T> where T : class
+{
+	T Value { get; }
+}
+
+public interface ISharedInstanceSetter<in T> where T : class
+{
+	void SetValue(T value);
 }
 
 public class InterpreterXDataModelProperty : IXDataModelProperty
 {
-	public required IDataModelHandler             DataModelHandler        { private get; [UsedImplicitly] init; }
-	public required IStateMachineInterpreter      StateMachineInterpreter { private get; [UsedImplicitly] init; }
-	public required Func<Type, IAssemblyTypeInfo> TypeInfoFactory         { private get; [UsedImplicitly] init; }
+	public required IDataModelHandler                          DataModelHandler            { private get; [UsedImplicitly] init; }
+	public required ISharedInstance<IStateMachineInterpreter>? StateMachineInterpreter { private get; [UsedImplicitly] init; }
+	public required Func<Type, IAssemblyTypeInfo>              TypeInfoFactory             { private get; [UsedImplicitly] init; }
 
 #region Interface IXDataModelProperty
 
@@ -250,7 +302,14 @@ public class InterpreterXDataModelProperty : IXDataModelProperty
 
 	private DataModelValue Factory()
 	{
-		var typeInfo = TypeInfoFactory(StateMachineInterpreter.GetType());
+		var type = StateMachineInterpreter?.Value?.GetType();
+
+		if (type is null)
+		{
+			return default;
+		}
+
+		var typeInfo = TypeInfoFactory(type);
 
 		var interpreterList = new DataModelList(DataModelHandler.CaseInsensitive)
 							  {
@@ -267,8 +326,9 @@ public class InterpreterXDataModelProperty : IXDataModelProperty
 
 public class DataModelXDataModelProperty : IXDataModelProperty
 {
-	public required IDataModelHandler             DataModelHandler { private get; [UsedImplicitly] init; }
-	public required Func<Type, IAssemblyTypeInfo> TypeInfoFactory  { private get; [UsedImplicitly] init; }
+	public required IDataModelHandler DataModelHandler { private get; [UsedImplicitly] init; }
+
+	public required Func<Type, IAssemblyTypeInfo> TypeInfoFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IXDataModelProperty
 
@@ -346,8 +406,7 @@ public class StateMachineContext : IStateMachineContext, IAsyncInitialization //
 	//private readonly IExternalCommunication? _externalCommunication;
 
 	//private readonly Parameters                 _parameters;
-	private DataModelList?            _dataModel;
-	private KeyList<StateEntityNode>? _historyValue;
+	private DataModelList? _dataModel;
 
 	public StateMachineContext()
 	{
@@ -363,7 +422,7 @@ public class StateMachineContext : IStateMachineContext, IAsyncInitialization //
 
 #region Interface IAsyncInitialization
 
-	public Task Initialization => Task.WhenAll(_ioProcessorsAsyncInit.Task, _ixDataModelPropertyAsyncInit.Task);
+	public Task Initialization => _ioProcessorsAsyncInit.Then(_ixDataModelPropertyAsyncInit).Task;
 
 #endregion
 
@@ -373,9 +432,7 @@ public class StateMachineContext : IStateMachineContext, IAsyncInitialization //
 
 	public OrderedSet<StateEntityNode> Configuration { get; } = [];
 
-	//public IExecutionContext ExecutionContext => this;
-
-	public KeyList<StateEntityNode> HistoryValue => _historyValue ??= new KeyList<StateEntityNode>();
+	public KeyList<StateEntityNode> HistoryValue => new();
 
 	public EntityQueue<IEvent> InternalQueue { get; } = new();
 
@@ -402,6 +459,11 @@ public class StateMachineContext : IStateMachineContext, IAsyncInitialization //
 
 	private DataModelValue GetPlatform()
 	{
+		if (_ixDataModelPropertyAsyncInit.Value.IsEmpty)
+		{
+			return DataModelList.Empty;
+		}
+
 		var list = new DataModelList(DataModelAccess.ReadOnly, DataModelHandler.CaseInsensitive);
 
 		foreach (var property in _ixDataModelPropertyAsyncInit.Value)
@@ -419,14 +481,17 @@ public class StateMachineContext : IStateMachineContext, IAsyncInitialization //
 			return DataModelList.Empty;
 		}
 
-		var list = new DataModelList(DataModelHandler.CaseInsensitive);
+		var caseInsensitive = DataModelHandler.CaseInsensitive;
+
+		var list = new DataModelList(DataModelAccess.ReadOnly, caseInsensitive);
 
 		foreach (var ioProcessor in _ioProcessorsAsyncInit.Value)
 		{
-			list.Add(ioProcessor.Id.ToString(), new DataModelList(DataModelHandler.CaseInsensitive) { { @"location", ioProcessor.GetTarget(StateMachineSessionId.SessionId)?.ToString() } });
-		}
+			var value = new DataModelList(DataModelAccess.ReadOnly, caseInsensitive);
+			value.AddInternal(@"location", ioProcessor.GetTarget(StateMachineSessionId.SessionId)?.ToString(), DataModelAccess.Constant);
 
-		list.MakeDeepConstant();
+			list.AddInternal(ioProcessor.Id.ToString(), value, DataModelAccess.Constant);
+		}
 
 		return list;
 	}

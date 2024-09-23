@@ -937,4 +937,13 @@ Exception: {3}</value>
   <data name="Exception_IncorrectSecurityContext" xml:space="preserve">
 	  <value>Incorrect security context</value>
   </data>
+  <data name="Exception_InstanceIsNotShared" xml:space="preserve">
+	  <value>Instance of {0} is not shared.</value>
+  </data>
+  <data name="Exception_InstanceIsNotCreated" xml:space="preserve">
+	  <value>Shared instance of {0} is not created.</value>
+  </data>
+  <data name="Exception_SharedInstanceAlreadyAssigned" xml:space="preserve">
+	  <value>Shared instance already assigned for type {0}.</value>
+  </data>
 </root>
