@@ -42,25 +42,27 @@ public abstract class LogEvaluator(ILog log) : ILog, IExecEvaluator, IAncestorPr
 
 public class DefaultLogEvaluator : LogEvaluator
 {
-	private const int EventId = 1;
-
 	private readonly IObjectEvaluator? _expressionEvaluator;
 
 	public DefaultLogEvaluator(ILog log) : base(log) => _expressionEvaluator = base.Expression?.As<IObjectEvaluator>();
 
-	public required Func<ValueTask<ILogger<ILog>>> LoggerFactory { private get; [UsedImplicitly] init; }
+	public required Func<ValueTask<ILogController?>> LogControllerFactory { private get; [UsedImplicitly] init; }
 
 	public override async ValueTask Execute()
 	{
-		var data = default(DataModelValue);
+		var logController = await LogControllerFactory().ConfigureAwait(false);
 
-		if (_expressionEvaluator is not null)
+		if (logController?.IsEnabled ?? false)
 		{
-			var obj = await _expressionEvaluator.EvaluateObject().ConfigureAwait(false);
-			data = DataModelValue.FromObject(obj).AsConstant();
-		}
+			var data = default(DataModelValue);
 
-		var logger = await LoggerFactory().ConfigureAwait(false);
-		await logger.Write(Level.Info, EventId, base.Label, data).ConfigureAwait(false);
+			if (_expressionEvaluator is not null)
+			{
+				var obj = await _expressionEvaluator.EvaluateObject().ConfigureAwait(false);
+				data = DataModelValue.FromObject(obj).AsConstant();
+			}
+
+			await logController.Log(base.Label, data).ConfigureAwait(false);
+		}
 	}
 }

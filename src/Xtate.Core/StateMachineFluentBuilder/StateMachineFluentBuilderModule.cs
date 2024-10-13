@@ -24,16 +24,16 @@ public class StateMachineFluentBuilderModule : Module<StateMachineBuilderModule>
 	protected override void AddServices()
 	{
 		Services.AddTypeSync<StateMachineFluentBuilder>();
-		Services.AddTypeSync<StateFluentBuilder<OuterBuilderStub>, OuterBuilderStub, Action<IState>>();
-		Services.AddTypeSync<ParallelFluentBuilder<OuterBuilderStub>, OuterBuilderStub, Action<IParallel>>();
-		Services.AddTypeSync<FinalFluentBuilder<OuterBuilderStub>, OuterBuilderStub, Action<IFinal>>();
-		Services.AddTypeSync<InitialFluentBuilder<OuterBuilderStub>, OuterBuilderStub, Action<IInitial>>();
-		Services.AddTypeSync<HistoryFluentBuilder<OuterBuilderStub>, OuterBuilderStub, Action<IHistory>>();
-		Services.AddTypeSync<TransitionFluentBuilder<OuterBuilderStub>, OuterBuilderStub, Action<ITransition>>();
+		Services.AddTypeSync<StateFluentBuilder<OuterBuilder>, OuterBuilder, Action<IState>>();
+		Services.AddTypeSync<ParallelFluentBuilder<OuterBuilder>, OuterBuilder, Action<IParallel>>();
+		Services.AddTypeSync<FinalFluentBuilder<OuterBuilder>, OuterBuilder, Action<IFinal>>();
+		Services.AddTypeSync<InitialFluentBuilder<OuterBuilder>, OuterBuilder, Action<IInitial>>();
+		Services.AddTypeSync<HistoryFluentBuilder<OuterBuilder>, OuterBuilder, Action<IHistory>>();
+		Services.AddTypeSync<TransitionFluentBuilder<OuterBuilder>, OuterBuilder, Action<ITransition>>();
 	}
 
 	[UsedImplicitly]
-	private class OuterBuilderStub : IStub
+	private class OuterBuilder : IStub
 	{
 	#region Interface IStub
 

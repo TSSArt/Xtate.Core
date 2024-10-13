@@ -51,11 +51,8 @@ public class EventEntityParser<TSource> : EntityParserBase<TSource, IEvent>
 		{
 			yield return new LoggingParameter(name: @"InvokeId", invokeId);
 		}
-	}
 
-	protected override IEnumerable<LoggingParameter>? EnumerateVerboseProperties(IEvent evt)
-	{
-		if (!evt.Data.IsUndefined())
+		if (IsVerboseLogging && !evt.Data.IsUndefined())
 		{
 			yield return new LoggingParameter(name: @"Data", evt.Data.ToObject());
 

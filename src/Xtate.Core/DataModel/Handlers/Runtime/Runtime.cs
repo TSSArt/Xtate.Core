@@ -23,9 +23,9 @@ public static class Runtime
 {
 	private static readonly AsyncLocal<RuntimeExecutionContext> Current = new();
 
-	public static DataModelList DataModel => GetContext().DataModelController?.DataModel ?? DataModelList.Empty;
+	public static DataModelList DataModel => GetContext().DataModelController.DataModel;
 
-	public static DataModelValue Arguments => GetContext().DataModelController?.DataModel[@"_x"].AsListOrDefault()?["args"] ?? default;
+	public static DataModelValue Arguments => GetContext().DataModelController.DataModel[@"_x"].AsListOrDefault()?["args"] ?? default;
 
 	private static RuntimeExecutionContext GetContext()
 	{
@@ -39,15 +39,16 @@ public static class Runtime
 
 	internal static void SetCurrentExecutionContext(RuntimeExecutionContext executionContext) => Current.Value = executionContext;
 
-	public static bool InState(string stateId) => GetContext().InStateController?.InState(Identifier.FromString(stateId)) ?? false;
+	public static bool InState(string stateId) => GetContext().InStateController.InState(Identifier.FromString(stateId));
 
-	public static ValueTask Log(string message, DataModelValue arguments = default) => GetContext().LogController?.Log(message, arguments) ?? default;
+	public static ValueTask Log(string message, DataModelValue arguments = default) => GetContext().LogController.Log(message, arguments);
 
-	public static ValueTask SendEvent(IOutgoingEvent outgoingEvent) => GetContext().EventController?.Send(outgoingEvent) ?? default;
+	public static ValueTask SendEvent(IOutgoingEvent outgoingEvent) => GetContext().EventController.Send(outgoingEvent);
 
-	public static ValueTask CancelEvent(SendId sendId) => GetContext().EventController?.Cancel(sendId) ?? default;
+	public static ValueTask CancelEvent(SendId sendId) => GetContext().EventController.Cancel(sendId);
 
-	public static ValueTask StartInvoke(InvokeData invokeData) => GetContext().InvokeController?.Start(invokeData) ?? default;
+	public static ValueTask StartInvoke(InvokeData invokeData) => GetContext().InvokeController.Start(invokeData);
 
-	public static ValueTask CancelInvoke(InvokeId invokeId) => GetContext().InvokeController?.Cancel(invokeId) ?? default;
+	public static ValueTask CancelInvoke(InvokeId invokeId) => GetContext().InvokeController.Cancel(invokeId);
+
 }

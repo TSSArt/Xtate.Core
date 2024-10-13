@@ -55,6 +55,7 @@ public class RegisterClassTest
 		var provider = services.BuildProvider();
 
 		var dataModelHandler = await provider.GetRequiredService<IDataModelHandler>();
+		var caseSensitivity = await provider.GetRequiredService<ICaseSensitivity>();
 		var typeInfo = provider.GetRequiredServiceSync<IAssemblyTypeInfo, Type>(dataModelHandler.GetType());
 
 		// Act
@@ -66,20 +67,31 @@ public class RegisterClassTest
 		// Assert
 
 		Assert.AreEqual(expected: "Xtate.DataModel.Null.NullDataModelHandler", typeInfo.FullTypeName);
-		Assert.IsFalse(dataModelHandler.CaseInsensitive);
+		Assert.IsFalse(caseSensitivity.CaseInsensitive);
 	}
 
 	[TestMethod]
 	public async Task RuntimeDataModelHandlerTest()
 	{
 		// Arrange
+		var inStateControllerMock = new Mock<IInStateController>();
+		var logControllerMock = new Mock<ILogController>();
+		var eventControllerMock = new Mock<IEventController>();
+		var invokeControllerMock = new Mock<IInvokeController>();
+		var dataModelControllerMock = new Mock<IDataModelController>();
 
 		var services = new ServiceCollection();
 		services.AddModule<RuntimeDataModelHandlerModule>();
 		services.AddSharedImplementationSync<AssemblyTypeInfo, Type>(SharedWithin.Container).For<IAssemblyTypeInfo>();
+		services.AddConstant(inStateControllerMock.Object);
+		services.AddConstant(logControllerMock.Object);
+		services.AddConstant(eventControllerMock.Object);
+		services.AddConstant(invokeControllerMock.Object);
+		services.AddConstant(dataModelControllerMock.Object);
 		var provider = services.BuildProvider();
 
 		var dataModelHandler = await provider.GetRequiredService<IDataModelHandler>();
+		var caseSensitivity = await provider.GetRequiredService<ICaseSensitivity>();
 		var typeInfo = provider.GetRequiredServiceSync<IAssemblyTypeInfo, Type>(dataModelHandler.GetType());
 
 		// Act
@@ -94,7 +106,7 @@ public class RegisterClassTest
 		// Assert
 
 		Assert.AreEqual(expected: "Xtate.DataModel.Runtime.RuntimeDataModelHandler", typeInfo.FullTypeName);
-		Assert.IsFalse(dataModelHandler.CaseInsensitive);
+		Assert.IsFalse(caseSensitivity.CaseInsensitive);
 		Assert.IsTrue(val);
 	}
 
@@ -110,6 +122,7 @@ public class RegisterClassTest
 
 		var dataModelHandler = await provider.GetRequiredService<IDataModelHandler>();
 		var typeInfo = provider.GetRequiredServiceSync<IAssemblyTypeInfo, Type>(dataModelHandler.GetType());
+		var caseSensitivity = await provider.GetRequiredService<ICaseSensitivity>();
 
 		// Act
 
@@ -123,7 +136,7 @@ public class RegisterClassTest
 		// Assert
 
 		Assert.AreEqual(expected: "Xtate.DataModel.XPath.XPathDataModelHandler", typeInfo.FullTypeName);
-		Assert.IsFalse(dataModelHandler.CaseInsensitive);
+		Assert.IsFalse(caseSensitivity.CaseInsensitive);
 		Assert.IsTrue(val);
 	}
 

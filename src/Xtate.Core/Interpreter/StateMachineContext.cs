@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using System.Collections.Concurrent;
 using Xtate.DataModel;
 using Xtate.IoC;
 using Xtate.IoProcessor;
@@ -166,6 +167,85 @@ public class DataModelController : IDataModelController
 #endregion
 }
 
+public class LogController : ILogController
+{
+	private const int EventId = 1;
+
+	public required ILogger<ILogController> Logger { private get; [UsedImplicitly] init; }
+
+	public bool IsEnabled => Logger.IsEnabled(Level.Info);
+
+	public ValueTask Log(string? message = default, DataModelValue arguments = default) => Logger.Write(Level.Info, EventId, message, arguments);
+}
+
+public class InvokeController : IInvokeController
+{
+	private const int StartInvokeEventId  = 1;
+	private const int CancelInvokeEventId = 2;
+	private const int EventForwardEventId = 3;
+
+	public required IExternalCommunication     ExternalCommunication { private get; [UsedImplicitly] init; }
+	public required ILogger<IInvokeController> Logger                { private get; [UsedImplicitly] init; }
+	public required StateMachineRuntimeError               StateMachineRuntimeError          { private get; [UsedImplicitly] init; }
+
+	public async ValueTask Start(InvokeData invokeData)
+	{
+		await Logger.Write(Level.Trace, StartInvokeEventId, $@"Start invoke. InvokeId: [{invokeData.InvokeId}]", invokeData).ConfigureAwait(false);
+
+		try
+		{
+			await ExternalCommunication.StartInvoke(invokeData).ConfigureAwait(false);
+		}
+		catch (Exception ex)
+		{
+			throw StateMachineRuntimeError.CommunicationError(ex);
+		}
+	}
+
+	public async ValueTask Cancel(InvokeId invokeId)
+	{
+		await Logger.Write(Level.Trace, CancelInvokeEventId, $@"Cancel invoke. InvokeId: [{invokeId}]", invokeId).ConfigureAwait(false);
+
+		try
+		{
+			await ExternalCommunication.CancelInvoke(invokeId).ConfigureAwait(false);
+		}
+		catch (Exception ex)
+		{
+			throw StateMachineRuntimeError.CommunicationError(ex);
+		}
+	}
+
+	public async ValueTask Forward(InvokeId invokeId, IEvent evt)
+	{
+		await Logger.Write(Level.Trace, EventForwardEventId, $@"Forward event: '{EventName.ToName(evt.NameParts)}'", evt).ConfigureAwait(false);
+
+		try
+		{
+			await ExternalCommunication.ForwardEvent(invokeId, evt).ConfigureAwait(false);
+		}
+		catch (Exception ex)
+		{
+			throw StateMachineRuntimeError.CommunicationError(ex);
+		}
+	}
+}
+
+public class NoExternalCommunication : IExternalCommunication
+{
+	public required StateMachineRuntimeError StateMachineRuntimeError { private get; [UsedImplicitly] init; }
+
+	public ValueTask StartInvoke(InvokeData invokeData) => throw StateMachineRuntimeError.NoExternalCommunication();
+
+	public ValueTask CancelInvoke(InvokeId invokeId) => throw StateMachineRuntimeError.NoExternalCommunication();
+
+	public ValueTask<SendStatus> TrySendEvent(IOutgoingEvent outgoingEvent) => throw StateMachineRuntimeError.NoExternalCommunication();
+
+	public ValueTask ForwardEvent(InvokeId invokeId, IEvent evt) => throw StateMachineRuntimeError.NoExternalCommunication();
+
+	public ValueTask CancelEvent(SendId sendId) => throw StateMachineRuntimeError.NoExternalCommunication();
+}
+
 public class EventController : IEventController
 {
 	private const int SendEventId   = 1;
@@ -173,8 +253,9 @@ public class EventController : IEventController
 
 	private static readonly Uri InternalTarget = new(uriString: "_internal", UriKind.Relative);
 
-	public required IExternalCommunication?   ExternalCommunication { private get; [UsedImplicitly] init; }
+	public required IExternalCommunication    ExternalCommunication { private get; [UsedImplicitly] init; }
 	public required ILogger<IEventController> Logger                { private get; [UsedImplicitly] init; }
+	public required StateMachineRuntimeError              StateMachineRuntimeError          { private get; [UsedImplicitly] init; }
 
 	public required IStateMachineContext StateMachineContext { private get; [UsedImplicitly] init; }
 
@@ -184,9 +265,13 @@ public class EventController : IEventController
 	{
 		await Logger.Write(Level.Trace, CancelEventId, $@"Cancel Event '{sendId}'", sendId).ConfigureAwait(false);
 
-		if (ExternalCommunication is not null)
+		try
 		{
 			await ExternalCommunication.CancelEvent(sendId).ConfigureAwait(false);
+		}
+		catch (Exception ex)
+		{
+			throw StateMachineRuntimeError.CommunicationError(ex, sendId);
 		}
 	}
 
@@ -194,29 +279,38 @@ public class EventController : IEventController
 	{
 		await Logger.Write(Level.Trace, SendEventId, $@"Send event: '{EventName.ToName(outgoingEvent.NameParts)}'", outgoingEvent).ConfigureAwait(false);
 
-		if (IsInternalEvent(outgoingEvent))
+		if (await TrySendEvent(outgoingEvent).ConfigureAwait(false) == SendStatus.ToInternalQueue)
 		{
 			StateMachineContext.InternalQueue.Enqueue(new EventObject(outgoingEvent) { Type = EventType.Internal });
-
-			return;
-		}
-
-		if (ExternalCommunication is not null)
-		{
-			if (await ExternalCommunication.TrySendEvent(outgoingEvent).ConfigureAwait(false) == SendStatus.ToInternalQueue)
-			{
-				StateMachineContext.InternalQueue.Enqueue(new EventObject(outgoingEvent) { Type = EventType.Internal });
-			}
 		}
 	}
 
 #endregion
 
+	private async ValueTask<SendStatus> TrySendEvent(IOutgoingEvent outgoingEvent)
+	{
+		await Logger.Write(Level.Trace, SendEventId, $@"Send event: '{EventName.ToName(outgoingEvent.NameParts)}'", outgoingEvent).ConfigureAwait(false);
+
+		if (IsInternalEvent(outgoingEvent))
+		{
+			return SendStatus.ToInternalQueue;
+		}
+
+		try
+		{
+			return await ExternalCommunication.TrySendEvent(outgoingEvent).ConfigureAwait(false);
+		}
+		catch (Exception ex)
+		{
+			throw StateMachineRuntimeError.CommunicationError(ex, outgoingEvent.SendId);
+		}
+	}
+
 	private static bool IsInternalEvent(IOutgoingEvent outgoingEvent)
 	{
-		if (outgoingEvent.Target != InternalTarget || outgoingEvent.Type is not null)
+		if (outgoingEvent.Target == InternalTarget && outgoingEvent.Type is null)
 		{
-			return false;
+			return true;
 		}
 
 		if (outgoingEvent.DelayMs != 0)
@@ -224,7 +318,7 @@ public class EventController : IEventController
 			throw new ExecutionException(Resources.Exception_InternalEventsCantBeDelayed);
 		}
 
-		return true;
+		return false;
 	}
 }
 
@@ -235,62 +329,255 @@ public interface IXDataModelProperty
 	DataModelValue Value { get; }
 }
 
-public class SharedInstanceModule : Module
+public class AncestorModule : Module
 {
 	protected override void AddServices()
 	{
-		Services.AddSharedImplementation<SharedInstance<Any>>(SharedWithin.Scope).For<ISharedInstance<Any>>().For<ISharedInstanceSetter<Any>>();
+		Services.AddFactory<AncestorFactory<Any>>().For<Ancestor<Any>>();
+		Services.AddSharedImplementationSync<AncestorTracker>(SharedWithin.Scope).For<AncestorTracker>().For<IServiceProviderActions>();
+
+		Services.AddFactorySync<DeferredFactory<Any>>().For<Deferred<Any>>();
+
+		Services.AddType<ServiceList<Any>>();
+		Services.AddType<ServiceSyncList<Any>>();
+	}
+}
+
+public delegate ValueTask<T> Deferred<T>();
+
+public class DeferredFactory<T>
+{
+	private ValueTask<T>? _valueTask;
+
+	public required Func<ValueTask<T>> Factory { private get; [UsedImplicitly] init; }
+
+	private ValueTask<T> GetValue() => _valueTask ??= Factory().Preserve();
+
+	[UsedImplicitly]
+	public Deferred<T> GetValueFunc() => GetValue;
+}
+
+[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
+public class ServiceList<T> : IReadOnlyList<T>, IAsyncInitialization
+{
+	private readonly Task _initTask;
+
+	private ImmutableArray<T> _array;
+
+	public ServiceList(IAsyncEnumerable<T> asyncEnumerable) => _initTask = Initialize(asyncEnumerable);
+
+#region Interface IAsyncInitialization
+
+	Task IAsyncInitialization.Initialization => _initTask;
+
+#endregion
+
+#region Interface IEnumerable
+
+	IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) _array).GetEnumerator();
+
+#endregion
+
+#region Interface IEnumerable<T>
+
+	IEnumerator<T> IEnumerable<T>.GetEnumerator() => ((IEnumerable<T>) _array).GetEnumerator();
+
+#endregion
+
+#region Interface IReadOnlyCollection<T>
+
+	public int Count => _array.Length;
+
+#endregion
+
+#region Interface IReadOnlyList<T>
+
+	public T this[int index] => _array[index];
+
+#endregion
+
+	public ImmutableArray<T>.Enumerator GetEnumerator() => _array.GetEnumerator();
+
+	private async Task Initialize(IAsyncEnumerable<T> asyncEnumerable) => _array = await asyncEnumerable.ToImmutableArrayAsync().ConfigureAwait(false);
+}
+
+[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
+public class ServiceSyncList<T>(IEnumerable<T> asyncEnumerable) : IReadOnlyList<T>
+{
+	private readonly ImmutableArray<T> _array = [..asyncEnumerable];
+
+#region Interface IEnumerable
+
+	IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) _array).GetEnumerator();
+
+#endregion
+
+#region Interface IEnumerable<T>
+
+	IEnumerator<T> IEnumerable<T>.GetEnumerator() => ((IEnumerable<T>) _array).GetEnumerator();
+
+#endregion
+
+#region Interface IReadOnlyCollection<T>
+
+	public int Count => _array.Length;
+
+#endregion
+
+#region Interface IReadOnlyList<T>
+
+	public T this[int index] => _array[index];
+
+#endregion
+
+	public ImmutableArray<T>.Enumerator GetEnumerator() => _array.GetEnumerator();
+}
+
+public delegate T Ancestor<out T>();
+
+public class AncestorFactory<T> : IAsyncInitialization
+{
+	private ValueTask<T> _task;
+
+	public AncestorFactory(AncestorTracker tracker, Func<ValueTask<T>> factory) => _task = tracker.TryCaptureAncestor(typeof(T), this) ? default : factory().Preserve();
+
+#region Interface IAsyncInitialization
+
+	Task IAsyncInitialization.Initialization => _task.IsCompletedSuccessfully ? Task.CompletedTask : _task.AsTask();
+
+#endregion
+
+	[UsedImplicitly]
+	public Ancestor<T> GetValueFunc() => GetValue;
+
+	private T GetValue() => _task.Result ?? throw ImplementationEntry.MissedServiceException<T, ValueTuple>();
+
+	internal void SetValue(T? instance)
+	{
+		if (instance is null)
+		{
+			throw ImplementationEntry.MissedServiceException<T, ValueTuple>();
+		}
+
+		_task = new ValueTask<T>(instance);
 	}
 }
 
 [UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
-public class SharedInstance<T> : ISharedInstance<T>, ISharedInstanceSetter<T> where T : class
+public class AncestorTracker : IServiceProviderActions, IServiceProviderDataActions
 {
-	private T? _value;
+	private static readonly ConcurrentBag<Container> ContainerPool = [];
 
-#region Interface ISharedInstance<T>
+	private readonly AsyncLocal<Container?> _local = new();
 
-	public T? Value => _value;
+#region Interface IServiceProviderActions
+
+	public IServiceProviderDataActions? RegisterServices() => default;
+
+	public IServiceProviderDataActions? ServiceRequesting(TypeKey typeKey) => default;
+
+	public IServiceProviderDataActions? ServiceRequested(TypeKey typeKey) => default;
+
+	public IServiceProviderDataActions? FactoryCalling(TypeKey typeKey) => typeKey.IsEmptyArg ? this : default;
+
+	public IServiceProviderDataActions? FactoryCalled(TypeKey typeKey) => typeKey.IsEmptyArg ? this : default;
 
 #endregion
 
-#region Interface ISharedInstanceSetter<T>
+#region Interface IServiceProviderDataActions
 
-	public void SetValue(T value)
+	[ExcludeFromCodeCoverage]
+	public void RegisterService(ServiceEntry serviceEntry) { }
+
+	[ExcludeFromCodeCoverage]
+	public void ServiceRequesting<T, TArg>(TArg argument) { }
+
+	[ExcludeFromCodeCoverage]
+	public void ServiceRequested<T, TArg>(T? instance) { }
+
+	public void FactoryCalling<T, TArg>(TArg argument) => CurrentContainer().Add((typeof(T), default));
+
+	public void FactoryCalled<T, TArg>(T? instance)
 	{
-		Infra.Requires(value);
+		var container = CurrentContainer();
 
-		if (ReferenceEquals(value, _value))
+		for (var i = 0; i < container.Count; i ++)
 		{
-			return;
+			var (type, ancestor) = container[i];
+
+			if (type == typeof(T))
+			{
+				container[i] = default;
+
+				if (ancestor is AncestorFactory<T> ancestorFactory)
+				{
+					ancestorFactory.SetValue(instance);
+				}
+			}
 		}
 
-		if (_value is not null)
-		{
-			Infra.Fail(Res.Format(Resources.Exception_SharedInstanceAlreadyAssigned, typeof(T)));
-		}
+		container.RemoveAll(static p => p.Type is null);
 
-		_value = value;
+		if (container.Count == 0)
+		{
+			_local.Value = default!;
+
+			ContainerPool.Add(container);
+		}
 	}
 
 #endregion
+
+	private Container CurrentContainer()
+	{
+		if (_local.Value is { } container)
+		{
+			return container;
+		}
+
+		if (!ContainerPool.TryTake(out container))
+		{
+			container = [];
+		}
+
+		return _local.Value = container;
+	}
+
+	public bool TryCaptureAncestor(Type ancestorType, object ancestorFactory)
+	{
+		var container = CurrentContainer();
+
+		for (var i = 0; i < container.Count; i ++)
+		{
+			var (type, ancestor) = container[i];
+
+			if (type == ancestorType)
+			{
+				if (ancestor is null)
+				{
+					container[i] = (type, ancestorFactory);
+				}
+				else
+				{
+					container.Add((type, ancestorFactory));
+				}
+
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private class Container : List<(Type Type, object? Ancestor)>;
 }
 
-public interface ISharedInstance<out T> where T : class
-{
-	T Value { get; }
-}
-
-public interface ISharedInstanceSetter<in T> where T : class
-{
-	void SetValue(T value);
-}
-
+[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
 public class InterpreterXDataModelProperty : IXDataModelProperty
 {
-	public required IDataModelHandler                          DataModelHandler            { private get; [UsedImplicitly] init; }
-	public required ISharedInstance<IStateMachineInterpreter>? StateMachineInterpreter { private get; [UsedImplicitly] init; }
-	public required Func<Type, IAssemblyTypeInfo>              TypeInfoFactory             { private get; [UsedImplicitly] init; }
+	public required ICaseSensitivity                    CaseSensitivity         { private get; [UsedImplicitly] init; }
+	public required Ancestor<IStateMachineInterpreter> StateMachineInterpreter { private get; [UsedImplicitly] init; }
+	public required Func<Type, IAssemblyTypeInfo>       TypeInfoFactory         { private get; [UsedImplicitly] init; }
 
 #region Interface IXDataModelProperty
 
@@ -302,16 +589,9 @@ public class InterpreterXDataModelProperty : IXDataModelProperty
 
 	private DataModelValue Factory()
 	{
-		var type = StateMachineInterpreter?.Value?.GetType();
+		var typeInfo = TypeInfoFactory(StateMachineInterpreter().GetType());
 
-		if (type is null)
-		{
-			return default;
-		}
-
-		var typeInfo = TypeInfoFactory(type);
-
-		var interpreterList = new DataModelList(DataModelHandler.CaseInsensitive)
+		var interpreterList = new DataModelList(CaseSensitivity.CaseInsensitive)
 							  {
 								  { @"name", typeInfo.FullTypeName },
 								  { @"assembly", typeInfo.AssemblyName },
@@ -326,6 +606,8 @@ public class InterpreterXDataModelProperty : IXDataModelProperty
 
 public class DataModelXDataModelProperty : IXDataModelProperty
 {
+	public required ICaseSensitivity CaseSensitivity { private get; [UsedImplicitly] init; }
+
 	public required IDataModelHandler DataModelHandler { private get; [UsedImplicitly] init; }
 
 	public required Func<Type, IAssemblyTypeInfo> TypeInfoFactory { private get; [UsedImplicitly] init; }
@@ -342,7 +624,7 @@ public class DataModelXDataModelProperty : IXDataModelProperty
 	{
 		var typeInfo = TypeInfoFactory(DataModelHandler.GetType());
 
-		var dataModelHandlerList = new DataModelList(DataModelHandler.CaseInsensitive)
+		var dataModelHandlerList = new DataModelList(CaseSensitivity.CaseInsensitive)
 								   {
 									   { @"name", typeInfo.FullTypeName },
 									   { @"assembly", typeInfo.AssemblyName },
@@ -391,13 +673,13 @@ public class ArgsXDataModelProperty : IXDataModelProperty
 #endregion
 }
 
-public class StateMachineContext : IStateMachineContext, IAsyncInitialization //TODO, IExecutionContext
+public class StateMachineContext : IStateMachineContext //, IAsyncInitialization //TODO, IExecutionContext
 {
 	//public required IStateMachineInterpreter       StateMachineInterpreter                 { private get; [UsedImplicitly] init; }
 	//public required Func<Type, ITypeInfo>          TypeInfoFactory { private get; [UsedImplicitly] init; }
 
-	private readonly AsyncInit<ImmutableArray<IIoProcessor>>        _ioProcessorsAsyncInit;
-	private readonly AsyncInit<ImmutableArray<IXDataModelProperty>> _ixDataModelPropertyAsyncInit;
+	//private readonly AsyncInit<ImmutableArray<IIoProcessor>>        _ioProcessorsAsyncInit;
+	//private readonly AsyncInit<ImmutableArray<IXDataModelProperty>> _ixDataModelPropertyAsyncInit;
 
 	//private readonly IStateMachineContextOptions _options;
 
@@ -408,21 +690,21 @@ public class StateMachineContext : IStateMachineContext, IAsyncInitialization //
 	//private readonly Parameters                 _parameters;
 	private DataModelList? _dataModel;
 
-	public StateMachineContext()
-	{
-		_ioProcessorsAsyncInit = AsyncInit.Run(this, ctx => ctx.IoProcessors.ToImmutableArrayAsync());
-		_ixDataModelPropertyAsyncInit = AsyncInit.Run(this, ctx => ctx.XDataModelProperties.ToImmutableArrayAsync());
-	}
+	//public StateMachineContext()
+	//{
+	//	_ioProcessorsAsyncInit = AsyncInit.Run(this, ctx => ctx.IoProcessors.ToImmutableArrayAsync());
+	//	_ixDataModelPropertyAsyncInit = AsyncInit.Run(this, ctx => ctx.XDataModelProperties.ToImmutableArrayAsync());
+	//}
 
-	public required IDataModelHandler                     DataModelHandler      { private get; [UsedImplicitly] init; }
-	public required IStateMachine                         StateMachine          { private get; [UsedImplicitly] init; }
-	public required IAsyncEnumerable<IIoProcessor>        IoProcessors          { private get; [UsedImplicitly] init; }
-	public required IAsyncEnumerable<IXDataModelProperty> XDataModelProperties  { private get; [UsedImplicitly] init; }
-	public required IStateMachineSessionId                StateMachineSessionId { private get; [UsedImplicitly] init; }
+	public required ICaseSensitivity                 CaseSensitivity       { private get; [UsedImplicitly] init; }
+	public required IStateMachine                    StateMachine          { private get; [UsedImplicitly] init; }
+	public required ServiceList<IIoProcessor>        IoProcessors          { private get; [UsedImplicitly] init; }
+	public required ServiceList<IXDataModelProperty> XDataModelProperties  { private get; [UsedImplicitly] init; }
+	public required IStateMachineSessionId           StateMachineSessionId { private get; [UsedImplicitly] init; }
 
 #region Interface IAsyncInitialization
 
-	public Task Initialization => _ioProcessorsAsyncInit.Then(_ixDataModelPropertyAsyncInit).Task;
+	//public Task Initialization => _ioProcessorsAsyncInit.Then(_ixDataModelPropertyAsyncInit).Task;
 
 #endregion
 
@@ -446,7 +728,7 @@ public class StateMachineContext : IStateMachineContext, IAsyncInitialization //
 
 	private DataModelList CreateDataModel()
 	{
-		var dataModel = new DataModelList(DataModelHandler.CaseInsensitive);
+		var dataModel = new DataModelList(CaseSensitivity.CaseInsensitive);
 
 		dataModel.AddInternal(key: @"_name", StateMachine.Name, DataModelAccess.ReadOnly);
 		dataModel.AddInternal(key: @"_sessionid", StateMachineSessionId.SessionId, DataModelAccess.Constant);
@@ -459,14 +741,14 @@ public class StateMachineContext : IStateMachineContext, IAsyncInitialization //
 
 	private DataModelValue GetPlatform()
 	{
-		if (_ixDataModelPropertyAsyncInit.Value.IsEmpty)
+		if (XDataModelProperties.Count == 0)
 		{
 			return DataModelList.Empty;
 		}
 
-		var list = new DataModelList(DataModelAccess.ReadOnly, DataModelHandler.CaseInsensitive);
+		var list = new DataModelList(DataModelAccess.ReadOnly, CaseSensitivity.CaseInsensitive);
 
-		foreach (var property in _ixDataModelPropertyAsyncInit.Value)
+		foreach (var property in XDataModelProperties)
 		{
 			list.AddInternal(property.Name, property.Value, DataModelAccess.Constant);
 		}
@@ -476,19 +758,19 @@ public class StateMachineContext : IStateMachineContext, IAsyncInitialization //
 
 	private DataModelValue GetIoProcessors()
 	{
-		if (_ioProcessorsAsyncInit.Value.IsEmpty)
+		if (IoProcessors.Count == 0)
 		{
 			return DataModelList.Empty;
 		}
 
-		var caseInsensitive = DataModelHandler.CaseInsensitive;
+		var caseInsensitive = CaseSensitivity.CaseInsensitive;
 
 		var list = new DataModelList(DataModelAccess.ReadOnly, caseInsensitive);
 
-		foreach (var ioProcessor in _ioProcessorsAsyncInit.Value)
+		foreach (var ioProcessor in IoProcessors)
 		{
 			var value = new DataModelList(DataModelAccess.ReadOnly, caseInsensitive);
-			value.AddInternal(@"location", ioProcessor.GetTarget(StateMachineSessionId.SessionId)?.ToString(), DataModelAccess.Constant);
+			value.AddInternal(key: @"location", ioProcessor.GetTarget(StateMachineSessionId.SessionId)?.ToString(), DataModelAccess.Constant);
 
 			list.AddInternal(ioProcessor.Id.ToString(), value, DataModelAccess.Constant);
 		}

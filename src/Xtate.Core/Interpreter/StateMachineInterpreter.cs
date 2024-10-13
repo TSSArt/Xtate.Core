@@ -17,47 +17,47 @@
 
 using System.Buffers;
 using Xtate.DataModel;
-using Xtate.IoC;
 
 namespace Xtate.Core;
 
 using DefaultHistoryContent = Dictionary<IIdentifier, ImmutableArray<IExecEvaluator>>;
 
-public partial class StateMachineInterpreter : IStateMachineInterpreter
+public class StateMachineInterpreter : IStateMachineInterpreter
 {
-	private const int InterpreterStateEventId   = 4;
-	private const int PlatformErrorEventId      = 1;
-	private const int ExecutionErrorEventId     = 2;
-	private const int CommunicationErrorEventId = 3;
-	private const int EventProcessingEventId    = 5;
-	private const int EnteringStateEventId      = 6;
-	private const int EnteredStateEventId       = 7;
-	private const int ExitingStateEventId       = 8;
-	private const int ExitedStateEventId        = 9;
-
+	private const int PlatformErrorEventId       = 1;
+	private const int ExecutionErrorEventId      = 2;
+	private const int CommunicationErrorEventId  = 3;
+	private const int InterpreterStateEventId    = 4;
+	private const int EventProcessingEventId     = 5;
+	private const int EnteringStateEventId       = 6;
+	private const int EnteredStateEventId        = 7;
+	private const int ExitingStateEventId        = 8;
+	private const int ExitedStateEventId         = 9;
 	private const int ExecutingTransitionEventId = 10;
 	private const int ExecutedTransitionEventId  = 11;
 
-	private readonly object                          _stateMachineToken = new();
-	private          bool                            _running           = true;
-	private          StateMachineDestroyedException? _stateMachineDestroyedException;
+	private bool _running = true;
 
-	public required IStateMachineArguments?                          StateMachineArguments                       { private get; [UsedImplicitly] init; }
-	public required DataConverter                                    DataConverter                               { private get; [UsedImplicitly] init; }
-	public required IDataModelHandler                                DataModelHandler                            { private get; [UsedImplicitly] init; }
-	public required IEventQueueReader                                EventQueueReader                            { private get; [UsedImplicitly] init; }
-	public required IExternalCommunication?                          ExternalCommunication                       { private get; [UsedImplicitly] init; }
-	public required ILogger<IStateMachineInterpreter>                Logger                                      { private get; [UsedImplicitly] init; }
-	public required IInterpreterModel                                Model                                       { private get; [UsedImplicitly] init; }
-	public required INotifyStateChanged?                             NotifyStateChanged                          { private get; [UsedImplicitly] init; }
-	public required IUnhandledErrorBehaviour?                        UnhandledErrorBehaviour                     { private get; [UsedImplicitly] init; }
-	public required IStateMachineContext                             StateMachineContext                         { private get; [UsedImplicitly] init; }
-	
+	private StateMachineDestroyedException? _stateMachineDestroyedException;
+
+	public required StateMachineRuntimeError          StateMachineRuntimeError { private get; [UsedImplicitly] init; }
+	public required IStateMachineArguments?           StateMachineArguments    { private get; [UsedImplicitly] init; }
+	public required DataConverter                     DataConverter            { private get; [UsedImplicitly] init; }
+	public required ICaseSensitivity                  CaseSensitivity          { private get; [UsedImplicitly] init; }
+	public required IEventQueueReader                 EventQueueReader         { private get; [UsedImplicitly] init; }
+	public required ILogger<IStateMachineInterpreter> Logger                   { private get; [UsedImplicitly] init; }
+	public required IInterpreterModel                 Model                    { private get; [UsedImplicitly] init; }
+	public required INotifyStateChanged?              NotifyStateChanged       { private get; [UsedImplicitly] init; }
+	public required IUnhandledErrorBehaviour?         UnhandledErrorBehaviour  { private get; [UsedImplicitly] init; }
+	public required IStateMachineContext              StateMachineContext      { private get; [UsedImplicitly] init; }
+
 #region Interface IStateMachineInterpreter
 
 	public virtual async ValueTask<DataModelValue> RunAsync()
 	{
 		await Interpret().ConfigureAwait(false);
+
+		ProcessRemainingInternalQueue();
 
 		return StateMachineContext.DoneData;
 	}
@@ -70,6 +70,23 @@ public partial class StateMachineInterpreter : IStateMachineInterpreter
 	protected virtual ValueTask NotifyWaiting()  => NotifyInterpreterState(StateMachineInterpreterState.Waiting);
 
 	protected ValueTask TraceInterpreterState(StateMachineInterpreterState state) => Logger.Write(Level.Trace, InterpreterStateEventId, $@"Interpreter state has changed to '{state}'");
+
+	private void ProcessRemainingInternalQueue()
+	{
+		var internalQueue = StateMachineContext.InternalQueue;
+
+		while (internalQueue.Count > 0)
+		{
+			var internalEvent = internalQueue.Dequeue();
+
+			if (EventName.IsError(internalEvent.NameParts))
+			{
+				ProcessUnhandledError(internalEvent);
+
+				ThrowIfDestroying();
+			}
+		}
+	}
 
 	private async ValueTask NotifyInterpreterState(StateMachineInterpreterState state)
 	{
@@ -253,16 +270,14 @@ public partial class StateMachineInterpreter : IStateMachineInterpreter
 		return _running;
 	}
 
-	private ValueTask TraceProcessingEvent(IEvent evt) => Logger.Write(Level.Trace, EventProcessingEventId, $@"Processing {evt.Type} event '{EventName.ToName(evt.NameParts)}'", evt);
-
 	protected virtual async ValueTask<List<TransitionNode>> SelectInternalEventTransitions()
 	{
 		var internalEvent = StateMachineContext.InternalQueue.Dequeue();
 
 		var eventModel = DataConverter.FromEvent(internalEvent);
-		StateMachineContext.DataModel.SetInternal(key: @"_event", DataModelHandler.CaseInsensitive, eventModel, DataModelAccess.ReadOnly);
+		StateMachineContext.DataModel.SetInternal(key: @"_event", CaseSensitivity.CaseInsensitive, eventModel, DataModelAccess.ReadOnly);
 
-		await TraceProcessingEvent(internalEvent).ConfigureAwait(false);
+		await Logger.Write(Level.Trace, EventProcessingEventId, $@"Processing {internalEvent.Type} event '{EventName.ToName(internalEvent.NameParts)}'", internalEvent).ConfigureAwait(false);
 
 		var transitions = await SelectTransitions(internalEvent).ConfigureAwait(false);
 
@@ -319,9 +334,9 @@ public partial class StateMachineInterpreter : IStateMachineInterpreter
 		var externalEvent = await ReadExternalEventFiltered().ConfigureAwait(false);
 
 		var eventModel = DataConverter.FromEvent(externalEvent);
-		StateMachineContext.DataModel.SetInternal(key: @"_event", DataModelHandler.CaseInsensitive, eventModel, DataModelAccess.ReadOnly);
+		StateMachineContext.DataModel.SetInternal(key: @"_event", CaseSensitivity.CaseInsensitive, eventModel, DataModelAccess.ReadOnly);
 
-		await TraceProcessingEvent(externalEvent).ConfigureAwait(false);
+		await Logger.Write(Level.Trace, EventProcessingEventId, $@"Processing {externalEvent.Type} event '{EventName.ToName(externalEvent.NameParts)}'", externalEvent).ConfigureAwait(false);
 
 		foreach (var state in StateMachineContext.Configuration)
 		{
@@ -1019,55 +1034,15 @@ public partial class StateMachineInterpreter : IStateMachineInterpreter
 		}
 	}
 
-	private static bool IsError(Exception _) => true; // TODO: Is not OperationCanceled or ObjectDisposed when SM halted?
-
-	private bool IsPlatformError(Exception exception)
-	{
-		for (var ex = exception; ex is not null; ex = ex.InnerException)
-		{
-			if (ex is PlatformException platformException)
-			{
-				if (platformException.Token == _stateMachineToken)
-				{
-					return true;
-				}
-
-				break;
-			}
-		}
-
-		return false;
-	}
-
-	private bool IsCommunicationError(Exception? exception, out SendId? sendId)
-	{
-		for (var ex = exception; ex is not null; ex = ex.InnerException)
-		{
-			if (ex is CommunicationException communicationException)
-			{
-				if (communicationException.Token == _stateMachineToken)
-				{
-					sendId = communicationException.SendId;
-
-					return true;
-				}
-
-				break;
-			}
-		}
-
-		sendId = default;
-
-		return false;
-	}
+	private bool IsError(Exception _) => true; // TODO: Is not OperationCanceled or ObjectDisposed when SM halted?
 
 	private async ValueTask Error(object source, Exception exception, bool logLoggerErrors = true)
 	{
 		SendId? sendId = default;
 
-		var errorType = IsPlatformError(exception)
+		var errorType = StateMachineRuntimeError.IsPlatformError(exception)
 			? ErrorType.Platform
-			: IsCommunicationError(exception, out sendId)
+			: StateMachineRuntimeError.IsCommunicationError(exception, out sendId)
 				? ErrorType.Communication
 				: ErrorType.Execution;
 
@@ -1131,7 +1106,7 @@ public partial class StateMachineInterpreter : IStateMachineInterpreter
 		}
 		catch (Exception ex)
 		{
-			throw new PlatformException(ex) { Token = _stateMachineToken };
+			throw StateMachineRuntimeError.PlatformError(ex);
 		}
 	}
 
@@ -1162,9 +1137,7 @@ public partial class StateMachineInterpreter : IStateMachineInterpreter
 	{
 		try
 		{
-			Infra.NotNull(invoke.InvokeId);
-
-			await ForwardEvent(evt, invoke.InvokeId).ConfigureAwait(false);
+			await invoke.Forward(evt).ConfigureAwait(false);
 		}
 		catch (Exception ex) when (IsError(ex))
 		{
@@ -1221,7 +1194,7 @@ public partial class StateMachineInterpreter : IStateMachineInterpreter
 		var id = data.Id;
 		Infra.NotNull(id);
 
-		if (defaultValues?[id, DataModelHandler.CaseInsensitive] is not { Type: not DataModelValueType.Undefined } value)
+		if (defaultValues?[id, CaseSensitivity.CaseInsensitive] is not { Type: not DataModelValueType.Undefined } value)
 		{
 			try
 			{

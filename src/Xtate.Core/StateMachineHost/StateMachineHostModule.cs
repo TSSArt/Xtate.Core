@@ -31,6 +31,8 @@ public class StateMachineHostModule : Module<StateMachineInterpreterModule>
 		//Services.AddImplementation<SecurityContext>().For<SecurityContext>();
 		Services.AddImplementation<InProcEventSchedulerFactory>().For<IEventSchedulerFactory>();
 
+		Services.AddImplementation<StateMachineHostExternalCommunication>().For<IExternalCommunication>();
+
 		//Services.AddImplementation<ScopeManager, Action<IServiceCollection>>().For<IScopeManager>();
 		Services.AddSharedImplementation<StateMachineRuntimeController>(SharedWithin.Scope).For<IStateMachineController>();
 				//.For<IInvokeController>();

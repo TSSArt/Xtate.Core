@@ -42,9 +42,11 @@ public abstract class AssignEvaluator(IAssign assign) : IAssign, IExecEvaluator,
 #endregion
 }
 
+[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
 public class DefaultAssignEvaluator : AssignEvaluator
 {
 	private readonly ILocationEvaluator _locationEvaluator;
+	
 	private readonly IObjectEvaluator   _valueEvaluator;
 
 	public DefaultAssignEvaluator(IAssign assign) : base(assign)

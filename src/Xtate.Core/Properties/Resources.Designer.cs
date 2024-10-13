@@ -1037,6 +1037,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Argument must be DataModelNumber type..
+        /// </summary>
+        internal static string Exception_ArgumentMustBeDataModelNumberType {
+            get {
+                return ResourceManager.GetString("Exception_ArgumentMustBeDataModelNumberType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Assertion failed..
         /// </summary>
         internal static string Exception_AssertionFailed {

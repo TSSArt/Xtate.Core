@@ -350,11 +350,21 @@ public static class XmlConverter
 		{
 			DataModelValueType.Undefined => string.Empty,
 			DataModelValueType.Null      => string.Empty,
-			DataModelValueType.String    => value.AsString(),
-			DataModelValueType.Number    => XmlConvert.ToString(value.AsNumber()),
 			DataModelValueType.Boolean   => value.AsBoolean() ? @"true" : @"false",
+			DataModelValueType.String    => value.AsString(),
+			DataModelValueType.Number    => NumberToXmlString(value.AsNumber()),
 			DataModelValueType.DateTime  => DateTimeToXmlString(value.AsDateTime()),
 			_                            => throw Infra.Unmatched(value.Type)
+		};
+
+	private static string NumberToXmlString(in DataModelNumber number) =>
+		number.Type switch
+		{
+			DataModelNumberType.Int32 => XmlConvert.ToString(number.ToInt32()),
+			DataModelNumberType.Int64 => XmlConvert.ToString(number.ToInt64()),
+			DataModelNumberType.Double => XmlConvert.ToString(number.ToDouble()),
+			DataModelNumberType.Decimal => XmlConvert.ToString(number.ToDecimal()),
+			_                                    => throw Infra.Unmatched(number.Type)
 		};
 
 	private static string DateTimeToXmlString(in DataModelDateTime dttm) =>
@@ -384,11 +394,20 @@ public static class XmlConverter
 				   DataModelValueType.Undefined => 0,
 				   DataModelValueType.Null      => 0,
 				   DataModelValueType.String    => WriteString(value.AsString(), span),
-				   DataModelValueType.Number    => WriteString(XmlConvert.ToString(value.AsNumber()), span),
+				   DataModelValueType.Number    => WriteDataModelNumber(value.AsNumber(), span),
 				   DataModelValueType.DateTime  => WriteDataModelDateTime(value.AsDateTime(), span),
 				   DataModelValueType.Boolean   => WriteString(value.AsBoolean() ? @"true" : @"false", span),
 				   _                            => throw Infra.Unmatched(value.Type)
 			   };
+
+		static int WriteDataModelNumber(in DataModelNumber value, in Span<char> span) =>
+			value.Type switch
+			{
+				DataModelNumberType.Int32 => WriteString(XmlConvert.ToString(value.ToInt32()), span),
+				DataModelNumberType.Int64 => WriteString(XmlConvert.ToString(value.ToInt64()), span),
+				DataModelNumberType.Double => WriteString(XmlConvert.ToString(value.ToDouble()), span),
+				_                                    => throw Infra.Unmatched(value.Type)
+			};
 
 		static int WriteDataModelDateTime(in DataModelDateTime value, in Span<char> span) =>
 			value.Type switch

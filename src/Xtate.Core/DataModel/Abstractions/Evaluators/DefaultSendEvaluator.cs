@@ -62,8 +62,8 @@ public class DefaultSendEvaluator(ISend send) : SendEvaluator(send)
 	private readonly ImmutableArray<DataConverter.Param> _parameterList              = DataConverter.AsParamArray(send.Parameters);
 	private readonly IStringEvaluator?                   _targetExpressionEvaluator  = send.TargetExpression?.As<IStringEvaluator>();
 	private readonly IStringEvaluator?                   _typeExpressionEvaluator    = send.TypeExpression?.As<IStringEvaluator>();
-	public required  Func<ValueTask<DataConverter>>      DataConverterFactory { private get; [UsedImplicitly] init; }
-	public required  Func<ValueTask<IEventController?>>  EventSenderFactory   { private get; [UsedImplicitly] init; }
+	public required  Func<ValueTask<DataConverter>>      DataConverterFactory   { private get; [UsedImplicitly] init; }
+	public required  Func<ValueTask<IEventController>>   EventControllerFactory { private get; [UsedImplicitly] init; }
 
 	public override async ValueTask Execute()
 	{
@@ -82,20 +82,18 @@ public class DefaultSendEvaluator(ISend send) : SendEvaluator(send)
 		var delayMs = _delayExpressionEvaluator is not null ? await _delayExpressionEvaluator.EvaluateInteger().ConfigureAwait(false) : DelayMs ?? 0;
 		var rawContent = _contentBodyEvaluator is IStringEvaluator rawContentEvaluator ? await rawContentEvaluator.EvaluateString().ConfigureAwait(false) : null;
 
-		if (await EventSenderFactory().ConfigureAwait(false) is { } eventSender)
-		{
-			var eventEntity = new EventEntity(name)
-							  {
-								  SendId = sendId,
-								  Type = type,
-								  Target = target,
-								  DelayMs = delayMs,
-								  Data = data,
-								  RawData = rawContent
-							  };
+		var eventEntity = new EventEntity(name)
+						  {
+							  SendId = sendId,
+							  Type = type,
+							  Target = target,
+							  DelayMs = delayMs,
+							  Data = data,
+							  RawData = rawContent
+						  };
 
-			await eventSender.Send(eventEntity).ConfigureAwait(false);
-		}
+		var eventController = await EventControllerFactory().ConfigureAwait(false);
+		await eventController.Send(eventEntity).ConfigureAwait(false);
 	}
 
 	private static Uri ToUri(string uri) => new(uri, UriKind.RelativeOrAbsolute);

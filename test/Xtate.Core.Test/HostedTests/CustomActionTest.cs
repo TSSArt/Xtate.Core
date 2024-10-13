@@ -30,6 +30,6 @@ public class CustomActionTest : HostedTestBase
 		await Host.WaitAllStateMachinesAsync();
 
 		// assert
-		LogWriter.Verify(l => l.Write(It.IsAny<Type>(), Level.Info, It.IsAny<int>(), "StartSystemActionChild", It.IsAny<IAsyncEnumerable<LoggingParameter>>()));
+		LogWriter.Verify(l => l.Write(It.IsAny<Type>(), Level.Info, It.IsAny<int>(), "StartSystemActionChild", It.IsAny<IEnumerable<LoggingParameter>>()));
 	}
 }

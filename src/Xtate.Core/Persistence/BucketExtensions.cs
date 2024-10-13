@@ -178,7 +178,7 @@ internal static class BucketExtensions
 			case DataModelValueType.Undefined:                                                          return default;
 			case DataModelValueType.Null:                                                               return DataModelValue.Null;
 			case DataModelValueType.String when bucket.TryGet(Key.Item, out string? value):             return value;
-			case DataModelValueType.Number when bucket.TryGet(Key.Item, out double value):              return value;
+			case DataModelValueType.Number when bucket.TryGet(Key.Item, out DataModelNumber value):     return value;
 			case DataModelValueType.DateTime when bucket.TryGet(Key.Item, out DataModelDateTime value): return value;
 			case DataModelValueType.Boolean when bucket.TryGet(Key.Item, out bool value):               return value;
 

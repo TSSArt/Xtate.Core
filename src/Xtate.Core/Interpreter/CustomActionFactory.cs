@@ -34,20 +34,20 @@ public class CustomActionFactory
 		Infra.NotNull(name);
 		Infra.NotNull(xml);
 
-		using var enumerator = ActionProviders.GetEnumerator();
+		using var actionProviders = ActionProviders.GetEnumerator();
 
-		while (enumerator.MoveNext())
+		while (actionProviders.MoveNext())
 		{
-			Infra.NotNull(enumerator.Current);
+			Infra.NotNull(actionProviders.Current);
 
-			if (enumerator.Current.TryGetActivator(ns, name) is not { } activator)
+			if (actionProviders.Current.TryGetActivator(ns, name) is not { } activator)
 			{
 				continue;
 			}
 
-			while (enumerator.MoveNext())
+			while (actionProviders.MoveNext())
 			{
-				if (enumerator.Current.TryGetActivator(ns, name) is not null)
+				if (actionProviders.Current.TryGetActivator(ns, name) is not null)
 				{
 					Infra.Fail(Res.Format(Resources.Exception_MoreThanOneCustomActionProviderRegisteredForProcessingCustomActionNode, ns, name));
 				}

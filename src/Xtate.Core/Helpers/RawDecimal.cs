@@ -15,43 +15,38 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.Persistence;
+using System.Runtime.InteropServices;
 
 namespace Xtate.Core;
 
-public sealed class IdentifierNode(IIdentifier id) : IIdentifier, IStoreSupport, IAncestorProvider, IDebugEntityId
+internal readonly struct RawDecimal(long lo64, long hi64)
 {
-#region Interface IAncestorProvider
+	public readonly long Hi64 = hi64;
 
-	object IAncestorProvider.Ancestor => id;
+	public readonly long Lo64 = lo64;
 
-#endregion
+	public bool DoNotCache => (Hi64 & -4294967296) != 0;
 
-#region Interface IDebugEntityId
-
-	FormattableString IDebugEntityId.EntityId => @$"{id}";
-
-#endregion
-
-#region Interface IIdentifier
-
-	public string Value => id.Value;
-
-#endregion
-
-#region Interface IStoreSupport
-
-	void IStoreSupport.Store(Bucket bucket)
+	public static explicit operator RawDecimal(decimal value)
 	{
-		bucket.Add(Key.TypeInfo, TypeInfo.IdentifierNode);
-		bucket.Add(Key.Id, id.Value);
+		ReadOnlySpan<decimal> buf = [value];
+
+		return MemoryMarshal.Cast<decimal, RawDecimal>(buf)[0];
 	}
 
-#endregion
+	public static explicit operator decimal(RawDecimal value)
+	{
+		ReadOnlySpan<RawDecimal> buf = [value];
 
-	public override string ToString() => id.ToString() ?? string.Empty;
+		return MemoryMarshal.Cast<RawDecimal, decimal>(buf)[0];
+	}
 
-	public override bool Equals(object? obj) => id.Equals(obj);
+	public static void ResetScale(ref decimal value, out byte scale)
+	{
+		var raw = (RawDecimal) value;
 
-	public override int GetHashCode() => HashCode.Combine(id);
+		scale = (byte) (raw.Hi64 >> 16);
+
+		value = (decimal) new RawDecimal(raw.Lo64, raw.Hi64 & -16711681);
+	}
 }

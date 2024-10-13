@@ -15,22 +15,10 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate;
+namespace Xtate.DataModel;
 
-[Serializable]
-public sealed class UriId : ServiceId
+[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
+public class CaseSensitivity(IDataModelHandler? dataModelHandler) : ICaseSensitivity
 {
-	private UriId(Uri uri) => Uri = uri;
-
-	public override string Value => Uri.ToString();
-
-	public Uri Uri { get; }
-
-	protected override string GenerateId() => throw new NotSupportedException();
-
-	public override int GetHashCode() => HashCode.Combine(Uri);
-
-	public override bool Equals(object? obj) => Uri.Equals(obj);
-
-	public static UriId FromUri(Uri uri) => new(uri);
+	public bool CaseInsensitive { get; } = dataModelHandler?.CaseInsensitive ?? false;
 }

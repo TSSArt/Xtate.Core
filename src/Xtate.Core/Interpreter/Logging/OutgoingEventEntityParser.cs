@@ -51,11 +51,8 @@ public class OutgoingEventEntityParser<TSource> : EntityParserBase<TSource, IOut
 		{
 			yield return new LoggingParameter(name: @"DelayMs", delayMs);
 		}
-	}
 
-	protected override IEnumerable<LoggingParameter>? EnumerateVerboseProperties(IOutgoingEvent evt)
-	{
-		if (!evt.Data.IsUndefined())
+		if (IsVerboseLogging && !evt.Data.IsUndefined())
 		{
 			yield return new LoggingParameter(name: @"Data", evt.Data.ToObject());
 

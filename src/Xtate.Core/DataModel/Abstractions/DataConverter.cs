@@ -17,16 +17,11 @@
 
 namespace Xtate.DataModel;
 
-public class DataConverter(IDataModelHandler? dataModelHandler)
+public class DataConverter(ICaseSensitivity? caseSensitivity)
 {
-	private readonly bool _caseInsensitive = dataModelHandler?.CaseInsensitive ?? false;
+	private readonly bool _caseInsensitive = caseSensitivity?.CaseInsensitive ?? false;
 
-	public static ImmutableArray<Param> AsParamArray(ImmutableArray<IParam> parameters)
-	{
-		return !parameters.IsDefault
-			? ImmutableArray.CreateRange(parameters, param => new Param(param))
-			: default;
-	}
+	public static ImmutableArray<Param> AsParamArray(ImmutableArray<IParam> parameters) => !parameters.IsDefault ? ImmutableArray.CreateRange(parameters, param => new Param(param)) : default;
 
 	public ValueTask<DataModelValue> GetData(IValueEvaluator? contentBodyEvaluator,
 											 IObjectEvaluator? contentExpressionEvaluator,
@@ -141,16 +136,14 @@ public class DataConverter(IDataModelHandler? dataModelHandler)
 
 		return eventList;
 
-		static string GetTypeString(EventType eventType)
-		{
-			return eventType switch
-				   {
-					   EventType.Platform => @"platform",
-					   EventType.Internal => @"internal",
-					   EventType.External => @"external",
-					   _                  => throw Infra.Unmatched(eventType)
-				   };
-		}
+		static string GetTypeString(EventType eventType) =>
+			eventType switch
+			{
+				EventType.Platform => @"platform",
+				EventType.Internal => @"internal",
+				EventType.External => @"external",
+				_                  => throw Infra.Unmatched(eventType)
+			};
 	}
 
 	public DataModelValue FromException(Exception exception)

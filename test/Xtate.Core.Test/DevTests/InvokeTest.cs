@@ -23,11 +23,12 @@ namespace Xtate.Test;
 [TestClass]
 public class InvokeTest
 {
-	private Mock<IInvokeController>                    _invokeControllerMock = default!;
-	private Mock<ILogWriter<IEventController>>         _loggerMockE          = default!;
-	private Mock<ILogWriter<IStateMachineInterpreter>> _loggerMockI          = default!;
-	private Mock<ILogWriter<ILog>>                     _loggerMockL          = default!;
-	private Mock<ILogWriter<IInvoke>>                  _loggerMockV          = default!;
+	private Mock<IInvokeController>                    _invokeControllerMock      = default!;
+	private Mock<IExternalCommunication>               _externalCommunicationMock = default!;
+	private Mock<ILogWriter<IEventController>>         _loggerMockE               = default!;
+	private Mock<ILogWriter<IStateMachineInterpreter>> _loggerMockI               = default!;
+	private Mock<ILogWriter<ILogController>>           _loggerMockL               = default!;
+	private Mock<ILogWriter<IInvokeController>>                  _loggerMockV               = default!;
 	private StateMachineEntity                         _stateMachine;
 
 	[TestInitialize]
@@ -58,7 +59,7 @@ public class InvokeTest
 						};
 
 		_invokeControllerMock = new Mock<IInvokeController>();
-		_loggerMockL = new Mock<ILogWriter<ILog>>();
+		_loggerMockL = new Mock<ILogWriter<ILogController>>();
 		_loggerMockL.Setup(s => s.IsEnabled(Level.Info)).Returns(true);
 		_loggerMockL.Setup(s => s.IsEnabled(Level.Trace)).Returns(true);
 		_loggerMockI = new Mock<ILogWriter<IStateMachineInterpreter>>();
@@ -67,9 +68,11 @@ public class InvokeTest
 		_loggerMockE = new Mock<ILogWriter<IEventController>>();
 		_loggerMockE.Setup(s => s.IsEnabled(Level.Info)).Returns(true);
 		_loggerMockE.Setup(s => s.IsEnabled(Level.Trace)).Returns(true);
-		_loggerMockV = new Mock<ILogWriter<IInvoke>>();
+		_loggerMockV = new Mock<ILogWriter<IInvokeController>>();
 		_loggerMockV.Setup(s => s.IsEnabled(Level.Info)).Returns(true);
 		_loggerMockV.Setup(s => s.IsEnabled(Level.Trace)).Returns(true);
+
+		_externalCommunicationMock = new Mock<IExternalCommunication>();
 	}
 
 	private static EventObject CreateEventObject(string name, InvokeId? invokeId = default) =>
@@ -84,17 +87,17 @@ public class InvokeTest
 	public async Task SimpleTest()
 	{
 		var invokeUniqueId = "";
-		_invokeControllerMock.Setup(l => l.Start(It.IsAny<InvokeData>()))
+		_externalCommunicationMock.Setup(l => l.StartInvoke(It.IsAny<InvokeData>()))
 							 .Callback<InvokeData>(data => invokeUniqueId = data.InvokeId.InvokeUniqueIdValue);
-
+		
 		var services = new ServiceCollection();
+		services.AddModule<StateMachineInterpreterModule>();
 		services.AddConstant<IStateMachine>(_stateMachine);
-		services.AddConstant(_invokeControllerMock.Object);
 		services.AddConstant(_loggerMockL.Object);
 		services.AddConstant(_loggerMockI.Object);
 		services.AddConstant(_loggerMockE.Object);
 		services.AddConstant(_loggerMockV.Object);
-		services.AddModule<StateMachineInterpreterModule>();
+		services.AddConstant(_externalCommunicationMock.Object);
 
 		var serviceProvider = services.BuildProvider();
 		var stateMachineInterpreter = await serviceProvider.GetRequiredService<IStateMachineInterpreter>();
@@ -106,16 +109,16 @@ public class InvokeTest
 		await eventQueueWriter.WriteAsync(CreateEventObject("ToF"));
 		await task;
 
-		_invokeControllerMock.Verify(l => l.Start(It.IsAny<InvokeData>()));
-		_invokeControllerMock.Verify(l => l.Cancel(InvokeId.FromString("invoke_id", invokeUniqueId)));
-		_invokeControllerMock.VerifyNoOtherCalls();
+		_externalCommunicationMock.Verify(l => l.StartInvoke(It.IsAny<InvokeData>()));
+		_externalCommunicationMock.Verify(l => l.CancelInvoke(InvokeId.FromString("invoke_id", invokeUniqueId)));
+		_externalCommunicationMock.VerifyNoOtherCalls();
 
-		_loggerMockL.Verify(l => l.Write(Level.Info, 1, "FinalizeExecuted", It.IsAny<IAsyncEnumerable<LoggingParameter>>()));
-		_loggerMockV.Verify(l => l.Write(Level.Trace, 1, It.Is<string>(v => v.StartsWith("Start")), It.IsAny<IAsyncEnumerable<LoggingParameter>>()));
-		_loggerMockV.Verify(l => l.Write(Level.Trace, 2, It.Is<string>(v => v.StartsWith("Cancel")), It.IsAny<IAsyncEnumerable<LoggingParameter>>()));
+		_loggerMockL.Verify(l => l.Write(Level.Info, 1, "FinalizeExecuted", It.IsAny<IEnumerable<LoggingParameter>>()));
+		_loggerMockV.Verify(l => l.Write(Level.Trace, 1, It.Is<string>(v => v.StartsWith("Start")), It.IsAny<IEnumerable<LoggingParameter>>()));
+		_loggerMockV.Verify(l => l.Write(Level.Trace, 2, It.Is<string>(v => v.StartsWith("Cancel")), It.IsAny<IEnumerable<LoggingParameter>>()));
 		_loggerMockL.Verify(l => l.IsEnabled(It.IsAny<Level>()));
 		_loggerMockV.Verify(l => l.IsEnabled(It.IsAny<Level>()));
-		_loggerMockV.Verify(l => l.Write(Level.Trace, It.IsAny<int>(), It.IsAny<string>(), It.IsAny<IAsyncEnumerable<LoggingParameter>>()));
+		_loggerMockV.Verify(l => l.Write(Level.Trace, It.IsAny<int>(), It.IsAny<string>(), It.IsAny<IEnumerable<LoggingParameter>>()));
 		_loggerMockL.VerifyNoOtherCalls();
 		_loggerMockE.VerifyNoOtherCalls();
 		_loggerMockV.VerifyNoOtherCalls();

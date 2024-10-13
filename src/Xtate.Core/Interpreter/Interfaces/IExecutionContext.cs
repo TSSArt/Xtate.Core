@@ -37,6 +37,8 @@ public interface IInvokeController
 	ValueTask Start(InvokeData invokeData);
 
 	ValueTask Cancel(InvokeId invokeId);
+
+	ValueTask Forward(InvokeId invokeId, IEvent evt);
 }
 
 public interface IInStateController

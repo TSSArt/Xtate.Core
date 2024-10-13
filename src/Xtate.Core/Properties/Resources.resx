@@ -650,6 +650,9 @@
   <data name="Exception_ArgumentMustBeDataModelDateTimeType" xml:space="preserve">
     <value>Argument must be DataModelDateTime type.</value>
   </data>
+  <data name="Exception_ArgumentMustBeDataModelNumberType" xml:space="preserve">
+    <value>Argument must be DataModelNumber type.</value>
+  </data>
   <data name="ErrorMessage_ScriptingNotSupportedInXPATHDataModel" xml:space="preserve">
     <value>Scripting not supported in XPATH data model.</value>
   </data>

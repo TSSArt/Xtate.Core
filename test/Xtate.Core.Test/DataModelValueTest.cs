@@ -146,26 +146,50 @@ public class DataModelValueTest
 			yield return new Record
 						 {
 							 Type = DataModelValueType.Number,
-							 Value = new DataModelValue(9007199254740991), // JavaScript Number.MAX_SAFE_INTEGER
-							 ConstructorArg = (double) 9007199254740991
+							 Value = new DataModelValue(9007199254740991d), // JavaScript Number.MAX_SAFE_INTEGER
+							 ConstructorArg = 9007199254740991d
 						 };
 			yield return new Record
 						 {
 							 Type = DataModelValueType.Number,
-							 Value = new DataModelValue(-9007199254740991), // JavaScript Number.MIN_SAFE_INTEGER
-							 ConstructorArg = (double) -9007199254740991
+							 Value = new DataModelValue(-9007199254740991d), // JavaScript Number.MIN_SAFE_INTEGER
+							 ConstructorArg = -9007199254740991d
 						 };
 			yield return new Record
 						 {
 							 Type = DataModelValueType.Number,
-							 Value = new DataModelValue(int.MinValue),
+							 Value = new DataModelValue((double)int.MinValue),
 							 ConstructorArg = (double) int.MinValue
 						 };
 			yield return new Record
 						 {
 							 Type = DataModelValueType.Number,
-							 Value = new DataModelValue(int.MaxValue),
+							 Value = new DataModelValue((double)int.MaxValue),
 							 ConstructorArg = (double) int.MaxValue
+						 };
+			yield return new Record
+						 {
+							 Type = DataModelValueType.Number,
+							 Value = new DataModelValue(int.MinValue),
+							 ConstructorArg = int.MinValue
+						 };
+			yield return new Record
+						 {
+							 Type = DataModelValueType.Number,
+							 Value = new DataModelValue(int.MaxValue),
+							 ConstructorArg = int.MaxValue
+						 };
+			yield return new Record
+						 {
+							 Type = DataModelValueType.Number,
+							 Value = new DataModelValue(long.MinValue),
+							 ConstructorArg = long.MinValue
+						 };
+			yield return new Record
+						 {
+							 Type = DataModelValueType.Number,
+							 Value = new DataModelValue(long.MaxValue),
+							 ConstructorArg = long.MaxValue
 						 };
 			yield return new Record
 						 {
@@ -396,6 +420,13 @@ public class DataModelValueTest
 	[DynamicData(nameof(RecordsValueOriginalValue), DynamicDataSourceType.Method)]
 	public void EqualityOps_ValueShouldBeEqualToOriginalValue(string line, DataModelValue value, DataModelValue originalValue)
 	{
+		if (value.Type == DataModelValueType.Number && value.AsNumber().IsNaN())
+		{
+			Assert.IsFalse(value == originalValue, M(line));
+
+			return;
+		}
+
 		// assert
 		Assert.IsTrue(value == originalValue, M(line));
 		Assert.IsFalse(value != originalValue, M(line));
@@ -535,7 +566,7 @@ public class DataModelValueTest
 		// assert
 		if (type == DataModelValueType.Number)
 		{
-			Assert.AreEqual(Convert.ToDouble(ctrArg), value.AsNumber(), M(line));
+			Assert.AreEqual(ctrArg, value.AsNumber().ToObject(), M(line));
 		}
 		else
 		{
@@ -553,7 +584,7 @@ public class DataModelValueTest
 		// assert
 		if (type == DataModelValueType.Number)
 		{
-			Assert.AreEqual(Convert.ToDouble(ctrArg), value.AsNumberOrDefault(), M(line));
+			Assert.AreEqual(ctrArg, value.AsNumberOrDefault()?.ToObject(), M(line));
 		}
 		else
 		{
