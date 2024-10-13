@@ -19,7 +19,5 @@ namespace Xtate.Core;
 
 public interface IStateMachineRunner
 {
-	ValueTask<IStateMachineController> Run(CancellationToken token);
-
-	ValueTask Wait(CancellationToken token);
+	ValueTask<DataModelValue> GetResult();
 }

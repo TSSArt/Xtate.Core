@@ -38,27 +38,27 @@ public class InvokeDataEntityParser<TSource> : EntityParserBase<TSource, InvokeD
 		{
 			yield return new LoggingParameter(name: @"InvokeSource", source);
 		}
-	}
 
-	protected override IEnumerable<LoggingParameter>? EnumerateVerboseProperties(InvokeData invokeData)
-	{
-		if (invokeData.RawContent is { } rawContent)
+		if (IsVerboseLogging)
 		{
-			yield return new LoggingParameter(name: @"RawContent", rawContent);
-		}
+			if (invokeData.RawContent is { } rawContent)
+			{
+				yield return new LoggingParameter(name: @"RawContent", rawContent);
+			}
 
-		if (!invokeData.Content.IsUndefined())
-		{
-			yield return new LoggingParameter(name: @"Content", invokeData.Content.ToObject()!);
+			if (!invokeData.Content.IsUndefined())
+			{
+				yield return new LoggingParameter(name: @"Content", invokeData.Content.ToObject()!);
 
-			yield return new LoggingParameter(name: @"ContentText", DataModelHandler.ConvertToText(invokeData.Content));
-		}
+				yield return new LoggingParameter(name: @"ContentText", DataModelHandler.ConvertToText(invokeData.Content));
+			}
 
-		if (!invokeData.Parameters.IsUndefined())
-		{
-			yield return new LoggingParameter(name: @"Parameters", invokeData.Parameters.ToObject()!);
+			if (!invokeData.Parameters.IsUndefined())
+			{
+				yield return new LoggingParameter(name: @"Parameters", invokeData.Parameters.ToObject()!);
 
-			yield return new LoggingParameter(name: @"ParametersText", DataModelHandler.ConvertToText(invokeData.Parameters));
+				yield return new LoggingParameter(name: @"ParametersText", DataModelHandler.ConvertToText(invokeData.Parameters));
+			}
 		}
 	}
 }

@@ -45,20 +45,20 @@ public class DefaultCancelEvaluator : CancelEvaluator
 
 	public DefaultCancelEvaluator(ICancel cancel) : base(cancel) => _sendIdExpressionEvaluator = base.SendIdExpression?.As<IStringEvaluator>();
 
-	public required Func<ValueTask<IEventController?>> EventSenderFactory { private get; [UsedImplicitly] init; }
+	public required Deferred<IEventController?> EventController { private get; [UsedImplicitly] init; }
 
 	public override async ValueTask Execute()
 	{
 		var sendId = _sendIdExpressionEvaluator is not null ? await _sendIdExpressionEvaluator.EvaluateString().ConfigureAwait(false) : base.SendId;
 
-		if (Infra.IsNullOrEmpty(sendId))
+		if (string.IsNullOrEmpty(sendId))
 		{
 			throw new ExecutionException(Resources.Exception_SendIdIsEmpty);
 		}
 
-		if (await EventSenderFactory().ConfigureAwait(false) is { } eventSender)
+		if (await EventController().ConfigureAwait(false) is { } eventController)
 		{
-			await eventSender.Cancel(Xtate.SendId.FromString(sendId)).ConfigureAwait(false);
+			await eventController.Cancel(Xtate.SendId.FromString(sendId)).ConfigureAwait(false);
 		}
 	}
 }

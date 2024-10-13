@@ -650,6 +650,9 @@
   <data name="Exception_ArgumentMustBeDataModelDateTimeType" xml:space="preserve">
     <value>Argument must be DataModelDateTime type.</value>
   </data>
+  <data name="Exception_ArgumentMustBeDataModelNumberType" xml:space="preserve">
+    <value>Argument must be DataModelNumber type.</value>
+  </data>
   <data name="ErrorMessage_ScriptingNotSupportedInXPATHDataModel" xml:space="preserve">
     <value>Scripting not supported in XPATH data model.</value>
   </data>
@@ -933,5 +936,17 @@ Exception: {3}</value>
   </data>
   <data name="Exception_PropertyAvailableInEvaluateMethod" xml:space="preserve">
 	  <value>Property available in Evaluate() method.</value>
+  </data>
+  <data name="Exception_IncorrectSecurityContext" xml:space="preserve">
+	  <value>Incorrect security context</value>
+  </data>
+  <data name="Exception_InstanceIsNotShared" xml:space="preserve">
+	  <value>Instance of {0} is not shared.</value>
+  </data>
+  <data name="Exception_InstanceIsNotCreated" xml:space="preserve">
+	  <value>Shared instance of {0} is not created.</value>
+  </data>
+  <data name="Exception_SharedInstanceAlreadyAssigned" xml:space="preserve">
+	  <value>Shared instance already assigned for type {0}.</value>
   </data>
 </root>

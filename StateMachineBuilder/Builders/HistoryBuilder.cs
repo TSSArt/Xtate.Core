@@ -17,6 +17,7 @@
 
 namespace Xtate.Builder;
 
+[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
 public class HistoryBuilder : BuilderBase, IHistoryBuilder
 {
 	private IIdentifier? _id;

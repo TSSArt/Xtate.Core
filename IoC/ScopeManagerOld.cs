@@ -19,14 +19,85 @@ using Xtate.IoC;
 
 namespace Xtate.Core;
 
-public class ScopeManager : IScopeManager
+internal class KeepAlive : TaskCompletionSource, IKeepAlive, IDisposable
+{
+	public Task Wait() => Task;
+
+	public void Dispose() => TrySetResult();
+}
+
+public class ScopeManager : IScopeManager1, IDisposable, IAsyncDisposable
+{
+	private readonly IServiceScope  _scope;
+	
+	
+	public ScopeManager(Action<IServiceCollection> configureServices, IServiceScopeFactory  serviceScopeFactory)
+	{
+		_scope = serviceScopeFactory.CreateScope(configureServices);
+
+		DisposeScopeOnComplete().Forget();
+	}
+
+	private async ValueTask DisposeScopeOnComplete()
+	{
+		try
+		{
+			var keepAliveServices = _scope.ServiceProvider.GetServices<IKeepAlive>().ConfigureAwait(false);
+
+			await foreach (var keepAliveService in keepAliveServices.ConfigureAwait(false))
+			{
+				await keepAliveService.Wait().ConfigureAwait(false);
+			}
+		}
+		finally
+		{
+			await DisposeAsync().ConfigureAwait(false);
+		}
+	}
+
+	protected virtual void Dispose(bool disposing)
+	{
+		if (disposing)
+		{
+			_scope.Dispose();
+		}
+	}
+
+	public void Dispose()
+	{
+		Dispose(true);
+		GC.SuppressFinalize(this);
+	}
+
+	protected virtual async ValueTask DisposeAsyncCore()
+	{
+		await _scope.DisposeAsync().ConfigureAwait(false);
+	}
+
+	public async ValueTask DisposeAsync()
+	{
+		await DisposeAsyncCore().ConfigureAwait(false);
+		GC.SuppressFinalize(this);
+	}
+
+	public ValueTask<T> GetService<T>() where T : notnull => _scope.ServiceProvider.GetRequiredService<T>();
+}
+/*
+public class ScopeManagerOld : IScopeManagerOld
 {
 	public required IServiceScopeFactory     _serviceScopeFactory;
-	public required IStateMachineHost        _stateMachineHost;
-	public required IStateMachineHostContext _stateMachineHostContext;
+	
+	public required  IStateMachineHost        _stateMachineHost;
+	public required  IStateMachineHostContext _stateMachineHostContext;
+
+
+	
+
+	
 
 #region Interface IScopeManager
 
+	[Obsolete]
 	public virtual async ValueTask<IStateMachineController> RunStateMachine(IStateMachineStartOptions stateMachineStartOptions)
 	{
 		var scope = CreateStateMachineScope(stateMachineStartOptions);
@@ -44,23 +115,63 @@ public class ScopeManager : IScopeManager
 		}
 	}
 
-#endregion
-
-	private static async ValueTask DisposeScopeOnComplete(IStateMachineRunner? stateMachineRunner, IServiceScope serviceScope)
+	public async ValueTask<T> GetScopedService<T>(Action<IServiceCollection> configureServices, CancellationToken token) where T : notnull
 	{
-		try
+		var scope = _serviceScopeFactory.CreateScope(configureServices);
+
+		var registration = token.Register(Disposer.Dispose, scope);
+		await using (registration.ConfigureAwait(false))
 		{
-			if (stateMachineRunner is not null)
+			IKeepAlive? scopeCloser = default;
+			try
 			{
-				await stateMachineRunner.Wait(CancellationToken.None).ConfigureAwait(false);
+				token.ThrowIfCancellationRequested();
+
+				scopeCloser = await scope.ServiceProvider.GetRequiredService<IKeepAlive>().ConfigureAwait(false);
+
+				return await scope.ServiceProvider.GetRequiredService<T>().ConfigureAwait(false);
 			}
-		}
-		finally
-		{
-			await serviceScope.DisposeAsync().ConfigureAwait(false);
+			finally
+			{
+				if (scopeCloser is not null)
+				{
+					DisposeScopeOnComplete(scopeCloser, scope).Forget();
+				}
+				else
+				{
+					await scope.DisposeAsync().ConfigureAwait(false);
+				}
+			}
 		}
 	}
 
+#endregion
+
+	private static async ValueTask DisposeScopeOnComplete(IStateMachineRunner stateMachineRunner, IServiceScope scope)
+	{
+		try
+		{
+			await stateMachineRunner.GetResult().ConfigureAwait(false);
+		}
+		finally
+		{
+			await scope.DisposeAsync().ConfigureAwait(false);
+		}
+	}
+
+	private static async ValueTask DisposeScopeOnComplete(IKeepAlive keepAlive, IServiceScope scope)
+	{
+		try
+		{
+			await keepAlive.Wait().ConfigureAwait(false);
+		}
+		finally
+		{
+			await scope.DisposeAsync().ConfigureAwait(false);
+		}
+	}
+
+	[Obsolete]
 	protected virtual IServiceScope CreateStateMachineScope(IStateMachineStartOptions stateMachineStartOptions)
 	{
 		switch (stateMachineStartOptions.Origin.Type)
@@ -68,10 +179,12 @@ public class ScopeManager : IScopeManager
 			case StateMachineOriginType.StateMachine:
 			{
 				var stateMachine = stateMachineStartOptions.Origin.AsStateMachine();
+				
 				return _serviceScopeFactory.CreateScope(
 					services =>
 					{
 						services.AddConstant(stateMachine);
+						services.AddConstant<IStateMachineArguments>(new StateMachineArguments(stateMachineStartOptions.Parameters));
 						services.AddConstant(stateMachineStartOptions);
 						services.AddConstant(_stateMachineHost);
 						services.AddConstant(_stateMachineHostContext);
@@ -83,10 +196,12 @@ public class ScopeManager : IScopeManager
 			{
 				var scxmlStateMachine = new ScxmlStateMachine(stateMachineStartOptions.Origin.AsScxml());
 				var stateMachineLocation = stateMachineStartOptions.Origin.BaseUri is { } uri ? new StateMachineLocation(uri) : null;
+				
 				return _serviceScopeFactory.CreateScope(
 					services =>
 					{
 						services.AddConstant<IScxmlStateMachine>(scxmlStateMachine);
+						services.AddConstant<IStateMachineArguments>(new StateMachineArguments(stateMachineStartOptions.Parameters));
 						if (stateMachineLocation is not null)
 						{
 							services.AddForwarding<IStateMachineLocation>(_ => stateMachineLocation);
@@ -103,10 +218,12 @@ public class ScopeManager : IScopeManager
 			{
 				var location = stateMachineStartOptions.Origin.BaseUri.CombineWith(stateMachineStartOptions.Origin.AsSource());
 				var stateMachineLocation = new StateMachineLocation(location);
+				
 				return _serviceScopeFactory.CreateScope(
 					services =>
 					{
 						services.AddConstant<IStateMachineLocation>(stateMachineLocation);
+						services.AddConstant<IStateMachineArguments>(new StateMachineArguments(stateMachineStartOptions.Parameters));
 						services.AddConstant(stateMachineStartOptions);
 						services.AddConstant(_stateMachineHost);
 						services.AddConstant(_stateMachineHostContext);
@@ -117,4 +234,4 @@ public class ScopeManager : IScopeManager
 				throw new ArgumentException(Resources.Exception_StateMachineOriginMissed);
 		}
 	}
-}
+}*/

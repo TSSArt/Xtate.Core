@@ -24,7 +24,4 @@ public class ServiceModuleAttribute(Type serviceModuleType) : Attribute
 }
 
 [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
-public class ServiceModuleAttribute<T> : ServiceModuleAttribute where T : IServiceModule, new()
-{
-	public ServiceModuleAttribute() : base(typeof(T)) { }
-}
+public class ServiceModuleAttribute<T>() : ServiceModuleAttribute(typeof(T)) where T : IServiceModule, new();

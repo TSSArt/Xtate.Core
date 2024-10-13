@@ -17,16 +17,8 @@
 
 namespace Xtate;
 
-public record InvokeData
+public record InvokeData(InvokeId InvokeId, Uri Type)
 {
-	public InvokeData(InvokeId invokeId, Uri type)
-	{
-		InvokeId = invokeId;
-		Type = type;
-	}
-
-	public InvokeId       InvokeId   { get; }
-	public Uri            Type       { get; }
 	public Uri?           Source     { get; init; }
 	public string?        RawContent { get; init; }
 	public DataModelValue Content    { get; init; }
@@ -45,6 +37,8 @@ public interface IInvokeController
 	ValueTask Start(InvokeData invokeData);
 
 	ValueTask Cancel(InvokeId invokeId);
+
+	ValueTask Forward(InvokeId invokeId, IEvent evt);
 }
 
 public interface IInStateController

@@ -25,8 +25,8 @@ namespace Xtate.Core;
 
 public interface IStateMachineHostContext
 {
-	void AddStateMachineController(IStateMachineController controller);
-	void RemoveStateMachineController(IStateMachineController controller);
+	void AddStateMachineController(SessionId sessionId, IStateMachineController controller);
+	void RemoveStateMachineController(SessionId sessionId);
 }
 
 public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposable
@@ -54,9 +54,9 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 		_stopTokenSource = new CancellationTokenSource();
 
 		_contextRuntimeItems = ImmutableDictionary<object, object>.Empty;
-		if (stateMachineHost is IHost host)
+		if (stateMachineHost is IHostController host)
 		{
-			_contextRuntimeItems = _contextRuntimeItems.Add(typeof(IHost), host);
+			_contextRuntimeItems = _contextRuntimeItems.Add(typeof(IHostController), host);
 		}
 
 		if (options.Configuration is { Count : > 0 } configuration)
@@ -87,17 +87,16 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 
 #region Interface IStateMachineHostContext
 
-	public void AddStateMachineController(IStateMachineController stateMachineController)
+	public void AddStateMachineController(SessionId sessionId, IStateMachineController stateMachineController)
 	{
-		var sessionId = stateMachineController.SessionId;
 		var result = _stateMachineBySessionId.TryAdd(sessionId, stateMachineController);
 
 		Infra.Assert(result);
 	}
 
-	public virtual void RemoveStateMachineController(IStateMachineController stateMachineController)
+	public virtual void RemoveStateMachineController(SessionId sessionId)
 	{
-		var result = _stateMachineBySessionId.TryRemove(stateMachineController.SessionId, out var controller);
+		var result = _stateMachineBySessionId.TryRemove(sessionId, out var controller);
 
 		Infra.Assert(result);
 		Infra.NotNull(controller);
@@ -113,11 +112,11 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 		return default;
 	}
 
-	public virtual async ValueTask InitializeAsync(CancellationToken token)
+	public virtual async ValueTask InitializeAsync()//TODO: make it asycinitialization
 	{
 		var eventSchedulerFactory = _options.EventSchedulerFactory ?? _defaultEventSchedulerFactory;
 
-		_eventScheduler = await eventSchedulerFactory.CreateEventScheduler(_stateMachineHost, _options.EsLogger, token).ConfigureAwait(false);
+		_eventScheduler = await eventSchedulerFactory.CreateEventScheduler(_stateMachineHost, _options.EsLogger, default).ConfigureAwait(false);
 	}
 
 	public ValueTask ScheduleEvent(IHostEvent hostEvent, CancellationToken token)
@@ -173,7 +172,7 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 			sessionId, stateMachineOptions, stateMachine, stateMachineLocation, _stateMachineHost,
 			_options.SuspendIdlePeriod, defaultOptions)
 		{
-			_stateMachineInterpreterFactory = default!, EventQueueWriter = default!
+			EventQueueWriter = default!, StateMachineInterpreter = default
 		};
 
 	private static XmlReaderSettings GetXmlReaderSettings(XmlNameTable nameTable, ScxmlXmlResolver xmlResolver) =>
@@ -194,7 +193,7 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 
 	private async ValueTask<IStateMachine> GetStateMachine(Uri? uri,
 														   string? scxml,
-														   ISecurityContext securityContext,
+														   SecurityContext securityContext,
 														   IErrorProcessor errorProcessor,
 														   CancellationToken token)
 	{
@@ -219,11 +218,11 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 
 		if (scxml is null)
 		{
-			services.AddConstant<IStateMachineLocation>(new StateMachineLocation(uri!));
+			services.AddConstant<IStateMachineLocation>(new LocationStateMachine(uri!));
 		}
 		else
 		{
-			services.AddConstant<IScxmlStateMachine>(new ScxmlStateMachine(scxml));
+			services.AddConstant<IScxmlStateMachine>(new ScxmlStringStateMachine(scxml));
 		}
 
 		var serviceProvider = services.BuildProvider();
@@ -235,7 +234,7 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 	//TODO:delete
 	protected async ValueTask<(IStateMachine StateMachine, Uri? Location)> LoadStateMachine(StateMachineOrigin origin,
 																							Uri? hostBaseUri,
-																							ISecurityContext securityContext,
+																							SecurityContext securityContext,
 																							IErrorProcessor errorProcessor,
 																							CancellationToken token)
 	{
@@ -382,19 +381,15 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 
 	public bool TryGetService(InvokeId invokeId, out IService? service) => _serviceByInvokeId.TryGetValue(invokeId, out service);
 
-	public async ValueTask DestroyStateMachine(SessionId sessionId, CancellationToken token)
+	public async ValueTask DestroyStateMachine(SessionId sessionId)
 	{
 		if (_stateMachineBySessionId.TryGetValue(sessionId, out var controller))
 		{
-			controller.TriggerDestroySignal();
+			await controller.Destroy().ConfigureAwait(false);
 
 			try
 			{
-				await controller.GetResult(token).ConfigureAwait(false);
-			}
-			catch (OperationCanceledException ex) when (ex.CancellationToken == token)
-			{
-				throw;
+				await controller.GetResult().ConfigureAwait(false);
 			}
 			catch
 			{
@@ -416,7 +411,7 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 				var controller = pair.Value;
 				try
 				{
-					await controller.GetResult(token).ConfigureAwait(false);
+					await controller.GetResult().ConfigureAwait(false);
 				}
 				catch (OperationCanceledException ex) when (ex.CancellationToken == token)
 				{

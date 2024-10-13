@@ -252,6 +252,7 @@ public readonly struct Bucket
 					   TypeCode.String                                        => new StringValueConverter<T>(),
 					   TypeCode.DateTime                                      => new DateTimeValueConverter<T>(),
 					   TypeCode.Object when type == typeof(Uri)               => new UriValueConverter<T>(),
+					   TypeCode.Object when type == typeof(DataModelNumber)   => new DataModelNumberValueConverter<T>(),
 					   TypeCode.Object when type == typeof(DateTimeOffset)    => new DateTimeOffsetValueConverter<T>(),
 					   TypeCode.Object when type == typeof(DataModelDateTime) => new DataModelDateTimeValueConverter<T>(),
 					   _                                                      => new UnsupportedConverter<T>(@"value")
@@ -527,34 +528,36 @@ public readonly struct Bucket
 	{
 		protected override int GetLength(int value)
 		{
-			var uval = unchecked((uint) value);
-			if (uval <= 0xFFU) return 1;
-			if (uval <= 0xFFFFU) return 2;
-			if (uval <= 0xFFFFFFU) return 3;
-			return 4;
+			var count = 1;
+
+			while (value is < sbyte.MinValue or > sbyte.MaxValue)
+			{
+				value >>= 8;
+				count ++;
+			}
+
+			return count;
 		}
 
 		protected override void Write(int value, Span<byte> bytes)
 		{
-			var uValue = unchecked((uint) value);
-
 			for (var i = 0; i < bytes.Length; i ++)
 			{
-				bytes[i] = unchecked((byte) uValue);
-				uValue >>= 8;
+				bytes[i] = unchecked((byte) value);
+				value >>= 8;
 			}
 		}
 
 		protected override int Get(ReadOnlySpan<byte> bytes)
 		{
-			var uValue = 0U;
+			var value = (int)bytes[^1];
 
-			for (var i = bytes.Length - 1; i >= 0; i --)
+			for (var i = bytes.Length - 2; i >= 0; i --)
 			{
-				uValue = (uValue << 8) | bytes[i];
+				value = (value << 8) | bytes[i];
 			}
 
-			return unchecked((int) uValue);
+			return value;
 		}
 	}
 
@@ -576,9 +579,18 @@ public readonly struct Bucket
 		protected override double Get(ReadOnlySpan<byte> bytes) => BitConverter.Int64BitsToDouble(BinaryPrimitives.ReadInt64LittleEndian(bytes));
 	}
 
+	private class DataModelNumberValueConverter<TValue> : ValueConverterBase<TValue, DataModelNumber>
+	{
+		protected override int GetLength(DataModelNumber value) => value.WriteToSize();
+
+		protected override void Write(DataModelNumber value, Span<byte> bytes) => value.WriteTo(bytes);
+
+		protected override DataModelNumber Get(ReadOnlySpan<byte> bytes) => DataModelNumber.ReadFrom(bytes);
+	}
+
 	private class DataModelDateTimeValueConverter<TValue> : ValueConverterBase<TValue, DataModelDateTime>
 	{
-		protected override int GetLength(DataModelDateTime value) => 10;
+		protected override int GetLength(DataModelDateTime value) => DataModelDateTime.WriteToSize();
 
 		protected override void Write(DataModelDateTime value, Span<byte> bytes) => value.WriteTo(bytes);
 

@@ -23,9 +23,7 @@ public class StateMachineGetter : IAsyncInitialization
 {
 	private readonly AsyncInit<IStateMachine?> _stateMachineAsyncInit;
 
-	public StateMachineGetter() => _stateMachineAsyncInit = AsyncInit.Run(this, getter => getter.StateMachineService.GetStateMachine());
-
-	public required IStateMachineService StateMachineService { private get; [UsedImplicitly] init; }
+	public StateMachineGetter(IStateMachineService stateMachineService) => _stateMachineAsyncInit = AsyncInit.Run(stateMachineService, svc => svc.GetStateMachine());
 
 #region Interface IAsyncInitialization
 

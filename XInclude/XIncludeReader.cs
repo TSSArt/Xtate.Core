@@ -202,7 +202,7 @@ public class XIncludeReader : DelegatedXmlReader
 	{
 		ExtractIncludeElementAttributes();
 
-		if (Infra.IsNullOrEmpty(_hrefValue))
+		if (string.IsNullOrEmpty(_hrefValue))
 		{
 			throw new XIncludeException(Resources.Exception_IndocumentReferencesNotSupported, InnerReader);
 		}

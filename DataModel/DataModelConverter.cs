@@ -267,7 +267,7 @@ public static class DataModelConverter
 					break;
 
 				case DataModelValueType.Number:
-					writer.WriteNumberValue(value.AsNumber());
+					writer.WriteNumberValue(value.AsNumber().ToDouble());
 					break;
 
 				case DataModelValueType.DateTime:

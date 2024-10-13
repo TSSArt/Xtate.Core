@@ -9,6 +9,10 @@
 		<WarningLevel>9999</WarningLevel>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0' or '$(TargetFramework)'=='net462'">
+		<NoWarn>$(NoWarn);nullable</NoWarn>
+	</PropertyGroup>
+
 	<ItemGroup Condition="'$(TargetFramework)'=='net462'">
 		<PackageReference Include="System.Net.Http" Version="4.3.4" />
 	</ItemGroup>

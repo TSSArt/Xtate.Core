@@ -52,18 +52,18 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 		_baseUri = options.BaseUri;
 	}
 
-	public override async ValueTask InitializeAsync(CancellationToken token)
+	public override async ValueTask InitializeAsync()
 	{
 		try
 		{
 			_storage = await _storageProvider.GetTransactionalStorage(HostPartition, ContextKey).ConfigureAwait(false);
 
-			await LoadStateMachines(token).ConfigureAwait(false);
-			await LoadInvokedServices(token).ConfigureAwait(false);
+			await LoadStateMachines(default).ConfigureAwait(false);
+			await LoadInvokedServices(default).ConfigureAwait(false);
 
-			await base.InitializeAsync(token).ConfigureAwait(false);
+			await base.InitializeAsync().ConfigureAwait(false);
 		}
-		catch (OperationCanceledException ex) when (ex.CancellationToken == token)
+		catch (OperationCanceledException ex) when (ex.CancellationToken == default) //TODO:
 		{
 			Stop();
 
@@ -190,7 +190,7 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 				  sessionId, stateMachineOptions, stateMachine, stateMachineLocation, _stateMachineHost,
 				  _storageProvider, _idlePeriod, defaultOptions)
 			  {
-				  _stateMachineInterpreterFactory = default!, EventQueueWriter = default!
+				  EventQueueWriter = default!, StateMachineInterpreter = default
 			  }
 			: base.CreateStateMachineController(sessionId, stateMachine, stateMachineOptions, stateMachineLocation, defaultOptions);
 
@@ -241,7 +241,7 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 		}
 	}
 
-	public override void RemoveStateMachineController(IStateMachineController stateMachineController)
+	public override void RemoveStateMachineController(SessionId sessionId) 
 	{
 		//TODO:uncomment
 		/*
@@ -330,7 +330,7 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 					var securityContext = SecurityContext.Create(meta.SecurityContextType, meta.Permissions);
 
 					var controller = AddSavedStateMachine(meta.SessionId, meta.Location, meta, securityContext, default! /*TODO*/);
-					AddStateMachineController(controller);
+					AddStateMachineController(meta.SessionId, controller);
 
 					//TODO:
 					//finalizer.Add(static (ctx, ctrl) => ((StateMachineHostContext) ctx).RemoveStateMachineController((StateMachineControllerBase) ctrl), this, controller);

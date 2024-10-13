@@ -28,7 +28,7 @@ public sealed class UriId : ServiceId
 
 	protected override string GenerateId() => throw new NotSupportedException();
 
-	public override int GetHashCode() => Uri.GetHashCode();
+	public override int GetHashCode() => HashCode.Combine(Uri);
 
 	public override bool Equals(object? obj) => Uri.Equals(obj);
 

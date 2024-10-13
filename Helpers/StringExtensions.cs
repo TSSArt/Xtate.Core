@@ -94,4 +94,37 @@ public static class StringExtensions
 
 		return str.Length == count && !normalized ? str : buf[..count].ToString();
 	}
+
+	public static string Concat(this string str0,
+								string str1,
+								string str2,
+								string str3,
+								string str4)
+	{
+		var totalLength = str0.Length + str1.Length + str2.Length + str3.Length + str4.Length;
+
+#if NETSTANDARD2_1 || NETCOREAPP2_1_OR_GREATER
+
+		return string.Create(totalLength, (str0, str1, str2, str3, str4), Factory);
+
+		void Factory(Span<char> span, (string str0, string str1, string str2, string str3, string str4) state)
+		{
+			var (s0, s1, s2, s3, s4) = state;
+
+			s0.AsSpan().CopyTo(span);
+			span = span[s0.Length..];
+			s1.AsSpan().CopyTo(span);
+			span = span[s1.Length..];
+			s2.AsSpan().CopyTo(span);
+			span = span[s2.Length..];
+			s3.AsSpan().CopyTo(span);
+			span = span[s3.Length..];
+			s4.AsSpan().CopyTo(span);
+		}
+
+#else
+		return string.Concat(str0, str1, str2, str3, str4);
+
+#endif
+	}
 }

@@ -17,7 +17,15 @@
 
 namespace Xtate.Core;
 
-public interface IScopeManager
+public interface IHostController
 {
-	ValueTask<IStateMachineController> RunStateMachine(IStateMachineStartOptions stateMachineStartOptions);
+	ValueTask StartStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType);
+
+	ValueTask<DataModelValue> ExecuteStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType);
+
+	ValueTask DestroyStateMachine(SessionId sessionId);
+
+	ValueTask StartHost();
+	
+	ValueTask StopHost();
 }

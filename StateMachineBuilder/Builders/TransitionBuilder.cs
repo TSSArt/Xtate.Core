@@ -17,6 +17,7 @@
 
 namespace Xtate.Builder;
 
+[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
 public class TransitionBuilder : BuilderBase, ITransitionBuilder
 {
 	private ImmutableArray<IExecutableEntity>.Builder? _actions;

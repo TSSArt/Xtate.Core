@@ -34,9 +34,6 @@ public class XPathDataModelHandlerModule : Module<DataModelHandlerBaseModule, Er
 		Services.AddTypeSync<XPathForEachEvaluator, IForEach>();
 		Services.AddTypeSync<XPathInlineContentEvaluator, IInlineContent>();
 
-		//services.AddType<XPathExpressionContextOld, IXmlNamespacesInfo?>();  //TODO:
-		//services.AddType<XPathVarDescriptorOld, string>();
-
 		Services.AddTypeSync<XPathExpressionContext, IXmlNamespacesInfo?>();
 		Services.AddTypeSync<XPathVarDescriptor, string>();
 		Services.AddTypeSync<XPathCompiledExpression, string, IXmlNamespacesInfo?>();
@@ -47,12 +44,6 @@ public class XPathDataModelHandlerModule : Module<DataModelHandlerBaseModule, Er
 		Services.AddTypeSync<InFunction>();
 
 		Services.AddImplementation<XPathDataModelHandlerProvider>().For<IDataModelHandlerProvider>();
-
-		var implementation = Services.AddImplementation<XPathDataModelHandler>().For<XPathDataModelHandler>();
-
-		if (!Services.IsRegistered<IDataModelHandler>())
-		{
-			implementation.For<IDataModelHandler>();
-		}
+		Services.AddImplementation<XPathDataModelHandler>().For<XPathDataModelHandler>().For<IDataModelHandler>(Option.IfNotRegistered);
 	}
 }

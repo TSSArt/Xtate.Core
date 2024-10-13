@@ -15,13 +15,10 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Core;
+namespace Xtate.DataModel;
 
-public class StateMachineLocation(Uri location) : IStateMachineLocation
+[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
+public class CaseSensitivity(IDataModelHandler? dataModelHandler) : ICaseSensitivity
 {
-#region Interface IStateMachineLocation
-
-	public Uri Location { get; } = location;
-
-#endregion
+	public bool CaseInsensitive { get; } = dataModelHandler?.CaseInsensitive ?? false;
 }

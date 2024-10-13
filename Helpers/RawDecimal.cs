@@ -15,31 +15,38 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate;
+using System.Runtime.InteropServices;
 
-public enum SecurityContextType
+namespace Xtate.Core;
+
+internal readonly struct RawDecimal(long lo64, long hi64)
 {
-	NoAccess,
-	NewStateMachine,
-	NewTrustedStateMachine,
-	InvokedService
-}
+	public readonly long Hi64 = hi64;
 
-public interface IIoBoundTask
-{
-	TaskFactory Factory { get; }
-}
+	public readonly long Lo64 = lo64;
 
-public class DefaultIoBoundTask : IIoBoundTask
-{
-#region Interface IIoBoundTask
+	public bool DoNotCache => (Hi64 & -4294967296) != 0;
 
-	public TaskFactory Factory => new(TaskScheduler.Default);
+	public static explicit operator RawDecimal(decimal value)
+	{
+		ReadOnlySpan<decimal> buf = [value];
 
-#endregion
-}
+		return MemoryMarshal.Cast<decimal, RawDecimal>(buf)[0];
+	}
 
-public interface ISecurityContext : IIoBoundTask
-{
-	ISecurityContext CreateNested(SecurityContextType type);
+	public static explicit operator decimal(RawDecimal value)
+	{
+		ReadOnlySpan<RawDecimal> buf = [value];
+
+		return MemoryMarshal.Cast<RawDecimal, decimal>(buf)[0];
+	}
+
+	public static void ResetScale(ref decimal value, out byte scale)
+	{
+		var raw = (RawDecimal) value;
+
+		scale = (byte) (raw.Hi64 >> 16);
+
+		value = (decimal) new RawDecimal(raw.Lo64, raw.Hi64 & -16711681);
+	}
 }

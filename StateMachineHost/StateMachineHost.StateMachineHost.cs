@@ -21,9 +21,6 @@ using Xtate.Service;
 
 namespace Xtate;
 
-//TODO:Move
-public interface IStateMachineHostLogger;
-
 public sealed partial class StateMachineHost : IStateMachineHost
 {
 	private static readonly Uri InternalTarget = new(uriString: @"#_internal", UriKind.Relative);
@@ -95,9 +92,10 @@ public sealed partial class StateMachineHost : IStateMachineHost
 	ImmutableArray<IIoProcessor> IStateMachineHost.GetIoProcessors() => !_ioProcessors.IsDefault ? _ioProcessors : [];
 
 	async ValueTask IStateMachineHost.StartInvoke(SessionId sessionId,
+												  Uri? location,
 												  InvokeData data,
 
-												  // ISecurityContext securityContext,
+												  // SecurityContext securityContext,
 												  CancellationToken token)
 	{
 		var context = GetCurrentContext();
@@ -111,7 +109,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 			//var loggerContext = new StartInvokeLoggerContext(sessionId, data.Type, data.Source);
 			var activator = await FindServiceFactoryActivator(data.Type).ConfigureAwait(false);
 			var serviceCommunication = new ServiceCommunication(this, GetTarget(sessionId), IoProcessorId, data.InvokeId);
-			var invokedService = await activator.StartService(service.StateMachineLocation, data, serviceCommunication).ConfigureAwait(false);
+			var invokedService = await activator.StartService(location, data, serviceCommunication).ConfigureAwait(false);
 
 			await context.AddService(sessionId, data.InvokeId, invokedService, token).ConfigureAwait(false);
 
@@ -134,7 +132,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 
 				try
 				{
-					var result = await invokedService.GetResult(token).ConfigureAwait(false);
+					var result = await invokedService.GetResult().ConfigureAwait(false);
 
 					var nameParts = EventName.GetDoneInvokeNameParts(invokeId);
 					var evt = new EventObject { Type = EventType.External, NameParts = nameParts, Data = result, InvokeId = invokeId };
@@ -170,7 +168,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 
 		if (await context.TryRemoveService(sessionId, invokeId).ConfigureAwait(false) is { } service)
 		{
-			await service.Destroy(token).ConfigureAwait(false);
+			await service.Destroy().ConfigureAwait(false);
 
 			await DisposeInvokedService(service).ConfigureAwait(false);
 		}
@@ -186,8 +184,8 @@ public sealed partial class StateMachineHost : IStateMachineHost
 	}
 
 	ValueTask IStateMachineHost.ForwardEvent(SessionId sessionId,
-											 IEvent evt,
 											 InvokeId invokeId,
+											 IEvent evt,
 											 CancellationToken token)
 	{
 		var context = GetCurrentContext();
@@ -253,7 +251,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 		_serviceFactories = serviceFactories.MoveToImmutable();
 	}*/
 
-	private async ValueTask StateMachineHostStartAsync(CancellationToken token)
+	private async ValueTask StateMachineHostStartAsync()
 	{
 		//var factories = _options.IoProcessorFactories;
 		var factories = await _ioProcessorFactories.ToImmutableArrayAsync().ConfigureAwait(false);
@@ -267,7 +265,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 		{
 			foreach (var ioProcessorFactory in factories)
 			{
-				ioProcessors.Add(await ioProcessorFactory.Create(this, token).ConfigureAwait(false));
+				ioProcessors.Add(await ioProcessorFactory.Create(this, default/*??*/).ConfigureAwait(false));
 			}
 		}
 

@@ -19,7 +19,8 @@ using System.IO;
 
 namespace Xtate.Core;
 
-public class ScxmlStateMachine(string scxml) : IScxmlStateMachine
+//TODO: delete
+public class ScxmlStateMachineOld(string scxml) : IScxmlStateMachine
 {
 #region Interface IScxmlStateMachine
 

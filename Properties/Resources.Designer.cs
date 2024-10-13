@@ -1037,6 +1037,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Argument must be DataModelNumber type..
+        /// </summary>
+        internal static string Exception_ArgumentMustBeDataModelNumberType {
+            get {
+                return ResourceManager.GetString("Exception_ArgumentMustBeDataModelNumberType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Assertion failed..
         /// </summary>
         internal static string Exception_AssertionFailed {
@@ -1452,6 +1461,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Incorrect security context.
+        /// </summary>
+        internal static string Exception_IncorrectSecurityContext {
+            get {
+                return ResourceManager.GetString("Exception_IncorrectSecurityContext", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Index should be non-negative and less than array size..
         /// </summary>
         internal static string Exception_IndexShouldBeNonNegativeAndLessThanAarraySize {
@@ -1475,6 +1493,24 @@ namespace Xtate {
         internal static string Exception_IndocumentReferencesNotSupported {
             get {
                 return ResourceManager.GetString("Exception_IndocumentReferencesNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Shared instance of {0} is not created..
+        /// </summary>
+        internal static string Exception_InstanceIsNotCreated {
+            get {
+                return ResourceManager.GetString("Exception_InstanceIsNotCreated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Instance of {0} is not shared..
+        /// </summary>
+        internal static string Exception_InstanceIsNotShared {
+            get {
+                return ResourceManager.GetString("Exception_InstanceIsNotShared", resourceCulture);
             }
         }
         
@@ -1908,6 +1944,15 @@ namespace Xtate {
         internal static string Exception_SessionIdCouldNotBeEmpty {
             get {
                 return ResourceManager.GetString("Exception_SessionIdCouldNotBeEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Shared instance already assigned for type {0}..
+        /// </summary>
+        internal static string Exception_SharedInstanceAlreadyAssigned {
+            get {
+                return ResourceManager.GetString("Exception_SharedInstanceAlreadyAssigned", resourceCulture);
             }
         }
         

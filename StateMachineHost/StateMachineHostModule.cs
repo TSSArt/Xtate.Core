@@ -20,27 +20,31 @@ using Xtate.Service;
 
 namespace Xtate.Core;
 
-public class StateMachineHostModule : Module<StateMachineFactoryModule, StateMachineInterpreterModule>
+public class StateMachineHostModule : Module<StateMachineInterpreterModule>
 {
 	protected override void AddServices()
 	{
 		//TODO: tmp ----
 		Services.AddType<StateMachineHostOptions>();
-
-		//services.AddForwarding(sp => new ServiceLocator(sp));
-
 		//TODO: tmp ----
 
+		//Services.AddImplementation<SecurityContext>().For<SecurityContext>();
 		Services.AddImplementation<InProcEventSchedulerFactory>().For<IEventSchedulerFactory>();
 
-		Services.AddSharedImplementation<ScopeManager>(SharedWithin.Scope).For<IScopeManager>();
-		Services.AddSharedImplementation<StateMachineRuntimeController>(SharedWithin.Scope)
-				.For<IStateMachineController>()
-				.For<IInvokeController>()
-				.For<INotifyStateChanged>()
-				.For<IExternalCommunication>();
+		Services.AddImplementation<StateMachineHostExternalCommunication>().For<IExternalCommunication>();
 
-		Services.AddSharedImplementation<StateMachineHost>(SharedWithin.Container).For<StateMachineHost>().For<IStateMachineHost>().For<IServiceFactory>().For<IHost>(); //TODO: Make only interface
+		//Services.AddImplementation<ScopeManager, Action<IServiceCollection>>().For<IScopeManager>();
+		Services.AddSharedImplementation<StateMachineRuntimeController>(SharedWithin.Scope).For<IStateMachineController>();
+				//.For<IInvokeController>();
+				//.For<INotifyStateChanged>();//
+				//.For<IExternalCommunication>();
+
+		Services.AddSharedImplementation<StateMachineRunner>(SharedWithin.Scope).For<IStateMachineRunner>();
+		Services.AddSharedImplementation<StateMachineHost>(SharedWithin.Container).For<StateMachineHost>().For<IStateMachineHost>().For<IServiceFactory>().For<IHostController>(); //TODO: Make only interface
 		Services.AddSharedImplementation<StateMachineHostContext>(SharedWithin.Container).For<StateMachineHostContext>().For<IStateMachineHostContext>();                //TODO: Make only interface
+
+		Services.AddSharedFactorySync<SecurityContextFactory>(SharedWithin.Container).For<IIoBoundTask>().For<SecurityContextRegistration, SecurityContextType>();
+		//Services.AddSharedType<SecurityContextController>(SharedWithin.Container);
+
 	}
 }

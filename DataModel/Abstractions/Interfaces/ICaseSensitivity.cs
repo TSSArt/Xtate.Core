@@ -15,17 +15,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Core;
+namespace Xtate.DataModel;
 
-public record StateMachineSessionIdOld : IStateMachineSessionId
+public interface ICaseSensitivity
 {
-	private readonly IStateMachineStartOptions _stateMachineStartOptions;
-
-	public StateMachineSessionIdOld(IStateMachineStartOptions stateMachineStartOptions) => _stateMachineStartOptions = stateMachineStartOptions;
-
-#region Interface IStateMachineSessionId
-
-	public SessionId SessionId => _stateMachineStartOptions.SessionId;
-
-#endregion
+	bool CaseInsensitive { get; }
 }

@@ -22,19 +22,20 @@ namespace Xtate.Core;
 public interface IStateMachineHost : IHostEventDispatcher
 {
 	ImmutableArray<IIoProcessor> GetIoProcessors();
-	ValueTask<SendStatus>        DispatchEvent(ServiceId serviceId, IOutgoingEvent outgoingEvent, CancellationToken token);
-	ValueTask                    CancelEvent(SessionId sessionId, SendId sendId, CancellationToken token);
+
+	ValueTask<SendStatus> DispatchEvent(ServiceId serviceId, IOutgoingEvent outgoingEvent, CancellationToken token);
+
+	ValueTask CancelEvent(SessionId sessionId, SendId sendId, CancellationToken token);
 
 	ValueTask StartInvoke(SessionId sessionId,
+						  Uri? location,
 						  InvokeData invokeData,
-
-						  // ISecurityContext securityContext,
 						  CancellationToken token);
 
 	ValueTask CancelInvoke(SessionId sessionId, InvokeId invokeId, CancellationToken token);
 
 	ValueTask ForwardEvent(SessionId sessionId,
-						   IEvent evt,
 						   InvokeId invokeId,
+						   IEvent evt,
 						   CancellationToken token);
 }

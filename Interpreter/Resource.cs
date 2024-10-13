@@ -29,7 +29,7 @@ public class Resource(Stream stream, ContentType? contentType = default) : IDisp
 	private          byte[]?        _bytes;
 	private          string?        _content;
 
-	public Encoding Encoding => !Infra.IsNullOrEmpty(ContentType?.CharSet) ? Encoding.GetEncoding(ContentType.CharSet) : Encoding.UTF8;
+	public Encoding Encoding => !string.IsNullOrEmpty(ContentType?.CharSet) ? Encoding.GetEncoding(ContentType.CharSet) : Encoding.UTF8;
 
 #region Interface IAsyncDisposable
 

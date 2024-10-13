@@ -17,6 +17,7 @@
 
 namespace Xtate.Builder;
 
+[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
 public class ParallelBuilder : BuilderBase, IParallelBuilder
 {
 	private IDataModel?                           _dataModel;
