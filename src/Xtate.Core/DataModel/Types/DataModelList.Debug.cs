@@ -26,38 +26,23 @@ public partial class DataModelList : ISpanFormattable
 {
 #region Interface IFormattable
 
-	public string ToString(string? format, IFormatProvider? formatProvider)
-	{
-		foreach (var keyValue in KeyValues)
-		{
-			if (keyValue.Key is not null)
-			{
-				return ToStringAsObject(formatProvider);
-			}
-		}
-
-		return ToStringAsArray(formatProvider);
-	}
+	public string ToString(string? format, IFormatProvider? formatProvider) => IsArray() ? ToStringAsArray(formatProvider) : ToStringAsObject(formatProvider);
 
 #endregion
+
+#region Interface ISpanFormattable
 
 	public bool TryFormat(Span<char> destination,
 						  out int charsWritten,
 						  ReadOnlySpan<char> format,
-						  IFormatProvider? formatProvider)
+						  IFormatProvider? formatProvider) =>
+		IsArray() ? TryFormatAsArray(destination, out charsWritten, formatProvider) : TryFormatAsObject(destination, out charsWritten, formatProvider);
 
-	{
-		foreach (var keyValue in KeyValues)
-		{
-			if (keyValue.Key is not null)
-			{
-				return TryFormatAsObject(destination, out charsWritten, format, formatProvider);
-			}
-		}
 
-		return TryFormatAsArray(destination, out charsWritten, format, formatProvider);
-	}
+	#endregion
 
+	private bool IsArray() => Count > 0 && !HasKeys;
+	
 	private string ToStringAsObject(IFormatProvider? formatProvider)
 	{
 		if (_count == 0)
@@ -88,16 +73,13 @@ public partial class DataModelList : ISpanFormattable
 		return sb.ToString();
 	}
 
-	private bool TryFormatAsObject(Span<char> destination,
-								   out int charsWritten,
-								   ReadOnlySpan<char> format,
-								   IFormatProvider? formatProvider)
+	private bool TryFormatAsObject(Span<char> destination, out int charsWritten, IFormatProvider? formatProvider)
 	{
 		var addDelimiter = false;
 		charsWritten = 0;
 
 		if (!'('.TryCopyIncremental(ref destination, ref charsWritten)) return false;
-		
+
 		foreach (var keyValue in KeyValues)
 		{
 			if (addDelimiter)
@@ -110,10 +92,10 @@ public partial class DataModelList : ISpanFormattable
 			}
 
 			if (!keyValue.Key.TryCopyIncremental(ref destination, ref charsWritten)) return false;
-			
+
 			if (!'='.TryCopyIncremental(ref destination, ref charsWritten)) return false;
 
-			if (!keyValue.Value.TryFormat(destination, out var valCharsWritten, default, formatProvider)) return false;
+			if (!keyValue.Value.TryFormat(destination, out var valCharsWritten, format: default, formatProvider)) return false;
 
 			destination = destination[valCharsWritten..];
 			charsWritten += valCharsWritten;
@@ -154,16 +136,13 @@ public partial class DataModelList : ISpanFormattable
 		return sb.ToString();
 	}
 
-	private bool TryFormatAsArray(Span<char> destination,
-								   out int charsWritten,
-								   ReadOnlySpan<char> format,
-								   IFormatProvider? formatProvider)
+	private bool TryFormatAsArray(Span<char> destination, out int charsWritten, IFormatProvider? formatProvider)
 	{
 		var addDelimiter = false;
 		charsWritten = 0;
 
 		if (!'['.TryCopyIncremental(ref destination, ref charsWritten)) return false;
-		
+
 		foreach (var value in Values)
 		{
 			if (addDelimiter)
@@ -175,7 +154,7 @@ public partial class DataModelList : ISpanFormattable
 				addDelimiter = true;
 			}
 
-			if (!value.TryFormat(destination, out var valCharsWritten, default, formatProvider)) return false;
+			if (!value.TryFormat(destination, out var valCharsWritten, format: default, formatProvider)) return false;
 
 			destination = destination[valCharsWritten..];
 			charsWritten += valCharsWritten;
