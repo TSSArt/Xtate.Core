@@ -293,7 +293,7 @@ public partial class StateMachineInterpreter : IStateMachineInterpreter
 				throw GetUnhandledErrorException();
 
 			default:
-				throw Infra.Unexpected<Exception>(behaviour);
+				throw Infra.Unmatched(behaviour);
 		}
 
 		StateMachineUnhandledErrorException GetUnhandledErrorException()
@@ -1078,7 +1078,7 @@ public partial class StateMachineInterpreter : IStateMachineInterpreter
 							ErrorType.Execution     => EventName.ErrorExecution,
 							ErrorType.Communication => EventName.ErrorCommunication,
 							ErrorType.Platform      => EventName.ErrorPlatform,
-							_                       => throw Infra.Unexpected<Exception>(errorType)
+							_                       => throw Infra.Unmatched(errorType)
 						};
 
 		var evt = new EventObject
@@ -1126,7 +1126,7 @@ public partial class StateMachineInterpreter : IStateMachineInterpreter
 							  ErrorType.Platform      => PlatformErrorEventId,
 							  ErrorType.Execution     => ExecutionErrorEventId,
 							  ErrorType.Communication => CommunicationErrorEventId,
-							  _                       => Infra.Unexpected<int>(errorType)
+							  _                       => throw Infra.Unmatched(errorType)
 						  };
 
 			await Logger.Write(Level.Error, eventId, $@"{errorType} error in entity '{entityId}'.", exception).ConfigureAwait(false);

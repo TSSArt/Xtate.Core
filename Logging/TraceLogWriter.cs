@@ -53,7 +53,7 @@ public class TraceLogWriter(string name)
 			Level.Debug   => TraceEventType.Verbose,
 			Level.Trace   => TraceEventType.Verbose,
 			Level.Verbose => TraceEventType.Verbose,
-			_             => Infra.Unexpected<TraceEventType>(level)
+			_             => throw Infra.Unmatched(level)
 		};
 
 	public async ValueTask Write(Level level,

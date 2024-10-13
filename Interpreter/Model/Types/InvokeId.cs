@@ -22,7 +22,7 @@ namespace Xtate;
 [Serializable]
 public sealed class InvokeId : ServiceId, IEquatable<InvokeId>
 {
-	internal static readonly IEqualityComparer<InvokeId> InvokeUniqueIdComparer = new InvokeUniqueIdEqualityComparer();
+	internal static readonly InvokeUniqueIdEqualityComparer InvokeUniqueIdComparer = new();
 
 	private readonly IIdentifier? _stateId;
 
@@ -89,8 +89,6 @@ public sealed class InvokeId : ServiceId, IEquatable<InvokeId>
 
 		public int GetHashCode(InvokeId obj)
 		{
-			if (obj is null) throw new ArgumentNullException(nameof(obj));
-
 			if (obj._invokeUniqueId is { } id)
 			{
 				return TryGetHashFromId(id, out var hash) ? hash : id.GetHashCode();

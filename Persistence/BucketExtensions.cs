@@ -186,7 +186,7 @@ internal static class BucketExtensions
 				var list = baseValue.Type == DataModelValueType.List ? baseValue.AsList() : null;
 				return DataModelValue.FromObject(tracker.GetValue(refId, type, list));
 
-			default: return Infra.Unexpected<DataModelValue>(type);
+			default: throw Infra.Unmatched(type);
 		}
 	}
 
@@ -236,8 +236,7 @@ internal static class BucketExtensions
 				break;
 
 			default:
-				Infra.Unexpected(type);
-				break;
+				throw Infra.Unmatched(type);
 		}
 	}
 

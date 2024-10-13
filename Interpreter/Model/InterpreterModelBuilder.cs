@@ -113,7 +113,7 @@ public class InterpreterModelBuilder : StateMachineVisitor
 		{
 			if (!transition.TryMapTarget(_idMap))
 			{
-				ErrorProcessorService.AddError(entity: null, Resources.ErrorMessage_TargetIdDoesNotExists);
+				ErrorProcessorService.AddError(entity: null, Resources.ErrorMessage_TargetIdDoesNotExist);
 			}
 		}
 

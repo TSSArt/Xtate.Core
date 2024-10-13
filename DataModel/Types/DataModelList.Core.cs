@@ -15,6 +15,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using System;
+using System.Reflection;
+
 namespace Xtate;
 
 [Serializable]
@@ -205,8 +208,6 @@ public sealed partial class DataModelList
 
 	public bool TryGet(string key, bool caseInsensitive, out Entry entry)
 	{
-		if (key is null) throw new ArgumentNullException(nameof(key));
-
 		if (_count > 0 && _array.Length > 0)
 		{
 			CreateArgs(out var args);
@@ -239,8 +240,6 @@ public sealed partial class DataModelList
 					DataModelValue value,
 					DataModelList? metadata)
 	{
-		if (key is null) throw new ArgumentNullException(nameof(key));
-
 		CreateArgs(out var args);
 		args.Key = key;
 		args.Value = value;
@@ -254,7 +253,7 @@ public sealed partial class DataModelList
 					DataModelValue value,
 					DataModelList? metadata)
 	{
-		if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_IndexValueMustBeNonNegativeInteger);
+		Infra.RequiresNonNegative(index);
 
 		CreateArgs(out var args);
 		args.Index = index;
@@ -304,7 +303,7 @@ public sealed partial class DataModelList
 
 	public bool Remove(int index)
 	{
-		if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_IndexValueMustBeNonNegativeInteger);
+		Infra.RequiresNonNegative(index);
 
 		CreateArgs(out var args);
 		args.Index = index;
@@ -452,7 +451,7 @@ public sealed partial class DataModelList
 
 	public bool CanInsert(int index)
 	{
-		if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_IndexValueMustBeNonNegativeInteger);
+		Infra.RequiresNonNegative(index);
 
 		CreateArgs(out var args);
 		args.Index = index;
@@ -462,7 +461,7 @@ public sealed partial class DataModelList
 
 	public bool CanRemove(int index)
 	{
-		if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_IndexValueMustBeNonNegativeInteger);
+		Infra.RequiresNonNegative(index);
 
 		CreateArgs(out var args);
 		args.Index = index;
@@ -472,7 +471,7 @@ public sealed partial class DataModelList
 
 	public bool CanSet(int index)
 	{
-		if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_IndexValueMustBeNonNegativeInteger);
+		Infra.RequiresNonNegative(index);
 
 		CreateArgs(out var args);
 		args.Index = index;
@@ -482,8 +481,6 @@ public sealed partial class DataModelList
 
 	public bool CanSet(string key, bool caseInsensitive)
 	{
-		if (key is null) throw new ArgumentNullException(nameof(key));
-
 		CreateArgs(out var args);
 		args.Key = key;
 
@@ -492,7 +489,7 @@ public sealed partial class DataModelList
 
 	public bool CanSetLength(int length)
 	{
-		if (length < 0) throw new ArgumentOutOfRangeException(nameof(length), Resources.Exception_ValueMustBeNonNegativeInteger);
+		Infra.RequiresNonNegative(length);
 
 		return SetLengthItems(length, DataModelAccess.Constant, throwOnDeny: false);
 	}
@@ -526,7 +523,7 @@ public sealed partial class DataModelList
 								 DataModelList? metadata = default,
 								 bool throwOnDeny = true)
 	{
-		if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_IndexValueMustBeNonNegativeInteger);
+		Infra.RequiresNonNegative(index);
 
 		CreateArgs(out var args);
 		args.Index = index;
@@ -543,7 +540,7 @@ public sealed partial class DataModelList
 
 	internal bool RemoveInternal(int index, bool throwOnDeny = true)
 	{
-		if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_IndexValueMustBeNonNegativeInteger);
+		Infra.RequiresNonNegative(index);
 
 		CreateArgs(out var args);
 		args.Index = index;
@@ -558,8 +555,6 @@ public sealed partial class DataModelList
 							  DataModelList? metadata = default,
 							  bool throwOnDeny = true)
 	{
-		if (key is null) throw new ArgumentNullException(nameof(key));
-
 		CreateArgs(out var args);
 		args.Key = key;
 		args.Value = value;
@@ -575,7 +570,7 @@ public sealed partial class DataModelList
 							  DataModelList? metadata = default,
 							  bool throwOnDeny = true)
 	{
-		if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_IndexValueMustBeNonNegativeInteger);
+		Infra.RequiresNonNegative(index);
 
 		CreateArgs(out var args);
 		args.Index = index;
@@ -592,7 +587,7 @@ public sealed partial class DataModelList
 
 	internal bool SetLengthInternal(int length, bool throwOnDeny = true)
 	{
-		if (length < 0) throw new ArgumentOutOfRangeException(nameof(length), Resources.Exception_ValueMustBeNonNegativeInteger);
+		Infra.RequiresNonNegative(length);
 
 		return SetLengthItems(length, DataModelAccess.ReadOnly, throwOnDeny);
 	}
@@ -956,8 +951,7 @@ public sealed partial class DataModelList
 				break;
 
 			default:
-				Infra.Unexpected(_array);
-				break;
+				throw Infra.Unmatched(_array?.GetType());
 		}
 	}
 
