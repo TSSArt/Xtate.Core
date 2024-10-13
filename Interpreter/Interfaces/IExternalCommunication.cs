@@ -29,7 +29,7 @@ public interface IExternalCommunication
 	ValueTask             StartInvoke(InvokeData invokeData);
 	ValueTask             CancelInvoke(InvokeId invokeId);
 	ValueTask<SendStatus> TrySendEvent(IOutgoingEvent outgoingEvent);
-	ValueTask             ForwardEvent(IEvent evt, InvokeId invokeId);
+	ValueTask             ForwardEvent(InvokeId invokeId, IEvent evt);
 	ValueTask             CancelEvent(SendId sendId);
 }
 

@@ -17,46 +17,106 @@
 
 namespace Xtate.Core;
 
-public readonly struct LoggingParameter(string name, object? value, string? format = default) : IFormattable
+public readonly struct LoggingParameter(string name, object? value, string? format = default) : ISpanFormattable
 {
-	public string  Name      { get; } = name;
-	public object? Value     { get; } = value;
-	public string? Format    { get; } = format;
+	private const string NsDelimiter = @"::";
+	private const string NmDelimiter = @":";
+
+	public        string Name { get; } = name;
+
+	public object? Value { get; } = value;
+
+	public string? Format { get; } = format;
+
 	public string? Namespace { get; init; }
 
 #region Interface IFormattable
 
 	public string ToString(string? format, IFormatProvider? formatProvider)
 	{
+		var strValue = ValueToString(formatProvider);
+
 		if (string.IsNullOrEmpty(Name))
 		{
-			return ValueToString(formatProvider);
+			return strValue;
 		}
 
 		return string.IsNullOrEmpty(Namespace)
-			? Name + @":" + ValueToString(formatProvider)
-			: Namespace + @"::" + Name + @":" + ValueToString(formatProvider);
+			? Name + NmDelimiter + ValueToString(formatProvider)
+			: Namespace.Concat(NsDelimiter, Name, NmDelimiter, ValueToString(formatProvider));
 	}
 
 #endregion
 
-	public string FullName() => string.IsNullOrEmpty(Namespace) ? Name : Namespace + @"::" + Name;
+#region Interface ISpanFormattable
+
+	public bool TryFormat(Span<char> destination,
+						  out int charsWritten,
+						  ReadOnlySpan<char> format,
+						  IFormatProvider? formatProvider)
+	{
+		charsWritten = 0;
+
+		if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(Namespace))
+		{
+			if (!Namespace.TryCopyIncremental(ref destination, ref charsWritten))
+			{
+				return false;
+			}
+
+			if (!NsDelimiter.TryCopyIncremental(ref destination, ref charsWritten))
+			{
+				return false;
+			}
+		}
+
+		if (!string.IsNullOrEmpty(Name))
+		{
+			if (!Name.TryCopyIncremental(ref destination, ref charsWritten))
+			{
+				return false;
+			}
+
+			if (!NmDelimiter.TryCopyIncremental(ref destination, ref charsWritten))
+			{
+				return false;
+			}
+		}
+
+		if (Value is ISpanFormattable spanFormattable)
+		{
+			if (!spanFormattable.TryFormat(destination, out var valCharsWritten, Format.AsSpan(), formatProvider))
+			{
+				return false;
+			}
+
+			charsWritten += valCharsWritten;
+		}
+		else
+		{
+			if (!ValueToString(formatProvider).TryCopyIncremental(ref destination, ref charsWritten))
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+#endregion
+
+	public string FullName() => string.IsNullOrEmpty(Namespace) ? Name : Namespace + NsDelimiter + Name;
 
 	public string ValueToString(IFormatProvider? formatProvider)
 	{
-		if (Format is not null)
+		if (Value is IFormattable formattable)
 		{
-			if (Value is IFormattable formattable)
-			{
-				return formattable.ToString(Format, formatProvider);
-			}
+			return formattable.ToString(Format, formatProvider);
 		}
-		else if (formatProvider is not null)
+
+		if (Value is IConvertible convertible)
 		{
-			if (Value is IConvertible convertible)
-			{
-				return convertible.ToString(formatProvider);
-			}
+			return convertible.ToString(formatProvider);
 		}
 
 		return Value?.ToString() ?? string.Empty;

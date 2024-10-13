@@ -22,9 +22,6 @@ namespace Xtate.Core;
 
 public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 {
-	private const int StartInvokeEventId  = 1;
-	private const int CancelInvokeEventId = 2;
-
 	private readonly IValueEvaluator?                    _contentBodyEvaluator;
 	private readonly IObjectEvaluator?                   _contentExpressionEvaluator;
 	private readonly ILocationEvaluator?                 _idLocationEvaluator;
@@ -54,9 +51,7 @@ public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId
 	}
 
 	public required Func<ValueTask<DataConverter>>      DataConverterFactory    { private get; [UsedImplicitly] init; }
-	public required Func<ValueTask<IInvokeController?>> InvokeControllerFactory { private get; [UsedImplicitly] init; }
-	public required Func<ValueTask<ILogger<IInvoke>>>   LoggerFactory           { private get; [UsedImplicitly] init; }
-
+	public required Func<ValueTask<IInvokeController>> InvokeControllerFactory { private get; [UsedImplicitly] init; }
 	public InvokeId? InvokeId { get; private set; }
 
 	public FinalizeNode? Finalize { get; }
@@ -147,31 +142,32 @@ public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId
 							 Parameters = parameters
 						 };
 
-		var logger = await LoggerFactory().ConfigureAwait(false);
-		await logger.Write(Level.Trace, StartInvokeEventId, $@"Start invoke. InvokeId: [{InvokeId}]", invokeData).ConfigureAwait(false);
-
-		if (await InvokeControllerFactory().ConfigureAwait(false) is { } invokeController)
-		{
-			await invokeController.Start(invokeData).ConfigureAwait(false);
-		}
+		var invokeController = await InvokeControllerFactory().ConfigureAwait(false);
+	
+		await invokeController.Start(invokeData).ConfigureAwait(false);
 	}
 
 	private static Uri ToUri(string uri) => new(uri, UriKind.RelativeOrAbsolute);
 
 	public async ValueTask Cancel()
 	{
-		var logger = await LoggerFactory().ConfigureAwait(false);
-		await logger.Write(Level.Trace, CancelInvokeEventId, $@"Cancel invoke. InvokeId: [{InvokeId}]", InvokeId).ConfigureAwait(false);
-
 		var tmpInvokeId = InvokeId;
 		InvokeId = default;
 
 		if (tmpInvokeId is not null)
 		{
-			if (await InvokeControllerFactory().ConfigureAwait(false) is { } invokeController)
-			{
-				await invokeController.Cancel(tmpInvokeId).ConfigureAwait(false);
-			}
+			var invokeController = await InvokeControllerFactory().ConfigureAwait(false);
+
+			await invokeController.Cancel(tmpInvokeId).ConfigureAwait(false);
 		}
+	}
+
+	public async ValueTask Forward(IEvent evt)
+	{
+		Infra.NotNull(InvokeId);
+
+		var invokeController = await InvokeControllerFactory().ConfigureAwait(false);
+	
+		await invokeController.Forward(InvokeId, evt).ConfigureAwait(false);
 	}
 }

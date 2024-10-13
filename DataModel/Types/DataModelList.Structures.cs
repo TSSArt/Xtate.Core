@@ -83,18 +83,7 @@ public partial class DataModelList
 
 		public override bool Equals(object? obj) => obj is Entry other && Equals(other);
 
-		public override int GetHashCode()
-		{
-			unchecked
-			{
-				var hashCode = (Index * 397) ^ (Key is not null ? Key.GetHashCode() : 0);
-				hashCode = (hashCode * 397) ^ (int) Access;
-				hashCode = (hashCode * 397) ^ (Metadata is not null ? Metadata.GetHashCode() : 0);
-				hashCode = (hashCode * 397) ^ Value.GetHashCode();
-
-				return hashCode;
-			}
-		}
+		public override int GetHashCode() => HashCode.Combine(Index, Key, Access, Metadata, Value);
 
 		public static bool operator ==(Entry left, Entry right) => left.Equals(right);
 
@@ -121,7 +110,7 @@ public partial class DataModelList
 
 		public override bool Equals(object? obj) => obj is KeyValue other && Equals(other);
 
-		public override int GetHashCode() => unchecked(((Key is not null ? Key.GetHashCode() : 0) * 397) ^ Value.GetHashCode());
+		public override int GetHashCode() => HashCode.Combine(Key, Value);
 
 		public static bool operator ==(KeyValue left, KeyValue right) => left.Equals(right);
 

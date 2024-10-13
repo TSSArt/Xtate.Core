@@ -27,7 +27,7 @@ public enum DataModelDateTimeType
 }
 
 [Serializable]
-public readonly struct DataModelDateTime : IConvertible, IFormattable, IEquatable<DataModelDateTime>, IComparable<DataModelDateTime>, IComparable
+public readonly struct DataModelDateTime : IConvertible, ISpanFormattable, IEquatable<DataModelDateTime>, IComparable<DataModelDateTime>, IComparable
 {
 	private const ulong KindLocal = 0x8000000000000000;
 	private const ulong KindUtc   = 0x4000000000000000;
@@ -133,6 +133,21 @@ public readonly struct DataModelDateTime : IConvertible, IFormattable, IEquatabl
 
 #endregion
 
+#region Interface ISpanFormattable
+
+	public bool TryFormat(Span<char> destination,
+						  out int charsWritten,
+						  ReadOnlySpan<char> format,
+						  IFormatProvider? formatProvider) =>
+		Type switch
+		{
+			DataModelDateTimeType.DateTime       => ToDateTime().TryFormat(destination, out charsWritten, format, formatProvider),
+			DataModelDateTimeType.DateTimeOffset => ToDateTimeOffset().TryFormat(destination, out charsWritten, format, formatProvider),
+			_                                    => throw Infra.Unmatched(Type)
+		};
+
+#endregion
+
 	public DateTimeOffset ToDateTimeOffset()
 	{
 		var offsetTicks = _offset * TimeSpan.TicksPerMinute;
@@ -157,13 +172,15 @@ public readonly struct DataModelDateTime : IConvertible, IFormattable, IEquatabl
 		return new DateTime(ticks);
 	}
 
-	public void WriteTo(in Span<byte> span)
+	public static int WriteToSize() => 10;
+
+	public void WriteTo(Span<byte> span)
 	{
 		BinaryPrimitives.WriteUInt64LittleEndian(span, _data);
 		BinaryPrimitives.WriteInt16LittleEndian(span[8..], _offset);
 	}
 
-	public static DataModelDateTime ReadFrom(in ReadOnlySpan<byte> span) => new(span);
+	public static DataModelDateTime ReadFrom(ReadOnlySpan<byte> span) => new(span);
 
 	private static int Compare(in DataModelDateTime t1, in DataModelDateTime t2)
 	{
@@ -199,13 +216,13 @@ public readonly struct DataModelDateTime : IConvertible, IFormattable, IEquatabl
 
 	public override string ToString() => ToString(format: null, formatProvider: null);
 
-	public override bool Equals(object? obj) => obj is DataModelDateTime other && Ticks == other.Ticks;
+	public override bool Equals(object? obj) => obj is DataModelDateTime other && Equals(other);
 
-	public override int GetHashCode() => Ticks.GetHashCode();
+	public override int GetHashCode() => HashCode.Combine(Ticks);
 
-	public static bool operator ==(DataModelDateTime left, DataModelDateTime right) => left.Ticks == right.Ticks;
+	public static bool operator ==(DataModelDateTime left, DataModelDateTime right) => left.Equals(right);
 
-	public static bool operator !=(DataModelDateTime left, DataModelDateTime right) => left.Ticks != right.Ticks;
+	public static bool operator !=(DataModelDateTime left, DataModelDateTime right) => !(left == right);
 
 	public static bool operator <(DataModelDateTime left, DataModelDateTime right) => Compare(left, right) < 0;
 
@@ -218,7 +235,7 @@ public readonly struct DataModelDateTime : IConvertible, IFormattable, IEquatabl
 	public object ToObject() =>
 		Type switch
 		{
-			DataModelDateTimeType.DateTime       => (object)ToDateTime(),
+			DataModelDateTimeType.DateTime       => (object) ToDateTime(),
 			DataModelDateTimeType.DateTimeOffset => ToDateTimeOffset(),
 			_                                    => throw Infra.Unmatched(Type)
 		};

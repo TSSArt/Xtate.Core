@@ -25,7 +25,7 @@ public interface ILogWriter
 					Level level,
 					int eventId,
 					string? message,
-					IAsyncEnumerable<LoggingParameter>? parameters = default);
+					IEnumerable<LoggingParameter>? parameters = default);
 }
 
 public interface ILogWriter<[UsedImplicitly] TSource>
@@ -35,5 +35,5 @@ public interface ILogWriter<[UsedImplicitly] TSource>
 	ValueTask Write(Level level,
 					int eventId,
 					string? message,
-					IAsyncEnumerable<LoggingParameter>? parameters = default);
+					IEnumerable<LoggingParameter>? parameters = default);
 }

@@ -19,63 +19,21 @@ namespace Xtate.Core;
 
 public abstract class EntityParserBase<TSource, TEntity> : IEntityParserProvider<TSource>, IEntityParserHandler<TSource>
 {
-	public required ILogger<TSource> Logger { private get; [UsedImplicitly] init; }
+	public required Ancestor<ILogger<TSource>> Logger { private get; [UsedImplicitly] init; }
 
 #region Interface IEntityParserHandler<TSource>
 
-	async IAsyncEnumerable<LoggingParameter> IEntityParserHandler<TSource>.EnumerateProperties<T>(T entity)
-	{
-		var entity2 = ConvertHelper<T, TEntity>.Convert(entity);
-
-		if (EnumerateProperties(entity2) is { } enumerable)
-		{
-			foreach (var property in enumerable)
-			{
-				yield return property;
-			}
-		}
-
-		if (EnumeratePropertiesAsync(entity2) is { } enumerableAsync)
-		{
-			await foreach (var property in enumerableAsync.ConfigureAwait(false))
-			{
-				yield return property;
-			}
-		}
-
-		if (Logger.IsEnabled(Level.Verbose))
-		{
-			if (EnumerateVerboseProperties(entity2) is { } verboseEnumerable)
-			{
-				foreach (var property in verboseEnumerable)
-				{
-					yield return property;
-				}
-			}
-
-			if (EnumerateVerbosePropertiesAsync(entity2) is { } verboseEnumerableAsync)
-			{
-				await foreach (var property in verboseEnumerableAsync.ConfigureAwait(false))
-				{
-					yield return property;
-				}
-			}
-		}
-	}
+	IEnumerable<LoggingParameter> IEntityParserHandler<TSource>.EnumerateProperties<T>(T entity) => EnumerateProperties(ConvertHelper<T, TEntity>.Convert(entity));
 
 #endregion
 
 #region Interface IEntityParserProvider<TSource>
 
-	public virtual IEntityParserHandler<TSource>? TryGetEntityParserHandler<T>(T entity) => entity is TEntity ? this : default;
+	IEntityParserHandler<TSource>? IEntityParserProvider<TSource>.TryGetEntityParserHandler<T>(T entity) => entity is TEntity ? this : default;
 
 #endregion
 
-	protected virtual IAsyncEnumerable<LoggingParameter>? EnumeratePropertiesAsync(TEntity entity) => default;
+	protected bool IsVerboseLogging => Logger().IsEnabled(Level.Verbose);
 
-	protected virtual IEnumerable<LoggingParameter>? EnumerateProperties(TEntity entity) => default;
-
-	protected virtual IAsyncEnumerable<LoggingParameter>? EnumerateVerbosePropertiesAsync(TEntity entity) => default;
-
-	protected virtual IEnumerable<LoggingParameter>? EnumerateVerboseProperties(TEntity entity) => default;
+	protected abstract IEnumerable<LoggingParameter> EnumerateProperties(TEntity entity);
 }

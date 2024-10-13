@@ -23,22 +23,45 @@ public interface ILogEnricher<[UsedImplicitly] TSource>
 {
 	string? Namespace { get; }
 
-	IAsyncEnumerable<LoggingParameter> EnumerateProperties(Level level, int eventId);
+	Level Level { get; }
+
+	IEnumerable<LoggingParameter> EnumerateProperties();
 }
 
+[SuppressMessage(category: "ReSharper", checkId: "ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator")]
+[SuppressMessage(category: "ReSharper", checkId: "ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator")]
 public class Logger<TSource> : ILogger<TSource>
 {
-	public required ILogWriter? NonGenericLogWriter { private get; [UsedImplicitly] init; }
+	public required ServiceList<ILogWriter> NonGenericLogWriters { private get; [UsedImplicitly] init; }
 
-	public required ILogWriter<TSource>? LogWriter { private get; [UsedImplicitly] init; }
+	public required ServiceList<ILogWriter<TSource>> LogWriters { private get; [UsedImplicitly] init; }
 
-	public required IAsyncEnumerable<ILogEnricher<TSource>> LogEnrichers { private get; [UsedImplicitly] init; }
+	public required ServiceList<ILogEnricher<TSource>> LogEnrichers { private get; [UsedImplicitly] init; }
 
 	public required IEntityParserHandler<TSource> EntityParserHandler { private get; [UsedImplicitly] init; }
 
 #region Interface ILogger
 
-	public virtual bool IsEnabled(Level level) => LogWriter?.IsEnabled(level) ?? NonGenericLogWriter?.IsEnabled(typeof(TSource), level) ?? false;
+	public virtual bool IsEnabled(Level level)
+	{
+		foreach (var logWriter in LogWriters)
+		{
+			if (logWriter.IsEnabled(level))
+			{
+				return true;
+			}
+		}
+
+		foreach (var logWriter in NonGenericLogWriters)
+		{
+			if (logWriter.IsEnabled(typeof(TSource), level))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
 
 	public virtual IFormatProvider FormatProvider => CultureInfo.InvariantCulture;
 
@@ -46,87 +69,79 @@ public class Logger<TSource> : ILogger<TSource>
 
 #region Interface ILogger<TSource>
 
-	public virtual ValueTask Write(Level level, int eventId, string? message)
-	{
-		if (LogWriter?.IsEnabled(level) == true)
-		{
-			return LogWriter.Write(level, eventId, message, EnumerateParameters(level, eventId));
-		}
+	public virtual ValueTask Write(Level level, int eventId, string? message) => Write(level, eventId, message, formattedMessage: default, default(ValueTuple));
 
-		if (NonGenericLogWriter?.IsEnabled(typeof(TSource), level) == true)
-		{
-			return NonGenericLogWriter.Write(typeof(TSource), level, eventId, message, EnumerateParameters(level, eventId));
-		}
-
-		return default;
-	}
-
-	public virtual ValueTask Write(Level level, int eventId, [InterpolatedStringHandlerArgument("", "level")] LoggingInterpolatedStringHandler formattedMessage)
-	{
-		if (LogWriter?.IsEnabled(level) == true)
-		{
-			var message = formattedMessage.ToString(out var parameters);
-
-			return LogWriter.Write(level, eventId, message, EnumerateParameters(level, eventId, parameters));
-		}
-
-		if (NonGenericLogWriter?.IsEnabled(typeof(TSource), level) == true)
-		{
-			var message = formattedMessage.ToString(out var parameters);
-
-			return NonGenericLogWriter.Write(typeof(TSource), level, eventId, message, EnumerateParameters(level, eventId, parameters));
-		}
-
-		return default;
-	}
+	public virtual ValueTask Write(Level level, int eventId, [InterpolatedStringHandlerArgument("", "level")] LoggingInterpolatedStringHandler formattedMessage) =>
+		Write(level, eventId, message: default, formattedMessage, default(ValueTuple));
 
 	public virtual ValueTask Write<TEntity>(Level level,
 											int eventId,
 											string? message,
-											TEntity entity)
-	{
-		if (LogWriter?.IsEnabled(level) == true)
-		{
-			return LogWriter!.Write(level, eventId, message, EnumerateParameters(level, eventId, parameters: default, EntityParserHandler.EnumerateProperties(entity)));
-		}
-
-		if (NonGenericLogWriter?.IsEnabled(typeof(TSource), level) == true)
-		{
-			return NonGenericLogWriter.Write(typeof(TSource), level, eventId, message, EnumerateParameters(level, eventId, parameters: default, EntityParserHandler.EnumerateProperties(entity)));
-		}
-
-		return default;
-	}
+											TEntity entity) =>
+		Write(level, eventId, message, formattedMessage: default, entity);
 
 	public virtual ValueTask Write<TEntity>(Level level,
 											int eventId,
 											[InterpolatedStringHandlerArgument("", "level")]
 											LoggingInterpolatedStringHandler formattedMessage,
-											TEntity entity)
-	{
-		if (LogWriter?.IsEnabled(level) == true)
-		{
-			var message = formattedMessage.ToString(out var parameters);
-
-			return LogWriter.Write(level, eventId, message, EnumerateParameters(level, eventId, parameters, EntityParserHandler.EnumerateProperties(entity)));
-		}
-
-		if (NonGenericLogWriter?.IsEnabled(typeof(TSource), level) == true)
-		{
-			var message = formattedMessage.ToString(out var parameters);
-
-			return NonGenericLogWriter.Write(typeof(TSource), level, eventId, message, EnumerateParameters(level, eventId, parameters, EntityParserHandler.EnumerateProperties(entity)));
-		}
-
-		return default;
-	}
+											TEntity entity) =>
+		Write(level, eventId, message: default, formattedMessage, entity);
 
 #endregion
 
-	private async IAsyncEnumerable<LoggingParameter> EnumerateParameters(Level level,
-																		 int eventId,
-																		 ImmutableArray<LoggingParameter> parameters = default,
-																		 IAsyncEnumerable<LoggingParameter>? entityProperties = default)
+	private ValueTask Write<TEntity>(Level level,
+										   int eventId,
+										   string? message,
+										   LoggingInterpolatedStringHandler formattedMessage,
+										   TEntity entity)
+	{
+		ImmutableArray<LoggingParameter> messageParameters = default;
+
+		if (message is null)
+		{
+			if (!IsEnabled(level))
+			{
+				return default;
+			}
+
+			message = formattedMessage.ToString(out messageParameters);
+		}
+
+		return Write(level, eventId, message, messageParameters, entity);
+	}
+
+	private async ValueTask Write<TEntity>(Level level,
+										   int eventId,
+										   string? message,
+										   ImmutableArray<LoggingParameter> messageParameters,
+										   TEntity entity)
+	{
+		foreach (var logWriter in LogWriters)
+		{
+			if (logWriter.IsEnabled(level))
+			{
+				var properties = entity is not ValueTuple ? EntityParserHandler.EnumerateProperties(entity) : default;
+				var parameters = EnumerateParameters(logWriter, messageParameters, properties);
+
+				await logWriter.Write(level, eventId, message, parameters).ConfigureAwait(false);
+			}
+		}
+
+		foreach (var logWriter in NonGenericLogWriters)
+		{
+			if (logWriter.IsEnabled(typeof(TSource), level))
+			{
+				var properties = entity is not ValueTuple ? EntityParserHandler.EnumerateProperties(entity) : default;
+				var parameters = EnumerateParameters(logWriter, typeof(TSource), messageParameters, properties);
+
+				await logWriter.Write(typeof(TSource), level, eventId, message, parameters).ConfigureAwait(false);
+			}
+		}
+	}
+
+	private IEnumerable<LoggingParameter> EnumerateParameters(ILogWriter<TSource> logWriter,
+															  ImmutableArray<LoggingParameter> parameters = default,
+															  IEnumerable<LoggingParameter>? entityProperties = default)
 	{
 		if (!parameters.IsDefaultOrEmpty)
 		{
@@ -138,23 +153,67 @@ public class Logger<TSource> : ILogger<TSource>
 
 		if (entityProperties is not null)
 		{
-			await foreach (var parameter in entityProperties.ConfigureAwait(false))
+			foreach (var parameter in entityProperties)
 			{
 				yield return parameter with { Namespace = @"prop" };
 			}
 		}
 
-		await foreach (var enricher in LogEnrichers.ConfigureAwait(false))
+		foreach (var enricher in LogEnrichers)
 		{
-			string? ns = default;
-
-			if (enricher.EnumerateProperties(level, eventId) is { } properties)
+			if (logWriter.IsEnabled(enricher.Level))
 			{
-				ns ??= enricher.Namespace ?? enricher.GetType().Name;
+				string? ns = default;
 
-				await foreach (var parameter in properties.ConfigureAwait(false))
+				if (enricher.EnumerateProperties() is { } properties)
 				{
-					yield return parameter with { Namespace = ns };
+					ns ??= enricher.Namespace ?? enricher.GetType().Name;
+
+					foreach (var parameter in properties)
+					{
+						yield return parameter with { Namespace = ns };
+					}
+				}
+			}
+		}
+	}
+
+	
+	private IEnumerable<LoggingParameter> EnumerateParameters(ILogWriter logWriter,
+															  Type source,
+															  ImmutableArray<LoggingParameter> parameters = default,
+															  IEnumerable<LoggingParameter>? entityProperties = default)
+	{
+		if (!parameters.IsDefaultOrEmpty)
+		{
+			foreach (var parameter in parameters)
+			{
+				yield return parameter;
+			}
+		}
+
+		if (entityProperties is not null)
+		{
+			foreach (var parameter in entityProperties)
+			{
+				yield return parameter with { Namespace = @"prop" };
+			}
+		}
+
+		foreach (var enricher in LogEnrichers)
+		{
+			if (logWriter.IsEnabled(source, enricher.Level))
+			{
+				string? ns = default;
+
+				if (enricher.EnumerateProperties() is { } properties)
+				{
+					ns ??= enricher.Namespace ?? enricher.GetType().Name;
+
+					foreach (var parameter in properties)
+					{
+						yield return parameter with { Namespace = ns };
+					}
 				}
 			}
 		}

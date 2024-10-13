@@ -27,10 +27,9 @@ namespace Xtate;
 [DebuggerDisplay(value: "{ToObject()} ({Type})")]
 [CollectionBuilder(typeof(DataModelList), nameof(DataModelList.Create))]
 [Serializable]
-public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFormattable, IDynamicMetaObjectProvider, IConvertible, ISerializable
+public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISpanFormattable, IDynamicMetaObjectProvider, IConvertible, ISerializable
 {
 	private static readonly object NullValue    = new Marker(DataModelValueType.Null);
-	private static readonly object NumberValue  = new Marker(DataModelValueType.Number);
 	private static readonly object BooleanValue = new Marker(DataModelValueType.Boolean);
 
 	public static readonly DataModelValue Null = new((string?) null);
@@ -40,8 +39,7 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 
 	private DataModelValue(SerializationInfo info, StreamingContext context)
 	{
-		var value = info.GetValue(name: @"L", typeof(long));
-		_int64 = value is long int64 ? int64 : 0;
+		_int64 = (long)info.GetValue(name: @"L", typeof(long))!;
 		_value = info.GetValue(name: @"V", typeof(object));
 	}
 
@@ -57,11 +55,15 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 		_int64 = 0;
 	}
 
-	public DataModelValue(double value)
-	{
-		_value = NumberValue;
-		_int64 = BitConverter.DoubleToInt64Bits(value);
-	}
+	public DataModelValue(int value) => _value = NumberValue.GetNumberValue(value, out _int64);
+
+	public DataModelValue(long value) => _value = NumberValue.GetNumberValue(value, out _int64);
+
+	public DataModelValue(double value) => _value = NumberValue.GetNumberValue(value, out _int64);
+
+	public DataModelValue(decimal value) => _value = NumberValue.GetNumberValue(value, out _int64);
+
+	public DataModelValue(DataModelNumber value) => _value = NumberValue.GetNumberValue(value, out _int64);
 
 	public DataModelValue(DateTimeOffset value) => _value = DateTimeValue.GetDateTimeValue(value, out _int64);
 
@@ -88,13 +90,13 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 		{
 			null                                 => DataModelValueType.Undefined,
 			{ } value when value == NullValue    => DataModelValueType.Null,
-			{ } value when value == NumberValue  => DataModelValueType.Number,
 			{ } value when value == BooleanValue => DataModelValueType.Boolean,
 			string                               => DataModelValueType.String,
+			NumberValue                          => DataModelValueType.Number,
 			DateTimeValue                        => DataModelValueType.DateTime,
 			DataModelList                        => DataModelValueType.List,
 			ILazyValue lazyValue                 => lazyValue.Value.Type,
-			_                                    => throw Infra.Unmatched(_value?.GetType())
+			_                                    => throw Infra.Unmatched(_value.GetType())
 		};
 
 #region Interface IConvertible
@@ -108,7 +110,7 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 			DataModelValueType.Null      => TypeCode.Empty,
 			DataModelValueType.String    => TypeCode.String,
 			DataModelValueType.List      => TypeCode.Object,
-			DataModelValueType.Number    => TypeCode.Double,
+			DataModelValueType.Number    => AsNumber().GetTypeCode(),
 			DataModelValueType.DateTime  => AsDateTime().GetTypeCode(),
 			DataModelValueType.Boolean   => TypeCode.Boolean,
 			_                            => throw Infra.Unmatched(Type)
@@ -117,9 +119,9 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 	bool IConvertible.ToBoolean(IFormatProvider? provider) =>
 		Type switch
 		{
+			DataModelValueType.Boolean  => AsBoolean(),
 			DataModelValueType.Number   => AsNumber().ToBoolean(provider),
 			DataModelValueType.DateTime => AsDateTime().ToBoolean(provider),
-			DataModelValueType.Boolean  => AsBoolean().ToBoolean(provider),
 			_                           => Convert.ToBoolean(ToObject(), provider)
 		};
 
@@ -127,8 +129,8 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 		Type switch
 		{
 			DataModelValueType.Number   => AsNumber().ToByte(provider),
-			DataModelValueType.DateTime => AsDateTime().ToByte(provider),
 			DataModelValueType.Boolean  => AsBoolean().ToByte(provider),
+			DataModelValueType.DateTime => AsDateTime().ToByte(provider),
 			_                           => Convert.ToByte(ToObject(), provider)
 		};
 
@@ -136,8 +138,8 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 		Type switch
 		{
 			DataModelValueType.Number   => AsNumber().ToChar(provider),
-			DataModelValueType.DateTime => AsDateTime().ToChar(provider),
 			DataModelValueType.Boolean  => AsBoolean().ToChar(provider),
+			DataModelValueType.DateTime => AsDateTime().ToChar(provider),
 			_                           => Convert.ToChar(ToObject(), provider)
 		};
 
@@ -145,8 +147,8 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 		Type switch
 		{
 			DataModelValueType.Number   => AsNumber().ToDecimal(provider),
-			DataModelValueType.DateTime => AsDateTime().ToDecimal(provider),
 			DataModelValueType.Boolean  => AsBoolean().ToDecimal(provider),
+			DataModelValueType.DateTime => AsDateTime().ToDecimal(provider),
 			_                           => Convert.ToDecimal(ToObject(), provider)
 		};
 
@@ -154,8 +156,8 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 		Type switch
 		{
 			DataModelValueType.Number   => AsNumber().ToDouble(provider),
-			DataModelValueType.DateTime => AsDateTime().ToDouble(provider),
 			DataModelValueType.Boolean  => AsBoolean().ToDouble(provider),
+			DataModelValueType.DateTime => AsDateTime().ToDouble(provider),
 			_                           => Convert.ToDouble(ToObject(), provider)
 		};
 
@@ -163,8 +165,8 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 		Type switch
 		{
 			DataModelValueType.Number   => AsNumber().ToInt16(provider),
-			DataModelValueType.DateTime => AsDateTime().ToInt16(provider),
 			DataModelValueType.Boolean  => AsBoolean().ToInt16(provider),
+			DataModelValueType.DateTime => AsDateTime().ToInt16(provider),
 			_                           => Convert.ToInt16(ToObject(), provider)
 		};
 
@@ -172,8 +174,8 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 		Type switch
 		{
 			DataModelValueType.Number   => AsNumber().ToInt32(provider),
-			DataModelValueType.DateTime => AsDateTime().ToInt32(provider),
 			DataModelValueType.Boolean  => AsBoolean().ToInt32(provider),
+			DataModelValueType.DateTime => AsDateTime().ToInt32(provider),
 			_                           => Convert.ToInt32(ToObject(), provider)
 		};
 
@@ -181,8 +183,8 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 		Type switch
 		{
 			DataModelValueType.Number   => AsNumber().ToInt64(provider),
-			DataModelValueType.DateTime => AsDateTime().ToInt64(provider),
 			DataModelValueType.Boolean  => AsBoolean().ToInt64(provider),
+			DataModelValueType.DateTime => AsDateTime().ToInt64(provider),
 			_                           => Convert.ToInt64(ToObject(), provider)
 		};
 
@@ -190,8 +192,8 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 		Type switch
 		{
 			DataModelValueType.Number   => AsNumber().ToSByte(provider),
-			DataModelValueType.DateTime => AsDateTime().ToSByte(provider),
 			DataModelValueType.Boolean  => AsBoolean().ToSByte(provider),
+			DataModelValueType.DateTime => AsDateTime().ToSByte(provider),
 			_                           => Convert.ToSByte(ToObject(), provider)
 		};
 
@@ -199,8 +201,8 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 		Type switch
 		{
 			DataModelValueType.Number   => AsNumber().ToSingle(provider),
-			DataModelValueType.DateTime => AsDateTime().ToSingle(provider),
 			DataModelValueType.Boolean  => AsBoolean().ToSingle(provider),
+			DataModelValueType.DateTime => AsDateTime().ToSingle(provider),
 			_                           => Convert.ToSingle(ToObject(), provider)
 		};
 
@@ -208,8 +210,8 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 		Type switch
 		{
 			DataModelValueType.Number   => AsNumber().ToUInt16(provider),
-			DataModelValueType.DateTime => AsDateTime().ToUInt16(provider),
 			DataModelValueType.Boolean  => AsBoolean().ToUInt16(provider),
+			DataModelValueType.DateTime => AsDateTime().ToUInt16(provider),
 			_                           => Convert.ToUInt16(ToObject(), provider)
 		};
 
@@ -217,8 +219,8 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 		Type switch
 		{
 			DataModelValueType.Number   => AsNumber().ToUInt32(provider),
-			DataModelValueType.DateTime => AsDateTime().ToUInt32(provider),
 			DataModelValueType.Boolean  => AsBoolean().ToUInt32(provider),
+			DataModelValueType.DateTime => AsDateTime().ToUInt32(provider),
 			_                           => Convert.ToUInt32(ToObject(), provider)
 		};
 
@@ -226,44 +228,36 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 		Type switch
 		{
 			DataModelValueType.Number   => AsNumber().ToUInt64(provider),
-			DataModelValueType.DateTime => AsDateTime().ToUInt64(provider),
 			DataModelValueType.Boolean  => AsBoolean().ToUInt64(provider),
+			DataModelValueType.DateTime => AsDateTime().ToUInt64(provider),
 			_                           => Convert.ToUInt64(ToObject(), provider)
 		};
 
 	DateTime IConvertible.ToDateTime(IFormatProvider? provider) =>
 		Type switch
 		{
-			DataModelValueType.Number   => AsNumber().ToDateTime(provider),
 			DataModelValueType.DateTime => AsDateTime().ToDateTime(provider),
+			DataModelValueType.Number   => AsNumber().ToDateTime(provider),
 			DataModelValueType.Boolean  => AsBoolean().ToDateTime(provider),
 			_                           => Convert.ToDateTime(ToObject(), provider)
 		};
 
-	object IConvertible.ToType(Type conversionType, IFormatProvider? provider)
-	{
-		if (conversionType == typeof(DateTimeOffset))
-		{
-			return ToDateTimeOffset(this);
-		}
-
-		return Type switch
-			   {
-				   DataModelValueType.Number   => AsNumber().ToType(conversionType, provider),
-				   DataModelValueType.DateTime => AsDateTime().ToType(conversionType, provider),
-				   DataModelValueType.Boolean  => AsBoolean().ToType(conversionType, provider),
-				   _                           => Convert.ChangeType(ToObject()!, conversionType, provider)
-			   };
-
-		DateTimeOffset ToDateTimeOffset(in DataModelValue value) =>
-			value.Type switch
-			{
-				DataModelValueType.Number   => new DateTimeOffset(value.AsNumber().ToDateTime(provider)),
-				DataModelValueType.DateTime => value.AsDateTime().ToDateTimeOffset(),
-				DataModelValueType.Boolean  => new DateTimeOffset(value.AsBoolean().ToDateTime(provider)),
-				_                           => new DateTimeOffset(Convert.ToDateTime(value.ToObject(), provider))
-			};
-	}
+	object IConvertible.ToType(Type conversionType, IFormatProvider? provider) =>
+		conversionType == typeof(DateTimeOffset)
+			? Type switch
+			  {
+				  DataModelValueType.DateTime => AsDateTime().ToDateTimeOffset(),
+				  DataModelValueType.Number   => new DateTimeOffset(AsNumber().ToDateTime(provider)),
+				  DataModelValueType.Boolean  => new DateTimeOffset(AsBoolean().ToDateTime(provider)),
+				  _                           => new DateTimeOffset(Convert.ToDateTime(ToObject(), provider))
+			  }
+			: Type switch
+			  {
+				  DataModelValueType.Number   => AsNumber().ToType(conversionType, provider),
+				  DataModelValueType.Boolean  => AsBoolean().ToType(conversionType, provider),
+				  DataModelValueType.DateTime => AsDateTime().ToType(conversionType, provider),
+				  _                           => Convert.ChangeType(ToObject()!, conversionType, provider)
+			  };
 
 #endregion
 
@@ -277,45 +271,44 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 
 	public bool Equals(DataModelValue other)
 	{
-		if (ReferenceEquals(_value, other._value) && _int64 == other._int64)
+		if (_int64 == other._int64 && ReferenceEquals(_value, other._value))
 		{
 			return true;
 		}
 
 		var value = this;
+		ResolveLazy(ref value);
+		ResolveLazy(ref other);
 
-		while (value._value is ILazyValue lazyValue)
+		if (value._int64 == other._int64 && Equals(value._value, other._value))
 		{
-			value = lazyValue.Value;
+			return true;
 		}
 
-		while (other._value is ILazyValue lazyValue)
+		if (value._value is IValueEqualityComparer valueEqualityComparer)
 		{
-			other = lazyValue.Value;
+			return valueEqualityComparer.Equals(value._int64, other._value, other._int64);
 		}
 
-		return value._int64 == other._int64 && Equals(value._value, other._value);
+		return false;
 	}
 
 #endregion
 
 #region Interface IFormattable
 
-	public string ToString(string? format, IFormatProvider? formatProvider)
-	{
-		return Type switch
-			   {
-				   DataModelValueType.Number   => AsNumber().ToString(format, formatProvider),
-				   DataModelValueType.DateTime => AsDateTime().ToString(format, formatProvider),
-				   DataModelValueType.Boolean  => AsBoolean().ToString(formatProvider),
-				   _                           => ObjectToString(ToObject(), format, formatProvider)
-			   };
-
-		static string ObjectToString(object? obj, string? format, IFormatProvider? formatProvider) =>
-			(!string.IsNullOrEmpty(format) && obj is IFormattable formattable
-				? formattable.ToString(format, formatProvider)
-				: Convert.ToString(obj, formatProvider)) ?? string.Empty;
-	}
+	public string ToString(string? format, IFormatProvider? formatProvider) =>
+		Type switch
+		{
+			DataModelValueType.Undefined => string.Empty,
+			DataModelValueType.Null      => string.Empty,
+			DataModelValueType.String    => AsString(),
+			DataModelValueType.Number    => AsNumber().ToString(format, formatProvider),
+			DataModelValueType.DateTime  => AsDateTime().ToString(format, formatProvider),
+			DataModelValueType.Boolean   => AsBoolean().ToString(),
+			DataModelValueType.List      => AsList().ToString(format, formatProvider),
+			_                            => throw Infra.Unmatched(Type)
+		};
 
 #endregion
 
@@ -326,9 +319,9 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 		{
 			null                                 => null,
 			{ } value when value == NullValue    => null,
-			{ } value when value == NumberValue  => BitConverter.Int64BitsToDouble(_int64),
 			{ } value when value == BooleanValue => _int64 != 0,
 			string str                           => str,
+			NumberValue value                    => value.GetDataModelNumber(_int64).ToObject(),
 			DateTimeValue value                  => value.GetDataModelDateTime(_int64).ToObject(),
 			DataModelList list                   => list,
 			ILazyValue lazyValue                 => lazyValue.Value.ToObject(),
@@ -342,11 +335,8 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 	void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
 	{
 		var value = this;
-
-		while (value._value is ILazyValue lazyValue)
-		{
-			value = lazyValue.Value;
-		}
+		
+		ResolveLazy(ref value);
 
 		info.AddValue(name: @"L", value._int64);
 		info.AddValue(name: @"V", value._value);
@@ -354,9 +344,33 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 
 #endregion
 
+#region Interface ISpanFormattable
+
+	public bool TryFormat(Span<char> destination,
+						  out int charsWritten,
+						  ReadOnlySpan<char> format,
+						  IFormatProvider? formatProvider) =>
+		Type switch
+		{
+			DataModelValueType.Undefined => string.Empty.TryCopyTo(destination, out charsWritten),
+			DataModelValueType.Null      => string.Empty.TryCopyTo(destination, out charsWritten),
+			DataModelValueType.String    => AsString().TryCopyTo(destination, out charsWritten),
+			DataModelValueType.Number    => AsNumber().TryFormat(destination, out charsWritten, format, formatProvider),
+			DataModelValueType.DateTime  => AsDateTime().TryFormat(destination, out charsWritten, format, formatProvider),
+			DataModelValueType.Boolean   => AsBoolean().TryFormat(destination, out charsWritten),
+			DataModelValueType.List      => AsList().TryFormat(destination, out charsWritten, format, formatProvider),
+			_                            => throw Infra.Unmatched(Type)
+		};
+
+#endregion
+
 	public static implicit operator DataModelValue(DataModelList? value)    => new(value);
 	public static implicit operator DataModelValue(string? value)           => new(value);
+	public static implicit operator DataModelValue(int value)               => new(value);
+	public static implicit operator DataModelValue(long value)              => new(value);
 	public static implicit operator DataModelValue(double value)            => new(value);
+	public static implicit operator DataModelValue(decimal value)           => new(value);
+	public static implicit operator DataModelValue(DataModelNumber value)   => new(value);
 	public static implicit operator DataModelValue(DataModelDateTime value) => new(value);
 	public static implicit operator DataModelValue(DateTimeOffset value)    => new(value);
 	public static implicit operator DataModelValue(DateTime value)          => new(value);
@@ -364,7 +378,11 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 
 	public static DataModelValue FromDataModelList(DataModelList? value)        => value;
 	public static DataModelValue FromString(string? value)                      => value;
+	public static DataModelValue FromInt32(int value)                           => value;
+	public static DataModelValue FromInt64(long value)                          => value;
 	public static DataModelValue FromDouble(double value)                       => value;
+	public static DataModelValue FromDecimal(decimal value)                     => value;
+	public static DataModelValue FromDataModelNumber(DataModelNumber value)     => value;
 	public static DataModelValue FromDataModelDateTime(DataModelDateTime value) => value;
 	public static DataModelValue FromDateTimeOffset(DateTimeOffset value)       => value;
 	public static DataModelValue FromDateTime(DateTime value)                   => value;
@@ -435,19 +453,22 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 			_                    => null
 		};
 
-	public double AsNumber() =>
-		_value == NumberValue
-			? BitConverter.Int64BitsToDouble(_int64)
-			: _value is ILazyValue lazyValue
-				? lazyValue.Value.AsNumber()
-				: throw new ArgumentException(Resources.Exception_DataModelValueIsNotNumber);
+	public DataModelNumber AsNumber() =>
+		_value switch
+		{
+			NumberValue value  => value.GetDataModelNumber(_int64),
+			ILazyValue lazyVal => lazyVal.Value.AsNumber(),
+			_                  => throw new ArgumentException(Resources.Exception_DataModelValueIsNotNumber)
+		};
 
-	public double? AsNumberOrDefault() =>
-		_value == NumberValue
-			? BitConverter.Int64BitsToDouble(_int64)
-			: _value is ILazyValue lazyValue
-				? lazyValue.Value.AsNumberOrDefault()
-				: null;
+	public DataModelNumber? AsNumberOrDefault() =>
+		_value switch
+		{
+			null               => null,
+			NumberValue value  => value.GetDataModelNumber(_int64),
+			ILazyValue lazyVal => lazyVal.Value.AsNumberOrDefault(),
+			_                  => null
+		};
 
 	public bool AsBoolean() =>
 		_value == BooleanValue
@@ -492,18 +513,35 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 	public override int GetHashCode()
 	{
 		var value = this;
+		
+		ResolveLazy(ref value);
 
+		if (value._value is null)
+		{
+			return HashCode.Combine(value._int64);
+		}
+
+		if (value._value is IValueEqualityComparer valueEqualityComparer)
+		{
+			return valueEqualityComparer.GetHashCode(value._int64);
+		}
+
+		return HashCode.Combine(value._value, value._int64);
+	}
+
+	private static void ResolveLazy(ref DataModelValue value)
+	{
 		while (value._value is ILazyValue lazyValue)
 		{
 			value = lazyValue.Value;
 		}
-
-		return (value._value is not null ? value._value.GetHashCode() : 0) + value._int64.GetHashCode();
 	}
 
-	public static bool operator ==(DataModelValue left, DataModelValue right) => left.Equals(right);
+	private static bool IsNaN(DataModelValue value) => value.AsNumberOrDefault()?.IsNaN() ?? false;
 
-	public static bool operator !=(DataModelValue left, DataModelValue right) => !left.Equals(right);
+	public static bool operator ==(DataModelValue left, DataModelValue right) => left.Equals(right) && !IsNaN(left) && !IsNaN(right);
+
+	public static bool operator !=(DataModelValue left, DataModelValue right) => !(left == right);
 
 	public DataModelValue CloneAsWritable()
 	{
@@ -578,10 +616,10 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 				   TypeCode.Byte     => (byte) value,
 				   TypeCode.UInt16   => (ushort) value,
 				   TypeCode.UInt32   => (uint) value,
-				   TypeCode.UInt64   => (ulong) value,
+				   TypeCode.UInt64   => (decimal) (ulong) value,
 				   TypeCode.Single   => (float) value,
 				   TypeCode.Double   => (double) value,
-				   TypeCode.Decimal  => (double) (decimal) value,
+				   TypeCode.Decimal  => (decimal) value,
 				   TypeCode.Boolean  => (bool) value,
 				   TypeCode.DateTime => (DateTime) value,
 				   TypeCode.String   => (string) value,
@@ -706,6 +744,13 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 
 	public override string ToString() => ToString(format: null, formatProvider: null);
 
+	private interface IValueEqualityComparer
+	{
+		bool Equals(long int64, object? otherValue, long otherInt64);
+
+		int GetHashCode(long int64);
+	}
+
 	[Serializable]
 	public class ObjectContainer(IObject obj) : ILazyValue
 	{
@@ -729,7 +774,103 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 
 		public override bool Equals(object? obj) => ReferenceEquals(this, obj) || (obj is Marker other && Equals(other));
 
-		public override int GetHashCode() => (int) _mark;
+		public override int GetHashCode() => HashCode.Combine(_mark);
+	}
+
+	[Serializable]
+	private sealed class NumberValue : IValueEqualityComparer
+	{
+		private static readonly NumberValue Int32  = new(DataModelNumberType.Int32, int64Ext: 0);
+		private static readonly NumberValue Int64  = new(DataModelNumberType.Int64, int64Ext: 0);
+		private static readonly NumberValue Double = new(DataModelNumberType.Double, int64Ext: 0);
+
+		private static ImmutableDictionary<long, NumberValue> _cachedDecimals = ImmutableDictionary<long, NumberValue>.Empty;
+
+		private readonly DataModelNumberType _type;
+
+		private readonly long _int64Ext;
+
+		private NumberValue(DataModelNumberType type, long int64Ext)
+		{
+			_type = type;
+			_int64Ext = int64Ext;
+		}
+
+	#region Interface IValueEqualityComparer
+
+		public bool Equals(long int64, object? otherValue, long otherInt64) => otherValue is NumberValue other && GetDataModelNumber(int64).Equals(other.GetDataModelNumber(otherInt64));
+
+		public int GetHashCode(long int64) => GetDataModelNumber(int64).GetHashCode();
+
+	#endregion
+
+		public static NumberValue GetNumberValue(int value, out long int64)
+		{
+			int64 = value;
+
+			return Int32;
+		}
+
+		public static NumberValue GetNumberValue(long value, out long int64)
+		{
+			int64 = value;
+
+			return Int64;
+		}
+
+		public static NumberValue GetNumberValue(double value, out long int64)
+		{
+			int64 = BitConverter.DoubleToInt64Bits(value);
+
+			return Double;
+		}
+
+		public static NumberValue GetNumberValue(decimal value, out long int64)
+		{
+			var rawDecimal = (RawDecimal) value;
+
+			int64 = rawDecimal.Lo64;
+
+			if (rawDecimal.DoNotCache)
+			{
+				return new NumberValue(DataModelNumberType.Decimal, rawDecimal.Hi64);
+			}
+
+			var cachedDecimals = _cachedDecimals;
+
+			if (!cachedDecimals.TryGetValue(rawDecimal.Hi64, out var numberValue))
+			{
+				numberValue = new NumberValue(DataModelNumberType.Decimal, rawDecimal.Hi64);
+
+				_cachedDecimals = cachedDecimals.Add(rawDecimal.Hi64, numberValue);
+			}
+
+			return numberValue;
+		}
+
+		public static NumberValue GetNumberValue(DataModelNumber value, out long int64) =>
+			value.Type switch
+			{
+				DataModelNumberType.Int32   => GetNumberValue(value.ToInt32(), out int64),
+				DataModelNumberType.Int64   => GetNumberValue(value.ToInt64(), out int64),
+				DataModelNumberType.Double  => GetNumberValue(value.ToDouble(), out int64),
+				DataModelNumberType.Decimal => GetNumberValue(value.ToDecimal(), out int64),
+				_                           => throw Infra.Unmatched(value.Type)
+			};
+
+		public DataModelNumber GetDataModelNumber(long int64) =>
+			_type switch
+			{
+				DataModelNumberType.Int32   => (int) int64,
+				DataModelNumberType.Int64   => int64,
+				DataModelNumberType.Double  => BitConverter.Int64BitsToDouble(int64),
+				DataModelNumberType.Decimal => (decimal) new RawDecimal(int64, _int64Ext),
+				_                           => throw Infra.Unmatched(_type)
+			};
+
+		public override int GetHashCode() => HashCode.Combine(_type, _int64Ext);
+
+		public override bool Equals(object? obj) => obj is NumberValue other && _type == other._type && _int64Ext == other._int64Ext;
 	}
 
 	[Serializable]
@@ -745,30 +886,30 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 
 		private DateTimeValue(int data) => _data = data;
 
-		public static DateTimeValue GetDateTimeValue(DataModelDateTime dataModelDateTime, out long utcTicks)
-		{
-			int data;
-
-			switch (dataModelDateTime.Type)
+		public static DateTimeValue GetDateTimeValue(DataModelDateTime dataModelDateTime, out long utcTicks) =>
+			dataModelDateTime.Type switch
 			{
-				case DataModelDateTimeType.DateTime:
+				DataModelDateTimeType.DateTime       => GetDateTimeValue(dataModelDateTime.ToDateTime(), out utcTicks),
+				DataModelDateTimeType.DateTimeOffset => GetDateTimeValue(dataModelDateTime.ToDateTimeOffset(), out utcTicks),
+				_                                    => throw Infra.Unmatched(dataModelDateTime.Type)
+			};
 
-					var dateTime = dataModelDateTime.ToDateTime();
-					utcTicks = dateTime.Ticks;
-					data = CacheGranularity * (int) dateTime.Kind;
-					break;
+		public static DateTimeValue GetDateTimeValue(DateTime dateTime, out long utcTicks)
+		{
+			utcTicks = dateTime.Ticks;
 
-				case DataModelDateTimeType.DateTimeOffset:
+			return GetDateTimeValue(CacheGranularity * (int) dateTime.Kind);
+		}
 
-					var dateTimeOffset = dataModelDateTime.ToDateTimeOffset();
-					utcTicks = dateTimeOffset.UtcTicks;
-					data = (int) (dateTimeOffset.Offset.Ticks / TimeSpan.TicksPerMinute + Base);
-					break;
+		public static DateTimeValue GetDateTimeValue(DateTimeOffset dateTimeOffset, out long utcTicks)
+		{
+			utcTicks = dateTimeOffset.UtcTicks;
 
-				default:
-					throw Infra.Unmatched(dataModelDateTime.Type);
-			}
+			return GetDateTimeValue((int) (dateTimeOffset.Offset.Ticks / TimeSpan.TicksPerMinute + Base));
+		}
 
+		private static DateTimeValue GetDateTimeValue(int data)
+		{
 			if (data % CacheGranularity != 0)
 			{
 				return new DateTimeValue(data);
@@ -798,9 +939,9 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, IFo
 			return new DateTimeOffset(utcTicks + offsetTicks, new TimeSpan(offsetTicks));
 		}
 
-		public override int GetHashCode() => 0;
+		public override int GetHashCode() => HashCode.Combine(_data);
 
-		public override bool Equals(object? obj) => obj is DateTimeValue;
+		public override bool Equals(object? obj) => obj is DateTimeValue other && _data == other._data;
 	}
 
 	[ExcludeFromCodeCoverage]

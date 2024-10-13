@@ -618,6 +618,6 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 
 		public override bool Equals(object? obj) => obj is QualifiedName other && Equals(other);
 
-		public override int GetHashCode() => unchecked((Namespace.Length << 16) + Name.Length);
+		public override int GetHashCode() => HashCode.Combine(Namespace, Name);
 	}
 }

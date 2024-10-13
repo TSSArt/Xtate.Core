@@ -26,6 +26,6 @@ public class DataModelHandlersModule : Module<NullDataModelHandlerModule, Runtim
 	{
 		Services.AddType<UnknownDataModelHandler>();
 		Services.AddImplementation<DataModelHandlerService>().For<IDataModelHandlerService>();
-		Services.AddSharedFactory<DataModelHandlerGetter>(SharedWithin.Scope).For<IDataModelHandler>();
+		Services.AddSharedFactory<DataModelHandlerGetter>(SharedWithin.Scope).For<IDataModelHandler>(Option.DoNotDispose);
 	}
 }

@@ -176,7 +176,7 @@ public class PersistenceModule : Module<InterpreterModelBuilderModule, StateMach
 		Services.AddImplementation<StreamStorageWithRollback, Stream, int>().For<ITransactionalStorage>();
 
 		Services.AddDecorator<PersistedStateMachineService>().For<IStateMachineService>();
-		Services.AddFactory<PersistedDataModelHandlerGetter>().For<IDataModelHandler>();
+		Services.AddFactory<PersistedDataModelHandlerGetter>().For<IDataModelHandler>(Option.DoNotDispose);
 		Services.AddImplementation<PersistedStateMachineRunState>().For<IPersistedStateMachineRunState>();
 
 		Services.AddType<InterpreterModelBuilder, IStateMachine, IDataModelHandler>();
