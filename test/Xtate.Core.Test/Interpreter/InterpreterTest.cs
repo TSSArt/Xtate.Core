@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using System.ComponentModel.Design;
 using Xtate.DataModel;
 
 namespace Xtate.Core.Interpreter;
@@ -41,7 +42,7 @@ public class InterpreterTest
 		interpreterModelMock.Setup(m => m.Root).Returns(root);
 
 		var eventQueueMock = new Mock<IEventQueueReader>();
-		var dataModelHandlerMock = new Mock<IDataModelHandler>();
+		var caseSensitivityMock = new Mock<ICaseSensitivity>();
 
 		var stateMachineContextMock = new Mock<IStateMachineContext>();
 		stateMachineContextMock.Setup(ctx => ctx.Configuration).Returns([]);
@@ -53,15 +54,15 @@ public class InterpreterTest
 		var stateMachineInterpreter = new StateMachineInterpreter
 									  {
 										  StateMachineContext = stateMachineContextMock.Object,
-										  DataConverter = new DataConverter(dataModelHandlerMock.Object),
-										  DataModelHandler = dataModelHandlerMock.Object,
+										  DataConverter = new DataConverter(caseSensitivityMock.Object),
+										  CaseSensitivity = caseSensitivityMock.Object,
 										  EventQueueReader = eventQueueMock.Object,
-										  ExternalCommunication = null,
 										  Logger = loggerMock.Object,
 										  Model = interpreterModelMock.Object,
 										  NotifyStateChanged = null,
 										  UnhandledErrorBehaviour = null,
-										  StateMachineArguments = null
+										  StateMachineArguments = null,
+										  StateMachineRuntimeError = new StateMachineRuntimeError()
 									  };
 
 		// act

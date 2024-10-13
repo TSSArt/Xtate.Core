@@ -20,16 +20,15 @@ using Xtate.IoC;
 
 namespace Xtate.Core;
 
-public class StateMachineInterpreterModule : Module<DataModelHandlersModule, InterpreterModelBuilderModule, LoggingModule, SharedInstanceModule>
+public class StateMachineInterpreterModule : Module<DataModelHandlersModule, InterpreterModelBuilderModule, LoggingModule, AncestorModule>
 {
 	protected override void AddServices()
 	{
-		Services.AddSharedImplementation<StateMachineSessionId>(SharedWithin.Scope).For<IStateMachineSessionId>();
+		Services.AddSharedImplementation<StateMachineSessionId>(SharedWithin.Scope).For<IStateMachineSessionId>(Option.IfNotRegistered);
 
-		Services.AddSharedImplementation<InterpreterLogEnricher<IStateMachineInterpreter>>(SharedWithin.Scope).For<ILogEnricher<IStateMachineInterpreter>>();
-		Services.AddSharedImplementation<InterpreterLogEnricher<ILog>>(SharedWithin.Scope).For<ILogEnricher<ILog>>();
-		Services.AddSharedImplementation<InterpreterLogEnricher<IInvoke>>(SharedWithin.Scope).For<ILogEnricher<IInvoke>>();
-		Services.AddSharedImplementation<InterpreterLogEnricher<IEventController>>(SharedWithin.Scope).For<ILogEnricher<IEventController>>();
+		Services.AddImplementation<InterpreterInfoLogEnricher<Any>>().For<ILogEnricher<Any>>();
+		Services.AddImplementation<InterpreterDebugLogEnricher<Any>>().For<ILogEnricher<Any>>();
+		Services.AddImplementation<InterpreterVerboseLogEnricher<Any>>().For<ILogEnricher<Any>>();
 
 		Services.AddSharedImplementationSync<AssemblyTypeInfo, Type>(SharedWithin.Scope).For<IAssemblyTypeInfo>();
 
@@ -39,9 +38,12 @@ public class StateMachineInterpreterModule : Module<DataModelHandlersModule, Int
 		Services.AddImplementation<ConfigurationXDataModelProperty>().For<IXDataModelProperty>();
 		Services.AddImplementation<HostXDataModelProperty>().For<IXDataModelProperty>();
 
+		Services.AddImplementation<NoExternalCommunication>().For<IExternalCommunication>(Option.IfNotRegistered);
 		Services.AddImplementation<InStateController>().For<IInStateController>();
 		Services.AddImplementation<DataModelController>().For<IDataModelController>();
+		Services.AddImplementation<InvokeController>().For<IInvokeController>();
 		Services.AddImplementation<EventController>().For<IEventController>();
+		Services.AddImplementation<LogController>().For<ILogController>();
 
 		Services.AddSharedImplementation<DataModelValueEntityParser<Any>>(SharedWithin.Scope).For<IEntityParserProvider<Any>>();
 		Services.AddSharedImplementation<ExceptionEntityParser<Any>>(SharedWithin.Scope).For<IEntityParserProvider<Any>>();
@@ -57,6 +59,7 @@ public class StateMachineInterpreterModule : Module<DataModelHandlersModule, Int
 		Services.AddSharedFactory<InterpreterModelGetter>(SharedWithin.Scope).For<IInterpreterModel>();
 		Services.AddSharedImplementation<EventQueue>(SharedWithin.Scope).For<IEventQueueReader>().For<IEventQueueWriter>();
 		Services.AddSharedImplementation<StateMachineContext>(SharedWithin.Scope).For<IStateMachineContext>();
+		Services.AddSharedType<StateMachineRuntimeError>(SharedWithin.Scope);
 		Services.AddSharedImplementation<StateMachineInterpreter>(SharedWithin.Scope).For<IStateMachineInterpreter>();
 	}
 }

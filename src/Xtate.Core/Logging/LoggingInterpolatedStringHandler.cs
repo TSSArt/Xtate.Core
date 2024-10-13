@@ -15,7 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.Globalization;
 using System.Text;
 
 namespace Xtate.Core;
@@ -51,48 +50,41 @@ public readonly struct LoggingInterpolatedStringHandler
 		}
 	}
 
-	public string ToString(out ImmutableArray<LoggingParameter> parameters)
+	public string? ToString(out ImmutableArray<LoggingParameter> parameters)
 	{
 		parameters = _parametersBuilder?.MoveToImmutable() ?? default;
-		var result = _stringBuilder!.ToString();
+		var result = _stringBuilder?.ToString();
 
 		return result;
 	}
 
 	public void AppendLiteral(string value) => _stringBuilder!.Append(value);
 
-	[SuppressMessage(category: "Style", checkId: "IDE0038:Use pattern matching", Justification = "Avoid boxing if T is struct")]
-	[SuppressMessage(category: "ReSharper", checkId: "MergeCastWithTypeCheck", Justification = "Avoid boxing if T is struct")]
-	private string? ToStringFormatted<T>(T value, string? format)
+	public void AppendFormatted(object? value, string? format = default, [CallerArgumentExpression(nameof(value))] string? expression = default)
 	{
-		if (_provider is not null && _provider.GetType() != typeof(CultureInfo) && _provider.GetFormat(typeof(ICustomFormatter)) is ICustomFormatter customFormatter)
+		Span<char> buf = stackalloc char[256];
+
+		if (value is ISpanFormattable spanFormattable && spanFormattable.TryFormat(buf, out var charsWritten, format.AsSpan(), _provider))
 		{
-			customFormatter.Format(format, value, _provider);
+			_stringBuilder!.Append(buf[..charsWritten]);
+		}	
+		else if (value is IFormattable formattable)
+		{
+			_stringBuilder!.Append(formattable.ToString(format, _provider));
 		}
-
-		if (value is IFormattable)
+		else
 		{
-			return ((IFormattable) value).ToString(format, _provider);
-		}
-
-		return value is not null ? value.ToString() : default;
-	}
-
-	public void AppendFormatted<T>(T value, string? format = default, [CallerArgumentExpression(nameof(value))] string? expression = default)
-	{
-		if (ToStringFormatted(value, format) is { } str)
-		{
-			_stringBuilder!.Append(str);
+			_stringBuilder!.Append(value);
 		}
 
 		_parametersBuilder!.Add(new LoggingParameter(expression!, value, format));
 	}
 
-	public void AppendFormatted<T>(T value,
-								   int alignment,
-								   string? format = default,
-								   [CallerArgumentExpression(nameof(value))]
-								   string? expression = default)
+	public void AppendFormatted(object? value,
+								int alignment,
+								string? format = default,
+								[CallerArgumentExpression(nameof(value))]
+								string? expression = default)
 	{
 		var start = _stringBuilder!.Length;
 
@@ -110,11 +102,4 @@ public readonly struct LoggingInterpolatedStringHandler
 			}
 		}
 	}
-
-	public void AppendFormatted(object? value,
-								int alignment = 0,
-								string? format = null,
-								[CallerArgumentExpression(nameof(value))]
-								string? expression = default) =>
-		AppendFormatted<object?>(value, alignment, format, expression);
 }

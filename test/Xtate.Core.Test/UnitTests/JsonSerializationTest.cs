@@ -365,7 +365,7 @@ public class JsonSerializationTest
 		// assert
 		Assert.AreEqual(DataModelValueType.List, val.Type);
 		Assert.AreEqual(expected: 1, val.AsList().Count);
-		Assert.AreEqual(expected: 1, val.AsList()[0]);
+		Assert.AreEqual(expected: 1d, val.AsList()[0]);
 	}
 
 	[TestMethod]

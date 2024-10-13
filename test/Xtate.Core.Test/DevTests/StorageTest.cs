@@ -269,17 +269,15 @@ public class StorageTest
 
 	private static string ConvertInt(int value)
 	{
-		if (value == 0)
+		var str = "";
+
+		while (value is < -128 or > 127)
 		{
-			return "\0";
+			str += (char) unchecked((byte) value);
+			value >>= 8;
 		}
 
-		var uval = unchecked((uint) value);
-
-		var str = ((char) (uval & 0xFF)).ToString();
-		if (uval > 0xFFU) str += ((char) ((uval >> 8) & 0xFF)).ToString();
-		if (uval > 0xFFFFU) str += ((char) ((uval >> 16) & 0xFF)).ToString();
-		if (uval > 0xFFFFFFU) str += ((char) ((uval >> 24) & 0xFF)).ToString();
+		str += (char) unchecked((byte) value);
 
 		return str;
 	}

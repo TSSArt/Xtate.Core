@@ -167,6 +167,19 @@ public class PersistedDataModelTest
 	}
 
 	[TestMethod]
+	public void AddDecimalTest()
+	{
+		_dataModelList[0] = new DataModelValue(1.2M);
+
+		_dataModelList.RemoveAt(1);
+
+		_ = new DataModelListPersistingController(_bucket, _restoredTracker, _restoredDataModelList);
+		Console.WriteLine(StorageTest.Dump(_storage, Environment.NewLine, hex: true));
+		Assert.AreEqual(expected: 1, _restoredDataModelList.Count);
+		Assert.AreEqual(expected: 1.2, _restoredDataModelList[0].AsNumber());
+	}
+
+	[TestMethod]
 	public void AddDoubleTest()
 	{
 		_dataModelList[0] = new DataModelValue(1.2);

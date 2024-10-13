@@ -15,43 +15,21 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.Persistence;
+#if !NETSTANDARD2_1 && !NETCOREAPP2_1_OR_GREATER
+
+using System.Text;
 
 namespace Xtate.Core;
 
-public sealed class IdentifierNode(IIdentifier id) : IIdentifier, IStoreSupport, IAncestorProvider, IDebugEntityId
+internal static class StringBuilderExtensions
 {
-#region Interface IAncestorProvider
-
-	object IAncestorProvider.Ancestor => id;
-
-#endregion
-
-#region Interface IDebugEntityId
-
-	FormattableString IDebugEntityId.EntityId => @$"{id}";
-
-#endregion
-
-#region Interface IIdentifier
-
-	public string Value => id.Value;
-
-#endregion
-
-#region Interface IStoreSupport
-
-	void IStoreSupport.Store(Bucket bucket)
+	public static void Append(this StringBuilder stringBuilder, ReadOnlySpan<char> value)
 	{
-		bucket.Add(Key.TypeInfo, TypeInfo.IdentifierNode);
-		bucket.Add(Key.Id, id.Value);
+		foreach (var ch in value)
+		{
+			stringBuilder.Append(ch);
+		}
 	}
-
-#endregion
-
-	public override string ToString() => id.ToString() ?? string.Empty;
-
-	public override bool Equals(object? obj) => id.Equals(obj);
-
-	public override int GetHashCode() => HashCode.Combine(id);
 }
+
+#endif

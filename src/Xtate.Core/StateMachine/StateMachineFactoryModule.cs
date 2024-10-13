@@ -24,7 +24,7 @@ public class StateMachineFactoryModule : Module<ScxmlModule>
 {
 	protected override void AddServices()
 	{
-		Services.AddSharedFactory<StateMachineGetter>(SharedWithin.Scope).For<IStateMachine>();
+		Services.AddSharedFactory<StateMachineGetter>(SharedWithin.Scope).For<IStateMachine>(Option.DoNotDispose);
 		Services.AddImplementation<StateMachineService>().For<IStateMachineService>();
 
 		Services.AddType<ScxmlReaderStateMachineGetter>();

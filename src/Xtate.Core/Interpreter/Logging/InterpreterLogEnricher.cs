@@ -17,36 +17,44 @@
 
 namespace Xtate.Core;
 
-public class InterpreterLogEnricher<TSource> : ILogEnricher<TSource>
+public class InterpreterInfoLogEnricher<TSource> : ILogEnricher<TSource>
 {
-	public required Func<ValueTask<IStateMachineSessionId>> StateMachineSessionIdFactory { private get; [UsedImplicitly] init; }
-
-	public required Func<ValueTask<IStateMachine>> StateMachineFactory { private get; [UsedImplicitly] init; }
-
-	public required Func<ValueTask<IStateMachineContext>> StateMachineContextFactory { private get; [UsedImplicitly] init; }
-
-	public required Func<ValueTask<IDataModelController>> DataModelControllerFactory { private get; [UsedImplicitly] init; }
-
-	public required ILogger<TSource> Logger { private get; [UsedImplicitly] init; }
+	public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
 
 #region Interface ILogEnricher<TSource>
 
-	public async IAsyncEnumerable<LoggingParameter> EnumerateProperties(Level level, int eventId)
+	public IEnumerable<LoggingParameter> EnumerateProperties()
 	{
-		var stateMachineSessionId = await StateMachineSessionIdFactory().ConfigureAwait(false);
+		yield return new LoggingParameter(name: @"SessionId", StateMachineSessionId.SessionId);
+	}
 
-		yield return new LoggingParameter(name: @"SessionId", stateMachineSessionId.SessionId);
+	public string Namespace => @"ctx";
 
-		var stateMachine = await StateMachineFactory().ConfigureAwait(false);
+	public Level Level => Level.Info;
 
-		yield return new LoggingParameter(name: @"StateMachineName", stateMachine.Name);
+#endregion
+}
 
-		var stateMachineContext = await StateMachineContextFactory().ConfigureAwait(false);
+public class InterpreterDebugLogEnricher<TSource> : ILogEnricher<TSource>
+{
+	public required IStateMachine StateMachine { private get; [UsedImplicitly] init; }
 
-		if (stateMachineContext.Configuration.Count > 0)
+	public required IStateMachineContext StateMachineContext { private get; [UsedImplicitly] init; }
+
+#region Interface ILogEnricher<TSource>
+
+	public IEnumerable<LoggingParameter> EnumerateProperties()
+	{
+		if (!string.IsNullOrEmpty(StateMachine.Name))
+		{
+			yield return new LoggingParameter(name: @"StateMachineName", StateMachine.Name);
+		}
+
+		if (StateMachineContext.Configuration.Count > 0)
 		{
 			var activeStates = new DataModelList();
-			foreach (var node in stateMachineContext.Configuration)
+
+			foreach (var node in StateMachineContext.Configuration)
 			{
 				activeStates.Add(node.Id.Value);
 			}
@@ -55,16 +63,29 @@ public class InterpreterLogEnricher<TSource> : ILogEnricher<TSource>
 
 			yield return new LoggingParameter(name: @"ActiveStates", activeStates);
 		}
-
-		if (Logger.IsEnabled(Level.Verbose))
-		{
-			var dataModelController = await DataModelControllerFactory().ConfigureAwait(false);
-
-			yield return new LoggingParameter(name: @"DataModel", dataModelController.DataModel.AsConstant());
-		}
 	}
 
 	public string Namespace => @"ctx";
+
+	public Level Level => Level.Debug;
+
+#endregion
+}
+
+public class InterpreterVerboseLogEnricher<TSource> : ILogEnricher<TSource>
+{
+	public required IDataModelController DataModelController { private get; [UsedImplicitly] init; }
+
+#region Interface ILogEnricher<TSource>
+
+	public IEnumerable<LoggingParameter> EnumerateProperties()
+	{
+		yield return new LoggingParameter(name: @"DataModel", DataModelController.DataModel.AsConstant());
+	}
+
+	public string Namespace => @"ctx";
+
+	public Level Level => Level.Verbose;
 
 #endregion
 }

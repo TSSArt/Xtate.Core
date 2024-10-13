@@ -184,8 +184,8 @@ public sealed partial class StateMachineHost : IStateMachineHost
 	}
 
 	ValueTask IStateMachineHost.ForwardEvent(SessionId sessionId,
-											 IEvent evt,
 											 InvokeId invokeId,
+											 IEvent evt,
 											 CancellationToken token)
 	{
 		var context = GetCurrentContext();

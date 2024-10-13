@@ -26,12 +26,6 @@ public class NullDataModelHandlerModule : Module<DataModelHandlerBaseModule, Err
 	{
 		Services.AddTypeSync<NullConditionExpressionEvaluator, IConditionExpression, IIdentifier>();
 		Services.AddImplementation<NullDataModelHandlerProvider>().For<IDataModelHandlerProvider>();
-
-		var implementation = Services.AddImplementation<NullDataModelHandler>().For<NullDataModelHandler>();
-
-		if (!Services.IsRegistered<IDataModelHandler>())
-		{
-			implementation.For<IDataModelHandler>();
-		}
+		Services.AddImplementation<NullDataModelHandler>().For<NullDataModelHandler>().For<IDataModelHandler>(Option.IfNotRegistered);
 	}
 }

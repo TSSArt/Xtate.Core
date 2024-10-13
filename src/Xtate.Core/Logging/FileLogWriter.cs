@@ -19,9 +19,11 @@ using System.Diagnostics;
 
 namespace Xtate.Core;
 
+//TODO:delete
+[Obsolete]
 public class FileLogWriter<TSource> : TraceLogWriter<TSource>
 {
-	public FileLogWriter(string file)
+	public FileLogWriter(string file) : base(null)
 	{
 		var listenerCollection = Trace.Listeners;
 

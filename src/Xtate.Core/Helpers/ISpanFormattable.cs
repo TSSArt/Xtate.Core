@@ -15,22 +15,17 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate;
+#if !NET6_0_OR_GREATER
 
-[Serializable]
-public sealed class UriId : ServiceId
+namespace System;
+
+internal interface ISpanFormattable : IFormattable
 {
-	private UriId(Uri uri) => Uri = uri;
-
-	public override string Value => Uri.ToString();
-
-	public Uri Uri { get; }
-
-	protected override string GenerateId() => throw new NotSupportedException();
-
-	public override int GetHashCode() => HashCode.Combine(Uri);
-
-	public override bool Equals(object? obj) => Uri.Equals(obj);
-
-	public static UriId FromUri(Uri uri) => new(uri);
+	bool TryFormat(
+		Span<char> destination,
+		out int charsWritten,
+		ReadOnlySpan<char> format,
+		IFormatProvider? provider);
 }
+
+#endif
