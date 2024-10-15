@@ -39,6 +39,7 @@ public class StateMachineControllerProxy(StateMachineRuntimeController stateMach
 
 #endregion
 
+
 	//TODO:
 	//public ValueTask DisposeAsync() => _baseStateMachineController.DisposeAsync();
 
@@ -178,7 +179,7 @@ public abstract class StateMachineControllerBase : IStateMachineController, ISer
 	ValueTask IService.Destroy()
 	{
 		TriggerDestroySignal();
-
+		
 		//TODO: Wait StateMachine destroyed
 
 		return default;

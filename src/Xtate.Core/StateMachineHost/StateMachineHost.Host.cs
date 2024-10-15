@@ -44,9 +44,16 @@ public sealed partial class StateMachineHost : IHostController
 
 		var serviceScope = ServiceScopeFactory.CreateScope(stateMachineClass.AddServices);
 
-		var stateMachineRunner = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineRunner>().ConfigureAwait(false);
+		IStateMachineRunner? stateMachineRunner = default;
 
-		DisposeScopeOnComplete(stateMachineRunner, serviceScope).Forget();
+		try
+		{
+			stateMachineRunner = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineRunner>().ConfigureAwait(false);
+		}
+		finally
+		{
+			DisposeScopeOnComplete(stateMachineRunner, serviceScope).Forget();	
+		}
 	}
 
 	private async ValueTask<IService> StartStateMachineAsService(StateMachineClass stateMachineClass, SecurityContextType securityContextType)
@@ -55,23 +62,28 @@ public sealed partial class StateMachineHost : IHostController
 
 		var serviceScope = ServiceScopeFactory.CreateScope(stateMachineClass.AddServices);
 
-		try 
-		{ 		
+		IStateMachineRunner? stateMachineRunner = default;
+
+		try
+		{
+			stateMachineRunner = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineRunner>().ConfigureAwait(false);
+
 			return await serviceScope.ServiceProvider.GetRequiredService<IService>().ConfigureAwait(false);
 		}
 		finally
 		{
-			var stateMachineRunner = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineRunner>().ConfigureAwait(false);
-
-			DisposeScopeOnComplete(stateMachineRunner, serviceScope).Forget();
+			DisposeScopeOnComplete(stateMachineRunner, serviceScope).Forget();	
 		}
 	}
 
-	private static async ValueTask DisposeScopeOnComplete(IStateMachineRunner stateMachineRunner, IServiceScope scope)
+	private static async ValueTask DisposeScopeOnComplete(IStateMachineRunner? stateMachineRunner, IServiceScope scope)
 	{
 		try
 		{
-			await stateMachineRunner.GetResult().ConfigureAwait(false);
+			if (stateMachineRunner is not null)
+			{
+				await stateMachineRunner.GetResult().ConfigureAwait(false);
+			}
 		}
 		finally
 		{

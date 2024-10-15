@@ -38,7 +38,7 @@ public class DataModelHandlerBaseModule : Module<LoggingModule>
 		Services.AddTypeSync<DefaultSendEvaluator, ISend>();
 
 		Services.AddTypeSync<CustomActionContainer, ICustomAction>();
-		Services.AddFactorySync<CustomActionFactory>().For<IAction, ICustomAction>(Option.DoNotDispose);
+		Services.AddSharedFactorySync<CustomActionFactory>(SharedWithin.Scope).For<IAction, ICustomAction>(Option.DoNotDispose);
 
 		Services.AddImplementation<CaseSensitivity>().For<ICaseSensitivity>();
 	}
