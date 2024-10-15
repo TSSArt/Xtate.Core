@@ -22,8 +22,16 @@ namespace Xtate.Core;
 
 public class StateMachineFactoryModule : Module<ScxmlModule>
 {
+	[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
+	private class NoStateMachineLocation : IStateMachineLocation
+	{
+		public Uri? Location => default;
+	}
+
 	protected override void AddServices()
 	{
+		Services.AddImplementation<NoStateMachineLocation>().For<IStateMachineLocation>(Option.IfNotRegistered);
+
 		Services.AddSharedFactory<StateMachineGetter>(SharedWithin.Scope).For<IStateMachine>(Option.DoNotDispose);
 		Services.AddImplementation<StateMachineService>().For<IStateMachineService>();
 

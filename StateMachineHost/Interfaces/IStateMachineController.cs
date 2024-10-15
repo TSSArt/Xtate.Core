@@ -24,9 +24,9 @@ namespace Xtate.Core;
 public interface IStateMachineController : IService
 {
 	//[Obsolete] SessionId SessionId            { get; }
-	
+
 	//[Obsolete] Uri       StateMachineLocation { get; }
-	
+
 	//[Obsolete("Use Destroy() method")] void      TriggerDestroySignal();
 
 	//[Obsolete] ValueTask StartAsync(CancellationToken token);

@@ -127,7 +127,7 @@ public interface IStateMachineIdlePeriod
 
 public interface IStateMachineLocation
 {
-	Uri Location { get; }
+	Uri? Location { get; }
 }
 
 public interface IStateMachineSessionId
