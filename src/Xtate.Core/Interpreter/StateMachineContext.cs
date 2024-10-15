@@ -339,7 +339,7 @@ public class AncestorModule : Module
 		Services.AddFactorySync<DeferredFactory<Any>>().For<Deferred<Any>>();
 
 		Services.AddType<ServiceList<Any>>();
-		Services.AddType<ServiceSyncList<Any>>();
+		Services.AddTypeSync<ServiceSyncList<Any>>();
 	}
 }
 

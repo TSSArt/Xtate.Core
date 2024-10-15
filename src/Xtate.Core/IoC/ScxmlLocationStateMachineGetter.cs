@@ -23,16 +23,13 @@ namespace Xtate.Core;
 [UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
 public class ScxmlLocationStateMachineGetter
 {
-	private ValueTask<IStateMachine>? _stateMachine;
-
 	public required ScxmlXmlResolver       ScxmlXmlResolver      { private get; [UsedImplicitly] init; }
 	public required IStateMachineLocation  StateMachineLocation  { private get; [UsedImplicitly] init; }
 	public required IScxmlDeserializer     ScxmlDeserializer     { private get; [UsedImplicitly] init; }
+	public required INameTableProvider     NameTableProvider     { private get; [UsedImplicitly] init; }
 	public required IStateMachineValidator StateMachineValidator { private get; [UsedImplicitly] init; }
 
-	public virtual ValueTask<IStateMachine> GetStateMachine() => _stateMachine ??= CreateStateMachine().Preserve();
-
-	protected virtual async ValueTask<IStateMachine> CreateStateMachine()
+	public virtual async ValueTask<IStateMachine> GetStateMachine()
 	{
 		using var xmlReader = CreateXmlReader();
 
@@ -43,7 +40,9 @@ public class ScxmlLocationStateMachineGetter
 		return stateMachine;
 	}
 
-	protected virtual XmlReader CreateXmlReader() => XmlReader.Create(StateMachineLocation.Location.ToString(), GetXmlReaderSettings(), GetXmlParserContext());
+	private string Location => StateMachineLocation.Location?.ToString() ?? Infra.Fail<string>();
+
+	protected virtual XmlReader CreateXmlReader() => XmlReader.Create(Location, GetXmlReaderSettings(), GetXmlParserContext());
 
 	protected virtual XmlReaderSettings GetXmlReaderSettings() =>
 		new()
@@ -55,8 +54,9 @@ public class ScxmlLocationStateMachineGetter
 
 	protected virtual XmlParserContext GetXmlParserContext()
 	{
-		var nsManager = new XmlNamespaceManager(new NameTable());
+		var nameTable = NameTableProvider.GetNameTable();
+		var nsManager = new XmlNamespaceManager(nameTable);
 
-		return new XmlParserContext(nt: null, nsManager, xmlLang: null, XmlSpace.None) { BaseURI = StateMachineLocation.Location.ToString() };
+		return new XmlParserContext(nameTable, nsManager, xmlLang: null, XmlSpace.None) { BaseURI = Location };
 	}
 }

@@ -23,18 +23,14 @@ namespace Xtate.Core;
 [UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
 public class ScxmlReaderStateMachineGetter
 {
-	private ValueTask<IStateMachine>? _stateMachine;
-
 	public required IScxmlDeserializer     ScxmlDeserializer     { private get; [UsedImplicitly] init; }
 	public required IScxmlStateMachine     ScxmlStateMachine     { private get; [UsedImplicitly] init; }
 	public required ScxmlXmlResolver       ScxmlXmlResolver      { private get; [UsedImplicitly] init; }
-	public required IStateMachineLocation? StateMachineLocation  { private get; [UsedImplicitly] init; }
-	public required INameTableProvider?    NameTableProvider     { private get; [UsedImplicitly] init; }
+	public required IStateMachineLocation  StateMachineLocation  { private get; [UsedImplicitly] init; }
+	public required INameTableProvider     NameTableProvider     { private get; [UsedImplicitly] init; }
 	public required IStateMachineValidator StateMachineValidator { private get; [UsedImplicitly] init; }
 
-	public ValueTask<IStateMachine> GetStateMachine() => _stateMachine ??= CreateStateMachine().Preserve();
-
-	protected virtual async ValueTask<IStateMachine> CreateStateMachine()
+	public virtual async ValueTask<IStateMachine> GetStateMachine()
 	{
 		using var xmlReader = CreateXmlReader();
 
@@ -58,12 +54,9 @@ public class ScxmlReaderStateMachineGetter
 
 	protected virtual XmlParserContext GetXmlParserContext()
 	{
-		var nameTable = NameTableProvider?.GetNameTable() ?? new NameTable();
+		var nameTable = NameTableProvider.GetNameTable();
 		var nsManager = new XmlNamespaceManager(nameTable);
 
-		return new XmlParserContext(nameTable, nsManager, xmlLang: null, XmlSpace.None)
-			   {
-				   BaseURI = StateMachineLocation?.Location.ToString() ?? string.Empty
-			   };
+		return new XmlParserContext(nameTable, nsManager, xmlLang: null, XmlSpace.None) { BaseURI = StateMachineLocation.Location?.ToString() ?? string.Empty };
 	}
 }

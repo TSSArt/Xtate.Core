@@ -48,6 +48,6 @@ public abstract class ScxmlStateMachine : StateMachineClass, IScxmlStateMachine
 		services.AddConstant<IScxmlStateMachine>(this);
 
 		services.AddModule<ScxmlModule>();
-		services.AddSharedFactory<ScxmlReaderStateMachineGetter>(SharedWithin.Scope).For<IStateMachine>();
+		services.AddFactory<ScxmlReaderStateMachineGetter>().For<IStateMachine>(SharedWithin.Scope);
 	}
 }

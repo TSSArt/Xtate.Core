@@ -568,14 +568,14 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 		Exit(StateBagKey.CancelInvoke);
 	}
 
-	protected override async ValueTask InitializeDataModel(DataModelNode rootDataModel, DataModelList? defaultValues = default)
+	protected override async ValueTask InitializeDataModel(DataModelNode dataModel, DataModelList? defaultValues = default)
 	{
 		if (Enter(StateBagKey.InitializeDataModel))
 		{
 			return;
 		}
 
-		await base.InitializeDataModel(rootDataModel, defaultValues).ConfigureAwait(false);
+		await base.InitializeDataModel(dataModel, defaultValues).ConfigureAwait(false);
 
 		Exit(StateBagKey.InitializeDataModel);
 	}

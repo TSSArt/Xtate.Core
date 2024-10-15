@@ -44,8 +44,8 @@ public abstract class HostedTestBase
 		*/
 		var sc = new ServiceCollection();
 		sc.AddModule<StateMachineHostModule>();
-		sc.AddSharedImplementationSync<StartActionProvider>(SharedWithin.Scope).For<IActionProvider>();
-		sc.AddSharedImplementationSync<DestroyActionProvider>(SharedWithin.Scope).For<IActionProvider>();
+		sc.AddImplementationSync<StartActionProvider>().For<IActionProvider>();
+		sc.AddImplementationSync<DestroyActionProvider>().For<IActionProvider>();
 		sc.AddTypeSync<StartAction, XmlReader>();
 		sc.AddTypeSync<DestroyAction, XmlReader>();
 		sc.AddConstant(LogWriter.Object);
