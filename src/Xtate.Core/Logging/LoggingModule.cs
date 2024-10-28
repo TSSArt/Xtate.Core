@@ -23,7 +23,6 @@ public class LoggingModule : Module
 {
 	protected override void AddServices()
 	{
-		Services.AddImplementation<LogEntityParserService<Any>>().For<IEntityParserHandler<Any>>();
 		Services.AddImplementation<Logger<Any>>().For<ILogger<Any>>();
 	}
 }

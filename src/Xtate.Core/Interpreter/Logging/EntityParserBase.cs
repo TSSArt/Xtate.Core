@@ -17,23 +17,16 @@
 
 namespace Xtate.Core;
 
-public abstract class EntityParserBase<TSource, TEntity> : IEntityParserProvider<TSource>, IEntityParserHandler<TSource>
+public abstract class EntityParserBase<TSource, TEntity>(Level level = Level.Info) : IEntityParserHandler<TSource>
 {
-	public required Ancestor<ILogger<TSource>> Logger { private get; [UsedImplicitly] init; }
 
 #region Interface IEntityParserHandler<TSource>
 
-	IEnumerable<LoggingParameter> IEntityParserHandler<TSource>.EnumerateProperties<T>(T entity) => EnumerateProperties(ConvertHelper<T, TEntity>.Convert(entity));
+	IEnumerable<LoggingParameter> IEntityParserHandler<TSource>.EnumerateProperties<T>(T entity) => entity is TEntity ? EnumerateProperties(ConvertHelper<T, TEntity>.Convert(entity)) : Array.Empty<LoggingParameter>();
+
+	Level IEntityParserHandler<TSource>.Level => level;
 
 #endregion
-
-#region Interface IEntityParserProvider<TSource>
-
-	IEntityParserHandler<TSource>? IEntityParserProvider<TSource>.TryGetEntityParserHandler<T>(T entity) => entity is TEntity ? this : default;
-
-#endregion
-
-	protected bool IsVerboseLogging => Logger().IsEnabled(Level.Verbose);
 
 	protected abstract IEnumerable<LoggingParameter> EnumerateProperties(TEntity entity);
 }

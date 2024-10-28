@@ -39,16 +39,16 @@ internal sealed class StateMachinePersistedController : StateMachineRuntimeContr
 										   Uri? stateMachineLocation,
 										   IStateMachineHost stateMachineHost,
 										   IStorageProvider storageProvider,
-										   TimeSpan? idlePeriod,
-										   InterpreterOptions defaultOptions
+										   TimeSpan? idlePeriod/*,
+										   InterpreterOptions defaultOptions*/
 
 		//SecurityContext securityContext,
 		//								   DeferredFinalizer finalizer
 	)
-		: base(sessionId, options, stateMachine, stateMachineLocation, stateMachineHost, idlePeriod, defaultOptions)
+		: base(sessionId, options, stateMachine, stateMachineLocation, stateMachineHost, idlePeriod/*, defaultOptions*/)
 	{
 		_storageProvider = storageProvider;
-		_stopToken = defaultOptions.StopToken;
+		//_stopToken = defaultOptions.StopToken;
 
 		_channelPersistingController = new ChannelPersistingController<IEvent>(base.EventChannel);
 	}

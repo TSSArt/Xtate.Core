@@ -24,7 +24,7 @@ public class DynamicServiceFactory : DynamicFactory<IServiceFactory>, IServiceFa
 
 #region Interface IServiceFactory
 
-	public async ValueTask<IServiceFactoryActivator?> TryGetActivator(ServiceLocator serviceLocator, Uri type, CancellationToken token)
+	public async ValueTask<IServiceActivator?> TryGetActivator(ServiceLocator serviceLocator, Uri type, CancellationToken token)
 	{
 		var factories = await GetFactories(serviceLocator, InvokeTypeToUri(type), token).ConfigureAwait(false);
 

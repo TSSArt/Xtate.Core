@@ -17,6 +17,7 @@
 
 using System.Collections.Specialized;
 using System.IO;
+using System.Net.Mime;
 using System.Reflection;
 
 namespace Xtate.Core;
@@ -30,11 +31,11 @@ public class ResxResourceLoader : IResourceLoader
 {
 	public required IIoBoundTask IoBoundTask { private get; [UsedImplicitly] init; }
 
-	public required Func<Stream, Resource> ResourceFactory { private get; [UsedImplicitly] init; }
+	public required Func<Stream, ContentType?, Resource> ResourceFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IResourceLoader
 
-	public async ValueTask<Resource> Request(Uri uri, NameValueCollection? headers) => ResourceFactory(await GetResourceStreamAsync(uri).ConfigureAwait(false));
+	public async ValueTask<Resource> Request(Uri uri, NameValueCollection? headers) => ResourceFactory(await GetResourceStreamAsync(uri).ConfigureAwait(false), default);
 
 #endregion
 

@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// Global usings
 global using System;
 global using System.Collections;
 global using System.Collections.Generic;
@@ -27,4 +28,6 @@ global using System.Diagnostics.CodeAnalysis;
 global using System.Runtime.CompilerServices;
 global using JetBrains.Annotations;
 global using Xtate.Core;
+
+// Global aliases
 global using NotNullAttribute = System.Diagnostics.CodeAnalysis.NotNullAttribute;

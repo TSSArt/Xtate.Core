@@ -26,17 +26,9 @@ public enum SendStatus
 
 public interface IExternalCommunication
 {
-	ValueTask             StartInvoke(InvokeData invokeData);
+	ValueTask             StartInvoke(InvokeId invokeId, InvokeData invokeData);
 	ValueTask             CancelInvoke(InvokeId invokeId);
-	ValueTask<SendStatus> TrySendEvent(IOutgoingEvent outgoingEvent);
 	ValueTask             ForwardEvent(InvokeId invokeId, IEvent evt);
-	ValueTask             CancelEvent(SendId sendId);
-}
-
-public interface IExternalCommunication2
-{
-	ValueTask             StartInvoke(InvokeData invokeData);
-	ValueTask             CancelInvoke(InvokeId invokeId);
 	ValueTask<SendStatus> TrySendEvent(IOutgoingEvent outgoingEvent);
 	ValueTask             CancelEvent(SendId sendId);
 }

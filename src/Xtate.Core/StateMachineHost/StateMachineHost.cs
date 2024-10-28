@@ -22,13 +22,15 @@ namespace Xtate;
 
 public sealed partial class StateMachineHost : IHostController
 {
-	public required IServiceScopeFactory ServiceScopeFactory { private get; [UsedImplicitly] init; }
+	public required IStateMachineHostContext StateMachineHostContext { private get; [UsedImplicitly] init; }
+	
+	public required IServiceScopeFactory     ServiceScopeFactory      { private get; [UsedImplicitly] init; }
 	
 	public required Func<SecurityContextType, SecurityContextRegistration> SecurityContextRegistrationFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IHostController
 
-	ValueTask IHostController.StartStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType) => 
+	ValueTask<IStateMachineController> IHostController.StartStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType) => 
 		StartStateMachine(stateMachineClass, securityContextType);
 
 	ValueTask<DataModelValue> IHostController.ExecuteStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType) =>
@@ -38,51 +40,33 @@ public sealed partial class StateMachineHost : IHostController
 
 #endregion
 
-	private async ValueTask StartStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType)
+	private async ValueTask<IStateMachineController> StartStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType)
 	{
 		await using var registration = SecurityContextRegistrationFactory(securityContextType).ConfigureAwait(false);
 
-		var serviceScope = ServiceScopeFactory.CreateScope(stateMachineClass.AddServices);
+		var scope = ServiceScopeFactory.CreateScope(stateMachineClass.AddServices);
 
-		IStateMachineRunner? stateMachineRunner = default;
+		IStateMachineRunner? runner = default;
 
 		try
 		{
-			stateMachineRunner = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineRunner>().ConfigureAwait(false);
+			runner = await scope.ServiceProvider.GetRequiredService<IStateMachineRunner, IStateMachineHostContext>(StateMachineHostContext).ConfigureAwait(false);
+
+			return await scope.ServiceProvider.GetRequiredService<IStateMachineController>().ConfigureAwait(false);
 		}
 		finally
 		{
-			DisposeScopeOnComplete(stateMachineRunner, serviceScope).Forget();	
+			DisposeScopeOnComplete(runner, scope).Forget();	
 		}
 	}
 
-	private async ValueTask<IService> StartStateMachineAsService(StateMachineClass stateMachineClass, SecurityContextType securityContextType)
-	{
-		await using var registration = SecurityContextRegistrationFactory(securityContextType).ConfigureAwait(false);
-
-		var serviceScope = ServiceScopeFactory.CreateScope(stateMachineClass.AddServices);
-
-		IStateMachineRunner? stateMachineRunner = default;
-
-		try
-		{
-			stateMachineRunner = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineRunner>().ConfigureAwait(false);
-
-			return await serviceScope.ServiceProvider.GetRequiredService<IService>().ConfigureAwait(false);
-		}
-		finally
-		{
-			DisposeScopeOnComplete(stateMachineRunner, serviceScope).Forget();	
-		}
-	}
-
-	private static async ValueTask DisposeScopeOnComplete(IStateMachineRunner? stateMachineRunner, IServiceScope scope)
+	private static async ValueTask DisposeScopeOnComplete(IStateMachineRunner? runner, IServiceScope scope)
 	{
 		try
 		{
-			if (stateMachineRunner is not null)
+			if (runner is not null)
 			{
-				await stateMachineRunner.GetResult().ConfigureAwait(false);
+				await runner.WaitForCompletion().ConfigureAwait(false);
 			}
 		}
 		finally
@@ -95,13 +79,17 @@ public sealed partial class StateMachineHost : IHostController
 	{
 		await using var registration = SecurityContextRegistrationFactory(securityContextType).ConfigureAwait(false);
 
-		var serviceScope = ServiceScopeFactory.CreateScope(stateMachineClass.AddServices);
+		var scope = ServiceScopeFactory.CreateScope(stateMachineClass.AddServices);
 		
-		await using (serviceScope.ConfigureAwait(false))
+		await using (scope.ConfigureAwait(false))
 		{
-			var stateMachineRunner = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineRunner>().ConfigureAwait(false);
+			var runner = await scope.ServiceProvider.GetRequiredService<IStateMachineRunner, IStateMachineHostContext>(StateMachineHostContext).ConfigureAwait(false);
 
-			return await stateMachineRunner.GetResult().ConfigureAwait(false);
+			await runner.WaitForCompletion().ConfigureAwait(false);
+
+			var controller = await scope.ServiceProvider.GetRequiredService<IStateMachineController>().ConfigureAwait(false);
+
+			return await controller.GetResult().ConfigureAwait(false);
 		}
 	}
 
