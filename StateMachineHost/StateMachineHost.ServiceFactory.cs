@@ -19,20 +19,23 @@ using Xtate.Service;
 
 namespace Xtate;
 
-public sealed partial class StateMachineHost : IServiceFactory, IServiceFactoryActivator
+public sealed partial class StateMachineHost : IServiceFactory, IServiceActivator
 {
 	private static readonly Uri ServiceFactoryTypeId      = new(@"http://www.w3.org/TR/scxml/");
 	private static readonly Uri ServiceFactoryAliasTypeId = new(uriString: @"scxml", UriKind.Relative);
 
 #region Interface IServiceFactory
 
-	ValueTask<IServiceFactoryActivator?> IServiceFactory.TryGetActivator(Uri type) => new(CanHandle(type) ? this : null);
+	ValueTask<IServiceActivator?> IServiceFactory.TryGetActivator(Uri type) => new(CanHandle(type) ? this : null);
 
 #endregion
 
-#region Interface IServiceFactoryActivator
+#region Interface IServiceActivator
 
-	async ValueTask<IService> IServiceFactoryActivator.StartService(Uri? baseUri,
+	public ValueTask<IService> StartService() => throw new NotImplementedException();
+
+	[Obsolete]
+	async ValueTask<IService> IServiceActivator.StartService(Uri? baseUri,
 																	InvokeData invokeData,
 																	IServiceCommunication serviceCommunication)
 	{
@@ -49,7 +52,7 @@ public sealed partial class StateMachineHost : IServiceFactory, IServiceFactoryA
 			? (StateMachineClass)new ScxmlStringStateMachine(scxml) {Location = baseUri!, Arguments = parameters}
 			: new LocationStateMachine(baseUri.CombineWith(source!)){Arguments = parameters};
 
-		return await StartStateMachineAsService(stateMachineClass, SecurityContextType.InvokedService).ConfigureAwait(false);
+		return await StartStateMachine(stateMachineClass, SecurityContextType.InvokedService).ConfigureAwait(false);
 	}
 
 #endregion

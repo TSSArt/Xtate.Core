@@ -15,11 +15,17 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Service;
+namespace Xtate.Core;
 
-public interface IServiceFactoryActivator
+public class StateMachineInterpreterOptions(IStateMachineStartOptions stateMachineStartOptions) : IStateMachineInterpreterOptions
 {
-	ValueTask<IService> StartService(Uri? baseUri,
-									 InvokeData invokeData,
-									 IServiceCommunication serviceCommunication);
+	//public InterpreterOptions options { get; } = new();
+
+#region Interface IStateMachineInterpreterOptions
+
+	public SessionId SessionId { get; } = stateMachineStartOptions.SessionId;
+
+#endregion
+
+	//public IInterpreterModel     model        => _interpreterModel;
 }

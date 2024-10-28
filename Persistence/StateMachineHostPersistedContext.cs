@@ -33,7 +33,7 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 
 	private readonly SemaphoreSlim                           _lockInvokedServices = new(initialCount: 1, maxCount: 1);
 	private readonly SemaphoreSlim                           _lockStateMachines   = new(initialCount: 1, maxCount: 1);
-	private readonly IStateMachineHost                       _stateMachineHost;
+	//private readonly IStateMachineHost                       _stateMachineHost;
 	private readonly Dictionary<SessionId, StateMachineMeta> _stateMachines = [];
 	private readonly IStorageProvider                        _storageProvider;
 	private          bool                                    _disposed;
@@ -42,11 +42,11 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 
 	private ITransactionalStorage? _storage;
 
-	public StateMachineHostPersistedContext(IStateMachineHost stateMachineHost, StateMachineHostOptions options) : base(stateMachineHost, options, new PersistedEventSchedulerFactory(options))
+	public StateMachineHostPersistedContext(StateMachineHostOptions options) : base(options, new PersistedEventSchedulerFactory(options))
 	{
 		Infra.NotNull(options.StorageProvider);
 
-		_stateMachineHost = stateMachineHost;
+		//_stateMachineHost = stateMachineHost;
 		_storageProvider = options.StorageProvider;
 		_idlePeriod = options.SuspendIdlePeriod;
 		_baseUri = options.BaseUri;
@@ -133,7 +133,7 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 		{
 			return;
 		}
-
+				
 		var bucket = new Bucket(_storage).Nested(InvokedServicesKey);
 		if (bucket.TryGet(sessionId, out int recordId))
 		{
@@ -179,20 +179,20 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 	protected override StateMachineControllerBase CreateStateMachineController(SessionId sessionId,
 																			   IStateMachine? stateMachine,
 																			   IStateMachineOptions? stateMachineOptions,
-																			   Uri? stateMachineLocation,
-																			   InterpreterOptions defaultOptions
+																			   Uri? stateMachineLocation/*,
+																			   InterpreterOptions defaultOptions*/
 
 		// SecurityContext securityContext,
 		// DeferredFinalizer finalizer
 	) =>
 		stateMachineOptions.IsStateMachinePersistable()
 			? new StateMachinePersistedController(
-				  sessionId, stateMachineOptions, stateMachine, stateMachineLocation, _stateMachineHost,
-				  _storageProvider, _idlePeriod, defaultOptions)
+				  sessionId, stateMachineOptions, stateMachine, stateMachineLocation, null/*_stateMachineHost*/,
+				  _storageProvider, _idlePeriod/*, defaultOption*s*/)
 			  {
 				  EventQueueWriter = default!, StateMachineInterpreter = default
 			  }
-			: base.CreateStateMachineController(sessionId, stateMachine, stateMachineOptions, stateMachineLocation, defaultOptions);
+			: base.CreateStateMachineController(sessionId, stateMachine, stateMachineOptions, stateMachineLocation/*, defaultOptions*/);
 
 	public override async ValueTask<StateMachineControllerBase> CreateAndAddStateMachine( //ServiceLocator serviceLocator,
 		SessionId sessionId,

@@ -36,9 +36,9 @@ public class StateMachineRuntimeController : StateMachineControllerBase
 										 IStateMachine? stateMachine,
 										 Uri? stateMachineLocation,
 										 IStateMachineHost stateMachineHost,
-										 TimeSpan? idlePeriod,
-										 InterpreterOptions defaultOptions)
-		: base(sessionId, options, stateMachine, stateMachineLocation, stateMachineHost, defaultOptions)
+										 TimeSpan? idlePeriod/*,
+										 InterpreterOptions defaultOptions*/)
+		: base(sessionId, options, stateMachine, stateMachineLocation, stateMachineHost/*, defaultOptions*/)
 	{
 		_idlePeriod = idlePeriod;
 
@@ -51,7 +51,7 @@ public class StateMachineRuntimeController : StateMachineControllerBase
 										 IStateMachineLocation? stateMachineLocation,
 										 IStateMachineHost stateMachineHost,
 										 IStateMachineIdlePeriod? idlePeriod)
-		: base(stateMachineSessionId.SessionId, options, stateMachine, stateMachineLocation?.Location, stateMachineHost, /* defaultOptions.options*/new InterpreterOptions())
+		: base(stateMachineSessionId.SessionId, options, stateMachine, stateMachineLocation?.Location, stateMachineHost/*,  defaultOptions.optionsnew InterpreterOptions()*/)
 	{
 		_idlePeriod = idlePeriod?.IdlePeriod;
 
@@ -118,19 +118,4 @@ public class StateMachineRuntimeController : StateMachineControllerBase
 
 		return _suspendTokenSource.Token;
 	}
-}
-
-public interface IStateMachineIdlePeriod
-{
-	TimeSpan? IdlePeriod { get; }
-}
-
-public interface IStateMachineLocation
-{
-	Uri? Location { get; }
-}
-
-public interface IStateMachineSessionId
-{
-	SessionId SessionId { get; }
 }

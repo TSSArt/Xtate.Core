@@ -19,7 +19,7 @@ using System.Threading.Channels;
 
 namespace Xtate.Core;
 
-public class EventQueue : IEventQueueReader, IEventQueueWriter
+public class EventQueue : IEventQueueReader, IEventQueueWriter, IEventDispatcher
 {
 	private readonly Channel<IEvent> _channel = Channel.CreateUnbounded<IEvent>();
 
@@ -38,4 +38,6 @@ public class EventQueue : IEventQueueReader, IEventQueueWriter
 	public ValueTask WriteAsync(IEvent evt) => _channel.Writer.WriteAsync(evt);
 
 #endregion
+
+	public ValueTask Send(IEvent evt, CancellationToken token) => _channel.Writer.WriteAsync(evt, token);
 }

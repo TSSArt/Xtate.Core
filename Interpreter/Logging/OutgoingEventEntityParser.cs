@@ -21,12 +21,8 @@ namespace Xtate.Core;
 
 public class OutgoingEventEntityParser<TSource> : EntityParserBase<TSource, IOutgoingEvent>
 {
-	public required IDataModelHandler DataModelHandler { private get; [UsedImplicitly] init; }
-
 	protected override IEnumerable<LoggingParameter> EnumerateProperties(IOutgoingEvent evt)
 	{
-		Infra.Requires(evt);
-
 		if (!evt.NameParts.IsDefaultOrEmpty)
 		{
 			yield return new LoggingParameter(name: @"EventName", EventName.ToName(evt.NameParts));
@@ -51,8 +47,16 @@ public class OutgoingEventEntityParser<TSource> : EntityParserBase<TSource, IOut
 		{
 			yield return new LoggingParameter(name: @"DelayMs", delayMs);
 		}
+	}
+}
 
-		if (IsVerboseLogging && !evt.Data.IsUndefined())
+public class OutgoingEventVerboseEntityParser<TSource>() : EntityParserBase<TSource, IOutgoingEvent>(Level.Verbose)
+{
+	public required IDataModelHandler DataModelHandler { private get; [UsedImplicitly] init; }
+
+	protected override IEnumerable<LoggingParameter> EnumerateProperties(IOutgoingEvent evt)
+	{
+		if (!evt.Data.IsUndefined())
 		{
 			yield return new LoggingParameter(name: @"Data", evt.Data.ToObject());
 

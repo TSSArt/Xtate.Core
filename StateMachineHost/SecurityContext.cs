@@ -17,58 +17,7 @@
 
 namespace Xtate.Core;
 
-[Flags]
-public enum SecurityContextPermissions
-{
-	None                      = 0x0000_0000,
-	RunIoBoundTask            = 0x0000_0001,
-	CreateStateMachine        = 0x0000_0002,
-	CreateTrustedStateMachine = 0x0000_0004,
-	Full                      = 0x7FFF_FFFF
-}
-
-[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
-public sealed class SecurityContextFactory
-{
-	private readonly AsyncLocal<SecurityContext> _securityContext = new();
-
-	private SecurityContext CurrentSecurityContext => _securityContext.Value ?? SecurityContext.FullAccess;
-
-	[UsedImplicitly]
-	public IIoBoundTask GetIIoBoundTask() => CurrentSecurityContext;
-
-	[UsedImplicitly]
-	public SecurityContextRegistration GetRegistration(SecurityContextType securityContextType) => new(_securityContext, securityContextType);
-}
-
-public sealed class SecurityContextRegistration : IAsyncDisposable
-{
-	private readonly AsyncLocal<SecurityContext> _asyncLocal;
-	private readonly SecurityContext             _newContext;
-	private readonly SecurityContext?            _parentContext;
-
-	internal SecurityContextRegistration(AsyncLocal<SecurityContext> asyncLocal, SecurityContextType securityContextType)
-	{
-		_asyncLocal = asyncLocal;
-		_parentContext = asyncLocal.Value;
-		asyncLocal.Value = _newContext = (_parentContext ?? SecurityContext.FullAccess).CreateNested(securityContextType);
-	}
-
-#region Interface IAsyncDisposable
-
-	public async ValueTask DisposeAsync()
-	{
-		if (_asyncLocal.Value == _newContext)
-		{
-			_asyncLocal.Value = _parentContext;
-
-			await _newContext.DisposeAsync().ConfigureAwait(false);
-		}
-	}
-
-#endregion
-}
-
+//TODO: move to IoC
 public sealed class SecurityContext : IIoBoundTask, IAsyncDisposable
 {
 	private const int IoBoundTaskSchedulerMaximumConcurrencyLevel = 2;

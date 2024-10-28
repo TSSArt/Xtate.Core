@@ -20,7 +20,7 @@ using Xtate.IoC;
 
 namespace Xtate.DataModel;
 
-public class DataModelHandlerBaseModule : Module<LoggingModule>
+public class DataModelHandlerBaseModule : Module<CustomActionModule, LoggingModule>
 {
 	protected override void AddServices()
 	{
@@ -36,9 +36,6 @@ public class DataModelHandlerBaseModule : Module<LoggingModule>
 		Services.AddTypeSync<DefaultRaiseEvaluator, IRaise>();
 		Services.AddTypeSync<DefaultScriptEvaluator, IScript>();
 		Services.AddTypeSync<DefaultSendEvaluator, ISend>();
-
-		Services.AddTypeSync<CustomActionContainer, ICustomAction>();
-		Services.AddSharedFactorySync<CustomActionFactory>(SharedWithin.Scope).For<IAction, ICustomAction>(Option.DoNotDispose);
 
 		Services.AddImplementation<CaseSensitivity>().For<ICaseSensitivity>();
 	}

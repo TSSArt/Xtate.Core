@@ -188,13 +188,13 @@ public class InvokeController : IInvokeController
 	public required ILogger<IInvokeController> Logger                { private get; [UsedImplicitly] init; }
 	public required StateMachineRuntimeError               StateMachineRuntimeError          { private get; [UsedImplicitly] init; }
 
-	public async ValueTask Start(InvokeData invokeData)
+	public async ValueTask Start(InvokeId invokeId, InvokeData invokeData)
 	{
-		await Logger.Write(Level.Trace, StartInvokeEventId, $@"Start invoke. InvokeId: [{invokeData.InvokeId}]", invokeData).ConfigureAwait(false);
+		await Logger.Write(Level.Trace, StartInvokeEventId, $@"Start invoke. InvokeId: [{invokeId}]", invokeData).ConfigureAwait(false);
 
 		try
 		{
-			await ExternalCommunication.StartInvoke(invokeData).ConfigureAwait(false);
+			await ExternalCommunication.StartInvoke(invokeId, invokeData).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{
@@ -235,7 +235,7 @@ public class NoExternalCommunication : IExternalCommunication
 {
 	public required StateMachineRuntimeError StateMachineRuntimeError { private get; [UsedImplicitly] init; }
 
-	public ValueTask StartInvoke(InvokeData invokeData) => throw StateMachineRuntimeError.NoExternalCommunication();
+	public ValueTask StartInvoke(InvokeId invokeId, InvokeData invokeData) => throw StateMachineRuntimeError.NoExternalCommunication();
 
 	public ValueTask CancelInvoke(InvokeId invokeId) => throw StateMachineRuntimeError.NoExternalCommunication();
 
@@ -281,6 +281,11 @@ public class EventController : IEventController
 
 		if (await TrySendEvent(outgoingEvent).ConfigureAwait(false) == SendStatus.ToInternalQueue)
 		{
+			if (outgoingEvent.DelayMs != 0)
+			{
+				throw new ExecutionException(Resources.Exception_InternalEventsCantBeDelayed);
+			}
+
 			StateMachineContext.InternalQueue.Enqueue(new EventObject(outgoingEvent) { Type = EventType.Internal });
 		}
 	}
@@ -289,8 +294,6 @@ public class EventController : IEventController
 
 	private async ValueTask<SendStatus> TrySendEvent(IOutgoingEvent outgoingEvent)
 	{
-		await Logger.Write(Level.Trace, SendEventId, $@"Send event: '{EventName.ToName(outgoingEvent.NameParts)}'", outgoingEvent).ConfigureAwait(false);
-
 		if (IsInternalEvent(outgoingEvent))
 		{
 			return SendStatus.ToInternalQueue;
@@ -311,11 +314,6 @@ public class EventController : IEventController
 		if (outgoingEvent.Target == InternalTarget && outgoingEvent.Type is null)
 		{
 			return true;
-		}
-
-		if (outgoingEvent.DelayMs != 0)
-		{
-			throw new ExecutionException(Resources.Exception_InternalEventsCantBeDelayed);
 		}
 
 		return false;
