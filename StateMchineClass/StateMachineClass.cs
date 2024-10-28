@@ -37,7 +37,7 @@ public abstract class StateMachineClass : IStateMachineSessionId, IStateMachineA
 
 #region Interface IStateMachineLocation
 
-	Uri IStateMachineLocation.Location => _location!;
+	Uri? IStateMachineLocation.Location => _location;
 
 #endregion
 
@@ -54,15 +54,7 @@ public abstract class StateMachineClass : IStateMachineSessionId, IStateMachineA
 	public virtual void AddServices(IServiceCollection services)
 	{
 		services.AddConstant<IStateMachineSessionId>(this);
-
-		if (!_arguments.IsUndefined())
-		{
-			services.AddConstant<IStateMachineArguments>(this);
-		}
-
-		if (_location is not null)
-		{
-			services.AddConstant<IStateMachineLocation>(this);
-		}
+		services.AddConstant<IStateMachineArguments>(this);
+		services.AddConstant<IStateMachineLocation>(this);
 	}
 }

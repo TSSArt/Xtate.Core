@@ -66,11 +66,6 @@ public sealed partial class StateMachineHost : IStateMachineHost
 		{
 			if (outgoingEvent.Target == InternalTarget)
 			{
-				if (outgoingEvent.DelayMs != 0)
-				{
-					throw new ProcessorException(Resources.Exception_InternalEventsCantBeDelayed);
-				}
-
 				return SendStatus.ToInternalQueue;
 			}
 		}
@@ -98,22 +93,24 @@ public sealed partial class StateMachineHost : IStateMachineHost
 												  // SecurityContext securityContext,
 												  CancellationToken token)
 	{
+		InvokeId invokeId = default;
+
 		var context = GetCurrentContext();
 
 		context.ValidateSessionId(sessionId, out var service);
 
-		//var finalizer = new DeferredFinalizer();
-		//await using (finalizer.ConfigureAwait(false))
+		await using var registration = SecurityContextRegistrationFactory(SecurityContextType.InvokedService).ConfigureAwait(false);
+
 		{
-			//securityContext = securityContext.CreateNested(SecurityContextType.InvokedService);
 			//var loggerContext = new StartInvokeLoggerContext(sessionId, data.Type, data.Source);
+
 			var activator = await FindServiceFactoryActivator(data.Type).ConfigureAwait(false);
-			var serviceCommunication = new ServiceCommunication(this, GetTarget(sessionId), IoProcessorId, data.InvokeId);
+			var serviceCommunication = new ServiceCommunication(this, GetTarget(sessionId), IoProcessorId, invokeId);
 			var invokedService = await activator.StartService(location, data, serviceCommunication).ConfigureAwait(false);
 
-			await context.AddService(sessionId, data.InvokeId, invokedService, token).ConfigureAwait(false);
+			await context.AddService(sessionId, invokeId, invokedService, token).ConfigureAwait(false);
 
-			CompleteAsync(context, invokedService, service, sessionId, data.InvokeId, _dataConverter, token).Forget();
+			CompleteAsync(context, invokedService, service, sessionId, invokeId, _dataConverter).Forget();
 		}
 
 		static async ValueTask CompleteAsync(StateMachineHostContext context,
@@ -121,15 +118,9 @@ public sealed partial class StateMachineHost : IStateMachineHost
 											 IEventDispatcher service,
 											 SessionId sessionId,
 											 InvokeId invokeId,
-
-											 // DeferredFinalizer finalizer,
-											 DataConverter dataConverter,
-											 CancellationToken token)
+											 DataConverter dataConverter)
 		{
-			//await using (finalizer.ConfigureAwait(false))
 			{
-				//finalizer.DefferFinalization();
-
 				try
 				{
 					var result = await invokedService.GetResult().ConfigureAwait(false);
@@ -164,7 +155,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 	{
 		var context = GetCurrentContext();
 
-		context.ValidateSessionId(sessionId, out _);
+		//context.ValidateSessionId(sessionId, out _);
 
 		if (await context.TryRemoveService(sessionId, invokeId).ConfigureAwait(false) is { } service)
 		{
@@ -178,7 +169,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 	{
 		var context = GetCurrentContext();
 
-		context.ValidateSessionId(sessionId, out _);
+//		context.ValidateSessionId(sessionId, out _);
 
 		return context.CancelEvent(sessionId, sendId, token);
 	}
@@ -190,7 +181,8 @@ public sealed partial class StateMachineHost : IStateMachineHost
 	{
 		var context = GetCurrentContext();
 
-		context.ValidateSessionId(sessionId, out _);
+		return default;//TODO:
+		//context.ValidateSessionId(sessionId, out _);
 
 		if (!context.TryGetService(invokeId, out var service))
 		{
@@ -219,7 +211,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 
 	private StateMachineHostContext GetCurrentContext() => _context ?? throw new InvalidOperationException(Resources.Exception_IOProcessorHasNotBeenStarted);
 
-	private async ValueTask<IServiceFactoryActivator> FindServiceFactoryActivator(Uri type)
+	private async ValueTask<IServiceActivator> FindServiceFactoryActivator(Uri type)
 	{
 		await foreach (var serviceFactory in ServiceFactories.ConfigureAwait(false))
 		{

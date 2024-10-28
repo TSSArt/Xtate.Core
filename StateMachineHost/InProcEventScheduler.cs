@@ -20,13 +20,6 @@ using Xtate.Persistence;
 
 namespace Xtate.Core;
 
-public interface IEventSchedulerLogger
-{
-	bool IsEnabled { get; }
-
-	ValueTask LogError(string message, Exception exception, IHostEvent scheduledEvent);
-}
-
 internal class InProcEventScheduler(IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger logger) : IEventScheduler
 {
 	private readonly ConcurrentDictionary<(ServiceId, SendId), object> _scheduledEvents = new();

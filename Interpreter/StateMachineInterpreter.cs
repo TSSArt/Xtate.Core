@@ -1179,9 +1179,9 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		}
 	}
 
-	protected virtual async ValueTask InitializeDataModel(DataModelNode rootDataModel, DataModelList? defaultValues = default)
+	protected virtual async ValueTask InitializeDataModel(DataModelNode dataModel, DataModelList? defaultValues = default)
 	{
-		foreach (var node in rootDataModel.Data)
+		foreach (var node in dataModel.Data)
 		{
 			await InitializeData(node, defaultValues).ConfigureAwait(false);
 		}

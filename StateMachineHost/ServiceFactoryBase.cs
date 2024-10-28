@@ -15,19 +15,23 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using System.ComponentModel;
+using Xtate.CustomAction;
+
 namespace Xtate.Service;
 
+[Obsolete("Use ServiceFactory<TService>")]
 public abstract class ServiceFactoryBase : IServiceFactory
 {
 	private Activator? _activator;
 
 #region Interface IServiceFactory
 
-	public ValueTask<IServiceFactoryActivator?> TryGetActivator(Uri type)
+	public ValueTask<IServiceActivator?> TryGetActivator(Uri type)
 	{
 		_activator ??= CreateActivator();
 
-		return new ValueTask<IServiceFactoryActivator?>(_activator.CanHandle(type) ? _activator : null);
+		return new ValueTask<IServiceActivator?>(_activator.CanHandle(type) ? _activator : null);
 	}
 
 #endregion
@@ -102,9 +106,14 @@ public abstract class ServiceFactoryBase : IServiceFactory
 		}
 	}
 
-	private class Activator(Catalog catalog) : IServiceFactoryActivator
+	private class Activator(Catalog catalog) : IServiceActivator
 	{
-	#region Interface IServiceFactoryActivator
+		#region Interface IServiceActivator
+
+		public ValueTask<IService> StartService()
+		{
+			throw new NotImplementedException();
+		}
 
 		public ValueTask<IService> StartService(Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication)
 		{

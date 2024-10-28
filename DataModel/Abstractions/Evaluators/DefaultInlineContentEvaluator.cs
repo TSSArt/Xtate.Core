@@ -46,17 +46,31 @@ public abstract class InlineContentEvaluator(IInlineContent inlineContent) : IIn
 
 public class DefaultInlineContentEvaluator(IInlineContent inlineContent) : InlineContentEvaluator(inlineContent)
 {
-	private DataModelValue _contentValue;
+	public required Func<ValueTask<ILogger<IInlineContent>>> LoggerFactory { private get; [UsedImplicitly] init; }
 
-	public override ValueTask<IObject> EvaluateObject()
+	private DataModelValue _contentValue;
+	private Exception? _parseException;
+
+	public override async ValueTask<IObject> EvaluateObject()
 	{
-		if (_contentValue.IsUndefined())
+		if (_contentValue.IsUndefined() || _parseException is not null)
 		{
-			_contentValue = ParseToDataModel();
+			try
+			{
+				_contentValue = ParseToDataModel();
+			}
+			catch (Exception exception)
+			{
+				_parseException = exception;
+
+				var logger = await LoggerFactory().ConfigureAwait(false);
+				await logger.Write(Level.Warning, 1, "Failed to parse inline content.", exception).ConfigureAwait(false);
+			}
+
 			_contentValue.MakeDeepConstant();
 		}
 
-		return new ValueTask<IObject>(_contentValue);
+		return _contentValue;
 	}
 
 	protected virtual DataModelValue ParseToDataModel() => DataModelValue.FromString(base.Value);

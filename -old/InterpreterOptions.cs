@@ -19,7 +19,7 @@ using Xtate.Persistence;
 
 namespace Xtate.Core;
 
-public record InterpreterOptions
+public record InterpreterOptions1
 {
 	private readonly DataModelValue _arguments;
 	private readonly DataModelValue _configuration;

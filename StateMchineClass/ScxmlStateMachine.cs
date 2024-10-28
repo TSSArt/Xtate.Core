@@ -21,16 +21,6 @@ using Xtate.Scxml;
 
 namespace Xtate.Core;
 
-public class ScxmlStringStateMachine(string scxml) : ScxmlStateMachine
-{
-	protected override TextReader CreateTextReader() => new StringReader(scxml);
-}
-
-public class ScxmlStreamStateMachine(Stream stream) : ScxmlStateMachine
-{
-	protected override TextReader CreateTextReader() => new StreamReader(stream);
-}
-
 public abstract class ScxmlStateMachine : StateMachineClass, IScxmlStateMachine
 {
 #region Interface IScxmlStateMachine
@@ -48,6 +38,6 @@ public abstract class ScxmlStateMachine : StateMachineClass, IScxmlStateMachine
 		services.AddConstant<IScxmlStateMachine>(this);
 
 		services.AddModule<ScxmlModule>();
-		services.AddSharedFactory<ScxmlReaderStateMachineGetter>(SharedWithin.Scope).For<IStateMachine>();
+		services.AddFactory<ScxmlReaderStateMachineGetter>().For<IStateMachine>(SharedWithin.Scope);
 	}
 }

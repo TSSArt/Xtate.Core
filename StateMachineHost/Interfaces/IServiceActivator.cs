@@ -15,20 +15,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Persistence;
+namespace Xtate.Service;
 
-internal sealed class StateMachineHostClusterContext(StateMachineHost stateMachineHost, StateMachineHostOptions options)
-	: StateMachineHostContext(stateMachineHost, options, new PersistedEventSchedulerFactory(options))
+public interface IServiceActivator
 {
+	ValueTask<IService> StartService();
+
 	[Obsolete]
-	protected override StateMachineControllerBase CreateStateMachineController(SessionId sessionId,
-																			   IStateMachine? stateMachine,
-																			   IStateMachineOptions? stateMachineOptions,
-																			   Uri? stateMachineLocation,
-																			   InterpreterOptions defaultOptions
-	) =>
-		new StateMachineSingleMacroStepController(sessionId, stateMachineOptions, stateMachine, stateMachineLocation, stateMachineHost, defaultOptions)
-		{
-			EventQueueWriter = default!, StateMachineInterpreter = default
-		};
+	ValueTask<IService> StartService(Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication);
+
 }

@@ -15,26 +15,17 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate;
+namespace Xtate.Core;
 
-public enum SecurityContextType
+public interface IKeepAlive
 {
-	NoAccess,
-	NewStateMachine,
-	NewTrustedStateMachine,
-	InvokedService
+	Task Wait();
 }
 
-public interface IIoBoundTask
+/*
+[Obsolete]
+public interface IScopeManagerOld
 {
-	TaskFactory Factory { get; }
-}
-
-public class DefaultIoBoundTask : IIoBoundTask
-{
-#region Interface IIoBoundTask
-
-	public TaskFactory Factory => new(TaskScheduler.Default);
-
-#endregion
-}
+	[Obsolete]
+	ValueTask<IStateMachineController> RunStateMachine(IStateMachineStartOptions stateMachineStartOptions);
+}*/

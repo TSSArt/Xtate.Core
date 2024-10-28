@@ -28,9 +28,7 @@ public class LocationStateMachine : StateMachineClass
 	{
 		base.AddServices(services);
 
-		services.AddConstant<IStateMachineLocation>(this);
-
 		services.AddModule<ScxmlModule>();
-		services.AddSharedFactory<ScxmlLocationStateMachineGetter>(SharedWithin.Scope).For<IStateMachine>();
+		services.AddFactory<ScxmlLocationStateMachineGetter>().For<IStateMachine>(SharedWithin.Scope);
 	}
 }

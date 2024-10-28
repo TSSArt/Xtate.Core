@@ -21,16 +21,9 @@ namespace Xtate.Core;
 
 public class InvokeDataEntityParser<TSource> : EntityParserBase<TSource, InvokeData>
 {
-	public required IDataModelHandler DataModelHandler { private get; [UsedImplicitly] init; }
-
 	protected override IEnumerable<LoggingParameter> EnumerateProperties(InvokeData invokeData)
 	{
 		Infra.Requires(invokeData);
-
-		if (invokeData.InvokeId is { } invokeId)
-		{
-			yield return new LoggingParameter(name: @"InvokeId", invokeId);
-		}
 
 		yield return new LoggingParameter(name: @"InvokeType", invokeData.Type);
 
@@ -38,27 +31,35 @@ public class InvokeDataEntityParser<TSource> : EntityParserBase<TSource, InvokeD
 		{
 			yield return new LoggingParameter(name: @"InvokeSource", source);
 		}
+	}
+}
 
-		if (IsVerboseLogging)
+
+public class InvokeDataVerboseEntityParser<TSource>() : EntityParserBase<TSource, InvokeData>(Level.Verbose)
+{
+	public required IDataModelHandler DataModelHandler { private get; [UsedImplicitly] init; }
+
+	protected override IEnumerable<LoggingParameter> EnumerateProperties(InvokeData invokeData)
+	{
+		Infra.Requires(invokeData);
+
+		if (invokeData.RawContent is { } rawContent)
 		{
-			if (invokeData.RawContent is { } rawContent)
-			{
-				yield return new LoggingParameter(name: @"RawContent", rawContent);
-			}
+			yield return new LoggingParameter(name: @"RawContent", rawContent);
+		}
 
-			if (!invokeData.Content.IsUndefined())
-			{
-				yield return new LoggingParameter(name: @"Content", invokeData.Content.ToObject()!);
+		if (!invokeData.Content.IsUndefined())
+		{
+			yield return new LoggingParameter(name: @"Content", invokeData.Content.ToObject()!);
 
-				yield return new LoggingParameter(name: @"ContentText", DataModelHandler.ConvertToText(invokeData.Content));
-			}
+			yield return new LoggingParameter(name: @"ContentText", DataModelHandler.ConvertToText(invokeData.Content));
+		}
 
-			if (!invokeData.Parameters.IsUndefined())
-			{
-				yield return new LoggingParameter(name: @"Parameters", invokeData.Parameters.ToObject()!);
+		if (!invokeData.Parameters.IsUndefined())
+		{
+			yield return new LoggingParameter(name: @"Parameters", invokeData.Parameters.ToObject()!);
 
-				yield return new LoggingParameter(name: @"ParametersText", DataModelHandler.ConvertToText(invokeData.Parameters));
-			}
+			yield return new LoggingParameter(name: @"ParametersText", DataModelHandler.ConvertToText(invokeData.Parameters));
 		}
 	}
 }

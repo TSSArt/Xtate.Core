@@ -17,6 +17,7 @@
 
 using System.Collections.Specialized;
 using System.IO;
+using System.Net.Mime;
 
 namespace Xtate.Core;
 
@@ -31,7 +32,7 @@ public class FileResourceLoader : IResourceLoader
 
 	public required IIoBoundTask ExternalResources { private get; [UsedImplicitly] init; }
 
-	public required Func<Stream, ValueTask<Resource>> ResourceFactory { private get; [UsedImplicitly] init; }
+	public required Func<Stream, ContentType?, ValueTask<Resource>> ResourceFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IResourceLoader
 
@@ -43,7 +44,7 @@ public class FileResourceLoader : IResourceLoader
 
 		var fileStream = await ExternalResources.Factory.StartNew(() => CreateFileStream(path)).ConfigureAwait(false);
 
-		return await ResourceFactory(fileStream).ConfigureAwait(false);
+		return await ResourceFactory(fileStream, default).ConfigureAwait(false);
 	}
 
 #endregion

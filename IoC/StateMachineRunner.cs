@@ -45,7 +45,7 @@ public class StateMachineRunner : IStateMachineRunner, IDisposable
 
 #region Interface IStateMachineRunner
 
-	public ValueTask<DataModelValue> GetResult() => _controller.GetResult();
+	public async ValueTask WaitForCompletion() => await _controller.GetResult().ConfigureAwait(false);
 
 #endregion
 

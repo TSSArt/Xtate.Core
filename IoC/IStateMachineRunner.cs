@@ -19,5 +19,5 @@ namespace Xtate.Core;
 
 public interface IStateMachineRunner
 {
-	ValueTask<DataModelValue> GetResult();
+	ValueTask WaitForCompletion();
 }
