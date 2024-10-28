@@ -33,18 +33,32 @@ public class StateMachineHostModule : Module<StateMachineInterpreterModule>
 
 		Services.AddImplementation<StateMachineHostExternalCommunication>().For<IExternalCommunication>();
 
-		//Services.AddImplementation<ScopeManager, Action<IServiceCollection>>().For<IScopeManager>();
+		Services.AddType<ServiceScopeProxy, InvokeId, InvokeData>();
+		Services.AddImplementation<ServiceScopeManager>().For<IServiceScopeManager>();
+		Services.AddSharedImplementation<ServiceRunner>(SharedWithin.Scope).For<IServiceRunner>();
+		Services.AddFactory<ServiceFactory>().For<IService>(SharedWithin.Scope);
+
 		Services.AddSharedImplementation<StateMachineRuntimeController>(SharedWithin.Scope).For<IStateMachineController>();
 				//.For<IInvokeController>();
 				//.For<INotifyStateChanged>();//
 				//.For<IExternalCommunication>();
 
-		Services.AddSharedImplementation<StateMachineRunner>(SharedWithin.Scope).For<IStateMachineRunner>();
-		Services.AddSharedImplementation<StateMachineHost>(SharedWithin.Container).For<StateMachineHost>().For<IStateMachineHost>().For<IServiceFactory>().For<IHostController>(); //TODO: Make only interface
-		Services.AddSharedImplementation<StateMachineHostContext>(SharedWithin.Container).For<StateMachineHostContext>().For<IStateMachineHostContext>();                //TODO: Make only interface
+		Services.AddSharedImplementation<StateMachineRunner, IStateMachineHostContext>(SharedWithin.Scope).For<IStateMachineRunner>();
 
-		Services.AddSharedFactorySync<SecurityContextFactory>(SharedWithin.Container).For<IIoBoundTask>().For<SecurityContextRegistration, SecurityContextType>();
+		Services.AddSharedFactorySync<SecurityContextFactory>(SharedWithin.Container).For<IIoBoundTask>().For<SecurityContextRegistration, SecurityContextType>(Option.DoNotDispose);
 		//Services.AddSharedType<SecurityContextController>(SharedWithin.Container);
+
+
+
+
+		Services.AddSharedImplementation<StateMachineHost>(SharedWithin.Container)
+				.For<StateMachineHost>()
+				.For<IStateMachineHost>()
+				.For<IServiceFactory>().For<IHostController>(); //TODO: Make only interface
+		
+		Services.AddSharedImplementation<StateMachineHostContext>(SharedWithin.Container)
+				.For<StateMachineHostContext>()
+				.For<IStateMachineHostContext>();                //TODO: Make only interface
 
 	}
 }

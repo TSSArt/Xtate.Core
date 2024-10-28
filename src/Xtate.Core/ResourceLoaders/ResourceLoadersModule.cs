@@ -23,6 +23,6 @@ public class ResourceLoadersModule : Module<FileResourceLoaderModule, ResxResour
 {
 	protected override void AddServices()
 	{
-		Services.AddImplementation<ResourceLoaderService>().For<ResourceLoaderService>().For<IResourceLoader>();
+		Services.AddImplementation<ResourceLoaderService>().For<IResourceLoader>();
 	}
 }

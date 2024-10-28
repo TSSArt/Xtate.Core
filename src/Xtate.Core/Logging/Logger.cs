@@ -38,7 +38,7 @@ public class Logger<TSource> : ILogger<TSource>
 
 	public required ServiceList<ILogEnricher<TSource>> LogEnrichers { private get; [UsedImplicitly] init; }
 
-	public required IEntityParserHandler<TSource> EntityParserHandler { private get; [UsedImplicitly] init; }
+	public required ServiceList<IEntityParserHandler<TSource>> EntityParserHandlers { private get; [UsedImplicitly] init; }
 
 #region Interface ILogger
 
@@ -120,7 +120,7 @@ public class Logger<TSource> : ILogger<TSource>
 		{
 			if (logWriter.IsEnabled(level))
 			{
-				var properties = entity is not ValueTuple ? EntityParserHandler.EnumerateProperties(entity) : default;
+				var properties = entity is not ValueTuple ? EnumerateProperties(logWriter, entity) : default;
 				var parameters = EnumerateParameters(logWriter, messageParameters, properties);
 
 				await logWriter.Write(level, eventId, message, parameters).ConfigureAwait(false);
@@ -131,10 +131,38 @@ public class Logger<TSource> : ILogger<TSource>
 		{
 			if (logWriter.IsEnabled(typeof(TSource), level))
 			{
-				var properties = entity is not ValueTuple ? EntityParserHandler.EnumerateProperties(entity) : default;
+				var properties = entity is not ValueTuple ? EnumerateProperties(logWriter, typeof(TSource), entity) : default;
 				var parameters = EnumerateParameters(logWriter, typeof(TSource), messageParameters, properties);
 
 				await logWriter.Write(typeof(TSource), level, eventId, message, parameters).ConfigureAwait(false);
+			}
+		}
+	}
+
+	private IEnumerable<LoggingParameter> EnumerateProperties<TEntity>(ILogWriter<TSource> logWriter, TEntity entity)
+	{
+		foreach (var entityParserHandler in EntityParserHandlers)
+		{
+			if (logWriter.IsEnabled(entityParserHandler.Level))
+			{
+				foreach (var parameter in entityParserHandler.EnumerateProperties(entity))
+				{
+					yield return parameter;
+				}
+			}
+		}
+	}
+
+	private IEnumerable<LoggingParameter> EnumerateProperties<TEntity>(ILogWriter logWriter, Type source, TEntity entity)
+	{
+		foreach (var entityParserHandler in EntityParserHandlers)
+		{
+			if (logWriter.IsEnabled(source, entityParserHandler.Level))
+			{
+				foreach (var parameter in entityParserHandler.EnumerateProperties(entity))
+				{
+					yield return parameter;
+				}
 			}
 		}
 	}

@@ -28,9 +28,9 @@ public abstract class AsyncInit<T> : AsyncInit
 
 public abstract class AsyncInit
 {
-	public AsyncInit Then(AsyncInit asyncInit) => new Wrapper(this, asyncInit);
-
 	public abstract Task Task { get; }
+
+	public AsyncInit Then(AsyncInit asyncInit) => new Wrapper(this, asyncInit);
 
 	/// <summary>
 	///     Runs delegate
@@ -75,7 +75,7 @@ public abstract class AsyncInit
 
 		private async Task Init() => SetValue(await func(arg).ConfigureAwait(false));
 	}
-	
+
 	private sealed class InitAfter(Func<ValueTask> func) : AsyncInit
 	{
 		private Task? _task;
@@ -98,7 +98,7 @@ public abstract class AsyncInit
 
 		private Task Init() => func().AsTask();
 	}
-	
+
 	private sealed class Wrapper(AsyncInit asyncInit1, AsyncInit asyncInit2) : AsyncInit
 	{
 		private Task? _task;

@@ -15,9 +15,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Core;
+namespace Xtate;
 
-public interface IEntityParserProvider<TSource>
+public class DefaultIoBoundTask : IIoBoundTask
 {
-	IEntityParserHandler<TSource>? TryGetEntityParserHandler<T>(T entity);
+#region Interface IIoBoundTask
+
+	public TaskFactory Factory => new(TaskScheduler.Default);
+
+#endregion
 }

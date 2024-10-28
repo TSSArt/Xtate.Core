@@ -22,7 +22,7 @@ using Xtate.XInclude;
 
 namespace Xtate.Core;
 
-public class Resource(Stream stream, ContentType? contentType = default) : IDisposable, IAsyncDisposable, IXIncludeResource
+public class Resource(Stream stream, ContentType? contentType) : IDisposable, IAsyncDisposable, IXIncludeResource
 {
 	private readonly DisposingToken _disposingToken = new();
 	private readonly Stream         _stream         = stream ?? throw new ArgumentNullException(nameof(stream));

@@ -15,31 +15,20 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Core;
+namespace Xtate.Persistence;
 
-public class DisposingToken : CancellationTokenSource
+internal sealed class StateMachineHostClusterContext(StateMachineHostOptions options)
+	: StateMachineHostContext(options, new PersistedEventSchedulerFactory(options))
 {
-	public DisposingToken() => Token = base.Token;
-
-	public new CancellationToken Token { get; }
-
-	protected override void Dispose(bool disposing)
-	{
-		if (disposing)
+	[Obsolete]
+	protected override StateMachineControllerBase CreateStateMachineController(SessionId sessionId,
+																			   IStateMachine? stateMachine,
+																			   IStateMachineOptions? stateMachineOptions,
+																			   Uri? stateMachineLocation
+																			  //, InterpreterOptions defaultOptions
+	) =>
+		new StateMachineSingleMacroStepController(sessionId, stateMachineOptions, stateMachine, stateMachineLocation, null/*, defaultOptions*/)
 		{
-			try
-			{
-				if (!IsCancellationRequested)
-				{
-					Cancel();
-				}
-			}
-			catch (ObjectDisposedException)
-			{
-				// Ignore
-			}
-		}
-
-		base.Dispose(disposing);
-	}
+			EventQueueWriter = default!, StateMachineInterpreter = default
+		};
 }

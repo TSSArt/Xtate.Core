@@ -17,13 +17,6 @@
 
 namespace Xtate.Core;
 
-public enum StateMachineOriginType
-{
-	Scxml,
-	Source,
-	StateMachine
-}
-
 public readonly struct StateMachineOrigin
 {
 	private readonly object? _value;

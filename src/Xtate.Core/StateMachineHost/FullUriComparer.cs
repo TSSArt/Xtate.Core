@@ -25,7 +25,7 @@ internal class FullUriComparer : IEqualityComparer<Uri>
 
 	public bool Equals(Uri? x, Uri? y) => x == y && GetSafeFragment(x) == GetSafeFragment(y);
 
-	public int GetHashCode(Uri uri) => (uri.GetHashCode() * 397) ^ GetSafeFragment(uri).GetHashCode();
+	public int GetHashCode(Uri uri) => HashCode.Combine(uri, GetSafeFragment(uri));
 
 #endregion
 

@@ -23,8 +23,6 @@ using Xtate.Service;
 
 namespace Xtate;
 
-public interface IStateMachineHostBuilder;
-
 public sealed class StateMachineHostBuilder : IStateMachineHostBuilder
 {
 	private readonly List<object> _actions = [];

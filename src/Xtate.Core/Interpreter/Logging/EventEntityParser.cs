@@ -21,8 +21,6 @@ namespace Xtate.Core;
 
 public class EventEntityParser<TSource> : EntityParserBase<TSource, IEvent>
 {
-	public required IDataModelHandler DataModelHandler { private get; [UsedImplicitly] init; }
-
 	protected override IEnumerable<LoggingParameter> EnumerateProperties(IEvent evt)
 	{
 		if (!evt.NameParts.IsDefaultOrEmpty)
@@ -51,8 +49,16 @@ public class EventEntityParser<TSource> : EntityParserBase<TSource, IEvent>
 		{
 			yield return new LoggingParameter(name: @"InvokeId", invokeId);
 		}
+	}
+}
 
-		if (IsVerboseLogging && !evt.Data.IsUndefined())
+public class EventVerboseEntityParser<TSource>() : EntityParserBase<TSource, IEvent>(Level.Verbose)
+{
+	public required IDataModelHandler DataModelHandler { private get; [UsedImplicitly] init; }
+
+	protected override IEnumerable<LoggingParameter> EnumerateProperties(IEvent evt)
+	{
+		if (!evt.Data.IsUndefined())
 		{
 			yield return new LoggingParameter(name: @"Data", evt.Data.ToObject());
 

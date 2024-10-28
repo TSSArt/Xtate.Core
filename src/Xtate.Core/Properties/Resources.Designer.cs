@@ -1704,6 +1704,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to More than one Service Factory registered for processing invoke type: &lt;{0}&gt;..
+        /// </summary>
+        internal static string Exception_MoreThanOneServiceFactoryRegisteredForPprocessingInvokeType {
+            get {
+                return ResourceManager.GetString("Exception_MoreThanOneServiceFactoryRegisteredForPprocessingInvokeType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Message read partially. {0} of {1} bytes..
         /// </summary>
         internal static string Exception_NamedPipeIoProcessorMessageReadPartially {
@@ -2116,6 +2125,15 @@ namespace Xtate {
             get {
                 return ResourceManager.GetString("Exception_ThereIsNoAnyCustomActionProviderRegisteredForProcessingCustomActionNode" +
                         "", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There is no any Service Factory registered for processing invoke type: &lt;{0}&gt;..
+        /// </summary>
+        internal static string Exception_ThereIsNoAnyServiceFactoryRegisteredForPprocessingInvokeType {
+            get {
+                return ResourceManager.GetString("Exception_ThereIsNoAnyServiceFactoryRegisteredForPprocessingInvokeType", resourceCulture);
             }
         }
         

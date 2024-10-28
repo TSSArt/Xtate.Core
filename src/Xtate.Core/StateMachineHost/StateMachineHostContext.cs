@@ -23,12 +23,6 @@ using Xtate.Service;
 
 namespace Xtate.Core;
 
-public interface IStateMachineHostContext
-{
-	void AddStateMachineController(SessionId sessionId, IStateMachineController controller);
-	void RemoveStateMachineController(SessionId sessionId);
-}
-
 public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposable
 {
 	private const string Location = "location";
@@ -40,24 +34,24 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 	private readonly ConcurrentDictionary<SessionId, SessionId>               _parentSessionIdBySessionId = new();
 	private readonly ConcurrentDictionary<InvokeId, IService?>                _serviceByInvokeId          = new();
 	private readonly ConcurrentDictionary<SessionId, IStateMachineController> _stateMachineBySessionId    = new();
-	private readonly IStateMachineHost                                        _stateMachineHost;
+	//private readonly IStateMachineHost                                        _stateMachineHost;
 	private readonly CancellationTokenSource                                  _stopTokenSource;
 	private readonly CancellationTokenSource                                  _suspendTokenSource;
 	private          IEventScheduler?                                         _eventScheduler;
 
-	public StateMachineHostContext(IStateMachineHost stateMachineHost, StateMachineHostOptions options, IEventSchedulerFactory defaultEventSchedulerFactory)
+	public StateMachineHostContext(/*IStateMachineHost stateMachineHost,*/ StateMachineHostOptions options, IEventSchedulerFactory defaultEventSchedulerFactory)
 	{
-		_stateMachineHost = stateMachineHost;
+		//_stateMachineHost = stateMachineHost;
 		_options = options;
 		_defaultEventSchedulerFactory = defaultEventSchedulerFactory;
 		_suspendTokenSource = new CancellationTokenSource();
 		_stopTokenSource = new CancellationTokenSource();
 
 		_contextRuntimeItems = ImmutableDictionary<object, object>.Empty;
-		if (stateMachineHost is IHostController host)
+		/*if (stateMachineHost is IHostController host)
 		{
 			_contextRuntimeItems = _contextRuntimeItems.Add(typeof(IHostController), host);
-		}
+		}*/
 
 		if (options.Configuration is { Count : > 0 } configuration)
 		{
@@ -111,28 +105,32 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 
 		return default;
 	}
-
+	
 	public virtual async ValueTask InitializeAsync()//TODO: make it asycinitialization
 	{
 		var eventSchedulerFactory = _options.EventSchedulerFactory ?? _defaultEventSchedulerFactory;
 
-		_eventScheduler = await eventSchedulerFactory.CreateEventScheduler(_stateMachineHost, _options.EsLogger, default).ConfigureAwait(false);
+		_eventScheduler = await eventSchedulerFactory.CreateEventScheduler(/*_stateMachineHost*/ null, _options.EsLogger, default).ConfigureAwait(false);
 	}
 
 	public ValueTask ScheduleEvent(IHostEvent hostEvent, CancellationToken token)
 	{
-		Infra.NotNull(_eventScheduler);
+		//Infra.NotNull(_eventScheduler);
 
-		return _eventScheduler.ScheduleEvent(hostEvent, token);
+		//return _eventScheduler.ScheduleEvent(hostEvent, token);
+		//TODO:
+		return default;
 	}
 
 	public ValueTask CancelEvent(SessionId sessionId, SendId sendId, CancellationToken token)
 	{
-		Infra.NotNull(_eventScheduler);
+		//Infra.NotNull(_eventScheduler);
 
-		return _eventScheduler.CancelEvent(sessionId, sendId, token);
+		//return _eventScheduler.CancelEvent(sessionId, sendId, token);
+		//TODO:
+		return default;
 	}
-
+	/*
 	private InterpreterOptions CreateInterpreterOptions( //ServiceLocator serviceLocator,
 		Uri? baseUri,
 		DataModelList? hostData,
@@ -156,21 +154,21 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 			Host = hostData,
 			ErrorProcessor = errorProcessor,
 			Arguments = arguments
-		};
+		};*/
 
 	[Obsolete]
 	protected virtual StateMachineControllerBase CreateStateMachineController(SessionId sessionId,
 																			  IStateMachine? stateMachine,
 																			  IStateMachineOptions? stateMachineOptions,
-																			  Uri? stateMachineLocation,
-																			  InterpreterOptions defaultOptions
+																			  Uri? stateMachineLocation/*,
+																			  InterpreterOptions defaultOptions*/
 
 		//SecurityContext securityContext,
 		//																	  DeferredFinalizer finalizer
 	) =>
 		new StateMachineRuntimeController(
-			sessionId, stateMachineOptions, stateMachine, stateMachineLocation, _stateMachineHost,
-			_options.SuspendIdlePeriod, defaultOptions)
+			sessionId, stateMachineOptions, stateMachine, stateMachineLocation, /*_stateMachineHost*/null,
+			_options.SuspendIdlePeriod/*, defaultOptions*/)
 		{
 			EventQueueWriter = default!, StateMachineInterpreter = default
 		};
@@ -276,11 +274,11 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 	{
 		var (stateMachine, location) = await LoadStateMachine(origin, _options.BaseUri, securityContext, errorProcessor, token).ConfigureAwait(false);
 
-		var interpreterOptions = CreateInterpreterOptions(location, CreateHostData(location), errorProcessor, parameters);
+		//var interpreterOptions = CreateInterpreterOptions(location, CreateHostData(location), errorProcessor, parameters);
 
 		stateMachine.Is<IStateMachineOptions>(out var stateMachineOptions);
 
-		return CreateStateMachineController(sessionId, stateMachine, stateMachineOptions, location, interpreterOptions);
+		return CreateStateMachineController(sessionId, stateMachine, stateMachineOptions, location/*, interpreterOptions*/);
 	}
 
 	protected StateMachineControllerBase AddSavedStateMachine( //ServiceLocator serviceLocator,
@@ -292,9 +290,9 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 		//DeferredFinalizer finalizer,
 		IErrorProcessor errorProcessor)
 	{
-		var interpreterOptions = CreateInterpreterOptions(stateMachineLocation, CreateHostData(stateMachineLocation), errorProcessor);
+		//var interpreterOptions = CreateInterpreterOptions(stateMachineLocation, CreateHostData(stateMachineLocation), errorProcessor);
 
-		return CreateStateMachineController(sessionId, stateMachine: default, stateMachineOptions, stateMachineLocation, interpreterOptions);
+		return CreateStateMachineController(sessionId, stateMachine: default, stateMachineOptions, stateMachineLocation/*, interpreterOptions*/);
 	}
 
 	private static DataModelList? CreateHostData(Uri? stateMachineLocation)

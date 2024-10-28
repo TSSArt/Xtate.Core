@@ -17,13 +17,12 @@
 
 namespace Xtate;
 
-public record InvokeData(InvokeId InvokeId, Uri Type)
-{
-	public Uri?           Source     { get; init; }
-	public string?        RawContent { get; init; }
-	public DataModelValue Content    { get; init; }
-	public DataModelValue Parameters { get; init; }
-}
+public record InvokeData(
+	Uri Type,
+	Uri? Source,
+	string? RawContent,
+	DataModelValue Content,
+	DataModelValue Parameters);
 
 public interface IEventController
 {
@@ -34,7 +33,7 @@ public interface IEventController
 
 public interface IInvokeController
 {
-	ValueTask Start(InvokeData invokeData);
+	ValueTask Start(InvokeId invokeId, InvokeData invokeData);
 
 	ValueTask Cancel(InvokeId invokeId);
 

@@ -16,6 +16,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.IO;
+using System.Net.Mime;
 using Xtate.IoC;
 
 namespace Xtate.Core;
@@ -25,6 +26,6 @@ public class ResourceModule : Module
 	protected override void AddServices()
 	{
 		Services.AddSharedImplementation<DefaultIoBoundTask>(SharedWithin.Container).For<IIoBoundTask>();
-		Services.AddTypeSync<Resource, Stream>();
+		Services.AddTypeSync<Resource, Stream, ContentType?>();
 	}
 }

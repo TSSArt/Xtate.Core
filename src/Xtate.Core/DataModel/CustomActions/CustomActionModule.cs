@@ -15,17 +15,16 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Core;
+using Xtate.CustomAction;
+using Xtate.IoC;
 
-public class StateMachineInterpreterOptions(IStateMachineStartOptions stateMachineStartOptions) : IStateMachineInterpreterOptions
+namespace Xtate.DataModel;
+
+public class CustomActionModule : Module
 {
-	public InterpreterOptions options { get; } = new();
-
-#region Interface IStateMachineInterpreterOptions
-
-	public SessionId SessionId { get; } = stateMachineStartOptions.SessionId;
-
-#endregion
-
-	//public IInterpreterModel     model        => _interpreterModel;
+	protected override void AddServices()
+	{
+		Services.AddTypeSync<CustomActionContainer, ICustomAction>();
+		Services.AddSharedFactorySync<CustomActionFactory>(SharedWithin.Scope).For<IAction, ICustomAction>(Option.DoNotDispose);
+	}
 }

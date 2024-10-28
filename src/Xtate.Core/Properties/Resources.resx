@@ -949,4 +949,10 @@ Exception: {3}</value>
   <data name="Exception_SharedInstanceAlreadyAssigned" xml:space="preserve">
 	  <value>Shared instance already assigned for type {0}.</value>
   </data>
+  <data name="Exception_MoreThanOneServiceFactoryRegisteredForPprocessingInvokeType" xml:space="preserve">
+	  <value>More than one Service Factory registered for processing invoke type: &lt;{0}&gt;.</value>
+  </data>
+  <data name="Exception_ThereIsNoAnyServiceFactoryRegisteredForPprocessingInvokeType" xml:space="preserve">
+	  <value>There is no any Service Factory registered for processing invoke type: &lt;{0}&gt;.</value>
+  </data>
 </root>

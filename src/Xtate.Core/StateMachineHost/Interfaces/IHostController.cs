@@ -19,7 +19,7 @@ namespace Xtate.Core;
 
 public interface IHostController
 {
-	ValueTask StartStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType);
+	ValueTask<IStateMachineController> StartStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType);
 
 	ValueTask<DataModelValue> ExecuteStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType);
 

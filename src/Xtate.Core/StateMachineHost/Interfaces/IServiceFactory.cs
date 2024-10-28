@@ -19,5 +19,5 @@ namespace Xtate.Service;
 
 public interface IServiceFactory
 {
-	ValueTask<IServiceFactoryActivator?> TryGetActivator(Uri type);
+	ValueTask<IServiceActivator?> TryGetActivator(Uri type);
 }

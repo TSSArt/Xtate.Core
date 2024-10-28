@@ -31,18 +31,48 @@ public static class StreamExtensions
 	[SuppressMessage(category: "ReSharper", checkId: "MethodHasAsyncOverloadWithCancellation")]
 	public static async ValueTask<byte[]> ReadToEndAsync(this Stream stream, CancellationToken token)
 	{
-		if (stream is null) throw new ArgumentNullException(nameof(stream));
+		Infra.Requires(stream);
 
-		var longLength = stream.Length - stream.Position;
+		var longLength = stream.CanSeek ? stream.Length - stream.Position : 0;
 		var capacity = longLength is >= 0 and <= int.MaxValue ? (int) longLength : 0;
 
 		var memoryStream = new MemoryStream(capacity);
-		var buffer = ArrayPool<byte>.Shared.Rent(4096);
+		var buffer = ArrayPool<byte>.Shared.Rent(65536);
 		try
 		{
 			while (true)
 			{
 				var bytesRead = await stream.ReadAsync(buffer, offset: 0, buffer.Length, token).ConfigureAwait(false);
+				if (bytesRead == 0)
+				{
+					return memoryStream.Length == memoryStream.Capacity ? memoryStream.GetBuffer() : memoryStream.ToArray();
+				}
+
+				memoryStream.Write(buffer, offset: 0, bytesRead);
+			}
+		}
+		finally
+		{
+			ArrayPool<byte>.Shared.Return(buffer);
+		}
+	}
+
+	public static byte[] ReadToEnd(this Stream stream, CancellationToken token)
+	{
+		Infra.Requires(stream);
+
+		var longLength = stream.CanSeek ? stream.Length - stream.Position : 0;
+		var capacity = longLength is >= 0 and <= int.MaxValue ? (int) longLength : 0;
+
+		var memoryStream = new MemoryStream(capacity);
+		var buffer = ArrayPool<byte>.Shared.Rent(65536);
+		try
+		{
+			while (true)
+			{
+				token.ThrowIfCancellationRequested();
+
+				var bytesRead = stream.Read(buffer, offset: 0, buffer.Length);
 				if (bytesRead == 0)
 				{
 					return memoryStream.Length == memoryStream.Capacity ? memoryStream.GetBuffer() : memoryStream.ToArray();
