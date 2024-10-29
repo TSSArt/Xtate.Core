@@ -31,6 +31,7 @@ public sealed class EventDescriptor : IEventDescriptor
 
 		var parts = value.Split(Dot, StringSplitOptions.None);
 		var length = parts.Length;
+
 		if (length > 0 && parts[length - 1] == @"*")
 		{
 			length --;

@@ -17,7 +17,6 @@
 
 namespace Xtate.Builder;
 
-
 public class ElseIfBuilder : BuilderBase, IElseIfBuilder
 {
 	private IConditionExpression? _condition;

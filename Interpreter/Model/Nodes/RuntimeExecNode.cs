@@ -22,7 +22,8 @@ namespace Xtate.Core;
 public sealed class RuntimeExecNode : IExecutableEntity, IStoreSupport, IAncestorProvider, IDocumentId
 {
 	private readonly IExecutableEntity _entity;
-	private          DocumentIdSlot    _documentIdSlot;
+
+	private DocumentIdSlot _documentIdSlot;
 
 	public RuntimeExecNode(DocumentIdNode documentIdNode, IExecutableEntity entity)
 	{

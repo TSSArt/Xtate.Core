@@ -21,19 +21,31 @@ namespace Xtate.DataModel;
 
 public abstract class DataModelHandlerBase : StateMachineVisitor, IDataModelHandler
 {
-	public required Func<ILog, DefaultLogEvaluator>                                       DefaultLogEvaluatorFactory                    { private get; [UsedImplicitly] init; }
-	public required Func<ISend, DefaultSendEvaluator>                                     DefaultSendEvaluatorFactory                   { private get; [UsedImplicitly] init; }
-	public required Func<ICancel, DefaultCancelEvaluator>                                 DefaultCancelEvaluatorFactory                 { private get; [UsedImplicitly] init; }
-	public required Func<IIf, DefaultIfEvaluator>                                         DefaultIfEvaluatorFactory                     { private get; [UsedImplicitly] init; }
-	public required Func<IRaise, DefaultRaiseEvaluator>                                   DefaultRaiseEvaluatorFactory                  { private get; [UsedImplicitly] init; }
-	public required Func<IForEach, DefaultForEachEvaluator>                               DefaultForEachEvaluatorFactory                { private get; [UsedImplicitly] init; }
-	public required Func<IAssign, DefaultAssignEvaluator>                                 DefaultAssignEvaluatorFactory                 { private get; [UsedImplicitly] init; }
-	public required Func<IScript, DefaultScriptEvaluator>                                 DefaultScriptEvaluatorFactory                 { private get; [UsedImplicitly] init; }
-	public required Func<ICustomAction, DefaultCustomActionEvaluator>                     DefaultCustomActionEvaluatorFactory           { private get; [UsedImplicitly] init; }
-	public required Func<IContentBody, DefaultContentBodyEvaluator>                       DefaultContentBodyEvaluatorFactory            { private get; [UsedImplicitly] init; }
-	public required Func<IInlineContent, DefaultInlineContentEvaluator>                   DefaultInlineContentEvaluatorFactory          { private get; [UsedImplicitly] init; }
+	public required Func<ILog, DefaultLogEvaluator> DefaultLogEvaluatorFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<ISend, DefaultSendEvaluator> DefaultSendEvaluatorFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<ICancel, DefaultCancelEvaluator> DefaultCancelEvaluatorFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<IIf, DefaultIfEvaluator> DefaultIfEvaluatorFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<IRaise, DefaultRaiseEvaluator> DefaultRaiseEvaluatorFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<IForEach, DefaultForEachEvaluator> DefaultForEachEvaluatorFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<IAssign, DefaultAssignEvaluator> DefaultAssignEvaluatorFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<IScript, DefaultScriptEvaluator> DefaultScriptEvaluatorFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<ICustomAction, DefaultCustomActionEvaluator> DefaultCustomActionEvaluatorFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<IContentBody, DefaultContentBodyEvaluator> DefaultContentBodyEvaluatorFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<IInlineContent, DefaultInlineContentEvaluator> DefaultInlineContentEvaluatorFactory { private get; [UsedImplicitly] init; }
+
 	public required Func<IExternalDataExpression, DefaultExternalDataExpressionEvaluator> DefaultExternalDataExpressionEvaluatorFactory { private get; [UsedImplicitly] init; }
-	public required Func<ICustomAction, CustomActionContainer>                            CustomActionContainerFactory                  { private get; [UsedImplicitly] init; }
+
+	public required Func<ICustomAction, CustomActionContainer> CustomActionContainerFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IDataModelHandler
 

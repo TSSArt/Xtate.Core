@@ -17,10 +17,10 @@
 
 namespace Xtate.Builder;
 
-
 public class ContentBuilder : BuilderBase, IContentBuilder
 {
-	private IContentBody?     _body;
+	private IContentBody? _body;
+
 	private IValueExpression? _expression;
 
 #region Interface IContentBuilder

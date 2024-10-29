@@ -74,12 +74,14 @@ public abstract class LazyId : ILazyValue, IObject
 	protected static bool TryGetHashFromId(string id, out int hash)
 	{
 		var start = id.Length - 8;
+
 		if (start >= 0 && TryHexToInt32(id.AsSpan(start), out hash))
 		{
 			return true;
 		}
 
 		hash = 0;
+
 		return false;
 	}
 
@@ -95,12 +97,15 @@ public abstract class LazyId : ILazyValue, IObject
 			{
 				case >= '0' and <= '9':
 					value |= ch - '0';
+
 					break;
 				case >= 'a' and <= 'f':
 					value |= ch - 'a' + 10;
+
 					break;
 				case >= 'A' and <= 'F':
 					value |= ch - 'A' + 10;
+
 					break;
 				default: return false;
 			}

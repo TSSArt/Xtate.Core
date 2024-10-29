@@ -23,7 +23,8 @@ namespace Xtate.DataModel.XPath;
 public class XPathCompiledExpression
 {
 	private readonly XPathExpressionContext _expressionContext;
-	private readonly XPathExpression        _xPathExpression;
+
+	private readonly XPathExpression _xPathExpression;
 
 	public XPathCompiledExpression(string expression,
 								   IXmlNamespacesInfo? xmlNamespacesInfo,

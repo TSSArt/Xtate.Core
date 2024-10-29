@@ -16,7 +16,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #if !NETSTANDARD2_1 && !NETCOREAPP2_1_OR_GREATER
-
 namespace System;
 
 internal struct HashCode
@@ -63,9 +62,10 @@ internal struct HashCode
 	}
 
 	public static int Combine<T1, T2, T3, T4, T5>(T1 value1,
-											  T2 value2,
-											  T3 value3,
-											  T4 value4,T5 value5)
+												  T2 value2,
+												  T3 value3,
+												  T4 value4,
+												  T5 value5)
 	{
 		unchecked
 		{

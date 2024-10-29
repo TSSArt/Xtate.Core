@@ -29,6 +29,7 @@ internal static class QueryStringHelper
 		var anchorText = string.Empty;
 
 		var anchorIndex = uri.IndexOf('#');
+
 		if (anchorIndex >= 0)
 		{
 			anchorText = uri[anchorIndex..];
@@ -54,6 +55,7 @@ internal static class QueryStringHelper
 		}
 
 		var scanIndex = 0;
+
 		if (query[0] == '?')
 		{
 			scanIndex = 1;
@@ -61,6 +63,7 @@ internal static class QueryStringHelper
 
 		var textLength = query.Length;
 		var equalIndex = query.IndexOf('=');
+
 		if (equalIndex < 0)
 		{
 			equalIndex = textLength;
@@ -69,6 +72,7 @@ internal static class QueryStringHelper
 		while (scanIndex < textLength)
 		{
 			var delimiterIndex = query.IndexOf(value: '&', scanIndex);
+
 			if (delimiterIndex < 0)
 			{
 				delimiterIndex = textLength;
@@ -87,6 +91,7 @@ internal static class QueryStringHelper
 				collection.Add(name, value);
 
 				equalIndex = query.IndexOf(value: '=', delimiterIndex);
+
 				if (equalIndex < 0)
 				{
 					equalIndex = textLength;

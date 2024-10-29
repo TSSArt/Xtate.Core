@@ -17,22 +17,33 @@
 
 namespace Xtate.Builder;
 
-
 public class SendBuilder : BuilderBase, ISendBuilder
 {
-	private IContent?                           _content;
-	private IValueExpression?                   _delayExpression;
-	private int?                                _delayMs;
-	private string?                             _event;
-	private IValueExpression?                   _eventExpression;
-	private string?                             _id;
-	private ILocationExpression?                _idLocation;
+	private IContent? _content;
+
+	private IValueExpression? _delayExpression;
+
+	private int? _delayMs;
+
+	private string? _event;
+
+	private IValueExpression? _eventExpression;
+
+	private string? _id;
+
+	private ILocationExpression? _idLocation;
+
 	private ImmutableArray<ILocationExpression> _nameList;
-	private ImmutableArray<IParam>.Builder?     _parameters;
-	private Uri?                                _target;
-	private IValueExpression?                   _targetExpression;
-	private Uri?                                _type;
-	private IValueExpression?                   _typeExpression;
+
+	private ImmutableArray<IParam>.Builder? _parameters;
+
+	private Uri? _target;
+
+	private IValueExpression? _targetExpression;
+
+	private Uri? _type;
+
+	private IValueExpression? _typeExpression;
 
 #region Interface ISendBuilder
 

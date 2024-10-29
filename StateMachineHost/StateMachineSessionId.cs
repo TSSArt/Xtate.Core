@@ -17,7 +17,6 @@
 
 namespace Xtate.Core;
 
-
 public class StateMachineSessionId : IStateMachineSessionId
 {
 #region Interface IStateMachineSessionId

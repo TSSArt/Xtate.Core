@@ -20,13 +20,18 @@ namespace Xtate.Persistence;
 internal sealed class ServiceIdSetPersistingController : IDisposable
 {
 	private const int ServiceId = 0;
-	private const int Operation = 1;
-	private const int Added     = 2;
-	private const int Removed   = 3;
 
-	private readonly Bucket       _bucket;
+	private const int Operation = 1;
+
+	private const int Added = 2;
+
+	private const int Removed = 3;
+
+	private readonly Bucket _bucket;
+
 	private readonly ServiceIdSet _serviceIdSet;
-	private          int          _record;
+
+	private int _record;
 
 	public ServiceIdSetPersistingController(in Bucket bucket, ServiceIdSet serviceIdSet)
 	{
@@ -34,6 +39,7 @@ internal sealed class ServiceIdSetPersistingController : IDisposable
 		_serviceIdSet = serviceIdSet ?? throw new ArgumentNullException(nameof(serviceIdSet));
 
 		var shrink = serviceIdSet.Count > 0;
+
 		while (true)
 		{
 			var recordBucket = bucket.Nested(_record);
@@ -48,11 +54,13 @@ internal sealed class ServiceIdSetPersistingController : IDisposable
 			{
 				case Added:
 					_serviceIdSet.Add(serviceId);
+
 					break;
 
 				case Removed:
 					_serviceIdSet.Remove(serviceId);
 					shrink = true;
+
 					break;
 			}
 
@@ -64,6 +72,7 @@ internal sealed class ServiceIdSetPersistingController : IDisposable
 			bucket.RemoveSubtree(Bucket.RootKey);
 
 			_record = 0;
+
 			foreach (var serviceId in _serviceIdSet)
 			{
 				var recordBucket = bucket.Nested(_record ++);
@@ -93,6 +102,7 @@ internal sealed class ServiceIdSetPersistingController : IDisposable
 				var bucket = _bucket.Nested(_record ++);
 				bucket.AddServiceId(ServiceId, serviceId);
 				bucket.Add(Operation, Added);
+
 				break;
 			}
 

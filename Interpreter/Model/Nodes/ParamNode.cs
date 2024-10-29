@@ -21,8 +21,9 @@ namespace Xtate.Core;
 
 public sealed class ParamNode : IParam, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 {
-	private readonly IParam         _param;
-	private          DocumentIdSlot _documentIdSlot;
+	private readonly IParam _param;
+
+	private DocumentIdSlot _documentIdSlot;
 
 	public ParamNode(DocumentIdNode documentIdNode, IParam param)
 	{

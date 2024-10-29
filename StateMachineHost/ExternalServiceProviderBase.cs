@@ -15,9 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.ComponentModel;
-using Xtate.CustomAction;
-
 namespace Xtate.Service;
 
 [Obsolete("Use ExternalServiceProvider<TService>")]
@@ -25,7 +22,7 @@ public abstract class ExternalServiceProviderBase : IExternalServiceProvider
 {
 	private Activator? _activator;
 
-#region Interface IServiceFactory
+#region Interface IExternalServiceProvider
 
 	public ValueTask<IExternalServiceActivator?> TryGetActivator(Uri type)
 	{
@@ -82,8 +79,8 @@ public abstract class ExternalServiceProviderBase : IExternalServiceProvider
 		public bool CanHandle(Uri type) => _creators.ContainsKey(type);
 
 		public ValueTask<IExternalService> CreateService(Uri? baseUri,
-												 InvokeData invokeData,
-												 IServiceCommunication serviceCommunication)
+														 InvokeData invokeData,
+														 IServiceCommunication serviceCommunication)
 		{
 			switch (_creators[invokeData.Type])
 			{
@@ -108,12 +105,9 @@ public abstract class ExternalServiceProviderBase : IExternalServiceProvider
 
 	private class Activator(Catalog catalog) : IExternalServiceActivator
 	{
-		#region Interface IServiceActivator
+	#region Interface IExternalServiceActivator
 
-		public ValueTask<IExternalService> StartService()
-		{
-			throw new NotImplementedException();
-		}
+		public ValueTask<IExternalService> StartService() => throw new NotImplementedException();
 
 		public ValueTask<IExternalService> StartService(Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication)
 		{

@@ -17,11 +17,11 @@
 
 namespace Xtate.Builder;
 
-
 public class LogBuilder : BuilderBase, ILogBuilder
 {
 	private IValueExpression? _expression;
-	private string?           _label;
+
+	private string? _label;
 
 #region Interface ILogBuilder
 

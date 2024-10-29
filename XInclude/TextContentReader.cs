@@ -103,9 +103,11 @@ internal sealed class TextContentReader(Uri uri, string content) : XmlReader
 		{
 			case ReadState.Initial:
 				_readState = ReadState.Interactive;
+
 				return true;
 			case ReadState.Interactive:
 				_readState = ReadState.EndOfFile;
+
 				return false;
 			default:
 				return false;

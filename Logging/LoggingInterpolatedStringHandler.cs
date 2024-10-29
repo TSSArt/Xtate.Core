@@ -23,8 +23,10 @@ namespace Xtate.Core;
 public readonly struct LoggingInterpolatedStringHandler
 {
 	private readonly ImmutableArray<LoggingParameter>.Builder? _parametersBuilder;
-	private readonly IFormatProvider?                          _provider;
-	private readonly StringBuilder?                            _stringBuilder;
+
+	private readonly IFormatProvider? _provider;
+
+	private readonly StringBuilder? _stringBuilder;
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public LoggingInterpolatedStringHandler(int literalLength,
@@ -67,7 +69,7 @@ public readonly struct LoggingInterpolatedStringHandler
 		if (value is ISpanFormattable spanFormattable && spanFormattable.TryFormat(buf, out var charsWritten, format.AsSpan(), _provider))
 		{
 			_stringBuilder!.Append(buf[..charsWritten]);
-		}	
+		}
 		else if (value is IFormattable formattable)
 		{
 			_stringBuilder!.Append(formattable.ToString(format, _provider));

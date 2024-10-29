@@ -22,15 +22,22 @@ namespace Xtate.Persistence;
 internal sealed class ChannelPersistingController<T> : Channel<T>, IDisposable
 {
 	private const int Head = 0;
+
 	private const int Tail = 1;
 
-	private readonly Channel<T>                          _baseChannel;
-	private readonly TaskCompletionSource<int>           _initializedTcs = new();
-	private          Bucket                              _bucket;
-	private          int                                 _headIndex;
-	private          Func<CancellationToken, ValueTask>? _postAction;
-	private          SemaphoreSlim?                      _storageLock;
-	private          int                                 _tailIndex;
+	private readonly Channel<T> _baseChannel;
+
+	private readonly TaskCompletionSource<int> _initializedTcs = new();
+
+	private Bucket _bucket;
+
+	private int _headIndex;
+
+	private Func<CancellationToken, ValueTask>? _postAction;
+
+	private SemaphoreSlim? _storageLock;
+
+	private int _tailIndex;
 
 	public ChannelPersistingController(Channel<T> baseChannel)
 	{
@@ -82,6 +89,7 @@ internal sealed class ChannelPersistingController<T> : Channel<T>, IDisposable
 			await parent._initializedTcs.Task.WaitAsync(token).ConfigureAwait(false);
 
 			await parent._storageLock!.WaitAsync(token).ConfigureAwait(false);
+
 			try
 			{
 				return await parent._baseChannel.Reader.WaitToReadAsync(token).ConfigureAwait(false);
@@ -97,6 +105,7 @@ internal sealed class ChannelPersistingController<T> : Channel<T>, IDisposable
 			await parent._initializedTcs.Task.WaitAsync(token).ConfigureAwait(false);
 
 			await parent._storageLock!.WaitAsync(token).ConfigureAwait(false);
+
 			try
 			{
 				var item = await parent._baseChannel.Reader.ReadAsync(token).ConfigureAwait(false);
@@ -134,6 +143,7 @@ internal sealed class ChannelPersistingController<T> : Channel<T>, IDisposable
 			await parent._initializedTcs.Task.WaitAsync(token).ConfigureAwait(false);
 
 			await parent._storageLock!.WaitAsync(token).ConfigureAwait(false);
+
 			try
 			{
 				return await parent._baseChannel.Writer.WaitToWriteAsync(token).ConfigureAwait(false);
@@ -151,6 +161,7 @@ internal sealed class ChannelPersistingController<T> : Channel<T>, IDisposable
 			await parent._initializedTcs.Task.WaitAsync(token).ConfigureAwait(false);
 
 			await parent._storageLock!.WaitAsync(token).ConfigureAwait(false);
+
 			try
 			{
 				await parent._baseChannel.Writer.WriteAsync(item, token).ConfigureAwait(false);

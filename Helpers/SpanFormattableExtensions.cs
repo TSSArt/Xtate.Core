@@ -20,7 +20,6 @@ namespace Xtate.Core;
 internal static class SpanFormattableExtensions
 {
 #if !NETSTANDARD2_1 && !NETCOREAPP2_1_OR_GREATER
-
 	public static bool TryFormat(this bool val, Span<char> destination, out int charsWritten) => val.ToString().TryCopyTo(destination, out charsWritten);
 
 	public static bool TryFormat(this long val,

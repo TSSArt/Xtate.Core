@@ -26,7 +26,8 @@ namespace Xtate;
 public sealed class StateMachineHostBuilder : IStateMachineHostBuilder
 {
 	private readonly List<object> _actions = [];
-	private          Uri?         _baseUri;
+
+	private Uri? _baseUri;
 
 	private ImmutableDictionary<string, string>.Builder? _configuration;
 
@@ -39,8 +40,10 @@ public sealed class StateMachineHostBuilder : IStateMachineHostBuilder
 
 	//private ImmutableArray<IResourceLoaderFactory>.Builder? _resourceLoaderFactories;
 	private ImmutableArray<IExternalServiceProvider>.Builder? _serviceFactories;
-	private IStorageProvider?                        _storageProvider;
-	private TimeSpan?                                _suspendIdlePeriod;
+
+	private IStorageProvider? _storageProvider;
+
+	private TimeSpan? _suspendIdlePeriod;
 
 	private UnhandledErrorBehaviour _unhandledErrorBehaviour;
 

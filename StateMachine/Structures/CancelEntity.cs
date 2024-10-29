@@ -29,7 +29,8 @@ public struct CancelEntity : ICancel, IVisitorEntity<CancelEntity, ICancel>, IAn
 
 #region Interface ICancel
 
-	public string?           SendId           { get; set; }
+	public string? SendId { get; set; }
+
 	public IValueExpression? SendIdExpression { get; set; }
 
 #endregion

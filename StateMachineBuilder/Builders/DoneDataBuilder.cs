@@ -17,10 +17,10 @@
 
 namespace Xtate.Builder;
 
-
 public class DoneDataBuilder : BuilderBase, IDoneDataBuilder
 {
-	private IContent?                       _content;
+	private IContent? _content;
+
 	private ImmutableArray<IParam>.Builder? _parameters;
 
 #region Interface IDoneDataBuilder

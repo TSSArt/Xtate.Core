@@ -26,6 +26,6 @@ public interface IHostController
 	ValueTask DestroyStateMachine(SessionId sessionId);
 
 	ValueTask StartHost();
-	
+
 	ValueTask StopHost();
 }

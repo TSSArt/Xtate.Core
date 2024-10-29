@@ -22,8 +22,10 @@ namespace Xtate.DataModel.XPath;
 internal class XPathStripRootsIterator(XPathNodeIterator iterator) : XPathNodeIterator
 {
 	private readonly XPathNodeIterator _iterator = iterator.Clone();
-	private          XPathNavigator?   _current;
-	private          int               _position;
+
+	private XPathNavigator? _current;
+
+	private int _position;
 
 	public override XPathNavigator? Current => _current;
 

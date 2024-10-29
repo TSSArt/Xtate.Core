@@ -22,7 +22,8 @@ namespace Xtate.CustomAction;
 public abstract class SyncAction : ActionBase, IAction
 {
 	private Location[]? _locations;
-	private Value[]?    _values;
+
+	private Value[]? _values;
 
 	private Value[] Values => _values ??= GetValues().ToArray();
 

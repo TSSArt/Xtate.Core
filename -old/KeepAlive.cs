@@ -19,23 +19,31 @@ namespace Xtate.Core;
 
 internal class KeepAlive : TaskCompletionSource, IKeepAlive, IDisposable
 {
-	public Task Wait() => Task;
+#region Interface IDisposable
 
 	public void Dispose() => TrySetResult();
+
+#endregion
+
+#region Interface IKeepAlive
+
+	public Task Wait() => Task;
+
+#endregion
 }
 
 /*
 public class ScopeManagerOld : IScopeManagerOld
 {
 	public required IServiceScopeFactory     _serviceScopeFactory;
-	
+
 	public required  IStateMachineHost        _stateMachineHost;
 	public required  IStateMachineHostContext _stateMachineHostContext;
 
 
-	
 
-	
+
+
 
 #region Interface IScopeManager
 
@@ -121,7 +129,7 @@ public class ScopeManagerOld : IScopeManagerOld
 			case StateMachineOriginType.StateMachine:
 			{
 				var stateMachine = stateMachineStartOptions.Origin.AsStateMachine();
-				
+
 				return _serviceScopeFactory.CreateScope(
 					services =>
 					{
@@ -138,7 +146,7 @@ public class ScopeManagerOld : IScopeManagerOld
 			{
 				var scxmlStateMachine = new ScxmlStateMachine(stateMachineStartOptions.Origin.AsScxml());
 				var stateMachineLocation = stateMachineStartOptions.Origin.BaseUri is { } uri ? new StateMachineLocation(uri) : null;
-				
+
 				return _serviceScopeFactory.CreateScope(
 					services =>
 					{
@@ -160,7 +168,7 @@ public class ScopeManagerOld : IScopeManagerOld
 			{
 				var location = stateMachineStartOptions.Origin.BaseUri.CombineWith(stateMachineStartOptions.Origin.AsSource());
 				var stateMachineLocation = new StateMachineLocation(location);
-				
+
 				return _serviceScopeFactory.CreateScope(
 					services =>
 					{

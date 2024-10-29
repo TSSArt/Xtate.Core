@@ -19,8 +19,11 @@ namespace Xtate.Core;
 
 public interface IStateMachineStartOptions
 {
-	SessionId           SessionId           { get; init; }
-	StateMachineOrigin  Origin              { get; init; }
-	DataModelValue      Parameters          { get; init; }
+	SessionId SessionId { get; init; }
+
+	StateMachineOrigin Origin { get; init; }
+
+	DataModelValue Parameters { get; init; }
+
 	SecurityContextType SecurityContextType { get; init; }
 }

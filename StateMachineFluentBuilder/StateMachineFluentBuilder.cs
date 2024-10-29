@@ -21,9 +21,11 @@ public class StateMachineFluentBuilder
 {
 	public required IStateMachineBuilder Builder { private get; [UsedImplicitly] init; }
 
-	public required Func<StateMachineFluentBuilder, Action<IState>, StateFluentBuilder<StateMachineFluentBuilder>>       StateFluentBuilderFactory    { private get; [UsedImplicitly] init; }
+	public required Func<StateMachineFluentBuilder, Action<IState>, StateFluentBuilder<StateMachineFluentBuilder>> StateFluentBuilderFactory { private get; [UsedImplicitly] init; }
+
 	public required Func<StateMachineFluentBuilder, Action<IParallel>, ParallelFluentBuilder<StateMachineFluentBuilder>> ParallelFluentBuilderFactory { private get; [UsedImplicitly] init; }
-	public required Func<StateMachineFluentBuilder, Action<IFinal>, FinalFluentBuilder<StateMachineFluentBuilder>>       FinalFluentBuilderFactory    { private get; [UsedImplicitly] init; }
+
+	public required Func<StateMachineFluentBuilder, Action<IFinal>, FinalFluentBuilder<StateMachineFluentBuilder>> FinalFluentBuilderFactory { private get; [UsedImplicitly] init; }
 
 	public IStateMachine Build()
 	{

@@ -17,17 +17,23 @@
 
 namespace Xtate.Builder;
 
-
 public class ParallelBuilder : BuilderBase, IParallelBuilder
 {
-	private IDataModel?                           _dataModel;
-	private ImmutableArray<IHistory>.Builder?     _historyStates;
-	private IIdentifier?                          _id;
-	private ImmutableArray<IInvoke>.Builder?      _invokeList;
-	private ImmutableArray<IOnEntry>.Builder?     _onEntryList;
-	private ImmutableArray<IOnExit>.Builder?      _onExitList;
+	private IDataModel? _dataModel;
+
+	private ImmutableArray<IHistory>.Builder? _historyStates;
+
+	private IIdentifier? _id;
+
+	private ImmutableArray<IInvoke>.Builder? _invokeList;
+
+	private ImmutableArray<IOnEntry>.Builder? _onEntryList;
+
+	private ImmutableArray<IOnExit>.Builder? _onExitList;
+
 	private ImmutableArray<IStateEntity>.Builder? _states;
-	private ImmutableArray<ITransition>.Builder?  _transitions;
+
+	private ImmutableArray<ITransition>.Builder? _transitions;
 
 #region Interface IParallelBuilder
 

@@ -17,8 +17,11 @@
 
 namespace Xtate.DataModel;
 
-
 public class CaseSensitivity(IDataModelHandler? dataModelHandler) : ICaseSensitivity
 {
+#region Interface ICaseSensitivity
+
 	public bool CaseInsensitive { get; } = dataModelHandler?.CaseInsensitive ?? false;
+
+#endregion
 }

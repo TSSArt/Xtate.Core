@@ -22,9 +22,11 @@ namespace Xtate.Core;
 
 public class DataModelHandlerService : IDataModelHandlerService
 {
-	public required IAsyncEnumerable<IDataModelHandlerProvider>     DataModelHandlerProviders      { private get; [UsedImplicitly] init; }
-	public required IErrorProcessorService<DataModelHandlerService> ErrorProcessorService          { private get; [UsedImplicitly] init; }
-	public required Func<ValueTask<UnknownDataModelHandler>>        UnknownDataModelHandlerFactory { private get; [UsedImplicitly] init; }
+	public required IAsyncEnumerable<IDataModelHandlerProvider> DataModelHandlerProviders { private get; [UsedImplicitly] init; }
+
+	public required IErrorProcessorService<DataModelHandlerService> ErrorProcessorService { private get; [UsedImplicitly] init; }
+
+	public required Func<ValueTask<UnknownDataModelHandler>> UnknownDataModelHandlerFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IDataModelHandlerService
 

@@ -22,7 +22,8 @@ namespace Xtate.Core;
 public abstract class StateEntityNode : IStateEntity, IStoreSupport, IDocumentId
 {
 	public static readonly IComparer<StateEntityNode> EntryOrder = new DocumentOrderComparer(reverseOrder: false);
-	public static readonly IComparer<StateEntityNode> ExitOrder  = new DocumentOrderComparer(reverseOrder: true);
+
+	public static readonly IComparer<StateEntityNode> ExitOrder = new DocumentOrderComparer(reverseOrder: true);
 
 	private DocumentIdSlot _documentIdSlot;
 
@@ -30,14 +31,21 @@ public abstract class StateEntityNode : IStateEntity, IStoreSupport, IDocumentId
 
 	public StateEntityNode? Parent { get; private set; }
 
-	public virtual bool                            IsAtomicState => throw GetNotSupportedException();
-	public virtual ImmutableArray<TransitionNode>  Transitions   => throw GetNotSupportedException();
-	public virtual ImmutableArray<OnEntryNode>     OnEntry       => throw GetNotSupportedException();
-	public virtual ImmutableArray<OnExitNode>      OnExit        => throw GetNotSupportedException();
-	public virtual ImmutableArray<InvokeNode>      Invoke        => throw GetNotSupportedException();
-	public virtual ImmutableArray<HistoryNode>     HistoryStates => throw GetNotSupportedException();
-	public virtual ImmutableArray<StateEntityNode> States        => throw GetNotSupportedException();
-	public virtual DataModelNode?                  DataModel     => throw GetNotSupportedException();
+	public virtual bool IsAtomicState => throw GetNotSupportedException();
+
+	public virtual ImmutableArray<TransitionNode> Transitions => throw GetNotSupportedException();
+
+	public virtual ImmutableArray<OnEntryNode> OnEntry => throw GetNotSupportedException();
+
+	public virtual ImmutableArray<OnExitNode> OnExit => throw GetNotSupportedException();
+
+	public virtual ImmutableArray<InvokeNode> Invoke => throw GetNotSupportedException();
+
+	public virtual ImmutableArray<HistoryNode> HistoryStates => throw GetNotSupportedException();
+
+	public virtual ImmutableArray<StateEntityNode> States => throw GetNotSupportedException();
+
+	public virtual DataModelNode? DataModel => throw GetNotSupportedException();
 
 #region Interface IDocumentId
 

@@ -23,15 +23,21 @@ public static class EventName
 {
 	private const char Dot = '.';
 
-	private static readonly IIdentifier DoneIdentifier     = Identifier.FromString("done");
-	private static readonly IIdentifier StateIdentifier    = Identifier.FromString("state");
-	private static readonly IIdentifier ErrorIdentifier    = Identifier.FromString("error");
-	private static readonly IIdentifier InvokeIdentifier   = Identifier.FromString("invoke");
+	private static readonly IIdentifier DoneIdentifier = Identifier.FromString("done");
+
+	private static readonly IIdentifier StateIdentifier = Identifier.FromString("state");
+
+	private static readonly IIdentifier ErrorIdentifier = Identifier.FromString("error");
+
+	private static readonly IIdentifier InvokeIdentifier = Identifier.FromString("invoke");
+
 	private static readonly IIdentifier PlatformIdentifier = Identifier.FromString("platform");
 
-	public static readonly ImmutableArray<IIdentifier> ErrorExecution     = [ErrorIdentifier, Identifier.FromString("execution")];
+	public static readonly ImmutableArray<IIdentifier> ErrorExecution = [ErrorIdentifier, Identifier.FromString("execution")];
+
 	public static readonly ImmutableArray<IIdentifier> ErrorCommunication = [ErrorIdentifier, Identifier.FromString("communication")];
-	public static readonly ImmutableArray<IIdentifier> ErrorPlatform      = [ErrorIdentifier, Identifier.FromString("platform")];
+
+	public static readonly ImmutableArray<IIdentifier> ErrorPlatform = [ErrorIdentifier, Identifier.FromString("platform")];
 
 	internal static ImmutableArray<IIdentifier> GetDoneStateNameParts(IIdentifier id) => GetNameParts(DoneIdentifier, StateIdentifier, id.Value);
 
@@ -129,6 +135,7 @@ public static class EventName
 		}
 
 		var writeDelimiter = false;
+
 		foreach (var part in nameParts)
 		{
 			if (writeDelimiter)

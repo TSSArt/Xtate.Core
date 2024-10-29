@@ -30,11 +30,16 @@ public sealed class EventNode(IOutgoingEvent outgoingEvent) : IOutgoingEvent, IS
 #region Interface IOutgoingEvent
 
 	public ImmutableArray<IIdentifier> NameParts => outgoingEvent.NameParts;
-	public SendId?                     SendId    => outgoingEvent.SendId;
-	public DataModelValue              Data      => outgoingEvent.Data;
-	public Uri?                        Target    => outgoingEvent.Target;
-	public Uri?                        Type      => outgoingEvent.Type;
-	public int                         DelayMs   => outgoingEvent.DelayMs;
+
+	public SendId? SendId => outgoingEvent.SendId;
+
+	public DataModelValue Data => outgoingEvent.Data;
+
+	public Uri? Target => outgoingEvent.Target;
+
+	public Uri? Type => outgoingEvent.Type;
+
+	public int DelayMs => outgoingEvent.DelayMs;
 
 #endregion
 
