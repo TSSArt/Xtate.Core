@@ -19,7 +19,7 @@ using System.Xml;
 
 namespace Xtate.CustomAction;
 
-[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
+
 public class StartAction : AsyncAction, IDisposable
 {
 	public class Provider() : ActionProvider<StartAction>(ns: "http://xtate.net/scxml/system", name: "start");

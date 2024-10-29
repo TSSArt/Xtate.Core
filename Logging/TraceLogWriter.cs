@@ -89,5 +89,5 @@ public abstract class TraceLogWriter
 	}
 }
 
-[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
+
 public class TraceLogWriter<TSource>(IEnumerable<TraceListener> traceListeners) : TraceLogWriter(typeof(TSource).FullName!, traceListeners), ILogWriter<TSource>;

@@ -1,6 +1,6 @@
 ﻿namespace Xtate.Core;
 
-[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
+
 public sealed class SecurityContextFactory
 {
 	private readonly AsyncLocal<SecurityContext> _securityContext = new();

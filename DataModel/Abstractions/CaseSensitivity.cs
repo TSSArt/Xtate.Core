@@ -17,7 +17,7 @@
 
 namespace Xtate.DataModel;
 
-[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
+
 public class CaseSensitivity(IDataModelHandler? dataModelHandler) : ICaseSensitivity
 {
 	public bool CaseInsensitive { get; } = dataModelHandler?.CaseInsensitive ?? false;
