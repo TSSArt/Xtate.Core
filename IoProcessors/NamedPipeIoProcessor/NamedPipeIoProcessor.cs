@@ -116,7 +116,7 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 		{
 			if (await eventConsumer.TryGetEventDispatcher(targetServiceId, token).ConfigureAwait(false) is { } eventDispatcher)
 			{
-				await eventDispatcher.Send(hostEvent, token).ConfigureAwait(false);
+				await eventDispatcher.Send(hostEvent).ConfigureAwait(false);
 			}
 			else
 			{
@@ -209,7 +209,7 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 				{
 					if (await _eventConsumer.TryGetEventDispatcher(targetServiceId, _stopTokenSource.Token).ConfigureAwait(false) is { } eventDispatcher)
 					{
-						await eventDispatcher.Send(message, _stopTokenSource.Token).ConfigureAwait(false);
+						await eventDispatcher.Send(message).ConfigureAwait(false);
 					}
 					else
 					{

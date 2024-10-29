@@ -39,7 +39,7 @@ public abstract class ExternalServiceBase : IExternalService
 
 #region Interface IEventDispatcher
 
-	ValueTask IEventDispatcher.Send(IEvent evt, CancellationToken token) => default;
+	ValueTask IEventDispatcher.Send(IEvent evt) => default;
 
 #endregion
 

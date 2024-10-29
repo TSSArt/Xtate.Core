@@ -127,7 +127,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 
 					var nameParts = EventName.GetDoneInvokeNameParts(invokeId);
 					var evt = new EventObject { Type = EventType.External, NameParts = nameParts, Data = result, InvokeId = invokeId };
-					await service.Send(evt, token: default).ConfigureAwait(false);
+					await service.Send(evt).ConfigureAwait(false);
 				}
 				catch (Exception ex)
 				{
@@ -138,7 +138,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 								  Data = dataConverter.FromException(ex),
 								  InvokeId = invokeId
 							  };
-					await service.Send(evt, token: default).ConfigureAwait(false);
+					await service.Send(evt).ConfigureAwait(false);
 				}
 				finally
 				{
@@ -190,7 +190,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 			throw new ProcessorException(Resources.Exception_InvalidInvokeId);
 		}
 
-		return service?.Send(evt, token) ?? default;
+		return service?.Send(evt) ?? default;
 	}
 
 #endregion

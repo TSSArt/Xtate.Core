@@ -17,7 +17,11 @@
 
 namespace Xtate.Core;
 
-public interface IScopeManager1
+public class NoStateMachineSessionId : IStateMachineSessionId
 {
-	ValueTask<T> GetService<T>() where T : notnull;
+#region Interface IStateMachineSessionId
+
+	public SessionId SessionId { get; } = SessionId.New();
+
+#endregion
 }

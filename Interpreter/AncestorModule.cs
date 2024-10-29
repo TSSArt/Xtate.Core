@@ -15,8 +15,20 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.Service;
+using Xtate.IoC;
 
 namespace Xtate.Core;
 
-public interface IStateMachineController : IExternalService;
+public class AncestorModule : Module
+{
+	protected override void AddServices()
+	{
+		Services.AddFactory<AncestorFactory<Any>>().For<Ancestor<Any>>();
+		Services.AddSharedImplementationSync<AncestorTracker>(SharedWithin.Scope).For<AncestorTracker>().For<IServiceProviderActions>();
+
+		Services.AddFactorySync<DeferredFactory<Any>>().For<Deferred<Any>>();
+
+		Services.AddType<ServiceList<Any>>();
+		Services.AddTypeSync<ServiceSyncList<Any>>();
+	}
+}
