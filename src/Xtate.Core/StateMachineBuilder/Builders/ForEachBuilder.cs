@@ -17,7 +17,7 @@
 
 namespace Xtate.Builder;
 
-[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
+
 public class ForEachBuilder : BuilderBase, IForEachBuilder
 {
 	private ImmutableArray<IExecutableEntity>.Builder? _actions;

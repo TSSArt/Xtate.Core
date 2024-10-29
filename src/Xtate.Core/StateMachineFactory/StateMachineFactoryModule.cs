@@ -22,7 +22,7 @@ namespace Xtate.Core;
 
 public class StateMachineFactoryModule : Module<ScxmlModule>
 {
-	[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
+	
 	private class NoStateMachineLocation : IStateMachineLocation
 	{
 		public Uri? Location => default;

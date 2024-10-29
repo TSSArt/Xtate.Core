@@ -17,7 +17,7 @@
 
 namespace Xtate.Core;
 
-[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
+
 public class StateMachineSessionId : IStateMachineSessionId
 {
 #region Interface IStateMachineSessionId

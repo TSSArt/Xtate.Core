@@ -20,7 +20,7 @@ using Xtate.Scxml;
 
 namespace Xtate.Core;
 
-[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
+
 public class ScxmlReaderStateMachineGetter
 {
 	public required IScxmlDeserializer     ScxmlDeserializer     { private get; [UsedImplicitly] init; }

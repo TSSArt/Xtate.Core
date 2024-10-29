@@ -17,7 +17,7 @@
 
 namespace Xtate.Builder;
 
-[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
+
 public class ElseIfBuilder : BuilderBase, IElseIfBuilder
 {
 	private IConditionExpression? _condition;

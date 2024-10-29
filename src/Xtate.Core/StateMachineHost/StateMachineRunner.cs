@@ -17,7 +17,7 @@
 
 namespace Xtate.Core;
 
-[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
+
 public class StateMachineRunner : IStateMachineRunner, IDisposable
 {
 	private readonly IStateMachineHostContext _context;

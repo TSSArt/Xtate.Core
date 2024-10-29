@@ -17,7 +17,7 @@
 
 namespace Xtate.Builder;
 
-[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
+
 public class FinalBuilder : BuilderBase, IFinalBuilder
 {
 	private IDoneData?                        _doneData;

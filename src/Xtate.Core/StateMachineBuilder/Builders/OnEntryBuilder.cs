@@ -17,7 +17,7 @@
 
 namespace Xtate.Builder;
 
-[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
+
 public class OnEntryBuilder : BuilderBase, IOnEntryBuilder
 {
 	private ImmutableArray<IExecutableEntity>.Builder? _actions;

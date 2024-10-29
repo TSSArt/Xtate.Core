@@ -17,7 +17,7 @@
 
 namespace Xtate.Builder;
 
-[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
+
 public class RaiseBuilder : BuilderBase, IRaiseBuilder
 {
 	private IOutgoingEvent? _outgoingEvent;

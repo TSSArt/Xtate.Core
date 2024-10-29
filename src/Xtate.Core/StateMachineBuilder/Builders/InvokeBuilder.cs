@@ -17,7 +17,7 @@
 
 namespace Xtate.Builder;
 
-[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
+
 public class InvokeBuilder : BuilderBase, IInvokeBuilder
 {
 	private bool                                _autoForward;
