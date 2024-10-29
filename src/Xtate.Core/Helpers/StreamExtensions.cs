@@ -38,11 +38,13 @@ public static class StreamExtensions
 
 		var memoryStream = new MemoryStream(capacity);
 		var buffer = ArrayPool<byte>.Shared.Rent(65536);
+
 		try
 		{
 			while (true)
 			{
 				var bytesRead = await stream.ReadAsync(buffer, offset: 0, buffer.Length, token).ConfigureAwait(false);
+
 				if (bytesRead == 0)
 				{
 					return memoryStream.Length == memoryStream.Capacity ? memoryStream.GetBuffer() : memoryStream.ToArray();
@@ -66,6 +68,7 @@ public static class StreamExtensions
 
 		var memoryStream = new MemoryStream(capacity);
 		var buffer = ArrayPool<byte>.Shared.Rent(65536);
+
 		try
 		{
 			while (true)
@@ -73,6 +76,7 @@ public static class StreamExtensions
 				token.ThrowIfCancellationRequested();
 
 				var bytesRead = stream.Read(buffer, offset: 0, buffer.Length);
+
 				if (bytesRead == 0)
 				{
 					return memoryStream.Length == memoryStream.Capacity ? memoryStream.GetBuffer() : memoryStream.ToArray();
@@ -88,7 +92,6 @@ public static class StreamExtensions
 	}
 
 #if !NETCOREAPP3_0_OR_GREATER && !NETSTANDARD2_1
-
 	public static ConfiguredAwaitable ConfigureAwait(this Stream stream, bool continueOnCapturedContext) => new(stream, continueOnCapturedContext);
 
 	public static ValueTask DisposeAsync(this Stream stream)

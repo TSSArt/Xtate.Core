@@ -35,19 +35,31 @@ public struct SendEntity : ISend, IVisitorEntity<SendEntity, ISend>, IAncestorPr
 
 #region Interface ISend
 
-	public IContent?                           Content          { get; set; }
-	public IValueExpression?                   DelayExpression  { get; set; }
-	public int?                                DelayMs          { get; set; }
-	public string?                             EventName        { get; set; }
-	public IValueExpression?                   EventExpression  { get; set; }
-	public string?                             Id               { get; set; }
-	public ILocationExpression?                IdLocation       { get; set; }
-	public ImmutableArray<ILocationExpression> NameList         { get; set; }
-	public ImmutableArray<IParam>              Parameters       { get; set; }
-	public Uri?                                Target           { get; set; }
-	public IValueExpression?                   TargetExpression { get; set; }
-	public Uri?                                Type             { get; set; }
-	public IValueExpression?                   TypeExpression   { get; set; }
+	public IContent? Content { get; set; }
+
+	public IValueExpression? DelayExpression { get; set; }
+
+	public int? DelayMs { get; set; }
+
+	public string? EventName { get; set; }
+
+	public IValueExpression? EventExpression { get; set; }
+
+	public string? Id { get; set; }
+
+	public ILocationExpression? IdLocation { get; set; }
+
+	public ImmutableArray<ILocationExpression> NameList { get; set; }
+
+	public ImmutableArray<IParam> Parameters { get; set; }
+
+	public Uri? Target { get; set; }
+
+	public IValueExpression? TargetExpression { get; set; }
+
+	public Uri? Type { get; set; }
+
+	public IValueExpression? TypeExpression { get; set; }
 
 #endregion
 

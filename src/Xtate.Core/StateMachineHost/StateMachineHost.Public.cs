@@ -15,18 +15,19 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.Persistence;
-
 namespace Xtate;
 
 public sealed partial class StateMachineHost(StateMachineHostOptions options) : IAsyncDisposable, IDisposable
 {
-	private readonly StateMachineHostOptions                  _options = options ?? throw new ArgumentNullException(nameof(options));
-	private          bool                                     _asyncOperationInProgress;
-	private          StateMachineHostContext?                 _context;
-	private          bool                                     _disposed;
-	
-	public required  Func<ValueTask<StateMachineHostContext>> ContextFactory;
+	private readonly StateMachineHostOptions _options = options ?? throw new ArgumentNullException(nameof(options));
+
+	private bool _asyncOperationInProgress;
+
+	private StateMachineHostContext? _context;
+
+	private bool _disposed;
+
+	public required Func<ValueTask<StateMachineHostContext>> ContextFactory;
 
 #region Interface IAsyncDisposable
 
@@ -56,7 +57,7 @@ public sealed partial class StateMachineHost(StateMachineHostOptions options) : 
 
 #endregion
 
-#region Interface IHost
+#region Interface IHostController
 
 	public async ValueTask StartHost()
 	{
@@ -68,7 +69,6 @@ public sealed partial class StateMachineHost(StateMachineHostOptions options) : 
 		if (_asyncOperationInProgress)
 		{
 			throw new InvalidOperationException(Resources.Exception_AnotherAsynchronousOperationInProgress);
-
 		}
 
 		try
@@ -80,7 +80,6 @@ public sealed partial class StateMachineHost(StateMachineHostOptions options) : 
 			await StateMachineHostStartAsync().ConfigureAwait(false);
 
 			_context = context;
-
 		}
 		finally
 		{
@@ -96,6 +95,7 @@ public sealed partial class StateMachineHost(StateMachineHostOptions options) : 
 		}
 
 		var context = _context;
+
 		if (context is null)
 		{
 			return;

@@ -22,33 +22,33 @@ using Xtate;
 
 namespace System.Runtime.Loader
 {
-    /// <summary>
-    /// Represents an assembly load context that can optionally be collectible.
-    /// </summary>
-    internal class AssemblyLoadContext(bool isCollectible)
-    {
-        /// <summary>
-        /// Unloads the assembly load context if it is collectible.
-        /// </summary>
-        public void Unload() => Infra.Assert(isCollectible);
+	/// <summary>
+	/// Represents an assembly load context that can optionally be collectible.
+	/// </summary>
+	internal class AssemblyLoadContext(bool isCollectible)
+	{
+		/// <summary>
+		/// Unloads the assembly load context if it is collectible.
+		/// </summary>
+		public void Unload() => Infra.Assert(isCollectible);
 
-        /// <summary>
-        /// Loads an assembly from the provided stream.
-        /// </summary>
-        /// <param name="stream">The stream containing the assembly data.</param>
-        /// <returns>The loaded assembly.</returns>
-        public Assembly LoadFromStream(Stream stream)
-        {
-            Infra.Assert(isCollectible);
+		/// <summary>
+		/// Loads an assembly from the provided stream.
+		/// </summary>
+		/// <param name="stream">The stream containing the assembly data.</param>
+		/// <returns>The loaded assembly.</returns>
+		public Assembly LoadFromStream(Stream stream)
+		{
+			Infra.Assert(isCollectible);
 
-            if (stream is MemoryStream memoryStream && memoryStream.TryGetBuffer(out var segment) && segment.Offset == 0 && segment.Count == memoryStream.Length)
-            {
-                return Assembly.Load(segment.Array);
-            }
+			if (stream is MemoryStream memoryStream && memoryStream.TryGetBuffer(out var segment) && segment.Offset == 0 && segment.Count == memoryStream.Length)
+			{
+				return Assembly.Load(segment.Array);
+			}
 
-            return Assembly.Load(stream.ReadToEnd(default));
-        }
-    }
+			return Assembly.Load(stream.ReadToEnd(default));
+		}
+	}
 }
 
 #endif

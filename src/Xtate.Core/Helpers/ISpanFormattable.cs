@@ -16,16 +16,14 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #if !NET6_0_OR_GREATER
-
 namespace System;
 
 internal interface ISpanFormattable : IFormattable
 {
-	bool TryFormat(
-		Span<char> destination,
-		out int charsWritten,
-		ReadOnlySpan<char> format,
-		IFormatProvider? provider);
+	bool TryFormat(Span<char> destination,
+				   out int charsWritten,
+				   ReadOnlySpan<char> format,
+				   IFormatProvider? provider);
 }
 
 #endif

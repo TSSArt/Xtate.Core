@@ -20,7 +20,10 @@ namespace Xtate.DataModel.XPath;
 public enum XPathObjectType
 {
 	Number,
+
 	String,
+
 	Boolean,
+
 	NodeSet
 }

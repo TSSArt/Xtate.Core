@@ -50,8 +50,9 @@ public sealed class HistoryNode : StateEntityNode, IHistory, IAncestorProvider, 
 
 #region Interface IHistory
 
-	public override IIdentifier Id   { get; }
-	public          HistoryType Type => _history.Type;
+	public override IIdentifier Id { get; }
+
+	public HistoryType Type => _history.Type;
 
 	ITransition IHistory.Transition => _history.Transition!;
 

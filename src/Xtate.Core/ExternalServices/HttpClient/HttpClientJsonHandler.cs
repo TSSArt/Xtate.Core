@@ -54,6 +54,7 @@ public class HttpClientJsonHandler : HttpClientMimeTypeHandler
 		Infra.NotNull(stream);
 
 		XtateCore.Use();
+
 		await using (stream.ConfigureAwait(false))
 		{
 			return await DataModelConverter.FromJsonAsync(stream, token).ConfigureAwait(false);

@@ -19,10 +19,13 @@ namespace Xtate.DataModel.XPath;
 
 public class XPathLocationExpressionEvaluator : ILocationEvaluator, ILocationExpression, IAncestorProvider
 {
-	private readonly XPathAssignType         _assignType;
-	private readonly string?                 _attribute;
+	private readonly XPathAssignType _assignType;
+
+	private readonly string? _attribute;
+
 	private readonly XPathCompiledExpression _compiledExpression;
-	private readonly ILocationExpression     _locationExpression;
+
+	private readonly ILocationExpression _locationExpression;
 
 	public XPathLocationExpressionEvaluator(ILocationExpression locationExpression, XPathCompiledExpression compiledExpression)
 	{

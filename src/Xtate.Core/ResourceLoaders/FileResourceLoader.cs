@@ -41,7 +41,7 @@ public class FileResourceLoader : IResourceLoader
 
 		var fileStream = await ExternalResources.Factory.StartNew(() => CreateFileStream(path)).ConfigureAwait(false);
 
-		return await ResourceFactory(fileStream, default).ConfigureAwait(false);
+		return await ResourceFactory(fileStream, arg2: default).ConfigureAwait(false);
 	}
 
 #endregion

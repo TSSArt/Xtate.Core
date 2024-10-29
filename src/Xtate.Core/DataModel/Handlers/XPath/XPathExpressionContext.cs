@@ -24,7 +24,8 @@ namespace Xtate.DataModel.XPath;
 public class XPathExpressionContext : XsltContext
 {
 	private List<XPathFunctionBase>? _functionDescriptors;
-	private List<XPathVarDescriptor>?          _varDescriptors;
+
+	private List<XPathVarDescriptor>? _varDescriptors;
 
 	public XPathExpressionContext(INameTableProvider nameTableProvider, IXmlNamespacesInfo? xmlNamespacesInfo) : base(nameTableProvider.GetNameTable())
 	{
@@ -37,9 +38,11 @@ public class XPathExpressionContext : XsltContext
 		}
 	}
 
-	public required IEnumerable<IXPathFunctionProvider> FunctionProviders         { private get; [UsedImplicitly] init; }
-	public required Func<string, XPathVarDescriptor>    XPathVarDescriptorFactory { private get; [UsedImplicitly] init; }
-	public required Func<ValueTask<XPathEngine>>        XPathEngineFactory        { private get; [UsedImplicitly] init; }
+	public required IEnumerable<IXPathFunctionProvider> FunctionProviders { private get; [UsedImplicitly] init; }
+
+	public required Func<string, XPathVarDescriptor> XPathVarDescriptorFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<ValueTask<XPathEngine>> XPathEngineFactory { private get; [UsedImplicitly] init; }
 
 	public override bool Whitespace => false;
 

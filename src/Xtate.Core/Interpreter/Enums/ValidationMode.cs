@@ -20,5 +20,6 @@ namespace Xtate;
 public enum ValidationMode
 {
 	Default = 0,
+
 	Verbose = 1
 }

@@ -29,10 +29,13 @@ public struct DataEntity : IData, IVisitorEntity<DataEntity, IData>, IAncestorPr
 
 #region Interface IData
 
-	public string?                  Id            { get; set; }
-	public IExternalDataExpression? Source        { get; set; }
-	public IValueExpression?        Expression    { get; set; }
-	public IInlineContent?          InlineContent { get; set; }
+	public string? Id { get; set; }
+
+	public IExternalDataExpression? Source { get; set; }
+
+	public IValueExpression? Expression { get; set; }
+
+	public IInlineContent? InlineContent { get; set; }
 
 #endregion
 

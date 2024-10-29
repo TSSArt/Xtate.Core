@@ -24,11 +24,15 @@ namespace Xtate.Core;
 public abstract class StateMachineControllerBase : IStateMachineController, INotifyStateChanged, IAsyncDisposable, IAsyncInitialization
 
 {
-	private readonly TaskCompletionSource                 _acceptedTcs  = new();
+	private readonly TaskCompletionSource _acceptedTcs = new();
+
 	private readonly TaskCompletionSource<DataModelValue> _completedTcs = new();
-	private readonly CancellationTokenSource              _destroyTokenSource;
-	private readonly DisposingToken                       _disposingToken = new();
-	private readonly AsyncInit                            _startAsyncInit;
+
+	private readonly CancellationTokenSource _destroyTokenSource;
+
+	private readonly DisposingToken _disposingToken = new();
+
+	private readonly AsyncInit _startAsyncInit;
 
 	protected StateMachineControllerBase(SessionId sessionId,
 										 IStateMachineOptions? options,
@@ -137,6 +141,7 @@ public abstract class StateMachineControllerBase : IStateMachineController, INot
 	private async ValueTask<DataModelValue> ExecuteAsync()
 	{
 		var initialized = false;
+
 		while (true)
 		{
 			try
@@ -184,6 +189,7 @@ public abstract class StateMachineControllerBase : IStateMachineController, INot
 	{
 		//var anyTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_defaultOptions.StopToken, _defaultOptions.DestroyToken, _defaultOptions.SuspendToken);
 		var anyTokenSource = new CancellationTokenSource();
+
 		try
 		{
 			if (await EventChannel.Reader.WaitToReadAsync(anyTokenSource.Token).ConfigureAwait(false))

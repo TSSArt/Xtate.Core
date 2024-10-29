@@ -19,7 +19,9 @@ namespace Xtate;
 
 public interface IFinal : IStateEntity
 {
-	ImmutableArray<IOnEntry> OnEntry  { get; }
-	ImmutableArray<IOnExit>  OnExit   { get; }
-	IDoneData?               DoneData { get; }
+	ImmutableArray<IOnEntry> OnEntry { get; }
+
+	ImmutableArray<IOnExit> OnExit { get; }
+
+	IDoneData? DoneData { get; }
 }

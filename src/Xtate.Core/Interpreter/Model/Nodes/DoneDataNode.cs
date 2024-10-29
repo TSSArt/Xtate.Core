@@ -22,11 +22,15 @@ namespace Xtate.Core;
 
 public sealed class DoneDataNode : IDoneData, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 {
-	private readonly IValueEvaluator?                    _contentBodyEvaluator;
-	private readonly IObjectEvaluator?                   _contentExpressionEvaluator;
-	private readonly IDoneData                           _doneData;
+	private readonly IValueEvaluator? _contentBodyEvaluator;
+
+	private readonly IObjectEvaluator? _contentExpressionEvaluator;
+
+	private readonly IDoneData _doneData;
+
 	private readonly ImmutableArray<DataConverter.Param> _parameterList;
-	private          DocumentIdSlot                      _documentIdSlot;
+
+	private DocumentIdSlot _documentIdSlot;
 
 	public DoneDataNode(DocumentIdNode documentIdNode, IDoneData doneData)
 	{

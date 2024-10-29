@@ -20,6 +20,8 @@ namespace Xtate;
 public enum ErrorSeverity
 {
 	Error,
+
 	Warning,
+
 	Info
 }

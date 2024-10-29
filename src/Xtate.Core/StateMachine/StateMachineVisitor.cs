@@ -56,7 +56,8 @@ public abstract class StateMachineVisitor
 	private ref struct VisitData<TEntity, TIEntity> where TEntity : struct, IVisitorEntity<TEntity, TIEntity>, TIEntity
 	{
 		private readonly TEntity _original;
-		public           TEntity Properties;
+
+		public TEntity Properties;
 
 		public VisitData(TIEntity entity)
 		{
@@ -87,7 +88,8 @@ public abstract class StateMachineVisitor
 	private ref struct VisitListData<T> where T : class
 	{
 		private readonly ImmutableArray<T> _original;
-		public           TrackList<T>      List;
+
+		public TrackList<T> List;
 
 		public VisitListData(ImmutableArray<T> list)
 		{
@@ -459,60 +461,72 @@ public abstract class StateMachineVisitor
 			case IAssign assign:
 				Visit(ref assign);
 				entity = assign;
+
 				break;
 
 			case ICancel cancel:
 				Visit(ref cancel);
 				entity = cancel;
+
 				break;
 
 			case ICustomAction customAction:
 				Visit(ref customAction);
 				entity = customAction;
+
 				break;
 
 			case IElse @else:
 				Visit(ref @else);
 				entity = @else;
+
 				break;
 
 			case IElseIf elseIf:
 				Visit(ref elseIf);
 				entity = elseIf;
+
 				break;
 
 			case IForEach forEach:
 				Visit(ref forEach);
 				entity = forEach;
+
 				break;
 
 			case IIf @if:
 				Visit(ref @if);
 				entity = @if;
+
 				break;
 
 			case ILog log:
 				Visit(ref log);
 				entity = log;
+
 				break;
 
 			case IRaise raise:
 				Visit(ref raise);
 				entity = raise;
+
 				break;
 
 			case IScript script:
 				Visit(ref script);
 				entity = script;
+
 				break;
 
 			case ISend send:
 				Visit(ref send);
 				entity = send;
+
 				break;
 
 			default:
 				VisitUnknown(ref entity);
+
 				break;
 		}
 	}
@@ -528,20 +542,24 @@ public abstract class StateMachineVisitor
 			case IState state:
 				Visit(ref state);
 				entity = state;
+
 				break;
 
 			case IParallel parallel:
 				Visit(ref parallel);
 				entity = parallel;
+
 				break;
 
 			case IFinal final:
 				Visit(ref final);
 				entity = final;
+
 				break;
 
 			default:
 				VisitUnknown(ref entity);
+
 				break;
 		}
 	}
@@ -1192,6 +1210,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref IExecutableEntity? entity)
 	{
 		if (entity is null) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1200,6 +1219,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref IInitial? entity)
 	{
 		if (entity is null) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1208,6 +1228,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref IIdentifier? entity)
 	{
 		if (entity is null) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1216,6 +1237,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref IStateEntity? entity)
 	{
 		if (entity is null) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1224,6 +1246,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref IEventDescriptor? entity)
 	{
 		if (entity is null) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1232,6 +1255,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref ITransition? entity)
 	{
 		if (entity is null) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1240,6 +1264,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref IDoneData? entity)
 	{
 		if (entity is null) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1248,6 +1273,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref IHistory? entity)
 	{
 		if (entity is null) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1256,6 +1282,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref IOnEntry? entity)
 	{
 		if (entity is null) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1264,6 +1291,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref IOnExit? entity)
 	{
 		if (entity is null) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1272,6 +1300,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref IConditionExpression? entity)
 	{
 		if (entity is null) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1280,6 +1309,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref ILocationExpression? entity)
 	{
 		if (entity is null) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1288,6 +1318,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref IValueExpression? entity)
 	{
 		if (entity is null) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1296,6 +1327,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref IExternalDataExpression? entity)
 	{
 		if (entity is null) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1304,6 +1336,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref IScriptExpression? entity)
 	{
 		if (entity is null) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1312,6 +1345,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref IExternalScriptExpression? entity)
 	{
 		if (entity is null) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1320,6 +1354,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref IOutgoingEvent? entity)
 	{
 		if (entity is null) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1328,6 +1363,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref IInvoke? entity)
 	{
 		if (entity is null) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1336,6 +1372,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref IDataModel? entity)
 	{
 		if (entity is null) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1344,6 +1381,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref IData? entity)
 	{
 		if (entity is null) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1352,6 +1390,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref IParam? entity)
 	{
 		if (entity is null) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1360,6 +1399,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref IContent? entity)
 	{
 		if (entity is null) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1368,6 +1408,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref IContentBody? entity)
 	{
 		if (entity is null) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1376,6 +1417,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref IInlineContent? entity)
 	{
 		if (entity is null) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1384,6 +1426,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref IFinalize? entity)
 	{
 		if (entity is null) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1396,6 +1439,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref ImmutableArray<IStateEntity> entity)
 	{
 		if (entity.IsDefault) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1404,6 +1448,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref ImmutableArray<ITransition> entity)
 	{
 		if (entity.IsDefault) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1412,6 +1457,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref ImmutableArray<IEventDescriptor> entity)
 	{
 		if (entity.IsDefault) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1420,6 +1466,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref ImmutableArray<IIdentifier> entity)
 	{
 		if (entity.IsDefault) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1428,6 +1475,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref ImmutableArray<IExecutableEntity> entity)
 	{
 		if (entity.IsDefault) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1436,6 +1484,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref ImmutableArray<IHistory> entity)
 	{
 		if (entity.IsDefault) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1444,6 +1493,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref ImmutableArray<IOnEntry> entity)
 	{
 		if (entity.IsDefault) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1452,6 +1502,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref ImmutableArray<IOnExit> entity)
 	{
 		if (entity.IsDefault) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1460,6 +1511,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref ImmutableArray<IInvoke> entity)
 	{
 		if (entity.IsDefault) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1468,6 +1520,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref ImmutableArray<IValueExpression> entity)
 	{
 		if (entity.IsDefault) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1476,6 +1529,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref ImmutableArray<ILocationExpression> entity)
 	{
 		if (entity.IsDefault) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1484,6 +1538,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref ImmutableArray<IData> entity)
 	{
 		if (entity.IsDefault) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();
@@ -1492,6 +1547,7 @@ public abstract class StateMachineVisitor
 	private void VisitWrapper(ref ImmutableArray<IParam> entity)
 	{
 		if (entity.IsDefault) return;
+
 		Enter(entity);
 		Visit(ref entity);
 		Exit();

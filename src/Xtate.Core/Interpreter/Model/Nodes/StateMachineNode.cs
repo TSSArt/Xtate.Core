@@ -62,13 +62,19 @@ public sealed class StateMachineNode : StateEntityNode, IStateMachine, IAncestor
 
 #region Interface IStateMachine
 
-	public BindingType                         Binding       => _stateMachine.Binding;
-	public string?                             Name          => _stateMachine.Name;
-	public string?                             DataModelType => _stateMachine.DataModelType;
-	public IExecutableEntity?                  Script        => _stateMachine.Script;
-	IDataModel? IStateMachine.                 DataModel     => DataModel;
-	IInitial IStateMachine.                    Initial       => Initial;
-	ImmutableArray<IStateEntity> IStateMachine.States        => ImmutableArray<IStateEntity>.CastUp(States);
+	public BindingType Binding => _stateMachine.Binding;
+
+	public string? Name => _stateMachine.Name;
+
+	public string? DataModelType => _stateMachine.DataModelType;
+
+	public IExecutableEntity? Script => _stateMachine.Script;
+
+	IDataModel? IStateMachine.DataModel => DataModel;
+
+	IInitial IStateMachine.Initial => Initial;
+
+	ImmutableArray<IStateEntity> IStateMachine.States => ImmutableArray<IStateEntity>.CastUp(States);
 
 #endregion
 

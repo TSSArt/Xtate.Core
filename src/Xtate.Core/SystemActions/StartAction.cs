@@ -19,16 +19,19 @@ using System.Xml;
 
 namespace Xtate.CustomAction;
 
-
 public class StartAction : AsyncAction, IDisposable
 {
 	public class Provider() : ActionProvider<StartAction>(ns: "http://xtate.net/scxml/system", name: "start");
 
 	private readonly DisposingToken _disposingToken = new();
-	private readonly Location?      _sessionIdLocation;
-	private readonly StringValue?   _sessionIdValue;
-	private readonly bool           _trusted;
-	private readonly StringValue    _urlValue;
+
+	private readonly Location? _sessionIdLocation;
+
+	private readonly StringValue? _sessionIdValue;
+
+	private readonly bool _trusted;
+
+	private readonly StringValue _urlValue;
 
 	public StartAction(XmlReader xmlReader, IErrorProcessorService<StartAction> errorProcessorService)
 	{
@@ -142,6 +145,7 @@ public class StartAction : AsyncAction, IDisposable
 		if (Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out var uri))
 		{
 			var baseUri = (await StateMachineLocationFactory().ConfigureAwait(false))?.Location;
+
 			return baseUri.CombineWith(uri);
 		}
 

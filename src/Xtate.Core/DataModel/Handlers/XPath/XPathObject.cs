@@ -112,6 +112,7 @@ public class XPathObject(object value) : IObject
 
 				case XPathNodeType.Text:
 					count ++;
+
 					if (navigator.DataModelValue.AsStringOrDefault() is { } str)
 					{
 						length += str.Length;
@@ -166,10 +167,12 @@ public class XPathObject(object value) : IObject
 				case XPathNodeType.Element:
 					var key = XmlConverter.NsNameToKey(navigator.NamespaceURI, navigator.LocalName);
 					list.Add(key, navigator.DataModelValue.CloneAsWritable(), navigator.Metadata?.DeepClone(DataModelAccess.Writable));
+
 					break;
 
 				case XPathNodeType.Text:
 					list.Add(key: default, navigator.DataModelValue.CloneAsWritable(), metadata: default);
+
 					break;
 
 				default:

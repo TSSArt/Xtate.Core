@@ -20,7 +20,8 @@ namespace Xtate.IoProcessor;
 public abstract class IoProcessorBase : IIoProcessor
 {
 	private readonly IEventConsumer _eventConsumer;
-	private readonly Uri?           _ioProcessorAliasId;
+
+	private readonly Uri? _ioProcessorAliasId;
 
 	protected IoProcessorBase(IEventConsumer eventConsumer, string ioProcessorId, string? ioProcessorAlias = default)
 	{

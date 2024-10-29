@@ -20,5 +20,6 @@ namespace Xtate.Persistence;
 public interface ITransactionalStorage : IStorage, IAsyncDisposable
 {
 	ValueTask CheckPoint(int level);
+
 	ValueTask Shrink();
 }

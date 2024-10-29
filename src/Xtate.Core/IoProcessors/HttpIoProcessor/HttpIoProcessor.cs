@@ -23,8 +23,10 @@ namespace Xtate.IoProcessor;
 internal sealed class HttpIoProcessor(IEventConsumer eventConsumer, Uri baseUri, IPEndPoint ipEndPoint)
 	: HttpIoProcessorBase<HttpIoProcessorHost, HttpListenerContext>(eventConsumer, baseUri, ipEndPoint, Id, Alias, ErrorSuffix)
 {
-	private const string Id          = @"http://www.w3.org/TR/scxml/#BasicHTTPEventProcessor";
-	private const string Alias       = @"http";
+	private const string Id = @"http://www.w3.org/TR/scxml/#BasicHTTPEventProcessor";
+
+	private const string Alias = @"http";
+
 	private const string ErrorSuffix = @"Internal";
 
 	protected override HttpIoProcessorHost CreateHost(IPEndPoint ipEndPoint) => new(ipEndPoint);

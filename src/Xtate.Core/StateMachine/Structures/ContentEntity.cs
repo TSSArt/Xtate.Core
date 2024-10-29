@@ -30,7 +30,8 @@ public struct ContentEntity : IContent, IVisitorEntity<ContentEntity, IContent>,
 #region Interface IContent
 
 	public IValueExpression? Expression { get; set; }
-	public IContentBody?     Body       { get; set; }
+
+	public IContentBody? Body { get; set; }
 
 #endregion
 

@@ -27,7 +27,8 @@ public abstract class CancelEvaluator(ICancel cancel) : ICancel, IExecEvaluator,
 
 #region Interface ICancel
 
-	public virtual string?           SendId           => cancel.SendId;
+	public virtual string? SendId => cancel.SendId;
+
 	public virtual IValueExpression? SendIdExpression => cancel.SendIdExpression;
 
 #endregion

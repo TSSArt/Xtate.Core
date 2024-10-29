@@ -23,7 +23,8 @@ namespace Xtate.Core;
 public sealed class ExternalScriptExpressionNode : IExternalScriptExpression, IExternalScriptConsumer, IStoreSupport, IAncestorProvider
 {
 	private readonly IExternalScriptExpression _externalScriptExpression;
-	private          string?                   _content;
+
+	private string? _content;
 
 	public ExternalScriptExpressionNode(IExternalScriptExpression externalScriptExpression)
 	{

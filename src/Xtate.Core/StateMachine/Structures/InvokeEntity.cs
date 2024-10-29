@@ -35,17 +35,27 @@ public struct InvokeEntity : IInvoke, IVisitorEntity<InvokeEntity, IInvoke>, IAn
 
 #region Interface IInvoke
 
-	public bool                                AutoForward      { get; set; }
-	public IContent?                           Content          { get; set; }
-	public IFinalize?                          Finalize         { get; set; }
-	public string?                             Id               { get; set; }
-	public ILocationExpression?                IdLocation       { get; set; }
-	public ImmutableArray<ILocationExpression> NameList         { get; set; }
-	public ImmutableArray<IParam>              Parameters       { get; set; }
-	public Uri?                                Source           { get; set; }
-	public IValueExpression?                   SourceExpression { get; set; }
-	public Uri?                                Type             { get; set; }
-	public IValueExpression?                   TypeExpression   { get; set; }
+	public bool AutoForward { get; set; }
+
+	public IContent? Content { get; set; }
+
+	public IFinalize? Finalize { get; set; }
+
+	public string? Id { get; set; }
+
+	public ILocationExpression? IdLocation { get; set; }
+
+	public ImmutableArray<ILocationExpression> NameList { get; set; }
+
+	public ImmutableArray<IParam> Parameters { get; set; }
+
+	public Uri? Source { get; set; }
+
+	public IValueExpression? SourceExpression { get; set; }
+
+	public Uri? Type { get; set; }
+
+	public IValueExpression? TypeExpression { get; set; }
 
 #endregion
 

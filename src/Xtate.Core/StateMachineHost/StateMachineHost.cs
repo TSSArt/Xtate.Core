@@ -16,21 +16,20 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using Xtate.IoC;
-using Xtate.Service;
 
 namespace Xtate;
 
 public sealed partial class StateMachineHost : IHostController
 {
 	public required IStateMachineHostContext StateMachineHostContext { private get; [UsedImplicitly] init; }
-	
-	public required IServiceScopeFactory     ServiceScopeFactory      { private get; [UsedImplicitly] init; }
-	
+
+	public required IServiceScopeFactory ServiceScopeFactory { private get; [UsedImplicitly] init; }
+
 	public required Func<SecurityContextType, SecurityContextRegistration> SecurityContextRegistrationFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IHostController
 
-	ValueTask<IStateMachineController> IHostController.StartStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType) => 
+	ValueTask<IStateMachineController> IHostController.StartStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType) =>
 		StartStateMachine(stateMachineClass, securityContextType);
 
 	ValueTask<DataModelValue> IHostController.ExecuteStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType) =>
@@ -56,7 +55,7 @@ public sealed partial class StateMachineHost : IHostController
 		}
 		finally
 		{
-			DisposeScopeOnComplete(runner, scope).Forget();	
+			DisposeScopeOnComplete(runner, scope).Forget();
 		}
 	}
 
@@ -80,7 +79,7 @@ public sealed partial class StateMachineHost : IHostController
 		await using var registration = SecurityContextRegistrationFactory(securityContextType).ConfigureAwait(false);
 
 		var scope = ServiceScopeFactory.CreateScope(stateMachineClass.AddServices);
-		
+
 		await using (scope.ConfigureAwait(false))
 		{
 			var runner = await scope.ServiceProvider.GetRequiredService<IStateMachineRunner, IStateMachineHostContext>(StateMachineHostContext).ConfigureAwait(false);

@@ -19,11 +19,17 @@ namespace Xtate.Core;
 
 public interface IStateMachineContext
 {
-	EntityQueue<IEvent>         InternalQueue  { get; }
-	DataModelList               DataModel      { get; }
-	OrderedSet<StateEntityNode> Configuration  { get; }
+	EntityQueue<IEvent> InternalQueue { get; }
+
+	DataModelList DataModel { get; }
+
+	OrderedSet<StateEntityNode> Configuration { get; }
+
 	OrderedSet<StateEntityNode> StatesToInvoke { get; }
-	ServiceIdSet                ActiveInvokes  { get; }
-	KeyList<StateEntityNode>    HistoryValue   { get; }
-	DataModelValue              DoneData       { get; set; }
+
+	ServiceIdSet ActiveInvokes { get; }
+
+	KeyList<StateEntityNode> HistoryValue { get; }
+
+	DataModelValue DoneData { get; set; }
 }

@@ -25,31 +25,48 @@ public sealed partial class DataModelList
 	public enum ChangeAction
 	{
 		Append,
+
 		SetAt,
+
 		InsertAt,
+
 		RemoveAt,
+
 		SetCsKey,
+
 		SetCiKey,
+
 		SetCount,
+
 		SetMetadata,
+
 		Reset
 	}
 
 	private const int CaseInsensitiveBit = 0x10;
-	private const int AccessMask         = 0xF;
-	private const int AccessConstant     = (int) DataModelAccess.Constant;
-	private const int AccessReadOnly     = (int) DataModelAccess.ReadOnly;
+
+	private const int AccessMask = 0xF;
+
+	private const int AccessConstant = (int) DataModelAccess.Constant;
+
+	private const int AccessReadOnly = (int) DataModelAccess.ReadOnly;
 
 	public static readonly DataModelList Empty = new(DataModelAccess.Constant);
 
-	private static readonly ValueAdapter        ValueAdapterInstance        = new();
-	private static readonly KeyValueAdapter     KeyValueAdapterInstance     = new();
-	private static readonly MetaValueAdapter    MetaValueAdapterInstance    = new();
+	private static readonly ValueAdapter ValueAdapterInstance = new();
+
+	private static readonly KeyValueAdapter KeyValueAdapterInstance = new();
+
+	private static readonly MetaValueAdapter MetaValueAdapterInstance = new();
+
 	private static readonly KeyMetaValueAdapter KeyMetaValueAdapterInstance = new();
 
-	private Array          _array;
-	private int            _count;
-	private int            _flags;
+	private Array _array;
+
+	private int _count;
+
+	private int _flags;
+
 	private DataModelList? _metadata;
 
 	public DataModelList() : this(DataModelAccess.Writable) { }
@@ -129,6 +146,7 @@ public sealed partial class DataModelList
 				if (_count > 0 && _array.Length > 0)
 				{
 					CreateArgs(out var args);
+
 					for (args.Index = 0; args.Index < args.StoredCount; args.Index ++)
 					{
 						args.Adapter.ReadToArgsByIndex(ref args);
@@ -670,14 +688,17 @@ public sealed partial class DataModelList
 		}
 
 		Entry entry;
+
 		switch (action)
 		{
 			case ChangeAction.SetMetadata:
 				entry = new Entry(args.Meta.Metadata);
+
 				break;
 
 			case ChangeAction.SetCount:
 				entry = new Entry(args.Index);
+
 				break;
 
 			default:
@@ -699,6 +720,7 @@ public sealed partial class DataModelList
 	private void EnsureTypeAndCapacity(ref Args args, int minCapacity)
 	{
 		var size = _array.Length;
+
 		if (size < minCapacity)
 		{
 			size = size == 0 ? 4 : size * 2;
@@ -930,21 +952,25 @@ public sealed partial class DataModelList
 			case HashKeyValue[] array:
 				args.Adapter = KeyValueAdapterInstance;
 				args.KeyValues = array;
+
 				break;
 
 			case DataModelValue[] array:
 				args.Adapter = ValueAdapterInstance;
 				args.Values = array;
+
 				break;
 
 			case KeyMetaValue[] array:
 				args.Adapter = KeyMetaValueAdapterInstance;
 				args.KeyMetaValues = array;
+
 				break;
 
 			case MetaValue[] array:
 				args.Adapter = MetaValueAdapterInstance;
 				args.MetaValues = array;
+
 				break;
 
 			default:

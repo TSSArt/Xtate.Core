@@ -172,8 +172,10 @@ public class DataConverter(ICaseSensitivity? caseSensitivity)
 
 	public readonly struct Param(IParam param)
 	{
-		public string              Name                { get; } = param.Name!;
-		public IObjectEvaluator?   ExpressionEvaluator { get; } = param.Expression?.As<IObjectEvaluator>();
-		public ILocationEvaluator? LocationEvaluator   { get; } = param.Location?.As<ILocationEvaluator>();
+		public string Name { get; } = param.Name!;
+
+		public IObjectEvaluator? ExpressionEvaluator { get; } = param.Expression?.As<IObjectEvaluator>();
+
+		public ILocationEvaluator? LocationEvaluator { get; } = param.Location?.As<ILocationEvaluator>();
 	}
 }

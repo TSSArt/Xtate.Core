@@ -22,6 +22,7 @@ namespace Xtate.Core;
 public record InterpreterOptions1
 {
 	private readonly DataModelValue _arguments;
+
 	private readonly DataModelValue _configuration;
 
 	private readonly IErrorProcessor? _errorProcessor;
@@ -35,19 +36,26 @@ public record InterpreterOptions1
 
 	//public ImmutableArray<ICustomActionFactory>   CustomActionProviders   { get; init; }
 	//public ImmutableArray<IResourceLoaderFactory> ResourceLoaderFactories { get; init; }
-	public ImmutableDictionary<object, object>? ContextRuntimeItems   { get; init; }
-	public IExternalCommunication?              ExternalCommunication { get; init; }
-	public INotifyStateChanged?                 NotifyStateChanged    { get; init; }
-	public CancellationToken                    SuspendToken          { get; init; }
-	public CancellationToken                    StopToken             { get; init; }
-	public CancellationToken                    DestroyToken          { get; init; }
-	public PersistenceLevel                     PersistenceLevel      { get; init; }
+	public ImmutableDictionary<object, object>? ContextRuntimeItems { get; init; }
+
+	public IExternalCommunication? ExternalCommunication { get; init; }
+
+	public INotifyStateChanged? NotifyStateChanged { get; init; }
+
+	public CancellationToken SuspendToken { get; init; }
+
+	public CancellationToken StopToken { get; init; }
+
+	public CancellationToken DestroyToken { get; init; }
+
+	public PersistenceLevel PersistenceLevel { get; init; }
 
 	public IStorageProvider? StorageProvider { get; init; }
 
 	//public ILoggerOld?                            Logger                  { get; init; }
 	public UnhandledErrorBehaviour UnhandledErrorBehaviour { get; init; }
-	public Uri?                    BaseUri                 { get; init; }
+
+	public Uri? BaseUri { get; init; }
 
 	public DataModelValue Arguments
 	{

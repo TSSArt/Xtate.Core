@@ -17,17 +17,24 @@
 
 namespace Xtate.Builder;
 
-
 public class StateMachineBuilder : BuilderBase, IStateMachineBuilder
 {
-	private BindingType                           _bindingType;
-	private IDataModel?                           _dataModel;
-	private string?                               _dataModelType;
-	private ImmutableArray<IIdentifier>           _initialId;
-	private bool                                  _injectOptions;
-	private string?                               _name;
-	private StateMachineOptions                   _options;
-	private IScript?                              _script;
+	private BindingType _bindingType;
+
+	private IDataModel? _dataModel;
+
+	private string? _dataModelType;
+
+	private ImmutableArray<IIdentifier> _initialId;
+
+	private bool _injectOptions;
+
+	private string? _name;
+
+	private StateMachineOptions _options;
+
+	private IScript? _script;
+
 	private ImmutableArray<IStateEntity>.Builder? _states;
 
 #region Interface IStateMachineBuilder

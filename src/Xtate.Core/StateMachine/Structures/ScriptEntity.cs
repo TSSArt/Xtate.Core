@@ -29,8 +29,9 @@ public struct ScriptEntity : IScript, IVisitorEntity<ScriptEntity, IScript>, IAn
 
 #region Interface IScript
 
-	public IScriptExpression?         Content { get; set; }
-	public IExternalScriptExpression? Source  { get; set; }
+	public IScriptExpression? Content { get; set; }
+
+	public IExternalScriptExpression? Source { get; set; }
 
 #endregion
 

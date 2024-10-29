@@ -173,20 +173,30 @@ public class LogController : ILogController
 
 	public required ILogger<ILogController> Logger { private get; [UsedImplicitly] init; }
 
-	public bool IsEnabled => Logger.IsEnabled(Level.Info);
+#region Interface ILogController
 
 	public ValueTask Log(string? message = default, DataModelValue arguments = default) => Logger.Write(Level.Info, EventId, message, arguments);
+
+	public bool IsEnabled => Logger.IsEnabled(Level.Info);
+
+#endregion
 }
 
 public class InvokeController : IInvokeController
 {
-	private const int StartInvokeEventId  = 1;
+	private const int StartInvokeEventId = 1;
+
 	private const int CancelInvokeEventId = 2;
+
 	private const int EventForwardEventId = 3;
 
-	public required IExternalCommunication     ExternalCommunication { private get; [UsedImplicitly] init; }
-	public required ILogger<IInvokeController> Logger                { private get; [UsedImplicitly] init; }
-	public required StateMachineRuntimeError               StateMachineRuntimeError          { private get; [UsedImplicitly] init; }
+	public required IExternalCommunication ExternalCommunication { private get; [UsedImplicitly] init; }
+
+	public required ILogger<IInvokeController> Logger { private get; [UsedImplicitly] init; }
+
+	public required StateMachineRuntimeError StateMachineRuntimeError { private get; [UsedImplicitly] init; }
+
+#region Interface IInvokeController
 
 	public async ValueTask Start(InvokeId invokeId, InvokeData invokeData)
 	{
@@ -229,11 +239,15 @@ public class InvokeController : IInvokeController
 			throw StateMachineRuntimeError.CommunicationError(ex);
 		}
 	}
+
+#endregion
 }
 
 public class NoExternalCommunication : IExternalCommunication
 {
 	public required StateMachineRuntimeError StateMachineRuntimeError { private get; [UsedImplicitly] init; }
+
+#region Interface IExternalCommunication
 
 	public ValueTask StartInvoke(InvokeId invokeId, InvokeData invokeData) => throw StateMachineRuntimeError.NoExternalCommunication();
 
@@ -244,18 +258,23 @@ public class NoExternalCommunication : IExternalCommunication
 	public ValueTask ForwardEvent(InvokeId invokeId, IEvent evt) => throw StateMachineRuntimeError.NoExternalCommunication();
 
 	public ValueTask CancelEvent(SendId sendId) => throw StateMachineRuntimeError.NoExternalCommunication();
+
+#endregion
 }
 
 public class EventController : IEventController
 {
-	private const int SendEventId   = 1;
+	private const int SendEventId = 1;
+
 	private const int CancelEventId = 2;
 
 	private static readonly Uri InternalTarget = new(uriString: "_internal", UriKind.Relative);
 
-	public required IExternalCommunication    ExternalCommunication { private get; [UsedImplicitly] init; }
-	public required ILogger<IEventController> Logger                { private get; [UsedImplicitly] init; }
-	public required StateMachineRuntimeError              StateMachineRuntimeError          { private get; [UsedImplicitly] init; }
+	public required IExternalCommunication ExternalCommunication { private get; [UsedImplicitly] init; }
+
+	public required ILogger<IEventController> Logger { private get; [UsedImplicitly] init; }
+
+	public required StateMachineRuntimeError StateMachineRuntimeError { private get; [UsedImplicitly] init; }
 
 	public required IStateMachineContext StateMachineContext { private get; [UsedImplicitly] init; }
 
@@ -355,7 +374,6 @@ public class DeferredFactory<T>
 	public Deferred<T> GetValueFunc() => GetValue;
 }
 
-
 public class ServiceList<T> : IReadOnlyList<T>, IAsyncInitialization
 {
 	private readonly Task _initTask;
@@ -398,7 +416,6 @@ public class ServiceList<T> : IReadOnlyList<T>, IAsyncInitialization
 
 	private async Task Initialize(IAsyncEnumerable<T> asyncEnumerable) => _array = await asyncEnumerable.ToImmutableArrayAsync().ConfigureAwait(false);
 }
-
 
 public class ServiceSyncList<T>(IEnumerable<T> asyncEnumerable) : IReadOnlyList<T>
 {
@@ -460,7 +477,6 @@ public class AncestorFactory<T> : IAsyncInitialization
 		_task = new ValueTask<T>(instance);
 	}
 }
-
 
 public class AncestorTracker : IServiceProviderActions, IServiceProviderDataActions
 {
@@ -570,12 +586,13 @@ public class AncestorTracker : IServiceProviderActions, IServiceProviderDataActi
 	private class Container : List<(Type Type, object? Ancestor)>;
 }
 
-
 public class InterpreterXDataModelProperty : IXDataModelProperty
 {
-	public required ICaseSensitivity                    CaseSensitivity         { private get; [UsedImplicitly] init; }
+	public required ICaseSensitivity CaseSensitivity { private get; [UsedImplicitly] init; }
+
 	public required Ancestor<IStateMachineInterpreter> StateMachineInterpreter { private get; [UsedImplicitly] init; }
-	public required Func<Type, IAssemblyTypeInfo>       TypeInfoFactory         { private get; [UsedImplicitly] init; }
+
+	public required Func<Type, IAssemblyTypeInfo> TypeInfoFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IXDataModelProperty
 
@@ -694,17 +711,15 @@ public class StateMachineContext : IStateMachineContext //, IAsyncInitialization
 	//	_ixDataModelPropertyAsyncInit = AsyncInit.Run(this, ctx => ctx.XDataModelProperties.ToImmutableArrayAsync());
 	//}
 
-	public required ICaseSensitivity                 CaseSensitivity       { private get; [UsedImplicitly] init; }
-	public required IStateMachine                    StateMachine          { private get; [UsedImplicitly] init; }
-	public required ServiceList<IIoProcessor>        IoProcessors          { private get; [UsedImplicitly] init; }
-	public required ServiceList<IXDataModelProperty> XDataModelProperties  { private get; [UsedImplicitly] init; }
-	public required IStateMachineSessionId           StateMachineSessionId { private get; [UsedImplicitly] init; }
+	public required ICaseSensitivity CaseSensitivity { private get; [UsedImplicitly] init; }
 
-#region Interface IAsyncInitialization
+	public required IStateMachine StateMachine { private get; [UsedImplicitly] init; }
 
-	//public Task Initialization => _ioProcessorsAsyncInit.Then(_ixDataModelPropertyAsyncInit).Task;
+	public required ServiceList<IIoProcessor> IoProcessors { private get; [UsedImplicitly] init; }
 
-#endregion
+	public required ServiceList<IXDataModelProperty> XDataModelProperties { private get; [UsedImplicitly] init; }
+
+	public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
 
 #region Interface IStateMachineContext
 
@@ -775,6 +790,8 @@ public class StateMachineContext : IStateMachineContext //, IAsyncInitialization
 
 		return list;
 	}
+
+	//public Task Initialization => _ioProcessorsAsyncInit.Then(_ixDataModelPropertyAsyncInit).Task;
 
 	/*public ILogger?                             Logger                   { get; init; }
 		public IInterpreterLoggerContext?           LoggerContext            { get; init; }

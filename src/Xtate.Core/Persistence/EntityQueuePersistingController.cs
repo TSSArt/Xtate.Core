@@ -20,12 +20,16 @@ namespace Xtate.Persistence;
 internal sealed class EntityQueuePersistingController<T> : IDisposable where T : class
 {
 	private const int Head = 0;
+
 	private const int Tail = 1;
 
-	private readonly Bucket         _bucket;
+	private readonly Bucket _bucket;
+
 	private readonly EntityQueue<T> _entityQueue;
-	private          int            _headIndex;
-	private          int            _tailIndex;
+
+	private int _headIndex;
+
+	private int _tailIndex;
 
 	public EntityQueuePersistingController(in Bucket bucket, EntityQueue<T> entityQueue, Func<Bucket, T> creator)
 	{
@@ -62,6 +66,7 @@ internal sealed class EntityQueuePersistingController<T> : IDisposable where T :
 				var bucket = _bucket.Nested(_tailIndex ++);
 				_bucket.Add(Tail, _tailIndex);
 				entity!.As<IStoreSupport>().Store(bucket);
+
 				break;
 
 			case EntityQueue<T>.ChangedAction.Dequeue:

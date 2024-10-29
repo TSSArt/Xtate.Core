@@ -21,16 +21,20 @@ namespace Xtate.Persistence;
 
 internal sealed class KeyListPersistingController<T> : IDisposable where T : class
 {
-	private const int Id     = 0;
+	private const int Id = 0;
+
 	private const int IdList = 1;
 
-	private readonly Bucket               _bucket;
-	private readonly KeyList<T>           _keyList;
+	private readonly Bucket _bucket;
+
+	private readonly KeyList<T> _keyList;
+
 	private readonly Dictionary<int, int> _records = [];
 
 	public KeyListPersistingController(Bucket bucket, KeyList<T> keyList, ImmutableDictionary<int, IEntity> entityMap)
 	{
 		if (entityMap is null) throw new ArgumentNullException(nameof(entityMap));
+
 		_bucket = bucket;
 		_keyList = keyList ?? throw new ArgumentNullException(nameof(keyList));
 
@@ -44,6 +48,7 @@ internal sealed class KeyListPersistingController<T> : IDisposable where T : cla
 			}
 
 			var list = new List<T>(bytes.Length / 4);
+
 			for (var i = 0; i < list.Count; i ++)
 			{
 				var itemDocumentId = BinaryPrimitives.ReadInt32LittleEndian(bytes[(i * 4)..].Span);
@@ -74,12 +79,14 @@ internal sealed class KeyListPersistingController<T> : IDisposable where T : cla
 		}
 
 		Span<byte> bytes = stackalloc byte[list.Count * 4];
+
 		for (var i = 0; i < list.Count; i ++)
 		{
 			BinaryPrimitives.WriteInt32LittleEndian(bytes[(i * 4)..], list[i].As<IDocumentId>().DocumentId);
 		}
 
 		var documentId = entity.As<IDocumentId>().DocumentId;
+
 		if (!_records.TryGetValue(documentId, out var record))
 		{
 			record = _records.Count;

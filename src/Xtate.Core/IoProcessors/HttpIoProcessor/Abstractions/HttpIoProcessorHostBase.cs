@@ -26,6 +26,7 @@ public abstract class HttpIoProcessorHostBase<THost, TContext> where THost : Htt
 	private bool AddToList(HttpIoProcessorBase<THost, TContext> processor)
 	{
 		ImmutableList<HttpIoProcessorBase<THost, TContext>> preVal, newVal;
+
 		do
 		{
 			preVal = Processors;
@@ -45,11 +46,13 @@ public abstract class HttpIoProcessorHostBase<THost, TContext> where THost : Htt
 	private bool RemoveFromList(HttpIoProcessorBase<THost, TContext> processor)
 	{
 		ImmutableList<HttpIoProcessorBase<THost, TContext>> preVal, newVal;
+
 		do
 		{
 			preVal = Processors;
 
 			var index = preVal.IndexOf(processor);
+
 			if (index < 0)
 			{
 				return false;

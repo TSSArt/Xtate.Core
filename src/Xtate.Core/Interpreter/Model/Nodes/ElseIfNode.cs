@@ -21,8 +21,9 @@ namespace Xtate.Core;
 
 public sealed class ElseIfNode : IElseIf, IAncestorProvider, IStoreSupport, IDocumentId, IDebugEntityId
 {
-	private readonly IElseIf        _elseIf;
-	private          DocumentIdSlot _documentIdSlot;
+	private readonly IElseIf _elseIf;
+
+	private DocumentIdSlot _documentIdSlot;
 
 	public ElseIfNode(DocumentIdNode documentIdNode, IElseIf elseIf)
 	{

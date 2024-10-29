@@ -30,9 +30,12 @@ public struct ForEachEntity : IForEach, IVisitorEntity<ForEachEntity, IForEach>,
 #region Interface IForEach
 
 	public ImmutableArray<IExecutableEntity> Action { get; set; }
-	public IValueExpression?                 Array  { get; set; }
-	public ILocationExpression?              Index  { get; set; }
-	public ILocationExpression?              Item   { get; set; }
+
+	public IValueExpression? Array { get; set; }
+
+	public ILocationExpression? Index { get; set; }
+
+	public ILocationExpression? Item { get; set; }
 
 #endregion
 

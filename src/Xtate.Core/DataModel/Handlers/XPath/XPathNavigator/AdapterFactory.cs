@@ -19,16 +19,23 @@ namespace Xtate.DataModel.XPath;
 
 internal static class AdapterFactory
 {
-	public static readonly NodeAdapter XmlnsXmlNodeAdapter      = new XmlnsXmlNodeAdapter();
-	public static readonly NodeAdapter AttributeNodeAdapter     = new AttributeNodeAdapter();
-	public static readonly NodeAdapter TypeAttributeNodeAdapter = new TypeAttributeNodeAdapter();
-	public static readonly NodeAdapter NamespaceNodeAdapter     = new NamespaceNodeAdapter();
+	public static readonly NodeAdapter XmlnsXmlNodeAdapter = new XmlnsXmlNodeAdapter();
 
-	private static readonly NodeAdapter ListNodeAdapter           = new ListNodeAdapter();
-	private static readonly NodeAdapter ListItemNodeAdapter       = new ListItemNodeAdapter();
-	private static readonly NodeAdapter ItemNodeAdapter           = new ItemNodeAdapter();
+	public static readonly NodeAdapter AttributeNodeAdapter = new AttributeNodeAdapter();
+
+	public static readonly NodeAdapter TypeAttributeNodeAdapter = new TypeAttributeNodeAdapter();
+
+	public static readonly NodeAdapter NamespaceNodeAdapter = new NamespaceNodeAdapter();
+
+	private static readonly NodeAdapter ListNodeAdapter = new ListNodeAdapter();
+
+	private static readonly NodeAdapter ListItemNodeAdapter = new ListItemNodeAdapter();
+
+	private static readonly NodeAdapter ItemNodeAdapter = new ItemNodeAdapter();
+
 	private static readonly NodeAdapter SimpleTypeItemNodeAdapter = new SimpleTypeItemNodeAdapter();
-	private static readonly NodeAdapter SimpleTypeNodeAdapter     = new SimpleTypeNodeAdapter();
+
+	private static readonly NodeAdapter SimpleTypeNodeAdapter = new SimpleTypeNodeAdapter();
 
 	public static NodeAdapter GetDefaultAdapter(in DataModelValue value) =>
 		value.Type switch

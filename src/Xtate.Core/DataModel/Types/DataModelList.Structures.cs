@@ -69,11 +69,15 @@ public partial class DataModelList
 
 		internal Entry(DataModelList? metadata) : this() => Metadata = metadata;
 
-		public int             Index    { get; }
-		public string?         Key      { get; }
-		public DataModelAccess Access   { get; }
-		public DataModelList?  Metadata { get; }
-		public DataModelValue  Value    { get; }
+		public int Index { get; }
+
+		public string? Key { get; }
+
+		public DataModelAccess Access { get; }
+
+		public DataModelList? Metadata { get; }
+
+		public DataModelValue Value { get; }
 
 	#region Interface IEquatable<Entry>
 
@@ -99,7 +103,8 @@ public partial class DataModelList
 			Value = value;
 		}
 
-		public string?        Key   { get; }
+		public string? Key { get; }
+
 		public DataModelValue Value { get; }
 
 	#region Interface IEquatable<KeyValue>
@@ -119,52 +124,68 @@ public partial class DataModelList
 
 	private struct Args
 	{
-		public AdapterBase      Adapter;
-		public HashKey          HashKey;
-		public int              Index;
-		public string?          Key;
-		public KeyMetaValue[]   KeyMetaValues;
-		public HashKeyValue[]   KeyValues;
-		public Meta             Meta;
-		public MetaValue[]      MetaValues;
-		public int              StoredCount;
-		public DataModelValue   Value;
+		public AdapterBase Adapter;
+
+		public HashKey HashKey;
+
+		public int Index;
+
+		public string? Key;
+
+		public KeyMetaValue[] KeyMetaValues;
+
+		public HashKeyValue[] KeyValues;
+
+		public Meta Meta;
+
+		public MetaValue[] MetaValues;
+
+		public int StoredCount;
+
+		public DataModelValue Value;
+
 		public DataModelValue[] Values;
 	}
 
 	[Serializable]
 	private readonly struct KeyMetaValue(in HashKey hashKey, in Meta meta, in DataModelValue value)
 	{
-		public readonly HashKey        HashKey = hashKey;
-		public readonly Meta           Meta    = meta;
-		public readonly DataModelValue Value   = value;
+		public readonly HashKey HashKey = hashKey;
+
+		public readonly Meta Meta = meta;
+
+		public readonly DataModelValue Value = value;
 	}
 
 	[Serializable]
 	private readonly struct MetaValue(in Meta meta, in DataModelValue value)
 	{
-		public readonly Meta           Meta  = meta;
+		public readonly Meta Meta = meta;
+
 		public readonly DataModelValue Value = value;
 	}
 
 	[Serializable]
 	private readonly struct HashKeyValue(in HashKey hashKey, in DataModelValue value)
 	{
-		public readonly HashKey        HashKey = hashKey;
-		public readonly DataModelValue Value   = value;
+		public readonly HashKey HashKey = hashKey;
+
+		public readonly DataModelValue Value = value;
 	}
 
 	[Serializable]
 	private readonly struct HashKey(int hash, string? key)
 	{
-		public readonly int     Hash = hash;
-		public readonly string? Key  = key;
+		public readonly int Hash = hash;
+
+		public readonly string? Key = key;
 	}
 
 	[Serializable]
 	private readonly struct Meta(DataModelAccess access, DataModelList? metadata)
 	{
-		public readonly DataModelAccess Access   = access;
-		public readonly DataModelList?  Metadata = metadata;
+		public readonly DataModelAccess Access = access;
+
+		public readonly DataModelList? Metadata = metadata;
 	}
 }

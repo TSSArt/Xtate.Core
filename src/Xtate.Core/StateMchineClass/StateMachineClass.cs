@@ -22,8 +22,10 @@ namespace Xtate.Core;
 public abstract class StateMachineClass : IStateMachineSessionId, IStateMachineArguments, IStateMachineLocation
 {
 	private readonly DataModelValue _arguments;
-	private readonly Uri?           _location;
-	private          SessionId?     _sessionId;
+
+	private readonly Uri? _location;
+
+	private SessionId? _sessionId;
 
 	public Uri Location { init => _location = value; }
 

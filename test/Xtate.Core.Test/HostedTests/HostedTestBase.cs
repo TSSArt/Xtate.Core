@@ -25,7 +25,8 @@ namespace Xtate.Test.HostedTests;
 
 public abstract class HostedTestBase
 {
-	protected StateMachineHost Host      { get; private set; } = default!;
+	protected StateMachineHost Host { get; private set; } = default!;
+
 	protected Mock<ILogWriter> LogWriter { get; private set; } = default!;
 
 	[TestInitialize]
@@ -63,6 +64,6 @@ public abstract class HostedTestBase
 		var uri = new Uri($"resx://{name}/{name}/HostedTests/Scxml/" + scxmlPath);
 		var locationStateMachine = new LocationStateMachine(uri);
 
-		await ((IHostController)Host).ExecuteStateMachine(locationStateMachine, SecurityContextType.NewTrustedStateMachine);
+		await ((IHostController) Host).ExecuteStateMachine(locationStateMachine, SecurityContextType.NewTrustedStateMachine);
 	}
 }

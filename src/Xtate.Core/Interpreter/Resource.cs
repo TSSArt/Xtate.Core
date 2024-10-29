@@ -25,9 +25,12 @@ namespace Xtate.Core;
 public class Resource(Stream stream, ContentType? contentType) : IDisposable, IAsyncDisposable, IXIncludeResource
 {
 	private readonly DisposingToken _disposingToken = new();
-	private readonly Stream         _stream         = stream ?? throw new ArgumentNullException(nameof(stream));
-	private          byte[]?        _bytes;
-	private          string?        _content;
+
+	private readonly Stream _stream = stream ?? throw new ArgumentNullException(nameof(stream));
+
+	private byte[]? _bytes;
+
+	private string? _content;
 
 	public Encoding Encoding => !string.IsNullOrEmpty(ContentType?.CharSet) ? Encoding.GetEncoding(ContentType.CharSet) : Encoding.UTF8;
 

@@ -20,7 +20,8 @@ namespace Xtate.Core;
 public struct EventEntity : IOutgoingEvent
 {
 	public static readonly Uri InternalTarget = new(uriString: @"_internal", UriKind.Relative);
-	public static readonly Uri ParentTarget   = new(uriString: @"_parent", UriKind.Relative);
+
+	public static readonly Uri ParentTarget = new(uriString: @"_parent", UriKind.Relative);
 
 	public EventEntity(string? value) : this()
 	{
@@ -34,12 +35,17 @@ public struct EventEntity : IOutgoingEvent
 
 #region Interface IOutgoingEvent
 
-	public DataModelValue              Data      { get; set; }
-	public int                         DelayMs   { get; set; }
+	public DataModelValue Data { get; set; }
+
+	public int DelayMs { get; set; }
+
 	public ImmutableArray<IIdentifier> NameParts { get; set; }
-	public SendId?                     SendId    { get; set; }
-	public Uri?                        Target    { get; set; }
-	public Uri?                        Type      { get; set; }
+
+	public SendId? SendId { get; set; }
+
+	public Uri? Target { get; set; }
+
+	public Uri? Type { get; set; }
 
 #endregion
 }

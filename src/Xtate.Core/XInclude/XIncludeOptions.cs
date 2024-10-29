@@ -24,7 +24,8 @@ public class XIncludeOptions : IXIncludeOptions
 #region Interface IXIncludeOptions
 
 	public bool XIncludeAllowed => true;
-	public int  MaxNestingLevel => 10;
+
+	public int MaxNestingLevel => 10;
 
 #endregion
 }

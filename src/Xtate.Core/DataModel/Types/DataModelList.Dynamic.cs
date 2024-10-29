@@ -33,9 +33,12 @@ public partial class DataModelList : IDynamicMetaObjectProvider
 
 	internal class Dynamic(DataModelList list) : DynamicObject
 	{
-		private const string GetLength   = "GetLength";
+		private const string GetLength = "GetLength";
+
 		private const string GetMetadata = "GetMetadata";
-		private const string SetLength   = "SetLength";
+
+		private const string SetLength = "SetLength";
+
 		private const string SetMetadata = "SetMetadata";
 
 		private static readonly Dynamic Instance = new(default!);
@@ -45,6 +48,7 @@ public partial class DataModelList : IDynamicMetaObjectProvider
 		public static DynamicMetaObject CreateMetaObject(Expression expression)
 		{
 			var newExpression = Expression.New(ConstructorInfo, Expression.Convert(expression, typeof(DataModelList)));
+
 			return Instance.GetMetaObject(newExpression);
 		}
 
@@ -122,6 +126,7 @@ public partial class DataModelList : IDynamicMetaObjectProvider
 				case [IConvertible key, DataModelList metadata] when IsName(SetMetadata):
 				{
 					var index = key.ToInt32(CultureInfo.InvariantCulture);
+
 					if (list.TryGet(index, out var entry))
 					{
 						list.Set(entry.Index, entry.Key, entry.Value, metadata);

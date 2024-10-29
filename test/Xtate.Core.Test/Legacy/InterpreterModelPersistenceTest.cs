@@ -31,7 +31,8 @@ public class Evaluator : IExternalScriptExpression, IIntegerEvaluator, IStringEv
 
 	public Evaluator(Uri? entityUri) => Uri = entityUri;
 
-	private Uri?    Uri        { get; }
+	private Uri? Uri { get; }
+
 	private string? Expression { get; }
 
 #region Interface IArrayEvaluator
@@ -186,6 +187,7 @@ public class InterpreterModelPersistenceTest
 		var storeSupport = model.Root.As<IStoreSupport>();
 
 		byte[] transactionLog;
+
 		using (var storage = new InMemoryStorage(false))
 		{
 			storeSupport.Store(new Bucket(storage));
@@ -196,6 +198,7 @@ public class InterpreterModelPersistenceTest
 		}
 
 		IStateMachine restoredStateMachine;
+
 		using (var newStorage = new InMemoryStorage(transactionLog))
 		{
 			restoredStateMachine = new StateMachineReader().Build(new Bucket(newStorage));
@@ -242,6 +245,7 @@ public class InterpreterModelPersistenceTest
 		var storeSupport = model.Root.As<IStoreSupport>();
 
 		byte[] transactionLog;
+
 		using (var storage = new InMemoryStorage(false))
 		{
 			storeSupport.Store(new Bucket(storage));
@@ -250,6 +254,7 @@ public class InterpreterModelPersistenceTest
 		}
 
 		IStateMachine restoredStateMachine;
+
 		using (var newStorage = new InMemoryStorage(transactionLog))
 		{
 			restoredStateMachine = new StateMachineReader().Build(new Bucket(newStorage), model.EntityMap);

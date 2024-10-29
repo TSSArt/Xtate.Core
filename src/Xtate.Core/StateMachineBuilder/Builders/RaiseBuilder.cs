@@ -17,7 +17,6 @@
 
 namespace Xtate.Builder;
 
-
 public class RaiseBuilder : BuilderBase, IRaiseBuilder
 {
 	private IOutgoingEvent? _outgoingEvent;

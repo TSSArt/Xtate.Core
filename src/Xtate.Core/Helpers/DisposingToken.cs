@@ -17,44 +17,49 @@
 
 namespace Xtate.Core;
 
-
 /// <summary>
-/// This class is designed to allow access to the <see cref="Token"/> property without raising an <see cref="ObjectDisposedException"/>.
-/// It allows safe access to the <see cref="Token"/> even when it is in a disposed state. On Dispose, it will cancel the token if it has not already been canceled.
+///     This class is designed to allow access to the <see cref="Token" /> property without raising an
+///     <see cref="ObjectDisposedException" />.
+///     It allows safe access to the <see cref="Token" /> even when it is in a disposed state. On Dispose, it will cancel
+///     the token if it has not already been canceled.
 /// </summary>
 public class DisposingToken : CancellationTokenSource
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="DisposingToken"/> class.
-    /// </summary>
-    public DisposingToken() => Token = base.Token;
-
-    /// <summary>
-    /// Gets the <see cref="CancellationToken"/> associated with this <see cref="DisposingToken"/>.
-    /// </summary>
-    public new CancellationToken Token { get; }
+	/// <summary>
+	///     Initializes a new instance of the <see cref="DisposingToken" /> class.
+	/// </summary>
+	public DisposingToken() => Token = base.Token;
 
 	/// <summary>
-	/// Cancels the associated <see cref="CancellationToken"/> and releases the unmanaged resources used by the <see cref="DisposingToken"/> and optionally releases the managed resources.
+	///     Gets the <see cref="CancellationToken" /> associated with this <see cref="DisposingToken" />.
 	/// </summary>
-	/// <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>	
-	protected override void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            try
-            {
-                if (!IsCancellationRequested)
-                {
-                    Cancel();
-                }
-            }
-            catch (ObjectDisposedException)
-            {
-                // Ignore
-            }
-        }
+	public new CancellationToken Token { get; }
 
-        base.Dispose(disposing);
-    }
+	/// <summary>
+	///     Cancels the associated <see cref="CancellationToken" /> and releases the unmanaged resources used by the
+	///     <see cref="DisposingToken" /> and optionally releases the managed resources.
+	/// </summary>
+	/// <param name="disposing">
+	///     true to release both managed and unmanaged resources; false to release only unmanaged
+	///     resources.
+	/// </param>
+	protected override void Dispose(bool disposing)
+	{
+		if (disposing)
+		{
+			try
+			{
+				if (!IsCancellationRequested)
+				{
+					Cancel();
+				}
+			}
+			catch (ObjectDisposedException)
+			{
+				// Ignore
+			}
+		}
+
+		base.Dispose(disposing);
+	}
 }

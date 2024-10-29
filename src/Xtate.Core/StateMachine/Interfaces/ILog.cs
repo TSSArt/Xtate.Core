@@ -19,6 +19,7 @@ namespace Xtate;
 
 public interface ILog : IExecutableEntity
 {
-	string?           Label      { get; }
+	string? Label { get; }
+
 	IValueExpression? Expression { get; }
 }

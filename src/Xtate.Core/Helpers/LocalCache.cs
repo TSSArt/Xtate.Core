@@ -20,7 +20,8 @@ namespace Xtate.Core;
 public class LocalCache<TKey, TValue> : IDisposable, IAsyncDisposable where TKey : notnull
 {
 	private readonly Dictionary<TKey, CacheEntry<TValue>> _localDictionary = [];
-	public required  GlobalCache<TKey, TValue>            GlobalCache { private get; [UsedImplicitly] init; }
+
+	public required GlobalCache<TKey, TValue> GlobalCache { private get; [UsedImplicitly] init; }
 
 #region Interface IAsyncDisposable
 

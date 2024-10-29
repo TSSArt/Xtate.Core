@@ -17,13 +17,15 @@
 
 namespace Xtate.Builder;
 
-
 public class FinalBuilder : BuilderBase, IFinalBuilder
 {
-	private IDoneData?                        _doneData;
-	private IIdentifier?                      _id;
+	private IDoneData? _doneData;
+
+	private IIdentifier? _id;
+
 	private ImmutableArray<IOnEntry>.Builder? _onEntryList;
-	private ImmutableArray<IOnExit>.Builder?  _onExitList;
+
+	private ImmutableArray<IOnExit>.Builder? _onExitList;
 
 #region Interface IFinalBuilder
 

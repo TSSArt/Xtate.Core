@@ -36,21 +36,31 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 	string errorSuffix)
 	: IoProcessorBase(eventConsumer, id, alias), IDisposable, IAsyncDisposable where THost : HttpIoProcessorHostBase<THost, TContext>
 {
-	private const string MediaTypeTextPlain                 = @"text/plain";
-	private const string MediaTypeApplicationJson           = @"application/json";
+	private const string MediaTypeTextPlain = @"text/plain";
+
+	private const string MediaTypeApplicationJson = @"application/json";
+
 	private const string MediaTypeApplicationFormUrlEncoded = @"application/x-www-form-urlencoded";
-	private const string EventNameParameterName             = @"_scxmleventname";
-	private const string ContentLengthHeaderName            = @"Content-Length";
-	private const string ContentTypeHeaderName              = @"Content-Type";
-	private const string OriginHeaderName                   = @"Origin";
-	private const string ErrorSuffixHeader                  = @"HttpIoProcessor.";
+
+	private const string EventNameParameterName = @"_scxmleventname";
+
+	private const string ContentLengthHeaderName = @"Content-Length";
+
+	private const string ContentTypeHeaderName = @"Content-Type";
+
+	private const string OriginHeaderName = @"Origin";
+
+	private const string ErrorSuffixHeader = @"HttpIoProcessor.";
 
 	private static readonly ConcurrentDictionary<IPEndPoint, THost> Hosts = new();
 
-	private readonly Uri        _baseUri     = baseUri ?? throw new ArgumentNullException(nameof(baseUri));
-	private readonly string     _errorSuffix = errorSuffix;
-	private readonly string     _path        = baseUri.GetComponents(UriComponents.Path, UriFormat.Unescaped);
-	private          IPEndPoint _ipEndPoint  = ipEndPoint;
+	private readonly Uri _baseUri = baseUri ?? throw new ArgumentNullException(nameof(baseUri));
+
+	private readonly string _errorSuffix = errorSuffix;
+
+	private readonly string _path = baseUri.GetComponents(UriComponents.Path, UriFormat.Unescaped);
+
+	private IPEndPoint _ipEndPoint = ipEndPoint;
 
 #region Interface IAsyncDisposable
 
@@ -78,6 +88,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 		if (Hosts.TryGetValue(_ipEndPoint, out var host))
 		{
 			var last = await host.RemoveProcessor(this, token: default).ConfigureAwait(false);
+
 			if (last && Hosts.TryRemove(new KeyValuePair<IPEndPoint, THost>(_ipEndPoint, host)))
 			{
 				await Disposer.DisposeAsync(host).ConfigureAwait(false);
@@ -90,6 +101,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 		if (Hosts.TryGetValue(_ipEndPoint, out var host))
 		{
 			var last = host.RemoveProcessor(this, token: default).SynchronousGetResult();
+
 			if (last && Hosts.TryRemove(new KeyValuePair<IPEndPoint, THost>(_ipEndPoint, host)))
 			{
 				Disposer.Dispose(host);
@@ -102,6 +114,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 		foreach (var networkInterface in NetworkInterface.GetAllNetworkInterfaces())
 		{
 			var ipInterfaceProperties = networkInterface.GetIPProperties();
+
 			foreach (var ipInterfaceProperty in ipInterfaceProperties.UnicastAddresses)
 			{
 				if (ipInterfaceProperty.Address.Equals(address))
@@ -181,6 +194,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 		Infra.NotNull(targetUri);
 
 		var content = GetContent(hostEvent, out var eventNameInContent);
+
 		if (!hostEvent.NameParts.IsDefaultOrEmpty && !eventNameInContent)
 		{
 			targetUri = QueryStringHelper.AddQueryString(targetUri, EventNameParameterName, EventName.ToName(hostEvent.NameParts)!);
@@ -225,6 +239,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 				if (IsStringDictionary(dataModelList))
 				{
 					eventNameInContent = true;
+
 					return new FormUrlEncodedContent(GetParameters(hostEvent.NameParts, dataModelList));
 				}
 
@@ -341,6 +356,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 		}
 
 		IEvent? evt;
+
 		try
 		{
 			evt = await CreateEvent(context, token).ConfigureAwait(false);
@@ -424,6 +440,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 		var encoding = contentType.CharSet is not null ? Encoding.GetEncoding(contentType.CharSet) : Encoding.ASCII;
 
 		string body;
+
 		using (var streamReader = new StreamReader(GetBody(context).InjectCancellationToken(token), encoding))
 		{
 			body = await streamReader.ReadToEndAsync().ConfigureAwait(false);

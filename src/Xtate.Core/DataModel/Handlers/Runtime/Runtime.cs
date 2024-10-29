@@ -50,5 +50,4 @@ public static class Runtime
 	public static ValueTask StartInvoke(InvokeId invokeId, InvokeData invokeData) => GetContext().InvokeController.Start(invokeId, invokeData);
 
 	public static ValueTask CancelInvoke(InvokeId invokeId) => GetContext().InvokeController.Cancel(invokeId);
-
 }

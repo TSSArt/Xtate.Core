@@ -22,61 +22,111 @@ namespace Xtate.Core;
 
 public class InterpreterModelBuilder : StateMachineVisitor
 {
-	private readonly Dictionary<IIdentifier, StateEntityNode>           _idMap     = new(Identifier.EqualityComparer);
-	private readonly List<TransitionNode>                               _targetMap = [];
-	private          int                                                _counter;
-	private          int                                                _deepLevel;
-	private          LinkedList<int>?                                   _documentIdList;
-	private          List<IEntity>?                                     _entities;
-	private          List<(Uri Uri, IExternalScriptConsumer Consumer)>? _externalScriptList;
-	private          bool                                               _inParallel;
+	private readonly Dictionary<IIdentifier, StateEntityNode> _idMap = new(Identifier.EqualityComparer);
 
-	public required IStateMachine                                   StateMachine          { private get; [UsedImplicitly] init; }
-	public required IStateMachineLocation?                          StateMachineLocation  { private get; [UsedImplicitly] init; }
-	public required IDataModelHandler                               DataModelHandler      { private get; [UsedImplicitly] init; }
+	private readonly List<TransitionNode> _targetMap = [];
+
+	private int _counter;
+
+	private int _deepLevel;
+
+	private LinkedList<int>? _documentIdList;
+
+	private List<IEntity>? _entities;
+
+	private List<(Uri Uri, IExternalScriptConsumer Consumer)>? _externalScriptList;
+
+	private bool _inParallel;
+
+	public required IStateMachine StateMachine { private get; [UsedImplicitly] init; }
+
+	public required IStateMachineLocation? StateMachineLocation { private get; [UsedImplicitly] init; }
+
+	public required IDataModelHandler DataModelHandler { private get; [UsedImplicitly] init; }
+
 	public required IErrorProcessorService<InterpreterModelBuilder> ErrorProcessorService { private get; [UsedImplicitly] init; }
-	public required IResourceLoader                                 ResourceLoader        { private get; [UsedImplicitly] init; }
 
-	public required Func<DocumentIdNode, TransitionNode, EmptyInitialNode>                     EmptyInitialNodeFactory             { private get; [UsedImplicitly] init; }
-	public required Func<DocumentIdNode, ImmutableArray<StateEntityNode>, EmptyTransitionNode> EmptyTransitionNodeFactory          { private get; [UsedImplicitly] init; }
-	public required Func<DocumentIdNode, IInitial, InitialNode>                                InitialNodeFactory                  { private get; [UsedImplicitly] init; }
-	public required Func<DocumentIdNode, ITransition, TransitionNode>                          TransitionNodeFactory               { private get; [UsedImplicitly] init; }
-	public required Func<DocumentIdNode, IDoneData, DoneDataNode>                              DoneDataNodeFactory                 { private get; [UsedImplicitly] init; }
-	public required Func<DocumentIdNode, IState, StateNode>                                    StateNodeFactory                    { private get; [UsedImplicitly] init; }
-	public required Func<DocumentIdNode, IParallel, ParallelNode>                              ParallelNodeFactory                 { private get; [UsedImplicitly] init; }
-	public required Func<DocumentIdNode, IState, CompoundNode>                                 CompoundNodeFactory                 { private get; [UsedImplicitly] init; }
-	public required Func<DocumentIdNode, IStateMachine, StateMachineNode>                      StateMachineNodeFactory             { private get; [UsedImplicitly] init; }
-	public required Func<DocumentIdNode, IFinal, FinalNode>                                    FinalNodeFactory                    { private get; [UsedImplicitly] init; }
-	public required Func<DocumentIdNode, IHistory, HistoryNode>                                HistoryNodeFactory                  { private get; [UsedImplicitly] init; }
-	public required Func<DocumentIdNode, IDataModel, DataModelNode>                            DataModelNodeFactory                { private get; [UsedImplicitly] init; }
-	public required Func<DocumentIdNode, IOnEntry, OnEntryNode>                                OnEntryNodeFactory                  { private get; [UsedImplicitly] init; }
-	public required Func<DocumentIdNode, IOnExit, OnExitNode>                                  OnExitNodeFactory                   { private get; [UsedImplicitly] init; }
-	public required Func<DocumentIdNode, IData, DataNode>                                      DataNodeFactory                     { private get; [UsedImplicitly] init; }
-	public required Func<DocumentIdNode, IInvoke, InvokeNode>                                  InvokeNodeFactory                   { private get; [UsedImplicitly] init; }
-	public required Func<DocumentIdNode, ICancel, CancelNode>                                  CancelNodeFactory                   { private get; [UsedImplicitly] init; }
-	public required Func<DocumentIdNode, IAssign, AssignNode>                                  AssignNodeFactory                   { private get; [UsedImplicitly] init; }
-	public required Func<DocumentIdNode, IForEach, ForEachNode>                                ForEachNodeFactory                  { private get; [UsedImplicitly] init; }
-	public required Func<DocumentIdNode, IIf, IfNode>                                          IfNodeFactory                       { private get; [UsedImplicitly] init; }
-	public required Func<DocumentIdNode, IElseIf, ElseIfNode>                                  ElseIfNodeFactory                   { private get; [UsedImplicitly] init; }
-	public required Func<DocumentIdNode, IElse, ElseNode>                                      ElseNodeFactory                     { private get; [UsedImplicitly] init; }
-	public required Func<DocumentIdNode, ILog, LogNode>                                        LogNodeFactory                      { private get; [UsedImplicitly] init; }
-	public required Func<DocumentIdNode, IRaise, RaiseNode>                                    RaiseNodeFactory                    { private get; [UsedImplicitly] init; }
-	public required Func<DocumentIdNode, ISend, SendNode>                                      SendNodeFactory                     { private get; [UsedImplicitly] init; }
-	public required Func<DocumentIdNode, IScript, ScriptNode>                                  ScriptNodeFactory                   { private get; [UsedImplicitly] init; }
-	public required Func<DocumentIdNode, IExecutableEntity, RuntimeExecNode>                   RuntimeExecNodeFactory              { private get; [UsedImplicitly] init; }
-	public required Func<DocumentIdNode, ICustomAction, CustomActionNode>                      CustomActionNodeFactory             { private get; [UsedImplicitly] init; }
-	public required Func<DocumentIdNode, IParam, ParamNode>                                    ParamNodeFactory                    { private get; [UsedImplicitly] init; }
-	public required Func<IScriptExpression, ScriptExpressionNode>                              ScriptExpressionNodeFactory         { private get; [UsedImplicitly] init; }
-	public required Func<IExternalScriptExpression, ExternalScriptExpressionNode>              ExternalScriptExpressionNodeFactory { private get; [UsedImplicitly] init; }
-	public required Func<IExternalDataExpression, ExternalDataExpressionNode>                  ExternalDataExpressionNodeFactory   { private get; [UsedImplicitly] init; }
-	public required Func<IValueExpression, ValueExpressionNode>                                ValueExpressionNodeFactory          { private get; [UsedImplicitly] init; }
-	public required Func<ILocationExpression, LocationExpressionNode>                          LocationExpressionNodeFactory       { private get; [UsedImplicitly] init; }
-	public required Func<IConditionExpression, ConditionExpressionNode>                        ConditionExpressionNodeFactory      { private get; [UsedImplicitly] init; }
-	public required Func<IContent, ContentNode>                                                ContentNodeFactory                  { private get; [UsedImplicitly] init; }
-	public required Func<IFinalize, FinalizeNode>                                              FinalizeNodeFactory                 { private get; [UsedImplicitly] init; }
-	public required Func<IIdentifier, IdentifierNode>                                          IdentifierNodeFactory               { private get; [UsedImplicitly] init; }
-	public required Func<IOutgoingEvent, EventNode>                                            EventNodeFactory                    { private get; [UsedImplicitly] init; }
-	public required Func<IEventDescriptor, EventDescriptorNode>                                EventDescriptorNodeFactory          { private get; [UsedImplicitly] init; }
+	public required IResourceLoader ResourceLoader { private get; [UsedImplicitly] init; }
+
+	public required Func<DocumentIdNode, TransitionNode, EmptyInitialNode> EmptyInitialNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<DocumentIdNode, ImmutableArray<StateEntityNode>, EmptyTransitionNode> EmptyTransitionNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<DocumentIdNode, IInitial, InitialNode> InitialNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<DocumentIdNode, ITransition, TransitionNode> TransitionNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<DocumentIdNode, IDoneData, DoneDataNode> DoneDataNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<DocumentIdNode, IState, StateNode> StateNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<DocumentIdNode, IParallel, ParallelNode> ParallelNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<DocumentIdNode, IState, CompoundNode> CompoundNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<DocumentIdNode, IStateMachine, StateMachineNode> StateMachineNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<DocumentIdNode, IFinal, FinalNode> FinalNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<DocumentIdNode, IHistory, HistoryNode> HistoryNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<DocumentIdNode, IDataModel, DataModelNode> DataModelNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<DocumentIdNode, IOnEntry, OnEntryNode> OnEntryNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<DocumentIdNode, IOnExit, OnExitNode> OnExitNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<DocumentIdNode, IData, DataNode> DataNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<DocumentIdNode, IInvoke, InvokeNode> InvokeNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<DocumentIdNode, ICancel, CancelNode> CancelNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<DocumentIdNode, IAssign, AssignNode> AssignNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<DocumentIdNode, IForEach, ForEachNode> ForEachNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<DocumentIdNode, IIf, IfNode> IfNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<DocumentIdNode, IElseIf, ElseIfNode> ElseIfNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<DocumentIdNode, IElse, ElseNode> ElseNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<DocumentIdNode, ILog, LogNode> LogNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<DocumentIdNode, IRaise, RaiseNode> RaiseNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<DocumentIdNode, ISend, SendNode> SendNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<DocumentIdNode, IScript, ScriptNode> ScriptNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<DocumentIdNode, IExecutableEntity, RuntimeExecNode> RuntimeExecNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<DocumentIdNode, ICustomAction, CustomActionNode> CustomActionNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<DocumentIdNode, IParam, ParamNode> ParamNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<IScriptExpression, ScriptExpressionNode> ScriptExpressionNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<IExternalScriptExpression, ExternalScriptExpressionNode> ExternalScriptExpressionNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<IExternalDataExpression, ExternalDataExpressionNode> ExternalDataExpressionNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<IValueExpression, ValueExpressionNode> ValueExpressionNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<ILocationExpression, LocationExpressionNode> LocationExpressionNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<IConditionExpression, ConditionExpressionNode> ConditionExpressionNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<IContent, ContentNode> ContentNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<IFinalize, FinalizeNode> FinalizeNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<IIdentifier, IdentifierNode> IdentifierNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<IOutgoingEvent, EventNode> EventNodeFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<IEventDescriptor, EventDescriptorNode> EventDescriptorNodeFactory { private get; [UsedImplicitly] init; }
 
 	private void CounterBefore(bool inParallel, out (int counter, bool inParallel) saved)
 	{
@@ -163,6 +213,7 @@ public class InterpreterModelBuilder : StateMachineVisitor
 	{
 		var baseUri = StateMachineLocation?.Location;
 		var resource = await ResourceLoader.Request(baseUri.CombineWith(uri)).ConfigureAwait(false);
+
 		await using (resource.ConfigureAwait(false))
 		{
 			consumer.SetContent(await resource.GetContent().ConfigureAwait(false));

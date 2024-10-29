@@ -19,6 +19,7 @@ namespace Xtate;
 
 public interface IDoneData : IEntity
 {
-	IContent?              Content    { get; }
+	IContent? Content { get; }
+
 	ImmutableArray<IParam> Parameters { get; }
 }

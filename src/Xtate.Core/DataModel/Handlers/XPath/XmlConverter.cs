@@ -24,17 +24,25 @@ namespace Xtate.DataModel.XPath;
 
 public static class XmlConverter
 {
-	public const string TypeAttributeName     = @"type";
+	public const string TypeAttributeName = @"type";
+
 	public const string XPathElementNamespace = @"http://xtate.net/xpath";
 
-	private const string NoKeyElementName    = @"item";
+	private const string NoKeyElementName = @"item";
+
 	private const string EmptyKeyElementName = @"empty";
-	private const string XPathElementPrefix  = @"x";
-	private const string BoolTypeValue       = @"bool";
-	private const string DatetimeTypeValue   = @"datetime";
-	private const string NumberTypeValue     = @"number";
-	private const string NullTypeValue       = @"null";
-	private const string UndefinedTypeValue  = @"undefined";
+
+	private const string XPathElementPrefix = @"x";
+
+	private const string BoolTypeValue = @"bool";
+
+	private const string DatetimeTypeValue = @"datetime";
+
+	private const string NumberTypeValue = @"number";
+
+	private const string NullTypeValue = @"null";
+
+	private const string UndefinedTypeValue = @"undefined";
 
 	private static readonly XmlReaderSettings DefaultReaderSettings = new() { ConformanceLevel = ConformanceLevel.Auto };
 
@@ -200,6 +208,7 @@ public static class XmlConverter
 		do
 		{
 			await xmlReader.MoveToContentAsync().ConfigureAwait(false);
+
 			switch (xmlReader.NodeType)
 			{
 				case XmlNodeType.Element:
@@ -360,11 +369,11 @@ public static class XmlConverter
 	private static string NumberToXmlString(in DataModelNumber number) =>
 		number.Type switch
 		{
-			DataModelNumberType.Int32 => XmlConvert.ToString(number.ToInt32()),
-			DataModelNumberType.Int64 => XmlConvert.ToString(number.ToInt64()),
-			DataModelNumberType.Double => XmlConvert.ToString(number.ToDouble()),
+			DataModelNumberType.Int32   => XmlConvert.ToString(number.ToInt32()),
+			DataModelNumberType.Int64   => XmlConvert.ToString(number.ToInt64()),
+			DataModelNumberType.Double  => XmlConvert.ToString(number.ToDouble()),
 			DataModelNumberType.Decimal => XmlConvert.ToString(number.ToDecimal()),
-			_                                    => throw Infra.Unmatched(number.Type)
+			_                           => throw Infra.Unmatched(number.Type)
 		};
 
 	private static string DateTimeToXmlString(in DataModelDateTime dttm) =>
@@ -403,10 +412,10 @@ public static class XmlConverter
 		static int WriteDataModelNumber(in DataModelNumber value, in Span<char> span) =>
 			value.Type switch
 			{
-				DataModelNumberType.Int32 => WriteString(XmlConvert.ToString(value.ToInt32()), span),
-				DataModelNumberType.Int64 => WriteString(XmlConvert.ToString(value.ToInt64()), span),
+				DataModelNumberType.Int32  => WriteString(XmlConvert.ToString(value.ToInt32()), span),
+				DataModelNumberType.Int64  => WriteString(XmlConvert.ToString(value.ToInt64()), span),
 				DataModelNumberType.Double => WriteString(XmlConvert.ToString(value.ToDouble()), span),
-				_                                    => throw Infra.Unmatched(value.Type)
+				_                          => throw Infra.Unmatched(value.Type)
 			};
 
 		static int WriteDataModelDateTime(in DataModelDateTime value, in Span<char> span) =>
@@ -420,6 +429,7 @@ public static class XmlConverter
 		static int WriteString(string value, in Span<char> span)
 		{
 			value.AsSpan().CopyTo(span);
+
 			return value.Length;
 		}
 	}

@@ -41,22 +41,27 @@ public static class AncestorProviderExtensions
 			{
 				case null:
 					value = default!;
+
 					return false;
 
 				case AncestorContainer { Value: T ancestorValue }:
 					value = ancestorValue;
+
 					return true;
 
 				case T tValue:
 					value = tValue;
+
 					return true;
 
 				case IAncestorProvider provider:
 					entity = provider.Ancestor;
+
 					break;
 
 				default:
 					value = default!;
+
 					return false;
 			}
 		}

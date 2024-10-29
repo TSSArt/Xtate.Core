@@ -21,9 +21,11 @@ namespace Xtate.Builder;
 
 public class ParallelFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 {
-	public required IParallelBuilder  Builder      { private get; [UsedImplicitly] init; }
-	public required Action<IParallel> BuiltAction  { private get; [UsedImplicitly] init; }
-	public required TOuterBuilder     OuterBuilder { private get; [UsedImplicitly] init; }
+	public required IParallelBuilder Builder { private get; [UsedImplicitly] init; }
+
+	public required Action<IParallel> BuiltAction { private get; [UsedImplicitly] init; }
+
+	public required TOuterBuilder OuterBuilder { private get; [UsedImplicitly] init; }
 
 	public required Func<ParallelFluentBuilder<TOuterBuilder>, Action<IState>, StateFluentBuilder<ParallelFluentBuilder<TOuterBuilder>>> StateFluentBuilderFactory
 	{

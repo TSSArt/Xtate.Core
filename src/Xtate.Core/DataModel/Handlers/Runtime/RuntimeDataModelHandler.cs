@@ -22,9 +22,12 @@ public class RuntimeDataModelHandler : DataModelHandlerBase
 	public class Provider() : DataModelHandlerProviderBase<RuntimeDataModelHandler>(@"runtime");
 
 	public required Func<RuntimePredicate, RuntimePredicateEvaluator> RuntimePredicateEvaluatorFactory { private get; [UsedImplicitly] init; }
-	public required Func<RuntimeValue, RuntimeValueEvaluator>         RuntimeValueEvaluatorFactory     { private get; [UsedImplicitly] init; }
-	public required Func<RuntimeAction, RuntimeActionExecutor>        RuntimeActionExecutorFactory     { private get; [UsedImplicitly] init; }
-	public required IErrorProcessorService<RuntimeDataModelHandler>   RuntimeErrorProcessorService     { private get; [UsedImplicitly] init; }
+
+	public required Func<RuntimeValue, RuntimeValueEvaluator> RuntimeValueEvaluatorFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<RuntimeAction, RuntimeActionExecutor> RuntimeActionExecutorFactory { private get; [UsedImplicitly] init; }
+
+	public required IErrorProcessorService<RuntimeDataModelHandler> RuntimeErrorProcessorService { private get; [UsedImplicitly] init; }
 
 	protected override void Visit(ref IScript script) => RuntimeErrorProcessorService.AddError(script, Resources.ErrorMessage_ScriptingNotSupportedInRuntimeDataModel);
 

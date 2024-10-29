@@ -27,10 +27,14 @@ public abstract class ExternalServiceBase : IExternalService
 
 	public required IExternalServiceDefinition ExternalServiceDefinition { private get; [UsedImplicitly] init; }
 
-	protected Uri?           Source     => ExternalServiceDefinition.Source;
-	protected string?        RawContent => ExternalServiceDefinition.RawContent;
-	protected DataModelValue Content    => ExternalServiceDefinition.Content;
+	protected Uri? Source => ExternalServiceDefinition.Source;
+
+	protected string? RawContent => ExternalServiceDefinition.RawContent;
+
+	protected DataModelValue Content => ExternalServiceDefinition.Content;
+
 	protected DataModelValue Parameters => ExternalServiceDefinition.Parameters;
+
 	protected CancellationToken DestroyToken => _destroyTokenSource.Token;
 
 #region Interface IEventDispatcher

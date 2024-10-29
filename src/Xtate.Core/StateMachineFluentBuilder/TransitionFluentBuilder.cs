@@ -21,9 +21,11 @@ namespace Xtate.Builder;
 
 public class TransitionFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 {
-	public required ITransitionBuilder  Builder      { private get; [UsedImplicitly] init; }
-	public required Action<ITransition> BuiltAction  { private get; [UsedImplicitly] init; }
-	public required TOuterBuilder       OuterBuilder { private get; [UsedImplicitly] init; }
+	public required ITransitionBuilder Builder { private get; [UsedImplicitly] init; }
+
+	public required Action<ITransition> BuiltAction { private get; [UsedImplicitly] init; }
+
+	public required TOuterBuilder OuterBuilder { private get; [UsedImplicitly] init; }
 
 	public TOuterBuilder EndTransition()
 	{

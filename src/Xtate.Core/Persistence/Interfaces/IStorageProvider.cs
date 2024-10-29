@@ -20,6 +20,8 @@ namespace Xtate.Persistence;
 public interface IStorageProvider
 {
 	ValueTask<ITransactionalStorage> GetTransactionalStorage(string? partition, string key);
-	ValueTask                        RemoveTransactionalStorage(string? partition, string key);
-	ValueTask                        RemoveAllTransactionalStorage(string? partition);
+
+	ValueTask RemoveTransactionalStorage(string? partition, string key);
+
+	ValueTask RemoveAllTransactionalStorage(string? partition);
 }

@@ -29,8 +29,9 @@ public struct IfEntity : IIf, IVisitorEntity<IfEntity, IIf>, IAncestorProvider
 
 #region Interface IIf
 
-	public ImmutableArray<IExecutableEntity> Action    { get; set; }
-	public IConditionExpression?             Condition { get; set; }
+	public ImmutableArray<IExecutableEntity> Action { get; set; }
+
+	public IConditionExpression? Condition { get; set; }
 
 #endregion
 

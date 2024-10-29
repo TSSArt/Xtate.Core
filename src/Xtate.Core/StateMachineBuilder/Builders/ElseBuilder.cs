@@ -17,7 +17,6 @@
 
 namespace Xtate.Builder;
 
-
 public class ElseBuilder : BuilderBase, IElseBuilder
 {
 #region Interface IElseBuilder

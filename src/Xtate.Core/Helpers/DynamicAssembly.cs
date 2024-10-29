@@ -25,10 +25,12 @@ namespace Xtate.Core;
 public class DynamicAssembly : IDisposable, IAsyncInitialization, IServiceModule
 {
 	private readonly DisposingToken _disposingToken = new();
-	private readonly Uri            _uri;
+
+	private readonly Uri _uri;
 
 	private AsyncInit<ImmutableArray<IServiceModule>>? _asyncInitServiceModules;
-	private Context?                                   _context;
+
+	private Context? _context;
 
 	public DynamicAssembly(Uri uri)
 	{
@@ -71,9 +73,11 @@ public class DynamicAssembly : IDisposable, IAsyncInitialization, IServiceModule
 	private async ValueTask<ImmutableArray<IServiceModule>> LoadAssemblyServiceModules()
 	{
 		var resource = await ResourceLoader.Request(_uri).ConfigureAwait(false);
+
 		await using (resource.ConfigureAwait(false))
 		{
 			var stream = await resource.GetStream(true).ConfigureAwait(false);
+
 			await using (stream.ConfigureAwait(false))
 			{
 				var assembly = await LoadFromStream(stream).ConfigureAwait(false);

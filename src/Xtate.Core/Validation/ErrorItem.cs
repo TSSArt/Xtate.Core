@@ -27,12 +27,17 @@ public sealed class ErrorItem(
 	int lineNumber = 0,
 	int linePosition = 0)
 {
-	public ErrorSeverity Severity     { get; } = ErrorSeverity.Error;
-	public Type          Source       { get; } = source;
-	public string        Message      { get; } = message;
-	public Exception?    Exception    { get; } = exception;
-	public int           LineNumber   { get; } = lineNumber;
-	public int           LinePosition { get; } = linePosition;
+	public ErrorSeverity Severity { get; } = ErrorSeverity.Error;
+
+	public Type Source { get; } = source;
+
+	public string Message { get; } = message;
+
+	public Exception? Exception { get; } = exception;
+
+	public int LineNumber { get; } = lineNumber;
+
+	public int LinePosition { get; } = linePosition;
 
 	public override string ToString()
 	{

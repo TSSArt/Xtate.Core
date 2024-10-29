@@ -22,7 +22,8 @@ namespace Xtate.Core;
 public class EventObject : IEvent, IStoreSupport, IAncestorProvider
 {
 	private readonly DataModelValue _data;
-	private          Uri?           _origin;
+
+	private Uri? _origin;
 
 	public EventObject() { }
 

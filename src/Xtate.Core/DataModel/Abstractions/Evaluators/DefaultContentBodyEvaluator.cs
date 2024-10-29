@@ -46,10 +46,11 @@ public abstract class ContentBodyEvaluator(IContentBody contentBody) : IContentB
 
 public class DefaultContentBodyEvaluator(IContentBody contentBody) : ContentBodyEvaluator(contentBody)
 {
-	public required Func<ValueTask<ILogger<IContentBody>>> LoggerFactory { private get; [UsedImplicitly] init; }
-
 	private DataModelValue _contentValue;
-	private Exception?     _parseException;
+
+	private Exception? _parseException;
+
+	public required Func<ValueTask<ILogger<IContentBody>>> LoggerFactory { private get; [UsedImplicitly] init; }
 
 	public override async ValueTask<IObject> EvaluateObject()
 	{
@@ -64,7 +65,7 @@ public class DefaultContentBodyEvaluator(IContentBody contentBody) : ContentBody
 				_parseException = exception;
 
 				var logger = await LoggerFactory().ConfigureAwait(false);
-				await logger.Write(Level.Warning, 1, "Failed to parse content body.", exception).ConfigureAwait(false);
+				await logger.Write(Level.Warning, eventId: 1, message: "Failed to parse content body.", exception).ConfigureAwait(false);
 			}
 
 			_contentValue.MakeDeepConstant();

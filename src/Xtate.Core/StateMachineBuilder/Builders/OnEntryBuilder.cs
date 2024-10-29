@@ -17,7 +17,6 @@
 
 namespace Xtate.Builder;
 
-
 public class OnEntryBuilder : BuilderBase, IOnEntryBuilder
 {
 	private ImmutableArray<IExecutableEntity>.Builder? _actions;

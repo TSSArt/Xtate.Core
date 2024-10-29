@@ -19,9 +19,13 @@ namespace Xtate.DataModel.Runtime;
 
 public class RuntimeExecutionContext
 {
-	public required IInStateController   InStateController   { get; [UsedImplicitly] init; }
-	public required ILogController       LogController       { get; [UsedImplicitly] init; }
-	public required IEventController     EventController     { get; [UsedImplicitly] init; }
-	public required IInvokeController    InvokeController    { get; [UsedImplicitly] init; }
+	public required IInStateController InStateController { get; [UsedImplicitly] init; }
+
+	public required ILogController LogController { get; [UsedImplicitly] init; }
+
+	public required IEventController EventController { get; [UsedImplicitly] init; }
+
+	public required IInvokeController InvokeController { get; [UsedImplicitly] init; }
+
 	public required IDataModelController DataModelController { get; [UsedImplicitly] init; }
 }

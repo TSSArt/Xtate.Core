@@ -45,10 +45,13 @@ public class TransitionNode : ITransition, IStoreSupport, IAncestorProvider, IDo
 		Source = default!;
 	}
 
-	public ImmutableArray<StateEntityNode> TargetState        { get; private set; }
-	public StateEntityNode                 Source             { get; private set; }
-	public ImmutableArray<IExecEvaluator>  ActionEvaluators   { get; }
-	public IBooleanEvaluator?              ConditionEvaluator { get; }
+	public ImmutableArray<StateEntityNode> TargetState { get; private set; }
+
+	public StateEntityNode Source { get; private set; }
+
+	public ImmutableArray<IExecEvaluator> ActionEvaluators { get; }
+
+	public IBooleanEvaluator? ConditionEvaluator { get; }
 
 #region Interface IAncestorProvider
 

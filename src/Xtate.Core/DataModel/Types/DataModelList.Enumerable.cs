@@ -42,8 +42,9 @@ public partial class DataModelList
 
 	public struct ValueEnumerator : IEnumerator<DataModelValue>
 	{
-		private readonly int  _count;
-		private          Args _args;
+		private readonly int _count;
+
+		private Args _args;
 
 		internal ValueEnumerator(DataModelList list)
 		{
@@ -116,8 +117,9 @@ public partial class DataModelList
 
 	public struct KeyValueEnumerator : IEnumerator<KeyValue>
 	{
-		private readonly int  _count;
-		private          Args _args;
+		private readonly int _count;
+
+		private Args _args;
 
 		internal KeyValueEnumerator(DataModelList list)
 		{
@@ -218,6 +220,7 @@ public partial class DataModelList
 			while (_enumerator.MoveNext())
 			{
 				var current = _enumerator.Current;
+
 				if (current.Key is not null)
 				{
 					Current = new KeyValuePair<string, DataModelValue>(current.Key, current.Value);
@@ -271,9 +274,11 @@ public partial class DataModelList
 
 	public struct EntryEnumerator : IEnumerator<Entry>
 	{
-		private readonly int   _count;
-		private          Args  _args;
-		private          Entry _current;
+		private readonly int _count;
+
+		private Args _args;
+
+		private Entry _current;
 
 		internal EntryEnumerator(DataModelList list)
 		{
@@ -330,8 +335,10 @@ public partial class DataModelList
 
 	public readonly struct ValueByKeyEnumerable : IEnumerable<DataModelValue>
 	{
-		private readonly bool          _caseInsensitive;
-		private readonly string        _key;
+		private readonly bool _caseInsensitive;
+
+		private readonly string _key;
+
 		private readonly DataModelList _list;
 
 		internal ValueByKeyEnumerable(DataModelList list, string key, bool caseInsensitive)
@@ -359,10 +366,13 @@ public partial class DataModelList
 
 	public struct ValueByKeyEnumerator : IEnumerator<DataModelValue>
 	{
-		private readonly bool          _caseInsensitive;
-		private readonly int           _hash;
+		private readonly bool _caseInsensitive;
+
+		private readonly int _hash;
+
 		private readonly DataModelList _list;
-		private          Args          _args;
+
+		private Args _args;
 
 		internal ValueByKeyEnumerator(DataModelList list, string key, bool caseInsensitive)
 		{
@@ -427,8 +437,10 @@ public partial class DataModelList
 
 	public readonly struct KeyValueByKeyEnumerable : IEnumerable<KeyValue>
 	{
-		private readonly bool          _caseInsensitive;
-		private readonly string        _key;
+		private readonly bool _caseInsensitive;
+
+		private readonly string _key;
+
 		private readonly DataModelList _list;
 
 		internal KeyValueByKeyEnumerable(DataModelList list, string key, bool caseInsensitive)
@@ -456,10 +468,13 @@ public partial class DataModelList
 
 	public struct KeyValueByKeyEnumerator : IEnumerator<KeyValue>
 	{
-		private readonly bool          _caseInsensitive;
-		private readonly int           _hash;
+		private readonly bool _caseInsensitive;
+
+		private readonly int _hash;
+
 		private readonly DataModelList _list;
-		private          Args          _args;
+
+		private Args _args;
 
 		internal KeyValueByKeyEnumerator(DataModelList list, string key, bool caseInsensitive)
 		{
@@ -531,8 +546,10 @@ public partial class DataModelList
 
 	public readonly struct EntryByKeyEnumerable : IEnumerable<Entry>
 	{
-		private readonly bool          _caseInsensitive;
-		private readonly string        _key;
+		private readonly bool _caseInsensitive;
+
+		private readonly string _key;
+
 		private readonly DataModelList _list;
 
 		internal EntryByKeyEnumerable(DataModelList list, string key, bool caseInsensitive)
@@ -559,11 +576,15 @@ public partial class DataModelList
 
 	public struct EntryByKeyEnumerator : IEnumerator<Entry>
 	{
-		private readonly bool          _caseInsensitive;
-		private readonly int           _hash;
+		private readonly bool _caseInsensitive;
+
+		private readonly int _hash;
+
 		private readonly DataModelList _list;
-		private          Args          _args;
-		private          Entry         _current;
+
+		private Args _args;
+
+		private Entry _current;
 
 		internal EntryByKeyEnumerator(DataModelList list, string key, bool caseInsensitive)
 		{

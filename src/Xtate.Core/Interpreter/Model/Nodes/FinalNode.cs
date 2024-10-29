@@ -23,12 +23,17 @@ public class FinalNode(DocumentIdNode documentIdNode, IFinal final) : StateEntit
 {
 	public DoneDataNode? DoneData { get; } = final.DoneData?.As<DoneDataNode>();
 
-	public override ImmutableArray<TransitionNode> Transitions   => [];
-	public override ImmutableArray<HistoryNode>    HistoryStates => [];
-	public override ImmutableArray<InvokeNode>     Invoke        => [];
-	public override ImmutableArray<OnEntryNode>    OnEntry       { get; } = final.OnEntry.AsArrayOf<IOnEntry, OnEntryNode>(true);
-	public override ImmutableArray<OnExitNode>     OnExit        { get; } = final.OnExit.AsArrayOf<IOnExit, OnExitNode>(true);
-	public override bool                           IsAtomicState => true;
+	public override ImmutableArray<TransitionNode> Transitions => [];
+
+	public override ImmutableArray<HistoryNode> HistoryStates => [];
+
+	public override ImmutableArray<InvokeNode> Invoke => [];
+
+	public override ImmutableArray<OnEntryNode> OnEntry { get; } = final.OnEntry.AsArrayOf<IOnEntry, OnEntryNode>(true);
+
+	public override ImmutableArray<OnExitNode> OnExit { get; } = final.OnExit.AsArrayOf<IOnExit, OnExitNode>(true);
+
+	public override bool IsAtomicState => true;
 
 #region Interface IAncestorProvider
 
@@ -44,9 +49,11 @@ public class FinalNode(DocumentIdNode documentIdNode, IFinal final) : StateEntit
 
 #region Interface IFinal
 
-	ImmutableArray<IOnEntry> IFinal.OnEntry  => ImmutableArray<IOnEntry>.CastUp(OnEntry);
-	ImmutableArray<IOnExit> IFinal. OnExit   => ImmutableArray<IOnExit>.CastUp(OnExit);
-	IDoneData? IFinal.              DoneData => DoneData;
+	ImmutableArray<IOnEntry> IFinal.OnEntry => ImmutableArray<IOnEntry>.CastUp(OnEntry);
+
+	ImmutableArray<IOnExit> IFinal.OnExit => ImmutableArray<IOnExit>.CastUp(OnExit);
+
+	IDoneData? IFinal.DoneData => DoneData;
 
 #endregion
 

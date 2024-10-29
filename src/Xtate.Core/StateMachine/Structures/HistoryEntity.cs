@@ -35,8 +35,10 @@ public struct HistoryEntity : IHistory, IVisitorEntity<HistoryEntity, IHistory>,
 
 #region Interface IHistory
 
-	public IIdentifier? Id         { get; set; }
-	public HistoryType  Type       { get; set; }
+	public IIdentifier? Id { get; set; }
+
+	public HistoryType Type { get; set; }
+
 	public ITransition? Transition { get; set; }
 
 #endregion

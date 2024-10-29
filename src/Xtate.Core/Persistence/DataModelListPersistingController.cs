@@ -19,11 +19,15 @@ namespace Xtate.Persistence;
 
 internal sealed class DataModelListPersistingController : DataModelPersistingController
 {
-	private readonly Bucket                    _bucket;
-	private readonly DataModelList             _list;
+	private readonly Bucket _bucket;
+
+	private readonly DataModelList _list;
+
 	private readonly DataModelReferenceTracker _referenceTracker;
-	private          int                       _record;
-	private          bool                      _shrink;
+
+	private int _record;
+
+	private bool _shrink;
 
 	public DataModelListPersistingController(in Bucket bucket, DataModelReferenceTracker referenceTracker, DataModelList dataModelList)
 	{
@@ -56,6 +60,7 @@ internal sealed class DataModelListPersistingController : DataModelPersistingCon
 				}
 
 				RemoveReferences(entry);
+
 				break;
 			}
 			case DataModelList.ChangeAction.Append:
@@ -64,6 +69,7 @@ internal sealed class DataModelListPersistingController : DataModelPersistingCon
 			case DataModelList.ChangeAction.SetCsKey:
 			case DataModelList.ChangeAction.SetCiKey:
 				AddReferences(entry);
+
 				break;
 
 			case DataModelList.ChangeAction.SetCount:
@@ -80,9 +86,9 @@ internal sealed class DataModelListPersistingController : DataModelPersistingCon
 
 				break;
 
-			case DataModelList.ChangeAction.SetMetadata: 
+			case DataModelList.ChangeAction.SetMetadata:
 				break;
-			
+
 			default:
 				throw Infra.Unmatched(action);
 		}
@@ -121,6 +127,7 @@ internal sealed class DataModelListPersistingController : DataModelPersistingCon
 					var metadata = recordBucket.Nested(Key.Metadata).GetDataModelValue(_referenceTracker, baseEntry.Metadata).AsListOrDefault();
 
 					_list.SetInternal(key, caseInsensitive, value, access, metadata, throwOnDeny: false);
+
 					break;
 				}
 				case Key.Append:
@@ -132,6 +139,7 @@ internal sealed class DataModelListPersistingController : DataModelPersistingCon
 					var metadata = recordBucket.Nested(Key.Metadata).GetDataModelValue(_referenceTracker, baseValue: default).AsListOrDefault();
 
 					_list.AddInternal(key, value, access, metadata, throwOnDeny: false);
+
 					break;
 				}
 				case Key.Set:
@@ -146,6 +154,7 @@ internal sealed class DataModelListPersistingController : DataModelPersistingCon
 					var metadata = recordBucket.Nested(Key.Metadata).GetDataModelValue(_referenceTracker, baseEntry.Metadata).AsListOrDefault();
 
 					_list.SetInternal(index, key, value, access, metadata, throwOnDeny: false);
+
 					break;
 				}
 
@@ -159,6 +168,7 @@ internal sealed class DataModelListPersistingController : DataModelPersistingCon
 					var metadata = recordBucket.Nested(Key.Metadata).GetDataModelValue(_referenceTracker, baseValue: default).AsListOrDefault();
 
 					_list.InsertInternal(index, key, value, access, metadata, throwOnDeny: false);
+
 					break;
 				}
 
@@ -166,6 +176,7 @@ internal sealed class DataModelListPersistingController : DataModelPersistingCon
 				{
 					var index = recordBucket.GetInt32(Key.Index);
 					_list.RemoveInternal(index, throwOnDeny: false);
+
 					break;
 				}
 
@@ -173,12 +184,14 @@ internal sealed class DataModelListPersistingController : DataModelPersistingCon
 				{
 					var length = recordBucket.GetInt32(Key.Index);
 					_list.SetLengthInternal(length, throwOnDeny: false);
+
 					break;
 				}
 				case Key.SetMetadata:
 				{
 					var metadata = recordBucket.Nested(Key.Metadata).GetDataModelValue(_referenceTracker, _list.GetMetadata()).AsListOrDefault();
 					_list.SetMetadataInternal(metadata, throwOnDeny: false);
+
 					break;
 				}
 				default:
@@ -206,6 +219,7 @@ internal sealed class DataModelListPersistingController : DataModelPersistingCon
 		_record = 0;
 
 		var metadata = _list.GetMetadata();
+
 		if (metadata is not null)
 		{
 			var recordBucket = _bucket.Nested(_record ++);
@@ -269,6 +283,7 @@ internal sealed class DataModelListPersistingController : DataModelPersistingCon
 		{
 			case DataModelList.ChangeAction.Reset:
 				RemoveReferences(entry);
+
 				break;
 
 			case DataModelList.ChangeAction.Append:
@@ -277,6 +292,7 @@ internal sealed class DataModelListPersistingController : DataModelPersistingCon
 				recordBucket.Add(Key.Operation, Key.Append);
 				AddEntry(recordBucket, entry);
 				AddReferences(entry);
+
 				break;
 			}
 			case DataModelList.ChangeAction.SetCsKey:
@@ -285,6 +301,7 @@ internal sealed class DataModelListPersistingController : DataModelPersistingCon
 				recordBucket.Add(Key.Operation, Key.SetCsKey);
 				AddEntry(recordBucket, entry);
 				AddReferences(entry);
+
 				break;
 			}
 			case DataModelList.ChangeAction.SetCiKey:
@@ -293,6 +310,7 @@ internal sealed class DataModelListPersistingController : DataModelPersistingCon
 				recordBucket.Add(Key.Operation, Key.SetCiKey);
 				AddEntry(recordBucket, entry);
 				AddReferences(entry);
+
 				break;
 			}
 			case DataModelList.ChangeAction.SetAt:
@@ -302,6 +320,7 @@ internal sealed class DataModelListPersistingController : DataModelPersistingCon
 				recordBucket.Add(Key.Operation, Key.Set);
 				AddEntry(recordBucket, entry);
 				AddReferences(entry);
+
 				break;
 			}
 			case DataModelList.ChangeAction.InsertAt:
@@ -311,6 +330,7 @@ internal sealed class DataModelListPersistingController : DataModelPersistingCon
 				recordBucket.Add(Key.Operation, Key.Insert);
 				AddEntry(recordBucket, entry);
 				AddReferences(entry);
+
 				break;
 			}
 			case DataModelList.ChangeAction.RemoveAt:
@@ -354,7 +374,7 @@ internal sealed class DataModelListPersistingController : DataModelPersistingCon
 				break;
 			}
 
-			default: 
+			default:
 				throw Infra.Unmatched(action);
 		}
 	}

@@ -48,14 +48,21 @@ public sealed class ParallelNode : StateEntityNode, IParallel, IAncestorProvider
 		DataModel = parallel.DataModel?.As<DataModelNode>();
 	}
 
-	public override bool                            IsAtomicState => false;
-	public override DataModelNode?                  DataModel     { get; }
-	public override ImmutableArray<InvokeNode>      Invoke        { get; }
-	public override ImmutableArray<TransitionNode>  Transitions   { get; }
-	public override ImmutableArray<HistoryNode>     HistoryStates { get; }
-	public override ImmutableArray<StateEntityNode> States        { get; }
-	public override ImmutableArray<OnEntryNode>     OnEntry       { get; }
-	public override ImmutableArray<OnExitNode>      OnExit        { get; }
+	public override bool IsAtomicState => false;
+
+	public override DataModelNode? DataModel { get; }
+
+	public override ImmutableArray<InvokeNode> Invoke { get; }
+
+	public override ImmutableArray<TransitionNode> Transitions { get; }
+
+	public override ImmutableArray<HistoryNode> HistoryStates { get; }
+
+	public override ImmutableArray<StateEntityNode> States { get; }
+
+	public override ImmutableArray<OnEntryNode> OnEntry { get; }
+
+	public override ImmutableArray<OnExitNode> OnExit { get; }
 
 #region Interface IAncestorProvider
 
@@ -71,13 +78,19 @@ public sealed class ParallelNode : StateEntityNode, IParallel, IAncestorProvider
 
 #region Interface IParallel
 
-	IDataModel? IParallel.                 DataModel     => DataModel;
-	ImmutableArray<IInvoke> IParallel.     Invoke        => ImmutableArray<IInvoke>.CastUp(Invoke);
-	ImmutableArray<IStateEntity> IParallel.States        => ImmutableArray<IStateEntity>.CastUp(States);
-	ImmutableArray<IHistory> IParallel.    HistoryStates => ImmutableArray<IHistory>.CastUp(HistoryStates);
-	ImmutableArray<ITransition> IParallel. Transitions   => ImmutableArray<ITransition>.CastUp(Transitions);
-	ImmutableArray<IOnEntry> IParallel.    OnEntry       => ImmutableArray<IOnEntry>.CastUp(OnEntry);
-	ImmutableArray<IOnExit> IParallel.     OnExit        => ImmutableArray<IOnExit>.CastUp(OnExit);
+	IDataModel? IParallel.DataModel => DataModel;
+
+	ImmutableArray<IInvoke> IParallel.Invoke => ImmutableArray<IInvoke>.CastUp(Invoke);
+
+	ImmutableArray<IStateEntity> IParallel.States => ImmutableArray<IStateEntity>.CastUp(States);
+
+	ImmutableArray<IHistory> IParallel.HistoryStates => ImmutableArray<IHistory>.CastUp(HistoryStates);
+
+	ImmutableArray<ITransition> IParallel.Transitions => ImmutableArray<ITransition>.CastUp(Transitions);
+
+	ImmutableArray<IOnEntry> IParallel.OnEntry => ImmutableArray<IOnEntry>.CastUp(OnEntry);
+
+	ImmutableArray<IOnExit> IParallel.OnExit => ImmutableArray<IOnExit>.CastUp(OnExit);
 
 #endregion
 

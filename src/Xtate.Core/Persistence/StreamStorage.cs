@@ -23,20 +23,29 @@ namespace Xtate.Persistence;
 
 public class StreamStorage : ITransactionalStorage, IAsyncInitialization
 {
-	private const byte SkipMark        = 0;
-	private const int  SkipBlockMark   = 2;
-	private const byte FinalMark       = 4;
-	private const int  FinalMarkLength = 1;
+	private const byte SkipMark = 0;
+
+	private const int SkipBlockMark = 2;
+
+	private const byte FinalMark = 4;
+
+	private const int FinalMarkLength = 1;
 
 	private static readonly int MaxInt32Length = Encode.GetEncodedLength(int.MaxValue);
 
-	private readonly bool                       _disposeStream;
-	private readonly DisposingToken             _disposingToken = new();
+	private readonly bool _disposeStream;
+
+	private readonly DisposingToken _disposingToken = new();
+
 	private readonly AsyncInit<InMemoryStorage> _inMemoryStorageAsyncInit;
-	private readonly int                        _rollbackLevel;
-	private readonly Stream                     _stream;
-	private          bool                       _canShrink = true;
-	private          bool                       _disposed;
+
+	private readonly int _rollbackLevel;
+
+	private readonly Stream _stream;
+
+	private bool _canShrink = true;
+
+	private bool _disposed;
 
 	public StreamStorage(Stream stream, bool disposeStream = true, int? rollbackLevel = default)
 	{
@@ -117,6 +126,7 @@ public class StreamStorage : ITransactionalStorage, IAsyncInitialization
 		}
 
 		var buf = ArrayPool<byte>.Shared.Rent(transactionLogSize + 2 * MaxInt32Length);
+
 		try
 		{
 			var mark = (level << 1) + 1;
@@ -193,15 +203,18 @@ public class StreamStorage : ITransactionalStorage, IAsyncInitialization
 		}
 
 		var buf = ArrayPool<byte>.Shared.Rent(streamLength + 8 * MaxInt32Length);
+
 		try
 		{
 			var token = _disposingToken.Token;
 			var memoryOffset = 0;
 
 			_stream.Seek(offset: 0, SeekOrigin.Begin);
+
 			while (true)
 			{
 				var len = await _stream.ReadAsync(buf, memoryOffset, count: 1, token).ConfigureAwait(false);
+
 				if (len == 0)
 				{
 					break;
@@ -245,6 +258,7 @@ public class StreamStorage : ITransactionalStorage, IAsyncInitialization
 				if (level == SkipBlockMark)
 				{
 					_stream.Seek(size, SeekOrigin.Current);
+
 					continue;
 				}
 
@@ -294,6 +308,7 @@ public class StreamStorage : ITransactionalStorage, IAsyncInitialization
 			var tranSize = streamTotal - streamEnd;
 
 			var controlDataSize = dataSize > 0 ? GetMarkSizeLength(mark: 1, dataSize) : 0;
+
 			if (dataSize > 0)
 			{
 				WriteMarkSize(buf.AsSpan(memoryOffset, controlDataSize), mark: 1, dataSize);
@@ -323,6 +338,7 @@ public class StreamStorage : ITransactionalStorage, IAsyncInitialization
 			var initBlockLength1 = GetMarkSizeLength(SkipBlockMark, bypassLength);
 			var initBlockLength = bypassLength < initBlockLength1 ? bypassLength : initBlockLength1;
 			Array.Clear(buf, memoryOffset, initBlockLength);
+
 			if (bypassLength >= initBlockLength1)
 			{
 				bypassLength -= initBlockLength1;
@@ -337,6 +353,7 @@ public class StreamStorage : ITransactionalStorage, IAsyncInitialization
 
 			var bufOffset = FinalMarkLength + initBlockLength;
 			var bufLength = controlDataSize + dataSize + tranSize + FinalMarkLength - initBlockLength;
+
 			if (bufLength > 0)
 			{
 				await _stream.WriteAsync(buf, bufOffset, bufLength, token).ConfigureAwait(false);

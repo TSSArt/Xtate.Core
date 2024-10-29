@@ -29,11 +29,15 @@ public abstract class CustomActionEvaluator(ICustomAction customAction) : ICusto
 
 #region Interface ICustomAction
 
-	public virtual string?                             XmlNamespace => customAction.XmlNamespace;
-	public virtual string?                             XmlName      => customAction.XmlName;
-	public virtual string?                             Xml          => customAction.Xml;
-	public virtual ImmutableArray<ILocationExpression> Locations    => customAction.Locations;
-	public virtual ImmutableArray<IValueExpression>    Values       => customAction.Values;
+	public virtual string? XmlNamespace => customAction.XmlNamespace;
+
+	public virtual string? XmlName => customAction.XmlName;
+
+	public virtual string? Xml => customAction.Xml;
+
+	public virtual ImmutableArray<ILocationExpression> Locations => customAction.Locations;
+
+	public virtual ImmutableArray<IValueExpression> Values => customAction.Values;
 
 #endregion
 

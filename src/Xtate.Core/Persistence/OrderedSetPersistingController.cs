@@ -20,21 +20,28 @@ namespace Xtate.Persistence;
 internal sealed class OrderedSetPersistingController<T> : IDisposable where T : class, IDocumentId
 {
 	private const int DocumentId = 0;
-	private const int Operation  = 1;
-	private const int Added      = 2;
-	private const int Deleted    = 3;
 
-	private readonly Bucket        _bucket;
+	private const int Operation = 1;
+
+	private const int Added = 2;
+
+	private const int Deleted = 3;
+
+	private readonly Bucket _bucket;
+
 	private readonly OrderedSet<T> _orderedSet;
-	private          int           _record;
+
+	private int _record;
 
 	public OrderedSetPersistingController(in Bucket bucket, OrderedSet<T> orderedSet, ImmutableDictionary<int, IEntity> entityMap)
 	{
 		if (entityMap is null) throw new ArgumentNullException(nameof(entityMap));
+
 		_bucket = bucket;
 		_orderedSet = orderedSet ?? throw new ArgumentNullException(nameof(orderedSet));
 
 		var shrink = !orderedSet.IsEmpty;
+
 		while (true)
 		{
 			var recordBucket = bucket.Nested(_record);
@@ -49,11 +56,13 @@ internal sealed class OrderedSetPersistingController<T> : IDisposable where T : 
 			{
 				case Added:
 					orderedSet.Add(entityMap[documentId].As<T>());
+
 					break;
 
 				case Deleted:
 					orderedSet.Delete(entityMap[documentId].As<T>());
 					shrink = true;
+
 					break;
 			}
 
@@ -65,6 +74,7 @@ internal sealed class OrderedSetPersistingController<T> : IDisposable where T : 
 			bucket.RemoveSubtree(Bucket.RootKey);
 
 			_record = 0;
+
 			foreach (var entity in orderedSet)
 			{
 				var recordBucket = bucket.Nested(_record ++);
@@ -94,12 +104,14 @@ internal sealed class OrderedSetPersistingController<T> : IDisposable where T : 
 				var bucket = _bucket.Nested(_record ++);
 				bucket.Add(DocumentId, item!.As<IDocumentId>().DocumentId);
 				bucket.Add(Operation, Added);
+
 				break;
 			}
 
 			case OrderedSet<T>.ChangedAction.Clear:
 				_record = 0;
 				_bucket.RemoveSubtree(Bucket.RootKey);
+
 				break;
 
 			case OrderedSet<T>.ChangedAction.Delete:

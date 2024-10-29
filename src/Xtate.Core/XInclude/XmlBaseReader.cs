@@ -22,6 +22,7 @@ namespace Xtate.XInclude;
 public class XmlBaseReader : DelegatedXmlReader
 {
 	private readonly string _baseName;
+
 	private readonly string _xmlNs;
 
 	private Stack<(int Depth, Uri BaseUri)>? _baseUris;

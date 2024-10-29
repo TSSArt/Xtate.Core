@@ -35,9 +35,11 @@ public struct FinalEntity : IFinal, IVisitorEntity<FinalEntity, IFinal>, IAncest
 
 #region Interface IFinal
 
-	public ImmutableArray<IOnEntry> OnEntry  { get; set; }
-	public ImmutableArray<IOnExit>  OnExit   { get; set; }
-	public IDoneData?               DoneData { get; set; }
+	public ImmutableArray<IOnEntry> OnEntry { get; set; }
+
+	public ImmutableArray<IOnExit> OnExit { get; set; }
+
+	public IDoneData? DoneData { get; set; }
 
 #endregion
 

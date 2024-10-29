@@ -33,9 +33,12 @@ public abstract class ForEachEvaluator(IForEach forEach) : IForEach, IExecEvalua
 
 #region Interface IForEach
 
-	public virtual IValueExpression?                 Array  => forEach.Array;
-	public virtual ILocationExpression?              Item   => forEach.Item;
-	public virtual ILocationExpression?              Index  => forEach.Index;
+	public virtual IValueExpression? Array => forEach.Array;
+
+	public virtual ILocationExpression? Item => forEach.Item;
+
+	public virtual ILocationExpression? Index => forEach.Index;
+
 	public virtual ImmutableArray<IExecutableEntity> Action => forEach.Action;
 
 #endregion
@@ -46,9 +49,12 @@ public class DefaultForEachEvaluator : ForEachEvaluator
 	private static readonly IObject[] Indexes = new IObject[16];
 
 	private readonly ImmutableArray<IExecEvaluator> _actionEvaluatorList;
-	private readonly IArrayEvaluator                _arrayEvaluator;
-	private readonly ILocationEvaluator?            _indexEvaluator;
-	private readonly ILocationEvaluator             _itemEvaluator;
+
+	private readonly IArrayEvaluator _arrayEvaluator;
+
+	private readonly ILocationEvaluator? _indexEvaluator;
+
+	private readonly ILocationEvaluator _itemEvaluator;
 
 	public DefaultForEachEvaluator(IForEach forEach) : base(forEach)
 	{

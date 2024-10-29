@@ -34,7 +34,8 @@ public sealed class SecurityContext : IIoBoundTask, IAsyncDisposable
 	private readonly SecurityContext? _parent;
 
 	//private          GlobalCache<(object Key, object SubKey), object>? _globalCache;
-	private TaskFactory?                                     _ioBoundTaskFactory;
+	private TaskFactory? _ioBoundTaskFactory;
+
 	private LocalCache<(object Key, object SubKey), object>? _localCache;
 
 	private SecurityContext(SecurityContextType type, SecurityContextPermissions permissions, SecurityContext? parentSecurityContext)
@@ -52,8 +53,6 @@ public sealed class SecurityContext : IIoBoundTask, IAsyncDisposable
 
 	internal static SecurityContext FullAccess { get; } = new(SecurityContextType.NewTrustedStateMachine, SecurityContextPermissions.Full, parentSecurityContext: default);
 
-	public TaskFactory Factory => _ioBoundTaskFactory ??= CreateTaskFactory();
-
 #region Interface IAsyncDisposable
 
 	public ValueTask DisposeAsync()
@@ -70,9 +69,16 @@ public sealed class SecurityContext : IIoBoundTask, IAsyncDisposable
 
 #endregion
 
+#region Interface IIoBoundTask
+
+	public TaskFactory Factory => _ioBoundTaskFactory ??= CreateTaskFactory();
+
+#endregion
+
 	internal SecurityContext CreateNested(SecurityContextType type)
 	{
 		SecurityContext securityContext;
+
 		switch (type)
 		{
 			case SecurityContextType.NewTrustedStateMachine:
@@ -148,6 +154,7 @@ public sealed class SecurityContext : IIoBoundTask, IAsyncDisposable
 		}
 
 		var root = this;
+
 		while (root._parent is { } parent)
 		{
 			root = parent;

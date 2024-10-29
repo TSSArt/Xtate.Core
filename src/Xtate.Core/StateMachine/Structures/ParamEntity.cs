@@ -29,9 +29,11 @@ public struct ParamEntity : IParam, IVisitorEntity<ParamEntity, IParam>, IAncest
 
 #region Interface IParam
 
-	public IValueExpression?    Expression { get; set; }
-	public ILocationExpression? Location   { get; set; }
-	public string?              Name       { get; set; }
+	public IValueExpression? Expression { get; set; }
+
+	public ILocationExpression? Location { get; set; }
+
+	public string? Name { get; set; }
 
 #endregion
 

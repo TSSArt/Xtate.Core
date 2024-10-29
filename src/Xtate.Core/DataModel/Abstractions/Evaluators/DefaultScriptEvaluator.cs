@@ -33,8 +33,9 @@ public abstract class ScriptEvaluator(IScript script) : IScript, IExecEvaluator,
 
 #region Interface IScript
 
-	public virtual IScriptExpression?         Content => script.Content;
-	public virtual IExternalScriptExpression? Source  => script.Source;
+	public virtual IScriptExpression? Content => script.Content;
+
+	public virtual IExternalScriptExpression? Source => script.Source;
 
 #endregion
 }

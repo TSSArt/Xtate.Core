@@ -15,7 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.IO;
 using System.Text;
 using System.Xml;
 using Xtate.IoC;
@@ -33,9 +32,10 @@ public class XIncludeTest
 		var services = new ServiceCollection();
 		services.AddModule<StateMachineHostModule>();
 		services.AddImplementationSync<XIncludeOptions>().For<IXIncludeOptions>();
+
 		//services.AddConstant<IServiceProviderActions>(new ServiceProviderDebugger(new StreamWriter(File.Create(@"D:\Ser\s1.txt"))));
 		var serviceProvider = services.BuildProvider();
-		var host = (IHostController)await serviceProvider.GetRequiredService<StateMachineHost>();
+		var host = (IHostController) await serviceProvider.GetRequiredService<StateMachineHost>();
 
 		await host.StartHost();
 
@@ -65,6 +65,7 @@ public class XIncludeTest
 
 		var builder = new StringBuilder();
 		var xmlWriter = XmlWriter.Create(builder);
+
 		while (await xIncludeReader.ReadAsync())
 		{
 			// ReSharper disable once MethodHasAsyncOverload
@@ -96,6 +97,7 @@ public class XIncludeTest
 
 		var builder = new StringBuilder();
 		var xmlWriter = XmlWriter.Create(builder);
+
 		while (await xIncludeReader.ReadAsync())
 		{
 			// ReSharper disable once MethodHasAsyncOverload

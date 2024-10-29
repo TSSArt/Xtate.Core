@@ -22,16 +22,25 @@ namespace Xtate.Core;
 
 public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 {
-	private readonly IValueEvaluator?                    _contentBodyEvaluator;
-	private readonly IObjectEvaluator?                   _contentExpressionEvaluator;
-	private readonly ILocationEvaluator?                 _idLocationEvaluator;
-	private readonly IInvoke                             _invoke;
-	private readonly ImmutableArray<ILocationEvaluator>  _nameEvaluatorList;
+	private readonly IValueEvaluator? _contentBodyEvaluator;
+
+	private readonly IObjectEvaluator? _contentExpressionEvaluator;
+
+	private readonly ILocationEvaluator? _idLocationEvaluator;
+
+	private readonly IInvoke _invoke;
+
+	private readonly ImmutableArray<ILocationEvaluator> _nameEvaluatorList;
+
 	private readonly ImmutableArray<DataConverter.Param> _parameterList;
-	private readonly IStringEvaluator?                   _sourceExpressionEvaluator;
-	private readonly IStringEvaluator?                   _typeExpressionEvaluator;
-	private          DocumentIdSlot                      _documentIdSlot;
-	private          StateEntityNode?                    _source;
+
+	private readonly IStringEvaluator? _sourceExpressionEvaluator;
+
+	private readonly IStringEvaluator? _typeExpressionEvaluator;
+
+	private DocumentIdSlot _documentIdSlot;
+
+	private StateEntityNode? _source;
 
 	public InvokeNode(DocumentIdNode documentIdNode, IInvoke invoke)
 	{
@@ -50,8 +59,10 @@ public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId
 		Finalize = invoke.Finalize?.As<FinalizeNode>();
 	}
 
-	public required Func<ValueTask<DataConverter>>      DataConverterFactory    { private get; [UsedImplicitly] init; }
+	public required Func<ValueTask<DataConverter>> DataConverterFactory { private get; [UsedImplicitly] init; }
+
 	public required Func<ValueTask<IInvokeController>> InvokeControllerFactory { private get; [UsedImplicitly] init; }
+
 	public InvokeId? InvokeId { get; private set; }
 
 	public FinalizeNode? Finalize { get; }
@@ -76,17 +87,27 @@ public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId
 
 #region Interface IInvoke
 
-	public Uri?                                Type             => _invoke.Type;
-	public IValueExpression?                   TypeExpression   => _invoke.TypeExpression;
-	public Uri?                                Source           => _invoke.Source;
-	public IValueExpression?                   SourceExpression => _invoke.SourceExpression;
-	public string?                             Id               => _invoke.Id;
-	public ILocationExpression?                IdLocation       => _invoke.IdLocation;
-	public bool                                AutoForward      => _invoke.AutoForward;
-	public ImmutableArray<ILocationExpression> NameList         => _invoke.NameList;
-	public ImmutableArray<IParam>              Parameters       => _invoke.Parameters;
-	public IContent?                           Content          => _invoke.Content;
-	IFinalize? IInvoke.                        Finalize         => _invoke.Finalize;
+	public Uri? Type => _invoke.Type;
+
+	public IValueExpression? TypeExpression => _invoke.TypeExpression;
+
+	public Uri? Source => _invoke.Source;
+
+	public IValueExpression? SourceExpression => _invoke.SourceExpression;
+
+	public string? Id => _invoke.Id;
+
+	public ILocationExpression? IdLocation => _invoke.IdLocation;
+
+	public bool AutoForward => _invoke.AutoForward;
+
+	public ImmutableArray<ILocationExpression> NameList => _invoke.NameList;
+
+	public ImmutableArray<IParam> Parameters => _invoke.Parameters;
+
+	public IContent? Content => _invoke.Content;
+
+	IFinalize? IInvoke.Finalize => _invoke.Finalize;
 
 #endregion
 
@@ -137,7 +158,7 @@ public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId
 		var invokeData = new InvokeData(type, source, rawContent, content, parameters);
 
 		var invokeController = await InvokeControllerFactory().ConfigureAwait(false);
-	
+
 		await invokeController.Start(InvokeId, invokeData).ConfigureAwait(false);
 	}
 
@@ -161,7 +182,7 @@ public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId
 		Infra.NotNull(InvokeId);
 
 		var invokeController = await InvokeControllerFactory().ConfigureAwait(false);
-	
+
 		await invokeController.Forward(InvokeId, evt).ConfigureAwait(false);
 	}
 }

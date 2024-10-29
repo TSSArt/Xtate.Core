@@ -23,7 +23,8 @@ namespace Xtate.Service;
 
 public class HttpClientXmlHandler : HttpClientMimeTypeHandler
 {
-	private const string MediaTypeTextXml        = "text/xml";
+	private const string MediaTypeTextXml = "text/xml";
+
 	private const string MediaTypeApplicationXml = "application/xml";
 
 	private HttpClientXmlHandler() { }
@@ -75,6 +76,7 @@ public class HttpClientXmlHandler : HttpClientMimeTypeHandler
 		Infra.NotNull(stream);
 
 		XtateCore.Use();
+
 		await using (stream.ConfigureAwait(false))
 		{
 			return await DataModelConverter.FromJsonAsync(stream, token).ConfigureAwait(false);

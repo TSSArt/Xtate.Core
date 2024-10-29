@@ -21,7 +21,8 @@ namespace Xtate.CustomAction;
 
 public class CustomActionContainer : ICustomAction, IAncestorProvider
 {
-	private readonly IAction       _action;
+	private readonly IAction _action;
+
 	private readonly ICustomAction _customAction;
 
 	public CustomActionContainer(ICustomAction customAction, Func<ICustomAction, IAction> customActionFactory)
@@ -37,6 +38,7 @@ public class CustomActionContainer : ICustomAction, IAncestorProvider
 		_action = customActionFactory(customAction);
 
 		var valueExpressions = ImmutableArray.CreateBuilder<IValueExpression>();
+
 		foreach (var value in _action.GetValues())
 		{
 			if (value is IValueExpression { Expression: not null } valueExpression)
@@ -48,6 +50,7 @@ public class CustomActionContainer : ICustomAction, IAncestorProvider
 		Values = valueExpressions.ToImmutable();
 
 		var locationExpressions = ImmutableArray.CreateBuilder<ILocationExpression>();
+
 		foreach (var location in _action.GetLocations())
 		{
 			if (location is ILocationExpression { Expression: not null } locationExpression)

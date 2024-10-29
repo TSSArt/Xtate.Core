@@ -29,11 +29,15 @@ public struct TransitionEntity : ITransition, IVisitorEntity<TransitionEntity, I
 
 #region Interface ITransition
 
-	public ImmutableArray<IEventDescriptor>  EventDescriptors { get; set; }
-	public IConditionExpression?             Condition        { get; set; }
-	public ImmutableArray<IIdentifier>       Target           { get; set; }
-	public TransitionType                    Type             { get; set; }
-	public ImmutableArray<IExecutableEntity> Action           { get; set; }
+	public ImmutableArray<IEventDescriptor> EventDescriptors { get; set; }
+
+	public IConditionExpression? Condition { get; set; }
+
+	public ImmutableArray<IIdentifier> Target { get; set; }
+
+	public TransitionType Type { get; set; }
+
+	public ImmutableArray<IExecutableEntity> Action { get; set; }
 
 #endregion
 

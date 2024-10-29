@@ -20,14 +20,18 @@ using Xtate.Scxml;
 
 namespace Xtate.Core;
 
-
 public class ScxmlReaderStateMachineGetter
 {
-	public required IScxmlDeserializer     ScxmlDeserializer     { private get; [UsedImplicitly] init; }
-	public required IScxmlStateMachine     ScxmlStateMachine     { private get; [UsedImplicitly] init; }
-	public required ScxmlXmlResolver       ScxmlXmlResolver      { private get; [UsedImplicitly] init; }
-	public required IStateMachineLocation  StateMachineLocation  { private get; [UsedImplicitly] init; }
-	public required INameTableProvider     NameTableProvider     { private get; [UsedImplicitly] init; }
+	public required IScxmlDeserializer ScxmlDeserializer { private get; [UsedImplicitly] init; }
+
+	public required IScxmlStateMachine ScxmlStateMachine { private get; [UsedImplicitly] init; }
+
+	public required ScxmlXmlResolver ScxmlXmlResolver { private get; [UsedImplicitly] init; }
+
+	public required IStateMachineLocation StateMachineLocation { private get; [UsedImplicitly] init; }
+
+	public required INameTableProvider NameTableProvider { private get; [UsedImplicitly] init; }
+
 	public required IStateMachineValidator StateMachineValidator { private get; [UsedImplicitly] init; }
 
 	public virtual async ValueTask<IStateMachine> GetStateMachine()

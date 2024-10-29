@@ -30,7 +30,8 @@ public struct LogEntity : ILog, IVisitorEntity<LogEntity, ILog>, IAncestorProvid
 #region Interface ILog
 
 	public IValueExpression? Expression { get; set; }
-	public string?           Label      { get; set; }
+
+	public string? Label { get; set; }
 
 #endregion
 

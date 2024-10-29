@@ -22,12 +22,15 @@ namespace Xtate.IoProcessor;
 public sealed class NamedPipeIoProcessorFactory : IIoProcessorFactory
 {
 	private const int DefaultMaxMessageSize = 1024 * 1024;
-	private const int FreeSlotsCount        = 2;
+
+	private const int FreeSlotsCount = 2;
 
 	private static readonly string HostName = GetHostName();
 
 	private readonly string _host;
-	private readonly int?   _maxMessageSize;
+
+	private readonly int? _maxMessageSize;
+
 	private readonly string _name;
 
 	public NamedPipeIoProcessorFactory(string name, int? maxMessageSize = default)

@@ -21,12 +21,14 @@ namespace Xtate.Core;
 
 public class StateMachineRuntimeController : StateMachineControllerBase
 {
-	private static readonly UnboundedChannelOptions UnboundedSynchronousChannelOptions  = new() { SingleReader = true, AllowSynchronousContinuations = true };
+	private static readonly UnboundedChannelOptions UnboundedSynchronousChannelOptions = new() { SingleReader = true, AllowSynchronousContinuations = true };
+
 	private static readonly UnboundedChannelOptions UnboundedAsynchronousChannelOptions = new() { SingleReader = true, AllowSynchronousContinuations = false };
 
 	private readonly TimeSpan? _idlePeriod;
 
 	private CancellationTokenSource? _suspendOnIdleTokenSource;
+
 	private CancellationTokenSource? _suspendTokenSource;
 
 	//TODO:delete
@@ -36,9 +38,9 @@ public class StateMachineRuntimeController : StateMachineControllerBase
 										 IStateMachine? stateMachine,
 										 Uri? stateMachineLocation,
 										 IStateMachineHost stateMachineHost,
-										 TimeSpan? idlePeriod/*,
+										 TimeSpan? idlePeriod /*,
 										 InterpreterOptions defaultOptions*/)
-		: base(sessionId, options, stateMachine, stateMachineLocation, stateMachineHost/*, defaultOptions*/)
+		: base(sessionId, options, stateMachine, stateMachineLocation, stateMachineHost /*, defaultOptions*/)
 	{
 		_idlePeriod = idlePeriod;
 
@@ -51,7 +53,7 @@ public class StateMachineRuntimeController : StateMachineControllerBase
 										 IStateMachineLocation? stateMachineLocation,
 										 IStateMachineHost stateMachineHost,
 										 IStateMachineIdlePeriod? idlePeriod)
-		: base(stateMachineSessionId.SessionId, options, stateMachine, stateMachineLocation?.Location, stateMachineHost/*,  defaultOptions.optionsnew InterpreterOptions()*/)
+		: base(stateMachineSessionId.SessionId, options, stateMachine, stateMachineLocation?.Location, stateMachineHost /*,  defaultOptions.optionsnew InterpreterOptions()*/)
 	{
 		_idlePeriod = idlePeriod?.IdlePeriod;
 

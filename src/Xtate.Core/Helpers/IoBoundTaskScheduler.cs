@@ -21,17 +21,21 @@ namespace Xtate.Core;
 
 public sealed class IoBoundTaskScheduler : TaskScheduler
 {
-	private const int NoWaitTimeout     = 0;
+	private const int NoWaitTimeout = 0;
+
 	private const int IndefiniteTimeout = -1;
 
-	private static readonly ConcurrentQueue<IoBoundTaskScheduler> SchedulerQueue   = new();
-	private static readonly Semaphore                             WaitingSemaphore = new(initialCount: 0, int.MaxValue);
+	private static readonly ConcurrentQueue<IoBoundTaskScheduler> SchedulerQueue = new();
+
+	private static readonly Semaphore WaitingSemaphore = new(initialCount: 0, int.MaxValue);
 
 	private static RegisteredWaitHandle? _startNewWorkerRegisteredWaitHandle;
-	private static int                   _waitingThreadCount;
+
+	private static int _waitingThreadCount;
 
 	private ConcurrentQueue<Task>? _taskQueue;
-	private Semaphore?             _taskSemaphore;
+
+	private Semaphore? _taskSemaphore;
 
 	static IoBoundTaskScheduler() => RegisterStartNewWorker();
 

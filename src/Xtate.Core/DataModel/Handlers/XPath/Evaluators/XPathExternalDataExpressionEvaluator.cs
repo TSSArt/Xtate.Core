@@ -20,7 +20,8 @@ namespace Xtate.DataModel.XPath;
 public class XPathExternalDataExpressionEvaluator(IExternalDataExpression externalDataExpression) : DefaultExternalDataExpressionEvaluator(externalDataExpression)
 {
 	private const string MediaTypeApplicationXml = @"application/xml";
-	private const string MediaTypeTextXml        = @"text/xml";
+
+	private const string MediaTypeTextXml = @"text/xml";
 
 	public required XPathXmlParserContextFactory XPathXmlParserContextFactory { private get; [UsedImplicitly] init; }
 

@@ -46,10 +46,11 @@ public abstract class InlineContentEvaluator(IInlineContent inlineContent) : IIn
 
 public class DefaultInlineContentEvaluator(IInlineContent inlineContent) : InlineContentEvaluator(inlineContent)
 {
-	public required Func<ValueTask<ILogger<IInlineContent>>> LoggerFactory { private get; [UsedImplicitly] init; }
-
 	private DataModelValue _contentValue;
+
 	private Exception? _parseException;
+
+	public required Func<ValueTask<ILogger<IInlineContent>>> LoggerFactory { private get; [UsedImplicitly] init; }
 
 	public override async ValueTask<IObject> EvaluateObject()
 	{
@@ -64,7 +65,7 @@ public class DefaultInlineContentEvaluator(IInlineContent inlineContent) : Inlin
 				_parseException = exception;
 
 				var logger = await LoggerFactory().ConfigureAwait(false);
-				await logger.Write(Level.Warning, 1, "Failed to parse inline content.", exception).ConfigureAwait(false);
+				await logger.Write(Level.Warning, eventId: 1, message: "Failed to parse inline content.", exception).ConfigureAwait(false);
 			}
 
 			_contentValue.MakeDeepConstant();

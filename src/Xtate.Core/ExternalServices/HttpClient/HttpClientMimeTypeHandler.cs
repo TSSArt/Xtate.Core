@@ -74,6 +74,7 @@ public abstract class HttpClientMimeTypeHandler
 		var state = 0;
 		var start = 0;
 		var length = contentType.Length;
+
 		for (var i = 0; i < accept.Length; i ++)
 		{
 			switch (state)
@@ -109,6 +110,7 @@ public abstract class HttpClientMimeTypeHandler
 					}
 
 					state = 0;
+
 					continue;
 			}
 		}

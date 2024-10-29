@@ -17,12 +17,13 @@
 
 namespace Xtate.Builder;
 
-
 public class ParamBuilder : BuilderBase, IParamBuilder
 {
-	private IValueExpression?    _expression;
+	private IValueExpression? _expression;
+
 	private ILocationExpression? _location;
-	private string?              _name;
+
+	private string? _name;
 
 #region Interface IParamBuilder
 

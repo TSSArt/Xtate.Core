@@ -38,11 +38,10 @@ public partial class DataModelList : ISpanFormattable
 						  IFormatProvider? formatProvider) =>
 		IsArray() ? TryFormatAsArray(destination, out charsWritten, formatProvider) : TryFormatAsObject(destination, out charsWritten, formatProvider);
 
-
-	#endregion
+#endregion
 
 	private bool IsArray() => Count > 0 && !HasKeys;
-	
+
 	private string ToStringAsObject(IFormatProvider? formatProvider)
 	{
 		if (_count == 0)
@@ -54,6 +53,7 @@ public partial class DataModelList : ISpanFormattable
 		var addDelimiter = false;
 
 		sb.Append('(');
+
 		foreach (var keyValue in KeyValues)
 		{
 			if (addDelimiter)
@@ -117,6 +117,7 @@ public partial class DataModelList : ISpanFormattable
 		var addDelimiter = false;
 
 		sb.Append('[');
+
 		foreach (var value in Values)
 		{
 			if (addDelimiter)

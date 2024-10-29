@@ -26,6 +26,7 @@ public class StateMachineHostModule : Module<StateMachineInterpreterModule>
 	{
 		//TODO: tmp ----
 		Services.AddType<StateMachineHostOptions>();
+
 		//TODO: tmp ----
 
 		//Services.AddImplementation<SecurityContext>().For<SecurityContext>();
@@ -39,26 +40,25 @@ public class StateMachineHostModule : Module<StateMachineInterpreterModule>
 		Services.AddFactory<ExternalServiceFactory>().For<IExternalService>(SharedWithin.Scope);
 
 		Services.AddSharedImplementation<StateMachineRuntimeController>(SharedWithin.Scope).For<IStateMachineController>();
-				//.For<IInvokeController>();
-				//.For<INotifyStateChanged>();//
-				//.For<IExternalCommunication>();
+
+		//.For<IInvokeController>();
+		//.For<INotifyStateChanged>();//
+		//.For<IExternalCommunication>();
 
 		Services.AddSharedImplementation<StateMachineRunner, IStateMachineHostContext>(SharedWithin.Scope).For<IStateMachineRunner>();
 
 		Services.AddSharedFactorySync<SecurityContextFactory>(SharedWithin.Container).For<IIoBoundTask>().For<SecurityContextRegistration, SecurityContextType>(Option.DoNotDispose);
+
 		//Services.AddSharedType<SecurityContextController>(SharedWithin.Container);
-
-
-
 
 		Services.AddSharedImplementation<StateMachineHost>(SharedWithin.Container)
 				.For<StateMachineHost>()
 				.For<IStateMachineHost>()
-				.For<IExternalServiceProvider>().For<IHostController>(); //TODO: Make only interface
-		
+				.For<IExternalServiceProvider>()
+				.For<IHostController>(); //TODO: Make only interface
+
 		Services.AddSharedImplementation<StateMachineHostContext>(SharedWithin.Container)
 				.For<StateMachineHostContext>()
-				.For<IStateMachineHostContext>();                //TODO: Make only interface
-
+				.For<IStateMachineHostContext>(); //TODO: Make only interface
 	}
 }

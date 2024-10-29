@@ -21,7 +21,7 @@ public interface ILogWriter
 {
 	bool IsEnabled(Type source, Level level);
 
-	ValueTask Write(Type source, 
+	ValueTask Write(Type source,
 					Level level,
 					int eventId,
 					string? message,

@@ -67,6 +67,7 @@ internal class ElementNodeAdapter : NodeAdapter
 		}
 
 		var array = ArrayPool<char>.Shared.Rent(bufferSize);
+
 		try
 		{
 			var length = WriteValueToSpan(node, array);

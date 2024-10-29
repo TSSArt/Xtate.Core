@@ -17,7 +17,6 @@
 
 namespace Xtate.Builder;
 
-
 public class InitialBuilder : BuilderBase, IInitialBuilder
 {
 	private ITransition? _transition;

@@ -25,7 +25,8 @@ public readonly struct Bucket
 	public static readonly RootType RootKey = RootType.Instance;
 
 	private readonly ulong _block;
-	private readonly Node  _node;
+
+	private readonly Node _node;
 
 	public Bucket(IStorage storage)
 	{
@@ -44,6 +45,7 @@ public readonly struct Bucket
 		Span<byte> buf = stackalloc byte[KeyHelper<TKey>.Converter.GetLength(key)];
 		KeyHelper<TKey>.Converter.Write(key, buf);
 		CreateNewEntry(buf, out var storage);
+
 		return storage;
 	}
 
@@ -78,6 +80,7 @@ public readonly struct Bucket
 		if (block <= 0xFFFFFFFFFFL) return 5;
 		if (block <= 0xFFFFFFFFFFFFL) return 6;
 		if (block <= 0xFFFFFFFFFFFFFFL) return 7;
+
 		return 8;
 	}
 
@@ -113,6 +116,7 @@ public readonly struct Bucket
 		{
 			var nextBuf = WritePrevious(node.Previous, size + node.Size, ref buf);
 			node.WriteTo(nextBuf);
+
 			return nextBuf[node.Size..];
 		}
 
@@ -129,6 +133,7 @@ public readonly struct Bucket
 		if (value.Length == 0)
 		{
 			Remove(key);
+
 			return;
 		}
 
@@ -141,6 +146,7 @@ public readonly struct Bucket
 		if (value is null)
 		{
 			Remove(key);
+
 			return;
 		}
 
@@ -167,6 +173,7 @@ public readonly struct Bucket
 	{
 		Span<byte> buf = stackalloc byte[GetFullKeySize(key)];
 		value = _node.Storage.Get(CreateFullKey(buf, key));
+
 		return !value.IsEmpty;
 	}
 
@@ -180,10 +187,12 @@ public readonly struct Bucket
 		if (memory.Length == 0)
 		{
 			value = default;
+
 			return false;
 		}
 
 		value = ValueHelper<TValue>.Converter.Read(memory.Span);
+
 		return value is not null;
 	}
 
@@ -262,7 +271,8 @@ public readonly struct Bucket
 
 	private class Node
 	{
-		public readonly Node?    Previous;
+		public readonly Node? Previous;
+
 		public readonly IStorage Storage;
 
 		public Node(IStorage storage)
@@ -284,8 +294,10 @@ public readonly struct Bucket
 
 	private class BlocksBytesNode : Node
 	{
-		private readonly ulong   _block1;
-		private readonly ulong   _block2;
+		private readonly ulong _block1;
+
+		private readonly ulong _block2;
+
 		private readonly byte[]? _bytes;
 
 		public BlocksBytesNode(Node node, ulong block, Span<byte> span) : base(node)
@@ -550,7 +562,7 @@ public readonly struct Bucket
 
 		protected override int Get(ReadOnlySpan<byte> bytes)
 		{
-			var value = (int)bytes[^1];
+			var value = (int) bytes[^1];
 
 			for (var i = bytes.Length - 2; i >= 0; i --)
 			{
@@ -620,6 +632,7 @@ public readonly struct Bucket
 		{
 			var ticks = BinaryPrimitives.ReadInt64LittleEndian(bytes);
 			var offsetMinutes = BinaryPrimitives.ReadInt16LittleEndian(bytes[8..]);
+
 			return new DateTimeOffset(ticks, new TimeSpan(hours: 0, offsetMinutes, seconds: 0));
 		}
 	}
@@ -633,6 +646,7 @@ public readonly struct Bucket
 			if (value.Length == 0)
 			{
 				bytes[0] = 0xFF;
+
 				return;
 			}
 

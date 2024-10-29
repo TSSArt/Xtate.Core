@@ -24,6 +24,7 @@ public sealed class ServiceIdSet : IEnumerable<ServiceId>
 	public enum ChangedAction
 	{
 		Add,
+
 		Remove
 	}
 

@@ -34,7 +34,6 @@ public class InvokeDataEntityParser<TSource> : EntityParserBase<TSource, InvokeD
 	}
 }
 
-
 public class InvokeDataVerboseEntityParser<TSource>() : EntityParserBase<TSource, InvokeData>(Level.Verbose)
 {
 	public required IDataModelHandler DataModelHandler { private get; [UsedImplicitly] init; }

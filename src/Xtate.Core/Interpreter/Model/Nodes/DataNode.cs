@@ -37,8 +37,10 @@ public class DataNode : IData, IStoreSupport, IAncestorProvider, IDocumentId, ID
 		InlineContentEvaluator = data.InlineContent?.As<IObjectEvaluator>();
 	}
 
-	public IObjectEvaluator? SourceEvaluator        { get; }
-	public IObjectEvaluator? ExpressionEvaluator    { get; }
+	public IObjectEvaluator? SourceEvaluator { get; }
+
+	public IObjectEvaluator? ExpressionEvaluator { get; }
+
 	public IObjectEvaluator? InlineContentEvaluator { get; }
 
 #region Interface IAncestorProvider
@@ -49,10 +51,13 @@ public class DataNode : IData, IStoreSupport, IAncestorProvider, IDocumentId, ID
 
 #region Interface IData
 
-	public string?                  Id            => _data.Id;
-	public IValueExpression?        Expression    => _data.Expression;
-	public IExternalDataExpression? Source        => _data.Source;
-	public IInlineContent?          InlineContent => _data.InlineContent;
+	public string? Id => _data.Id;
+
+	public IValueExpression? Expression => _data.Expression;
+
+	public IExternalDataExpression? Source => _data.Source;
+
+	public IInlineContent? InlineContent => _data.InlineContent;
 
 #endregion
 

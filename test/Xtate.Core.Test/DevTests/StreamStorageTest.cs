@@ -57,6 +57,7 @@ public class ProxyMemoryStream : MemoryStream
 	public override Task FlushAsync(CancellationToken cancellationToken)
 	{
 		_capture.FlushAsync();
+
 		return base.FlushAsync(cancellationToken);
 	}
 
@@ -72,6 +73,7 @@ public class ProxyMemoryStream : MemoryStream
 
 		var result = await base.ReadAsync(buffer, offset, count, cancellationToken);
 		_capture.ReadAsync(count, result);
+
 		return result;
 	}
 
@@ -91,6 +93,7 @@ public class ProxyMemoryStream : MemoryStream
 		}
 
 		_capture.WriteAsync(count);
+
 		return base.WriteAsync(buffer, offset, count, cancellationToken);
 	}
 
@@ -104,11 +107,16 @@ public class ProxyMemoryStream : MemoryStream
 [TestClass]
 public class StreamStorageTest
 {
-	private IServiceProvider                                    _serviceProvider                   = default!;
-	private ProxyMemoryStream                                   _stream                            = default!;
-	private Mock<IStreamCapture>                                _streamCaptureMock                 = default!;
-	private Mock<IStreamCapture>                                _streamCaptureMock2                = default!;
-	private Func<Stream, ValueTask<ITransactionalStorage>>      _streamStorageFactory              = default!;
+	private IServiceProvider _serviceProvider = default!;
+
+	private ProxyMemoryStream _stream = default!;
+
+	private Mock<IStreamCapture> _streamCaptureMock = default!;
+
+	private Mock<IStreamCapture> _streamCaptureMock2 = default!;
+
+	private Func<Stream, ValueTask<ITransactionalStorage>> _streamStorageFactory = default!;
+
 	private Func<Stream, int, ValueTask<ITransactionalStorage>> _streamStorageRollbackLevelFactory = default!;
 
 	[TestInitialize]

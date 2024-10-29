@@ -23,13 +23,19 @@ namespace Xtate.Test;
 [TestClass]
 public class InvokeTest
 {
-	private Mock<IInvokeController>                    _invokeControllerMock      = default!;
-	private Mock<IExternalCommunication>               _externalCommunicationMock = default!;
-	private Mock<ILogWriter<IEventController>>         _loggerMockE               = default!;
-	private Mock<ILogWriter<IStateMachineInterpreter>> _loggerMockI               = default!;
-	private Mock<ILogWriter<ILogController>>           _loggerMockL               = default!;
-	private Mock<ILogWriter<IInvokeController>>                  _loggerMockV               = default!;
-	private StateMachineEntity                         _stateMachine;
+	private Mock<IExternalCommunication> _externalCommunicationMock = default!;
+
+	private Mock<IInvokeController> _invokeControllerMock = default!;
+
+	private Mock<ILogWriter<IEventController>> _loggerMockE = default!;
+
+	private Mock<ILogWriter<IStateMachineInterpreter>> _loggerMockI = default!;
+
+	private Mock<ILogWriter<ILogController>> _loggerMockL = default!;
+
+	private Mock<ILogWriter<IInvokeController>> _loggerMockV = default!;
+
+	private StateMachineEntity _stateMachine;
 
 	[TestInitialize]
 	public void Initialize()
@@ -88,8 +94,8 @@ public class InvokeTest
 	{
 		var invokeUniqueId = "";
 		_externalCommunicationMock.Setup(l => l.StartInvoke(It.IsAny<InvokeId>(), It.IsAny<InvokeData>()))
-							 .Callback<InvokeId, InvokeData>((id, data) => invokeUniqueId = id.InvokeUniqueIdValue);
-		
+								  .Callback<InvokeId, InvokeData>((id, data) => invokeUniqueId = id.InvokeUniqueIdValue);
+
 		var services = new ServiceCollection();
 		services.AddModule<StateMachineInterpreterModule>();
 		services.AddConstant<IStateMachine>(_stateMachine);

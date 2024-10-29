@@ -17,20 +17,29 @@
 
 namespace Xtate.Builder;
 
-
 public class InvokeBuilder : BuilderBase, IInvokeBuilder
 {
-	private bool                                _autoForward;
-	private IContent?                           _content;
-	private IFinalize?                          _finalize;
-	private string?                             _id;
-	private ILocationExpression?                _idLocation;
+	private bool _autoForward;
+
+	private IContent? _content;
+
+	private IFinalize? _finalize;
+
+	private string? _id;
+
+	private ILocationExpression? _idLocation;
+
 	private ImmutableArray<ILocationExpression> _nameList;
-	private ImmutableArray<IParam>.Builder?     _parameters;
-	private Uri?                                _source;
-	private IValueExpression?                   _sourceExpression;
-	private Uri?                                _type;
-	private IValueExpression?                   _typeExpression;
+
+	private ImmutableArray<IParam>.Builder? _parameters;
+
+	private Uri? _source;
+
+	private IValueExpression? _sourceExpression;
+
+	private Uri? _type;
+
+	private IValueExpression? _typeExpression;
 
 #region Interface IInvokeBuilder
 

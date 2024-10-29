@@ -23,8 +23,10 @@ namespace Xtate;
 public class StateMachineValidationException(ImmutableArray<ErrorItem> validationMessages, SessionId? sessionId = default, StateMachineOrigin origin = default)
 	: XtateException(GetMessage(validationMessages))
 {
-	public SessionId?                SessionId          { get; } = sessionId;
-	public StateMachineOrigin        Origin             { get; } = origin;
+	public SessionId? SessionId { get; } = sessionId;
+
+	public StateMachineOrigin Origin { get; } = origin;
+
 	public ImmutableArray<ErrorItem> ValidationMessages { get; } = validationMessages;
 
 	private static string? GetMessage(ImmutableArray<ErrorItem> validationMessages)
@@ -41,6 +43,7 @@ public class StateMachineValidationException(ImmutableArray<ErrorItem> validatio
 
 		var sb = new StringBuilder();
 		var index = 1;
+
 		foreach (var error in validationMessages)
 		{
 			if (index > 1)

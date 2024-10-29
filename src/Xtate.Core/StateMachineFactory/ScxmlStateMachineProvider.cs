@@ -20,7 +20,8 @@ namespace Xtate.Core;
 public class ScxmlStateMachineProvider : IStateMachineProvider
 {
 	public required Func<ValueTask<ScxmlReaderStateMachineGetter>> ScxmlReaderStateMachineGetter { private get; [UsedImplicitly] init; }
-	public required IScxmlStateMachine?                            ScxmlStateMachine             { private get; [UsedImplicitly] init; }
+
+	public required IScxmlStateMachine? ScxmlStateMachine { private get; [UsedImplicitly] init; }
 
 #region Interface IStateMachineProvider
 

@@ -22,7 +22,8 @@ namespace Xtate.DataModel.XPath;
 
 public class XPathEngine(IDataModelController? dataModelController)
 {
-	private readonly DataModelList        _root       = dataModelController?.DataModel ?? new DataModelList(false);
+	private readonly DataModelList _root = dataModelController?.DataModel ?? new DataModelList(false);
+
 	private readonly Stack<DataModelList> _scopeStack = new();
 
 	public object GetVariable(string name)
@@ -50,6 +51,7 @@ public class XPathEngine(IDataModelController? dataModelController)
 		var navigator = new DataModelXPathNavigator(list);
 
 		navigator.MoveToFirstChild();
+
 		while (navigator.Name != key)
 		{
 			var moved = navigator.MoveToNext();
@@ -116,38 +118,46 @@ public class XPathEngine(IDataModelController? dataModelController)
 		{
 			case XPathAssignType.ReplaceChildren:
 				navigator.ReplaceChildren(valueObject);
+
 				break;
-			
+
 			case XPathAssignType.FirstChild:
 				navigator.FirstChild(valueObject);
+
 				break;
-			
+
 			case XPathAssignType.LastChild:
 				navigator.LastChild(valueObject);
+
 				break;
-			
+
 			case XPathAssignType.PreviousSibling:
 				navigator.PreviousSibling(valueObject);
+
 				break;
-			
+
 			case XPathAssignType.NextSibling:
 				navigator.NextSibling(valueObject);
+
 				break;
-			
+
 			case XPathAssignType.Replace:
 				navigator.Replace(valueObject);
+
 				break;
-			
+
 			case XPathAssignType.Delete:
 				navigator.DeleteSelf();
+
 				break;
-			
+
 			case XPathAssignType.AddAttribute:
 				Infra.NotNull(attributeName);
 				var value = Convert.ToString(valueObject.ToObject(), CultureInfo.InvariantCulture);
 				navigator.CreateAttribute(string.Empty, attributeName, string.Empty, value ?? string.Empty);
+
 				break;
-			
+
 			default:
 				throw Infra.Unmatched(assignType);
 		}

@@ -21,8 +21,9 @@ namespace Xtate.Core;
 
 public sealed class DataModelNode : IDataModel, IStoreSupport, IAncestorProvider, IDocumentId
 {
-	private readonly IDataModel     _dataModel;
-	private          DocumentIdSlot _documentIdSlot;
+	private readonly IDataModel _dataModel;
+
+	private DocumentIdSlot _documentIdSlot;
 
 	public DataModelNode(DocumentIdNode documentIdNode, IDataModel dataModel)
 	{

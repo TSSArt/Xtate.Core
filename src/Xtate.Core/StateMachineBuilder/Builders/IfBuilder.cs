@@ -17,11 +17,11 @@
 
 namespace Xtate.Builder;
 
-
 public class IfBuilder : BuilderBase, IIfBuilder
 {
 	private ImmutableArray<IExecutableEntity>.Builder? _actions;
-	private IConditionExpression?                      _condition;
+
+	private IConditionExpression? _condition;
 
 #region Interface IIfBuilder
 

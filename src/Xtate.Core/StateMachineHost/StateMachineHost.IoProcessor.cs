@@ -22,12 +22,16 @@ namespace Xtate;
 
 public sealed partial class StateMachineHost : IIoProcessor, IEventConsumer
 {
-	private const string ParentTarget    = "#_parent";
-	private const string SessionIdPrefix = "#_scxml_";
-	private const string InvokeIdPrefix  = "#_";
+	private const string ParentTarget = "#_parent";
 
-	private static readonly Uri BaseUri            = new(@"ioprocessor:///");
-	private static readonly Uri IoProcessorId      = new(@"http://www.w3.org/TR/scxml/#SCXMLEventProcessor");
+	private const string SessionIdPrefix = "#_scxml_";
+
+	private const string InvokeIdPrefix = "#_";
+
+	private static readonly Uri BaseUri = new(@"ioprocessor:///");
+
+	private static readonly Uri IoProcessorId = new(@"http://www.w3.org/TR/scxml/#SCXMLEventProcessor");
+
 	private static readonly Uri IoProcessorAliasId = new(uriString: @"scxml", UriKind.Relative);
 
 #region Interface IEventConsumer
