@@ -15,8 +15,17 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.Service;
-
 namespace Xtate.Core;
 
-public interface IStateMachineController : IExternalService;
+public class ArgsXDataModelProperty : IXDataModelProperty
+{
+	public required IStateMachineArguments StateMachineArguments { private get; [UsedImplicitly] init; }
+
+#region Interface IXDataModelProperty
+
+	public string Name => @"args";
+
+	public DataModelValue Value => StateMachineArguments.Arguments;
+
+#endregion
+}

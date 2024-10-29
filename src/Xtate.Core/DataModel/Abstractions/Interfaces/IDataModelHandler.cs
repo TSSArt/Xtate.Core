@@ -19,7 +19,7 @@ namespace Xtate.DataModel;
 
 public interface IDataModelHandler
 {
-	bool CaseInsensitive { get; } //TODO: remove 222
+	bool CaseInsensitive { get; }
 
 	ImmutableDictionary<string, string> DataModelVars { get; }
 

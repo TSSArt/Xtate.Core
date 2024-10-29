@@ -15,9 +15,35 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.DataModel;
+namespace Xtate.Core;
 
-public interface IStartInvokeEvaluator
+public class ServiceSyncList<T>(IEnumerable<T> asyncEnumerable) : IReadOnlyList<T>
 {
-	ValueTask<InvokeId> Start(IIdentifier stateId);
+	private readonly ImmutableArray<T> _array = [..asyncEnumerable];
+
+#region Interface IEnumerable
+
+	IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) _array).GetEnumerator();
+
+#endregion
+
+#region Interface IEnumerable<T>
+
+	IEnumerator<T> IEnumerable<T>.GetEnumerator() => ((IEnumerable<T>) _array).GetEnumerator();
+
+#endregion
+
+#region Interface IReadOnlyCollection<T>
+
+	public int Count => _array.Length;
+
+#endregion
+
+#region Interface IReadOnlyList<T>
+
+	public T this[int index] => _array[index];
+
+#endregion
+
+	public ImmutableArray<T>.Enumerator GetEnumerator() => _array.GetEnumerator();
 }

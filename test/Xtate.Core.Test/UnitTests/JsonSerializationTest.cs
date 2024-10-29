@@ -106,7 +106,7 @@ public class JsonSerializationTest
 		var undefined = default(DataModelValue);
 
 		// act
-		var json = DataModelConverter.ToJson(undefined, DataModelConverterJsonOptions.UndefinedToNull);
+		var json = DataModelConverter.ToJson(undefined, DataModelConverter.JsonOptions.UndefinedToNull);
 
 		// assert
 		Assert.AreEqual(expected: "null", json);
@@ -120,7 +120,7 @@ public class JsonSerializationTest
 		var list = new DataModelList { ["undef"] = undefined };
 
 		// act
-		var json = DataModelConverter.ToJson(list, DataModelConverterJsonOptions.UndefinedToNull);
+		var json = DataModelConverter.ToJson(list, DataModelConverter.JsonOptions.UndefinedToNull);
 
 		// assert
 		Assert.AreEqual(expected: "{\"undef\":null}", json);
@@ -134,7 +134,7 @@ public class JsonSerializationTest
 		var arr = new DataModelList { undefined };
 
 		// act
-		var json = DataModelConverter.ToJson(arr, DataModelConverterJsonOptions.UndefinedToNull);
+		var json = DataModelConverter.ToJson(arr, DataModelConverter.JsonOptions.UndefinedToNull);
 
 		// assert
 		Assert.AreEqual(expected: "[null]", json);
@@ -147,7 +147,7 @@ public class JsonSerializationTest
 		var undefined = default(DataModelValue);
 
 		// act
-		var json = DataModelConverter.ToJson(undefined, DataModelConverterJsonOptions.UndefinedToSkip);
+		var json = DataModelConverter.ToJson(undefined, DataModelConverter.JsonOptions.UndefinedToSkip);
 
 		// assert
 		Assert.AreEqual(expected: "", json);
@@ -161,7 +161,7 @@ public class JsonSerializationTest
 		var list = new DataModelList { ["undef"] = undefined };
 
 		// act
-		var json = DataModelConverter.ToJson(list, DataModelConverterJsonOptions.UndefinedToSkip);
+		var json = DataModelConverter.ToJson(list, DataModelConverter.JsonOptions.UndefinedToSkip);
 
 		// assert
 		Assert.AreEqual(expected: "{}", json);
@@ -175,7 +175,7 @@ public class JsonSerializationTest
 		var arr = new DataModelList { undefined };
 
 		// act
-		var json = DataModelConverter.ToJson(arr, DataModelConverterJsonOptions.UndefinedToSkip);
+		var json = DataModelConverter.ToJson(arr, DataModelConverter.JsonOptions.UndefinedToSkip);
 
 		// assert
 		Assert.AreEqual(expected: "[]", json);
@@ -188,7 +188,7 @@ public class JsonSerializationTest
 		var undefined = default(DataModelValue);
 
 		// act
-		var json = DataModelConverter.ToJson(undefined, DataModelConverterJsonOptions.UndefinedToSkipOrNull);
+		var json = DataModelConverter.ToJson(undefined, DataModelConverter.JsonOptions.UndefinedToSkipOrNull);
 
 		// assert
 		Assert.AreEqual(expected: "null", json);
@@ -202,7 +202,7 @@ public class JsonSerializationTest
 		var list = new DataModelList { ["undef"] = undefined };
 
 		// act
-		var json = DataModelConverter.ToJson(list, DataModelConverterJsonOptions.UndefinedToSkipOrNull);
+		var json = DataModelConverter.ToJson(list, DataModelConverter.JsonOptions.UndefinedToSkipOrNull);
 
 		// assert
 		Assert.AreEqual(expected: "{}", json);
@@ -216,7 +216,7 @@ public class JsonSerializationTest
 		var arr = new DataModelList { undefined };
 
 		// act
-		var json = DataModelConverter.ToJson(arr, DataModelConverterJsonOptions.UndefinedToSkipOrNull);
+		var json = DataModelConverter.ToJson(arr, DataModelConverter.JsonOptions.UndefinedToSkipOrNull);
 
 		// assert
 		Assert.AreEqual(expected: "[null]", json);

@@ -80,7 +80,7 @@ public sealed partial class StateMachineHost : IIoProcessor, IEventConsumer
 		Infra.NotNull(hostEvent.TargetServiceId);
 
 		var service = await GetService(hostEvent.TargetServiceId, token).ConfigureAwait(false);
-		await service.Send(hostEvent, token).ConfigureAwait(false);
+		await service.Send(hostEvent).ConfigureAwait(false);
 	}
 
 	bool IIoProcessor.CanHandle(Uri? type) => CanHandleType(type);

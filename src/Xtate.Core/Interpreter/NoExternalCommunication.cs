@@ -15,33 +15,23 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.Threading.Channels;
-
 namespace Xtate.Core;
 
-public class EventQueue : IEventQueueReader, IEventQueueWriter, IEventDispatcher
+public class NoExternalCommunication : IExternalCommunication
 {
-	private readonly Channel<IEvent> _channel = Channel.CreateUnbounded<IEvent>();
+	public required StateMachineRuntimeError StateMachineRuntimeError { private get; [UsedImplicitly] init; }
 
-#region Interface IEventDispatcher
+#region Interface IExternalCommunication
 
-	public ValueTask Send(IEvent evt) => _channel.Writer.WriteAsync(evt);
+	public ValueTask StartInvoke(InvokeId invokeId, InvokeData invokeData) => throw StateMachineRuntimeError.NoExternalCommunication();
 
-#endregion
+	public ValueTask CancelInvoke(InvokeId invokeId) => throw StateMachineRuntimeError.NoExternalCommunication();
 
-#region Interface IEventQueueReader
+	public ValueTask<SendStatus> TrySendEvent(IOutgoingEvent outgoingEvent) => throw StateMachineRuntimeError.NoExternalCommunication();
 
-	public bool TryReadEvent([MaybeNullWhen(false)] out IEvent evt) => _channel.Reader.TryRead(out evt);
+	public ValueTask ForwardEvent(InvokeId invokeId, IEvent evt) => throw StateMachineRuntimeError.NoExternalCommunication();
 
-	public ValueTask<bool> WaitToEvent() => _channel.Reader.WaitToReadAsync();
-
-	public void Complete() => _channel.Writer.TryComplete();
-
-#endregion
-
-#region Interface IEventQueueWriter
-
-	public ValueTask WriteAsync(IEvent evt) => _channel.Writer.WriteAsync(evt);
+	public ValueTask CancelEvent(SendId sendId) => throw StateMachineRuntimeError.NoExternalCommunication();
 
 #endregion
 }

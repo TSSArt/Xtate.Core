@@ -15,9 +15,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.DataModel;
+namespace Xtate.Core;
 
-public interface ICancelInvokeEvaluator
+public interface IXDataModelProperty
 {
-	ValueTask Cancel(InvokeId invokeId);
+	string Name { get; }
+
+	DataModelValue Value { get; }
 }
