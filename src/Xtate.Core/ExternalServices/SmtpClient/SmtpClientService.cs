@@ -23,6 +23,8 @@ namespace Xtate.Service;
 
 public class SmtpClientService : ExternalServiceBase
 {
+	public class Provider() : ExternalServiceProvider<HttpClientService>(@"http://xtate.net/scxml/service/#HTTPClient", @"http");
+
 	protected override async ValueTask<DataModelValue> Execute()
 	{
 		var parameters = Parameters.AsListOrEmpty();

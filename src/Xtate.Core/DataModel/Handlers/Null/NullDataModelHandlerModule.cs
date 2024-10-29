@@ -25,8 +25,8 @@ public class NullDataModelHandlerModule : Module<DataModelHandlerBaseModule, Err
 	protected override void AddServices()
 	{
 		Services.AddTypeSync<NullConditionExpressionEvaluator, IConditionExpression, IIdentifier>();
-		Services.AddImplementation<DefaultDataModelHandlerProvider>().For<IDataModelHandlerProvider>();
-		Services.AddImplementation<NullDataModelHandlerProvider>().For<IDataModelHandlerProvider>();
+		Services.AddImplementation<NullDataModelHandler.DefaultProvider>().For<IDataModelHandlerProvider>();
+		Services.AddImplementation<NullDataModelHandler.Provider>().For<IDataModelHandlerProvider>();
 		Services.AddImplementation<NullDataModelHandler>().For<NullDataModelHandler>().For<IDataModelHandler>(Option.IfNotRegistered);
 	}
 }

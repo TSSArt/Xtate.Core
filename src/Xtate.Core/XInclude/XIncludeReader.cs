@@ -22,13 +22,6 @@ using System.Xml;
 
 namespace Xtate.XInclude;
 
-public interface IXIncludeOptions
-{
-	bool XIncludeAllowed { get; }
-
-	int MaxNestingLevel { get; }
-}
-
 public class XIncludeReader : DelegatedXmlReader
 {
 	private static readonly Type ResourceType = typeof(IXIncludeResource);
