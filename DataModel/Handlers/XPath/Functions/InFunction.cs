@@ -21,6 +21,8 @@ namespace Xtate.DataModel.XPath;
 
 public class InFunction() : XPathFunctionBase(XPathResultType.Boolean, XPathResultType.Any)
 {
+	public class Provider() : XPathFunctionProviderBase<InFunction>(string.Empty, name: @"In");
+
 	private IInStateController _inStateController;
 
 	public required Func<ValueTask<IInStateController>> InStateControllerFactory { private get; [UsedImplicitly] init; }

@@ -21,13 +21,10 @@ using System.Net.Mime;
 
 namespace Xtate.Core;
 
-public class FileResourceLoaderProvider : ResourceLoaderProviderBase<FileResourceLoader>
-{
-	protected override bool CanHandle(Uri uri) => uri.IsFile || uri.IsUnc || !uri.IsAbsoluteUri;
-}
-
 public class FileResourceLoader : IResourceLoader
 {
+	public class Provider() : ResourceLoaderProviderBase<FileResourceLoader>(uri => uri.IsFile || uri.IsUnc || !uri.IsAbsoluteUri);
+
 	private const FileOptions OpenFileOptions = FileOptions.Asynchronous | FileOptions.SequentialScan;
 
 	public required IIoBoundTask ExternalResources { private get; [UsedImplicitly] init; }

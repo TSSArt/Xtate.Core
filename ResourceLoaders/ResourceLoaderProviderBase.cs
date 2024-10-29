@@ -17,15 +17,13 @@
 
 namespace Xtate.Core;
 
-public abstract class ResourceLoaderProviderBase<TResourceLoader> : IResourceLoaderProvider where TResourceLoader : class, IResourceLoader
+public abstract class ResourceLoaderProviderBase<TResourceLoader>(Func<Uri, bool> predicate) : IResourceLoaderProvider where TResourceLoader : class, IResourceLoader
 {
 	public required Func<ValueTask<TResourceLoader>> ResourceLoaderFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IResourceLoaderProvider
 
-	public async ValueTask<IResourceLoader?> TryGetResourceLoader(Uri uri) => CanHandle(uri) ? await ResourceLoaderFactory().ConfigureAwait(false) : default;
+	public async ValueTask<IResourceLoader?> TryGetResourceLoader(Uri uri) => predicate(uri) ? await ResourceLoaderFactory().ConfigureAwait(false) : default;
 
 #endregion
-
-	protected abstract bool CanHandle(Uri uri);
 }
