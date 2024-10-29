@@ -20,11 +20,18 @@ namespace Xtate.Core;
 public enum StateMachineInterpreterState
 {
 	Accepted,
+
 	Started,
+
 	Exited,
+
 	Waiting,
+
 	Destroying,
+
 	Halted,
+
 	Suspended,
+
 	Resumed
 }

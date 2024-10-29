@@ -29,11 +29,15 @@ public struct AssignEntity : IAssign, IVisitorEntity<AssignEntity, IAssign>, IAn
 
 #region Interface IAssign
 
-	public ILocationExpression? Location      { get; set; }
-	public IValueExpression?    Expression    { get; set; }
-	public IInlineContent?      InlineContent { get; set; }
-	public string?              Type          { get; set; }
-	public string?              Attribute     { get; set; }
+	public ILocationExpression? Location { get; set; }
+
+	public IValueExpression? Expression { get; set; }
+
+	public IInlineContent? InlineContent { get; set; }
+
+	public string? Type { get; set; }
+
+	public string? Attribute { get; set; }
 
 #endregion
 

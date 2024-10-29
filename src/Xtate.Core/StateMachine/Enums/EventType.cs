@@ -20,7 +20,10 @@ namespace Xtate;
 public enum EventType
 {
 	None,
+
 	Platform,
+
 	Internal,
+
 	External
 }

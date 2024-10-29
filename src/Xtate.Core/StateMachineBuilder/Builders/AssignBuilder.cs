@@ -17,14 +17,17 @@
 
 namespace Xtate.Builder;
 
-
 public class AssignBuilder : BuilderBase, IAssignBuilder
 {
-	private string?              _attribute;
-	private IValueExpression?    _expression;
-	private IInlineContent?      _inlineContent;
+	private string? _attribute;
+
+	private IValueExpression? _expression;
+
+	private IInlineContent? _inlineContent;
+
 	private ILocationExpression? _location;
-	private string?              _type;
+
+	private string? _type;
 
 #region Interface IAssignBuilder
 

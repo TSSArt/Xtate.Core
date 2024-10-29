@@ -17,13 +17,15 @@
 
 namespace Xtate.Builder;
 
-
 public class ForEachBuilder : BuilderBase, IForEachBuilder
 {
 	private ImmutableArray<IExecutableEntity>.Builder? _actions;
-	private IValueExpression?                          _array;
-	private ILocationExpression?                       _index;
-	private ILocationExpression?                       _item;
+
+	private IValueExpression? _array;
+
+	private ILocationExpression? _index;
+
+	private ILocationExpression? _item;
 
 #region Interface IForEachBuilder
 

@@ -19,12 +19,15 @@ namespace Xtate.Persistence;
 
 internal sealed class DataModelReferenceTracker : IDisposable
 {
-	private readonly Bucket                           _bucket;
-	private readonly Dictionary<DataModelList, Entry> _lists  = [];
-	private readonly Dictionary<int, DataModelList>   _refIds = [];
+	private readonly Bucket _bucket;
+
+	private readonly Dictionary<DataModelList, Entry> _lists = [];
+
+	private readonly Dictionary<int, DataModelList> _refIds = [];
 
 	private bool _disposed;
-	private int  _nextRefId;
+
+	private int _nextRefId;
 
 	public DataModelReferenceTracker(in Bucket bucket)
 	{
@@ -99,7 +102,7 @@ internal sealed class DataModelReferenceTracker : IDisposable
 
 				return list;
 
-			default: 
+			default:
 				throw Infra.Unmatched(type);
 		}
 	}
@@ -138,6 +141,7 @@ internal sealed class DataModelReferenceTracker : IDisposable
 		{
 			case DataModelValueType.List:
 				GetRefId(value.AsList(), ListControllerCreator, incrementReference: true);
+
 				break;
 		}
 	}
@@ -150,6 +154,7 @@ internal sealed class DataModelReferenceTracker : IDisposable
 		{
 			case DataModelValueType.List:
 				Remove(value.AsList());
+
 				break;
 		}
 
@@ -175,7 +180,9 @@ internal sealed class DataModelReferenceTracker : IDisposable
 	private struct Entry
 	{
 		public DataModelPersistingController Controller;
-		public int?                          RefCount;
-		public int                           RefId;
+
+		public int? RefCount;
+
+		public int RefId;
 	}
 }

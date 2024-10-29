@@ -32,12 +32,18 @@ public class PersistedInterpreterModelGetter : IAsyncInitialization
 	}
 
 	public required Func<IStateMachine, IDataModelHandler, ValueTask<InterpreterModelBuilder>> InterpreterModelBuilderFactory { private get; [UsedImplicitly] init; }
-	public required IDataModelHandlerService                                                   DataModelHandlerService        { private get; [UsedImplicitly] init; }
-	public required IStateMachineSessionId                                                     StateMachineSessionId          { private get; [UsedImplicitly] init; }
-	public required IStateMachine?                                                             StateMachine                   { private get; [UsedImplicitly] init; }
-	public required IErrorProcessor                                                            ErrorProcessor                 { private get; [UsedImplicitly] init; }
-	public required IStorageProvider                                                           StorageProvider                { private get; [UsedImplicitly] init; }
-	public required Func<ReadOnlyMemory<byte>, InMemoryStorage>                                InMemoryStorageFactory         { private get; [UsedImplicitly] init; }
+
+	public required IDataModelHandlerService DataModelHandlerService { private get; [UsedImplicitly] init; }
+
+	public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
+
+	public required IStateMachine? StateMachine { private get; [UsedImplicitly] init; }
+
+	public required IErrorProcessor ErrorProcessor { private get; [UsedImplicitly] init; }
+
+	public required IStorageProvider StorageProvider { private get; [UsedImplicitly] init; }
+
+	public required Func<ReadOnlyMemory<byte>, InMemoryStorage> InMemoryStorageFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IAsyncInitialization
 
@@ -74,6 +80,7 @@ public class PersistedInterpreterModelGetter : IAsyncInitialization
 	{
 		//var storage = await StorageProvider.GetTransactionalStorage(partition: default, StateMachineDefinitionStorageKey).ConfigureAwait(false);
 		var storage = await StorageProvider.GetTransactionalStorage(partition: default, key: @"StateMachineDefinitionStorageKey").ConfigureAwait(false); //TODO:
+
 		await using (storage.ConfigureAwait(false))
 		{
 			var bucket = new Bucket(storage);
@@ -84,6 +91,7 @@ public class PersistedInterpreterModelGetter : IAsyncInitialization
 			}
 
 			var storedSessionId = bucket.GetSessionId(Key.SessionId);
+
 			if (storedSessionId is not null && storedSessionId != StateMachineSessionId.SessionId)
 			{
 				throw new PersistenceException(Resources.Exception_PersistedStateCantBeReadStoredAndProvidedSessionIdsDoesNotMatch);
@@ -141,6 +149,7 @@ public class PersistedInterpreterModelGetter : IAsyncInitialization
 	{
 		//var storage = await StorageProvider.GetTransactionalStorage(partition: default, StateMachineDefinitionStorageKey).ConfigureAwait(false);
 		var storage = await StorageProvider.GetTransactionalStorage(partition: default, key: @"StateMachineDefinitionStorageKey").ConfigureAwait(false); //TODO:
+
 		await using (storage.ConfigureAwait(false))
 		{
 			SaveToStorage(interpreterModel.Root, new Bucket(storage));

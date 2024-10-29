@@ -24,42 +24,71 @@ namespace Xtate.Scxml;
 
 public class ScxmlDirector : XmlDirector<ScxmlDirector>
 {
-	private const string ScxmlNs      = "http://www.w3.org/2005/07/scxml";
+	private const string ScxmlNs = "http://www.w3.org/2005/07/scxml";
+
 	private const string XtateScxmlNs = "http://xtate.net/scxml";
-	private const char   Space        = ' ';
+
+	private const char Space = ' ';
 
 	private static readonly char[] SpaceSplitter = [Space];
 
 	private static readonly Policy<IStateMachineBuilder> StateMachinePolicy = BuildPolicy<IStateMachineBuilder>(StateMachineBuildPolicy);
-	private static readonly Policy<IStateBuilder>        StatePolicy        = BuildPolicy<IStateBuilder>(StateBuildPolicy);
-	private static readonly Policy<IParallelBuilder>     ParallelPolicy     = BuildPolicy<IParallelBuilder>(ParallelBuildPolicy);
-	private static readonly Policy<IFinalBuilder>        FinalPolicy        = BuildPolicy<IFinalBuilder>(FinalBuildPolicy);
-	private static readonly Policy<IInitialBuilder>      InitialPolicy      = BuildPolicy<IInitialBuilder>(InitialBuildPolicy);
-	private static readonly Policy<IHistoryBuilder>      HistoryPolicy      = BuildPolicy<IHistoryBuilder>(HistoryBuildPolicy);
-	private static readonly Policy<ITransitionBuilder>   TransitionPolicy   = BuildPolicy<ITransitionBuilder>(TransitionBuildPolicy);
-	private static readonly Policy<ILogBuilder>          LogPolicy          = BuildPolicy<ILogBuilder>(LogBuildPolicy);
-	private static readonly Policy<ISendBuilder>         SendPolicy         = BuildPolicy<ISendBuilder>(SendBuildPolicy);
-	private static readonly Policy<IParamBuilder>        ParamPolicy        = BuildPolicy<IParamBuilder>(ParamBuildPolicy);
-	private static readonly Policy<IContentBuilder>      ContentPolicy      = BuildPolicy<IContentBuilder>(ContentBuildPolicy);
-	private static readonly Policy<IOnEntryBuilder>      OnEntryPolicy      = BuildPolicy<IOnEntryBuilder>(OnEntryBuildPolicy);
-	private static readonly Policy<IOnExitBuilder>       OnExitPolicy       = BuildPolicy<IOnExitBuilder>(OnExitBuildPolicy);
-	private static readonly Policy<IInvokeBuilder>       InvokePolicy       = BuildPolicy<IInvokeBuilder>(InvokeBuildPolicy);
-	private static readonly Policy<IFinalizeBuilder>     FinalizePolicy     = BuildPolicy<IFinalizeBuilder>(FinalizeBuildPolicy);
-	private static readonly Policy<IScriptBuilder>       ScriptPolicy       = BuildPolicy<IScriptBuilder>(ScriptBuildPolicy);
-	private static readonly Policy<IDataModelBuilder>    DataModelPolicy    = BuildPolicy<IDataModelBuilder>(DataModelBuildPolicy);
-	private static readonly Policy<IDataBuilder>         DataPolicy         = BuildPolicy<IDataBuilder>(DataBuildPolicy);
-	private static readonly Policy<IDoneDataBuilder>     DoneDataPolicy     = BuildPolicy<IDoneDataBuilder>(DoneDataBuildPolicy);
-	private static readonly Policy<IForEachBuilder>      ForEachPolicy      = BuildPolicy<IForEachBuilder>(ForEachBuildPolicy);
-	private static readonly Policy<IIfBuilder>           IfPolicy           = BuildPolicy<IIfBuilder>(IfBuildPolicy);
-	private static readonly Policy<IElseBuilder>         ElsePolicy         = BuildPolicy<IElseBuilder>(ElseBuildPolicy);
-	private static readonly Policy<IElseIfBuilder>       ElseIfPolicy       = BuildPolicy<IElseIfBuilder>(ElseIfBuildPolicy);
-	private static readonly Policy<IRaiseBuilder>        RaisePolicy        = BuildPolicy<IRaiseBuilder>(RaiseBuildPolicy);
-	private static readonly Policy<IAssignBuilder>       AssignPolicy       = BuildPolicy<IAssignBuilder>(AssignBuildPolicy);
-	private static readonly Policy<ICancelBuilder>       CancelPolicy       = BuildPolicy<ICancelBuilder>(CancelBuildPolicy);
 
-	private readonly XmlReader                              _xmlReader;
-	private          List<string>?                          _namespacePrefixes;
-	private          List<ImmutableArray<PrefixNamespace>>? _nsCache;
+	private static readonly Policy<IStateBuilder> StatePolicy = BuildPolicy<IStateBuilder>(StateBuildPolicy);
+
+	private static readonly Policy<IParallelBuilder> ParallelPolicy = BuildPolicy<IParallelBuilder>(ParallelBuildPolicy);
+
+	private static readonly Policy<IFinalBuilder> FinalPolicy = BuildPolicy<IFinalBuilder>(FinalBuildPolicy);
+
+	private static readonly Policy<IInitialBuilder> InitialPolicy = BuildPolicy<IInitialBuilder>(InitialBuildPolicy);
+
+	private static readonly Policy<IHistoryBuilder> HistoryPolicy = BuildPolicy<IHistoryBuilder>(HistoryBuildPolicy);
+
+	private static readonly Policy<ITransitionBuilder> TransitionPolicy = BuildPolicy<ITransitionBuilder>(TransitionBuildPolicy);
+
+	private static readonly Policy<ILogBuilder> LogPolicy = BuildPolicy<ILogBuilder>(LogBuildPolicy);
+
+	private static readonly Policy<ISendBuilder> SendPolicy = BuildPolicy<ISendBuilder>(SendBuildPolicy);
+
+	private static readonly Policy<IParamBuilder> ParamPolicy = BuildPolicy<IParamBuilder>(ParamBuildPolicy);
+
+	private static readonly Policy<IContentBuilder> ContentPolicy = BuildPolicy<IContentBuilder>(ContentBuildPolicy);
+
+	private static readonly Policy<IOnEntryBuilder> OnEntryPolicy = BuildPolicy<IOnEntryBuilder>(OnEntryBuildPolicy);
+
+	private static readonly Policy<IOnExitBuilder> OnExitPolicy = BuildPolicy<IOnExitBuilder>(OnExitBuildPolicy);
+
+	private static readonly Policy<IInvokeBuilder> InvokePolicy = BuildPolicy<IInvokeBuilder>(InvokeBuildPolicy);
+
+	private static readonly Policy<IFinalizeBuilder> FinalizePolicy = BuildPolicy<IFinalizeBuilder>(FinalizeBuildPolicy);
+
+	private static readonly Policy<IScriptBuilder> ScriptPolicy = BuildPolicy<IScriptBuilder>(ScriptBuildPolicy);
+
+	private static readonly Policy<IDataModelBuilder> DataModelPolicy = BuildPolicy<IDataModelBuilder>(DataModelBuildPolicy);
+
+	private static readonly Policy<IDataBuilder> DataPolicy = BuildPolicy<IDataBuilder>(DataBuildPolicy);
+
+	private static readonly Policy<IDoneDataBuilder> DoneDataPolicy = BuildPolicy<IDoneDataBuilder>(DoneDataBuildPolicy);
+
+	private static readonly Policy<IForEachBuilder> ForEachPolicy = BuildPolicy<IForEachBuilder>(ForEachBuildPolicy);
+
+	private static readonly Policy<IIfBuilder> IfPolicy = BuildPolicy<IIfBuilder>(IfBuildPolicy);
+
+	private static readonly Policy<IElseBuilder> ElsePolicy = BuildPolicy<IElseBuilder>(ElseBuildPolicy);
+
+	private static readonly Policy<IElseIfBuilder> ElseIfPolicy = BuildPolicy<IElseIfBuilder>(ElseIfBuildPolicy);
+
+	private static readonly Policy<IRaiseBuilder> RaisePolicy = BuildPolicy<IRaiseBuilder>(RaiseBuildPolicy);
+
+	private static readonly Policy<IAssignBuilder> AssignPolicy = BuildPolicy<IAssignBuilder>(AssignBuildPolicy);
+
+	private static readonly Policy<ICancelBuilder> CancelPolicy = BuildPolicy<ICancelBuilder>(CancelBuildPolicy);
+
+	private readonly XmlReader _xmlReader;
+
+	private List<string>? _namespacePrefixes;
+
+	private List<ImmutableArray<PrefixNamespace>>? _nsCache;
 
 	public ScxmlDirector(XmlReader xmlReader) : base(xmlReader)
 	{
@@ -73,35 +102,62 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 	}
 
 	public required Func<object?, IStateMachineBuilder> StateMachineBuilderFactory { private get; [UsedImplicitly] init; }
-	public required Func<object?, IStateBuilder>        StateBuilderFactory        { private get; [UsedImplicitly] init; }
-	public required Func<object?, IParallelBuilder>     ParallelBuilderFactory     { private get; [UsedImplicitly] init; }
-	public required Func<object?, IHistoryBuilder>      HistoryBuilderFactory      { private get; [UsedImplicitly] init; }
-	public required Func<object?, IInitialBuilder>      InitialBuilderFactory      { private get; [UsedImplicitly] init; }
-	public required Func<object?, IFinalBuilder>        FinalBuilderFactory        { private get; [UsedImplicitly] init; }
-	public required Func<object?, ITransitionBuilder>   TransitionBuilderFactory   { private get; [UsedImplicitly] init; }
-	public required Func<object?, ILogBuilder>          LogBuilderFactory          { private get; [UsedImplicitly] init; }
-	public required Func<object?, ISendBuilder>         SendBuilderFactory         { private get; [UsedImplicitly] init; }
-	public required Func<object?, IParamBuilder>        ParamBuilderFactory        { private get; [UsedImplicitly] init; }
-	public required Func<object?, IContentBuilder>      ContentBuilderFactory      { private get; [UsedImplicitly] init; }
-	public required Func<object?, IOnEntryBuilder>      OnEntryBuilderFactory      { private get; [UsedImplicitly] init; }
-	public required Func<object?, IOnExitBuilder>       OnExitBuilderFactory       { private get; [UsedImplicitly] init; }
-	public required Func<object?, IInvokeBuilder>       InvokeBuilderFactory       { private get; [UsedImplicitly] init; }
-	public required Func<object?, IFinalizeBuilder>     FinalizeBuilderFactory     { private get; [UsedImplicitly] init; }
-	public required Func<object?, IScriptBuilder>       ScriptBuilderFactory       { private get; [UsedImplicitly] init; }
+
+	public required Func<object?, IStateBuilder> StateBuilderFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<object?, IParallelBuilder> ParallelBuilderFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<object?, IHistoryBuilder> HistoryBuilderFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<object?, IInitialBuilder> InitialBuilderFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<object?, IFinalBuilder> FinalBuilderFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<object?, ITransitionBuilder> TransitionBuilderFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<object?, ILogBuilder> LogBuilderFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<object?, ISendBuilder> SendBuilderFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<object?, IParamBuilder> ParamBuilderFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<object?, IContentBuilder> ContentBuilderFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<object?, IOnEntryBuilder> OnEntryBuilderFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<object?, IOnExitBuilder> OnExitBuilderFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<object?, IInvokeBuilder> InvokeBuilderFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<object?, IFinalizeBuilder> FinalizeBuilderFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<object?, IScriptBuilder> ScriptBuilderFactory { private get; [UsedImplicitly] init; }
+
 	public required Func<object?, ICustomActionBuilder> CustomActionBuilderFactory { private get; [UsedImplicitly] init; }
-	public required Func<object?, IDataModelBuilder>    DataModelBuilderFactory    { private get; [UsedImplicitly] init; }
-	public required Func<object?, IDataBuilder>         DataBuilderFactory         { private get; [UsedImplicitly] init; }
-	public required Func<object?, IDoneDataBuilder>     DoneDataBuilderFactory     { private get; [UsedImplicitly] init; }
-	public required Func<object?, IAssignBuilder>       AssignBuilderFactory       { private get; [UsedImplicitly] init; }
-	public required Func<object?, IRaiseBuilder>        RaiseBuilderFactory        { private get; [UsedImplicitly] init; }
-	public required Func<object?, ICancelBuilder>       CancelBuilderFactory       { private get; [UsedImplicitly] init; }
-	public required Func<object?, IForEachBuilder>      ForEachBuilderFactory      { private get; [UsedImplicitly] init; }
-	public required Func<object?, IIfBuilder>           IfBuilderFactory           { private get; [UsedImplicitly] init; }
-	public required Func<object?, IElseBuilder>         ElseBuilderFactory         { private get; [UsedImplicitly] init; }
-	public required Func<object?, IElseIfBuilder>       ElseIfBuilderFactory       { private get; [UsedImplicitly] init; }
+
+	public required Func<object?, IDataModelBuilder> DataModelBuilderFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<object?, IDataBuilder> DataBuilderFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<object?, IDoneDataBuilder> DoneDataBuilderFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<object?, IAssignBuilder> AssignBuilderFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<object?, IRaiseBuilder> RaiseBuilderFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<object?, ICancelBuilder> CancelBuilderFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<object?, IForEachBuilder> ForEachBuilderFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<object?, IIfBuilder> IfBuilderFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<object?, IElseBuilder> ElseBuilderFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<object?, IElseIfBuilder> ElseIfBuilderFactory { private get; [UsedImplicitly] init; }
 
 	public required IErrorProcessorService<ScxmlDirector> ErrorProcessorService { private get; [UsedImplicitly] init; }
-	public required ILineInfoRequired?                    LineInfoRequired      { private get; [UsedImplicitly] init; }
+
+	public required ILineInfoRequired? LineInfoRequired { private get; [UsedImplicitly] init; }
 
 	private static void FillNameTable(XmlNameTable nameTable)
 	{
@@ -341,12 +397,14 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 		}
 
 		const string ms = "ms";
+
 		if (value.EndsWith(ms, StringComparison.Ordinal))
 		{
 			return int.Parse(value[..^ms.Length], NumberFormatInfo.InvariantInfo);
 		}
 
 		const string s = "s";
+
 		if (value.EndsWith(s, StringComparison.Ordinal))
 		{
 			return int.Parse(value[..^s.Length], NumberFormatInfo.InvariantInfo) * 1000;
@@ -712,6 +770,7 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 	{
 		var builder = CustomActionBuilderFactory(CreateAncestor(namespaces: true));
 		builder.SetXml(CurrentNamespace, CurrentName, await ReadOuterXml().ConfigureAwait(false));
+
 		return builder.Build();
 	}
 
@@ -742,7 +801,8 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 
 		public bool HasLineInfo() => true;
 
-		public int LineNumber   { get; } = lineNumber;
+		public int LineNumber { get; } = lineNumber;
+
 		public int LinePosition { get; } = linePosition;
 
 	#endregion

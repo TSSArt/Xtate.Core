@@ -23,5 +23,4 @@ public interface IExternalServiceActivator
 
 	[Obsolete]
 	ValueTask<IExternalService> StartService(Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication);
-
 }

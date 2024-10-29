@@ -22,8 +22,11 @@ namespace Xtate;
 public enum DataModelNumberType
 {
 	Int32,
+
 	Int64,
+
 	Double,
+
 	Decimal
 }
 
@@ -32,6 +35,7 @@ public readonly struct DataModelNumber : IConvertible, ISpanFormattable, IEquata
 	private static readonly double[] PowersOf10 = Enumerable.Range(start: 0, count: 29).Select(i => Math.Pow(x: 10, i)).ToArray();
 
 	private readonly long _int64;
+
 	private readonly long _int64Ext;
 
 	private DataModelNumber(DataModelNumberType type, long int64)
@@ -292,19 +296,23 @@ public readonly struct DataModelNumber : IConvertible, ISpanFormattable, IEquata
 		{
 			case DataModelNumberType.Int32:
 				WriteInt64(_int64, span);
+
 				break;
 
 			case DataModelNumberType.Int64:
 				WriteInt64(_int64, span);
+
 				break;
 
 			case DataModelNumberType.Double:
 				BinaryPrimitives.WriteInt64LittleEndian(span, _int64);
+
 				break;
 
 			case DataModelNumberType.Decimal:
 				BinaryPrimitives.WriteInt64LittleEndian(span, _int64);
 				BinaryPrimitives.WriteInt64LittleEndian(span[8..], _int64Ext);
+
 				break;
 
 			default:

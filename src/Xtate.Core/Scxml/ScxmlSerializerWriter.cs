@@ -21,9 +21,11 @@ namespace Xtate.Scxml;
 
 public class ScxmlSerializerWriter(XmlWriter writer) : StateMachineVisitor
 {
-	private const string ScxmlNs      = "http://www.w3.org/2005/07/scxml";
+	private const string ScxmlNs = "http://www.w3.org/2005/07/scxml";
+
 	private const string XtateScxmlNs = "http://xtate.net/scxml";
-	private const string Space        = " ";
+
+	private const string Space = " ";
 
 	public void Serialize(IStateMachine stateMachine) => Visit(ref stateMachine);
 
@@ -40,6 +42,7 @@ public class ScxmlSerializerWriter(XmlWriter writer) : StateMachineVisitor
 		}
 
 		var target = entity.Initial?.Transition?.Target ?? default;
+
 		if (!target.IsDefaultOrEmpty)
 		{
 			writer.WriteStartAttribute("initial");
@@ -184,6 +187,7 @@ public class ScxmlSerializerWriter(XmlWriter writer) : StateMachineVisitor
 		}
 
 		var condition = entity.Condition?.As<IConditionExpression>().Expression;
+
 		if (condition is not null)
 		{
 			writer.WriteAttributeString(localName: "cond", condition);
@@ -204,6 +208,7 @@ public class ScxmlSerializerWriter(XmlWriter writer) : StateMachineVisitor
 	private void WriteArray<T>(ImmutableArray<T> array, Func<T, string> converter, string delimiter)
 	{
 		var writeDelimiter = false;
+
 		foreach (var item in array)
 		{
 			if (writeDelimiter)
@@ -322,6 +327,7 @@ public class ScxmlSerializerWriter(XmlWriter writer) : StateMachineVisitor
 		writer.WriteStartElement("raise");
 
 		var nameParts = entity.OutgoingEvent?.NameParts ?? default;
+
 		if (!nameParts.IsDefaultOrEmpty)
 		{
 			writer.WriteStartAttribute("event");

@@ -25,9 +25,10 @@ internal sealed class StateMachineHostClusterContext(StateMachineHostOptions opt
 																			   IStateMachine? stateMachine,
 																			   IStateMachineOptions? stateMachineOptions,
 																			   Uri? stateMachineLocation
-																			  //, InterpreterOptions defaultOptions
+
+		//, InterpreterOptions defaultOptions
 	) =>
-		new StateMachineSingleMacroStepController(sessionId, stateMachineOptions, stateMachine, stateMachineLocation, null/*, defaultOptions*/)
+		new StateMachineSingleMacroStepController(sessionId, stateMachineOptions, stateMachine, stateMachineLocation, stateMachineHost: null /*, defaultOptions*/)
 		{
 			EventQueueWriter = default!, StateMachineInterpreter = default
 		};

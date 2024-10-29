@@ -20,7 +20,8 @@ namespace Xtate.Core;
 public class SourceStateMachineProvider : IStateMachineProvider
 {
 	public required Func<ValueTask<ScxmlLocationStateMachineGetter>> ScxmlLocationStateMachineGetter { private get; [UsedImplicitly] init; }
-	public required IStateMachineLocation?                           StateMachineLocation            { private get; [UsedImplicitly] init; }
+
+	public required IStateMachineLocation? StateMachineLocation { private get; [UsedImplicitly] init; }
 
 #region Interface IStateMachineProvider
 

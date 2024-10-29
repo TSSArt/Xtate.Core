@@ -61,9 +61,11 @@ public enum DataModelConverterXmlOptions
 
 public static class DataModelConverter
 {
-	private const string TypeMetaKey     = @"type";
+	private const string TypeMetaKey = @"type";
+
 	private const string ObjectMetaValue = @"object";
-	private const string ArrayMetaValue  = @"array";
+
+	private const string ArrayMetaValue = @"array";
 
 	private static readonly JsonSerializerOptions DefaultOptions = CreateOptions(DataModelConverterJsonOptions.UndefinedNotAllowed);
 
@@ -207,6 +209,7 @@ public static class DataModelConverter
 	public static DataModelValue FromXml(ReadOnlySpan<byte> xml)
 	{
 		var bytes = ArrayPool<byte>.Shared.Rent(xml.Length);
+
 		try
 		{
 			xml.CopyTo(bytes);
@@ -250,6 +253,7 @@ public static class DataModelConverter
 			{
 				case DataModelValueType.Undefined when (converterOptions & DataModelConverterJsonOptions.UndefinedToNull) != 0:
 					writer.WriteNullValue();
+
 					break;
 
 				case DataModelValueType.Undefined when (converterOptions & DataModelConverterJsonOptions.UndefinedToSkip) == 0:
@@ -260,26 +264,32 @@ public static class DataModelConverter
 
 				case DataModelValueType.Null:
 					writer.WriteNullValue();
+
 					break;
 
 				case DataModelValueType.String:
 					writer.WriteStringValue(value.AsString());
+
 					break;
 
 				case DataModelValueType.Number:
 					writer.WriteNumberValue(value.AsNumber().ToDouble());
+
 					break;
 
 				case DataModelValueType.DateTime:
 					var dataModelDateTime = value.AsDateTime();
+
 					switch (dataModelDateTime.Type)
 					{
 						case DataModelDateTimeType.DateTime:
 							writer.WriteStringValue(dataModelDateTime.ToDateTime());
+
 							break;
 
 						case DataModelDateTimeType.DateTimeOffset:
 							writer.WriteStringValue(dataModelDateTime.ToDateTimeOffset());
+
 							break;
 
 						default:
@@ -290,10 +300,12 @@ public static class DataModelConverter
 
 				case DataModelValueType.Boolean:
 					writer.WriteBooleanValue(value.AsBoolean());
+
 					break;
 
 				case DataModelValueType.List:
 					JsonSerializer.Serialize(writer, value.AsList(), options);
+
 					break;
 
 				default:
@@ -405,9 +417,11 @@ public static class DataModelConverter
 			writer.WriteStartArray();
 
 			var arrayLength = list.Count;
+
 			for (var i = 0; i < arrayLength; i ++)
 			{
 				var value = list[i];
+
 				if (!value.IsUndefined())
 				{
 					JsonSerializer.Serialize(writer, value, options);

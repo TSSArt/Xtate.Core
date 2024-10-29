@@ -28,23 +28,30 @@ namespace Xtate.IoProcessor;
 public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 {
 	private const string SessionIdPrefix = "#_session_";
-	private const string InvokeIdPrefix  = "#_invoke_";
-	private const string PipePrefix      = "#xtate#";
+
+	private const string InvokeIdPrefix = "#_invoke_";
+
+	private const string PipePrefix = "#xtate#";
 
 	private const PipeOptions DefaultPipeOptions = PipeOptions.WriteThrough | PipeOptions.Asynchronous;
 
-	private const string Id    = @"http://www.w3.org/TR/scxml/#NamedPipeEventProcessor";
+	private const string Id = @"http://www.w3.org/TR/scxml/#NamedPipeEventProcessor";
+
 	private const string Alias = @"named.pipe";
 
 	private static readonly EventObject CheckPipelineEvent = new() { Type = EventType.External, NameParts = EventName.ToParts(@"$") };
 
 	private static readonly ConcurrentDictionary<string, IEventConsumer> InProcConsumers = new();
 
-	private readonly Uri            _baseUri;
+	private readonly Uri _baseUri;
+
 	private readonly IEventConsumer _eventConsumer;
-	private readonly int            _maxMessageSize;
-	private readonly string         _name;
-	private readonly string         _pipeName;
+
+	private readonly int _maxMessageSize;
+
+	private readonly string _name;
+
+	private readonly string _pipeName;
 
 	private readonly CancellationTokenSource _stopTokenSource = new();
 
@@ -181,10 +188,12 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 	{
 		var pipeStream = new NamedPipeServerStream(_pipeName, PipeDirection.InOut, NamedPipeServerStream.MaxAllowedServerInstances, PipeTransmissionMode.Byte, DefaultPipeOptions);
 		var memoryStream = new MemoryStream();
+
 		await using (pipeStream.ConfigureAwait(false))
 		await using (memoryStream.ConfigureAwait(false))
 		{
 			ResponseMessage responseMessage = default;
+
 			try
 			{
 				await pipeStream.WaitForConnectionAsync(_stopTokenSource.Token).ConfigureAwait(false);
@@ -381,16 +390,20 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 
 	private enum ErrorType
 	{
-		None                    = 0,
-		Exception               = 1,
+		None = 0,
+
+		Exception = 1,
+
 		EventDispatcherNotFound = 2
 	}
 
 	private readonly struct ResponseMessage : IStoreSupport
 	{
 		public readonly ErrorType ErrorType;
-		public readonly string?   ExceptionMessage;
-		public readonly string?   ExceptionText;
+
+		public readonly string? ExceptionMessage;
+
+		public readonly string? ExceptionText;
 
 		public ResponseMessage(ErrorType errorType)
 		{

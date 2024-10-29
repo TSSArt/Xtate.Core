@@ -21,9 +21,11 @@ namespace Xtate.Builder;
 
 public class StateFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 {
-	public required IStateBuilder  Builder      { private get; [UsedImplicitly] init; }
-	public required Action<IState> BuiltAction  { private get; [UsedImplicitly] init; }
-	public required TOuterBuilder  OuterBuilder { private get; [UsedImplicitly] init; }
+	public required IStateBuilder Builder { private get; [UsedImplicitly] init; }
+
+	public required Action<IState> BuiltAction { private get; [UsedImplicitly] init; }
+
+	public required TOuterBuilder OuterBuilder { private get; [UsedImplicitly] init; }
 
 	public required Func<StateFluentBuilder<TOuterBuilder>, Action<IInitial>, InitialFluentBuilder<StateFluentBuilder<TOuterBuilder>>> InitialFluentBuilderFactory
 	{

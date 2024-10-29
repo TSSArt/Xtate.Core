@@ -24,7 +24,8 @@ namespace Xtate.Scxml;
 
 public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDirector>
 {
-	private readonly string    _xmlnsPrefix;
+	private readonly string _xmlnsPrefix;
+
 	private readonly XmlReader _xmlReader;
 
 	private string? _rawContent;
@@ -252,44 +253,72 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 	protected interface IPolicyBuilder<out TEntity>
 	{
 		IPolicyBuilder<TEntity> IgnoreUnknownElements(bool value);
+
 		IPolicyBuilder<TEntity> ValidateElementName([Localizable(false)] string name);
+
 		IPolicyBuilder<TEntity> RequiredAttribute([Localizable(false)] string name, Action<TDirector, TEntity> located);
+
 		IPolicyBuilder<TEntity> OptionalAttribute([Localizable(false)] string name, Action<TDirector, TEntity> located);
+
 		IPolicyBuilder<TEntity> OptionalElement([Localizable(false)] string name, Func<TDirector, TEntity, ValueTask> located);
+
 		IPolicyBuilder<TEntity> SingleElement([Localizable(false)] string name, Func<TDirector, TEntity, ValueTask> located);
+
 		IPolicyBuilder<TEntity> MultipleElements([Localizable(false)] string name, Func<TDirector, TEntity, ValueTask> located);
+
 		IPolicyBuilder<TEntity> ValidateElementName([Localizable(false)] string ns, [Localizable(false)] string name);
+
 		IPolicyBuilder<TEntity> RequiredAttribute([Localizable(false)] string ns, [Localizable(false)] string name, Action<TDirector, TEntity> located);
+
 		IPolicyBuilder<TEntity> OptionalAttribute([Localizable(false)] string ns, [Localizable(false)] string name, Action<TDirector, TEntity> located);
+
 		IPolicyBuilder<TEntity> OptionalElement([Localizable(false)] string ns, [Localizable(false)] string name, Func<TDirector, TEntity, ValueTask> located);
+
 		IPolicyBuilder<TEntity> SingleElement([Localizable(false)] string ns, [Localizable(false)] string name, Func<TDirector, TEntity, ValueTask> located);
+
 		IPolicyBuilder<TEntity> MultipleElements([Localizable(false)] string ns, [Localizable(false)] string name, Func<TDirector, TEntity, ValueTask> located);
+
 		IPolicyBuilder<TEntity> IgnoreUnknownElements();
+
 		IPolicyBuilder<TEntity> DenyUnknownElements();
+
 		IPolicyBuilder<TEntity> RawContent(Action<TDirector, TEntity> located);
+
 		IPolicyBuilder<TEntity> UnknownElement(Func<TDirector, TEntity, ValueTask> located);
 	}
 
 	protected enum AttributeType
 	{
-		Optional         = 1,
-		Required         = 2,
-		SysIncrement     = 10,
+		Optional = 1,
+
+		Required = 2,
+
+		SysIncrement = 10,
+
 		SysOptionalFound = 11,
+
 		SysRequiredFound = 12
 	}
 
 	protected enum ElementType
 	{
-		ZeroToMany         = 1,
-		ZeroToOne          = 2,
-		One                = 3,
-		OneToMany          = 4,
-		SysIncrement       = 10,
+		ZeroToMany = 1,
+
+		ZeroToOne = 2,
+
+		One = 3,
+
+		OneToMany = 4,
+
+		SysIncrement = 10,
+
 		SysZeroToManyFound = 11,
-		SysZeroToOneFound  = 12,
-		SysOneFound        = 13,
-		SysOneToManyFound  = 14
+
+		SysZeroToOneFound = 12,
+
+		SysOneFound = 13,
+
+		SysOneToManyFound = 14
 	}
 
 	protected class Policy<TEntity>
@@ -302,9 +331,11 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 
 		public Func<TDirector, TEntity, ValueTask>? UnknownElementAction { get; set; }
 
-		public bool    IgnoreUnknownElements { get; set; }
-		public string? ElementNamespace      { get; set; }
-		public string? ElementName           { get; set; }
+		public bool IgnoreUnknownElements { get; set; }
+
+		public string? ElementNamespace { get; set; }
+
+		public string? ElementName { get; set; }
 
 		public void AddAttribute(string ns,
 								 string name,
@@ -351,9 +382,12 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 		public class ValidationContext
 		{
 			private readonly Dictionary<QualifiedName, AttributeType>? _attributes;
-			private readonly Dictionary<QualifiedName, ElementType>?   _elements;
-			private readonly bool                                      _ignoreUnknownElements;
-			private readonly XmlDirector<TDirector>                    _xmlDirector;
+
+			private readonly Dictionary<QualifiedName, ElementType>? _elements;
+
+			private readonly bool _ignoreUnknownElements;
+
+			private readonly XmlDirector<TDirector> _xmlDirector;
 
 			public ValidationContext(Policy<TEntity> policy, XmlDirector<TDirector> xmlDirector)
 			{
@@ -365,6 +399,7 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 				if (policy._attributes.Count > 0)
 				{
 					_attributes = new Dictionary<QualifiedName, AttributeType>(policy._attributes.Count);
+
 					foreach (var pair in policy._attributes)
 					{
 						_attributes.Add(pair.Key, pair.Value.type);
@@ -374,6 +409,7 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 				if (policy._elements.Count > 0)
 				{
 					_elements = new Dictionary<QualifiedName, ElementType>(policy._elements.Count);
+
 					foreach (var pair in policy._elements)
 					{
 						_elements.Add(pair.Key, pair.Value.type);
@@ -444,6 +480,7 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 			private static string CreateMessage(string format, string delimiter, IEnumerable<QualifiedName> names)
 			{
 				var query = names.Select(qualifiedName => string.IsNullOrEmpty(qualifiedName.Namespace) ? qualifiedName.Name : qualifiedName.Namespace + @":" + qualifiedName.Name);
+
 				return string.Format(CultureInfo.InvariantCulture, format, string.Join(delimiter, query));
 			}
 
@@ -607,7 +644,8 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 
 	private readonly struct QualifiedName(string ns, string name) : IEquatable<QualifiedName>
 	{
-		public readonly string Name      = name;
+		public readonly string Name = name;
+
 		public readonly string Namespace = ns;
 
 	#region Interface IEquatable<XmlDirector<TDirector>.QualifiedName>

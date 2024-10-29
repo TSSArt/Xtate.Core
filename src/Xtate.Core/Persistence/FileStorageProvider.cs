@@ -23,11 +23,13 @@ namespace Xtate.Persistence;
 
 public class FileStorageProvider : IStorageProvider
 {
-	private static readonly char[]   InvalidFileNameChars   = Path.GetInvalidFileNameChars();
+	private static readonly char[] InvalidFileNameChars = Path.GetInvalidFileNameChars();
+
 	private static readonly string[] InvalidCharReplacement = GetInvalidCharReplacement();
 
 	private readonly string? _extension;
-	private readonly string  _path;
+
+	private readonly string _path;
 
 	public FileStorageProvider(string path, string? extension = default)
 	{
@@ -54,6 +56,7 @@ public class FileStorageProvider : IStorageProvider
 
 		var path = Path.Combine(dir, Escape(key) + _extension);
 		var fileStream = new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, bufferSize: 4096, FileOptions.Asynchronous);
+
 		return await TransactionalStorageFactory(fileStream).ConfigureAwait(false);
 	}
 
@@ -114,9 +117,11 @@ public class FileStorageProvider : IStorageProvider
 		}
 
 		var sb = new StringBuilder();
+
 		foreach (var ch in name)
 		{
 			var index = Array.IndexOf(InvalidFileNameChars, ch);
+
 			if (index >= 0)
 			{
 				sb.Append(InvalidCharReplacement[index]);

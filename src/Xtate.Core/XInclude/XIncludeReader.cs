@@ -28,13 +28,19 @@ public class XIncludeReader : DelegatedXmlReader
 
 	private readonly Func<XmlReader, XmlBaseReader> _xmlBaseReaderFactory;
 
-	private string?           _acceptLanguageValue;
-	private string?           _acceptValue;
-	private string?           _encodingValue;
-	private string?           _hrefValue;
-	private string?           _parseValue;
+	private string? _acceptLanguageValue;
+
+	private string? _acceptValue;
+
+	private string? _encodingValue;
+
+	private string? _hrefValue;
+
+	private string? _parseValue;
+
 	private Stack<XmlReader>? _sourceReaders;
-	private Strings           _strings;
+
+	private Strings _strings;
 
 	public XIncludeReader(XmlReader innerReader, Func<XmlReader, XmlBaseReader> xmlBaseReaderFactory) : base(xmlBaseReaderFactory(innerReader))
 	{
@@ -50,9 +56,11 @@ public class XIncludeReader : DelegatedXmlReader
 		_strings = new Strings(nameTable);
 	}
 
-	public required XmlResolver          XmlResolver         { private get; [UsedImplicitly] init; }
+	public required XmlResolver XmlResolver { private get; [UsedImplicitly] init; }
+
 	public required IXIncludeXmlResolver XIncludeXmlResolver { private get; [UsedImplicitly] init; }
-	public required IXIncludeOptions?    XIncludeOptions     { private get; [UsedImplicitly] init; }
+
+	public required IXIncludeOptions? XIncludeOptions { private get; [UsedImplicitly] init; }
 
 	public override int Depth
 	{
@@ -101,7 +109,7 @@ public class XIncludeReader : DelegatedXmlReader
 				case ProcessNodeResult.Ready:    return true;
 				case ProcessNodeResult.Complete: return false;
 				case ProcessNodeResult.Continue: break;
-				
+
 				default: throw Infra.Unmatched(result);
 			}
 		}
@@ -235,6 +243,7 @@ public class XIncludeReader : DelegatedXmlReader
 	private async ValueTask<IXIncludeResource> LoadAcquiredData(Uri uri, bool useAsync)
 	{
 		object? resource;
+
 		try
 		{
 			if (!string.IsNullOrEmpty(_acceptValue) || !string.IsNullOrEmpty(_acceptLanguageValue))
@@ -337,6 +346,7 @@ public class XIncludeReader : DelegatedXmlReader
 			using var xmlReader = Create(stream);
 
 			var stringBuilder = new StringBuilder();
+
 			using (var xmlWriter = XmlWriter.Create(stringBuilder))
 			{
 				while (await xmlReader.ReadAsync().ConfigureAwait(false))
@@ -400,22 +410,36 @@ public class XIncludeReader : DelegatedXmlReader
 	private struct Strings(XmlNameTable nameTable)
 	{
 		private string? _accept;
+
 		private string? _acceptLanguage;
+
 		private string? _encoding;
+
 		private string? _href;
+
 		private string? _include;
+
 		private string? _parse;
+
 		private string? _xInclude1Ns;
+
 		private string? _xInclude2Ns;
 
-		public string Accept         => _accept ??= nameTable.Add(@"accept");
+		public string Accept => _accept ??= nameTable.Add(@"accept");
+
 		public string AcceptLanguage => _acceptLanguage ??= nameTable.Add(@"accept-language");
-		public string Encoding       => _encoding ??= nameTable.Add(@"encoding");
-		public string Href           => _href ??= nameTable.Add(@"href");
-		public string Include        => _include ??= nameTable.Add(@"include");
-		public string Parse          => _parse ??= nameTable.Add(@"parse");
-		public string XInclude1Ns    => _xInclude1Ns ??= nameTable.Add(@"http://www.w3.org/2001/XInclude");
-		public string XInclude2Ns    => _xInclude2Ns ??= nameTable.Add(@"http://www.w3.org/2003/XInclude");
+
+		public string Encoding => _encoding ??= nameTable.Add(@"encoding");
+
+		public string Href => _href ??= nameTable.Add(@"href");
+
+		public string Include => _include ??= nameTable.Add(@"include");
+
+		public string Parse => _parse ??= nameTable.Add(@"parse");
+
+		public string XInclude1Ns => _xInclude1Ns ??= nameTable.Add(@"http://www.w3.org/2001/XInclude");
+
+		public string XInclude2Ns => _xInclude2Ns ??= nameTable.Add(@"http://www.w3.org/2003/XInclude");
 	}
 
 	private class StreamResource(Stream stream) : IXIncludeResource
@@ -432,7 +456,9 @@ public class XIncludeReader : DelegatedXmlReader
 	private enum ProcessNodeResult
 	{
 		Ready,
+
 		Continue,
+
 		Complete
 	}
 }

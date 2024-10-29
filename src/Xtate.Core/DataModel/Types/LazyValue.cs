@@ -35,6 +35,7 @@ public abstract class LazyValue : ILazyValue
 			}
 
 			var newValue = Create();
+
 			if (Interlocked.CompareExchange(ref _state, value: 1, comparand: 0) == 0)
 			{
 				_value = newValue;
@@ -44,6 +45,7 @@ public abstract class LazyValue : ILazyValue
 			}
 
 			SpinWait spinWait = default;
+
 			while (_state != 2)
 			{
 				spinWait.SpinOnce();

@@ -17,7 +17,6 @@
 
 namespace Xtate.Builder;
 
-
 public class OnExitBuilder : BuilderBase, IOnExitBuilder
 {
 	private ImmutableArray<IExecutableEntity>.Builder? _actions;

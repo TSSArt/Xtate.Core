@@ -245,6 +245,7 @@ public class StateMachineValidator : StateMachineVisitor, IStateMachineValidator
 					}
 
 					condition = false;
+
 					break;
 			}
 		}

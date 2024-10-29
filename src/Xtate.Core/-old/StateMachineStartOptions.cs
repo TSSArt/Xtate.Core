@@ -21,9 +21,12 @@ public record StateMachineStartOptions : IStateMachineStartOptions
 {
 #region Interface IStateMachineStartOptions
 
-	public SessionId           SessionId           { get; init; } = default!;
-	public StateMachineOrigin  Origin              { get; init; }
-	public DataModelValue      Parameters          { get; init; }
+	public SessionId SessionId { get; init; } = default!;
+
+	public StateMachineOrigin Origin { get; init; }
+
+	public DataModelValue Parameters { get; init; }
+
 	public SecurityContextType SecurityContextType { get; init; }
 
 #endregion

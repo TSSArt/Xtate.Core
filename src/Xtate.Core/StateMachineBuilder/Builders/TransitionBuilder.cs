@@ -17,14 +17,17 @@
 
 namespace Xtate.Builder;
 
-
 public class TransitionBuilder : BuilderBase, ITransitionBuilder
 {
 	private ImmutableArray<IExecutableEntity>.Builder? _actions;
-	private IConditionExpression?                      _condition;
-	private ImmutableArray<IEventDescriptor>           _eventDescriptors;
-	private ImmutableArray<IIdentifier>                _target;
-	private TransitionType                             _type;
+
+	private IConditionExpression? _condition;
+
+	private ImmutableArray<IEventDescriptor> _eventDescriptors;
+
+	private ImmutableArray<IIdentifier> _target;
+
+	private TransitionType _type;
 
 #region Interface ITransitionBuilder
 

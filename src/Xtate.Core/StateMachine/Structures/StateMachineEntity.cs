@@ -35,13 +35,19 @@ public struct StateMachineEntity : IStateMachine, IVisitorEntity<StateMachineEnt
 
 #region Interface IStateMachine
 
-	public string?                      DataModelType { get; set; }
-	public IInitial?                    Initial       { get; set; }
-	public string?                      Name          { get; set; }
-	public BindingType                  Binding       { get; set; }
-	public ImmutableArray<IStateEntity> States        { get; set; }
-	public IDataModel?                  DataModel     { get; set; }
-	public IExecutableEntity?           Script        { get; set; }
+	public string? DataModelType { get; set; }
+
+	public IInitial? Initial { get; set; }
+
+	public string? Name { get; set; }
+
+	public BindingType Binding { get; set; }
+
+	public ImmutableArray<IStateEntity> States { get; set; }
+
+	public IDataModel? DataModel { get; set; }
+
+	public IExecutableEntity? Script { get; set; }
 
 #endregion
 

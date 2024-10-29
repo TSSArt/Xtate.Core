@@ -25,7 +25,7 @@ namespace Xtate.Service;
 
 public class HttpClientService(HttpClientServiceOptions options) : ExternalServiceBase
 {
-	public class Provider() : ExternalServiceProvider<HttpClientService>(@"http://xtate.net/scxml/service/#HTTPClient", @"http");
+	public class Provider() : ExternalServiceProvider<HttpClientService>(type: @"http://xtate.net/scxml/service/#HTTPClient", alias: @"http");
 
 	private static readonly FieldInfo DomainTableField = typeof(CookieContainer).GetField(name: "m_domainTable", BindingFlags.Instance | BindingFlags.NonPublic)!;
 
@@ -191,6 +191,7 @@ public class HttpClientService(HttpClientServiceOptions options) : ExternalServi
 		}
 
 		CookieContainer? cookieContainer = default;
+
 		if (cookies is not null)
 		{
 			foreach (var cookie in cookies)
@@ -210,6 +211,7 @@ public class HttpClientService(HttpClientServiceOptions options) : ExternalServi
 
 		string? webExceptionStatus = default;
 		HttpWebResponse response;
+
 		try
 		{
 			response = await GetResponse(request, DestroyToken).ConfigureAwait(false);
@@ -272,6 +274,7 @@ public class HttpClientService(HttpClientServiceOptions options) : ExternalServi
 	private static async Task<HttpWebResponse> GetResponse(HttpWebRequest request, CancellationToken token)
 	{
 		var registration = token.Register(request.Abort, useSynchronizationContext: false);
+
 		await using (registration.ConfigureAwait(false))
 		{
 			try
@@ -309,6 +312,7 @@ public class HttpClientService(HttpClientServiceOptions options) : ExternalServi
 		httpContent ??= CreateDefaultContent(Content);
 
 		var stream = await request.GetRequestStreamAsync().ConfigureAwait(false);
+
 		await using (stream.ConfigureAwait(false))
 		{
 			await httpContent.CopyToAsync(stream, DestroyToken).ConfigureAwait(false);
@@ -317,11 +321,16 @@ public class HttpClientService(HttpClientServiceOptions options) : ExternalServi
 
 	private record Response
 	{
-		public int                  StatusCode         { get; init; }
-		public string?              StatusDescription  { get; init; }
-		public string?              WebExceptionStatus { get; init; }
-		public DataModelValue       Content            { get; init; }
-		public NameValueCollection? Headers            { get; init; }
-		public List<Cookie>?        Cookies            { get; init; }
+		public int StatusCode { get; init; }
+
+		public string? StatusDescription { get; init; }
+
+		public string? WebExceptionStatus { get; init; }
+
+		public DataModelValue Content { get; init; }
+
+		public NameValueCollection? Headers { get; init; }
+
+		public List<Cookie>? Cookies { get; init; }
 	}
 }

@@ -20,5 +20,6 @@ namespace Xtate;
 public enum HostMode
 {
 	Standalone = 0,
-	Cluster    = 1
+
+	Cluster = 1
 }

@@ -19,13 +19,13 @@ namespace Xtate.Core;
 
 public class StateMachineInterpreterOptions(IStateMachineStartOptions stateMachineStartOptions) : IStateMachineInterpreterOptions
 {
-	//public InterpreterOptions options { get; } = new();
-
 #region Interface IStateMachineInterpreterOptions
 
 	public SessionId SessionId { get; } = stateMachineStartOptions.SessionId;
 
 #endregion
+
+	//public InterpreterOptions options { get; } = new();
 
 	//public IInterpreterModel     model        => _interpreterModel;
 }

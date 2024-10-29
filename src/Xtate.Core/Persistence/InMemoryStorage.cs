@@ -21,12 +21,17 @@ namespace Xtate.Persistence;
 
 public class InMemoryStorage : IStorage
 {
-	private IMemoryOwner<byte>?                         _baselineOwner;
-	private Memory<byte>                                _buffer;
+	private IMemoryOwner<byte>? _baselineOwner;
+
+	private Memory<byte> _buffer;
+
 	private List<(IMemoryOwner<byte> Owner, int Size)>? _buffers;
-	private bool                                        _disposed;
-	private IMemoryOwner<byte>?                         _owner;
-	private SortedSet<Entry>?                           _readModel;
+
+	private bool _disposed;
+
+	private IMemoryOwner<byte>? _owner;
+
+	private SortedSet<Entry>? _readModel;
 
 	public InMemoryStorage(ReadOnlySpan<byte> baseline) : this(false)
 	{
@@ -93,6 +98,7 @@ public class InMemoryStorage : IStorage
 		_baselineOwner = MemoryPool<byte>.Shared.Rent(baseline.Length);
 		var memory = _baselineOwner.Memory[..baseline.Length];
 		baseline.CopyTo(memory.Span);
+
 		while (!baseline.IsEmpty)
 		{
 			var keyLengthLength = Encode.GetLength(baseline[0]);
@@ -161,6 +167,7 @@ public class InMemoryStorage : IStorage
 			else
 			{
 				var toDelete = new List<ReadOnlyMemory<byte>>();
+
 				foreach (var entry in _readModel.GetViewBetween(new Entry(value), upperValue: default))
 				{
 					if (entry.Key.Length < value.Length || !value.Span.SequenceEqual(entry.Key[..value.Length].Span))
@@ -265,6 +272,7 @@ public class InMemoryStorage : IStorage
 		IMemoryOwner<byte>? newBaselineOwner = default;
 		var newBaseline = Memory<byte>.Empty;
 		SortedSet<Entry>? newReadModel = default;
+
 		if (shrink)
 		{
 			newBaselineOwner = MemoryPool<byte>.Shared.Rent(_readModel.Sum(entry => entry.Key.Length + entry.Value.Length));
@@ -353,7 +361,8 @@ public class InMemoryStorage : IStorage
 
 	private readonly struct Entry(ReadOnlyMemory<byte> key, ReadOnlyMemory<byte> value = default) : IComparable<Entry>
 	{
-		public readonly ReadOnlyMemory<byte> Key   = key;
+		public readonly ReadOnlyMemory<byte> Key = key;
+
 		public readonly ReadOnlyMemory<byte> Value = value;
 
 	#region Interface IComparable<Entry>

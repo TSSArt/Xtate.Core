@@ -61,7 +61,7 @@ public class XPathDataModelTest
 		//services.AddConstant<IServiceProviderDebugger>(_ => new ServiceProviderDebugger(new StreamWriter(File.Create(@"D:\Ser\s1.txt"))));
 		var serviceProvider = services.BuildProvider();
 
-		var host = (IHostController)await serviceProvider.GetRequiredService<StateMachineHost>();
+		var host = (IHostController) await serviceProvider.GetRequiredService<StateMachineHost>();
 
 		await host.StartHost();
 
@@ -109,7 +109,7 @@ public class XPathDataModelTest
 		var serviceProvider = services.BuildProvider();
 		var smc = new ScxmlStringStateMachine(xml);
 
-		var host = (IHostController)await serviceProvider.GetRequiredService<StateMachineHost>();
+		var host = (IHostController) await serviceProvider.GetRequiredService<StateMachineHost>();
 		await host.StartHost();
 
 		_ = await host.ExecuteStateMachine(smc, SecurityContextType.NewStateMachine);

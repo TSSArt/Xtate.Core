@@ -16,7 +16,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #if !NETCOREAPP2_0 && !NETCOREAPP2_1_OR_GREATER && !NETSTANDARD2_1 && !NET472 && !NET48
-
 using System.Collections.Concurrent;
 
 namespace Xtate.Core;

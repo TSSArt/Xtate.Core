@@ -20,21 +20,28 @@ namespace Xtate.Persistence;
 internal sealed class PersistedEventScheduler(IStorageProvider storageProvider, IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger logger)
 	: InProcEventScheduler(hostEventDispatcher, logger)
 {
-	private const    string        HostPartition              = "StateMachineHost";
-	private const    string        PersistedEventSchedulerKey = "scheduler";
-	private const    int           ScheduledEventsKey         = 0;
-	private readonly SemaphoreSlim _lockScheduledEvents       = new(initialCount: 1, maxCount: 1);
+	private const string HostPartition = "StateMachineHost";
+
+	private const string PersistedEventSchedulerKey = "scheduler";
+
+	private const int ScheduledEventsKey = 0;
+
+	private readonly SemaphoreSlim _lockScheduledEvents = new(initialCount: 1, maxCount: 1);
 
 	private readonly HashSet<PersistedScheduledEvent> _scheduledEvents = [];
-	private          int                              _recordId;
-	private          int                              _scheduledEventRecordId;
-	private          ITransactionalStorage            _storage = default!;
+
+	private int _recordId;
+
+	private int _scheduledEventRecordId;
+
+	private ITransactionalStorage _storage = default!;
 
 	protected override async ValueTask<ScheduledEvent> CreateScheduledEvent(IHostEvent hostEvent, CancellationToken token)
 	{
 		var persistedScheduledEvent = new PersistedScheduledEvent(this, hostEvent);
 
 		await _lockScheduledEvents.WaitAsync(token).ConfigureAwait(false);
+
 		try
 		{
 			_scheduledEvents.Add(persistedScheduledEvent);
@@ -60,6 +67,7 @@ internal sealed class PersistedEventScheduler(IStorageProvider storageProvider, 
 		if (persistedScheduledEvent is null) throw new ArgumentNullException(nameof(persistedScheduledEvent));
 
 		await _lockScheduledEvents.WaitAsync(token).ConfigureAwait(false);
+
 		try
 		{
 			_scheduledEvents.Remove(persistedScheduledEvent);
@@ -121,6 +129,7 @@ internal sealed class PersistedEventScheduler(IStorageProvider storageProvider, 
 		for (var i = 0; i < _recordId; i ++)
 		{
 			var eventBucket = bucket.Nested(i);
+
 			if (eventBucket.TryGet(Key.TypeInfo, out TypeInfo typeInfo) && typeInfo == TypeInfo.ScheduledEvent)
 			{
 				var scheduledEvent = new PersistedScheduledEvent(this, eventBucket) { RecordId = i };
@@ -135,7 +144,8 @@ internal sealed class PersistedEventScheduler(IStorageProvider storageProvider, 
 	private sealed class PersistedScheduledEvent : ScheduledEvent, IAsyncDisposable
 	{
 		private readonly PersistedEventScheduler _eventScheduler;
-		private readonly long                    _fireOnUtcTicks;
+
+		private readonly long _fireOnUtcTicks;
 
 		public PersistedScheduledEvent(PersistedEventScheduler eventScheduler, IHostEvent hostEvent) : base(hostEvent)
 		{

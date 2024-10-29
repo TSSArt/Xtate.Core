@@ -24,8 +24,9 @@ namespace Xtate.CustomAction;
 public abstract class ActionProvider<TCustomAction>([Localizable(false)] string ns, [Localizable(false)] string name)
 	: IActionProvider, IActionActivator where TCustomAction : IAction
 {
-	private readonly (string, string) _fqName    = (ns, name);
-	private readonly NameTable        _nameTable = default!;
+	private readonly (string, string) _fqName = (ns, name);
+
+	private readonly NameTable _nameTable = default!;
 
 	public required Func<XmlReader, TCustomAction> CustomActionFactory { private get; [UsedImplicitly] init; }
 

@@ -23,6 +23,12 @@ public class EventQueue : IEventQueueReader, IEventQueueWriter, IEventDispatcher
 {
 	private readonly Channel<IEvent> _channel = Channel.CreateUnbounded<IEvent>();
 
+#region Interface IEventDispatcher
+
+	public ValueTask Send(IEvent evt, CancellationToken token) => _channel.Writer.WriteAsync(evt, token);
+
+#endregion
+
 #region Interface IEventQueueReader
 
 	public bool TryReadEvent([MaybeNullWhen(false)] out IEvent evt) => _channel.Reader.TryRead(out evt);
@@ -38,6 +44,4 @@ public class EventQueue : IEventQueueReader, IEventQueueWriter, IEventDispatcher
 	public ValueTask WriteAsync(IEvent evt) => _channel.Writer.WriteAsync(evt);
 
 #endregion
-
-	public ValueTask Send(IEvent evt, CancellationToken token) => _channel.Writer.WriteAsync(evt, token);
 }

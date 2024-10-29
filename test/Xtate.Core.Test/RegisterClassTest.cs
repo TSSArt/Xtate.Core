@@ -31,8 +31,9 @@ public class MyActionProvider() : ActionProvider<MyAction>(ns: "http://xtate.net
 
 public class MyAction(XmlReader xmlReader) : SyncAction
 {
-	private readonly ObjectValue _input  = new(xmlReader.GetAttribute("sourceExpr"), xmlReader.GetAttribute("source"));
-	private readonly Location    _output = new(xmlReader.GetAttribute("destination"));
+	private readonly ObjectValue _input = new(xmlReader.GetAttribute("sourceExpr"), xmlReader.GetAttribute("source"));
+
+	private readonly Location _output = new(xmlReader.GetAttribute("destination"));
 
 	protected override IEnumerable<Value> GetValues() { yield return _input; }
 

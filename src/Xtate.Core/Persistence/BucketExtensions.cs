@@ -134,14 +134,17 @@ internal static class BucketExtensions
 		{
 			case SessionId sessionId:
 				serviceBucket.AddId(Key.SessionId, sessionId);
+
 				break;
 
 			case InvokeId invokeId:
 				serviceBucket.AddId(Key.InvokeId, invokeId);
+
 				break;
 
 			case UriId uriId:
 				serviceBucket.AddId(Key.UriId, uriId);
+
 				break;
 		}
 	}
@@ -184,6 +187,7 @@ internal static class BucketExtensions
 
 			case DataModelValueType.List when bucket.TryGet(Key.RefId, out int refId):
 				var list = baseValue.Type == DataModelValueType.List ? baseValue.AsList() : null;
+
 				return DataModelValue.FromObject(tracker.GetValue(refId, type, list));
 
 			default: throw Infra.Unmatched(type);
@@ -205,6 +209,7 @@ internal static class BucketExtensions
 		if (tracker is null) throw new ArgumentNullException(nameof(tracker));
 
 		var type = item.Type;
+
 		if (type != DataModelValueType.Undefined)
 		{
 			bucket.Add(Key.Type, type);
@@ -217,22 +222,27 @@ internal static class BucketExtensions
 
 			case DataModelValueType.String:
 				bucket.Add(Key.Item, item.AsString());
+
 				break;
 
 			case DataModelValueType.Number:
 				bucket.Add(Key.Item, item.AsNumber());
+
 				break;
 
 			case DataModelValueType.DateTime:
 				bucket.Add(Key.Item, item.AsDateTime());
+
 				break;
 
 			case DataModelValueType.Boolean:
 				bucket.Add(Key.Item, item.AsBoolean());
+
 				break;
 
 			case DataModelValueType.List:
 				bucket.Add(Key.RefId, tracker.GetRefId(item));
+
 				break;
 
 			default:

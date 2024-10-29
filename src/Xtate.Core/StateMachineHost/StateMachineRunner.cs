@@ -17,12 +17,13 @@
 
 namespace Xtate.Core;
 
-
 public class StateMachineRunner : IStateMachineRunner, IDisposable
 {
 	private readonly IStateMachineHostContext _context;
-	private readonly IStateMachineController  _controller;
-	private          SessionId?               _sessionId;
+
+	private readonly IStateMachineController _controller;
+
+	private SessionId? _sessionId;
 
 	public StateMachineRunner(IStateMachineHostContext context, IStateMachineController controller, IStateMachineSessionId sessionId)
 	{

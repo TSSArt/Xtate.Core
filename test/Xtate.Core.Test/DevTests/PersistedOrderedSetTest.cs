@@ -23,15 +23,23 @@ namespace Xtate.Test;
 [TestClass]
 public class PersistedOrderedSetTest
 {
-	private Bucket                               _bucket;
-	private ImmutableDictionary<int, IEntity>    _map                  = default!;
-	private Node                                 _node1                = default!;
-	private Node                                 _node2                = default!;
-	private Node                                 _node3                = default!;
+	private Bucket _bucket;
+
+	private ImmutableDictionary<int, IEntity> _map = default!;
+
+	private Node _node1 = default!;
+
+	private Node _node2 = default!;
+
+	private Node _node3 = default!;
+
 	private OrderedSetPersistingController<Node> _orderedSetController = default!;
-	private OrderedSet<Node>                     _restoredOrderedSet   = default!;
-	private OrderedSet<Node>                     _sourceSet            = default!;
-	private InMemoryStorage                      _storage              = default!;
+
+	private OrderedSet<Node> _restoredOrderedSet = default!;
+
+	private OrderedSet<Node> _sourceSet = default!;
+
+	private InMemoryStorage _storage = default!;
 
 	[TestInitialize]
 	public void Initialize()

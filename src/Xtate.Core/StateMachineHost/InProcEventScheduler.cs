@@ -116,6 +116,7 @@ internal class InProcEventScheduler(IHostEventDispatcher hostEventDispatcher, IE
 
 		var serviceId = scheduledEvent.SenderServiceId;
 		var exit = false;
+
 		while (!exit && _scheduledEvents.TryGetValue((serviceId, sendId), out var value))
 		{
 			var newValue = RemoveFromValue(value, scheduledEvent);

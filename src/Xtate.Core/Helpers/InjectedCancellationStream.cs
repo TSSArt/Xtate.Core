@@ -87,7 +87,8 @@ internal sealed class InjectedCancellationStream(Stream stream, CancellationToke
 	}
 
 #if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
-	public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken token = default) => IsCombinedTokenRequired(ref token) ? ReadAsyncInternal(buffer, token) : InnerStream.ReadAsync(buffer, token);
+	public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken token = default) =>
+		IsCombinedTokenRequired(ref token) ? ReadAsyncInternal(buffer, token) : InnerStream.ReadAsync(buffer, token);
 
 	private async ValueTask<int> ReadAsyncInternal(Memory<byte> buffer, CancellationToken token)
 	{
@@ -96,7 +97,8 @@ internal sealed class InjectedCancellationStream(Stream stream, CancellationToke
 		return await InnerStream.ReadAsync(buffer, cts.Token).ConfigureAwait(false);
 	}
 
-	public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken token = default) => IsCombinedTokenRequired(ref token) ? WriteAsyncInternal(buffer, token) : InnerStream.WriteAsync(buffer, token);
+	public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken token = default) =>
+		IsCombinedTokenRequired(ref token) ? WriteAsyncInternal(buffer, token) : InnerStream.WriteAsync(buffer, token);
 
 	private async ValueTask WriteAsyncInternal(ReadOnlyMemory<byte> buffer, CancellationToken token)
 	{

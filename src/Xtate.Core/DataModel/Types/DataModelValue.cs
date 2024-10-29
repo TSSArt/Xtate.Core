@@ -29,17 +29,19 @@ namespace Xtate;
 [Serializable]
 public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISpanFormattable, IDynamicMetaObjectProvider, IConvertible, ISerializable
 {
-	private static readonly object NullValue    = new Marker(DataModelValueType.Null);
+	private static readonly object NullValue = new Marker(DataModelValueType.Null);
+
 	private static readonly object BooleanValue = new Marker(DataModelValueType.Boolean);
 
 	public static readonly DataModelValue Null = new((string?) null);
 
-	private readonly long    _int64;
+	private readonly long _int64;
+
 	private readonly object? _value;
 
 	private DataModelValue(SerializationInfo info, StreamingContext context)
 	{
-		_int64 = (long)info.GetValue(name: @"L", typeof(long))!;
+		_int64 = (long) info.GetValue(name: @"L", typeof(long))!;
 		_value = info.GetValue(name: @"V", typeof(object));
 	}
 
@@ -335,7 +337,7 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 	void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
 	{
 		var value = this;
-		
+
 		ResolveLazy(ref value);
 
 		info.AddValue(name: @"L", value._int64);
@@ -364,29 +366,49 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 
 #endregion
 
-	public static implicit operator DataModelValue(DataModelList? value)    => new(value);
-	public static implicit operator DataModelValue(string? value)           => new(value);
-	public static implicit operator DataModelValue(int value)               => new(value);
-	public static implicit operator DataModelValue(long value)              => new(value);
-	public static implicit operator DataModelValue(double value)            => new(value);
-	public static implicit operator DataModelValue(decimal value)           => new(value);
-	public static implicit operator DataModelValue(DataModelNumber value)   => new(value);
-	public static implicit operator DataModelValue(DataModelDateTime value) => new(value);
-	public static implicit operator DataModelValue(DateTimeOffset value)    => new(value);
-	public static implicit operator DataModelValue(DateTime value)          => new(value);
-	public static implicit operator DataModelValue(bool value)              => new(value);
+	public static implicit operator DataModelValue(DataModelList? value) => new(value);
 
-	public static DataModelValue FromDataModelList(DataModelList? value)        => value;
-	public static DataModelValue FromString(string? value)                      => value;
-	public static DataModelValue FromInt32(int value)                           => value;
-	public static DataModelValue FromInt64(long value)                          => value;
-	public static DataModelValue FromDouble(double value)                       => value;
-	public static DataModelValue FromDecimal(decimal value)                     => value;
-	public static DataModelValue FromDataModelNumber(DataModelNumber value)     => value;
+	public static implicit operator DataModelValue(string? value) => new(value);
+
+	public static implicit operator DataModelValue(int value) => new(value);
+
+	public static implicit operator DataModelValue(long value) => new(value);
+
+	public static implicit operator DataModelValue(double value) => new(value);
+
+	public static implicit operator DataModelValue(decimal value) => new(value);
+
+	public static implicit operator DataModelValue(DataModelNumber value) => new(value);
+
+	public static implicit operator DataModelValue(DataModelDateTime value) => new(value);
+
+	public static implicit operator DataModelValue(DateTimeOffset value) => new(value);
+
+	public static implicit operator DataModelValue(DateTime value) => new(value);
+
+	public static implicit operator DataModelValue(bool value) => new(value);
+
+	public static DataModelValue FromDataModelList(DataModelList? value) => value;
+
+	public static DataModelValue FromString(string? value) => value;
+
+	public static DataModelValue FromInt32(int value) => value;
+
+	public static DataModelValue FromInt64(long value) => value;
+
+	public static DataModelValue FromDouble(double value) => value;
+
+	public static DataModelValue FromDecimal(decimal value) => value;
+
+	public static DataModelValue FromDataModelNumber(DataModelNumber value) => value;
+
 	public static DataModelValue FromDataModelDateTime(DataModelDateTime value) => value;
-	public static DataModelValue FromDateTimeOffset(DateTimeOffset value)       => value;
-	public static DataModelValue FromDateTime(DateTime value)                   => value;
-	public static DataModelValue FromBoolean(bool value)                        => value;
+
+	public static DataModelValue FromDateTimeOffset(DateTimeOffset value) => value;
+
+	public static DataModelValue FromDateTime(DateTime value) => value;
+
+	public static DataModelValue FromBoolean(bool value) => value;
 
 	public bool IsUndefinedOrNull() => _value is null || _value == NullValue || (_value is ILazyValue value && value.Value.IsUndefinedOrNull());
 
@@ -513,7 +535,7 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 	public override int GetHashCode()
 	{
 		var value = this;
-		
+
 		ResolveLazy(ref value);
 
 		if (value._value is null)
@@ -584,10 +606,12 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 
 			case DataModelList list:
 				list.MakeDeepConstant();
+
 				break;
 
 			case ILazyValue lazyValue:
 				lazyValue.Value.MakeDeepConstant();
+
 				break;
 		}
 	}
@@ -607,6 +631,7 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 		}
 
 		var type = value.GetType();
+
 		return System.Type.GetTypeCode(type) switch
 			   {
 				   TypeCode.SByte    => (sbyte) value,
@@ -780,15 +805,17 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 	[Serializable]
 	private sealed class NumberValue : IValueEqualityComparer
 	{
-		private static readonly NumberValue Int32  = new(DataModelNumberType.Int32, int64Ext: 0);
-		private static readonly NumberValue Int64  = new(DataModelNumberType.Int64, int64Ext: 0);
+		private static readonly NumberValue Int32 = new(DataModelNumberType.Int32, int64Ext: 0);
+
+		private static readonly NumberValue Int64 = new(DataModelNumberType.Int64, int64Ext: 0);
+
 		private static readonly NumberValue Double = new(DataModelNumberType.Double, int64Ext: 0);
 
 		private static ImmutableDictionary<long, NumberValue> _cachedDecimals = ImmutableDictionary<long, NumberValue>.Empty;
 
-		private readonly DataModelNumberType _type;
-
 		private readonly long _int64Ext;
+
+		private readonly DataModelNumberType _type;
 
 		private NumberValue(DataModelNumberType type, long int64Ext)
 		{
@@ -876,9 +903,11 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 	[Serializable]
 	private sealed class DateTimeValue
 	{
-		private const int Base             = 120000; // should be multiple of CacheGranularity and great then Boundary
+		private const int Base = 120000; // should be multiple of CacheGranularity and great then Boundary
+
 		private const int CacheGranularity = 15;
-		private const int Boundary         = 65536;
+
+		private const int Boundary = 65536;
 
 		private static ImmutableDictionary<int, DateTimeValue> _cachedOffsets = ImmutableDictionary<int, DateTimeValue>.Empty;
 
@@ -966,6 +995,7 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 		public static DynamicMetaObject CreateMetaObject(Expression expression)
 		{
 			var newExpression = Expression.New(ConstructorInfo, Expression.Convert(expression, typeof(DataModelValue)));
+
 			return Instance.GetMetaObject(newExpression);
 		}
 
@@ -1016,18 +1046,22 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 		public override bool TryConvert(ConvertBinder binder, out object? result)
 		{
 			var typeCode = System.Type.GetTypeCode(binder.Type);
+
 			switch (typeCode)
 			{
 				case TypeCode.Boolean:
 					result = _value.AsBoolean();
+
 					return true;
 
 				case TypeCode.DateTime:
 					result = _value.AsDateTime().ToDateTime();
+
 					return true;
 
 				case TypeCode.String:
 					result = _value.AsString();
+
 					return true;
 
 				case TypeCode.Byte:
@@ -1042,6 +1076,7 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 				case TypeCode.UInt32:
 				case TypeCode.UInt64:
 					result = Convert.ChangeType(_value.AsNumber(), typeCode, NumberFormatInfo.InvariantInfo);
+
 					return true;
 			}
 

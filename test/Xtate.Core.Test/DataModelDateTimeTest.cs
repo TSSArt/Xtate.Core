@@ -25,17 +25,26 @@ public class DataModelDateTimeTest
 	private const long DefaultTicks = 100 * TimeSpan.TicksPerDay;
 
 	private static readonly TimeSpan PositiveOffset = new(hours: 1, minutes: 0, seconds: 0);
+
 	private static readonly TimeSpan NegativeOffset = new(hours: -1, minutes: 0, seconds: 0);
 
-	private static readonly DataModelDateTime DateTimeWithUnspecifiedKind      = new DateTime(DefaultTicks, DateTimeKind.Unspecified);
-	private static readonly DataModelDateTime DateTimeWithUtcKind              = new DateTime(DefaultTicks, DateTimeKind.Utc);
-	private static readonly DataModelDateTime DateTimeWithLocalKind            = new DateTime(DefaultTicks, DateTimeKind.Local);
-	private static readonly DataModelDateTime DateTimeOffsetWithZeroOffset     = new DateTimeOffset(DefaultTicks, TimeSpan.Zero);
+	private static readonly DataModelDateTime DateTimeWithUnspecifiedKind = new DateTime(DefaultTicks, DateTimeKind.Unspecified);
+
+	private static readonly DataModelDateTime DateTimeWithUtcKind = new DateTime(DefaultTicks, DateTimeKind.Utc);
+
+	private static readonly DataModelDateTime DateTimeWithLocalKind = new DateTime(DefaultTicks, DateTimeKind.Local);
+
+	private static readonly DataModelDateTime DateTimeOffsetWithZeroOffset = new DateTimeOffset(DefaultTicks, TimeSpan.Zero);
+
 	private static readonly DataModelDateTime DateTimeOffsetWithPositiveOffset = new DateTimeOffset(DefaultTicks, PositiveOffset);
+
 	private static readonly DataModelDateTime DateTimeOffsetWithNegativeOffset = new DateTimeOffset(DefaultTicks, NegativeOffset);
-	private static readonly DataModelDateTime DateTimePoint1Utc                = new DateTime(DefaultTicks, DateTimeKind.Utc);
-	private static readonly DataModelDateTime DateTimePoint1WithOffset         = new DateTimeOffset(new DateTime(DefaultTicks + PositiveOffset.Ticks), PositiveOffset);
-	private static readonly DataModelDateTime DateTimePoint2WithOffset         = new DateTimeOffset(new DateTime(DefaultTicks), PositiveOffset);
+
+	private static readonly DataModelDateTime DateTimePoint1Utc = new DateTime(DefaultTicks, DateTimeKind.Utc);
+
+	private static readonly DataModelDateTime DateTimePoint1WithOffset = new DateTimeOffset(new DateTime(DefaultTicks + PositiveOffset.Ticks), PositiveOffset);
+
+	private static readonly DataModelDateTime DateTimePoint2WithOffset = new DateTimeOffset(new DateTime(DefaultTicks), PositiveOffset);
 
 	[TestMethod]
 	public void Type_ShouldBeDateTime_IfItRepresentsDateTimeWithUnspecifiedKind()

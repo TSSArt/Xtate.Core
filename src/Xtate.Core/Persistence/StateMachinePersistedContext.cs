@@ -40,15 +40,23 @@ public class StateMachinePersistedContextOptions : StateMachineContextOptions, I
 
 public class StateMachinePersistedContext : StateMachineContext, IPersistenceContext, IAsyncDisposable
 {
-	private readonly ServiceIdSetPersistingController                _activeInvokesController;
+	private readonly ServiceIdSetPersistingController _activeInvokesController;
+
 	private readonly OrderedSetPersistingController<StateEntityNode> _configurationController;
-	private readonly DataModelListPersistingController               _dataModelPersistingController;
-	private readonly DataModelReferenceTracker                       _dataModelReferenceTracker;
-	private readonly KeyListPersistingController<StateEntityNode>    _historyValuePersistingController;
-	private readonly EntityQueuePersistingController<IEvent>         _internalQueuePersistingController;
-	private readonly Bucket                                          _state;
+
+	private readonly DataModelListPersistingController _dataModelPersistingController;
+
+	private readonly DataModelReferenceTracker _dataModelReferenceTracker;
+
+	private readonly KeyListPersistingController<StateEntityNode> _historyValuePersistingController;
+
+	private readonly EntityQueuePersistingController<IEvent> _internalQueuePersistingController;
+
+	private readonly Bucket _state;
+
 	private readonly OrderedSetPersistingController<StateEntityNode> _statesToInvokeController;
-	private readonly ITransactionalStorage                           _storage;
+
+	private readonly ITransactionalStorage _storage;
 
 	public StateMachinePersistedContext(IStateMachinePersistedContextOptions options,
 										ITransactionalStorage storage,
@@ -138,12 +146,19 @@ public class StateMachinePersistedContext : StateMachineContext, IPersistenceCon
 	private enum StorageSection
 	{
 		Configuration,
+
 		StatesToInvoke,
+
 		ActiveInvokes,
+
 		DataModel,
+
 		DataModelReferences,
+
 		InternalQueue,
+
 		HistoryValue,
+
 		StateBag
 	}
 

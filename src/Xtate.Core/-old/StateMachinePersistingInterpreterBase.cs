@@ -44,19 +44,29 @@ public class StateMachinePersistingInterpreterBase2(
 
 public class StateMachinePersistingInterpreterBase : StateMachineInterpreter
 {
-	private const    int               KeyIndex             = 0;
-	private const    int               MethodCompletedIndex = 1;
-	private const    int               ValueIndex           = 2;
-	private const    int               ReturnCallIndex      = 0;
+	private const int KeyIndex = 0;
+
+	private const int MethodCompletedIndex = 1;
+
+	private const int ValueIndex = 2;
+
+	private const int ReturnCallIndex = 0;
+
 	private readonly IInterpreterModel _interpreterModel;
 
 	private readonly IPersistingInterpreterState _persistingInterpreterState;
-	private readonly Bucket                      _stateBucket;
-	private          Bucket                      _callBucket;
-	private          int                         _callIndex = 1;
-	private          Bucket                      _methodBucket;
-	private          int                         _methodIndex = 1;
-	private          bool                        _suspending;
+
+	private readonly Bucket _stateBucket;
+
+	private Bucket _callBucket;
+
+	private int _callIndex = 1;
+
+	private Bucket _methodBucket;
+
+	private int _methodIndex = 1;
+
+	private bool _suspending;
 
 	public StateMachinePersistingInterpreterBase(IPersistingInterpreterState persistingInterpreterState,
 												 IInterpreterModel interpreterModel)
@@ -224,6 +234,7 @@ public class StateMachinePersistingInterpreterBase : StateMachineInterpreter
 		Infra.Requires(list);
 
 		bucket.Add(Bucket.RootKey, list.Count);
+
 		for (var i = 0; i < list.Count; i ++)
 		{
 			bucket.Add(i, list[i].DocumentId);
@@ -303,35 +314,65 @@ public class StateMachinePersistingInterpreterBase : StateMachineInterpreter
 	protected enum StateBagKey
 	{
 		None,
+
 		ExecuteGlobalScript,
+
 		InitialEnterStates,
+
 		ExitStates,
+
 		EnterStates,
+
 		NotifyAccepted,
+
 		NotifyStarted,
+
 		NotifyExited,
+
 		NotifyWaiting,
+
 		Interpret,
+
 		ExitSteps,
+
 		InitializeDataModels,
+
 		ExternalEventTransitions,
+
 		MainEventLoopIteration,
+
 		StartInvokeLoop,
+
 		Microstep,
+
 		InternalQueueProcess,
+
 		IsInternalQueueEmpty,
+
 		MacrostepIteration,
+
 		Macrostep,
+
 		ExternalQueueProcess,
+
 		SelectTransitions,
+
 		MainEventLoop,
+
 		ExitInterpreter,
+
 		ExecuteTransitionContent,
+
 		RunExecutableEntity,
+
 		Invoke,
+
 		CancelInvoke,
+
 		InitializeDataModel,
+
 		InitializeData,
+
 		EnterSteps
 	}
 }

@@ -169,7 +169,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 	{
 		var context = GetCurrentContext();
 
-//		context.ValidateSessionId(sessionId, out _);
+		//		context.ValidateSessionId(sessionId, out _);
 
 		return context.CancelEvent(sessionId, sendId, token);
 	}
@@ -181,7 +181,8 @@ public sealed partial class StateMachineHost : IStateMachineHost
 	{
 		var context = GetCurrentContext();
 
-		return default;//TODO:
+		return default; //TODO:
+
 		//context.ValidateSessionId(sessionId, out _);
 
 		if (!context.TryGetService(invokeId, out var service))
@@ -257,7 +258,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 		{
 			foreach (var ioProcessorFactory in factories)
 			{
-				ioProcessors.Add(await ioProcessorFactory.Create(this, default/*??*/).ConfigureAwait(false));
+				ioProcessors.Add(await ioProcessorFactory.Create(this, token: default /*??*/).ConfigureAwait(false));
 			}
 		}
 
@@ -355,8 +356,10 @@ public sealed partial class StateMachineHost : IStateMachineHost
 	#region Interface IStartInvokeLoggerContext
 
 		public SessionId SessionId { get; } = sessionId;
-		public Uri       Type      { get; } = type;
-		public Uri?      Source    { get; } = source;
+
+		public Uri Type { get; } = type;
+
+		public Uri? Source { get; } = source;
 
 	#endregion
 

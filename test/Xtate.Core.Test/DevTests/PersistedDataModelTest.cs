@@ -23,13 +23,19 @@ namespace Xtate.Test;
 [TestClass]
 public class PersistedDataModelTest
 {
-	private Bucket                            _bucket;
-	private DataModelList                     _dataModelList         = default!;
-	private DataModelListPersistingController _listController        = default!;
-	private DataModelList                     _restoredDataModelList = default!;
-	private DataModelReferenceTracker         _restoredTracker       = default!;
-	private InMemoryStorage                   _storage               = default!;
-	private DataModelReferenceTracker         _tracker               = default!;
+	private Bucket _bucket;
+
+	private DataModelList _dataModelList = default!;
+
+	private DataModelListPersistingController _listController = default!;
+
+	private DataModelList _restoredDataModelList = default!;
+
+	private DataModelReferenceTracker _restoredTracker = default!;
+
+	private InMemoryStorage _storage = default!;
+
+	private DataModelReferenceTracker _tracker = default!;
 
 	[TestInitialize]
 	public void Initialize()
@@ -117,7 +123,7 @@ public class PersistedDataModelTest
 	[TestMethod]
 	public void SubObjectTest()
 	{
-		var list = new DataModelList { ["t"] = new("test") };
+		var list = new DataModelList { ["t"] = new DataModelValue("test") };
 		_dataModelList["a"] = new DataModelValue(list);
 
 		using var controller = new DataModelListPersistingController(_bucket, _restoredTracker, _restoredDataModelList);
@@ -236,7 +242,7 @@ public class PersistedDataModelTest
 	{
 		var list = new DataModelList
 				   {
-					   ["prop"] = new("value")
+					   ["prop"] = new DataModelValue("value")
 				   };
 
 		_dataModelList[0] = new DataModelValue(list);
@@ -252,7 +258,7 @@ public class PersistedDataModelTest
 	{
 		var list = new DataModelList
 				   {
-					   [0] = new("value")
+					   [0] = new DataModelValue("value")
 				   };
 
 		_dataModelList[0] = new DataModelValue(list);
@@ -323,7 +329,7 @@ public class PersistedDataModelTest
 	{
 		var list = new DataModelList
 				   {
-					   ["t"] = new("test")
+					   ["t"] = new DataModelValue("test")
 				   };
 		list.MakeReadOnly();
 		_dataModelList["a"] = new DataModelValue(list);
@@ -342,7 +348,7 @@ public class PersistedDataModelTest
 	{
 		var list = new DataModelList
 				   {
-					   [0] = new("test")
+					   [0] = new DataModelValue("test")
 				   };
 		list.MakeReadOnly();
 		_dataModelList["a"] = new DataModelValue(list);
@@ -361,7 +367,7 @@ public class PersistedDataModelTest
 	{
 		var list = new DataModelList
 				   {
-					   ["t"] = new("test")
+					   ["t"] = new DataModelValue("test")
 				   };
 		_dataModelList.SetInternal(key: "a", caseInsensitive: false, new DataModelValue(list), DataModelAccess.ReadOnly);
 
@@ -377,8 +383,8 @@ public class PersistedDataModelTest
 	[TestMethod]
 	public void ReferencesNewObjectTest()
 	{
-		var obj1 = new DataModelList { ["prop1-rw"] = new("val1") };
-		var root = new DataModelList { ["obj1"] = new(obj1) };
+		var obj1 = new DataModelList { ["prop1-rw"] = new DataModelValue("val1") };
+		var root = new DataModelList { ["obj1"] = new DataModelValue(obj1) };
 		_ = new DataModelListPersistingController(_bucket, _restoredTracker, root);
 	}
 
@@ -387,13 +393,13 @@ public class PersistedDataModelTest
 	{
 		var obj1 = new DataModelList
 				   {
-					   ["prop1-rw"] = new("val1")
+					   ["prop1-rw"] = new DataModelValue("val1")
 				   };
 		obj1.SetInternal(key: "prop1-ro", caseInsensitive: false, new DataModelValue("val1"), DataModelAccess.ReadOnly);
 
 		var obj2 = new DataModelList
 				   {
-					   ["prop2-rw"] = new("val1")
+					   ["prop2-rw"] = new DataModelValue("val1")
 				   };
 		obj1.SetInternal(key: "prop2-ro", caseInsensitive: false, new DataModelValue("val1"), DataModelAccess.ReadOnly);
 
@@ -435,13 +441,13 @@ public class PersistedDataModelTest
 	{
 		var obj1 = new DataModelList
 				   {
-					   [1] = new("val1")
+					   [1] = new DataModelValue("val1")
 				   };
 		obj1.SetInternal(index: 0, key: null, new DataModelValue("val1"), DataModelAccess.ReadOnly);
 
 		var obj2 = new DataModelList
 				   {
-					   [1] = new("val1")
+					   [1] = new DataModelValue("val1")
 				   };
 		obj1.SetInternal(index: 0, key: null, new DataModelValue("val1"), DataModelAccess.ReadOnly);
 
@@ -480,7 +486,7 @@ public class PersistedDataModelTest
 	[TestMethod]
 	public void ReferencesRemovedTest()
 	{
-		var obj1 = new DataModelList { ["prop1-rw"] = new("val1") };
+		var obj1 = new DataModelList { ["prop1-rw"] = new DataModelValue("val1") };
 
 		_dataModelList["obj1a"] = new DataModelValue(obj1);
 

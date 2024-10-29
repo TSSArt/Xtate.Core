@@ -40,7 +40,7 @@ public class FinalStateTest
 						   .EndFinal()
 						   .Build();
 
-		var stateMachineHost = (IHostController)await serviceProvider.GetRequiredService<StateMachineHost>();
+		var stateMachineHost = (IHostController) await serviceProvider.GetRequiredService<StateMachineHost>();
 
 		//await using var stateMachineHost = new StateMachineHost(new StateMachineHostOptions());
 
@@ -69,13 +69,15 @@ public class FinalStateTest
 							   () =>
 							   {
 								   var val = Runtime.DataModel["_x"].AsListOrEmpty()["args"].AsNumber();
+
 								   return new DataModelValue(val);
 							   })
 						   .EndFinal()
 						   .Build();
 
-		var stateMachineHost = (IHostController)await serviceProvider.GetRequiredService<StateMachineHost>();
+		var stateMachineHost = (IHostController) await serviceProvider.GetRequiredService<StateMachineHost>();
 		var smc = new RuntimeStateMachine(stateMachine) { Arguments = 33 };
+
 		//await using var stateMachineHost = new StateMachineHost(new StateMachineHostOptions());
 
 		await stateMachineHost.StartHost();

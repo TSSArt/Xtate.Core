@@ -35,19 +35,31 @@ public sealed class SendNode(DocumentIdNode documentIdNode, ISend send) : Execut
 
 #region Interface ISend
 
-	public string?                             EventName        => send.EventName;
-	public IValueExpression?                   EventExpression  => send.EventExpression;
-	public Uri?                                Target           => send.Target;
-	public IValueExpression?                   TargetExpression => send.TargetExpression;
-	public Uri?                                Type             => send.Type;
-	public IValueExpression?                   TypeExpression   => send.TypeExpression;
-	public string?                             Id               => send.Id;
-	public ILocationExpression?                IdLocation       => send.IdLocation;
-	public int?                                DelayMs          => send.DelayMs;
-	public IValueExpression?                   DelayExpression  => send.DelayExpression;
-	public ImmutableArray<ILocationExpression> NameList         => send.NameList;
-	public ImmutableArray<IParam>              Parameters       => send.Parameters;
-	public IContent?                           Content          => send.Content;
+	public string? EventName => send.EventName;
+
+	public IValueExpression? EventExpression => send.EventExpression;
+
+	public Uri? Target => send.Target;
+
+	public IValueExpression? TargetExpression => send.TargetExpression;
+
+	public Uri? Type => send.Type;
+
+	public IValueExpression? TypeExpression => send.TypeExpression;
+
+	public string? Id => send.Id;
+
+	public ILocationExpression? IdLocation => send.IdLocation;
+
+	public int? DelayMs => send.DelayMs;
+
+	public IValueExpression? DelayExpression => send.DelayExpression;
+
+	public ImmutableArray<ILocationExpression> NameList => send.NameList;
+
+	public ImmutableArray<IParam> Parameters => send.Parameters;
+
+	public IContent? Content => send.Content;
 
 #endregion
 

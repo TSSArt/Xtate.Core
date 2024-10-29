@@ -17,20 +17,29 @@
 
 namespace Xtate.Builder;
 
-
 public class StateBuilder : BuilderBase, IStateBuilder
 {
-	private         IDataModel?                           _dataModel;
-	private         ImmutableArray<IHistory>.Builder?     _historyStates;
-	private         IIdentifier?                          _id;
-	private         IInitial?                             _initial;
-	private         ImmutableArray<IIdentifier>           _initialId;
-	private         ImmutableArray<IInvoke>.Builder?      _invokeList;
-	private         ImmutableArray<IOnEntry>.Builder?     _onEntryList;
-	private         ImmutableArray<IOnExit>.Builder?      _onExitList;
-	private         ImmutableArray<IStateEntity>.Builder? _states;
-	private         ImmutableArray<ITransition>.Builder?  _transitions;
-	public required IErrorProcessorService<StateBuilder>  ErrorProcessorService { private get; [UsedImplicitly] init; }
+	private IDataModel? _dataModel;
+
+	private ImmutableArray<IHistory>.Builder? _historyStates;
+
+	private IIdentifier? _id;
+
+	private IInitial? _initial;
+
+	private ImmutableArray<IIdentifier> _initialId;
+
+	private ImmutableArray<IInvoke>.Builder? _invokeList;
+
+	private ImmutableArray<IOnEntry>.Builder? _onEntryList;
+
+	private ImmutableArray<IOnExit>.Builder? _onExitList;
+
+	private ImmutableArray<IStateEntity>.Builder? _states;
+
+	private ImmutableArray<ITransition>.Builder? _transitions;
+
+	public required IErrorProcessorService<StateBuilder> ErrorProcessorService { private get; [UsedImplicitly] init; }
 
 #region Interface IStateBuilder
 

@@ -17,12 +17,14 @@
 
 namespace Xtate.Builder;
 
-
 public class DataBuilder : BuilderBase, IDataBuilder
 {
-	private IValueExpression?        _expression;
-	private string?                  _id;
-	private IInlineContent?          _inlineContent;
+	private IValueExpression? _expression;
+
+	private string? _id;
+
+	private IInlineContent? _inlineContent;
+
 	private IExternalDataExpression? _source;
 
 #region Interface IDataBuilder

@@ -25,10 +25,12 @@ public static class Disposer
 		{
 			case IDisposable disposable:
 				disposable.Dispose();
+
 				break;
 
 			case IAsyncDisposable asyncDisposable:
 				asyncDisposable.DisposeAsync().SynchronousWait();
+
 				break;
 		}
 	}

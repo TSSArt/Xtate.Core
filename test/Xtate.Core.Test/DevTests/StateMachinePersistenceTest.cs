@@ -29,9 +29,11 @@ namespace Xtate.Test;
 [TestClass]
 public class StateMachinePersistenceTest
 {
-	private IStateMachine                _allStateMachine           = default!;
-	private Mock<IExternalCommunication> _externalCommunication     = default!;
-	private Mock<IResourceLoader>        _resourceLoaderServiceMock = default!;
+	private IStateMachine _allStateMachine = default!;
+
+	private Mock<IExternalCommunication> _externalCommunication = default!;
+
+	private Mock<IResourceLoader> _resourceLoaderServiceMock = default!;
 
 	[TestInitialize]
 	public void Initialize()
@@ -82,6 +84,7 @@ public class StateMachinePersistenceTest
 									InMemoryStorageBaselineFactory = memory => new InMemoryStorage(memory.Span)
 								};
 			await streamStorage.Initialization;
+
 			return streamStorage;
 		}
 

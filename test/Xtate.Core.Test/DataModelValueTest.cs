@@ -19,11 +19,15 @@ namespace Xtate.Core.Test;
 
 public class Record([CallerLineNumber] int lineNumber = 0)
 {
-	private DataModelValue     _value;
-	public  object?            ConstructorArg;
-	public  string             Line = $"#{lineNumber}";
-	public  DataModelValue     OriginalValue;
-	public  DataModelValueType Type;
+	private DataModelValue _value;
+
+	public object? ConstructorArg;
+
+	public string Line = $"#{lineNumber}";
+
+	public DataModelValue OriginalValue;
+
+	public DataModelValueType Type;
 
 	public DataModelValue Value
 	{
@@ -54,9 +58,12 @@ public class Record([CallerLineNumber] int lineNumber = 0)
 [TestClass]
 public class DataModelValueTest
 {
-	private DataModelList    _emptyDataModelList           = default!;
-	private Mock<ILazyValue> _lazyValueListMock            = default!;
-	private Mock<ILazyValue> _lazyValueNullMock            = default!;
+	private DataModelList _emptyDataModelList = default!;
+
+	private Mock<ILazyValue> _lazyValueListMock = default!;
+
+	private Mock<ILazyValue> _lazyValueNullMock = default!;
+
 	private Mock<ILazyValue> _lazyValueOfLazyValueNullMock = default!;
 
 	private static IEnumerable<Record> SimpleRecords
@@ -158,13 +165,13 @@ public class DataModelValueTest
 			yield return new Record
 						 {
 							 Type = DataModelValueType.Number,
-							 Value = new DataModelValue((double)int.MinValue),
+							 Value = new DataModelValue((double) int.MinValue),
 							 ConstructorArg = (double) int.MinValue
 						 };
 			yield return new Record
 						 {
 							 Type = DataModelValueType.Number,
-							 Value = new DataModelValue((double)int.MaxValue),
+							 Value = new DataModelValue((double) int.MaxValue),
 							 ConstructorArg = (double) int.MaxValue
 						 };
 			yield return new Record
@@ -319,6 +326,7 @@ public class DataModelValueTest
 						 };
 
 			var dataModelList = new DataModelList();
+
 			yield return new Record
 						 {
 							 Type = DataModelValueType.List,
@@ -360,18 +368,22 @@ public class DataModelValueTest
 			case DataModelValueType.Number:
 			case DataModelValueType.DateTime when ctrArg.GetType() == obj?.GetType():
 				Assert.AreEqual(ctrArg, obj, M(line));
+
 				break;
 
 			case DataModelValueType.List:
 				Assert.AreSame(ctrArg, obj, M(line));
+
 				break;
 
 			case DataModelValueType.DateTime:
 				Assert.AreEqual(DataModelDateTime.FromDateTime((DateTime) ctrArg).ToDateTimeOffset(), obj, M(line));
+
 				break;
 
 			default:
 				Assert.Fail(M(line));
+
 				break;
 		}
 	}

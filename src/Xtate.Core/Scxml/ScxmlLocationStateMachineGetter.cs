@@ -20,14 +20,19 @@ using Xtate.Scxml;
 
 namespace Xtate.Core;
 
-
 public class ScxmlLocationStateMachineGetter
 {
-	public required ScxmlXmlResolver       ScxmlXmlResolver      { private get; [UsedImplicitly] init; }
-	public required IStateMachineLocation  StateMachineLocation  { private get; [UsedImplicitly] init; }
-	public required IScxmlDeserializer     ScxmlDeserializer     { private get; [UsedImplicitly] init; }
-	public required INameTableProvider     NameTableProvider     { private get; [UsedImplicitly] init; }
+	public required ScxmlXmlResolver ScxmlXmlResolver { private get; [UsedImplicitly] init; }
+
+	public required IStateMachineLocation StateMachineLocation { private get; [UsedImplicitly] init; }
+
+	public required IScxmlDeserializer ScxmlDeserializer { private get; [UsedImplicitly] init; }
+
+	public required INameTableProvider NameTableProvider { private get; [UsedImplicitly] init; }
+
 	public required IStateMachineValidator StateMachineValidator { private get; [UsedImplicitly] init; }
+
+	private string Location => StateMachineLocation.Location?.ToString() ?? Infra.Fail<string>();
 
 	public virtual async ValueTask<IStateMachine> GetStateMachine()
 	{
@@ -39,8 +44,6 @@ public class ScxmlLocationStateMachineGetter
 
 		return stateMachine;
 	}
-
-	private string Location => StateMachineLocation.Location?.ToString() ?? Infra.Fail<string>();
 
 	protected virtual XmlReader CreateXmlReader() => XmlReader.Create(Location, GetXmlReaderSettings(), GetXmlParserContext());
 

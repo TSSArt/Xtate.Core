@@ -24,15 +24,16 @@ internal sealed class StateMachineSingleMacroStepController(
 	IStateMachineOptions? options,
 	IStateMachine? stateMachine,
 	Uri? stateMachineLocation,
-	IStateMachineHost stateMachineHost//,
+	IStateMachineHost stateMachineHost //,
 	//InterpreterOptions defaultOptions
 
 	// SecurityContext securityContext,
 	//										 DeferredFinalizer finalizer
-) : StateMachineControllerBase(sessionId, options, stateMachine, stateMachineLocation, stateMachineHost/*, defaultOptions*/)
+) : StateMachineControllerBase(sessionId, options, stateMachine, stateMachineLocation, stateMachineHost /*, defaultOptions*/)
 {
 	private readonly TaskCompletionSource<StateMachineInterpreterState> _doneCompletionSource = new();
-	private readonly CancellationTokenSource                            _suspendTokenSource   = new();
+
+	private readonly CancellationTokenSource _suspendTokenSource = new();
 
 	protected override Channel<IEvent> EventChannel { get; } = new SingleItemChannel<IEvent>();
 
