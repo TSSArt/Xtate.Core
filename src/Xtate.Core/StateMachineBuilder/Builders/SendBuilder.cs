@@ -17,7 +17,7 @@
 
 namespace Xtate.Builder;
 
-[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
+
 public class SendBuilder : BuilderBase, ISendBuilder
 {
 	private IContent?                           _content;

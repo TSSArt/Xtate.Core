@@ -3,7 +3,7 @@ using Xtate.Service;
 
 namespace Xtate.Core;
 
-[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
+
 public class ExternalServiceRunner : IExternalServiceRunner, IDisposable
 {
 	private AsyncInit _actionOnComplete;

@@ -20,7 +20,7 @@ using Xtate.Scxml;
 
 namespace Xtate.Core;
 
-[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
+
 public class ScxmlLocationStateMachineGetter
 {
 	public required ScxmlXmlResolver       ScxmlXmlResolver      { private get; [UsedImplicitly] init; }
