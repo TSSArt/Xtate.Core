@@ -24,7 +24,7 @@ public class WebResourceLoaderModule : Module<ResourceModule>
 {
 	protected override void AddServices()
 	{
-		Services.AddSharedImplementation<WebResourceLoaderProvider>(SharedWithin.Container).For<IResourceLoaderProvider>();
+		Services.AddSharedImplementation<WebResourceLoader.Provider>(SharedWithin.Container).For<IResourceLoaderProvider>();
 		Services.AddImplementation<WebResourceLoader>().For<WebResourceLoader>().For<IResourceLoader>();
 		Services.AddTransient(_ => new HttpClient());
 	}

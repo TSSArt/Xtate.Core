@@ -29,6 +29,6 @@ public class RuntimeDataModelHandlerModule : Module<DataModelHandlerBaseModule, 
 		Services.AddTypeSync<RuntimePredicateEvaluator, RuntimePredicate>();
 		Services.AddType<RuntimeExecutionContext>();
 		Services.AddImplementation<RuntimeDataModelHandler>().For<RuntimeDataModelHandler>().For<IDataModelHandler>(Option.IfNotRegistered);
-		Services.AddImplementation<RuntimeDataModelHandlerProvider>().For<IDataModelHandlerProvider>();
+		Services.AddImplementation<RuntimeDataModelHandler.Provider>().For<IDataModelHandlerProvider>();
 	}
 }

@@ -40,10 +40,10 @@ public class XPathDataModelHandlerModule : Module<DataModelHandlerBaseModule, Er
 		Services.AddTypeSync<XPathXmlParserContextFactory>();
 		Services.AddSharedType<XPathEngine>(SharedWithin.Scope);
 
-		Services.AddImplementationSync<InFunctionProvider>().For<IXPathFunctionProvider>();
+		Services.AddImplementationSync<InFunction.Provider>().For<IXPathFunctionProvider>();
 		Services.AddTypeSync<InFunction>();
 
-		Services.AddImplementation<XPathDataModelHandlerProvider>().For<IDataModelHandlerProvider>();
+		Services.AddImplementation<XPathDataModelHandler.Provider>().For<IDataModelHandlerProvider>();
 		Services.AddImplementation<XPathDataModelHandler>().For<XPathDataModelHandler>().For<IDataModelHandler>(Option.IfNotRegistered);
 	}
 }

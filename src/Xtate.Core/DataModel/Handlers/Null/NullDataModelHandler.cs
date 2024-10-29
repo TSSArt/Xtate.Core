@@ -19,6 +19,10 @@ namespace Xtate.DataModel.Null;
 
 public class NullDataModelHandler : DataModelHandlerBase
 {
+	public class DefaultProvider() : DataModelHandlerProviderBase<NullDataModelHandler>(default);
+
+	public class Provider() : DataModelHandlerProviderBase<NullDataModelHandler>(@"null");
+
 	public required IErrorProcessorService<NullDataModelHandler> NullErrorProcessorService { private get; [UsedImplicitly] init; }
 
 	public required Func<IConditionExpression, IIdentifier, NullConditionExpressionEvaluator> NullConditionExpressionEvaluatorFactory { private get; [UsedImplicitly] init; }

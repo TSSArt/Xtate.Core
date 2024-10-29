@@ -22,6 +22,8 @@ namespace Xtate.DataModel.XPath;
 
 public class XPathDataModelHandler : DataModelHandlerBase
 {
+	public class Provider() : DataModelHandlerProviderBase<XPathDataModelHandler>(@"xpath");
+
 	public required Func<IForEach, XPathForEachEvaluator>                                                  XPathForEachEvaluatorFactory                { private get; [UsedImplicitly] init; }
 	public required Func<IContentBody, XPathContentBodyEvaluator>                                          XPathContentBodyEvaluatorFactory            { private get; [UsedImplicitly] init; }
 	public required Func<IInlineContent, XPathInlineContentEvaluator>                                      XPathInlineContentEvaluatorFactory          { private get; [UsedImplicitly] init; }

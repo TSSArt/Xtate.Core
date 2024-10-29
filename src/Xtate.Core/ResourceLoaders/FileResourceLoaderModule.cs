@@ -23,7 +23,7 @@ public class FileResourceLoaderModule : Module<ResourceModule>
 {
 	protected override void AddServices()
 	{
-		Services.AddSharedImplementation<FileResourceLoaderProvider>(SharedWithin.Container).For<IResourceLoaderProvider>();
+		Services.AddSharedImplementation<FileResourceLoader.Provider>(SharedWithin.Container).For<IResourceLoaderProvider>();
 		Services.AddImplementation<FileResourceLoader>().For<FileResourceLoader>().For<IResourceLoader>();
 	}
 }
