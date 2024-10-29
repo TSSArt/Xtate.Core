@@ -33,10 +33,10 @@ public class StateMachineHostModule : Module<StateMachineInterpreterModule>
 
 		Services.AddImplementation<StateMachineHostExternalCommunication>().For<IExternalCommunication>();
 
-		Services.AddType<ServiceScopeProxy, InvokeId, InvokeData>();
-		Services.AddImplementation<ServiceScopeManager>().For<IServiceScopeManager>();
-		Services.AddSharedImplementation<ServiceRunner>(SharedWithin.Scope).For<IServiceRunner>();
-		Services.AddFactory<ServiceFactory>().For<IService>(SharedWithin.Scope);
+		Services.AddType<ExternalIExternalServiceScopeProxy, InvokeId, InvokeData>();
+		Services.AddImplementation<ExternalServiceScopeManager>().For<IExternalServiceScopeManager>();
+		Services.AddSharedImplementation<ExternalServiceRunner>(SharedWithin.Scope).For<IExternalServiceRunner>();
+		Services.AddFactory<ExternalServiceFactory>().For<IExternalService>(SharedWithin.Scope);
 
 		Services.AddSharedImplementation<StateMachineRuntimeController>(SharedWithin.Scope).For<IStateMachineController>();
 				//.For<IInvokeController>();
@@ -54,7 +54,7 @@ public class StateMachineHostModule : Module<StateMachineInterpreterModule>
 		Services.AddSharedImplementation<StateMachineHost>(SharedWithin.Container)
 				.For<StateMachineHost>()
 				.For<IStateMachineHost>()
-				.For<IServiceFactory>().For<IHostController>(); //TODO: Make only interface
+				.For<IExternalServiceProvider>().For<IHostController>(); //TODO: Make only interface
 		
 		Services.AddSharedImplementation<StateMachineHostContext>(SharedWithin.Container)
 				.For<StateMachineHostContext>()

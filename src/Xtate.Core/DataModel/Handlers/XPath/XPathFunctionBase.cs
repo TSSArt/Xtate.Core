@@ -15,7 +15,34 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.DataModel.Runtime;
+using System.Xml.XPath;
+using System.Xml.Xsl;
 
-[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
-public class RuntimeDataModelHandlerProvider() : DataModelHandlerProviderBase<RuntimeDataModelHandler>(@"runtime");
+namespace Xtate.DataModel.XPath;
+
+public abstract class XPathFunctionBase : IXsltContextFunction
+{
+	protected XPathFunctionBase(XPathResultType returnType, params XPathResultType[] argTypes)
+	{
+		ArgTypes = argTypes;
+		ReturnType = returnType;
+	}
+
+#region Interface IXsltContextFunction
+
+	public virtual object Invoke(XsltContext xsltContext, object[] args, XPathNavigator docContext) => Invoke(args)!;
+
+	public virtual XPathResultType[] ArgTypes { get; }
+
+	public virtual XPathResultType ReturnType { get; }
+
+	public virtual int Maxargs => ArgTypes.Length;
+
+	public virtual int Minargs => ArgTypes.Length;
+
+#endregion
+
+	public virtual ValueTask Initialize() => default;
+
+	protected abstract object? Invoke(object[] args);
+}

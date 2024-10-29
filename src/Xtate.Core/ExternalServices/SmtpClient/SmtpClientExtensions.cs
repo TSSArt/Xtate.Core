@@ -15,7 +15,18 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.DataModel.Runtime;
+using Xtate.Service;
 
-[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
-public class RuntimeDataModelHandlerProvider() : DataModelHandlerProviderBase<RuntimeDataModelHandler>(@"runtime");
+namespace Xtate;
+
+public static class SmtpClientExtensions
+{
+	public static StateMachineHostBuilder AddSmtpClient(this StateMachineHostBuilder builder)
+	{
+		if (builder is null) throw new ArgumentNullException(nameof(builder));
+
+		//builder.AddServiceFactory(SmtpClientServiceFactory.Instance);
+
+		return builder;
+	}
+}

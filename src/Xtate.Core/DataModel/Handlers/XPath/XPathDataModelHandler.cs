@@ -20,11 +20,6 @@ using Xtate.Scxml;
 
 namespace Xtate.DataModel.XPath;
 
-public class XPathDataModelHandlerProvider : DataModelHandlerProviderBase<XPathDataModelHandler>
-{
-	protected override bool CanHandle(string? dataModelType) => dataModelType == @"xpath";
-}
-
 public class XPathDataModelHandler : DataModelHandlerBase
 {
 	public required Func<IForEach, XPathForEachEvaluator>                                                  XPathForEachEvaluatorFactory                { private get; [UsedImplicitly] init; }

@@ -38,7 +38,7 @@ public sealed class StateMachineHostBuilder : IStateMachineHostBuilder
 	private PersistenceLevel _persistenceLevel;
 
 	//private ImmutableArray<IResourceLoaderFactory>.Builder? _resourceLoaderFactories;
-	private ImmutableArray<IServiceFactory>.Builder? _serviceFactories;
+	private ImmutableArray<IExternalServiceProvider>.Builder? _serviceFactories;
 	private IStorageProvider?                        _storageProvider;
 	private TimeSpan?                                _suspendIdlePeriod;
 
@@ -155,9 +155,9 @@ public sealed class StateMachineHostBuilder : IStateMachineHostBuilder
 		return this;
 	}
 
-	public StateMachineHostBuilder AddServiceFactory(IServiceFactory serviceFactory)
+	public StateMachineHostBuilder AddServiceFactory(IExternalServiceProvider externalServiceProvider)
 	{
-		(_serviceFactories ??= ImmutableArray.CreateBuilder<IServiceFactory>()).Add(serviceFactory);
+		(_serviceFactories ??= ImmutableArray.CreateBuilder<IExternalServiceProvider>()).Add(externalServiceProvider);
 
 		return this;
 	}

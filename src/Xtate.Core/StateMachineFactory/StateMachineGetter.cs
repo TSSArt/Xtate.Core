@@ -15,7 +15,12 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.DataModel.Runtime;
+namespace Xtate.Core;
 
-[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
-public class RuntimeDataModelHandlerProvider() : DataModelHandlerProviderBase<RuntimeDataModelHandler>(@"runtime");
+public class StateMachineGetter
+{
+	public required IStateMachineService StateMachineService { private get; [UsedImplicitly] init; }
+
+	[UsedImplicitly]
+	public ValueTask<IStateMachine?> GetStateMachine() => StateMachineService.GetStateMachine();
+}

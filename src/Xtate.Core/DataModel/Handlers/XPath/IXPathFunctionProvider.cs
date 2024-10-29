@@ -19,5 +19,5 @@ namespace Xtate.DataModel.XPath;
 
 public interface IXPathFunctionProvider
 {
-	XPathFunctionDescriptorBase? TryGetFunction(string ns, string name);
+	XPathFunctionBase? TryGetFunction(string ns, string name);
 }

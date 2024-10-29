@@ -32,7 +32,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 	//private ImmutableArray<IServiceFactory> _serviceFactories;
 	public required IAsyncEnumerable<IIoProcessorFactory> _ioProcessorFactories { private get; [UsedImplicitly] init; }
 
-	public required IAsyncEnumerable<IServiceFactory> ServiceFactories { private get; [UsedImplicitly] init; }
+	public required IAsyncEnumerable<IExternalServiceProvider> ServiceFactories { private get; [UsedImplicitly] init; }
 
 #region Interface IHostEventDispatcher
 
@@ -114,7 +114,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 		}
 
 		static async ValueTask CompleteAsync(StateMachineHostContext context,
-											 IService invokedService,
+											 IExternalService invokedService,
 											 IEventDispatcher service,
 											 SessionId sessionId,
 											 InvokeId invokeId,
@@ -211,7 +211,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 
 	private StateMachineHostContext GetCurrentContext() => _context ?? throw new InvalidOperationException(Resources.Exception_IOProcessorHasNotBeenStarted);
 
-	private async ValueTask<IServiceActivator> FindServiceFactoryActivator(Uri type)
+	private async ValueTask<IExternalServiceActivator> FindServiceFactoryActivator(Uri type)
 	{
 		await foreach (var serviceFactory in ServiceFactories.ConfigureAwait(false))
 		{
@@ -293,14 +293,14 @@ public sealed partial class StateMachineHost : IStateMachineHost
 		}
 	}
 
-	private static ValueTask DisposeInvokedService(IService service)
+	private static ValueTask DisposeInvokedService(IExternalService externalService)
 	{
-		if (service is IAsyncDisposable asyncDisposable)
+		if (externalService is IAsyncDisposable asyncDisposable)
 		{
 			return asyncDisposable.DisposeAsync();
 		}
 
-		if (service is IDisposable disposable)
+		if (externalService is IDisposable disposable)
 		{
 			disposable.Dispose();
 		}

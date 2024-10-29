@@ -28,7 +28,7 @@ public record StateMachineHostOptions
 	//public ServiceLocator                         ServiceLocator          { get; set; }
 	public ImmutableArray<IIoProcessorFactory> IoProcessorFactories { get; set; }
 
-	public ImmutableArray<IServiceFactory> ServiceFactories { get; set; }
+	public ImmutableArray<IExternalServiceProvider> ServiceFactories { get; set; }
 
 	//public ImmutableArray<ICustomActionFactory>   CustomActionFactories   { get; set; }
 	//public ImmutableArray<IResourceLoaderFactory> ResourceLoaderFactories { get; set; }
