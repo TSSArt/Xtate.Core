@@ -74,20 +74,14 @@ public class RegisterClassTest
 	public async Task RuntimeDataModelHandlerTest()
 	{
 		// Arrange
-		var inStateControllerMock = new Mock<IInStateController>();
-		var logControllerMock = new Mock<ILogController>();
-		var eventControllerMock = new Mock<IEventController>();
-		var invokeControllerMock = new Mock<IInvokeController>();
-		var dataModelControllerMock = new Mock<IDataModelController>();
-
 		var services = new ServiceCollection();
 		services.AddModule<RuntimeDataModelHandlerModule>();
 		services.AddSharedImplementationSync<AssemblyTypeInfo, Type>(SharedWithin.Container).For<IAssemblyTypeInfo>();
-		services.AddConstant(inStateControllerMock.Object);
-		services.AddConstant(logControllerMock.Object);
-		services.AddConstant(eventControllerMock.Object);
-		services.AddConstant(invokeControllerMock.Object);
-		services.AddConstant(dataModelControllerMock.Object);
+		services.AddMock<IInStateController>();
+		services.AddMock<ILogController>();
+		services.AddMock<IEventController>();
+		services.AddMock<IInvokeController>();
+		services.AddMock<IDataModelController>();
 		var provider = services.BuildProvider();
 
 		var dataModelHandler = await provider.GetRequiredService<IDataModelHandler>();
@@ -118,6 +112,7 @@ public class RegisterClassTest
 		var services = new ServiceCollection();
 		services.AddModule<XPathDataModelHandlerModule>();
 		services.AddSharedImplementationSync<AssemblyTypeInfo, Type>(SharedWithin.Container).For<IAssemblyTypeInfo>();
+		services.AddMock<IInStateController>();
 		var provider = services.BuildProvider();
 
 		var dataModelHandler = await provider.GetRequiredService<IDataModelHandler>();

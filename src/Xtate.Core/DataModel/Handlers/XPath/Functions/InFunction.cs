@@ -19,18 +19,11 @@ using System.Xml.XPath;
 
 namespace Xtate.DataModel.XPath;
 
-public sealed class InFunctionProvider : XPathFunctionProviderBase<InFunction>
+public class InFunction() : XPathFunctionBase(XPathResultType.Boolean, XPathResultType.Any)
 {
-	protected override bool CanHandle(string ns, string name) => ns == string.Empty && name == @"In";
-}
+	private IInStateController _inStateController;
 
-public sealed class InFunction : XPathFunctionDescriptorBase
-{
-	private IInStateController? _inStateController;
-
-	public InFunction() : base(XPathResultType.Boolean, XPathResultType.Any) { }
-
-	public required Func<ValueTask<IInStateController?>> InStateControllerFactory { private get; [UsedImplicitly] init; }
+	public required Func<ValueTask<IInStateController>> InStateControllerFactory { private get; [UsedImplicitly] init; }
 
 	public override async ValueTask Initialize()
 	{
@@ -41,34 +34,32 @@ public sealed class InFunction : XPathFunctionDescriptorBase
 
 	protected override object Invoke(object[] args)
 	{
-		if (_inStateController is not null)
+		if (args is [string stateId])
 		{
-			if (args is [string stateId])
+			return InState(stateId);
+		}
+
+		if (args is [XPathNodeIterator iterator])
+		{
+			if (!iterator.MoveNext())
 			{
-				return _inStateController.InState((Identifier) stateId);
+				return false;
 			}
 
-			if (args is [XPathNodeIterator iterator])
+			do
 			{
-				if (!iterator.MoveNext())
+				if (!InState(iterator.Current?.Value))
 				{
 					return false;
 				}
-
-				do
-				{
-					var id = iterator.Current?.Value;
-					if (string.IsNullOrEmpty(id) || !_inStateController.InState((Identifier) id))
-					{
-						return false;
-					}
-				}
-				while (iterator.MoveNext());
-
-				return true;
 			}
+			while (iterator.MoveNext());
+
+			return true;
 		}
 
 		return false;
 	}
+
+	private bool InState(string stateId) => !string.IsNullOrEmpty(stateId) && _inStateController.InState((Identifier) stateId);
 }

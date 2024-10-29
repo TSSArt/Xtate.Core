@@ -16,7 +16,7 @@ public class StateMachineControllerProxy(StateMachineRuntimeController stateMach
 
 	public ValueTask Destroy() => _baseStateMachineController.Destroy();
 
-	ValueTask<DataModelValue> IService.GetResult() => _baseStateMachineController.GetResult();
+	ValueTask<DataModelValue> IExternalService.GetResult() => _baseStateMachineController.GetResult();
 
 #endregion
 

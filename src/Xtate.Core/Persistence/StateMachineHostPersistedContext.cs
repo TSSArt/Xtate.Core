@@ -95,7 +95,7 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 
 	public override async ValueTask AddService(SessionId sessionId,
 											   InvokeId invokeId,
-											   IService service,
+											   IExternalService externalService,
 											   CancellationToken token)
 	{
 		Infra.NotNull(_storage);
@@ -103,12 +103,12 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 		await _lockInvokedServices.WaitAsync(token).ConfigureAwait(false);
 		try
 		{
-			await base.AddService(sessionId, invokeId, service, token).ConfigureAwait(false);
+			await base.AddService(sessionId, invokeId, externalService, token).ConfigureAwait(false);
 
 			var bucket = new Bucket(_storage).Nested(InvokedServicesKey);
 			var recordId = _invokedServiceRecordId ++;
 
-			var invokedSessionId = service is StateMachineControllerBase stateMachineController ? stateMachineController.SessionId : null;
+			var invokedSessionId = externalService is StateMachineControllerBase stateMachineController ? stateMachineController.SessionId : null;
 			var invokedService = new InvokedServiceMeta(sessionId, invokeId, invokedSessionId) { RecordId = recordId };
 			_invokedServices.Add((sessionId, invokeId), invokedService);
 
@@ -146,7 +146,7 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 		await ShrinkInvokedServices().ConfigureAwait(false);
 	}
 
-	public override async ValueTask<IService?> TryRemoveService(SessionId sessionId, InvokeId invokeId)
+	public override async ValueTask<IExternalService?> TryRemoveService(SessionId sessionId, InvokeId invokeId)
 	{
 		await _lockInvokedServices.WaitAsync(StopToken).ConfigureAwait(false);
 		try
@@ -161,7 +161,7 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 		}
 	}
 
-	public override async ValueTask<IService?> TryCompleteService(SessionId sessionId, InvokeId invokeId)
+	public override async ValueTask<IExternalService?> TryCompleteService(SessionId sessionId, InvokeId invokeId)
 	{
 		await _lockInvokedServices.WaitAsync(StopToken).ConfigureAwait(false);
 		try

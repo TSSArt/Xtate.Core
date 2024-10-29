@@ -19,23 +19,23 @@ using Xtate.Service;
 
 namespace Xtate;
 
-public sealed partial class StateMachineHost : IServiceFactory, IServiceActivator
+public sealed partial class StateMachineHost : IExternalServiceProvider, IExternalServiceActivator
 {
 	private static readonly Uri ServiceFactoryTypeId      = new(@"http://www.w3.org/TR/scxml/");
 	private static readonly Uri ServiceFactoryAliasTypeId = new(uriString: @"scxml", UriKind.Relative);
 
 #region Interface IServiceFactory
 
-	ValueTask<IServiceActivator?> IServiceFactory.TryGetActivator(Uri type) => new(CanHandle(type) ? this : null);
+	ValueTask<IExternalServiceActivator?> IExternalServiceProvider.TryGetActivator(Uri type) => new(CanHandle(type) ? this : null);
 
 #endregion
 
 #region Interface IServiceActivator
 
-	public ValueTask<IService> StartService() => throw new NotImplementedException();
+	public ValueTask<IExternalService> StartService() => throw new NotImplementedException();
 
 	[Obsolete]
-	async ValueTask<IService> IServiceActivator.StartService(Uri? baseUri,
+	async ValueTask<IExternalService> IExternalServiceActivator.StartService(Uri? baseUri,
 																	InvokeData invokeData,
 																	IServiceCommunication serviceCommunication)
 	{
