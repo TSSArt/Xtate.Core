@@ -366,7 +366,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 			evt = CreateErrorEvent(context, ex);
 		}
 
-		await eventDispatcher.Send(evt, token).ConfigureAwait(false);
+		await eventDispatcher.Send(evt).ConfigureAwait(false);
 
 		return true;
 	}

@@ -15,8 +15,26 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.Service;
-
 namespace Xtate.Core;
 
-public interface IStateMachineController : IExternalService;
+public class InStateController : IInStateController
+{
+	public required IStateMachineContext StateMachineContext { private get; [UsedImplicitly] init; }
+
+#region Interface IInStateController
+
+	public virtual bool InState(IIdentifier id)
+	{
+		foreach (var state in StateMachineContext.Configuration)
+		{
+			if (Identifier.EqualityComparer.Equals(id, state.Id))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+#endregion
+}

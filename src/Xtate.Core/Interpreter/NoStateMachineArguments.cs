@@ -15,16 +15,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.IO;
-
 namespace Xtate.Core;
 
-//TODO: delete
-public class ScxmlStateMachineOld(string scxml) : IScxmlStateMachine
+public class NoStateMachineArguments : IStateMachineArguments
 {
-#region Interface IScxmlStateMachine
+#region Interface IStateMachineArguments
 
-	public TextReader CreateTextReader() => new StringReader(scxml);
+	public DataModelValue Arguments => default;
 
 #endregion
 }

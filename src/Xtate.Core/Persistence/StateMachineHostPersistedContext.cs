@@ -431,7 +431,7 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 					{
 						Infra.NotNull(invokingStateMachine.Controller);
 						var evt = new EventObject { Type = EventType.External, NameParts = EventName.ErrorExecution, InvokeId = invokedService.InvokeId };
-						await invokingStateMachine.Controller.Send(evt, token).ConfigureAwait(false);
+						await invokingStateMachine.Controller.Send(evt).ConfigureAwait(false);
 					}
 				}
 			}

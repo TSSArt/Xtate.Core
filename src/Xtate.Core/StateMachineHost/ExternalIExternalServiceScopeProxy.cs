@@ -36,7 +36,7 @@ public class ExternalIExternalServiceScopeProxy(
 
 #region Interface IEventDispatcher
 
-	public ValueTask Send(IEvent evt, CancellationToken token) => eventDispatcher.Send(evt, token);
+	public ValueTask Send(IEvent evt) => eventDispatcher.Send(evt);
 
 #endregion
 

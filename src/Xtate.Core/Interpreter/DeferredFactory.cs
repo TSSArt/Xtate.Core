@@ -15,26 +15,16 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.Diagnostics;
-
 namespace Xtate.Core;
 
-//TODO:delete
-[Obsolete]
-public class FileLogWriter<TSource> : TraceLogWriter<TSource>
+public class DeferredFactory<T>
 {
-	public FileLogWriter(string file) : base(null)
-	{
-		var listenerCollection = Trace.Listeners;
+	private ValueTask<T>? _valueTask;
 
-		if (listenerCollection.OfType<FileListener>().All(listener => listener.FileName != file))
-		{
-			listenerCollection.Add(new FileListener(file));
-		}
-	}
+	public required Func<ValueTask<T>> Factory { private get; [UsedImplicitly] init; }
 
-	private class FileListener(string fileName) : TextWriterTraceListener(fileName)
-	{
-		public string FileName { get; } = fileName;
-	}
+	private ValueTask<T> GetValue() => _valueTask ??= Factory().Preserve();
+
+	[UsedImplicitly]
+	public Deferred<T> GetValueFunc() => GetValue;
 }

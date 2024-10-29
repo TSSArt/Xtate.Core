@@ -23,55 +23,55 @@ using Xtate.DataModel.XPath;
 
 namespace Xtate;
 
-[Flags]
-public enum DataModelConverterJsonOptions
-{
-	/// <summary>
-	///     Serialization of undefined value will cause an exception. Array with undefined element will cause an exception.
-	///     Properties with undefined values in object will be skipped.
-	/// </summary>
-	UndefinedNotAllowed = 0,
-
-	/// <summary>
-	///     Undefined value will serialize to empty string. Undefined elements in array will be skipped. Properties with
-	///     undefined values in object will be skipped.
-	/// </summary>
-	UndefinedToSkip = 1,
-
-	/// <summary>
-	///     Undefined value will serialize to (null) value. Undefined elements in array will be serialized as (null).
-	///     Properties with undefined values in object will be serialized as properties with (null).
-	/// </summary>
-	UndefinedToNull = 2,
-
-	/// <summary>
-	///     Undefined value will serialize to (null) value. Undefined elements in array will be serialized as (null).
-	///     Properties with undefined values in object will be skipped.
-	/// </summary>
-	UndefinedToSkipOrNull = UndefinedToSkip | UndefinedToNull,
-
-	WriteIndented = 4
-}
-
-[Flags]
-public enum DataModelConverterXmlOptions
-{
-	WriteIndented = 1
-}
-
 public static class DataModelConverter
 {
+	[Flags]
+	public enum JsonOptions
+	{
+		/// <summary>
+		///     Serialization of undefined value will cause an exception. Array with undefined element will cause an exception.
+		///     Properties with undefined values in object will be skipped.
+		/// </summary>
+		UndefinedNotAllowed = 0,
+
+		/// <summary>
+		///     Undefined value will serialize to empty string. Undefined elements in array will be skipped. Properties with
+		///     undefined values in object will be skipped.
+		/// </summary>
+		UndefinedToSkip = 1,
+
+		/// <summary>
+		///     Undefined value will serialize to (null) value. Undefined elements in array will be serialized as (null).
+		///     Properties with undefined values in object will be serialized as properties with (null).
+		/// </summary>
+		UndefinedToNull = 2,
+
+		/// <summary>
+		///     Undefined value will serialize to (null) value. Undefined elements in array will be serialized as (null).
+		///     Properties with undefined values in object will be skipped.
+		/// </summary>
+		UndefinedToSkipOrNull = UndefinedToSkip | UndefinedToNull,
+
+		WriteIndented = 4
+	}
+
+	[Flags]
+	public enum XmlOptions
+	{
+		WriteIndented = 1
+	}
+
 	private const string TypeMetaKey = @"type";
 
 	private const string ObjectMetaValue = @"object";
 
 	private const string ArrayMetaValue = @"array";
 
-	private static readonly JsonSerializerOptions DefaultOptions = CreateOptions(DataModelConverterJsonOptions.UndefinedNotAllowed);
+	private static readonly JsonSerializerOptions DefaultOptions = CreateOptions(JsonOptions.UndefinedNotAllowed);
 
-	private static JsonSerializerOptions GetOptions(DataModelConverterJsonOptions options) => options == DataModelConverterJsonOptions.UndefinedNotAllowed ? DefaultOptions : CreateOptions(options);
+	private static JsonSerializerOptions GetOptions(JsonOptions options) => options == JsonOptions.UndefinedNotAllowed ? DefaultOptions : CreateOptions(options);
 
-	private static JsonSerializerOptions CreateOptions(DataModelConverterJsonOptions options) =>
+	private static JsonSerializerOptions CreateOptions(JsonOptions options) =>
 		new()
 		{
 			Converters =
@@ -79,14 +79,12 @@ public static class DataModelConverter
 				new JsonValueConverter(options),
 				new JsonListConverter(options)
 			},
-			WriteIndented = (options & DataModelConverterJsonOptions.WriteIndented) != 0,
+			WriteIndented = (options & JsonOptions.WriteIndented) != 0,
 			MaxDepth = 64
 		};
 
 	public static bool IsArray(DataModelList list)
 	{
-		Infra.Requires(list);
-
 		if (list.GetMetadata() is { } metadata && metadata[TypeMetaKey, caseInsensitive: false] is var value)
 		{
 			switch (value.AsStringOrDefault())
@@ -101,8 +99,6 @@ public static class DataModelConverter
 
 	public static bool IsObject(DataModelList list)
 	{
-		Infra.Requires(list);
-
 		if (list.GetMetadata() is { } metadata && metadata[TypeMetaKey, caseInsensitive: false] is var value)
 		{
 			switch (value.AsStringOrDefault())
@@ -133,13 +129,13 @@ public static class DataModelConverter
 		return list;
 	}
 
-	public static string ToJson(DataModelValue value, DataModelConverterJsonOptions options = default) => JsonSerializer.Serialize(value, GetOptions(options));
+	public static string ToJson(DataModelValue value, JsonOptions options = default) => JsonSerializer.Serialize(value, GetOptions(options));
 
-	public static byte[] ToJsonUtf8Bytes(DataModelValue value, DataModelConverterJsonOptions options = default) => JsonSerializer.SerializeToUtf8Bytes(value, GetOptions(options));
+	public static byte[] ToJsonUtf8Bytes(DataModelValue value, JsonOptions options = default) => JsonSerializer.SerializeToUtf8Bytes(value, GetOptions(options));
 
 	public static Task ToJsonAsync(Stream stream,
 								   DataModelValue value,
-								   DataModelConverterJsonOptions options = default,
+								   JsonOptions options = default,
 								   CancellationToken token = default)
 	{
 		Infra.Requires(stream);
@@ -179,24 +175,24 @@ public static class DataModelConverter
 		return JsonSerializer.DeserializeAsync<DataModelValue>(stream, DefaultOptions, token);
 	}
 
-	public static string ToXml(DataModelValue value, DataModelConverterXmlOptions options = default) => XmlConverter.ToXml(value, (options & DataModelConverterXmlOptions.WriteIndented) != 0);
+	public static string ToXml(DataModelValue value, XmlOptions options = default) => XmlConverter.ToXml(value, (options & XmlOptions.WriteIndented) != 0);
 
-	public static byte[] ToXmlUtf8Bytes(DataModelValue value, DataModelConverterXmlOptions options = default)
+	public static byte[] ToXmlUtf8Bytes(DataModelValue value, XmlOptions options = default)
 	{
 		using var memoryStream = new MemoryStream();
-		XmlConverter.AsXmlToStream(value, (options & DataModelConverterXmlOptions.WriteIndented) != 0, memoryStream);
+		XmlConverter.AsXmlToStream(value, (options & XmlOptions.WriteIndented) != 0, memoryStream);
 
 		return memoryStream.ToArray();
 	}
 
 	public static Task ToXmlAsync(Stream stream,
 								  DataModelValue value,
-								  DataModelConverterXmlOptions options = default,
+								  XmlOptions options = default,
 								  CancellationToken token = default)
 	{
 		Infra.Requires(stream);
 
-		return XmlConverter.AsXmlToStreamAsync(value, (options & DataModelConverterXmlOptions.WriteIndented) != 0, stream.InjectCancellationToken(token));
+		return XmlConverter.AsXmlToStreamAsync(value, (options & XmlOptions.WriteIndented) != 0, stream.InjectCancellationToken(token));
 	}
 
 	public static DataModelValue FromXml(string xml)
@@ -230,7 +226,7 @@ public static class DataModelConverter
 		return XmlConverter.FromXmlStreamAsync(stream.InjectCancellationToken(token));
 	}
 
-	private class JsonValueConverter(DataModelConverterJsonOptions converterOptions) : JsonConverter<DataModelValue>
+	private class JsonValueConverter(JsonOptions converterOptions) : JsonConverter<DataModelValue>
 	{
 		public override DataModelValue Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
 			reader.TokenType switch
@@ -251,12 +247,12 @@ public static class DataModelConverter
 		{
 			switch (value.Type)
 			{
-				case DataModelValueType.Undefined when (converterOptions & DataModelConverterJsonOptions.UndefinedToNull) != 0:
+				case DataModelValueType.Undefined when (converterOptions & JsonOptions.UndefinedToNull) != 0:
 					writer.WriteNullValue();
 
 					break;
 
-				case DataModelValueType.Undefined when (converterOptions & DataModelConverterJsonOptions.UndefinedToSkip) == 0:
+				case DataModelValueType.Undefined when (converterOptions & JsonOptions.UndefinedToSkip) == 0:
 					throw new JsonException(Resources.Exception_UndefinedValueNotAllowed);
 
 				case DataModelValueType.Undefined:
@@ -314,7 +310,7 @@ public static class DataModelConverter
 		}
 	}
 
-	private class JsonListConverter(DataModelConverterJsonOptions converterOptions) : JsonConverter<DataModelList>
+	private class JsonListConverter(JsonOptions converterOptions) : JsonConverter<DataModelList>
 	{
 		public override DataModelList Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
 			reader.TokenType switch
@@ -379,7 +375,7 @@ public static class DataModelConverter
 						writer.WritePropertyName(pair.Key);
 						JsonSerializer.Serialize(writer, pair.Value, options);
 					}
-					else if ((converterOptions & DataModelConverterJsonOptions.UndefinedToSkipOrNull) == DataModelConverterJsonOptions.UndefinedToNull)
+					else if ((converterOptions & JsonOptions.UndefinedToSkipOrNull) == JsonOptions.UndefinedToNull)
 					{
 						writer.WritePropertyName(pair.Key);
 						writer.WriteNullValue();
@@ -426,11 +422,11 @@ public static class DataModelConverter
 				{
 					JsonSerializer.Serialize(writer, value, options);
 				}
-				else if ((converterOptions & DataModelConverterJsonOptions.UndefinedToNull) != 0)
+				else if ((converterOptions & JsonOptions.UndefinedToNull) != 0)
 				{
 					writer.WriteNullValue();
 				}
-				else if ((converterOptions & DataModelConverterJsonOptions.UndefinedToSkip) == 0)
+				else if ((converterOptions & JsonOptions.UndefinedToSkip) == 0)
 				{
 					throw new JsonException(Resources.Exception_UndefinedValueNotAllowed);
 				}

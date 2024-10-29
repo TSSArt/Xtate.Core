@@ -17,15 +17,13 @@
 
 namespace Xtate.Core;
 
-public interface IKeepAlive
+public class ConfigurationXDataModelProperty : IXDataModelProperty
 {
-	Task Wait();
-}
+#region Interface IXDataModelProperty
 
-/*
-[Obsolete]
-public interface IScopeManagerOld
-{
-	[Obsolete]
-	ValueTask<IStateMachineController> RunStateMachine(IStateMachineStartOptions stateMachineStartOptions);
-}*/
+	public string Name => @"configuration";
+
+	public DataModelValue Value => default;
+
+#endregion
+}

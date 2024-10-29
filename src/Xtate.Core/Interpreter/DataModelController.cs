@@ -17,7 +17,13 @@
 
 namespace Xtate.Core;
 
-public interface ILocationAssigner
+public class DataModelController : IDataModelController
 {
-	ValueTask Assign(DataModelValue value);
+	public required IStateMachineContext StateMachineContext { private get; [UsedImplicitly] init; }
+
+#region Interface IDataModelController
+
+	public virtual DataModelList DataModel => StateMachineContext.DataModel;
+
+#endregion
 }

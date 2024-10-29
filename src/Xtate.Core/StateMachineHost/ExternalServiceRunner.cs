@@ -20,42 +20,33 @@ using Xtate.Service;
 
 namespace Xtate.Core;
 
-public class ExternalServiceRunner : IExternalServiceRunner, IDisposable
+public class ExternalServiceRunner : IExternalServiceRunner, IAsyncDisposable
 {
-	private readonly AsyncInit _actionOnComplete;
+	private readonly AsyncInit _execute;
 
-	private readonly IExternalService _externalService;
+	private readonly InvokeId _invokeId;
 
-	private readonly IStateMachineHostContext _stateMachineHostContext;
-
-	private InvokeId? _invokeId;
-
-	//private          ValueTask _actionOnComplete;
-
-	public ExternalServiceRunner(IStateMachineSessionId stateMachineSessionId,
-								 IStateMachineInvokeId stateMachineInvokeId,
-								 IExternalService externalService,
-								 IStateMachineHostContext stateMachineHostContext)
+	public ExternalServiceRunner(IStateMachineInvokeId stateMachineInvokeId)
 	{
 		_invokeId = stateMachineInvokeId.InvokeId;
-		_externalService = externalService;
-		_stateMachineHostContext = stateMachineHostContext;
-		_stateMachineHostContext.AddService(stateMachineSessionId.SessionId, _invokeId, _externalService, token: default);
-
-		//_actionOnComplete = ActionOnComplete().Preserve();
-
-		_actionOnComplete = AsyncInit.Run(ActionOnComplete);
+		_execute = AsyncInit.Run(Execute);
 	}
 
-	public required DataConverter DataConverter { private get; init; }
+	public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
 
-	public required IEventDispatcher Creator { private get; init; }
+	public required IExternalService ExternalService { private get; [UsedImplicitly] init; }
 
-#region Interface IDisposable
+	public required IStateMachineHostContext StateMachineHostContext { private get; [UsedImplicitly] init; }
 
-	public void Dispose()
+	public required DataConverter DataConverter { private get; [UsedImplicitly] init; }
+
+	public required IEventDispatcher CreatorEventDispatcher { private get; [UsedImplicitly] init; }
+
+#region Interface IAsyncDisposable
+
+	public async ValueTask DisposeAsync()
 	{
-		Dispose(true);
+		await DisposeAsyncCore().ConfigureAwait(false);
 		GC.SuppressFinalize(this);
 	}
 
@@ -63,41 +54,37 @@ public class ExternalServiceRunner : IExternalServiceRunner, IDisposable
 
 #region Interface IExternalServiceRunner
 
-	public ValueTask WaitForCompletion() => new(_actionOnComplete.Task);
+	public ValueTask WaitForCompletion() => new(_execute.Task);
 
 #endregion
 
-	private async ValueTask ActionOnComplete()
+	protected virtual ValueTask DisposeAsyncCore() => Complete();
+
+	private async ValueTask Execute()
 	{
+		await StateMachineHostContext.AddService(StateMachineSessionId.SessionId, _invokeId, ExternalService, token: default).ConfigureAwait(false);
+
 		try
 		{
-			var result = await _externalService.GetResult().ConfigureAwait(false);
-
-			var nameParts = EventName.GetDoneInvokeNameParts(_invokeId);
-			var evt = new EventObject { Type = EventType.External, NameParts = nameParts, Data = result, InvokeId = _invokeId };
-			await Creator.Send(evt, token: default).ConfigureAwait(false);
+			var evt = CreateEventFromResult(await ExternalService.GetResult().ConfigureAwait(false));
+			await CreatorEventDispatcher.Send(evt).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{
-			var evt = new EventObject
-					  {
-						  Type = EventType.External,
-						  NameParts = EventName.ErrorExecution,
-						  Data = DataConverter.FromException(ex),
-						  InvokeId = _invokeId
-					  };
-			await Creator.Send(evt, token: default).ConfigureAwait(false);
+			var evt = CreateEventFromException(ex);
+			await CreatorEventDispatcher.Send(evt).ConfigureAwait(false);
+		}
+		finally
+		{
+			await Complete().ConfigureAwait(false);
 		}
 	}
 
-	protected virtual void Dispose(bool disposing)
-	{
-		if (disposing)
-		{
-			if (Interlocked.Exchange(ref _invokeId, value: default) is { } invokeId)
-			{
-				_stateMachineHostContext.TryRemoveService(sessionId: null, invokeId);
-			}
-		}
-	}
+	private EventObject CreateEventFromResult(DataModelValue result) =>
+		new() { Type = EventType.External, NameParts = EventName.GetDoneInvokeNameParts(_invokeId), Data = result, InvokeId = _invokeId };
+
+	private EventObject CreateEventFromException(Exception ex) =>
+		new() { Type = EventType.External, NameParts = EventName.ErrorExecution, Data = DataConverter.FromException(ex), InvokeId = _invokeId };
+
+	private async ValueTask Complete() => await StateMachineHostContext.TryRemoveService(sessionId: null, _invokeId).ConfigureAwait(false);
 }

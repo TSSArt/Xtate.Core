@@ -17,11 +17,4 @@
 
 namespace Xtate.Core;
 
-public class StateMachineSessionId : IStateMachineSessionId
-{
-#region Interface IStateMachineSessionId
-
-	public SessionId SessionId { get; } = SessionId.New();
-
-#endregion
-}
+public delegate T Ancestor<out T>();

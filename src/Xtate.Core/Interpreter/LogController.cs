@@ -15,8 +15,19 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.Service;
-
 namespace Xtate.Core;
 
-public interface IStateMachineController : IExternalService;
+public class LogController : ILogController
+{
+	private const int EventId = 1;
+
+	public required ILogger<ILogController> Logger { private get; [UsedImplicitly] init; }
+
+#region Interface ILogController
+
+	public ValueTask Log(string? message = default, DataModelValue arguments = default) => Logger.Write(Level.Info, EventId, message, arguments);
+
+	public bool IsEnabled => Logger.IsEnabled(Level.Info);
+
+#endregion
+}
