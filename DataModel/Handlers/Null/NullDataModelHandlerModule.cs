@@ -15,7 +15,18 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.DataModel.Runtime;
+using Xtate.DataModel.Null;
+using Xtate.IoC;
 
-[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
-public class RuntimeDataModelHandlerProvider() : DataModelHandlerProviderBase<RuntimeDataModelHandler>(@"runtime");
+namespace Xtate.DataModel;
+
+public class NullDataModelHandlerModule : Module<DataModelHandlerBaseModule, ErrorProcessorModule>
+{
+	protected override void AddServices()
+	{
+		Services.AddTypeSync<NullConditionExpressionEvaluator, IConditionExpression, IIdentifier>();
+		Services.AddImplementation<DefaultDataModelHandlerProvider>().For<IDataModelHandlerProvider>();
+		Services.AddImplementation<NullDataModelHandlerProvider>().For<IDataModelHandlerProvider>();
+		Services.AddImplementation<NullDataModelHandler>().For<NullDataModelHandler>().For<IDataModelHandler>(Option.IfNotRegistered);
+	}
+}

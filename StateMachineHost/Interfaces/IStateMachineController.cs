@@ -21,7 +21,7 @@ namespace Xtate.Core;
 
 //TODO: ????
 
-public interface IStateMachineController : IService
+public interface IStateMachineController : IExternalService
 {
 	//[Obsolete] SessionId SessionId            { get; }
 

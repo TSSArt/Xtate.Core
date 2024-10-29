@@ -15,7 +15,12 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.DataModel.Runtime;
+namespace Xtate.Core;
 
-[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
-public class RuntimeDataModelHandlerProvider() : DataModelHandlerProviderBase<RuntimeDataModelHandler>(@"runtime");
+[Obsolete]
+public interface ILoadStateMachineLoggerContext //: ILoggerContext
+{
+	public Uri? Uri { get; }
+
+	public string? Scxml { get; }
+}

@@ -32,7 +32,7 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 	private readonly IEventSchedulerFactory                                   _defaultEventSchedulerFactory;
 	private readonly StateMachineHostOptions                                  _options;
 	private readonly ConcurrentDictionary<SessionId, SessionId>               _parentSessionIdBySessionId = new();
-	private readonly ConcurrentDictionary<InvokeId, IService?>                _serviceByInvokeId          = new();
+	private readonly ConcurrentDictionary<InvokeId, IExternalService?>                _serviceByInvokeId          = new();
 	private readonly ConcurrentDictionary<SessionId, IStateMachineController> _stateMachineBySessionId    = new();
 	//private readonly IStateMachineHost                                        _stateMachineHost;
 	private readonly CancellationTokenSource                                  _stopTokenSource;
@@ -323,14 +323,14 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 
 	public virtual ValueTask AddService(SessionId sessionId,
 										InvokeId invokeId,
-										IService service,
+										IExternalService externalService,
 										CancellationToken token)
 	{
-		var result = _serviceByInvokeId.TryAdd(invokeId, service);
+		var result = _serviceByInvokeId.TryAdd(invokeId, externalService);
 
 		Infra.Assert(result);
 
-		if (service is StateMachineControllerBase stateMachineController)
+		if (externalService is StateMachineControllerBase stateMachineController)
 		{
 			result = _parentSessionIdBySessionId.TryAdd(stateMachineController.SessionId, sessionId);
 
@@ -340,16 +340,16 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 		return default;
 	}
 
-	public virtual ValueTask<IService?> TryCompleteService(SessionId sessionId, InvokeId invokeId)
+	public virtual ValueTask<IExternalService?> TryCompleteService(SessionId sessionId, InvokeId invokeId)
 	{
 		if (!_serviceByInvokeId.TryGetValue(invokeId, out var service))
 		{
-			return new ValueTask<IService?>((IService?) null);
+			return new ValueTask<IExternalService?>((IExternalService?) null);
 		}
 
 		if (!_serviceByInvokeId.TryUpdate(invokeId, newValue: null, service))
 		{
-			return new ValueTask<IService?>((IService?) null);
+			return new ValueTask<IExternalService?>((IExternalService?) null);
 		}
 
 		if (service is StateMachineControllerBase stateMachineController)
@@ -357,14 +357,14 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 			_parentSessionIdBySessionId.TryRemove(stateMachineController.SessionId, out _);
 		}
 
-		return new ValueTask<IService?>(service);
+		return new ValueTask<IExternalService?>(service);
 	}
 
-	public virtual ValueTask<IService?> TryRemoveService(SessionId sessionId, InvokeId invokeId)
+	public virtual ValueTask<IExternalService?> TryRemoveService(SessionId sessionId, InvokeId invokeId)
 	{
 		if (!_serviceByInvokeId.TryRemove(invokeId, out var service) || service is null)
 		{
-			return new ValueTask<IService?>((IService?) null);
+			return new ValueTask<IExternalService?>((IExternalService?) null);
 		}
 
 		if (service is StateMachineControllerBase stateMachineController)
@@ -372,12 +372,12 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 			_parentSessionIdBySessionId.TryRemove(stateMachineController.SessionId, out _);
 		}
 
-		return new ValueTask<IService?>(service);
+		return new ValueTask<IExternalService?>(service);
 	}
 
 	public bool TryGetParentSessionId(SessionId sessionId, [NotNullWhen(true)] out SessionId? parentSessionId) => _parentSessionIdBySessionId.TryGetValue(sessionId, out parentSessionId);
 
-	public bool TryGetService(InvokeId invokeId, out IService? service) => _serviceByInvokeId.TryGetValue(invokeId, out service);
+	public bool TryGetService(InvokeId invokeId, out IExternalService? service) => _serviceByInvokeId.TryGetValue(invokeId, out service);
 
 	public async ValueTask DestroyStateMachine(SessionId sessionId)
 	{

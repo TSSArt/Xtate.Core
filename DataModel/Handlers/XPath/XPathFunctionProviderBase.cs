@@ -17,15 +17,13 @@
 
 namespace Xtate.DataModel.XPath;
 
-public abstract class XPathFunctionProviderBase<TXPathFunction> : IXPathFunctionProvider where TXPathFunction : XPathFunctionDescriptorBase
+public abstract class XPathFunctionProviderBase<TXPathFunction>(string ns, string name) : IXPathFunctionProvider where TXPathFunction : XPathFunctionBase
 {
 	public required Func<TXPathFunction> XPathFunctionFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IXPathFunctionProvider
 
-	public XPathFunctionDescriptorBase? TryGetFunction(string ns, string name) => CanHandle(ns, name) ? XPathFunctionFactory() : default;
+	XPathFunctionBase? IXPathFunctionProvider.TryGetFunction(string nsValue, string nameValue) => ns == nsValue && name == nameValue ? XPathFunctionFactory() : default;
 
 #endregion
-
-	protected abstract bool CanHandle(string ns, string name);
 }

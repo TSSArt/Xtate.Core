@@ -85,7 +85,7 @@ public sealed partial class StateMachineHost : IIoProcessor, IEventConsumer
 
 #endregion
 
-	private async ValueTask<IService> GetService(ServiceId serviceId, CancellationToken token) =>
+	private async ValueTask<IExternalService> GetService(ServiceId serviceId, CancellationToken token) =>
 		serviceId switch
 		{
 			SessionId sessionId

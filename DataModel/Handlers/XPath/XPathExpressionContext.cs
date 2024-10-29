@@ -23,7 +23,7 @@ namespace Xtate.DataModel.XPath;
 
 public class XPathExpressionContext : XsltContext
 {
-	private List<XPathFunctionDescriptorBase>? _functionDescriptors;
+	private List<XPathFunctionBase>? _functionDescriptors;
 	private List<XPathVarDescriptor>?          _varDescriptors;
 
 	public XPathExpressionContext(INameTableProvider nameTableProvider, IXmlNamespacesInfo? xmlNamespacesInfo) : base(nameTableProvider.GetNameTable())
@@ -100,7 +100,7 @@ public class XPathExpressionContext : XsltContext
 		return Initialize(varDescriptors, functionDescriptors);
 	}
 
-	private async ValueTask Initialize(List<XPathVarDescriptor>? varDescriptors, List<XPathFunctionDescriptorBase>? functionDescriptors)
+	private async ValueTask Initialize(List<XPathVarDescriptor>? varDescriptors, List<XPathFunctionBase>? functionDescriptors)
 	{
 		if (varDescriptors is not null)
 		{

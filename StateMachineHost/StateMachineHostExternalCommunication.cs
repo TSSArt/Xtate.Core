@@ -8,7 +8,7 @@ public class StateMachineHostExternalCommunication : IExternalCommunication
 
 	public required IStateMachineHost    StateMachineHost     { private get; [UsedImplicitly] init; }
 	
-	public required IServiceScopeManager ServiceScopeManager { private get; [UsedImplicitly] init; }
+	public required IExternalServiceScopeManager ExternalServiceScopeManager { private get; [UsedImplicitly] init; }
 
 	//public required Func<SecurityContextType, SecurityContextRegistration> SecurityContextRegistrationFactory { private get; [UsedImplicitly] init; }
 
@@ -25,7 +25,7 @@ public class StateMachineHostExternalCommunication : IExternalCommunication
 	//public ValueTask StartInvoke(InvokeData invokeData) => StateMachineHost.StartInvoke(SessionId, StateMachineLocation?.Location, invokeData, CancellationToken.None);
 	public ValueTask StartInvoke(InvokeId invokeId, InvokeData invokeData)
 	{
-		return ServiceScopeManager.StartService(invokeId, invokeData);
+		return ExternalServiceScopeManager.StartService(invokeId, invokeData);
 	}
 	/*
 	public async ValueTask StartInvoke(InvokeData invokeData)
