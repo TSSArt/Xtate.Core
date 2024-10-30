@@ -20,13 +20,6 @@ using System.Globalization;
 
 namespace Xtate;
 
-public enum DataModelDateTimeType
-{
-	DateTime,
-
-	DateTimeOffset
-}
-
 [Serializable]
 public readonly struct DataModelDateTime : IConvertible, ISpanFormattable, IEquatable<DataModelDateTime>, IComparable<DataModelDateTime>, IComparable
 {

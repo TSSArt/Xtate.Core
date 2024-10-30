@@ -17,40 +17,18 @@
 
 namespace Xtate.DataModel;
 
-public abstract class ScriptEvaluator(IScript script) : IScript, IExecEvaluator, IAncestorProvider
+public class DefaultRaiseEvaluator(IRaise raise) : RaiseEvaluator(raise)
 {
-#region Interface IAncestorProvider
+	public required Func<ValueTask<IEventController?>> EventSenderFactory { private get; [UsedImplicitly] init; }
 
-	object IAncestorProvider.Ancestor => script;
-
-#endregion
-
-#region Interface IExecEvaluator
-
-	public abstract ValueTask Execute();
-
-#endregion
-
-#region Interface IScript
-
-	public virtual IScriptExpression? Content => script.Content;
-
-	public virtual IExternalScriptExpression? Source => script.Source;
-
-#endregion
-}
-
-public class DefaultScriptEvaluator : ScriptEvaluator
-{
-	private readonly IExecEvaluator _evaluator;
-
-	public DefaultScriptEvaluator(IScript script) : base(script)
+	public override async ValueTask Execute()
 	{
-		var evaluator = base.Content?.As<IExecEvaluator>() ?? base.Source?.As<IExecEvaluator>();
-		Infra.NotNull(evaluator);
+		var outgoingEvent = base.OutgoingEvent;
+		Infra.NotNull(outgoingEvent);
 
-		_evaluator = evaluator;
+		if (await EventSenderFactory().ConfigureAwait(false) is { } eventSender)
+		{
+			await eventSender.Send(outgoingEvent).ConfigureAwait(false);
+		}
 	}
-
-	public override ValueTask Execute() => _evaluator.Execute();
 }

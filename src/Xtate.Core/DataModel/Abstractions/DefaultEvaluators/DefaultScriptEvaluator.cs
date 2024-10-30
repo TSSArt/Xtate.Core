@@ -15,37 +15,19 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate;
+namespace Xtate.DataModel;
 
-public record InvokeData(
-	Uri Type,
-	Uri? Source,
-	string? RawContent,
-	DataModelValue Content,
-	DataModelValue Parameters);
-
-public interface IEventController
+public class DefaultScriptEvaluator : ScriptEvaluator
 {
-	ValueTask Send(IOutgoingEvent outgoingEvent);
+	private readonly IExecEvaluator _evaluator;
 
-	ValueTask Cancel(SendId sendId);
-}
+	public DefaultScriptEvaluator(IScript script) : base(script)
+	{
+		var evaluator = base.Content?.As<IExecEvaluator>() ?? base.Source?.As<IExecEvaluator>();
+		Infra.NotNull(evaluator);
 
-public interface IInvokeController
-{
-	ValueTask Start(InvokeId invokeId, InvokeData invokeData);
+		_evaluator = evaluator;
+	}
 
-	ValueTask Cancel(InvokeId invokeId);
-
-	ValueTask Forward(InvokeId invokeId, IEvent evt);
-}
-
-public interface IInStateController
-{
-	bool InState(IIdentifier id);
-}
-
-public interface IDataModelController
-{
-	DataModelList DataModel { get; }
+	public override ValueTask Execute() => _evaluator.Execute();
 }

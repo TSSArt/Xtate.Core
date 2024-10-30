@@ -29,10 +29,10 @@ public class InterpreterTest
 		var linkedList = new LinkedList<int>();
 		var finalNode = new FinalNode(new DocumentIdNode(linkedList), new FinalEntity());
 		var target = ImmutableArray.Create<StateEntityNode>(finalNode);
-		var transition = new EmptyTransitionNode(new DocumentIdNode(linkedList), target);
+		var transition = new TransitionNode.Empty(new DocumentIdNode(linkedList), target);
 		var stateMachineEntity = new StateMachineEntity
 								 {
-									 Initial = new EmptyInitialNode(new DocumentIdNode(linkedList), transition),
+									 Initial = new InitialNode.Empty(new DocumentIdNode(linkedList), transition),
 									 States = [finalNode]
 								 };
 		var root = new StateMachineNode(new DocumentIdNode(linkedList), stateMachineEntity);

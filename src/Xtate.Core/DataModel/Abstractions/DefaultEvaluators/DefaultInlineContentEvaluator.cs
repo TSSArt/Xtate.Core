@@ -17,40 +17,13 @@
 
 namespace Xtate.DataModel;
 
-public abstract class ContentBodyEvaluator(IContentBody contentBody) : IContentBody, IObjectEvaluator, IStringEvaluator, IAncestorProvider
-{
-#region Interface IAncestorProvider
-
-	object IAncestorProvider.Ancestor => contentBody;
-
-#endregion
-
-#region Interface IContentBody
-
-	public virtual string? Value => contentBody.Value;
-
-#endregion
-
-#region Interface IObjectEvaluator
-
-	public abstract ValueTask<IObject> EvaluateObject();
-
-#endregion
-
-#region Interface IStringEvaluator
-
-	public virtual ValueTask<string> EvaluateString() => new(Value ?? string.Empty);
-
-#endregion
-}
-
-public class DefaultContentBodyEvaluator(IContentBody contentBody) : ContentBodyEvaluator(contentBody)
+public class DefaultInlineContentEvaluator(IInlineContent inlineContent) : InlineContentEvaluator(inlineContent)
 {
 	private DataModelValue _contentValue;
 
 	private Exception? _parseException;
 
-	public required Func<ValueTask<ILogger<IContentBody>>> LoggerFactory { private get; [UsedImplicitly] init; }
+	public required Func<ValueTask<ILogger<IInlineContent>>> LoggerFactory { private get; [UsedImplicitly] init; }
 
 	public override async ValueTask<IObject> EvaluateObject()
 	{
@@ -65,7 +38,7 @@ public class DefaultContentBodyEvaluator(IContentBody contentBody) : ContentBody
 				_parseException = exception;
 
 				var logger = await LoggerFactory().ConfigureAwait(false);
-				await logger.Write(Level.Warning, eventId: 1, message: Resources.Exception_FailedToParseContentBody, exception).ConfigureAwait(false);
+				await logger.Write(Level.Warning, eventId: 1, message: Resources.Exception_FailedToParseInlineContent, exception).ConfigureAwait(false);
 			}
 
 			_contentValue.MakeDeepConstant();

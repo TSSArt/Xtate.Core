@@ -19,13 +19,6 @@ using Xtate.Persistence;
 
 namespace Xtate.Core;
 
-public interface IInterpreterModel
-{
-	StateMachineNode Root { get; }
-
-	IEntityMap? EntityMap { get; }
-}
-
 public class InterpreterModel(StateMachineNode root, IEntityMap? entityMap) : IInterpreterModel
 {
 #region Interface IInterpreterModel

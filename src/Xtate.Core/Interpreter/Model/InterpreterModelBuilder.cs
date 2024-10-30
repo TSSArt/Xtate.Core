@@ -48,9 +48,9 @@ public class InterpreterModelBuilder : StateMachineVisitor
 
 	public required IResourceLoader ResourceLoader { private get; [UsedImplicitly] init; }
 
-	public required Func<DocumentIdNode, TransitionNode, EmptyInitialNode> EmptyInitialNodeFactory { private get; [UsedImplicitly] init; }
+	public required Func<DocumentIdNode, TransitionNode, InitialNode.Empty> EmptyInitialNodeFactory { private get; [UsedImplicitly] init; }
 
-	public required Func<DocumentIdNode, ImmutableArray<StateEntityNode>, EmptyTransitionNode> EmptyTransitionNodeFactory { private get; [UsedImplicitly] init; }
+	public required Func<DocumentIdNode, ImmutableArray<StateEntityNode>, TransitionNode.Empty> EmptyTransitionNodeFactory { private get; [UsedImplicitly] init; }
 
 	public required Func<DocumentIdNode, IInitial, InitialNode> InitialNodeFactory { private get; [UsedImplicitly] init; }
 

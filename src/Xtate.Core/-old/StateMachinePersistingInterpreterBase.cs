@@ -19,29 +19,6 @@ using Xtate.Persistence;
 
 namespace Xtate.Core;
 
-public interface IPersistingInterpreterState
-{
-	public Bucket StateBucket { get; }
-
-	public ValueTask CheckPoint(int level);
-}
-
-public class StateMachinePersistingInterpreterBase2(
-	IPersistingInterpreterState persistingInterpreterState,
-	IInterpreterModel interpreterModel) : StateMachinePersistingInterpreterBase(
-#pragma warning disable CS9107
-	persistingInterpreterState,
-#pragma warning restore CS9107
-	interpreterModel)
-{
-	protected override async ValueTask<IEvent> ReadExternalEvent()
-	{
-		await persistingInterpreterState.CheckPoint(16).ConfigureAwait(false);
-
-		return await base.ReadExternalEvent().ConfigureAwait(false);
-	}
-}
-
 public class StateMachinePersistingInterpreterBase : StateMachineInterpreter
 {
 	private const int KeyIndex = 0;
