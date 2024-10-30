@@ -17,15 +17,6 @@
 
 namespace Xtate.Core;
 
-public enum SendStatus
-{
-	Sent,
-
-	Scheduled,
-
-	ToInternalQueue
-}
-
 public interface IExternalCommunication
 {
 	ValueTask StartInvoke(InvokeId invokeId, InvokeData invokeData);

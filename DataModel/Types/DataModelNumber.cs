@@ -19,17 +19,6 @@ using System.Buffers.Binary;
 
 namespace Xtate;
 
-public enum DataModelNumberType
-{
-	Int32,
-
-	Int64,
-
-	Double,
-
-	Decimal
-}
-
 public readonly struct DataModelNumber : IConvertible, ISpanFormattable, IEquatable<DataModelNumber>, IComparable<DataModelNumber>, IComparable
 {
 	private static readonly double[] PowersOf10 = Enumerable.Range(start: 0, count: 29).Select(i => Math.Pow(x: 10, i)).ToArray();

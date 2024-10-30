@@ -19,15 +19,6 @@ using System.Globalization;
 
 namespace Xtate.Core;
 
-public interface ILogEnricher<[UsedImplicitly] TSource>
-{
-	string? Namespace { get; }
-
-	Level Level { get; }
-
-	IEnumerable<LoggingParameter> EnumerateProperties();
-}
-
 [SuppressMessage(category: "ReSharper", checkId: "ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator")]
 [SuppressMessage(category: "ReSharper", checkId: "ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator")]
 public class Logger<TSource> : ILogger<TSource>

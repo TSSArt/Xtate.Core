@@ -15,38 +15,22 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.DataModel.Runtime;
+namespace Xtate.Core;
 
-public abstract class RuntimeAction : IExecutableEntity
+public class InterpreterInfoLogEnricher<TSource> : ILogEnricher<TSource>
 {
-	public static RuntimeAction GetAction(Action action)
-	{
-		Infra.Requires(action);
+	public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
 
-		return new ActionSync(action);
+#region Interface ILogEnricher<TSource>
+
+	public IEnumerable<LoggingParameter> EnumerateProperties()
+	{
+		yield return new LoggingParameter(name: @"SessionId", StateMachineSessionId.SessionId);
 	}
 
-	public static RuntimeAction GetAction(Func<ValueTask> action)
-	{
-		Infra.Requires(action);
+	public string Namespace => @"ctx";
 
-		return new ActionAsync(action);
-	}
+	public Level Level => Level.Info;
 
-	public abstract ValueTask DoAction();
-
-	private sealed class ActionSync(Action action) : RuntimeAction
-	{
-		public override ValueTask DoAction()
-		{
-			action();
-
-			return default;
-		}
-	}
-
-	private sealed class ActionAsync(Func<ValueTask> action) : RuntimeAction
-	{
-		public override ValueTask DoAction() => action();
-	}
+#endregion
 }

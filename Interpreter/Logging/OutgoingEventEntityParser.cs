@@ -15,8 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.DataModel;
-
 namespace Xtate.Core;
 
 public class OutgoingEventEntityParser<TSource> : EntityParserBase<TSource, IOutgoingEvent>
@@ -46,21 +44,6 @@ public class OutgoingEventEntityParser<TSource> : EntityParserBase<TSource, IOut
 		if (evt.DelayMs is var delayMs and > 0)
 		{
 			yield return new LoggingParameter(name: @"DelayMs", delayMs);
-		}
-	}
-}
-
-public class OutgoingEventVerboseEntityParser<TSource>() : EntityParserBase<TSource, IOutgoingEvent>(Level.Verbose)
-{
-	public required IDataModelHandler DataModelHandler { private get; [UsedImplicitly] init; }
-
-	protected override IEnumerable<LoggingParameter> EnumerateProperties(IOutgoingEvent evt)
-	{
-		if (!evt.Data.IsUndefined())
-		{
-			yield return new LoggingParameter(name: @"Data", evt.Data.ToObject());
-
-			yield return new LoggingParameter(name: @"DataText", DataModelHandler.ConvertToText(evt.Data));
 		}
 	}
 }
