@@ -125,8 +125,8 @@ public sealed partial class StateMachineHost : IStateMachineHost
 				{
 					var result = await invokedService.GetResult().ConfigureAwait(false);
 
-					var nameParts = EventName.GetDoneInvokeNameParts(invokeId);
-					var evt = new EventObject { Type = EventType.External, NameParts = nameParts, Data = result, InvokeId = invokeId };
+					var name = EventName.GetDoneInvokeName(invokeId);
+					var evt = new EventObject { Type = EventType.External, Name = name, Data = result, InvokeId = invokeId };
 					await service.Send(evt).ConfigureAwait(false);
 				}
 				catch (Exception ex)
@@ -134,7 +134,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 					var evt = new EventObject
 							  {
 								  Type = EventType.External,
-								  NameParts = EventName.ErrorExecution,
+								  Name = EventName.ErrorExecution,
 								  Data = dataConverter.FromException(ex),
 								  InvokeId = invokeId
 							  };

@@ -81,10 +81,10 @@ public class ExternalServiceRunner : IExternalServiceRunner, IAsyncDisposable
 	}
 
 	private EventObject CreateEventFromResult(DataModelValue result) =>
-		new() { Type = EventType.External, NameParts = EventName.GetDoneInvokeNameParts(_invokeId), Data = result, InvokeId = _invokeId };
+		new() { Type = EventType.External, Name = EventName.GetDoneInvokeName(_invokeId), Data = result, InvokeId = _invokeId };
 
 	private EventObject CreateEventFromException(Exception ex) =>
-		new() { Type = EventType.External, NameParts = EventName.ErrorExecution, Data = DataConverter.FromException(ex), InvokeId = _invokeId };
+		new() { Type = EventType.External, Name = EventName.ErrorExecution, Data = DataConverter.FromException(ex), InvokeId = _invokeId };
 
 	private async ValueTask Complete() => await StateMachineHostContext.TryRemoveService(sessionId: null, _invokeId).ConfigureAwait(false);
 }

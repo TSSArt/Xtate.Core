@@ -42,7 +42,7 @@ internal class ServiceCommunication(
 
 		var newOutgoingEvent = new EventEntity
 							   {
-								   NameParts = outgoingEvent.NameParts,
+								   Name = outgoingEvent.Name,
 								   Data = outgoingEvent.Data,
 								   Type = type,
 								   Target = target

@@ -23,9 +23,9 @@ public class EventEntityParser<TSource> : EntityParserBase<TSource, IEvent>
 {
 	protected override IEnumerable<LoggingParameter> EnumerateProperties(IEvent evt)
 	{
-		if (!evt.NameParts.IsDefaultOrEmpty)
+		if (!evt.Name.IsDefault)
 		{
-			yield return new LoggingParameter(name: @"EventName", EventName.ToName(evt.NameParts));
+			yield return new LoggingParameter(name: @"EventName", evt.Name);
 		}
 
 		yield return new LoggingParameter(name: @"EventType", evt.Type);
