@@ -63,7 +63,7 @@ public class InvokeController : IInvokeController
 
 	public async ValueTask Forward(InvokeId invokeId, IEvent evt)
 	{
-		await Logger.Write(Level.Trace, EventForwardEventId, $@"Forward event: '{EventName.ToName(evt.NameParts)}'", evt).ConfigureAwait(false);
+		await Logger.Write(Level.Trace, EventForwardEventId, $@"Forward event: '{evt.Name}'", evt).ConfigureAwait(false);
 
 		try
 		{

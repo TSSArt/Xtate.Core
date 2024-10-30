@@ -123,7 +123,7 @@ public class DataConverter(ICaseSensitivity? caseSensitivity)
 
 		var eventList = new DataModelList(_caseInsensitive)
 						{
-							{ @"name", EventName.ToName(evt.NameParts) },
+							{ @"name", evt.Name.ToString() },
 							{ @"type", GetTypeString(evt.Type) },
 							{ @"sendid", evt.SendId },
 							{ @"origin", evt.Origin?.ToString() },

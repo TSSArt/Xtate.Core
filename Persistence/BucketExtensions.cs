@@ -95,6 +95,14 @@ internal static class BucketExtensions
 		}
 	}
 
+	public static void AddEventName<TKey>(this in Bucket bucket, TKey key, EventName eventName) where TKey : notnull
+	{
+		if (!eventName.IsDefault)
+		{
+			bucket.Add(key, eventName.ToString());
+		}
+	}
+
 	public static EnumGetter<TKey> GetEnum<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => new(bucket, key);
 
 	public static int GetInt32<TKey>(this in Bucket bucket, TKey key) where TKey : notnull =>
@@ -125,6 +133,8 @@ internal static class BucketExtensions
 	}
 
 	public static Uri? GetUri<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out Uri? value) ? value : null;
+
+	public static EventName GetEventName<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out string? value) ? EventName.FromString(value) : default;
 
 	public static void AddServiceId<TKey>(this in Bucket bucket, TKey key, ServiceId? serviceId) where TKey : notnull
 	{

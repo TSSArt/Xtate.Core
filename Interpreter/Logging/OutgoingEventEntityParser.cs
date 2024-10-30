@@ -23,9 +23,9 @@ public class OutgoingEventEntityParser<TSource> : EntityParserBase<TSource, IOut
 {
 	protected override IEnumerable<LoggingParameter> EnumerateProperties(IOutgoingEvent evt)
 	{
-		if (!evt.NameParts.IsDefaultOrEmpty)
+		if (!evt.Name.IsDefault)
 		{
-			yield return new LoggingParameter(name: @"EventName", EventName.ToName(evt.NameParts));
+			yield return new LoggingParameter(name: @"EventName", evt.Name);
 		}
 
 		if (evt.SendId is { } sendId)

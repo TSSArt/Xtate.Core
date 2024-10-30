@@ -21,7 +21,7 @@ public interface IEvent : IEntity
 {
 	SendId? SendId { get; }
 
-	ImmutableArray<IIdentifier> NameParts { get; }
+	EventName Name { get; }
 
 	EventType Type { get; }
 

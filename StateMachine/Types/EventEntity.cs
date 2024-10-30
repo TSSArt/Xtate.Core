@@ -17,19 +17,11 @@
 
 namespace Xtate.Core;
 
-public struct EventEntity : IOutgoingEvent
+public struct EventEntity(string? value) : IOutgoingEvent
 {
 	public static readonly Uri InternalTarget = new(uriString: @"_internal", UriKind.Relative);
 
 	public static readonly Uri ParentTarget = new(uriString: @"_parent", UriKind.Relative);
-
-	public EventEntity(string? value) : this()
-	{
-		if (!string.IsNullOrEmpty(value))
-		{
-			NameParts = EventName.ToParts(value);
-		}
-	}
 
 	public string? RawData { get; set; }
 
@@ -39,7 +31,7 @@ public struct EventEntity : IOutgoingEvent
 
 	public int DelayMs { get; set; }
 
-	public ImmutableArray<IIdentifier> NameParts { get; set; }
+	public EventName Name { get; set; } = (EventName)value;
 
 	public SendId? SendId { get; set; }
 

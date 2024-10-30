@@ -15,12 +15,24 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using System.Buffers;
 using System.Xml;
 
 namespace Xtate;
 
-public static class EventName
+/// <summary>
+///     Represents an event name in the state machine.
+/// </summary>
+/// <remarks>
+///     This struct is immutable and provides various functionalities to handle event names,
+///     including comparison, formatting, and conversion from strings.
+/// </remarks>
+[CollectionBuilder(typeof(EventName), nameof(Create))]
+[Serializable]
+public readonly struct EventName : IReadOnlyList<IIdentifier>, IEquatable<EventName>, ISpanFormattable
 {
+	private const string Separator = @".";
+
 	private const char Dot = '.';
 
 	private static readonly IIdentifier DoneIdentifier = Identifier.FromString("done");
@@ -33,29 +45,168 @@ public static class EventName
 
 	private static readonly IIdentifier PlatformIdentifier = Identifier.FromString("platform");
 
-	public static readonly ImmutableArray<IIdentifier> ErrorExecution = [ErrorIdentifier, Identifier.FromString("execution")];
+	public static readonly EventName ErrorExecution = [ErrorIdentifier, Identifier.FromString("execution")];
 
-	public static readonly ImmutableArray<IIdentifier> ErrorCommunication = [ErrorIdentifier, Identifier.FromString("communication")];
+	public static readonly EventName ErrorCommunication = [ErrorIdentifier, Identifier.FromString("communication")];
 
-	public static readonly ImmutableArray<IIdentifier> ErrorPlatform = [ErrorIdentifier, Identifier.FromString("platform")];
+	public static readonly EventName ErrorPlatform = [ErrorIdentifier, Identifier.FromString("platform")];
 
-	internal static ImmutableArray<IIdentifier> GetDoneStateNameParts(IIdentifier id) => GetNameParts(DoneIdentifier, StateIdentifier, id.Value);
+	private readonly ImmutableArray<IIdentifier> _parts;
 
-	internal static ImmutableArray<IIdentifier> GetDoneInvokeNameParts(InvokeId invokeId) => GetNameParts(DoneIdentifier, InvokeIdentifier, invokeId.Value);
+	private EventName(ImmutableArray<IIdentifier> parts) => _parts = parts;
 
-	private static ImmutableArray<IIdentifier> GetNameParts(IIdentifier id1, IIdentifier id2, string name)
+	public bool IsDefault => _parts.IsDefault;
+
+#region Interface IEnumerable
+
+	IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) _parts).GetEnumerator();
+
+#endregion
+
+#region Interface IEnumerable<IIdentifier>
+
+	IEnumerator<IIdentifier> IEnumerable<IIdentifier>.GetEnumerator() => ((IEnumerable<IIdentifier>) _parts).GetEnumerator();
+
+#endregion
+
+#region Interface IEquatable<EventName>
+
+	public bool Equals(EventName other)
 	{
-		Infra.Requires(name);
+		if (_parts == other._parts)
+		{
+			return true;
+		}
 
-		var invokeIdPartCount = GetCount(name);
-		var parts = new IIdentifier[2 + invokeIdPartCount];
+		if (_parts.IsDefault || other._parts.IsDefault)
+		{
+			return false;
+		}
 
-		parts[0] = id1;
-		parts[1] = id2;
+		if (_parts.Length != other._parts.Length)
+		{
+			return false;
+		}
 
-		SetParts(parts.AsSpan(start: 2, invokeIdPartCount), name);
+		for (var i = 0; i < _parts.Length; i ++)
+		{
+			if (!Identifier.EqualityComparer.Equals(_parts[i], other._parts[i]))
+			{
+				return false;
+			}
+		}
 
-		return [..parts];
+		return true;
+	}
+
+#endregion
+
+#region Interface IFormattable
+
+	public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
+
+#endregion
+
+#region Interface IReadOnlyCollection<IIdentifier>
+
+	public int Count => _parts.Length;
+
+#endregion
+
+#region Interface IReadOnlyList<IIdentifier>
+
+	public IIdentifier this[int index] => _parts[index];
+
+#endregion
+
+#region Interface ISpanFormattable
+
+	public bool TryFormat(Span<char> destination,
+						  out int charsWritten,
+						  ReadOnlySpan<char> format,
+						  IFormatProvider? provider)
+	{
+		charsWritten = 0;
+
+		if (_parts.IsDefaultOrEmpty)
+		{
+			return true;
+		}
+
+		if (!_parts[0].Value.TryCopyIncremental(ref destination, ref charsWritten))
+		{
+			return false;
+		}
+
+		for (var i = 1; i < _parts.Length; i ++)
+		{
+			if (!Separator.TryCopyIncremental(ref destination, ref charsWritten))
+			{
+				return false;
+			}
+
+			if (!_parts[i].Value.TryCopyIncremental(ref destination, ref charsWritten))
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+#endregion
+
+	public static EventName Create(ReadOnlySpan<IIdentifier> values) => new([.. values]);
+
+	public ImmutableArray<IIdentifier>.Enumerator GetEnumerator() => _parts.GetEnumerator();
+
+	public override int GetHashCode()
+	{
+		var hashCode = HashCode.Combine(0);
+
+		if (_parts.IsDefaultOrEmpty)
+		{
+			return hashCode;
+		}
+
+		foreach (var part in _parts)
+		{
+			hashCode = HashCode.Combine(hashCode, Identifier.EqualityComparer.GetHashCode(part));
+		}
+
+		return hashCode;
+	}
+
+	public override string ToString() =>
+		_parts switch
+		{
+			{ IsDefault: true }                                 => default,
+			{ IsEmpty: true }                                   => string.Empty,
+			[var identifier]                                    => identifier.Value,
+			[var identifier1, var identifier2]                  => identifier1.Value + Separator + identifier2.Value,
+			[var identifier1, var identifier2, var identifier3] => identifier1.Value.Concat(Separator, identifier2.Value, Separator, identifier3.Value),
+			_                                                   => string.Join(Separator, _parts.Select(p => p.Value))
+		};
+
+	public override bool Equals(object? obj) => obj is EventName other && Equals(other);
+
+	public static bool operator ==(EventName left, EventName right) => left.Equals(right);
+
+	public static bool operator !=(EventName left, EventName right) => !left.Equals(right);
+
+	public static explicit operator EventName(string name) => FromString(name);
+
+	private static int GetCount(string id)
+	{
+		var count = 1;
+		var pos = 0;
+
+		while ((pos = id.IndexOf(Dot, pos) + 1) > 0)
+		{
+			count ++;
+		}
+
+		return count;
 	}
 
 	private static void SetParts(Span<IIdentifier> span, string? id)
@@ -79,77 +230,7 @@ public static class EventName
 		span[index] = (Identifier) id[pos..];
 	}
 
-	private static int GetCount(string? id)
-	{
-		if (id is null)
-		{
-			return 0;
-		}
-
-		var count = 1;
-		var pos = 0;
-
-		while ((pos = id.IndexOf(Dot, pos) + 1) > 0)
-		{
-			count ++;
-		}
-
-		return count;
-	}
-
-	public static ImmutableArray<IIdentifier> GetErrorPlatform(string suffix)
-	{
-		Infra.Requires(suffix);
-
-		var suffixPartCount = GetCount(suffix);
-		var parts = new IIdentifier[2 + suffixPartCount];
-
-		parts[0] = ErrorIdentifier;
-		parts[1] = PlatformIdentifier;
-
-		SetParts(parts.AsSpan(start: 2, suffixPartCount), suffix);
-
-		return [..parts];
-	}
-
-	public static string? ToName(ImmutableArray<IIdentifier> nameParts)
-	{
-		if (nameParts.IsDefault)
-		{
-			return default;
-		}
-
-		if (nameParts.IsEmpty)
-		{
-			return string.Empty;
-		}
-
-		return string.Join(separator: @".", nameParts.Select(namePart => namePart.Value));
-	}
-
-	public static void WriteXml(XmlWriter writer, ImmutableArray<IIdentifier> nameParts)
-	{
-		if (nameParts.IsDefaultOrEmpty)
-		{
-			return;
-		}
-
-		var writeDelimiter = false;
-
-		foreach (var part in nameParts)
-		{
-			if (writeDelimiter)
-			{
-				writer.WriteString(@".");
-			}
-
-			writer.WriteString(part.Value);
-
-			writeDelimiter = true;
-		}
-	}
-
-	public static ImmutableArray<IIdentifier> ToParts(string name)
+	public static EventName FromString(string name)
 	{
 		if (name is null)
 		{
@@ -163,17 +244,68 @@ public static class EventName
 
 		var length = GetCount(name);
 
-		if (length == 0)
+		var buf = ArrayPool<IIdentifier>.Shared.Rent(length);
+
+		try
 		{
-			throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
+			var parts = buf.AsSpan(start: 0, length);
+			SetParts(parts, name);
+
+			return [.. parts];
 		}
-
-		var parts = new IIdentifier[length];
-
-		SetParts(parts, name);
-
-		return [..parts];
+		finally
+		{
+			ArrayPool<IIdentifier>.Shared.Return(buf, clearArray: true);
+		}
 	}
 
-	public static bool IsError(ImmutableArray<IIdentifier> nameParts) => !nameParts.IsDefaultOrEmpty && Identifier.EqualityComparer.Equals(nameParts[0], ErrorIdentifier);
+	private static EventName GetEventName(IIdentifier id1, IIdentifier id2, string name)
+	{
+		if (name is null)
+		{
+			return default;
+		}
+
+		var count = GetCount(name);
+
+		var buf = ArrayPool<IIdentifier>.Shared.Rent(2 + count);
+
+		try
+		{
+			buf[0] = id1;
+			buf[1] = id2;
+
+			var parts = buf.AsSpan(start: 2, count);
+
+			SetParts(parts, name);
+
+			return [.. buf.AsSpan(start: 0, 2 + count)];
+		}
+		finally
+		{
+			ArrayPool<IIdentifier>.Shared.Return(buf, clearArray: true);
+		}
+	}
+
+	public bool IsError() => !_parts.IsDefaultOrEmpty && Identifier.EqualityComparer.Equals(_parts[0], ErrorIdentifier);
+
+	public static EventName GetErrorPlatform(string suffix) => GetEventName(ErrorIdentifier, PlatformIdentifier, suffix);
+
+	internal static EventName GetDoneStateName(IIdentifier id) => GetEventName(DoneIdentifier, StateIdentifier, id.Value);
+
+	internal static EventName GetDoneInvokeName(InvokeId invokeId) => GetEventName(DoneIdentifier, InvokeIdentifier, invokeId.Value);
+
+	public void WriteTo(XmlWriter writer)
+	{
+		if (!_parts.IsDefault)
+		{
+			writer.WriteString(_parts[0].Value);
+
+			for (var i = 1; i < _parts.Length; i ++)
+			{
+				writer.WriteString(@".");
+				writer.WriteString(_parts[i].Value);
+			}
+		}
+	}
 }

@@ -326,12 +326,12 @@ public class ScxmlSerializerWriter(XmlWriter writer) : StateMachineVisitor
 
 		writer.WriteStartElement("raise");
 
-		var nameParts = entity.OutgoingEvent?.NameParts ?? default;
+		var name = entity.OutgoingEvent?.Name ?? default;
 
-		if (!nameParts.IsDefaultOrEmpty)
+		if (!name.IsDefault)
 		{
 			writer.WriteStartAttribute("event");
-			EventName.WriteXml(writer, nameParts);
+			name.WriteTo(writer);
 			writer.WriteEndAttribute();
 		}
 
