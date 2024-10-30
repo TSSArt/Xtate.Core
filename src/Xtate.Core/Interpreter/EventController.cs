@@ -51,7 +51,7 @@ public class EventController : IEventController
 
 	public virtual async ValueTask Send(IOutgoingEvent outgoingEvent)
 	{
-		await Logger.Write(Level.Trace, SendEventId, $@"Send event: '{EventName.ToName(outgoingEvent.NameParts)}'", outgoingEvent).ConfigureAwait(false);
+		await Logger.Write(Level.Trace, SendEventId, $@"Send event: '{outgoingEvent.Name}'", outgoingEvent).ConfigureAwait(false);
 
 		if (await TrySendEvent(outgoingEvent).ConfigureAwait(false) == SendStatus.ToInternalQueue)
 		{

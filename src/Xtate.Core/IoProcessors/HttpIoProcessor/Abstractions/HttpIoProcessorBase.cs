@@ -195,9 +195,9 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 
 		var content = GetContent(hostEvent, out var eventNameInContent);
 
-		if (!hostEvent.NameParts.IsDefaultOrEmpty && !eventNameInContent)
+		if (!hostEvent.Name.IsDefault && !eventNameInContent)
 		{
-			targetUri = QueryStringHelper.AddQueryString(targetUri, EventNameParameterName, EventName.ToName(hostEvent.NameParts)!);
+			targetUri = QueryStringHelper.AddQueryString(targetUri, EventNameParameterName, hostEvent.Name.ToString());
 		}
 
 		using var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, targetUri);
@@ -223,9 +223,9 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 		{
 			case DataModelValueType.Undefined:
 			case DataModelValueType.Null:
-				eventNameInContent = !hostEvent.NameParts.IsDefaultOrEmpty;
+				eventNameInContent = !hostEvent.Name.IsDefault;
 
-				return eventNameInContent ? new FormUrlEncodedContent(GetParameters(hostEvent.NameParts, dataModelList: null)) : null;
+				return eventNameInContent ? new FormUrlEncodedContent(GetParameters(hostEvent.Name, dataModelList: null)) : null;
 
 			case DataModelValueType.String:
 				eventNameInContent = false;
@@ -240,7 +240,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 				{
 					eventNameInContent = true;
 
-					return new FormUrlEncodedContent(GetParameters(hostEvent.NameParts, dataModelList));
+					return new FormUrlEncodedContent(GetParameters(hostEvent.Name, dataModelList));
 				}
 
 				eventNameInContent = false;
@@ -286,11 +286,11 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 		return true;
 	}
 
-	private static IEnumerable<KeyValuePair<string?, string?>> GetParameters(ImmutableArray<IIdentifier> eventNameParts, DataModelList? dataModelList)
+	private static IEnumerable<KeyValuePair<string?, string?>> GetParameters(EventName eventName, DataModelList? dataModelList)
 	{
-		if (!eventNameParts.IsDefaultOrEmpty)
+		if (!eventName.IsDefault)
 		{
-			yield return new KeyValuePair<string?, string?>(EventNameParameterName, EventName.ToName(eventNameParts));
+			yield return new KeyValuePair<string?, string?>(EventNameParameterName, eventName.ToString());
 		}
 
 		if (dataModelList is not null)
@@ -414,7 +414,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 		return new EventObject
 			   {
 				   Type = EventType.External,
-				   NameParts = EventName.GetErrorPlatform(ErrorSuffixHeader + _errorSuffix),
+				   Name = EventName.GetErrorPlatform(ErrorSuffixHeader + _errorSuffix),
 				   Data = data,
 				   OriginType = IoProcessorId
 			   };
@@ -459,7 +459,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 		return new EventObject
 			   {
 				   Type = EventType.External,
-				   NameParts = EventName.ToParts(eventName),
+				   Name = (EventName)eventName,
 				   Data = data,
 				   OriginType = IoProcessorId,
 				   Origin = origin

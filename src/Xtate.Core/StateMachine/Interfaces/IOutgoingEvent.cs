@@ -21,7 +21,7 @@ public interface IOutgoingEvent : IEntity
 {
 	SendId? SendId { get; }
 
-	ImmutableArray<IIdentifier> NameParts { get; }
+	EventName Name { get; }
 
 	Uri? Target { get; }
 

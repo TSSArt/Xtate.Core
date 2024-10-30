@@ -430,7 +430,7 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 					else if (_stateMachines.TryGetValue(invokedService.ParentSessionId, out var invokingStateMachine))
 					{
 						Infra.NotNull(invokingStateMachine.Controller);
-						var evt = new EventObject { Type = EventType.External, NameParts = EventName.ErrorExecution, InvokeId = invokedService.InvokeId };
+						var evt = new EventObject { Type = EventType.External, Name = EventName.ErrorExecution, InvokeId = invokedService.InvokeId };
 						await invokingStateMachine.Controller.Send(evt).ConfigureAwait(false);
 					}
 				}

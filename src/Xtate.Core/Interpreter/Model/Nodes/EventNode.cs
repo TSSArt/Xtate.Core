@@ -29,7 +29,7 @@ public sealed class EventNode(IOutgoingEvent outgoingEvent) : IOutgoingEvent, IS
 
 #region Interface IOutgoingEvent
 
-	public ImmutableArray<IIdentifier> NameParts => outgoingEvent.NameParts;
+	public EventName Name => outgoingEvent.Name;
 
 	public SendId? SendId => outgoingEvent.SendId;
 
@@ -47,7 +47,7 @@ public sealed class EventNode(IOutgoingEvent outgoingEvent) : IOutgoingEvent, IS
 
 	void IStoreSupport.Store(Bucket bucket)
 	{
-		bucket.Add(Key.Id, EventName.ToName(outgoingEvent.NameParts));
+		bucket.AddEventName(Key.Id, outgoingEvent.Name);
 	}
 
 #endregion

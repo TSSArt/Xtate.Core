@@ -101,7 +101,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		{
 			var internalEvent = internalQueue.Dequeue();
 
-			if (EventName.IsError(internalEvent.NameParts))
+			if (internalEvent.Name.IsError())
 			{
 				ProcessUnhandledError(internalEvent);
 
@@ -299,11 +299,11 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		var eventModel = DataConverter.FromEvent(internalEvent);
 		StateMachineContext.DataModel.SetInternal(key: @"_event", CaseSensitivity.CaseInsensitive, eventModel, DataModelAccess.ReadOnly);
 
-		await Logger.Write(Level.Trace, EventProcessingEventId, $@"Processing {internalEvent.Type} event '{EventName.ToName(internalEvent.NameParts)}'", internalEvent).ConfigureAwait(false);
+		await Logger.Write(Level.Trace, EventProcessingEventId, $@"Processing {internalEvent.Type} event '{internalEvent.Name}'", internalEvent).ConfigureAwait(false);
 
 		var transitions = await SelectTransitions(internalEvent).ConfigureAwait(false);
 
-		if (transitions.Count == 0 && EventName.IsError(internalEvent.NameParts))
+		if (transitions.Count == 0 && internalEvent.Name.IsError())
 		{
 			ProcessUnhandledError(internalEvent);
 		}
@@ -359,7 +359,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		var eventModel = DataConverter.FromEvent(externalEvent);
 		StateMachineContext.DataModel.SetInternal(key: @"_event", CaseSensitivity.CaseInsensitive, eventModel, DataModelAccess.ReadOnly);
 
-		await Logger.Write(Level.Trace, EventProcessingEventId, $@"Processing {externalEvent.Type} event '{EventName.ToName(externalEvent.NameParts)}'", externalEvent).ConfigureAwait(false);
+		await Logger.Write(Level.Trace, EventProcessingEventId, $@"Processing {externalEvent.Type} event '{externalEvent.Name}'", externalEvent).ConfigureAwait(false);
 
 		foreach (var state in StateMachineContext.Configuration)
 		{
@@ -720,13 +720,13 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 						doneData = await EvaluateDoneData(final.DoneData).ConfigureAwait(false);
 					}
 
-					StateMachineContext.InternalQueue.Enqueue(new EventObject { Type = EventType.Internal, NameParts = EventName.GetDoneStateNameParts(parent.Id), Data = doneData });
+					StateMachineContext.InternalQueue.Enqueue(new EventObject { Type = EventType.Internal, Name = EventName.GetDoneStateName(parent.Id), Data = doneData });
 
 					if (grandparent is ParallelNode)
 					{
 						if (grandparent.States.All(IsInFinalState))
 						{
-							StateMachineContext.InternalQueue.Enqueue(new EventObject { Type = EventType.Internal, NameParts = EventName.GetDoneStateNameParts(grandparent.Id) });
+							StateMachineContext.InternalQueue.Enqueue(new EventObject { Type = EventType.Internal, Name = EventName.GetDoneStateName(grandparent.Id) });
 						}
 					}
 				}
@@ -1076,7 +1076,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 				? ErrorType.Communication
 				: ErrorType.Execution;
 
-		var nameParts = errorType switch
+		var name = errorType switch
 						{
 							ErrorType.Execution     => EventName.ErrorExecution,
 							ErrorType.Communication => EventName.ErrorCommunication,
@@ -1087,7 +1087,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		var evt = new EventObject
 				  {
 					  Type = EventType.Platform,
-					  NameParts = nameParts,
+					  Name = name,
 					  Data = DataConverter.FromException(exception),
 					  SendId = sendId,
 					  Ancestor = exception

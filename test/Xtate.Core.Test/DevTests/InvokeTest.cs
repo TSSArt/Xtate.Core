@@ -85,7 +85,7 @@ public class InvokeTest
 		new()
 		{
 			Type = EventType.External,
-			NameParts = EventName.ToParts(name),
+			Name = (EventName)name,
 			InvokeId = invokeId
 		};
 
