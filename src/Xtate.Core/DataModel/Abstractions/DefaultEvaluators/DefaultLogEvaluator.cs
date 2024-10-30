@@ -17,39 +17,29 @@
 
 namespace Xtate.DataModel;
 
-public abstract class RaiseEvaluator(IRaise raise) : IRaise, IExecEvaluator, IAncestorProvider
+public class DefaultLogEvaluator : LogEvaluator
 {
-#region Interface IAncestorProvider
+	private readonly IObjectEvaluator? _expressionEvaluator;
 
-	object IAncestorProvider.Ancestor => raise;
+	public DefaultLogEvaluator(ILog log) : base(log) => _expressionEvaluator = base.Expression?.As<IObjectEvaluator>();
 
-#endregion
-
-#region Interface IExecEvaluator
-
-	public abstract ValueTask Execute();
-
-#endregion
-
-#region Interface IRaise
-
-	public virtual IOutgoingEvent? OutgoingEvent => raise.OutgoingEvent;
-
-#endregion
-}
-
-public class DefaultRaiseEvaluator(IRaise raise) : RaiseEvaluator(raise)
-{
-	public required Func<ValueTask<IEventController?>> EventSenderFactory { private get; [UsedImplicitly] init; }
+	public required Func<ValueTask<ILogController?>> LogControllerFactory { private get; [UsedImplicitly] init; }
 
 	public override async ValueTask Execute()
 	{
-		var outgoingEvent = base.OutgoingEvent;
-		Infra.NotNull(outgoingEvent);
+		var logController = await LogControllerFactory().ConfigureAwait(false);
 
-		if (await EventSenderFactory().ConfigureAwait(false) is { } eventSender)
+		if (logController?.IsEnabled ?? false)
 		{
-			await eventSender.Send(outgoingEvent).ConfigureAwait(false);
+			var data = default(DataModelValue);
+
+			if (_expressionEvaluator is not null)
+			{
+				var obj = await _expressionEvaluator.EvaluateObject().ConfigureAwait(false);
+				data = DataModelValue.FromObject(obj).AsConstant();
+			}
+
+			await logController.Log(base.Label, data).ConfigureAwait(false);
 		}
 	}
 }

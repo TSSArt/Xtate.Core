@@ -15,38 +15,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.DataModel.Runtime;
+namespace Xtate;
 
-public abstract class RuntimeAction : IExecutableEntity
-{
-	public static RuntimeAction GetAction(Action action)
-	{
-		Infra.Requires(action);
-
-		return new ActionSync(action);
-	}
-
-	public static RuntimeAction GetAction(Func<ValueTask> action)
-	{
-		Infra.Requires(action);
-
-		return new ActionAsync(action);
-	}
-
-	public abstract ValueTask DoAction();
-
-	private sealed class ActionSync(Action action) : RuntimeAction
-	{
-		public override ValueTask DoAction()
-		{
-			action();
-
-			return default;
-		}
-	}
-
-	private sealed class ActionAsync(Func<ValueTask> action) : RuntimeAction
-	{
-		public override ValueTask DoAction() => action();
-	}
-}
+public record InvokeData(
+	Uri Type,
+	Uri? Source,
+	string? RawContent,
+	DataModelValue Content,
+	DataModelValue Parameters);

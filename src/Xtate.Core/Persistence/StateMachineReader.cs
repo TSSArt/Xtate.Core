@@ -19,11 +19,6 @@ using Xtate.DataModel;
 
 namespace Xtate.Persistence;
 
-public interface IEntityMap
-{
-	bool TryGetEntityByDocumentId(int id, [MaybeNullWhen(false)] out IEntity entity);
-}
-
 public class StateMachineReader
 {
 	private IEntityMap? _forwardEntities;

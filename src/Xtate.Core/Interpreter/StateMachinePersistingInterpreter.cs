@@ -20,48 +20,6 @@ using Xtate.Persistence;
 
 namespace Xtate.Core;
 
-public interface IPersistedStateMachineRunState
-{
-	bool IsRestored { get; }
-}
-
-public class PersistedStateMachineRunState : IPersistedStateMachineRunState
-{
-#region Interface IPersistedStateMachineRunState
-
-	public bool IsRestored { get; } //TODO:
-
-#endregion
-}
-
-public class PersistedStateMachineService : IStateMachineService
-{
-	public required IPersistedStateMachineRunState RunState { private get; [UsedImplicitly] init; }
-
-	public required IStateMachineService StateMachineService { private get; [UsedImplicitly] init; }
-
-#region Interface IStateMachineService
-
-	public virtual ValueTask<IStateMachine?> GetStateMachine() => RunState.IsRestored ? default : StateMachineService.GetStateMachine();
-
-#endregion
-}
-
-public class PersistedDataModelHandlerGetter
-{
-	public required IPersistedStateMachineRunState RunState { private get; [UsedImplicitly] init; }
-
-	public required IInterpreterModel InterpreterModel { private get; [UsedImplicitly] init; }
-
-	public required IDataModelHandlerService DataModelHandlerService { private get; [UsedImplicitly] init; }
-
-	public required IStateMachine? StateMachine { private get; [UsedImplicitly] init; }
-
-	[UsedImplicitly]
-	public virtual ValueTask<IDataModelHandler?> GetDataModelHandler() =>
-		DataModelHandlerService.GetDataModelHandler(RunState.IsRestored ? InterpreterModel.Root.DataModelType : StateMachine.DataModelType);
-}
-
 public class StateMachinePersistingInterpreter : StateMachineInterpreter
 {
 	//private const string StateStorageKey                  = "state";

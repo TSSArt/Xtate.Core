@@ -20,11 +20,6 @@ using Xtate.Persistence;
 
 namespace Xtate.Core;
 
-public class EmptyTransitionNode(DocumentIdNode documentIdNode, ImmutableArray<StateEntityNode> target) : TransitionNode(documentIdNode, EmptyTransition, target)
-{
-	private static readonly ITransition EmptyTransition = new TransitionEntity();
-}
-
 public class TransitionNode : ITransition, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 {
 	private readonly ITransition _transition;
@@ -116,4 +111,9 @@ public class TransitionNode : ITransition, IStoreSupport, IAncestorProvider, IDo
 	}
 
 	public void SetSource(StateEntityNode source) => Source = source;
+
+	public class Empty(DocumentIdNode documentIdNode, ImmutableArray<StateEntityNode> target) : TransitionNode(documentIdNode, EmptyTransition, target)
+	{
+		private static readonly ITransition EmptyTransition = new TransitionEntity();
+	}
 }

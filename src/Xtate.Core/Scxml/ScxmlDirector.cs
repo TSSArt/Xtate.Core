@@ -808,8 +808,3 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 	#endregion
 	}
 }
-
-public interface ILineInfoRequired
-{
-	bool LineInfoRequired { get; }
-}
