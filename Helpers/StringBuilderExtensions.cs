@@ -16,7 +16,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #if !NETSTANDARD2_1 && !NETCOREAPP2_1_OR_GREATER
-
 using System.Text;
 
 namespace Xtate.Core;

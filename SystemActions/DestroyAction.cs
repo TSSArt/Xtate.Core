@@ -19,12 +19,13 @@ using System.Xml;
 
 namespace Xtate.CustomAction;
 
-public class DestroyActionProvider() : ActionProvider<DestroyAction>(ns: "http://xtate.net/scxml/system", name: "destroy");
-
 public class DestroyAction : AsyncAction, IDisposable
 {
+	public class Provider() : ActionProvider<DestroyAction>(ns: "http://xtate.net/scxml/system", name: "destroy");
+
 	private readonly DisposingToken _disposingToken = new();
-	private readonly StringValue    _sessionIdValue;
+
+	private readonly StringValue _sessionIdValue;
 
 	public DestroyAction(XmlReader xmlReader, IErrorProcessorService<DestroyAction> errorProcessorService)
 	{

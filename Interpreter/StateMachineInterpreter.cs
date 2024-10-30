@@ -24,32 +24,51 @@ using DefaultHistoryContent = Dictionary<IIdentifier, ImmutableArray<IExecEvalua
 
 public class StateMachineInterpreter : IStateMachineInterpreter
 {
-	private const int PlatformErrorEventId       = 1;
-	private const int ExecutionErrorEventId      = 2;
-	private const int CommunicationErrorEventId  = 3;
-	private const int InterpreterStateEventId    = 4;
-	private const int EventProcessingEventId     = 5;
-	private const int EnteringStateEventId       = 6;
-	private const int EnteredStateEventId        = 7;
-	private const int ExitingStateEventId        = 8;
-	private const int ExitedStateEventId         = 9;
+	private const int PlatformErrorEventId = 1;
+
+	private const int ExecutionErrorEventId = 2;
+
+	private const int CommunicationErrorEventId = 3;
+
+	private const int InterpreterStateEventId = 4;
+
+	private const int EventProcessingEventId = 5;
+
+	private const int EnteringStateEventId = 6;
+
+	private const int EnteredStateEventId = 7;
+
+	private const int ExitingStateEventId = 8;
+
+	private const int ExitedStateEventId = 9;
+
 	private const int ExecutingTransitionEventId = 10;
-	private const int ExecutedTransitionEventId  = 11;
+
+	private const int ExecutedTransitionEventId = 11;
 
 	private bool _running = true;
 
 	private StateMachineDestroyedException? _stateMachineDestroyedException;
 
-	public required StateMachineRuntimeError          StateMachineRuntimeError { private get; [UsedImplicitly] init; }
-	public required IStateMachineArguments?           StateMachineArguments    { private get; [UsedImplicitly] init; }
-	public required DataConverter                     DataConverter            { private get; [UsedImplicitly] init; }
-	public required ICaseSensitivity                  CaseSensitivity          { private get; [UsedImplicitly] init; }
-	public required IEventQueueReader                 EventQueueReader         { private get; [UsedImplicitly] init; }
-	public required ILogger<IStateMachineInterpreter> Logger                   { private get; [UsedImplicitly] init; }
-	public required IInterpreterModel                 Model                    { private get; [UsedImplicitly] init; }
-	public required INotifyStateChanged?              NotifyStateChanged       { private get; [UsedImplicitly] init; }
-	public required IUnhandledErrorBehaviour?         UnhandledErrorBehaviour  { private get; [UsedImplicitly] init; }
-	public required IStateMachineContext              StateMachineContext      { private get; [UsedImplicitly] init; }
+	public required StateMachineRuntimeError StateMachineRuntimeError { private get; [UsedImplicitly] init; }
+
+	public required IStateMachineArguments? StateMachineArguments { private get; [UsedImplicitly] init; }
+
+	public required DataConverter DataConverter { private get; [UsedImplicitly] init; }
+
+	public required ICaseSensitivity CaseSensitivity { private get; [UsedImplicitly] init; }
+
+	public required IEventQueueReader EventQueueReader { private get; [UsedImplicitly] init; }
+
+	public required ILogger<IStateMachineInterpreter> Logger { private get; [UsedImplicitly] init; }
+
+	public required IInterpreterModel Model { private get; [UsedImplicitly] init; }
+
+	public required INotifyStateChanged? NotifyStateChanged { private get; [UsedImplicitly] init; }
+
+	public required IUnhandledErrorBehaviour? UnhandledErrorBehaviour { private get; [UsedImplicitly] init; }
+
+	public required IStateMachineContext StateMachineContext { private get; [UsedImplicitly] init; }
 
 #region Interface IStateMachineInterpreter
 
@@ -65,9 +84,12 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 #endregion
 
 	protected virtual ValueTask NotifyAccepted() => NotifyInterpreterState(StateMachineInterpreterState.Accepted);
-	protected virtual ValueTask NotifyStarted()  => NotifyInterpreterState(StateMachineInterpreterState.Started);
-	protected virtual ValueTask NotifyExited()   => NotifyInterpreterState(StateMachineInterpreterState.Exited);
-	protected virtual ValueTask NotifyWaiting()  => NotifyInterpreterState(StateMachineInterpreterState.Waiting);
+
+	protected virtual ValueTask NotifyStarted() => NotifyInterpreterState(StateMachineInterpreterState.Started);
+
+	protected virtual ValueTask NotifyExited() => NotifyInterpreterState(StateMachineInterpreterState.Exited);
+
+	protected virtual ValueTask NotifyWaiting() => NotifyInterpreterState(StateMachineInterpreterState.Waiting);
 
 	protected ValueTask TraceInterpreterState(StateMachineInterpreterState state) => Logger.Write(Level.Trace, InterpreterStateEventId, $@"Interpreter state has changed to '{state}'");
 
@@ -79,7 +101,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		{
 			var internalEvent = internalQueue.Dequeue();
 
-			if (EventName.IsError(internalEvent.NameParts))
+			if (internalEvent.Name.IsError())
 			{
 				ProcessUnhandledError(internalEvent);
 
@@ -277,11 +299,11 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		var eventModel = DataConverter.FromEvent(internalEvent);
 		StateMachineContext.DataModel.SetInternal(key: @"_event", CaseSensitivity.CaseInsensitive, eventModel, DataModelAccess.ReadOnly);
 
-		await Logger.Write(Level.Trace, EventProcessingEventId, $@"Processing {internalEvent.Type} event '{EventName.ToName(internalEvent.NameParts)}'", internalEvent).ConfigureAwait(false);
+		await Logger.Write(Level.Trace, EventProcessingEventId, $@"Processing {internalEvent.Type} event '{internalEvent.Name}'", internalEvent).ConfigureAwait(false);
 
 		var transitions = await SelectTransitions(internalEvent).ConfigureAwait(false);
 
-		if (transitions.Count == 0 && EventName.IsError(internalEvent.NameParts))
+		if (transitions.Count == 0 && internalEvent.Name.IsError())
 		{
 			ProcessUnhandledError(internalEvent);
 		}
@@ -300,6 +322,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
 			case Xtate.UnhandledErrorBehaviour.DestroyStateMachine:
 				TriggerDestroySignal(GetUnhandledErrorException());
+
 				break;
 
 			case Xtate.UnhandledErrorBehaviour.HaltStateMachine:
@@ -336,7 +359,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		var eventModel = DataConverter.FromEvent(externalEvent);
 		StateMachineContext.DataModel.SetInternal(key: @"_event", CaseSensitivity.CaseInsensitive, eventModel, DataModelAccess.ReadOnly);
 
-		await Logger.Write(Level.Trace, EventProcessingEventId, $@"Processing {externalEvent.Type} event '{EventName.ToName(externalEvent.NameParts)}'", externalEvent).ConfigureAwait(false);
+		await Logger.Write(Level.Trace, EventProcessingEventId, $@"Processing {externalEvent.Type} event '{externalEvent.Name}'", externalEvent).ConfigureAwait(false);
 
 		foreach (var state in StateMachineContext.Configuration)
 		{
@@ -536,6 +559,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 					else
 					{
 						t1Preempted = true;
+
 						break;
 					}
 				}
@@ -582,7 +606,8 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		{
 			foreach (var history in state.HistoryStates)
 			{
-				static bool Deep(StateEntityNode node, StateEntityNode state)    => node.IsAtomicState && IsDescendant(node, state);
+				static bool Deep(StateEntityNode node, StateEntityNode state) => node.IsAtomicState && IsDescendant(node, state);
+
 				static bool Shallow(StateEntityNode node, StateEntityNode state) => node.Parent == state;
 
 				var list = history.Type == HistoryType.Deep
@@ -689,18 +714,19 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 					var grandparent = parent!.Parent;
 
 					DataModelValue doneData = default;
+
 					if (final.DoneData is not null)
 					{
 						doneData = await EvaluateDoneData(final.DoneData).ConfigureAwait(false);
 					}
 
-					StateMachineContext.InternalQueue.Enqueue(new EventObject { Type = EventType.Internal, NameParts = EventName.GetDoneStateNameParts(parent.Id), Data = doneData });
+					StateMachineContext.InternalQueue.Enqueue(new EventObject { Type = EventType.Internal, Name = EventName.GetDoneStateName(parent.Id), Data = doneData });
 
 					if (grandparent is ParallelNode)
 					{
 						if (grandparent.States.All(IsInFinalState))
 						{
-							StateMachineContext.InternalQueue.Enqueue(new EventObject { Type = EventType.Internal, NameParts = EventName.GetDoneStateNameParts(grandparent.Id) });
+							StateMachineContext.InternalQueue.Enqueue(new EventObject { Type = EventType.Internal, Name = EventName.GetDoneStateName(grandparent.Id) });
 						}
 					}
 				}
@@ -729,6 +755,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		if (state is CompoundNode)
 		{
 			static bool Predicate(StateEntityNode s, OrderedSet<StateEntityNode> cfg) => s is FinalNode && cfg.IsMember(s);
+
 			return state.States.Any(Predicate, StateMachineContext.Configuration);
 		}
 
@@ -764,11 +791,13 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 	private List<StateEntityNode> ComputeExitSet(List<TransitionNode> transitions)
 	{
 		var statesToExit = new List<StateEntityNode>();
+
 		foreach (var transition in transitions)
 		{
 			if (!transition.Target.IsDefaultOrEmpty)
 			{
 				var domain = GetTransitionDomain(transition);
+
 				foreach (var state in StateMachineContext.Configuration)
 				{
 					if (IsDescendant(state, domain))
@@ -819,6 +848,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		else
 		{
 			AddIfNotExists(statesToEnter, state);
+
 			if (state is CompoundNode compound)
 			{
 				AddIfNotExists(statesForDefaultEntry, compound);
@@ -1046,7 +1076,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 				? ErrorType.Communication
 				: ErrorType.Execution;
 
-		var nameParts = errorType switch
+		var name = errorType switch
 						{
 							ErrorType.Execution     => EventName.ErrorExecution,
 							ErrorType.Communication => EventName.ErrorCommunication,
@@ -1057,7 +1087,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		var evt = new EventObject
 				  {
 					  Type = EventType.Platform,
-					  NameParts = nameParts,
+					  Name = name,
 					  Data = DataConverter.FromException(exception),
 					  SendId = sendId,
 					  Ancestor = exception
@@ -1268,9 +1298,12 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		private const int IterationCount = 36;
 
 		private int[]? _data;
-		private int    _index;
-		private int    _queueLength;
-		private int    _sum;
+
+		private int _index;
+
+		private int _queueLength;
+
+		private int _sum;
 
 	#region Interface IDisposable
 

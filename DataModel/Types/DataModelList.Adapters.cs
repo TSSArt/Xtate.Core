@@ -21,15 +21,23 @@ public partial class DataModelList
 {
 	private abstract class AdapterBase
 	{
-		public abstract ref readonly DataModelValue  GetValueByIndex(ref Args args);
-		public abstract              DataModelAccess GetAccessByIndex(ref Args args);
-		public abstract              void            GetEntryByIndex(ref Args args, out Entry entry);
-		public abstract              void            ReadToArgsByIndex(ref Args args);
-		public abstract              Array           CreateArray(ref Args args, int size);
-		public abstract              bool            IsAccessAvailable();
-		public abstract              bool            IsKeyAvailable();
-		public abstract              void            AssignItemByIndex(ref Args args);
-		public abstract              Array           EnsureArray(ref Args args, int size);
+		public abstract ref readonly DataModelValue GetValueByIndex(ref Args args);
+
+		public abstract DataModelAccess GetAccessByIndex(ref Args args);
+
+		public abstract void GetEntryByIndex(ref Args args, out Entry entry);
+
+		public abstract void ReadToArgsByIndex(ref Args args);
+
+		public abstract Array CreateArray(ref Args args, int size);
+
+		public abstract bool IsAccessAvailable();
+
+		public abstract bool IsKeyAvailable();
+
+		public abstract void AssignItemByIndex(ref Args args);
+
+		public abstract Array EnsureArray(ref Args args, int size);
 
 		protected static HashKeyValue[] ValueToKeyValue(ref Args args, int size)
 		{

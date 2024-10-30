@@ -29,12 +29,17 @@ public sealed class EventNode(IOutgoingEvent outgoingEvent) : IOutgoingEvent, IS
 
 #region Interface IOutgoingEvent
 
-	public ImmutableArray<IIdentifier> NameParts => outgoingEvent.NameParts;
-	public SendId?                     SendId    => outgoingEvent.SendId;
-	public DataModelValue              Data      => outgoingEvent.Data;
-	public Uri?                        Target    => outgoingEvent.Target;
-	public Uri?                        Type      => outgoingEvent.Type;
-	public int                         DelayMs   => outgoingEvent.DelayMs;
+	public EventName Name => outgoingEvent.Name;
+
+	public SendId? SendId => outgoingEvent.SendId;
+
+	public DataModelValue Data => outgoingEvent.Data;
+
+	public Uri? Target => outgoingEvent.Target;
+
+	public Uri? Type => outgoingEvent.Type;
+
+	public int DelayMs => outgoingEvent.DelayMs;
 
 #endregion
 
@@ -42,7 +47,7 @@ public sealed class EventNode(IOutgoingEvent outgoingEvent) : IOutgoingEvent, IS
 
 	void IStoreSupport.Store(Bucket bucket)
 	{
-		bucket.Add(Key.Id, EventName.ToName(outgoingEvent.NameParts));
+		bucket.AddEventName(Key.Id, outgoingEvent.Name);
 	}
 
 #endregion

@@ -95,6 +95,14 @@ internal static class BucketExtensions
 		}
 	}
 
+	public static void AddEventName<TKey>(this in Bucket bucket, TKey key, EventName eventName) where TKey : notnull
+	{
+		if (!eventName.IsDefault)
+		{
+			bucket.Add(key, eventName.ToString());
+		}
+	}
+
 	public static EnumGetter<TKey> GetEnum<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => new(bucket, key);
 
 	public static int GetInt32<TKey>(this in Bucket bucket, TKey key) where TKey : notnull =>
@@ -126,6 +134,8 @@ internal static class BucketExtensions
 
 	public static Uri? GetUri<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out Uri? value) ? value : null;
 
+	public static EventName GetEventName<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out string? value) ? EventName.FromString(value) : default;
+
 	public static void AddServiceId<TKey>(this in Bucket bucket, TKey key, ServiceId? serviceId) where TKey : notnull
 	{
 		var serviceBucket = bucket.Nested(key);
@@ -134,14 +144,17 @@ internal static class BucketExtensions
 		{
 			case SessionId sessionId:
 				serviceBucket.AddId(Key.SessionId, sessionId);
+
 				break;
 
 			case InvokeId invokeId:
 				serviceBucket.AddId(Key.InvokeId, invokeId);
+
 				break;
 
 			case UriId uriId:
 				serviceBucket.AddId(Key.UriId, uriId);
+
 				break;
 		}
 	}
@@ -184,6 +197,7 @@ internal static class BucketExtensions
 
 			case DataModelValueType.List when bucket.TryGet(Key.RefId, out int refId):
 				var list = baseValue.Type == DataModelValueType.List ? baseValue.AsList() : null;
+
 				return DataModelValue.FromObject(tracker.GetValue(refId, type, list));
 
 			default: throw Infra.Unmatched(type);
@@ -205,6 +219,7 @@ internal static class BucketExtensions
 		if (tracker is null) throw new ArgumentNullException(nameof(tracker));
 
 		var type = item.Type;
+
 		if (type != DataModelValueType.Undefined)
 		{
 			bucket.Add(Key.Type, type);
@@ -217,22 +232,27 @@ internal static class BucketExtensions
 
 			case DataModelValueType.String:
 				bucket.Add(Key.Item, item.AsString());
+
 				break;
 
 			case DataModelValueType.Number:
 				bucket.Add(Key.Item, item.AsNumber());
+
 				break;
 
 			case DataModelValueType.DateTime:
 				bucket.Add(Key.Item, item.AsDateTime());
+
 				break;
 
 			case DataModelValueType.Boolean:
 				bucket.Add(Key.Item, item.AsBoolean());
+
 				break;
 
 			case DataModelValueType.List:
 				bucket.Add(Key.RefId, tracker.GetRefId(item));
+
 				break;
 
 			default:

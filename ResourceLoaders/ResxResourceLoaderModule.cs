@@ -23,7 +23,7 @@ public class ResxResourceLoaderModule : Module<ResourceModule>
 {
 	protected override void AddServices()
 	{
-		Services.AddSharedImplementation<ResxResourceLoaderProvider>(SharedWithin.Container).For<IResourceLoaderProvider>();
+		Services.AddSharedImplementation<ResxResourceLoader.Provider>(SharedWithin.Container).For<IResourceLoaderProvider>();
 		Services.AddImplementation<ResxResourceLoader>().For<ResxResourceLoader>().For<IResourceLoader>();
 	}
 }

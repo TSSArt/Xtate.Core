@@ -20,9 +20,10 @@ namespace Xtate.Core;
 public readonly struct LoggingParameter(string name, object? value, string? format = default) : ISpanFormattable
 {
 	private const string NsDelimiter = @"::";
+
 	private const string NmDelimiter = @":";
 
-	public        string Name { get; } = name;
+	public string Name { get; } = name;
 
 	public object? Value { get; } = value;
 

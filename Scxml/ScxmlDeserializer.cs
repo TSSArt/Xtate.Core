@@ -22,10 +22,13 @@ namespace Xtate.Scxml;
 
 public class ScxmlDeserializer : IScxmlDeserializer
 {
-	public required Func<XmlReader, ValueTask<ScxmlDirector>>  ScxmlDirectorFactory  { private get; [UsedImplicitly] init; }
+	public required Func<XmlReader, ValueTask<ScxmlDirector>> ScxmlDirectorFactory { private get; [UsedImplicitly] init; }
+
 	public required Func<XmlReader, ValueTask<XIncludeReader>> XIncludeReaderFactory { private get; [UsedImplicitly] init; }
-	public required IStateMachineValidator                     StateMachineValidator { private get; [UsedImplicitly] init; }
-	public required IXIncludeOptions?                          XIncludeOptions       { private get; [UsedImplicitly] init; }
+
+	public required IStateMachineValidator StateMachineValidator { private get; [UsedImplicitly] init; }
+
+	public required IXIncludeOptions? XIncludeOptions { private get; [UsedImplicitly] init; }
 
 #region Interface IScxmlDeserializer
 

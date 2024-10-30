@@ -19,25 +19,20 @@ using Xtate.Service;
 
 namespace Xtate;
 
-public sealed partial class StateMachineHost : IServiceFactory, IServiceActivator
+public sealed partial class StateMachineHost : IExternalServiceProvider, IExternalServiceActivator
 {
-	private static readonly Uri ServiceFactoryTypeId      = new(@"http://www.w3.org/TR/scxml/");
+	private static readonly Uri ServiceFactoryTypeId = new(@"http://www.w3.org/TR/scxml/");
+
 	private static readonly Uri ServiceFactoryAliasTypeId = new(uriString: @"scxml", UriKind.Relative);
 
-#region Interface IServiceFactory
+#region Interface IExternalServiceActivator
 
-	ValueTask<IServiceActivator?> IServiceFactory.TryGetActivator(Uri type) => new(CanHandle(type) ? this : null);
-
-#endregion
-
-#region Interface IServiceActivator
-
-	public ValueTask<IService> StartService() => throw new NotImplementedException();
+	public ValueTask<IExternalService> StartService() => throw new NotImplementedException();
 
 	[Obsolete]
-	async ValueTask<IService> IServiceActivator.StartService(Uri? baseUri,
-																	InvokeData invokeData,
-																	IServiceCommunication serviceCommunication)
+	async ValueTask<IExternalService> IExternalServiceActivator.StartService(Uri? baseUri,
+																			 InvokeData invokeData,
+																			 IServiceCommunication serviceCommunication)
 	{
 		Infra.Assert(CanHandle(invokeData.Type));
 
@@ -48,12 +43,18 @@ public sealed partial class StateMachineHost : IServiceFactory, IServiceActivato
 
 		Infra.Assert(scxml is not null || source is not null);
 
-		var stateMachineClass = scxml is not null 
-			? (StateMachineClass)new ScxmlStringStateMachine(scxml) {Location = baseUri!, Arguments = parameters}
-			: new LocationStateMachine(baseUri.CombineWith(source!)){Arguments = parameters};
+		var stateMachineClass = scxml is not null
+			? (StateMachineClass) new ScxmlStringStateMachine(scxml) { Location = baseUri!, Arguments = parameters }
+			: new LocationStateMachine(baseUri.CombineWith(source!)) { Arguments = parameters };
 
 		return await StartStateMachine(stateMachineClass, SecurityContextType.InvokedService).ConfigureAwait(false);
 	}
+
+#endregion
+
+#region Interface IExternalServiceProvider
+
+	ValueTask<IExternalServiceActivator?> IExternalServiceProvider.TryGetActivator(Uri type) => new(CanHandle(type) ? this : null);
 
 #endregion
 

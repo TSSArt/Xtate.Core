@@ -21,8 +21,9 @@ namespace Xtate.Core;
 
 public sealed class ElseNode : IElse, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 {
-	private readonly IElse          _else;
-	private          DocumentIdSlot _documentIdSlot;
+	private readonly IElse _else;
+
+	private DocumentIdSlot _documentIdSlot;
 
 	public ElseNode(DocumentIdNode documentIdNode, IElse @else)
 	{

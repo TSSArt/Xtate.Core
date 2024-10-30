@@ -22,7 +22,8 @@ namespace Xtate.Core;
 public class EventObject : IEvent, IStoreSupport, IAncestorProvider
 {
 	private readonly DataModelValue _data;
-	private          Uri?           _origin;
+
+	private Uri? _origin;
 
 	public EventObject() { }
 
@@ -31,7 +32,7 @@ public class EventObject : IEvent, IStoreSupport, IAncestorProvider
 		if (evt is null) throw new ArgumentNullException(nameof(evt));
 
 		SendId = evt.SendId;
-		NameParts = evt.NameParts;
+		Name = evt.Name;
 		Type = evt.Type;
 		Origin = evt.Origin;
 		OriginType = evt.OriginType;
@@ -44,7 +45,7 @@ public class EventObject : IEvent, IStoreSupport, IAncestorProvider
 		if (outgoingEvent is null) throw new ArgumentNullException(nameof(outgoingEvent));
 
 		SendId = outgoingEvent.SendId;
-		NameParts = outgoingEvent.NameParts;
+		Name = outgoingEvent.Name;
 		Data = outgoingEvent.Data;
 	}
 
@@ -52,7 +53,7 @@ public class EventObject : IEvent, IStoreSupport, IAncestorProvider
 	{
 		ValidateTypeInfo(bucket);
 
-		NameParts = bucket.GetString(Key.Name) is { Length: > 0 } name ? EventName.ToParts(name) : default;
+		Name = bucket.GetEventName(Key.Name);
 		Type = bucket.GetEnum(Key.Type).As<EventType>();
 		SendId = bucket.GetSendId(Key.SendId);
 		Origin = bucket.GetUri(Key.Origin);
@@ -75,7 +76,7 @@ public class EventObject : IEvent, IStoreSupport, IAncestorProvider
 
 	public InvokeId? InvokeId { get; init; }
 
-	public ImmutableArray<IIdentifier> NameParts { get; init; }
+	public EventName Name { get; init; }
 
 	public SendId? SendId { get; init; }
 
@@ -100,7 +101,7 @@ public class EventObject : IEvent, IStoreSupport, IAncestorProvider
 	public virtual void Store(Bucket bucket)
 	{
 		bucket.Add(Key.TypeInfo, TypeInfo);
-		bucket.Add(Key.Name, EventName.ToName(NameParts));
+		bucket.AddEventName(Key.Name, Name);
 		bucket.Add(Key.Type, Type);
 		bucket.AddId(Key.SendId, SendId);
 		bucket.Add(Key.Origin, Origin);

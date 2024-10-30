@@ -20,7 +20,8 @@ namespace Xtate.DataModel.XPath;
 public class XPathForEachEvaluator : DefaultForEachEvaluator
 {
 	private readonly XPathLocationExpressionEvaluator? _indexEvaluator;
-	private readonly XPathLocationExpressionEvaluator  _itemEvaluator;
+
+	private readonly XPathLocationExpressionEvaluator _itemEvaluator;
 
 	public XPathForEachEvaluator(IForEach forEach) : base(forEach)
 	{

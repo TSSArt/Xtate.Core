@@ -17,7 +17,6 @@
 
 namespace Xtate.Builder;
 
-[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
 public class ElseBuilder : BuilderBase, IElseBuilder
 {
 #region Interface IElseBuilder

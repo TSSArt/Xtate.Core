@@ -24,23 +24,24 @@ internal sealed class StateMachineSingleMacroStepController(
 	IStateMachineOptions? options,
 	IStateMachine? stateMachine,
 	Uri? stateMachineLocation,
-	IStateMachineHost stateMachineHost//,
+	IStateMachineHost stateMachineHost //,
 	//InterpreterOptions defaultOptions
 
 	// SecurityContext securityContext,
 	//										 DeferredFinalizer finalizer
-) : StateMachineControllerBase(sessionId, options, stateMachine, stateMachineLocation, stateMachineHost/*, defaultOptions*/)
+) : StateMachineControllerBase(sessionId, options, stateMachine, stateMachineLocation, stateMachineHost /*, defaultOptions*/)
 {
 	private readonly TaskCompletionSource<StateMachineInterpreterState> _doneCompletionSource = new();
-	private readonly CancellationTokenSource                            _suspendTokenSource   = new();
+
+	private readonly CancellationTokenSource _suspendTokenSource = new();
 
 	protected override Channel<IEvent> EventChannel { get; } = new SingleItemChannel<IEvent>();
 
-	public override async ValueTask Send(IEvent evt, CancellationToken token)
+	public override async ValueTask Send(IEvent evt)
 	{
-		await base.Send(evt, token).ConfigureAwait(false);
+		await base.Send(evt).ConfigureAwait(false);
 
-		var state = await _doneCompletionSource.Task.WaitAsync(token).ConfigureAwait(false);
+		var state = await _doneCompletionSource.Task.ConfigureAwait(false);
 
 		if (state == StateMachineInterpreterState.Waiting)
 		{

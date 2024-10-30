@@ -19,15 +19,4 @@ using Xtate.Service;
 
 namespace Xtate.Core;
 
-//TODO: ????
-
-public interface IStateMachineController : IService
-{
-	//[Obsolete] SessionId SessionId            { get; }
-
-	//[Obsolete] Uri       StateMachineLocation { get; }
-
-	//[Obsolete("Use Destroy() method")] void      TriggerDestroySignal();
-
-	//[Obsolete] ValueTask StartAsync(CancellationToken token);
-}
+public interface IStateMachineController : IExternalService;

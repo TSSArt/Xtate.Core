@@ -23,8 +23,9 @@ namespace Xtate.Core;
 
 public class RedirectXmlResolver : ScxmlXmlResolver, IDisposable
 {
-	private readonly DisposingToken                   _disposingToken = new();
-	public required  Func<ValueTask<IResourceLoader>> ResourceLoaderFactory { private get; [UsedImplicitly] init; }
+	private readonly DisposingToken _disposingToken = new();
+
+	public required Func<ValueTask<IResourceLoader>> ResourceLoaderFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IDisposable
 

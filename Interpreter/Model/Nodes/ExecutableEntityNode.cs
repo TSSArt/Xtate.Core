@@ -23,7 +23,8 @@ namespace Xtate.Core;
 public abstract class ExecutableEntityNode : IExecutableEntity, IExecEvaluator, IStoreSupport, IDocumentId
 {
 	private readonly IExecEvaluator _execEvaluator;
-	private          DocumentIdSlot _documentIdSlot;
+
+	private DocumentIdSlot _documentIdSlot;
 
 	protected ExecutableEntityNode(DocumentIdNode documentIdNode, IExecutableEntity entity)
 	{

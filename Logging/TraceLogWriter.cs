@@ -26,7 +26,7 @@ public abstract class TraceLogWriter
 
 	private readonly TraceSource _traceSource;
 
-	protected TraceLogWriter(string name, IEnumerable<TraceListener> traceListeners) 
+	protected TraceLogWriter(string name, IEnumerable<TraceListener> traceListeners)
 	{
 		_traceSource = new TraceSource(name, SourceLevels.Information);
 
@@ -67,9 +67,9 @@ public abstract class TraceLogWriter
 		};
 
 	public ValueTask Write(Level level,
-								 int eventId,
-								 string? message,
-								 IEnumerable<LoggingParameter>? parameters)
+						   int eventId,
+						   string? message,
+						   IEnumerable<LoggingParameter>? parameters)
 	{
 		var traceEventType = GetTraceEventType(level);
 
@@ -89,5 +89,4 @@ public abstract class TraceLogWriter
 	}
 }
 
-[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
 public class TraceLogWriter<TSource>(IEnumerable<TraceListener> traceListeners) : TraceLogWriter(typeof(TSource).FullName!, traceListeners), ILogWriter<TSource>;

@@ -17,7 +17,6 @@
 
 namespace Xtate.Builder;
 
-[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
 public class OnExitBuilder : BuilderBase, IOnExitBuilder
 {
 	private ImmutableArray<IExecutableEntity>.Builder? _actions;

@@ -20,10 +20,16 @@ namespace Xtate;
 public enum DataModelValueType
 {
 	Undefined,
+
 	Null,
+
 	String,
+
 	Boolean,
+
 	Number,
+
 	DateTime,
+
 	List
 }

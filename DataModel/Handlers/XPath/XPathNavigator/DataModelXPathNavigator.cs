@@ -24,13 +24,20 @@ public class DataModelXPathNavigator : XPathNavigator
 {
 	private const int PathFieldCount = 6;
 
-	private Node   _path0;
-	private Node   _path1;
-	private Node   _path2;
-	private Node   _path3;
-	private Node   _path4;
-	private Node   _path5;
-	private int    _pathLength;
+	private Node _path0;
+
+	private Node _path1;
+
+	private Node _path2;
+
+	private Node _path3;
+
+	private Node _path4;
+
+	private Node _path5;
+
+	private int _pathLength;
+
 	private Node[] _pathOther = [];
 
 	public DataModelXPathNavigator(DataModelValue root)
@@ -47,17 +54,25 @@ public class DataModelXPathNavigator : XPathNavigator
 		ClonePosition(source, this);
 	}
 
-	private ref Node Parent  => ref PathItem(_pathLength - 1);
+	private ref Node Parent => ref PathItem(_pathLength - 1);
+
 	private ref Node Current => ref PathItem(_pathLength);
 
-	public override XPathNodeType NodeType       => Current.GetNodeType();
-	public override string        Value          => Current.GetValue();
-	public override string        Name           => Current.GetName();
-	public override string        Prefix         => Current.GetPrefix();
-	public override string        BaseURI        => string.Empty;
-	public override string        NamespaceURI   => Current.GetNamespaceUri();
-	public override string        LocalName      => Current.GetLocalName();
-	public override bool          IsEmptyElement => Current.IsEmptyElement();
+	public override XPathNodeType NodeType => Current.GetNodeType();
+
+	public override string Value => Current.GetValue();
+
+	public override string Name => Current.GetName();
+
+	public override string Prefix => Current.GetPrefix();
+
+	public override string BaseURI => string.Empty;
+
+	public override string NamespaceURI => Current.GetNamespaceUri();
+
+	public override string LocalName => Current.GetLocalName();
+
+	public override bool IsEmptyElement => Current.IsEmptyElement();
 
 	public override XmlNameTable NameTable { get; }
 
@@ -79,6 +94,7 @@ public class DataModelXPathNavigator : XPathNavigator
 		}
 
 		var extraLength = destination._pathOther.Length - otherCount;
+
 		if (extraLength >= 0)
 		{
 			Array.Clear(destination._pathOther, otherCount, extraLength);
@@ -474,6 +490,7 @@ public class DataModelXPathNavigator : XPathNavigator
 		var list = Parent.DataModelValue.AsList();
 
 		var includeElement = new Element(Current.ParentProperty, value);
+
 		if (ShouldNormalize(Entries(list, Current.ParentIndex, includeElement, valueObject: default), out var value1))
 		{
 			PopNode();
@@ -546,7 +563,8 @@ public class DataModelXPathNavigator : XPathNavigator
 
 	private readonly struct Element(string? key, in DataModelValue value)
 	{
-		public readonly string?        Key   = key;
+		public readonly string? Key = key;
+
 		public readonly DataModelValue Value = value;
 	}
 
@@ -558,29 +576,46 @@ public class DataModelXPathNavigator : XPathNavigator
 		string? parentProperty = default,
 		DataModelList? metadata = default)
 	{
-		public readonly NodeAdapter    Adapter        = adapter;
+		public readonly NodeAdapter Adapter = adapter;
+
 		public readonly DataModelValue DataModelValue = value;
-		public readonly DataModelList? Metadata       = metadata;
-		public readonly int            ParentCursor   = parentCursor;
-		public readonly int            ParentIndex    = parentIndex;
-		public readonly string?        ParentProperty = parentProperty;
+
+		public readonly DataModelList? Metadata = metadata;
+
+		public readonly int ParentCursor = parentCursor;
+
+		public readonly int ParentIndex = parentIndex;
+
+		public readonly string? ParentProperty = parentProperty;
 
 		public bool Equals(Node node) => ParentCursor >= 0 ? ParentCursor == node.ParentCursor : DataModelValue == node.DataModelValue;
 
-		public XPathNodeType GetNodeType()     => Adapter.GetNodeType();
-		public string        GetValue()        => Adapter.GetValue(this);
-		public string        GetName()         => Adapter.GetName(this);
-		public string        GetPrefix()       => Adapter.GetPrefix(this);
-		public string        GetNamespaceUri() => Adapter.GetNamespaceUri(this);
-		public string        GetLocalName()    => Adapter.GetLocalName(this);
-		public bool          IsEmptyElement()  => Adapter.IsEmptyElement(this);
+		public XPathNodeType GetNodeType() => Adapter.GetNodeType();
 
-		public bool GetFirstChild(out Node childNode)         => Adapter.GetFirstChild(this, out childNode);
-		public bool GetNextChild(ref Node childNode)          => Adapter.GetNextChild(this, ref childNode);
-		public bool GetPreviousChild(ref Node childNode)      => Adapter.GetPreviousChild(this, ref childNode);
+		public string GetValue() => Adapter.GetValue(this);
+
+		public string GetName() => Adapter.GetName(this);
+
+		public string GetPrefix() => Adapter.GetPrefix(this);
+
+		public string GetNamespaceUri() => Adapter.GetNamespaceUri(this);
+
+		public string GetLocalName() => Adapter.GetLocalName(this);
+
+		public bool IsEmptyElement() => Adapter.IsEmptyElement(this);
+
+		public bool GetFirstChild(out Node childNode) => Adapter.GetFirstChild(this, out childNode);
+
+		public bool GetNextChild(ref Node childNode) => Adapter.GetNextChild(this, ref childNode);
+
+		public bool GetPreviousChild(ref Node childNode) => Adapter.GetPreviousChild(this, ref childNode);
+
 		public bool GetFirstAttribute(out Node attributeNode) => Adapter.GetFirstAttribute(this, out attributeNode);
-		public bool GetNextAttribute(ref Node attributeNode)  => Adapter.GetNextAttribute(this, ref attributeNode);
+
+		public bool GetNextAttribute(ref Node attributeNode) => Adapter.GetNextAttribute(this, ref attributeNode);
+
 		public bool GetFirstNamespace(out Node namespaceNode) => Adapter.GetFirstNamespace(this, out namespaceNode);
-		public bool GetNextNamespace(ref Node namespaceNode)  => Adapter.GetNextNamespace(this, ref namespaceNode);
+
+		public bool GetNextNamespace(ref Node namespaceNode) => Adapter.GetNextNamespace(this, ref namespaceNode);
 	}
 }

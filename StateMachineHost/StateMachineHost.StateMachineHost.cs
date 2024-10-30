@@ -32,7 +32,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 	//private ImmutableArray<IServiceFactory> _serviceFactories;
 	public required IAsyncEnumerable<IIoProcessorFactory> _ioProcessorFactories { private get; [UsedImplicitly] init; }
 
-	public required IAsyncEnumerable<IServiceFactory> ServiceFactories { private get; [UsedImplicitly] init; }
+	public required IAsyncEnumerable<IExternalServiceProvider> ServiceFactories { private get; [UsedImplicitly] init; }
 
 #region Interface IHostEventDispatcher
 
@@ -114,7 +114,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 		}
 
 		static async ValueTask CompleteAsync(StateMachineHostContext context,
-											 IService invokedService,
+											 IExternalService invokedService,
 											 IEventDispatcher service,
 											 SessionId sessionId,
 											 InvokeId invokeId,
@@ -125,20 +125,20 @@ public sealed partial class StateMachineHost : IStateMachineHost
 				{
 					var result = await invokedService.GetResult().ConfigureAwait(false);
 
-					var nameParts = EventName.GetDoneInvokeNameParts(invokeId);
-					var evt = new EventObject { Type = EventType.External, NameParts = nameParts, Data = result, InvokeId = invokeId };
-					await service.Send(evt, token: default).ConfigureAwait(false);
+					var name = EventName.GetDoneInvokeName(invokeId);
+					var evt = new EventObject { Type = EventType.External, Name = name, Data = result, InvokeId = invokeId };
+					await service.Send(evt).ConfigureAwait(false);
 				}
 				catch (Exception ex)
 				{
 					var evt = new EventObject
 							  {
 								  Type = EventType.External,
-								  NameParts = EventName.ErrorExecution,
+								  Name = EventName.ErrorExecution,
 								  Data = dataConverter.FromException(ex),
 								  InvokeId = invokeId
 							  };
-					await service.Send(evt, token: default).ConfigureAwait(false);
+					await service.Send(evt).ConfigureAwait(false);
 				}
 				finally
 				{
@@ -169,7 +169,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 	{
 		var context = GetCurrentContext();
 
-//		context.ValidateSessionId(sessionId, out _);
+		//		context.ValidateSessionId(sessionId, out _);
 
 		return context.CancelEvent(sessionId, sendId, token);
 	}
@@ -181,7 +181,8 @@ public sealed partial class StateMachineHost : IStateMachineHost
 	{
 		var context = GetCurrentContext();
 
-		return default;//TODO:
+		return default; //TODO:
+
 		//context.ValidateSessionId(sessionId, out _);
 
 		if (!context.TryGetService(invokeId, out var service))
@@ -189,7 +190,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 			throw new ProcessorException(Resources.Exception_InvalidInvokeId);
 		}
 
-		return service?.Send(evt, token) ?? default;
+		return service?.Send(evt) ?? default;
 	}
 
 #endregion
@@ -211,7 +212,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 
 	private StateMachineHostContext GetCurrentContext() => _context ?? throw new InvalidOperationException(Resources.Exception_IOProcessorHasNotBeenStarted);
 
-	private async ValueTask<IServiceActivator> FindServiceFactoryActivator(Uri type)
+	private async ValueTask<IExternalServiceActivator> FindServiceFactoryActivator(Uri type)
 	{
 		await foreach (var serviceFactory in ServiceFactories.ConfigureAwait(false))
 		{
@@ -257,7 +258,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 		{
 			foreach (var ioProcessorFactory in factories)
 			{
-				ioProcessors.Add(await ioProcessorFactory.Create(this, default/*??*/).ConfigureAwait(false));
+				ioProcessors.Add(await ioProcessorFactory.Create(this, token: default /*??*/).ConfigureAwait(false));
 			}
 		}
 
@@ -293,14 +294,14 @@ public sealed partial class StateMachineHost : IStateMachineHost
 		}
 	}
 
-	private static ValueTask DisposeInvokedService(IService service)
+	private static ValueTask DisposeInvokedService(IExternalService externalService)
 	{
-		if (service is IAsyncDisposable asyncDisposable)
+		if (externalService is IAsyncDisposable asyncDisposable)
 		{
 			return asyncDisposable.DisposeAsync();
 		}
 
-		if (service is IDisposable disposable)
+		if (externalService is IDisposable disposable)
 		{
 			disposable.Dispose();
 		}
@@ -355,8 +356,10 @@ public sealed partial class StateMachineHost : IStateMachineHost
 	#region Interface IStartInvokeLoggerContext
 
 		public SessionId SessionId { get; } = sessionId;
-		public Uri       Type      { get; } = type;
-		public Uri?      Source    { get; } = source;
+
+		public Uri Type { get; } = type;
+
+		public Uri? Source { get; } = source;
 
 	#endregion
 

@@ -16,57 +16,43 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Threading.Channels;
-using System.Xml.Linq;
 using Xtate.IoC;
 using Xtate.Service;
 
 namespace Xtate.Core;
 
-public abstract class StateMachineControllerBase : IStateMachineController, IService, /*IExternalCommunication, */INotifyStateChanged, IAsyncDisposable, IAsyncInitialization, IKeepAlive
+public abstract class StateMachineControllerBase : IStateMachineController, INotifyStateChanged, IAsyncDisposable, IAsyncInitialization
 
 {
-	private readonly TaskCompletionSource                 _acceptedTcs  = new();
+	private readonly TaskCompletionSource _acceptedTcs = new();
+
 	private readonly TaskCompletionSource<DataModelValue> _completedTcs = new();
-	//private readonly InterpreterOptions                   _defaultOptions;
 
 	private readonly CancellationTokenSource _destroyTokenSource;
-	private readonly DisposingToken          _disposingToken = new();
 
-	//private readonly DeferredFinalizer                    _finalizer;
-	private readonly IStateMachineOptions? _options;
-	private readonly AsyncInit             _startAsyncInit;
+	private readonly DisposingToken _disposingToken = new();
 
-	//private readonly SecurityContext                     _securityContext;
-	private readonly IStateMachine?    _stateMachine;
-	private readonly IStateMachineHost _stateMachineHost;
+	private readonly AsyncInit _startAsyncInit;
 
 	protected StateMachineControllerBase(SessionId sessionId,
 										 IStateMachineOptions? options,
 										 IStateMachine? stateMachine,
 										 Uri? stateMachineLocation,
-										 IStateMachineHost stateMachineHost/*,
-										 InterpreterOptions defaultOptions*/)
+										 IStateMachineHost stateMachineHost)
 	{
 		SessionId = sessionId;
 		StateMachineLocation = stateMachineLocation;
-		_options = options;
-		_stateMachine = stateMachine;
-		_stateMachineHost = stateMachineHost;
-		//_defaultOptions = defaultOptions;
 
-		//_securityContext = securityContext;
-		//_finalizer = finalizer;
-
-		_destroyTokenSource = CancellationTokenSource.CreateLinkedTokenSource(/*_defaultOptions.DestroyToken*/default, token2: default);
+		_destroyTokenSource = CancellationTokenSource.CreateLinkedTokenSource( /*_defaultOptions.DestroyToken*/token1: default, token2: default);
 
 		_startAsyncInit = AsyncInit.Run(Start);
 	}
 
 	public required IStateMachineInterpreter StateMachineInterpreter { private get; [UsedImplicitly] init; }
 
-	protected abstract Channel<IEvent>   EventChannel     { get; }
-	
-	public required    IEventQueueWriter EventQueueWriter { private get; [UsedImplicitly] init; }
+	protected abstract Channel<IEvent> EventChannel { get; }
+
+	public required IEventQueueWriter EventQueueWriter { private get; [UsedImplicitly] init; }
 
 	public Uri? StateMachineLocation { get; }
 
@@ -92,13 +78,22 @@ public abstract class StateMachineControllerBase : IStateMachineController, ISer
 #region Interface IEventDispatcher
 
 	//public virtual ValueTask Send(IEvent evt, CancellationToken token) => EventChannel.Writer.WriteAsync(evt, token);
-	public virtual ValueTask Send(IEvent evt, CancellationToken token) => EventQueueWriter.WriteAsync(evt);
+	public virtual ValueTask Send(IEvent evt) => EventQueueWriter.WriteAsync(evt);
 
 #endregion
 
-#region Interface IKeepAlive
+#region Interface IExternalService
 
-	public Task Wait() => GetResult().AsTask();
+	public ValueTask<DataModelValue> GetResult() => new(_completedTcs.Task);
+
+	ValueTask IExternalService.Destroy()
+	{
+		TriggerDestroySignal();
+
+		//TODO: Wait StateMachine destroyed
+
+		return default;
+	}
 
 #endregion
 
@@ -118,33 +113,13 @@ public abstract class StateMachineControllerBase : IStateMachineController, ISer
 
 #endregion
 
-#region Interface IService
-
-	public ValueTask<DataModelValue> GetResult() => new(_completedTcs.Task);
-
-	ValueTask IService.Destroy()
-	{
-		TriggerDestroySignal();
-		
-		//TODO: Wait StateMachine destroyed
-
-		return default;
-	}
-
-#endregion
+	public Task Wait() => GetResult().AsTask();
 
 	protected virtual ValueTask Start()
 	{
 		ExecuteAsync().Forget();
 
 		return new ValueTask(_acceptedTcs.Task.WaitAsync(_disposingToken.Token));
-	}
-
-	public async ValueTask StartAsync(CancellationToken token)
-	{
-		//ExecuteAsync().Forget();
-
-		await _acceptedTcs.Task.WaitAsync(token).ConfigureAwait(false);
 	}
 
 	public void TriggerDestroySignal() => _destroyTokenSource.Cancel();
@@ -159,14 +134,14 @@ public abstract class StateMachineControllerBase : IStateMachineController, ISer
 		return default;
 	}
 
-	protected virtual CancellationToken GetSuspendToken() => default;//_defaultOptions.SuspendToken;
+	protected virtual CancellationToken GetSuspendToken() => default; //_defaultOptions.SuspendToken;
 
 	protected virtual ValueTask Initialize() => default;
 
 	private async ValueTask<DataModelValue> ExecuteAsync()
 	{
-		//_finalizer.DefferFinalization();
 		var initialized = false;
+
 		while (true)
 		{
 			try
@@ -180,19 +155,14 @@ public abstract class StateMachineControllerBase : IStateMachineController, ISer
 
 				try
 				{
-					//var stateMachineInterpreter = _defaultOptions.ServiceLocator.GetService<IStateMachineInterpreter>();
-					//var stateMachineInterpreter = await _stateMachineInterpreterFactory().ConfigureAwait(false);
-
 					var result = await StateMachineInterpreter.RunAsync().ConfigureAwait(false);
 
-					//var result = await stateMachineInterpreter.RunAsync(SessionId, _stateMachine, EventChannel.Reader, GetOptions()).ConfigureAwait(false);
-					//await _finalizer.ExecuteDeferredFinalization().ConfigureAwait(false);
 					_acceptedTcs.TrySetResult();
 					_completedTcs.TrySetResult(result);
 
 					return result;
 				}
-				catch (StateMachineSuspendedException) /*when (!_defaultOptions.SuspendToken.IsCancellationRequested) */{ }
+				catch (StateMachineSuspendedException) /*when (!_defaultOptions.SuspendToken.IsCancellationRequested) */ { }
 
 				await WaitForResume().ConfigureAwait(false);
 			}
@@ -219,6 +189,7 @@ public abstract class StateMachineControllerBase : IStateMachineController, ISer
 	{
 		//var anyTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_defaultOptions.StopToken, _defaultOptions.DestroyToken, _defaultOptions.SuspendToken);
 		var anyTokenSource = new CancellationTokenSource();
+
 		try
 		{
 			if (await EventChannel.Reader.WaitToReadAsync(anyTokenSource.Token).ConfigureAwait(false))
@@ -245,28 +216,4 @@ public abstract class StateMachineControllerBase : IStateMachineController, ISer
 			anyTokenSource.Dispose();
 		}
 	}
-
-	//TODO: move to separate class
-	/*
-#region Interface IExternalCommunication
-
-	ValueTask<SendStatus> IExternalCommunication.
-	TrySendEvent(IOutgoingEvent outgoingEvent) => _stateMachineHost.DispatchEvent(SessionId, outgoingEvent, CancellationToken.None);
-
-	ValueTask IExternalCommunication.CancelEvent(SendId sendId) => _stateMachineHost.CancelEvent(SessionId, sendId, CancellationToken.None);
-
-	ValueTask IExternalCommunication.StartInvoke(InvokeData invokeData) => _stateMachineHost.StartInvoke(SessionId, invokeData, /*_securityContext,* / CancellationToken.None);
-
-	ValueTask IExternalCommunication.CancelInvoke(InvokeId invokeId) => _stateMachineHost.CancelInvoke(SessionId, invokeId, CancellationToken.None);
-
-	ValueTask IExternalCommunication.ForwardEvent(IEvent evt, InvokeId invokeId) => _stateMachineHost.ForwardEvent(SessionId, evt, invokeId, CancellationToken.None);
-
-#endregion*/
-	/*
-	ValueTask IInvokeController.Start(InvokeData invokeData) => _stateMachineHost.StartInvoke(SessionId, StateMachineLocation, invokeData, /*_securityContext, *CancellationToken.None);
-
-	ValueTask IInvokeController.Cancel(InvokeId invokeId) => _stateMachineHost.CancelInvoke(SessionId, invokeId, CancellationToken.None);
-
-	ValueTask IInvokeController.Forward(InvokeId invokeId, IEvent evt) => _stateMachineHost.ForwardEvent(SessionId, evt, invokeId, default);
-	*/
 }

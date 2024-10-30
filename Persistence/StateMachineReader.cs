@@ -243,6 +243,7 @@ public class StateMachineReader
 	private IExecutableEntity RestoreExecutableEntity(Bucket bucket)
 	{
 		var typeInfo = bucket.GetEnum(Key.TypeInfo).As<TypeInfo>();
+
 		return typeInfo switch
 			   {
 				   TypeInfo.AssignNode       => RestoreAssign(bucket) ?? throw new PersistenceException(Resources.Exception_CantRestoreElement),
@@ -399,6 +400,7 @@ public class StateMachineReader
 	private static IIdentifier? RestoreIdentifier(Bucket bucket)
 	{
 		var id = bucket.GetString(Key.Id);
+
 		return id is not null ? (Identifier) id : null;
 	}
 
@@ -497,6 +499,7 @@ public class StateMachineReader
 	private IStateEntity RestoreStateEntity(Bucket bucket)
 	{
 		var typeInfo = bucket.GetEnum(Key.TypeInfo).As<TypeInfo>();
+
 		return typeInfo switch
 			   {
 				   TypeInfo.CompoundNode => RestoreCompound(bucket) ?? throw new PersistenceException(Resources.Exception_CantRestoreElement),

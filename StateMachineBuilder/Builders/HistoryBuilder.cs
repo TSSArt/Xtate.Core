@@ -17,12 +17,13 @@
 
 namespace Xtate.Builder;
 
-[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
 public class HistoryBuilder : BuilderBase, IHistoryBuilder
 {
 	private IIdentifier? _id;
+
 	private ITransition? _transition;
-	private HistoryType  _type;
+
+	private HistoryType _type;
 
 #region Interface IHistoryBuilder
 

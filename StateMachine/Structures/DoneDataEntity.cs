@@ -29,7 +29,8 @@ public struct DoneDataEntity : IDoneData, IVisitorEntity<DoneDataEntity, IDoneDa
 
 #region Interface IDoneData
 
-	public IContent?              Content    { get; set; }
+	public IContent? Content { get; set; }
+
 	public ImmutableArray<IParam> Parameters { get; set; }
 
 #endregion

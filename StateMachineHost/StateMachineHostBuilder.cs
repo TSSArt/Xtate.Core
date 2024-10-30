@@ -26,7 +26,8 @@ namespace Xtate;
 public sealed class StateMachineHostBuilder : IStateMachineHostBuilder
 {
 	private readonly List<object> _actions = [];
-	private          Uri?         _baseUri;
+
+	private Uri? _baseUri;
 
 	private ImmutableDictionary<string, string>.Builder? _configuration;
 
@@ -38,9 +39,11 @@ public sealed class StateMachineHostBuilder : IStateMachineHostBuilder
 	private PersistenceLevel _persistenceLevel;
 
 	//private ImmutableArray<IResourceLoaderFactory>.Builder? _resourceLoaderFactories;
-	private ImmutableArray<IServiceFactory>.Builder? _serviceFactories;
-	private IStorageProvider?                        _storageProvider;
-	private TimeSpan?                                _suspendIdlePeriod;
+	private ImmutableArray<IExternalServiceProvider>.Builder? _serviceFactories;
+
+	private IStorageProvider? _storageProvider;
+
+	private TimeSpan? _suspendIdlePeriod;
 
 	private UnhandledErrorBehaviour _unhandledErrorBehaviour;
 
@@ -155,9 +158,9 @@ public sealed class StateMachineHostBuilder : IStateMachineHostBuilder
 		return this;
 	}
 
-	public StateMachineHostBuilder AddServiceFactory(IServiceFactory serviceFactory)
+	public StateMachineHostBuilder AddServiceFactory(IExternalServiceProvider externalServiceProvider)
 	{
-		(_serviceFactories ??= ImmutableArray.CreateBuilder<IServiceFactory>()).Add(serviceFactory);
+		(_serviceFactories ??= ImmutableArray.CreateBuilder<IExternalServiceProvider>()).Add(externalServiceProvider);
 
 		return this;
 	}

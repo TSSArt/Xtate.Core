@@ -66,7 +66,8 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 {
 	//private const string StateStorageKey                  = "state";
 	//private const string StateMachineDefinitionStorageKey = "smd";
-	private const int KeyIndex   = 0;
+	private const int KeyIndex = 0;
+
 	private const int ValueIndex = 1;
 
 	private readonly IInterpreterModel? _interpreterModel = default;
@@ -75,8 +76,10 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 	//private readonly IPersistenceContext?             _persistenceContext;
 
 	private readonly Bucket _stateBucket = default;
-	private          int    _stateBucketIndex;
-	private          int    _stateBucketSubIndex;
+
+	private int _stateBucketIndex;
+
+	private int _stateBucketSubIndex;
 
 	public virtual void TriggerSuspendSignal()
 	{
@@ -98,6 +101,7 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 	private void Exit(StateBagKey key, bool result)
 	{
 		Exit(key, out var bucket, iteration: false);
+
 		if (result)
 		{
 			bucket.Add(ValueIndex, value: true);
@@ -113,6 +117,7 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 
 		var stateMachineNode = _interpreterModel!.Root;
 		result = new List<TransitionNode>(length);
+
 		for (var i = 0; i < length; i ++)
 		{
 			result.Add(FindTransitionNode(stateMachineNode, bucket.GetInt32(i)));
@@ -155,6 +160,7 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 		bucket = bucket.Nested(ValueIndex);
 
 		bucket.Add(Bucket.RootKey, result.Count);
+
 		for (var i = 0; i < result.Count; i ++)
 		{
 			bucket.Add(i, result[i].DocumentId);
@@ -203,7 +209,7 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 
 				return true;
 
-			default: 
+			default:
 				throw Infra.Unmatched(methodState);
 		}
 	}
@@ -229,6 +235,7 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 		}
 
 		topBucket.RemoveSubtree(Bucket.RootKey);
+
 		if (iteration)
 		{
 			subBucket.RemoveSubtree(Bucket.RootKey);
@@ -595,39 +602,68 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 	private enum MethodState
 	{
 		Executing,
+
 		Completed
 	}
 
 	private enum StateBagKey
 	{
 		Value,
+
 		ExecuteGlobalScript,
+
 		InitialEnterStates,
+
 		ExitStates,
+
 		EnterStates,
+
 		NotifyAccepted,
+
 		NotifyStarted,
+
 		NotifyExited,
+
 		NotifyWaiting,
+
 		Interpret,
+
 		ExitSteps,
+
 		InitializeDataModels,
+
 		MainEventLoopIteration,
+
 		StartInvokeLoop,
+
 		Microstep,
+
 		InternalQueueProcess,
+
 		IsInternalQueueEmpty,
+
 		MacrostepIteration,
+
 		Macrostep,
+
 		ExternalQueueProcess,
+
 		SelectTransitions,
+
 		MainEventLoop,
+
 		ExitInterpreter,
+
 		ExecuteTransitionContent,
+
 		RunExecutableEntity,
+
 		Invoke,
+
 		CancelInvoke,
+
 		InitializeDataModel,
+
 		InitializeData
 	}
 

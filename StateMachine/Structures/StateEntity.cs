@@ -35,14 +35,21 @@ public struct StateEntity : IState, IVisitorEntity<StateEntity, IState>, IAncest
 
 #region Interface IState
 
-	public IDataModel?                  DataModel     { get; set; }
-	public IInitial?                    Initial       { get; set; }
-	public ImmutableArray<IInvoke>      Invoke        { get; set; }
-	public ImmutableArray<IOnEntry>     OnEntry       { get; set; }
-	public ImmutableArray<IOnExit>      OnExit        { get; set; }
-	public ImmutableArray<IStateEntity> States        { get; set; }
-	public ImmutableArray<IHistory>     HistoryStates { get; set; }
-	public ImmutableArray<ITransition>  Transitions   { get; set; }
+	public IDataModel? DataModel { get; set; }
+
+	public IInitial? Initial { get; set; }
+
+	public ImmutableArray<IInvoke> Invoke { get; set; }
+
+	public ImmutableArray<IOnEntry> OnEntry { get; set; }
+
+	public ImmutableArray<IOnExit> OnExit { get; set; }
+
+	public ImmutableArray<IStateEntity> States { get; set; }
+
+	public ImmutableArray<IHistory> HistoryStates { get; set; }
+
+	public ImmutableArray<ITransition> Transitions { get; set; }
 
 #endregion
 

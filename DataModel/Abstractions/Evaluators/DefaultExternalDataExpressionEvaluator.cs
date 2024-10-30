@@ -40,9 +40,11 @@ public abstract class ExternalDataExpressionEvaluator(IExternalDataExpression ex
 
 public class DefaultExternalDataExpressionEvaluator(IExternalDataExpression externalDataExpression) : ExternalDataExpressionEvaluator(externalDataExpression)
 {
-	public required Func<ValueTask<DataConverter>>          DataConverterFactory        { private get; [UsedImplicitly] init; }
+	public required Func<ValueTask<DataConverter>> DataConverterFactory { private get; [UsedImplicitly] init; }
+
 	public required Func<ValueTask<IStateMachineLocation?>> StateMachineLocationFactory { private get; [UsedImplicitly] init; }
-	public required Func<ValueTask<IResourceLoader>>        ResourceLoaderFactory       { private get; [UsedImplicitly] init; }
+
+	public required Func<ValueTask<IResourceLoader>> ResourceLoaderFactory { private get; [UsedImplicitly] init; }
 
 	public override async ValueTask<IObject> EvaluateObject()
 	{

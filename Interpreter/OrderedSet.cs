@@ -24,7 +24,9 @@ public sealed class OrderedSet<T> : List<T>
 	public enum ChangedAction
 	{
 		Add,
+
 		Clear,
+
 		Delete
 	}
 

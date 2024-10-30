@@ -17,7 +17,6 @@
 
 namespace Xtate.Builder;
 
-[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
 public class InitialBuilder : BuilderBase, IInitialBuilder
 {
 	private ITransition? _transition;

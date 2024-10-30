@@ -23,6 +23,7 @@ namespace Xtate;
 public enum DataModelDateTimeType
 {
 	DateTime,
+
 	DateTimeOffset
 }
 
@@ -30,11 +31,15 @@ public enum DataModelDateTimeType
 public readonly struct DataModelDateTime : IConvertible, ISpanFormattable, IEquatable<DataModelDateTime>, IComparable<DataModelDateTime>, IComparable
 {
 	private const ulong KindLocal = 0x8000000000000000;
-	private const ulong KindUtc   = 0x4000000000000000;
+
+	private const ulong KindUtc = 0x4000000000000000;
+
 	private const ulong TicksMask = 0x3FFFFFFFFFFFFFFF;
-	private const int   KindShift = 62;
+
+	private const int KindShift = 62;
 
 	private readonly ulong _data;
+
 	private readonly short _offset;
 
 	private DataModelDateTime(in ReadOnlySpan<byte> span)
@@ -365,9 +370,12 @@ public readonly struct DataModelDateTime : IConvertible, ISpanFormattable, IEqua
 
 	private ref struct ParseData
 	{
-		public DateTime       DateTime;
+		public DateTime DateTime;
+
 		public DateTimeOffset DateTimeOffset;
-		public bool           DateTimeOffsetParsed;
-		public bool           DateTimeParsed;
+
+		public bool DateTimeOffsetParsed;
+
+		public bool DateTimeParsed;
 	}
 }

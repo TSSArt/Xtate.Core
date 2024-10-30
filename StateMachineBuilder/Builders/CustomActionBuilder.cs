@@ -17,11 +17,12 @@
 
 namespace Xtate.Builder;
 
-[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
 public class CustomActionBuilder : BuilderBase, ICustomActionBuilder
 {
 	private string? _name;
+
 	private string? _ns;
+
 	private string? _xml;
 
 #region Interface ICustomActionBuilder

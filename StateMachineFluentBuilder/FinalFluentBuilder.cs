@@ -21,11 +21,14 @@ namespace Xtate.Builder;
 
 public class FinalFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 {
-	public required IFinalBuilder  Builder      { private get; [UsedImplicitly] init; }
-	public required Action<IFinal> BuiltAction  { private get; [UsedImplicitly] init; }
-	public required TOuterBuilder  OuterBuilder { private get; [UsedImplicitly] init; }
+	public required IFinalBuilder Builder { private get; [UsedImplicitly] init; }
 
-	public required Func<IContentBuilder>  ContentBuilderFactory  { private get; [UsedImplicitly] init; }
+	public required Action<IFinal> BuiltAction { private get; [UsedImplicitly] init; }
+
+	public required TOuterBuilder OuterBuilder { private get; [UsedImplicitly] init; }
+
+	public required Func<IContentBuilder> ContentBuilderFactory { private get; [UsedImplicitly] init; }
+
 	public required Func<IDoneDataBuilder> DoneDataBuilderFactory { private get; [UsedImplicitly] init; }
 
 	public TOuterBuilder EndFinal()

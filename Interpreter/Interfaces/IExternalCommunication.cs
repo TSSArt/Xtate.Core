@@ -20,15 +20,21 @@ namespace Xtate.Core;
 public enum SendStatus
 {
 	Sent,
+
 	Scheduled,
+
 	ToInternalQueue
 }
 
 public interface IExternalCommunication
 {
-	ValueTask             StartInvoke(InvokeId invokeId, InvokeData invokeData);
-	ValueTask             CancelInvoke(InvokeId invokeId);
-	ValueTask             ForwardEvent(InvokeId invokeId, IEvent evt);
+	ValueTask StartInvoke(InvokeId invokeId, InvokeData invokeData);
+
+	ValueTask CancelInvoke(InvokeId invokeId);
+
+	ValueTask ForwardEvent(InvokeId invokeId, IEvent evt);
+
 	ValueTask<SendStatus> TrySendEvent(IOutgoingEvent outgoingEvent);
-	ValueTask             CancelEvent(SendId sendId);
+
+	ValueTask CancelEvent(SendId sendId);
 }

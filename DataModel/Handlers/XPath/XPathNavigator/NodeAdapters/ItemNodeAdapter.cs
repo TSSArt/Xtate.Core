@@ -71,6 +71,7 @@ internal class ItemNodeAdapter : ElementNodeAdapter
 			}
 
 			var isNamespace = XPathMetadata.GetValue(metadata, entry.Index, XPathMetadata.AttributeNamespaceOffset) == XPathMetadata.XmlnsNamespace;
+
 			if (isNamespace == ns)
 			{
 				var adapter = ns ? AdapterFactory.NamespaceNodeAdapter : AdapterFactory.AttributeNodeAdapter;

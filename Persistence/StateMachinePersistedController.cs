@@ -22,14 +22,19 @@ namespace Xtate.Persistence;
 internal sealed class StateMachinePersistedController : StateMachineRuntimeController, IStorageProvider
 {
 	private const string ControllerStateKey = "cs";
-	private const int    ExternalEventsKey  = 0;
+
+	private const int ExternalEventsKey = 0;
 
 	private readonly ChannelPersistingController<IEvent> _channelPersistingController;
-	private readonly CancellationToken                   _stopToken;
-	private readonly SemaphoreSlim                       _storageLock = new(initialCount: 0, maxCount: 1);
-	private readonly IStorageProvider                    _storageProvider;
 
-	private bool                   _disposed;
+	private readonly CancellationToken _stopToken;
+
+	private readonly SemaphoreSlim _storageLock = new(initialCount: 0, maxCount: 1);
+
+	private readonly IStorageProvider _storageProvider;
+
+	private bool _disposed;
+
 	private ITransactionalStorage? _storage;
 
 	[Obsolete]
@@ -39,15 +44,16 @@ internal sealed class StateMachinePersistedController : StateMachineRuntimeContr
 										   Uri? stateMachineLocation,
 										   IStateMachineHost stateMachineHost,
 										   IStorageProvider storageProvider,
-										   TimeSpan? idlePeriod/*,
+										   TimeSpan? idlePeriod /*,
 										   InterpreterOptions defaultOptions*/
 
 		//SecurityContext securityContext,
 		//								   DeferredFinalizer finalizer
 	)
-		: base(sessionId, options, stateMachine, stateMachineLocation, stateMachineHost, idlePeriod/*, defaultOptions*/)
+		: base(sessionId, options, stateMachine, stateMachineLocation, stateMachineHost, idlePeriod /*, defaultOptions*/)
 	{
 		_storageProvider = storageProvider;
+
 		//_stopToken = defaultOptions.StopToken;
 
 		_channelPersistingController = new ChannelPersistingController<IEvent>(base.EventChannel);

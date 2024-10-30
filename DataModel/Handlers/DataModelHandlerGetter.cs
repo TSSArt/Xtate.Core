@@ -19,11 +19,10 @@ using Xtate.DataModel;
 
 namespace Xtate.Core;
 
-[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
 public class DataModelHandlerGetter
 {
 	private ValueTask<IDataModelHandler?>? _dataModelHandler;
-	
+
 	public required IDataModelHandlerService DataModelHandlerService { private get; [UsedImplicitly] init; }
 
 	public required IStateMachine? StateMachine { private get; [UsedImplicitly] init; }

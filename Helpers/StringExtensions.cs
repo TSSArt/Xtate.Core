@@ -43,6 +43,7 @@ public static class StringExtensions
 		}
 
 		var array = ArrayPool<char>.Shared.Rent(str.Length);
+
 		try
 		{
 			return RemoveSpaces(str, array);

@@ -17,7 +17,6 @@
 
 namespace Xtate.Builder;
 
-[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
 public class FinalizeBuilder : BuilderBase, IFinalizeBuilder
 {
 	private ImmutableArray<IExecutableEntity>.Builder? _actions;

@@ -19,7 +19,6 @@ using System.Xml;
 
 namespace Xtate.Core;
 
-[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
 public class NameTableProvider : INameTableProvider
 {
 	private readonly NameTable _nameTable = new();

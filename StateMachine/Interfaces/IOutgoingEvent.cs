@@ -19,10 +19,15 @@ namespace Xtate.Core;
 
 public interface IOutgoingEvent : IEntity
 {
-	SendId?                     SendId    { get; }
-	ImmutableArray<IIdentifier> NameParts { get; }
-	Uri?                        Target    { get; }
-	Uri?                        Type      { get; }
-	int                         DelayMs   { get; }
-	DataModelValue              Data      { get; }
+	SendId? SendId { get; }
+
+	EventName Name { get; }
+
+	Uri? Target { get; }
+
+	Uri? Type { get; }
+
+	int DelayMs { get; }
+
+	DataModelValue Data { get; }
 }

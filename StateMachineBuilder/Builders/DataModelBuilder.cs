@@ -17,7 +17,6 @@
 
 namespace Xtate.Builder;
 
-[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
 public class DataModelBuilder : BuilderBase, IDataModelBuilder
 {
 	private ImmutableArray<IData>.Builder? _dataList;

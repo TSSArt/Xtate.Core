@@ -31,6 +31,7 @@ public sealed class EventDescriptor : IEventDescriptor
 
 		var parts = value.Split(Dot, StringSplitOptions.None);
 		var length = parts.Length;
+
 		if (length > 0 && parts[length - 1] == @"*")
 		{
 			length --;
@@ -50,14 +51,14 @@ public sealed class EventDescriptor : IEventDescriptor
 	{
 		if (evt is null) throw new ArgumentNullException(nameof(evt));
 
-		if (evt.NameParts.Length < _parts.Length)
+		if (evt.Name.Count < _parts.Length)
 		{
 			return false;
 		}
 
 		for (var i = 0; i < _parts.Length; i ++)
 		{
-			if (!Equals(evt.NameParts[i], _parts[i]))
+			if (!Equals(evt.Name[i], _parts[i]))
 			{
 				return false;
 			}

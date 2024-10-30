@@ -22,12 +22,16 @@ namespace Xtate;
 
 public sealed partial class StateMachineHost : IIoProcessor, IEventConsumer
 {
-	private const string ParentTarget    = "#_parent";
-	private const string SessionIdPrefix = "#_scxml_";
-	private const string InvokeIdPrefix  = "#_";
+	private const string ParentTarget = "#_parent";
 
-	private static readonly Uri BaseUri            = new(@"ioprocessor:///");
-	private static readonly Uri IoProcessorId      = new(@"http://www.w3.org/TR/scxml/#SCXMLEventProcessor");
+	private const string SessionIdPrefix = "#_scxml_";
+
+	private const string InvokeIdPrefix = "#_";
+
+	private static readonly Uri BaseUri = new(@"ioprocessor:///");
+
+	private static readonly Uri IoProcessorId = new(@"http://www.w3.org/TR/scxml/#SCXMLEventProcessor");
+
 	private static readonly Uri IoProcessorAliasId = new(uriString: @"scxml", UriKind.Relative);
 
 #region Interface IEventConsumer
@@ -76,7 +80,7 @@ public sealed partial class StateMachineHost : IIoProcessor, IEventConsumer
 		Infra.NotNull(hostEvent.TargetServiceId);
 
 		var service = await GetService(hostEvent.TargetServiceId, token).ConfigureAwait(false);
-		await service.Send(hostEvent, token).ConfigureAwait(false);
+		await service.Send(hostEvent).ConfigureAwait(false);
 	}
 
 	bool IIoProcessor.CanHandle(Uri? type) => CanHandleType(type);
@@ -85,7 +89,7 @@ public sealed partial class StateMachineHost : IIoProcessor, IEventConsumer
 
 #endregion
 
-	private async ValueTask<IService> GetService(ServiceId serviceId, CancellationToken token) =>
+	private async ValueTask<IExternalService> GetService(ServiceId serviceId, CancellationToken token) =>
 		serviceId switch
 		{
 			SessionId sessionId

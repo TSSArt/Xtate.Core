@@ -22,8 +22,9 @@ namespace Xtate.Core;
 
 public sealed class OnEntryNode : IOnEntry, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 {
-	private readonly IOnEntry       _onEntry;
-	private          DocumentIdSlot _documentIdSlot;
+	private readonly IOnEntry _onEntry;
+
+	private DocumentIdSlot _documentIdSlot;
 
 	public OnEntryNode(DocumentIdNode documentIdNode, IOnEntry onEntry)
 	{

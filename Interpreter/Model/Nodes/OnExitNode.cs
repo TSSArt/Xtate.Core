@@ -22,8 +22,9 @@ namespace Xtate.Core;
 
 public sealed class OnExitNode : IOnExit, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 {
-	private readonly IOnExit        _onExit;
-	private          DocumentIdSlot _documentIdSlot;
+	private readonly IOnExit _onExit;
+
+	private DocumentIdSlot _documentIdSlot;
 
 	public OnExitNode(DocumentIdNode documentIdNode, IOnExit onExit)
 	{

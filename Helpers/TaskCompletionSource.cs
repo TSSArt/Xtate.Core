@@ -16,7 +16,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #if !NET5_0_OR_GREATER
-
 namespace System.Threading.Tasks
 {
 	internal class TaskCompletionSource : TaskCompletionSource<ValueTuple>

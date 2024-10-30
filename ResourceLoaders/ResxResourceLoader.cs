@@ -22,20 +22,17 @@ using System.Reflection;
 
 namespace Xtate.Core;
 
-public class ResxResourceLoaderProvider : ResourceLoaderProviderBase<ResxResourceLoader>
-{
-	protected override bool CanHandle(Uri uri) => uri is { IsAbsoluteUri: true, Scheme: @"res" or @"resx" };
-}
-
 public class ResxResourceLoader : IResourceLoader
 {
+	public class Provider() : ResourceLoaderProviderBase<ResxResourceLoader>(uri => uri is { IsAbsoluteUri: true, Scheme: @"res" or @"resx" });
+
 	public required IIoBoundTask IoBoundTask { private get; [UsedImplicitly] init; }
 
 	public required Func<Stream, ContentType?, Resource> ResourceFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IResourceLoader
 
-	public async ValueTask<Resource> Request(Uri uri, NameValueCollection? headers) => ResourceFactory(await GetResourceStreamAsync(uri).ConfigureAwait(false), default);
+	public async ValueTask<Resource> Request(Uri uri, NameValueCollection? headers) => ResourceFactory(await GetResourceStreamAsync(uri).ConfigureAwait(false), arg2: default);
 
 #endregion
 

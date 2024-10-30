@@ -19,6 +19,7 @@ namespace Xtate.Scxml;
 
 public readonly struct PrefixNamespace(string prefix, string ns)
 {
-	public string Prefix    { get; } = prefix;
+	public string Prefix { get; } = prefix;
+
 	public string Namespace { get; } = ns;
 }

@@ -22,13 +22,10 @@ using System.Net.Mime;
 
 namespace Xtate.Core;
 
-public class WebResourceLoaderProvider : ResourceLoaderProviderBase<WebResourceLoader>
-{
-	protected override bool CanHandle(Uri uri) => uri is { IsAbsoluteUri: true, Scheme: @"http" or @"https" };
-}
-
 public class WebResourceLoader : IResourceLoader, IDisposable
 {
+	public class Provider() : ResourceLoaderProviderBase<WebResourceLoader>(uri => uri is { IsAbsoluteUri: true, Scheme: @"http" or @"https" });
+
 	private readonly DisposingToken _disposingToken = new();
 
 	public required Func<Stream, ContentType?, Resource> ResourceFactory { private get; [UsedImplicitly] init; }

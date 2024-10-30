@@ -90,10 +90,10 @@ public class Logger<TSource> : ILogger<TSource>
 #endregion
 
 	private ValueTask Write<TEntity>(Level level,
-										   int eventId,
-										   string? message,
-										   LoggingInterpolatedStringHandler formattedMessage,
-										   TEntity entity)
+									 int eventId,
+									 string? message,
+									 LoggingInterpolatedStringHandler formattedMessage,
+									 TEntity entity)
 	{
 		ImmutableArray<LoggingParameter> messageParameters = default;
 
@@ -206,7 +206,6 @@ public class Logger<TSource> : ILogger<TSource>
 		}
 	}
 
-	
 	private IEnumerable<LoggingParameter> EnumerateParameters(ILogWriter logWriter,
 															  Type source,
 															  ImmutableArray<LoggingParameter> parameters = default,

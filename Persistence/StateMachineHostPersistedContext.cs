@@ -21,24 +21,34 @@ namespace Xtate.Persistence;
 
 internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 {
-	private const string HostPartition      = "StateMachineHost";
-	private const string ContextKey         = "context";
-	private const int    StateMachinesKey   = 0;
-	private const int    InvokedServicesKey = 1;
+	private const string HostPartition = "StateMachineHost";
 
-	private readonly Uri?      _baseUri;
+	private const string ContextKey = "context";
+
+	private const int StateMachinesKey = 0;
+
+	private const int InvokedServicesKey = 1;
+
+	private readonly Uri? _baseUri;
+
 	private readonly TimeSpan? _idlePeriod;
 
 	private readonly Dictionary<(SessionId SessionId, InvokeId InvokeId), InvokedServiceMeta> _invokedServices = [];
 
-	private readonly SemaphoreSlim                           _lockInvokedServices = new(initialCount: 1, maxCount: 1);
-	private readonly SemaphoreSlim                           _lockStateMachines   = new(initialCount: 1, maxCount: 1);
+	private readonly SemaphoreSlim _lockInvokedServices = new(initialCount: 1, maxCount: 1);
+
+	private readonly SemaphoreSlim _lockStateMachines = new(initialCount: 1, maxCount: 1);
+
 	//private readonly IStateMachineHost                       _stateMachineHost;
 	private readonly Dictionary<SessionId, StateMachineMeta> _stateMachines = [];
-	private readonly IStorageProvider                        _storageProvider;
-	private          bool                                    _disposed;
-	private          int                                     _invokedServiceRecordId;
-	private          int                                     _stateMachineRecordId;
+
+	private readonly IStorageProvider _storageProvider;
+
+	private bool _disposed;
+
+	private int _invokedServiceRecordId;
+
+	private int _stateMachineRecordId;
 
 	private ITransactionalStorage? _storage;
 
@@ -95,20 +105,21 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 
 	public override async ValueTask AddService(SessionId sessionId,
 											   InvokeId invokeId,
-											   IService service,
+											   IExternalService externalService,
 											   CancellationToken token)
 	{
 		Infra.NotNull(_storage);
 
 		await _lockInvokedServices.WaitAsync(token).ConfigureAwait(false);
+
 		try
 		{
-			await base.AddService(sessionId, invokeId, service, token).ConfigureAwait(false);
+			await base.AddService(sessionId, invokeId, externalService, token).ConfigureAwait(false);
 
 			var bucket = new Bucket(_storage).Nested(InvokedServicesKey);
 			var recordId = _invokedServiceRecordId ++;
 
-			var invokedSessionId = service is StateMachineControllerBase stateMachineController ? stateMachineController.SessionId : null;
+			var invokedSessionId = externalService is StateMachineControllerBase stateMachineController ? stateMachineController.SessionId : null;
 			var invokedService = new InvokedServiceMeta(sessionId, invokeId, invokedSessionId) { RecordId = recordId };
 			_invokedServices.Add((sessionId, invokeId), invokedService);
 
@@ -133,8 +144,9 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 		{
 			return;
 		}
-				
+
 		var bucket = new Bucket(_storage).Nested(InvokedServicesKey);
+
 		if (bucket.TryGet(sessionId, out int recordId))
 		{
 			bucket.RemoveSubtree(recordId);
@@ -146,9 +158,10 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 		await ShrinkInvokedServices().ConfigureAwait(false);
 	}
 
-	public override async ValueTask<IService?> TryRemoveService(SessionId sessionId, InvokeId invokeId)
+	public override async ValueTask<IExternalService?> TryRemoveService(SessionId sessionId, InvokeId invokeId)
 	{
 		await _lockInvokedServices.WaitAsync(StopToken).ConfigureAwait(false);
+
 		try
 		{
 			await RemoveInvokedService(sessionId, invokeId).ConfigureAwait(false);
@@ -161,9 +174,10 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 		}
 	}
 
-	public override async ValueTask<IService?> TryCompleteService(SessionId sessionId, InvokeId invokeId)
+	public override async ValueTask<IExternalService?> TryCompleteService(SessionId sessionId, InvokeId invokeId)
 	{
 		await _lockInvokedServices.WaitAsync(StopToken).ConfigureAwait(false);
+
 		try
 		{
 			await RemoveInvokedService(sessionId, invokeId).ConfigureAwait(false);
@@ -179,7 +193,7 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 	protected override StateMachineControllerBase CreateStateMachineController(SessionId sessionId,
 																			   IStateMachine? stateMachine,
 																			   IStateMachineOptions? stateMachineOptions,
-																			   Uri? stateMachineLocation/*,
+																			   Uri? stateMachineLocation /*,
 																			   InterpreterOptions defaultOptions*/
 
 		// SecurityContext securityContext,
@@ -187,12 +201,12 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 	) =>
 		stateMachineOptions.IsStateMachinePersistable()
 			? new StateMachinePersistedController(
-				  sessionId, stateMachineOptions, stateMachine, stateMachineLocation, null/*_stateMachineHost*/,
-				  _storageProvider, _idlePeriod/*, defaultOption*s*/)
+				  sessionId, stateMachineOptions, stateMachine, stateMachineLocation, stateMachineHost: null /*_stateMachineHost*/,
+				  _storageProvider, _idlePeriod /*, defaultOption*s*/)
 			  {
 				  EventQueueWriter = default!, StateMachineInterpreter = default
 			  }
-			: base.CreateStateMachineController(sessionId, stateMachine, stateMachineOptions, stateMachineLocation/*, defaultOptions*/);
+			: base.CreateStateMachineController(sessionId, stateMachine, stateMachineOptions, stateMachineLocation /*, defaultOptions*/);
 
 	public override async ValueTask<StateMachineControllerBase> CreateAndAddStateMachine( //ServiceLocator serviceLocator,
 		SessionId sessionId,
@@ -216,6 +230,7 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 		}
 
 		await _lockStateMachines.WaitAsync(token).ConfigureAwait(false);
+
 		try
 		{
 			var stateMachineController = await base.CreateAndAddStateMachine(sessionId, origin, parameters, securityContext, errorProcessor, token).ConfigureAwait(false);
@@ -241,7 +256,7 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 		}
 	}
 
-	public override void RemoveStateMachineController(SessionId sessionId) 
+	public override void RemoveStateMachineController(SessionId sessionId)
 	{
 		//TODO:uncomment
 		/*
@@ -317,11 +332,13 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 		}
 
 		await _lockStateMachines.WaitAsync(token).ConfigureAwait(false);
+
 		try
 		{
 			for (var i = 0; i < _stateMachineRecordId; i ++)
 			{
 				var stateMachineBucket = bucket.Nested(i);
+
 				if (stateMachineBucket.TryGet(Key.TypeInfo, out TypeInfo typeInfo) && typeInfo == TypeInfo.StateMachine)
 				{
 					var meta = new StateMachineMeta(stateMachineBucket) { RecordId = i };
@@ -391,11 +408,13 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 		}
 
 		await _lockInvokedServices.WaitAsync(token).ConfigureAwait(false);
+
 		try
 		{
 			for (var i = 0; i < _invokedServiceRecordId; i ++)
 			{
 				var eventBucket = bucket.Nested(i);
+
 				if (eventBucket.TryGet(Key.TypeInfo, out TypeInfo typeInfo) && typeInfo == TypeInfo.InvokedService)
 				{
 					var invokedService = new InvokedServiceMeta(bucket) { RecordId = i };
@@ -411,8 +430,8 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 					else if (_stateMachines.TryGetValue(invokedService.ParentSessionId, out var invokingStateMachine))
 					{
 						Infra.NotNull(invokingStateMachine.Controller);
-						var evt = new EventObject { Type = EventType.External, NameParts = EventName.ErrorExecution, InvokeId = invokedService.InvokeId };
-						await invokingStateMachine.Controller.Send(evt, token).ConfigureAwait(false);
+						var evt = new EventObject { Type = EventType.External, Name = EventName.ErrorExecution, InvokeId = invokedService.InvokeId };
+						await invokingStateMachine.Controller.Send(evt).ConfigureAwait(false);
 					}
 				}
 			}
@@ -481,20 +500,29 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 			}
 		}
 
-		public SessionId                   SessionId           { get; }
-		public Uri?                        Location            { get; }
-		public int                         RecordId            { get; set; }
-		public StateMachineControllerBase? Controller          { get; set; }
-		public SecurityContextType         SecurityContextType { get; }
-		public SecurityContextPermissions  Permissions         { get; }
+		public SessionId SessionId { get; }
+
+		public Uri? Location { get; }
+
+		public int RecordId { get; set; }
+
+		public StateMachineControllerBase? Controller { get; set; }
+
+		public SecurityContextType SecurityContextType { get; }
+
+		public SecurityContextPermissions Permissions { get; }
 
 	#region Interface IStateMachineOptions
 
-		public string?                  Name                       { get; }
-		public PersistenceLevel?        PersistenceLevel           { get; }
-		public bool?                    SynchronousEventProcessing { get; }
-		public int?                     ExternalQueueSize          { get; }
-		public UnhandledErrorBehaviour? UnhandledErrorBehaviour    { get; }
+		public string? Name { get; }
+
+		public PersistenceLevel? PersistenceLevel { get; }
+
+		public bool? SynchronousEventProcessing { get; }
+
+		public int? ExternalQueueSize { get; }
+
+		public UnhandledErrorBehaviour? UnhandledErrorBehaviour { get; }
 
 	#endregion
 
@@ -553,10 +581,13 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 			SessionId = bucket.GetSessionId(Key.SessionId);
 		}
 
-		public SessionId  ParentSessionId { get; }
-		public InvokeId   InvokeId        { get; }
-		public SessionId? SessionId       { get; }
-		public int        RecordId        { get; set; }
+		public SessionId ParentSessionId { get; }
+
+		public InvokeId InvokeId { get; }
+
+		public SessionId? SessionId { get; }
+
+		public int RecordId { get; set; }
 
 	#region Interface IStoreSupport
 

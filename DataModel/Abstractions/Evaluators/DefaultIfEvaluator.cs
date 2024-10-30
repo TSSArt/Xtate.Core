@@ -33,8 +33,9 @@ public abstract class IfEvaluator(IIf iif) : IIf, IExecEvaluator, IAncestorProvi
 
 #region Interface IIf
 
-	public virtual ImmutableArray<IExecutableEntity> Action    => iif.Action;
-	public virtual IConditionExpression?             Condition => iif.Condition;
+	public virtual ImmutableArray<IExecutableEntity> Action => iif.Action;
+
+	public virtual IConditionExpression? Condition => iif.Condition;
 
 #endregion
 }
@@ -64,16 +65,19 @@ public class DefaultIfEvaluator : IfEvaluator
 						currentCondition = elseIf.Condition?.As<IBooleanEvaluator>();
 						Infra.NotNull(currentCondition);
 						currentActions.Clear();
+
 						break;
 
 					case IElse:
 						branchesBuilder.Add((currentCondition, currentActions.ToImmutable()));
 						currentCondition = default!;
 						currentActions.Clear();
+
 						break;
 
 					default:
 						currentActions.Add(op.As<IExecEvaluator>());
+
 						break;
 				}
 			}

@@ -24,6 +24,7 @@ public sealed class EntityQueue<T>
 	public enum ChangedAction
 	{
 		Enqueue,
+
 		Dequeue
 	}
 

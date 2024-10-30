@@ -33,19 +33,31 @@ public abstract class SendEvaluator(ISend send) : IExecEvaluator, ISend, IAncest
 
 #region Interface ISend
 
-	public virtual IContent?                           Content          => send.Content;
-	public virtual IValueExpression?                   DelayExpression  => send.DelayExpression;
-	public virtual int?                                DelayMs          => send.DelayMs;
-	public virtual string?                             EventName        => send.EventName;
-	public virtual IValueExpression?                   EventExpression  => send.EventExpression;
-	public virtual string?                             Id               => send.Id;
-	public virtual ILocationExpression?                IdLocation       => send.IdLocation;
-	public virtual ImmutableArray<ILocationExpression> NameList         => send.NameList;
-	public virtual ImmutableArray<IParam>              Parameters       => send.Parameters;
-	public virtual Uri?                                Target           => send.Target;
-	public virtual IValueExpression?                   TargetExpression => send.TargetExpression;
-	public virtual Uri?                                Type             => send.Type;
-	public virtual IValueExpression?                   TypeExpression   => send.TypeExpression;
+	public virtual IContent? Content => send.Content;
+
+	public virtual IValueExpression? DelayExpression => send.DelayExpression;
+
+	public virtual int? DelayMs => send.DelayMs;
+
+	public virtual string? EventName => send.EventName;
+
+	public virtual IValueExpression? EventExpression => send.EventExpression;
+
+	public virtual string? Id => send.Id;
+
+	public virtual ILocationExpression? IdLocation => send.IdLocation;
+
+	public virtual ImmutableArray<ILocationExpression> NameList => send.NameList;
+
+	public virtual ImmutableArray<IParam> Parameters => send.Parameters;
+
+	public virtual Uri? Target => send.Target;
+
+	public virtual IValueExpression? TargetExpression => send.TargetExpression;
+
+	public virtual Uri? Type => send.Type;
+
+	public virtual IValueExpression? TypeExpression => send.TypeExpression;
 
 #endregion
 }
@@ -54,16 +66,25 @@ public class DefaultSendEvaluator(ISend send) : SendEvaluator(send)
 {
 	private readonly IValueEvaluator? _contentBodyEvaluator = send.Content?.Body?.As<IValueEvaluator>();
 
-	private readonly IObjectEvaluator?                   _contentExpressionEvaluator = send.Content?.Expression?.As<IObjectEvaluator>();
-	private readonly IIntegerEvaluator?                  _delayExpressionEvaluator   = send.DelayExpression?.As<IIntegerEvaluator>();
-	private readonly IStringEvaluator?                   _eventExpressionEvaluator   = send.EventExpression?.As<IStringEvaluator>();
-	private readonly ILocationEvaluator?                 _idLocationEvaluator        = send.IdLocation?.As<ILocationEvaluator>();
-	private readonly ImmutableArray<ILocationEvaluator>  _nameEvaluatorList          = send.NameList.AsArrayOf<ILocationExpression, ILocationEvaluator>();
-	private readonly ImmutableArray<DataConverter.Param> _parameterList              = DataConverter.AsParamArray(send.Parameters);
-	private readonly IStringEvaluator?                   _targetExpressionEvaluator  = send.TargetExpression?.As<IStringEvaluator>();
-	private readonly IStringEvaluator?                   _typeExpressionEvaluator    = send.TypeExpression?.As<IStringEvaluator>();
-	public required  Func<ValueTask<DataConverter>>      DataConverterFactory   { private get; [UsedImplicitly] init; }
-	public required  Func<ValueTask<IEventController>>   EventControllerFactory { private get; [UsedImplicitly] init; }
+	private readonly IObjectEvaluator? _contentExpressionEvaluator = send.Content?.Expression?.As<IObjectEvaluator>();
+
+	private readonly IIntegerEvaluator? _delayExpressionEvaluator = send.DelayExpression?.As<IIntegerEvaluator>();
+
+	private readonly IStringEvaluator? _eventExpressionEvaluator = send.EventExpression?.As<IStringEvaluator>();
+
+	private readonly ILocationEvaluator? _idLocationEvaluator = send.IdLocation?.As<ILocationEvaluator>();
+
+	private readonly ImmutableArray<ILocationEvaluator> _nameEvaluatorList = send.NameList.AsArrayOf<ILocationExpression, ILocationEvaluator>();
+
+	private readonly ImmutableArray<DataConverter.Param> _parameterList = DataConverter.AsParamArray(send.Parameters);
+
+	private readonly IStringEvaluator? _targetExpressionEvaluator = send.TargetExpression?.As<IStringEvaluator>();
+
+	private readonly IStringEvaluator? _typeExpressionEvaluator = send.TypeExpression?.As<IStringEvaluator>();
+
+	public required Func<ValueTask<DataConverter>> DataConverterFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<ValueTask<IEventController>> EventControllerFactory { private get; [UsedImplicitly] init; }
 
 	public override async ValueTask Execute()
 	{

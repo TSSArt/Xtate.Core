@@ -36,21 +36,31 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 	string errorSuffix)
 	: IoProcessorBase(eventConsumer, id, alias), IDisposable, IAsyncDisposable where THost : HttpIoProcessorHostBase<THost, TContext>
 {
-	private const string MediaTypeTextPlain                 = @"text/plain";
-	private const string MediaTypeApplicationJson           = @"application/json";
+	private const string MediaTypeTextPlain = @"text/plain";
+
+	private const string MediaTypeApplicationJson = @"application/json";
+
 	private const string MediaTypeApplicationFormUrlEncoded = @"application/x-www-form-urlencoded";
-	private const string EventNameParameterName             = @"_scxmleventname";
-	private const string ContentLengthHeaderName            = @"Content-Length";
-	private const string ContentTypeHeaderName              = @"Content-Type";
-	private const string OriginHeaderName                   = @"Origin";
-	private const string ErrorSuffixHeader                  = @"HttpIoProcessor.";
+
+	private const string EventNameParameterName = @"_scxmleventname";
+
+	private const string ContentLengthHeaderName = @"Content-Length";
+
+	private const string ContentTypeHeaderName = @"Content-Type";
+
+	private const string OriginHeaderName = @"Origin";
+
+	private const string ErrorSuffixHeader = @"HttpIoProcessor.";
 
 	private static readonly ConcurrentDictionary<IPEndPoint, THost> Hosts = new();
 
-	private readonly Uri        _baseUri     = baseUri ?? throw new ArgumentNullException(nameof(baseUri));
-	private readonly string     _errorSuffix = errorSuffix;
-	private readonly string     _path        = baseUri.GetComponents(UriComponents.Path, UriFormat.Unescaped);
-	private          IPEndPoint _ipEndPoint  = ipEndPoint;
+	private readonly Uri _baseUri = baseUri ?? throw new ArgumentNullException(nameof(baseUri));
+
+	private readonly string _errorSuffix = errorSuffix;
+
+	private readonly string _path = baseUri.GetComponents(UriComponents.Path, UriFormat.Unescaped);
+
+	private IPEndPoint _ipEndPoint = ipEndPoint;
 
 #region Interface IAsyncDisposable
 
@@ -78,6 +88,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 		if (Hosts.TryGetValue(_ipEndPoint, out var host))
 		{
 			var last = await host.RemoveProcessor(this, token: default).ConfigureAwait(false);
+
 			if (last && Hosts.TryRemove(new KeyValuePair<IPEndPoint, THost>(_ipEndPoint, host)))
 			{
 				await Disposer.DisposeAsync(host).ConfigureAwait(false);
@@ -90,6 +101,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 		if (Hosts.TryGetValue(_ipEndPoint, out var host))
 		{
 			var last = host.RemoveProcessor(this, token: default).SynchronousGetResult();
+
 			if (last && Hosts.TryRemove(new KeyValuePair<IPEndPoint, THost>(_ipEndPoint, host)))
 			{
 				Disposer.Dispose(host);
@@ -102,6 +114,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 		foreach (var networkInterface in NetworkInterface.GetAllNetworkInterfaces())
 		{
 			var ipInterfaceProperties = networkInterface.GetIPProperties();
+
 			foreach (var ipInterfaceProperty in ipInterfaceProperties.UnicastAddresses)
 			{
 				if (ipInterfaceProperty.Address.Equals(address))
@@ -181,9 +194,10 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 		Infra.NotNull(targetUri);
 
 		var content = GetContent(hostEvent, out var eventNameInContent);
-		if (!hostEvent.NameParts.IsDefaultOrEmpty && !eventNameInContent)
+
+		if (!hostEvent.Name.IsDefault && !eventNameInContent)
 		{
-			targetUri = QueryStringHelper.AddQueryString(targetUri, EventNameParameterName, EventName.ToName(hostEvent.NameParts)!);
+			targetUri = QueryStringHelper.AddQueryString(targetUri, EventNameParameterName, hostEvent.Name.ToString());
 		}
 
 		using var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, targetUri);
@@ -209,9 +223,9 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 		{
 			case DataModelValueType.Undefined:
 			case DataModelValueType.Null:
-				eventNameInContent = !hostEvent.NameParts.IsDefaultOrEmpty;
+				eventNameInContent = !hostEvent.Name.IsDefault;
 
-				return eventNameInContent ? new FormUrlEncodedContent(GetParameters(hostEvent.NameParts, dataModelList: null)) : null;
+				return eventNameInContent ? new FormUrlEncodedContent(GetParameters(hostEvent.Name, dataModelList: null)) : null;
 
 			case DataModelValueType.String:
 				eventNameInContent = false;
@@ -225,7 +239,8 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 				if (IsStringDictionary(dataModelList))
 				{
 					eventNameInContent = true;
-					return new FormUrlEncodedContent(GetParameters(hostEvent.NameParts, dataModelList));
+
+					return new FormUrlEncodedContent(GetParameters(hostEvent.Name, dataModelList));
 				}
 
 				eventNameInContent = false;
@@ -271,11 +286,11 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 		return true;
 	}
 
-	private static IEnumerable<KeyValuePair<string?, string?>> GetParameters(ImmutableArray<IIdentifier> eventNameParts, DataModelList? dataModelList)
+	private static IEnumerable<KeyValuePair<string?, string?>> GetParameters(EventName eventName, DataModelList? dataModelList)
 	{
-		if (!eventNameParts.IsDefaultOrEmpty)
+		if (!eventName.IsDefault)
 		{
-			yield return new KeyValuePair<string?, string?>(EventNameParameterName, EventName.ToName(eventNameParts));
+			yield return new KeyValuePair<string?, string?>(EventNameParameterName, eventName.ToString());
 		}
 
 		if (dataModelList is not null)
@@ -341,6 +356,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 		}
 
 		IEvent? evt;
+
 		try
 		{
 			evt = await CreateEvent(context, token).ConfigureAwait(false);
@@ -350,7 +366,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 			evt = CreateErrorEvent(context, ex);
 		}
 
-		await eventDispatcher.Send(evt, token).ConfigureAwait(false);
+		await eventDispatcher.Send(evt).ConfigureAwait(false);
 
 		return true;
 	}
@@ -398,7 +414,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 		return new EventObject
 			   {
 				   Type = EventType.External,
-				   NameParts = EventName.GetErrorPlatform(ErrorSuffixHeader + _errorSuffix),
+				   Name = EventName.GetErrorPlatform(ErrorSuffixHeader + _errorSuffix),
 				   Data = data,
 				   OriginType = IoProcessorId
 			   };
@@ -424,6 +440,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 		var encoding = contentType.CharSet is not null ? Encoding.GetEncoding(contentType.CharSet) : Encoding.ASCII;
 
 		string body;
+
 		using (var streamReader = new StreamReader(GetBody(context).InjectCancellationToken(token), encoding))
 		{
 			body = await streamReader.ReadToEndAsync().ConfigureAwait(false);
@@ -442,7 +459,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 		return new EventObject
 			   {
 				   Type = EventType.External,
-				   NameParts = EventName.ToParts(eventName),
+				   Name = (EventName)eventName,
 				   Data = data,
 				   OriginType = IoProcessorId,
 				   Origin = origin

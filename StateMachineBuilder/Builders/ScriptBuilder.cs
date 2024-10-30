@@ -17,10 +17,10 @@
 
 namespace Xtate.Builder;
 
-[UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
 public class ScriptBuilder : BuilderBase, IScriptBuilder
 {
-	private IScriptExpression?         _body;
+	private IScriptExpression? _body;
+
 	private IExternalScriptExpression? _source;
 
 #region Interface IScriptBuilder
