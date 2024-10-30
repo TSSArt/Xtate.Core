@@ -65,7 +65,7 @@ public class DefaultInlineContentEvaluator(IInlineContent inlineContent) : Inlin
 				_parseException = exception;
 
 				var logger = await LoggerFactory().ConfigureAwait(false);
-				await logger.Write(Level.Warning, eventId: 1, message: "Failed to parse inline content.", exception).ConfigureAwait(false);
+				await logger.Write(Level.Warning, eventId: 1, message: Resources.Exception_FailedToParseInlineContent, exception).ConfigureAwait(false);
 			}
 
 			_contentValue.MakeDeepConstant();

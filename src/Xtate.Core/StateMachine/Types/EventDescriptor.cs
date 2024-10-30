@@ -25,7 +25,7 @@ public sealed class EventDescriptor : IEventDescriptor
 
 	private EventDescriptor(string value)
 	{
-		if (string.IsNullOrEmpty(value)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(value));
+		Infra.RequiresNonEmptyString(value);
 
 		Value = value;
 
@@ -49,8 +49,6 @@ public sealed class EventDescriptor : IEventDescriptor
 
 	public bool IsEventMatch(IEvent evt)
 	{
-		if (evt is null) throw new ArgumentNullException(nameof(evt));
-
 		if (evt.Name.Count < _parts.Length)
 		{
 			return false;
