@@ -7,17 +7,87 @@ namespace Xtate.Core.Test.StateMachine.Types;
 public class EventNameTest
 {
     [TestMethod]
-    public void EventName_Equals_ShouldReturnTrueForEqualEventNames()
+    public void EventName_OperatorEquals_ShouldReturnTrueForEqualEventNames()
     {
         // Arrange
         var eventName1 = EventName.FromString("error.execution");
         var eventName2 = EventName.FromString("error.execution");
 
         // Act
-        var result = eventName1.Equals(eventName2);
+        var result = eventName1 == eventName2;
 
         // Assert
         Assert.IsTrue(result);
+    }
+
+    [TestMethod]
+    public void EventName_OperatorNotEquals_ShouldReturnTrueForDifferentEventNames()
+    {
+        // Arrange
+        var eventName1 = EventName.FromString("error.execution");
+        var eventName2 = EventName.FromString("error.communication");
+
+        // Act
+        var result = eventName1 != eventName2;
+
+        // Assert
+        Assert.IsTrue(result);
+    }
+
+    [TestMethod]
+    public void EventName_FromString_ShouldReturnDefaultForNullString()
+    {
+        // Act
+        var eventName = EventName.FromString(null!);
+
+        // Assert
+        Assert.IsTrue(eventName.IsDefault);
+    }
+
+    [TestMethod]
+    public void EventName_FromString_ShouldReturnEmptyForEmptyString()
+    {
+        // Act
+        var eventName = EventName.FromString(string.Empty);
+
+        // Assert
+        Assert.AreEqual(string.Empty, eventName.ToString());
+    }
+
+    [TestMethod]
+    public void EventName_GetDoneStateName_ShouldReturnCorrectEventName()
+    {
+        // Arrange
+        var identifier = Identifier.FromString("testState");
+
+        // Act
+        var eventName = EventName.GetDoneStateName(identifier);
+
+        // Assert
+        Assert.AreEqual("done.state.testState", eventName.ToString());
+    }
+
+    [TestMethod]
+    public void EventName_GetDoneInvokeName_ShouldReturnCorrectEventName()
+    {
+        // Arrange
+        var invokeId = InvokeId.FromString("testInvoke");
+
+        // Act
+        var eventName = EventName.GetDoneInvokeName(invokeId);
+
+        // Assert
+        Assert.AreEqual("done.invoke.testInvoke", eventName.ToString());
+    }
+
+    [TestMethod]
+    public void EventName_GetErrorPlatform_ShouldReturnCorrectEventName()
+    {
+        // Act
+        var eventName = EventName.GetErrorPlatform("testSuffix");
+
+        // Assert
+        Assert.AreEqual("error.platform.testSuffix", eventName.ToString());
     }
 
     [TestMethod]

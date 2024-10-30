@@ -1389,6 +1389,24 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to parse content body..
+        /// </summary>
+        internal static string Exception_FailedToParseContentBody {
+            get {
+                return ResourceManager.GetString("Exception_FailedToParseContentBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to parse inline content..
+        /// </summary>
+        internal static string Exception_FailedToParseInlineContent {
+            get {
+                return ResourceManager.GetString("Exception_FailedToParseInlineContent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Forward entities required to restore state machine..
         /// </summary>
         internal static string Exception_ForwardEntitiesRequiredToRestoreStateMachine {
