@@ -23,13 +23,13 @@ public class DefaultLogEvaluator : LogEvaluator
 
 	public DefaultLogEvaluator(ILog log) : base(log) => _expressionEvaluator = base.Expression?.As<IObjectEvaluator>();
 
-	public required Func<ValueTask<ILogController?>> LogControllerFactory { private get; [UsedImplicitly] init; }
+	public required Deferred<ILogController> LogController { private get; [UsedImplicitly] init; }
 
 	public override async ValueTask Execute()
 	{
-		var logController = await LogControllerFactory().ConfigureAwait(false);
+		var logController = await LogController().ConfigureAwait(false);
 
-		if (logController?.IsEnabled ?? false)
+		if (logController.IsEnabled)
 		{
 			var data = default(DataModelValue);
 

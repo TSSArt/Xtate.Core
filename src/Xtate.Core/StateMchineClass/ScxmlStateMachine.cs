@@ -17,7 +17,6 @@
 
 using System.IO;
 using Xtate.IoC;
-using Xtate.Scxml;
 
 namespace Xtate.Core;
 
@@ -37,7 +36,6 @@ public abstract class ScxmlStateMachine : StateMachineClass, IScxmlStateMachine
 
 		services.AddConstant<IScxmlStateMachine>(this);
 
-		services.AddModule<ScxmlModule>();
-		services.AddFactory<ScxmlReaderStateMachineGetter>().For<IStateMachine>(SharedWithin.Scope);
+		services.AddModule<ScxmlStateMachineModule>();
 	}
 }

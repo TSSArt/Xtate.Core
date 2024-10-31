@@ -392,7 +392,7 @@ public class RegisterClassTest
 
 		var services2 = new ServiceCollection();
 		services2.AddModule<InterpreterModelBuilderModule>();
-		services2.AddModule<AncestorModule>();
+		services2.AddModule<ToolsModule>();
 		services2.AddImplementationSync<MyActionProvider>().For<IActionProvider>();
 		services2.AddTypeSync<MyAction, XmlReader>();
 		services2.AddConstant(provider.GetRequiredServiceSync<INameTableProvider>());

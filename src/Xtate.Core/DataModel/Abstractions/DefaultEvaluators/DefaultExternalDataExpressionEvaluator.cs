@@ -19,17 +19,17 @@ namespace Xtate.DataModel;
 
 public class DefaultExternalDataExpressionEvaluator(IExternalDataExpression externalDataExpression) : ExternalDataExpressionEvaluator(externalDataExpression)
 {
-	public required Func<ValueTask<DataConverter>> DataConverterFactory { private get; [UsedImplicitly] init; }
+	public required Deferred<DataConverter> DataConverter { private get; [UsedImplicitly] init; }
 
-	public required Func<ValueTask<IStateMachineLocation?>> StateMachineLocationFactory { private get; [UsedImplicitly] init; }
+	public required Deferred<IStateMachineLocation> StateMachineLocation { private get; [UsedImplicitly] init; }
 
-	public required Func<ValueTask<IResourceLoader>> ResourceLoaderFactory { private get; [UsedImplicitly] init; }
+	public required Deferred<IResourceLoader> ResourceLoader { private get; [UsedImplicitly] init; }
 
 	public override async ValueTask<IObject> EvaluateObject()
 	{
 		var uri = await GetUri().ConfigureAwait(false);
 
-		var resourceLoader = await ResourceLoaderFactory().ConfigureAwait(false);
+		var resourceLoader = await ResourceLoader().ConfigureAwait(false);
 		var resource = await resourceLoader.Request(uri).ConfigureAwait(false);
 
 		await using (resource.ConfigureAwait(false))
@@ -43,15 +43,15 @@ public class DefaultExternalDataExpressionEvaluator(IExternalDataExpression exte
 		var relativeUri = base.Uri;
 		Infra.NotNull(relativeUri);
 
-		var stateMachineLocation = await StateMachineLocationFactory().ConfigureAwait(false);
-		var baseUri = stateMachineLocation?.Location;
+		var stateMachineLocation = await StateMachineLocation().ConfigureAwait(false);
+		var baseUri = stateMachineLocation.Location;
 
 		return baseUri.CombineWith(relativeUri);
 	}
 
 	protected virtual async ValueTask<DataModelValue> ParseToDataModel(Resource resource)
 	{
-		var dataConverter = await DataConverterFactory().ConfigureAwait(false);
+		var dataConverter = await DataConverter().ConfigureAwait(false);
 
 		return await dataConverter.FromContent(resource).ConfigureAwait(false);
 	}

@@ -19,10 +19,13 @@ using Xtate.IoC;
 
 namespace Xtate.DataModel;
 
-public class DataModelHandlerBaseModule : Module<CustomActionModule, LoggingModule>
+public class DataModelHandlerBaseModule : Module<CustomActionModule, LoggingModule, ToolsModule>
 {
 	protected override void AddServices()
 	{
+		Services.AddImplementation<NoLogController>().For<ILogController>(Option.IfNotRegistered);
+		Services.AddImplementation<NoEventController>().For<IEventController>(Option.IfNotRegistered);
+
 		Services.AddTypeSync<DefaultAssignEvaluator, IAssign>();
 		Services.AddTypeSync<DefaultCancelEvaluator, ICancel>();
 		Services.AddTypeSync<DefaultContentBodyEvaluator, IContentBody>();
@@ -36,6 +39,7 @@ public class DataModelHandlerBaseModule : Module<CustomActionModule, LoggingModu
 		Services.AddTypeSync<DefaultScriptEvaluator, IScript>();
 		Services.AddTypeSync<DefaultSendEvaluator, ISend>();
 
+		Services.AddType<DataConverter>(Option.IfNotRegistered);
 		Services.AddImplementation<CaseSensitivity>().For<ICaseSensitivity>();
 	}
 }

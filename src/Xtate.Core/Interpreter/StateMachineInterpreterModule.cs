@@ -20,7 +20,7 @@ using Xtate.IoC;
 
 namespace Xtate.Core;
 
-public class StateMachineInterpreterModule : Module<DataModelHandlersModule, InterpreterModelBuilderModule, LoggingModule, AncestorModule>
+public class StateMachineInterpreterModule : Module<DataModelHandlersModule, InterpreterModelBuilderModule, LoggingModule, ToolsModule>
 {
 	protected override void AddServices()
 	{

@@ -15,20 +15,15 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.DataModel;
+using Xtate.IoC;
+using Xtate.Scxml;
 
-public class DefaultRaiseEvaluator(IRaise raise) : RaiseEvaluator(raise)
+namespace Xtate.Core;
+
+public class LocationStateMachineModule : Module<ScxmlModule>
 {
-	public required Deferred<IEventController> EventController { private get; [UsedImplicitly] init; }
-
-	public override async ValueTask Execute()
+	protected override void AddServices()
 	{
-		var outgoingEvent = base.OutgoingEvent;
-		
-		Infra.NotNull(outgoingEvent);
-
-		var eventController = await EventController().ConfigureAwait(false);
-		
-		await eventController.Send(outgoingEvent).ConfigureAwait(false);
+		Services.AddFactory<ScxmlLocationStateMachineGetter>().For<IStateMachine>(SharedWithin.Scope);
 	}
 }

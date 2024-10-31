@@ -16,7 +16,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using Xtate.IoC;
-using Xtate.Scxml;
 
 namespace Xtate.Core;
 
@@ -28,7 +27,6 @@ public class LocationStateMachine : StateMachineClass
 	{
 		base.AddServices(services);
 
-		services.AddModule<ScxmlModule>();
-		services.AddFactory<ScxmlLocationStateMachineGetter>().For<IStateMachine>(SharedWithin.Scope);
+		services.AddModule<LocationStateMachineModule>();
 	}
 }

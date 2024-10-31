@@ -65,7 +65,7 @@ public class InterpreterModelBuilderModule : Module<ErrorProcessorModule, DataMo
 		Services.AddTypeSync<EventNode, IOutgoingEvent>();
 		Services.AddTypeSync<EventDescriptorNode, IEventDescriptor>();
 
-		Services.AddType<DataConverter>();
+		Services.AddType<DataConverter>(Option.IfNotRegistered);
 		Services.AddType<InterpreterModelBuilder>();
 	}
 }

@@ -15,20 +15,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.DataModel;
+namespace Xtate.Core;
 
-public class DefaultRaiseEvaluator(IRaise raise) : RaiseEvaluator(raise)
+public class NoEventController : IEventController
 {
-	public required Deferred<IEventController> EventController { private get; [UsedImplicitly] init; }
+	public ValueTask Send(IOutgoingEvent outgoingEvent) => default;
 
-	public override async ValueTask Execute()
-	{
-		var outgoingEvent = base.OutgoingEvent;
-		
-		Infra.NotNull(outgoingEvent);
-
-		var eventController = await EventController().ConfigureAwait(false);
-		
-		await eventController.Send(outgoingEvent).ConfigureAwait(false);
-	}
+	public ValueTask Cancel(SendId sendId) => default;
 }
