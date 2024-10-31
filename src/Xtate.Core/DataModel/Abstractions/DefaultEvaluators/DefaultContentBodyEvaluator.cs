@@ -23,7 +23,7 @@ public class DefaultContentBodyEvaluator(IContentBody contentBody) : ContentBody
 
 	private Exception? _parseException;
 
-	public required Func<ValueTask<ILogger<IContentBody>>> LoggerFactory { private get; [UsedImplicitly] init; }
+	public required Deferred<ILogger<IContentBody>> Logger { private get; [UsedImplicitly] init; }
 
 	public override async ValueTask<IObject> EvaluateObject()
 	{
@@ -37,7 +37,7 @@ public class DefaultContentBodyEvaluator(IContentBody contentBody) : ContentBody
 			{
 				_parseException = exception;
 
-				var logger = await LoggerFactory().ConfigureAwait(false);
+				var logger = await Logger().ConfigureAwait(false);
 				await logger.Write(Level.Warning, eventId: 1, message: Resources.Exception_FailedToParseContentBody, exception).ConfigureAwait(false);
 			}
 
