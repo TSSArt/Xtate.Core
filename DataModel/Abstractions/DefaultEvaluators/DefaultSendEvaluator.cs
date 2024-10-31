@@ -31,15 +31,15 @@ public class DefaultSendEvaluator(ISend send) : SendEvaluator(send)
 
 	private readonly ImmutableArray<ILocationEvaluator> _nameEvaluatorList = send.NameList.AsArrayOf<ILocationExpression, ILocationEvaluator>();
 
-	private readonly ImmutableArray<DataConverter.Param> _parameterList = DataConverter.AsParamArray(send.Parameters);
+	private readonly ImmutableArray<DataConverter.Param> _parameterList = DataModel.DataConverter.AsParamArray(send.Parameters);
 
 	private readonly IStringEvaluator? _targetExpressionEvaluator = send.TargetExpression?.As<IStringEvaluator>();
 
 	private readonly IStringEvaluator? _typeExpressionEvaluator = send.TypeExpression?.As<IStringEvaluator>();
 
-	public required Func<ValueTask<DataConverter>> DataConverterFactory { private get; [UsedImplicitly] init; }
+	public required Deferred<DataConverter> DataConverter { private get; [UsedImplicitly] init; }
 
-	public required Func<ValueTask<IEventController>> EventControllerFactory { private get; [UsedImplicitly] init; }
+	public required Deferred<IEventController> EventController { private get; [UsedImplicitly] init; }
 
 	public override async ValueTask Execute()
 	{
@@ -50,7 +50,7 @@ public class DefaultSendEvaluator(ISend send) : SendEvaluator(send)
 			await _idLocationEvaluator.SetValue(sendId).ConfigureAwait(false);
 		}
 
-		var dataConverter = await DataConverterFactory().ConfigureAwait(false);
+		var dataConverter = await DataConverter().ConfigureAwait(false);
 		var name = _eventExpressionEvaluator is not null ? await _eventExpressionEvaluator.EvaluateString().ConfigureAwait(false) : EventName;
 		var data = await dataConverter.GetData(_contentBodyEvaluator, _contentExpressionEvaluator, _nameEvaluatorList, _parameterList).ConfigureAwait(false);
 		var type = _typeExpressionEvaluator is not null ? ToUri(await _typeExpressionEvaluator.EvaluateString().ConfigureAwait(false)) : Type;
@@ -68,7 +68,7 @@ public class DefaultSendEvaluator(ISend send) : SendEvaluator(send)
 							  RawData = rawContent
 						  };
 
-		var eventController = await EventControllerFactory().ConfigureAwait(false);
+		var eventController = await EventController().ConfigureAwait(false);
 		await eventController.Send(eventEntity).ConfigureAwait(false);
 	}
 
