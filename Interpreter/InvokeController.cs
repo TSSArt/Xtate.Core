@@ -25,7 +25,7 @@ public class InvokeController : IInvokeController
 
 	private const int EventForwardEventId = 3;
 
-	public required IExternalCommunication ExternalCommunication { private get; [UsedImplicitly] init; }
+	public required IExternalServiceCommunication ExternalServiceCommunication { private get; [UsedImplicitly] init; }
 
 	public required ILogger<IInvokeController> Logger { private get; [UsedImplicitly] init; }
 
@@ -39,7 +39,7 @@ public class InvokeController : IInvokeController
 
 		try
 		{
-			await ExternalCommunication.StartInvoke(invokeId, invokeData).ConfigureAwait(false);
+			await ExternalServiceCommunication.Start(invokeId, invokeData).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{
@@ -53,7 +53,7 @@ public class InvokeController : IInvokeController
 
 		try
 		{
-			await ExternalCommunication.CancelInvoke(invokeId).ConfigureAwait(false);
+			await ExternalServiceCommunication.Cancel(invokeId).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{
@@ -67,7 +67,7 @@ public class InvokeController : IInvokeController
 
 		try
 		{
-			await ExternalCommunication.ForwardEvent(invokeId, evt).ConfigureAwait(false);
+			await ExternalServiceCommunication.Forward(invokeId, evt).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{

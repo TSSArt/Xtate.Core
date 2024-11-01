@@ -40,9 +40,9 @@ public class StateMachineContext : IStateMachineContext
 
 	public OrderedSet<StateEntityNode> Configuration { get; } = [];
 
-	public KeyList<StateEntityNode> HistoryValue => new();
+	public KeyList<StateEntityNode> HistoryValue { get; } = [];
 
-	public EntityQueue<IEvent> InternalQueue { get; } = new();
+	public EntityQueue<IEvent> InternalQueue { get; } = [];
 
 	public OrderedSet<StateEntityNode> StatesToInvoke { get; } = [];
 

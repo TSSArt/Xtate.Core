@@ -15,8 +15,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using Xtate.DataModel;
+using Xtate.ExternalService;
 using Xtate.IoC;
-using Xtate.Service;
 
 namespace Xtate.Core;
 
@@ -32,9 +33,10 @@ public class StateMachineHostModule : Module<StateMachineInterpreterModule>
 		//Services.AddImplementation<SecurityContext>().For<SecurityContext>();
 		Services.AddImplementation<InProcEventSchedulerFactory>().For<IEventSchedulerFactory>();
 
-		Services.AddImplementation<StateMachineHostExternalCommunication>().For<IExternalCommunication>();
+		Services.AddImplementation<ExternalServiceCommunication>().For<IExternalServiceCommunication>();
+		Services.AddImplementation<ExternalEventCommunication>().For<IExternalEventCommunication>();
 
-		Services.AddType<ExternalIExternalServiceScopeProxy, InvokeId, InvokeData>();
+		Services.AddType<ExternalServiceScopeProxy, InvokeId, InvokeData>();
 		Services.AddImplementation<ExternalServiceScopeManager>().For<IExternalServiceScopeManager>();
 		Services.AddSharedImplementation<ExternalServiceRunner>(SharedWithin.Scope).For<IExternalServiceRunner>();
 		Services.AddFactory<ExternalServiceFactory>().For<IExternalService>(SharedWithin.Scope);

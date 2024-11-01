@@ -38,7 +38,7 @@ public class DefaultContentBodyEvaluator(IContentBody contentBody) : ContentBody
 				_parseException = exception;
 
 				var logger = await Logger().ConfigureAwait(false);
-				await logger.Write(Level.Warning, eventId: 1, message: Resources.Exception_FailedToParseContentBody, exception).ConfigureAwait(false);
+				await logger.Write(Level.Warning, eventId: 1, Resources.Exception_FailedToParseContentBody, exception).ConfigureAwait(false);
 			}
 
 			_contentValue.MakeDeepConstant();

@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.Service;
+using Xtate.ExternalService;
 
 namespace Xtate.Persistence;
 
@@ -158,15 +158,15 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 		await ShrinkInvokedServices().ConfigureAwait(false);
 	}
 
-	public override async ValueTask<IExternalService?> TryRemoveService(SessionId sessionId, InvokeId invokeId)
+	public override async ValueTask<IExternalService?> TryRemoveService(InvokeId invokeId)
 	{
 		await _lockInvokedServices.WaitAsync(StopToken).ConfigureAwait(false);
 
 		try
 		{
-			await RemoveInvokedService(sessionId, invokeId).ConfigureAwait(false);
+			await RemoveInvokedService( /*sessionId, */ sessionId: null, invokeId).ConfigureAwait(false);
 
-			return await base.TryRemoveService(sessionId, invokeId).ConfigureAwait(false);
+			return await base.TryRemoveService(invokeId).ConfigureAwait(false);
 		}
 		finally
 		{
@@ -174,15 +174,15 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 		}
 	}
 
-	public override async ValueTask<IExternalService?> TryCompleteService(SessionId sessionId, InvokeId invokeId)
+	public override async ValueTask<IExternalService?> TryCompleteService(InvokeId invokeId)
 	{
 		await _lockInvokedServices.WaitAsync(StopToken).ConfigureAwait(false);
 
 		try
 		{
-			await RemoveInvokedService(sessionId, invokeId).ConfigureAwait(false);
+			await RemoveInvokedService( /*sessionId*/sessionId: null, invokeId).ConfigureAwait(false);
 
-			return await base.TryCompleteService(sessionId, invokeId).ConfigureAwait(false);
+			return await base.TryCompleteService(invokeId).ConfigureAwait(false);
 		}
 		finally
 		{

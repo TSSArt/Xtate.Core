@@ -16,10 +16,10 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.ComponentModel;
+using Xtate.ExternalService;
 using Xtate.IoC;
 using Xtate.IoProcessor;
 using Xtate.Persistence;
-using Xtate.Service;
 
 namespace Xtate;
 

@@ -15,23 +15,29 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using Xtate.DataModel;
+
 namespace Xtate.Core;
 
-public class NoExternalCommunication : IExternalCommunication
+public class NoExternalCommunication : IExternalServiceCommunication, IExternalEventCommunication
 {
 	public required StateMachineRuntimeError StateMachineRuntimeError { private get; [UsedImplicitly] init; }
 
-#region Interface IExternalCommunication
+#region Interface IExternalEventCommunication
 
-	public ValueTask StartInvoke(InvokeId invokeId, InvokeData invokeData) => throw StateMachineRuntimeError.NoExternalCommunication();
+	ValueTask<SendStatus> IExternalEventCommunication.TrySend(IOutgoingEvent outgoingEvent) => throw StateMachineRuntimeError.NoExternalCommunication();
 
-	public ValueTask CancelInvoke(InvokeId invokeId) => throw StateMachineRuntimeError.NoExternalCommunication();
+	ValueTask IExternalEventCommunication.Cancel(SendId sendId) => throw StateMachineRuntimeError.NoExternalCommunication();
 
-	public ValueTask<SendStatus> TrySendEvent(IOutgoingEvent outgoingEvent) => throw StateMachineRuntimeError.NoExternalCommunication();
+#endregion
 
-	public ValueTask ForwardEvent(InvokeId invokeId, IEvent evt) => throw StateMachineRuntimeError.NoExternalCommunication();
+#region Interface IExternalServiceCommunication
 
-	public ValueTask CancelEvent(SendId sendId) => throw StateMachineRuntimeError.NoExternalCommunication();
+	ValueTask IExternalServiceCommunication.Start(InvokeId invokeId, InvokeData invokeData) => throw StateMachineRuntimeError.NoExternalCommunication();
+
+	ValueTask IExternalServiceCommunication.Forward(InvokeId invokeId, IEvent evt) => throw StateMachineRuntimeError.NoExternalCommunication();
+
+	ValueTask IExternalServiceCommunication.Cancel(InvokeId invokeId) => throw StateMachineRuntimeError.NoExternalCommunication();
 
 #endregion
 }

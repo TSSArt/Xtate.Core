@@ -17,9 +17,7 @@
 
 namespace Xtate.Core;
 
-public class NoEventController : IEventController
+public interface IPersistedStateMachineRunState
 {
-	public ValueTask Send(IOutgoingEvent outgoingEvent) => default;
-
-	public ValueTask Cancel(SendId sendId) => default;
+	bool IsRestored { get; }
 }

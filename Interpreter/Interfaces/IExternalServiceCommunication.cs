@@ -15,11 +15,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate;
+namespace Xtate.Core;
 
-public interface ILogController
+public interface IExternalServiceCommunication
 {
-	bool IsEnabled { get; }
+	ValueTask Start(InvokeId invokeId, InvokeData invokeData);
 
-	ValueTask Log(string? message = default, DataModelValue arguments = default);
+	ValueTask Forward(InvokeId invokeId, IEvent evt);
+
+	ValueTask Cancel(InvokeId invokeId);
 }

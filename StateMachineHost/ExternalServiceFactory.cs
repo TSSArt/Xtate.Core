@@ -15,9 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.Service;
-
-namespace Xtate.Core;
+namespace Xtate.ExternalService;
 
 public class ExternalServiceFactory
 {
@@ -25,6 +23,7 @@ public class ExternalServiceFactory
 
 	public required IExternalServiceDefinition ExternalServiceDefinition { private get; [UsedImplicitly] init; }
 
+	[UsedImplicitly]
 	public async ValueTask<IExternalService> CreateService()
 	{
 		var serviceActivator = await GetServiceActivator(ExternalServiceDefinition.Type).ConfigureAwait(false);

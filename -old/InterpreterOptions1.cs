@@ -38,7 +38,7 @@ public record InterpreterOptions1
 	//public ImmutableArray<IResourceLoaderFactory> ResourceLoaderFactories { get; init; }
 	public ImmutableDictionary<object, object>? ContextRuntimeItems { get; init; }
 
-	public IExternalCommunication? ExternalCommunication { get; init; }
+	//public IExternalCommunication? ExternalCommunication { get; init; }
 
 	public INotifyStateChanged? NotifyStateChanged { get; init; }
 

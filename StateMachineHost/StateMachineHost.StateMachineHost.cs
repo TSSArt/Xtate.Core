@@ -16,8 +16,8 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using Xtate.DataModel;
+using Xtate.ExternalService;
 using Xtate.IoProcessor;
-using Xtate.Service;
 
 namespace Xtate;
 
@@ -106,7 +106,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 
 			var activator = await FindServiceFactoryActivator(data.Type).ConfigureAwait(false);
 			var serviceCommunication = new ServiceCommunication(this, GetTarget(sessionId), IoProcessorId, invokeId);
-			var invokedService = await activator.StartService(location, data, serviceCommunication).ConfigureAwait(false);
+			IExternalService invokedService = null; //await activator.StartService(location, data, serviceCommunication).ConfigureAwait(false);
 
 			await context.AddService(sessionId, invokeId, invokedService, token).ConfigureAwait(false);
 
@@ -142,7 +142,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 				}
 				finally
 				{
-					if (await context.TryCompleteService(sessionId, invokeId).ConfigureAwait(false) is { } invokedService2)
+					if (await context.TryCompleteService(invokeId).ConfigureAwait(false) is { } invokedService2)
 					{
 						await DisposeInvokedService(invokedService2).ConfigureAwait(false);
 					}
@@ -157,7 +157,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 
 		//context.ValidateSessionId(sessionId, out _);
 
-		if (await context.TryRemoveService(sessionId, invokeId).ConfigureAwait(false) is { } service)
+		if (await context.TryRemoveService(invokeId).ConfigureAwait(false) is { } service)
 		{
 			await service.Destroy().ConfigureAwait(false);
 
