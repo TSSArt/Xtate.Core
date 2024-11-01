@@ -104,7 +104,7 @@ public static class StringExtensions
 	{
 #if NETSTANDARD2_1 || NETCOREAPP2_1_OR_GREATER
 
-		var totalLength = str0?.Length ?? 0 + str1?.Length ?? 0 + str2?.Length ?? 0 + str3?.Length ?? 0 + str4?.Length ?? 0;
+		var totalLength = (str0?.Length ?? 0) + (str1?.Length ?? 0) + (str2?.Length ?? 0) + (str3?.Length ?? 0) + (str4?.Length ?? 0);
 
 		return string.Create(totalLength, (str0 ?? string.Empty, str1 ?? string.Empty, str2 ?? string.Empty, str3 ?? string.Empty, str4 ?? string.Empty), Factory);
 

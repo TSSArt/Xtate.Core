@@ -18,6 +18,7 @@
 using Xtate.DataModel;
 using Xtate.ExternalService;
 using Xtate.IoC;
+using Xtate.IoProcessor;
 
 namespace Xtate.Core;
 
@@ -62,5 +63,10 @@ public class StateMachineHostModule : Module<StateMachineInterpreterModule>
 		Services.AddSharedImplementation<StateMachineHostContext>(SharedWithin.Container)
 				.For<StateMachineHostContext>()
 				.For<IStateMachineHostContext>(); //TODO: Make only interface
+
+		Services.AddSharedFactory<IoProcessorService>(SharedWithin.Container).For<IIoProcessor, Uri?>(Option.DoNotDispose);
+		Services.AddSharedImplementation<InProcEventScheduler>(SharedWithin.Container).For<IEventScheduler>();
+		Services.AddSharedImplementation<EventSchedulerInfoEnricher>(SharedWithin.Container).For<EventSchedulerInfoEnricher>().For<ILogEnricher<InProcEventScheduler>>();
+		Services.AddType<ScheduledEvent, IHostEvent>();
 	}
 }

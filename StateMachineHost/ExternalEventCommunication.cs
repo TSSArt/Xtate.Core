@@ -16,22 +16,68 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using Xtate.DataModel;
+using Xtate.IoProcessor;
 
 namespace Xtate.Core;
 
-public class ExternalEventCommunication : IExternalEventCommunication
+public class ExternalEventCommunication : IExternalEventCommunication, IDisposable
 {
-	public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
+	private readonly DisposingToken _disposingToken = new();
 
-	public required IStateMachineHost StateMachineHost { private get; [UsedImplicitly] init; }
+	public required Func<Uri?, IIoProcessor> IoProcessorFactory { private get; [UsedImplicitly] init; }
+
+	public required IEventScheduler EventScheduler { private get; [UsedImplicitly] init; }
+
+	public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
 
 	private SessionId SessionId => StateMachineSessionId.SessionId;
 
-#region Interface IExternalEventCommunication
+#region Interface IDisposable
 
-	public ValueTask<SendStatus> TrySend(IOutgoingEvent outgoingEvent) => StateMachineHost.DispatchEvent(SessionId, outgoingEvent, CancellationToken.None);
-
-	public ValueTask Cancel(SendId sendId) => StateMachineHost.CancelEvent(SessionId, sendId, CancellationToken.None);
+	public void Dispose()
+	{
+		Dispose(true);
+		GC.SuppressFinalize(this);
+	}
 
 #endregion
+
+#region Interface IExternalEventCommunication
+
+	public async ValueTask<SendStatus> TrySend(IOutgoingEvent outgoingEvent)
+	{
+		if (outgoingEvent is null) throw new ArgumentNullException(nameof(outgoingEvent));
+
+		var ioProcessor = IoProcessorFactory(outgoingEvent.Type);
+
+		if (ioProcessor.IsInternalTarget(outgoingEvent.Target))
+		{
+			return SendStatus.ToInternalQueue;
+		}
+
+		var ioProcessorEvent = await ioProcessor.GetHostEvent(StateMachineSessionId.SessionId, outgoingEvent, _disposingToken.Token).ConfigureAwait(false);
+
+		if (outgoingEvent.DelayMs > 0)
+		{
+			await EventScheduler.ScheduleEvent(ioProcessorEvent, _disposingToken.Token).ConfigureAwait(false);
+
+			return SendStatus.Scheduled;
+		}
+
+		await ioProcessor.Dispatch(ioProcessorEvent, _disposingToken.Token).ConfigureAwait(false);
+
+		return SendStatus.Sent;
+	}
+
+	public ValueTask Cancel(SendId sendId) => EventScheduler.CancelEvent(SessionId, sendId, _disposingToken.Token);
+
+#endregion
+
+	protected virtual void Dispose(bool disposing)
+	{
+		if (disposing)
+		{
+			_disposingToken.Dispose();
+		}
+	}
 }

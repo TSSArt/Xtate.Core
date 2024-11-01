@@ -18,7 +18,7 @@
 namespace Xtate.Persistence;
 
 internal sealed class PersistedEventScheduler(IStorageProvider storageProvider, IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger logger)
-	: InProcEventScheduler(hostEventDispatcher, logger)
+	: InProcEventScheduler
 {
 	private const string HostPartition = "StateMachineHost";
 
@@ -36,7 +36,7 @@ internal sealed class PersistedEventScheduler(IStorageProvider storageProvider, 
 
 	private ITransactionalStorage _storage = default!;
 
-	protected override async ValueTask<ScheduledEvent> CreateScheduledEvent(IHostEvent hostEvent, CancellationToken token)
+	protected async ValueTask<ScheduledEvent> CreateScheduledEvent(IHostEvent hostEvent, CancellationToken token)
 	{
 		var persistedScheduledEvent = new PersistedScheduledEvent(this, hostEvent);
 
