@@ -20,6 +20,8 @@ namespace System;
 
 internal struct HashCode
 {
+	private int _hash;
+
 	public static int Combine<T1>(T1 value1) => value1?.GetHashCode() ?? 0;
 
 	public static int Combine<T1, T2>(T1 value1, T2 value2)
@@ -78,6 +80,10 @@ internal struct HashCode
 			return hash;
 		}
 	}
+
+	public void Add<T>(T t) => _hash = (_hash * 397) ^ (t?.GetHashCode() ?? 0);
+
+	public int ToHashCode() => _hash;
 }
 
 #endif
