@@ -299,7 +299,9 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		var eventModel = DataConverter.FromEvent(internalEvent);
 		StateMachineContext.DataModel.SetInternal(key: @"_event", CaseSensitivity.CaseInsensitive, eventModel, DataModelAccess.ReadOnly);
 
-		await Logger.Write(Level.Trace, EventProcessingEventId, $@"Processing {internalEvent.Type} event '{internalEvent.Name}'", internalEvent).ConfigureAwait(false);
+		var eventType = internalEvent.Type;
+		var eventName = internalEvent.Name;
+		await Logger.Write(Level.Trace, EventProcessingEventId, $@"Processing {eventType} event '{eventName}'", internalEvent).ConfigureAwait(false);
 
 		var transitions = await SelectTransitions(internalEvent).ConfigureAwait(false);
 
@@ -357,9 +359,11 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		var externalEvent = await ReadExternalEventFiltered().ConfigureAwait(false);
 
 		var eventModel = DataConverter.FromEvent(externalEvent);
+		var eventType = externalEvent.Type;
+		var eventName = externalEvent.Name;
 		StateMachineContext.DataModel.SetInternal(key: @"_event", CaseSensitivity.CaseInsensitive, eventModel, DataModelAccess.ReadOnly);
 
-		await Logger.Write(Level.Trace, EventProcessingEventId, $@"Processing {externalEvent.Type} event '{externalEvent.Name}'", externalEvent).ConfigureAwait(false);
+		await Logger.Write(Level.Trace, EventProcessingEventId, $@"Processing {eventType} event '{eventName}'", externalEvent).ConfigureAwait(false);
 
 		foreach (var state in StateMachineContext.Configuration)
 		{
@@ -620,7 +624,8 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
 		foreach (var state in states)
 		{
-			await Logger.Write(Level.Trace, ExitingStateEventId, $@"Exiting state '{state.Id}'", state).ConfigureAwait(false);
+			var stateId = state.Id;
+			await Logger.Write(Level.Trace, ExitingStateEventId, $@"Exiting state [{stateId}]", state).ConfigureAwait(false);
 
 			foreach (var onExit in state.OnExit)
 			{
@@ -634,7 +639,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
 			StateMachineContext.Configuration.Delete(state);
 
-			await Logger.Write(Level.Trace, ExitedStateEventId, $@"Exited state '{state.Id}'", state).ConfigureAwait(false);
+			await Logger.Write(Level.Trace, ExitedStateEventId, $@"Exited state [{stateId}]", state).ConfigureAwait(false);
 		}
 	}
 
@@ -677,7 +682,8 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
 		foreach (var state in ToSortedList(statesToEnter, StateEntityNode.EntryOrder))
 		{
-			await Logger.Write(Level.Trace, EnteringStateEventId, $@"Entering state '{state.Id}'", state).ConfigureAwait(false);
+			var stateId = state.Id;
+			await Logger.Write(Level.Trace, EnteringStateEventId, $@"Entering state [{stateId}]", state).ConfigureAwait(false);
 
 			StateMachineContext.Configuration.AddIfNotExists(state);
 			StateMachineContext.StatesToInvoke.AddIfNotExists(state);
@@ -697,7 +703,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 				await RunExecutableEntity(compound.Initial.Transition.ActionEvaluators).ConfigureAwait(false);
 			}
 
-			if (defaultHistoryContent.TryGetValue(state.Id, out var action))
+			if (defaultHistoryContent.TryGetValue(stateId, out var action))
 			{
 				await RunExecutableEntity(action).ConfigureAwait(false);
 			}
@@ -732,7 +738,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 				}
 			}
 
-			await Logger.Write(Level.Trace, EnteredStateEventId, $@"Entered state '{state.Id}'", state).ConfigureAwait(false);
+			await Logger.Write(Level.Trace, EnteredStateEventId, $@"Entered state [{stateId}]", state).ConfigureAwait(false);
 		}
 	}
 
@@ -1125,7 +1131,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 							  _                       => throw Infra.Unmatched(errorType)
 						  };
 
-			await Logger.Write(Level.Error, eventId, $@"{errorType} error in entity '{entityId}'.", exception).ConfigureAwait(false);
+			await Logger.Write(Level.Error, eventId, $@"{errorType} error in entity [{entityId}].", exception).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{

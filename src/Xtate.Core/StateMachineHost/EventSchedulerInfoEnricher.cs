@@ -17,17 +17,28 @@
 
 namespace Xtate.Core;
 
-internal class FullUriComparer : IEqualityComparer<Uri>
+public class EventSchedulerInfoEnricher : ILogEnricher<InProcEventScheduler>
 {
-	public static FullUriComparer Instance { get; } = new();
+	private readonly AsyncLocal<SessionId> _sessionIdAsyncLocal = new();
 
-#region Interface IEqualityComparer<Uri>
+#region Interface ILogEnricher<InProcEventScheduler>
 
-	public bool Equals(Uri? x, Uri? y) => x == y && GetSafeFragment(x) == GetSafeFragment(y);
+	public IEnumerable<LoggingParameter> EnumerateProperties()
+	{
+		if (_sessionIdAsyncLocal.Value is { } sessionId)
+		{
+			yield return new LoggingParameter(name: @"SessionId", sessionId);
+		}
+	}
 
-	public int GetHashCode(Uri uri) => HashCode.Combine(uri, GetSafeFragment(uri));
+	public string Namespace => @"ctx";
+
+	public Level Level => Level.Info;
 
 #endregion
 
-	private static string? GetSafeFragment(Uri? uri) => uri?.IsAbsoluteUri == true ? uri.Fragment : default;
+	public void SetSessionId(SessionId sessionId)
+	{
+		_sessionIdAsyncLocal.Value = sessionId;
+	}
 }

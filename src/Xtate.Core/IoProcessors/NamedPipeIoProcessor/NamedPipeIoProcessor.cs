@@ -90,8 +90,6 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 
 	protected override IHostEvent CreateHostEvent(ServiceId senderServiceId, IOutgoingEvent outgoingEvent)
 	{
-		if (outgoingEvent is null) throw new ArgumentNullException(nameof(outgoingEvent));
-
 		if (outgoingEvent.Target is null)
 		{
 			throw new ProcessorException(Resources.Exception_EventTargetDidNotSpecify);

@@ -16,19 +16,32 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Collections.Concurrent;
-using Xtate.Persistence;
+using Xtate.IoProcessor;
 
 namespace Xtate.Core;
 
-internal class InProcEventScheduler(IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger logger) : IEventScheduler
+public class InProcEventScheduler : IEventScheduler
 {
 	private readonly ConcurrentDictionary<(ServiceId, SendId), object> _scheduledEvents = new();
+
+	public required Func<Uri?, IIoProcessor> IoProcessorFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<IHostEvent, ValueTask<ScheduledEvent>> ScheduledEventFactory { private get; [UsedImplicitly] init; }
+
+	public required EventSchedulerInfoEnricher EventSchedulerInfoEnricher { private get; [UsedImplicitly] init; }
+
+	public required ILogger<InProcEventScheduler> Logger { private get; [UsedImplicitly] init; }
 
 #region Interface IEventScheduler
 
 	public async ValueTask ScheduleEvent(IHostEvent hostEvent, CancellationToken token)
 	{
-		var scheduledEvent = await CreateScheduledEvent(hostEvent, token).ConfigureAwait(false);
+		if (hostEvent.SenderServiceId is SessionId sessionId)
+		{
+			EventSchedulerInfoEnricher.SetSessionId(sessionId);
+		}
+
+		var scheduledEvent = await ScheduledEventFactory(hostEvent).ConfigureAwait(false);
 
 		AddScheduledEvent(scheduledEvent);
 
@@ -59,8 +72,6 @@ internal class InProcEventScheduler(IHostEventDispatcher hostEventDispatcher, IE
 
 #endregion
 
-	protected virtual ValueTask<ScheduledEvent> CreateScheduledEvent(IHostEvent hostEvent, CancellationToken token) => new(new ScheduledEvent(hostEvent));
-
 	private void AddScheduledEvent(ScheduledEvent scheduledEvent)
 	{
 		if (scheduledEvent.SendId is { } sendId)
@@ -79,24 +90,39 @@ internal class InProcEventScheduler(IHostEventDispatcher hostEventDispatcher, IE
 		}
 	}
 
+	private async ValueTask DispatchEvent(IHostEvent hostEvent)
+	{
+		if (hostEvent.OriginType is not { } originType)
+		{
+			throw new PlatformException(Resources.Exception_OriginTypeMustBeProvidedInIoProcessorEvent);
+		}
+
+		var ioProcessor = IoProcessorFactory(originType);
+
+		if (!FullUriComparer.Instance.Equals(ioProcessor.Id, originType))
+		{
+			throw new ProcessorException(Resources.Exception_InvalidType);
+		}
+
+		await ioProcessor.Dispatch(hostEvent, token: default).ConfigureAwait(false);
+	}
+
 	private async ValueTask DelayedFire(ScheduledEvent scheduledEvent)
 	{
-		if (scheduledEvent is null) throw new ArgumentNullException(nameof(scheduledEvent));
-
 		try
 		{
 			await Task.Delay(scheduledEvent.DelayMs, scheduledEvent.CancellationToken).ConfigureAwait(false);
 
 			try
 			{
-				await hostEventDispatcher.DispatchEvent(scheduledEvent, token: default).ConfigureAwait(false);
+				await DispatchEvent(scheduledEvent).ConfigureAwait(false);
 			}
 			catch (Exception ex)
 			{
-				if (logger.IsEnabled)
+				if (Logger.IsEnabled(Level.Error))
 				{
-					var message = Res.Format(Resources.Exception_ErrorOnDispatchingEvent, scheduledEvent.SendId?.Value);
-					await logger.LogError(message, ex, scheduledEvent).ConfigureAwait(false);
+					var sendId = scheduledEvent.SendId;
+					await Logger.Write(Level.Error, eventId: 1, $@"Error on dispatching event. SendId: [{sendId}].", ex).ConfigureAwait(false);
 				}
 			}
 		}
@@ -141,50 +167,6 @@ internal class InProcEventScheduler(IHostEventDispatcher hostEventDispatcher, IE
 			var newSet = set.Remove(scheduledEvent);
 
 			return newSet.Count > 0 ? newSet : null;
-		}
-	}
-
-	private class LoggerContext(ScheduledEvent scheduledEvent) : IEventSchedulerLoggerContext
-	{
-		public string LoggerContextType => nameof(IEventSchedulerLoggerContext);
-
-	#region Interface IEventSchedulerLoggerContext
-
-		public SessionId? SessionId => scheduledEvent.SenderServiceId as SessionId;
-
-	#endregion
-
-		public DataModelList GetProperties()
-		{
-			if (scheduledEvent.SenderServiceId is SessionId sessionId)
-			{
-				var properties = new DataModelList { { @"SessionId", sessionId } };
-				properties.MakeDeepConstant();
-
-				return properties;
-			}
-
-			return DataModelList.Empty;
-		}
-	}
-
-	internal class ScheduledEvent : HostEvent
-	{
-		private readonly CancellationTokenSource _cancellationTokenSource = new();
-
-		public ScheduledEvent(IHostEvent hostEvent) : base(hostEvent) { }
-
-		protected ScheduledEvent(in Bucket bucket) : base(in bucket) { }
-
-		public CancellationToken CancellationToken => _cancellationTokenSource.Token;
-
-		public void Cancel() => _cancellationTokenSource.Cancel();
-
-		public virtual ValueTask Dispose(CancellationToken token)
-		{
-			_cancellationTokenSource.Dispose();
-
-			return default;
 		}
 	}
 }

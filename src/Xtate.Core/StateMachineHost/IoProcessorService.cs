@@ -15,19 +15,24 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using Xtate.IoProcessor;
+
 namespace Xtate.Core;
 
-internal class FullUriComparer : IEqualityComparer<Uri>
+public class IoProcessorService
 {
-	public static FullUriComparer Instance { get; } = new();
+	public required ServiceList<IIoProcessor> IoProcessors { private get; [UsedImplicitly] init; }
 
-#region Interface IEqualityComparer<Uri>
+	public IIoProcessor GetIoProcessor(Uri? type)
+	{
+		foreach (var ioProcessor in IoProcessors)
+		{
+			if (ioProcessor.CanHandle(type))
+			{
+				return ioProcessor;
+			}
+		}
 
-	public bool Equals(Uri? x, Uri? y) => x == y && GetSafeFragment(x) == GetSafeFragment(y);
-
-	public int GetHashCode(Uri uri) => HashCode.Combine(uri, GetSafeFragment(uri));
-
-#endregion
-
-	private static string? GetSafeFragment(Uri? uri) => uri?.IsAbsoluteUri == true ? uri.Fragment : default;
+		throw new ProcessorException(Resources.Exception_InvalidType);
+	}
 }

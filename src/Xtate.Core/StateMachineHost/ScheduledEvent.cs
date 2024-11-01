@@ -15,19 +15,26 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using Xtate.Persistence;
+
 namespace Xtate.Core;
 
-internal class FullUriComparer : IEqualityComparer<Uri>
+public class ScheduledEvent : HostEvent
 {
-	public static FullUriComparer Instance { get; } = new();
+	private readonly CancellationTokenSource _cancellationTokenSource = new();
 
-#region Interface IEqualityComparer<Uri>
+	public ScheduledEvent(IHostEvent hostEvent) : base(hostEvent) { }
 
-	public bool Equals(Uri? x, Uri? y) => x == y && GetSafeFragment(x) == GetSafeFragment(y);
+	protected ScheduledEvent(in Bucket bucket) : base(in bucket) { }
 
-	public int GetHashCode(Uri uri) => HashCode.Combine(uri, GetSafeFragment(uri));
+	public CancellationToken CancellationToken => _cancellationTokenSource.Token;
 
-#endregion
+	public void Cancel() => _cancellationTokenSource.Cancel();
 
-	private static string? GetSafeFragment(Uri? uri) => uri?.IsAbsoluteUri == true ? uri.Fragment : default;
+	public virtual ValueTask Dispose(CancellationToken token)
+	{
+		_cancellationTokenSource.Dispose();
+
+		return default;
+	}
 }

@@ -21,5 +21,5 @@ public interface IEntityParserHandler<[UsedImplicitly] TSource>
 {
 	Level Level { get; }
 
-	IEnumerable<LoggingParameter> EnumerateProperties<T>(T entity);
+	IEnumerable<LoggingParameter>? EnumerateProperties<T>(T entity);
 }

@@ -38,6 +38,8 @@ public abstract class IoProcessorBase : IIoProcessor
 
 #region Interface IIoProcessor
 
+	public virtual bool IsInternalTarget(Uri target) => false;
+
 	Uri? IIoProcessor.GetTarget(ServiceId serviceId) => GetTarget(serviceId);
 
 	ValueTask<IHostEvent> IIoProcessor.GetHostEvent(ServiceId senderServiceId, IOutgoingEvent outgoingEvent, CancellationToken token) => CreateHostEventAsync(senderServiceId, outgoingEvent, token);

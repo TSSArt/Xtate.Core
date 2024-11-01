@@ -60,7 +60,8 @@ public class Logger<TSource> : ILogger<TSource>
 
 #region Interface ILogger<TSource>
 
-	public virtual ValueTask Write(Level level, int eventId, string? message) => Write(level, eventId, message, formattedMessage: default, default(ValueTuple));
+	public virtual ValueTask Write(Level level, int eventId, string? message) => 
+		Write(level, eventId, message, formattedMessage: default, default(ValueTuple));
 
 	public virtual ValueTask Write(Level level, int eventId, [InterpolatedStringHandlerArgument("", "level")] LoggingInterpolatedStringHandler formattedMessage) =>
 		Write(level, eventId, message: default, formattedMessage, default(ValueTuple));
@@ -134,9 +135,9 @@ public class Logger<TSource> : ILogger<TSource>
 	{
 		foreach (var entityParserHandler in EntityParserHandlers)
 		{
-			if (logWriter.IsEnabled(entityParserHandler.Level))
+			if (logWriter.IsEnabled(entityParserHandler.Level) && entityParserHandler.EnumerateProperties(entity) is { } enumerable)
 			{
-				foreach (var parameter in entityParserHandler.EnumerateProperties(entity))
+				foreach (var parameter in enumerable)
 				{
 					yield return parameter;
 				}
@@ -148,9 +149,9 @@ public class Logger<TSource> : ILogger<TSource>
 	{
 		foreach (var entityParserHandler in EntityParserHandlers)
 		{
-			if (logWriter.IsEnabled(source, entityParserHandler.Level))
+			if (logWriter.IsEnabled(source, entityParserHandler.Level) && entityParserHandler.EnumerateProperties(entity) is { } enumerable)
 			{
-				foreach (var parameter in entityParserHandler.EnumerateProperties(entity))
+				foreach (var parameter in enumerable)
 				{
 					yield return parameter;
 				}
