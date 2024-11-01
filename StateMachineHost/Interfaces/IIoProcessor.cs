@@ -23,7 +23,7 @@ public interface IIoProcessor
 
 	bool CanHandle(Uri? type);
 
-	bool IsInternalTarget(Uri target);
+	bool IsInternalTarget(Uri? target);
 
 	Uri? GetTarget(ServiceId serviceId);
 

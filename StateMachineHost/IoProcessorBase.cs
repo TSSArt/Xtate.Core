@@ -38,7 +38,7 @@ public abstract class IoProcessorBase : IIoProcessor
 
 #region Interface IIoProcessor
 
-	public virtual bool IsInternalTarget(Uri target) => false;
+	public virtual bool IsInternalTarget(Uri? target) => false;
 
 	Uri? IIoProcessor.GetTarget(ServiceId serviceId) => GetTarget(serviceId);
 
