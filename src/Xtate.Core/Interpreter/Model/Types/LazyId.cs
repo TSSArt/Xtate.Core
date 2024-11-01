@@ -121,7 +121,7 @@ public abstract class LazyId : ILazyValue, IObject
 			return true;
 		}
 
-		if (obj is null || _id is null || GetType() != obj.GetType())
+		if (_id is null || obj is null || GetType() != obj.GetType())
 		{
 			return false;
 		}
@@ -136,7 +136,7 @@ public abstract class LazyId : ILazyValue, IObject
 			return true;
 		}
 
-		if (lazyId is null || _id is null)
+		if (_id is null || lazyId is null)
 		{
 			return false;
 		}

@@ -25,14 +25,14 @@ public class TransitionEntityParser<TSource> : EntityParserBase<TSource, ITransi
 
 		yield return new LoggingParameter(name: @"TransitionType", transition.Type);
 
-		if (!transition.EventDescriptors.IsDefaultOrEmpty)
+		if (!transition.EventDescriptors.IsDefault)
 		{
-			yield return new LoggingParameter(name: @"EventDescriptors", EventDescriptor.ToString(transition.EventDescriptors));
+			yield return new LoggingParameter(name: @"EventDescriptors", transition.EventDescriptors);
 		}
 
-		if (!transition.Target.IsDefaultOrEmpty)
+		if (!transition.Target.IsDefault)
 		{
-			yield return new LoggingParameter(name: @"Target", Identifier.ToString(transition.Target));
+			yield return new LoggingParameter(name: @"Target", transition.Target);
 		}
 	}
 }

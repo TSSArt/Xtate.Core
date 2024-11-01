@@ -23,7 +23,7 @@ public class TransitionBuilder : BuilderBase, ITransitionBuilder
 
 	private IConditionExpression? _condition;
 
-	private ImmutableArray<IEventDescriptor> _eventDescriptors;
+	private EventDescriptors _eventDescriptors;
 
 	private ImmutableArray<IIdentifier> _target;
 
@@ -55,9 +55,9 @@ public class TransitionBuilder : BuilderBase, ITransitionBuilder
 		_type = type;
 	}
 
-	public void SetEvent(ImmutableArray<IEventDescriptor> eventDescriptors)
+	public void SetEvent(EventDescriptors eventDescriptors)
 	{
-		Infra.RequiresNonEmptyCollection(eventDescriptors);
+		Infra.RequiresNonEmptyCollection(eventDescriptors.Array);
 
 		_eventDescriptors = eventDescriptors;
 	}

@@ -402,7 +402,7 @@ public class StateMachineValidator : StateMachineVisitor, IStateMachineValidator
 
 	protected override void Visit(ref ITransition entity)
 	{
-		if (entity.EventDescriptors.IsDefaultOrEmpty && entity.Condition is null && entity.Target.IsDefaultOrEmpty)
+		if (entity.EventDescriptors.IsDefault && entity.Condition is null && entity.Target.IsDefault)
 		{
 			ErrorProcessorService.AddError(entity, Resources.ErrorMessage_MustBePresentAtLeastEventOrConditionOrTargetInTransitionElement);
 		}

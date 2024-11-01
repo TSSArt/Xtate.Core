@@ -686,11 +686,11 @@ public abstract class StateMachineVisitor
 
 	protected virtual void Build(ref TransitionEntity properties)
 	{
-		var evt = properties.EventDescriptors;
-		VisitWrapper(ref evt);
-		properties.EventDescriptors = evt;
+		var descriptors = properties.EventDescriptors.Array;
+		VisitWrapper(ref descriptors);
+		properties.EventDescriptors = descriptors;
 
-		var target = properties.Target;
+		var target = properties.Target.Array;
 		VisitWrapper(ref target);
 		properties.Target = target;
 

@@ -169,7 +169,7 @@ public class ScxmlToDomTest
 		var sm = GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' initial='trg2 trg1'><state/></scxml>");
 		Assert.AreEqual((Identifier) "trg2", sm.Initial!.Transition!.Target[0]);
 		Assert.AreEqual((Identifier) "trg1", sm.Initial.Transition.Target[1]);
-		Assert.AreEqual(expected: 2, sm.Initial.Transition.Target.Length);
+		Assert.AreEqual(expected: 2, sm.Initial.Transition.Target.Count);
 	}
 
 	[TestMethod]

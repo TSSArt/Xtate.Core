@@ -71,33 +71,7 @@ public readonly struct EventName : IReadOnlyList<IIdentifier>, IEquatable<EventN
 
 #region Interface IEquatable<EventName>
 
-	public bool Equals(EventName other)
-	{
-		if (_parts == other._parts)
-		{
-			return true;
-		}
-
-		if (_parts.IsDefault || other._parts.IsDefault)
-		{
-			return false;
-		}
-
-		if (_parts.Length != other._parts.Length)
-		{
-			return false;
-		}
-
-		for (var i = 0; i < _parts.Length; i ++)
-		{
-			if (!Identifier.EqualityComparer.Equals(_parts[i], other._parts[i]))
-			{
-				return false;
-			}
-		}
-
-		return true;
-	}
+	public bool Equals(EventName other) => SegmentedName.Equals(_parts, other._parts);
 
 #endregion
 
@@ -124,35 +98,8 @@ public readonly struct EventName : IReadOnlyList<IIdentifier>, IEquatable<EventN
 	public bool TryFormat(Span<char> destination,
 						  out int charsWritten,
 						  ReadOnlySpan<char> format,
-						  IFormatProvider? provider)
-	{
-		charsWritten = 0;
-
-		if (_parts.IsDefaultOrEmpty)
-		{
-			return true;
-		}
-
-		if (!_parts[0].Value.TryCopyIncremental(ref destination, ref charsWritten))
-		{
-			return false;
-		}
-
-		for (var i = 1; i < _parts.Length; i ++)
-		{
-			if (!Separator.TryCopyIncremental(ref destination, ref charsWritten))
-			{
-				return false;
-			}
-
-			if (!_parts[i].Value.TryCopyIncremental(ref destination, ref charsWritten))
-			{
-				return false;
-			}
-		}
-
-		return true;
-	}
+						  IFormatProvider? provider) =>
+		SegmentedName.TryFormat(_parts, Separator, destination, out charsWritten);
 
 #endregion
 
@@ -160,33 +107,9 @@ public readonly struct EventName : IReadOnlyList<IIdentifier>, IEquatable<EventN
 
 	public ImmutableArray<IIdentifier>.Enumerator GetEnumerator() => _parts.GetEnumerator();
 
-	public override int GetHashCode()
-	{
-		var hashCode = HashCode.Combine(0);
+	public override int GetHashCode() => SegmentedName.GetHashCode(_parts);
 
-		if (_parts.IsDefaultOrEmpty)
-		{
-			return hashCode;
-		}
-
-		foreach (var part in _parts)
-		{
-			hashCode = HashCode.Combine(hashCode, Identifier.EqualityComparer.GetHashCode(part));
-		}
-
-		return hashCode;
-	}
-
-	public override string ToString() =>
-		_parts switch
-		{
-			{ IsDefault: true }                                 => default,
-			{ IsEmpty: true }                                   => string.Empty,
-			[var identifier]                                    => identifier.Value,
-			[var identifier1, var identifier2]                  => identifier1.Value + Separator + identifier2.Value,
-			[var identifier1, var identifier2, var identifier3] => identifier1.Value.Concat(Separator, identifier2.Value, Separator, identifier3.Value),
-			_                                                   => string.Join(Separator, _parts.Select(p => p.Value))
-		};
+	public override string ToString() => SegmentedName.ToString(_parts, Separator);
 
 	public override bool Equals(object? obj) => obj is EventName other && Equals(other);
 
@@ -287,7 +210,7 @@ public readonly struct EventName : IReadOnlyList<IIdentifier>, IEquatable<EventN
 		}
 	}
 
-	public bool IsError() => !_parts.IsDefaultOrEmpty && Identifier.EqualityComparer.Equals(_parts[0], ErrorIdentifier);
+	public bool IsError() => !_parts.IsDefaultOrEmpty && _parts[0].Equals(ErrorIdentifier);
 
 	public static EventName GetErrorPlatform(string suffix) => GetEventName(ErrorIdentifier, PlatformIdentifier, suffix);
 

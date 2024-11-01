@@ -19,19 +19,21 @@ using System.ComponentModel;
 
 namespace Xtate;
 
-public sealed class Identifier : LazyId, IIdentifier, IEquatable<IIdentifier>
+public sealed class Identifier : LazyId, IIdentifier, IEquatable<Identifier>
 {
 	private Identifier() { }
 
 	private Identifier(string value) : base(value) { }
 
-	public static IEqualityComparer<IIdentifier> EqualityComparer { get; } = new IdentifierEqualityComparer();
+#region Interface IEquatable<Identifier>
 
-#region Interface IEquatable<IIdentifier>
-
-	public bool Equals(IIdentifier? other) => other is Identifier identifier && FastEqualsNoTypeCheck(identifier);
+	public bool Equals(Identifier? other) => FastEqualsNoTypeCheck(other);
 
 #endregion
+
+	public override bool Equals(object? obj) => obj is Identifier identifier ? Equals(identifier) : obj?.Equals(this) == true;
+
+	public override int GetHashCode() => base.GetHashCode();
 
 	public static explicit operator Identifier([Localizable(false)] string value) => FromString(value);
 
@@ -75,43 +77,4 @@ public sealed class Identifier : LazyId, IIdentifier, IEquatable<IIdentifier>
 	protected override string GenerateId() => IdGenerator.NewId(GetHashCode());
 
 	public static IIdentifier New() => new Identifier();
-
-	public static string? ToString(ImmutableArray<IIdentifier> identifiers)
-	{
-		if (identifiers.IsDefaultOrEmpty)
-		{
-			return null;
-		}
-
-		if (identifiers.Length == 1)
-		{
-			return identifiers[0].Value;
-		}
-
-		return string.Join(separator: @" ", identifiers.Select(d => d.Value));
-	}
-
-	private class IdentifierEqualityComparer : IEqualityComparer<IIdentifier>
-	{
-	#region Interface IEqualityComparer<IIdentifier>
-
-		public bool Equals(IIdentifier? x, IIdentifier? y)
-		{
-			if (ReferenceEquals(x, y))
-			{
-				return true;
-			}
-
-			if (x is null || y is null)
-			{
-				return false;
-			}
-
-			return x.As<IEquatable<IIdentifier>>().Equals(y.As<IEquatable<IIdentifier>>());
-		}
-
-		public int GetHashCode(IIdentifier obj) => obj.As<IEquatable<IIdentifier>>().GetHashCode();
-
-	#endregion
-	}
 }

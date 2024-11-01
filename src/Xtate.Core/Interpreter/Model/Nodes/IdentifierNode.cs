@@ -53,5 +53,5 @@ public sealed class IdentifierNode(IIdentifier id) : IIdentifier, IStoreSupport,
 
 	public override bool Equals(object? obj) => id.Equals(obj);
 
-	public override int GetHashCode() => HashCode.Combine(id);
+	public override int GetHashCode() => id.GetHashCode();
 }

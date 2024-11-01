@@ -29,11 +29,11 @@ public struct TransitionEntity : ITransition, IVisitorEntity<TransitionEntity, I
 
 #region Interface ITransition
 
-	public ImmutableArray<IEventDescriptor> EventDescriptors { get; set; }
+	public EventDescriptors EventDescriptors { get; set; }
 
 	public IConditionExpression? Condition { get; set; }
 
-	public ImmutableArray<IIdentifier> Target { get; set; }
+	public Target Target { get; set; }
 
 	public TransitionType Type { get; set; }
 
@@ -55,9 +55,9 @@ public struct TransitionEntity : ITransition, IVisitorEntity<TransitionEntity, I
 
 	readonly bool IVisitorEntity<TransitionEntity, ITransition>.RefEquals(ref TransitionEntity other) =>
 		Type == other.Type &&
-		Target == other.Target &&
+		Target.Array == other.Target.Array &&
 		Action == other.Action &&
-		EventDescriptors == other.EventDescriptors &&
+		EventDescriptors.Array == other.EventDescriptors.Array &&
 		ReferenceEquals(Condition, other.Condition);
 
 #endregion

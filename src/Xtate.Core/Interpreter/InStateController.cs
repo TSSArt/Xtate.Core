@@ -27,7 +27,7 @@ public class InStateController : IInStateController
 	{
 		foreach (var state in StateMachineContext.Configuration)
 		{
-			if (Identifier.EqualityComparer.Equals(id, state.Id))
+			if (id.Equals(state.Id))
 			{
 				return true;
 			}
