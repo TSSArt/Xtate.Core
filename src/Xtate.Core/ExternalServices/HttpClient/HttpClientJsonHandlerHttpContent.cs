@@ -20,7 +20,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 
-namespace Xtate.Service;
+namespace Xtate.ExternalService.HttpClient;
 
 public class HttpClientJsonHandlerHttpContent : HttpContent
 {

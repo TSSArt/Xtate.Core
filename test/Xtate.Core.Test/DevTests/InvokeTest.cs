@@ -16,6 +16,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using Xtate.Core;
+using Xtate.DataModel;
 using Xtate.IoC;
 
 namespace Xtate.Test;
@@ -23,7 +24,7 @@ namespace Xtate.Test;
 [TestClass]
 public class InvokeTest
 {
-	private Mock<IExternalCommunication> _externalCommunicationMock = default!;
+	private Mock<IExternalServiceCommunication> _externalCommunicationMock = default!;
 
 	private Mock<IInvokeController> _invokeControllerMock = default!;
 
@@ -78,14 +79,14 @@ public class InvokeTest
 		_loggerMockV.Setup(s => s.IsEnabled(Level.Info)).Returns(true);
 		_loggerMockV.Setup(s => s.IsEnabled(Level.Trace)).Returns(true);
 
-		_externalCommunicationMock = new Mock<IExternalCommunication>();
+		_externalCommunicationMock = new Mock<IExternalServiceCommunication>();
 	}
 
 	private static EventObject CreateEventObject(string name, InvokeId? invokeId = default) =>
 		new()
 		{
 			Type = EventType.External,
-			Name = (EventName)name,
+			Name = (EventName) name,
 			InvokeId = invokeId
 		};
 
@@ -93,7 +94,7 @@ public class InvokeTest
 	public async Task SimpleTest()
 	{
 		var invokeUniqueId = "";
-		_externalCommunicationMock.Setup(l => l.StartInvoke(It.IsAny<InvokeId>(), It.IsAny<InvokeData>()))
+		_externalCommunicationMock.Setup(l => l.Start(It.IsAny<InvokeId>(), It.IsAny<InvokeData>()))
 								  .Callback<InvokeId, InvokeData>((id, data) => invokeUniqueId = id.InvokeUniqueIdValue);
 
 		var services = new ServiceCollection();
@@ -115,8 +116,8 @@ public class InvokeTest
 		await eventQueueWriter.WriteAsync(CreateEventObject("ToF"));
 		await task;
 
-		_externalCommunicationMock.Verify(l => l.StartInvoke(It.IsAny<InvokeId>(), It.IsAny<InvokeData>()));
-		_externalCommunicationMock.Verify(l => l.CancelInvoke(InvokeId.FromString("invoke_id", invokeUniqueId)));
+		_externalCommunicationMock.Verify(l => l.Start(It.IsAny<InvokeId>(), It.IsAny<InvokeData>()));
+		_externalCommunicationMock.Verify(l => l.Cancel(InvokeId.FromString("invoke_id", invokeUniqueId)));
 		_externalCommunicationMock.VerifyNoOtherCalls();
 
 		_loggerMockL.Verify(l => l.Write(Level.Info, 1, "FinalizeExecuted", It.IsAny<IEnumerable<LoggingParameter>>()));

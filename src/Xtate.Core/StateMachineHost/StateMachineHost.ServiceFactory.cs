@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.Service;
+using Xtate.ExternalService;
 
 namespace Xtate;
 
@@ -29,6 +29,16 @@ public sealed partial class StateMachineHost : IExternalServiceProvider, IExtern
 
 	public ValueTask<IExternalService> StartService() => throw new NotImplementedException();
 
+#endregion
+
+#region Interface IExternalServiceProvider
+
+	ValueTask<IExternalServiceActivator?> IExternalServiceProvider.TryGetActivator(Uri type) => new(CanHandle(type) ? this : null);
+
+#endregion
+
+	private static bool CanHandle(Uri type) => FullUriComparer.Instance.Equals(type, ServiceFactoryTypeId) || FullUriComparer.Instance.Equals(type, ServiceFactoryAliasTypeId);
+	/*
 	[Obsolete]
 	async ValueTask<IExternalService> IExternalServiceActivator.StartService(Uri? baseUri,
 																			 InvokeData invokeData,
@@ -48,15 +58,5 @@ public sealed partial class StateMachineHost : IExternalServiceProvider, IExtern
 			: new LocationStateMachine(baseUri.CombineWith(source!)) { Arguments = parameters };
 
 		return await StartStateMachine(stateMachineClass, SecurityContextType.InvokedService).ConfigureAwait(false);
-	}
-
-#endregion
-
-#region Interface IExternalServiceProvider
-
-	ValueTask<IExternalServiceActivator?> IExternalServiceProvider.TryGetActivator(Uri type) => new(CanHandle(type) ? this : null);
-
-#endregion
-
-	private static bool CanHandle(Uri type) => FullUriComparer.Instance.Equals(type, ServiceFactoryTypeId) || FullUriComparer.Instance.Equals(type, ServiceFactoryAliasTypeId);
+	}*/
 }

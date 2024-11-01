@@ -17,7 +17,7 @@
 
 namespace Xtate.Core;
 
-public sealed class EntityQueue<T>
+public sealed class EntityQueue<T> : Queue<T>
 {
 	public delegate void ChangeHandler(ChangedAction action, T? entity);
 
@@ -28,22 +28,18 @@ public sealed class EntityQueue<T>
 		Dequeue
 	}
 
-	private readonly Queue<T> _queue = new();
-
-	public int Count => _queue.Count;
-
 	public event ChangeHandler? Changed;
 
-	public T Dequeue()
+	public new T Dequeue()
 	{
 		Changed?.Invoke(ChangedAction.Dequeue, entity: default);
 
-		return _queue.Dequeue();
+		return base.Dequeue();
 	}
 
-	public void Enqueue(T item)
+	public new void Enqueue(T item)
 	{
-		_queue.Enqueue(item);
+		base.Enqueue(item);
 
 		Changed?.Invoke(ChangedAction.Enqueue, item);
 	}

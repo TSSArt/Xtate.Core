@@ -21,7 +21,7 @@ using System.Net.Http;
 using System.Reflection;
 using System.Text;
 
-namespace Xtate.Service;
+namespace Xtate.ExternalService.HttpClient;
 
 public class HttpClientService(HttpClientServiceOptions options) : ExternalServiceBase
 {

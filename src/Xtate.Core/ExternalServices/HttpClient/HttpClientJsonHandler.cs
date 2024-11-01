@@ -18,7 +18,7 @@
 using System.Net;
 using System.Net.Http;
 
-namespace Xtate.Service;
+namespace Xtate.ExternalService.HttpClient;
 
 public class HttpClientJsonHandler : HttpClientMimeTypeHandler
 {

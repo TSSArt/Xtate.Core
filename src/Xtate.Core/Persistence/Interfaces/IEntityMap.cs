@@ -15,11 +15,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Core;
+namespace Xtate.Persistence;
 
-public class NoLogController : ILogController
+public interface IEntityMap
 {
-	public bool IsEnabled => false;
-
-	public ValueTask Log(string? message, DataModelValue arguments) => default;
+	bool TryGetEntityByDocumentId(int id, [MaybeNullWhen(false)] out IEntity entity);
 }

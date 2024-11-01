@@ -16,7 +16,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using Xtate.DataModel;
-using Xtate.DataModel.Runtime;
 
 namespace Xtate.Core;
 
