@@ -22,7 +22,7 @@ namespace Xtate.Core;
 
 public class InterpreterModelBuilder : StateMachineVisitor
 {
-	private readonly Dictionary<IIdentifier, StateEntityNode> _idMap = new(Identifier.EqualityComparer);
+	private readonly Dictionary<IIdentifier, StateEntityNode> _idMap = new();
 
 	private readonly List<TransitionNode> _targetMap = [];
 
@@ -355,7 +355,7 @@ public class InterpreterModelBuilder : StateMachineVisitor
 
 		var newTransition = TransitionNodeFactory(documentId, transition);
 
-		if (!transition.Target.IsDefaultOrEmpty)
+		if (!transition.Target.IsDefault)
 		{
 			_targetMap.Add(newTransition);
 		}

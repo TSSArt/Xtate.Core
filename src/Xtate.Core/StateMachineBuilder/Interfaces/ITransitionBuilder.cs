@@ -21,7 +21,7 @@ public interface ITransitionBuilder
 {
 	ITransition Build();
 
-	void SetEvent(ImmutableArray<IEventDescriptor> eventsDescriptor);
+	void SetEvent(EventDescriptors eventsDescriptor);
 
 	void SetCondition(IConditionExpression condition);
 

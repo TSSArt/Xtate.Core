@@ -17,7 +17,7 @@
 
 namespace Xtate.Core;
 
-public sealed class EventDescriptor : IEventDescriptor
+public sealed class EventDescriptor : IEventDescriptor, IEquatable<EventDescriptor>
 {
 	private static readonly char[] Dot = ['.'];
 
@@ -45,6 +45,12 @@ public sealed class EventDescriptor : IEventDescriptor
 		}
 	}
 
+#region Interface IEquatable<EventDescriptor>
+
+	public bool Equals(EventDescriptor? other) => other is not null && Value == other.Value;
+
+#endregion
+
 #region Interface IEventDescriptor
 
 	public bool IsEventMatch(IEvent evt)
@@ -56,7 +62,7 @@ public sealed class EventDescriptor : IEventDescriptor
 
 		for (var i = 0; i < _parts.Length; i ++)
 		{
-			if (!Equals(evt.Name[i], _parts[i]))
+			if (!evt.Name[i].Equals(_parts[i]))
 			{
 				return false;
 			}
@@ -69,22 +75,13 @@ public sealed class EventDescriptor : IEventDescriptor
 
 #endregion
 
+	public override string ToString() => Value;
+
 	public static explicit operator EventDescriptor(string value) => new(value);
 
 	public static EventDescriptor FromString(string value) => new(value);
 
-	public static string? ToString(ImmutableArray<IEventDescriptor> eventDescriptors)
-	{
-		if (eventDescriptors.IsDefaultOrEmpty)
-		{
-			return null;
-		}
+	public override bool Equals(object? obj) => ReferenceEquals(this, obj) || (obj is EventDescriptor other && Equals(other));
 
-		if (eventDescriptors.Length == 1)
-		{
-			return eventDescriptors[0].Value;
-		}
-
-		return string.Join(separator: @" ", eventDescriptors.Select(d => d.Value));
-	}
+	public override int GetHashCode() => Value.GetHashCode();
 }
