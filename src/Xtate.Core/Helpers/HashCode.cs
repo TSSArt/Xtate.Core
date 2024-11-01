@@ -81,7 +81,7 @@ internal struct HashCode
 		}
 	}
 
-	public void Add<T>(T t) => _hash = (_hash * 397) ^ (t?.GetHashCode() ?? 0);
+	public void Add<T>(T t) => _hash = unchecked((_hash * 397) ^ (t?.GetHashCode() ?? 0));
 
 	public int ToHashCode() => _hash;
 }

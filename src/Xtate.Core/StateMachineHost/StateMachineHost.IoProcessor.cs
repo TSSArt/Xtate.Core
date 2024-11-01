@@ -48,6 +48,8 @@ public sealed partial class StateMachineHost : IIoProcessor, IEventConsumer
 
 #region Interface IIoProcessor
 
+	public bool IsInternalTarget(Uri target) => target == InternalTarget;
+
 	Uri? IIoProcessor.GetTarget(ServiceId serviceId) => GetTarget(serviceId);
 
 	ValueTask<IHostEvent> IIoProcessor.GetHostEvent(ServiceId senderServiceId, IOutgoingEvent outgoingEvent, CancellationToken token)

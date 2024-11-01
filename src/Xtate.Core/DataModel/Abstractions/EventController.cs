@@ -37,7 +37,7 @@ public class EventController : IEventController
 
 	public virtual async ValueTask Cancel(SendId sendId)
 	{
-		await Logger.Write(Level.Trace, CancelEventId, $@"Cancel Event '{sendId}'", sendId).ConfigureAwait(false);
+		await Logger.Write(Level.Trace, CancelEventId, $@"Cancel Event. SendId: [{sendId}]", sendId).ConfigureAwait(false);
 
 		try
 		{
@@ -51,7 +51,9 @@ public class EventController : IEventController
 
 	public virtual async ValueTask Send(IOutgoingEvent outgoingEvent)
 	{
-		await Logger.Write(Level.Trace, SendEventId, $@"Send event: '{outgoingEvent.Name}'", outgoingEvent).ConfigureAwait(false);
+		var sendId = outgoingEvent.SendId;
+		var eventName = outgoingEvent.Name;
+		await Logger.Write(Level.Trace, SendEventId, $@"Send Event. SendId: [{sendId}], Name: '{eventName}'", outgoingEvent).ConfigureAwait(false);
 
 		if (await TrySendEvent(outgoingEvent).ConfigureAwait(false) == SendStatus.ToInternalQueue)
 		{

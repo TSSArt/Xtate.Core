@@ -32,7 +32,11 @@ internal sealed class PersistedEventSchedulerFactory : IEventSchedulerFactory
 
 	public async ValueTask<IEventScheduler> CreateEventScheduler(IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger? logger, CancellationToken token)
 	{
-		var persistedEventScheduler = new PersistedEventScheduler(_storageProvider, hostEventDispatcher, logger!);
+		var persistedEventScheduler = new PersistedEventScheduler(_storageProvider, hostEventDispatcher, logger!)
+									  {
+										  Logger = null, ScheduledEventFactory = null, EventSchedulerInfoEnricher = null,
+										  IoProcessorFactory = null
+									  };
 
 		await persistedEventScheduler.Initialize(token).ConfigureAwait(false);
 

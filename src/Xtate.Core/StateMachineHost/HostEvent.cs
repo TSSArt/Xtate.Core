@@ -20,7 +20,7 @@ using Xtate.Persistence;
 
 namespace Xtate.Core;
 
-internal class HostEvent : EventObject, IHostEvent
+public class HostEvent : EventObject, IHostEvent
 {
 	private readonly IIoProcessor? _ioProcessor;
 
