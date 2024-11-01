@@ -44,7 +44,7 @@ public readonly struct LoggingParameter(string name, object? value, string? form
 
 		return string.IsNullOrEmpty(Namespace)
 			? Name + NmDelimiter + ValueToString(formatProvider)
-			: Namespace.Concat(NsDelimiter, Name, NmDelimiter, ValueToString(formatProvider));
+			: StringExtensions.Concat(Namespace, NsDelimiter, Name, NmDelimiter, ValueToString(formatProvider));
 	}
 
 #endregion

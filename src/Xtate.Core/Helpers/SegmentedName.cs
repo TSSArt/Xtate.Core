@@ -49,30 +49,25 @@ internal static class SegmentedName
 
 	public static int GetHashCode<T>(ImmutableArray<T> segments)
 	{
-		var hashCode = HashCode.Combine(0);
-
-		if (segments.IsDefaultOrEmpty)
-		{
-			return hashCode;
-		}
+		var hashCode = new HashCode();
 
 		foreach (var t in segments)
 		{
-			hashCode = HashCode.Combine(hashCode, t);
+			hashCode.Add(t);
 		}
 
-		return hashCode;
+		return hashCode.ToHashCode();
 	}
 
-	public static string ToString<T>(ImmutableArray<T> segments, string separator) =>
+	public static string? ToString<T>(ImmutableArray<T> segments, string separator) =>
 		segments switch
 		{
-			{ IsDefault: true }      => default!,
+			{ IsDefault: true }      => default,
 			{ IsEmpty: true }        => string.Empty,
-			[var t]                  => t.ToString(),
-			[var t1, var t2]         => string.Concat(t1.ToString(), separator, t2.ToString()),
-			[var t1, var t2, var t3] => t1.ToString().Concat(separator, t2.ToString(), separator, t3.ToString()),
-			_                        => string.Join(separator, segments.Select(t => t.ToString()))
+			[var t]                  => t?.ToString() ?? string.Empty,
+			[var t1, var t2]         => string.Concat(t1?.ToString(), separator, t2?.ToString()),
+			[var t1, var t2, var t3] => StringExtensions.Concat(t1?.ToString(), separator, t2?.ToString(), separator, t3?.ToString()),
+			_                        => string.Join(separator, segments.Select(t => t?.ToString()))
 		};
 
 	public static bool TryFormat<T>(ImmutableArray<T> segments,
@@ -94,24 +89,25 @@ internal static class SegmentedName
 				return false;
 			}
 
-			if (segments[i] is ISpanFormattable)
+			if (segments[i] is not { } t)
 			{
-				if (((ISpanFormattable) segments[i]).TryFormat(destination, out var written, format: default, provider: default))
-				{
-					destination = destination[written..];
-					charsWritten += written;
-				}
-				else
-				{
-					return false;
-				}
+				continue;
 			}
-			else
+
+			// ReSharper disable once MergeCastWithTypeCheck
+			if (t is ISpanFormattable)
 			{
-				if (!segments[i].ToString().TryCopyIncremental(ref destination, ref charsWritten))
+				if (!((ISpanFormattable) t).TryFormat(destination, out var written, format: default, provider: default))
 				{
 					return false;
 				}
+
+				destination = destination[written..];
+				charsWritten += written;
+			}
+			else if (!t.ToString().TryCopyIncremental(ref destination, ref charsWritten))
+			{
+				return false;
 			}
 		}
 
