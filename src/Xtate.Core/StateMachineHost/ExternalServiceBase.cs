@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Service;
+namespace Xtate.ExternalService;
 
 public abstract class ExternalServiceBase : IExternalService
 {
@@ -62,31 +62,6 @@ public abstract class ExternalServiceBase : IExternalService
 #endregion
 
 	private ValueTask<DataModelValue> ExecuteWithCancellation() => Execute().WaitAsync(_destroyTokenSource.Token);
-
-	[Obsolete]
-	internal void Start(Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication)
-	{
-		//_invokeData = invokeData;
-
-		RunAsync().Forget();
-
-		async ValueTask RunAsync()
-		{
-			await Execute().ConfigureAwait(false);
-			/*try
-			{
-				//_completedTcs.TrySetResult(await Execute().ConfigureAwait(false));
-			}
-			catch (OperationCanceledException ex)
-			{
-				//_completedTcs.TrySetCanceled(ex.CancellationToken);
-			}
-			catch (Exception ex)
-			{
-				//_completedTcs.TrySetException(ex);
-			}*/
-		}
-	}
 
 	protected abstract ValueTask<DataModelValue> Execute();
 }

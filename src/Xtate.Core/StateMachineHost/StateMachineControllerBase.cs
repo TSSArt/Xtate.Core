@@ -16,8 +16,8 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Threading.Channels;
+using Xtate.ExternalService;
 using Xtate.IoC;
-using Xtate.Service;
 
 namespace Xtate.Core;
 

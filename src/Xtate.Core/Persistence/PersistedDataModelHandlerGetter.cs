@@ -15,13 +15,21 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using Xtate.DataModel;
+
 namespace Xtate.Core;
 
-public class NoStateMachineSessionId : IStateMachineSessionId
+public class PersistedDataModelHandlerGetter
 {
-#region Interface IStateMachineSessionId
+	public required IPersistedStateMachineRunState RunState { private get; [UsedImplicitly] init; }
 
-	public SessionId SessionId { get; } = SessionId.New();
+	public required IInterpreterModel InterpreterModel { private get; [UsedImplicitly] init; }
 
-#endregion
+	public required IDataModelHandlerService DataModelHandlerService { private get; [UsedImplicitly] init; }
+
+	public required IStateMachine? StateMachine { private get; [UsedImplicitly] init; }
+
+	[UsedImplicitly]
+	public virtual ValueTask<IDataModelHandler?> GetDataModelHandler() =>
+		DataModelHandlerService.GetDataModelHandler(RunState.IsRestored ? InterpreterModel.Root.DataModelType : StateMachine.DataModelType);
 }

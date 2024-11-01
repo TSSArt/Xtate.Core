@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.Service;
+using Xtate.ExternalService;
 
 namespace Xtate.Core;
 
@@ -30,7 +30,7 @@ public interface IStateMachineHostContext
 						 IExternalService externalService,
 						 CancellationToken token);
 
-	ValueTask<IExternalService?> TryCompleteService(SessionId sessionId, InvokeId invokeId);
+	ValueTask<IExternalService?> TryCompleteService(InvokeId invokeId);
 
-	ValueTask<IExternalService?> TryRemoveService(SessionId sessionId, InvokeId invokeId);
+	ValueTask<IExternalService?> TryRemoveService(InvokeId invokeId);
 }

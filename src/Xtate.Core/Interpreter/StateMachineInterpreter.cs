@@ -1077,12 +1077,12 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 				: ErrorType.Execution;
 
 		var name = errorType switch
-						{
-							ErrorType.Execution     => EventName.ErrorExecution,
-							ErrorType.Communication => EventName.ErrorCommunication,
-							ErrorType.Platform      => EventName.ErrorPlatform,
-							_                       => throw Infra.Unmatched(errorType)
-						};
+				   {
+					   ErrorType.Execution     => EventName.ErrorExecution,
+					   ErrorType.Communication => EventName.ErrorCommunication,
+					   ErrorType.Platform      => EventName.ErrorPlatform,
+					   _                       => throw Infra.Unmatched(errorType)
+				   };
 
 		var evt = new EventObject
 				  {

@@ -15,17 +15,19 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Core;
+namespace Xtate.DataModel;
 
-public interface IExternalCommunication
+public class LogController : ILogController
 {
-	ValueTask StartInvoke(InvokeId invokeId, InvokeData invokeData);
+	private const int EventId = 1;
 
-	ValueTask CancelInvoke(InvokeId invokeId);
+	public required ILogger<ILogController> Logger { private get; [UsedImplicitly] init; }
 
-	ValueTask ForwardEvent(InvokeId invokeId, IEvent evt);
+#region Interface ILogController
 
-	ValueTask<SendStatus> TrySendEvent(IOutgoingEvent outgoingEvent);
+	public ValueTask Log(string? message = default, DataModelValue arguments = default) => Logger.Write(Level.Info, EventId, message, arguments);
 
-	ValueTask CancelEvent(SendId sendId);
+	public bool IsEnabled => Logger.IsEnabled(Level.Info);
+
+#endregion
 }

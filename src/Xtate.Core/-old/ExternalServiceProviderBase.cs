@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Service;
+namespace Xtate.ExternalService;
 
 [Obsolete("Use ExternalServiceProvider<TService>")]
 public abstract class ExternalServiceProviderBase : IExternalServiceProvider
@@ -87,7 +87,7 @@ public abstract class ExternalServiceProviderBase : IExternalServiceProvider
 				case IServiceCatalog.Creator creator:
 					var service = creator();
 
-					service.Start(baseUri, invokeData, serviceCommunication);
+					//service.Start(baseUri, invokeData, serviceCommunication);
 
 					return new ValueTask<IExternalService>(service);
 
@@ -109,16 +109,16 @@ public abstract class ExternalServiceProviderBase : IExternalServiceProvider
 
 		public ValueTask<IExternalService> StartService() => throw new NotImplementedException();
 
+	#endregion
+
 		public ValueTask<IExternalService> StartService(Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication)
 		{
 			if (invokeData is null) throw new ArgumentNullException(nameof(invokeData));
 
 			Infra.Assert(CanHandle(invokeData.Type));
 
-			return catalog.CreateService(baseUri, invokeData, serviceCommunication);
+			return default; //catalog.CreateService(baseUri, invokeData, serviceCommunication);
 		}
-
-	#endregion
 
 		public bool CanHandle(Uri type) => catalog.CanHandle(type);
 	}

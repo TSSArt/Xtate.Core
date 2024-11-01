@@ -17,7 +17,7 @@
 
 namespace Xtate.Core;
 
-public sealed class KeyList<T>
+public sealed class KeyList<T> : IEnumerable<KeyValuePair<IEntity, List<T>>>
 {
 	public delegate void ChangeHandler(ChangedAction action, IEntity entity, List<T> list);
 
@@ -27,6 +27,18 @@ public sealed class KeyList<T>
 	}
 
 	private readonly Dictionary<IEntity, List<T>> _dic = [];
+
+#region Interface IEnumerable
+
+	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+#endregion
+
+#region Interface IEnumerable<KeyValuePair<IEntity,List<T>>>
+
+	IEnumerator<KeyValuePair<IEntity, List<T>>> IEnumerable<KeyValuePair<IEntity, List<T>>>.GetEnumerator() => GetEnumerator();
+
+#endregion
 
 	public event ChangeHandler? Changed;
 
@@ -38,4 +50,6 @@ public sealed class KeyList<T>
 	}
 
 	public bool TryGetValue(IEntity entity, out List<T> list) => _dic.TryGetValue(entity, out list!);
+
+	public Dictionary<IEntity, List<T>>.Enumerator GetEnumerator() => _dic.GetEnumerator();
 }

@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Core;
+namespace Xtate.DataModel;
 
 public class EventController : IEventController
 {
@@ -25,7 +25,7 @@ public class EventController : IEventController
 
 	private static readonly Uri InternalTarget = new(uriString: "_internal", UriKind.Relative);
 
-	public required IExternalCommunication ExternalCommunication { private get; [UsedImplicitly] init; }
+	public required IExternalEventCommunication ExternalEventCommunication { private get; [UsedImplicitly] init; }
 
 	public required ILogger<IEventController> Logger { private get; [UsedImplicitly] init; }
 
@@ -41,7 +41,7 @@ public class EventController : IEventController
 
 		try
 		{
-			await ExternalCommunication.CancelEvent(sendId).ConfigureAwait(false);
+			await ExternalEventCommunication.Cancel(sendId).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{
@@ -75,7 +75,7 @@ public class EventController : IEventController
 
 		try
 		{
-			return await ExternalCommunication.TrySendEvent(outgoingEvent).ConfigureAwait(false);
+			return await ExternalEventCommunication.TrySend(outgoingEvent).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{

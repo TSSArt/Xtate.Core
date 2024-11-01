@@ -24,11 +24,11 @@ public class DefaultRaiseEvaluator(IRaise raise) : RaiseEvaluator(raise)
 	public override async ValueTask Execute()
 	{
 		var outgoingEvent = base.OutgoingEvent;
-		
+
 		Infra.NotNull(outgoingEvent);
 
 		var eventController = await EventController().ConfigureAwait(false);
-		
+
 		await eventController.Send(outgoingEvent).ConfigureAwait(false);
 	}
 }

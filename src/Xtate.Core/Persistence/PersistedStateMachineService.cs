@@ -15,33 +15,17 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.DataModel;
+namespace Xtate.Core;
 
-public abstract class AssignEvaluator(IAssign assign) : IAssign, IExecEvaluator, IAncestorProvider
+public class PersistedStateMachineService : IStateMachineService
 {
-#region Interface IAncestorProvider
+	public required IPersistedStateMachineRunState RunState { private get; [UsedImplicitly] init; }
 
-	object IAncestorProvider.Ancestor => assign;
+	public required IStateMachineService StateMachineService { private get; [UsedImplicitly] init; }
 
-#endregion
+#region Interface IStateMachineService
 
-#region Interface IAssign
-
-	public virtual ILocationExpression? Location => assign.Location;
-
-	public virtual IValueExpression? Expression => assign.Expression;
-
-	public virtual IInlineContent? InlineContent => assign.InlineContent;
-
-	public virtual string? Type => assign.Type;
-
-	public virtual string? Attribute => assign.Attribute;
-
-#endregion
-
-#region Interface IExecEvaluator
-
-	public abstract ValueTask Execute();
+	public virtual ValueTask<IStateMachine?> GetStateMachine() => RunState.IsRestored ? default : StateMachineService.GetStateMachine();
 
 #endregion
 }

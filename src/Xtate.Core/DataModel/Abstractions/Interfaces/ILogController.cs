@@ -15,13 +15,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Core;
+namespace Xtate.DataModel;
 
-public class NoStateMachineArguments : IStateMachineArguments
+public interface ILogController
 {
-#region Interface IStateMachineArguments
+	bool IsEnabled { get; }
 
-	public DataModelValue Arguments => default;
-
-#endregion
+	ValueTask Log(string? message = default, DataModelValue arguments = default);
 }

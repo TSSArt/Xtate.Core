@@ -31,8 +31,6 @@ public class StateMachinePersistenceTest
 {
 	private IStateMachine _allStateMachine = default!;
 
-	private Mock<IExternalCommunication> _externalCommunication = default!;
-
 	private Mock<IResourceLoader> _resourceLoaderServiceMock = default!;
 
 	[TestInitialize]
@@ -58,7 +56,6 @@ public class StateMachinePersistenceTest
 		var loaderMock = new Mock<IResourceLoader>();
 		loaderMock.Setup(e => e.Request(It.IsAny<Uri>(), It.IsAny<NameValueCollection>()))
 				  .Returns(task);
-		_externalCommunication = new Mock<IExternalCommunication>();
 
 		_resourceLoaderServiceMock = new Mock<IResourceLoader>();
 		_resourceLoaderServiceMock.Setup(e => e.Request(It.IsAny<Uri>(), default)).Returns(task);

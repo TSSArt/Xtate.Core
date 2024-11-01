@@ -15,10 +15,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.DataModel.Null;
 using Xtate.IoC;
 
-namespace Xtate.DataModel;
+namespace Xtate.DataModel.Null;
 
 public class NullDataModelHandlerModule : Module<DataModelHandlerBaseModule, ErrorProcessorModule>
 {

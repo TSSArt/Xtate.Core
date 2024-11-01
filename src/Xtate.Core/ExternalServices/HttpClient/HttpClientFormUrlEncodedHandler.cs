@@ -19,7 +19,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 
-namespace Xtate.Service;
+namespace Xtate.ExternalService.HttpClient;
 
 public class HttpClientFormUrlEncodedHandler : HttpClientMimeTypeHandler
 {

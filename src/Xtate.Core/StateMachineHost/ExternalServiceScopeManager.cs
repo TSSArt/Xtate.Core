@@ -18,11 +18,11 @@
 using Xtate.DataModel;
 using Xtate.IoC;
 
-namespace Xtate.Core;
+namespace Xtate.ExternalService;
 
 public class ExternalServiceScopeManager : IExternalServiceScopeManager
 {
-	public required Func<InvokeId, InvokeData, ValueTask<ExternalIExternalServiceScopeProxy>> ServiceScopeProxyFactory { private get; [UsedImplicitly] init; }
+	public required Func<InvokeId, InvokeData, ValueTask<ExternalServiceScopeProxy>> ServiceScopeProxyFactory { private get; [UsedImplicitly] init; }
 
 	public required IServiceScopeFactory ServiceScopeFactory { private get; [UsedImplicitly] init; }
 

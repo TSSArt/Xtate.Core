@@ -39,7 +39,7 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 
 	private const string Alias = @"named.pipe";
 
-	private static readonly EventObject CheckPipelineEvent = new() { Type = EventType.External, Name = (EventName)@"$" };
+	private static readonly EventObject CheckPipelineEvent = new() { Type = EventType.External, Name = (EventName) @"$" };
 
 	private static readonly ConcurrentDictionary<string, IEventConsumer> InProcConsumers = new();
 

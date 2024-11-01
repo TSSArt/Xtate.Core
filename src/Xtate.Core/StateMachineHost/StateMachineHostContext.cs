@@ -18,8 +18,8 @@
 using System.Collections.Concurrent;
 using System.Xml;
 using Xtate.Builder;
+using Xtate.ExternalService;
 using Xtate.IoC;
-using Xtate.Service;
 
 namespace Xtate.Core;
 
@@ -124,7 +124,7 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 		return default;
 	}
 
-	public virtual ValueTask<IExternalService?> TryCompleteService(SessionId sessionId, InvokeId invokeId)
+	public virtual ValueTask<IExternalService?> TryCompleteService(InvokeId invokeId)
 	{
 		if (!_serviceByInvokeId.TryGetValue(invokeId, out var service))
 		{
@@ -144,7 +144,7 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 		return new ValueTask<IExternalService?>(service);
 	}
 
-	public virtual ValueTask<IExternalService?> TryRemoveService(SessionId sessionId, InvokeId invokeId)
+	public virtual ValueTask<IExternalService?> TryRemoveService(InvokeId invokeId)
 	{
 		if (!_serviceByInvokeId.TryRemove(invokeId, out var service) || service is null)
 		{

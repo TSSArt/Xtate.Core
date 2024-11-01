@@ -17,9 +17,9 @@
 
 using Xtate.DataModel;
 
-namespace Xtate.Core;
+namespace Xtate.ExternalService;
 
-public class ExternalIExternalServiceScopeProxy(
+public class ExternalServiceScopeProxy(
 	InvokeId invokeId,
 	InvokeData invokeData,
 	IEventDispatcher eventDispatcher,

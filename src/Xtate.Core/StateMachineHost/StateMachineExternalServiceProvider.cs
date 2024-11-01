@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.Service;
+using Xtate.ExternalService;
 
 namespace Xtate;
 
@@ -50,12 +50,6 @@ public class StateMachineExternalServiceProvider : IExternalServiceProvider, IEx
 
 		return await HostController.StartStateMachine(stateMachineClass, SecurityContextType.InvokedService).ConfigureAwait(false);
 	}
-
-	[Obsolete]
-	ValueTask<IExternalService> IExternalServiceActivator.StartService(Uri? baseUri,
-																	   InvokeData invokeData,
-																	   IServiceCommunication serviceCommunication) =>
-		throw new NotImplementedException();
 
 #endregion
 

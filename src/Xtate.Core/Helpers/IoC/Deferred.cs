@@ -18,7 +18,7 @@
 namespace Xtate.Core;
 
 /// <summary>
-/// Delegate created by the <see cref="DeferredFactory{T}"/> class.
-/// This delegate is utilized to resolve a service upon the first request, functioning as a lazy loader.
+///     Delegate created by the <see cref="DeferredFactory{T}" /> class.
+///     This delegate is utilized to resolve a service upon the first request, functioning as a lazy loader.
 /// </summary>
 public delegate ValueTask<T> Deferred<T>();
