@@ -24,8 +24,8 @@ public class InterpreterModelBuilderModule : Module<ErrorProcessorModule, DataMo
 {
 	protected override void AddServices()
 	{
-		Services.AddTypeSync<EmptyInitialNode, DocumentIdNode, TransitionNode>();
-		Services.AddTypeSync<EmptyTransitionNode, DocumentIdNode, ImmutableArray<StateEntityNode>>();
+		Services.AddTypeSync<InitialNode.Empty, DocumentIdNode, TransitionNode>();
+		Services.AddTypeSync<TransitionNode.Empty, DocumentIdNode, ImmutableArray<StateEntityNode>>();
 		Services.AddTypeSync<DoneDataNode, DocumentIdNode, IDoneData>();
 		Services.AddTypeSync<InitialNode, DocumentIdNode, IInitial>();
 		Services.AddTypeSync<TransitionNode, DocumentIdNode, ITransition>();
@@ -65,7 +65,7 @@ public class InterpreterModelBuilderModule : Module<ErrorProcessorModule, DataMo
 		Services.AddTypeSync<EventNode, IOutgoingEvent>();
 		Services.AddTypeSync<EventDescriptorNode, IEventDescriptor>();
 
-		Services.AddType<DataConverter>();
+		Services.AddType<DataConverter>(Option.IfNotRegistered);
 		Services.AddType<InterpreterModelBuilder>();
 	}
 }

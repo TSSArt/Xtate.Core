@@ -20,13 +20,14 @@ using Xtate.IoC;
 
 namespace Xtate.Core;
 
-public class StateMachineInterpreterModule : Module<DataModelHandlersModule, InterpreterModelBuilderModule, LoggingModule, AncestorModule>
+public class StateMachineInterpreterModule : Module<DataModelHandlersModule, InterpreterModelBuilderModule, LoggingModule, ToolsModule>
 {
 	protected override void AddServices()
 	{
-		Services.AddSharedImplementation<NoStateMachineSessionId>(SharedWithin.Scope).For<IStateMachineSessionId>(Option.IfNotRegistered);
-		Services.AddImplementation<NoExternalCommunication>().For<IExternalCommunication>(Option.IfNotRegistered);
-		Services.AddImplementation<NoStateMachineArguments>().For<IStateMachineArguments>(Option.IfNotRegistered);
+		Services.AddSharedImplementation<DefaultStateMachineSessionId>(SharedWithin.Scope).For<IStateMachineSessionId>(Option.IfNotRegistered);
+		Services.AddImplementation<DefaultStateMachineArguments>().For<IStateMachineArguments>(Option.IfNotRegistered);
+
+		Services.AddImplementation<NoExternalCommunication>().For<IExternalEventCommunication>().For<IExternalServiceCommunication>();
 
 		Services.AddImplementation<InterpreterInfoLogEnricher<Any>>().For<ILogEnricher<Any>>();
 		Services.AddImplementation<InterpreterDebugLogEnricher<Any>>().For<ILogEnricher<Any>>();
@@ -43,8 +44,6 @@ public class StateMachineInterpreterModule : Module<DataModelHandlersModule, Int
 		Services.AddImplementation<InStateController>().For<IInStateController>();
 		Services.AddImplementation<DataModelController>().For<IDataModelController>();
 		Services.AddImplementation<InvokeController>().For<IInvokeController>();
-		Services.AddImplementation<EventController>().For<IEventController>();
-		Services.AddImplementation<LogController>().For<ILogController>();
 
 		Services.AddSharedImplementation<DataModelValueEntityParser<Any>>(SharedWithin.Scope).For<IEntityParserHandler<Any>>();
 		Services.AddSharedImplementation<ExceptionEntityParser<Any>>(SharedWithin.Scope).For<IEntityParserHandler<Any>>();

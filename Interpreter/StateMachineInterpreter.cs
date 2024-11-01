@@ -299,7 +299,9 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		var eventModel = DataConverter.FromEvent(internalEvent);
 		StateMachineContext.DataModel.SetInternal(key: @"_event", CaseSensitivity.CaseInsensitive, eventModel, DataModelAccess.ReadOnly);
 
-		await Logger.Write(Level.Trace, EventProcessingEventId, $@"Processing {internalEvent.Type} event '{internalEvent.Name}'", internalEvent).ConfigureAwait(false);
+		var eventType = internalEvent.Type;
+		var eventName = internalEvent.Name;
+		await Logger.Write(Level.Trace, EventProcessingEventId, $@"Processing {eventType} event '{eventName}'", internalEvent).ConfigureAwait(false);
 
 		var transitions = await SelectTransitions(internalEvent).ConfigureAwait(false);
 
@@ -357,9 +359,11 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		var externalEvent = await ReadExternalEventFiltered().ConfigureAwait(false);
 
 		var eventModel = DataConverter.FromEvent(externalEvent);
+		var eventType = externalEvent.Type;
+		var eventName = externalEvent.Name;
 		StateMachineContext.DataModel.SetInternal(key: @"_event", CaseSensitivity.CaseInsensitive, eventModel, DataModelAccess.ReadOnly);
 
-		await Logger.Write(Level.Trace, EventProcessingEventId, $@"Processing {externalEvent.Type} event '{externalEvent.Name}'", externalEvent).ConfigureAwait(false);
+		await Logger.Write(Level.Trace, EventProcessingEventId, $@"Processing {eventType} event '{eventName}'", externalEvent).ConfigureAwait(false);
 
 		foreach (var state in StateMachineContext.Configuration)
 		{
@@ -489,14 +493,14 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		}
 	}
 
-	private static bool EventMatch(ImmutableArray<IEventDescriptor> eventDescriptors, IEvent? evt)
+	private static bool EventMatch(EventDescriptors eventDescriptors, IEvent? evt)
 	{
 		if (evt is null)
 		{
-			return eventDescriptors.IsDefaultOrEmpty;
+			return eventDescriptors.IsDefault;
 		}
 
-		if (eventDescriptors.IsDefaultOrEmpty)
+		if (eventDescriptors.IsDefault)
 		{
 			return false;
 		}
@@ -620,7 +624,8 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
 		foreach (var state in states)
 		{
-			await Logger.Write(Level.Trace, ExitingStateEventId, $@"Exiting state '{state.Id}'", state).ConfigureAwait(false);
+			var stateId = state.Id;
+			await Logger.Write(Level.Trace, ExitingStateEventId, $@"Exiting state [{stateId}]", state).ConfigureAwait(false);
 
 			foreach (var onExit in state.OnExit)
 			{
@@ -634,7 +639,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
 			StateMachineContext.Configuration.Delete(state);
 
-			await Logger.Write(Level.Trace, ExitedStateEventId, $@"Exited state '{state.Id}'", state).ConfigureAwait(false);
+			await Logger.Write(Level.Trace, ExitedStateEventId, $@"Exited state [{stateId}]", state).ConfigureAwait(false);
 		}
 	}
 
@@ -677,7 +682,8 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
 		foreach (var state in ToSortedList(statesToEnter, StateEntityNode.EntryOrder))
 		{
-			await Logger.Write(Level.Trace, EnteringStateEventId, $@"Entering state '{state.Id}'", state).ConfigureAwait(false);
+			var stateId = state.Id;
+			await Logger.Write(Level.Trace, EnteringStateEventId, $@"Entering state [{stateId}]", state).ConfigureAwait(false);
 
 			StateMachineContext.Configuration.AddIfNotExists(state);
 			StateMachineContext.StatesToInvoke.AddIfNotExists(state);
@@ -697,7 +703,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 				await RunExecutableEntity(compound.Initial.Transition.ActionEvaluators).ConfigureAwait(false);
 			}
 
-			if (defaultHistoryContent.TryGetValue(state.Id, out var action))
+			if (defaultHistoryContent.TryGetValue(stateId, out var action))
 			{
 				await RunExecutableEntity(action).ConfigureAwait(false);
 			}
@@ -732,7 +738,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 				}
 			}
 
-			await Logger.Write(Level.Trace, EnteredStateEventId, $@"Entered state '{state.Id}'", state).ConfigureAwait(false);
+			await Logger.Write(Level.Trace, EnteredStateEventId, $@"Entered state [{stateId}]", state).ConfigureAwait(false);
 		}
 	}
 
@@ -794,7 +800,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
 		foreach (var transition in transitions)
 		{
-			if (!transition.Target.IsDefaultOrEmpty)
+			if (!transition.Target.IsDefault)
 			{
 				var domain = GetTransitionDomain(transition);
 
@@ -1005,40 +1011,33 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
 	protected virtual async ValueTask ExecuteTransitionContent(List<TransitionNode> transitions)
 	{
-		foreach (var transition in transitions)
+		foreach (var (node, type, target, @event) in transitions)
 		{
-			string? eventDescriptor = default;
-			string? target = default;
 			var traceEnabled = Logger.IsEnabled(Level.Trace);
 
 			if (traceEnabled)
 			{
-				eventDescriptor = EventDescriptor.ToString(transition.EventDescriptors);
-				target = Identifier.ToString(transition.Target);
-
-				if (eventDescriptor is not null)
+				if (@event.IsDefault)
 				{
-					await Logger.Write(Level.Trace, ExecutingTransitionEventId, $@"Executing eventless {transition.Type} transition to '{target}'", transition).ConfigureAwait(false);
+					await Logger.Write(Level.Trace, ExecutingTransitionEventId, $@"Executing eventless {type} transition to '{target}'", node).ConfigureAwait(false);
 				}
 				else
 				{
-					await Logger.Write(Level.Trace, ExecutingTransitionEventId, $@"Executing {transition.Type} transition to '{target}'. Event descriptor '{eventDescriptor}'", transition)
-								.ConfigureAwait(false);
+					await Logger.Write(Level.Trace, ExecutingTransitionEventId, $@"Executing {type} transition to '{target}'. Event descriptor '{@event}'", node).ConfigureAwait(false);
 				}
 			}
 
-			await RunExecutableEntity(transition.ActionEvaluators).ConfigureAwait(false);
+			await RunExecutableEntity(node.ActionEvaluators).ConfigureAwait(false);
 
 			if (traceEnabled)
 			{
-				if (eventDescriptor is not null)
+				if (@event.IsDefault)
 				{
-					await Logger.Write(Level.Trace, ExecutedTransitionEventId, $@"Executed eventless {transition.Type} transition to '{target}'", transition).ConfigureAwait(false);
+					await Logger.Write(Level.Trace, ExecutedTransitionEventId, $@"Executed eventless {type} transition to '{target}'", node).ConfigureAwait(false);
 				}
 				else
 				{
-					await Logger.Write(Level.Trace, ExecutedTransitionEventId, $@"Executed {transition.Type} transition to '{target}'. Event descriptor '{eventDescriptor}'", transition)
-								.ConfigureAwait(false);
+					await Logger.Write(Level.Trace, ExecutedTransitionEventId, $@"Executed {type} transition to '{target}'. Event descriptor '{@event}'", node).ConfigureAwait(false);
 				}
 			}
 		}
@@ -1077,12 +1076,12 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 				: ErrorType.Execution;
 
 		var name = errorType switch
-						{
-							ErrorType.Execution     => EventName.ErrorExecution,
-							ErrorType.Communication => EventName.ErrorCommunication,
-							ErrorType.Platform      => EventName.ErrorPlatform,
-							_                       => throw Infra.Unmatched(errorType)
-						};
+				   {
+					   ErrorType.Execution     => EventName.ErrorExecution,
+					   ErrorType.Communication => EventName.ErrorCommunication,
+					   ErrorType.Platform      => EventName.ErrorPlatform,
+					   _                       => throw Infra.Unmatched(errorType)
+				   };
 
 		var evt = new EventObject
 				  {
@@ -1132,7 +1131,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 							  _                       => throw Infra.Unmatched(errorType)
 						  };
 
-			await Logger.Write(Level.Error, eventId, $@"{errorType} error in entity '{entityId}'.", exception).ConfigureAwait(false);
+			await Logger.Write(Level.Error, eventId, $@"{errorType} error in entity [{entityId}].", exception).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{
@@ -1267,6 +1266,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		return default;
 	}
 
+	//TODO:
 	/*
 	private async ValueTask<IStateMachineContext> CreateContext()
 	{

@@ -955,4 +955,10 @@ Exception: {3}</value>
   <data name="Exception_ThereIsNoAnyServiceFactoryRegisteredForPprocessingInvokeType" xml:space="preserve">
 	  <value>There is no any Service Factory registered for processing invoke type: &lt;{0}&gt;.</value>
   </data>
+  <data name="Exception_FailedToParseContentBody" xml:space="preserve">
+	  <value>Failed to parse content body.</value>
+  </data>
+  <data name="Exception_FailedToParseInlineContent" xml:space="preserve">
+	  <value>Failed to parse inline content.</value>
+  </data>
 </root>

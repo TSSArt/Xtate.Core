@@ -23,6 +23,8 @@ public interface IIoProcessor
 
 	bool CanHandle(Uri? type);
 
+	bool IsInternalTarget(Uri target);
+
 	Uri? GetTarget(ServiceId serviceId);
 
 	ValueTask<IHostEvent> GetHostEvent(ServiceId senderServiceId, IOutgoingEvent outgoingEvent, CancellationToken token);

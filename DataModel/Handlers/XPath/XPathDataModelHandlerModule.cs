@@ -15,11 +15,10 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.DataModel.XPath;
 using Xtate.IoC;
 using Xtate.Scxml;
 
-namespace Xtate.DataModel;
+namespace Xtate.DataModel.XPath;
 
 public class XPathDataModelHandlerModule : Module<DataModelHandlerBaseModule, ErrorProcessorModule, NameTableModule>
 {

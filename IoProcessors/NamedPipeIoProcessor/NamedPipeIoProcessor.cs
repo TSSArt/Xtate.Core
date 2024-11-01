@@ -39,7 +39,7 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 
 	private const string Alias = @"named.pipe";
 
-	private static readonly EventObject CheckPipelineEvent = new() { Type = EventType.External, Name = (EventName)@"$" };
+	private static readonly EventObject CheckPipelineEvent = new() { Type = EventType.External, Name = (EventName) @"$" };
 
 	private static readonly ConcurrentDictionary<string, IEventConsumer> InProcConsumers = new();
 
@@ -90,8 +90,6 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 
 	protected override IHostEvent CreateHostEvent(ServiceId senderServiceId, IOutgoingEvent outgoingEvent)
 	{
-		if (outgoingEvent is null) throw new ArgumentNullException(nameof(outgoingEvent));
-
 		if (outgoingEvent.Target is null)
 		{
 			throw new ProcessorException(Resources.Exception_EventTargetDidNotSpecify);

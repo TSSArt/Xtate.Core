@@ -50,4 +50,10 @@ public sealed class EventDescriptorNode(IEventDescriptor eventDescriptor) : IEve
 	}
 
 #endregion
+
+	public override bool Equals(object? obj) => eventDescriptor.Equals(obj);
+
+	public override int GetHashCode() => eventDescriptor.GetHashCode();
+
+	public override string ToString() => eventDescriptor.ToString() ?? string.Empty;
 }

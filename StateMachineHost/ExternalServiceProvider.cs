@@ -15,13 +15,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.Service;
-
-namespace Xtate.Core;
+namespace Xtate.ExternalService;
 
 public abstract class ExternalServiceProvider<TService>(string type, string? alias = default) : IExternalServiceProvider, IExternalServiceActivator where TService : IExternalService
 {
-	private readonly Uri _aliasUri = alias is not null ? new Uri(alias, UriKind.RelativeOrAbsolute) : default;
+	private readonly Uri? _aliasUri = alias is not null ? new Uri(alias, UriKind.RelativeOrAbsolute) : default;
 
 	private readonly Uri _typeUri = new(type, UriKind.RelativeOrAbsolute);
 
@@ -30,9 +28,6 @@ public abstract class ExternalServiceProvider<TService>(string type, string? ali
 #region Interface IExternalServiceActivator
 
 	async ValueTask<IExternalService> IExternalServiceActivator.StartService() => await ServiceFactoryFunc().ConfigureAwait(false);
-
-	[Obsolete]
-	ValueTask<IExternalService> IExternalServiceActivator.StartService(Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication) => throw new NotImplementedException();
 
 #endregion
 

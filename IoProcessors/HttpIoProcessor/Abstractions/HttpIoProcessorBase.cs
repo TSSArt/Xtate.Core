@@ -459,7 +459,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 		return new EventObject
 			   {
 				   Type = EventType.External,
-				   Name = (EventName)eventName,
+				   Name = (EventName) eventName,
 				   Data = data,
 				   OriginType = IoProcessorId,
 				   Origin = origin

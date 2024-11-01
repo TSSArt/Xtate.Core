@@ -19,18 +19,18 @@ using System.Net;
 using System.Net.Mail;
 using System.Text;
 
-namespace Xtate.Service;
+namespace Xtate.ExternalService.SmtpClient;
 
 public class SmtpClientService : ExternalServiceBase
 {
-	public class Provider() : ExternalServiceProvider<HttpClientService>(type: @"http://xtate.net/scxml/service/#HTTPClient", alias: @"http");
+	public class Provider() : ExternalServiceProvider<SmtpClientService>(type: @"http://xtate.net/scxml/service/#SMTPClient", alias: @"smtp");
 
 	protected override async ValueTask<DataModelValue> Execute()
 	{
 		var parameters = Parameters.AsListOrEmpty();
 		var host = parameters["server"].AsString();
 		var port = parameters["port"].AsNumberOrDefault();
-		using var client = new SmtpClient(host, port is { } portValue ? (int) portValue : 25);
+		using var client = new System.Net.Mail.SmtpClient(host, port is { } portValue ? (int) portValue : 25);
 
 		if (parameters["userName"].AsStringOrDefault() is { Length: > 0 } userName)
 		{

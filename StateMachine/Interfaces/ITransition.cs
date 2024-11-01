@@ -19,11 +19,11 @@ namespace Xtate;
 
 public interface ITransition : IEntity
 {
-	ImmutableArray<IEventDescriptor> EventDescriptors { get; }
+	EventDescriptors EventDescriptors { get; }
 
 	IConditionExpression? Condition { get; }
 
-	ImmutableArray<IIdentifier> Target { get; }
+	Target Target { get; }
 
 	TransitionType Type { get; }
 

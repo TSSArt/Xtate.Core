@@ -29,5 +29,5 @@ internal class FullUriComparer : IEqualityComparer<Uri>
 
 #endregion
 
-	private static string GetSafeFragment(Uri? uri) => uri is not null && uri.IsAbsoluteUri ? uri.Fragment : string.Empty;
+	private static string? GetSafeFragment(Uri? uri) => uri?.IsAbsoluteUri == true ? uri.Fragment : default;
 }

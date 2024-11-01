@@ -17,10 +17,6 @@
 
 namespace Xtate.Persistence;
 
-public interface IStateMachinePersistedContextOptions
-{
-	ImmutableDictionary<int, IEntity> EntityMap { get; }
-}
 /*
 public class StateMachinePersistedContextOptions : StateMachineContextOptions, IStateMachinePersistedContextOptions
 {
@@ -63,7 +59,7 @@ public class StateMachinePersistedContext : StateMachineContext, IPersistenceCon
 
 										//ILoggerOld logger,
 										//ILoggerContext loggerContext,
-										IExternalCommunication? externalCommunication)
+										IExternalServiceCommunication? externalCommunication)
 	{
 		_storage = storage;
 		var bucket = new Bucket(storage);
