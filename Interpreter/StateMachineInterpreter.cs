@@ -489,14 +489,14 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		}
 	}
 
-	private static bool EventMatch(ImmutableArray<IEventDescriptor> eventDescriptors, IEvent? evt)
+	private static bool EventMatch(EventDescriptors eventDescriptors, IEvent? evt)
 	{
 		if (evt is null)
 		{
-			return eventDescriptors.IsDefaultOrEmpty;
+			return eventDescriptors.IsDefault;
 		}
 
-		if (eventDescriptors.IsDefaultOrEmpty)
+		if (eventDescriptors.IsDefault)
 		{
 			return false;
 		}
@@ -794,7 +794,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
 		foreach (var transition in transitions)
 		{
-			if (!transition.Target.IsDefaultOrEmpty)
+			if (!transition.Target.IsDefault)
 			{
 				var domain = GetTransitionDomain(transition);
 
@@ -1005,40 +1005,33 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
 	protected virtual async ValueTask ExecuteTransitionContent(List<TransitionNode> transitions)
 	{
-		foreach (var transition in transitions)
+		foreach (var (node, type, target, @event) in transitions)
 		{
-			string? eventDescriptor = default;
-			string? target = default;
 			var traceEnabled = Logger.IsEnabled(Level.Trace);
 
 			if (traceEnabled)
 			{
-				eventDescriptor = EventDescriptor.ToString(transition.EventDescriptors);
-				target = Identifier.ToString(transition.Target);
-
-				if (eventDescriptor is not null)
+				if (@event.IsDefault)
 				{
-					await Logger.Write(Level.Trace, ExecutingTransitionEventId, $@"Executing eventless {transition.Type} transition to '{target}'", transition).ConfigureAwait(false);
+					await Logger.Write(Level.Trace, ExecutingTransitionEventId, $@"Executing eventless {type} transition to '{target}'", node).ConfigureAwait(false);
 				}
 				else
 				{
-					await Logger.Write(Level.Trace, ExecutingTransitionEventId, $@"Executing {transition.Type} transition to '{target}'. Event descriptor '{eventDescriptor}'", transition)
-								.ConfigureAwait(false);
+					await Logger.Write(Level.Trace, ExecutingTransitionEventId, $@"Executing {type} transition to '{target}'. Event descriptor '{@event}'", node).ConfigureAwait(false);
 				}
 			}
 
-			await RunExecutableEntity(transition.ActionEvaluators).ConfigureAwait(false);
+			await RunExecutableEntity(node.ActionEvaluators).ConfigureAwait(false);
 
 			if (traceEnabled)
 			{
-				if (eventDescriptor is not null)
+				if (@event.IsDefault)
 				{
-					await Logger.Write(Level.Trace, ExecutedTransitionEventId, $@"Executed eventless {transition.Type} transition to '{target}'", transition).ConfigureAwait(false);
+					await Logger.Write(Level.Trace, ExecutedTransitionEventId, $@"Executed eventless {type} transition to '{target}'", node).ConfigureAwait(false);
 				}
 				else
 				{
-					await Logger.Write(Level.Trace, ExecutedTransitionEventId, $@"Executed {transition.Type} transition to '{target}'. Event descriptor '{eventDescriptor}'", transition)
-								.ConfigureAwait(false);
+					await Logger.Write(Level.Trace, ExecutedTransitionEventId, $@"Executed {type} transition to '{target}'. Event descriptor '{@event}'", node).ConfigureAwait(false);
 				}
 			}
 		}

@@ -72,9 +72,9 @@ public class TransitionNode : ITransition, IStoreSupport, IAncestorProvider, IDo
 	{
 		bucket.Add(Key.TypeInfo, TypeInfo.TransitionNode);
 		bucket.Add(Key.DocumentId, DocumentId);
-		bucket.AddEntityList(Key.Event, EventDescriptors);
+		bucket.AddEntityList(Key.Event, EventDescriptors.Array);
 		bucket.AddEntity(Key.Condition, Condition);
-		bucket.AddEntityList(Key.Target, Target);
+		bucket.AddEntityList(Key.Target, Target.Array);
 		bucket.Add(Key.TransitionType, Type);
 		bucket.AddEntityList(Key.Action, Action);
 	}
@@ -83,11 +83,11 @@ public class TransitionNode : ITransition, IStoreSupport, IAncestorProvider, IDo
 
 #region Interface ITransition
 
-	public ImmutableArray<IEventDescriptor> EventDescriptors => _transition.EventDescriptors;
+	public EventDescriptors EventDescriptors => _transition.EventDescriptors;
 
 	public IConditionExpression? Condition => _transition.Condition;
 
-	public ImmutableArray<IIdentifier> Target => _transition.Target;
+	public Target Target => _transition.Target;
 
 	public TransitionType Type => _transition.Type;
 
@@ -97,7 +97,7 @@ public class TransitionNode : ITransition, IStoreSupport, IAncestorProvider, IDo
 
 	public bool TryMapTarget(Dictionary<IIdentifier, StateEntityNode> idMap)
 	{
-		TargetState = ImmutableArray.CreateRange(Target, (id, map) => map.TryGetValue(id, out var node) ? node : null!, idMap);
+		TargetState = ImmutableArray.CreateRange(Target.Array, (id, map) => map.TryGetValue(id, out var node) ? node : null!, idMap);
 
 		foreach (var node in TargetState)
 		{
@@ -111,6 +111,17 @@ public class TransitionNode : ITransition, IStoreSupport, IAncestorProvider, IDo
 	}
 
 	public void SetSource(StateEntityNode source) => Source = source;
+
+	public void Deconstruct(out TransitionNode self,
+							out TransitionType type,
+							out Target target,
+							out EventDescriptors eventDescriptors)
+	{
+		self = this;
+		type = Type;
+		target = Target;
+		eventDescriptors = EventDescriptors;
+	}
 
 	public class Empty(DocumentIdNode documentIdNode, ImmutableArray<StateEntityNode> target) : TransitionNode(documentIdNode, EmptyTransition, target)
 	{

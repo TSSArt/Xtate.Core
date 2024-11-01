@@ -43,10 +43,10 @@ public class ScxmlSerializerWriter(XmlWriter writer) : StateMachineVisitor
 
 		var target = entity.Initial?.Transition?.Target ?? default;
 
-		if (!target.IsDefaultOrEmpty)
+		if (!target.IsDefault)
 		{
 			writer.WriteStartAttribute("initial");
-			WriteArray(target, i => i.Value, Space);
+			WriteArray(target.Array, i => i.Value, Space);
 			writer.WriteEndAttribute();
 		}
 
@@ -179,10 +179,10 @@ public class ScxmlSerializerWriter(XmlWriter writer) : StateMachineVisitor
 			writer.WriteAttributeString(localName: "type", value: @"internal");
 		}
 
-		if (!entity.EventDescriptors.IsDefaultOrEmpty)
+		if (!entity.EventDescriptors.IsDefault)
 		{
 			writer.WriteStartAttribute("event");
-			WriteArray(entity.EventDescriptors, ed => ed.Value, Space);
+			WriteArray(entity.EventDescriptors.Array, ed => ed.Value, Space);
 			writer.WriteEndAttribute();
 		}
 
@@ -193,10 +193,10 @@ public class ScxmlSerializerWriter(XmlWriter writer) : StateMachineVisitor
 			writer.WriteAttributeString(localName: "cond", condition);
 		}
 
-		if (!entity.Target.IsDefaultOrEmpty)
+		if (!entity.Target.IsDefault)
 		{
 			writer.WriteStartAttribute("target");
-			WriteArray(entity.Target, i => i.Value, Space);
+			WriteArray(entity.Target.Array, i => i.Value, Space);
 			writer.WriteEndAttribute();
 		}
 
