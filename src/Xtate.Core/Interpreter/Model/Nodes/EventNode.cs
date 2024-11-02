@@ -35,9 +35,9 @@ public sealed class EventNode(IOutgoingEvent outgoingEvent) : IOutgoingEvent, IS
 
 	public DataModelValue Data => outgoingEvent.Data;
 
-	public Uri? Target => outgoingEvent.Target;
+	public FullUri? Target => outgoingEvent.Target;
 
-	public Uri? Type => outgoingEvent.Type;
+	public FullUri? Type => outgoingEvent.Type;
 
 	public int DelayMs => outgoingEvent.DelayMs;
 

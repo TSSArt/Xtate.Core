@@ -53,8 +53,8 @@ public class InvokeTest
 										new InvokeEntity
 										{
 											Id = "invoke_id",
-											Source = new Uri("proto://src"),
-											Type = new Uri("proto://type"),
+											Source = new FullUri("proto://src"),
+											Type = new FullUri("proto://type"),
 											Content = new ContentEntity { Body = new ContentBody { Value = "content" } },
 											Finalize = new FinalizeEntity { Action = [new LogEntity { Label = "FinalizeExecuted" }] }
 										}

@@ -19,7 +19,7 @@ namespace Xtate.ExternalService;
 
 public interface IExternalServiceDefinition
 {
-	Uri Type { get; }
+	FullUri Type { get; }
 
 	Uri? Source { get; }
 

@@ -33,11 +33,11 @@ public sealed partial class StateMachineHost : IExternalServiceProvider, IExtern
 
 #region Interface IExternalServiceProvider
 
-	ValueTask<IExternalServiceActivator?> IExternalServiceProvider.TryGetActivator(Uri type) => new(CanHandle(type) ? this : null);
+	ValueTask<IExternalServiceActivator?> IExternalServiceProvider.TryGetActivator(FullUri type) => new(CanHandle(type) ? this : null);
 
 #endregion
 
-	private static bool CanHandle(Uri type) => FullUriComparer.Instance.Equals(type, ServiceFactoryTypeId) || FullUriComparer.Instance.Equals(type, ServiceFactoryAliasTypeId);
+	private static bool CanHandle(FullUri type) => type == ServiceFactoryTypeId || type == ServiceFactoryAliasTypeId;
 	/*
 	[Obsolete]
 	async ValueTask<IExternalService> IExternalServiceActivator.StartService(Uri? baseUri,

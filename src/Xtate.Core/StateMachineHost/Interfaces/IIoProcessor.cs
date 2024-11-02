@@ -19,13 +19,13 @@ namespace Xtate.IoProcessor;
 
 public interface IIoProcessor
 {
-	Uri Id { get; }
+	FullUri Id { get; }
 
-	bool CanHandle(Uri? type);
+	bool CanHandle(FullUri? type);
 
-	bool IsInternalTarget(Uri? target);
+	bool IsInternalTarget(FullUri? target);
 
-	Uri? GetTarget(ServiceId serviceId);
+	FullUri? GetTarget(ServiceId serviceId);
 
 	ValueTask<IHostEvent> GetHostEvent(ServiceId senderServiceId, IOutgoingEvent outgoingEvent, CancellationToken token);
 

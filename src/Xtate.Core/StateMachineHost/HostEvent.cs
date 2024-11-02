@@ -111,5 +111,5 @@ public class HostEvent : EventObject, IHostEvent
 		}
 	}
 
-	protected override Uri? CreateOrigin() => _ioProcessor?.GetTarget(SenderServiceId);
+	protected override FullUri? CreateOrigin() => _ioProcessor?.GetTarget(SenderServiceId);
 }

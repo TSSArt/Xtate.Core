@@ -23,7 +23,7 @@ public class EventObject : IEvent, IStoreSupport, IAncestorProvider
 {
 	private readonly DataModelValue _data;
 
-	private Uri? _origin;
+	private FullUri? _origin;
 
 	public EventObject() { }
 
@@ -56,8 +56,8 @@ public class EventObject : IEvent, IStoreSupport, IAncestorProvider
 		Name = bucket.GetEventName(Key.Name);
 		Type = bucket.GetEnum(Key.Type).As<EventType>();
 		SendId = bucket.GetSendId(Key.SendId);
-		Origin = bucket.GetUri(Key.Origin);
-		OriginType = bucket.GetUri(Key.OriginType);
+		Origin = bucket.GetFullUri(Key.Origin);
+		OriginType = bucket.GetFullUri(Key.OriginType);
 		InvokeId = bucket.GetInvokeId(Key.InvokeUniqueId);
 		Data = bucket.GetDataModelValue(Key.Data);
 	}
@@ -72,7 +72,7 @@ public class EventObject : IEvent, IStoreSupport, IAncestorProvider
 
 #region Interface IEvent
 
-	public Uri? OriginType { get; init; }
+	public FullUri? OriginType { get; init; }
 
 	public InvokeId? InvokeId { get; init; }
 
@@ -88,7 +88,7 @@ public class EventObject : IEvent, IStoreSupport, IAncestorProvider
 		init => _data = value.AsConstant();
 	}
 
-	public Uri? Origin
+	public FullUri? Origin
 	{
 		get => _origin ??= CreateOrigin();
 		init => _origin = value;
@@ -120,5 +120,5 @@ public class EventObject : IEvent, IStoreSupport, IAncestorProvider
 		}
 	}
 
-	protected virtual Uri? CreateOrigin() => default;
+	protected virtual FullUri? CreateOrigin() => default;
 }

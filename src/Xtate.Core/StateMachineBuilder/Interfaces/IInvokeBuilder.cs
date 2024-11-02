@@ -21,7 +21,7 @@ public interface IInvokeBuilder
 {
 	IInvoke Build();
 
-	void SetType(Uri type);
+	void SetType(FullUri type);
 
 	void SetTypeExpression(IValueExpression typeExpression);
 
