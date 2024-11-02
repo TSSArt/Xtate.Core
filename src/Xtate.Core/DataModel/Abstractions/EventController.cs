@@ -62,7 +62,7 @@ public class EventController : IEventController
 				throw new ExecutionException(Resources.Exception_InternalEventsCantBeDelayed);
 			}
 
-			StateMachineContext.InternalQueue.Enqueue(new EventObject(outgoingEvent) { Type = EventType.Internal });
+			StateMachineContext.InternalQueue.Enqueue(new IncomingEvent(outgoingEvent) { Type = EventType.Internal });
 		}
 	}
 

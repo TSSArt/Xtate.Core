@@ -126,19 +126,19 @@ public sealed partial class StateMachineHost : IStateMachineHost
 					var result = await invokedService.GetResult().ConfigureAwait(false);
 
 					var name = EventName.GetDoneInvokeName(invokeId);
-					var evt = new EventObject { Type = EventType.External, Name = name, Data = result, InvokeId = invokeId };
-					await service.Send(evt).ConfigureAwait(false);
+					var incomingEvent = new IncomingEvent { Type = EventType.External, Name = name, Data = result, InvokeId = invokeId };
+					await service.Send(incomingEvent).ConfigureAwait(false);
 				}
 				catch (Exception ex)
 				{
-					var evt = new EventObject
+					var incomingEvent = new IncomingEvent
 							  {
 								  Type = EventType.External,
 								  Name = EventName.ErrorExecution,
 								  Data = dataConverter.FromException(ex),
 								  InvokeId = invokeId
 							  };
-					await service.Send(evt).ConfigureAwait(false);
+					await service.Send(incomingEvent).ConfigureAwait(false);
 				}
 				finally
 				{
@@ -176,7 +176,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 
 	ValueTask IStateMachineHost.ForwardEvent(SessionId sessionId,
 											 InvokeId invokeId,
-											 IEvent evt,
+											 IIncomingEvent incomingEvent,
 											 CancellationToken token)
 	{
 		var context = GetCurrentContext();
@@ -190,7 +190,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 			throw new ProcessorException(Resources.Exception_InvalidInvokeId);
 		}
 
-		return service?.Send(evt) ?? default;
+		return service?.Send(incomingEvent) ?? default;
 	}
 
 #endregion

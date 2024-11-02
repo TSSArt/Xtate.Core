@@ -82,7 +82,7 @@ public class InvokeTest
 		_externalCommunicationMock = new Mock<IExternalServiceCommunication>();
 	}
 
-	private static EventObject CreateEventObject(string name, InvokeId? invokeId = default) =>
+	private static IncomingEvent CreateEventObject(string name, InvokeId? invokeId = default) =>
 		new()
 		{
 			Type = EventType.External,

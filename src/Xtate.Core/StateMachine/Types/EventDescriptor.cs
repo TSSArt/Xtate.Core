@@ -53,16 +53,16 @@ public sealed class EventDescriptor : IEventDescriptor, IEquatable<EventDescript
 
 #region Interface IEventDescriptor
 
-	public bool IsEventMatch(IEvent evt)
+	public bool IsEventMatch(IIncomingEvent incomingEvent)
 	{
-		if (evt.Name.Count < _parts.Length)
+		if (incomingEvent.Name.Count < _parts.Length)
 		{
 			return false;
 		}
 
 		for (var i = 0; i < _parts.Length; i ++)
 		{
-			if (!evt.Name[i].Equals(_parts[i]))
+			if (!incomingEvent.Name[i].Equals(_parts[i]))
 			{
 				return false;
 			}

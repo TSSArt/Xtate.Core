@@ -61,15 +61,15 @@ public class InvokeController : IInvokeController
 		}
 	}
 
-	public async ValueTask Forward(InvokeId invokeId, IEvent evt)
+	public async ValueTask Forward(InvokeId invokeId, IIncomingEvent incomingEvent)
 	{
-		var sendId = evt.SendId;
-		var eventName = evt.Name;
-		await Logger.Write(Level.Trace, EventForwardEventId, $@"Forward event. SendId: [{sendId}] Name:'{eventName}'", evt).ConfigureAwait(false);
+		var sendId = incomingEvent.SendId;
+		var eventName = incomingEvent.Name;
+		await Logger.Write(Level.Trace, EventForwardEventId, $@"Forward event. SendId: [{sendId}] Name:'{eventName}'", incomingEvent).ConfigureAwait(false);
 
 		try
 		{
-			await ExternalServiceCommunication.Forward(invokeId, evt).ConfigureAwait(false);
+			await ExternalServiceCommunication.Forward(invokeId, incomingEvent).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{

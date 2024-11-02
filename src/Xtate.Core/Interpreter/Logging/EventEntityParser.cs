@@ -17,33 +17,33 @@
 
 namespace Xtate.Core;
 
-public class EventEntityParser<TSource> : EntityParserBase<TSource, IEvent>
+public class EventEntityParser<TSource> : EntityParserBase<TSource, IIncomingEvent>
 {
-	protected override IEnumerable<LoggingParameter> EnumerateProperties(IEvent evt)
+	protected override IEnumerable<LoggingParameter> EnumerateProperties(IIncomingEvent incomingEvent)
 	{
-		if (!evt.Name.IsDefault)
+		if (!incomingEvent.Name.IsDefault)
 		{
-			yield return new LoggingParameter(name: @"EventName", evt.Name);
+			yield return new LoggingParameter(name: @"EventName", incomingEvent.Name);
 		}
 
-		yield return new LoggingParameter(name: @"EventType", evt.Type);
+		yield return new LoggingParameter(name: @"EventType", incomingEvent.Type);
 
-		if (evt.Origin is { } origin)
+		if (incomingEvent.Origin is { } origin)
 		{
 			yield return new LoggingParameter(name: @"Origin", origin);
 		}
 
-		if (evt.OriginType is { } originType)
+		if (incomingEvent.OriginType is { } originType)
 		{
 			yield return new LoggingParameter(name: @"OriginType", originType);
 		}
 
-		if (evt.SendId is { } sendId)
+		if (incomingEvent.SendId is { } sendId)
 		{
 			yield return new LoggingParameter(name: @"SendId", sendId);
 		}
 
-		if (evt.InvokeId is { } invokeId)
+		if (incomingEvent.InvokeId is { } invokeId)
 		{
 			yield return new LoggingParameter(name: @"InvokeId", invokeId);
 		}

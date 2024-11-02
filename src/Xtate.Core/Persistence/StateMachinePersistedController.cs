@@ -25,7 +25,7 @@ internal sealed class StateMachinePersistedController : StateMachineRuntimeContr
 
 	private const int ExternalEventsKey = 0;
 
-	private readonly ChannelPersistingController<IEvent> _channelPersistingController;
+	private readonly ChannelPersistingController<IIncomingEvent> _channelPersistingController;
 
 	private readonly CancellationToken _stopToken;
 
@@ -56,10 +56,10 @@ internal sealed class StateMachinePersistedController : StateMachineRuntimeContr
 
 		//_stopToken = defaultOptions.StopToken;
 
-		_channelPersistingController = new ChannelPersistingController<IEvent>(base.EventChannel);
+		_channelPersistingController = new ChannelPersistingController<IIncomingEvent>(base.EventChannel);
 	}
 
-	protected override Channel<IEvent> EventChannel => _channelPersistingController;
+	protected override Channel<IIncomingEvent> EventChannel => _channelPersistingController;
 
 #region Interface IStorageProvider
 
@@ -113,7 +113,7 @@ internal sealed class StateMachinePersistedController : StateMachineRuntimeContr
 
 		_storage = await _storageProvider.GetTransactionalStorage(SessionId.Value, ControllerStateKey /*, _stopToken*/).ConfigureAwait(false);
 
-		_channelPersistingController.Initialize(new Bucket(_storage).Nested(ExternalEventsKey), bucket => new EventObject(bucket), _storageLock, token => _storage.CheckPoint(level: 0));
+		_channelPersistingController.Initialize(new Bucket(_storage).Nested(ExternalEventsKey), bucket => new IncomingEvent(bucket), _storageLock, token => _storage.CheckPoint(level: 0));
 
 		_storageLock.Release();
 	}

@@ -50,7 +50,7 @@ public abstract class StateMachineControllerBase : IStateMachineController, INot
 
 	public required IStateMachineInterpreter StateMachineInterpreter { private get; [UsedImplicitly] init; }
 
-	protected abstract Channel<IEvent> EventChannel { get; }
+	protected abstract Channel<IIncomingEvent> EventChannel { get; }
 
 	public required IEventQueueWriter EventQueueWriter { private get; [UsedImplicitly] init; }
 
@@ -77,8 +77,8 @@ public abstract class StateMachineControllerBase : IStateMachineController, INot
 
 #region Interface IEventDispatcher
 
-	//public virtual ValueTask Send(IEvent evt, CancellationToken token) => EventChannel.Writer.WriteAsync(evt, token);
-	public virtual ValueTask Send(IEvent evt) => EventQueueWriter.WriteAsync(evt);
+	//public virtual ValueTask Send(IIncomingEvent abc, CancellationToken token) => EventChannel.Writer.WriteAsync(abc, token);
+	public virtual ValueTask Send(IIncomingEvent incomingEvent) => EventQueueWriter.WriteAsync(incomingEvent);
 
 #endregion
 

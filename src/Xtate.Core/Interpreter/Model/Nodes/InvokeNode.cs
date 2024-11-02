@@ -175,12 +175,12 @@ public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId
 		}
 	}
 
-	public async ValueTask Forward(IEvent evt)
+	public async ValueTask Forward(IIncomingEvent incomingEvent)
 	{
 		Infra.NotNull(InvokeId);
 
 		var invokeController = await InvokeControllerFactory().ConfigureAwait(false);
 
-		await invokeController.Forward(InvokeId, evt).ConfigureAwait(false);
+		await invokeController.Forward(InvokeId, incomingEvent).ConfigureAwait(false);
 	}
 }

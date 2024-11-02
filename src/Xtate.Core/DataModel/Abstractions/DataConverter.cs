@@ -117,19 +117,17 @@ public class DataConverter(ICaseSensitivity? caseSensitivity)
 		return DataModelValue.Null;
 	}
 
-	public DataModelValue FromEvent(IEvent evt)
+	public DataModelValue FromEvent(IIncomingEvent incomingEvent)
 	{
-		Infra.Requires(evt);
-
 		var eventList = new DataModelList(_caseInsensitive)
 						{
-							{ @"name", evt.Name.ToString() },
-							{ @"type", GetTypeString(evt.Type) },
-							{ @"sendid", evt.SendId },
-							{ @"origin", evt.Origin?.ToString() },
-							{ @"origintype", evt.OriginType?.ToString() },
-							{ @"invokeid", evt.InvokeId },
-							{ @"data", evt.Data.AsConstant() }
+							{ @"name", incomingEvent.Name.ToString() },
+							{ @"type", GetTypeString(incomingEvent.Type) },
+							{ @"sendid", incomingEvent.SendId },
+							{ @"origin", incomingEvent.Origin?.ToString() },
+							{ @"origintype", incomingEvent.OriginType?.ToString() },
+							{ @"invokeid", incomingEvent.InvokeId },
+							{ @"data", incomingEvent.Data.AsConstant() }
 						};
 
 		eventList.MakeDeepConstant();

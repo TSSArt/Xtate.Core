@@ -36,6 +36,6 @@ public interface IStateMachineHost : IHostEventDispatcher
 
 	ValueTask ForwardEvent(SessionId sessionId,
 						   InvokeId invokeId,
-						   IEvent evt,
+						   IIncomingEvent incomingEvent,
 						   CancellationToken token);
 }

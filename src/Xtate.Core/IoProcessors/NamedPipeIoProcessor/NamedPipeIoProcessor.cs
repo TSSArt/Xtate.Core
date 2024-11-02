@@ -39,7 +39,7 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 
 	private const string Alias = @"named.pipe";
 
-	private static readonly EventObject CheckPipelineEvent = new() { Type = EventType.External, Name = (EventName) @"$" };
+	private static readonly IncomingEvent CheckPipelineEvent = new() { Type = EventType.External, Name = (EventName) @"$" };
 
 	private static readonly ConcurrentDictionary<string, IEventConsumer> InProcConsumers = new();
 
@@ -141,7 +141,7 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 	private async ValueTask SendEventToPipe(string server,
 											string pipeName,
 											ServiceId? targetServiceId,
-											IEvent evt,
+											IIncomingEvent incomingEvent,
 											CancellationToken token)
 	{
 		var pipeStream = new NamedPipeClientStream(server, pipeName, PipeDirection.InOut, DefaultPipeOptions);
@@ -152,7 +152,7 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 		{
 			await pipeStream.ConnectAsync(token).ConfigureAwait(false);
 
-			var message = new EventMessage(targetServiceId, evt);
+			var message = new EventMessage(targetServiceId, incomingEvent);
 
 			Serialize(message, memoryStream);
 
@@ -360,9 +360,9 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 
 	public ValueTask CheckPipeline(CancellationToken token) => SendEventToPipe(server: @".", _pipeName, targetServiceId: default, CheckPipelineEvent, token);
 
-	private class EventMessage : EventObject
+	private class EventMessage : IncomingEvent
 	{
-		public EventMessage(ServiceId? targetServiceId, IEvent evt) : base(evt) => TargetServiceId = targetServiceId;
+		public EventMessage(ServiceId? targetServiceId, IIncomingEvent incomingEvent) : base(incomingEvent) => TargetServiceId = targetServiceId;
 
 		public EventMessage(in Bucket bucket) : base(bucket)
 		{

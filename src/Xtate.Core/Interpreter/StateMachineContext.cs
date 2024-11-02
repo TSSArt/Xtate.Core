@@ -42,7 +42,7 @@ public class StateMachineContext : IStateMachineContext
 
 	public KeyList<StateEntityNode> HistoryValue { get; } = [];
 
-	public EntityQueue<IEvent> InternalQueue { get; } = [];
+	public EntityQueue<IIncomingEvent> InternalQueue { get; } = [];
 
 	public OrderedSet<StateEntityNode> StatesToInvoke { get; } = [];
 

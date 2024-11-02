@@ -19,7 +19,7 @@ namespace Xtate.Core;
 
 public interface IEventQueueWriter
 {
-	ValueTask WriteAsync(IEvent evt);
+	ValueTask WriteAsync(IIncomingEvent incomingEvent);
 
 	void Complete();
 }

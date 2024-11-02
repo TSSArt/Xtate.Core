@@ -25,7 +25,7 @@ public class StateMachinePersistingInterpreterBase2(
 #pragma warning restore CS9107
 	interpreterModel)
 {
-	protected override async ValueTask<IEvent> ReadExternalEvent()
+	protected override async ValueTask<IIncomingEvent> ReadExternalEvent()
 	{
 		await persistingInterpreterState.CheckPoint(16).ConfigureAwait(false);
 

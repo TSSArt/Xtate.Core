@@ -19,7 +19,7 @@ namespace Xtate.Core;
 
 public interface IEventQueueReader
 {
-	bool TryReadEvent([MaybeNullWhen(false)] out IEvent evt);
+	bool TryReadEvent([MaybeNullWhen(false)] out IIncomingEvent incomingEvent);
 
 	ValueTask<bool> WaitToEvent();
 

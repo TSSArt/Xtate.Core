@@ -218,7 +218,7 @@ public class StateMachinePersistingInterpreterBase : StateMachineInterpreter
 		}
 	}
 
-	protected override async ValueTask<IEvent> WaitForExternalEvent()
+	protected override async ValueTask<IIncomingEvent> WaitForExternalEvent()
 	{
 		await _persistingInterpreterState.CheckPoint(0).ConfigureAwait(false);
 

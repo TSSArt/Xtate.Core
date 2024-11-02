@@ -35,7 +35,7 @@ public sealed class EventDescriptorNode(IEventDescriptor eventDescriptor) : IEve
 
 #region Interface IEventDescriptor
 
-	public bool IsEventMatch(IEvent evt) => eventDescriptor.IsEventMatch(evt);
+	public bool IsEventMatch(IIncomingEvent incomingEvent) => eventDescriptor.IsEventMatch(incomingEvent);
 
 	public string Value => eventDescriptor.Value;
 

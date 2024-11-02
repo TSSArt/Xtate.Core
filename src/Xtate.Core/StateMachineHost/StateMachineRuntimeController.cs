@@ -60,13 +60,13 @@ public class StateMachineRuntimeController : StateMachineControllerBase
 		EventChannel = CreateChannel(options);
 	}
 
-	protected override Channel<IEvent> EventChannel { get; }
+	protected override Channel<IIncomingEvent> EventChannel { get; }
 
-	private static Channel<IEvent> CreateChannel(IStateMachineOptions? options)
+	private static Channel<IIncomingEvent> CreateChannel(IStateMachineOptions? options)
 	{
 		if (options is null)
 		{
-			return Channel.CreateUnbounded<IEvent>(UnboundedAsynchronousChannelOptions);
+			return Channel.CreateUnbounded<IIncomingEvent>(UnboundedAsynchronousChannelOptions);
 		}
 
 		var sync = options.SynchronousEventProcessing ?? false;
@@ -74,12 +74,12 @@ public class StateMachineRuntimeController : StateMachineControllerBase
 
 		if (options.IsStateMachinePersistable() || queueSize <= 0)
 		{
-			return Channel.CreateUnbounded<IEvent>(sync ? UnboundedSynchronousChannelOptions : UnboundedAsynchronousChannelOptions);
+			return Channel.CreateUnbounded<IIncomingEvent>(sync ? UnboundedSynchronousChannelOptions : UnboundedAsynchronousChannelOptions);
 		}
 
 		var channelOptions = new BoundedChannelOptions(queueSize) { AllowSynchronousContinuations = sync, SingleReader = true };
 
-		return Channel.CreateBounded<IEvent>(channelOptions);
+		return Channel.CreateBounded<IIncomingEvent>(channelOptions);
 	}
 
 	protected override void StateChanged(StateMachineInterpreterState state)

@@ -19,7 +19,7 @@ namespace Xtate.Core;
 
 public interface IStateMachineContext
 {
-	EntityQueue<IEvent> InternalQueue { get; }
+	EntityQueue<IIncomingEvent> InternalQueue { get; }
 
 	DataModelList DataModel { get; }
 

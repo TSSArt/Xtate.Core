@@ -17,7 +17,7 @@
 
 namespace Xtate;
 
-public interface IEvent : IEntity
+public interface IIncomingEvent : IEntity
 {
 	SendId? SendId { get; }
 
