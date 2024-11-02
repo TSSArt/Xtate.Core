@@ -21,7 +21,7 @@ public interface IExternalServiceCommunication
 {
 	ValueTask Start(InvokeId invokeId, InvokeData invokeData);
 
-	ValueTask Forward(InvokeId invokeId, IEvent evt);
+	ValueTask Forward(InvokeId invokeId, IIncomingEvent incomingEvent);
 
 	ValueTask Cancel(InvokeId invokeId);
 }

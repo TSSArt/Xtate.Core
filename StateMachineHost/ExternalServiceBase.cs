@@ -39,7 +39,7 @@ public abstract class ExternalServiceBase : IExternalService
 
 #region Interface IEventDispatcher
 
-	ValueTask IEventDispatcher.Send(IEvent evt) => default;
+	ValueTask IEventDispatcher.Send(IIncomingEvent incomingEvent) => default;
 
 #endregion
 

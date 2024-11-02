@@ -21,17 +21,17 @@ namespace Xtate.Core;
 
 public class EventQueue : IEventQueueReader, IEventQueueWriter, IEventDispatcher
 {
-	private readonly Channel<IEvent> _channel = Channel.CreateUnbounded<IEvent>();
+	private readonly Channel<IIncomingEvent> _channel = Channel.CreateUnbounded<IIncomingEvent>();
 
 #region Interface IEventDispatcher
 
-	public ValueTask Send(IEvent evt) => _channel.Writer.WriteAsync(evt);
+	public ValueTask Send(IIncomingEvent incomingEvent) => _channel.Writer.WriteAsync(incomingEvent);
 
 #endregion
 
 #region Interface IEventQueueReader
 
-	public bool TryReadEvent([MaybeNullWhen(false)] out IEvent evt) => _channel.Reader.TryRead(out evt);
+	public bool TryReadEvent([MaybeNullWhen(false)] out IIncomingEvent incomingEvent) => _channel.Reader.TryRead(out incomingEvent);
 
 	public ValueTask<bool> WaitToEvent() => _channel.Reader.WaitToReadAsync();
 
@@ -41,7 +41,7 @@ public class EventQueue : IEventQueueReader, IEventQueueWriter, IEventDispatcher
 
 #region Interface IEventQueueWriter
 
-	public ValueTask WriteAsync(IEvent evt) => _channel.Writer.WriteAsync(evt);
+	public ValueTask WriteAsync(IIncomingEvent incomingEvent) => _channel.Writer.WriteAsync(incomingEvent);
 
 #endregion
 }

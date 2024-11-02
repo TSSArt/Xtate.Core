@@ -31,7 +31,7 @@ public class ExternalServiceCommunication : IExternalServiceCommunication
 
 #region Interface IExternalServiceCommunication
 
-	public ValueTask Forward(InvokeId invokeId, IEvent evt) => StateMachineHost.ForwardEvent(SessionId, invokeId, evt, token: default);
+	public ValueTask Forward(InvokeId invokeId, IIncomingEvent incomingEvent) => StateMachineHost.ForwardEvent(SessionId, invokeId, incomingEvent, token: default);
 
 	public ValueTask Start(InvokeId invokeId, InvokeData invokeData) => ExternalServiceScopeManager.StartService(invokeId, invokeData);
 

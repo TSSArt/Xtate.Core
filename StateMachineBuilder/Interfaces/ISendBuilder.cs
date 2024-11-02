@@ -21,7 +21,7 @@ public interface ISendBuilder
 {
 	ISend Build();
 
-	void SetEvent(string evt);
+	void SetEvent(string eventName);
 
 	void SetEventExpression(IValueExpression eventExpression);
 

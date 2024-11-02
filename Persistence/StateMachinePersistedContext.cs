@@ -46,7 +46,7 @@ public class StateMachinePersistedContext : StateMachineContext, IPersistenceCon
 
 	private readonly KeyListPersistingController<StateEntityNode> _historyValuePersistingController;
 
-	private readonly EntityQueuePersistingController<IEvent> _internalQueuePersistingController;
+	private readonly EntityQueuePersistingController<IIncomingEvent> _internalQueuePersistingController;
 
 	private readonly Bucket _state;
 
@@ -70,7 +70,7 @@ public class StateMachinePersistedContext : StateMachineContext, IPersistenceCon
 		_dataModelReferenceTracker = new DataModelReferenceTracker(bucket.Nested(StorageSection.DataModelReferences));
 		_dataModelPersistingController = new DataModelListPersistingController(bucket.Nested(StorageSection.DataModel), _dataModelReferenceTracker, DataModel);
 		_historyValuePersistingController = new KeyListPersistingController<StateEntityNode>(bucket.Nested(StorageSection.HistoryValue), HistoryValue, options.EntityMap);
-		_internalQueuePersistingController = new EntityQueuePersistingController<IEvent>(bucket.Nested(StorageSection.InternalQueue), InternalQueue, EventCreator);
+		_internalQueuePersistingController = new EntityQueuePersistingController<IIncomingEvent>(bucket.Nested(StorageSection.InternalQueue), InternalQueue, EventCreator);
 
 		_state = bucket.Nested(StorageSection.StateBag);
 	}
@@ -105,7 +105,7 @@ public class StateMachinePersistedContext : StateMachineContext, IPersistenceCon
 
 #endregion
 
-	private static IEvent EventCreator(Bucket bucket) => new EventObject(bucket);
+	private static IIncomingEvent EventCreator(Bucket bucket) => new IncomingEvent(bucket);
 
 	protected virtual async ValueTask DisposeAsyncCore()
 	{
@@ -170,7 +170,7 @@ public class StateMachinePersistedContext : StateMachineContext, IPersistenceCon
 		_dataModelReferenceTracker = new DataModelReferenceTracker(bucket.Nested(StorageSection.DataModelReferences));
 		_dataModelPersistingController = new DataModelListPersistingController(bucket.Nested(StorageSection.DataModel), _dataModelReferenceTracker, DataModel);
 		_historyValuePersistingController = new KeyListPersistingController<StateEntityNode>(bucket.Nested(StorageSection.HistoryValue), HistoryValue, entityMap);
-		_internalQueuePersistingController = new EntityQueuePersistingController<IEvent>(bucket.Nested(StorageSection.InternalQueue), InternalQueue, EventCreator);
+		_internalQueuePersistingController = new EntityQueuePersistingController<IIncomingEvent>(bucket.Nested(StorageSection.InternalQueue), InternalQueue, EventCreator);
 		_state = bucket.Nested(StorageSection.StateBag);
 	}*/
 }

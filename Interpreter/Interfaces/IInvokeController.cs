@@ -23,5 +23,5 @@ public interface IInvokeController
 
 	ValueTask Cancel(InvokeId invokeId);
 
-	ValueTask Forward(InvokeId invokeId, IEvent evt);
+	ValueTask Forward(InvokeId invokeId, IIncomingEvent incomingEvent);
 }

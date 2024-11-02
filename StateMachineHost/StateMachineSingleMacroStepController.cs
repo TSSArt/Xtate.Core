@@ -35,11 +35,11 @@ internal sealed class StateMachineSingleMacroStepController(
 
 	private readonly CancellationTokenSource _suspendTokenSource = new();
 
-	protected override Channel<IEvent> EventChannel { get; } = new SingleItemChannel<IEvent>();
+	protected override Channel<IIncomingEvent> EventChannel { get; } = new SingleItemChannel<IIncomingEvent>();
 
-	public override async ValueTask Send(IEvent evt)
+	public override async ValueTask Send(IIncomingEvent incomingEvent)
 	{
-		await base.Send(evt).ConfigureAwait(false);
+		await base.Send(incomingEvent).ConfigureAwait(false);
 
 		var state = await _doneCompletionSource.Task.ConfigureAwait(false);
 
