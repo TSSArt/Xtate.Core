@@ -101,7 +101,7 @@ public sealed partial class StateMachineHost : IIoProcessor, IEventConsumer
 			_ => throw new ProcessorException(Resources.Exception_CannotFindTarget)
 		};
 
-	private static bool CanHandleType(Uri? type) => type is null || type == IoProcessorId || type == IoProcessorAliasId;
+	private static bool CanHandleType(FullUri? type) => type is null || type == IoProcessorId || type == IoProcessorAliasId;
 
 	private static FullUri? GetTarget(ServiceId serviceId) =>
 		serviceId switch
@@ -111,11 +111,11 @@ public sealed partial class StateMachineHost : IIoProcessor, IEventConsumer
 			_                   => default
 		};
 
-	private static string GetTargetString(Uri target) => target.IsAbsoluteUri ? target.Fragment : target.OriginalString;
+	private static string GetTargetString(FullUri target) => target.IsAbsoluteUri ? target.Fragment : target.OriginalString;
 
-	private static bool IsTargetParent(Uri target) => GetTargetString(target) == ParentTarget;
+	private static bool IsTargetParent(FullUri target) => GetTargetString(target) == ParentTarget;
 
-	private static bool IsTargetSessionId(Uri target, [NotNullWhen(true)] out SessionId? sessionId)
+	private static bool IsTargetSessionId(FullUri target, [NotNullWhen(true)] out SessionId? sessionId)
 	{
 		var value = GetTargetString(target);
 
@@ -131,7 +131,7 @@ public sealed partial class StateMachineHost : IIoProcessor, IEventConsumer
 		return false;
 	}
 
-	private static bool IsTargetInvokeId(Uri target, [NotNullWhen(true)] out InvokeId? invokeId)
+	private static bool IsTargetInvokeId(FullUri target, [NotNullWhen(true)] out InvokeId? invokeId)
 	{
 		var value = GetTargetString(target);
 

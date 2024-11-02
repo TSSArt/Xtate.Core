@@ -24,7 +24,7 @@ public class InProcEventScheduler : IEventScheduler
 {
 	private readonly ConcurrentDictionary<(ServiceId, SendId), object> _scheduledEvents = new();
 
-	public required Func<Uri?, IIoProcessor> IoProcessorFactory { private get; [UsedImplicitly] init; }
+	public required Func<FullUri?, IIoProcessor> IoProcessorFactory { private get; [UsedImplicitly] init; }
 
 	public required Func<IHostEvent, ValueTask<ScheduledEvent>> ScheduledEventFactory { private get; [UsedImplicitly] init; }
 
