@@ -22,8 +22,8 @@ namespace Xtate.Core;
 [Obsolete]
 internal class ServiceCommunication(
 	IStateMachineHost host,
-	Uri? target,
-	Uri type,
+	FullUri? target,
+	FullUri type,
 	InvokeId invokeId) : IServiceCommunication
 {
 #region Interface IServiceCommunication

@@ -42,7 +42,7 @@ public class ExternalServiceScopeProxy(
 
 #region Interface IExternalServiceDefinition
 
-	public Uri Type { get; } = invokeData.Type;
+	public FullUri Type { get; } = invokeData.Type;
 
 	public Uri? Source { get; } = invokeData.Source;
 

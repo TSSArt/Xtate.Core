@@ -23,7 +23,7 @@ public class EventController : IEventController
 
 	private const int CancelEventId = 2;
 
-	private static readonly Uri InternalTarget = new(uriString: "_internal", UriKind.Relative);
+	private static readonly FullUri InternalTarget = new(@"_internal");
 
 	public required IExternalEventCommunication ExternalEventCommunication { private get; [UsedImplicitly] init; }
 

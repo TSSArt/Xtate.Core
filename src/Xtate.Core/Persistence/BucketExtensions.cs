@@ -134,6 +134,8 @@ internal static class BucketExtensions
 
 	public static Uri? GetUri<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out Uri? value) ? value : null;
 
+	public static FullUri? GetFullUri<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out FullUri? value) ? value : null;
+
 	public static EventName GetEventName<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out string? value) ? EventName.FromString(value) : default;
 
 	public static void AddServiceId<TKey>(this in Bucket bucket, TKey key, ServiceId? serviceId) where TKey : notnull

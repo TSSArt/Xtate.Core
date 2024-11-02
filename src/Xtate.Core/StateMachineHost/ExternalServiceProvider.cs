@@ -19,9 +19,9 @@ namespace Xtate.ExternalService;
 
 public abstract class ExternalServiceProvider<TService>(string type, string? alias = default) : IExternalServiceProvider, IExternalServiceActivator where TService : IExternalService
 {
-	private readonly Uri? _aliasUri = alias is not null ? new Uri(alias, UriKind.RelativeOrAbsolute) : default;
+	private readonly FullUri? _aliasUri = alias is not null ? new FullUri(alias) : default;
 
-	private readonly Uri _typeUri = new(type, UriKind.RelativeOrAbsolute);
+	private readonly FullUri _typeUri = new(type);
 
 	public required Func<ValueTask<TService>> ServiceFactoryFunc { private get; [UsedImplicitly] init; }
 
@@ -33,8 +33,8 @@ public abstract class ExternalServiceProvider<TService>(string type, string? ali
 
 #region Interface IExternalServiceProvider
 
-	ValueTask<IExternalServiceActivator?> IExternalServiceProvider.TryGetActivator(Uri typeUri) =>
-		FullUriComparer.Instance.Equals(_typeUri, typeUri) || (_aliasUri is not null && FullUriComparer.Instance.Equals(_aliasUri, typeUri))
+	ValueTask<IExternalServiceActivator?> IExternalServiceProvider.TryGetActivator(FullUri typeUri) =>
+		typeUri == _typeUri || (typeUri is not null && typeUri == _aliasUri)
 			? new ValueTask<IExternalServiceActivator?>(this)
 			: default;
 

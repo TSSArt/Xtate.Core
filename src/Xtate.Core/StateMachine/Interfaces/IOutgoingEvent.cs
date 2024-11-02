@@ -23,9 +23,9 @@ public interface IOutgoingEvent : IEntity
 
 	EventName Name { get; }
 
-	Uri? Target { get; }
+	FullUri? Target { get; }
 
-	Uri? Type { get; }
+	FullUri? Type { get; }
 
 	int DelayMs { get; }
 

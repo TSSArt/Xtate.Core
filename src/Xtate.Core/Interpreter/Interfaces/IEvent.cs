@@ -25,9 +25,9 @@ public interface IEvent : IEntity
 
 	EventType Type { get; }
 
-	Uri? Origin { get; }
+	FullUri? Origin { get; }
 
-	Uri? OriginType { get; }
+	FullUri? OriginType { get; }
 
 	InvokeId? InvokeId { get; }
 

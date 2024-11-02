@@ -24,7 +24,7 @@ public abstract class ExternalServiceProviderBase : IExternalServiceProvider
 
 #region Interface IExternalServiceProvider
 
-	public ValueTask<IExternalServiceActivator?> TryGetActivator(Uri type)
+	public ValueTask<IExternalServiceActivator?> TryGetActivator(FullUri type)
 	{
 		_activator ??= CreateActivator();
 
@@ -46,7 +46,7 @@ public abstract class ExternalServiceProviderBase : IExternalServiceProvider
 
 	private class Catalog : IServiceCatalog
 	{
-		private readonly Dictionary<Uri, Delegate> _creators = new(FullUriComparer.Instance);
+		private readonly Dictionary<FullUri, Delegate> _creators = new();
 
 	#region Interface IServiceCatalog
 
@@ -55,7 +55,7 @@ public abstract class ExternalServiceProviderBase : IExternalServiceProvider
 			if (string.IsNullOrEmpty(type)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(type));
 			if (creator is null) throw new ArgumentNullException(nameof(creator));
 
-			_creators.Add(new Uri(type, UriKind.RelativeOrAbsolute), creator);
+			_creators.Add(new FullUri(type), creator);
 		}
 
 		public void Register(string type, IServiceCatalog.ServiceCreator creator)
@@ -63,7 +63,7 @@ public abstract class ExternalServiceProviderBase : IExternalServiceProvider
 			if (string.IsNullOrEmpty(type)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(type));
 			if (creator is null) throw new ArgumentNullException(nameof(creator));
 
-			_creators.Add(new Uri(type, UriKind.RelativeOrAbsolute), creator);
+			_creators.Add(new FullUri(type), creator);
 		}
 
 		public void Register(string type, IServiceCatalog.ServiceCreatorAsync creator)
@@ -71,12 +71,12 @@ public abstract class ExternalServiceProviderBase : IExternalServiceProvider
 			if (string.IsNullOrEmpty(type)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(type));
 			if (creator is null) throw new ArgumentNullException(nameof(creator));
 
-			_creators.Add(new Uri(type, UriKind.RelativeOrAbsolute), creator);
+			_creators.Add(new FullUri(type), creator);
 		}
 
 	#endregion
 
-		public bool CanHandle(Uri type) => _creators.ContainsKey(type);
+		public bool CanHandle(FullUri type) => _creators.ContainsKey(type);
 
 		public ValueTask<IExternalService> CreateService(Uri? baseUri,
 														 InvokeData invokeData,
@@ -120,6 +120,6 @@ public abstract class ExternalServiceProviderBase : IExternalServiceProvider
 			return default; //catalog.CreateService(baseUri, invokeData, serviceCommunication);
 		}
 
-		public bool CanHandle(Uri type) => catalog.CanHandle(type);
+		public bool CanHandle(FullUri type) => catalog.CanHandle(type);
 	}
 }

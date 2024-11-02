@@ -305,9 +305,9 @@ public class StateMachineReader
 			  {
 				  Ancestor = new EntityData(bucket),
 				  Id = bucket.GetString(Key.Id),
-				  Type = bucket.GetUri(Key.Type),
+				  Type = bucket.GetFullUri(Key.Type),
 				  EventName = bucket.GetString(Key.Event),
-				  Target = bucket.GetUri(Key.Target),
+				  Target = bucket.GetFullUri(Key.Target),
 				  DelayMs = bucket.GetInt32(Key.DelayMs),
 				  TypeExpression = RestoreValueExpression(bucket.Nested(Key.TypeExpression)),
 				  EventExpression = RestoreValueExpression(bucket.Nested(Key.EventExpression)),
@@ -415,7 +415,7 @@ public class StateMachineReader
 			  {
 				  Ancestor = new EntityData(bucket),
 				  Id = bucket.GetString(Key.Id),
-				  Type = bucket.GetUri(Key.Type),
+				  Type = bucket.GetFullUri(Key.Type),
 				  Source = bucket.GetUri(Key.Source),
 				  AutoForward = bucket.GetBoolean(Key.AutoForward),
 				  TypeExpression = RestoreValueExpression(bucket.Nested(Key.TypeExpression)),

@@ -31,7 +31,7 @@ public class ExternalServiceFactory
 		return await serviceActivator.StartService().ConfigureAwait(false);
 	}
 
-	private async ValueTask<IExternalServiceActivator> GetServiceActivator(Uri type)
+	private async ValueTask<IExternalServiceActivator> GetServiceActivator(FullUri type)
 	{
 		var serviceFactories = ServiceFactories.GetAsyncEnumerator();
 

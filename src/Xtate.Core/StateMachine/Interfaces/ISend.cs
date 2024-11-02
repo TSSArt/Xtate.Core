@@ -23,11 +23,11 @@ public interface ISend : IExecutableEntity
 
 	IValueExpression? EventExpression { get; }
 
-	Uri? Target { get; }
+	FullUri? Target { get; }
 
 	IValueExpression? TargetExpression { get; }
 
-	Uri? Type { get; }
+	FullUri? Type { get; }
 
 	IValueExpression? TypeExpression { get; }
 

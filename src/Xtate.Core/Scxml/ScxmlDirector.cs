@@ -606,9 +606,9 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 	private static void SendBuildPolicy(IPolicyBuilder<ISendBuilder> pb) =>
 		pb.OptionalAttribute(name: "event", (dr, b) => b.SetEvent(dr.AttributeValue))
 		  .OptionalAttribute(name: "eventexpr", (dr, b) => b.SetEventExpression(dr.AsValueExpression(dr.AttributeValue)))
-		  .OptionalAttribute(name: "target", (dr, b) => b.SetTarget(AsUri(dr.AttributeValue)))
+		  .OptionalAttribute(name: "target", (dr, b) => b.SetTarget(new FullUri(dr.AttributeValue)))
 		  .OptionalAttribute(name: "targetexpr", (dr, b) => b.SetTargetExpression(dr.AsValueExpression(dr.AttributeValue)))
-		  .OptionalAttribute(name: "type", (dr, b) => b.SetType(AsUri(dr.AttributeValue)))
+		  .OptionalAttribute(name: "type", (dr, b) => b.SetType(new FullUri(dr.AttributeValue)))
 		  .OptionalAttribute(name: "typeexpr", (dr, b) => b.SetTypeExpression(dr.AsValueExpression(dr.AttributeValue)))
 		  .OptionalAttribute(name: "id", (dr, b) => b.SetId(dr.AttributeValue))
 		  .OptionalAttribute(name: "idlocation", (dr, b) => b.SetIdLocation(dr.AsLocationExpression(dr.AttributeValue)))
@@ -660,7 +660,7 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 	private async ValueTask<IInvoke> ReadInvoke() => (await Populate(InvokeBuilderFactory(CreateAncestor()), InvokePolicy).ConfigureAwait(false)).Build();
 
 	private static void InvokeBuildPolicy(IPolicyBuilder<IInvokeBuilder> pb) =>
-		pb.OptionalAttribute(name: "type", (dr, b) => b.SetType(AsUri(dr.AttributeValue)))
+		pb.OptionalAttribute(name: "type", (dr, b) => b.SetType(new FullUri(dr.AttributeValue)))
 		  .OptionalAttribute(name: "typeexpr", (dr, b) => b.SetTypeExpression(dr.AsValueExpression(dr.AttributeValue)))
 		  .OptionalAttribute(name: "src", (dr, b) => b.SetSource(AsUri(dr.AttributeValue)))
 		  .OptionalAttribute(name: "srcexpr", (dr, b) => b.SetSourceExpression(dr.AsValueExpression(dr.AttributeValue)))

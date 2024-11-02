@@ -37,7 +37,7 @@ public class InvokeBuilder : BuilderBase, IInvokeBuilder
 
 	private IValueExpression? _sourceExpression;
 
-	private Uri? _type;
+	private FullUri? _type;
 
 	private IValueExpression? _typeExpression;
 
@@ -50,7 +50,7 @@ public class InvokeBuilder : BuilderBase, IInvokeBuilder
 			NameList = _nameList, AutoForward = _autoForward, Parameters = _parameters?.ToImmutable() ?? default, Finalize = _finalize, Content = _content
 		};
 
-	public void SetType(Uri type)
+	public void SetType(FullUri type)
 	{
 		Infra.Requires(type);
 

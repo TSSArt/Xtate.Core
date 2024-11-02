@@ -19,7 +19,7 @@ namespace Xtate;
 
 public interface IInvoke : IEntity
 {
-	Uri? Type { get; }
+	FullUri? Type { get; }
 
 	IValueExpression? TypeExpression { get; }
 

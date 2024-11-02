@@ -53,8 +53,8 @@ public class DefaultSendEvaluator(ISend send) : SendEvaluator(send)
 		var dataConverter = await DataConverter().ConfigureAwait(false);
 		var name = _eventExpressionEvaluator is not null ? await _eventExpressionEvaluator.EvaluateString().ConfigureAwait(false) : EventName;
 		var data = await dataConverter.GetData(_contentBodyEvaluator, _contentExpressionEvaluator, _nameEvaluatorList, _parameterList).ConfigureAwait(false);
-		var type = _typeExpressionEvaluator is not null ? ToUri(await _typeExpressionEvaluator.EvaluateString().ConfigureAwait(false)) : Type;
-		var target = _targetExpressionEvaluator is not null ? ToUri(await _targetExpressionEvaluator.EvaluateString().ConfigureAwait(false)) : Target;
+		var type = _typeExpressionEvaluator is not null ? new FullUri(await _typeExpressionEvaluator.EvaluateString().ConfigureAwait(false)) : Type;
+		var target = _targetExpressionEvaluator is not null ? new FullUri(await _targetExpressionEvaluator.EvaluateString().ConfigureAwait(false)) : Target;
 		var delayMs = _delayExpressionEvaluator is not null ? await _delayExpressionEvaluator.EvaluateInteger().ConfigureAwait(false) : DelayMs ?? 0;
 		var rawContent = _contentBodyEvaluator is IStringEvaluator rawContentEvaluator ? await rawContentEvaluator.EvaluateString().ConfigureAwait(false) : null;
 
@@ -71,6 +71,4 @@ public class DefaultSendEvaluator(ISend send) : SendEvaluator(send)
 		var eventController = await EventController().ConfigureAwait(false);
 		await eventController.Send(eventEntity).ConfigureAwait(false);
 	}
-
-	private static Uri ToUri(string uri) => new(uri, UriKind.RelativeOrAbsolute);
 }

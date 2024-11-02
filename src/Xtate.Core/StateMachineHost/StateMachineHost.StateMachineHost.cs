@@ -212,7 +212,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 
 	private StateMachineHostContext GetCurrentContext() => _context ?? throw new InvalidOperationException(Resources.Exception_IOProcessorHasNotBeenStarted);
 
-	private async ValueTask<IExternalServiceActivator> FindServiceFactoryActivator(Uri type)
+	private async ValueTask<IExternalServiceActivator> FindServiceFactoryActivator(FullUri type)
 	{
 		await foreach (var serviceFactory in ServiceFactories.ConfigureAwait(false))
 		{
@@ -309,7 +309,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 		return default;
 	}
 
-	private IIoProcessor GetIoProcessorByType(Uri? type)
+	private IIoProcessor GetIoProcessorByType(FullUri? type)
 	{
 		var ioProcessors = _ioProcessors;
 
@@ -329,7 +329,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 		throw new ProcessorException(Resources.Exception_InvalidType);
 	}
 
-	private IIoProcessor GetIoProcessorById(Uri ioProcessorsId)
+	private IIoProcessor GetIoProcessorById(FullUri ioProcessorsId)
 	{
 		var ioProcessors = _ioProcessors;
 
@@ -340,7 +340,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 
 		foreach (var ioProcessor in ioProcessors)
 		{
-			if (FullUriComparer.Instance.Equals(ioProcessor.Id, ioProcessorsId))
+			if (ioProcessor.Id == ioProcessorsId)
 			{
 				return ioProcessor;
 			}

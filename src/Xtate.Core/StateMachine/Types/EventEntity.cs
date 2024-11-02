@@ -19,9 +19,9 @@ namespace Xtate.Core;
 
 public struct EventEntity(string? value) : IOutgoingEvent
 {
-	public static readonly Uri InternalTarget = new(uriString: @"_internal", UriKind.Relative);
+	public static readonly FullUri InternalTarget = new(@"_internal");
 
-	public static readonly Uri ParentTarget = new(uriString: @"_parent", UriKind.Relative);
+	public static readonly FullUri ParentTarget = new(@"_parent");
 
 	public string? RawData { get; set; }
 
@@ -35,9 +35,9 @@ public struct EventEntity(string? value) : IOutgoingEvent
 
 	public SendId? SendId { get; set; }
 
-	public Uri? Target { get; set; }
+	public FullUri? Target { get; set; }
 
-	public Uri? Type { get; set; }
+	public FullUri? Type { get; set; }
 
 #endregion
 }

@@ -39,11 +39,11 @@ public sealed class SendNode(DocumentIdNode documentIdNode, ISend send) : Execut
 
 	public IValueExpression? EventExpression => send.EventExpression;
 
-	public Uri? Target => send.Target;
+	public FullUri? Target => send.Target;
 
 	public IValueExpression? TargetExpression => send.TargetExpression;
 
-	public Uri? Type => send.Type;
+	public FullUri? Type => send.Type;
 
 	public IValueExpression? TypeExpression => send.TypeExpression;
 

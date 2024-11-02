@@ -99,7 +99,7 @@ public class InProcEventScheduler : IEventScheduler
 
 		var ioProcessor = IoProcessorFactory(originType);
 
-		if (!FullUriComparer.Instance.Equals(ioProcessor.Id, originType))
+		if (ioProcessor.Id != originType)
 		{
 			throw new ProcessorException(Resources.Exception_InvalidType);
 		}
