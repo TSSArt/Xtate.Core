@@ -23,7 +23,7 @@ namespace Xtate;
 
 public sealed partial class StateMachineHost : IStateMachineHost
 {
-	private static readonly Uri InternalTarget = new(uriString: @"#_internal", UriKind.Relative);
+	private static readonly FullUri InternalTarget = new(@"#_internal");
 
 	private ImmutableArray<IIoProcessor> _ioProcessors;
 

@@ -146,7 +146,7 @@ public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId
 		}
 
 		var type = _typeExpressionEvaluator is not null ? new FullUri(await _typeExpressionEvaluator.EvaluateString().ConfigureAwait(false)) : _invoke.Type;
-		var source = _sourceExpressionEvaluator is not null ? new FullUri(await _sourceExpressionEvaluator.EvaluateString().ConfigureAwait(false)) : _invoke.Source;
+		var source = _sourceExpressionEvaluator is not null ? new Uri(await _sourceExpressionEvaluator.EvaluateString().ConfigureAwait(false), UriKind.RelativeOrAbsolute) : _invoke.Source;
 		var rawContent = _contentBodyEvaluator is IStringEvaluator rawContentEvaluator ? await rawContentEvaluator.EvaluateString().ConfigureAwait(false) : null;
 
 		var dataConverter = await DataConverterFactory().ConfigureAwait(false);

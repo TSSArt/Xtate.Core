@@ -64,7 +64,7 @@ public class StateMachineHostModule : Module<StateMachineInterpreterModule>
 				.For<StateMachineHostContext>()
 				.For<IStateMachineHostContext>(); //TODO: Make only interface
 
-		Services.AddSharedFactory<IoProcessorService>(SharedWithin.Container).For<IIoProcessor, Uri?>(Option.DoNotDispose);
+		Services.AddSharedFactory<IoProcessorService>(SharedWithin.Container).For<IIoProcessor, FullUri?>(Option.DoNotDispose);
 		Services.AddSharedImplementation<InProcEventScheduler>(SharedWithin.Container).For<IEventScheduler>();
 		Services.AddSharedImplementation<EventSchedulerInfoEnricher>(SharedWithin.Container).For<EventSchedulerInfoEnricher>().For<ILogEnricher<InProcEventScheduler>>();
 		Services.AddType<ScheduledEvent, IHostEvent>();

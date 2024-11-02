@@ -23,6 +23,7 @@ public class IoProcessorService
 {
 	public required ServiceList<IIoProcessor> IoProcessors { private get; [UsedImplicitly] init; }
 
+	[UsedImplicitly]
 	public IIoProcessor GetIoProcessor(FullUri? type)
 	{
 		foreach (var ioProcessor in IoProcessors)
