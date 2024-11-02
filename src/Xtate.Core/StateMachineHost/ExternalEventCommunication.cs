@@ -24,13 +24,11 @@ public class ExternalEventCommunication : IExternalEventCommunication, IDisposab
 {
 	private readonly DisposingToken _disposingToken = new();
 
-	public required Func<Uri?, IIoProcessor> IoProcessorFactory { private get; [UsedImplicitly] init; }
+	public required Func<FullUri?, IIoProcessor> IoProcessorFactory { private get; [UsedImplicitly] init; }
 
 	public required IEventScheduler EventScheduler { private get; [UsedImplicitly] init; }
 
 	public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
-
-	private SessionId SessionId => StateMachineSessionId.SessionId;
 
 #region Interface IDisposable
 
@@ -46,8 +44,6 @@ public class ExternalEventCommunication : IExternalEventCommunication, IDisposab
 
 	public async ValueTask<SendStatus> TrySend(IOutgoingEvent outgoingEvent)
 	{
-		if (outgoingEvent is null) throw new ArgumentNullException(nameof(outgoingEvent));
-
 		var ioProcessor = IoProcessorFactory(outgoingEvent.Type);
 
 		if (ioProcessor.IsInternalTarget(outgoingEvent.Target))
@@ -69,7 +65,7 @@ public class ExternalEventCommunication : IExternalEventCommunication, IDisposab
 		return SendStatus.Sent;
 	}
 
-	public ValueTask Cancel(SendId sendId) => EventScheduler.CancelEvent(SessionId, sendId, _disposingToken.Token);
+	public ValueTask Cancel(SendId sendId) => EventScheduler.CancelEvent(StateMachineSessionId.SessionId, sendId, _disposingToken.Token);
 
 #endregion
 

@@ -21,9 +21,9 @@ namespace Xtate;
 
 public class StateMachineExternalServiceProvider : IExternalServiceProvider, IExternalServiceActivator
 {
-	private static readonly Uri ServiceFactoryTypeId = new(@"http://www.w3.org/TR/scxml/");
+	private static readonly FullUri ServiceFactoryTypeId = new(@"http://www.w3.org/TR/scxml/");
 
-	private static readonly Uri ServiceFactoryAliasTypeId = new(uriString: @"scxml", UriKind.Relative);
+	private static readonly FullUri ServiceFactoryAliasTypeId = new(@"scxml");
 
 	public required IExternalServiceDefinition ExternalServiceDefinition { private get; [UsedImplicitly] init; }
 

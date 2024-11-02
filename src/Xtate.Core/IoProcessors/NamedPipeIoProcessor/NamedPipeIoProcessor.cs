@@ -228,9 +228,9 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 		}
 	}
 
-	private static string GetTargetString(Uri target) => target.IsAbsoluteUri ? target.Fragment : target.OriginalString;
+	private static string GetTargetString(FullUri target) => target.IsAbsoluteUri ? target.Fragment : target.OriginalString;
 
-	private static bool IsTargetSessionId(Uri target, [NotNullWhen(true)] out SessionId? sessionId)
+	private static bool IsTargetSessionId(FullUri target, [NotNullWhen(true)] out SessionId? sessionId)
 	{
 		var value = GetTargetString(target);
 
@@ -246,7 +246,7 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 		return false;
 	}
 
-	private static bool IsTargetInvokeId(Uri target, [NotNullWhen(true)] out InvokeId? invokeId)
+	private static bool IsTargetInvokeId(FullUri target, [NotNullWhen(true)] out InvokeId? invokeId)
 	{
 		var value = GetTargetString(target);
 
@@ -262,7 +262,7 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 		return false;
 	}
 
-	private static ServiceId GetServiceId(Uri target)
+	private static ServiceId GetServiceId(FullUri target)
 	{
 		if (IsTargetSessionId(target, out var sessionId))
 		{
