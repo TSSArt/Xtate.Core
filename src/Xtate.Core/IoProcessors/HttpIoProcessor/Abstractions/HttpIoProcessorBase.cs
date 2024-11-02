@@ -355,18 +355,18 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 			return false;
 		}
 
-		IEvent? evt;
+		IIncomingEvent? incomingEvent;
 
 		try
 		{
-			evt = await CreateEvent(context, token).ConfigureAwait(false);
+			incomingEvent = await CreateEvent(context, token).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{
-			evt = CreateErrorEvent(context, ex);
+			incomingEvent = CreateErrorEvent(context, ex);
 		}
 
-		await eventDispatcher.Send(evt).ConfigureAwait(false);
+		await eventDispatcher.Send(incomingEvent).ConfigureAwait(false);
 
 		return true;
 	}
@@ -381,7 +381,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 		return SessionId.FromString(path);
 	}
 
-	protected virtual IEvent CreateErrorEvent(TContext context, Exception exception)
+	protected virtual IIncomingEvent CreateErrorEvent(TContext context, Exception exception)
 	{
 		var requestData = new DataModelList
 						  {
@@ -411,7 +411,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 
 		exceptionData.MakeDeepConstant();
 
-		return new EventObject
+		return new IncomingEvent
 			   {
 				   Type = EventType.External,
 				   Name = EventName.GetErrorPlatform(ErrorSuffixHeader + _errorSuffix),
@@ -434,7 +434,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 
 	protected abstract string GetMethod(TContext context);
 
-	protected virtual async ValueTask<IEvent> CreateEvent(TContext context, CancellationToken token)
+	protected virtual async ValueTask<IIncomingEvent> CreateEvent(TContext context, CancellationToken token)
 	{
 		var contentType = GetHeaderValue(context, ContentTypeHeaderName) is { Length: > 0 } contentTypeStr ? new ContentType(contentTypeStr) : new ContentType();
 		var encoding = contentType.CharSet is not null ? Encoding.GetEncoding(contentType.CharSet) : Encoding.ASCII;
@@ -457,7 +457,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 
 		eventName ??= eventNameInContent ?? GetMethod(context);
 
-		return new EventObject
+		return new IncomingEvent
 			   {
 				   Type = EventType.External,
 				   Name = (EventName) eventName,

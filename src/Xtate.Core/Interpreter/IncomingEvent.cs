@@ -19,37 +19,33 @@ using Xtate.Persistence;
 
 namespace Xtate.Core;
 
-public class EventObject : IEvent, IStoreSupport, IAncestorProvider
+public class IncomingEvent : IIncomingEvent, IStoreSupport, IAncestorProvider
 {
 	private readonly DataModelValue _data;
 
 	private FullUri? _origin;
 
-	public EventObject() { }
+	public IncomingEvent() { }
 
-	protected EventObject(IEvent evt)
+	protected IncomingEvent(IIncomingEvent incomingEvent)
 	{
-		if (evt is null) throw new ArgumentNullException(nameof(evt));
-
-		SendId = evt.SendId;
-		Name = evt.Name;
-		Type = evt.Type;
-		Origin = evt.Origin;
-		OriginType = evt.OriginType;
-		InvokeId = evt.InvokeId;
-		Data = evt.Data;
+		SendId = incomingEvent.SendId;
+		Name = incomingEvent.Name;
+		Type = incomingEvent.Type;
+		Origin = incomingEvent.Origin;
+		OriginType = incomingEvent.OriginType;
+		InvokeId = incomingEvent.InvokeId;
+		Data = incomingEvent.Data;
 	}
 
-	public EventObject(IOutgoingEvent outgoingEvent)
+	public IncomingEvent(IOutgoingEvent outgoingEvent)
 	{
-		if (outgoingEvent is null) throw new ArgumentNullException(nameof(outgoingEvent));
-
 		SendId = outgoingEvent.SendId;
 		Name = outgoingEvent.Name;
 		Data = outgoingEvent.Data;
 	}
 
-	public EventObject(in Bucket bucket)
+	public IncomingEvent(in Bucket bucket)
 	{
 		ValidateTypeInfo(bucket);
 
@@ -70,7 +66,7 @@ public class EventObject : IEvent, IStoreSupport, IAncestorProvider
 
 #endregion
 
-#region Interface IEvent
+#region Interface IIncomingEvent
 
 	public FullUri? OriginType { get; init; }
 

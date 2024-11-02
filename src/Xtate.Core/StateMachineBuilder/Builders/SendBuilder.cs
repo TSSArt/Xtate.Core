@@ -55,11 +55,11 @@ public class SendBuilder : BuilderBase, ISendBuilder
 			DelayExpression = _delayExpression, NameList = _nameList, Parameters = _parameters?.ToImmutable() ?? default, Content = _content
 		};
 
-	public void SetEvent(string evt)
+	public void SetEvent(string eventName)
 	{
-		Infra.RequiresNonEmptyString(evt);
+		Infra.RequiresNonEmptyString(eventName);
 
-		_event = evt;
+		_event = eventName;
 	}
 
 	public void SetEventExpression(IValueExpression eventExpression)

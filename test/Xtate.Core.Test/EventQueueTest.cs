@@ -33,7 +33,7 @@ public class EventQueueTest
 	public async Task NonEmptyQueueTest()
 	{
 		var eventQueue = new EventQueue();
-		var eventObject = new EventObject();
+		var eventObject = new IncomingEvent();
 		await eventQueue.WriteAsync(eventObject);
 		var result = eventQueue.TryReadEvent(out var evt);
 		var result2 = eventQueue.TryReadEvent(out var evt2);

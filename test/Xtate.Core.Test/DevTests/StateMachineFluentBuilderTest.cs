@@ -114,7 +114,7 @@ public class StateMachineFluentBuilderTest
 		var eventQueueWriter = await serviceProvider.GetRequiredService<IEventQueueWriter>();
 		eventQueueWriter.Complete();
 
-		var channel = Channel.CreateUnbounded<IEvent>();
+		var channel = Channel.CreateUnbounded<IIncomingEvent>();
 		channel.Writer.Complete();
 
 		try
@@ -156,7 +156,7 @@ public class StateMachineFluentBuilderTest
 		var eventQueueWriter = await serviceProvider.GetRequiredService<IEventQueueWriter>();
 		eventQueueWriter.Complete();
 
-		var channel = Channel.CreateUnbounded<IEvent>();
+		var channel = Channel.CreateUnbounded<IIncomingEvent>();
 		channel.Writer.Complete();
 
 		await Assert.ThrowsExceptionAsync<StateMachineDestroyedException>(async () => await stateMachineInterpreter.RunAsync());
@@ -192,7 +192,7 @@ public class StateMachineFluentBuilderTest
 		var eventQueueWriter = await serviceProvider.GetRequiredService<IEventQueueWriter>();
 		eventQueueWriter.Complete();
 
-		var channel = Channel.CreateUnbounded<IEvent>();
+		var channel = Channel.CreateUnbounded<IIncomingEvent>();
 		channel.Writer.Complete();
 
 		await Assert.ThrowsExceptionAsync<StateMachineDestroyedException>(async () => await stateMachineInterpreter.RunAsync());

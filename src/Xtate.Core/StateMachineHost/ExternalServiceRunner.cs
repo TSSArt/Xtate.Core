@@ -65,13 +65,13 @@ public class ExternalServiceRunner : IExternalServiceRunner, IAsyncDisposable
 
 		try
 		{
-			var evt = CreateEventFromResult(await ExternalService.GetResult().ConfigureAwait(false));
-			await CreatorEventDispatcher.Send(evt).ConfigureAwait(false);
+			var incomingEvent = CreateEventFromResult(await ExternalService.GetResult().ConfigureAwait(false));
+			await CreatorEventDispatcher.Send(incomingEvent).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{
-			var evt = CreateEventFromException(ex);
-			await CreatorEventDispatcher.Send(evt).ConfigureAwait(false);
+			var incomingEvent = CreateEventFromException(ex);
+			await CreatorEventDispatcher.Send(incomingEvent).ConfigureAwait(false);
 		}
 		finally
 		{
@@ -79,9 +79,9 @@ public class ExternalServiceRunner : IExternalServiceRunner, IAsyncDisposable
 		}
 	}
 
-	private EventObject CreateEventFromResult(DataModelValue result) => new() { Type = EventType.External, Name = EventName.GetDoneInvokeName(_invokeId), Data = result, InvokeId = _invokeId };
+	private IncomingEvent CreateEventFromResult(DataModelValue result) => new() { Type = EventType.External, Name = EventName.GetDoneInvokeName(_invokeId), Data = result, InvokeId = _invokeId };
 
-	private EventObject CreateEventFromException(Exception ex) => new() { Type = EventType.External, Name = EventName.ErrorExecution, Data = DataConverter.FromException(ex), InvokeId = _invokeId };
+	private IncomingEvent CreateEventFromException(Exception ex) => new() { Type = EventType.External, Name = EventName.ErrorExecution, Data = DataConverter.FromException(ex), InvokeId = _invokeId };
 
 	private async ValueTask Complete() => await StateMachineHostContext.TryRemoveService(_invokeId).ConfigureAwait(false);
 }

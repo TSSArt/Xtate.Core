@@ -35,7 +35,7 @@ public class NoExternalCommunication : IExternalServiceCommunication, IExternalE
 
 	ValueTask IExternalServiceCommunication.Start(InvokeId invokeId, InvokeData invokeData) => throw StateMachineRuntimeError.NoExternalCommunication();
 
-	ValueTask IExternalServiceCommunication.Forward(InvokeId invokeId, IEvent evt) => throw StateMachineRuntimeError.NoExternalCommunication();
+	ValueTask IExternalServiceCommunication.Forward(InvokeId invokeId, IIncomingEvent incomingEvent) => throw StateMachineRuntimeError.NoExternalCommunication();
 
 	ValueTask IExternalServiceCommunication.Cancel(InvokeId invokeId) => throw StateMachineRuntimeError.NoExternalCommunication();
 

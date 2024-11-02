@@ -17,7 +17,7 @@
 
 namespace Xtate.Core;
 
-public interface IHostEvent : IEvent
+public interface IHostEvent : IIncomingEvent
 {
 	ServiceId SenderServiceId { get; }
 

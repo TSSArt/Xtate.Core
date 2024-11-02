@@ -896,9 +896,9 @@ public abstract class StateMachineVisitor
 
 	protected virtual void Build(ref RaiseEntity properties)
 	{
-		var evt = properties.OutgoingEvent;
-		VisitWrapper(ref evt);
-		properties.OutgoingEvent = evt;
+		var outgoingEvent = properties.OutgoingEvent;
+		VisitWrapper(ref outgoingEvent);
+		properties.OutgoingEvent = outgoingEvent;
 	}
 
 	protected virtual void Build(ref ScriptEntity properties)

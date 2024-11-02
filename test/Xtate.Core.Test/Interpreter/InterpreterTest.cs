@@ -46,7 +46,7 @@ public class InterpreterTest
 		var stateMachineContextMock = new Mock<IStateMachineContext>();
 		stateMachineContextMock.Setup(ctx => ctx.Configuration).Returns([]);
 		stateMachineContextMock.Setup(ctx => ctx.StatesToInvoke).Returns([]);
-		stateMachineContextMock.Setup(ctx => ctx.InternalQueue).Returns(new EntityQueue<IEvent>());
+		stateMachineContextMock.Setup(ctx => ctx.InternalQueue).Returns(new EntityQueue<IIncomingEvent>());
 
 		var loggerMock = new Mock<ILogger<IStateMachineInterpreter>>();
 

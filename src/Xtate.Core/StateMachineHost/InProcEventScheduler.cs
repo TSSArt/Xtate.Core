@@ -57,9 +57,9 @@ public class InProcEventScheduler : IEventScheduler
 
 		if (value is ImmutableHashSet<ScheduledEvent> set)
 		{
-			foreach (var evt in set)
+			foreach (var scheduledEvent in set)
 			{
-				evt.Cancel();
+				scheduledEvent.Cancel();
 			}
 		}
 		else
