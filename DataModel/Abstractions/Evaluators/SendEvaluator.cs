@@ -51,11 +51,11 @@ public abstract class SendEvaluator(ISend send) : IExecEvaluator, ISend, IAncest
 
 	public virtual ImmutableArray<IParam> Parameters => send.Parameters;
 
-	public virtual Uri? Target => send.Target;
+	public virtual FullUri? Target => send.Target;
 
 	public virtual IValueExpression? TargetExpression => send.TargetExpression;
 
-	public virtual Uri? Type => send.Type;
+	public virtual FullUri? Type => send.Type;
 
 	public virtual IValueExpression? TypeExpression => send.TypeExpression;
 

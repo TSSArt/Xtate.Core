@@ -127,13 +127,13 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 		}
 	}
 
-	protected override Uri? GetTarget(ServiceId serviceId)
+	protected override FullUri? GetTarget(ServiceId serviceId)
 	{
 		return serviceId switch
 			   {
-				   SessionId sessionId => new Uri(_baseUri, SessionIdPrefix + sessionId.Value),
-				   InvokeId invokeId   => new Uri(_baseUri, InvokeIdPrefix + invokeId.Value),
-				   UriId uriId         => new Uri(_baseUri, uriId.Uri),
+				   SessionId sessionId => new FullUri(_baseUri, SessionIdPrefix + sessionId.Value),
+				   InvokeId invokeId   => new FullUri(_baseUri, InvokeIdPrefix + invokeId.Value),
+				   UriId uriId         => new FullUri(_baseUri, uriId.Uri),
 				   _                   => default
 			   };
 	}

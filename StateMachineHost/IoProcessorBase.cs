@@ -21,7 +21,7 @@ public abstract class IoProcessorBase : IIoProcessor
 {
 	private readonly IEventConsumer _eventConsumer;
 
-	private readonly Uri? _ioProcessorAliasId;
+	private readonly FullUri? _ioProcessorAliasId;
 
 	protected IoProcessorBase(IEventConsumer eventConsumer, string ioProcessorId, string? ioProcessorAlias = default)
 	{
@@ -30,31 +30,29 @@ public abstract class IoProcessorBase : IIoProcessor
 
 		_eventConsumer = eventConsumer ?? throw new ArgumentNullException(nameof(eventConsumer));
 
-		IoProcessorId = new Uri(ioProcessorId, UriKind.RelativeOrAbsolute);
-		_ioProcessorAliasId = ioProcessorAlias is not null ? new Uri(ioProcessorAlias, UriKind.RelativeOrAbsolute) : null;
+		IoProcessorId = new FullUri(ioProcessorId);
+		_ioProcessorAliasId = ioProcessorAlias is not null ? new FullUri(ioProcessorAlias) : null;
 	}
 
-	protected Uri IoProcessorId { get; }
+	protected FullUri IoProcessorId { get; }
 
 #region Interface IIoProcessor
 
-	public virtual bool IsInternalTarget(Uri? target) => false;
+	public virtual bool IsInternalTarget(FullUri? target) => false;
 
-	Uri? IIoProcessor.GetTarget(ServiceId serviceId) => GetTarget(serviceId);
+	FullUri? IIoProcessor.GetTarget(ServiceId serviceId) => GetTarget(serviceId);
 
 	ValueTask<IHostEvent> IIoProcessor.GetHostEvent(ServiceId senderServiceId, IOutgoingEvent outgoingEvent, CancellationToken token) => CreateHostEventAsync(senderServiceId, outgoingEvent, token);
 
 	ValueTask IIoProcessor.Dispatch(IHostEvent hostEvent, CancellationToken token) => OutgoingEvent(hostEvent, token);
 
-	bool IIoProcessor.CanHandle(Uri? type) => IsTypesEquals(type, IoProcessorId) || IsTypesEquals(type, _ioProcessorAliasId);
+	bool IIoProcessor.CanHandle(FullUri? type) => type == IoProcessorId || (type is not null && type == _ioProcessorAliasId);
 
-	Uri IIoProcessor.Id => IoProcessorId;
+	FullUri IIoProcessor.Id => IoProcessorId;
 
 #endregion
 
-	private static bool IsTypesEquals(Uri? typeA, Uri? typeB) => typeA is not null && typeB is not null && FullUriComparer.Instance.Equals(typeA, typeB);
-
-	protected abstract Uri? GetTarget(ServiceId serviceId);
+	protected abstract FullUri? GetTarget(ServiceId serviceId);
 
 	protected virtual ValueTask<IHostEvent> CreateHostEventAsync(ServiceId senderServiceId, IOutgoingEvent outgoingEvent, CancellationToken token) =>
 		new(CreateHostEvent(senderServiceId, outgoingEvent));

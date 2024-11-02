@@ -171,10 +171,10 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 		return new IPEndPoint(listenAddress, uri.Port);
 	}
 
-	protected override Uri? GetTarget(ServiceId serviceId) =>
+	protected override FullUri? GetTarget(ServiceId serviceId) =>
 		serviceId switch
 		{
-			SessionId sessionId => new Uri(_baseUri, sessionId.Value),
+			SessionId sessionId => new FullUri(_baseUri, sessionId.Value),
 			_                   => default
 		};
 
@@ -446,7 +446,8 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 			body = await streamReader.ReadToEndAsync().ConfigureAwait(false);
 		}
 
-		Uri.TryCreate(GetHeaderValue(context, OriginHeaderName), UriKind.Absolute, out var origin);
+		FullUri.TryCreate(GetHeaderValue(context, OriginHeaderName), out var origin);
+		
 
 		var data = CreateData(contentType.MediaType, body, out var eventNameInContent);
 

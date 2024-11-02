@@ -30,9 +30,9 @@ public sealed partial class StateMachineHost : IIoProcessor, IEventConsumer
 
 	private static readonly Uri BaseUri = new(@"ioprocessor:///");
 
-	private static readonly Uri IoProcessorId = new(@"http://www.w3.org/TR/scxml/#SCXMLEventProcessor");
+	private static readonly FullUri IoProcessorId = new(@"http://www.w3.org/TR/scxml/#SCXMLEventProcessor");
 
-	private static readonly Uri IoProcessorAliasId = new(uriString: @"scxml", UriKind.Relative);
+	private static readonly FullUri IoProcessorAliasId = new(@"scxml");
 
 #region Interface IEventConsumer
 
@@ -48,9 +48,9 @@ public sealed partial class StateMachineHost : IIoProcessor, IEventConsumer
 
 #region Interface IIoProcessor
 
-	public bool IsInternalTarget(Uri? target) => target == InternalTarget;
+	public bool IsInternalTarget(FullUri? target) => target == InternalTarget;
 
-	Uri? IIoProcessor.GetTarget(ServiceId serviceId) => GetTarget(serviceId);
+	FullUri? IIoProcessor.GetTarget(ServiceId serviceId) => GetTarget(serviceId);
 
 	ValueTask<IHostEvent> IIoProcessor.GetHostEvent(ServiceId senderServiceId, IOutgoingEvent outgoingEvent, CancellationToken token)
 	{
@@ -85,9 +85,9 @@ public sealed partial class StateMachineHost : IIoProcessor, IEventConsumer
 		await service.Send(hostEvent).ConfigureAwait(false);
 	}
 
-	bool IIoProcessor.CanHandle(Uri? type) => CanHandleType(type);
+	bool IIoProcessor.CanHandle(FullUri? type) => CanHandleType(type);
 
-	Uri IIoProcessor.Id => IoProcessorId;
+	FullUri IIoProcessor.Id => IoProcessorId;
 
 #endregion
 
@@ -101,13 +101,13 @@ public sealed partial class StateMachineHost : IIoProcessor, IEventConsumer
 			_ => throw new ProcessorException(Resources.Exception_CannotFindTarget)
 		};
 
-	private static bool CanHandleType(Uri? type) => type is null || FullUriComparer.Instance.Equals(type, IoProcessorId) || FullUriComparer.Instance.Equals(type, IoProcessorAliasId);
+	private static bool CanHandleType(Uri? type) => type is null || type == IoProcessorId || type == IoProcessorAliasId;
 
-	private static Uri? GetTarget(ServiceId serviceId) =>
+	private static FullUri? GetTarget(ServiceId serviceId) =>
 		serviceId switch
 		{
-			SessionId sessionId => new Uri(BaseUri, SessionIdPrefix + sessionId.Value),
-			InvokeId invokeId   => new Uri(BaseUri, InvokeIdPrefix + invokeId.Value),
+			SessionId sessionId => new FullUri(BaseUri, SessionIdPrefix + sessionId.Value),
+			InvokeId invokeId   => new FullUri(BaseUri, InvokeIdPrefix + invokeId.Value),
 			_                   => default
 		};
 
