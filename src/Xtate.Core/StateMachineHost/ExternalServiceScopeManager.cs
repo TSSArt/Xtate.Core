@@ -66,7 +66,6 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 		var serviceScope = ServiceScopeFactory.CreateScope(
 			services =>
 			{
-				services.AddConstant<IParentStateMachineSessionId>(externalServiceBridge);
 				services.AddConstant<IStateMachineSessionId>(externalServiceBridge);
 				services.AddConstant<IStateMachineLocation>(externalServiceBridge);
 				services.AddConstant<ICaseSensitivity>(externalServiceBridge);
@@ -74,9 +73,8 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 				services.AddConstant<IExternalServiceType>(externalServiceBridge);
 				services.AddConstant<IExternalServiceSource>(externalServiceBridge);
 				services.AddConstant<IExternalServiceParameters>(externalServiceBridge);
+				services.AddConstant<IParentStateMachineSessionId>(externalServiceBridge);
 				services.AddConstant<IParentEventDispatcher>(externalServiceBridge);
-
-				services.AddForwarding<IEventDispatcher>(async sp => await sp.GetRequiredService<IExternalService>().ConfigureAwait(false));
 			});
 
 		var adding = scopes.TryAdd(invokeId, serviceScope);

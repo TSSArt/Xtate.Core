@@ -21,10 +21,6 @@ namespace Xtate;
 
 public class StateMachineExternalServiceProvider : IExternalServiceProvider, IExternalServiceActivator
 {
-	private static readonly FullUri ServiceFactoryTypeId = new(@"http://www.w3.org/TR/scxml/");
-
-	private static readonly FullUri ServiceFactoryAliasTypeId = new(@"scxml");
-
 	public required IExternalServiceSource ExternalServiceSource { private get; [UsedImplicitly] init; }
 
 	public required IExternalServiceParameters ExternalServiceParameters { private get; [UsedImplicitly] init; }
@@ -60,5 +56,5 @@ public class StateMachineExternalServiceProvider : IExternalServiceProvider, IEx
 
 #endregion
 
-	private static bool CanHandle(FullUri type) => type == ServiceFactoryTypeId || type == ServiceFactoryAliasTypeId;
+	private static bool CanHandle(FullUri type) => type == Const.ScxmlServiceTypeId || type == Const.ScxmlServiceAliasTypeId;
 }
