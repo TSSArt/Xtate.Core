@@ -387,8 +387,8 @@
   <data name="Exception_AssertionFailed" xml:space="preserve">
     <value>Assertion failed.</value>
   </data>
-  <data name="Exception_ExternalCommunicationDoesNotConfiguredForStateMachineInterpreter" xml:space="preserve">
-    <value>External communication does not configured for state machine interpreter.</value>
+  <data name="Exception_ExternalConnectionsDoesNotConfiguredForStateMachineInterpreter" xml:space="preserve">
+    <value>External connections does not configured for state machine interpreter.</value>
   </data>
   <data name="ErrorMessage_CantFindDataModelHandlerFactoryForDataModelType" xml:space="preserve">
     <value>Can't find DataModelHandlerFactory for DataModel type '{0}'.</value>
@@ -518,7 +518,7 @@
     <value>Type, SendId, DelayMs can't be specified for this event.</value>
   </data>
   <data name="Exception_InvalidType" xml:space="preserve">
-    <value>Invalid type.</value>
+    <value>Invalid type [{0}].</value>
   </data>
   <data name="Exception_AnotherAsynchronousOperationInProgress" xml:space="preserve">
     <value>Another asynchronous operation in progress.</value>
@@ -806,8 +806,8 @@
   <data name="Exception_KeyShouldNotBeEmpty" xml:space="preserve">
     <value>Key should not be empty</value>
   </data>
-  <data name="Exception_OriginTypeMustBeProvidedInIoProcessorEvent" xml:space="preserve">
-    <value>OriginType must be provided in ioProcessorEvent.</value>
+  <data name="Exception_OriginTypeMustBeProvidedInRouterEvent" xml:space="preserve">
+    <value>OriginType must be provided in RouterEvent.</value>
   </data>
   <data name="Exception_ThisExceptionShouldNeverHappen" xml:space="preserve">
     <value>This exception should never happen.</value>
@@ -960,5 +960,23 @@ Exception: {3}</value>
   </data>
   <data name="Exception_FailedToParseInlineContent" xml:space="preserve">
 	  <value>Failed to parse inline content.</value>
+  </data>
+  <data name="Exception_MoreThanOneExternalServicesExecutingWithSameInvokeId" xml:space="preserve">
+	  <value>More than one external services executing with same InvokeId.</value>
+  </data>
+  <data name="Exception_ExternalServiceWithSameInvokeIdAlreadyRegistered" xml:space="preserve">
+	  <value>External Service with same InvokeId already registered.</value>
+  </data>
+  <data name="Exception_ExternalServiceWithProvidedInvokeIdDoesNotExists" xml:space="preserve">
+	  <value>External Service with provided InvokeId does not exists.</value>
+  </data>
+  <data name="Exception_NotSupportedEvent" xml:space="preserve">
+	  <value>Not supported event. Type: [{0}]. Target: [{1}].</value>
+  </data>
+  <data name="Exception_EventsForExternalServicesCantBeDelayed" xml:space="preserve">
+	  <value>Events for external services can't be delayed</value>
+  </data>
+  <data name="Exception_EventsFromExternalServicesCantBeDelayed" xml:space="preserve">
+	  <value>Events from external services can't be delayed</value>
   </data>
 </root>

@@ -27,16 +27,13 @@ public abstract class ExternalServiceProvider<TService>(string type, string? ali
 
 #region Interface IExternalServiceActivator
 
-	async ValueTask<IExternalService> IExternalServiceActivator.StartService() => await ServiceFactoryFunc().ConfigureAwait(false);
+	async ValueTask<IExternalService> IExternalServiceActivator.Create() => await ServiceFactoryFunc().ConfigureAwait(false);
 
 #endregion
 
 #region Interface IExternalServiceProvider
 
-	ValueTask<IExternalServiceActivator?> IExternalServiceProvider.TryGetActivator(FullUri typeUri) =>
-		typeUri == _typeUri || (typeUri is not null && typeUri == _aliasUri)
-			? new ValueTask<IExternalServiceActivator?>(this)
-			: default;
+	IExternalServiceActivator? IExternalServiceProvider.TryGetActivator(FullUri typeUri) => typeUri == _typeUri || (typeUri is not null && typeUri == _aliasUri) ? this : default;
 
 #endregion
 }

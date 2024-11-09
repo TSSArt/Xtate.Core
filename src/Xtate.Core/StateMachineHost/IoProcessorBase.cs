@@ -17,7 +17,7 @@
 
 namespace Xtate.IoProcessor;
 
-public abstract class IoProcessorBase : IIoProcessor
+public abstract class IoProcessorBase : IIoProcessor, IEventRouter
 {
 	private readonly IEventConsumer _eventConsumer;
 
@@ -34,19 +34,25 @@ public abstract class IoProcessorBase : IIoProcessor
 		_ioProcessorAliasId = ioProcessorAlias is not null ? new FullUri(ioProcessorAlias) : null;
 	}
 
+	public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
+
 	protected FullUri IoProcessorId { get; }
 
-#region Interface IIoProcessor
+#region Interface IEventRouter
 
 	public virtual bool IsInternalTarget(FullUri? target) => false;
 
+	ValueTask<IRouterEvent> IEventRouter.GetRouterEvent(IOutgoingEvent outgoingEvent) => CreateRouterEventAsync(outgoingEvent);
+
+	ValueTask IEventRouter.Dispatch(IRouterEvent routerEvent) => OutgoingEvent(routerEvent);
+
+	bool IEventRouter.CanHandle(FullUri? type) => type == IoProcessorId || (type is not null && type == _ioProcessorAliasId);
+
+#endregion
+
+#region Interface IIoProcessor
+
 	FullUri? IIoProcessor.GetTarget(ServiceId serviceId) => GetTarget(serviceId);
-
-	ValueTask<IHostEvent> IIoProcessor.GetHostEvent(ServiceId senderServiceId, IOutgoingEvent outgoingEvent, CancellationToken token) => CreateHostEventAsync(senderServiceId, outgoingEvent, token);
-
-	ValueTask IIoProcessor.Dispatch(IHostEvent hostEvent, CancellationToken token) => OutgoingEvent(hostEvent, token);
-
-	bool IIoProcessor.CanHandle(FullUri? type) => type == IoProcessorId || (type is not null && type == _ioProcessorAliasId);
 
 	FullUri IIoProcessor.Id => IoProcessorId;
 
@@ -54,13 +60,16 @@ public abstract class IoProcessorBase : IIoProcessor
 
 	protected abstract FullUri? GetTarget(ServiceId serviceId);
 
-	protected virtual ValueTask<IHostEvent> CreateHostEventAsync(ServiceId senderServiceId, IOutgoingEvent outgoingEvent, CancellationToken token) =>
-		new(CreateHostEvent(senderServiceId, outgoingEvent));
+	protected virtual ValueTask<IRouterEvent> CreateRouterEventAsync(IOutgoingEvent outgoingEvent) => new(CreateRouterEvent(outgoingEvent));
 
-	protected virtual IHostEvent CreateHostEvent(ServiceId senderServiceId, IOutgoingEvent outgoingEvent) =>
-		new HostEvent(this, senderServiceId, outgoingEvent.Target is { } target ? UriId.FromUri(target) : null, outgoingEvent);
+	protected virtual IRouterEvent CreateRouterEvent(IOutgoingEvent outgoingEvent)
+	{
+		var sessionId = StateMachineSessionId.SessionId;
 
-	protected abstract ValueTask OutgoingEvent(IHostEvent hostEvent, CancellationToken token);
+		return new RouterEvent(sessionId, outgoingEvent.Target is { } target ? UriId.FromUri(target) : null, IoProcessorId, GetTarget(sessionId), outgoingEvent);
+	}
+
+	protected abstract ValueTask OutgoingEvent(IRouterEvent routerEvent);
 
 	protected ValueTask<IEventDispatcher?> TryGetEventDispatcher(SessionId sessionId, CancellationToken token) => _eventConsumer.TryGetEventDispatcher(sessionId, token);
 }

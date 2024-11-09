@@ -75,7 +75,7 @@ internal enum Key
 
 	HistoryType,
 
-	HostEventData,
+	RouterEventData,
 
 	Id,
 
@@ -145,6 +145,8 @@ internal enum Key
 
 	Sender,
 
+	SenderServiceId,
+
 	SendId,
 
 	SendIdExpression,
@@ -172,6 +174,10 @@ internal enum Key
 	InvokeUniqueId,
 
 	Target,
+
+	TargetType,
+
+	TargetServiceId,
 
 	TargetExpression,
 

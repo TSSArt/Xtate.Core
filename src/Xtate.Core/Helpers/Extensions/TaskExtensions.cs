@@ -90,6 +90,31 @@ internal static class TaskExtensions
 		}
 	}
 
+	/// <summary>
+	///     Do not wait ValueTask for completion if it is not completed. Result of execution ignored.
+	/// </summary>
+	/// <param name="valueTask">Instance of ValueTask</param>
+	public static void Forget(this ValueTask valueTask)
+	{
+		if (valueTask.IsCompleted)
+		{
+			valueTask.GetAwaiter().GetResult();
+		}
+	}
+
+	/// <summary>
+	///     Do not wait ValueTask for completion if it is not completed. Result of execution ignored.
+	/// </summary>
+	/// <typeparam name="T">Type result</typeparam>
+	/// <param name="valueTask">Instance of ValueTask</param>
+	public static void Forget<T>(this ValueTask<T> valueTask)
+	{
+		if (valueTask.IsCompleted)
+		{
+			valueTask.GetAwaiter().GetResult();
+		}
+	}
+
 #if !NET6_0_OR_GREATER
 	public static Task WaitAsync(this Task task, CancellationToken token)
 	{
@@ -138,17 +163,4 @@ internal static class TaskExtensions
 	}
 
 #endif
-
-	/// <summary>
-	///     Do not wait ValueTask for completion if it is not completed. Result of execution ignored.
-	/// </summary>
-	/// <param name="valueTask">Instance of ValueTask</param>
-	public static void Forget(this ValueTask valueTask) => valueTask.Preserve();
-
-	/// <summary>
-	///     Do not wait ValueTask for completion if it is not completed. Result of execution ignored.
-	/// </summary>
-	/// <typeparam name="T">Type result</typeparam>
-	/// <param name="valueTask">Instance of ValueTask</param>
-	public static void Forget<T>(this ValueTask<T> valueTask) => valueTask.Preserve();
 }

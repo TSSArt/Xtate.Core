@@ -19,25 +19,25 @@ using Xtate.DataModel;
 
 namespace Xtate.Core;
 
-public class NoExternalCommunication : IExternalServiceCommunication, IExternalEventCommunication
+public class NoExternalConnections : IExternalServiceManager, IExternalCommunication
 {
 	public required StateMachineRuntimeError StateMachineRuntimeError { private get; [UsedImplicitly] init; }
 
-#region Interface IExternalEventCommunication
+#region Interface IExternalCommunication
 
-	ValueTask<SendStatus> IExternalEventCommunication.TrySend(IOutgoingEvent outgoingEvent) => throw StateMachineRuntimeError.NoExternalCommunication();
+	ValueTask<SendStatus> IExternalCommunication.TrySend(IOutgoingEvent outgoingEvent) => throw StateMachineRuntimeError.NoExternalConnections();
 
-	ValueTask IExternalEventCommunication.Cancel(SendId sendId) => throw StateMachineRuntimeError.NoExternalCommunication();
+	ValueTask IExternalCommunication.Cancel(SendId sendId) => throw StateMachineRuntimeError.NoExternalConnections();
 
 #endregion
 
-#region Interface IExternalServiceCommunication
+#region Interface IExternalServiceManager
 
-	ValueTask IExternalServiceCommunication.Start(InvokeId invokeId, InvokeData invokeData) => throw StateMachineRuntimeError.NoExternalCommunication();
+	ValueTask IExternalServiceManager.Start(InvokeId invokeId, InvokeData invokeData) => throw StateMachineRuntimeError.NoExternalConnections();
 
-	ValueTask IExternalServiceCommunication.Forward(InvokeId invokeId, IIncomingEvent incomingEvent) => throw StateMachineRuntimeError.NoExternalCommunication();
+	ValueTask IExternalServiceManager.Forward(InvokeId invokeId, IIncomingEvent incomingEvent) => throw StateMachineRuntimeError.NoExternalConnections();
 
-	ValueTask IExternalServiceCommunication.Cancel(InvokeId invokeId) => throw StateMachineRuntimeError.NoExternalCommunication();
+	ValueTask IExternalServiceManager.Cancel(InvokeId invokeId) => throw StateMachineRuntimeError.NoExternalConnections();
 
 #endregion
 }

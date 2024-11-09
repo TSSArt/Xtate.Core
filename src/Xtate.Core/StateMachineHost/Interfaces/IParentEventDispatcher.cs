@@ -17,7 +17,4 @@
 
 namespace Xtate.Core;
 
-public interface IStateMachineInvokeId
-{
-	InvokeId InvokeId { get; }
-}
+public interface IParentEventDispatcher : IEventDispatcher;

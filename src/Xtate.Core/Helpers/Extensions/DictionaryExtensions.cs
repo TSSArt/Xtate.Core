@@ -17,13 +17,28 @@
 
 namespace Xtate.Core;
 
-public interface IHostEvent : IIncomingEvent
+public static class DictionaryExtensions
 {
-	ServiceId SenderServiceId { get; }
+	public static bool Remove<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, KeyValuePair<TKey, TValue> pair) => ((ICollection<KeyValuePair<TKey, TValue>>) dictionary).Remove(pair);
 
-	ServiceId? TargetServiceId { get; }
+#if !NETCOREAPP2_0 && !NETCOREAPP2_1_OR_GREATER && !NETSTANDARD2_1
 
-	DataModelList? IoProcessorData { get; }
+	public static bool TryAdd<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, TValue value)
+	{
+		if (!dictionary.ContainsKey(key) is var result)
+		{
+			dictionary.Add(key, value);
+		}
 
-	int DelayMs { get; }
+		return result;
+	}
+
+	public static bool Remove<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, out TValue value)
+	{
+		dictionary.TryGetValue(key, out value);
+
+		return dictionary.Remove(key);
+	}
+
+#endif
 }

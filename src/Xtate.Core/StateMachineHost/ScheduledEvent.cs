@@ -19,11 +19,11 @@ using Xtate.Persistence;
 
 namespace Xtate.Core;
 
-public class ScheduledEvent : HostEvent
+public class ScheduledEvent : RouterEvent
 {
 	private readonly CancellationTokenSource _cancellationTokenSource = new();
 
-	public ScheduledEvent(IHostEvent hostEvent) : base(hostEvent) { }
+	public ScheduledEvent(IRouterEvent routerEvent) : base(routerEvent) { }
 
 	protected ScheduledEvent(in Bucket bucket) : base(in bucket) { }
 
@@ -31,7 +31,7 @@ public class ScheduledEvent : HostEvent
 
 	public void Cancel() => _cancellationTokenSource.Cancel();
 
-	public virtual ValueTask Dispose(CancellationToken token)
+	public virtual ValueTask Dispose()
 	{
 		_cancellationTokenSource.Dispose();
 

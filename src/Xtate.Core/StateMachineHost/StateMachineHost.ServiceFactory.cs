@@ -27,20 +27,20 @@ public sealed partial class StateMachineHost : IExternalServiceProvider, IExtern
 
 #region Interface IExternalServiceActivator
 
-	public ValueTask<IExternalService> StartService() => throw new NotImplementedException();
+	public ValueTask<IExternalService> Create() => throw new NotImplementedException();
 
 #endregion
 
 #region Interface IExternalServiceProvider
 
-	ValueTask<IExternalServiceActivator?> IExternalServiceProvider.TryGetActivator(FullUri type) => new(CanHandle(type) ? this : null);
+	IExternalServiceActivator? IExternalServiceProvider.TryGetActivator(FullUri type) => CanHandle(type) ? this : null;
 
 #endregion
 
 	private static bool CanHandle(FullUri type) => type == ServiceFactoryTypeId || type == ServiceFactoryAliasTypeId;
 	/*
 	[Obsolete]
-	async ValueTask<IExternalService> IExternalServiceActivator.StartService(Uri? baseUri,
+	async ValueTask<IExternalService> IExternalServiceActivator.Create(Uri? baseUri,
 																			 InvokeData invokeData,
 																			 IServiceCommunication serviceCommunication)
 	{

@@ -17,7 +17,11 @@
 
 namespace Xtate.ExternalService;
 
-public interface IExternalServiceProvider
+public interface IExternalServiceSource
 {
-	IExternalServiceActivator? TryGetActivator(FullUri type);
+	Uri? Source { get; }
+
+	string? RawContent { get; }
+
+	DataModelValue Content { get; }
 }

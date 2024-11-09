@@ -21,10 +21,6 @@ namespace Xtate.Scxml;
 
 public class ScxmlSerializerWriter(XmlWriter writer) : StateMachineVisitor
 {
-	private const string ScxmlNs = "http://www.w3.org/2005/07/scxml";
-
-	private const string XtateScxmlNs = "http://xtate.net/scxml";
-
 	private const string Space = " ";
 
 	public void Serialize(IStateMachine stateMachine) => Visit(ref stateMachine);
@@ -33,7 +29,7 @@ public class ScxmlSerializerWriter(XmlWriter writer) : StateMachineVisitor
 	{
 		Infra.NotNull(entity);
 
-		writer.WriteStartElement(prefix: "", localName: "scxml", ScxmlNs);
+		writer.WriteStartElement(prefix: "", localName: "scxml", Const.ScxmlNs);
 		writer.WriteAttributeString(localName: "version", value: @"1.0");
 
 		if (entity.DataModelType is { } dataModelType)
@@ -71,22 +67,22 @@ public class ScxmlSerializerWriter(XmlWriter writer) : StateMachineVisitor
 	{
 		if (options.PersistenceLevel is { } persistenceLevel)
 		{
-			writer.WriteAttributeString(localName: "persistence", XtateScxmlNs, persistenceLevel.ToString());
+			writer.WriteAttributeString(localName: "persistence", Const.XtateScxmlNs, persistenceLevel.ToString());
 		}
 
 		if (options.SynchronousEventProcessing is { } synchronousEventProcessing)
 		{
-			writer.WriteAttributeString(localName: "synchronous", XtateScxmlNs, XmlConvert.ToString(synchronousEventProcessing));
+			writer.WriteAttributeString(localName: "synchronous", Const.XtateScxmlNs, XmlConvert.ToString(synchronousEventProcessing));
 		}
 
 		if (options.ExternalQueueSize is { } externalQueueSize)
 		{
-			writer.WriteAttributeString(localName: "queueSize", XtateScxmlNs, XmlConvert.ToString(externalQueueSize));
+			writer.WriteAttributeString(localName: "queueSize", Const.XtateScxmlNs, XmlConvert.ToString(externalQueueSize));
 		}
 
 		if (options.UnhandledErrorBehaviour is { } unhandledErrorBehaviour)
 		{
-			writer.WriteAttributeString(localName: "onError", XtateScxmlNs, unhandledErrorBehaviour.ToString());
+			writer.WriteAttributeString(localName: "onError", Const.XtateScxmlNs, unhandledErrorBehaviour.ToString());
 		}
 	}
 

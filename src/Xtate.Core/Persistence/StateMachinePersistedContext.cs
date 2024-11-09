@@ -59,7 +59,7 @@ public class StateMachinePersistedContext : StateMachineContext, IPersistenceCon
 
 										//ILoggerOld logger,
 										//ILoggerContext loggerContext,
-										IExternalServiceCommunication? externalCommunication)
+										IExternalServiceManager? externalCommunication)
 	{
 		_storage = storage;
 		var bucket = new Bucket(storage);

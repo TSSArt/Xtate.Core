@@ -24,12 +24,8 @@ public static class ConcurrentDictionaryExtensions
 {
 #if !NET5_0_OR_GREATER
 
-	public static bool TryRemove<TKey, TValue>(this ConcurrentDictionary<TKey, TValue> concurrentDictionary, KeyValuePair<TKey, TValue> pair)
-	{
-		Infra.Requires(concurrentDictionary);
-
-		return ((ICollection<KeyValuePair<TKey, TValue>>) concurrentDictionary).Remove(pair);
-	}
+	public static bool TryRemove<TKey, TValue>(this ConcurrentDictionary<TKey, TValue> concurrentDictionary, KeyValuePair<TKey, TValue> pair) =>
+		((ICollection<KeyValuePair<TKey, TValue>>) concurrentDictionary).Remove(pair);
 
 #endif
 

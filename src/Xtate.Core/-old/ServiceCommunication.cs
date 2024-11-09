@@ -35,7 +35,7 @@ internal class ServiceCommunication(
 			throw new ProcessorException(Resources.Exception_TypeSendIdDelayMsCantBeSpecifiedForThisEvent);
 		}
 
-		if (outgoingEvent.Target != EventEntity.ParentTarget && outgoingEvent.Target is not null)
+		if (outgoingEvent.Target != Const.ParentTarget && outgoingEvent.Target is not null)
 		{
 			throw new ProcessorException(Resources.Exception_TargetShouldBeEqualToParentOrNull);
 		}

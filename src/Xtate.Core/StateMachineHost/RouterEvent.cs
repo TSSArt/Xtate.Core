@@ -15,42 +15,42 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.IoProcessor;
 using Xtate.Persistence;
 
 namespace Xtate.Core;
 
-public class HostEvent : IncomingEvent, IHostEvent
+public class RouterEvent : IncomingEvent, IRouterEvent
 {
-	private readonly IIoProcessor? _ioProcessor;
-
-	public HostEvent(IIoProcessor ioProcessor,
-					 ServiceId senderServiceId,
+	public RouterEvent(ServiceId senderServiceId,
 					 ServiceId? targetServiceId,
+					 FullUri? originType,
+					 FullUri? origin,
 					 IOutgoingEvent outgoingEvent) : base(outgoingEvent)
 	{
-		if (outgoingEvent is null) throw new ArgumentNullException(nameof(outgoingEvent));
-
-		_ioProcessor = ioProcessor ?? throw new ArgumentNullException(nameof(ioProcessor));
-		SenderServiceId = senderServiceId ?? throw new ArgumentNullException(nameof(senderServiceId));
+		SenderServiceId = senderServiceId;
 		TargetServiceId = targetServiceId;
+		OriginType = originType;
+		Origin = origin;
 		Type = EventType.External;
 		DelayMs = outgoingEvent.DelayMs;
+		TargetType = outgoingEvent.Type;
+		Target = outgoingEvent.Target;
 		InvokeId = senderServiceId as InvokeId;
-		OriginType = ioProcessor.Id;
 	}
 
-	protected HostEvent(IHostEvent hostEvent) : base(hostEvent)
+	protected RouterEvent(IRouterEvent routerEvent) : base(routerEvent)
 	{
-		SenderServiceId = hostEvent.SenderServiceId;
-		TargetServiceId = hostEvent.TargetServiceId;
-		IoProcessorData = hostEvent.IoProcessorData;
-		DelayMs = hostEvent.DelayMs;
+		SenderServiceId = routerEvent.SenderServiceId;
+		TargetServiceId = routerEvent.TargetServiceId;
+		IoProcessorData = routerEvent.IoProcessorData;
+		TargetType = routerEvent.TargetType;
+		Target = routerEvent.Target;
+		DelayMs = routerEvent.DelayMs;
 	}
 
-	protected HostEvent(in Bucket bucket) : base(bucket)
+	protected RouterEvent(in Bucket bucket) : base(bucket)
 	{
-		if (bucket.TryGetServiceId(Key.Sender, out var senderServiceId))
+		if (bucket.TryGetServiceId(Key.SenderServiceId, out var senderServiceId))
 		{
 			SenderServiceId = senderServiceId;
 		}
@@ -59,12 +59,12 @@ public class HostEvent : IncomingEvent, IHostEvent
 			Infra.Fail();
 		}
 
-		if (bucket.TryGetServiceId(Key.Target, out var targetServiceId))
+		if (bucket.TryGetServiceId(Key.TargetServiceId, out var targetServiceId))
 		{
 			TargetServiceId = targetServiceId;
 		}
 
-		if (bucket.GetDataModelValue(Key.HostEventData) is { Type: DataModelValueType.List } ioProcessorData)
+		if (bucket.GetDataModelValue(Key.RouterEventData) is { Type: DataModelValueType.List } ioProcessorData)
 		{
 			IoProcessorData = ioProcessorData.AsList();
 		}
@@ -73,11 +73,21 @@ public class HostEvent : IncomingEvent, IHostEvent
 		{
 			DelayMs = delayMs;
 		}
+
+		if (bucket.TryGet(Key.TargetType, out FullUri targetType))
+		{
+			TargetType = targetType;
+		}
+
+		if (bucket.TryGet(Key.Target, out FullUri target))
+		{
+			Target = target;
+		}
 	}
 
-	protected override TypeInfo TypeInfo => TypeInfo.HostEvent;
+	protected override TypeInfo TypeInfo => TypeInfo.RouterEvent;
 
-#region Interface IHostEvent
+#region Interface IRouterEvent
 
 	public int DelayMs { get; protected init; }
 
@@ -87,29 +97,41 @@ public class HostEvent : IncomingEvent, IHostEvent
 
 	public DataModelList? IoProcessorData { get; }
 
+	public FullUri? TargetType { get; }
+
+	public FullUri? Target { get; }
+
 #endregion
 
 	public override void Store(Bucket bucket)
 	{
 		base.Store(bucket);
 
-		bucket.AddServiceId(Key.Sender, SenderServiceId);
+		bucket.AddServiceId(Key.SenderServiceId, SenderServiceId);
 
 		if (TargetServiceId is not null)
 		{
-			bucket.AddServiceId(Key.Target, TargetServiceId);
+			bucket.AddServiceId(Key.TargetServiceId, TargetServiceId);
 		}
 
 		if (IoProcessorData is not null)
 		{
-			bucket.AddDataModelValue(Key.HostEventData, IoProcessorData);
+			bucket.AddDataModelValue(Key.RouterEventData, IoProcessorData);
 		}
 
 		if (DelayMs > 0)
 		{
 			bucket.Add(Key.DelayMs, DelayMs);
 		}
-	}
 
-	protected override FullUri? CreateOrigin() => _ioProcessor?.GetTarget(SenderServiceId);
+		if (TargetType is not null)
+		{
+			bucket.Add(Key.TargetType, TargetType);
+		}
+
+		if (Target is not null)
+		{
+			bucket.Add(Key.TargetType, Target);
+		}
+	}
 }

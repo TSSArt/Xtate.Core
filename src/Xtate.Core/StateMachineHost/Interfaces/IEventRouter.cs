@@ -15,9 +15,15 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.ExternalService;
+namespace Xtate.IoProcessor;
 
-public interface IExternalServiceProvider
+public interface IEventRouter
 {
-	IExternalServiceActivator? TryGetActivator(FullUri type);
+	bool CanHandle(FullUri? type);
+
+	bool IsInternalTarget(FullUri? target);
+
+	ValueTask<IRouterEvent> GetRouterEvent(IOutgoingEvent outgoingEvent);
+
+	ValueTask Dispatch(IRouterEvent routerEvent);
 }

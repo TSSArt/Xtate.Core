@@ -19,5 +19,5 @@ namespace Xtate.IoProcessor;
 
 public interface IIoProcessorFactory
 {
-	ValueTask<IIoProcessor> Create(IEventConsumer eventConsumer, CancellationToken token);
+	ValueTask<IEventRouter> Create(IEventConsumer eventConsumer, CancellationToken token);
 }

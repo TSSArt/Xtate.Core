@@ -23,11 +23,9 @@ public class IncomingEvent : IIncomingEvent, IStoreSupport, IAncestorProvider
 {
 	private readonly DataModelValue _data;
 
-	private FullUri? _origin;
-
 	public IncomingEvent() { }
 
-	protected IncomingEvent(IIncomingEvent incomingEvent)
+	public IncomingEvent(IIncomingEvent incomingEvent)
 	{
 		SendId = incomingEvent.SendId;
 		Name = incomingEvent.Name;
@@ -84,11 +82,7 @@ public class IncomingEvent : IIncomingEvent, IStoreSupport, IAncestorProvider
 		init => _data = value.AsConstant();
 	}
 
-	public FullUri? Origin
-	{
-		get => _origin ??= CreateOrigin();
-		init => _origin = value;
-	}
+	public FullUri? Origin { get; init; }
 
 #endregion
 
@@ -115,6 +109,4 @@ public class IncomingEvent : IIncomingEvent, IStoreSupport, IAncestorProvider
 			throw new ArgumentException(Resources.Exception_InvalidTypeInfoValue);
 		}
 	}
-
-	protected virtual FullUri? CreateOrigin() => default;
 }

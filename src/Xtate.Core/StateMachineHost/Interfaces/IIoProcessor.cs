@@ -21,13 +21,5 @@ public interface IIoProcessor
 {
 	FullUri Id { get; }
 
-	bool CanHandle(FullUri? type);
-
-	bool IsInternalTarget(FullUri? target);
-
 	FullUri? GetTarget(ServiceId serviceId);
-
-	ValueTask<IHostEvent> GetHostEvent(ServiceId senderServiceId, IOutgoingEvent outgoingEvent, CancellationToken token);
-
-	ValueTask Dispatch(IHostEvent hostEvent, CancellationToken token);
 }

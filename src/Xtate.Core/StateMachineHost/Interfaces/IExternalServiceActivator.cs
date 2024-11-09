@@ -19,5 +19,5 @@ namespace Xtate.ExternalService;
 
 public interface IExternalServiceActivator
 {
-	ValueTask<IExternalService> StartService();
+	ValueTask<IExternalService> Create();
 }

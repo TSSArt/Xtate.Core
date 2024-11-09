@@ -34,8 +34,8 @@ internal sealed class PersistedEventSchedulerFactory : IEventSchedulerFactory
 	{
 		var persistedEventScheduler = new PersistedEventScheduler(_storageProvider, hostEventDispatcher, logger!)
 									  {
-										  Logger = null, ScheduledEventFactory = null, EventSchedulerInfoEnricher = null,
-										  IoProcessorFactory = null
+										  Logger = null, EventSchedulerInfoEnricher = null,
+										  StateMachineSessionId = null, EventRouters = null
 									  };
 
 		await persistedEventScheduler.Initialize(token).ConfigureAwait(false);

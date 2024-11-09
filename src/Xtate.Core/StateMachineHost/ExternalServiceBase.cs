@@ -25,21 +25,23 @@ public abstract class ExternalServiceBase : IExternalService
 
 	protected ExternalServiceBase() => _executionAsyncInit = AsyncInit.Run(this, es => es.ExecuteWithCancellation());
 
-	public required IExternalServiceDefinition ExternalServiceDefinition { private get; [UsedImplicitly] init; }
+	public required IExternalServiceSource ExternalServiceSource { private get; [UsedImplicitly] init; }
 
-	protected Uri? Source => ExternalServiceDefinition.Source;
+	public required IExternalServiceParameters ExternalServiceParameters { private get; [UsedImplicitly] init; }
 
-	protected string? RawContent => ExternalServiceDefinition.RawContent;
+	protected Uri? Source => ExternalServiceSource.Source;
 
-	protected DataModelValue Content => ExternalServiceDefinition.Content;
+	protected string? RawContent => ExternalServiceSource.RawContent;
 
-	protected DataModelValue Parameters => ExternalServiceDefinition.Parameters;
+	protected DataModelValue Content => ExternalServiceSource.Content;
+
+	protected DataModelValue Parameters => ExternalServiceParameters.Parameters;
 
 	protected CancellationToken DestroyToken => _destroyTokenSource.Token;
 
 #region Interface IEventDispatcher
 
-	ValueTask IEventDispatcher.Send(IIncomingEvent incomingEvent) => default;
+	ValueTask IEventDispatcher.Dispatch(IIncomingEvent incomingEvent) => default;
 
 #endregion
 

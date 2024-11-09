@@ -37,9 +37,9 @@ internal sealed class StateMachineSingleMacroStepController(
 
 	protected override Channel<IIncomingEvent> EventChannel { get; } = new SingleItemChannel<IIncomingEvent>();
 
-	public override async ValueTask Send(IIncomingEvent incomingEvent)
+	public override async ValueTask Dispatch(IIncomingEvent incomingEvent)
 	{
-		await base.Send(incomingEvent).ConfigureAwait(false);
+		await base.Dispatch(incomingEvent).ConfigureAwait(false);
 
 		var state = await _doneCompletionSource.Task.ConfigureAwait(false);
 
