@@ -17,10 +17,7 @@
 
 namespace Xtate.ExternalService;
 
-public interface IExternalService : IEventDispatcher
+public interface IExternalService
 {
 	ValueTask<DataModelValue> GetResult();
-
-	[Obsolete]
-	ValueTask Destroy();
 }

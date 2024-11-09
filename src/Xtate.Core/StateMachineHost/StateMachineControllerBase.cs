@@ -86,15 +86,6 @@ public abstract class StateMachineControllerBase : IStateMachineController, INot
 
 	public ValueTask<DataModelValue> GetResult() => new(_completedTcs.Task);
 
-	ValueTask IExternalService.Destroy()
-	{
-		TriggerDestroySignal();
-
-		//TODO: Wait StateMachine destroyed
-
-		return default;
-	}
-
 #endregion
 
 #region Interface INotifyStateChanged
