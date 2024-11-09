@@ -19,71 +19,49 @@ using System.Collections.Concurrent;
 
 namespace Xtate.Core;
 
-public class MiniDictionary<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValue>>
+public class MiniDictionary<TKey, TValue>(IEqualityComparer<TKey>? equalityComparer = default) : IEnumerable<KeyValuePair<TKey, TValue>> where TKey : notnull
 {
+	private const int ConcurrencyLevel = 1;
+
+	private const int InitialCapacity = 1;
+
 	private ConcurrentDictionary<TKey, TValue>? _dictionary;
 
-	private readonly IEqualityComparer<TKey>? _equalityComparer;
-
-	public MiniDictionary() :this(default) { }
-
-	public MiniDictionary(IEqualityComparer<TKey> equalityComparer) => _equalityComparer = equalityComparer;
-
-	public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => ((IEnumerable<KeyValuePair<TKey, TValue>>)_dictionary ?? Array.Empty<KeyValuePair<TKey, TValue>>()).GetEnumerator();
+#region Interface IEnumerable
 
 	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-	public bool TryAdd(TKey key, TValue value)
-	{
-		if (_dictionary is not { } dictionary)
-		{
-			dictionary = InitDictionary();
-		}
+#endregion
 
-		return dictionary.TryAdd(key, value);
+#region Interface IEnumerable<KeyValuePair<TKey,TValue>>
+
+	public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => ((IEnumerable<KeyValuePair<TKey, TValue>>?) _dictionary ?? Array.Empty<KeyValuePair<TKey, TValue>>()).GetEnumerator();
+
+#endregion
+
+	public bool TryAdd(TKey key, TValue value) => (_dictionary ?? InitDictionary()).TryAdd(key, value);
+
+	public bool TryRemove(TKey key, [MaybeNullWhen(false)] out TValue value)
+	{
+		value = default;
+
+		return _dictionary?.TryRemove(key, out value) ?? false;
+	}
+
+	public bool Remove(TKey key, TValue value) => _dictionary?.TryRemove(new KeyValuePair<TKey, TValue>(key, value)) ?? false;
+
+	public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
+	{
+		value = default;
+
+		return _dictionary?.TryGetValue(key, out value) ?? false;
 	}
 
 	private ConcurrentDictionary<TKey, TValue> InitDictionary()
 	{
 		lock (this)
 		{
-			return _dictionary ??= new ConcurrentDictionary<TKey, TValue>(_equalityComparer!);
+			return _dictionary ??= new ConcurrentDictionary<TKey, TValue>(ConcurrencyLevel, InitialCapacity, equalityComparer!);
 		}
-	}
-
-	public bool TryRemove(TKey key, [MaybeNullWhen(false)]out TValue value)
-	{
-		if (_dictionary is not { } dictionary)
-		{
-			value = default;
-
-			return false;
-		}
-
-		return dictionary.TryRemove(key, out value);
-	}
-
-	public bool Remove(TKey key, TValue value)
-	{
-		if (_dictionary is not { } dictionary)
-		{
-			value = default;
-
-			return false;
-		}
-
-		return dictionary.TryRemove(new KeyValuePair<TKey, TValue>(key, value));
-	}
-
-	public bool TryGetValue(TKey key, out TValue value)
-	{
-		if (_dictionary is not { } dictionary)
-		{
-			value = default;
-
-			return false;
-		}
-
-		return dictionary.TryGetValue(key, out value);
 	}
 }
