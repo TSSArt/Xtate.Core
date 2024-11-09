@@ -47,5 +47,5 @@ public class EventDispatcher : IEventDispatcher, IAsyncInitialization
 	private async ValueTask<IEventDispatcher> GetEventDispatcher() =>
 		ExternalServiceInvokeId is null
 			? await EventQueueWriterFactory().ConfigureAwait(false) as IEventDispatcher
-			: await ExternalServiceFactory().ConfigureAwait(false);
+			: await ExternalServiceFactory().ConfigureAwait(false) as IEventDispatcher;
 }
