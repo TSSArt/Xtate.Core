@@ -17,7 +17,7 @@
 
 namespace Xtate.Core;
 
-public interface IExternalServiceCommunication
+public interface IExternalServiceManager
 {
 	ValueTask Start(InvokeId invokeId, InvokeData invokeData);
 

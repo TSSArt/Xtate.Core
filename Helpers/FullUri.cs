@@ -73,7 +73,7 @@ public class FullUri : Uri, IEquatable<FullUri>
 	///     Serves as the default hash function.
 	/// </summary>
 	/// <returns>A hash code for the current <see cref="FullUri" />.</returns>
-	public override int GetHashCode() => HashCode.Combine(this, FragmentSafe);
+	public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), FragmentSafe);
 
 	/// <summary>
 	///     Determines whether two specified instances of <see cref="FullUri" /> are equal.

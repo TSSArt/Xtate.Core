@@ -233,7 +233,7 @@ public class StateMachineReader
 		return value is not null ? (EventDescriptor) value : null;
 	}
 
-	private static IOutgoingEvent RestoreEvent(Bucket bucket) => new EventEntity(bucket.GetString(Key.Id)) { Target = EventEntity.InternalTarget };
+	private static IOutgoingEvent RestoreEvent(Bucket bucket) => new EventEntity(bucket.GetString(Key.Id)) { Target = Const.InternalTarget };
 
 	private IExecutableEntity RestoreExecutableEntity(Bucket bucket)
 	{

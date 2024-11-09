@@ -23,9 +23,7 @@ namespace Xtate;
 
 public sealed partial class StateMachineHost : IStateMachineHost
 {
-	private static readonly FullUri InternalTarget = new(@"#_internal");
-
-	private ImmutableArray<IIoProcessor> _ioProcessors;
+	private ImmutableArray<IEventRouter> _ioProcessors;
 
 	public required DataConverter _dataConverter { private get; [UsedImplicitly] init; }
 
@@ -36,18 +34,18 @@ public sealed partial class StateMachineHost : IStateMachineHost
 
 #region Interface IHostEventDispatcher
 
-	public async ValueTask DispatchEvent(IHostEvent hostEvent, CancellationToken token)
+	public async ValueTask DispatchEvent(IRouterEvent routerEvent, CancellationToken token)
 	{
-		if (hostEvent is null) throw new ArgumentNullException(nameof(hostEvent));
+		if (routerEvent is null) throw new ArgumentNullException(nameof(routerEvent));
 
-		if (hostEvent.OriginType is not { } originType)
+		if (routerEvent.OriginType is not { } originType)
 		{
-			throw new PlatformException(Resources.Exception_OriginTypeMustBeProvidedInIoProcessorEvent);
+			throw new PlatformException(Resources.Exception_OriginTypeMustBeProvidedInRouterEvent);
 		}
 
 		var ioProcessor = GetIoProcessorById(originType);
 
-		await ioProcessor.Dispatch(hostEvent, token).ConfigureAwait(false);
+		await ioProcessor.Dispatch(routerEvent).ConfigureAwait(false);
 	}
 
 #endregion
@@ -64,27 +62,27 @@ public sealed partial class StateMachineHost : IStateMachineHost
 
 		if (ioProcessor == this)
 		{
-			if (outgoingEvent.Target == InternalTarget)
+			if (outgoingEvent.Target == Const.ScxmlIoProcessorInternalTarget)
 			{
 				return SendStatus.ToInternalQueue;
 			}
 		}
 
-		var ioProcessorEvent = await ioProcessor.GetHostEvent(senderServiceId, outgoingEvent, token).ConfigureAwait(false);
+		var routerEvent = await ioProcessor.GetRouterEvent(outgoingEvent).ConfigureAwait(false);
 
 		if (outgoingEvent.DelayMs > 0)
 		{
-			await context.ScheduleEvent(ioProcessorEvent, token).ConfigureAwait(false);
+			await context.ScheduleEvent(routerEvent, token).ConfigureAwait(false);
 
 			return SendStatus.Scheduled;
 		}
 
-		await ioProcessor.Dispatch(ioProcessorEvent, token).ConfigureAwait(false);
+		await ioProcessor.Dispatch(routerEvent).ConfigureAwait(false);
 
 		return SendStatus.Sent;
 	}
 
-	ImmutableArray<IIoProcessor> IStateMachineHost.GetIoProcessors() => !_ioProcessors.IsDefault ? _ioProcessors : [];
+	ImmutableArray<IEventRouter> IStateMachineHost.GetIoProcessors() => !_ioProcessors.IsDefault ? _ioProcessors : [];
 
 	async ValueTask IStateMachineHost.StartInvoke(SessionId sessionId,
 												  Uri? location,
@@ -105,7 +103,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 			//var loggerContext = new StartInvokeLoggerContext(sessionId, data.Type, data.Source);
 
 			var activator = await FindServiceFactoryActivator(data.Type).ConfigureAwait(false);
-			var serviceCommunication = new ServiceCommunication(this, GetTarget(sessionId), IoProcessorId, invokeId);
+			var serviceCommunication = new ServiceCommunication(this, GetTarget(sessionId), Const.ScxmlIoProcessorId, invokeId);
 			IExternalService invokedService = null; //await activator.StartService(location, data, serviceCommunication).ConfigureAwait(false);
 
 			await context.AddService(sessionId, invokeId, invokedService, token).ConfigureAwait(false);
@@ -127,18 +125,18 @@ public sealed partial class StateMachineHost : IStateMachineHost
 
 					var name = EventName.GetDoneInvokeName(invokeId);
 					var incomingEvent = new IncomingEvent { Type = EventType.External, Name = name, Data = result, InvokeId = invokeId };
-					await service.Send(incomingEvent).ConfigureAwait(false);
+					await service.Dispatch(incomingEvent).ConfigureAwait(false);
 				}
 				catch (Exception ex)
 				{
 					var incomingEvent = new IncomingEvent
-							  {
-								  Type = EventType.External,
-								  Name = EventName.ErrorExecution,
-								  Data = dataConverter.FromException(ex),
-								  InvokeId = invokeId
-							  };
-					await service.Send(incomingEvent).ConfigureAwait(false);
+										{
+											Type = EventType.External,
+											Name = EventName.ErrorExecution,
+											Data = dataConverter.FromException(ex),
+											InvokeId = invokeId
+										};
+					await service.Dispatch(incomingEvent).ConfigureAwait(false);
 				}
 				finally
 				{
@@ -190,7 +188,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 			throw new ProcessorException(Resources.Exception_InvalidInvokeId);
 		}
 
-		return service?.Send(incomingEvent) ?? default;
+		return service?.Dispatch(incomingEvent) ?? default;
 	}
 
 #endregion
@@ -216,13 +214,13 @@ public sealed partial class StateMachineHost : IStateMachineHost
 	{
 		await foreach (var serviceFactory in ServiceFactories.ConfigureAwait(false))
 		{
-			if (await serviceFactory.TryGetActivator(type).ConfigureAwait(false) is { } activator)
+			if (serviceFactory.TryGetActivator(type) is { } activator)
 			{
 				return activator;
 			}
 		}
 
-		throw new ProcessorException(Resources.Exception_InvalidType);
+		throw new ProcessorException(Res.Format(Resources.Exception_InvalidType, type));
 	}
 	/*
 	private void StateMachineHostInit()
@@ -250,7 +248,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 		var factories = await _ioProcessorFactories.ToImmutableArrayAsync().ConfigureAwait(false);
 		var length = !factories.IsDefault ? factories.Length + 1 : 1;
 
-		var ioProcessors = ImmutableArray.CreateBuilder<IIoProcessor>(length);
+		var ioProcessors = ImmutableArray.CreateBuilder<IEventRouter>(length);
 
 		ioProcessors.Add(this);
 
@@ -309,7 +307,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 		return default;
 	}
 
-	private IIoProcessor GetIoProcessorByType(FullUri? type)
+	private IEventRouter GetIoProcessorByType(FullUri? type)
 	{
 		var ioProcessors = _ioProcessors;
 
@@ -326,10 +324,10 @@ public sealed partial class StateMachineHost : IStateMachineHost
 			}
 		}
 
-		throw new ProcessorException(Resources.Exception_InvalidType);
+		throw new ProcessorException(Res.Format(Resources.Exception_InvalidType, type));
 	}
 
-	private IIoProcessor GetIoProcessorById(FullUri ioProcessorsId)
+	private IEventRouter GetIoProcessorById(FullUri ioProcessorsId)
 	{
 		var ioProcessors = _ioProcessors;
 
@@ -340,13 +338,13 @@ public sealed partial class StateMachineHost : IStateMachineHost
 
 		foreach (var ioProcessor in ioProcessors)
 		{
-			if (ioProcessor.Id == ioProcessorsId)
+			//if (ioProcessor.Id == ioProcessorsId)//TODO:
 			{
 				return ioProcessor;
 			}
 		}
 
-		throw new ProcessorException(Resources.Exception_InvalidType);
+		throw new ProcessorException(Res.Format(Resources.Exception_InvalidType, ioProcessorsId));
 	}
 
 	private class StartInvokeLoggerContext(SessionId sessionId, Uri type, Uri? source) : IStartInvokeLoggerContext

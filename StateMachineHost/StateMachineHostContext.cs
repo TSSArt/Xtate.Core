@@ -176,10 +176,10 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 		_eventScheduler = await eventSchedulerFactory.CreateEventScheduler( /*_stateMachineHost*/ hostEventDispatcher: null, _options.EsLogger, token: default).ConfigureAwait(false);
 	}
 
-	public ValueTask ScheduleEvent(IHostEvent hostEvent, CancellationToken token) =>
+	public ValueTask ScheduleEvent(IRouterEvent routerEvent, CancellationToken token) =>
 
 		//Infra.NotNull(_eventScheduler);
-		//return _eventScheduler.ScheduleEvent(hostEvent, token);
+		//return _eventScheduler.ScheduleEvent(routerEvent, token);
 		//TODO:
 		default;
 

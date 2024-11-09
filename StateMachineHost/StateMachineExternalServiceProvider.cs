@@ -25,7 +25,9 @@ public class StateMachineExternalServiceProvider : IExternalServiceProvider, IEx
 
 	private static readonly FullUri ServiceFactoryAliasTypeId = new(@"scxml");
 
-	public required IExternalServiceDefinition ExternalServiceDefinition { private get; [UsedImplicitly] init; }
+	public required IExternalServiceSource ExternalServiceSource { private get; [UsedImplicitly] init; }
+
+	public required IExternalServiceParameters ExternalServiceParameters { private get; [UsedImplicitly] init; }
 
 	public required IStateMachineLocation StateMachineLocation { private get; [UsedImplicitly] init; }
 
@@ -33,14 +35,13 @@ public class StateMachineExternalServiceProvider : IExternalServiceProvider, IEx
 
 #region Interface IExternalServiceActivator
 
-	public async ValueTask<IExternalService> StartService()
+	public async ValueTask<IExternalService> Create()
 	{
-		Infra.Assert(CanHandle(ExternalServiceDefinition.Type));
-
 		var sessionId = SessionId.New();
-		var scxml = ExternalServiceDefinition.RawContent ?? ExternalServiceDefinition.Content.AsStringOrDefault();
-		var parameters = ExternalServiceDefinition.Parameters;
-		var source = ExternalServiceDefinition.Source;
+		var scxml = ExternalServiceSource.RawContent ?? ExternalServiceSource.Content.AsStringOrDefault();
+		var source = ExternalServiceSource.Source;
+
+		var parameters = ExternalServiceParameters.Parameters;
 
 		Infra.Assert(scxml is not null || source is not null);
 
@@ -55,7 +56,7 @@ public class StateMachineExternalServiceProvider : IExternalServiceProvider, IEx
 
 #region Interface IExternalServiceProvider
 
-	ValueTask<IExternalServiceActivator?> IExternalServiceProvider.TryGetActivator(FullUri type) => new(CanHandle(type) ? this : null);
+	IExternalServiceActivator? IExternalServiceProvider.TryGetActivator(FullUri type) => CanHandle(type) ? this : null;
 
 #endregion
 

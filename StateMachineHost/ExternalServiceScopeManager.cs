@@ -20,59 +20,146 @@ using Xtate.IoC;
 
 namespace Xtate.ExternalService;
 
-public class ExternalServiceScopeManager : IExternalServiceScopeManager
+public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDisposable, IAsyncDisposable
 {
-	public required Func<InvokeId, InvokeData, ValueTask<ExternalServiceScopeProxy>> ServiceScopeProxyFactory { private get; [UsedImplicitly] init; }
+	private MiniDictionary<InvokeId, IServiceScope> _scopes = new(InvokeId.InvokeUniqueIdComparer);
+
+	public required Func<InvokeId, InvokeData, ValueTask<ExternalServiceBridge>> ExternalServiceBridgeFactory { private get; [UsedImplicitly] init; }
 
 	public required IServiceScopeFactory ServiceScopeFactory { private get; [UsedImplicitly] init; }
 
 	public required Func<SecurityContextType, SecurityContextRegistration> SecurityContextRegistrationFactory { private get; [UsedImplicitly] init; }
 
+	public required ExternalServiceEventRouter ExternalServiceEventRouter { private get; [UsedImplicitly] init; }
+
+#region Interface IAsyncDisposable
+
+	public async ValueTask DisposeAsync()
+	{
+		await DisposeAsyncCore().ConfigureAwait(false);
+		GC.SuppressFinalize(this);
+	}
+
+#endregion
+
+#region Interface IDisposable
+
+	public void Dispose()
+	{
+		Dispose(true);
+		GC.SuppressFinalize(this);
+	}
+
+#endregion
+
 #region Interface IExternalServiceScopeManager
 
-	public async ValueTask StartService(InvokeId invokeId, InvokeData invokeData)
+	public virtual async ValueTask Start(InvokeId invokeId, InvokeData invokeData)
 	{
-		var serviceScopeProxy = await ServiceScopeProxyFactory(invokeId, invokeData).ConfigureAwait(false);
+		var scopes = _scopes;
+		Infra.EnsureNotDisposed(scopes is not null, this);
+
+		var externalServiceBridge = await ExternalServiceBridgeFactory(invokeId, invokeData).ConfigureAwait(false);
 
 		await using var registration = SecurityContextRegistrationFactory(SecurityContextType.InvokedService).ConfigureAwait(false);
 
 		var serviceScope = ServiceScopeFactory.CreateScope(
 			services =>
 			{
-				services.AddConstant<IStateMachineInvokeId>(serviceScopeProxy);
-				services.AddConstant<IExternalServiceDefinition>(serviceScopeProxy);
-				services.AddConstant<IEventDispatcher>(serviceScopeProxy);
-				services.AddConstant<IStateMachineSessionId>(serviceScopeProxy);
-				services.AddConstant<IStateMachineLocation>(serviceScopeProxy);
-				services.AddConstant<ICaseSensitivity>(serviceScopeProxy);
+				services.AddConstant<IParentStateMachineSessionId>(externalServiceBridge);
+				services.AddConstant<IStateMachineSessionId>(externalServiceBridge);
+				services.AddConstant<IStateMachineLocation>(externalServiceBridge);
+				services.AddConstant<ICaseSensitivity>(externalServiceBridge);
+				services.AddConstant<IExternalServiceInvokeId>(externalServiceBridge);
+				services.AddConstant<IExternalServiceType>(externalServiceBridge);
+				services.AddConstant<IExternalServiceSource>(externalServiceBridge);
+				services.AddConstant<IExternalServiceParameters>(externalServiceBridge);
+				services.AddConstant<IParentEventDispatcher>(externalServiceBridge);
+
+				services.AddForwarding<IEventDispatcher>(async sp => await sp.GetRequiredService<IExternalService>().ConfigureAwait(false));
 			});
+
+		var adding = scopes.TryAdd(invokeId, serviceScope);
+		Infra.Assert(adding, Resources.Exception_MoreThanOneExternalServicesExecutingWithSameInvokeId);
 
 		IExternalServiceRunner? runner = default;
 
 		try
 		{
 			runner = await serviceScope.ServiceProvider.GetRequiredService<IExternalServiceRunner>().ConfigureAwait(false);
-		}
-		finally
-		{
-			DisposeScopeOnComplete(runner, serviceScope).Forget();
-		}
-	}
 
-#endregion
-
-	private static async ValueTask DisposeScopeOnComplete(IExternalServiceRunner? runner, IServiceScope scope)
-	{
-		try
-		{
-			if (runner is not null)
+			if (await serviceScope.ServiceProvider.GetService<IEventDispatcher>().ConfigureAwait(false) is { } eventDispatcher)
 			{
-				await runner.WaitForCompletion().ConfigureAwait(false);
+				externalServiceBridge.EventDispatcher = eventDispatcher;
+				ExternalServiceEventRouter.Subscribe(invokeId, externalServiceBridge.IncomingEventHandler);
 			}
 		}
 		finally
 		{
-			await scope.DisposeAsync().ConfigureAwait(false);
+			if (runner is null)
+			{
+				await Cleanup(invokeId, externalServiceBridge).ConfigureAwait(false);
+			}
+			else
+			{
+				WaitAndCleanup(invokeId, runner, externalServiceBridge).Forget();
+			}
+		}
+	}
+
+	public virtual ValueTask Cancel(InvokeId invokeId) => _scopes?.TryRemove(invokeId, out var serviceScope) == true ? serviceScope.DisposeAsync() : default;
+
+#endregion
+
+	private async ValueTask WaitAndCleanup(InvokeId invokeId, IExternalServiceRunner externalServiceRunner, ExternalServiceBridge externalServiceBridge)
+	{
+		try
+		{
+			await externalServiceRunner.WaitForCompletion().ConfigureAwait(false);
+		}
+		finally
+		{
+			await Cleanup(invokeId, externalServiceBridge).ConfigureAwait(false);
+		}
+	}
+
+	private async ValueTask Cleanup(InvokeId invokeId, ExternalServiceBridge externalServiceBridge)
+	{
+		if (externalServiceBridge.EventDispatcher is not null)
+		{
+			ExternalServiceEventRouter.Unsubscribe(invokeId, externalServiceBridge.IncomingEventHandler);
+			externalServiceBridge.EventDispatcher = default;
+		}
+
+		if (_scopes?.TryRemove(invokeId, out var serviceScope) == true)
+		{
+			await serviceScope.DisposeAsync().ConfigureAwait(false);
+		}
+	}
+
+	protected virtual void Dispose(bool disposing)
+	{
+		if (disposing && _scopes is { } scopes)
+		{
+			_scopes = default;
+
+			foreach (var pair in scopes)
+			{
+				pair.Value.Dispose();
+			}
+		}
+	}
+
+	protected virtual async ValueTask DisposeAsyncCore()
+	{
+		if (_scopes is { } scopes)
+		{
+			_scopes = default;
+
+			foreach (var pair in scopes)
+			{
+				await pair.Value.DisposeAsync().ConfigureAwait(false);
+			}
 		}
 	}
 }

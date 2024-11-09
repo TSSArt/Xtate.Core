@@ -15,17 +15,19 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.ExternalService;
+namespace Xtate.Core;
 
-public interface IExternalServiceDefinition
+public interface IRouterEvent : IIncomingEvent
 {
-	FullUri Type { get; }
+	ServiceId SenderServiceId { get; }
 
-	Uri? Source { get; }
+	ServiceId? TargetServiceId { get; }
 
-	string? RawContent { get; }
+	DataModelList? IoProcessorData { get; }
 
-	DataModelValue Content { get; }
+	int DelayMs { get; }
 
-	DataModelValue Parameters { get; }
+	FullUri? TargetType { get; }
+
+	FullUri? Target { get; }
 }

@@ -15,56 +15,53 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.Collections.Concurrent;
 using Xtate.IoProcessor;
 
 namespace Xtate.Core;
 
-public class InProcEventScheduler : IEventScheduler
+public class InProcEventScheduler : IEventScheduler, IDisposable
 {
-	private readonly ConcurrentDictionary<(ServiceId, SendId), object> _scheduledEvents = new();
+	private readonly MiniDictionary<ScheduledEvent, SendId?> _scheduledEvents = new();
 
-	public required Func<FullUri?, IIoProcessor> IoProcessorFactory { private get; [UsedImplicitly] init; }
-
-	public required Func<IHostEvent, ValueTask<ScheduledEvent>> ScheduledEventFactory { private get; [UsedImplicitly] init; }
+	public required ServiceList<IEventRouter> EventRouters { private get; [UsedImplicitly] init; }
 
 	public required EventSchedulerInfoEnricher EventSchedulerInfoEnricher { private get; [UsedImplicitly] init; }
 
 	public required ILogger<InProcEventScheduler> Logger { private get; [UsedImplicitly] init; }
 
+	public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
+
+#region Interface IDisposable
+
+	public void Dispose()
+	{
+		Dispose(true);
+		GC.SuppressFinalize(this);
+	}
+
+#endregion
+
 #region Interface IEventScheduler
 
-	public async ValueTask ScheduleEvent(IHostEvent hostEvent, CancellationToken token)
+	public ValueTask ScheduleEvent(IRouterEvent routerEvent)
 	{
-		if (hostEvent.SenderServiceId is SessionId sessionId)
-		{
-			EventSchedulerInfoEnricher.SetSessionId(sessionId);
-		}
-
-		var scheduledEvent = await ScheduledEventFactory(hostEvent).ConfigureAwait(false);
+		var scheduledEvent = new ScheduledEvent(routerEvent);
 
 		AddScheduledEvent(scheduledEvent);
 
 		DelayedFire(scheduledEvent).Forget();
+
+		return default;
 	}
 
-	public ValueTask CancelEvent(ServiceId senderServiceId, SendId sendId, CancellationToken token)
+	public ValueTask CancelEvent(SendId sendId)
 	{
-		if (!_scheduledEvents.TryRemove((senderServiceId, sendId), out var value))
+		foreach (var pair in _scheduledEvents)
 		{
-			return default;
-		}
-
-		if (value is ImmutableHashSet<ScheduledEvent> set)
-		{
-			foreach (var scheduledEvent in set)
+			if (pair.Value == sendId && _scheduledEvents.TryRemove(pair.Key, out _))
 			{
-				scheduledEvent.Cancel();
+				pair.Key.Cancel();
 			}
-		}
-		else
-		{
-			((ScheduledEvent) value).Cancel();
 		}
 
 		return default;
@@ -72,43 +69,56 @@ public class InProcEventScheduler : IEventScheduler
 
 #endregion
 
-	private void AddScheduledEvent(ScheduledEvent scheduledEvent)
+	protected virtual void Dispose(bool disposing)
 	{
-		if (scheduledEvent.SendId is { } sendId)
+		if (disposing)
 		{
-			_scheduledEvents.AddOrUpdate((scheduledEvent.SenderServiceId, sendId), static (_, e) => e, Update, scheduledEvent);
-		}
-
-		static object Update((ServiceId, SendId) key, object prev, ScheduledEvent arg)
-		{
-			if (prev is not ImmutableHashSet<ScheduledEvent> set)
+			foreach (var pair in _scheduledEvents)
 			{
-				set = ImmutableHashSet<ScheduledEvent>.Empty.Add((ScheduledEvent) prev);
+				if (_scheduledEvents.TryRemove(pair.Key, out _))
+				{
+					pair.Key.Cancel();
+				}
 			}
-
-			return set.Add(arg);
 		}
 	}
 
-	private async ValueTask DispatchEvent(IHostEvent hostEvent)
+	private void AddScheduledEvent(ScheduledEvent scheduledEvent)
 	{
-		if (hostEvent.OriginType is not { } originType)
+		var tryAdd = _scheduledEvents.TryAdd(scheduledEvent, scheduledEvent.SendId);
+
+		Infra.Assert(tryAdd);
+	}
+
+	private IEventRouter GetEventRouter(FullUri? type)
+	{
+		foreach (var eventRouter in EventRouters)
 		{
-			throw new PlatformException(Resources.Exception_OriginTypeMustBeProvidedInIoProcessorEvent);
+			if (eventRouter.CanHandle(type))
+			{
+				return eventRouter;
+			}
 		}
 
-		var ioProcessor = IoProcessorFactory(originType);
+		throw new ProcessorException(Res.Format(Resources.Exception_InvalidType, type));
+	}
 
-		if (ioProcessor.Id != originType)
+	private async ValueTask DispatchEvent(IRouterEvent routerEvent)
+	{
+		if (routerEvent.OriginType is not { } originType)
 		{
-			throw new ProcessorException(Resources.Exception_InvalidType);
+			throw new PlatformException(Resources.Exception_OriginTypeMustBeProvidedInRouterEvent);
 		}
 
-		await ioProcessor.Dispatch(hostEvent, token: default).ConfigureAwait(false);
+		var eventRouter = GetEventRouter(originType);
+
+		await eventRouter.Dispatch(routerEvent).ConfigureAwait(false);
 	}
 
 	private async ValueTask DelayedFire(ScheduledEvent scheduledEvent)
 	{
+		EventSchedulerInfoEnricher.SetSessionId(StateMachineSessionId.SessionId);
+
 		try
 		{
 			await Task.Delay(scheduledEvent.DelayMs, scheduledEvent.CancellationToken).ConfigureAwait(false);
@@ -128,45 +138,9 @@ public class InProcEventScheduler : IEventScheduler
 		}
 		finally
 		{
-			RemoveScheduledEvent(scheduledEvent);
-			await scheduledEvent.Dispose(token: default).ConfigureAwait(false);
-		}
-	}
+			_scheduledEvents.TryRemove(scheduledEvent, out _);
 
-	private void RemoveScheduledEvent(ScheduledEvent scheduledEvent)
-	{
-		if (scheduledEvent.SendId is not { } sendId)
-		{
-			return;
-		}
-
-		var serviceId = scheduledEvent.SenderServiceId;
-		var exit = false;
-
-		while (!exit && _scheduledEvents.TryGetValue((serviceId, sendId), out var value))
-		{
-			var newValue = RemoveFromValue(value, scheduledEvent);
-
-			exit = newValue is null
-				? _scheduledEvents.TryRemove(new KeyValuePair<(ServiceId, SendId), object>((serviceId, sendId), value))
-				: ReferenceEquals(value, newValue) || _scheduledEvents.TryUpdate((serviceId, sendId), value, newValue);
-		}
-
-		static object? RemoveFromValue(object value, ScheduledEvent scheduledEvent)
-		{
-			if (ReferenceEquals(value, scheduledEvent))
-			{
-				return null;
-			}
-
-			if (value is not ImmutableHashSet<ScheduledEvent> set)
-			{
-				return value;
-			}
-
-			var newSet = set.Remove(scheduledEvent);
-
-			return newSet.Count > 0 ? newSet : null;
+			await scheduledEvent.Dispose().ConfigureAwait(false);
 		}
 	}
 }

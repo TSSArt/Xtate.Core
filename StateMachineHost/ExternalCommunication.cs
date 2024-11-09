@@ -20,60 +20,51 @@ using Xtate.IoProcessor;
 
 namespace Xtate.Core;
 
-public class ExternalEventCommunication : IExternalEventCommunication, IDisposable
+public class ExternalCommunication : IExternalCommunication
 {
-	private readonly DisposingToken _disposingToken = new();
-
-	public required Func<FullUri?, IIoProcessor> IoProcessorFactory { private get; [UsedImplicitly] init; }
+	public required ServiceList<IEventRouter> EventRouters { private get; [UsedImplicitly] init; }
 
 	public required IEventScheduler EventScheduler { private get; [UsedImplicitly] init; }
 
-	public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
-
-#region Interface IDisposable
-
-	public void Dispose()
-	{
-		Dispose(true);
-		GC.SuppressFinalize(this);
-	}
-
-#endregion
-
-#region Interface IExternalEventCommunication
+#region Interface IExternalCommunication
 
 	public async ValueTask<SendStatus> TrySend(IOutgoingEvent outgoingEvent)
 	{
-		var ioProcessor = IoProcessorFactory(outgoingEvent.Type);
+		var eventRouter = GetEventRouter(outgoingEvent.Type);
 
-		if (ioProcessor.IsInternalTarget(outgoingEvent.Target))
+		if (eventRouter.IsInternalTarget(outgoingEvent.Target))
 		{
 			return SendStatus.ToInternalQueue;
 		}
 
-		var ioProcessorEvent = await ioProcessor.GetHostEvent(StateMachineSessionId.SessionId, outgoingEvent, _disposingToken.Token).ConfigureAwait(false);
+		var routerEvent = await eventRouter.GetRouterEvent(outgoingEvent).ConfigureAwait(false);
 
 		if (outgoingEvent.DelayMs > 0)
 		{
-			await EventScheduler.ScheduleEvent(ioProcessorEvent, _disposingToken.Token).ConfigureAwait(false);
+			await EventScheduler.ScheduleEvent(routerEvent).ConfigureAwait(false);
 
 			return SendStatus.Scheduled;
 		}
 
-		await ioProcessor.Dispatch(ioProcessorEvent, _disposingToken.Token).ConfigureAwait(false);
+		await eventRouter.Dispatch(routerEvent).ConfigureAwait(false);
 
 		return SendStatus.Sent;
 	}
 
-	public ValueTask Cancel(SendId sendId) => EventScheduler.CancelEvent(StateMachineSessionId.SessionId, sendId, _disposingToken.Token);
+	public ValueTask Cancel(SendId sendId) => EventScheduler.CancelEvent(sendId);
 
 #endregion
 
-	protected virtual void Dispose(bool disposing)
+	private IEventRouter GetEventRouter(FullUri? type)
 	{
-		if (disposing)
+		foreach (var eventRouter in EventRouters)
 		{
-			_disposingToken.Dispose();
+			if (eventRouter.CanHandle(type))
+			{
+				return eventRouter;
+			}
 		}
+
+		throw new ProcessorException(Res.Format(Resources.Exception_InvalidType, type));
 	}
 }

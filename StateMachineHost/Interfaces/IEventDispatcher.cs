@@ -19,5 +19,5 @@ namespace Xtate.Core;
 
 public interface IEventDispatcher
 {
-	ValueTask Send(IIncomingEvent incomingEvent);
+	ValueTask Dispatch(IIncomingEvent incomingEvent);
 }

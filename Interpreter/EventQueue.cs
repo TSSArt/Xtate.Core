@@ -25,7 +25,7 @@ public class EventQueue : IEventQueueReader, IEventQueueWriter, IEventDispatcher
 
 #region Interface IEventDispatcher
 
-	public ValueTask Send(IIncomingEvent incomingEvent) => _channel.Writer.WriteAsync(incomingEvent);
+	public ValueTask Dispatch(IIncomingEvent incomingEvent) => WriteAsync(incomingEvent);
 
 #endregion
 

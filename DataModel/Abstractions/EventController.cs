@@ -25,7 +25,7 @@ public class EventController : IEventController
 
 	private static readonly FullUri InternalTarget = new(@"_internal");
 
-	public required IExternalEventCommunication ExternalEventCommunication { private get; [UsedImplicitly] init; }
+	public required IExternalCommunication ExternalCommunication { private get; [UsedImplicitly] init; }
 
 	public required ILogger<IEventController> Logger { private get; [UsedImplicitly] init; }
 
@@ -41,7 +41,7 @@ public class EventController : IEventController
 
 		try
 		{
-			await ExternalEventCommunication.Cancel(sendId).ConfigureAwait(false);
+			await ExternalCommunication.Cancel(sendId).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{
@@ -77,7 +77,7 @@ public class EventController : IEventController
 
 		try
 		{
-			return await ExternalEventCommunication.TrySend(outgoingEvent).ConfigureAwait(false);
+			return await ExternalCommunication.TrySend(outgoingEvent).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{

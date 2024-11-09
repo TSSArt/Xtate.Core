@@ -21,14 +21,14 @@ public class ExternalServiceFactory
 {
 	public required IAsyncEnumerable<IExternalServiceProvider> ServiceFactories { private get; [UsedImplicitly] init; }
 
-	public required IExternalServiceDefinition ExternalServiceDefinition { private get; [UsedImplicitly] init; }
+	public required IExternalServiceType ExternalServiceType { private get; [UsedImplicitly] init; }
 
 	[UsedImplicitly]
 	public async ValueTask<IExternalService> CreateService()
 	{
-		var serviceActivator = await GetServiceActivator(ExternalServiceDefinition.Type).ConfigureAwait(false);
+		var serviceActivator = await GetServiceActivator(ExternalServiceType.Type).ConfigureAwait(false);
 
-		return await serviceActivator.StartService().ConfigureAwait(false);
+		return await serviceActivator.Create().ConfigureAwait(false);
 	}
 
 	private async ValueTask<IExternalServiceActivator> GetServiceActivator(FullUri type)
@@ -41,14 +41,14 @@ public class ExternalServiceFactory
 			{
 				Infra.NotNull(serviceFactories.Current);
 
-				if (await serviceFactories.Current.TryGetActivator(type).ConfigureAwait(false) is not { } serviceActivator)
+				if (serviceFactories.Current.TryGetActivator(type) is not { } serviceActivator)
 				{
 					continue;
 				}
 
 				while (await serviceFactories.MoveNextAsync().ConfigureAwait(false))
 				{
-					if (await serviceFactories.Current.TryGetActivator(type).ConfigureAwait(false) is not null)
+					if (serviceFactories.Current.TryGetActivator(type) is not null)
 					{
 						Infra.Fail(Res.Format(Resources.Exception_MoreThanOneServiceFactoryRegisteredForPprocessingInvokeType, type));
 					}

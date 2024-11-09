@@ -15,9 +15,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.ExternalService;
+namespace Xtate.Core;
 
-public interface IExternalServiceProvider
+public interface IExternalServiceInvokeId
 {
-	IExternalServiceActivator? TryGetActivator(FullUri type);
+	InvokeId InvokeId { get; }
 }
