@@ -36,72 +36,77 @@ public class ExternalServiceBridge(
 	  IStateMachineLocation,
 	  IParentEventDispatcher
 {
-	private FullUri? _origin;
+	private readonly SessionId _sessionId = stateMachineSessionId.SessionId;
 
-	private FullUri Origin => _origin ??= new FullUri(Const.ScxmlIoProcessorInvokeIdPrefix + invokeId.Value);
+	private FullUri? _origin;
 
 	internal IEventDispatcher? EventDispatcher { get; set; }
 
 #region Interface ICaseSensitivity
 
-	public bool CaseInsensitive { get; } = caseSensitivity.CaseInsensitive;
+	bool ICaseSensitivity.CaseInsensitive { get; } = caseSensitivity.CaseInsensitive;
 
 #endregion
 
 #region Interface IEventDispatcher
 
-	public ValueTask Dispatch(IIncomingEvent incomingEvent) =>
-		eventDispatcher.Dispatch(new IncomingEvent(incomingEvent) { Type = EventType.External, OriginType = Type, Origin = Origin, InvokeId = invokeId });
+	// Dispatches the event to the parent session.
+	ValueTask IEventDispatcher.Dispatch(IIncomingEvent incomingEvent)
+	{
+		var origin = _origin ??= new FullUri(Const.ScxmlIoProcessorInvokeIdPrefix + invokeId.Value);
+
+		var evt = new IncomingEvent(incomingEvent) { Type = EventType.External, OriginType = invokeData.Type, Origin = origin, InvokeId = invokeId };
+
+		return eventDispatcher.Dispatch(evt);
+	}
 
 #endregion
 
 #region Interface IExternalServiceInvokeId
 
-	public InvokeId InvokeId => invokeId;
+	InvokeId IExternalServiceInvokeId.InvokeId => invokeId;
 
 #endregion
 
 #region Interface IExternalServiceParameters
 
-	public DataModelValue Parameters { get; } = invokeData.Parameters;
+	DataModelValue IExternalServiceParameters.Parameters { get; } = invokeData.Parameters;
 
 #endregion
 
 #region Interface IExternalServiceSource
 
-	public Uri? Source { get; } = invokeData.Source;
+	Uri? IExternalServiceSource.Source => invokeData.Source;
 
-	public string? RawContent { get; } = invokeData.RawContent;
+	string? IExternalServiceSource.RawContent => invokeData.RawContent;
 
-	public DataModelValue Content { get; } = invokeData.Content;
+	DataModelValue IExternalServiceSource.Content => invokeData.Content;
 
 #endregion
 
 #region Interface IExternalServiceType
 
-	public FullUri Type { get; } = invokeData.Type;
+	FullUri IExternalServiceType.Type => invokeData.Type;
 
 #endregion
 
 #region Interface IParentStateMachineSessionId
 
-	public SessionId SessionId { get; } = stateMachineSessionId.SessionId;
+	SessionId IParentStateMachineSessionId.SessionId => _sessionId;
 
 #endregion
 
 #region Interface IStateMachineLocation
 
-	public Uri? Location { get; } = stateMachineLocation.Location;
+	Uri? IStateMachineLocation.Location { get; } = stateMachineLocation.Location;
 
 #endregion
 
-	internal ValueTask IncomingEventHandler(IIncomingEvent incomingEvent)
-	{
-		if (EventDispatcher is not { } dispatcher)
-		{
-			return default;
-		}
+#region Interface IStateMachineSessionId
 
-		return dispatcher.Dispatch(new IncomingEvent(incomingEvent));
-	}
+	SessionId IStateMachineSessionId.SessionId => _sessionId;
+
+#endregion
+
+	internal ValueTask IncomingEventHandler(IIncomingEvent incomingEvent) => EventDispatcher?.Dispatch(new IncomingEvent(incomingEvent)) ?? default;
 }

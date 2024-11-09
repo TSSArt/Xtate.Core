@@ -24,10 +24,7 @@ public class EventDispatcher : IEventDispatcher, IAsyncInitialization
 {
 	private readonly AsyncInit<IEventDispatcher?> _eventDispatcherAsyncInit;
 
-	public EventDispatcher()
-	{
-		_eventDispatcherAsyncInit = AsyncInit.Run(this, ed => ed.GetEventDispatcher());
-	}
+	public EventDispatcher() => _eventDispatcherAsyncInit = AsyncInit.Run(this, ed => ed.GetEventDispatcher());
 
 	public required IExternalServiceInvokeId? ExternalServiceInvokeId { private get; [UsedImplicitly] init; }
 

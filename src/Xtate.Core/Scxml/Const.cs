@@ -31,6 +31,16 @@ public static class Const
 	public const string ScxmlIoProcessorSessionIdPrefix = "#_scxml_";
 
 	/// <summary>
+	///     http://www.w3.org/TR/scxml/
+	/// </summary>
+	public static readonly FullUri ScxmlServiceTypeId = new(@"http://www.w3.org/TR/scxml/");
+
+	/// <summary>
+	///     scxml
+	/// </summary>
+	public static readonly FullUri ScxmlServiceAliasTypeId = new(@"scxml");
+
+	/// <summary>
 	///     #_internal
 	/// </summary>
 	public static readonly FullUri ScxmlIoProcessorInternalTarget = new(@"#_internal");
