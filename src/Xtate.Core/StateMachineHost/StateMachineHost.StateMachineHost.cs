@@ -108,7 +108,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 
 			await context.AddService(sessionId, invokeId, invokedService, token).ConfigureAwait(false);
 
-			CompleteAsync(context, invokedService, service, sessionId, invokeId, _dataConverter).Forget();
+			//CompleteAsync(context, invokedService, service, sessionId, invokeId, _dataConverter).Forget();
 		}
 
 		static async ValueTask CompleteAsync(StateMachineHostContext context,
@@ -157,7 +157,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 
 		if (await context.TryRemoveService(invokeId).ConfigureAwait(false) is { } service)
 		{
-			await service.Destroy().ConfigureAwait(false);
+			//await service.Destroy().ConfigureAwait(false);
 
 			await DisposeInvokedService(service).ConfigureAwait(false);
 		}
@@ -188,7 +188,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 			throw new ProcessorException(Resources.Exception_InvalidInvokeId);
 		}
 
-		return service?.Dispatch(incomingEvent) ?? default;
+		//return service?.Dispatch(incomingEvent) ?? default;
 	}
 
 #endregion

@@ -27,8 +27,8 @@ public sealed partial class StateMachineHost : IIoProcessor, IEventConsumer, IEv
 	public async ValueTask<IEventDispatcher?> TryGetEventDispatcher(ServiceId serviceId, CancellationToken token) =>
 		serviceId switch
 		{
-			SessionId sessionId                                                                 => await GetCurrentContext().FindStateMachineController(sessionId, token).ConfigureAwait(false),
-			InvokeId invokeId when GetCurrentContext().TryGetService(invokeId, out var service) => service,
+			SessionId sessionId                                                                 => (IEventDispatcher)await GetCurrentContext().FindStateMachineController(sessionId, token).ConfigureAwait(false),
+			InvokeId invokeId when GetCurrentContext().TryGetService(invokeId, out var service) => (IEventDispatcher)service,
 			_                                                                                   => default
 		};
 
@@ -70,7 +70,7 @@ public sealed partial class StateMachineHost : IIoProcessor, IEventConsumer, IEv
 		Infra.NotNull(routerEvent.TargetServiceId);
 
 		var service = await GetService(routerEvent.TargetServiceId, token: default).ConfigureAwait(false);
-		await service.Dispatch(routerEvent).ConfigureAwait(false);
+		//await service.Dispatch(routerEvent).ConfigureAwait(false);
 	}
 
 	bool IEventRouter.CanHandle(FullUri? type) => CanHandleType(type);

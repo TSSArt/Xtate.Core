@@ -388,7 +388,7 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 	{
 		if (_stateMachineBySessionId.TryGetValue(sessionId, out var controller))
 		{
-			await controller.Destroy().ConfigureAwait(false);
+			//await controller.Destroy().ConfigureAwait(false);
 
 			try
 			{

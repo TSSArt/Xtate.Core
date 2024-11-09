@@ -17,13 +17,13 @@
 
 namespace Xtate.ExternalService;
 
-public abstract class ExternalServiceBase : IExternalService
+public abstract class ExternalServiceBase : IExternalService, IDisposable, IAsyncDisposable
 {
-	private readonly CancellationTokenSource _destroyTokenSource = new();
+	private readonly DisposingToken _disposingToken = new();
 
-	private readonly AsyncInit<DataModelValue> _executionAsyncInit;
+	private readonly AsyncInit<DataModelValue> _execution;
 
-	protected ExternalServiceBase() => _executionAsyncInit = AsyncInit.Run(this, es => es.ExecuteWithCancellation());
+	protected ExternalServiceBase() => _execution = AsyncInit.Run(this, es => es.ExecuteWithCancellation());
 
 	public required IExternalServiceSource ExternalServiceSource { private get; [UsedImplicitly] init; }
 
@@ -37,11 +37,25 @@ public abstract class ExternalServiceBase : IExternalService
 
 	protected DataModelValue Parameters => ExternalServiceParameters.Parameters;
 
-	protected CancellationToken DestroyToken => _destroyTokenSource.Token;
+	protected CancellationToken DestroyToken => _disposingToken.Token;
 
-#region Interface IEventDispatcher
+#region Interface IAsyncDisposable
 
-	ValueTask IEventDispatcher.Dispatch(IIncomingEvent incomingEvent) => default;
+	public async ValueTask DisposeAsync()
+	{
+		await DisposeAsyncCore().ConfigureAwait(false);
+		GC.SuppressFinalize(this);
+	}
+
+#endregion
+
+#region Interface IDisposable
+
+	public void Dispose()
+	{
+		Dispose(true);
+		GC.SuppressFinalize(this);
+	}
 
 #endregion
 
@@ -49,21 +63,29 @@ public abstract class ExternalServiceBase : IExternalService
 
 	async ValueTask<DataModelValue> IExternalService.GetResult()
 	{
-		await _executionAsyncInit.Task.ConfigureAwait(false);
+		await _execution.Task.ConfigureAwait(false);
 
-		return _executionAsyncInit.Value;
-	}
-
-	ValueTask IExternalService.Destroy()
-	{
-		_destroyTokenSource.Cancel();
-
-		return default;
+		return _execution.Value;
 	}
 
 #endregion
 
-	private ValueTask<DataModelValue> ExecuteWithCancellation() => Execute().WaitAsync(_destroyTokenSource.Token);
+	protected virtual void Dispose(bool disposing)
+	{
+		if (disposing)
+		{
+			_disposingToken.Cancel();
+			_disposingToken.Dispose();
+		}
+	}
+
+	protected virtual async ValueTask DisposeAsyncCore()
+	{
+		await _disposingToken.CancelAsync().ConfigureAwait(false);
+		_disposingToken.Dispose();
+	}
+
+	private ValueTask<DataModelValue> ExecuteWithCancellation() => Execute().WaitAsync(_disposingToken.Token);
 
 	protected abstract ValueTask<DataModelValue> Execute();
 }
