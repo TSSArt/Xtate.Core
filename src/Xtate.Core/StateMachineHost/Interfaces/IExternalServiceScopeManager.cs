@@ -19,5 +19,7 @@ namespace Xtate.ExternalService;
 
 public interface IExternalServiceScopeManager
 {
-	ValueTask StartService(InvokeId invokeId, InvokeData invokeData);
+	ValueTask Start(InvokeId invokeId, InvokeData invokeData);
+
+	ValueTask Cancel(InvokeId invokeId);
 }

@@ -19,10 +19,6 @@ namespace Xtate.Core;
 
 public struct EventEntity(string? value) : IOutgoingEvent
 {
-	public static readonly FullUri InternalTarget = new(@"_internal");
-
-	public static readonly FullUri ParentTarget = new(@"_parent");
-
 	public string? RawData { get; set; }
 
 #region Interface IOutgoingEvent

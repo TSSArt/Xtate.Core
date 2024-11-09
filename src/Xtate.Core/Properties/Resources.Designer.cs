@@ -1353,6 +1353,24 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Events for external services can&apos;t be delayed.
+        /// </summary>
+        internal static string Exception_EventsForExternalServicesCantBeDelayed {
+            get {
+                return ResourceManager.GetString("Exception_EventsForExternalServicesCantBeDelayed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Events from external services can&apos;t be delayed.
+        /// </summary>
+        internal static string Exception_EventsFromExternalServicesCantBeDelayed {
+            get {
+                return ResourceManager.GetString("Exception_EventsFromExternalServicesCantBeDelayed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Event Target did not specify..
         /// </summary>
         internal static string Exception_EventTargetDidNotSpecify {
@@ -1362,11 +1380,29 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to External communication does not configured for state machine interpreter..
+        ///   Looks up a localized string similar to External connections does not configured for state machine interpreter..
         /// </summary>
-        internal static string Exception_ExternalCommunicationDoesNotConfiguredForStateMachineInterpreter {
+        internal static string Exception_ExternalConnectionsDoesNotConfiguredForStateMachineInterpreter {
             get {
-                return ResourceManager.GetString("Exception_ExternalCommunicationDoesNotConfiguredForStateMachineInterpreter", resourceCulture);
+                return ResourceManager.GetString("Exception_ExternalConnectionsDoesNotConfiguredForStateMachineInterpreter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to External Service with provided InvokeId does not exists..
+        /// </summary>
+        internal static string Exception_ExternalServiceWithProvidedInvokeIdDoesNotExists {
+            get {
+                return ResourceManager.GetString("Exception_ExternalServiceWithProvidedInvokeIdDoesNotExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to External Service with same InvokeId already registered..
+        /// </summary>
+        internal static string Exception_ExternalServiceWithSameInvokeIdAlreadyRegistered {
+            get {
+                return ResourceManager.GetString("Exception_ExternalServiceWithSameInvokeIdAlreadyRegistered", resourceCulture);
             }
         }
         
@@ -1551,7 +1587,7 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Invalid type..
+        ///   Looks up a localized string similar to Invalid type [{0}]..
         /// </summary>
         internal static string Exception_InvalidType {
             get {
@@ -1722,6 +1758,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to More than one external services executing with same InvokeId..
+        /// </summary>
+        internal static string Exception_MoreThanOneExternalServicesExecutingWithSameInvokeId {
+            get {
+                return ResourceManager.GetString("Exception_MoreThanOneExternalServicesExecutingWithSameInvokeId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to More than one Service Factory registered for processing invoke type: &lt;{0}&gt;..
         /// </summary>
         internal static string Exception_MoreThanOneServiceFactoryRegisteredForPprocessingInvokeType {
@@ -1776,6 +1821,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Not supported event. Type: [{0}]. Target: [{1}]..
+        /// </summary>
+        internal static string Exception_NotSupportedEvent {
+            get {
+                return ResourceManager.GetString("Exception_NotSupportedEvent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Object can not be modified..
         /// </summary>
         internal static string Exception_ObjectCanNotBeModified {
@@ -1794,11 +1848,11 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to OriginType must be provided in ioProcessorEvent..
+        ///   Looks up a localized string similar to OriginType must be provided in RouterEvent..
         /// </summary>
-        internal static string Exception_OriginTypeMustBeProvidedInIoProcessorEvent {
+        internal static string Exception_OriginTypeMustBeProvidedInRouterEvent {
             get {
-                return ResourceManager.GetString("Exception_OriginTypeMustBeProvidedInIoProcessorEvent", resourceCulture);
+                return ResourceManager.GetString("Exception_OriginTypeMustBeProvidedInRouterEvent", resourceCulture);
             }
         }
         

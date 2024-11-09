@@ -178,54 +178,54 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 			_                   => default
 		};
 
-	protected override IHostEvent CreateHostEvent(ServiceId senderServiceId, IOutgoingEvent outgoingEvent)
+	protected override IRouterEvent CreateRouterEvent(IOutgoingEvent outgoingEvent)
 	{
 		if (outgoingEvent.Target is null)
 		{
 			throw new ArgumentException(Resources.Exception_TargetIsNotDefined, nameof(outgoingEvent));
 		}
 
-		return base.CreateHostEvent(senderServiceId, outgoingEvent);
+		return base.CreateRouterEvent(outgoingEvent);
 	}
 
-	protected override async ValueTask OutgoingEvent(IHostEvent hostEvent, CancellationToken token)
+	protected override async ValueTask OutgoingEvent(IRouterEvent routerEvent)
 	{
-		var targetUri = hostEvent.TargetServiceId?.Value;
+		var targetUri = routerEvent.TargetServiceId?.Value;
 		Infra.NotNull(targetUri);
 
-		var content = GetContent(hostEvent, out var eventNameInContent);
+		var content = GetContent(routerEvent, out var eventNameInContent);
 
-		if (!hostEvent.Name.IsDefault && !eventNameInContent)
+		if (!routerEvent.Name.IsDefault && !eventNameInContent)
 		{
-			targetUri = QueryStringHelper.AddQueryString(targetUri, EventNameParameterName, hostEvent.Name.ToString());
+			targetUri = QueryStringHelper.AddQueryString(targetUri, EventNameParameterName, routerEvent.Name.ToString());
 		}
 
 		using var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, targetUri);
 
 		httpRequestMessage.Content = content;
 
-		if (GetTarget(hostEvent.SenderServiceId) is { } origin)
+		if (GetTarget(routerEvent.SenderServiceId) is { } origin)
 		{
 			httpRequestMessage.Headers.Add(name: @"Origin", origin.ToString());
 		}
 
 		using var client = new HttpClient();
-		var httpResponseMessage = await client.SendAsync(httpRequestMessage, token).ConfigureAwait(false);
+		var httpResponseMessage = await client.SendAsync(httpRequestMessage).ConfigureAwait(false);
 		httpResponseMessage.EnsureSuccessStatusCode();
 	}
 
-	private static HttpContent? GetContent(IHostEvent hostEvent, out bool eventNameInContent)
+	private static HttpContent? GetContent(IRouterEvent routerEvent, out bool eventNameInContent)
 	{
-		var data = hostEvent.Data;
+		var data = routerEvent.Data;
 		var dataType = data.Type;
 
 		switch (dataType)
 		{
 			case DataModelValueType.Undefined:
 			case DataModelValueType.Null:
-				eventNameInContent = !hostEvent.Name.IsDefault;
+				eventNameInContent = !routerEvent.Name.IsDefault;
 
-				return eventNameInContent ? new FormUrlEncodedContent(GetParameters(hostEvent.Name, dataModelList: null)) : null;
+				return eventNameInContent ? new FormUrlEncodedContent(GetParameters(routerEvent.Name, dataModelList: null)) : null;
 
 			case DataModelValueType.String:
 				eventNameInContent = false;
@@ -240,7 +240,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 				{
 					eventNameInContent = true;
 
-					return new FormUrlEncodedContent(GetParameters(hostEvent.Name, dataModelList));
+					return new FormUrlEncodedContent(GetParameters(routerEvent.Name, dataModelList));
 				}
 
 				eventNameInContent = false;
@@ -366,7 +366,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 			incomingEvent = CreateErrorEvent(context, ex);
 		}
 
-		await eventDispatcher.Send(incomingEvent).ConfigureAwait(false);
+		await eventDispatcher.Dispatch(incomingEvent).ConfigureAwait(false);
 
 		return true;
 	}
@@ -447,7 +447,6 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 		}
 
 		FullUri.TryCreate(GetHeaderValue(context, OriginHeaderName), out var origin);
-		
 
 		var data = CreateData(contentType.MediaType, body, out var eventNameInContent);
 

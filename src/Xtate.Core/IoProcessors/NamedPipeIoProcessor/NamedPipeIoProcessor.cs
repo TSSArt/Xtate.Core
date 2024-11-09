@@ -88,19 +88,19 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 
 #endregion
 
-	protected override IHostEvent CreateHostEvent(ServiceId senderServiceId, IOutgoingEvent outgoingEvent)
+	protected override IRouterEvent CreateRouterEvent(IOutgoingEvent outgoingEvent)
 	{
 		if (outgoingEvent.Target is null)
 		{
 			throw new ProcessorException(Resources.Exception_EventTargetDidNotSpecify);
 		}
 
-		return base.CreateHostEvent(senderServiceId, outgoingEvent);
+		return base.CreateRouterEvent(outgoingEvent);
 	}
 
-	protected override async ValueTask OutgoingEvent(IHostEvent hostEvent, CancellationToken token)
+	protected override async ValueTask OutgoingEvent(IRouterEvent routerEvent)
 	{
-		var target = ((UriId?) hostEvent.TargetServiceId)?.Uri;
+		var target = ((UriId?) routerEvent.TargetServiceId)?.Uri;
 
 		Infra.NotNull(target);
 
@@ -112,9 +112,9 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 
 		if (isLoopback && InProcConsumers.TryGetValue(name, out var eventConsumer))
 		{
-			if (await eventConsumer.TryGetEventDispatcher(targetServiceId, token).ConfigureAwait(false) is { } eventDispatcher)
+			if (await eventConsumer.TryGetEventDispatcher(targetServiceId, token: default).ConfigureAwait(false) is { } eventDispatcher)
 			{
-				await eventDispatcher.Send(hostEvent).ConfigureAwait(false);
+				await eventDispatcher.Dispatch(routerEvent).ConfigureAwait(false);
 			}
 			else
 			{
@@ -123,7 +123,7 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 		}
 		else
 		{
-			await SendEventToPipe(isLoopback ? @"." : host, PipePrefix + name, targetServiceId, hostEvent, token).ConfigureAwait(false);
+			await SendEventToPipe(isLoopback ? @"." : host, PipePrefix + name, targetServiceId, routerEvent, token: default).ConfigureAwait(false);
 		}
 	}
 
@@ -207,7 +207,7 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 				{
 					if (await _eventConsumer.TryGetEventDispatcher(targetServiceId, _stopTokenSource.Token).ConfigureAwait(false) is { } eventDispatcher)
 					{
-						await eventDispatcher.Send(message).ConfigureAwait(false);
+						await eventDispatcher.Dispatch(message).ConfigureAwait(false);
 					}
 					else
 					{

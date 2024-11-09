@@ -21,7 +21,7 @@ namespace Xtate.Core;
 
 public interface IStateMachineHost : IHostEventDispatcher
 {
-	ImmutableArray<IIoProcessor> GetIoProcessors();
+	ImmutableArray<IEventRouter> GetIoProcessors();
 
 	ValueTask<SendStatus> DispatchEvent(ServiceId serviceId, IOutgoingEvent outgoingEvent, CancellationToken token);
 

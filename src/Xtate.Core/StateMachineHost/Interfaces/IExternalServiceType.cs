@@ -17,7 +17,7 @@
 
 namespace Xtate.ExternalService;
 
-public interface IExternalServiceProvider
+public interface IExternalServiceType
 {
-	IExternalServiceActivator? TryGetActivator(FullUri type);
+	FullUri Type { get; }
 }

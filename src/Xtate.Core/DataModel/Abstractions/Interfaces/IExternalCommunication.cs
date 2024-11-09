@@ -15,9 +15,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.ExternalService;
+namespace Xtate.DataModel;
 
-public interface IExternalServiceProvider
+public interface IExternalCommunication
 {
-	IExternalServiceActivator? TryGetActivator(FullUri type);
+	ValueTask<SendStatus> TrySend(IOutgoingEvent outgoingEvent);
+
+	ValueTask Cancel(SendId sendId);
 }

@@ -24,7 +24,7 @@ namespace Xtate.Test;
 [TestClass]
 public class InvokeTest
 {
-	private Mock<IExternalServiceCommunication> _externalCommunicationMock = default!;
+	private Mock<IExternalServiceManager> _externalCommunicationMock = default!;
 
 	private Mock<IInvokeController> _invokeControllerMock = default!;
 
@@ -79,7 +79,7 @@ public class InvokeTest
 		_loggerMockV.Setup(s => s.IsEnabled(Level.Info)).Returns(true);
 		_loggerMockV.Setup(s => s.IsEnabled(Level.Trace)).Returns(true);
 
-		_externalCommunicationMock = new Mock<IExternalServiceCommunication>();
+		_externalCommunicationMock = new Mock<IExternalServiceManager>();
 	}
 
 	private static IncomingEvent CreateEventObject(string name, InvokeId? invokeId = default) =>

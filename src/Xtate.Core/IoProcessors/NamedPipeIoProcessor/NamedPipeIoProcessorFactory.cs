@@ -54,11 +54,11 @@ public sealed class NamedPipeIoProcessorFactory : IIoProcessorFactory
 
 #region Interface IIoProcessorFactory
 
-	public async ValueTask<IIoProcessor> Create(IEventConsumer eventConsumer, CancellationToken token)
+	public async ValueTask<IEventRouter> Create(IEventConsumer eventConsumer, CancellationToken token)
 	{
 		if (eventConsumer is null) throw new ArgumentNullException(nameof(eventConsumer));
 
-		var processor = new NamedPipeIoProcessor(eventConsumer, _host, _name, _maxMessageSize ?? DefaultMaxMessageSize);
+		var processor = new NamedPipeIoProcessor(eventConsumer, _host, _name, _maxMessageSize ?? DefaultMaxMessageSize) { StateMachineSessionId = null };
 
 		for (var i = 0; i < FreeSlotsCount; i ++)
 		{

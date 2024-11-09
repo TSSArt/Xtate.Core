@@ -15,25 +15,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.IoProcessor;
+namespace Xtate.ExternalService;
 
-namespace Xtate.Core;
-
-public class IoProcessorService
+public interface IExternalServiceParameters
 {
-	public required ServiceList<IIoProcessor> IoProcessors { private get; [UsedImplicitly] init; }
-
-	[UsedImplicitly]
-	public IIoProcessor GetIoProcessor(FullUri? type)
-	{
-		foreach (var ioProcessor in IoProcessors)
-		{
-			if (ioProcessor.CanHandle(type))
-			{
-				return ioProcessor;
-			}
-		}
-
-		throw new ProcessorException(Resources.Exception_InvalidType);
-	}
+	DataModelValue Parameters { get; }
 }

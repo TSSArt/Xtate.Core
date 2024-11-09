@@ -23,7 +23,7 @@ public class DataModelHandlerBaseModule : Module<CustomActionModule, LoggingModu
 {
 	protected override void AddServices()
 	{
-		Services.AddImplementation<Stub>().For<IExternalEventCommunication>(Option.IfNotRegistered);
+		Services.AddImplementation<Stub>().For<IExternalCommunication>(Option.IfNotRegistered);
 
 		Services.AddTypeSync<DefaultAssignEvaluator, IAssign>();
 		Services.AddTypeSync<DefaultCancelEvaluator, ICancel>();
@@ -45,13 +45,13 @@ public class DataModelHandlerBaseModule : Module<CustomActionModule, LoggingModu
 		Services.AddType<DataConverter>(Option.IfNotRegistered);
 	}
 
-	private class Stub : IExternalEventCommunication
+	private class Stub : IExternalCommunication
 	{
-	#region Interface IExternalEventCommunication
+	#region Interface IExternalCommunication
 
-		ValueTask<SendStatus> IExternalEventCommunication.TrySend(IOutgoingEvent outgoingEvent) => throw Infra.Fail<Exception>();
+		ValueTask<SendStatus> IExternalCommunication.TrySend(IOutgoingEvent outgoingEvent) => throw Infra.Fail<Exception>();
 
-		ValueTask IExternalEventCommunication.Cancel(SendId sendId) => throw Infra.Fail<Exception>();
+		ValueTask IExternalCommunication.Cancel(SendId sendId) => throw Infra.Fail<Exception>();
 
 	#endregion
 	}

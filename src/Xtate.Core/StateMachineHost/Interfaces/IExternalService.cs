@@ -21,5 +21,6 @@ public interface IExternalService : IEventDispatcher
 {
 	ValueTask<DataModelValue> GetResult();
 
+	[Obsolete]
 	ValueTask Destroy();
 }

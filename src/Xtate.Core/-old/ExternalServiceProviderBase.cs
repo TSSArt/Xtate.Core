@@ -24,11 +24,11 @@ public abstract class ExternalServiceProviderBase : IExternalServiceProvider
 
 #region Interface IExternalServiceProvider
 
-	public ValueTask<IExternalServiceActivator?> TryGetActivator(FullUri type)
+	public IExternalServiceActivator? TryGetActivator(FullUri type)
 	{
 		_activator ??= CreateActivator();
 
-		return new ValueTask<IExternalServiceActivator?>(_activator.CanHandle(type) ? _activator : null);
+		return _activator.CanHandle(type) ? _activator : null;
 	}
 
 #endregion
@@ -107,7 +107,7 @@ public abstract class ExternalServiceProviderBase : IExternalServiceProvider
 	{
 	#region Interface IExternalServiceActivator
 
-		public ValueTask<IExternalService> StartService() => throw new NotImplementedException();
+		public ValueTask<IExternalService> Create() => throw new NotImplementedException();
 
 	#endregion
 

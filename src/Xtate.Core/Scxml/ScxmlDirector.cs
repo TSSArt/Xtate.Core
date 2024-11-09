@@ -24,10 +24,6 @@ namespace Xtate.Scxml;
 
 public class ScxmlDirector : XmlDirector<ScxmlDirector>
 {
-	private const string ScxmlNs = "http://www.w3.org/2005/07/scxml";
-
-	private const string XtateScxmlNs = "http://xtate.net/scxml";
-
 	private const char Space = ' ';
 
 	private static readonly char[] SpaceSplitter = [Space];
@@ -219,7 +215,7 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 	{
 		Infra.Requires(value);
 
-		return new EventEntity(value) { Target = EventEntity.InternalTarget };
+		return new EventEntity(value) { Target = Const.InternalTarget };
 	}
 
 	private static ImmutableArray<IIdentifier> AsIdentifierList(string value)
@@ -513,70 +509,70 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 	private async ValueTask<IStateMachine> ReadStateMachine() => (await Populate(StateMachineBuilderFactory(CreateAncestor()), StateMachinePolicy).ConfigureAwait(false)).Build();
 
 	private static void StateMachineBuildPolicy(IPolicyBuilder<IStateMachineBuilder> pb) =>
-		pb.ValidateElementName(ScxmlNs, name: "scxml")
+		pb.ValidateElementName(Const.ScxmlNs, name: "scxml")
 		  .RequiredAttribute(name: "version", (dr, _) => CheckScxmlVersion(dr.AttributeValue))
 		  .OptionalAttribute(name: "initial", (dr, b) => b.SetInitial(AsIdentifierList(dr.AttributeValue)))
 		  .OptionalAttribute(name: "datamodel", (dr, b) => b.SetDataModelType(dr.AttributeValue))
 		  .OptionalAttribute(name: "binding", (dr, b) => b.SetBindingType(AsEnum<BindingType>(dr.AttributeValue)))
 		  .OptionalAttribute(name: "name", (dr, b) => b.SetName(dr.AttributeValue))
-		  .MultipleElements(ScxmlNs, name: "state", async (dr, b) => b.AddState(await dr.ReadState().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "parallel", async (dr, b) => b.AddParallel(await dr.ReadParallel().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "final", async (dr, b) => b.AddFinal(await dr.ReadFinal().ConfigureAwait(false)))
-		  .OptionalElement(ScxmlNs, name: "datamodel", async (dr, b) => b.SetDataModel(await dr.ReadDataModel().ConfigureAwait(false)))
-		  .OptionalElement(ScxmlNs, name: "script", async (dr, b) => b.SetScript(await dr.ReadScript().ConfigureAwait(false)))
-		  .OptionalAttribute(XtateScxmlNs, name: "synchronous", (dr, b) => b.SetSynchronousEventProcessing(XmlConvert.ToBoolean(dr.AttributeValue)))
-		  .OptionalAttribute(XtateScxmlNs, name: "queueSize", (dr, b) => b.SetExternalQueueSize(XmlConvert.ToInt32(dr.AttributeValue)))
-		  .OptionalAttribute(XtateScxmlNs, name: "persistence", (dr, b) => b.SetPersistenceLevel((PersistenceLevel) Enum.Parse(typeof(PersistenceLevel), dr.AttributeValue)))
-		  .OptionalAttribute(XtateScxmlNs, name: "onError", (dr, b) => b.SetUnhandledErrorBehaviour((UnhandledErrorBehaviour) Enum.Parse(typeof(UnhandledErrorBehaviour), dr.AttributeValue)));
+		  .MultipleElements(Const.ScxmlNs, name: "state", async (dr, b) => b.AddState(await dr.ReadState().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "parallel", async (dr, b) => b.AddParallel(await dr.ReadParallel().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "final", async (dr, b) => b.AddFinal(await dr.ReadFinal().ConfigureAwait(false)))
+		  .OptionalElement(Const.ScxmlNs, name: "datamodel", async (dr, b) => b.SetDataModel(await dr.ReadDataModel().ConfigureAwait(false)))
+		  .OptionalElement(Const.ScxmlNs, name: "script", async (dr, b) => b.SetScript(await dr.ReadScript().ConfigureAwait(false)))
+		  .OptionalAttribute(Const.XtateScxmlNs, name: "synchronous", (dr, b) => b.SetSynchronousEventProcessing(XmlConvert.ToBoolean(dr.AttributeValue)))
+		  .OptionalAttribute(Const.XtateScxmlNs, name: "queueSize", (dr, b) => b.SetExternalQueueSize(XmlConvert.ToInt32(dr.AttributeValue)))
+		  .OptionalAttribute(Const.XtateScxmlNs, name: "persistence", (dr, b) => b.SetPersistenceLevel((PersistenceLevel) Enum.Parse(typeof(PersistenceLevel), dr.AttributeValue)))
+		  .OptionalAttribute(Const.XtateScxmlNs, name: "onError", (dr, b) => b.SetUnhandledErrorBehaviour((UnhandledErrorBehaviour) Enum.Parse(typeof(UnhandledErrorBehaviour), dr.AttributeValue)));
 
 	private async ValueTask<IState> ReadState() => (await Populate(StateBuilderFactory(CreateAncestor()), StatePolicy).ConfigureAwait(false)).Build();
 
 	private static void StateBuildPolicy(IPolicyBuilder<IStateBuilder> pb) =>
 		pb.OptionalAttribute(name: "id", (dr, b) => b.SetId(AsIdentifier(dr.AttributeValue)))
 		  .OptionalAttribute(name: "initial", (dr, b) => b.SetInitial(AsIdentifierList(dr.AttributeValue)))
-		  .MultipleElements(ScxmlNs, name: "state", async (dr, b) => b.AddState(await dr.ReadState().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "parallel", async (dr, b) => b.AddParallel(await dr.ReadParallel().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "final", async (dr, b) => b.AddFinal(await dr.ReadFinal().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "history", async (dr, b) => b.AddHistory(await dr.ReadHistory().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "invoke", async (dr, b) => b.AddInvoke(await dr.ReadInvoke().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "transition", async (dr, b) => b.AddTransition(await dr.ReadTransition().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "onentry", async (dr, b) => b.AddOnEntry(await dr.ReadOnEntry().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "onexit", async (dr, b) => b.AddOnExit(await dr.ReadOnExit().ConfigureAwait(false)))
-		  .OptionalElement(ScxmlNs, name: "initial", async (dr, b) => b.SetInitial(await dr.ReadInitial().ConfigureAwait(false)))
-		  .OptionalElement(ScxmlNs, name: "datamodel", async (dr, b) => b.SetDataModel(await dr.ReadDataModel().ConfigureAwait(false)));
+		  .MultipleElements(Const.ScxmlNs, name: "state", async (dr, b) => b.AddState(await dr.ReadState().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "parallel", async (dr, b) => b.AddParallel(await dr.ReadParallel().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "final", async (dr, b) => b.AddFinal(await dr.ReadFinal().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "history", async (dr, b) => b.AddHistory(await dr.ReadHistory().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "invoke", async (dr, b) => b.AddInvoke(await dr.ReadInvoke().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "transition", async (dr, b) => b.AddTransition(await dr.ReadTransition().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "onentry", async (dr, b) => b.AddOnEntry(await dr.ReadOnEntry().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "onexit", async (dr, b) => b.AddOnExit(await dr.ReadOnExit().ConfigureAwait(false)))
+		  .OptionalElement(Const.ScxmlNs, name: "initial", async (dr, b) => b.SetInitial(await dr.ReadInitial().ConfigureAwait(false)))
+		  .OptionalElement(Const.ScxmlNs, name: "datamodel", async (dr, b) => b.SetDataModel(await dr.ReadDataModel().ConfigureAwait(false)));
 
 	private async ValueTask<IParallel> ReadParallel() => (await Populate(ParallelBuilderFactory(CreateAncestor()), ParallelPolicy).ConfigureAwait(false)).Build();
 
 	private static void ParallelBuildPolicy(IPolicyBuilder<IParallelBuilder> pb) =>
 		pb.OptionalAttribute(name: "id", (dr, b) => b.SetId(AsIdentifier(dr.AttributeValue)))
-		  .MultipleElements(ScxmlNs, name: "state", async (dr, b) => b.AddState(await dr.ReadState().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "parallel", async (dr, b) => b.AddParallel(await dr.ReadParallel().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "history", async (dr, b) => b.AddHistory(await dr.ReadHistory().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "invoke", async (dr, b) => b.AddInvoke(await dr.ReadInvoke().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "transition", async (dr, b) => b.AddTransition(await dr.ReadTransition().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "onentry", async (dr, b) => b.AddOnEntry(await dr.ReadOnEntry().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "onexit", async (dr, b) => b.AddOnExit(await dr.ReadOnExit().ConfigureAwait(false)))
-		  .OptionalElement(ScxmlNs, name: "datamodel", async (dr, b) => b.SetDataModel(await dr.ReadDataModel().ConfigureAwait(false)));
+		  .MultipleElements(Const.ScxmlNs, name: "state", async (dr, b) => b.AddState(await dr.ReadState().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "parallel", async (dr, b) => b.AddParallel(await dr.ReadParallel().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "history", async (dr, b) => b.AddHistory(await dr.ReadHistory().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "invoke", async (dr, b) => b.AddInvoke(await dr.ReadInvoke().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "transition", async (dr, b) => b.AddTransition(await dr.ReadTransition().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "onentry", async (dr, b) => b.AddOnEntry(await dr.ReadOnEntry().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "onexit", async (dr, b) => b.AddOnExit(await dr.ReadOnExit().ConfigureAwait(false)))
+		  .OptionalElement(Const.ScxmlNs, name: "datamodel", async (dr, b) => b.SetDataModel(await dr.ReadDataModel().ConfigureAwait(false)));
 
 	private async ValueTask<IFinal> ReadFinal() => (await Populate(FinalBuilderFactory(CreateAncestor()), FinalPolicy).ConfigureAwait(false)).Build();
 
 	private static void FinalBuildPolicy(IPolicyBuilder<IFinalBuilder> pb) =>
 		pb.OptionalAttribute(name: "id", (dr, b) => b.SetId(AsIdentifier(dr.AttributeValue)))
-		  .MultipleElements(ScxmlNs, name: "onentry", async (dr, b) => b.AddOnEntry(await dr.ReadOnEntry().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "onexit", async (dr, b) => b.AddOnExit(await dr.ReadOnExit().ConfigureAwait(false)))
-		  .OptionalElement(ScxmlNs, name: "donedata", async (dr, b) => b.SetDoneData(await dr.ReadDoneData().ConfigureAwait(false)));
+		  .MultipleElements(Const.ScxmlNs, name: "onentry", async (dr, b) => b.AddOnEntry(await dr.ReadOnEntry().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "onexit", async (dr, b) => b.AddOnExit(await dr.ReadOnExit().ConfigureAwait(false)))
+		  .OptionalElement(Const.ScxmlNs, name: "donedata", async (dr, b) => b.SetDoneData(await dr.ReadDoneData().ConfigureAwait(false)));
 
 	private async ValueTask<IInitial> ReadInitial() => (await Populate(InitialBuilderFactory(CreateAncestor()), InitialPolicy).ConfigureAwait(false)).Build();
 
 	private static void InitialBuildPolicy(IPolicyBuilder<IInitialBuilder> pb) =>
-		pb.SingleElement(ScxmlNs, name: "transition", async (dr, b) => b.SetTransition(await dr.ReadTransition().ConfigureAwait(false)));
+		pb.SingleElement(Const.ScxmlNs, name: "transition", async (dr, b) => b.SetTransition(await dr.ReadTransition().ConfigureAwait(false)));
 
 	private async ValueTask<IHistory> ReadHistory() => (await Populate(HistoryBuilderFactory(CreateAncestor()), HistoryPolicy).ConfigureAwait(false)).Build();
 
 	private static void HistoryBuildPolicy(IPolicyBuilder<IHistoryBuilder> pb) =>
 		pb.OptionalAttribute(name: "id", (dr, b) => b.SetId(AsIdentifier(dr.AttributeValue)))
 		  .OptionalAttribute(name: "type", (dr, b) => b.SetType(AsEnum<HistoryType>(dr.AttributeValue)))
-		  .SingleElement(ScxmlNs, name: "transition", async (dr, b) => b.SetTransition(await dr.ReadTransition().ConfigureAwait(false)));
+		  .SingleElement(Const.ScxmlNs, name: "transition", async (dr, b) => b.SetTransition(await dr.ReadTransition().ConfigureAwait(false)));
 
 	private async ValueTask<ITransition> ReadTransition() => (await Populate(TransitionBuilderFactory(CreateAncestor()), TransitionPolicy).ConfigureAwait(false)).Build();
 
@@ -585,14 +581,14 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 		  .OptionalAttribute(name: "cond", (dr, b) => b.SetCondition(dr.AsConditionalExpression(dr.AttributeValue)))
 		  .OptionalAttribute(name: "target", (dr, b) => b.SetTarget(AsIdentifierList(dr.AttributeValue)))
 		  .OptionalAttribute(name: "type", (dr, b) => b.SetType(AsEnum<TransitionType>(dr.AttributeValue)))
-		  .MultipleElements(ScxmlNs, name: "assign", async (dr, b) => b.AddAction(await dr.ReadAssign().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "foreach", async (dr, b) => b.AddAction(await dr.ReadForEach().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "if", async (dr, b) => b.AddAction(await dr.ReadIf().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "log", async (dr, b) => b.AddAction(await dr.ReadLog().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "raise", async (dr, b) => b.AddAction(await dr.ReadRaise().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "send", async (dr, b) => b.AddAction(await dr.ReadSend().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "cancel", async (dr, b) => b.AddAction(await dr.ReadCancel().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "script", async (dr, b) => b.AddAction(await dr.ReadScript().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "assign", async (dr, b) => b.AddAction(await dr.ReadAssign().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "foreach", async (dr, b) => b.AddAction(await dr.ReadForEach().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "if", async (dr, b) => b.AddAction(await dr.ReadIf().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "log", async (dr, b) => b.AddAction(await dr.ReadLog().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "raise", async (dr, b) => b.AddAction(await dr.ReadRaise().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "send", async (dr, b) => b.AddAction(await dr.ReadSend().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "cancel", async (dr, b) => b.AddAction(await dr.ReadCancel().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "script", async (dr, b) => b.AddAction(await dr.ReadScript().ConfigureAwait(false)))
 		  .UnknownElement(async (dr, b) => b.AddAction(await dr.ReadCustomAction().ConfigureAwait(false)));
 
 	private async ValueTask<ILog> ReadLog() => (await Populate(LogBuilderFactory(CreateAncestor()), LogPolicy).ConfigureAwait(false)).Build();
@@ -615,8 +611,8 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 		  .OptionalAttribute(name: "delay", (dr, b) => b.SetDelay(AsMilliseconds(dr.AttributeValue)))
 		  .OptionalAttribute(name: "delayexpr", (dr, b) => b.SetDelayExpression(dr.AsValueExpression(dr.AttributeValue)))
 		  .OptionalAttribute(name: "namelist", (dr, b) => b.SetNameList(dr.AsLocationExpressionList(dr.AttributeValue)))
-		  .MultipleElements(ScxmlNs, name: "param", async (dr, b) => b.AddParameter(await dr.ReadParam().ConfigureAwait(false)))
-		  .OptionalElement(ScxmlNs, name: "content", async (dr, b) => b.SetContent(await dr.ReadContent().ConfigureAwait(false)));
+		  .MultipleElements(Const.ScxmlNs, name: "param", async (dr, b) => b.AddParameter(await dr.ReadParam().ConfigureAwait(false)))
+		  .OptionalElement(Const.ScxmlNs, name: "content", async (dr, b) => b.SetContent(await dr.ReadContent().ConfigureAwait(false)));
 
 	private async ValueTask<IParam> ReadParam() => (await Populate(ParamBuilderFactory(CreateAncestor()), ParamPolicy).ConfigureAwait(false)).Build();
 
@@ -634,27 +630,27 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 	private async ValueTask<IOnEntry> ReadOnEntry() => (await Populate(OnEntryBuilderFactory(CreateAncestor()), OnEntryPolicy).ConfigureAwait(false)).Build();
 
 	private static void OnEntryBuildPolicy(IPolicyBuilder<IOnEntryBuilder> pb) =>
-		pb.MultipleElements(ScxmlNs, name: "assign", async (dr, b) => b.AddAction(await dr.ReadAssign().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "foreach", async (dr, b) => b.AddAction(await dr.ReadForEach().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "if", async (dr, b) => b.AddAction(await dr.ReadIf().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "log", async (dr, b) => b.AddAction(await dr.ReadLog().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "raise", async (dr, b) => b.AddAction(await dr.ReadRaise().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "send", async (dr, b) => b.AddAction(await dr.ReadSend().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "cancel", async (dr, b) => b.AddAction(await dr.ReadCancel().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "script", async (dr, b) => b.AddAction(await dr.ReadScript().ConfigureAwait(false)))
+		pb.MultipleElements(Const.ScxmlNs, name: "assign", async (dr, b) => b.AddAction(await dr.ReadAssign().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "foreach", async (dr, b) => b.AddAction(await dr.ReadForEach().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "if", async (dr, b) => b.AddAction(await dr.ReadIf().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "log", async (dr, b) => b.AddAction(await dr.ReadLog().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "raise", async (dr, b) => b.AddAction(await dr.ReadRaise().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "send", async (dr, b) => b.AddAction(await dr.ReadSend().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "cancel", async (dr, b) => b.AddAction(await dr.ReadCancel().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "script", async (dr, b) => b.AddAction(await dr.ReadScript().ConfigureAwait(false)))
 		  .UnknownElement(async (dr, b) => b.AddAction(await dr.ReadCustomAction().ConfigureAwait(false)));
 
 	private async ValueTask<IOnExit> ReadOnExit() => (await Populate(OnExitBuilderFactory(CreateAncestor()), OnExitPolicy).ConfigureAwait(false)).Build();
 
 	private static void OnExitBuildPolicy(IPolicyBuilder<IOnExitBuilder> pb) =>
-		pb.MultipleElements(ScxmlNs, name: "assign", async (dr, b) => b.AddAction(await dr.ReadAssign().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "foreach", async (dr, b) => b.AddAction(await dr.ReadForEach().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "if", async (dr, b) => b.AddAction(await dr.ReadIf().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "log", async (dr, b) => b.AddAction(await dr.ReadLog().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "raise", async (dr, b) => b.AddAction(await dr.ReadRaise().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "send", async (dr, b) => b.AddAction(await dr.ReadSend().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "cancel", async (dr, b) => b.AddAction(await dr.ReadCancel().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "script", async (dr, b) => b.AddAction(await dr.ReadScript().ConfigureAwait(false)))
+		pb.MultipleElements(Const.ScxmlNs, name: "assign", async (dr, b) => b.AddAction(await dr.ReadAssign().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "foreach", async (dr, b) => b.AddAction(await dr.ReadForEach().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "if", async (dr, b) => b.AddAction(await dr.ReadIf().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "log", async (dr, b) => b.AddAction(await dr.ReadLog().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "raise", async (dr, b) => b.AddAction(await dr.ReadRaise().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "send", async (dr, b) => b.AddAction(await dr.ReadSend().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "cancel", async (dr, b) => b.AddAction(await dr.ReadCancel().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "script", async (dr, b) => b.AddAction(await dr.ReadScript().ConfigureAwait(false)))
 		  .UnknownElement(async (dr, b) => b.AddAction(await dr.ReadCustomAction().ConfigureAwait(false)));
 
 	private async ValueTask<IInvoke> ReadInvoke() => (await Populate(InvokeBuilderFactory(CreateAncestor()), InvokePolicy).ConfigureAwait(false)).Build();
@@ -668,19 +664,19 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 		  .OptionalAttribute(name: "idlocation", (dr, b) => b.SetIdLocation(dr.AsLocationExpression(dr.AttributeValue)))
 		  .OptionalAttribute(name: "namelist", (dr, b) => b.SetNameList(dr.AsLocationExpressionList(dr.AttributeValue)))
 		  .OptionalAttribute(name: "autoforward", (dr, b) => b.SetAutoForward(XmlConvert.ToBoolean(dr.AttributeValue)))
-		  .MultipleElements(ScxmlNs, name: "param", async (dr, b) => b.AddParam(await dr.ReadParam().ConfigureAwait(false)))
-		  .OptionalElement(ScxmlNs, name: "finalize", async (dr, b) => b.SetFinalize(await dr.ReadFinalize().ConfigureAwait(false)))
-		  .OptionalElement(ScxmlNs, name: "content", async (dr, b) => b.SetContent(await dr.ReadContent().ConfigureAwait(false)));
+		  .MultipleElements(Const.ScxmlNs, name: "param", async (dr, b) => b.AddParam(await dr.ReadParam().ConfigureAwait(false)))
+		  .OptionalElement(Const.ScxmlNs, name: "finalize", async (dr, b) => b.SetFinalize(await dr.ReadFinalize().ConfigureAwait(false)))
+		  .OptionalElement(Const.ScxmlNs, name: "content", async (dr, b) => b.SetContent(await dr.ReadContent().ConfigureAwait(false)));
 
 	private async ValueTask<IFinalize> ReadFinalize() => (await Populate(FinalizeBuilderFactory(CreateAncestor()), FinalizePolicy).ConfigureAwait(false)).Build();
 
 	private static void FinalizeBuildPolicy(IPolicyBuilder<IFinalizeBuilder> pb) =>
-		pb.MultipleElements(ScxmlNs, name: "assign", async (dr, b) => b.AddAction(await dr.ReadAssign().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "foreach", async (dr, b) => b.AddAction(await dr.ReadForEach().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "if", async (dr, b) => b.AddAction(await dr.ReadIf().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "log", async (dr, b) => b.AddAction(await dr.ReadLog().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "cancel", async (dr, b) => b.AddAction(await dr.ReadCancel().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "script", async (dr, b) => b.AddAction(await dr.ReadScript().ConfigureAwait(false)))
+		pb.MultipleElements(Const.ScxmlNs, name: "assign", async (dr, b) => b.AddAction(await dr.ReadAssign().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "foreach", async (dr, b) => b.AddAction(await dr.ReadForEach().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "if", async (dr, b) => b.AddAction(await dr.ReadIf().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "log", async (dr, b) => b.AddAction(await dr.ReadLog().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "cancel", async (dr, b) => b.AddAction(await dr.ReadCancel().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "script", async (dr, b) => b.AddAction(await dr.ReadScript().ConfigureAwait(false)))
 		  .UnknownElement(async (dr, b) => b.AddAction(await dr.ReadCustomAction().ConfigureAwait(false)));
 
 	private async ValueTask<IScript> ReadScript() => (await Populate(ScriptBuilderFactory(CreateAncestor()), ScriptPolicy).ConfigureAwait(false)).Build();
@@ -691,7 +687,8 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 
 	private async ValueTask<IDataModel> ReadDataModel() => (await Populate(DataModelBuilderFactory(CreateAncestor()), DataModelPolicy).ConfigureAwait(false)).Build();
 
-	private static void DataModelBuildPolicy(IPolicyBuilder<IDataModelBuilder> pb) => pb.MultipleElements(ScxmlNs, name: "data", async (dr, b) => b.AddData(await dr.ReadData().ConfigureAwait(false)));
+	private static void DataModelBuildPolicy(IPolicyBuilder<IDataModelBuilder> pb) =>
+		pb.MultipleElements(Const.ScxmlNs, name: "data", async (dr, b) => b.AddData(await dr.ReadData().ConfigureAwait(false)));
 
 	private async ValueTask<IData> ReadData() => (await Populate(DataBuilderFactory(CreateAncestor()), DataPolicy).ConfigureAwait(false)).Build();
 
@@ -704,8 +701,8 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 	private async ValueTask<IDoneData> ReadDoneData() => (await Populate(DoneDataBuilderFactory(CreateAncestor()), DoneDataPolicy).ConfigureAwait(false)).Build();
 
 	private static void DoneDataBuildPolicy(IPolicyBuilder<IDoneDataBuilder> pb) =>
-		pb.OptionalElement(ScxmlNs, name: "content", async (dr, b) => b.SetContent(await dr.ReadContent().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "param", async (dr, b) => b.AddParameter(await dr.ReadParam().ConfigureAwait(false)));
+		pb.OptionalElement(Const.ScxmlNs, name: "content", async (dr, b) => b.SetContent(await dr.ReadContent().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "param", async (dr, b) => b.AddParameter(await dr.ReadParam().ConfigureAwait(false)));
 
 	private async ValueTask<IForEach> ReadForEach() => (await Populate(ForEachBuilderFactory(CreateAncestor()), ForEachPolicy).ConfigureAwait(false)).Build();
 
@@ -713,30 +710,30 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 		pb.RequiredAttribute(name: "array", (dr, b) => b.SetArray(dr.AsValueExpression(dr.AttributeValue)))
 		  .RequiredAttribute(name: "item", (dr, b) => b.SetItem(dr.AsLocationExpression(dr.AttributeValue)))
 		  .OptionalAttribute(name: "index", (dr, b) => b.SetIndex(dr.AsLocationExpression(dr.AttributeValue)))
-		  .MultipleElements(ScxmlNs, name: "assign", async (dr, b) => b.AddAction(await dr.ReadAssign().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "foreach", async (dr, b) => b.AddAction(await dr.ReadForEach().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "if", async (dr, b) => b.AddAction(await dr.ReadIf().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "log", async (dr, b) => b.AddAction(await dr.ReadLog().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "raise", async (dr, b) => b.AddAction(await dr.ReadRaise().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "send", async (dr, b) => b.AddAction(await dr.ReadSend().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "cancel", async (dr, b) => b.AddAction(await dr.ReadCancel().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "script", async (dr, b) => b.AddAction(await dr.ReadScript().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "assign", async (dr, b) => b.AddAction(await dr.ReadAssign().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "foreach", async (dr, b) => b.AddAction(await dr.ReadForEach().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "if", async (dr, b) => b.AddAction(await dr.ReadIf().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "log", async (dr, b) => b.AddAction(await dr.ReadLog().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "raise", async (dr, b) => b.AddAction(await dr.ReadRaise().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "send", async (dr, b) => b.AddAction(await dr.ReadSend().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "cancel", async (dr, b) => b.AddAction(await dr.ReadCancel().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "script", async (dr, b) => b.AddAction(await dr.ReadScript().ConfigureAwait(false)))
 		  .UnknownElement(async (dr, b) => b.AddAction(await dr.ReadCustomAction().ConfigureAwait(false)));
 
 	private async ValueTask<IIf> ReadIf() => (await Populate(IfBuilderFactory(CreateAncestor()), IfPolicy).ConfigureAwait(false)).Build();
 
 	private static void IfBuildPolicy(IPolicyBuilder<IIfBuilder> pb) =>
 		pb.RequiredAttribute(name: "cond", (dr, b) => b.SetCondition(dr.AsConditionalExpression(dr.AttributeValue)))
-		  .MultipleElements(ScxmlNs, name: "elseif", async (dr, b) => b.AddAction(await dr.ReadElseIf().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "else", async (dr, b) => b.AddAction(await dr.ReadElse().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "assign", async (dr, b) => b.AddAction(await dr.ReadAssign().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "foreach", async (dr, b) => b.AddAction(await dr.ReadForEach().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "if", async (dr, b) => b.AddAction(await dr.ReadIf().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "log", async (dr, b) => b.AddAction(await dr.ReadLog().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "raise", async (dr, b) => b.AddAction(await dr.ReadRaise().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "send", async (dr, b) => b.AddAction(await dr.ReadSend().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "cancel", async (dr, b) => b.AddAction(await dr.ReadCancel().ConfigureAwait(false)))
-		  .MultipleElements(ScxmlNs, name: "script", async (dr, b) => b.AddAction(await dr.ReadScript().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "elseif", async (dr, b) => b.AddAction(await dr.ReadElseIf().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "else", async (dr, b) => b.AddAction(await dr.ReadElse().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "assign", async (dr, b) => b.AddAction(await dr.ReadAssign().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "foreach", async (dr, b) => b.AddAction(await dr.ReadForEach().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "if", async (dr, b) => b.AddAction(await dr.ReadIf().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "log", async (dr, b) => b.AddAction(await dr.ReadLog().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "raise", async (dr, b) => b.AddAction(await dr.ReadRaise().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "send", async (dr, b) => b.AddAction(await dr.ReadSend().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "cancel", async (dr, b) => b.AddAction(await dr.ReadCancel().ConfigureAwait(false)))
+		  .MultipleElements(Const.ScxmlNs, name: "script", async (dr, b) => b.AddAction(await dr.ReadScript().ConfigureAwait(false)))
 		  .UnknownElement(async (dr, b) => b.AddAction(await dr.ReadCustomAction().ConfigureAwait(false)));
 
 	private async ValueTask<IElse> ReadElse() => (await Populate(ElseBuilderFactory(CreateAncestor()), ElsePolicy).ConfigureAwait(false)).Build();

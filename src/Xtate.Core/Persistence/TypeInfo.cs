@@ -57,7 +57,7 @@ public enum TypeInfo
 
 	HistoryNode,
 
-	HostEvent,
+	RouterEvent,
 
 	IdentifierNode,
 

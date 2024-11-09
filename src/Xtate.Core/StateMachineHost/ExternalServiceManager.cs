@@ -15,9 +15,23 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.ExternalService;
+using Xtate.ExternalService;
 
-public interface IExternalServiceProvider
+namespace Xtate.Core;
+
+public class ExternalServiceManager : IExternalServiceManager
 {
-	IExternalServiceActivator? TryGetActivator(FullUri type);
+	public required ExternalServiceEventRouter ExternalServiceEventRouter { private get; [UsedImplicitly] init; }
+
+	public required IExternalServiceScopeManager ExternalServiceScopeManager { private get; [UsedImplicitly] init; }
+
+#region Interface IExternalServiceManager
+
+	public ValueTask Forward(InvokeId invokeId, IIncomingEvent incomingEvent) => ExternalServiceEventRouter.Dispatch(invokeId, incomingEvent);
+
+	public ValueTask Start(InvokeId invokeId, InvokeData invokeData) => ExternalServiceScopeManager.Start(invokeId, invokeData);
+
+	public ValueTask Cancel(InvokeId invokeId) => ExternalServiceScopeManager.Cancel(invokeId);
+
+#endregion
 }
