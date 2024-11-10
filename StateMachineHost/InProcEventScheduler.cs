@@ -51,9 +51,7 @@ public class InProcEventScheduler : IEventScheduler, IDisposable
 
 		AddScheduledEvent(scheduledEvent);
 
-		var delayedFireTask = DelayedFire(scheduledEvent);
-
-		TaskCollector.Collect(delayedFireTask);
+		TaskCollector.Collect(DelayedFire(scheduledEvent));
 
 		return default;
 	}
