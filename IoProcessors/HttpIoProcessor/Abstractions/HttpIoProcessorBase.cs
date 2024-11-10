@@ -67,7 +67,9 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 	public async ValueTask DisposeAsync()
 	{
 		await DisposeAsyncCore().ConfigureAwait(false);
+		
 		Dispose(false);
+		
 		GC.SuppressFinalize(this);
 	}
 
@@ -97,7 +99,8 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 	}
 
 	protected virtual void Dispose(bool dispose)
-	{
+	{   //TODO:
+		/*
 		if (Hosts.TryGetValue(_ipEndPoint, out var host))
 		{
 			var last = host.RemoveProcessor(this, token: default).SynchronousGetResult();
@@ -106,7 +109,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 			{
 				Disposer.Dispose(host);
 			}
-		}
+		}*/
 	}
 
 	private static bool IsInterfaceAddress(IPAddress address)

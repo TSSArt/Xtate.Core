@@ -767,6 +767,9 @@
   <data name="Exception_LoadingExternalResourcesDoesNotSupported" xml:space="preserve">
     <value>Loading external resources does not supported. Derive class from ScxmlXmlResolver and pass instance of it to ScxmlDirector.</value>
   </data>
+  <data name="Exception_LoadingExternalResourcesSynchronouslyDoesNotSupported" xml:space="preserve">
+    <value>Loading external resources synchronously does not supported.</value>
+  </data>
   <data name="Exception_AccessToIOBoundThreadsDenied" xml:space="preserve">
     <value>Access to IO bound threads denied.</value>
   </data>

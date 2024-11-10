@@ -23,7 +23,7 @@ namespace Xtate.ExternalService.SmtpClient;
 
 public class SmtpClientService : ExternalServiceBase
 {
-	public class Provider() : ExternalServiceProvider<SmtpClientService>(type: @"http://xtate.net/scxml/service/#SMTPClient", alias: @"smtp");
+	public class Provider() : ExternalServiceProviderBase<SmtpClientService>(type: @"http://xtate.net/scxml/service/#SMTPClient", alias: @"smtp");
 
 	protected override async ValueTask<DataModelValue> Execute()
 	{

@@ -41,6 +41,7 @@ public class Resource(Stream stream, ContentType? contentType) : IDisposable, IA
 		await DisposeAsyncCore().ConfigureAwait(false);
 
 		Dispose(false);
+		
 		GC.SuppressFinalize(this);
 	}
 
@@ -72,12 +73,7 @@ public class Resource(Stream stream, ContentType? contentType) : IDisposable, IA
 		}
 	}
 
-	protected virtual ValueTask DisposeAsyncCore()
-	{
-		_disposingToken.Dispose();
-
-		return default;
-	}
+	protected virtual ValueTask DisposeAsyncCore() => _disposingToken.DisposeAsync();
 
 	public async ValueTask<string> GetContent()
 	{

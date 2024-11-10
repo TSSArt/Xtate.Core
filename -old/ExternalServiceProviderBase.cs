@@ -17,7 +17,7 @@
 
 namespace Xtate.ExternalService;
 
-[Obsolete("Use ExternalServiceProvider<TService>")]
+[Obsolete("Use ExternalServiceProviderBase<TService>")]
 public abstract class ExternalServiceProviderBase : IExternalServiceProvider
 {
 	private Activator? _activator;

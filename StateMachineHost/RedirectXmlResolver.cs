@@ -45,6 +45,12 @@ public class RedirectXmlResolver : ScxmlXmlResolver, IDisposable
 		}
 	}
 
+	protected override object GetEntity(Uri uri,
+										string? accept,
+										string? acceptLanguage,
+										Type? ofObjectToReturn) =>
+		throw new NotSupportedException(Resources.Exception_LoadingExternalResourcesSynchronouslyDoesNotSupported);
+
 	protected override async ValueTask<object> GetEntityAsync(Uri uri,
 															  string? accept,
 															  string? acceptLanguage,
