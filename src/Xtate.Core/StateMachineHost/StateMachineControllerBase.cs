@@ -109,9 +109,7 @@ public abstract class StateMachineControllerBase : IStateMachineController, INot
 
 	protected virtual ValueTask Start()
 	{
-		var valueTask = ExecuteAsync();
-		
-		TaskCollector.Collect(valueTask);
+		TaskCollector.Collect(ExecuteAsync());
 
 		return new ValueTask(_acceptedTcs.Task.WaitAsync(_disposingToken.Token));
 	}

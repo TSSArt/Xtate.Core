@@ -48,9 +48,7 @@ public class StateMachineExternalService : ExternalServiceBase
 	{
 		if (disposing)
 		{
-			var destroyStateMachineTask = HostController.DestroyStateMachine(_sessionId);
-
-			TaskCollector.Collect(destroyStateMachineTask);
+			TaskCollector.Collect(HostController.DestroyStateMachine(_sessionId));
 		}
 
 		base.Dispose(disposing);
