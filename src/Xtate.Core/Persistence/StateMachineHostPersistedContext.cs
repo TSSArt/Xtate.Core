@@ -204,7 +204,9 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 				  sessionId, stateMachineOptions, stateMachine, stateMachineLocation, stateMachineHost: null /*_stateMachineHost*/,
 				  _storageProvider, _idlePeriod /*, defaultOption*s*/)
 			  {
-				  EventQueueWriter = default!, StateMachineInterpreter = default
+				  EventQueueWriter = default!,
+				  StateMachineInterpreter = default,
+				  TaskCollector = null
 			  }
 			: base.CreateStateMachineController(sessionId, stateMachine, stateMachineOptions, stateMachineLocation /*, defaultOptions*/);
 

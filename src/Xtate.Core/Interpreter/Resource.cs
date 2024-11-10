@@ -26,7 +26,7 @@ public class Resource(Stream stream, ContentType? contentType) : IDisposable, IA
 {
 	private readonly DisposingToken _disposingToken = new();
 
-	private readonly Stream _stream = stream ?? throw new ArgumentNullException(nameof(stream));
+	private Stream? _stream = stream ?? throw new ArgumentNullException(nameof(stream));
 
 	private byte[]? _bytes;
 
@@ -52,6 +52,7 @@ public class Resource(Stream stream, ContentType? contentType) : IDisposable, IA
 	public void Dispose()
 	{
 		Dispose(true);
+
 		GC.SuppressFinalize(this);
 	}
 
@@ -67,16 +68,47 @@ public class Resource(Stream stream, ContentType? contentType) : IDisposable, IA
 
 	protected virtual void Dispose(bool disposing)
 	{
-		if (disposing)
+		if (!disposing)
 		{
-			_disposingToken.Dispose();
+			return;
 		}
+
+		if (_stream is not { } stream)
+		{
+			return;
+		}
+
+		_stream = null;
+
+		_disposingToken.Dispose();
+
+		stream.Dispose();
+
+		_bytes = null;
+		_content = null;
 	}
 
-	protected virtual ValueTask DisposeAsyncCore() => _disposingToken.DisposeAsync();
+	protected virtual async ValueTask DisposeAsyncCore()
+	{
+		if (_stream is not { } stream)
+		{
+			return;
+		}
+
+		_stream = null;
+
+		await _disposingToken.DisposeAsync().ConfigureAwait(false);
+		
+		await stream.DisposeAsync().ConfigureAwait(false);
+
+		_bytes = null;
+		_content = null;
+	}
 
 	public async ValueTask<string> GetContent()
 	{
+		Infra.EnsureNotDisposed(_stream is not null, this);
+
 		if (_content is not null)
 		{
 			return _content;
@@ -99,6 +131,8 @@ public class Resource(Stream stream, ContentType? contentType) : IDisposable, IA
 
 	public async ValueTask<byte[]> GetBytes()
 	{
+		Infra.EnsureNotDisposed(_stream is not null, this);
+
 		if (_bytes is not null)
 		{
 			return _bytes;
@@ -117,6 +151,8 @@ public class Resource(Stream stream, ContentType? contentType) : IDisposable, IA
 
 	public async ValueTask<Stream> GetStream(bool doNotCache)
 	{
+		Infra.EnsureNotDisposed(_stream is not null, this);
+
 		if (_bytes is not null)
 		{
 			return new MemoryStream(_bytes, writable: false);

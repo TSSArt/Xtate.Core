@@ -25,7 +25,10 @@ public static class NamedPipeIoProcessorExtensions
 	{
 		if (builder is null) throw new ArgumentNullException(nameof(builder));
 
-		builder.AddIoProcessorFactory(new NamedPipeIoProcessorFactory(name, maxMessageSize));
+		builder.AddIoProcessorFactory(new NamedPipeIoProcessorFactory(name, maxMessageSize)
+									  {
+										  TaskCollector = null
+									  });
 
 		return builder;
 	}
@@ -37,7 +40,10 @@ public static class NamedPipeIoProcessorExtensions
 	{
 		if (builder is null) throw new ArgumentNullException(nameof(builder));
 
-		builder.AddIoProcessorFactory(new NamedPipeIoProcessorFactory(host, name, maxMessageSize));
+		builder.AddIoProcessorFactory(new NamedPipeIoProcessorFactory(host, name, maxMessageSize)
+									  {
+										  TaskCollector = null
+									  });
 
 		return builder;
 	}

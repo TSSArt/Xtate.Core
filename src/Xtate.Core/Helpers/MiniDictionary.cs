@@ -61,7 +61,9 @@ public class MiniDictionary<TKey, TValue>(IEqualityComparer<TKey>? equalityCompa
 	{
 		lock (this)
 		{
-			return _dictionary ??= new ConcurrentDictionary<TKey, TValue>(ConcurrencyLevel, InitialCapacity, equalityComparer!);
+			return _dictionary ??= new ConcurrentDictionary<TKey, TValue>(ConcurrencyLevel, InitialCapacity, equalityComparer ?? EqualityComparer<TKey>.Default);
 		}
 	}
+
+	public int Count => _dictionary?.Count ?? 0;
 }

@@ -27,8 +27,11 @@ public sealed class InProcEventSchedulerFactory : IEventSchedulerFactory
 		new(
 			new InProcEventScheduler
 			{
-				Logger = null, EventSchedulerInfoEnricher = null, EventRouters = null,
-				StateMachineSessionId = null
+				Logger = null,
+				EventSchedulerInfoEnricher = null,
+				EventRouters = null,
+				StateMachineSessionId = null,
+				TaskCollector = null
 			}); //TODO: move factory to IoC
 
 #endregion

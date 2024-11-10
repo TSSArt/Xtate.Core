@@ -22,7 +22,7 @@ using Xtate.XInclude;
 
 namespace Xtate.Scxml;
 
-public class ScxmlModule : Module<ErrorProcessorModule, StateMachineBuilderModule, ResourceLoadersModule, NameTableModule>
+public class ScxmlModule : Module<ErrorProcessorModule, StateMachineBuilderModule, ResourceLoadersModule, NameTableModule, ToolsModule>
 {
 	protected override void AddServices()
 	{

@@ -33,6 +33,8 @@ public sealed class NamedPipeIoProcessorFactory : IIoProcessorFactory
 
 	private readonly string _name;
 
+	public required TaskCollector TaskCollector { private get; [UsedImplicitly] init; }
+
 	public NamedPipeIoProcessorFactory(string name, int? maxMessageSize = default)
 	{
 		if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
@@ -58,11 +60,17 @@ public sealed class NamedPipeIoProcessorFactory : IIoProcessorFactory
 	{
 		if (eventConsumer is null) throw new ArgumentNullException(nameof(eventConsumer));
 
-		var processor = new NamedPipeIoProcessor(eventConsumer, _host, _name, _maxMessageSize ?? DefaultMaxMessageSize) { StateMachineSessionId = null };
+		var processor = new NamedPipeIoProcessor(eventConsumer, _host, _name, _maxMessageSize ?? DefaultMaxMessageSize)
+						{
+							StateMachineSessionId = null,
+							TaskCollector = null
+						};
 
 		for (var i = 0; i < FreeSlotsCount; i ++)
 		{
-			processor.StartListener().Forget();
+			var startListenerTask = processor.StartListener();
+				
+			TaskCollector.Collect(startListenerTask);
 		}
 
 		await processor.CheckPipeline(token).ConfigureAwait(false);

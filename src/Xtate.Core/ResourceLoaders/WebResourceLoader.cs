@@ -22,25 +22,15 @@ using System.Net.Mime;
 
 namespace Xtate.Core;
 
-public class WebResourceLoader : IResourceLoader, IDisposable
+public class WebResourceLoader : IResourceLoader
 {
 	public class Provider() : ResourceLoaderProviderBase<WebResourceLoader>(uri => uri is { IsAbsoluteUri: true, Scheme: @"http" or @"https" });
 
-	private readonly DisposingToken _disposingToken = new();
+	public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
 
 	public required Func<Stream, ContentType?, Resource> ResourceFactory { private get; [UsedImplicitly] init; }
 
 	public required Func<HttpClient> HttpClientFactory { private get; [UsedImplicitly] init; }
-
-#region Interface IDisposable
-
-	public void Dispose()
-	{
-		Dispose(true);
-		GC.SuppressFinalize(this);
-	}
-
-#endregion
 
 #region Interface IResourceLoader
 
@@ -51,11 +41,11 @@ public class WebResourceLoader : IResourceLoader, IDisposable
 		using var request = CreateRequestMessage(uri, headers);
 		using var httpClient = HttpClientFactory();
 
-		var response = await httpClient.SendAsync(request, _disposingToken.Token).ConfigureAwait(false);
+		var response = await httpClient.SendAsync(request, DisposeToken).ConfigureAwait(false);
 		var contentType = response.Content.Headers.ContentType?.MediaType is { Length: > 0 } value ? new ContentType(value) : null;
 
 #if NET5_0_OR_GREATER
-		var stream = await response.Content.ReadAsStreamAsync(_disposingToken.Token).ConfigureAwait(false);
+		var stream = await response.Content.ReadAsStreamAsync(DisposeToken).ConfigureAwait(false);
 #else
 		var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
 #endif
@@ -81,13 +71,5 @@ public class WebResourceLoader : IResourceLoader, IDisposable
 		}
 
 		return httpRequestMessage;
-	}
-
-	protected virtual void Dispose(bool disposing)
-	{
-		if (disposing)
-		{
-			_disposingToken.Dispose();
-		}
 	}
 }

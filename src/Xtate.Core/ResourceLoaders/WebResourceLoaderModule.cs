@@ -20,7 +20,7 @@ using Xtate.IoC;
 
 namespace Xtate.Core;
 
-public class WebResourceLoaderModule : Module<ResourceModule>
+public class WebResourceLoaderModule : Module<ResourceModule, ToolsModule>
 {
 	protected override void AddServices()
 	{

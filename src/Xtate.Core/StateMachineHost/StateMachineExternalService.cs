@@ -28,6 +28,8 @@ public class StateMachineExternalService : ExternalServiceBase
 	public required IHostController HostController { private get; [UsedImplicitly] init; }
 
 	public required IStateMachineLocation StateMachineLocation { private get; [UsedImplicitly] init; }
+	
+	public required TaskCollector TaskCollector { private get; [UsedImplicitly] init; }
 
 	protected override ValueTask<DataModelValue> Execute()
 	{
@@ -36,7 +38,7 @@ public class StateMachineExternalService : ExternalServiceBase
 		Infra.Assert(scxml is not null || Source is not null);
 
 		var stateMachineClass = scxml is not null
-			? (StateMachineClass) new ScxmlStringStateMachine(scxml) { SessionId = _sessionId, Location = StateMachineLocation.Location, Arguments = Parameters }
+			? (StateMachineClass) new ScxmlStringStateMachine(scxml) { SessionId = _sessionId, Location = StateMachineLocation.Location!, Arguments = Parameters }
 			: new LocationStateMachine(StateMachineLocation.Location.CombineWith(Source!)) { SessionId = _sessionId, Arguments = Parameters };
 
 		return HostController.ExecuteStateMachine(stateMachineClass, SecurityContextType.InvokedService);
@@ -46,7 +48,9 @@ public class StateMachineExternalService : ExternalServiceBase
 	{
 		if (disposing)
 		{
-			HostController.DestroyStateMachine(_sessionId).Forget();
+			var destroyStateMachineTask = HostController.DestroyStateMachine(_sessionId);
+
+			TaskCollector.Collect(destroyStateMachineTask);
 		}
 
 		base.Dispose(disposing);

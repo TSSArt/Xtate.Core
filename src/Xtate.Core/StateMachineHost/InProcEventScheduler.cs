@@ -30,6 +30,8 @@ public class InProcEventScheduler : IEventScheduler, IDisposable
 	public required ILogger<InProcEventScheduler> Logger { private get; [UsedImplicitly] init; }
 
 	public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
+	
+	public required TaskCollector TaskCollector { private get; [UsedImplicitly] init; }
 
 #region Interface IDisposable
 
@@ -49,7 +51,9 @@ public class InProcEventScheduler : IEventScheduler, IDisposable
 
 		AddScheduledEvent(scheduledEvent);
 
-		DelayedFire(scheduledEvent).Forget();
+		var delayedFireTask = DelayedFire(scheduledEvent);
+
+		TaskCollector.Collect(delayedFireTask);
 
 		return default;
 	}

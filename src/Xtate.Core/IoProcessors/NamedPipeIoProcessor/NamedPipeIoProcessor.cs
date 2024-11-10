@@ -55,6 +55,8 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 
 	private readonly CancellationTokenSource _stopTokenSource = new();
 
+	public required TaskCollector TaskCollector { private get; [UsedImplicitly] init; }
+
 	public NamedPipeIoProcessor(IEventConsumer eventConsumer,
 								[Localizable(false)] string host,
 								[Localizable(false)] string name,
@@ -196,7 +198,9 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 			{
 				await pipeStream.WaitForConnectionAsync(_stopTokenSource.Token).ConfigureAwait(false);
 
-				StartListener().Forget();
+				var startListenerTask = StartListener();
+				
+				TaskCollector.Collect(startListenerTask);
 
 				await ReceiveMessage(pipeStream, memoryStream, _stopTokenSource.Token).ConfigureAwait(false);
 

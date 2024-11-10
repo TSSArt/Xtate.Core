@@ -19,12 +19,12 @@ using System.Xml;
 
 namespace Xtate.CustomAction;
 
-public class DestroyAction : AsyncAction, IDisposable
+public class DestroyAction : AsyncAction
 {
 	public class Provider() : ActionProvider<DestroyAction>(ns: "http://xtate.net/scxml/system", name: "destroy");
 
-	private readonly DisposingToken _disposingToken = new();
-
+	public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
+	
 	private readonly StringValue _sessionIdValue;
 
 	public DestroyAction(XmlReader xmlReader, IErrorProcessorService<DestroyAction> errorProcessorService)
@@ -52,23 +52,13 @@ public class DestroyAction : AsyncAction, IDisposable
 
 	public required IHostController Host { private get; [UsedImplicitly] init; }
 
-#region Interface IDisposable
-
-	public void Dispose()
-	{
-		Dispose(true);
-		GC.SuppressFinalize(this);
-	}
-
-#endregion
-
 	protected override IEnumerable<Value> GetValues() { yield return _sessionIdValue; }
 
 	protected override async ValueTask Execute()
 	{
 		var sessionId = await GetSessionId().ConfigureAwait(false);
 
-		await Host.DestroyStateMachine(sessionId).WaitAsync(_disposingToken.Token).ConfigureAwait(false);
+		await Host.DestroyStateMachine(sessionId).WaitAsync(DisposeToken).ConfigureAwait(false);
 	}
 
 	private async ValueTask<SessionId> GetSessionId()
@@ -81,13 +71,5 @@ public class DestroyAction : AsyncAction, IDisposable
 		}
 
 		return SessionId.FromString(sessionId);
-	}
-
-	protected virtual void Dispose(bool disposing)
-	{
-		if (disposing)
-		{
-			_disposingToken.Dispose();
-		}
 	}
 }
