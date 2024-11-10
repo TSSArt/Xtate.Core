@@ -29,6 +29,8 @@ public class LocalCache<TKey, TValue> : IDisposable, IAsyncDisposable where TKey
 	{
 		await DisposeAsyncCore().ConfigureAwait(false);
 
+		Dispose(false);
+
 		GC.SuppressFinalize(this);
 	}
 
@@ -49,7 +51,12 @@ public class LocalCache<TKey, TValue> : IDisposable, IAsyncDisposable where TKey
 	{
 		if (disposing)
 		{
-			DisposeAsync().SynchronousWait();
+			foreach (var pair in _localDictionary)
+			{
+				DropEntry(pair.Key, pair.Value);
+			}
+
+			_localDictionary.Clear();
 		}
 	}
 
@@ -57,15 +64,25 @@ public class LocalCache<TKey, TValue> : IDisposable, IAsyncDisposable where TKey
 	{
 		foreach (var pair in _localDictionary)
 		{
-			await DropEntry(pair.Key, pair.Value).ConfigureAwait(false);
+			await DropEntryAsync(pair.Key, pair.Value).ConfigureAwait(false);
 		}
 
 		_localDictionary.Clear();
 	}
 
-	private async ValueTask DropEntry(TKey key, CacheEntry<TValue> entry)
+	private void DropEntry(TKey key, CacheEntry<TValue> entry)
 	{
-		var noMoreReferences = await entry.RemoveReference().ConfigureAwait(false);
+		var noMoreReferences = entry.RemoveReference();
+
+		if ((entry.Options & ValueOptions.ThreadSafe) != 0 && noMoreReferences)
+		{
+			GlobalCache.Remove(key, entry);
+		}
+	}
+
+	private async ValueTask DropEntryAsync(TKey key, CacheEntry<TValue> entry)
+	{
+		var noMoreReferences = await entry.RemoveReferenceAsync().ConfigureAwait(false);
 
 		if ((entry.Options & ValueOptions.ThreadSafe) != 0 && noMoreReferences)
 		{
@@ -77,7 +94,7 @@ public class LocalCache<TKey, TValue> : IDisposable, IAsyncDisposable where TKey
 	{
 		if (_localDictionary.TryGetValue(key, out var entry))
 		{
-			await DropEntry(key, entry).ConfigureAwait(false);
+			await DropEntryAsync(key, entry).ConfigureAwait(false);
 		}
 
 		var newEntry = new CacheEntry<TValue>(value, options);
@@ -99,12 +116,7 @@ public class LocalCache<TKey, TValue> : IDisposable, IAsyncDisposable where TKey
 
 		if (GlobalCache.TryGetValue(key, out var globalEntry) && globalEntry.TryGetValue(out value) && globalEntry.AddReference())
 		{
-			if (localEntry is not null)
-			{
-				var valueTask = localEntry.RemoveReference();
-				Infra.Assert(valueTask.IsCompleted);
-				valueTask.GetAwaiter().GetResult();
-			}
+			localEntry?.RemoveReference();
 
 			_localDictionary[key] = globalEntry;
 

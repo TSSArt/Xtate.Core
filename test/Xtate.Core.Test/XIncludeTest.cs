@@ -64,12 +64,12 @@ public class XIncludeTest
 		var xIncludeReader = await serviceProvider.GetRequiredService<XIncludeReader, XmlReader>(xmlReader);
 
 		var builder = new StringBuilder();
-		var xmlWriter = XmlWriter.Create(builder);
+		var xmlWriter = XmlWriter.Create(builder, new XmlWriterSettings { Async = true });
 
 		while (await xIncludeReader.ReadAsync())
 		{
 			// ReSharper disable once MethodHasAsyncOverload
-			xmlWriter.WriteNode(xmlReader, defattr: false);
+			await xmlWriter.WriteNodeAsync(xmlReader, defattr: false);
 		}
 
 		xmlWriter.Close();
@@ -96,12 +96,12 @@ public class XIncludeTest
 		var xIncludeReader = await serviceProvider.GetRequiredService<XIncludeReader, XmlReader>(xmlReader);
 
 		var builder = new StringBuilder();
-		var xmlWriter = XmlWriter.Create(builder);
+		var xmlWriter = XmlWriter.Create(builder, new XmlWriterSettings { Async = true });
 
 		while (await xIncludeReader.ReadAsync())
 		{
 			// ReSharper disable once MethodHasAsyncOverload
-			xmlWriter.WriteNode(xIncludeReader, defattr: false);
+			await xmlWriter.WriteNodeAsync(xIncludeReader, defattr: false);
 		}
 
 		xmlWriter.Close();

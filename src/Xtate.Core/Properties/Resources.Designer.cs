@@ -1704,6 +1704,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Loading external resources synchronously does not supported..
+        /// </summary>
+        internal static string Exception_LoadingExternalResourcesSynchronouslyDoesNotSupported {
+            get {
+                return ResourceManager.GetString("Exception_LoadingExternalResourcesSynchronouslyDoesNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Location does not specify..
         /// </summary>
         internal static string Exception_LocationDoesNotSpecify {

@@ -208,7 +208,7 @@ public class RegisterClassTest
 		const string xml = @"<scxml version='1.0' xmlns='http://www.w3.org/2005/07/scxml' datamodel='xpath'><state xmlns:eee='qval' id='test'></state></scxml>";
 
 		using var textReader = new StringReader(xml);
-		using var reader = XmlReader.Create(textReader);
+		using var reader = XmlReader.Create(textReader, new XmlReaderSettings { Async = true });
 
 		var scxmlDeserializer = await provider.GetRequiredService<IScxmlDeserializer>();
 
@@ -387,7 +387,7 @@ public class RegisterClassTest
 						   """;
 
 		using var textReader = new StringReader(xml);
-		using var reader = XmlReader.Create(textReader, new XmlReaderSettings { NameTable = provider.GetRequiredServiceSync<INameTableProvider>().GetNameTable() });
+		using var reader = XmlReader.Create(textReader, new XmlReaderSettings { Async = true, NameTable = provider.GetRequiredServiceSync<INameTableProvider>().GetNameTable() });
 
 		var scxmlDeserializer = await provider.GetRequiredService<IScxmlDeserializer>();
 		var stateMachine = await scxmlDeserializer.Deserialize(reader);
