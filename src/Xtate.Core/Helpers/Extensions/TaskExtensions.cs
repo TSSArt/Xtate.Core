@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using InvalidOperationException = System.InvalidOperationException;
 
@@ -22,6 +23,8 @@ namespace Xtate.Core;
 
 internal static class TaskExtensions
 {
+	private static ConcurrentDictionary<Task, ValueTuple>? _forgottenTasks;
+
 	public static ValueTask WaitAsync(this ValueTask valueTask, CancellationToken token)
 	{
 		if (valueTask.IsCompleted || !token.CanBeCanceled)
@@ -68,6 +71,15 @@ internal static class TaskExtensions
 		}
 	}
 
+	public static Func<Task> GetForgottenTasksHandler()
+	{
+		_forgottenTasks ??= [];
+
+		return WaitForForgottenTasks;
+	}
+
+	private static Task WaitForForgottenTasks() => _forgottenTasks is not null ? Task.WhenAll(_forgottenTasks.Keys) : Task.CompletedTask;
+
 	/// <summary>
 	///     Do not wait ValueTask for completion if it is not completed. Result of execution ignored.
 	/// </summary>
@@ -77,6 +89,10 @@ internal static class TaskExtensions
 		if (valueTask.IsCompleted)
 		{
 			valueTask.GetAwaiter().GetResult();
+		}
+		else if (_forgottenTasks is not null)
+		{
+			Register(valueTask.AsTask());
 		}
 	}
 
@@ -91,6 +107,20 @@ internal static class TaskExtensions
 		{
 			valueTask.GetAwaiter().GetResult();
 		}
+		else if (_forgottenTasks is not null)
+		{
+			Register(valueTask.AsTask());
+		}
+	}
+
+	private static void Register(Task task)
+	{
+		Infra.NotNull(_forgottenTasks);
+
+		_forgottenTasks.TryAdd(task, default);
+
+		const TaskContinuationOptions options = TaskContinuationOptions.ExecuteSynchronously | TaskContinuationOptions.OnlyOnRanToCompletion;
+		task.ContinueWith(t => _forgottenTasks.TryRemove(task, out _), options);
 	}
 
 #if !NET6_0_OR_GREATER

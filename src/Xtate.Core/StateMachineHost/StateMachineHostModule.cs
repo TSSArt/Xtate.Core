@@ -70,5 +70,8 @@ public class StateMachineHostModule : Module<StateMachineInterpreterModule>
 		Services.AddSharedImplementation<ExternalServiceEventRouter>(SharedWithin.Scope).For<ExternalServiceEventRouter>().For<IEventRouter>();
 		Services.AddSharedImplementation<ScxmlIoProcessor>(SharedWithin.Scope).For<IIoProcessor>().For<IEventRouter>();
 		Services.AddImplementation<EventDispatcher>().For<IEventDispatcher>();
+
+		Services.AddType<StateMachineExternalService>();
+		Services.AddImplementation<StateMachineExternalService.Provider>().For<IExternalServiceProvider>();
 	}
 }

@@ -29,7 +29,7 @@ public sealed partial class StateMachineHost : IHostController
 
 #region Interface IHostController
 
-	ValueTask<IStateMachineController> IHostController.StartStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType) =>
+	ValueTask IHostController.StartStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType) =>
 		StartStateMachine(stateMachineClass, securityContextType);
 
 	ValueTask<DataModelValue> IHostController.ExecuteStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType) =>
@@ -39,7 +39,7 @@ public sealed partial class StateMachineHost : IHostController
 
 #endregion
 
-	private async ValueTask<IStateMachineController> StartStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType)
+	private async ValueTask StartStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType)
 	{
 		await using var registration = SecurityContextRegistrationFactory(securityContextType).ConfigureAwait(false);
 
@@ -50,8 +50,6 @@ public sealed partial class StateMachineHost : IHostController
 		try
 		{
 			runner = await scope.ServiceProvider.GetRequiredService<IStateMachineRunner, IStateMachineHostContext>(StateMachineHostContext).ConfigureAwait(false);
-
-			return await scope.ServiceProvider.GetRequiredService<IStateMachineController>().ConfigureAwait(false);
 		}
 		finally
 		{
