@@ -15,17 +15,22 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Core;
+namespace Xtate.Core.Test;
 
-public interface IHostController
+[TestClass]
+public class ForgottenTasks
 {
-	ValueTask StartStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType);
+	private static Func<Task> _forgottenTasksHandler = default!;
 
-	ValueTask<DataModelValue> ExecuteStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType);
+	[AssemblyInitialize]
+	public static void Init(TestContext testContext)
+	{
+		_forgottenTasksHandler = TaskExtensions.GetForgottenTasksHandler();
+	}
 
-	ValueTask DestroyStateMachine(SessionId sessionId);
-
-	ValueTask StartHost();
-
-	ValueTask StopHost();
+	[AssemblyCleanup]
+	public static async Task Final()
+	{
+		await _forgottenTasksHandler();
+	}
 }
