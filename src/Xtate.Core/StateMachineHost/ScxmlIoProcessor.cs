@@ -29,6 +29,8 @@ public class ScxmlIoProcessor(IExternalServiceInvokeId? externalServiceInvokeId,
 
 	public required IParentEventDispatcher? ParentEventDispatcher { private get; [UsedImplicitly] init; }
 
+	public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
+
 #region Interface IEventRouter
 
 	public bool CanHandle(FullUri? type) => type is null || type == Const.ScxmlIoProcessorId || type == Const.ScxmlIoProcessorAliasId;
@@ -44,16 +46,21 @@ public class ScxmlIoProcessor(IExternalServiceInvokeId? externalServiceInvokeId,
 
 	public ValueTask Dispatch(IRouterEvent routerEvent)
 	{
+		if (DisposeToken.IsCancellationRequested)
+		{
+			return default;
+		}
+
 		Infra.NotNull(routerEvent.TargetServiceId);
 
 		if (routerEvent.TargetServiceId == _senderServiceId)
 		{
-			return EventDispatcher.Dispatch(routerEvent);
+			return EventDispatcher?.Dispatch(routerEvent) ?? default;
 		}
 
 		if (routerEvent.TargetServiceId == ParentStateMachineSessionId?.SessionId)
 		{
-			return ParentEventDispatcher.Dispatch(routerEvent);
+			return ParentEventDispatcher?.Dispatch(routerEvent) ?? default;
 		}
 
 		//var service = await GetService(routerEvent.TargetServiceId, token: default).ConfigureAwait(false);

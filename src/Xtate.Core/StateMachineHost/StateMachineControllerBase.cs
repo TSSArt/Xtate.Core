@@ -16,7 +16,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Threading.Channels;
-using Xtate.ExternalService;
 using Xtate.IoC;
 
 namespace Xtate.Core;
@@ -49,6 +48,8 @@ public abstract class StateMachineControllerBase : IStateMachineController, INot
 	}
 
 	public required IStateMachineInterpreter StateMachineInterpreter { private get; [UsedImplicitly] init; }
+	
+	public required TaskCollector TaskCollector { private get; [UsedImplicitly] init; }
 
 	protected abstract Channel<IIncomingEvent> EventChannel { get; }
 
@@ -108,7 +109,9 @@ public abstract class StateMachineControllerBase : IStateMachineController, INot
 
 	protected virtual ValueTask Start()
 	{
-		ExecuteAsync().Forget();
+		var valueTask = ExecuteAsync();
+		
+		TaskCollector.Collect(valueTask);
 
 		return new ValueTask(_acceptedTcs.Task.WaitAsync(_disposingToken.Token));
 	}

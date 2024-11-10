@@ -44,6 +44,8 @@ public class StateMachineHostModule : Module<StateMachineInterpreterModule>
 
 		Services.AddSharedImplementation<StateMachineRuntimeController>(SharedWithin.Scope).For<IStateMachineController>();
 
+		
+
 		//.For<IInvokeController>();
 		//.For<INotifyStateChanged>();//
 		//.For<IExternalCommunication>();
