@@ -37,6 +37,9 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 	public async ValueTask DisposeAsync()
 	{
 		await DisposeAsyncCore().ConfigureAwait(false);
+
+		Dispose(false);
+
 		GC.SuppressFinalize(this);
 	}
 

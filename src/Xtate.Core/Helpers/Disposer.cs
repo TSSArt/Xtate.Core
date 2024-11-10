@@ -21,17 +21,9 @@ public static class Disposer
 {
 	public static void Dispose<T>(T instance)
 	{
-		switch (instance)
+		if (instance is IDisposable disposable)
 		{
-			case IDisposable disposable:
-				disposable.Dispose();
-
-				break;
-
-			case IAsyncDisposable asyncDisposable:
-				asyncDisposable.DisposeAsync().SynchronousWait();
-
-				break;
+			disposable.Dispose();
 		}
 	}
 

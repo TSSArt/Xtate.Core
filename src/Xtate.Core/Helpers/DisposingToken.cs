@@ -23,7 +23,7 @@ namespace Xtate.Core;
 ///     It allows safe access to the <see cref="Token" /> even when it is in a disposed state. On Dispose, it will cancel
 ///     the token if it has not already been canceled.
 /// </summary>
-public class DisposingToken : CancellationTokenSource
+public class DisposingToken : CancellationTokenSource, IAsyncDisposable
 {
 	/// <summary>
 	///     Initializes a new instance of the <see cref="DisposingToken" /> class.
@@ -34,6 +34,45 @@ public class DisposingToken : CancellationTokenSource
 	///     Gets the <see cref="CancellationToken" /> associated with this <see cref="DisposingToken" />.
 	/// </summary>
 	public new CancellationToken Token { get; }
+
+#region Interface IAsyncDisposable
+
+	/// <summary>
+	///     Asynchronously disposes of the resources used by the <see cref="DisposingToken" />.
+	/// </summary>
+	/// <returns>A task that represents the asynchronous dispose operation.</returns>
+	public async ValueTask DisposeAsync()
+	{
+		await DisposeAsyncCore().ConfigureAwait(false);
+		
+		Dispose(false);
+		
+		GC.SuppressFinalize(this);
+	}
+
+#endregion
+
+	/// <summary>
+	///     Asynchronously cancels the associated <see cref="CancellationToken" /> and releases the resources used by the
+	///     <see cref="DisposingToken" />.
+	/// </summary>
+	/// <returns>A task that represents the asynchronous dispose operation.</returns>
+	protected virtual async ValueTask DisposeAsyncCore()
+	{
+		try
+		{
+			if (!IsCancellationRequested)
+			{
+				await this.CancelAsync().ConfigureAwait(false);
+			}
+		}
+		catch (ObjectDisposedException)
+		{
+			// Ignore
+		}
+		
+		base.Dispose(true);
+	}
 
 	/// <summary>
 	///     Cancels the associated <see cref="CancellationToken" /> and releases the unmanaged resources used by the

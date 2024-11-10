@@ -73,6 +73,8 @@ public class StreamStorage : ITransactionalStorage, IAsyncInitialization
 	{
 		await DisposeAsyncCore().ConfigureAwait(false);
 
+		Dispose(false);
+
 		GC.SuppressFinalize(this);
 	}
 

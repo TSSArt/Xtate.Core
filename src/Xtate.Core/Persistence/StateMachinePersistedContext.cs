@@ -82,6 +82,7 @@ public class StateMachinePersistedContext : StateMachineContext, IPersistenceCon
 		await DisposeAsyncCore().ConfigureAwait(false);
 
 		Dispose(false);
+	
 		GC.SuppressFinalize(this);
 	}
 

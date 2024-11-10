@@ -94,10 +94,9 @@ internal static class SegmentedName
 				continue;
 			}
 
-			// ReSharper disable once MergeCastWithTypeCheck
-			if (t is ISpanFormattable)
+			if (t is ISpanFormattable spanFormattable)
 			{
-				if (!((ISpanFormattable) t).TryFormat(destination, out var written, format: default, provider: default))
+				if (!spanFormattable.TryFormat(destination, out var written, format: default, provider: default))
 				{
 					return false;
 				}

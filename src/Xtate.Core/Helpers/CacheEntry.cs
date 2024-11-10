@@ -99,7 +99,37 @@ public class CacheEntry<T>
 		}
 	}
 
-	public async ValueTask<bool> RemoveReference()
+	public bool RemoveReference()
+	{
+		if (!DecreaseRefCount())
+		{
+			return false;
+		}
+
+		if (DisposeRequired && TryGetValue(out var value))
+		{
+			Disposer.Dispose(value);
+		}
+
+		return true;
+	}
+
+	public async ValueTask<bool> RemoveReferenceAsync()
+	{
+		if (!DecreaseRefCount())
+		{
+			return false;
+		}
+
+		if (DisposeRequired && TryGetValue(out var value))
+		{
+			await Disposer.DisposeAsync(value).ConfigureAwait(false);
+		}
+
+		return true;
+	}
+
+	private bool DecreaseRefCount()
 	{
 		if (!IsThreadSafe)
 		{
@@ -128,11 +158,6 @@ public class CacheEntry<T>
 					break;
 				}
 			}
-		}
-
-		if (DisposeRequired && TryGetValue(out var value))
-		{
-			await Disposer.DisposeAsync(value).ConfigureAwait(false);
 		}
 
 		return true;

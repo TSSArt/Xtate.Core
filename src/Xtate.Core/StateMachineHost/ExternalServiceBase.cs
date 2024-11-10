@@ -44,6 +44,9 @@ public abstract class ExternalServiceBase : IExternalService, IDisposable, IAsyn
 	public async ValueTask DisposeAsync()
 	{
 		await DisposeAsyncCore().ConfigureAwait(false);
+		
+		Dispose(false);
+		
 		GC.SuppressFinalize(this);
 	}
 
@@ -74,16 +77,11 @@ public abstract class ExternalServiceBase : IExternalService, IDisposable, IAsyn
 	{
 		if (disposing)
 		{
-			_disposingToken.Cancel();
 			_disposingToken.Dispose();
 		}
 	}
 
-	protected virtual async ValueTask DisposeAsyncCore()
-	{
-		await _disposingToken.CancelAsync().ConfigureAwait(false);
-		_disposingToken.Dispose();
-	}
+	protected virtual ValueTask DisposeAsyncCore() => _disposingToken.DisposeAsync();
 
 	private ValueTask<DataModelValue> ExecuteWithCancellation() => Execute().WaitAsync(_disposingToken.Token);
 

@@ -94,7 +94,14 @@ public class XIncludeReader : DelegatedXmlReader
 		base.Close();
 	}
 
-	public override bool Read() => Read(false).SynchronousGetResult();
+	public override bool Read()
+	{
+		var valueTask = Read(false);
+
+		Infra.Assert(valueTask.IsCompleted);
+
+		return valueTask.GetAwaiter().GetResult();
+	}
 
 	public override Task<bool> ReadAsync() => Read(true).AsTask();
 

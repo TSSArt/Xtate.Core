@@ -135,32 +135,33 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 
 	private async ValueTask<bool> IsStartElement()
 	{
-		if (_xmlReader.NodeType != XmlNodeType.Element)
-		{
-			await MoveToContent().ConfigureAwait(false);
-		}
-
-		return ValidXmlReader() && _xmlReader.IsStartElement();
+		return await MoveToContent().ConfigureAwait(false) == XmlNodeType.Element && ValidXmlReader();
 	}
 
 	private async ValueTask ReadStartElement()
 	{
-		if (_xmlReader.NodeType != XmlNodeType.Element)
+		if (await MoveToContent().ConfigureAwait(false) == XmlNodeType.Element)
 		{
-			await MoveToContent().ConfigureAwait(false);
+			await _xmlReader.ReadAsync().ConfigureAwait(false);
 		}
-
-		_xmlReader.ReadStartElement();
+		else
+		{
+			// call to throw XmlException indirectly
+			_xmlReader.ReadStartElement(); 
+		}
 	}
 
 	private async ValueTask ReadEndElement()
 	{
-		if (_xmlReader.NodeType != XmlNodeType.EndElement)
+		if (await MoveToContent().ConfigureAwait(false) == XmlNodeType.EndElement)
 		{
-			await MoveToContent().ConfigureAwait(false);
+			await _xmlReader.ReadAsync().ConfigureAwait(false);
 		}
-
-		_xmlReader.ReadEndElement();
+		else
+		{
+			// call to throw XmlException indirectly
+			_xmlReader.ReadEndElement(); 
+		}
 	}
 
 	protected virtual void NamespaceAttribute(string prefix) { }
@@ -420,7 +421,7 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 
 				if (policy.ElementName is not null && policy.ElementNamespace is not null)
 				{
-					if (!_xmlDirector._xmlReader.IsStartElement(policy.ElementName, policy.ElementNamespace))
+					if (_xmlDirector._xmlReader.LocalName != policy.ElementName || _xmlDirector._xmlReader.NamespaceURI != policy.ElementNamespace)
 					{
 						OnError(CreateMessage(Resources.ErrorMessage_ExpectedElementNotFound, policy.ElementNamespace, policy.ElementName));
 					}

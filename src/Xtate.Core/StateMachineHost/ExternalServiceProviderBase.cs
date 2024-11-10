@@ -17,7 +17,7 @@
 
 namespace Xtate.ExternalService;
 
-public abstract class ExternalServiceProvider<TService>(string type, string? alias = default) : IExternalServiceProvider, IExternalServiceActivator where TService : IExternalService
+public abstract class ExternalServiceProviderBase<TService>(string type, string? alias = default) : IExternalServiceProvider, IExternalServiceActivator where TService : IExternalService
 {
 	private readonly FullUri? _aliasUri = alias is not null ? new FullUri(alias) : default;
 

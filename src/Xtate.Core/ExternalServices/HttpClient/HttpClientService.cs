@@ -25,7 +25,7 @@ namespace Xtate.ExternalService.HttpClient;
 
 public class HttpClientService(HttpClientServiceOptions options) : ExternalServiceBase
 {
-	public class Provider() : ExternalServiceProvider<HttpClientService>(type: @"http://xtate.net/scxml/service/#HTTPClient", alias: @"http");
+	public class Provider() : ExternalServiceProviderBase<HttpClientService>(type: @"http://xtate.net/scxml/service/#HTTPClient", alias: @"http");
 
 	private static readonly FieldInfo DomainTableField = typeof(CookieContainer).GetField(name: "m_domainTable", BindingFlags.Instance | BindingFlags.NonPublic)!;
 
