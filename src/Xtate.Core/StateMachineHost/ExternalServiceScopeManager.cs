@@ -105,9 +105,7 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 			}
 			else
 			{
-				var waitAndCleanupTask = WaitAndCleanup(invokeId, runner, externalServiceBridge);
-
-				TaskCollector.Collect(waitAndCleanupTask);
+				TaskCollector.Collect(WaitAndCleanup(invokeId, runner, externalServiceBridge));
 			}
 		}
 	}
