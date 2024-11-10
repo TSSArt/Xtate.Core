@@ -17,33 +17,18 @@
 
 using System.Collections.Specialized;
 using System.IO;
+using System.Net.Mime;
 using Xtate.XInclude;
 
 namespace Xtate.Core;
 
-public class RedirectXmlResolver : ScxmlXmlResolver, IDisposable
+public class RedirectXmlResolver : ScxmlXmlResolver
 {
-	private readonly DisposingToken _disposingToken = new();
+	public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
 
 	public required Func<ValueTask<IResourceLoader>> ResourceLoaderFactory { private get; [UsedImplicitly] init; }
-
-#region Interface IDisposable
-
-	public void Dispose()
-	{
-		Dispose(true);
-		GC.SuppressFinalize(this);
-	}
-
-#endregion
-
-	protected virtual void Dispose(bool disposing)
-	{
-		if (disposing)
-		{
-			_disposingToken.Dispose();
-		}
-	}
+	
+	public required Func<Stream, ContentType?, Resource> ResourceFactory { private get; [UsedImplicitly] init; }
 
 	protected override object GetEntity(Uri uri,
 										string? accept,
@@ -64,9 +49,9 @@ public class RedirectXmlResolver : ScxmlXmlResolver, IDisposable
 		var resourceLoader = await ResourceLoaderFactory().ConfigureAwait(false);
 		var resource = await resourceLoader.Request(uri, GetHeaders(accept, acceptLanguage)).ConfigureAwait(false);
 		var stream = await resource.GetStream(true).ConfigureAwait(false);
-		stream = stream.InjectCancellationToken(_disposingToken.Token);
+		stream = stream.InjectCancellationToken(DisposeToken);
 
-		return ofObjectToReturn == typeof(IXIncludeResource) ? new Resource(stream, resource.ContentType) : stream;
+		return ofObjectToReturn == typeof(IXIncludeResource) ? ResourceFactory(stream, resource.ContentType) : stream;
 	}
 
 	private static NameValueCollection? GetHeaders(string? accept, string? acceptLanguage)

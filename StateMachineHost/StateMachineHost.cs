@@ -26,6 +26,8 @@ public sealed partial class StateMachineHost : IHostController
 	public required IServiceScopeFactory ServiceScopeFactory { private get; [UsedImplicitly] init; }
 
 	public required Func<SecurityContextType, SecurityContextRegistration> SecurityContextRegistrationFactory { private get; [UsedImplicitly] init; }
+	
+	public required TaskCollector TaskCollector { private get; [UsedImplicitly] init; }
 
 #region Interface IHostController
 
@@ -53,7 +55,7 @@ public sealed partial class StateMachineHost : IHostController
 		}
 		finally
 		{
-			DisposeScopeOnComplete(runner, scope).Forget();
+			TaskCollector.Collect(DisposeScopeOnComplete(runner, scope));
 		}
 	}
 

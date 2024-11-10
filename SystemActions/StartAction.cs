@@ -19,11 +19,11 @@ using System.Xml;
 
 namespace Xtate.CustomAction;
 
-public class StartAction : AsyncAction, IDisposable
+public class StartAction : AsyncAction
 {
 	public class Provider() : ActionProvider<StartAction>(ns: "http://xtate.net/scxml/system", name: "start");
 
-	private readonly DisposingToken _disposingToken = new();
+	public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
 
 	private readonly Location? _sessionIdLocation;
 
@@ -83,25 +83,7 @@ public class StartAction : AsyncAction, IDisposable
 
 	public required Func<ValueTask<IStateMachineLocation?>> StateMachineLocationFactory { private get; [UsedImplicitly] init; }
 
-	public required Func<ValueTask<IHostController>> HostControllerFactory { private get; [UsedImplicitly] init; }
-
-#region Interface IDisposable
-
-	public void Dispose()
-	{
-		Dispose(true);
-		GC.SuppressFinalize(this);
-	}
-
-#endregion
-
-	protected virtual void Dispose(bool disposing)
-	{
-		if (disposing)
-		{
-			_disposingToken.Dispose();
-		}
-	}
+	public required IHostController Host { private get; [UsedImplicitly] init; }
 
 	protected override IEnumerable<Location> GetLocations()
 	{
@@ -129,8 +111,7 @@ public class StartAction : AsyncAction, IDisposable
 
 		var locationStateMachine = new LocationStateMachine(location) { SessionId = sessionId };
 
-		var hostController = await HostControllerFactory().ConfigureAwait(false);
-		await hostController.StartStateMachine(locationStateMachine, securityContextType).ConfigureAwait(false);
+		await Host.StartStateMachine(locationStateMachine, securityContextType).WaitAsync(DisposeToken).ConfigureAwait(false);
 
 		if (_sessionIdLocation is not null)
 		{

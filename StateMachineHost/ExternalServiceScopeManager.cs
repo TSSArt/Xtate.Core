@@ -31,6 +31,8 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 	public required Func<SecurityContextType, SecurityContextRegistration> SecurityContextRegistrationFactory { private get; [UsedImplicitly] init; }
 
 	public required ExternalServiceEventRouter ExternalServiceEventRouter { private get; [UsedImplicitly] init; }
+	
+	public required TaskCollector TaskCollector { private get; [UsedImplicitly] init; }
 
 #region Interface IAsyncDisposable
 
@@ -103,7 +105,9 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 			}
 			else
 			{
-				WaitAndCleanup(invokeId, runner, externalServiceBridge).Forget();
+				var waitAndCleanupTask = WaitAndCleanup(invokeId, runner, externalServiceBridge);
+
+				TaskCollector.Collect(waitAndCleanupTask);
 			}
 		}
 	}
