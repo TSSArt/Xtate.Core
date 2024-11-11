@@ -17,14 +17,8 @@
 
 namespace Xtate.Core;
 
-public interface IHostController
+public interface IHostController 
 {
-	ValueTask StartStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType);
-
-	ValueTask<DataModelValue> ExecuteStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType);
-
-	ValueTask DestroyStateMachine(SessionId sessionId);
-
 	ValueTask StartHost();
 
 	ValueTask StopHost();

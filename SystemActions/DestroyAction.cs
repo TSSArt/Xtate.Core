@@ -50,7 +50,7 @@ public class DestroyAction : AsyncAction
 		_sessionIdValue = new StringValue(sessionIdExpression, sessionId);
 	}
 
-	public required IHostController Host { private get; [UsedImplicitly] init; }
+	public required IStateMachineScopeManager StateMachineScopeManager { private get; [UsedImplicitly] init; }
 
 	protected override IEnumerable<Value> GetValues() { yield return _sessionIdValue; }
 
@@ -58,7 +58,7 @@ public class DestroyAction : AsyncAction
 	{
 		var sessionId = await GetSessionId().ConfigureAwait(false);
 
-		await Host.DestroyStateMachine(sessionId).WaitAsync(DisposeToken).ConfigureAwait(false);
+		await StateMachineScopeManager.DestroyStateMachine(sessionId).WaitAsync(DisposeToken).ConfigureAwait(false);
 	}
 
 	private async ValueTask<SessionId> GetSessionId()
