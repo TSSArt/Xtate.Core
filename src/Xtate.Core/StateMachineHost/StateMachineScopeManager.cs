@@ -24,7 +24,9 @@ public class StateMachineScopeManager : IStateMachineScopeManager, IDisposable, 
 {
 	private ConcurrentDictionary<SessionId, IServiceScope>? _scopes = new();
 
-	public required IServiceScopeFactory ServiceScopeFactory { private get; [UsedImplicitly] init; }
+	public required IServiceScopeFactory   ServiceScopeFactory    { private get; [UsedImplicitly] init; }
+	
+	public required StateMachineCollection StateMachineCollection { private get; [UsedImplicitly] init; }
 
 	public required Func<SecurityContextType, SecurityContextRegistration> SecurityContextRegistrationFactory { private get; [UsedImplicitly] init; }
 
@@ -67,6 +69,9 @@ public class StateMachineScopeManager : IStateMachineScopeManager, IDisposable, 
 		try
 		{
 			runner = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineRunner>().ConfigureAwait(false);
+
+			var stateMachineController = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineController>().ConfigureAwait(false);
+			StateMachineCollection.Register(stateMachineClass.SessionId, stateMachineController);
 		}
 		finally
 		{
@@ -92,12 +97,13 @@ public class StateMachineScopeManager : IStateMachineScopeManager, IDisposable, 
 			try
 			{
 				var runner = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineRunner>().ConfigureAwait(false);
+				
+				var stateMachineController = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineController>().ConfigureAwait(false);
+				StateMachineCollection.Register(stateMachineClass.SessionId, stateMachineController);
 
 				await runner.WaitForCompletion().ConfigureAwait(false);
-
-				var controller = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineController>().ConfigureAwait(false);
-
-				return await controller.GetResult().ConfigureAwait(false);
+				
+				return await stateMachineController.GetResult().ConfigureAwait(false);
 			}
 			finally
 			{
@@ -154,6 +160,8 @@ public class StateMachineScopeManager : IStateMachineScopeManager, IDisposable, 
 
 	private async ValueTask Cleanup(SessionId sessionId)
 	{
+		StateMachineCollection.Unregister(sessionId);
+
 		if (_scopes?.TryRemove(sessionId, out var serviceScope) == true)
 		{
 			await serviceScope.DisposeAsync().ConfigureAwait(false);

@@ -80,6 +80,7 @@ public class StateMachineHostModule : Module<StateMachineInterpreterModule>
 
 		Services.AddImplementation<LocationChildStateMachine, (Uri, DataModelValue)>().For<StateMachineClass>();
 		Services.AddImplementation<ScxmlStringChildStateMachine, (string, Uri?, DataModelValue)>().For<StateMachineClass>();
+		Services.AddSharedImplementation<StateMachineCollection>(SharedWithin.Container).For<StateMachineCollection>().For<IStateMachineCollection>();
 
 		/*	public required Func<Uri, DataModelValue, StateMachineClass> LocationStateMachineClassFactory { private get; [UsedImplicitly] init; }
 
