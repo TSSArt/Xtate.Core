@@ -83,7 +83,7 @@ public class StartAction : AsyncAction
 
 	public required Func<ValueTask<IStateMachineLocation?>> StateMachineLocationFactory { private get; [UsedImplicitly] init; }
 
-	public required IHostController Host { private get; [UsedImplicitly] init; }
+	public required IStateMachineScopeManager StateMachineScopeManager { private get; [UsedImplicitly] init; }
 
 	protected override IEnumerable<Location> GetLocations()
 	{
@@ -111,7 +111,7 @@ public class StartAction : AsyncAction
 
 		var locationStateMachine = new LocationStateMachine(location) { SessionId = sessionId };
 
-		await Host.StartStateMachine(locationStateMachine, securityContextType).WaitAsync(DisposeToken).ConfigureAwait(false);
+		await StateMachineScopeManager.StartStateMachine(locationStateMachine, securityContextType).WaitAsync(DisposeToken).ConfigureAwait(false);
 
 		if (_sessionIdLocation is not null)
 		{

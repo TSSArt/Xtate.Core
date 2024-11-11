@@ -114,7 +114,12 @@ public abstract class StateMachineControllerBase : IStateMachineController, INot
 		return new ValueTask(_acceptedTcs.Task.WaitAsync(_disposingToken.Token));
 	}
 
-	public void TriggerDestroySignal() => _destroyTokenSource.Cancel();
+	public ValueTask Destroy()
+	{
+		_destroyTokenSource.Cancel();//TODO: change to call TriggerDestroySignal and wait till complete
+
+		return default;
+	}
 
 	protected virtual void StateChanged(StateMachineInterpreterState state) { }
 

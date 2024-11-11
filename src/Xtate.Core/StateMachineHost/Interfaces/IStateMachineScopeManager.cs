@@ -15,11 +15,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.ExternalService;
-
 namespace Xtate.Core;
 
-public interface IStateMachineController : IExternalService
+public interface IStateMachineScopeManager
 {
-	ValueTask Destroy();
+	ValueTask StartStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType);
+
+	ValueTask<DataModelValue> ExecuteStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType);
+
+	ValueTask DestroyStateMachine(SessionId sessionId);
 }

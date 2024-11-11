@@ -107,7 +107,8 @@ public class Resource(Stream stream, ContentType? contentType) : IDisposable, IA
 
 	public async ValueTask<string> GetContent()
 	{
-		Infra.EnsureNotDisposed(_stream is not null, this);
+		var stream = _stream;
+		Infra.EnsureNotDisposed(stream is not null, this);
 
 		if (_content is not null)
 		{
@@ -121,9 +122,9 @@ public class Resource(Stream stream, ContentType? contentType) : IDisposable, IA
 			return _content = await reader.ReadToEndAsync().ConfigureAwait(false);
 		}
 
-		await using (_stream.ConfigureAwait(false))
+		await using (stream.ConfigureAwait(false))
 		{
-			using var reader = new StreamReader(_stream.InjectCancellationToken(_disposingToken.Token), Encoding, detectEncodingFromByteOrderMarks: true);
+			using var reader = new StreamReader(stream.InjectCancellationToken(_disposingToken.Token), Encoding, detectEncodingFromByteOrderMarks: true);
 
 			return _content = await reader.ReadToEndAsync().ConfigureAwait(false);
 		}
@@ -131,7 +132,8 @@ public class Resource(Stream stream, ContentType? contentType) : IDisposable, IA
 
 	public async ValueTask<byte[]> GetBytes()
 	{
-		Infra.EnsureNotDisposed(_stream is not null, this);
+		var stream = _stream;
+		Infra.EnsureNotDisposed(stream is not null, this);
 
 		if (_bytes is not null)
 		{
@@ -143,15 +145,16 @@ public class Resource(Stream stream, ContentType? contentType) : IDisposable, IA
 			return _bytes = Encoding.GetBytes(_content);
 		}
 
-		await using (_stream.ConfigureAwait(false))
+		await using (stream.ConfigureAwait(false))
 		{
-			return _bytes = await _stream.ReadToEndAsync(_disposingToken.Token).ConfigureAwait(false);
+			return _bytes = await stream.ReadToEndAsync(_disposingToken.Token).ConfigureAwait(false);
 		}
 	}
 
 	public async ValueTask<Stream> GetStream(bool doNotCache)
 	{
-		Infra.EnsureNotDisposed(_stream is not null, this);
+		var stream = _stream;
+		Infra.EnsureNotDisposed(stream is not null, this);
 
 		if (_bytes is not null)
 		{
@@ -165,12 +168,12 @@ public class Resource(Stream stream, ContentType? contentType) : IDisposable, IA
 
 		if (doNotCache)
 		{
-			return _stream;
+			return stream;
 		}
 
-		await using (_stream.ConfigureAwait(false))
+		await using (stream.ConfigureAwait(false))
 		{
-			_bytes = await _stream.ReadToEndAsync(_disposingToken.Token).ConfigureAwait(false);
+			_bytes = await stream.ReadToEndAsync(_disposingToken.Token).ConfigureAwait(false);
 
 			return new MemoryStream(_bytes, writable: false);
 		}
