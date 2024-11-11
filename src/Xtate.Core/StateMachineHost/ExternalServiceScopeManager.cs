@@ -63,8 +63,8 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 		await using var registration = SecurityContextRegistrationFactory(SecurityContextType.InvokedService).ConfigureAwait(false);
 
 		var externalServiceClass = await ExternalServiceClassFactory(invokeData).ConfigureAwait(false);
-		var invokeId = invokeData.InvokeId;
-		var serviceScope = CreateServiceScope(invokeId, externalServiceClass);
+
+		var serviceScope = CreateServiceScope(invokeData.InvokeId, externalServiceClass);
 
 		IExternalServiceRunner? runner = default;
 
@@ -75,18 +75,18 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 			if (await serviceScope.ServiceProvider.GetService<IEventDispatcher>().ConfigureAwait(false) is { } eventDispatcher)
 			{
 				externalServiceClass.EventDispatcher = eventDispatcher;
-				ExternalServiceEventRouter.Subscribe(invokeId, externalServiceClass.IncomingEventHandler);
+				ExternalServiceEventRouter.Subscribe(invokeData.InvokeId, externalServiceClass.IncomingEventHandler);
 			}
 		}
 		finally
 		{
 			if (runner is null)
 			{
-				await Cleanup(invokeId, externalServiceClass).ConfigureAwait(false);
+				await Cleanup(invokeData.InvokeId, externalServiceClass).ConfigureAwait(false);
 			}
 			else
 			{
-				TaskCollector.Collect(WaitAndCleanup(invokeId, runner, externalServiceClass));
+				TaskCollector.Collect(WaitAndCleanup(invokeData.InvokeId, runner, externalServiceClass));
 			}
 		}
 	}
