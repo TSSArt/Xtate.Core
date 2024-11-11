@@ -33,7 +33,7 @@ public class NoExternalConnections : IExternalServiceManager, IExternalCommunica
 
 #region Interface IExternalServiceManager
 
-	ValueTask IExternalServiceManager.Start(InvokeId invokeId, InvokeData invokeData) => throw StateMachineRuntimeError.NoExternalConnections();
+	ValueTask IExternalServiceManager.Start(InvokeData invokeData) => throw StateMachineRuntimeError.NoExternalConnections();
 
 	ValueTask IExternalServiceManager.Forward(InvokeId invokeId, IIncomingEvent incomingEvent) => throw StateMachineRuntimeError.NoExternalConnections();
 
