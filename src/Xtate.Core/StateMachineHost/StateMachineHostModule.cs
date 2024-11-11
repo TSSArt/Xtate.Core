@@ -77,5 +77,13 @@ public class StateMachineHostModule : Module<StateMachineInterpreterModule>
 		Services.AddImplementation<StateMachineExternalService.Provider>().For<IExternalServiceProvider>();
 		
 		Services.AddSharedImplementation<StateMachineScopeManager>(SharedWithin.Container).For<IStateMachineScopeManager>();
+
+		Services.AddImplementation<LocationChildStateMachine, (Uri, DataModelValue)>().For<StateMachineClass>();
+		Services.AddImplementation<ScxmlStringChildStateMachine, (string, Uri?, DataModelValue)>().For<StateMachineClass>();
+
+		/*	public required Func<Uri, DataModelValue, StateMachineClass> LocationStateMachineClassFactory { private get; [UsedImplicitly] init; }
+
+		   public required Func<string, Uri?, DataModelValue, StateMachineClass> ScxmlStateMachineClassFactory { private get; [UsedImplicitly] init; }
+*/
 	}
 }

@@ -4,7 +4,9 @@ namespace Xtate.Core;
 
 public class LocationChildStateMachine(Uri location) : LocationStateMachine(location), IParentEventDispatcher
 {
-	public IEventDispatcher? ParentEventDispatcher { get; init; }
+	public new required DataModelValue Arguments { init => base.Arguments = value; }
+
+	public required IEventDispatcher? ParentEventDispatcher { private get; [UsedImplicitly] init; }
 
 	public override void AddServices(IServiceCollection services)
 	{

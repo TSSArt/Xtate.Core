@@ -4,7 +4,11 @@ namespace Xtate.Core;
 
 public class ScxmlStringChildStateMachine(string scxml) : ScxmlStringStateMachine(scxml), IParentEventDispatcher
 {
-	public IEventDispatcher? ParentEventDispatcher { get; init; }
+	public new required Uri? Location { init => base.Location = value; }
+
+	public new required DataModelValue Arguments { init => base.Arguments = value; }
+
+	public required IEventDispatcher? ParentEventDispatcher { private get; [UsedImplicitly] init; }
 
 	public override void AddServices(IServiceCollection services)
 	{
