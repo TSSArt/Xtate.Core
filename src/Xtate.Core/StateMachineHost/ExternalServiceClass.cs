@@ -16,10 +16,11 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using Xtate.DataModel;
+using Xtate.IoC;
 
 namespace Xtate.ExternalService;
 
-public class ExternalServiceBridge(
+public class ExternalServiceClass(
 	InvokeId invokeId,
 	InvokeData invokeData,
 	IEventDispatcher eventDispatcher,
@@ -31,12 +32,21 @@ public class ExternalServiceBridge(
 	  IExternalServiceSource,
 	  IExternalServiceParameters,
 	  ICaseSensitivity,
-	  IParentStateMachineSessionId,
 	  IStateMachineSessionId,
 	  IStateMachineLocation,
 	  IParentEventDispatcher
 {
-	private readonly SessionId _sessionId = stateMachineSessionId.SessionId;
+	public void AddServices(IServiceCollection services)
+	{
+		services.AddConstant<IStateMachineSessionId>(this);
+		services.AddConstant<IStateMachineLocation>(this);
+		services.AddConstant<ICaseSensitivity>(this);
+		services.AddConstant<IExternalServiceInvokeId>(this);
+		services.AddConstant<IExternalServiceType>(this);
+		services.AddConstant<IExternalServiceSource>(this);
+		services.AddConstant<IExternalServiceParameters>(this);
+		services.AddConstant<IParentEventDispatcher>(this);
+	}
 
 	private FullUri? _origin;
 
@@ -50,7 +60,11 @@ public class ExternalServiceBridge(
 
 #region Interface IEventDispatcher
 
-	// Dispatches the event to the parent session.
+	/// <summary>
+	/// Dispatches the event to the parent session.
+	/// </summary>
+	/// <param name="incomingEvent"></param>
+	/// <returns></returns>
 	ValueTask IEventDispatcher.Dispatch(IIncomingEvent incomingEvent)
 	{
 		var origin = _origin ??= new FullUri(Const.ScxmlIoProcessorInvokeIdPrefix + invokeId.Value);
@@ -90,12 +104,6 @@ public class ExternalServiceBridge(
 
 #endregion
 
-#region Interface IParentStateMachineSessionId
-
-	SessionId IParentStateMachineSessionId.SessionId => _sessionId;
-
-#endregion
-
 #region Interface IStateMachineLocation
 
 	Uri? IStateMachineLocation.Location { get; } = stateMachineLocation.Location;
@@ -104,9 +112,27 @@ public class ExternalServiceBridge(
 
 #region Interface IStateMachineSessionId
 
-	SessionId IStateMachineSessionId.SessionId => _sessionId;
+	SessionId IStateMachineSessionId.SessionId { get; } = stateMachineSessionId.SessionId;
 
 #endregion
 
-	internal ValueTask IncomingEventHandler(IIncomingEvent incomingEvent) => EventDispatcher?.Dispatch(new IncomingEvent(incomingEvent)) ?? default;
+	/// <summary>
+	/// Dispatches the event to the external service.
+	/// </summary>
+	/// <param name="incomingEvent"></param>
+	/// <returns></returns>
+	internal ValueTask IncomingEventHandler(IIncomingEvent incomingEvent)
+	{
+		if (EventDispatcher is null)
+		{
+			return default;
+		}
+
+		if(incomingEvent is not IncomingEvent)
+		{
+			incomingEvent = new IncomingEvent(incomingEvent);
+		}
+
+		return EventDispatcher.Dispatch(incomingEvent);
+	}
 }

@@ -17,47 +17,16 @@
 
 namespace Xtate.Core;
 
-public class StateMachineRunner : IStateMachineRunner, IDisposable
+public class StateMachineRunner : IStateMachineRunner
 {
-	private readonly IStateMachineHostContext _context;
 
-	private readonly IStateMachineController _controller;
+	public required IStateMachineController StateMachineController { private get; [UsedImplicitly] init; }
 
-	private SessionId? _sessionId;
-
-	public StateMachineRunner(IStateMachineHostContext context, IStateMachineController controller, IStateMachineSessionId sessionId)
-	{
-		_context = context;
-		_controller = controller;
-		_sessionId = sessionId.SessionId;
-
-		_context.AddStateMachineController(_sessionId, controller);
-	}
-
-#region Interface IDisposable
-
-	public void Dispose()
-	{
-		Dispose(true);
-		GC.SuppressFinalize(this);
-	}
-
-#endregion
 
 #region Interface IStateMachineRunner
 
-	public async ValueTask WaitForCompletion() => await _controller.GetResult().ConfigureAwait(false);
+	public async ValueTask WaitForCompletion() => await StateMachineController.GetResult().ConfigureAwait(false);
 
 #endregion
 
-	protected virtual void Dispose(bool disposing)
-	{
-		if (disposing)
-		{
-			if (Interlocked.Exchange(ref _sessionId, value: default) is { } sessionId)
-			{
-				_context.RemoveStateMachineController(sessionId);
-			}
-		}
-	}
 }

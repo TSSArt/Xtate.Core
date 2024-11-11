@@ -29,7 +29,7 @@ public enum StateMachineInterpreterState
 
 	Destroying,
 
-	Halted,
+	Terminated,
 
 	Suspended,
 

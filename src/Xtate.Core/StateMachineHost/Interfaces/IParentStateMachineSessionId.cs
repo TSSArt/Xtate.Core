@@ -17,6 +17,7 @@
 
 namespace Xtate.Core;
 
+[Obsolete]
 public interface IParentStateMachineSessionId
 {
 	SessionId SessionId { get; }

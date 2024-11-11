@@ -2119,20 +2119,20 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to State Machine has been halted..
-        /// </summary>
-        internal static string Exception_StateMachineHasBeenHalted {
-            get {
-                return ResourceManager.GetString("Exception_StateMachineHasBeenHalted", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to State Machine has been suspended..
         /// </summary>
         internal static string Exception_StateMachineHasBeenSuspended {
             get {
                 return ResourceManager.GetString("Exception_StateMachineHasBeenSuspended", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to State Machine has been terminated..
+        /// </summary>
+        internal static string Exception_StateMachineHasBeenTerminated {
+            get {
+                return ResourceManager.GetString("Exception_StateMachineHasBeenTerminated", resourceCulture);
             }
         }
         

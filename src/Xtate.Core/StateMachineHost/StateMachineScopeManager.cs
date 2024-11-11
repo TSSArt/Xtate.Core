@@ -20,17 +20,39 @@ using Xtate.IoC;
 
 namespace Xtate;
 
-public class StateMachineScopeManager : IStateMachineScopeManager
+public class StateMachineScopeManager : IStateMachineScopeManager, IDisposable, IAsyncDisposable
 {
-	private readonly ConcurrentDictionary<SessionId, IServiceScope>? _scopes = new();
-
-	public required IStateMachineHostContext StateMachineHostContext { private get; [UsedImplicitly] init; }
+	private ConcurrentDictionary<SessionId, IServiceScope>? _scopes = new();
 
 	public required IServiceScopeFactory ServiceScopeFactory { private get; [UsedImplicitly] init; }
 
 	public required Func<SecurityContextType, SecurityContextRegistration> SecurityContextRegistrationFactory { private get; [UsedImplicitly] init; }
 
 	public required TaskCollector TaskCollector { private get; [UsedImplicitly] init; }
+
+#region Interface IAsyncDisposable
+
+	public async ValueTask DisposeAsync()
+	{
+		await DisposeAsyncCore().ConfigureAwait(false);
+
+		Dispose(false);
+
+		GC.SuppressFinalize(this);
+	}
+
+#endregion
+
+#region Interface IDisposable
+
+	public void Dispose()
+	{
+		Dispose(true);
+
+		GC.SuppressFinalize(this);
+	}
+
+#endregion
 
 #region Interface IStateMachineScopeManager
 
@@ -44,7 +66,7 @@ public class StateMachineScopeManager : IStateMachineScopeManager
 
 		try
 		{
-			runner = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineRunner, IStateMachineHostContext>(StateMachineHostContext).ConfigureAwait(false);
+			runner = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineRunner>().ConfigureAwait(false);
 		}
 		finally
 		{
@@ -69,7 +91,7 @@ public class StateMachineScopeManager : IStateMachineScopeManager
 		{
 			try
 			{
-				var runner = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineRunner, IStateMachineHostContext>(StateMachineHostContext).ConfigureAwait(false);
+				var runner = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineRunner>().ConfigureAwait(false);
 
 				await runner.WaitForCompletion().ConfigureAwait(false);
 
@@ -93,6 +115,8 @@ public class StateMachineScopeManager : IStateMachineScopeManager
 			await controller.Destroy().ConfigureAwait(false);
 		}
 	}
+
+	ValueTask IStateMachineScopeManager.Terminate(SessionId sessionId) => _scopes?.TryRemove(sessionId, out var serviceScope) == true ? serviceScope.DisposeAsync() : default;
 
 #endregion
 
@@ -133,6 +157,32 @@ public class StateMachineScopeManager : IStateMachineScopeManager
 		if (_scopes?.TryRemove(sessionId, out var serviceScope) == true)
 		{
 			await serviceScope.DisposeAsync().ConfigureAwait(false);
+		}
+	}
+
+	protected virtual void Dispose(bool disposing)
+	{
+		if (disposing && _scopes is { } scopes)
+		{
+			_scopes = default;
+
+			while (scopes.TryTake(out _, out var serviceScope))
+			{
+				serviceScope.Dispose();
+			}
+		}
+	}
+
+	protected virtual async ValueTask DisposeAsyncCore()
+	{
+		if (_scopes is { } scopes)
+		{
+			_scopes = default;
+
+			while (scopes.TryTake(out _, out var serviceScope))
+			{
+				await serviceScope.DisposeAsync().ConfigureAwait(false);
+			}
 		}
 	}
 }

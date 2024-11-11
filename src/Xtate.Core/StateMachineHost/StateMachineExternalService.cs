@@ -17,19 +17,27 @@
 
 using Xtate.ExternalService;
 
-namespace Xtate;
+namespace Xtate.Core;
 
-public class StateMachineExternalService : ExternalServiceBase
+public class StateMachineExternalService : ExternalServiceBase, IEventDispatcher
 {
-	private readonly SessionId _sessionId = SessionId.New();
-
 	public class Provider() : ExternalServiceProviderBase<StateMachineExternalService>(Const.ScxmlServiceTypeId, Const.ScxmlServiceAliasTypeId);
+
+	private readonly SessionId _sessionId = SessionId.New();
 
 	public required IStateMachineScopeManager StateMachineScopeManager { private get; [UsedImplicitly] init; }
 
 	public required IStateMachineLocation StateMachineLocation { private get; [UsedImplicitly] init; }
 	
+	public required IEventDispatcher EventDispatcher { private get; [UsedImplicitly] init; }
+
 	public required TaskCollector TaskCollector { private get; [UsedImplicitly] init; }
+
+#region Interface IEventDispatcher
+
+	public ValueTask Dispatch(IIncomingEvent incomingEvent) => throw new NotImplementedException(); //TODO:
+
+#endregion
 
 	protected override ValueTask<DataModelValue> Execute()
 	{
@@ -38,8 +46,19 @@ public class StateMachineExternalService : ExternalServiceBase
 		Infra.Assert(scxml is not null || Source is not null);
 
 		var stateMachineClass = scxml is not null
-			? (StateMachineClass) new ScxmlStringStateMachine(scxml) { SessionId = _sessionId, Location = StateMachineLocation.Location!, Arguments = Parameters }
-			: new LocationStateMachine(StateMachineLocation.Location.CombineWith(Source!)) { SessionId = _sessionId, Arguments = Parameters };
+			? (StateMachineClass) new ScxmlStringChildStateMachine(scxml)
+								  {
+									  SessionId = _sessionId,
+									  Location = StateMachineLocation.Location!,
+									  Arguments = Parameters,
+									  ParentEventDispatcher = EventDispatcher
+								  }
+			: new LocationChildStateMachine(StateMachineLocation.Location.CombineWith(Source!))
+			  {
+				  SessionId = _sessionId,
+				  Arguments = Parameters,
+				  ParentEventDispatcher = EventDispatcher
+			  };
 
 		return StateMachineScopeManager.Execute(stateMachineClass, SecurityContextType.InvokedService);
 	}
