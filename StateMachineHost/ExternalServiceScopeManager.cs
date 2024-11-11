@@ -74,8 +74,7 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 
 			if (await serviceScope.ServiceProvider.GetService<IEventDispatcher>().ConfigureAwait(false) is { } eventDispatcher)
 			{
-				externalServiceClass.EventDispatcher = eventDispatcher;
-				ExternalServiceEventRouter.Subscribe(invokeData.InvokeId, externalServiceClass.IncomingEventHandler);
+				ExternalServiceEventRouter.Subscribe(invokeData.InvokeId, eventDispatcher.Dispatch);
 			}
 		}
 		finally
@@ -126,11 +125,7 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 
 	private async ValueTask Cleanup(InvokeId invokeId, ExternalServiceClass externalServiceClass)
 	{
-		if (externalServiceClass.EventDispatcher is not null)
-		{
-			ExternalServiceEventRouter.Unsubscribe(invokeId, externalServiceClass.IncomingEventHandler);
-			externalServiceClass.EventDispatcher = default;
-		}
+		ExternalServiceEventRouter.Unsubscribe(invokeId);
 
 		if (_scopes?.TryRemove(invokeId, out var serviceScope) == true)
 		{
