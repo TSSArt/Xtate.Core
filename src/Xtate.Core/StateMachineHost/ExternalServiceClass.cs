@@ -49,8 +49,6 @@ public class ExternalServiceClass(
 
 	private FullUri? _origin;
 
-	internal IEventDispatcher? EventDispatcher { get; set; }
-
 #region Interface ICaseSensitivity
 
 	bool ICaseSensitivity.CaseInsensitive { get; } = caseSensitivity.CaseInsensitive;
@@ -114,24 +112,4 @@ public class ExternalServiceClass(
 	SessionId IStateMachineSessionId.SessionId { get; } = stateMachineSessionId.SessionId;
 
 #endregion
-
-	/// <summary>
-	/// Dispatches the event to the external service.
-	/// </summary>
-	/// <param name="incomingEvent"></param>
-	/// <returns></returns>
-	internal ValueTask IncomingEventHandler(IIncomingEvent incomingEvent)
-	{
-		if (EventDispatcher is null)
-		{
-			return default;
-		}
-
-		if(incomingEvent is not IncomingEvent)
-		{
-			incomingEvent = new IncomingEvent(incomingEvent);
-		}
-
-		return EventDispatcher.Dispatch(incomingEvent);
-	}
 }

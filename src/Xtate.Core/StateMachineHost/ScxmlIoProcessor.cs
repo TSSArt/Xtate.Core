@@ -26,6 +26,8 @@ public class ScxmlIoProcessor(IExternalServiceInvokeId? externalServiceInvokeId,
 	public required IEventDispatcher? EventDispatcher { private get; [UsedImplicitly] init; }
 
 	public required IParentEventDispatcher? ParentEventDispatcher { private get; [UsedImplicitly] init; }
+	
+	public required IStateMachineCollection? StateMachineCollection { private get; [UsedImplicitly] init; }
 
 	public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
 
@@ -59,9 +61,12 @@ public class ScxmlIoProcessor(IExternalServiceInvokeId? externalServiceInvokeId,
 			return ParentEventDispatcher?.Dispatch(routerEvent) ?? default;
 		}
 
-		//var service = await GetService(routerEvent.TargetServiceId, token: default).ConfigureAwait(false);
-		//await service.Dispatch(routerEvent).ConfigureAwait(false);
-		throw new NotImplementedException(); //TODO:
+		if (routerEvent.TargetServiceId is SessionId sessionId)
+		{
+			return StateMachineCollection.Dispatch(sessionId, routerEvent);
+		}
+
+		throw new ProcessorException(Resources.Exception_CannotFindTarget);
 	}
 
 #endregion

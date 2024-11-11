@@ -15,14 +15,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.ExternalService;
+namespace Xtate;
 
-namespace Xtate.Core;
-
-public interface IStateMachineController : IExternalService
+public interface IStateMachineCollection
 {
-	ValueTask Dispatch(IIncomingEvent incomingEvent);
+	ValueTask Dispatch(SessionId sessionId, IIncomingEvent incomingEvent);
 
-	ValueTask Destroy();
-
+	ValueTask Destroy(SessionId sessionId);
 }
