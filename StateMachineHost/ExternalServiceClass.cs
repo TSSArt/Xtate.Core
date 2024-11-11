@@ -21,7 +21,6 @@ using Xtate.IoC;
 namespace Xtate.ExternalService;
 
 public class ExternalServiceClass(
-	InvokeId invokeId,
 	InvokeData invokeData,
 	IEventDispatcher eventDispatcher,
 	IStateMachineSessionId stateMachineSessionId,
@@ -67,9 +66,9 @@ public class ExternalServiceClass(
 	/// <returns></returns>
 	ValueTask IEventDispatcher.Dispatch(IIncomingEvent incomingEvent)
 	{
-		var origin = _origin ??= new FullUri(Const.ScxmlIoProcessorInvokeIdPrefix + invokeId.Value);
+		var origin = _origin ??= new FullUri(Const.ScxmlIoProcessorInvokeIdPrefix + invokeData.InvokeId.Value);
 
-		var evt = new IncomingEvent(incomingEvent) { Type = EventType.External, OriginType = invokeData.Type, Origin = origin, InvokeId = invokeId };
+		var evt = new IncomingEvent(incomingEvent) { Type = EventType.External, OriginType = invokeData.Type, Origin = origin, InvokeId = invokeData.InvokeId };
 
 		return eventDispatcher.Dispatch(evt);
 	}
@@ -78,7 +77,7 @@ public class ExternalServiceClass(
 
 #region Interface IExternalServiceInvokeId
 
-	InvokeId IExternalServiceInvokeId.InvokeId => invokeId;
+	InvokeId IExternalServiceInvokeId.InvokeId => invokeData.InvokeId;
 
 #endregion
 

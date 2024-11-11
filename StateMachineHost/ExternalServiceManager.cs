@@ -29,7 +29,7 @@ public class ExternalServiceManager : IExternalServiceManager
 
 	public ValueTask Forward(InvokeId invokeId, IIncomingEvent incomingEvent) => ExternalServiceEventRouter.Dispatch(invokeId, incomingEvent);
 
-	public ValueTask Start(InvokeId invokeId, InvokeData invokeData) => ExternalServiceScopeManager.Start(invokeId, invokeData);
+	public ValueTask Start(InvokeData invokeData) => ExternalServiceScopeManager.Start(invokeData);
 
 	public ValueTask Cancel(InvokeId invokeId) => ExternalServiceScopeManager.Cancel(invokeId);
 

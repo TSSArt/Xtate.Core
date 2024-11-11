@@ -18,6 +18,7 @@
 namespace Xtate;
 
 public record InvokeData(
+	InvokeId InvokeId,
 	FullUri Type,
 	Uri? Source,
 	string? RawContent,
