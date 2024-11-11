@@ -22,7 +22,7 @@ namespace Xtate.ExternalService;
 
 public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDisposable, IAsyncDisposable
 {
-	private MiniDictionary<InvokeId, IServiceScope> _scopes = new(InvokeId.InvokeUniqueIdComparer);
+	private MiniDictionary<InvokeId, IServiceScope>? _scopes = new(InvokeId.InvokeUniqueIdComparer);
 
 	public required Func<InvokeId, InvokeData, ValueTask<ExternalServiceBridge>> ExternalServiceBridgeFactory { private get; [UsedImplicitly] init; }
 
@@ -82,8 +82,11 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 				services.AddConstant<IParentEventDispatcher>(externalServiceBridge);
 			});
 
-		var adding = scopes.TryAdd(invokeId, serviceScope);
-		Infra.Assert(adding, Resources.Exception_MoreThanOneExternalServicesExecutingWithSameInvokeId);
+		if (!scopes.TryAdd(invokeId, serviceScope))
+		{
+			await serviceScope.DisposeAsync().ConfigureAwait(false);
+			Infra.Fail(Resources.Exception_MoreThanOneExternalServicesExecutingWithSameInvokeId);
+		}
 
 		IExternalServiceRunner? runner = default;
 

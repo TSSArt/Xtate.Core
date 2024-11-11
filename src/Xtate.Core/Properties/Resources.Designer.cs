@@ -1785,6 +1785,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to More than one state machine with same SessionId..
+        /// </summary>
+        internal static string Exception_MoreThanOneStateMachineWithSameSessionId {
+            get {
+                return ResourceManager.GetString("Exception_MoreThanOneStateMachineWithSameSessionId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Message read partially. {0} of {1} bytes..
         /// </summary>
         internal static string Exception_NamedPipeIoProcessorMessageReadPartially {

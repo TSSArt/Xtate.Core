@@ -967,6 +967,9 @@ Exception: {3}</value>
   <data name="Exception_MoreThanOneExternalServicesExecutingWithSameInvokeId" xml:space="preserve">
 	  <value>More than one external services executing with same InvokeId.</value>
   </data>
+  <data name="Exception_MoreThanOneStateMachineWithSameSessionId" xml:space="preserve">
+	  <value>More than one state machine with same SessionId.</value>
+  </data>
   <data name="Exception_ExternalServiceWithSameInvokeIdAlreadyRegistered" xml:space="preserve">
 	  <value>External Service with same InvokeId already registered.</value>
   </data>

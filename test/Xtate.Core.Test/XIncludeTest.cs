@@ -36,11 +36,12 @@ public class XIncludeTest
 		//services.AddConstant<IServiceProviderActions>(new ServiceProviderDebugger(new StreamWriter(File.Create(@"D:\Ser\s1.txt"))));
 		var serviceProvider = services.BuildProvider();
 		var host = (IHostController) await serviceProvider.GetRequiredService<StateMachineHost>();
+		var stateMachineScopeManager = await serviceProvider.GetRequiredService<IStateMachineScopeManager>();
 
 		await host.StartHost();
 
 		var smc = new LocationStateMachine(new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Scxml/XInclude/SingleIncludeSource.scxml"));
-		_ = await host.ExecuteStateMachine(smc, SecurityContextType.NewStateMachine);
+		_ = await stateMachineScopeManager.ExecuteStateMachine(smc, SecurityContextType.NewStateMachine);
 
 		await host.StopHost();
 	}

@@ -52,7 +52,10 @@ public abstract class HostedTestBase
 		sc.AddConstant(LogWriter.Object);
 		var sp = sc.BuildProvider();
 		Host = await sp.GetRequiredService<StateMachineHost>();
+		StateMachineScopeManager = await sp.GetRequiredService<IStateMachineScopeManager>();
 	}
+
+	public IStateMachineScopeManager StateMachineScopeManager { get; set; }
 
 	[TestCleanup]
 	public Task Cleanup() => Host.StopHost().AsTask();
@@ -64,6 +67,6 @@ public abstract class HostedTestBase
 		var uri = new Uri($"resx://{name}/{name}/HostedTests/Scxml/" + scxmlPath);
 		var locationStateMachine = new LocationStateMachine(uri);
 
-		await ((IHostController) Host).ExecuteStateMachine(locationStateMachine, SecurityContextType.NewTrustedStateMachine);
+		await StateMachineScopeManager.ExecuteStateMachine(locationStateMachine, SecurityContextType.NewTrustedStateMachine);
 	}
 }

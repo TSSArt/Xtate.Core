@@ -25,7 +25,7 @@ public class StateMachineExternalService : ExternalServiceBase
 
 	public class Provider() : ExternalServiceProviderBase<StateMachineExternalService>(Const.ScxmlServiceTypeId, Const.ScxmlServiceAliasTypeId);
 
-	public required IHostController HostController { private get; [UsedImplicitly] init; }
+	public required IStateMachineScopeManager StateMachineScopeManager { private get; [UsedImplicitly] init; }
 
 	public required IStateMachineLocation StateMachineLocation { private get; [UsedImplicitly] init; }
 	
@@ -41,14 +41,14 @@ public class StateMachineExternalService : ExternalServiceBase
 			? (StateMachineClass) new ScxmlStringStateMachine(scxml) { SessionId = _sessionId, Location = StateMachineLocation.Location!, Arguments = Parameters }
 			: new LocationStateMachine(StateMachineLocation.Location.CombineWith(Source!)) { SessionId = _sessionId, Arguments = Parameters };
 
-		return HostController.ExecuteStateMachine(stateMachineClass, SecurityContextType.InvokedService);
+		return StateMachineScopeManager.ExecuteStateMachine(stateMachineClass, SecurityContextType.InvokedService);
 	}
 
 	protected override void Dispose(bool disposing)
 	{
 		if (disposing)
 		{
-			TaskCollector.Collect(HostController.DestroyStateMachine(_sessionId));
+			TaskCollector.Collect(StateMachineScopeManager.DestroyStateMachine(_sessionId));
 		}
 
 		base.Dispose(disposing);
@@ -56,7 +56,7 @@ public class StateMachineExternalService : ExternalServiceBase
 
 	protected override async ValueTask DisposeAsyncCore()
 	{
-		await HostController.DestroyStateMachine(_sessionId).ConfigureAwait(false);
+		await StateMachineScopeManager.DestroyStateMachine(_sessionId).ConfigureAwait(false);
 
 		await base.DisposeAsyncCore().ConfigureAwait(false);
 	}

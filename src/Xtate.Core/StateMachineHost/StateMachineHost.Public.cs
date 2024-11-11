@@ -152,6 +152,4 @@ public sealed partial class StateMachineHost(StateMachineHostOptions options) : 
 			await context.WaitAllAsync(token).ConfigureAwait(false);
 		}
 	}
-
-	public ValueTask DestroyStateMachineAsync(string sessionId) => DestroyStateMachine(SessionId.FromString(sessionId));
 }

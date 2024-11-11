@@ -15,82 +15,12 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.IoC;
-
 namespace Xtate;
 
 public sealed partial class StateMachineHost : IHostController
 {
-	public required IStateMachineHostContext StateMachineHostContext { private get; [UsedImplicitly] init; }
 
-	public required IServiceScopeFactory ServiceScopeFactory { private get; [UsedImplicitly] init; }
 
 	public required Func<SecurityContextType, SecurityContextRegistration> SecurityContextRegistrationFactory { private get; [UsedImplicitly] init; }
-	
-	public required TaskCollector TaskCollector { private get; [UsedImplicitly] init; }
 
-#region Interface IHostController
-
-	ValueTask IHostController.StartStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType) =>
-		StartStateMachine(stateMachineClass, securityContextType);
-
-	ValueTask<DataModelValue> IHostController.ExecuteStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType) =>
-		ExecuteStateMachine(stateMachineClass, securityContextType);
-
-	ValueTask IHostController.DestroyStateMachine(SessionId sessionId) => DestroyStateMachine(sessionId);
-
-#endregion
-
-	private async ValueTask StartStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType)
-	{
-		await using var registration = SecurityContextRegistrationFactory(securityContextType).ConfigureAwait(false);
-
-		var scope = ServiceScopeFactory.CreateScope(stateMachineClass.AddServices);
-
-		IStateMachineRunner? runner = default;
-
-		try
-		{
-			runner = await scope.ServiceProvider.GetRequiredService<IStateMachineRunner, IStateMachineHostContext>(StateMachineHostContext).ConfigureAwait(false);
-		}
-		finally
-		{
-			TaskCollector.Collect(DisposeScopeOnComplete(runner, scope));
-		}
-	}
-
-	private static async ValueTask DisposeScopeOnComplete(IStateMachineRunner? runner, IServiceScope scope)
-	{
-		try
-		{
-			if (runner is not null)
-			{
-				await runner.WaitForCompletion().ConfigureAwait(false);
-			}
-		}
-		finally
-		{
-			await scope.DisposeAsync().ConfigureAwait(false);
-		}
-	}
-
-	private async ValueTask<DataModelValue> ExecuteStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType)
-	{
-		await using var registration = SecurityContextRegistrationFactory(securityContextType).ConfigureAwait(false);
-
-		var scope = ServiceScopeFactory.CreateScope(stateMachineClass.AddServices);
-
-		await using (scope.ConfigureAwait(false))
-		{
-			var runner = await scope.ServiceProvider.GetRequiredService<IStateMachineRunner, IStateMachineHostContext>(StateMachineHostContext).ConfigureAwait(false);
-
-			await runner.WaitForCompletion().ConfigureAwait(false);
-
-			var controller = await scope.ServiceProvider.GetRequiredService<IStateMachineController>().ConfigureAwait(false);
-
-			return await controller.GetResult().ConfigureAwait(false);
-		}
-	}
-
-	private ValueTask DestroyStateMachine(SessionId sessionId) => GetCurrentContext().DestroyStateMachine(sessionId);
 }
