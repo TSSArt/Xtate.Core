@@ -30,5 +30,8 @@ public class ToolsModule : Module
 
 		Services.AddType<ServiceList<Any>>();
 		Services.AddTypeSync<ServiceSyncList<Any>>();
+
+		Services.AddForwarding<DisposeToken>(sp => sp.DisposeToken);
+		Services.AddSharedTypeSync<TaskCollector>(SharedWithin.Scope);
 	}
 }

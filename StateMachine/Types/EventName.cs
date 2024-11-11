@@ -109,7 +109,7 @@ public readonly struct EventName : IReadOnlyList<IIdentifier>, IEquatable<EventN
 
 	public override int GetHashCode() => SegmentedName.GetHashCode(_parts);
 
-	public override string ToString() => SegmentedName.ToString(_parts, Separator);
+	public override string ToString() => SegmentedName.ToString(_parts, Separator)!;
 
 	public override bool Equals(object? obj) => obj is EventName other && Equals(other);
 
@@ -117,7 +117,7 @@ public readonly struct EventName : IReadOnlyList<IIdentifier>, IEquatable<EventN
 
 	public static bool operator !=(EventName left, EventName right) => !left.Equals(right);
 
-	public static explicit operator EventName(string name) => FromString(name);
+	public static explicit operator EventName(string? name) => FromString(name);
 
 	private static int GetCount(string id)
 	{
@@ -153,7 +153,7 @@ public readonly struct EventName : IReadOnlyList<IIdentifier>, IEquatable<EventN
 		span[index] = (Identifier) id[pos..];
 	}
 
-	public static EventName FromString(string name)
+	public static EventName FromString(string? name)
 	{
 		if (name is null)
 		{

@@ -22,28 +22,6 @@ namespace Xtate.Core;
 
 internal static class TaskExtensions
 {
-	public static void SynchronousWait(this ValueTask valueTask)
-	{
-		if (valueTask.IsCompleted)
-		{
-			valueTask.GetAwaiter().GetResult();
-		}
-		else
-		{
-			valueTask.AsTask().GetAwaiter().GetResult();
-		}
-	}
-
-	public static T SynchronousGetResult<T>(this ValueTask<T> valueTask)
-	{
-		if (valueTask.IsCompleted)
-		{
-			return valueTask.GetAwaiter().GetResult();
-		}
-
-		return valueTask.AsTask().GetAwaiter().GetResult();
-	}
-
 	public static ValueTask WaitAsync(this ValueTask valueTask, CancellationToken token)
 	{
 		if (valueTask.IsCompleted || !token.CanBeCanceled)
@@ -138,17 +116,4 @@ internal static class TaskExtensions
 	}
 
 #endif
-
-	/// <summary>
-	///     Do not wait ValueTask for completion if it is not completed. Result of execution ignored.
-	/// </summary>
-	/// <param name="valueTask">Instance of ValueTask</param>
-	public static void Forget(this ValueTask valueTask) => valueTask.Preserve();
-
-	/// <summary>
-	///     Do not wait ValueTask for completion if it is not completed. Result of execution ignored.
-	/// </summary>
-	/// <typeparam name="T">Type result</typeparam>
-	/// <param name="valueTask">Instance of ValueTask</param>
-	public static void Forget<T>(this ValueTask<T> valueTask) => valueTask.Preserve();
 }

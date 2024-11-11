@@ -17,13 +17,7 @@
 
 namespace Xtate.Core;
 
-public interface IHostEvent : IEvent
+public interface IParentStateMachineSessionId
 {
-	ServiceId SenderServiceId { get; }
-
-	ServiceId? TargetServiceId { get; }
-
-	DataModelList? IoProcessorData { get; }
-
-	int DelayMs { get; }
+	SessionId SessionId { get; }
 }

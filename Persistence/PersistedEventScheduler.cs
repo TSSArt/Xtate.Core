@@ -36,9 +36,9 @@ internal sealed class PersistedEventScheduler(IStorageProvider storageProvider, 
 
 	private ITransactionalStorage _storage = default!;
 
-	protected async ValueTask<ScheduledEvent> CreateScheduledEvent(IHostEvent hostEvent, CancellationToken token)
+	protected async ValueTask<ScheduledEvent> CreateScheduledEvent(IRouterEvent routerEvent, CancellationToken token)
 	{
-		var persistedScheduledEvent = new PersistedScheduledEvent(this, hostEvent);
+		var persistedScheduledEvent = new PersistedScheduledEvent(this, routerEvent);
 
 		await _lockScheduledEvents.WaitAsync(token).ConfigureAwait(false);
 
@@ -136,7 +136,7 @@ internal sealed class PersistedEventScheduler(IStorageProvider storageProvider, 
 
 				_scheduledEvents.Add(scheduledEvent);
 
-				await ScheduleEvent(scheduledEvent, token).ConfigureAwait(false);
+				await ScheduleEvent(scheduledEvent).ConfigureAwait(false);
 			}
 		}
 	}
@@ -147,11 +147,11 @@ internal sealed class PersistedEventScheduler(IStorageProvider storageProvider, 
 
 		private readonly long _fireOnUtcTicks;
 
-		public PersistedScheduledEvent(PersistedEventScheduler eventScheduler, IHostEvent hostEvent) : base(hostEvent)
+		public PersistedScheduledEvent(PersistedEventScheduler eventScheduler, IRouterEvent routerEvent) : base(routerEvent)
 		{
 			_eventScheduler = eventScheduler;
 
-			_fireOnUtcTicks = DateTime.UtcNow.Ticks + hostEvent.DelayMs * TimeSpan.TicksPerMillisecond;
+			_fireOnUtcTicks = DateTime.UtcNow.Ticks + routerEvent.DelayMs * TimeSpan.TicksPerMillisecond;
 		}
 
 		public PersistedScheduledEvent(PersistedEventScheduler eventScheduler, in Bucket bucket) : base(bucket)

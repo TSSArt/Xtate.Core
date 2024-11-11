@@ -25,7 +25,7 @@ public class InvokeController : IInvokeController
 
 	private const int EventForwardEventId = 3;
 
-	public required IExternalServiceCommunication ExternalServiceCommunication { private get; [UsedImplicitly] init; }
+	public required IExternalServiceManager ExternalServiceManager { private get; [UsedImplicitly] init; }
 
 	public required ILogger<IInvokeController> Logger { private get; [UsedImplicitly] init; }
 
@@ -39,7 +39,7 @@ public class InvokeController : IInvokeController
 
 		try
 		{
-			await ExternalServiceCommunication.Start(invokeId, invokeData).ConfigureAwait(false);
+			await ExternalServiceManager.Start(invokeId, invokeData).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{
@@ -53,7 +53,7 @@ public class InvokeController : IInvokeController
 
 		try
 		{
-			await ExternalServiceCommunication.Cancel(invokeId).ConfigureAwait(false);
+			await ExternalServiceManager.Cancel(invokeId).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{
@@ -61,15 +61,15 @@ public class InvokeController : IInvokeController
 		}
 	}
 
-	public async ValueTask Forward(InvokeId invokeId, IEvent evt)
+	public async ValueTask Forward(InvokeId invokeId, IIncomingEvent incomingEvent)
 	{
-		var sendId = evt.SendId;
-		var eventName = evt.Name;
-		await Logger.Write(Level.Trace, EventForwardEventId, $@"Forward event. SendId: [{sendId}] Name:'{eventName}'", evt).ConfigureAwait(false);
+		var sendId = incomingEvent.SendId;
+		var eventName = incomingEvent.Name;
+		await Logger.Write(Level.Trace, EventForwardEventId, $@"Forward event. SendId: [{sendId}] Name:'{eventName}'", incomingEvent).ConfigureAwait(false);
 
 		try
 		{
-			await ExternalServiceCommunication.Forward(invokeId, evt).ConfigureAwait(false);
+			await ExternalServiceManager.Forward(invokeId, incomingEvent).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{

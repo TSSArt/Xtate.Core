@@ -53,7 +53,25 @@ public sealed partial class StateMachineHost(StateMachineHostOptions options) : 
 
 #region Interface IDisposable
 
-	public void Dispose() => DisposeAsync().SynchronousWait();
+	public void Dispose()
+	{
+		if (_disposed)
+		{
+			_disposed = true;
+		}
+
+		if (_context is { } context)
+		{
+			_context = default;
+			//TODO:
+			//context.Dispose();
+		}
+
+		//TODO:
+		//StateMachineHostStopAsync();
+
+		_disposed = true;
+	}
 
 #endregion
 
@@ -134,6 +152,4 @@ public sealed partial class StateMachineHost(StateMachineHostOptions options) : 
 			await context.WaitAllAsync(token).ConfigureAwait(false);
 		}
 	}
-
-	public ValueTask DestroyStateMachineAsync(string sessionId) => DestroyStateMachine(SessionId.FromString(sessionId));
 }

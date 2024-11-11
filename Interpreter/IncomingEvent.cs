@@ -19,45 +19,39 @@ using Xtate.Persistence;
 
 namespace Xtate.Core;
 
-public class EventObject : IEvent, IStoreSupport, IAncestorProvider
+public class IncomingEvent : IIncomingEvent, IStoreSupport, IAncestorProvider
 {
 	private readonly DataModelValue _data;
 
-	private Uri? _origin;
+	public IncomingEvent() { }
 
-	public EventObject() { }
-
-	protected EventObject(IEvent evt)
+	public IncomingEvent(IIncomingEvent incomingEvent)
 	{
-		if (evt is null) throw new ArgumentNullException(nameof(evt));
-
-		SendId = evt.SendId;
-		Name = evt.Name;
-		Type = evt.Type;
-		Origin = evt.Origin;
-		OriginType = evt.OriginType;
-		InvokeId = evt.InvokeId;
-		Data = evt.Data;
+		SendId = incomingEvent.SendId;
+		Name = incomingEvent.Name;
+		Type = incomingEvent.Type;
+		Origin = incomingEvent.Origin;
+		OriginType = incomingEvent.OriginType;
+		InvokeId = incomingEvent.InvokeId;
+		Data = incomingEvent.Data;
 	}
 
-	public EventObject(IOutgoingEvent outgoingEvent)
+	public IncomingEvent(IOutgoingEvent outgoingEvent)
 	{
-		if (outgoingEvent is null) throw new ArgumentNullException(nameof(outgoingEvent));
-
 		SendId = outgoingEvent.SendId;
 		Name = outgoingEvent.Name;
 		Data = outgoingEvent.Data;
 	}
 
-	public EventObject(in Bucket bucket)
+	public IncomingEvent(in Bucket bucket)
 	{
 		ValidateTypeInfo(bucket);
 
 		Name = bucket.GetEventName(Key.Name);
 		Type = bucket.GetEnum(Key.Type).As<EventType>();
 		SendId = bucket.GetSendId(Key.SendId);
-		Origin = bucket.GetUri(Key.Origin);
-		OriginType = bucket.GetUri(Key.OriginType);
+		Origin = bucket.GetFullUri(Key.Origin);
+		OriginType = bucket.GetFullUri(Key.OriginType);
 		InvokeId = bucket.GetInvokeId(Key.InvokeUniqueId);
 		Data = bucket.GetDataModelValue(Key.Data);
 	}
@@ -70,9 +64,9 @@ public class EventObject : IEvent, IStoreSupport, IAncestorProvider
 
 #endregion
 
-#region Interface IEvent
+#region Interface IIncomingEvent
 
-	public Uri? OriginType { get; init; }
+	public FullUri? OriginType { get; init; }
 
 	public InvokeId? InvokeId { get; init; }
 
@@ -88,11 +82,7 @@ public class EventObject : IEvent, IStoreSupport, IAncestorProvider
 		init => _data = value.AsConstant();
 	}
 
-	public Uri? Origin
-	{
-		get => _origin ??= CreateOrigin();
-		init => _origin = value;
-	}
+	public FullUri? Origin { get; init; }
 
 #endregion
 
@@ -119,6 +109,4 @@ public class EventObject : IEvent, IStoreSupport, IAncestorProvider
 			throw new ArgumentException(Resources.Exception_InvalidTypeInfoValue);
 		}
 	}
-
-	protected virtual Uri? CreateOrigin() => default;
 }

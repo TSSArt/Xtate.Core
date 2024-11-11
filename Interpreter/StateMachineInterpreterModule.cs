@@ -27,7 +27,7 @@ public class StateMachineInterpreterModule : Module<DataModelHandlersModule, Int
 		Services.AddSharedImplementation<DefaultStateMachineSessionId>(SharedWithin.Scope).For<IStateMachineSessionId>(Option.IfNotRegistered);
 		Services.AddImplementation<DefaultStateMachineArguments>().For<IStateMachineArguments>(Option.IfNotRegistered);
 
-		Services.AddImplementation<NoExternalCommunication>().For<IExternalEventCommunication>().For<IExternalServiceCommunication>();
+		Services.AddImplementation<NoExternalConnections>().For<IExternalCommunication>().For<IExternalServiceManager>();
 
 		Services.AddImplementation<InterpreterInfoLogEnricher<Any>>().For<ILogEnricher<Any>>();
 		Services.AddImplementation<InterpreterDebugLogEnricher<Any>>().For<ILogEnricher<Any>>();
@@ -60,7 +60,7 @@ public class StateMachineInterpreterModule : Module<DataModelHandlersModule, Int
 		Services.AddSharedImplementation<InterpreterStateParser<Any>>(SharedWithin.Scope).For<IEntityParserHandler<Any>>();
 
 		Services.AddSharedFactory<InterpreterModelGetter>(SharedWithin.Scope).For<IInterpreterModel>();
-		Services.AddSharedImplementation<EventQueue>(SharedWithin.Scope).For<IEventQueueReader>().For<IEventQueueWriter>().For<IEventDispatcher>();
+		Services.AddSharedImplementation<EventQueue>(SharedWithin.Scope).For<IEventQueueReader>().For<IEventQueueWriter>();
 		Services.AddSharedImplementation<StateMachineContext>(SharedWithin.Scope).For<IStateMachineContext>();
 		Services.AddSharedType<StateMachineRuntimeError>(SharedWithin.Scope);
 		Services.AddSharedImplementation<StateMachineInterpreter>(SharedWithin.Scope).For<IStateMachineInterpreter>();

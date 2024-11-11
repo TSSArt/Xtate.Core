@@ -53,7 +53,7 @@ public struct InvokeEntity : IInvoke, IVisitorEntity<InvokeEntity, IInvoke>, IAn
 
 	public IValueExpression? SourceExpression { get; set; }
 
-	public Uri? Type { get; set; }
+	public FullUri? Type { get; set; }
 
 	public IValueExpression? TypeExpression { get; set; }
 

@@ -19,5 +19,5 @@ namespace Xtate.Core;
 
 public interface IHostEventDispatcher
 {
-	ValueTask DispatchEvent(IHostEvent hostEvent, CancellationToken token);
+	ValueTask DispatchEvent(IRouterEvent routerEvent, CancellationToken token);
 }

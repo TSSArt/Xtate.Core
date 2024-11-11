@@ -267,7 +267,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
 	protected virtual async ValueTask<bool> MacrostepIteration()
 	{
-		if (await SelectTransitions(evt: default).ConfigureAwait(false) is { Count: > 0 } transitions)
+		if (await SelectTransitions(incomingEvent: default).ConfigureAwait(false) is { Count: > 0 } transitions)
 		{
 			return await Microstep(transitions).ConfigureAwait(false);
 		}
@@ -313,7 +313,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		return transitions;
 	}
 
-	private void ProcessUnhandledError(IEvent evt)
+	private void ProcessUnhandledError(IIncomingEvent incomingEvent)
 	{
 		var behaviour = UnhandledErrorBehaviour?.Behaviour ?? Xtate.UnhandledErrorBehaviour.DestroyStateMachine;
 
@@ -336,19 +336,19 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
 		StateMachineUnhandledErrorException GetUnhandledErrorException()
 		{
-			evt.Is<Exception>(out var exception);
+			incomingEvent.Is<Exception>(out var exception);
 
 			return new StateMachineUnhandledErrorException(Resources.Exception_UnhandledException, exception);
 		}
 	}
 
-	protected virtual async ValueTask<List<TransitionNode>> SelectTransitions(IEvent? evt)
+	protected virtual async ValueTask<List<TransitionNode>> SelectTransitions(IIncomingEvent? incomingEvent)
 	{
 		var transitions = new List<TransitionNode>();
 
 		foreach (var state in StateMachineContext.Configuration.ToFilteredSortedList(s => s.IsAtomicState, StateEntityNode.EntryOrder))
 		{
-			await FindTransitionForState(transitions, state, evt).ConfigureAwait(false);
+			await FindTransitionForState(transitions, state, incomingEvent).ConfigureAwait(false);
 		}
 
 		return RemoveConflictingTransitions(transitions);
@@ -386,47 +386,47 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
 	//protected virtual ValueTask CheckPoint(PersistenceLevel level) => default;
 
-	private async ValueTask<IEvent> ReadExternalEventFiltered()
+	private async ValueTask<IIncomingEvent> ReadExternalEventFiltered()
 	{
 		while (true)
 		{
-			var evt = await ReadExternalEvent().ConfigureAwait(false);
+			var incomingEvent = await ReadExternalEvent().ConfigureAwait(false);
 
-			if (evt.InvokeId is null)
+			if (incomingEvent.InvokeId is null)
 			{
-				return evt;
+				return incomingEvent;
 			}
 
-			if (IsInvokeActive(evt.InvokeId))
+			if (IsInvokeActive(incomingEvent.InvokeId))
 			{
-				return evt;
+				return incomingEvent;
 			}
 		}
 	}
 
 	private bool IsInvokeActive(InvokeId invokeId) => StateMachineContext.ActiveInvokes.Contains(invokeId);
 
-	protected virtual async ValueTask<IEvent> ReadExternalEvent()
+	protected virtual async ValueTask<IIncomingEvent> ReadExternalEvent()
 	{
 		ThrowIfDestroying();
 
-		if (EventQueueReader.TryReadEvent(out var evt))
+		if (EventQueueReader.TryReadEvent(out var incomingEvent))
 		{
-			return evt;
+			return incomingEvent;
 		}
 
 		return await WaitForExternalEvent().ConfigureAwait(false);
 	}
 
-	protected virtual async ValueTask<IEvent> WaitForExternalEvent()
+	protected virtual async ValueTask<IIncomingEvent> WaitForExternalEvent()
 	{
 		await NotifyWaiting().ConfigureAwait(false);
 
 		while (await EventQueueReader.WaitToEvent().ConfigureAwait(false))
 		{
-			if (EventQueueReader.TryReadEvent(out var evt))
+			if (EventQueueReader.TryReadEvent(out var incomingEvent))
 			{
-				return evt;
+				return incomingEvent;
 			}
 		}
 
@@ -475,11 +475,11 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		}
 	}
 
-	private async ValueTask FindTransitionForState(List<TransitionNode> transitionNodes, StateEntityNode state, IEvent? evt)
+	private async ValueTask FindTransitionForState(List<TransitionNode> transitionNodes, StateEntityNode state, IIncomingEvent? incomingEvent)
 	{
 		foreach (var transition in state.Transitions)
 		{
-			if (EventMatch(transition.EventDescriptors, evt) && await ConditionMatch(transition).ConfigureAwait(false))
+			if (EventMatch(transition.EventDescriptors, incomingEvent) && await ConditionMatch(transition).ConfigureAwait(false))
 			{
 				transitionNodes.Add(transition);
 
@@ -489,13 +489,13 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
 		if (state.Parent is not StateMachineNode)
 		{
-			await FindTransitionForState(transitionNodes, state.Parent!, evt).ConfigureAwait(false);
+			await FindTransitionForState(transitionNodes, state.Parent!, incomingEvent).ConfigureAwait(false);
 		}
 	}
 
-	private static bool EventMatch(EventDescriptors eventDescriptors, IEvent? evt)
+	private static bool EventMatch(EventDescriptors eventDescriptors, IIncomingEvent? incomingEvent)
 	{
-		if (evt is null)
+		if (incomingEvent is null)
 		{
 			return eventDescriptors.IsDefault;
 		}
@@ -507,7 +507,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
 		foreach (var eventDescriptor in eventDescriptors)
 		{
-			if (eventDescriptor.IsEventMatch(evt))
+			if (eventDescriptor.IsEventMatch(incomingEvent))
 			{
 				return true;
 			}
@@ -726,13 +726,13 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 						doneData = await EvaluateDoneData(final.DoneData).ConfigureAwait(false);
 					}
 
-					StateMachineContext.InternalQueue.Enqueue(new EventObject { Type = EventType.Internal, Name = EventName.GetDoneStateName(parent.Id), Data = doneData });
+					StateMachineContext.InternalQueue.Enqueue(new IncomingEvent { Type = EventType.Internal, Name = EventName.GetDoneStateName(parent.Id), Data = doneData });
 
 					if (grandparent is ParallelNode)
 					{
 						if (grandparent.States.All(IsInFinalState))
 						{
-							StateMachineContext.InternalQueue.Enqueue(new EventObject { Type = EventType.Internal, Name = EventName.GetDoneStateName(grandparent.Id) });
+							StateMachineContext.InternalQueue.Enqueue(new IncomingEvent { Type = EventType.Internal, Name = EventName.GetDoneStateName(grandparent.Id) });
 						}
 					}
 				}
@@ -1083,16 +1083,16 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 					   _                       => throw Infra.Unmatched(errorType)
 				   };
 
-		var evt = new EventObject
-				  {
-					  Type = EventType.Platform,
-					  Name = name,
-					  Data = DataConverter.FromException(exception),
-					  SendId = sendId,
-					  Ancestor = exception
-				  };
+		var incomingEvent = new IncomingEvent
+							{
+								Type = EventType.Platform,
+								Name = name,
+								Data = DataConverter.FromException(exception),
+								SendId = sendId,
+								Ancestor = exception
+							};
 
-		StateMachineContext.InternalQueue.Enqueue(evt);
+		StateMachineContext.InternalQueue.Enqueue(incomingEvent);
 
 		if (Logger.IsEnabled(Level.Error))
 		{
@@ -1162,11 +1162,11 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		}
 	}
 
-	private async ValueTask ForwardEvent(InvokeNode invoke, IEvent evt)
+	private async ValueTask ForwardEvent(InvokeNode invoke, IIncomingEvent incomingEvent)
 	{
 		try
 		{
-			await invoke.Forward(evt).ConfigureAwait(false);
+			await invoke.Forward(incomingEvent).ConfigureAwait(false);
 		}
 		catch (Exception ex) when (IsError(ex))
 		{

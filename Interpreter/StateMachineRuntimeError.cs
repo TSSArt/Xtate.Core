@@ -61,7 +61,7 @@ public class StateMachineRuntimeError
 		return false;
 	}
 
-	public CommunicationException NoExternalCommunication() => new(Resources.Exception_ExternalCommunicationDoesNotConfiguredForStateMachineInterpreter) { Token = _stateMachineToken };
+	public CommunicationException NoExternalConnections() => new(Resources.Exception_ExternalConnectionsDoesNotConfiguredForStateMachineInterpreter) { Token = _stateMachineToken };
 
 	public CommunicationException CommunicationError(Exception innerException, SendId? sendId = default) => new(innerException, sendId) { Token = _stateMachineToken };
 

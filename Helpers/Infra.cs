@@ -22,6 +22,16 @@ namespace Xtate;
 [ExcludeFromCodeCoverage]
 internal static class Infra
 {
+	[AssertionMethod]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static void EnsureNotDisposed([AssertionCondition(AssertionConditionType.IS_TRUE)] [DoesNotReturnIf(false)] bool condition, object? instance)
+	{
+		if (!condition)
+		{
+			ThrowObjectDisposed(instance);
+		}
+	}
+
 	/// <summary>
 	///     Checks for a condition; if the condition is <see langword="false" />, throws
 	///     <see cref="InvalidOperationException" /> exception.
@@ -284,6 +294,14 @@ internal static class Infra
 
 		return default;
 	}
+
+	[DoesNotReturn]
+	private static void ThrowObjectDisposed(object? instance) =>
+		throw (instance switch
+			   {
+				   null => new ObjectDisposedException(default),
+				   _    => new ObjectDisposedException(instance.GetType().FullName)
+			   });
 
 	[DoesNotReturn]
 	private static void ThrowAssertion() => throw new InvalidOperationException(Resources.Exception_AssertionFailed);

@@ -17,26 +17,22 @@
 
 namespace Xtate.ExternalService;
 
-public abstract class ExternalServiceProvider<TService>(string type, string? alias = default) : IExternalServiceProvider, IExternalServiceActivator where TService : IExternalService
+public abstract class ExternalServiceProviderBase<TService>(FullUri uri, FullUri? aliasUri = default) : IExternalServiceProvider, IExternalServiceActivator
+	where TService : IExternalService
 {
-	private readonly Uri? _aliasUri = alias is not null ? new Uri(alias, UriKind.RelativeOrAbsolute) : default;
-
-	private readonly Uri _typeUri = new(type, UriKind.RelativeOrAbsolute);
+	protected ExternalServiceProviderBase(string type, string? alias = default) : this(new FullUri(type), alias is not null ? new FullUri(alias) : default) { }
 
 	public required Func<ValueTask<TService>> ServiceFactoryFunc { private get; [UsedImplicitly] init; }
 
 #region Interface IExternalServiceActivator
 
-	async ValueTask<IExternalService> IExternalServiceActivator.StartService() => await ServiceFactoryFunc().ConfigureAwait(false);
+	async ValueTask<IExternalService> IExternalServiceActivator.Create() => await ServiceFactoryFunc().ConfigureAwait(false);
 
 #endregion
 
 #region Interface IExternalServiceProvider
 
-	ValueTask<IExternalServiceActivator?> IExternalServiceProvider.TryGetActivator(Uri typeUri) =>
-		FullUriComparer.Instance.Equals(_typeUri, typeUri) || (_aliasUri is not null && FullUriComparer.Instance.Equals(_aliasUri, typeUri))
-			? new ValueTask<IExternalServiceActivator?>(this)
-			: default;
+	IExternalServiceActivator? IExternalServiceProvider.TryGetActivator(FullUri typeUri) => typeUri == uri || (typeUri is not null && typeUri == aliasUri) ? this : default;
 
 #endregion
 }

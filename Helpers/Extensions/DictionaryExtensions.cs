@@ -17,7 +17,28 @@
 
 namespace Xtate.Core;
 
-public interface IStateMachineInvokeId
+public static class DictionaryExtensions
 {
-	InvokeId InvokeId { get; }
+	public static bool Remove<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, KeyValuePair<TKey, TValue> pair) => ((ICollection<KeyValuePair<TKey, TValue>>) dictionary).Remove(pair);
+
+#if !NETCOREAPP2_0 && !NETCOREAPP2_1_OR_GREATER && !NETSTANDARD2_1
+
+	public static bool TryAdd<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, TValue value)
+	{
+		if (!dictionary.ContainsKey(key) is var result)
+		{
+			dictionary.Add(key, value);
+		}
+
+		return result;
+	}
+
+	public static bool Remove<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, out TValue value)
+	{
+		dictionary.TryGetValue(key, out value);
+
+		return dictionary.Remove(key);
+	}
+
+#endif
 }

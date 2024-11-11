@@ -15,13 +15,21 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Core;
+namespace Xtate;
 
-public interface IExternalServiceCommunication
+public interface IIncomingEvent : IEntity
 {
-	ValueTask Start(InvokeId invokeId, InvokeData invokeData);
+	SendId? SendId { get; }
 
-	ValueTask Forward(InvokeId invokeId, IEvent evt);
+	EventName Name { get; }
 
-	ValueTask Cancel(InvokeId invokeId);
+	EventType Type { get; }
+
+	FullUri? Origin { get; }
+
+	FullUri? OriginType { get; }
+
+	InvokeId? InvokeId { get; }
+
+	DataModelValue Data { get; }
 }

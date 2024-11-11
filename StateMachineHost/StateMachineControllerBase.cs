@@ -16,7 +16,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Threading.Channels;
-using Xtate.ExternalService;
 using Xtate.IoC;
 
 namespace Xtate.Core;
@@ -49,8 +48,10 @@ public abstract class StateMachineControllerBase : IStateMachineController, INot
 	}
 
 	public required IStateMachineInterpreter StateMachineInterpreter { private get; [UsedImplicitly] init; }
+	
+	public required TaskCollector TaskCollector { private get; [UsedImplicitly] init; }
 
-	protected abstract Channel<IEvent> EventChannel { get; }
+	protected abstract Channel<IIncomingEvent> EventChannel { get; }
 
 	public required IEventQueueWriter EventQueueWriter { private get; [UsedImplicitly] init; }
 
@@ -77,23 +78,14 @@ public abstract class StateMachineControllerBase : IStateMachineController, INot
 
 #region Interface IEventDispatcher
 
-	//public virtual ValueTask Send(IEvent evt, CancellationToken token) => EventChannel.Writer.WriteAsync(evt, token);
-	public virtual ValueTask Send(IEvent evt) => EventQueueWriter.WriteAsync(evt);
+	//public virtual ValueTask Send(IIncomingEvent abc, CancellationToken token) => EventChannel.Writer.WriteAsync(abc, token);
+	public virtual ValueTask Dispatch(IIncomingEvent incomingEvent) => EventQueueWriter.WriteAsync(incomingEvent);
 
 #endregion
 
 #region Interface IExternalService
 
 	public ValueTask<DataModelValue> GetResult() => new(_completedTcs.Task);
-
-	ValueTask IExternalService.Destroy()
-	{
-		TriggerDestroySignal();
-
-		//TODO: Wait StateMachine destroyed
-
-		return default;
-	}
 
 #endregion
 
@@ -117,12 +109,17 @@ public abstract class StateMachineControllerBase : IStateMachineController, INot
 
 	protected virtual ValueTask Start()
 	{
-		ExecuteAsync().Forget();
+		TaskCollector.Collect(ExecuteAsync());
 
 		return new ValueTask(_acceptedTcs.Task.WaitAsync(_disposingToken.Token));
 	}
 
-	public void TriggerDestroySignal() => _destroyTokenSource.Cancel();
+	public ValueTask Destroy()
+	{
+		_destroyTokenSource.Cancel();//TODO: change to call TriggerDestroySignal and wait till complete
+
+		return default;
+	}
 
 	protected virtual void StateChanged(StateMachineInterpreterState state) { }
 

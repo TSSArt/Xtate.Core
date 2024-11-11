@@ -176,10 +176,10 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 		_eventScheduler = await eventSchedulerFactory.CreateEventScheduler( /*_stateMachineHost*/ hostEventDispatcher: null, _options.EsLogger, token: default).ConfigureAwait(false);
 	}
 
-	public ValueTask ScheduleEvent(IHostEvent hostEvent, CancellationToken token) =>
+	public ValueTask ScheduleEvent(IRouterEvent routerEvent, CancellationToken token) =>
 
 		//Infra.NotNull(_eventScheduler);
-		//return _eventScheduler.ScheduleEvent(hostEvent, token);
+		//return _eventScheduler.ScheduleEvent(routerEvent, token);
 		//TODO:
 		default;
 
@@ -229,7 +229,9 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 			sessionId, stateMachineOptions, stateMachine, stateMachineLocation, /*_stateMachineHost*/stateMachineHost: null,
 			_options.SuspendIdlePeriod /*, defaultOptions*/)
 		{
-			EventQueueWriter = default!, StateMachineInterpreter = default
+			EventQueueWriter = default!,
+			StateMachineInterpreter = default,
+			TaskCollector = null
 		};
 
 	private static XmlReaderSettings GetXmlReaderSettings(XmlNameTable nameTable, ScxmlXmlResolver xmlResolver) =>
@@ -388,7 +390,7 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 	{
 		if (_stateMachineBySessionId.TryGetValue(sessionId, out var controller))
 		{
-			await controller.Destroy().ConfigureAwait(false);
+			//await controller.Destroy().ConfigureAwait(false);
 
 			try
 			{

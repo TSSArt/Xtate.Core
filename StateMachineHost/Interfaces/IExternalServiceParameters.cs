@@ -15,19 +15,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Core;
+namespace Xtate.ExternalService;
 
-internal class FullUriComparer : IEqualityComparer<Uri>
+public interface IExternalServiceParameters
 {
-	public static FullUriComparer Instance { get; } = new();
-
-#region Interface IEqualityComparer<Uri>
-
-	public bool Equals(Uri? x, Uri? y) => x == y && GetSafeFragment(x) == GetSafeFragment(y);
-
-	public int GetHashCode(Uri uri) => HashCode.Combine(uri, GetSafeFragment(uri));
-
-#endregion
-
-	private static string? GetSafeFragment(Uri? uri) => uri?.IsAbsoluteUri == true ? uri.Fragment : default;
+	DataModelValue Parameters { get; }
 }

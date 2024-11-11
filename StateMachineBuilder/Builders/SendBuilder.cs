@@ -37,11 +37,11 @@ public class SendBuilder : BuilderBase, ISendBuilder
 
 	private ImmutableArray<IParam>.Builder? _parameters;
 
-	private Uri? _target;
+	private FullUri? _target;
 
 	private IValueExpression? _targetExpression;
 
-	private Uri? _type;
+	private FullUri? _type;
 
 	private IValueExpression? _typeExpression;
 
@@ -55,11 +55,11 @@ public class SendBuilder : BuilderBase, ISendBuilder
 			DelayExpression = _delayExpression, NameList = _nameList, Parameters = _parameters?.ToImmutable() ?? default, Content = _content
 		};
 
-	public void SetEvent(string evt)
+	public void SetEvent(string eventName)
 	{
-		Infra.RequiresNonEmptyString(evt);
+		Infra.RequiresNonEmptyString(eventName);
 
-		_event = evt;
+		_event = eventName;
 	}
 
 	public void SetEventExpression(IValueExpression eventExpression)
@@ -69,7 +69,7 @@ public class SendBuilder : BuilderBase, ISendBuilder
 		_eventExpression = eventExpression;
 	}
 
-	public void SetTarget(Uri target)
+	public void SetTarget(FullUri target)
 	{
 		Infra.Requires(target);
 
@@ -83,7 +83,7 @@ public class SendBuilder : BuilderBase, ISendBuilder
 		_targetExpression = targetExpression;
 	}
 
-	public void SetType(Uri type)
+	public void SetType(FullUri type)
 	{
 		Infra.Requires(type);
 

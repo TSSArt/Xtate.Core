@@ -15,21 +15,19 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate;
+namespace Xtate.Core;
 
-public interface IEvent : IEntity
+public interface IRouterEvent : IIncomingEvent
 {
-	SendId? SendId { get; }
+	ServiceId SenderServiceId { get; }
 
-	EventName Name { get; }
+	ServiceId? TargetServiceId { get; }
 
-	EventType Type { get; }
+	DataModelList? IoProcessorData { get; }
 
-	Uri? Origin { get; }
+	int DelayMs { get; }
 
-	Uri? OriginType { get; }
+	FullUri? TargetType { get; }
 
-	InvokeId? InvokeId { get; }
-
-	DataModelValue Data { get; }
+	FullUri? Target { get; }
 }

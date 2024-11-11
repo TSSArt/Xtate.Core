@@ -87,7 +87,7 @@ public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId
 
 #region Interface IInvoke
 
-	public Uri? Type => _invoke.Type;
+	public FullUri? Type => _invoke.Type;
 
 	public IValueExpression? TypeExpression => _invoke.TypeExpression;
 
@@ -145,8 +145,8 @@ public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId
 			await _idLocationEvaluator.SetValue(InvokeId).ConfigureAwait(false);
 		}
 
-		var type = _typeExpressionEvaluator is not null ? ToUri(await _typeExpressionEvaluator.EvaluateString().ConfigureAwait(false)) : _invoke.Type;
-		var source = _sourceExpressionEvaluator is not null ? ToUri(await _sourceExpressionEvaluator.EvaluateString().ConfigureAwait(false)) : _invoke.Source;
+		var type = _typeExpressionEvaluator is not null ? new FullUri(await _typeExpressionEvaluator.EvaluateString().ConfigureAwait(false)) : _invoke.Type;
+		var source = _sourceExpressionEvaluator is not null ? new Uri(await _sourceExpressionEvaluator.EvaluateString().ConfigureAwait(false), UriKind.RelativeOrAbsolute) : _invoke.Source;
 		var rawContent = _contentBodyEvaluator is IStringEvaluator rawContentEvaluator ? await rawContentEvaluator.EvaluateString().ConfigureAwait(false) : null;
 
 		var dataConverter = await DataConverterFactory().ConfigureAwait(false);
@@ -162,8 +162,6 @@ public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId
 		await invokeController.Start(InvokeId, invokeData).ConfigureAwait(false);
 	}
 
-	private static Uri ToUri(string uri) => new(uri, UriKind.RelativeOrAbsolute);
-
 	public async ValueTask Cancel()
 	{
 		var tmpInvokeId = InvokeId;
@@ -177,12 +175,12 @@ public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId
 		}
 	}
 
-	public async ValueTask Forward(IEvent evt)
+	public async ValueTask Forward(IIncomingEvent incomingEvent)
 	{
 		Infra.NotNull(InvokeId);
 
 		var invokeController = await InvokeControllerFactory().ConfigureAwait(false);
 
-		await invokeController.Forward(InvokeId, evt).ConfigureAwait(false);
+		await invokeController.Forward(InvokeId, incomingEvent).ConfigureAwait(false);
 	}
 }

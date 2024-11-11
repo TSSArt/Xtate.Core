@@ -117,7 +117,7 @@ internal static class BucketExtensions
 
 	public static SendId? GetSendId<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out string? value) ? SendId.FromString(value) : null;
 
-	public static UriId? GetUriId<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out Uri? value) ? UriId.FromUri(value) : null;
+	public static UriId? GetUriId<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out FullUri? value) ? UriId.FromUri(value) : null;
 
 	public static InvokeId? GetInvokeId<TKey>(this in Bucket bucket, TKey key) where TKey : notnull
 	{
@@ -133,6 +133,8 @@ internal static class BucketExtensions
 	}
 
 	public static Uri? GetUri<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out Uri? value) ? value : null;
+
+	public static FullUri? GetFullUri<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out FullUri? value) ? value : null;
 
 	public static EventName GetEventName<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out string? value) ? EventName.FromString(value) : default;
 

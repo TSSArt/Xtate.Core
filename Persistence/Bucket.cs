@@ -261,6 +261,7 @@ public readonly struct Bucket
 					   TypeCode.String                                        => new StringValueConverter<T>(),
 					   TypeCode.DateTime                                      => new DateTimeValueConverter<T>(),
 					   TypeCode.Object when type == typeof(Uri)               => new UriValueConverter<T>(),
+					   TypeCode.Object when type == typeof(FullUri)           => new FullUriValueConverter<T>(),
 					   TypeCode.Object when type == typeof(DataModelNumber)   => new DataModelNumberValueConverter<T>(),
 					   TypeCode.Object when type == typeof(DateTimeOffset)    => new DateTimeOffsetValueConverter<T>(),
 					   TypeCode.Object when type == typeof(DataModelDateTime) => new DataModelDateTimeValueConverter<T>(),
@@ -688,5 +689,14 @@ public readonly struct Bucket
 		protected override void Write(Uri value, Span<byte> bytes) => StringConverter.Write(value.ToString(), bytes);
 
 		protected override Uri Get(ReadOnlySpan<byte> bytes) => new(StringConverter.Get(bytes), UriKind.RelativeOrAbsolute);
+	}
+
+	private class FullUriValueConverter<TString> : ValueConverterBase<TString, FullUri>
+	{
+		protected override int GetLength(FullUri value) => StringConverter.GetLength(value.ToString());
+
+		protected override void Write(FullUri value, Span<byte> bytes) => StringConverter.Write(value.ToString(), bytes);
+
+		protected override FullUri Get(ReadOnlySpan<byte> bytes) => new(StringConverter.Get(bytes));
 	}
 }

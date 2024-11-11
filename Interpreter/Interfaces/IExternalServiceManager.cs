@@ -15,24 +15,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.IoProcessor;
-
 namespace Xtate.Core;
 
-public class IoProcessorService
+public interface IExternalServiceManager
 {
-	public required ServiceList<IIoProcessor> IoProcessors { private get; [UsedImplicitly] init; }
+	ValueTask Start(InvokeId invokeId, InvokeData invokeData);
 
-	public IIoProcessor GetIoProcessor(Uri? type)
-	{
-		foreach (var ioProcessor in IoProcessors)
-		{
-			if (ioProcessor.CanHandle(type))
-			{
-				return ioProcessor;
-			}
-		}
+	ValueTask Forward(InvokeId invokeId, IIncomingEvent incomingEvent);
 
-		throw new ProcessorException(Resources.Exception_InvalidType);
-	}
+	ValueTask Cancel(InvokeId invokeId);
 }

@@ -34,15 +34,17 @@ public class StateMachineHostModule : Module<StateMachineInterpreterModule>
 		//Services.AddImplementation<SecurityContext>().For<SecurityContext>();
 		Services.AddImplementation<InProcEventSchedulerFactory>().For<IEventSchedulerFactory>();
 
-		Services.AddImplementation<ExternalServiceCommunication>().For<IExternalServiceCommunication>();
-		Services.AddImplementation<ExternalEventCommunication>().For<IExternalEventCommunication>();
+		Services.AddImplementation<ExternalServiceManager>().For<IExternalServiceManager>();
+		Services.AddImplementation<ExternalCommunication>().For<IExternalCommunication>();
 
-		Services.AddType<ExternalServiceScopeProxy, InvokeId, InvokeData>();
-		Services.AddImplementation<ExternalServiceScopeManager>().For<IExternalServiceScopeManager>();
+		Services.AddType<ExternalServiceBridge, InvokeId, InvokeData>();
+		Services.AddSharedImplementation<ExternalServiceScopeManager>(SharedWithin.Scope).For<IExternalServiceScopeManager>();
 		Services.AddSharedImplementation<ExternalServiceRunner>(SharedWithin.Scope).For<IExternalServiceRunner>();
 		Services.AddFactory<ExternalServiceFactory>().For<IExternalService>(SharedWithin.Scope);
 
 		Services.AddSharedImplementation<StateMachineRuntimeController>(SharedWithin.Scope).For<IStateMachineController>();
+
+		
 
 		//.For<IInvokeController>();
 		//.For<INotifyStateChanged>();//
@@ -64,9 +66,16 @@ public class StateMachineHostModule : Module<StateMachineInterpreterModule>
 				.For<StateMachineHostContext>()
 				.For<IStateMachineHostContext>(); //TODO: Make only interface
 
-		Services.AddSharedFactory<IoProcessorService>(SharedWithin.Container).For<IIoProcessor, Uri?>(Option.DoNotDispose);
-		Services.AddSharedImplementation<InProcEventScheduler>(SharedWithin.Container).For<IEventScheduler>();
-		Services.AddSharedImplementation<EventSchedulerInfoEnricher>(SharedWithin.Container).For<EventSchedulerInfoEnricher>().For<ILogEnricher<InProcEventScheduler>>();
-		Services.AddType<ScheduledEvent, IHostEvent>();
+		//Services.AddSharedFactory<IoProcessorService>(SharedWithin.Scope).For<IIoProcessor, FullUri?>(Option.DoNotDispose);
+		Services.AddSharedImplementation<InProcEventScheduler>(SharedWithin.Scope).For<IEventScheduler>();
+		Services.AddSharedImplementation<EventSchedulerInfoEnricher>(SharedWithin.Scope).For<EventSchedulerInfoEnricher>().For<ILogEnricher<InProcEventScheduler>>();
+		Services.AddSharedImplementation<ExternalServiceEventRouter>(SharedWithin.Scope).For<ExternalServiceEventRouter>().For<IEventRouter>();
+		Services.AddSharedImplementation<ScxmlIoProcessor>(SharedWithin.Scope).For<IIoProcessor>().For<IEventRouter>();
+		Services.AddImplementation<EventDispatcher>().For<IEventDispatcher>();
+
+		Services.AddType<StateMachineExternalService>();
+		Services.AddImplementation<StateMachineExternalService.Provider>().For<IExternalServiceProvider>();
+		
+		Services.AddSharedImplementation<StateMachineScopeManager>(SharedWithin.Scope).For<IStateMachineScopeManager>();
 	}
 }

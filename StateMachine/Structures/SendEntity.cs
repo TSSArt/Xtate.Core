@@ -53,11 +53,11 @@ public struct SendEntity : ISend, IVisitorEntity<SendEntity, ISend>, IAncestorPr
 
 	public ImmutableArray<IParam> Parameters { get; set; }
 
-	public Uri? Target { get; set; }
+	public FullUri? Target { get; set; }
 
 	public IValueExpression? TargetExpression { get; set; }
 
-	public Uri? Type { get; set; }
+	public FullUri? Type { get; set; }
 
 	public IValueExpression? TypeExpression { get; set; }
 

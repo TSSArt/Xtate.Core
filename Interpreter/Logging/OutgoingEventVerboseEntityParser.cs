@@ -23,13 +23,13 @@ public class OutgoingEventVerboseEntityParser<TSource>() : EntityParserBase<TSou
 {
 	public required IDataModelHandler DataModelHandler { private get; [UsedImplicitly] init; }
 
-	protected override IEnumerable<LoggingParameter> EnumerateProperties(IOutgoingEvent evt)
+	protected override IEnumerable<LoggingParameter> EnumerateProperties(IOutgoingEvent outgoingEvent)
 	{
-		if (!evt.Data.IsUndefined())
+		if (!outgoingEvent.Data.IsUndefined())
 		{
-			yield return new LoggingParameter(name: @"Data", evt.Data.ToObject());
+			yield return new LoggingParameter(name: @"Data", outgoingEvent.Data.ToObject());
 
-			yield return new LoggingParameter(name: @"DataText", DataModelHandler.ConvertToText(evt.Data));
+			yield return new LoggingParameter(name: @"DataText", DataModelHandler.ConvertToText(outgoingEvent.Data));
 		}
 	}
 }

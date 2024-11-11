@@ -39,7 +39,7 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 
 	private const string Alias = @"named.pipe";
 
-	private static readonly EventObject CheckPipelineEvent = new() { Type = EventType.External, Name = (EventName) @"$" };
+	private static readonly IncomingEvent CheckPipelineEvent = new() { Type = EventType.External, Name = (EventName) @"$" };
 
 	private static readonly ConcurrentDictionary<string, IEventConsumer> InProcConsumers = new();
 
@@ -54,6 +54,8 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 	private readonly string _pipeName;
 
 	private readonly CancellationTokenSource _stopTokenSource = new();
+
+	public required TaskCollector TaskCollector { private get; [UsedImplicitly] init; }
 
 	public NamedPipeIoProcessor(IEventConsumer eventConsumer,
 								[Localizable(false)] string host,
@@ -88,19 +90,19 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 
 #endregion
 
-	protected override IHostEvent CreateHostEvent(ServiceId senderServiceId, IOutgoingEvent outgoingEvent)
+	protected override IRouterEvent CreateRouterEvent(IOutgoingEvent outgoingEvent)
 	{
 		if (outgoingEvent.Target is null)
 		{
 			throw new ProcessorException(Resources.Exception_EventTargetDidNotSpecify);
 		}
 
-		return base.CreateHostEvent(senderServiceId, outgoingEvent);
+		return base.CreateRouterEvent(outgoingEvent);
 	}
 
-	protected override async ValueTask OutgoingEvent(IHostEvent hostEvent, CancellationToken token)
+	protected override async ValueTask OutgoingEvent(IRouterEvent routerEvent)
 	{
-		var target = ((UriId?) hostEvent.TargetServiceId)?.Uri;
+		var target = ((UriId?) routerEvent.TargetServiceId)?.Uri;
 
 		Infra.NotNull(target);
 
@@ -112,9 +114,9 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 
 		if (isLoopback && InProcConsumers.TryGetValue(name, out var eventConsumer))
 		{
-			if (await eventConsumer.TryGetEventDispatcher(targetServiceId, token).ConfigureAwait(false) is { } eventDispatcher)
+			if (await eventConsumer.TryGetEventDispatcher(targetServiceId, token: default).ConfigureAwait(false) is { } eventDispatcher)
 			{
-				await eventDispatcher.Send(hostEvent).ConfigureAwait(false);
+				await eventDispatcher.Dispatch(routerEvent).ConfigureAwait(false);
 			}
 			else
 			{
@@ -123,17 +125,17 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 		}
 		else
 		{
-			await SendEventToPipe(isLoopback ? @"." : host, PipePrefix + name, targetServiceId, hostEvent, token).ConfigureAwait(false);
+			await SendEventToPipe(isLoopback ? @"." : host, PipePrefix + name, targetServiceId, routerEvent, token: default).ConfigureAwait(false);
 		}
 	}
 
-	protected override Uri? GetTarget(ServiceId serviceId)
+	protected override FullUri? GetTarget(ServiceId serviceId)
 	{
 		return serviceId switch
 			   {
-				   SessionId sessionId => new Uri(_baseUri, SessionIdPrefix + sessionId.Value),
-				   InvokeId invokeId   => new Uri(_baseUri, InvokeIdPrefix + invokeId.Value),
-				   UriId uriId         => new Uri(_baseUri, uriId.Uri),
+				   SessionId sessionId => new FullUri(_baseUri, SessionIdPrefix + sessionId.Value),
+				   InvokeId invokeId   => new FullUri(_baseUri, InvokeIdPrefix + invokeId.Value),
+				   UriId uriId         => new FullUri(_baseUri, uriId.Uri),
 				   _                   => default
 			   };
 	}
@@ -141,7 +143,7 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 	private async ValueTask SendEventToPipe(string server,
 											string pipeName,
 											ServiceId? targetServiceId,
-											IEvent evt,
+											IIncomingEvent incomingEvent,
 											CancellationToken token)
 	{
 		var pipeStream = new NamedPipeClientStream(server, pipeName, PipeDirection.InOut, DefaultPipeOptions);
@@ -152,7 +154,7 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 		{
 			await pipeStream.ConnectAsync(token).ConfigureAwait(false);
 
-			var message = new EventMessage(targetServiceId, evt);
+			var message = new EventMessage(targetServiceId, incomingEvent);
 
 			Serialize(message, memoryStream);
 
@@ -196,7 +198,7 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 			{
 				await pipeStream.WaitForConnectionAsync(_stopTokenSource.Token).ConfigureAwait(false);
 
-				StartListener().Forget();
+				TaskCollector.Collect(StartListener());
 
 				await ReceiveMessage(pipeStream, memoryStream, _stopTokenSource.Token).ConfigureAwait(false);
 
@@ -207,7 +209,7 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 				{
 					if (await _eventConsumer.TryGetEventDispatcher(targetServiceId, _stopTokenSource.Token).ConfigureAwait(false) is { } eventDispatcher)
 					{
-						await eventDispatcher.Send(message).ConfigureAwait(false);
+						await eventDispatcher.Dispatch(message).ConfigureAwait(false);
 					}
 					else
 					{
@@ -228,9 +230,9 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 		}
 	}
 
-	private static string GetTargetString(Uri target) => target.IsAbsoluteUri ? target.Fragment : target.OriginalString;
+	private static string GetTargetString(FullUri target) => target.IsAbsoluteUri ? target.Fragment : target.OriginalString;
 
-	private static bool IsTargetSessionId(Uri target, [NotNullWhen(true)] out SessionId? sessionId)
+	private static bool IsTargetSessionId(FullUri target, [NotNullWhen(true)] out SessionId? sessionId)
 	{
 		var value = GetTargetString(target);
 
@@ -246,7 +248,7 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 		return false;
 	}
 
-	private static bool IsTargetInvokeId(Uri target, [NotNullWhen(true)] out InvokeId? invokeId)
+	private static bool IsTargetInvokeId(FullUri target, [NotNullWhen(true)] out InvokeId? invokeId)
 	{
 		var value = GetTargetString(target);
 
@@ -262,7 +264,7 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 		return false;
 	}
 
-	private static ServiceId GetServiceId(Uri target)
+	private static ServiceId GetServiceId(FullUri target)
 	{
 		if (IsTargetSessionId(target, out var sessionId))
 		{
@@ -360,9 +362,9 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 
 	public ValueTask CheckPipeline(CancellationToken token) => SendEventToPipe(server: @".", _pipeName, targetServiceId: default, CheckPipelineEvent, token);
 
-	private class EventMessage : EventObject
+	private class EventMessage : IncomingEvent
 	{
-		public EventMessage(ServiceId? targetServiceId, IEvent evt) : base(evt) => TargetServiceId = targetServiceId;
+		public EventMessage(ServiceId? targetServiceId, IIncomingEvent incomingEvent) : base(incomingEvent) => TargetServiceId = targetServiceId;
 
 		public EventMessage(in Bucket bucket) : base(bucket)
 		{

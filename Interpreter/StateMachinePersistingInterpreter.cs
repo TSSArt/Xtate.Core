@@ -409,14 +409,14 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 		return result;
 	}
 
-	protected override async ValueTask<List<TransitionNode>> SelectTransitions(IEvent? evt)
+	protected override async ValueTask<List<TransitionNode>> SelectTransitions(IIncomingEvent? incomingEvent)
 	{
 		if (Enter(StateBagKey.SelectTransitions, out List<TransitionNode>? result))
 		{
 			return result;
 		}
 
-		result = await base.SelectTransitions(evt).ConfigureAwait(false);
+		result = await base.SelectTransitions(incomingEvent).ConfigureAwait(false);
 
 		Exit(StateBagKey.SelectTransitions, result);
 

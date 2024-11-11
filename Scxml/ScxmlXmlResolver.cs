@@ -28,7 +28,7 @@ public class ScxmlXmlResolver : XmlResolver, IXIncludeXmlResolver
 										  string? accept,
 										  string? acceptLanguage,
 										  Type? ofObjectToReturn) =>
-		GetEntityAsync(uri, accept, acceptLanguage, ofObjectToReturn).SynchronousGetResult();
+		GetEntity(uri, accept, acceptLanguage, ofObjectToReturn);
 
 	Task<object?> IXIncludeXmlResolver.GetEntityAsync(Uri uri,
 													  string? accept,
@@ -39,10 +39,16 @@ public class ScxmlXmlResolver : XmlResolver, IXIncludeXmlResolver
 #endregion
 
 	public sealed override object GetEntity(Uri absoluteUri, string? role, Type? ofObjectToReturn) =>
-		GetEntityAsync(absoluteUri, accept: default, acceptLanguage: default, ofObjectToReturn).SynchronousGetResult();
+		GetEntity(absoluteUri, accept: default, acceptLanguage: default, ofObjectToReturn);
 
 	public sealed override Task<object> GetEntityAsync(Uri absoluteUri, string? role, Type? ofObjectToReturn) =>
 		GetEntityAsync(absoluteUri, accept: default, acceptLanguage: default, ofObjectToReturn).AsTask();
+
+	protected virtual object GetEntity(Uri uri,
+									   string? accept,
+									   string? acceptLanguage,
+									   Type? ofObjectToReturn) =>
+		throw new NotSupportedException(Resources.Exception_LoadingExternalResourcesDoesNotSupported);
 
 	protected virtual ValueTask<object> GetEntityAsync(Uri uri,
 													   string? accept,

@@ -15,17 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.ExternalService;
+namespace Xtate.Core;
 
-public interface IExternalServiceDefinition
-{
-	Uri Type { get; }
-
-	Uri? Source { get; }
-
-	string? RawContent { get; }
-
-	DataModelValue Content { get; }
-
-	DataModelValue Parameters { get; }
-}
+public interface IParentEventDispatcher : IEventDispatcher;

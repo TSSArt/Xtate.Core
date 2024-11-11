@@ -26,7 +26,7 @@ public class Resource(Stream stream, ContentType? contentType) : IDisposable, IA
 {
 	private readonly DisposingToken _disposingToken = new();
 
-	private readonly Stream _stream = stream ?? throw new ArgumentNullException(nameof(stream));
+	private Stream? _stream = stream ?? throw new ArgumentNullException(nameof(stream));
 
 	private byte[]? _bytes;
 
@@ -41,6 +41,7 @@ public class Resource(Stream stream, ContentType? contentType) : IDisposable, IA
 		await DisposeAsyncCore().ConfigureAwait(false);
 
 		Dispose(false);
+		
 		GC.SuppressFinalize(this);
 	}
 
@@ -51,6 +52,7 @@ public class Resource(Stream stream, ContentType? contentType) : IDisposable, IA
 	public void Dispose()
 	{
 		Dispose(true);
+
 		GC.SuppressFinalize(this);
 	}
 
@@ -66,21 +68,48 @@ public class Resource(Stream stream, ContentType? contentType) : IDisposable, IA
 
 	protected virtual void Dispose(bool disposing)
 	{
-		if (disposing)
+		if (!disposing)
 		{
-			_disposingToken.Dispose();
+			return;
 		}
-	}
 
-	protected virtual ValueTask DisposeAsyncCore()
-	{
+		if (_stream is not { } stream)
+		{
+			return;
+		}
+
+		_stream = null;
+
 		_disposingToken.Dispose();
 
-		return default;
+		stream.Dispose();
+
+		_bytes = null;
+		_content = null;
+	}
+
+	protected virtual async ValueTask DisposeAsyncCore()
+	{
+		if (_stream is not { } stream)
+		{
+			return;
+		}
+
+		_stream = null;
+
+		await _disposingToken.DisposeAsync().ConfigureAwait(false);
+		
+		await stream.DisposeAsync().ConfigureAwait(false);
+
+		_bytes = null;
+		_content = null;
 	}
 
 	public async ValueTask<string> GetContent()
 	{
+		var stream = _stream;
+		Infra.EnsureNotDisposed(stream is not null, this);
+
 		if (_content is not null)
 		{
 			return _content;
@@ -93,9 +122,9 @@ public class Resource(Stream stream, ContentType? contentType) : IDisposable, IA
 			return _content = await reader.ReadToEndAsync().ConfigureAwait(false);
 		}
 
-		await using (_stream.ConfigureAwait(false))
+		await using (stream.ConfigureAwait(false))
 		{
-			using var reader = new StreamReader(_stream.InjectCancellationToken(_disposingToken.Token), Encoding, detectEncodingFromByteOrderMarks: true);
+			using var reader = new StreamReader(stream.InjectCancellationToken(_disposingToken.Token), Encoding, detectEncodingFromByteOrderMarks: true);
 
 			return _content = await reader.ReadToEndAsync().ConfigureAwait(false);
 		}
@@ -103,6 +132,9 @@ public class Resource(Stream stream, ContentType? contentType) : IDisposable, IA
 
 	public async ValueTask<byte[]> GetBytes()
 	{
+		var stream = _stream;
+		Infra.EnsureNotDisposed(stream is not null, this);
+
 		if (_bytes is not null)
 		{
 			return _bytes;
@@ -113,14 +145,17 @@ public class Resource(Stream stream, ContentType? contentType) : IDisposable, IA
 			return _bytes = Encoding.GetBytes(_content);
 		}
 
-		await using (_stream.ConfigureAwait(false))
+		await using (stream.ConfigureAwait(false))
 		{
-			return _bytes = await _stream.ReadToEndAsync(_disposingToken.Token).ConfigureAwait(false);
+			return _bytes = await stream.ReadToEndAsync(_disposingToken.Token).ConfigureAwait(false);
 		}
 	}
 
 	public async ValueTask<Stream> GetStream(bool doNotCache)
 	{
+		var stream = _stream;
+		Infra.EnsureNotDisposed(stream is not null, this);
+
 		if (_bytes is not null)
 		{
 			return new MemoryStream(_bytes, writable: false);
@@ -133,12 +168,12 @@ public class Resource(Stream stream, ContentType? contentType) : IDisposable, IA
 
 		if (doNotCache)
 		{
-			return _stream;
+			return stream;
 		}
 
-		await using (_stream.ConfigureAwait(false))
+		await using (stream.ConfigureAwait(false))
 		{
-			_bytes = await _stream.ReadToEndAsync(_disposingToken.Token).ConfigureAwait(false);
+			_bytes = await stream.ReadToEndAsync(_disposingToken.Token).ConfigureAwait(false);
 
 			return new MemoryStream(_bytes, writable: false);
 		}

@@ -20,11 +20,11 @@ namespace Xtate;
 [Serializable]
 public sealed class UriId : ServiceId
 {
-	private UriId(Uri uri) => Uri = uri;
+	private UriId(FullUri uri) => Uri = uri;
 
 	public override string Value => Uri.ToString();
 
-	public Uri Uri { get; }
+	public FullUri Uri { get; }
 
 	protected override string GenerateId() => throw new NotSupportedException();
 
@@ -32,5 +32,5 @@ public sealed class UriId : ServiceId
 
 	public override bool Equals(object? obj) => Uri.Equals(obj);
 
-	public static UriId FromUri(Uri uri) => new(uri);
+	public static UriId FromUri(FullUri uri) => new(uri);
 }

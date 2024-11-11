@@ -17,11 +17,11 @@
 
 namespace Xtate.IoProcessor;
 
-public abstract class IoProcessorBase : IIoProcessor
+public abstract class IoProcessorBase : IIoProcessor, IEventRouter
 {
 	private readonly IEventConsumer _eventConsumer;
 
-	private readonly Uri? _ioProcessorAliasId;
+	private readonly FullUri? _ioProcessorAliasId;
 
 	protected IoProcessorBase(IEventConsumer eventConsumer, string ioProcessorId, string? ioProcessorAlias = default)
 	{
@@ -30,39 +30,46 @@ public abstract class IoProcessorBase : IIoProcessor
 
 		_eventConsumer = eventConsumer ?? throw new ArgumentNullException(nameof(eventConsumer));
 
-		IoProcessorId = new Uri(ioProcessorId, UriKind.RelativeOrAbsolute);
-		_ioProcessorAliasId = ioProcessorAlias is not null ? new Uri(ioProcessorAlias, UriKind.RelativeOrAbsolute) : null;
+		IoProcessorId = new FullUri(ioProcessorId);
+		_ioProcessorAliasId = ioProcessorAlias is not null ? new FullUri(ioProcessorAlias) : null;
 	}
 
-	protected Uri IoProcessorId { get; }
+	public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
 
-#region Interface IIoProcessor
+	protected FullUri IoProcessorId { get; }
 
-	public virtual bool IsInternalTarget(Uri target) => false;
+#region Interface IEventRouter
 
-	Uri? IIoProcessor.GetTarget(ServiceId serviceId) => GetTarget(serviceId);
+	public virtual bool IsInternalTarget(FullUri? target) => false;
 
-	ValueTask<IHostEvent> IIoProcessor.GetHostEvent(ServiceId senderServiceId, IOutgoingEvent outgoingEvent, CancellationToken token) => CreateHostEventAsync(senderServiceId, outgoingEvent, token);
+	ValueTask<IRouterEvent> IEventRouter.GetRouterEvent(IOutgoingEvent outgoingEvent) => CreateRouterEventAsync(outgoingEvent);
 
-	ValueTask IIoProcessor.Dispatch(IHostEvent hostEvent, CancellationToken token) => OutgoingEvent(hostEvent, token);
+	ValueTask IEventRouter.Dispatch(IRouterEvent routerEvent) => OutgoingEvent(routerEvent);
 
-	bool IIoProcessor.CanHandle(Uri? type) => IsTypesEquals(type, IoProcessorId) || IsTypesEquals(type, _ioProcessorAliasId);
-
-	Uri IIoProcessor.Id => IoProcessorId;
+	bool IEventRouter.CanHandle(FullUri? type) => type == IoProcessorId || (type is not null && type == _ioProcessorAliasId);
 
 #endregion
 
-	private static bool IsTypesEquals(Uri? typeA, Uri? typeB) => typeA is not null && typeB is not null && FullUriComparer.Instance.Equals(typeA, typeB);
+#region Interface IIoProcessor
 
-	protected abstract Uri? GetTarget(ServiceId serviceId);
+	FullUri? IIoProcessor.GetTarget(ServiceId serviceId) => GetTarget(serviceId);
 
-	protected virtual ValueTask<IHostEvent> CreateHostEventAsync(ServiceId senderServiceId, IOutgoingEvent outgoingEvent, CancellationToken token) =>
-		new(CreateHostEvent(senderServiceId, outgoingEvent));
+	FullUri IIoProcessor.Id => IoProcessorId;
 
-	protected virtual IHostEvent CreateHostEvent(ServiceId senderServiceId, IOutgoingEvent outgoingEvent) =>
-		new HostEvent(this, senderServiceId, outgoingEvent.Target is { } target ? UriId.FromUri(target) : null, outgoingEvent);
+#endregion
 
-	protected abstract ValueTask OutgoingEvent(IHostEvent hostEvent, CancellationToken token);
+	protected abstract FullUri? GetTarget(ServiceId serviceId);
+
+	protected virtual ValueTask<IRouterEvent> CreateRouterEventAsync(IOutgoingEvent outgoingEvent) => new(CreateRouterEvent(outgoingEvent));
+
+	protected virtual IRouterEvent CreateRouterEvent(IOutgoingEvent outgoingEvent)
+	{
+		var sessionId = StateMachineSessionId.SessionId;
+
+		return new RouterEvent(sessionId, outgoingEvent.Target is { } target ? UriId.FromUri(target) : null, IoProcessorId, GetTarget(sessionId), outgoingEvent);
+	}
+
+	protected abstract ValueTask OutgoingEvent(IRouterEvent routerEvent);
 
 	protected ValueTask<IEventDispatcher?> TryGetEventDispatcher(SessionId sessionId, CancellationToken token) => _eventConsumer.TryGetEventDispatcher(sessionId, token);
 }

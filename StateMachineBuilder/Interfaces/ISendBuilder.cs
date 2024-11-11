@@ -21,15 +21,15 @@ public interface ISendBuilder
 {
 	ISend Build();
 
-	void SetEvent(string evt);
+	void SetEvent(string eventName);
 
 	void SetEventExpression(IValueExpression eventExpression);
 
-	void SetTarget(Uri target);
+	void SetTarget(FullUri target);
 
 	void SetTargetExpression(IValueExpression targetExpression);
 
-	void SetType(Uri type);
+	void SetType(FullUri type);
 
 	void SetTypeExpression(IValueExpression typeExpression);
 
