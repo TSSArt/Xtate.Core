@@ -580,8 +580,8 @@
   <data name="Exception_StateMachineExternalQueueHasBeenClosed" xml:space="preserve">
     <value>State Machine external queue has been closed.</value>
   </data>
-  <data name="Exception_StateMachineHasBeenHalted" xml:space="preserve">
-    <value>State Machine has been halted.</value>
+  <data name="Exception_StateMachineHasBeenTerminated" xml:space="preserve">
+    <value>State Machine has been terminated.</value>
   </data>
   <data name="Exception_StateMachineHasBeenDestroyed" xml:space="preserve">
     <value>State Machine has been destroyed.</value>

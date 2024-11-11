@@ -74,12 +74,12 @@ public class RouterEvent : IncomingEvent, IRouterEvent
 			DelayMs = delayMs;
 		}
 
-		if (bucket.TryGet(Key.TargetType, out FullUri targetType))
+		if (bucket.TryGet(Key.TargetType, out FullUri? targetType))
 		{
 			TargetType = targetType;
 		}
 
-		if (bucket.TryGet(Key.Target, out FullUri target))
+		if (bucket.TryGet(Key.Target, out FullUri? target))
 		{
 			Target = target;
 		}

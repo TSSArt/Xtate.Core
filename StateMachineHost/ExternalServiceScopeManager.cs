@@ -15,7 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.DataModel;
 using Xtate.IoC;
 
 namespace Xtate.ExternalService;
@@ -24,7 +23,7 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 {
 	private MiniDictionary<InvokeId, IServiceScope>? _scopes = new(InvokeId.InvokeUniqueIdComparer);
 
-	public required Func<InvokeId, InvokeData, ValueTask<ExternalServiceBridge>> ExternalServiceBridgeFactory { private get; [UsedImplicitly] init; }
+	public required Func<InvokeId, InvokeData, ValueTask<ExternalServiceClass>> ExternalServiceClassFactory { private get; [UsedImplicitly] init; }
 
 	public required IServiceScopeFactory ServiceScopeFactory { private get; [UsedImplicitly] init; }
 
@@ -63,9 +62,9 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 	{
 		await using var registration = SecurityContextRegistrationFactory(SecurityContextType.InvokedService).ConfigureAwait(false);
 
-		var externalServiceBridge = await ExternalServiceBridgeFactory(invokeId, invokeData).ConfigureAwait(false);
+		var externalServiceClass = await ExternalServiceClassFactory(invokeId, invokeData).ConfigureAwait(false);
 
-		var serviceScope = CreateServiceScope(invokeId, externalServiceBridge);
+		var serviceScope = CreateServiceScope(invokeId, externalServiceClass);
 
 		IExternalServiceRunner? runner = default;
 
@@ -75,19 +74,19 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 
 			if (await serviceScope.ServiceProvider.GetService<IEventDispatcher>().ConfigureAwait(false) is { } eventDispatcher)
 			{
-				externalServiceBridge.EventDispatcher = eventDispatcher;
-				ExternalServiceEventRouter.Subscribe(invokeId, externalServiceBridge.IncomingEventHandler);
+				externalServiceClass.EventDispatcher = eventDispatcher;
+				ExternalServiceEventRouter.Subscribe(invokeId, externalServiceClass.IncomingEventHandler);
 			}
 		}
 		finally
 		{
 			if (runner is null)
 			{
-				await Cleanup(invokeId, externalServiceBridge).ConfigureAwait(false);
+				await Cleanup(invokeId, externalServiceClass).ConfigureAwait(false);
 			}
 			else
 			{
-				TaskCollector.Collect(WaitAndCleanup(invokeId, runner, externalServiceBridge));
+				TaskCollector.Collect(WaitAndCleanup(invokeId, runner, externalServiceClass));
 			}
 		}
 	}
@@ -96,24 +95,12 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 
 #endregion
 
-	private IServiceScope CreateServiceScope(InvokeId invokeId, ExternalServiceBridge externalServiceBridge)
+	private IServiceScope CreateServiceScope(InvokeId invokeId, ExternalServiceClass externalServiceClass)
 	{
 		var scopes = _scopes;
 		Infra.EnsureNotDisposed(scopes is not null, this);
 
-		var serviceScope = ServiceScopeFactory.CreateScope(
-			services =>
-			{
-				services.AddConstant<IStateMachineSessionId>(externalServiceBridge);
-				services.AddConstant<IStateMachineLocation>(externalServiceBridge);
-				services.AddConstant<ICaseSensitivity>(externalServiceBridge);
-				services.AddConstant<IExternalServiceInvokeId>(externalServiceBridge);
-				services.AddConstant<IExternalServiceType>(externalServiceBridge);
-				services.AddConstant<IExternalServiceSource>(externalServiceBridge);
-				services.AddConstant<IExternalServiceParameters>(externalServiceBridge);
-				services.AddConstant<IParentStateMachineSessionId>(externalServiceBridge);
-				services.AddConstant<IParentEventDispatcher>(externalServiceBridge);
-			});
+		var serviceScope = ServiceScopeFactory.CreateScope(externalServiceClass.AddServices);
 
 		if (scopes.TryAdd(invokeId, serviceScope))
 		{
@@ -125,7 +112,7 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 		throw Infra.Fail<Exception>(Resources.Exception_MoreThanOneExternalServicesExecutingWithSameInvokeId);
 	}
 
-	private async ValueTask WaitAndCleanup(InvokeId invokeId, IExternalServiceRunner externalServiceRunner, ExternalServiceBridge externalServiceBridge)
+	private async ValueTask WaitAndCleanup(InvokeId invokeId, IExternalServiceRunner externalServiceRunner, ExternalServiceClass externalServiceClass)
 	{
 		try
 		{
@@ -133,16 +120,16 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 		}
 		finally
 		{
-			await Cleanup(invokeId, externalServiceBridge).ConfigureAwait(false);
+			await Cleanup(invokeId, externalServiceClass).ConfigureAwait(false);
 		}
 	}
 
-	private async ValueTask Cleanup(InvokeId invokeId, ExternalServiceBridge externalServiceBridge)
+	private async ValueTask Cleanup(InvokeId invokeId, ExternalServiceClass externalServiceClass)
 	{
-		if (externalServiceBridge.EventDispatcher is not null)
+		if (externalServiceClass.EventDispatcher is not null)
 		{
-			ExternalServiceEventRouter.Unsubscribe(invokeId, externalServiceBridge.IncomingEventHandler);
-			externalServiceBridge.EventDispatcher = default;
+			ExternalServiceEventRouter.Unsubscribe(invokeId, externalServiceClass.IncomingEventHandler);
+			externalServiceClass.EventDispatcher = default;
 		}
 
 		if (_scopes?.TryRemove(invokeId, out var serviceScope) == true)
