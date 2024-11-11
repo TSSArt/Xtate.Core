@@ -41,7 +41,7 @@ public class XIncludeTest
 		await host.StartHost();
 
 		var smc = new LocationStateMachine(new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Scxml/XInclude/SingleIncludeSource.scxml"));
-		_ = await stateMachineScopeManager.ExecuteStateMachine(smc, SecurityContextType.NewStateMachine);
+		_ = await stateMachineScopeManager.Execute(smc, SecurityContextType.NewStateMachine);
 
 		await host.StopHost();
 	}

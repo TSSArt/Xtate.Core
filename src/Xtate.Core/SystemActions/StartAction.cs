@@ -111,7 +111,7 @@ public class StartAction : AsyncAction
 
 		var locationStateMachine = new LocationStateMachine(location) { SessionId = sessionId };
 
-		await StateMachineScopeManager.StartStateMachine(locationStateMachine, securityContextType).WaitAsync(DisposeToken).ConfigureAwait(false);
+		await StateMachineScopeManager.Start(locationStateMachine, securityContextType).WaitAsync(DisposeToken).ConfigureAwait(false);
 
 		if (_sessionIdLocation is not null)
 		{
