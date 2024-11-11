@@ -19,30 +19,22 @@ namespace Xtate.Core;
 
 public class TaskCollector : IAsyncDisposable, IDisposable
 {
-	private readonly MiniDictionary<Task, ValueTuple> _tasks = new();
+	private MiniDictionary<Task, ValueTuple>? _tasks = new();
 
-	protected virtual void Dispose(bool disposing)
+#region Interface IAsyncDisposable
+
+	async ValueTask IAsyncDisposable.DisposeAsync()
 	{
-		if (!disposing)
-		{
-			return;
-		}
+		await DisposeAsyncCore().ConfigureAwait(false);
 
-		while (_tasks.Count > 0)
-		{
-			foreach (var pair in _tasks)
-			{
-				var task = pair.Key;
+		Dispose(false);
 
-				_tasks.TryRemove(task, out _);
-
-				if (task.IsFaulted || task.IsCanceled)
-				{
-					task.GetAwaiter().GetResult();
-				}
-			}
-		}
+		GC.SuppressFinalize(this);
 	}
+
+#endregion
+
+#region Interface IDisposable
 
 	public void Dispose()
 	{
@@ -51,40 +43,59 @@ public class TaskCollector : IAsyncDisposable, IDisposable
 		GC.SuppressFinalize(this);
 	}
 
-#region Interface IAsyncDisposable
-
-	async ValueTask IAsyncDisposable.DisposeAsync()
-	{
-		await DisposeAsyncCore().ConfigureAwait(false);
-		
-		Dispose(false);
-		
-		GC.SuppressFinalize(this);
-	}
-
 #endregion
+
+	protected virtual void Dispose(bool disposing)
+	{
+		if (!disposing)
+		{
+			return;
+		}
+
+		if (_tasks is not { } tasks)
+		{
+			return;
+		}
+
+		_tasks = default;
+
+		while (tasks.TryTake(out var task, out _))
+		{
+			if (task.IsFaulted || task.IsCanceled)
+			{
+				task.GetAwaiter().GetResult();
+			}
+		}
+	}
 
 	protected virtual async ValueTask DisposeAsyncCore()
 	{
-		List<Task>? tasks = default;
-
-		while (_tasks.Count > 0)
+		if (_tasks is not { } tasks)
 		{
-			tasks ??= new List<Task>(_tasks.Count);
+			return;
+		}
 
-			foreach (var pair in _tasks)
+		_tasks = default;
+
+		List<Task>? list = default;
+
+		while (true)
+		{
+			while (tasks.TryTake(out var task, out _))
 			{
-				tasks.Add(pair.Key);
+				list ??= [];
+
+				list.Add(task);
 			}
 
-			foreach (var task in tasks)
+			if (list is null || list.Count == 0)
 			{
-				_tasks.TryRemove(task, out _);
+				break;
 			}
 
-			await Task.WhenAll(tasks).ConfigureAwait(false);
+			await Task.WhenAll(list).ConfigureAwait(false);
 
-			tasks.Clear();
+			list.Clear();
 		}
 	}
 
@@ -126,10 +137,13 @@ public class TaskCollector : IAsyncDisposable, IDisposable
 
 	private void Register(Task task)
 	{
-		_tasks.TryAdd(task, value: default);
+		var tasks = _tasks;
+		Infra.EnsureNotDisposed(tasks is not null, this);
 
-		const TaskContinuationOptions options = TaskContinuationOptions.ExecuteSynchronously | TaskContinuationOptions.OnlyOnRanToCompletion;
+		tasks.TryAdd(task, value: default);
 
-		task.ContinueWith(t => _tasks.TryRemove(task, out _), options);
+		task.ContinueWith(Cleanup, TaskContinuationOptions.ExecuteSynchronously | TaskContinuationOptions.OnlyOnRanToCompletion);
 	}
+
+	private void Cleanup(Task task) => _tasks?.TryRemove(task, out _);
 }

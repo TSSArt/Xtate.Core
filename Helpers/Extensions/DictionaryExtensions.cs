@@ -19,7 +19,8 @@ namespace Xtate.Core;
 
 public static class DictionaryExtensions
 {
-	public static bool Remove<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, KeyValuePair<TKey, TValue> pair) => ((ICollection<KeyValuePair<TKey, TValue>>) dictionary).Remove(pair);
+	public static bool Remove<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, KeyValuePair<TKey, TValue> pair) where TKey : notnull =>
+		((ICollection<KeyValuePair<TKey, TValue>>) dictionary).Remove(pair);
 
 #if !NETCOREAPP2_0 && !NETCOREAPP2_1_OR_GREATER && !NETSTANDARD2_1
 
