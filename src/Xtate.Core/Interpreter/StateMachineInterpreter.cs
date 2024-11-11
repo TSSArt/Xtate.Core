@@ -136,7 +136,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		}
 		catch
 		{
-			await TraceInterpreterState(StateMachineInterpreterState.Halted).ConfigureAwait(false);
+			await TraceInterpreterState(StateMachineInterpreterState.Terminated).ConfigureAwait(false);
 
 			throw;
 		}
@@ -327,7 +327,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
 				break;
 
-			case Xtate.UnhandledErrorBehaviour.HaltStateMachine:
+			case Xtate.UnhandledErrorBehaviour.TerminateStateMachine:
 				throw GetUnhandledErrorException();
 
 			default:
@@ -1063,7 +1063,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		}
 	}
 
-	private bool IsError(Exception _) => true; // TODO: Is not OperationCanceled or ObjectDisposed when SM halted?
+	private bool IsError(Exception _) => true; // TODO: Is not OperationCanceled or ObjectDisposed when SM terminated?
 
 	private async ValueTask Error(object source, Exception exception, bool logLoggerErrors = true)
 	{

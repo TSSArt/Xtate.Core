@@ -23,8 +23,6 @@ public class ScxmlIoProcessor(IExternalServiceInvokeId? externalServiceInvokeId,
 {
 	private readonly ServiceId _senderServiceId = (ServiceId?) externalServiceInvokeId?.InvokeId ?? stateMachineSessionId.SessionId;
 
-	public required IParentStateMachineSessionId? ParentStateMachineSessionId { private get; [UsedImplicitly] init; }
-
 	public required IEventDispatcher? EventDispatcher { private get; [UsedImplicitly] init; }
 
 	public required IParentEventDispatcher? ParentEventDispatcher { private get; [UsedImplicitly] init; }
@@ -51,14 +49,12 @@ public class ScxmlIoProcessor(IExternalServiceInvokeId? externalServiceInvokeId,
 			return default;
 		}
 
-		Infra.NotNull(routerEvent.TargetServiceId);
-
-		if (routerEvent.TargetServiceId == _senderServiceId)
+		if (routerEvent.Target is null)
 		{
 			return EventDispatcher?.Dispatch(routerEvent) ?? default;
 		}
 
-		if (routerEvent.TargetServiceId == ParentStateMachineSessionId?.SessionId)
+		if (IsTargetParent(routerEvent.Target))
 		{
 			return ParentEventDispatcher?.Dispatch(routerEvent) ?? default;
 		}
@@ -84,16 +80,16 @@ public class ScxmlIoProcessor(IExternalServiceInvokeId? externalServiceInvokeId,
 
 #endregion
 
-	private ServiceId GetTargetServiceId(FullUri? target)
+	private ServiceId? GetTargetServiceId(FullUri? target)
 	{
 		if (target is null)
 		{
-			return _senderServiceId;
+			return default;
 		}
 
-		if (IsTargetParent(target) && ParentStateMachineSessionId is not null)
+		if (IsTargetParent(target))
 		{
-			return ParentStateMachineSessionId.SessionId;
+			return default;
 		}
 
 		if (IsTargetSessionId(target, out var targetSessionId))

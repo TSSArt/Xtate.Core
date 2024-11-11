@@ -37,7 +37,7 @@ public class StateMachineHostModule : Module<StateMachineInterpreterModule>
 		Services.AddImplementation<ExternalServiceManager>().For<IExternalServiceManager>();
 		Services.AddImplementation<ExternalCommunication>().For<IExternalCommunication>();
 
-		Services.AddType<ExternalServiceBridge, InvokeId, InvokeData>();
+		Services.AddType<ExternalServiceClass, InvokeId, InvokeData>();
 		Services.AddSharedImplementation<ExternalServiceScopeManager>(SharedWithin.Scope).For<IExternalServiceScopeManager>();
 		Services.AddSharedImplementation<ExternalServiceRunner>(SharedWithin.Scope).For<IExternalServiceRunner>();
 		Services.AddFactory<ExternalServiceFactory>().For<IExternalService>(SharedWithin.Scope);
@@ -50,7 +50,7 @@ public class StateMachineHostModule : Module<StateMachineInterpreterModule>
 		//.For<INotifyStateChanged>();//
 		//.For<IExternalCommunication>();
 
-		Services.AddSharedImplementation<StateMachineRunner, IStateMachineHostContext>(SharedWithin.Scope).For<IStateMachineRunner>();
+		Services.AddSharedImplementation<StateMachineRunner>(SharedWithin.Scope).For<IStateMachineRunner>();
 
 		Services.AddSharedFactorySync<SecurityContextFactory>(SharedWithin.Container).For<IIoBoundTask>().For<SecurityContextRegistration, SecurityContextType>(Option.DoNotDispose);
 

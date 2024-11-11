@@ -96,7 +96,7 @@ public class XPathDataModelTest
 					";
 
 		var ub = new Mock<IUnhandledErrorBehaviour>();
-		ub.Setup(s => s.Behaviour).Returns(UnhandledErrorBehaviour.HaltStateMachine);
+		ub.Setup(s => s.Behaviour).Returns(UnhandledErrorBehaviour.TerminateStateMachine);
 
 		var services = new ServiceCollection();
 
