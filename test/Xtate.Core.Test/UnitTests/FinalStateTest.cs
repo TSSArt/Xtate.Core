@@ -48,7 +48,7 @@ public class FinalStateTest
 		await stateMachineHost.StartHost();
 
 		// Act
-		var result = await stateMachineScopeManager.ExecuteStateMachine(new RuntimeStateMachine(stateMachine), SecurityContextType.NewStateMachine);
+		var result = await stateMachineScopeManager.Execute(new RuntimeStateMachine(stateMachine), SecurityContextType.NewStateMachine);
 
 		//Assert
 		Assert.AreEqual(expected: 22, result.AsNumber());
@@ -84,7 +84,7 @@ public class FinalStateTest
 		await stateMachineHost.StartHost();
 
 		// Act
-		var result = await stateMachineScopeManager.ExecuteStateMachine(smc, SecurityContextType.NewStateMachine);
+		var result = await stateMachineScopeManager.Execute(smc, SecurityContextType.NewStateMachine);
 
 
 		//Assert

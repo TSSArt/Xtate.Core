@@ -27,6 +27,8 @@ public class MiniDictionary<TKey, TValue>(IEqualityComparer<TKey>? equalityCompa
 
 	private ConcurrentDictionary<TKey, TValue>? _dictionary;
 
+	public int Count => _dictionary?.Count ?? 0;
+
 #region Interface IEnumerable
 
 	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -65,5 +67,11 @@ public class MiniDictionary<TKey, TValue>(IEqualityComparer<TKey>? equalityCompa
 		}
 	}
 
-	public int Count => _dictionary?.Count ?? 0;
+	public bool TryTake([MaybeNullWhen(false)] out TKey key, [MaybeNullWhen(false)] out TValue value)
+	{
+		key = default;
+		value = default;
+
+		return _dictionary?.TryTake(out key, out value) ?? false;
+	}
 }

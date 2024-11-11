@@ -76,6 +76,6 @@ public class StateMachineHostModule : Module<StateMachineInterpreterModule>
 		Services.AddType<StateMachineExternalService>();
 		Services.AddImplementation<StateMachineExternalService.Provider>().For<IExternalServiceProvider>();
 		
-		Services.AddSharedImplementation<StateMachineScopeManager>(SharedWithin.Scope).For<IStateMachineScopeManager>();
+		Services.AddSharedImplementation<StateMachineScopeManager>(SharedWithin.Container).For<IStateMachineScopeManager>();
 	}
 }

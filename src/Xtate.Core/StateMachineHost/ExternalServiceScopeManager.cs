@@ -31,7 +31,7 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 	public required Func<SecurityContextType, SecurityContextRegistration> SecurityContextRegistrationFactory { private get; [UsedImplicitly] init; }
 
 	public required ExternalServiceEventRouter ExternalServiceEventRouter { private get; [UsedImplicitly] init; }
-	
+
 	public required TaskCollector TaskCollector { private get; [UsedImplicitly] init; }
 
 #region Interface IAsyncDisposable
@@ -61,32 +61,11 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 
 	public virtual async ValueTask Start(InvokeId invokeId, InvokeData invokeData)
 	{
-		var scopes = _scopes;
-		Infra.EnsureNotDisposed(scopes is not null, this);
+		await using var registration = SecurityContextRegistrationFactory(SecurityContextType.InvokedService).ConfigureAwait(false);
 
 		var externalServiceBridge = await ExternalServiceBridgeFactory(invokeId, invokeData).ConfigureAwait(false);
 
-		await using var registration = SecurityContextRegistrationFactory(SecurityContextType.InvokedService).ConfigureAwait(false);
-
-		var serviceScope = ServiceScopeFactory.CreateScope(
-			services =>
-			{
-				services.AddConstant<IStateMachineSessionId>(externalServiceBridge);
-				services.AddConstant<IStateMachineLocation>(externalServiceBridge);
-				services.AddConstant<ICaseSensitivity>(externalServiceBridge);
-				services.AddConstant<IExternalServiceInvokeId>(externalServiceBridge);
-				services.AddConstant<IExternalServiceType>(externalServiceBridge);
-				services.AddConstant<IExternalServiceSource>(externalServiceBridge);
-				services.AddConstant<IExternalServiceParameters>(externalServiceBridge);
-				services.AddConstant<IParentStateMachineSessionId>(externalServiceBridge);
-				services.AddConstant<IParentEventDispatcher>(externalServiceBridge);
-			});
-
-		if (!scopes.TryAdd(invokeId, serviceScope))
-		{
-			await serviceScope.DisposeAsync().ConfigureAwait(false);
-			Infra.Fail(Resources.Exception_MoreThanOneExternalServicesExecutingWithSameInvokeId);
-		}
+		var serviceScope = CreateServiceScope(invokeId, externalServiceBridge);
 
 		IExternalServiceRunner? runner = default;
 
@@ -116,6 +95,35 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 	public virtual ValueTask Cancel(InvokeId invokeId) => _scopes?.TryRemove(invokeId, out var serviceScope) == true ? serviceScope.DisposeAsync() : default;
 
 #endregion
+
+	private IServiceScope CreateServiceScope(InvokeId invokeId, ExternalServiceBridge externalServiceBridge)
+	{
+		var scopes = _scopes;
+		Infra.EnsureNotDisposed(scopes is not null, this);
+
+		var serviceScope = ServiceScopeFactory.CreateScope(
+			services =>
+			{
+				services.AddConstant<IStateMachineSessionId>(externalServiceBridge);
+				services.AddConstant<IStateMachineLocation>(externalServiceBridge);
+				services.AddConstant<ICaseSensitivity>(externalServiceBridge);
+				services.AddConstant<IExternalServiceInvokeId>(externalServiceBridge);
+				services.AddConstant<IExternalServiceType>(externalServiceBridge);
+				services.AddConstant<IExternalServiceSource>(externalServiceBridge);
+				services.AddConstant<IExternalServiceParameters>(externalServiceBridge);
+				services.AddConstant<IParentStateMachineSessionId>(externalServiceBridge);
+				services.AddConstant<IParentEventDispatcher>(externalServiceBridge);
+			});
+
+		if (scopes.TryAdd(invokeId, serviceScope))
+		{
+			return serviceScope;
+		}
+
+		serviceScope.Dispose();
+
+		throw Infra.Fail<Exception>(Resources.Exception_MoreThanOneExternalServicesExecutingWithSameInvokeId);
+	}
 
 	private async ValueTask WaitAndCleanup(InvokeId invokeId, IExternalServiceRunner externalServiceRunner, ExternalServiceBridge externalServiceBridge)
 	{
@@ -148,10 +156,10 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 		if (disposing && _scopes is { } scopes)
 		{
 			_scopes = default;
-
-			foreach (var pair in scopes)
+			
+			while (scopes.TryTake(out _, out var serviceScope))
 			{
-				pair.Value.Dispose();
+				serviceScope.Dispose();
 			}
 		}
 	}
@@ -162,9 +170,9 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 		{
 			_scopes = default;
 
-			foreach (var pair in scopes)
+			while (scopes.TryTake(out _, out var serviceScope))
 			{
-				await pair.Value.DisposeAsync().ConfigureAwait(false);
+				await serviceScope.DisposeAsync().ConfigureAwait(false);
 			}
 		}
 	}

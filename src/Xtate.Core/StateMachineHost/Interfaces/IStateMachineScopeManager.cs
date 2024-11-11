@@ -19,9 +19,9 @@ namespace Xtate.Core;
 
 public interface IStateMachineScopeManager
 {
-	ValueTask StartStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType);
+	ValueTask Start(StateMachineClass stateMachineClass, SecurityContextType securityContextType);
 
-	ValueTask<DataModelValue> ExecuteStateMachine(StateMachineClass stateMachineClass, SecurityContextType securityContextType);
+	ValueTask<DataModelValue> Execute(StateMachineClass stateMachineClass, SecurityContextType securityContextType);
 
 	ValueTask DestroyStateMachine(SessionId sessionId);
 }

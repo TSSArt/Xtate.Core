@@ -41,7 +41,7 @@ public class StateMachineExternalService : ExternalServiceBase
 			? (StateMachineClass) new ScxmlStringStateMachine(scxml) { SessionId = _sessionId, Location = StateMachineLocation.Location!, Arguments = Parameters }
 			: new LocationStateMachine(StateMachineLocation.Location.CombineWith(Source!)) { SessionId = _sessionId, Arguments = Parameters };
 
-		return StateMachineScopeManager.ExecuteStateMachine(stateMachineClass, SecurityContextType.InvokedService);
+		return StateMachineScopeManager.Execute(stateMachineClass, SecurityContextType.InvokedService);
 	}
 
 	protected override void Dispose(bool disposing)

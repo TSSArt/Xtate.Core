@@ -67,6 +67,6 @@ public abstract class HostedTestBase
 		var uri = new Uri($"resx://{name}/{name}/HostedTests/Scxml/" + scxmlPath);
 		var locationStateMachine = new LocationStateMachine(uri);
 
-		await StateMachineScopeManager.ExecuteStateMachine(locationStateMachine, SecurityContextType.NewTrustedStateMachine);
+		await StateMachineScopeManager.Execute(locationStateMachine, SecurityContextType.NewTrustedStateMachine);
 	}
 }
