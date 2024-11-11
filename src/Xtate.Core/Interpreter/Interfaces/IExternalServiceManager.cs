@@ -19,7 +19,7 @@ namespace Xtate.Core;
 
 public interface IExternalServiceManager
 {
-	ValueTask Start(InvokeId invokeId, InvokeData invokeData);
+	ValueTask Start(InvokeData invokeData);
 
 	ValueTask Forward(InvokeId invokeId, IIncomingEvent incomingEvent);
 

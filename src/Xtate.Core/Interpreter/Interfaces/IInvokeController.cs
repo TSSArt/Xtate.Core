@@ -19,7 +19,7 @@ namespace Xtate;
 
 public interface IInvokeController
 {
-	ValueTask Start(InvokeId invokeId, InvokeData invokeData);
+	ValueTask Start(InvokeData invokeData);
 
 	ValueTask Cancel(InvokeId invokeId);
 

@@ -33,13 +33,14 @@ public class InvokeController : IInvokeController
 
 #region Interface IInvokeController
 
-	public async ValueTask Start(InvokeId invokeId, InvokeData invokeData)
+	public async ValueTask Start(InvokeData invokeData)
 	{
+		var invokeId = invokeData.InvokeId;
 		await Logger.Write(Level.Trace, StartInvokeEventId, $@"Start invoke. InvokeId: [{invokeId}]", invokeData).ConfigureAwait(false);
 
 		try
 		{
-			await ExternalServiceManager.Start(invokeId, invokeData).ConfigureAwait(false);
+			await ExternalServiceManager.Start(invokeData).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{

@@ -94,8 +94,8 @@ public class InvokeTest
 	public async Task SimpleTest()
 	{
 		var invokeUniqueId = "";
-		_externalCommunicationMock.Setup(l => l.Start(It.IsAny<InvokeId>(), It.IsAny<InvokeData>()))
-								  .Callback<InvokeId, InvokeData>((id, data) => invokeUniqueId = id.InvokeUniqueIdValue);
+		_externalCommunicationMock.Setup(l => l.Start(It.IsAny<InvokeData>()))
+								  .Callback<InvokeData>((data) => invokeUniqueId = data.InvokeId.InvokeUniqueIdValue);
 
 		var services = new ServiceCollection();
 		services.AddModule<StateMachineInterpreterModule>();
@@ -116,7 +116,7 @@ public class InvokeTest
 		await eventQueueWriter.WriteAsync(CreateEventObject("ToF"));
 		await task;
 
-		_externalCommunicationMock.Verify(l => l.Start(It.IsAny<InvokeId>(), It.IsAny<InvokeData>()));
+		_externalCommunicationMock.Verify(l => l.Start(It.IsAny<InvokeData>()));
 		_externalCommunicationMock.Verify(l => l.Cancel(InvokeId.FromString("invoke_id", invokeUniqueId)));
 		_externalCommunicationMock.VerifyNoOtherCalls();
 

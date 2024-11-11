@@ -155,11 +155,11 @@ public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId
 
 		Infra.NotNull(type);
 
-		var invokeData = new InvokeData(type, source, rawContent, content, parameters);
+		var invokeData = new InvokeData(InvokeId, type, source, rawContent, content, parameters);
 
 		var invokeController = await InvokeControllerFactory().ConfigureAwait(false);
 
-		await invokeController.Start(InvokeId, invokeData).ConfigureAwait(false);
+		await invokeController.Start(invokeData).ConfigureAwait(false);
 	}
 
 	public async ValueTask Cancel()

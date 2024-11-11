@@ -23,7 +23,7 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 {
 	private MiniDictionary<InvokeId, IServiceScope>? _scopes = new(InvokeId.InvokeUniqueIdComparer);
 
-	public required Func<InvokeId, InvokeData, ValueTask<ExternalServiceClass>> ExternalServiceClassFactory { private get; [UsedImplicitly] init; }
+	public required Func<InvokeData, ValueTask<ExternalServiceClass>> ExternalServiceClassFactory { private get; [UsedImplicitly] init; }
 
 	public required IServiceScopeFactory ServiceScopeFactory { private get; [UsedImplicitly] init; }
 
@@ -58,12 +58,12 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 
 #region Interface IExternalServiceScopeManager
 
-	public virtual async ValueTask Start(InvokeId invokeId, InvokeData invokeData)
+	public virtual async ValueTask Start(InvokeData invokeData)
 	{
 		await using var registration = SecurityContextRegistrationFactory(SecurityContextType.InvokedService).ConfigureAwait(false);
 
-		var externalServiceClass = await ExternalServiceClassFactory(invokeId, invokeData).ConfigureAwait(false);
-
+		var externalServiceClass = await ExternalServiceClassFactory(invokeData).ConfigureAwait(false);
+		var invokeId = invokeData.InvokeId;
 		var serviceScope = CreateServiceScope(invokeId, externalServiceClass);
 
 		IExternalServiceRunner? runner = default;

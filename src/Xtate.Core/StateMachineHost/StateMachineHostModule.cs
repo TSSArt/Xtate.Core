@@ -37,7 +37,7 @@ public class StateMachineHostModule : Module<StateMachineInterpreterModule>
 		Services.AddImplementation<ExternalServiceManager>().For<IExternalServiceManager>();
 		Services.AddImplementation<ExternalCommunication>().For<IExternalCommunication>();
 
-		Services.AddType<ExternalServiceClass, InvokeId, InvokeData>();
+		Services.AddType<ExternalServiceClass, InvokeData>();
 		Services.AddSharedImplementation<ExternalServiceScopeManager>(SharedWithin.Scope).For<IExternalServiceScopeManager>();
 		Services.AddSharedImplementation<ExternalServiceRunner>(SharedWithin.Scope).For<IExternalServiceRunner>();
 		Services.AddFactory<ExternalServiceFactory>().For<IExternalService>(SharedWithin.Scope);
