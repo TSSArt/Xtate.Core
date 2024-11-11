@@ -23,15 +23,17 @@ public class StateMachineExternalService : ExternalServiceBase, IEventDispatcher
 {
 	public class Provider() : ExternalServiceProviderBase<StateMachineExternalService>(Const.ScxmlServiceTypeId, Const.ScxmlServiceAliasTypeId);
 
-	private readonly SessionId _sessionId = SessionId.New();
+	private SessionId? _sessionId;
 
 	public required IStateMachineScopeManager StateMachineScopeManager { private get; [UsedImplicitly] init; }
 
 	public required IStateMachineLocation StateMachineLocation { private get; [UsedImplicitly] init; }
-	
-	public required IEventDispatcher EventDispatcher { private get; [UsedImplicitly] init; }
 
 	public required TaskCollector TaskCollector { private get; [UsedImplicitly] init; }
+
+	public required Func<Uri, DataModelValue, StateMachineClass> LocationStateMachineClassFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<string, Uri?, DataModelValue, StateMachineClass> ScxmlStateMachineClassFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IEventDispatcher
 
@@ -46,26 +48,17 @@ public class StateMachineExternalService : ExternalServiceBase, IEventDispatcher
 		Infra.Assert(scxml is not null || Source is not null);
 
 		var stateMachineClass = scxml is not null
-			? (StateMachineClass) new ScxmlStringChildStateMachine(scxml)
-								  {
-									  SessionId = _sessionId,
-									  Location = StateMachineLocation.Location!,
-									  Arguments = Parameters,
-									  ParentEventDispatcher = EventDispatcher
-								  }
-			: new LocationChildStateMachine(StateMachineLocation.Location.CombineWith(Source!))
-			  {
-				  SessionId = _sessionId,
-				  Arguments = Parameters,
-				  ParentEventDispatcher = EventDispatcher
-			  };
+			? ScxmlStateMachineClassFactory(scxml, StateMachineLocation.Location, Parameters)
+			: LocationStateMachineClassFactory(StateMachineLocation.Location.CombineWith(Source), Parameters);
+
+		_sessionId = stateMachineClass.SessionId;
 
 		return StateMachineScopeManager.Execute(stateMachineClass, SecurityContextType.InvokedService);
 	}
 
 	protected override void Dispose(bool disposing)
 	{
-		if (disposing)
+		if (disposing && _sessionId is not null)
 		{
 			TaskCollector.Collect(StateMachineScopeManager.DestroyStateMachine(_sessionId));
 		}
@@ -75,7 +68,10 @@ public class StateMachineExternalService : ExternalServiceBase, IEventDispatcher
 
 	protected override async ValueTask DisposeAsyncCore()
 	{
-		await StateMachineScopeManager.DestroyStateMachine(_sessionId).ConfigureAwait(false);
+		if (_sessionId is not null)
+		{
+			await StateMachineScopeManager.DestroyStateMachine(_sessionId).ConfigureAwait(false);
+		}
 
 		await base.DisposeAsyncCore().ConfigureAwait(false);
 	}
