@@ -23,7 +23,10 @@ public class EventQueueTest
 	[TestMethod]
 	public void EmptyQueueTest()
 	{
-		var eventQueue = new EventQueue();
+		var eventQueue = new EventQueue
+						 {
+							 DisposeToken = default
+						 };
 		var result = eventQueue.TryReadEvent(out _);
 
 		Assert.IsFalse(result);
@@ -32,7 +35,10 @@ public class EventQueueTest
 	[TestMethod]
 	public async Task NonEmptyQueueTest()
 	{
-		var eventQueue = new EventQueue();
+		var eventQueue = new EventQueue
+						 {
+							 DisposeToken = default
+						 };
 		var eventObject = new IncomingEvent();
 		await eventQueue.WriteAsync(eventObject);
 		var result = eventQueue.TryReadEvent(out var evt);
@@ -47,7 +53,10 @@ public class EventQueueTest
 	[TestMethod]
 	public async Task CompleteQueueTest()
 	{
-		var eventQueue = new EventQueue();
+		var eventQueue = new EventQueue
+						 {
+							 DisposeToken = default
+						 };
 		eventQueue.Complete();
 		var result = await eventQueue.WaitToEvent();
 

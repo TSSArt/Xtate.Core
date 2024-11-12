@@ -25,13 +25,15 @@ public class ExternalServiceManager : IExternalServiceManager
 
 	public required IExternalServiceScopeManager ExternalServiceScopeManager { private get; [UsedImplicitly] init; }
 
+	public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
+
 #region Interface IExternalServiceManager
 
-	public ValueTask Forward(InvokeId invokeId, IIncomingEvent incomingEvent) => ExternalServiceEventRouter.Dispatch(invokeId, incomingEvent);
+	public ValueTask Forward(InvokeId invokeId, IIncomingEvent incomingEvent) => ExternalServiceEventRouter.Dispatch(invokeId, incomingEvent).WaitAsync(DisposeToken);
 
-	public ValueTask Start(InvokeData invokeData) => ExternalServiceScopeManager.Start(invokeData);
+	public ValueTask Start(InvokeData invokeData) => ExternalServiceScopeManager.Start(invokeData).WaitAsync(DisposeToken);
 
-	public ValueTask Cancel(InvokeId invokeId) => ExternalServiceScopeManager.Cancel(invokeId);
+	public ValueTask Cancel(InvokeId invokeId) => ExternalServiceScopeManager.Cancel(invokeId).WaitAsync(DisposeToken);
 
 #endregion
 }

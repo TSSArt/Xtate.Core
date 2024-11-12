@@ -22,43 +22,25 @@ namespace Xtate.Core;
 [DebuggerDisplay("IsCancellationRequested = {IsCancellationRequested}")]
 public readonly struct DisposeToken(CancellationToken cancellationToken) : IEquatable<DisposeToken>
 {
-	private readonly CancellationToken _token = cancellationToken;
+	public CancellationToken Token { get; } = cancellationToken;
 
-	public static CancellationToken None => default;
-
-	public bool IsCancellationRequested => _token.IsCancellationRequested;
-
-	public bool CanBeCanceled => _token.CanBeCanceled;
-
-	public WaitHandle WaitHandle => _token.WaitHandle;
+	public bool IsCancellationRequested => Token.IsCancellationRequested;
 
 #region Interface IEquatable<DisposeToken>
 
-	public bool Equals(DisposeToken other) => _token.Equals(other._token);
+	public bool Equals(DisposeToken other) => Token.Equals(other.Token);
 
 #endregion
 
-	public static implicit operator CancellationToken(DisposeToken disposeToken) => disposeToken._token;
+	public void ThrowIfCancellationRequested() => Token.ThrowIfCancellationRequested();
 
-	public static implicit operator DisposeToken(CancellationToken cancellationToken) => new(cancellationToken);
+	public static implicit operator CancellationToken(DisposeToken disposeToken) => disposeToken.Token;
 
-	public CancellationTokenRegistration Register(Action callback) => _token.Register(callback);
+	public override bool Equals([NotNullWhen(true)] object? other) => other is DisposeToken dToken && Equals(dToken);
 
-	public CancellationTokenRegistration Register(Action callback, bool useSynchronizationContext) => _token.Register(callback, useSynchronizationContext);
-
-	public CancellationTokenRegistration Register(Action<object?> callback, object? state) => _token.Register(callback, state);
-
-	public CancellationTokenRegistration Register(Action<object?> callback, object? state, bool useSynchronizationContext) => _token.Register(callback, state, useSynchronizationContext);
-
-	public CancellationTokenRegistration UnsafeRegister(Action<object?> callback, object? state) => _token.Register(callback, state);
-
-	public override bool Equals([NotNullWhen(true)] object? other) => (other is DisposeToken dToken && Equals(dToken)) || (other is CancellationToken cToken && Equals(cToken));
-
-	public override int GetHashCode() => _token.GetHashCode();
+	public override int GetHashCode() => Token.GetHashCode();
 
 	public static bool operator ==(DisposeToken left, DisposeToken right) => left.Equals(right);
 
-	public static bool operator !=(DisposeToken left, DisposeToken right) => !(left == right);
-
-	public void ThrowIfCancellationRequested() => _token.ThrowIfCancellationRequested();
+	public static bool operator !=(DisposeToken left, DisposeToken right) => !left.Equals(right);
 }

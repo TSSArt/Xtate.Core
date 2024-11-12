@@ -25,19 +25,19 @@ using Xtate.Persistence;
 
 namespace Xtate.IoProcessor;
 
-public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
+public class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 {
 	private const string SessionIdPrefix = "#_session_";
 
 	private const string InvokeIdPrefix = "#_invoke_";
 
-	private const string PipePrefix = "#xtate#";
+	private const string PipePrefix = "Xtate/";
 
 	private const PipeOptions DefaultPipeOptions = PipeOptions.WriteThrough | PipeOptions.Asynchronous;
 
 	private const string Id = @"http://www.w3.org/TR/scxml/#NamedPipeEventProcessor";
 
-	private const string Alias = @"named.pipe";
+	private const string Alias = @"net.pipe";
 
 	private static readonly IncomingEvent CheckPipelineEvent = new() { Type = EventType.External, Name = (EventName) @"$" };
 
@@ -68,7 +68,7 @@ public sealed class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 		_eventConsumer = eventConsumer ?? throw new ArgumentNullException(nameof(eventConsumer));
 		_name = name ?? throw new ArgumentNullException(nameof(name));
 		_pipeName = PipePrefix + name;
-		_baseUri = new Uri(@"named.pipe://" + host + @"/" + name);
+		_baseUri = new Uri(@"net.pipe://" + host + @"/" + name + @"/");
 		_maxMessageSize = maxMessageSize;
 
 		if (!InProcConsumers.TryAdd(name, eventConsumer))
