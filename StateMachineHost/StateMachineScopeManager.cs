@@ -112,16 +112,6 @@ public class StateMachineScopeManager : IStateMachineScopeManager, IDisposable, 
 		}
 	}
 
-	async ValueTask IStateMachineScopeManager.DestroyStateMachine(SessionId sessionId)
-	{
-		if (_scopes?.TryGetValue(sessionId, out var serviceScope) == true)
-		{
-			var controller = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineController>().ConfigureAwait(false);
-
-			await controller.Destroy().ConfigureAwait(false);
-		}
-	}
-
 	ValueTask IStateMachineScopeManager.Terminate(SessionId sessionId) => _scopes?.TryRemove(sessionId, out var serviceScope) == true ? serviceScope.DisposeAsync() : default;
 
 #endregion

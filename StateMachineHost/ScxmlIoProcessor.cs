@@ -46,7 +46,7 @@ public class ScxmlIoProcessor(IExternalServiceInvokeId? externalServiceInvokeId,
 
 	public ValueTask Dispatch(IRouterEvent routerEvent)
 	{
-		if (DisposeToken.IsCancellationRequested)
+		if (DisposeToken.IsCancellationRequested) //TODO:??? delete
 		{
 			return default;
 		}
