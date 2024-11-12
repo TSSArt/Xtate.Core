@@ -15,13 +15,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Core;
+namespace Xtate;
 
-public interface IStateMachineScopeManager
+public interface IStateMachineCollection
 {
-	ValueTask Start(StateMachineClass stateMachineClass, SecurityContextType securityContextType);
+	ValueTask Dispatch(SessionId sessionId, IIncomingEvent incomingEvent);
 
-	ValueTask<DataModelValue> Execute(StateMachineClass stateMachineClass, SecurityContextType securityContextType);
-
-	ValueTask Terminate(SessionId sessionId);
+	ValueTask Destroy(SessionId sessionId);
 }

@@ -57,18 +57,31 @@ public class ExternalServiceEventRouter : IEventRouter
 
 #endregion
 
-	public ValueTask Dispatch(InvokeId invokeId, IIncomingEvent incomingEvent) => _handlers.TryGetValue(invokeId, out var handler) ? handler(incomingEvent) : default;
+	public ValueTask Dispatch(InvokeId invokeId, IIncomingEvent incomingEvent)
+	{
+		if (!_handlers.TryGetValue(invokeId, out var handler))
+		{
+			return default;
+		}
 
-	public void Subscribe(InvokeId invokeId, Func<IIncomingEvent, ValueTask> handler)
+		if(incomingEvent is not IncomingEvent)
+		{
+			incomingEvent = new IncomingEvent(incomingEvent);
+		}
+
+		return handler(incomingEvent);
+	}
+
+	internal void Subscribe(InvokeId invokeId, Func<IIncomingEvent, ValueTask> handler)
 	{
 		var added = _handlers.TryAdd(invokeId, handler);
 
 		Infra.Assert(added);
 	}
 
-	public void Unsubscribe(InvokeId invokeId, Func<IIncomingEvent, ValueTask> handler)
+	internal void Unsubscribe(InvokeId invokeId)
 	{
-		var removed = _handlers.Remove(invokeId, handler);
+		var removed = _handlers.TryRemove(invokeId, out _);
 
 		Infra.Assert(removed);
 	}

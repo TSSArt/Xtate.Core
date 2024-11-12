@@ -37,7 +37,7 @@ public class StateMachineHostModule : Module<StateMachineInterpreterModule>
 		Services.AddImplementation<ExternalServiceManager>().For<IExternalServiceManager>();
 		Services.AddImplementation<ExternalCommunication>().For<IExternalCommunication>();
 
-		Services.AddType<ExternalServiceBridge, InvokeId, InvokeData>();
+		Services.AddType<ExternalServiceClass, InvokeData>();
 		Services.AddSharedImplementation<ExternalServiceScopeManager>(SharedWithin.Scope).For<IExternalServiceScopeManager>();
 		Services.AddSharedImplementation<ExternalServiceRunner>(SharedWithin.Scope).For<IExternalServiceRunner>();
 		Services.AddFactory<ExternalServiceFactory>().For<IExternalService>(SharedWithin.Scope);
@@ -50,7 +50,7 @@ public class StateMachineHostModule : Module<StateMachineInterpreterModule>
 		//.For<INotifyStateChanged>();//
 		//.For<IExternalCommunication>();
 
-		Services.AddSharedImplementation<StateMachineRunner, IStateMachineHostContext>(SharedWithin.Scope).For<IStateMachineRunner>();
+		Services.AddSharedImplementation<StateMachineRunner>(SharedWithin.Scope).For<IStateMachineRunner>();
 
 		Services.AddSharedFactorySync<SecurityContextFactory>(SharedWithin.Container).For<IIoBoundTask>().For<SecurityContextRegistration, SecurityContextType>(Option.DoNotDispose);
 
@@ -76,6 +76,15 @@ public class StateMachineHostModule : Module<StateMachineInterpreterModule>
 		Services.AddType<StateMachineExternalService>();
 		Services.AddImplementation<StateMachineExternalService.Provider>().For<IExternalServiceProvider>();
 		
-		Services.AddSharedImplementation<StateMachineScopeManager>(SharedWithin.Scope).For<IStateMachineScopeManager>();
+		Services.AddSharedImplementation<StateMachineScopeManager>(SharedWithin.Container).For<IStateMachineScopeManager>();
+
+		Services.AddImplementation<LocationChildStateMachine, (Uri, DataModelValue)>().For<StateMachineClass>();
+		Services.AddImplementation<ScxmlStringChildStateMachine, (string, Uri?, DataModelValue)>().For<StateMachineClass>();
+		Services.AddSharedImplementation<StateMachineCollection>(SharedWithin.Container).For<StateMachineCollection>().For<IStateMachineCollection>();
+
+		/*	public required Func<Uri, DataModelValue, StateMachineClass> LocationStateMachineClassFactory { private get; [UsedImplicitly] init; }
+
+		   public required Func<string, Uri?, DataModelValue, StateMachineClass> ScxmlStateMachineClassFactory { private get; [UsedImplicitly] init; }
+*/
 	}
 }

@@ -21,5 +21,8 @@ namespace Xtate.Core;
 
 public interface IStateMachineController : IExternalService
 {
+	ValueTask Dispatch(IIncomingEvent incomingEvent);
+
 	ValueTask Destroy();
+
 }

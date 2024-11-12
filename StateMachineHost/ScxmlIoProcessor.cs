@@ -23,11 +23,11 @@ public class ScxmlIoProcessor(IExternalServiceInvokeId? externalServiceInvokeId,
 {
 	private readonly ServiceId _senderServiceId = (ServiceId?) externalServiceInvokeId?.InvokeId ?? stateMachineSessionId.SessionId;
 
-	public required IParentStateMachineSessionId? ParentStateMachineSessionId { private get; [UsedImplicitly] init; }
-
 	public required IEventDispatcher? EventDispatcher { private get; [UsedImplicitly] init; }
 
 	public required IParentEventDispatcher? ParentEventDispatcher { private get; [UsedImplicitly] init; }
+	
+	public required IStateMachineCollection? StateMachineCollection { private get; [UsedImplicitly] init; }
 
 	public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
 
@@ -46,26 +46,27 @@ public class ScxmlIoProcessor(IExternalServiceInvokeId? externalServiceInvokeId,
 
 	public ValueTask Dispatch(IRouterEvent routerEvent)
 	{
-		if (DisposeToken.IsCancellationRequested)
+		if (DisposeToken.IsCancellationRequested) //TODO:??? delete
 		{
 			return default;
 		}
 
-		Infra.NotNull(routerEvent.TargetServiceId);
-
-		if (routerEvent.TargetServiceId == _senderServiceId)
+		if (routerEvent.Target is null)
 		{
 			return EventDispatcher?.Dispatch(routerEvent) ?? default;
 		}
 
-		if (routerEvent.TargetServiceId == ParentStateMachineSessionId?.SessionId)
+		if (IsTargetParent(routerEvent.Target))
 		{
 			return ParentEventDispatcher?.Dispatch(routerEvent) ?? default;
 		}
 
-		//var service = await GetService(routerEvent.TargetServiceId, token: default).ConfigureAwait(false);
-		//await service.Dispatch(routerEvent).ConfigureAwait(false);
-		throw new NotImplementedException(); //TODO:
+		if (routerEvent.TargetServiceId is SessionId sessionId)
+		{
+			return StateMachineCollection.Dispatch(sessionId, routerEvent);
+		}
+
+		throw new ProcessorException(Resources.Exception_CannotFindTarget);
 	}
 
 #endregion
@@ -84,16 +85,16 @@ public class ScxmlIoProcessor(IExternalServiceInvokeId? externalServiceInvokeId,
 
 #endregion
 
-	private ServiceId GetTargetServiceId(FullUri? target)
+	private ServiceId? GetTargetServiceId(FullUri? target)
 	{
 		if (target is null)
 		{
-			return _senderServiceId;
+			return default;
 		}
 
-		if (IsTargetParent(target) && ParentStateMachineSessionId is not null)
+		if (IsTargetParent(target))
 		{
-			return ParentStateMachineSessionId.SessionId;
+			return default;
 		}
 
 		if (IsTargetSessionId(target, out var targetSessionId))

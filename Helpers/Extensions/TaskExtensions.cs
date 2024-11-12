@@ -15,9 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.Diagnostics;
-using InvalidOperationException = System.InvalidOperationException;
-
 namespace Xtate.Core;
 
 internal static class TaskExtensions
@@ -34,7 +31,7 @@ internal static class TaskExtensions
 			return new ValueTask(Task.FromCanceled(token));
 		}
 
-		return new ValueTask(Task.WhenAny(valueTask.AsTask(), Task.Delay(Timeout.Infinite, token)));
+		return new ValueTask(valueTask.AsTask().ContinueWith(_ => { }, token, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current));
 	}
 
 	public static ValueTask<T> WaitAsync<T>(this ValueTask<T> valueTask, CancellationToken token)
@@ -49,23 +46,7 @@ internal static class TaskExtensions
 			return new ValueTask<T>(Task.FromCanceled<T>(token));
 		}
 
-		return WaitAsyncLocal(Task.WhenAny(valueTask.AsTask(), Task.Delay(Timeout.Infinite, token)));
-
-		static async ValueTask<T> WaitAsyncLocal(Task<Task> waitAnyTask)
-		{
-			var completedTask = await waitAnyTask.ConfigureAwait(false);
-
-			Debug.Assert(completedTask.IsCompleted);
-
-			if (completedTask is Task<T> task)
-			{
-				return task.GetAwaiter().GetResult();
-			}
-
-			completedTask.GetAwaiter().GetResult();
-
-			throw new InvalidOperationException();
-		}
+		return new ValueTask<T>(valueTask.AsTask().ContinueWith(t => t.Result, token, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current));
 	}
 
 #if !NET6_0_OR_GREATER
@@ -81,7 +62,7 @@ internal static class TaskExtensions
 			return Task.FromCanceled(token);
 		}
 
-		return Task.WhenAny(task, Task.Delay(Timeout.Infinite, token));
+		return task.ContinueWith(_ => { }, token, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
 	}
 
 	public static Task<T> WaitAsync<T>(this Task<T> task, CancellationToken token)
@@ -96,23 +77,7 @@ internal static class TaskExtensions
 			return Task.FromCanceled<T>(token);
 		}
 
-		return WaitAsyncLocal(Task.WhenAny(task, Task.Delay(Timeout.Infinite, token)));
-
-		static async Task<T> WaitAsyncLocal(Task<Task> waitAnyTask)
-		{
-			var completedTask = await waitAnyTask.ConfigureAwait(false);
-
-			Debug.Assert(completedTask.IsCompleted);
-
-			if (completedTask is Task<T> task)
-			{
-				return task.GetAwaiter().GetResult();
-			}
-
-			completedTask.GetAwaiter().GetResult();
-
-			throw new InvalidOperationException();
-		}
+		return task.ContinueWith(t => t.Result, token, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
 	}
 
 #endif

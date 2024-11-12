@@ -17,119 +17,172 @@
 
 namespace Xtate.Core;
 
+/// <summary>
+/// Collects and manages tasks, ensuring proper disposal of resources.
+/// </summary>
 public class TaskCollector : IAsyncDisposable, IDisposable
 {
-	private readonly MiniDictionary<Task, ValueTuple> _tasks = new();
+    private MiniDictionary<Task, ValueTuple>? _tasks = new();
 
-	protected virtual void Dispose(bool disposing)
-	{
-		if (!disposing)
-		{
-			return;
-		}
+    #region Interface IAsyncDisposable
 
-		while (_tasks.Count > 0)
-		{
-			foreach (var pair in _tasks)
-			{
-				var task = pair.Key;
+    /// <summary>
+    /// Asynchronously disposes of the resources used by the TaskCollector.
+    /// </summary>
+    /// <returns>A ValueTask representing the asynchronous operation.</returns>
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        await DisposeAsyncCore().ConfigureAwait(false);
 
-				_tasks.TryRemove(task, out _);
+        Dispose(false);
 
-				if (task.IsFaulted || task.IsCanceled)
-				{
-					task.GetAwaiter().GetResult();
-				}
-			}
-		}
-	}
+        GC.SuppressFinalize(this);
+    }
 
-	public void Dispose()
-	{
-		Dispose(true);
+    #endregion
 
-		GC.SuppressFinalize(this);
-	}
+    #region Interface IDisposable
 
-#region Interface IAsyncDisposable
+    /// <summary>
+    /// Disposes of the resources used by the TaskCollector.
+    /// </summary>
+    public void Dispose()
+    {
+        Dispose(true);
 
-	async ValueTask IAsyncDisposable.DisposeAsync()
-	{
-		await DisposeAsyncCore().ConfigureAwait(false);
-		
-		Dispose(false);
-		
-		GC.SuppressFinalize(this);
-	}
+        GC.SuppressFinalize(this);
+    }
 
-#endregion
+    #endregion
 
-	protected virtual async ValueTask DisposeAsyncCore()
-	{
-		List<Task>? tasks = default;
+    /// <summary>
+    /// Releases the unmanaged resources used by the TaskCollector and optionally releases the managed resources.
+    /// </summary>
+    /// <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!disposing)
+        {
+            return;
+        }
 
-		while (_tasks.Count > 0)
-		{
-			tasks ??= new List<Task>(_tasks.Count);
+        if (_tasks is not { } tasks)
+        {
+            return;
+        }
 
-			foreach (var pair in _tasks)
-			{
-				tasks.Add(pair.Key);
-			}
+        _tasks = default;
 
-			foreach (var task in tasks)
-			{
-				_tasks.TryRemove(task, out _);
-			}
+        while (tasks.TryTake(out var task, out _))
+        {
+            if (task.IsFaulted || task.IsCanceled)
+            {
+                task.GetAwaiter().GetResult();
+            }
+        }
+    }
 
-			await Task.WhenAll(tasks).ConfigureAwait(false);
+    /// <summary>
+    /// Asynchronously releases the unmanaged resources used by the TaskCollector and optionally releases the managed resources.
+    /// </summary>
+    /// <returns>A ValueTask representing the asynchronous operation.</returns>
+    protected virtual async ValueTask DisposeAsyncCore()
+    {
+        if (_tasks is not { } tasks)
+        {
+            return;
+        }
 
-			tasks.Clear();
-		}
-	}
+        _tasks = default;
 
-	public void Collect(ValueTask valueTask)
-	{
-		if (valueTask.IsCompleted)
-		{
-			valueTask.GetAwaiter().GetResult();
-		}
-		else
-		{
-			Register(valueTask.AsTask());
-		}
-	}
+        List<Task>? list = default;
 
-	public void Collect<T>(ValueTask<T> valueTask)
-	{
-		if (valueTask.IsCompleted)
-		{
-			valueTask.GetAwaiter().GetResult();
-		}
-		else
-		{
-			Register(valueTask.AsTask());
-		}
-	}
+        while (true)
+        {
+            while (tasks.TryTake(out var task, out _))
+            {
+                list ??= [];
 
-	public void Collect(Task task)
-	{
-		if (task.IsCompleted)
-		{
-			task.GetAwaiter().GetResult();
-		}
-		else
-		{
-			Register(task);
-		}
-	}
+                list.Add(task);
+            }
 
-	private void Register(Task task)
-	{
-		_tasks.TryAdd(task, value: default);
+            if (list is null || list.Count == 0)
+            {
+                break;
+            }
 
-		const TaskContinuationOptions options = TaskContinuationOptions.ExecuteSynchronously | TaskContinuationOptions.OnlyOnRanToCompletion;
+            await Task.WhenAll(list).ConfigureAwait(false);
 
-		task.ContinueWith(t => _tasks.TryRemove(task, out _), options);
-	}
+            list.Clear();
+        }
+    }
+
+    /// <summary>
+    /// Collects a ValueTask into a private pool and tracks its successful completion.
+    /// </summary>
+    /// <param name="valueTask">The ValueTask to collect.</param>
+    public void Collect(ValueTask valueTask)
+    {
+        if (valueTask.IsCompleted)
+        {
+            valueTask.GetAwaiter().GetResult();
+        }
+        else
+        {
+            Register(valueTask.AsTask());
+        }
+    }
+
+    /// <summary>
+    /// Collects a ValueTask of type T into a private pool and tracks its successful completion.
+    /// </summary>
+    /// <typeparam name="T">The type of the result produced by the ValueTask.</typeparam>
+    /// <param name="valueTask">The ValueTask to collect.</param>
+    public void Collect<T>(ValueTask<T> valueTask)
+    {
+        if (valueTask.IsCompleted)
+        {
+            valueTask.GetAwaiter().GetResult();
+        }
+        else
+        {
+            Register(valueTask.AsTask());
+        }
+    }
+
+    /// <summary>
+    /// Collects a Task into a private pool and tracks its successful completion.
+    /// </summary>
+    /// <param name="task">The Task to collect.</param>
+    public void Collect(Task task)
+    {
+        if (task.IsCompleted)
+        {
+            task.GetAwaiter().GetResult();
+        }
+        else
+        {
+            Register(task);
+        }
+    }
+
+    /// <summary>
+    /// Registers a Task for management.
+    /// </summary>
+    /// <param name="task">The Task to register.</param>
+    private void Register(Task task)
+    {
+        var tasks = _tasks;
+        Infra.EnsureNotDisposed(tasks is not null, this);
+
+        tasks.TryAdd(task, value: default);
+
+        task.ContinueWith(Cleanup, TaskContinuationOptions.ExecuteSynchronously | TaskContinuationOptions.OnlyOnRanToCompletion);
+    }
+
+    /// <summary>
+    /// Cleans up a completed Task.
+    /// </summary>
+    /// <param name="task">The Task to clean up.</param>
+    private void Cleanup(Task task) => _tasks?.TryRemove(task, out _);
 }

@@ -17,19 +17,33 @@
 
 using Xtate.ExternalService;
 
-namespace Xtate;
+namespace Xtate.Core;
 
-public class StateMachineExternalService : ExternalServiceBase
+public class StateMachineExternalService : ExternalServiceBase, IEventDispatcher
 {
-	private readonly SessionId _sessionId = SessionId.New();
-
 	public class Provider() : ExternalServiceProviderBase<StateMachineExternalService>(Const.ScxmlServiceTypeId, Const.ScxmlServiceAliasTypeId);
+
+	private SessionId? _sessionId;
 
 	public required IStateMachineScopeManager StateMachineScopeManager { private get; [UsedImplicitly] init; }
 
 	public required IStateMachineLocation StateMachineLocation { private get; [UsedImplicitly] init; }
 	
+	public required IStateMachineCollection StateMachineCollection { private get; [UsedImplicitly] init; }
+
 	public required TaskCollector TaskCollector { private get; [UsedImplicitly] init; }
+	
+	public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
+
+	public required Func<Uri, DataModelValue, StateMachineClass> LocationStateMachineClassFactory { private get; [UsedImplicitly] init; }
+
+	public required Func<string, Uri?, DataModelValue, StateMachineClass> ScxmlStateMachineClassFactory { private get; [UsedImplicitly] init; }
+
+#region Interface IEventDispatcher
+
+	public ValueTask Dispatch(IIncomingEvent incomingEvent) => _sessionId is { } sessionId ? StateMachineCollection.Dispatch(sessionId, incomingEvent).WaitAsync(DisposeToken) : default;
+
+#endregion
 
 	protected override ValueTask<DataModelValue> Execute()
 	{
@@ -38,17 +52,19 @@ public class StateMachineExternalService : ExternalServiceBase
 		Infra.Assert(scxml is not null || Source is not null);
 
 		var stateMachineClass = scxml is not null
-			? (StateMachineClass) new ScxmlStringStateMachine(scxml) { SessionId = _sessionId, Location = StateMachineLocation.Location!, Arguments = Parameters }
-			: new LocationStateMachine(StateMachineLocation.Location.CombineWith(Source!)) { SessionId = _sessionId, Arguments = Parameters };
+			? ScxmlStateMachineClassFactory(scxml, StateMachineLocation.Location, Parameters)
+			: LocationStateMachineClassFactory(StateMachineLocation.Location.CombineWith(Source), Parameters);
 
-		return StateMachineScopeManager.ExecuteStateMachine(stateMachineClass, SecurityContextType.InvokedService);
+		_sessionId = stateMachineClass.SessionId;
+
+		return StateMachineScopeManager.Execute(stateMachineClass, SecurityContextType.InvokedService);
 	}
 
 	protected override void Dispose(bool disposing)
 	{
-		if (disposing)
+		if (disposing && _sessionId is not null)
 		{
-			TaskCollector.Collect(StateMachineScopeManager.DestroyStateMachine(_sessionId));
+			TaskCollector.Collect(StateMachineCollection.Destroy(_sessionId));
 		}
 
 		base.Dispose(disposing);
@@ -56,7 +72,10 @@ public class StateMachineExternalService : ExternalServiceBase
 
 	protected override async ValueTask DisposeAsyncCore()
 	{
-		await StateMachineScopeManager.DestroyStateMachine(_sessionId).ConfigureAwait(false);
+		if (_sessionId is not null)
+		{
+			await StateMachineCollection.Destroy(_sessionId).ConfigureAwait(false);
+		}
 
 		await base.DisposeAsyncCore().ConfigureAwait(false);
 	}
