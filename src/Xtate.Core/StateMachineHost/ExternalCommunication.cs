@@ -26,17 +26,28 @@ public class ExternalCommunication : IExternalCommunication
 
 	public required IEventScheduler EventScheduler { private get; [UsedImplicitly] init; }
 
-#region Interface IExternalCommunication
+	public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
 
-	public async ValueTask<SendStatus> TrySend(IOutgoingEvent outgoingEvent)
+	#region Interface IExternalCommunication
+
+	public ValueTask<SendStatus> TrySend(IOutgoingEvent outgoingEvent)
 	{
 		var eventRouter = GetEventRouter(outgoingEvent.Type);
 
 		if (eventRouter.IsInternalTarget(outgoingEvent.Target))
 		{
-			return SendStatus.ToInternalQueue;
+			return new ValueTask<SendStatus>(SendStatus.ToInternalQueue);
 		}
 
+		return ScheduleOrSend(eventRouter, outgoingEvent).WaitAsync(DisposeToken);
+	}
+
+	public ValueTask Cancel(SendId sendId) => EventScheduler.CancelEvent(sendId).WaitAsync(DisposeToken);
+
+#endregion
+
+	private async ValueTask<SendStatus> ScheduleOrSend(IEventRouter eventRouter, IOutgoingEvent outgoingEvent)
+	{
 		var routerEvent = await eventRouter.GetRouterEvent(outgoingEvent).ConfigureAwait(false);
 
 		if (outgoingEvent.DelayMs > 0)
@@ -50,10 +61,6 @@ public class ExternalCommunication : IExternalCommunication
 
 		return SendStatus.Sent;
 	}
-
-	public ValueTask Cancel(SendId sendId) => EventScheduler.CancelEvent(sendId);
-
-#endregion
 
 	private IEventRouter GetEventRouter(FullUri? type)
 	{

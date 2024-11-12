@@ -28,8 +28,12 @@ public class StateMachineExternalService : ExternalServiceBase, IEventDispatcher
 	public required IStateMachineScopeManager StateMachineScopeManager { private get; [UsedImplicitly] init; }
 
 	public required IStateMachineLocation StateMachineLocation { private get; [UsedImplicitly] init; }
+	
+	public required IStateMachineCollection StateMachineCollection { private get; [UsedImplicitly] init; }
 
 	public required TaskCollector TaskCollector { private get; [UsedImplicitly] init; }
+	
+	public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
 
 	public required Func<Uri, DataModelValue, StateMachineClass> LocationStateMachineClassFactory { private get; [UsedImplicitly] init; }
 
@@ -37,7 +41,7 @@ public class StateMachineExternalService : ExternalServiceBase, IEventDispatcher
 
 #region Interface IEventDispatcher
 
-	public ValueTask Dispatch(IIncomingEvent incomingEvent) => throw new NotImplementedException(); //TODO:
+	public ValueTask Dispatch(IIncomingEvent incomingEvent) => _sessionId is { } sessionId ? StateMachineCollection.Dispatch(sessionId, incomingEvent).WaitAsync(DisposeToken) : default;
 
 #endregion
 
@@ -60,7 +64,7 @@ public class StateMachineExternalService : ExternalServiceBase, IEventDispatcher
 	{
 		if (disposing && _sessionId is not null)
 		{
-			TaskCollector.Collect(StateMachineScopeManager.DestroyStateMachine(_sessionId));
+			TaskCollector.Collect(StateMachineCollection.Destroy(_sessionId));
 		}
 
 		base.Dispose(disposing);
@@ -70,7 +74,7 @@ public class StateMachineExternalService : ExternalServiceBase, IEventDispatcher
 	{
 		if (_sessionId is not null)
 		{
-			await StateMachineScopeManager.DestroyStateMachine(_sessionId).ConfigureAwait(false);
+			await StateMachineCollection.Destroy(_sessionId).ConfigureAwait(false);
 		}
 
 		await base.DisposeAsyncCore().ConfigureAwait(false);
