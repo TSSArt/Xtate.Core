@@ -79,7 +79,7 @@ public abstract class StateMachineControllerBase : IStateMachineController, INot
 #region Interface IEventDispatcher
 
 	//public virtual ValueTask Send(IIncomingEvent abc, CancellationToken token) => EventChannel.Writer.WriteAsync(abc, token);
-	public virtual ValueTask Dispatch(IIncomingEvent incomingEvent) => EventQueueWriter.WriteAsync(incomingEvent);
+	public virtual ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token) => EventQueueWriter.WriteAsync(incomingEvent, token);
 
 #endregion
 

@@ -29,11 +29,11 @@ public class ExternalServiceManager : IExternalServiceManager
 
 #region Interface IExternalServiceManager
 
-	public ValueTask Forward(InvokeId invokeId, IIncomingEvent incomingEvent) => ExternalServiceEventRouter.Dispatch(invokeId, incomingEvent).WaitAsync(DisposeToken);
+	public ValueTask Forward(InvokeId invokeId, IIncomingEvent incomingEvent) => ExternalServiceEventRouter.Dispatch(invokeId, incomingEvent, DisposeToken);
 
-	public ValueTask Start(InvokeData invokeData) => ExternalServiceScopeManager.Start(invokeData).WaitAsync(DisposeToken);
+	public ValueTask Start(InvokeData invokeData) => ExternalServiceScopeManager.Start(invokeData, DisposeToken);
 
-	public ValueTask Cancel(InvokeId invokeId) => ExternalServiceScopeManager.Cancel(invokeId).WaitAsync(DisposeToken);
+	public ValueTask Cancel(InvokeId invokeId) => ExternalServiceScopeManager.Cancel(invokeId, DisposeToken);
 
 #endregion
 }

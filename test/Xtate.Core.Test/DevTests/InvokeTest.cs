@@ -112,8 +112,8 @@ public class InvokeTest
 
 		var task = stateMachineInterpreter.RunAsync();
 
-		await eventQueueWriter.WriteAsync(CreateEventObject(name: "fromInvoked", InvokeId.FromString(invokeId: "invoke_id", invokeUniqueId)));
-		await eventQueueWriter.WriteAsync(CreateEventObject("ToF"));
+		await eventQueueWriter.WriteAsync(CreateEventObject(name: "fromInvoked", InvokeId.FromString(invokeId: "invoke_id", invokeUniqueId)), default);
+		await eventQueueWriter.WriteAsync(CreateEventObject("ToF"), default);
 		await task;
 
 		_externalCommunicationMock.Verify(l => l.Start(It.IsAny<InvokeData>()));

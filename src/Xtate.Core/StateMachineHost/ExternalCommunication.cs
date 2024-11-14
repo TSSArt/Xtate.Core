@@ -39,25 +39,25 @@ public class ExternalCommunication : IExternalCommunication
 			return new ValueTask<SendStatus>(SendStatus.ToInternalQueue);
 		}
 
-		return ScheduleOrSend(eventRouter, outgoingEvent).WaitAsync(DisposeToken);
+		return ScheduleOrSend(eventRouter, outgoingEvent);
 	}
 
-	public ValueTask Cancel(SendId sendId) => EventScheduler.CancelEvent(sendId).WaitAsync(DisposeToken);
+	public ValueTask Cancel(SendId sendId) => EventScheduler.CancelEvent(sendId, DisposeToken);
 
 #endregion
 
 	private async ValueTask<SendStatus> ScheduleOrSend(IEventRouter eventRouter, IOutgoingEvent outgoingEvent)
 	{
-		var routerEvent = await eventRouter.GetRouterEvent(outgoingEvent).ConfigureAwait(false);
+		var routerEvent = await eventRouter.GetRouterEvent(outgoingEvent, DisposeToken).ConfigureAwait(false);
 
 		if (outgoingEvent.DelayMs > 0)
 		{
-			await EventScheduler.ScheduleEvent(routerEvent).ConfigureAwait(false);
+			await EventScheduler.ScheduleEvent(routerEvent, DisposeToken).ConfigureAwait(false);
 
 			return SendStatus.Scheduled;
 		}
 
-		await eventRouter.Dispatch(routerEvent).ConfigureAwait(false);
+		await eventRouter.Dispatch(routerEvent, DisposeToken).ConfigureAwait(false);
 
 		return SendStatus.Sent;
 	}

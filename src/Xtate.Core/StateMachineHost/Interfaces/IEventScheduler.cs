@@ -19,7 +19,7 @@ namespace Xtate.Core;
 
 public interface IEventScheduler
 {
-	ValueTask ScheduleEvent(IRouterEvent routerEvent);
+	ValueTask ScheduleEvent(IRouterEvent routerEvent, CancellationToken token);
 
-	ValueTask CancelEvent(SendId sendId);
+	ValueTask CancelEvent(SendId sendId, CancellationToken token);
 }

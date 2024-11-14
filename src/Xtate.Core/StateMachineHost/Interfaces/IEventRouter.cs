@@ -23,7 +23,7 @@ public interface IEventRouter
 
 	bool IsInternalTarget(FullUri? target);
 
-	ValueTask<IRouterEvent> GetRouterEvent(IOutgoingEvent outgoingEvent);
+	ValueTask<IRouterEvent> GetRouterEvent(IOutgoingEvent outgoingEvent, CancellationToken token);
 
-	ValueTask Dispatch(IRouterEvent routerEvent);
+	ValueTask Dispatch(IRouterEvent routerEvent, CancellationToken token);
 }

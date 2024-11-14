@@ -38,7 +38,8 @@ internal sealed class PersistedEventSchedulerFactory : IEventSchedulerFactory
 										  EventSchedulerInfoEnricher = null,
 										  StateMachineSessionId = null,
 										  EventRouters = null,
-										  TaskCollector = null
+										  TaskCollector = null,
+										  
 									  };
 
 		await persistedEventScheduler.Initialize(token).ConfigureAwait(false);

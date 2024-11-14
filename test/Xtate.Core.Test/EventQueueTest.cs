@@ -25,7 +25,7 @@ public class EventQueueTest
 	{
 		var eventQueue = new EventQueue
 						 {
-							 DisposeToken = default
+							 
 						 };
 		var result = eventQueue.TryReadEvent(out _);
 
@@ -37,10 +37,10 @@ public class EventQueueTest
 	{
 		var eventQueue = new EventQueue
 						 {
-							 DisposeToken = default
+							 
 						 };
 		var eventObject = new IncomingEvent();
-		await eventQueue.WriteAsync(eventObject);
+		await eventQueue.WriteAsync(eventObject, default);
 		var result = eventQueue.TryReadEvent(out var evt);
 		var result2 = eventQueue.TryReadEvent(out var evt2);
 
@@ -55,7 +55,7 @@ public class EventQueueTest
 	{
 		var eventQueue = new EventQueue
 						 {
-							 DisposeToken = default
+							 
 						 };
 		eventQueue.Complete();
 		var result = await eventQueue.WaitToEvent();

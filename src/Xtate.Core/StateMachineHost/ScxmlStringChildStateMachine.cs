@@ -17,5 +17,5 @@ public class ScxmlStringChildStateMachine(string scxml) : ScxmlStringStateMachin
 		services.AddConstant<IParentEventDispatcher>(this);
 	}
 
-	public ValueTask Dispatch(IIncomingEvent incomingEvent) => ParentEventDispatcher?.Dispatch(incomingEvent) ?? default;
+	public ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token) => ParentEventDispatcher?.Dispatch(incomingEvent, token) ?? default;
 }

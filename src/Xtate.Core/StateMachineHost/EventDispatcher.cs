@@ -16,36 +16,30 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using Xtate.ExternalService;
-using Xtate.IoC;
 
 namespace Xtate.Core;
 
-public class EventDispatcher : IEventDispatcher, IAsyncInitialization
+public class EventDispatcher : IEventDispatcher
 {
-	private readonly AsyncInit<IEventDispatcher?> _eventDispatcherAsyncInit;
-
-	public EventDispatcher() => _eventDispatcherAsyncInit = AsyncInit.Run(this, ed => ed.GetEventDispatcher());
-
 	public required IExternalServiceInvokeId? ExternalServiceInvokeId { private get; [UsedImplicitly] init; }
 
-	public required Func<ValueTask<IEventQueueWriter>> EventQueueWriterFactory { private get; [UsedImplicitly] init; }
+	public required Deferred<IEventQueueWriter> EventQueueWriter { private get; [UsedImplicitly] init; }
 
-	public required Func<ValueTask<IExternalService>> ExternalServiceFactory { private get; [UsedImplicitly] init; }
-
-#region Interface IAsyncInitialization
-
-	public Task Initialization => _eventDispatcherAsyncInit.Task;
-
-#endregion
+	public required Deferred<IExternalService> ExternalService { private get; [UsedImplicitly] init; }
 
 #region Interface IEventDispatcher
 
-	public ValueTask Dispatch(IIncomingEvent incomingEvent) => _eventDispatcherAsyncInit.Value?.Dispatch(incomingEvent) ?? default;
+	public async ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token)
+	{
+		var eventDispatcher = ExternalServiceInvokeId is null
+			? await EventQueueWriter().ConfigureAwait(false) as IEventDispatcher
+			: await ExternalService().ConfigureAwait(false) as IEventDispatcher;
+
+		if (eventDispatcher is not null)
+		{
+			await eventDispatcher.Dispatch(incomingEvent, token).ConfigureAwait(false);
+		}
+	}
 
 #endregion
-
-	private async ValueTask<IEventDispatcher> GetEventDispatcher() =>
-		ExternalServiceInvokeId is null
-			? await EventQueueWriterFactory().ConfigureAwait(false) as IEventDispatcher
-			: await ExternalServiceFactory().ConfigureAwait(false) as IEventDispatcher;
 }

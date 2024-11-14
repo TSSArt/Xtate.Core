@@ -26,10 +26,8 @@ public class ScxmlIoProcessor(IExternalServiceInvokeId? externalServiceInvokeId,
 	public required IEventDispatcher? EventDispatcher { private get; [UsedImplicitly] init; }
 
 	public required IParentEventDispatcher? ParentEventDispatcher { private get; [UsedImplicitly] init; }
-	
-	public required IStateMachineCollection? StateMachineCollection { private get; [UsedImplicitly] init; }
 
-	public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
+	public required IStateMachineCollection StateMachineCollection { private get; [UsedImplicitly] init; }
 
 #region Interface IEventRouter
 
@@ -37,33 +35,31 @@ public class ScxmlIoProcessor(IExternalServiceInvokeId? externalServiceInvokeId,
 
 	public bool IsInternalTarget(FullUri? target) => target == Const.InternalTarget || target == Const.ScxmlIoProcessorInternalTarget;
 
-	public ValueTask<IRouterEvent> GetRouterEvent(IOutgoingEvent outgoingEvent)
+	public ValueTask<IRouterEvent> GetRouterEvent(IOutgoingEvent outgoingEvent, CancellationToken token)
 	{
-		var routerEvent = new RouterEvent(_senderServiceId, GetTargetServiceId(outgoingEvent.Target), Const.ScxmlIoProcessorId, GetTarget(_senderServiceId), outgoingEvent);
+		var targetServiceId = GetTargetServiceId(outgoingEvent.Target);
+		var origin = GetTarget(_senderServiceId);
+
+		var routerEvent = new RouterEvent(_senderServiceId, targetServiceId, Const.ScxmlIoProcessorId, origin, outgoingEvent);
 
 		return new ValueTask<IRouterEvent>(routerEvent);
 	}
 
-	public ValueTask Dispatch(IRouterEvent routerEvent)
+	public ValueTask Dispatch(IRouterEvent routerEvent, CancellationToken token)
 	{
-		if (DisposeToken.IsCancellationRequested) //TODO:??? delete
-		{
-			return default;
-		}
-
 		if (routerEvent.Target is null)
 		{
-			return EventDispatcher?.Dispatch(routerEvent) ?? default;
+			return EventDispatcher?.Dispatch(routerEvent, token) ?? default;
 		}
 
 		if (IsTargetParent(routerEvent.Target))
 		{
-			return ParentEventDispatcher?.Dispatch(routerEvent) ?? default;
+			return ParentEventDispatcher?.Dispatch(routerEvent, token) ?? default;
 		}
 
 		if (routerEvent.TargetServiceId is SessionId sessionId)
 		{
-			return StateMachineCollection.Dispatch(sessionId, routerEvent);
+			return StateMachineCollection.Dispatch(sessionId, routerEvent, token);
 		}
 
 		throw new ProcessorException(Resources.Exception_CannotFindTarget);

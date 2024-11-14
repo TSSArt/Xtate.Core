@@ -58,7 +58,7 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 
 #region Interface IExternalServiceScopeManager
 
-	public virtual async ValueTask Start(InvokeData invokeData)
+	public virtual async ValueTask Start(InvokeData invokeData, CancellationToken token)
 	{
 		await using var registration = SecurityContextRegistrationFactory(SecurityContextType.InvokedService).ConfigureAwait(false);
 
@@ -68,8 +68,12 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 
 		IExternalServiceRunner? runner = default;
 
+		CancellationTokenRegistration cancellationTokenRegistration = default;
+
 		try
 		{
+			cancellationTokenRegistration = token.Register(() => TaskCollector.Collect(serviceScope.DisposeAsync()));
+
 			runner = await serviceScope.ServiceProvider.GetRequiredService<IExternalServiceRunner>().ConfigureAwait(false);
 
 			if (await serviceScope.ServiceProvider.GetService<IEventDispatcher>().ConfigureAwait(false) is { } eventDispatcher)
@@ -79,6 +83,8 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 		}
 		finally
 		{
+			await cancellationTokenRegistration.DisposeAsync().ConfigureAwait(false);
+
 			if (runner is null)
 			{
 				await Cleanup(invokeData.InvokeId, externalServiceClass).ConfigureAwait(false);
@@ -90,7 +96,7 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 		}
 	}
 
-	public virtual ValueTask Cancel(InvokeId invokeId) => _scopes?.TryRemove(invokeId, out var serviceScope) == true ? serviceScope.DisposeAsync() : default;
+	public virtual ValueTask Cancel(InvokeId invokeId, CancellationToken token) => _scopes?.TryRemove(invokeId, out var serviceScope) == true ? serviceScope.DisposeAsync() : default;
 
 #endregion
 

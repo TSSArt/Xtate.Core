@@ -90,17 +90,17 @@ public class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 
 #endregion
 
-	protected override IRouterEvent CreateRouterEvent(IOutgoingEvent outgoingEvent)
+	protected override IRouterEvent CreateRouterEvent(IOutgoingEvent outgoingEvent, CancellationToken token)
 	{
 		if (outgoingEvent.Target is null)
 		{
 			throw new ProcessorException(Resources.Exception_EventTargetDidNotSpecify);
 		}
 
-		return base.CreateRouterEvent(outgoingEvent);
+		return base.CreateRouterEvent(outgoingEvent, token);
 	}
 
-	protected override async ValueTask OutgoingEvent(IRouterEvent routerEvent)
+	protected override async ValueTask OutgoingEvent(IRouterEvent routerEvent, CancellationToken token)
 	{
 		var target = ((UriId?) routerEvent.TargetServiceId)?.Uri;
 
@@ -116,7 +116,7 @@ public class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 		{
 			if (await eventConsumer.TryGetEventDispatcher(targetServiceId, token: default).ConfigureAwait(false) is { } eventDispatcher)
 			{
-				await eventDispatcher.Dispatch(routerEvent).ConfigureAwait(false);
+				await eventDispatcher.Dispatch(routerEvent, default).ConfigureAwait(false);
 			}
 			else
 			{
@@ -209,7 +209,7 @@ public class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 				{
 					if (await _eventConsumer.TryGetEventDispatcher(targetServiceId, _stopTokenSource.Token).ConfigureAwait(false) is { } eventDispatcher)
 					{
-						await eventDispatcher.Dispatch(message).ConfigureAwait(false);
+						await eventDispatcher.Dispatch(message, default).ConfigureAwait(false);
 					}
 					else
 					{

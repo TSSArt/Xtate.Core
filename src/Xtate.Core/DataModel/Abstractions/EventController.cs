@@ -23,8 +23,6 @@ public class EventController : IEventController
 
 	private const int CancelEventId = 2;
 
-	private static readonly FullUri InternalTarget = new(@"_internal");
-
 	public required IExternalCommunication ExternalCommunication { private get; [UsedImplicitly] init; }
 
 	public required ILogger<IEventController> Logger { private get; [UsedImplicitly] init; }
@@ -34,20 +32,6 @@ public class EventController : IEventController
 	public required IStateMachineContext StateMachineContext { private get; [UsedImplicitly] init; }
 
 #region Interface IEventController
-
-	public virtual async ValueTask Cancel(SendId sendId)
-	{
-		await Logger.Write(Level.Trace, CancelEventId, $@"Cancel Event. SendId: [{sendId}]", sendId).ConfigureAwait(false);
-
-		try
-		{
-			await ExternalCommunication.Cancel(sendId).ConfigureAwait(false);
-		}
-		catch (Exception ex)
-		{
-			throw StateMachineRuntimeError.CommunicationError(ex, sendId);
-		}
-	}
 
 	public virtual async ValueTask Send(IOutgoingEvent outgoingEvent)
 	{
@@ -63,6 +47,20 @@ public class EventController : IEventController
 			}
 
 			StateMachineContext.InternalQueue.Enqueue(new IncomingEvent(outgoingEvent) { Type = EventType.Internal });
+		}
+	}
+
+	public virtual async ValueTask Cancel(SendId sendId)
+	{
+		await Logger.Write(Level.Trace, CancelEventId, $@"Cancel Event. SendId: [{sendId}]", sendId).ConfigureAwait(false);
+
+		try
+		{
+			await ExternalCommunication.Cancel(sendId).ConfigureAwait(false);
+		}
+		catch (Exception ex)
+		{
+			throw StateMachineRuntimeError.CommunicationError(ex, sendId);
 		}
 	}
 
@@ -87,7 +85,7 @@ public class EventController : IEventController
 
 	private static bool IsInternalEvent(IOutgoingEvent outgoingEvent)
 	{
-		if (outgoingEvent.Target == InternalTarget && outgoingEvent.Type is null)
+		if (outgoingEvent.Target == Const.InternalTarget && outgoingEvent.Type is null)
 		{
 			return true;
 		}

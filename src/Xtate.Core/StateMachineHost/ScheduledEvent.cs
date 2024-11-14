@@ -31,6 +31,8 @@ public class ScheduledEvent : RouterEvent
 
 	public void Cancel() => _cancellationTokenSource.Cancel();
 
+	public Task CancelAsync() => _cancellationTokenSource.CancelAsync();
+
 	public virtual ValueTask Dispose()
 	{
 		_cancellationTokenSource.Dispose();

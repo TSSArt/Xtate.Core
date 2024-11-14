@@ -23,6 +23,31 @@ public class StateMachineCollection : IStateMachineCollection
 {
 	private readonly ConcurrentDictionary<SessionId, IStateMachineController> _controllers = new();
 
+	public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
+
+#region Interface IStateMachineCollection
+
+	public async ValueTask Dispatch(SessionId sessionId, IIncomingEvent incomingEvent, CancellationToken token)
+	{
+		if (!_controllers.TryGetValue(sessionId, out var stateMachineController))
+		{
+			return;
+		}
+
+		if (incomingEvent is not IncomingEvent)
+		{
+			incomingEvent = new IncomingEvent(incomingEvent);
+		}
+
+		using var combinedToken = new CombinedToken(token, DisposeToken);
+
+		await stateMachineController.Dispatch(incomingEvent, combinedToken.Token).ConfigureAwait(false);
+	}
+
+	public ValueTask Destroy(SessionId sessionId) => _controllers.TryGetValue(sessionId, out var stateMachineController) ? stateMachineController.Destroy() : default;
+
+#endregion
+
 	internal void Register(SessionId sessionId, IStateMachineController stateMachineController)
 	{
 		var added = _controllers.TryAdd(sessionId, stateMachineController);
@@ -36,21 +61,4 @@ public class StateMachineCollection : IStateMachineCollection
 
 		Infra.Assert(removed);
 	}
-
-	public ValueTask Dispatch(SessionId sessionId, IIncomingEvent incomingEvent)
-	{
-		if (!_controllers.TryGetValue(sessionId, out var stateMachineController))
-		{
-			return default;
-		}
-
-		if(incomingEvent is not IncomingEvent)
-		{
-			incomingEvent = new IncomingEvent(incomingEvent);
-		}
-
-		return stateMachineController.Dispatch(incomingEvent);
-	}
-
-	public ValueTask Destroy(SessionId sessionId) => _controllers.TryGetValue(sessionId, out var stateMachineController) ? stateMachineController.Destroy() : default;
 }

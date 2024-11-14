@@ -15,5 +15,5 @@ public class LocationChildStateMachine(Uri location) : LocationStateMachine(loca
 		services.AddConstant<IParentEventDispatcher>(this);
 	}
 
-	public ValueTask Dispatch(IIncomingEvent incomingEvent) => ParentEventDispatcher?.Dispatch(incomingEvent) ?? default;
+	public ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token) => ParentEventDispatcher?.Dispatch(incomingEvent, token) ?? default;
 }

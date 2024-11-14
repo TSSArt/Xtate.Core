@@ -19,7 +19,7 @@ using Xtate.ExternalService;
 
 namespace Xtate.Core;
 
-public class StateMachineExternalService : ExternalServiceBase, IEventDispatcher
+public class StateMachineExternalService : ExternalServiceBase, IEventDispatcher, IDisposable, IAsyncDisposable
 {
 	public class Provider() : ExternalServiceProviderBase<StateMachineExternalService>(Const.ScxmlServiceTypeId, Const.ScxmlServiceAliasTypeId);
 
@@ -28,20 +28,50 @@ public class StateMachineExternalService : ExternalServiceBase, IEventDispatcher
 	public required IStateMachineScopeManager StateMachineScopeManager { private get; [UsedImplicitly] init; }
 
 	public required IStateMachineLocation StateMachineLocation { private get; [UsedImplicitly] init; }
-	
+
 	public required IStateMachineCollection StateMachineCollection { private get; [UsedImplicitly] init; }
 
 	public required TaskCollector TaskCollector { private get; [UsedImplicitly] init; }
-	
-	public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
 
 	public required Func<Uri, DataModelValue, StateMachineClass> LocationStateMachineClassFactory { private get; [UsedImplicitly] init; }
 
 	public required Func<string, Uri?, DataModelValue, StateMachineClass> ScxmlStateMachineClassFactory { private get; [UsedImplicitly] init; }
 
+#region Interface IAsyncDisposable
+
+	public async ValueTask DisposeAsync()
+	{
+		await DisposeAsyncCore().ConfigureAwait(false);
+		
+		Dispose(false);
+		
+		GC.SuppressFinalize(this);
+	}
+
+#endregion
+
+#region Interface IDisposable
+
+	public void Dispose()
+	{
+		Dispose(true);
+
+		GC.SuppressFinalize(this);
+	}
+
+#endregion
+
 #region Interface IEventDispatcher
 
-	public ValueTask Dispatch(IIncomingEvent incomingEvent) => _sessionId is { } sessionId ? StateMachineCollection.Dispatch(sessionId, incomingEvent).WaitAsync(DisposeToken) : default;
+	public async ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token)
+	{
+		if (_sessionId is { } sessionId)
+		{
+			using var combinedToken = new CombinedToken(token, DestroyToken);
+
+			await StateMachineCollection.Dispatch(sessionId, incomingEvent, combinedToken.Token).ConfigureAwait(false);
+		}
+	}
 
 #endregion
 
@@ -53,30 +83,30 @@ public class StateMachineExternalService : ExternalServiceBase, IEventDispatcher
 
 		var stateMachineClass = scxml is not null
 			? ScxmlStateMachineClassFactory(scxml, StateMachineLocation.Location, Parameters)
-			: LocationStateMachineClassFactory(StateMachineLocation.Location.CombineWith(Source), Parameters);
+			: LocationStateMachineClassFactory(StateMachineLocation.Location.CombineWith(Source!), Parameters);
 
 		_sessionId = stateMachineClass.SessionId;
 
 		return StateMachineScopeManager.Execute(stateMachineClass, SecurityContextType.InvokedService);
 	}
 
-	protected override void Dispose(bool disposing)
+	protected virtual void Dispose(bool disposing)
 	{
-		if (disposing && _sessionId is not null)
+		if (disposing && _sessionId is { } sessionId)
 		{
-			TaskCollector.Collect(StateMachineCollection.Destroy(_sessionId));
-		}
+			_sessionId = default;
 
-		base.Dispose(disposing);
+			TaskCollector.Collect(StateMachineCollection.Destroy(sessionId));
+		}
 	}
 
-	protected override async ValueTask DisposeAsyncCore()
+	protected virtual async ValueTask DisposeAsyncCore()
 	{
-		if (_sessionId is not null)
+		if (_sessionId is { } sessionId)
 		{
-			await StateMachineCollection.Destroy(_sessionId).ConfigureAwait(false);
-		}
+			_sessionId = default;
 
-		await base.DisposeAsyncCore().ConfigureAwait(false);
+			await StateMachineCollection.Destroy(sessionId).ConfigureAwait(false);
+		}
 	}
 }
