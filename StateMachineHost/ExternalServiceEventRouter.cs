@@ -22,13 +22,13 @@ namespace Xtate.Core;
 
 public class ExternalServiceEventRouter : IEventRouter
 {
-	private readonly MiniDictionary<InvokeId, Func<IIncomingEvent, ValueTask>> _handlers = new(InvokeId.InvokeUniqueIdComparer);
+	private readonly MiniDictionary<InvokeId, Func<IIncomingEvent, CancellationToken, ValueTask>> _handlers = new(InvokeId.InvokeUniqueIdComparer);
 
 	public required ServiceList<IExternalServiceProvider> ExternalServiceProviders { private get; [UsedImplicitly] init; }
 
 	public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
 
-#region Interface IEventRouter
+	#region Interface IEventRouter
 
 	public bool CanHandle(FullUri? type)
 	{
@@ -50,14 +50,14 @@ public class ExternalServiceEventRouter : IEventRouter
 
 	public bool IsInternalTarget(FullUri? target) => default;
 
-	public ValueTask<IRouterEvent> GetRouterEvent(IOutgoingEvent outgoingEvent) =>
+	public ValueTask<IRouterEvent> GetRouterEvent(IOutgoingEvent outgoingEvent, CancellationToken token) =>
 		new(new RouterEvent(StateMachineSessionId.SessionId, GetInvokeId(outgoingEvent.Target), Const.ScxmlIoProcessorId, Const.ParentTarget, outgoingEvent));
 
-	public ValueTask Dispatch(IRouterEvent routerEvent) => Dispatch((InvokeId) routerEvent.TargetServiceId!, routerEvent);
+	public ValueTask Dispatch(IRouterEvent routerEvent, CancellationToken token) => Dispatch((InvokeId) routerEvent.TargetServiceId!, routerEvent, token);
 
 #endregion
 
-	public ValueTask Dispatch(InvokeId invokeId, IIncomingEvent incomingEvent)
+	public ValueTask Dispatch(InvokeId invokeId, IIncomingEvent incomingEvent, CancellationToken token)
 	{
 		if (!_handlers.TryGetValue(invokeId, out var handler))
 		{
@@ -69,10 +69,10 @@ public class ExternalServiceEventRouter : IEventRouter
 			incomingEvent = new IncomingEvent(incomingEvent);
 		}
 
-		return handler(incomingEvent);
+		return handler(incomingEvent, token);
 	}
 
-	internal void Subscribe(InvokeId invokeId, Func<IIncomingEvent, ValueTask> handler)
+	internal void Subscribe(InvokeId invokeId, Func<IIncomingEvent, CancellationToken, ValueTask> handler)
 	{
 		var added = _handlers.TryAdd(invokeId, handler);
 

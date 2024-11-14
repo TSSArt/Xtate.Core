@@ -181,17 +181,17 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 			_                   => default
 		};
 
-	protected override IRouterEvent CreateRouterEvent(IOutgoingEvent outgoingEvent)
+	protected override IRouterEvent CreateRouterEvent(IOutgoingEvent outgoingEvent, CancellationToken token)
 	{
 		if (outgoingEvent.Target is null)
 		{
 			throw new ArgumentException(Resources.Exception_TargetIsNotDefined, nameof(outgoingEvent));
 		}
 
-		return base.CreateRouterEvent(outgoingEvent);
+		return base.CreateRouterEvent(outgoingEvent, token);
 	}
 
-	protected override async ValueTask OutgoingEvent(IRouterEvent routerEvent)
+	protected override async ValueTask OutgoingEvent(IRouterEvent routerEvent, CancellationToken token)
 	{
 		var targetUri = routerEvent.TargetServiceId?.Value;
 		Infra.NotNull(targetUri);
@@ -369,7 +369,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 			incomingEvent = CreateErrorEvent(context, ex);
 		}
 
-		await eventDispatcher.Dispatch(incomingEvent).ConfigureAwait(false);
+		await eventDispatcher.Dispatch(incomingEvent, token).ConfigureAwait(false);
 
 		return true;
 	}

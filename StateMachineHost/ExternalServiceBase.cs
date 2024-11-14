@@ -17,13 +17,9 @@
 
 namespace Xtate.ExternalService;
 
-public abstract class ExternalServiceBase : IExternalService, IDisposable, IAsyncDisposable
+public abstract class ExternalServiceBase : IExternalService
 {
-	private readonly DisposingToken _disposingToken = new();
-
-	private readonly AsyncInit<DataModelValue> _execution;
-
-	protected ExternalServiceBase() => _execution = AsyncInit.Run(this, es => es.ExecuteWithCancellation());
+	private Task<DataModelValue>? _task;
 
 	public required IExternalServiceSource ExternalServiceSource { private get; [UsedImplicitly] init; }
 
@@ -37,53 +33,15 @@ public abstract class ExternalServiceBase : IExternalService, IDisposable, IAsyn
 
 	protected DataModelValue Parameters => ExternalServiceParameters.Parameters;
 
-	protected CancellationToken DestroyToken => _disposingToken.Token;
+	public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
 
-#region Interface IAsyncDisposable
+	public CancellationToken DestroyToken => DisposeToken.Token;
 
-	public async ValueTask DisposeAsync()
-	{
-		await DisposeAsyncCore().ConfigureAwait(false);
-		
-		Dispose(false);
-		
-		GC.SuppressFinalize(this);
-	}
+	#region Interface IExternalService
+
+	ValueTask<DataModelValue> IExternalService.GetResult() => new(_task ??= Task.Run(() => Execute().AsTask(), DisposeToken));
 
 #endregion
-
-#region Interface IDisposable
-
-	public void Dispose()
-	{
-		Dispose(true);
-		GC.SuppressFinalize(this);
-	}
-
-#endregion
-
-#region Interface IExternalService
-
-	async ValueTask<DataModelValue> IExternalService.GetResult()
-	{
-		await _execution.Task.ConfigureAwait(false);
-
-		return _execution.Value;
-	}
-
-#endregion
-
-	protected virtual void Dispose(bool disposing)
-	{
-		if (disposing)
-		{
-			_disposingToken.Dispose();
-		}
-	}
-
-	protected virtual ValueTask DisposeAsyncCore() => _disposingToken.DisposeAsync();
-
-	private ValueTask<DataModelValue> ExecuteWithCancellation() => Execute().WaitAsync(_disposingToken.Token);
 
 	protected abstract ValueTask<DataModelValue> Execute();
 }

@@ -15,11 +15,30 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate;
+namespace Xtate.Core;
 
-public interface IStateMachineCollection
+public readonly struct CombinedToken : IDisposable
 {
-	ValueTask Dispatch(SessionId sessionId, IIncomingEvent incomingEvent, CancellationToken token);
+	private readonly CancellationTokenSource? _cancellationTokenSource;
 
-	ValueTask Destroy(SessionId sessionId);
+	public CombinedToken(CancellationToken token1, CancellationToken token2)
+	{
+		if (token1.CanBeCanceled && token2.CanBeCanceled && token1 != token2)
+		{
+			_cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token1, token2);
+			Token = _cancellationTokenSource.Token;
+		}
+		else
+		{
+			Token = token1.CanBeCanceled ? token1 : token2;
+		}
+	}
+
+	public CancellationToken Token { get; }
+
+#region Interface IDisposable
+
+	public void Dispose() => _cancellationTokenSource?.Dispose();
+
+#endregion
 }

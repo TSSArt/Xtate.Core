@@ -61,14 +61,15 @@ public class ExternalServiceClass(
 	/// Dispatches the event to the parent session.
 	/// </summary>
 	/// <param name="incomingEvent"></param>
+	/// <param name="token"></param>
 	/// <returns></returns>
-	ValueTask IEventDispatcher.Dispatch(IIncomingEvent incomingEvent)
+	ValueTask IEventDispatcher.Dispatch(IIncomingEvent incomingEvent, CancellationToken token)
 	{
 		var origin = _origin ??= new FullUri(Const.ScxmlIoProcessorInvokeIdPrefix + invokeData.InvokeId.Value);
 
 		var evt = new IncomingEvent(incomingEvent) { Type = EventType.External, OriginType = invokeData.Type, Origin = origin, InvokeId = invokeData.InvokeId };
 
-		return eventDispatcher.Dispatch(evt);
+		return eventDispatcher.Dispatch(evt, token);
 	}
 
 #endregion

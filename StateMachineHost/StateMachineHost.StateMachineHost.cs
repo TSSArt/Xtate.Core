@@ -45,7 +45,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 
 		var ioProcessor = GetIoProcessorById(originType);
 
-		await ioProcessor.Dispatch(routerEvent).ConfigureAwait(false);
+		await ioProcessor.Dispatch(routerEvent, token).ConfigureAwait(false);
 	}
 
 #endregion
@@ -68,7 +68,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 			}
 		}
 
-		var routerEvent = await ioProcessor.GetRouterEvent(outgoingEvent).ConfigureAwait(false);
+		var routerEvent = await ioProcessor.GetRouterEvent(outgoingEvent, token).ConfigureAwait(false);
 
 		if (outgoingEvent.DelayMs > 0)
 		{
@@ -77,7 +77,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 			return SendStatus.Scheduled;
 		}
 
-		await ioProcessor.Dispatch(routerEvent).ConfigureAwait(false);
+		await ioProcessor.Dispatch(routerEvent, token).ConfigureAwait(false);
 
 		return SendStatus.Sent;
 	}
@@ -111,7 +111,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 			//CompleteAsync(context, invokedService, service, sessionId, invokeId, _dataConverter).Forget();
 		}
 
-		static async ValueTask CompleteAsync(StateMachineHostContext context,
+		async ValueTask CompleteAsync(StateMachineHostContext context,
 											 IExternalService invokedService,
 											 IEventDispatcher service,
 											 SessionId sessionId,
@@ -125,7 +125,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 
 					var name = EventName.GetDoneInvokeName(invokeId);
 					var incomingEvent = new IncomingEvent { Type = EventType.External, Name = name, Data = result, InvokeId = invokeId };
-					await service.Dispatch(incomingEvent).ConfigureAwait(false);
+					await service.Dispatch(incomingEvent, token).ConfigureAwait(false);
 				}
 				catch (Exception ex)
 				{
@@ -136,7 +136,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 											Data = dataConverter.FromException(ex),
 											InvokeId = invokeId
 										};
-					await service.Dispatch(incomingEvent).ConfigureAwait(false);
+					await service.Dispatch(incomingEvent, token).ConfigureAwait(false);
 				}
 				finally
 				{
