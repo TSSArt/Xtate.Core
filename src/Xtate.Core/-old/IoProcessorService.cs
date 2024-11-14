@@ -44,25 +44,4 @@ public class IoProcessorService
 
 		throw new ProcessorException(Res.Format(Resources.Exception_InvalidType, type));
 	}
-
-	/// <summary>
-	/// Dummy class allow navigation to <see cref="GetIoProcessor"/> method as factory for <see cref="IIoProcessor"/>."/>
-	/// </summary>
-	private class Factory : IIoProcessor, IEventRouter
-	{
-	#region Hide
-		FullUri IIoProcessor.Id => default;
-
-		bool IEventRouter.CanHandle(FullUri? type) => default;
-
-		bool IEventRouter.IsInternalTarget(FullUri? target) => default;
-
-		FullUri? IIoProcessor.GetTarget(ServiceId serviceId) => default;
-
-		ValueTask<IRouterEvent> IEventRouter.GetRouterEvent(IOutgoingEvent outgoingEvent) => default;
-
-		ValueTask IEventRouter.Dispatch(IRouterEvent routerEvent) => default;
-
-	#endregion
-	}
 }
