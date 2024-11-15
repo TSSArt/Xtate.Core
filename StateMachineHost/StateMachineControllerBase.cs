@@ -36,8 +36,7 @@ public abstract class StateMachineControllerBase : IStateMachineController, INot
 	protected StateMachineControllerBase(SessionId sessionId,
 										 IStateMachineOptions? options,
 										 IStateMachine? stateMachine,
-										 Uri? stateMachineLocation,
-										 IStateMachineHost stateMachineHost)
+										 Uri? stateMachineLocation)
 	{
 		SessionId = sessionId;
 		StateMachineLocation = stateMachineLocation;

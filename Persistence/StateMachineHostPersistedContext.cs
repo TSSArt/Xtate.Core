@@ -201,7 +201,7 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 	) =>
 		stateMachineOptions.IsStateMachinePersistable()
 			? new StateMachinePersistedController(
-				  sessionId, stateMachineOptions, stateMachine, stateMachineLocation, stateMachineHost: null /*_stateMachineHost*/,
+				  sessionId, stateMachineOptions, stateMachine, stateMachineLocation/*_stateMachineHost*/,
 				  _storageProvider, _idlePeriod /*, defaultOption*s*/)
 			  {
 				  EventQueueWriter = default!,

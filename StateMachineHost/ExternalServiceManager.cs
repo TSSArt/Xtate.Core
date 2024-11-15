@@ -21,7 +21,7 @@ namespace Xtate.Core;
 
 public class ExternalServiceManager : IExternalServiceManager
 {
-	public required ExternalServiceEventRouter ExternalServiceEventRouter { private get; [UsedImplicitly] init; }
+	public required IExternalServiceCollection ExternalServiceCollection { private get; [UsedImplicitly] init; }
 
 	public required IExternalServiceScopeManager ExternalServiceScopeManager { private get; [UsedImplicitly] init; }
 
@@ -29,7 +29,7 @@ public class ExternalServiceManager : IExternalServiceManager
 
 #region Interface IExternalServiceManager
 
-	public ValueTask Forward(InvokeId invokeId, IIncomingEvent incomingEvent) => ExternalServiceEventRouter.Dispatch(invokeId, incomingEvent, DisposeToken);
+	public ValueTask Forward(InvokeId invokeId, IIncomingEvent incomingEvent) => ExternalServiceCollection.Dispatch(invokeId, incomingEvent, DisposeToken);
 
 	public ValueTask Start(InvokeData invokeData) => ExternalServiceScopeManager.Start(invokeData, DisposeToken);
 

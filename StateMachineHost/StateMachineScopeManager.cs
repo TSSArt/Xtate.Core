@@ -26,7 +26,7 @@ public class StateMachineScopeManager : IStateMachineScopeManager, IDisposable, 
 
 	public required IServiceScopeFactory   ServiceScopeFactory    { private get; [UsedImplicitly] init; }
 	
-	public required StateMachineCollection StateMachineCollection { private get; [UsedImplicitly] init; }
+	public required IStateMachineCollection StateMachineCollection { private get; [UsedImplicitly] init; }
 
 	public required Func<SecurityContextType, SecurityContextRegistration> SecurityContextRegistrationFactory { private get; [UsedImplicitly] init; }
 
@@ -137,10 +137,7 @@ public class StateMachineScopeManager : IStateMachineScopeManager, IDisposable, 
 	{
 		try
 		{
-			if (runner is not null)
-			{
-				await runner.WaitForCompletion().ConfigureAwait(false);
-			}
+			await runner.WaitForCompletion().ConfigureAwait(false);
 		}
 		finally
 		{
