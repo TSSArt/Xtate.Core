@@ -44,7 +44,7 @@ public abstract class HostedTestBase
 		return Host.StartHostAsync();
 		*/
 		var sc = new ServiceCollection();
-		sc.AddModule<StateMachineHostModule>();
+		sc.AddModule<StateMachineProcessorModule>();
 		sc.AddImplementationSync<StartAction.Provider>().For<IActionProvider>();
 		sc.AddImplementationSync<DestroyAction.Provider>().For<IActionProvider>();
 		sc.AddTypeSync<StartAction, XmlReader>();

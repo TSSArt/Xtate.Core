@@ -42,7 +42,7 @@ internal sealed class StateMachinePersistedController : StateMachineRuntimeContr
 										   IStateMachineOptions? options,
 										   IStateMachine? stateMachine,
 										   Uri? stateMachineLocation,
-										   IStateMachineHost stateMachineHost,
+										   //IStateMachineHost stateMachineHost,
 										   IStorageProvider storageProvider,
 										   TimeSpan? idlePeriod /*,
 										   InterpreterOptions defaultOptions*/
@@ -50,7 +50,7 @@ internal sealed class StateMachinePersistedController : StateMachineRuntimeContr
 		//SecurityContext securityContext,
 		//								   DeferredFinalizer finalizer
 	)
-		: base(sessionId, options, stateMachine, stateMachineLocation, stateMachineHost, idlePeriod /*, defaultOptions*/)
+		: base(sessionId, options, stateMachine, stateMachineLocation,  idlePeriod /*, defaultOptions*/)
 	{
 		_storageProvider = storageProvider;
 

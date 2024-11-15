@@ -56,22 +56,22 @@ public class XPathDataModelTest
 					";
 
 		var services = new ServiceCollection();
-		services.AddModule<StateMachineHostModule>();
+		services.AddModule<StateMachineProcessorModule>();
 
 		//services.AddConstant<IServiceProviderDebugger>(_ => new ServiceProviderDebugger(new StreamWriter(File.Create(@"D:\Ser\s1.txt"))));
 		var serviceProvider = services.BuildProvider();
 
-		var host = (IHostController) await serviceProvider.GetRequiredService<StateMachineHost>();
+		//var host = (IHostController) await serviceProvider.GetRequiredService<StateMachineHost>();
 		var stateMachineScopeManager = await serviceProvider.GetRequiredService<IStateMachineScopeManager>();
 
-		await host.StartHost();
+		//await host.StartHost();
 
 		var smc = new ScxmlStringStateMachine(xml);
 		_ = await stateMachineScopeManager.Execute(smc, SecurityContextType.NewStateMachine);
 
 		//await host.WaitAllStateMachinesAsync();
 
-		await host.StopHost();
+		//await host.StopHost();
 	}
 
 	[TestMethod]
@@ -106,18 +106,18 @@ public class XPathDataModelTest
 		services.AddConstant(ub.Object);
 
 		//services.AddConstant<IServiceProviderDebugger>(_ => d);
-		services.AddModule<StateMachineHostModule>();
+		services.AddModule<StateMachineProcessorModule>();
 		var serviceProvider = services.BuildProvider();
 		var smc = new ScxmlStringStateMachine(xml);
 
-		var host = (IHostController) await serviceProvider.GetRequiredService<StateMachineHost>();
+		//var host = (IHostController) await serviceProvider.GetRequiredService<StateMachineHost>();
 		var stateMachineScopeManager = await serviceProvider.GetRequiredService<IStateMachineScopeManager>();
-		await host.StartHost();
+		//await host.StartHost();
 
 		_ = await stateMachineScopeManager.Execute(smc, SecurityContextType.NewStateMachine);
 
 		//await host.WaitAllStateMachinesAsync();
 
-		await host.StopHost();
+		//await host.StopHost();
 	}
 }

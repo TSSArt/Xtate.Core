@@ -29,7 +29,7 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 
 	public required Func<SecurityContextType, SecurityContextRegistration> SecurityContextRegistrationFactory { private get; [UsedImplicitly] init; }
 
-	public required ExternalServiceEventRouter ExternalServiceEventRouter { private get; [UsedImplicitly] init; }
+	public required IExternalServiceCollection ExternalServiceCollection { private get; [UsedImplicitly] init; }
 
 	public required TaskCollector TaskCollector { private get; [UsedImplicitly] init; }
 
@@ -78,7 +78,7 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 
 			if (await serviceScope.ServiceProvider.GetService<IEventDispatcher>().ConfigureAwait(false) is { } eventDispatcher)
 			{
-				ExternalServiceEventRouter.Subscribe(invokeData.InvokeId, eventDispatcher.Dispatch);
+				ExternalServiceCollection.Subscribe(invokeData.InvokeId, eventDispatcher.Dispatch);
 			}
 		}
 		finally
@@ -87,11 +87,11 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 
 			if (runner is null)
 			{
-				await Cleanup(invokeData.InvokeId, externalServiceClass).ConfigureAwait(false);
+				await Cleanup(invokeData.InvokeId).ConfigureAwait(false);
 			}
 			else
 			{
-				TaskCollector.Collect(WaitAndCleanup(invokeData.InvokeId, runner, externalServiceClass));
+				TaskCollector.Collect(WaitAndCleanup(invokeData.InvokeId, runner));
 			}
 		}
 	}
@@ -117,7 +117,7 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 		throw Infra.Fail<Exception>(Resources.Exception_MoreThanOneExternalServicesExecutingWithSameInvokeId);
 	}
 
-	private async ValueTask WaitAndCleanup(InvokeId invokeId, IExternalServiceRunner externalServiceRunner, ExternalServiceClass externalServiceClass)
+	private async ValueTask WaitAndCleanup(InvokeId invokeId, IExternalServiceRunner externalServiceRunner)
 	{
 		try
 		{
@@ -125,13 +125,13 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 		}
 		finally
 		{
-			await Cleanup(invokeId, externalServiceClass).ConfigureAwait(false);
+			await Cleanup(invokeId).ConfigureAwait(false);
 		}
 	}
 
-	private async ValueTask Cleanup(InvokeId invokeId, ExternalServiceClass externalServiceClass)
+	private async ValueTask Cleanup(InvokeId invokeId)
 	{
-		ExternalServiceEventRouter.Unsubscribe(invokeId);
+		ExternalServiceCollection.Unsubscribe(invokeId);
 
 		if (_scopes?.TryRemove(invokeId, out var serviceScope) == true)
 		{

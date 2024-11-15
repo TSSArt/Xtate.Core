@@ -27,11 +27,7 @@ public class InProcEventScheduler : IEventScheduler, IDisposable, IAsyncDisposab
 
 	public required ServiceList<IEventRouter> EventRouters { private get; [UsedImplicitly] init; }
 
-	public required EventSchedulerInfoEnricher EventSchedulerInfoEnricher { private get; [UsedImplicitly] init; }
-
-	public required ILogger<InProcEventScheduler> Logger { private get; [UsedImplicitly] init; }
-
-	public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
+	public required ILogger<IEventScheduler> Logger { private get; [UsedImplicitly] init; }
 
 	public required TaskCollector TaskCollector { private get; [UsedImplicitly] init; }
 
@@ -142,8 +138,6 @@ public class InProcEventScheduler : IEventScheduler, IDisposable, IAsyncDisposab
 
 	private async ValueTask DelayedFire(ScheduledEvent scheduledEvent)
 	{
-		EventSchedulerInfoEnricher.SetSessionId(StateMachineSessionId.SessionId);
-
 		try
 		{
 			await Task.Delay(scheduledEvent.DelayMs, scheduledEvent.CancellationToken).ConfigureAwait(false);
