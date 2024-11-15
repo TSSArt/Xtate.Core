@@ -29,9 +29,9 @@ public class IoProcessorService
 	[UsedImplicitly]
 	public IEventRouter GetIoProcessor(FullUri? type)
 	{
-	/*	if (ExternalServiceEventRouter.CanHandle(type))
+	/*	if (ExternalServiceCollection.CanHandle(type))
 		{
-			return ExternalServiceEventRouter;
+			return ExternalServiceCollection;
 		}*/
 
 		foreach (var ioProcessor in IoProcessors)

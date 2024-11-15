@@ -22,13 +22,13 @@ namespace Xtate.Core;
 
 public class ExternalServiceEventRouter : IEventRouter
 {
-	private readonly MiniDictionary<InvokeId, Func<IIncomingEvent, CancellationToken, ValueTask>> _handlers = new(InvokeId.InvokeUniqueIdComparer);
-
 	public required ServiceList<IExternalServiceProvider> ExternalServiceProviders { private get; [UsedImplicitly] init; }
 
 	public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
 
-	#region Interface IEventRouter
+	public required IExternalServiceCollection ExternalServiceCollection { private get; [UsedImplicitly] init; }
+
+#region Interface IEventRouter
 
 	public bool CanHandle(FullUri? type)
 	{
@@ -53,38 +53,9 @@ public class ExternalServiceEventRouter : IEventRouter
 	public ValueTask<IRouterEvent> GetRouterEvent(IOutgoingEvent outgoingEvent, CancellationToken token) =>
 		new(new RouterEvent(StateMachineSessionId.SessionId, GetInvokeId(outgoingEvent.Target), Const.ScxmlIoProcessorId, Const.ParentTarget, outgoingEvent));
 
-	public ValueTask Dispatch(IRouterEvent routerEvent, CancellationToken token) => Dispatch((InvokeId) routerEvent.TargetServiceId!, routerEvent, token);
+	public ValueTask Dispatch(IRouterEvent routerEvent, CancellationToken token) => ExternalServiceCollection.Dispatch((InvokeId) routerEvent.TargetServiceId!, routerEvent, token);
 
 #endregion
-
-	public ValueTask Dispatch(InvokeId invokeId, IIncomingEvent incomingEvent, CancellationToken token)
-	{
-		if (!_handlers.TryGetValue(invokeId, out var handler))
-		{
-			return default;
-		}
-
-		if(incomingEvent is not IncomingEvent)
-		{
-			incomingEvent = new IncomingEvent(incomingEvent);
-		}
-
-		return handler(incomingEvent, token);
-	}
-
-	internal void Subscribe(InvokeId invokeId, Func<IIncomingEvent, CancellationToken, ValueTask> handler)
-	{
-		var added = _handlers.TryAdd(invokeId, handler);
-
-		Infra.Assert(added);
-	}
-
-	internal void Unsubscribe(InvokeId invokeId)
-	{
-		var removed = _handlers.TryRemove(invokeId, out _);
-
-		Infra.Assert(removed);
-	}
 
 	private static InvokeId? GetInvokeId(FullUri? target)
 	{

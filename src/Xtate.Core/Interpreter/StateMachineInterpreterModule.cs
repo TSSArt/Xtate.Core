@@ -27,7 +27,7 @@ public class StateMachineInterpreterModule : Module<DataModelHandlersModule, Int
 		Services.AddSharedImplementation<DefaultStateMachineSessionId>(SharedWithin.Scope).For<IStateMachineSessionId>(Option.IfNotRegistered);
 		Services.AddImplementation<DefaultStateMachineArguments>().For<IStateMachineArguments>(Option.IfNotRegistered);
 
-		Services.AddImplementation<NoExternalConnections>().For<IExternalCommunication>().For<IExternalServiceManager>();
+		Services.AddImplementation<NoExternalConnections>().For<IExternalCommunication>(Option.IfNotRegistered).For<IExternalServiceManager>(Option.IfNotRegistered);
 
 		Services.AddImplementation<InterpreterInfoLogEnricher<Any>>().For<ILogEnricher<Any>>();
 		Services.AddImplementation<InterpreterDebugLogEnricher<Any>>().For<ILogEnricher<Any>>();

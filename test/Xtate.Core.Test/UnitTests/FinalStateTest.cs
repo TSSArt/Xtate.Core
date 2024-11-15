@@ -30,7 +30,7 @@ public class FinalStateTest
 		// Arrange
 		var services = new ServiceCollection();
 		services.AddModule<StateMachineFluentBuilderModule>();
-		services.AddModule<StateMachineHostModule>();
+		services.AddModule<StateMachineProcessorModule>();
 		var serviceProvider = services.BuildProvider();
 		var builder = await serviceProvider.GetRequiredService<StateMachineFluentBuilder>();
 
@@ -40,12 +40,12 @@ public class FinalStateTest
 						   .EndFinal()
 						   .Build();
 
-		var stateMachineHost = (IHostController) await serviceProvider.GetRequiredService<StateMachineHost>();
+		//var stateMachineHost = (IHostController) await serviceProvider.GetRequiredService<StateMachineHost>();
 		var stateMachineScopeManager = await serviceProvider.GetRequiredService<IStateMachineScopeManager>();
 
 		//await using var stateMachineHost = new StateMachineHost(new StateMachineHostOptions());
 
-		await stateMachineHost.StartHost();
+		//await stateMachineHost.StartHost();
 
 		// Act
 		var result = await stateMachineScopeManager.Execute(new RuntimeStateMachine(stateMachine), SecurityContextType.NewStateMachine);
@@ -59,7 +59,7 @@ public class FinalStateTest
 	{
 		var services = new ServiceCollection();
 		services.AddModule<StateMachineFluentBuilderModule>();
-		services.AddModule<StateMachineHostModule>();
+		services.AddModule<StateMachineProcessorModule>();
 		var serviceProvider = services.BuildProvider();
 		var builder = await serviceProvider.GetRequiredService<StateMachineFluentBuilder>();
 
@@ -76,12 +76,12 @@ public class FinalStateTest
 						   .EndFinal()
 						   .Build();
 
-		var stateMachineHost = (IHostController) await serviceProvider.GetRequiredService<StateMachineHost>();
+		//var stateMachineHost = (IHostController) await serviceProvider.GetRequiredService<StateMachineHost>();
 		var smc = new RuntimeStateMachine(stateMachine) { Arguments = 33 };
 		var stateMachineScopeManager = await serviceProvider.GetRequiredService<IStateMachineScopeManager>();
 		//await using var stateMachineHost = new StateMachineHost(new StateMachineHostOptions());
 
-		await stateMachineHost.StartHost();
+		//await stateMachineHost.StartHost();
 
 		// Act
 		var result = await stateMachineScopeManager.Execute(smc, SecurityContextType.NewStateMachine);

@@ -37,10 +37,10 @@ public class StateMachineRuntimeController : StateMachineControllerBase
 										 IStateMachineOptions? options,
 										 IStateMachine? stateMachine,
 										 Uri? stateMachineLocation,
-										 IStateMachineHost stateMachineHost,
+										 //IStateMachineHost stateMachineHost,
 										 TimeSpan? idlePeriod /*,
 										 InterpreterOptions defaultOptions*/)
-		: base(sessionId, options, stateMachine, stateMachineLocation, stateMachineHost /*, defaultOptions*/)
+		: base(sessionId, options, stateMachine, stateMachineLocation/*, defaultOptions*/)
 	{
 		_idlePeriod = idlePeriod;
 
@@ -51,9 +51,9 @@ public class StateMachineRuntimeController : StateMachineControllerBase
 										 IStateMachineOptions? options,
 										 IStateMachine? stateMachine,
 										 IStateMachineLocation? stateMachineLocation,
-										 IStateMachineHost stateMachineHost,
+										 //IStateMachineHost stateMachineHost,
 										 IStateMachineIdlePeriod? idlePeriod)
-		: base(stateMachineSessionId.SessionId, options, stateMachine, stateMachineLocation?.Location, stateMachineHost /*,  defaultOptions.optionsnew InterpreterOptions()*/)
+		: base(stateMachineSessionId.SessionId, options, stateMachine, stateMachineLocation?.Location /*,  defaultOptions.optionsnew InterpreterOptions()*/)
 	{
 		_idlePeriod = idlePeriod?.IdlePeriod;
 

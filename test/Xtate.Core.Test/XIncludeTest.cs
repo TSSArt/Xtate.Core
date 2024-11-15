@@ -30,20 +30,20 @@ public class XIncludeTest
 	public async Task CreateStateMachineWithXInclude()
 	{
 		var services = new ServiceCollection();
-		services.AddModule<StateMachineHostModule>();
+		services.AddModule<StateMachineProcessorModule>();
 		services.AddImplementationSync<XIncludeOptions>().For<IXIncludeOptions>();
 
 		//services.AddConstant<IServiceProviderActions>(new ServiceProviderDebugger(new StreamWriter(File.Create(@"D:\Ser\s1.txt"))));
 		var serviceProvider = services.BuildProvider();
-		var host = (IHostController) await serviceProvider.GetRequiredService<StateMachineHost>();
+		//var host = (IHostController) await serviceProvider.GetRequiredService<StateMachineHost>();
 		var stateMachineScopeManager = await serviceProvider.GetRequiredService<IStateMachineScopeManager>();
 
-		await host.StartHost();
+		//await host.StartHost();
 
 		var smc = new LocationStateMachine(new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Scxml/XInclude/SingleIncludeSource.scxml"));
 		_ = await stateMachineScopeManager.Execute(smc, SecurityContextType.NewStateMachine);
 
-		await host.StopHost();
+		//await host.StopHost();
 	}
 
 	[TestMethod]

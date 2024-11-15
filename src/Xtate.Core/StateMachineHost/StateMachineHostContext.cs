@@ -226,7 +226,7 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 		//																	  DeferredFinalizer finalizer
 	) =>
 		new StateMachineRuntimeController(
-			sessionId, stateMachineOptions, stateMachine, stateMachineLocation, /*_stateMachineHost*/stateMachineHost: null,
+			sessionId, stateMachineOptions, stateMachine, stateMachineLocation, /*_stateMachineHost*/
 			_options.SuspendIdlePeriod /*, defaultOptions*/)
 		{
 			EventQueueWriter = default!,
