@@ -19,19 +19,20 @@ using Xtate.IoC;
 
 namespace Xtate.Core;
 
-public class ToolsModule : Module
+public class ToolsModule : Module<LoggingModule>
 {
 	protected override void AddServices()
 	{
 		Services.AddFactory<AncestorFactory<Any>>().For<Ancestor<Any>>();
 		Services.AddSharedImplementationSync<AncestorTracker>(SharedWithin.Scope).For<AncestorTracker>().For<IServiceProviderActions>();
 
+		Services.AddFactory<SafeFactory<Any>>().For<Safe<Any>>();
 		Services.AddFactorySync<DeferredFactory<Any>>().For<Deferred<Any>>();
 
 		Services.AddType<ServiceList<Any>>();
 		Services.AddTypeSync<ServiceSyncList<Any>>();
 
-		Services.AddForwarding(sp => new DisposeToken(sp.DisposeToken));
-		Services.AddSharedTypeSync<TaskCollector>(SharedWithin.Scope);
+		Services.AddForwarding(sp => new DisposeToken(sp.DisposeToken, sp.GetRequiredServiceSync<ITaskMonitor>()));
+		Services.AddSharedImplementationSync<TaskMonitor>(SharedWithin.Container).For<ITaskMonitor>();
 	}
 }

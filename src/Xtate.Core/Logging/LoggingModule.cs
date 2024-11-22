@@ -24,5 +24,8 @@ public class LoggingModule : Module
 	protected override void AddServices()
 	{
 		Services.AddImplementation<Logger<Any>>().For<ILogger<Any>>();
+		
+		Services.AddImplementation<ExceptionEntityParser<Any>>().For<IEntityParserHandler<Any>>();
+		Services.AddImplementation<DataModelValueEntityParser<Any>>().For<IEntityParserHandler<Any>>();
 	}
 }

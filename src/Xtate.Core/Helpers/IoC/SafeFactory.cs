@@ -15,13 +15,36 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using Xtate.IoC;
+
 namespace Xtate.Core;
 
-public class DefaultStateMachineArguments : IStateMachineArguments
+public class SafeFactory<T> : IAsyncInitialization
 {
-#region Interface IStateMachineArguments
+	private T? _value;
 
-	public DataModelValue Arguments => default;
+	public SafeFactory(Func<ValueTask<T?>> factory) => Initialization = Initialize(this, factory);
+
+#region Interface IAsyncInitialization
+
+	public Task Initialization { get; }
 
 #endregion
+
+	private static async Task Initialize(SafeFactory<T> safeFactory, Func<ValueTask<T?>> factory)
+	{
+		try
+		{
+			safeFactory._value = await factory().ConfigureAwait(false);
+		}
+		catch (DependencyInjectionException ex) when (ex.GetBaseException() is MissedServiceException)
+		{
+			// ignore
+		}
+	}
+
+	private T? GetValue() => _value;
+
+	[UsedImplicitly]
+	public ValueTask<Safe<T>> GetValueFunc() => new(GetValue);
 }

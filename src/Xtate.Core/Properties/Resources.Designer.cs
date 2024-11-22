@@ -2634,6 +2634,24 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Task failed..
+        /// </summary>
+        internal static string Message_TaskFailed {
+            get {
+                return ResourceManager.GetString("Message_TaskFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Task was canceled..
+        /// </summary>
+        internal static string Message_TaskWasCanceled {
+            get {
+                return ResourceManager.GetString("Message_TaskWasCanceled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unknown Data Model..
         /// </summary>
         internal static string Message_UnknownDataModel {

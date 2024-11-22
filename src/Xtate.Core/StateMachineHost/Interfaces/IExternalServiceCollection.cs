@@ -2,7 +2,7 @@
 
 public interface IExternalServiceCollection
 {
-	void Subscribe(InvokeId invokeId, Func<IIncomingEvent, CancellationToken, ValueTask> handler);
+	void Subscribe(InvokeId invokeId, IEventDispatcher eventDispatcher);
 
 	void Unsubscribe(InvokeId invokeId);
 

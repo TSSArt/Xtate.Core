@@ -985,4 +985,7 @@ Exception: {3}</value>
   <data name="Exception_EventsFromExternalServicesCantBeDelayed" xml:space="preserve">
 	  <value>Events from external services can't be delayed</value>
   </data>
+  <data name="Message_TaskWasCanceled" xml:space="preserve">
+	  <value>Task was canceled.</value>
+  </data>
 </root>

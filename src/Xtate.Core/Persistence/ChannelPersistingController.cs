@@ -16,11 +16,14 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Threading.Channels;
+using TaskExtensions = Xtate.Core.TaskExtensions;
 
 namespace Xtate.Persistence;
 
 internal sealed class ChannelPersistingController<T> : Channel<T>, IDisposable
 {
+
+
 	private const int Head = 0;
 
 	private const int Tail = 1;
@@ -86,7 +89,7 @@ internal sealed class ChannelPersistingController<T> : Channel<T>, IDisposable
 
 		public override async ValueTask<bool> WaitToReadAsync(CancellationToken token = default)
 		{
-			await parent._initializedTcs.Task.WaitAsync(token).ConfigureAwait(false);
+			await TaskExtensions.WaitAsync(parent._initializedTcs.Task, default, token).ConfigureAwait(false);
 
 			await parent._storageLock!.WaitAsync(token).ConfigureAwait(false);
 
@@ -102,7 +105,7 @@ internal sealed class ChannelPersistingController<T> : Channel<T>, IDisposable
 
 		public override async ValueTask<T> ReadAsync(CancellationToken token = default)
 		{
-			await parent._initializedTcs.Task.WaitAsync(token).ConfigureAwait(false);
+			await TaskExtensions.WaitAsync(parent._initializedTcs.Task, default, token).ConfigureAwait(false);
 
 			await parent._storageLock!.WaitAsync(token).ConfigureAwait(false);
 
@@ -140,7 +143,7 @@ internal sealed class ChannelPersistingController<T> : Channel<T>, IDisposable
 
 		public override async ValueTask<bool> WaitToWriteAsync(CancellationToken token = default)
 		{
-			await parent._initializedTcs.Task.WaitAsync(token).ConfigureAwait(false);
+			await TaskExtensions.WaitAsync(parent._initializedTcs.Task, default, token).ConfigureAwait(false);
 
 			await parent._storageLock!.WaitAsync(token).ConfigureAwait(false);
 
@@ -158,7 +161,7 @@ internal sealed class ChannelPersistingController<T> : Channel<T>, IDisposable
 		{
 			if (item is null) throw new ArgumentNullException(nameof(item));
 
-			await parent._initializedTcs.Task.WaitAsync(token).ConfigureAwait(false);
+			await TaskExtensions.WaitAsync(parent._initializedTcs.Task, default, token).ConfigureAwait(false);
 
 			await parent._storageLock!.WaitAsync(token).ConfigureAwait(false);
 

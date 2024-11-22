@@ -32,6 +32,6 @@ internal sealed class StateMachineHostClusterContext(StateMachineHostOptions opt
 		{
 			EventQueueWriter = default!,
 			StateMachineInterpreter = default,
-			TaskCollector = null
+			TaskMonitor = null
 		};
 }

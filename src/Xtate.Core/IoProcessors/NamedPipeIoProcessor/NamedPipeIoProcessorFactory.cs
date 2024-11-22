@@ -33,7 +33,7 @@ public sealed class NamedPipeIoProcessorFactory : IIoProcessorFactory
 
 	private readonly string _name;
 
-	public required TaskCollector TaskCollector { private get; [UsedImplicitly] init; }
+	public required ITaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
 
 	public NamedPipeIoProcessorFactory(string name, int? maxMessageSize = default)
 	{
@@ -63,12 +63,12 @@ public sealed class NamedPipeIoProcessorFactory : IIoProcessorFactory
 		var processor = new NamedPipeIoProcessor(eventConsumer, _host, _name, _maxMessageSize ?? DefaultMaxMessageSize)
 						{
 							StateMachineSessionId = null,
-							TaskCollector = null
+							TaskMonitor = null
 						};
 
 		for (var i = 0; i < FreeSlotsCount; i ++)
 		{
-			TaskCollector.Collect(processor.StartListener());
+			await processor.StartListener().Forget(TaskMonitor).ConfigureAwait(false);
 		}
 
 		await processor.CheckPipeline(token).ConfigureAwait(false);

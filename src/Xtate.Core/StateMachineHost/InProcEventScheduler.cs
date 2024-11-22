@@ -29,7 +29,7 @@ public class InProcEventScheduler : IEventScheduler, IDisposable, IAsyncDisposab
 
 	public required ILogger<IEventScheduler> Logger { private get; [UsedImplicitly] init; }
 
-	public required TaskCollector TaskCollector { private get; [UsedImplicitly] init; }
+	public required ITaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
 
 #region Interface IAsyncDisposable
 
@@ -63,9 +63,7 @@ public class InProcEventScheduler : IEventScheduler, IDisposable, IAsyncDisposab
 
 		AddScheduledEvent(scheduledEvent);
 
-		TaskCollector.Collect(DelayedFire(scheduledEvent));
-
-		return default;
+		return DelayedFire(scheduledEvent).Forget(TaskMonitor);
 	}
 
 	public async ValueTask CancelEvent(SendId sendId, CancellationToken token)

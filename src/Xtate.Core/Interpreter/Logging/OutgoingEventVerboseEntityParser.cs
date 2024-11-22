@@ -21,7 +21,7 @@ namespace Xtate.Core;
 
 public class OutgoingEventVerboseEntityParser<TSource>() : EntityParserBase<TSource, IOutgoingEvent>(Level.Verbose)
 {
-	public required IDataModelHandler DataModelHandler { private get; [UsedImplicitly] init; }
+	public required Safe<IDataModelHandler> DataModelHandler { private get; [UsedImplicitly] init; }
 
 	protected override IEnumerable<LoggingParameter> EnumerateProperties(IOutgoingEvent outgoingEvent)
 	{
@@ -29,7 +29,9 @@ public class OutgoingEventVerboseEntityParser<TSource>() : EntityParserBase<TSou
 		{
 			yield return new LoggingParameter(name: @"Data", outgoingEvent.Data.ToObject());
 
-			yield return new LoggingParameter(name: @"DataText", DataModelHandler.ConvertToText(outgoingEvent.Data));
+			yield return new LoggingParameter(name: @"DataText", ConvertToText(outgoingEvent.Data));
 		}
 	}
+
+	private string ConvertToText(DataModelValue value) => DataModelHandler() is { } dataModelHandler ? dataModelHandler.ConvertToText(value) : value.ToString(null);
 }

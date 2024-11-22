@@ -12,7 +12,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
 // 
-// You should have received a copy of the GNU Affero General Public License
+// You should have received a copy of the GNU Affero GeneraInterpreterDebugLogEnricherl Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using Xtate.DataModel;
@@ -20,18 +20,30 @@ using Xtate.IoC;
 
 namespace Xtate.Core;
 
-public class StateMachineInterpreterModule : Module<DataModelHandlersModule, InterpreterModelBuilderModule, LoggingModule, ToolsModule>
+public class StateMachineInterpreterModule : Module<DataModelHandlersModule, InterpreterModelBuilderModule, ToolsModule>
 {
 	protected override void AddServices()
 	{
 		Services.AddSharedImplementation<DefaultStateMachineSessionId>(SharedWithin.Scope).For<IStateMachineSessionId>(Option.IfNotRegistered);
-		Services.AddImplementation<DefaultStateMachineArguments>().For<IStateMachineArguments>(Option.IfNotRegistered);
+		Services.AddImplementation<NoStateMachineArguments>().For<IStateMachineArguments>(Option.IfNotRegistered);
 
 		Services.AddImplementation<NoExternalConnections>().For<IExternalCommunication>(Option.IfNotRegistered).For<IExternalServiceManager>(Option.IfNotRegistered);
 
 		Services.AddImplementation<InterpreterInfoLogEnricher<Any>>().For<ILogEnricher<Any>>();
 		Services.AddImplementation<InterpreterDebugLogEnricher<Any>>().For<ILogEnricher<Any>>();
 		Services.AddImplementation<InterpreterVerboseLogEnricher<Any>>().For<ILogEnricher<Any>>();
+
+		Services.AddImplementation<StateEntityParser<Any>>().For<IEntityParserHandler<Any>>();
+		Services.AddImplementation<TransitionEntityParser<Any>>().For<IEntityParserHandler<Any>>();
+		Services.AddImplementation<EventEntityParser<Any>>().For<IEntityParserHandler<Any>>();
+		Services.AddImplementation<EventVerboseEntityParser<Any>>().For<IEntityParserHandler<Any>>();
+		Services.AddImplementation<OutgoingEventEntityParser<Any>>().For<IEntityParserHandler<Any>>();
+		Services.AddImplementation<OutgoingEventVerboseEntityParser<Any>>().For<IEntityParserHandler<Any>>();
+		Services.AddImplementation<InvokeDataEntityParser<Any>>().For<IEntityParserHandler<Any>>();
+		Services.AddImplementation<InvokeDataVerboseEntityParser<Any>>().For<IEntityParserHandler<Any>>();
+		Services.AddImplementation<InvokeIdEntityParser<Any>>().For<IEntityParserHandler<Any>>();
+		Services.AddImplementation<SendIdEntityParser<Any>>().For<IEntityParserHandler<Any>>();
+		Services.AddImplementation<InterpreterStateParser<Any>>().For<IEntityParserHandler<Any>>();
 
 		Services.AddSharedImplementationSync<AssemblyTypeInfo, Type>(SharedWithin.Scope).For<IAssemblyTypeInfo>();
 
@@ -44,20 +56,6 @@ public class StateMachineInterpreterModule : Module<DataModelHandlersModule, Int
 		Services.AddImplementation<InStateController>().For<IInStateController>();
 		Services.AddImplementation<DataModelController>().For<IDataModelController>();
 		Services.AddImplementation<InvokeController>().For<IInvokeController>();
-
-		Services.AddSharedImplementation<DataModelValueEntityParser<Any>>(SharedWithin.Scope).For<IEntityParserHandler<Any>>();
-		Services.AddSharedImplementation<ExceptionEntityParser<Any>>(SharedWithin.Scope).For<IEntityParserHandler<Any>>();
-		Services.AddSharedImplementation<StateEntityParser<Any>>(SharedWithin.Scope).For<IEntityParserHandler<Any>>();
-		Services.AddSharedImplementation<TransitionEntityParser<Any>>(SharedWithin.Scope).For<IEntityParserHandler<Any>>();
-		Services.AddSharedImplementation<EventEntityParser<Any>>(SharedWithin.Scope).For<IEntityParserHandler<Any>>();
-		Services.AddSharedImplementation<EventVerboseEntityParser<Any>>(SharedWithin.Scope).For<IEntityParserHandler<Any>>();
-		Services.AddSharedImplementation<OutgoingEventEntityParser<Any>>(SharedWithin.Scope).For<IEntityParserHandler<Any>>();
-		Services.AddSharedImplementation<OutgoingEventVerboseEntityParser<Any>>(SharedWithin.Scope).For<IEntityParserHandler<Any>>();
-		Services.AddSharedImplementation<InvokeDataEntityParser<Any>>(SharedWithin.Scope).For<IEntityParserHandler<Any>>();
-		Services.AddSharedImplementation<InvokeDataVerboseEntityParser<Any>>(SharedWithin.Scope).For<IEntityParserHandler<Any>>();
-		Services.AddSharedImplementation<InvokeIdEntityParser<Any>>(SharedWithin.Scope).For<IEntityParserHandler<Any>>();
-		Services.AddSharedImplementation<SendIdEntityParser<Any>>(SharedWithin.Scope).For<IEntityParserHandler<Any>>();
-		Services.AddSharedImplementation<InterpreterStateParser<Any>>(SharedWithin.Scope).For<IEntityParserHandler<Any>>();
 
 		Services.AddSharedFactory<InterpreterModelGetter>(SharedWithin.Scope).For<IInterpreterModel>();
 		Services.AddSharedImplementation<EventQueue>(SharedWithin.Scope).For<IEventQueueReader>().For<IEventQueueWriter>();

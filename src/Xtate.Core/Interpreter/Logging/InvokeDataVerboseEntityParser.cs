@@ -21,7 +21,7 @@ namespace Xtate.Core;
 
 public class InvokeDataVerboseEntityParser<TSource>() : EntityParserBase<TSource, InvokeData>(Level.Verbose)
 {
-	public required IDataModelHandler DataModelHandler { private get; [UsedImplicitly] init; }
+	public required Safe<IDataModelHandler> DataModelHandler { private get; [UsedImplicitly] init; }
 
 	protected override IEnumerable<LoggingParameter> EnumerateProperties(InvokeData invokeData)
 	{
@@ -36,14 +36,16 @@ public class InvokeDataVerboseEntityParser<TSource>() : EntityParserBase<TSource
 		{
 			yield return new LoggingParameter(name: @"Content", invokeData.Content.ToObject()!);
 
-			yield return new LoggingParameter(name: @"ContentText", DataModelHandler.ConvertToText(invokeData.Content));
+			yield return new LoggingParameter(name: @"ContentText", ConvertToText(invokeData.Content));
 		}
 
 		if (!invokeData.Parameters.IsUndefined())
 		{
 			yield return new LoggingParameter(name: @"Parameters", invokeData.Parameters.ToObject()!);
 
-			yield return new LoggingParameter(name: @"ParametersText", DataModelHandler.ConvertToText(invokeData.Parameters));
+			yield return new LoggingParameter(name: @"ParametersText", ConvertToText(invokeData.Parameters));
 		}
 	}
+
+	private string ConvertToText(DataModelValue value) => DataModelHandler() is { } dataModelHandler ? dataModelHandler.ConvertToText(value) : value.ToString(null);
 }

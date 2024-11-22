@@ -15,7 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.Collections.Concurrent;
 using Xtate.IoC;
 
 namespace Xtate;
@@ -30,7 +29,7 @@ public class StateMachineScopeManager : IStateMachineScopeManager, IDisposable, 
 
 	public required Func<SecurityContextType, SecurityContextRegistration> SecurityContextRegistrationFactory { private get; [UsedImplicitly] init; }
 
-	public required TaskCollector TaskCollector { private get; [UsedImplicitly] init; }
+	public required ITaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
 
 #region Interface IAsyncDisposable
 
@@ -68,6 +67,9 @@ public class StateMachineScopeManager : IStateMachineScopeManager, IDisposable, 
 
 		try
 		{
+			var eventDispatcher = await serviceScope.ServiceProvider.GetRequiredService<IEventDispatcher>().ConfigureAwait(false);
+			StateMachineCollection.Register(stateMachineClass.SessionId, eventDispatcher);
+
 			runner = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineRunner>().ConfigureAwait(false);
 
 			var stateMachineController = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineController>().ConfigureAwait(false);
@@ -75,13 +77,13 @@ public class StateMachineScopeManager : IStateMachineScopeManager, IDisposable, 
 		}
 		finally
 		{
-			if (runner is null)
+			if (runner is not null)
 			{
-				await Cleanup(stateMachineClass.SessionId).ConfigureAwait(false);
+				await WaitAndCleanup(stateMachineClass.SessionId, runner).Forget(TaskMonitor).ConfigureAwait(false);
 			}
 			else
 			{
-				TaskCollector.Collect(WaitAndCleanup(stateMachineClass.SessionId, runner));
+				await Cleanup(stateMachineClass.SessionId).ConfigureAwait(false);
 			}
 		}
 	}
@@ -96,6 +98,9 @@ public class StateMachineScopeManager : IStateMachineScopeManager, IDisposable, 
 		{
 			try
 			{
+				var eventDispatcher = await serviceScope.ServiceProvider.GetRequiredService<IEventDispatcher>().ConfigureAwait(false);
+				StateMachineCollection.Register(stateMachineClass.SessionId, eventDispatcher);
+
 				var runner = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineRunner>().ConfigureAwait(false);
 				
 				var stateMachineController = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineController>().ConfigureAwait(false);

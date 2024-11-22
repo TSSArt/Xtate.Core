@@ -26,9 +26,9 @@ public abstract class TraceLogWriter
 
 	private readonly TraceSource _traceSource;
 
-	protected TraceLogWriter(string name, IEnumerable<TraceListener> traceListeners)
+	protected TraceLogWriter(string name, IEnumerable<TraceListener> traceListeners, SourceLevels defaultLevels)
 	{
-		_traceSource = new TraceSource(name, SourceLevels.Information);
+		_traceSource = new TraceSource(name, defaultLevels);
 
 		foreach (var traceListener in traceListeners)
 		{
@@ -89,4 +89,4 @@ public abstract class TraceLogWriter
 	}
 }
 
-public class TraceLogWriter<TSource>(IEnumerable<TraceListener> traceListeners) : TraceLogWriter(typeof(TSource).FullName!, traceListeners), ILogWriter<TSource>;
+public class TraceLogWriter<TSource>(IEnumerable<TraceListener> traceListeners) : TraceLogWriter(typeof(TSource).FullName!, traceListeners, SourceLevels.All), ILogWriter<TSource>;

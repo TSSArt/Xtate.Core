@@ -25,6 +25,8 @@ public class DestroyAction : AsyncAction
 
 	public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
 	
+	public required ITaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
+	
 	private readonly StringValue _sessionIdValue;
 
 	public DestroyAction(XmlReader xmlReader, IErrorProcessorService<DestroyAction> errorProcessorService)
@@ -58,7 +60,7 @@ public class DestroyAction : AsyncAction
 	{
 		var sessionId = await GetSessionId().ConfigureAwait(false);
 
-		await StateMachineCollection.Destroy(sessionId).WaitAsync(DisposeToken).ConfigureAwait(false);
+		await StateMachineCollection.Destroy(sessionId).WaitAsync(TaskMonitor, DisposeToken).ConfigureAwait(false);
 	}
 
 	private async ValueTask<SessionId> GetSessionId()

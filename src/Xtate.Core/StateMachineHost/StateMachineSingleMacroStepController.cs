@@ -16,6 +16,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Threading.Channels;
+using TaskExtensions = Xtate.Core.TaskExtensions;
 
 namespace Xtate.Persistence;
 
@@ -69,6 +70,8 @@ internal sealed class StateMachineSingleMacroStepController(
 
 	private class SingleItemChannel<T> : Channel<T>
 	{
+
+
 		public SingleItemChannel()
 		{
 			var tcs = new TaskCompletionSource<T>();
@@ -103,7 +106,7 @@ internal sealed class StateMachineSingleMacroStepController(
 					return false;
 				}
 
-				await tcs.Task.WaitAsync(token).ConfigureAwait(false);
+				await TaskExtensions.WaitAsync(tcs.Task, default, token).ConfigureAwait(false);
 
 				return true;
 			}

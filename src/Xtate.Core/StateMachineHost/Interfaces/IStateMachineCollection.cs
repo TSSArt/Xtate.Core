@@ -21,6 +21,8 @@ public interface IStateMachineCollection
 {
 	void Register(SessionId sessionId, IStateMachineController controller);
 
+	void Register(SessionId sessionId, IEventDispatcher eventDispatcher);
+
 	void Unregister(SessionId sessionId);
 
 	ValueTask Dispatch(SessionId sessionId, IIncomingEvent incomingEvent, CancellationToken token);

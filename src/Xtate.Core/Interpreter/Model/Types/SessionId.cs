@@ -41,4 +41,8 @@ public sealed class SessionId : ServiceId, IEquatable<SessionId>
 	public static SessionId New() => new();
 
 	public static SessionId FromString([Localizable(false)] string value) => new(value);
+
+	public static bool IsNullOrEmpty([NotNullWhen(false)]SessionId? sessionId) => sessionId is null || sessionId == Empty;
+
+	private static readonly SessionId Empty = FromString(string.Empty);
 }

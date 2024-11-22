@@ -19,13 +19,18 @@ namespace Xtate.Core;
 
 public class InterpreterInfoLogEnricher<TSource> : ILogEnricher<TSource>
 {
-	public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
+	public required Safe<IStateMachineSessionId> StateMachineSessionId { private get; [UsedImplicitly] init; }
 
 #region Interface ILogEnricher<TSource>
 
 	public IEnumerable<LoggingParameter> EnumerateProperties()
 	{
-		yield return new LoggingParameter(name: @"SessionId", StateMachineSessionId.SessionId);
+		var sessionId = StateMachineSessionId()?.SessionId;
+
+		if (!SessionId.IsNullOrEmpty(sessionId))
+		{
+			yield return new LoggingParameter(name: @"SessionId", sessionId);
+		}
 	}
 
 	public string Namespace => @"ctx";
