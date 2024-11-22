@@ -2,7 +2,7 @@
 
 namespace Xtate.Core;
 
-public class EventSchedulerModule : Module
+public class EventSchedulerModule : Module<ToolsModule>
 {
 	protected override void AddServices()
 	{

@@ -34,13 +34,13 @@ public class AncestorFactory<T> : IAsyncInitialization
 	[UsedImplicitly]
 	public Ancestor<T> GetValueFunc() => GetValue;
 
-	private T GetValue() => _task.Result ?? throw ImplementationEntry.MissedServiceException<T, ValueTuple>();
+	private T GetValue() => _task.Result ?? throw new MissedServiceException<T, ValueTuple>();
 
 	internal void SetValue(T? instance)
 	{
 		if (instance is null)
 		{
-			throw ImplementationEntry.MissedServiceException<T, ValueTuple>();
+			throw new MissedServiceException<T, ValueTuple>();
 		}
 
 		_task = new ValueTask<T>(instance);

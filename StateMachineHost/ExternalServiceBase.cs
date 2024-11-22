@@ -19,27 +19,48 @@ namespace Xtate.ExternalService;
 
 public abstract class ExternalServiceBase : IExternalService
 {
-	private Task<DataModelValue>? _task;
+	private readonly LazyTask<DataModelValue> _lazyTask = default!;
 
-	public required IExternalServiceSource ExternalServiceSource { private get; [UsedImplicitly] init; }
+	[UsedImplicitly]
+	public required IExternalServiceSource ExternalServiceSourceLocal
+	{
+		init
+		{
+			Source = value.Source;
+			Content = value.Content;
+			RawContent = value.RawContent;
+		}
+	}
 
-	public required IExternalServiceParameters ExternalServiceParameters { private get; [UsedImplicitly] init; }
+	[UsedImplicitly]
+	public required IExternalServiceParameters ExternalServiceParametersLocal
+	{
+		init => Parameters = value.Parameters;
+	}
 
-	protected Uri? Source => ExternalServiceSource.Source;
+	[UsedImplicitly]
+	public required DisposeToken DisposeTokenLocal
+	{
+		init
+		{
+			DestroyToken = value.Token;
+			_lazyTask = new LazyTask<DataModelValue>(Execute, value.TaskMonitor, value.Token);
+		}
+	}
 
-	protected string? RawContent => ExternalServiceSource.RawContent;
+	protected Uri? Source { get; private init; }
 
-	protected DataModelValue Content => ExternalServiceSource.Content;
+	protected string? RawContent { get; private init; }
 
-	protected DataModelValue Parameters => ExternalServiceParameters.Parameters;
+	protected DataModelValue Content { get; private init; }
 
-	public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
+	protected DataModelValue Parameters { get; private init; }
 
-	public CancellationToken DestroyToken => DisposeToken.Token;
+	protected CancellationToken DestroyToken { get; private init; }
 
-	#region Interface IExternalService
+#region Interface IExternalService
 
-	ValueTask<DataModelValue> IExternalService.GetResult() => new(_task ??= Task.Run(() => Execute().AsTask(), DisposeToken));
+	ValueTask<DataModelValue> IExternalService.GetResult() => new(_lazyTask.Task);
 
 #endregion
 

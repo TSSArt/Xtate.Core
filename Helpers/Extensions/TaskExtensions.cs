@@ -19,7 +19,21 @@ namespace Xtate.Core;
 
 internal static class TaskExtensions
 {
-	public static ValueTask WaitAsync(this ValueTask valueTask, CancellationToken token)
+	public static ValueTask Forget(this ValueTask valueTask, ITaskMonitor taskMonitor) => taskMonitor.RunAsync(valueTask);
+
+	public static ValueTask Forget<T>(this ValueTask<T> valueTask, ITaskMonitor taskMonitor) => taskMonitor.RunAsync(valueTask);
+
+	public static ValueTask Forget(this Task task, ITaskMonitor taskMonitor)=> taskMonitor.RunAsync(task);
+
+	public static ValueTask WaitAsync(this ValueTask valueTask, DisposeToken disposeToken) => WaitAsync(valueTask, disposeToken.TaskMonitor, disposeToken.Token);
+
+	public static ValueTask<T> WaitAsync<T>(this ValueTask<T> valueTask, DisposeToken disposeToken) => WaitAsync(valueTask, disposeToken.TaskMonitor, disposeToken.Token);
+
+	public static Task WaitAsync(this Task task, DisposeToken disposeToken) => WaitAsync(task, disposeToken.TaskMonitor, disposeToken.Token);
+
+	public static Task<T> WaitAsync<T>(this Task<T> task, DisposeToken disposeToken) => WaitAsync(task, disposeToken.TaskMonitor, disposeToken.Token);
+
+	public static ValueTask WaitAsync(this ValueTask valueTask, ITaskMonitor taskMonitor, CancellationToken token)
 	{
 		if (valueTask.IsCompleted || !token.CanBeCanceled)
 		{
@@ -31,10 +45,10 @@ internal static class TaskExtensions
 			return new ValueTask(Task.FromCanceled(token));
 		}
 
-		return new ValueTask(valueTask.AsTask().ContinueWith(_ => { }, token, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current));
+		return new ValueTask(WaitWithMonitor(valueTask.AsTask(), taskMonitor, token));
 	}
 
-	public static ValueTask<T> WaitAsync<T>(this ValueTask<T> valueTask, CancellationToken token)
+	public static ValueTask<T> WaitAsync<T>(this ValueTask<T> valueTask, ITaskMonitor taskMonitor, CancellationToken token)
 	{
 		if (valueTask.IsCompleted || !token.CanBeCanceled)
 		{
@@ -46,11 +60,9 @@ internal static class TaskExtensions
 			return new ValueTask<T>(Task.FromCanceled<T>(token));
 		}
 
-		return new ValueTask<T>(valueTask.AsTask().ContinueWith(t => t.Result, token, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current));
+		return new ValueTask<T>(WaitWithMonitor(valueTask.AsTask(), taskMonitor, token));
 	}
-
-#if !NET6_0_OR_GREATER
-	public static Task WaitAsync(this Task task, CancellationToken token)
+	public static Task WaitAsync(this Task task, ITaskMonitor taskMonitor, CancellationToken token)
 	{
 		if (task.IsCompleted || !token.CanBeCanceled)
 		{
@@ -62,10 +74,10 @@ internal static class TaskExtensions
 			return Task.FromCanceled(token);
 		}
 
-		return task.ContinueWith(_ => { }, token, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
+		return WaitWithMonitor(task, taskMonitor, token);
 	}
 
-	public static Task<T> WaitAsync<T>(this Task<T> task, CancellationToken token)
+	public static Task<T> WaitAsync<T>(this Task<T> task, ITaskMonitor taskMonitor, CancellationToken token)
 	{
 		if (task.IsCompleted || !token.CanBeCanceled)
 		{
@@ -76,9 +88,43 @@ internal static class TaskExtensions
 		{
 			return Task.FromCanceled<T>(token);
 		}
-
-		return task.ContinueWith(t => t.Result, token, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
+		
+		return WaitWithMonitor(task, taskMonitor, token);
 	}
 
+	private static Task WaitWithMonitor(Task task, ITaskMonitor? taskMonitor, CancellationToken token)
+	{
+#if NET6_0_OR_GREATER
+		var cancellableTask = task.WaitAsync(token);
+#else
+		var cancellableTask = task.ContinueWith(t => { }, token, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
 #endif
+
+		return taskMonitor is not null ? Monitor() : cancellableTask;
+
+		async Task Monitor()
+		{
+			await taskMonitor.RunAsync(task).ConfigureAwait(false);
+
+			await cancellableTask.ConfigureAwait(false);
+		}
+	}
+
+	private static Task<T> WaitWithMonitor<T>(Task<T> task, ITaskMonitor? taskMonitor, CancellationToken token)
+	{
+#if NET6_0_OR_GREATER
+		var cancellableTask = task.WaitAsync(token);
+#else
+		var cancellableTask = task.ContinueWith(t => t.Result, token, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
+#endif
+
+		return taskMonitor is not null ? Monitor() : cancellableTask;
+
+		async Task<T> Monitor()
+		{
+			await taskMonitor.RunAsync(task).ConfigureAwait(false);
+
+			return await cancellableTask.ConfigureAwait(false);
+		}
+	}
 }

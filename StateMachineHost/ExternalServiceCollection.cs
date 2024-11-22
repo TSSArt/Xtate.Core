@@ -2,27 +2,27 @@
 
 public class ExternalServiceCollection : IExternalServiceCollection
 {
-	private readonly MiniDictionary<InvokeId, Func<IIncomingEvent, CancellationToken, ValueTask>> _handlers = new(InvokeId.InvokeUniqueIdComparer);
+	private readonly MiniDictionary<InvokeId, IEventDispatcher> _eventDispatchers = new(InvokeId.InvokeUniqueIdComparer);
 
 #region Interface IExternalServiceCollection
 
-	public void Subscribe(InvokeId invokeId, Func<IIncomingEvent, CancellationToken, ValueTask> handler)
+	public void Subscribe(InvokeId invokeId, IEventDispatcher eventDispatcher)
 	{
-		var added = _handlers.TryAdd(invokeId, handler);
+		var added = _eventDispatchers.TryAdd(invokeId, eventDispatcher);
 
 		Infra.Assert(added);
 	}
 
 	public void Unsubscribe(InvokeId invokeId)
 	{
-		var removed = _handlers.TryRemove(invokeId, out _);
+		var removed = _eventDispatchers.TryRemove(invokeId, out _);
 
 		Infra.Assert(removed);
 	}
 
 	public virtual ValueTask Dispatch(InvokeId invokeId, IIncomingEvent incomingEvent, CancellationToken token)
 	{
-		if (!_handlers.TryGetValue(invokeId, out var handler))
+		if (!_eventDispatchers.TryGetValue(invokeId, out var eventDispatcher))
 		{
 			return default;
 		}
@@ -32,7 +32,7 @@ public class ExternalServiceCollection : IExternalServiceCollection
 			incomingEvent = new IncomingEvent(incomingEvent);
 		}
 
-		return handler(incomingEvent, token);
+		return eventDispatcher.Dispatch(incomingEvent, token);
 	}
 
 #endregion

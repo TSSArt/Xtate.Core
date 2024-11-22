@@ -20,9 +20,11 @@ using System.Diagnostics;
 namespace Xtate.Core;
 
 [DebuggerDisplay("IsCancellationRequested = {IsCancellationRequested}")]
-public readonly struct DisposeToken(CancellationToken cancellationToken) : IEquatable<DisposeToken>
+public readonly struct DisposeToken(CancellationToken cancellationToken, ITaskMonitor taskMonitor) : IEquatable<DisposeToken>
 {
-	public CancellationToken Token { get; } = cancellationToken;
+	public CancellationToken Token => cancellationToken;
+
+	public ITaskMonitor TaskMonitor => taskMonitor;
 
 	public bool IsCancellationRequested => Token.IsCancellationRequested;
 

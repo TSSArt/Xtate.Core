@@ -36,7 +36,7 @@ internal sealed class PersistedEventSchedulerFactory : IEventSchedulerFactory
 									  {
 										  Logger = null,
 										  EventRouters = null,
-										  TaskCollector = null,
+										  TaskMonitor = null,
 										  
 									  };
 

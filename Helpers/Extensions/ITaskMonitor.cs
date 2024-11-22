@@ -17,20 +17,24 @@
 
 namespace Xtate.Core;
 
-public sealed class InProcEventSchedulerFactory : IEventSchedulerFactory
+public interface ITaskMonitor
 {
-	public static IEventSchedulerFactory Instance { get; } = new InProcEventSchedulerFactory();
+	/// <summary>
+	///     Collects a ValueTask into a private pool and tracks its successful completion.
+	/// </summary>
+	/// <param name="valueTask">The ValueTask to collect.</param>
+	ValueTask RunAsync(ValueTask valueTask); //TODO: delete1
 
-#region Interface IEventSchedulerFactory
+	/// <summary>
+	///     Collects a ValueTask of type T into a private pool and tracks its successful completion.
+	/// </summary>
+	/// <typeparam name="T">The type of the result produced by the ValueTask.</typeparam>
+	/// <param name="valueTask">The ValueTask to collect.</param>
+	ValueTask RunAsync<T>(ValueTask<T> valueTask);
 
-	public ValueTask<IEventScheduler> CreateEventScheduler(IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger? logger, CancellationToken token) =>
-		new(
-			new InProcEventScheduler
-			{
-				Logger = null,
-				EventRouters = null,
-				TaskMonitor = null
-			}); //TODO: move factory to IoC
-
-#endregion
+	/// <summary>
+	///     Collects a Task into a private pool and tracks its successful completion.
+	/// </summary>
+	/// <param name="task">The Task to collect.</param>
+	ValueTask RunAsync(Task task);
 }

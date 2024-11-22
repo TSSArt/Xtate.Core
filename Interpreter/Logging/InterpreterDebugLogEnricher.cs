@@ -19,24 +19,24 @@ namespace Xtate.Core;
 
 public class InterpreterDebugLogEnricher<TSource> : ILogEnricher<TSource>
 {
-	public required IStateMachine StateMachine { private get; [UsedImplicitly] init; }
+	public required Safe<IStateMachine> StateMachine { private get; [UsedImplicitly] init; }
 
-	public required IStateMachineContext StateMachineContext { private get; [UsedImplicitly] init; }
+	public required Safe<IStateMachineContext> StateMachineContext { private get; [UsedImplicitly] init; }
 
 #region Interface ILogEnricher<TSource>
 
 	public IEnumerable<LoggingParameter> EnumerateProperties()
 	{
-		if (!string.IsNullOrEmpty(StateMachine.Name))
+		if (StateMachine()?.Name is { Length: > 0 } name)
 		{
-			yield return new LoggingParameter(name: @"StateMachineName", StateMachine.Name);
+			yield return new LoggingParameter(name: @"StateMachineName", name);
 		}
 
-		if (StateMachineContext.Configuration.Count > 0)
+		if (StateMachineContext()?.Configuration is { Count: > 0 } configuration)
 		{
 			var activeStates = new DataModelList();
 
-			foreach (var node in StateMachineContext.Configuration)
+			foreach (var node in configuration)
 			{
 				activeStates.Add(node.Id.Value);
 			}
