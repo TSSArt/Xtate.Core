@@ -19,40 +19,60 @@ using System.Collections.Concurrent;
 
 namespace Xtate;
 
+using Endpoint = (IEventDispatcher? Dispatcher, IStateMachineController? Controller);
+
 public class StateMachineCollection : IStateMachineCollection
 {
-	private readonly ConcurrentDictionary<SessionId, IStateMachineController> _controllers = new();
+	private readonly ConcurrentDictionary<SessionId, Endpoint> _controllers = new();
 
 #region Interface IStateMachineCollection
 
 	public ValueTask Dispatch(SessionId sessionId, IIncomingEvent incomingEvent, CancellationToken token)
 	{
-		if (!_controllers.TryGetValue(sessionId, out var stateMachineController))
+		if (_controllers.TryGetValue(sessionId, out var tuple) && tuple.Dispatcher is { } eventDispatcher)
 		{
-			return default;
+			if (incomingEvent is not IncomingEvent)
+			{
+				incomingEvent = new IncomingEvent(incomingEvent);
+			}
+
+			return eventDispatcher.Dispatch(incomingEvent, token);
 		}
 
-		if (incomingEvent is not IncomingEvent)
-		{
-			incomingEvent = new IncomingEvent(incomingEvent);
-		}
-
-		return stateMachineController.Dispatch(incomingEvent, token);
+		return default;
 	}
 
-	public ValueTask Destroy(SessionId sessionId) => _controllers.TryGetValue(sessionId, out var stateMachineController) ? stateMachineController.Destroy() : default;
+	public ValueTask Destroy(SessionId sessionId) => _controllers.TryGetValue(sessionId, out var tuple) && tuple.Controller is { } controller ? controller.Destroy() : default;
+
+	public void Register(SessionId sessionId, IEventDispatcher eventDispatcher)
+	{
+		_controllers.AddOrUpdate(sessionId, static (_, dispatcher) => (dispatcher, default), Update, eventDispatcher);
+
+		return;
+
+		static Endpoint Update(SessionId _, Endpoint tuple, IEventDispatcher eventDispatcher)
+		{
+			Infra.Assert(tuple.Dispatcher is null);
+
+			return (eventDispatcher, tuple.Controller);
+		}
+	}
 
 	public void Register(SessionId sessionId, IStateMachineController controller)
 	{
-		var added = _controllers.TryAdd(sessionId, controller);
+		_controllers.AddOrUpdate(sessionId, static (_, controller) => (default, controller), Update, controller);
 
-		Infra.Assert(added);
+		return;
+
+		static Endpoint Update(SessionId _, Endpoint tuple, IStateMachineController controller)
+		{
+			Infra.Assert(tuple.Controller is null);
+
+			return (tuple.Dispatcher, controller);
+		}
 	}
 
-	public void Unregister(SessionId sessionId)
-	{
-		_controllers.TryRemove(sessionId, out _);
-	}
+	public void Unregister(SessionId sessionId) => _controllers.TryRemove(sessionId, out _);
 
 #endregion
 }

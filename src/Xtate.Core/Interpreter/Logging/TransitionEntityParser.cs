@@ -21,8 +21,6 @@ public class TransitionEntityParser<TSource> : EntityParserBase<TSource, ITransi
 {
 	protected override IEnumerable<LoggingParameter> EnumerateProperties(ITransition transition)
 	{
-		Infra.Requires(transition);
-
 		yield return new LoggingParameter(name: @"TransitionType", transition.Type);
 
 		if (!transition.EventDescriptors.IsDefault)

@@ -16,6 +16,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using Xtate.IoC;
+using IServiceProvider = Xtate.IoC.IServiceProvider;
 
 namespace Xtate.ExternalService;
 
@@ -31,7 +32,7 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 
 	public required IExternalServiceCollection ExternalServiceCollection { private get; [UsedImplicitly] init; }
 
-	public required TaskCollector TaskCollector { private get; [UsedImplicitly] init; }
+	public required ITaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
 
 #region Interface IAsyncDisposable
 
@@ -68,30 +69,19 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 
 		IExternalServiceRunner? runner = default;
 
-		CancellationTokenRegistration cancellationTokenRegistration = default;
-
 		try
 		{
-			cancellationTokenRegistration = token.Register(() => TaskCollector.Collect(serviceScope.DisposeAsync()));
-
-			runner = await serviceScope.ServiceProvider.GetRequiredService<IExternalServiceRunner>().ConfigureAwait(false);
-
-			if (await serviceScope.ServiceProvider.GetService<IEventDispatcher>().ConfigureAwait(false) is { } eventDispatcher)
-			{
-				ExternalServiceCollection.Subscribe(invokeData.InvokeId, eventDispatcher.Dispatch);
-			}
+			runner = await Start(serviceScope.ServiceProvider, invokeData.InvokeId).WaitAsync(TaskMonitor, token).ConfigureAwait(false);
 		}
 		finally
 		{
-			await cancellationTokenRegistration.DisposeAsync().ConfigureAwait(false);
-
-			if (runner is null)
+			if (runner is not null)
 			{
-				await Cleanup(invokeData.InvokeId).ConfigureAwait(false);
+				await WaitAndCleanup(invokeData.InvokeId, runner).Forget(TaskMonitor).ConfigureAwait(false);
 			}
 			else
 			{
-				TaskCollector.Collect(WaitAndCleanup(invokeData.InvokeId, runner));
+				await Cleanup(invokeData.InvokeId).ConfigureAwait(false);
 			}
 		}
 	}
@@ -99,6 +89,16 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 	public virtual ValueTask Cancel(InvokeId invokeId, CancellationToken token) => _scopes?.TryRemove(invokeId, out var serviceScope) == true ? serviceScope.DisposeAsync() : default;
 
 #endregion
+
+	private async ValueTask<IExternalServiceRunner> Start(IServiceProvider serviceProvider, InvokeId invokeId)
+	{
+		if (await serviceProvider.GetService<IEventDispatcher>().ConfigureAwait(false) is { } eventDispatcher)
+		{
+			ExternalServiceCollection.Subscribe(invokeId, eventDispatcher);
+		}
+
+		return await serviceProvider.GetRequiredService<IExternalServiceRunner>().ConfigureAwait(false);
+	}
 
 	private IServiceScope CreateServiceScope(InvokeId invokeId, ExternalServiceClass externalServiceClass)
 	{

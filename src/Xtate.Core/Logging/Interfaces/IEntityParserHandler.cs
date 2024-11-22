@@ -17,6 +17,7 @@
 
 namespace Xtate.Core;
 
+//TODO: Remove TSource. Make it Non-Generic
 public interface IEntityParserHandler<[UsedImplicitly] TSource>
 {
 	Level Level { get; }

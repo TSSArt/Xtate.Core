@@ -17,20 +17,8 @@
 
 namespace Xtate.Core;
 
-public sealed class InProcEventSchedulerFactory : IEventSchedulerFactory
-{
-	public static IEventSchedulerFactory Instance { get; } = new InProcEventSchedulerFactory();
-
-#region Interface IEventSchedulerFactory
-
-	public ValueTask<IEventScheduler> CreateEventScheduler(IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger? logger, CancellationToken token) =>
-		new(
-			new InProcEventScheduler
-			{
-				Logger = null,
-				EventRouters = null,
-				TaskMonitor = null
-			}); //TODO: move factory to IoC
-
-#endregion
-}
+/// <summary>
+///     Delegate created by the <see cref="SafeFactory{T}" /> class.
+///     This delegate is utilized to get a reference to a service or null if the service itself or any dependent services are not registered.
+/// </summary>
+public delegate T? Safe<out T>();

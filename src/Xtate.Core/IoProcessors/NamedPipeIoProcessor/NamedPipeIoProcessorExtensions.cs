@@ -27,7 +27,7 @@ public static class NamedPipeIoProcessorExtensions
 
 		builder.AddIoProcessorFactory(new NamedPipeIoProcessorFactory(name, maxMessageSize)
 									  {
-										  TaskCollector = null
+										  TaskMonitor = null
 									  });
 
 		return builder;
@@ -42,7 +42,7 @@ public static class NamedPipeIoProcessorExtensions
 
 		builder.AddIoProcessorFactory(new NamedPipeIoProcessorFactory(host, name, maxMessageSize)
 									  {
-										  TaskCollector = null
+										  TaskMonitor = null
 									  });
 
 		return builder;

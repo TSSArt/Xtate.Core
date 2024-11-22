@@ -17,20 +17,11 @@
 
 namespace Xtate.Core;
 
-public sealed class InProcEventSchedulerFactory : IEventSchedulerFactory
+public class NoStateMachineArguments : IStateMachineArguments
 {
-	public static IEventSchedulerFactory Instance { get; } = new InProcEventSchedulerFactory();
+#region Interface IStateMachineArguments
 
-#region Interface IEventSchedulerFactory
-
-	public ValueTask<IEventScheduler> CreateEventScheduler(IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger? logger, CancellationToken token) =>
-		new(
-			new InProcEventScheduler
-			{
-				Logger = null,
-				EventRouters = null,
-				TaskMonitor = null
-			}); //TODO: move factory to IoC
+	public DataModelValue Arguments => default;
 
 #endregion
 }
