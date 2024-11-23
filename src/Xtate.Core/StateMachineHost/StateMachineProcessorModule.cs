@@ -34,7 +34,6 @@ public class StateMachineProcessorModule : Module<ExternalServiceModule, EventSc
 		Services.AddImplementation<ScxmlStringChildStateMachine, (string, Uri?, DataModelValue)>().For<StateMachineClass>();
 
 		Services.AddImplementation<ExternalCommunication>().For<IExternalCommunication>();
-		Services.AddImplementation<EventDispatcher>().For<IEventDispatcher>();
 		
 		Services.AddSharedImplementation<StateMachineScopeManager>(SharedWithin.Container).For<IStateMachineScopeManager>();
 		Services.AddSharedImplementation<StateMachineCollection>(SharedWithin.Container).For<IStateMachineCollection>();

@@ -16,6 +16,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using Xtate.IoC;
+using IServiceProvider = Xtate.IoC.IServiceProvider;
 
 namespace Xtate;
 
@@ -23,8 +24,8 @@ public class StateMachineScopeManager : IStateMachineScopeManager, IDisposable, 
 {
 	private ConcurrentDictionary<SessionId, IServiceScope>? _scopes = new();
 
-	public required IServiceScopeFactory   ServiceScopeFactory    { private get; [UsedImplicitly] init; }
-	
+	public required IServiceScopeFactory ServiceScopeFactory { private get; [UsedImplicitly] init; }
+
 	public required IStateMachineCollection StateMachineCollection { private get; [UsedImplicitly] init; }
 
 	public required Func<SecurityContextType, SecurityContextRegistration> SecurityContextRegistrationFactory { private get; [UsedImplicitly] init; }
@@ -67,13 +68,7 @@ public class StateMachineScopeManager : IStateMachineScopeManager, IDisposable, 
 
 		try
 		{
-			var eventDispatcher = await serviceScope.ServiceProvider.GetRequiredService<IEventDispatcher>().ConfigureAwait(false);
-			StateMachineCollection.Register(stateMachineClass.SessionId, eventDispatcher);
-
-			runner = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineRunner>().ConfigureAwait(false);
-
-			var stateMachineController = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineController>().ConfigureAwait(false);
-			StateMachineCollection.Register(stateMachineClass.SessionId, stateMachineController);
+			await Start(serviceScope.ServiceProvider, stateMachineClass.SessionId, waitForCompletion: false).ConfigureAwait(false);
 		}
 		finally
 		{
@@ -98,16 +93,8 @@ public class StateMachineScopeManager : IStateMachineScopeManager, IDisposable, 
 		{
 			try
 			{
-				var eventDispatcher = await serviceScope.ServiceProvider.GetRequiredService<IEventDispatcher>().ConfigureAwait(false);
-				StateMachineCollection.Register(stateMachineClass.SessionId, eventDispatcher);
+				var stateMachineController = await Start(serviceScope.ServiceProvider, stateMachineClass.SessionId, waitForCompletion: true).ConfigureAwait(false);
 
-				var runner = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineRunner>().ConfigureAwait(false);
-				
-				var stateMachineController = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineController>().ConfigureAwait(false);
-				StateMachineCollection.Register(stateMachineClass.SessionId, stateMachineController);
-
-				await runner.WaitForCompletion().ConfigureAwait(false);
-				
 				return await stateMachineController.GetResult().ConfigureAwait(false);
 			}
 			finally
@@ -120,6 +107,24 @@ public class StateMachineScopeManager : IStateMachineScopeManager, IDisposable, 
 	ValueTask IStateMachineScopeManager.Terminate(SessionId sessionId) => _scopes?.TryRemove(sessionId, out var serviceScope) == true ? serviceScope.DisposeAsync() : default;
 
 #endregion
+
+	private async ValueTask<IStateMachineController> Start(IServiceProvider serviceProvider, SessionId sessionId, bool waitForCompletion)
+	{
+		var eventDispatcher = await serviceProvider.GetRequiredService<IEventDispatcher>().ConfigureAwait(false);
+		StateMachineCollection.Register(sessionId, eventDispatcher);
+
+		var runner = await serviceProvider.GetRequiredService<IStateMachineRunner>().ConfigureAwait(false);
+
+		var stateMachineController = await serviceProvider.GetRequiredService<IStateMachineController>().ConfigureAwait(false);
+		StateMachineCollection.Register(sessionId, stateMachineController);
+
+		if (waitForCompletion)
+		{
+			await runner.WaitForCompletion().ConfigureAwait(false);
+		}
+
+		return stateMachineController;
+	}
 
 	private IServiceScope CreateServiceScope(StateMachineClass stateMachineClass)
 	{

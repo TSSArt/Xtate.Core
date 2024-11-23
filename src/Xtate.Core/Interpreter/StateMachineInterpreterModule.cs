@@ -58,7 +58,7 @@ public class StateMachineInterpreterModule : Module<DataModelHandlersModule, Int
 		Services.AddImplementation<InvokeController>().For<IInvokeController>();
 
 		Services.AddSharedFactory<InterpreterModelGetter>(SharedWithin.Scope).For<IInterpreterModel>();
-		Services.AddSharedImplementation<EventQueue>(SharedWithin.Scope).For<IEventQueueReader>().For<IEventQueueWriter>();
+		Services.AddSharedImplementation<EventQueue>(SharedWithin.Scope).For<IEventQueueReader>().For<IEventQueueWriter>().For<IEventDispatcher>();
 		Services.AddSharedImplementation<StateMachineContext>(SharedWithin.Scope).For<IStateMachineContext>();
 		Services.AddSharedType<StateMachineRuntimeError>(SharedWithin.Scope);
 		Services.AddSharedImplementation<StateMachineInterpreter>(SharedWithin.Scope).For<IStateMachineInterpreter>();
