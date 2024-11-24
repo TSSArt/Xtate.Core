@@ -17,24 +17,31 @@
 
 namespace Xtate.Core;
 
-public interface ITaskMonitor
+[Obsolete] //TODO:delete
+public interface TaskMonitorOld
 {
-	/// <summary>
-	///     Collects a ValueTask into a private pool and tracks its successful completion.
-	/// </summary>
-	/// <param name="valueTask">The ValueTask to collect.</param>
-	ValueTask RunAsync(ValueTask valueTask); //TODO: delete1
+	[Obsolete]
+	ValueTask RunAsync(ValueTask valueTask);
 
-	/// <summary>
-	///     Collects a ValueTask of type T into a private pool and tracks its successful completion.
-	/// </summary>
-	/// <typeparam name="T">The type of the result produced by the ValueTask.</typeparam>
-	/// <param name="valueTask">The ValueTask to collect.</param>
+	[Obsolete]
 	ValueTask RunAsync<T>(ValueTask<T> valueTask);
 
-	/// <summary>
-	///     Collects a Task into a private pool and tracks its successful completion.
-	/// </summary>
-	/// <param name="task">The Task to collect.</param>
+	[Obsolete]
 	ValueTask RunAsync(Task task);
+
+	void Run(Func<Task> factory);
+
+	void Run<TArg>(Func<TArg, Task> factory, TArg argument);
+
+	Task RunAndWait(Func<Task> factory, CancellationToken token);
+
+	Task RunAndWait<TArg>(Func<TArg, Task> factory, TArg argument, CancellationToken token);
+
+	Task<TResult> RunAndWait<TResult>(Func<Task<TResult>> factory, CancellationToken token);
+
+	Task<TResult> RunAndWait<TResult, TArg>(Func<TArg, Task<TResult>> factory, TArg argument, CancellationToken token);
+
+	ValueTask<TResult> RunAndWait<TResult>(Func<ValueTask<TResult>> factory, CancellationToken token);
+
+	ValueTask<TResult> RunAndWait<TResult, TArg>(Func<TArg, ValueTask<TResult>> factory, TArg argument, CancellationToken token);
 }

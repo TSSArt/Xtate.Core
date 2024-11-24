@@ -16,7 +16,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using Xtate.IoC;
-using IServiceProvider = Xtate.IoC.IServiceProvider;
 
 namespace Xtate.ExternalService;
 
@@ -32,7 +31,7 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 
 	public required IExternalServiceCollection ExternalServiceCollection { private get; [UsedImplicitly] init; }
 
-	public required ITaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
+	public required TaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
 
 #region Interface IAsyncDisposable
 
@@ -63,21 +62,17 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 	{
 		await using var registration = SecurityContextRegistrationFactory(SecurityContextType.InvokedService).ConfigureAwait(false);
 
-		var externalServiceClass = await ExternalServiceClassFactory(invokeData).ConfigureAwait(false);
-
-		var serviceScope = CreateServiceScope(invokeData.InvokeId, externalServiceClass);
-
 		IExternalServiceRunner? runner = default;
 
 		try
 		{
-			runner = await Start(serviceScope.ServiceProvider, invokeData.InvokeId).WaitAsync(TaskMonitor, token).ConfigureAwait(false);
+			runner = await TaskMonitor.RunAndWait(static tuple => tuple.Item1.Start(tuple.invokeData), (this, invokeData), token).ConfigureAwait(false);
 		}
 		finally
 		{
 			if (runner is not null)
 			{
-				await WaitAndCleanup(invokeData.InvokeId, runner).Forget(TaskMonitor).ConfigureAwait(false);
+				TaskMonitor.Run(static tuple => tuple.Item1.WaitAndCleanup(tuple.invokeData.InvokeId, tuple.runner), (this, invokeData, runner));
 			}
 			else
 			{
@@ -90,14 +85,18 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 
 #endregion
 
-	private async ValueTask<IExternalServiceRunner> Start(IServiceProvider serviceProvider, InvokeId invokeId)
+	private async ValueTask<IExternalServiceRunner> Start(InvokeData invokeData)
 	{
-		if (await serviceProvider.GetService<IEventDispatcher>().ConfigureAwait(false) is { } eventDispatcher)
+		var externalServiceClass = await ExternalServiceClassFactory(invokeData).ConfigureAwait(false);
+
+		var serviceScope = CreateServiceScope(invokeData.InvokeId, externalServiceClass);
+
+		if (await serviceScope.ServiceProvider.GetService<IEventDispatcher>().ConfigureAwait(false) is { } eventDispatcher)
 		{
-			ExternalServiceCollection.Subscribe(invokeId, eventDispatcher);
+			ExternalServiceCollection.Subscribe(invokeData.InvokeId, eventDispatcher);
 		}
 
-		return await serviceProvider.GetRequiredService<IExternalServiceRunner>().ConfigureAwait(false);
+		return await serviceScope.ServiceProvider.GetRequiredService<IExternalServiceRunner>().ConfigureAwait(false);
 	}
 
 	private IServiceScope CreateServiceScope(InvokeId invokeId, ExternalServiceClass externalServiceClass)

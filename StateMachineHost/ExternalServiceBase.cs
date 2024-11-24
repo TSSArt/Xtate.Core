@@ -21,6 +21,10 @@ public abstract class ExternalServiceBase : IExternalService
 {
 	private readonly LazyTask<DataModelValue> _lazyTask = default!;
 
+	private readonly CancellationToken? _destroyToken;
+
+	private readonly TaskMonitor _taskMonitor;
+
 	[UsedImplicitly]
 	public required IExternalServiceSource ExternalServiceSourceLocal
 	{
@@ -43,8 +47,26 @@ public abstract class ExternalServiceBase : IExternalService
 	{
 		init
 		{
-			DestroyToken = value.Token;
-			_lazyTask = new LazyTask<DataModelValue>(Execute, value.TaskMonitor, value.Token);
+			_destroyToken = value.Token;
+
+			if (_taskMonitor is not null && _lazyTask is null)
+			{
+				_lazyTask = new LazyTask<DataModelValue>(Execute, _taskMonitor, _destroyToken.Value);
+			}
+		}
+	}
+
+	[UsedImplicitly]
+	public required TaskMonitor TaskMonitorLocal
+	{
+		init
+		{
+			_taskMonitor = value;
+
+			if (_destroyToken is not null && _lazyTask is null)
+			{
+				_lazyTask = new LazyTask<DataModelValue>(Execute, _taskMonitor, _destroyToken.Value);
+			}
 		}
 	}
 
@@ -56,7 +78,7 @@ public abstract class ExternalServiceBase : IExternalService
 
 	protected DataModelValue Parameters { get; private init; }
 
-	protected CancellationToken DestroyToken { get; private init; }
+	protected CancellationToken DestroyToken => _destroyToken.Value;
 
 #region Interface IExternalService
 

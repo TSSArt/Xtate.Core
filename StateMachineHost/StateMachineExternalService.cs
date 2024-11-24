@@ -31,7 +31,7 @@ public class StateMachineExternalService : ExternalServiceBase, IEventDispatcher
 
 	public required IStateMachineCollection StateMachineCollection { private get; [UsedImplicitly] init; }
 
-	public required ITaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
+	public required TaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
 
 	public required Func<Uri, DataModelValue, StateMachineClass> LocationStateMachineClassFactory { private get; [UsedImplicitly] init; }
 
@@ -96,7 +96,7 @@ public class StateMachineExternalService : ExternalServiceBase, IEventDispatcher
 		{
 			_sessionId = default;
 
-			StateMachineCollection.Destroy(sessionId).Forget(TaskMonitor);
+			TaskMonitor.Run(static tuple => tuple.StateMachineCollection.Destroy(tuple.sessionId) , (StateMachineCollection, sessionId));
 		}
 	}
 
