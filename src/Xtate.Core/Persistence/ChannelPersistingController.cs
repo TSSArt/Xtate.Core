@@ -16,21 +16,18 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Threading.Channels;
-using TaskExtensions = Xtate.Core.TaskExtensions;
 
 namespace Xtate.Persistence;
 
 internal sealed class ChannelPersistingController<T> : Channel<T>, IDisposable
 {
-
-
 	private const int Head = 0;
 
 	private const int Tail = 1;
 
 	private readonly Channel<T> _baseChannel;
 
-	private readonly TaskCompletionSource<int> _initializedTcs = new();
+	private readonly TaskCompletionSource _initializedTcs = new();
 
 	private Bucket _bucket;
 
@@ -52,7 +49,7 @@ internal sealed class ChannelPersistingController<T> : Channel<T>, IDisposable
 
 #region Interface IDisposable
 
-	public void Dispose() => _initializedTcs.TrySetResult(0);
+	public void Dispose() => _initializedTcs.TrySetResult();
 
 #endregion
 
@@ -78,7 +75,7 @@ internal sealed class ChannelPersistingController<T> : Channel<T>, IDisposable
 			}
 		}
 
-		_initializedTcs.TrySetResult(0);
+		_initializedTcs.TrySetResult();
 	}
 
 	private class ChannelReader(ChannelPersistingController<T> parent) : ChannelReader<T>
@@ -89,8 +86,8 @@ internal sealed class ChannelPersistingController<T> : Channel<T>, IDisposable
 
 		public override async ValueTask<bool> WaitToReadAsync(CancellationToken token = default)
 		{
-			await TaskExtensions.WaitAsync(parent._initializedTcs.Task, default, token).ConfigureAwait(false);
-
+			await parent._initializedTcs.Task.WaitAsync(token).ConfigureAwait(false);
+			
 			await parent._storageLock!.WaitAsync(token).ConfigureAwait(false);
 
 			try
@@ -105,7 +102,7 @@ internal sealed class ChannelPersistingController<T> : Channel<T>, IDisposable
 
 		public override async ValueTask<T> ReadAsync(CancellationToken token = default)
 		{
-			await TaskExtensions.WaitAsync(parent._initializedTcs.Task, default, token).ConfigureAwait(false);
+			await parent._initializedTcs.Task.WaitAsync(token).ConfigureAwait(false);
 
 			await parent._storageLock!.WaitAsync(token).ConfigureAwait(false);
 
@@ -143,7 +140,7 @@ internal sealed class ChannelPersistingController<T> : Channel<T>, IDisposable
 
 		public override async ValueTask<bool> WaitToWriteAsync(CancellationToken token = default)
 		{
-			await TaskExtensions.WaitAsync(parent._initializedTcs.Task, default, token).ConfigureAwait(false);
+			await parent._initializedTcs.Task.WaitAsync(token).ConfigureAwait(false);
 
 			await parent._storageLock!.WaitAsync(token).ConfigureAwait(false);
 
@@ -161,7 +158,7 @@ internal sealed class ChannelPersistingController<T> : Channel<T>, IDisposable
 		{
 			if (item is null) throw new ArgumentNullException(nameof(item));
 
-			await TaskExtensions.WaitAsync(parent._initializedTcs.Task, default, token).ConfigureAwait(false);
+			await parent._initializedTcs.Task.WaitAsync(token).ConfigureAwait(false);
 
 			await parent._storageLock!.WaitAsync(token).ConfigureAwait(false);
 

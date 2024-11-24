@@ -21,7 +21,7 @@ public class LazyTask : LazyTask<ValueTuple>
 {
 	public LazyTask(Func<ValueTask> factory) : base(Converter(factory)) { }
 
-	public LazyTask(Func<ValueTask> factory, ITaskMonitor? taskCollector, CancellationToken token) : base(Converter(factory), taskCollector, token) { }
+	public LazyTask(Func<ValueTask> factory, TaskMonitor? taskCollector, CancellationToken token) : base(Converter(factory), taskCollector, token) { }
 
 	private static Func<ValueTask<ValueTuple>> Converter(Func<ValueTask> factory) =>
 		async () =>
@@ -38,9 +38,10 @@ public class LazyTask<T>
 
 	private TaskCompletionSource<T> _taskCompletionSource = default!;
 
-	private readonly CancellationToken _token;
+	[SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Local")]
+	private CancellationToken _token;
 
-	private readonly ITaskMonitor? _taskMonitor;
+	private readonly TaskMonitor? _taskMonitor;
 
 	private readonly Func<ValueTask<T>> _factory;
 
@@ -51,7 +52,7 @@ public class LazyTask<T>
 		_taskMonitor = default;
 	}
 
-	public LazyTask(Func<ValueTask<T>> factory, ITaskMonitor? taskMonitor, CancellationToken token)
+	public LazyTask(Func<ValueTask<T>> factory, TaskMonitor? taskMonitor, CancellationToken token)
 	{
 		_factory = factory;
 		_token = token;
@@ -76,9 +77,14 @@ public class LazyTask<T>
 
 			_cancellationTokenRegistration = _token.Register(static s => ((LazyTask<T>) s!).TokenCancelled(), this);
 
-			var executeTask = Execute();
-
-			_taskMonitor?.RunAsync(executeTask);
+			if (_taskMonitor is not null)
+			{
+				_taskMonitor.Run(static lazyTask => lazyTask.Execute(), this);
+			}
+			else
+			{
+				Execute().Preserve();
+			}
 
 			return tcs.Task;
 		}
