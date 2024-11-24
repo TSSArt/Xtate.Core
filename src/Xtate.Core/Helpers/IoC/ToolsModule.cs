@@ -32,7 +32,7 @@ public class ToolsModule : Module<LoggingModule>
 		Services.AddType<ServiceList<Any>>();
 		Services.AddTypeSync<ServiceSyncList<Any>>();
 
-		Services.AddForwarding(sp => new DisposeToken(sp.DisposeToken, sp.GetRequiredServiceSync<ITaskMonitor>()));
-		Services.AddSharedImplementationSync<TaskMonitor>(SharedWithin.Container).For<ITaskMonitor>();
+		Services.AddForwarding(sp => new DisposeToken(sp.DisposeToken));
+		Services.AddSharedType<TaskMonitor>(SharedWithin.Scope);
 	}
 }

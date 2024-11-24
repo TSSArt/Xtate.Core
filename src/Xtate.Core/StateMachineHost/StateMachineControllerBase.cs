@@ -48,7 +48,7 @@ public abstract class StateMachineControllerBase : IStateMachineController, INot
 
 	public required IStateMachineInterpreter StateMachineInterpreter { private get; [UsedImplicitly] init; }
 	
-	public required ITaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
+	public required TaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
 
 	protected abstract Channel<IIncomingEvent> EventChannel { get; }
 
@@ -106,10 +106,9 @@ public abstract class StateMachineControllerBase : IStateMachineController, INot
 
 	public Task Wait() => GetResult().AsTask();
 
-
 	protected virtual async ValueTask Start()
 	{
-		await ExecuteAsync().Forget(TaskMonitor).ConfigureAwait(false);
+		TaskMonitor.Run(static controller => controller.ExecuteAsync(), this);
 
 		await _acceptedTcs.Task.ConfigureAwait(false); //TODO: cancel _acceptedTask on dispose
 	}

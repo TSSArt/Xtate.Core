@@ -30,7 +30,7 @@ public class StateMachineScopeManager : IStateMachineScopeManager, IDisposable, 
 
 	public required Func<SecurityContextType, SecurityContextRegistration> SecurityContextRegistrationFactory { private get; [UsedImplicitly] init; }
 
-	public required ITaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
+	public required TaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
 
 #region Interface IAsyncDisposable
 
@@ -74,7 +74,7 @@ public class StateMachineScopeManager : IStateMachineScopeManager, IDisposable, 
 		{
 			if (runner is not null)
 			{
-				await WaitAndCleanup(stateMachineClass.SessionId, runner).Forget(TaskMonitor).ConfigureAwait(false);
+				TaskMonitor.Run(static tuple => tuple.Item1.WaitAndCleanup(tuple.SessionId, tuple.runner), (this, stateMachineClass.SessionId, runner));
 			}
 			else
 			{

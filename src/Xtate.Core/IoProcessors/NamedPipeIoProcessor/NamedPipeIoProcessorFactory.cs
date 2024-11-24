@@ -33,7 +33,7 @@ public sealed class NamedPipeIoProcessorFactory : IIoProcessorFactory
 
 	private readonly string _name;
 
-	public required ITaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
+	public required TaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
 
 	public NamedPipeIoProcessorFactory(string name, int? maxMessageSize = default)
 	{
@@ -68,7 +68,7 @@ public sealed class NamedPipeIoProcessorFactory : IIoProcessorFactory
 
 		for (var i = 0; i < FreeSlotsCount; i ++)
 		{
-			await processor.StartListener().Forget(TaskMonitor).ConfigureAwait(false);
+			TaskMonitor.Run(static processor => processor.StartListener(), processor);
 		}
 
 		await processor.CheckPipeline(token).ConfigureAwait(false);
