@@ -60,7 +60,7 @@ public class DestroyAction : AsyncAction
 	{
 		var sessionId = await GetSessionId().ConfigureAwait(false);
 
-		await TaskMonitor.RunAndWait(static tuple => tuple.StateMachineCollection.Destroy(tuple.sessionId), (StateMachineCollection, sessionId), DisposeToken).ConfigureAwait(false);
+		await StateMachineCollection.Destroy(sessionId).WaitAsync(TaskMonitor, DisposeToken).ConfigureAwait(false);
 	}
 
 	private async ValueTask<SessionId> GetSessionId()

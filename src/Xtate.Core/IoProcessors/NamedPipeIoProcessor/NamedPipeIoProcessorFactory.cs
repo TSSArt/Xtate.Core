@@ -68,7 +68,7 @@ public sealed class NamedPipeIoProcessorFactory : IIoProcessorFactory
 
 		for (var i = 0; i < FreeSlotsCount; i ++)
 		{
-			TaskMonitor.Run(static processor => processor.StartListener(), processor);
+			processor.StartListener().Forget(TaskMonitor);
 		}
 
 		await processor.CheckPipeline(token).ConfigureAwait(false);

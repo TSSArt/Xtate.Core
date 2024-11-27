@@ -113,11 +113,7 @@ public class StartAction : AsyncAction
 
 		var locationStateMachine = new LocationStateMachine(location) { SessionId = sessionId };
 
-		await TaskMonitor.RunAndWait(
-							 static tuple => tuple.StateMachineScopeManager.Start(tuple.locationStateMachine, tuple.securityContextType),
-							 (StateMachineScopeManager, locationStateMachine, securityContextType),
-							 DisposeToken)
-						 .ConfigureAwait(false);
+		await StateMachineScopeManager.Start(locationStateMachine, securityContextType).WaitAsync(TaskMonitor, DisposeToken).ConfigureAwait(false);
 
 		if (_sessionIdLocation is not null)
 		{
