@@ -21,130 +21,166 @@ public class TaskMonitor
 {
 	public required ILogger<TaskMonitor> Logger { protected get; [UsedImplicitly] init; }
 
-	public void Run(Func<Task> factory) => _ = Logging<ValueTuple>(factory, argument: default);
+	public Task WaitAsync(Task task, CancellationToken token) =>
+		task.IsCompleted || !token.CanBeCanceled
+			? task
+			: token.IsCancellationRequested
+				? Task.FromCanceled(token)
+				: WaitAndMonitor(task, token);
 
-	public void Run<TArg>(Func<TArg, Task> factory, TArg argument) => _ = Logging(factory, argument);
+	public Task<TResult> WaitAsync<TResult>(Task<TResult> task, CancellationToken token) =>
+		task.IsCompleted || !token.CanBeCanceled
+			? task
+			: token.IsCancellationRequested
+				? Task.FromCanceled<TResult>(token)
+				: WaitAndMonitor(task, token);
 
-	public void Run<TResult>(Func<Task<TResult>> factory) => _ = Logging<TResult, ValueTuple>(factory, argument: default);
+	public ValueTask WaitAsync(ValueTask valueTask, CancellationToken token) =>
+		valueTask.IsCompleted || !token.CanBeCanceled
+			? valueTask
+			: new ValueTask(
+				token.IsCancellationRequested
+					? Task.FromCanceled(token)
+					: WaitAndMonitor(valueTask.AsTask(), token));
 
-	public void Run<TResult, TArg>(Func<TArg, Task<TResult>> factory, TArg argument) => _ = Logging<TResult, TArg>(factory, argument);
+	public ValueTask<TResult> WaitAsync<TResult>(ValueTask<TResult> valueTask, CancellationToken token) =>
+		valueTask.IsCompleted || !token.CanBeCanceled
+			? valueTask
+			: new ValueTask<TResult>(
+				token.IsCancellationRequested
+					? Task.FromCanceled<TResult>(token)
+					: WaitAndMonitor(valueTask.AsTask(), token));
 
-	public void Run(Func<ValueTask> factory) => _ = Logging<ValueTuple>(factory, argument: default);
-
-	public void Run<TArg>(Func<TArg, ValueTask> factory, TArg argument) => _ = Logging(factory, argument);
-
-	public void Run<TResult>(Func<ValueTask<TResult>> factory) => _ = Logging<TResult, ValueTuple>(factory, argument: default);
-
-	public void Run<TResult, TArg>(Func<TArg, ValueTask<TResult>> factory, TArg argument) => _ = Logging<TResult, TArg>(factory, argument);
-
-	public Task RunAndWait(Func<Task> factory, CancellationToken token) =>
-		token.CanBeCanceled ? token.IsCancellationRequested ? Task.FromCanceled(token) : Logging<ValueTuple>(factory, argument: default).WaitAsync(token) : factory();
-
-	public Task RunAndWait<TArg>(Func<TArg, Task> factory, TArg argument, CancellationToken token) =>
-		token.CanBeCanceled ? token.IsCancellationRequested ? Task.FromCanceled(token) : Logging(factory, argument).WaitAsync(token) : factory(argument);
-
-	public Task<TResult> RunAndWait<TResult>(Func<Task<TResult>> factory, CancellationToken token) =>
-		token.CanBeCanceled ? token.IsCancellationRequested ? Task.FromCanceled<TResult>(token) : Logging<TResult, ValueTuple>(factory, argument: default).WaitAsync(token) : factory();
-
-	public Task<TResult> RunAndWait<TResult, TArg>(Func<TArg, Task<TResult>> factory, TArg argument, CancellationToken token) =>
-		token.CanBeCanceled ? token.IsCancellationRequested ? Task.FromCanceled<TResult>(token) : Logging<TResult, TArg>(factory, argument).WaitAsync(token) : factory(argument);
-
-	public ValueTask RunAndWait(Func<ValueTask> factory, CancellationToken token) =>
-		token.CanBeCanceled ? new ValueTask(token.IsCancellationRequested ? Task.FromCanceled(token) : Logging<ValueTuple>(factory, argument: default).WaitAsync(token)) : factory();
-
-	public ValueTask RunAndWait<TArg>(Func<TArg, ValueTask> factory, TArg argument, CancellationToken token) =>
-		token.CanBeCanceled ? new ValueTask(token.IsCancellationRequested ? Task.FromCanceled(token) : Logging(factory, argument).WaitAsync(token)) : factory(argument);
-
-	public ValueTask<TResult> RunAndWait<TResult>(Func<ValueTask<TResult>> factory, CancellationToken token) =>
-		token.CanBeCanceled
-			? new ValueTask<TResult>(token.IsCancellationRequested ? Task.FromCanceled<TResult>(token) : Logging<TResult, ValueTuple>(factory, argument: default).WaitAsync(token))
-			: factory();
-
-	public ValueTask<TResult> RunAndWait<TResult, TArg>(Func<TArg, ValueTask<TResult>> factory, TArg argument, CancellationToken token) =>
-		token.CanBeCanceled
-			? new ValueTask<TResult>(token.IsCancellationRequested ? Task.FromCanceled<TResult>(token) : Logging<TResult, TArg>(factory, argument).WaitAsync(token))
-			: factory(argument);
-
-	private async Task Logging<TArg>(Delegate factory, TArg argument)
+	private async Task WaitAndMonitor(Task task, CancellationToken token)
 	{
 		try
 		{
-			switch (factory)
+			await task.WaitAsync(token).ConfigureAwait(false);
+		}
+		finally
+		{
+			if (!task.IsCompleted)
 			{
-				case Func<ValueTask> func:
-					await func().ConfigureAwait(false);
-
-					break;
-
-				case Func<TArg, ValueTask> func:
-					await func(argument).ConfigureAwait(false);
-
-					break;
-
-				case Func<Task> func:
-					await func().ConfigureAwait(false);
-
-					break;
-
-				case Func<TArg, Task> func:
-					await func(argument).ConfigureAwait(false);
-
-					break;
-
-				default:
-					throw Infra.Unmatched(factory);
+				_ = MonitorTaskCompletion(task);
 			}
-
-			await TaskCompletedSuccessfully().ConfigureAwait(false);
-		}
-		catch (OperationCanceledException ex)
-		{
-			await TaskCancelled(ex).ConfigureAwait(false);
-
-			throw;
-		}
-		catch (Exception ex)
-		{
-			await TaskFailed(ex).ConfigureAwait(false);
-
-			throw;
 		}
 	}
 
-	private async Task<TResult> Logging<TResult, TArg>(Delegate factory, TArg argument)
+	private async Task<TResult> WaitAndMonitor<TResult>(Task<TResult> task, CancellationToken token)
 	{
 		try
 		{
-			var result = factory switch
-						 {
-							 Func<Task<TResult>> func            => await func().ConfigureAwait(false),
-							 Func<TArg, Task<TResult>> func      => await func(argument).ConfigureAwait(false),
-							 Func<ValueTask<TResult>> func       => await func().ConfigureAwait(false),
-							 Func<TArg, ValueTask<TResult>> func => await func(argument).ConfigureAwait(false),
-							 _                                   => throw Infra.Unmatched(factory)
-						 };
+			return await task.WaitAsync(token).ConfigureAwait(false);
+		}
+		finally
+		{
+			if (!task.IsCompleted)
+			{
+				_ = MonitorTaskCompletion(task);
+			}
+		}
+	}
 
-			await TaskCompletedSuccessfully().ConfigureAwait(false);
+	public void Forget(Task task)
+	{
+		if (task.Status is TaskStatus.RanToCompletion)
+		{
+			return;
+		}
 
-			return result;
+		if (task.Status is TaskStatus.Faulted or TaskStatus.Canceled)
+		{
+			task.GetAwaiter().GetResult();
+
+			return;
+		}
+
+		_ = MonitorTaskCompletion(task);
+	}
+
+	public void Forget(ValueTask valueTask)
+	{
+		if (valueTask.IsCompletedSuccessfully)
+		{
+			return;
+		}
+
+		if (valueTask.IsFaulted || valueTask.IsCanceled)
+		{
+			valueTask.GetAwaiter().GetResult();
+
+			return;
+		}
+
+		_ = MonitorTaskCompletion(valueTask);
+	}
+
+	public void Forget<TResult>(ValueTask<TResult> valueTask)
+	{
+		if (valueTask.IsCompletedSuccessfully)
+		{
+			return;
+		}
+
+		if (valueTask.IsFaulted || valueTask.IsCanceled)
+		{
+			valueTask.GetAwaiter().GetResult();
+
+			return;
+		}
+
+		_ = MonitorTaskCompletion(valueTask);
+	}
+
+	private async Task MonitorTaskCompletion(Task task)
+	{
+		try
+		{
+			await task.ConfigureAwait(false);
 		}
 		catch (OperationCanceledException ex)
 		{
 			await TaskCancelled(ex).ConfigureAwait(false);
-
-			throw;
 		}
 		catch (Exception ex)
 		{
 			await TaskFailed(ex).ConfigureAwait(false);
-
-			throw;
 		}
 	}
 
+	private async Task MonitorTaskCompletion(ValueTask valueTask)
+	{
+		try
+		{
+			await valueTask.ConfigureAwait(false);
+		}
+		catch (OperationCanceledException ex)
+		{
+			await TaskCancelled(ex).ConfigureAwait(false);
+		}
+		catch (Exception ex)
+		{
+			await TaskFailed(ex).ConfigureAwait(false);
+		}
+	}
+
+	private async Task MonitorTaskCompletion<TResult>(ValueTask<TResult> valueTask)
+	{
+		try
+		{
+			await valueTask.ConfigureAwait(false);
+		}
+		catch (OperationCanceledException ex)
+		{
+			await TaskCancelled(ex).ConfigureAwait(false);
+		}
+		catch (Exception ex)
+		{
+			await TaskFailed(ex).ConfigureAwait(false);
+		}
+	}
+	
 	protected virtual ValueTask TaskCancelled(OperationCanceledException ex) => Logger.Write(Level.Warning, eventId: 1, Resources.Message_TaskWasCanceled, ex);
 
 	protected virtual ValueTask TaskFailed(Exception ex) => Logger.Write(Level.Error, eventId: 2, Resources.Message_TaskFailed, ex);
-
-	protected virtual ValueTask TaskCompletedSuccessfully() => default;
 }

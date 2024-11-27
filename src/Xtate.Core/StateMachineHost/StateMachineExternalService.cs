@@ -96,7 +96,7 @@ public class StateMachineExternalService : ExternalServiceBase, IEventDispatcher
 		{
 			_sessionId = default;
 
-			TaskMonitor.Run(static tuple => tuple.StateMachineCollection.Destroy(tuple.sessionId) , (StateMachineCollection, sessionId));
+			StateMachineCollection.Destroy(sessionId).Forget(TaskMonitor);
 		}
 	}
 

@@ -63,7 +63,7 @@ public class InProcEventScheduler : IEventScheduler, IDisposable, IAsyncDisposab
 
 		AddScheduledEvent(scheduledEvent);
 
-		TaskMonitor.Run(static tuple => tuple.Item1.DelayedFire(tuple.scheduledEvent), (this, scheduledEvent));
+		DelayedFire(scheduledEvent).Forget(TaskMonitor);
 
 		return default;
 	}

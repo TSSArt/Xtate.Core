@@ -66,13 +66,13 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 
 		try
 		{
-			runner = await TaskMonitor.RunAndWait(static tuple => tuple.Item1.Start(tuple.invokeData), (this, invokeData), token).ConfigureAwait(false);
+			runner = await Start(invokeData).WaitAsync(TaskMonitor, token).ConfigureAwait(false);
 		}
 		finally
 		{
 			if (runner is not null)
 			{
-				TaskMonitor.Run(static tuple => tuple.Item1.WaitAndCleanup(tuple.invokeData.InvokeId, tuple.runner), (this, invokeData, runner));
+				WaitAndCleanup(invokeData.InvokeId, runner).Forget(TaskMonitor);
 			}
 			else
 			{

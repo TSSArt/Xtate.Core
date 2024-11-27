@@ -197,7 +197,7 @@ public class NamedPipeIoProcessor : IoProcessorBase, IDisposable
 			{
 				await pipeStream.WaitForConnectionAsync(_stopTokenSource.Token).ConfigureAwait(false);
 
-				TaskMonitor.Run(static processor => processor.StartListener(), this);
+				StartListener().Forget(TaskMonitor);
 
 				await ReceiveMessage(pipeStream, memoryStream, _stopTokenSource.Token).ConfigureAwait(false);
 

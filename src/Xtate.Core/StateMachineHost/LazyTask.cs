@@ -34,16 +34,16 @@ public class LazyTask : LazyTask<ValueTuple>
 
 public class LazyTask<T>
 {
+	private readonly Func<ValueTask<T>> _factory;
+
+	private readonly TaskMonitor? _taskMonitor;
+
 	private CancellationTokenRegistration _cancellationTokenRegistration;
 
 	private TaskCompletionSource<T> _taskCompletionSource = default!;
 
-	[SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Local")]
+	[SuppressMessage(category: "ReSharper", checkId: "FieldCanBeMadeReadOnly.Local")]
 	private CancellationToken _token;
-
-	private readonly TaskMonitor? _taskMonitor;
-
-	private readonly Func<ValueTask<T>> _factory;
 
 	public LazyTask(Func<ValueTask<T>> factory)
 	{
@@ -75,15 +75,15 @@ public class LazyTask<T>
 				return existedTcs.Task;
 			}
 
-			_cancellationTokenRegistration = _token.Register(static s => ((LazyTask<T>) s!).TokenCancelled(), this);
+			_cancellationTokenRegistration = _token.Register(static s => ((LazyTask<T>) s!).TokenCancelled(), this, useSynchronizationContext: false);
 
 			if (_taskMonitor is not null)
 			{
-				_taskMonitor.Run(static lazyTask => lazyTask.Execute(), this);
+				Execute().Forget(_taskMonitor);
 			}
 			else
 			{
-				Execute().Preserve();
+				Execute().Forget();
 			}
 
 			return tcs.Task;

@@ -108,7 +108,7 @@ public abstract class StateMachineControllerBase : IStateMachineController, INot
 
 	protected virtual async ValueTask Start()
 	{
-		TaskMonitor.Run(static controller => controller.ExecuteAsync(), this);
+		ExecuteAsync().Forget(TaskMonitor);
 
 		await _acceptedTcs.Task.ConfigureAwait(false); //TODO: cancel _acceptedTask on dispose
 	}
