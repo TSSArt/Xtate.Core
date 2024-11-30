@@ -12,7 +12,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
 // 
-// You should have received a copy of the GNU Affero GeneraInterpreterDebugLogEnricherl Public License
+// You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using Xtate.DataModel;
@@ -27,6 +27,7 @@ public class StateMachineInterpreterModule : Module<DataModelHandlersModule, Int
 		Services.AddSharedImplementation<DefaultStateMachineSessionId>(SharedWithin.Scope).For<IStateMachineSessionId>(Option.IfNotRegistered);
 		Services.AddImplementation<NoStateMachineArguments>().For<IStateMachineArguments>(Option.IfNotRegistered);
 
+		Services.AddImplementation<NoNotifyStateChanged>().For<INotifyStateChanged>(Option.IfNotRegistered);
 		Services.AddImplementation<NoExternalConnections>().For<IExternalCommunication>(Option.IfNotRegistered).For<IExternalServiceManager>(Option.IfNotRegistered);
 
 		Services.AddImplementation<InterpreterInfoLogEnricher<Any>>().For<ILogEnricher<Any>>();

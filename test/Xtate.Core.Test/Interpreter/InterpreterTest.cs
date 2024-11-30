@@ -58,7 +58,7 @@ public class InterpreterTest
 										  EventQueueReader = eventQueueMock.Object,
 										  Logger = loggerMock.Object,
 										  Model = interpreterModelMock.Object,
-										  NotifyStateChanged = null,
+										  NotifyStateChanged = new Mock<INotifyStateChanged>().Object,
 										  UnhandledErrorBehaviour = null,
 										  StateMachineArguments = null,
 										  StateMachineRuntimeError = new StateMachineRuntimeError()

@@ -16,16 +16,19 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Threading.Channels;
+using Xtate.ExternalService;
 using Xtate.IoC;
 
 namespace Xtate.Core;
 
-public abstract class StateMachineControllerBase : IStateMachineController, INotifyStateChanged, IAsyncDisposable, IAsyncInitialization
+public abstract class StateMachineControllerBase : IStateMachineController/*, INotifyStateChanged*/, IAsyncDisposable, IAsyncInitialization
 
 {
-	private readonly TaskCompletionSource _acceptedTcs = new();
+	public required IStateMachineStatus StateMachineStatus { private get; [UsedImplicitly] init; }
 
 	private readonly TaskCompletionSource<DataModelValue> _completedTcs = new();
+
+	
 
 	private readonly CancellationTokenSource _destroyTokenSource;
 
@@ -87,30 +90,13 @@ public abstract class StateMachineControllerBase : IStateMachineController, INot
 	public ValueTask<DataModelValue> GetResult() => new(_completedTcs.Task);
 
 #endregion
-
-#region Interface INotifyStateChanged
-
-	ValueTask INotifyStateChanged.OnChanged(StateMachineInterpreterState state)
-	{
-		StateChanged(state);
-
-		if (state == StateMachineInterpreterState.Accepted)
-		{
-			_acceptedTcs.TrySetResult();
-		}
-
-		return default;
-	}
-
-#endregion
-
-	public Task Wait() => GetResult().AsTask();
+	//public Task Wait() => GetResult().AsTask();
 
 	protected virtual async ValueTask Start()
 	{
 		ExecuteAsync().Forget(TaskMonitor);
 
-		await _acceptedTcs.Task.ConfigureAwait(false); //TODO: cancel _acceptedTask on dispose
+		await StateMachineStatus.WhenAccepted().ConfigureAwait(false);
 	}
 
 	public ValueTask Destroy()
@@ -153,7 +139,8 @@ public abstract class StateMachineControllerBase : IStateMachineController, INot
 				{
 					var result = await StateMachineInterpreter.RunAsync().ConfigureAwait(false);
 
-					_acceptedTcs.TrySetResult();
+					StateMachineStatus.Completed();
+
 					_completedTcs.TrySetResult(result);
 
 					return result;
@@ -164,16 +151,16 @@ public abstract class StateMachineControllerBase : IStateMachineController, INot
 			}
 			catch (OperationCanceledException ex)
 			{
-				//await _finalizer.ExecuteDeferredFinalization().ConfigureAwait(false);
-				_acceptedTcs.TrySetCanceled(ex.CancellationToken);
+				StateMachineStatus.Cancelled(ex.CancellationToken);
+
 				_completedTcs.TrySetCanceled(ex.CancellationToken);
 
 				throw;
 			}
 			catch (Exception ex)
 			{
-				//await _finalizer.ExecuteDeferredFinalization().ConfigureAwait(false);
-				_acceptedTcs.TrySetException(ex);
+				StateMachineStatus.Failed(ex);
+
 				_completedTcs.TrySetException(ex);
 
 				throw;

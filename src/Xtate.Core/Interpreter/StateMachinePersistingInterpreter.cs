@@ -231,14 +231,14 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 		Exit(StateBagKey.NotifyStarted);
 	}
 
-	protected override async ValueTask NotifyExited()
+	protected override async ValueTask NotifyCompleted()
 	{
 		if (Enter(StateBagKey.NotifyExited))
 		{
 			return;
 		}
 
-		await base.NotifyExited().ConfigureAwait(false);
+		await base.NotifyCompleted().ConfigureAwait(false);
 
 		Exit(StateBagKey.NotifyExited);
 	}

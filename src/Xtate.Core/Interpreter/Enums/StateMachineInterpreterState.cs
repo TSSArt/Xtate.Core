@@ -19,11 +19,13 @@ namespace Xtate.Core;
 
 public enum StateMachineInterpreterState
 {
+	Initializing,
+
 	Accepted,
 
 	Started,
 
-	Exited,
+	Completed,
 
 	Waiting,
 

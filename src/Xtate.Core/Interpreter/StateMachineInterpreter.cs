@@ -64,7 +64,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
 	public required IInterpreterModel Model { private get; [UsedImplicitly] init; }
 
-	public required INotifyStateChanged? NotifyStateChanged { private get; [UsedImplicitly] init; }
+	public required INotifyStateChanged NotifyStateChanged { private get; [UsedImplicitly] init; }
 
 	public required IUnhandledErrorBehaviour? UnhandledErrorBehaviour { private get; [UsedImplicitly] init; }
 
@@ -87,7 +87,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
 	protected virtual ValueTask NotifyStarted() => NotifyInterpreterState(StateMachineInterpreterState.Started);
 
-	protected virtual ValueTask NotifyExited() => NotifyInterpreterState(StateMachineInterpreterState.Exited);
+	protected virtual ValueTask NotifyCompleted() => NotifyInterpreterState(StateMachineInterpreterState.Completed);
 
 	protected virtual ValueTask NotifyWaiting() => NotifyInterpreterState(StateMachineInterpreterState.Waiting);
 
@@ -114,10 +114,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 	{
 		await TraceInterpreterState(state).ConfigureAwait(false);
 
-		if (NotifyStateChanged is not null)
-		{
-			await NotifyStateChanged.OnChanged(state).ConfigureAwait(false);
-		}
+		await NotifyStateChanged.OnChanged(state).ConfigureAwait(false);
 	}
 
 	protected virtual async ValueTask Interpret()
@@ -156,7 +153,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 	protected virtual async ValueTask ExitSteps()
 	{
 		await ExitInterpreter().ConfigureAwait(false);
-		await NotifyExited().ConfigureAwait(false);
+		await NotifyCompleted().ConfigureAwait(false);
 	}
 
 	public virtual void TriggerDestroySignal(Exception? innerException = default)
