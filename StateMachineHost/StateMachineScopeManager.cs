@@ -110,13 +110,12 @@ public class StateMachineScopeManager : IStateMachineScopeManager, IDisposable, 
 
 	private async ValueTask<IStateMachineController> Start(IServiceProvider serviceProvider, SessionId sessionId, bool waitForCompletion)
 	{
-		var eventDispatcher = await serviceProvider.GetRequiredService<IEventDispatcher>().ConfigureAwait(false);
-		StateMachineCollection.Register(sessionId, eventDispatcher);
+		StateMachineCollection.Register(sessionId);
 
 		var runner = await serviceProvider.GetRequiredService<IStateMachineRunner>().ConfigureAwait(false);
 
 		var stateMachineController = await serviceProvider.GetRequiredService<IStateMachineController>().ConfigureAwait(false);
-		StateMachineCollection.Register(sessionId, stateMachineController);
+		StateMachineCollection.SetController(sessionId, stateMachineController);
 
 		if (waitForCompletion)
 		{

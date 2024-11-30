@@ -19,9 +19,9 @@ namespace Xtate;
 
 public interface IStateMachineCollection
 {
-	void Register(SessionId sessionId, IStateMachineController controller);
+	void Register(SessionId sessionId);
 
-	void Register(SessionId sessionId, IEventDispatcher eventDispatcher);
+	void SetController(SessionId sessionId, IStateMachineController controller);
 
 	void Unregister(SessionId sessionId);
 

@@ -230,7 +230,8 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 		{
 			EventQueueWriter = default!,
 			StateMachineInterpreter = default,
-			TaskMonitor = null
+			TaskMonitor = null,
+			StateMachineStatus = null
 		};
 
 	private static XmlReaderSettings GetXmlReaderSettings(XmlNameTable nameTable, ScxmlXmlResolver xmlResolver) =>

@@ -17,60 +17,62 @@
 
 namespace Xtate;
 
-using Endpoint = (IEventDispatcher? Dispatcher, IStateMachineController? Controller);
-
 public class StateMachineCollection : IStateMachineCollection
 {
-	private readonly ConcurrentDictionary<SessionId, Endpoint> _controllers = new();
+	private readonly ConcurrentDictionary<SessionId, TaskCompletionSource<IStateMachineController>> _controllers = new();
 
 #region Interface IStateMachineCollection
 
-	public ValueTask Dispatch(SessionId sessionId, IIncomingEvent incomingEvent, CancellationToken token)
+	public async ValueTask Dispatch(SessionId sessionId, IIncomingEvent incomingEvent, CancellationToken token)
 	{
-		if (_controllers.TryGetValue(sessionId, out var tuple) && tuple.Dispatcher is { } eventDispatcher)
+		if (_controllers.TryGetValue(sessionId, out var tcs))
 		{
+			var controller = await tcs.Task.ConfigureAwait(false);
+
 			if (incomingEvent is not IncomingEvent)
 			{
 				incomingEvent = new IncomingEvent(incomingEvent);
 			}
 
-			return eventDispatcher.Dispatch(incomingEvent, token);
+			await controller.Dispatch(incomingEvent, token).ConfigureAwait(false);
 		}
-
-		return default;
 	}
 
-	public ValueTask Destroy(SessionId sessionId) => _controllers.TryGetValue(sessionId, out var tuple) && tuple.Controller is { } controller ? controller.Destroy() : default;
-
-	public void Register(SessionId sessionId, IEventDispatcher eventDispatcher)
+	public async ValueTask Destroy(SessionId sessionId)
 	{
-		_controllers.AddOrUpdate(sessionId, static (_, dispatcher) => (dispatcher, default), Update, eventDispatcher);
-
-		return;
-
-		static Endpoint Update(SessionId _, Endpoint tuple, IEventDispatcher eventDispatcher)
+		if (_controllers.TryGetValue(sessionId, out var tcs))
 		{
-			Infra.Assert(tuple.Dispatcher is null);
-
-			return (eventDispatcher, tuple.Controller);
+			var controller = await tcs.Task.ConfigureAwait(false);
+			await controller.Destroy().ConfigureAwait(false);
 		}
 	}
 
-	public void Register(SessionId sessionId, IStateMachineController controller)
+	public void Register(SessionId sessionId)
 	{
-		_controllers.AddOrUpdate(sessionId, static (_, controller) => (default, controller), Update, controller);
+		var tryAdd = _controllers.TryAdd(sessionId, new TaskCompletionSource<IStateMachineController>());
 
-		return;
+		Infra.Assert(tryAdd);
+	}
 
-		static Endpoint Update(SessionId _, Endpoint tuple, IStateMachineController controller)
+	public void SetController(SessionId sessionId, IStateMachineController controller)
+	{
+		if (_controllers.TryGetValue(sessionId, out var tcs))
 		{
-			Infra.Assert(tuple.Controller is null);
-
-			return (tuple.Dispatcher, controller);
+			tcs.SetResult(controller);
+		}
+		else
+		{
+			Infra.Fail();
 		}
 	}
 
-	public void Unregister(SessionId sessionId) => _controllers.TryRemove(sessionId, out _);
+	public void Unregister(SessionId sessionId)
+	{
+		if (_controllers.TryRemove(sessionId, out var tcs))
+		{
+			tcs.TrySetCanceled();
+		}
+	}
 
 #endregion
 }
