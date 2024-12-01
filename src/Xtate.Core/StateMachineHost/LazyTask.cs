@@ -17,21 +17,6 @@
 
 namespace Xtate.ExternalService;
 
-public class LazyTask : LazyTask<ValueTuple>
-{
-	public LazyTask(Func<ValueTask> factory) : base(Converter(factory)) { }
-
-	public LazyTask(Func<ValueTask> factory, TaskMonitor? taskCollector, CancellationToken token) : base(Converter(factory), taskCollector, token) { }
-
-	private static Func<ValueTask<ValueTuple>> Converter(Func<ValueTask> factory) =>
-		async () =>
-		{
-			await factory().ConfigureAwait(false);
-
-			return default;
-		};
-}
-
 public class LazyTask<T>
 {
 	private readonly Func<ValueTask<T>> _factory;
@@ -40,7 +25,7 @@ public class LazyTask<T>
 
 	private CancellationTokenRegistration _cancellationTokenRegistration;
 
-	private TaskCompletionSource<T> _taskCompletionSource = default!;
+	private TaskCompletionSource<T>? _taskCompletionSource;
 
 	[SuppressMessage(category: "ReSharper", checkId: "FieldCanBeMadeReadOnly.Local")]
 	private CancellationToken _token;
@@ -92,12 +77,16 @@ public class LazyTask<T>
 
 	private void TokenCancelled()
 	{
+		Infra.NotNull(_taskCompletionSource);
+
 		_taskCompletionSource.TrySetCanceled(_token);
 		DisposeCancellationRegistration();
 	}
 
 	private async ValueTask Execute()
 	{
+		Infra.NotNull(_taskCompletionSource);
+
 		try
 		{
 			var result = await _factory().ConfigureAwait(false);

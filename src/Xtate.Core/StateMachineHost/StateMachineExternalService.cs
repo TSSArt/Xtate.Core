@@ -19,7 +19,7 @@ using Xtate.ExternalService;
 
 namespace Xtate.Core;
 
-public class StateMachineExternalService : ExternalServiceBase, IEventDispatcher, IDisposable, IAsyncDisposable
+public class StateMachineExternalService : ExternalServiceBase, IDisposable, IAsyncDisposable
 {
 	public class Provider() : ExternalServiceProviderBase<StateMachineExternalService>(Const.ScxmlServiceTypeId, Const.ScxmlServiceAliasTypeId);
 
@@ -42,9 +42,9 @@ public class StateMachineExternalService : ExternalServiceBase, IEventDispatcher
 	public async ValueTask DisposeAsync()
 	{
 		await DisposeAsyncCore().ConfigureAwait(false);
-		
+
 		Dispose(false);
-		
+
 		GC.SuppressFinalize(this);
 	}
 
@@ -61,9 +61,7 @@ public class StateMachineExternalService : ExternalServiceBase, IEventDispatcher
 
 #endregion
 
-#region Interface IEventDispatcher
-
-	public async ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token)
+	protected override async ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token)
 	{
 		if (_sessionId is { } sessionId)
 		{
@@ -72,8 +70,6 @@ public class StateMachineExternalService : ExternalServiceBase, IEventDispatcher
 			await StateMachineCollection.Dispatch(sessionId, incomingEvent, combinedToken.Token).ConfigureAwait(false);
 		}
 	}
-
-#endregion
 
 	protected override ValueTask<DataModelValue> Execute()
 	{

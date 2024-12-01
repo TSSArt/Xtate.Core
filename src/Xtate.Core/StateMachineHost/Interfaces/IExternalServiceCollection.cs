@@ -1,10 +1,14 @@
-﻿namespace Xtate.Core;
+﻿using Xtate.ExternalService;
+
+namespace Xtate.Core;
 
 public interface IExternalServiceCollection
 {
-	void Subscribe(InvokeId invokeId, IEventDispatcher eventDispatcher);
+	void Register(InvokeId invokeId);
 
-	void Unsubscribe(InvokeId invokeId);
+	void SetExternalService(InvokeId invokeId, IExternalService externalService);
+
+	void Unregister(InvokeId invokeId);
 
 	ValueTask Dispatch(InvokeId invokeId, IIncomingEvent incomingEvent, CancellationToken token);
 }

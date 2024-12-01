@@ -91,12 +91,14 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 
 		var serviceScope = CreateServiceScope(invokeData.InvokeId, externalServiceClass);
 
-		if (await serviceScope.ServiceProvider.GetService<IEventDispatcher>().ConfigureAwait(false) is { } eventDispatcher)
-		{
-			ExternalServiceCollection.Subscribe(invokeData.InvokeId, eventDispatcher);
-		}
+		ExternalServiceCollection.Register(invokeData.InvokeId);
 
-		return await serviceScope.ServiceProvider.GetRequiredService<IExternalServiceRunner>().ConfigureAwait(false);
+		var runner = await serviceScope.ServiceProvider.GetRequiredService<IExternalServiceRunner>().ConfigureAwait(false);
+		var externalService = await serviceScope.ServiceProvider.GetRequiredService<IExternalService>().ConfigureAwait(false);
+
+		ExternalServiceCollection.SetExternalService(invokeData.InvokeId, externalService);
+
+		return runner;
 	}
 
 	private IServiceScope CreateServiceScope(InvokeId invokeId, ExternalServiceClass externalServiceClass)
@@ -130,7 +132,7 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 
 	private async ValueTask Cleanup(InvokeId invokeId)
 	{
-		ExternalServiceCollection.Unsubscribe(invokeId);
+		ExternalServiceCollection.Unregister(invokeId);
 
 		if (_scopes?.TryRemove(invokeId, out var serviceScope) == true)
 		{
