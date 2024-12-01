@@ -17,13 +17,13 @@
 
 namespace Xtate.ExternalService;
 
-public abstract class ExternalServiceBase : IExternalService
+public abstract class ExternalServiceBase : IExternalService, IEventDispatcher
 {
-	private readonly LazyTask<DataModelValue> _lazyTask = default!;
-
 	private readonly CancellationToken? _destroyToken;
 
-	private readonly TaskMonitor _taskMonitor;
+	private readonly LazyTask<DataModelValue> _lazyTask = default!;
+
+	private readonly TaskMonitor _taskMonitor = default!;
 
 	[UsedImplicitly]
 	public required IExternalServiceSource ExternalServiceSourceLocal
@@ -78,7 +78,13 @@ public abstract class ExternalServiceBase : IExternalService
 
 	protected DataModelValue Parameters { get; private init; }
 
-	protected CancellationToken DestroyToken => _destroyToken.Value;
+	protected CancellationToken DestroyToken => _destroyToken!.Value;
+
+#region Interface IEventDispatcher
+
+	ValueTask IEventDispatcher.Dispatch(IIncomingEvent incomingEvent, CancellationToken token) => Dispatch(incomingEvent, token);
+
+#endregion
 
 #region Interface IExternalService
 
@@ -87,4 +93,6 @@ public abstract class ExternalServiceBase : IExternalService
 #endregion
 
 	protected abstract ValueTask<DataModelValue> Execute();
+
+	protected virtual ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token) => default;
 }
