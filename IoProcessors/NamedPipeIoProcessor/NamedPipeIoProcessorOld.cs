@@ -24,7 +24,8 @@ using Xtate.Persistence;
 
 namespace Xtate.IoProcessor;
 
-public class NamedPipeIoProcessor : IoProcessorBase
+[Obsolete]
+public class NamedPipeIoProcessorOld : IoProcessorBase, IDisposable
 {
 	private const string SessionIdPrefix = "#_session_";
 
@@ -40,7 +41,11 @@ public class NamedPipeIoProcessor : IoProcessorBase
 
 	private static readonly IncomingEvent CheckPipelineEvent = new() { Type = EventType.External, Name = (EventName) @"$" };
 
+	private static readonly ConcurrentDictionary<string, IEventConsumer> InProcConsumers = new();
+
 	private readonly Uri _baseUri;
+
+	private readonly IEventConsumer _eventConsumer;
 
 	private readonly int _maxMessageSize;
 
@@ -48,20 +53,42 @@ public class NamedPipeIoProcessor : IoProcessorBase
 
 	private readonly string _pipeName;
 
+	private readonly CancellationTokenSource _stopTokenSource = new();
+
 	public required TaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
 
-	public NamedPipeIoProcessor([Localizable(false)] string host,
+	public NamedPipeIoProcessorOld(IEventConsumer eventConsumer,
+								[Localizable(false)] string host,
 								[Localizable(false)] string name,
 								int maxMessageSize) : base(Id, Alias)
 	{
 		if (host is null) throw new ArgumentNullException(nameof(host));
 		if (maxMessageSize < 0) throw new ArgumentOutOfRangeException(nameof(maxMessageSize));
 
+		_eventConsumer = eventConsumer ?? throw new ArgumentNullException(nameof(eventConsumer));
 		_name = name ?? throw new ArgumentNullException(nameof(name));
 		_pipeName = PipePrefix + name;
 		_baseUri = new Uri(@"net.pipe://" + host + @"/" + name + @"/");
 		_maxMessageSize = maxMessageSize;
+
+		if (!InProcConsumers.TryAdd(name, eventConsumer))
+		{
+			throw new ProcessorException(Res.Format(Resources.Exception_NamedPipeIoProcessorWithNameAlreadyHasBeenRegistered, name));
+		}
 	}
+
+#region Interface IDisposable
+
+	public void Dispose()
+	{
+		_stopTokenSource.Cancel();
+
+		InProcConsumers.TryRemove(_name, out _);
+
+		_stopTokenSource.Dispose();
+	}
+
+#endregion
 
 	protected override ValueTask<IRouterEvent> GetRouterEvent(IOutgoingEvent outgoingEvent, CancellationToken token)
 	{
@@ -85,16 +112,16 @@ public class NamedPipeIoProcessor : IoProcessorBase
 
 		var targetServiceId = GetServiceId(target);
 
-		if (isLoopback /*&& InProcConsumers.TryGetValue(name, out var eventConsumer)*/)
+		if (isLoopback && InProcConsumers.TryGetValue(name, out var eventConsumer))
 		{
-		/*	if (await eventConsumer.TryGetEventDispatcher(targetServiceId, token: default).ConfigureAwait(false) is { } eventDispatcher)
+			if (await eventConsumer.TryGetEventDispatcher(targetServiceId, token: default).ConfigureAwait(false) is { } eventDispatcher)
 			{
 				await eventDispatcher.Dispatch(routerEvent, default).ConfigureAwait(false);
 			}
 			else
 			{
 				throw new ProcessorException(Resources.Exception_EventDispatcherNotFound);
-			}*/
+			}
 		}
 		else
 		{
@@ -154,6 +181,52 @@ public class NamedPipeIoProcessor : IoProcessorBase
 				default:
 					throw Infra.Unmatched(responseMessage.ErrorType);
 			}
+		}
+	}
+
+	public async ValueTask StartListener()
+	{
+		var pipeStream = new NamedPipeServerStream(_pipeName, PipeDirection.InOut, NamedPipeServerStream.MaxAllowedServerInstances, PipeTransmissionMode.Byte, DefaultPipeOptions);
+		var memoryStream = new MemoryStream();
+
+		await using (pipeStream.ConfigureAwait(false))
+		await using (memoryStream.ConfigureAwait(false))
+		{
+			ResponseMessage responseMessage = default;
+
+			try
+			{
+				await pipeStream.WaitForConnectionAsync(_stopTokenSource.Token).ConfigureAwait(false);
+
+				StartListener().Forget(TaskMonitor);
+
+				await ReceiveMessage(pipeStream, memoryStream, _stopTokenSource.Token).ConfigureAwait(false);
+
+				memoryStream.Position = 0;
+				var message = Deserialize(memoryStream, bucket => new EventMessage(bucket));
+
+				if (message.TargetServiceId is { } targetServiceId)
+				{
+					if (await _eventConsumer.TryGetEventDispatcher(targetServiceId, _stopTokenSource.Token).ConfigureAwait(false) is { } eventDispatcher)
+					{
+						await eventDispatcher.Dispatch(message, default).ConfigureAwait(false);
+					}
+					else
+					{
+						responseMessage = new ResponseMessage(ErrorType.EventDispatcherNotFound);
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				responseMessage = new ResponseMessage(ex);
+			}
+
+			memoryStream.SetLength(0);
+			Serialize(responseMessage, memoryStream);
+
+			memoryStream.Position = 0;
+			await SendMessage(memoryStream, pipeStream, _stopTokenSource.Token).ConfigureAwait(false);
 		}
 	}
 

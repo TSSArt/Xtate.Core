@@ -30,10 +30,10 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 	IEventConsumer eventConsumer,
 	Uri baseUri,
 	IPEndPoint ipEndPoint,
-	string id,
-	string? alias,
+	FullUri id,
+	FullUri? alias,
 	string errorSuffix)
-	: IoProcessorBase(eventConsumer, id, alias), IDisposable, IAsyncDisposable where THost : HttpIoProcessorHostBase<THost, TContext>
+	: IoProcessorBase(id, alias), IDisposable, IAsyncDisposable where THost : HttpIoProcessorHostBase<THost, TContext>
 {
 	private const string MediaTypeTextPlain = @"text/plain";
 
@@ -180,14 +180,14 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 			_                   => default
 		};
 
-	protected override IRouterEvent CreateRouterEvent(IOutgoingEvent outgoingEvent, CancellationToken token)
+	protected override ValueTask<IRouterEvent> GetRouterEvent(IOutgoingEvent outgoingEvent, CancellationToken token)
 	{
 		if (outgoingEvent.Target is null)
 		{
 			throw new ArgumentException(Resources.Exception_TargetIsNotDefined, nameof(outgoingEvent));
 		}
 
-		return base.CreateRouterEvent(outgoingEvent, token);
+		return base.GetRouterEvent(outgoingEvent, token);
 	}
 
 	protected override async ValueTask OutgoingEvent(IRouterEvent routerEvent, CancellationToken token)
@@ -352,7 +352,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 			return false;
 		}
 
-		if (await TryGetEventDispatcher(sessionId, token).ConfigureAwait(false) is not { } eventDispatcher)
+		//if (await TryGetEventDispatcher(sessionId, token).ConfigureAwait(false) is not { } eventDispatcher) //TODO:
 		{
 			return false;
 		}
@@ -368,7 +368,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 			incomingEvent = CreateErrorEvent(context, ex);
 		}
 
-		await eventDispatcher.Dispatch(incomingEvent, token).ConfigureAwait(false);
+		//await eventDispatcher.Dispatch(incomingEvent, token).ConfigureAwait(false); //TODO:
 
 		return true;
 	}
@@ -418,7 +418,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 				   Type = EventType.External,
 				   Name = EventName.GetErrorPlatform(ErrorSuffixHeader + _errorSuffix),
 				   Data = data,
-				   OriginType = IoProcessorId
+				   OriginType = id
 			   };
 	}
 
@@ -463,7 +463,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 				   Type = EventType.External,
 				   Name = (EventName) eventName,
 				   Data = data,
-				   OriginType = IoProcessorId,
+				   OriginType = id,
 				   Origin = origin
 			   };
 	}

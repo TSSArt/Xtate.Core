@@ -21,7 +21,7 @@ namespace Xtate.ExternalService;
 
 public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDisposable, IAsyncDisposable
 {
-	private MiniDictionary<InvokeId, IServiceScope>? _scopes = new(InvokeId.InvokeUniqueIdComparer);
+	private MiniDictionary<InvokeId, IServiceScope>? _scopes = [];
 
 	public required Func<InvokeData, ValueTask<ExternalServiceClass>> ExternalServiceClassFactory { private get; [UsedImplicitly] init; }
 

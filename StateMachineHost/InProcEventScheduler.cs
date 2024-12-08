@@ -21,9 +21,11 @@ namespace Xtate.Core;
 
 public class InProcEventScheduler : IEventScheduler, IDisposable, IAsyncDisposable
 {
+	private static readonly SendId EmptySendId = SendId.FromString(string.Empty);
+
 	private readonly DisposingToken _disposingToken = new ();
 
-	private readonly MiniDictionary<ScheduledEvent, SendId?> _scheduledEvents = new();
+	private readonly MiniDictionary<SendId, ScheduledEvent> _scheduledEvents = new();
 
 	public required ServiceList<IEventRouter> EventRouters { private get; [UsedImplicitly] init; }
 
@@ -70,12 +72,16 @@ public class InProcEventScheduler : IEventScheduler, IDisposable, IAsyncDisposab
 
 	public async ValueTask CancelEvent(SendId sendId, CancellationToken token)
 	{
-		foreach (var pair in _scheduledEvents)
+		if (sendId == EmptySendId)
 		{
-			if (pair.Value == sendId && _scheduledEvents.TryRemove(pair.Key, out _))
-			{
-				await pair.Key.CancelAsync().ConfigureAwait(false);
-			}
+			throw new ProcessorException(Resources.Exception_SendIdDoesNotSpecify);
+		}
+
+		_scheduledEvents.TryRemove(sendId, out var scheduledEvent);
+
+		for (; scheduledEvent is not null; scheduledEvent = scheduledEvent.Next)
+		{
+			await scheduledEvent.CancelAsync().ConfigureAwait(false);
 		}
 	}
 
@@ -87,9 +93,12 @@ public class InProcEventScheduler : IEventScheduler, IDisposable, IAsyncDisposab
 		{
 			_disposingToken.Dispose();
 
-			while (_scheduledEvents.TryTake(out var scheduledEvent, out _))
+			while (_scheduledEvents.TryTake(out _, out var scheduledEvent))
 			{
-				scheduledEvent.Cancel();
+				for (; scheduledEvent is not null; scheduledEvent = scheduledEvent.Next)
+				{
+					scheduledEvent.Cancel();
+				}
 			}
 		}
 	}
@@ -98,18 +107,16 @@ public class InProcEventScheduler : IEventScheduler, IDisposable, IAsyncDisposab
 	{
 		await _disposingToken.DisposeAsync().ConfigureAwait(false);
 
-		while (_scheduledEvents.TryTake(out var scheduledEvent, out _))
+		while (_scheduledEvents.TryTake(out _, out var scheduledEvent))
 		{
-			await scheduledEvent.CancelAsync().ConfigureAwait(false);
+			for (; scheduledEvent is not null; scheduledEvent = scheduledEvent.Next)
+			{
+				await scheduledEvent.CancelAsync().ConfigureAwait(false);
+			}
 		}
 	}
 
-	private void AddScheduledEvent(ScheduledEvent scheduledEvent)
-	{
-		var tryAdd = _scheduledEvents.TryAdd(scheduledEvent, scheduledEvent.SendId);
-
-		Infra.Assert(tryAdd);
-	}
+	private void AddScheduledEvent(ScheduledEvent scheduledEvent) => _scheduledEvents.Link(scheduledEvent.SendId ?? EmptySendId, scheduledEvent, value => ref value.Next);
 
 	private IEventRouter GetEventRouter(FullUri? type)
 	{
@@ -157,9 +164,11 @@ public class InProcEventScheduler : IEventScheduler, IDisposable, IAsyncDisposab
 		}
 		finally
 		{
-			_scheduledEvents.TryRemove(scheduledEvent, out _);
+			RemoveScheduledEvent(scheduledEvent);
 
 			await scheduledEvent.Dispose().ConfigureAwait(false);
 		}
 	}
+
+	private void RemoveScheduledEvent(ScheduledEvent scheduledEvent) => _scheduledEvents.Unlink(scheduledEvent.SendId ?? EmptySendId, scheduledEvent, value => ref value.Next);
 }
