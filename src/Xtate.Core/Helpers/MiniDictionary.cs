@@ -17,15 +17,16 @@
 
 namespace Xtate.Core;
 
-public class MiniDictionary<TKey, TValue>(IEqualityComparer<TKey>? equalityComparer = default) : IEnumerable<KeyValuePair<TKey, TValue>> where TKey : notnull
-{
-	private const int ConcurrencyLevel = 1;
 
-	private const int InitialCapacity = 1;
+public class MiniDictionary<TKey, TValue>(IEqualityComparer<TKey>? comparer = default) : IReadOnlyCollection<KeyValuePair<TKey, TValue>> where TKey : notnull where TValue : class
+{
+	private readonly IEqualityComparer<TKey> _comparer = comparer ?? EqualityComparer<TKey>.Default;
 
 	private ConcurrentDictionary<TKey, TValue>? _dictionary;
 
-	public int Count => _dictionary?.Count ?? 0;
+	private ConcurrentDictionary<TKey, TaskCompletionSource<(bool Found, TValue Value)>?>? _tcsDictionary;
+
+	public bool IsEmpty => _dictionary?.IsEmpty ?? true;
 
 #region Interface IEnumerable
 
@@ -39,37 +40,259 @@ public class MiniDictionary<TKey, TValue>(IEqualityComparer<TKey>? equalityCompa
 
 #endregion
 
-	public bool TryAdd(TKey key, TValue value) => (_dictionary ?? InitDictionary()).TryAdd(key, value);
+#region Interface IReadOnlyCollection<KeyValuePair<TKey,TValue>>
+
+	public int Count => _dictionary?.Count ?? 0;
+
+#endregion
+
+	[DoesNotReturn]
+	private static KeyNotFoundException GetKeyNotFoundException(TKey key) => throw new KeyNotFoundException(Res.Format(Resources.Exception_KeyNotFound, key?.ToString()));
+
+	private ConcurrentDictionary<TKey, TValue> GetDictionary()
+	{
+		if (_dictionary is { } dictionary)
+		{
+			return dictionary;
+		}
+
+		dictionary = new ConcurrentDictionary<TKey, TValue>(_comparer);
+
+		return Interlocked.CompareExchange(ref _dictionary, dictionary, comparand: default) ?? dictionary;
+	}
+
+	private ConcurrentDictionary<TKey, TaskCompletionSource<(bool Found, TValue Value)>?> GetTcsDictionary()
+	{
+		if (_tcsDictionary is { } dictionary)
+		{
+			return dictionary;
+		}
+
+		dictionary = new ConcurrentDictionary<TKey, TaskCompletionSource<(bool Found, TValue Value)>?>(_comparer);
+
+		return Interlocked.CompareExchange(ref _tcsDictionary, dictionary, comparand: default) ?? dictionary;
+	}
+
+	private void SetTaskCompletionSource(TKey key, TValue value, bool found)
+	{
+		if (_tcsDictionary is { } tcsDictionary && tcsDictionary.TryRemove(key, out var tcs) && tcs is not null)
+		{
+			tcs.TrySetResult((found, value));
+		}
+	}
+
+	public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
+	{
+		if (_dictionary is { } dictionary && dictionary.TryGetValue(key, out value))
+		{
+			return true;
+		}
+
+		value = default;
+
+		return false;
+	}
+
+	public bool TryAdd(TKey key, TValue value)
+	{
+		var result = GetDictionary().TryAdd(key, value);
+
+		if (result)
+		{
+			SetTaskCompletionSource(key, value, true);
+		}
+
+		return result;
+	}
 
 	public bool TryRemove(TKey key, [MaybeNullWhen(false)] out TValue value)
 	{
 		value = default;
 
-		return _dictionary?.TryRemove(key, out value) ?? false;
+		var result = _dictionary is { } dictionary && dictionary.TryRemove(key, out value);
+
+		SetTaskCompletionSource(key, default!, false);
+
+		return result;
 	}
 
-	public bool Remove(TKey key, TValue value) => _dictionary?.TryRemove(new KeyValuePair<TKey, TValue>(key, value)) ?? false;
-
-	public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
-	{
-		value = default;
-
-		return _dictionary?.TryGetValue(key, out value) ?? false;
-	}
-
-	private ConcurrentDictionary<TKey, TValue> InitDictionary()
-	{
-		lock (this)
-		{
-			return _dictionary ??= new ConcurrentDictionary<TKey, TValue>(ConcurrencyLevel, InitialCapacity, equalityComparer ?? EqualityComparer<TKey>.Default);
-		}
-	}
+	public bool TryRemovePair(TKey key, TValue value) => _dictionary?.TryRemove(new KeyValuePair<TKey, TValue>(key, value)) ?? false;
 
 	public bool TryTake([MaybeNullWhen(false)] out TKey key, [MaybeNullWhen(false)] out TValue value)
 	{
+		if (_dictionary is { } dictionary)
+		{
+			foreach (var pair in dictionary)
+			{
+				if (dictionary.TryRemove(pair.Key, out value))
+				{
+					key = pair.Key;
+
+					return true;
+				}
+			}
+		}
+
 		key = default;
 		value = default;
 
-		return _dictionary?.TryTake(out key, out value) ?? false;
+		return false;
+	}
+
+	public bool TryUpdate(TKey key, TValue newValue, TValue comparisonValue) => _dictionary?.TryUpdate(key, newValue, comparisonValue) ?? false;
+
+	public TValue AddOrUpdate<TArg>(TKey key, Func<TKey, TArg, TValue> addValueFactory, Func<TKey, TValue, TArg, TValue> updateValueFactory, TArg factoryArgument)
+	{
+		var result = GetDictionary().AddOrUpdate(key, addValueFactory, updateValueFactory, factoryArgument);
+
+		SetTaskCompletionSource(key, result, true);
+
+		return result;
+	}
+
+	public ValueTask<(bool Found, TValue Value)> TryGetValueAsync(TKey key)
+	{
+		while (true)
+		{
+			if (TryGetValue(key, out var value))
+			{
+				return new ValueTask<(bool Found, TValue Value)>((true, value));
+			}
+
+			if (_tcsDictionary is { } dictionary && dictionary.TryGetValue(key, out var tcs))
+			{
+				if (tcs is not null)
+				{
+					return new ValueTask<(bool Found, TValue Value)>(tcs.Task);
+				}
+
+				tcs = new TaskCompletionSource<(bool Found, TValue Value)>();
+
+				if (dictionary.TryUpdate(key, tcs, comparisonValue: null))
+				{
+					return new ValueTask<(bool Found, TValue Value)>(tcs.Task);
+				}
+			}
+			else
+			{
+				return new ValueTask<(bool Found, TValue Value)>((false, default!));
+			}
+		}
+	}
+
+	public bool TryAddPending(TKey key) => GetTcsDictionary().TryAdd(key, value: default);
+
+	public TValue this[TKey key]
+	{
+		get => TryGetValue(key, out var value) ? value : throw GetKeyNotFoundException(key);
+		set
+		{
+			GetDictionary()[key] = value;
+
+			SetTaskCompletionSource(key, value, true);
+		}
+	}
+
+	public delegate ref TValue? NextLink(TValue value);
+
+	public void Link(TKey key, TValue value, NextLink nextLink)
+	{
+		Infra.Assert(nextLink(value) is null);
+
+		AddOrUpdate(key, 
+			static (_, tuple) =>
+			{
+				tuple.nextLink(tuple.value) = default;
+
+				return tuple.value;
+			},
+			static (_, value, tuple) =>
+			{
+				tuple.nextLink(tuple.value) = value;
+
+				return tuple.value;
+			}
+		  , (value, nextLink));
+	}
+
+	public void Unlink(TKey key, TValue value, NextLink nextLink)
+	{
+		TValue? current;
+
+		while (TryGetValue(key, out current))
+		{
+			if (ReferenceEquals(value, current))
+			{
+				if (TryRemoveFirstNode())
+				{
+					return;
+				}
+			}
+			else
+			{
+				if (TryRemoveNodeInChain())
+				{
+					return;
+				}
+			}
+		}
+
+		return;
+
+		bool TryRemoveFirstNode()
+		{
+			if (nextLink(value) is null)
+			{
+				return TryRemovePair(key, value);
+			}
+
+			lock (value)
+			{
+				ref var next = ref nextLink(value);
+
+				if (next is not null && TryUpdate(key, next, value))
+				{
+					next = default;
+
+					return true;
+				}
+
+				return false;
+			}
+		}
+
+		bool TryRemoveNodeInChain()
+		{
+			while (true)
+			{
+				if (nextLink(current) is not { } next)
+				{
+					return true;
+				}
+
+				if (ReferenceEquals(next, value))
+				{
+					lock (current)
+					lock (value)
+					{
+						ref var nextCurrent = ref nextLink(current);
+
+						if (!ReferenceEquals(nextCurrent, value))
+						{
+							return false;
+						}
+
+						ref var nextValue = ref nextLink(value);
+
+						nextCurrent = nextValue;
+						nextValue = default;
+
+						return true;
+					}
+				}
+
+				current = next;
+			}
+		}
 	}
 }

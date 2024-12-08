@@ -21,6 +21,8 @@ namespace Xtate.Core;
 
 public class ScheduledEvent : RouterEvent
 {
+	public ScheduledEvent? Next;
+
 	private readonly CancellationTokenSource _cancellationTokenSource = new();
 
 	public ScheduledEvent(IRouterEvent routerEvent) : base(routerEvent) { }

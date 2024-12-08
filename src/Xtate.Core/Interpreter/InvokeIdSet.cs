@@ -17,9 +17,9 @@
 
 namespace Xtate.Core;
 
-public sealed class ServiceIdSet : IEnumerable<ServiceId>
+public sealed class InvokeIdSet : IEnumerable<InvokeId>
 {
-	public delegate void ChangeHandler(ChangedAction action, ServiceId serviceId);
+	public delegate void ChangeHandler(ChangedAction action, InvokeId invokeId);
 
 	public enum ChangedAction
 	{
@@ -28,7 +28,7 @@ public sealed class ServiceIdSet : IEnumerable<ServiceId>
 		Remove
 	}
 
-	private readonly HashSet<ServiceId> _set = [];
+	private readonly HashSet<InvokeId> _set = [];
 
 	public int Count => _set.Count;
 
@@ -38,31 +38,31 @@ public sealed class ServiceIdSet : IEnumerable<ServiceId>
 
 #endregion
 
-#region Interface IEnumerable<ServiceId>
+#region Interface IEnumerable<InvokeId>
 
-	IEnumerator<ServiceId> IEnumerable<ServiceId>.GetEnumerator() => GetEnumerator();
+	IEnumerator<InvokeId> IEnumerable<InvokeId>.GetEnumerator() => GetEnumerator();
 
 #endregion
 
 	public event ChangeHandler? Changed;
 
-	public void Remove(ServiceId serviceId)
+	public void Remove(InvokeId invokeId)
 	{
-		if (_set.Remove(serviceId))
+		if (_set.Remove(invokeId))
 		{
-			Changed?.Invoke(ChangedAction.Remove, serviceId);
+			Changed?.Invoke(ChangedAction.Remove, invokeId);
 		}
 	}
 
-	public void Add(ServiceId serviceId)
+	public void Add(InvokeId invokeId)
 	{
-		if (_set.Add(serviceId))
+		if (_set.Add(invokeId))
 		{
-			Changed?.Invoke(ChangedAction.Add, serviceId);
+			Changed?.Invoke(ChangedAction.Add, invokeId);
 		}
 	}
 
-	public bool Contains(ServiceId serviceId) => _set.Contains(serviceId);
+	public bool Contains(InvokeId invokeId) => _set.Contains(invokeId);
 
-	public HashSet<ServiceId>.Enumerator GetEnumerator() => _set.GetEnumerator();
+	public HashSet<InvokeId>.Enumerator GetEnumerator() => _set.GetEnumerator();
 }

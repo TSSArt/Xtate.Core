@@ -48,7 +48,7 @@ public class ExternalServiceEventRouter : IEventRouter
 		return false;
 	}
 
-	public bool IsInternalTarget(FullUri? target) => default;
+	public bool IsInternalTarget(FullUri? target) => false;
 
 	public ValueTask<IRouterEvent> GetRouterEvent(IOutgoingEvent outgoingEvent, CancellationToken token) =>
 		new(new RouterEvent(StateMachineSessionId.SessionId, GetInvokeId(outgoingEvent.Target), Const.ScxmlIoProcessorId, Const.ParentTarget, outgoingEvent));

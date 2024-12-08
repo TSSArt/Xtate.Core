@@ -1983,6 +1983,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to SendId does not specify..
+        /// </summary>
+        internal static string Exception_SendIdDoesNotSpecify {
+            get {
+                return ResourceManager.GetString("Exception_SendIdDoesNotSpecify", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to SendId is empty..
         /// </summary>
         internal static string Exception_SendIdIsEmpty {

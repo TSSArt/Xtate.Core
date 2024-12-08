@@ -22,6 +22,8 @@ public sealed class UriId : ServiceId
 {
 	private UriId(FullUri uri) => Uri = uri;
 
+	public override string ServiceType => nameof(UriId);
+
 	public override string Value => Uri.ToString();
 
 	public FullUri Uri { get; }

@@ -42,5 +42,7 @@ public class StateMachineProcessorModule : Module<ExternalServiceModule, EventSc
 		Services.AddSharedImplementation<StateMachineStatus>(SharedWithin.Scope).For<INotifyStateChanged>().For<IStateMachineStatus>();
 
 		Services.AddImplementation<ScxmlIoProcessor>().For<IIoProcessor>().For<IEventRouter>();
+
+		Services.AddImplementation<DeadLetterQueue<Any>>().For<IDeadLetterQueue<Any>>();
 	}
 }

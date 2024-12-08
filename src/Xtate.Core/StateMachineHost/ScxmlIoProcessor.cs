@@ -23,7 +23,7 @@ public class ScxmlIoProcessor(IExternalServiceInvokeId? externalServiceInvokeId,
 {
 	private readonly ServiceId _senderServiceId = (ServiceId?) externalServiceInvokeId?.InvokeId ?? stateMachineSessionId.SessionId;
 
-	public required IEventDispatcher? EventDispatcher { private get; [UsedImplicitly] init; }
+	public required IEventDispatcher? SelfEventDispatcher { private get; [UsedImplicitly] init; }
 
 	public required IParentEventDispatcher? ParentEventDispatcher { private get; [UsedImplicitly] init; }
 
@@ -49,7 +49,7 @@ public class ScxmlIoProcessor(IExternalServiceInvokeId? externalServiceInvokeId,
 	{
 		if (routerEvent.Target is null)
 		{
-			return EventDispatcher?.Dispatch(routerEvent, token) ?? default;
+			return SelfEventDispatcher?.Dispatch(routerEvent, token) ?? default;
 		}
 
 		if (IsTargetParent(routerEvent.Target))
