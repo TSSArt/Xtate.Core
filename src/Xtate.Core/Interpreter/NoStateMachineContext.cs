@@ -27,7 +27,7 @@ public class NoStateMachineContext : IStateMachineContext
 
 	public OrderedSet<StateEntityNode> StatesToInvoke { get; } = [];
 
-	public ServiceIdSet ActiveInvokes { get; } = [];
+	public InvokeIdSet ActiveInvokes { get; } = [];
 
 	public KeyList<StateEntityNode> HistoryValue { get; } = [];
 

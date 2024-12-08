@@ -20,64 +20,53 @@ using System.ComponentModel;
 namespace Xtate;
 
 [Serializable]
-public sealed class InvokeId : ServiceId, IEquatable<InvokeId>
+public abstract class InvokeId : ServiceId, IEquatable<InvokeId>
 {
-	internal static readonly InvokeUniqueIdEqualityComparer InvokeUniqueIdComparer = new();
-
-	private readonly IIdentifier? _stateId;
-
-	private string? _invokeUniqueId;
-
-	private InvokeId(IIdentifier stateId) => _stateId = stateId;
-
-	private InvokeId(string invokeId) : base(invokeId) { }
-
-	private InvokeId(string invokeId, string invokeUniqueId) : base(invokeId) => _invokeUniqueId = invokeUniqueId;
-
-	public string InvokeUniqueIdValue
+	[Serializable]
+	internal sealed class Static(string invokeId) : InvokeId(invokeId)
 	{
-		get
+		[ExcludeFromCodeCoverage]
+		protected override string GenerateId() => throw new NotSupportedException();
+
+		public override string? InvokeUniqueIdValue => default;
+	}
+
+	internal sealed class Execution : InvokeId
+	{
+		private readonly IIdentifier? _stateId;
+
+		private string? _invokeUniqueId;
+
+		public Execution(string invokeId) : base(invokeId) { }
+
+		public Execution(IIdentifier stateId) => _stateId = stateId;
+
+		public Execution(string invokeId, string invokeUniqueId) : base(invokeId) => _invokeUniqueId = invokeUniqueId;
+
+		public override string InvokeUniqueIdValue
 		{
-			if (_invokeUniqueId is { } invokeUniqueId)
+			get
 			{
+				if (_invokeUniqueId is { } invokeUniqueId)
+				{
+					return invokeUniqueId;
+				}
+
+				var newInvokeUniqueId = IdGenerator.NewInvokeUniqueId(GetHashCode());
+				invokeUniqueId = Interlocked.CompareExchange(ref _invokeUniqueId, newInvokeUniqueId, comparand: null) ?? newInvokeUniqueId;
+
 				return invokeUniqueId;
 			}
-
-			var newInvokeUniqueId = IdGenerator.NewInvokeUniqueId(GetHashCode());
-			invokeUniqueId = Interlocked.CompareExchange(ref _invokeUniqueId, newInvokeUniqueId, comparand: null) ?? newInvokeUniqueId;
-
-			return invokeUniqueId;
 		}
-	}
 
-#region Interface IEquatable<InvokeId>
+		protected override string GenerateId()
+		{
+			Infra.NotNull(_stateId);
 
-	public bool Equals(InvokeId? other) => FastEqualsNoTypeCheck(other);
+			return IdGenerator.NewInvokeId(_stateId.Value, GetHashCode());
+		}
 
-#endregion
-
-	public override bool Equals(object? obj) => ReferenceEquals(this, obj) || (obj is InvokeId other && Equals(other));
-
-	public override int GetHashCode() => base.GetHashCode();
-
-	protected override string GenerateId()
-	{
-		Infra.NotNull(_stateId);
-
-		return IdGenerator.NewInvokeId(_stateId.Value, GetHashCode());
-	}
-
-	public static InvokeId New(IIdentifier stateId, [Localizable(false)] string? invokeId) => invokeId is null ? new InvokeId(stateId) : new InvokeId(invokeId);
-
-	public static InvokeId FromString([Localizable(false)] string invokeId) => new(invokeId);
-
-	public static InvokeId FromString([Localizable(false)] string invokeId, [Localizable(false)] string invokeUniqueId) => new(invokeId, invokeUniqueId);
-
-	internal sealed class InvokeUniqueIdEqualityComparer : IEqualityComparer<InvokeId>
-	{
-	#region Interface IEqualityComparer<InvokeId>
-
-		public bool Equals(InvokeId? x, InvokeId? y)
+		public static bool Equals(Execution x, Execution y)
 		{
 			if (ReferenceEquals(x, y))
 			{
@@ -86,17 +75,25 @@ public sealed class InvokeId : ServiceId, IEquatable<InvokeId>
 
 			return x?._invokeUniqueId is { } a && y?._invokeUniqueId is { } b && a == b;
 		}
-
-		public int GetHashCode(InvokeId obj)
-		{
-			if (obj._invokeUniqueId is { } id)
-			{
-				return TryGetHashFromId(id, out var hash) ? hash : id.GetHashCode();
-			}
-
-			return obj.GetHashCode();
-		}
-
-	#endregion
 	}
+
+	private InvokeId() { }
+
+	private InvokeId(string invokeId) : base(invokeId) { }
+
+	public sealed override string ServiceType => nameof(InvokeId);
+
+	public abstract string? InvokeUniqueIdValue { get; }
+
+	public bool Equals(InvokeId? other) => FastEqualsNoTypeCheck(other) && (this is not Execution a || other is not Execution b || Execution.Equals(a, b));
+
+	public override int GetHashCode() => base.GetHashCode();
+
+	public override bool Equals(object? obj) => ReferenceEquals(this, obj) || (obj is InvokeId other && Equals(other));
+
+	public static InvokeId FromString([Localizable(false)] string invokeId) => new Static(invokeId);
+
+	public static InvokeId New(IIdentifier stateId, [Localizable(false)] string? invokeId) => invokeId is null ? new Execution(stateId) : new Execution(invokeId);
+
+	public static InvokeId FromString([Localizable(false)] string invokeId, [Localizable(false)] string? invokeUniqueId) => invokeUniqueId is null ? new Static(invokeId) : new Execution(invokeId, invokeUniqueId);
 }

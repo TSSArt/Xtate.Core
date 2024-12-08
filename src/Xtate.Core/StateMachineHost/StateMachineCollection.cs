@@ -19,16 +19,18 @@ namespace Xtate;
 
 public class StateMachineCollection : IStateMachineCollection
 {
-	private readonly ConcurrentDictionary<SessionId, TaskCompletionSource<IStateMachineController>> _controllers = new();
+	private readonly MiniDictionary<SessionId, IStateMachineController> _controllers = [];
+
+	public required IDeadLetterQueue<IStateMachineCollection> DeadLetterQueue { private get; [UsedImplicitly] init; }
 
 #region Interface IStateMachineCollection
 
 	public async ValueTask Dispatch(SessionId sessionId, IIncomingEvent incomingEvent, CancellationToken token)
 	{
-		if (_controllers.TryGetValue(sessionId, out var tcs))
-		{
-			var controller = await tcs.Task.ConfigureAwait(false);
+		var (found, controller) = await _controllers.TryGetValueAsync(sessionId).ConfigureAwait(false);
 
+		if (found)
+		{
 			if (incomingEvent is not IncomingEvent)
 			{
 				incomingEvent = new IncomingEvent(incomingEvent);
@@ -36,42 +38,41 @@ public class StateMachineCollection : IStateMachineCollection
 
 			await controller.Dispatch(incomingEvent, token).ConfigureAwait(false);
 		}
+		else
+		{
+			await DeadLetterQueue.Enqueue(sessionId, incomingEvent).ConfigureAwait(false);
+		}
 	}
 
 	public async ValueTask Destroy(SessionId sessionId)
 	{
-		if (_controllers.TryGetValue(sessionId, out var tcs))
+		var (found, controller) = await _controllers.TryGetValueAsync(sessionId).ConfigureAwait(false);
+
+		if (found)
 		{
-			var controller = await tcs.Task.ConfigureAwait(false);
 			await controller.Destroy().ConfigureAwait(false);
 		}
 	}
 
 	public void Register(SessionId sessionId)
 	{
-		var tryAdd = _controllers.TryAdd(sessionId, new TaskCompletionSource<IStateMachineController>());
+		var tryAddPending = _controllers.TryAddPending(sessionId);
 
-		Infra.Assert(tryAdd);
+		Infra.Assert(tryAddPending);
 	}
 
 	public void SetController(SessionId sessionId, IStateMachineController controller)
 	{
-		if (_controllers.TryGetValue(sessionId, out var tcs))
-		{
-			tcs.SetResult(controller);
-		}
-		else
-		{
-			Infra.Fail();
-		}
+		var tryAdd = _controllers.TryAdd(sessionId, controller);
+
+		Infra.Assert(tryAdd);
 	}
 
 	public void Unregister(SessionId sessionId)
 	{
-		if (_controllers.TryRemove(sessionId, out var tcs))
-		{
-			tcs.TrySetCanceled();
-		}
+		var tryRemove = _controllers.TryRemove(sessionId, out _);
+
+		Infra.Assert(tryRemove);
 	}
 
 #endregion

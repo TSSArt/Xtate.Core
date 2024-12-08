@@ -36,7 +36,7 @@ public class StateMachinePersistedContextOptions : StateMachineContextOptions, I
 
 public class StateMachinePersistedContext : StateMachineContext, IPersistenceContext, IAsyncDisposable
 {
-	private readonly ServiceIdSetPersistingController _activeInvokesController;
+	private readonly InvokeIdSetPersistingController _activeInvokesController;
 
 	private readonly OrderedSetPersistingController<StateEntityNode> _configurationController;
 
@@ -66,7 +66,7 @@ public class StateMachinePersistedContext : StateMachineContext, IPersistenceCon
 
 		_configurationController = new OrderedSetPersistingController<StateEntityNode>(bucket.Nested(StorageSection.Configuration), Configuration, options.EntityMap);
 		_statesToInvokeController = new OrderedSetPersistingController<StateEntityNode>(bucket.Nested(StorageSection.StatesToInvoke), StatesToInvoke, options.EntityMap);
-		_activeInvokesController = new ServiceIdSetPersistingController(bucket.Nested(StorageSection.ActiveInvokes), ActiveInvokes);
+		_activeInvokesController = new InvokeIdSetPersistingController(bucket.Nested(StorageSection.ActiveInvokes), ActiveInvokes);
 		_dataModelReferenceTracker = new DataModelReferenceTracker(bucket.Nested(StorageSection.DataModelReferences));
 		_dataModelPersistingController = new DataModelListPersistingController(bucket.Nested(StorageSection.DataModel), _dataModelReferenceTracker, DataModel);
 		_historyValuePersistingController = new KeyListPersistingController<StateEntityNode>(bucket.Nested(StorageSection.HistoryValue), HistoryValue, options.EntityMap);
@@ -167,7 +167,7 @@ public class StateMachinePersistedContext : StateMachineContext, IPersistenceCon
 
 		_configurationController = new OrderedSetPersistingController<StateEntityNode>(bucket.Nested(StorageSection.Configuration), Configuration, entityMap);
 		_statesToInvokeController = new OrderedSetPersistingController<StateEntityNode>(bucket.Nested(StorageSection.StatesToInvoke), StatesToInvoke, entityMap);
-		_activeInvokesController = new ServiceIdSetPersistingController(bucket.Nested(StorageSection.ActiveInvokes), ActiveInvokes);
+		_activeInvokesController = new InvokeIdSetPersistingController(bucket.Nested(StorageSection.ActiveInvokes), ActiveInvokes);
 		_dataModelReferenceTracker = new DataModelReferenceTracker(bucket.Nested(StorageSection.DataModelReferences));
 		_dataModelPersistingController = new DataModelListPersistingController(bucket.Nested(StorageSection.DataModel), _dataModelReferenceTracker, DataModel);
 		_historyValuePersistingController = new KeyListPersistingController<StateEntityNode>(bucket.Nested(StorageSection.HistoryValue), HistoryValue, entityMap);

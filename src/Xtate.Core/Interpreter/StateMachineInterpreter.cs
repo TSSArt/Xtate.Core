@@ -366,7 +366,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		{
 			foreach (var invoke in state.Invoke)
 			{
-				if (InvokeId.InvokeUniqueIdComparer.Equals(invoke.InvokeId, externalEvent.InvokeId))
+				if (invoke.InvokeId == externalEvent.InvokeId)
 				{
 					await ApplyFinalize(invoke).ConfigureAwait(false);
 				}

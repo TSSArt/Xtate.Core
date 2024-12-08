@@ -21,37 +21,38 @@ namespace Xtate.Core;
 
 public class ExternalServiceCollection : IExternalServiceCollection
 {
-	private readonly MiniDictionary<InvokeId, TaskCompletionSource<IExternalService>> _externalServices = new(InvokeId.InvokeUniqueIdComparer);
+	private readonly MiniDictionary<InvokeId, IExternalService> _externalServices = [];
+
+	public required IDeadLetterQueue<IExternalServiceCollection> DeadLetterQueue { private get; [UsedImplicitly] init; }
 
 #region Interface IExternalServiceCollection
 
 	public void Register(InvokeId invokeId)
 	{
-		var tryAdd = _externalServices.TryAdd(invokeId, new TaskCompletionSource<IExternalService>());
+		var tryAddPending = _externalServices.TryAddPending(invokeId);
 
-		Infra.Assert(tryAdd);
+		Infra.Assert(tryAddPending);
 	}
 
 	public void SetExternalService(InvokeId invokeId, IExternalService externalService)
 	{
-		_externalServices.TryGetValue(invokeId, out var tcs);
+		var tryAdd = _externalServices.TryAdd(invokeId, externalService);
 
-		Infra.Assert(tcs != null);
-
-		tcs.SetResult(externalService);
+		Infra.Assert(tryAdd);
 	}
 
 	public void Unregister(InvokeId invokeId)
 	{
-		if (_externalServices.TryRemove(invokeId, out var tcs))
-		{
-			tcs.TrySetCanceled();
-		}
+		var tryRemove = _externalServices.TryRemove(invokeId, out _);
+
+		Infra.Assert(tryRemove);
 	}
 
 	public virtual async ValueTask Dispatch(InvokeId invokeId, IIncomingEvent incomingEvent, CancellationToken token)
 	{
-		if (_externalServices.TryGetValue(invokeId, out var tcs) && await tcs.Task.ConfigureAwait(false) is IEventDispatcher eventDispatcher)
+		var (found, externalService) = await _externalServices.TryGetValueAsync(invokeId).ConfigureAwait(false);
+
+		if (found && externalService is IEventDispatcher eventDispatcher)
 		{
 			if (incomingEvent is not IncomingEvent)
 			{
@@ -59,6 +60,10 @@ public class ExternalServiceCollection : IExternalServiceCollection
 			}
 
 			await eventDispatcher.Dispatch(incomingEvent, token).ConfigureAwait(false);
+		}
+		else
+		{
+			await DeadLetterQueue.Enqueue(invokeId, incomingEvent).ConfigureAwait(false);
 		}
 	}
 
