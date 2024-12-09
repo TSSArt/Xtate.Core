@@ -193,105 +193,23 @@ public class MiniDictionary<TKey, TValue>(IEqualityComparer<TKey>? comparer = de
 		}
 	}
 
-	public delegate ref TValue? NextLink(TValue value);
-
-	public void Link(TKey key, TValue value, NextLink nextLink)
+	public void UpdateOrRemove<TArg>(TKey key, Func<TKey, TValue, TArg, bool> isDeletePredicate, Func<TKey, TValue, TArg, TValue> updateValueFactory, TArg factoryArgument)
 	{
-		Infra.Assert(nextLink(value) is null);
-
-		AddOrUpdate(key, 
-			static (_, tuple) =>
-			{
-				tuple.nextLink(tuple.value) = default;
-
-				return tuple.value;
-			},
-			static (_, value, tuple) =>
-			{
-				tuple.nextLink(tuple.value) = value;
-
-				return tuple.value;
-			}
-		  , (value, nextLink));
-	}
-
-	public void Unlink(TKey key, TValue value, NextLink nextLink)
-	{
-		TValue? current;
-
-		while (TryGetValue(key, out current))
+		while (TryGetValue(key, out var value))
 		{
-			if (ReferenceEquals(value, current))
+			if (isDeletePredicate(key, value, factoryArgument))
 			{
-				if (TryRemoveFirstNode())
+				if (TryRemovePair(key, value))
 				{
 					return;
 				}
 			}
 			else
 			{
-				if (TryRemoveNodeInChain())
+				if (TryUpdate(key, updateValueFactory(key, value, factoryArgument), value))
 				{
 					return;
 				}
-			}
-		}
-
-		return;
-
-		bool TryRemoveFirstNode()
-		{
-			if (nextLink(value) is null)
-			{
-				return TryRemovePair(key, value);
-			}
-
-			lock (value)
-			{
-				ref var next = ref nextLink(value);
-
-				if (next is not null && TryUpdate(key, next, value))
-				{
-					next = default;
-
-					return true;
-				}
-
-				return false;
-			}
-		}
-
-		bool TryRemoveNodeInChain()
-		{
-			while (true)
-			{
-				if (nextLink(current) is not { } next)
-				{
-					return true;
-				}
-
-				if (ReferenceEquals(next, value))
-				{
-					lock (current)
-					lock (value)
-					{
-						ref var nextCurrent = ref nextLink(current);
-
-						if (!ReferenceEquals(nextCurrent, value))
-						{
-							return false;
-						}
-
-						ref var nextValue = ref nextLink(value);
-
-						nextCurrent = nextValue;
-						nextValue = default;
-
-						return true;
-					}
-				}
-
-				current = next;
 			}
 		}
 	}
