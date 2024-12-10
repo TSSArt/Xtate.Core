@@ -21,7 +21,7 @@ namespace Xtate.Core;
 
 public class ExternalServiceCollection : IExternalServiceCollection
 {
-	private readonly MiniDictionary<InvokeId, IExternalService> _externalServices = [];
+	private readonly ExtDictionary<InvokeId, IExternalService> _externalServices = [];
 
 	public required IDeadLetterQueue<IExternalServiceCollection> DeadLetterQueue { private get; [UsedImplicitly] init; }
 
