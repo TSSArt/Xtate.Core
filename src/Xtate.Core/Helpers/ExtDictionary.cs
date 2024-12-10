@@ -17,8 +17,7 @@
 
 namespace Xtate.Core;
 
-
-public class MiniDictionary<TKey, TValue>(IEqualityComparer<TKey>? comparer = default) : IReadOnlyCollection<KeyValuePair<TKey, TValue>> where TKey : notnull where TValue : class
+public class ExtDictionary<TKey, TValue>(IEqualityComparer<TKey>? comparer = default) : IReadOnlyCollection<KeyValuePair<TKey, TValue>> where TKey : notnull
 {
 	private readonly IEqualityComparer<TKey> _comparer = comparer ?? EqualityComparer<TKey>.Default;
 
@@ -27,6 +26,21 @@ public class MiniDictionary<TKey, TValue>(IEqualityComparer<TKey>? comparer = de
 	private ConcurrentDictionary<TKey, TaskCompletionSource<(bool Found, TValue Value)>?>? _tcsDictionary;
 
 	public bool IsEmpty => _dictionary?.IsEmpty ?? true;
+
+	public ICollection<TKey> Keys => _dictionary?.Keys ?? Array.Empty<TKey>();
+
+	public ICollection<TValue> Values => _dictionary?.Values ?? Array.Empty<TValue>();
+
+	public TValue this[TKey key]
+	{
+		get => _dictionary is { } dictionary ? dictionary[key] : throw GetKeyNotFoundException(key);
+		set
+		{
+			GetDictionary()[key] = value;
+
+			SetTaskCompletionSource(key, value, found: true);
+		}
+	}
 
 #region Interface IEnumerable
 
@@ -75,9 +89,9 @@ public class MiniDictionary<TKey, TValue>(IEqualityComparer<TKey>? comparer = de
 
 	private void SetTaskCompletionSource(TKey key, TValue value, bool found)
 	{
-		if (_tcsDictionary is { } tcsDictionary && tcsDictionary.TryRemove(key, out var tcs) && tcs is not null)
+		if (_tcsDictionary is { } dictionary && dictionary.TryRemove(key, out var tcs))
 		{
-			tcs.TrySetResult((found, value));
+			tcs?.TrySetResult((found, value));
 		}
 	}
 
@@ -95,14 +109,14 @@ public class MiniDictionary<TKey, TValue>(IEqualityComparer<TKey>? comparer = de
 
 	public bool TryAdd(TKey key, TValue value)
 	{
-		var result = GetDictionary().TryAdd(key, value);
+		var tryAdd = GetDictionary().TryAdd(key, value);
 
-		if (result)
+		if (tryAdd)
 		{
-			SetTaskCompletionSource(key, value, true);
+			SetTaskCompletionSource(key, value, found: true);
 		}
 
-		return result;
+		return tryAdd;
 	}
 
 	public bool TryRemove(TKey key, [MaybeNullWhen(false)] out TValue value)
@@ -111,12 +125,22 @@ public class MiniDictionary<TKey, TValue>(IEqualityComparer<TKey>? comparer = de
 
 		var result = _dictionary is { } dictionary && dictionary.TryRemove(key, out value);
 
-		SetTaskCompletionSource(key, default!, false);
+		SetTaskCompletionSource(key, default!, found: false);
 
 		return result;
 	}
 
-	public bool TryRemovePair(TKey key, TValue value) => _dictionary?.TryRemove(new KeyValuePair<TKey, TValue>(key, value)) ?? false;
+	public bool TryRemovePair(TKey key, TValue value)
+	{
+		var tryRemove = _dictionary?.TryRemove(new KeyValuePair<TKey, TValue>(key, value)) ?? false;
+
+		if (tryRemove)
+		{
+			SetTaskCompletionSource(key, default!, found: false);
+		}
+
+		return tryRemove;
+	}
 
 	public bool TryTake([MaybeNullWhen(false)] out TKey key, [MaybeNullWhen(false)] out TValue value)
 	{
@@ -126,6 +150,8 @@ public class MiniDictionary<TKey, TValue>(IEqualityComparer<TKey>? comparer = de
 			{
 				if (dictionary.TryRemove(pair.Key, out value))
 				{
+					SetTaskCompletionSource(pair.Key, default!, found: false);
+
 					key = pair.Key;
 
 					return true;
@@ -139,15 +165,16 @@ public class MiniDictionary<TKey, TValue>(IEqualityComparer<TKey>? comparer = de
 		return false;
 	}
 
-	public bool TryUpdate(TKey key, TValue newValue, TValue comparisonValue) => _dictionary?.TryUpdate(key, newValue, comparisonValue) ?? false;
-
-	public TValue AddOrUpdate<TArg>(TKey key, Func<TKey, TArg, TValue> addValueFactory, Func<TKey, TValue, TArg, TValue> updateValueFactory, TArg factoryArgument)
+	public bool TryUpdate(TKey key, TValue newValue, TValue comparisonValue)
 	{
-		var result = GetDictionary().AddOrUpdate(key, addValueFactory, updateValueFactory, factoryArgument);
+		var tryUpdate = _dictionary?.TryUpdate(key, newValue, comparisonValue) ?? false;
 
-		SetTaskCompletionSource(key, result, true);
+		if (tryUpdate)
+		{
+			SetTaskCompletionSource(key, newValue, found: true);
+		}
 
-		return result;
+		return tryUpdate;
 	}
 
 	public ValueTask<(bool Found, TValue Value)> TryGetValueAsync(TKey key)
@@ -182,18 +209,42 @@ public class MiniDictionary<TKey, TValue>(IEqualityComparer<TKey>? comparer = de
 
 	public bool TryAddPending(TKey key) => GetTcsDictionary().TryAdd(key, value: default);
 
-	public TValue this[TKey key]
+	public TValue GetOrAdd<TArg>(TKey key,
+								 Func<TKey, TArg, TValue> valueFactory,
+								 TArg factoryArgument)
 	{
-		get => TryGetValue(key, out var value) ? value : throw GetKeyNotFoundException(key);
-		set
+		while (true)
 		{
-			GetDictionary()[key] = value;
+			if (TryGetValue(key, out var value))
+			{
+				return value;
+			}
 
-			SetTaskCompletionSource(key, value, true);
+			value = valueFactory(key, factoryArgument);
+
+			if (TryAdd(key, value))
+			{
+				return value;
+			}
 		}
 	}
 
-	public void UpdateOrRemove<TArg>(TKey key, Func<TKey, TValue, TArg, bool> isDeletePredicate, Func<TKey, TValue, TArg, TValue> updateValueFactory, TArg factoryArgument)
+	public TValue AddOrUpdate<TArg>(TKey key,
+									Func<TKey, TArg, TValue> addValueFactory,
+									Func<TKey, TValue, TArg, TValue> updateValueFactory,
+									TArg factoryArgument)
+	{
+		var addOrUpdate = GetDictionary().AddOrUpdate(key, addValueFactory, updateValueFactory, factoryArgument);
+
+		SetTaskCompletionSource(key, addOrUpdate, found: true);
+
+		return addOrUpdate;
+	}
+
+	public TValue UpdateOrRemove<TArg>(TKey key,
+									   Func<TKey, TValue, TArg, bool> isDeletePredicate,
+									   Func<TKey, TValue, TArg, TValue> updateValueFactory,
+									   TArg factoryArgument)
 	{
 		while (TryGetValue(key, out var value))
 		{
@@ -201,16 +252,20 @@ public class MiniDictionary<TKey, TValue>(IEqualityComparer<TKey>? comparer = de
 			{
 				if (TryRemovePair(key, value))
 				{
-					return;
+					return default!;
 				}
 			}
 			else
 			{
-				if (TryUpdate(key, updateValueFactory(key, value, factoryArgument), value))
+				var newValue = updateValueFactory(key, value, factoryArgument);
+
+				if (TryUpdate(key, newValue, value))
 				{
-					return;
+					return newValue;
 				}
 			}
 		}
+
+		return default!;
 	}
 }

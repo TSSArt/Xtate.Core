@@ -19,7 +19,7 @@ namespace Xtate;
 
 public class StateMachineCollection : IStateMachineCollection
 {
-	private readonly MiniDictionary<SessionId, IStateMachineController> _controllers = [];
+	private readonly ExtDictionary<SessionId, IStateMachineController> _controllers = [];
 
 	public required IDeadLetterQueue<IStateMachineCollection> DeadLetterQueue { private get; [UsedImplicitly] init; }
 
