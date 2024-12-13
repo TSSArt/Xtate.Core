@@ -120,6 +120,12 @@ public partial class DataModelList
 		public static bool operator ==(KeyValue left, KeyValue right) => left.Equals(right);
 
 		public static bool operator !=(KeyValue left, KeyValue right) => !left.Equals(right);
+
+		public void Deconstruct(out string? key, out DataModelValue value)
+		{
+			key = Key;
+			value = Value;
+		}
 	}
 
 	private struct Args

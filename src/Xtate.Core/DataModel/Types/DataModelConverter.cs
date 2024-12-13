@@ -366,18 +366,18 @@ public static class DataModelConverter
 
 			writer.WriteStartObject();
 
-			foreach (var pair in list.KeyValuePairs)
+			foreach (var (key, value) in list.KeyValuePairs)
 			{
-				if (!string.IsNullOrEmpty(pair.Key))
+				if (!string.IsNullOrEmpty(key))
 				{
-					if (!pair.Value.IsUndefined())
+					if (!value.IsUndefined())
 					{
-						writer.WritePropertyName(pair.Key);
-						JsonSerializer.Serialize(writer, pair.Value, options);
+						writer.WritePropertyName(key);
+						JsonSerializer.Serialize(writer, value, options);
 					}
 					else if ((converterOptions & JsonOptions.UndefinedToSkipOrNull) == JsonOptions.UndefinedToNull)
 					{
-						writer.WritePropertyName(pair.Key);
+						writer.WritePropertyName(key);
 						writer.WriteNullValue();
 					}
 				}

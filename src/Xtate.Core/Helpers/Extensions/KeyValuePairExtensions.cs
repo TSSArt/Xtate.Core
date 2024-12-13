@@ -15,43 +15,17 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#if !NETCOREAPP2_0 && !NETCOREAPP2_1_OR_GREATER && !NETSTANDARD2_1
+
 namespace Xtate.Core;
 
-public readonly struct MulticastAsyncDelegate<TArg>()
+public static class KeyValuePairExtensions
 {
-	private readonly ConcurrentDictionary<Func<TArg, ValueTask>, uint> _delegates = new(concurrencyLevel: 1, capacity: 1);
-
-	public event Func<TArg, ValueTask> OnInvoke
+	public static void Deconstruct<TKey, TValue>(this KeyValuePair<TKey, TValue> keyValuePair, out TKey key, out TValue value)
 	{
-		add
-		{
-			_delegates.AddOrUpdate(value, addValue: 0, (_, count) => count + 1);
-		}
-		remove
-		{
-			var count = 0u;
-
-			do
-			{
-				switch (count)
-				{
-					case 0 when _delegates.TryRemove(new KeyValuePair<Func<TArg, ValueTask>, uint>(value, count)):
-					case not 0 when _delegates.TryUpdate(value, count - 1, count):
-						return;
-				}
-			}
-			while (_delegates.TryGetValue(value, out count));
-		}
-	}
-
-	public async ValueTask Invoke(TArg arg)
-	{
-		foreach (var (key, value) in _delegates)
-		{
-			for (var i = 0; i <= value; i ++)
-			{
-				await key(arg).ConfigureAwait(false);
-			}
-		}
+		key = keyValuePair.Key;
+		value = keyValuePair.Value;
 	}
 }
+
+#endif

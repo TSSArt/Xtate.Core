@@ -260,14 +260,14 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 
 	private static bool IsStringDictionary(DataModelList dataModelList)
 	{
-		foreach (var pair in dataModelList.KeyValues)
+		foreach (var (key, value) in dataModelList.KeyValues)
 		{
-			if (pair.Key is null)
+			if (key is null)
 			{
 				return false;
 			}
 
-			switch (pair.Value.Type)
+			switch (value.Type)
 			{
 				case DataModelValueType.List:
 				case DataModelValueType.Number:
@@ -281,7 +281,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 					break;
 
 				default:
-					throw Infra.Unmatched(pair.Value.Type);
+					throw Infra.Unmatched(value.Type);
 			}
 		}
 
@@ -297,9 +297,9 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 
 		if (dataModelList is not null)
 		{
-			foreach (var pair in dataModelList.KeyValues)
+			foreach (var (key, value) in dataModelList.KeyValues)
 			{
-				yield return new KeyValuePair<string?, string?>(pair.Key, Convert.ToString(pair.Value, CultureInfo.InvariantCulture));
+				yield return new KeyValuePair<string?, string?>(key, Convert.ToString(value, CultureInfo.InvariantCulture));
 			}
 		}
 	}
