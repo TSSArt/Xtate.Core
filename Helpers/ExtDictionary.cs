@@ -146,13 +146,13 @@ public class ExtDictionary<TKey, TValue>(IEqualityComparer<TKey>? comparer = def
 	{
 		if (_dictionary is { } dictionary)
 		{
-			foreach (var pair in dictionary)
+			foreach (var (key1, _) in dictionary)
 			{
-				if (dictionary.TryRemove(pair.Key, out value))
+				if (dictionary.TryRemove(key1, out value))
 				{
-					SetTaskCompletionSource(pair.Key, default!, found: false);
+					SetTaskCompletionSource(key1, default!, found: false);
 
-					key = pair.Key;
+					key = key1;
 
 					return true;
 				}
