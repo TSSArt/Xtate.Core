@@ -717,9 +717,9 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 
 		map[dictionary] = list;
 
-		foreach (var pair in dictionary)
+		foreach (var (key, obj) in dictionary)
 		{
-			list.Add(pair.Key, FromObjectWithMap(pair.Value, ref map), metadata: default);
+			list.Add(key, FromObjectWithMap(obj, ref map), metadata: default);
 		}
 
 		return new DataModelValue(list);
@@ -738,9 +738,9 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 
 		map[dictionary] = list;
 
-		foreach (var pair in dictionary)
+		foreach (var (key, str) in dictionary)
 		{
-			list.Add(pair.Key, new DataModelValue(pair.Value), metadata: default);
+			list.Add(key, new DataModelValue(str), metadata: default);
 		}
 
 		return new DataModelValue(list);

@@ -65,9 +65,9 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 		{
 			_configuration = [];
 
-			foreach (var pair in configuration)
+			foreach (var (key, value) in configuration)
 			{
-				_configuration.Add(pair.Key, pair.Value);
+				_configuration.Add(key, value);
 			}
 
 			_configuration.MakeDeepConstant();
@@ -411,10 +411,8 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 		{
 			exit = true;
 
-			foreach (var pair in _stateMachineBySessionId)
+			foreach (var (_, controller) in _stateMachineBySessionId)
 			{
-				var controller = pair.Value;
-
 				try
 				{
 					await controller.GetResult().ConfigureAwait(false);
