@@ -26,10 +26,18 @@ public class ExternalServiceManager : IExternalServiceManager
 	public required IExternalServiceScopeManager ExternalServiceScopeManager { private get; [UsedImplicitly] init; }
 
 	public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
+	
+	public required IDeadLetterQueue<IExternalServiceManager> DeadLetterQueue { private get; [UsedImplicitly] init; }
 
 #region Interface IExternalServiceManager
 
-	public ValueTask Forward(InvokeId invokeId, IIncomingEvent incomingEvent) => ExternalServiceCollection.Dispatch(invokeId, incomingEvent, DisposeToken);
+	public async ValueTask Forward(InvokeId invokeId, IIncomingEvent incomingEvent)
+	{
+		if (!await ExternalServiceCollection.TryDispatch(invokeId, incomingEvent, DisposeToken).ConfigureAwait(false))
+		{
+			await DeadLetterQueue.Enqueue(invokeId, incomingEvent).ConfigureAwait(false);
+		}
+	}
 
 	public ValueTask Start(InvokeData invokeData) => ExternalServiceScopeManager.Start(invokeData, DisposeToken);
 
