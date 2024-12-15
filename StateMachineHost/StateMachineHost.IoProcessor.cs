@@ -38,7 +38,7 @@ public sealed partial class StateMachineHost : IIoProcessor, IEventConsumer, IEv
 
 	public bool IsInternalTarget(FullUri? target) => target == Const.ScxmlIoProcessorInternalTarget;
 
-	ValueTask<IRouterEvent> IEventRouter.GetRouterEvent(IOutgoingEvent outgoingEvent)
+	ValueTask<IRouterEvent> IEventRouter.GetRouterEvent(IOutgoingEvent outgoingEvent, CancellationToken token)
 	{
 		ServiceId senderServiceId = default!;
 
@@ -65,7 +65,7 @@ public sealed partial class StateMachineHost : IIoProcessor, IEventConsumer, IEv
 		throw new ProcessorException(Resources.Exception_CannotFindTarget);
 	}
 
-	async ValueTask IEventRouter.Dispatch(IRouterEvent routerEvent)
+	async ValueTask IEventRouter.Dispatch(IRouterEvent routerEvent, CancellationToken token)
 	{
 		Infra.NotNull(routerEvent.TargetServiceId);
 

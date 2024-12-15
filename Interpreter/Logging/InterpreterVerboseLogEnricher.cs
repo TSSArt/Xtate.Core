@@ -19,13 +19,16 @@ namespace Xtate.Core;
 
 public class InterpreterVerboseLogEnricher<TSource> : ILogEnricher<TSource>
 {
-	public required IDataModelController DataModelController { private get; [UsedImplicitly] init; }
+	public required Safe<IStateMachineContext> StateMachineContext { private get; [UsedImplicitly] init; }
 
 #region Interface ILogEnricher<TSource>
 
 	public IEnumerable<LoggingParameter> EnumerateProperties()
 	{
-		yield return new LoggingParameter(name: @"DataModel", DataModelController.DataModel.AsConstant());
+		if (StateMachineContext() is { } context)
+		{
+			yield return new LoggingParameter(name: @"DataModel", context.DataModel.AsConstant());
+		}
 	}
 
 	public string Namespace => @"ctx";

@@ -1983,6 +1983,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to SendId does not specify..
+        /// </summary>
+        internal static string Exception_SendIdDoesNotSpecify {
+            get {
+                return ResourceManager.GetString("Exception_SendIdDoesNotSpecify", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to SendId is empty..
         /// </summary>
         internal static string Exception_SendIdIsEmpty {
@@ -2630,6 +2639,24 @@ namespace Xtate {
         internal static string Exception_XmlResolverReturnedNull {
             get {
                 return ResourceManager.GetString("Exception_XmlResolverReturnedNull", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Task failed..
+        /// </summary>
+        internal static string Message_TaskFailed {
+            get {
+                return ResourceManager.GetString("Message_TaskFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Task was canceled..
+        /// </summary>
+        internal static string Message_TaskWasCanceled {
+            get {
+                return ResourceManager.GetString("Message_TaskWasCanceled", resourceCulture);
             }
         }
         

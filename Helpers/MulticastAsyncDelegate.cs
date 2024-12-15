@@ -15,8 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.Collections.Concurrent;
-
 namespace Xtate.Core;
 
 public readonly struct MulticastAsyncDelegate<TArg>()
@@ -48,11 +46,11 @@ public readonly struct MulticastAsyncDelegate<TArg>()
 
 	public async ValueTask Invoke(TArg arg)
 	{
-		foreach (var pair in _delegates)
+		foreach (var (key, value) in _delegates)
 		{
-			for (var i = 0; i <= pair.Value; i ++)
+			for (var i = 0; i <= value; i ++)
 			{
-				await pair.Key(arg).ConfigureAwait(false);
+				await key(arg).ConfigureAwait(false);
 			}
 		}
 	}

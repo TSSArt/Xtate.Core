@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.Collections.Concurrent;
 using Xtate.IoC;
+using IServiceProvider = Xtate.IoC.IServiceProvider;
 
 namespace Xtate;
 
@@ -24,13 +24,13 @@ public class StateMachineScopeManager : IStateMachineScopeManager, IDisposable, 
 {
 	private ConcurrentDictionary<SessionId, IServiceScope>? _scopes = new();
 
-	public required IServiceScopeFactory   ServiceScopeFactory    { private get; [UsedImplicitly] init; }
-	
-	public required StateMachineCollection StateMachineCollection { private get; [UsedImplicitly] init; }
+	public required IServiceScopeFactory ServiceScopeFactory { private get; [UsedImplicitly] init; }
+
+	public required IStateMachineCollection StateMachineCollection { private get; [UsedImplicitly] init; }
 
 	public required Func<SecurityContextType, SecurityContextRegistration> SecurityContextRegistrationFactory { private get; [UsedImplicitly] init; }
 
-	public required TaskCollector TaskCollector { private get; [UsedImplicitly] init; }
+	public required TaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
 
 #region Interface IAsyncDisposable
 
@@ -68,20 +68,17 @@ public class StateMachineScopeManager : IStateMachineScopeManager, IDisposable, 
 
 		try
 		{
-			runner = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineRunner>().ConfigureAwait(false);
-
-			var stateMachineController = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineController>().ConfigureAwait(false);
-			StateMachineCollection.Register(stateMachineClass.SessionId, stateMachineController);
+			await Start(serviceScope.ServiceProvider, stateMachineClass.SessionId, waitForCompletion: false).ConfigureAwait(false);
 		}
 		finally
 		{
-			if (runner is null)
+			if (runner is not null)
 			{
-				await Cleanup(stateMachineClass.SessionId).ConfigureAwait(false);
+				WaitAndCleanup(stateMachineClass.SessionId, runner).Forget(TaskMonitor);
 			}
 			else
 			{
-				TaskCollector.Collect(WaitAndCleanup(stateMachineClass.SessionId, runner));
+				await Cleanup(stateMachineClass.SessionId).ConfigureAwait(false);
 			}
 		}
 	}
@@ -96,13 +93,8 @@ public class StateMachineScopeManager : IStateMachineScopeManager, IDisposable, 
 		{
 			try
 			{
-				var runner = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineRunner>().ConfigureAwait(false);
-				
-				var stateMachineController = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineController>().ConfigureAwait(false);
-				StateMachineCollection.Register(stateMachineClass.SessionId, stateMachineController);
+				var stateMachineController = await Start(serviceScope.ServiceProvider, stateMachineClass.SessionId, waitForCompletion: true).ConfigureAwait(false);
 
-				await runner.WaitForCompletion().ConfigureAwait(false);
-				
 				return await stateMachineController.GetResult().ConfigureAwait(false);
 			}
 			finally
@@ -115,6 +107,23 @@ public class StateMachineScopeManager : IStateMachineScopeManager, IDisposable, 
 	ValueTask IStateMachineScopeManager.Terminate(SessionId sessionId) => _scopes?.TryRemove(sessionId, out var serviceScope) == true ? serviceScope.DisposeAsync() : default;
 
 #endregion
+
+	private async ValueTask<IStateMachineController> Start(IServiceProvider serviceProvider, SessionId sessionId, bool waitForCompletion)
+	{
+		StateMachineCollection.Register(sessionId);
+
+		var runner = await serviceProvider.GetRequiredService<IStateMachineRunner>().ConfigureAwait(false);
+
+		var stateMachineController = await serviceProvider.GetRequiredService<IStateMachineController>().ConfigureAwait(false);
+		StateMachineCollection.SetController(sessionId, stateMachineController);
+
+		if (waitForCompletion)
+		{
+			await runner.WaitForCompletion().ConfigureAwait(false);
+		}
+
+		return stateMachineController;
+	}
 
 	private IServiceScope CreateServiceScope(StateMachineClass stateMachineClass)
 	{
@@ -137,10 +146,7 @@ public class StateMachineScopeManager : IStateMachineScopeManager, IDisposable, 
 	{
 		try
 		{
-			if (runner is not null)
-			{
-				await runner.WaitForCompletion().ConfigureAwait(false);
-			}
+			await runner.WaitForCompletion().ConfigureAwait(false);
 		}
 		finally
 		{

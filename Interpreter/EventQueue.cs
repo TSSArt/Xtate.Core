@@ -19,15 +19,27 @@ using System.Threading.Channels;
 
 namespace Xtate.Core;
 
-public class EventQueue : IEventQueueReader, IEventQueueWriter, IEventDispatcher
+public class EventQueue : IEventQueueReader, IEventQueueWriter, IEventDispatcher, IDisposable
 {
+	protected virtual void Dispose(bool disposing)
+	{
+		if (disposing)
+		{
+			_channel.Writer.TryComplete();
+		}
+	}
+
+	public void Dispose()
+	{
+		Dispose(true);
+		GC.SuppressFinalize(this);
+	}
+
 	private readonly Channel<IIncomingEvent> _channel = Channel.CreateUnbounded<IIncomingEvent>();
 
-	public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
-	
 	#region Interface IEventDispatcher
 
-	public ValueTask Dispatch(IIncomingEvent incomingEvent) => WriteAsync(incomingEvent);
+	public ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token) => WriteAsync(incomingEvent, token);
 
 #endregion
 
@@ -35,7 +47,7 @@ public class EventQueue : IEventQueueReader, IEventQueueWriter, IEventDispatcher
 
 	public bool TryReadEvent([MaybeNullWhen(false)] out IIncomingEvent incomingEvent) => _channel.Reader.TryRead(out incomingEvent);
 
-	public ValueTask<bool> WaitToEvent() => _channel.Reader.WaitToReadAsync(DisposeToken);
+	public ValueTask<bool> WaitToEvent() => _channel.Reader.WaitToReadAsync();
 
 	public void Complete() => _channel.Writer.TryComplete();
 
@@ -43,7 +55,7 @@ public class EventQueue : IEventQueueReader, IEventQueueWriter, IEventDispatcher
 
 #region Interface IEventQueueWriter
 
-	public ValueTask WriteAsync(IIncomingEvent incomingEvent) => _channel.Writer.WriteAsync(incomingEvent, DisposeToken);
+	public ValueTask WriteAsync(IIncomingEvent incomingEvent, CancellationToken token) => _channel.Writer.WriteAsync(incomingEvent, token);
 
 #endregion
 }

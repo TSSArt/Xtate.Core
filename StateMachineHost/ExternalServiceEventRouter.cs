@@ -22,11 +22,13 @@ namespace Xtate.Core;
 
 public class ExternalServiceEventRouter : IEventRouter
 {
-	private readonly MiniDictionary<InvokeId, Func<IIncomingEvent, ValueTask>> _handlers = new(InvokeId.InvokeUniqueIdComparer);
-
 	public required ServiceList<IExternalServiceProvider> ExternalServiceProviders { private get; [UsedImplicitly] init; }
 
 	public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
+
+	public required IExternalServiceCollection ExternalServiceCollection { private get; [UsedImplicitly] init; }
+
+	public required IDeadLetterQueue<IEventRouter> DeadLetterQueue { private get; [UsedImplicitly] init; }
 
 #region Interface IEventRouter
 
@@ -48,43 +50,20 @@ public class ExternalServiceEventRouter : IEventRouter
 		return false;
 	}
 
-	public bool IsInternalTarget(FullUri? target) => default;
+	public bool IsInternalTarget(FullUri? target) => false;
 
-	public ValueTask<IRouterEvent> GetRouterEvent(IOutgoingEvent outgoingEvent) =>
+	public ValueTask<IRouterEvent> GetRouterEvent(IOutgoingEvent outgoingEvent, CancellationToken token) =>
 		new(new RouterEvent(StateMachineSessionId.SessionId, GetInvokeId(outgoingEvent.Target), Const.ScxmlIoProcessorId, Const.ParentTarget, outgoingEvent));
 
-	public ValueTask Dispatch(IRouterEvent routerEvent) => Dispatch((InvokeId) routerEvent.TargetServiceId!, routerEvent);
+	public async ValueTask Dispatch(IRouterEvent routerEvent, CancellationToken token)
+	{
+		if(!await ExternalServiceCollection.TryDispatch((InvokeId) routerEvent.TargetServiceId!, routerEvent, token).ConfigureAwait(false))
+		{
+			await DeadLetterQueue.Enqueue(routerEvent.TargetServiceId!, routerEvent).ConfigureAwait(false);
+		}
+	}
 
 #endregion
-
-	public ValueTask Dispatch(InvokeId invokeId, IIncomingEvent incomingEvent)
-	{
-		if (!_handlers.TryGetValue(invokeId, out var handler))
-		{
-			return default;
-		}
-
-		if(incomingEvent is not IncomingEvent)
-		{
-			incomingEvent = new IncomingEvent(incomingEvent);
-		}
-
-		return handler(incomingEvent);
-	}
-
-	internal void Subscribe(InvokeId invokeId, Func<IIncomingEvent, ValueTask> handler)
-	{
-		var added = _handlers.TryAdd(invokeId, handler);
-
-		Infra.Assert(added);
-	}
-
-	internal void Unsubscribe(InvokeId invokeId)
-	{
-		var removed = _handlers.TryRemove(invokeId, out _);
-
-		Infra.Assert(removed);
-	}
 
 	private static InvokeId? GetInvokeId(FullUri? target)
 	{

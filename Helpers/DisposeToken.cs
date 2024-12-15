@@ -22,7 +22,7 @@ namespace Xtate.Core;
 [DebuggerDisplay("IsCancellationRequested = {IsCancellationRequested}")]
 public readonly struct DisposeToken(CancellationToken cancellationToken) : IEquatable<DisposeToken>
 {
-	public CancellationToken Token { get; } = cancellationToken;
+	public CancellationToken Token => cancellationToken;
 
 	public bool IsCancellationRequested => Token.IsCancellationRequested;
 

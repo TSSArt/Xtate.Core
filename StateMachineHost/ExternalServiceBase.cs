@@ -17,73 +17,82 @@
 
 namespace Xtate.ExternalService;
 
-public abstract class ExternalServiceBase : IExternalService, IDisposable, IAsyncDisposable
+public abstract class ExternalServiceBase : IExternalService, IEventDispatcher
 {
-	private readonly DisposingToken _disposingToken = new();
+	private readonly CancellationToken? _destroyToken;
 
-	private readonly AsyncInit<DataModelValue> _execution;
+	private readonly LazyTask<DataModelValue> _lazyTask = default!;
 
-	protected ExternalServiceBase() => _execution = AsyncInit.Run(this, es => es.ExecuteWithCancellation());
+	private readonly TaskMonitor _taskMonitor = default!;
 
-	public required IExternalServiceSource ExternalServiceSource { private get; [UsedImplicitly] init; }
-
-	public required IExternalServiceParameters ExternalServiceParameters { private get; [UsedImplicitly] init; }
-
-	protected Uri? Source => ExternalServiceSource.Source;
-
-	protected string? RawContent => ExternalServiceSource.RawContent;
-
-	protected DataModelValue Content => ExternalServiceSource.Content;
-
-	protected DataModelValue Parameters => ExternalServiceParameters.Parameters;
-
-	protected CancellationToken DestroyToken => _disposingToken.Token;
-
-#region Interface IAsyncDisposable
-
-	public async ValueTask DisposeAsync()
+	[UsedImplicitly]
+	public required IExternalServiceSource ExternalServiceSourceLocal
 	{
-		await DisposeAsyncCore().ConfigureAwait(false);
-		
-		Dispose(false);
-		
-		GC.SuppressFinalize(this);
+		init
+		{
+			Source = value.Source;
+			Content = value.Content;
+			RawContent = value.RawContent;
+		}
 	}
 
-#endregion
-
-#region Interface IDisposable
-
-	public void Dispose()
+	[UsedImplicitly]
+	public required IExternalServiceParameters ExternalServiceParametersLocal
 	{
-		Dispose(true);
-		GC.SuppressFinalize(this);
+		init => Parameters = value.Parameters;
 	}
+
+	[UsedImplicitly]
+	public required DisposeToken DisposeTokenLocal
+	{
+		init
+		{
+			_destroyToken = value.Token;
+
+			if (_taskMonitor is not null && _lazyTask is null)
+			{
+				_lazyTask = new LazyTask<DataModelValue>(Execute, _taskMonitor, _destroyToken.Value);
+			}
+		}
+	}
+
+	[UsedImplicitly]
+	public required TaskMonitor TaskMonitorLocal
+	{
+		init
+		{
+			_taskMonitor = value;
+
+			if (_destroyToken is not null && _lazyTask is null)
+			{
+				_lazyTask = new LazyTask<DataModelValue>(Execute, _taskMonitor, _destroyToken.Value);
+			}
+		}
+	}
+
+	protected Uri? Source { get; private init; }
+
+	protected string? RawContent { get; private init; }
+
+	protected DataModelValue Content { get; private init; }
+
+	protected DataModelValue Parameters { get; private init; }
+
+	protected CancellationToken DestroyToken => _destroyToken!.Value;
+
+#region Interface IEventDispatcher
+
+	ValueTask IEventDispatcher.Dispatch(IIncomingEvent incomingEvent, CancellationToken token) => Dispatch(incomingEvent, token);
 
 #endregion
 
 #region Interface IExternalService
 
-	async ValueTask<DataModelValue> IExternalService.GetResult()
-	{
-		await _execution.Task.ConfigureAwait(false);
-
-		return _execution.Value;
-	}
+	ValueTask<DataModelValue> IExternalService.GetResult() => new(_lazyTask.Task);
 
 #endregion
 
-	protected virtual void Dispose(bool disposing)
-	{
-		if (disposing)
-		{
-			_disposingToken.Dispose();
-		}
-	}
-
-	protected virtual ValueTask DisposeAsyncCore() => _disposingToken.DisposeAsync();
-
-	private ValueTask<DataModelValue> ExecuteWithCancellation() => Execute().WaitAsync(_disposingToken.Token);
-
 	protected abstract ValueTask<DataModelValue> Execute();
+
+	protected virtual ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token) => default;
 }

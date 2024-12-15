@@ -21,16 +21,12 @@ namespace Xtate.Core;
 
 public class DataModelHandlerGetter
 {
-	private ValueTask<IDataModelHandler?>? _dataModelHandler;
-
 	public required IDataModelHandlerService DataModelHandlerService { private get; [UsedImplicitly] init; }
 
 	public required IStateMachine? StateMachine { private get; [UsedImplicitly] init; }
 
 	[UsedImplicitly]
-	public ValueTask<IDataModelHandler?> GetDataModelHandler() => _dataModelHandler ??= CreateDataModelHandler().Preserve();
-
-	protected virtual async ValueTask<IDataModelHandler?> CreateDataModelHandler() =>
+	public async ValueTask<IDataModelHandler?> GetDataModelHandler() =>
 		StateMachine is not null
 			? await DataModelHandlerService.GetDataModelHandler(StateMachine.DataModelType).ConfigureAwait(false)
 			: default;

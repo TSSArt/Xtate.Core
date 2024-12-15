@@ -136,7 +136,7 @@ internal sealed class PersistedEventScheduler(IStorageProvider storageProvider, 
 
 				_scheduledEvents.Add(scheduledEvent);
 
-				await ScheduleEvent(scheduledEvent).ConfigureAwait(false);
+				await ScheduleEvent(scheduledEvent, token).ConfigureAwait(false);
 			}
 		}
 	}

@@ -22,4 +22,6 @@ public abstract class ServiceId : LazyId
 	protected ServiceId() { }
 
 	protected ServiceId(string id) : base(id) { }
+
+	public abstract string ServiceType { get; }
 }

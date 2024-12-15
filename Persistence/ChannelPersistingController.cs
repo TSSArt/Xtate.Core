@@ -27,7 +27,7 @@ internal sealed class ChannelPersistingController<T> : Channel<T>, IDisposable
 
 	private readonly Channel<T> _baseChannel;
 
-	private readonly TaskCompletionSource<int> _initializedTcs = new();
+	private readonly TaskCompletionSource _initializedTcs = new();
 
 	private Bucket _bucket;
 
@@ -49,7 +49,7 @@ internal sealed class ChannelPersistingController<T> : Channel<T>, IDisposable
 
 #region Interface IDisposable
 
-	public void Dispose() => _initializedTcs.TrySetResult(0);
+	public void Dispose() => _initializedTcs.TrySetResult();
 
 #endregion
 
@@ -75,7 +75,7 @@ internal sealed class ChannelPersistingController<T> : Channel<T>, IDisposable
 			}
 		}
 
-		_initializedTcs.TrySetResult(0);
+		_initializedTcs.TrySetResult();
 	}
 
 	private class ChannelReader(ChannelPersistingController<T> parent) : ChannelReader<T>
@@ -87,7 +87,7 @@ internal sealed class ChannelPersistingController<T> : Channel<T>, IDisposable
 		public override async ValueTask<bool> WaitToReadAsync(CancellationToken token = default)
 		{
 			await parent._initializedTcs.Task.WaitAsync(token).ConfigureAwait(false);
-
+			
 			await parent._storageLock!.WaitAsync(token).ConfigureAwait(false);
 
 			try

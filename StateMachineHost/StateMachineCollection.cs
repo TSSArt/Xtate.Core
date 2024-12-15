@@ -15,42 +15,65 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.Collections.Concurrent;
-
 namespace Xtate;
 
 public class StateMachineCollection : IStateMachineCollection
 {
-	private readonly ConcurrentDictionary<SessionId, IStateMachineController> _controllers = new();
+	private readonly ExtDictionary<SessionId, IStateMachineController> _controllers = [];
 
-	internal void Register(SessionId sessionId, IStateMachineController stateMachineController)
+	public required IDeadLetterQueue<IStateMachineCollection> DeadLetterQueue { private get; [UsedImplicitly] init; }
+
+#region Interface IStateMachineCollection
+
+	public async ValueTask Dispatch(SessionId sessionId, IIncomingEvent incomingEvent, CancellationToken token)
 	{
-		var added = _controllers.TryAdd(sessionId, stateMachineController);
+		var (found, controller) = await _controllers.TryGetValueAsync(sessionId).ConfigureAwait(false);
 
-		Infra.Assert(added);
-	}
-
-	internal void Unregister(SessionId sessionId)
-	{
-		var removed = _controllers.TryRemove(sessionId, out _);
-
-		Infra.Assert(removed);
-	}
-
-	public ValueTask Dispatch(SessionId sessionId, IIncomingEvent incomingEvent)
-	{
-		if (!_controllers.TryGetValue(sessionId, out var stateMachineController))
+		if (found)
 		{
-			return default;
-		}
+			if (incomingEvent is not IncomingEvent)
+			{
+				incomingEvent = new IncomingEvent(incomingEvent);
+			}
 
-		if(incomingEvent is not IncomingEvent)
+			await controller.Dispatch(incomingEvent, token).ConfigureAwait(false);
+		}
+		else
 		{
-			incomingEvent = new IncomingEvent(incomingEvent);
+			await DeadLetterQueue.Enqueue(sessionId, incomingEvent).ConfigureAwait(false);
 		}
-
-		return stateMachineController.Dispatch(incomingEvent);
 	}
 
-	public ValueTask Destroy(SessionId sessionId) => _controllers.TryGetValue(sessionId, out var stateMachineController) ? stateMachineController.Destroy() : default;
+	public async ValueTask Destroy(SessionId sessionId)
+	{
+		var (found, controller) = await _controllers.TryGetValueAsync(sessionId).ConfigureAwait(false);
+
+		if (found)
+		{
+			await controller.Destroy().ConfigureAwait(false);
+		}
+	}
+
+	public void Register(SessionId sessionId)
+	{
+		var tryAddPending = _controllers.TryAddPending(sessionId);
+
+		Infra.Assert(tryAddPending);
+	}
+
+	public void SetController(SessionId sessionId, IStateMachineController controller)
+	{
+		var tryAdd = _controllers.TryAdd(sessionId, controller);
+
+		Infra.Assert(tryAdd);
+	}
+
+	public void Unregister(SessionId sessionId)
+	{
+		var tryRemove = _controllers.TryRemove(sessionId, out _);
+
+		Infra.Assert(tryRemove);
+	}
+
+#endregion
 }

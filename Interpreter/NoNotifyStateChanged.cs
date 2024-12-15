@@ -17,28 +17,7 @@
 
 namespace Xtate.Core;
 
-public class EventSchedulerInfoEnricher : ILogEnricher<InProcEventScheduler>
+public class NoNotifyStateChanged : INotifyStateChanged
 {
-	private readonly AsyncLocal<SessionId> _sessionIdAsyncLocal = new();
-
-#region Interface ILogEnricher<InProcEventScheduler>
-
-	public IEnumerable<LoggingParameter> EnumerateProperties()
-	{
-		if (_sessionIdAsyncLocal.Value is { } sessionId)
-		{
-			yield return new LoggingParameter(name: @"SessionId", sessionId);
-		}
-	}
-
-	public string Namespace => @"ctx";
-
-	public Level Level => Level.Info;
-
-#endregion
-
-	public void SetSessionId(SessionId sessionId)
-	{
-		_sessionIdAsyncLocal.Value = sessionId;
-	}
+	public ValueTask OnChanged(StateMachineInterpreterState state) => default;
 }

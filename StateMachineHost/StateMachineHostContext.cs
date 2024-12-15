@@ -15,7 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.Collections.Concurrent;
 using System.Xml;
 using Xtate.Builder;
 using Xtate.ExternalService;
@@ -66,9 +65,9 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 		{
 			_configuration = [];
 
-			foreach (var pair in configuration)
+			foreach (var (key, value) in configuration)
 			{
-				_configuration.Add(pair.Key, pair.Value);
+				_configuration.Add(key, value);
 			}
 
 			_configuration.MakeDeepConstant();
@@ -226,12 +225,13 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 		//																	  DeferredFinalizer finalizer
 	) =>
 		new StateMachineRuntimeController(
-			sessionId, stateMachineOptions, stateMachine, stateMachineLocation, /*_stateMachineHost*/stateMachineHost: null,
+			sessionId, stateMachineOptions, stateMachine, stateMachineLocation, /*_stateMachineHost*/
 			_options.SuspendIdlePeriod /*, defaultOptions*/)
 		{
 			EventQueueWriter = default!,
 			StateMachineInterpreter = default,
-			TaskCollector = null
+			TaskMonitor = null,
+			StateMachineStatus = null
 		};
 
 	private static XmlReaderSettings GetXmlReaderSettings(XmlNameTable nameTable, ScxmlXmlResolver xmlResolver) =>
@@ -411,10 +411,8 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 		{
 			exit = true;
 
-			foreach (var pair in _stateMachineBySessionId)
+			foreach (var (_, controller) in _stateMachineBySessionId)
 			{
-				var controller = pair.Value;
-
 				try
 				{
 					await controller.GetResult().ConfigureAwait(false);

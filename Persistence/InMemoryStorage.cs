@@ -280,32 +280,32 @@ public class InMemoryStorage : IStorage
 			newReadModel = CreateReadModel();
 		}
 
-		foreach (var pair in _readModel)
+		foreach (var (key, value) in _readModel)
 		{
-			var keyLengthLength = Encode.GetEncodedLength(pair.Key.Length);
+			var keyLengthLength = Encode.GetEncodedLength(key.Length);
 			var keyLenSpan = span[..keyLengthLength];
-			var keySpan = span.Slice(keyLengthLength, pair.Key.Length);
+			var keySpan = span.Slice(keyLengthLength, key.Length);
 
-			Encode.WriteEncodedValue(keyLenSpan, pair.Key.Length);
-			pair.Key.Span.CopyTo(keySpan);
+			Encode.WriteEncodedValue(keyLenSpan, key.Length);
+			key.Span.CopyTo(keySpan);
 
-			var valueLengthLength = Encode.GetEncodedLength(pair.Value.Length);
-			var valueLenSpan = span.Slice(keyLengthLength + pair.Key.Length, valueLengthLength);
-			var valueSpan = span.Slice(keyLengthLength + pair.Key.Length + valueLengthLength, pair.Value.Length);
+			var valueLengthLength = Encode.GetEncodedLength(value.Length);
+			var valueLenSpan = span.Slice(keyLengthLength + key.Length, valueLengthLength);
+			var valueSpan = span.Slice(keyLengthLength + key.Length + valueLengthLength, value.Length);
 
-			Encode.WriteEncodedValue(valueLenSpan, pair.Value.Length);
-			pair.Value.Span.CopyTo(valueSpan);
+			Encode.WriteEncodedValue(valueLenSpan, value.Length);
+			value.Span.CopyTo(valueSpan);
 
-			span = span[(keyLengthLength + pair.Key.Length + valueLengthLength + pair.Value.Length)..];
+			span = span[(keyLengthLength + key.Length + valueLengthLength + value.Length)..];
 
 			if (shrink)
 			{
-				var key = newBaseline[..pair.Key.Length];
-				var value = newBaseline.Slice(pair.Key.Length, pair.Value.Length);
-				pair.Key.CopyTo(key);
-				pair.Value.CopyTo(value);
-				newReadModel!.Add(new Entry(key, value));
-				newBaseline = newBaseline[(pair.Key.Length + pair.Value.Length)..];
+				var newKey = newBaseline[..key.Length];
+				var newValue = newBaseline.Slice(key.Length, value.Length);
+				key.CopyTo(newKey);
+				value.CopyTo(newValue);
+				newReadModel!.Add(new Entry(newKey, newValue));
+				newBaseline = newBaseline[(key.Length + value.Length)..];
 			}
 		}
 
@@ -383,5 +383,11 @@ public class InMemoryStorage : IStorage
 		}
 
 	#endregion
+		
+		public void Deconstruct(out ReadOnlyMemory<byte> key, out ReadOnlyMemory<byte> value)
+		{
+			key = Key;
+			value = Value;
+		}
 	}
 }

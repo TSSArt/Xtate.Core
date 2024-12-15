@@ -19,36 +19,39 @@ using System.ComponentModel;
 
 namespace Xtate;
 
-[Serializable]
-public sealed class InvokeId : ServiceId, IEquatable<InvokeId>
+public sealed class UniqueInvokeId : InvokeId
 {
-	internal static readonly InvokeUniqueIdEqualityComparer InvokeUniqueIdComparer = new();
+	internal UniqueInvokeId(InvokeId? invokeId, IIdentifier stateId) : base(stateId) => InvokeId = invokeId ?? this;
 
+	internal UniqueInvokeId(string uniqueInvokeId) : base(uniqueInvokeId) => InvokeId = this;
+
+	public InvokeId InvokeId { get; }
+}
+
+[Serializable]
+public class InvokeId : ServiceId, IEquatable<InvokeId>
+{
 	private readonly IIdentifier? _stateId;
 
-	private string? _invokeUniqueId;
-
-	private InvokeId(IIdentifier stateId) => _stateId = stateId;
-
-	private InvokeId(string invokeId) : base(invokeId) { }
-
-	private InvokeId(string invokeId, string invokeUniqueId) : base(invokeId) => _invokeUniqueId = invokeUniqueId;
-
-	public string InvokeUniqueIdValue
+	private InvokeId(IIdentifier stateId, string invokeId) : base(invokeId)
 	{
-		get
-		{
-			if (_invokeUniqueId is { } invokeUniqueId)
-			{
-				return invokeUniqueId;
-			}
-
-			var newInvokeUniqueId = IdGenerator.NewInvokeUniqueId(GetHashCode());
-			invokeUniqueId = Interlocked.CompareExchange(ref _invokeUniqueId, newInvokeUniqueId, comparand: null) ?? newInvokeUniqueId;
-
-			return invokeUniqueId;
-		}
+		_stateId = stateId;
+		UniqueId = new UniqueInvokeId(this, _stateId);
 	}
+
+	private InvokeId(string invokeId, string uniqueInvokeId) : base(invokeId) => UniqueId = new UniqueInvokeId(uniqueInvokeId);
+
+	private protected InvokeId(IIdentifier stateId)
+	{
+		_stateId = stateId;
+		UniqueId = (UniqueInvokeId)this;
+	}
+
+	private protected InvokeId(string uniqueInvokeId) : base(uniqueInvokeId) => UniqueId = (UniqueInvokeId)this;
+
+	public override string ServiceType => nameof(InvokeId);
+
+	public UniqueInvokeId UniqueId { get; }
 
 #region Interface IEquatable<InvokeId>
 
@@ -56,47 +59,16 @@ public sealed class InvokeId : ServiceId, IEquatable<InvokeId>
 
 #endregion
 
-	public override bool Equals(object? obj) => ReferenceEquals(this, obj) || (obj is InvokeId other && Equals(other));
+	protected override string GenerateId() => IdGenerator.NewInvokeId(_stateId!.Value, GetHashCode());
 
 	public override int GetHashCode() => base.GetHashCode();
 
-	protected override string GenerateId()
-	{
-		Infra.NotNull(_stateId);
+	public override bool Equals(object? obj) => ReferenceEquals(this, obj) || (obj is InvokeId other && Equals(other));
 
-		return IdGenerator.NewInvokeId(_stateId.Value, GetHashCode());
-	}
+	public static InvokeId New(IIdentifier stateId, [Localizable(false)] string? invokeId) => invokeId is null ? new UniqueInvokeId(default, stateId) : new InvokeId(stateId, invokeId);
 
-	public static InvokeId New(IIdentifier stateId, [Localizable(false)] string? invokeId) => invokeId is null ? new InvokeId(stateId) : new InvokeId(invokeId);
+	public static InvokeId FromString([Localizable(false)] string uniqueInvokeId) => new UniqueInvokeId(uniqueInvokeId);
 
-	public static InvokeId FromString([Localizable(false)] string invokeId) => new(invokeId);
-
-	public static InvokeId FromString([Localizable(false)] string invokeId, [Localizable(false)] string invokeUniqueId) => new(invokeId, invokeUniqueId);
-
-	internal sealed class InvokeUniqueIdEqualityComparer : IEqualityComparer<InvokeId>
-	{
-	#region Interface IEqualityComparer<InvokeId>
-
-		public bool Equals(InvokeId? x, InvokeId? y)
-		{
-			if (ReferenceEquals(x, y))
-			{
-				return true;
-			}
-
-			return x?._invokeUniqueId is { } a && y?._invokeUniqueId is { } b && a == b;
-		}
-
-		public int GetHashCode(InvokeId obj)
-		{
-			if (obj._invokeUniqueId is { } id)
-			{
-				return TryGetHashFromId(id, out var hash) ? hash : id.GetHashCode();
-			}
-
-			return obj.GetHashCode();
-		}
-
-	#endregion
-	}
+	public static InvokeId FromString([Localizable(false)] string invokeId, [Localizable(false)] string uniqueInvokeId) =>
+		invokeId == uniqueInvokeId ? new UniqueInvokeId(uniqueInvokeId) : new InvokeId(invokeId, uniqueInvokeId);
 }

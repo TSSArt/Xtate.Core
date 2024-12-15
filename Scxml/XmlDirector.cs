@@ -369,13 +369,13 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 
 			void FillFromQualifiedName<T>(Dictionary<QualifiedName, T> dictionary)
 			{
-				foreach (var pair in dictionary)
+				foreach (var (key, _) in dictionary)
 				{
-					var ns = nameTable.Add(pair.Key.Namespace);
-					Debug.Assert(ns == pair.Key.Namespace);
+					var ns = nameTable.Add(key.Namespace);
+					Debug.Assert(ns == key.Namespace);
 
-					var name = nameTable.Add(pair.Key.Name);
-					Debug.Assert(name == pair.Key.Name);
+					var name = nameTable.Add(key.Name);
+					Debug.Assert(name == key.Name);
 				}
 			}
 		}
@@ -401,9 +401,9 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 				{
 					_attributes = new Dictionary<QualifiedName, AttributeType>(policy._attributes.Count);
 
-					foreach (var pair in policy._attributes)
+					foreach (var (key, value) in policy._attributes)
 					{
-						_attributes.Add(pair.Key, pair.Value.type);
+						_attributes.Add(key, value.type);
 					}
 				}
 
@@ -411,9 +411,9 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 				{
 					_elements = new Dictionary<QualifiedName, ElementType>(policy._elements.Count);
 
-					foreach (var pair in policy._elements)
+					foreach (var (key, value) in policy._elements)
 					{
-						_elements.Add(pair.Key, pair.Value.type);
+						_elements.Add(key, value.type);
 					}
 				}
 

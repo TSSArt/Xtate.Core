@@ -21,19 +21,27 @@ namespace Xtate.Core;
 
 public class ExternalServiceManager : IExternalServiceManager
 {
-	public required ExternalServiceEventRouter ExternalServiceEventRouter { private get; [UsedImplicitly] init; }
+	public required IExternalServiceCollection ExternalServiceCollection { private get; [UsedImplicitly] init; }
 
 	public required IExternalServiceScopeManager ExternalServiceScopeManager { private get; [UsedImplicitly] init; }
 
 	public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
+	
+	public required IDeadLetterQueue<IExternalServiceManager> DeadLetterQueue { private get; [UsedImplicitly] init; }
 
 #region Interface IExternalServiceManager
 
-	public ValueTask Forward(InvokeId invokeId, IIncomingEvent incomingEvent) => ExternalServiceEventRouter.Dispatch(invokeId, incomingEvent).WaitAsync(DisposeToken);
+	public async ValueTask Forward(InvokeId invokeId, IIncomingEvent incomingEvent)
+	{
+		if (!await ExternalServiceCollection.TryDispatch(invokeId, incomingEvent, DisposeToken).ConfigureAwait(false))
+		{
+			await DeadLetterQueue.Enqueue(invokeId, incomingEvent).ConfigureAwait(false);
+		}
+	}
 
-	public ValueTask Start(InvokeData invokeData) => ExternalServiceScopeManager.Start(invokeData).WaitAsync(DisposeToken);
+	public ValueTask Start(InvokeData invokeData) => ExternalServiceScopeManager.Start(invokeData, DisposeToken);
 
-	public ValueTask Cancel(InvokeId invokeId) => ExternalServiceScopeManager.Cancel(invokeId).WaitAsync(DisposeToken);
+	public ValueTask Cancel(InvokeId invokeId) => ExternalServiceScopeManager.Cancel(invokeId, DisposeToken);
 
 #endregion
 }

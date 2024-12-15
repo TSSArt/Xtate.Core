@@ -23,13 +23,13 @@ internal sealed class StateMachineSingleMacroStepController(
 	SessionId sessionId,
 	IStateMachineOptions? options,
 	IStateMachine? stateMachine,
-	Uri? stateMachineLocation,
-	IStateMachineHost stateMachineHost //,
+	Uri? stateMachineLocation
+	//IStateMachineHost stateMachineHost //,
 	//InterpreterOptions defaultOptions
 
 	// SecurityContext securityContext,
 	//										 DeferredFinalizer finalizer
-) : StateMachineControllerBase(sessionId, options, stateMachine, stateMachineLocation, stateMachineHost /*, defaultOptions*/)
+) : StateMachineControllerBase(sessionId, options, stateMachine, stateMachineLocation /*, defaultOptions*/)
 {
 	private readonly TaskCompletionSource<StateMachineInterpreterState> _doneCompletionSource = new();
 
@@ -37,9 +37,9 @@ internal sealed class StateMachineSingleMacroStepController(
 
 	protected override Channel<IIncomingEvent> EventChannel { get; } = new SingleItemChannel<IIncomingEvent>();
 
-	public override async ValueTask Dispatch(IIncomingEvent incomingEvent)
+	public override async ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token)
 	{
-		await base.Dispatch(incomingEvent).ConfigureAwait(false);
+		await base.Dispatch(incomingEvent, token).ConfigureAwait(false);
 
 		var state = await _doneCompletionSource.Task.ConfigureAwait(false);
 
@@ -59,7 +59,7 @@ internal sealed class StateMachineSingleMacroStepController(
 
 	protected override void StateChanged(StateMachineInterpreterState state)
 	{
-		if (state is StateMachineInterpreterState.Waiting or StateMachineInterpreterState.Exited)
+		if (state is StateMachineInterpreterState.Waiting or StateMachineInterpreterState.Completed)
 		{
 			_doneCompletionSource.TrySetResult(state);
 		}
@@ -69,6 +69,8 @@ internal sealed class StateMachineSingleMacroStepController(
 
 	private class SingleItemChannel<T> : Channel<T>
 	{
+
+
 		public SingleItemChannel()
 		{
 			var tcs = new TaskCompletionSource<T>();

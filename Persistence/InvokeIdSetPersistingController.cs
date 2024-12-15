@@ -17,9 +17,9 @@
 
 namespace Xtate.Persistence;
 
-internal sealed class ServiceIdSetPersistingController : IDisposable
+internal sealed class InvokeIdSetPersistingController : IDisposable
 {
-	private const int ServiceId = 0;
+	private const int InvokeId = 0;
 
 	private const int Operation = 1;
 
@@ -29,23 +29,23 @@ internal sealed class ServiceIdSetPersistingController : IDisposable
 
 	private readonly Bucket _bucket;
 
-	private readonly ServiceIdSet _serviceIdSet;
+	private readonly InvokeIdSet _invokeIdSet;
 
 	private int _record;
 
-	public ServiceIdSetPersistingController(in Bucket bucket, ServiceIdSet serviceIdSet)
+	public InvokeIdSetPersistingController(in Bucket bucket, InvokeIdSet invokeIdSet)
 	{
 		_bucket = bucket;
-		_serviceIdSet = serviceIdSet ?? throw new ArgumentNullException(nameof(serviceIdSet));
+		_invokeIdSet = invokeIdSet ?? throw new ArgumentNullException(nameof(invokeIdSet));
 
-		var shrink = serviceIdSet.Count > 0;
+		var shrink = invokeIdSet.Count > 0;
 
 		while (true)
 		{
 			var recordBucket = bucket.Nested(_record);
 
 			if (!recordBucket.TryGet(Operation, out int operation)
-				|| !recordBucket.TryGetServiceId(ServiceId, out var serviceId))
+				|| !recordBucket.TryGetServiceId(InvokeId, out var serviceId))
 			{
 				break;
 			}
@@ -53,12 +53,12 @@ internal sealed class ServiceIdSetPersistingController : IDisposable
 			switch (operation)
 			{
 				case Added:
-					_serviceIdSet.Add(serviceId);
+					_invokeIdSet.Add((InvokeId)serviceId);
 
 					break;
 
 				case Removed:
-					_serviceIdSet.Remove(serviceId);
+					_invokeIdSet.Remove((InvokeId)serviceId);
 					shrink = true;
 
 					break;
@@ -73,41 +73,41 @@ internal sealed class ServiceIdSetPersistingController : IDisposable
 
 			_record = 0;
 
-			foreach (var serviceId in _serviceIdSet)
+			foreach (var serviceId in _invokeIdSet)
 			{
 				var recordBucket = bucket.Nested(_record ++);
-				recordBucket.Add(ServiceId, serviceId);
+				recordBucket.Add(InvokeId, serviceId);
 				recordBucket.Add(Operation, Added);
 			}
 		}
 
-		_serviceIdSet.Changed += OnChanged;
+		_invokeIdSet.Changed += OnChanged;
 	}
 
 #region Interface IDisposable
 
 	public void Dispose()
 	{
-		_serviceIdSet.Changed -= OnChanged;
+		_invokeIdSet.Changed -= OnChanged;
 	}
 
 #endregion
 
-	private void OnChanged(ServiceIdSet.ChangedAction action, ServiceId serviceId)
+	private void OnChanged(InvokeIdSet.ChangedAction action, InvokeId invokeId)
 	{
 		switch (action)
 		{
-			case ServiceIdSet.ChangedAction.Add:
+			case InvokeIdSet.ChangedAction.Add:
 			{
 				var bucket = _bucket.Nested(_record ++);
-				bucket.AddServiceId(ServiceId, serviceId);
+				bucket.AddServiceId(InvokeId, invokeId);
 				bucket.Add(Operation, Added);
 
 				break;
 			}
 
-			case ServiceIdSet.ChangedAction.Remove:
-				if (_serviceIdSet.Count == 0)
+			case InvokeIdSet.ChangedAction.Remove:
+				if (_invokeIdSet.Count == 0)
 				{
 					_record = 0;
 					_bucket.RemoveSubtree(Bucket.RootKey);
@@ -115,7 +115,7 @@ internal sealed class ServiceIdSetPersistingController : IDisposable
 				else
 				{
 					var bucket = _bucket.Nested(_record ++);
-					bucket.AddServiceId(ServiceId, serviceId);
+					bucket.AddServiceId(InvokeId, invokeId);
 					bucket.Add(Operation, Removed);
 				}
 

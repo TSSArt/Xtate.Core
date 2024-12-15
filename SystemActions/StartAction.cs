@@ -25,6 +25,8 @@ public class StartAction : AsyncAction
 
 	public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
 
+	public required  TaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
+
 	private readonly Location? _sessionIdLocation;
 
 	private readonly StringValue? _sessionIdValue;
@@ -111,7 +113,7 @@ public class StartAction : AsyncAction
 
 		var locationStateMachine = new LocationStateMachine(location) { SessionId = sessionId };
 
-		await StateMachineScopeManager.Start(locationStateMachine, securityContextType).WaitAsync(DisposeToken).ConfigureAwait(false);
+		await StateMachineScopeManager.Start(locationStateMachine, securityContextType).WaitAsync(TaskMonitor, DisposeToken).ConfigureAwait(false);
 
 		if (_sessionIdLocation is not null)
 		{

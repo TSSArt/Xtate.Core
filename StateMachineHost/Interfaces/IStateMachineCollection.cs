@@ -19,7 +19,13 @@ namespace Xtate;
 
 public interface IStateMachineCollection
 {
-	ValueTask Dispatch(SessionId sessionId, IIncomingEvent incomingEvent);
+	void Register(SessionId sessionId);
+
+	void SetController(SessionId sessionId, IStateMachineController controller);
+
+	void Unregister(SessionId sessionId);
+
+	ValueTask Dispatch(SessionId sessionId, IIncomingEvent incomingEvent, CancellationToken token);
 
 	ValueTask Destroy(SessionId sessionId);
 }

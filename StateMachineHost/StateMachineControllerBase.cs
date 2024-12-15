@@ -16,16 +16,19 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Threading.Channels;
+using Xtate.ExternalService;
 using Xtate.IoC;
 
 namespace Xtate.Core;
 
-public abstract class StateMachineControllerBase : IStateMachineController, INotifyStateChanged, IAsyncDisposable, IAsyncInitialization
+public abstract class StateMachineControllerBase : IStateMachineController/*, INotifyStateChanged*/, IAsyncDisposable, IAsyncInitialization
 
 {
-	private readonly TaskCompletionSource _acceptedTcs = new();
+	public required IStateMachineStatus StateMachineStatus { private get; [UsedImplicitly] init; }
 
 	private readonly TaskCompletionSource<DataModelValue> _completedTcs = new();
+
+	
 
 	private readonly CancellationTokenSource _destroyTokenSource;
 
@@ -36,8 +39,7 @@ public abstract class StateMachineControllerBase : IStateMachineController, INot
 	protected StateMachineControllerBase(SessionId sessionId,
 										 IStateMachineOptions? options,
 										 IStateMachine? stateMachine,
-										 Uri? stateMachineLocation,
-										 IStateMachineHost stateMachineHost)
+										 Uri? stateMachineLocation)
 	{
 		SessionId = sessionId;
 		StateMachineLocation = stateMachineLocation;
@@ -49,7 +51,7 @@ public abstract class StateMachineControllerBase : IStateMachineController, INot
 
 	public required IStateMachineInterpreter StateMachineInterpreter { private get; [UsedImplicitly] init; }
 	
-	public required TaskCollector TaskCollector { private get; [UsedImplicitly] init; }
+	public required TaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
 
 	protected abstract Channel<IIncomingEvent> EventChannel { get; }
 
@@ -79,7 +81,7 @@ public abstract class StateMachineControllerBase : IStateMachineController, INot
 #region Interface IEventDispatcher
 
 	//public virtual ValueTask Send(IIncomingEvent abc, CancellationToken token) => EventChannel.Writer.WriteAsync(abc, token);
-	public virtual ValueTask Dispatch(IIncomingEvent incomingEvent) => EventQueueWriter.WriteAsync(incomingEvent);
+	public virtual ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token) => EventQueueWriter.WriteAsync(incomingEvent, token);
 
 #endregion
 
@@ -88,30 +90,13 @@ public abstract class StateMachineControllerBase : IStateMachineController, INot
 	public ValueTask<DataModelValue> GetResult() => new(_completedTcs.Task);
 
 #endregion
+	//public Task Wait() => GetResult().AsTask();
 
-#region Interface INotifyStateChanged
-
-	ValueTask INotifyStateChanged.OnChanged(StateMachineInterpreterState state)
+	protected virtual async ValueTask Start()
 	{
-		StateChanged(state);
+		ExecuteAsync().Forget(TaskMonitor);
 
-		if (state == StateMachineInterpreterState.Accepted)
-		{
-			_acceptedTcs.TrySetResult();
-		}
-
-		return default;
-	}
-
-#endregion
-
-	public Task Wait() => GetResult().AsTask();
-
-	protected virtual ValueTask Start()
-	{
-		TaskCollector.Collect(ExecuteAsync());
-
-		return new ValueTask(_acceptedTcs.Task.WaitAsync(_disposingToken.Token));
+		await StateMachineStatus.WhenAccepted().ConfigureAwait(false);
 	}
 
 	public ValueTask Destroy()
@@ -154,7 +139,8 @@ public abstract class StateMachineControllerBase : IStateMachineController, INot
 				{
 					var result = await StateMachineInterpreter.RunAsync().ConfigureAwait(false);
 
-					_acceptedTcs.TrySetResult();
+					StateMachineStatus.Completed();
+
 					_completedTcs.TrySetResult(result);
 
 					return result;
@@ -165,16 +151,16 @@ public abstract class StateMachineControllerBase : IStateMachineController, INot
 			}
 			catch (OperationCanceledException ex)
 			{
-				//await _finalizer.ExecuteDeferredFinalization().ConfigureAwait(false);
-				_acceptedTcs.TrySetCanceled(ex.CancellationToken);
+				StateMachineStatus.Cancelled(ex.CancellationToken);
+
 				_completedTcs.TrySetCanceled(ex.CancellationToken);
 
 				throw;
 			}
 			catch (Exception ex)
 			{
-				//await _finalizer.ExecuteDeferredFinalization().ConfigureAwait(false);
-				_acceptedTcs.TrySetException(ex);
+				StateMachineStatus.Failed(ex);
+
 				_completedTcs.TrySetException(ex);
 
 				throw;
