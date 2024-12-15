@@ -80,10 +80,20 @@ internal static class BucketExtensions
 
 	public static void AddId<TKey>(this in Bucket bucket, TKey key, InvokeId? invokeId) where TKey : notnull
 	{
-		if (invokeId is not null)
+		switch (invokeId)
 		{
-			bucket.Add(key, invokeId.Value);
-			bucket.Nested(key).Add(key: 1, invokeId.InvokeUniqueIdValue);
+			case null:
+				break;
+
+			case UniqueInvokeId uniqueInvokeId:
+				bucket.Add(key, uniqueInvokeId.Value); 
+				break;
+			
+			default:
+				bucket.Add(key, invokeId.Value);
+				bucket.Nested(key).Add(key: 1, invokeId.UniqueId.Value);
+
+				break;
 		}
 	}
 
@@ -122,14 +132,9 @@ internal static class BucketExtensions
 	public static InvokeId? GetInvokeId<TKey>(this in Bucket bucket, TKey key) where TKey : notnull
 	{
 		bucket.TryGet(key, out string? invokeId);
-		bucket.Nested(key).TryGet(key: 1, out string? invokeUniqueId);
+		bucket.Nested(key).TryGet(key: 1, out string? uniqueId);
 
-		if (invokeId is null || invokeUniqueId is null)
-		{
-			return null;
-		}
-
-		return InvokeId.FromString(invokeId, invokeUniqueId);
+		return invokeId is not null ? uniqueId is not null ? InvokeId.FromString(invokeId, uniqueId) : InvokeId.FromString(invokeId) : default;
 	}
 
 	public static Uri? GetUri<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out Uri? value) ? value : null;

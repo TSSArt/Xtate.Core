@@ -10,5 +10,5 @@ public interface IExternalServiceCollection
 
 	void Unregister(InvokeId invokeId);
 
-	ValueTask Dispatch(InvokeId invokeId, IIncomingEvent incomingEvent, CancellationToken token);
+	ValueTask<bool> TryDispatch(InvokeId invokeId, IIncomingEvent incomingEvent, CancellationToken token);
 }

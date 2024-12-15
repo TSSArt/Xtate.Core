@@ -95,7 +95,7 @@ public class InvokeTest
 	{
 		var invokeUniqueId = "";
 		_externalCommunicationMock.Setup(l => l.Start(It.IsAny<InvokeData>()))
-								  .Callback<InvokeData>((data) => invokeUniqueId = data.InvokeId.InvokeUniqueIdValue);
+								  .Callback<InvokeData>((data) => invokeUniqueId = data.InvokeId.UniqueId.Value);
 
 		var services = new ServiceCollection();
 		services.AddModule<StateMachineInterpreterModule>();
