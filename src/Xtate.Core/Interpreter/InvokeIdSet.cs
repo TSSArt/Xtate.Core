@@ -28,7 +28,7 @@ public sealed class InvokeIdSet : IEnumerable<InvokeId>
 		Remove
 	}
 
-	private readonly HashSet<InvokeId> _set = [];
+	private readonly HashSet<UniqueInvokeId> _set = [];
 
 	public int Count => _set.Count;
 
@@ -40,7 +40,13 @@ public sealed class InvokeIdSet : IEnumerable<InvokeId>
 
 #region Interface IEnumerable<InvokeId>
 
-	IEnumerator<InvokeId> IEnumerable<InvokeId>.GetEnumerator() => GetEnumerator();
+	public IEnumerator<InvokeId> GetEnumerator()
+	{
+		foreach (var uniqueInvokeId in _set)
+		{
+			yield return uniqueInvokeId.InvokeId;
+		}
+	}
 
 #endregion
 
@@ -48,7 +54,7 @@ public sealed class InvokeIdSet : IEnumerable<InvokeId>
 
 	public void Remove(InvokeId invokeId)
 	{
-		if (_set.Remove(invokeId))
+		if (_set.Remove(invokeId.UniqueId))
 		{
 			Changed?.Invoke(ChangedAction.Remove, invokeId);
 		}
@@ -56,13 +62,11 @@ public sealed class InvokeIdSet : IEnumerable<InvokeId>
 
 	public void Add(InvokeId invokeId)
 	{
-		if (_set.Add(invokeId))
+		if (_set.Add(invokeId.UniqueId))
 		{
 			Changed?.Invoke(ChangedAction.Add, invokeId);
 		}
 	}
 
-	public bool Contains(InvokeId invokeId) => _set.Contains(invokeId);
-
-	public HashSet<InvokeId>.Enumerator GetEnumerator() => _set.GetEnumerator();
+	public bool Contains(InvokeId invokeId) => _set.Contains(invokeId.UniqueId);
 }

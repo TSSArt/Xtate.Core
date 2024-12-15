@@ -13,7 +13,7 @@ namespace Xtate.Tests
             var result = InvokeId.FromString(invokeId);
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(InvokeId.Static));
+            Assert.IsInstanceOfType(result, typeof(UniqueInvokeId));
             Assert.AreEqual(invokeId, result.Value);
             Assert.AreEqual(invokeId.GetHashCode(), result.GetHashCode());
         }
@@ -29,7 +29,7 @@ namespace Xtate.Tests
             var result = InvokeId.New(stateId.Object, null);
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(InvokeId.Execution));
+            Assert.IsInstanceOfType(result, typeof(InvokeId));
             Assert.IsTrue(result.Value.StartsWith("stateIdValue."));
         }
 
@@ -44,7 +44,7 @@ namespace Xtate.Tests
             var result = InvokeId.New(stateId.Object, invokeId);
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(InvokeId.Execution));
+            Assert.IsInstanceOfType(result, typeof(InvokeId));
             Assert.AreEqual(invokeId, result.Value);
             Assert.AreEqual(invokeId.GetHashCode(), result.GetHashCode());
         }
@@ -60,9 +60,9 @@ namespace Xtate.Tests
             var result = InvokeId.FromString(invokeId, invokeUniqueId);
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(InvokeId.Execution));
+            Assert.IsInstanceOfType(result, typeof(InvokeId));
             Assert.AreEqual(invokeId, result.Value);
-            Assert.AreEqual(invokeUniqueId, result.InvokeUniqueIdValue);
+            Assert.AreEqual(invokeUniqueId, result.UniqueId.Value);
         }
 
         [TestMethod]
@@ -106,6 +106,22 @@ namespace Xtate.Tests
 
             // Assert
             Assert.IsTrue(result);
+            Assert.AreEqual(invokeId1.GetHashCode(), invokeId2.GetHashCode());
+        }
+
+        [TestMethod]
+        public void New_ShouldReturnDifferentUniqueIds_ForSameInvokeId()
+        {
+            var invokeId1 = InvokeId.New(Identifier.FromString("state1"), "Invoke");
+            var invokeId2 = InvokeId.New(Identifier.FromString("state1"), "Invoke");
+
+            // Act
+            var result = invokeId1.Equals(invokeId2);
+            var resultUniq = invokeId1.UniqueId.Equals(invokeId2.UniqueId);
+
+            // Assert
+            Assert.IsTrue(result);
+            Assert.IsFalse(resultUniq);
             Assert.AreEqual(invokeId1.GetHashCode(), invokeId2.GetHashCode());
         }
     }

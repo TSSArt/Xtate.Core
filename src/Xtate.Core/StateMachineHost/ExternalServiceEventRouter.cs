@@ -28,6 +28,8 @@ public class ExternalServiceEventRouter : IEventRouter
 
 	public required IExternalServiceCollection ExternalServiceCollection { private get; [UsedImplicitly] init; }
 
+	public required IDeadLetterQueue<IEventRouter> DeadLetterQueue { private get; [UsedImplicitly] init; }
+
 #region Interface IEventRouter
 
 	public bool CanHandle(FullUri? type)
@@ -53,7 +55,13 @@ public class ExternalServiceEventRouter : IEventRouter
 	public ValueTask<IRouterEvent> GetRouterEvent(IOutgoingEvent outgoingEvent, CancellationToken token) =>
 		new(new RouterEvent(StateMachineSessionId.SessionId, GetInvokeId(outgoingEvent.Target), Const.ScxmlIoProcessorId, Const.ParentTarget, outgoingEvent));
 
-	public ValueTask Dispatch(IRouterEvent routerEvent, CancellationToken token) => ExternalServiceCollection.Dispatch((InvokeId) routerEvent.TargetServiceId!, routerEvent, token);
+	public async ValueTask Dispatch(IRouterEvent routerEvent, CancellationToken token)
+	{
+		if(!await ExternalServiceCollection.TryDispatch((InvokeId) routerEvent.TargetServiceId!, routerEvent, token).ConfigureAwait(false))
+		{
+			await DeadLetterQueue.Enqueue(routerEvent.TargetServiceId!, routerEvent).ConfigureAwait(false);
+		}
+	}
 
 #endregion
 

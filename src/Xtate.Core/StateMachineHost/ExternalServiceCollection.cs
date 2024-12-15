@@ -23,48 +23,66 @@ public class ExternalServiceCollection : IExternalServiceCollection
 {
 	private readonly ExtDictionary<InvokeId, IExternalService> _externalServices = [];
 
-	public required IDeadLetterQueue<IExternalServiceCollection> DeadLetterQueue { private get; [UsedImplicitly] init; }
+	public required IExternalServicePublicCollection ExternalServicePublicCollection { private get; [UsedImplicitly] init; }
 
 #region Interface IExternalServiceCollection
 
 	public void Register(InvokeId invokeId)
 	{
-		var tryAddPending = _externalServices.TryAddPending(invokeId);
+		ExternalServicePublicCollection.Register(invokeId.UniqueId);
 
-		Infra.Assert(tryAddPending);
+		if (invokeId is not UniqueInvokeId)
+		{
+			var tryAddPending = _externalServices.TryAddPending(invokeId);
+
+			Infra.Assert(tryAddPending);
+		}
 	}
 
 	public void SetExternalService(InvokeId invokeId, IExternalService externalService)
 	{
-		var tryAdd = _externalServices.TryAdd(invokeId, externalService);
+		ExternalServicePublicCollection.SetExternalService(invokeId.UniqueId, externalService);
 
-		Infra.Assert(tryAdd);
+		if (invokeId is not UniqueInvokeId)
+		{
+			var tryAdd = _externalServices.TryAdd(invokeId, externalService);
+
+			Infra.Assert(tryAdd);
+		}
 	}
 
 	public void Unregister(InvokeId invokeId)
 	{
-		var tryRemove = _externalServices.TryRemove(invokeId, out _);
+		ExternalServicePublicCollection.Unregister(invokeId.UniqueId);
 
-		Infra.Assert(tryRemove);
+		if (invokeId is not UniqueInvokeId)
+		{
+			var tryRemove = _externalServices.TryRemove(invokeId, out _);
+
+			Infra.Assert(tryRemove);
+		}
 	}
 
-	public virtual async ValueTask Dispatch(InvokeId invokeId, IIncomingEvent incomingEvent, CancellationToken token)
+	public async ValueTask<bool> TryDispatch(InvokeId invokeId, IIncomingEvent incomingEvent, CancellationToken token)
 	{
 		var (found, externalService) = await _externalServices.TryGetValueAsync(invokeId).ConfigureAwait(false);
 
-		if (found && externalService is IEventDispatcher eventDispatcher)
+		if (found)
 		{
-			if (incomingEvent is not IncomingEvent)
+			if (externalService is IEventDispatcher eventDispatcher)
 			{
-				incomingEvent = new IncomingEvent(incomingEvent);
-			}
+				if (incomingEvent is not IncomingEvent)
+				{
+					incomingEvent = new IncomingEvent(incomingEvent);
+				}
 
-			await eventDispatcher.Dispatch(incomingEvent, token).ConfigureAwait(false);
+				await eventDispatcher.Dispatch(incomingEvent, token).ConfigureAwait(false);
+			}
+			
+			return true;
 		}
-		else
-		{
-			await DeadLetterQueue.Enqueue(invokeId, incomingEvent).ConfigureAwait(false);
-		}
+
+		return await ExternalServicePublicCollection.TryDispatch(invokeId.UniqueId, incomingEvent, token).ConfigureAwait(false);
 	}
 
 #endregion
