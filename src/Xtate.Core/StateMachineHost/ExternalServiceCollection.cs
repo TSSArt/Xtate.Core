@@ -23,47 +23,40 @@ public class ExternalServiceCollection : IExternalServiceCollection
 {
 	private readonly ExtDictionary<InvokeId, IExternalService> _externalServices = [];
 
-	public required IExternalServicePublicCollection ExternalServicePublicCollection { private get; [UsedImplicitly] init; }
+	public required IExternalServiceGlobalCollection ExternalServiceGlobalCollection { private get; [UsedImplicitly] init; }
+	
+	public required IDeadLetterQueue<IExternalServiceCollection> DeadLetterQueue { private get; [UsedImplicitly] init; }
 
 #region Interface IExternalServiceCollection
 
 	public void Register(InvokeId invokeId)
 	{
-		ExternalServicePublicCollection.Register(invokeId.UniqueId);
+		var tryAddPending = _externalServices.TryAddPending(invokeId);
 
-		if (invokeId is not UniqueInvokeId)
-		{
-			var tryAddPending = _externalServices.TryAddPending(invokeId);
+		Infra.Assert(tryAddPending);
 
-			Infra.Assert(tryAddPending);
-		}
+		ExternalServiceGlobalCollection.Register(invokeId.UniqueId);
 	}
 
 	public void SetExternalService(InvokeId invokeId, IExternalService externalService)
 	{
-		ExternalServicePublicCollection.SetExternalService(invokeId.UniqueId, externalService);
+		var tryAdd = _externalServices.TryAdd(invokeId, externalService);
 
-		if (invokeId is not UniqueInvokeId)
-		{
-			var tryAdd = _externalServices.TryAdd(invokeId, externalService);
+		Infra.Assert(tryAdd);
 
-			Infra.Assert(tryAdd);
-		}
+		ExternalServiceGlobalCollection.SetExternalService(invokeId.UniqueId, externalService);
 	}
 
 	public void Unregister(InvokeId invokeId)
 	{
-		ExternalServicePublicCollection.Unregister(invokeId.UniqueId);
+		ExternalServiceGlobalCollection.Unregister(invokeId.UniqueId);
 
-		if (invokeId is not UniqueInvokeId)
-		{
-			var tryRemove = _externalServices.TryRemove(invokeId, out _);
+		var tryRemove = _externalServices.TryRemove(invokeId, out _);
 
-			Infra.Assert(tryRemove);
-		}
+		Infra.Assert(tryRemove);
 	}
 
-	public async ValueTask<bool> TryDispatch(InvokeId invokeId, IIncomingEvent incomingEvent, CancellationToken token)
+	public async ValueTask Dispatch(InvokeId invokeId, IIncomingEvent incomingEvent, CancellationToken token)
 	{
 		var (found, externalService) = await _externalServices.TryGetValueAsync(invokeId).ConfigureAwait(false);
 
@@ -79,10 +72,15 @@ public class ExternalServiceCollection : IExternalServiceCollection
 				await eventDispatcher.Dispatch(incomingEvent, token).ConfigureAwait(false);
 			}
 			
-			return true;
+			return;
 		}
 
-		return await ExternalServicePublicCollection.TryDispatch(invokeId.UniqueId, incomingEvent, token).ConfigureAwait(false);
+		if (await ExternalServiceGlobalCollection.TryDispatch(invokeId.UniqueId, incomingEvent, token).ConfigureAwait(false))
+		{
+			return;
+		}
+
+		await DeadLetterQueue.Enqueue(invokeId, incomingEvent).ConfigureAwait(false);
 	}
 
 #endregion

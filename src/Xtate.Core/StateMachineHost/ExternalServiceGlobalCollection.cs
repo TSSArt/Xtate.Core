@@ -19,7 +19,7 @@ using Xtate.ExternalService;
 
 namespace Xtate.Core;
 
-public class ExternalServicePublicCollection : IExternalServicePublicCollection
+public class ExternalServiceGlobalCollection : IExternalServiceGlobalCollection
 {
 	private readonly ExtDictionary<UniqueInvokeId, IExternalService> _externalServices = [];
 
