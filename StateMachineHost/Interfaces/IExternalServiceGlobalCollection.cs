@@ -19,7 +19,7 @@ using Xtate.ExternalService;
 
 namespace Xtate.Core;
 
-public interface IExternalServicePublicCollection
+public interface IExternalServiceGlobalCollection
 {
 	void Register(UniqueInvokeId uniqueInvokeId);
 
