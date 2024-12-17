@@ -23,12 +23,12 @@ namespace Xtate.Test.HostedTests;
 public class CustomActionTest : HostedTestBase
 {
 	[TestMethod]
-	[Ignore]
+	//[Ignore]
 	public async Task StartSystemAction()
 	{
 		// act
 		await Execute("StartSystemAction.scxml");
-		await Host.WaitAllStateMachinesAsync();
+		//await Host.WaitAllStateMachinesAsync();
 
 		// assert
 		LogWriter.Verify(l => l.Write(It.IsAny<Type>(), Level.Info, It.IsAny<int>(), "StartSystemActionChild", It.IsAny<IEnumerable<LoggingParameter>>()));

@@ -51,9 +51,7 @@ public class ExternalServiceCollection : IExternalServiceCollection
 	{
 		ExternalServiceGlobalCollection.Unregister(invokeId.UniqueId);
 
-		var tryRemove = _externalServices.TryRemove(invokeId, out _);
-
-		Infra.Assert(tryRemove);
+		_externalServices.TryRemove(invokeId, out _);
 	}
 
 	public async ValueTask Dispatch(InvokeId invokeId, IIncomingEvent incomingEvent, CancellationToken token)
