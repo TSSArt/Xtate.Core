@@ -25,7 +25,7 @@ namespace Xtate.Test.HostedTests;
 
 public abstract class HostedTestBase
 {
-	protected StateMachineHost Host { get; private set; } = default!;
+	//protected StateMachineHost Host { get; private set; } = default!;
 
 	protected Mock<ILogWriter> LogWriter { get; private set; } = default!;
 
@@ -51,15 +51,15 @@ public abstract class HostedTestBase
 		sc.AddTypeSync<DestroyAction, XmlReader>();
 		sc.AddConstant(LogWriter.Object);
 		var sp = sc.BuildProvider();
-		Host = await sp.GetRequiredService<StateMachineHost>();
+		//Host = await sp.GetRequiredService<StateMachineHost>();
 		StateMachineScopeManager = await sp.GetRequiredService<IStateMachineScopeManager>();
 	}
 
 	public IStateMachineScopeManager StateMachineScopeManager { get; set; }
 
 	[TestCleanup]
-	public Task Cleanup() => Host.StopHost().AsTask();
-
+	public Task Cleanup() => Task.CompletedTask; //return Host.StopHost().AsTask();
+	
 	protected async Task Execute([PathReference("~/HostedTests/Scxml/")] string scxmlPath)
 	{
 		var name = Assembly.GetExecutingAssembly().GetName().Name;

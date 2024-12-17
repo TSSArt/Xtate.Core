@@ -25,7 +25,11 @@ public class StartAction : AsyncAction
 
 	public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
 
-	public required  TaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
+	public required Deferred<TaskMonitor> TaskMonitor { private get; [UsedImplicitly] init; }
+
+	public required Deferred<IStateMachineLocation> StateMachineLocation { private get; [UsedImplicitly] init; }
+
+	public required Deferred<IStateMachineScopeManager> StateMachineScopeManager { private get; [UsedImplicitly] init; }
 
 	private readonly Location? _sessionIdLocation;
 
@@ -83,10 +87,6 @@ public class StartAction : AsyncAction
 		_trusted = xmlReader.GetAttribute("trusted") is { } trusted && XmlConvert.ToBoolean(trusted);
 	}
 
-	public required Func<ValueTask<IStateMachineLocation?>> StateMachineLocationFactory { private get; [UsedImplicitly] init; }
-
-	public required IStateMachineScopeManager StateMachineScopeManager { private get; [UsedImplicitly] init; }
-
 	protected override IEnumerable<Location> GetLocations()
 	{
 		if (_sessionIdLocation is not null)
@@ -113,7 +113,9 @@ public class StartAction : AsyncAction
 
 		var locationStateMachine = new LocationStateMachine(location) { SessionId = sessionId };
 
-		await StateMachineScopeManager.Start(locationStateMachine, securityContextType).WaitAsync(TaskMonitor, DisposeToken).ConfigureAwait(false);
+		var taskMonitor = await TaskMonitor().ConfigureAwait(false);
+		var stateMachineScopeManager = await StateMachineScopeManager().ConfigureAwait(false);
+		await stateMachineScopeManager.Start(locationStateMachine, securityContextType).WaitAsync(taskMonitor, DisposeToken).ConfigureAwait(false);
 
 		if (_sessionIdLocation is not null)
 		{
@@ -127,7 +129,7 @@ public class StartAction : AsyncAction
 
 		if (Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out var uri))
 		{
-			var baseUri = (await StateMachineLocationFactory().ConfigureAwait(false))?.Location;
+			var baseUri = (await StateMachineLocation().ConfigureAwait(false))?.Location;
 
 			return baseUri.CombineWith(uri);
 		}

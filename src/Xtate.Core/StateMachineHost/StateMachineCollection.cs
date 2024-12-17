@@ -68,12 +68,7 @@ public class StateMachineCollection : IStateMachineCollection
 		Infra.Assert(tryAdd);
 	}
 
-	public void Unregister(SessionId sessionId)
-	{
-		var tryRemove = _controllers.TryRemove(sessionId, out _);
-
-		Infra.Assert(tryRemove);
-	}
+	public void Unregister(SessionId sessionId) => _controllers.TryRemove(sessionId, out _);
 
 #endregion
 }
