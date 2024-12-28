@@ -21,21 +21,19 @@ namespace Xtate.Core;
 
 public class AncestorTracker : IServiceProviderActions, IServiceProviderDataActions
 {
-	private static readonly ConcurrentBag<Container> ContainerPool = [];
-
 	private readonly AsyncLocal<Container?> _local = new();
 
 #region Interface IServiceProviderActions
 
-	public IServiceProviderDataActions? RegisterServices() => default;
+	public IServiceProviderDataActions? RegisterServices() => null;
 
-	public IServiceProviderDataActions? ServiceRequesting(TypeKey typeKey) => default;
+	public IServiceProviderDataActions? ServiceRequesting(TypeKey typeKey) => null;
 
-	public IServiceProviderDataActions? ServiceRequested(TypeKey typeKey) => default;
+	public IServiceProviderDataActions? ServiceRequested(TypeKey typeKey) => null;
 
-	public IServiceProviderDataActions? FactoryCalling(TypeKey typeKey) => typeKey.IsEmptyArg ? this : default;
+	public IServiceProviderDataActions? FactoryCalling(TypeKey typeKey) => typeKey.IsEmptyArg ? this : null;
 
-	public IServiceProviderDataActions? FactoryCalled(TypeKey typeKey) => typeKey.IsEmptyArg ? this : default;
+	public IServiceProviderDataActions? FactoryCalled(TypeKey typeKey) => typeKey.IsEmptyArg ? this : null;
 
 #endregion
 
@@ -50,11 +48,11 @@ public class AncestorTracker : IServiceProviderActions, IServiceProviderDataActi
 	[ExcludeFromCodeCoverage]
 	public void ServiceRequested<T, TArg>(T? instance) { }
 
-	public void FactoryCalling<T, TArg>(TArg argument) => CurrentContainer().Add((typeof(T), default));
+	public void FactoryCalling<T, TArg>(TArg argument) => CurrentContainer.Add((typeof(T), null));
 
 	public void FactoryCalled<T, TArg>(T? instance)
 	{
-		var container = CurrentContainer();
+		var container = CurrentContainer;
 
 		for (var i = 0; i < container.Count; i ++)
 		{
@@ -72,35 +70,15 @@ public class AncestorTracker : IServiceProviderActions, IServiceProviderDataActi
 		}
 
 		container.RemoveAll(static p => p.Type is null);
-
-		if (container.Count == 0)
-		{
-			_local.Value = default!;
-
-			ContainerPool.Add(container);
-		}
 	}
 
 #endregion
 
-	private Container CurrentContainer()
-	{
-		if (_local.Value is { } container)
-		{
-			return container;
-		}
-
-		if (!ContainerPool.TryTake(out container))
-		{
-			container = [];
-		}
-
-		return _local.Value = container;
-	}
+	private Container CurrentContainer => _local.Value ??= [];
 
 	public bool TryCaptureAncestor(Type ancestorType, object ancestorFactory)
 	{
-		var container = CurrentContainer();
+		var container = CurrentContainer;
 
 		for (var i = 0; i < container.Count; i ++)
 		{
