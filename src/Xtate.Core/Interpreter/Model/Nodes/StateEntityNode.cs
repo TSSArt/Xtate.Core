@@ -117,20 +117,7 @@ public abstract class StateEntityNode : IStateEntity, IStoreSupport, IDocumentId
 			transitionNode?.SetSource(this);
 		}
 	}
-
-	protected void Register(ImmutableArray<InvokeNode> invokeNodes)
-	{
-		if (invokeNodes.IsDefaultOrEmpty)
-		{
-			return;
-		}
-
-		foreach (var invokeNode in invokeNodes)
-		{
-			invokeNode?.SetSource(this);
-		}
-	}
-
+	
 	private NotSupportedException GetNotSupportedException() => new(Res.Format(Resources.Exception_SpecifiedMethodIsNotSupportedInType, GetType().Name));
 
 	protected abstract void Store(Bucket bucket);

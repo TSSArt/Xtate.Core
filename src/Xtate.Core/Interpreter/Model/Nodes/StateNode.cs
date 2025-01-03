@@ -38,7 +38,6 @@ public class StateNode : StateEntityNode, IState, IAncestorProvider, IDebugEntit
 		Register(states);
 		Register(historyStates);
 		Register(transitions);
-		Register(invokeList);
 
 		Id = id;
 		Initial = initial;

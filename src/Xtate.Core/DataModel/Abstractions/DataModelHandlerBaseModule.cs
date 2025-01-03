@@ -38,6 +38,7 @@ public class DataModelHandlerBaseModule : Module<CustomActionModule, LoggingModu
 		Services.AddTypeSync<DefaultScriptEvaluator, IScript>();
 		Services.AddTypeSync<DefaultSendEvaluator, ISend>();
 
+		Services.AddType<StateMachineRuntimeError>(Option.IfNotRegistered);
 		Services.AddImplementation<CaseSensitivity>().For<ICaseSensitivity>();
 		Services.AddImplementation<LogController>().For<ILogController>();
 		Services.AddImplementation<EventController>().For<IEventController>();

@@ -272,7 +272,7 @@ public class InterpreterModelPersistenceTest
 	}
 
 	[UsedImplicitly]
-	private class DummyResourceLoader : ResxResourceLoader
+	public class DummyResourceLoader : ResxResourceLoader
 	{
 		protected override Stream GetResourceStream(Uri uri)
 		{

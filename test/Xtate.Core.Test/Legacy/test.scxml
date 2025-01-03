@@ -141,7 +141,7 @@
       <cancel sendidexpr="'sendid-expr'" />
     </transition>
     <state id="State0">
-
+      <transition target="Final3" />
     </state>
     <parallel>
 

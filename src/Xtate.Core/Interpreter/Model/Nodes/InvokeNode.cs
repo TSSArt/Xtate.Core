@@ -40,8 +40,6 @@ public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId
 
 	private DocumentIdSlot _documentIdSlot;
 
-	private StateEntityNode? _source;
-
 	public InvokeNode(DocumentIdNode documentIdNode, IInvoke invoke)
 	{
 		_invoke = invoke;
@@ -54,16 +52,14 @@ public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId
 		_contentBodyEvaluator = invoke.Content?.Body?.As<IValueEvaluator>();
 		_idLocationEvaluator = invoke.IdLocation?.As<ILocationEvaluator>();
 		_nameEvaluatorList = invoke.NameList.AsArrayOf<ILocationExpression, ILocationEvaluator>();
-		_parameterList = DataConverter.AsParamArray(invoke.Parameters);
+		_parameterList = DataModel.DataConverter.AsParamArray(invoke.Parameters);
 
 		Finalize = invoke.Finalize?.As<FinalizeNode>();
 	}
 
-	public required Func<ValueTask<DataConverter>> DataConverterFactory { private get; [UsedImplicitly] init; }
+	public required Deferred<DataConverter> DataConverter { private get; [UsedImplicitly] init; }
 
-	public required Func<ValueTask<IInvokeController>> InvokeControllerFactory { private get; [UsedImplicitly] init; }
-
-	public InvokeId? InvokeId { get; private set; }
+	public InvokeId? CurrentInvokeId { get; set; }
 
 	public FinalizeNode? Finalize { get; }
 
@@ -132,55 +128,23 @@ public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId
 
 #endregion
 
-	public void SetSource(StateEntityNode source) => _source = source;
-
-	public async ValueTask Start()
+	public async ValueTask<InvokeData> CreateInvokeData(InvokeId invokeId)
 	{
-		Infra.NotNull(_source, Resources.Exception_SourceNotInitialized);
-
-		InvokeId = InvokeId.New(_source.Id, _invoke.Id);
-
-		if (_idLocationEvaluator is not null)
-		{
-			await _idLocationEvaluator.SetValue(InvokeId).ConfigureAwait(false);
-		}
-
 		var type = _typeExpressionEvaluator is not null ? new FullUri(await _typeExpressionEvaluator.EvaluateString().ConfigureAwait(false)) : _invoke.Type;
 		var source = _sourceExpressionEvaluator is not null ? new Uri(await _sourceExpressionEvaluator.EvaluateString().ConfigureAwait(false), UriKind.RelativeOrAbsolute) : _invoke.Source;
 		var rawContent = _contentBodyEvaluator is IStringEvaluator rawContentEvaluator ? await rawContentEvaluator.EvaluateString().ConfigureAwait(false) : null;
 
-		var dataConverter = await DataConverterFactory().ConfigureAwait(false);
+		var dataConverter = await DataConverter().ConfigureAwait(false);
 		var content = await dataConverter.GetContent(_contentBodyEvaluator, _contentExpressionEvaluator).ConfigureAwait(false);
 		var parameters = await dataConverter.GetParameters(_nameEvaluatorList, _parameterList).ConfigureAwait(false);
 
 		Infra.NotNull(type);
 
-		var invokeData = new InvokeData(InvokeId, type, source, rawContent, content, parameters);
-
-		var invokeController = await InvokeControllerFactory().ConfigureAwait(false);
-
-		await invokeController.Start(invokeData).ConfigureAwait(false);
-	}
-
-	public async ValueTask Cancel()
-	{
-		var tmpInvokeId = InvokeId;
-		InvokeId = default;
-
-		if (tmpInvokeId is not null)
+		if (_idLocationEvaluator is not null)
 		{
-			var invokeController = await InvokeControllerFactory().ConfigureAwait(false);
-
-			await invokeController.Cancel(tmpInvokeId).ConfigureAwait(false);
+			await _idLocationEvaluator.SetValue(invokeId).ConfigureAwait(false);
 		}
-	}
 
-	public async ValueTask Forward(IIncomingEvent incomingEvent)
-	{
-		Infra.NotNull(InvokeId);
-
-		var invokeController = await InvokeControllerFactory().ConfigureAwait(false);
-
-		await invokeController.Forward(InvokeId, incomingEvent).ConfigureAwait(false);
+		return new InvokeData(invokeId, type, source, rawContent, content, parameters);
 	}
 }

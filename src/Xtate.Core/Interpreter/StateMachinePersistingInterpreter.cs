@@ -20,7 +20,7 @@ using Xtate.Persistence;
 
 namespace Xtate.Core;
 
-public class StateMachinePersistingInterpreter : StateMachineInterpreter
+public class StateMachinePersistingInterpreter: StateMachineInterpreter
 {
 	//private const string StateStorageKey                  = "state";
 	//private const string StateMachineDefinitionStorageKey = "smd";
@@ -28,16 +28,23 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 
 	private const int ValueIndex = 1;
 
-	private readonly IInterpreterModel? _interpreterModel = default;
+	public required IInterpreterModel InterpreterModel { private get; [UsedImplicitly] init; }
 
-	//private readonly IStateMachineInterpreterOptions? _options;
-	//private readonly IPersistenceContext?             _persistenceContext;
+	private readonly IStateMachineInterpreterOptions? _options;
+	private readonly IPersistenceContext?             _persistenceContext;
 
-	private readonly Bucket _stateBucket = default;
+	public required IPersistingInterpreterState PersistingInterpreterState
+	{
+		[UsedImplicitly] init => _stateBucket = value.StateBucket;
+	}
+
+	private readonly Bucket _stateBucket;
 
 	private int _stateBucketIndex;
 
 	private int _stateBucketSubIndex;
+
+	private readonly IPersistingInterpreterState _persistingInterpreterState;
 
 	public virtual void TriggerSuspendSignal()
 	{
@@ -50,10 +57,16 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 
 	private bool Enter(StateBagKey key, out bool result)
 	{
-		var skip = Enter(key, out var bucket, iteration: false);
+		if (!Enter(key, out var bucket, iteration: false))
+		{
+			result = false;
+
+			return false;
+		}
+
 		result = bucket.TryGet(ValueIndex, out bool value) && value;
 
-		return skip;
+		return true;
 	}
 
 	private void Exit(StateBagKey key, bool result)
@@ -68,12 +81,18 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 
 	private bool Enter(StateBagKey key, [NotNullWhen(true)] out List<TransitionNode>? result)
 	{
-		var skip = Enter(key, out var bucket, iteration: false);
+		if (!Enter(key, out var bucket, iteration: false))
+		{
+			result = null;
+
+			return false;
+		}
+
 		bucket = bucket.Nested(ValueIndex);
 
 		var length = bucket.GetInt32(Bucket.RootKey);
 
-		var stateMachineNode = _interpreterModel!.Root;
+		var stateMachineNode = InterpreterModel.Root;
 		result = new List<TransitionNode>(length);
 
 		for (var i = 0; i < length; i ++)
@@ -81,7 +100,7 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 			result.Add(FindTransitionNode(stateMachineNode, bucket.GetInt32(i)));
 		}
 
-		return skip;
+		return true;
 	}
 
 	private static TransitionNode FindTransitionNode(StateEntityNode node, int documentId)
@@ -509,14 +528,14 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 		Exit(StateBagKey.RunExecutableEntity);
 	}
 
-	protected override async ValueTask Invoke(InvokeNode invoke)
+	protected override async ValueTask StartInvoke(InvokeId invokeId, InvokeNode invoke)
 	{
 		if (Enter(StateBagKey.Invoke))
 		{
 			return;
 		}
 
-		await base.Invoke(invoke).ConfigureAwait(false);
+		await base.StartInvoke(invokeId, invoke).ConfigureAwait(false);
 
 		Exit(StateBagKey.Invoke);
 	}
@@ -624,8 +643,7 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 
 		InitializeData
 	}
-
-	/*-
+	/*
 	protected override async ValueTask DoOperation(StateBagKey key, Func<ValueTask> func)
 	{
 		if (_persistenceContext.GetState((int) key) == 0)
@@ -644,8 +662,8 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 
 			_persistenceContext.SetState((int) key, value: 1);
 		}
-	}*/
-	/*
+	}
+
 	protected override async ValueTask DoOperation<TArg>(StateBagKey key,
 														 IEntity entity,
 														 Func<TArg, ValueTask> func,
@@ -659,13 +677,13 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 
 			_persistenceContext.SetState((int) key, documentId, value: 1);
 		}
-	}*/
-	/*
+	}
+
 	protected override void Complete(StateBagKey key)
 	{
 		_persistenceContext.ClearState((int) key);
-	}*/
-	/*
+	}
+
 	protected override bool Capture(StateBagKey key, bool value)
 	{
 		if (_persistenceContext.GetState((int) key) == 1)
@@ -677,8 +695,8 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 		_persistenceContext.SetState((int) key, value: 1);
 
 		return result;
-	}*/
-	/*
+	}
+
 	protected override async ValueTask<List<TransitionNode>> Capture(StateBagKey key, Func<ValueTask<List<TransitionNode>>> value)
 	{
 		if (_persistenceContext.GetState((int) key) == 0)
@@ -706,8 +724,8 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 		}
 
 		return capturedSet;
-	}*/
-	/*
+	}
+	
 	protected override async ValueTask CheckPoint(PersistenceLevel level)
 	{
 		if (_persistenceContext is not { } persistenceContext || _options.options.PersistenceLevel < level)
@@ -721,8 +739,8 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 		{
 			await persistenceContext.Shrink(CancellationToken.None).ConfigureAwait(false);
 		}
-	}*/
-	/*
+	}
+	
 	protected override bool _running
 	{
 		get => base._running && _persistenceContext.GetState((int) StateBagKey.Stop) == 0;
@@ -732,7 +750,7 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 
 			_persistenceContext.SetState((int) StateBagKey.Stop, value ? 0 : 1);
 		}
-	}*/ /*
+	}
 
 	protected override async ValueTask ExitSteps()
 	{
