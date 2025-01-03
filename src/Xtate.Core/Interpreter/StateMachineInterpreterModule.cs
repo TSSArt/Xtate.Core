@@ -26,7 +26,8 @@ public class StateMachineInterpreterModule : Module<DataModelHandlersModule, Int
 	{
 		Services.AddSharedImplementation<DefaultStateMachineSessionId>(SharedWithin.Scope).For<IStateMachineSessionId>(Option.IfNotRegistered);
 		Services.AddImplementation<NoStateMachineArguments>().For<IStateMachineArguments>(Option.IfNotRegistered);
-
+		
+		Services.AddImplementation<NoUnhandledErrorBehaviour>().For<IUnhandledErrorBehaviour>(Option.IfNotRegistered);
 		Services.AddImplementation<NoNotifyStateChanged>().For<INotifyStateChanged>(Option.IfNotRegistered);
 		Services.AddImplementation<NoExternalConnections>().For<IExternalCommunication>(Option.IfNotRegistered).For<IExternalServiceManager>(Option.IfNotRegistered);
 
@@ -54,6 +55,7 @@ public class StateMachineInterpreterModule : Module<DataModelHandlersModule, Int
 		Services.AddImplementation<ConfigurationXDataModelProperty>().For<IXDataModelProperty>();
 		Services.AddImplementation<HostXDataModelProperty>().For<IXDataModelProperty>();
 
+		Services.AddType<StateMachineRuntimeError>(Option.IfNotRegistered);
 		Services.AddImplementation<InStateController>().For<IInStateController>();
 		Services.AddImplementation<DataModelController>().For<IDataModelController>();
 		Services.AddImplementation<InvokeController>().For<IInvokeController>();
@@ -61,7 +63,6 @@ public class StateMachineInterpreterModule : Module<DataModelHandlersModule, Int
 		Services.AddSharedFactory<InterpreterModelGetter>(SharedWithin.Scope).For<IInterpreterModel>();
 		Services.AddSharedImplementation<EventQueue>(SharedWithin.Scope).For<IEventQueueReader>().For<IEventQueueWriter>().For<IEventDispatcher>();
 		Services.AddSharedImplementation<StateMachineContext>(SharedWithin.Scope).For<IStateMachineContext>();
-		Services.AddSharedType<StateMachineRuntimeError>(SharedWithin.Scope);
 		Services.AddSharedImplementation<StateMachineInterpreter>(SharedWithin.Scope).For<IStateMachineInterpreter>();
 	}
 }

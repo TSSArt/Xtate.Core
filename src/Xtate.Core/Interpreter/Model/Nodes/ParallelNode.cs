@@ -36,7 +36,6 @@ public sealed class ParallelNode : StateEntityNode, IParallel, IAncestorProvider
 		Register(states);
 		Register(historyStates);
 		Register(transitions);
-		Register(invokeList);
 
 		Id = id;
 		States = states;

@@ -42,6 +42,7 @@ public class InterpreterTest
 
 		var eventQueueMock = new Mock<IEventQueueReader>();
 		var caseSensitivityMock = new Mock<ICaseSensitivity>();
+		var invokeControllerMock = new Mock<IInvokeController>();
 
 		var stateMachineContextMock = new Mock<IStateMachineContext>();
 		stateMachineContextMock.Setup(ctx => ctx.Configuration).Returns([]);
@@ -61,7 +62,8 @@ public class InterpreterTest
 										  NotifyStateChanged = new Mock<INotifyStateChanged>().Object,
 										  UnhandledErrorBehaviour = null,
 										  StateMachineArguments = null,
-										  StateMachineRuntimeError = new StateMachineRuntimeError()
+										  StateMachineRuntimeError = new StateMachineRuntimeError { StateMachineSessionId = new DefaultStateMachineSessionId() },
+										  InvokeController = invokeControllerMock.Object
 									  };
 
 		// act

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,19 +17,11 @@
 
 namespace Xtate.Core;
 
-public class NoStateMachineContext : IStateMachineContext
+public class NoUnhandledErrorBehaviour : IUnhandledErrorBehaviour
 {
-	public EntityQueue<IIncomingEvent> InternalQueue { get; } = [];
+#region Interface IUnhandledErrorBehaviour
 
-	public DataModelList DataModel => [];
+	public UnhandledErrorBehaviour Behaviour => UnhandledErrorBehaviour.DestroyStateMachine;
 
-	public OrderedSet<StateEntityNode> Configuration { get; } = [];
-
-	public OrderedSet<StateEntityNode> StatesToInvoke { get; } = [];
-
-	public InvokeIdSet ActiveInvokes { get; } = [];
-
-	public KeyList<StateEntityNode> HistoryValue { get; } = [];
-
-	public DataModelValue DoneData { get; set; }
+#endregion
 }
