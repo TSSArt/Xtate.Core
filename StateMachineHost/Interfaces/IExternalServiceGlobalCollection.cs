@@ -15,16 +15,17 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.DataModel;
+using Xtate.ExternalService;
 
 namespace Xtate.Core;
 
-public class DataModelHandlerGetter
+public interface IExternalServiceGlobalCollection
 {
-	public required IDataModelHandlerService DataModelHandlerService { private get; [UsedImplicitly] init; }
+	void Register(UniqueInvokeId uniqueInvokeId);
 
-	public required IStateMachine StateMachine { private get; [UsedImplicitly] init; }
+	void SetExternalService(UniqueInvokeId uniqueInvokeId, IExternalService externalService);
 
-	[UsedImplicitly]
-	public ValueTask<IDataModelHandler> GetDataModelHandler() => DataModelHandlerService.GetDataModelHandler(StateMachine.DataModelType);
+	void Unregister(UniqueInvokeId uniqueInvokeId);
+
+	ValueTask<bool> TryDispatch(UniqueInvokeId uniqueInvokeId, IIncomingEvent incomingEvent, CancellationToken token);
 }

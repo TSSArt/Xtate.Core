@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -15,16 +15,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.DataModel;
-
 namespace Xtate.Core;
 
-public class DataModelHandlerGetter
+public class NoStateMachineLocation : IStateMachineLocation
 {
-	public required IDataModelHandlerService DataModelHandlerService { private get; [UsedImplicitly] init; }
+#region Interface IStateMachineLocation
 
-	public required IStateMachine StateMachine { private get; [UsedImplicitly] init; }
+	public Uri? Location => default;
 
-	[UsedImplicitly]
-	public ValueTask<IDataModelHandler> GetDataModelHandler() => DataModelHandlerService.GetDataModelHandler(StateMachine.DataModelType);
+#endregion
 }

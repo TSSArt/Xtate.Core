@@ -19,7 +19,7 @@ namespace Xtate.Core;
 
 public class StateMachineRuntimeError
 {
-	private readonly object _stateMachineToken = new();
+	public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
 
 	public bool IsPlatformError(Exception exception)
 	{
@@ -27,7 +27,7 @@ public class StateMachineRuntimeError
 		{
 			if (ex is PlatformException platformException)
 			{
-				if (platformException.Token == _stateMachineToken)
+				if (StateMachineSessionId.SessionId.Equals(platformException.Token))
 				{
 					return true;
 				}
@@ -45,7 +45,7 @@ public class StateMachineRuntimeError
 		{
 			if (ex is CommunicationException communicationException)
 			{
-				if (communicationException.Token == _stateMachineToken)
+				if (StateMachineSessionId.SessionId.Equals(communicationException.Token))
 				{
 					sendId = communicationException.SendId;
 
@@ -61,9 +61,9 @@ public class StateMachineRuntimeError
 		return false;
 	}
 
-	public CommunicationException NoExternalConnections() => new(Resources.Exception_ExternalConnectionsDoesNotConfiguredForStateMachineInterpreter) { Token = _stateMachineToken };
+	public CommunicationException NoExternalConnections() => new(Resources.Exception_ExternalConnectionsDoesNotConfiguredForStateMachineInterpreter) { Token = StateMachineSessionId.SessionId };
 
-	public CommunicationException CommunicationError(Exception innerException, SendId? sendId = default) => new(innerException, sendId) { Token = _stateMachineToken };
+	public CommunicationException CommunicationError(Exception innerException, SendId? sendId = default) => new(innerException, sendId) { Token = StateMachineSessionId.SessionId };
 
-	public PlatformException PlatformError(Exception innerException) => new(innerException) { Token = _stateMachineToken };
+	public PlatformException PlatformError(Exception innerException) => new(innerException) { Token = StateMachineSessionId.SessionId };
 }

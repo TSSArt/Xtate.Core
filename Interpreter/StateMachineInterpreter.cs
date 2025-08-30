@@ -52,7 +52,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
 	public required StateMachineRuntimeError StateMachineRuntimeError { private get; [UsedImplicitly] init; }
 
-	public required IStateMachineArguments? StateMachineArguments { private get; [UsedImplicitly] init; }
+	public required IStateMachineArguments StateMachineArguments { private get; [UsedImplicitly] init; }
 
 	public required DataConverter DataConverter { private get; [UsedImplicitly] init; }
 
@@ -66,9 +66,11 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
 	public required INotifyStateChanged NotifyStateChanged { private get; [UsedImplicitly] init; }
 
-	public required IUnhandledErrorBehaviour? UnhandledErrorBehaviour { private get; [UsedImplicitly] init; }
+	public required IUnhandledErrorBehaviour UnhandledErrorBehaviour { private get; [UsedImplicitly] init; }
 
 	public required IStateMachineContext StateMachineContext { private get; [UsedImplicitly] init; }
+
+	public required IInvokeController InvokeController { private get; [UsedImplicitly] init; }
 
 #region Interface IStateMachineInterpreter
 
@@ -82,16 +84,6 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 	}
 
 #endregion
-
-	protected virtual ValueTask NotifyAccepted() => NotifyInterpreterState(StateMachineInterpreterState.Accepted);
-
-	protected virtual ValueTask NotifyStarted() => NotifyInterpreterState(StateMachineInterpreterState.Started);
-
-	protected virtual ValueTask NotifyCompleted() => NotifyInterpreterState(StateMachineInterpreterState.Completed);
-
-	protected virtual ValueTask NotifyWaiting() => NotifyInterpreterState(StateMachineInterpreterState.Waiting);
-
-	protected ValueTask TraceInterpreterState(StateMachineInterpreterState state) => Logger.Write(Level.Trace, InterpreterStateEventId, $@"Interpreter state has changed to '{state}'");
 
 	private void ProcessRemainingInternalQueue()
 	{
@@ -110,9 +102,9 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		}
 	}
 
-	private async ValueTask NotifyInterpreterState(StateMachineInterpreterState state)
+	protected virtual async ValueTask NotifyInterpreterState(StateMachineInterpreterState state)
 	{
-		await TraceInterpreterState(state).ConfigureAwait(false);
+		await Logger.Write(Level.Trace, InterpreterStateEventId, $@"Interpreter state has changed to '{state}'").ConfigureAwait(false);
 
 		await NotifyStateChanged.OnChanged(state).ConfigureAwait(false);
 	}
@@ -126,14 +118,14 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		}
 		catch (StateMachineDestroyedException)
 		{
-			await TraceInterpreterState(StateMachineInterpreterState.Destroying).ConfigureAwait(false);
+			await NotifyInterpreterState(StateMachineInterpreterState.Destroying).ConfigureAwait(false);
 			await ExitSteps().ConfigureAwait(false);
 
 			throw;
 		}
-		catch
+		catch (Exception ex)
 		{
-			await TraceInterpreterState(StateMachineInterpreterState.Terminated).ConfigureAwait(false);
+			await HandleMainLoopException(ex).ConfigureAwait(false);
 
 			throw;
 		}
@@ -141,19 +133,21 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		await ExitSteps().ConfigureAwait(false);
 	}
 
+	protected virtual ValueTask HandleMainLoopException(Exception ex) => NotifyInterpreterState(StateMachineInterpreterState.Terminated);
+
 	protected virtual async ValueTask EnterSteps()
 	{
-		await NotifyAccepted().ConfigureAwait(false);
+		await NotifyInterpreterState(StateMachineInterpreterState.Accepted).ConfigureAwait(false);
 		await InitializeDataModels().ConfigureAwait(false);
 		await ExecuteGlobalScript().ConfigureAwait(false);
-		await NotifyStarted().ConfigureAwait(false);
+		await NotifyInterpreterState(StateMachineInterpreterState.Started).ConfigureAwait(false);
 		await InitialEnterStates().ConfigureAwait(false);
 	}
 
 	protected virtual async ValueTask ExitSteps()
 	{
 		await ExitInterpreter().ConfigureAwait(false);
-		await NotifyCompleted().ConfigureAwait(false);
+		await NotifyInterpreterState(StateMachineInterpreterState.Completed).ConfigureAwait(false);
 	}
 
 	public virtual void TriggerDestroySignal(Exception? innerException = default)
@@ -169,7 +163,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 	{
 		if (Model.Root.DataModel is { } dataModel)
 		{
-			await InitializeDataModel(dataModel, StateMachineArguments?.Arguments.AsListOrDefault()).ConfigureAwait(false);
+			await InitializeDataModel(dataModel, StateMachineArguments.Arguments.AsListOrDefault()).ConfigureAwait(false);
 		}
 
 		if (Model.Root is { Binding: BindingType.Early } stateMachineNode)
@@ -228,7 +222,9 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		{
 			foreach (var invoke in state.Invoke)
 			{
-				await Invoke(invoke).ConfigureAwait(false);
+				var invokeId = InvokeId.New(state.Id, invoke.Id);
+
+				await StartInvoke(invokeId, invoke).ConfigureAwait(false);
 			}
 		}
 
@@ -312,9 +308,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
 	private void ProcessUnhandledError(IIncomingEvent incomingEvent)
 	{
-		var behaviour = UnhandledErrorBehaviour?.Behaviour ?? Xtate.UnhandledErrorBehaviour.DestroyStateMachine;
-
-		switch (behaviour)
+		switch (UnhandledErrorBehaviour.Behaviour)
 		{
 			case Xtate.UnhandledErrorBehaviour.IgnoreError:
 				break;
@@ -328,7 +322,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 				throw GetUnhandledErrorException();
 
 			default:
-				throw Infra.Unmatched(behaviour);
+				throw Infra.Unmatched(UnhandledErrorBehaviour.Behaviour);
 		}
 
 		StateMachineUnhandledErrorException GetUnhandledErrorException()
@@ -366,7 +360,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		{
 			foreach (var invoke in state.Invoke)
 			{
-				if (invoke.InvokeId == externalEvent.InvokeId)
+				if (invoke.CurrentInvokeId == externalEvent.InvokeId)
 				{
 					await ApplyFinalize(invoke).ConfigureAwait(false);
 				}
@@ -380,8 +374,6 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
 		return await SelectTransitions(externalEvent).ConfigureAwait(false);
 	}
-
-	//protected virtual ValueTask CheckPoint(PersistenceLevel level) => default;
 
 	private async ValueTask<IIncomingEvent> ReadExternalEventFiltered()
 	{
@@ -417,7 +409,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
 	protected virtual async ValueTask<IIncomingEvent> WaitForExternalEvent()
 	{
-		await NotifyWaiting().ConfigureAwait(false);
+		await NotifyInterpreterState(StateMachineInterpreterState.Waiting).ConfigureAwait(false);
 
 		while (await EventQueueReader.WaitToEvent().ConfigureAwait(false))
 		{
@@ -1163,7 +1155,11 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 	{
 		try
 		{
-			await invoke.Forward(incomingEvent).ConfigureAwait(false);
+			var invokeId = invoke.CurrentInvokeId;
+
+			Infra.NotNull(invokeId);
+
+			await InvokeController.Forward(invokeId, incomingEvent).ConfigureAwait(false);
 		}
 		catch (Exception ex) when (IsError(ex))
 		{
@@ -1173,15 +1169,19 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
 	private ValueTask ApplyFinalize(InvokeNode invoke) => invoke.Finalize is not null ? RunExecutableEntity(invoke.Finalize.ActionEvaluators) : default;
 
-	protected virtual async ValueTask Invoke(InvokeNode invoke)
+	protected virtual async ValueTask StartInvoke(InvokeId invokeId, InvokeNode invoke)
 	{
 		try
 		{
-			await invoke.Start().ConfigureAwait(false);
+			Infra.Assert(invoke.CurrentInvokeId is null);
 
-			Infra.NotNull(invoke.InvokeId);
+			var invokeData = await invoke.CreateInvokeData(invokeId).ConfigureAwait(false);
 
-			StateMachineContext.ActiveInvokes.Add(invoke.InvokeId);
+			invoke.CurrentInvokeId = invokeId;
+
+			StateMachineContext.ActiveInvokes.Add(invokeId);
+			
+			await InvokeController.Start(invokeData).ConfigureAwait(false);
 		}
 		catch (Exception ex) when (IsError(ex))
 		{
@@ -1193,11 +1193,14 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 	{
 		try
 		{
-			Infra.NotNull(invoke.InvokeId);
+			var tmpInvokeId = invoke.CurrentInvokeId;
+			Infra.NotNull(tmpInvokeId);
 
-			StateMachineContext.ActiveInvokes.Remove(invoke.InvokeId);
+			StateMachineContext.ActiveInvokes.Remove(tmpInvokeId);
 
-			await invoke.Cancel().ConfigureAwait(false);
+			invoke.CurrentInvokeId = null;
+
+			await InvokeController.Cancel(tmpInvokeId).ConfigureAwait(false);
 		}
 		catch (Exception ex) when (IsError(ex))
 		{

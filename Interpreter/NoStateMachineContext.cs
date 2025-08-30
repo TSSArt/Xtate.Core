@@ -21,7 +21,7 @@ public class NoStateMachineContext : IStateMachineContext
 {
 	public EntityQueue<IIncomingEvent> InternalQueue { get; } = [];
 
-	public DataModelList DataModel => DataModelList.Empty;
+	public DataModelList DataModel => [];
 
 	public OrderedSet<StateEntityNode> Configuration { get; } = [];
 

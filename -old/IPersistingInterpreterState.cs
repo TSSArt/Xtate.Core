@@ -19,9 +19,10 @@ using Xtate.Persistence;
 
 namespace Xtate.Core;
 
+[Obsolete]
 public interface IPersistingInterpreterState
 {
-	public Bucket StateBucket { get; }
+	Bucket StateBucket { get; }
 
-	public ValueTask CheckPoint(int level);
+	ValueTask CheckPoint(int level);
 }

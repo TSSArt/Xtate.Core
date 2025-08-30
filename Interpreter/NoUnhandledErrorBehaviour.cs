@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -15,17 +15,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.ExternalService;
-
 namespace Xtate.Core;
 
-public interface IExternalServicePublicCollection
+public class NoUnhandledErrorBehaviour : IUnhandledErrorBehaviour
 {
-	void Register(UniqueInvokeId uniqueInvokeId);
+#region Interface IUnhandledErrorBehaviour
 
-	void SetExternalService(UniqueInvokeId uniqueInvokeId, IExternalService externalService);
+	public UnhandledErrorBehaviour Behaviour => UnhandledErrorBehaviour.DestroyStateMachine;
 
-	void Unregister(UniqueInvokeId uniqueInvokeId);
-
-	ValueTask<bool> TryDispatch(UniqueInvokeId uniqueInvokeId, IIncomingEvent incomingEvent, CancellationToken token);
+#endregion
 }
