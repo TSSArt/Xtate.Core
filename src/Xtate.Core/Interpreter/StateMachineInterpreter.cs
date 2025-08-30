@@ -85,16 +85,6 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
 #endregion
 
-	protected virtual ValueTask NotifyAccepted() => NotifyInterpreterState(StateMachineInterpreterState.Accepted);
-
-	protected virtual ValueTask NotifyStarted() => NotifyInterpreterState(StateMachineInterpreterState.Started);
-
-	protected virtual ValueTask NotifyCompleted() => NotifyInterpreterState(StateMachineInterpreterState.Completed);
-
-	protected virtual ValueTask NotifyWaiting() => NotifyInterpreterState(StateMachineInterpreterState.Waiting);
-
-	protected ValueTask TraceInterpreterState(StateMachineInterpreterState state) => Logger.Write(Level.Trace, InterpreterStateEventId, $@"Interpreter state has changed to '{state}'");
-
 	private void ProcessRemainingInternalQueue()
 	{
 		var internalQueue = StateMachineContext.InternalQueue;
@@ -112,9 +102,9 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		}
 	}
 
-	private async ValueTask NotifyInterpreterState(StateMachineInterpreterState state)
+	protected virtual async ValueTask NotifyInterpreterState(StateMachineInterpreterState state)
 	{
-		await TraceInterpreterState(state).ConfigureAwait(false);
+		await Logger.Write(Level.Trace, InterpreterStateEventId, $@"Interpreter state has changed to '{state}'").ConfigureAwait(false);
 
 		await NotifyStateChanged.OnChanged(state).ConfigureAwait(false);
 	}
@@ -128,14 +118,14 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		}
 		catch (StateMachineDestroyedException)
 		{
-			await TraceInterpreterState(StateMachineInterpreterState.Destroying).ConfigureAwait(false);
+			await NotifyInterpreterState(StateMachineInterpreterState.Destroying).ConfigureAwait(false);
 			await ExitSteps().ConfigureAwait(false);
 
 			throw;
 		}
-		catch
+		catch (Exception ex)
 		{
-			await TraceInterpreterState(StateMachineInterpreterState.Terminated).ConfigureAwait(false);
+			await HandleMainLoopException(ex).ConfigureAwait(false);
 
 			throw;
 		}
@@ -143,19 +133,21 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		await ExitSteps().ConfigureAwait(false);
 	}
 
+	protected virtual ValueTask HandleMainLoopException(Exception ex) => NotifyInterpreterState(StateMachineInterpreterState.Terminated);
+
 	protected virtual async ValueTask EnterSteps()
 	{
-		await NotifyAccepted().ConfigureAwait(false);
+		await NotifyInterpreterState(StateMachineInterpreterState.Accepted).ConfigureAwait(false);
 		await InitializeDataModels().ConfigureAwait(false);
 		await ExecuteGlobalScript().ConfigureAwait(false);
-		await NotifyStarted().ConfigureAwait(false);
+		await NotifyInterpreterState(StateMachineInterpreterState.Started).ConfigureAwait(false);
 		await InitialEnterStates().ConfigureAwait(false);
 	}
 
 	protected virtual async ValueTask ExitSteps()
 	{
 		await ExitInterpreter().ConfigureAwait(false);
-		await NotifyCompleted().ConfigureAwait(false);
+		await NotifyInterpreterState(StateMachineInterpreterState.Completed).ConfigureAwait(false);
 	}
 
 	public virtual void TriggerDestroySignal(Exception? innerException = default)
@@ -383,8 +375,6 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		return await SelectTransitions(externalEvent).ConfigureAwait(false);
 	}
 
-	//protected virtual ValueTask CheckPoint(PersistenceLevel level) => default;
-
 	private async ValueTask<IIncomingEvent> ReadExternalEventFiltered()
 	{
 		while (true)
@@ -419,7 +409,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
 	protected virtual async ValueTask<IIncomingEvent> WaitForExternalEvent()
 	{
-		await NotifyWaiting().ConfigureAwait(false);
+		await NotifyInterpreterState(StateMachineInterpreterState.Waiting).ConfigureAwait(false);
 
 		while (await EventQueueReader.WaitToEvent().ConfigureAwait(false))
 		{

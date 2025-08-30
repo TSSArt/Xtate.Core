@@ -15,30 +15,16 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.IoC;
-
 namespace Xtate.Core;
 
-public class InterpreterModelGetter : IAsyncInitialization
+public class InterpreterModelGetter
 {
-	private readonly AsyncInit<IInterpreterModel> _interpreterModelAsyncInit;
-
-	public InterpreterModelGetter()
-	{
-		_interpreterModelAsyncInit = AsyncInit.Run(this, getter => getter.CreateInterpreterModel());
-	}
-
 	public required InterpreterModelBuilder InterpreterModelBuilder { private get; [UsedImplicitly] init; }
 
 	public required IErrorProcessor ErrorProcessor { private get; [UsedImplicitly] init; }
 
-#region Interface IAsyncInitialization
-
-	public Task Initialization => _interpreterModelAsyncInit.Task;
-
-#endregion
-
-	private async ValueTask<IInterpreterModel> CreateInterpreterModel()
+	[UsedImplicitly]
+	public async ValueTask<IInterpreterModel> GetInterpreterModel()
 	{
 		try
 		{
@@ -49,7 +35,4 @@ public class InterpreterModelGetter : IAsyncInitialization
 			ErrorProcessor.ThrowIfErrors();
 		}
 	}
-
-	[UsedImplicitly]
-	public IInterpreterModel GetInterpreterModel() => _interpreterModelAsyncInit.Value;
 }

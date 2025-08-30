@@ -42,9 +42,11 @@ public readonly struct Bucket
 
 	public Bucket Nested<TKey>(TKey key) where TKey : notnull
 	{
-		Span<byte> buf = stackalloc byte[KeyHelper<TKey>.Converter.GetLength(key)];
-		KeyHelper<TKey>.Converter.Write(key, buf);
-		CreateNewEntry(buf, out var storage);
+		using var ss = new StackSpan<byte>(KeyHelper<TKey>.Converter.GetLength(key));
+		var span = ss ? ss : stackalloc byte[ss];
+
+		KeyHelper<TKey>.Converter.Write(key, span);
+		CreateNewEntry(span, out var storage);
 
 		return storage;
 	}
@@ -84,7 +86,7 @@ public readonly struct Bucket
 		return 8;
 	}
 
-	private int GetFullKeySize<TKey>(TKey key) where TKey : notnull
+	private int GetFullKeyLength<TKey>(TKey key) where TKey : notnull
 	{
 		var size = KeyHelper<TKey>.Converter.GetLength(key) + GetSize(_block);
 
@@ -96,7 +98,7 @@ public readonly struct Bucket
 		return size;
 	}
 
-	private Span<byte> CreateFullKey<TKey>(Span<byte> buf, TKey key) where TKey : notnull
+	private ReadOnlySpan<byte> CreateFullKey<TKey>(Span<byte> buf, TKey key) where TKey : notnull
 	{
 		var len = KeyHelper<TKey>.Converter.GetLength(key);
 		var nextBuf = WritePrevious(_node, len + 8, ref buf);
@@ -128,7 +130,7 @@ public readonly struct Bucket
 		return buf;
 	}
 
-	public void Add<TKey>(TKey key, Span<byte> value) where TKey : notnull
+	public void Add<TKey>(TKey key, ReadOnlySpan<byte> value) where TKey : notnull
 	{
 		if (value.Length == 0)
 		{
@@ -137,8 +139,10 @@ public readonly struct Bucket
 			return;
 		}
 
-		Span<byte> buf = stackalloc byte[GetFullKeySize(key)];
-		_node.Storage.Set(CreateFullKey(buf, key), value);
+		using var ss = new StackSpan<byte>(GetFullKeyLength(key));
+		var span = ss ? ss : stackalloc byte[ss];
+
+		_node.Storage.Set(CreateFullKey(span, key), value);
 	}
 
 	public void Add<TKey, TValue>(TKey key, TValue value) where TKey : notnull
@@ -150,29 +154,38 @@ public readonly struct Bucket
 			return;
 		}
 
-		Span<byte> buf = stackalloc byte[GetFullKeySize(key)];
+		using var ssKey = new StackSpan<byte>(GetFullKeyLength(key));
+		var spanKey = ssKey ? ssKey : stackalloc byte[ssKey];
 
-		Span<byte> bufVal = stackalloc byte[ValueHelper<TValue>.Converter.GetLength(value)];
-		ValueHelper<TValue>.Converter.Write(value, bufVal);
-		_node.Storage.Set(CreateFullKey(buf, key), bufVal);
+		using var ssVal = new StackSpan<byte>(ValueHelper<TValue>.Converter.GetLength(value));
+		var spanVal = ssVal ? ssVal : stackalloc byte[ssVal];
+
+		ValueHelper<TValue>.Converter.Write(value, spanVal);
+		_node.Storage.Set(CreateFullKey(spanKey, key), spanVal);
 	}
 
 	public void Remove<TKey>(TKey key) where TKey : notnull
 	{
-		Span<byte> buf = stackalloc byte[GetFullKeySize(key)];
-		_node.Storage.Remove(CreateFullKey(buf, key));
+		using var ss = new StackSpan<byte>(GetFullKeyLength(key));
+		var span = ss ? ss : stackalloc byte[ss];
+
+		_node.Storage.Remove(CreateFullKey(span, key));
 	}
 
 	public void RemoveSubtree<TKey>(TKey key) where TKey : notnull
 	{
-		Span<byte> buf = stackalloc byte[GetFullKeySize(key)];
-		_node.Storage.RemoveAll(CreateFullKey(buf, key));
+		using var ss = new StackSpan<byte>(GetFullKeyLength(key));
+		var span = ss ? ss : stackalloc byte[ss];
+
+		_node.Storage.RemoveAll(CreateFullKey(span, key));
 	}
 
 	public bool TryGet<TKey>(TKey key, out ReadOnlyMemory<byte> value) where TKey : notnull
 	{
-		Span<byte> buf = stackalloc byte[GetFullKeySize(key)];
-		value = _node.Storage.Get(CreateFullKey(buf, key));
+		using var ss = new StackSpan<byte>(GetFullKeyLength(key));
+		var span = ss ? ss : stackalloc byte[ss];
+
+		value = _node.Storage.Get(CreateFullKey(span, key));
 
 		return !value.IsEmpty;
 	}
@@ -181,8 +194,10 @@ public readonly struct Bucket
 									 [NotNullWhen(true)] [MaybeNullWhen(false)]
 									 out TValue value) where TKey : notnull
 	{
-		Span<byte> buf = stackalloc byte[GetFullKeySize(key)];
-		var memory = _node.Storage.Get(CreateFullKey(buf, key));
+		using var ss = new StackSpan<byte>(GetFullKeyLength(key));
+		var span = ss ? ss : stackalloc byte[ss];
+
+		var memory = _node.Storage.Get(CreateFullKey(span, key));
 
 		if (memory.Length == 0)
 		{
@@ -301,7 +316,7 @@ public readonly struct Bucket
 
 		private readonly byte[]? _bytes;
 
-		public BlocksBytesNode(Node node, ulong block, Span<byte> span) : base(node)
+		public BlocksBytesNode(Node node, ulong block, ReadOnlySpan<byte> span) : base(node)
 		{
 			_block1 = block;
 

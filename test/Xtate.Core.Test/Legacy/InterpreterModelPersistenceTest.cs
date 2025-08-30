@@ -230,11 +230,11 @@ public class InterpreterModelPersistenceTest
 						   .EndState()
 						   .Build();
 
-		//var writer = new StreamWriter("C:\\Projects\\1.log");
-		//var debugger = new ServiceProviderDebugger(writer);
+		//var writer = new StreamWriter("D:\\Ser\\Projects\\1.log");
+		////var debugger = new ServiceProviderDebugger(writer);
 		var services = new ServiceCollection();
 
-		//services.AddConstant<IServiceProviderDebugger>(s => debugger);
+		//services.AddConstant<IServiceProviderActions>(debugger);
 		services.AddModule<StateMachineInterpreterModule>();
 		services.AddModule<PersistenceModule>();
 		services.AddConstant(stateMachine);

@@ -15,7 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.Buffers;
 using System.Xml;
 using System.Xml.XPath;
 
@@ -50,34 +49,12 @@ internal class ElementNodeAdapter : NodeAdapter
 
 	public override string GetValue(in DataModelXPathNavigator.Node node)
 	{
-		var bufferSize = GetBufferSizeForValue(node);
+		using var ss = new StackSpan<char>(GetBufferSizeForValue(node));
+		var span = ss ? ss : stackalloc char[ss];
+		
+		var length = WriteValueToSpan(node, span);
 
-		if (bufferSize == 0)
-		{
-			return string.Empty;
-		}
-
-		if (bufferSize <= 32768)
-		{
-			Span<char> buf = stackalloc char[bufferSize];
-
-			var length = WriteValueToSpan(node, buf);
-
-			return buf[..length].ToString();
-		}
-
-		var array = ArrayPool<char>.Shared.Rent(bufferSize);
-
-		try
-		{
-			var length = WriteValueToSpan(node, array);
-
-			return array.AsSpan(start: 0, length).ToString();
-		}
-		finally
-		{
-			ArrayPool<char>.Shared.Return(array);
-		}
+		return length > 0 ? span[..length].ToString() : string.Empty;
 	}
 
 	public sealed override int GetBufferSizeForValue(in DataModelXPathNavigator.Node node)

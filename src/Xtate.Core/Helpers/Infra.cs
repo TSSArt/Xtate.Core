@@ -83,7 +83,7 @@ internal static class Infra
 	/// <exception cref="ArgumentNullException"></exception>
 	[AssertionMethod]
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void Requires<T>([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] [NotNull] T? parameter, [CallerArgumentExpression(nameof(parameter))] string? parameterName = default)
+	public static void Requires<T>([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] [NotNull] T? parameter, [CallerArgumentExpression(nameof(parameter))] string? parameterName = null)
 	{
 		if (parameter is null)
 		{
@@ -103,7 +103,7 @@ internal static class Infra
 	/// <exception cref="InvalidEnumArgumentException"></exception>
 	[AssertionMethod]
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void RequiresValidEnum<T>(T parameter, [CallerArgumentExpression(nameof(parameter))] string? parameterName = default) where T : struct, Enum
+	public static void RequiresValidEnum<T>(T parameter, [CallerArgumentExpression(nameof(parameter))] string? parameterName = null) where T : struct, Enum
 	{
 #if NET5_0_OR_GREATER
 		if (!Enum.IsDefined(parameter))

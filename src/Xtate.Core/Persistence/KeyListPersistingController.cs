@@ -78,11 +78,12 @@ internal sealed class KeyListPersistingController<T> : IDisposable where T : cla
 			throw new ArgumentOutOfRangeException(nameof(action), action, message: null);
 		}
 
-		Span<byte> bytes = stackalloc byte[list.Count * 4];
+		using var ss = new StackSpan<byte>(list.Count * 4);
+		var span = ss ? ss : stackalloc byte[ss];
 
 		for (var i = 0; i < list.Count; i ++)
 		{
-			BinaryPrimitives.WriteInt32LittleEndian(bytes[(i * 4)..], list[i].As<IDocumentId>().DocumentId);
+			BinaryPrimitives.WriteInt32LittleEndian(span[(i * 4)..], list[i].As<IDocumentId>().DocumentId);
 		}
 
 		var documentId = entity.As<IDocumentId>().DocumentId;
@@ -94,6 +95,6 @@ internal sealed class KeyListPersistingController<T> : IDisposable where T : cla
 			_bucket.Nested(record).Add(Id, record);
 		}
 
-		_bucket.Nested(record).Add(IdList, bytes);
+		_bucket.Nested(record).Add(IdList, span);
 	}
 }

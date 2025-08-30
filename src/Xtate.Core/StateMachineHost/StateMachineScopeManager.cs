@@ -58,7 +58,7 @@ public class StateMachineScopeManager : IStateMachineScopeManager, IDisposable, 
 
 #region Interface IStateMachineScopeManager
 
-	async ValueTask IStateMachineScopeManager.Start(StateMachineClass stateMachineClass, SecurityContextType securityContextType)
+	public virtual async ValueTask Start(StateMachineClass stateMachineClass, SecurityContextType securityContextType)
 	{
 		await using var registration = SecurityContextRegistrationFactory(securityContextType).ConfigureAwait(false);
 
@@ -83,7 +83,7 @@ public class StateMachineScopeManager : IStateMachineScopeManager, IDisposable, 
 		}
 	}
 
-	async ValueTask<DataModelValue> IStateMachineScopeManager.Execute(StateMachineClass stateMachineClass, SecurityContextType securityContextType)
+	public virtual async ValueTask<DataModelValue> Execute(StateMachineClass stateMachineClass, SecurityContextType securityContextType)
 	{
 		await using var registration = SecurityContextRegistrationFactory(securityContextType).ConfigureAwait(false);
 
@@ -104,7 +104,7 @@ public class StateMachineScopeManager : IStateMachineScopeManager, IDisposable, 
 		}
 	}
 
-	ValueTask IStateMachineScopeManager.Terminate(SessionId sessionId) => _scopes?.TryRemove(sessionId, out var serviceScope) == true ? serviceScope.DisposeAsync() : default;
+	public virtual ValueTask Terminate(SessionId sessionId) => _scopes?.TryRemove(sessionId, out var serviceScope) == true ? serviceScope.DisposeAsync() : default;
 
 #endregion
 

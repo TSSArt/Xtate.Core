@@ -20,36 +20,67 @@ using Xtate.Persistence;
 
 namespace Xtate.Core;
 
+public interface ISuspendEventDispatcher
+{
+	event Action OnSuspend;
+}
+
+public interface IPersistenceOptions
+{
+	PersistenceLevel PersistenceLevel { get; }
+}
+
 public class StateMachinePersistingInterpreter: StateMachineInterpreter
 {
-	//private const string StateStorageKey                  = "state";
-	//private const string StateMachineDefinitionStorageKey = "smd";
 	private const int KeyIndex = 0;
 
 	private const int ValueIndex = 1;
 
 	public required IInterpreterModel InterpreterModel { private get; [UsedImplicitly] init; }
 
-	private readonly IStateMachineInterpreterOptions? _options;
-	private readonly IPersistenceContext?             _persistenceContext;
-
-	public required IPersistingInterpreterState PersistingInterpreterState
+	public required IStorage StateStorage
 	{
-		[UsedImplicitly] init => _stateBucket = value.StateBucket;
+		[UsedImplicitly] init
+		{
+			_stateBucket = new Bucket(value);
+			_storage = value;
+		}
 	}
+
+	private bool _suspending;
+
+	private int _index;
+
+	private int _subIndex;
+
+	private readonly IStorage _storage;
 
 	private readonly Bucket _stateBucket;
 
-	private int _stateBucketIndex;
+	[UsedImplicitly]
+	public required ISuspendEventDispatcher SuspendEventDispatcher { init => value.OnSuspend += Suspend; }
+	
+	public required IPersistenceOptions PersistenceOptions { private get; [UsedImplicitly]init; }
 
-	private int _stateBucketSubIndex;
-
-	private readonly IPersistingInterpreterState _persistingInterpreterState;
-
-	public virtual void TriggerSuspendSignal()
+	private void Suspend()
 	{
-		//CloseEventQueue(new StateMachineSuspendedException(Resources.Exception_StateMachineHasBeenSuspended));
+		_suspending = true;
+
+		StopWaitingExternalEvents();
 	}
+
+	protected override async ValueTask ExternalQueueCompleted()
+	{
+		if (_suspending)
+		{
+			throw new StateMachineSuspendedException(Resources.Exception_StateMachineHasBeenSuspended);
+		}
+
+		await base.ExternalQueueCompleted().ConfigureAwait(false);
+	}
+
+	protected override ValueTask HandleMainLoopException(Exception ex) =>
+		_suspending && ex is StateMachineSuspendedException ? NotifyInterpreterState(StateMachineInterpreterState.Suspended) : base.HandleMainLoopException(ex);
 
 	private bool Enter(StateBagKey key) => Enter(key, out _, iteration: false);
 
@@ -92,12 +123,19 @@ public class StateMachinePersistingInterpreter: StateMachineInterpreter
 
 		var length = bucket.GetInt32(Bucket.RootKey);
 
-		var stateMachineNode = InterpreterModel.Root;
+		var entityMap = InterpreterModel.EntityMap;
 		result = new List<TransitionNode>(length);
 
 		for (var i = 0; i < length; i ++)
 		{
-			result.Add(FindTransitionNode(stateMachineNode, bucket.GetInt32(i)));
+			var documentId = bucket.GetInt32(i);
+
+			if (!entityMap.TryGetEntityByDocumentId(documentId, out var entity) || entity is not TransitionNode transitionNode)
+			{
+				throw new KeyNotFoundException(Res.Format(Resources.Exception_TransitionNodeWithDocumentIdNotFound, documentId));
+			}
+
+			result.Add(transitionNode);
 		}
 
 		return true;
@@ -150,7 +188,7 @@ public class StateMachinePersistingInterpreter: StateMachineInterpreter
 
 	private bool Enter(StateBagKey key, out Bucket bucket, bool iteration)
 	{
-		var subBucket = _stateBucket.Nested(_stateBucketIndex).Nested(_stateBucketSubIndex);
+		var subBucket = _stateBucket.Nested(_index).Nested(_subIndex);
 
 		if (subBucket.TryGet(KeyIndex, out StateBagKey savedKey) && savedKey != key)
 		{
@@ -168,9 +206,9 @@ public class StateMachinePersistingInterpreter: StateMachineInterpreter
 		switch (methodState)
 		{
 			case MethodState.Executing:
-				_stateBucketIndex ++;
-				_stateBucket.Add(_stateBucketIndex, _stateBucketSubIndex);
-				_stateBucketSubIndex = 0;
+				_index ++;
+				_stateBucket.Add(_index, _subIndex);
+				_subIndex = 0;
 				bucket = default;
 
 				return false;
@@ -181,7 +219,7 @@ public class StateMachinePersistingInterpreter: StateMachineInterpreter
 					Infra.Fail();
 				}
 
-				_stateBucketSubIndex ++;
+				_subIndex ++;
 				bucket = subBucket;
 
 				return true;
@@ -193,13 +231,13 @@ public class StateMachinePersistingInterpreter: StateMachineInterpreter
 
 	private void Exit(StateBagKey key, out Bucket bucket, bool iteration)
 	{
-		var topBucket = _stateBucket.Nested(_stateBucketIndex);
+		var topBucket = _stateBucket.Nested(_index);
 		var getStatus = topBucket.TryGet(Bucket.RootKey, out int subIndex);
 		Infra.Assert(getStatus);
-		_stateBucketIndex --;
-		_stateBucketSubIndex = subIndex;
+		_index --;
+		_subIndex = subIndex;
 
-		var subBucket = _stateBucket.Nested(_stateBucketIndex).Nested(_stateBucketSubIndex);
+		var subBucket = _stateBucket.Nested(_index).Nested(_subIndex);
 
 		if (!subBucket.TryGet(KeyIndex, out StateBagKey savedKey) || savedKey != key)
 		{
@@ -220,46 +258,23 @@ public class StateMachinePersistingInterpreter: StateMachineInterpreter
 		else
 		{
 			subBucket.Add(Bucket.RootKey, MethodState.Completed);
-			_stateBucketSubIndex ++;
+			_subIndex ++;
 		}
 
 		bucket = subBucket;
 	}
 
-	protected override async ValueTask NotifyAccepted()
+	protected virtual async ValueTask CheckPoint(PersistenceLevel level)
 	{
-		if (Enter(StateBagKey.NotifyAccepted))
+		if (level <= PersistenceOptions.PersistenceLevel && _storage is ITransactionalStorage transactionalStorage)
 		{
-			return;
+			await transactionalStorage.CheckPoint((int) level).ConfigureAwait(false);
+
+			if (level == PersistenceLevel.StableState)
+			{
+				await transactionalStorage.Shrink().ConfigureAwait(false);
+			}
 		}
-
-		await base.NotifyAccepted().ConfigureAwait(false);
-
-		Exit(StateBagKey.NotifyAccepted);
-	}
-
-	protected override async ValueTask NotifyStarted()
-	{
-		if (Enter(StateBagKey.NotifyStarted))
-		{
-			return;
-		}
-
-		await base.NotifyStarted().ConfigureAwait(false);
-
-		Exit(StateBagKey.NotifyStarted);
-	}
-
-	protected override async ValueTask NotifyCompleted()
-	{
-		if (Enter(StateBagKey.NotifyExited))
-		{
-			return;
-		}
-
-		await base.NotifyCompleted().ConfigureAwait(false);
-
-		Exit(StateBagKey.NotifyExited);
 	}
 
 	protected override async ValueTask Interpret()
@@ -358,6 +373,8 @@ public class StateMachinePersistingInterpreter: StateMachineInterpreter
 
 		Exit(StateBagKey.ExternalQueueProcess, result);
 
+		await CheckPoint(PersistenceLevel.Event).ConfigureAwait(false);
+
 		return result;
 	}
 
@@ -451,6 +468,8 @@ public class StateMachinePersistingInterpreter: StateMachineInterpreter
 
 		result = await base.Microstep(enabledTransitions).ConfigureAwait(false);
 
+		await CheckPoint(PersistenceLevel.Transition).ConfigureAwait(false);
+
 		Exit(StateBagKey.Microstep, result);
 
 		return result;
@@ -525,6 +544,8 @@ public class StateMachinePersistingInterpreter: StateMachineInterpreter
 
 		await base.RunExecutableEntity(action).ConfigureAwait(false);
 
+		await CheckPoint(PersistenceLevel.ExecutableAction).ConfigureAwait(false);
+
 		Exit(StateBagKey.RunExecutableEntity);
 	}
 
@@ -576,6 +597,13 @@ public class StateMachinePersistingInterpreter: StateMachineInterpreter
 		Exit(StateBagKey.InitializeData);
 	}
 
+	protected override async ValueTask<IIncomingEvent> WaitForExternalEvent()
+	{
+		await CheckPoint(PersistenceLevel.StableState).ConfigureAwait(false);
+
+		return await base.WaitForExternalEvent().ConfigureAwait(false);
+	}
+
 	private enum MethodState
 	{
 		Executing,
@@ -585,8 +613,6 @@ public class StateMachinePersistingInterpreter: StateMachineInterpreter
 
 	private enum StateBagKey
 	{
-		Value,
-
 		ExecuteGlobalScript,
 
 		InitialEnterStates,
@@ -594,14 +620,6 @@ public class StateMachinePersistingInterpreter: StateMachineInterpreter
 		ExitStates,
 
 		EnterStates,
-
-		NotifyAccepted,
-
-		NotifyStarted,
-
-		NotifyExited,
-
-		NotifyWaiting,
 
 		Interpret,
 

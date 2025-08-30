@@ -35,13 +35,4 @@ public class StateMachineFactoryModule : Module<ScxmlModule>
 		Services.AddType<ScxmlLocationStateMachineGetter>();
 		Services.AddImplementation<SourceStateMachineProvider>().For<IStateMachineProvider>();
 	}
-
-	private class NoStateMachineLocation : IStateMachineLocation
-	{
-	#region Interface IStateMachineLocation
-
-		public Uri? Location => default;
-
-	#endregion
-	}
 }

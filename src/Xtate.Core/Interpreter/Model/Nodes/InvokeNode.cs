@@ -130,6 +130,11 @@ public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId
 
 	public async ValueTask<InvokeData> CreateInvokeData(InvokeId invokeId)
 	{
+		if (_idLocationEvaluator is not null)
+		{
+			await _idLocationEvaluator.SetValue(invokeId).ConfigureAwait(false);
+		}
+
 		var type = _typeExpressionEvaluator is not null ? new FullUri(await _typeExpressionEvaluator.EvaluateString().ConfigureAwait(false)) : _invoke.Type;
 		var source = _sourceExpressionEvaluator is not null ? new Uri(await _sourceExpressionEvaluator.EvaluateString().ConfigureAwait(false), UriKind.RelativeOrAbsolute) : _invoke.Source;
 		var rawContent = _contentBodyEvaluator is IStringEvaluator rawContentEvaluator ? await rawContentEvaluator.EvaluateString().ConfigureAwait(false) : null;
@@ -139,11 +144,6 @@ public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId
 		var parameters = await dataConverter.GetParameters(_nameEvaluatorList, _parameterList).ConfigureAwait(false);
 
 		Infra.NotNull(type);
-
-		if (_idLocationEvaluator is not null)
-		{
-			await _idLocationEvaluator.SetValue(invokeId).ConfigureAwait(false);
-		}
 
 		return new InvokeData(invokeId, type, source, rawContent, content, parameters);
 	}

@@ -15,22 +15,17 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using System.Buffers;
 using Xtate.DataModel;
-using Xtate.IoC;
 using Xtate.Persistence;
 
 namespace Xtate.Core;
 
-public class PersistedInterpreterModelGetter : IAsyncInitialization
+public class PersistedInterpreterModelGetter
 {
-	private readonly AsyncInit<IInterpreterModel> _interpreterModelAsyncInit;
-
-	public PersistedInterpreterModelGetter()
-	{
-		_interpreterModelAsyncInit = AsyncInit.Run(this, getter => getter.CreateInterpreterModel());
-	}
-
 	public required Func<IStateMachine, IDataModelHandler, ValueTask<InterpreterModelBuilder>> InterpreterModelBuilderFactory { private get; [UsedImplicitly] init; }
+
+	public required InterpreterModelBuilder InterpreterModelBuilder { private get; [UsedImplicitly] init; }
 
 	public required IDataModelHandlerService DataModelHandlerService { private get; [UsedImplicitly] init; }
 
@@ -44,13 +39,8 @@ public class PersistedInterpreterModelGetter : IAsyncInitialization
 
 	public required Func<ReadOnlyMemory<byte>, InMemoryStorage> InMemoryStorageFactory { private get; [UsedImplicitly] init; }
 
-#region Interface IAsyncInitialization
-
-	public Task Initialization => _interpreterModelAsyncInit.Task;
-
-#endregion
-
-	private async ValueTask<IInterpreterModel> CreateInterpreterModel()
+	[UsedImplicitly]
+	public async ValueTask<IInterpreterModel> GetInterpreterModel()
 	{
 		if (await TryRestoreInterpreterModel().ConfigureAwait(false) is { } interpreterModel)
 		{
@@ -61,9 +51,11 @@ public class PersistedInterpreterModelGetter : IAsyncInitialization
 
 		try
 		{
-			var dataModelHandler = await DataModelHandlerService.GetDataModelHandler(StateMachine.DataModelType).ConfigureAwait(false);
-			var interpreterModelBuilder = await InterpreterModelBuilderFactory(StateMachine, dataModelHandler).ConfigureAwait(false);
-			interpreterModel = await interpreterModelBuilder.BuildModel(true).ConfigureAwait(false);
+			//var dataModelHandler = await DataModelHandlerService.GetDataModelHandler(StateMachine.DataModelType).ConfigureAwait(false);
+			//var interpreterModelBuilder = await InterpreterModelBuilderFactory(StateMachine, dataModelHandler).ConfigureAwait(false);
+			//interpreterModel = await interpreterModelBuilder.BuildModel(true).ConfigureAwait(false);
+			//var interpreterModelBuilder = await InterpreterModelBuilder().ConfigureAwait(false);
+			interpreterModel = await InterpreterModelBuilder.BuildModel(true).ConfigureAwait(false);
 		}
 		finally
 		{
@@ -157,19 +149,27 @@ public class PersistedInterpreterModelGetter : IAsyncInitialization
 		}
 	}
 
-	private void SaveToStorage(IStoreSupport root, in Bucket bucket)
-	{
-		var memoryStorage = new InMemoryStorage();
-		root.Store(new Bucket(memoryStorage));
+    private void SaveToStorage(IStoreSupport root, in Bucket bucket)
+    {
+        var memoryStorage = new InMemoryStorage();
+        root.Store(new Bucket(memoryStorage));
 
-		Span<byte> span = stackalloc byte[memoryStorage.GetTransactionLogSize()];
-		memoryStorage.WriteTransactionLogToSpan(span);
+        var transactionLogSize = memoryStorage.GetTransactionLogSize();
+        var buffer = ArrayPool<byte>.Shared.Rent(transactionLogSize);
 
-		bucket.Add(Key.Version, value: 1);
-		bucket.AddId(Key.SessionId, StateMachineSessionId.SessionId);
-		bucket.Add(Key.StateMachineDefinition, span);
-	}
+        try
+        {
+            var span = buffer.AsSpan(0, transactionLogSize);
+            
+			memoryStorage.WriteTransactionLogToSpan(span);
 
-	[UsedImplicitly]
-	public IInterpreterModel GetInterpreterModel() => _interpreterModelAsyncInit.Value;
+            bucket.Add(Key.Version, value: 1);
+            bucket.AddId(Key.SessionId, StateMachineSessionId.SessionId);
+            bucket.Add(Key.StateMachineDefinition, span);
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(buffer);
+        }
+    }
 }
