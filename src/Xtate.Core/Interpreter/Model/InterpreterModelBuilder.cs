@@ -40,7 +40,7 @@ public class InterpreterModelBuilder : StateMachineVisitor
 
 	public required IStateMachine StateMachine { private get; [UsedImplicitly] init; }
 
-	public required IStateMachineLocation? StateMachineLocation { private get; [UsedImplicitly] init; }
+	public required IStateMachineLocation StateMachineLocation { private get; [UsedImplicitly] init; }
 
 	public required IDataModelHandler DataModelHandler { private get; [UsedImplicitly] init; }
 
@@ -211,7 +211,7 @@ public class InterpreterModelBuilder : StateMachineVisitor
 
 	private async ValueTask LoadAndSetContent(Uri uri, IExternalScriptConsumer consumer)
 	{
-		var baseUri = StateMachineLocation?.Location;
+		var baseUri = StateMachineLocation.Location;
 		var resource = await ResourceLoader.Request(baseUri.CombineWith(uri)).ConfigureAwait(false);
 
 		await using (resource.ConfigureAwait(false))

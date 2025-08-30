@@ -32,7 +32,6 @@ public class StateMachineFluentBuilderModule : Module<StateMachineBuilderModule>
 		Services.AddTypeSync<TransitionFluentBuilder<OuterBuilder>, OuterBuilder, Action<ITransition>>();
 	}
 
-	[UsedImplicitly]
 	private class OuterBuilder : IStub
 	{
 	#region Interface IStub

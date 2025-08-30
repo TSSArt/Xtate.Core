@@ -27,11 +27,7 @@ public class StateFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 
 	public required TOuterBuilder OuterBuilder { private get; [UsedImplicitly] init; }
 
-	public required Func<StateFluentBuilder<TOuterBuilder>, Action<IInitial>, InitialFluentBuilder<StateFluentBuilder<TOuterBuilder>>> InitialFluentBuilderFactory
-	{
-		private get;
-		[UsedImplicitly] init;
-	}
+	public required Func<StateFluentBuilder<TOuterBuilder>, Action<IInitial>, InitialFluentBuilder<StateFluentBuilder<TOuterBuilder>>> InitialFluentBuilderFactory { private get; init; }
 
 	public required Func<StateFluentBuilder<TOuterBuilder>, Action<IState>, StateFluentBuilder<StateFluentBuilder<TOuterBuilder>>> StateFluentBuilderFactory { private get; [UsedImplicitly] init; }
 

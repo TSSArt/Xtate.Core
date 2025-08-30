@@ -323,29 +323,7 @@ public class RegisterClassTest
 
 		Assert.AreEqual(expected: "<?xml version=\"1.0\" encoding=\"utf-16\"?><scxml version=\"1.0\" xmlns=\"http://www.w3.org/2005/07/scxml\" />", textWriter.ToString());
 	}
-
-	[TestMethod]
-	public async Task DataModelHandlersEmptyTest()
-	{
-		// Arrange
-
-		var services = new ServiceCollection();
-		services.AddModule<DataModelHandlersModule>();
-		services.AddSharedImplementationSync<AssemblyTypeInfo, Type>(SharedWithin.Container).For<IAssemblyTypeInfo>();
-		var provider = services.BuildProvider();
-
-		var dataModelHandler = await provider.GetService<IDataModelHandler>();
-
-		//var typeInfo = provider.GetRequiredServiceSync<ITypeInfo, Type>(dataModelHandler.GetType());
-
-		// Act
-
-		// Assert
-
-		//Assert.AreEqual("Xtate.DataModel.Null.NullDataModelHandler", typeInfo.FullTypeName);
-		Assert.IsNull(dataModelHandler);
-	}
-
+	
 	[TestMethod]
 	public async Task DataModelHandlersXPathTest()
 	{

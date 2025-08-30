@@ -15,8 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.Buffers;
-
 namespace Xtate.Core;
 
 public static class StringExtensions
@@ -33,25 +31,15 @@ public static class StringExtensions
 	{
 		Infra.Requires(str);
 
-		if (str.Length == 0) return string.Empty;
-
-		if (str.Length <= 32768)
+		if (str.Length == 0)
 		{
-			Span<char> buf = stackalloc char[str.Length];
-
-			return RemoveSpaces(str, buf);
+			return string.Empty;
 		}
 
-		var array = ArrayPool<char>.Shared.Rent(str.Length);
+		using var ss = new StackSpan<char>(str.Length);
+		var span = ss ? ss : stackalloc char[ss];
 
-		try
-		{
-			return RemoveSpaces(str, array);
-		}
-		finally
-		{
-			ArrayPool<char>.Shared.Return(array, clearArray: true);
-		}
+		return RemoveSpaces(str, span);
 	}
 
 	private static string RemoveSpaces(string str, Span<char> buf)
