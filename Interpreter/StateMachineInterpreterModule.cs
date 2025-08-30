@@ -60,7 +60,7 @@ public class StateMachineInterpreterModule : Module<DataModelHandlersModule, Int
 		Services.AddImplementation<DataModelController>().For<IDataModelController>();
 		Services.AddImplementation<InvokeController>().For<IInvokeController>();
 
-		Services.AddSharedFactory<InterpreterModelGetter>(SharedWithin.Scope).For<IInterpreterModel>();
+		Services.AddFactory<InterpreterModelGetter>().For<IInterpreterModel>(SharedWithin.Scope);
 		Services.AddSharedImplementation<EventQueue>(SharedWithin.Scope).For<IEventQueueReader>().For<IEventQueueWriter>().For<IEventDispatcher>();
 		Services.AddSharedImplementation<StateMachineContext>(SharedWithin.Scope).For<IStateMachineContext>();
 		Services.AddSharedImplementation<StateMachineInterpreter>(SharedWithin.Scope).For<IStateMachineInterpreter>();

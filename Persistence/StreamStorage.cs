@@ -60,7 +60,7 @@ public class StreamStorage : ITransactionalStorage, IAsyncInitialization
 			throw new ArgumentException(Resources.Exception_StreamShouldSupportReadWriteSeekOperations, nameof(stream));
 		}
 
-		_inMemoryStorageAsyncInit = AsyncInit.Run(this, storage => storage.Init());
+		_inMemoryStorageAsyncInit = AsyncInit.Run(this, static storage => storage.Init());
 	}
 
 	public required Func<bool, InMemoryStorage> InMemoryStorageFactory { private get; [UsedImplicitly] init; }

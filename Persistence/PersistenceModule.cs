@@ -22,7 +22,7 @@ using Xtate.Persistence;
 
 namespace Xtate.Core;
 
-public class PersistenceModule : Module<InterpreterModelBuilderModule, StateMachineFactoryModule, DataModelHandlersModule>
+public class PersistenceModule : Module<InterpreterModelBuilderModule, DataModelHandlersModule>
 {
 	protected override void AddServices()
 	{
@@ -31,13 +31,13 @@ public class PersistenceModule : Module<InterpreterModelBuilderModule, StateMach
 		Services.AddImplementation<StreamStorageNoRollback, Stream>().For<ITransactionalStorage>();
 		Services.AddImplementation<StreamStorageWithRollback, Stream, int>().For<ITransactionalStorage>();
 
-		Services.AddDecorator<PersistedStateMachineService>().For<IStateMachineService>();
-		Services.AddFactory<PersistedDataModelHandlerGetter>().For<IDataModelHandler>(Option.DoNotDispose);
-		Services.AddImplementation<PersistedStateMachineRunState>().For<IPersistedStateMachineRunState>();
-
+		//Services.AddDecorator<PersistedStateMachineService>().For<IStateMachineService>();
+		//Services.AddFactory<PersistedDataModelHandlerGetter>().For<IDataModelHandler>(Option.DoNotDispose);
+		//Services.AddImplementation<PersistedStateMachineRunState>().For<IPersistedStateMachineRunState>();
+		
 		Services.AddType<InterpreterModelBuilder, IStateMachine, IDataModelHandler>();
 
-		Services.AddSharedFactory<PersistedInterpreterModelGetter>(SharedWithin.Scope).For<IInterpreterModel>();
+		Services.AddFactory<PersistedInterpreterModelGetter>().For<IInterpreterModel>(SharedWithin.Scope);
 	}
 
 	[UsedImplicitly]

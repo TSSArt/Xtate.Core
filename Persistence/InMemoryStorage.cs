@@ -93,9 +93,11 @@ public class InMemoryStorage : IStorage
 
 #endregion
 
+	private static IMemoryOwner<byte> Rent(int size = -1) => MemoryPool<byte>.Shared.Rent(size);
+
 	private void InitFromBaseline(ReadOnlySpan<byte> baseline)
 	{
-		_baselineOwner = MemoryPool<byte>.Shared.Rent(baseline.Length);
+		_baselineOwner = Rent(baseline.Length);
 		var memory = _baselineOwner.Memory[..baseline.Length];
 		baseline.CopyTo(memory.Span);
 
@@ -206,12 +208,12 @@ public class InMemoryStorage : IStorage
 				_buffers.Add((_owner, _owner.Memory.Length - _buffer.Length));
 			}
 
-			_owner = MemoryPool<byte>.Shared.Rent();
+			_owner = Rent();
 
 			if (_owner.Memory.Length < size)
 			{
 				_owner.Dispose();
-				_owner = MemoryPool<byte>.Shared.Rent(size);
+				_owner = Rent(size);
 			}
 
 			_buffer = _owner.Memory;
@@ -275,7 +277,7 @@ public class InMemoryStorage : IStorage
 
 		if (shrink)
 		{
-			newBaselineOwner = MemoryPool<byte>.Shared.Rent(_readModel.Sum(entry => entry.Key.Length + entry.Value.Length));
+			newBaselineOwner = Rent(_readModel.Sum(entry => entry.Key.Length + entry.Value.Length));
 			newBaseline = newBaselineOwner.Memory;
 			newReadModel = CreateReadModel();
 		}

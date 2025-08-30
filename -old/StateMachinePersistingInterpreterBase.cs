@@ -63,27 +63,6 @@ public class StateMachinePersistingInterpreterBase : StateMachineInterpreter
 		StopWaitingExternalEvents();
 	}
 
-	public override async ValueTask<DataModelValue> RunAsync()
-	{
-		//TODO: use correct condition
-		/*
-		if (false /*_stateMachine is null)
-		{
-			//await TraceInterpreterState(StateMachineInterpreterState.Resumed).ConfigureAwait(false);
-		}*/
-
-		try
-		{
-			return await base.RunAsync().ConfigureAwait(false);
-		}
-		catch (StateMachineSuspendedException)
-		{
-			await TraceInterpreterState(StateMachineInterpreterState.Suspended).ConfigureAwait(false);
-
-			throw;
-		}
-	}
-
 	protected override async ValueTask EnterSteps()
 	{
 		if (Enter(StateBagKey.EnterSteps, out _))
