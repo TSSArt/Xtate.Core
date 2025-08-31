@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -16,16 +16,35 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace Xtate.Core;
-
+	
+/// <summary>
+/// Provides a fast dynamic conversion between two generic types.
+/// </summary>
+/// <typeparam name="TFrom">The source type to convert from.</typeparam>
+/// <typeparam name="TTo">The target type to convert to.</typeparam>
 internal static class ConvertHelper<TFrom, TTo>
 {
-	public static readonly Func<TFrom, TTo> Convert = GetConverter();
+    /// <summary>
+    /// A cached delegate that performs the conversion from <typeparamref name="TFrom"/> to <typeparamref name="TTo"/>.
+    /// </summary>
+    private static readonly Func<TFrom, TTo> Converter = CreateConverter();
 
-	private static Func<TFrom, TTo> GetConverter()
-	{
-		var arg = Expression.Parameter(typeof(TFrom));
-		var body = Expression.Convert(arg, typeof(TTo));
+    /// <summary>
+    /// Converts a value of type <typeparamref name="TFrom"/> to <typeparamref name="TTo"/>.
+    /// </summary>
+    /// <param name="from">The value to convert.</param>
+    /// <returns>The converted value of type <typeparamref name="TTo"/>.</returns>
+    public static TTo Convert(TFrom from) => Converter(from);
 
-		return Expression.Lambda<Func<TFrom, TTo>>(body, arg).Compile();
-	}
+    /// <summary>
+    /// Creates a compiled delegate that converts from <typeparamref name="TFrom"/> to <typeparamref name="TTo"/> using expression trees.
+    /// </summary>
+    /// <returns>A delegate that performs the conversion.</returns>
+    private static Func<TFrom, TTo> CreateConverter()
+    {
+        var arg = Expression.Parameter(typeof(TFrom));
+        var body = Expression.Convert(arg, typeof(TTo));
+
+        return Expression.Lambda<Func<TFrom, TTo>>(body, arg).Compile();
+    }
 }
