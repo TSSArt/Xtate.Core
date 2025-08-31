@@ -23,7 +23,7 @@ jobs:
   
     steps:
       - name: Workflow Dispatch
-        uses: benc-uk/workflow-dispatch@v1.2.3
+        uses: benc-uk/workflow-dispatch@v1.2.4
         with:
           workflow: Publish
           token: ${{ secrets.XTATE_GITHUB_TOKEN }}
