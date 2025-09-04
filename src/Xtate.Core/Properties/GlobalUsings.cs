@@ -33,3 +33,4 @@ global using Xtate.Core;
 
 // Global aliases
 global using NotNullAttribute = System.Diagnostics.CodeAnalysis.NotNullAttribute;
+global using IServiceProvider = Xtate.IoC.IServiceProvider;
