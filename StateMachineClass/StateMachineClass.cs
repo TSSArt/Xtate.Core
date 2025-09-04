@@ -25,9 +25,7 @@ public abstract class StateMachineClass : IStateMachineSessionId, IStateMachineA
 
 	private readonly Uri? _location;
 
-	private SessionId? _sessionId;
-
-	public Uri Location { init => _location = value; }
+    public Uri Location { init => _location = value; }
 
 	public DataModelValue Arguments { init => _arguments = value; }
 
@@ -45,11 +43,12 @@ public abstract class StateMachineClass : IStateMachineSessionId, IStateMachineA
 
 #region Interface IStateMachineSessionId
 
-	public SessionId SessionId
-	{
-		get => _sessionId ??= SessionId.New();
-		init => _sessionId = value;
-	}
+    [field: AllowNull, MaybeNull]
+    public SessionId SessionId
+    {
+        get => field ??= SessionId.New();
+        init;
+    }
 
 #endregion
 
