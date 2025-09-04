@@ -21,9 +21,7 @@ namespace Xtate.Core;
 
 public class IncomingEvent : IIncomingEvent, IStoreSupport, IAncestorProvider
 {
-	private readonly DataModelValue _data;
-
-	public IncomingEvent() { }
+    public IncomingEvent() { }
 
 	public IncomingEvent(IIncomingEvent incomingEvent)
 	{
@@ -76,13 +74,13 @@ public class IncomingEvent : IIncomingEvent, IStoreSupport, IAncestorProvider
 
 	public EventType Type { get; init; }
 
-	public DataModelValue Data
-	{
-		get => _data;
-		init => _data = value.AsConstant();
-	}
+    public DataModelValue Data
+    {
+        get;
+        init => field = value.AsConstant();
+    }
 
-	public FullUri? Origin { get; init; }
+    public FullUri? Origin { get; init; }
 
 #endregion
 

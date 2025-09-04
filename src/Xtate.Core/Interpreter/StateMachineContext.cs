@@ -22,9 +22,7 @@ namespace Xtate.Core;
 
 public class StateMachineContext : IStateMachineContext
 {
-	private DataModelList? _dataModel;
-
-	public required ICaseSensitivity CaseSensitivity { private get; [UsedImplicitly] init; }
+    public required ICaseSensitivity CaseSensitivity { private get; [UsedImplicitly] init; }
 
 	public required IStateMachine StateMachine { private get; [UsedImplicitly] init; }
 
@@ -36,7 +34,8 @@ public class StateMachineContext : IStateMachineContext
 
 #region Interface IStateMachineContext
 
-	public DataModelList DataModel => _dataModel ??= CreateDataModel();
+    [field: AllowNull, MaybeNull]
+    public DataModelList DataModel => field ??= CreateDataModel();
 
 	public OrderedSet<StateEntityNode> Configuration { get; } = [];
 

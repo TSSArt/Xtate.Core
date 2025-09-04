@@ -21,13 +21,11 @@ namespace Xtate.CustomAction;
 
 public abstract class SyncAction : ActionBase, IAction
 {
-	private Location[]? _locations;
+    [field: AllowNull, MaybeNull]
+    private Value[] Values => field ??= GetValues().ToArray();
 
-	private Value[]? _values;
-
-	private Value[] Values => _values ??= GetValues().ToArray();
-
-	private Location[] Locations => _locations ??= GetLocations().ToArray();
+    [field: AllowNull, MaybeNull]
+    private Location[] Locations => field ??= GetLocations().ToArray();
 
 #region Interface IAction
 
@@ -67,7 +65,7 @@ public abstract class SyncAction : ActionBase, IAction
 
 	protected abstract class Value(string? expression) : IActionValue
 	{
-		protected IValueEvaluator ValueEvaluator { get; private set; } = default!;
+		protected IValueEvaluator ValueEvaluator { get; private set; } = null!;
 
 	#region Interface IActionValue
 
@@ -117,22 +115,22 @@ public abstract class SyncAction : ActionBase, IAction
 		protected override ValueTask<object?[]> GetValue() => GetArray(ValueEvaluator);
 	}
 
-	protected class StringValue(string? expression, string? defaultValue = default) : TypedValue<string>(expression)
+	protected class StringValue(string? expression, string? defaultValue = null) : TypedValue<string>(expression)
 	{
 		protected override ValueTask<string> GetValue() => GetString(ValueEvaluator, defaultValue);
 	}
 
-	protected class IntegerValue(string? expression, int? defaultValue = default) : TypedValue<int>(expression)
+	protected class IntegerValue(string? expression, int? defaultValue = null) : TypedValue<int>(expression)
 	{
 		protected override ValueTask<int> GetValue() => GetInteger(ValueEvaluator, defaultValue);
 	}
 
-	protected class BooleanValue(string? expression, bool? defaultValue = default) : TypedValue<bool>(expression)
+	protected class BooleanValue(string? expression, bool? defaultValue = null) : TypedValue<bool>(expression)
 	{
 		protected override ValueTask<bool> GetValue() => GetBoolean(ValueEvaluator, defaultValue);
 	}
 
-	protected class ObjectValue(string? expression, object? defaultValue = default) : TypedValue<DataModelValue>(expression)
+	protected class ObjectValue(string? expression, object? defaultValue = null) : TypedValue<DataModelValue>(expression)
 	{
 		protected override ValueTask<DataModelValue> GetValue() => GetObject(ValueEvaluator, defaultValue);
 	}
@@ -144,7 +142,7 @@ public abstract class SyncAction : ActionBase, IAction
 		// ReSharper disable once MemberHidesStaticFromOuterClass
 		public T Value => _value.HasValue ? _value.Value.Item1 : throw new InvalidOperationException(Resources.Exception_PropertyAvailableInEvaluateMethod);
 
-		internal override void Reset() => _value = default;
+		internal override void Reset() => _value = null;
 
 		internal override async ValueTask Evaluate() => _value = new ValueTuple<T>(await GetValue().ConfigureAwait(false));
 

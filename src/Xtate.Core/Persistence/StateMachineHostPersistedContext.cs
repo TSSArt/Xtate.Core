@@ -568,29 +568,17 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 	#endregion
 	}
 
-	private class InvokedServiceMeta : IStoreSupport
-	{
-		public InvokedServiceMeta(SessionId parentSessionId, InvokeId invokeId, SessionId? sessionId)
-		{
-			ParentSessionId = parentSessionId;
-			InvokeId = invokeId;
-			SessionId = sessionId;
-		}
+	private class InvokedServiceMeta(SessionId parentSessionId, InvokeId invokeId, SessionId? sessionId) : IStoreSupport
+    {
+        public InvokedServiceMeta(in Bucket bucket) : this(bucket.GetSessionId(Key.ParentSessionId) ?? throw new PersistenceException(Resources.Exception_MissedParentSessionId), bucket.GetInvokeId(Key.InvokeId) ?? throw new PersistenceException(Resources.Exception_InvokedServiceMetaMissedInvokeId), bucket.GetSessionId(Key.SessionId)) { }
 
-		public InvokedServiceMeta(in Bucket bucket)
-		{
-			ParentSessionId = bucket.GetSessionId(Key.ParentSessionId) ?? throw new PersistenceException(Resources.Exception_MissedParentSessionId);
-			InvokeId = bucket.GetInvokeId(Key.InvokeId) ?? throw new PersistenceException(Resources.Exception_InvokedServiceMetaMissedInvokeId);
-			SessionId = bucket.GetSessionId(Key.SessionId);
-		}
+		public SessionId ParentSessionId { get; } = parentSessionId;
 
-		public SessionId ParentSessionId { get; }
+        public InvokeId InvokeId { get; } = invokeId;
 
-		public InvokeId InvokeId { get; }
+        public SessionId? SessionId { get; } = sessionId;
 
-		public SessionId? SessionId { get; }
-
-		public int RecordId { get; set; }
+        public int RecordId { get; set; }
 
 	#region Interface IStoreSupport
 

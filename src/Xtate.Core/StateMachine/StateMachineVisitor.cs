@@ -17,13 +17,11 @@
 
 namespace Xtate.Core;
 
-public abstract class StateMachineVisitor
+public abstract class StateMachineVisitor(bool trackPath = false)
 {
-	private readonly Stack<(object, ImmutableArray<object?>)>? _path;
+	private readonly Stack<(object, ImmutableArray<object?>)>? _path = trackPath ? new Stack<(object, ImmutableArray<object?>)>() : null;
 
-	protected StateMachineVisitor(bool trackPath = false) => _path = trackPath ? new Stack<(object, ImmutableArray<object?>)>() : null;
-
-	protected string? CurrentPath => _path is not null ? string.Join(separator: @"/", _path.Reverse().Select(EntityName)) : null;
+    protected string? CurrentPath => _path is not null ? string.Join(separator: @"/", _path.Reverse().Select(EntityName)) : null;
 
 	private static string EntityName((object obj, ImmutableArray<object?> array) entry)
 	{

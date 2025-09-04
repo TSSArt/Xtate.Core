@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -15,9 +15,18 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Core;
+#if !NET5_0_OR_GREATER
 
-public interface ILogEntityParser<in TEntity>
+namespace System.Threading.Tasks;
+
+[UsedImplicitly]
+internal static class ValueTaskExtensions
 {
-	IEnumerable<(string Name, object Value)> EnumerateProperties(TEntity entity);
+	extension(ValueTask)
+	{
+		/// <summary>Gets a task that has already completed successfully.</summary>
+		public static ValueTask CompletedTask => new();
+	}
 }
+
+#endif
