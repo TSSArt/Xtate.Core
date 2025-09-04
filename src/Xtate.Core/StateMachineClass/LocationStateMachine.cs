@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,12 +21,12 @@ namespace Xtate.Core;
 
 public class LocationStateMachine : StateMachineClass
 {
-	public LocationStateMachine(Uri location) => Location = location;
+    public LocationStateMachine(Uri location) => Location = location;
 
-	public override void AddServices(IServiceCollection services)
-	{
-		base.AddServices(services);
+    public override void AddServices(IServiceCollection services)
+    {
+        base.AddServices(services);
 
-		services.AddModule<LocationStateMachineModule>();
-	}
+        services.AddModule<LocationStateMachineModule>();
+    }
 }

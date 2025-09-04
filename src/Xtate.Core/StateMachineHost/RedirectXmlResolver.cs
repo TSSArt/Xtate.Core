@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -24,55 +24,55 @@ namespace Xtate.Core;
 
 public class RedirectXmlResolver : ScxmlXmlResolver
 {
-	public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
+    public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
 
-	public required Func<ValueTask<IResourceLoader>> ResourceLoaderFactory { private get; [UsedImplicitly] init; }
-	
-	public required Func<Stream, ContentType?, Resource> ResourceFactory { private get; [UsedImplicitly] init; }
+    public required Func<ValueTask<IResourceLoader>> ResourceLoaderFactory { private get; [UsedImplicitly] init; }
 
-	protected override object GetEntity(Uri uri,
-										string? accept,
-										string? acceptLanguage,
-										Type? ofObjectToReturn) =>
-		throw new NotSupportedException(Resources.Exception_LoadingExternalResourcesSynchronouslyDoesNotSupported);
+    public required Func<Stream, ContentType?, Resource> ResourceFactory { private get; [UsedImplicitly] init; }
 
-	protected override async ValueTask<object> GetEntityAsync(Uri uri,
-															  string? accept,
-															  string? acceptLanguage,
-															  Type? ofObjectToReturn)
-	{
-		if (ofObjectToReturn is not null && ofObjectToReturn != typeof(Stream) && ofObjectToReturn != typeof(IXIncludeResource))
-		{
-			throw new ArgumentException(Res.Format(Resources.Exception_UnsupportedClass, ofObjectToReturn));
-		}
+    protected override object GetEntity(Uri uri,
+                                        string? accept,
+                                        string? acceptLanguage,
+                                        Type? ofObjectToReturn) =>
+        throw new NotSupportedException(Resources.Exception_LoadingExternalResourcesSynchronouslyDoesNotSupported);
 
-		var resourceLoader = await ResourceLoaderFactory().ConfigureAwait(false);
-		var resource = await resourceLoader.Request(uri, GetHeaders(accept, acceptLanguage)).ConfigureAwait(false);
-		var stream = await resource.GetStream(true).ConfigureAwait(false);
-		stream = stream.InjectCancellationToken(DisposeToken);
+    protected override async ValueTask<object> GetEntityAsync(Uri uri,
+                                                              string? accept,
+                                                              string? acceptLanguage,
+                                                              Type? ofObjectToReturn)
+    {
+        if (ofObjectToReturn is not null && ofObjectToReturn != typeof(Stream) && ofObjectToReturn != typeof(IXIncludeResource))
+        {
+            throw new ArgumentException(Res.Format(Resources.Exception_UnsupportedClass, ofObjectToReturn));
+        }
 
-		return ofObjectToReturn == typeof(IXIncludeResource) ? ResourceFactory(stream, resource.ContentType) : stream;
-	}
+        var resourceLoader = await ResourceLoaderFactory().ConfigureAwait(false);
+        var resource = await resourceLoader.Request(uri, GetHeaders(accept, acceptLanguage)).ConfigureAwait(false);
+        var stream = await resource.GetStream(true).ConfigureAwait(false);
+        stream = stream.InjectCancellationToken(DisposeToken);
 
-	private static NameValueCollection? GetHeaders(string? accept, string? acceptLanguage)
-	{
-		if (string.IsNullOrEmpty(accept) && string.IsNullOrEmpty(acceptLanguage))
-		{
-			return default;
-		}
+        return ofObjectToReturn == typeof(IXIncludeResource) ? ResourceFactory(stream, resource.ContentType) : stream;
+    }
 
-		var headers = new NameValueCollection(2);
+    private static NameValueCollection? GetHeaders(string? accept, string? acceptLanguage)
+    {
+        if (string.IsNullOrEmpty(accept) && string.IsNullOrEmpty(acceptLanguage))
+        {
+            return default;
+        }
 
-		if (!string.IsNullOrEmpty(accept))
-		{
-			headers.Add(name: @"Accept", accept);
-		}
+        var headers = new NameValueCollection(2);
 
-		if (!string.IsNullOrEmpty(accept))
-		{
-			headers.Add(name: @"Accept-Language", acceptLanguage);
-		}
+        if (!string.IsNullOrEmpty(accept))
+        {
+            headers.Add(name: @"Accept", accept);
+        }
 
-		return headers;
-	}
+        if (!string.IsNullOrEmpty(accept))
+        {
+            headers.Add(name: @"Accept-Language", acceptLanguage);
+        }
+
+        return headers;
+    }
 }

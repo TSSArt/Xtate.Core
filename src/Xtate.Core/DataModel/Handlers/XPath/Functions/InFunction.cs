@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,47 +21,47 @@ namespace Xtate.DataModel.XPath;
 
 public class InFunction() : XPathFunctionBase(XPathResultType.Boolean, XPathResultType.Any)
 {
-	public class Provider() : XPathFunctionProviderBase<InFunction>(string.Empty, name: @"In");
+    public class Provider() : XPathFunctionProviderBase<InFunction>(string.Empty, name: @"In");
 
-	private IInStateController _inStateController;
+    private IInStateController _inStateController;
 
-	public required Func<ValueTask<IInStateController>> InStateControllerFactory { private get; [UsedImplicitly] init; }
+    public required Func<ValueTask<IInStateController>> InStateControllerFactory { private get; [UsedImplicitly] init; }
 
-	public override async ValueTask Initialize()
-	{
-		_inStateController = await InStateControllerFactory().ConfigureAwait(false);
+    public override async ValueTask Initialize()
+    {
+        _inStateController = await InStateControllerFactory().ConfigureAwait(false);
 
-		await base.Initialize().ConfigureAwait(false);
-	}
+        await base.Initialize().ConfigureAwait(false);
+    }
 
-	protected override object Invoke(object[] args)
-	{
-		if (args is [string stateId])
-		{
-			return InState(stateId);
-		}
+    protected override object Invoke(object[] args)
+    {
+        if (args is [string stateId])
+        {
+            return InState(stateId);
+        }
 
-		if (args is [XPathNodeIterator iterator])
-		{
-			if (!iterator.MoveNext())
-			{
-				return false;
-			}
+        if (args is [XPathNodeIterator iterator])
+        {
+            if (!iterator.MoveNext())
+            {
+                return false;
+            }
 
-			do
-			{
-				if (!InState(iterator.Current?.Value))
-				{
-					return false;
-				}
-			}
-			while (iterator.MoveNext());
+            do
+            {
+                if (!InState(iterator.Current?.Value))
+                {
+                    return false;
+                }
+            }
+            while (iterator.MoveNext());
 
-			return true;
-		}
+            return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	private bool InState(string stateId) => !string.IsNullOrEmpty(stateId) && _inStateController.InState((Identifier) stateId);
+    private bool InState(string stateId) => !string.IsNullOrEmpty(stateId) && _inStateController.InState((Identifier)stateId);
 }

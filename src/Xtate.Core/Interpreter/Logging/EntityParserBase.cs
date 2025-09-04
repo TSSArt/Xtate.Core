@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,11 +21,11 @@ public abstract class EntityParserBase<TSource, TEntity>(Level level = Level.Inf
 {
 #region Interface IEntityParserHandler<TSource>
 
-	IEnumerable<LoggingParameter>? IEntityParserHandler<TSource>.EnumerateProperties<T>(T entity) => entity is TEntity ? EnumerateProperties(ConvertHelper<T, TEntity>.Convert(entity)) : default;
+    IEnumerable<LoggingParameter>? IEntityParserHandler<TSource>.EnumerateProperties<T>(T entity) => entity is TEntity ? EnumerateProperties(ConvertHelper<T, TEntity>.Convert(entity)) : default;
 
-	Level IEntityParserHandler<TSource>.Level => level;
+    Level IEntityParserHandler<TSource>.Level => level;
 
 #endregion
 
-	protected abstract IEnumerable<LoggingParameter> EnumerateProperties(TEntity entity);
+    protected abstract IEnumerable<LoggingParameter> EnumerateProperties(TEntity entity);
 }

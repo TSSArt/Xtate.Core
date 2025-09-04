@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,25 +21,25 @@ public abstract class ForEachEvaluator(IForEach forEach) : IForEach, IExecEvalua
 {
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => forEach;
+    object IAncestorProvider.Ancestor => forEach;
 
 #endregion
 
 #region Interface IExecEvaluator
 
-	public abstract ValueTask Execute();
+    public abstract ValueTask Execute();
 
 #endregion
 
 #region Interface IForEach
 
-	public virtual IValueExpression? Array => forEach.Array;
+    public virtual IValueExpression? Array => forEach.Array;
 
-	public virtual ILocationExpression? Item => forEach.Item;
+    public virtual ILocationExpression? Item => forEach.Item;
 
-	public virtual ILocationExpression? Index => forEach.Index;
+    public virtual ILocationExpression? Index => forEach.Index;
 
-	public virtual ImmutableArray<IExecutableEntity> Action => forEach.Action;
+    public virtual ImmutableArray<IExecutableEntity> Action => forEach.Action;
 
 #endregion
 }

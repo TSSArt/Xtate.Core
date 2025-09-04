@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,21 +19,21 @@ namespace Xtate.Core;
 
 public struct EventEntity(string? value) : IOutgoingEvent
 {
-	public string? RawData { get; set; }
+    public string? RawData { get; set; }
 
 #region Interface IOutgoingEvent
 
-	public DataModelValue Data { get; set; }
+    public DataModelValue Data { get; set; }
 
-	public int DelayMs { get; set; }
+    public int DelayMs { get; set; }
 
-	public EventName Name { get; set; } = (EventName) value;
+    public EventName Name { get; set; } = (EventName)value;
 
-	public SendId? SendId { get; set; }
+    public SendId? SendId { get; set; }
 
-	public FullUri? Target { get; set; }
+    public FullUri? Target { get; set; }
 
-	public FullUri? Type { get; set; }
+    public FullUri? Type { get; set; }
 
 #endregion
 }

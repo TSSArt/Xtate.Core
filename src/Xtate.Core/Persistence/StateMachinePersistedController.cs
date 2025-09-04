@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,100 +21,101 @@ namespace Xtate.Persistence;
 
 internal sealed class StateMachinePersistedController : StateMachineRuntimeController, IStorageProvider
 {
-	private const string ControllerStateKey = "cs";
+    private const string ControllerStateKey = "cs";
 
-	private const int ExternalEventsKey = 0;
+    private const int ExternalEventsKey = 0;
 
-	private readonly ChannelPersistingController<IIncomingEvent> _channelPersistingController;
+    private readonly ChannelPersistingController<IIncomingEvent> _channelPersistingController;
 
-	private readonly CancellationToken _stopToken;
+    private readonly CancellationToken _stopToken;
 
-	private readonly SemaphoreSlim _storageLock = new(initialCount: 0, maxCount: 1);
+    private readonly SemaphoreSlim _storageLock = new(initialCount: 0, maxCount: 1);
 
-	private readonly IStorageProvider _storageProvider;
+    private readonly IStorageProvider _storageProvider;
 
-	private bool _disposed;
+    private bool _disposed;
 
-	private ITransactionalStorage? _storage;
+    private ITransactionalStorage? _storage;
 
-	[Obsolete]
-	public StateMachinePersistedController(SessionId sessionId,
-										   IStateMachineOptions? options,
-										   IStateMachine? stateMachine,
-										   Uri? stateMachineLocation,
-										   //IStateMachineHost stateMachineHost,
-										   IStorageProvider storageProvider,
-										   TimeSpan? idlePeriod /*,
-										   InterpreterOptions defaultOptions*/
+    [Obsolete]
+    public StateMachinePersistedController(SessionId sessionId,
+                                           IStateMachineOptions? options,
+                                           IStateMachine? stateMachine,
+                                           Uri? stateMachineLocation,
 
-		//SecurityContext securityContext,
-		//								   DeferredFinalizer finalizer
-	)
-		: base(sessionId, options, stateMachine, stateMachineLocation,  idlePeriod /*, defaultOptions*/)
-	{
-		_storageProvider = storageProvider;
+                                           //IStateMachineHost stateMachineHost,
+                                           IStorageProvider storageProvider,
+                                           TimeSpan? idlePeriod /*,
+                                           InterpreterOptions defaultOptions*/
 
-		//_stopToken = defaultOptions.StopToken;
+        //SecurityContext securityContext,
+        //								   DeferredFinalizer finalizer
+    )
+        : base(sessionId, options, stateMachine, stateMachineLocation, idlePeriod /*, defaultOptions*/)
+    {
+        _storageProvider = storageProvider;
 
-		_channelPersistingController = new ChannelPersistingController<IIncomingEvent>(base.EventChannel);
-	}
+        //_stopToken = defaultOptions.StopToken;
 
-	protected override Channel<IIncomingEvent> EventChannel => _channelPersistingController;
+        _channelPersistingController = new ChannelPersistingController<IIncomingEvent>(base.EventChannel);
+    }
+
+    protected override Channel<IIncomingEvent> EventChannel => _channelPersistingController;
 
 #region Interface IStorageProvider
 
-	ValueTask<ITransactionalStorage> IStorageProvider.GetTransactionalStorage(string? partition, string key)
-	{
-		if (partition is not null) throw new ArgumentException(Resources.Exception_PartitionArgumentShouldBeNull, nameof(partition));
+    ValueTask<ITransactionalStorage> IStorageProvider.GetTransactionalStorage(string? partition, string key)
+    {
+        if (partition is not null) throw new ArgumentException(Resources.Exception_PartitionArgumentShouldBeNull, nameof(partition));
 
-		return _storageProvider.GetTransactionalStorage(SessionId.Value, key);
-	}
+        return _storageProvider.GetTransactionalStorage(SessionId.Value, key);
+    }
 
-	ValueTask IStorageProvider.RemoveTransactionalStorage(string? partition, string key)
-	{
-		if (partition is not null) throw new ArgumentException(Resources.Exception_PartitionArgumentShouldBeNull, nameof(partition));
+    ValueTask IStorageProvider.RemoveTransactionalStorage(string? partition, string key)
+    {
+        if (partition is not null) throw new ArgumentException(Resources.Exception_PartitionArgumentShouldBeNull, nameof(partition));
 
-		return _storageProvider.RemoveTransactionalStorage(SessionId.Value, key);
-	}
+        return _storageProvider.RemoveTransactionalStorage(SessionId.Value, key);
+    }
 
-	ValueTask IStorageProvider.RemoveAllTransactionalStorage(string? partition)
-	{
-		if (partition is not null) throw new ArgumentException(Resources.Exception_PartitionArgumentShouldBeNull, nameof(partition));
+    ValueTask IStorageProvider.RemoveAllTransactionalStorage(string? partition)
+    {
+        if (partition is not null) throw new ArgumentException(Resources.Exception_PartitionArgumentShouldBeNull, nameof(partition));
 
-		return _storageProvider.RemoveAllTransactionalStorage(SessionId.Value);
-	}
+        return _storageProvider.RemoveAllTransactionalStorage(SessionId.Value);
+    }
 
 #endregion
 
-	protected override async ValueTask DisposeAsyncCore()
-	{
-		if (_disposed)
-		{
-			return;
-		}
+    protected override async ValueTask DisposeAsyncCore()
+    {
+        if (_disposed)
+        {
+            return;
+        }
 
-		_storageLock.Dispose();
+        _storageLock.Dispose();
 
-		_channelPersistingController.Dispose();
+        _channelPersistingController.Dispose();
 
-		if (_storage is { } storage)
-		{
-			await storage.DisposeAsync().ConfigureAwait(false);
-		}
+        if (_storage is { } storage)
+        {
+            await storage.DisposeAsync().ConfigureAwait(false);
+        }
 
-		_disposed = true;
+        _disposed = true;
 
-		await base.DisposeAsyncCore().ConfigureAwait(false);
-	}
+        await base.DisposeAsyncCore().ConfigureAwait(false);
+    }
 
-	protected override async ValueTask Initialize()
-	{
-		await base.Initialize().ConfigureAwait(false);
+    protected override async ValueTask Initialize()
+    {
+        await base.Initialize().ConfigureAwait(false);
 
-		_storage = await _storageProvider.GetTransactionalStorage(SessionId.Value, ControllerStateKey /*, _stopToken*/).ConfigureAwait(false);
+        _storage = await _storageProvider.GetTransactionalStorage(SessionId.Value, ControllerStateKey /*, _stopToken*/).ConfigureAwait(false);
 
-		_channelPersistingController.Initialize(new Bucket(_storage).Nested(ExternalEventsKey), bucket => new IncomingEvent(bucket), _storageLock, token => _storage.CheckPoint(level: 0));
+        _channelPersistingController.Initialize(new Bucket(_storage).Nested(ExternalEventsKey), bucket => new IncomingEvent(bucket), _storageLock, token => _storage.CheckPoint(level: 0));
 
-		_storageLock.Release();
-	}
+        _storageLock.Release();
+    }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,29 +19,29 @@ namespace Xtate;
 
 public interface ISend : IExecutableEntity
 {
-	string? EventName { get; }
+    string? EventName { get; }
 
-	IValueExpression? EventExpression { get; }
+    IValueExpression? EventExpression { get; }
 
-	FullUri? Target { get; }
+    FullUri? Target { get; }
 
-	IValueExpression? TargetExpression { get; }
+    IValueExpression? TargetExpression { get; }
 
-	FullUri? Type { get; }
+    FullUri? Type { get; }
 
-	IValueExpression? TypeExpression { get; }
+    IValueExpression? TypeExpression { get; }
 
-	string? Id { get; }
+    string? Id { get; }
 
-	ILocationExpression? IdLocation { get; }
+    ILocationExpression? IdLocation { get; }
 
-	int? DelayMs { get; }
+    int? DelayMs { get; }
 
-	IValueExpression? DelayExpression { get; }
+    IValueExpression? DelayExpression { get; }
 
-	ImmutableArray<ILocationExpression> NameList { get; }
+    ImmutableArray<ILocationExpression> NameList { get; }
 
-	ImmutableArray<IParam> Parameters { get; }
+    ImmutableArray<IParam> Parameters { get; }
 
-	IContent? Content { get; }
+    IContent? Content { get; }
 }

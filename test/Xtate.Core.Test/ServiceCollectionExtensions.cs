@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,23 +21,23 @@ namespace Xtate.Core.Test;
 
 public static class ServiceCollectionExtensions
 {
-	public static Mock<T> AddMock<T>(this IServiceCollection services) where T : class
-	{
-		var mock = new Mock<T>();
+    public static Mock<T> AddMock<T>(this IServiceCollection services) where T : class
+    {
+        var mock = new Mock<T>();
 
-		services.AddForwarding(_ => mock.Object);
+        services.AddForwarding(_ => mock.Object);
 
-		return mock;
-	}
+        return mock;
+    }
 
-	public static Mock<T> AddMock<T>(this IServiceCollection services, Action<Mock<T>> configureMock) where T : class
-	{
-		var mock = new Mock<T>();
+    public static Mock<T> AddMock<T>(this IServiceCollection services, Action<Mock<T>> configureMock) where T : class
+    {
+        var mock = new Mock<T>();
 
-		configureMock(mock);
+        configureMock(mock);
 
-		services.AddForwarding(_ => mock.Object);
+        services.AddForwarding(_ => mock.Object);
 
-		return mock;
-	}
+        return mock;
+    }
 }

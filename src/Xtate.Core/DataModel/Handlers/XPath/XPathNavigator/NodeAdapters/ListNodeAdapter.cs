@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,27 +19,27 @@ namespace Xtate.DataModel.XPath;
 
 internal class ListNodeAdapter : ElementNodeAdapter
 {
-	public override bool GetNextChild(in DataModelXPathNavigator.Node parentNode, ref DataModelXPathNavigator.Node node)
-	{
-		var list = parentNode.DataModelValue.AsList();
+    public override bool GetNextChild(in DataModelXPathNavigator.Node parentNode, ref DataModelXPathNavigator.Node node)
+    {
+        var list = parentNode.DataModelValue.AsList();
 
-		var cursor = node.ParentCursor;
+        var cursor = node.ParentCursor;
 
-		var ok = list.NextEntry(ref cursor, out var entry);
-		node = ok ? new DataModelXPathNavigator.Node(entry.Value, AdapterFactory.GetItemAdapter(entry), cursor, entry.Index, entry.Key, entry.Metadata) : default;
+        var ok = list.NextEntry(ref cursor, out var entry);
+        node = ok ? new DataModelXPathNavigator.Node(entry.Value, AdapterFactory.GetItemAdapter(entry), cursor, entry.Index, entry.Key, entry.Metadata) : default;
 
-		return ok;
-	}
+        return ok;
+    }
 
-	public override bool GetPreviousChild(in DataModelXPathNavigator.Node parentNode, ref DataModelXPathNavigator.Node node)
-	{
-		var list = parentNode.DataModelValue.AsList();
+    public override bool GetPreviousChild(in DataModelXPathNavigator.Node parentNode, ref DataModelXPathNavigator.Node node)
+    {
+        var list = parentNode.DataModelValue.AsList();
 
-		var cursor = node.ParentCursor;
+        var cursor = node.ParentCursor;
 
-		var ok = list.PreviousEntry(ref cursor, out var entry);
-		node = ok ? new DataModelXPathNavigator.Node(entry.Value, AdapterFactory.GetItemAdapter(entry), cursor, entry.Index, entry.Key, entry.Metadata) : default;
+        var ok = list.PreviousEntry(ref cursor, out var entry);
+        node = ok ? new DataModelXPathNavigator.Node(entry.Value, AdapterFactory.GetItemAdapter(entry), cursor, entry.Index, entry.Key, entry.Metadata) : default;
 
-		return ok;
-	}
+        return ok;
+    }
 }

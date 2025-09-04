@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,41 +21,41 @@ using System.Text;
 namespace Xtate;
 
 public sealed class ErrorItem(
-	Type source,
-	string message,
-	Exception? exception,
-	int lineNumber = 0,
-	int linePosition = 0)
+    Type source,
+    string message,
+    Exception? exception,
+    int lineNumber = 0,
+    int linePosition = 0)
 {
-	public ErrorSeverity Severity { get; } = ErrorSeverity.Error;
+    public ErrorSeverity Severity { get; } = ErrorSeverity.Error;
 
-	public Type Source { get; } = source;
+    public Type Source { get; } = source;
 
-	public string Message { get; } = message;
+    public string Message { get; } = message;
 
-	public Exception? Exception { get; } = exception;
+    public Exception? Exception { get; } = exception;
 
-	public int LineNumber { get; } = lineNumber;
+    public int LineNumber { get; } = lineNumber;
 
-	public int LinePosition { get; } = linePosition;
+    public int LinePosition { get; } = linePosition;
 
-	public override string ToString()
-	{
-		var sb = new StringBuilder();
-		sb.AppendFormat(CultureInfo.InvariantCulture, format: @"{0}: [{1}] ", Severity, Source.Name);
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        sb.AppendFormat(CultureInfo.InvariantCulture, format: @"{0}: [{1}] ", Severity, Source.Name);
 
-		if (LineNumber > 0)
-		{
-			sb.AppendFormat(CultureInfo.InvariantCulture, format: @"(Ln: {0}, Col: {1}) ", LineNumber, LinePosition);
-		}
+        if (LineNumber > 0)
+        {
+            sb.AppendFormat(CultureInfo.InvariantCulture, format: @"(Ln: {0}, Col: {1}) ", LineNumber, LinePosition);
+        }
 
-		sb.Append(Message);
+        sb.Append(Message);
 
-		if (Exception is not null)
-		{
-			sb.AppendLine().Append('\t').Append(@"Exception ==> ").Append(Exception);
-		}
+        if (Exception is not null)
+        {
+            sb.AppendLine().Append('\t').Append(@"Exception ==> ").Append(Exception);
+        }
 
-		return sb.ToString();
-	}
+        return sb.ToString();
+    }
 }

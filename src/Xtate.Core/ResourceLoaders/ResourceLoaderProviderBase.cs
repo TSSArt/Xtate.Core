@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,11 +19,11 @@ namespace Xtate.Core;
 
 public abstract class ResourceLoaderProviderBase<TResourceLoader>(Func<Uri, bool> predicate) : IResourceLoaderProvider where TResourceLoader : class, IResourceLoader
 {
-	public required Func<ValueTask<TResourceLoader>> ResourceLoaderFactory { private get; [UsedImplicitly] init; }
+    public required Func<ValueTask<TResourceLoader>> ResourceLoaderFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IResourceLoaderProvider
 
-	public async ValueTask<IResourceLoader?> TryGetResourceLoader(Uri uri) => predicate(uri) ? await ResourceLoaderFactory().ConfigureAwait(false) : default;
+    public async ValueTask<IResourceLoader?> TryGetResourceLoader(Uri uri) => predicate(uri) ? await ResourceLoaderFactory().ConfigureAwait(false) : default;
 
 #endregion
 }

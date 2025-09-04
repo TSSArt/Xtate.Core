@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -23,85 +23,85 @@ public abstract class AsyncAction : ActionBase, IAction
 {
 #region Interface IAction
 
-	ValueTask IAction.Execute() => Execute();
+    ValueTask IAction.Execute() => Execute();
 
-	IEnumerable<IActionValue> IAction.GetValues() => GetValues();
+    IEnumerable<IActionValue> IAction.GetValues() => GetValues();
 
-	IEnumerable<IActionLocation> IAction.GetLocations() => GetLocations();
+    IEnumerable<IActionLocation> IAction.GetLocations() => GetLocations();
 
 #endregion
 
-	protected virtual IEnumerable<Value> GetValues() => [];
+    protected virtual IEnumerable<Value> GetValues() => [];
 
-	protected virtual IEnumerable<Location> GetLocations() => [];
+    protected virtual IEnumerable<Location> GetLocations() => [];
 
-	protected abstract ValueTask Execute();
+    protected abstract ValueTask Execute();
 
-	protected abstract class Value(string? expression) : IActionValue
-	{
-		protected IValueEvaluator ValueEvaluator { get; private set; } = default!;
+    protected abstract class Value(string? expression) : IActionValue
+    {
+        protected IValueEvaluator ValueEvaluator { get; private set; } = default!;
 
-	#region Interface IActionValue
+    #region Interface IActionValue
 
-		void IActionValue.SetEvaluator(IValueEvaluator valueEvaluator) => ValueEvaluator ??= valueEvaluator;
+        void IActionValue.SetEvaluator(IValueEvaluator valueEvaluator) => ValueEvaluator ??= valueEvaluator;
 
-	#endregion
+    #endregion
 
-	#region Interface IValueExpression
+    #region Interface IValueExpression
 
-		string? IValueExpression.Expression => expression;
+        string? IValueExpression.Expression => expression;
 
-	#endregion
-	}
+    #endregion
+    }
 
-	protected class Location(string? expression) : IActionLocation
-	{
-		private ILocationEvaluator? _locationEvaluator;
+    protected class Location(string? expression) : IActionLocation
+    {
+        private ILocationEvaluator? _locationEvaluator;
 
-	#region Interface IActionLocation
+    #region Interface IActionLocation
 
-		void IActionLocation.SetEvaluator(ILocationEvaluator locationEvaluator) => _locationEvaluator ??= locationEvaluator;
+        void IActionLocation.SetEvaluator(ILocationEvaluator locationEvaluator) => _locationEvaluator ??= locationEvaluator;
 
-	#endregion
+    #endregion
 
-	#region Interface ILocationExpression
+    #region Interface ILocationExpression
 
-		string? ILocationExpression.Expression => expression;
+        string? ILocationExpression.Expression => expression;
 
-	#endregion
+    #endregion
 
-		public virtual ValueTask SetValue(DataModelValue value) => _locationEvaluator?.SetValue(value.AsIObject()) ?? default;
+        public virtual ValueTask SetValue(DataModelValue value) => _locationEvaluator?.SetValue(value.AsIObject()) ?? default;
 
-		public virtual async ValueTask<DataModelValue> GetValue()
-		{
-			var obj = _locationEvaluator is not null ? await _locationEvaluator.GetValue().ConfigureAwait(false) : null;
+        public virtual async ValueTask<DataModelValue> GetValue()
+        {
+            var obj = _locationEvaluator is not null ? await _locationEvaluator.GetValue().ConfigureAwait(false) : null;
 
-			return DataModelValue.FromObject(obj);
-		}
-	}
+            return DataModelValue.FromObject(obj);
+        }
+    }
 
-	protected class ArrayValue(string? expression) : Value(expression)
-	{
-		public ValueTask<object?[]> GetValue() => GetArray(ValueEvaluator);
-	}
+    protected class ArrayValue(string? expression) : Value(expression)
+    {
+        public ValueTask<object?[]> GetValue() => GetArray(ValueEvaluator);
+    }
 
-	protected class StringValue(string? expression, string? defaultValue = default) : Value(expression)
-	{
-		public ValueTask<string> GetValue() => GetString(ValueEvaluator, defaultValue);
-	}
+    protected class StringValue(string? expression, string? defaultValue = default) : Value(expression)
+    {
+        public ValueTask<string> GetValue() => GetString(ValueEvaluator, defaultValue);
+    }
 
-	protected class IntegerValue(string? expression, int? defaultValue = default) : Value(expression)
-	{
-		public ValueTask<int> GetValue() => GetInteger(ValueEvaluator, defaultValue);
-	}
+    protected class IntegerValue(string? expression, int? defaultValue = default) : Value(expression)
+    {
+        public ValueTask<int> GetValue() => GetInteger(ValueEvaluator, defaultValue);
+    }
 
-	protected class BooleanValue(string? expression, bool? defaultValue = default) : Value(expression)
-	{
-		public ValueTask<bool> GetValue() => GetBoolean(ValueEvaluator, defaultValue);
-	}
+    protected class BooleanValue(string? expression, bool? defaultValue = default) : Value(expression)
+    {
+        public ValueTask<bool> GetValue() => GetBoolean(ValueEvaluator, defaultValue);
+    }
 
-	protected class ObjectValue(string? expression, object? defaultValue = default) : Value(expression)
-	{
-		public ValueTask<DataModelValue> GetValue() => GetObject(ValueEvaluator, defaultValue);
-	}
+    protected class ObjectValue(string? expression, object? defaultValue = default) : Value(expression)
+    {
+        public ValueTask<DataModelValue> GetValue() => GetObject(ValueEvaluator, defaultValue);
+    }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,16 +21,16 @@ namespace Xtate.Scxml;
 
 public class ScxmlSerializer : IScxmlSerializer
 {
-	public required Func<XmlWriter, ValueTask<ScxmlSerializerWriter>> ScxmlSerializerWriterFactory { private get; [UsedImplicitly] init; }
+    public required Func<XmlWriter, ValueTask<ScxmlSerializerWriter>> ScxmlSerializerWriterFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IScxmlSerializer
 
-	public async ValueTask Serialize(IStateMachine stateMachine, XmlWriter xmlWriter)
-	{
-		var scxmlSerializerWriter = await ScxmlSerializerWriterFactory(xmlWriter).ConfigureAwait(false);
+    public async ValueTask Serialize(IStateMachine stateMachine, XmlWriter xmlWriter)
+    {
+        var scxmlSerializerWriter = await ScxmlSerializerWriterFactory(xmlWriter).ConfigureAwait(false);
 
-		scxmlSerializerWriter.Serialize(stateMachine);
-	}
+        scxmlSerializerWriter.Serialize(stateMachine);
+    }
 
 #endregion
 }

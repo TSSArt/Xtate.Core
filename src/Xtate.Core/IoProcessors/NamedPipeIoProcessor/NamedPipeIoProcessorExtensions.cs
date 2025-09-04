@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,30 +21,32 @@ namespace Xtate;
 
 public static class NamedPipeIoProcessorExtensions
 {
-	public static StateMachineHostBuilder AddNamedPipeIoProcessor(this StateMachineHostBuilder builder, string name, int? maxMessageSize = default)
-	{
-		if (builder is null) throw new ArgumentNullException(nameof(builder));
+    public static StateMachineHostBuilder AddNamedPipeIoProcessor(this StateMachineHostBuilder builder, string name, int? maxMessageSize = default)
+    {
+        if (builder is null) throw new ArgumentNullException(nameof(builder));
 
-		builder.AddIoProcessorFactory(new NamedPipeIoProcessorFactory(name, maxMessageSize)
-									  {
-										  TaskMonitor = null
-									  });
+        builder.AddIoProcessorFactory(
+            new NamedPipeIoProcessorFactory(name, maxMessageSize)
+            {
+                TaskMonitor = null
+            });
 
-		return builder;
-	}
+        return builder;
+    }
 
-	public static StateMachineHostBuilder AddNamedPipeIoProcessor(this StateMachineHostBuilder builder,
-																  string host,
-																  string name,
-																  int? maxMessageSize = default)
-	{
-		if (builder is null) throw new ArgumentNullException(nameof(builder));
+    public static StateMachineHostBuilder AddNamedPipeIoProcessor(this StateMachineHostBuilder builder,
+                                                                  string host,
+                                                                  string name,
+                                                                  int? maxMessageSize = default)
+    {
+        if (builder is null) throw new ArgumentNullException(nameof(builder));
 
-		builder.AddIoProcessorFactory(new NamedPipeIoProcessorFactory(host, name, maxMessageSize)
-									  {
-										  TaskMonitor = null
-									  });
+        builder.AddIoProcessorFactory(
+            new NamedPipeIoProcessorFactory(host, name, maxMessageSize)
+            {
+                TaskMonitor = null
+            });
 
-		return builder;
-	}
+        return builder;
+    }
 }

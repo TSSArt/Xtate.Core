@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,10 +21,10 @@ namespace Xtate.Core;
 
 public class RuntimeStateMachine(IStateMachine stateMachine) : StateMachineClass
 {
-	public override void AddServices(IServiceCollection services)
-	{
-		base.AddServices(services);
+    public override void AddServices(IServiceCollection services)
+    {
+        base.AddServices(services);
 
-		services.AddConstant(stateMachine);
-	}
+        services.AddConstant(stateMachine);
+    }
 }

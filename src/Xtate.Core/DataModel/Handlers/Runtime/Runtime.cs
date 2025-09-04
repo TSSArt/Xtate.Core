@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,33 +21,33 @@ namespace Xtate;
 
 public static class Runtime
 {
-	private static readonly AsyncLocal<RuntimeExecutionContext> Current = new();
+    private static readonly AsyncLocal<RuntimeExecutionContext> Current = new();
 
-	public static DataModelList DataModel => GetContext().DataModelController.DataModel;
+    public static DataModelList DataModel => GetContext().DataModelController.DataModel;
 
-	public static DataModelValue Arguments => DataModel[@"_x"].AsListOrDefault()?[@"args"] ?? default;
+    public static DataModelValue Arguments => DataModel[@"_x"].AsListOrDefault()?[@"args"] ?? default;
 
-	private static RuntimeExecutionContext GetContext()
-	{
-		if (Current.Value is { } context)
-		{
-			return context;
-		}
+    private static RuntimeExecutionContext GetContext()
+    {
+        if (Current.Value is { } context)
+        {
+            return context;
+        }
 
-		throw new InvalidOperationException(Resources.Exception_ContextIsNotAvailableAtThisPlace);
-	}
+        throw new InvalidOperationException(Resources.Exception_ContextIsNotAvailableAtThisPlace);
+    }
 
-	internal static void SetCurrentExecutionContext(RuntimeExecutionContext executionContext) => Current.Value = executionContext;
+    internal static void SetCurrentExecutionContext(RuntimeExecutionContext executionContext) => Current.Value = executionContext;
 
-	public static bool InState(string stateId) => GetContext().InStateController.InState(Identifier.FromString(stateId));
+    public static bool InState(string stateId) => GetContext().InStateController.InState(Identifier.FromString(stateId));
 
-	public static ValueTask Log(string message, DataModelValue arguments = default) => GetContext().LogController.Log(message, arguments);
+    public static ValueTask Log(string message, DataModelValue arguments = default) => GetContext().LogController.Log(message, arguments);
 
-	public static ValueTask SendEvent(IOutgoingEvent outgoingEvent) => GetContext().EventController.Send(outgoingEvent);
+    public static ValueTask SendEvent(IOutgoingEvent outgoingEvent) => GetContext().EventController.Send(outgoingEvent);
 
-	public static ValueTask CancelEvent(SendId sendId) => GetContext().EventController.Cancel(sendId);
+    public static ValueTask CancelEvent(SendId sendId) => GetContext().EventController.Cancel(sendId);
 
-	public static ValueTask StartInvoke(InvokeData invokeData) => GetContext().InvokeController.Start(invokeData);
+    public static ValueTask StartInvoke(InvokeData invokeData) => GetContext().InvokeController.Start(invokeData);
 
-	public static ValueTask CancelInvoke(InvokeId invokeId) => GetContext().InvokeController.Cancel(invokeId);
+    public static ValueTask CancelInvoke(InvokeId invokeId) => GetContext().InvokeController.Cancel(invokeId);
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,104 +19,104 @@ namespace Xtate.ExternalService;
 
 public class LazyTask<T>
 {
-	private readonly Func<ValueTask<T>> _factory;
+    private readonly Func<ValueTask<T>> _factory;
 
-	private readonly TaskMonitor? _taskMonitor;
+    private readonly TaskMonitor? _taskMonitor;
 
-	private CancellationTokenRegistration _cancellationTokenRegistration;
+    private CancellationTokenRegistration _cancellationTokenRegistration;
 
-	private TaskCompletionSource<T>? _taskCompletionSource;
+    private TaskCompletionSource<T>? _taskCompletionSource;
 
-	[SuppressMessage(category: "ReSharper", checkId: "FieldCanBeMadeReadOnly.Local")]
-	private CancellationToken _token;
+    [SuppressMessage(category: "ReSharper", checkId: "FieldCanBeMadeReadOnly.Local")]
+    private CancellationToken _token;
 
-	public LazyTask(Func<ValueTask<T>> factory)
-	{
-		_factory = factory;
-		_token = default;
-		_taskMonitor = default;
-	}
+    public LazyTask(Func<ValueTask<T>> factory)
+    {
+        _factory = factory;
+        _token = default;
+        _taskMonitor = default;
+    }
 
-	public LazyTask(Func<ValueTask<T>> factory, TaskMonitor? taskMonitor, CancellationToken token)
-	{
-		_factory = factory;
-		_token = token;
-		_taskMonitor = token.CanBeCanceled ? taskMonitor : default;
-	}
+    public LazyTask(Func<ValueTask<T>> factory, TaskMonitor? taskMonitor, CancellationToken token)
+    {
+        _factory = factory;
+        _token = token;
+        _taskMonitor = token.CanBeCanceled ? taskMonitor : default;
+    }
 
-	public Task<T> Task
-	{
-		get
-		{
-			if (_taskCompletionSource is { } tcs)
-			{
-				return tcs.Task;
-			}
+    public Task<T> Task
+    {
+        get
+        {
+            if (_taskCompletionSource is { } tcs)
+            {
+                return tcs.Task;
+            }
 
-			tcs = new TaskCompletionSource<T>();
+            tcs = new TaskCompletionSource<T>();
 
-			if (Interlocked.CompareExchange(ref _taskCompletionSource, tcs, comparand: default) is { } existedTcs)
-			{
-				return existedTcs.Task;
-			}
+            if (Interlocked.CompareExchange(ref _taskCompletionSource, tcs, comparand: default) is { } existedTcs)
+            {
+                return existedTcs.Task;
+            }
 
-			_cancellationTokenRegistration = _token.Register(static s => ((LazyTask<T>) s!).TokenCancelled(), this, useSynchronizationContext: false);
+            _cancellationTokenRegistration = _token.Register(static s => ((LazyTask<T>)s!).TokenCancelled(), this, useSynchronizationContext: false);
 
-			if (_taskMonitor is not null)
-			{
-				Execute().Forget(_taskMonitor);
-			}
-			else
-			{
-				Execute().Forget();
-			}
+            if (_taskMonitor is not null)
+            {
+                Execute().Forget(_taskMonitor);
+            }
+            else
+            {
+                Execute().Forget();
+            }
 
-			return tcs.Task;
-		}
-	}
+            return tcs.Task;
+        }
+    }
 
-	private void TokenCancelled()
-	{
-		Infra.NotNull(_taskCompletionSource);
+    private void TokenCancelled()
+    {
+        Infra.NotNull(_taskCompletionSource);
 
-		_taskCompletionSource.TrySetCanceled(_token);
-		DisposeCancellationRegistration();
-	}
+        _taskCompletionSource.TrySetCanceled(_token);
+        DisposeCancellationRegistration();
+    }
 
-	private async ValueTask Execute()
-	{
-		Infra.NotNull(_taskCompletionSource);
+    private async ValueTask Execute()
+    {
+        Infra.NotNull(_taskCompletionSource);
 
-		try
-		{
-			var result = await _factory().ConfigureAwait(false);
+        try
+        {
+            var result = await _factory().ConfigureAwait(false);
 
-			_taskCompletionSource.TrySetResult(result);
-		}
-		catch (OperationCanceledException) when (_token.IsCancellationRequested)
-		{
-			_taskCompletionSource.TrySetCanceled(_token);
-		}
-		catch (OperationCanceledException ex)
-		{
-			_taskCompletionSource.TrySetCanceled(ex.CancellationToken);
-		}
-		catch (Exception ex)
-		{
-			if (!_taskCompletionSource.TrySetException(ex))
-			{
-				throw;
-			}
-		}
-		finally
-		{
-			DisposeCancellationRegistration();
-		}
-	}
+            _taskCompletionSource.TrySetResult(result);
+        }
+        catch (OperationCanceledException) when (_token.IsCancellationRequested)
+        {
+            _taskCompletionSource.TrySetCanceled(_token);
+        }
+        catch (OperationCanceledException ex)
+        {
+            _taskCompletionSource.TrySetCanceled(ex.CancellationToken);
+        }
+        catch (Exception ex)
+        {
+            if (!_taskCompletionSource.TrySetException(ex))
+            {
+                throw;
+            }
+        }
+        finally
+        {
+            DisposeCancellationRegistration();
+        }
+    }
 
-	private void DisposeCancellationRegistration()
-	{
-		_cancellationTokenRegistration.Dispose();
-		_cancellationTokenRegistration = default;
-	}
+    private void DisposeCancellationRegistration()
+    {
+        _cancellationTokenRegistration.Dispose();
+        _cancellationTokenRegistration = default;
+    }
 }

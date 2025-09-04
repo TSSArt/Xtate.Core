@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,14 +19,14 @@ namespace Xtate.Core;
 
 public static class UriExtensions
 {
-	[return: NotNullIfNotNull(nameof(relativeUri))]
-	public static Uri? CombineWith(this Uri? baseUri, Uri? relativeUri)
-	{
-		if (baseUri is null || !baseUri.IsAbsoluteUri || relativeUri is null || relativeUri.IsAbsoluteUri)
-		{
-			return relativeUri;
-		}
+    [return: NotNullIfNotNull(nameof(relativeUri))]
+    public static Uri? CombineWith(this Uri? baseUri, Uri? relativeUri)
+    {
+        if (baseUri is null || !baseUri.IsAbsoluteUri || relativeUri is null || relativeUri.IsAbsoluteUri)
+        {
+            return relativeUri;
+        }
 
-		return new Uri(baseUri, relativeUri);
-	}
+        return new Uri(baseUri, relativeUri);
+    }
 }

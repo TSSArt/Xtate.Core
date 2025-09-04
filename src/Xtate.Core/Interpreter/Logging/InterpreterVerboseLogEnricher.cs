@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,21 +19,21 @@ namespace Xtate.Core;
 
 public class InterpreterVerboseLogEnricher<TSource> : ILogEnricher<TSource>
 {
-	public required Safe<IStateMachineContext> StateMachineContext { private get; [UsedImplicitly] init; }
+    public required Safe<IStateMachineContext> StateMachineContext { private get; [UsedImplicitly] init; }
 
 #region Interface ILogEnricher<TSource>
 
-	public IEnumerable<LoggingParameter> EnumerateProperties()
-	{
-		if (StateMachineContext() is { } context)
-		{
-			yield return new LoggingParameter(name: @"DataModel", context.DataModel.AsConstant());
-		}
-	}
+    public IEnumerable<LoggingParameter> EnumerateProperties()
+    {
+        if (StateMachineContext() is { } context)
+        {
+            yield return new LoggingParameter(name: @"DataModel", context.DataModel.AsConstant());
+        }
+    }
 
-	public string Namespace => @"ctx";
+    public string Namespace => @"ctx";
 
-	public Level Level => Level.Verbose;
+    public Level Level => Level.Verbose;
 
 #endregion
 }

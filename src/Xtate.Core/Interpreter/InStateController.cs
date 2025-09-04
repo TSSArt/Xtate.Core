@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,22 +19,22 @@ namespace Xtate.Core;
 
 public class InStateController : IInStateController
 {
-	public required IStateMachineContext StateMachineContext { private get; [UsedImplicitly] init; }
+    public required IStateMachineContext StateMachineContext { private get; [UsedImplicitly] init; }
 
 #region Interface IInStateController
 
-	public virtual bool InState(IIdentifier id)
-	{
-		foreach (var state in StateMachineContext.Configuration)
-		{
-			if (id.Equals(state.Id))
-			{
-				return true;
-			}
-		}
+    public virtual bool InState(IIdentifier id)
+    {
+        foreach (var state in StateMachineContext.Configuration)
+        {
+            if (id.Equals(state.Id))
+            {
+                return true;
+            }
+        }
 
-		return false;
-	}
+        return false;
+    }
 
 #endregion
 }

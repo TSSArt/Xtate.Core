@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,33 +21,33 @@ namespace Xtate.Core;
 
 public class InterpreterXDataModelProperty : IXDataModelProperty
 {
-	public required ICaseSensitivity CaseSensitivity { private get; [UsedImplicitly] init; }
+    public required ICaseSensitivity CaseSensitivity { private get; [UsedImplicitly] init; }
 
-	public required Ancestor<IStateMachineInterpreter> StateMachineInterpreter { private get; [UsedImplicitly] init; }
+    public required Ancestor<IStateMachineInterpreter> StateMachineInterpreter { private get; [UsedImplicitly] init; }
 
-	public required Func<Type, IAssemblyTypeInfo> TypeInfoFactory { private get; [UsedImplicitly] init; }
+    public required Func<Type, IAssemblyTypeInfo> TypeInfoFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IXDataModelProperty
 
-	public string Name => @"interpreter";
+    public string Name => @"interpreter";
 
-	public virtual DataModelValue Value => LazyValue.Create(this, static p => p.Factory());
+    public virtual DataModelValue Value => LazyValue.Create(this, static p => p.Factory());
 
 #endregion
 
-	private DataModelValue Factory()
-	{
-		var typeInfo = TypeInfoFactory(StateMachineInterpreter().GetType());
+    private DataModelValue Factory()
+    {
+        var typeInfo = TypeInfoFactory(StateMachineInterpreter().GetType());
 
-		var interpreterList = new DataModelList(CaseSensitivity.CaseInsensitive)
-							  {
-								  { @"name", typeInfo.FullTypeName },
-								  { @"assembly", typeInfo.AssemblyName },
-								  { @"version", typeInfo.AssemblyVersion }
-							  };
+        var interpreterList = new DataModelList(CaseSensitivity.CaseInsensitive)
+                              {
+                                  { @"name", typeInfo.FullTypeName },
+                                  { @"assembly", typeInfo.AssemblyName },
+                                  { @"version", typeInfo.AssemblyVersion }
+                              };
 
-		interpreterList.MakeDeepConstant();
+        interpreterList.MakeDeepConstant();
 
-		return interpreterList;
-	}
+        return interpreterList;
+    }
 }

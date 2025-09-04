@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,12 +19,12 @@ namespace Xtate;
 
 public static class SmtpClientExtensions
 {
-	public static StateMachineHostBuilder AddSmtpClient(this StateMachineHostBuilder builder)
-	{
-		if (builder is null) throw new ArgumentNullException(nameof(builder));
+    public static StateMachineHostBuilder AddSmtpClient(this StateMachineHostBuilder builder)
+    {
+        if (builder is null) throw new ArgumentNullException(nameof(builder));
 
-		//builder.AddServiceFactory(SmtpClientServiceFactory.Instance);
+        //builder.AddServiceFactory(SmtpClientServiceFactory.Instance);
 
-		return builder;
-	}
+        return builder;
+    }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -20,9 +20,9 @@ namespace Xtate.DataModel.XPath;
 [Serializable]
 public class XPathDataModelException : XtateException
 {
-	public XPathDataModelException() { }
+    public XPathDataModelException() { }
 
-	public XPathDataModelException(string message) : base(message) { }
+    public XPathDataModelException(string message) : base(message) { }
 
-	public XPathDataModelException(string message, Exception innerException) : base(message, innerException) { }
+    public XPathDataModelException(string message, Exception innerException) : base(message, innerException) { }
 }

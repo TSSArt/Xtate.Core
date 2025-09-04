@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,45 +19,45 @@ namespace Xtate.Builder;
 
 public class DataBuilder : BuilderBase, IDataBuilder
 {
-	private IValueExpression? _expression;
+    private IValueExpression? _expression;
 
-	private string? _id;
+    private string? _id;
 
-	private IInlineContent? _inlineContent;
+    private IInlineContent? _inlineContent;
 
-	private IExternalDataExpression? _source;
+    private IExternalDataExpression? _source;
 
 #region Interface IDataBuilder
 
-	public IData Build() => new DataEntity { Ancestor = Ancestor, Id = _id, Source = _source, Expression = _expression, InlineContent = _inlineContent };
+    public IData Build() => new DataEntity { Ancestor = Ancestor, Id = _id, Source = _source, Expression = _expression, InlineContent = _inlineContent };
 
-	public void SetId(string id)
-	{
-		Infra.RequiresNonEmptyString(id);
+    public void SetId(string id)
+    {
+        Infra.RequiresNonEmptyString(id);
 
-		_id = id;
-	}
+        _id = id;
+    }
 
-	public void SetSource(IExternalDataExpression source)
-	{
-		Infra.Requires(source);
+    public void SetSource(IExternalDataExpression source)
+    {
+        Infra.Requires(source);
 
-		_source = source;
-	}
+        _source = source;
+    }
 
-	public void SetExpression(IValueExpression expression)
-	{
-		Infra.Requires(expression);
+    public void SetExpression(IValueExpression expression)
+    {
+        Infra.Requires(expression);
 
-		_expression = expression;
-	}
+        _expression = expression;
+    }
 
-	public void SetInlineContent(IInlineContent inlineContent)
-	{
-		Infra.Requires(inlineContent);
+    public void SetInlineContent(IInlineContent inlineContent)
+    {
+        Infra.Requires(inlineContent);
 
-		_inlineContent = inlineContent;
-	}
+        _inlineContent = inlineContent;
+    }
 
 #endregion
 }

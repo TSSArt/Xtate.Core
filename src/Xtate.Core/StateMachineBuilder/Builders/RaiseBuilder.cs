@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,18 +19,18 @@ namespace Xtate.Builder;
 
 public class RaiseBuilder : BuilderBase, IRaiseBuilder
 {
-	private IOutgoingEvent? _outgoingEvent;
+    private IOutgoingEvent? _outgoingEvent;
 
 #region Interface IRaiseBuilder
 
-	public IRaise Build() => new RaiseEntity { OutgoingEvent = _outgoingEvent };
+    public IRaise Build() => new RaiseEntity { OutgoingEvent = _outgoingEvent };
 
-	public void SetEvent(IOutgoingEvent outgoingEvent)
-	{
-		Infra.Requires(outgoingEvent);
+    public void SetEvent(IOutgoingEvent outgoingEvent)
+    {
+        Infra.Requires(outgoingEvent);
 
-		_outgoingEvent = outgoingEvent;
-	}
+        _outgoingEvent = outgoingEvent;
+    }
 
 #endregion
 }

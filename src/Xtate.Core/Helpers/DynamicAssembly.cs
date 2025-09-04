@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -24,114 +24,114 @@ namespace Xtate.Core;
 
 public class DynamicAssembly : IDisposable, IAsyncInitialization, IServiceModule
 {
-	private readonly DisposingToken _disposingToken = new();
+    private readonly DisposingToken _disposingToken = new();
 
-	private readonly Uri _uri;
+    private readonly Uri _uri;
 
-	private AsyncInit<ImmutableArray<IServiceModule>>? _asyncInitServiceModules;
+    private AsyncInit<ImmutableArray<IServiceModule>>? _asyncInitServiceModules;
 
-	private Context? _context;
+    private Context? _context;
 
-	public DynamicAssembly(Uri uri)
-	{
-		_uri = uri;
-		_asyncInitServiceModules = AsyncInit.Run(this, static da => da.LoadAssemblyServiceModules());
-	}
+    public DynamicAssembly(Uri uri)
+    {
+        _uri = uri;
+        _asyncInitServiceModules = AsyncInit.Run(this, static da => da.LoadAssemblyServiceModules());
+    }
 
-	public required IResourceLoader ResourceLoader { private get; [UsedImplicitly] init; }
+    public required IResourceLoader ResourceLoader { private get; [UsedImplicitly] init; }
 
 #region Interface IAsyncInitialization
 
-	public Task Initialization => _asyncInitServiceModules?.Task ?? Task.CompletedTask;
+    public Task Initialization => _asyncInitServiceModules?.Task ?? Task.CompletedTask;
 
 #endregion
 
 #region Interface IDisposable
 
-	public void Dispose()
-	{
-		Dispose(true);
-		GC.SuppressFinalize(this);
-	}
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
 
 #endregion
 
 #region Interface IServiceModule
 
-	public void Register(IServiceCollection servicesCollection)
-	{
-		var serviceModules = _asyncInitServiceModules?.Value ?? throw new ObjectDisposedException(nameof(DynamicAssembly));
+    public void Register(IServiceCollection servicesCollection)
+    {
+        var serviceModules = _asyncInitServiceModules?.Value ?? throw new ObjectDisposedException(nameof(DynamicAssembly));
 
-		foreach (var serviceModule in serviceModules)
-		{
-			serviceModule.Register(servicesCollection);
-		}
-	}
+        foreach (var serviceModule in serviceModules)
+        {
+            serviceModule.Register(servicesCollection);
+        }
+    }
 
 #endregion
 
-	private async ValueTask<ImmutableArray<IServiceModule>> LoadAssemblyServiceModules()
-	{
-		var resource = await ResourceLoader.Request(_uri).ConfigureAwait(false);
+    private async ValueTask<ImmutableArray<IServiceModule>> LoadAssemblyServiceModules()
+    {
+        var resource = await ResourceLoader.Request(_uri).ConfigureAwait(false);
 
-		await using (resource.ConfigureAwait(false))
-		{
-			var stream = await resource.GetStream(true).ConfigureAwait(false);
+        await using (resource.ConfigureAwait(false))
+        {
+            var stream = await resource.GetStream(true).ConfigureAwait(false);
 
-			await using (stream.ConfigureAwait(false))
-			{
-				var assembly = await LoadFromStream(stream).ConfigureAwait(false);
+            await using (stream.ConfigureAwait(false))
+            {
+                var assembly = await LoadFromStream(stream).ConfigureAwait(false);
 
-				return CreateServiceModules(assembly);
-			}
-		}
-	}
+                return CreateServiceModules(assembly);
+            }
+        }
+    }
 
-	private static ImmutableArray<IServiceModule> CreateServiceModules(Assembly assembly)
-	{
-		var attributes = assembly.GetCustomAttributes(typeof(ServiceModuleAttribute), inherit: false);
+    private static ImmutableArray<IServiceModule> CreateServiceModules(Assembly assembly)
+    {
+        var attributes = assembly.GetCustomAttributes(typeof(ServiceModuleAttribute), inherit: false);
 
-		if (attributes.Length == 0)
-		{
-			return [];
-		}
+        if (attributes.Length == 0)
+        {
+            return [];
+        }
 
-		var serviceModules = ImmutableArray.CreateBuilder<IServiceModule>(attributes.Length);
+        var serviceModules = ImmutableArray.CreateBuilder<IServiceModule>(attributes.Length);
 
-		foreach (var attribute in attributes.Cast<ServiceModuleAttribute>())
-		{
-			serviceModules.Add((IServiceModule) Activator.CreateInstance(attribute.ServiceModuleType!)!);
-		}
+        foreach (var attribute in attributes.Cast<ServiceModuleAttribute>())
+        {
+            serviceModules.Add((IServiceModule)Activator.CreateInstance(attribute.ServiceModuleType!)!);
+        }
 
-		return serviceModules.MoveToImmutable();
-	}
+        return serviceModules.MoveToImmutable();
+    }
 
-	private async ValueTask<Assembly> LoadFromStream(Stream stream)
-	{
-		_context = new Context();
+    private async ValueTask<Assembly> LoadFromStream(Stream stream)
+    {
+        _context = new Context();
 
-		if (stream is MemoryStream or UnmanagedMemoryStream)
-		{
-			return _context.LoadFromStream(stream);
-		}
+        if (stream is MemoryStream or UnmanagedMemoryStream)
+        {
+            return _context.LoadFromStream(stream);
+        }
 
-		using var memStream = new MemoryStream(new byte[stream.Length - stream.Position]);
-		await stream.CopyToAsync(memStream, bufferSize: 81920, _disposingToken.Token).ConfigureAwait(false);
-		memStream.Position = 0;
+        using var memStream = new MemoryStream(new byte[stream.Length - stream.Position]);
+        await stream.CopyToAsync(memStream, bufferSize: 81920, _disposingToken.Token).ConfigureAwait(false);
+        memStream.Position = 0;
 
-		return _context.LoadFromStream(memStream);
-	}
+        return _context.LoadFromStream(memStream);
+    }
 
-	protected virtual void Dispose(bool disposing)
-	{
-		if (disposing)
-		{
-			_disposingToken.Dispose();
-			_context?.Unload();
-			_asyncInitServiceModules = null;
-			_context = null;
-		}
-	}
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _disposingToken.Dispose();
+            _context?.Unload();
+            _asyncInitServiceModules = null;
+            _context = null;
+        }
+    }
 
-	private class Context() : AssemblyLoadContext(isCollectible: true);
+    private class Context() : AssemblyLoadContext(isCollectible: true);
 }

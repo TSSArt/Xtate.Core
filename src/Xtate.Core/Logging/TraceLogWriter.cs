@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,71 +22,71 @@ namespace Xtate.Core;
 
 public abstract class TraceLogWriter
 {
-	private static readonly string[] Formats = new string[16];
+    private static readonly string[] Formats = new string[16];
 
-	private readonly TraceSource _traceSource;
+    private readonly TraceSource _traceSource;
 
-	protected TraceLogWriter(string name, IEnumerable<TraceListener> traceListeners, SourceLevels defaultLevels)
-	{
-		_traceSource = new TraceSource(name, defaultLevels);
+    protected TraceLogWriter(string name, IEnumerable<TraceListener> traceListeners, SourceLevels defaultLevels)
+    {
+        _traceSource = new TraceSource(name, defaultLevels);
 
-		foreach (var traceListener in traceListeners)
-		{
-			_traceSource.Listeners.Add(traceListener);
-		}
-	}
+        foreach (var traceListener in traceListeners)
+        {
+            _traceSource.Listeners.Add(traceListener);
+        }
+    }
 
-	public virtual bool IsEnabled(Level level) => _traceSource.Switch.ShouldTrace(GetTraceEventType(level));
+    public virtual bool IsEnabled(Level level) => _traceSource.Switch.ShouldTrace(GetTraceEventType(level));
 
-	private static string GetFormat(int len) => len < Formats.Length ? Formats[len] ??= FormatFactory(len) : FormatFactory(len);
+    private static string GetFormat(int len) => len < Formats.Length ? Formats[len] ??= FormatFactory(len) : FormatFactory(len);
 
-	private static string FormatFactory(int argsCount)
-	{
-		var sb = new StringBuilder(argsCount * 10);
+    private static string FormatFactory(int argsCount)
+    {
+        var sb = new StringBuilder(argsCount * 10);
 
-		sb.Append(@"{0}");
+        sb.Append(@"{0}");
 
-		for (var i = 1; i < argsCount; i ++)
-		{
-			sb.AppendLine().Append(@"  {").Append(i).Append('}');
-		}
+        for (var i = 1; i < argsCount; i ++)
+        {
+            sb.AppendLine().Append(@"  {").Append(i).Append('}');
+        }
 
-		return sb.ToString();
-	}
+        return sb.ToString();
+    }
 
-	private static TraceEventType GetTraceEventType(Level level) =>
-		level switch
-		{
-			Level.Error   => TraceEventType.Error,
-			Level.Warning => TraceEventType.Warning,
-			Level.Info    => TraceEventType.Information,
-			Level.Debug   => TraceEventType.Verbose,
-			Level.Trace   => TraceEventType.Verbose,
-			Level.Verbose => TraceEventType.Verbose,
-			_             => throw Infra.Unmatched(level)
-		};
+    private static TraceEventType GetTraceEventType(Level level) =>
+        level switch
+        {
+            Level.Error   => TraceEventType.Error,
+            Level.Warning => TraceEventType.Warning,
+            Level.Info    => TraceEventType.Information,
+            Level.Debug   => TraceEventType.Verbose,
+            Level.Trace   => TraceEventType.Verbose,
+            Level.Verbose => TraceEventType.Verbose,
+            _             => throw Infra.Unmatched(level)
+        };
 
-	public ValueTask Write(Level level,
-						   int eventId,
-						   string? message,
-						   IEnumerable<LoggingParameter>? parameters)
-	{
-		var traceEventType = GetTraceEventType(level);
+    public ValueTask Write(Level level,
+                           int eventId,
+                           string? message,
+                           IEnumerable<LoggingParameter>? parameters)
+    {
+        var traceEventType = GetTraceEventType(level);
 
-		if (_traceSource.Switch.ShouldTrace(traceEventType))
-		{
-			var args = new List<LoggingParameter> { new(string.Empty, message ?? string.Empty) };
+        if (_traceSource.Switch.ShouldTrace(traceEventType))
+        {
+            var args = new List<LoggingParameter> { new(string.Empty, message ?? string.Empty) };
 
-			if (parameters is not null)
-			{
-				args.AddRange(parameters);
-			}
+            if (parameters is not null)
+            {
+                args.AddRange(parameters);
+            }
 
-			_traceSource.TraceEvent(traceEventType, eventId, GetFormat(args.Count), [..args]);
-		}
+            _traceSource.TraceEvent(traceEventType, eventId, GetFormat(args.Count), [..args]);
+        }
 
-		return default;
-	}
+        return default;
+    }
 }
 
 public class TraceLogWriter<TSource>(IEnumerable<TraceListener> traceListeners) : TraceLogWriter(typeof(TSource).FullName!, traceListeners, SourceLevels.All), ILogWriter<TSource>;

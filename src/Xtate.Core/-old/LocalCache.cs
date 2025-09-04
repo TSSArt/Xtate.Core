@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,112 +19,112 @@ namespace Xtate.Core;
 
 public class LocalCache<TKey, TValue> : IDisposable, IAsyncDisposable where TKey : notnull
 {
-	private readonly Dictionary<TKey, CacheEntry<TValue>> _localDictionary = [];
+    private readonly Dictionary<TKey, CacheEntry<TValue>> _localDictionary = [];
 
-	public required GlobalCache<TKey, TValue> GlobalCache { private get; [UsedImplicitly] init; }
+    public required GlobalCache<TKey, TValue> GlobalCache { private get; [UsedImplicitly] init; }
 
 #region Interface IAsyncDisposable
 
-	public async ValueTask DisposeAsync()
-	{
-		await DisposeAsyncCore().ConfigureAwait(false);
+    public async ValueTask DisposeAsync()
+    {
+        await DisposeAsyncCore().ConfigureAwait(false);
 
-		Dispose(false);
+        Dispose(false);
 
-		GC.SuppressFinalize(this);
-	}
+        GC.SuppressFinalize(this);
+    }
 
 #endregion
 
 #region Interface IDisposable
 
-	public void Dispose()
-	{
-		Dispose(true);
+    public void Dispose()
+    {
+        Dispose(true);
 
-		GC.SuppressFinalize(this);
-	}
+        GC.SuppressFinalize(this);
+    }
 
 #endregion
 
-	protected virtual void Dispose(bool disposing)
-	{
-		if (disposing)
-		{
-			foreach (var pair in _localDictionary)
-			{
-				DropEntry(pair.Key, pair.Value);
-			}
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            foreach (var pair in _localDictionary)
+            {
+                DropEntry(pair.Key, pair.Value);
+            }
 
-			_localDictionary.Clear();
-		}
-	}
+            _localDictionary.Clear();
+        }
+    }
 
-	protected virtual async ValueTask DisposeAsyncCore()
-	{
-		foreach (var pair in _localDictionary)
-		{
-			await DropEntryAsync(pair.Key, pair.Value).ConfigureAwait(false);
-		}
+    protected virtual async ValueTask DisposeAsyncCore()
+    {
+        foreach (var pair in _localDictionary)
+        {
+            await DropEntryAsync(pair.Key, pair.Value).ConfigureAwait(false);
+        }
 
-		_localDictionary.Clear();
-	}
+        _localDictionary.Clear();
+    }
 
-	private void DropEntry(TKey key, CacheEntry<TValue> entry)
-	{
-		var noMoreReferences = entry.RemoveReference();
+    private void DropEntry(TKey key, CacheEntry<TValue> entry)
+    {
+        var noMoreReferences = entry.RemoveReference();
 
-		if ((entry.Options & ValueOptions.ThreadSafe) != 0 && noMoreReferences)
-		{
-			GlobalCache.Remove(key, entry);
-		}
-	}
+        if ((entry.Options & ValueOptions.ThreadSafe) != 0 && noMoreReferences)
+        {
+            GlobalCache.Remove(key, entry);
+        }
+    }
 
-	private async ValueTask DropEntryAsync(TKey key, CacheEntry<TValue> entry)
-	{
-		var noMoreReferences = await entry.RemoveReferenceAsync().ConfigureAwait(false);
+    private async ValueTask DropEntryAsync(TKey key, CacheEntry<TValue> entry)
+    {
+        var noMoreReferences = await entry.RemoveReferenceAsync().ConfigureAwait(false);
 
-		if ((entry.Options & ValueOptions.ThreadSafe) != 0 && noMoreReferences)
-		{
-			GlobalCache.Remove(key, entry);
-		}
-	}
+        if ((entry.Options & ValueOptions.ThreadSafe) != 0 && noMoreReferences)
+        {
+            GlobalCache.Remove(key, entry);
+        }
+    }
 
-	public async ValueTask SetValue(TKey key, [DisallowNull] TValue value, ValueOptions options)
-	{
-		if (_localDictionary.TryGetValue(key, out var entry))
-		{
-			await DropEntryAsync(key, entry).ConfigureAwait(false);
-		}
+    public async ValueTask SetValue(TKey key, [DisallowNull] TValue value, ValueOptions options)
+    {
+        if (_localDictionary.TryGetValue(key, out var entry))
+        {
+            await DropEntryAsync(key, entry).ConfigureAwait(false);
+        }
 
-		var newEntry = new CacheEntry<TValue>(value, options);
+        var newEntry = new CacheEntry<TValue>(value, options);
 
-		_localDictionary[key] = newEntry;
+        _localDictionary[key] = newEntry;
 
-		if ((options & ValueOptions.ThreadSafe) != 0)
-		{
-			GlobalCache.Set(key, newEntry);
-		}
-	}
+        if ((options & ValueOptions.ThreadSafe) != 0)
+        {
+            GlobalCache.Set(key, newEntry);
+        }
+    }
 
-	public bool TryGetValue(TKey key, [NotNullWhen(true)] out TValue? value)
-	{
-		if (_localDictionary.TryGetValue(key, out var localEntry) && localEntry.TryGetValue(out value))
-		{
-			return true;
-		}
+    public bool TryGetValue(TKey key, [NotNullWhen(true)] out TValue? value)
+    {
+        if (_localDictionary.TryGetValue(key, out var localEntry) && localEntry.TryGetValue(out value))
+        {
+            return true;
+        }
 
-		if (GlobalCache.TryGetValue(key, out var globalEntry) && globalEntry.TryGetValue(out value) && globalEntry.AddReference())
-		{
-			localEntry?.RemoveReference();
+        if (GlobalCache.TryGetValue(key, out var globalEntry) && globalEntry.TryGetValue(out value) && globalEntry.AddReference())
+        {
+            localEntry?.RemoveReference();
 
-			_localDictionary[key] = globalEntry;
+            _localDictionary[key] = globalEntry;
 
-			return true;
-		}
+            return true;
+        }
 
-		value = default;
+        value = default;
 
-		return false;
-	}
+        return false;
+    }
 }

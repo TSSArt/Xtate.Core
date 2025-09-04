@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,29 +19,29 @@ namespace Xtate.Builder;
 
 public interface IStateBuilder
 {
-	IState Build();
+    IState Build();
 
-	void SetId(IIdentifier id);
+    void SetId(IIdentifier id);
 
-	void SetInitial(ImmutableArray<IIdentifier> initial);
+    void SetInitial(ImmutableArray<IIdentifier> initial);
 
-	void AddState(IState state);
+    void AddState(IState state);
 
-	void AddParallel(IParallel parallel);
+    void AddParallel(IParallel parallel);
 
-	void AddFinal(IFinal final);
+    void AddFinal(IFinal final);
 
-	void SetInitial(IInitial initial);
+    void SetInitial(IInitial initial);
 
-	void AddHistory(IHistory history);
+    void AddHistory(IHistory history);
 
-	void AddTransition(ITransition transition);
+    void AddTransition(ITransition transition);
 
-	void AddInvoke(IInvoke action);
+    void AddInvoke(IInvoke action);
 
-	void AddOnEntry(IOnEntry action);
+    void AddOnEntry(IOnEntry action);
 
-	void AddOnExit(IOnExit action);
+    void AddOnExit(IOnExit action);
 
-	void SetDataModel(IDataModel dataModel);
+    void SetDataModel(IDataModel dataModel);
 }

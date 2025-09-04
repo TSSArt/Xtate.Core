@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,27 +19,27 @@ namespace Xtate.Builder;
 
 public interface IInvokeBuilder
 {
-	IInvoke Build();
+    IInvoke Build();
 
-	void SetType(FullUri type);
+    void SetType(FullUri type);
 
-	void SetTypeExpression(IValueExpression typeExpression);
+    void SetTypeExpression(IValueExpression typeExpression);
 
-	void SetSource(Uri source);
+    void SetSource(Uri source);
 
-	void SetSourceExpression(IValueExpression sourceExpression);
+    void SetSourceExpression(IValueExpression sourceExpression);
 
-	void SetId(string id);
+    void SetId(string id);
 
-	void SetIdLocation(ILocationExpression idLocation);
+    void SetIdLocation(ILocationExpression idLocation);
 
-	void SetNameList(ImmutableArray<ILocationExpression> nameList);
+    void SetNameList(ImmutableArray<ILocationExpression> nameList);
 
-	void SetAutoForward(bool autoForward);
+    void SetAutoForward(bool autoForward);
 
-	void AddParam(IParam param);
+    void AddParam(IParam param);
 
-	void SetFinalize(IFinalize finalize);
+    void SetFinalize(IFinalize finalize);
 
-	void SetContent(IContent content);
+    void SetContent(IContent content);
 }

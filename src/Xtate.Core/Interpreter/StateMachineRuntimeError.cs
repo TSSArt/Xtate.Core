@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,51 +19,51 @@ namespace Xtate.Core;
 
 public class StateMachineRuntimeError
 {
-	public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
+    public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
 
-	public bool IsPlatformError(Exception exception)
-	{
-		for (var ex = exception; ex is not null; ex = ex.InnerException)
-		{
-			if (ex is PlatformException platformException)
-			{
-				if (StateMachineSessionId.SessionId.Equals(platformException.Token))
-				{
-					return true;
-				}
+    public bool IsPlatformError(Exception exception)
+    {
+        for (var ex = exception; ex is not null; ex = ex.InnerException)
+        {
+            if (ex is PlatformException platformException)
+            {
+                if (StateMachineSessionId.SessionId.Equals(platformException.Token))
+                {
+                    return true;
+                }
 
-				break;
-			}
-		}
+                break;
+            }
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	public bool IsCommunicationError(Exception? exception, out SendId? sendId)
-	{
-		for (var ex = exception; ex is not null; ex = ex.InnerException)
-		{
-			if (ex is CommunicationException communicationException)
-			{
-				if (StateMachineSessionId.SessionId.Equals(communicationException.Token))
-				{
-					sendId = communicationException.SendId;
+    public bool IsCommunicationError(Exception? exception, out SendId? sendId)
+    {
+        for (var ex = exception; ex is not null; ex = ex.InnerException)
+        {
+            if (ex is CommunicationException communicationException)
+            {
+                if (StateMachineSessionId.SessionId.Equals(communicationException.Token))
+                {
+                    sendId = communicationException.SendId;
 
-					return true;
-				}
+                    return true;
+                }
 
-				break;
-			}
-		}
+                break;
+            }
+        }
 
-		sendId = default;
+        sendId = default;
 
-		return false;
-	}
+        return false;
+    }
 
-	public CommunicationException NoExternalConnections() => new(Resources.Exception_ExternalConnectionsDoesNotConfiguredForStateMachineInterpreter) { Token = StateMachineSessionId.SessionId };
+    public CommunicationException NoExternalConnections() => new(Resources.Exception_ExternalConnectionsDoesNotConfiguredForStateMachineInterpreter) { Token = StateMachineSessionId.SessionId };
 
-	public CommunicationException CommunicationError(Exception innerException, SendId? sendId = default) => new(innerException, sendId) { Token = StateMachineSessionId.SessionId };
+    public CommunicationException CommunicationError(Exception innerException, SendId? sendId = default) => new(innerException, sendId) { Token = StateMachineSessionId.SessionId };
 
-	public PlatformException PlatformError(Exception innerException) => new(innerException) { Token = StateMachineSessionId.SessionId };
+    public PlatformException PlatformError(Exception innerException) => new(innerException) { Token = StateMachineSessionId.SessionId };
 }

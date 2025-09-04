@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -24,31 +24,31 @@ namespace Xtate.Core;
 
 public class PersistenceModule : Module<InterpreterModelBuilderModule, DataModelHandlersModule>
 {
-	protected override void AddServices()
-	{
-		Services.AddImplementationSync<InMemoryStorageNew, bool>().For<InMemoryStorage>().For<IStorage>();
-		Services.AddImplementationSync<InMemoryStorageBaseline, ReadOnlyMemory<byte>>().For<InMemoryStorage>().For<IStorage>();
-		Services.AddImplementation<StreamStorageNoRollback, Stream>().For<ITransactionalStorage>();
-		Services.AddImplementation<StreamStorageWithRollback, Stream, int>().For<ITransactionalStorage>();
+    protected override void AddServices()
+    {
+        Services.AddImplementationSync<InMemoryStorageNew, bool>().For<InMemoryStorage>().For<IStorage>();
+        Services.AddImplementationSync<InMemoryStorageBaseline, ReadOnlyMemory<byte>>().For<InMemoryStorage>().For<IStorage>();
+        Services.AddImplementation<StreamStorageNoRollback, Stream>().For<ITransactionalStorage>();
+        Services.AddImplementation<StreamStorageWithRollback, Stream, int>().For<ITransactionalStorage>();
 
-		//Services.AddDecorator<PersistedStateMachineService>().For<IStateMachineService>();
-		//Services.AddFactory<PersistedDataModelHandlerGetter>().For<IDataModelHandler>(Option.DoNotDispose);
-		//Services.AddImplementation<PersistedStateMachineRunState>().For<IPersistedStateMachineRunState>();
-		
-		Services.AddType<InterpreterModelBuilder, IStateMachine, IDataModelHandler>();
+        //Services.AddDecorator<PersistedStateMachineService>().For<IStateMachineService>();
+        //Services.AddFactory<PersistedDataModelHandlerGetter>().For<IDataModelHandler>(Option.DoNotDispose);
+        //Services.AddImplementation<PersistedStateMachineRunState>().For<IPersistedStateMachineRunState>();
 
-		Services.AddFactory<PersistedInterpreterModelGetter>().For<IInterpreterModel>(SharedWithin.Scope);
-	}
+        Services.AddType<InterpreterModelBuilder, IStateMachine, IDataModelHandler>();
 
-	[UsedImplicitly]
-	private class StreamStorageNoRollback(Stream stream) : StreamStorage(stream);
+        Services.AddFactory<PersistedInterpreterModelGetter>().For<IInterpreterModel>(SharedWithin.Scope);
+    }
 
-	[UsedImplicitly]
-	private class StreamStorageWithRollback(Stream stream, int rollbackLevel) : StreamStorage(stream, rollbackLevel: rollbackLevel);
+    [UsedImplicitly]
+    private class StreamStorageNoRollback(Stream stream) : StreamStorage(stream);
 
-	[UsedImplicitly]
-	private class InMemoryStorageNew(bool writeOnly) : InMemoryStorage(writeOnly);
+    [UsedImplicitly]
+    private class StreamStorageWithRollback(Stream stream, int rollbackLevel) : StreamStorage(stream, rollbackLevel: rollbackLevel);
 
-	[UsedImplicitly]
-	private class InMemoryStorageBaseline(ReadOnlyMemory<byte> baseline) : InMemoryStorage(baseline.Span);
+    [UsedImplicitly]
+    private class InMemoryStorageNew(bool writeOnly) : InMemoryStorage(writeOnly);
+
+    [UsedImplicitly]
+    private class InMemoryStorageBaseline(ReadOnlyMemory<byte> baseline) : InMemoryStorage(baseline.Span);
 }

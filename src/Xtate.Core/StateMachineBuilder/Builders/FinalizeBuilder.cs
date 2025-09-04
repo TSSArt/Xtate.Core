@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,18 +19,18 @@ namespace Xtate.Builder;
 
 public class FinalizeBuilder : BuilderBase, IFinalizeBuilder
 {
-	private ImmutableArray<IExecutableEntity>.Builder? _actions;
+    private ImmutableArray<IExecutableEntity>.Builder? _actions;
 
 #region Interface IFinalizeBuilder
 
-	public IFinalize Build() => new FinalizeEntity { Ancestor = Ancestor, Action = _actions?.ToImmutable() ?? default };
+    public IFinalize Build() => new FinalizeEntity { Ancestor = Ancestor, Action = _actions?.ToImmutable() ?? default };
 
-	public void AddAction(IExecutableEntity action)
-	{
-		Infra.Requires(action);
+    public void AddAction(IExecutableEntity action)
+    {
+        Infra.Requires(action);
 
-		(_actions ??= ImmutableArray.CreateBuilder<IExecutableEntity>()).Add(action);
-	}
+        (_actions ??= ImmutableArray.CreateBuilder<IExecutableEntity>()).Add(action);
+    }
 
 #endregion
 }

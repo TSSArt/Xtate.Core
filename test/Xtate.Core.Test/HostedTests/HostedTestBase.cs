@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -25,48 +25,49 @@ namespace Xtate.Test.HostedTests;
 
 public abstract class HostedTestBase
 {
-	//protected StateMachineHost Host { get; private set; } = default!;
+    //protected StateMachineHost Host { get; private set; } = default!;
 
-	protected Mock<ILogWriter> LogWriter { get; private set; } = default!;
+    protected Mock<ILogWriter> LogWriter { get; private set; } = default!;
 
-	[TestInitialize]
-	public async Task Initialize()
-	{
-		LogWriter = new Mock<ILogWriter>();
-		LogWriter.Setup(s => s.IsEnabled(It.IsAny<Type>(), It.IsAny<Level>())).Returns(true);
-		/*
-		Host = new StateMachineHostBuilder()
-			   //TODO:
-			   //.AddCustomActionFactory(SystemActionFactory.Instance)
-			   //.AddResourceLoaderFactory(ResxResourceLoaderFactory.Instance)
-			   .SetLogger(Logger.Object)
-			   .Build(ServiceLocator.Default);
-		return Host.StartHostAsync();
-		*/
-		var sc = new ServiceCollection();
-		sc.AddModule<StateMachineProcessorModule>();
-		sc.AddImplementationSync<StartAction.Provider>().For<IActionProvider>();
-		sc.AddImplementationSync<DestroyAction.Provider>().For<IActionProvider>();
-		sc.AddTypeSync<StartAction, XmlReader>();
-		sc.AddTypeSync<DestroyAction, XmlReader>();
-		sc.AddConstant(LogWriter.Object);
-		var sp = sc.BuildProvider();
-		//Host = await sp.GetRequiredService<StateMachineHost>();
-		StateMachineScopeManager = await sp.GetRequiredService<IStateMachineScopeManager>();
-	}
+    public IStateMachineScopeManager StateMachineScopeManager { get; set; }
 
-	public IStateMachineScopeManager StateMachineScopeManager { get; set; }
+    [TestInitialize]
+    public async Task Initialize()
+    {
+        LogWriter = new Mock<ILogWriter>();
+        LogWriter.Setup(s => s.IsEnabled(It.IsAny<Type>(), It.IsAny<Level>())).Returns(true);
+        /*
+        Host = new StateMachineHostBuilder()
+               //TODO:
+               //.AddCustomActionFactory(SystemActionFactory.Instance)
+               //.AddResourceLoaderFactory(ResxResourceLoaderFactory.Instance)
+               .SetLogger(Logger.Object)
+               .Build(ServiceLocator.Default);
+        return Host.StartHostAsync();
+        */
+        var sc = new ServiceCollection();
+        sc.AddModule<StateMachineProcessorModule>();
+        sc.AddImplementationSync<StartAction.Provider>().For<IActionProvider>();
+        sc.AddImplementationSync<DestroyAction.Provider>().For<IActionProvider>();
+        sc.AddTypeSync<StartAction, XmlReader>();
+        sc.AddTypeSync<DestroyAction, XmlReader>();
+        sc.AddConstant(LogWriter.Object);
+        var sp = sc.BuildProvider();
 
-	[TestCleanup]
-	public Task Cleanup() => Task.CompletedTask; //return Host.StopHost().AsTask();
-	
-	protected async Task Execute([PathReference("~/HostedTests/Scxml/")] string scxmlPath)
-	{
-		var name = Assembly.GetExecutingAssembly().GetName().Name;
+        //Host = await sp.GetRequiredService<StateMachineHost>();
+        StateMachineScopeManager = await sp.GetRequiredService<IStateMachineScopeManager>();
+    }
 
-		var uri = new Uri($"resx://{name}/{name}/HostedTests/Scxml/" + scxmlPath);
-		var locationStateMachine = new LocationStateMachine(uri);
+    [TestCleanup]
+    public Task Cleanup() => Task.CompletedTask; //return Host.StopHost().AsTask();
 
-		await StateMachineScopeManager.Execute(locationStateMachine, SecurityContextType.NewTrustedStateMachine);
-	}
+    protected async Task Execute([PathReference("~/HostedTests/Scxml/")] string scxmlPath)
+    {
+        var name = Assembly.GetExecutingAssembly().GetName().Name;
+
+        var uri = new Uri($"resx://{name}/{name}/HostedTests/Scxml/" + scxmlPath);
+        var locationStateMachine = new LocationStateMachine(uri);
+
+        await StateMachineScopeManager.Execute(locationStateMachine, SecurityContextType.NewTrustedStateMachine);
+    }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,55 +21,55 @@ namespace Xtate.DataModel.XPath;
 
 internal abstract class NodeAdapter
 {
-	public abstract XPathNodeType GetNodeType();
+    public abstract XPathNodeType GetNodeType();
 
-	public virtual string GetValue(in DataModelXPathNavigator.Node node) => string.Empty;
+    public virtual string GetValue(in DataModelXPathNavigator.Node node) => string.Empty;
 
-	public virtual int GetBufferSizeForValue(in DataModelXPathNavigator.Node node) => 0;
+    public virtual int GetBufferSizeForValue(in DataModelXPathNavigator.Node node) => 0;
 
-	public virtual int WriteValueToSpan(in DataModelXPathNavigator.Node node, in Span<char> span) => 0;
+    public virtual int WriteValueToSpan(in DataModelXPathNavigator.Node node, in Span<char> span) => 0;
 
-	public virtual string GetLocalName(in DataModelXPathNavigator.Node node) => string.Empty;
+    public virtual string GetLocalName(in DataModelXPathNavigator.Node node) => string.Empty;
 
-	public string GetName(in DataModelXPathNavigator.Node node)
-	{
-		var prefix = GetPrefix(node);
+    public string GetName(in DataModelXPathNavigator.Node node)
+    {
+        var prefix = GetPrefix(node);
 
-		return string.IsNullOrEmpty(prefix) ? GetLocalName(node) : prefix + @":" + GetLocalName(node);
-	}
+        return string.IsNullOrEmpty(prefix) ? GetLocalName(node) : prefix + @":" + GetLocalName(node);
+    }
 
-	public virtual string GetPrefix(in DataModelXPathNavigator.Node node) => string.Empty;
+    public virtual string GetPrefix(in DataModelXPathNavigator.Node node) => string.Empty;
 
-	public virtual string GetNamespaceUri(in DataModelXPathNavigator.Node node) => string.Empty;
+    public virtual string GetNamespaceUri(in DataModelXPathNavigator.Node node) => string.Empty;
 
-	public virtual bool IsEmptyElement(in DataModelXPathNavigator.Node node) => true;
+    public virtual bool IsEmptyElement(in DataModelXPathNavigator.Node node) => true;
 
-	public virtual bool GetFirstChild(in DataModelXPathNavigator.Node node, out DataModelXPathNavigator.Node childNode)
-	{
-		childNode = default;
+    public virtual bool GetFirstChild(in DataModelXPathNavigator.Node node, out DataModelXPathNavigator.Node childNode)
+    {
+        childNode = default;
 
-		return false;
-	}
+        return false;
+    }
 
-	public virtual bool GetNextChild(in DataModelXPathNavigator.Node parentNode, ref DataModelXPathNavigator.Node node) => false;
+    public virtual bool GetNextChild(in DataModelXPathNavigator.Node parentNode, ref DataModelXPathNavigator.Node node) => false;
 
-	public virtual bool GetPreviousChild(in DataModelXPathNavigator.Node parentNode, ref DataModelXPathNavigator.Node node) => false;
+    public virtual bool GetPreviousChild(in DataModelXPathNavigator.Node parentNode, ref DataModelXPathNavigator.Node node) => false;
 
-	public virtual bool GetFirstAttribute(in DataModelXPathNavigator.Node node, out DataModelXPathNavigator.Node attributeNode)
-	{
-		attributeNode = default;
+    public virtual bool GetFirstAttribute(in DataModelXPathNavigator.Node node, out DataModelXPathNavigator.Node attributeNode)
+    {
+        attributeNode = default;
 
-		return false;
-	}
+        return false;
+    }
 
-	public virtual bool GetNextAttribute(in DataModelXPathNavigator.Node parentNode, ref DataModelXPathNavigator.Node node) => false;
+    public virtual bool GetNextAttribute(in DataModelXPathNavigator.Node parentNode, ref DataModelXPathNavigator.Node node) => false;
 
-	public virtual bool GetFirstNamespace(in DataModelXPathNavigator.Node node, out DataModelXPathNavigator.Node namespaceNode)
-	{
-		namespaceNode = default;
+    public virtual bool GetFirstNamespace(in DataModelXPathNavigator.Node node, out DataModelXPathNavigator.Node namespaceNode)
+    {
+        namespaceNode = default;
 
-		return false;
-	}
+        return false;
+    }
 
-	public virtual bool GetNextNamespace(in DataModelXPathNavigator.Node parentNode, ref DataModelXPathNavigator.Node node) => false;
+    public virtual bool GetNextNamespace(in DataModelXPathNavigator.Node parentNode, ref DataModelXPathNavigator.Node node) => false;
 }

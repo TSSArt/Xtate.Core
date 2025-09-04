@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,9 +17,9 @@
 
 namespace Xtate.Core;
 
-public interface IHostController 
+public interface IHostController
 {
-	ValueTask StartHost();
+    ValueTask StartHost();
 
-	ValueTask StopHost();
+    ValueTask StopHost();
 }

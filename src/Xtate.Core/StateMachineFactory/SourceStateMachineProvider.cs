@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,16 +19,16 @@ namespace Xtate.Core;
 
 public class SourceStateMachineProvider : IStateMachineProvider
 {
-	public required Func<ValueTask<ScxmlLocationStateMachineGetter>> ScxmlLocationStateMachineGetter { private get; [UsedImplicitly] init; }
+    public required Func<ValueTask<ScxmlLocationStateMachineGetter>> ScxmlLocationStateMachineGetter { private get; [UsedImplicitly] init; }
 
-	public required IStateMachineLocation? StateMachineLocation { private get; [UsedImplicitly] init; }
+    public required IStateMachineLocation? StateMachineLocation { private get; [UsedImplicitly] init; }
 
 #region Interface IStateMachineProvider
 
-	public async ValueTask<IStateMachine?> TryGetStateMachine() =>
-		StateMachineLocation is not null
-			? await (await ScxmlLocationStateMachineGetter().ConfigureAwait(false)).GetStateMachine().ConfigureAwait(false)
-			: default;
+    public async ValueTask<IStateMachine?> TryGetStateMachine() =>
+        StateMachineLocation is not null
+            ? await (await ScxmlLocationStateMachineGetter().ConfigureAwait(false)).GetStateMachine().ConfigureAwait(false)
+            : default;
 
 #endregion
 }

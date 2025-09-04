@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -20,102 +20,101 @@ using System.Threading.Channels;
 namespace Xtate.Persistence;
 
 internal sealed class StateMachineSingleMacroStepController(
-	SessionId sessionId,
-	IStateMachineOptions? options,
-	IStateMachine? stateMachine,
-	Uri? stateMachineLocation
-	//IStateMachineHost stateMachineHost //,
-	//InterpreterOptions defaultOptions
+    SessionId sessionId,
+    IStateMachineOptions? options,
+    IStateMachine? stateMachine,
+    Uri? stateMachineLocation
 
-	// SecurityContext securityContext,
-	//										 DeferredFinalizer finalizer
+    //IStateMachineHost stateMachineHost //,
+    //InterpreterOptions defaultOptions
+
+    // SecurityContext securityContext,
+    //										 DeferredFinalizer finalizer
 ) : StateMachineControllerBase(sessionId, options, stateMachine, stateMachineLocation /*, defaultOptions*/)
 {
-	private readonly TaskCompletionSource<StateMachineInterpreterState> _doneCompletionSource = new();
+    private readonly TaskCompletionSource<StateMachineInterpreterState> _doneCompletionSource = new();
 
-	private readonly CancellationTokenSource _suspendTokenSource = new();
+    private readonly CancellationTokenSource _suspendTokenSource = new();
 
-	protected override Channel<IIncomingEvent> EventChannel { get; } = new SingleItemChannel<IIncomingEvent>();
+    protected override Channel<IIncomingEvent> EventChannel { get; } = new SingleItemChannel<IIncomingEvent>();
 
-	public override async ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token)
-	{
-		await base.Dispatch(incomingEvent, token).ConfigureAwait(false);
+    public override async ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token)
+    {
+        await base.Dispatch(incomingEvent, token).ConfigureAwait(false);
 
-		var state = await _doneCompletionSource.Task.ConfigureAwait(false);
+        var state = await _doneCompletionSource.Task.ConfigureAwait(false);
 
-		if (state == StateMachineInterpreterState.Waiting)
-		{
-			await _suspendTokenSource.CancelAsync().ConfigureAwait(false);
-		}
+        if (state == StateMachineInterpreterState.Waiting)
+        {
+            await _suspendTokenSource.CancelAsync().ConfigureAwait(false);
+        }
 
-		try
-		{
-			await GetResult().ConfigureAwait(false);
-		}
-		catch (StateMachineSuspendedException) { }
-	}
+        try
+        {
+            await GetResult().ConfigureAwait(false);
+        }
+        catch (StateMachineSuspendedException) { }
+    }
 
-	protected override CancellationToken GetSuspendToken() => _suspendTokenSource.Token;
+    protected override CancellationToken GetSuspendToken() => _suspendTokenSource.Token;
 
-	protected override void StateChanged(StateMachineInterpreterState state)
-	{
-		if (state is StateMachineInterpreterState.Waiting or StateMachineInterpreterState.Completed)
-		{
-			_doneCompletionSource.TrySetResult(state);
-		}
+    protected override void StateChanged(StateMachineInterpreterState state)
+    {
+        if (state is StateMachineInterpreterState.Waiting or StateMachineInterpreterState.Completed)
+        {
+            _doneCompletionSource.TrySetResult(state);
+        }
 
-		base.StateChanged(state);
-	}
+        base.StateChanged(state);
+    }
 
-	private class SingleItemChannel<T> : Channel<T>
-	{
+    private class SingleItemChannel<T> : Channel<T>
+    {
+        public SingleItemChannel()
+        {
+            var tcs = new TaskCompletionSource<T>();
+            Reader = new ChannelReader(tcs);
+            Writer = new ChannelWriter(tcs);
+        }
 
+        private class ChannelReader(TaskCompletionSource<T> tcs) : ChannelReader<T>
+        {
+            private TaskCompletionSource<T>? _tcs = tcs;
 
-		public SingleItemChannel()
-		{
-			var tcs = new TaskCompletionSource<T>();
-			Reader = new ChannelReader(tcs);
-			Writer = new ChannelWriter(tcs);
-		}
+            public override bool TryRead([MaybeNullWhen(false)] out T item)
+            {
+                if (_tcs is { } tcs)
+                {
+                    _tcs = default;
 
-		private class ChannelReader(TaskCompletionSource<T> tcs) : ChannelReader<T>
-		{
-			private TaskCompletionSource<T>? _tcs = tcs;
+                    item = tcs.Task.Result;
 
-			public override bool TryRead([MaybeNullWhen(false)] out T item)
-			{
-				if (_tcs is { } tcs)
-				{
-					_tcs = default;
+                    return true;
+                }
 
-					item = tcs.Task.Result;
+                item = default;
 
-					return true;
-				}
+                return false;
+            }
 
-				item = default;
+            public override async ValueTask<bool> WaitToReadAsync(CancellationToken token = default)
+            {
+                if (_tcs is not { } tcs)
+                {
+                    return false;
+                }
 
-				return false;
-			}
+                await tcs.Task.WaitAsync(token).ConfigureAwait(false);
 
-			public override async ValueTask<bool> WaitToReadAsync(CancellationToken token = default)
-			{
-				if (_tcs is not { } tcs)
-				{
-					return false;
-				}
+                return true;
+            }
+        }
 
-				await tcs.Task.WaitAsync(token).ConfigureAwait(false);
+        private class ChannelWriter(TaskCompletionSource<T> tcs) : ChannelWriter<T>
+        {
+            public override bool TryWrite(T item) => tcs.TrySetResult(item);
 
-				return true;
-			}
-		}
-
-		private class ChannelWriter(TaskCompletionSource<T> tcs) : ChannelWriter<T>
-		{
-			public override bool TryWrite(T item) => tcs.TrySetResult(item);
-
-			public override ValueTask<bool> WaitToWriteAsync(CancellationToken token = default) => new(!tcs.Task.IsCompleted);
-		}
-	}
+            public override ValueTask<bool> WaitToWriteAsync(CancellationToken token = default) => new(!tcs.Task.IsCompleted);
+        }
+    }
 }

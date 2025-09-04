@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -18,78 +18,78 @@
 namespace Xtate.DataModel.XPath;
 
 public class XPathValueExpressionEvaluator(IValueExpression valueExpression, XPathCompiledExpression compiledExpression)
-	: IValueExpression, IObjectEvaluator, IStringEvaluator, IIntegerEvaluator, IArrayEvaluator, IAncestorProvider
+    : IValueExpression, IObjectEvaluator, IStringEvaluator, IIntegerEvaluator, IArrayEvaluator, IAncestorProvider
 {
-	public required Func<ValueTask<XPathEngine>> EngineFactory { private get; [UsedImplicitly] init; }
+    public required Func<ValueTask<XPathEngine>> EngineFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => valueExpression;
+    object IAncestorProvider.Ancestor => valueExpression;
 
 #endregion
 
 #region Interface IArrayEvaluator
 
-	public async ValueTask<IObject[]> EvaluateArray()
-	{
-		var engine = await EngineFactory().ConfigureAwait(false);
+    public async ValueTask<IObject[]> EvaluateArray()
+    {
+        var engine = await EngineFactory().ConfigureAwait(false);
 
-		var obj = await engine.EvalObject(compiledExpression, stripRoots: true).ConfigureAwait(false);
+        var obj = await engine.EvalObject(compiledExpression, stripRoots: true).ConfigureAwait(false);
 
-		var iterator = obj.AsIterator();
+        var iterator = obj.AsIterator();
 
-		var list = new List<IObject>();
+        var list = new List<IObject>();
 
-		foreach (DataModelXPathNavigator navigator in iterator)
-		{
-			list.Add(new XPathObject(new XPathSingleElementIterator(navigator)));
-		}
+        foreach (DataModelXPathNavigator navigator in iterator)
+        {
+            list.Add(new XPathObject(new XPathSingleElementIterator(navigator)));
+        }
 
-		return [.. list];
-	}
+        return [.. list];
+    }
 
 #endregion
 
 #region Interface IIntegerEvaluator
 
-	async ValueTask<int> IIntegerEvaluator.EvaluateInteger()
-	{
-		var engine = await EngineFactory().ConfigureAwait(false);
+    async ValueTask<int> IIntegerEvaluator.EvaluateInteger()
+    {
+        var engine = await EngineFactory().ConfigureAwait(false);
 
-		var obj = await engine.EvalObject(compiledExpression, stripRoots: true).ConfigureAwait(false);
+        var obj = await engine.EvalObject(compiledExpression, stripRoots: true).ConfigureAwait(false);
 
-		return obj.AsInteger();
-	}
+        return obj.AsInteger();
+    }
 
 #endregion
 
 #region Interface IObjectEvaluator
 
-	async ValueTask<IObject> IObjectEvaluator.EvaluateObject()
-	{
-		var engine = await EngineFactory().ConfigureAwait(false);
+    async ValueTask<IObject> IObjectEvaluator.EvaluateObject()
+    {
+        var engine = await EngineFactory().ConfigureAwait(false);
 
-		return await engine.EvalObject(compiledExpression, stripRoots: true).ConfigureAwait(false);
-	}
+        return await engine.EvalObject(compiledExpression, stripRoots: true).ConfigureAwait(false);
+    }
 
 #endregion
 
 #region Interface IStringEvaluator
 
-	async ValueTask<string> IStringEvaluator.EvaluateString()
-	{
-		var engine = await EngineFactory().ConfigureAwait(false);
+    async ValueTask<string> IStringEvaluator.EvaluateString()
+    {
+        var engine = await EngineFactory().ConfigureAwait(false);
 
-		var obj = await engine.EvalObject(compiledExpression, stripRoots: true).ConfigureAwait(false);
+        var obj = await engine.EvalObject(compiledExpression, stripRoots: true).ConfigureAwait(false);
 
-		return obj.AsString();
-	}
+        return obj.AsString();
+    }
 
 #endregion
 
 #region Interface IValueExpression
 
-	public string? Expression => valueExpression.Expression;
+    public string? Expression => valueExpression.Expression;
 
 #endregion
 }

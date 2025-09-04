@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,21 +22,21 @@ namespace Xtate.Core;
 
 public static class XmlWriterExtensions
 {
-	public static ConfiguredAwaitable ConfigureAwait(this XmlWriter xmlWriter, bool continueOnCapturedContext) => new(xmlWriter, continueOnCapturedContext);
+    public static ConfiguredAwaitable ConfigureAwait(this XmlWriter xmlWriter, bool continueOnCapturedContext) => new(xmlWriter, continueOnCapturedContext);
 
-	[UsedImplicitly]
-	public static ValueTask DisposeAsync(this XmlWriter xmlWriter)
-	{
-		if (xmlWriter is null) throw new ArgumentNullException(nameof(xmlWriter));
+    [UsedImplicitly]
+    public static ValueTask DisposeAsync(this XmlWriter xmlWriter)
+    {
+        if (xmlWriter is null) throw new ArgumentNullException(nameof(xmlWriter));
 
-		xmlWriter.Dispose();
+        xmlWriter.Dispose();
 
-		return default;
-	}
+        return default;
+    }
 
-	public readonly struct ConfiguredAwaitable(XmlWriter xmlWriter, bool continueOnCapturedContext)
-	{
-		public ConfiguredValueTaskAwaitable DisposeAsync() => xmlWriter.DisposeAsync().ConfigureAwait(continueOnCapturedContext);
-	}
+    public readonly struct ConfiguredAwaitable(XmlWriter xmlWriter, bool continueOnCapturedContext)
+    {
+        public ConfiguredValueTaskAwaitable DisposeAsync() => xmlWriter.DisposeAsync().ConfigureAwait(continueOnCapturedContext);
+    }
 }
 #endif

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,40 +19,40 @@ namespace Xtate.DataModel;
 
 public class DefaultExternalDataExpressionEvaluator(IExternalDataExpression externalDataExpression) : ExternalDataExpressionEvaluator(externalDataExpression)
 {
-	public required Deferred<DataConverter> DataConverter { private get; [UsedImplicitly] init; }
+    public required Deferred<DataConverter> DataConverter { private get; [UsedImplicitly] init; }
 
-	public required Deferred<IStateMachineLocation> StateMachineLocation { private get; [UsedImplicitly] init; }
+    public required Deferred<IStateMachineLocation> StateMachineLocation { private get; [UsedImplicitly] init; }
 
-	public required Deferred<IResourceLoader> ResourceLoader { private get; [UsedImplicitly] init; }
+    public required Deferred<IResourceLoader> ResourceLoader { private get; [UsedImplicitly] init; }
 
-	public override async ValueTask<IObject> EvaluateObject()
-	{
-		var uri = await GetUri().ConfigureAwait(false);
+    public override async ValueTask<IObject> EvaluateObject()
+    {
+        var uri = await GetUri().ConfigureAwait(false);
 
-		var resourceLoader = await ResourceLoader().ConfigureAwait(false);
-		var resource = await resourceLoader.Request(uri).ConfigureAwait(false);
+        var resourceLoader = await ResourceLoader().ConfigureAwait(false);
+        var resource = await resourceLoader.Request(uri).ConfigureAwait(false);
 
-		await using (resource.ConfigureAwait(false))
-		{
-			return await ParseToDataModel(resource).ConfigureAwait(false);
-		}
-	}
+        await using (resource.ConfigureAwait(false))
+        {
+            return await ParseToDataModel(resource).ConfigureAwait(false);
+        }
+    }
 
-	protected virtual async ValueTask<Uri> GetUri()
-	{
-		var relativeUri = base.Uri;
-		Infra.NotNull(relativeUri);
+    protected virtual async ValueTask<Uri> GetUri()
+    {
+        var relativeUri = base.Uri;
+        Infra.NotNull(relativeUri);
 
-		var stateMachineLocation = await StateMachineLocation().ConfigureAwait(false);
-		var baseUri = stateMachineLocation.Location;
+        var stateMachineLocation = await StateMachineLocation().ConfigureAwait(false);
+        var baseUri = stateMachineLocation.Location;
 
-		return baseUri.CombineWith(relativeUri);
-	}
+        return baseUri.CombineWith(relativeUri);
+    }
 
-	protected virtual async ValueTask<DataModelValue> ParseToDataModel(Resource resource)
-	{
-		var dataConverter = await DataConverter().ConfigureAwait(false);
+    protected virtual async ValueTask<DataModelValue> ParseToDataModel(Resource resource)
+    {
+        var dataConverter = await DataConverter().ConfigureAwait(false);
 
-		return await dataConverter.FromContent(resource).ConfigureAwait(false);
-	}
+        return await dataConverter.FromContent(resource).ConfigureAwait(false);
+    }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -20,65 +20,65 @@ namespace Xtate.Core.Test;
 [TestClass]
 public class StringExtensionsTest
 {
-	[TestMethod]
-	public void NormalizeSpaces_ShouldRaiseArgumentException_IfInputIsNull()
-	{
-		// assert
-		Assert.ThrowsException<ArgumentNullException>(() => StringExtensions.NormalizeSpaces(null!));
-	}
+    [TestMethod]
+    public void NormalizeSpaces_ShouldRaiseArgumentException_IfInputIsNull()
+    {
+        // assert
+        Assert.ThrowsException<ArgumentNullException>(() => StringExtensions.NormalizeSpaces(null!));
+    }
 
-	[TestMethod]
-	[DataRow(1, "", "")]
-	[DataRow(2, "a", "a")]
-	[DataRow(3, "ab", "ab")]
-	[DataRow(4, " a", "a")]
-	[DataRow(5, "  a", "a")]
-	[DataRow(6, "a ", "a")]
-	[DataRow(7, "a  ", "a")]
-	[DataRow(8, "a b", "a b")]
-	[DataRow(9, "a  b", "a b")]
-	[DataRow(10, " a b ", "a b")]
-	[DataRow(11, " \t\r\n\f\va", "a")]
-	[DataRow(12, "a \t\r\n\f\v", "a")]
-	[DataRow(13, "a \t\r\n\f\vb", "a b")]
-	[DataRow(14, "a\tb", "a b")]
-	public void NormalizeSpaces_ShouldRemoveNotExpectedWhiteSpaceCharacters(int num, string value, string expected)
-	{
-		// arrange
-		_ = num;
+    [TestMethod]
+    [DataRow(1, "", "")]
+    [DataRow(2, "a", "a")]
+    [DataRow(3, "ab", "ab")]
+    [DataRow(4, " a", "a")]
+    [DataRow(5, "  a", "a")]
+    [DataRow(6, "a ", "a")]
+    [DataRow(7, "a  ", "a")]
+    [DataRow(8, "a b", "a b")]
+    [DataRow(9, "a  b", "a b")]
+    [DataRow(10, " a b ", "a b")]
+    [DataRow(11, " \t\r\n\f\va", "a")]
+    [DataRow(12, "a \t\r\n\f\v", "a")]
+    [DataRow(13, "a \t\r\n\f\vb", "a b")]
+    [DataRow(14, "a\tb", "a b")]
+    public void NormalizeSpaces_ShouldRemoveNotExpectedWhiteSpaceCharacters(int num, string value, string expected)
+    {
+        // arrange
+        _ = num;
 
-		// act
-		var normalized = value.NormalizeSpaces();
+        // act
+        var normalized = value.NormalizeSpaces();
 
-		// assert
-		Assert.AreEqual(expected, normalized);
-	}
+        // assert
+        Assert.AreEqual(expected, normalized);
+    }
 
-	[TestMethod]
-	public void NormalizeSpaces_LongStackAllocString_ShouldNotFail()
-	{
-		// arrange
-		var expected = new string(c: '-', count: 30000);
-		var value = expected + ' ';
+    [TestMethod]
+    public void NormalizeSpaces_LongStackAllocString_ShouldNotFail()
+    {
+        // arrange
+        var expected = new string(c: '-', count: 30000);
+        var value = expected + ' ';
 
-		// act
-		var normalized = value.NormalizeSpaces();
+        // act
+        var normalized = value.NormalizeSpaces();
 
-		// assert
-		Assert.AreEqual(expected, normalized);
-	}
+        // assert
+        Assert.AreEqual(expected, normalized);
+    }
 
-	[TestMethod]
-	public void NormalizeSpaces_LongArrayPoolString_ShouldNotFail()
-	{
-		// arrange
-		var expected = new string(c: '-', count: 60000);
-		var value = expected + ' ';
+    [TestMethod]
+    public void NormalizeSpaces_LongArrayPoolString_ShouldNotFail()
+    {
+        // arrange
+        var expected = new string(c: '-', count: 60000);
+        var value = expected + ' ';
 
-		// act
-		var normalized = value.NormalizeSpaces();
+        // act
+        var normalized = value.NormalizeSpaces();
 
-		// assert
-		Assert.AreEqual(expected, normalized);
-	}
+        // assert
+        Assert.AreEqual(expected, normalized);
+    }
 }

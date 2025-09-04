@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,19 +19,19 @@ namespace Xtate.DataModel.XPath;
 
 internal class SimpleTypeItemNodeAdapter : ItemNodeAdapter
 {
-	public override bool GetFirstChild(in DataModelXPathNavigator.Node node, out DataModelXPathNavigator.Node childNode)
-	{
-		if (AdapterFactory.GetSimpleTypeAdapter(node.DataModelValue) is { } adapter)
-		{
-			childNode = new DataModelXPathNavigator.Node(node.DataModelValue, adapter);
+    public override bool GetFirstChild(in DataModelXPathNavigator.Node node, out DataModelXPathNavigator.Node childNode)
+    {
+        if (AdapterFactory.GetSimpleTypeAdapter(node.DataModelValue) is { } adapter)
+        {
+            childNode = new DataModelXPathNavigator.Node(node.DataModelValue, adapter);
 
-			return true;
-		}
+            return true;
+        }
 
-		childNode = default;
+        childNode = default;
 
-		return false;
-	}
+        return false;
+    }
 
-	public override bool GetNextChild(in DataModelXPathNavigator.Node parentNode, ref DataModelXPathNavigator.Node node) => false;
+    public override bool GetNextChild(in DataModelXPathNavigator.Node parentNode, ref DataModelXPathNavigator.Node node) => false;
 }

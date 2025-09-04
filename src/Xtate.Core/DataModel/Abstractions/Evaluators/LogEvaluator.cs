@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,21 +21,21 @@ public abstract class LogEvaluator(ILog log) : ILog, IExecEvaluator, IAncestorPr
 {
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => log;
+    object IAncestorProvider.Ancestor => log;
 
 #endregion
 
 #region Interface IExecEvaluator
 
-	public abstract ValueTask Execute();
+    public abstract ValueTask Execute();
 
 #endregion
 
 #region Interface ILog
 
-	public virtual IValueExpression? Expression => log.Expression;
+    public virtual IValueExpression? Expression => log.Expression;
 
-	public virtual string? Label => log.Label;
+    public virtual string? Label => log.Label;
 
 #endregion
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -23,26 +23,26 @@ public sealed class ContentNode(IContent content) : IContent, IStoreSupport, IAn
 {
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => content;
+    object IAncestorProvider.Ancestor => content;
 
 #endregion
 
 #region Interface IContent
 
-	public IValueExpression? Expression => content.Expression;
+    public IValueExpression? Expression => content.Expression;
 
-	public IContentBody? Body => content.Body;
+    public IContentBody? Body => content.Body;
 
 #endregion
 
 #region Interface IStoreSupport
 
-	void IStoreSupport.Store(Bucket bucket)
-	{
-		bucket.Add(Key.TypeInfo, TypeInfo.ContentNode);
-		bucket.AddEntity(Key.Expression, Expression);
-		bucket.Add(Key.Body, Body?.Value);
-	}
+    void IStoreSupport.Store(Bucket bucket)
+    {
+        bucket.Add(Key.TypeInfo, TypeInfo.ContentNode);
+        bucket.AddEntity(Key.Expression, Expression);
+        bucket.Add(Key.Body, Body?.Value);
+    }
 
 #endregion
 }

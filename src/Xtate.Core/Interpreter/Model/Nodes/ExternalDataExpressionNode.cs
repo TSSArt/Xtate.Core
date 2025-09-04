@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,34 +21,34 @@ namespace Xtate.Core;
 
 public sealed class ExternalDataExpressionNode : IExternalDataExpression, IStoreSupport, IAncestorProvider
 {
-	private readonly IExternalDataExpression _externalDataExpression;
+    private readonly IExternalDataExpression _externalDataExpression;
 
-	public ExternalDataExpressionNode(IExternalDataExpression externalDataExpression)
-	{
-		Infra.NotNull(externalDataExpression.Uri);
+    public ExternalDataExpressionNode(IExternalDataExpression externalDataExpression)
+    {
+        Infra.NotNull(externalDataExpression.Uri);
 
-		_externalDataExpression = externalDataExpression;
-	}
+        _externalDataExpression = externalDataExpression;
+    }
 
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => _externalDataExpression;
+    object IAncestorProvider.Ancestor => _externalDataExpression;
 
 #endregion
 
 #region Interface IExternalDataExpression
 
-	public Uri Uri => _externalDataExpression.Uri!;
+    public Uri Uri => _externalDataExpression.Uri!;
 
 #endregion
 
 #region Interface IStoreSupport
 
-	void IStoreSupport.Store(Bucket bucket)
-	{
-		bucket.Add(Key.TypeInfo, TypeInfo.ExternalDataExpressionNode);
-		bucket.Add(Key.Uri, Uri);
-	}
+    void IStoreSupport.Store(Bucket bucket)
+    {
+        bucket.Add(Key.TypeInfo, TypeInfo.ExternalDataExpressionNode);
+        bucket.Add(Key.Uri, Uri);
+    }
 
 #endregion
 }

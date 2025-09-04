@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,21 +21,21 @@ public abstract class CancelEvaluator(ICancel cancel) : ICancel, IExecEvaluator,
 {
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => cancel;
+    object IAncestorProvider.Ancestor => cancel;
 
 #endregion
 
 #region Interface ICancel
 
-	public virtual string? SendId => cancel.SendId;
+    public virtual string? SendId => cancel.SendId;
 
-	public virtual IValueExpression? SendIdExpression => cancel.SendIdExpression;
+    public virtual IValueExpression? SendIdExpression => cancel.SendIdExpression;
 
 #endregion
 
 #region Interface IExecEvaluator
 
-	public abstract ValueTask Execute();
+    public abstract ValueTask Execute();
 
 #endregion
 }

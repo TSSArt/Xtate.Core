@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,56 +22,56 @@ namespace Xtate.Core;
 
 public class ExternalCommunication : IExternalCommunication
 {
-	public required ServiceList<IEventRouter> EventRouters { private get; [UsedImplicitly] init; }
+    public required ServiceList<IEventRouter> EventRouters { private get; [UsedImplicitly] init; }
 
-	public required IEventScheduler EventScheduler { private get; [UsedImplicitly] init; }
+    public required IEventScheduler EventScheduler { private get; [UsedImplicitly] init; }
 
-	public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
+    public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
 
-	#region Interface IExternalCommunication
+#region Interface IExternalCommunication
 
-	public ValueTask<SendStatus> TrySend(IOutgoingEvent outgoingEvent)
-	{
-		var eventRouter = GetEventRouter(outgoingEvent.Type);
+    public ValueTask<SendStatus> TrySend(IOutgoingEvent outgoingEvent)
+    {
+        var eventRouter = GetEventRouter(outgoingEvent.Type);
 
-		if (eventRouter.IsInternalTarget(outgoingEvent.Target))
-		{
-			return new ValueTask<SendStatus>(SendStatus.ToInternalQueue);
-		}
+        if (eventRouter.IsInternalTarget(outgoingEvent.Target))
+        {
+            return new ValueTask<SendStatus>(SendStatus.ToInternalQueue);
+        }
 
-		return ScheduleOrSend(eventRouter, outgoingEvent);
-	}
+        return ScheduleOrSend(eventRouter, outgoingEvent);
+    }
 
-	public ValueTask Cancel(SendId sendId) => EventScheduler.CancelEvent(sendId, DisposeToken);
+    public ValueTask Cancel(SendId sendId) => EventScheduler.CancelEvent(sendId, DisposeToken);
 
 #endregion
 
-	private async ValueTask<SendStatus> ScheduleOrSend(IEventRouter eventRouter, IOutgoingEvent outgoingEvent)
-	{
-		var routerEvent = await eventRouter.GetRouterEvent(outgoingEvent, DisposeToken).ConfigureAwait(false);
+    private async ValueTask<SendStatus> ScheduleOrSend(IEventRouter eventRouter, IOutgoingEvent outgoingEvent)
+    {
+        var routerEvent = await eventRouter.GetRouterEvent(outgoingEvent, DisposeToken).ConfigureAwait(false);
 
-		if (outgoingEvent.DelayMs > 0)
-		{
-			await EventScheduler.ScheduleEvent(routerEvent, DisposeToken).ConfigureAwait(false);
+        if (outgoingEvent.DelayMs > 0)
+        {
+            await EventScheduler.ScheduleEvent(routerEvent, DisposeToken).ConfigureAwait(false);
 
-			return SendStatus.Scheduled;
-		}
+            return SendStatus.Scheduled;
+        }
 
-		await eventRouter.Dispatch(routerEvent, DisposeToken).ConfigureAwait(false);
+        await eventRouter.Dispatch(routerEvent, DisposeToken).ConfigureAwait(false);
 
-		return SendStatus.Sent;
-	}
+        return SendStatus.Sent;
+    }
 
-	private IEventRouter GetEventRouter(FullUri? type)
-	{
-		foreach (var eventRouter in EventRouters)
-		{
-			if (eventRouter.CanHandle(type))
-			{
-				return eventRouter;
-			}
-		}
+    private IEventRouter GetEventRouter(FullUri? type)
+    {
+        foreach (var eventRouter in EventRouters)
+        {
+            if (eventRouter.CanHandle(type))
+            {
+                return eventRouter;
+            }
+        }
 
-		throw new ProcessorException(Res.Format(Resources.Exception_InvalidType, type));
-	}
+        throw new ProcessorException(Res.Format(Resources.Exception_InvalidType, type));
+    }
 }

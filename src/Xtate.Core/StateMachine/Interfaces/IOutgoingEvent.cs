@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,15 +19,15 @@ namespace Xtate.Core;
 
 public interface IOutgoingEvent : IEntity
 {
-	SendId? SendId { get; }
+    SendId? SendId { get; }
 
-	EventName Name { get; }
+    EventName Name { get; }
 
-	FullUri? Target { get; }
+    FullUri? Target { get; }
 
-	FullUri? Type { get; }
+    FullUri? Type { get; }
 
-	int DelayMs { get; }
+    int DelayMs { get; }
 
-	DataModelValue Data { get; }
+    DataModelValue Data { get; }
 }

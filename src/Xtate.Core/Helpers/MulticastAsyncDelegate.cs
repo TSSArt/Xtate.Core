@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,39 +19,36 @@ namespace Xtate.Core;
 
 public readonly struct MulticastAsyncDelegate<TArg>()
 {
-	private readonly ConcurrentDictionary<Func<TArg, ValueTask>, uint> _delegates = new(concurrencyLevel: 1, capacity: 1);
+    private readonly ConcurrentDictionary<Func<TArg, ValueTask>, uint> _delegates = new(concurrencyLevel: 1, capacity: 1);
 
-	public event Func<TArg, ValueTask> OnInvoke
-	{
-		add
-		{
-			_delegates.AddOrUpdate(value, addValue: 0, (_, count) => count + 1);
-		}
-		remove
-		{
-			var count = 0u;
+    public event Func<TArg, ValueTask> OnInvoke
+    {
+        add { _delegates.AddOrUpdate(value, addValue: 0, (_, count) => count + 1); }
+        remove
+        {
+            var count = 0u;
 
-			do
-			{
-				switch (count)
-				{
-					case 0 when _delegates.TryRemove(new KeyValuePair<Func<TArg, ValueTask>, uint>(value, count)):
-					case not 0 when _delegates.TryUpdate(value, count - 1, count):
-						return;
-				}
-			}
-			while (_delegates.TryGetValue(value, out count));
-		}
-	}
+            do
+            {
+                switch (count)
+                {
+                    case 0 when _delegates.TryRemove(new KeyValuePair<Func<TArg, ValueTask>, uint>(value, count)):
+                    case not 0 when _delegates.TryUpdate(value, count - 1, count):
+                        return;
+                }
+            }
+            while (_delegates.TryGetValue(value, out count));
+        }
+    }
 
-	public async ValueTask Invoke(TArg arg)
-	{
-		foreach (var (key, value) in _delegates)
-		{
-			for (var i = 0; i <= value; i ++)
-			{
-				await key(arg).ConfigureAwait(false);
-			}
-		}
-	}
+    public async ValueTask Invoke(TArg arg)
+    {
+        foreach (var (key, value) in _delegates)
+        {
+            for (var i = 0; i <= value; i ++)
+            {
+                await key(arg).ConfigureAwait(false);
+            }
+        }
+    }
 }

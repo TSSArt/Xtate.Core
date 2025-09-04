@@ -22,34 +22,34 @@ namespace Xtate;
 
 public class DebugTraceModule : Module
 {
-	private class ConsoleListener : TextWriterTraceListener
-	{
-		public ConsoleListener() => Writer = Console.Out;
+    protected override void AddServices()
+    {
+        AddTraceServices();
+        AddDebugServices();
+    }
 
-		protected override void Dispose(bool disposing)
-		{
-			Writer = null;
+    [Conditional("DEBUG")]
+    private void AddDebugServices()
+    {
+        Services.AddShared<IServiceProviderActions>(SharedWithin.Container, _ => new ServiceProviderDebugger(Console.Out, leaveOpen: true));
+    }
 
-			base.Dispose(disposing);
-		}
-	}
+    [Conditional("TRACE")]
+    private void AddTraceServices()
+    {
+        Services.AddImplementation<TraceLogWriter<Any>>().For<ILogWriter<Any>>();
+        Services.AddShared<TraceListener>(SharedWithin.Container, _ => new ConsoleListener());
+    }
 
-	protected override void AddServices()
-	{
-		AddTraceServices();
-		AddDebugServices();
-	}
+    private class ConsoleListener : TextWriterTraceListener
+    {
+        public ConsoleListener() => Writer = Console.Out;
 
-	[Conditional("DEBUG")]
-	private void AddDebugServices()
-	{
-		Services.AddShared<IServiceProviderActions>(SharedWithin.Container, _ => new ServiceProviderDebugger(Console.Out, leaveOpen: true));
-	}
+        protected override void Dispose(bool disposing)
+        {
+            Writer = null;
 
-	[Conditional("TRACE")]
-	private void AddTraceServices()
-	{
-		Services.AddImplementation<TraceLogWriter<Any>>().For<ILogWriter<Any>>();
-		Services.AddShared<TraceListener>(SharedWithin.Container, _ => new ConsoleListener());
-	}
+            base.Dispose(disposing);
+        }
+    }
 }

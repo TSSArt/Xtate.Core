@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,29 +19,29 @@ namespace Xtate.Core;
 
 public struct ExternalDataExpression : IExternalDataExpression, IVisitorEntity<ExternalDataExpression, IExternalDataExpression>, IAncestorProvider
 {
-	internal object? Ancestor;
+    internal object? Ancestor;
 
 #region Interface IAncestorProvider
 
-	readonly object? IAncestorProvider.Ancestor => Ancestor;
+    readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
 #region Interface IExternalDataExpression
 
-	public Uri? Uri { get; set; }
+    public Uri? Uri { get; set; }
 
 #endregion
 
 #region Interface IVisitorEntity<ExternalDataExpression,IExternalDataExpression>
 
-	void IVisitorEntity<ExternalDataExpression, IExternalDataExpression>.Init(IExternalDataExpression source)
-	{
-		Ancestor = source;
-		Uri = source.Uri;
-	}
+    void IVisitorEntity<ExternalDataExpression, IExternalDataExpression>.Init(IExternalDataExpression source)
+    {
+        Ancestor = source;
+        Uri = source.Uri;
+    }
 
-	readonly bool IVisitorEntity<ExternalDataExpression, IExternalDataExpression>.RefEquals(ref ExternalDataExpression other) => ReferenceEquals(Uri, other.Uri);
+    readonly bool IVisitorEntity<ExternalDataExpression, IExternalDataExpression>.RefEquals(ref ExternalDataExpression other) => ReferenceEquals(Uri, other.Uri);
 
 #endregion
 }

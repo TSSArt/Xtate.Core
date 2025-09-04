@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,11 +19,11 @@ namespace Xtate.Builder;
 
 public interface IParamBuilder
 {
-	IParam Build();
+    IParam Build();
 
-	void SetName(string name);
+    void SetName(string name);
 
-	void SetExpression(IValueExpression expression);
+    void SetExpression(IValueExpression expression);
 
-	void SetLocation(ILocationExpression location);
+    void SetLocation(ILocationExpression location);
 }

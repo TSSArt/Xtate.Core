@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,28 +21,28 @@ namespace Xtate.Core;
 
 public class DataModelHandlerService : IDataModelHandlerService
 {
-	public required IAsyncEnumerable<IDataModelHandlerProvider> DataModelHandlerProviders { private get; [UsedImplicitly] init; }
+    public required IAsyncEnumerable<IDataModelHandlerProvider> DataModelHandlerProviders { private get; [UsedImplicitly] init; }
 
-	public required IErrorProcessorService<DataModelHandlerService> ErrorProcessorService { private get; [UsedImplicitly] init; }
+    public required IErrorProcessorService<DataModelHandlerService> ErrorProcessorService { private get; [UsedImplicitly] init; }
 
-	public required Func<ValueTask<UnknownDataModelHandler>> UnknownDataModelHandlerFactory { private get; [UsedImplicitly] init; }
+    public required Func<ValueTask<UnknownDataModelHandler>> UnknownDataModelHandlerFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IDataModelHandlerService
 
-	public virtual async ValueTask<IDataModelHandler> GetDataModelHandler(string? dataModelType)
-	{
-		await foreach (var dataModelHandlerProvider in DataModelHandlerProviders.ConfigureAwait(false))
-		{
-			if (await dataModelHandlerProvider.TryGetDataModelHandler(dataModelType).ConfigureAwait(false) is { } dataModelHandler)
-			{
-				return dataModelHandler;
-			}
-		}
+    public virtual async ValueTask<IDataModelHandler> GetDataModelHandler(string? dataModelType)
+    {
+        await foreach (var dataModelHandlerProvider in DataModelHandlerProviders.ConfigureAwait(false))
+        {
+            if (await dataModelHandlerProvider.TryGetDataModelHandler(dataModelType).ConfigureAwait(false) is { } dataModelHandler)
+            {
+                return dataModelHandler;
+            }
+        }
 
-		ErrorProcessorService.AddError(entity: null, Res.Format(Resources.ErrorMessage_CantFindDataModelHandlerFactoryForDataModelType, dataModelType));
+        ErrorProcessorService.AddError(entity: null, Res.Format(Resources.ErrorMessage_CantFindDataModelHandlerFactoryForDataModelType, dataModelType));
 
-		return await UnknownDataModelHandlerFactory().ConfigureAwait(false);
-	}
+        return await UnknownDataModelHandlerFactory().ConfigureAwait(false);
+    }
 
 #endregion
 }

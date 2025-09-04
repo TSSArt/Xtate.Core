@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,59 +19,59 @@ namespace Xtate.DataModel;
 
 public class DefaultForEachEvaluator : ForEachEvaluator
 {
-	private static readonly IObject[] Indexes = new IObject[16];
+    private static readonly IObject[] Indexes = new IObject[16];
 
-	private readonly ImmutableArray<IExecEvaluator> _actionEvaluatorList;
+    private readonly ImmutableArray<IExecEvaluator> _actionEvaluatorList;
 
-	private readonly IArrayEvaluator _arrayEvaluator;
+    private readonly IArrayEvaluator _arrayEvaluator;
 
-	private readonly ILocationEvaluator? _indexEvaluator;
+    private readonly ILocationEvaluator? _indexEvaluator;
 
-	private readonly ILocationEvaluator _itemEvaluator;
+    private readonly ILocationEvaluator _itemEvaluator;
 
-	public DefaultForEachEvaluator(IForEach forEach) : base(forEach)
-	{
-		var arrayEvaluator = base.Array?.As<IArrayEvaluator>();
-		Infra.NotNull(arrayEvaluator);
-		_arrayEvaluator = arrayEvaluator;
+    public DefaultForEachEvaluator(IForEach forEach) : base(forEach)
+    {
+        var arrayEvaluator = base.Array?.As<IArrayEvaluator>();
+        Infra.NotNull(arrayEvaluator);
+        _arrayEvaluator = arrayEvaluator;
 
-		var itemEvaluator = base.Item?.As<ILocationEvaluator>();
-		Infra.NotNull(itemEvaluator);
-		_itemEvaluator = itemEvaluator;
+        var itemEvaluator = base.Item?.As<ILocationEvaluator>();
+        Infra.NotNull(itemEvaluator);
+        _itemEvaluator = itemEvaluator;
 
-		_actionEvaluatorList = base.Action.AsArrayOf<IExecutableEntity, IExecEvaluator>(true);
-		_indexEvaluator = base.Index?.As<ILocationEvaluator>();
-	}
+        _actionEvaluatorList = base.Action.AsArrayOf<IExecutableEntity, IExecEvaluator>(true);
+        _indexEvaluator = base.Index?.As<ILocationEvaluator>();
+    }
 
-	public override async ValueTask Execute()
-	{
-		var array = await _arrayEvaluator.EvaluateArray().ConfigureAwait(false);
+    public override async ValueTask Execute()
+    {
+        var array = await _arrayEvaluator.EvaluateArray().ConfigureAwait(false);
 
-		for (var i = 0; i < array.Length; i ++)
-		{
-			await ProcessItem(array[i], i).ConfigureAwait(false);
-		}
-	}
+        for (var i = 0; i < array.Length; i ++)
+        {
+            await ProcessItem(array[i], i).ConfigureAwait(false);
+        }
+    }
 
-	protected virtual async ValueTask ProcessItem(IObject instance, int index)
-	{
-		await _itemEvaluator.SetValue(instance).ConfigureAwait(false);
+    protected virtual async ValueTask ProcessItem(IObject instance, int index)
+    {
+        await _itemEvaluator.SetValue(instance).ConfigureAwait(false);
 
-		if (_indexEvaluator is not null)
-		{
-			var indexObject = index < Indexes.Length ? Indexes[index] ??= new DefaultObject(index) : new DefaultObject(index);
+        if (_indexEvaluator is not null)
+        {
+            var indexObject = index < Indexes.Length ? Indexes[index] ??= new DefaultObject(index) : new DefaultObject(index);
 
-			await _indexEvaluator.SetValue(indexObject).ConfigureAwait(false);
-		}
+            await _indexEvaluator.SetValue(indexObject).ConfigureAwait(false);
+        }
 
-		await DoItemActions().ConfigureAwait(false);
-	}
+        await DoItemActions().ConfigureAwait(false);
+    }
 
-	protected virtual async ValueTask DoItemActions()
-	{
-		foreach (var execEvaluator in _actionEvaluatorList)
-		{
-			await execEvaluator.Execute().ConfigureAwait(false);
-		}
-	}
+    protected virtual async ValueTask DoItemActions()
+    {
+        foreach (var execEvaluator in _actionEvaluatorList)
+        {
+            await execEvaluator.Execute().ConfigureAwait(false);
+        }
+    }
 }

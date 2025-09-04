@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,10 +22,10 @@ namespace Xtate.Core.Test;
 [TestClass]
 public class XPathDataModelTest
 {
-	[TestMethod]
-	public async Task M1()
-	{
-		const string xml = @"<scxml version='1.0' xmlns='http://www.w3.org/2005/07/scxml' datamodel='xpath' initial='errorSwitch'>
+    [TestMethod]
+    public async Task M1()
+    {
+        const string xml = @"<scxml version='1.0' xmlns='http://www.w3.org/2005/07/scxml' datamodel='xpath' initial='errorSwitch'>
 <datamodel>
   <data id='company'>
     <about xmlns=''>
@@ -55,29 +55,29 @@ public class XPathDataModelTest
 </scxml>
 					";
 
-		var services = new ServiceCollection();
-		services.AddModule<StateMachineProcessorModule>();
+        var services = new ServiceCollection();
+        services.AddModule<StateMachineProcessorModule>();
 
-		//services.AddConstant<IServiceProviderDebugger>(_ => new ServiceProviderDebugger(new StreamWriter(File.Create(@"D:\Ser\s1.txt"))));
-		var serviceProvider = services.BuildProvider();
+        //services.AddConstant<IServiceProviderDebugger>(_ => new ServiceProviderDebugger(new StreamWriter(File.Create(@"D:\Ser\s1.txt"))));
+        var serviceProvider = services.BuildProvider();
 
-		//var host = (IHostController) await serviceProvider.GetRequiredService<StateMachineHost>();
-		var stateMachineScopeManager = await serviceProvider.GetRequiredService<IStateMachineScopeManager>();
+        //var host = (IHostController) await serviceProvider.GetRequiredService<StateMachineHost>();
+        var stateMachineScopeManager = await serviceProvider.GetRequiredService<IStateMachineScopeManager>();
 
-		//await host.StartHost();
+        //await host.StartHost();
 
-		var smc = new ScxmlStringStateMachine(xml);
-		_ = await stateMachineScopeManager.Execute(smc, SecurityContextType.NewStateMachine);
+        var smc = new ScxmlStringStateMachine(xml);
+        _ = await stateMachineScopeManager.Execute(smc, SecurityContextType.NewStateMachine);
 
-		//await host.WaitAllStateMachinesAsync();
+        //await host.WaitAllStateMachinesAsync();
 
-		//await host.StopHost();
-	}
+        //await host.StopHost();
+    }
 
-	[TestMethod]
-	public async Task M2()
-	{
-		const string xml = @"<scxml version='1.0' xmlns='http://www.w3.org/2005/07/scxml' datamodel='xpath'>
+    [TestMethod]
+    public async Task M2()
+    {
+        const string xml = @"<scxml version='1.0' xmlns='http://www.w3.org/2005/07/scxml' datamodel='xpath'>
 <datamodel>
   <data id='src'>
     textValue
@@ -95,29 +95,30 @@ public class XPathDataModelTest
 </scxml>
 					";
 
-		var ub = new Mock<IUnhandledErrorBehaviour>();
-		ub.Setup(s => s.Behaviour).Returns(UnhandledErrorBehaviour.TerminateStateMachine);
+        var ub = new Mock<IUnhandledErrorBehaviour>();
+        ub.Setup(s => s.Behaviour).Returns(UnhandledErrorBehaviour.TerminateStateMachine);
 
-		var services = new ServiceCollection();
+        var services = new ServiceCollection();
 
-		//var fileLogWriter = new FileLogWriter("D:\\Ser\\sss5.txt");
-		//var d = new ServiceProviderDebugger(new StreamWriter(File.Create("D:\\Ser\\sss6.txt", 1, FileOptions.WriteThrough), Encoding.UTF8, 1));
-		//services.AddConstant<ILogWriter>(_ => fileLogWriter);
-		services.AddConstant(ub.Object);
+        //var fileLogWriter = new FileLogWriter("D:\\Ser\\sss5.txt");
+        //var d = new ServiceProviderDebugger(new StreamWriter(File.Create("D:\\Ser\\sss6.txt", 1, FileOptions.WriteThrough), Encoding.UTF8, 1));
+        //services.AddConstant<ILogWriter>(_ => fileLogWriter);
+        services.AddConstant(ub.Object);
 
-		//services.AddConstant<IServiceProviderDebugger>(_ => d);
-		services.AddModule<StateMachineProcessorModule>();
-		var serviceProvider = services.BuildProvider();
-		var smc = new ScxmlStringStateMachine(xml);
+        //services.AddConstant<IServiceProviderDebugger>(_ => d);
+        services.AddModule<StateMachineProcessorModule>();
+        var serviceProvider = services.BuildProvider();
+        var smc = new ScxmlStringStateMachine(xml);
 
-		//var host = (IHostController) await serviceProvider.GetRequiredService<StateMachineHost>();
-		var stateMachineScopeManager = await serviceProvider.GetRequiredService<IStateMachineScopeManager>();
-		//await host.StartHost();
+        //var host = (IHostController) await serviceProvider.GetRequiredService<StateMachineHost>();
+        var stateMachineScopeManager = await serviceProvider.GetRequiredService<IStateMachineScopeManager>();
 
-		_ = await stateMachineScopeManager.Execute(smc, SecurityContextType.NewStateMachine);
+        //await host.StartHost();
 
-		//await host.WaitAllStateMachinesAsync();
+        _ = await stateMachineScopeManager.Execute(smc, SecurityContextType.NewStateMachine);
 
-		//await host.StopHost();
-	}
+        //await host.WaitAllStateMachinesAsync();
+
+        //await host.StopHost();
+    }
 }

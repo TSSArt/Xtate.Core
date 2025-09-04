@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -20,95 +20,95 @@ namespace Xtate.Core;
 internal static class SpanFormattableExtensions
 {
 #if !NETSTANDARD2_1 && !NETCOREAPP2_1_OR_GREATER
-	public static bool TryFormat(this bool val, Span<char> destination, out int charsWritten) => val.ToString().TryCopyTo(destination, out charsWritten);
+    public static bool TryFormat(this bool val, Span<char> destination, out int charsWritten) => val.ToString().TryCopyTo(destination, out charsWritten);
 
-	public static bool TryFormat(this long val,
-								 Span<char> destination,
-								 out int charsWritten,
-								 ReadOnlySpan<char> format,
-								 IFormatProvider? formatProvider) =>
-		val.ToString(format.ToString(), formatProvider).TryCopyTo(destination, out charsWritten);
+    public static bool TryFormat(this long val,
+                                 Span<char> destination,
+                                 out int charsWritten,
+                                 ReadOnlySpan<char> format,
+                                 IFormatProvider? formatProvider) =>
+        val.ToString(format.ToString(), formatProvider).TryCopyTo(destination, out charsWritten);
 
-	public static bool TryFormat(this double val,
-								 Span<char> destination,
-								 out int charsWritten,
-								 ReadOnlySpan<char> format,
-								 IFormatProvider? formatProvider) =>
-		val.ToString(format.ToString(), formatProvider).TryCopyTo(destination, out charsWritten);
+    public static bool TryFormat(this double val,
+                                 Span<char> destination,
+                                 out int charsWritten,
+                                 ReadOnlySpan<char> format,
+                                 IFormatProvider? formatProvider) =>
+        val.ToString(format.ToString(), formatProvider).TryCopyTo(destination, out charsWritten);
 
-	public static bool TryFormat(this decimal val,
-								 Span<char> destination,
-								 out int charsWritten,
-								 ReadOnlySpan<char> format,
-								 IFormatProvider? formatProvider) =>
-		val.ToString(format.ToString(), formatProvider).TryCopyTo(destination, out charsWritten);
+    public static bool TryFormat(this decimal val,
+                                 Span<char> destination,
+                                 out int charsWritten,
+                                 ReadOnlySpan<char> format,
+                                 IFormatProvider? formatProvider) =>
+        val.ToString(format.ToString(), formatProvider).TryCopyTo(destination, out charsWritten);
 
-	public static bool TryFormat(this DateTime val,
-								 Span<char> destination,
-								 out int charsWritten,
-								 ReadOnlySpan<char> format,
-								 IFormatProvider? formatProvider) =>
-		val.ToString(format.ToString(), formatProvider).TryCopyTo(destination, out charsWritten);
+    public static bool TryFormat(this DateTime val,
+                                 Span<char> destination,
+                                 out int charsWritten,
+                                 ReadOnlySpan<char> format,
+                                 IFormatProvider? formatProvider) =>
+        val.ToString(format.ToString(), formatProvider).TryCopyTo(destination, out charsWritten);
 
-	public static bool TryFormat(this DateTimeOffset val,
-								 Span<char> destination,
-								 out int charsWritten,
-								 ReadOnlySpan<char> format,
-								 IFormatProvider? formatProvider) =>
-		val.ToString(format.ToString(), formatProvider).TryCopyTo(destination, out charsWritten);
+    public static bool TryFormat(this DateTimeOffset val,
+                                 Span<char> destination,
+                                 out int charsWritten,
+                                 ReadOnlySpan<char> format,
+                                 IFormatProvider? formatProvider) =>
+        val.ToString(format.ToString(), formatProvider).TryCopyTo(destination, out charsWritten);
 
 #endif
 
-	public static bool TryCopyTo(this string? str, Span<char> destination, out int charsWritten)
-	{
-		charsWritten = 0;
+    public static bool TryCopyTo(this string? str, Span<char> destination, out int charsWritten)
+    {
+        charsWritten = 0;
 
-		if (string.IsNullOrEmpty(str))
-		{
-			return true;
-		}
+        if (string.IsNullOrEmpty(str))
+        {
+            return true;
+        }
 
-		if (!str.AsSpan().TryCopyTo(destination))
-		{
-			return false;
-		}
+        if (!str.AsSpan().TryCopyTo(destination))
+        {
+            return false;
+        }
 
-		charsWritten = str.Length;
+        charsWritten = str.Length;
 
-		return true;
-	}
+        return true;
+    }
 
-	public static bool TryCopyIncremental(this string? str, ref Span<char> destination, ref int charsWritten)
-	{
-		if (str is null)
-		{
-			return true;
-		}
+    public static bool TryCopyIncremental(this string? str, ref Span<char> destination, ref int charsWritten)
+    {
+        if (str is null)
+        {
+            return true;
+        }
 
-		if (str.AsSpan().TryCopyTo(destination))
-		{
-			var length = str.Length;
+        if (str.AsSpan().TryCopyTo(destination))
+        {
+            var length = str.Length;
 
-			charsWritten += length;
-			destination = destination[length..];
+            charsWritten += length;
+            destination = destination[length..];
 
-			return true;
-		}
+            return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	public static bool TryCopyIncremental(this char ch, ref Span<char> destination, ref int charsWritten)
-	{
-		charsWritten = destination.Length > 0 ? 1 : 0;
+    public static bool TryCopyIncremental(this char ch, ref Span<char> destination, ref int charsWritten)
+    {
+        charsWritten = destination.Length > 0 ? 1 : 0;
 
-		if (charsWritten == 1)
-		{
-			destination[0] = ch;
+        if (charsWritten == 1)
+        {
+            destination[0] = ch;
 
-			return true;
-		}
+            return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 }

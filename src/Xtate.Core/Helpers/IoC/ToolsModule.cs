@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,18 +21,18 @@ namespace Xtate.Core;
 
 public class ToolsModule : Module<LoggingModule>
 {
-	protected override void AddServices()
-	{
-		Services.AddFactory<AncestorFactory<Any>>().For<Ancestor<Any>>();
-		Services.AddSharedImplementationSync<AncestorTracker>(SharedWithin.Scope).For<AncestorTracker>().For<IServiceProviderActions>();
+    protected override void AddServices()
+    {
+        Services.AddFactory<AncestorFactory<Any>>().For<Ancestor<Any>>();
+        Services.AddSharedImplementationSync<AncestorTracker>(SharedWithin.Scope).For<AncestorTracker>().For<IServiceProviderActions>();
 
-		Services.AddFactory<SafeFactory<Any>>().For<Safe<Any>>();
-		Services.AddFactorySync<DeferredFactory<Any>>().For<Deferred<Any>>();
+        Services.AddFactory<SafeFactory<Any>>().For<Safe<Any>>();
+        Services.AddFactorySync<DeferredFactory<Any>>().For<Deferred<Any>>();
 
-		Services.AddType<ServiceList<Any>>();
-		Services.AddTypeSync<ServiceSyncList<Any>>();
+        Services.AddType<ServiceList<Any>>();
+        Services.AddTypeSync<ServiceSyncList<Any>>();
 
-		Services.AddForwarding(sp => new DisposeToken(sp.DisposeToken));
-		Services.AddSharedType<TaskMonitor>(SharedWithin.Scope);
-	}
+        Services.AddForwarding(sp => new DisposeToken(sp.DisposeToken));
+        Services.AddSharedType<TaskMonitor>(SharedWithin.Scope);
+    }
 }

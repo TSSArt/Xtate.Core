@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,43 +21,43 @@ namespace Xtate.Core;
 
 public sealed class CustomActionNode : ExecutableEntityNode, ICustomAction, IAncestorProvider
 {
-	private readonly ICustomAction _customAction;
+    private readonly ICustomAction _customAction;
 
-	public CustomActionNode(DocumentIdNode documentIdNode, ICustomAction customAction) : base(documentIdNode, customAction)
-	{
-		Infra.NotNull(customAction.Xml);
+    public CustomActionNode(DocumentIdNode documentIdNode, ICustomAction customAction) : base(documentIdNode, customAction)
+    {
+        Infra.NotNull(customAction.Xml);
 
-		_customAction = customAction;
-	}
+        _customAction = customAction;
+    }
 
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => _customAction;
+    object IAncestorProvider.Ancestor => _customAction;
 
 #endregion
 
 #region Interface ICustomAction
 
-	public string XmlNamespace => _customAction.XmlNamespace!;
+    public string XmlNamespace => _customAction.XmlNamespace!;
 
-	public string XmlName => _customAction.XmlName!;
+    public string XmlName => _customAction.XmlName!;
 
-	public string Xml => _customAction.Xml!;
+    public string Xml => _customAction.Xml!;
 
-	public ImmutableArray<ILocationExpression> Locations => _customAction.Locations;
+    public ImmutableArray<ILocationExpression> Locations => _customAction.Locations;
 
-	public ImmutableArray<IValueExpression> Values => _customAction.Values;
+    public ImmutableArray<IValueExpression> Values => _customAction.Values;
 
 #endregion
 
-	protected override void Store(Bucket bucket)
-	{
-		bucket.Add(Key.TypeInfo, TypeInfo.CustomActionNode);
-		bucket.Add(Key.DocumentId, DocumentId);
-		bucket.Add(Key.Namespace, XmlNamespace);
-		bucket.Add(Key.Name, XmlName);
-		bucket.Add(Key.Content, Xml);
-		bucket.AddEntityList(Key.LocationList, Locations);
-		bucket.AddEntityList(Key.ValueList, Values);
-	}
+    protected override void Store(Bucket bucket)
+    {
+        bucket.Add(Key.TypeInfo, TypeInfo.CustomActionNode);
+        bucket.Add(Key.DocumentId, DocumentId);
+        bucket.Add(Key.Namespace, XmlNamespace);
+        bucket.Add(Key.Name, XmlName);
+        bucket.Add(Key.Content, Xml);
+        bucket.AddEntityList(Key.LocationList, Locations);
+        bucket.AddEntityList(Key.ValueList, Values);
+    }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,109 +22,109 @@ namespace Xtate.Core;
 
 public class TransitionNode : ITransition, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 {
-	private readonly ITransition _transition;
+    private readonly ITransition _transition;
 
-	private DocumentIdSlot _documentIdSlot;
+    private DocumentIdSlot _documentIdSlot;
 
-	public TransitionNode(DocumentIdNode documentIdNode, ITransition transition) : this(documentIdNode, transition, target: default) { }
+    public TransitionNode(DocumentIdNode documentIdNode, ITransition transition) : this(documentIdNode, transition, target: default) { }
 
-	protected TransitionNode(DocumentIdNode documentIdNode, ITransition transition, ImmutableArray<StateEntityNode> target)
-	{
-		_transition = transition;
+    protected TransitionNode(DocumentIdNode documentIdNode, ITransition transition, ImmutableArray<StateEntityNode> target)
+    {
+        _transition = transition;
 
-		documentIdNode.SaveToSlot(out _documentIdSlot);
+        documentIdNode.SaveToSlot(out _documentIdSlot);
 
-		TargetState = target;
-		ActionEvaluators = transition.Action.AsArrayOf<IExecutableEntity, IExecEvaluator>(true);
-		ConditionEvaluator = transition.Condition?.As<IBooleanEvaluator>();
-		Source = default!;
-	}
+        TargetState = target;
+        ActionEvaluators = transition.Action.AsArrayOf<IExecutableEntity, IExecEvaluator>(true);
+        ConditionEvaluator = transition.Condition?.As<IBooleanEvaluator>();
+        Source = default!;
+    }
 
-	public ImmutableArray<StateEntityNode> TargetState { get; private set; }
+    public ImmutableArray<StateEntityNode> TargetState { get; private set; }
 
-	public StateEntityNode Source { get; private set; }
+    public StateEntityNode Source { get; private set; }
 
-	public ImmutableArray<IExecEvaluator> ActionEvaluators { get; }
+    public ImmutableArray<IExecEvaluator> ActionEvaluators { get; }
 
-	public IBooleanEvaluator? ConditionEvaluator { get; }
+    public IBooleanEvaluator? ConditionEvaluator { get; }
 
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => _transition;
+    object IAncestorProvider.Ancestor => _transition;
 
 #endregion
 
 #region Interface IDebugEntityId
 
-	public FormattableString EntityId => @$"(#{DocumentId})";
+    public FormattableString EntityId => @$"(#{DocumentId})";
 
 #endregion
 
 #region Interface IDocumentId
 
-	public int DocumentId => _documentIdSlot.CreateValue();
+    public int DocumentId => _documentIdSlot.CreateValue();
 
 #endregion
 
 #region Interface IStoreSupport
 
-	void IStoreSupport.Store(Bucket bucket)
-	{
-		bucket.Add(Key.TypeInfo, TypeInfo.TransitionNode);
-		bucket.Add(Key.DocumentId, DocumentId);
-		bucket.AddEntityList(Key.Event, EventDescriptors.Array);
-		bucket.AddEntity(Key.Condition, Condition);
-		bucket.AddEntityList(Key.Target, Target.Array);
-		bucket.Add(Key.TransitionType, Type);
-		bucket.AddEntityList(Key.Action, Action);
-	}
+    void IStoreSupport.Store(Bucket bucket)
+    {
+        bucket.Add(Key.TypeInfo, TypeInfo.TransitionNode);
+        bucket.Add(Key.DocumentId, DocumentId);
+        bucket.AddEntityList(Key.Event, EventDescriptors.Array);
+        bucket.AddEntity(Key.Condition, Condition);
+        bucket.AddEntityList(Key.Target, Target.Array);
+        bucket.Add(Key.TransitionType, Type);
+        bucket.AddEntityList(Key.Action, Action);
+    }
 
 #endregion
 
 #region Interface ITransition
 
-	public EventDescriptors EventDescriptors => _transition.EventDescriptors;
+    public EventDescriptors EventDescriptors => _transition.EventDescriptors;
 
-	public IConditionExpression? Condition => _transition.Condition;
+    public IConditionExpression? Condition => _transition.Condition;
 
-	public Target Target => _transition.Target;
+    public Target Target => _transition.Target;
 
-	public TransitionType Type => _transition.Type;
+    public TransitionType Type => _transition.Type;
 
-	public ImmutableArray<IExecutableEntity> Action => _transition.Action;
+    public ImmutableArray<IExecutableEntity> Action => _transition.Action;
 
 #endregion
 
-	public bool TryMapTarget(Dictionary<IIdentifier, StateEntityNode> idMap)
-	{
-		TargetState = ImmutableArray.CreateRange(Target.Array, (id, map) => map.TryGetValue(id, out var node) ? node : null!, idMap);
+    public bool TryMapTarget(Dictionary<IIdentifier, StateEntityNode> idMap)
+    {
+        TargetState = ImmutableArray.CreateRange(Target.Array, (id, map) => map.TryGetValue(id, out var node) ? node : null!, idMap);
 
-		foreach (var node in TargetState)
-		{
-			if (node == null!)
-			{
-				return false;
-			}
-		}
+        foreach (var node in TargetState)
+        {
+            if (node == null!)
+            {
+                return false;
+            }
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	public void SetSource(StateEntityNode source) => Source = source;
+    public void SetSource(StateEntityNode source) => Source = source;
 
-	public void Deconstruct(out TransitionNode self,
-							out TransitionType type,
-							out Target target,
-							out EventDescriptors eventDescriptors)
-	{
-		self = this;
-		type = Type;
-		target = Target;
-		eventDescriptors = EventDescriptors;
-	}
+    public void Deconstruct(out TransitionNode self,
+                            out TransitionType type,
+                            out Target target,
+                            out EventDescriptors eventDescriptors)
+    {
+        self = this;
+        type = Type;
+        target = Target;
+        eventDescriptors = EventDescriptors;
+    }
 
-	public class Empty(DocumentIdNode documentIdNode, ImmutableArray<StateEntityNode> target) : TransitionNode(documentIdNode, EmptyTransition, target)
-	{
-		private static readonly ITransition EmptyTransition = new TransitionEntity();
-	}
+    public class Empty(DocumentIdNode documentIdNode, ImmutableArray<StateEntityNode> target) : TransitionNode(documentIdNode, EmptyTransition, target)
+    {
+        private static readonly ITransition EmptyTransition = new TransitionEntity();
+    }
 }

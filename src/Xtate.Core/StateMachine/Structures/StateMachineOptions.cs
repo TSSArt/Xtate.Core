@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,15 +21,15 @@ public struct StateMachineOptions : IStateMachineOptions
 {
 #region Interface IStateMachineOptions
 
-	public string? Name { get; set; }
+    public string? Name { get; set; }
 
-	public PersistenceLevel? PersistenceLevel { get; set; }
+    public PersistenceLevel? PersistenceLevel { get; set; }
 
-	public bool? SynchronousEventProcessing { get; set; }
+    public bool? SynchronousEventProcessing { get; set; }
 
-	public int? ExternalQueueSize { get; set; }
+    public int? ExternalQueueSize { get; set; }
 
-	public UnhandledErrorBehaviour? UnhandledErrorBehaviour { get; set; }
+    public UnhandledErrorBehaviour? UnhandledErrorBehaviour { get; set; }
 
 #endregion
 }

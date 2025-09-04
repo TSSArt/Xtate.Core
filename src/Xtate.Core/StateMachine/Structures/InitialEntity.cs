@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,30 +19,30 @@ namespace Xtate.Core;
 
 public struct InitialEntity : IInitial, IVisitorEntity<InitialEntity, IInitial>, IAncestorProvider
 {
-	internal object? Ancestor;
+    internal object? Ancestor;
 
 #region Interface IAncestorProvider
 
-	readonly object? IAncestorProvider.Ancestor => Ancestor;
+    readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
 #region Interface IInitial
 
-	public ITransition? Transition { get; set; }
+    public ITransition? Transition { get; set; }
 
 #endregion
 
 #region Interface IVisitorEntity<InitialEntity,IInitial>
 
-	void IVisitorEntity<InitialEntity, IInitial>.Init(IInitial source)
-	{
-		Ancestor = source;
+    void IVisitorEntity<InitialEntity, IInitial>.Init(IInitial source)
+    {
+        Ancestor = source;
 
-		Transition = source.Transition;
-	}
+        Transition = source.Transition;
+    }
 
-	readonly bool IVisitorEntity<InitialEntity, IInitial>.RefEquals(ref InitialEntity other) => ReferenceEquals(Transition, other.Transition);
+    readonly bool IVisitorEntity<InitialEntity, IInitial>.RefEquals(ref InitialEntity other) => ReferenceEquals(Transition, other.Transition);
 
 #endregion
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,110 +19,110 @@ namespace Xtate.Persistence;
 
 internal sealed class InvokeIdSetPersistingController : IDisposable
 {
-	private const int InvokeId = 0;
+    private const int InvokeId = 0;
 
-	private const int Operation = 1;
+    private const int Operation = 1;
 
-	private const int Added = 2;
+    private const int Added = 2;
 
-	private const int Removed = 3;
+    private const int Removed = 3;
 
-	private readonly Bucket _bucket;
+    private readonly Bucket _bucket;
 
-	private readonly InvokeIdSet _invokeIdSet;
+    private readonly InvokeIdSet _invokeIdSet;
 
-	private int _record;
+    private int _record;
 
-	public InvokeIdSetPersistingController(in Bucket bucket, InvokeIdSet invokeIdSet)
-	{
-		_bucket = bucket;
-		_invokeIdSet = invokeIdSet ?? throw new ArgumentNullException(nameof(invokeIdSet));
+    public InvokeIdSetPersistingController(in Bucket bucket, InvokeIdSet invokeIdSet)
+    {
+        _bucket = bucket;
+        _invokeIdSet = invokeIdSet ?? throw new ArgumentNullException(nameof(invokeIdSet));
 
-		var shrink = invokeIdSet.Count > 0;
+        var shrink = invokeIdSet.Count > 0;
 
-		while (true)
-		{
-			var recordBucket = bucket.Nested(_record);
+        while (true)
+        {
+            var recordBucket = bucket.Nested(_record);
 
-			if (!recordBucket.TryGet(Operation, out int operation)
-				|| !recordBucket.TryGetServiceId(InvokeId, out var serviceId))
-			{
-				break;
-			}
+            if (!recordBucket.TryGet(Operation, out int operation)
+                || !recordBucket.TryGetServiceId(InvokeId, out var serviceId))
+            {
+                break;
+            }
 
-			switch (operation)
-			{
-				case Added:
-					_invokeIdSet.Add((InvokeId)serviceId);
+            switch (operation)
+            {
+                case Added:
+                    _invokeIdSet.Add((InvokeId)serviceId);
 
-					break;
+                    break;
 
-				case Removed:
-					_invokeIdSet.Remove((InvokeId)serviceId);
-					shrink = true;
+                case Removed:
+                    _invokeIdSet.Remove((InvokeId)serviceId);
+                    shrink = true;
 
-					break;
-			}
+                    break;
+            }
 
-			_record ++;
-		}
+            _record ++;
+        }
 
-		if (shrink)
-		{
-			bucket.RemoveSubtree(Bucket.RootKey);
+        if (shrink)
+        {
+            bucket.RemoveSubtree(Bucket.RootKey);
 
-			_record = 0;
+            _record = 0;
 
-			foreach (var serviceId in _invokeIdSet)
-			{
-				var recordBucket = bucket.Nested(_record ++);
-				recordBucket.Add(InvokeId, serviceId);
-				recordBucket.Add(Operation, Added);
-			}
-		}
+            foreach (var serviceId in _invokeIdSet)
+            {
+                var recordBucket = bucket.Nested(_record ++);
+                recordBucket.Add(InvokeId, serviceId);
+                recordBucket.Add(Operation, Added);
+            }
+        }
 
-		_invokeIdSet.Changed += OnChanged;
-	}
+        _invokeIdSet.Changed += OnChanged;
+    }
 
 #region Interface IDisposable
 
-	public void Dispose()
-	{
-		_invokeIdSet.Changed -= OnChanged;
-	}
+    public void Dispose()
+    {
+        _invokeIdSet.Changed -= OnChanged;
+    }
 
 #endregion
 
-	private void OnChanged(InvokeIdSet.ChangedAction action, InvokeId invokeId)
-	{
-		switch (action)
-		{
-			case InvokeIdSet.ChangedAction.Add:
-			{
-				var bucket = _bucket.Nested(_record ++);
-				bucket.AddServiceId(InvokeId, invokeId);
-				bucket.Add(Operation, Added);
+    private void OnChanged(InvokeIdSet.ChangedAction action, InvokeId invokeId)
+    {
+        switch (action)
+        {
+            case InvokeIdSet.ChangedAction.Add:
+            {
+                var bucket = _bucket.Nested(_record ++);
+                bucket.AddServiceId(InvokeId, invokeId);
+                bucket.Add(Operation, Added);
 
-				break;
-			}
+                break;
+            }
 
-			case InvokeIdSet.ChangedAction.Remove:
-				if (_invokeIdSet.Count == 0)
-				{
-					_record = 0;
-					_bucket.RemoveSubtree(Bucket.RootKey);
-				}
-				else
-				{
-					var bucket = _bucket.Nested(_record ++);
-					bucket.AddServiceId(InvokeId, invokeId);
-					bucket.Add(Operation, Removed);
-				}
+            case InvokeIdSet.ChangedAction.Remove:
+                if (_invokeIdSet.Count == 0)
+                {
+                    _record = 0;
+                    _bucket.RemoveSubtree(Bucket.RootKey);
+                }
+                else
+                {
+                    var bucket = _bucket.Nested(_record ++);
+                    bucket.AddServiceId(InvokeId, invokeId);
+                    bucket.Add(Operation, Removed);
+                }
 
-				break;
+                break;
 
-			default:
-				throw Infra.Unmatched(action);
-		}
-	}
+            default:
+                throw Infra.Unmatched(action);
+        }
+    }
 }

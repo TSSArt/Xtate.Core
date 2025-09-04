@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,26 +22,26 @@ namespace Xtate.DataModel.XPath;
 
 public class XPathCompiledExpression
 {
-	private readonly XPathExpressionContext _expressionContext;
+    private readonly XPathExpressionContext _expressionContext;
 
-	private readonly XPathExpression _xPathExpression;
+    private readonly XPathExpression _xPathExpression;
 
-	public XPathCompiledExpression(string expression,
-								   IXmlNamespacesInfo? xmlNamespacesInfo,
-								   Func<IXmlNamespacesInfo?, XPathExpressionContext> xPathExpressionContextFactory)
-	{
-		_expressionContext = xPathExpressionContextFactory(xmlNamespacesInfo);
-		_xPathExpression = XPathExpression.Compile(expression, _expressionContext);
-	}
+    public XPathCompiledExpression(string expression,
+                                   IXmlNamespacesInfo? xmlNamespacesInfo,
+                                   Func<IXmlNamespacesInfo?, XPathExpressionContext> xPathExpressionContextFactory)
+    {
+        _expressionContext = xPathExpressionContextFactory(xmlNamespacesInfo);
+        _xPathExpression = XPathExpression.Compile(expression, _expressionContext);
+    }
 
-	public XPathResultType ReturnType => _xPathExpression.ReturnType;
+    public XPathResultType ReturnType => _xPathExpression.ReturnType;
 
-	public string Expression => _xPathExpression.Expression;
+    public string Expression => _xPathExpression.Expression;
 
-	public async ValueTask<XPathExpression> GetXPathExpression()
-	{
-		await _expressionContext.EnsureInitialized().ConfigureAwait(false);
+    public async ValueTask<XPathExpression> GetXPathExpression()
+    {
+        await _expressionContext.EnsureInitialized().ConfigureAwait(false);
 
-		return _xPathExpression;
-	}
+        return _xPathExpression;
+    }
 }

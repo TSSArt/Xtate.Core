@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -20,10 +20,10 @@ namespace Xtate.Core;
 
 public static class CancellationTokenSourceExtensions
 {
-	public static Task CancelAsync(this CancellationTokenSource cancellationTokenSource) =>
-		!cancellationTokenSource.IsCancellationRequested
-			? Task.Run(cancellationTokenSource.Cancel)
-			: Task.CompletedTask;
+    public static Task CancelAsync(this CancellationTokenSource cancellationTokenSource) =>
+        !cancellationTokenSource.IsCancellationRequested
+            ? Task.Run(cancellationTokenSource.Cancel)
+            : Task.CompletedTask;
 }
 
 #endif

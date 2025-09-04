@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,35 +22,35 @@ namespace Xtate.Core;
 
 public class ErrorProcessorService<TSource> : IErrorProcessorService<TSource>
 {
-	public required IErrorProcessor ErrorProcessor { private get; [UsedImplicitly] init; }
+    public required IErrorProcessor ErrorProcessor { private get; [UsedImplicitly] init; }
 
-	public required ILineInfoRequired? LineInfoRequired { private get; [UsedImplicitly] init; }
+    public required ILineInfoRequired? LineInfoRequired { private get; [UsedImplicitly] init; }
 
 #region Interface IErrorProcessorService<TSource>
 
-	public virtual void AddError(object? entity, string message, Exception? exception = default)
-	{
-		Infra.Requires(message);
+    public virtual void AddError(object? entity, string message, Exception? exception = default)
+    {
+        Infra.Requires(message);
 
-		if (LineInfoRequired?.LineInfoRequired ?? false)
-		{
-			if (entity.Is<IXmlLineInfo>(out var xmlLineInfo) && xmlLineInfo.HasLineInfo())
-			{
-				ErrorProcessor.AddError(new ErrorItem(typeof(TSource), message, exception, xmlLineInfo.LineNumber, xmlLineInfo.LinePosition));
+        if (LineInfoRequired?.LineInfoRequired ?? false)
+        {
+            if (entity.Is<IXmlLineInfo>(out var xmlLineInfo) && xmlLineInfo.HasLineInfo())
+            {
+                ErrorProcessor.AddError(new ErrorItem(typeof(TSource), message, exception, xmlLineInfo.LineNumber, xmlLineInfo.LinePosition));
 
-				return;
-			}
+                return;
+            }
 
-			if (exception is XmlException { LineNumber: > 0 } xmlException)
-			{
-				ErrorProcessor.AddError(new ErrorItem(typeof(TSource), message, exception, xmlException.LineNumber, xmlException.LinePosition));
+            if (exception is XmlException { LineNumber: > 0 } xmlException)
+            {
+                ErrorProcessor.AddError(new ErrorItem(typeof(TSource), message, exception, xmlException.LineNumber, xmlException.LinePosition));
 
-				return;
-			}
-		}
+                return;
+            }
+        }
 
-		ErrorProcessor.AddError(new ErrorItem(typeof(TSource), message, exception));
-	}
+        ErrorProcessor.AddError(new ErrorItem(typeof(TSource), message, exception));
+    }
 
 #endregion
 }

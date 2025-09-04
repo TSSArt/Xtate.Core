@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,11 +19,11 @@ namespace Xtate.Persistence;
 
 public interface IStorage : IDisposable
 {
-	ReadOnlyMemory<byte> Get(ReadOnlySpan<byte> key);
+    ReadOnlyMemory<byte> Get(ReadOnlySpan<byte> key);
 
-	void Set(ReadOnlySpan<byte> key, ReadOnlySpan<byte> value);
+    void Set(ReadOnlySpan<byte> key, ReadOnlySpan<byte> value);
 
-	void Remove(ReadOnlySpan<byte> key);
+    void Remove(ReadOnlySpan<byte> key);
 
-	void RemoveAll(ReadOnlySpan<byte> prefix);
+    void RemoveAll(ReadOnlySpan<byte> prefix);
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,19 +21,19 @@ namespace Xtate.DataModel.XPath;
 
 internal class XPathSingleElementIterator(XPathNavigator navigator) : XPathNodeIterator
 {
-	private bool _completed;
+    private bool _completed;
 
-	public override XPathNavigator? Current => _completed ? navigator : default;
+    public override XPathNavigator? Current => _completed ? navigator : default;
 
-	public override int CurrentPosition => _completed ? 1 : 0;
+    public override int CurrentPosition => _completed ? 1 : 0;
 
-	public override XPathNodeIterator Clone() => new XPathSingleElementIterator(navigator.Clone());
+    public override XPathNodeIterator Clone() => new XPathSingleElementIterator(navigator.Clone());
 
-	public override bool MoveNext()
-	{
-		var completed = _completed;
-		_completed = true;
+    public override bool MoveNext()
+    {
+        var completed = _completed;
+        _completed = true;
 
-		return !completed;
-	}
+        return !completed;
+    }
 }

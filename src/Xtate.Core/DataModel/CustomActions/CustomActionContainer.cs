@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,79 +21,79 @@ namespace Xtate.CustomAction;
 
 public class CustomActionContainer : ICustomAction, IAncestorProvider
 {
-	private readonly IAction _action;
+    private readonly IAction _action;
 
-	private readonly ICustomAction _customAction;
+    private readonly ICustomAction _customAction;
 
-	public CustomActionContainer(ICustomAction customAction, Func<ICustomAction, IAction> customActionFactory)
-	{
-		Infra.Requires(customAction);
-		Infra.Requires(customActionFactory);
+    public CustomActionContainer(ICustomAction customAction, Func<ICustomAction, IAction> customActionFactory)
+    {
+        Infra.Requires(customAction);
+        Infra.Requires(customActionFactory);
 
-		Infra.Assert(customAction.Locations.IsDefault);
-		Infra.Assert(customAction.Values.IsDefault);
+        Infra.Assert(customAction.Locations.IsDefault);
+        Infra.Assert(customAction.Values.IsDefault);
 
-		_customAction = customAction;
+        _customAction = customAction;
 
-		_action = customActionFactory(customAction);
+        _action = customActionFactory(customAction);
 
-		var valueExpressions = ImmutableArray.CreateBuilder<IValueExpression>();
+        var valueExpressions = ImmutableArray.CreateBuilder<IValueExpression>();
 
-		foreach (var value in _action.GetValues())
-		{
-			if (value is IValueExpression { Expression: not null } valueExpression)
-			{
-				valueExpressions.Add(valueExpression);
-			}
-		}
+        foreach (var value in _action.GetValues())
+        {
+            if (value is IValueExpression { Expression: not null } valueExpression)
+            {
+                valueExpressions.Add(valueExpression);
+            }
+        }
 
-		Values = valueExpressions.ToImmutable();
+        Values = valueExpressions.ToImmutable();
 
-		var locationExpressions = ImmutableArray.CreateBuilder<ILocationExpression>();
+        var locationExpressions = ImmutableArray.CreateBuilder<ILocationExpression>();
 
-		foreach (var location in _action.GetLocations())
-		{
-			if (location is ILocationExpression { Expression: not null } locationExpression)
-			{
-				locationExpressions.Add(locationExpression);
-			}
-		}
+        foreach (var location in _action.GetLocations())
+        {
+            if (location is ILocationExpression { Expression: not null } locationExpression)
+            {
+                locationExpressions.Add(locationExpression);
+            }
+        }
 
-		Locations = locationExpressions.ToImmutable();
-	}
+        Locations = locationExpressions.ToImmutable();
+    }
 
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => _customAction;
+    object IAncestorProvider.Ancestor => _customAction;
 
 #endregion
 
 #region Interface ICustomAction
 
-	public ImmutableArray<IValueExpression> Values { get; }
+    public ImmutableArray<IValueExpression> Values { get; }
 
-	public ImmutableArray<ILocationExpression> Locations { get; }
+    public ImmutableArray<ILocationExpression> Locations { get; }
 
-	public string? Xml => _customAction.Xml;
+    public string? Xml => _customAction.Xml;
 
-	public string? XmlName => _customAction.XmlName;
+    public string? XmlName => _customAction.XmlName;
 
-	public string? XmlNamespace => _customAction.XmlNamespace;
+    public string? XmlNamespace => _customAction.XmlNamespace;
 
 #endregion
 
-	public void SetEvaluators(ImmutableArray<IValueExpression> values, ImmutableArray<ILocationExpression> locations)
-	{
-		foreach (var value in values)
-		{
-			value.As<IActionValue>().SetEvaluator(value.As<IValueEvaluator>());
-		}
+    public void SetEvaluators(ImmutableArray<IValueExpression> values, ImmutableArray<ILocationExpression> locations)
+    {
+        foreach (var value in values)
+        {
+            value.As<IActionValue>().SetEvaluator(value.As<IValueEvaluator>());
+        }
 
-		foreach (var location in locations)
-		{
-			location.As<IActionLocation>().SetEvaluator(location.As<ILocationEvaluator>());
-		}
-	}
+        foreach (var location in locations)
+        {
+            location.As<IActionLocation>().SetEvaluator(location.As<ILocationEvaluator>());
+        }
+    }
 
-	public virtual ValueTask Execute() => _action.Execute();
+    public virtual ValueTask Execute() => _action.Execute();
 }

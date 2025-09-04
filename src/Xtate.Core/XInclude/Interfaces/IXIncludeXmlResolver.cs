@@ -1,4 +1,4 @@
-// Copyright © 2019-2024 Sergii Artemenko
+// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,13 +19,13 @@ namespace Xtate.XInclude;
 
 public interface IXIncludeXmlResolver
 {
-	object? GetEntity(Uri uri,
-					  string? accept,
-					  string? acceptLanguage,
-					  Type? ofObjectToReturn);
+    object? GetEntity(Uri uri,
+                      string? accept,
+                      string? acceptLanguage,
+                      Type? ofObjectToReturn);
 
-	Task<object?> GetEntityAsync(Uri uri,
-								 string? accept,
-								 string? acceptLanguage,
-								 Type? ofObjectToReturn);
+    Task<object?> GetEntityAsync(Uri uri,
+                                 string? accept,
+                                 string? acceptLanguage,
+                                 Type? ofObjectToReturn);
 }

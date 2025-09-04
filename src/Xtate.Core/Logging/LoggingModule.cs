@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,11 +21,11 @@ namespace Xtate.Core;
 
 public class LoggingModule : Module
 {
-	protected override void AddServices()
-	{
-		Services.AddImplementation<Logger<Any>>().For<ILogger<Any>>();
-		
-		Services.AddImplementation<ExceptionEntityParser<Any>>().For<IEntityParserHandler<Any>>();
-		Services.AddImplementation<DataModelValueEntityParser<Any>>().For<IEntityParserHandler<Any>>();
-	}
+    protected override void AddServices()
+    {
+        Services.AddImplementation<Logger<Any>>().For<ILogger<Any>>();
+
+        Services.AddImplementation<ExceptionEntityParser<Any>>().For<IEntityParserHandler<Any>>();
+        Services.AddImplementation<DataModelValueEntityParser<Any>>().For<IEntityParserHandler<Any>>();
+    }
 }

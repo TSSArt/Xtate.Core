@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,20 +19,20 @@ namespace Xtate.Core;
 
 public static class CancellationTokenRegistrationExtensions
 {
-	public static ConfiguredAwaitable ConfigureAwait(this CancellationTokenRegistration cancellationTokenRegistration, bool continueOnCapturedContext) =>
-		new(cancellationTokenRegistration, continueOnCapturedContext);
+    public static ConfiguredAwaitable ConfigureAwait(this CancellationTokenRegistration cancellationTokenRegistration, bool continueOnCapturedContext) =>
+        new(cancellationTokenRegistration, continueOnCapturedContext);
 
 #if !NETCOREAPP3_0_OR_GREATER && !NETSTANDARD2_1
-	public static ValueTask DisposeAsync(this CancellationTokenRegistration cancellationTokenRegistration)
-	{
-		cancellationTokenRegistration.Dispose();
+    public static ValueTask DisposeAsync(this CancellationTokenRegistration cancellationTokenRegistration)
+    {
+        cancellationTokenRegistration.Dispose();
 
-		return default;
-	}
+        return default;
+    }
 #endif
 
-	public readonly struct ConfiguredAwaitable(CancellationTokenRegistration cancellationTokenRegistration, bool continueOnCapturedContext)
-	{
-		public ConfiguredValueTaskAwaitable DisposeAsync() => cancellationTokenRegistration.DisposeAsync().ConfigureAwait(continueOnCapturedContext);
-	}
+    public readonly struct ConfiguredAwaitable(CancellationTokenRegistration cancellationTokenRegistration, bool continueOnCapturedContext)
+    {
+        public ConfiguredValueTaskAwaitable DisposeAsync() => cancellationTokenRegistration.DisposeAsync().ConfigureAwait(continueOnCapturedContext);
+    }
 }

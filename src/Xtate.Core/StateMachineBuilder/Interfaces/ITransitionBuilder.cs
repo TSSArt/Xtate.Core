@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,15 +19,15 @@ namespace Xtate.Builder;
 
 public interface ITransitionBuilder
 {
-	ITransition Build();
+    ITransition Build();
 
-	void SetEvent(EventDescriptors eventsDescriptor);
+    void SetEvent(EventDescriptors eventsDescriptor);
 
-	void SetCondition(IConditionExpression condition);
+    void SetCondition(IConditionExpression condition);
 
-	void SetTarget(ImmutableArray<IIdentifier> target);
+    void SetTarget(ImmutableArray<IIdentifier> target);
 
-	void SetType(TransitionType type);
+    void SetType(TransitionType type);
 
-	void AddAction(IExecutableEntity action);
+    void AddAction(IExecutableEntity action);
 }

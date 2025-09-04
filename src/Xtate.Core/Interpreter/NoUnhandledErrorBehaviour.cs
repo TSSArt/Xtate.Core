@@ -21,7 +21,7 @@ public class NoUnhandledErrorBehaviour : IUnhandledErrorBehaviour
 {
 #region Interface IUnhandledErrorBehaviour
 
-	public UnhandledErrorBehaviour Behaviour => UnhandledErrorBehaviour.DestroyStateMachine;
+    public UnhandledErrorBehaviour Behaviour => UnhandledErrorBehaviour.DestroyStateMachine;
 
 #endregion
 }

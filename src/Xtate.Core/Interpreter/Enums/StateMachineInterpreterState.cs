@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,21 +19,21 @@ namespace Xtate.Core;
 
 public enum StateMachineInterpreterState
 {
-	Initializing,
+    Initializing,
 
-	Accepted,
+    Accepted,
 
-	Started,
+    Started,
 
-	Completed,
+    Completed,
 
-	Waiting,
+    Waiting,
 
-	Destroying,
+    Destroying,
 
-	Terminated,
+    Terminated,
 
-	Suspended,
+    Suspended,
 
-	Resumed
+    Resumed
 }

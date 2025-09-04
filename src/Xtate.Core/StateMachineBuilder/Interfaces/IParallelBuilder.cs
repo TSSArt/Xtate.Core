@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,23 +19,23 @@ namespace Xtate.Builder;
 
 public interface IParallelBuilder
 {
-	IParallel Build();
+    IParallel Build();
 
-	void SetId(IIdentifier id);
+    void SetId(IIdentifier id);
 
-	void AddState(IState state);
+    void AddState(IState state);
 
-	void AddParallel(IParallel parallel);
+    void AddParallel(IParallel parallel);
 
-	void AddHistory(IHistory history);
+    void AddHistory(IHistory history);
 
-	void AddTransition(ITransition transition);
+    void AddTransition(ITransition transition);
 
-	void AddOnEntry(IOnEntry onEntry);
+    void AddOnEntry(IOnEntry onEntry);
 
-	void AddOnExit(IOnExit onExit);
+    void AddOnExit(IOnExit onExit);
 
-	void AddInvoke(IInvoke invoke);
+    void AddInvoke(IInvoke invoke);
 
-	void SetDataModel(IDataModel dataModel);
+    void SetDataModel(IDataModel dataModel);
 }

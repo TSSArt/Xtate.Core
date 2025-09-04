@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,7 +19,7 @@ namespace Xtate.Scxml;
 
 public readonly struct PrefixNamespace(string prefix, string ns)
 {
-	public string Prefix { get; } = prefix;
+    public string Prefix { get; } = prefix;
 
-	public string Namespace { get; } = ns;
+    public string Namespace { get; } = ns;
 }

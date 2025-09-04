@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,36 +19,36 @@ namespace Xtate.Builder;
 
 public class HistoryBuilder : BuilderBase, IHistoryBuilder
 {
-	private IIdentifier? _id;
+    private IIdentifier? _id;
 
-	private ITransition? _transition;
+    private ITransition? _transition;
 
-	private HistoryType _type;
+    private HistoryType _type;
 
 #region Interface IHistoryBuilder
 
-	public IHistory Build() => new HistoryEntity { Ancestor = Ancestor, Id = _id, Type = _type, Transition = _transition };
+    public IHistory Build() => new HistoryEntity { Ancestor = Ancestor, Id = _id, Type = _type, Transition = _transition };
 
-	public void SetId(IIdentifier id)
-	{
-		Infra.Requires(id);
+    public void SetId(IIdentifier id)
+    {
+        Infra.Requires(id);
 
-		_id = id;
-	}
+        _id = id;
+    }
 
-	public void SetType(HistoryType type)
-	{
-		Infra.RequiresValidEnum(type);
+    public void SetType(HistoryType type)
+    {
+        Infra.RequiresValidEnum(type);
 
-		_type = type;
-	}
+        _type = type;
+    }
 
-	public void SetTransition(ITransition transition)
-	{
-		Infra.Requires(transition);
+    public void SetTransition(ITransition transition)
+    {
+        Infra.Requires(transition);
 
-		_transition = transition;
-	}
+        _transition = transition;
+    }
 
 #endregion
 }

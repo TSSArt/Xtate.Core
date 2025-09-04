@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,33 +22,33 @@ namespace Xtate.Core;
 
 public abstract class ExecutableEntityNode : IExecutableEntity, IExecEvaluator, IStoreSupport, IDocumentId
 {
-	private readonly IExecEvaluator _execEvaluator;
+    private readonly IExecEvaluator _execEvaluator;
 
-	private DocumentIdSlot _documentIdSlot;
+    private DocumentIdSlot _documentIdSlot;
 
-	protected ExecutableEntityNode(DocumentIdNode documentIdNode, IExecutableEntity entity)
-	{
-		_execEvaluator = entity.As<IExecEvaluator>();
-		documentIdNode.SaveToSlot(out _documentIdSlot);
-	}
+    protected ExecutableEntityNode(DocumentIdNode documentIdNode, IExecutableEntity entity)
+    {
+        _execEvaluator = entity.As<IExecEvaluator>();
+        documentIdNode.SaveToSlot(out _documentIdSlot);
+    }
 
 #region Interface IDocumentId
 
-	public int DocumentId => _documentIdSlot.CreateValue();
+    public int DocumentId => _documentIdSlot.CreateValue();
 
 #endregion
 
 #region Interface IExecEvaluator
 
-	public ValueTask Execute() => _execEvaluator.Execute();
+    public ValueTask Execute() => _execEvaluator.Execute();
 
 #endregion
 
 #region Interface IStoreSupport
 
-	void IStoreSupport.Store(Bucket bucket) => Store(bucket);
+    void IStoreSupport.Store(Bucket bucket) => Store(bucket);
 
 #endregion
 
-	protected abstract void Store(Bucket bucket);
+    protected abstract void Store(Bucket bucket);
 }

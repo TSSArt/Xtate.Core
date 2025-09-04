@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,15 +19,15 @@ namespace Xtate.DataModel;
 
 public class LogController : ILogController
 {
-	private const int EventId = 1;
+    private const int EventId = 1;
 
-	public required ILogger<ILogController> Logger { private get; [UsedImplicitly] init; }
+    public required ILogger<ILogController> Logger { private get; [UsedImplicitly] init; }
 
 #region Interface ILogController
 
-	public ValueTask Log(string? message = default, DataModelValue arguments = default) => Logger.Write(Level.Info, EventId, message, arguments);
+    public ValueTask Log(string? message = default, DataModelValue arguments = default) => Logger.Write(Level.Info, EventId, message, arguments);
 
-	public bool IsEnabled => Logger.IsEnabled(Level.Info);
+    public bool IsEnabled => Logger.IsEnabled(Level.Info);
 
 #endregion
 }

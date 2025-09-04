@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,13 +19,13 @@ namespace Xtate.Core;
 
 public class ArgsXDataModelProperty : IXDataModelProperty
 {
-	public required IStateMachineArguments StateMachineArguments { private get; [UsedImplicitly] init; }
+    public required IStateMachineArguments StateMachineArguments { private get; [UsedImplicitly] init; }
 
 #region Interface IXDataModelProperty
 
-	public string Name => @"args";
+    public string Name => @"args";
 
-	public DataModelValue Value => StateMachineArguments.Arguments;
+    public DataModelValue Value => StateMachineArguments.Arguments;
 
 #endregion
 }

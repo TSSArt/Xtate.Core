@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,23 +21,23 @@ namespace Xtate.Builder;
 
 public class StateMachineFluentBuilderModule : Module<StateMachineBuilderModule>
 {
-	protected override void AddServices()
-	{
-		Services.AddTypeSync<StateMachineFluentBuilder>();
-		Services.AddTypeSync<StateFluentBuilder<OuterBuilder>, OuterBuilder, Action<IState>>();
-		Services.AddTypeSync<ParallelFluentBuilder<OuterBuilder>, OuterBuilder, Action<IParallel>>();
-		Services.AddTypeSync<FinalFluentBuilder<OuterBuilder>, OuterBuilder, Action<IFinal>>();
-		Services.AddTypeSync<InitialFluentBuilder<OuterBuilder>, OuterBuilder, Action<IInitial>>();
-		Services.AddTypeSync<HistoryFluentBuilder<OuterBuilder>, OuterBuilder, Action<IHistory>>();
-		Services.AddTypeSync<TransitionFluentBuilder<OuterBuilder>, OuterBuilder, Action<ITransition>>();
-	}
+    protected override void AddServices()
+    {
+        Services.AddTypeSync<StateMachineFluentBuilder>();
+        Services.AddTypeSync<StateFluentBuilder<OuterBuilder>, OuterBuilder, Action<IState>>();
+        Services.AddTypeSync<ParallelFluentBuilder<OuterBuilder>, OuterBuilder, Action<IParallel>>();
+        Services.AddTypeSync<FinalFluentBuilder<OuterBuilder>, OuterBuilder, Action<IFinal>>();
+        Services.AddTypeSync<InitialFluentBuilder<OuterBuilder>, OuterBuilder, Action<IInitial>>();
+        Services.AddTypeSync<HistoryFluentBuilder<OuterBuilder>, OuterBuilder, Action<IHistory>>();
+        Services.AddTypeSync<TransitionFluentBuilder<OuterBuilder>, OuterBuilder, Action<ITransition>>();
+    }
 
-	private class OuterBuilder : IStub
-	{
-	#region Interface IStub
+    private class OuterBuilder : IStub
+    {
+    #region Interface IStub
 
-		public bool IsMatch(Type type) => true;
+        public bool IsMatch(Type type) => true;
 
-	#endregion
-	}
+    #endregion
+    }
 }

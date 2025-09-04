@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,73 +19,73 @@ namespace Xtate.DataModel.XPath;
 
 public class XPathLocationExpressionEvaluator : ILocationEvaluator, ILocationExpression, IAncestorProvider
 {
-	private readonly XPathAssignType _assignType;
+    private readonly XPathAssignType _assignType;
 
-	private readonly string? _attribute;
+    private readonly string? _attribute;
 
-	private readonly XPathCompiledExpression _compiledExpression;
+    private readonly XPathCompiledExpression _compiledExpression;
 
-	private readonly ILocationExpression _locationExpression;
+    private readonly ILocationExpression _locationExpression;
 
-	public XPathLocationExpressionEvaluator(ILocationExpression locationExpression, XPathCompiledExpression compiledExpression)
-	{
-		_locationExpression = locationExpression;
-		_compiledExpression = compiledExpression;
+    public XPathLocationExpressionEvaluator(ILocationExpression locationExpression, XPathCompiledExpression compiledExpression)
+    {
+        _locationExpression = locationExpression;
+        _compiledExpression = compiledExpression;
 
-		if (_locationExpression.Is<XPathLocationExpression>(out var xPathLocationExpression))
-		{
-			_assignType = xPathLocationExpression.AssignType;
-			_attribute = xPathLocationExpression.Attribute;
-		}
-		else
-		{
-			_assignType = XPathAssignType.ReplaceChildren;
-		}
-	}
+        if (_locationExpression.Is<XPathLocationExpression>(out var xPathLocationExpression))
+        {
+            _assignType = xPathLocationExpression.AssignType;
+            _attribute = xPathLocationExpression.Attribute;
+        }
+        else
+        {
+            _assignType = XPathAssignType.ReplaceChildren;
+        }
+    }
 
-	public required Func<ValueTask<XPathEngine>> EngineFactory { private get; [UsedImplicitly] init; }
+    public required Func<ValueTask<XPathEngine>> EngineFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => _locationExpression;
+    object IAncestorProvider.Ancestor => _locationExpression;
 
 #endregion
 
 #region Interface ILocationEvaluator
 
-	public async ValueTask SetValue(IObject value)
-	{
-		var engine = await EngineFactory().ConfigureAwait(false);
+    public async ValueTask SetValue(IObject value)
+    {
+        var engine = await EngineFactory().ConfigureAwait(false);
 
-		await engine.Assign(_compiledExpression, _assignType, _attribute, value).ConfigureAwait(false);
-	}
+        await engine.Assign(_compiledExpression, _assignType, _attribute, value).ConfigureAwait(false);
+    }
 
-	public async ValueTask<IObject> GetValue()
-	{
-		var engine = await EngineFactory().ConfigureAwait(false);
+    public async ValueTask<IObject> GetValue()
+    {
+        var engine = await EngineFactory().ConfigureAwait(false);
 
-		return await engine.EvalObject(_compiledExpression, stripRoots: true).ConfigureAwait(false);
-	}
+        return await engine.EvalObject(_compiledExpression, stripRoots: true).ConfigureAwait(false);
+    }
 
-	public async ValueTask<string> GetName()
-	{
-		var engine = await EngineFactory().ConfigureAwait(false);
+    public async ValueTask<string> GetName()
+    {
+        var engine = await EngineFactory().ConfigureAwait(false);
 
-		return engine.GetName(_compiledExpression);
-	}
+        return engine.GetName(_compiledExpression);
+    }
 
 #endregion
 
 #region Interface ILocationExpression
 
-	public string? Expression => _locationExpression.Expression;
+    public string? Expression => _locationExpression.Expression;
 
 #endregion
 
-	public async ValueTask DeclareLocalVariable()
-	{
-		var engine = await EngineFactory().ConfigureAwait(false);
+    public async ValueTask DeclareLocalVariable()
+    {
+        var engine = await EngineFactory().ConfigureAwait(false);
 
-		engine.DeclareVariable(_compiledExpression);
-	}
+        engine.DeclareVariable(_compiledExpression);
+    }
 }

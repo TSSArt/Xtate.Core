@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -20,9 +20,9 @@ namespace Xtate;
 [Serializable]
 public class PersistenceException : XtateException
 {
-	public PersistenceException() { }
+    public PersistenceException() { }
 
-	public PersistenceException(string? message) : base(message) { }
+    public PersistenceException(string? message) : base(message) { }
 
-	public PersistenceException(string? message, Exception? innerException) : base(message, innerException) { }
+    public PersistenceException(string? message, Exception? innerException) : base(message, innerException) { }
 }

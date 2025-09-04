@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -20,13 +20,13 @@ namespace Xtate;
 [Serializable]
 public class PlatformException : XtateException
 {
-	public PlatformException() { }
+    public PlatformException() { }
 
-	public PlatformException(string message) : base(message) { }
+    public PlatformException(string message) : base(message) { }
 
-	public PlatformException(string message, Exception innerException) : base(message, innerException) { }
+    public PlatformException(string message, Exception innerException) : base(message, innerException) { }
 
-	public PlatformException(Exception innerException) : base(message: null, innerException) { }
+    public PlatformException(Exception innerException) : base(message: null, innerException) { }
 
-	internal object? Token { get; init; }
+    internal object? Token { get; init; }
 }

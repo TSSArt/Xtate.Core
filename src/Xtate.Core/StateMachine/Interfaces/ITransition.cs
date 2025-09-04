@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,13 +19,13 @@ namespace Xtate;
 
 public interface ITransition : IEntity
 {
-	EventDescriptors EventDescriptors { get; }
+    EventDescriptors EventDescriptors { get; }
 
-	IConditionExpression? Condition { get; }
+    IConditionExpression? Condition { get; }
 
-	Target Target { get; }
+    Target Target { get; }
 
-	TransitionType Type { get; }
+    TransitionType Type { get; }
 
-	ImmutableArray<IExecutableEntity> Action { get; }
+    ImmutableArray<IExecutableEntity> Action { get; }
 }

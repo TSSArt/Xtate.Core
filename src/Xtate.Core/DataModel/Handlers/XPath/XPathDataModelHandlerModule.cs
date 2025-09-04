@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,27 +22,27 @@ namespace Xtate.DataModel.XPath;
 
 public class XPathDataModelHandlerModule : Module<DataModelHandlerBaseModule, ErrorProcessorModule, NameTableModule>
 {
-	protected override void AddServices()
-	{
-		Services.AddTypeSync<XPathValueExpressionEvaluator, IValueExpression, XPathCompiledExpression>();
-		Services.AddTypeSync<XPathConditionExpressionEvaluator, IConditionExpression, XPathCompiledExpression>();
-		Services.AddTypeSync<XPathLocationExpressionEvaluator, ILocationExpression, XPathCompiledExpression>();
-		Services.AddTypeSync<XPathLocationExpression, ILocationExpression, (XPathAssignType, string?)>();
-		Services.AddTypeSync<XPathContentBodyEvaluator, IContentBody>();
-		Services.AddTypeSync<XPathExternalDataExpressionEvaluator, IExternalDataExpression>();
-		Services.AddTypeSync<XPathForEachEvaluator, IForEach>();
-		Services.AddTypeSync<XPathInlineContentEvaluator, IInlineContent>();
+    protected override void AddServices()
+    {
+        Services.AddTypeSync<XPathValueExpressionEvaluator, IValueExpression, XPathCompiledExpression>();
+        Services.AddTypeSync<XPathConditionExpressionEvaluator, IConditionExpression, XPathCompiledExpression>();
+        Services.AddTypeSync<XPathLocationExpressionEvaluator, ILocationExpression, XPathCompiledExpression>();
+        Services.AddTypeSync<XPathLocationExpression, ILocationExpression, (XPathAssignType, string?)>();
+        Services.AddTypeSync<XPathContentBodyEvaluator, IContentBody>();
+        Services.AddTypeSync<XPathExternalDataExpressionEvaluator, IExternalDataExpression>();
+        Services.AddTypeSync<XPathForEachEvaluator, IForEach>();
+        Services.AddTypeSync<XPathInlineContentEvaluator, IInlineContent>();
 
-		Services.AddTypeSync<XPathExpressionContext, IXmlNamespacesInfo?>();
-		Services.AddTypeSync<XPathVarDescriptor, string>();
-		Services.AddTypeSync<XPathCompiledExpression, string, IXmlNamespacesInfo?>();
-		Services.AddTypeSync<XPathXmlParserContextFactory>();
-		Services.AddSharedType<XPathEngine>(SharedWithin.Scope);
+        Services.AddTypeSync<XPathExpressionContext, IXmlNamespacesInfo?>();
+        Services.AddTypeSync<XPathVarDescriptor, string>();
+        Services.AddTypeSync<XPathCompiledExpression, string, IXmlNamespacesInfo?>();
+        Services.AddTypeSync<XPathXmlParserContextFactory>();
+        Services.AddSharedType<XPathEngine>(SharedWithin.Scope);
 
-		Services.AddImplementationSync<InFunction.Provider>().For<IXPathFunctionProvider>();
-		Services.AddTypeSync<InFunction>();
+        Services.AddImplementationSync<InFunction.Provider>().For<IXPathFunctionProvider>();
+        Services.AddTypeSync<InFunction>();
 
-		Services.AddImplementation<XPathDataModelHandler.Provider>().For<IDataModelHandlerProvider>();
-		Services.AddImplementation<XPathDataModelHandler>().For<XPathDataModelHandler>().For<IDataModelHandler>(Option.IfNotRegistered);
-	}
+        Services.AddImplementation<XPathDataModelHandler.Provider>().For<IDataModelHandlerProvider>();
+        Services.AddImplementation<XPathDataModelHandler>().For<XPathDataModelHandler>().For<IDataModelHandler>(Option.IfNotRegistered);
+    }
 }

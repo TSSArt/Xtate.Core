@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -25,80 +25,80 @@ namespace Xtate.Core;
 /// </summary>
 public class DisposingToken : CancellationTokenSource, IAsyncDisposable
 {
-	/// <summary>
-	///     Initializes a new instance of the <see cref="DisposingToken" /> class.
-	/// </summary>
-	public DisposingToken() => Token = base.Token;
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="DisposingToken" /> class.
+    /// </summary>
+    public DisposingToken() => Token = base.Token;
 
-	/// <summary>
-	///     Gets the <see cref="CancellationToken" /> associated with this <see cref="DisposingToken" />.
-	/// </summary>
-	public new CancellationToken Token { get; }
+    /// <summary>
+    ///     Gets the <see cref="CancellationToken" /> associated with this <see cref="DisposingToken" />.
+    /// </summary>
+    public new CancellationToken Token { get; }
 
 #region Interface IAsyncDisposable
 
-	/// <summary>
-	///     Asynchronously disposes of the resources used by the <see cref="DisposingToken" />.
-	/// </summary>
-	/// <returns>A task that represents the asynchronous dispose operation.</returns>
-	public async ValueTask DisposeAsync()
-	{
-		await DisposeAsyncCore().ConfigureAwait(false);
-		
-		Dispose(false);
-		
-		GC.SuppressFinalize(this);
-	}
+    /// <summary>
+    ///     Asynchronously disposes of the resources used by the <see cref="DisposingToken" />.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous dispose operation.</returns>
+    public async ValueTask DisposeAsync()
+    {
+        await DisposeAsyncCore().ConfigureAwait(false);
+
+        Dispose(false);
+
+        GC.SuppressFinalize(this);
+    }
 
 #endregion
 
-	/// <summary>
-	///     Asynchronously cancels the associated <see cref="CancellationToken" /> and releases the resources used by the
-	///     <see cref="DisposingToken" />.
-	/// </summary>
-	/// <returns>A task that represents the asynchronous dispose operation.</returns>
-	protected virtual async ValueTask DisposeAsyncCore()
-	{
-		try
-		{
-			if (!IsCancellationRequested)
-			{
-				await this.CancelAsync().ConfigureAwait(false);
-			}
-		}
-		catch (ObjectDisposedException)
-		{
-			// Ignore
-		}
-		
-		base.Dispose(true);
-	}
+    /// <summary>
+    ///     Asynchronously cancels the associated <see cref="CancellationToken" /> and releases the resources used by the
+    ///     <see cref="DisposingToken" />.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous dispose operation.</returns>
+    protected virtual async ValueTask DisposeAsyncCore()
+    {
+        try
+        {
+            if (!IsCancellationRequested)
+            {
+                await this.CancelAsync().ConfigureAwait(false);
+            }
+        }
+        catch (ObjectDisposedException)
+        {
+            // Ignore
+        }
 
-	/// <summary>
-	///     Cancels the associated <see cref="CancellationToken" /> and releases the unmanaged resources used by the
-	///     <see cref="DisposingToken" /> and optionally releases the managed resources.
-	/// </summary>
-	/// <param name="disposing">
-	///     true to release both managed and unmanaged resources; false to release only unmanaged
-	///     resources.
-	/// </param>
-	protected override void Dispose(bool disposing)
-	{
-		if (disposing)
-		{
-			try
-			{
-				if (!IsCancellationRequested)
-				{
-					Cancel();
-				}
-			}
-			catch (ObjectDisposedException)
-			{
-				// Ignore
-			}
-		}
+        base.Dispose(true);
+    }
 
-		base.Dispose(disposing);
-	}
+    /// <summary>
+    ///     Cancels the associated <see cref="CancellationToken" /> and releases the unmanaged resources used by the
+    ///     <see cref="DisposingToken" /> and optionally releases the managed resources.
+    /// </summary>
+    /// <param name="disposing">
+    ///     true to release both managed and unmanaged resources; false to release only unmanaged
+    ///     resources.
+    /// </param>
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            try
+            {
+                if (!IsCancellationRequested)
+                {
+                    Cancel();
+                }
+            }
+            catch (ObjectDisposedException)
+            {
+                // Ignore
+            }
+        }
+
+        base.Dispose(disposing);
+    }
 }

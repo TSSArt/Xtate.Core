@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,65 +21,65 @@ namespace Xtate.Core;
 
 public class ExternalServiceCollection : IExternalServiceCollection
 {
-	private readonly ExtDictionary<InvokeId, IExternalService> _externalServices = [];
+    private readonly ExtDictionary<InvokeId, IExternalService> _externalServices = [];
 
-	public required IExternalServiceGlobalCollection ExternalServiceGlobalCollection { private get; [UsedImplicitly] init; }
-	
-	public required IDeadLetterQueue<IExternalServiceCollection> DeadLetterQueue { private get; [UsedImplicitly] init; }
+    public required IExternalServiceGlobalCollection ExternalServiceGlobalCollection { private get; [UsedImplicitly] init; }
+
+    public required IDeadLetterQueue<IExternalServiceCollection> DeadLetterQueue { private get; [UsedImplicitly] init; }
 
 #region Interface IExternalServiceCollection
 
-	public void Register(InvokeId invokeId)
-	{
-		var tryAddPending = _externalServices.TryAddPending(invokeId);
+    public void Register(InvokeId invokeId)
+    {
+        var tryAddPending = _externalServices.TryAddPending(invokeId);
 
-		Infra.Assert(tryAddPending);
+        Infra.Assert(tryAddPending);
 
-		ExternalServiceGlobalCollection.Register(invokeId.UniqueId);
-	}
+        ExternalServiceGlobalCollection.Register(invokeId.UniqueId);
+    }
 
-	public void SetExternalService(InvokeId invokeId, IExternalService externalService)
-	{
-		var tryAdd = _externalServices.TryAdd(invokeId, externalService);
+    public void SetExternalService(InvokeId invokeId, IExternalService externalService)
+    {
+        var tryAdd = _externalServices.TryAdd(invokeId, externalService);
 
-		Infra.Assert(tryAdd);
+        Infra.Assert(tryAdd);
 
-		ExternalServiceGlobalCollection.SetExternalService(invokeId.UniqueId, externalService);
-	}
+        ExternalServiceGlobalCollection.SetExternalService(invokeId.UniqueId, externalService);
+    }
 
-	public void Unregister(InvokeId invokeId)
-	{
-		ExternalServiceGlobalCollection.Unregister(invokeId.UniqueId);
+    public void Unregister(InvokeId invokeId)
+    {
+        ExternalServiceGlobalCollection.Unregister(invokeId.UniqueId);
 
-		_externalServices.TryRemove(invokeId, out _);
-	}
+        _externalServices.TryRemove(invokeId, out _);
+    }
 
-	public async ValueTask Dispatch(InvokeId invokeId, IIncomingEvent incomingEvent, CancellationToken token)
-	{
-		var (found, externalService) = await _externalServices.TryGetValueAsync(invokeId).ConfigureAwait(false);
+    public async ValueTask Dispatch(InvokeId invokeId, IIncomingEvent incomingEvent, CancellationToken token)
+    {
+        var (found, externalService) = await _externalServices.TryGetValueAsync(invokeId).ConfigureAwait(false);
 
-		if (found)
-		{
-			if (externalService is IEventDispatcher eventDispatcher)
-			{
-				if (incomingEvent is not IncomingEvent)
-				{
-					incomingEvent = new IncomingEvent(incomingEvent);
-				}
+        if (found)
+        {
+            if (externalService is IEventDispatcher eventDispatcher)
+            {
+                if (incomingEvent is not IncomingEvent)
+                {
+                    incomingEvent = new IncomingEvent(incomingEvent);
+                }
 
-				await eventDispatcher.Dispatch(incomingEvent, token).ConfigureAwait(false);
-			}
-			
-			return;
-		}
+                await eventDispatcher.Dispatch(incomingEvent, token).ConfigureAwait(false);
+            }
 
-		if (await ExternalServiceGlobalCollection.TryDispatch(invokeId.UniqueId, incomingEvent, token).ConfigureAwait(false))
-		{
-			return;
-		}
+            return;
+        }
 
-		await DeadLetterQueue.Enqueue(invokeId, incomingEvent).ConfigureAwait(false);
-	}
+        if (await ExternalServiceGlobalCollection.TryDispatch(invokeId.UniqueId, incomingEvent, token).ConfigureAwait(false))
+        {
+            return;
+        }
+
+        await DeadLetterQueue.Enqueue(invokeId, incomingEvent).ConfigureAwait(false);
+    }
 
 #endregion
 }

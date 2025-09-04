@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,25 +21,25 @@ public abstract class ContentBodyEvaluator(IContentBody contentBody) : IContentB
 {
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => contentBody;
+    object IAncestorProvider.Ancestor => contentBody;
 
 #endregion
 
 #region Interface IContentBody
 
-	public virtual string? Value => contentBody.Value;
+    public virtual string? Value => contentBody.Value;
 
 #endregion
 
 #region Interface IObjectEvaluator
 
-	public abstract ValueTask<IObject> EvaluateObject();
+    public abstract ValueTask<IObject> EvaluateObject();
 
 #endregion
 
 #region Interface IStringEvaluator
 
-	public virtual ValueTask<string> EvaluateString() => new(Value ?? string.Empty);
+    public virtual ValueTask<string> EvaluateString() => new(Value ?? string.Empty);
 
 #endregion
 }

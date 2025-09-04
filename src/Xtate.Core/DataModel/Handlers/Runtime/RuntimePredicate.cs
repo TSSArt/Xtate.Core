@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,33 +21,33 @@ public abstract class RuntimePredicate : IConditionExpression
 {
 #region Interface IConditionExpression
 
-	public string? Expression => null;
+    public string? Expression => null;
 
 #endregion
 
-	public static IConditionExpression GetPredicate(Func<bool> predicate)
-	{
-		Infra.Requires(predicate);
+    public static IConditionExpression GetPredicate(Func<bool> predicate)
+    {
+        Infra.Requires(predicate);
 
-		return new EvaluatorSync(predicate);
-	}
+        return new EvaluatorSync(predicate);
+    }
 
-	public static IConditionExpression GetPredicate(Func<ValueTask<bool>> predicate)
-	{
-		Infra.Requires(predicate);
+    public static IConditionExpression GetPredicate(Func<ValueTask<bool>> predicate)
+    {
+        Infra.Requires(predicate);
 
-		return new EvaluatorAsync(predicate);
-	}
+        return new EvaluatorAsync(predicate);
+    }
 
-	public abstract ValueTask<bool> Evaluate();
+    public abstract ValueTask<bool> Evaluate();
 
-	private sealed class EvaluatorSync(Func<bool> predicate) : RuntimePredicate
-	{
-		public override ValueTask<bool> Evaluate() => new(predicate());
-	}
+    private sealed class EvaluatorSync(Func<bool> predicate) : RuntimePredicate
+    {
+        public override ValueTask<bool> Evaluate() => new(predicate());
+    }
 
-	private sealed class EvaluatorAsync(Func<ValueTask<bool>> predicate) : RuntimePredicate
-	{
-		public override ValueTask<bool> Evaluate() => predicate();
-	}
+    private sealed class EvaluatorAsync(Func<ValueTask<bool>> predicate) : RuntimePredicate
+    {
+        public override ValueTask<bool> Evaluate() => predicate();
+    }
 }

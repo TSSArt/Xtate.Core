@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,8 +19,8 @@ namespace Xtate.Core;
 
 public class ExceptionEntityParser<TSource> : EntityParserBase<TSource, Exception>
 {
-	protected override IEnumerable<LoggingParameter> EnumerateProperties(Exception exception)
-	{
-		yield return new LoggingParameter(name: @"Exception", exception);
-	}
+    protected override IEnumerable<LoggingParameter> EnumerateProperties(Exception exception)
+    {
+        yield return new LoggingParameter(name: @"Exception", exception);
+    }
 }

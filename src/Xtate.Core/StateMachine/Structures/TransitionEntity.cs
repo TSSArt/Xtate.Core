@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,46 +19,46 @@ namespace Xtate.Core;
 
 public struct TransitionEntity : ITransition, IVisitorEntity<TransitionEntity, ITransition>, IAncestorProvider
 {
-	internal object? Ancestor;
+    internal object? Ancestor;
 
 #region Interface IAncestorProvider
 
-	readonly object? IAncestorProvider.Ancestor => Ancestor;
+    readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
 #region Interface ITransition
 
-	public EventDescriptors EventDescriptors { get; set; }
+    public EventDescriptors EventDescriptors { get; set; }
 
-	public IConditionExpression? Condition { get; set; }
+    public IConditionExpression? Condition { get; set; }
 
-	public Target Target { get; set; }
+    public Target Target { get; set; }
 
-	public TransitionType Type { get; set; }
+    public TransitionType Type { get; set; }
 
-	public ImmutableArray<IExecutableEntity> Action { get; set; }
+    public ImmutableArray<IExecutableEntity> Action { get; set; }
 
 #endregion
 
 #region Interface IVisitorEntity<TransitionEntity,ITransition>
 
-	void IVisitorEntity<TransitionEntity, ITransition>.Init(ITransition source)
-	{
-		Ancestor = source;
-		Action = source.Action;
-		Condition = source.Condition;
-		EventDescriptors = source.EventDescriptors;
-		Target = source.Target;
-		Type = source.Type;
-	}
+    void IVisitorEntity<TransitionEntity, ITransition>.Init(ITransition source)
+    {
+        Ancestor = source;
+        Action = source.Action;
+        Condition = source.Condition;
+        EventDescriptors = source.EventDescriptors;
+        Target = source.Target;
+        Type = source.Type;
+    }
 
-	readonly bool IVisitorEntity<TransitionEntity, ITransition>.RefEquals(ref TransitionEntity other) =>
-		Type == other.Type &&
-		Target.Array == other.Target.Array &&
-		Action == other.Action &&
-		EventDescriptors.Array == other.EventDescriptors.Array &&
-		ReferenceEquals(Condition, other.Condition);
+    readonly bool IVisitorEntity<TransitionEntity, ITransition>.RefEquals(ref TransitionEntity other) =>
+        Type == other.Type &&
+        Target.Array == other.Target.Array &&
+        Action == other.Action &&
+        EventDescriptors.Array == other.EventDescriptors.Array &&
+        ReferenceEquals(Condition, other.Condition);
 
 #endregion
 }

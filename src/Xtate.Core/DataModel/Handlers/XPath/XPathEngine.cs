@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,170 +22,170 @@ namespace Xtate.DataModel.XPath;
 
 public class XPathEngine(IDataModelController? dataModelController)
 {
-	private readonly DataModelList _root = dataModelController?.DataModel ?? new DataModelList(false);
+    private readonly DataModelList _root = dataModelController?.DataModel ?? new DataModelList(false);
 
-	private readonly Stack<DataModelList> _scopeStack = new();
+    private readonly Stack<DataModelList> _scopeStack = new();
 
-	public object GetVariable(string name)
-	{
-		Infra.RequiresNonEmptyString(name);
+    public object GetVariable(string name)
+    {
+        Infra.RequiresNonEmptyString(name);
 
-		foreach (var vars in _scopeStack)
-		{
-			if (vars.ContainsKey(name, caseInsensitive: false))
-			{
-				return CreateIterator(vars, name);
-			}
-		}
+        foreach (var vars in _scopeStack)
+        {
+            if (vars.ContainsKey(name, caseInsensitive: false))
+            {
+                return CreateIterator(vars, name);
+            }
+        }
 
-		if (!_root.ContainsKey(name, caseInsensitive: false))
-		{
-			_root[name, caseInsensitive: false] = default;
-		}
+        if (!_root.ContainsKey(name, caseInsensitive: false))
+        {
+            _root[name, caseInsensitive: false] = default;
+        }
 
-		return CreateIterator(_root, name);
-	}
+        return CreateIterator(_root, name);
+    }
 
-	private static XPathNodeIterator CreateIterator(DataModelList list, string key)
-	{
-		var navigator = new DataModelXPathNavigator(list);
+    private static XPathNodeIterator CreateIterator(DataModelList list, string key)
+    {
+        var navigator = new DataModelXPathNavigator(list);
 
-		navigator.MoveToFirstChild();
+        navigator.MoveToFirstChild();
 
-		while (navigator.Name != key)
-		{
-			var moved = navigator.MoveToNext();
+        while (navigator.Name != key)
+        {
+            var moved = navigator.MoveToNext();
 
-			Infra.Assert(moved);
-		}
+            Infra.Assert(moved);
+        }
 
-		return new XPathSingleElementIterator(navigator);
-	}
+        return new XPathSingleElementIterator(navigator);
+    }
 
-	public async ValueTask<XPathObject> EvalObject(XPathCompiledExpression compiledExpression, bool stripRoots)
-	{
-		Infra.Requires(compiledExpression);
+    public async ValueTask<XPathObject> EvalObject(XPathCompiledExpression compiledExpression, bool stripRoots)
+    {
+        Infra.Requires(compiledExpression);
 
-		var value = await Evaluate(compiledExpression).ConfigureAwait(false);
+        var value = await Evaluate(compiledExpression).ConfigureAwait(false);
 
-		if (stripRoots && value is XPathNodeIterator iterator)
-		{
-			value = new XPathStripRootsIterator(iterator);
-		}
+        if (stripRoots && value is XPathNodeIterator iterator)
+        {
+            value = new XPathStripRootsIterator(iterator);
+        }
 
-		return new XPathObject(value);
-	}
+        return new XPathObject(value);
+    }
 
-	public async ValueTask Assign(XPathCompiledExpression compiledLeftExpression,
-								  XPathAssignType assignType,
-								  string? attributeName,
-								  IObject rightValue)
-	{
-		Infra.Requires(compiledLeftExpression);
-		Infra.Requires(rightValue);
+    public async ValueTask Assign(XPathCompiledExpression compiledLeftExpression,
+                                  XPathAssignType assignType,
+                                  string? attributeName,
+                                  IObject rightValue)
+    {
+        Infra.Requires(compiledLeftExpression);
+        Infra.Requires(rightValue);
 
-		var result = await Evaluate(compiledLeftExpression).ConfigureAwait(false);
+        var result = await Evaluate(compiledLeftExpression).ConfigureAwait(false);
 
-		if (result is not XPathNodeIterator iterator)
-		{
-			return;
-		}
+        if (result is not XPathNodeIterator iterator)
+        {
+            return;
+        }
 
-		foreach (DataModelXPathNavigator navigator in iterator)
-		{
-			Assign(navigator, assignType, attributeName, rightValue);
-		}
-	}
+        foreach (DataModelXPathNavigator navigator in iterator)
+        {
+            Assign(navigator, assignType, attributeName, rightValue);
+        }
+    }
 
-	private async ValueTask<object> Evaluate(XPathCompiledExpression compiledExpression)
-	{
-		var xPathExpression = await compiledExpression.GetXPathExpression().ConfigureAwait(false);
+    private async ValueTask<object> Evaluate(XPathCompiledExpression compiledExpression)
+    {
+        var xPathExpression = await compiledExpression.GetXPathExpression().ConfigureAwait(false);
 
-		var result = new DataModelXPathNavigator(_root).Evaluate(xPathExpression);
+        var result = new DataModelXPathNavigator(_root).Evaluate(xPathExpression);
 
-		Infra.NotNull(result);
+        Infra.NotNull(result);
 
-		return result;
-	}
+        return result;
+    }
 
-	private static void Assign(DataModelXPathNavigator navigator,
-							   XPathAssignType assignType,
-							   string? attributeName,
-							   IObject valueObject)
-	{
-		switch (assignType)
-		{
-			case XPathAssignType.ReplaceChildren:
-				navigator.ReplaceChildren(valueObject);
+    private static void Assign(DataModelXPathNavigator navigator,
+                               XPathAssignType assignType,
+                               string? attributeName,
+                               IObject valueObject)
+    {
+        switch (assignType)
+        {
+            case XPathAssignType.ReplaceChildren:
+                navigator.ReplaceChildren(valueObject);
 
-				break;
+                break;
 
-			case XPathAssignType.FirstChild:
-				navigator.FirstChild(valueObject);
+            case XPathAssignType.FirstChild:
+                navigator.FirstChild(valueObject);
 
-				break;
+                break;
 
-			case XPathAssignType.LastChild:
-				navigator.LastChild(valueObject);
+            case XPathAssignType.LastChild:
+                navigator.LastChild(valueObject);
 
-				break;
+                break;
 
-			case XPathAssignType.PreviousSibling:
-				navigator.PreviousSibling(valueObject);
+            case XPathAssignType.PreviousSibling:
+                navigator.PreviousSibling(valueObject);
 
-				break;
+                break;
 
-			case XPathAssignType.NextSibling:
-				navigator.NextSibling(valueObject);
+            case XPathAssignType.NextSibling:
+                navigator.NextSibling(valueObject);
 
-				break;
+                break;
 
-			case XPathAssignType.Replace:
-				navigator.Replace(valueObject);
+            case XPathAssignType.Replace:
+                navigator.Replace(valueObject);
 
-				break;
+                break;
 
-			case XPathAssignType.Delete:
-				navigator.DeleteSelf();
+            case XPathAssignType.Delete:
+                navigator.DeleteSelf();
 
-				break;
+                break;
 
-			case XPathAssignType.AddAttribute:
-				Infra.NotNull(attributeName);
-				var value = Convert.ToString(valueObject.ToObject(), CultureInfo.InvariantCulture);
-				navigator.CreateAttribute(string.Empty, attributeName, string.Empty, value ?? string.Empty);
+            case XPathAssignType.AddAttribute:
+                Infra.NotNull(attributeName);
+                var value = Convert.ToString(valueObject.ToObject(), CultureInfo.InvariantCulture);
+                navigator.CreateAttribute(string.Empty, attributeName, string.Empty, value ?? string.Empty);
 
-				break;
+                break;
 
-			default:
-				throw Infra.Unmatched(assignType);
-		}
-	}
+            default:
+                throw Infra.Unmatched(assignType);
+        }
+    }
 
-	public string GetName(XPathCompiledExpression compiledExpression)
-	{
-		Infra.Requires(compiledExpression);
+    public string GetName(XPathCompiledExpression compiledExpression)
+    {
+        Infra.Requires(compiledExpression);
 
-		return compiledExpression.Expression;
-	}
+        return compiledExpression.Expression;
+    }
 
-	public void EnterScope()
-	{
-		_scopeStack.Push([]);
-	}
+    public void EnterScope()
+    {
+        _scopeStack.Push([]);
+    }
 
-	public void LeaveScope()
-	{
-		_scopeStack.Pop();
-	}
+    public void LeaveScope()
+    {
+        _scopeStack.Pop();
+    }
 
-	public void DeclareVariable(XPathCompiledExpression compiledExpression)
-	{
-		Infra.Requires(compiledExpression);
+    public void DeclareVariable(XPathCompiledExpression compiledExpression)
+    {
+        Infra.Requires(compiledExpression);
 
-		if (_scopeStack.Count > 0)
-		{
-			_scopeStack.Peek()[compiledExpression.Expression] = default;
-		}
-	}
+        if (_scopeStack.Count > 0)
+        {
+            _scopeStack.Peek()[compiledExpression.Expression] = default;
+        }
+    }
 }

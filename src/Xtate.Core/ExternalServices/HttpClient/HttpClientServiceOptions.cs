@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,14 +19,14 @@ namespace Xtate.ExternalService.HttpClient;
 
 public class HttpClientServiceOptions
 {
-	private HttpClientServiceOptions() { }
+    private HttpClientServiceOptions() { }
 
-	public List<HttpClientMimeTypeHandler> MimeTypeHandlers { get; } =
-	[
-		HttpClientFormUrlEncodedHandler.Instance,
-		HttpClientJsonHandler.Instance,
-		HttpClientXmlHandler.Instance
-	];
+    public List<HttpClientMimeTypeHandler> MimeTypeHandlers { get; } =
+    [
+        HttpClientFormUrlEncodedHandler.Instance,
+        HttpClientJsonHandler.Instance,
+        HttpClientXmlHandler.Instance
+    ];
 
-	public static HttpClientServiceOptions CreateDefault() => new();
+    public static HttpClientServiceOptions CreateDefault() => new();
 }

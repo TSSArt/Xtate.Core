@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,11 +19,11 @@ namespace Xtate.IoProcessor;
 
 public interface IEventRouter
 {
-	bool CanHandle(FullUri? type);
+    bool CanHandle(FullUri? type);
 
-	bool IsInternalTarget(FullUri? target);
+    bool IsInternalTarget(FullUri? target);
 
-	ValueTask<IRouterEvent> GetRouterEvent(IOutgoingEvent outgoingEvent, CancellationToken token);
+    ValueTask<IRouterEvent> GetRouterEvent(IOutgoingEvent outgoingEvent, CancellationToken token);
 
-	ValueTask Dispatch(IRouterEvent routerEvent, CancellationToken token);
+    ValueTask Dispatch(IRouterEvent routerEvent, CancellationToken token);
 }

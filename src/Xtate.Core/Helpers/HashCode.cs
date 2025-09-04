@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -20,70 +20,70 @@ namespace System;
 
 internal struct HashCode
 {
-	private int _hash;
+    private int _hash;
 
-	public static int Combine<T1>(T1 value1) => value1?.GetHashCode() ?? 0;
+    public static int Combine<T1>(T1 value1) => value1?.GetHashCode() ?? 0;
 
-	public static int Combine<T1, T2>(T1 value1, T2 value2)
-	{
-		unchecked
-		{
-			var hash = value1?.GetHashCode() ?? 0;
-			hash = (hash * 397) ^ (value2?.GetHashCode() ?? 0);
+    public static int Combine<T1, T2>(T1 value1, T2 value2)
+    {
+        unchecked
+        {
+            var hash = value1?.GetHashCode() ?? 0;
+            hash = (hash * 397) ^ (value2?.GetHashCode() ?? 0);
 
-			return hash;
-		}
-	}
+            return hash;
+        }
+    }
 
-	public static int Combine<T1, T2, T3>(T1 value1, T2 value2, T3 value3)
-	{
-		unchecked
-		{
-			var hash = value1?.GetHashCode() ?? 0;
-			hash = (hash * 397) ^ (value2?.GetHashCode() ?? 0);
-			hash = (hash * 397) ^ (value3?.GetHashCode() ?? 0);
+    public static int Combine<T1, T2, T3>(T1 value1, T2 value2, T3 value3)
+    {
+        unchecked
+        {
+            var hash = value1?.GetHashCode() ?? 0;
+            hash = (hash * 397) ^ (value2?.GetHashCode() ?? 0);
+            hash = (hash * 397) ^ (value3?.GetHashCode() ?? 0);
 
-			return hash;
-		}
-	}
+            return hash;
+        }
+    }
 
-	public static int Combine<T1, T2, T3, T4>(T1 value1,
-											  T2 value2,
-											  T3 value3,
-											  T4 value4)
-	{
-		unchecked
-		{
-			var hash = value1?.GetHashCode() ?? 0;
-			hash = (hash * 397) ^ (value2?.GetHashCode() ?? 0);
-			hash = (hash * 397) ^ (value3?.GetHashCode() ?? 0);
-			hash = (hash * 397) ^ (value4?.GetHashCode() ?? 0);
+    public static int Combine<T1, T2, T3, T4>(T1 value1,
+                                              T2 value2,
+                                              T3 value3,
+                                              T4 value4)
+    {
+        unchecked
+        {
+            var hash = value1?.GetHashCode() ?? 0;
+            hash = (hash * 397) ^ (value2?.GetHashCode() ?? 0);
+            hash = (hash * 397) ^ (value3?.GetHashCode() ?? 0);
+            hash = (hash * 397) ^ (value4?.GetHashCode() ?? 0);
 
-			return hash;
-		}
-	}
+            return hash;
+        }
+    }
 
-	public static int Combine<T1, T2, T3, T4, T5>(T1 value1,
-												  T2 value2,
-												  T3 value3,
-												  T4 value4,
-												  T5 value5)
-	{
-		unchecked
-		{
-			var hash = value1?.GetHashCode() ?? 0;
-			hash = (hash * 397) ^ (value2?.GetHashCode() ?? 0);
-			hash = (hash * 397) ^ (value3?.GetHashCode() ?? 0);
-			hash = (hash * 397) ^ (value4?.GetHashCode() ?? 0);
-			hash = (hash * 397) ^ (value5?.GetHashCode() ?? 0);
+    public static int Combine<T1, T2, T3, T4, T5>(T1 value1,
+                                                  T2 value2,
+                                                  T3 value3,
+                                                  T4 value4,
+                                                  T5 value5)
+    {
+        unchecked
+        {
+            var hash = value1?.GetHashCode() ?? 0;
+            hash = (hash * 397) ^ (value2?.GetHashCode() ?? 0);
+            hash = (hash * 397) ^ (value3?.GetHashCode() ?? 0);
+            hash = (hash * 397) ^ (value4?.GetHashCode() ?? 0);
+            hash = (hash * 397) ^ (value5?.GetHashCode() ?? 0);
 
-			return hash;
-		}
-	}
+            return hash;
+        }
+    }
 
-	public void Add<T>(T t) => _hash = unchecked((_hash * 397) ^ (t?.GetHashCode() ?? 0));
+    public void Add<T>(T t) => _hash = unchecked((_hash * 397) ^ (t?.GetHashCode() ?? 0));
 
-	public int ToHashCode() => _hash;
+    public int ToHashCode() => _hash;
 }
 
 #endif

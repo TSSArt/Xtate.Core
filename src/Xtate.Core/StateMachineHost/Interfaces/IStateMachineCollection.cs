@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,13 +19,13 @@ namespace Xtate;
 
 public interface IStateMachineCollection
 {
-	void Register(SessionId sessionId);
+    void Register(SessionId sessionId);
 
-	void SetController(SessionId sessionId, IStateMachineController controller);
+    void SetController(SessionId sessionId, IStateMachineController controller);
 
-	void Unregister(SessionId sessionId);
+    void Unregister(SessionId sessionId);
 
-	ValueTask Dispatch(SessionId sessionId, IIncomingEvent incomingEvent, CancellationToken token);
+    ValueTask Dispatch(SessionId sessionId, IIncomingEvent incomingEvent, CancellationToken token);
 
-	ValueTask Destroy(SessionId sessionId);
+    ValueTask Destroy(SessionId sessionId);
 }

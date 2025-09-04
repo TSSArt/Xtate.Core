@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,72 +19,72 @@ namespace Xtate.Persistence;
 
 internal sealed class EntityQueuePersistingController<T> : IDisposable where T : class
 {
-	private const int Head = 0;
+    private const int Head = 0;
 
-	private const int Tail = 1;
+    private const int Tail = 1;
 
-	private readonly Bucket _bucket;
+    private readonly Bucket _bucket;
 
-	private readonly EntityQueue<T> _entityQueue;
+    private readonly EntityQueue<T> _entityQueue;
 
-	private int _headIndex;
+    private int _headIndex;
 
-	private int _tailIndex;
+    private int _tailIndex;
 
-	public EntityQueuePersistingController(in Bucket bucket, EntityQueue<T> entityQueue, Func<Bucket, T> creator)
-	{
-		if (creator is null) throw new ArgumentNullException(nameof(creator));
+    public EntityQueuePersistingController(in Bucket bucket, EntityQueue<T> entityQueue, Func<Bucket, T> creator)
+    {
+        if (creator is null) throw new ArgumentNullException(nameof(creator));
 
-		_bucket = bucket;
-		_entityQueue = entityQueue ?? throw new ArgumentNullException(nameof(entityQueue));
+        _bucket = bucket;
+        _entityQueue = entityQueue ?? throw new ArgumentNullException(nameof(entityQueue));
 
-		bucket.TryGet(Head, out _headIndex);
-		bucket.TryGet(Tail, out _tailIndex);
+        bucket.TryGet(Head, out _headIndex);
+        bucket.TryGet(Tail, out _tailIndex);
 
-		for (var i = _headIndex; i < _tailIndex; i ++)
-		{
-			entityQueue.Enqueue(creator(bucket.Nested(i)));
-		}
+        for (var i = _headIndex; i < _tailIndex; i ++)
+        {
+            entityQueue.Enqueue(creator(bucket.Nested(i)));
+        }
 
-		entityQueue.Changed += OnChanged;
-	}
+        entityQueue.Changed += OnChanged;
+    }
 
 #region Interface IDisposable
 
-	public void Dispose()
-	{
-		_entityQueue.Changed -= OnChanged;
-	}
+    public void Dispose()
+    {
+        _entityQueue.Changed -= OnChanged;
+    }
 
 #endregion
 
-	private void OnChanged(EntityQueue<T>.ChangedAction action, T? entity)
-	{
-		switch (action)
-		{
-			case EntityQueue<T>.ChangedAction.Enqueue:
-				var bucket = _bucket.Nested(_tailIndex ++);
-				_bucket.Add(Tail, _tailIndex);
-				entity!.As<IStoreSupport>().Store(bucket);
+    private void OnChanged(EntityQueue<T>.ChangedAction action, T? entity)
+    {
+        switch (action)
+        {
+            case EntityQueue<T>.ChangedAction.Enqueue:
+                var bucket = _bucket.Nested(_tailIndex ++);
+                _bucket.Add(Tail, _tailIndex);
+                entity!.As<IStoreSupport>().Store(bucket);
 
-				break;
+                break;
 
-			case EntityQueue<T>.ChangedAction.Dequeue:
-				if (_entityQueue.Count > 1)
-				{
-					_bucket.RemoveSubtree(_headIndex ++);
-					_bucket.Add(Head, _headIndex);
-				}
-				else
-				{
-					_bucket.RemoveSubtree(Bucket.RootKey);
-					_headIndex = _tailIndex = 0;
-				}
+            case EntityQueue<T>.ChangedAction.Dequeue:
+                if (_entityQueue.Count > 1)
+                {
+                    _bucket.RemoveSubtree(_headIndex ++);
+                    _bucket.Add(Head, _headIndex);
+                }
+                else
+                {
+                    _bucket.RemoveSubtree(Bucket.RootKey);
+                    _headIndex = _tailIndex = 0;
+                }
 
-				break;
+                break;
 
-			default:
-				throw Infra.Unmatched(action);
-		}
-	}
+            default:
+                throw Infra.Unmatched(action);
+        }
+    }
 }

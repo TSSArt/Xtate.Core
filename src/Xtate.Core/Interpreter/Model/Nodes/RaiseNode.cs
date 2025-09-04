@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -23,26 +23,26 @@ public sealed class RaiseNode(DocumentIdNode documentIdNode, IRaise raise) : Exe
 {
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => raise;
+    object IAncestorProvider.Ancestor => raise;
 
 #endregion
 
 #region Interface IDebugEntityId
 
-	FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
+    FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
 
 #endregion
 
 #region Interface IRaise
 
-	public IOutgoingEvent? OutgoingEvent => raise.OutgoingEvent;
+    public IOutgoingEvent? OutgoingEvent => raise.OutgoingEvent;
 
 #endregion
 
-	protected override void Store(Bucket bucket)
-	{
-		bucket.Add(Key.TypeInfo, TypeInfo.RaiseNode);
-		bucket.Add(Key.DocumentId, DocumentId);
-		bucket.AddEntity(Key.Event, OutgoingEvent);
-	}
+    protected override void Store(Bucket bucket)
+    {
+        bucket.Add(Key.TypeInfo, TypeInfo.RaiseNode);
+        bucket.Add(Key.DocumentId, DocumentId);
+        bucket.AddEntity(Key.Event, OutgoingEvent);
+    }
 }

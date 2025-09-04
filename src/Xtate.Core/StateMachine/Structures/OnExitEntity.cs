@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,29 +19,29 @@ namespace Xtate.Core;
 
 public struct OnExitEntity : IOnExit, IVisitorEntity<OnExitEntity, IOnExit>, IAncestorProvider
 {
-	internal object? Ancestor;
+    internal object? Ancestor;
 
 #region Interface IAncestorProvider
 
-	readonly object? IAncestorProvider.Ancestor => Ancestor;
+    readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
 #region Interface IOnExit
 
-	public ImmutableArray<IExecutableEntity> Action { get; set; }
+    public ImmutableArray<IExecutableEntity> Action { get; set; }
 
 #endregion
 
 #region Interface IVisitorEntity<OnExitEntity,IOnExit>
 
-	void IVisitorEntity<OnExitEntity, IOnExit>.Init(IOnExit source)
-	{
-		Ancestor = source;
-		Action = source.Action;
-	}
+    void IVisitorEntity<OnExitEntity, IOnExit>.Init(IOnExit source)
+    {
+        Ancestor = source;
+        Action = source.Action;
+    }
 
-	readonly bool IVisitorEntity<OnExitEntity, IOnExit>.RefEquals(ref OnExitEntity other) => Action == other.Action;
+    readonly bool IVisitorEntity<OnExitEntity, IOnExit>.RefEquals(ref OnExitEntity other) => Action == other.Action;
 
 #endregion
 }

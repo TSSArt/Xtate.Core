@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,41 +19,41 @@ namespace Xtate.CustomAction;
 
 public class CustomActionFactory
 {
-	public required ServiceSyncList<IActionProvider> ActionProviders { private get; [UsedImplicitly] init; }
+    public required ServiceSyncList<IActionProvider> ActionProviders { private get; [UsedImplicitly] init; }
 
-	[UsedImplicitly]
-	public IAction GetAction(ICustomAction customAction)
-	{
-		Infra.Requires(customAction);
+    [UsedImplicitly]
+    public IAction GetAction(ICustomAction customAction)
+    {
+        Infra.Requires(customAction);
 
-		var ns = customAction.XmlNamespace;
-		var name = customAction.XmlName;
-		var xml = customAction.Xml;
+        var ns = customAction.XmlNamespace;
+        var name = customAction.XmlName;
+        var xml = customAction.Xml;
 
-		Infra.NotNull(ns);
-		Infra.NotNull(name);
-		Infra.NotNull(xml);
+        Infra.NotNull(ns);
+        Infra.NotNull(name);
+        Infra.NotNull(xml);
 
-		var actionProviders = ActionProviders.GetEnumerator();
+        var actionProviders = ActionProviders.GetEnumerator();
 
-		while (actionProviders.MoveNext())
-		{
-			if (actionProviders.Current.TryGetActivator(ns, name) is not { } activator)
-			{
-				continue;
-			}
+        while (actionProviders.MoveNext())
+        {
+            if (actionProviders.Current.TryGetActivator(ns, name) is not { } activator)
+            {
+                continue;
+            }
 
-			while (actionProviders.MoveNext())
-			{
-				if (actionProviders.Current.TryGetActivator(ns, name) is not null)
-				{
-					Infra.Fail(Res.Format(Resources.Exception_MoreThanOneCustomActionProviderRegisteredForProcessingCustomActionNode, ns, name));
-				}
-			}
+            while (actionProviders.MoveNext())
+            {
+                if (actionProviders.Current.TryGetActivator(ns, name) is not null)
+                {
+                    Infra.Fail(Res.Format(Resources.Exception_MoreThanOneCustomActionProviderRegisteredForProcessingCustomActionNode, ns, name));
+                }
+            }
 
-			return activator.Activate(xml);
-		}
+            return activator.Activate(xml);
+        }
 
-		throw Infra.Fail<Exception>(Res.Format(Resources.Exception_ThereIsNoAnyCustomActionProviderRegisteredForProcessingCustomActionNode, ns, name));
-	}
+        throw Infra.Fail<Exception>(Res.Format(Resources.Exception_ThereIsNoAnyCustomActionProviderRegisteredForProcessingCustomActionNode, ns, name));
+    }
 }

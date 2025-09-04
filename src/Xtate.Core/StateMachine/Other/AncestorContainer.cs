@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,11 +19,11 @@ namespace Xtate.Core;
 
 internal class AncestorContainer(object value, object? ancestor) : IAncestorProvider
 {
-	public object Value { get; } = value;
+    public object Value { get; } = value;
 
 #region Interface IAncestorProvider
 
-	object? IAncestorProvider.Ancestor => ancestor;
+    object? IAncestorProvider.Ancestor => ancestor;
 
 #endregion
 }

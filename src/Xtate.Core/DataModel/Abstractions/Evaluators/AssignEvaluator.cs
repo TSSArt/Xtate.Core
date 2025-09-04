@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,27 +21,27 @@ public abstract class AssignEvaluator(IAssign assign) : IAssign, IExecEvaluator,
 {
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => assign;
+    object IAncestorProvider.Ancestor => assign;
 
 #endregion
 
 #region Interface IAssign
 
-	public virtual ILocationExpression? Location => assign.Location;
+    public virtual ILocationExpression? Location => assign.Location;
 
-	public virtual IValueExpression? Expression => assign.Expression;
+    public virtual IValueExpression? Expression => assign.Expression;
 
-	public virtual IInlineContent? InlineContent => assign.InlineContent;
+    public virtual IInlineContent? InlineContent => assign.InlineContent;
 
-	public virtual string? Type => assign.Type;
+    public virtual string? Type => assign.Type;
 
-	public virtual string? Attribute => assign.Attribute;
+    public virtual string? Attribute => assign.Attribute;
 
 #endregion
 
 #region Interface IExecEvaluator
 
-	public abstract ValueTask Execute();
+    public abstract ValueTask Execute();
 
 #endregion
 }

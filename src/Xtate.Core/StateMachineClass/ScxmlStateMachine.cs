@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -24,18 +24,18 @@ public abstract class ScxmlStateMachine : StateMachineClass, IScxmlStateMachine
 {
 #region Interface IScxmlStateMachine
 
-	TextReader IScxmlStateMachine.CreateTextReader() => CreateTextReader();
+    TextReader IScxmlStateMachine.CreateTextReader() => CreateTextReader();
 
 #endregion
 
-	protected abstract TextReader CreateTextReader();
+    protected abstract TextReader CreateTextReader();
 
-	public override void AddServices(IServiceCollection services)
-	{
-		base.AddServices(services);
+    public override void AddServices(IServiceCollection services)
+    {
+        base.AddServices(services);
 
-		services.AddConstant<IScxmlStateMachine>(this);
+        services.AddConstant<IScxmlStateMachine>(this);
 
-		services.AddModule<ScxmlStateMachineModule>();
-	}
+        services.AddModule<ScxmlStateMachineModule>();
+    }
 }

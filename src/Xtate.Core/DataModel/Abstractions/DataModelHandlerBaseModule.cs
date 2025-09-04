@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,39 +21,39 @@ namespace Xtate.DataModel;
 
 public class DataModelHandlerBaseModule : Module<CustomActionModule, LoggingModule, ToolsModule>
 {
-	protected override void AddServices()
-	{
-		Services.AddImplementation<Stub>().For<IExternalCommunication>(Option.IfNotRegistered);
+    protected override void AddServices()
+    {
+        Services.AddImplementation<Stub>().For<IExternalCommunication>(Option.IfNotRegistered);
 
-		Services.AddTypeSync<DefaultAssignEvaluator, IAssign>();
-		Services.AddTypeSync<DefaultCancelEvaluator, ICancel>();
-		Services.AddTypeSync<DefaultContentBodyEvaluator, IContentBody>();
-		Services.AddTypeSync<DefaultCustomActionEvaluator, ICustomAction>();
-		Services.AddTypeSync<DefaultExternalDataExpressionEvaluator, IExternalDataExpression>();
-		Services.AddTypeSync<DefaultForEachEvaluator, IForEach>();
-		Services.AddTypeSync<DefaultIfEvaluator, IIf>();
-		Services.AddTypeSync<DefaultInlineContentEvaluator, IInlineContent>();
-		Services.AddTypeSync<DefaultLogEvaluator, ILog>();
-		Services.AddTypeSync<DefaultRaiseEvaluator, IRaise>();
-		Services.AddTypeSync<DefaultScriptEvaluator, IScript>();
-		Services.AddTypeSync<DefaultSendEvaluator, ISend>();
+        Services.AddTypeSync<DefaultAssignEvaluator, IAssign>();
+        Services.AddTypeSync<DefaultCancelEvaluator, ICancel>();
+        Services.AddTypeSync<DefaultContentBodyEvaluator, IContentBody>();
+        Services.AddTypeSync<DefaultCustomActionEvaluator, ICustomAction>();
+        Services.AddTypeSync<DefaultExternalDataExpressionEvaluator, IExternalDataExpression>();
+        Services.AddTypeSync<DefaultForEachEvaluator, IForEach>();
+        Services.AddTypeSync<DefaultIfEvaluator, IIf>();
+        Services.AddTypeSync<DefaultInlineContentEvaluator, IInlineContent>();
+        Services.AddTypeSync<DefaultLogEvaluator, ILog>();
+        Services.AddTypeSync<DefaultRaiseEvaluator, IRaise>();
+        Services.AddTypeSync<DefaultScriptEvaluator, IScript>();
+        Services.AddTypeSync<DefaultSendEvaluator, ISend>();
 
-		Services.AddType<StateMachineRuntimeError>(Option.IfNotRegistered);
-		Services.AddImplementation<CaseSensitivity>().For<ICaseSensitivity>();
-		Services.AddImplementation<LogController>().For<ILogController>();
-		Services.AddImplementation<EventController>().For<IEventController>();
+        Services.AddType<StateMachineRuntimeError>(Option.IfNotRegistered);
+        Services.AddImplementation<CaseSensitivity>().For<ICaseSensitivity>();
+        Services.AddImplementation<LogController>().For<ILogController>();
+        Services.AddImplementation<EventController>().For<IEventController>();
 
-		Services.AddType<DataConverter>(Option.IfNotRegistered);
-	}
+        Services.AddType<DataConverter>(Option.IfNotRegistered);
+    }
 
-	private class Stub : IExternalCommunication
-	{
-	#region Interface IExternalCommunication
+    private class Stub : IExternalCommunication
+    {
+    #region Interface IExternalCommunication
 
-		ValueTask<SendStatus> IExternalCommunication.TrySend(IOutgoingEvent outgoingEvent) => throw Infra.Fail<Exception>();
+        ValueTask<SendStatus> IExternalCommunication.TrySend(IOutgoingEvent outgoingEvent) => throw Infra.Fail<Exception>();
 
-		ValueTask IExternalCommunication.Cancel(SendId sendId) => throw Infra.Fail<Exception>();
+        ValueTask IExternalCommunication.Cancel(SendId sendId) => throw Infra.Fail<Exception>();
 
-	#endregion
-	}
+    #endregion
+    }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,149 +21,149 @@ namespace Xtate.Core;
 
 public class InProcEventScheduler : IEventScheduler, IDisposable, IAsyncDisposable
 {
-	private static readonly SendId EmptySendId = SendId.FromString(string.Empty);
+    private static readonly SendId EmptySendId = SendId.FromString(string.Empty);
 
-	private readonly DisposingToken _disposingToken = new();
+    private readonly DisposingToken _disposingToken = new();
 
-	private readonly ExtCollection<SendId, ScheduledEvent> _scheduledEvents = [];
+    private readonly ExtCollection<SendId, ScheduledEvent> _scheduledEvents = [];
 
-	public required ServiceList<IEventRouter> EventRouters { private get; [UsedImplicitly] init; }
+    public required ServiceList<IEventRouter> EventRouters { private get; [UsedImplicitly] init; }
 
-	public required ILogger<IEventScheduler> Logger { private get; [UsedImplicitly] init; }
+    public required ILogger<IEventScheduler> Logger { private get; [UsedImplicitly] init; }
 
-	public required TaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
+    public required TaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
 
 #region Interface IAsyncDisposable
 
-	public async ValueTask DisposeAsync()
-	{
-		await DisposeAsyncCore().ConfigureAwait(false);
+    public async ValueTask DisposeAsync()
+    {
+        await DisposeAsyncCore().ConfigureAwait(false);
 
-		Dispose(false);
+        Dispose(false);
 
-		GC.SuppressFinalize(this);
-	}
+        GC.SuppressFinalize(this);
+    }
 
 #endregion
 
 #region Interface IDisposable
 
-	public void Dispose()
-	{
-		Dispose(true);
+    public void Dispose()
+    {
+        Dispose(true);
 
-		GC.SuppressFinalize(this);
-	}
+        GC.SuppressFinalize(this);
+    }
 
 #endregion
 
 #region Interface IEventScheduler
 
-	public ValueTask ScheduleEvent(IRouterEvent routerEvent, CancellationToken token)
-	{
-		var scheduledEvent = new ScheduledEvent(routerEvent);
+    public ValueTask ScheduleEvent(IRouterEvent routerEvent, CancellationToken token)
+    {
+        var scheduledEvent = new ScheduledEvent(routerEvent);
 
-		AddScheduledEvent(scheduledEvent);
+        AddScheduledEvent(scheduledEvent);
 
-		DelayedFire(scheduledEvent).Forget(TaskMonitor);
+        DelayedFire(scheduledEvent).Forget(TaskMonitor);
 
-		return default;
-	}
+        return default;
+    }
 
-	public async ValueTask CancelEvent(SendId sendId, CancellationToken token)
-	{
-		if (sendId == EmptySendId)
-		{
-			throw new ProcessorException(Resources.Exception_SendIdDoesNotSpecify);
-		}
+    public async ValueTask CancelEvent(SendId sendId, CancellationToken token)
+    {
+        if (sendId == EmptySendId)
+        {
+            throw new ProcessorException(Resources.Exception_SendIdDoesNotSpecify);
+        }
 
-		if (_scheduledEvents.TryRemoveGroup(sendId, out var scheduledEvents))
-		{
-			foreach (var scheduledEvent in scheduledEvents)
-			{
-				await scheduledEvent.CancelAsync().ConfigureAwait(false);
-			}
-		}
-	}
+        if (_scheduledEvents.TryRemoveGroup(sendId, out var scheduledEvents))
+        {
+            foreach (var scheduledEvent in scheduledEvents)
+            {
+                await scheduledEvent.CancelAsync().ConfigureAwait(false);
+            }
+        }
+    }
 
 #endregion
 
-	protected virtual void Dispose(bool disposing)
-	{
-		if (disposing)
-		{
-			_disposingToken.Dispose();
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _disposingToken.Dispose();
 
-			while (_scheduledEvents.TryTake(out _, out var scheduledEvent))
-			{
-				scheduledEvent.Cancel();
-			}
-		}
-	}
+            while (_scheduledEvents.TryTake(out _, out var scheduledEvent))
+            {
+                scheduledEvent.Cancel();
+            }
+        }
+    }
 
-	protected virtual async ValueTask DisposeAsyncCore()
-	{
-		await _disposingToken.DisposeAsync().ConfigureAwait(false);
+    protected virtual async ValueTask DisposeAsyncCore()
+    {
+        await _disposingToken.DisposeAsync().ConfigureAwait(false);
 
-		while (_scheduledEvents.TryTake(out _, out var scheduledEvent))
-		{
-			await scheduledEvent.CancelAsync().ConfigureAwait(false);
-		}
-	}
+        while (_scheduledEvents.TryTake(out _, out var scheduledEvent))
+        {
+            await scheduledEvent.CancelAsync().ConfigureAwait(false);
+        }
+    }
 
-	private IEventRouter GetEventRouter(FullUri? type)
-	{
-		foreach (var eventRouter in EventRouters)
-		{
-			if (eventRouter.CanHandle(type))
-			{
-				return eventRouter;
-			}
-		}
+    private IEventRouter GetEventRouter(FullUri? type)
+    {
+        foreach (var eventRouter in EventRouters)
+        {
+            if (eventRouter.CanHandle(type))
+            {
+                return eventRouter;
+            }
+        }
 
-		throw new ProcessorException(Res.Format(Resources.Exception_InvalidType, type));
-	}
+        throw new ProcessorException(Res.Format(Resources.Exception_InvalidType, type));
+    }
 
-	private async ValueTask DispatchEvent(IRouterEvent routerEvent)
-	{
-		if (routerEvent.OriginType is not { } originType)
-		{
-			throw new PlatformException(Resources.Exception_OriginTypeMustBeProvidedInRouterEvent);
-		}
+    private async ValueTask DispatchEvent(IRouterEvent routerEvent)
+    {
+        if (routerEvent.OriginType is not { } originType)
+        {
+            throw new PlatformException(Resources.Exception_OriginTypeMustBeProvidedInRouterEvent);
+        }
 
-		var eventRouter = GetEventRouter(originType);
+        var eventRouter = GetEventRouter(originType);
 
-		await eventRouter.Dispatch(routerEvent, _disposingToken.Token).ConfigureAwait(false);
-	}
+        await eventRouter.Dispatch(routerEvent, _disposingToken.Token).ConfigureAwait(false);
+    }
 
-	private async ValueTask DelayedFire(ScheduledEvent scheduledEvent)
-	{
-		try
-		{
-			await Task.Delay(scheduledEvent.DelayMs, scheduledEvent.CancellationToken).ConfigureAwait(false);
+    private async ValueTask DelayedFire(ScheduledEvent scheduledEvent)
+    {
+        try
+        {
+            await Task.Delay(scheduledEvent.DelayMs, scheduledEvent.CancellationToken).ConfigureAwait(false);
 
-			try
-			{
-				await DispatchEvent(scheduledEvent).ConfigureAwait(false);
-			}
-			catch (Exception ex)
-			{
-				if (Logger.IsEnabled(Level.Error))
-				{
-					var sendId = scheduledEvent.SendId;
-					await Logger.Write(Level.Error, eventId: 1, $@"Error on dispatching event. SendId: [{sendId}].", ex).ConfigureAwait(false);
-				}
-			}
-		}
-		finally
-		{
-			RemoveScheduledEvent(scheduledEvent);
+            try
+            {
+                await DispatchEvent(scheduledEvent).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                if (Logger.IsEnabled(Level.Error))
+                {
+                    var sendId = scheduledEvent.SendId;
+                    await Logger.Write(Level.Error, eventId: 1, $@"Error on dispatching event. SendId: [{sendId}].", ex).ConfigureAwait(false);
+                }
+            }
+        }
+        finally
+        {
+            RemoveScheduledEvent(scheduledEvent);
 
-			await scheduledEvent.Dispose().ConfigureAwait(false);
-		}
-	}
+            await scheduledEvent.Dispose().ConfigureAwait(false);
+        }
+    }
 
-	private void AddScheduledEvent(ScheduledEvent scheduledEvent) => _scheduledEvents.Add(scheduledEvent.SendId ?? EmptySendId, scheduledEvent);
+    private void AddScheduledEvent(ScheduledEvent scheduledEvent) => _scheduledEvents.Add(scheduledEvent.SendId ?? EmptySendId, scheduledEvent);
 
-	private void RemoveScheduledEvent(ScheduledEvent scheduledEvent) => _scheduledEvents.Remove(scheduledEvent.SendId ?? EmptySendId, scheduledEvent);
+    private void RemoveScheduledEvent(ScheduledEvent scheduledEvent) => _scheduledEvents.Remove(scheduledEvent.SendId ?? EmptySendId, scheduledEvent);
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,22 +19,22 @@ namespace Xtate.Core;
 
 public class StateMachineService : IStateMachineService
 {
-	public required IAsyncEnumerable<IStateMachineProvider> StateMachineProviders { private get; [UsedImplicitly] init; }
+    public required IAsyncEnumerable<IStateMachineProvider> StateMachineProviders { private get; [UsedImplicitly] init; }
 
 #region Interface IStateMachineService
 
-	public async ValueTask<IStateMachine?> GetStateMachine()
-	{
-		await foreach (var stateMachineProvider in StateMachineProviders.ConfigureAwait(false))
-		{
-			if (await stateMachineProvider.TryGetStateMachine().ConfigureAwait(false) is { } stateMachine)
-			{
-				return stateMachine;
-			}
-		}
+    public async ValueTask<IStateMachine?> GetStateMachine()
+    {
+        await foreach (var stateMachineProvider in StateMachineProviders.ConfigureAwait(false))
+        {
+            if (await stateMachineProvider.TryGetStateMachine().ConfigureAwait(false) is { } stateMachine)
+            {
+                return stateMachine;
+            }
+        }
 
-		return default;
-	}
+        return default;
+    }
 
 #endregion
 }

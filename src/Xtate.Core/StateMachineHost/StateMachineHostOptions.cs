@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -23,33 +23,33 @@ namespace Xtate;
 
 public record StateMachineHostOptions
 {
-	//public StateMachineHostOptions(ServiceLocator serviceLocator) => ServiceLocator = serviceLocator;
+    //public StateMachineHostOptions(ServiceLocator serviceLocator) => ServiceLocator = serviceLocator;
 
-	//public ServiceLocator                         ServiceLocator          { get; set; }
-	public ImmutableArray<IIoProcessorFactory> IoProcessorFactories { get; set; }
+    //public ServiceLocator                         ServiceLocator          { get; set; }
+    public ImmutableArray<IIoProcessorFactory> IoProcessorFactories { get; set; }
 
-	public ImmutableArray<IExternalServiceProvider> ServiceFactories { get; set; }
+    public ImmutableArray<IExternalServiceProvider> ServiceFactories { get; set; }
 
-	//public ImmutableArray<ICustomActionFactory>   CustomActionFactories   { get; set; }
-	//public ImmutableArray<IResourceLoaderFactory> ResourceLoaderFactories { get; set; }
-	public ImmutableDictionary<string, string>? Configuration { get; set; }
+    //public ImmutableArray<ICustomActionFactory>   CustomActionFactories   { get; set; }
+    //public ImmutableArray<IResourceLoaderFactory> ResourceLoaderFactories { get; set; }
+    public ImmutableDictionary<string, string>? Configuration { get; set; }
 
-	public Uri? BaseUri { get; set; }
+    public Uri? BaseUri { get; set; }
 
-	//public ILoggerOld?                            Logger                  { get; set; }
-	public IEventSchedulerLogger? EsLogger { get; set; }
+    //public ILoggerOld?                            Logger                  { get; set; }
+    public IEventSchedulerLogger? EsLogger { get; set; }
 
-	public PersistenceLevel PersistenceLevel { get; set; }
+    public PersistenceLevel PersistenceLevel { get; set; }
 
-	public IStorageProvider? StorageProvider { get; set; }
+    public IStorageProvider? StorageProvider { get; set; }
 
-	public IEventSchedulerFactory? EventSchedulerFactory { get; set; }
+    public IEventSchedulerFactory? EventSchedulerFactory { get; set; }
 
-	public TimeSpan? SuspendIdlePeriod { get; set; }
+    public TimeSpan? SuspendIdlePeriod { get; set; }
 
-	public ValidationMode ValidationMode { get; set; }
+    public ValidationMode ValidationMode { get; set; }
 
-	public HostMode HostMode { get; set; }
+    public HostMode HostMode { get; set; }
 
-	public UnhandledErrorBehaviour UnhandledErrorBehaviour { get; set; }
+    public UnhandledErrorBehaviour UnhandledErrorBehaviour { get; set; }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,8 +21,8 @@ namespace Xtate.Core;
 
 public class ResourceLoadersModule : Module<FileResourceLoaderModule, ResxResourceLoaderModule, WebResourceLoaderModule>
 {
-	protected override void AddServices()
-	{
-		Services.AddImplementation<ResourceLoaderService>().For<IResourceLoader>();
-	}
+    protected override void AddServices()
+    {
+        Services.AddImplementation<ResourceLoaderService>().For<IResourceLoader>();
+    }
 }

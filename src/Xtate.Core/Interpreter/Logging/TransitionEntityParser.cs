@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,18 +19,18 @@ namespace Xtate.Core;
 
 public class TransitionEntityParser<TSource> : EntityParserBase<TSource, ITransition>
 {
-	protected override IEnumerable<LoggingParameter> EnumerateProperties(ITransition transition)
-	{
-		yield return new LoggingParameter(name: @"TransitionType", transition.Type);
+    protected override IEnumerable<LoggingParameter> EnumerateProperties(ITransition transition)
+    {
+        yield return new LoggingParameter(name: @"TransitionType", transition.Type);
 
-		if (!transition.EventDescriptors.IsDefault)
-		{
-			yield return new LoggingParameter(name: @"EventDescriptors", transition.EventDescriptors);
-		}
+        if (!transition.EventDescriptors.IsDefault)
+        {
+            yield return new LoggingParameter(name: @"EventDescriptors", transition.EventDescriptors);
+        }
 
-		if (!transition.Target.IsDefault)
-		{
-			yield return new LoggingParameter(name: @"Target", transition.Target);
-		}
-	}
+        if (!transition.Target.IsDefault)
+        {
+            yield return new LoggingParameter(name: @"Target", transition.Target);
+        }
+    }
 }

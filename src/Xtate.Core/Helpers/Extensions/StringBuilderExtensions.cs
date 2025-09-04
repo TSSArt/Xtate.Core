@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,13 +22,13 @@ namespace Xtate.Core;
 
 internal static class StringBuilderExtensions
 {
-	public static void Append(this StringBuilder stringBuilder, ReadOnlySpan<char> value)
-	{
-		foreach (var ch in value)
-		{
-			stringBuilder.Append(ch);
-		}
-	}
+    public static void Append(this StringBuilder stringBuilder, ReadOnlySpan<char> value)
+    {
+        foreach (var ch in value)
+        {
+            stringBuilder.Append(ch);
+        }
+    }
 }
 
 #endif

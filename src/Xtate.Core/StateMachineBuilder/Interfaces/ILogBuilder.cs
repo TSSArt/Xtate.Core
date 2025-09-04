@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,9 +19,9 @@ namespace Xtate.Builder;
 
 public interface ILogBuilder
 {
-	ILog Build();
+    ILog Build();
 
-	void SetLabel(string label);
+    void SetLabel(string label);
 
-	void SetExpression(IValueExpression expression);
+    void SetExpression(IValueExpression expression);
 }

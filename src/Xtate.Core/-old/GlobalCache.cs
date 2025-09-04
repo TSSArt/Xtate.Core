@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,11 +19,11 @@ namespace Xtate.Core;
 
 public class GlobalCache<TKey, TValue> where TKey : notnull
 {
-	private readonly ConcurrentDictionary<TKey, CacheEntry<TValue>> _globalDictionary = new();
+    private readonly ConcurrentDictionary<TKey, CacheEntry<TValue>> _globalDictionary = new();
 
-	public void Remove(TKey key, CacheEntry<TValue> entry) => _globalDictionary.TryRemove(new KeyValuePair<TKey, CacheEntry<TValue>>(key, entry));
+    public void Remove(TKey key, CacheEntry<TValue> entry) => _globalDictionary.TryRemove(new KeyValuePair<TKey, CacheEntry<TValue>>(key, entry));
 
-	public void Set(TKey key, CacheEntry<TValue> entry) => _globalDictionary[key] = entry;
+    public void Set(TKey key, CacheEntry<TValue> entry) => _globalDictionary[key] = entry;
 
-	public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out CacheEntry<TValue> entry) => _globalDictionary.TryGetValue(key, out entry);
+    public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out CacheEntry<TValue> entry) => _globalDictionary.TryGetValue(key, out entry);
 }

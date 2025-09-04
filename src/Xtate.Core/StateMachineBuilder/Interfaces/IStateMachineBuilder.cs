@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,31 +19,31 @@ namespace Xtate.Builder;
 
 public interface IStateMachineBuilder
 {
-	IStateMachine Build();
+    IStateMachine Build();
 
-	void SetInitial(ImmutableArray<IIdentifier> initial);
+    void SetInitial(ImmutableArray<IIdentifier> initial);
 
-	void AddState(IState state);
+    void AddState(IState state);
 
-	void AddParallel(IParallel parallel);
+    void AddParallel(IParallel parallel);
 
-	void AddFinal(IFinal final);
+    void AddFinal(IFinal final);
 
-	void SetDataModel(IDataModel dataModel);
+    void SetDataModel(IDataModel dataModel);
 
-	void SetScript(IScript script);
+    void SetScript(IScript script);
 
-	void SetName(string name);
+    void SetName(string name);
 
-	void SetDataModelType(string dataModelType);
+    void SetDataModelType(string dataModelType);
 
-	void SetBindingType(BindingType bindingType);
+    void SetBindingType(BindingType bindingType);
 
-	void SetPersistenceLevel(PersistenceLevel persistenceLevel);
+    void SetPersistenceLevel(PersistenceLevel persistenceLevel);
 
-	void SetSynchronousEventProcessing(bool value);
+    void SetSynchronousEventProcessing(bool value);
 
-	void SetExternalQueueSize(int size);
+    void SetExternalQueueSize(int size);
 
-	void SetUnhandledErrorBehaviour(UnhandledErrorBehaviour unhandledErrorBehaviour);
+    void SetUnhandledErrorBehaviour(UnhandledErrorBehaviour unhandledErrorBehaviour);
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,72 +19,72 @@ namespace Xtate.DataModel.XPath;
 
 public class XPathLocationExpression(ILocationExpression locationExpression, XPathAssignType assignType, string? attribute) : ILocationExpression, IAncestorProvider
 {
-	public XPathAssignType AssignType { get; } = assignType;
+    public XPathAssignType AssignType { get; } = assignType;
 
-	public string? Attribute { get; } = attribute;
+    public string? Attribute { get; } = attribute;
 
 #region Interface IAncestorProvider
 
-	public object Ancestor => locationExpression;
+    public object Ancestor => locationExpression;
 
 #endregion
 
 #region Interface ILocationExpression
 
-	public string? Expression => locationExpression.Expression;
+    public string? Expression => locationExpression.Expression;
 
 #endregion
 
-	public static bool TryParseAssignType(string? value, out XPathAssignType assignType)
-	{
-		switch (value)
-		{
-			case null:
-			case "":
-			case "replacechildren":
-				assignType = XPathAssignType.ReplaceChildren;
+    public static bool TryParseAssignType(string? value, out XPathAssignType assignType)
+    {
+        switch (value)
+        {
+            case null:
+            case "":
+            case "replacechildren":
+                assignType = XPathAssignType.ReplaceChildren;
 
-				return true;
+                return true;
 
-			case "firstchild":
-				assignType = XPathAssignType.FirstChild;
+            case "firstchild":
+                assignType = XPathAssignType.FirstChild;
 
-				return true;
+                return true;
 
-			case "lastchild":
-				assignType = XPathAssignType.LastChild;
+            case "lastchild":
+                assignType = XPathAssignType.LastChild;
 
-				return true;
+                return true;
 
-			case "previoussibling":
-				assignType = XPathAssignType.PreviousSibling;
+            case "previoussibling":
+                assignType = XPathAssignType.PreviousSibling;
 
-				return true;
+                return true;
 
-			case "nextsibling":
-				assignType = XPathAssignType.NextSibling;
+            case "nextsibling":
+                assignType = XPathAssignType.NextSibling;
 
-				return true;
+                return true;
 
-			case "replace":
-				assignType = XPathAssignType.Replace;
+            case "replace":
+                assignType = XPathAssignType.Replace;
 
-				return true;
+                return true;
 
-			case "delete":
-				assignType = XPathAssignType.Delete;
+            case "delete":
+                assignType = XPathAssignType.Delete;
 
-				return true;
+                return true;
 
-			case "addattribute":
-				assignType = XPathAssignType.AddAttribute;
+            case "addattribute":
+                assignType = XPathAssignType.AddAttribute;
 
-				return true;
+                return true;
 
-			default:
-				assignType = default;
+            default:
+                assignType = default;
 
-				return false;
-		}
-	}
+                return false;
+        }
+    }
 }

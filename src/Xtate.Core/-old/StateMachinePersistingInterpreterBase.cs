@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,314 +21,314 @@ namespace Xtate.Core;
 
 public class StateMachinePersistingInterpreterBase : StateMachineInterpreter
 {
-	private const int KeyIndex = 0;
+    private const int KeyIndex = 0;
 
-	private const int MethodCompletedIndex = 1;
+    private const int MethodCompletedIndex = 1;
 
-	private const int ValueIndex = 2;
+    private const int ValueIndex = 2;
 
-	private const int ReturnCallIndex = 0;
+    private const int ReturnCallIndex = 0;
 
-	private readonly IInterpreterModel _interpreterModel;
+    private readonly IInterpreterModel _interpreterModel;
 
-	private readonly IPersistingInterpreterState _persistingInterpreterState;
+    private readonly IPersistingInterpreterState _persistingInterpreterState;
 
-	private readonly Bucket _stateBucket;
+    private readonly Bucket _stateBucket;
 
-	private Bucket _callBucket;
+    private Bucket _callBucket;
 
-	private int _callIndex = 1;
+    private int _callIndex = 1;
 
-	private Bucket _methodBucket;
+    private Bucket _methodBucket;
 
-	private int _methodIndex = 1;
+    private int _methodIndex = 1;
 
-	private bool _suspending;
+    private bool _suspending;
 
-	public StateMachinePersistingInterpreterBase(IPersistingInterpreterState persistingInterpreterState,
-												 IInterpreterModel interpreterModel)
-	{
-		Infra.Requires(persistingInterpreterState);
+    public StateMachinePersistingInterpreterBase(IPersistingInterpreterState persistingInterpreterState,
+                                                 IInterpreterModel interpreterModel)
+    {
+        Infra.Requires(persistingInterpreterState);
 
-		_persistingInterpreterState = persistingInterpreterState;
-		_interpreterModel = interpreterModel;
-		_stateBucket = persistingInterpreterState.StateBucket;
-		_methodBucket = _stateBucket.Nested(_methodIndex);
-		_callBucket = _methodBucket.Nested(_callIndex);
-	}
+        _persistingInterpreterState = persistingInterpreterState;
+        _interpreterModel = interpreterModel;
+        _stateBucket = persistingInterpreterState.StateBucket;
+        _methodBucket = _stateBucket.Nested(_methodIndex);
+        _callBucket = _methodBucket.Nested(_callIndex);
+    }
 
-	public virtual void TriggerSuspendSignal()
-	{
-		_suspending = true;
-		StopWaitingExternalEvents();
-	}
+    public virtual void TriggerSuspendSignal()
+    {
+        _suspending = true;
+        StopWaitingExternalEvents();
+    }
 
-	protected override async ValueTask EnterSteps()
-	{
-		if (Enter(StateBagKey.EnterSteps, out _))
-		{
-			return;
-		}
+    protected override async ValueTask EnterSteps()
+    {
+        if (Enter(StateBagKey.EnterSteps, out _))
+        {
+            return;
+        }
 
-		await base.EnterSteps().ConfigureAwait(false);
+        await base.EnterSteps().ConfigureAwait(false);
 
-		Complete(StateBagKey.EnterSteps);
-	}
+        Complete(StateBagKey.EnterSteps);
+    }
 
-	protected override async ValueTask MainEventLoop()
-	{
-		if (Enter(StateBagKey.MainEventLoop, out _))
-		{
-			return;
-		}
+    protected override async ValueTask MainEventLoop()
+    {
+        if (Enter(StateBagKey.MainEventLoop, out _))
+        {
+            return;
+        }
 
-		await base.MainEventLoop().ConfigureAwait(false);
+        await base.MainEventLoop().ConfigureAwait(false);
 
-		Complete(StateBagKey.MainEventLoop);
-	}
+        Complete(StateBagKey.MainEventLoop);
+    }
 
-	protected override async ValueTask<bool> MainEventLoopIteration()
-	{
-		Enter(StateBagKey.MainEventLoopIteration, out _);
+    protected override async ValueTask<bool> MainEventLoopIteration()
+    {
+        Enter(StateBagKey.MainEventLoopIteration, out _);
 
-		var result = await base.MainEventLoopIteration().ConfigureAwait(false);
+        var result = await base.MainEventLoopIteration().ConfigureAwait(false);
 
-		Complete(StateBagKey.MainEventLoopIteration, iteration: true);
+        Complete(StateBagKey.MainEventLoopIteration, iteration: true);
 
-		return result;
-	}
+        return result;
+    }
 
-	protected override async ValueTask<bool> StartInvokeLoop()
-	{
-		if (Enter(StateBagKey.StartInvokeLoop, out var valueBucket))
-		{
-			return valueBucket.GetBoolean(Bucket.RootKey);
-		}
+    protected override async ValueTask<bool> StartInvokeLoop()
+    {
+        if (Enter(StateBagKey.StartInvokeLoop, out var valueBucket))
+        {
+            return valueBucket.GetBoolean(Bucket.RootKey);
+        }
 
-		var result = await base.StartInvokeLoop().ConfigureAwait(false);
+        var result = await base.StartInvokeLoop().ConfigureAwait(false);
 
-		Complete(StateBagKey.StartInvokeLoop);
-		valueBucket.Add(Bucket.RootKey, result);
+        Complete(StateBagKey.StartInvokeLoop);
+        valueBucket.Add(Bucket.RootKey, result);
 
-		return result;
-	}
+        return result;
+    }
 
-	protected override async ValueTask<bool> ExternalQueueProcess()
-	{
-		if (Enter(StateBagKey.ExternalQueueProcess, out var valueBucket))
-		{
-			return valueBucket.GetBoolean(Bucket.RootKey);
-		}
+    protected override async ValueTask<bool> ExternalQueueProcess()
+    {
+        if (Enter(StateBagKey.ExternalQueueProcess, out var valueBucket))
+        {
+            return valueBucket.GetBoolean(Bucket.RootKey);
+        }
 
-		var result = await base.ExternalQueueProcess().ConfigureAwait(false);
+        var result = await base.ExternalQueueProcess().ConfigureAwait(false);
 
-		Complete(StateBagKey.ExternalQueueProcess);
-		valueBucket.Add(Bucket.RootKey, result);
-
-		return result;
-	}
-
-	protected override async ValueTask<List<TransitionNode>> ExternalEventTransitions()
-	{
-		if (Enter(StateBagKey.ExternalEventTransitions, out var valueBucket))
-		{
-			return GetTransitionNodes(valueBucket);
-		}
-
-		var result = await base.ExternalEventTransitions().ConfigureAwait(false);
-
-		Complete(StateBagKey.ExternalEventTransitions);
-		AddTransitionNodes(valueBucket, result);
-
-		return result;
-	}
-
-	protected List<TransitionNode> GetTransitionNodes(Bucket bucket)
-	{
-		var stateMachineNode = _interpreterModel.Root;
-		var length = bucket.GetInt32(Bucket.RootKey);
-		var list = new List<TransitionNode>(length);
-
-		for (var i = 0; i < length; i ++)
-		{
-			list.Add(FindTransitionNode(stateMachineNode, bucket.GetInt32(i)));
-		}
-
-		return list;
-	}
-
-	private static TransitionNode FindTransitionNode(StateEntityNode node, int documentId)
-	{
-		if (node.Transitions is { IsDefaultOrEmpty: false } transitions && transitions[0].DocumentId <= documentId)
-		{
-			foreach (var transition in transitions)
-			{
-				if (transition.DocumentId == documentId)
-				{
-					return transition;
-				}
-			}
-		}
-		else if (node.States is { IsDefaultOrEmpty: false } states)
-		{
-			for (var i = 1; i < states.Length; i ++)
-			{
-				if (documentId < states[i].DocumentId)
-				{
-					return FindTransitionNode(states[i - 1], documentId);
-				}
-			}
-
-			return FindTransitionNode(states[^1], documentId);
-		}
-
-		throw new KeyNotFoundException(Res.Format(Resources.Exception_TransitionNodeWithDocumentIdNotFound, documentId));
-	}
-
-	protected static void AddTransitionNodes(Bucket bucket, List<TransitionNode> list)
-	{
-		Infra.Requires(list);
-
-		bucket.Add(Bucket.RootKey, list.Count);
-
-		for (var i = 0; i < list.Count; i ++)
-		{
-			bucket.Add(i, list[i].DocumentId);
-		}
-	}
-
-	protected override async ValueTask<IIncomingEvent> WaitForExternalEvent()
-	{
-		await _persistingInterpreterState.CheckPoint(0).ConfigureAwait(false);
-
-		return await base.WaitForExternalEvent().ConfigureAwait(false);
-	}
+        Complete(StateBagKey.ExternalQueueProcess);
+        valueBucket.Add(Bucket.RootKey, result);
+
+        return result;
+    }
+
+    protected override async ValueTask<List<TransitionNode>> ExternalEventTransitions()
+    {
+        if (Enter(StateBagKey.ExternalEventTransitions, out var valueBucket))
+        {
+            return GetTransitionNodes(valueBucket);
+        }
+
+        var result = await base.ExternalEventTransitions().ConfigureAwait(false);
+
+        Complete(StateBagKey.ExternalEventTransitions);
+        AddTransitionNodes(valueBucket, result);
+
+        return result;
+    }
+
+    protected List<TransitionNode> GetTransitionNodes(Bucket bucket)
+    {
+        var stateMachineNode = _interpreterModel.Root;
+        var length = bucket.GetInt32(Bucket.RootKey);
+        var list = new List<TransitionNode>(length);
+
+        for (var i = 0; i < length; i ++)
+        {
+            list.Add(FindTransitionNode(stateMachineNode, bucket.GetInt32(i)));
+        }
+
+        return list;
+    }
+
+    private static TransitionNode FindTransitionNode(StateEntityNode node, int documentId)
+    {
+        if (node.Transitions is { IsDefaultOrEmpty: false } transitions && transitions[0].DocumentId <= documentId)
+        {
+            foreach (var transition in transitions)
+            {
+                if (transition.DocumentId == documentId)
+                {
+                    return transition;
+                }
+            }
+        }
+        else if (node.States is { IsDefaultOrEmpty: false } states)
+        {
+            for (var i = 1; i < states.Length; i ++)
+            {
+                if (documentId < states[i].DocumentId)
+                {
+                    return FindTransitionNode(states[i - 1], documentId);
+                }
+            }
+
+            return FindTransitionNode(states[^1], documentId);
+        }
+
+        throw new KeyNotFoundException(Res.Format(Resources.Exception_TransitionNodeWithDocumentIdNotFound, documentId));
+    }
+
+    protected static void AddTransitionNodes(Bucket bucket, List<TransitionNode> list)
+    {
+        Infra.Requires(list);
+
+        bucket.Add(Bucket.RootKey, list.Count);
+
+        for (var i = 0; i < list.Count; i ++)
+        {
+            bucket.Add(i, list[i].DocumentId);
+        }
+    }
+
+    protected override async ValueTask<IIncomingEvent> WaitForExternalEvent()
+    {
+        await _persistingInterpreterState.CheckPoint(0).ConfigureAwait(false);
+
+        return await base.WaitForExternalEvent().ConfigureAwait(false);
+    }
 
-	protected override ValueTask ExternalQueueCompleted()
-	{
-		if (_suspending)
-		{
-			throw new StateMachineSuspendedException(Resources.Exception_StateMachineHasBeenSuspended);
-		}
+    protected override ValueTask ExternalQueueCompleted()
+    {
+        if (_suspending)
+        {
+            throw new StateMachineSuspendedException(Resources.Exception_StateMachineHasBeenSuspended);
+        }
 
-		return base.ExternalQueueCompleted();
-	}
+        return base.ExternalQueueCompleted();
+    }
 
-	protected bool Enter(StateBagKey key, out Bucket valueBucket)
-	{
-		if (_callBucket.TryGet(KeyIndex, out StateBagKey savedKey))
-		{
-			Infra.Assert(savedKey == key);
-		}
+    protected bool Enter(StateBagKey key, out Bucket valueBucket)
+    {
+        if (_callBucket.TryGet(KeyIndex, out StateBagKey savedKey))
+        {
+            Infra.Assert(savedKey == key);
+        }
 
-		if (!_callBucket.TryGet(MethodCompletedIndex, out bool methodCompleted))
-		{
-			_callBucket.Add(MethodCompletedIndex, value: false);
-			_callBucket.Add(KeyIndex, key);
-		}
+        if (!_callBucket.TryGet(MethodCompletedIndex, out bool methodCompleted))
+        {
+            _callBucket.Add(MethodCompletedIndex, value: false);
+            _callBucket.Add(KeyIndex, key);
+        }
 
-		if (methodCompleted)
-		{
-			_callIndex ++;
-		}
-		else
-		{
-			_methodBucket = _stateBucket.Nested(++ _methodIndex);
-			_methodBucket.Nested(0).Add(ReturnCallIndex, _callIndex);
-			_callIndex = 1;
-		}
+        if (methodCompleted)
+        {
+            _callIndex ++;
+        }
+        else
+        {
+            _methodBucket = _stateBucket.Nested(++ _methodIndex);
+            _methodBucket.Nested(0).Add(ReturnCallIndex, _callIndex);
+            _callIndex = 1;
+        }
 
-		_callBucket = _methodBucket.Nested(_callIndex);
-		valueBucket = _callBucket.Nested(ValueIndex);
+        _callBucket = _methodBucket.Nested(_callIndex);
+        valueBucket = _callBucket.Nested(ValueIndex);
 
-		return methodCompleted;
-	}
+        return methodCompleted;
+    }
 
-	protected void Complete(StateBagKey key, bool iteration = false)
-	{
-		var returnCallIndex = _methodBucket.Nested(0).GetInt32(ReturnCallIndex);
+    protected void Complete(StateBagKey key, bool iteration = false)
+    {
+        var returnCallIndex = _methodBucket.Nested(0).GetInt32(ReturnCallIndex);
 
-		_methodBucket.RemoveSubtree(Bucket.RootKey);
-		_methodBucket = _stateBucket.Nested(-- _methodIndex);
-		_callIndex = returnCallIndex;
-		_callBucket = _methodBucket.Nested(_callIndex);
+        _methodBucket.RemoveSubtree(Bucket.RootKey);
+        _methodBucket = _stateBucket.Nested(-- _methodIndex);
+        _callIndex = returnCallIndex;
+        _callBucket = _methodBucket.Nested(_callIndex);
 
-		Infra.Assert(_callBucket.GetEnum(KeyIndex).As<StateBagKey>() == key);
-		Infra.Assert(!_callBucket.GetBoolean(MethodCompletedIndex));
+        Infra.Assert(_callBucket.GetEnum(KeyIndex).As<StateBagKey>() == key);
+        Infra.Assert(!_callBucket.GetBoolean(MethodCompletedIndex));
 
-		if (iteration)
-		{
-			_callBucket.RemoveSubtree(Bucket.RootKey);
-		}
-		else
-		{
-			_callBucket.Add(MethodCompletedIndex, value: true);
-			_callBucket = _methodBucket.Nested(++ _callIndex);
-		}
-	}
+        if (iteration)
+        {
+            _callBucket.RemoveSubtree(Bucket.RootKey);
+        }
+        else
+        {
+            _callBucket.Add(MethodCompletedIndex, value: true);
+            _callBucket = _methodBucket.Nested(++ _callIndex);
+        }
+    }
 
-	protected enum StateBagKey
-	{
-		None,
+    protected enum StateBagKey
+    {
+        None,
 
-		ExecuteGlobalScript,
+        ExecuteGlobalScript,
 
-		InitialEnterStates,
+        InitialEnterStates,
 
-		ExitStates,
+        ExitStates,
 
-		EnterStates,
+        EnterStates,
 
-		NotifyAccepted,
+        NotifyAccepted,
 
-		NotifyStarted,
+        NotifyStarted,
 
-		NotifyExited,
+        NotifyExited,
 
-		NotifyWaiting,
+        NotifyWaiting,
 
-		Interpret,
+        Interpret,
 
-		ExitSteps,
+        ExitSteps,
 
-		InitializeDataModels,
+        InitializeDataModels,
 
-		ExternalEventTransitions,
+        ExternalEventTransitions,
 
-		MainEventLoopIteration,
+        MainEventLoopIteration,
 
-		StartInvokeLoop,
+        StartInvokeLoop,
 
-		Microstep,
+        Microstep,
 
-		InternalQueueProcess,
+        InternalQueueProcess,
 
-		IsInternalQueueEmpty,
+        IsInternalQueueEmpty,
 
-		MacrostepIteration,
+        MacrostepIteration,
 
-		Macrostep,
+        Macrostep,
 
-		ExternalQueueProcess,
+        ExternalQueueProcess,
 
-		SelectTransitions,
+        SelectTransitions,
 
-		MainEventLoop,
+        MainEventLoop,
 
-		ExitInterpreter,
+        ExitInterpreter,
 
-		ExecuteTransitionContent,
+        ExecuteTransitionContent,
 
-		RunExecutableEntity,
+        RunExecutableEntity,
 
-		Invoke,
+        Invoke,
 
-		CancelInvoke,
+        CancelInvoke,
 
-		InitializeDataModel,
+        InitializeDataModel,
 
-		InitializeData,
+        InitializeData,
 
-		EnterSteps
-	}
+        EnterSteps
+    }
 }

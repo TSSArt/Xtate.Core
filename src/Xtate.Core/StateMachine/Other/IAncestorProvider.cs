@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -24,9 +24,9 @@ namespace Xtate.Core;
 /// </summary>
 public interface IAncestorProvider
 {
-	/// <summary>
-	///     Return reference to ancestor instance when Decorator patter is implemented or <see langword="null" /> if current
-	///     instance has no ancestor
-	/// </summary>
-	object? Ancestor { get; }
+    /// <summary>
+    ///     Return reference to ancestor instance when Decorator patter is implemented or <see langword="null" /> if current
+    ///     instance has no ancestor
+    /// </summary>
+    object? Ancestor { get; }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,34 +19,34 @@ namespace Xtate.Core;
 
 public struct ScriptEntity : IScript, IVisitorEntity<ScriptEntity, IScript>, IAncestorProvider
 {
-	internal object? Ancestor;
+    internal object? Ancestor;
 
 #region Interface IAncestorProvider
 
-	readonly object? IAncestorProvider.Ancestor => Ancestor;
+    readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
 #region Interface IScript
 
-	public IScriptExpression? Content { get; set; }
+    public IScriptExpression? Content { get; set; }
 
-	public IExternalScriptExpression? Source { get; set; }
+    public IExternalScriptExpression? Source { get; set; }
 
 #endregion
 
 #region Interface IVisitorEntity<ScriptEntity,IScript>
 
-	void IVisitorEntity<ScriptEntity, IScript>.Init(IScript source)
-	{
-		Ancestor = source;
-		Content = source.Content;
-		Source = source.Source;
-	}
+    void IVisitorEntity<ScriptEntity, IScript>.Init(IScript source)
+    {
+        Ancestor = source;
+        Content = source.Content;
+        Source = source.Source;
+    }
 
-	readonly bool IVisitorEntity<ScriptEntity, IScript>.RefEquals(ref ScriptEntity other) =>
-		ReferenceEquals(Content, other.Content) &&
-		ReferenceEquals(Source, other.Source);
+    readonly bool IVisitorEntity<ScriptEntity, IScript>.RefEquals(ref ScriptEntity other) =>
+        ReferenceEquals(Content, other.Content) &&
+        ReferenceEquals(Source, other.Source);
 
 #endregion
 }

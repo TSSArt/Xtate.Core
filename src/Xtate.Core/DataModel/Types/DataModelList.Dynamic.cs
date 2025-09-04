@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -25,202 +25,202 @@ public partial class DataModelList : IDynamicMetaObjectProvider
 {
 #region Interface IDynamicMetaObjectProvider
 
-	DynamicMetaObject IDynamicMetaObjectProvider.GetMetaObject(Expression parameter) => new MetaObject(parameter, this, Dynamic.CreateMetaObject);
+    DynamicMetaObject IDynamicMetaObjectProvider.GetMetaObject(Expression parameter) => new MetaObject(parameter, this, Dynamic.CreateMetaObject);
 
 #endregion
 
-	public dynamic AsDynamic() => this;
+    public dynamic AsDynamic() => this;
 
-	internal class Dynamic(DataModelList list) : DynamicObject
-	{
-		private const string GetLength = "GetLength";
+    internal class Dynamic(DataModelList list) : DynamicObject
+    {
+        private const string GetLength = "GetLength";
 
-		private const string GetMetadata = "GetMetadata";
+        private const string GetMetadata = "GetMetadata";
 
-		private const string SetLength = "SetLength";
+        private const string SetLength = "SetLength";
 
-		private const string SetMetadata = "SetMetadata";
+        private const string SetMetadata = "SetMetadata";
 
-		private static readonly Dynamic Instance = new(default!);
+        private static readonly Dynamic Instance = new(default!);
 
-		private static readonly ConstructorInfo ConstructorInfo = typeof(Dynamic).GetConstructor([typeof(DataModelList)])!;
+        private static readonly ConstructorInfo ConstructorInfo = typeof(Dynamic).GetConstructor([typeof(DataModelList)])!;
 
-		public static DynamicMetaObject CreateMetaObject(Expression expression)
-		{
-			var newExpression = Expression.New(ConstructorInfo, Expression.Convert(expression, typeof(DataModelList)));
+        public static DynamicMetaObject CreateMetaObject(Expression expression)
+        {
+            var newExpression = Expression.New(ConstructorInfo, Expression.Convert(expression, typeof(DataModelList)));
 
-			return Instance.GetMetaObject(newExpression);
-		}
+            return Instance.GetMetaObject(newExpression);
+        }
 
-		public override bool TryGetMember(GetMemberBinder binder, out object? result)
-		{
-			result = list[binder.Name, binder.IgnoreCase].ToObject();
+        public override bool TryGetMember(GetMemberBinder binder, out object? result)
+        {
+            result = list[binder.Name, binder.IgnoreCase].ToObject();
 
-			return true;
-		}
+            return true;
+        }
 
-		public override bool TrySetMember(SetMemberBinder binder, object? value)
-		{
-			list[binder.Name, binder.IgnoreCase] = DataModelValue.FromObject(value);
+        public override bool TrySetMember(SetMemberBinder binder, object? value)
+        {
+            list[binder.Name, binder.IgnoreCase] = DataModelValue.FromObject(value);
 
-			return true;
-		}
+            return true;
+        }
 
-		public override bool TryInvokeMember(InvokeMemberBinder binder, object?[]? args, out object? result)
-		{
-			switch (args ?? [])
-			{
-				case [] when IsName(GetLength):
-				{
-					result = list._count;
+        public override bool TryInvokeMember(InvokeMemberBinder binder, object?[]? args, out object? result)
+        {
+            switch (args ?? [])
+            {
+                case [] when IsName(GetLength):
+                {
+                    result = list._count;
 
-					return true;
-				}
+                    return true;
+                }
 
-				case [] when IsName(GetMetadata):
-				{
-					result = list.GetMetadata();
+                case [] when IsName(GetMetadata):
+                {
+                    result = list.GetMetadata();
 
-					return true;
-				}
+                    return true;
+                }
 
-				case [string key] when IsName(GetMetadata):
-				{
-					result = list.TryGet(key, binder.IgnoreCase, out var entry) ? entry.Metadata : null;
+                case [string key] when IsName(GetMetadata):
+                {
+                    result = list.TryGet(key, binder.IgnoreCase, out var entry) ? entry.Metadata : null;
 
-					return true;
-				}
+                    return true;
+                }
 
-				case [IConvertible index] when IsName(GetMetadata):
-				{
-					result = list.TryGet(index.ToInt32(CultureInfo.InvariantCulture), out var entry) ? entry.Metadata : null;
+                case [IConvertible index] when IsName(GetMetadata):
+                {
+                    result = list.TryGet(index.ToInt32(CultureInfo.InvariantCulture), out var entry) ? entry.Metadata : null;
 
-					return true;
-				}
+                    return true;
+                }
 
-				case [IConvertible index] when IsName(SetLength):
-				{
-					list.SetLength(index.ToInt32(CultureInfo.InvariantCulture));
+                case [IConvertible index] when IsName(SetLength):
+                {
+                    list.SetLength(index.ToInt32(CultureInfo.InvariantCulture));
 
-					result = default;
+                    result = default;
 
-					return true;
-				}
+                    return true;
+                }
 
-				case [string key, DataModelList metadata] when IsName(SetMetadata):
-				{
-					if (list.TryGet(key, binder.IgnoreCase, out var entry))
-					{
-						list.Set(entry.Index, entry.Key, entry.Value, metadata);
-					}
-					else
-					{
-						list.Add(key, value: default, metadata);
-					}
+                case [string key, DataModelList metadata] when IsName(SetMetadata):
+                {
+                    if (list.TryGet(key, binder.IgnoreCase, out var entry))
+                    {
+                        list.Set(entry.Index, entry.Key, entry.Value, metadata);
+                    }
+                    else
+                    {
+                        list.Add(key, value: default, metadata);
+                    }
 
-					result = default;
+                    result = default;
 
-					return true;
-				}
+                    return true;
+                }
 
-				case [IConvertible key, DataModelList metadata] when IsName(SetMetadata):
-				{
-					var index = key.ToInt32(CultureInfo.InvariantCulture);
+                case [IConvertible key, DataModelList metadata] when IsName(SetMetadata):
+                {
+                    var index = key.ToInt32(CultureInfo.InvariantCulture);
 
-					if (list.TryGet(index, out var entry))
-					{
-						list.Set(entry.Index, entry.Key, entry.Value, metadata);
-					}
-					else
-					{
-						list.Set(entry.Index, key: default, value: default, metadata);
-					}
+                    if (list.TryGet(index, out var entry))
+                    {
+                        list.Set(entry.Index, entry.Key, entry.Value, metadata);
+                    }
+                    else
+                    {
+                        list.Set(entry.Index, key: default, value: default, metadata);
+                    }
 
-					result = default;
+                    result = default;
 
-					return true;
-				}
+                    return true;
+                }
 
-				default:
-				{
-					result = default;
+                default:
+                {
+                    result = default;
 
-					return false;
-				}
-			}
+                    return false;
+                }
+            }
 
-			bool IsName(string name) => string.Equals(binder.Name, name, binder.IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
-		}
+            bool IsName(string name) => string.Equals(binder.Name, name, binder.IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
+        }
 
-		public override bool TryGetIndex(GetIndexBinder binder, object[] indexes, out object? result)
-		{
-			switch (indexes.Length == 1 ? indexes[0] : null)
-			{
-				case string key:
-				{
-					result = list[key].ToObject();
+        public override bool TryGetIndex(GetIndexBinder binder, object[] indexes, out object? result)
+        {
+            switch (indexes.Length == 1 ? indexes[0] : null)
+            {
+                case string key:
+                {
+                    result = list[key].ToObject();
 
-					return true;
-				}
+                    return true;
+                }
 
-				case IConvertible index:
-				{
-					result = list[index.ToInt32(NumberFormatInfo.InvariantInfo)].ToObject();
+                case IConvertible index:
+                {
+                    result = list[index.ToInt32(NumberFormatInfo.InvariantInfo)].ToObject();
 
-					return true;
-				}
+                    return true;
+                }
 
-				default:
-				{
-					result = default;
+                default:
+                {
+                    result = default;
 
-					return false;
-				}
-			}
-		}
+                    return false;
+                }
+            }
+        }
 
-		public override bool TrySetIndex(SetIndexBinder binder, object[] indexes, object? value)
-		{
-			switch (indexes.Length == 1 ? indexes[0] : null)
-			{
-				case string key:
-				{
-					list[key] = DataModelValue.FromObject(value);
+        public override bool TrySetIndex(SetIndexBinder binder, object[] indexes, object? value)
+        {
+            switch (indexes.Length == 1 ? indexes[0] : null)
+            {
+                case string key:
+                {
+                    list[key] = DataModelValue.FromObject(value);
 
-					return true;
-				}
+                    return true;
+                }
 
-				case IConvertible index:
-				{
-					list[index.ToInt32(NumberFormatInfo.InvariantInfo)] = DataModelValue.FromObject(value);
+                case IConvertible index:
+                {
+                    list[index.ToInt32(NumberFormatInfo.InvariantInfo)] = DataModelValue.FromObject(value);
 
-					return true;
-				}
+                    return true;
+                }
 
-				default:
-					return false;
-			}
-		}
+                default:
+                    return false;
+            }
+        }
 
-		public override bool TryConvert(ConvertBinder binder, out object? result)
-		{
-			if (binder.Type == typeof(DataModelList))
-			{
-				result = list;
+        public override bool TryConvert(ConvertBinder binder, out object? result)
+        {
+            if (binder.Type == typeof(DataModelList))
+            {
+                result = list;
 
-				return true;
-			}
+                return true;
+            }
 
-			if (binder.Type == typeof(DataModelValue))
-			{
-				result = new DataModelValue(list);
+            if (binder.Type == typeof(DataModelValue))
+            {
+                result = new DataModelValue(list);
 
-				return true;
-			}
+                return true;
+            }
 
-			result = default;
+            result = default;
 
-			return false;
-		}
-	}
+            return false;
+        }
+    }
 }

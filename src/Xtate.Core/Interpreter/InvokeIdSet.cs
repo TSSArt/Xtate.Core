@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,54 +19,54 @@ namespace Xtate.Core;
 
 public sealed class InvokeIdSet : IEnumerable<InvokeId>
 {
-	public delegate void ChangeHandler(ChangedAction action, InvokeId invokeId);
+    public delegate void ChangeHandler(ChangedAction action, InvokeId invokeId);
 
-	public enum ChangedAction
-	{
-		Add,
+    public enum ChangedAction
+    {
+        Add,
 
-		Remove
-	}
+        Remove
+    }
 
-	private readonly HashSet<UniqueInvokeId> _set = [];
+    private readonly HashSet<UniqueInvokeId> _set = [];
 
-	public int Count => _set.Count;
+    public int Count => _set.Count;
 
 #region Interface IEnumerable
 
-	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
 #endregion
 
 #region Interface IEnumerable<InvokeId>
 
-	public IEnumerator<InvokeId> GetEnumerator()
-	{
-		foreach (var uniqueInvokeId in _set)
-		{
-			yield return uniqueInvokeId.InvokeId;
-		}
-	}
+    public IEnumerator<InvokeId> GetEnumerator()
+    {
+        foreach (var uniqueInvokeId in _set)
+        {
+            yield return uniqueInvokeId.InvokeId;
+        }
+    }
 
 #endregion
 
-	public event ChangeHandler? Changed;
+    public event ChangeHandler? Changed;
 
-	public void Remove(InvokeId invokeId)
-	{
-		if (_set.Remove(invokeId.UniqueId))
-		{
-			Changed?.Invoke(ChangedAction.Remove, invokeId);
-		}
-	}
+    public void Remove(InvokeId invokeId)
+    {
+        if (_set.Remove(invokeId.UniqueId))
+        {
+            Changed?.Invoke(ChangedAction.Remove, invokeId);
+        }
+    }
 
-	public void Add(InvokeId invokeId)
-	{
-		if (_set.Add(invokeId.UniqueId))
-		{
-			Changed?.Invoke(ChangedAction.Add, invokeId);
-		}
-	}
+    public void Add(InvokeId invokeId)
+    {
+        if (_set.Add(invokeId.UniqueId))
+        {
+            Changed?.Invoke(ChangedAction.Add, invokeId);
+        }
+    }
 
-	public bool Contains(InvokeId invokeId) => _set.Contains(invokeId.UniqueId);
+    public bool Contains(InvokeId invokeId) => _set.Contains(invokeId.UniqueId);
 }

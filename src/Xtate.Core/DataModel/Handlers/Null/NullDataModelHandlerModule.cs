@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,11 +21,11 @@ namespace Xtate.DataModel.Null;
 
 public class NullDataModelHandlerModule : Module<DataModelHandlerBaseModule, ErrorProcessorModule>
 {
-	protected override void AddServices()
-	{
-		Services.AddTypeSync<NullConditionExpressionEvaluator, IConditionExpression, IIdentifier>();
-		Services.AddImplementation<NullDataModelHandler.DefaultProvider>().For<IDataModelHandlerProvider>();
-		Services.AddImplementation<NullDataModelHandler.Provider>().For<IDataModelHandlerProvider>();
-		Services.AddImplementation<NullDataModelHandler>().For<NullDataModelHandler>().For<IDataModelHandler>(Option.IfNotRegistered);
-	}
+    protected override void AddServices()
+    {
+        Services.AddTypeSync<NullConditionExpressionEvaluator, IConditionExpression, IIdentifier>();
+        Services.AddImplementation<NullDataModelHandler.DefaultProvider>().For<IDataModelHandlerProvider>();
+        Services.AddImplementation<NullDataModelHandler.Provider>().For<IDataModelHandlerProvider>();
+        Services.AddImplementation<NullDataModelHandler>().For<NullDataModelHandler>().For<IDataModelHandler>(Option.IfNotRegistered);
+    }
 }

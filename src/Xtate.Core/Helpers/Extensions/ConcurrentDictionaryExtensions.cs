@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,96 +19,94 @@ namespace Xtate.Core;
 
 public static class ConcurrentDictionaryExtensions
 {
-	public static bool TryTake<TKey, TValue>(this ConcurrentDictionary<TKey, TValue> concurrentDictionary, [MaybeNullWhen(false)] out TKey key, [MaybeNullWhen(false)] out TValue value)
-		where TKey : notnull
-	{
-		key = default;
-		value = default;
+    public static bool TryTake<TKey, TValue>(this ConcurrentDictionary<TKey, TValue> concurrentDictionary, [MaybeNullWhen(false)] out TKey key, [MaybeNullWhen(false)] out TValue value)
+        where TKey : notnull
+    {
+        key = default;
+        value = default;
 
-		if (concurrentDictionary.IsEmpty)
-		{
-			return false;
-		}
+        if (concurrentDictionary.IsEmpty)
+        {
+            return false;
+        }
 
-		var enumerator = concurrentDictionary.GetEnumerator();
+        var enumerator = concurrentDictionary.GetEnumerator();
 
-		if (!enumerator.MoveNext())
-		{
-			enumerator.Dispose();
+        if (!enumerator.MoveNext())
+        {
+            enumerator.Dispose();
 
-			return false;
-		}
+            return false;
+        }
 
-		var firstKey = enumerator.Current.Key;
-		enumerator.Dispose();
+        var firstKey = enumerator.Current.Key;
+        enumerator.Dispose();
 
-		if (!concurrentDictionary.TryRemove(firstKey, out value))
-		{
-			return false;
-		}
+        if (!concurrentDictionary.TryRemove(firstKey, out value))
+        {
+            return false;
+        }
 
-		key = firstKey;
+        key = firstKey;
 
-		return true;
-	}
+        return true;
+    }
 
 #if !NET5_0_OR_GREATER
-
-	public static bool TryRemove<TKey, TValue>(this ConcurrentDictionary<TKey, TValue> concurrentDictionary, KeyValuePair<TKey, TValue> pair) =>
-		((ICollection<KeyValuePair<TKey, TValue>>) concurrentDictionary).Remove(pair);
+    public static bool TryRemove<TKey, TValue>(this ConcurrentDictionary<TKey, TValue> concurrentDictionary, KeyValuePair<TKey, TValue> pair) => ((ICollection<KeyValuePair<TKey, TValue>>)concurrentDictionary).Remove(pair);
 
 #endif
 
 #if !NETCOREAPP2_0 && !NETCOREAPP2_1_OR_GREATER && !NETSTANDARD2_1 && !NET472 && !NET48
-	public static TValue AddOrUpdate<TKey, TValue, TArg>(this ConcurrentDictionary<TKey, TValue> concurrentDictionary,
-														 TKey key,
-														 Func<TKey, TArg, TValue> addValueFactory,
-														 Func<TKey, TValue, TArg, TValue> updateValueFactory,
-														 TArg factoryArgument)
-	{
-		Infra.Requires(concurrentDictionary);
-		Infra.Requires(updateValueFactory);
-		Infra.Requires(addValueFactory);
+    public static TValue AddOrUpdate<TKey, TValue, TArg>(this ConcurrentDictionary<TKey, TValue> concurrentDictionary,
+                                                         TKey key,
+                                                         Func<TKey, TArg, TValue> addValueFactory,
+                                                         Func<TKey, TValue, TArg, TValue> updateValueFactory,
+                                                         TArg factoryArgument)
+    {
+        Infra.Requires(concurrentDictionary);
+        Infra.Requires(updateValueFactory);
+        Infra.Requires(addValueFactory);
 
-		while (true)
-		{
-			if (concurrentDictionary.TryGetValue(key, out var value))
-			{
-				var newValue = updateValueFactory(key, value, factoryArgument);
+        while (true)
+        {
+            if (concurrentDictionary.TryGetValue(key, out var value))
+            {
+                var newValue = updateValueFactory(key, value, factoryArgument);
 
-				if (concurrentDictionary.TryUpdate(key, newValue, value))
-				{
-					return newValue;
-				}
-			}
-			else
-			{
-				var newValue = addValueFactory(key, factoryArgument);
+                if (concurrentDictionary.TryUpdate(key, newValue, value))
+                {
+                    return newValue;
+                }
+            }
+            else
+            {
+                var newValue = addValueFactory(key, factoryArgument);
 
-				if (concurrentDictionary.TryAdd(key, newValue))
-				{
-					return newValue;
-				}
-			}
-		}
-	}
+                if (concurrentDictionary.TryAdd(key, newValue))
+                {
+                    return newValue;
+                }
+            }
+        }
+    }
 
-	public static TValue GetOrAdd<TKey, TValue, TArg>(this ConcurrentDictionary<TKey, TValue> concurrentDictionary,
-													  TKey key,
-													  Func<TKey, TArg, TValue> valueFactory,
-													  TArg factoryArgument)
-	{
-		Infra.Requires(concurrentDictionary);
-		Infra.Requires(valueFactory);
+    public static TValue GetOrAdd<TKey, TValue, TArg>(this ConcurrentDictionary<TKey, TValue> concurrentDictionary,
+                                                      TKey key,
+                                                      Func<TKey, TArg, TValue> valueFactory,
+                                                      TArg factoryArgument)
+    {
+        Infra.Requires(concurrentDictionary);
+        Infra.Requires(valueFactory);
 
-		if (concurrentDictionary.TryGetValue(key, out var value))
-		{
-			return value;
-		}
+        if (concurrentDictionary.TryGetValue(key, out var value))
+        {
+            return value;
+        }
 
-		var newValue = valueFactory(key, factoryArgument);
+        var newValue = valueFactory(key, factoryArgument);
 
-		return concurrentDictionary.GetOrAdd(key, newValue);
-	}
+        return concurrentDictionary.GetOrAdd(key, newValue);
+    }
 #endif
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,15 +19,15 @@ namespace Xtate.Core;
 
 public interface IRouterEvent : IIncomingEvent
 {
-	ServiceId SenderServiceId { get; }
+    ServiceId SenderServiceId { get; }
 
-	ServiceId? TargetServiceId { get; }
+    ServiceId? TargetServiceId { get; }
 
-	DataModelList? IoProcessorData { get; }
+    DataModelList? IoProcessorData { get; }
 
-	int DelayMs { get; }
+    int DelayMs { get; }
 
-	FullUri? TargetType { get; }
+    FullUri? TargetType { get; }
 
-	FullUri? Target { get; }
+    FullUri? Target { get; }
 }

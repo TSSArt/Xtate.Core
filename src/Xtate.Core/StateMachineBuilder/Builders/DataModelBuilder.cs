@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,18 +19,18 @@ namespace Xtate.Builder;
 
 public class DataModelBuilder : BuilderBase, IDataModelBuilder
 {
-	private ImmutableArray<IData>.Builder? _dataList;
+    private ImmutableArray<IData>.Builder? _dataList;
 
 #region Interface IDataModelBuilder
 
-	public IDataModel Build() => new DataModelEntity { Ancestor = Ancestor, Data = _dataList?.ToImmutable() ?? default };
+    public IDataModel Build() => new DataModelEntity { Ancestor = Ancestor, Data = _dataList?.ToImmutable() ?? default };
 
-	public void AddData(IData data)
-	{
-		Infra.Requires(data);
+    public void AddData(IData data)
+    {
+        Infra.Requires(data);
 
-		(_dataList ??= ImmutableArray.CreateBuilder<IData>()).Add(data);
-	}
+        (_dataList ??= ImmutableArray.CreateBuilder<IData>()).Add(data);
+    }
 
 #endregion
 }

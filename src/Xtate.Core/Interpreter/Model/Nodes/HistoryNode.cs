@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,49 +21,49 @@ namespace Xtate.Core;
 
 public sealed class HistoryNode : StateEntityNode, IHistory, IAncestorProvider, IDebugEntityId
 {
-	private readonly IHistory _history;
+    private readonly IHistory _history;
 
-	public HistoryNode(DocumentIdNode documentIdNode, IHistory history) : base(documentIdNode)
-	{
-		Infra.NotNull(history.Transition);
+    public HistoryNode(DocumentIdNode documentIdNode, IHistory history) : base(documentIdNode)
+    {
+        Infra.NotNull(history.Transition);
 
-		_history = history;
+        _history = history;
 
-		Id = history.Id ?? new IdentifierNode(Identifier.New());
-		Transition = history.Transition.As<TransitionNode>();
-		Transition.SetSource(this);
-	}
+        Id = history.Id ?? new IdentifierNode(Identifier.New());
+        Transition = history.Transition.As<TransitionNode>();
+        Transition.SetSource(this);
+    }
 
-	public TransitionNode Transition { get; }
+    public TransitionNode Transition { get; }
 
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => _history;
+    object IAncestorProvider.Ancestor => _history;
 
 #endregion
 
 #region Interface IDebugEntityId
 
-	FormattableString IDebugEntityId.EntityId => @$"{Id}(#{DocumentId})";
+    FormattableString IDebugEntityId.EntityId => @$"{Id}(#{DocumentId})";
 
 #endregion
 
 #region Interface IHistory
 
-	public override IIdentifier Id { get; }
+    public override IIdentifier Id { get; }
 
-	public HistoryType Type => _history.Type;
+    public HistoryType Type => _history.Type;
 
-	ITransition IHistory.Transition => _history.Transition!;
+    ITransition IHistory.Transition => _history.Transition!;
 
 #endregion
 
-	protected override void Store(Bucket bucket)
-	{
-		bucket.Add(Key.TypeInfo, TypeInfo.HistoryNode);
-		bucket.Add(Key.DocumentId, DocumentId);
-		bucket.Add(Key.HistoryType, Type);
-		bucket.AddEntity(Key.Id, Id);
-		bucket.AddEntity(Key.Transition, Transition);
-	}
+    protected override void Store(Bucket bucket)
+    {
+        bucket.Add(Key.TypeInfo, TypeInfo.HistoryNode);
+        bucket.Add(Key.DocumentId, DocumentId);
+        bucket.Add(Key.HistoryType, Type);
+        bucket.AddEntity(Key.Id, Id);
+        bucket.AddEntity(Key.Transition, Transition);
+    }
 }

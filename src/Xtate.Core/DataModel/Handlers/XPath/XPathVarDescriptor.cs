@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,39 +22,39 @@ namespace Xtate.DataModel.XPath;
 
 public class XPathVarDescriptor : IXsltContextVariable
 {
-	private static readonly XPathNodeIterator Empty = new EmptyIterator();
+    private static readonly XPathNodeIterator Empty = new EmptyIterator();
 
-	protected XPathEngine? Engine { get; private set; }
+    protected XPathEngine? Engine { get; private set; }
 
-	public required string Name { protected get; [UsedImplicitly] init; }
+    public required string Name { protected get; [UsedImplicitly] init; }
 
 #region Interface IXsltContextVariable
 
-	public virtual object Evaluate(XsltContext xsltContext) => Engine?.GetVariable(Name) ?? Empty;
+    public virtual object Evaluate(XsltContext xsltContext) => Engine?.GetVariable(Name) ?? Empty;
 
-	public virtual bool IsLocal => false;
+    public virtual bool IsLocal => false;
 
-	public virtual bool IsParam => false;
+    public virtual bool IsParam => false;
 
-	public virtual XPathResultType VariableType => XPathResultType.NodeSet;
+    public virtual XPathResultType VariableType => XPathResultType.NodeSet;
 
 #endregion
 
-	public virtual ValueTask Initialize(XPathEngine engine)
-	{
-		Engine = engine;
+    public virtual ValueTask Initialize(XPathEngine engine)
+    {
+        Engine = engine;
 
-		return default;
-	}
+        return default;
+    }
 
-	private class EmptyIterator : XPathNodeIterator
-	{
-		public override XPathNavigator Current => default!;
+    private class EmptyIterator : XPathNodeIterator
+    {
+        public override XPathNavigator Current => default!;
 
-		public override int CurrentPosition => 0;
+        public override int CurrentPosition => 0;
 
-		public override XPathNodeIterator Clone() => this;
+        public override XPathNodeIterator Clone() => this;
 
-		public override bool MoveNext() => false;
-	}
+        public override bool MoveNext() => false;
+    }
 }

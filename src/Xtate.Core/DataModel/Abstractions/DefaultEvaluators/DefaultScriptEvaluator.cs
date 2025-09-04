@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,15 +19,15 @@ namespace Xtate.DataModel;
 
 public class DefaultScriptEvaluator : ScriptEvaluator
 {
-	private readonly IExecEvaluator _evaluator;
+    private readonly IExecEvaluator _evaluator;
 
-	public DefaultScriptEvaluator(IScript script) : base(script)
-	{
-		var evaluator = base.Content?.As<IExecEvaluator>() ?? base.Source?.As<IExecEvaluator>();
-		Infra.NotNull(evaluator);
+    public DefaultScriptEvaluator(IScript script) : base(script)
+    {
+        var evaluator = base.Content?.As<IExecEvaluator>() ?? base.Source?.As<IExecEvaluator>();
+        Infra.NotNull(evaluator);
 
-		_evaluator = evaluator;
-	}
+        _evaluator = evaluator;
+    }
 
-	public override ValueTask Execute() => _evaluator.Execute();
+    public override ValueTask Execute() => _evaluator.Execute();
 }

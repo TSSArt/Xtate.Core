@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,133 +19,133 @@ namespace Xtate.Builder;
 
 public class StateMachineBuilder : BuilderBase, IStateMachineBuilder
 {
-	private BindingType _bindingType;
+    private BindingType _bindingType;
 
-	private IDataModel? _dataModel;
+    private IDataModel? _dataModel;
 
-	private string? _dataModelType;
+    private string? _dataModelType;
 
-	private ImmutableArray<IIdentifier> _initialId;
+    private ImmutableArray<IIdentifier> _initialId;
 
-	private bool _injectOptions;
+    private bool _injectOptions;
 
-	private string? _name;
+    private string? _name;
 
-	private StateMachineOptions _options;
+    private StateMachineOptions _options;
 
-	private IScript? _script;
+    private IScript? _script;
 
-	private ImmutableArray<IStateEntity>.Builder? _states;
+    private ImmutableArray<IStateEntity>.Builder? _states;
 
 #region Interface IStateMachineBuilder
 
-	public IStateMachine Build()
-	{
-		var initial = !_initialId.IsDefaultOrEmpty ? (IInitial) new InitialEntity { Transition = new TransitionEntity { Target = _initialId } } : null;
+    public IStateMachine Build()
+    {
+        var initial = !_initialId.IsDefaultOrEmpty ? (IInitial)new InitialEntity { Transition = new TransitionEntity { Target = _initialId } } : null;
 
-		var ancestor = _injectOptions ? new AncestorContainer(_options, Ancestor) : Ancestor;
+        var ancestor = _injectOptions ? new AncestorContainer(_options, Ancestor) : Ancestor;
 
-		return new StateMachineEntity
-			   {
-				   Ancestor = ancestor, Name = _name, Initial = initial, DataModelType = _dataModelType,
-				   Binding = _bindingType, States = _states?.ToImmutable() ?? default, DataModel = _dataModel, Script = _script
-			   };
-	}
+        return new StateMachineEntity
+               {
+                   Ancestor = ancestor, Name = _name, Initial = initial, DataModelType = _dataModelType,
+                   Binding = _bindingType, States = _states?.ToImmutable() ?? default, DataModel = _dataModel, Script = _script
+               };
+    }
 
-	public void SetInitial(ImmutableArray<IIdentifier> initialId)
-	{
-		Infra.RequiresNonEmptyCollection(initialId);
+    public void SetInitial(ImmutableArray<IIdentifier> initialId)
+    {
+        Infra.RequiresNonEmptyCollection(initialId);
 
-		_initialId = initialId;
-	}
+        _initialId = initialId;
+    }
 
-	public void SetName(string name)
-	{
-		Infra.RequiresNonEmptyString(name);
+    public void SetName(string name)
+    {
+        Infra.RequiresNonEmptyString(name);
 
-		_name = name;
-		_options.Name = name;
-		_injectOptions = true;
-	}
+        _name = name;
+        _options.Name = name;
+        _injectOptions = true;
+    }
 
-	public void SetBindingType(BindingType bindingType)
-	{
-		Infra.RequiresValidEnum(bindingType);
+    public void SetBindingType(BindingType bindingType)
+    {
+        Infra.RequiresValidEnum(bindingType);
 
-		_bindingType = bindingType;
-	}
+        _bindingType = bindingType;
+    }
 
-	public void AddState(IState state)
-	{
-		Infra.Requires(state);
+    public void AddState(IState state)
+    {
+        Infra.Requires(state);
 
-		(_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(state);
-	}
+        (_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(state);
+    }
 
-	public void AddParallel(IParallel parallel)
-	{
-		Infra.Requires(parallel);
+    public void AddParallel(IParallel parallel)
+    {
+        Infra.Requires(parallel);
 
-		(_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(parallel);
-	}
+        (_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(parallel);
+    }
 
-	public void AddFinal(IFinal final)
-	{
-		Infra.Requires(final);
+    public void AddFinal(IFinal final)
+    {
+        Infra.Requires(final);
 
-		(_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(final);
-	}
+        (_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(final);
+    }
 
-	public void SetDataModel(IDataModel dataModel)
-	{
-		Infra.Requires(dataModel);
+    public void SetDataModel(IDataModel dataModel)
+    {
+        Infra.Requires(dataModel);
 
-		_dataModel = dataModel;
-	}
+        _dataModel = dataModel;
+    }
 
-	public void SetScript(IScript script)
-	{
-		Infra.Requires(script);
+    public void SetScript(IScript script)
+    {
+        Infra.Requires(script);
 
-		_script = script;
-	}
+        _script = script;
+    }
 
-	public void SetDataModelType(string dataModelType)
-	{
-		Infra.Requires(dataModelType);
+    public void SetDataModelType(string dataModelType)
+    {
+        Infra.Requires(dataModelType);
 
-		_dataModelType = dataModelType;
-	}
+        _dataModelType = dataModelType;
+    }
 
-	public void SetPersistenceLevel(PersistenceLevel persistenceLevel)
-	{
-		Infra.RequiresValidEnum(persistenceLevel);
+    public void SetPersistenceLevel(PersistenceLevel persistenceLevel)
+    {
+        Infra.RequiresValidEnum(persistenceLevel);
 
-		_options.PersistenceLevel = persistenceLevel;
-		_injectOptions = true;
-	}
+        _options.PersistenceLevel = persistenceLevel;
+        _injectOptions = true;
+    }
 
-	public void SetSynchronousEventProcessing(bool value)
-	{
-		_options.SynchronousEventProcessing = value;
-		_injectOptions = true;
-	}
+    public void SetSynchronousEventProcessing(bool value)
+    {
+        _options.SynchronousEventProcessing = value;
+        _injectOptions = true;
+    }
 
-	public void SetExternalQueueSize(int size)
-	{
-		Infra.RequiresNonNegative(size);
+    public void SetExternalQueueSize(int size)
+    {
+        Infra.RequiresNonNegative(size);
 
-		_options.ExternalQueueSize = size;
-		_injectOptions = true;
-	}
+        _options.ExternalQueueSize = size;
+        _injectOptions = true;
+    }
 
-	public void SetUnhandledErrorBehaviour(UnhandledErrorBehaviour unhandledErrorBehaviour)
-	{
-		Infra.RequiresValidEnum(unhandledErrorBehaviour);
+    public void SetUnhandledErrorBehaviour(UnhandledErrorBehaviour unhandledErrorBehaviour)
+    {
+        Infra.RequiresValidEnum(unhandledErrorBehaviour);
 
-		_options.UnhandledErrorBehaviour = unhandledErrorBehaviour;
-		_injectOptions = true;
-	}
+        _options.UnhandledErrorBehaviour = unhandledErrorBehaviour;
+        _injectOptions = true;
+    }
 
 #endregion
 }

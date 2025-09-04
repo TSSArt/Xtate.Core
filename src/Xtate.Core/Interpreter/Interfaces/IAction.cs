@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,9 +19,9 @@ namespace Xtate.CustomAction;
 
 public interface IAction
 {
-	IEnumerable<IActionValue> GetValues();
+    IEnumerable<IActionValue> GetValues();
 
-	IEnumerable<IActionLocation> GetLocations();
+    IEnumerable<IActionLocation> GetLocations();
 
-	ValueTask Execute();
+    ValueTask Execute();
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,375 +21,375 @@ namespace Xtate.Persistence;
 
 public class InMemoryStorage : IStorage
 {
-	private IMemoryOwner<byte>? _baselineOwner;
+    private IMemoryOwner<byte>? _baselineOwner;
 
-	private Memory<byte> _buffer;
+    private Memory<byte> _buffer;
 
-	private List<(IMemoryOwner<byte> Owner, int Size)>? _buffers;
+    private List<(IMemoryOwner<byte> Owner, int Size)>? _buffers;
 
-	private bool _disposed;
+    private bool _disposed;
 
-	private IMemoryOwner<byte>? _owner;
+    private IMemoryOwner<byte>? _owner;
 
-	private SortedSet<Entry>? _readModel;
+    private SortedSet<Entry>? _readModel;
 
-	public InMemoryStorage(ReadOnlySpan<byte> baseline) : this(false)
-	{
-		if (!baseline.IsEmpty)
-		{
-			InitFromBaseline(baseline);
-		}
-	}
+    public InMemoryStorage(ReadOnlySpan<byte> baseline) : this(false)
+    {
+        if (!baseline.IsEmpty)
+        {
+            InitFromBaseline(baseline);
+        }
+    }
 
-	public InMemoryStorage(bool writeOnly = true)
-	{
-		if (!writeOnly)
-		{
-			_readModel = CreateReadModel();
-		}
-	}
+    public InMemoryStorage(bool writeOnly = true)
+    {
+        if (!writeOnly)
+        {
+            _readModel = CreateReadModel();
+        }
+    }
 
 #region Interface IDisposable
 
-	public void Dispose()
-	{
-		Dispose(true);
+    public void Dispose()
+    {
+        Dispose(true);
 
-		GC.SuppressFinalize(this);
-	}
+        GC.SuppressFinalize(this);
+    }
 
 #endregion
 
 #region Interface IStorage
 
-	public void Set(ReadOnlySpan<byte> key, ReadOnlySpan<byte> value)
-	{
-		if (key.IsEmpty) throw new ArgumentException(Resources.Exception_KeyShouldNotBeEmpty, nameof(key));
+    public void Set(ReadOnlySpan<byte> key, ReadOnlySpan<byte> value)
+    {
+        if (key.IsEmpty) throw new ArgumentException(Resources.Exception_KeyShouldNotBeEmpty, nameof(key));
 
-		Write(key, value);
-	}
+        Write(key, value);
+    }
 
-	public void Remove(ReadOnlySpan<byte> key)
-	{
-		if (key.IsEmpty) throw new ArgumentException(Resources.Exception_KeyShouldNotBeEmpty, nameof(key));
+    public void Remove(ReadOnlySpan<byte> key)
+    {
+        if (key.IsEmpty) throw new ArgumentException(Resources.Exception_KeyShouldNotBeEmpty, nameof(key));
 
-		Write(key, []);
-	}
+        Write(key, []);
+    }
 
-	public void RemoveAll(ReadOnlySpan<byte> prefix) => Write([], prefix);
+    public void RemoveAll(ReadOnlySpan<byte> prefix) => Write([], prefix);
 
-	public ReadOnlyMemory<byte> Get(ReadOnlySpan<byte> key)
-	{
-		if (_readModel is null)
-		{
-			throw new InvalidOperationException(Resources.Exception_StorageNotAvailableForReadOperations);
-		}
+    public ReadOnlyMemory<byte> Get(ReadOnlySpan<byte> key)
+    {
+        if (_readModel is null)
+        {
+            throw new InvalidOperationException(Resources.Exception_StorageNotAvailableForReadOperations);
+        }
 
-		var buffer = AllocateBuffer(key.Length, share: true);
-		key.CopyTo(buffer.Span);
+        var buffer = AllocateBuffer(key.Length, share: true);
+        key.CopyTo(buffer.Span);
 
-		return _readModel.TryGetValue(new Entry(buffer), out var result) ? result.Value : ReadOnlyMemory<byte>.Empty;
-	}
+        return _readModel.TryGetValue(new Entry(buffer), out var result) ? result.Value : ReadOnlyMemory<byte>.Empty;
+    }
 
 #endregion
 
-	private static IMemoryOwner<byte> Rent(int size = -1) => MemoryPool<byte>.Shared.Rent(size);
+    private static IMemoryOwner<byte> Rent(int size = -1) => MemoryPool<byte>.Shared.Rent(size);
 
-	private void InitFromBaseline(ReadOnlySpan<byte> baseline)
-	{
-		_baselineOwner = Rent(baseline.Length);
-		var memory = _baselineOwner.Memory[..baseline.Length];
-		baseline.CopyTo(memory.Span);
+    private void InitFromBaseline(ReadOnlySpan<byte> baseline)
+    {
+        _baselineOwner = Rent(baseline.Length);
+        var memory = _baselineOwner.Memory[..baseline.Length];
+        baseline.CopyTo(memory.Span);
 
-		while (!baseline.IsEmpty)
-		{
-			var keyLengthLength = Encode.GetLength(baseline[0]);
-			var keyLength = Encode.Decode(baseline[..keyLengthLength]);
-			var key = memory.Slice(keyLengthLength, keyLength);
+        while (!baseline.IsEmpty)
+        {
+            var keyLengthLength = Encode.GetLength(baseline[0]);
+            var keyLength = Encode.Decode(baseline[..keyLengthLength]);
+            var key = memory.Slice(keyLengthLength, keyLength);
 
-			var valueLengthLength = Encode.GetLength(baseline[keyLengthLength + keyLength]);
-			var valueLength = Encode.Decode(baseline.Slice(keyLengthLength + keyLength, valueLengthLength));
-			var value = memory.Slice(keyLengthLength + keyLength + valueLengthLength, valueLength);
+            var valueLengthLength = Encode.GetLength(baseline[keyLengthLength + keyLength]);
+            var valueLength = Encode.Decode(baseline.Slice(keyLengthLength + keyLength, valueLengthLength));
+            var value = memory.Slice(keyLengthLength + keyLength + valueLengthLength, valueLength);
 
-			AddToReadModel(key, value);
+            AddToReadModel(key, value);
 
-			var rowSize = keyLengthLength + keyLength + valueLengthLength + valueLength;
-			baseline = baseline[rowSize..];
-			memory = memory[rowSize..];
-		}
-	}
+            var rowSize = keyLengthLength + keyLength + valueLengthLength + valueLength;
+            baseline = baseline[rowSize..];
+            memory = memory[rowSize..];
+        }
+    }
 
-	protected virtual void Dispose(bool disposing)
-	{
-		if (disposing && !_disposed)
-		{
-			TruncateLog(true);
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing && !_disposed)
+        {
+            TruncateLog(true);
 
-			_baselineOwner?.Dispose();
+            _baselineOwner?.Dispose();
 
-			_disposed = true;
-		}
-	}
+            _disposed = true;
+        }
+    }
 
-	private void Write(in ReadOnlySpan<byte> key, in ReadOnlySpan<byte> value)
-	{
-		var keyLengthLength = Encode.GetEncodedLength(key.Length);
-		var valueLengthLength = Encode.GetEncodedLength(value.Length);
+    private void Write(in ReadOnlySpan<byte> key, in ReadOnlySpan<byte> value)
+    {
+        var keyLengthLength = Encode.GetEncodedLength(key.Length);
+        var valueLengthLength = Encode.GetEncodedLength(value.Length);
 
-		var memory = AllocateBuffer(key.Length + value.Length + keyLengthLength + valueLengthLength);
+        var memory = AllocateBuffer(key.Length + value.Length + keyLengthLength + valueLengthLength);
 
-		var keyLenMemory = memory[..keyLengthLength];
-		var keyMemory = memory.Slice(keyLengthLength, key.Length);
-		var valueLenMemory = memory.Slice(keyLengthLength + key.Length, valueLengthLength);
-		var valueMemory = memory.Slice(keyLengthLength + key.Length + valueLengthLength, value.Length);
+        var keyLenMemory = memory[..keyLengthLength];
+        var keyMemory = memory.Slice(keyLengthLength, key.Length);
+        var valueLenMemory = memory.Slice(keyLengthLength + key.Length, valueLengthLength);
+        var valueMemory = memory.Slice(keyLengthLength + key.Length + valueLengthLength, value.Length);
 
-		Encode.WriteEncodedValue(keyLenMemory.Span, key.Length);
-		key.CopyTo(keyMemory.Span);
-		Encode.WriteEncodedValue(valueLenMemory.Span, value.Length);
-		value.CopyTo(valueMemory.Span);
+        Encode.WriteEncodedValue(keyLenMemory.Span, key.Length);
+        key.CopyTo(keyMemory.Span);
+        Encode.WriteEncodedValue(valueLenMemory.Span, value.Length);
+        value.CopyTo(valueMemory.Span);
 
-		AddToReadModel(keyMemory, valueMemory);
-	}
+        AddToReadModel(keyMemory, valueMemory);
+    }
 
-	private static SortedSet<Entry> CreateReadModel() => [];
+    private static SortedSet<Entry> CreateReadModel() => [];
 
-	private void AddToReadModel(in Memory<byte> key, in Memory<byte> value)
-	{
-		if (_readModel is null)
-		{
-			return;
-		}
+    private void AddToReadModel(in Memory<byte> key, in Memory<byte> value)
+    {
+        if (_readModel is null)
+        {
+            return;
+        }
 
-		if (key.IsEmpty)
-		{
-			if (value.IsEmpty)
-			{
-				_readModel.Clear();
-			}
-			else
-			{
-				var toDelete = new List<ReadOnlyMemory<byte>>();
+        if (key.IsEmpty)
+        {
+            if (value.IsEmpty)
+            {
+                _readModel.Clear();
+            }
+            else
+            {
+                var toDelete = new List<ReadOnlyMemory<byte>>();
 
-				foreach (var entry in _readModel.GetViewBetween(new Entry(value), upperValue: default))
-				{
-					if (entry.Key.Length < value.Length || !value.Span.SequenceEqual(entry.Key[..value.Length].Span))
-					{
-						break;
-					}
+                foreach (var entry in _readModel.GetViewBetween(new Entry(value), upperValue: default))
+                {
+                    if (entry.Key.Length < value.Length || !value.Span.SequenceEqual(entry.Key[..value.Length].Span))
+                    {
+                        break;
+                    }
 
-					toDelete.Add(entry.Key);
-				}
+                    toDelete.Add(entry.Key);
+                }
 
-				foreach (var keyToDelete in toDelete)
-				{
-					_readModel.Remove(new Entry(keyToDelete));
-				}
-			}
-		}
-		else if (value.IsEmpty)
-		{
-			_readModel.Remove(new Entry(key));
-		}
-		else
-		{
-			_readModel.Remove(new Entry(key));
-			_readModel.Add(new Entry(key, value));
-		}
-	}
+                foreach (var keyToDelete in toDelete)
+                {
+                    _readModel.Remove(new Entry(keyToDelete));
+                }
+            }
+        }
+        else if (value.IsEmpty)
+        {
+            _readModel.Remove(new Entry(key));
+        }
+        else
+        {
+            _readModel.Remove(new Entry(key));
+            _readModel.Add(new Entry(key, value));
+        }
+    }
 
-	private Memory<byte> AllocateBuffer(int size, bool share = false)
-	{
-		if (_buffer.Length < size)
-		{
-			if (_owner is not null)
-			{
-				_buffers ??= [];
+    private Memory<byte> AllocateBuffer(int size, bool share = false)
+    {
+        if (_buffer.Length < size)
+        {
+            if (_owner is not null)
+            {
+                _buffers ??= [];
 
-				_buffers.Add((_owner, _owner.Memory.Length - _buffer.Length));
-			}
+                _buffers.Add((_owner, _owner.Memory.Length - _buffer.Length));
+            }
 
-			_owner = Rent();
+            _owner = Rent();
 
-			if (_owner.Memory.Length < size)
-			{
-				_owner.Dispose();
-				_owner = Rent(size);
-			}
+            if (_owner.Memory.Length < size)
+            {
+                _owner.Dispose();
+                _owner = Rent(size);
+            }
 
-			_buffer = _owner.Memory;
-		}
+            _buffer = _owner.Memory;
+        }
 
-		var result = _buffer[..size];
+        var result = _buffer[..size];
 
-		if (!share)
-		{
-			_buffer = _buffer[size..];
-		}
+        if (!share)
+        {
+            _buffer = _buffer[size..];
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	public int GetTransactionLogSize() => (_owner is not null ? _owner.Memory.Length - _buffer.Length : 0) + (_buffers?.Select(tuple => tuple.Size).Sum() ?? 0);
+    public int GetTransactionLogSize() => (_owner is not null ? _owner.Memory.Length - _buffer.Length : 0) + (_buffers?.Select(tuple => tuple.Size).Sum() ?? 0);
 
-	public void WriteTransactionLogToSpan(Span<byte> span, bool truncateLog = true)
-	{
-		if (_buffers is not null)
-		{
-			foreach (var (owner, size) in _buffers)
-			{
-				owner.Memory[..size].Span.CopyTo(span);
-				span = span[size..];
-			}
-		}
+    public void WriteTransactionLogToSpan(Span<byte> span, bool truncateLog = true)
+    {
+        if (_buffers is not null)
+        {
+            foreach (var (owner, size) in _buffers)
+            {
+                owner.Memory[..size].Span.CopyTo(span);
+                span = span[size..];
+            }
+        }
 
-		if (_owner is not null)
-		{
-			var memory = _owner.Memory.Span;
-			memory[..^_buffer.Length].CopyTo(span);
-		}
+        if (_owner is not null)
+        {
+            var memory = _owner.Memory.Span;
+            memory[..^_buffer.Length].CopyTo(span);
+        }
 
-		if (truncateLog)
-		{
-			TruncateLog(false);
-		}
-	}
+        if (truncateLog)
+        {
+            TruncateLog(false);
+        }
+    }
 
-	public int GetDataSize()
-	{
-		if (_readModel is null)
-		{
-			throw new InvalidOperationException(Resources.Exception_StorageNotAvailableForReadOperations);
-		}
+    public int GetDataSize()
+    {
+        if (_readModel is null)
+        {
+            throw new InvalidOperationException(Resources.Exception_StorageNotAvailableForReadOperations);
+        }
 
-		return _readModel.Sum(entry => Encode.GetEncodedLength(entry.Key.Length) + entry.Key.Length + Encode.GetEncodedLength(entry.Value.Length) + entry.Value.Length);
-	}
+        return _readModel.Sum(entry => Encode.GetEncodedLength(entry.Key.Length) + entry.Key.Length + Encode.GetEncodedLength(entry.Value.Length) + entry.Value.Length);
+    }
 
-	public void WriteDataToSpan(Span<byte> span, bool shrink = true)
-	{
-		if (_readModel is null)
-		{
-			throw new InvalidOperationException(Resources.Exception_StorageNotAvailableForReadOperations);
-		}
+    public void WriteDataToSpan(Span<byte> span, bool shrink = true)
+    {
+        if (_readModel is null)
+        {
+            throw new InvalidOperationException(Resources.Exception_StorageNotAvailableForReadOperations);
+        }
 
-		IMemoryOwner<byte>? newBaselineOwner = default;
-		var newBaseline = Memory<byte>.Empty;
-		SortedSet<Entry>? newReadModel = default;
+        IMemoryOwner<byte>? newBaselineOwner = default;
+        var newBaseline = Memory<byte>.Empty;
+        SortedSet<Entry>? newReadModel = default;
 
-		if (shrink)
-		{
-			newBaselineOwner = Rent(_readModel.Sum(entry => entry.Key.Length + entry.Value.Length));
-			newBaseline = newBaselineOwner.Memory;
-			newReadModel = CreateReadModel();
-		}
+        if (shrink)
+        {
+            newBaselineOwner = Rent(_readModel.Sum(entry => entry.Key.Length + entry.Value.Length));
+            newBaseline = newBaselineOwner.Memory;
+            newReadModel = CreateReadModel();
+        }
 
-		foreach (var (key, value) in _readModel)
-		{
-			var keyLengthLength = Encode.GetEncodedLength(key.Length);
-			var keyLenSpan = span[..keyLengthLength];
-			var keySpan = span.Slice(keyLengthLength, key.Length);
+        foreach (var (key, value) in _readModel)
+        {
+            var keyLengthLength = Encode.GetEncodedLength(key.Length);
+            var keyLenSpan = span[..keyLengthLength];
+            var keySpan = span.Slice(keyLengthLength, key.Length);
 
-			Encode.WriteEncodedValue(keyLenSpan, key.Length);
-			key.Span.CopyTo(keySpan);
+            Encode.WriteEncodedValue(keyLenSpan, key.Length);
+            key.Span.CopyTo(keySpan);
 
-			var valueLengthLength = Encode.GetEncodedLength(value.Length);
-			var valueLenSpan = span.Slice(keyLengthLength + key.Length, valueLengthLength);
-			var valueSpan = span.Slice(keyLengthLength + key.Length + valueLengthLength, value.Length);
+            var valueLengthLength = Encode.GetEncodedLength(value.Length);
+            var valueLenSpan = span.Slice(keyLengthLength + key.Length, valueLengthLength);
+            var valueSpan = span.Slice(keyLengthLength + key.Length + valueLengthLength, value.Length);
 
-			Encode.WriteEncodedValue(valueLenSpan, value.Length);
-			value.Span.CopyTo(valueSpan);
+            Encode.WriteEncodedValue(valueLenSpan, value.Length);
+            value.Span.CopyTo(valueSpan);
 
-			span = span[(keyLengthLength + key.Length + valueLengthLength + value.Length)..];
+            span = span[(keyLengthLength + key.Length + valueLengthLength + value.Length)..];
 
-			if (shrink)
-			{
-				var newKey = newBaseline[..key.Length];
-				var newValue = newBaseline.Slice(key.Length, value.Length);
-				key.CopyTo(newKey);
-				value.CopyTo(newValue);
-				newReadModel!.Add(new Entry(newKey, newValue));
-				newBaseline = newBaseline[(key.Length + value.Length)..];
-			}
-		}
+            if (shrink)
+            {
+                var newKey = newBaseline[..key.Length];
+                var newValue = newBaseline.Slice(key.Length, value.Length);
+                key.CopyTo(newKey);
+                value.CopyTo(newValue);
+                newReadModel!.Add(new Entry(newKey, newValue));
+                newBaseline = newBaseline[(key.Length + value.Length)..];
+            }
+        }
 
-		if (shrink)
-		{
-			TruncateLog(true);
+        if (shrink)
+        {
+            TruncateLog(true);
 
-			_readModel = newReadModel!;
-			_baselineOwner?.Dispose();
-			_baselineOwner = newBaselineOwner!;
-		}
-	}
+            _readModel = newReadModel!;
+            _baselineOwner?.Dispose();
+            _baselineOwner = newBaselineOwner!;
+        }
+    }
 
-	private void TruncateLog(bool forceDispose)
-	{
-		if (_readModel is null || forceDispose)
-		{
-			if (_buffers is not null)
-			{
-				foreach (var (owner, _) in _buffers)
-				{
-					owner.Dispose();
-				}
-			}
+    private void TruncateLog(bool forceDispose)
+    {
+        if (_readModel is null || forceDispose)
+        {
+            if (_buffers is not null)
+            {
+                foreach (var (owner, _) in _buffers)
+                {
+                    owner.Dispose();
+                }
+            }
 
-			_owner?.Dispose();
-			_owner = default;
+            _owner?.Dispose();
+            _owner = default;
 
-			_buffers = default;
-			_buffer = Memory<byte>.Empty;
-		}
-		else
-		{
-			if (_buffers is not null)
-			{
-				for (var i = 0; i < _buffers.Count; i ++)
-				{
-					_buffers[i] = (_buffers[i].Owner, 0);
-				}
-			}
+            _buffers = default;
+            _buffer = Memory<byte>.Empty;
+        }
+        else
+        {
+            if (_buffers is not null)
+            {
+                for (var i = 0; i < _buffers.Count; i ++)
+                {
+                    _buffers[i] = (_buffers[i].Owner, 0);
+                }
+            }
 
-			if (_owner is not null)
-			{
-				_buffers ??= [];
+            if (_owner is not null)
+            {
+                _buffers ??= [];
 
-				_buffers.Add((_owner, 0));
-			}
+                _buffers.Add((_owner, 0));
+            }
 
-			_owner = default;
-			_buffer = Memory<byte>.Empty;
-		}
-	}
+            _owner = default;
+            _buffer = Memory<byte>.Empty;
+        }
+    }
 
-	private readonly struct Entry(ReadOnlyMemory<byte> key, ReadOnlyMemory<byte> value = default) : IComparable<Entry>
-	{
-		public readonly ReadOnlyMemory<byte> Key = key;
+    private readonly struct Entry(ReadOnlyMemory<byte> key, ReadOnlyMemory<byte> value = default) : IComparable<Entry>
+    {
+        public readonly ReadOnlyMemory<byte> Key = key;
 
-		public readonly ReadOnlyMemory<byte> Value = value;
+        public readonly ReadOnlyMemory<byte> Value = value;
 
-	#region Interface IComparable<Entry>
+    #region Interface IComparable<Entry>
 
-		public int CompareTo(Entry other)
-		{
-			if (Key.IsEmpty)
-			{
-				return other.Key.IsEmpty ? 0 : 1;
-			}
+        public int CompareTo(Entry other)
+        {
+            if (Key.IsEmpty)
+            {
+                return other.Key.IsEmpty ? 0 : 1;
+            }
 
-			if (other.Key.IsEmpty)
-			{
-				return -1;
-			}
+            if (other.Key.IsEmpty)
+            {
+                return -1;
+            }
 
-			return Key.Span.SequenceCompareTo(other.Key.Span);
-		}
+            return Key.Span.SequenceCompareTo(other.Key.Span);
+        }
 
-	#endregion
-		
-		public void Deconstruct(out ReadOnlyMemory<byte> key, out ReadOnlyMemory<byte> value)
-		{
-			key = Key;
-			value = Value;
-		}
-	}
+    #endregion
+
+        public void Deconstruct(out ReadOnlyMemory<byte> key, out ReadOnlyMemory<byte> value)
+        {
+            key = Key;
+            value = Value;
+        }
+    }
 }

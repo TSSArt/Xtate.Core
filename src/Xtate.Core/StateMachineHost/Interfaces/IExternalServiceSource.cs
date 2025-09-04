@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,9 +19,9 @@ namespace Xtate.ExternalService;
 
 public interface IExternalServiceSource
 {
-	Uri? Source { get; }
+    Uri? Source { get; }
 
-	string? RawContent { get; }
+    string? RawContent { get; }
 
-	DataModelValue Content { get; }
+    DataModelValue Content { get; }
 }

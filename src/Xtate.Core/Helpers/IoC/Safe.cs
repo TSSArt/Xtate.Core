@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,6 +19,7 @@ namespace Xtate.Core;
 
 /// <summary>
 ///     Delegate created by the <see cref="SafeFactory{T}" /> class.
-///     This delegate is utilized to get a reference to a service or null if the service itself or any dependent services are not registered.
+///     This delegate is utilized to get a reference to a service or null if the service itself or any dependent services
+///     are not registered.
 /// </summary>
 public delegate T? Safe<out T>();

@@ -24,28 +24,28 @@ namespace Xtate.Core;
 /// <typeparam name="TTo">The target type to convert to.</typeparam>
 internal static class ConvertHelper<TFrom, TTo>
 {
-	/// <summary>
-	///     A cached delegate that performs the conversion from <typeparamref name="TFrom" /> to <typeparamref name="TTo" />.
-	/// </summary>
-	private static readonly Func<TFrom, TTo> Converter = CreateConverter();
+    /// <summary>
+    ///     A cached delegate that performs the conversion from <typeparamref name="TFrom" /> to <typeparamref name="TTo" />.
+    /// </summary>
+    private static readonly Func<TFrom, TTo> Converter = CreateConverter();
 
-	/// <summary>
-	///     Converts a value of type <typeparamref name="TFrom" /> to <typeparamref name="TTo" />.
-	/// </summary>
-	/// <param name="from">The value to convert.</param>
-	/// <returns>The converted value of type <typeparamref name="TTo" />.</returns>
-	public static TTo Convert(TFrom from) => Converter(from);
+    /// <summary>
+    ///     Converts a value of type <typeparamref name="TFrom" /> to <typeparamref name="TTo" />.
+    /// </summary>
+    /// <param name="from">The value to convert.</param>
+    /// <returns>The converted value of type <typeparamref name="TTo" />.</returns>
+    public static TTo Convert(TFrom from) => Converter(from);
 
-	/// <summary>
-	///     Creates a compiled delegate that converts from <typeparamref name="TFrom" /> to <typeparamref name="TTo" /> using
-	///     expression trees.
-	/// </summary>
-	/// <returns>A delegate that performs the conversion.</returns>
-	private static Func<TFrom, TTo> CreateConverter()
-	{
-		var arg = Expression.Parameter(typeof(TFrom));
-		var body = Expression.Convert(arg, typeof(TTo));
+    /// <summary>
+    ///     Creates a compiled delegate that converts from <typeparamref name="TFrom" /> to <typeparamref name="TTo" /> using
+    ///     expression trees.
+    /// </summary>
+    /// <returns>A delegate that performs the conversion.</returns>
+    private static Func<TFrom, TTo> CreateConverter()
+    {
+        var arg = Expression.Parameter(typeof(TFrom));
+        var body = Expression.Convert(arg, typeof(TTo));
 
-		return Expression.Lambda<Func<TFrom, TTo>>(body, arg).Compile();
-	}
+        return Expression.Lambda<Func<TFrom, TTo>>(body, arg).Compile();
+    }
 }

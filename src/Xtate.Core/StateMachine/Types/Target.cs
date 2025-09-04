@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -28,71 +28,71 @@ namespace Xtate;
 [Serializable]
 public readonly struct Target : IReadOnlyList<IIdentifier>, IEquatable<Target>, ISpanFormattable
 {
-	private const string Separator = @" ";
+    private const string Separator = @" ";
 
-	private readonly ImmutableArray<IIdentifier> _targets;
+    private readonly ImmutableArray<IIdentifier> _targets;
 
-	private Target(ImmutableArray<IIdentifier> targets) => _targets = targets;
+    private Target(ImmutableArray<IIdentifier> targets) => _targets = targets;
 
-	public bool IsDefault => _targets.IsDefault;
+    public bool IsDefault => _targets.IsDefault;
 
-	public ImmutableArray<IIdentifier> Array => _targets;
+    public ImmutableArray<IIdentifier> Array => _targets;
 
 #region Interface IEnumerable
 
-	IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) _targets).GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_targets).GetEnumerator();
 
 #endregion
 
 #region Interface IEnumerable<IIdentifier>
 
-	IEnumerator<IIdentifier> IEnumerable<IIdentifier>.GetEnumerator() => ((IEnumerable<IIdentifier>) _targets).GetEnumerator();
+    IEnumerator<IIdentifier> IEnumerable<IIdentifier>.GetEnumerator() => ((IEnumerable<IIdentifier>)_targets).GetEnumerator();
 
 #endregion
 
 #region Interface IEquatable<Target>
 
-	public bool Equals(Target other) => SegmentedName.Equals(_targets, other._targets);
+    public bool Equals(Target other) => SegmentedName.Equals(_targets, other._targets);
 
 #endregion
 
 #region Interface IFormattable
 
-	public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
+    public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
 
 #endregion
 
 #region Interface IReadOnlyCollection<IIdentifier>
 
-	public int Count => _targets.Length;
+    public int Count => _targets.Length;
 
 #endregion
 
 #region Interface IReadOnlyList<IIdentifier>
 
-	public IIdentifier this[int index] => _targets[index];
+    public IIdentifier this[int index] => _targets[index];
 
 #endregion
 
 #region Interface ISpanFormattable
 
-	public bool TryFormat(Span<char> destination,
-						  out int charsWritten,
-						  ReadOnlySpan<char> format,
-						  IFormatProvider? provider) =>
-		SegmentedName.TryFormat(_targets, Separator, destination, out charsWritten);
+    public bool TryFormat(Span<char> destination,
+                          out int charsWritten,
+                          ReadOnlySpan<char> format,
+                          IFormatProvider? provider) =>
+        SegmentedName.TryFormat(_targets, Separator, destination, out charsWritten);
 
 #endregion
 
-	public static implicit operator Target(ImmutableArray<IIdentifier> values) => new(values);
+    public static implicit operator Target(ImmutableArray<IIdentifier> values) => new(values);
 
-	public static Target Create(ReadOnlySpan<IIdentifier> values) => new([.. values]);
+    public static Target Create(ReadOnlySpan<IIdentifier> values) => new([.. values]);
 
-	public ImmutableArray<IIdentifier>.Enumerator GetEnumerator() => _targets.GetEnumerator();
+    public ImmutableArray<IIdentifier>.Enumerator GetEnumerator() => _targets.GetEnumerator();
 
-	public override int GetHashCode() => SegmentedName.GetHashCode(_targets);
+    public override int GetHashCode() => SegmentedName.GetHashCode(_targets);
 
-	public override string ToString() => SegmentedName.ToString(_targets, Separator);
+    public override string ToString() => SegmentedName.ToString(_targets, Separator);
 
-	public override bool Equals(object? obj) => obj is EventName other && Equals(other);
+    public override bool Equals(object? obj) => obj is EventName other && Equals(other);
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,10 +21,10 @@ namespace Xtate.Core;
 
 public class DataModelHandlerGetter
 {
-	public required IDataModelHandlerService DataModelHandlerService { private get; [UsedImplicitly] init; }
+    public required IDataModelHandlerService DataModelHandlerService { private get; [UsedImplicitly] init; }
 
-	public required IStateMachine StateMachine { private get; [UsedImplicitly] init; }
+    public required IStateMachine StateMachine { private get; [UsedImplicitly] init; }
 
-	[UsedImplicitly]
-	public ValueTask<IDataModelHandler> GetDataModelHandler() => DataModelHandlerService.GetDataModelHandler(StateMachine.DataModelType);
+    [UsedImplicitly]
+    public ValueTask<IDataModelHandler> GetDataModelHandler() => DataModelHandlerService.GetDataModelHandler(StateMachine.DataModelType);
 }

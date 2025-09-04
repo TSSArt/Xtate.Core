@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,56 +22,56 @@ namespace Xtate;
 /// </summary>
 public static class Const
 {
-	public const string ScxmlNs = "http://www.w3.org/2005/07/scxml";
+    public const string ScxmlNs = "http://www.w3.org/2005/07/scxml";
 
-	public const string XtateScxmlNs = "http://xtate.net/scxml";
+    public const string XtateScxmlNs = "http://xtate.net/scxml";
 
-	public const string ScxmlIoProcessorInvokeIdPrefix = @"#_";
+    public const string ScxmlIoProcessorInvokeIdPrefix = @"#_";
 
-	public const string ScxmlIoProcessorSessionIdPrefix = "#_scxml_";
+    public const string ScxmlIoProcessorSessionIdPrefix = "#_scxml_";
 
-	/// <summary>
-	///     http://www.w3.org/TR/scxml/
-	/// </summary>
-	public static readonly FullUri ScxmlServiceTypeId = new(@"http://www.w3.org/TR/scxml/");
+    /// <summary>
+    ///     http://www.w3.org/TR/scxml/
+    /// </summary>
+    public static readonly FullUri ScxmlServiceTypeId = new(@"http://www.w3.org/TR/scxml/");
 
-	/// <summary>
-	///     scxml
-	/// </summary>
-	public static readonly FullUri ScxmlServiceAliasTypeId = new(@"scxml");
+    /// <summary>
+    ///     scxml
+    /// </summary>
+    public static readonly FullUri ScxmlServiceAliasTypeId = new(@"scxml");
 
-	/// <summary>
-	///     #_internal
-	/// </summary>
-	public static readonly FullUri ScxmlIoProcessorInternalTarget = new(@"#_internal");
+    /// <summary>
+    ///     #_internal
+    /// </summary>
+    public static readonly FullUri ScxmlIoProcessorInternalTarget = new(@"#_internal");
 
-	/// <summary>
-	///     http://www.w3.org/TR/scxml/#SCXMLEventProcessor
-	/// </summary>
-	public static readonly FullUri ScxmlIoProcessorId = new(@"http://www.w3.org/TR/scxml/#SCXMLEventProcessor");
+    /// <summary>
+    ///     http://www.w3.org/TR/scxml/#SCXMLEventProcessor
+    /// </summary>
+    public static readonly FullUri ScxmlIoProcessorId = new(@"http://www.w3.org/TR/scxml/#SCXMLEventProcessor");
 
-	/// <summary>
-	///     scxml
-	/// </summary>
-	public static readonly FullUri ScxmlIoProcessorAliasId = new(@"scxml");
+    /// <summary>
+    ///     scxml
+    /// </summary>
+    public static readonly FullUri ScxmlIoProcessorAliasId = new(@"scxml");
 
-	/// <summary>
-	///     #_parent
-	/// </summary>
-	public static readonly FullUri ScxmlIoProcessorParentTarget = new(@"#_parent");
+    /// <summary>
+    ///     #_parent
+    /// </summary>
+    public static readonly FullUri ScxmlIoProcessorParentTarget = new(@"#_parent");
 
-	/// <summary>
-	///     _parent
-	/// </summary>
-	public static readonly FullUri ParentTarget = new(@"_parent");
+    /// <summary>
+    ///     _parent
+    /// </summary>
+    public static readonly FullUri ParentTarget = new(@"_parent");
 
-	/// <summary>
-	///     _internal
-	/// </summary>
-	public static readonly FullUri InternalTarget = new(@"_internal");
+    /// <summary>
+    ///     _internal
+    /// </summary>
+    public static readonly FullUri InternalTarget = new(@"_internal");
 
-	/// <summary>
-	///     ioprocessor:///
-	/// </summary>
-	public static readonly Uri ScxmlIoProcessorBaseUri = new(@"ioprocessor:///");
+    /// <summary>
+    ///     ioprocessor:///
+    /// </summary>
+    public static readonly Uri ScxmlIoProcessorBaseUri = new(@"ioprocessor:///");
 }

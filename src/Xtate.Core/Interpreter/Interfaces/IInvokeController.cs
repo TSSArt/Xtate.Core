@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,9 +19,9 @@ namespace Xtate;
 
 public interface IInvokeController
 {
-	ValueTask Start(InvokeData invokeData);
+    ValueTask Start(InvokeData invokeData);
 
-	ValueTask Cancel(InvokeId invokeId);
+    ValueTask Cancel(InvokeId invokeId);
 
-	ValueTask Forward(InvokeId invokeId, IIncomingEvent incomingEvent);
+    ValueTask Forward(InvokeId invokeId, IIncomingEvent incomingEvent);
 }

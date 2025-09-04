@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,17 +19,17 @@ namespace Xtate.Core;
 
 public interface IPersistenceContext
 {
-	int GetState(int key);
+    int GetState(int key);
 
-	int GetState(int key, int subKey);
+    int GetState(int key, int subKey);
 
-	void SetState(int key, int value);
+    void SetState(int key, int value);
 
-	void SetState(int key, int subKey, int value);
+    void SetState(int key, int subKey, int value);
 
-	void ClearState(int key);
+    void ClearState(int key);
 
-	ValueTask CheckPoint(int level);
+    ValueTask CheckPoint(int level);
 
-	ValueTask Shrink();
+    ValueTask Shrink();
 }

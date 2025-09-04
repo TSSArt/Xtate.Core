@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,179 +19,179 @@ namespace Xtate;
 
 public partial class DataModelList
 {
-	[Serializable]
-	public readonly struct Entry : IEquatable<Entry>
-	{
-		internal Entry(int index, in DataModelValue value)
-		{
-			Index = index;
-			Value = value;
-			Key = default;
-			Access = default;
-			Metadata = default;
-		}
+    [Serializable]
+    public readonly struct Entry : IEquatable<Entry>
+    {
+        internal Entry(int index, in DataModelValue value)
+        {
+            Index = index;
+            Value = value;
+            Key = default;
+            Access = default;
+            Metadata = default;
+        }
 
-		internal Entry(int index, string? key, in DataModelValue value)
-		{
-			Index = index;
-			Value = value;
-			Key = key;
-			Access = default;
-			Metadata = default;
-		}
+        internal Entry(int index, string? key, in DataModelValue value)
+        {
+            Index = index;
+            Value = value;
+            Key = key;
+            Access = default;
+            Metadata = default;
+        }
 
-		internal Entry(int index,
-					   in DataModelValue value,
-					   DataModelAccess access,
-					   DataModelList? metadata)
-		{
-			Index = index;
-			Value = value;
-			Key = default;
-			Access = access;
-			Metadata = metadata;
-		}
+        internal Entry(int index,
+                       in DataModelValue value,
+                       DataModelAccess access,
+                       DataModelList? metadata)
+        {
+            Index = index;
+            Value = value;
+            Key = default;
+            Access = access;
+            Metadata = metadata;
+        }
 
-		internal Entry(int index,
-					   string? key,
-					   in DataModelValue value,
-					   DataModelAccess access,
-					   DataModelList? metadata)
-		{
-			Index = index;
-			Value = value;
-			Key = key;
-			Access = access;
-			Metadata = metadata;
-		}
+        internal Entry(int index,
+                       string? key,
+                       in DataModelValue value,
+                       DataModelAccess access,
+                       DataModelList? metadata)
+        {
+            Index = index;
+            Value = value;
+            Key = key;
+            Access = access;
+            Metadata = metadata;
+        }
 
-		internal Entry(int index) : this() => Index = index;
+        internal Entry(int index) : this() => Index = index;
 
-		internal Entry(DataModelList? metadata) : this() => Metadata = metadata;
+        internal Entry(DataModelList? metadata) : this() => Metadata = metadata;
 
-		public int Index { get; }
+        public int Index { get; }
 
-		public string? Key { get; }
+        public string? Key { get; }
 
-		public DataModelAccess Access { get; }
+        public DataModelAccess Access { get; }
 
-		public DataModelList? Metadata { get; }
+        public DataModelList? Metadata { get; }
 
-		public DataModelValue Value { get; }
+        public DataModelValue Value { get; }
 
-	#region Interface IEquatable<Entry>
+    #region Interface IEquatable<Entry>
 
-		public bool Equals(Entry other) => Index == other.Index && Key == other.Key && Access == other.Access && Equals(Metadata, other.Metadata) && Value.Equals(other.Value);
+        public bool Equals(Entry other) => Index == other.Index && Key == other.Key && Access == other.Access && Equals(Metadata, other.Metadata) && Value.Equals(other.Value);
 
-	#endregion
+    #endregion
 
-		public override bool Equals(object? obj) => obj is Entry other && Equals(other);
+        public override bool Equals(object? obj) => obj is Entry other && Equals(other);
 
-		public override int GetHashCode() => HashCode.Combine(Index, Key, Access, Metadata, Value);
+        public override int GetHashCode() => HashCode.Combine(Index, Key, Access, Metadata, Value);
 
-		public static bool operator ==(Entry left, Entry right) => left.Equals(right);
+        public static bool operator ==(Entry left, Entry right) => left.Equals(right);
 
-		public static bool operator !=(Entry left, Entry right) => !left.Equals(right);
-	}
+        public static bool operator !=(Entry left, Entry right) => !left.Equals(right);
+    }
 
-	[Serializable]
-	public readonly struct KeyValue : IEquatable<KeyValue>
-	{
-		internal KeyValue(string? key, in DataModelValue value)
-		{
-			Key = key;
-			Value = value;
-		}
+    [Serializable]
+    public readonly struct KeyValue : IEquatable<KeyValue>
+    {
+        internal KeyValue(string? key, in DataModelValue value)
+        {
+            Key = key;
+            Value = value;
+        }
 
-		public string? Key { get; }
+        public string? Key { get; }
 
-		public DataModelValue Value { get; }
+        public DataModelValue Value { get; }
 
-	#region Interface IEquatable<KeyValue>
+    #region Interface IEquatable<KeyValue>
 
-		public bool Equals(KeyValue other) => Key == other.Key && Value.Equals(other.Value);
+        public bool Equals(KeyValue other) => Key == other.Key && Value.Equals(other.Value);
 
-	#endregion
+    #endregion
 
-		public override bool Equals(object? obj) => obj is KeyValue other && Equals(other);
+        public override bool Equals(object? obj) => obj is KeyValue other && Equals(other);
 
-		public override int GetHashCode() => HashCode.Combine(Key, Value);
+        public override int GetHashCode() => HashCode.Combine(Key, Value);
 
-		public static bool operator ==(KeyValue left, KeyValue right) => left.Equals(right);
+        public static bool operator ==(KeyValue left, KeyValue right) => left.Equals(right);
 
-		public static bool operator !=(KeyValue left, KeyValue right) => !left.Equals(right);
+        public static bool operator !=(KeyValue left, KeyValue right) => !left.Equals(right);
 
-		public void Deconstruct(out string? key, out DataModelValue value)
-		{
-			key = Key;
-			value = Value;
-		}
-	}
+        public void Deconstruct(out string? key, out DataModelValue value)
+        {
+            key = Key;
+            value = Value;
+        }
+    }
 
-	private struct Args
-	{
-		public AdapterBase Adapter;
+    private struct Args
+    {
+        public AdapterBase Adapter;
 
-		public HashKey HashKey;
+        public HashKey HashKey;
 
-		public int Index;
+        public int Index;
 
-		public string? Key;
+        public string? Key;
 
-		public KeyMetaValue[] KeyMetaValues;
+        public KeyMetaValue[] KeyMetaValues;
 
-		public HashKeyValue[] KeyValues;
+        public HashKeyValue[] KeyValues;
 
-		public Meta Meta;
+        public Meta Meta;
 
-		public MetaValue[] MetaValues;
+        public MetaValue[] MetaValues;
 
-		public int StoredCount;
+        public int StoredCount;
 
-		public DataModelValue Value;
+        public DataModelValue Value;
 
-		public DataModelValue[] Values;
-	}
+        public DataModelValue[] Values;
+    }
 
-	[Serializable]
-	private readonly struct KeyMetaValue(in HashKey hashKey, in Meta meta, in DataModelValue value)
-	{
-		public readonly HashKey HashKey = hashKey;
+    [Serializable]
+    private readonly struct KeyMetaValue(in HashKey hashKey, in Meta meta, in DataModelValue value)
+    {
+        public readonly HashKey HashKey = hashKey;
 
-		public readonly Meta Meta = meta;
+        public readonly Meta Meta = meta;
 
-		public readonly DataModelValue Value = value;
-	}
+        public readonly DataModelValue Value = value;
+    }
 
-	[Serializable]
-	private readonly struct MetaValue(in Meta meta, in DataModelValue value)
-	{
-		public readonly Meta Meta = meta;
+    [Serializable]
+    private readonly struct MetaValue(in Meta meta, in DataModelValue value)
+    {
+        public readonly Meta Meta = meta;
 
-		public readonly DataModelValue Value = value;
-	}
+        public readonly DataModelValue Value = value;
+    }
 
-	[Serializable]
-	private readonly struct HashKeyValue(in HashKey hashKey, in DataModelValue value)
-	{
-		public readonly HashKey HashKey = hashKey;
+    [Serializable]
+    private readonly struct HashKeyValue(in HashKey hashKey, in DataModelValue value)
+    {
+        public readonly HashKey HashKey = hashKey;
 
-		public readonly DataModelValue Value = value;
-	}
+        public readonly DataModelValue Value = value;
+    }
 
-	[Serializable]
-	private readonly struct HashKey(int hash, string? key)
-	{
-		public readonly int Hash = hash;
+    [Serializable]
+    private readonly struct HashKey(int hash, string? key)
+    {
+        public readonly int Hash = hash;
 
-		public readonly string? Key = key;
-	}
+        public readonly string? Key = key;
+    }
 
-	[Serializable]
-	private readonly struct Meta(DataModelAccess access, DataModelList? metadata)
-	{
-		public readonly DataModelAccess Access = access;
+    [Serializable]
+    private readonly struct Meta(DataModelAccess access, DataModelList? metadata)
+    {
+        public readonly DataModelAccess Access = access;
 
-		public readonly DataModelList? Metadata = metadata;
-	}
+        public readonly DataModelList? Metadata = metadata;
+    }
 }

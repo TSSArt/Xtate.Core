@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,34 +21,34 @@ namespace Xtate.Core;
 
 public class DataModelXDataModelProperty : IXDataModelProperty
 {
-	public required ICaseSensitivity CaseSensitivity { private get; [UsedImplicitly] init; }
+    public required ICaseSensitivity CaseSensitivity { private get; [UsedImplicitly] init; }
 
-	public required IDataModelHandler DataModelHandler { private get; [UsedImplicitly] init; }
+    public required IDataModelHandler DataModelHandler { private get; [UsedImplicitly] init; }
 
-	public required Func<Type, IAssemblyTypeInfo> TypeInfoFactory { private get; [UsedImplicitly] init; }
+    public required Func<Type, IAssemblyTypeInfo> TypeInfoFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IXDataModelProperty
 
-	public string Name => @"datamodel";
+    public string Name => @"datamodel";
 
-	public DataModelValue Value => LazyValue.Create(this, static p => p.Factory());
+    public DataModelValue Value => LazyValue.Create(this, static p => p.Factory());
 
 #endregion
 
-	private DataModelValue Factory()
-	{
-		var typeInfo = TypeInfoFactory(DataModelHandler.GetType());
+    private DataModelValue Factory()
+    {
+        var typeInfo = TypeInfoFactory(DataModelHandler.GetType());
 
-		var dataModelHandlerList = new DataModelList(CaseSensitivity.CaseInsensitive)
-								   {
-									   { @"name", typeInfo.FullTypeName },
-									   { @"assembly", typeInfo.AssemblyName },
-									   { @"version", typeInfo.AssemblyVersion },
-									   { @"vars", DataModelValue.FromObject(DataModelHandler.DataModelVars) }
-								   };
+        var dataModelHandlerList = new DataModelList(CaseSensitivity.CaseInsensitive)
+                                   {
+                                       { @"name", typeInfo.FullTypeName },
+                                       { @"assembly", typeInfo.AssemblyName },
+                                       { @"version", typeInfo.AssemblyVersion },
+                                       { @"vars", DataModelValue.FromObject(DataModelHandler.DataModelVars) }
+                                   };
 
-		dataModelHandlerList.MakeDeepConstant();
+        dataModelHandlerList.MakeDeepConstant();
 
-		return dataModelHandlerList;
-	}
+        return dataModelHandlerList;
+    }
 }

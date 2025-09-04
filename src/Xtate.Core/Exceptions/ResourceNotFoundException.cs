@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -20,9 +20,9 @@ namespace Xtate;
 [Serializable]
 public class ResourceNotFoundException : XtateException
 {
-	public ResourceNotFoundException() { }
+    public ResourceNotFoundException() { }
 
-	public ResourceNotFoundException(string? message) : base(message) { }
+    public ResourceNotFoundException(string? message) : base(message) { }
 
-	public ResourceNotFoundException(string? message, Exception? innerException) : base(message, innerException) { }
+    public ResourceNotFoundException(string? message, Exception? innerException) : base(message, innerException) { }
 }

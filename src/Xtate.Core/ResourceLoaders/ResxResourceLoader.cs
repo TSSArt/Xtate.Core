@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -24,31 +24,31 @@ namespace Xtate.Core;
 
 public class ResxResourceLoader : IResourceLoader
 {
-	public class Provider() : ResourceLoaderProviderBase<ResxResourceLoader>(uri => uri is { IsAbsoluteUri: true, Scheme: @"res" or @"resx" });
+    public class Provider() : ResourceLoaderProviderBase<ResxResourceLoader>(uri => uri is { IsAbsoluteUri: true, Scheme: @"res" or @"resx" });
 
-	public required IIoBoundTask IoBoundTask { private get; [UsedImplicitly] init; }
+    public required IIoBoundTask IoBoundTask { private get; [UsedImplicitly] init; }
 
-	public required Func<Stream, ContentType?, Resource> ResourceFactory { private get; [UsedImplicitly] init; }
+    public required Func<Stream, ContentType?, Resource> ResourceFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IResourceLoader
 
-	public async ValueTask<Resource> Request(Uri uri, NameValueCollection? headers) => ResourceFactory(await GetResourceStreamAsync(uri).ConfigureAwait(false), arg2: default);
+    public async ValueTask<Resource> Request(Uri uri, NameValueCollection? headers) => ResourceFactory(await GetResourceStreamAsync(uri).ConfigureAwait(false), arg2: default);
 
 #endregion
 
-	private Task<Stream> GetResourceStreamAsync(Uri uri) => IoBoundTask.Factory.StartNew(() => GetResourceStream(uri));
+    private Task<Stream> GetResourceStreamAsync(Uri uri) => IoBoundTask.Factory.StartNew(() => GetResourceStream(uri));
 
-	protected virtual Stream GetResourceStream(Uri uri)
-	{
-		var assemblyName = uri.Host;
+    protected virtual Stream GetResourceStream(Uri uri)
+    {
+        var assemblyName = uri.Host;
 
-		var name = uri.GetComponents(UriComponents.Path, UriFormat.Unescaped).Replace(oldChar: '/', newChar: '.');
+        var name = uri.GetComponents(UriComponents.Path, UriFormat.Unescaped).Replace(oldChar: '/', newChar: '.');
 
-		if (Assembly.Load(assemblyName).GetManifestResourceStream(name) is { } stream)
-		{
-			return stream;
-		}
+        if (Assembly.Load(assemblyName).GetManifestResourceStream(name) is { } stream)
+        {
+            return stream;
+        }
 
-		throw new ResourceNotFoundException(Res.Format(Resources.Exception_ResourceNotFound, uri));
-	}
+        throw new ResourceNotFoundException(Res.Format(Resources.Exception_ResourceNotFound, uri));
+    }
 }

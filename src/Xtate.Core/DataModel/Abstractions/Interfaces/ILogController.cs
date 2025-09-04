@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,7 +19,7 @@ namespace Xtate.DataModel;
 
 public interface ILogController
 {
-	bool IsEnabled { get; }
+    bool IsEnabled { get; }
 
-	ValueTask Log(string? message = default, DataModelValue arguments = default);
+    ValueTask Log(string? message = default, DataModelValue arguments = default);
 }

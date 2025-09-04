@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,27 +19,27 @@ namespace Xtate.Builder;
 
 public class ScriptBuilder : BuilderBase, IScriptBuilder
 {
-	private IScriptExpression? _body;
+    private IScriptExpression? _body;
 
-	private IExternalScriptExpression? _source;
+    private IExternalScriptExpression? _source;
 
 #region Interface IScriptBuilder
 
-	public IScript Build() => new ScriptEntity { Ancestor = Ancestor, Source = _source, Content = _body };
+    public IScript Build() => new ScriptEntity { Ancestor = Ancestor, Source = _source, Content = _body };
 
-	public void SetSource(IExternalScriptExpression source)
-	{
-		Infra.Requires(source);
+    public void SetSource(IExternalScriptExpression source)
+    {
+        Infra.Requires(source);
 
-		_source = source;
-	}
+        _source = source;
+    }
 
-	public void SetBody(IScriptExpression body)
-	{
-		Infra.Requires(body);
+    public void SetBody(IScriptExpression body)
+    {
+        Infra.Requires(body);
 
-		_body = body;
-	}
+        _body = body;
+    }
 
 #endregion
 }

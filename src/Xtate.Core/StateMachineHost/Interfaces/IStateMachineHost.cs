@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,21 +21,21 @@ namespace Xtate.Core;
 
 public interface IStateMachineHost : IHostEventDispatcher
 {
-	ImmutableArray<IEventRouter> GetIoProcessors();
+    ImmutableArray<IEventRouter> GetIoProcessors();
 
-	ValueTask<SendStatus> DispatchEvent(ServiceId serviceId, IOutgoingEvent outgoingEvent, CancellationToken token);
+    ValueTask<SendStatus> DispatchEvent(ServiceId serviceId, IOutgoingEvent outgoingEvent, CancellationToken token);
 
-	ValueTask CancelEvent(SessionId sessionId, SendId sendId, CancellationToken token);
+    ValueTask CancelEvent(SessionId sessionId, SendId sendId, CancellationToken token);
 
-	ValueTask StartInvoke(SessionId sessionId,
-						  Uri? location,
-						  InvokeData invokeData,
-						  CancellationToken token);
+    ValueTask StartInvoke(SessionId sessionId,
+                          Uri? location,
+                          InvokeData invokeData,
+                          CancellationToken token);
 
-	ValueTask CancelInvoke(SessionId sessionId, InvokeId invokeId, CancellationToken token);
+    ValueTask CancelInvoke(SessionId sessionId, InvokeId invokeId, CancellationToken token);
 
-	ValueTask ForwardEvent(SessionId sessionId,
-						   InvokeId invokeId,
-						   IIncomingEvent incomingEvent,
-						   CancellationToken token);
+    ValueTask ForwardEvent(SessionId sessionId,
+                           InvokeId invokeId,
+                           IIncomingEvent incomingEvent,
+                           CancellationToken token);
 }

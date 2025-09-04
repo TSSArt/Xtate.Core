@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,18 +19,18 @@ namespace Xtate.Core;
 
 public sealed class InProcEventSchedulerFactory : IEventSchedulerFactory
 {
-	public static IEventSchedulerFactory Instance { get; } = new InProcEventSchedulerFactory();
+    public static IEventSchedulerFactory Instance { get; } = new InProcEventSchedulerFactory();
 
 #region Interface IEventSchedulerFactory
 
-	public ValueTask<IEventScheduler> CreateEventScheduler(IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger? logger, CancellationToken token) =>
-		new(
-			new InProcEventScheduler
-			{
-				Logger = null,
-				EventRouters = null,
-				TaskMonitor = null
-			}); //TODO: move factory to IoC
+    public ValueTask<IEventScheduler> CreateEventScheduler(IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger? logger, CancellationToken token) =>
+        new(
+            new InProcEventScheduler
+            {
+                Logger = null,
+                EventRouters = null,
+                TaskMonitor = null
+            }); //TODO: move factory to IoC
 
 #endregion
 }

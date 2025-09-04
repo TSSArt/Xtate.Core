@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,118 +19,118 @@ namespace Xtate.Persistence;
 
 internal sealed class OrderedSetPersistingController<T> : IDisposable where T : class, IDocumentId
 {
-	private const int DocumentId = 0;
+    private const int DocumentId = 0;
 
-	private const int Operation = 1;
+    private const int Operation = 1;
 
-	private const int Added = 2;
+    private const int Added = 2;
 
-	private const int Deleted = 3;
+    private const int Deleted = 3;
 
-	private readonly Bucket _bucket;
+    private readonly Bucket _bucket;
 
-	private readonly OrderedSet<T> _orderedSet;
+    private readonly OrderedSet<T> _orderedSet;
 
-	private int _record;
+    private int _record;
 
-	public OrderedSetPersistingController(in Bucket bucket, OrderedSet<T> orderedSet, ImmutableDictionary<int, IEntity> entityMap)
-	{
-		if (entityMap is null) throw new ArgumentNullException(nameof(entityMap));
+    public OrderedSetPersistingController(in Bucket bucket, OrderedSet<T> orderedSet, ImmutableDictionary<int, IEntity> entityMap)
+    {
+        if (entityMap is null) throw new ArgumentNullException(nameof(entityMap));
 
-		_bucket = bucket;
-		_orderedSet = orderedSet ?? throw new ArgumentNullException(nameof(orderedSet));
+        _bucket = bucket;
+        _orderedSet = orderedSet ?? throw new ArgumentNullException(nameof(orderedSet));
 
-		var shrink = !orderedSet.IsEmpty;
+        var shrink = !orderedSet.IsEmpty;
 
-		while (true)
-		{
-			var recordBucket = bucket.Nested(_record);
+        while (true)
+        {
+            var recordBucket = bucket.Nested(_record);
 
-			if (!recordBucket.TryGet(Operation, out int operation) ||
-				!recordBucket.TryGet(DocumentId, out int documentId))
-			{
-				break;
-			}
+            if (!recordBucket.TryGet(Operation, out int operation) ||
+                !recordBucket.TryGet(DocumentId, out int documentId))
+            {
+                break;
+            }
 
-			switch (operation)
-			{
-				case Added:
-					orderedSet.Add(entityMap[documentId].As<T>());
+            switch (operation)
+            {
+                case Added:
+                    orderedSet.Add(entityMap[documentId].As<T>());
 
-					break;
+                    break;
 
-				case Deleted:
-					orderedSet.Delete(entityMap[documentId].As<T>());
-					shrink = true;
+                case Deleted:
+                    orderedSet.Delete(entityMap[documentId].As<T>());
+                    shrink = true;
 
-					break;
-			}
+                    break;
+            }
 
-			_record ++;
-		}
+            _record ++;
+        }
 
-		if (shrink)
-		{
-			bucket.RemoveSubtree(Bucket.RootKey);
+        if (shrink)
+        {
+            bucket.RemoveSubtree(Bucket.RootKey);
 
-			_record = 0;
+            _record = 0;
 
-			foreach (var entity in orderedSet)
-			{
-				var recordBucket = bucket.Nested(_record ++);
-				recordBucket.Add(DocumentId, entity.As<IDocumentId>().DocumentId);
-				recordBucket.Add(Operation, Added);
-			}
-		}
+            foreach (var entity in orderedSet)
+            {
+                var recordBucket = bucket.Nested(_record ++);
+                recordBucket.Add(DocumentId, entity.As<IDocumentId>().DocumentId);
+                recordBucket.Add(Operation, Added);
+            }
+        }
 
-		orderedSet.Changed += OnChanged;
-	}
+        orderedSet.Changed += OnChanged;
+    }
 
 #region Interface IDisposable
 
-	public void Dispose()
-	{
-		_orderedSet.Changed -= OnChanged;
-	}
+    public void Dispose()
+    {
+        _orderedSet.Changed -= OnChanged;
+    }
 
 #endregion
 
-	private void OnChanged(OrderedSet<T>.ChangedAction action, T? item)
-	{
-		switch (action)
-		{
-			case OrderedSet<T>.ChangedAction.Add:
-			{
-				var bucket = _bucket.Nested(_record ++);
-				bucket.Add(DocumentId, item!.As<IDocumentId>().DocumentId);
-				bucket.Add(Operation, Added);
+    private void OnChanged(OrderedSet<T>.ChangedAction action, T? item)
+    {
+        switch (action)
+        {
+            case OrderedSet<T>.ChangedAction.Add:
+            {
+                var bucket = _bucket.Nested(_record ++);
+                bucket.Add(DocumentId, item!.As<IDocumentId>().DocumentId);
+                bucket.Add(Operation, Added);
 
-				break;
-			}
+                break;
+            }
 
-			case OrderedSet<T>.ChangedAction.Clear:
-				_record = 0;
-				_bucket.RemoveSubtree(Bucket.RootKey);
+            case OrderedSet<T>.ChangedAction.Clear:
+                _record = 0;
+                _bucket.RemoveSubtree(Bucket.RootKey);
 
-				break;
+                break;
 
-			case OrderedSet<T>.ChangedAction.Delete:
-				if (_orderedSet.IsEmpty)
-				{
-					_record = 0;
-					_bucket.RemoveSubtree(Bucket.RootKey);
-				}
-				else
-				{
-					var bucket = _bucket.Nested(_record ++);
-					bucket.Add(DocumentId, item!.As<IDocumentId>().DocumentId);
-					bucket.Add(Operation, Deleted);
-				}
+            case OrderedSet<T>.ChangedAction.Delete:
+                if (_orderedSet.IsEmpty)
+                {
+                    _record = 0;
+                    _bucket.RemoveSubtree(Bucket.RootKey);
+                }
+                else
+                {
+                    var bucket = _bucket.Nested(_record ++);
+                    bucket.Add(DocumentId, item!.As<IDocumentId>().DocumentId);
+                    bucket.Add(Operation, Deleted);
+                }
 
-				break;
+                break;
 
-			default:
-				throw Infra.Unmatched(action);
-		}
-	}
+            default:
+                throw Infra.Unmatched(action);
+        }
+    }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,41 +21,45 @@ namespace Xtate.Core;
 
 public class EventQueue : IEventQueueReader, IEventQueueWriter, IEventDispatcher, IDisposable
 {
-	protected virtual void Dispose(bool disposing)
-	{
-		if (disposing)
-		{
-			_channel.Writer.TryComplete();
-		}
-	}
+    private readonly Channel<IIncomingEvent> _channel = Channel.CreateUnbounded<IIncomingEvent>();
 
-	public void Dispose()
-	{
-		Dispose(true);
-		GC.SuppressFinalize(this);
-	}
+#region Interface IDisposable
 
-	private readonly Channel<IIncomingEvent> _channel = Channel.CreateUnbounded<IIncomingEvent>();
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
 
-	#region Interface IEventDispatcher
+#endregion
 
-	public ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token) => WriteAsync(incomingEvent, token);
+#region Interface IEventDispatcher
+
+    public ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token) => WriteAsync(incomingEvent, token);
 
 #endregion
 
 #region Interface IEventQueueReader
 
-	public bool TryReadEvent([MaybeNullWhen(false)] out IIncomingEvent incomingEvent) => _channel.Reader.TryRead(out incomingEvent);
+    public bool TryReadEvent([MaybeNullWhen(false)] out IIncomingEvent incomingEvent) => _channel.Reader.TryRead(out incomingEvent);
 
-	public ValueTask<bool> WaitToEvent() => _channel.Reader.WaitToReadAsync();
+    public ValueTask<bool> WaitToEvent() => _channel.Reader.WaitToReadAsync();
 
-	public void Complete() => _channel.Writer.TryComplete();
+    public void Complete() => _channel.Writer.TryComplete();
 
 #endregion
 
 #region Interface IEventQueueWriter
 
-	public ValueTask WriteAsync(IIncomingEvent incomingEvent, CancellationToken token) => _channel.Writer.WriteAsync(incomingEvent, token);
+    public ValueTask WriteAsync(IIncomingEvent incomingEvent, CancellationToken token) => _channel.Writer.WriteAsync(incomingEvent, token);
 
 #endregion
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _channel.Writer.TryComplete();
+        }
+    }
 }

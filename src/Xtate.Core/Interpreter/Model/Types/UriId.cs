@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -20,19 +20,19 @@ namespace Xtate;
 [Serializable]
 public sealed class UriId : ServiceId
 {
-	private UriId(FullUri uri) => Uri = uri;
+    private UriId(FullUri uri) => Uri = uri;
 
-	public override string ServiceType => nameof(UriId);
+    public override string ServiceType => nameof(UriId);
 
-	public override string Value => Uri.ToString();
+    public override string Value => Uri.ToString();
 
-	public FullUri Uri { get; }
+    public FullUri Uri { get; }
 
-	protected override string GenerateId() => throw new NotSupportedException();
+    protected override string GenerateId() => throw new NotSupportedException();
 
-	public override int GetHashCode() => HashCode.Combine(Uri);
+    public override int GetHashCode() => HashCode.Combine(Uri);
 
-	public override bool Equals(object? obj) => Uri.Equals(obj);
+    public override bool Equals(object? obj) => Uri.Equals(obj);
 
-	public static UriId FromUri(FullUri uri) => new(uri);
+    public static UriId FromUri(FullUri uri) => new(uri);
 }

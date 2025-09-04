@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -18,21 +18,21 @@
 namespace Xtate.Persistence;
 
 internal sealed class StateMachineHostClusterContext(StateMachineHostOptions options)
-	: StateMachineHostContext(options, new PersistedEventSchedulerFactory(options))
+    : StateMachineHostContext(options, new PersistedEventSchedulerFactory(options))
 {
-	[Obsolete]
-	protected override StateMachineControllerBase CreateStateMachineController(SessionId sessionId,
-																			   IStateMachine? stateMachine,
-																			   IStateMachineOptions? stateMachineOptions,
-																			   Uri? stateMachineLocation
+    [Obsolete]
+    protected override StateMachineControllerBase CreateStateMachineController(SessionId sessionId,
+                                                                               IStateMachine? stateMachine,
+                                                                               IStateMachineOptions? stateMachineOptions,
+                                                                               Uri? stateMachineLocation
 
-		//, InterpreterOptions defaultOptions
-	) =>
-		new StateMachineSingleMacroStepController(sessionId, stateMachineOptions, stateMachine, stateMachineLocation /*, defaultOptions*/)
-		{
-			EventQueueWriter = default!,
-			StateMachineInterpreter = default,
-			TaskMonitor = null,
-			StateMachineStatus = null
-		};
+        //, InterpreterOptions defaultOptions
+    ) =>
+        new StateMachineSingleMacroStepController(sessionId, stateMachineOptions, stateMachine, stateMachineLocation /*, defaultOptions*/)
+        {
+            EventQueueWriter = default!,
+            StateMachineInterpreter = default,
+            TaskMonitor = null,
+            StateMachineStatus = null
+        };
 }

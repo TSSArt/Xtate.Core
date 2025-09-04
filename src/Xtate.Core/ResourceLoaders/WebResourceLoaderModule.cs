@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,10 +22,10 @@ namespace Xtate.Core;
 
 public class WebResourceLoaderModule : Module<ResourceModule, ToolsModule>
 {
-	protected override void AddServices()
-	{
-		Services.AddSharedImplementation<WebResourceLoader.Provider>(SharedWithin.Container).For<IResourceLoaderProvider>();
-		Services.AddImplementation<WebResourceLoader>().For<WebResourceLoader>().For<IResourceLoader>();
-		Services.AddTransient(_ => new HttpClient());
-	}
+    protected override void AddServices()
+    {
+        Services.AddSharedImplementation<WebResourceLoader.Provider>(SharedWithin.Container).For<IResourceLoaderProvider>();
+        Services.AddImplementation<WebResourceLoader>().For<WebResourceLoader>().For<IResourceLoader>();
+        Services.AddTransient(_ => new HttpClient());
+    }
 }

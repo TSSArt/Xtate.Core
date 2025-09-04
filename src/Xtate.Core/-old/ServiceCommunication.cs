@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,35 +21,35 @@ namespace Xtate.Core;
 
 [Obsolete]
 internal class ServiceCommunication(
-	IStateMachineHost host,
-	FullUri? target,
-	FullUri type,
-	InvokeId invokeId) : IServiceCommunication
+    IStateMachineHost host,
+    FullUri? target,
+    FullUri type,
+    InvokeId invokeId) : IServiceCommunication
 {
 #region Interface IServiceCommunication
 
-	public async ValueTask SendToCreator(IOutgoingEvent outgoingEvent, CancellationToken token)
-	{
-		if (outgoingEvent.Type is not null || outgoingEvent.SendId is not null || outgoingEvent.DelayMs != 0)
-		{
-			throw new ProcessorException(Resources.Exception_TypeSendIdDelayMsCantBeSpecifiedForThisEvent);
-		}
+    public async ValueTask SendToCreator(IOutgoingEvent outgoingEvent, CancellationToken token)
+    {
+        if (outgoingEvent.Type is not null || outgoingEvent.SendId is not null || outgoingEvent.DelayMs != 0)
+        {
+            throw new ProcessorException(Resources.Exception_TypeSendIdDelayMsCantBeSpecifiedForThisEvent);
+        }
 
-		if (outgoingEvent.Target != Const.ParentTarget && outgoingEvent.Target is not null)
-		{
-			throw new ProcessorException(Resources.Exception_TargetShouldBeEqualToParentOrNull);
-		}
+        if (outgoingEvent.Target != Const.ParentTarget && outgoingEvent.Target is not null)
+        {
+            throw new ProcessorException(Resources.Exception_TargetShouldBeEqualToParentOrNull);
+        }
 
-		var newOutgoingEvent = new EventEntity
-							   {
-								   Name = outgoingEvent.Name,
-								   Data = outgoingEvent.Data,
-								   Type = type,
-								   Target = target
-							   };
+        var newOutgoingEvent = new EventEntity
+                               {
+                                   Name = outgoingEvent.Name,
+                                   Data = outgoingEvent.Data,
+                                   Type = type,
+                                   Target = target
+                               };
 
-		await host.DispatchEvent(invokeId, newOutgoingEvent, token).ConfigureAwait(false);
-	}
+        await host.DispatchEvent(invokeId, newOutgoingEvent, token).ConfigureAwait(false);
+    }
 
 #endregion
 }

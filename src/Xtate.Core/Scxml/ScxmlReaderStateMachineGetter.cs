@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,45 +22,45 @@ namespace Xtate.Core;
 
 public class ScxmlReaderStateMachineGetter
 {
-	public required IScxmlDeserializer ScxmlDeserializer { private get; [UsedImplicitly] init; }
+    public required IScxmlDeserializer ScxmlDeserializer { private get; [UsedImplicitly] init; }
 
-	public required IScxmlStateMachine ScxmlStateMachine { private get; [UsedImplicitly] init; }
+    public required IScxmlStateMachine ScxmlStateMachine { private get; [UsedImplicitly] init; }
 
-	public required ScxmlXmlResolver ScxmlXmlResolver { private get; [UsedImplicitly] init; }
+    public required ScxmlXmlResolver ScxmlXmlResolver { private get; [UsedImplicitly] init; }
 
-	public required IStateMachineLocation StateMachineLocation { private get; [UsedImplicitly] init; }
+    public required IStateMachineLocation StateMachineLocation { private get; [UsedImplicitly] init; }
 
-	public required INameTableProvider NameTableProvider { private get; [UsedImplicitly] init; }
+    public required INameTableProvider NameTableProvider { private get; [UsedImplicitly] init; }
 
-	public required IStateMachineValidator StateMachineValidator { private get; [UsedImplicitly] init; }
+    public required IStateMachineValidator StateMachineValidator { private get; [UsedImplicitly] init; }
 
-	public virtual async ValueTask<IStateMachine> GetStateMachine()
-	{
-		using var xmlReader = CreateXmlReader();
+    public virtual async ValueTask<IStateMachine> GetStateMachine()
+    {
+        using var xmlReader = CreateXmlReader();
 
-		var stateMachine = await ScxmlDeserializer.Deserialize(xmlReader).ConfigureAwait(false);
+        var stateMachine = await ScxmlDeserializer.Deserialize(xmlReader).ConfigureAwait(false);
 
-		StateMachineValidator.Validate(stateMachine);
+        StateMachineValidator.Validate(stateMachine);
 
-		return stateMachine;
-	}
+        return stateMachine;
+    }
 
-	protected virtual XmlReader CreateXmlReader() => XmlReader.Create(ScxmlStateMachine.CreateTextReader(), GetXmlReaderSettings(), GetXmlParserContext());
+    protected virtual XmlReader CreateXmlReader() => XmlReader.Create(ScxmlStateMachine.CreateTextReader(), GetXmlReaderSettings(), GetXmlParserContext());
 
-	protected virtual XmlReaderSettings GetXmlReaderSettings() =>
-		new()
-		{
-			Async = true,
-			CloseInput = true,
-			XmlResolver = ScxmlXmlResolver,
-			DtdProcessing = DtdProcessing.Parse
-		};
+    protected virtual XmlReaderSettings GetXmlReaderSettings() =>
+        new()
+        {
+            Async = true,
+            CloseInput = true,
+            XmlResolver = ScxmlXmlResolver,
+            DtdProcessing = DtdProcessing.Parse
+        };
 
-	protected virtual XmlParserContext GetXmlParserContext()
-	{
-		var nameTable = NameTableProvider.GetNameTable();
-		var nsManager = new XmlNamespaceManager(nameTable);
+    protected virtual XmlParserContext GetXmlParserContext()
+    {
+        var nameTable = NameTableProvider.GetNameTable();
+        var nsManager = new XmlNamespaceManager(nameTable);
 
-		return new XmlParserContext(nameTable, nsManager, xmlLang: null, XmlSpace.None) { BaseURI = StateMachineLocation.Location?.ToString() ?? string.Empty };
-	}
+        return new XmlParserContext(nameTable, nsManager, xmlLang: null, XmlSpace.None) { BaseURI = StateMachineLocation.Location?.ToString() ?? string.Empty };
+    }
 }

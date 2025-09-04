@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,19 +19,19 @@ namespace Xtate.Core;
 
 public struct ElseEntity : IElse, IVisitorEntity<ElseEntity, IElse>, IAncestorProvider
 {
-	internal object? Ancestor;
+    internal object? Ancestor;
 
 #region Interface IAncestorProvider
 
-	readonly object? IAncestorProvider.Ancestor => Ancestor;
+    readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
 #region Interface IVisitorEntity<ElseEntity,IElse>
 
-	void IVisitorEntity<ElseEntity, IElse>.Init(IElse source) => Ancestor = source;
+    void IVisitorEntity<ElseEntity, IElse>.Init(IElse source) => Ancestor = source;
 
-	readonly bool IVisitorEntity<ElseEntity, IElse>.RefEquals(ref ElseEntity other) => true;
+    readonly bool IVisitorEntity<ElseEntity, IElse>.RefEquals(ref ElseEntity other) => true;
 
 #endregion
 }

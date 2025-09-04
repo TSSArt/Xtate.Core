@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -24,52 +24,52 @@ namespace Xtate.Core;
 
 public class WebResourceLoader : IResourceLoader
 {
-	public class Provider() : ResourceLoaderProviderBase<WebResourceLoader>(uri => uri is { IsAbsoluteUri: true, Scheme: @"http" or @"https" });
+    public class Provider() : ResourceLoaderProviderBase<WebResourceLoader>(uri => uri is { IsAbsoluteUri: true, Scheme: @"http" or @"https" });
 
-	public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
+    public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
 
-	public required Func<Stream, ContentType?, Resource> ResourceFactory { private get; [UsedImplicitly] init; }
+    public required Func<Stream, ContentType?, Resource> ResourceFactory { private get; [UsedImplicitly] init; }
 
-	public required Func<HttpClient> HttpClientFactory { private get; [UsedImplicitly] init; }
+    public required Func<HttpClient> HttpClientFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IResourceLoader
 
-	public virtual async ValueTask<Resource> Request(Uri uri, NameValueCollection? headers)
-	{
-		Infra.Requires(uri);
+    public virtual async ValueTask<Resource> Request(Uri uri, NameValueCollection? headers)
+    {
+        Infra.Requires(uri);
 
-		using var request = CreateRequestMessage(uri, headers);
-		using var httpClient = HttpClientFactory();
+        using var request = CreateRequestMessage(uri, headers);
+        using var httpClient = HttpClientFactory();
 
-		var response = await httpClient.SendAsync(request, DisposeToken).ConfigureAwait(false);
-		var contentType = response.Content.Headers.ContentType?.MediaType is { Length: > 0 } value ? new ContentType(value) : null;
+        var response = await httpClient.SendAsync(request, DisposeToken).ConfigureAwait(false);
+        var contentType = response.Content.Headers.ContentType?.MediaType is { Length: > 0 } value ? new ContentType(value) : null;
 
 #if NET5_0_OR_GREATER
-		var stream = await response.Content.ReadAsStreamAsync(DisposeToken).ConfigureAwait(false);
+        var stream = await response.Content.ReadAsStreamAsync(DisposeToken).ConfigureAwait(false);
 #else
-		var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+        var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
 #endif
 
-		return ResourceFactory(stream, contentType);
-	}
+        return ResourceFactory(stream, contentType);
+    }
 
 #endregion
 
-	protected virtual HttpRequestMessage CreateRequestMessage(Uri uri, NameValueCollection? headers)
-	{
-		var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+    protected virtual HttpRequestMessage CreateRequestMessage(Uri uri, NameValueCollection? headers)
+    {
+        var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
 
-		if (headers is not null)
-		{
-			for (var i = 0; i < headers.Count; i ++)
-			{
-				if (headers.GetKey(i) is { Length: > 0 } key)
-				{
-					httpRequestMessage.Headers.Add(key, headers.Get(i));
-				}
-			}
-		}
+        if (headers is not null)
+        {
+            for (var i = 0; i < headers.Count; i ++)
+            {
+                if (headers.GetKey(i) is { Length: > 0 } key)
+                {
+                    httpRequestMessage.Headers.Add(key, headers.Get(i));
+                }
+            }
+        }
 
-		return httpRequestMessage;
-	}
+        return httpRequestMessage;
+    }
 }

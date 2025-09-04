@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,42 +21,42 @@ namespace Xtate;
 
 public sealed partial class StateMachineHost : IExternalServiceProvider, IExternalServiceActivator
 {
-	private static readonly FullUri ServiceFactoryTypeId = new(@"http://www.w3.org/TR/scxml/");
+    private static readonly FullUri ServiceFactoryTypeId = new(@"http://www.w3.org/TR/scxml/");
 
-	private static readonly FullUri ServiceFactoryAliasTypeId = new(@"scxml");
+    private static readonly FullUri ServiceFactoryAliasTypeId = new(@"scxml");
 
 #region Interface IExternalServiceActivator
 
-	public ValueTask<IExternalService> Create() => throw new NotImplementedException();
+    public ValueTask<IExternalService> Create() => throw new NotImplementedException();
 
 #endregion
 
 #region Interface IExternalServiceProvider
 
-	IExternalServiceActivator? IExternalServiceProvider.TryGetActivator(FullUri type) => CanHandle(type) ? this : null;
+    IExternalServiceActivator? IExternalServiceProvider.TryGetActivator(FullUri type) => CanHandle(type) ? this : null;
 
 #endregion
 
-	private static bool CanHandle(FullUri type) => type == ServiceFactoryTypeId || type == ServiceFactoryAliasTypeId;
-	/*
-	[Obsolete]
-	async ValueTask<IExternalService> IExternalServiceActivator.Create(Uri? baseUri,
-																			 InvokeData invokeData,
-																			 IServiceCommunication serviceCommunication)
-	{
-		Infra.Assert(CanHandle(invokeData.Type));
+    private static bool CanHandle(FullUri type) => type == ServiceFactoryTypeId || type == ServiceFactoryAliasTypeId;
+    /*
+    [Obsolete]
+    async ValueTask<IExternalService> IExternalServiceActivator.Create(Uri? baseUri,
+                                                                             InvokeData invokeData,
+                                                                             IServiceCommunication serviceCommunication)
+    {
+        Infra.Assert(CanHandle(invokeData.Type));
 
-		var sessionId = SessionId.New();
-		var scxml = invokeData.RawContent ?? invokeData.Content.AsStringOrDefault();
-		var parameters = invokeData.Parameters;
-		var source = invokeData.Source;
+        var sessionId = SessionId.New();
+        var scxml = invokeData.RawContent ?? invokeData.Content.AsStringOrDefault();
+        var parameters = invokeData.Parameters;
+        var source = invokeData.Source;
 
-		Infra.Assert(scxml is not null || source is not null);
+        Infra.Assert(scxml is not null || source is not null);
 
-		var stateMachineClass = scxml is not null
-			? (StateMachineClass) new ScxmlStringStateMachine(scxml) { Location = baseUri!, Arguments = parameters }
-			: new LocationStateMachine(baseUri.CombineWith(source!)) { Arguments = parameters };
+        var stateMachineClass = scxml is not null
+            ? (StateMachineClass) new ScxmlStringStateMachine(scxml) { Location = baseUri!, Arguments = parameters }
+            : new LocationStateMachine(baseUri.CombineWith(source!)) { Arguments = parameters };
 
-		return await StartStateMachine(stateMachineClass, SecurityContextType.InvokedService).ConfigureAwait(false);
-	}*/
+        return await StartStateMachine(stateMachineClass, SecurityContextType.InvokedService).ConfigureAwait(false);
+    }*/
 }

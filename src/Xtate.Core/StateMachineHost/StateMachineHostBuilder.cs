@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -25,188 +25,188 @@ namespace Xtate;
 
 public sealed class StateMachineHostBuilder : IStateMachineHostBuilder
 {
-	private readonly List<object> _actions = [];
+    private readonly List<object> _actions = [];
 
-	private Uri? _baseUri;
+    private Uri? _baseUri;
 
-	private ImmutableDictionary<string, string>.Builder? _configuration;
+    private ImmutableDictionary<string, string>.Builder? _configuration;
 
-	//private ImmutableArray<ICustomActionFactory>.Builder?   _customActionFactories;
-	//private HostMode                                        _hostMode;
-	private ImmutableArray<IIoProcessorFactory>.Builder? _ioProcessorFactories;
+    //private ImmutableArray<ICustomActionFactory>.Builder?   _customActionFactories;
+    //private HostMode                                        _hostMode;
+    private ImmutableArray<IIoProcessorFactory>.Builder? _ioProcessorFactories;
 
-	//private ILoggerOld?                                     _logger;
-	private PersistenceLevel _persistenceLevel;
+    //private ILoggerOld?                                     _logger;
+    private PersistenceLevel _persistenceLevel;
 
-	//private ImmutableArray<IResourceLoaderFactory>.Builder? _resourceLoaderFactories;
-	private ImmutableArray<IExternalServiceProvider>.Builder? _serviceFactories;
+    //private ImmutableArray<IResourceLoaderFactory>.Builder? _resourceLoaderFactories;
+    private ImmutableArray<IExternalServiceProvider>.Builder? _serviceFactories;
 
-	private IStorageProvider? _storageProvider;
+    private IStorageProvider? _storageProvider;
 
-	private TimeSpan? _suspendIdlePeriod;
+    private TimeSpan? _suspendIdlePeriod;
 
-	private UnhandledErrorBehaviour _unhandledErrorBehaviour;
+    private UnhandledErrorBehaviour _unhandledErrorBehaviour;
 
-	//private ValidationMode                                  _validationMode;
-	/*
-	public StateMachineHost Build(ServiceLocator serviceLocator)
-	{
-		var serviceScope = serviceLocator.GetService<IServiceScopeFactory>()
-										 .CreateScope(
-											 collection =>
-											 {
-												 foreach (var action in _actions)
-												 {
-													 switch (action)
-													 {
-														 case Action<IServiceCollection> action1:
-															 action1(collection);
-															 break;
-														 case Func<IServiceCollection, IServiceCollection> action2:
-															 action2(collection);
-															 break;
-													 }
-												 }
-											 });
+    //private ValidationMode                                  _validationMode;
+    /*
+    public StateMachineHost Build(ServiceLocator serviceLocator)
+    {
+        var serviceScope = serviceLocator.GetService<IServiceScopeFactory>()
+                                         .CreateScope(
+                                             collection =>
+                                             {
+                                                 foreach (var action in _actions)
+                                                 {
+                                                     switch (action)
+                                                     {
+                                                         case Action<IServiceCollection> action1:
+                                                             action1(collection);
+                                                             break;
+                                                         case Func<IServiceCollection, IServiceCollection> action2:
+                                                             action2(collection);
+                                                             break;
+                                                     }
+                                                 }
+                                             });
 
-		serviceLocator = new ServiceLocator(serviceScope.ServiceProvider);
+        serviceLocator = new ServiceLocator(serviceScope.ServiceProvider);
 
-		var option = new StateMachineHostOptions()
-					 {
-						 IoProcessorFactories = _ioProcessorFactories?.ToImmutable() ?? default,
-						 ServiceFactories = _serviceFactories?.ToImmutable() ?? default,
-						 CustomActionFactories = _customActionFactories?.ToImmutable() ?? default,
-						 ResourceLoaderFactories = _resourceLoaderFactories?.ToImmutable() ?? default,
-						 Configuration = _configuration?.ToImmutable() ?? ImmutableDictionary<string, string>.Empty,
-						 BaseUri = _baseUri,
-						 Logger = _logger,
-						 PersistenceLevel = _persistenceLevel,
-						 StorageProvider = _storageProvider,
-						 SuspendIdlePeriod = _suspendIdlePeriod,
-						 ValidationMode = _validationMode,
-						 UnhandledErrorBehaviour = _unhandledErrorBehaviour,
-						 HostMode = _hostMode
-					 };
+        var option = new StateMachineHostOptions()
+                     {
+                         IoProcessorFactories = _ioProcessorFactories?.ToImmutable() ?? default,
+                         ServiceFactories = _serviceFactories?.ToImmutable() ?? default,
+                         CustomActionFactories = _customActionFactories?.ToImmutable() ?? default,
+                         ResourceLoaderFactories = _resourceLoaderFactories?.ToImmutable() ?? default,
+                         Configuration = _configuration?.ToImmutable() ?? ImmutableDictionary<string, string>.Empty,
+                         BaseUri = _baseUri,
+                         Logger = _logger,
+                         PersistenceLevel = _persistenceLevel,
+                         StorageProvider = _storageProvider,
+                         SuspendIdlePeriod = _suspendIdlePeriod,
+                         ValidationMode = _validationMode,
+                         UnhandledErrorBehaviour = _unhandledErrorBehaviour,
+                         HostMode = _hostMode
+                     };
 
-		return new StateMachineHost(option)
-			   { _dataConverter = new DataConverter(null), ServiceFactories = AsyncEnumerable.Empty<IServiceFactory>(), _ioProcessorFactories = AsyncEnumerable.Empty<IIoProcessorFactory>() , _scopeManager = };
-	}*/
+        return new StateMachineHost(option)
+               { _dataConverter = new DataConverter(null), ServiceFactories = AsyncEnumerable.Empty<IServiceFactory>(), _ioProcessorFactories = AsyncEnumerable.Empty<IIoProcessorFactory>() , _scopeManager = };
+    }*/
 
-	//TODO:
-	public StateMachineHostBuilder AddServices(Action<IServiceCollection> action)
-	{
-		_actions.Add(action);
+    //TODO:
+    public StateMachineHostBuilder AddServices(Action<IServiceCollection> action)
+    {
+        _actions.Add(action);
 
-		return this;
-	}
+        return this;
+    }
 
-	//TODO:
-	public StateMachineHostBuilder AddServices(Func<IServiceCollection, IServiceCollection> action)
-	{
-		_actions.Add(action);
+    //TODO:
+    public StateMachineHostBuilder AddServices(Func<IServiceCollection, IServiceCollection> action)
+    {
+        _actions.Add(action);
 
-		return this;
-	}
-	/*
-	public StateMachineHostBuilder SetLogger(ILoggerOld logger)
-	{
-		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        return this;
+    }
+    /*
+    public StateMachineHostBuilder SetLogger(ILoggerOld logger)
+    {
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-		return this;
-	}*/
+        return this;
+    }*/
 
-	public StateMachineHostBuilder DisableVerboseValidation() =>
+    public StateMachineHostBuilder DisableVerboseValidation() =>
 
-		//_validationMode = ValidationMode.Default;
-		this;
+        //_validationMode = ValidationMode.Default;
+        this;
 
-	public StateMachineHostBuilder SetSuspendIdlePeriod(TimeSpan suspendIdlePeriod)
-	{
-		Infra.RequiresPositive(suspendIdlePeriod);
+    public StateMachineHostBuilder SetSuspendIdlePeriod(TimeSpan suspendIdlePeriod)
+    {
+        Infra.RequiresPositive(suspendIdlePeriod);
 
-		_suspendIdlePeriod = suspendIdlePeriod;
+        _suspendIdlePeriod = suspendIdlePeriod;
 
-		return this;
-	}
-	/*
-	public StateMachineHostBuilder AddResourceLoaderFactory(IResourceLoaderFactory resourceLoaderFactory)
-	{
-		if (resourceLoaderFactory is null) throw new ArgumentNullException(nameof(resourceLoaderFactory));
+        return this;
+    }
+    /*
+    public StateMachineHostBuilder AddResourceLoaderFactory(IResourceLoaderFactory resourceLoaderFactory)
+    {
+        if (resourceLoaderFactory is null) throw new ArgumentNullException(nameof(resourceLoaderFactory));
 
-		(_resourceLoaderFactories ??= ImmutableArray.CreateBuilder<IResourceLoaderFactory>()).Add(resourceLoaderFactory);
+        (_resourceLoaderFactories ??= ImmutableArray.CreateBuilder<IResourceLoaderFactory>()).Add(resourceLoaderFactory);
 
-		return this;
-	}*/
+        return this;
+    }*/
 
-	public StateMachineHostBuilder SetPersistence(PersistenceLevel persistenceLevel, IStorageProvider storageProvider)
-	{
-		if (persistenceLevel is < PersistenceLevel.None or > PersistenceLevel.ExecutableAction)
-		{
-			throw new InvalidEnumArgumentException(nameof(persistenceLevel), (int) persistenceLevel, typeof(PersistenceLevel));
-		}
+    public StateMachineHostBuilder SetPersistence(PersistenceLevel persistenceLevel, IStorageProvider storageProvider)
+    {
+        if (persistenceLevel is < PersistenceLevel.None or > PersistenceLevel.ExecutableAction)
+        {
+            throw new InvalidEnumArgumentException(nameof(persistenceLevel), (int)persistenceLevel, typeof(PersistenceLevel));
+        }
 
-		_persistenceLevel = persistenceLevel;
-		_storageProvider = storageProvider ?? throw new ArgumentNullException(nameof(storageProvider));
+        _persistenceLevel = persistenceLevel;
+        _storageProvider = storageProvider ?? throw new ArgumentNullException(nameof(storageProvider));
 
-		return this;
-	}
+        return this;
+    }
 
-	public StateMachineHostBuilder AddIoProcessorFactory(IIoProcessorFactory ioProcessorFactory)
-	{
-		(_ioProcessorFactories ??= ImmutableArray.CreateBuilder<IIoProcessorFactory>()).Add(ioProcessorFactory);
+    public StateMachineHostBuilder AddIoProcessorFactory(IIoProcessorFactory ioProcessorFactory)
+    {
+        (_ioProcessorFactories ??= ImmutableArray.CreateBuilder<IIoProcessorFactory>()).Add(ioProcessorFactory);
 
-		return this;
-	}
+        return this;
+    }
 
-	public StateMachineHostBuilder AddServiceFactory(IExternalServiceProvider externalServiceProvider)
-	{
-		(_serviceFactories ??= ImmutableArray.CreateBuilder<IExternalServiceProvider>()).Add(externalServiceProvider);
+    public StateMachineHostBuilder AddServiceFactory(IExternalServiceProvider externalServiceProvider)
+    {
+        (_serviceFactories ??= ImmutableArray.CreateBuilder<IExternalServiceProvider>()).Add(externalServiceProvider);
 
-		return this;
-	}
-	/*
-	public StateMachineHostBuilder AddCustomActionFactory(ICustomActionFactory customActionFactory)
-	{
-		if (customActionFactory is null) throw new ArgumentNullException(nameof(customActionFactory));
+        return this;
+    }
+    /*
+    public StateMachineHostBuilder AddCustomActionFactory(ICustomActionFactory customActionFactory)
+    {
+        if (customActionFactory is null) throw new ArgumentNullException(nameof(customActionFactory));
 
-		(_customActionFactories ??= ImmutableArray.CreateBuilder<ICustomActionFactory>()).Add(customActionFactory);
+        (_customActionFactories ??= ImmutableArray.CreateBuilder<ICustomActionFactory>()).Add(customActionFactory);
 
-		return this;
-	}*/
+        return this;
+    }*/
 
-	public StateMachineHostBuilder SetConfigurationValue(string key, string value)
-	{
-		(_configuration ??= ImmutableDictionary.CreateBuilder<string, string>())[key] = value ?? throw new ArgumentNullException(nameof(value));
+    public StateMachineHostBuilder SetConfigurationValue(string key, string value)
+    {
+        (_configuration ??= ImmutableDictionary.CreateBuilder<string, string>())[key] = value ?? throw new ArgumentNullException(nameof(value));
 
-		return this;
-	}
+        return this;
+    }
 
-	public StateMachineHostBuilder SetBaseUri(Uri uri)
-	{
-		_baseUri = uri ?? throw new ArgumentNullException(nameof(uri));
+    public StateMachineHostBuilder SetBaseUri(Uri uri)
+    {
+        _baseUri = uri ?? throw new ArgumentNullException(nameof(uri));
 
-		return this;
-	}
+        return this;
+    }
 
-	public StateMachineHostBuilder SetUnhandledErrorBehaviour(UnhandledErrorBehaviour unhandledErrorBehaviour)
-	{
-		if (unhandledErrorBehaviour is < UnhandledErrorBehaviour.DestroyStateMachine or > UnhandledErrorBehaviour.IgnoreError)
-		{
-			throw new InvalidEnumArgumentException(nameof(unhandledErrorBehaviour), (int) unhandledErrorBehaviour, typeof(UnhandledErrorBehaviour));
-		}
+    public StateMachineHostBuilder SetUnhandledErrorBehaviour(UnhandledErrorBehaviour unhandledErrorBehaviour)
+    {
+        if (unhandledErrorBehaviour is < UnhandledErrorBehaviour.DestroyStateMachine or > UnhandledErrorBehaviour.IgnoreError)
+        {
+            throw new InvalidEnumArgumentException(nameof(unhandledErrorBehaviour), (int)unhandledErrorBehaviour, typeof(UnhandledErrorBehaviour));
+        }
 
-		_unhandledErrorBehaviour = unhandledErrorBehaviour;
+        _unhandledErrorBehaviour = unhandledErrorBehaviour;
 
-		return this;
-	}
+        return this;
+    }
 
-	public StateMachineHostBuilder SetClusterHostMode() =>
+    public StateMachineHostBuilder SetClusterHostMode() =>
 
-		//_hostMode = HostMode.Cluster;
-		this;
+        //_hostMode = HostMode.Cluster;
+        this;
 
-	public StateMachineHostBuilder SetStandaloneHostMode() =>
+    public StateMachineHostBuilder SetStandaloneHostMode() =>
 
-		//_hostMode = HostMode.Standalone;
-		this;
+        //_hostMode = HostMode.Standalone;
+        this;
 }

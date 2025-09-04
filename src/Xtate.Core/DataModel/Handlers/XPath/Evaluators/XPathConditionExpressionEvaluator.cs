@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,30 +19,30 @@ namespace Xtate.DataModel.XPath;
 
 public class XPathConditionExpressionEvaluator(IConditionExpression conditionExpression, XPathCompiledExpression compiledExpression) : IConditionExpression, IBooleanEvaluator, IAncestorProvider
 {
-	public required Func<ValueTask<XPathEngine>> EngineFactory { private get; [UsedImplicitly] init; }
+    public required Func<ValueTask<XPathEngine>> EngineFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => conditionExpression;
+    object IAncestorProvider.Ancestor => conditionExpression;
 
 #endregion
 
 #region Interface IBooleanEvaluator
 
-	public async ValueTask<bool> EvaluateBoolean()
-	{
-		var engine = await EngineFactory().ConfigureAwait(false);
+    public async ValueTask<bool> EvaluateBoolean()
+    {
+        var engine = await EngineFactory().ConfigureAwait(false);
 
-		var obj = await engine.EvalObject(compiledExpression, stripRoots: true).ConfigureAwait(false);
+        var obj = await engine.EvalObject(compiledExpression, stripRoots: true).ConfigureAwait(false);
 
-		return obj.AsBoolean();
-	}
+        return obj.AsBoolean();
+    }
 
 #endregion
 
 #region Interface IConditionExpression
 
-	public string? Expression => conditionExpression.Expression;
+    public string? Expression => conditionExpression.Expression;
 
 #endregion
 }

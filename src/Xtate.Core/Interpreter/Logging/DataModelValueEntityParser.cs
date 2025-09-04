@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,11 +19,11 @@ namespace Xtate.Core;
 
 public class DataModelValueEntityParser<TSource> : EntityParserBase<TSource, DataModelValue>
 {
-	protected override IEnumerable<LoggingParameter> EnumerateProperties(DataModelValue value)
-	{
-		if (!value.IsUndefined())
-		{
-			yield return new LoggingParameter(name: @"Parameter", value);
-		}
-	}
+    protected override IEnumerable<LoggingParameter> EnumerateProperties(DataModelValue value)
+    {
+        if (!value.IsUndefined())
+        {
+            yield return new LoggingParameter(name: @"Parameter", value);
+        }
+    }
 }

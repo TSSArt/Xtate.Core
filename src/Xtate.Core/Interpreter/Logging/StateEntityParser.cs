@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,11 +19,11 @@ namespace Xtate.Core;
 
 public class StateEntityParser<TSource> : EntityParserBase<TSource, IStateEntity>
 {
-	protected override IEnumerable<LoggingParameter> EnumerateProperties(IStateEntity stateEntity)
-	{
-		if (stateEntity.Id is { } stateId)
-		{
-			yield return new LoggingParameter(name: @"StateId", stateId);
-		}
-	}
+    protected override IEnumerable<LoggingParameter> EnumerateProperties(IStateEntity stateEntity)
+    {
+        if (stateEntity.Id is { } stateId)
+        {
+            yield return new LoggingParameter(name: @"StateId", stateId);
+        }
+    }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,9 +19,9 @@ namespace Xtate;
 
 public interface IHistory : IEntity
 {
-	IIdentifier? Id { get; }
+    IIdentifier? Id { get; }
 
-	HistoryType Type { get; }
+    HistoryType Type { get; }
 
-	ITransition? Transition { get; }
+    ITransition? Transition { get; }
 }

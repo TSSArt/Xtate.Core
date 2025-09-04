@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -20,13 +20,13 @@ namespace Xtate.Core;
 [Flags]
 public enum SecurityContextPermissions
 {
-	None = 0x0000_0000,
+    None = 0x0000_0000,
 
-	RunIoBoundTask = 0x0000_0001,
+    RunIoBoundTask = 0x0000_0001,
 
-	CreateStateMachine = 0x0000_0002,
+    CreateStateMachine = 0x0000_0002,
 
-	CreateTrustedStateMachine = 0x0000_0004,
+    CreateTrustedStateMachine = 0x0000_0004,
 
-	Full = 0x7FFF_FFFF
+    Full = 0x7FFF_FFFF
 }

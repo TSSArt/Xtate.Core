@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,29 +19,29 @@ namespace Xtate.Core;
 
 public struct ConditionExpression : IConditionExpression, IVisitorEntity<ConditionExpression, IConditionExpression>, IAncestorProvider
 {
-	internal object? Ancestor;
+    internal object? Ancestor;
 
 #region Interface IAncestorProvider
 
-	readonly object? IAncestorProvider.Ancestor => Ancestor;
+    readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
 #region Interface IConditionExpression
 
-	public string? Expression { get; set; }
+    public string? Expression { get; set; }
 
 #endregion
 
 #region Interface IVisitorEntity<ConditionExpression,IConditionExpression>
 
-	void IVisitorEntity<ConditionExpression, IConditionExpression>.Init(IConditionExpression source)
-	{
-		Ancestor = source;
-		Expression = source.Expression;
-	}
+    void IVisitorEntity<ConditionExpression, IConditionExpression>.Init(IConditionExpression source)
+    {
+        Ancestor = source;
+        Expression = source.Expression;
+    }
 
-	readonly bool IVisitorEntity<ConditionExpression, IConditionExpression>.RefEquals(ref ConditionExpression other) => ReferenceEquals(Expression, other.Expression);
+    readonly bool IVisitorEntity<ConditionExpression, IConditionExpression>.RefEquals(ref ConditionExpression other) => ReferenceEquals(Expression, other.Expression);
 
 #endregion
 }
