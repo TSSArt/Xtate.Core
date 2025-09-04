@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,110 +19,110 @@ namespace Xtate.Core;
 
 public abstract class AsyncInit<T> : AsyncInit
 {
-	private T? _value;
+    private T? _value;
 
-	public T Value => Task.Status == TaskStatus.RanToCompletion ? _value! : throw new InvalidOperationException(Resources.ErrorMessage_Not_initialized);
+    public T Value => Task.Status == TaskStatus.RanToCompletion ? _value! : throw new InvalidOperationException(Resources.ErrorMessage_Not_initialized);
 
-	protected void SetValue(T value) => _value = value;
+    protected void SetValue(T value) => _value = value;
 }
 
 public abstract class AsyncInit
 {
-	public abstract Task Task { get; }
+    public abstract Task Task { get; }
 
-	public AsyncInit Then(AsyncInit asyncInit) => new Wrapper(this, asyncInit);
+    public AsyncInit Then(AsyncInit asyncInit) => new Wrapper(this, asyncInit);
 
-	/// <summary>
-	///     Runs delegate
-	///     <param name="init">init</param>
-	///     after completing constructors and setting up required fields and properties.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <typeparam name="TArg"></typeparam>
-	/// <param name="arg">Argument</param>
-	/// <param name="init">Initialization action</param>
-	/// <returns></returns>
-	public static AsyncInit<T> Run<T, TArg>(TArg arg, Func<TArg, ValueTask<T>> init) => new InitAfter<T, TArg>(arg, init);
+    /// <summary>
+    ///     Runs delegate
+    ///     <param name="init">init</param>
+    ///     after completing constructors and setting up required fields and properties.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="TArg"></typeparam>
+    /// <param name="arg">Argument</param>
+    /// <param name="init">Initialization action</param>
+    /// <returns></returns>
+    public static AsyncInit<T> Run<T, TArg>(TArg arg, Func<TArg, ValueTask<T>> init) => new InitAfter<T, TArg>(arg, init);
 
-	/// <summary>
-	///     Runs delegate
-	///     <param name="init">init</param>
-	///     after completing constructors and setting up required fields and properties.
-	/// </summary>
-	/// <param name="init">Initialization action</param>
-	/// <returns></returns>
-	public static AsyncInit Run(Func<ValueTask> init) => new InitAfter(init);
+    /// <summary>
+    ///     Runs delegate
+    ///     <param name="init">init</param>
+    ///     after completing constructors and setting up required fields and properties.
+    /// </summary>
+    /// <param name="init">Initialization action</param>
+    /// <returns></returns>
+    public static AsyncInit Run(Func<ValueTask> init) => new InitAfter(init);
 
-	private sealed class InitAfter<T, TArg>(TArg arg, Func<TArg, ValueTask<T>> func) : AsyncInit<T>
-	{
-		private Task? _task;
+    private sealed class InitAfter<T, TArg>(TArg arg, Func<TArg, ValueTask<T>> func) : AsyncInit<T>
+    {
+        private Task? _task;
 
-		public override Task Task
-		{
-			get
-			{
-				if (_task is { } task)
-				{
-					return task;
-				}
+        public override Task Task
+        {
+            get
+            {
+                if (_task is { } task)
+                {
+                    return task;
+                }
 
-				lock (this)
-				{
-					return _task ??= Init();
-				}
-			}
-		}
+                lock (this)
+                {
+                    return _task ??= Init();
+                }
+            }
+        }
 
-		private async Task Init() => SetValue(await func(arg).ConfigureAwait(false));
-	}
+        private async Task Init() => SetValue(await func(arg).ConfigureAwait(false));
+    }
 
-	private sealed class InitAfter(Func<ValueTask> func) : AsyncInit
-	{
-		private Task? _task;
+    private sealed class InitAfter(Func<ValueTask> func) : AsyncInit
+    {
+        private Task? _task;
 
-		public override Task Task
-		{
-			get
-			{
-				if (_task is { } task)
-				{
-					return task;
-				}
+        public override Task Task
+        {
+            get
+            {
+                if (_task is { } task)
+                {
+                    return task;
+                }
 
-				lock (this)
-				{
-					return _task ??= Init();
-				}
-			}
-		}
+                lock (this)
+                {
+                    return _task ??= Init();
+                }
+            }
+        }
 
-		private Task Init() => func().AsTask();
-	}
+        private Task Init() => func().AsTask();
+    }
 
-	private sealed class Wrapper(AsyncInit asyncInit1, AsyncInit asyncInit2) : AsyncInit
-	{
-		private Task? _task;
+    private sealed class Wrapper(AsyncInit asyncInit1, AsyncInit asyncInit2) : AsyncInit
+    {
+        private Task? _task;
 
-		public override Task Task
-		{
-			get
-			{
-				if (_task is { } task)
-				{
-					return task;
-				}
+        public override Task Task
+        {
+            get
+            {
+                if (_task is { } task)
+                {
+                    return task;
+                }
 
-				lock (this)
-				{
-					return _task ??= Init();
-				}
-			}
-		}
+                lock (this)
+                {
+                    return _task ??= Init();
+                }
+            }
+        }
 
-		private async Task Init()
-		{
-			await asyncInit1.Task.ConfigureAwait(false);
-			await asyncInit2.Task.ConfigureAwait(false);
-		}
-	}
+        private async Task Init()
+        {
+            await asyncInit1.Task.ConfigureAwait(false);
+            await asyncInit2.Task.ConfigureAwait(false);
+        }
+    }
 }

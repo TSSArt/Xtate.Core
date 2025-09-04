@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -18,21 +18,21 @@
 namespace Xtate.ExternalService;
 
 public abstract class ExternalServiceProviderBase<TService>(FullUri uri, FullUri? aliasUri = default) : IExternalServiceProvider, IExternalServiceActivator
-	where TService : IExternalService
+    where TService : IExternalService
 {
-	protected ExternalServiceProviderBase(string type, string? alias = default) : this(new FullUri(type), alias is not null ? new FullUri(alias) : default) { }
+    protected ExternalServiceProviderBase(string type, string? alias = default) : this(new FullUri(type), alias is not null ? new FullUri(alias) : default) { }
 
-	public required Func<ValueTask<TService>> ServiceFactoryFunc { private get; [UsedImplicitly] init; }
+    public required Func<ValueTask<TService>> ServiceFactoryFunc { private get; [UsedImplicitly] init; }
 
 #region Interface IExternalServiceActivator
 
-	async ValueTask<IExternalService> IExternalServiceActivator.Create() => await ServiceFactoryFunc().ConfigureAwait(false);
+    async ValueTask<IExternalService> IExternalServiceActivator.Create() => await ServiceFactoryFunc().ConfigureAwait(false);
 
 #endregion
 
 #region Interface IExternalServiceProvider
 
-	IExternalServiceActivator? IExternalServiceProvider.TryGetActivator(FullUri typeUri) => typeUri == uri || (typeUri is not null && typeUri == aliasUri) ? this : default;
+    IExternalServiceActivator? IExternalServiceProvider.TryGetActivator(FullUri typeUri) => typeUri == uri || (typeUri is not null && typeUri == aliasUri) ? this : default;
 
 #endregion
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,7 +21,7 @@ public class StateMachineArguments(DataModelValue arguments) : IStateMachineArgu
 {
 #region Interface IStateMachineArguments
 
-	public DataModelValue Arguments { get; init; } = arguments;
+    public DataModelValue Arguments { get; init; } = arguments;
 
 #endregion
 }

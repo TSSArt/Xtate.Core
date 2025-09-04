@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,45 +19,45 @@ namespace Xtate.Builder;
 
 public class ForEachBuilder : BuilderBase, IForEachBuilder
 {
-	private ImmutableArray<IExecutableEntity>.Builder? _actions;
+    private ImmutableArray<IExecutableEntity>.Builder? _actions;
 
-	private IValueExpression? _array;
+    private IValueExpression? _array;
 
-	private ILocationExpression? _index;
+    private ILocationExpression? _index;
 
-	private ILocationExpression? _item;
+    private ILocationExpression? _item;
 
 #region Interface IForEachBuilder
 
-	public IForEach Build() => new ForEachEntity { Ancestor = Ancestor, Array = _array, Item = _item, Index = _index, Action = _actions?.ToImmutable() ?? default };
+    public IForEach Build() => new ForEachEntity { Ancestor = Ancestor, Array = _array, Item = _item, Index = _index, Action = _actions?.ToImmutable() ?? default };
 
-	public void SetArray(IValueExpression array)
-	{
-		Infra.Requires(array);
+    public void SetArray(IValueExpression array)
+    {
+        Infra.Requires(array);
 
-		_array = array;
-	}
+        _array = array;
+    }
 
-	public void SetItem(ILocationExpression item)
-	{
-		Infra.Requires(item);
+    public void SetItem(ILocationExpression item)
+    {
+        Infra.Requires(item);
 
-		_item = item;
-	}
+        _item = item;
+    }
 
-	public void SetIndex(ILocationExpression index)
-	{
-		Infra.Requires(index);
+    public void SetIndex(ILocationExpression index)
+    {
+        Infra.Requires(index);
 
-		_index = index;
-	}
+        _index = index;
+    }
 
-	public void AddAction(IExecutableEntity action)
-	{
-		Infra.Requires(action);
+    public void AddAction(IExecutableEntity action)
+    {
+        Infra.Requires(action);
 
-		(_actions ??= ImmutableArray.CreateBuilder<IExecutableEntity>()).Add(action);
-	}
+        (_actions ??= ImmutableArray.CreateBuilder<IExecutableEntity>()).Add(action);
+    }
 
 #endregion
 }

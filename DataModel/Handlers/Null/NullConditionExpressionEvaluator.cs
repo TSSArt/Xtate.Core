@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,31 +19,31 @@ namespace Xtate.DataModel.Null;
 
 public sealed class NullConditionExpressionEvaluator(IConditionExpression conditionExpression, IIdentifier inState) : IConditionExpression, IBooleanEvaluator, IAncestorProvider
 {
-	public required Func<ValueTask<IInStateController?>> InStateControllerFactory { private get; [UsedImplicitly] init; }
+    public required Func<ValueTask<IInStateController?>> InStateControllerFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => conditionExpression;
+    object IAncestorProvider.Ancestor => conditionExpression;
 
 #endregion
 
 #region Interface IBooleanEvaluator
 
-	async ValueTask<bool> IBooleanEvaluator.EvaluateBoolean()
-	{
-		if (await InStateControllerFactory().ConfigureAwait(false) is { } inStateController)
-		{
-			return inStateController.InState(inState);
-		}
+    async ValueTask<bool> IBooleanEvaluator.EvaluateBoolean()
+    {
+        if (await InStateControllerFactory().ConfigureAwait(false) is { } inStateController)
+        {
+            return inStateController.InState(inState);
+        }
 
-		return false;
-	}
+        return false;
+    }
 
 #endregion
 
 #region Interface IConditionExpression
 
-	public string? Expression => conditionExpression.Expression;
+    public string? Expression => conditionExpression.Expression;
 
 #endregion
 }

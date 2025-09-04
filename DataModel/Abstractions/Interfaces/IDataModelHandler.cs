@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,23 +19,23 @@ namespace Xtate.DataModel;
 
 public interface IDataModelHandler
 {
-	bool CaseInsensitive { get; }
+    bool CaseInsensitive { get; }
 
-	ImmutableDictionary<string, string> DataModelVars { get; }
+    ImmutableDictionary<string, string> DataModelVars { get; }
 
-	void Process(ref IExecutableEntity executableEntity);
+    void Process(ref IExecutableEntity executableEntity);
 
-	void Process(ref IValueExpression valueExpression);
+    void Process(ref IValueExpression valueExpression);
 
-	void Process(ref ILocationExpression locationExpression);
+    void Process(ref ILocationExpression locationExpression);
 
-	void Process(ref IConditionExpression conditionExpression);
+    void Process(ref IConditionExpression conditionExpression);
 
-	void Process(ref IContentBody contentBody);
+    void Process(ref IContentBody contentBody);
 
-	void Process(ref IInlineContent inlineContent);
+    void Process(ref IInlineContent inlineContent);
 
-	void Process(ref IExternalDataExpression externalDataExpression);
+    void Process(ref IExternalDataExpression externalDataExpression);
 
-	string ConvertToText(DataModelValue value);
+    string ConvertToText(DataModelValue value);
 }

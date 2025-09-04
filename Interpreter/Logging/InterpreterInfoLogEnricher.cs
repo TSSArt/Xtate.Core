@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,23 +19,23 @@ namespace Xtate.Core;
 
 public class InterpreterInfoLogEnricher<TSource> : ILogEnricher<TSource>
 {
-	public required Safe<IStateMachineSessionId> StateMachineSessionId { private get; [UsedImplicitly] init; }
+    public required Safe<IStateMachineSessionId> StateMachineSessionId { private get; [UsedImplicitly] init; }
 
 #region Interface ILogEnricher<TSource>
 
-	public IEnumerable<LoggingParameter> EnumerateProperties()
-	{
-		var sessionId = StateMachineSessionId()?.SessionId;
+    public IEnumerable<LoggingParameter> EnumerateProperties()
+    {
+        var sessionId = StateMachineSessionId()?.SessionId;
 
-		if (!SessionId.IsNullOrEmpty(sessionId))
-		{
-			yield return new LoggingParameter(name: @"SessionId", sessionId);
-		}
-	}
+        if (!SessionId.IsNullOrEmpty(sessionId))
+        {
+            yield return new LoggingParameter(name: @"SessionId", sessionId);
+        }
+    }
 
-	public string Namespace => @"ctx";
+    public string Namespace => @"ctx";
 
-	public Level Level => Level.Info;
+    public Level Level => Level.Info;
 
 #endregion
 }

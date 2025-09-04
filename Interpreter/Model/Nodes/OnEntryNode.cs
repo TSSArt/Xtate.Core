@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,51 +22,51 @@ namespace Xtate.Core;
 
 public sealed class OnEntryNode : IOnEntry, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 {
-	private readonly IOnEntry _onEntry;
+    private readonly IOnEntry _onEntry;
 
-	private DocumentIdSlot _documentIdSlot;
+    private DocumentIdSlot _documentIdSlot;
 
-	public OnEntryNode(DocumentIdNode documentIdNode, IOnEntry onEntry)
-	{
-		_onEntry = onEntry;
-		documentIdNode.SaveToSlot(out _documentIdSlot);
-		ActionEvaluators = onEntry.Action.AsArrayOf<IExecutableEntity, IExecEvaluator>();
-	}
+    public OnEntryNode(DocumentIdNode documentIdNode, IOnEntry onEntry)
+    {
+        _onEntry = onEntry;
+        documentIdNode.SaveToSlot(out _documentIdSlot);
+        ActionEvaluators = onEntry.Action.AsArrayOf<IExecutableEntity, IExecEvaluator>();
+    }
 
-	public ImmutableArray<IExecEvaluator> ActionEvaluators { get; }
+    public ImmutableArray<IExecEvaluator> ActionEvaluators { get; }
 
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => _onEntry;
+    object IAncestorProvider.Ancestor => _onEntry;
 
 #endregion
 
 #region Interface IDebugEntityId
 
-	FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
+    FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
 
 #endregion
 
 #region Interface IDocumentId
 
-	public int DocumentId => _documentIdSlot.CreateValue();
+    public int DocumentId => _documentIdSlot.CreateValue();
 
 #endregion
 
 #region Interface IOnEntry
 
-	public ImmutableArray<IExecutableEntity> Action => _onEntry.Action;
+    public ImmutableArray<IExecutableEntity> Action => _onEntry.Action;
 
 #endregion
 
 #region Interface IStoreSupport
 
-	void IStoreSupport.Store(Bucket bucket)
-	{
-		bucket.Add(Key.TypeInfo, TypeInfo.OnEntryNode);
-		bucket.Add(Key.DocumentId, DocumentId);
-		bucket.AddEntityList(Key.Action, Action);
-	}
+    void IStoreSupport.Store(Bucket bucket)
+    {
+        bucket.Add(Key.TypeInfo, TypeInfo.OnEntryNode);
+        bucket.Add(Key.DocumentId, DocumentId);
+        bucket.AddEntityList(Key.Action, Action);
+    }
 
 #endregion
 }

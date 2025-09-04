@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -23,29 +23,29 @@ public sealed class CancelNode(DocumentIdNode documentIdNode, ICancel cancel) : 
 {
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => cancel;
+    object IAncestorProvider.Ancestor => cancel;
 
 #endregion
 
 #region Interface ICancel
 
-	public string? SendId => cancel.SendId;
+    public string? SendId => cancel.SendId;
 
-	public IValueExpression? SendIdExpression => cancel.SendIdExpression;
+    public IValueExpression? SendIdExpression => cancel.SendIdExpression;
 
 #endregion
 
 #region Interface IDebugEntityId
 
-	FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
+    FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
 
 #endregion
 
-	protected override void Store(Bucket bucket)
-	{
-		bucket.Add(Key.TypeInfo, TypeInfo.CancelNode);
-		bucket.Add(Key.DocumentId, DocumentId);
-		bucket.Add(Key.SendId, SendId);
-		bucket.AddEntity(Key.SendIdExpression, SendIdExpression);
-	}
+    protected override void Store(Bucket bucket)
+    {
+        bucket.Add(Key.TypeInfo, TypeInfo.CancelNode);
+        bucket.Add(Key.DocumentId, DocumentId);
+        bucket.Add(Key.SendId, SendId);
+        bucket.AddEntity(Key.SendIdExpression, SendIdExpression);
+    }
 }

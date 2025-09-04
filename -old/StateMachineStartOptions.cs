@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,13 +21,13 @@ public record StateMachineStartOptions : IStateMachineStartOptions
 {
 #region Interface IStateMachineStartOptions
 
-	public SessionId SessionId { get; init; } = default!;
+    public SessionId SessionId { get; init; } = default!;
 
-	public StateMachineOrigin Origin { get; init; }
+    public StateMachineOrigin Origin { get; init; }
 
-	public DataModelValue Parameters { get; init; }
+    public DataModelValue Parameters { get; init; }
 
-	public SecurityContextType SecurityContextType { get; init; }
+    public SecurityContextType SecurityContextType { get; init; }
 
 #endregion
 }

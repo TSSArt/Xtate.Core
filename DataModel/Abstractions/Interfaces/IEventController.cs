@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,7 +19,7 @@ namespace Xtate.DataModel;
 
 public interface IEventController
 {
-	ValueTask Send(IOutgoingEvent outgoingEvent);
+    ValueTask Send(IOutgoingEvent outgoingEvent);
 
-	ValueTask Cancel(SendId sendId);
+    ValueTask Cancel(SendId sendId);
 }

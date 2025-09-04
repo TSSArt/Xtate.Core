@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,29 +19,29 @@ namespace Xtate.Core;
 
 public sealed class SecurityContextRegistration : IAsyncDisposable
 {
-	private readonly AsyncLocal<SecurityContext> _asyncLocal;
+    private readonly AsyncLocal<SecurityContext> _asyncLocal;
 
-	private readonly SecurityContext _newContext;
+    private readonly SecurityContext _newContext;
 
-	private readonly SecurityContext? _parentContext;
+    private readonly SecurityContext? _parentContext;
 
-	internal SecurityContextRegistration(AsyncLocal<SecurityContext> asyncLocal, SecurityContextType securityContextType)
-	{
-		_asyncLocal = asyncLocal;
-		_parentContext = asyncLocal.Value;
-		asyncLocal.Value = _newContext = (_parentContext ?? SecurityContext.FullAccess).CreateNested(securityContextType);
-	}
+    internal SecurityContextRegistration(AsyncLocal<SecurityContext> asyncLocal, SecurityContextType securityContextType)
+    {
+        _asyncLocal = asyncLocal;
+        _parentContext = asyncLocal.Value;
+        asyncLocal.Value = _newContext = (_parentContext ?? SecurityContext.FullAccess).CreateNested(securityContextType);
+    }
 
 #region Interface IAsyncDisposable
 
-	public ValueTask DisposeAsync()
-	{
-		Infra.Assert(_asyncLocal.Value == _newContext);
+    public ValueTask DisposeAsync()
+    {
+        Infra.Assert(_asyncLocal.Value == _newContext);
 
-		_asyncLocal.Value = _parentContext!;
+        _asyncLocal.Value = _parentContext!;
 
-		return default;
-	}
+        return default;
+    }
 
 #endregion
 }

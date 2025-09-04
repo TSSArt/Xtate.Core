@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,13 +19,13 @@ namespace Xtate;
 
 public interface IAssign : IExecutableEntity
 {
-	ILocationExpression? Location { get; }
+    ILocationExpression? Location { get; }
 
-	IValueExpression? Expression { get; }
+    IValueExpression? Expression { get; }
 
-	IInlineContent? InlineContent { get; }
+    IInlineContent? InlineContent { get; }
 
-	string? Type { get; }
+    string? Type { get; }
 
-	string? Attribute { get; }
+    string? Attribute { get; }
 }

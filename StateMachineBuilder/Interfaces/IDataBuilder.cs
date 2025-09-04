@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,13 +19,13 @@ namespace Xtate.Builder;
 
 public interface IDataBuilder
 {
-	IData Build();
+    IData Build();
 
-	void SetId(string id);
+    void SetId(string id);
 
-	void SetSource(IExternalDataExpression source);
+    void SetSource(IExternalDataExpression source);
 
-	void SetExpression(IValueExpression expression);
+    void SetExpression(IValueExpression expression);
 
-	void SetInlineContent(IInlineContent inlineContent);
+    void SetInlineContent(IInlineContent inlineContent);
 }

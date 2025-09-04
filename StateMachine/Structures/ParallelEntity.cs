@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,68 +19,68 @@ namespace Xtate.Core;
 
 public struct ParallelEntity : IParallel, IVisitorEntity<ParallelEntity, IParallel>, IAncestorProvider, IDebugEntityId
 {
-	internal object? Ancestor;
+    internal object? Ancestor;
 
 #region Interface IAncestorProvider
 
-	readonly object? IAncestorProvider.Ancestor => Ancestor;
+    readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
 #region Interface IDebugEntityId
 
-	readonly FormattableString IDebugEntityId.EntityId => @$"{Id}";
+    readonly FormattableString IDebugEntityId.EntityId => @$"{Id}";
 
 #endregion
 
 #region Interface IParallel
 
-	public ImmutableArray<IStateEntity> States { get; set; }
+    public ImmutableArray<IStateEntity> States { get; set; }
 
-	public ImmutableArray<IHistory> HistoryStates { get; set; }
+    public ImmutableArray<IHistory> HistoryStates { get; set; }
 
-	public ImmutableArray<ITransition> Transitions { get; set; }
+    public ImmutableArray<ITransition> Transitions { get; set; }
 
-	public IDataModel? DataModel { get; set; }
+    public IDataModel? DataModel { get; set; }
 
-	public ImmutableArray<IOnEntry> OnEntry { get; set; }
+    public ImmutableArray<IOnEntry> OnEntry { get; set; }
 
-	public ImmutableArray<IOnExit> OnExit { get; set; }
+    public ImmutableArray<IOnExit> OnExit { get; set; }
 
-	public ImmutableArray<IInvoke> Invoke { get; set; }
+    public ImmutableArray<IInvoke> Invoke { get; set; }
 
 #endregion
 
 #region Interface IStateEntity
 
-	public IIdentifier? Id { get; set; }
+    public IIdentifier? Id { get; set; }
 
 #endregion
 
 #region Interface IVisitorEntity<ParallelEntity,IParallel>
 
-	void IVisitorEntity<ParallelEntity, IParallel>.Init(IParallel source)
-	{
-		Ancestor = source;
-		Id = source.Id;
-		Invoke = source.Invoke;
-		States = source.States;
-		HistoryStates = source.HistoryStates;
-		DataModel = source.DataModel;
-		OnExit = source.OnExit;
-		OnEntry = source.OnEntry;
-		Transitions = source.Transitions;
-	}
+    void IVisitorEntity<ParallelEntity, IParallel>.Init(IParallel source)
+    {
+        Ancestor = source;
+        Id = source.Id;
+        Invoke = source.Invoke;
+        States = source.States;
+        HistoryStates = source.HistoryStates;
+        DataModel = source.DataModel;
+        OnExit = source.OnExit;
+        OnEntry = source.OnEntry;
+        Transitions = source.Transitions;
+    }
 
-	readonly bool IVisitorEntity<ParallelEntity, IParallel>.RefEquals(ref ParallelEntity other) =>
-		ReferenceEquals(Id, other.Id) &&
-		ReferenceEquals(DataModel, other.DataModel) &&
-		Invoke == other.Invoke &&
-		States == other.States &&
-		HistoryStates == other.HistoryStates &&
-		OnExit == other.OnExit &&
-		OnEntry == other.OnEntry &&
-		Transitions == other.Transitions;
+    readonly bool IVisitorEntity<ParallelEntity, IParallel>.RefEquals(ref ParallelEntity other) =>
+        ReferenceEquals(Id, other.Id) &&
+        ReferenceEquals(DataModel, other.DataModel) &&
+        Invoke == other.Invoke &&
+        States == other.States &&
+        HistoryStates == other.HistoryStates &&
+        OnExit == other.OnExit &&
+        OnEntry == other.OnEntry &&
+        Transitions == other.Transitions;
 
 #endregion
 }

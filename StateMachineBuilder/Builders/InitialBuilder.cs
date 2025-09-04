@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,18 +19,18 @@ namespace Xtate.Builder;
 
 public class InitialBuilder : BuilderBase, IInitialBuilder
 {
-	private ITransition? _transition;
+    private ITransition? _transition;
 
 #region Interface IInitialBuilder
 
-	public IInitial Build() => new InitialEntity { Ancestor = Ancestor, Transition = _transition };
+    public IInitial Build() => new InitialEntity { Ancestor = Ancestor, Transition = _transition };
 
-	public void SetTransition(ITransition transition)
-	{
-		Infra.Requires(transition);
+    public void SetTransition(ITransition transition)
+    {
+        Infra.Requires(transition);
 
-		_transition = transition;
-	}
+        _transition = transition;
+    }
 
 #endregion
 }

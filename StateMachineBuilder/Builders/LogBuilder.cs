@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,27 +19,27 @@ namespace Xtate.Builder;
 
 public class LogBuilder : BuilderBase, ILogBuilder
 {
-	private IValueExpression? _expression;
+    private IValueExpression? _expression;
 
-	private string? _label;
+    private string? _label;
 
 #region Interface ILogBuilder
 
-	public ILog Build() => new LogEntity { Ancestor = Ancestor, Label = _label, Expression = _expression };
+    public ILog Build() => new LogEntity { Ancestor = Ancestor, Label = _label, Expression = _expression };
 
-	public void SetLabel(string label)
-	{
-		Infra.RequiresNonEmptyString(label);
+    public void SetLabel(string label)
+    {
+        Infra.RequiresNonEmptyString(label);
 
-		_label = label;
-	}
+        _label = label;
+    }
 
-	public void SetExpression(IValueExpression expression)
-	{
-		Infra.Requires(expression);
+    public void SetExpression(IValueExpression expression)
+    {
+        Infra.Requires(expression);
 
-		_expression = expression;
-	}
+        _expression = expression;
+    }
 
 #endregion
 }

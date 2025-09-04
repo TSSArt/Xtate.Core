@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,25 +19,25 @@ namespace Xtate.Core;
 
 public interface ILogger
 {
-	IFormatProvider? FormatProvider { get; }
+    IFormatProvider? FormatProvider { get; }
 
-	bool IsEnabled(Level level);
+    bool IsEnabled(Level level);
 }
 
 public interface ILogger<[UsedImplicitly] TSource> : ILogger
 {
-	ValueTask Write(Level level, int eventId, string? message);
+    ValueTask Write(Level level, int eventId, string? message);
 
-	ValueTask Write<TEntity>(Level level,
-							 int eventId,
-							 string? message,
-							 TEntity entity);
+    ValueTask Write<TEntity>(Level level,
+                             int eventId,
+                             string? message,
+                             TEntity entity);
 
-	ValueTask Write(Level level, int eventId, [InterpolatedStringHandlerArgument("", "level")] LoggingInterpolatedStringHandler formattedMessage);
+    ValueTask Write(Level level, int eventId, [InterpolatedStringHandlerArgument("", "level")] LoggingInterpolatedStringHandler formattedMessage);
 
-	ValueTask Write<TEntity>(Level level,
-							 int eventId,
-							 [InterpolatedStringHandlerArgument("", "level")]
-							 LoggingInterpolatedStringHandler formattedMessage,
-							 TEntity entity);
+    ValueTask Write<TEntity>(Level level,
+                             int eventId,
+                             [InterpolatedStringHandlerArgument("", "level")]
+                             LoggingInterpolatedStringHandler formattedMessage,
+                             TEntity entity);
 }

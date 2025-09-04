@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,22 +22,22 @@ namespace Xtate.DataModel.XPath;
 
 public class XPathXmlParserContextFactory
 {
-	public required INameTableProvider? NameTableProvider { private get; [UsedImplicitly] init; }
+    public required INameTableProvider? NameTableProvider { private get; [UsedImplicitly] init; }
 
-	public XmlParserContext CreateContext(object entity)
-	{
-		var nameTable = NameTableProvider?.GetNameTable() ?? new NameTable();
+    public XmlParserContext CreateContext(object entity)
+    {
+        var nameTable = NameTableProvider?.GetNameTable() ?? new NameTable();
 
-		var namespaceManager = new XmlNamespaceManager(nameTable);
+        var namespaceManager = new XmlNamespaceManager(nameTable);
 
-		if (entity.Is<IXmlNamespacesInfo>(out var namespacesInfo))
-		{
-			foreach (var prefixUri in namespacesInfo.Namespaces)
-			{
-				namespaceManager.AddNamespace(prefixUri.Prefix, prefixUri.Namespace);
-			}
-		}
+        if (entity.Is<IXmlNamespacesInfo>(out var namespacesInfo))
+        {
+            foreach (var prefixUri in namespacesInfo.Namespaces)
+            {
+                namespaceManager.AddNamespace(prefixUri.Prefix, prefixUri.Namespace);
+            }
+        }
 
-		return new XmlParserContext(nameTable, namespaceManager, xmlLang: null, XmlSpace.None);
-	}
+        return new XmlParserContext(nameTable, namespaceManager, xmlLang: null, XmlSpace.None);
+    }
 }

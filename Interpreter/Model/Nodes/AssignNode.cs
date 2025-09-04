@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -23,38 +23,38 @@ public sealed class AssignNode(DocumentIdNode documentIdNode, IAssign assign) : 
 {
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => assign;
+    object IAncestorProvider.Ancestor => assign;
 
 #endregion
 
 #region Interface IAssign
 
-	public ILocationExpression? Location => assign.Location;
+    public ILocationExpression? Location => assign.Location;
 
-	public IValueExpression? Expression => assign.Expression;
+    public IValueExpression? Expression => assign.Expression;
 
-	public IInlineContent? InlineContent => assign.InlineContent;
+    public IInlineContent? InlineContent => assign.InlineContent;
 
-	public string? Type => assign.Type;
+    public string? Type => assign.Type;
 
-	public string? Attribute => assign.Attribute;
+    public string? Attribute => assign.Attribute;
 
 #endregion
 
 #region Interface IDebugEntityId
 
-	FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
+    FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
 
 #endregion
 
-	protected override void Store(Bucket bucket)
-	{
-		bucket.Add(Key.TypeInfo, TypeInfo.AssignNode);
-		bucket.Add(Key.DocumentId, DocumentId);
-		bucket.AddEntity(Key.Location, Location);
-		bucket.AddEntity(Key.Expression, Expression);
-		bucket.Add(Key.InlineContent, InlineContent?.Value);
-		bucket.Add(Key.Type, Type);
-		bucket.Add(Key.Attribute, Attribute);
-	}
+    protected override void Store(Bucket bucket)
+    {
+        bucket.Add(Key.TypeInfo, TypeInfo.AssignNode);
+        bucket.Add(Key.DocumentId, DocumentId);
+        bucket.AddEntity(Key.Location, Location);
+        bucket.AddEntity(Key.Expression, Expression);
+        bucket.Add(Key.InlineContent, InlineContent?.Value);
+        bucket.Add(Key.Type, Type);
+        bucket.Add(Key.Attribute, Attribute);
+    }
 }

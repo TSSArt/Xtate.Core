@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,27 +19,27 @@ namespace Xtate.Builder;
 
 public class CancelBuilder : BuilderBase, ICancelBuilder
 {
-	private string? _sendId;
+    private string? _sendId;
 
-	private IValueExpression? _sendIdExpression;
+    private IValueExpression? _sendIdExpression;
 
 #region Interface ICancelBuilder
 
-	public ICancel Build() => new CancelEntity { Ancestor = Ancestor, SendId = _sendId, SendIdExpression = _sendIdExpression };
+    public ICancel Build() => new CancelEntity { Ancestor = Ancestor, SendId = _sendId, SendIdExpression = _sendIdExpression };
 
-	public void SetSendId(string sendId)
-	{
-		Infra.RequiresNonEmptyString(sendId);
+    public void SetSendId(string sendId)
+    {
+        Infra.RequiresNonEmptyString(sendId);
 
-		_sendId = sendId;
-	}
+        _sendId = sendId;
+    }
 
-	public void SetSendIdExpression(IValueExpression sendIdExpression)
-	{
-		Infra.Requires(sendIdExpression);
+    public void SetSendIdExpression(IValueExpression sendIdExpression)
+    {
+        Infra.Requires(sendIdExpression);
 
-		_sendIdExpression = sendIdExpression;
-	}
+        _sendIdExpression = sendIdExpression;
+    }
 
 #endregion
 }

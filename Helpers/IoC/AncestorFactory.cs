@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,28 +21,28 @@ namespace Xtate.Core;
 
 public class AncestorFactory<T> : IAsyncInitialization
 {
-	private ValueTask<T> _task;
+    private ValueTask<T> _task;
 
-	public AncestorFactory(AncestorTracker tracker, Func<ValueTask<T>> factory) => _task = tracker.TryCaptureAncestor(typeof(T), this) ? default : factory().Preserve();
+    public AncestorFactory(AncestorTracker tracker, Func<ValueTask<T>> factory) => _task = tracker.TryCaptureAncestor(typeof(T), this) ? default : factory().Preserve();
 
 #region Interface IAsyncInitialization
 
-	Task IAsyncInitialization.Initialization => _task.IsCompletedSuccessfully ? Task.CompletedTask : _task.AsTask();
+    Task IAsyncInitialization.Initialization => _task.IsCompletedSuccessfully ? Task.CompletedTask : _task.AsTask();
 
 #endregion
 
-	[UsedImplicitly]
-	public Ancestor<T> GetValueFunc() => GetValue;
+    [UsedImplicitly]
+    public Ancestor<T> GetValueFunc() => GetValue;
 
-	private T GetValue() => _task.Result ?? throw MissedServiceException.Create<T>();
+    private T GetValue() => _task.Result ?? throw MissedServiceException.Create<T>();
 
-	internal void SetValue(T? instance)
-	{
-		if (instance is null)
-		{
-			throw MissedServiceException.Create<T>();
-		}
+    internal void SetValue(T? instance)
+    {
+        if (instance is null)
+        {
+            throw MissedServiceException.Create<T>();
+        }
 
-		_task = new ValueTask<T>(instance);
-	}
+        _task = new ValueTask<T>(instance);
+    }
 }

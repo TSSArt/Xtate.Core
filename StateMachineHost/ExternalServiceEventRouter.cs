@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,45 +22,45 @@ namespace Xtate.Core;
 
 public class ExternalServiceEventRouter : IEventRouter
 {
-	public required ServiceList<IExternalServiceProvider> ExternalServiceProviders { private get; [UsedImplicitly] init; }
+    public required ServiceList<IExternalServiceProvider> ExternalServiceProviders { private get; [UsedImplicitly] init; }
 
-	public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
+    public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
 
-	public required IExternalServiceCollection ExternalServiceCollection { private get; [UsedImplicitly] init; }
+    public required IExternalServiceCollection ExternalServiceCollection { private get; [UsedImplicitly] init; }
 
-	#region Interface IEventRouter
+#region Interface IEventRouter
 
-	public bool CanHandle(FullUri? type)
-	{
-		if (type is null)
-		{
-			return false;
-		}
+    public bool CanHandle(FullUri? type)
+    {
+        if (type is null)
+        {
+            return false;
+        }
 
-		foreach (var externalServiceProvider in ExternalServiceProviders)
-		{
-			if (externalServiceProvider.TryGetActivator(type) is not null)
-			{
-				return true;
-			}
-		}
+        foreach (var externalServiceProvider in ExternalServiceProviders)
+        {
+            if (externalServiceProvider.TryGetActivator(type) is not null)
+            {
+                return true;
+            }
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	public bool IsInternalTarget(FullUri? target) => false;
+    public bool IsInternalTarget(FullUri? target) => false;
 
-	public ValueTask<IRouterEvent> GetRouterEvent(IOutgoingEvent outgoingEvent, CancellationToken token) =>
-		new(new RouterEvent(StateMachineSessionId.SessionId, GetInvokeId(outgoingEvent.Target), Const.ScxmlIoProcessorId, Const.ParentTarget, outgoingEvent));
+    public ValueTask<IRouterEvent> GetRouterEvent(IOutgoingEvent outgoingEvent, CancellationToken token) =>
+        new(new RouterEvent(StateMachineSessionId.SessionId, GetInvokeId(outgoingEvent.Target), Const.ScxmlIoProcessorId, Const.ParentTarget, outgoingEvent));
 
-	public ValueTask Dispatch(IRouterEvent routerEvent, CancellationToken token) => ExternalServiceCollection.Dispatch((InvokeId) routerEvent.TargetServiceId!, routerEvent, token);
+    public ValueTask Dispatch(IRouterEvent routerEvent, CancellationToken token) => ExternalServiceCollection.Dispatch((InvokeId)routerEvent.TargetServiceId!, routerEvent, token);
 
 #endregion
 
-	private static InvokeId? GetInvokeId(FullUri? target)
-	{
-		var str = target?.ToString();
+    private static InvokeId? GetInvokeId(FullUri? target)
+    {
+        var str = target?.ToString();
 
-		return str?.StartsWith(Const.ScxmlIoProcessorInvokeIdPrefix) == true ? InvokeId.FromString(str[Const.ScxmlIoProcessorInvokeIdPrefix.Length..]) : default;
-	}
+        return str?.StartsWith(Const.ScxmlIoProcessorInvokeIdPrefix) == true ? InvokeId.FromString(str[Const.ScxmlIoProcessorInvokeIdPrefix.Length..]) : default;
+    }
 }

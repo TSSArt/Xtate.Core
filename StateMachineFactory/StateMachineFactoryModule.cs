@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,17 +22,17 @@ namespace Xtate.Core;
 
 public class StateMachineFactoryModule : Module<ScxmlModule>
 {
-	protected override void AddServices()
-	{
-		Services.AddImplementation<NoStateMachineLocation>().For<IStateMachineLocation>(Option.IfNotRegistered);
+    protected override void AddServices()
+    {
+        Services.AddImplementation<NoStateMachineLocation>().For<IStateMachineLocation>(Option.IfNotRegistered);
 
-		Services.AddFactory<StateMachineGetter>().For<IStateMachine>(SharedWithin.Scope);
-		Services.AddImplementation<StateMachineService>().For<IStateMachineService>();
+        Services.AddFactory<StateMachineGetter>().For<IStateMachine>(SharedWithin.Scope);
+        Services.AddImplementation<StateMachineService>().For<IStateMachineService>();
 
-		Services.AddType<ScxmlReaderStateMachineGetter>();
-		Services.AddImplementation<ScxmlStateMachineProvider>().For<IStateMachineProvider>();
+        Services.AddType<ScxmlReaderStateMachineGetter>();
+        Services.AddImplementation<ScxmlStateMachineProvider>().For<IStateMachineProvider>();
 
-		Services.AddType<ScxmlLocationStateMachineGetter>();
-		Services.AddImplementation<SourceStateMachineProvider>().For<IStateMachineProvider>();
-	}
+        Services.AddType<ScxmlLocationStateMachineGetter>();
+        Services.AddImplementation<SourceStateMachineProvider>().For<IStateMachineProvider>();
+    }
 }

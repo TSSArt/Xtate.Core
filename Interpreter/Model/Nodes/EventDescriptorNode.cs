@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -23,37 +23,37 @@ public sealed class EventDescriptorNode(IEventDescriptor eventDescriptor) : IEve
 {
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => eventDescriptor;
+    object IAncestorProvider.Ancestor => eventDescriptor;
 
 #endregion
 
 #region Interface IDebugEntityId
 
-	FormattableString IDebugEntityId.EntityId => @$"{eventDescriptor}";
+    FormattableString IDebugEntityId.EntityId => @$"{eventDescriptor}";
 
 #endregion
 
 #region Interface IEventDescriptor
 
-	public bool IsEventMatch(IIncomingEvent incomingEvent) => eventDescriptor.IsEventMatch(incomingEvent);
+    public bool IsEventMatch(IIncomingEvent incomingEvent) => eventDescriptor.IsEventMatch(incomingEvent);
 
-	public string Value => eventDescriptor.Value;
+    public string Value => eventDescriptor.Value;
 
 #endregion
 
 #region Interface IStoreSupport
 
-	void IStoreSupport.Store(Bucket bucket)
-	{
-		bucket.Add(Key.TypeInfo, TypeInfo.EventDescriptorNode);
-		bucket.Add(Key.Id, eventDescriptor.Value);
-	}
+    void IStoreSupport.Store(Bucket bucket)
+    {
+        bucket.Add(Key.TypeInfo, TypeInfo.EventDescriptorNode);
+        bucket.Add(Key.Id, eventDescriptor.Value);
+    }
 
 #endregion
 
-	public override bool Equals(object? obj) => eventDescriptor.Equals(obj);
+    public override bool Equals(object? obj) => eventDescriptor.Equals(obj);
 
-	public override int GetHashCode() => eventDescriptor.GetHashCode();
+    public override int GetHashCode() => eventDescriptor.GetHashCode();
 
-	public override string ToString() => eventDescriptor.ToString() ?? string.Empty;
+    public override string ToString() => eventDescriptor.ToString() ?? string.Empty;
 }

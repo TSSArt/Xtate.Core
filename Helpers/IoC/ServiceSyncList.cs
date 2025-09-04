@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,31 +19,31 @@ namespace Xtate.Core;
 
 public class ServiceSyncList<T>(IEnumerable<T> asyncEnumerable) : IReadOnlyList<T>
 {
-	private readonly ImmutableArray<T> _array = [..asyncEnumerable];
+    private readonly ImmutableArray<T> _array = [..asyncEnumerable];
 
 #region Interface IEnumerable
 
-	IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) _array).GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_array).GetEnumerator();
 
 #endregion
 
 #region Interface IEnumerable<T>
 
-	IEnumerator<T> IEnumerable<T>.GetEnumerator() => ((IEnumerable<T>) _array).GetEnumerator();
+    IEnumerator<T> IEnumerable<T>.GetEnumerator() => ((IEnumerable<T>)_array).GetEnumerator();
 
 #endregion
 
 #region Interface IReadOnlyCollection<T>
 
-	public int Count => _array.Length;
+    public int Count => _array.Length;
 
 #endregion
 
 #region Interface IReadOnlyList<T>
 
-	public T this[int index] => _array[index];
+    public T this[int index] => _array[index];
 
 #endregion
 
-	public ImmutableArray<T>.Enumerator GetEnumerator() => _array.GetEnumerator();
+    public ImmutableArray<T>.Enumerator GetEnumerator() => _array.GetEnumerator();
 }

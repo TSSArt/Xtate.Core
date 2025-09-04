@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -20,7 +20,7 @@ namespace Xtate.Core;
 //TODO: Remove TSource. Make it Non-Generic
 public interface IEntityParserHandler<[UsedImplicitly] TSource>
 {
-	Level Level { get; }
+    Level Level { get; }
 
-	IEnumerable<LoggingParameter>? EnumerateProperties<T>(T entity);
+    IEnumerable<LoggingParameter>? EnumerateProperties<T>(T entity);
 }

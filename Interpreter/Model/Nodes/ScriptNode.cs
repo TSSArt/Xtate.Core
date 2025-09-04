@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -23,23 +23,23 @@ public sealed class ScriptNode(DocumentIdNode documentIdNode, IScript script) : 
 {
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => script;
+    object IAncestorProvider.Ancestor => script;
 
 #endregion
 
 #region Interface IScript
 
-	public IScriptExpression? Content => script.Content;
+    public IScriptExpression? Content => script.Content;
 
-	public IExternalScriptExpression? Source => script.Source;
+    public IExternalScriptExpression? Source => script.Source;
 
 #endregion
 
-	protected override void Store(Bucket bucket)
-	{
-		bucket.Add(Key.TypeInfo, TypeInfo.ScriptNode);
-		bucket.Add(Key.DocumentId, DocumentId);
-		bucket.AddEntity(Key.Content, Content);
-		bucket.AddEntity(Key.Source, Source);
-	}
+    protected override void Store(Bucket bucket)
+    {
+        bucket.Add(Key.TypeInfo, TypeInfo.ScriptNode);
+        bucket.Add(Key.DocumentId, DocumentId);
+        bucket.AddEntity(Key.Content, Content);
+        bucket.AddEntity(Key.Source, Source);
+    }
 }

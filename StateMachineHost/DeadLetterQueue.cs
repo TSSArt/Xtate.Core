@@ -1,9 +1,30 @@
-﻿namespace Xtate.Core;
+﻿// Copyright © 2019-2025 Sergii Artemenko
+// 
+// This file is part of the Xtate project. <https://xtate.net/>
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+// 
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+namespace Xtate.Core;
 
 public class DeadLetterQueue<TSource> : IDeadLetterQueue<TSource>
 {
-	public required ILogger<IDeadLetterQueue<TSource>> Logger { private get; [UsedImplicitly] init; }
+    public required ILogger<IDeadLetterQueue<TSource>> Logger { private get; [UsedImplicitly] init; }
 
-	public ValueTask Enqueue(ServiceId recipientServiceId, IIncomingEvent incomingEvent) =>
-		Logger.Write(Level.Warning, 1, $@"Event can't be delivered to {recipientServiceId.ServiceType} [{recipientServiceId}].", incomingEvent);
+#region Interface IDeadLetterQueue<TSource>
+
+    public ValueTask Enqueue(ServiceId recipientServiceId, IIncomingEvent incomingEvent) =>
+        Logger.Write(Level.Warning, eventId: 1, $@"Event can't be delivered to {recipientServiceId.ServiceType} [{recipientServiceId}].", incomingEvent);
+
+#endregion
 }

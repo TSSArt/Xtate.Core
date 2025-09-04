@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,17 +19,17 @@ namespace Xtate;
 
 public interface IIncomingEvent : IEntity
 {
-	SendId? SendId { get; }
+    SendId? SendId { get; }
 
-	EventName Name { get; }
+    EventName Name { get; }
 
-	EventType Type { get; }
+    EventType Type { get; }
 
-	FullUri? Origin { get; }
+    FullUri? Origin { get; }
 
-	FullUri? OriginType { get; }
+    FullUri? OriginType { get; }
 
-	InvokeId? InvokeId { get; }
+    InvokeId? InvokeId { get; }
 
-	DataModelValue Data { get; }
+    DataModelValue Data { get; }
 }

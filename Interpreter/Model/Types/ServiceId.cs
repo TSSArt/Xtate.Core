@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,9 +19,9 @@ namespace Xtate;
 
 public abstract class ServiceId : LazyId
 {
-	protected ServiceId() { }
+    protected ServiceId() { }
 
-	protected ServiceId(string id) : base(id) { }
+    protected ServiceId(string id) : base(id) { }
 
-	public abstract string ServiceType { get; }
+    public abstract string ServiceType { get; }
 }

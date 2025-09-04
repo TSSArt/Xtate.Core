@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,34 +19,34 @@ namespace Xtate.Core;
 
 public struct LogEntity : ILog, IVisitorEntity<LogEntity, ILog>, IAncestorProvider
 {
-	internal object? Ancestor;
+    internal object? Ancestor;
 
 #region Interface IAncestorProvider
 
-	readonly object? IAncestorProvider.Ancestor => Ancestor;
+    readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
 #region Interface ILog
 
-	public IValueExpression? Expression { get; set; }
+    public IValueExpression? Expression { get; set; }
 
-	public string? Label { get; set; }
+    public string? Label { get; set; }
 
 #endregion
 
 #region Interface IVisitorEntity<LogEntity,ILog>
 
-	void IVisitorEntity<LogEntity, ILog>.Init(ILog source)
-	{
-		Ancestor = source;
-		Expression = source.Expression;
-		Label = source.Label;
-	}
+    void IVisitorEntity<LogEntity, ILog>.Init(ILog source)
+    {
+        Ancestor = source;
+        Expression = source.Expression;
+        Label = source.Label;
+    }
 
-	readonly bool IVisitorEntity<LogEntity, ILog>.RefEquals(ref LogEntity other) =>
-		ReferenceEquals(Expression, other.Expression) &&
-		ReferenceEquals(Label, other.Label);
+    readonly bool IVisitorEntity<LogEntity, ILog>.RefEquals(ref LogEntity other) =>
+        ReferenceEquals(Expression, other.Expression) &&
+        ReferenceEquals(Label, other.Label);
 
 #endregion
 }

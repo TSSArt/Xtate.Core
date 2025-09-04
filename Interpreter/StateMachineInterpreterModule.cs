@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,47 +22,47 @@ namespace Xtate.Core;
 
 public class StateMachineInterpreterModule : Module<DataModelHandlersModule, InterpreterModelBuilderModule, ToolsModule>
 {
-	protected override void AddServices()
-	{
-		Services.AddSharedImplementation<DefaultStateMachineSessionId>(SharedWithin.Scope).For<IStateMachineSessionId>(Option.IfNotRegistered);
-		Services.AddImplementation<NoStateMachineArguments>().For<IStateMachineArguments>(Option.IfNotRegistered);
-		
-		Services.AddImplementation<NoUnhandledErrorBehaviour>().For<IUnhandledErrorBehaviour>(Option.IfNotRegistered);
-		Services.AddImplementation<NoNotifyStateChanged>().For<INotifyStateChanged>(Option.IfNotRegistered);
-		Services.AddImplementation<NoExternalConnections>().For<IExternalCommunication>(Option.IfNotRegistered).For<IExternalServiceManager>(Option.IfNotRegistered);
+    protected override void AddServices()
+    {
+        Services.AddSharedImplementation<DefaultStateMachineSessionId>(SharedWithin.Scope).For<IStateMachineSessionId>(Option.IfNotRegistered);
+        Services.AddImplementation<NoStateMachineArguments>().For<IStateMachineArguments>(Option.IfNotRegistered);
 
-		Services.AddImplementation<InterpreterInfoLogEnricher<Any>>().For<ILogEnricher<Any>>();
-		Services.AddImplementation<InterpreterDebugLogEnricher<Any>>().For<ILogEnricher<Any>>();
-		Services.AddImplementation<InterpreterVerboseLogEnricher<Any>>().For<ILogEnricher<Any>>();
+        Services.AddImplementation<NoUnhandledErrorBehaviour>().For<IUnhandledErrorBehaviour>(Option.IfNotRegistered);
+        Services.AddImplementation<NoNotifyStateChanged>().For<INotifyStateChanged>(Option.IfNotRegistered);
+        Services.AddImplementation<NoExternalConnections>().For<IExternalCommunication>(Option.IfNotRegistered).For<IExternalServiceManager>(Option.IfNotRegistered);
 
-		Services.AddImplementation<StateEntityParser<Any>>().For<IEntityParserHandler<Any>>();
-		Services.AddImplementation<TransitionEntityParser<Any>>().For<IEntityParserHandler<Any>>();
-		Services.AddImplementation<EventEntityParser<Any>>().For<IEntityParserHandler<Any>>();
-		Services.AddImplementation<EventVerboseEntityParser<Any>>().For<IEntityParserHandler<Any>>();
-		Services.AddImplementation<OutgoingEventEntityParser<Any>>().For<IEntityParserHandler<Any>>();
-		Services.AddImplementation<OutgoingEventVerboseEntityParser<Any>>().For<IEntityParserHandler<Any>>();
-		Services.AddImplementation<InvokeDataEntityParser<Any>>().For<IEntityParserHandler<Any>>();
-		Services.AddImplementation<InvokeDataVerboseEntityParser<Any>>().For<IEntityParserHandler<Any>>();
-		Services.AddImplementation<InvokeIdEntityParser<Any>>().For<IEntityParserHandler<Any>>();
-		Services.AddImplementation<SendIdEntityParser<Any>>().For<IEntityParserHandler<Any>>();
-		Services.AddImplementation<InterpreterStateParser<Any>>().For<IEntityParserHandler<Any>>();
+        Services.AddImplementation<InterpreterInfoLogEnricher<Any>>().For<ILogEnricher<Any>>();
+        Services.AddImplementation<InterpreterDebugLogEnricher<Any>>().For<ILogEnricher<Any>>();
+        Services.AddImplementation<InterpreterVerboseLogEnricher<Any>>().For<ILogEnricher<Any>>();
 
-		Services.AddSharedImplementationSync<AssemblyTypeInfo, Type>(SharedWithin.Scope).For<IAssemblyTypeInfo>();
+        Services.AddImplementation<StateEntityParser<Any>>().For<IEntityParserHandler<Any>>();
+        Services.AddImplementation<TransitionEntityParser<Any>>().For<IEntityParserHandler<Any>>();
+        Services.AddImplementation<EventEntityParser<Any>>().For<IEntityParserHandler<Any>>();
+        Services.AddImplementation<EventVerboseEntityParser<Any>>().For<IEntityParserHandler<Any>>();
+        Services.AddImplementation<OutgoingEventEntityParser<Any>>().For<IEntityParserHandler<Any>>();
+        Services.AddImplementation<OutgoingEventVerboseEntityParser<Any>>().For<IEntityParserHandler<Any>>();
+        Services.AddImplementation<InvokeDataEntityParser<Any>>().For<IEntityParserHandler<Any>>();
+        Services.AddImplementation<InvokeDataVerboseEntityParser<Any>>().For<IEntityParserHandler<Any>>();
+        Services.AddImplementation<InvokeIdEntityParser<Any>>().For<IEntityParserHandler<Any>>();
+        Services.AddImplementation<SendIdEntityParser<Any>>().For<IEntityParserHandler<Any>>();
+        Services.AddImplementation<InterpreterStateParser<Any>>().For<IEntityParserHandler<Any>>();
 
-		Services.AddImplementation<InterpreterXDataModelProperty>().For<IXDataModelProperty>();
-		Services.AddImplementation<DataModelXDataModelProperty>().For<IXDataModelProperty>();
-		Services.AddImplementation<ArgsXDataModelProperty>().For<IXDataModelProperty>();
-		Services.AddImplementation<ConfigurationXDataModelProperty>().For<IXDataModelProperty>();
-		Services.AddImplementation<HostXDataModelProperty>().For<IXDataModelProperty>();
+        Services.AddSharedImplementationSync<AssemblyTypeInfo, Type>(SharedWithin.Scope).For<IAssemblyTypeInfo>();
 
-		Services.AddType<StateMachineRuntimeError>(Option.IfNotRegistered);
-		Services.AddImplementation<InStateController>().For<IInStateController>();
-		Services.AddImplementation<DataModelController>().For<IDataModelController>();
-		Services.AddImplementation<InvokeController>().For<IInvokeController>();
+        Services.AddImplementation<InterpreterXDataModelProperty>().For<IXDataModelProperty>();
+        Services.AddImplementation<DataModelXDataModelProperty>().For<IXDataModelProperty>();
+        Services.AddImplementation<ArgsXDataModelProperty>().For<IXDataModelProperty>();
+        Services.AddImplementation<ConfigurationXDataModelProperty>().For<IXDataModelProperty>();
+        Services.AddImplementation<HostXDataModelProperty>().For<IXDataModelProperty>();
 
-		Services.AddFactory<InterpreterModelGetter>().For<IInterpreterModel>(SharedWithin.Scope);
-		Services.AddSharedImplementation<EventQueue>(SharedWithin.Scope).For<IEventQueueReader>().For<IEventQueueWriter>().For<IEventDispatcher>();
-		Services.AddSharedImplementation<StateMachineContext>(SharedWithin.Scope).For<IStateMachineContext>();
-		Services.AddSharedImplementation<StateMachineInterpreter>(SharedWithin.Scope).For<IStateMachineInterpreter>();
-	}
+        Services.AddType<StateMachineRuntimeError>(Option.IfNotRegistered);
+        Services.AddImplementation<InStateController>().For<IInStateController>();
+        Services.AddImplementation<DataModelController>().For<IDataModelController>();
+        Services.AddImplementation<InvokeController>().For<IInvokeController>();
+
+        Services.AddFactory<InterpreterModelGetter>().For<IInterpreterModel>(SharedWithin.Scope);
+        Services.AddSharedImplementation<EventQueue>(SharedWithin.Scope).For<IEventQueueReader>().For<IEventQueueWriter>().For<IEventDispatcher>();
+        Services.AddSharedImplementation<StateMachineContext>(SharedWithin.Scope).For<IStateMachineContext>();
+        Services.AddSharedImplementation<StateMachineInterpreter>(SharedWithin.Scope).For<IStateMachineInterpreter>();
+    }
 }

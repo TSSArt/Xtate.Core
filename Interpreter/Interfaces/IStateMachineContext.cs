@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,17 +19,17 @@ namespace Xtate.Core;
 
 public interface IStateMachineContext
 {
-	EntityQueue<IIncomingEvent> InternalQueue { get; }
+    EntityQueue<IIncomingEvent> InternalQueue { get; }
 
-	DataModelList DataModel { get; }
+    DataModelList DataModel { get; }
 
-	OrderedSet<StateEntityNode> Configuration { get; }
+    OrderedSet<StateEntityNode> Configuration { get; }
 
-	OrderedSet<StateEntityNode> StatesToInvoke { get; }
+    OrderedSet<StateEntityNode> StatesToInvoke { get; }
 
-	InvokeIdSet ActiveInvokes { get; }
+    InvokeIdSet ActiveInvokes { get; }
 
-	KeyList<StateEntityNode> HistoryValue { get; }
+    KeyList<StateEntityNode> HistoryValue { get; }
 
-	DataModelValue DoneData { get; set; }
+    DataModelValue DoneData { get; set; }
 }

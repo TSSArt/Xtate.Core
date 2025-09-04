@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,102 +21,102 @@ namespace Xtate.Core;
 
 public class StateNode : StateEntityNode, IState, IAncestorProvider, IDebugEntityId
 {
-	private readonly IState _state;
+    private readonly IState _state;
 
-	public StateNode(DocumentIdNode documentIdNode, IState state) : base(documentIdNode)
-	{
-		_state = state;
+    public StateNode(DocumentIdNode documentIdNode, IState state) : base(documentIdNode)
+    {
+        _state = state;
 
-		var id = state.Id ?? new IdentifierNode(Identifier.New());
-		var initial = state.Initial?.As<InitialNode>();
-		var states = state.States.AsArrayOf<IStateEntity, StateEntityNode>(true);
-		var historyStates = state.HistoryStates.AsArrayOf<IHistory, HistoryNode>(true);
-		var transitions = state.Transitions.AsArrayOf<ITransition, TransitionNode>(true);
-		var invokeList = state.Invoke.AsArrayOf<IInvoke, InvokeNode>(true);
+        var id = state.Id ?? new IdentifierNode(Identifier.New());
+        var initial = state.Initial?.As<InitialNode>();
+        var states = state.States.AsArrayOf<IStateEntity, StateEntityNode>(true);
+        var historyStates = state.HistoryStates.AsArrayOf<IHistory, HistoryNode>(true);
+        var transitions = state.Transitions.AsArrayOf<ITransition, TransitionNode>(true);
+        var invokeList = state.Invoke.AsArrayOf<IInvoke, InvokeNode>(true);
 
-		Register(initial);
-		Register(states);
-		Register(historyStates);
-		Register(transitions);
+        Register(initial);
+        Register(states);
+        Register(historyStates);
+        Register(transitions);
 
-		Id = id;
-		Initial = initial;
-		States = states;
-		HistoryStates = historyStates;
-		Transitions = transitions;
-		Invoke = invokeList;
-		OnEntry = state.OnEntry.AsArrayOf<IOnEntry, OnEntryNode>(true);
-		OnExit = state.OnExit.AsArrayOf<IOnExit, OnExitNode>(true);
-		DataModel = state.DataModel?.As<DataModelNode>();
-	}
+        Id = id;
+        Initial = initial;
+        States = states;
+        HistoryStates = historyStates;
+        Transitions = transitions;
+        Invoke = invokeList;
+        OnEntry = state.OnEntry.AsArrayOf<IOnEntry, OnEntryNode>(true);
+        OnExit = state.OnExit.AsArrayOf<IOnExit, OnExitNode>(true);
+        DataModel = state.DataModel?.As<DataModelNode>();
+    }
 
-	public override bool IsAtomicState => true;
+    public override bool IsAtomicState => true;
 
-	public override DataModelNode? DataModel { get; }
+    public override DataModelNode? DataModel { get; }
 
-	public override ImmutableArray<InvokeNode> Invoke { get; }
+    public override ImmutableArray<InvokeNode> Invoke { get; }
 
-	public override ImmutableArray<TransitionNode> Transitions { get; }
+    public override ImmutableArray<TransitionNode> Transitions { get; }
 
-	public override ImmutableArray<HistoryNode> HistoryStates { get; }
+    public override ImmutableArray<HistoryNode> HistoryStates { get; }
 
-	public override ImmutableArray<StateEntityNode> States { get; }
+    public override ImmutableArray<StateEntityNode> States { get; }
 
-	public override ImmutableArray<OnEntryNode> OnEntry { get; }
+    public override ImmutableArray<OnEntryNode> OnEntry { get; }
 
-	public override ImmutableArray<OnExitNode> OnExit { get; }
+    public override ImmutableArray<OnExitNode> OnExit { get; }
 
-	protected InitialNode? Initial { get; }
+    protected InitialNode? Initial { get; }
 
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => _state;
+    object IAncestorProvider.Ancestor => _state;
 
 #endregion
 
 #region Interface IDebugEntityId
 
-	FormattableString IDebugEntityId.EntityId => @$"{Id}(#{DocumentId})";
+    FormattableString IDebugEntityId.EntityId => @$"{Id}(#{DocumentId})";
 
 #endregion
 
 #region Interface IState
 
-	IInitial? IState.Initial => Initial;
+    IInitial? IState.Initial => Initial;
 
-	IDataModel? IState.DataModel => DataModel;
+    IDataModel? IState.DataModel => DataModel;
 
-	ImmutableArray<IInvoke> IState.Invoke => ImmutableArray<IInvoke>.CastUp(Invoke);
+    ImmutableArray<IInvoke> IState.Invoke => ImmutableArray<IInvoke>.CastUp(Invoke);
 
-	ImmutableArray<IStateEntity> IState.States => ImmutableArray<IStateEntity>.CastUp(States);
+    ImmutableArray<IStateEntity> IState.States => ImmutableArray<IStateEntity>.CastUp(States);
 
-	ImmutableArray<IHistory> IState.HistoryStates => ImmutableArray<IHistory>.CastUp(HistoryStates);
+    ImmutableArray<IHistory> IState.HistoryStates => ImmutableArray<IHistory>.CastUp(HistoryStates);
 
-	ImmutableArray<ITransition> IState.Transitions => ImmutableArray<ITransition>.CastUp(Transitions);
+    ImmutableArray<ITransition> IState.Transitions => ImmutableArray<ITransition>.CastUp(Transitions);
 
-	ImmutableArray<IOnEntry> IState.OnEntry => ImmutableArray<IOnEntry>.CastUp(OnEntry);
+    ImmutableArray<IOnEntry> IState.OnEntry => ImmutableArray<IOnEntry>.CastUp(OnEntry);
 
-	ImmutableArray<IOnExit> IState.OnExit => ImmutableArray<IOnExit>.CastUp(OnExit);
+    ImmutableArray<IOnExit> IState.OnExit => ImmutableArray<IOnExit>.CastUp(OnExit);
 
 #endregion
 
 #region Interface IStateEntity
 
-	public override IIdentifier Id { get; }
+    public override IIdentifier Id { get; }
 
 #endregion
 
-	protected override void Store(Bucket bucket)
-	{
-		bucket.Add(Key.TypeInfo, TypeInfo.StateNode);
-		bucket.Add(Key.DocumentId, DocumentId);
-		bucket.AddEntity(Key.Id, Id);
-		bucket.AddEntity(Key.Initial, Initial);
-		bucket.AddEntity(Key.DataModel, DataModel);
-		bucket.AddEntityList(Key.HistoryStates, HistoryStates);
-		bucket.AddEntityList(Key.Transitions, Transitions);
-		bucket.AddEntityList(Key.OnEntry, OnEntry);
-		bucket.AddEntityList(Key.OnExit, OnExit);
-		bucket.AddEntityList(Key.Invoke, Invoke);
-	}
+    protected override void Store(Bucket bucket)
+    {
+        bucket.Add(Key.TypeInfo, TypeInfo.StateNode);
+        bucket.Add(Key.DocumentId, DocumentId);
+        bucket.AddEntity(Key.Id, Id);
+        bucket.AddEntity(Key.Initial, Initial);
+        bucket.AddEntity(Key.DataModel, DataModel);
+        bucket.AddEntityList(Key.HistoryStates, HistoryStates);
+        bucket.AddEntityList(Key.Transitions, Transitions);
+        bucket.AddEntityList(Key.OnEntry, OnEntry);
+        bucket.AddEntityList(Key.OnExit, OnExit);
+        bucket.AddEntityList(Key.Invoke, Invoke);
+    }
 }

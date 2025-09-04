@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,26 +19,26 @@ namespace Xtate.Core;
 
 public readonly struct CombinedToken : IDisposable
 {
-	private readonly CancellationTokenSource? _cancellationTokenSource;
+    private readonly CancellationTokenSource? _cancellationTokenSource;
 
-	public CombinedToken(CancellationToken token1, CancellationToken token2)
-	{
-		if (token1.CanBeCanceled && token2.CanBeCanceled && token1 != token2)
-		{
-			_cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token1, token2);
-			Token = _cancellationTokenSource.Token;
-		}
-		else
-		{
-			Token = token1.CanBeCanceled ? token1 : token2;
-		}
-	}
+    public CombinedToken(CancellationToken token1, CancellationToken token2)
+    {
+        if (token1.CanBeCanceled && token2.CanBeCanceled && token1 != token2)
+        {
+            _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token1, token2);
+            Token = _cancellationTokenSource.Token;
+        }
+        else
+        {
+            Token = token1.CanBeCanceled ? token1 : token2;
+        }
+    }
 
-	public CancellationToken Token { get; }
+    public CancellationToken Token { get; }
 
 #region Interface IDisposable
 
-	public void Dispose() => _cancellationTokenSource?.Dispose();
+    public void Dispose() => _cancellationTokenSource?.Dispose();
 
 #endregion
 }

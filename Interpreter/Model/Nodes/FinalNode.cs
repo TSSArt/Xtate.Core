@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,55 +21,55 @@ namespace Xtate.Core;
 
 public class FinalNode(DocumentIdNode documentIdNode, IFinal final) : StateEntityNode(documentIdNode), IFinal, IAncestorProvider, IDebugEntityId
 {
-	public DoneDataNode? DoneData { get; } = final.DoneData?.As<DoneDataNode>();
+    public DoneDataNode? DoneData { get; } = final.DoneData?.As<DoneDataNode>();
 
-	public override ImmutableArray<TransitionNode> Transitions => [];
+    public override ImmutableArray<TransitionNode> Transitions => [];
 
-	public override ImmutableArray<HistoryNode> HistoryStates => [];
+    public override ImmutableArray<HistoryNode> HistoryStates => [];
 
-	public override ImmutableArray<InvokeNode> Invoke => [];
+    public override ImmutableArray<InvokeNode> Invoke => [];
 
-	public override ImmutableArray<OnEntryNode> OnEntry { get; } = final.OnEntry.AsArrayOf<IOnEntry, OnEntryNode>(true);
+    public override ImmutableArray<OnEntryNode> OnEntry { get; } = final.OnEntry.AsArrayOf<IOnEntry, OnEntryNode>(true);
 
-	public override ImmutableArray<OnExitNode> OnExit { get; } = final.OnExit.AsArrayOf<IOnExit, OnExitNode>(true);
+    public override ImmutableArray<OnExitNode> OnExit { get; } = final.OnExit.AsArrayOf<IOnExit, OnExitNode>(true);
 
-	public override bool IsAtomicState => true;
+    public override bool IsAtomicState => true;
 
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => final;
+    object IAncestorProvider.Ancestor => final;
 
 #endregion
 
 #region Interface IDebugEntityId
 
-	FormattableString IDebugEntityId.EntityId => @$"{Id}(${DocumentId})";
+    FormattableString IDebugEntityId.EntityId => @$"{Id}(${DocumentId})";
 
 #endregion
 
 #region Interface IFinal
 
-	ImmutableArray<IOnEntry> IFinal.OnEntry => ImmutableArray<IOnEntry>.CastUp(OnEntry);
+    ImmutableArray<IOnEntry> IFinal.OnEntry => ImmutableArray<IOnEntry>.CastUp(OnEntry);
 
-	ImmutableArray<IOnExit> IFinal.OnExit => ImmutableArray<IOnExit>.CastUp(OnExit);
+    ImmutableArray<IOnExit> IFinal.OnExit => ImmutableArray<IOnExit>.CastUp(OnExit);
 
-	IDoneData? IFinal.DoneData => DoneData;
+    IDoneData? IFinal.DoneData => DoneData;
 
 #endregion
 
 #region Interface IStateEntity
 
-	public override IIdentifier Id { get; } = final.Id ?? new IdentifierNode(Identifier.New());
+    public override IIdentifier Id { get; } = final.Id ?? new IdentifierNode(Identifier.New());
 
 #endregion
 
-	protected override void Store(Bucket bucket)
-	{
-		bucket.Add(Key.TypeInfo, TypeInfo.FinalNode);
-		bucket.Add(Key.DocumentId, DocumentId);
-		bucket.AddEntity(Key.Id, Id);
-		bucket.AddEntityList(Key.OnEntry, OnEntry);
-		bucket.AddEntityList(Key.OnExit, OnExit);
-		bucket.AddEntity(Key.DoneData, DoneData);
-	}
+    protected override void Store(Bucket bucket)
+    {
+        bucket.Add(Key.TypeInfo, TypeInfo.FinalNode);
+        bucket.Add(Key.DocumentId, DocumentId);
+        bucket.AddEntity(Key.Id, Id);
+        bucket.AddEntityList(Key.OnEntry, OnEntry);
+        bucket.AddEntityList(Key.OnExit, OnExit);
+        bucket.AddEntity(Key.DoneData, DoneData);
+    }
 }

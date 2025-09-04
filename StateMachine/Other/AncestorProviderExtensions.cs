@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,61 +19,61 @@ namespace Xtate.Core;
 
 public static class AncestorProviderExtensions
 {
-	public static T As<T>(this object entity) where T : notnull
-	{
-		Infra.Requires(entity);
+    public static T As<T>(this object entity) where T : notnull
+    {
+        Infra.Requires(entity);
 
-		if (entity.Is<T>(out var result))
-		{
-			return result;
-		}
+        if (entity.Is<T>(out var result))
+        {
+            return result;
+        }
 
-		throw new InvalidCastException(Res.Format(Resources.Exception_TypeCantBeFound, typeof(T).Name, entity.GetType().Name));
-	}
+        throw new InvalidCastException(Res.Format(Resources.Exception_TypeCantBeFound, typeof(T).Name, entity.GetType().Name));
+    }
 
-	public static bool Is<T>(this object? entity) => entity.Is<T>(out _);
+    public static bool Is<T>(this object? entity) => entity.Is<T>(out _);
 
-	public static bool Is<T>(this object? entity, [NotNullWhen(true)] [MaybeNullWhen(false)] out T value)
-	{
-		while (true)
-		{
-			switch (entity)
-			{
-				case null:
-					value = default!;
+    public static bool Is<T>(this object? entity, [NotNullWhen(true)] [MaybeNullWhen(false)] out T value)
+    {
+        while (true)
+        {
+            switch (entity)
+            {
+                case null:
+                    value = default!;
 
-					return false;
+                    return false;
 
-				case AncestorContainer { Value: T ancestorValue }:
-					value = ancestorValue;
+                case AncestorContainer { Value: T ancestorValue }:
+                    value = ancestorValue;
 
-					return true;
+                    return true;
 
-				case T tValue:
-					value = tValue;
+                case T tValue:
+                    value = tValue;
 
-					return true;
+                    return true;
 
-				case IAncestorProvider provider:
-					entity = provider.Ancestor;
+                case IAncestorProvider provider:
+                    entity = provider.Ancestor;
 
-					break;
+                    break;
 
-				default:
-					value = default!;
+                default:
+                    value = default!;
 
-					return false;
-			}
-		}
-	}
+                    return false;
+            }
+        }
+    }
 
-	public static ImmutableArray<TDestination> AsArrayOf<TSource, TDestination>(this ImmutableArray<TSource> array, bool emptyArrayIfDefault = false) where TDestination : notnull
-	{
-		if (array.IsDefault)
-		{
-			return emptyArrayIfDefault ? [] : default;
-		}
+    public static ImmutableArray<TDestination> AsArrayOf<TSource, TDestination>(this ImmutableArray<TSource> array, bool emptyArrayIfDefault = false) where TDestination : notnull
+    {
+        if (array.IsDefault)
+        {
+            return emptyArrayIfDefault ? [] : default;
+        }
 
-		return ImmutableArray.CreateRange(array, item => item is not null ? item.As<TDestination>() : default!);
-	}
+        return ImmutableArray.CreateRange(array, item => item is not null ? item.As<TDestination>() : default!);
+    }
 }

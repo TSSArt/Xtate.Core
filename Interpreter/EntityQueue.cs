@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,28 +19,28 @@ namespace Xtate.Core;
 
 public sealed class EntityQueue<T> : Queue<T>
 {
-	public delegate void ChangeHandler(ChangedAction action, T? entity);
+    public delegate void ChangeHandler(ChangedAction action, T? entity);
 
-	public enum ChangedAction
-	{
-		Enqueue,
+    public enum ChangedAction
+    {
+        Enqueue,
 
-		Dequeue
-	}
+        Dequeue
+    }
 
-	public event ChangeHandler? Changed;
+    public event ChangeHandler? Changed;
 
-	public new T Dequeue()
-	{
-		Changed?.Invoke(ChangedAction.Dequeue, entity: default);
+    public new T Dequeue()
+    {
+        Changed?.Invoke(ChangedAction.Dequeue, entity: default);
 
-		return base.Dequeue();
-	}
+        return base.Dequeue();
+    }
 
-	public new void Enqueue(T item)
-	{
-		base.Enqueue(item);
+    public new void Enqueue(T item)
+    {
+        base.Enqueue(item);
 
-		Changed?.Invoke(ChangedAction.Enqueue, item);
-	}
+        Changed?.Invoke(ChangedAction.Enqueue, item);
+    }
 }

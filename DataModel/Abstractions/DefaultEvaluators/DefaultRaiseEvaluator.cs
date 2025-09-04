@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,16 +19,16 @@ namespace Xtate.DataModel;
 
 public class DefaultRaiseEvaluator(IRaise raise) : RaiseEvaluator(raise)
 {
-	public required Deferred<IEventController> EventController { private get; [UsedImplicitly] init; }
+    public required Deferred<IEventController> EventController { private get; [UsedImplicitly] init; }
 
-	public override async ValueTask Execute()
-	{
-		var outgoingEvent = base.OutgoingEvent;
+    public override async ValueTask Execute()
+    {
+        var outgoingEvent = base.OutgoingEvent;
 
-		Infra.NotNull(outgoingEvent);
+        Infra.NotNull(outgoingEvent);
 
-		var eventController = await EventController().ConfigureAwait(false);
+        var eventController = await EventController().ConfigureAwait(false);
 
-		await eventController.Send(outgoingEvent).ConfigureAwait(false);
-	}
+        await eventController.Send(outgoingEvent).ConfigureAwait(false);
+    }
 }

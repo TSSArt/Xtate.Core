@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,41 +19,41 @@ namespace Xtate.DataModel.XPath;
 
 public class XPathForEachEvaluator : DefaultForEachEvaluator
 {
-	private readonly XPathLocationExpressionEvaluator? _indexEvaluator;
+    private readonly XPathLocationExpressionEvaluator? _indexEvaluator;
 
-	private readonly XPathLocationExpressionEvaluator _itemEvaluator;
+    private readonly XPathLocationExpressionEvaluator _itemEvaluator;
 
-	public XPathForEachEvaluator(IForEach forEach) : base(forEach)
-	{
-		var itemEvaluator = base.Item?.As<XPathLocationExpressionEvaluator>();
-		Infra.NotNull(itemEvaluator);
-		_itemEvaluator = itemEvaluator;
+    public XPathForEachEvaluator(IForEach forEach) : base(forEach)
+    {
+        var itemEvaluator = base.Item?.As<XPathLocationExpressionEvaluator>();
+        Infra.NotNull(itemEvaluator);
+        _itemEvaluator = itemEvaluator;
 
-		_indexEvaluator = base.Index?.As<XPathLocationExpressionEvaluator>();
-	}
+        _indexEvaluator = base.Index?.As<XPathLocationExpressionEvaluator>();
+    }
 
-	public required Func<ValueTask<XPathEngine>> EngineFactory { private get; [UsedImplicitly] init; }
+    public required Func<ValueTask<XPathEngine>> EngineFactory { private get; [UsedImplicitly] init; }
 
-	public override async ValueTask Execute()
-	{
-		var engine = await EngineFactory().ConfigureAwait(false);
+    public override async ValueTask Execute()
+    {
+        var engine = await EngineFactory().ConfigureAwait(false);
 
-		engine.EnterScope();
+        engine.EnterScope();
 
-		try
-		{
-			await _itemEvaluator.DeclareLocalVariable().ConfigureAwait(false);
+        try
+        {
+            await _itemEvaluator.DeclareLocalVariable().ConfigureAwait(false);
 
-			if (_indexEvaluator is not null)
-			{
-				await _indexEvaluator.DeclareLocalVariable().ConfigureAwait(false);
-			}
+            if (_indexEvaluator is not null)
+            {
+                await _indexEvaluator.DeclareLocalVariable().ConfigureAwait(false);
+            }
 
-			await base.Execute().ConfigureAwait(false);
-		}
-		finally
-		{
-			engine.LeaveScope();
-		}
-	}
+            await base.Execute().ConfigureAwait(false);
+        }
+        finally
+        {
+            engine.LeaveScope();
+        }
+    }
 }

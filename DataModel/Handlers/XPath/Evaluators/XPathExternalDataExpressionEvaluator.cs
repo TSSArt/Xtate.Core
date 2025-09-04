@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,24 +19,24 @@ namespace Xtate.DataModel.XPath;
 
 public class XPathExternalDataExpressionEvaluator(IExternalDataExpression externalDataExpression) : DefaultExternalDataExpressionEvaluator(externalDataExpression)
 {
-	private const string MediaTypeApplicationXml = @"application/xml";
+    private const string MediaTypeApplicationXml = @"application/xml";
 
-	private const string MediaTypeTextXml = @"text/xml";
+    private const string MediaTypeTextXml = @"text/xml";
 
-	public required XPathXmlParserContextFactory XPathXmlParserContextFactory { private get; [UsedImplicitly] init; }
+    public required XPathXmlParserContextFactory XPathXmlParserContextFactory { private get; [UsedImplicitly] init; }
 
-	protected override async ValueTask<DataModelValue> ParseToDataModel(Resource resource)
-	{
-		var mediaType = resource.ContentType?.MediaType;
+    protected override async ValueTask<DataModelValue> ParseToDataModel(Resource resource)
+    {
+        var mediaType = resource.ContentType?.MediaType;
 
-		if (mediaType is MediaTypeApplicationXml or MediaTypeTextXml)
-		{
-			var stream = await resource.GetStream(true).ConfigureAwait(false);
-			var context = XPathXmlParserContextFactory.CreateContext(this);
+        if (mediaType is MediaTypeApplicationXml or MediaTypeTextXml)
+        {
+            var stream = await resource.GetStream(true).ConfigureAwait(false);
+            var context = XPathXmlParserContextFactory.CreateContext(this);
 
-			return await XmlConverter.FromXmlStreamAsync(stream, context).ConfigureAwait(false);
-		}
+            return await XmlConverter.FromXmlStreamAsync(stream, context).ConfigureAwait(false);
+        }
 
-		throw new XPathDataModelException(string.Format(Resources.Exception_Unrecognized_MediaType, mediaType));
-	}
+        throw new XPathDataModelException(string.Format(Resources.Exception_Unrecognized_MediaType, mediaType));
+    }
 }

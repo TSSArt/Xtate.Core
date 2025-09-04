@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,68 +22,68 @@ namespace Xtate.Core;
 
 public class DataNode : IData, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 {
-	private readonly IData _data;
+    private readonly IData _data;
 
-	private DocumentIdSlot _documentIdSlot;
+    private DocumentIdSlot _documentIdSlot;
 
-	public DataNode(DocumentIdNode documentIdNode, IData data)
-	{
-		_data = data;
+    public DataNode(DocumentIdNode documentIdNode, IData data)
+    {
+        _data = data;
 
-		documentIdNode.SaveToSlot(out _documentIdSlot);
+        documentIdNode.SaveToSlot(out _documentIdSlot);
 
-		SourceEvaluator = data.Source?.As<IObjectEvaluator>();
-		ExpressionEvaluator = data.Expression?.As<IObjectEvaluator>();
-		InlineContentEvaluator = data.InlineContent?.As<IObjectEvaluator>();
-	}
+        SourceEvaluator = data.Source?.As<IObjectEvaluator>();
+        ExpressionEvaluator = data.Expression?.As<IObjectEvaluator>();
+        InlineContentEvaluator = data.InlineContent?.As<IObjectEvaluator>();
+    }
 
-	public IObjectEvaluator? SourceEvaluator { get; }
+    public IObjectEvaluator? SourceEvaluator { get; }
 
-	public IObjectEvaluator? ExpressionEvaluator { get; }
+    public IObjectEvaluator? ExpressionEvaluator { get; }
 
-	public IObjectEvaluator? InlineContentEvaluator { get; }
+    public IObjectEvaluator? InlineContentEvaluator { get; }
 
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => _data;
+    object IAncestorProvider.Ancestor => _data;
 
 #endregion
 
 #region Interface IData
 
-	public string? Id => _data.Id;
+    public string? Id => _data.Id;
 
-	public IValueExpression? Expression => _data.Expression;
+    public IValueExpression? Expression => _data.Expression;
 
-	public IExternalDataExpression? Source => _data.Source;
+    public IExternalDataExpression? Source => _data.Source;
 
-	public IInlineContent? InlineContent => _data.InlineContent;
+    public IInlineContent? InlineContent => _data.InlineContent;
 
 #endregion
 
 #region Interface IDebugEntityId
 
-	FormattableString IDebugEntityId.EntityId => @$"{Id}(#{DocumentId})";
+    FormattableString IDebugEntityId.EntityId => @$"{Id}(#{DocumentId})";
 
 #endregion
 
 #region Interface IDocumentId
 
-	public int DocumentId => _documentIdSlot.CreateValue();
+    public int DocumentId => _documentIdSlot.CreateValue();
 
 #endregion
 
 #region Interface IStoreSupport
 
-	void IStoreSupport.Store(Bucket bucket)
-	{
-		bucket.Add(Key.TypeInfo, TypeInfo.DataNode);
-		bucket.Add(Key.DocumentId, DocumentId);
-		bucket.Add(Key.Id, Id);
-		bucket.AddEntity(Key.Source, Source);
-		bucket.AddEntity(Key.Expression, Expression);
-		bucket.Add(Key.InlineContent, InlineContent?.Value);
-	}
+    void IStoreSupport.Store(Bucket bucket)
+    {
+        bucket.Add(Key.TypeInfo, TypeInfo.DataNode);
+        bucket.Add(Key.DocumentId, DocumentId);
+        bucket.Add(Key.Id, Id);
+        bucket.AddEntity(Key.Source, Source);
+        bucket.AddEntity(Key.Expression, Expression);
+        bucket.Add(Key.InlineContent, InlineContent?.Value);
+    }
 
 #endregion
 }

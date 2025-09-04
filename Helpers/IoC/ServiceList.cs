@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,43 +21,43 @@ namespace Xtate.Core;
 
 public class ServiceList<T> : IReadOnlyList<T>, IAsyncInitialization
 {
-	private readonly Task _initTask;
+    private readonly Task _initTask;
 
-	private ImmutableArray<T> _array;
+    private ImmutableArray<T> _array;
 
-	public ServiceList(IAsyncEnumerable<T> asyncEnumerable) => _initTask = Initialize(asyncEnumerable);
+    public ServiceList(IAsyncEnumerable<T> asyncEnumerable) => _initTask = Initialize(asyncEnumerable);
 
 #region Interface IAsyncInitialization
 
-	Task IAsyncInitialization.Initialization => _initTask;
+    Task IAsyncInitialization.Initialization => _initTask;
 
 #endregion
 
 #region Interface IEnumerable
 
-	IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) _array).GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_array).GetEnumerator();
 
 #endregion
 
 #region Interface IEnumerable<T>
 
-	IEnumerator<T> IEnumerable<T>.GetEnumerator() => ((IEnumerable<T>) _array).GetEnumerator();
+    IEnumerator<T> IEnumerable<T>.GetEnumerator() => ((IEnumerable<T>)_array).GetEnumerator();
 
 #endregion
 
 #region Interface IReadOnlyCollection<T>
 
-	public int Count => _array.Length;
+    public int Count => _array.Length;
 
 #endregion
 
 #region Interface IReadOnlyList<T>
 
-	public T this[int index] => _array[index];
+    public T this[int index] => _array[index];
 
 #endregion
 
-	public ImmutableArray<T>.Enumerator GetEnumerator() => _array.GetEnumerator();
+    public ImmutableArray<T>.Enumerator GetEnumerator() => _array.GetEnumerator();
 
-	private async Task Initialize(IAsyncEnumerable<T> asyncEnumerable) => _array = await asyncEnumerable.ToImmutableArrayAsync().ConfigureAwait(false);
+    private async Task Initialize(IAsyncEnumerable<T> asyncEnumerable) => _array = await asyncEnumerable.ToImmutableArrayAsync().ConfigureAwait(false);
 }

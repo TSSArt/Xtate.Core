@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,42 +22,42 @@ namespace Xtate.ExternalService.HttpClient;
 
 public class HttpClientJsonHandler : HttpClientMimeTypeHandler
 {
-	private const string MediaTypeApplicationJson = "application/json";
+    private const string MediaTypeApplicationJson = "application/json";
 
-	private HttpClientJsonHandler() { }
+    private HttpClientJsonHandler() { }
 
-	public static HttpClientMimeTypeHandler Instance { get; } = new HttpClientJsonHandler();
+    public static HttpClientMimeTypeHandler Instance { get; } = new HttpClientJsonHandler();
 
-	public override void PrepareRequest(WebRequest webRequest,
-										string? contentType,
-										DataModelList parameters,
-										DataModelValue value) =>
-		AppendAcceptHeader(webRequest, MediaTypeApplicationJson);
+    public override void PrepareRequest(WebRequest webRequest,
+                                        string? contentType,
+                                        DataModelList parameters,
+                                        DataModelValue value) =>
+        AppendAcceptHeader(webRequest, MediaTypeApplicationJson);
 
-	public override HttpContent? TryCreateHttpContent(WebRequest webRequest,
-													  string? contentType,
-													  DataModelList parameters,
-													  DataModelValue value) =>
-		ContentTypeEquals(contentType, MediaTypeApplicationJson) ? new HttpClientJsonHandlerHttpContent(value, MediaTypeApplicationJson) : default;
+    public override HttpContent? TryCreateHttpContent(WebRequest webRequest,
+                                                      string? contentType,
+                                                      DataModelList parameters,
+                                                      DataModelValue value) =>
+        ContentTypeEquals(contentType, MediaTypeApplicationJson) ? new HttpClientJsonHandlerHttpContent(value, MediaTypeApplicationJson) : default;
 
-	public override async ValueTask<DataModelValue?> TryParseResponseAsync(WebResponse webResponse, DataModelList parameters, CancellationToken token)
-	{
-		if (webResponse is null) throw new ArgumentNullException(nameof(webResponse));
+    public override async ValueTask<DataModelValue?> TryParseResponseAsync(WebResponse webResponse, DataModelList parameters, CancellationToken token)
+    {
+        if (webResponse is null) throw new ArgumentNullException(nameof(webResponse));
 
-		if (!ContentTypeEquals(webResponse.ContentType, MediaTypeApplicationJson))
-		{
-			return default;
-		}
+        if (!ContentTypeEquals(webResponse.ContentType, MediaTypeApplicationJson))
+        {
+            return default;
+        }
 
-		var stream = webResponse.GetResponseStream();
+        var stream = webResponse.GetResponseStream();
 
-		Infra.NotNull(stream);
+        Infra.NotNull(stream);
 
-		XtateCore.Use();
+        XtateCore.Use();
 
-		await using (stream.ConfigureAwait(false))
-		{
-			return await DataModelConverter.FromJsonAsync(stream, token).ConfigureAwait(false);
-		}
-	}
+        await using (stream.ConfigureAwait(false))
+        {
+            return await DataModelConverter.FromJsonAsync(stream, token).ConfigureAwait(false);
+        }
+    }
 }

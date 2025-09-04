@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,34 +19,34 @@ namespace Xtate.DataModel.Runtime;
 
 public abstract class RuntimeAction : IExecutableEntity
 {
-	public static RuntimeAction GetAction(Action action)
-	{
-		Infra.Requires(action);
+    public static RuntimeAction GetAction(Action action)
+    {
+        Infra.Requires(action);
 
-		return new ActionSync(action);
-	}
+        return new ActionSync(action);
+    }
 
-	public static RuntimeAction GetAction(Func<ValueTask> action)
-	{
-		Infra.Requires(action);
+    public static RuntimeAction GetAction(Func<ValueTask> action)
+    {
+        Infra.Requires(action);
 
-		return new ActionAsync(action);
-	}
+        return new ActionAsync(action);
+    }
 
-	public abstract ValueTask DoAction();
+    public abstract ValueTask DoAction();
 
-	private sealed class ActionSync(Action action) : RuntimeAction
-	{
-		public override ValueTask DoAction()
-		{
-			action();
+    private sealed class ActionSync(Action action) : RuntimeAction
+    {
+        public override ValueTask DoAction()
+        {
+            action();
 
-			return default;
-		}
-	}
+            return default;
+        }
+    }
 
-	private sealed class ActionAsync(Func<ValueTask> action) : RuntimeAction
-	{
-		public override ValueTask DoAction() => action();
-	}
+    private sealed class ActionAsync(Func<ValueTask> action) : RuntimeAction
+    {
+        public override ValueTask DoAction() => action();
+    }
 }

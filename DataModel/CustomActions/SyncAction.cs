@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,131 +21,133 @@ namespace Xtate.CustomAction;
 
 public abstract class SyncAction : ActionBase, IAction
 {
-    [field: AllowNull, MaybeNull]
+    [field: AllowNull]
+    [field: MaybeNull]
     private Value[] Values => field ??= GetValues().ToArray();
 
-    [field: AllowNull, MaybeNull]
+    [field: AllowNull]
+    [field: MaybeNull]
     private Location[] Locations => field ??= GetLocations().ToArray();
 
 #region Interface IAction
 
-	ValueTask IAction.Execute() => Execute();
+    ValueTask IAction.Execute() => Execute();
 
-	IEnumerable<IActionValue> IAction.GetValues() => Values;
+    IEnumerable<IActionValue> IAction.GetValues() => Values;
 
-	IEnumerable<IActionLocation> IAction.GetLocations() => Locations;
+    IEnumerable<IActionLocation> IAction.GetLocations() => Locations;
 
 #endregion
 
-	protected virtual IEnumerable<Value> GetValues() => [];
+    protected virtual IEnumerable<Value> GetValues() => [];
 
-	protected virtual IEnumerable<Location> GetLocations() => [];
+    protected virtual IEnumerable<Location> GetLocations() => [];
 
-	protected virtual async ValueTask Execute()
-	{
-		foreach (var value in Values)
-		{
-			await value.Evaluate().ConfigureAwait(false);
-		}
+    protected virtual async ValueTask Execute()
+    {
+        foreach (var value in Values)
+        {
+            await value.Evaluate().ConfigureAwait(false);
+        }
 
-		var result = Evaluate();
+        var result = Evaluate();
 
-		if (Locations.Length > 0)
-		{
-			await Locations[0].SetValue(result).ConfigureAwait(false);
-		}
+        if (Locations.Length > 0)
+        {
+            await Locations[0].SetValue(result).ConfigureAwait(false);
+        }
 
-		foreach (var value in Values)
-		{
-			value.Reset();
-		}
-	}
+        foreach (var value in Values)
+        {
+            value.Reset();
+        }
+    }
 
-	protected abstract DataModelValue Evaluate();
+    protected abstract DataModelValue Evaluate();
 
-	protected abstract class Value(string? expression) : IActionValue
-	{
-		protected IValueEvaluator ValueEvaluator { get; private set; } = null!;
+    protected abstract class Value(string? expression) : IActionValue
+    {
+        protected IValueEvaluator ValueEvaluator { get; private set; } = null!;
 
-	#region Interface IActionValue
+    #region Interface IActionValue
 
-		void IActionValue.SetEvaluator(IValueEvaluator valueEvaluator) => ValueEvaluator ??= valueEvaluator;
+        void IActionValue.SetEvaluator(IValueEvaluator valueEvaluator) => ValueEvaluator ??= valueEvaluator;
 
-	#endregion
+    #endregion
 
-	#region Interface IValueExpression
+    #region Interface IValueExpression
 
-		string? IValueExpression.Expression => expression;
+        string? IValueExpression.Expression => expression;
 
-	#endregion
+    #endregion
 
-		internal abstract ValueTask Evaluate();
+        internal abstract ValueTask Evaluate();
 
-		internal abstract void Reset();
-	}
+        internal abstract void Reset();
+    }
 
-	protected class Location(string? expression) : IActionLocation
-	{
-		protected ILocationEvaluator? LocationEvaluator;
+    protected class Location(string? expression) : IActionLocation
+    {
+        protected ILocationEvaluator? LocationEvaluator;
 
-	#region Interface IActionLocation
+    #region Interface IActionLocation
 
-		void IActionLocation.SetEvaluator(ILocationEvaluator locationEvaluator) => LocationEvaluator ??= locationEvaluator;
+        void IActionLocation.SetEvaluator(ILocationEvaluator locationEvaluator) => LocationEvaluator ??= locationEvaluator;
 
-	#endregion
+    #endregion
 
-	#region Interface ILocationExpression
+    #region Interface ILocationExpression
 
-		string? ILocationExpression.Expression => expression;
+        string? ILocationExpression.Expression => expression;
 
-	#endregion
+    #endregion
 
-		internal ValueTask SetValue(DataModelValue value) => LocationEvaluator?.SetValue(value.AsIObject()) ?? default;
+        internal ValueTask SetValue(DataModelValue value) => LocationEvaluator?.SetValue(value.AsIObject()) ?? default;
 
-		internal async ValueTask<DataModelValue> GetValue()
-		{
-			var obj = LocationEvaluator is not null ? await LocationEvaluator.GetValue().ConfigureAwait(false) : null;
+        internal async ValueTask<DataModelValue> GetValue()
+        {
+            var obj = LocationEvaluator is not null ? await LocationEvaluator.GetValue().ConfigureAwait(false) : null;
 
-			return DataModelValue.FromObject(obj);
-		}
-	}
+            return DataModelValue.FromObject(obj);
+        }
+    }
 
-	protected class ArrayValue(string? expression) : TypedValue<object?[]>(expression)
-	{
-		protected override ValueTask<object?[]> GetValue() => GetArray(ValueEvaluator);
-	}
+    protected class ArrayValue(string? expression) : TypedValue<object?[]>(expression)
+    {
+        protected override ValueTask<object?[]> GetValue() => GetArray(ValueEvaluator);
+    }
 
-	protected class StringValue(string? expression, string? defaultValue = null) : TypedValue<string>(expression)
-	{
-		protected override ValueTask<string> GetValue() => GetString(ValueEvaluator, defaultValue);
-	}
+    protected class StringValue(string? expression, string? defaultValue = null) : TypedValue<string>(expression)
+    {
+        protected override ValueTask<string> GetValue() => GetString(ValueEvaluator, defaultValue);
+    }
 
-	protected class IntegerValue(string? expression, int? defaultValue = null) : TypedValue<int>(expression)
-	{
-		protected override ValueTask<int> GetValue() => GetInteger(ValueEvaluator, defaultValue);
-	}
+    protected class IntegerValue(string? expression, int? defaultValue = null) : TypedValue<int>(expression)
+    {
+        protected override ValueTask<int> GetValue() => GetInteger(ValueEvaluator, defaultValue);
+    }
 
-	protected class BooleanValue(string? expression, bool? defaultValue = null) : TypedValue<bool>(expression)
-	{
-		protected override ValueTask<bool> GetValue() => GetBoolean(ValueEvaluator, defaultValue);
-	}
+    protected class BooleanValue(string? expression, bool? defaultValue = null) : TypedValue<bool>(expression)
+    {
+        protected override ValueTask<bool> GetValue() => GetBoolean(ValueEvaluator, defaultValue);
+    }
 
-	protected class ObjectValue(string? expression, object? defaultValue = null) : TypedValue<DataModelValue>(expression)
-	{
-		protected override ValueTask<DataModelValue> GetValue() => GetObject(ValueEvaluator, defaultValue);
-	}
+    protected class ObjectValue(string? expression, object? defaultValue = null) : TypedValue<DataModelValue>(expression)
+    {
+        protected override ValueTask<DataModelValue> GetValue() => GetObject(ValueEvaluator, defaultValue);
+    }
 
-	protected abstract class TypedValue<T>(string? expression) : Value(expression)
-	{
-		private ValueTuple<T>? _value;
+    protected abstract class TypedValue<T>(string? expression) : Value(expression)
+    {
+        private ValueTuple<T>? _value;
 
-		// ReSharper disable once MemberHidesStaticFromOuterClass
-		public T Value => _value.HasValue ? _value.Value.Item1 : throw new InvalidOperationException(Resources.Exception_PropertyAvailableInEvaluateMethod);
+        // ReSharper disable once MemberHidesStaticFromOuterClass
+        public T Value => _value.HasValue ? _value.Value.Item1 : throw new InvalidOperationException(Resources.Exception_PropertyAvailableInEvaluateMethod);
 
-		internal override void Reset() => _value = null;
+        internal override void Reset() => _value = null;
 
-		internal override async ValueTask Evaluate() => _value = new ValueTuple<T>(await GetValue().ConfigureAwait(false));
+        internal override async ValueTask Evaluate() => _value = new ValueTuple<T>(await GetValue().ConfigureAwait(false));
 
-		protected abstract ValueTask<T> GetValue();
-	}
+        protected abstract ValueTask<T> GetValue();
+    }
 }

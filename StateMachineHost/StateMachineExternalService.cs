@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,88 +21,88 @@ namespace Xtate.Core;
 
 public class StateMachineExternalService : ExternalServiceBase, IDisposable, IAsyncDisposable
 {
-	public class Provider() : ExternalServiceProviderBase<StateMachineExternalService>(Const.ScxmlServiceTypeId, Const.ScxmlServiceAliasTypeId);
+    public class Provider() : ExternalServiceProviderBase<StateMachineExternalService>(Const.ScxmlServiceTypeId, Const.ScxmlServiceAliasTypeId);
 
-	private SessionId? _sessionId;
+    private SessionId? _sessionId;
 
-	public required IStateMachineScopeManager StateMachineScopeManager { private get; [UsedImplicitly] init; }
+    public required IStateMachineScopeManager StateMachineScopeManager { private get; [UsedImplicitly] init; }
 
-	public required IStateMachineLocation StateMachineLocation { private get; [UsedImplicitly] init; }
+    public required IStateMachineLocation StateMachineLocation { private get; [UsedImplicitly] init; }
 
-	public required IStateMachineCollection StateMachineCollection { private get; [UsedImplicitly] init; }
+    public required IStateMachineCollection StateMachineCollection { private get; [UsedImplicitly] init; }
 
-	public required TaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
+    public required TaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
 
-	public required Func<Uri, DataModelValue, StateMachineClass> LocationStateMachineClassFactory { private get; [UsedImplicitly] init; }
+    public required Func<Uri, DataModelValue, StateMachineClass> LocationStateMachineClassFactory { private get; [UsedImplicitly] init; }
 
-	public required Func<string, Uri?, DataModelValue, StateMachineClass> ScxmlStateMachineClassFactory { private get; [UsedImplicitly] init; }
+    public required Func<string, Uri?, DataModelValue, StateMachineClass> ScxmlStateMachineClassFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IAsyncDisposable
 
-	public async ValueTask DisposeAsync()
-	{
-		await DisposeAsyncCore().ConfigureAwait(false);
+    public async ValueTask DisposeAsync()
+    {
+        await DisposeAsyncCore().ConfigureAwait(false);
 
-		Dispose(false);
+        Dispose(false);
 
-		GC.SuppressFinalize(this);
-	}
+        GC.SuppressFinalize(this);
+    }
 
 #endregion
 
 #region Interface IDisposable
 
-	public void Dispose()
-	{
-		Dispose(true);
+    public void Dispose()
+    {
+        Dispose(true);
 
-		GC.SuppressFinalize(this);
-	}
+        GC.SuppressFinalize(this);
+    }
 
 #endregion
 
-	protected override async ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token)
-	{
-		if (_sessionId is { } sessionId)
-		{
-			using var combinedToken = new CombinedToken(token, DestroyToken);
+    protected override async ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token)
+    {
+        if (_sessionId is { } sessionId)
+        {
+            using var combinedToken = new CombinedToken(token, DestroyToken);
 
-			await StateMachineCollection.Dispatch(sessionId, incomingEvent, combinedToken.Token).ConfigureAwait(false);
-		}
-	}
+            await StateMachineCollection.Dispatch(sessionId, incomingEvent, combinedToken.Token).ConfigureAwait(false);
+        }
+    }
 
-	protected override ValueTask<DataModelValue> Execute()
-	{
-		var scxml = RawContent ?? Content.AsStringOrDefault();
+    protected override ValueTask<DataModelValue> Execute()
+    {
+        var scxml = RawContent ?? Content.AsStringOrDefault();
 
-		Infra.Assert(scxml is not null || Source is not null);
+        Infra.Assert(scxml is not null || Source is not null);
 
-		var stateMachineClass = scxml is not null
-			? ScxmlStateMachineClassFactory(scxml, StateMachineLocation.Location, Parameters)
-			: LocationStateMachineClassFactory(StateMachineLocation.Location.CombineWith(Source!), Parameters);
+        var stateMachineClass = scxml is not null
+            ? ScxmlStateMachineClassFactory(scxml, StateMachineLocation.Location, Parameters)
+            : LocationStateMachineClassFactory(StateMachineLocation.Location.CombineWith(Source!), Parameters);
 
-		_sessionId = stateMachineClass.SessionId;
+        _sessionId = stateMachineClass.SessionId;
 
-		return StateMachineScopeManager.Execute(stateMachineClass, SecurityContextType.InvokedService);
-	}
+        return StateMachineScopeManager.Execute(stateMachineClass, SecurityContextType.InvokedService);
+    }
 
-	protected virtual void Dispose(bool disposing)
-	{
-		if (disposing && _sessionId is { } sessionId)
-		{
-			_sessionId = default;
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing && _sessionId is { } sessionId)
+        {
+            _sessionId = default;
 
-			StateMachineCollection.Destroy(sessionId).Forget(TaskMonitor);
-		}
-	}
+            StateMachineCollection.Destroy(sessionId).Forget(TaskMonitor);
+        }
+    }
 
-	protected virtual async ValueTask DisposeAsyncCore()
-	{
-		if (_sessionId is { } sessionId)
-		{
-			_sessionId = default;
+    protected virtual async ValueTask DisposeAsyncCore()
+    {
+        if (_sessionId is { } sessionId)
+        {
+            _sessionId = default;
 
-			await StateMachineCollection.Destroy(sessionId).ConfigureAwait(false);
-		}
-	}
+            await StateMachineCollection.Destroy(sessionId).ConfigureAwait(false);
+        }
+    }
 }

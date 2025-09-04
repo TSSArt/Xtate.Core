@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,165 +21,165 @@ namespace Xtate.DataModel;
 
 public abstract class DataModelHandlerBase : StateMachineVisitor, IDataModelHandler
 {
-	public required Func<ILog, DefaultLogEvaluator> DefaultLogEvaluatorFactory { private get; [UsedImplicitly] init; }
+    public required Func<ILog, DefaultLogEvaluator> DefaultLogEvaluatorFactory { private get; [UsedImplicitly] init; }
 
-	public required Func<ISend, DefaultSendEvaluator> DefaultSendEvaluatorFactory { private get; [UsedImplicitly] init; }
+    public required Func<ISend, DefaultSendEvaluator> DefaultSendEvaluatorFactory { private get; [UsedImplicitly] init; }
 
-	public required Func<ICancel, DefaultCancelEvaluator> DefaultCancelEvaluatorFactory { private get; [UsedImplicitly] init; }
+    public required Func<ICancel, DefaultCancelEvaluator> DefaultCancelEvaluatorFactory { private get; [UsedImplicitly] init; }
 
-	public required Func<IIf, DefaultIfEvaluator> DefaultIfEvaluatorFactory { private get; [UsedImplicitly] init; }
+    public required Func<IIf, DefaultIfEvaluator> DefaultIfEvaluatorFactory { private get; [UsedImplicitly] init; }
 
-	public required Func<IRaise, DefaultRaiseEvaluator> DefaultRaiseEvaluatorFactory { private get; [UsedImplicitly] init; }
+    public required Func<IRaise, DefaultRaiseEvaluator> DefaultRaiseEvaluatorFactory { private get; [UsedImplicitly] init; }
 
-	public required Func<IForEach, DefaultForEachEvaluator> DefaultForEachEvaluatorFactory { private get; [UsedImplicitly] init; }
+    public required Func<IForEach, DefaultForEachEvaluator> DefaultForEachEvaluatorFactory { private get; [UsedImplicitly] init; }
 
-	public required Func<IAssign, DefaultAssignEvaluator> DefaultAssignEvaluatorFactory { private get; [UsedImplicitly] init; }
+    public required Func<IAssign, DefaultAssignEvaluator> DefaultAssignEvaluatorFactory { private get; [UsedImplicitly] init; }
 
-	public required Func<IScript, DefaultScriptEvaluator> DefaultScriptEvaluatorFactory { private get; [UsedImplicitly] init; }
+    public required Func<IScript, DefaultScriptEvaluator> DefaultScriptEvaluatorFactory { private get; [UsedImplicitly] init; }
 
-	public required Func<ICustomAction, DefaultCustomActionEvaluator> DefaultCustomActionEvaluatorFactory { private get; [UsedImplicitly] init; }
+    public required Func<ICustomAction, DefaultCustomActionEvaluator> DefaultCustomActionEvaluatorFactory { private get; [UsedImplicitly] init; }
 
-	public required Func<IContentBody, DefaultContentBodyEvaluator> DefaultContentBodyEvaluatorFactory { private get; [UsedImplicitly] init; }
+    public required Func<IContentBody, DefaultContentBodyEvaluator> DefaultContentBodyEvaluatorFactory { private get; [UsedImplicitly] init; }
 
-	public required Func<IInlineContent, DefaultInlineContentEvaluator> DefaultInlineContentEvaluatorFactory { private get; [UsedImplicitly] init; }
+    public required Func<IInlineContent, DefaultInlineContentEvaluator> DefaultInlineContentEvaluatorFactory { private get; [UsedImplicitly] init; }
 
-	public required Func<IExternalDataExpression, DefaultExternalDataExpressionEvaluator> DefaultExternalDataExpressionEvaluatorFactory { private get; [UsedImplicitly] init; }
+    public required Func<IExternalDataExpression, DefaultExternalDataExpressionEvaluator> DefaultExternalDataExpressionEvaluatorFactory { private get; [UsedImplicitly] init; }
 
-	public required Func<ICustomAction, CustomActionContainer> CustomActionContainerFactory { private get; [UsedImplicitly] init; }
+    public required Func<ICustomAction, CustomActionContainer> CustomActionContainerFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IDataModelHandler
 
-	public virtual string ConvertToText(DataModelValue value) => value.ToString(provider: null);
+    public virtual string ConvertToText(DataModelValue value) => value.ToString(provider: null);
 
-	void IDataModelHandler.Process(ref IExecutableEntity executableEntity) => Visit(ref executableEntity);
+    void IDataModelHandler.Process(ref IExecutableEntity executableEntity) => Visit(ref executableEntity);
 
-	void IDataModelHandler.Process(ref IValueExpression valueExpression) => Visit(ref valueExpression);
+    void IDataModelHandler.Process(ref IValueExpression valueExpression) => Visit(ref valueExpression);
 
-	void IDataModelHandler.Process(ref ILocationExpression locationExpression) => Visit(ref locationExpression);
+    void IDataModelHandler.Process(ref ILocationExpression locationExpression) => Visit(ref locationExpression);
 
-	void IDataModelHandler.Process(ref IConditionExpression conditionExpression) => Visit(ref conditionExpression);
+    void IDataModelHandler.Process(ref IConditionExpression conditionExpression) => Visit(ref conditionExpression);
 
-	void IDataModelHandler.Process(ref IContentBody contentBody) => Visit(ref contentBody);
+    void IDataModelHandler.Process(ref IContentBody contentBody) => Visit(ref contentBody);
 
-	void IDataModelHandler.Process(ref IInlineContent inlineContent) => Visit(ref inlineContent);
+    void IDataModelHandler.Process(ref IInlineContent inlineContent) => Visit(ref inlineContent);
 
-	void IDataModelHandler.Process(ref IExternalDataExpression externalDataExpression) => Visit(ref externalDataExpression);
+    void IDataModelHandler.Process(ref IExternalDataExpression externalDataExpression) => Visit(ref externalDataExpression);
 
-	public virtual bool CaseInsensitive => false;
+    public virtual bool CaseInsensitive => false;
 
-	public virtual ImmutableDictionary<string, string> DataModelVars => ImmutableDictionary<string, string>.Empty;
+    public virtual ImmutableDictionary<string, string> DataModelVars => ImmutableDictionary<string, string>.Empty;
 
 #endregion
 
-	protected override void Visit(ref ILog log)
-	{
-		base.Visit(ref log);
+    protected override void Visit(ref ILog log)
+    {
+        base.Visit(ref log);
 
-		log = GetEvaluator(log);
-	}
+        log = GetEvaluator(log);
+    }
 
-	protected virtual ILog GetEvaluator(ILog log) => DefaultLogEvaluatorFactory(log);
+    protected virtual ILog GetEvaluator(ILog log) => DefaultLogEvaluatorFactory(log);
 
-	protected override void Visit(ref ISend send)
-	{
-		base.Visit(ref send);
+    protected override void Visit(ref ISend send)
+    {
+        base.Visit(ref send);
 
-		send = GetEvaluator(send);
-	}
+        send = GetEvaluator(send);
+    }
 
-	protected virtual ISend GetEvaluator(ISend send) => DefaultSendEvaluatorFactory(send);
+    protected virtual ISend GetEvaluator(ISend send) => DefaultSendEvaluatorFactory(send);
 
-	protected override void Visit(ref ICancel cancel)
-	{
-		base.Visit(ref cancel);
+    protected override void Visit(ref ICancel cancel)
+    {
+        base.Visit(ref cancel);
 
-		cancel = GetEvaluator(cancel);
-	}
+        cancel = GetEvaluator(cancel);
+    }
 
-	protected virtual ICancel GetEvaluator(ICancel cancel) => DefaultCancelEvaluatorFactory(cancel);
+    protected virtual ICancel GetEvaluator(ICancel cancel) => DefaultCancelEvaluatorFactory(cancel);
 
-	protected override void Visit(ref IIf @if)
-	{
-		base.Visit(ref @if);
+    protected override void Visit(ref IIf @if)
+    {
+        base.Visit(ref @if);
 
-		@if = GetEvaluator(@if);
-	}
+        @if = GetEvaluator(@if);
+    }
 
-	protected virtual IIf GetEvaluator(IIf @if) => DefaultIfEvaluatorFactory(@if);
+    protected virtual IIf GetEvaluator(IIf @if) => DefaultIfEvaluatorFactory(@if);
 
-	protected override void Visit(ref IRaise raise)
-	{
-		base.Visit(ref raise);
+    protected override void Visit(ref IRaise raise)
+    {
+        base.Visit(ref raise);
 
-		raise = GetEvaluator(raise);
-	}
+        raise = GetEvaluator(raise);
+    }
 
-	protected virtual IRaise GetEvaluator(IRaise raise) => DefaultRaiseEvaluatorFactory(raise);
+    protected virtual IRaise GetEvaluator(IRaise raise) => DefaultRaiseEvaluatorFactory(raise);
 
-	protected override void Visit(ref IForEach forEach)
-	{
-		base.Visit(ref forEach);
+    protected override void Visit(ref IForEach forEach)
+    {
+        base.Visit(ref forEach);
 
-		forEach = GetEvaluator(forEach);
-	}
+        forEach = GetEvaluator(forEach);
+    }
 
-	protected virtual IForEach GetEvaluator(IForEach forEach) => DefaultForEachEvaluatorFactory(forEach);
+    protected virtual IForEach GetEvaluator(IForEach forEach) => DefaultForEachEvaluatorFactory(forEach);
 
-	protected override void Visit(ref IAssign assign)
-	{
-		base.Visit(ref assign);
+    protected override void Visit(ref IAssign assign)
+    {
+        base.Visit(ref assign);
 
-		assign = GetEvaluator(assign);
-	}
+        assign = GetEvaluator(assign);
+    }
 
-	protected virtual IAssign GetEvaluator(IAssign assign) => DefaultAssignEvaluatorFactory(assign);
+    protected virtual IAssign GetEvaluator(IAssign assign) => DefaultAssignEvaluatorFactory(assign);
 
-	protected override void Visit(ref IScript script)
-	{
-		base.Visit(ref script);
+    protected override void Visit(ref IScript script)
+    {
+        base.Visit(ref script);
 
-		script = GetEvaluator(script);
-	}
+        script = GetEvaluator(script);
+    }
 
-	protected virtual IScript GetEvaluator(IScript script) => DefaultScriptEvaluatorFactory(script);
+    protected virtual IScript GetEvaluator(IScript script) => DefaultScriptEvaluatorFactory(script);
 
-	protected override void Visit(ref ICustomAction customAction)
-	{
-		customAction = CreateCustomActionContainer(customAction);
+    protected override void Visit(ref ICustomAction customAction)
+    {
+        customAction = CreateCustomActionContainer(customAction);
 
-		base.Visit(ref customAction);
+        base.Visit(ref customAction);
 
-		customAction = GetEvaluator(customAction);
-	}
+        customAction = GetEvaluator(customAction);
+    }
 
-	protected virtual ICustomAction CreateCustomActionContainer(ICustomAction customAction) => CustomActionContainerFactory(customAction);
+    protected virtual ICustomAction CreateCustomActionContainer(ICustomAction customAction) => CustomActionContainerFactory(customAction);
 
-	protected virtual ICustomAction GetEvaluator(ICustomAction customAction) => DefaultCustomActionEvaluatorFactory(customAction);
+    protected virtual ICustomAction GetEvaluator(ICustomAction customAction) => DefaultCustomActionEvaluatorFactory(customAction);
 
-	protected override void Visit(ref IContentBody contentBody)
-	{
-		base.Visit(ref contentBody);
+    protected override void Visit(ref IContentBody contentBody)
+    {
+        base.Visit(ref contentBody);
 
-		contentBody = GetEvaluator(contentBody);
-	}
+        contentBody = GetEvaluator(contentBody);
+    }
 
-	protected virtual IContentBody GetEvaluator(IContentBody contentBody) => DefaultContentBodyEvaluatorFactory(contentBody);
+    protected virtual IContentBody GetEvaluator(IContentBody contentBody) => DefaultContentBodyEvaluatorFactory(contentBody);
 
-	protected override void Visit(ref IInlineContent inlineContent)
-	{
-		base.Visit(ref inlineContent);
+    protected override void Visit(ref IInlineContent inlineContent)
+    {
+        base.Visit(ref inlineContent);
 
-		inlineContent = GetEvaluator(inlineContent);
-	}
+        inlineContent = GetEvaluator(inlineContent);
+    }
 
-	protected virtual IInlineContent GetEvaluator(IInlineContent inlineContent) => DefaultInlineContentEvaluatorFactory(inlineContent);
+    protected virtual IInlineContent GetEvaluator(IInlineContent inlineContent) => DefaultInlineContentEvaluatorFactory(inlineContent);
 
-	protected override void Visit(ref IExternalDataExpression externalDataExpression)
-	{
-		base.Visit(ref externalDataExpression);
+    protected override void Visit(ref IExternalDataExpression externalDataExpression)
+    {
+        base.Visit(ref externalDataExpression);
 
-		externalDataExpression = GetEvaluator(externalDataExpression);
-	}
+        externalDataExpression = GetEvaluator(externalDataExpression);
+    }
 
-	protected virtual IExternalDataExpression GetEvaluator(IExternalDataExpression externalDataExpression) => DefaultExternalDataExpressionEvaluatorFactory(externalDataExpression);
+    protected virtual IExternalDataExpression GetEvaluator(IExternalDataExpression externalDataExpression) => DefaultExternalDataExpressionEvaluatorFactory(externalDataExpression);
 }

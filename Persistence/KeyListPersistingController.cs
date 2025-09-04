@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,80 +21,80 @@ namespace Xtate.Persistence;
 
 internal sealed class KeyListPersistingController<T> : IDisposable where T : class
 {
-	private const int Id = 0;
+    private const int Id = 0;
 
-	private const int IdList = 1;
+    private const int IdList = 1;
 
-	private readonly Bucket _bucket;
+    private readonly Bucket _bucket;
 
-	private readonly KeyList<T> _keyList;
+    private readonly KeyList<T> _keyList;
 
-	private readonly Dictionary<int, int> _records = [];
+    private readonly Dictionary<int, int> _records = [];
 
-	public KeyListPersistingController(Bucket bucket, KeyList<T> keyList, ImmutableDictionary<int, IEntity> entityMap)
-	{
-		if (entityMap is null) throw new ArgumentNullException(nameof(entityMap));
+    public KeyListPersistingController(Bucket bucket, KeyList<T> keyList, ImmutableDictionary<int, IEntity> entityMap)
+    {
+        if (entityMap is null) throw new ArgumentNullException(nameof(entityMap));
 
-		_bucket = bucket;
-		_keyList = keyList ?? throw new ArgumentNullException(nameof(keyList));
+        _bucket = bucket;
+        _keyList = keyList ?? throw new ArgumentNullException(nameof(keyList));
 
-		while (true)
-		{
-			var recordBucket = bucket.Nested(_records.Count);
+        while (true)
+        {
+            var recordBucket = bucket.Nested(_records.Count);
 
-			if (!recordBucket.TryGet(Id, out int documentId) || !recordBucket.TryGet(IdList, out var bytes))
-			{
-				break;
-			}
+            if (!recordBucket.TryGet(Id, out int documentId) || !recordBucket.TryGet(IdList, out var bytes))
+            {
+                break;
+            }
 
-			var list = new List<T>(bytes.Length / 4);
+            var list = new List<T>(bytes.Length / 4);
 
-			for (var i = 0; i < list.Count; i ++)
-			{
-				var itemDocumentId = BinaryPrimitives.ReadInt32LittleEndian(bytes[(i * 4)..].Span);
-				list.Add(entityMap[itemDocumentId].As<T>());
-			}
+            for (var i = 0; i < list.Count; i ++)
+            {
+                var itemDocumentId = BinaryPrimitives.ReadInt32LittleEndian(bytes[(i * 4)..].Span);
+                list.Add(entityMap[itemDocumentId].As<T>());
+            }
 
-			_records.Add(documentId, _records.Count);
-			keyList.Set(entityMap[documentId], list);
-		}
+            _records.Add(documentId, _records.Count);
+            keyList.Set(entityMap[documentId], list);
+        }
 
-		keyList.Changed += OnChanged;
-	}
+        keyList.Changed += OnChanged;
+    }
 
 #region Interface IDisposable
 
-	public void Dispose()
-	{
-		_keyList.Changed -= OnChanged;
-	}
+    public void Dispose()
+    {
+        _keyList.Changed -= OnChanged;
+    }
 
 #endregion
 
-	private void OnChanged(KeyList<T>.ChangedAction action, IEntity entity, List<T> list)
-	{
-		if (action != KeyList<T>.ChangedAction.Set)
-		{
-			throw new ArgumentOutOfRangeException(nameof(action), action, message: null);
-		}
+    private void OnChanged(KeyList<T>.ChangedAction action, IEntity entity, List<T> list)
+    {
+        if (action != KeyList<T>.ChangedAction.Set)
+        {
+            throw new ArgumentOutOfRangeException(nameof(action), action, message: null);
+        }
 
-		using var ss = new StackSpan<byte>(list.Count * 4);
-		var span = ss ? ss : stackalloc byte[ss];
+        using var ss = new StackSpan<byte>(list.Count * 4);
+        var span = ss ? ss : stackalloc byte[ss];
 
-		for (var i = 0; i < list.Count; i ++)
-		{
-			BinaryPrimitives.WriteInt32LittleEndian(span[(i * 4)..], list[i].As<IDocumentId>().DocumentId);
-		}
+        for (var i = 0; i < list.Count; i ++)
+        {
+            BinaryPrimitives.WriteInt32LittleEndian(span[(i * 4)..], list[i].As<IDocumentId>().DocumentId);
+        }
 
-		var documentId = entity.As<IDocumentId>().DocumentId;
+        var documentId = entity.As<IDocumentId>().DocumentId;
 
-		if (!_records.TryGetValue(documentId, out var record))
-		{
-			record = _records.Count;
-			_records.Add(documentId, record);
-			_bucket.Nested(record).Add(Id, record);
-		}
+        if (!_records.TryGetValue(documentId, out var record))
+        {
+            record = _records.Count;
+            _records.Add(documentId, record);
+            _bucket.Nested(record).Add(Id, record);
+        }
 
-		_bucket.Nested(record).Add(IdList, span);
-	}
+        _bucket.Nested(record).Add(IdList, span);
+    }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,72 +21,72 @@ namespace Xtate.IoProcessor;
 
 public sealed class NamedPipeIoProcessorFactory : IIoProcessorFactory
 {
-	private const int DefaultMaxMessageSize = 1024 * 1024;
+    private const int DefaultMaxMessageSize = 1024 * 1024;
 
-	private const int FreeSlotsCount = 2;
+    private const int FreeSlotsCount = 2;
 
-	private static readonly string HostName = GetHostName();
+    private static readonly string HostName = GetHostName();
 
-	private readonly string _host;
+    private readonly string _host;
 
-	private readonly int? _maxMessageSize;
+    private readonly int? _maxMessageSize;
 
-	private readonly string _name;
+    private readonly string _name;
 
-	public required TaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
+    public NamedPipeIoProcessorFactory(string name, int? maxMessageSize = default)
+    {
+        if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
 
-	public NamedPipeIoProcessorFactory(string name, int? maxMessageSize = default)
-	{
-		if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
+        _name = name;
+        _maxMessageSize = maxMessageSize;
+        _host = HostName;
+    }
 
-		_name = name;
-		_maxMessageSize = maxMessageSize;
-		_host = HostName;
-	}
+    public NamedPipeIoProcessorFactory(string host, string name, int? maxMessageSize = default)
+    {
+        if (string.IsNullOrEmpty(host)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(host));
+        if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
 
-	public NamedPipeIoProcessorFactory(string host, string name, int? maxMessageSize = default)
-	{
-		if (string.IsNullOrEmpty(host)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(host));
-		if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
+        _host = host;
+        _name = name;
+        _maxMessageSize = maxMessageSize;
+    }
 
-		_host = host;
-		_name = name;
-		_maxMessageSize = maxMessageSize;
-	}
+    public required TaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
 
 #region Interface IIoProcessorFactory
 
-	public async ValueTask<IEventRouter> Create(IEventConsumer eventConsumer, CancellationToken token)
-	{
-		if (eventConsumer is null) throw new ArgumentNullException(nameof(eventConsumer));
+    public async ValueTask<IEventRouter> Create(IEventConsumer eventConsumer, CancellationToken token)
+    {
+        if (eventConsumer is null) throw new ArgumentNullException(nameof(eventConsumer));
 
-		var processor = new NamedPipeIoProcessor(_host, _name, _maxMessageSize ?? DefaultMaxMessageSize)
-						{
-							StateMachineSessionId = null,
-							TaskMonitor = null
-						};
+        var processor = new NamedPipeIoProcessor(_host, _name, _maxMessageSize ?? DefaultMaxMessageSize)
+                        {
+                            StateMachineSessionId = null,
+                            TaskMonitor = null
+                        };
 
-		for (var i = 0; i < FreeSlotsCount; i ++)
-		{
-			//processor.StartListener().Forget(TaskMonitor);
-		}
+        for (var i = 0; i < FreeSlotsCount; i ++)
+        {
+            //processor.StartListener().Forget(TaskMonitor);
+        }
 
-		await processor.CheckPipeline(token).ConfigureAwait(false);
+        await processor.CheckPipeline(token).ConfigureAwait(false);
 
-		return processor;
-	}
+        return processor;
+    }
 
 #endregion
 
-	private static string GetHostName()
-	{
-		try
-		{
-			return Dns.GetHostName();
-		}
-		catch
-		{
-			return @".";
-		}
-	}
+    private static string GetHostName()
+    {
+        try
+        {
+            return Dns.GetHostName();
+        }
+        catch
+        {
+            return @".";
+        }
+    }
 }

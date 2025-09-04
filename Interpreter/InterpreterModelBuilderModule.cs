@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,51 +22,51 @@ namespace Xtate.Core;
 
 public class InterpreterModelBuilderModule : Module<ErrorProcessorModule, DataModelHandlersModule, ResourceLoadersModule>
 {
-	protected override void AddServices()
-	{
-		Services.AddTypeSync<InitialNode.Empty, DocumentIdNode, TransitionNode>();
-		Services.AddTypeSync<TransitionNode.Empty, DocumentIdNode, ImmutableArray<StateEntityNode>>();
-		Services.AddTypeSync<DoneDataNode, DocumentIdNode, IDoneData>();
-		Services.AddTypeSync<InitialNode, DocumentIdNode, IInitial>();
-		Services.AddTypeSync<TransitionNode, DocumentIdNode, ITransition>();
-		Services.AddTypeSync<StateNode, DocumentIdNode, IState>();
-		Services.AddTypeSync<ParallelNode, DocumentIdNode, IParallel>();
-		Services.AddTypeSync<CompoundNode, DocumentIdNode, IState>();
-		Services.AddTypeSync<StateMachineNode, DocumentIdNode, IStateMachine>();
-		Services.AddTypeSync<FinalNode, DocumentIdNode, IFinal>();
-		Services.AddTypeSync<HistoryNode, DocumentIdNode, IHistory>();
-		Services.AddTypeSync<DataModelNode, DocumentIdNode, IDataModel>();
-		Services.AddTypeSync<OnEntryNode, DocumentIdNode, IOnEntry>();
-		Services.AddTypeSync<OnExitNode, DocumentIdNode, IOnExit>();
-		Services.AddTypeSync<DataNode, DocumentIdNode, IData>();
-		Services.AddTypeSync<InvokeNode, DocumentIdNode, IInvoke>();
-		Services.AddTypeSync<CancelNode, DocumentIdNode, ICancel>();
-		Services.AddTypeSync<AssignNode, DocumentIdNode, IAssign>();
-		Services.AddTypeSync<ForEachNode, DocumentIdNode, IForEach>();
-		Services.AddTypeSync<IfNode, DocumentIdNode, IIf>();
-		Services.AddTypeSync<ElseIfNode, DocumentIdNode, IElseIf>();
-		Services.AddTypeSync<ElseNode, DocumentIdNode, IElse>();
-		Services.AddTypeSync<LogNode, DocumentIdNode, ILog>();
-		Services.AddTypeSync<RaiseNode, DocumentIdNode, IRaise>();
-		Services.AddTypeSync<SendNode, DocumentIdNode, ISend>();
-		Services.AddTypeSync<ScriptNode, DocumentIdNode, IScript>();
-		Services.AddTypeSync<RuntimeExecNode, DocumentIdNode, IExecutableEntity>();
-		Services.AddTypeSync<CustomActionNode, DocumentIdNode, ICustomAction>();
-		Services.AddTypeSync<ParamNode, DocumentIdNode, IParam>();
-		Services.AddTypeSync<ScriptExpressionNode, IScriptExpression>();
-		Services.AddTypeSync<ExternalScriptExpressionNode, IExternalScriptExpression>();
-		Services.AddTypeSync<ExternalDataExpressionNode, IExternalDataExpression>();
-		Services.AddTypeSync<ValueExpressionNode, IValueExpression>();
-		Services.AddTypeSync<LocationExpressionNode, ILocationExpression>();
-		Services.AddTypeSync<ConditionExpressionNode, IConditionExpression>();
-		Services.AddTypeSync<ContentNode, IContent>();
-		Services.AddTypeSync<FinalizeNode, IFinalize>();
-		Services.AddTypeSync<IdentifierNode, IIdentifier>();
-		Services.AddTypeSync<EventNode, IOutgoingEvent>();
-		Services.AddTypeSync<EventDescriptorNode, IEventDescriptor>();
+    protected override void AddServices()
+    {
+        Services.AddTypeSync<InitialNode.Empty, DocumentIdNode, TransitionNode>();
+        Services.AddTypeSync<TransitionNode.Empty, DocumentIdNode, ImmutableArray<StateEntityNode>>();
+        Services.AddTypeSync<DoneDataNode, DocumentIdNode, IDoneData>();
+        Services.AddTypeSync<InitialNode, DocumentIdNode, IInitial>();
+        Services.AddTypeSync<TransitionNode, DocumentIdNode, ITransition>();
+        Services.AddTypeSync<StateNode, DocumentIdNode, IState>();
+        Services.AddTypeSync<ParallelNode, DocumentIdNode, IParallel>();
+        Services.AddTypeSync<CompoundNode, DocumentIdNode, IState>();
+        Services.AddTypeSync<StateMachineNode, DocumentIdNode, IStateMachine>();
+        Services.AddTypeSync<FinalNode, DocumentIdNode, IFinal>();
+        Services.AddTypeSync<HistoryNode, DocumentIdNode, IHistory>();
+        Services.AddTypeSync<DataModelNode, DocumentIdNode, IDataModel>();
+        Services.AddTypeSync<OnEntryNode, DocumentIdNode, IOnEntry>();
+        Services.AddTypeSync<OnExitNode, DocumentIdNode, IOnExit>();
+        Services.AddTypeSync<DataNode, DocumentIdNode, IData>();
+        Services.AddTypeSync<InvokeNode, DocumentIdNode, IInvoke>();
+        Services.AddTypeSync<CancelNode, DocumentIdNode, ICancel>();
+        Services.AddTypeSync<AssignNode, DocumentIdNode, IAssign>();
+        Services.AddTypeSync<ForEachNode, DocumentIdNode, IForEach>();
+        Services.AddTypeSync<IfNode, DocumentIdNode, IIf>();
+        Services.AddTypeSync<ElseIfNode, DocumentIdNode, IElseIf>();
+        Services.AddTypeSync<ElseNode, DocumentIdNode, IElse>();
+        Services.AddTypeSync<LogNode, DocumentIdNode, ILog>();
+        Services.AddTypeSync<RaiseNode, DocumentIdNode, IRaise>();
+        Services.AddTypeSync<SendNode, DocumentIdNode, ISend>();
+        Services.AddTypeSync<ScriptNode, DocumentIdNode, IScript>();
+        Services.AddTypeSync<RuntimeExecNode, DocumentIdNode, IExecutableEntity>();
+        Services.AddTypeSync<CustomActionNode, DocumentIdNode, ICustomAction>();
+        Services.AddTypeSync<ParamNode, DocumentIdNode, IParam>();
+        Services.AddTypeSync<ScriptExpressionNode, IScriptExpression>();
+        Services.AddTypeSync<ExternalScriptExpressionNode, IExternalScriptExpression>();
+        Services.AddTypeSync<ExternalDataExpressionNode, IExternalDataExpression>();
+        Services.AddTypeSync<ValueExpressionNode, IValueExpression>();
+        Services.AddTypeSync<LocationExpressionNode, ILocationExpression>();
+        Services.AddTypeSync<ConditionExpressionNode, IConditionExpression>();
+        Services.AddTypeSync<ContentNode, IContent>();
+        Services.AddTypeSync<FinalizeNode, IFinalize>();
+        Services.AddTypeSync<IdentifierNode, IIdentifier>();
+        Services.AddTypeSync<EventNode, IOutgoingEvent>();
+        Services.AddTypeSync<EventDescriptorNode, IEventDescriptor>();
 
-		Services.AddImplementation<NoStateMachineLocation>().For<IStateMachineLocation>(Option.IfNotRegistered);
-		Services.AddType<DataConverter>(Option.IfNotRegistered);
-		Services.AddType<InterpreterModelBuilder>();
-	}
+        Services.AddImplementation<NoStateMachineLocation>().For<IStateMachineLocation>(Option.IfNotRegistered);
+        Services.AddType<DataConverter>(Option.IfNotRegistered);
+        Services.AddType<InterpreterModelBuilder>();
+    }
 }

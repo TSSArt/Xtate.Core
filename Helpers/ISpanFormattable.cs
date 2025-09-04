@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -20,10 +20,10 @@ namespace System;
 
 internal interface ISpanFormattable : IFormattable
 {
-	bool TryFormat(Span<char> destination,
-				   out int charsWritten,
-				   ReadOnlySpan<char> format,
-				   IFormatProvider? provider);
+    bool TryFormat(Span<char> destination,
+                   out int charsWritten,
+                   ReadOnlySpan<char> format,
+                   IFormatProvider? provider);
 }
 
 #endif

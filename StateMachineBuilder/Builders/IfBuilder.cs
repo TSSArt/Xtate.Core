@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,27 +19,27 @@ namespace Xtate.Builder;
 
 public class IfBuilder : BuilderBase, IIfBuilder
 {
-	private ImmutableArray<IExecutableEntity>.Builder? _actions;
+    private ImmutableArray<IExecutableEntity>.Builder? _actions;
 
-	private IConditionExpression? _condition;
+    private IConditionExpression? _condition;
 
 #region Interface IIfBuilder
 
-	public IIf Build() => new IfEntity { Ancestor = Ancestor, Condition = _condition, Action = _actions?.ToImmutable() ?? default };
+    public IIf Build() => new IfEntity { Ancestor = Ancestor, Condition = _condition, Action = _actions?.ToImmutable() ?? default };
 
-	public void SetCondition(IConditionExpression condition)
-	{
-		Infra.Requires(condition);
+    public void SetCondition(IConditionExpression condition)
+    {
+        Infra.Requires(condition);
 
-		_condition = condition;
-	}
+        _condition = condition;
+    }
 
-	public void AddAction(IExecutableEntity action)
-	{
-		Infra.Requires(action);
+    public void AddAction(IExecutableEntity action)
+    {
+        Infra.Requires(action);
 
-		(_actions ??= ImmutableArray.CreateBuilder<IExecutableEntity>()).Add(action);
-	}
+        (_actions ??= ImmutableArray.CreateBuilder<IExecutableEntity>()).Add(action);
+    }
 
 #endregion
 }

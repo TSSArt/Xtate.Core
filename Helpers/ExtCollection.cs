@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,175 +17,187 @@
 
 namespace Xtate.Core;
 
-public class ExtCollection<TValue1, TValue2>(IEqualityComparer<TValue1>? comparer1 = default, IEqualityComparer<TValue2>? comparer2 = default) : IReadOnlyCollection<(TValue1, TValue2)> where TValue1 : notnull where TValue2 : class
+public class ExtCollection<TValue1, TValue2>(IEqualityComparer<TValue1>? comparer1 = default, IEqualityComparer<TValue2>? comparer2 = default)
+    : IReadOnlyCollection<(TValue1, TValue2)> where TValue1 : notnull where TValue2 : class
 {
-	private int _count;
+    private readonly IEqualityComparer<TValue1> _comparer1 = comparer1 ?? EqualityComparer<TValue1>.Default;
 
-	private readonly IEqualityComparer<TValue1> _comparer1 = comparer1 ?? EqualityComparer<TValue1>.Default;
+    private readonly IEqualityComparer<TValue2> _comparer2 = comparer2 ?? EqualityComparer<TValue2>.Default;
 
-	private readonly IEqualityComparer<TValue2> _comparer2 = comparer2 ?? EqualityComparer<TValue2>.Default;
+    private int _count;
 
-	private ConcurrentDictionary<TValue1, object>? _dictionary;
-	
-	public int Count => _count;
+    private ConcurrentDictionary<TValue1, object>? _dictionary;
 
-	private ConcurrentDictionary<TValue1, object> GetDictionary()
-	{
-		if (_dictionary is { } dictionary)
-		{
-			return dictionary;
-		}
+#region Interface IEnumerable
 
-		dictionary = new ConcurrentDictionary<TValue1, object>(_comparer1);
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-		return Interlocked.CompareExchange(ref _dictionary, dictionary, comparand: default) ?? dictionary;
-	}
+#endregion
 
-	public bool TryRemoveGroup(TValue1 value, [MaybeNullWhen(false)] out IEnumerable<TValue2> values)
-	{
-		if (_dictionary is { } dictionary)
-		{
-			if (dictionary.TryRemove(value, out var obj))
-			{
-				if (obj is ImmutableList<TValue2> list)
-				{
-					values = list;
+#region Interface IEnumerable<(TValue1, TValue2)>
 
-					Interlocked.Add(ref _count, -list.Count);
+    public IEnumerator<(TValue1, TValue2)> GetEnumerator()
+    {
+        if (_dictionary is not { } dictionary)
+        {
+            yield break;
+        }
 
-					return true;
-				}
+        foreach (var (key, value) in dictionary)
+        {
+            if (value is ImmutableList<TValue2> list)
+            {
+                foreach (var value2 in list)
+                {
+                    yield return (key, value2);
+                }
+            }
+            else
+            {
+                yield return (key, (TValue2)value);
+            }
+        }
+    }
 
-				values = Enumerable.Repeat((TValue2) obj, count: 1);
+#endregion
 
-				Interlocked.Decrement(ref _count);
+#region Interface IReadOnlyCollection<(TValue1, TValue2)>
 
-				return true;
-			}
-		}
+    public int Count => _count;
 
-		values = default;
-			
-		return false;
-	}
+#endregion
 
-	public bool TryTake([MaybeNullWhen(false)] out TValue1 value1, [MaybeNullWhen(false)] out TValue2 value2)
-	{
-		while (_dictionary is { IsEmpty: false } dictionary)
-		{
-			foreach (var (key, value) in dictionary)
-			{
-				value1 = key;
+    private ConcurrentDictionary<TValue1, object> GetDictionary()
+    {
+        if (_dictionary is { } dictionary)
+        {
+            return dictionary;
+        }
 
-				if (TryUpdateOrRemove(out value2))
-				{
-					Interlocked.Decrement(ref _count);
+        dictionary = new ConcurrentDictionary<TValue1, object>(_comparer1);
 
-					return true;
-				}
+        return Interlocked.CompareExchange(ref _dictionary, dictionary, comparand: default) ?? dictionary;
+    }
 
-				continue;					
+    public bool TryRemoveGroup(TValue1 value, [MaybeNullWhen(false)] out IEnumerable<TValue2> values)
+    {
+        if (_dictionary is { } dictionary)
+        {
+            if (dictionary.TryRemove(value, out var obj))
+            {
+                if (obj is ImmutableList<TValue2> list)
+                {
+                    values = list;
 
-				bool TryUpdateOrRemove(out TValue2 value2)
-				{
-					if (value is ImmutableList<TValue2> list)
-					{
-						value2 = list[0];
+                    Interlocked.Add(ref _count, -list.Count);
 
-						var newList = list.RemoveAt(0);
+                    return true;
+                }
 
-						return dictionary.TryUpdate(key, newList.Count > 1 ? newList : newList[0], list);
-					}
+                values = Enumerable.Repeat((TValue2)obj, count: 1);
 
-					value2 = (TValue2) value;
+                Interlocked.Decrement(ref _count);
 
-					return dictionary.TryRemove(new KeyValuePair<TValue1, object>(key, value2));
-				}
-			}
-		}
+                return true;
+            }
+        }
 
-		value1 = default;
-		value2 = default;
+        values = default;
 
-		return false;
+        return false;
+    }
 
-	}
+    public bool TryTake([MaybeNullWhen(false)] out TValue1 value1, [MaybeNullWhen(false)] out TValue2 value2)
+    {
+        while (_dictionary is { IsEmpty: false } dictionary)
+        {
+            foreach (var (key, value) in dictionary)
+            {
+                value1 = key;
 
-	public void Add(TValue1 value1, TValue2 value2)
-	{
-		GetDictionary()
-			.AddOrUpdate(
-				value1,
-				static (_, value) => value,
-				static (_, obj, value) => obj is ImmutableList<TValue2> list ? list.Add(value) : [(TValue2) obj, value],
-				value2);
+                if (TryUpdateOrRemove(out value2))
+                {
+                    Interlocked.Decrement(ref _count);
 
-		Interlocked.Increment(ref _count);
-	}
+                    return true;
+                }
 
-	public bool Remove(TValue1 value1, TValue2 value2)
-	{
-		if (_dictionary is not { } dictionary)
-		{
-			return false;
-		}
+                continue;
 
-		while (dictionary.TryGetValue(value1, out var obj))
-		{
-			if (obj is ImmutableList<TValue2> list)
-			{
-				var newList = list.Remove(value2, _comparer2);
+                bool TryUpdateOrRemove(out TValue2 value2)
+                {
+                    if (value is ImmutableList<TValue2> list)
+                    {
+                        value2 = list[0];
 
-				if (dictionary.TryUpdate(value1, newList.Count > 1 ? newList : newList[0], list))
-				{
-					Interlocked.Decrement(ref _count);
+                        var newList = list.RemoveAt(0);
 
-					return true;
-				}
-			}
-			else
-			{
-				if(_comparer2.Equals((TValue2)obj, value2))
-				{
-					if (dictionary.TryRemove(new KeyValuePair<TValue1, object>(value1, obj)))
-					{
-						Interlocked.Decrement(ref _count);
+                        return dictionary.TryUpdate(key, newList.Count > 1 ? newList : newList[0], list);
+                    }
 
-						return true;
-					}
-				}
-				else
-				{
-					return false;
-				}
-			}
-		}
+                    value2 = (TValue2)value;
 
-		return false;
-	}
+                    return dictionary.TryRemove(new KeyValuePair<TValue1, object>(key, value2));
+                }
+            }
+        }
 
-	public IEnumerator<(TValue1, TValue2)> GetEnumerator()
-	{
-		if (_dictionary is not { } dictionary)
-		{
-			yield break;
-		}
+        value1 = default;
+        value2 = default;
 
-		foreach (var (key, value) in dictionary)
-		{
-			if (value is ImmutableList<TValue2> list)
-			{
-				foreach (var value2 in list)
-				{
-					yield return (key, value2);
-				}
-			}
-			else
-			{
-				yield return (key, (TValue2) value);
-			}
-		}
-	}
+        return false;
+    }
 
-	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    public void Add(TValue1 value1, TValue2 value2)
+    {
+        GetDictionary()
+            .AddOrUpdate(
+                value1,
+                static (_, value) => value,
+                static (_, obj, value) => obj is ImmutableList<TValue2> list ? list.Add(value) : [(TValue2)obj, value],
+                value2);
+
+        Interlocked.Increment(ref _count);
+    }
+
+    public bool Remove(TValue1 value1, TValue2 value2)
+    {
+        if (_dictionary is not { } dictionary)
+        {
+            return false;
+        }
+
+        while (dictionary.TryGetValue(value1, out var obj))
+        {
+            if (obj is ImmutableList<TValue2> list)
+            {
+                var newList = list.Remove(value2, _comparer2);
+
+                if (dictionary.TryUpdate(value1, newList.Count > 1 ? newList : newList[0], list))
+                {
+                    Interlocked.Decrement(ref _count);
+
+                    return true;
+                }
+            }
+            else
+            {
+                if (_comparer2.Equals((TValue2)obj, value2))
+                {
+                    if (dictionary.TryRemove(new KeyValuePair<TValue1, object>(value1, obj)))
+                    {
+                        Interlocked.Decrement(ref _count);
+
+                        return true;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        return false;
+    }
 }

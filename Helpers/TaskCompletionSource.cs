@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -18,22 +18,22 @@
 #if !NET5_0_OR_GREATER
 namespace System.Threading.Tasks
 {
-	internal class TaskCompletionSource : TaskCompletionSource<ValueTuple>
-	{
-		public TaskCompletionSource() { }
+    internal class TaskCompletionSource : TaskCompletionSource<ValueTuple>
+    {
+        public TaskCompletionSource() { }
 
-		public TaskCompletionSource(object? state) : base(state) { }
+        public TaskCompletionSource(object? state) : base(state) { }
 
-		public TaskCompletionSource(object? state, TaskCreationOptions creationOptions) : base(state, creationOptions) { }
+        public TaskCompletionSource(object? state, TaskCreationOptions creationOptions) : base(state, creationOptions) { }
 
-		public TaskCompletionSource(TaskCreationOptions creationOptions) : base(creationOptions) { }
+        public TaskCompletionSource(TaskCreationOptions creationOptions) : base(creationOptions) { }
 
-		public new Task Task => base.Task;
+        public new Task Task => base.Task;
 
-		public void SetResult() => SetResult(default);
+        public void SetResult() => SetResult(default);
 
-		public bool TrySetResult() => TrySetResult(default);
-	}
+        public bool TrySetResult() => TrySetResult(default);
+    }
 }
 
 #endif

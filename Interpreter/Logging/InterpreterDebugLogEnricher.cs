@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,37 +19,37 @@ namespace Xtate.Core;
 
 public class InterpreterDebugLogEnricher<TSource> : ILogEnricher<TSource>
 {
-	public required Safe<IStateMachine> StateMachine { private get; [UsedImplicitly] init; }
+    public required Safe<IStateMachine> StateMachine { private get; [UsedImplicitly] init; }
 
-	public required Safe<IStateMachineContext> StateMachineContext { private get; [UsedImplicitly] init; }
+    public required Safe<IStateMachineContext> StateMachineContext { private get; [UsedImplicitly] init; }
 
 #region Interface ILogEnricher<TSource>
 
-	public IEnumerable<LoggingParameter> EnumerateProperties()
-	{
-		if (StateMachine()?.Name is { Length: > 0 } name)
-		{
-			yield return new LoggingParameter(name: @"StateMachineName", name);
-		}
+    public IEnumerable<LoggingParameter> EnumerateProperties()
+    {
+        if (StateMachine()?.Name is { Length: > 0 } name)
+        {
+            yield return new LoggingParameter(name: @"StateMachineName", name);
+        }
 
-		if (StateMachineContext()?.Configuration is { Count: > 0 } configuration)
-		{
-			var activeStates = new DataModelList();
+        if (StateMachineContext()?.Configuration is { Count: > 0 } configuration)
+        {
+            var activeStates = new DataModelList();
 
-			foreach (var node in configuration)
-			{
-				activeStates.Add(node.Id.Value);
-			}
+            foreach (var node in configuration)
+            {
+                activeStates.Add(node.Id.Value);
+            }
 
-			activeStates.MakeDeepConstant();
+            activeStates.MakeDeepConstant();
 
-			yield return new LoggingParameter(name: @"ActiveStates", activeStates);
-		}
-	}
+            yield return new LoggingParameter(name: @"ActiveStates", activeStates);
+        }
+    }
 
-	public string Namespace => @"ctx";
+    public string Namespace => @"ctx";
 
-	public Level Level => Level.Debug;
+    public Level Level => Level.Debug;
 
 #endregion
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,29 +19,29 @@ namespace Xtate.Core;
 
 public struct FinalizeEntity : IFinalize, IVisitorEntity<FinalizeEntity, IFinalize>, IAncestorProvider
 {
-	internal object? Ancestor;
+    internal object? Ancestor;
 
 #region Interface IAncestorProvider
 
-	readonly object? IAncestorProvider.Ancestor => Ancestor;
+    readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
 #region Interface IFinalize
 
-	public ImmutableArray<IExecutableEntity> Action { get; set; }
+    public ImmutableArray<IExecutableEntity> Action { get; set; }
 
 #endregion
 
 #region Interface IVisitorEntity<FinalizeEntity,IFinalize>
 
-	void IVisitorEntity<FinalizeEntity, IFinalize>.Init(IFinalize source)
-	{
-		Ancestor = source;
-		Action = source.Action;
-	}
+    void IVisitorEntity<FinalizeEntity, IFinalize>.Init(IFinalize source)
+    {
+        Ancestor = source;
+        Action = source.Action;
+    }
 
-	readonly bool IVisitorEntity<FinalizeEntity, IFinalize>.RefEquals(ref FinalizeEntity other) => Action == other.Action;
+    readonly bool IVisitorEntity<FinalizeEntity, IFinalize>.RefEquals(ref FinalizeEntity other) => Action == other.Action;
 
 #endregion
 }

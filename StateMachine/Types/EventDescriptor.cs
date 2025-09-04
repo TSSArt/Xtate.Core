@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,69 +19,69 @@ namespace Xtate.Core;
 
 public sealed class EventDescriptor : IEventDescriptor, IEquatable<EventDescriptor>
 {
-	private static readonly char[] Dot = ['.'];
+    private static readonly char[] Dot = ['.'];
 
-	private readonly IIdentifier[] _parts;
+    private readonly IIdentifier[] _parts;
 
-	private EventDescriptor(string value)
-	{
-		Infra.RequiresNonEmptyString(value);
+    private EventDescriptor(string value)
+    {
+        Infra.RequiresNonEmptyString(value);
 
-		Value = value;
+        Value = value;
 
-		var parts = value.Split(Dot, StringSplitOptions.None);
-		var length = parts.Length;
+        var parts = value.Split(Dot, StringSplitOptions.None);
+        var length = parts.Length;
 
-		if (length > 0 && parts[length - 1] == @"*")
-		{
-			length --;
-		}
+        if (length > 0 && parts[length - 1] == @"*")
+        {
+            length --;
+        }
 
-		_parts = new IIdentifier[length];
+        _parts = new IIdentifier[length];
 
-		for (var i = 0; i < _parts.Length; i ++)
-		{
-			_parts[i] = (Identifier) parts[i];
-		}
-	}
+        for (var i = 0; i < _parts.Length; i ++)
+        {
+            _parts[i] = (Identifier)parts[i];
+        }
+    }
 
 #region Interface IEquatable<EventDescriptor>
 
-	public bool Equals(EventDescriptor? other) => other is not null && Value == other.Value;
+    public bool Equals(EventDescriptor? other) => other is not null && Value == other.Value;
 
 #endregion
 
 #region Interface IEventDescriptor
 
-	public bool IsEventMatch(IIncomingEvent incomingEvent)
-	{
-		if (incomingEvent.Name.Count < _parts.Length)
-		{
-			return false;
-		}
+    public bool IsEventMatch(IIncomingEvent incomingEvent)
+    {
+        if (incomingEvent.Name.Count < _parts.Length)
+        {
+            return false;
+        }
 
-		for (var i = 0; i < _parts.Length; i ++)
-		{
-			if (!incomingEvent.Name[i].Equals(_parts[i]))
-			{
-				return false;
-			}
-		}
+        for (var i = 0; i < _parts.Length; i ++)
+        {
+            if (!incomingEvent.Name[i].Equals(_parts[i]))
+            {
+                return false;
+            }
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	public string Value { get; }
+    public string Value { get; }
 
 #endregion
 
-	public override string ToString() => Value;
+    public override string ToString() => Value;
 
-	public static explicit operator EventDescriptor(string value) => new(value);
+    public static explicit operator EventDescriptor(string value) => new(value);
 
-	public static EventDescriptor FromString(string value) => new(value);
+    public static EventDescriptor FromString(string value) => new(value);
 
-	public override bool Equals(object? obj) => ReferenceEquals(this, obj) || (obj is EventDescriptor other && Equals(other));
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || (obj is EventDescriptor other && Equals(other));
 
-	public override int GetHashCode() => Value.GetHashCode();
+    public override int GetHashCode() => Value.GetHashCode();
 }

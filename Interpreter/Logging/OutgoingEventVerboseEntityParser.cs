@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,17 +21,17 @@ namespace Xtate.Core;
 
 public class OutgoingEventVerboseEntityParser<TSource>() : EntityParserBase<TSource, IOutgoingEvent>(Level.Verbose)
 {
-	public required Safe<IDataModelHandler> DataModelHandler { private get; [UsedImplicitly] init; }
+    public required Safe<IDataModelHandler> DataModelHandler { private get; [UsedImplicitly] init; }
 
-	protected override IEnumerable<LoggingParameter> EnumerateProperties(IOutgoingEvent outgoingEvent)
-	{
-		if (!outgoingEvent.Data.IsUndefined())
-		{
-			yield return new LoggingParameter(name: @"Data", outgoingEvent.Data.ToObject());
+    protected override IEnumerable<LoggingParameter> EnumerateProperties(IOutgoingEvent outgoingEvent)
+    {
+        if (!outgoingEvent.Data.IsUndefined())
+        {
+            yield return new LoggingParameter(name: @"Data", outgoingEvent.Data.ToObject());
 
-			yield return new LoggingParameter(name: @"DataText", ConvertToText(outgoingEvent.Data));
-		}
-	}
+            yield return new LoggingParameter(name: @"DataText", ConvertToText(outgoingEvent.Data));
+        }
+    }
 
-	private string ConvertToText(DataModelValue value) => DataModelHandler() is { } dataModelHandler ? dataModelHandler.ConvertToText(value) : value.ToString(null);
+    private string ConvertToText(DataModelValue value) => DataModelHandler() is { } dataModelHandler ? dataModelHandler.ConvertToText(value) : value.ToString(null);
 }

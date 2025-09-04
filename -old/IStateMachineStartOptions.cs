@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,11 +19,11 @@ namespace Xtate.Core;
 
 public interface IStateMachineStartOptions
 {
-	SessionId SessionId { get; init; }
+    SessionId SessionId { get; init; }
 
-	StateMachineOrigin Origin { get; init; }
+    StateMachineOrigin Origin { get; init; }
 
-	DataModelValue Parameters { get; init; }
+    DataModelValue Parameters { get; init; }
 
-	SecurityContextType SecurityContextType { get; init; }
+    SecurityContextType SecurityContextType { get; init; }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -23,104 +23,104 @@ namespace Xtate.DataModel.XPath;
 
 public class XPathExpressionContext : XsltContext
 {
-	private List<XPathFunctionBase>? _functionDescriptors;
+    private List<XPathFunctionBase>? _functionDescriptors;
 
-	private List<XPathVarDescriptor>? _varDescriptors;
+    private List<XPathVarDescriptor>? _varDescriptors;
 
-	public XPathExpressionContext(INameTableProvider nameTableProvider, IXmlNamespacesInfo? xmlNamespacesInfo) : base(nameTableProvider.GetNameTable())
-	{
-		if (xmlNamespacesInfo?.Namespaces is { } namespaces)
-		{
-			foreach (var prefixNamespace in namespaces)
-			{
-				base.AddNamespace(prefixNamespace.Prefix, prefixNamespace.Namespace);
-			}
-		}
-	}
+    public XPathExpressionContext(INameTableProvider nameTableProvider, IXmlNamespacesInfo? xmlNamespacesInfo) : base(nameTableProvider.GetNameTable())
+    {
+        if (xmlNamespacesInfo?.Namespaces is { } namespaces)
+        {
+            foreach (var prefixNamespace in namespaces)
+            {
+                base.AddNamespace(prefixNamespace.Prefix, prefixNamespace.Namespace);
+            }
+        }
+    }
 
-	public required IEnumerable<IXPathFunctionProvider> FunctionProviders { private get; [UsedImplicitly] init; }
+    public required IEnumerable<IXPathFunctionProvider> FunctionProviders { private get; [UsedImplicitly] init; }
 
-	public required Func<string, XPathVarDescriptor> XPathVarDescriptorFactory { private get; [UsedImplicitly] init; }
+    public required Func<string, XPathVarDescriptor> XPathVarDescriptorFactory { private get; [UsedImplicitly] init; }
 
-	public required Func<ValueTask<XPathEngine>> XPathEngineFactory { private get; [UsedImplicitly] init; }
+    public required Func<ValueTask<XPathEngine>> XPathEngineFactory { private get; [UsedImplicitly] init; }
 
-	public override bool Whitespace => false;
+    public override bool Whitespace => false;
 
-	public override IXsltContextVariable ResolveVariable(string prefix, string name)
-	{
-		var ns = LookupNamespace(prefix);
+    public override IXsltContextVariable ResolveVariable(string prefix, string name)
+    {
+        var ns = LookupNamespace(prefix);
 
-		if (!string.IsNullOrEmpty(ns))
-		{
-			throw new XPathDataModelException(Res.Format(Resources.Exception_UnknownXPathVariable, ns, name));
-		}
+        if (!string.IsNullOrEmpty(ns))
+        {
+            throw new XPathDataModelException(Res.Format(Resources.Exception_UnknownXPathVariable, ns, name));
+        }
 
-		var varDescriptor = XPathVarDescriptorFactory(name);
+        var varDescriptor = XPathVarDescriptorFactory(name);
 
-		_varDescriptors ??= [];
-		_varDescriptors.Add(varDescriptor);
+        _varDescriptors ??= [];
+        _varDescriptors.Add(varDescriptor);
 
-		return varDescriptor;
-	}
+        return varDescriptor;
+    }
 
-	public override IXsltContextFunction ResolveFunction(string prefix, string name, XPathResultType[] _)
-	{
-		var ns = LookupNamespace(prefix);
+    public override IXsltContextFunction ResolveFunction(string prefix, string name, XPathResultType[] _)
+    {
+        var ns = LookupNamespace(prefix);
 
-		foreach (var provider in FunctionProviders)
-		{
-			if (provider.TryGetFunction(ns, name) is { } function)
-			{
-				_functionDescriptors ??= [];
-				_functionDescriptors.Add(function);
+        foreach (var provider in FunctionProviders)
+        {
+            if (provider.TryGetFunction(ns, name) is { } function)
+            {
+                _functionDescriptors ??= [];
+                _functionDescriptors.Add(function);
 
-				return function;
-			}
-		}
+                return function;
+            }
+        }
 
-		throw new XPathDataModelException(Res.Format(Resources.Exception_UnknownXPathFunction, ns, name));
-	}
+        throw new XPathDataModelException(Res.Format(Resources.Exception_UnknownXPathFunction, ns, name));
+    }
 
-	public override bool PreserveWhitespace(XPathNavigator node) => false;
+    public override bool PreserveWhitespace(XPathNavigator node) => false;
 
-	public override int CompareDocument(string baseUri, string nextbaseUri) => string.CompareOrdinal(baseUri, nextbaseUri);
+    public override int CompareDocument(string baseUri, string nextbaseUri) => string.CompareOrdinal(baseUri, nextbaseUri);
 
-	public override string LookupNamespace(string prefix) => base.LookupNamespace(prefix) ?? throw new XPathDataModelException(Res.Format(Resources.Exception_PrefixCantBeResolved, prefix));
+    public override string LookupNamespace(string prefix) => base.LookupNamespace(prefix) ?? throw new XPathDataModelException(Res.Format(Resources.Exception_PrefixCantBeResolved, prefix));
 
-	public ValueTask EnsureInitialized()
-	{
-		var varDescriptors = _varDescriptors;
-		var functionDescriptors = _functionDescriptors;
+    public ValueTask EnsureInitialized()
+    {
+        var varDescriptors = _varDescriptors;
+        var functionDescriptors = _functionDescriptors;
 
-		if (varDescriptors is null && functionDescriptors is null)
-		{
-			return default;
-		}
+        if (varDescriptors is null && functionDescriptors is null)
+        {
+            return default;
+        }
 
-		_varDescriptors = null;
-		_functionDescriptors = null;
+        _varDescriptors = null;
+        _functionDescriptors = null;
 
-		return Initialize(varDescriptors, functionDescriptors);
-	}
+        return Initialize(varDescriptors, functionDescriptors);
+    }
 
-	private async ValueTask Initialize(List<XPathVarDescriptor>? varDescriptors, List<XPathFunctionBase>? functionDescriptors)
-	{
-		if (varDescriptors is not null)
-		{
-			var engine = await XPathEngineFactory().ConfigureAwait(false);
+    private async ValueTask Initialize(List<XPathVarDescriptor>? varDescriptors, List<XPathFunctionBase>? functionDescriptors)
+    {
+        if (varDescriptors is not null)
+        {
+            var engine = await XPathEngineFactory().ConfigureAwait(false);
 
-			foreach (var varDescriptor in varDescriptors)
-			{
-				await varDescriptor.Initialize(engine).ConfigureAwait(false);
-			}
-		}
+            foreach (var varDescriptor in varDescriptors)
+            {
+                await varDescriptor.Initialize(engine).ConfigureAwait(false);
+            }
+        }
 
-		if (functionDescriptors is not null)
-		{
-			foreach (var functionDescriptor in functionDescriptors)
-			{
-				await functionDescriptor.Initialize().ConfigureAwait(false);
-			}
-		}
-	}
+        if (functionDescriptors is not null)
+        {
+            foreach (var functionDescriptor in functionDescriptors)
+            {
+                await functionDescriptor.Initialize().ConfigureAwait(false);
+            }
+        }
+    }
 }

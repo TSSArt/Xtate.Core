@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -23,94 +23,94 @@ namespace Xtate.Core;
 
 internal static class QueryStringHelper
 {
-	public static string AddQueryString(string uri, string name, string value)
-	{
-		var uriToBeAppended = uri;
-		var anchorText = string.Empty;
+    public static string AddQueryString(string uri, string name, string value)
+    {
+        var uriToBeAppended = uri;
+        var anchorText = string.Empty;
 
-		var anchorIndex = uri.IndexOf('#');
+        var anchorIndex = uri.IndexOf('#');
 
-		if (anchorIndex >= 0)
-		{
-			anchorText = uri[anchorIndex..];
-			uriToBeAppended = uri[..anchorIndex];
-		}
+        if (anchorIndex >= 0)
+        {
+            anchorText = uri[anchorIndex..];
+            uriToBeAppended = uri[..anchorIndex];
+        }
 
-		return new StringBuilder(uriToBeAppended)
-			   .Append(uriToBeAppended.IndexOf('?') >= 0 ? '&' : '?')
-			   .Append(UrlEncoder.Default.Encode(name))
-			   .Append('=')
-			   .Append(UrlEncoder.Default.Encode(value))
-			   .Append(anchorText)
-			   .ToString();
-	}
+        return new StringBuilder(uriToBeAppended)
+               .Append(uriToBeAppended.IndexOf('?') >= 0 ? '&' : '?')
+               .Append(UrlEncoder.Default.Encode(name))
+               .Append('=')
+               .Append(UrlEncoder.Default.Encode(value))
+               .Append(anchorText)
+               .ToString();
+    }
 
-	public static NameValueCollection ParseQuery(string? query)
-	{
-		var collection = new NameValueCollection();
+    public static NameValueCollection ParseQuery(string? query)
+    {
+        var collection = new NameValueCollection();
 
-		if (string.IsNullOrEmpty(query) || query == @"?")
-		{
-			return collection;
-		}
+        if (string.IsNullOrEmpty(query) || query == @"?")
+        {
+            return collection;
+        }
 
-		var scanIndex = 0;
+        var scanIndex = 0;
 
-		if (query[0] == '?')
-		{
-			scanIndex = 1;
-		}
+        if (query[0] == '?')
+        {
+            scanIndex = 1;
+        }
 
-		var textLength = query.Length;
-		var equalIndex = query.IndexOf('=');
+        var textLength = query.Length;
+        var equalIndex = query.IndexOf('=');
 
-		if (equalIndex < 0)
-		{
-			equalIndex = textLength;
-		}
+        if (equalIndex < 0)
+        {
+            equalIndex = textLength;
+        }
 
-		while (scanIndex < textLength)
-		{
-			var delimiterIndex = query.IndexOf(value: '&', scanIndex);
+        while (scanIndex < textLength)
+        {
+            var delimiterIndex = query.IndexOf(value: '&', scanIndex);
 
-			if (delimiterIndex < 0)
-			{
-				delimiterIndex = textLength;
-			}
+            if (delimiterIndex < 0)
+            {
+                delimiterIndex = textLength;
+            }
 
-			if (equalIndex < delimiterIndex)
-			{
-				while (scanIndex != equalIndex && char.IsWhiteSpace(query[scanIndex]))
-				{
-					++ scanIndex;
-				}
+            if (equalIndex < delimiterIndex)
+            {
+                while (scanIndex != equalIndex && char.IsWhiteSpace(query[scanIndex]))
+                {
+                    ++ scanIndex;
+                }
 
-				var name = UnescapeDataString(query[scanIndex..equalIndex]);
-				var value = UnescapeDataString(query[(equalIndex + 1)..delimiterIndex]);
+                var name = UnescapeDataString(query[scanIndex..equalIndex]);
+                var value = UnescapeDataString(query[(equalIndex + 1)..delimiterIndex]);
 
-				collection.Add(name, value);
+                collection.Add(name, value);
 
-				equalIndex = query.IndexOf(value: '=', delimiterIndex);
+                equalIndex = query.IndexOf(value: '=', delimiterIndex);
 
-				if (equalIndex < 0)
-				{
-					equalIndex = textLength;
-				}
-			}
-			else
-			{
-				if (delimiterIndex > scanIndex)
-				{
-					var name = UnescapeDataString(query[scanIndex..delimiterIndex]);
-					collection.Add(name, string.Empty);
-				}
-			}
+                if (equalIndex < 0)
+                {
+                    equalIndex = textLength;
+                }
+            }
+            else
+            {
+                if (delimiterIndex > scanIndex)
+                {
+                    var name = UnescapeDataString(query[scanIndex..delimiterIndex]);
+                    collection.Add(name, string.Empty);
+                }
+            }
 
-			scanIndex = delimiterIndex + 1;
-		}
+            scanIndex = delimiterIndex + 1;
+        }
 
-		return collection;
-	}
+        return collection;
+    }
 
-	private static string UnescapeDataString(string value) => Uri.UnescapeDataString(value.Replace(oldChar: '+', newChar: ' '));
+    private static string UnescapeDataString(string value) => Uri.UnescapeDataString(value.Replace(oldChar: '+', newChar: ' '));
 }

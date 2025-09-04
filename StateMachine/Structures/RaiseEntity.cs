@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,29 +19,29 @@ namespace Xtate.Core;
 
 public struct RaiseEntity : IRaise, IVisitorEntity<RaiseEntity, IRaise>, IAncestorProvider
 {
-	internal object? Ancestor;
+    internal object? Ancestor;
 
 #region Interface IAncestorProvider
 
-	readonly object? IAncestorProvider.Ancestor => Ancestor;
+    readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
 #region Interface IRaise
 
-	public IOutgoingEvent? OutgoingEvent { get; set; }
+    public IOutgoingEvent? OutgoingEvent { get; set; }
 
 #endregion
 
 #region Interface IVisitorEntity<RaiseEntity,IRaise>
 
-	void IVisitorEntity<RaiseEntity, IRaise>.Init(IRaise source)
-	{
-		Ancestor = source;
-		OutgoingEvent = source.OutgoingEvent;
-	}
+    void IVisitorEntity<RaiseEntity, IRaise>.Init(IRaise source)
+    {
+        Ancestor = source;
+        OutgoingEvent = source.OutgoingEvent;
+    }
 
-	readonly bool IVisitorEntity<RaiseEntity, IRaise>.RefEquals(ref RaiseEntity other) => ReferenceEquals(OutgoingEvent, other.OutgoingEvent);
+    readonly bool IVisitorEntity<RaiseEntity, IRaise>.RefEquals(ref RaiseEntity other) => ReferenceEquals(OutgoingEvent, other.OutgoingEvent);
 
 #endregion
 }

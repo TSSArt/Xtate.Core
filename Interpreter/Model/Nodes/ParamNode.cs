@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,56 +21,56 @@ namespace Xtate.Core;
 
 public sealed class ParamNode : IParam, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 {
-	private readonly IParam _param;
+    private readonly IParam _param;
 
-	private DocumentIdSlot _documentIdSlot;
+    private DocumentIdSlot _documentIdSlot;
 
-	public ParamNode(DocumentIdNode documentIdNode, IParam param)
-	{
-		Infra.NotNull(param.Name);
+    public ParamNode(DocumentIdNode documentIdNode, IParam param)
+    {
+        Infra.NotNull(param.Name);
 
-		documentIdNode.SaveToSlot(out _documentIdSlot);
-		_param = param;
-	}
+        documentIdNode.SaveToSlot(out _documentIdSlot);
+        _param = param;
+    }
 
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => _param;
+    object IAncestorProvider.Ancestor => _param;
 
 #endregion
 
 #region Interface IDebugEntityId
 
-	FormattableString IDebugEntityId.EntityId => @$"{Name}(#{DocumentId})";
+    FormattableString IDebugEntityId.EntityId => @$"{Name}(#{DocumentId})";
 
 #endregion
 
 #region Interface IDocumentId
 
-	public int DocumentId => _documentIdSlot.CreateValue();
+    public int DocumentId => _documentIdSlot.CreateValue();
 
 #endregion
 
 #region Interface IParam
 
-	public string Name => _param.Name!;
+    public string Name => _param.Name!;
 
-	public IValueExpression? Expression => _param.Expression;
+    public IValueExpression? Expression => _param.Expression;
 
-	public ILocationExpression? Location => _param.Location;
+    public ILocationExpression? Location => _param.Location;
 
 #endregion
 
 #region Interface IStoreSupport
 
-	void IStoreSupport.Store(Bucket bucket)
-	{
-		bucket.Add(Key.TypeInfo, TypeInfo.ParamNode);
-		bucket.Add(Key.DocumentId, DocumentId);
-		bucket.Add(Key.Name, Name);
-		bucket.AddEntity(Key.Expression, Expression);
-		bucket.AddEntity(Key.Location, Location);
-	}
+    void IStoreSupport.Store(Bucket bucket)
+    {
+        bucket.Add(Key.TypeInfo, TypeInfo.ParamNode);
+        bucket.Add(Key.DocumentId, DocumentId);
+        bucket.Add(Key.Name, Name);
+        bucket.AddEntity(Key.Expression, Expression);
+        bucket.AddEntity(Key.Location, Location);
+    }
 
 #endregion
 }

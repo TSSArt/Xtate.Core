@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -23,33 +23,33 @@ namespace Xtate.Core;
 
 public class FileResourceLoader : IResourceLoader
 {
-	public class Provider() : ResourceLoaderProviderBase<FileResourceLoader>(uri => uri.IsFile || uri.IsUnc || !uri.IsAbsoluteUri);
+    public class Provider() : ResourceLoaderProviderBase<FileResourceLoader>(uri => uri.IsFile || uri.IsUnc || !uri.IsAbsoluteUri);
 
-	private const FileOptions OpenFileOptions = FileOptions.Asynchronous | FileOptions.SequentialScan;
+    private const FileOptions OpenFileOptions = FileOptions.Asynchronous | FileOptions.SequentialScan;
 
-	public required IIoBoundTask ExternalResources { private get; [UsedImplicitly] init; }
+    public required IIoBoundTask ExternalResources { private get; [UsedImplicitly] init; }
 
-	public required Func<Stream, ContentType?, ValueTask<Resource>> ResourceFactory { private get; [UsedImplicitly] init; }
+    public required Func<Stream, ContentType?, ValueTask<Resource>> ResourceFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IResourceLoader
 
-	public virtual async ValueTask<Resource> Request(Uri uri, NameValueCollection? headers)
-	{
-		Infra.Requires(uri);
+    public virtual async ValueTask<Resource> Request(Uri uri, NameValueCollection? headers)
+    {
+        Infra.Requires(uri);
 
-		var path = uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString;
+        var path = uri.IsAbsoluteUri ? uri.LocalPath : uri.OriginalString;
 
-		var fileStream = await ExternalResources.Factory.StartNew(() => CreateFileStream(path)).ConfigureAwait(false);
+        var fileStream = await ExternalResources.Factory.StartNew(() => CreateFileStream(path)).ConfigureAwait(false);
 
-		return await ResourceFactory(fileStream, arg2: default).ConfigureAwait(false);
-	}
+        return await ResourceFactory(fileStream, arg2: default).ConfigureAwait(false);
+    }
 
 #endregion
 
-	protected virtual FileStream CreateFileStream(string path)
-	{
-		Infra.Requires(path);
+    protected virtual FileStream CreateFileStream(string path)
+    {
+        Infra.Requires(path);
 
-		return new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 1, OpenFileOptions);
-	}
+        return new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 1, OpenFileOptions);
+    }
 }

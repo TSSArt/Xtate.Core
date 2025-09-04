@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,76 +19,76 @@ namespace Xtate.Core;
 
 public struct InvokeEntity : IInvoke, IVisitorEntity<InvokeEntity, IInvoke>, IAncestorProvider, IDebugEntityId
 {
-	internal object? Ancestor;
+    internal object? Ancestor;
 
 #region Interface IAncestorProvider
 
-	readonly object? IAncestorProvider.Ancestor => Ancestor;
+    readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
 #region Interface IDebugEntityId
 
-	readonly FormattableString IDebugEntityId.EntityId => @$"{Id}";
+    readonly FormattableString IDebugEntityId.EntityId => @$"{Id}";
 
 #endregion
 
 #region Interface IInvoke
 
-	public bool AutoForward { get; set; }
+    public bool AutoForward { get; set; }
 
-	public IContent? Content { get; set; }
+    public IContent? Content { get; set; }
 
-	public IFinalize? Finalize { get; set; }
+    public IFinalize? Finalize { get; set; }
 
-	public string? Id { get; set; }
+    public string? Id { get; set; }
 
-	public ILocationExpression? IdLocation { get; set; }
+    public ILocationExpression? IdLocation { get; set; }
 
-	public ImmutableArray<ILocationExpression> NameList { get; set; }
+    public ImmutableArray<ILocationExpression> NameList { get; set; }
 
-	public ImmutableArray<IParam> Parameters { get; set; }
+    public ImmutableArray<IParam> Parameters { get; set; }
 
-	public Uri? Source { get; set; }
+    public Uri? Source { get; set; }
 
-	public IValueExpression? SourceExpression { get; set; }
+    public IValueExpression? SourceExpression { get; set; }
 
-	public FullUri? Type { get; set; }
+    public FullUri? Type { get; set; }
 
-	public IValueExpression? TypeExpression { get; set; }
+    public IValueExpression? TypeExpression { get; set; }
 
 #endregion
 
 #region Interface IVisitorEntity<InvokeEntity,IInvoke>
 
-	void IVisitorEntity<InvokeEntity, IInvoke>.Init(IInvoke source)
-	{
-		Ancestor = source;
-		Id = source.Id;
-		IdLocation = source.IdLocation;
-		Content = source.Content;
-		Type = source.Type;
-		TypeExpression = source.TypeExpression;
-		Source = source.Source;
-		SourceExpression = source.SourceExpression;
-		NameList = source.NameList;
-		Parameters = source.Parameters;
-		Finalize = source.Finalize;
-		AutoForward = source.AutoForward;
-	}
+    void IVisitorEntity<InvokeEntity, IInvoke>.Init(IInvoke source)
+    {
+        Ancestor = source;
+        Id = source.Id;
+        IdLocation = source.IdLocation;
+        Content = source.Content;
+        Type = source.Type;
+        TypeExpression = source.TypeExpression;
+        Source = source.Source;
+        SourceExpression = source.SourceExpression;
+        NameList = source.NameList;
+        Parameters = source.Parameters;
+        Finalize = source.Finalize;
+        AutoForward = source.AutoForward;
+    }
 
-	readonly bool IVisitorEntity<InvokeEntity, IInvoke>.RefEquals(ref InvokeEntity other) =>
-		AutoForward == other.AutoForward &&
-		NameList == other.NameList &&
-		Parameters == other.Parameters &&
-		ReferenceEquals(Id, other.Id) &&
-		ReferenceEquals(IdLocation, other.IdLocation) &&
-		ReferenceEquals(Content, other.Content) &&
-		ReferenceEquals(Type, other.Type) &&
-		ReferenceEquals(TypeExpression, other.TypeExpression) &&
-		ReferenceEquals(Source, other.Source) &&
-		ReferenceEquals(SourceExpression, other.SourceExpression) &&
-		ReferenceEquals(Finalize, other.Finalize);
+    readonly bool IVisitorEntity<InvokeEntity, IInvoke>.RefEquals(ref InvokeEntity other) =>
+        AutoForward == other.AutoForward &&
+        NameList == other.NameList &&
+        Parameters == other.Parameters &&
+        ReferenceEquals(Id, other.Id) &&
+        ReferenceEquals(IdLocation, other.IdLocation) &&
+        ReferenceEquals(Content, other.Content) &&
+        ReferenceEquals(Type, other.Type) &&
+        ReferenceEquals(TypeExpression, other.TypeExpression) &&
+        ReferenceEquals(Source, other.Source) &&
+        ReferenceEquals(SourceExpression, other.SourceExpression) &&
+        ReferenceEquals(Finalize, other.Finalize);
 
 #endregion
 }

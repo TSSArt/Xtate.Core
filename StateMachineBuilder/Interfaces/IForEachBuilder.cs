@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,13 +19,13 @@ namespace Xtate.Builder;
 
 public interface IForEachBuilder
 {
-	IForEach Build();
+    IForEach Build();
 
-	void SetArray(IValueExpression array);
+    void SetArray(IValueExpression array);
 
-	void SetItem(ILocationExpression item);
+    void SetItem(ILocationExpression item);
 
-	void SetIndex(ILocationExpression index);
+    void SetIndex(ILocationExpression index);
 
-	void AddAction(IExecutableEntity action);
+    void AddAction(IExecutableEntity action);
 }

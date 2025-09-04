@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -23,11 +23,11 @@ public class AssemblyTypeInfo(Type type) : IAssemblyTypeInfo
 {
 #region Interface IAssemblyTypeInfo
 
-	public string FullTypeName { get; } = type.FullName ?? string.Empty;
+    public string FullTypeName { get; } = type.FullName ?? string.Empty;
 
-	public string AssemblyName { get; } = type.Assembly.GetName().Name ?? string.Empty;
+    public string AssemblyName { get; } = type.Assembly.GetName().Name ?? string.Empty;
 
-	public string AssemblyVersion { get; } = type.Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? string.Empty;
+    public string AssemblyVersion { get; } = type.Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? string.Empty;
 
 #endregion
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,34 +21,34 @@ namespace Xtate.Core;
 
 public sealed class ScriptExpressionNode : IScriptExpression, IStoreSupport, IAncestorProvider
 {
-	private readonly IScriptExpression _scriptExpression;
+    private readonly IScriptExpression _scriptExpression;
 
-	public ScriptExpressionNode(IScriptExpression scriptExpression)
-	{
-		Infra.NotNull(scriptExpression.Expression);
+    public ScriptExpressionNode(IScriptExpression scriptExpression)
+    {
+        Infra.NotNull(scriptExpression.Expression);
 
-		_scriptExpression = scriptExpression;
-	}
+        _scriptExpression = scriptExpression;
+    }
 
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => _scriptExpression;
+    object IAncestorProvider.Ancestor => _scriptExpression;
 
 #endregion
 
 #region Interface IScriptExpression
 
-	public string Expression => _scriptExpression.Expression!;
+    public string Expression => _scriptExpression.Expression!;
 
 #endregion
 
 #region Interface IStoreSupport
 
-	void IStoreSupport.Store(Bucket bucket)
-	{
-		bucket.Add(Key.TypeInfo, TypeInfo.ScriptExpressionNode);
-		bucket.Add(Key.Expression, Expression);
-	}
+    void IStoreSupport.Store(Bucket bucket)
+    {
+        bucket.Add(Key.TypeInfo, TypeInfo.ScriptExpressionNode);
+        bucket.Add(Key.Expression, Expression);
+    }
 
 #endregion
 }

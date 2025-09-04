@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,9 +19,9 @@ namespace Xtate.Core;
 
 public enum DataModelAccess
 {
-	Writable = 0,
+    Writable = 0,
 
-	ReadOnly = 1,
+    ReadOnly = 1,
 
-	Constant = 2
+    Constant = 2
 }

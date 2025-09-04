@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -23,29 +23,29 @@ public sealed class IfNode(DocumentIdNode documentIdNode, IIf @if) : ExecutableE
 {
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => @if;
+    object IAncestorProvider.Ancestor => @if;
 
 #endregion
 
 #region Interface IDebugEntityId
 
-	FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
+    FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
 
 #endregion
 
 #region Interface IIf
 
-	public IConditionExpression? Condition => @if.Condition;
+    public IConditionExpression? Condition => @if.Condition;
 
-	public ImmutableArray<IExecutableEntity> Action => @if.Action;
+    public ImmutableArray<IExecutableEntity> Action => @if.Action;
 
 #endregion
 
-	protected override void Store(Bucket bucket)
-	{
-		bucket.Add(Key.TypeInfo, TypeInfo.IfNode);
-		bucket.Add(Key.DocumentId, DocumentId);
-		bucket.AddEntity(Key.Condition, Condition);
-		bucket.AddEntityList(Key.Action, Action);
-	}
+    protected override void Store(Bucket bucket)
+    {
+        bucket.Add(Key.TypeInfo, TypeInfo.IfNode);
+        bucket.Add(Key.DocumentId, DocumentId);
+        bucket.AddEntity(Key.Condition, Condition);
+        bucket.AddEntityList(Key.Action, Action);
+    }
 }

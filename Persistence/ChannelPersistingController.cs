@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,161 +21,161 @@ namespace Xtate.Persistence;
 
 internal sealed class ChannelPersistingController<T> : Channel<T>, IDisposable
 {
-	private const int Head = 0;
+    private const int Head = 0;
 
-	private const int Tail = 1;
+    private const int Tail = 1;
 
-	private readonly Channel<T> _baseChannel;
+    private readonly Channel<T> _baseChannel;
 
-	private readonly TaskCompletionSource _initializedTcs = new();
+    private readonly TaskCompletionSource _initializedTcs = new();
 
-	private Bucket _bucket;
+    private Bucket _bucket;
 
-	private int _headIndex;
+    private int _headIndex;
 
-	private Func<CancellationToken, ValueTask>? _postAction;
+    private Func<CancellationToken, ValueTask>? _postAction;
 
-	private SemaphoreSlim? _storageLock;
+    private SemaphoreSlim? _storageLock;
 
-	private int _tailIndex;
+    private int _tailIndex;
 
-	public ChannelPersistingController(Channel<T> baseChannel)
-	{
-		_baseChannel = baseChannel;
+    public ChannelPersistingController(Channel<T> baseChannel)
+    {
+        _baseChannel = baseChannel;
 
-		Reader = new ChannelReader(this);
-		Writer = new ChannelWriter(this);
-	}
+        Reader = new ChannelReader(this);
+        Writer = new ChannelWriter(this);
+    }
 
 #region Interface IDisposable
 
-	public void Dispose() => _initializedTcs.TrySetResult();
+    public void Dispose() => _initializedTcs.TrySetResult();
 
 #endregion
 
-	public void Initialize(Bucket bucket,
-						   Func<Bucket, T> creator,
-						   SemaphoreSlim storageLock,
-						   Func<CancellationToken, ValueTask> postAction)
-	{
-		if (creator is null) throw new ArgumentNullException(nameof(creator));
+    public void Initialize(Bucket bucket,
+                           Func<Bucket, T> creator,
+                           SemaphoreSlim storageLock,
+                           Func<CancellationToken, ValueTask> postAction)
+    {
+        if (creator is null) throw new ArgumentNullException(nameof(creator));
 
-		_bucket = bucket;
-		_storageLock = storageLock ?? throw new ArgumentNullException(nameof(storageLock));
-		_postAction = postAction ?? throw new ArgumentNullException(nameof(postAction));
+        _bucket = bucket;
+        _storageLock = storageLock ?? throw new ArgumentNullException(nameof(storageLock));
+        _postAction = postAction ?? throw new ArgumentNullException(nameof(postAction));
 
-		bucket.TryGet(Head, out _headIndex);
-		bucket.TryGet(Tail, out _tailIndex);
+        bucket.TryGet(Head, out _headIndex);
+        bucket.TryGet(Tail, out _tailIndex);
 
-		for (var i = _headIndex; i < _tailIndex; i ++)
-		{
-			if (!_baseChannel.Writer.TryWrite(creator(bucket.Nested(i))))
-			{
-				throw new PersistenceException(Resources.Exception_ChannelCantConsumePreviouslyPersistedObject);
-			}
-		}
+        for (var i = _headIndex; i < _tailIndex; i ++)
+        {
+            if (!_baseChannel.Writer.TryWrite(creator(bucket.Nested(i))))
+            {
+                throw new PersistenceException(Resources.Exception_ChannelCantConsumePreviouslyPersistedObject);
+            }
+        }
 
-		_initializedTcs.TrySetResult();
-	}
+        _initializedTcs.TrySetResult();
+    }
 
-	private class ChannelReader(ChannelPersistingController<T> parent) : ChannelReader<T>
-	{
-		public override Task Completion => parent._baseChannel.Reader.Completion;
+    private class ChannelReader(ChannelPersistingController<T> parent) : ChannelReader<T>
+    {
+        public override Task Completion => parent._baseChannel.Reader.Completion;
 
-		public override bool TryRead(out T item) => throw new NotSupportedException(Resources.Exception_UseReadAsyncInstead);
+        public override bool TryRead(out T item) => throw new NotSupportedException(Resources.Exception_UseReadAsyncInstead);
 
-		public override async ValueTask<bool> WaitToReadAsync(CancellationToken token = default)
-		{
-			await parent._initializedTcs.Task.WaitAsync(token).ConfigureAwait(false);
-			
-			await parent._storageLock!.WaitAsync(token).ConfigureAwait(false);
+        public override async ValueTask<bool> WaitToReadAsync(CancellationToken token = default)
+        {
+            await parent._initializedTcs.Task.WaitAsync(token).ConfigureAwait(false);
 
-			try
-			{
-				return await parent._baseChannel.Reader.WaitToReadAsync(token).ConfigureAwait(false);
-			}
-			finally
-			{
-				parent._storageLock.Release();
-			}
-		}
+            await parent._storageLock!.WaitAsync(token).ConfigureAwait(false);
 
-		public override async ValueTask<T> ReadAsync(CancellationToken token = default)
-		{
-			await parent._initializedTcs.Task.WaitAsync(token).ConfigureAwait(false);
+            try
+            {
+                return await parent._baseChannel.Reader.WaitToReadAsync(token).ConfigureAwait(false);
+            }
+            finally
+            {
+                parent._storageLock.Release();
+            }
+        }
 
-			await parent._storageLock!.WaitAsync(token).ConfigureAwait(false);
+        public override async ValueTask<T> ReadAsync(CancellationToken token = default)
+        {
+            await parent._initializedTcs.Task.WaitAsync(token).ConfigureAwait(false);
 
-			try
-			{
-				var item = await parent._baseChannel.Reader.ReadAsync(token).ConfigureAwait(false);
+            await parent._storageLock!.WaitAsync(token).ConfigureAwait(false);
 
-				if (parent._tailIndex > parent._headIndex)
-				{
-					parent._bucket.RemoveSubtree(parent._headIndex ++);
-					parent._bucket.Add(Head, parent._headIndex);
-				}
-				else
-				{
-					parent._bucket.RemoveSubtree(Bucket.RootKey);
-					parent._headIndex = parent._tailIndex = 0;
-				}
+            try
+            {
+                var item = await parent._baseChannel.Reader.ReadAsync(token).ConfigureAwait(false);
 
-				await parent._postAction!(token).ConfigureAwait(false);
+                if (parent._tailIndex > parent._headIndex)
+                {
+                    parent._bucket.RemoveSubtree(parent._headIndex ++);
+                    parent._bucket.Add(Head, parent._headIndex);
+                }
+                else
+                {
+                    parent._bucket.RemoveSubtree(Bucket.RootKey);
+                    parent._headIndex = parent._tailIndex = 0;
+                }
 
-				return item;
-			}
-			finally
-			{
-				parent._storageLock.Release();
-			}
-		}
-	}
+                await parent._postAction!(token).ConfigureAwait(false);
 
-	private class ChannelWriter(ChannelPersistingController<T> parent) : ChannelWriter<T>
-	{
-		public override bool TryComplete(Exception? error = default) => parent._baseChannel.Writer.TryComplete(error);
+                return item;
+            }
+            finally
+            {
+                parent._storageLock.Release();
+            }
+        }
+    }
 
-		public override bool TryWrite(T item) => throw new NotSupportedException(Resources.Exception_UseWriteAsyncInstead);
+    private class ChannelWriter(ChannelPersistingController<T> parent) : ChannelWriter<T>
+    {
+        public override bool TryComplete(Exception? error = default) => parent._baseChannel.Writer.TryComplete(error);
 
-		public override async ValueTask<bool> WaitToWriteAsync(CancellationToken token = default)
-		{
-			await parent._initializedTcs.Task.WaitAsync(token).ConfigureAwait(false);
+        public override bool TryWrite(T item) => throw new NotSupportedException(Resources.Exception_UseWriteAsyncInstead);
 
-			await parent._storageLock!.WaitAsync(token).ConfigureAwait(false);
+        public override async ValueTask<bool> WaitToWriteAsync(CancellationToken token = default)
+        {
+            await parent._initializedTcs.Task.WaitAsync(token).ConfigureAwait(false);
 
-			try
-			{
-				return await parent._baseChannel.Writer.WaitToWriteAsync(token).ConfigureAwait(false);
-			}
-			finally
-			{
-				parent._storageLock.Release();
-			}
-		}
+            await parent._storageLock!.WaitAsync(token).ConfigureAwait(false);
 
-		public override async ValueTask WriteAsync([NotNull] T item, CancellationToken token = default)
-		{
-			if (item is null) throw new ArgumentNullException(nameof(item));
+            try
+            {
+                return await parent._baseChannel.Writer.WaitToWriteAsync(token).ConfigureAwait(false);
+            }
+            finally
+            {
+                parent._storageLock.Release();
+            }
+        }
 
-			await parent._initializedTcs.Task.WaitAsync(token).ConfigureAwait(false);
+        public override async ValueTask WriteAsync([NotNull] T item, CancellationToken token = default)
+        {
+            if (item is null) throw new ArgumentNullException(nameof(item));
 
-			await parent._storageLock!.WaitAsync(token).ConfigureAwait(false);
+            await parent._initializedTcs.Task.WaitAsync(token).ConfigureAwait(false);
 
-			try
-			{
-				await parent._baseChannel.Writer.WriteAsync(item, token).ConfigureAwait(false);
+            await parent._storageLock!.WaitAsync(token).ConfigureAwait(false);
 
-				var bucket = parent._bucket.Nested(parent._tailIndex ++);
-				parent._bucket.Add(Tail, parent._tailIndex);
-				item.As<IStoreSupport>().Store(bucket);
+            try
+            {
+                await parent._baseChannel.Writer.WriteAsync(item, token).ConfigureAwait(false);
 
-				await parent._postAction!(token).ConfigureAwait(false);
-			}
-			finally
-			{
-				parent._storageLock.Release();
-			}
-		}
-	}
+                var bucket = parent._bucket.Nested(parent._tailIndex ++);
+                parent._bucket.Add(Tail, parent._tailIndex);
+                item.As<IStoreSupport>().Store(bucket);
+
+                await parent._postAction!(token).ConfigureAwait(false);
+            }
+            finally
+            {
+                parent._storageLock.Release();
+            }
+        }
+    }
 }

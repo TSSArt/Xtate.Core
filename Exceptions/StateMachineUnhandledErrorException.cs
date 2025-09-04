@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -20,9 +20,9 @@ namespace Xtate;
 [Serializable]
 public class StateMachineUnhandledErrorException : XtateException
 {
-	public StateMachineUnhandledErrorException() { }
+    public StateMachineUnhandledErrorException() { }
 
-	public StateMachineUnhandledErrorException(string? message) : base(message) { }
+    public StateMachineUnhandledErrorException(string? message) : base(message) { }
 
-	public StateMachineUnhandledErrorException(string? message, Exception? innerException) : base(message, innerException) { }
+    public StateMachineUnhandledErrorException(string? message, Exception? innerException) : base(message, innerException) { }
 }

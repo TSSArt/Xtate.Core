@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,5 +19,5 @@ namespace Xtate.DataModel;
 
 public interface IArrayEvaluator : IValueEvaluator
 {
-	ValueTask<IObject[]> EvaluateArray();
+    ValueTask<IObject[]> EvaluateArray();
 }
