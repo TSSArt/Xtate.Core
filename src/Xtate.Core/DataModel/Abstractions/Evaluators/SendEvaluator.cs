@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,43 +21,43 @@ public abstract class SendEvaluator(ISend send) : IExecEvaluator, ISend, IAncest
 {
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => send;
+    object IAncestorProvider.Ancestor => send;
 
 #endregion
 
 #region Interface IExecEvaluator
 
-	public abstract ValueTask Execute();
+    public abstract ValueTask Execute();
 
 #endregion
 
 #region Interface ISend
 
-	public virtual IContent? Content => send.Content;
+    public virtual IContent? Content => send.Content;
 
-	public virtual IValueExpression? DelayExpression => send.DelayExpression;
+    public virtual IValueExpression? DelayExpression => send.DelayExpression;
 
-	public virtual int? DelayMs => send.DelayMs;
+    public virtual int? DelayMs => send.DelayMs;
 
-	public virtual string? EventName => send.EventName;
+    public virtual string? EventName => send.EventName;
 
-	public virtual IValueExpression? EventExpression => send.EventExpression;
+    public virtual IValueExpression? EventExpression => send.EventExpression;
 
-	public virtual string? Id => send.Id;
+    public virtual string? Id => send.Id;
 
-	public virtual ILocationExpression? IdLocation => send.IdLocation;
+    public virtual ILocationExpression? IdLocation => send.IdLocation;
 
-	public virtual ImmutableArray<ILocationExpression> NameList => send.NameList;
+    public virtual ImmutableArray<ILocationExpression> NameList => send.NameList;
 
-	public virtual ImmutableArray<IParam> Parameters => send.Parameters;
+    public virtual ImmutableArray<IParam> Parameters => send.Parameters;
 
-	public virtual FullUri? Target => send.Target;
+    public virtual FullUri? Target => send.Target;
 
-	public virtual IValueExpression? TargetExpression => send.TargetExpression;
+    public virtual IValueExpression? TargetExpression => send.TargetExpression;
 
-	public virtual FullUri? Type => send.Type;
+    public virtual FullUri? Type => send.Type;
 
-	public virtual IValueExpression? TypeExpression => send.TypeExpression;
+    public virtual IValueExpression? TypeExpression => send.TypeExpression;
 
 #endregion
 }

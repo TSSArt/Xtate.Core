@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,19 +21,19 @@ public abstract class RaiseEvaluator(IRaise raise) : IRaise, IExecEvaluator, IAn
 {
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => raise;
+    object IAncestorProvider.Ancestor => raise;
 
 #endregion
 
 #region Interface IExecEvaluator
 
-	public abstract ValueTask Execute();
+    public abstract ValueTask Execute();
 
 #endregion
 
 #region Interface IRaise
 
-	public virtual IOutgoingEvent? OutgoingEvent => raise.OutgoingEvent;
+    public virtual IOutgoingEvent? OutgoingEvent => raise.OutgoingEvent;
 
 #endregion
 }

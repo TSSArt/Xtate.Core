@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -23,29 +23,29 @@ namespace Xtate.Core.Test.Legacy;
 [TestClass]
 public class XmlConverterTest
 {
-	[TestMethod]
-	public void ToXmlTest()
-	{
-		var writer = new StringWriter();
-		var xmlWriter = XmlWriter.Create(
-			writer, new XmlWriterSettings
-					{
-						Indent = true
-					});
+    [TestMethod]
+    public void ToXmlTest()
+    {
+        var writer = new StringWriter();
+        var xmlWriter = XmlWriter.Create(
+            writer, new XmlWriterSettings
+                    {
+                        Indent = true
+                    });
 
-		xmlWriter.WriteStartElement("v");
+        xmlWriter.WriteStartElement("v");
 
-		//	xmlWriter.WriteAttributeString(prefix: @"xmlns", localName: @"xs", ns: null, "http://www.w3.org/2001/XMLSchema");
-		//	xmlWriter.WriteAttributeString(prefix: @"xmlns", localName: @"xsi", ns: null, "http://www.w3.org/2001/XMLSchema-instance");
-		xmlWriter.WriteStartElement("inv");
+        //	xmlWriter.WriteAttributeString(prefix: @"xmlns", localName: @"xs", ns: null, "http://www.w3.org/2001/XMLSchema");
+        //	xmlWriter.WriteAttributeString(prefix: @"xmlns", localName: @"xsi", ns: null, "http://www.w3.org/2001/XMLSchema-instance");
+        xmlWriter.WriteStartElement("inv");
 
-		//XmlConverter.WriteValue(xmlWriter, new DataModelValue(5.5));
-		xmlWriter.WriteEndElement();
-		xmlWriter.WriteEndElement();
-		xmlWriter.Flush();
+        //XmlConverter.WriteValue(xmlWriter, new DataModelValue(5.5));
+        xmlWriter.WriteEndElement();
+        xmlWriter.WriteEndElement();
+        xmlWriter.Flush();
 
-		//xmlWriter.
+        //xmlWriter.
 
-		_ = writer.ToString();
-	}
+        _ = writer.ToString();
+    }
 }

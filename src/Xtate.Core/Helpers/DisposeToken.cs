@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,25 +22,25 @@ namespace Xtate.Core;
 [DebuggerDisplay("IsCancellationRequested = {IsCancellationRequested}")]
 public readonly struct DisposeToken(CancellationToken cancellationToken) : IEquatable<DisposeToken>
 {
-	public CancellationToken Token => cancellationToken;
+    public CancellationToken Token => cancellationToken;
 
-	public bool IsCancellationRequested => Token.IsCancellationRequested;
+    public bool IsCancellationRequested => Token.IsCancellationRequested;
 
 #region Interface IEquatable<DisposeToken>
 
-	public bool Equals(DisposeToken other) => Token.Equals(other.Token);
+    public bool Equals(DisposeToken other) => Token.Equals(other.Token);
 
 #endregion
 
-	public void ThrowIfCancellationRequested() => Token.ThrowIfCancellationRequested();
+    public void ThrowIfCancellationRequested() => Token.ThrowIfCancellationRequested();
 
-	public static implicit operator CancellationToken(DisposeToken disposeToken) => disposeToken.Token;
+    public static implicit operator CancellationToken(DisposeToken disposeToken) => disposeToken.Token;
 
-	public override bool Equals([NotNullWhen(true)] object? other) => other is DisposeToken dToken && Equals(dToken);
+    public override bool Equals([NotNullWhen(true)] object? other) => other is DisposeToken dToken && Equals(dToken);
 
-	public override int GetHashCode() => Token.GetHashCode();
+    public override int GetHashCode() => Token.GetHashCode();
 
-	public static bool operator ==(DisposeToken left, DisposeToken right) => left.Equals(right);
+    public static bool operator ==(DisposeToken left, DisposeToken right) => left.Equals(right);
 
-	public static bool operator !=(DisposeToken left, DisposeToken right) => !left.Equals(right);
+    public static bool operator !=(DisposeToken left, DisposeToken right) => !left.Equals(right);
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,11 +19,11 @@ namespace Xtate.Core;
 
 public class DataModelController : IDataModelController
 {
-	public required IStateMachineContext StateMachineContext { private get; [UsedImplicitly] init; }
+    public required IStateMachineContext StateMachineContext { private get; [UsedImplicitly] init; }
 
 #region Interface IDataModelController
 
-	public virtual DataModelList DataModel => StateMachineContext.DataModel;
+    public virtual DataModelList DataModel => StateMachineContext.DataModel;
 
 #endregion
 }

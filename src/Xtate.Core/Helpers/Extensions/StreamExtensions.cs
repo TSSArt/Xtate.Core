@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -26,87 +26,87 @@ namespace Xtate.Core;
 
 public static class StreamExtensions
 {
-	public static Stream InjectCancellationToken(this Stream stream, CancellationToken token) => new InjectedCancellationStream(stream, token);
+    public static Stream InjectCancellationToken(this Stream stream, CancellationToken token) => new InjectedCancellationStream(stream, token);
 
-	[SuppressMessage(category: "ReSharper", checkId: "MethodHasAsyncOverloadWithCancellation")]
-	public static async ValueTask<byte[]> ReadToEndAsync(this Stream stream, CancellationToken token)
-	{
-		Infra.Requires(stream);
+    [SuppressMessage(category: "ReSharper", checkId: "MethodHasAsyncOverloadWithCancellation")]
+    public static async ValueTask<byte[]> ReadToEndAsync(this Stream stream, CancellationToken token)
+    {
+        Infra.Requires(stream);
 
-		var longLength = stream.CanSeek ? stream.Length - stream.Position : 0;
-		var capacity = longLength is >= 0 and <= int.MaxValue ? (int) longLength : 0;
+        var longLength = stream.CanSeek ? stream.Length - stream.Position : 0;
+        var capacity = longLength is >= 0 and <= int.MaxValue ? (int)longLength : 0;
 
-		var memoryStream = new MemoryStream(capacity);
-		var buffer = ArrayPool<byte>.Shared.Rent(65536);
+        var memoryStream = new MemoryStream(capacity);
+        var buffer = ArrayPool<byte>.Shared.Rent(65536);
 
-		try
-		{
-			while (true)
-			{
-				var bytesRead = await stream.ReadAsync(buffer, offset: 0, buffer.Length, token).ConfigureAwait(false);
+        try
+        {
+            while (true)
+            {
+                var bytesRead = await stream.ReadAsync(buffer, offset: 0, buffer.Length, token).ConfigureAwait(false);
 
-				if (bytesRead == 0)
-				{
-					return memoryStream.Length == memoryStream.Capacity ? memoryStream.GetBuffer() : memoryStream.ToArray();
-				}
+                if (bytesRead == 0)
+                {
+                    return memoryStream.Length == memoryStream.Capacity ? memoryStream.GetBuffer() : memoryStream.ToArray();
+                }
 
-				memoryStream.Write(buffer, offset: 0, bytesRead);
-			}
-		}
-		finally
-		{
-			ArrayPool<byte>.Shared.Return(buffer);
-		}
-	}
+                memoryStream.Write(buffer, offset: 0, bytesRead);
+            }
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(buffer);
+        }
+    }
 
-	public static byte[] ReadToEnd(this Stream stream, CancellationToken token)
-	{
-		Infra.Requires(stream);
+    public static byte[] ReadToEnd(this Stream stream, CancellationToken token)
+    {
+        Infra.Requires(stream);
 
-		var longLength = stream.CanSeek ? stream.Length - stream.Position : 0;
-		var capacity = longLength is >= 0 and <= int.MaxValue ? (int) longLength : 0;
+        var longLength = stream.CanSeek ? stream.Length - stream.Position : 0;
+        var capacity = longLength is >= 0 and <= int.MaxValue ? (int)longLength : 0;
 
-		var memoryStream = new MemoryStream(capacity);
-		var buffer = ArrayPool<byte>.Shared.Rent(65536);
+        var memoryStream = new MemoryStream(capacity);
+        var buffer = ArrayPool<byte>.Shared.Rent(65536);
 
-		try
-		{
-			while (true)
-			{
-				token.ThrowIfCancellationRequested();
+        try
+        {
+            while (true)
+            {
+                token.ThrowIfCancellationRequested();
 
-				var bytesRead = stream.Read(buffer, offset: 0, buffer.Length);
+                var bytesRead = stream.Read(buffer, offset: 0, buffer.Length);
 
-				if (bytesRead == 0)
-				{
-					return memoryStream.Length == memoryStream.Capacity ? memoryStream.GetBuffer() : memoryStream.ToArray();
-				}
+                if (bytesRead == 0)
+                {
+                    return memoryStream.Length == memoryStream.Capacity ? memoryStream.GetBuffer() : memoryStream.ToArray();
+                }
 
-				memoryStream.Write(buffer, offset: 0, bytesRead);
-			}
-		}
-		finally
-		{
-			ArrayPool<byte>.Shared.Return(buffer);
-		}
-	}
+                memoryStream.Write(buffer, offset: 0, bytesRead);
+            }
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(buffer);
+        }
+    }
 
 #if !NETCOREAPP3_0_OR_GREATER && !NETSTANDARD2_1
-	public static ConfiguredAwaitable ConfigureAwait(this Stream stream, bool continueOnCapturedContext) => new(stream, continueOnCapturedContext);
+    public static ConfiguredAwaitable ConfigureAwait(this Stream stream, bool continueOnCapturedContext) => new(stream, continueOnCapturedContext);
 
-	public static ValueTask DisposeAsync(this Stream stream)
-	{
-		if (stream is null) throw new ArgumentNullException(nameof(stream));
+    public static ValueTask DisposeAsync(this Stream stream)
+    {
+        if (stream is null) throw new ArgumentNullException(nameof(stream));
 
-		stream.Dispose();
+        stream.Dispose();
 
-		return default;
-	}
+        return default;
+    }
 
-	public readonly struct ConfiguredAwaitable(Stream stream, bool continueOnCapturedContext)
-	{
-		public ConfiguredValueTaskAwaitable DisposeAsync() => stream.DisposeAsync().ConfigureAwait(continueOnCapturedContext);
-	}
+    public readonly struct ConfiguredAwaitable(Stream stream, bool continueOnCapturedContext)
+    {
+        public ConfiguredValueTaskAwaitable DisposeAsync() => stream.DisposeAsync().ConfigureAwait(continueOnCapturedContext);
+    }
 
 #endif
 }

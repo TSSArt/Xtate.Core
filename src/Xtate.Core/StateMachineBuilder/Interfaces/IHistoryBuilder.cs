@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,11 +19,11 @@ namespace Xtate.Builder;
 
 public interface IHistoryBuilder
 {
-	IHistory Build();
+    IHistory Build();
 
-	void SetId(IIdentifier id);
+    void SetId(IIdentifier id);
 
-	void SetType(HistoryType type);
+    void SetType(HistoryType type);
 
-	void SetTransition(ITransition transition);
+    void SetTransition(ITransition transition);
 }

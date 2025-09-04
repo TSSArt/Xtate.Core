@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,9 +19,9 @@ namespace Xtate;
 
 public interface IFinal : IStateEntity
 {
-	ImmutableArray<IOnEntry> OnEntry { get; }
+    ImmutableArray<IOnEntry> OnEntry { get; }
 
-	ImmutableArray<IOnExit> OnExit { get; }
+    ImmutableArray<IOnExit> OnExit { get; }
 
-	IDoneData? DoneData { get; }
+    IDoneData? DoneData { get; }
 }

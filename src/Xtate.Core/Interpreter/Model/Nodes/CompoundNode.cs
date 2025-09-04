@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,37 +21,37 @@ namespace Xtate.Core;
 
 public sealed class CompoundNode : StateNode, IStoreSupport, IDebugEntityId
 {
-	public CompoundNode(DocumentIdNode documentIdNode, IState state) : base(documentIdNode, state)
-	{
-		Infra.NotNull(base.Initial);
-	}
+    public CompoundNode(DocumentIdNode documentIdNode, IState state) : base(documentIdNode, state)
+    {
+        Infra.NotNull(base.Initial);
+    }
 
-	public new InitialNode Initial => base.Initial!;
+    public new InitialNode Initial => base.Initial!;
 
-	public override bool IsAtomicState => false;
+    public override bool IsAtomicState => false;
 
 #region Interface IDebugEntityId
 
-	FormattableString IDebugEntityId.EntityId => @$"{Id}(#{DocumentId})";
+    FormattableString IDebugEntityId.EntityId => @$"{Id}(#{DocumentId})";
 
 #endregion
 
 #region Interface IStoreSupport
 
-	void IStoreSupport.Store(Bucket bucket)
-	{
-		bucket.Add(Key.TypeInfo, TypeInfo.CompoundNode);
-		bucket.Add(Key.DocumentId, DocumentId);
-		bucket.AddEntity(Key.Id, Id);
-		bucket.AddEntity(Key.Initial, Initial);
-		bucket.AddEntity(Key.DataModel, DataModel);
-		bucket.AddEntityList(Key.States, States);
-		bucket.AddEntityList(Key.HistoryStates, HistoryStates);
-		bucket.AddEntityList(Key.Transitions, Transitions);
-		bucket.AddEntityList(Key.OnEntry, OnEntry);
-		bucket.AddEntityList(Key.OnExit, OnExit);
-		bucket.AddEntityList(Key.Invoke, Invoke);
-	}
+    void IStoreSupport.Store(Bucket bucket)
+    {
+        bucket.Add(Key.TypeInfo, TypeInfo.CompoundNode);
+        bucket.Add(Key.DocumentId, DocumentId);
+        bucket.AddEntity(Key.Id, Id);
+        bucket.AddEntity(Key.Initial, Initial);
+        bucket.AddEntity(Key.DataModel, DataModel);
+        bucket.AddEntityList(Key.States, States);
+        bucket.AddEntityList(Key.HistoryStates, HistoryStates);
+        bucket.AddEntityList(Key.Transitions, Transitions);
+        bucket.AddEntityList(Key.OnEntry, OnEntry);
+        bucket.AddEntityList(Key.OnExit, OnExit);
+        bucket.AddEntityList(Key.Invoke, Invoke);
+    }
 
 #endregion
 }

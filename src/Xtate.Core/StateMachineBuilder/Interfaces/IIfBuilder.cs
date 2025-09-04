@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,9 +19,9 @@ namespace Xtate.Builder;
 
 public interface IIfBuilder
 {
-	IIf Build();
+    IIf Build();
 
-	void SetCondition(IConditionExpression condition);
+    void SetCondition(IConditionExpression condition);
 
-	void AddAction(IExecutableEntity action);
+    void AddAction(IExecutableEntity action);
 }

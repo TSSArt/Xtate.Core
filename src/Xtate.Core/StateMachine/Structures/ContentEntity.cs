@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,34 +19,34 @@ namespace Xtate.Core;
 
 public struct ContentEntity : IContent, IVisitorEntity<ContentEntity, IContent>, IAncestorProvider
 {
-	internal object? Ancestor;
+    internal object? Ancestor;
 
 #region Interface IAncestorProvider
 
-	readonly object? IAncestorProvider.Ancestor => Ancestor;
+    readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
 #region Interface IContent
 
-	public IValueExpression? Expression { get; set; }
+    public IValueExpression? Expression { get; set; }
 
-	public IContentBody? Body { get; set; }
+    public IContentBody? Body { get; set; }
 
 #endregion
 
 #region Interface IVisitorEntity<ContentEntity,IContent>
 
-	void IVisitorEntity<ContentEntity, IContent>.Init(IContent source)
-	{
-		Ancestor = source;
-		Expression = source.Expression;
-		Body = source.Body;
-	}
+    void IVisitorEntity<ContentEntity, IContent>.Init(IContent source)
+    {
+        Ancestor = source;
+        Expression = source.Expression;
+        Body = source.Body;
+    }
 
-	readonly bool IVisitorEntity<ContentEntity, IContent>.RefEquals(ref ContentEntity other) =>
-		ReferenceEquals(Expression, other.Expression) &&
-		ReferenceEquals(Body, other.Body);
+    readonly bool IVisitorEntity<ContentEntity, IContent>.RefEquals(ref ContentEntity other) =>
+        ReferenceEquals(Expression, other.Expression) &&
+        ReferenceEquals(Body, other.Body);
 
 #endregion
 }

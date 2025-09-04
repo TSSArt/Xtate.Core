@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,27 +21,27 @@ public abstract class CustomActionEvaluator(ICustomAction customAction) : ICusto
 {
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => customAction;
+    object IAncestorProvider.Ancestor => customAction;
 
 #endregion
 
 #region Interface ICustomAction
 
-	public virtual string? XmlNamespace => customAction.XmlNamespace;
+    public virtual string? XmlNamespace => customAction.XmlNamespace;
 
-	public virtual string? XmlName => customAction.XmlName;
+    public virtual string? XmlName => customAction.XmlName;
 
-	public virtual string? Xml => customAction.Xml;
+    public virtual string? Xml => customAction.Xml;
 
-	public virtual ImmutableArray<ILocationExpression> Locations => customAction.Locations;
+    public virtual ImmutableArray<ILocationExpression> Locations => customAction.Locations;
 
-	public virtual ImmutableArray<IValueExpression> Values => customAction.Values;
+    public virtual ImmutableArray<IValueExpression> Values => customAction.Values;
 
 #endregion
 
 #region Interface IExecEvaluator
 
-	public abstract ValueTask Execute();
+    public abstract ValueTask Execute();
 
 #endregion
 }

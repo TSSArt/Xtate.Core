@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,11 +21,11 @@ public class StateMachineInterpreterOptions(IStateMachineStartOptions stateMachi
 {
 #region Interface IStateMachineInterpreterOptions
 
-	public SessionId SessionId { get; } = stateMachineStartOptions.SessionId;
+    public SessionId SessionId { get; } = stateMachineStartOptions.SessionId;
 
 #endregion
 
-	//public InterpreterOptions options { get; } = new();
+    //public InterpreterOptions options { get; } = new();
 
-	//public IInterpreterModel     model        => _interpreterModel;
+    //public IInterpreterModel     model        => _interpreterModel;
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,22 +21,22 @@ namespace Xtate.Core;
 
 public class ScheduledEvent : RouterEvent
 {
-	private readonly CancellationTokenSource _cancellationTokenSource = new();
+    private readonly CancellationTokenSource _cancellationTokenSource = new();
 
-	public ScheduledEvent(IRouterEvent routerEvent) : base(routerEvent) { }
+    public ScheduledEvent(IRouterEvent routerEvent) : base(routerEvent) { }
 
-	protected ScheduledEvent(in Bucket bucket) : base(in bucket) { }
+    protected ScheduledEvent(in Bucket bucket) : base(in bucket) { }
 
-	public CancellationToken CancellationToken => _cancellationTokenSource.Token;
+    public CancellationToken CancellationToken => _cancellationTokenSource.Token;
 
-	public void Cancel() => _cancellationTokenSource.Cancel();
+    public void Cancel() => _cancellationTokenSource.Cancel();
 
-	public Task CancelAsync() => _cancellationTokenSource.CancelAsync();
+    public Task CancelAsync() => _cancellationTokenSource.CancelAsync();
 
-	public virtual ValueTask Dispose()
-	{
-		_cancellationTokenSource.Dispose();
+    public virtual ValueTask Dispose()
+    {
+        _cancellationTokenSource.Dispose();
 
-		return default;
-	}
+        return default;
+    }
 }

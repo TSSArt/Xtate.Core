@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,64 +19,64 @@ namespace Xtate.Core;
 
 public abstract class LazyValue : ILazyValue
 {
-	private volatile int _state;
+    private volatile int _state;
 
-	private DataModelValue _value;
+    private DataModelValue _value;
 
 #region Interface ILazyValue
 
-	DataModelValue ILazyValue.Value
-	{
-		get
-		{
-			if (_state == 2)
-			{
-				return _value;
-			}
+    DataModelValue ILazyValue.Value
+    {
+        get
+        {
+            if (_state == 2)
+            {
+                return _value;
+            }
 
-			var newValue = Create();
+            var newValue = Create();
 
-			if (Interlocked.CompareExchange(ref _state, value: 1, comparand: 0) == 0)
-			{
-				_value = newValue;
-				_state = 2;
+            if (Interlocked.CompareExchange(ref _state, value: 1, comparand: 0) == 0)
+            {
+                _value = newValue;
+                _state = 2;
 
-				return _value;
-			}
+                return _value;
+            }
 
-			SpinWait spinWait = default;
+            SpinWait spinWait = default;
 
-			while (_state != 2)
-			{
-				spinWait.SpinOnce();
-			}
+            while (_state != 2)
+            {
+                spinWait.SpinOnce();
+            }
 
-			return _value;
-		}
-	}
+            return _value;
+        }
+    }
 
 #endregion
 
-	public static DataModelValue Create(Func<DataModelValue> factory) => new(new NoArg(factory));
+    public static DataModelValue Create(Func<DataModelValue> factory) => new(new NoArg(factory));
 
-	public static DataModelValue Create<TArg>(TArg arg, Func<TArg, DataModelValue> factory) => new(new OneArg<TArg>(factory, arg));
+    public static DataModelValue Create<TArg>(TArg arg, Func<TArg, DataModelValue> factory) => new(new OneArg<TArg>(factory, arg));
 
-	public static DataModelValue Create<TArg1, TArg2>(TArg1 arg1, TArg2 arg2, Func<TArg1, TArg2, DataModelValue> factory) => new(new TwoArgs<TArg1, TArg2>(factory, arg1, arg2));
+    public static DataModelValue Create<TArg1, TArg2>(TArg1 arg1, TArg2 arg2, Func<TArg1, TArg2, DataModelValue> factory) => new(new TwoArgs<TArg1, TArg2>(factory, arg1, arg2));
 
-	protected abstract DataModelValue Create();
+    protected abstract DataModelValue Create();
 
-	private class NoArg(Func<DataModelValue> factory) : LazyValue
-	{
-		protected override DataModelValue Create() => factory();
-	}
+    private class NoArg(Func<DataModelValue> factory) : LazyValue
+    {
+        protected override DataModelValue Create() => factory();
+    }
 
-	private class OneArg<TArg>(Func<TArg, DataModelValue> factory, TArg arg) : LazyValue
-	{
-		protected override DataModelValue Create() => factory(arg);
-	}
+    private class OneArg<TArg>(Func<TArg, DataModelValue> factory, TArg arg) : LazyValue
+    {
+        protected override DataModelValue Create() => factory(arg);
+    }
 
-	private class TwoArgs<TArg1, TArg2>(Func<TArg1, TArg2, DataModelValue> factory, TArg1 arg1, TArg2 arg2) : LazyValue
-	{
-		protected override DataModelValue Create() => factory(arg1, arg2);
-	}
+    private class TwoArgs<TArg1, TArg2>(Func<TArg1, TArg2, DataModelValue> factory, TArg1 arg1, TArg2 arg2) : LazyValue
+    {
+        protected override DataModelValue Create() => factory(arg1, arg2);
+    }
 }

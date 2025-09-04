@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,25 +19,25 @@ namespace Xtate;
 
 public interface IInvoke : IEntity
 {
-	FullUri? Type { get; }
+    FullUri? Type { get; }
 
-	IValueExpression? TypeExpression { get; }
+    IValueExpression? TypeExpression { get; }
 
-	Uri? Source { get; }
+    Uri? Source { get; }
 
-	IValueExpression? SourceExpression { get; }
+    IValueExpression? SourceExpression { get; }
 
-	string? Id { get; }
+    string? Id { get; }
 
-	ILocationExpression? IdLocation { get; }
+    ILocationExpression? IdLocation { get; }
 
-	ImmutableArray<ILocationExpression> NameList { get; }
+    ImmutableArray<ILocationExpression> NameList { get; }
 
-	bool AutoForward { get; }
+    bool AutoForward { get; }
 
-	ImmutableArray<IParam> Parameters { get; }
+    ImmutableArray<IParam> Parameters { get; }
 
-	IFinalize? Finalize { get; }
+    IFinalize? Finalize { get; }
 
-	IContent? Content { get; }
+    IContent? Content { get; }
 }

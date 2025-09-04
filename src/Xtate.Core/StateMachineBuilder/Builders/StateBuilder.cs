@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,133 +19,133 @@ namespace Xtate.Builder;
 
 public class StateBuilder : BuilderBase, IStateBuilder
 {
-	private IDataModel? _dataModel;
+    private IDataModel? _dataModel;
 
-	private ImmutableArray<IHistory>.Builder? _historyStates;
+    private ImmutableArray<IHistory>.Builder? _historyStates;
 
-	private IIdentifier? _id;
+    private IIdentifier? _id;
 
-	private IInitial? _initial;
+    private IInitial? _initial;
 
-	private ImmutableArray<IIdentifier> _initialId;
+    private ImmutableArray<IIdentifier> _initialId;
 
-	private ImmutableArray<IInvoke>.Builder? _invokeList;
+    private ImmutableArray<IInvoke>.Builder? _invokeList;
 
-	private ImmutableArray<IOnEntry>.Builder? _onEntryList;
+    private ImmutableArray<IOnEntry>.Builder? _onEntryList;
 
-	private ImmutableArray<IOnExit>.Builder? _onExitList;
+    private ImmutableArray<IOnExit>.Builder? _onExitList;
 
-	private ImmutableArray<IStateEntity>.Builder? _states;
+    private ImmutableArray<IStateEntity>.Builder? _states;
 
-	private ImmutableArray<ITransition>.Builder? _transitions;
+    private ImmutableArray<ITransition>.Builder? _transitions;
 
-	public required IErrorProcessorService<StateBuilder> ErrorProcessorService { private get; [UsedImplicitly] init; }
+    public required IErrorProcessorService<StateBuilder> ErrorProcessorService { private get; [UsedImplicitly] init; }
 
 #region Interface IStateBuilder
 
-	public IState Build()
-	{
-		if (!_initialId.IsDefaultOrEmpty)
-		{
-			if (_initial is not null)
-			{
-				ErrorProcessorService.AddError(Ancestor, Resources.ErrorMessage_InitialAttributeAndInitialStateCantBeUsedAtTheSameTimeInStateElement);
-			}
+    public IState Build()
+    {
+        if (!_initialId.IsDefaultOrEmpty)
+        {
+            if (_initial is not null)
+            {
+                ErrorProcessorService.AddError(Ancestor, Resources.ErrorMessage_InitialAttributeAndInitialStateCantBeUsedAtTheSameTimeInStateElement);
+            }
 
-			_initial = new InitialEntity { Transition = new TransitionEntity { Target = _initialId } };
-		}
+            _initial = new InitialEntity { Transition = new TransitionEntity { Target = _initialId } };
+        }
 
-		return new StateEntity
-			   {
-				   Ancestor = Ancestor, Id = _id, Initial = _initial, States = _states?.ToImmutable() ?? default, HistoryStates = _historyStates?.ToImmutable() ?? default,
-				   Transitions = _transitions?.ToImmutable() ?? default, DataModel = _dataModel, OnEntry = _onEntryList?.ToImmutable() ?? default,
-				   OnExit = _onExitList?.ToImmutable() ?? default, Invoke = _invokeList?.ToImmutable() ?? default
-			   };
-	}
+        return new StateEntity
+               {
+                   Ancestor = Ancestor, Id = _id, Initial = _initial, States = _states?.ToImmutable() ?? default, HistoryStates = _historyStates?.ToImmutable() ?? default,
+                   Transitions = _transitions?.ToImmutable() ?? default, DataModel = _dataModel, OnEntry = _onEntryList?.ToImmutable() ?? default,
+                   OnExit = _onExitList?.ToImmutable() ?? default, Invoke = _invokeList?.ToImmutable() ?? default
+               };
+    }
 
-	public void SetId(IIdentifier id)
-	{
-		Infra.Requires(id);
+    public void SetId(IIdentifier id)
+    {
+        Infra.Requires(id);
 
-		_id = id;
-	}
+        _id = id;
+    }
 
-	public void SetInitial(ImmutableArray<IIdentifier> initialId)
-	{
-		Infra.RequiresNonEmptyCollection(initialId);
+    public void SetInitial(ImmutableArray<IIdentifier> initialId)
+    {
+        Infra.RequiresNonEmptyCollection(initialId);
 
-		_initialId = initialId;
-	}
+        _initialId = initialId;
+    }
 
-	public void AddState(IState state)
-	{
-		Infra.Requires(state);
+    public void AddState(IState state)
+    {
+        Infra.Requires(state);
 
-		(_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(state);
-	}
+        (_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(state);
+    }
 
-	public void AddParallel(IParallel parallel)
-	{
-		Infra.Requires(parallel);
+    public void AddParallel(IParallel parallel)
+    {
+        Infra.Requires(parallel);
 
-		(_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(parallel);
-	}
+        (_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(parallel);
+    }
 
-	public void SetInitial(IInitial initial)
-	{
-		Infra.Requires(initial);
+    public void SetInitial(IInitial initial)
+    {
+        Infra.Requires(initial);
 
-		_initial = initial;
-	}
+        _initial = initial;
+    }
 
-	public void AddFinal(IFinal final)
-	{
-		Infra.Requires(final);
+    public void AddFinal(IFinal final)
+    {
+        Infra.Requires(final);
 
-		(_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(final);
-	}
+        (_states ??= ImmutableArray.CreateBuilder<IStateEntity>()).Add(final);
+    }
 
-	public void AddHistory(IHistory history)
-	{
-		Infra.Requires(history);
+    public void AddHistory(IHistory history)
+    {
+        Infra.Requires(history);
 
-		(_historyStates ??= ImmutableArray.CreateBuilder<IHistory>()).Add(history);
-	}
+        (_historyStates ??= ImmutableArray.CreateBuilder<IHistory>()).Add(history);
+    }
 
-	public void AddTransition(ITransition transition)
-	{
-		Infra.Requires(transition);
+    public void AddTransition(ITransition transition)
+    {
+        Infra.Requires(transition);
 
-		(_transitions ??= ImmutableArray.CreateBuilder<ITransition>()).Add(transition);
-	}
+        (_transitions ??= ImmutableArray.CreateBuilder<ITransition>()).Add(transition);
+    }
 
-	public void AddOnEntry(IOnEntry onEntry)
-	{
-		Infra.Requires(onEntry);
+    public void AddOnEntry(IOnEntry onEntry)
+    {
+        Infra.Requires(onEntry);
 
-		(_onEntryList ??= ImmutableArray.CreateBuilder<IOnEntry>()).Add(onEntry);
-	}
+        (_onEntryList ??= ImmutableArray.CreateBuilder<IOnEntry>()).Add(onEntry);
+    }
 
-	public void AddOnExit(IOnExit onExit)
-	{
-		Infra.Requires(onExit);
+    public void AddOnExit(IOnExit onExit)
+    {
+        Infra.Requires(onExit);
 
-		(_onExitList ??= ImmutableArray.CreateBuilder<IOnExit>()).Add(onExit);
-	}
+        (_onExitList ??= ImmutableArray.CreateBuilder<IOnExit>()).Add(onExit);
+    }
 
-	public void AddInvoke(IInvoke invoke)
-	{
-		Infra.Requires(invoke);
+    public void AddInvoke(IInvoke invoke)
+    {
+        Infra.Requires(invoke);
 
-		(_invokeList ??= ImmutableArray.CreateBuilder<IInvoke>()).Add(invoke);
-	}
+        (_invokeList ??= ImmutableArray.CreateBuilder<IInvoke>()).Add(invoke);
+    }
 
-	public void SetDataModel(IDataModel dataModel)
-	{
-		Infra.Requires(dataModel);
+    public void SetDataModel(IDataModel dataModel)
+    {
+        Infra.Requires(dataModel);
 
-		_dataModel = dataModel;
-	}
+        _dataModel = dataModel;
+    }
 
 #endregion
 }

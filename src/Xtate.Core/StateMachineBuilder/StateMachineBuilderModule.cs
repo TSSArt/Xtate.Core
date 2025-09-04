@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,62 +21,62 @@ namespace Xtate.Builder;
 
 public class StateMachineBuilderModule : Module<ErrorProcessorModule>
 {
-	protected override void AddServices()
-	{
-		Services.AddImplementationSync<StateMachineBuilder>().For<IStateMachineBuilder>();
-		Services.AddImplementationSync<StateBuilder>().For<IStateBuilder>();
-		Services.AddImplementationSync<ParallelBuilder>().For<IParallelBuilder>();
-		Services.AddImplementationSync<HistoryBuilder>().For<IHistoryBuilder>();
-		Services.AddImplementationSync<InitialBuilder>().For<IInitialBuilder>();
-		Services.AddImplementationSync<FinalBuilder>().For<IFinalBuilder>();
-		Services.AddImplementationSync<TransitionBuilder>().For<ITransitionBuilder>();
-		Services.AddImplementationSync<LogBuilder>().For<ILogBuilder>();
-		Services.AddImplementationSync<SendBuilder>().For<ISendBuilder>();
-		Services.AddImplementationSync<ParamBuilder>().For<IParamBuilder>();
-		Services.AddImplementationSync<ContentBuilder>().For<IContentBuilder>();
-		Services.AddImplementationSync<OnEntryBuilder>().For<IOnEntryBuilder>();
-		Services.AddImplementationSync<OnExitBuilder>().For<IOnExitBuilder>();
-		Services.AddImplementationSync<InvokeBuilder>().For<IInvokeBuilder>();
-		Services.AddImplementationSync<FinalizeBuilder>().For<IFinalizeBuilder>();
-		Services.AddImplementationSync<ScriptBuilder>().For<IScriptBuilder>();
-		Services.AddImplementationSync<DataModelBuilder>().For<IDataModelBuilder>();
-		Services.AddImplementationSync<DataBuilder>().For<IDataBuilder>();
-		Services.AddImplementationSync<DoneDataBuilder>().For<IDoneDataBuilder>();
-		Services.AddImplementationSync<ForEachBuilder>().For<IForEachBuilder>();
-		Services.AddImplementationSync<IfBuilder>().For<IIfBuilder>();
-		Services.AddImplementationSync<ElseBuilder>().For<IElseBuilder>();
-		Services.AddImplementationSync<ElseIfBuilder>().For<IElseIfBuilder>();
-		Services.AddImplementationSync<RaiseBuilder>().For<IRaiseBuilder>();
-		Services.AddImplementationSync<AssignBuilder>().For<IAssignBuilder>();
-		Services.AddImplementationSync<CancelBuilder>().For<ICancelBuilder>();
-		Services.AddImplementationSync<CustomActionBuilder>().For<ICustomActionBuilder>();
+    protected override void AddServices()
+    {
+        Services.AddImplementationSync<StateMachineBuilder>().For<IStateMachineBuilder>();
+        Services.AddImplementationSync<StateBuilder>().For<IStateBuilder>();
+        Services.AddImplementationSync<ParallelBuilder>().For<IParallelBuilder>();
+        Services.AddImplementationSync<HistoryBuilder>().For<IHistoryBuilder>();
+        Services.AddImplementationSync<InitialBuilder>().For<IInitialBuilder>();
+        Services.AddImplementationSync<FinalBuilder>().For<IFinalBuilder>();
+        Services.AddImplementationSync<TransitionBuilder>().For<ITransitionBuilder>();
+        Services.AddImplementationSync<LogBuilder>().For<ILogBuilder>();
+        Services.AddImplementationSync<SendBuilder>().For<ISendBuilder>();
+        Services.AddImplementationSync<ParamBuilder>().For<IParamBuilder>();
+        Services.AddImplementationSync<ContentBuilder>().For<IContentBuilder>();
+        Services.AddImplementationSync<OnEntryBuilder>().For<IOnEntryBuilder>();
+        Services.AddImplementationSync<OnExitBuilder>().For<IOnExitBuilder>();
+        Services.AddImplementationSync<InvokeBuilder>().For<IInvokeBuilder>();
+        Services.AddImplementationSync<FinalizeBuilder>().For<IFinalizeBuilder>();
+        Services.AddImplementationSync<ScriptBuilder>().For<IScriptBuilder>();
+        Services.AddImplementationSync<DataModelBuilder>().For<IDataModelBuilder>();
+        Services.AddImplementationSync<DataBuilder>().For<IDataBuilder>();
+        Services.AddImplementationSync<DoneDataBuilder>().For<IDoneDataBuilder>();
+        Services.AddImplementationSync<ForEachBuilder>().For<IForEachBuilder>();
+        Services.AddImplementationSync<IfBuilder>().For<IIfBuilder>();
+        Services.AddImplementationSync<ElseBuilder>().For<IElseBuilder>();
+        Services.AddImplementationSync<ElseIfBuilder>().For<IElseIfBuilder>();
+        Services.AddImplementationSync<RaiseBuilder>().For<IRaiseBuilder>();
+        Services.AddImplementationSync<AssignBuilder>().For<IAssignBuilder>();
+        Services.AddImplementationSync<CancelBuilder>().For<ICancelBuilder>();
+        Services.AddImplementationSync<CustomActionBuilder>().For<ICustomActionBuilder>();
 
-		Services.AddImplementationSync<StateMachineBuilder, object?>().For<IStateMachineBuilder>();
-		Services.AddImplementationSync<StateBuilder, object?>().For<IStateBuilder>();
-		Services.AddImplementationSync<ParallelBuilder, object?>().For<IParallelBuilder>();
-		Services.AddImplementationSync<HistoryBuilder, object?>().For<IHistoryBuilder>();
-		Services.AddImplementationSync<InitialBuilder, object?>().For<IInitialBuilder>();
-		Services.AddImplementationSync<FinalBuilder, object?>().For<IFinalBuilder>();
-		Services.AddImplementationSync<TransitionBuilder, object?>().For<ITransitionBuilder>();
-		Services.AddImplementationSync<LogBuilder, object?>().For<ILogBuilder>();
-		Services.AddImplementationSync<SendBuilder, object?>().For<ISendBuilder>();
-		Services.AddImplementationSync<ParamBuilder, object?>().For<IParamBuilder>();
-		Services.AddImplementationSync<ContentBuilder, object?>().For<IContentBuilder>();
-		Services.AddImplementationSync<OnEntryBuilder, object?>().For<IOnEntryBuilder>();
-		Services.AddImplementationSync<OnExitBuilder, object?>().For<IOnExitBuilder>();
-		Services.AddImplementationSync<InvokeBuilder, object?>().For<IInvokeBuilder>();
-		Services.AddImplementationSync<FinalizeBuilder, object?>().For<IFinalizeBuilder>();
-		Services.AddImplementationSync<ScriptBuilder, object?>().For<IScriptBuilder>();
-		Services.AddImplementationSync<DataModelBuilder, object?>().For<IDataModelBuilder>();
-		Services.AddImplementationSync<DataBuilder, object?>().For<IDataBuilder>();
-		Services.AddImplementationSync<DoneDataBuilder, object?>().For<IDoneDataBuilder>();
-		Services.AddImplementationSync<ForEachBuilder, object?>().For<IForEachBuilder>();
-		Services.AddImplementationSync<IfBuilder, object?>().For<IIfBuilder>();
-		Services.AddImplementationSync<ElseBuilder, object?>().For<IElseBuilder>();
-		Services.AddImplementationSync<ElseIfBuilder, object?>().For<IElseIfBuilder>();
-		Services.AddImplementationSync<RaiseBuilder, object?>().For<IRaiseBuilder>();
-		Services.AddImplementationSync<AssignBuilder, object?>().For<IAssignBuilder>();
-		Services.AddImplementationSync<CancelBuilder, object?>().For<ICancelBuilder>();
-		Services.AddImplementationSync<CustomActionBuilder, object?>().For<ICustomActionBuilder>();
-	}
+        Services.AddImplementationSync<StateMachineBuilder, object?>().For<IStateMachineBuilder>();
+        Services.AddImplementationSync<StateBuilder, object?>().For<IStateBuilder>();
+        Services.AddImplementationSync<ParallelBuilder, object?>().For<IParallelBuilder>();
+        Services.AddImplementationSync<HistoryBuilder, object?>().For<IHistoryBuilder>();
+        Services.AddImplementationSync<InitialBuilder, object?>().For<IInitialBuilder>();
+        Services.AddImplementationSync<FinalBuilder, object?>().For<IFinalBuilder>();
+        Services.AddImplementationSync<TransitionBuilder, object?>().For<ITransitionBuilder>();
+        Services.AddImplementationSync<LogBuilder, object?>().For<ILogBuilder>();
+        Services.AddImplementationSync<SendBuilder, object?>().For<ISendBuilder>();
+        Services.AddImplementationSync<ParamBuilder, object?>().For<IParamBuilder>();
+        Services.AddImplementationSync<ContentBuilder, object?>().For<IContentBuilder>();
+        Services.AddImplementationSync<OnEntryBuilder, object?>().For<IOnEntryBuilder>();
+        Services.AddImplementationSync<OnExitBuilder, object?>().For<IOnExitBuilder>();
+        Services.AddImplementationSync<InvokeBuilder, object?>().For<IInvokeBuilder>();
+        Services.AddImplementationSync<FinalizeBuilder, object?>().For<IFinalizeBuilder>();
+        Services.AddImplementationSync<ScriptBuilder, object?>().For<IScriptBuilder>();
+        Services.AddImplementationSync<DataModelBuilder, object?>().For<IDataModelBuilder>();
+        Services.AddImplementationSync<DataBuilder, object?>().For<IDataBuilder>();
+        Services.AddImplementationSync<DoneDataBuilder, object?>().For<IDoneDataBuilder>();
+        Services.AddImplementationSync<ForEachBuilder, object?>().For<IForEachBuilder>();
+        Services.AddImplementationSync<IfBuilder, object?>().For<IIfBuilder>();
+        Services.AddImplementationSync<ElseBuilder, object?>().For<IElseBuilder>();
+        Services.AddImplementationSync<ElseIfBuilder, object?>().For<IElseIfBuilder>();
+        Services.AddImplementationSync<RaiseBuilder, object?>().For<IRaiseBuilder>();
+        Services.AddImplementationSync<AssignBuilder, object?>().For<IAssignBuilder>();
+        Services.AddImplementationSync<CancelBuilder, object?>().For<ICancelBuilder>();
+        Services.AddImplementationSync<CustomActionBuilder, object?>().For<ICustomActionBuilder>();
+    }
 }

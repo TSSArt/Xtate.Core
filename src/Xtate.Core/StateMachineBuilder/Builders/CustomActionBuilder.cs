@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,26 +19,26 @@ namespace Xtate.Builder;
 
 public class CustomActionBuilder : BuilderBase, ICustomActionBuilder
 {
-	private string? _name;
+    private string? _name;
 
-	private string? _ns;
+    private string? _ns;
 
-	private string? _xml;
+    private string? _xml;
 
 #region Interface ICustomActionBuilder
 
-	public ICustomAction Build() => new CustomActionEntity { Ancestor = Ancestor, XmlNamespace = _ns, XmlName = _name, Xml = _xml };
+    public ICustomAction Build() => new CustomActionEntity { Ancestor = Ancestor, XmlNamespace = _ns, XmlName = _name, Xml = _xml };
 
-	public void SetXml(string ns, string name, string xml)
-	{
-		Infra.Requires(xml);
-		Infra.Requires(name);
-		Infra.Requires(ns);
+    public void SetXml(string ns, string name, string xml)
+    {
+        Infra.Requires(xml);
+        Infra.Requires(name);
+        Infra.Requires(ns);
 
-		_ns = ns;
-		_name = name;
-		_xml = xml;
-	}
+        _ns = ns;
+        _name = name;
+        _xml = xml;
+    }
 
 #endregion
 }

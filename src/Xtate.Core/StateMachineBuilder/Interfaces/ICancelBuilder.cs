@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,9 +19,9 @@ namespace Xtate.Builder;
 
 public interface ICancelBuilder
 {
-	ICancel Build();
+    ICancel Build();
 
-	void SetSendId(string sendId);
+    void SetSendId(string sendId);
 
-	void SetSendIdExpression(IValueExpression sendIdExpression);
+    void SetSendIdExpression(IValueExpression sendIdExpression);
 }

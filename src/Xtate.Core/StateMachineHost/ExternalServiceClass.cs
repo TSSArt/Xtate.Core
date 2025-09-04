@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,96 +21,96 @@ using Xtate.IoC;
 namespace Xtate.ExternalService;
 
 public class ExternalServiceClass(
-	InvokeData invokeData,
-	IEventDispatcher eventDispatcher,
-	IStateMachineSessionId stateMachineSessionId,
-	IStateMachineLocation stateMachineLocation,
-	ICaseSensitivity caseSensitivity)
-	: IExternalServiceInvokeId,
-	  IExternalServiceType,
-	  IExternalServiceSource,
-	  IExternalServiceParameters,
-	  ICaseSensitivity,
-	  IStateMachineSessionId,
-	  IStateMachineLocation,
-	  IParentEventDispatcher
+    InvokeData invokeData,
+    IEventDispatcher eventDispatcher,
+    IStateMachineSessionId stateMachineSessionId,
+    IStateMachineLocation stateMachineLocation,
+    ICaseSensitivity caseSensitivity)
+    : IExternalServiceInvokeId,
+      IExternalServiceType,
+      IExternalServiceSource,
+      IExternalServiceParameters,
+      ICaseSensitivity,
+      IStateMachineSessionId,
+      IStateMachineLocation,
+      IParentEventDispatcher
 {
-	public void AddServices(IServiceCollection services)
-	{
-		services.AddConstant<IStateMachineSessionId>(this);
-		services.AddConstant<IStateMachineLocation>(this);
-		services.AddConstant<ICaseSensitivity>(this);
-		services.AddConstant<IExternalServiceInvokeId>(this);
-		services.AddConstant<IExternalServiceType>(this);
-		services.AddConstant<IExternalServiceSource>(this);
-		services.AddConstant<IExternalServiceParameters>(this);
-		services.AddConstant<IParentEventDispatcher>(this);
-	}
-
-	private FullUri? _origin;
+    private FullUri? _origin;
 
 #region Interface ICaseSensitivity
 
-	bool ICaseSensitivity.CaseInsensitive { get; } = caseSensitivity.CaseInsensitive;
+    bool ICaseSensitivity.CaseInsensitive { get; } = caseSensitivity.CaseInsensitive;
 
 #endregion
 
 #region Interface IEventDispatcher
 
-	/// <summary>
-	/// Dispatches the event to the parent session.
-	/// </summary>
-	/// <param name="incomingEvent"></param>
-	/// <param name="token"></param>
-	/// <returns></returns>
-	ValueTask IEventDispatcher.Dispatch(IIncomingEvent incomingEvent, CancellationToken token)
-	{
-		var origin = _origin ??= new FullUri(Const.ScxmlIoProcessorInvokeIdPrefix + invokeData.InvokeId.Value);
+    /// <summary>
+    ///     Dispatches the event to the parent session.
+    /// </summary>
+    /// <param name="incomingEvent"></param>
+    /// <param name="token"></param>
+    /// <returns></returns>
+    ValueTask IEventDispatcher.Dispatch(IIncomingEvent incomingEvent, CancellationToken token)
+    {
+        var origin = _origin ??= new FullUri(Const.ScxmlIoProcessorInvokeIdPrefix + invokeData.InvokeId.Value);
 
-		var evt = new IncomingEvent(incomingEvent) { Type = EventType.External, OriginType = invokeData.Type, Origin = origin, InvokeId = invokeData.InvokeId };
+        var evt = new IncomingEvent(incomingEvent) { Type = EventType.External, OriginType = invokeData.Type, Origin = origin, InvokeId = invokeData.InvokeId };
 
-		return eventDispatcher.Dispatch(evt, token);
-	}
+        return eventDispatcher.Dispatch(evt, token);
+    }
 
 #endregion
 
 #region Interface IExternalServiceInvokeId
 
-	InvokeId IExternalServiceInvokeId.InvokeId => invokeData.InvokeId;
+    InvokeId IExternalServiceInvokeId.InvokeId => invokeData.InvokeId;
 
 #endregion
 
 #region Interface IExternalServiceParameters
 
-	DataModelValue IExternalServiceParameters.Parameters { get; } = invokeData.Parameters;
+    DataModelValue IExternalServiceParameters.Parameters { get; } = invokeData.Parameters;
 
 #endregion
 
 #region Interface IExternalServiceSource
 
-	Uri? IExternalServiceSource.Source => invokeData.Source;
+    Uri? IExternalServiceSource.Source => invokeData.Source;
 
-	string? IExternalServiceSource.RawContent => invokeData.RawContent;
+    string? IExternalServiceSource.RawContent => invokeData.RawContent;
 
-	DataModelValue IExternalServiceSource.Content => invokeData.Content;
+    DataModelValue IExternalServiceSource.Content => invokeData.Content;
 
 #endregion
 
 #region Interface IExternalServiceType
 
-	FullUri IExternalServiceType.Type => invokeData.Type;
+    FullUri IExternalServiceType.Type => invokeData.Type;
 
 #endregion
 
 #region Interface IStateMachineLocation
 
-	Uri? IStateMachineLocation.Location { get; } = stateMachineLocation.Location;
+    Uri? IStateMachineLocation.Location { get; } = stateMachineLocation.Location;
 
 #endregion
 
 #region Interface IStateMachineSessionId
 
-	SessionId IStateMachineSessionId.SessionId { get; } = stateMachineSessionId.SessionId;
+    SessionId IStateMachineSessionId.SessionId { get; } = stateMachineSessionId.SessionId;
 
 #endregion
+
+    public void AddServices(IServiceCollection services)
+    {
+        services.AddConstant<IStateMachineSessionId>(this);
+        services.AddConstant<IStateMachineLocation>(this);
+        services.AddConstant<ICaseSensitivity>(this);
+        services.AddConstant<IExternalServiceInvokeId>(this);
+        services.AddConstant<IExternalServiceType>(this);
+        services.AddConstant<IExternalServiceSource>(this);
+        services.AddConstant<IExternalServiceParameters>(this);
+        services.AddConstant<IParentEventDispatcher>(this);
+    }
 }

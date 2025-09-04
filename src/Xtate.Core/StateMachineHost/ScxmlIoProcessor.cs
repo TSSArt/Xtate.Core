@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,122 +21,122 @@ namespace Xtate.Core;
 
 public class ScxmlIoProcessor(IExternalServiceInvokeId? externalServiceInvokeId, IStateMachineSessionId stateMachineSessionId) : IIoProcessor, IEventRouter
 {
-	private readonly ServiceId _senderServiceId = (ServiceId?) externalServiceInvokeId?.InvokeId ?? stateMachineSessionId.SessionId;
+    private readonly ServiceId _senderServiceId = (ServiceId?)externalServiceInvokeId?.InvokeId ?? stateMachineSessionId.SessionId;
 
-	public required IEventDispatcher? SelfEventDispatcher { private get; [UsedImplicitly] init; }
+    public required IEventDispatcher? SelfEventDispatcher { private get; [UsedImplicitly] init; }
 
-	public required IParentEventDispatcher? ParentEventDispatcher { private get; [UsedImplicitly] init; }
+    public required IParentEventDispatcher? ParentEventDispatcher { private get; [UsedImplicitly] init; }
 
-	public required IStateMachineCollection StateMachineCollection { private get; [UsedImplicitly] init; }
+    public required IStateMachineCollection StateMachineCollection { private get; [UsedImplicitly] init; }
 
 #region Interface IEventRouter
 
-	public bool CanHandle(FullUri? type) => type is null || type == Const.ScxmlIoProcessorId || type == Const.ScxmlIoProcessorAliasId;
+    public bool CanHandle(FullUri? type) => type is null || type == Const.ScxmlIoProcessorId || type == Const.ScxmlIoProcessorAliasId;
 
-	public bool IsInternalTarget(FullUri? target) => target == Const.InternalTarget || target == Const.ScxmlIoProcessorInternalTarget;
+    public bool IsInternalTarget(FullUri? target) => target == Const.InternalTarget || target == Const.ScxmlIoProcessorInternalTarget;
 
-	public ValueTask<IRouterEvent> GetRouterEvent(IOutgoingEvent outgoingEvent, CancellationToken token)
-	{
-		var targetServiceId = GetTargetServiceId(outgoingEvent.Target);
-		var origin = GetTarget(_senderServiceId);
+    public ValueTask<IRouterEvent> GetRouterEvent(IOutgoingEvent outgoingEvent, CancellationToken token)
+    {
+        var targetServiceId = GetTargetServiceId(outgoingEvent.Target);
+        var origin = GetTarget(_senderServiceId);
 
-		var routerEvent = new RouterEvent(_senderServiceId, targetServiceId, Const.ScxmlIoProcessorId, origin, outgoingEvent);
+        var routerEvent = new RouterEvent(_senderServiceId, targetServiceId, Const.ScxmlIoProcessorId, origin, outgoingEvent);
 
-		return new ValueTask<IRouterEvent>(routerEvent);
-	}
+        return new ValueTask<IRouterEvent>(routerEvent);
+    }
 
-	public ValueTask Dispatch(IRouterEvent routerEvent, CancellationToken token)
-	{
-		if (routerEvent.Target is null)
-		{
-			return SelfEventDispatcher?.Dispatch(routerEvent, token) ?? default;
-		}
+    public ValueTask Dispatch(IRouterEvent routerEvent, CancellationToken token)
+    {
+        if (routerEvent.Target is null)
+        {
+            return SelfEventDispatcher?.Dispatch(routerEvent, token) ?? default;
+        }
 
-		if (IsTargetParent(routerEvent.Target))
-		{
-			return ParentEventDispatcher?.Dispatch(routerEvent, token) ?? default;
-		}
+        if (IsTargetParent(routerEvent.Target))
+        {
+            return ParentEventDispatcher?.Dispatch(routerEvent, token) ?? default;
+        }
 
-		if (routerEvent.TargetServiceId is SessionId sessionId)
-		{
-			return StateMachineCollection.Dispatch(sessionId, routerEvent, token);
-		}
+        if (routerEvent.TargetServiceId is SessionId sessionId)
+        {
+            return StateMachineCollection.Dispatch(sessionId, routerEvent, token);
+        }
 
-		throw new ProcessorException(Resources.Exception_CannotFindTarget);
-	}
+        throw new ProcessorException(Resources.Exception_CannotFindTarget);
+    }
 
 #endregion
 
 #region Interface IIoProcessor
 
-	public FullUri? GetTarget(ServiceId serviceId) =>
-		serviceId switch
-		{
-			SessionId sessionId => new FullUri(Const.ScxmlIoProcessorBaseUri, Const.ScxmlIoProcessorSessionIdPrefix + sessionId.Value),
-			InvokeId invokeId   => new FullUri(Const.ScxmlIoProcessorBaseUri, Const.ScxmlIoProcessorInvokeIdPrefix + invokeId.Value),
-			_                   => default
-		};
+    public FullUri? GetTarget(ServiceId serviceId) =>
+        serviceId switch
+        {
+            SessionId sessionId => new FullUri(Const.ScxmlIoProcessorBaseUri, Const.ScxmlIoProcessorSessionIdPrefix + sessionId.Value),
+            InvokeId invokeId   => new FullUri(Const.ScxmlIoProcessorBaseUri, Const.ScxmlIoProcessorInvokeIdPrefix + invokeId.Value),
+            _                   => default
+        };
 
-	public FullUri Id => Const.ScxmlIoProcessorId;
+    public FullUri Id => Const.ScxmlIoProcessorId;
 
 #endregion
 
-	private ServiceId? GetTargetServiceId(FullUri? target)
-	{
-		if (target is null)
-		{
-			return default;
-		}
+    private ServiceId? GetTargetServiceId(FullUri? target)
+    {
+        if (target is null)
+        {
+            return default;
+        }
 
-		if (IsTargetParent(target))
-		{
-			return default;
-		}
+        if (IsTargetParent(target))
+        {
+            return default;
+        }
 
-		if (IsTargetSessionId(target, out var targetSessionId))
-		{
-			return targetSessionId;
-		}
+        if (IsTargetSessionId(target, out var targetSessionId))
+        {
+            return targetSessionId;
+        }
 
-		if (IsTargetInvokeId(target, out var targetInvokeId))
-		{
-			return targetInvokeId;
-		}
+        if (IsTargetInvokeId(target, out var targetInvokeId))
+        {
+            return targetInvokeId;
+        }
 
-		throw new ProcessorException(Resources.Exception_CannotFindTarget);
-	}
+        throw new ProcessorException(Resources.Exception_CannotFindTarget);
+    }
 
-	private static bool IsTargetParent(FullUri target) => target == Const.ParentTarget || target == Const.ScxmlIoProcessorParentTarget;
+    private static bool IsTargetParent(FullUri target) => target == Const.ParentTarget || target == Const.ScxmlIoProcessorParentTarget;
 
-	private static bool IsTargetSessionId(FullUri target, [NotNullWhen(true)] out SessionId? sessionId)
-	{
-		var value = target.ToString();
+    private static bool IsTargetSessionId(FullUri target, [NotNullWhen(true)] out SessionId? sessionId)
+    {
+        var value = target.ToString();
 
-		if (value.StartsWith(Const.ScxmlIoProcessorSessionIdPrefix, StringComparison.Ordinal))
-		{
-			sessionId = SessionId.FromString(value[Const.ScxmlIoProcessorSessionIdPrefix.Length..]);
+        if (value.StartsWith(Const.ScxmlIoProcessorSessionIdPrefix, StringComparison.Ordinal))
+        {
+            sessionId = SessionId.FromString(value[Const.ScxmlIoProcessorSessionIdPrefix.Length..]);
 
-			return true;
-		}
+            return true;
+        }
 
-		sessionId = default;
+        sessionId = default;
 
-		return false;
-	}
+        return false;
+    }
 
-	private static bool IsTargetInvokeId(FullUri target, [NotNullWhen(true)] out InvokeId? invokeId)
-	{
-		var value = target.ToString();
+    private static bool IsTargetInvokeId(FullUri target, [NotNullWhen(true)] out InvokeId? invokeId)
+    {
+        var value = target.ToString();
 
-		if (value.StartsWith(Const.ScxmlIoProcessorInvokeIdPrefix, StringComparison.Ordinal))
-		{
-			invokeId = InvokeId.FromString(value[Const.ScxmlIoProcessorInvokeIdPrefix.Length..]);
+        if (value.StartsWith(Const.ScxmlIoProcessorInvokeIdPrefix, StringComparison.Ordinal))
+        {
+            invokeId = InvokeId.FromString(value[Const.ScxmlIoProcessorInvokeIdPrefix.Length..]);
 
-			return true;
-		}
+            return true;
+        }
 
-		invokeId = default;
+        invokeId = default;
 
-		return false;
-	}
+        return false;
+    }
 }

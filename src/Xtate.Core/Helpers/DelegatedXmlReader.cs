@@ -1,4 +1,4 @@
-// Copyright © 2019-2024 Sergii Artemenko
+// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,108 +22,108 @@ namespace Xtate.Core;
 
 public abstract class DelegatedXmlReader : XmlReader, IXmlLineInfo
 {
-	protected DelegatedXmlReader(XmlReader innerReader)
-	{
-		Infra.Requires(innerReader);
+    protected DelegatedXmlReader(XmlReader innerReader)
+    {
+        Infra.Requires(innerReader);
 
-		InnerReader = innerReader;
-	}
+        InnerReader = innerReader;
+    }
 
-	protected XmlReader InnerReader { get; set; }
+    protected XmlReader InnerReader { get; set; }
 
-	[SuppressMessage(category: "ReSharper", checkId: "AssignNullToNotNullAttribute")]
-	public override string BaseURI => InnerReader.BaseURI;
+    [SuppressMessage(category: "ReSharper", checkId: "AssignNullToNotNullAttribute")]
+    public override string BaseURI => InnerReader.BaseURI;
 
-	public override int AttributeCount => InnerReader.AttributeCount;
+    public override int AttributeCount => InnerReader.AttributeCount;
 
-	public override int Depth => InnerReader.Depth;
+    public override int Depth => InnerReader.Depth;
 
-	public override bool EOF => InnerReader.EOF;
+    public override bool EOF => InnerReader.EOF;
 
-	public override bool HasValue => InnerReader.HasValue;
+    public override bool HasValue => InnerReader.HasValue;
 
-	public override bool IsDefault => InnerReader.IsDefault;
+    public override bool IsDefault => InnerReader.IsDefault;
 
-	public override bool IsEmptyElement => InnerReader.IsEmptyElement;
+    public override bool IsEmptyElement => InnerReader.IsEmptyElement;
 
-	[SuppressMessage(category: "ReSharper", checkId: "AssignNullToNotNullAttribute")]
-	public override string this[int i] => InnerReader[i];
+    [SuppressMessage(category: "ReSharper", checkId: "AssignNullToNotNullAttribute")]
+    public override string this[int i] => InnerReader[i];
 
-	public override string? this[string name] => InnerReader[name];
+    public override string? this[string name] => InnerReader[name];
 
-	public override string? this[string name, string? namespaceUri] => InnerReader[name, namespaceUri!];
+    public override string? this[string name, string? namespaceUri] => InnerReader[name, namespaceUri!];
 
-	public override string LocalName => InnerReader.LocalName;
+    public override string LocalName => InnerReader.LocalName;
 
-	public override string Name => InnerReader.Name;
+    public override string Name => InnerReader.Name;
 
-	public override string NamespaceURI => InnerReader.NamespaceURI;
+    public override string NamespaceURI => InnerReader.NamespaceURI;
 
-	[SuppressMessage(category: "ReSharper", checkId: "AssignNullToNotNullAttribute")]
-	public override XmlNameTable NameTable => InnerReader.NameTable;
+    [SuppressMessage(category: "ReSharper", checkId: "AssignNullToNotNullAttribute")]
+    public override XmlNameTable NameTable => InnerReader.NameTable;
 
-	public override XmlNodeType NodeType => InnerReader.NodeType;
+    public override XmlNodeType NodeType => InnerReader.NodeType;
 
-	public override string Prefix => InnerReader.Prefix;
+    public override string Prefix => InnerReader.Prefix;
 
-	public override char QuoteChar => InnerReader.QuoteChar;
+    public override char QuoteChar => InnerReader.QuoteChar;
 
-	public override ReadState ReadState => InnerReader.ReadState;
+    public override ReadState ReadState => InnerReader.ReadState;
 
-	public override string Value => InnerReader.Value;
+    public override string Value => InnerReader.Value;
 
-	public override string XmlLang => InnerReader.XmlLang;
+    public override string XmlLang => InnerReader.XmlLang;
 
-	public override XmlSpace XmlSpace => InnerReader.XmlSpace;
+    public override XmlSpace XmlSpace => InnerReader.XmlSpace;
 
-	public override XmlReaderSettings? Settings => InnerReader.Settings;
+    public override XmlReaderSettings? Settings => InnerReader.Settings;
 
-	public override Type ValueType => InnerReader.ValueType;
+    public override Type ValueType => InnerReader.ValueType;
 
-	public override bool HasAttributes => InnerReader.HasAttributes;
+    public override bool HasAttributes => InnerReader.HasAttributes;
 
-	public override IXmlSchemaInfo? SchemaInfo => InnerReader.SchemaInfo;
+    public override IXmlSchemaInfo? SchemaInfo => InnerReader.SchemaInfo;
 
 #region Interface IXmlLineInfo
 
-	public virtual bool HasLineInfo() => InnerReader is IXmlLineInfo lineInfo && lineInfo.HasLineInfo();
+    public virtual bool HasLineInfo() => InnerReader is IXmlLineInfo lineInfo && lineInfo.HasLineInfo();
 
-	public virtual int LineNumber => InnerReader is IXmlLineInfo lineInfo ? lineInfo.LineNumber : 0;
+    public virtual int LineNumber => InnerReader is IXmlLineInfo lineInfo ? lineInfo.LineNumber : 0;
 
-	public virtual int LinePosition => InnerReader is IXmlLineInfo lineInfo ? lineInfo.LinePosition : 0;
+    public virtual int LinePosition => InnerReader is IXmlLineInfo lineInfo ? lineInfo.LinePosition : 0;
 
 #endregion
 
-	public override bool Read() => InnerReader.Read();
+    public override bool Read() => InnerReader.Read();
 
-	public override Task<bool> ReadAsync() => InnerReader.ReadAsync();
+    public override Task<bool> ReadAsync() => InnerReader.ReadAsync();
 
-	public override Task<string> GetValueAsync() => InnerReader.GetValueAsync();
+    public override Task<string> GetValueAsync() => InnerReader.GetValueAsync();
 
-	public override void Close() => InnerReader.Close();
+    public override void Close() => InnerReader.Close();
 
-	[SuppressMessage(category: "ReSharper", checkId: "AssignNullToNotNullAttribute")]
-	public override string GetAttribute(int i) => InnerReader.GetAttribute(i);
+    [SuppressMessage(category: "ReSharper", checkId: "AssignNullToNotNullAttribute")]
+    public override string GetAttribute(int i) => InnerReader.GetAttribute(i);
 
-	public override string? GetAttribute(string name) => InnerReader.GetAttribute(name);
+    public override string? GetAttribute(string name) => InnerReader.GetAttribute(name);
 
-	public override string? GetAttribute(string localName, string? namespaceUri) => InnerReader.GetAttribute(localName, namespaceUri!);
+    public override string? GetAttribute(string localName, string? namespaceUri) => InnerReader.GetAttribute(localName, namespaceUri!);
 
-	public override string? LookupNamespace(string prefix) => InnerReader.LookupNamespace(prefix);
+    public override string? LookupNamespace(string prefix) => InnerReader.LookupNamespace(prefix);
 
-	public override void MoveToAttribute(int i) => InnerReader.MoveToAttribute(i);
+    public override void MoveToAttribute(int i) => InnerReader.MoveToAttribute(i);
 
-	public override bool MoveToAttribute(string name) => InnerReader.MoveToAttribute(name);
+    public override bool MoveToAttribute(string name) => InnerReader.MoveToAttribute(name);
 
-	public override bool MoveToAttribute(string localName, string? namespaceUri) => InnerReader.MoveToAttribute(localName, namespaceUri!);
+    public override bool MoveToAttribute(string localName, string? namespaceUri) => InnerReader.MoveToAttribute(localName, namespaceUri!);
 
-	public override bool MoveToElement() => InnerReader.MoveToElement();
+    public override bool MoveToElement() => InnerReader.MoveToElement();
 
-	public override bool MoveToFirstAttribute() => InnerReader.MoveToFirstAttribute();
+    public override bool MoveToFirstAttribute() => InnerReader.MoveToFirstAttribute();
 
-	public override bool MoveToNextAttribute() => InnerReader.MoveToNextAttribute();
+    public override bool MoveToNextAttribute() => InnerReader.MoveToNextAttribute();
 
-	public override bool ReadAttributeValue() => InnerReader.ReadAttributeValue();
+    public override bool ReadAttributeValue() => InnerReader.ReadAttributeValue();
 
-	public override void ResolveEntity() => InnerReader.ResolveEntity();
+    public override void ResolveEntity() => InnerReader.ResolveEntity();
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,22 +21,22 @@ namespace Xtate.Core;
 
 public class ResourceLoaderService : IResourceLoader
 {
-	public required IAsyncEnumerable<IResourceLoaderProvider> ResourceLoaderProviders { private get; [UsedImplicitly] init; }
+    public required IAsyncEnumerable<IResourceLoaderProvider> ResourceLoaderProviders { private get; [UsedImplicitly] init; }
 
 #region Interface IResourceLoader
 
-	public virtual async ValueTask<Resource> Request(Uri uri, NameValueCollection? headers = default)
-	{
-		await foreach (var resourceLoaderProvider in ResourceLoaderProviders.ConfigureAwait(false))
-		{
-			if (await resourceLoaderProvider.TryGetResourceLoader(uri).ConfigureAwait(false) is { } resourceLoader)
-			{
-				return await resourceLoader.Request(uri, headers).ConfigureAwait(false);
-			}
-		}
+    public virtual async ValueTask<Resource> Request(Uri uri, NameValueCollection? headers = default)
+    {
+        await foreach (var resourceLoaderProvider in ResourceLoaderProviders.ConfigureAwait(false))
+        {
+            if (await resourceLoaderProvider.TryGetResourceLoader(uri).ConfigureAwait(false) is { } resourceLoader)
+            {
+                return await resourceLoader.Request(uri, headers).ConfigureAwait(false);
+            }
+        }
 
-		throw new ProcessorException(Res.Format(Resources.Exception_CannotFindResourceLoaderToLoadExternalResource, uri));
-	}
+        throw new ProcessorException(Res.Format(Resources.Exception_CannotFindResourceLoaderToLoadExternalResource, uri));
+    }
 
 #endregion
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -23,35 +23,35 @@ public sealed class IdentifierNode(IIdentifier id) : IIdentifier, IStoreSupport,
 {
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => id;
+    object IAncestorProvider.Ancestor => id;
 
 #endregion
 
 #region Interface IDebugEntityId
 
-	FormattableString IDebugEntityId.EntityId => @$"{id}";
+    FormattableString IDebugEntityId.EntityId => @$"{id}";
 
 #endregion
 
 #region Interface IIdentifier
 
-	public string Value => id.Value;
+    public string Value => id.Value;
 
 #endregion
 
 #region Interface IStoreSupport
 
-	void IStoreSupport.Store(Bucket bucket)
-	{
-		bucket.Add(Key.TypeInfo, TypeInfo.IdentifierNode);
-		bucket.Add(Key.Id, id.Value);
-	}
+    void IStoreSupport.Store(Bucket bucket)
+    {
+        bucket.Add(Key.TypeInfo, TypeInfo.IdentifierNode);
+        bucket.Add(Key.Id, id.Value);
+    }
 
 #endregion
 
-	public override string ToString() => id.ToString() ?? string.Empty;
+    public override string ToString() => id.ToString() ?? string.Empty;
 
-	public override bool Equals(object? obj) => id.Equals(obj);
+    public override bool Equals(object? obj) => id.Equals(obj);
 
-	public override int GetHashCode() => id.GetHashCode();
+    public override int GetHashCode() => id.GetHashCode();
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,21 +21,21 @@ public abstract class IfEvaluator(IIf iif) : IIf, IExecEvaluator, IAncestorProvi
 {
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => iif;
+    object IAncestorProvider.Ancestor => iif;
 
 #endregion
 
 #region Interface IExecEvaluator
 
-	public abstract ValueTask Execute();
+    public abstract ValueTask Execute();
 
 #endregion
 
 #region Interface IIf
 
-	public virtual ImmutableArray<IExecutableEntity> Action => iif.Action;
+    public virtual ImmutableArray<IExecutableEntity> Action => iif.Action;
 
-	public virtual IConditionExpression? Condition => iif.Condition;
+    public virtual IConditionExpression? Condition => iif.Condition;
 
 #endregion
 }

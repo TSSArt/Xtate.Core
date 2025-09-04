@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,7 +19,7 @@ namespace Xtate;
 
 public enum ValidationMode
 {
-	Default = 0,
+    Default = 0,
 
-	Verbose = 1
+    Verbose = 1
 }

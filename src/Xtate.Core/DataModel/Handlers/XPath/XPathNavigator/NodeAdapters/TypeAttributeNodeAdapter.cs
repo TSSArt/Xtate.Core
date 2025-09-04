@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,11 +21,11 @@ namespace Xtate.DataModel.XPath;
 
 internal class TypeAttributeNodeAdapter : NodeAdapter
 {
-	public override XPathNodeType GetNodeType() => XPathNodeType.Attribute;
+    public override XPathNodeType GetNodeType() => XPathNodeType.Attribute;
 
-	public override string GetLocalName(in DataModelXPathNavigator.Node node) => XmlConverter.TypeAttributeName;
+    public override string GetLocalName(in DataModelXPathNavigator.Node node) => XmlConverter.TypeAttributeName;
 
-	public override string GetNamespaceUri(in DataModelXPathNavigator.Node node) => XmlConverter.XPathElementNamespace;
+    public override string GetNamespaceUri(in DataModelXPathNavigator.Node node) => XmlConverter.XPathElementNamespace;
 
-	public override string GetValue(in DataModelXPathNavigator.Node node) => node.DataModelValue.AsString();
+    public override string GetValue(in DataModelXPathNavigator.Node node) => node.DataModelValue.AsString();
 }

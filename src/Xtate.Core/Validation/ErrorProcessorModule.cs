@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,10 +21,10 @@ namespace Xtate.Core;
 
 public class ErrorProcessorModule : Module
 {
-	protected override void AddServices()
-	{
-		Services.AddImplementationSync<DefaultErrorProcessor>().For<IErrorProcessor>();
-		Services.AddImplementationSync<ErrorProcessorService<Any>>().For<IErrorProcessorService<Any>>();
-		Services.AddImplementation<StateMachineValidator>().For<IStateMachineValidator>();
-	}
+    protected override void AddServices()
+    {
+        Services.AddImplementationSync<DefaultErrorProcessor>().For<IErrorProcessor>();
+        Services.AddImplementationSync<ErrorProcessorService<Any>>().For<IErrorProcessorService<Any>>();
+        Services.AddImplementation<StateMachineValidator>().For<IStateMachineValidator>();
+    }
 }

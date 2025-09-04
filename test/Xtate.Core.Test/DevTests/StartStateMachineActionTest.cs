@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -20,12 +20,12 @@ namespace Xtate.Test.DevTests;
 [TestClass]
 public class StartStateMachineActionTest
 {
-	[TestMethod]
-	public void RunStateMachineTest()
-	{
-		// arrange
+    [TestMethod]
+    public void RunStateMachineTest()
+    {
+        // arrange
 
-		// act
-		//await Host.ExecuteAsync(".\\Resources\\All.xml");
-	}
+        // act
+        //await Host.ExecuteAsync(".\\Resources\\All.xml");
+    }
 }

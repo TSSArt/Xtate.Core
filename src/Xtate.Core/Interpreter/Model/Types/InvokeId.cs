@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,54 +21,54 @@ namespace Xtate;
 
 public sealed class UniqueInvokeId : InvokeId
 {
-	internal UniqueInvokeId(InvokeId? invokeId, IIdentifier stateId) : base(stateId) => InvokeId = invokeId ?? this;
+    internal UniqueInvokeId(InvokeId? invokeId, IIdentifier stateId) : base(stateId) => InvokeId = invokeId ?? this;
 
-	internal UniqueInvokeId(string uniqueInvokeId) : base(uniqueInvokeId) => InvokeId = this;
+    internal UniqueInvokeId(string uniqueInvokeId) : base(uniqueInvokeId) => InvokeId = this;
 
-	public InvokeId InvokeId { get; }
+    public InvokeId InvokeId { get; }
 }
 
 [Serializable]
 public class InvokeId : ServiceId, IEquatable<InvokeId>
 {
-	private readonly IIdentifier? _stateId;
+    private readonly IIdentifier? _stateId;
 
-	private InvokeId(IIdentifier stateId, string invokeId) : base(invokeId)
-	{
-		_stateId = stateId;
-		UniqueId = new UniqueInvokeId(this, _stateId);
-	}
+    private InvokeId(IIdentifier stateId, string invokeId) : base(invokeId)
+    {
+        _stateId = stateId;
+        UniqueId = new UniqueInvokeId(this, _stateId);
+    }
 
-	private InvokeId(string invokeId, string uniqueInvokeId) : base(invokeId) => UniqueId = new UniqueInvokeId(uniqueInvokeId);
+    private InvokeId(string invokeId, string uniqueInvokeId) : base(invokeId) => UniqueId = new UniqueInvokeId(uniqueInvokeId);
 
-	private protected InvokeId(IIdentifier stateId)
-	{
-		_stateId = stateId;
-		UniqueId = (UniqueInvokeId)this;
-	}
+    private protected InvokeId(IIdentifier stateId)
+    {
+        _stateId = stateId;
+        UniqueId = (UniqueInvokeId)this;
+    }
 
-	private protected InvokeId(string uniqueInvokeId) : base(uniqueInvokeId) => UniqueId = (UniqueInvokeId)this;
+    private protected InvokeId(string uniqueInvokeId) : base(uniqueInvokeId) => UniqueId = (UniqueInvokeId)this;
 
-	public override string ServiceType => nameof(InvokeId);
+    public override string ServiceType => nameof(InvokeId);
 
-	public UniqueInvokeId UniqueId { get; }
+    public UniqueInvokeId UniqueId { get; }
 
 #region Interface IEquatable<InvokeId>
 
-	public bool Equals(InvokeId? other) => FastEqualsNoTypeCheck(other);
+    public bool Equals(InvokeId? other) => FastEqualsNoTypeCheck(other);
 
 #endregion
 
-	protected override string GenerateId() => IdGenerator.NewInvokeId(_stateId!.Value, GetHashCode());
+    protected override string GenerateId() => IdGenerator.NewInvokeId(_stateId!.Value, GetHashCode());
 
-	public override int GetHashCode() => base.GetHashCode();
+    public override int GetHashCode() => base.GetHashCode();
 
-	public override bool Equals(object? obj) => ReferenceEquals(this, obj) || (obj is InvokeId other && Equals(other));
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || (obj is InvokeId other && Equals(other));
 
-	public static InvokeId New(IIdentifier stateId, [Localizable(false)] string? invokeId) => invokeId is null ? new UniqueInvokeId(default, stateId) : new InvokeId(stateId, invokeId);
+    public static InvokeId New(IIdentifier stateId, [Localizable(false)] string? invokeId) => invokeId is null ? new UniqueInvokeId(invokeId: default, stateId) : new InvokeId(stateId, invokeId);
 
-	public static InvokeId FromString([Localizable(false)] string uniqueInvokeId) => new UniqueInvokeId(uniqueInvokeId);
+    public static InvokeId FromString([Localizable(false)] string uniqueInvokeId) => new UniqueInvokeId(uniqueInvokeId);
 
-	public static InvokeId FromString([Localizable(false)] string invokeId, [Localizable(false)] string uniqueInvokeId) =>
-		invokeId == uniqueInvokeId ? new UniqueInvokeId(uniqueInvokeId) : new InvokeId(invokeId, uniqueInvokeId);
+    public static InvokeId FromString([Localizable(false)] string invokeId, [Localizable(false)] string uniqueInvokeId) =>
+        invokeId == uniqueInvokeId ? new UniqueInvokeId(uniqueInvokeId) : new InvokeId(invokeId, uniqueInvokeId);
 }

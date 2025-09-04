@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,11 +19,11 @@ namespace Xtate;
 
 public interface IData : IEntity
 {
-	string? Id { get; }
+    string? Id { get; }
 
-	IExternalDataExpression? Source { get; }
+    IExternalDataExpression? Source { get; }
 
-	IValueExpression? Expression { get; }
+    IValueExpression? Expression { get; }
 
-	IInlineContent? InlineContent { get; }
+    IInlineContent? InlineContent { get; }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,21 +21,21 @@ public abstract class ScriptEvaluator(IScript script) : IScript, IExecEvaluator,
 {
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => script;
+    object IAncestorProvider.Ancestor => script;
 
 #endregion
 
 #region Interface IExecEvaluator
 
-	public abstract ValueTask Execute();
+    public abstract ValueTask Execute();
 
 #endregion
 
 #region Interface IScript
 
-	public virtual IScriptExpression? Content => script.Content;
+    public virtual IScriptExpression? Content => script.Content;
 
-	public virtual IExternalScriptExpression? Source => script.Source;
+    public virtual IExternalScriptExpression? Source => script.Source;
 
 #endregion
 }

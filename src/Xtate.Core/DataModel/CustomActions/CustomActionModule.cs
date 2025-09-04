@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,9 +22,9 @@ namespace Xtate.DataModel;
 
 public class CustomActionModule : Module
 {
-	protected override void AddServices()
-	{
-		Services.AddTypeSync<CustomActionContainer, ICustomAction>();
-		Services.AddSharedFactorySync<CustomActionFactory>(SharedWithin.Scope).For<IAction, ICustomAction>(Option.DoNotDispose);
-	}
+    protected override void AddServices()
+    {
+        Services.AddTypeSync<CustomActionContainer, ICustomAction>();
+        Services.AddSharedFactorySync<CustomActionFactory>(SharedWithin.Scope).For<IAction, ICustomAction>(Option.DoNotDispose);
+    }
 }

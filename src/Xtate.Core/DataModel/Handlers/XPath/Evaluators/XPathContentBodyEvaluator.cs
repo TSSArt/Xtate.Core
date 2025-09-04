@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,7 +19,7 @@ namespace Xtate.DataModel.XPath;
 
 public class XPathContentBodyEvaluator(IContentBody contentBody) : DefaultContentBodyEvaluator(contentBody)
 {
-	public required XPathXmlParserContextFactory XPathXmlParserContextFactory { private get; [UsedImplicitly] init; }
+    public required XPathXmlParserContextFactory XPathXmlParserContextFactory { private get; [UsedImplicitly] init; }
 
-	protected override DataModelValue ParseToDataModel() => Value is not null ? XmlConverter.FromXml(Value, XPathXmlParserContextFactory.CreateContext(this)) : DataModelValue.Null;
+    protected override DataModelValue ParseToDataModel() => Value is not null ? XmlConverter.FromXml(Value, XPathXmlParserContextFactory.CreateContext(this)) : DataModelValue.Null;
 }

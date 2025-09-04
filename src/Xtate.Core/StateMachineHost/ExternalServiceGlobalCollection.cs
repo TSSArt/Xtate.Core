@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,47 +21,47 @@ namespace Xtate.Core;
 
 public class ExternalServiceGlobalCollection : IExternalServiceGlobalCollection
 {
-	private readonly ExtDictionary<UniqueInvokeId, IExternalService> _externalServices = [];
+    private readonly ExtDictionary<UniqueInvokeId, IExternalService> _externalServices = [];
 
-#region Interface IExternalServiceCollection
+#region Interface IExternalServiceGlobalCollection
 
-	public void Register(UniqueInvokeId uniqueInvokeId)
-	{
-		var tryAddPending = _externalServices.TryAddPending(uniqueInvokeId);
+    public void Register(UniqueInvokeId uniqueInvokeId)
+    {
+        var tryAddPending = _externalServices.TryAddPending(uniqueInvokeId);
 
-		Infra.Assert(tryAddPending);
-	}
+        Infra.Assert(tryAddPending);
+    }
 
-	public void SetExternalService(UniqueInvokeId uniqueInvokeId, IExternalService externalService)
-	{
-		var tryAdd = _externalServices.TryAdd(uniqueInvokeId, externalService);
+    public void SetExternalService(UniqueInvokeId uniqueInvokeId, IExternalService externalService)
+    {
+        var tryAdd = _externalServices.TryAdd(uniqueInvokeId, externalService);
 
-		Infra.Assert(tryAdd);
-	}
+        Infra.Assert(tryAdd);
+    }
 
-	public void Unregister(UniqueInvokeId uniqueInvokeId) => _externalServices.TryRemove(uniqueInvokeId, out _);
+    public void Unregister(UniqueInvokeId uniqueInvokeId) => _externalServices.TryRemove(uniqueInvokeId, out _);
 
-	public async ValueTask<bool> TryDispatch(UniqueInvokeId uniqueInvokeId, IIncomingEvent incomingEvent, CancellationToken token)
-	{
-		var (found, externalService) = await _externalServices.TryGetValueAsync(uniqueInvokeId).ConfigureAwait(false);
+    public async ValueTask<bool> TryDispatch(UniqueInvokeId uniqueInvokeId, IIncomingEvent incomingEvent, CancellationToken token)
+    {
+        var (found, externalService) = await _externalServices.TryGetValueAsync(uniqueInvokeId).ConfigureAwait(false);
 
-		if (!found)
-		{
-			return false;
-		}
+        if (!found)
+        {
+            return false;
+        }
 
-		if (externalService is IEventDispatcher eventDispatcher)
-		{
-			if (incomingEvent is not IncomingEvent)
-			{
-				incomingEvent = new IncomingEvent(incomingEvent);
-			}
+        if (externalService is IEventDispatcher eventDispatcher)
+        {
+            if (incomingEvent is not IncomingEvent)
+            {
+                incomingEvent = new IncomingEvent(incomingEvent);
+            }
 
-			await eventDispatcher.Dispatch(incomingEvent, token).ConfigureAwait(false);
-		}
+            await eventDispatcher.Dispatch(incomingEvent, token).ConfigureAwait(false);
+        }
 
-		return true;
-	}
+        return true;
+    }
 
 #endregion
 }

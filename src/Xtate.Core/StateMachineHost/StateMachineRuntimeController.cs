@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,103 +21,105 @@ namespace Xtate.Core;
 
 public class StateMachineRuntimeController : StateMachineControllerBase
 {
-	private static readonly UnboundedChannelOptions UnboundedSynchronousChannelOptions = new() { SingleReader = true, AllowSynchronousContinuations = true };
+    private static readonly UnboundedChannelOptions UnboundedSynchronousChannelOptions = new() { SingleReader = true, AllowSynchronousContinuations = true };
 
-	private static readonly UnboundedChannelOptions UnboundedAsynchronousChannelOptions = new() { SingleReader = true, AllowSynchronousContinuations = false };
+    private static readonly UnboundedChannelOptions UnboundedAsynchronousChannelOptions = new() { SingleReader = true, AllowSynchronousContinuations = false };
 
-	private readonly TimeSpan? _idlePeriod;
+    private readonly TimeSpan? _idlePeriod;
 
-	private CancellationTokenSource? _suspendOnIdleTokenSource;
+    private CancellationTokenSource? _suspendOnIdleTokenSource;
 
-	private CancellationTokenSource? _suspendTokenSource;
+    private CancellationTokenSource? _suspendTokenSource;
 
-	//TODO:delete
-	[Obsolete]
-	public StateMachineRuntimeController(SessionId sessionId,
-										 IStateMachineOptions? options,
-										 IStateMachine? stateMachine,
-										 Uri? stateMachineLocation,
-										 //IStateMachineHost stateMachineHost,
-										 TimeSpan? idlePeriod /*,
-										 InterpreterOptions defaultOptions*/)
-		: base(sessionId, options, stateMachine, stateMachineLocation/*, defaultOptions*/)
-	{
-		_idlePeriod = idlePeriod;
+    //TODO:delete
+    [Obsolete]
+    public StateMachineRuntimeController(SessionId sessionId,
+                                         IStateMachineOptions? options,
+                                         IStateMachine? stateMachine,
+                                         Uri? stateMachineLocation,
 
-		EventChannel = CreateChannel(options);
-	}
+                                         //IStateMachineHost stateMachineHost,
+                                         TimeSpan? idlePeriod /*,
+                                         InterpreterOptions defaultOptions*/)
+        : base(sessionId, options, stateMachine, stateMachineLocation /*, defaultOptions*/)
+    {
+        _idlePeriod = idlePeriod;
 
-	public StateMachineRuntimeController(IStateMachineSessionId stateMachineSessionId,
-										 IStateMachineOptions? options,
-										 IStateMachine? stateMachine,
-										 IStateMachineLocation? stateMachineLocation,
-										 //IStateMachineHost stateMachineHost,
-										 IStateMachineIdlePeriod? idlePeriod)
-		: base(stateMachineSessionId.SessionId, options, stateMachine, stateMachineLocation?.Location /*,  defaultOptions.optionsnew InterpreterOptions()*/)
-	{
-		_idlePeriod = idlePeriod?.IdlePeriod;
+        EventChannel = CreateChannel(options);
+    }
 
-		EventChannel = CreateChannel(options);
-	}
+    public StateMachineRuntimeController(IStateMachineSessionId stateMachineSessionId,
+                                         IStateMachineOptions? options,
+                                         IStateMachine? stateMachine,
+                                         IStateMachineLocation? stateMachineLocation,
 
-	protected override Channel<IIncomingEvent> EventChannel { get; }
+                                         //IStateMachineHost stateMachineHost,
+                                         IStateMachineIdlePeriod? idlePeriod)
+        : base(stateMachineSessionId.SessionId, options, stateMachine, stateMachineLocation?.Location /*,  defaultOptions.optionsnew InterpreterOptions()*/)
+    {
+        _idlePeriod = idlePeriod?.IdlePeriod;
 
-	private static Channel<IIncomingEvent> CreateChannel(IStateMachineOptions? options)
-	{
-		if (options is null)
-		{
-			return Channel.CreateUnbounded<IIncomingEvent>(UnboundedAsynchronousChannelOptions);
-		}
+        EventChannel = CreateChannel(options);
+    }
 
-		var sync = options.SynchronousEventProcessing ?? false;
-		var queueSize = options.ExternalQueueSize ?? 0;
+    protected override Channel<IIncomingEvent> EventChannel { get; }
 
-		if (options.IsStateMachinePersistable() || queueSize <= 0)
-		{
-			return Channel.CreateUnbounded<IIncomingEvent>(sync ? UnboundedSynchronousChannelOptions : UnboundedAsynchronousChannelOptions);
-		}
+    private static Channel<IIncomingEvent> CreateChannel(IStateMachineOptions? options)
+    {
+        if (options is null)
+        {
+            return Channel.CreateUnbounded<IIncomingEvent>(UnboundedAsynchronousChannelOptions);
+        }
 
-		var channelOptions = new BoundedChannelOptions(queueSize) { AllowSynchronousContinuations = sync, SingleReader = true };
+        var sync = options.SynchronousEventProcessing ?? false;
+        var queueSize = options.ExternalQueueSize ?? 0;
 
-		return Channel.CreateBounded<IIncomingEvent>(channelOptions);
-	}
+        if (options.IsStateMachinePersistable() || queueSize <= 0)
+        {
+            return Channel.CreateUnbounded<IIncomingEvent>(sync ? UnboundedSynchronousChannelOptions : UnboundedAsynchronousChannelOptions);
+        }
 
-	protected override void StateChanged(StateMachineInterpreterState state)
-	{
-		base.StateChanged(state);
+        var channelOptions = new BoundedChannelOptions(queueSize) { AllowSynchronousContinuations = sync, SingleReader = true };
 
-		if (state == StateMachineInterpreterState.Waiting && _suspendOnIdleTokenSource is { } src && _idlePeriod is { } delay)
-		{
-			src.CancelAfter(delay);
-		}
-	}
+        return Channel.CreateBounded<IIncomingEvent>(channelOptions);
+    }
 
-	protected override ValueTask DisposeAsyncCore()
-	{
-		_suspendTokenSource?.Dispose();
-		_suspendOnIdleTokenSource?.Dispose();
+    protected override void StateChanged(StateMachineInterpreterState state)
+    {
+        base.StateChanged(state);
 
-		return base.DisposeAsyncCore();
-	}
+        if (state == StateMachineInterpreterState.Waiting && _suspendOnIdleTokenSource is { } src && _idlePeriod is { } delay)
+        {
+            src.CancelAfter(delay);
+        }
+    }
 
-	protected override CancellationToken GetSuspendToken()
-	{
-		var defaultSuspendToken = base.GetSuspendToken();
+    protected override ValueTask DisposeAsyncCore()
+    {
+        _suspendTokenSource?.Dispose();
+        _suspendOnIdleTokenSource?.Dispose();
 
-		if (_idlePeriod is not { Ticks: >= 0 } idlePeriod)
-		{
-			return defaultSuspendToken;
-		}
+        return base.DisposeAsyncCore();
+    }
 
-		_suspendTokenSource?.Dispose();
-		_suspendOnIdleTokenSource?.Dispose();
+    protected override CancellationToken GetSuspendToken()
+    {
+        var defaultSuspendToken = base.GetSuspendToken();
 
-		_suspendOnIdleTokenSource = new CancellationTokenSource(idlePeriod);
+        if (_idlePeriod is not { Ticks: >= 0 } idlePeriod)
+        {
+            return defaultSuspendToken;
+        }
 
-		_suspendTokenSource = defaultSuspendToken.CanBeCanceled
-			? CancellationTokenSource.CreateLinkedTokenSource(defaultSuspendToken, _suspendOnIdleTokenSource.Token)
-			: _suspendOnIdleTokenSource;
+        _suspendTokenSource?.Dispose();
+        _suspendOnIdleTokenSource?.Dispose();
 
-		return _suspendTokenSource.Token;
-	}
+        _suspendOnIdleTokenSource = new CancellationTokenSource(idlePeriod);
+
+        _suspendTokenSource = defaultSuspendToken.CanBeCanceled
+            ? CancellationTokenSource.CreateLinkedTokenSource(defaultSuspendToken, _suspendOnIdleTokenSource.Token)
+            : _suspendOnIdleTokenSource;
+
+        return _suspendTokenSource.Token;
+    }
 }

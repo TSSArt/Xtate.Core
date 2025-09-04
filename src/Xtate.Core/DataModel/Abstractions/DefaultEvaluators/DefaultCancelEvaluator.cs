@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,23 +19,23 @@ namespace Xtate.DataModel;
 
 public class DefaultCancelEvaluator : CancelEvaluator
 {
-	private readonly IStringEvaluator? _sendIdExpressionEvaluator;
+    private readonly IStringEvaluator? _sendIdExpressionEvaluator;
 
-	public DefaultCancelEvaluator(ICancel cancel) : base(cancel) => _sendIdExpressionEvaluator = base.SendIdExpression?.As<IStringEvaluator>();
+    public DefaultCancelEvaluator(ICancel cancel) : base(cancel) => _sendIdExpressionEvaluator = base.SendIdExpression?.As<IStringEvaluator>();
 
-	public required Deferred<IEventController> EventController { private get; [UsedImplicitly] init; }
+    public required Deferred<IEventController> EventController { private get; [UsedImplicitly] init; }
 
-	public override async ValueTask Execute()
-	{
-		var sendId = _sendIdExpressionEvaluator is not null ? await _sendIdExpressionEvaluator.EvaluateString().ConfigureAwait(false) : base.SendId;
+    public override async ValueTask Execute()
+    {
+        var sendId = _sendIdExpressionEvaluator is not null ? await _sendIdExpressionEvaluator.EvaluateString().ConfigureAwait(false) : base.SendId;
 
-		if (string.IsNullOrEmpty(sendId))
-		{
-			throw new ExecutionException(Resources.Exception_SendIdIsEmpty);
-		}
+        if (string.IsNullOrEmpty(sendId))
+        {
+            throw new ExecutionException(Resources.Exception_SendIdIsEmpty);
+        }
 
-		var eventController = await EventController().ConfigureAwait(false);
+        var eventController = await EventController().ConfigureAwait(false);
 
-		await eventController.Cancel(Xtate.SendId.FromString(sendId)).ConfigureAwait(false);
-	}
+        await eventController.Cancel(Xtate.SendId.FromString(sendId)).ConfigureAwait(false);
+    }
 }

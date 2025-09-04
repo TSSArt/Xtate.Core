@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -24,23 +24,23 @@ namespace Xtate.Test;
 
 public static class StateMachineGenerator
 {
-	private static IStateMachine FromScxml(string scxml)
-	{
-		using var stringReader = new StringReader(scxml);
-		XmlNameTable nt = new NameTable();
-		var xmlNamespaceManager = new XmlNamespaceManager(nt);
-		using var xmlReader = XmlReader.Create(stringReader, settings: null, new XmlParserContext(nt, xmlNamespaceManager, xmlLang: default, xmlSpace: default));
+    private static IStateMachine FromScxml(string scxml)
+    {
+        using var stringReader = new StringReader(scxml);
+        XmlNameTable nt = new NameTable();
+        var xmlNamespaceManager = new XmlNamespaceManager(nt);
+        using var xmlReader = XmlReader.Create(stringReader, settings: null, new XmlParserContext(nt, xmlNamespaceManager, xmlLang: default, xmlSpace: default));
 
-		var services = new ServiceCollection();
-		services.AddModule<ScxmlModule>();
+        var services = new ServiceCollection();
+        services.AddModule<ScxmlModule>();
 
-		var provider = services.BuildProvider();
+        var provider = services.BuildProvider();
 
-		var sd = provider.GetRequiredServiceSync<IScxmlDeserializer>();
+        var sd = provider.GetRequiredServiceSync<IScxmlDeserializer>();
 
-		return sd.Deserialize(xmlReader).Result;
-	}
+        return sd.Deserialize(xmlReader).Result;
+    }
 
-	public static IStateMachine FromInnerScxml_EcmaScript(string innerScxml) =>
-		FromScxml("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' datamodel='ecmascript'>" + innerScxml + "</scxml>");
+    public static IStateMachine FromInnerScxml_EcmaScript(string innerScxml) =>
+        FromScxml("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' datamodel='ecmascript'>" + innerScxml + "</scxml>");
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -33,421 +33,427 @@ public class MyActionProvider() : ActionProvider<MyAction>(ns: "http://xtate.net
 
 public class MyAction(XmlReader xmlReader) : SyncAction
 {
-	private readonly ObjectValue _input = new(xmlReader.GetAttribute("sourceExpr"), xmlReader.GetAttribute("source"));
+    private readonly ObjectValue _input = new(xmlReader.GetAttribute("sourceExpr"), xmlReader.GetAttribute("source"));
 
-	private readonly Location _output = new(xmlReader.GetAttribute("destination"));
+    private readonly Location _output = new(xmlReader.GetAttribute("destination"));
 
-	protected override IEnumerable<Value> GetValues() { yield return _input; }
+    protected override IEnumerable<Value> GetValues()
+    {
+        yield return _input;
+    }
 
-	protected override IEnumerable<Location> GetLocations() { yield return _output; }
+    protected override IEnumerable<Location> GetLocations()
+    {
+        yield return _output;
+    }
 
-	protected override DataModelValue Evaluate() => _input.Value;
+    protected override DataModelValue Evaluate() => _input.Value;
 }
 
 [TestClass]
 public class RegisterClassTest
 {
-	[TestMethod]
-	public async Task NullDataModelHandlerTest()
-	{
-		// Arrange
+    [TestMethod]
+    public async Task NullDataModelHandlerTest()
+    {
+        // Arrange
 
-		var services = new ServiceCollection();
-		services.AddModule<NullDataModelHandlerModule>();
-		services.AddSharedImplementationSync<AssemblyTypeInfo, Type>(SharedWithin.Container).For<IAssemblyTypeInfo>();
-		var provider = services.BuildProvider();
+        var services = new ServiceCollection();
+        services.AddModule<NullDataModelHandlerModule>();
+        services.AddSharedImplementationSync<AssemblyTypeInfo, Type>(SharedWithin.Container).For<IAssemblyTypeInfo>();
+        var provider = services.BuildProvider();
 
-		var dataModelHandler = await provider.GetRequiredService<IDataModelHandler>();
-		var caseSensitivity = await provider.GetRequiredService<ICaseSensitivity>();
-		var typeInfo = provider.GetRequiredServiceSync<IAssemblyTypeInfo, Type>(dataModelHandler.GetType());
+        var dataModelHandler = await provider.GetRequiredService<IDataModelHandler>();
+        var caseSensitivity = await provider.GetRequiredService<ICaseSensitivity>();
+        var typeInfo = provider.GetRequiredServiceSync<IAssemblyTypeInfo, Type>(dataModelHandler.GetType());
 
-		// Act
+        // Act
 
-		IExecutableEntity ifEntity = new IfEntity { Action = [new LogEntity()], Condition = new ConditionExpression { Expression = "In(SomeState)" } };
+        IExecutableEntity ifEntity = new IfEntity { Action = [new LogEntity()], Condition = new ConditionExpression { Expression = "In(SomeState)" } };
 
-		dataModelHandler.Process(ref ifEntity);
+        dataModelHandler.Process(ref ifEntity);
 
-		// Assert
+        // Assert
 
-		Assert.AreEqual(expected: "Xtate.DataModel.Null.NullDataModelHandler", typeInfo.FullTypeName);
-		Assert.IsFalse(caseSensitivity.CaseInsensitive);
-	}
+        Assert.AreEqual(expected: "Xtate.DataModel.Null.NullDataModelHandler", typeInfo.FullTypeName);
+        Assert.IsFalse(caseSensitivity.CaseInsensitive);
+    }
 
-	[TestMethod]
-	public async Task RuntimeDataModelHandlerTest()
-	{
-		// Arrange
-		var services = new ServiceCollection();
-		services.AddModule<RuntimeDataModelHandlerModule>();
-		services.AddSharedImplementationSync<AssemblyTypeInfo, Type>(SharedWithin.Container).For<IAssemblyTypeInfo>();
-		services.AddMock<IInStateController>();
-		services.AddMock<ILogController>();
-		services.AddMock<IEventController>();
-		services.AddMock<IInvokeController>();
-		services.AddMock<IDataModelController>();
-		var provider = services.BuildProvider();
+    [TestMethod]
+    public async Task RuntimeDataModelHandlerTest()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        services.AddModule<RuntimeDataModelHandlerModule>();
+        services.AddSharedImplementationSync<AssemblyTypeInfo, Type>(SharedWithin.Container).For<IAssemblyTypeInfo>();
+        services.AddMock<IInStateController>();
+        services.AddMock<ILogController>();
+        services.AddMock<IEventController>();
+        services.AddMock<IInvokeController>();
+        services.AddMock<IDataModelController>();
+        var provider = services.BuildProvider();
 
-		var dataModelHandler = await provider.GetRequiredService<IDataModelHandler>();
-		var caseSensitivity = await provider.GetRequiredService<ICaseSensitivity>();
-		var typeInfo = provider.GetRequiredServiceSync<IAssemblyTypeInfo, Type>(dataModelHandler.GetType());
+        var dataModelHandler = await provider.GetRequiredService<IDataModelHandler>();
+        var caseSensitivity = await provider.GetRequiredService<ICaseSensitivity>();
+        var typeInfo = provider.GetRequiredServiceSync<IAssemblyTypeInfo, Type>(dataModelHandler.GetType());
 
-		// Act
+        // Act
 
-		IExecutableEntity ifEntity = new IfEntity { Action = [new LogEntity()], Condition = RuntimePredicate.GetPredicate(() => !Runtime.InState("4")) };
+        IExecutableEntity ifEntity = new IfEntity { Action = [new LogEntity()], Condition = RuntimePredicate.GetPredicate(() => !Runtime.InState("4")) };
 
-		dataModelHandler.Process(ref ifEntity);
+        dataModelHandler.Process(ref ifEntity);
 
-		var booleanEvaluator = (IBooleanEvaluator) ((IIf) ifEntity).Condition!;
-		var val = await booleanEvaluator.EvaluateBoolean();
+        var booleanEvaluator = (IBooleanEvaluator)((IIf)ifEntity).Condition!;
+        var val = await booleanEvaluator.EvaluateBoolean();
 
-		// Assert
+        // Assert
 
-		Assert.AreEqual(expected: "Xtate.DataModel.Runtime.RuntimeDataModelHandler", typeInfo.FullTypeName);
-		Assert.IsFalse(caseSensitivity.CaseInsensitive);
-		Assert.IsTrue(val);
-	}
+        Assert.AreEqual(expected: "Xtate.DataModel.Runtime.RuntimeDataModelHandler", typeInfo.FullTypeName);
+        Assert.IsFalse(caseSensitivity.CaseInsensitive);
+        Assert.IsTrue(val);
+    }
 
-	[TestMethod]
-	public async Task XPathDataModelHandlerTest()
-	{
-		// Arrange
+    [TestMethod]
+    public async Task XPathDataModelHandlerTest()
+    {
+        // Arrange
 
-		var services = new ServiceCollection();
-		services.AddModule<XPathDataModelHandlerModule>();
-		services.AddSharedImplementationSync<AssemblyTypeInfo, Type>(SharedWithin.Container).For<IAssemblyTypeInfo>();
-		services.AddMock<IInStateController>();
-		var provider = services.BuildProvider();
+        var services = new ServiceCollection();
+        services.AddModule<XPathDataModelHandlerModule>();
+        services.AddSharedImplementationSync<AssemblyTypeInfo, Type>(SharedWithin.Container).For<IAssemblyTypeInfo>();
+        services.AddMock<IInStateController>();
+        var provider = services.BuildProvider();
 
-		var dataModelHandler = await provider.GetRequiredService<IDataModelHandler>();
-		var typeInfo = provider.GetRequiredServiceSync<IAssemblyTypeInfo, Type>(dataModelHandler.GetType());
-		var caseSensitivity = await provider.GetRequiredService<ICaseSensitivity>();
+        var dataModelHandler = await provider.GetRequiredService<IDataModelHandler>();
+        var typeInfo = provider.GetRequiredServiceSync<IAssemblyTypeInfo, Type>(dataModelHandler.GetType());
+        var caseSensitivity = await provider.GetRequiredService<ICaseSensitivity>();
 
-		// Act
+        // Act
 
-		IExecutableEntity ifEntity = new IfEntity { Action = [new LogEntity()], Condition = new ConditionExpression { Expression = "In('st') = false()" } };
+        IExecutableEntity ifEntity = new IfEntity { Action = [new LogEntity()], Condition = new ConditionExpression { Expression = "In('st') = false()" } };
 
-		dataModelHandler.Process(ref ifEntity);
+        dataModelHandler.Process(ref ifEntity);
 
-		var booleanEvaluator = (IBooleanEvaluator) ((IIf) ifEntity).Condition!;
-		var val = await booleanEvaluator.EvaluateBoolean();
+        var booleanEvaluator = (IBooleanEvaluator)((IIf)ifEntity).Condition!;
+        var val = await booleanEvaluator.EvaluateBoolean();
 
-		// Assert
+        // Assert
 
-		Assert.AreEqual(expected: "Xtate.DataModel.XPath.XPathDataModelHandler", typeInfo.FullTypeName);
-		Assert.IsFalse(caseSensitivity.CaseInsensitive);
-		Assert.IsTrue(val);
-	}
+        Assert.AreEqual(expected: "Xtate.DataModel.XPath.XPathDataModelHandler", typeInfo.FullTypeName);
+        Assert.IsFalse(caseSensitivity.CaseInsensitive);
+        Assert.IsTrue(val);
+    }
 
-	[TestMethod]
-	public void RuntimeNotInActionTest()
-	{
-		Assert.ThrowsException<InvalidOperationException>(() => Runtime.InState("2"));
-	}
+    [TestMethod]
+    public void RuntimeNotInActionTest()
+    {
+        Assert.ThrowsException<InvalidOperationException>(() => Runtime.InState("2"));
+    }
 
-	[TestMethod]
-	public void StateMachineBuilderTest()
-	{
-		// Arrange
+    [TestMethod]
+    public void StateMachineBuilderTest()
+    {
+        // Arrange
 
-		var services = new ServiceCollection();
-		services.AddModule<StateMachineBuilderModule>();
-		var provider = services.BuildProvider();
+        var services = new ServiceCollection();
+        services.AddModule<StateMachineBuilderModule>();
+        var provider = services.BuildProvider();
 
-		var stateMachineBuilder = provider.GetRequiredServiceSync<IStateMachineBuilder>();
-		stateMachineBuilder.SetDataModelType("runtime");
+        var stateMachineBuilder = provider.GetRequiredServiceSync<IStateMachineBuilder>();
+        stateMachineBuilder.SetDataModelType("runtime");
 
-		var stateBuilder = provider.GetRequiredServiceSync<IStateBuilder>();
-		stateBuilder.SetId(Identifier.FromString("test"));
+        var stateBuilder = provider.GetRequiredServiceSync<IStateBuilder>();
+        stateBuilder.SetId(Identifier.FromString("test"));
 
-		stateMachineBuilder.AddState(stateBuilder.Build());
+        stateMachineBuilder.AddState(stateBuilder.Build());
 
-		// Act
+        // Act
 
-		var stateMachine = stateMachineBuilder.Build();
+        var stateMachine = stateMachineBuilder.Build();
 
-		// Assert
+        // Assert
 
-		Assert.IsNotNull(stateMachine);
-		Assert.AreEqual(expected: "runtime", stateMachine.DataModelType);
-		Assert.AreEqual(expected: 1, stateMachine.States.Length);
-		Assert.AreEqual(expected: "test", ((IState) stateMachine.States[0]).Id?.Value);
-	}
+        Assert.IsNotNull(stateMachine);
+        Assert.AreEqual(expected: "runtime", stateMachine.DataModelType);
+        Assert.AreEqual(expected: 1, stateMachine.States.Length);
+        Assert.AreEqual(expected: "test", ((IState)stateMachine.States[0]).Id?.Value);
+    }
 
-	[TestMethod]
-	public void StateMachineFluentBuilderTest()
-	{
-		// Arrange
+    [TestMethod]
+    public void StateMachineFluentBuilderTest()
+    {
+        // Arrange
 
-		var services = new ServiceCollection();
-		services.AddModule<StateMachineFluentBuilderModule>();
-		var provider = services.BuildProvider();
+        var services = new ServiceCollection();
+        services.AddModule<StateMachineFluentBuilderModule>();
+        var provider = services.BuildProvider();
 
-		var stateMachineBuilder = provider.GetRequiredServiceSync<StateMachineFluentBuilder>();
+        var stateMachineBuilder = provider.GetRequiredServiceSync<StateMachineFluentBuilder>();
 
-		// Act
+        // Act
 
-		var stateMachine = stateMachineBuilder.BeginState("test").EndState().Build();
+        var stateMachine = stateMachineBuilder.BeginState("test").EndState().Build();
 
-		// Assert
+        // Assert
 
-		Assert.IsNotNull(stateMachine);
-		Assert.AreEqual(expected: "runtime", stateMachine.DataModelType);
-		Assert.AreEqual(expected: 1, stateMachine.States.Length);
-		Assert.AreEqual(expected: "test", ((IState) stateMachine.States[0]).Id?.Value);
-	}
+        Assert.IsNotNull(stateMachine);
+        Assert.AreEqual(expected: "runtime", stateMachine.DataModelType);
+        Assert.AreEqual(expected: 1, stateMachine.States.Length);
+        Assert.AreEqual(expected: "test", ((IState)stateMachine.States[0]).Id?.Value);
+    }
 
-	[TestMethod]
-	public async Task ScxmlBuilderTest()
-	{
-		// Arrange
+    [TestMethod]
+    public async Task ScxmlBuilderTest()
+    {
+        // Arrange
 
-		var services = new ServiceCollection();
-		services.AddModule<ScxmlModule>();
-		var provider = services.BuildProvider();
+        var services = new ServiceCollection();
+        services.AddModule<ScxmlModule>();
+        var provider = services.BuildProvider();
 
-		const string xml = @"<scxml version='1.0' xmlns='http://www.w3.org/2005/07/scxml' datamodel='xpath'><state xmlns:eee='qval' id='test'></state></scxml>";
+        const string xml = @"<scxml version='1.0' xmlns='http://www.w3.org/2005/07/scxml' datamodel='xpath'><state xmlns:eee='qval' id='test'></state></scxml>";
 
-		using var textReader = new StringReader(xml);
-		using var reader = XmlReader.Create(textReader, new XmlReaderSettings { Async = true });
+        using var textReader = new StringReader(xml);
+        using var reader = XmlReader.Create(textReader, new XmlReaderSettings { Async = true });
 
-		var scxmlDeserializer = await provider.GetRequiredService<IScxmlDeserializer>();
+        var scxmlDeserializer = await provider.GetRequiredService<IScxmlDeserializer>();
 
-		// Act
+        // Act
 
-		var stateMachine = await scxmlDeserializer.Deserialize(reader);
+        var stateMachine = await scxmlDeserializer.Deserialize(reader);
 
-		// Assert
+        // Assert
 
-		Assert.IsNotNull(stateMachine);
-		Assert.AreEqual(expected: "xpath", stateMachine.DataModelType);
-		Assert.AreEqual(expected: 1, stateMachine.States.Length);
-		Assert.AreEqual(expected: "test", ((IState) stateMachine.States[0]).Id?.Value);
-	}
+        Assert.IsNotNull(stateMachine);
+        Assert.AreEqual(expected: "xpath", stateMachine.DataModelType);
+        Assert.AreEqual(expected: 1, stateMachine.States.Length);
+        Assert.AreEqual(expected: "test", ((IState)stateMachine.States[0]).Id?.Value);
+    }
 
-	[TestMethod]
-	public async Task ScxmlDtdXIncludeBuilderTest()
-	{
-		// Arrange
+    [TestMethod]
+    public async Task ScxmlDtdXIncludeBuilderTest()
+    {
+        // Arrange
 
-		var services = new ServiceCollection();
-		services.AddModule<ScxmlModule>();
-		services.AddImplementation<DefaultIoBoundTask>().For<IIoBoundTask>();
-		var provider = services.BuildProvider();
+        var services = new ServiceCollection();
+        services.AddModule<ScxmlModule>();
+        services.AddImplementation<DefaultIoBoundTask>().For<IIoBoundTask>();
+        var provider = services.BuildProvider();
 
-		var uri = new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Scxml/XInclude/DtdSingleIncludeSource.scxml");
+        var uri = new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Scxml/XInclude/DtdSingleIncludeSource.scxml");
 
-		var resolver = await provider.GetRequiredService<XmlResolver>();
-		var resourceLoaderService = await provider.GetRequiredService<IResourceLoader>();
-		var resource = await resourceLoaderService.Request(uri);
+        var resolver = await provider.GetRequiredService<XmlResolver>();
+        var resourceLoaderService = await provider.GetRequiredService<IResourceLoader>();
+        var resource = await resourceLoaderService.Request(uri);
 
-		var xmlReaderSettings = new XmlReaderSettings { Async = true, XmlResolver = resolver, DtdProcessing = DtdProcessing.Parse };
-		var xmlReader = XmlReader.Create(await resource.GetStream(doNotCache: true), xmlReaderSettings, uri.ToString());
+        var xmlReaderSettings = new XmlReaderSettings { Async = true, XmlResolver = resolver, DtdProcessing = DtdProcessing.Parse };
+        var xmlReader = XmlReader.Create(await resource.GetStream(doNotCache: true), xmlReaderSettings, uri.ToString());
 
-		var scxmlDeserializer = await provider.GetRequiredService<IScxmlDeserializer>();
+        var scxmlDeserializer = await provider.GetRequiredService<IScxmlDeserializer>();
 
-		// Act
+        // Act
 
-		var stateMachine = await scxmlDeserializer.Deserialize(xmlReader);
+        var stateMachine = await scxmlDeserializer.Deserialize(xmlReader);
 
-		// Assert
+        // Assert
 
-		Assert.IsNotNull(stateMachine);
-		Assert.IsNull(stateMachine.DataModelType);
-		Assert.AreEqual(expected: 3, stateMachine.States.Length);
-		Assert.AreEqual(expected: "state0", ((IState) stateMachine.States[0]).Id?.Value);
-		Assert.AreEqual(expected: "state1", ((IState) stateMachine.States[1]).Id?.Value);
-		Assert.AreEqual(expected: "fin", ((IFinal) stateMachine.States[2]).Id?.Value);
-	}
+        Assert.IsNotNull(stateMachine);
+        Assert.IsNull(stateMachine.DataModelType);
+        Assert.AreEqual(expected: 3, stateMachine.States.Length);
+        Assert.AreEqual(expected: "state0", ((IState)stateMachine.States[0]).Id?.Value);
+        Assert.AreEqual(expected: "state1", ((IState)stateMachine.States[1]).Id?.Value);
+        Assert.AreEqual(expected: "fin", ((IFinal)stateMachine.States[2]).Id?.Value);
+    }
 
-	[TestMethod]
-	public async Task ScxmlXIncludeBuilderTest()
-	{
-		// Arrange
+    [TestMethod]
+    public async Task ScxmlXIncludeBuilderTest()
+    {
+        // Arrange
 
-		var services = new ServiceCollection();
-		services.AddModule<ScxmlModule>();
-		services.AddImplementation<DefaultIoBoundTask>().For<IIoBoundTask>();
-		services.AddConstant<IXIncludeOptions>(new XIncludeOptions());
-		var provider = services.BuildProvider();
+        var services = new ServiceCollection();
+        services.AddModule<ScxmlModule>();
+        services.AddImplementation<DefaultIoBoundTask>().For<IIoBoundTask>();
+        services.AddConstant<IXIncludeOptions>(new XIncludeOptions());
+        var provider = services.BuildProvider();
 
-		var uri = new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Scxml/XInclude/SingleIncludeSource.scxml");
+        var uri = new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Scxml/XInclude/SingleIncludeSource.scxml");
 
-		var resolver = await provider.GetRequiredService<XmlResolver>();
-		var resourceLoaderService = await provider.GetRequiredService<IResourceLoader>();
-		var resource = await resourceLoaderService.Request(uri);
+        var resolver = await provider.GetRequiredService<XmlResolver>();
+        var resourceLoaderService = await provider.GetRequiredService<IResourceLoader>();
+        var resource = await resourceLoaderService.Request(uri);
 
-		var xmlReaderSettings = new XmlReaderSettings { Async = true, XmlResolver = resolver };
-		var xmlReader = XmlReader.Create(await resource.GetStream(doNotCache: true), xmlReaderSettings, uri.ToString());
+        var xmlReaderSettings = new XmlReaderSettings { Async = true, XmlResolver = resolver };
+        var xmlReader = XmlReader.Create(await resource.GetStream(doNotCache: true), xmlReaderSettings, uri.ToString());
 
-		var scxmlDeserializer = await provider.GetRequiredService<IScxmlDeserializer>();
+        var scxmlDeserializer = await provider.GetRequiredService<IScxmlDeserializer>();
 
-		// Act
+        // Act
 
-		var stateMachine = await scxmlDeserializer.Deserialize(xmlReader);
+        var stateMachine = await scxmlDeserializer.Deserialize(xmlReader);
 
-		// Assert
+        // Assert
 
-		Assert.IsNotNull(stateMachine);
-		Assert.IsNull(stateMachine.DataModelType);
-		Assert.AreEqual(expected: 3, stateMachine.States.Length);
-		Assert.AreEqual(expected: "state0", ((IState) stateMachine.States[0]).Id?.Value);
-		Assert.AreEqual(expected: "state1", ((IState) stateMachine.States[1]).Id?.Value);
-		Assert.AreEqual(expected: "fin", ((IFinal) stateMachine.States[2]).Id?.Value);
-	}
+        Assert.IsNotNull(stateMachine);
+        Assert.IsNull(stateMachine.DataModelType);
+        Assert.AreEqual(expected: 3, stateMachine.States.Length);
+        Assert.AreEqual(expected: "state0", ((IState)stateMachine.States[0]).Id?.Value);
+        Assert.AreEqual(expected: "state1", ((IState)stateMachine.States[1]).Id?.Value);
+        Assert.AreEqual(expected: "fin", ((IFinal)stateMachine.States[2]).Id?.Value);
+    }
 
-	[TestMethod]
-	public async Task ScxmlSerializerBuilderTest()
-	{
-		// Arrange
+    [TestMethod]
+    public async Task ScxmlSerializerBuilderTest()
+    {
+        // Arrange
 
-		var services = new ServiceCollection();
-		services.AddModule<ScxmlModule>();
-		var provider = services.BuildProvider();
+        var services = new ServiceCollection();
+        services.AddModule<ScxmlModule>();
+        var provider = services.BuildProvider();
 
-		// ReSharper disable once UseAwaitUsing
-		using var textWriter = new StringWriter();
+        // ReSharper disable once UseAwaitUsing
+        using var textWriter = new StringWriter();
 
-		// ReSharper disable once UseAwaitUsing
-		using var writer = XmlWriter.Create(textWriter, new XmlWriterSettings { Async = true });
+        // ReSharper disable once UseAwaitUsing
+        using var writer = XmlWriter.Create(textWriter, new XmlWriterSettings { Async = true });
 
-		var scxmlSerializer = await provider.GetRequiredService<IScxmlSerializer>();
+        var scxmlSerializer = await provider.GetRequiredService<IScxmlSerializer>();
 
-		// Act
+        // Act
 
-		await scxmlSerializer.Serialize(new StateMachineEntity(), writer);
+        await scxmlSerializer.Serialize(new StateMachineEntity(), writer);
 
-		await writer.FlushAsync();
-		await textWriter.FlushAsync();
+        await writer.FlushAsync();
+        await textWriter.FlushAsync();
 
-		// Assert
+        // Assert
 
-		Assert.AreEqual(expected: "<?xml version=\"1.0\" encoding=\"utf-16\"?><scxml version=\"1.0\" xmlns=\"http://www.w3.org/2005/07/scxml\" />", textWriter.ToString());
-	}
-	
-	[TestMethod]
-	public async Task DataModelHandlersXPathTest()
-	{
-		// Arrange
+        Assert.AreEqual(expected: "<?xml version=\"1.0\" encoding=\"utf-16\"?><scxml version=\"1.0\" xmlns=\"http://www.w3.org/2005/07/scxml\" />", textWriter.ToString());
+    }
 
-		var services = new ServiceCollection();
-		services.AddModule<DataModelHandlersModule>();
-		services.AddConstant<IStateMachine>(new StateMachineEntity { DataModelType = "xpath" });
-		services.AddSharedImplementationSync<AssemblyTypeInfo, Type>(SharedWithin.Container).For<IAssemblyTypeInfo>();
-		var provider = services.BuildProvider();
+    [TestMethod]
+    public async Task DataModelHandlersXPathTest()
+    {
+        // Arrange
 
-		var dataModelHandler = await provider.GetRequiredService<IDataModelHandler>();
-		var typeInfo = provider.GetRequiredServiceSync<IAssemblyTypeInfo, Type>(dataModelHandler.GetType());
+        var services = new ServiceCollection();
+        services.AddModule<DataModelHandlersModule>();
+        services.AddConstant<IStateMachine>(new StateMachineEntity { DataModelType = "xpath" });
+        services.AddSharedImplementationSync<AssemblyTypeInfo, Type>(SharedWithin.Container).For<IAssemblyTypeInfo>();
+        var provider = services.BuildProvider();
 
-		// Act
+        var dataModelHandler = await provider.GetRequiredService<IDataModelHandler>();
+        var typeInfo = provider.GetRequiredServiceSync<IAssemblyTypeInfo, Type>(dataModelHandler.GetType());
 
-		// Assert
+        // Act
 
-		Assert.AreEqual(expected: "Xtate.DataModel.XPath.XPathDataModelHandler", typeInfo.FullTypeName);
-	}
+        // Assert
 
-	[TestMethod]
-	public async Task CustomActionTest()
-	{
-		// Arrange
+        Assert.AreEqual(expected: "Xtate.DataModel.XPath.XPathDataModelHandler", typeInfo.FullTypeName);
+    }
 
-		var services = new ServiceCollection();
-		services.AddModule<ScxmlModule>();
-		var provider = services.BuildProvider();
+    [TestMethod]
+    public async Task CustomActionTest()
+    {
+        // Arrange
 
-		const string xml = """
-						   <scxml xmlns="http://www.w3.org/2005/07/scxml" xmlns:my="http://xtate.net/scxml/customaction/my" version="1.0" datamodel="xpath" initial="init">
-						     <state id="init">
-						       <onentry>
-						         <my:myAction source="emailContent" destination="emailContent" />
-						       </onentry>
-						     </state>
-						   </scxml>
-						   """;
+        var services = new ServiceCollection();
+        services.AddModule<ScxmlModule>();
+        var provider = services.BuildProvider();
 
-		using var textReader = new StringReader(xml);
-		using var reader = XmlReader.Create(textReader, new XmlReaderSettings { Async = true, NameTable = provider.GetRequiredServiceSync<INameTableProvider>().GetNameTable() });
+        const string xml = """
+                           <scxml xmlns="http://www.w3.org/2005/07/scxml" xmlns:my="http://xtate.net/scxml/customaction/my" version="1.0" datamodel="xpath" initial="init">
+                             <state id="init">
+                               <onentry>
+                                 <my:myAction source="emailContent" destination="emailContent" />
+                               </onentry>
+                             </state>
+                           </scxml>
+                           """;
 
-		var scxmlDeserializer = await provider.GetRequiredService<IScxmlDeserializer>();
-		var stateMachine = await scxmlDeserializer.Deserialize(reader);
+        using var textReader = new StringReader(xml);
+        using var reader = XmlReader.Create(textReader, new XmlReaderSettings { Async = true, NameTable = provider.GetRequiredServiceSync<INameTableProvider>().GetNameTable() });
 
-		var services2 = new ServiceCollection();
-		services2.AddModule<InterpreterModelBuilderModule>();
-		services2.AddModule<ToolsModule>();
-		services2.AddImplementationSync<MyActionProvider>().For<IActionProvider>();
-		services2.AddTypeSync<MyAction, XmlReader>();
-		services2.AddConstant(provider.GetRequiredServiceSync<INameTableProvider>());
-		services2.AddConstant(stateMachine);
-		var provider2 = services2.BuildProvider();
+        var scxmlDeserializer = await provider.GetRequiredService<IScxmlDeserializer>();
+        var stateMachine = await scxmlDeserializer.Deserialize(reader);
 
-		var interpreterModelBuilder = await provider2.GetRequiredService<InterpreterModelBuilder>();
+        var services2 = new ServiceCollection();
+        services2.AddModule<InterpreterModelBuilderModule>();
+        services2.AddModule<ToolsModule>();
+        services2.AddImplementationSync<MyActionProvider>().For<IActionProvider>();
+        services2.AddTypeSync<MyAction, XmlReader>();
+        services2.AddConstant(provider.GetRequiredServiceSync<INameTableProvider>());
+        services2.AddConstant(stateMachine);
+        var provider2 = services2.BuildProvider();
 
-		// Act
-		var interpreterModel = await interpreterModelBuilder.BuildModel();
-		await interpreterModel.Root.States[0].OnEntry[0].ActionEvaluators[0].Execute();
+        var interpreterModelBuilder = await provider2.GetRequiredService<InterpreterModelBuilder>();
 
-		// Assert
+        // Act
+        var interpreterModel = await interpreterModelBuilder.BuildModel();
+        await interpreterModel.Root.States[0].OnEntry[0].ActionEvaluators[0].Execute();
 
-		Assert.IsNotNull(stateMachine);
-	}
+        // Assert
 
-	[TestMethod]
-	public async Task InterpreterModelBuilderTest()
-	{
-		// Arrange
+        Assert.IsNotNull(stateMachine);
+    }
 
-		const string xml = """
-						   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="xpath" initial="init">
-						     <state id="init">
-						     </state>
-						   </scxml>
-						   """;
+    [TestMethod]
+    public async Task InterpreterModelBuilderTest()
+    {
+        // Arrange
 
-		var services = new ServiceCollection();
-		services.AddModule<StateMachineFactoryModule>();
-		services.AddModule<InterpreterModelBuilderModule>();
-		services.AddConstant<IScxmlStateMachine>(new ScxmlStringStateMachine(xml));
-		var provider = services.BuildProvider();
+        const string xml = """
+                           <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="xpath" initial="init">
+                             <state id="init">
+                             </state>
+                           </scxml>
+                           """;
 
-		var interpreterModelBuilder = await provider.GetRequiredService<InterpreterModelBuilder>();
+        var services = new ServiceCollection();
+        services.AddModule<StateMachineFactoryModule>();
+        services.AddModule<InterpreterModelBuilderModule>();
+        services.AddConstant<IScxmlStateMachine>(new ScxmlStringStateMachine(xml));
+        var provider = services.BuildProvider();
 
-		// Act
-		var stateMachineNode = await interpreterModelBuilder.BuildModel();
+        var interpreterModelBuilder = await provider.GetRequiredService<InterpreterModelBuilder>();
 
-		// Assert
+        // Act
+        var stateMachineNode = await interpreterModelBuilder.BuildModel();
 
-		Assert.IsNotNull(stateMachineNode);
-	}
+        // Assert
 
-	[TestMethod]
-	public async Task StateMachineInterpreterTest()
-	{
-		// Arrange
-		const string xml = """
-						   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="xpath" initial="init">
-						     <final id="init">
-						         <donedata>
-						             <content>HELLO</content>
-						         </donedata>
-						     </final>
-						   </scxml>
-						   """;
+        Assert.IsNotNull(stateMachineNode);
+    }
 
-		var services = new ServiceCollection();
-		services.AddConstant<IScxmlStateMachine>(new ScxmlStringStateMachine(xml));
-		services.AddModule<StateMachineFactoryModule>();
-		services.AddModule<StateMachineInterpreterModule>();
-		services.AddImplementation<TraceLogWriter<Any>>().For<ILogWriter<Any>>();
+    [TestMethod]
+    public async Task StateMachineInterpreterTest()
+    {
+        // Arrange
+        const string xml = """
+                           <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="xpath" initial="init">
+                             <final id="init">
+                                 <donedata>
+                                     <content>HELLO</content>
+                                 </donedata>
+                             </final>
+                           </scxml>
+                           """;
 
-		var provider = services.BuildProvider();
+        var services = new ServiceCollection();
+        services.AddConstant<IScxmlStateMachine>(new ScxmlStringStateMachine(xml));
+        services.AddModule<StateMachineFactoryModule>();
+        services.AddModule<StateMachineInterpreterModule>();
+        services.AddImplementation<TraceLogWriter<Any>>().For<ILogWriter<Any>>();
 
-		var stateMachineInterpreter = await provider.GetRequiredService<IStateMachineInterpreter>();
+        var provider = services.BuildProvider();
 
-		// Act
+        var stateMachineInterpreter = await provider.GetRequiredService<IStateMachineInterpreter>();
 
-		var result = await stateMachineInterpreter.RunAsync();
+        // Act
 
-		// Assert
+        var result = await stateMachineInterpreter.RunAsync();
 
-		Assert.AreEqual(expected: "HELLO", result);
-	}
+        // Assert
+
+        Assert.AreEqual(expected: "HELLO", result);
+    }
 }

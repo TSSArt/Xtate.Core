@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,41 +21,41 @@ namespace Xtate.Core;
 
 public sealed class ElseNode : IElse, IStoreSupport, IAncestorProvider, IDocumentId, IDebugEntityId
 {
-	private readonly IElse _else;
+    private readonly IElse _else;
 
-	private DocumentIdSlot _documentIdSlot;
+    private DocumentIdSlot _documentIdSlot;
 
-	public ElseNode(DocumentIdNode documentIdNode, IElse @else)
-	{
-		documentIdNode.SaveToSlot(out _documentIdSlot);
-		_else = @else;
-	}
+    public ElseNode(DocumentIdNode documentIdNode, IElse @else)
+    {
+        documentIdNode.SaveToSlot(out _documentIdSlot);
+        _else = @else;
+    }
 
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => _else;
+    object IAncestorProvider.Ancestor => _else;
 
 #endregion
 
 #region Interface IDebugEntityId
 
-	FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
+    FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
 
 #endregion
 
 #region Interface IDocumentId
 
-	public int DocumentId => _documentIdSlot.CreateValue();
+    public int DocumentId => _documentIdSlot.CreateValue();
 
 #endregion
 
 #region Interface IStoreSupport
 
-	void IStoreSupport.Store(Bucket bucket)
-	{
-		bucket.Add(Key.TypeInfo, TypeInfo.ElseNode);
-		bucket.Add(Key.DocumentId, DocumentId);
-	}
+    void IStoreSupport.Store(Bucket bucket)
+    {
+        bucket.Add(Key.TypeInfo, TypeInfo.ElseNode);
+        bucket.Add(Key.DocumentId, DocumentId);
+    }
 
 #endregion
 }

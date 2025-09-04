@@ -1,4 +1,4 @@
-// Copyright © 2019-2024 Sergii Artemenko
+// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,58 +22,58 @@ namespace Xtate.XInclude;
 [Serializable]
 public class XIncludeException : XtateException
 {
-	public XIncludeException() { }
+    public XIncludeException() { }
 
-	public XIncludeException(string? message) : base(message) { }
+    public XIncludeException(string? message) : base(message) { }
 
-	public XIncludeException(string? message, XmlReader? xmlReader) : base(AddLocationInfo(message, xmlReader)) => Init(xmlReader);
+    public XIncludeException(string? message, XmlReader? xmlReader) : base(AddLocationInfo(message, xmlReader)) => Init(xmlReader);
 
-	public XIncludeException(string? message, Exception? innerException) : base(message, innerException) { }
+    public XIncludeException(string? message, Exception? innerException) : base(message, innerException) { }
 
-	public int? LineNumber { get; private set; }
+    public int? LineNumber { get; private set; }
 
-	public int? LinePosition { get; private set; }
+    public int? LinePosition { get; private set; }
 
-	public string? Location { get; private set; }
+    public string? Location { get; private set; }
 
-	private static string? AddLocationInfo(string? message, XmlReader? xmlReader)
-	{
-		if (xmlReader is null)
-		{
-			return message;
-		}
+    private static string? AddLocationInfo(string? message, XmlReader? xmlReader)
+    {
+        if (xmlReader is null)
+        {
+            return message;
+        }
 
-		if (xmlReader.BaseURI is { } baseURI && !string.IsNullOrEmpty(baseURI))
-		{
-			if (xmlReader is IXmlLineInfo xmlLineInfo && xmlLineInfo.HasLineInfo())
-			{
-				return Res.Format(Resources.Exception_XIncludeExceptionLocationLinePosition, message, baseURI, xmlLineInfo.LineNumber, xmlLineInfo.LinePosition);
-			}
+        if (xmlReader.BaseURI is { } baseURI && !string.IsNullOrEmpty(baseURI))
+        {
+            if (xmlReader is IXmlLineInfo xmlLineInfo && xmlLineInfo.HasLineInfo())
+            {
+                return Res.Format(Resources.Exception_XIncludeExceptionLocationLinePosition, message, baseURI, xmlLineInfo.LineNumber, xmlLineInfo.LinePosition);
+            }
 
-			return Res.Format(Resources.Exception_XIncludeExceptionLocation, message, baseURI);
-		}
-		else
-		{
-			if (xmlReader is IXmlLineInfo xmlLineInfo && xmlLineInfo.HasLineInfo())
-			{
-				return Res.Format(Resources.Exception_XIncludeExceptionLinePosition, message, xmlLineInfo.LineNumber, xmlLineInfo.LinePosition);
-			}
+            return Res.Format(Resources.Exception_XIncludeExceptionLocation, message, baseURI);
+        }
+        else
+        {
+            if (xmlReader is IXmlLineInfo xmlLineInfo && xmlLineInfo.HasLineInfo())
+            {
+                return Res.Format(Resources.Exception_XIncludeExceptionLinePosition, message, xmlLineInfo.LineNumber, xmlLineInfo.LinePosition);
+            }
 
-			return message;
-		}
-	}
+            return message;
+        }
+    }
 
-	private void Init(XmlReader? xmlReader)
-	{
-		if (xmlReader?.BaseURI is { } baseURI)
-		{
-			Location = baseURI;
-		}
+    private void Init(XmlReader? xmlReader)
+    {
+        if (xmlReader?.BaseURI is { } baseURI)
+        {
+            Location = baseURI;
+        }
 
-		if (xmlReader is IXmlLineInfo xmlLineInfo && xmlLineInfo.HasLineInfo())
-		{
-			LineNumber = xmlLineInfo.LineNumber;
-			LinePosition = xmlLineInfo.LinePosition;
-		}
-	}
+        if (xmlReader is IXmlLineInfo xmlLineInfo && xmlLineInfo.HasLineInfo())
+        {
+            LineNumber = xmlLineInfo.LineNumber;
+            LinePosition = xmlLineInfo.LinePosition;
+        }
+    }
 }

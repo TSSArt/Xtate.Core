@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,19 +21,19 @@ public abstract class ExternalDataExpressionEvaluator(IExternalDataExpression ex
 {
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => externalDataExpression;
+    object IAncestorProvider.Ancestor => externalDataExpression;
 
 #endregion
 
 #region Interface IExternalDataExpression
 
-	public virtual Uri? Uri => externalDataExpression.Uri;
+    public virtual Uri? Uri => externalDataExpression.Uri;
 
 #endregion
 
 #region Interface IObjectEvaluator
 
-	public abstract ValueTask<IObject> EvaluateObject();
+    public abstract ValueTask<IObject> EvaluateObject();
 
 #endregion
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,33 +19,33 @@ namespace Xtate.Core;
 
 public class EventEntityParser<TSource> : EntityParserBase<TSource, IIncomingEvent>
 {
-	protected override IEnumerable<LoggingParameter> EnumerateProperties(IIncomingEvent incomingEvent)
-	{
-		if (!incomingEvent.Name.IsDefault)
-		{
-			yield return new LoggingParameter(name: @"EventName", incomingEvent.Name);
-		}
+    protected override IEnumerable<LoggingParameter> EnumerateProperties(IIncomingEvent incomingEvent)
+    {
+        if (!incomingEvent.Name.IsDefault)
+        {
+            yield return new LoggingParameter(name: @"EventName", incomingEvent.Name);
+        }
 
-		yield return new LoggingParameter(name: @"EventType", incomingEvent.Type);
+        yield return new LoggingParameter(name: @"EventType", incomingEvent.Type);
 
-		if (incomingEvent.Origin is { } origin)
-		{
-			yield return new LoggingParameter(name: @"Origin", origin);
-		}
+        if (incomingEvent.Origin is { } origin)
+        {
+            yield return new LoggingParameter(name: @"Origin", origin);
+        }
 
-		if (incomingEvent.OriginType is { } originType)
-		{
-			yield return new LoggingParameter(name: @"OriginType", originType);
-		}
+        if (incomingEvent.OriginType is { } originType)
+        {
+            yield return new LoggingParameter(name: @"OriginType", originType);
+        }
 
-		if (incomingEvent.SendId is { } sendId)
-		{
-			yield return new LoggingParameter(name: @"SendId", sendId);
-		}
+        if (incomingEvent.SendId is { } sendId)
+        {
+            yield return new LoggingParameter(name: @"SendId", sendId);
+        }
 
-		if (incomingEvent.InvokeId is { } invokeId)
-		{
-			yield return new LoggingParameter(name: @"InvokeId", invokeId);
-		}
-	}
+        if (incomingEvent.InvokeId is { } invokeId)
+        {
+            yield return new LoggingParameter(name: @"InvokeId", invokeId);
+        }
+    }
 }

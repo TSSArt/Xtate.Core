@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,26 +22,26 @@ namespace Xtate.Core;
 /// </summary>
 public sealed class DetailedErrorProcessor(SessionId? sessionId, StateMachineOrigin origin) : IErrorProcessor
 {
-	private ImmutableArray<ErrorItem>.Builder? _errors;
+    private ImmutableArray<ErrorItem>.Builder? _errors;
 
 #region Interface IErrorProcessor
 
-	public void ThrowIfErrors()
-	{
-		if (_errors is { } errors)
-		{
-			_errors = default;
+    public void ThrowIfErrors()
+    {
+        if (_errors is { } errors)
+        {
+            _errors = default;
 
-			throw new StateMachineValidationException(errors.ToImmutable(), sessionId, origin);
-		}
-	}
+            throw new StateMachineValidationException(errors.ToImmutable(), sessionId, origin);
+        }
+    }
 
-	void IErrorProcessor.AddError(ErrorItem errorItem)
-	{
-		Infra.Requires(errorItem);
+    void IErrorProcessor.AddError(ErrorItem errorItem)
+    {
+        Infra.Requires(errorItem);
 
-		(_errors ??= ImmutableArray.CreateBuilder<ErrorItem>()).Add(errorItem);
-	}
+        (_errors ??= ImmutableArray.CreateBuilder<ErrorItem>()).Add(errorItem);
+    }
 
 #endregion
 }

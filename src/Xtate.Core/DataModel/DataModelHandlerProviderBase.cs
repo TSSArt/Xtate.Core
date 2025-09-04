@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,12 +21,12 @@ namespace Xtate.Core;
 
 public abstract class DataModelHandlerProviderBase<TDataModelHandler>(string? dataModelType) : IDataModelHandlerProvider where TDataModelHandler : class, IDataModelHandler
 {
-	public required Func<ValueTask<TDataModelHandler>> DataModelHandlerFactory { private get; [UsedImplicitly] init; }
+    public required Func<ValueTask<TDataModelHandler>> DataModelHandlerFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IDataModelHandlerProvider
 
-	async ValueTask<IDataModelHandler?> IDataModelHandlerProvider.TryGetDataModelHandler(string? dataModelTypeValue) =>
-		dataModelType == dataModelTypeValue ? await DataModelHandlerFactory().ConfigureAwait(false) : default;
+    async ValueTask<IDataModelHandler?> IDataModelHandlerProvider.TryGetDataModelHandler(string? dataModelTypeValue) =>
+        dataModelType == dataModelTypeValue ? await DataModelHandlerFactory().ConfigureAwait(false) : default;
 
 #endregion
 }

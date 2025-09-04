@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,60 +19,60 @@ namespace Xtate.Core;
 
 public struct StateMachineEntity : IStateMachine, IVisitorEntity<StateMachineEntity, IStateMachine>, IAncestorProvider, IDebugEntityId
 {
-	internal object? Ancestor;
+    internal object? Ancestor;
 
 #region Interface IAncestorProvider
 
-	readonly object? IAncestorProvider.Ancestor => Ancestor;
+    readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
 #region Interface IDebugEntityId
 
-	readonly FormattableString IDebugEntityId.EntityId => @$"{Name}";
+    readonly FormattableString IDebugEntityId.EntityId => @$"{Name}";
 
 #endregion
 
 #region Interface IStateMachine
 
-	public string? DataModelType { get; set; }
+    public string? DataModelType { get; set; }
 
-	public IInitial? Initial { get; set; }
+    public IInitial? Initial { get; set; }
 
-	public string? Name { get; set; }
+    public string? Name { get; set; }
 
-	public BindingType Binding { get; set; }
+    public BindingType Binding { get; set; }
 
-	public ImmutableArray<IStateEntity> States { get; set; }
+    public ImmutableArray<IStateEntity> States { get; set; }
 
-	public IDataModel? DataModel { get; set; }
+    public IDataModel? DataModel { get; set; }
 
-	public IExecutableEntity? Script { get; set; }
+    public IExecutableEntity? Script { get; set; }
 
 #endregion
 
 #region Interface IVisitorEntity<StateMachineEntity,IStateMachine>
 
-	public void Init(IStateMachine source)
-	{
-		Ancestor = source ?? throw new ArgumentNullException(nameof(source));
-		Name = source.Name;
-		Initial = source.Initial;
-		DataModelType = source.DataModelType;
-		Binding = source.Binding;
-		States = source.States;
-		DataModel = source.DataModel;
-		Script = source.Script;
-	}
+    public void Init(IStateMachine source)
+    {
+        Ancestor = source ?? throw new ArgumentNullException(nameof(source));
+        Name = source.Name;
+        Initial = source.Initial;
+        DataModelType = source.DataModelType;
+        Binding = source.Binding;
+        States = source.States;
+        DataModel = source.DataModel;
+        Script = source.Script;
+    }
 
-	readonly bool IVisitorEntity<StateMachineEntity, IStateMachine>.RefEquals(ref StateMachineEntity other) =>
-		Binding == other.Binding &&
-		States == other.States &&
-		ReferenceEquals(Name, other.Name) &&
-		ReferenceEquals(DataModel, other.DataModel) &&
-		ReferenceEquals(DataModelType, other.DataModelType) &&
-		ReferenceEquals(Initial, other.Initial) &&
-		ReferenceEquals(Script, other.Script);
+    readonly bool IVisitorEntity<StateMachineEntity, IStateMachine>.RefEquals(ref StateMachineEntity other) =>
+        Binding == other.Binding &&
+        States == other.States &&
+        ReferenceEquals(Name, other.Name) &&
+        ReferenceEquals(DataModel, other.DataModel) &&
+        ReferenceEquals(DataModelType, other.DataModelType) &&
+        ReferenceEquals(Initial, other.Initial) &&
+        ReferenceEquals(Script, other.Script);
 
 #endregion
 }

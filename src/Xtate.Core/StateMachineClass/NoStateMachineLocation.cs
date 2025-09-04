@@ -21,7 +21,7 @@ public class NoStateMachineLocation : IStateMachineLocation
 {
 #region Interface IStateMachineLocation
 
-	public Uri? Location => default;
+    public Uri? Location => default;
 
 #endregion
 }

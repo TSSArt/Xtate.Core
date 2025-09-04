@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -20,7 +20,7 @@ namespace Xtate;
 [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
 public class ServiceModuleAttribute(Type serviceModuleType) : Attribute
 {
-	public Type? ServiceModuleType { get; } = serviceModuleType;
+    public Type? ServiceModuleType { get; } = serviceModuleType;
 }
 
 [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]

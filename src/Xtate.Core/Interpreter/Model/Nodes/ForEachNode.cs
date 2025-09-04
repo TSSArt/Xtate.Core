@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -23,35 +23,35 @@ public sealed class ForEachNode(DocumentIdNode documentIdNode, IForEach forEach)
 {
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => forEach;
+    object IAncestorProvider.Ancestor => forEach;
 
 #endregion
 
 #region Interface IDebugEntityId
 
-	FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
+    FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
 
 #endregion
 
 #region Interface IForEach
 
-	public IValueExpression? Array => forEach.Array;
+    public IValueExpression? Array => forEach.Array;
 
-	public ILocationExpression? Item => forEach.Item;
+    public ILocationExpression? Item => forEach.Item;
 
-	public ILocationExpression? Index => forEach.Index;
+    public ILocationExpression? Index => forEach.Index;
 
-	public ImmutableArray<IExecutableEntity> Action => forEach.Action;
+    public ImmutableArray<IExecutableEntity> Action => forEach.Action;
 
 #endregion
 
-	protected override void Store(Bucket bucket)
-	{
-		bucket.Add(Key.TypeInfo, TypeInfo.ForEachNode);
-		bucket.Add(Key.DocumentId, DocumentId);
-		bucket.AddEntity(Key.Array, forEach.Array);
-		bucket.AddEntity(Key.Item, forEach.Item);
-		bucket.AddEntity(Key.Index, forEach.Index);
-		bucket.AddEntityList(Key.Action, Action);
-	}
+    protected override void Store(Bucket bucket)
+    {
+        bucket.Add(Key.TypeInfo, TypeInfo.ForEachNode);
+        bucket.Add(Key.DocumentId, DocumentId);
+        bucket.AddEntity(Key.Array, forEach.Array);
+        bucket.AddEntity(Key.Item, forEach.Item);
+        bucket.AddEntity(Key.Index, forEach.Index);
+        bucket.AddEntityList(Key.Action, Action);
+    }
 }

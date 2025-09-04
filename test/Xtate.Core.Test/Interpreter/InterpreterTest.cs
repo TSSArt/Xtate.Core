@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,54 +22,54 @@ namespace Xtate.Core.Interpreter;
 [TestClass]
 public class InterpreterTest
 {
-	[TestMethod]
-	public async Task StateMachineInterpreterEmptyRun()
-	{
-		// arrange
-		var linkedList = new LinkedList<int>();
-		var finalNode = new FinalNode(new DocumentIdNode(linkedList), new FinalEntity());
-		var target = ImmutableArray.Create<StateEntityNode>(finalNode);
-		var transition = new TransitionNode.Empty(new DocumentIdNode(linkedList), target);
-		var stateMachineEntity = new StateMachineEntity
-								 {
-									 Initial = new InitialNode.Empty(new DocumentIdNode(linkedList), transition),
-									 States = [finalNode]
-								 };
-		var root = new StateMachineNode(new DocumentIdNode(linkedList), stateMachineEntity);
+    [TestMethod]
+    public async Task StateMachineInterpreterEmptyRun()
+    {
+        // arrange
+        var linkedList = new LinkedList<int>();
+        var finalNode = new FinalNode(new DocumentIdNode(linkedList), new FinalEntity());
+        var target = ImmutableArray.Create<StateEntityNode>(finalNode);
+        var transition = new TransitionNode.Empty(new DocumentIdNode(linkedList), target);
+        var stateMachineEntity = new StateMachineEntity
+                                 {
+                                     Initial = new InitialNode.Empty(new DocumentIdNode(linkedList), transition),
+                                     States = [finalNode]
+                                 };
+        var root = new StateMachineNode(new DocumentIdNode(linkedList), stateMachineEntity);
 
-		var interpreterModelMock = new Mock<IInterpreterModel>();
-		interpreterModelMock.Setup(m => m.Root).Returns(root);
+        var interpreterModelMock = new Mock<IInterpreterModel>();
+        interpreterModelMock.Setup(m => m.Root).Returns(root);
 
-		var eventQueueMock = new Mock<IEventQueueReader>();
-		var caseSensitivityMock = new Mock<ICaseSensitivity>();
-		var invokeControllerMock = new Mock<IInvokeController>();
+        var eventQueueMock = new Mock<IEventQueueReader>();
+        var caseSensitivityMock = new Mock<ICaseSensitivity>();
+        var invokeControllerMock = new Mock<IInvokeController>();
 
-		var stateMachineContextMock = new Mock<IStateMachineContext>();
-		stateMachineContextMock.Setup(ctx => ctx.Configuration).Returns([]);
-		stateMachineContextMock.Setup(ctx => ctx.StatesToInvoke).Returns([]);
-		stateMachineContextMock.Setup(ctx => ctx.InternalQueue).Returns(new EntityQueue<IIncomingEvent>());
+        var stateMachineContextMock = new Mock<IStateMachineContext>();
+        stateMachineContextMock.Setup(ctx => ctx.Configuration).Returns([]);
+        stateMachineContextMock.Setup(ctx => ctx.StatesToInvoke).Returns([]);
+        stateMachineContextMock.Setup(ctx => ctx.InternalQueue).Returns(new EntityQueue<IIncomingEvent>());
 
-		var loggerMock = new Mock<ILogger<IStateMachineInterpreter>>();
+        var loggerMock = new Mock<ILogger<IStateMachineInterpreter>>();
 
-		var stateMachineInterpreter = new StateMachineInterpreter
-									  {
-										  StateMachineContext = stateMachineContextMock.Object,
-										  DataConverter = new DataConverter(caseSensitivityMock.Object),
-										  CaseSensitivity = caseSensitivityMock.Object,
-										  EventQueueReader = eventQueueMock.Object,
-										  Logger = loggerMock.Object,
-										  Model = interpreterModelMock.Object,
-										  NotifyStateChanged = new Mock<INotifyStateChanged>().Object,
-										  UnhandledErrorBehaviour = null,
-										  StateMachineArguments = null,
-										  StateMachineRuntimeError = new StateMachineRuntimeError { StateMachineSessionId = new DefaultStateMachineSessionId() },
-										  InvokeController = invokeControllerMock.Object
-									  };
+        var stateMachineInterpreter = new StateMachineInterpreter
+                                      {
+                                          StateMachineContext = stateMachineContextMock.Object,
+                                          DataConverter = new DataConverter(caseSensitivityMock.Object),
+                                          CaseSensitivity = caseSensitivityMock.Object,
+                                          EventQueueReader = eventQueueMock.Object,
+                                          Logger = loggerMock.Object,
+                                          Model = interpreterModelMock.Object,
+                                          NotifyStateChanged = new Mock<INotifyStateChanged>().Object,
+                                          UnhandledErrorBehaviour = null,
+                                          StateMachineArguments = null,
+                                          StateMachineRuntimeError = new StateMachineRuntimeError { StateMachineSessionId = new DefaultStateMachineSessionId() },
+                                          InvokeController = invokeControllerMock.Object
+                                      };
 
-		// act
-		await stateMachineInterpreter.RunAsync();
+        // act
+        await stateMachineInterpreter.RunAsync();
 
-		// assert
-		Assert.IsFalse(false);
-	}
+        // assert
+        Assert.IsFalse(false);
+    }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,11 +19,11 @@ namespace Xtate.DataModel;
 
 public sealed class UnknownDataModelHandler : DataModelHandlerBase
 {
-	public required IErrorProcessorService<UnknownDataModelHandler> UnknownErrorProcessorService { private get; [UsedImplicitly] init; }
+    public required IErrorProcessorService<UnknownDataModelHandler> UnknownErrorProcessorService { private get; [UsedImplicitly] init; }
 
-	protected override void Visit(ref IScript script) => UnknownErrorProcessorService.AddError(script, Resources.Message_UnknownDataModel);
+    protected override void Visit(ref IScript script) => UnknownErrorProcessorService.AddError(script, Resources.Message_UnknownDataModel);
 
-	protected override void Visit(ref IDataModel dataModel) => UnknownErrorProcessorService.AddError(dataModel, Resources.Message_UnknownDataModel);
+    protected override void Visit(ref IDataModel dataModel) => UnknownErrorProcessorService.AddError(dataModel, Resources.Message_UnknownDataModel);
 
-	protected override void Visit(ref IExecutableEntity executableEntity) => UnknownErrorProcessorService.AddError(executableEntity, Resources.Message_UnknownDataModel);
+    protected override void Visit(ref IExecutableEntity executableEntity) => UnknownErrorProcessorService.AddError(executableEntity, Resources.Message_UnknownDataModel);
 }

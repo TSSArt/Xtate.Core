@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,99 +19,99 @@ namespace Xtate.DataModel.XPath;
 
 internal class ItemNodeAdapter : ElementNodeAdapter
 {
-	public override string GetLocalName(in DataModelXPathNavigator.Node node) => XmlConverter.KeyToLocalName(node.ParentProperty);
+    public override string GetLocalName(in DataModelXPathNavigator.Node node) => XmlConverter.KeyToLocalName(node.ParentProperty);
 
-	public override string GetNamespaceUri(in DataModelXPathNavigator.Node node) =>
-		XmlConverter.KeyToNamespaceOrDefault(node.ParentProperty) ??
-		XPathMetadata.GetValue(node.Metadata, XPathMetadata.ElementIndex, XPathMetadata.ElementNamespaceOffset);
+    public override string GetNamespaceUri(in DataModelXPathNavigator.Node node) =>
+        XmlConverter.KeyToNamespaceOrDefault(node.ParentProperty) ??
+        XPathMetadata.GetValue(node.Metadata, XPathMetadata.ElementIndex, XPathMetadata.ElementNamespaceOffset);
 
-	public override string GetPrefix(in DataModelXPathNavigator.Node node) =>
-		XmlConverter.KeyToPrefixOrDefault(node.ParentProperty) ??
-		XPathMetadata.GetValue(node.Metadata, XPathMetadata.ElementIndex, XPathMetadata.ElementPrefixOffset);
+    public override string GetPrefix(in DataModelXPathNavigator.Node node) =>
+        XmlConverter.KeyToPrefixOrDefault(node.ParentProperty) ??
+        XPathMetadata.GetValue(node.Metadata, XPathMetadata.ElementIndex, XPathMetadata.ElementPrefixOffset);
 
-	public override bool GetFirstAttribute(in DataModelXPathNavigator.Node node, out DataModelXPathNavigator.Node attributeNode)
-	{
-		attributeNode = new DataModelXPathNavigator.Node(value: default, default!);
+    public override bool GetFirstAttribute(in DataModelXPathNavigator.Node node, out DataModelXPathNavigator.Node attributeNode)
+    {
+        attributeNode = new DataModelXPathNavigator.Node(value: default, default!);
 
-		return GetNextAttribute(node, ref attributeNode);
-	}
+        return GetNextAttribute(node, ref attributeNode);
+    }
 
-	public override bool GetNextAttribute(in DataModelXPathNavigator.Node parentNode, ref DataModelXPathNavigator.Node node) => GetNextAttribute(parentNode, ref node, ns: false);
+    public override bool GetNextAttribute(in DataModelXPathNavigator.Node parentNode, ref DataModelXPathNavigator.Node node) => GetNextAttribute(parentNode, ref node, ns: false);
 
-	public override bool GetFirstNamespace(in DataModelXPathNavigator.Node node, out DataModelXPathNavigator.Node namespaceNode)
-	{
-		namespaceNode = new DataModelXPathNavigator.Node(value: default, default!);
+    public override bool GetFirstNamespace(in DataModelXPathNavigator.Node node, out DataModelXPathNavigator.Node namespaceNode)
+    {
+        namespaceNode = new DataModelXPathNavigator.Node(value: default, default!);
 
-		return GetNextNamespace(node, ref namespaceNode);
-	}
+        return GetNextNamespace(node, ref namespaceNode);
+    }
 
-	public override bool GetNextNamespace(in DataModelXPathNavigator.Node parentNode, ref DataModelXPathNavigator.Node node) => GetNextAttribute(parentNode, ref node, ns: true);
+    public override bool GetNextNamespace(in DataModelXPathNavigator.Node parentNode, ref DataModelXPathNavigator.Node node) => GetNextAttribute(parentNode, ref node, ns: true);
 
-	private static bool GetNextAttribute(in DataModelXPathNavigator.Node parentNode, ref DataModelXPathNavigator.Node node, bool ns)
-	{
-		if (!ns && NextSysAttribute(parentNode, ref node))
-		{
-			return true;
-		}
+    private static bool GetNextAttribute(in DataModelXPathNavigator.Node parentNode, ref DataModelXPathNavigator.Node node, bool ns)
+    {
+        if (!ns && NextSysAttribute(parentNode, ref node))
+        {
+            return true;
+        }
 
-		if (parentNode.Metadata is not { } metadata)
-		{
-			node = default;
+        if (parentNode.Metadata is not { } metadata)
+        {
+            node = default;
 
-			return false;
-		}
+            return false;
+        }
 
-		var cursor = node.ParentCursor;
+        var cursor = node.ParentCursor;
 
-		while (metadata.NextEntry(ref cursor, out var entry))
-		{
-			if ((entry.Index - XPathMetadata.FirstAttributeOffset) % XPathMetadata.AttributeSegmentLength != 0)
-			{
-				continue;
-			}
+        while (metadata.NextEntry(ref cursor, out var entry))
+        {
+            if ((entry.Index - XPathMetadata.FirstAttributeOffset) % XPathMetadata.AttributeSegmentLength != 0)
+            {
+                continue;
+            }
 
-			var isNamespace = XPathMetadata.GetValue(metadata, entry.Index, XPathMetadata.AttributeNamespaceOffset) == XPathMetadata.XmlnsNamespace;
+            var isNamespace = XPathMetadata.GetValue(metadata, entry.Index, XPathMetadata.AttributeNamespaceOffset) == XPathMetadata.XmlnsNamespace;
 
-			if (isNamespace == ns)
-			{
-				var adapter = ns ? AdapterFactory.NamespaceNodeAdapter : AdapterFactory.AttributeNodeAdapter;
-				var localName = XPathMetadata.GetValue(metadata, entry.Index, XPathMetadata.AttributeLocalNameOffset);
-				var value = XPathMetadata.GetValue(metadata, entry.Index, XPathMetadata.AttributeValueOffset);
-				node = new DataModelXPathNavigator.Node(value, adapter, cursor, entry.Index, localName, metadata);
+            if (isNamespace == ns)
+            {
+                var adapter = ns ? AdapterFactory.NamespaceNodeAdapter : AdapterFactory.AttributeNodeAdapter;
+                var localName = XPathMetadata.GetValue(metadata, entry.Index, XPathMetadata.AttributeLocalNameOffset);
+                var value = XPathMetadata.GetValue(metadata, entry.Index, XPathMetadata.AttributeValueOffset);
+                node = new DataModelXPathNavigator.Node(value, adapter, cursor, entry.Index, localName, metadata);
 
-				return true;
-			}
-		}
+                return true;
+            }
+        }
 
-		node = default;
+        node = default;
 
-		return false;
-	}
+        return false;
+    }
 
-	private static bool NextSysAttribute(in DataModelXPathNavigator.Node parentNode, ref DataModelXPathNavigator.Node node)
-	{
-		if (UseTypeAttribute(parentNode) && node.ParentIndex == -1)
-		{
-			node = new DataModelXPathNavigator.Node(
-				XmlConverter.GetTypeValue(parentNode.DataModelValue), AdapterFactory.TypeAttributeNodeAdapter,
-				node.ParentCursor, parentIndex: -2, node.ParentProperty);
+    private static bool NextSysAttribute(in DataModelXPathNavigator.Node parentNode, ref DataModelXPathNavigator.Node node)
+    {
+        if (UseTypeAttribute(parentNode) && node.ParentIndex == -1)
+        {
+            node = new DataModelXPathNavigator.Node(
+                XmlConverter.GetTypeValue(parentNode.DataModelValue), AdapterFactory.TypeAttributeNodeAdapter,
+                node.ParentCursor, parentIndex: -2, node.ParentProperty);
 
-			return true;
-		}
+            return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	private static bool UseTypeAttribute(in DataModelXPathNavigator.Node node) =>
-		node.DataModelValue.Type switch
-		{
-			DataModelValueType.String    => false,
-			DataModelValueType.Boolean   => true,
-			DataModelValueType.DateTime  => true,
-			DataModelValueType.Number    => true,
-			DataModelValueType.Null      => true,
-			DataModelValueType.Undefined => true,
-			DataModelValueType.List      => false,
-			_                            => throw Infra.Unmatched(node.DataModelValue.Type)
-		};
+    private static bool UseTypeAttribute(in DataModelXPathNavigator.Node node) =>
+        node.DataModelValue.Type switch
+        {
+            DataModelValueType.String    => false,
+            DataModelValueType.Boolean   => true,
+            DataModelValueType.DateTime  => true,
+            DataModelValueType.Number    => true,
+            DataModelValueType.Null      => true,
+            DataModelValueType.Undefined => true,
+            DataModelValueType.List      => false,
+            _                            => throw Infra.Unmatched(node.DataModelValue.Type)
+        };
 }

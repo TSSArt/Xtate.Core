@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,91 +21,91 @@ namespace Xtate.Core;
 
 internal sealed class InjectedCancellationStream(Stream stream, CancellationToken extToken) : DelegatedStream
 {
-	protected override Stream InnerStream { get; } = stream;
+    protected override Stream InnerStream { get; } = stream;
 
-	public override Task<int> ReadAsync(byte[] buffer,
-										int offset,
-										int count,
-										CancellationToken token) =>
-		IsCombinedTokenRequired(ref token) ? ReadAsyncInternal(buffer, offset, count, token) : InnerStream.ReadAsync(buffer, offset, count, token);
+    public override Task<int> ReadAsync(byte[] buffer,
+                                        int offset,
+                                        int count,
+                                        CancellationToken token) =>
+        IsCombinedTokenRequired(ref token) ? ReadAsyncInternal(buffer, offset, count, token) : InnerStream.ReadAsync(buffer, offset, count, token);
 
-	private async Task<int> ReadAsyncInternal(byte[] buffer,
-											  int offset,
-											  int count,
-											  CancellationToken token)
-	{
-		using var cts = CancellationTokenSource.CreateLinkedTokenSource(token, extToken);
+    private async Task<int> ReadAsyncInternal(byte[] buffer,
+                                              int offset,
+                                              int count,
+                                              CancellationToken token)
+    {
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(token, extToken);
 
-		return await InnerStream.ReadAsync(buffer, offset, count, cts.Token).ConfigureAwait(false);
-	}
+        return await InnerStream.ReadAsync(buffer, offset, count, cts.Token).ConfigureAwait(false);
+    }
 
-	public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken token) =>
-		IsCombinedTokenRequired(ref token) ? CopyToAsyncInternal(destination, bufferSize, token) : InnerStream.CopyToAsync(destination, bufferSize, token);
+    public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken token) =>
+        IsCombinedTokenRequired(ref token) ? CopyToAsyncInternal(destination, bufferSize, token) : InnerStream.CopyToAsync(destination, bufferSize, token);
 
-	private async Task CopyToAsyncInternal(Stream destination, int bufferSize, CancellationToken token)
-	{
-		using var cts = CancellationTokenSource.CreateLinkedTokenSource(token, extToken);
+    private async Task CopyToAsyncInternal(Stream destination, int bufferSize, CancellationToken token)
+    {
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(token, extToken);
 
-		await InnerStream.CopyToAsync(destination, bufferSize, cts.Token).ConfigureAwait(false);
-	}
+        await InnerStream.CopyToAsync(destination, bufferSize, cts.Token).ConfigureAwait(false);
+    }
 
-	public override Task FlushAsync(CancellationToken token) => IsCombinedTokenRequired(ref token) ? FlushAsyncInternal(token) : InnerStream.FlushAsync(token);
+    public override Task FlushAsync(CancellationToken token) => IsCombinedTokenRequired(ref token) ? FlushAsyncInternal(token) : InnerStream.FlushAsync(token);
 
-	private async Task FlushAsyncInternal(CancellationToken token)
-	{
-		using var cts = CancellationTokenSource.CreateLinkedTokenSource(token, extToken);
+    private async Task FlushAsyncInternal(CancellationToken token)
+    {
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(token, extToken);
 
-		await InnerStream.FlushAsync(cts.Token).ConfigureAwait(false);
-	}
+        await InnerStream.FlushAsync(cts.Token).ConfigureAwait(false);
+    }
 
-	public override Task WriteAsync(byte[] buffer,
-									int offset,
-									int count,
-									CancellationToken token) =>
-		IsCombinedTokenRequired(ref token) ? WriteAsyncInternal(buffer, offset, count, token) : InnerStream.WriteAsync(buffer, offset, count, token);
+    public override Task WriteAsync(byte[] buffer,
+                                    int offset,
+                                    int count,
+                                    CancellationToken token) =>
+        IsCombinedTokenRequired(ref token) ? WriteAsyncInternal(buffer, offset, count, token) : InnerStream.WriteAsync(buffer, offset, count, token);
 
-	private async Task WriteAsyncInternal(byte[] buffer,
-										  int offset,
-										  int count,
-										  CancellationToken token)
-	{
-		using var cts = CancellationTokenSource.CreateLinkedTokenSource(token, extToken);
+    private async Task WriteAsyncInternal(byte[] buffer,
+                                          int offset,
+                                          int count,
+                                          CancellationToken token)
+    {
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(token, extToken);
 
-		await InnerStream.WriteAsync(buffer, offset, count, cts.Token).ConfigureAwait(false);
-	}
+        await InnerStream.WriteAsync(buffer, offset, count, cts.Token).ConfigureAwait(false);
+    }
 
-	private bool IsCombinedTokenRequired(ref CancellationToken token)
-	{
-		if (token.CanBeCanceled)
-		{
-			return extToken.CanBeCanceled;
-		}
+    private bool IsCombinedTokenRequired(ref CancellationToken token)
+    {
+        if (token.CanBeCanceled)
+        {
+            return extToken.CanBeCanceled;
+        }
 
-		token = extToken;
+        token = extToken;
 
-		return false;
-	}
+        return false;
+    }
 
 #if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
-	public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken token = default) =>
-		IsCombinedTokenRequired(ref token) ? ReadAsyncInternal(buffer, token) : InnerStream.ReadAsync(buffer, token);
+    public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken token = default) =>
+        IsCombinedTokenRequired(ref token) ? ReadAsyncInternal(buffer, token) : InnerStream.ReadAsync(buffer, token);
 
-	private async ValueTask<int> ReadAsyncInternal(Memory<byte> buffer, CancellationToken token)
-	{
-		using var cts = CancellationTokenSource.CreateLinkedTokenSource(token, extToken);
+    private async ValueTask<int> ReadAsyncInternal(Memory<byte> buffer, CancellationToken token)
+    {
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(token, extToken);
 
-		return await InnerStream.ReadAsync(buffer, cts.Token).ConfigureAwait(false);
-	}
+        return await InnerStream.ReadAsync(buffer, cts.Token).ConfigureAwait(false);
+    }
 
-	public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken token = default) =>
-		IsCombinedTokenRequired(ref token) ? WriteAsyncInternal(buffer, token) : InnerStream.WriteAsync(buffer, token);
+    public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken token = default) =>
+        IsCombinedTokenRequired(ref token) ? WriteAsyncInternal(buffer, token) : InnerStream.WriteAsync(buffer, token);
 
-	private async ValueTask WriteAsyncInternal(ReadOnlyMemory<byte> buffer, CancellationToken token)
-	{
-		using var cts = CancellationTokenSource.CreateLinkedTokenSource(token, extToken);
+    private async ValueTask WriteAsyncInternal(ReadOnlyMemory<byte> buffer, CancellationToken token)
+    {
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(token, extToken);
 
-		await InnerStream.WriteAsync(buffer, cts.Token).ConfigureAwait(false);
-	}
+        await InnerStream.WriteAsync(buffer, cts.Token).ConfigureAwait(false);
+    }
 
 #endif
 }

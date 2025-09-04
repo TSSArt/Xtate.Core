@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,15 +19,15 @@ namespace Xtate.Core;
 
 public class InvokeDataEntityParser<TSource> : EntityParserBase<TSource, InvokeData>
 {
-	protected override IEnumerable<LoggingParameter> EnumerateProperties(InvokeData invokeData)
-	{
-		Infra.Requires(invokeData);
+    protected override IEnumerable<LoggingParameter> EnumerateProperties(InvokeData invokeData)
+    {
+        Infra.Requires(invokeData);
 
-		yield return new LoggingParameter(name: @"InvokeType", invokeData.Type);
+        yield return new LoggingParameter(name: @"InvokeType", invokeData.Type);
 
-		if (invokeData.Source is { } source)
-		{
-			yield return new LoggingParameter(name: @"InvokeSource", source);
-		}
-	}
+        if (invokeData.Source is { } source)
+        {
+            yield return new LoggingParameter(name: @"InvokeSource", source);
+        }
+    }
 }

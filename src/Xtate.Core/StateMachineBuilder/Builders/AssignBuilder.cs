@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,59 +19,59 @@ namespace Xtate.Builder;
 
 public class AssignBuilder : BuilderBase, IAssignBuilder
 {
-	private string? _attribute;
+    private string? _attribute;
 
-	private IValueExpression? _expression;
+    private IValueExpression? _expression;
 
-	private IInlineContent? _inlineContent;
+    private IInlineContent? _inlineContent;
 
-	private ILocationExpression? _location;
+    private ILocationExpression? _location;
 
-	private string? _type;
+    private string? _type;
 
 #region Interface IAssignBuilder
 
-	public IAssign Build() =>
-		new AssignEntity
-		{
-			Ancestor = Ancestor, Location = _location, Expression = _expression,
-			InlineContent = _inlineContent, Type = _type, Attribute = _attribute
-		};
+    public IAssign Build() =>
+        new AssignEntity
+        {
+            Ancestor = Ancestor, Location = _location, Expression = _expression,
+            InlineContent = _inlineContent, Type = _type, Attribute = _attribute
+        };
 
-	public void SetLocation(ILocationExpression location)
-	{
-		Infra.Requires(location);
+    public void SetLocation(ILocationExpression location)
+    {
+        Infra.Requires(location);
 
-		_location = location;
-	}
+        _location = location;
+    }
 
-	public void SetExpression(IValueExpression expression)
-	{
-		Infra.Requires(expression);
+    public void SetExpression(IValueExpression expression)
+    {
+        Infra.Requires(expression);
 
-		_expression = expression;
-	}
+        _expression = expression;
+    }
 
-	public void SetInlineContent(IInlineContent inlineContent)
-	{
-		Infra.Requires(inlineContent);
+    public void SetInlineContent(IInlineContent inlineContent)
+    {
+        Infra.Requires(inlineContent);
 
-		_inlineContent = inlineContent;
-	}
+        _inlineContent = inlineContent;
+    }
 
-	public void SetType(string type)
-	{
-		Infra.Requires(type);
+    public void SetType(string type)
+    {
+        Infra.Requires(type);
 
-		_type = type;
-	}
+        _type = type;
+    }
 
-	public void SetAttribute(string attribute)
-	{
-		Infra.Requires(attribute);
+    public void SetAttribute(string attribute)
+    {
+        Infra.Requires(attribute);
 
-		_attribute = attribute;
-	}
+        _attribute = attribute;
+    }
 
 #endregion
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,56 +19,56 @@ namespace Xtate.DataModel;
 
 public class DefaultSendEvaluator(ISend send) : SendEvaluator(send)
 {
-	private readonly IValueEvaluator? _contentBodyEvaluator = send.Content?.Body?.As<IValueEvaluator>();
+    private readonly IValueEvaluator? _contentBodyEvaluator = send.Content?.Body?.As<IValueEvaluator>();
 
-	private readonly IObjectEvaluator? _contentExpressionEvaluator = send.Content?.Expression?.As<IObjectEvaluator>();
+    private readonly IObjectEvaluator? _contentExpressionEvaluator = send.Content?.Expression?.As<IObjectEvaluator>();
 
-	private readonly IIntegerEvaluator? _delayExpressionEvaluator = send.DelayExpression?.As<IIntegerEvaluator>();
+    private readonly IIntegerEvaluator? _delayExpressionEvaluator = send.DelayExpression?.As<IIntegerEvaluator>();
 
-	private readonly IStringEvaluator? _eventExpressionEvaluator = send.EventExpression?.As<IStringEvaluator>();
+    private readonly IStringEvaluator? _eventExpressionEvaluator = send.EventExpression?.As<IStringEvaluator>();
 
-	private readonly ILocationEvaluator? _idLocationEvaluator = send.IdLocation?.As<ILocationEvaluator>();
+    private readonly ILocationEvaluator? _idLocationEvaluator = send.IdLocation?.As<ILocationEvaluator>();
 
-	private readonly ImmutableArray<ILocationEvaluator> _nameEvaluatorList = send.NameList.AsArrayOf<ILocationExpression, ILocationEvaluator>();
+    private readonly ImmutableArray<ILocationEvaluator> _nameEvaluatorList = send.NameList.AsArrayOf<ILocationExpression, ILocationEvaluator>();
 
-	private readonly ImmutableArray<DataConverter.Param> _parameterList = DataModel.DataConverter.AsParamArray(send.Parameters);
+    private readonly ImmutableArray<DataConverter.Param> _parameterList = DataModel.DataConverter.AsParamArray(send.Parameters);
 
-	private readonly IStringEvaluator? _targetExpressionEvaluator = send.TargetExpression?.As<IStringEvaluator>();
+    private readonly IStringEvaluator? _targetExpressionEvaluator = send.TargetExpression?.As<IStringEvaluator>();
 
-	private readonly IStringEvaluator? _typeExpressionEvaluator = send.TypeExpression?.As<IStringEvaluator>();
+    private readonly IStringEvaluator? _typeExpressionEvaluator = send.TypeExpression?.As<IStringEvaluator>();
 
-	public required Deferred<DataConverter> DataConverter { private get; [UsedImplicitly] init; }
+    public required Deferred<DataConverter> DataConverter { private get; [UsedImplicitly] init; }
 
-	public required Deferred<IEventController> EventController { private get; [UsedImplicitly] init; }
+    public required Deferred<IEventController> EventController { private get; [UsedImplicitly] init; }
 
-	public override async ValueTask Execute()
-	{
-		var sendId = base.Id is { } id ? SendId.FromString(id) : SendId.New();
+    public override async ValueTask Execute()
+    {
+        var sendId = base.Id is { } id ? SendId.FromString(id) : SendId.New();
 
-		if (_idLocationEvaluator is not null)
-		{
-			await _idLocationEvaluator.SetValue(sendId).ConfigureAwait(false);
-		}
+        if (_idLocationEvaluator is not null)
+        {
+            await _idLocationEvaluator.SetValue(sendId).ConfigureAwait(false);
+        }
 
-		var dataConverter = await DataConverter().ConfigureAwait(false);
-		var name = _eventExpressionEvaluator is not null ? await _eventExpressionEvaluator.EvaluateString().ConfigureAwait(false) : EventName;
-		var data = await dataConverter.GetData(_contentBodyEvaluator, _contentExpressionEvaluator, _nameEvaluatorList, _parameterList).ConfigureAwait(false);
-		var type = _typeExpressionEvaluator is not null ? new FullUri(await _typeExpressionEvaluator.EvaluateString().ConfigureAwait(false)) : Type;
-		var target = _targetExpressionEvaluator is not null ? new FullUri(await _targetExpressionEvaluator.EvaluateString().ConfigureAwait(false)) : Target;
-		var delayMs = _delayExpressionEvaluator is not null ? await _delayExpressionEvaluator.EvaluateInteger().ConfigureAwait(false) : DelayMs ?? 0;
-		var rawContent = _contentBodyEvaluator is IStringEvaluator rawContentEvaluator ? await rawContentEvaluator.EvaluateString().ConfigureAwait(false) : null;
+        var dataConverter = await DataConverter().ConfigureAwait(false);
+        var name = _eventExpressionEvaluator is not null ? await _eventExpressionEvaluator.EvaluateString().ConfigureAwait(false) : EventName;
+        var data = await dataConverter.GetData(_contentBodyEvaluator, _contentExpressionEvaluator, _nameEvaluatorList, _parameterList).ConfigureAwait(false);
+        var type = _typeExpressionEvaluator is not null ? new FullUri(await _typeExpressionEvaluator.EvaluateString().ConfigureAwait(false)) : Type;
+        var target = _targetExpressionEvaluator is not null ? new FullUri(await _targetExpressionEvaluator.EvaluateString().ConfigureAwait(false)) : Target;
+        var delayMs = _delayExpressionEvaluator is not null ? await _delayExpressionEvaluator.EvaluateInteger().ConfigureAwait(false) : DelayMs ?? 0;
+        var rawContent = _contentBodyEvaluator is IStringEvaluator rawContentEvaluator ? await rawContentEvaluator.EvaluateString().ConfigureAwait(false) : null;
 
-		var eventEntity = new EventEntity(name)
-						  {
-							  SendId = sendId,
-							  Type = type,
-							  Target = target,
-							  DelayMs = delayMs,
-							  Data = data,
-							  RawData = rawContent
-						  };
+        var eventEntity = new EventEntity(name)
+                          {
+                              SendId = sendId,
+                              Type = type,
+                              Target = target,
+                              DelayMs = delayMs,
+                              Data = data,
+                              RawData = rawContent
+                          };
 
-		var eventController = await EventController().ConfigureAwait(false);
-		await eventController.Send(eventEntity).ConfigureAwait(false);
-	}
+        var eventController = await EventController().ConfigureAwait(false);
+        await eventController.Send(eventEntity).ConfigureAwait(false);
+    }
 }

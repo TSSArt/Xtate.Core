@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,7 +21,7 @@ public class DefaultIoBoundTask : IIoBoundTask
 {
 #region Interface IIoBoundTask
 
-	public TaskFactory Factory => new(TaskScheduler.Default);
+    public TaskFactory Factory => new(TaskScheduler.Default);
 
 #endregion
 }

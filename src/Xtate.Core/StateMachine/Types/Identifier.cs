@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,60 +21,60 @@ namespace Xtate;
 
 public sealed class Identifier : LazyId, IIdentifier, IEquatable<Identifier>
 {
-	private Identifier() { }
+    private Identifier() { }
 
-	private Identifier(string value) : base(value) { }
+    private Identifier(string value) : base(value) { }
 
 #region Interface IEquatable<Identifier>
 
-	public bool Equals(Identifier? other) => FastEqualsNoTypeCheck(other);
+    public bool Equals(Identifier? other) => FastEqualsNoTypeCheck(other);
 
 #endregion
 
-	public override bool Equals(object? obj) => obj is Identifier identifier ? Equals(identifier) : obj?.Equals(this) == true;
+    public override bool Equals(object? obj) => obj is Identifier identifier ? Equals(identifier) : obj?.Equals(this) == true;
 
-	public override int GetHashCode() => base.GetHashCode();
+    public override int GetHashCode() => base.GetHashCode();
 
-	public static explicit operator Identifier([Localizable(false)] string value) => FromString(value);
+    public static explicit operator Identifier([Localizable(false)] string value) => FromString(value);
 
-	public static Identifier FromString([Localizable(false)] string value)
-	{
-		foreach (var ch in value)
-		{
-			if (char.IsWhiteSpace(ch))
-			{
-				throw new ArgumentException(Resources.Exception_IdentifierCannotContainWhitespace, nameof(value));
-			}
-		}
+    public static Identifier FromString([Localizable(false)] string value)
+    {
+        foreach (var ch in value)
+        {
+            if (char.IsWhiteSpace(ch))
+            {
+                throw new ArgumentException(Resources.Exception_IdentifierCannotContainWhitespace, nameof(value));
+            }
+        }
 
-		return new Identifier(value);
-	}
+        return new Identifier(value);
+    }
 
-	public static bool TryCreate([Localizable(false)] string? value, [NotNullWhen(true)] out Identifier? identifier)
-	{
-		if (string.IsNullOrEmpty(value))
-		{
-			identifier = default;
+    public static bool TryCreate([Localizable(false)] string? value, [NotNullWhen(true)] out Identifier? identifier)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            identifier = default;
 
-			return false;
-		}
+            return false;
+        }
 
-		foreach (var ch in value)
-		{
-			if (char.IsWhiteSpace(ch))
-			{
-				identifier = default;
+        foreach (var ch in value)
+        {
+            if (char.IsWhiteSpace(ch))
+            {
+                identifier = default;
 
-				return false;
-			}
-		}
+                return false;
+            }
+        }
 
-		identifier = new Identifier(value);
+        identifier = new Identifier(value);
 
-		return true;
-	}
+        return true;
+    }
 
-	protected override string GenerateId() => IdGenerator.NewId(GetHashCode());
+    protected override string GenerateId() => IdGenerator.NewId(GetHashCode());
 
-	public static IIdentifier New() => new Identifier();
+    public static IIdentifier New() => new Identifier();
 }

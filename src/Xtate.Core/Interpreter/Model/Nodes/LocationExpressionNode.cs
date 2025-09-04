@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,34 +21,34 @@ namespace Xtate.Core;
 
 public sealed class LocationExpressionNode : ILocationExpression, IStoreSupport, IAncestorProvider
 {
-	private readonly ILocationExpression _locationExpression;
+    private readonly ILocationExpression _locationExpression;
 
-	public LocationExpressionNode(ILocationExpression locationExpression)
-	{
-		Infra.NotNull(locationExpression.Expression);
+    public LocationExpressionNode(ILocationExpression locationExpression)
+    {
+        Infra.NotNull(locationExpression.Expression);
 
-		_locationExpression = locationExpression;
-	}
+        _locationExpression = locationExpression;
+    }
 
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => _locationExpression;
+    object IAncestorProvider.Ancestor => _locationExpression;
 
 #endregion
 
 #region Interface ILocationExpression
 
-	public string Expression => _locationExpression.Expression!;
+    public string Expression => _locationExpression.Expression!;
 
 #endregion
 
 #region Interface IStoreSupport
 
-	void IStoreSupport.Store(Bucket bucket)
-	{
-		bucket.Add(Key.TypeInfo, TypeInfo.LocationExpressionNode);
-		bucket.Add(Key.Expression, Expression);
-	}
+    void IStoreSupport.Store(Bucket bucket)
+    {
+        bucket.Add(Key.TypeInfo, TypeInfo.LocationExpressionNode);
+        bucket.Add(Key.Expression, Expression);
+    }
 
 #endregion
 }

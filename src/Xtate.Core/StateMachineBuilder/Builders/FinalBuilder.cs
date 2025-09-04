@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,45 +19,45 @@ namespace Xtate.Builder;
 
 public class FinalBuilder : BuilderBase, IFinalBuilder
 {
-	private IDoneData? _doneData;
+    private IDoneData? _doneData;
 
-	private IIdentifier? _id;
+    private IIdentifier? _id;
 
-	private ImmutableArray<IOnEntry>.Builder? _onEntryList;
+    private ImmutableArray<IOnEntry>.Builder? _onEntryList;
 
-	private ImmutableArray<IOnExit>.Builder? _onExitList;
+    private ImmutableArray<IOnExit>.Builder? _onExitList;
 
 #region Interface IFinalBuilder
 
-	public IFinal Build() => new FinalEntity { Ancestor = Ancestor, Id = _id, OnEntry = _onEntryList?.ToImmutable() ?? default, OnExit = _onExitList?.ToImmutable() ?? default, DoneData = _doneData };
+    public IFinal Build() => new FinalEntity { Ancestor = Ancestor, Id = _id, OnEntry = _onEntryList?.ToImmutable() ?? default, OnExit = _onExitList?.ToImmutable() ?? default, DoneData = _doneData };
 
-	public void SetId(IIdentifier id)
-	{
-		Infra.Requires(id);
+    public void SetId(IIdentifier id)
+    {
+        Infra.Requires(id);
 
-		_id = id;
-	}
+        _id = id;
+    }
 
-	public void AddOnEntry(IOnEntry onEntry)
-	{
-		Infra.Requires(onEntry);
+    public void AddOnEntry(IOnEntry onEntry)
+    {
+        Infra.Requires(onEntry);
 
-		(_onEntryList ??= ImmutableArray.CreateBuilder<IOnEntry>()).Add(onEntry);
-	}
+        (_onEntryList ??= ImmutableArray.CreateBuilder<IOnEntry>()).Add(onEntry);
+    }
 
-	public void AddOnExit(IOnExit onExit)
-	{
-		Infra.Requires(onExit);
+    public void AddOnExit(IOnExit onExit)
+    {
+        Infra.Requires(onExit);
 
-		(_onExitList ??= ImmutableArray.CreateBuilder<IOnExit>()).Add(onExit);
-	}
+        (_onExitList ??= ImmutableArray.CreateBuilder<IOnExit>()).Add(onExit);
+    }
 
-	public void SetDoneData(IDoneData doneData)
-	{
-		Infra.Requires(doneData);
+    public void SetDoneData(IDoneData doneData)
+    {
+        Infra.Requires(doneData);
 
-		_doneData = doneData;
-	}
+        _doneData = doneData;
+    }
 
 #endregion
 }

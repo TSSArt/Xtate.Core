@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,13 +21,13 @@ namespace Xtate.DataModel.Runtime;
 
 public class RuntimeDataModelHandlerModule : Module<DataModelHandlerBaseModule, ErrorProcessorModule>
 {
-	protected override void AddServices()
-	{
-		Services.AddTypeSync<RuntimeActionExecutor, RuntimeAction>();
-		Services.AddTypeSync<RuntimeValueEvaluator, RuntimeValue>();
-		Services.AddTypeSync<RuntimePredicateEvaluator, RuntimePredicate>();
-		Services.AddType<RuntimeExecutionContext>();
-		Services.AddImplementation<RuntimeDataModelHandler>().For<RuntimeDataModelHandler>().For<IDataModelHandler>(Option.IfNotRegistered);
-		Services.AddImplementation<RuntimeDataModelHandler.Provider>().For<IDataModelHandlerProvider>();
-	}
+    protected override void AddServices()
+    {
+        Services.AddTypeSync<RuntimeActionExecutor, RuntimeAction>();
+        Services.AddTypeSync<RuntimeValueEvaluator, RuntimeValue>();
+        Services.AddTypeSync<RuntimePredicateEvaluator, RuntimePredicate>();
+        Services.AddType<RuntimeExecutionContext>();
+        Services.AddImplementation<RuntimeDataModelHandler>().For<RuntimeDataModelHandler>().For<IDataModelHandler>(Option.IfNotRegistered);
+        Services.AddImplementation<RuntimeDataModelHandler.Provider>().For<IDataModelHandlerProvider>();
+    }
 }

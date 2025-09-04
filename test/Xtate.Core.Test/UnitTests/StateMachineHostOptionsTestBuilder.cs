@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,14 +19,14 @@ namespace Xtate.Test;
 
 public static class StateMachineHostOptionsTestBuilder
 {
-	public delegate void StateMachineHostOptionsSetup(StateMachineHostOptions options);
+    public delegate void StateMachineHostOptionsSetup(StateMachineHostOptions options);
 
-	public static StateMachineHostOptions Create(StateMachineHostOptionsSetup build)
-	{
-		var options = new StateMachineHostOptions { IoProcessorFactories = [], ServiceFactories = [] };
+    public static StateMachineHostOptions Create(StateMachineHostOptionsSetup build)
+    {
+        var options = new StateMachineHostOptions { IoProcessorFactories = [], ServiceFactories = [] };
 
-		build(options);
+        build(options);
 
-		return options;
-	}
+        return options;
+    }
 }

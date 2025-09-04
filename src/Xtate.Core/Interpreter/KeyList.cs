@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,37 +19,37 @@ namespace Xtate.Core;
 
 public sealed class KeyList<T> : IEnumerable<KeyValuePair<IEntity, List<T>>>
 {
-	public delegate void ChangeHandler(ChangedAction action, IEntity entity, List<T> list);
+    public delegate void ChangeHandler(ChangedAction action, IEntity entity, List<T> list);
 
-	public enum ChangedAction
-	{
-		Set
-	}
+    public enum ChangedAction
+    {
+        Set
+    }
 
-	private readonly Dictionary<IEntity, List<T>> _dic = [];
+    private readonly Dictionary<IEntity, List<T>> _dic = [];
 
 #region Interface IEnumerable
 
-	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
 #endregion
 
 #region Interface IEnumerable<KeyValuePair<IEntity,List<T>>>
 
-	IEnumerator<KeyValuePair<IEntity, List<T>>> IEnumerable<KeyValuePair<IEntity, List<T>>>.GetEnumerator() => GetEnumerator();
+    IEnumerator<KeyValuePair<IEntity, List<T>>> IEnumerable<KeyValuePair<IEntity, List<T>>>.GetEnumerator() => GetEnumerator();
 
 #endregion
 
-	public event ChangeHandler? Changed;
+    public event ChangeHandler? Changed;
 
-	public void Set(IEntity entity, List<T> list)
-	{
-		_dic[entity] = list;
+    public void Set(IEntity entity, List<T> list)
+    {
+        _dic[entity] = list;
 
-		Changed?.Invoke(ChangedAction.Set, entity, list);
-	}
+        Changed?.Invoke(ChangedAction.Set, entity, list);
+    }
 
-	public bool TryGetValue(IEntity entity, out List<T> list) => _dic.TryGetValue(entity, out list!);
+    public bool TryGetValue(IEntity entity, out List<T> list) => _dic.TryGetValue(entity, out list!);
 
-	public Dictionary<IEntity, List<T>>.Enumerator GetEnumerator() => _dic.GetEnumerator();
+    public Dictionary<IEntity, List<T>>.Enumerator GetEnumerator() => _dic.GetEnumerator();
 }

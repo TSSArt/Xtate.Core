@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,26 +22,26 @@ namespace Xtate.Core;
 [Obsolete]
 public class IoProcessorService
 {
-	public required ServiceList<IEventRouter> IoProcessors { private get; [UsedImplicitly] init; }
+    public required ServiceList<IEventRouter> IoProcessors { private get; [UsedImplicitly] init; }
 
-	public required ExternalServiceEventRouter ExternalServiceEventRouter { private get; [UsedImplicitly] init; }
+    public required ExternalServiceEventRouter ExternalServiceEventRouter { private get; [UsedImplicitly] init; }
 
-	[UsedImplicitly]
-	public IEventRouter GetIoProcessor(FullUri? type)
-	{
-	/*	if (ExternalServiceCollection.CanHandle(type))
-		{
-			return ExternalServiceCollection;
-		}*/
+    [UsedImplicitly]
+    public IEventRouter GetIoProcessor(FullUri? type)
+    {
+        /*	if (ExternalServiceCollection.CanHandle(type))
+            {
+                return ExternalServiceCollection;
+            }*/
 
-		foreach (var ioProcessor in IoProcessors)
-		{
-			if (ioProcessor.CanHandle(type))
-			{
-				return ioProcessor;
-			}
-		}
+        foreach (var ioProcessor in IoProcessors)
+        {
+            if (ioProcessor.CanHandle(type))
+            {
+                return ioProcessor;
+            }
+        }
 
-		throw new ProcessorException(Res.Format(Resources.Exception_InvalidType, type));
-	}
+        throw new ProcessorException(Res.Format(Resources.Exception_InvalidType, type));
+    }
 }
