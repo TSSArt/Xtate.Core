@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,7 +22,7 @@ namespace Xtate.Core;
 [Obsolete]
 public interface IPersistingInterpreterState
 {
-	Bucket StateBucket { get; }
+    Bucket StateBucket { get; }
 
-	ValueTask CheckPoint(int level);
+    ValueTask CheckPoint(int level);
 }

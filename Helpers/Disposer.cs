@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,28 +19,30 @@ namespace Xtate;
 
 public static class Disposer
 {
+    public static bool IsDisposable<T>([NotNullWhen(true)] T instance) => instance is IDisposable or IAsyncDisposable;
+
 	public static void Dispose<T>(T instance)
-	{
-		if (instance is IDisposable disposable)
-		{
-			disposable.Dispose();
-		}
-	}
+    {
+        if (instance is IDisposable disposable)
+        {
+            disposable.Dispose();
+        }
+    }
 
-	public static ValueTask DisposeAsync<T>(T instance)
-	{
-		switch (instance)
-		{
-			case IAsyncDisposable asyncDisposable:
-				return asyncDisposable.DisposeAsync();
+    public static ValueTask DisposeAsync<T>(T instance)
+    {
+        switch (instance)
+        {
+            case IAsyncDisposable asyncDisposable:
+                return asyncDisposable.DisposeAsync();
 
-			case IDisposable disposable:
-				disposable.Dispose();
+            case IDisposable disposable:
+                disposable.Dispose();
 
-				return default;
+                return ValueTask.CompletedTask;
 
-			default:
-				return default;
-		}
-	}
+            default:
+                return ValueTask.CompletedTask;
+        }
+    }
 }

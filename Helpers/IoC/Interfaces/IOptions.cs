@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -17,11 +17,7 @@
 
 namespace Xtate.Core;
 
-public class HostBasedSourceStateMachine(ISourceStateMachine sourceStateMachine, IHostBaseUri? hostBaseUri) : ISourceStateMachine
+public interface IOptions<out T>
 {
-#region Interface ISourceStateMachine
-
-	public Uri Location => hostBaseUri?.HostBaseUri.CombineWith(sourceStateMachine.Location)!;
-
-#endregion
+    T Value { get; }
 }

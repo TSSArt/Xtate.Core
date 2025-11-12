@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -24,9 +24,9 @@ public sealed class DefaultErrorProcessor : IErrorProcessor
 {
 #region Interface IErrorProcessor
 
-	public void ThrowIfErrors() { }
+    public void ThrowIfErrors() { }
 
-	void IErrorProcessor.AddError(ErrorItem errorItem) => throw new StateMachineValidationException([errorItem]);
+    void IErrorProcessor.AddError(ErrorItem errorItem) => throw new StateMachineValidationException([errorItem]);
 
 #endregion
 }

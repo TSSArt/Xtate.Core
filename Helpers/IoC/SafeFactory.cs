@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,32 +19,33 @@ using Xtate.IoC;
 
 namespace Xtate.Core;
 
+[InstantiatedByIoC]
 public class SafeFactory<T> : IAsyncInitialization
 {
-	private T? _value;
+    private T? _value;
 
-	public SafeFactory(Func<ValueTask<T?>> factory) => Initialization = Initialize(this, factory);
+    public SafeFactory(Func<ValueTask<T?>> factory) => Initialization = Initialize(this, factory);
 
 #region Interface IAsyncInitialization
 
-	public Task Initialization { get; }
+    public Task Initialization { get; }
 
 #endregion
 
-	private static async Task Initialize(SafeFactory<T> safeFactory, Func<ValueTask<T?>> factory)
-	{
-		try
-		{
-			safeFactory._value = await factory().ConfigureAwait(false);
-		}
-		catch (DependencyInjectionException ex) when (ex.GetBaseException() is MissedServiceException)
-		{
-			// ignore
-		}
-	}
+    private static async Task Initialize(SafeFactory<T> safeFactory, Func<ValueTask<T?>> factory)
+    {
+        try
+        {
+            safeFactory._value = await factory().ConfigureAwait(false);
+        }
+        catch (DependencyInjectionException ex) when (ex.GetBaseException() is MissedServiceException)
+        {
+            // ignore
+        }
+    }
 
-	private T? GetValue() => _value;
+    private T? GetValue() => _value;
 
-	[UsedImplicitly]
-	public ValueTask<Safe<T>> GetValueFunc() => new(GetValue);
+    [CalledByIoC]
+    public ValueTask<Safe<T>> GetValueFunc() => new(GetValue);
 }

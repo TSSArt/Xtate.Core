@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,65 +22,65 @@ namespace Xtate.DataModel.XPath;
 
 internal class ElementNodeAdapter : NodeAdapter
 {
-	public override XPathNodeType GetNodeType() => XPathNodeType.Element;
+    public override XPathNodeType GetNodeType() => XPathNodeType.Element;
 
-	public override bool IsEmptyElement(in DataModelXPathNavigator.Node node) => !GetFirstChild(node, out _);
+    public override bool IsEmptyElement(in DataModelXPathNavigator.Node node) => !GetFirstChild(node, out _);
 
-	public override string GetLocalName(in DataModelXPathNavigator.Node node)
-	{
-		if (node.ParentProperty is { } parentProperty)
-		{
-			var localName = XmlConvert.EncodeLocalName(parentProperty);
+    public override string GetLocalName(in DataModelXPathNavigator.Node node)
+    {
+        if (node.ParentProperty is { } parentProperty)
+        {
+            var localName = XmlConvert.EncodeLocalName(parentProperty);
 
-			Infra.NotNull(localName);
+            Infra.NotNull(localName);
 
-			return localName;
-		}
+            return localName;
+        }
 
-		return string.Empty;
-	}
+        return string.Empty;
+    }
 
-	public override bool GetFirstChild(in DataModelXPathNavigator.Node node, out DataModelXPathNavigator.Node childNode)
-	{
-		childNode = new DataModelXPathNavigator.Node(value: default, default!);
+    public override bool GetFirstChild(in DataModelXPathNavigator.Node node, out DataModelXPathNavigator.Node childNode)
+    {
+        childNode = new DataModelXPathNavigator.Node(value: default, default!);
 
-		return GetNextChild(node, ref childNode);
-	}
+        return GetNextChild(node, ref childNode);
+    }
 
-	public override string GetValue(in DataModelXPathNavigator.Node node)
-	{
-		using var ss = new StackSpan<char>(GetBufferSizeForValue(node));
-		var span = ss ? ss : stackalloc char[ss];
-		
-		var length = WriteValueToSpan(node, span);
+    public override string GetValue(in DataModelXPathNavigator.Node node)
+    {
+        using var ss = new StackSpan<char>(GetBufferSizeForValue(node));
+        var span = ss ? ss : stackalloc char[ss];
 
-		return length > 0 ? span[..length].ToString() : string.Empty;
-	}
+        var length = WriteValueToSpan(node, span);
 
-	public sealed override int GetBufferSizeForValue(in DataModelXPathNavigator.Node node)
-	{
-		var count = 0;
+        return length > 0 ? span[..length].ToString() : string.Empty;
+    }
 
-		for (var ok = GetFirstChild(node, out var child); ok; ok = GetNextChild(node, ref child))
-		{
-			count += child.Adapter.GetBufferSizeForValue(child);
-		}
+    public sealed override int GetBufferSizeForValue(in DataModelXPathNavigator.Node node)
+    {
+        var count = 0;
 
-		return count;
-	}
+        for (var ok = GetFirstChild(node, out var child); ok; ok = GetNextChild(node, ref child))
+        {
+            count += child.Adapter.GetBufferSizeForValue(child);
+        }
 
-	public sealed override int WriteValueToSpan(in DataModelXPathNavigator.Node node, in Span<char> span)
-	{
-		var count = 0;
-		var buf = span;
+        return count;
+    }
 
-		for (var ok = GetFirstChild(node, out var child); ok; ok = GetNextChild(node, ref child))
-		{
-			var length = child.Adapter.WriteValueToSpan(child, buf);
-			buf = buf[length..];
-			count += length;
-		}
+    public sealed override int WriteValueToSpan(in DataModelXPathNavigator.Node node, in Span<char> span)
+    {
+        var count = 0;
+        var buf = span;
 
-		return count;
-	}
+        for (var ok = GetFirstChild(node, out var child); ok; ok = GetNextChild(node, ref child))
+        {
+            var length = child.Adapter.WriteValueToSpan(child, buf);
+            buf = buf[length..];
+            count += length;
+        }
+
+        return count;
+    }
 }

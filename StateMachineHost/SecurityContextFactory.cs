@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,13 +19,13 @@ namespace Xtate.Core;
 
 public sealed class SecurityContextFactory
 {
-	private readonly AsyncLocal<SecurityContext> _securityContext = new();
+    private readonly AsyncLocal<SecurityContext> _securityContext = new();
 
-	private SecurityContext CurrentSecurityContext => _securityContext.Value ?? SecurityContext.FullAccess;
+    private SecurityContext CurrentSecurityContext => _securityContext.Value ?? SecurityContext.FullAccess;
 
-	[UsedImplicitly]
-	public IIoBoundTask GetIIoBoundTask() => CurrentSecurityContext;
+    [UsedImplicitly]
+    public IIoBoundTask GetIIoBoundTask() => CurrentSecurityContext;
 
-	[UsedImplicitly]
-	public SecurityContextRegistration GetRegistration(SecurityContextType securityContextType) => new(_securityContext, securityContextType);
+    [UsedImplicitly]
+    public SecurityContextRegistration GetRegistration(SecurityContextType securityContextType) => new(_securityContext, securityContextType);
 }

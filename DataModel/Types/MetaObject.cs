@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,29 +21,29 @@ namespace Xtate.Core;
 
 internal class MetaObject(Expression expression, object value, Func<Expression, DynamicMetaObject> metaObjectCreator) : DynamicMetaObject(expression, BindingRestrictions.Empty, value)
 {
-	private readonly DynamicMetaObject _metaObject = metaObjectCreator(expression);
+    private readonly DynamicMetaObject _metaObject = metaObjectCreator(expression);
 
-	public override DynamicMetaObject BindGetMember(GetMemberBinder binder) => _metaObject.BindGetMember(binder);
+    public override DynamicMetaObject BindGetMember(GetMemberBinder binder) => _metaObject.BindGetMember(binder);
 
-	public override DynamicMetaObject BindSetMember(SetMemberBinder binder, DynamicMetaObject value) => _metaObject.BindSetMember(binder, value);
+    public override DynamicMetaObject BindSetMember(SetMemberBinder binder, DynamicMetaObject value) => _metaObject.BindSetMember(binder, value);
 
-	public override DynamicMetaObject BindDeleteMember(DeleteMemberBinder binder) => _metaObject.BindDeleteMember(binder);
+    public override DynamicMetaObject BindDeleteMember(DeleteMemberBinder binder) => _metaObject.BindDeleteMember(binder);
 
-	public override DynamicMetaObject BindGetIndex(GetIndexBinder binder, DynamicMetaObject[] indexes) => _metaObject.BindGetIndex(binder, indexes);
+    public override DynamicMetaObject BindGetIndex(GetIndexBinder binder, DynamicMetaObject[] indexes) => _metaObject.BindGetIndex(binder, indexes);
 
-	public override DynamicMetaObject BindSetIndex(SetIndexBinder binder, DynamicMetaObject[] indexes, DynamicMetaObject value) => _metaObject.BindSetIndex(binder, indexes, value);
+    public override DynamicMetaObject BindSetIndex(SetIndexBinder binder, DynamicMetaObject[] indexes, DynamicMetaObject value) => _metaObject.BindSetIndex(binder, indexes, value);
 
-	public override DynamicMetaObject BindDeleteIndex(DeleteIndexBinder binder, DynamicMetaObject[] indexes) => _metaObject.BindDeleteIndex(binder, indexes);
+    public override DynamicMetaObject BindDeleteIndex(DeleteIndexBinder binder, DynamicMetaObject[] indexes) => _metaObject.BindDeleteIndex(binder, indexes);
 
-	public override DynamicMetaObject BindInvokeMember(InvokeMemberBinder binder, DynamicMetaObject[] args) => _metaObject.BindInvokeMember(binder, args);
+    public override DynamicMetaObject BindInvokeMember(InvokeMemberBinder binder, DynamicMetaObject[] args) => _metaObject.BindInvokeMember(binder, args);
 
-	public override DynamicMetaObject BindInvoke(InvokeBinder binder, DynamicMetaObject[] args) => _metaObject.BindInvoke(binder, args);
+    public override DynamicMetaObject BindInvoke(InvokeBinder binder, DynamicMetaObject[] args) => _metaObject.BindInvoke(binder, args);
 
-	public override DynamicMetaObject BindCreateInstance(CreateInstanceBinder binder, DynamicMetaObject[] args) => _metaObject.BindCreateInstance(binder, args);
+    public override DynamicMetaObject BindCreateInstance(CreateInstanceBinder binder, DynamicMetaObject[] args) => _metaObject.BindCreateInstance(binder, args);
 
-	public override DynamicMetaObject BindUnaryOperation(UnaryOperationBinder binder) => _metaObject.BindUnaryOperation(binder);
+    public override DynamicMetaObject BindUnaryOperation(UnaryOperationBinder binder) => _metaObject.BindUnaryOperation(binder);
 
-	public override DynamicMetaObject BindBinaryOperation(BinaryOperationBinder binder, DynamicMetaObject arg) => _metaObject.BindBinaryOperation(binder, arg);
+    public override DynamicMetaObject BindBinaryOperation(BinaryOperationBinder binder, DynamicMetaObject arg) => _metaObject.BindBinaryOperation(binder, arg);
 
-	public override DynamicMetaObject BindConvert(ConvertBinder binder) => _metaObject.BindConvert(binder);
+    public override DynamicMetaObject BindConvert(ConvertBinder binder) => _metaObject.BindConvert(binder);
 }

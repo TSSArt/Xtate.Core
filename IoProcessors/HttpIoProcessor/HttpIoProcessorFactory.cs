@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -23,14 +23,14 @@ public sealed class HttpIoProcessorFactory(Uri baseUri, IPEndPoint ipEndPoint) :
 {
 #region Interface IIoProcessorFactory
 
-	public async ValueTask<IEventRouter> Create(IEventConsumer eventConsumer, CancellationToken token)
-	{
-		var httpIoProcessor = new HttpIoProcessor(eventConsumer, baseUri, ipEndPoint) { StateMachineSessionId = null };
+    public async ValueTask<IEventRouter> Create(IEventConsumer eventConsumer, CancellationToken token)
+    {
+        var httpIoProcessor = new HttpIoProcessor(eventConsumer, baseUri, ipEndPoint) { StateMachineSessionId = null };
 
-		await httpIoProcessor.Start(token).ConfigureAwait(false);
+        await httpIoProcessor.Start(token).ConfigureAwait(false);
 
-		return httpIoProcessor;
-	}
+        return httpIoProcessor;
+    }
 
 #endregion
 }

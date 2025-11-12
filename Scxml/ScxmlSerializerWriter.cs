@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,621 +21,621 @@ namespace Xtate.Scxml;
 
 public class ScxmlSerializerWriter(XmlWriter writer) : StateMachineVisitor
 {
-	private const string Space = " ";
+    private const string Space = " ";
 
-	public void Serialize(IStateMachine stateMachine) => Visit(ref stateMachine);
+    public void Serialize(IStateMachine stateMachine) => Visit(ref stateMachine);
 
-	protected override void Visit(ref IStateMachine entity)
-	{
-		Infra.NotNull(entity);
+    protected override void Visit(ref IStateMachine entity)
+    {
+        Infra.NotNull(entity);
 
-		writer.WriteStartElement(prefix: "", localName: "scxml", Const.ScxmlNs);
-		writer.WriteAttributeString(localName: "version", value: @"1.0");
+        writer.WriteStartElement(prefix: "", localName: "scxml", Const.ScxmlNs);
+        writer.WriteAttributeString(localName: "version", value: @"1.0");
 
-		if (entity.DataModelType is { } dataModelType)
-		{
-			writer.WriteAttributeString(localName: "datamodel", dataModelType);
-		}
+        if (entity.DataModelType is { } dataModelType)
+        {
+            writer.WriteAttributeString(localName: "datamodel", dataModelType);
+        }
 
-		var target = entity.Initial?.Transition?.Target ?? default;
+        var target = entity.Initial?.Transition?.Target ?? default;
 
-		if (!target.IsDefault)
-		{
-			writer.WriteStartAttribute("initial");
-			WriteArray(target.Array, i => i.Value, Space);
-			writer.WriteEndAttribute();
-		}
+        if (!target.IsDefault)
+        {
+            writer.WriteStartAttribute("initial");
+            WriteArray(target.Array, i => i.Value, Space);
+            writer.WriteEndAttribute();
+        }
 
-		if (entity.Is<IStateMachineOptions>(out var options))
-		{
-			WriteOptions(options);
-		}
+        if (entity.Is<IStateMachineOptions>(out var options))
+        {
+            WriteOptions(options);
+        }
 
-		base.Visit(ref entity);
+        base.Visit(ref entity);
 
-		writer.WriteEndElement();
-	}
+        writer.WriteEndElement();
+    }
 
-	protected override void Build(ref StateMachineEntity properties)
-	{
-		properties.Initial = default;
+    protected override void Build(ref StateMachineEntity properties)
+    {
+        properties.Initial = default;
 
-		base.Build(ref properties);
-	}
+        base.Build(ref properties);
+    }
 
-	private void WriteOptions(IStateMachineOptions options)
-	{
-		if (options.PersistenceLevel is { } persistenceLevel)
-		{
-			writer.WriteAttributeString(localName: "persistence", Const.XtateScxmlNs, persistenceLevel.ToString());
-		}
+    private void WriteOptions(IStateMachineOptions options)
+    {
+        if (options.PersistenceLevel is { } persistenceLevel)
+        {
+            writer.WriteAttributeString(localName: "persistence", Const.XtateScxmlNs, persistenceLevel.ToString());
+        }
 
-		if (options.SynchronousEventProcessing is { } synchronousEventProcessing)
-		{
-			writer.WriteAttributeString(localName: "synchronous", Const.XtateScxmlNs, XmlConvert.ToString(synchronousEventProcessing));
-		}
+        if (options.SynchronousEventProcessing is { } synchronousEventProcessing)
+        {
+            writer.WriteAttributeString(localName: "synchronous", Const.XtateScxmlNs, XmlConvert.ToString(synchronousEventProcessing));
+        }
 
-		if (options.ExternalQueueSize is { } externalQueueSize)
-		{
-			writer.WriteAttributeString(localName: "queueSize", Const.XtateScxmlNs, XmlConvert.ToString(externalQueueSize));
-		}
+        if (options.ExternalQueueSize is { } externalQueueSize)
+        {
+            writer.WriteAttributeString(localName: "queueSize", Const.XtateScxmlNs, XmlConvert.ToString(externalQueueSize));
+        }
 
-		if (options.UnhandledErrorBehaviour is { } unhandledErrorBehaviour)
-		{
-			writer.WriteAttributeString(localName: "onError", Const.XtateScxmlNs, unhandledErrorBehaviour.ToString());
-		}
-	}
+        if (options.UnhandledErrorBehaviour is { } unhandledErrorBehaviour)
+        {
+            writer.WriteAttributeString(localName: "onError", Const.XtateScxmlNs, unhandledErrorBehaviour.ToString());
+        }
+    }
 
-	protected override void Visit(ref IInitial entity)
-	{
-		writer.WriteStartElement("initial");
+    protected override void Visit(ref IInitial entity)
+    {
+        writer.WriteStartElement("initial");
 
-		base.Visit(ref entity);
+        base.Visit(ref entity);
 
-		writer.WriteEndElement();
-	}
+        writer.WriteEndElement();
+    }
 
-	protected override void Visit(ref IState entity)
-	{
-		Infra.Requires(entity);
+    protected override void Visit(ref IState entity)
+    {
+        Infra.Requires(entity);
 
-		writer.WriteStartElement("state");
+        writer.WriteStartElement("state");
 
-		if (entity.Id is { } id)
-		{
-			writer.WriteAttributeString(localName: "id", id.Value);
-		}
+        if (entity.Id is { } id)
+        {
+            writer.WriteAttributeString(localName: "id", id.Value);
+        }
 
-		base.Visit(ref entity);
+        base.Visit(ref entity);
 
-		writer.WriteEndElement();
-	}
+        writer.WriteEndElement();
+    }
 
-	protected override void Visit(ref IParallel entity)
-	{
-		Infra.Requires(entity);
+    protected override void Visit(ref IParallel entity)
+    {
+        Infra.Requires(entity);
 
-		writer.WriteStartElement("parallel");
+        writer.WriteStartElement("parallel");
 
-		if (entity.Id is { } id)
-		{
-			writer.WriteAttributeString(localName: "id", id.Value);
-		}
+        if (entity.Id is { } id)
+        {
+            writer.WriteAttributeString(localName: "id", id.Value);
+        }
 
-		base.Visit(ref entity);
+        base.Visit(ref entity);
 
-		writer.WriteEndElement();
-	}
+        writer.WriteEndElement();
+    }
 
-	protected override void Visit(ref IHistory entity)
-	{
-		Infra.Requires(entity);
+    protected override void Visit(ref IHistory entity)
+    {
+        Infra.Requires(entity);
 
-		writer.WriteStartElement("history");
+        writer.WriteStartElement("history");
 
-		if (entity.Id is { } id)
-		{
-			writer.WriteAttributeString(localName: "id", id.Value);
-		}
+        if (entity.Id is { } id)
+        {
+            writer.WriteAttributeString(localName: "id", id.Value);
+        }
 
-		if (entity.Type != HistoryType.Shallow)
-		{
-			writer.WriteAttributeString(localName: "type", value: @"deep");
-		}
+        if (entity.Type != HistoryType.Shallow)
+        {
+            writer.WriteAttributeString(localName: "type", value: @"deep");
+        }
 
-		base.Visit(ref entity);
+        base.Visit(ref entity);
 
-		writer.WriteEndElement();
-	}
+        writer.WriteEndElement();
+    }
 
-	protected override void Visit(ref IFinal entity)
-	{
-		Infra.Requires(entity);
+    protected override void Visit(ref IFinal entity)
+    {
+        Infra.Requires(entity);
 
-		writer.WriteStartElement("final");
+        writer.WriteStartElement("final");
 
-		if (entity.Id is { } id)
-		{
-			writer.WriteAttributeString(localName: "id", id.Value);
-		}
+        if (entity.Id is { } id)
+        {
+            writer.WriteAttributeString(localName: "id", id.Value);
+        }
 
-		base.Visit(ref entity);
+        base.Visit(ref entity);
 
-		writer.WriteEndElement();
-	}
+        writer.WriteEndElement();
+    }
 
-	protected override void Visit(ref ITransition entity)
-	{
-		Infra.Requires(entity);
+    protected override void Visit(ref ITransition entity)
+    {
+        Infra.Requires(entity);
 
-		writer.WriteStartElement("transition");
+        writer.WriteStartElement("transition");
 
-		if (entity.Type != TransitionType.External)
-		{
-			writer.WriteAttributeString(localName: "type", value: @"internal");
-		}
-
-		if (!entity.EventDescriptors.IsDefault)
-		{
-			writer.WriteStartAttribute("event");
-			WriteArray(entity.EventDescriptors.Array, ed => ed.Value, Space);
-			writer.WriteEndAttribute();
-		}
-
-		var condition = entity.Condition?.As<IConditionExpression>().Expression;
-
-		if (condition is not null)
-		{
-			writer.WriteAttributeString(localName: "cond", condition);
-		}
+        if (entity.Type != TransitionType.External)
+        {
+            writer.WriteAttributeString(localName: "type", value: @"internal");
+        }
+
+        if (!entity.EventDescriptors.IsDefault)
+        {
+            writer.WriteStartAttribute("event");
+            WriteArray(entity.EventDescriptors.Array, ed => ed.Value, Space);
+            writer.WriteEndAttribute();
+        }
+
+        var condition = entity.Condition?.As<IConditionExpression>().Expression;
+
+        if (condition is not null)
+        {
+            writer.WriteAttributeString(localName: "cond", condition);
+        }
 
-		if (!entity.Target.IsDefault)
-		{
-			writer.WriteStartAttribute("target");
-			WriteArray(entity.Target.Array, i => i.Value, Space);
-			writer.WriteEndAttribute();
-		}
+        if (!entity.Target.IsDefault)
+        {
+            writer.WriteStartAttribute("target");
+            WriteArray(entity.Target.Array, i => i.Value, Space);
+            writer.WriteEndAttribute();
+        }
 
-		base.Visit(ref entity);
+        base.Visit(ref entity);
 
-		writer.WriteEndElement();
-	}
+        writer.WriteEndElement();
+    }
 
-	private void WriteArray<T>(ImmutableArray<T> array, Func<T, string> converter, string delimiter)
-	{
-		var writeDelimiter = false;
+    private void WriteArray<T>(ImmutableArray<T> array, Func<T, string> converter, string delimiter)
+    {
+        var writeDelimiter = false;
 
-		foreach (var item in array)
-		{
-			if (writeDelimiter)
-			{
-				writer.WriteString(delimiter);
-			}
+        foreach (var item in array)
+        {
+            if (writeDelimiter)
+            {
+                writer.WriteString(delimiter);
+            }
 
-			writer.WriteString(converter(item));
+            writer.WriteString(converter(item));
 
-			writeDelimiter = true;
-		}
-	}
+            writeDelimiter = true;
+        }
+    }
 
-	protected override void Visit(ref ISend entity)
-	{
-		Infra.Requires(entity);
+    protected override void Visit(ref ISend entity)
+    {
+        Infra.Requires(entity);
 
-		writer.WriteStartElement("send");
+        writer.WriteStartElement("send");
 
-		if (entity.EventName is { } eventName)
-		{
-			writer.WriteAttributeString(localName: "event", eventName);
-		}
+        if (entity.EventName is { } eventName)
+        {
+            writer.WriteAttributeString(localName: "event", eventName);
+        }
 
-		if (entity.EventExpression?.Expression is { } expression)
-		{
-			writer.WriteAttributeString(localName: "eventexpr", expression);
-		}
+        if (entity.EventExpression?.Expression is { } expression)
+        {
+            writer.WriteAttributeString(localName: "eventexpr", expression);
+        }
 
-		if (entity.Target is { } target)
-		{
-			writer.WriteAttributeString(localName: "target", target.ToString());
-		}
+        if (entity.Target is { } target)
+        {
+            writer.WriteAttributeString(localName: "target", target.ToString());
+        }
 
-		if (entity.TargetExpression?.Expression is { } targetExpression)
-		{
-			writer.WriteAttributeString(localName: "targetexpr", targetExpression);
-		}
+        if (entity.TargetExpression?.Expression is { } targetExpression)
+        {
+            writer.WriteAttributeString(localName: "targetexpr", targetExpression);
+        }
 
-		if (entity.Type is { } type)
-		{
-			writer.WriteAttributeString(localName: "type", type.ToString());
-		}
+        if (entity.Type is { } type)
+        {
+            writer.WriteAttributeString(localName: "type", type.ToString());
+        }
 
-		if (entity.TypeExpression?.Expression is { } typeExpression)
-		{
-			writer.WriteAttributeString(localName: "typeexpr", typeExpression);
-		}
+        if (entity.TypeExpression?.Expression is { } typeExpression)
+        {
+            writer.WriteAttributeString(localName: "typeexpr", typeExpression);
+        }
 
-		if (entity.Id is { } id)
-		{
-			writer.WriteAttributeString(localName: "id", id);
-		}
+        if (entity.Id is { } id)
+        {
+            writer.WriteAttributeString(localName: "id", id);
+        }
 
-		if (entity.IdLocation?.Expression is { } idLocation)
-		{
-			writer.WriteAttributeString(localName: "idlocation", idLocation);
-		}
+        if (entity.IdLocation?.Expression is { } idLocation)
+        {
+            writer.WriteAttributeString(localName: "idlocation", idLocation);
+        }
 
-		if (entity.DelayMs is { } ms)
-		{
-			var delayStr = ms % 1000 == 0 ? ms / 1000 + @"s" : ms + @"ms";
-			writer.WriteAttributeString(localName: "delay", delayStr);
-		}
+        if (entity.DelayMs is { } ms)
+        {
+            var delayStr = ms % 1000 == 0 ? ms / 1000 + @"s" : ms + @"ms";
+            writer.WriteAttributeString(localName: "delay", delayStr);
+        }
 
-		if (entity.DelayExpression?.Expression is { } delayExpression)
-		{
-			writer.WriteAttributeString(localName: "delayexpr", delayExpression);
-		}
+        if (entity.DelayExpression?.Expression is { } delayExpression)
+        {
+            writer.WriteAttributeString(localName: "delayexpr", delayExpression);
+        }
 
-		if (!entity.NameList.IsDefaultOrEmpty)
-		{
-			writer.WriteStartAttribute("namelist");
-			WriteArray(entity.NameList, le => le.Expression ?? string.Empty, Space);
-			writer.WriteEndAttribute();
-		}
+        if (!entity.NameList.IsDefaultOrEmpty)
+        {
+            writer.WriteStartAttribute("namelist");
+            WriteArray(entity.NameList, le => le.Expression ?? string.Empty, Space);
+            writer.WriteEndAttribute();
+        }
 
-		base.Visit(ref entity);
+        base.Visit(ref entity);
 
-		writer.WriteEndElement();
-	}
+        writer.WriteEndElement();
+    }
 
-	protected override void Visit(ref IScript entity)
-	{
-		Infra.Requires(entity);
+    protected override void Visit(ref IScript entity)
+    {
+        Infra.Requires(entity);
 
-		writer.WriteStartElement("script");
+        writer.WriteStartElement("script");
 
-		if (entity.Source?.Uri is { } source)
-		{
-			writer.WriteAttributeString(localName: "src", source.ToString());
-		}
+        if (entity.Source?.Uri is { } source)
+        {
+            writer.WriteAttributeString(localName: "src", source.ToString());
+        }
 
-		if (entity.Content?.Expression is { } content)
-		{
-			writer.WriteRaw(content);
-		}
+        if (entity.Content?.Expression is { } content)
+        {
+            writer.WriteRaw(content);
+        }
 
-		writer.WriteEndElement();
-	}
+        writer.WriteEndElement();
+    }
 
-	protected override void Visit(ref ICustomAction entity)
-	{
-		Infra.Requires(entity);
+    protected override void Visit(ref ICustomAction entity)
+    {
+        Infra.Requires(entity);
 
-		if (entity.Xml is { } xml)
-		{
-			writer.WriteRaw(xml);
-		}
-	}
+        if (entity.Xml is { } xml)
+        {
+            writer.WriteRaw(xml);
+        }
+    }
 
-	protected override void Visit(ref IRaise entity)
-	{
-		Infra.Requires(entity);
+    protected override void Visit(ref IRaise entity)
+    {
+        Infra.Requires(entity);
 
-		writer.WriteStartElement("raise");
+        writer.WriteStartElement("raise");
 
-		var name = entity.OutgoingEvent?.Name ?? default;
+        var name = entity.OutgoingEvent?.Name ?? default;
 
-		if (!name.IsDefault)
-		{
-			writer.WriteStartAttribute("event");
-			name.WriteTo(writer);
-			writer.WriteEndAttribute();
-		}
+        if (!name.IsDefault)
+        {
+            writer.WriteStartAttribute("event");
+            name.WriteTo(writer);
+            writer.WriteEndAttribute();
+        }
 
-		writer.WriteEndElement();
-	}
+        writer.WriteEndElement();
+    }
 
-	protected override void Visit(ref ILog entity)
-	{
-		Infra.Requires(entity);
+    protected override void Visit(ref ILog entity)
+    {
+        Infra.Requires(entity);
 
-		writer.WriteStartElement("log");
+        writer.WriteStartElement("log");
 
-		if (entity.Label is { } label)
-		{
-			writer.WriteAttributeString(localName: "label", label);
-		}
+        if (entity.Label is { } label)
+        {
+            writer.WriteAttributeString(localName: "label", label);
+        }
 
-		if (entity.Expression?.Expression is { } expression)
-		{
-			writer.WriteAttributeString(localName: "expr", expression);
-		}
+        if (entity.Expression?.Expression is { } expression)
+        {
+            writer.WriteAttributeString(localName: "expr", expression);
+        }
 
-		writer.WriteEndElement();
-	}
+        writer.WriteEndElement();
+    }
 
-	protected override void Visit(ref IIf entity)
-	{
-		Infra.Requires(entity);
+    protected override void Visit(ref IIf entity)
+    {
+        Infra.Requires(entity);
 
-		writer.WriteStartElement("if");
+        writer.WriteStartElement("if");
 
-		if (entity.Condition?.Expression is { } condition)
-		{
-			writer.WriteAttributeString(localName: "cond", condition);
-		}
+        if (entity.Condition?.Expression is { } condition)
+        {
+            writer.WriteAttributeString(localName: "cond", condition);
+        }
 
-		base.Visit(ref entity);
+        base.Visit(ref entity);
 
-		writer.WriteEndElement();
-	}
+        writer.WriteEndElement();
+    }
 
-	protected override void Visit(ref IForEach entity)
-	{
-		Infra.Requires(entity);
+    protected override void Visit(ref IForEach entity)
+    {
+        Infra.Requires(entity);
 
-		writer.WriteStartElement("foreach");
+        writer.WriteStartElement("foreach");
 
-		if (entity.Array?.Expression is { } array)
-		{
-			writer.WriteAttributeString(localName: "array", array);
-		}
+        if (entity.Array?.Expression is { } array)
+        {
+            writer.WriteAttributeString(localName: "array", array);
+        }
 
-		if (entity.Item?.Expression is { } item)
-		{
-			writer.WriteAttributeString(localName: "item", item);
-		}
+        if (entity.Item?.Expression is { } item)
+        {
+            writer.WriteAttributeString(localName: "item", item);
+        }
 
-		if (entity.Index?.Expression is { } index)
-		{
-			writer.WriteAttributeString(localName: "index", index);
-		}
+        if (entity.Index?.Expression is { } index)
+        {
+            writer.WriteAttributeString(localName: "index", index);
+        }
 
-		base.Visit(ref entity);
+        base.Visit(ref entity);
 
-		writer.WriteEndElement();
-	}
+        writer.WriteEndElement();
+    }
 
-	protected override void Visit(ref IElseIf entity)
-	{
-		Infra.Requires(entity);
+    protected override void Visit(ref IElseIf entity)
+    {
+        Infra.Requires(entity);
 
-		writer.WriteStartElement("elseif");
+        writer.WriteStartElement("elseif");
 
-		if (entity.Condition?.Expression is { } condition)
-		{
-			writer.WriteAttributeString(localName: "cond", condition);
-		}
+        if (entity.Condition?.Expression is { } condition)
+        {
+            writer.WriteAttributeString(localName: "cond", condition);
+        }
 
-		writer.WriteEndElement();
-	}
+        writer.WriteEndElement();
+    }
 
-	protected override void Visit(ref IElse entity)
-	{
-		writer.WriteStartElement("else");
-		writer.WriteEndElement();
-	}
+    protected override void Visit(ref IElse entity)
+    {
+        writer.WriteStartElement("else");
+        writer.WriteEndElement();
+    }
 
-	protected override void Visit(ref ICancel entity)
-	{
-		Infra.Requires(entity);
+    protected override void Visit(ref ICancel entity)
+    {
+        Infra.Requires(entity);
 
-		writer.WriteStartElement("cancel");
+        writer.WriteStartElement("cancel");
 
-		if (entity.SendId is { } sendId)
-		{
-			writer.WriteAttributeString(localName: "sendid", sendId);
-		}
+        if (entity.SendId is { } sendId)
+        {
+            writer.WriteAttributeString(localName: "sendid", sendId);
+        }
 
-		if (entity.SendIdExpression?.Expression is { } senIdExpression)
-		{
-			writer.WriteAttributeString(localName: "sendidexpr", senIdExpression);
-		}
+        if (entity.SendIdExpression?.Expression is { } senIdExpression)
+        {
+            writer.WriteAttributeString(localName: "sendidexpr", senIdExpression);
+        }
 
-		writer.WriteEndElement();
-	}
+        writer.WriteEndElement();
+    }
 
-	protected override void Visit(ref IAssign entity)
-	{
-		Infra.Requires(entity);
+    protected override void Visit(ref IAssign entity)
+    {
+        Infra.Requires(entity);
 
-		writer.WriteStartElement("assign");
+        writer.WriteStartElement("assign");
 
-		if (entity.Location?.Expression is { } location)
-		{
-			writer.WriteAttributeString(localName: "location", location);
-		}
+        if (entity.Location?.Expression is { } location)
+        {
+            writer.WriteAttributeString(localName: "location", location);
+        }
 
-		if (entity.Expression?.Expression is { } expression)
-		{
-			writer.WriteAttributeString(localName: "expr", expression);
-		}
+        if (entity.Expression?.Expression is { } expression)
+        {
+            writer.WriteAttributeString(localName: "expr", expression);
+        }
 
-		base.Visit(ref entity);
+        base.Visit(ref entity);
 
-		writer.WriteEndElement();
-	}
+        writer.WriteEndElement();
+    }
 
-	protected override void Visit(ref IDataModel entity)
-	{
-		writer.WriteStartElement("datamodel");
+    protected override void Visit(ref IDataModel entity)
+    {
+        writer.WriteStartElement("datamodel");
 
-		base.Visit(ref entity);
+        base.Visit(ref entity);
 
-		writer.WriteEndElement();
-	}
+        writer.WriteEndElement();
+    }
 
-	protected override void Visit(ref IOnExit entity)
-	{
-		writer.WriteStartElement("onexit");
+    protected override void Visit(ref IOnExit entity)
+    {
+        writer.WriteStartElement("onexit");
 
-		base.Visit(ref entity);
+        base.Visit(ref entity);
 
-		writer.WriteEndElement();
-	}
+        writer.WriteEndElement();
+    }
 
-	protected override void Visit(ref IOnEntry entity)
-	{
-		writer.WriteStartElement("onentry");
+    protected override void Visit(ref IOnEntry entity)
+    {
+        writer.WriteStartElement("onentry");
 
-		base.Visit(ref entity);
+        base.Visit(ref entity);
 
-		writer.WriteEndElement();
-	}
+        writer.WriteEndElement();
+    }
 
-	protected override void Visit(ref IData entity)
-	{
-		Infra.Requires(entity);
+    protected override void Visit(ref IData entity)
+    {
+        Infra.Requires(entity);
 
-		writer.WriteStartElement("data");
+        writer.WriteStartElement("data");
 
-		if (entity.Id is { } id)
-		{
-			writer.WriteAttributeString(localName: "id", id);
-		}
+        if (entity.Id is { } id)
+        {
+            writer.WriteAttributeString(localName: "id", id);
+        }
 
-		if (entity.Source?.Uri is { } source)
-		{
-			writer.WriteAttributeString(localName: "src", source.ToString());
-		}
+        if (entity.Source?.Uri is { } source)
+        {
+            writer.WriteAttributeString(localName: "src", source.ToString());
+        }
 
-		if (entity.Expression?.Expression is { } expression)
-		{
-			writer.WriteAttributeString(localName: "expr", expression);
-		}
+        if (entity.Expression?.Expression is { } expression)
+        {
+            writer.WriteAttributeString(localName: "expr", expression);
+        }
 
-		base.Visit(ref entity);
+        base.Visit(ref entity);
 
-		writer.WriteEndElement();
-	}
+        writer.WriteEndElement();
+    }
 
-	protected override void Visit(ref IInvoke entity)
-	{
-		Infra.Requires(entity);
+    protected override void Visit(ref IInvoke entity)
+    {
+        Infra.Requires(entity);
 
-		writer.WriteStartElement("invoke");
+        writer.WriteStartElement("invoke");
 
-		if (entity.Type is { } type)
-		{
-			writer.WriteAttributeString(localName: "type", type.ToString());
-		}
+        if (entity.Type is { } type)
+        {
+            writer.WriteAttributeString(localName: "type", type.ToString());
+        }
 
-		if (entity.TypeExpression?.Expression is { } typeExpression)
-		{
-			writer.WriteAttributeString(localName: "typeexpr", typeExpression);
-		}
+        if (entity.TypeExpression?.Expression is { } typeExpression)
+        {
+            writer.WriteAttributeString(localName: "typeexpr", typeExpression);
+        }
 
-		if (entity.Source is { } source)
-		{
-			writer.WriteAttributeString(localName: "src", source.ToString());
-		}
+        if (entity.Source is { } source)
+        {
+            writer.WriteAttributeString(localName: "src", source.ToString());
+        }
 
-		if (entity.SourceExpression?.Expression is { } sourceExpression)
-		{
-			writer.WriteAttributeString(localName: "eventexpr", sourceExpression);
-		}
+        if (entity.SourceExpression?.Expression is { } sourceExpression)
+        {
+            writer.WriteAttributeString(localName: "eventexpr", sourceExpression);
+        }
 
-		if (entity.Id is { } id)
-		{
-			writer.WriteAttributeString(localName: "id", id);
-		}
+        if (entity.Id is { } id)
+        {
+            writer.WriteAttributeString(localName: "id", id);
+        }
 
-		if (entity.IdLocation?.Expression is { } idLocation)
-		{
-			writer.WriteAttributeString(localName: "idlocation", idLocation);
-		}
+        if (entity.IdLocation?.Expression is { } idLocation)
+        {
+            writer.WriteAttributeString(localName: "idlocation", idLocation);
+        }
 
-		if (!entity.NameList.IsDefaultOrEmpty)
-		{
-			writer.WriteStartAttribute("namelist");
-			WriteArray(entity.NameList, le => le.Expression ?? string.Empty, Space);
-			writer.WriteEndAttribute();
-		}
+        if (!entity.NameList.IsDefaultOrEmpty)
+        {
+            writer.WriteStartAttribute("namelist");
+            WriteArray(entity.NameList, le => le.Expression ?? string.Empty, Space);
+            writer.WriteEndAttribute();
+        }
 
-		if (entity.AutoForward)
-		{
-			writer.WriteAttributeString(localName: "autoforward", value: @"true");
-		}
+        if (entity.AutoForward)
+        {
+            writer.WriteAttributeString(localName: "autoforward", value: @"true");
+        }
 
-		base.Visit(ref entity);
+        base.Visit(ref entity);
 
-		writer.WriteEndElement();
-	}
+        writer.WriteEndElement();
+    }
 
-	protected override void Visit(ref IFinalize entity)
-	{
-		writer.WriteStartElement("finalize");
+    protected override void Visit(ref IFinalize entity)
+    {
+        writer.WriteStartElement("finalize");
 
-		base.Visit(ref entity);
+        base.Visit(ref entity);
 
-		writer.WriteEndElement();
-	}
+        writer.WriteEndElement();
+    }
 
-	protected override void Visit(ref IParam entity)
-	{
-		Infra.Requires(entity);
+    protected override void Visit(ref IParam entity)
+    {
+        Infra.Requires(entity);
 
-		writer.WriteStartElement("param");
+        writer.WriteStartElement("param");
 
-		if (entity.Name is { } name)
-		{
-			writer.WriteAttributeString(localName: "name", name);
-		}
+        if (entity.Name is { } name)
+        {
+            writer.WriteAttributeString(localName: "name", name);
+        }
 
-		if (entity.Expression?.Expression is { } expression)
-		{
-			writer.WriteAttributeString(localName: "expr", expression);
-		}
+        if (entity.Expression?.Expression is { } expression)
+        {
+            writer.WriteAttributeString(localName: "expr", expression);
+        }
 
-		if (entity.Location?.Expression is { } location)
-		{
-			writer.WriteAttributeString(localName: "location", location);
-		}
+        if (entity.Location?.Expression is { } location)
+        {
+            writer.WriteAttributeString(localName: "location", location);
+        }
 
-		writer.WriteEndElement();
-	}
+        writer.WriteEndElement();
+    }
 
-	protected override void Visit(ref IContent entity)
-	{
-		Infra.Requires(entity);
+    protected override void Visit(ref IContent entity)
+    {
+        Infra.Requires(entity);
 
-		writer.WriteStartElement("content");
+        writer.WriteStartElement("content");
 
-		if (entity.Expression?.Expression is { } expression)
-		{
-			writer.WriteAttributeString(localName: "expr", expression);
-		}
+        if (entity.Expression?.Expression is { } expression)
+        {
+            writer.WriteAttributeString(localName: "expr", expression);
+        }
 
-		base.Visit(ref entity);
+        base.Visit(ref entity);
 
-		writer.WriteEndElement();
-	}
+        writer.WriteEndElement();
+    }
 
-	protected override void Visit(ref IContentBody entity)
-	{
-		Infra.Requires(entity);
+    protected override void Visit(ref IContentBody entity)
+    {
+        Infra.Requires(entity);
 
-		if (entity.Value is { } value)
-		{
-			writer.WriteRaw(value);
-		}
-	}
+        if (entity.Value is { } value)
+        {
+            writer.WriteRaw(value);
+        }
+    }
 
-	protected override void Visit(ref IInlineContent entity)
-	{
-		Infra.Requires(entity);
+    protected override void Visit(ref IInlineContent entity)
+    {
+        Infra.Requires(entity);
 
-		if (entity.Value is { } value)
-		{
-			writer.WriteRaw(value);
-		}
-	}
+        if (entity.Value is { } value)
+        {
+            writer.WriteRaw(value);
+        }
+    }
 
-	protected override void Visit(ref IDoneData entity)
-	{
-		writer.WriteStartElement("donedata");
+    protected override void Visit(ref IDoneData entity)
+    {
+        writer.WriteStartElement("donedata");
 
-		base.Visit(ref entity);
+        base.Visit(ref entity);
 
-		writer.WriteEndElement();
-	}
+        writer.WriteEndElement();
+    }
 }

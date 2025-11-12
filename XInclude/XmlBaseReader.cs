@@ -1,4 +1,4 @@
-// Copyright © 2019-2024 Sergii Artemenko
+// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,108 +21,108 @@ namespace Xtate.XInclude;
 
 public class XmlBaseReader : DelegatedXmlReader
 {
-	private readonly string _baseName;
+    private readonly string _baseName;
 
-	private readonly string _xmlNs;
+    private readonly string _xmlNs;
 
-	private Stack<(int Depth, Uri BaseUri)>? _baseUris;
+    private Stack<(int Depth, Uri BaseUri)>? _baseUris;
 
-	public XmlBaseReader(XmlReader xmlReader) : base(xmlReader)
-	{
-		var nameTable = xmlReader.NameTable;
+    public XmlBaseReader(XmlReader xmlReader) : base(xmlReader)
+    {
+        var nameTable = xmlReader.NameTable;
 
-		Infra.NotNull(nameTable);
+        Infra.NotNull(nameTable);
 
-		_baseName = nameTable.Add(@"base");
-		_xmlNs = nameTable.Add(@"http://www.w3.org/XML/1998/namespace");
-	}
+        _baseName = nameTable.Add(@"base");
+        _xmlNs = nameTable.Add(@"http://www.w3.org/XML/1998/namespace");
+    }
 
-	public required XmlResolver XmlResolver { private get; [UsedImplicitly] init; }
+    public required XmlResolver XmlResolver { private get; [UsedImplicitly] init; }
 
-	public override string BaseURI => _baseUris?.Count > 0 ? _baseUris.Peek().BaseUri.ToString() : base.BaseURI;
+    public override string BaseURI => _baseUris?.Count > 0 ? _baseUris.Peek().BaseUri.ToString() : base.BaseURI;
 
-	public override bool Read()
-	{
-		PreProcessNode();
+    public override bool Read()
+    {
+        PreProcessNode();
 
-		if (!base.Read())
-		{
-			return false;
-		}
+        if (!base.Read())
+        {
+            return false;
+        }
 
-		PostProcessNode();
+        PostProcessNode();
 
-		return true;
-	}
+        return true;
+    }
 
-	public override async Task<bool> ReadAsync()
-	{
-		PreProcessNode();
+    public override async Task<bool> ReadAsync()
+    {
+        PreProcessNode();
 
-		if (!await base.ReadAsync().ConfigureAwait(false))
-		{
-			return false;
-		}
+        if (!await base.ReadAsync().ConfigureAwait(false))
+        {
+            return false;
+        }
 
-		PostProcessNode();
+        PostProcessNode();
 
-		return true;
-	}
+        return true;
+    }
 
-	private bool TryPeek(out int depth, [NotNullWhen(true)] out Uri? baseUri)
-	{
-		if (_baseUris?.Count > 0)
-		{
-			(depth, baseUri) = _baseUris.Peek();
+    private bool TryPeek(out int depth, [NotNullWhen(true)] out Uri? baseUri)
+    {
+        if (_baseUris?.Count > 0)
+        {
+            (depth, baseUri) = _baseUris.Peek();
 
-			return true;
-		}
+            return true;
+        }
 
-		depth = 0;
-		baseUri = default;
+        depth = 0;
+        baseUri = default;
 
-		return false;
-	}
+        return false;
+    }
 
-	private string? GetXmlBaseValue()
-	{
-		for (var ok = MoveToFirstAttribute(); ok; ok = MoveToNextAttribute())
-		{
-			if (ReferenceEquals(NamespaceURI, _xmlNs) && ReferenceEquals(LocalName, _baseName))
-			{
-				MoveToElement();
+    private string? GetXmlBaseValue()
+    {
+        for (var ok = MoveToFirstAttribute(); ok; ok = MoveToNextAttribute())
+        {
+            if (ReferenceEquals(NamespaceURI, _xmlNs) && ReferenceEquals(LocalName, _baseName))
+            {
+                MoveToElement();
 
-				return Value;
-			}
-		}
+                return Value;
+            }
+        }
 
-		MoveToElement();
+        MoveToElement();
 
-		return default;
-	}
+        return default;
+    }
 
-	private void PostProcessNode()
-	{
-		if (NodeType == XmlNodeType.Element && GetXmlBaseValue() is { } xmlBase)
-		{
-			_baseUris ??= new Stack<(int Depth, Uri BaseUri)>();
+    private void PostProcessNode()
+    {
+        if (NodeType == XmlNodeType.Element && GetXmlBaseValue() is { } xmlBase)
+        {
+            _baseUris ??= new Stack<(int Depth, Uri BaseUri)>();
 
-			if (!TryPeek(out _, out var baseUri))
-			{
-				baseUri = base.BaseURI is { } uri ? new Uri(uri, UriKind.RelativeOrAbsolute) : null;
-			}
+            if (!TryPeek(out _, out var baseUri))
+            {
+                baseUri = base.BaseURI is { } uri ? new Uri(uri, UriKind.RelativeOrAbsolute) : null;
+            }
 
-			_baseUris.Push((Depth, XmlResolver.ResolveUri(baseUri!, xmlBase)));
-		}
-	}
+            _baseUris.Push((Depth, XmlResolver.ResolveUri(baseUri!, xmlBase)));
+        }
+    }
 
-	private void PreProcessNode()
-	{
-		if ((NodeType == XmlNodeType.EndElement || (NodeType == XmlNodeType.Element && IsEmptyElement)) && TryPeek(out var depth, out _) && depth == Depth)
-		{
-			Infra.NotNull(_baseUris);
+    private void PreProcessNode()
+    {
+        if ((NodeType == XmlNodeType.EndElement || (NodeType == XmlNodeType.Element && IsEmptyElement)) && TryPeek(out var depth, out _) && depth == Depth)
+        {
+            Infra.NotNull(_baseUris);
 
-			_baseUris.Pop();
-		}
-	}
+            _baseUris.Pop();
+        }
+    }
 }

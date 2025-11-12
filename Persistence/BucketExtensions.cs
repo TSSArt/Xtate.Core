@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,256 +19,257 @@ namespace Xtate.Persistence;
 
 internal static class BucketExtensions
 {
-	public static void AddEntity<TKey, TValue>(this in Bucket bucket, TKey key, TValue? entity) where TKey : notnull where TValue : class
-	{
-		entity?.As<IStoreSupport>().Store(bucket.Nested(key));
-	}
-
-	public static void AddEntityList<TKey, TValue>(this in Bucket bucket, TKey key, ImmutableArray<TValue> array) where TKey : notnull where TValue : class
-	{
-		if (array.IsDefaultOrEmpty)
-		{
-			return;
-		}
-
-		bucket.Add(key, array.Length);
-
-		var listStorage = bucket.Nested(key);
-
-		for (var i = 0; i < array.Length; i ++)
-		{
-			array[i].As<IStoreSupport>().Store(listStorage.Nested(i));
-		}
-	}
-
-	public static ImmutableArray<TValue> RestoreList<TKey, TValue>(this in Bucket bucket, TKey key, Func<Bucket, TValue?> factory) where TKey : notnull where TValue : class
-	{
-		if (!bucket.TryGet(key, out int length))
-		{
-			return default;
-		}
-
-		var itemsBucket = bucket.Nested(key);
-
-		var builder = ImmutableArray.CreateBuilder<TValue>(length);
-
-		for (var i = 0; i < length; i ++)
-		{
-			var item = factory(itemsBucket.Nested(i)) ?? throw new PersistenceException(Resources.Exception_ItemCantBeNull);
-
-			builder.Add(item);
-		}
-
-		return builder.MoveToImmutable();
-	}
-
-	public static void AddId<TKey>(this in Bucket bucket, TKey key, SessionId? sessionId) where TKey : notnull
-	{
-		if (sessionId is not null)
-		{
-			bucket.Add(key, sessionId.Value);
-		}
-	}
-
-	public static void AddId<TKey>(this in Bucket bucket, TKey key, SendId? sendId) where TKey : notnull
-	{
-		if (sendId is not null)
-		{
-			bucket.Add(key, sendId.Value);
-		}
-	}
-
-	public static void AddId<TKey>(this in Bucket bucket, TKey key, InvokeId? invokeId) where TKey : notnull
-	{
-		switch (invokeId)
-		{
-			case null:
-				break;
+    public static void AddEntity<TKey, TValue>(this in Bucket bucket, TKey key, TValue? entity) where TKey : notnull where TValue : class
+    {
+        entity?.As<IStoreSupport>().Store(bucket.Nested(key));
+    }
+
+    public static void AddEntityList<TKey, TValue>(this in Bucket bucket, TKey key, ImmutableArray<TValue> array) where TKey : notnull where TValue : class
+    {
+        if (array.IsDefaultOrEmpty)
+        {
+            return;
+        }
+
+        bucket.Add(key, array.Length);
+
+        var listStorage = bucket.Nested(key);
+
+        for (var i = 0; i < array.Length; i ++)
+        {
+            array[i].As<IStoreSupport>().Store(listStorage.Nested(i));
+        }
+    }
+
+    public static ImmutableArray<TValue> RestoreList<TKey, TValue>(this in Bucket bucket, TKey key, Func<Bucket, TValue?> factory) where TKey : notnull where TValue : class
+    {
+        if (!bucket.TryGet(key, out int length))
+        {
+            return default;
+        }
 
-			case UniqueInvokeId uniqueInvokeId:
-				bucket.Add(key, uniqueInvokeId.Value); 
-				break;
-			
-			default:
-				bucket.Add(key, invokeId.Value);
-				bucket.Nested(key).Add(key: 1, invokeId.UniqueId.Value);
+        var itemsBucket = bucket.Nested(key);
 
-				break;
-		}
-	}
+        var builder = ImmutableArray.CreateBuilder<TValue>(length);
 
-	public static void AddId<TKey>(this in Bucket bucket, TKey key, UriId? uriId) where TKey : notnull
-	{
-		if (uriId is not null)
-		{
-			bucket.Add(key, uriId.Uri);
-		}
-	}
-
-	public static void AddEventName<TKey>(this in Bucket bucket, TKey key, EventName eventName) where TKey : notnull
-	{
-		if (!eventName.IsDefault)
-		{
-			bucket.Add(key, eventName.ToString());
-		}
-	}
+        for (var i = 0; i < length; i ++)
+        {
+            var item = factory(itemsBucket.Nested(i)) ?? throw new PersistenceException(Resources.Exception_ItemCantBeNull);
 
-	public static EnumGetter<TKey> GetEnum<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => new(bucket, key);
+            builder.Add(item);
+        }
 
-	public static int GetInt32<TKey>(this in Bucket bucket, TKey key) where TKey : notnull =>
-		bucket.TryGet(key, out int value) ? value : throw new KeyNotFoundException(Res.Format(Resources.Exception_KeyNotFound, key));
-
-	public static bool GetBoolean<TKey>(this in Bucket bucket, TKey key) where TKey : notnull =>
-		bucket.TryGet(key, out bool value) ? value : throw new KeyNotFoundException(Res.Format(Resources.Exception_KeyNotFound, key));
+        return builder.MoveToImmutable();
+    }
 
-	public static string? GetString<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out string? value) ? value : null;
+    public static void AddId<TKey>(this in Bucket bucket, TKey key, SessionId? sessionId) where TKey : notnull
+    {
+        if (sessionId is not null)
+        {
+            bucket.Add(key, sessionId.Value);
+        }
+    }
 
-	public static SessionId? GetSessionId<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out string? value) ? SessionId.FromString(value) : null;
+    public static void AddId<TKey>(this in Bucket bucket, TKey key, SendId? sendId) where TKey : notnull
+    {
+        if (sendId is not null)
+        {
+            bucket.Add(key, sendId.Value);
+        }
+    }
 
-	public static SendId? GetSendId<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out string? value) ? SendId.FromString(value) : null;
+    public static void AddId<TKey>(this in Bucket bucket, TKey key, InvokeId? invokeId) where TKey : notnull
+    {
+        switch (invokeId)
+        {
+            case null:
+                break;
 
-	public static UriId? GetUriId<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out FullUri? value) ? UriId.FromUri(value) : null;
+            case UniqueInvokeId uniqueInvokeId:
+                bucket.Add(key, uniqueInvokeId.Value);
 
-	public static InvokeId? GetInvokeId<TKey>(this in Bucket bucket, TKey key) where TKey : notnull
-	{
-		bucket.TryGet(key, out string? invokeId);
-		bucket.Nested(key).TryGet(key: 1, out string? uniqueId);
+                break;
 
-		return invokeId is not null ? uniqueId is not null ? InvokeId.FromString(invokeId, uniqueId) : InvokeId.FromString(invokeId) : default;
-	}
+            default:
+                bucket.Add(key, invokeId.Value);
+                bucket.Nested(key).Add(key: 1, invokeId.UniqueId.Value);
 
-	public static Uri? GetUri<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out Uri? value) ? value : null;
+                break;
+        }
+    }
 
-	public static FullUri? GetFullUri<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out FullUri? value) ? value : null;
+    public static void AddId<TKey>(this in Bucket bucket, TKey key, UriId? uriId) where TKey : notnull
+    {
+        if (uriId is not null)
+        {
+            bucket.Add(key, uriId.Uri);
+        }
+    }
 
-	public static EventName GetEventName<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out string? value) ? EventName.FromString(value) : default;
+    public static void AddEventName<TKey>(this in Bucket bucket, TKey key, EventName eventName) where TKey : notnull
+    {
+        if (!eventName.IsDefault)
+        {
+            bucket.Add(key, eventName.ToString());
+        }
+    }
 
-	public static void AddServiceId<TKey>(this in Bucket bucket, TKey key, ServiceId? serviceId) where TKey : notnull
-	{
-		var serviceBucket = bucket.Nested(key);
+    public static EnumGetter<TKey> GetEnum<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => new(bucket, key);
 
-		switch (serviceId)
-		{
-			case SessionId sessionId:
-				serviceBucket.AddId(Key.SessionId, sessionId);
+    public static int GetInt32<TKey>(this in Bucket bucket, TKey key) where TKey : notnull =>
+        bucket.TryGet(key, out int value) ? value : throw new KeyNotFoundException(Res.Format(Resources.Exception_KeyNotFound, key));
 
-				break;
+    public static bool GetBoolean<TKey>(this in Bucket bucket, TKey key) where TKey : notnull =>
+        bucket.TryGet(key, out bool value) ? value : throw new KeyNotFoundException(Res.Format(Resources.Exception_KeyNotFound, key));
 
-			case InvokeId invokeId:
-				serviceBucket.AddId(Key.InvokeId, invokeId);
+    public static string? GetString<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out string? value) ? value : null;
 
-				break;
+    public static SessionId? GetSessionId<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out string? value) ? SessionId.FromString(value) : null;
 
-			case UriId uriId:
-				serviceBucket.AddId(Key.UriId, uriId);
+    public static SendId? GetSendId<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out string? value) ? SendId.FromString(value) : null;
 
-				break;
-		}
-	}
+    public static UriId? GetUriId<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out FullUri? value) ? UriId.FromUri(value) : null;
 
-	public static bool TryGetServiceId<TKey>(this in Bucket bucket, TKey key, [NotNullWhen(true)] out ServiceId? serviceId) where TKey : notnull
-	{
-		var serviceBucket = bucket.Nested(key);
+    public static InvokeId? GetInvokeId<TKey>(this in Bucket bucket, TKey key) where TKey : notnull
+    {
+        bucket.TryGet(key, out string? invokeId);
+        bucket.Nested(key).TryGet(key: 1, out string? uniqueId);
 
-		serviceId = serviceBucket.GetSessionId(Key.SessionId)
-					?? serviceBucket.GetInvokeId(Key.InvokeId)
-					?? serviceBucket.GetUriId(Key.UriId)
-					?? (ServiceId?) default;
+        return invokeId is not null ? uniqueId is not null ? InvokeId.FromString(invokeId, uniqueId) : InvokeId.FromString(invokeId) : default;
+    }
 
-		return serviceId is not null;
-	}
+    public static Uri? GetUri<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out Uri? value) ? value : null;
 
-	public static DataModelValue GetDataModelValue<TKey>(this in Bucket bucket, TKey key) where TKey : notnull
-	{
-		var valRefBucket = bucket.Nested(key);
+    public static FullUri? GetFullUri<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out FullUri? value) ? value : null;
 
-		using var tracker = new DataModelReferenceTracker(valRefBucket.Nested(Key.DataReferences));
+    public static EventName GetEventName<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out string? value) ? EventName.FromString(value) : default;
 
-		return valRefBucket.GetDataModelValue(tracker, baseValue: default);
-	}
+    public static void AddServiceId<TKey>(this in Bucket bucket, TKey key, ServiceId? serviceId) where TKey : notnull
+    {
+        var serviceBucket = bucket.Nested(key);
 
-	public static DataModelValue GetDataModelValue(this in Bucket bucket, DataModelReferenceTracker tracker, in DataModelValue baseValue)
-	{
-		if (tracker is null) throw new ArgumentNullException(nameof(tracker));
+        switch (serviceId)
+        {
+            case SessionId sessionId:
+                serviceBucket.AddId(Key.SessionId, sessionId);
 
-		bucket.TryGet(Key.Type, out DataModelValueType type);
+                break;
 
-		switch (type)
-		{
-			case DataModelValueType.Undefined:                                                          return default;
-			case DataModelValueType.Null:                                                               return DataModelValue.Null;
-			case DataModelValueType.String when bucket.TryGet(Key.Item, out string? value):             return value;
-			case DataModelValueType.Number when bucket.TryGet(Key.Item, out DataModelNumber value):     return value;
-			case DataModelValueType.DateTime when bucket.TryGet(Key.Item, out DataModelDateTime value): return value;
-			case DataModelValueType.Boolean when bucket.TryGet(Key.Item, out bool value):               return value;
+            case InvokeId invokeId:
+                serviceBucket.AddId(Key.InvokeId, invokeId);
 
-			case DataModelValueType.List when bucket.TryGet(Key.RefId, out int refId):
-				var list = baseValue.Type == DataModelValueType.List ? baseValue.AsList() : null;
+                break;
 
-				return DataModelValue.FromObject(tracker.GetValue(refId, type, list));
+            case UriId uriId:
+                serviceBucket.AddId(Key.UriId, uriId);
 
-			default: throw Infra.Unmatched(type);
-		}
-	}
+                break;
+        }
+    }
 
-	public static void AddDataModelValue<TKey>(this in Bucket bucket, TKey key, in DataModelValue item) where TKey : notnull
-	{
-		if (!item.IsUndefined())
-		{
-			var valRefBucket = bucket.Nested(key);
-			using var tracker = new DataModelReferenceTracker(valRefBucket.Nested(Key.DataReferences));
-			valRefBucket.SetDataModelValue(tracker, item);
-		}
-	}
+    public static bool TryGetServiceId<TKey>(this in Bucket bucket, TKey key, [NotNullWhen(true)] out ServiceId? serviceId) where TKey : notnull
+    {
+        var serviceBucket = bucket.Nested(key);
 
-	public static void SetDataModelValue(this in Bucket bucket, DataModelReferenceTracker tracker, in DataModelValue item)
-	{
-		if (tracker is null) throw new ArgumentNullException(nameof(tracker));
+        serviceId = serviceBucket.GetSessionId(Key.SessionId)
+                    ?? serviceBucket.GetInvokeId(Key.InvokeId)
+                    ?? serviceBucket.GetUriId(Key.UriId)
+                    ?? (ServiceId?)default;
 
-		var type = item.Type;
+        return serviceId is not null;
+    }
 
-		if (type != DataModelValueType.Undefined)
-		{
-			bucket.Add(Key.Type, type);
-		}
+    public static DataModelValue GetDataModelValue<TKey>(this in Bucket bucket, TKey key) where TKey : notnull
+    {
+        var valRefBucket = bucket.Nested(key);
 
-		switch (type)
-		{
-			case DataModelValueType.Undefined: break;
-			case DataModelValueType.Null:      break;
+        using var tracker = new DataModelReferenceTracker(valRefBucket.Nested(Key.DataReferences));
 
-			case DataModelValueType.String:
-				bucket.Add(Key.Item, item.AsString());
+        return valRefBucket.GetDataModelValue(tracker, baseValue: default);
+    }
 
-				break;
+    public static DataModelValue GetDataModelValue(this in Bucket bucket, DataModelReferenceTracker tracker, in DataModelValue baseValue)
+    {
+        if (tracker is null) throw new ArgumentNullException(nameof(tracker));
 
-			case DataModelValueType.Number:
-				bucket.Add(Key.Item, item.AsNumber());
+        bucket.TryGet(Key.Type, out DataModelValueType type);
 
-				break;
+        switch (type)
+        {
+            case DataModelValueType.Undefined:                                                          return default;
+            case DataModelValueType.Null:                                                               return DataModelValue.Null;
+            case DataModelValueType.String when bucket.TryGet(Key.Item, out string? value):             return value;
+            case DataModelValueType.Number when bucket.TryGet(Key.Item, out DataModelNumber value):     return value;
+            case DataModelValueType.DateTime when bucket.TryGet(Key.Item, out DataModelDateTime value): return value;
+            case DataModelValueType.Boolean when bucket.TryGet(Key.Item, out bool value):               return value;
 
-			case DataModelValueType.DateTime:
-				bucket.Add(Key.Item, item.AsDateTime());
+            case DataModelValueType.List when bucket.TryGet(Key.RefId, out int refId):
+                var list = baseValue.Type == DataModelValueType.List ? baseValue.AsList() : null;
 
-				break;
+                return DataModelValue.FromObject(tracker.GetValue(refId, type, list));
 
-			case DataModelValueType.Boolean:
-				bucket.Add(Key.Item, item.AsBoolean());
+            default: throw Infra.Unmatched(type);
+        }
+    }
 
-				break;
+    public static void AddDataModelValue<TKey>(this in Bucket bucket, TKey key, in DataModelValue item) where TKey : notnull
+    {
+        if (!item.IsUndefined())
+        {
+            var valRefBucket = bucket.Nested(key);
+            using var tracker = new DataModelReferenceTracker(valRefBucket.Nested(Key.DataReferences));
+            valRefBucket.SetDataModelValue(tracker, item);
+        }
+    }
 
-			case DataModelValueType.List:
-				bucket.Add(Key.RefId, tracker.GetRefId(item));
+    public static void SetDataModelValue(this in Bucket bucket, DataModelReferenceTracker tracker, in DataModelValue item)
+    {
+        if (tracker is null) throw new ArgumentNullException(nameof(tracker));
 
-				break;
+        var type = item.Type;
 
-			default:
-				throw Infra.Unmatched(type);
-		}
-	}
+        if (type != DataModelValueType.Undefined)
+        {
+            bucket.Add(Key.Type, type);
+        }
 
-	public readonly struct EnumGetter<TKey>(Bucket bucket, TKey key) where TKey : notnull
-	{
-		public TEnum As<TEnum>() where TEnum : struct, Enum => bucket.TryGet(key, out TEnum value) ? value : throw new KeyNotFoundException(Res.Format(Resources.Exception_KeyNotFound, key));
-	}
+        switch (type)
+        {
+            case DataModelValueType.Undefined: break;
+            case DataModelValueType.Null:      break;
+
+            case DataModelValueType.String:
+                bucket.Add(Key.Item, item.AsString());
+
+                break;
+
+            case DataModelValueType.Number:
+                bucket.Add(Key.Item, item.AsNumber());
+
+                break;
+
+            case DataModelValueType.DateTime:
+                bucket.Add(Key.Item, item.AsDateTime());
+
+                break;
+
+            case DataModelValueType.Boolean:
+                bucket.Add(Key.Item, item.AsBoolean());
+
+                break;
+
+            case DataModelValueType.List:
+                bucket.Add(Key.RefId, tracker.GetRefId(item));
+
+                break;
+
+            default:
+                throw Infra.Unmatched(type);
+        }
+    }
+
+    public readonly struct EnumGetter<TKey>(Bucket bucket, TKey key) where TKey : notnull
+    {
+        public TEnum As<TEnum>() where TEnum : struct, Enum => bucket.TryGet(key, out TEnum value) ? value : throw new KeyNotFoundException(Res.Format(Resources.Exception_KeyNotFound, key));
+    }
 }

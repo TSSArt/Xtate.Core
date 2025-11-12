@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,15 +21,15 @@ namespace Xtate.DataModel;
 
 public class DefaultCustomActionEvaluator : CustomActionEvaluator
 {
-	private readonly CustomActionContainer? _customActionContainer;
+    private readonly CustomActionContainer? _customActionContainer;
 
-	public DefaultCustomActionEvaluator(ICustomAction customAction) : base(customAction)
-	{
-		if (customAction.Is(out _customActionContainer))
-		{
-			_customActionContainer.SetEvaluators(base.Values, base.Locations);
-		}
-	}
+    public DefaultCustomActionEvaluator(ICustomAction customAction) : base(customAction)
+    {
+        if (customAction.Is(out _customActionContainer))
+        {
+            _customActionContainer.SetEvaluators(base.Values, base.Locations);
+        }
+    }
 
-	public override ValueTask Execute() => _customActionContainer?.Execute() ?? default;
+    public override ValueTask Execute() => _customActionContainer?.Execute() ?? default;
 }

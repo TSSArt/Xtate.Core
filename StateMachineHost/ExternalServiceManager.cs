@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,19 +21,19 @@ namespace Xtate.Core;
 
 public class ExternalServiceManager : IExternalServiceManager
 {
-	public required IExternalServiceCollection ExternalServiceCollection { private get; [UsedImplicitly] init; }
+    public required IExternalServiceCollection ExternalServiceCollection { private get; [UsedImplicitly] init; }
 
-	public required IExternalServiceScopeManager ExternalServiceScopeManager { private get; [UsedImplicitly] init; }
+    public required IExternalServiceScopeManager ExternalServiceScopeManager { private get; [UsedImplicitly] init; }
 
-	public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
+    public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
 
 #region Interface IExternalServiceManager
 
-	public ValueTask Forward(InvokeId invokeId, IIncomingEvent incomingEvent) => ExternalServiceCollection.Dispatch(invokeId, incomingEvent, DisposeToken);
+    public ValueTask Forward(InvokeId invokeId, IIncomingEvent incomingEvent) => ExternalServiceCollection.Dispatch(invokeId, incomingEvent, DisposeToken);
 
-	public ValueTask Start(InvokeData invokeData) => ExternalServiceScopeManager.Start(invokeData, DisposeToken);
+    public ValueTask Start(InvokeData invokeData) => ExternalServiceScopeManager.Start(invokeData, DisposeToken);
 
-	public ValueTask Cancel(InvokeId invokeId) => ExternalServiceScopeManager.Cancel(invokeId, DisposeToken);
+    public ValueTask Cancel(InvokeId invokeId) => ExternalServiceScopeManager.Cancel(invokeId, DisposeToken);
 
 #endregion
 }

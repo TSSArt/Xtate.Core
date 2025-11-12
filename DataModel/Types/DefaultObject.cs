@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,11 +19,11 @@ namespace Xtate.Core;
 
 internal sealed class DefaultObject(object? value) : IObject
 {
-	public static readonly IObject Null = new DefaultObject(null);
+    public static readonly IObject Null = new DefaultObject(null);
 
 #region Interface IObject
 
-	public object? ToObject() => value;
+    public object? ToObject() => value;
 
 #endregion
 }

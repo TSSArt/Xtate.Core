@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,15 +19,15 @@ namespace Xtate.Core;
 
 public readonly struct DocumentIdNode(LinkedList<int>? list)
 {
-	private readonly LinkedListNode<int>? _node = list?.AddLast(-1) ?? default;
+    private readonly LinkedListNode<int>? _node = list?.AddLast(-1) ?? default;
 
-	public void Discard()
-	{
-		if (_node?.List is { } list)
-		{
-			list.Remove(_node);
-		}
-	}
+    public void Discard()
+    {
+        if (_node?.List is { } list)
+        {
+            list.Remove(_node);
+        }
+    }
 
-	internal void SaveToSlot(out DocumentIdSlot slot) => slot = new DocumentIdSlot(_node);
+    internal void SaveToSlot(out DocumentIdSlot slot) => slot = new DocumentIdSlot(_node);
 }

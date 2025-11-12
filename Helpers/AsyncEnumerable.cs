@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -29,14 +29,14 @@ internal static class AsyncEnumerable
 			builder.Add(item);
 		}
 
-		return builder.ToImmutable();
+		return builder.DrainToImmutable();
 	}
 
-	public static async ValueTask AppendCollectionAsync<T>(this IAsyncEnumerable<T> asyncEnumerable, ICollection<T> collection)
-	{
-		await foreach (var item in asyncEnumerable.ConfigureAwait(false))
-		{
-			collection.Add(item);
-		}
-	}
+    public static async ValueTask AppendCollectionAsync<T>(this IAsyncEnumerable<T> asyncEnumerable, ICollection<T> collection)
+    {
+        await foreach (var item in asyncEnumerable.ConfigureAwait(false))
+        {
+            collection.Add(item);
+        }
+    }
 }

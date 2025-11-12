@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,27 +19,27 @@ namespace Xtate.Core;
 
 internal struct DocumentIdSlot(LinkedListNode<int>? node)
 {
-	private LinkedListNode<int>? _node = node;
+    private LinkedListNode<int>? _node = node;
 
-	private int _value = -1;
+    private int _value = -1;
 
-	public int CreateValue()
-	{
-		if (_node is not { } realNode)
-		{
-			return _value;
-		}
+    public int CreateValue()
+    {
+        if (_node is not { } realNode)
+        {
+            return _value;
+        }
 
-		var value = realNode.Value;
+        var value = realNode.Value;
 
-		if (value < 0)
-		{
-			return -1;
-		}
+        if (value < 0)
+        {
+            return -1;
+        }
 
-		_node = default;
-		_value = value;
+        _node = default;
+        _value = value;
 
-		return value;
-	}
+        return value;
+    }
 }

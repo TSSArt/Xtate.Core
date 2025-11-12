@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,13 +19,13 @@ namespace Xtate;
 
 public enum PersistenceLevel
 {
-	None = 0,
+    None = 0,
 
-	StableState = 1,
+    StableState = 1,
 
-	Event = 2,
+    Event = 2,
 
-	Transition = 3,
+    Transition = 3,
 
-	ExecutableAction = 4
+    ExecutableAction = 4
 }

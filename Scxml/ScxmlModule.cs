@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -24,14 +24,14 @@ namespace Xtate.Scxml;
 
 public class ScxmlModule : Module<ErrorProcessorModule, StateMachineBuilderModule, ResourceLoadersModule, NameTableModule, ToolsModule>
 {
-	protected override void AddServices()
-	{
-		Services.AddType<ScxmlSerializerWriter, XmlWriter>();
-		Services.AddImplementation<ScxmlSerializer>().For<IScxmlSerializer>();
-		Services.AddType<ScxmlDirector, XmlReader>();
-		Services.AddTypeSync<XmlBaseReader, XmlReader>();
-		Services.AddTypeSync<XIncludeReader, XmlReader>();
-		Services.AddImplementationSync<RedirectXmlResolver>().For<ScxmlXmlResolver>().For<XmlResolver>().For<IXIncludeXmlResolver>();
-		Services.AddImplementation<ScxmlDeserializer>().For<IScxmlDeserializer>();
-	}
+    protected override void AddServices()
+    {
+        Services.AddType<ScxmlSerializerWriter, XmlWriter>();
+        Services.AddImplementation<ScxmlSerializer>().For<IScxmlSerializer>();
+        Services.AddType<ScxmlDirector, XmlReader>();
+        Services.AddTypeSync<XmlBaseReader, XmlReader>();
+        Services.AddTypeSync<XIncludeReader, XmlReader>();
+        Services.AddImplementationSync<RedirectXmlResolver>().For<ScxmlXmlResolver>().For<XmlResolver>().For<IXIncludeXmlResolver>();
+        Services.AddImplementation<ScxmlDeserializer>().For<IScxmlDeserializer>();
+    }
 }

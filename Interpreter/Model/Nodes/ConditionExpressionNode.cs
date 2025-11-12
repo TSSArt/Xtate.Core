@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -23,23 +23,23 @@ public sealed class ConditionExpressionNode(IConditionExpression conditionExpres
 {
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => conditionExpression;
+    object IAncestorProvider.Ancestor => conditionExpression;
 
 #endregion
 
 #region Interface IConditionExpression
 
-	public string? Expression => conditionExpression.Expression;
+    public string? Expression => conditionExpression.Expression;
 
 #endregion
 
 #region Interface IStoreSupport
 
-	void IStoreSupport.Store(Bucket bucket)
-	{
-		bucket.Add(Key.TypeInfo, TypeInfo.ConditionExpressionNode);
-		bucket.Add(Key.Expression, Expression);
-	}
+    void IStoreSupport.Store(Bucket bucket)
+    {
+        bucket.Add(Key.TypeInfo, TypeInfo.ConditionExpressionNode);
+        bucket.Add(Key.Expression, Expression);
+    }
 
 #endregion
 }

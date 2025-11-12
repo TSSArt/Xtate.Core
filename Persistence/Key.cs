@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,187 +19,187 @@ namespace Xtate.Persistence;
 
 internal enum Key
 {
-	Access,
+    Access,
 
-	Action,
+    Action,
 
-	Append,
+    Append,
 
-	Array,
+    Array,
 
-	Attribute,
+    Attribute,
 
-	AutoForward,
+    AutoForward,
 
-	Binding,
+    Binding,
 
-	Body,
+    Body,
 
-	CaseInsensitive,
+    CaseInsensitive,
 
-	Condition,
+    Condition,
 
-	Content,
+    Content,
 
-	Data,
+    Data,
 
-	DataList,
+    DataList,
 
-	DataModel,
+    DataModel,
 
-	DataModelType,
+    DataModelType,
 
-	DataReferences,
+    DataReferences,
 
-	DelayExpression,
+    DelayExpression,
 
-	DelayMs,
+    DelayMs,
 
-	DocumentId,
+    DocumentId,
 
-	DoneData,
+    DoneData,
 
-	Event,
+    Event,
 
-	EventExpression,
+    EventExpression,
 
-	Expression,
+    Expression,
 
-	Exception,
+    Exception,
 
-	Finalize,
+    Finalize,
 
-	FireOn,
+    FireOn,
 
-	HistoryStates,
+    HistoryStates,
 
-	HistoryType,
+    HistoryType,
 
-	RouterEventData,
+    RouterEventData,
 
-	Id,
+    Id,
 
-	IdLocation,
+    IdLocation,
 
-	Index,
+    Index,
 
-	Initial,
+    Initial,
 
-	InlineContent,
+    InlineContent,
 
-	Insert,
+    Insert,
 
-	Invoke,
+    Invoke,
 
-	InvokeId,
+    InvokeId,
 
-	Item,
+    Item,
 
-	Key,
+    Key,
 
-	Label,
+    Label,
 
-	Location,
+    Location,
 
-	LocationList,
+    LocationList,
 
-	Metadata,
+    Metadata,
 
-	Message,
+    Message,
 
-	Name,
+    Name,
 
-	NameList,
+    NameList,
 
-	Namespace,
+    Namespace,
 
-	OnEntry,
+    OnEntry,
 
-	OnExit,
+    OnExit,
 
-	Operation,
+    Operation,
 
-	OptionPersistenceLevel,
+    OptionPersistenceLevel,
 
-	OptionSynchronousEventProcessing,
+    OptionSynchronousEventProcessing,
 
-	OptionExternalQueueSize,
+    OptionExternalQueueSize,
 
-	Origin,
+    Origin,
 
-	OriginType,
+    OriginType,
 
-	Parameters,
+    Parameters,
 
-	ParentSessionId,
+    ParentSessionId,
 
-	RefId,
+    RefId,
 
-	Remove,
+    Remove,
 
-	Script,
+    Script,
 
-	SecurityContextType,
+    SecurityContextType,
 
-	SecurityContextPermissions,
+    SecurityContextPermissions,
 
-	Sender,
+    Sender,
 
-	SenderServiceId,
+    SenderServiceId,
 
-	SendId,
+    SendId,
 
-	SendIdExpression,
+    SendIdExpression,
 
-	SessionId,
+    SessionId,
 
-	Set,
+    Set,
 
-	SetCsKey,
+    SetCsKey,
 
-	SetCiKey,
+    SetCiKey,
 
-	SetLength,
+    SetLength,
 
-	SetMetadata,
+    SetMetadata,
 
-	Source,
+    Source,
 
-	SourceExpression,
+    SourceExpression,
 
-	StateMachineDefinition,
+    StateMachineDefinition,
 
-	States,
+    States,
 
-	InvokeUniqueId,
+    InvokeUniqueId,
 
-	Target,
+    Target,
 
-	TargetType,
+    TargetType,
 
-	TargetServiceId,
+    TargetServiceId,
 
-	TargetExpression,
+    TargetExpression,
 
-	Transition,
+    Transition,
 
-	Transitions,
+    Transitions,
 
-	TransitionType,
+    TransitionType,
 
-	Type,
+    Type,
 
-	TypeExpression,
+    TypeExpression,
 
-	TypeInfo,
+    TypeInfo,
 
-	UnhandledErrorBehaviour,
+    UnhandledErrorBehaviour,
 
-	Uri,
+    Uri,
 
-	UriId,
+    UriId,
 
-	ValueList,
+    ValueList,
 
-	Version
+    Version
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -23,9 +23,9 @@ namespace Xtate.Core;
 
 public class ResourceModule : Module
 {
-	protected override void AddServices()
-	{
-		Services.AddSharedImplementation<DefaultIoBoundTask>(SharedWithin.Container).For<IIoBoundTask>();
-		Services.AddTypeSync<Resource, Stream, ContentType?>();
-	}
+    protected override void AddServices()
+    {
+        Services.AddSharedImplementation<DefaultIoBoundTask>(SharedWithin.Container).For<IIoBoundTask>();
+        Services.AddTypeSync<Resource, Stream, ContentType?>();
+    }
 }

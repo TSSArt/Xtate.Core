@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,97 +19,97 @@ namespace Xtate.Core;
 
 internal static class SegmentedName
 {
-	public static bool Equals<T>(ImmutableArray<T> segments1, ImmutableArray<T> segments2)
-	{
-		if (segments1 == segments2)
-		{
-			return true;
-		}
+    public static bool Equals<T>(ImmutableArray<T> segments1, ImmutableArray<T> segments2)
+    {
+        if (segments1 == segments2)
+        {
+            return true;
+        }
 
-		if (segments1.IsDefault || segments2.IsDefault)
-		{
-			return false;
-		}
+        if (segments1.IsDefault || segments2.IsDefault)
+        {
+            return false;
+        }
 
-		if (segments1.Length != segments2.Length)
-		{
-			return false;
-		}
+        if (segments1.Length != segments2.Length)
+        {
+            return false;
+        }
 
-		for (var i = 0; i < segments1.Length; i ++)
-		{
-			if (!EqualityComparer<T>.Default.Equals(segments1[i], segments2[i]))
-			{
-				return false;
-			}
-		}
+        for (var i = 0; i < segments1.Length; i ++)
+        {
+            if (!EqualityComparer<T>.Default.Equals(segments1[i], segments2[i]))
+            {
+                return false;
+            }
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	public static int GetHashCode<T>(ImmutableArray<T> segments)
-	{
-		var hashCode = new HashCode();
+    public static int GetHashCode<T>(ImmutableArray<T> segments)
+    {
+        var hashCode = new HashCode();
 
-		foreach (var t in segments)
-		{
-			hashCode.Add(t);
-		}
+        foreach (var t in segments)
+        {
+            hashCode.Add(t);
+        }
 
-		return hashCode.ToHashCode();
-	}
+        return hashCode.ToHashCode();
+    }
 
-	public static string? ToString<T>(ImmutableArray<T> segments, string separator) =>
-		segments switch
-		{
-			{ IsDefault: true }      => default,
-			{ IsEmpty: true }        => string.Empty,
-			[var t]                  => t?.ToString() ?? string.Empty,
-			[var t1, var t2]         => string.Concat(t1?.ToString(), separator, t2?.ToString()),
-			[var t1, var t2, var t3] => StringExtensions.Concat(t1?.ToString(), separator, t2?.ToString(), separator, t3?.ToString()),
-			_                        => string.Join(separator, segments.Select(t => t?.ToString()))
-		};
+    public static string? ToString<T>(ImmutableArray<T> segments, string separator) =>
+        segments switch
+        {
+            { IsDefault: true }      => default,
+            { IsEmpty: true }        => string.Empty,
+            [var t]                  => t?.ToString() ?? string.Empty,
+            [var t1, var t2]         => string.Concat(t1?.ToString(), separator, t2?.ToString()),
+            [var t1, var t2, var t3] => StringExtensions.Concat(t1?.ToString(), separator, t2?.ToString(), separator, t3?.ToString()),
+            _                        => string.Join(separator, segments.Select(t => t?.ToString()))
+        };
 
-	public static bool TryFormat<T>(ImmutableArray<T> segments,
-									string separator,
-									Span<char> destination,
-									out int charsWritten)
-	{
-		charsWritten = 0;
+    public static bool TryFormat<T>(ImmutableArray<T> segments,
+                                    string separator,
+                                    Span<char> destination,
+                                    out int charsWritten)
+    {
+        charsWritten = 0;
 
-		if (segments.IsDefaultOrEmpty)
-		{
-			return true;
-		}
+        if (segments.IsDefaultOrEmpty)
+        {
+            return true;
+        }
 
-		for (var i = 0; i < segments.Length; i ++)
-		{
-			if (i > 0 && !separator.TryCopyIncremental(ref destination, ref charsWritten))
-			{
-				return false;
-			}
+        for (var i = 0; i < segments.Length; i ++)
+        {
+            if (i > 0 && !separator.TryCopyIncremental(ref destination, ref charsWritten))
+            {
+                return false;
+            }
 
-			if (segments[i] is not { } t)
-			{
-				continue;
-			}
+            if (segments[i] is not { } t)
+            {
+                continue;
+            }
 
-			if (t is ISpanFormattable spanFormattable)
-			{
-				if (!spanFormattable.TryFormat(destination, out var written, format: default, provider: default))
-				{
-					return false;
-				}
+            if (t is ISpanFormattable spanFormattable)
+            {
+                if (!spanFormattable.TryFormat(destination, out var written, format: default, provider: default))
+                {
+                    return false;
+                }
 
-				destination = destination[written..];
-				charsWritten += written;
-			}
-			else if (!t.ToString().TryCopyIncremental(ref destination, ref charsWritten))
-			{
-				return false;
-			}
-		}
+                destination = destination[written..];
+                charsWritten += written;
+            }
+            else if (!t.ToString().TryCopyIncremental(ref destination, ref charsWritten))
+            {
+                return false;
+            }
+        }
 
-		return true;
-	}
+        return true;
+    }
 }

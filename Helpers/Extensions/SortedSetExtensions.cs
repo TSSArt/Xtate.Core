@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -20,24 +20,24 @@ namespace Xtate.Core;
 
 public static class SortedSetExtensions
 {
-	public static bool TryGetValue<T>(this SortedSet<T> sortedSet, T equalValue, [MaybeNullWhen(false)] out T actualValue)
-	{
-		if (sortedSet is null) throw new ArgumentNullException(nameof(sortedSet));
+    public static bool TryGetValue<T>(this SortedSet<T> sortedSet, T equalValue, [MaybeNullWhen(false)] out T actualValue)
+    {
+        if (sortedSet is null) throw new ArgumentNullException(nameof(sortedSet));
 
-		if (sortedSet.Contains(equalValue))
-		{
-			using var enumerator = sortedSet.GetViewBetween(equalValue, equalValue).GetEnumerator();
+        if (sortedSet.Contains(equalValue))
+        {
+            using var enumerator = sortedSet.GetViewBetween(equalValue, equalValue).GetEnumerator();
 
-			enumerator.MoveNext();
-			actualValue = enumerator.Current;
+            enumerator.MoveNext();
+            actualValue = enumerator.Current;
 
-			return true;
-		}
+            return true;
+        }
 
-		actualValue = default;
+        actualValue = default;
 
-		return false;
-	}
+        return false;
+    }
 }
 
 #endif

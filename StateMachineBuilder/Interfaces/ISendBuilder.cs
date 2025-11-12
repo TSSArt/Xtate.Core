@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,31 +19,31 @@ namespace Xtate.Builder;
 
 public interface ISendBuilder
 {
-	ISend Build();
+    ISend Build();
 
-	void SetEvent(string eventName);
+    void SetEvent(string eventName);
 
-	void SetEventExpression(IValueExpression eventExpression);
+    void SetEventExpression(IValueExpression eventExpression);
 
-	void SetTarget(FullUri target);
+    void SetTarget(FullUri target);
 
-	void SetTargetExpression(IValueExpression targetExpression);
+    void SetTargetExpression(IValueExpression targetExpression);
 
-	void SetType(FullUri type);
+    void SetType(FullUri type);
 
-	void SetTypeExpression(IValueExpression typeExpression);
+    void SetTypeExpression(IValueExpression typeExpression);
 
-	void SetId(string id);
+    void SetId(string id);
 
-	void SetIdLocation(ILocationExpression idLocation);
+    void SetIdLocation(ILocationExpression idLocation);
 
-	void SetDelay(int delay);
+    void SetDelay(int delay);
 
-	void SetDelayExpression(IValueExpression delayExpression);
+    void SetDelayExpression(IValueExpression delayExpression);
 
-	void SetNameList(ImmutableArray<ILocationExpression> nameList);
+    void SetNameList(ImmutableArray<ILocationExpression> nameList);
 
-	void AddParameter(IParam param);
+    void AddParameter(IParam param);
 
-	void SetContent(IContent content);
+    void SetContent(IContent content);
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,88 +21,88 @@ namespace Xtate.CustomAction;
 
 public abstract class ActionBase
 {
-	protected static async ValueTask<object?[]> GetArray(IValueEvaluator valueEvaluator)
-	{
-		if (valueEvaluator.Is<IArrayEvaluator>(out var arrayEvaluator))
-		{
-			var array = await arrayEvaluator.EvaluateArray().ConfigureAwait(false);
+    protected static async ValueTask<object?[]> GetArray(IValueEvaluator valueEvaluator)
+    {
+        if (valueEvaluator.Is<IArrayEvaluator>(out var arrayEvaluator))
+        {
+            var array = await arrayEvaluator.EvaluateArray().ConfigureAwait(false);
 
-			return array is not null ? Array.ConvertAll(array, i => i.ToObject()) : [];
-		}
+            return array is not null ? Array.ConvertAll(array, i => i.ToObject()) : [];
+        }
 
-		if (valueEvaluator.Is<IObjectEvaluator>(out var objectEvaluator))
-		{
-			var obj = (await objectEvaluator.EvaluateObject().ConfigureAwait(false)).ToObject();
+        if (valueEvaluator.Is<IObjectEvaluator>(out var objectEvaluator))
+        {
+            var obj = (await objectEvaluator.EvaluateObject().ConfigureAwait(false)).ToObject();
 
-			return obj switch
-				   {
-					   IEnumerable<object> e1 => e1.ToArray(),
-					   IEnumerable e2         => e2.Cast<object>().ToArray(),
-					   not null               => [obj],
-					   _                      => []
-				   };
-		}
+            return obj switch
+                   {
+                       IEnumerable<object> e1 => e1.ToArray(),
+                       IEnumerable e2         => e2.Cast<object>().ToArray(),
+                       not null               => [obj],
+                       _                      => []
+                   };
+        }
 
-		return [];
-	}
+        return [];
+    }
 
-	protected static async ValueTask<string> GetString(IValueEvaluator valueEvaluator, string? defaultValue)
-	{
-		if (valueEvaluator.Is<IStringEvaluator>(out var stringEvaluator))
-		{
-			return await stringEvaluator.EvaluateString().ConfigureAwait(false);
-		}
+    protected static async ValueTask<string> GetString(IValueEvaluator valueEvaluator, string? defaultValue)
+    {
+        if (valueEvaluator.Is<IStringEvaluator>(out var stringEvaluator))
+        {
+            return await stringEvaluator.EvaluateString().ConfigureAwait(false);
+        }
 
-		if (valueEvaluator.Is<IObjectEvaluator>(out var objectEvaluator))
-		{
-			var obj = await objectEvaluator.EvaluateObject().ConfigureAwait(false);
+        if (valueEvaluator.Is<IObjectEvaluator>(out var objectEvaluator))
+        {
+            var obj = await objectEvaluator.EvaluateObject().ConfigureAwait(false);
 
-			return Convert.ToString(obj?.ToObject()) ?? string.Empty;
-		}
+            return Convert.ToString(obj?.ToObject()) ?? string.Empty;
+        }
 
-		return defaultValue ?? string.Empty;
-	}
+        return defaultValue ?? string.Empty;
+    }
 
-	protected static async ValueTask<int> GetInteger(IValueEvaluator valueEvaluator, int? defaultValue)
-	{
-		if (valueEvaluator.Is<IIntegerEvaluator>(out var integerEvaluator))
-		{
-			return await integerEvaluator.EvaluateInteger().ConfigureAwait(false);
-		}
+    protected static async ValueTask<int> GetInteger(IValueEvaluator valueEvaluator, int? defaultValue)
+    {
+        if (valueEvaluator.Is<IIntegerEvaluator>(out var integerEvaluator))
+        {
+            return await integerEvaluator.EvaluateInteger().ConfigureAwait(false);
+        }
 
-		if (valueEvaluator.Is<IObjectEvaluator>(out var objectEvaluator))
-		{
-			var obj = await objectEvaluator.EvaluateObject().ConfigureAwait(false);
+        if (valueEvaluator.Is<IObjectEvaluator>(out var objectEvaluator))
+        {
+            var obj = await objectEvaluator.EvaluateObject().ConfigureAwait(false);
 
-			return Convert.ToInt32(obj?.ToObject());
-		}
+            return Convert.ToInt32(obj?.ToObject());
+        }
 
-		return defaultValue ?? default;
-	}
+        return defaultValue ?? default;
+    }
 
-	protected static async ValueTask<bool> GetBoolean(IValueEvaluator valueEvaluator, bool? defaultValue = default)
-	{
-		if (valueEvaluator.Is<IBooleanEvaluator>(out var booleanEvaluator))
-		{
-			return await booleanEvaluator.EvaluateBoolean().ConfigureAwait(false);
-		}
+    protected static async ValueTask<bool> GetBoolean(IValueEvaluator valueEvaluator, bool? defaultValue = default)
+    {
+        if (valueEvaluator.Is<IBooleanEvaluator>(out var booleanEvaluator))
+        {
+            return await booleanEvaluator.EvaluateBoolean().ConfigureAwait(false);
+        }
 
-		if (valueEvaluator.Is<IObjectEvaluator>(out var objectEvaluator))
-		{
-			var obj = await objectEvaluator.EvaluateObject().ConfigureAwait(false);
+        if (valueEvaluator.Is<IObjectEvaluator>(out var objectEvaluator))
+        {
+            var obj = await objectEvaluator.EvaluateObject().ConfigureAwait(false);
 
-			return Convert.ToBoolean(obj?.ToObject());
-		}
+            return Convert.ToBoolean(obj?.ToObject());
+        }
 
-		return defaultValue ?? default;
-	}
+        return defaultValue ?? default;
+    }
 
-	protected static async ValueTask<DataModelValue> GetObject(IValueEvaluator valueEvaluator, object? defaultValue)
-	{
-		var obj = valueEvaluator.Is<IObjectEvaluator>(out var objectEvaluator)
-			? await objectEvaluator.EvaluateObject().ConfigureAwait(false)
-			: defaultValue;
+    protected static async ValueTask<DataModelValue> GetObject(IValueEvaluator valueEvaluator, object? defaultValue)
+    {
+        var obj = valueEvaluator.Is<IObjectEvaluator>(out var objectEvaluator)
+            ? await objectEvaluator.EvaluateObject().ConfigureAwait(false)
+            : defaultValue;
 
-		return DataModelValue.FromObject(obj);
-	}
+        return DataModelValue.FromObject(obj);
+    }
 }

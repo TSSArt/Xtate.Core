@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -23,115 +23,115 @@ namespace Xtate.Persistence;
 
 public class FileStorageProvider : IStorageProvider
 {
-	private static readonly char[] InvalidFileNameChars = Path.GetInvalidFileNameChars();
+    private static readonly char[] InvalidFileNameChars = Path.GetInvalidFileNameChars();
 
-	private static readonly string[] InvalidCharReplacement = GetInvalidCharReplacement();
+    private static readonly string[] InvalidCharReplacement = GetInvalidCharReplacement();
 
-	private readonly string? _extension;
+    private readonly string? _extension;
 
-	private readonly string _path;
+    private readonly string _path;
 
-	public FileStorageProvider(string path, string? extension = default)
-	{
-		Infra.Requires(path);
+    public FileStorageProvider(string path, string? extension = default)
+    {
+        Infra.Requires(path);
 
-		_path = path;
-		_extension = extension;
-	}
+        _path = path;
+        _extension = extension;
+    }
 
-	public required Func<Stream, ValueTask<ITransactionalStorage>> TransactionalStorageFactory { private get; [UsedImplicitly] init; }
+    public required Func<Stream, ValueTask<ITransactionalStorage>> TransactionalStorageFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IStorageProvider
 
-	public async ValueTask<ITransactionalStorage> GetTransactionalStorage(string? partition, string key)
-	{
-		Infra.RequiresNonEmptyString(key);
+    public async ValueTask<ITransactionalStorage> GetTransactionalStorage(string? partition, string key)
+    {
+        Infra.RequiresNonEmptyString(key);
 
-		var dir = !string.IsNullOrEmpty(partition) ? Path.Combine(_path, Escape(partition)) : _path;
+        var dir = !string.IsNullOrEmpty(partition) ? Path.Combine(_path, Escape(partition)) : _path;
 
-		if (!Directory.Exists(dir))
-		{
-			Directory.CreateDirectory(dir);
-		}
+        if (!Directory.Exists(dir))
+        {
+            Directory.CreateDirectory(dir);
+        }
 
-		var path = Path.Combine(dir, Escape(key) + _extension);
-		var fileStream = new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, bufferSize: 4096, FileOptions.Asynchronous);
+        var path = Path.Combine(dir, Escape(key) + _extension);
+        var fileStream = new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, bufferSize: 4096, FileOptions.Asynchronous);
 
-		return await TransactionalStorageFactory(fileStream).ConfigureAwait(false);
-	}
+        return await TransactionalStorageFactory(fileStream).ConfigureAwait(false);
+    }
 
-	public ValueTask RemoveTransactionalStorage(string? partition, string key)
-	{
-		Infra.RequiresNonEmptyString(key);
+    public ValueTask RemoveTransactionalStorage(string? partition, string key)
+    {
+        Infra.RequiresNonEmptyString(key);
 
-		var dir = !string.IsNullOrEmpty(partition) ? Path.Combine(_path, Escape(partition)) : _path;
-		var path = Path.Combine(dir, Escape(key) + _extension);
+        var dir = !string.IsNullOrEmpty(partition) ? Path.Combine(_path, Escape(partition)) : _path;
+        var path = Path.Combine(dir, Escape(key) + _extension);
 
-		try
-		{
-			File.Delete(path);
-		}
-		catch (FileNotFoundException)
-		{
-			// Ignore
-		}
+        try
+        {
+            File.Delete(path);
+        }
+        catch (FileNotFoundException)
+        {
+            // Ignore
+        }
 
-		return default;
-	}
+        return default;
+    }
 
-	public ValueTask RemoveAllTransactionalStorage(string? partition)
-	{
-		var path = !string.IsNullOrEmpty(partition) ? Path.Combine(_path, Escape(partition)) : _path;
+    public ValueTask RemoveAllTransactionalStorage(string? partition)
+    {
+        var path = !string.IsNullOrEmpty(partition) ? Path.Combine(_path, Escape(partition)) : _path;
 
-		try
-		{
-			Directory.Delete(path, recursive: true);
-		}
-		catch (DirectoryNotFoundException)
-		{
-			// Ignore
-		}
+        try
+        {
+            Directory.Delete(path, recursive: true);
+        }
+        catch (DirectoryNotFoundException)
+        {
+            // Ignore
+        }
 
-		return default;
-	}
+        return default;
+    }
 
 #endregion
 
-	private static string[] GetInvalidCharReplacement()
-	{
-		var list = new string[InvalidFileNameChars.Length];
+    private static string[] GetInvalidCharReplacement()
+    {
+        var list = new string[InvalidFileNameChars.Length];
 
-		for (var i = 0; i < list.Length; i ++)
-		{
-			list[i] = @"_x" + ((int) InvalidFileNameChars[i]).ToString(format: @"X", CultureInfo.InvariantCulture);
-		}
+        for (var i = 0; i < list.Length; i ++)
+        {
+            list[i] = @"_x" + ((int)InvalidFileNameChars[i]).ToString(format: @"X", CultureInfo.InvariantCulture);
+        }
 
-		return list;
-	}
+        return list;
+    }
 
-	private static string Escape(string name)
-	{
-		if (name.IndexOfAny(InvalidFileNameChars) < 0)
-		{
-			return name;
-		}
+    private static string Escape(string name)
+    {
+        if (name.IndexOfAny(InvalidFileNameChars) < 0)
+        {
+            return name;
+        }
 
-		var sb = new StringBuilder();
+        var sb = new StringBuilder();
 
-		foreach (var ch in name)
-		{
-			var index = Array.IndexOf(InvalidFileNameChars, ch);
+        foreach (var ch in name)
+        {
+            var index = Array.IndexOf(InvalidFileNameChars, ch);
 
-			if (index >= 0)
-			{
-				sb.Append(InvalidCharReplacement[index]);
-			}
-			else
-			{
-				sb.Append(ch);
-			}
-		}
+            if (index >= 0)
+            {
+                sb.Append(InvalidCharReplacement[index]);
+            }
+            else
+            {
+                sb.Append(ch);
+            }
+        }
 
-		return sb.ToString();
-	}
+        return sb.ToString();
+    }
 }

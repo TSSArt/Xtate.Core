@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,35 +21,35 @@ namespace Xtate.Core;
 
 public sealed class RuntimeExecNode : IExecutableEntity, IStoreSupport, IAncestorProvider, IDocumentId
 {
-	private readonly IExecutableEntity _entity;
+    private readonly IExecutableEntity _entity;
 
-	private DocumentIdSlot _documentIdSlot;
+    private DocumentIdSlot _documentIdSlot;
 
-	public RuntimeExecNode(DocumentIdNode documentIdNode, IExecutableEntity entity)
-	{
-		_entity = entity;
-		documentIdNode.SaveToSlot(out _documentIdSlot);
-	}
+    public RuntimeExecNode(DocumentIdNode documentIdNode, IExecutableEntity entity)
+    {
+        _entity = entity;
+        documentIdNode.SaveToSlot(out _documentIdSlot);
+    }
 
 #region Interface IAncestorProvider
 
-	public object Ancestor => _entity;
+    public object Ancestor => _entity;
 
 #endregion
 
 #region Interface IDocumentId
 
-	public int DocumentId => _documentIdSlot.CreateValue();
+    public int DocumentId => _documentIdSlot.CreateValue();
 
 #endregion
 
 #region Interface IStoreSupport
 
-	public void Store(Bucket bucket)
-	{
-		bucket.Add(Key.TypeInfo, TypeInfo.RuntimeExecNode);
-		bucket.Add(Key.DocumentId, DocumentId);
-	}
+    public void Store(Bucket bucket)
+    {
+        bucket.Add(Key.TypeInfo, TypeInfo.RuntimeExecNode);
+        bucket.Add(Key.DocumentId, DocumentId);
+    }
 
 #endregion
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,44 +21,44 @@ namespace Xtate.Core;
 
 public sealed class DataModelNode : IDataModel, IStoreSupport, IAncestorProvider, IDocumentId
 {
-	private readonly IDataModel _dataModel;
+    private readonly IDataModel _dataModel;
 
-	private DocumentIdSlot _documentIdSlot;
+    private DocumentIdSlot _documentIdSlot;
 
-	public DataModelNode(DocumentIdNode documentIdNode, IDataModel dataModel)
-	{
-		documentIdNode.SaveToSlot(out _documentIdSlot);
-		_dataModel = dataModel;
-		Data = dataModel.Data.AsArrayOf<IData, DataNode>(true);
-	}
+    public DataModelNode(DocumentIdNode documentIdNode, IDataModel dataModel)
+    {
+        documentIdNode.SaveToSlot(out _documentIdSlot);
+        _dataModel = dataModel;
+        Data = dataModel.Data.AsArrayOf<IData, DataNode>(true);
+    }
 
-	public ImmutableArray<DataNode> Data { get; }
+    public ImmutableArray<DataNode> Data { get; }
 
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => _dataModel;
+    object IAncestorProvider.Ancestor => _dataModel;
 
 #endregion
 
 #region Interface IDataModel
 
-	ImmutableArray<IData> IDataModel.Data => _dataModel.Data;
+    ImmutableArray<IData> IDataModel.Data => _dataModel.Data;
 
 #endregion
 
 #region Interface IDocumentId
 
-	public int DocumentId => _documentIdSlot.CreateValue();
+    public int DocumentId => _documentIdSlot.CreateValue();
 
 #endregion
 
 #region Interface IStoreSupport
 
-	void IStoreSupport.Store(Bucket bucket)
-	{
-		bucket.Add(Key.TypeInfo, TypeInfo.DataModelNode);
-		bucket.AddEntityList(Key.DataList, Data);
-	}
+    void IStoreSupport.Store(Bucket bucket)
+    {
+        bucket.Add(Key.TypeInfo, TypeInfo.DataModelNode);
+        bucket.AddEntityList(Key.DataList, Data);
+    }
 
 #endregion
 }

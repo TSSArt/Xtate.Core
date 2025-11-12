@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,137 +19,138 @@ namespace Xtate;
 
 public sealed partial class StateMachineHost(StateMachineHostOptions options) : IAsyncDisposable, IDisposable
 {
-	private readonly StateMachineHostOptions _options = options ?? throw new ArgumentNullException(nameof(options));
+    private readonly StateMachineHostOptions _options = options ?? throw new ArgumentNullException(nameof(options));
 
-	private bool _asyncOperationInProgress;
+    private bool _asyncOperationInProgress;
 
-	private StateMachineHostContext? _context;
+    private StateMachineHostContext? _context;
 
-	private bool _disposed;
+    private bool _disposed;
 
-	public required Func<ValueTask<StateMachineHostContext>> ContextFactory;
+    public required Func<ValueTask<StateMachineHostContext>> ContextFactory;
 
 #region Interface IAsyncDisposable
 
-	public async ValueTask DisposeAsync()
-	{
-		if (_disposed)
-		{
-			_disposed = true;
-		}
+    public async ValueTask DisposeAsync()
+    {
+        if (_disposed)
+        {
+            _disposed = true;
+        }
 
-		if (_context is { } context)
-		{
-			_context = default;
-			await context.DisposeAsync().ConfigureAwait(false);
-		}
+        if (_context is { } context)
+        {
+            _context = default;
+            await context.DisposeAsync().ConfigureAwait(false);
+        }
 
-		await StateMachineHostStopAsync().ConfigureAwait(false);
+        await StateMachineHostStopAsync().ConfigureAwait(false);
 
-		_disposed = true;
-	}
+        _disposed = true;
+    }
 
 #endregion
 
 #region Interface IDisposable
 
-	public void Dispose()
-	{
-		if (_disposed)
-		{
-			_disposed = true;
-		}
+    public void Dispose()
+    {
+        if (_disposed)
+        {
+            _disposed = true;
+        }
 
-		if (_context is { } context)
-		{
-			_context = default;
-			//TODO:
-			//context.Dispose();
-		}
+        if (_context is { } context)
+        {
+            _context = default;
 
-		//TODO:
-		//StateMachineHostStopAsync();
+            //TODO:
+            //context.Dispose();
+        }
 
-		_disposed = true;
-	}
+        //TODO:
+        //StateMachineHostStopAsync();
+
+        _disposed = true;
+    }
 
 #endregion
 
 #region Interface IHostController
 
-	public async ValueTask StartHost()
-	{
-		if (_context is not null)
-		{
-			return;
-		}
+    public async ValueTask StartHost()
+    {
+        if (_context is not null)
+        {
+            return;
+        }
 
-		if (_asyncOperationInProgress)
-		{
-			throw new InvalidOperationException(Resources.Exception_AnotherAsynchronousOperationInProgress);
-		}
+        if (_asyncOperationInProgress)
+        {
+            throw new InvalidOperationException(Resources.Exception_AnotherAsynchronousOperationInProgress);
+        }
 
-		try
-		{
-			_asyncOperationInProgress = true;
+        try
+        {
+            _asyncOperationInProgress = true;
 
-			var context = await ContextFactory().ConfigureAwait(false); //TODO:? move after startAsync()?
+            var context = await ContextFactory().ConfigureAwait(false); //TODO:? move after startAsync()?
 
-			await StateMachineHostStartAsync().ConfigureAwait(false);
+            await StateMachineHostStartAsync().ConfigureAwait(false);
 
-			_context = context;
-		}
-		finally
-		{
-			_asyncOperationInProgress = false;
-		}
-	}
+            _context = context;
+        }
+        finally
+        {
+            _asyncOperationInProgress = false;
+        }
+    }
 
-	public async ValueTask StopHost()
-	{
-		if (_asyncOperationInProgress)
-		{
-			throw new InvalidOperationException(Resources.Exception_AnotherAsynchronousOperationInProgress);
-		}
+    public async ValueTask StopHost()
+    {
+        if (_asyncOperationInProgress)
+        {
+            throw new InvalidOperationException(Resources.Exception_AnotherAsynchronousOperationInProgress);
+        }
 
-		var context = _context;
+        var context = _context;
 
-		if (context is null)
-		{
-			return;
-		}
+        if (context is null)
+        {
+            return;
+        }
 
-		_asyncOperationInProgress = true;
-		_context = default;
+        _asyncOperationInProgress = true;
+        _context = default;
 
-		try
-		{
-			context.Suspend();
+        try
+        {
+            context.Suspend();
 
-			await context.WaitAllAsync(default).ConfigureAwait(false); //TODO:
-		}
-		catch (OperationCanceledException ex) when (ex.CancellationToken == default) //TODO:
-		{
-			context.Stop();
-		}
-		finally
-		{
-			await StateMachineHostStopAsync().ConfigureAwait(false);
-			await context.DisposeAsync().ConfigureAwait(false);
+            await context.WaitAllAsync(default).ConfigureAwait(false); //TODO:
+        }
+        catch (OperationCanceledException ex) when (ex.CancellationToken == default) //TODO:
+        {
+            context.Stop();
+        }
+        finally
+        {
+            await StateMachineHostStopAsync().ConfigureAwait(false);
+            await context.DisposeAsync().ConfigureAwait(false);
 
-			_asyncOperationInProgress = false;
-		}
-	}
+            _asyncOperationInProgress = false;
+        }
+    }
 
 #endregion
 
-	public async Task WaitAllStateMachinesAsync(CancellationToken token = default)
-	{
-		var context = _context;
+    public async Task WaitAllStateMachinesAsync(CancellationToken token = default)
+    {
+        var context = _context;
 
-		if (context is not null)
-		{
-			await context.WaitAllAsync(token).ConfigureAwait(false);
-		}
-	}
+        if (context is not null)
+        {
+            await context.WaitAllAsync(token).ConfigureAwait(false);
+        }
+    }
 }

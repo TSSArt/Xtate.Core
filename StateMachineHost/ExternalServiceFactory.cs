@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,45 +19,45 @@ namespace Xtate.ExternalService;
 
 public class ExternalServiceFactory
 {
-	public required IAsyncEnumerable<IExternalServiceProvider> ServiceFactories { private get; [UsedImplicitly] init; }
+    public required IAsyncEnumerable<IExternalServiceProvider> ServiceFactories { private get; [UsedImplicitly] init; }
 
-	public required IExternalServiceType ExternalServiceType { private get; [UsedImplicitly] init; }
+    public required IExternalServiceType ExternalServiceType { private get; [UsedImplicitly] init; }
 
-	[UsedImplicitly]
-	public async ValueTask<IExternalService> CreateService()
-	{
-		var serviceActivator = await GetServiceActivator(ExternalServiceType.Type).ConfigureAwait(false);
+    [UsedImplicitly]
+    public async ValueTask<IExternalService> CreateService()
+    {
+        var serviceActivator = await GetServiceActivator(ExternalServiceType.Type).ConfigureAwait(false);
 
-		return await serviceActivator.Create().ConfigureAwait(false);
-	}
+        return await serviceActivator.Create().ConfigureAwait(false);
+    }
 
-	private async ValueTask<IExternalServiceActivator> GetServiceActivator(FullUri type)
-	{
-		var serviceFactories = ServiceFactories.GetAsyncEnumerator();
+    private async ValueTask<IExternalServiceActivator> GetServiceActivator(FullUri type)
+    {
+        var serviceFactories = ServiceFactories.GetAsyncEnumerator();
 
-		await using (serviceFactories.ConfigureAwait(false))
-		{
-			while (await serviceFactories.MoveNextAsync().ConfigureAwait(false))
-			{
-				Infra.NotNull(serviceFactories.Current);
+        await using (serviceFactories.ConfigureAwait(false))
+        {
+            while (await serviceFactories.MoveNextAsync().ConfigureAwait(false))
+            {
+                Infra.NotNull(serviceFactories.Current);
 
-				if (serviceFactories.Current.TryGetActivator(type) is not { } serviceActivator)
-				{
-					continue;
-				}
+                if (serviceFactories.Current.TryGetActivator(type) is not { } serviceActivator)
+                {
+                    continue;
+                }
 
-				while (await serviceFactories.MoveNextAsync().ConfigureAwait(false))
-				{
-					if (serviceFactories.Current.TryGetActivator(type) is not null)
-					{
-						Infra.Fail(Res.Format(Resources.Exception_MoreThanOneServiceFactoryRegisteredForPprocessingInvokeType, type));
-					}
-				}
+                while (await serviceFactories.MoveNextAsync().ConfigureAwait(false))
+                {
+                    if (serviceFactories.Current.TryGetActivator(type) is not null)
+                    {
+                        Infra.Fail(Res.Format(Resources.Exception_MoreThanOneServiceFactoryRegisteredForPprocessingInvokeType, type));
+                    }
+                }
 
-				return serviceActivator;
-			}
+                return serviceActivator;
+            }
 
-			throw Infra.Fail<Exception>(Res.Format(Resources.Exception_ThereIsNoAnyServiceFactoryRegisteredForPprocessingInvokeType, type));
-		}
-	}
+            throw Infra.Fail<Exception>(Res.Format(Resources.Exception_ThereIsNoAnyServiceFactoryRegisteredForPprocessingInvokeType, type));
+        }
+    }
 }

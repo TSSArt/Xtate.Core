@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -23,29 +23,29 @@ public sealed class LogNode(DocumentIdNode documentIdNode, ILog log) : Executabl
 {
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => log;
+    object IAncestorProvider.Ancestor => log;
 
 #endregion
 
 #region Interface IDebugEntityId
 
-	FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
+    FormattableString IDebugEntityId.EntityId => @$"(#{DocumentId})";
 
 #endregion
 
 #region Interface ILog
 
-	public string? Label => log.Label;
+    public string? Label => log.Label;
 
-	public IValueExpression? Expression => log.Expression;
+    public IValueExpression? Expression => log.Expression;
 
 #endregion
 
-	protected override void Store(Bucket bucket)
-	{
-		bucket.Add(Key.TypeInfo, TypeInfo.LogNode);
-		bucket.Add(Key.DocumentId, DocumentId);
-		bucket.Add(Key.Label, Label);
-		bucket.AddEntity(Key.Expression, Expression);
-	}
+    protected override void Store(Bucket bucket)
+    {
+        bucket.Add(Key.TypeInfo, TypeInfo.LogNode);
+        bucket.Add(Key.DocumentId, DocumentId);
+        bucket.Add(Key.Label, Label);
+        bucket.AddEntity(Key.Expression, Expression);
+    }
 }

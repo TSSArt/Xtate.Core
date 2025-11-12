@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,86 +22,86 @@ namespace Xtate.Core;
 [InterpolatedStringHandler]
 public readonly struct LoggingInterpolatedStringHandler
 {
-	private readonly ImmutableArray<LoggingParameter>.Builder? _parametersBuilder;
+    private readonly ImmutableArray<LoggingParameter>.Builder? _parametersBuilder;
 
-	private readonly IFormatProvider? _provider;
+    private readonly IFormatProvider? _provider;
 
-	private readonly StringBuilder? _stringBuilder;
+    private readonly StringBuilder? _stringBuilder;
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public LoggingInterpolatedStringHandler(int literalLength,
-											int formattedCount,
-											ILogger logger,
-											Level level,
-											out bool shouldFormat)
-	{
-		if (logger.IsEnabled(level))
-		{
-			if (formattedCount > 0)
-			{
-				_provider = logger.FormatProvider;
-				_parametersBuilder = ImmutableArray.CreateBuilder<LoggingParameter>(formattedCount);
-			}
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public LoggingInterpolatedStringHandler(int literalLength,
+                                            int formattedCount,
+                                            ILogger logger,
+                                            Level level,
+                                            out bool shouldFormat)
+    {
+        if (logger.IsEnabled(level))
+        {
+            if (formattedCount > 0)
+            {
+                _provider = logger.FormatProvider;
+                _parametersBuilder = ImmutableArray.CreateBuilder<LoggingParameter>(formattedCount);
+            }
 
-			_stringBuilder = new StringBuilder(literalLength + formattedCount * 16);
-			shouldFormat = true;
-		}
-		else
-		{
-			shouldFormat = false;
-		}
-	}
+            _stringBuilder = new StringBuilder(literalLength + formattedCount * 16);
+            shouldFormat = true;
+        }
+        else
+        {
+            shouldFormat = false;
+        }
+    }
 
-	public string? ToString(out ImmutableArray<LoggingParameter> parameters)
-	{
-		parameters = _parametersBuilder?.MoveToImmutable() ?? default;
-		var result = _stringBuilder?.ToString();
+    public string? ToString(out ImmutableArray<LoggingParameter> parameters)
+    {
+        parameters = _parametersBuilder?.MoveToImmutable() ?? default;
+        var result = _stringBuilder?.ToString();
 
-		return result;
-	}
+        return result;
+    }
 
-	public void AppendLiteral(string value) => _stringBuilder!.Append(value);
+    public void AppendLiteral(string value) => _stringBuilder!.Append(value);
 
-	public void AppendFormatted(object? value, string? format = default, [CallerArgumentExpression(nameof(value))] string? expression = default)
-	{
-		Span<char> buf = stackalloc char[StackSpan<char>.MaxLengthInStack];
+    public void AppendFormatted(object? value, string? format = default, [CallerArgumentExpression(nameof(value))] string? expression = default)
+    {
+        Span<char> buf = stackalloc char[StackSpan<char>.MaxLengthInStack];
 
-		if (value is ISpanFormattable spanFormattable && spanFormattable.TryFormat(buf, out var charsWritten, format.AsSpan(), _provider))
-		{
-			_stringBuilder!.Append(buf[..charsWritten]);
-		}
-		else if (value is IFormattable formattable)
-		{
-			_stringBuilder!.Append(formattable.ToString(format, _provider));
-		}
-		else
-		{
-			_stringBuilder!.Append(value);
-		}
+        if (value is ISpanFormattable spanFormattable && spanFormattable.TryFormat(buf, out var charsWritten, format.AsSpan(), _provider))
+        {
+            _stringBuilder!.Append(buf[..charsWritten]);
+        }
+        else if (value is IFormattable formattable)
+        {
+            _stringBuilder!.Append(formattable.ToString(format, _provider));
+        }
+        else
+        {
+            _stringBuilder!.Append(value);
+        }
 
-		_parametersBuilder!.Add(new LoggingParameter(expression!, value, format));
-	}
+        _parametersBuilder!.Add(new LoggingParameter(expression!, value, format));
+    }
 
-	public void AppendFormatted(object? value,
-								int alignment,
-								string? format = default,
-								[CallerArgumentExpression(nameof(value))]
-								string? expression = default)
-	{
-		var start = _stringBuilder!.Length;
+    public void AppendFormatted(object? value,
+                                int alignment,
+                                string? format = default,
+                                [CallerArgumentExpression(nameof(value))]
+                                string? expression = default)
+    {
+        var start = _stringBuilder!.Length;
 
-		AppendFormatted(value, format, expression);
+        AppendFormatted(value, format, expression);
 
-		if (Math.Abs(alignment) - (_stringBuilder.Length - start) is var paddingRequired and > 0)
-		{
-			if (alignment < 0)
-			{
-				_stringBuilder.Append(value: ' ', paddingRequired);
-			}
-			else
-			{
-				_stringBuilder.Insert(start, value: @" ", paddingRequired);
-			}
-		}
-	}
+        if (Math.Abs(alignment) - (_stringBuilder.Length - start) is var paddingRequired and > 0)
+        {
+            if (alignment < 0)
+            {
+                _stringBuilder.Append(value: ' ', paddingRequired);
+            }
+            else
+            {
+                _stringBuilder.Insert(start, value: @" ", paddingRequired);
+            }
+        }
+    }
 }

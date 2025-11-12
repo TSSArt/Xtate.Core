@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,33 +22,33 @@
 
 public class DynamicCustomActionFactory : DynamicFactory<ICustomActionFactory>, ICustomActionFactory
 {
-	public DynamicCustomActionFactory(bool throwOnError = true) : base(throwOnError) { }
+    public DynamicCustomActionFactory(bool throwOnError = true) : base(throwOnError) { }
 
 #region Interface ICustomActionFactory
 
-	public async ValueTask<ICustomActionFactoryActivator?> TryGetActivator(ServiceLocator serviceLocator,
-																		   string ns,
-																		   string name,
-																		   CancellationToken token)
-	{
-		var factories = await GetFactories(serviceLocator, CustomActionNamespaceToUri(ns), token).ConfigureAwait(false);
+    public async ValueTask<ICustomActionFactoryActivator?> TryGetActivator(ServiceLocator serviceLocator,
+                                                                           string ns,
+                                                                           string name,
+                                                                           CancellationToken token)
+    {
+        var factories = await GetFactories(serviceLocator, CustomActionNamespaceToUri(ns), token).ConfigureAwait(false);
 
-		foreach (var factory in factories)
-		{
-			var activator = await factory.TryGetActivator(serviceLocator, ns, name, token).ConfigureAwait(false);
+        foreach (var factory in factories)
+        {
+            var activator = await factory.TryGetActivator(serviceLocator, ns, name, token).ConfigureAwait(false);
 
-			if (activator is not null)
-			{
-				return activator;
-			}
-		}
+            if (activator is not null)
+            {
+                return activator;
+            }
+        }
 
-		return null;
-	}
+        return null;
+    }
 
 #endregion
 
-	protected virtual Uri CustomActionNamespaceToUri(string customActionNamespace) => new(customActionNamespace, UriKind.RelativeOrAbsolute);
+    protected virtual Uri CustomActionNamespaceToUri(string customActionNamespace) => new(customActionNamespace, UriKind.RelativeOrAbsolute);
 }
 */
 

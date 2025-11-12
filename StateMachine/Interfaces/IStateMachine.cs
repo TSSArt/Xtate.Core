@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,17 +19,17 @@ namespace Xtate;
 
 public interface IStateMachine : IEntity
 {
-	string? Name { get; }
+    string? Name { get; }
 
-	string? DataModelType { get; }
+    string? DataModelType { get; }
 
-	BindingType Binding { get; }
+    BindingType Binding { get; }
 
-	IInitial? Initial { get; }
+    IInitial? Initial { get; }
 
-	ImmutableArray<IStateEntity> States { get; }
+    ImmutableArray<IStateEntity> States { get; }
 
-	IDataModel? DataModel { get; }
+    IDataModel? DataModel { get; }
 
-	IExecutableEntity? Script { get; }
+    IExecutableEntity? Script { get; }
 }

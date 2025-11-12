@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,8 +22,8 @@ namespace Xtate.Core;
 
 public class ScxmlStateMachineModule : Module<ScxmlModule>
 {
-	protected override void AddServices()
-	{
-		Services.AddFactory<ScxmlReaderStateMachineGetter>().For<IStateMachine>(SharedWithin.Scope);
-	}
+    protected override void AddServices()
+    {
+        Services.AddFactory<ScxmlReaderStateMachineGetter>().For<IStateMachine>(SharedWithin.Scope);
+    }
 }

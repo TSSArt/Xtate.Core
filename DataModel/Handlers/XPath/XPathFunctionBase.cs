@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -20,29 +20,23 @@ using System.Xml.Xsl;
 
 namespace Xtate.DataModel.XPath;
 
-public abstract class XPathFunctionBase : IXsltContextFunction
+public abstract class XPathFunctionBase(XPathResultType returnType, params XPathResultType[] argTypes) : IXsltContextFunction
 {
-	protected XPathFunctionBase(XPathResultType returnType, params XPathResultType[] argTypes)
-	{
-		ArgTypes = argTypes;
-		ReturnType = returnType;
-	}
-
 #region Interface IXsltContextFunction
 
-	public virtual object Invoke(XsltContext xsltContext, object[] args, XPathNavigator docContext) => Invoke(args)!;
+    public virtual object Invoke(XsltContext xsltContext, object[] args, XPathNavigator docContext) => Invoke(args)!;
 
-	public virtual XPathResultType[] ArgTypes { get; }
+    public virtual XPathResultType[] ArgTypes { get; } = argTypes;
 
-	public virtual XPathResultType ReturnType { get; }
+    public virtual XPathResultType ReturnType { get; } = returnType;
 
-	public virtual int Maxargs => ArgTypes.Length;
+    public virtual int Maxargs => ArgTypes.Length;
 
-	public virtual int Minargs => ArgTypes.Length;
+    public virtual int Minargs => ArgTypes.Length;
 
 #endregion
 
-	public virtual ValueTask Initialize() => default;
+    public virtual ValueTask Initialize() => default;
 
-	protected abstract object? Invoke(object[] args);
+    protected abstract object? Invoke(object[] args);
 }

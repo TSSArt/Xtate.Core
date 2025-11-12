@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,9 +19,9 @@ namespace Xtate;
 
 public enum UnhandledErrorBehaviour
 {
-	DestroyStateMachine = 0,
+    DestroyStateMachine = 0,
 
-	TerminateStateMachine = 1,
+    TerminateStateMachine = 1,
 
-	IgnoreError = 2
+    IgnoreError = 2
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -15,34 +15,29 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Core;
+using System.Diagnostics;
+using Xtate.IoC;
 
-/// <summary>
-///     Makes sure error is thrown by <see cref="ThrowIfErrors()" /> in case of underlying error processor does not throw
-///     exception in it.
-/// </summary>
-internal sealed class WrapperErrorProcessor(IErrorProcessor errorProcessor) : IErrorProcessor
+namespace Xtate;
+
+[InstantiatedByIoC]
+public class ConsoleTraceListenerModule : Module<TraceLoggerModule>
 {
-	private ErrorItem? _error;
-
-#region Interface IErrorProcessor
-
-	public void AddError(ErrorItem errorItem)
+	protected override void AddServices()
 	{
-		_error ??= errorItem ?? throw new ArgumentNullException(nameof(errorItem));
-
-		errorProcessor.AddError(errorItem);
+		Services.AddSharedImplementationSync<ConsoleListener>(SharedWithin.Container).For<TraceListener>();
 	}
 
-	public void ThrowIfErrors()
+	[InstantiatedByIoC]
+	private class ConsoleListener : TextWriterTraceListener
 	{
-		errorProcessor.ThrowIfErrors();
+		public ConsoleListener() => Writer = Console.Out;
 
-		if (_error is { } error)
+		protected override void Dispose(bool disposing)
 		{
-			throw new StateMachineValidationException([error]);
+			Writer = null;
+
+			base.Dispose(disposing);
 		}
 	}
-
-#endregion
 }

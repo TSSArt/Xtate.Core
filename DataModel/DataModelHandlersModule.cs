@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -24,10 +24,10 @@ namespace Xtate.DataModel;
 
 public class DataModelHandlersModule : Module<NullDataModelHandlerModule, RuntimeDataModelHandlerModule, XPathDataModelHandlerModule, ErrorProcessorModule>
 {
-	protected override void AddServices()
-	{
-		Services.AddType<UnknownDataModelHandler>();
-		Services.AddImplementation<DataModelHandlerService>().For<IDataModelHandlerService>();
-		Services.AddFactory<DataModelHandlerGetter>().For<IDataModelHandler>(SharedWithin.Scope, Option.DoNotDispose);
-	}
+    protected override void AddServices()
+    {
+        Services.AddType<UnknownDataModelHandler>();
+        Services.AddImplementation<DataModelHandlerService>().For<IDataModelHandlerService>();
+        Services.AddFactory<DataModelHandlerGetter>().For<IDataModelHandler>(SharedWithin.Scope, Option.DoNotDispose);
+    }
 }

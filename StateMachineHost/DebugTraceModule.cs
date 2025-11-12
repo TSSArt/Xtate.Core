@@ -22,18 +22,6 @@ namespace Xtate;
 
 public class DebugTraceModule : Module
 {
-	private class ConsoleListener : TextWriterTraceListener
-	{
-		public ConsoleListener() => Writer = Console.Out;
-
-		protected override void Dispose(bool disposing)
-		{
-			Writer = null;
-
-			base.Dispose(disposing);
-		}
-	}
-
 	protected override void AddServices()
 	{
 		AddTraceServices();
@@ -51,5 +39,17 @@ public class DebugTraceModule : Module
 	{
 		Services.AddImplementation<TraceLogWriter<Any>>().For<ILogWriter<Any>>();
 		Services.AddShared<TraceListener>(SharedWithin.Container, _ => new ConsoleListener());
+	}
+
+	private class ConsoleListener : TextWriterTraceListener
+	{
+		public ConsoleListener() => Writer = Console.Out;
+
+		protected override void Dispose(bool disposing)
+		{
+			Writer = null;
+
+			base.Dispose(disposing);
+		}
 	}
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,9 +21,9 @@ namespace Xtate.DataModel.XPath;
 
 internal class NamespaceNodeAdapter : NodeAdapter
 {
-	public override XPathNodeType GetNodeType() => XPathNodeType.Namespace;
+    public override XPathNodeType GetNodeType() => XPathNodeType.Namespace;
 
-	public override string GetLocalName(in DataModelXPathNavigator.Node node) => node.ParentProperty ?? Infra.Fail<string>();
+    public override string GetLocalName(in DataModelXPathNavigator.Node node) => node.ParentProperty ?? Infra.Fail<string>();
 
-	public override string GetValue(in DataModelXPathNavigator.Node node) => node.DataModelValue.AsString();
+    public override string GetValue(in DataModelXPathNavigator.Node node) => node.DataModelValue.AsString();
 }

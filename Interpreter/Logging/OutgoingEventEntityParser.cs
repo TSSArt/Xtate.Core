@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,31 +19,31 @@ namespace Xtate.Core;
 
 public class OutgoingEventEntityParser<TSource> : EntityParserBase<TSource, IOutgoingEvent>
 {
-	protected override IEnumerable<LoggingParameter> EnumerateProperties(IOutgoingEvent outgoingEvent)
-	{
-		if (!outgoingEvent.Name.IsDefault)
-		{
-			yield return new LoggingParameter(name: @"EventName", outgoingEvent.Name);
-		}
+    protected override IEnumerable<LoggingParameter> EnumerateProperties(IOutgoingEvent outgoingEvent)
+    {
+        if (!outgoingEvent.Name.IsDefault)
+        {
+            yield return new LoggingParameter(name: @"EventName", outgoingEvent.Name);
+        }
 
-		if (outgoingEvent.SendId is { } sendId)
-		{
-			yield return new LoggingParameter(name: @"SendId", sendId);
-		}
+        if (outgoingEvent.SendId is { } sendId)
+        {
+            yield return new LoggingParameter(name: @"SendId", sendId);
+        }
 
-		if (outgoingEvent.Type is { } type)
-		{
-			yield return new LoggingParameter(name: @"EventType", type);
-		}
+        if (outgoingEvent.Type is { } type)
+        {
+            yield return new LoggingParameter(name: @"EventType", type);
+        }
 
-		if (outgoingEvent.Target is { } target)
-		{
-			yield return new LoggingParameter(name: @"Target", target);
-		}
+        if (outgoingEvent.Target is { } target)
+        {
+            yield return new LoggingParameter(name: @"Target", target);
+        }
 
-		if (outgoingEvent.DelayMs is var delayMs and > 0)
-		{
-			yield return new LoggingParameter(name: @"DelayMs", delayMs);
-		}
-	}
+        if (outgoingEvent.DelayMs is var delayMs and > 0)
+        {
+            yield return new LoggingParameter(name: @"DelayMs", delayMs);
+        }
+    }
 }

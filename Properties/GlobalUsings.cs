@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -33,3 +33,4 @@ global using Xtate.Core;
 
 // Global aliases
 global using NotNullAttribute = System.Diagnostics.CodeAnalysis.NotNullAttribute;
+global using IServiceProvider = Xtate.IoC.IServiceProvider;

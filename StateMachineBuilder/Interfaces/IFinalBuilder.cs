@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,13 +19,13 @@ namespace Xtate.Builder;
 
 public interface IFinalBuilder
 {
-	IFinal Build();
+    IFinal Build();
 
-	void SetId(IIdentifier id);
+    void SetId(IIdentifier id);
 
-	void AddOnEntry(IOnEntry onEntry);
+    void AddOnEntry(IOnEntry onEntry);
 
-	void AddOnExit(IOnExit onExit);
+    void AddOnExit(IOnExit onExit);
 
-	void SetDoneData(IDoneData doneData);
+    void SetDoneData(IDoneData doneData);
 }

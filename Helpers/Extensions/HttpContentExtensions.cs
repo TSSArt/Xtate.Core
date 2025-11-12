@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,14 +21,14 @@ using System.Net.Http;
 
 namespace Xtate.Core
 {
-	public static class HttpContentExtensions
-	{
-		public static Task CopyToAsync(this HttpContent httpContent, Stream stream, CancellationToken token)
-		{
-			if (httpContent is null) throw new ArgumentNullException(nameof(httpContent));
+    public static class HttpContentExtensions
+    {
+        public static Task CopyToAsync(this HttpContent httpContent, Stream stream, CancellationToken token)
+        {
+            if (httpContent is null) throw new ArgumentNullException(nameof(httpContent));
 
-			return httpContent.CopyToAsync(stream.InjectCancellationToken(token));
-		}
-	}
+            return httpContent.CopyToAsync(stream.InjectCancellationToken(token));
+        }
+    }
 }
 #endif

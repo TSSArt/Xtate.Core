@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -23,9 +23,9 @@ public class InterpreterModel(StateMachineNode root, IEntityMap? entityMap) : II
 {
 #region Interface IInterpreterModel
 
-	public StateMachineNode Root { get; } = root;
+    public StateMachineNode Root { get; } = root;
 
-	public IEntityMap? EntityMap { get; } = entityMap;
+    public IEntityMap? EntityMap { get; } = entityMap;
 
 #endregion
 }

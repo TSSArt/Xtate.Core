@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,9 +21,9 @@ public class ConfigurationXDataModelProperty : IXDataModelProperty
 {
 #region Interface IXDataModelProperty
 
-	public string Name => @"configuration";
+    public string Name => @"configuration";
 
-	public DataModelValue Value => default;
+    public DataModelValue Value => default;
 
 #endregion
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,27 +19,27 @@ namespace Xtate.DataModel;
 
 public class DefaultLogEvaluator : LogEvaluator
 {
-	private readonly IObjectEvaluator? _expressionEvaluator;
+    private readonly IObjectEvaluator? _expressionEvaluator;
 
-	public DefaultLogEvaluator(ILog log) : base(log) => _expressionEvaluator = base.Expression?.As<IObjectEvaluator>();
+    public DefaultLogEvaluator(ILog log) : base(log) => _expressionEvaluator = base.Expression?.As<IObjectEvaluator>();
 
-	public required Deferred<ILogController> LogController { private get; [UsedImplicitly] init; }
+    public required Deferred<ILogController> LogController { private get; [UsedImplicitly] init; }
 
-	public override async ValueTask Execute()
-	{
-		var logController = await LogController().ConfigureAwait(false);
+    public override async ValueTask Execute()
+    {
+        var logController = await LogController().ConfigureAwait(false);
 
-		if (logController.IsEnabled)
-		{
-			var data = default(DataModelValue);
+        if (logController.IsEnabled)
+        {
+            var data = default(DataModelValue);
 
-			if (_expressionEvaluator is not null)
-			{
-				var obj = await _expressionEvaluator.EvaluateObject().ConfigureAwait(false);
-				data = DataModelValue.FromObject(obj).AsConstant();
-			}
+            if (_expressionEvaluator is not null)
+            {
+                var obj = await _expressionEvaluator.EvaluateObject().ConfigureAwait(false);
+                data = DataModelValue.FromObject(obj).AsConstant();
+            }
 
-			await logController.Log(base.Label, data).ConfigureAwait(false);
-		}
-	}
+            await logController.Log(base.Label, data).ConfigureAwait(false);
+        }
+    }
 }

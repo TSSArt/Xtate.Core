@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,16 +21,16 @@ namespace Xtate.Core;
 
 public interface IStateMachineHostContext
 {
-	void AddStateMachineController(SessionId sessionId, IStateMachineController controller);
+    void AddStateMachineController(SessionId sessionId, IStateMachineController controller);
 
-	void RemoveStateMachineController(SessionId sessionId);
+    void RemoveStateMachineController(SessionId sessionId);
 
-	ValueTask AddService(SessionId sessionId,
-						 InvokeId invokeId,
-						 IExternalService externalService,
-						 CancellationToken token);
+    ValueTask AddService(SessionId sessionId,
+                         InvokeId invokeId,
+                         IExternalService externalService,
+                         CancellationToken token);
 
-	ValueTask<IExternalService?> TryCompleteService(InvokeId invokeId);
+    ValueTask<IExternalService?> TryCompleteService(InvokeId invokeId);
 
-	ValueTask<IExternalService?> TryRemoveService(InvokeId invokeId);
+    ValueTask<IExternalService?> TryRemoveService(InvokeId invokeId);
 }

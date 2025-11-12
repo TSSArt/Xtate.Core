@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,89 +19,89 @@ namespace Xtate.Persistence;
 
 public enum TypeInfo
 {
-	AssignNode,
+    AssignNode,
 
-	CancelNode,
+    CancelNode,
 
-	CompoundNode,
+    CompoundNode,
 
-	ConditionExpressionNode,
+    ConditionExpressionNode,
 
-	ContentNode,
+    ContentNode,
 
-	CustomActionNode,
+    CustomActionNode,
 
-	DataModelNode,
+    DataModelNode,
 
-	DataNode,
+    DataNode,
 
-	DoneDataNode,
+    DoneDataNode,
 
-	ElseIfNode,
+    ElseIfNode,
 
-	ElseNode,
+    ElseNode,
 
-	EventDescriptorNode,
+    EventDescriptorNode,
 
-	EventObject,
+    EventObject,
 
-	ExternalDataExpressionNode,
+    ExternalDataExpressionNode,
 
-	ExternalScriptExpressionNode,
+    ExternalScriptExpressionNode,
 
-	FinalizeNode,
+    FinalizeNode,
 
-	FinalNode,
+    FinalNode,
 
-	ForEachNode,
+    ForEachNode,
 
-	HistoryNode,
+    HistoryNode,
 
-	RouterEvent,
+    RouterEvent,
 
-	IdentifierNode,
+    IdentifierNode,
 
-	IfNode,
+    IfNode,
 
-	InitialNode,
+    InitialNode,
 
-	InvokedService,
+    InvokedService,
 
-	InvokeNode,
+    InvokeNode,
 
-	LocationExpressionNode,
+    LocationExpressionNode,
 
-	LogNode,
+    LogNode,
 
-	Message,
+    Message,
 
-	OnEntryNode,
+    OnEntryNode,
 
-	OnExitNode,
+    OnExitNode,
 
-	ParallelNode,
+    ParallelNode,
 
-	ParamNode,
+    ParamNode,
 
-	RaiseNode,
+    RaiseNode,
 
-	RuntimeExecNode,
+    RuntimeExecNode,
 
-	ScheduledEvent,
+    ScheduledEvent,
 
-	ScriptExpressionNode,
+    ScriptExpressionNode,
 
-	ScriptNode,
+    ScriptNode,
 
-	SendNode,
+    SendNode,
 
-	StateMachine,
+    StateMachine,
 
-	StateMachineNode,
+    StateMachineNode,
 
-	StateNode,
+    StateNode,
 
-	TransitionNode,
+    TransitionNode,
 
-	ValueExpressionNode
+    ValueExpressionNode
 }

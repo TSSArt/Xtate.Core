@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,27 +22,27 @@ namespace Xtate.Core;
 
 public sealed class FinalizeNode(IFinalize finalize) : IFinalize, IStoreSupport, IAncestorProvider
 {
-	public ImmutableArray<IExecEvaluator> ActionEvaluators { get; } = finalize.Action.AsArrayOf<IExecutableEntity, IExecEvaluator>();
+    public ImmutableArray<IExecEvaluator> ActionEvaluators { get; } = finalize.Action.AsArrayOf<IExecutableEntity, IExecEvaluator>();
 
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => finalize;
+    object IAncestorProvider.Ancestor => finalize;
 
 #endregion
 
 #region Interface IFinalize
 
-	public ImmutableArray<IExecutableEntity> Action => finalize.Action;
+    public ImmutableArray<IExecutableEntity> Action => finalize.Action;
 
 #endregion
 
 #region Interface IStoreSupport
 
-	void IStoreSupport.Store(Bucket bucket)
-	{
-		bucket.Add(Key.TypeInfo, TypeInfo.FinalizeNode);
-		bucket.AddEntityList(Key.Action, Action);
-	}
+    void IStoreSupport.Store(Bucket bucket)
+    {
+        bucket.Add(Key.TypeInfo, TypeInfo.FinalizeNode);
+        bucket.AddEntityList(Key.Action, Action);
+    }
 
 #endregion
 }

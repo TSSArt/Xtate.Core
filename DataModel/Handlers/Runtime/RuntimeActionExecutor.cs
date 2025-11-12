@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,20 +19,20 @@ namespace Xtate.DataModel.Runtime;
 
 public class RuntimeActionExecutor : IExecutableEntity, IExecEvaluator
 {
-	public required RuntimeAction Action { private get; [UsedImplicitly] init; }
+    public required RuntimeAction Action { private get; [UsedImplicitly] init; }
 
-	public required Func<ValueTask<RuntimeExecutionContext>> RuntimeExecutionContextFactory { private get; [UsedImplicitly] init; }
+    public required Func<ValueTask<RuntimeExecutionContext>> RuntimeExecutionContextFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IExecEvaluator
 
-	public async ValueTask Execute()
-	{
-		var executionContext = await RuntimeExecutionContextFactory().ConfigureAwait(false);
+    public async ValueTask Execute()
+    {
+        var executionContext = await RuntimeExecutionContextFactory().ConfigureAwait(false);
 
-		Xtate.Runtime.SetCurrentExecutionContext(executionContext);
+        Xtate.Runtime.SetCurrentExecutionContext(executionContext);
 
-		await Action.DoAction().ConfigureAwait(false);
-	}
+        await Action.DoAction().ConfigureAwait(false);
+    }
 
 #endregion
 }

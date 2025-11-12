@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,18 +19,18 @@ namespace Xtate.Persistence;
 
 public static class DataModelValueSerializer
 {
-	public static void Save(IStorage storage, string key, in DataModelValue value)
-	{
-		var bucket = new Bucket(storage).Nested(key);
-		using var tracker = new DataModelReferenceTracker(bucket.Nested(Key.DataReferences));
-		bucket.SetDataModelValue(tracker, value);
-	}
+    public static void Save(IStorage storage, string key, in DataModelValue value)
+    {
+        var bucket = new Bucket(storage).Nested(key);
+        using var tracker = new DataModelReferenceTracker(bucket.Nested(Key.DataReferences));
+        bucket.SetDataModelValue(tracker, value);
+    }
 
-	public static DataModelValue Load(IStorage storage, string key)
-	{
-		var bucket = new Bucket(storage).Nested(key);
-		using var tracker = new DataModelReferenceTracker(bucket.Nested(Key.DataReferences));
+    public static DataModelValue Load(IStorage storage, string key)
+    {
+        var bucket = new Bucket(storage).Nested(key);
+        using var tracker = new DataModelReferenceTracker(bucket.Nested(Key.DataReferences));
 
-		return bucket.GetDataModelValue(tracker, baseValue: default);
-	}
+        return bucket.GetDataModelValue(tracker, baseValue: default);
+    }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -24,120 +24,121 @@ public sealed partial class StateMachineHost : IIoProcessor, IEventConsumer, IEv
 {
 #region Interface IEventConsumer
 
-	public async ValueTask<IEventDispatcher?> TryGetEventDispatcher(ServiceId serviceId, CancellationToken token) =>
-		serviceId switch
-		{
-			SessionId sessionId                                                                 => (IEventDispatcher)await GetCurrentContext().FindStateMachineController(sessionId, token).ConfigureAwait(false),
-			InvokeId invokeId when GetCurrentContext().TryGetService(invokeId, out var service) => (IEventDispatcher)service,
-			_                                                                                   => default
-		};
+    public async ValueTask<IEventDispatcher?> TryGetEventDispatcher(ServiceId serviceId, CancellationToken token) =>
+        serviceId switch
+        {
+            SessionId sessionId                                                                 => await GetCurrentContext().FindStateMachineController(sessionId, token).ConfigureAwait(false),
+            InvokeId invokeId when GetCurrentContext().TryGetService(invokeId, out var service) => (IEventDispatcher)service,
+            _                                                                                   => default
+        };
 
 #endregion
 
 #region Interface IEventRouter
 
-	public bool IsInternalTarget(FullUri? target) => target == Const.ScxmlIoProcessorInternalTarget;
+    public bool IsInternalTarget(FullUri? target) => target == Const.ScxmlIoProcessorInternalTarget;
 
-	ValueTask<IRouterEvent> IEventRouter.GetRouterEvent(IOutgoingEvent outgoingEvent, CancellationToken token)
-	{
-		ServiceId senderServiceId = default!;
+    ValueTask<IRouterEvent> IEventRouter.GetRouterEvent(IOutgoingEvent outgoingEvent, CancellationToken token)
+    {
+        ServiceId senderServiceId = default!;
 
-		if (senderServiceId is null) throw new ArgumentNullException(nameof(senderServiceId));
+        if (senderServiceId is null) throw new ArgumentNullException(nameof(senderServiceId));
 
-		var target = outgoingEvent.Target ?? throw new ProcessorException(Resources.Exception_EventTargetDidNotSpecify); //TODO:can be null
+        var target = outgoingEvent.Target ?? throw new ProcessorException(Resources.Exception_EventTargetDidNotSpecify); //TODO:can be null
 
-		if (senderServiceId is SessionId sessionId && IsTargetParent(target))
-		{
-			if (GetCurrentContext().TryGetParentSessionId(sessionId, out var parentSessionId))
-			{
-				return new ValueTask<IRouterEvent>(new RouterEvent(senderServiceId, parentSessionId, Const.ScxmlIoProcessorId, GetTarget(senderServiceId), outgoingEvent));
-			}
-		}
-		else if (IsTargetSessionId(target, out var targetSessionId))
-		{
-			return new ValueTask<IRouterEvent>(new RouterEvent(senderServiceId, targetSessionId, Const.ScxmlIoProcessorId, GetTarget(senderServiceId), outgoingEvent));
-		}
-		else if (IsTargetInvokeId(target, out var targetInvokeId))
-		{
-			return new ValueTask<IRouterEvent>(new RouterEvent(senderServiceId, targetInvokeId, Const.ScxmlIoProcessorId, GetTarget(senderServiceId), outgoingEvent));
-		}
+        if (senderServiceId is SessionId sessionId && IsTargetParent(target))
+        {
+            if (GetCurrentContext().TryGetParentSessionId(sessionId, out var parentSessionId))
+            {
+                return new ValueTask<IRouterEvent>(new RouterEvent(senderServiceId, parentSessionId, Const.ScxmlIoProcessorId, GetTarget(senderServiceId), outgoingEvent));
+            }
+        }
+        else if (IsTargetSessionId(target, out var targetSessionId))
+        {
+            return new ValueTask<IRouterEvent>(new RouterEvent(senderServiceId, targetSessionId, Const.ScxmlIoProcessorId, GetTarget(senderServiceId), outgoingEvent));
+        }
+        else if (IsTargetInvokeId(target, out var targetInvokeId))
+        {
+            return new ValueTask<IRouterEvent>(new RouterEvent(senderServiceId, targetInvokeId, Const.ScxmlIoProcessorId, GetTarget(senderServiceId), outgoingEvent));
+        }
 
-		throw new ProcessorException(Resources.Exception_CannotFindTarget);
-	}
+        throw new ProcessorException(Resources.Exception_CannotFindTarget);
+    }
 
-	async ValueTask IEventRouter.Dispatch(IRouterEvent routerEvent, CancellationToken token)
-	{
-		Infra.NotNull(routerEvent.TargetServiceId);
+    async ValueTask IEventRouter.Dispatch(IRouterEvent routerEvent, CancellationToken token)
+    {
+        Infra.NotNull(routerEvent.TargetServiceId);
 
-		var service = await GetService(routerEvent.TargetServiceId, token: default).ConfigureAwait(false);
-		//await service.Dispatch(routerEvent).ConfigureAwait(false);
-	}
+        var service = await GetService(routerEvent.TargetServiceId, token: default).ConfigureAwait(false);
 
-	bool IEventRouter.CanHandle(FullUri? type) => CanHandleType(type);
+        //await service.Dispatch(routerEvent).ConfigureAwait(false);
+    }
+
+    bool IEventRouter.CanHandle(FullUri? type) => CanHandleType(type);
 
 #endregion
 
 #region Interface IIoProcessor
 
-	FullUri? IIoProcessor.GetTarget(ServiceId serviceId) => GetTarget(serviceId);
+    FullUri? IIoProcessor.GetTarget(ServiceId serviceId) => GetTarget(serviceId);
 
-	FullUri IIoProcessor.Id => Const.ScxmlIoProcessorId;
+    FullUri IIoProcessor.Id => Const.ScxmlIoProcessorId;
 
 #endregion
 
-	private async ValueTask<IExternalService> GetService(ServiceId serviceId, CancellationToken token) =>
-		serviceId switch
-		{
-			SessionId sessionId
-				when await GetCurrentContext().FindStateMachineController(sessionId, token).ConfigureAwait(false) is { } controller => controller,
-			InvokeId invokeId
-				when GetCurrentContext().TryGetService(invokeId, out var service) && service is not null => service,
-			_ => throw new ProcessorException(Resources.Exception_CannotFindTarget)
-		};
+    private async ValueTask<IExternalService> GetService(ServiceId serviceId, CancellationToken token) =>
+        serviceId switch
+        {
+            SessionId sessionId
+                when await GetCurrentContext().FindStateMachineController(sessionId, token).ConfigureAwait(false) is { } controller => controller,
+            InvokeId invokeId
+                when GetCurrentContext().TryGetService(invokeId, out var service) && service is not null => service,
+            _ => throw new ProcessorException(Resources.Exception_CannotFindTarget)
+        };
 
-	private static bool CanHandleType(FullUri? type) => type is null || type == Const.ScxmlIoProcessorId || type == Const.ScxmlIoProcessorAliasId;
+    private static bool CanHandleType(FullUri? type) => type is null || type == Const.ScxmlIoProcessorId || type == Const.ScxmlIoProcessorAliasId;
 
-	private static FullUri? GetTarget(ServiceId serviceId) =>
-		serviceId switch
-		{
-			SessionId sessionId => new FullUri(Const.ScxmlIoProcessorBaseUri, Const.ScxmlIoProcessorSessionIdPrefix + sessionId.Value),
-			InvokeId invokeId   => new FullUri(Const.ScxmlIoProcessorBaseUri, Const.ScxmlIoProcessorInvokeIdPrefix + invokeId.Value),
-			_                   => default
-		};
+    private static FullUri? GetTarget(ServiceId serviceId) =>
+        serviceId switch
+        {
+            SessionId sessionId => new FullUri(Const.ScxmlIoProcessorBaseUri, Const.ScxmlIoProcessorSessionIdPrefix + sessionId.Value),
+            InvokeId invokeId   => new FullUri(Const.ScxmlIoProcessorBaseUri, Const.ScxmlIoProcessorInvokeIdPrefix + invokeId.Value),
+            _                   => default
+        };
 
-	private static string GetTargetString(FullUri target) => target.IsAbsoluteUri ? target.Fragment : target.OriginalString;
+    private static string GetTargetString(FullUri target) => target.IsAbsoluteUri ? target.Fragment : target.OriginalString;
 
-	private static bool IsTargetParent(FullUri target) => target == Const.ScxmlIoProcessorParentTarget;
+    private static bool IsTargetParent(FullUri target) => target == Const.ScxmlIoProcessorParentTarget;
 
-	private static bool IsTargetSessionId(FullUri target, [NotNullWhen(true)] out SessionId? sessionId)
-	{
-		var value = GetTargetString(target);
+    private static bool IsTargetSessionId(FullUri target, [NotNullWhen(true)] out SessionId? sessionId)
+    {
+        var value = GetTargetString(target);
 
-		if (value.StartsWith(Const.ScxmlIoProcessorSessionIdPrefix, StringComparison.Ordinal))
-		{
-			sessionId = SessionId.FromString(value[Const.ScxmlIoProcessorSessionIdPrefix.Length..]);
+        if (value.StartsWith(Const.ScxmlIoProcessorSessionIdPrefix, StringComparison.Ordinal))
+        {
+            sessionId = SessionId.FromString(value[Const.ScxmlIoProcessorSessionIdPrefix.Length..]);
 
-			return true;
-		}
+            return true;
+        }
 
-		sessionId = default;
+        sessionId = default;
 
-		return false;
-	}
+        return false;
+    }
 
-	private static bool IsTargetInvokeId(FullUri target, [NotNullWhen(true)] out InvokeId? invokeId)
-	{
-		var value = GetTargetString(target);
+    private static bool IsTargetInvokeId(FullUri target, [NotNullWhen(true)] out InvokeId? invokeId)
+    {
+        var value = GetTargetString(target);
 
-		if (value.StartsWith(Const.ScxmlIoProcessorInvokeIdPrefix, StringComparison.Ordinal))
-		{
-			invokeId = InvokeId.FromString(value[Const.ScxmlIoProcessorInvokeIdPrefix.Length..]);
+        if (value.StartsWith(Const.ScxmlIoProcessorInvokeIdPrefix, StringComparison.Ordinal))
+        {
+            invokeId = InvokeId.FromString(value[Const.ScxmlIoProcessorInvokeIdPrefix.Length..]);
 
-			return true;
-		}
+            return true;
+        }
 
-		invokeId = default;
+        invokeId = default;
 
-		return false;
-	}
+        return false;
+    }
 }

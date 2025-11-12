@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,11 +19,11 @@ namespace Xtate;
 
 public enum DataModelNumberType
 {
-	Int32,
+    Int32,
 
-	Int64,
+    Int64,
 
-	Double,
+    Double,
 
-	Decimal
+    Decimal
 }

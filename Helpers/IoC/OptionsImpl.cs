@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -15,9 +15,26 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.DataModel;
+using Xtate.IoC;
 
-public interface IDataModelTypeToUriConverter
+namespace Xtate.Core;
+
+[InstantiatedByIoC]
+public class OptionsImpl<T> : IOptions<T>, IAsyncInitialization
 {
-	Uri GetUri(string dataModelType);
+    private readonly AsyncInit<T> _value;
+
+    public OptionsImpl(IOptionsAsync<T> optionsAsync) => _value = AsyncInit.Run(optionsAsync, c => c.GetValue());
+
+#region Interface IAsyncInitialization
+
+    public Task Initialization => _value.Task;
+
+#endregion
+
+#region Interface IOptions<T>
+
+    public T Value => _value.Value;
+
+#endregion
 }

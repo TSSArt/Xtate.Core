@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -15,20 +15,17 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.Globalization;
+#if !NET5_0_OR_GREATER
+namespace System.Threading.Tasks;
 
-namespace Xtate.DataModel;
-
-public class DataModelTypeToUriConverter(string uriFormat) : IDataModelTypeToUriConverter
+[UsedImplicitly]
+internal static class ValueTaskExtensions
 {
-#region Interface IDataModelTypeToUriConverter
-
-	public virtual Uri GetUri(string dataModelType)
-	{
-		var uriString = string.Format(CultureInfo.InvariantCulture, uriFormat, dataModelType);
-
-		return new Uri(uriString, UriKind.RelativeOrAbsolute);
-	}
-
-#endregion
+    extension(ValueTask)
+    {
+        /// <summary>Gets a task that has already completed successfully.</summary>
+        public static ValueTask CompletedTask => new();
+    }
 }
+
+#endif

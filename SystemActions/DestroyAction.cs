@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,57 +21,60 @@ namespace Xtate.CustomAction;
 
 public class DestroyAction : AsyncAction
 {
-	public class Provider() : ActionProvider<DestroyAction>(ns: "http://xtate.net/scxml/system", name: "destroy");
+    public class Provider() : ActionProvider<DestroyAction>(ns: "http://xtate.net/scxml/system", name: "destroy");
 
-	public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
-	
-	public required TaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
-	
-	private readonly StringValue _sessionIdValue;
+    private readonly StringValue _sessionIdValue;
 
-	public DestroyAction(XmlReader xmlReader, IErrorProcessorService<DestroyAction> errorProcessorService)
-	{
-		var sessionId = xmlReader.GetAttribute("sessionId");
-		var sessionIdExpression = xmlReader.GetAttribute("sessionIdExpr");
+    public DestroyAction(XmlReader xmlReader, IErrorProcessorService<DestroyAction> errorProcessorService)
+    {
+        var sessionId = xmlReader.GetAttribute("sessionId");
+        var sessionIdExpression = xmlReader.GetAttribute("sessionIdExpr");
 
-		if (sessionId is { Length: 0 })
-		{
-			errorProcessorService.AddError(this, Resources.ErrorMessage_SessionIdCouldNotBeEmpty);
-		}
+        if (sessionId is { Length: 0 })
+        {
+            errorProcessorService.AddError(this, Resources.ErrorMessage_SessionIdCouldNotBeEmpty);
+        }
 
-		if (sessionId is not null && sessionIdExpression is not null)
-		{
-			errorProcessorService.AddError(this, Resources.ErrorMessage_SessionIdAndSessionIdExprAttributesShouldNotBeAssignedInStartElement);
-		}
+        if (sessionId is not null && sessionIdExpression is not null)
+        {
+            errorProcessorService.AddError(this, Resources.ErrorMessage_SessionIdAndSessionIdExprAttributesShouldNotBeAssignedInStartElement);
+        }
 
-		if (sessionId is null && sessionIdExpression is null)
-		{
-			errorProcessorService.AddError(this, Resources.ErrorMessage_SessionIdOrSessionIdExprMustBeSpecified);
-		}
+        if (sessionId is null && sessionIdExpression is null)
+        {
+            errorProcessorService.AddError(this, Resources.ErrorMessage_SessionIdOrSessionIdExprMustBeSpecified);
+        }
 
-		_sessionIdValue = new StringValue(sessionIdExpression, sessionId);
-	}
+        _sessionIdValue = new StringValue(sessionIdExpression, sessionId);
+    }
 
-	public required IStateMachineCollection StateMachineCollection { private get; [UsedImplicitly] init; }
+    public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
 
-	protected override IEnumerable<Value> GetValues() { yield return _sessionIdValue; }
+    public required TaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
 
-	protected override async ValueTask Execute()
-	{
-		var sessionId = await GetSessionId().ConfigureAwait(false);
+    public required IStateMachineCollection StateMachineCollection { private get; [UsedImplicitly] init; }
 
-		await StateMachineCollection.Destroy(sessionId).WaitAsync(TaskMonitor, DisposeToken).ConfigureAwait(false);
-	}
+    protected override IEnumerable<Value> GetValues()
+    {
+        yield return _sessionIdValue;
+    }
 
-	private async ValueTask<SessionId> GetSessionId()
-	{
-		var sessionId = await _sessionIdValue.GetValue().ConfigureAwait(false);
+    protected override async ValueTask Execute()
+    {
+        var sessionId = await GetSessionId().ConfigureAwait(false);
 
-		if (string.IsNullOrEmpty(sessionId))
-		{
-			throw new ProcessorException(Resources.Exception_SessionIdCouldNotBeEmpty);
-		}
+        await StateMachineCollection.Destroy(sessionId).WaitAsync(TaskMonitor, DisposeToken).ConfigureAwait(false);
+    }
 
-		return SessionId.FromString(sessionId);
-	}
+    private async ValueTask<SessionId> GetSessionId()
+    {
+        var sessionId = await _sessionIdValue.GetValue().ConfigureAwait(false);
+
+        if (string.IsNullOrEmpty(sessionId))
+        {
+            throw new ProcessorException(Resources.Exception_SessionIdCouldNotBeEmpty);
+        }
+
+        return SessionId.FromString(sessionId);
+    }
 }

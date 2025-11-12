@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -23,23 +23,23 @@ public sealed class ValueExpressionNode(IValueExpression valueExpression) : IVal
 {
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => valueExpression;
+    object IAncestorProvider.Ancestor => valueExpression;
 
 #endregion
 
 #region Interface IStoreSupport
 
-	void IStoreSupport.Store(Bucket bucket)
-	{
-		bucket.Add(Key.TypeInfo, TypeInfo.ValueExpressionNode);
-		bucket.Add(Key.Expression, Expression);
-	}
+    void IStoreSupport.Store(Bucket bucket)
+    {
+        bucket.Add(Key.TypeInfo, TypeInfo.ValueExpressionNode);
+        bucket.Add(Key.Expression, Expression);
+    }
 
 #endregion
 
 #region Interface IValueExpression
 
-	public string? Expression => valueExpression.Expression;
+    public string? Expression => valueExpression.Expression;
 
 #endregion
 }

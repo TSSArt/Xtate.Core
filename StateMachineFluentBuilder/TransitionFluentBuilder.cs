@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,122 +21,122 @@ namespace Xtate.Builder;
 
 public class TransitionFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 {
-	public required ITransitionBuilder Builder { private get; [UsedImplicitly] init; }
+    public required ITransitionBuilder Builder { private get; [UsedImplicitly] init; }
 
-	public required Action<ITransition> BuiltAction { private get; [UsedImplicitly] init; }
+    public required Action<ITransition> BuiltAction { private get; [UsedImplicitly] init; }
 
-	public required TOuterBuilder OuterBuilder { private get; [UsedImplicitly] init; }
+    public required TOuterBuilder OuterBuilder { private get; [UsedImplicitly] init; }
 
-	public TOuterBuilder EndTransition()
-	{
-		BuiltAction(Builder.Build());
+    public TOuterBuilder EndTransition()
+    {
+        BuiltAction(Builder.Build());
 
-		return OuterBuilder;
-	}
+        return OuterBuilder;
+    }
 
-	public TransitionFluentBuilder<TOuterBuilder> SetEvent(params string[] eventDescriptors)
-	{
-		Infra.RequiresNonEmptyCollection(eventDescriptors);
+    public TransitionFluentBuilder<TOuterBuilder> SetEvent(params string[] eventDescriptors)
+    {
+        Infra.RequiresNonEmptyCollection(eventDescriptors);
 
-		var eventsDescriptorsBuilder = ImmutableArray.CreateBuilder<IEventDescriptor>(eventDescriptors.Length);
+        var eventsDescriptorsBuilder = ImmutableArray.CreateBuilder<IEventDescriptor>(eventDescriptors.Length);
 
-		foreach (var eventDescriptor in eventDescriptors)
-		{
-			eventsDescriptorsBuilder.Add(EventDescriptor.FromString(eventDescriptor));
-		}
+        foreach (var eventDescriptor in eventDescriptors)
+        {
+            eventsDescriptorsBuilder.Add(EventDescriptor.FromString(eventDescriptor));
+        }
 
-		Builder.SetEvent(eventsDescriptorsBuilder.MoveToImmutable());
+        Builder.SetEvent(eventsDescriptorsBuilder.MoveToImmutable());
 
-		return this;
-	}
+        return this;
+    }
 
-	public TransitionFluentBuilder<TOuterBuilder> SetEvent(params IEventDescriptor[] eventDescriptors)
-	{
-		Infra.RequiresNonEmptyCollection(eventDescriptors);
+    public TransitionFluentBuilder<TOuterBuilder> SetEvent(params IEventDescriptor[] eventDescriptors)
+    {
+        Infra.RequiresNonEmptyCollection(eventDescriptors);
 
-		Builder.SetEvent([.. eventDescriptors]);
+        Builder.SetEvent([.. eventDescriptors]);
 
-		return this;
-	}
+        return this;
+    }
 
-	public TransitionFluentBuilder<TOuterBuilder> SetEvent(ImmutableArray<IEventDescriptor> eventDescriptors)
-	{
-		Infra.RequiresNonEmptyCollection(eventDescriptors);
+    public TransitionFluentBuilder<TOuterBuilder> SetEvent(ImmutableArray<IEventDescriptor> eventDescriptors)
+    {
+        Infra.RequiresNonEmptyCollection(eventDescriptors);
 
-		Builder.SetEvent(eventDescriptors);
+        Builder.SetEvent(eventDescriptors);
 
-		return this;
-	}
+        return this;
+    }
 
-	private TransitionFluentBuilder<TOuterBuilder> SetCondition(IConditionExpression conditionExpression)
-	{
-		Builder.SetCondition(conditionExpression);
+    private TransitionFluentBuilder<TOuterBuilder> SetCondition(IConditionExpression conditionExpression)
+    {
+        Builder.SetCondition(conditionExpression);
 
-		return this;
-	}
+        return this;
+    }
 
-	public TransitionFluentBuilder<TOuterBuilder> SetCondition(Func<bool> predicate) => SetCondition(RuntimePredicate.GetPredicate(predicate));
+    public TransitionFluentBuilder<TOuterBuilder> SetCondition(Func<bool> predicate) => SetCondition(RuntimePredicate.GetPredicate(predicate));
 
-	public TransitionFluentBuilder<TOuterBuilder> SetCondition(Func<ValueTask<bool>> predicate) => SetCondition(RuntimePredicate.GetPredicate(predicate));
+    public TransitionFluentBuilder<TOuterBuilder> SetCondition(Func<ValueTask<bool>> predicate) => SetCondition(RuntimePredicate.GetPredicate(predicate));
 
-	public TransitionFluentBuilder<TOuterBuilder> SetTarget(params string[] target)
-	{
-		Infra.RequiresNonEmptyCollection(target);
+    public TransitionFluentBuilder<TOuterBuilder> SetTarget(params string[] target)
+    {
+        Infra.RequiresNonEmptyCollection(target);
 
-		var builder = ImmutableArray.CreateBuilder<IIdentifier>(target.Length);
+        var builder = ImmutableArray.CreateBuilder<IIdentifier>(target.Length);
 
-		foreach (var s in target)
-		{
-			builder.Add((Identifier) s);
-		}
+        foreach (var s in target)
+        {
+            builder.Add((Identifier)s);
+        }
 
-		Builder.SetTarget(builder.MoveToImmutable());
+        Builder.SetTarget(builder.MoveToImmutable());
 
-		return this;
-	}
+        return this;
+    }
 
-	public TransitionFluentBuilder<TOuterBuilder> SetTarget(params IIdentifier[] target)
-	{
-		Infra.RequiresNonEmptyCollection(target);
+    public TransitionFluentBuilder<TOuterBuilder> SetTarget(params IIdentifier[] target)
+    {
+        Infra.RequiresNonEmptyCollection(target);
 
-		Builder.SetTarget([.. target]);
+        Builder.SetTarget([.. target]);
 
-		return this;
-	}
+        return this;
+    }
 
-	public TransitionFluentBuilder<TOuterBuilder> SetTarget(ImmutableArray<string> target)
-	{
-		Infra.RequiresNonEmptyCollection(target);
+    public TransitionFluentBuilder<TOuterBuilder> SetTarget(ImmutableArray<string> target)
+    {
+        Infra.RequiresNonEmptyCollection(target);
 
-		Builder.SetTarget(ImmutableArray.CreateRange<string, IIdentifier>(target, id => (Identifier) id));
+        Builder.SetTarget(ImmutableArray.CreateRange<string, IIdentifier>(target, id => (Identifier)id));
 
-		return this;
-	}
+        return this;
+    }
 
-	public TransitionFluentBuilder<TOuterBuilder> SetTarget(ImmutableArray<IIdentifier> target)
-	{
-		Infra.RequiresNonEmptyCollection(target);
+    public TransitionFluentBuilder<TOuterBuilder> SetTarget(ImmutableArray<IIdentifier> target)
+    {
+        Infra.RequiresNonEmptyCollection(target);
 
-		Builder.SetTarget(target);
+        Builder.SetTarget(target);
 
-		return this;
-	}
+        return this;
+    }
 
-	public TransitionFluentBuilder<TOuterBuilder> SetType(TransitionType type)
-	{
-		Builder.SetType(type);
+    public TransitionFluentBuilder<TOuterBuilder> SetType(TransitionType type)
+    {
+        Builder.SetType(type);
 
-		return this;
-	}
+        return this;
+    }
 
-	private TransitionFluentBuilder<TOuterBuilder> AddOnTransition(IExecutableEntity action)
-	{
-		Builder.AddAction(action);
+    private TransitionFluentBuilder<TOuterBuilder> AddOnTransition(IExecutableEntity action)
+    {
+        Builder.AddAction(action);
 
-		return this;
-	}
+        return this;
+    }
 
-	public TransitionFluentBuilder<TOuterBuilder> AddOnTransition(Action action) => AddOnTransition(RuntimeAction.GetAction(action));
+    public TransitionFluentBuilder<TOuterBuilder> AddOnTransition(Action action) => AddOnTransition(RuntimeAction.GetAction(action));
 
-	public TransitionFluentBuilder<TOuterBuilder> AddOnTransition(Func<ValueTask> action) => AddOnTransition(RuntimeAction.GetAction(action));
+    public TransitionFluentBuilder<TOuterBuilder> AddOnTransition(Func<ValueTask> action) => AddOnTransition(RuntimeAction.GetAction(action));
 }

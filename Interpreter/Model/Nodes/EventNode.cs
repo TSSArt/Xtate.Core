@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -23,32 +23,32 @@ public sealed class EventNode(IOutgoingEvent outgoingEvent) : IOutgoingEvent, IS
 {
 #region Interface IAncestorProvider
 
-	object IAncestorProvider.Ancestor => outgoingEvent;
+    object IAncestorProvider.Ancestor => outgoingEvent;
 
 #endregion
 
 #region Interface IOutgoingEvent
 
-	public EventName Name => outgoingEvent.Name;
+    public EventName Name => outgoingEvent.Name;
 
-	public SendId? SendId => outgoingEvent.SendId;
+    public SendId? SendId => outgoingEvent.SendId;
 
-	public DataModelValue Data => outgoingEvent.Data;
+    public DataModelValue Data => outgoingEvent.Data;
 
-	public FullUri? Target => outgoingEvent.Target;
+    public FullUri? Target => outgoingEvent.Target;
 
-	public FullUri? Type => outgoingEvent.Type;
+    public FullUri? Type => outgoingEvent.Type;
 
-	public int DelayMs => outgoingEvent.DelayMs;
+    public int DelayMs => outgoingEvent.DelayMs;
 
 #endregion
 
 #region Interface IStoreSupport
 
-	void IStoreSupport.Store(Bucket bucket)
-	{
-		bucket.AddEventName(Key.Id, outgoingEvent.Name);
-	}
+    void IStoreSupport.Store(Bucket bucket)
+    {
+        bucket.AddEventName(Key.Id, outgoingEvent.Name);
+    }
 
 #endregion
 }

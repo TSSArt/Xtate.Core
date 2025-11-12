@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -18,17 +18,17 @@
 namespace Xtate.Core;
 
 public class StateMachinePersistingInterpreterBase2(
-	IPersistingInterpreterState persistingInterpreterState,
-	IInterpreterModel interpreterModel) : StateMachinePersistingInterpreterBase(
+    IPersistingInterpreterState persistingInterpreterState,
+    IInterpreterModel interpreterModel) : StateMachinePersistingInterpreterBase(
 #pragma warning disable CS9107
-	persistingInterpreterState,
+    persistingInterpreterState,
 #pragma warning restore CS9107
-	interpreterModel)
+    interpreterModel)
 {
-	protected override async ValueTask<IIncomingEvent> ReadExternalEvent()
-	{
-		await persistingInterpreterState.CheckPoint(16).ConfigureAwait(false);
+    protected override async ValueTask<IIncomingEvent> ReadExternalEvent()
+    {
+        await persistingInterpreterState.CheckPoint(16).ConfigureAwait(false);
 
-		return await base.ReadExternalEvent().ConfigureAwait(false);
-	}
+        return await base.ReadExternalEvent().ConfigureAwait(false);
+    }
 }

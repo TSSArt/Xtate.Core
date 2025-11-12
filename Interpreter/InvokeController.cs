@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,64 +19,64 @@ namespace Xtate.Core;
 
 public class InvokeController : IInvokeController
 {
-	private const int StartInvokeEventId = 1;
+    private const int StartInvokeEventId = 1;
 
-	private const int CancelInvokeEventId = 2;
+    private const int CancelInvokeEventId = 2;
 
-	private const int EventForwardEventId = 3;
+    private const int EventForwardEventId = 3;
 
-	public required IExternalServiceManager ExternalServiceManager { private get; [UsedImplicitly] init; }
+    public required IExternalServiceManager ExternalServiceManager { private get; [UsedImplicitly] init; }
 
-	public required ILogger<IInvokeController> Logger { private get; [UsedImplicitly] init; }
+    public required ILogger<IInvokeController> Logger { private get; [UsedImplicitly] init; }
 
-	public required StateMachineRuntimeError StateMachineRuntimeError { private get; [UsedImplicitly] init; }
+    public required StateMachineRuntimeError StateMachineRuntimeError { private get; [UsedImplicitly] init; }
 
 #region Interface IInvokeController
 
-	public async ValueTask Start(InvokeData invokeData)
-	{
-		var invokeId = invokeData.InvokeId;
-		await Logger.Write(Level.Trace, StartInvokeEventId, $@"Start invoke. InvokeId: [{invokeId}]", invokeData).ConfigureAwait(false);
+    public async ValueTask Start(InvokeData invokeData)
+    {
+        var invokeId = invokeData.InvokeId;
+        await Logger.Write(Level.Trace, StartInvokeEventId, $@"Start invoke. InvokeId: [{invokeId}]", invokeData).ConfigureAwait(false);
 
-		try
-		{
-			await ExternalServiceManager.Start(invokeData).ConfigureAwait(false);
-		}
-		catch (Exception ex)
-		{
-			throw StateMachineRuntimeError.CommunicationError(ex);
-		}
-	}
+        try
+        {
+            await ExternalServiceManager.Start(invokeData).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            throw StateMachineRuntimeError.CommunicationError(ex);
+        }
+    }
 
-	public async ValueTask Cancel(InvokeId invokeId)
-	{
-		await Logger.Write(Level.Trace, CancelInvokeEventId, $@"Cancel invoke. InvokeId: [{invokeId}]", invokeId).ConfigureAwait(false);
+    public async ValueTask Cancel(InvokeId invokeId)
+    {
+        await Logger.Write(Level.Trace, CancelInvokeEventId, $@"Cancel invoke. InvokeId: [{invokeId}]", invokeId).ConfigureAwait(false);
 
-		try
-		{
-			await ExternalServiceManager.Cancel(invokeId).ConfigureAwait(false);
-		}
-		catch (Exception ex)
-		{
-			throw StateMachineRuntimeError.CommunicationError(ex);
-		}
-	}
+        try
+        {
+            await ExternalServiceManager.Cancel(invokeId).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            throw StateMachineRuntimeError.CommunicationError(ex);
+        }
+    }
 
-	public async ValueTask Forward(InvokeId invokeId, IIncomingEvent incomingEvent)
-	{
-		var sendId = incomingEvent.SendId;
-		var eventName = incomingEvent.Name;
-		await Logger.Write(Level.Trace, EventForwardEventId, $@"Forward event. SendId: [{sendId}] Name:'{eventName}'", incomingEvent).ConfigureAwait(false);
+    public async ValueTask Forward(InvokeId invokeId, IIncomingEvent incomingEvent)
+    {
+        var sendId = incomingEvent.SendId;
+        var eventName = incomingEvent.Name;
+        await Logger.Write(Level.Trace, EventForwardEventId, $@"Forward event. SendId: [{sendId}] Name:'{eventName}'", incomingEvent).ConfigureAwait(false);
 
-		try
-		{
-			await ExternalServiceManager.Forward(invokeId, incomingEvent).ConfigureAwait(false);
-		}
-		catch (Exception ex)
-		{
-			throw StateMachineRuntimeError.CommunicationError(ex);
-		}
-	}
+        try
+        {
+            await ExternalServiceManager.Forward(invokeId, incomingEvent).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            throw StateMachineRuntimeError.CommunicationError(ex);
+        }
+    }
 
 #endregion
 }

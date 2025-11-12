@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,18 +19,18 @@ namespace Xtate.Builder;
 
 public class ElseIfBuilder : BuilderBase, IElseIfBuilder
 {
-	private IConditionExpression? _condition;
+    private IConditionExpression? _condition;
 
 #region Interface IElseIfBuilder
 
-	public IElseIf Build() => new ElseIfEntity { Ancestor = Ancestor, Condition = _condition };
+    public IElseIf Build() => new ElseIfEntity { Ancestor = Ancestor, Condition = _condition };
 
-	public void SetCondition(IConditionExpression condition)
-	{
-		Infra.Requires(condition);
+    public void SetCondition(IConditionExpression condition)
+    {
+        Infra.Requires(condition);
 
-		_condition = condition;
-	}
+        _condition = condition;
+    }
 
 #endregion
 }

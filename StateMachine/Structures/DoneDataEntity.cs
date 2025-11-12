@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,34 +19,34 @@ namespace Xtate.Core;
 
 public struct DoneDataEntity : IDoneData, IVisitorEntity<DoneDataEntity, IDoneData>, IAncestorProvider
 {
-	internal object? Ancestor;
+    internal object? Ancestor;
 
 #region Interface IAncestorProvider
 
-	readonly object? IAncestorProvider.Ancestor => Ancestor;
+    readonly object? IAncestorProvider.Ancestor => Ancestor;
 
 #endregion
 
 #region Interface IDoneData
 
-	public IContent? Content { get; set; }
+    public IContent? Content { get; set; }
 
-	public ImmutableArray<IParam> Parameters { get; set; }
+    public ImmutableArray<IParam> Parameters { get; set; }
 
 #endregion
 
 #region Interface IVisitorEntity<DoneDataEntity,IDoneData>
 
-	void IVisitorEntity<DoneDataEntity, IDoneData>.Init(IDoneData source)
-	{
-		Ancestor = source;
-		Content = source.Content;
-		Parameters = source.Parameters;
-	}
+    void IVisitorEntity<DoneDataEntity, IDoneData>.Init(IDoneData source)
+    {
+        Ancestor = source;
+        Content = source.Content;
+        Parameters = source.Parameters;
+    }
 
-	readonly bool IVisitorEntity<DoneDataEntity, IDoneData>.RefEquals(ref DoneDataEntity other) =>
-		ReferenceEquals(Content, other.Content) &&
-		Parameters == other.Parameters;
+    readonly bool IVisitorEntity<DoneDataEntity, IDoneData>.RefEquals(ref DoneDataEntity other) =>
+        ReferenceEquals(Content, other.Content) &&
+        Parameters == other.Parameters;
 
 #endregion
 }

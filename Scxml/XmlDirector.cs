@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -24,639 +24,636 @@ namespace Xtate.Scxml;
 
 public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDirector>
 {
-	private readonly string _xmlnsPrefix;
+    private readonly string _xmlnsPrefix;
 
-	private readonly XmlReader _xmlReader;
+    private readonly XmlReader _xmlReader;
 
-	private string? _rawContent;
+    private string? _rawContent;
 
-	protected XmlDirector(XmlReader xmlReader)
-	{
-		_xmlReader = xmlReader;
-		var nameTable = xmlReader.NameTable;
+    protected XmlDirector(XmlReader xmlReader)
+    {
+        _xmlReader = xmlReader;
+        var nameTable = xmlReader.NameTable;
 
-		Infra.NotNull(nameTable);
+        Infra.NotNull(nameTable);
 
-		_xmlnsPrefix = nameTable.Add(@"xmlns");
-	}
+        _xmlnsPrefix = nameTable.Add(@"xmlns");
+    }
 
-	protected string AttributeValue => _xmlReader.Value;
+    protected string AttributeValue => _xmlReader.Value;
 
-	protected string CurrentName => _xmlReader.LocalName;
+    protected string CurrentName => _xmlReader.LocalName;
 
-	protected string CurrentNamespace => _xmlReader.NamespaceURI;
+    protected string CurrentNamespace => _xmlReader.NamespaceURI;
 
-	protected string RawContent => _rawContent ?? string.Empty;
+    protected string RawContent => _rawContent ?? string.Empty;
 
-	private bool UseAsync => _xmlReader.Settings?.Async ?? false;
+    private bool UseAsync => _xmlReader.Settings?.Async ?? false;
 
-	protected ValueTask Skip()
-	{
-		if (UseAsync)
-		{
-			return new ValueTask(_xmlReader.SkipAsync());
-		}
+    protected ValueTask Skip()
+    {
+        if (UseAsync)
+        {
+            return new ValueTask(_xmlReader.SkipAsync());
+        }
 
-		_xmlReader.Skip();
+        _xmlReader.Skip();
 
-		return default;
-	}
+        return default;
+    }
 
-	protected ValueTask<string> ReadOuterXml() =>
-		UseAsync
-			? new ValueTask<string>(_xmlReader.ReadOuterXmlAsync())
-			: new ValueTask<string>(_xmlReader.ReadOuterXml());
+    protected ValueTask<string> ReadOuterXml() =>
+        UseAsync
+            ? new ValueTask<string>(_xmlReader.ReadOuterXmlAsync())
+            : new ValueTask<string>(_xmlReader.ReadOuterXml());
 
-	private ValueTask<string> ReadInnerXml() =>
-		UseAsync
-			? new ValueTask<string>(_xmlReader.ReadInnerXmlAsync())
-			: new ValueTask<string>(_xmlReader.ReadInnerXml());
+    private ValueTask<string> ReadInnerXml() =>
+        UseAsync
+            ? new ValueTask<string>(_xmlReader.ReadInnerXmlAsync())
+            : new ValueTask<string>(_xmlReader.ReadInnerXml());
 
-	private ValueTask<XmlNodeType> MoveToContent() =>
-		UseAsync
-			? new ValueTask<XmlNodeType>(_xmlReader.MoveToContentAsync())
-			: new ValueTask<XmlNodeType>(_xmlReader.MoveToContent());
+    private ValueTask<XmlNodeType> MoveToContent() =>
+        UseAsync
+            ? new ValueTask<XmlNodeType>(_xmlReader.MoveToContentAsync())
+            : new ValueTask<XmlNodeType>(_xmlReader.MoveToContent());
 
-	protected async ValueTask<TEntity> Populate<TEntity>(TEntity entity, Policy<TEntity> policy)
-	{
-		Infra.Requires(policy);
+    protected async ValueTask<TEntity> Populate<TEntity>(TEntity entity, Policy<TEntity> policy)
+    {
+        Infra.Requires(policy);
 
-		if (!await IsStartElement().ConfigureAwait(false))
-		{
-			return entity;
-		}
-
-		var validationContext = policy.CreateValidationContext(this);
-
-		PopulateAttributes(entity, policy, validationContext);
-
-		if (_xmlReader.IsEmptyElement)
-		{
-			await ReadStartElement().ConfigureAwait(false);
-
-			return entity;
-		}
-
-		if (policy.RawContentAction is { } policyRawContentAction)
-		{
-			_rawContent = await ReadInnerXml().ConfigureAwait(false);
-
-			try
-			{
-				policyRawContentAction((TDirector) this, entity);
-			}
-			catch (Exception ex)
-			{
-				OnError(Resources.ErrorMessage_FailureContentProcessing, ex);
-			}
-
-			_rawContent = default;
-
-			return entity;
-		}
-
-		await PopulateElements(entity, policy, validationContext).ConfigureAwait(false);
-
-		return entity;
-	}
-
-	protected static Policy<TEntity> BuildPolicy<TEntity>(Action<IPolicyBuilder<TEntity>> buildPolicy)
-	{
-		Infra.Requires(buildPolicy);
-
-		var policy = new Policy<TEntity>();
-
-		buildPolicy(new PolicyBuilder<TEntity>(policy));
-
-		return policy;
-	}
-
-	private bool ValidXmlReader() => _xmlReader.ReadState == ReadState.Interactive;
-
-	private async ValueTask<bool> IsStartElement()
-	{
-		return await MoveToContent().ConfigureAwait(false) == XmlNodeType.Element && ValidXmlReader();
-	}
-
-	private async ValueTask ReadStartElement()
-	{
-		if (await MoveToContent().ConfigureAwait(false) == XmlNodeType.Element)
-		{
-			await _xmlReader.ReadAsync().ConfigureAwait(false);
-		}
-		else
-		{
-			// call to throw XmlException indirectly
-			_xmlReader.ReadStartElement(); 
-		}
-	}
-
-	private async ValueTask ReadEndElement()
-	{
-		if (await MoveToContent().ConfigureAwait(false) == XmlNodeType.EndElement)
-		{
-			await _xmlReader.ReadAsync().ConfigureAwait(false);
-		}
-		else
-		{
-			// call to throw XmlException indirectly
-			_xmlReader.ReadEndElement(); 
-		}
-	}
-
-	protected virtual void NamespaceAttribute(string prefix) { }
-
-	private void PopulateAttributes<TEntity>(TEntity entity, Policy<TEntity> policy, Policy<TEntity>.ValidationContext validationContext)
-	{
-		try
-		{
-			for (var exists = _xmlReader.MoveToFirstAttribute(); exists; exists = _xmlReader.MoveToNextAttribute())
-			{
-				if (ReferenceEquals(_xmlReader.Prefix, _xmlnsPrefix))
-				{
-					NamespaceAttribute(_xmlReader.LocalName);
-				}
-
-				var ns = _xmlReader.NamespaceURI;
-				var name = _xmlReader.LocalName;
-				validationContext.ValidateAttribute(ns, name);
-
-				if (policy.AttributeLocated(ns, name) is { } located)
-				{
-					try
-					{
-						located((TDirector) this, entity);
-					}
-					catch (Exception ex)
-					{
-						OnError(Resources.ErrorMessage_FailureAttributeProcessing, ex);
-
-						if (!ValidXmlReader())
-						{
-							return;
-						}
-					}
-				}
-			}
-
-			_xmlReader.MoveToElement();
-		}
-		finally
-		{
-			validationContext.ProcessAttributesCompleted();
-		}
-	}
-
-	private async ValueTask PopulateElements<TEntity>(TEntity entity, Policy<TEntity> policy, Policy<TEntity>.ValidationContext validationContext)
-	{
-		try
-		{
-			await ReadStartElement().ConfigureAwait(false);
-
-			while (await IsStartElement().ConfigureAwait(false))
-			{
-				var ns = _xmlReader.NamespaceURI;
-				var name = _xmlReader.LocalName;
-				validationContext.ValidateElement(ns, name);
-
-				if (policy.ElementLocated(ns, name) is { } located)
-				{
-					try
-					{
-						await located((TDirector) this, entity).ConfigureAwait(false);
-					}
-					catch (Exception ex)
-					{
-						OnError(Resources.ErrorMessage_FailureElementProcessing, ex);
+        if (!await IsStartElement().ConfigureAwait(false))
+        {
+            return entity;
+        }
+
+        var validationContext = policy.CreateValidationContext(this);
+
+        PopulateAttributes(entity, policy, validationContext);
+
+        if (_xmlReader.IsEmptyElement)
+        {
+            await ReadStartElement().ConfigureAwait(false);
+
+            return entity;
+        }
+
+        if (policy.RawContentAction is { } policyRawContentAction)
+        {
+            _rawContent = await ReadInnerXml().ConfigureAwait(false);
+
+            try
+            {
+                policyRawContentAction((TDirector)this, entity);
+            }
+            catch (Exception ex)
+            {
+                OnError(Resources.ErrorMessage_FailureContentProcessing, ex);
+            }
+
+            _rawContent = default;
+
+            return entity;
+        }
+
+        await PopulateElements(entity, policy, validationContext).ConfigureAwait(false);
+
+        return entity;
+    }
+
+    protected static Policy<TEntity> BuildPolicy<TEntity>(Action<IPolicyBuilder<TEntity>> buildPolicy)
+    {
+        Infra.Requires(buildPolicy);
+
+        var policy = new Policy<TEntity>();
+
+        buildPolicy(new PolicyBuilder<TEntity>(policy));
+
+        return policy;
+    }
+
+    private bool ValidXmlReader() => _xmlReader.ReadState == ReadState.Interactive;
+
+    private async ValueTask<bool> IsStartElement() => await MoveToContent().ConfigureAwait(false) == XmlNodeType.Element && ValidXmlReader();
+
+    private async ValueTask ReadStartElement()
+    {
+        if (await MoveToContent().ConfigureAwait(false) == XmlNodeType.Element)
+        {
+            await _xmlReader.ReadAsync().ConfigureAwait(false);
+        }
+        else
+        {
+            // call to throw XmlException indirectly
+            _xmlReader.ReadStartElement();
+        }
+    }
+
+    private async ValueTask ReadEndElement()
+    {
+        if (await MoveToContent().ConfigureAwait(false) == XmlNodeType.EndElement)
+        {
+            await _xmlReader.ReadAsync().ConfigureAwait(false);
+        }
+        else
+        {
+            // call to throw XmlException indirectly
+            _xmlReader.ReadEndElement();
+        }
+    }
+
+    protected virtual void NamespaceAttribute(string prefix) { }
+
+    private void PopulateAttributes<TEntity>(TEntity entity, Policy<TEntity> policy, Policy<TEntity>.ValidationContext validationContext)
+    {
+        try
+        {
+            for (var exists = _xmlReader.MoveToFirstAttribute(); exists; exists = _xmlReader.MoveToNextAttribute())
+            {
+                if (ReferenceEquals(_xmlReader.Prefix, _xmlnsPrefix))
+                {
+                    NamespaceAttribute(_xmlReader.LocalName);
+                }
+
+                var ns = _xmlReader.NamespaceURI;
+                var name = _xmlReader.LocalName;
+                validationContext.ValidateAttribute(ns, name);
+
+                if (policy.AttributeLocated(ns, name) is { } located)
+                {
+                    try
+                    {
+                        located((TDirector)this, entity);
+                    }
+                    catch (Exception ex)
+                    {
+                        OnError(Resources.ErrorMessage_FailureAttributeProcessing, ex);
+
+                        if (!ValidXmlReader())
+                        {
+                            return;
+                        }
+                    }
+                }
+            }
+
+            _xmlReader.MoveToElement();
+        }
+        finally
+        {
+            validationContext.ProcessAttributesCompleted();
+        }
+    }
+
+    private async ValueTask PopulateElements<TEntity>(TEntity entity, Policy<TEntity> policy, Policy<TEntity>.ValidationContext validationContext)
+    {
+        try
+        {
+            await ReadStartElement().ConfigureAwait(false);
+
+            while (await IsStartElement().ConfigureAwait(false))
+            {
+                var ns = _xmlReader.NamespaceURI;
+                var name = _xmlReader.LocalName;
+                validationContext.ValidateElement(ns, name);
 
-						if (!ValidXmlReader())
-						{
-							return;
-						}
-					}
-				}
-				else
-				{
-					await Skip().ConfigureAwait(false);
-				}
-			}
+                if (policy.ElementLocated(ns, name) is { } located)
+                {
+                    try
+                    {
+                        await located((TDirector)this, entity).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        OnError(Resources.ErrorMessage_FailureElementProcessing, ex);
 
-			await ReadEndElement().ConfigureAwait(false);
-		}
-		finally
-		{
-			validationContext.ProcessElementsCompleted();
-		}
-	}
+                        if (!ValidXmlReader())
+                        {
+                            return;
+                        }
+                    }
+                }
+                else
+                {
+                    await Skip().ConfigureAwait(false);
+                }
+            }
 
-	protected abstract void OnError(string message, Exception? exception);
+            await ReadEndElement().ConfigureAwait(false);
+        }
+        finally
+        {
+            validationContext.ProcessElementsCompleted();
+        }
+    }
 
-	protected interface IPolicyBuilder<out TEntity>
-	{
-		IPolicyBuilder<TEntity> IgnoreUnknownElements(bool value);
+    protected abstract void OnError(string message, Exception? exception);
 
-		IPolicyBuilder<TEntity> ValidateElementName([Localizable(false)] string name);
+    protected interface IPolicyBuilder<out TEntity>
+    {
+        IPolicyBuilder<TEntity> IgnoreUnknownElements(bool value);
 
-		IPolicyBuilder<TEntity> RequiredAttribute([Localizable(false)] string name, Action<TDirector, TEntity> located);
+        IPolicyBuilder<TEntity> ValidateElementName([Localizable(false)] string name);
 
-		IPolicyBuilder<TEntity> OptionalAttribute([Localizable(false)] string name, Action<TDirector, TEntity> located);
+        IPolicyBuilder<TEntity> RequiredAttribute([Localizable(false)] string name, Action<TDirector, TEntity> located);
 
-		IPolicyBuilder<TEntity> OptionalElement([Localizable(false)] string name, Func<TDirector, TEntity, ValueTask> located);
+        IPolicyBuilder<TEntity> OptionalAttribute([Localizable(false)] string name, Action<TDirector, TEntity> located);
 
-		IPolicyBuilder<TEntity> SingleElement([Localizable(false)] string name, Func<TDirector, TEntity, ValueTask> located);
+        IPolicyBuilder<TEntity> OptionalElement([Localizable(false)] string name, Func<TDirector, TEntity, ValueTask> located);
 
-		IPolicyBuilder<TEntity> MultipleElements([Localizable(false)] string name, Func<TDirector, TEntity, ValueTask> located);
+        IPolicyBuilder<TEntity> SingleElement([Localizable(false)] string name, Func<TDirector, TEntity, ValueTask> located);
 
-		IPolicyBuilder<TEntity> ValidateElementName([Localizable(false)] string ns, [Localizable(false)] string name);
+        IPolicyBuilder<TEntity> MultipleElements([Localizable(false)] string name, Func<TDirector, TEntity, ValueTask> located);
 
-		IPolicyBuilder<TEntity> RequiredAttribute([Localizable(false)] string ns, [Localizable(false)] string name, Action<TDirector, TEntity> located);
+        IPolicyBuilder<TEntity> ValidateElementName([Localizable(false)] string ns, [Localizable(false)] string name);
 
-		IPolicyBuilder<TEntity> OptionalAttribute([Localizable(false)] string ns, [Localizable(false)] string name, Action<TDirector, TEntity> located);
+        IPolicyBuilder<TEntity> RequiredAttribute([Localizable(false)] string ns, [Localizable(false)] string name, Action<TDirector, TEntity> located);
 
-		IPolicyBuilder<TEntity> OptionalElement([Localizable(false)] string ns, [Localizable(false)] string name, Func<TDirector, TEntity, ValueTask> located);
+        IPolicyBuilder<TEntity> OptionalAttribute([Localizable(false)] string ns, [Localizable(false)] string name, Action<TDirector, TEntity> located);
 
-		IPolicyBuilder<TEntity> SingleElement([Localizable(false)] string ns, [Localizable(false)] string name, Func<TDirector, TEntity, ValueTask> located);
+        IPolicyBuilder<TEntity> OptionalElement([Localizable(false)] string ns, [Localizable(false)] string name, Func<TDirector, TEntity, ValueTask> located);
 
-		IPolicyBuilder<TEntity> MultipleElements([Localizable(false)] string ns, [Localizable(false)] string name, Func<TDirector, TEntity, ValueTask> located);
+        IPolicyBuilder<TEntity> SingleElement([Localizable(false)] string ns, [Localizable(false)] string name, Func<TDirector, TEntity, ValueTask> located);
 
-		IPolicyBuilder<TEntity> IgnoreUnknownElements();
+        IPolicyBuilder<TEntity> MultipleElements([Localizable(false)] string ns, [Localizable(false)] string name, Func<TDirector, TEntity, ValueTask> located);
 
-		IPolicyBuilder<TEntity> DenyUnknownElements();
+        IPolicyBuilder<TEntity> IgnoreUnknownElements();
 
-		IPolicyBuilder<TEntity> RawContent(Action<TDirector, TEntity> located);
+        IPolicyBuilder<TEntity> DenyUnknownElements();
 
-		IPolicyBuilder<TEntity> UnknownElement(Func<TDirector, TEntity, ValueTask> located);
-	}
+        IPolicyBuilder<TEntity> RawContent(Action<TDirector, TEntity> located);
 
-	protected enum AttributeType
-	{
-		Optional = 1,
+        IPolicyBuilder<TEntity> UnknownElement(Func<TDirector, TEntity, ValueTask> located);
+    }
 
-		Required = 2,
+    protected enum AttributeType
+    {
+        Optional = 1,
 
-		SysIncrement = 10,
+        Required = 2,
 
-		SysOptionalFound = 11,
+        SysIncrement = 10,
 
-		SysRequiredFound = 12
-	}
+        SysOptionalFound = 11,
 
-	protected enum ElementType
-	{
-		ZeroToMany = 1,
+        SysRequiredFound = 12
+    }
 
-		ZeroToOne = 2,
+    protected enum ElementType
+    {
+        ZeroToMany = 1,
 
-		One = 3,
+        ZeroToOne = 2,
 
-		OneToMany = 4,
+        One = 3,
 
-		SysIncrement = 10,
+        OneToMany = 4,
 
-		SysZeroToManyFound = 11,
+        SysIncrement = 10,
 
-		SysZeroToOneFound = 12,
+        SysZeroToManyFound = 11,
 
-		SysOneFound = 13,
+        SysZeroToOneFound = 12,
 
-		SysOneToManyFound = 14
-	}
+        SysOneFound = 13,
 
-	protected class Policy<TEntity>
-	{
-		private readonly Dictionary<QualifiedName, (Action<TDirector, TEntity> located, AttributeType type)> _attributes = [];
+        SysOneToManyFound = 14
+    }
 
-		private readonly Dictionary<QualifiedName, (Func<TDirector, TEntity, ValueTask> located, ElementType type)> _elements = [];
+    protected class Policy<TEntity>
+    {
+        private readonly Dictionary<QualifiedName, (Action<TDirector, TEntity> located, AttributeType type)> _attributes = [];
 
-		public Action<TDirector, TEntity>? RawContentAction { get; set; }
+        private readonly Dictionary<QualifiedName, (Func<TDirector, TEntity, ValueTask> located, ElementType type)> _elements = [];
 
-		public Func<TDirector, TEntity, ValueTask>? UnknownElementAction { get; set; }
+        public Action<TDirector, TEntity>? RawContentAction { get; set; }
 
-		public bool IgnoreUnknownElements { get; set; }
+        public Func<TDirector, TEntity, ValueTask>? UnknownElementAction { get; set; }
 
-		public string? ElementNamespace { get; set; }
+        public bool IgnoreUnknownElements { get; set; }
 
-		public string? ElementName { get; set; }
+        public string? ElementNamespace { get; set; }
 
-		public void AddAttribute(string ns,
-								 string name,
-								 Action<TDirector, TEntity> located,
-								 AttributeType type)
-		{
-			_attributes.Add(new QualifiedName(ns, name), (located, type));
-		}
-
-		public void AddElement(string ns,
-							   string name,
-							   Func<TDirector, TEntity, ValueTask> located,
-							   ElementType type)
-		{
-			_elements.Add(new QualifiedName(ns, name), (located, type));
-		}
-
-		public Action<TDirector, TEntity>? AttributeLocated(string ns, string name) => _attributes.TryGetValue(new QualifiedName(ns, name), out var value) ? value.located : null;
-
-		public Func<TDirector, TEntity, ValueTask>? ElementLocated(string ns, string name) => _elements.TryGetValue(new QualifiedName(ns, name), out var value) ? value.located : UnknownElementAction;
-
-		public ValidationContext CreateValidationContext(XmlDirector<TDirector> xmlDirector) => new(this, xmlDirector);
-
-		public void FillNameTable(XmlNameTable nameTable)
-		{
-			Infra.Requires(nameTable);
-
-			FillFromQualifiedName(_elements);
-			FillFromQualifiedName(_attributes);
-
-			void FillFromQualifiedName<T>(Dictionary<QualifiedName, T> dictionary)
-			{
-				foreach (var (key, _) in dictionary)
-				{
-					var ns = nameTable.Add(key.Namespace);
-					Debug.Assert(ns == key.Namespace);
-
-					var name = nameTable.Add(key.Name);
-					Debug.Assert(name == key.Name);
-				}
-			}
-		}
-
-		public class ValidationContext
-		{
-			private readonly Dictionary<QualifiedName, AttributeType>? _attributes;
-
-			private readonly Dictionary<QualifiedName, ElementType>? _elements;
-
-			private readonly bool _ignoreUnknownElements;
-
-			private readonly XmlDirector<TDirector> _xmlDirector;
-
-			public ValidationContext(Policy<TEntity> policy, XmlDirector<TDirector> xmlDirector)
-			{
-				Infra.Requires(policy);
-				Infra.Requires(xmlDirector);
-
-				_xmlDirector = xmlDirector;
-
-				if (policy._attributes.Count > 0)
-				{
-					_attributes = new Dictionary<QualifiedName, AttributeType>(policy._attributes.Count);
-
-					foreach (var (key, value) in policy._attributes)
-					{
-						_attributes.Add(key, value.type);
-					}
-				}
-
-				if (policy._elements.Count > 0)
-				{
-					_elements = new Dictionary<QualifiedName, ElementType>(policy._elements.Count);
-
-					foreach (var (key, value) in policy._elements)
-					{
-						_elements.Add(key, value.type);
-					}
-				}
+        public string? ElementName { get; set; }
 
-				_ignoreUnknownElements = policy.IgnoreUnknownElements || policy.UnknownElementAction is not null;
-
-				if (policy.ElementName is not null && policy.ElementNamespace is not null)
-				{
-					if (_xmlDirector._xmlReader.LocalName != policy.ElementName || _xmlDirector._xmlReader.NamespaceURI != policy.ElementNamespace)
-					{
-						OnError(CreateMessage(Resources.ErrorMessage_ExpectedElementNotFound, policy.ElementNamespace, policy.ElementName));
-					}
-				}
-			}
+        public void AddAttribute(string ns,
+                                 string name,
+                                 Action<TDirector, TEntity> located,
+                                 AttributeType type)
+        {
+            _attributes.Add(new QualifiedName(ns, name), (located, type));
+        }
 
-			public void ValidateAttribute(string ns, string name)
-			{
-				if (_attributes is not null && _attributes.TryGetValue(new QualifiedName(ns, name), out var type))
-				{
-					if (type is AttributeType.SysOptionalFound or AttributeType.SysRequiredFound)
-					{
-						OnError(CreateMessage(Resources.ErrorMessage_FoundDuplicateAttribute, ns, name));
-					}
+        public void AddElement(string ns,
+                               string name,
+                               Func<TDirector, TEntity, ValueTask> located,
+                               ElementType type)
+        {
+            _elements.Add(new QualifiedName(ns, name), (located, type));
+        }
+
+        public Action<TDirector, TEntity>? AttributeLocated(string ns, string name) => _attributes.TryGetValue(new QualifiedName(ns, name), out var value) ? value.located : null;
+
+        public Func<TDirector, TEntity, ValueTask>? ElementLocated(string ns, string name) => _elements.TryGetValue(new QualifiedName(ns, name), out var value) ? value.located : UnknownElementAction;
+
+        public ValidationContext CreateValidationContext(XmlDirector<TDirector> xmlDirector) => new(this, xmlDirector);
+
+        public void FillNameTable(XmlNameTable nameTable)
+        {
+            Infra.Requires(nameTable);
+
+            FillFromQualifiedName(_elements);
+            FillFromQualifiedName(_attributes);
+
+            void FillFromQualifiedName<T>(Dictionary<QualifiedName, T> dictionary)
+            {
+                foreach (var (key, _) in dictionary)
+                {
+                    var ns = nameTable.Add(key.Namespace);
+                    Debug.Assert(ns == key.Namespace);
+
+                    var name = nameTable.Add(key.Name);
+                    Debug.Assert(name == key.Name);
+                }
+            }
+        }
+
+        public class ValidationContext
+        {
+            private readonly Dictionary<QualifiedName, AttributeType>? _attributes;
+
+            private readonly Dictionary<QualifiedName, ElementType>? _elements;
+
+            private readonly bool _ignoreUnknownElements;
+
+            private readonly XmlDirector<TDirector> _xmlDirector;
+
+            public ValidationContext(Policy<TEntity> policy, XmlDirector<TDirector> xmlDirector)
+            {
+                Infra.Requires(policy);
+                Infra.Requires(xmlDirector);
+
+                _xmlDirector = xmlDirector;
+
+                if (policy._attributes.Count > 0)
+                {
+                    _attributes = new Dictionary<QualifiedName, AttributeType>(policy._attributes.Count);
+
+                    foreach (var (key, value) in policy._attributes)
+                    {
+                        _attributes.Add(key, value.type);
+                    }
+                }
+
+                if (policy._elements.Count > 0)
+                {
+                    _elements = new Dictionary<QualifiedName, ElementType>(policy._elements.Count);
 
-					_attributes[new QualifiedName(ns, name)] = type + (int) AttributeType.SysIncrement;
-				}
-			}
+                    foreach (var (key, value) in policy._elements)
+                    {
+                        _elements.Add(key, value.type);
+                    }
+                }
 
-			public void ProcessAttributesCompleted()
-			{
-				if (_attributes is not null && _attributes.Any(pair => pair.Value == AttributeType.Required))
-				{
-					var query = _attributes.Where(pair => pair.Value == AttributeType.Required).Select(p => p.Key);
-					OnError(CreateMessage(Resources.ErrorMessage_MissedRequiredAttributes, delimiter: @"', '", query));
-				}
-			}
+                _ignoreUnknownElements = policy.IgnoreUnknownElements || policy.UnknownElementAction is not null;
 
-			public void ValidateElement(string ns, string name)
-			{
-				if (_elements is not null && _elements.TryGetValue(new QualifiedName(ns, name), out var type))
-				{
-					if (type is ElementType.SysOneFound or ElementType.SysZeroToOneFound)
-					{
-						OnError(CreateMessage(Resources.ErrorMessage_OnlyOneElementAllowed, ns, name));
-					}
+                if (policy.ElementName is not null && policy.ElementNamespace is not null)
+                {
+                    if (_xmlDirector._xmlReader.LocalName != policy.ElementName || _xmlDirector._xmlReader.NamespaceURI != policy.ElementNamespace)
+                    {
+                        OnError(CreateMessage(Resources.ErrorMessage_ExpectedElementNotFound, policy.ElementNamespace, policy.ElementName));
+                    }
+                }
+            }
 
-					_elements[new QualifiedName(ns, name)] = type + (int) ElementType.SysIncrement;
-				}
-				else if (!_ignoreUnknownElements)
-				{
-					OnError(CreateMessage(Resources.ErrorMessage_DetectedUnknownElement, ns, name));
-				}
-			}
+            public void ValidateAttribute(string ns, string name)
+            {
+                if (_attributes is not null && _attributes.TryGetValue(new QualifiedName(ns, name), out var type))
+                {
+                    if (type is AttributeType.SysOptionalFound or AttributeType.SysRequiredFound)
+                    {
+                        OnError(CreateMessage(Resources.ErrorMessage_FoundDuplicateAttribute, ns, name));
+                    }
 
-			public void ProcessElementsCompleted()
-			{
-				if (_elements is not null && _elements.Any(pair => pair.Value is ElementType.One or ElementType.OneToMany))
-				{
-					var query = _elements.Where(pair => pair.Value is ElementType.One or ElementType.OneToMany).Select(p => p.Key);
-					OnError(CreateMessage(Resources.ErrorMessage_MissedRequiredElements, delimiter: @">, <", query));
-				}
-			}
+                    _attributes[new QualifiedName(ns, name)] = type + (int)AttributeType.SysIncrement;
+                }
+            }
 
-			private static string CreateMessage(string format, string ns, string name) => string.Format(CultureInfo.InvariantCulture, format, string.IsNullOrEmpty(ns) ? name : ns + @":" + name);
+            public void ProcessAttributesCompleted()
+            {
+                if (_attributes is not null && _attributes.Any(pair => pair.Value == AttributeType.Required))
+                {
+                    var query = _attributes.Where(pair => pair.Value == AttributeType.Required).Select(p => p.Key);
+                    OnError(CreateMessage(Resources.ErrorMessage_MissedRequiredAttributes, delimiter: @"', '", query));
+                }
+            }
 
-			private static string CreateMessage(string format, string delimiter, IEnumerable<QualifiedName> names)
-			{
-				var query = names.Select(qualifiedName => string.IsNullOrEmpty(qualifiedName.Namespace) ? qualifiedName.Name : qualifiedName.Namespace + @":" + qualifiedName.Name);
+            public void ValidateElement(string ns, string name)
+            {
+                if (_elements is not null && _elements.TryGetValue(new QualifiedName(ns, name), out var type))
+                {
+                    if (type is ElementType.SysOneFound or ElementType.SysZeroToOneFound)
+                    {
+                        OnError(CreateMessage(Resources.ErrorMessage_OnlyOneElementAllowed, ns, name));
+                    }
 
-				return string.Format(CultureInfo.InvariantCulture, format, string.Join(delimiter, query));
-			}
+                    _elements[new QualifiedName(ns, name)] = type + (int)ElementType.SysIncrement;
+                }
+                else if (!_ignoreUnknownElements)
+                {
+                    OnError(CreateMessage(Resources.ErrorMessage_DetectedUnknownElement, ns, name));
+                }
+            }
 
-			private void OnError(string message) => _xmlDirector.OnError(message, exception: default);
-		}
-	}
+            public void ProcessElementsCompleted()
+            {
+                if (_elements is not null && _elements.Any(pair => pair.Value is ElementType.One or ElementType.OneToMany))
+                {
+                    var query = _elements.Where(pair => pair.Value is ElementType.One or ElementType.OneToMany).Select(p => p.Key);
+                    OnError(CreateMessage(Resources.ErrorMessage_MissedRequiredElements, delimiter: @">, <", query));
+                }
+            }
 
-	private class PolicyBuilder<TEntity>(Policy<TEntity> policy) : IPolicyBuilder<TEntity>
-	{
-		private bool? _rawContent;
+            private static string CreateMessage(string format, string ns, string name) => string.Format(CultureInfo.InvariantCulture, format, string.IsNullOrEmpty(ns) ? name : ns + @":" + name);
 
-	#region Interface XmlDirector<TDirector>.IPolicyBuilder<TEntity>
+            private static string CreateMessage(string format, string delimiter, IEnumerable<QualifiedName> names)
+            {
+                var query = names.Select(qualifiedName => string.IsNullOrEmpty(qualifiedName.Namespace) ? qualifiedName.Name : qualifiedName.Namespace + @":" + qualifiedName.Name);
 
-		public IPolicyBuilder<TEntity> IgnoreUnknownElements(bool value)
-		{
-			policy.IgnoreUnknownElements = value;
+                return string.Format(CultureInfo.InvariantCulture, format, string.Join(delimiter, query));
+            }
 
-			return this;
-		}
+            private void OnError(string message) => _xmlDirector.OnError(message, exception: default);
+        }
+    }
 
-		public IPolicyBuilder<TEntity> ValidateElementName(string name) => ValidateElementName(string.Empty, name);
+    private class PolicyBuilder<TEntity>(Policy<TEntity> policy) : IPolicyBuilder<TEntity>
+    {
+        private bool? _rawContent;
 
-		public IPolicyBuilder<TEntity> RequiredAttribute(string name, Action<TDirector, TEntity> located) => RequiredAttribute(string.Empty, name, located);
+    #region Interface XmlDirector<TDirector>.IPolicyBuilder<TEntity>
 
-		public IPolicyBuilder<TEntity> OptionalAttribute(string name, Action<TDirector, TEntity> located) => OptionalAttribute(string.Empty, name, located);
+        public IPolicyBuilder<TEntity> IgnoreUnknownElements(bool value)
+        {
+            policy.IgnoreUnknownElements = value;
 
-		public IPolicyBuilder<TEntity> OptionalElement(string name, Func<TDirector, TEntity, ValueTask> located) => OptionalElement(string.Empty, name, located);
+            return this;
+        }
 
-		public IPolicyBuilder<TEntity> SingleElement(string name, Func<TDirector, TEntity, ValueTask> located) => SingleElement(string.Empty, name, located);
+        public IPolicyBuilder<TEntity> ValidateElementName(string name) => ValidateElementName(string.Empty, name);
 
-		public IPolicyBuilder<TEntity> MultipleElements(string name, Func<TDirector, TEntity, ValueTask> located) => MultipleElements(string.Empty, name, located);
+        public IPolicyBuilder<TEntity> RequiredAttribute(string name, Action<TDirector, TEntity> located) => RequiredAttribute(string.Empty, name, located);
 
-		public IPolicyBuilder<TEntity> ValidateElementName(string ns, string name)
-		{
-			Infra.Requires(ns);
-			Infra.RequiresNonEmptyString(name);
+        public IPolicyBuilder<TEntity> OptionalAttribute(string name, Action<TDirector, TEntity> located) => OptionalAttribute(string.Empty, name, located);
 
-			policy.ElementNamespace = ns;
-			policy.ElementName = name;
+        public IPolicyBuilder<TEntity> OptionalElement(string name, Func<TDirector, TEntity, ValueTask> located) => OptionalElement(string.Empty, name, located);
 
-			return this;
-		}
+        public IPolicyBuilder<TEntity> SingleElement(string name, Func<TDirector, TEntity, ValueTask> located) => SingleElement(string.Empty, name, located);
 
-		public IPolicyBuilder<TEntity> RequiredAttribute(string ns, string name, Action<TDirector, TEntity> located)
-		{
-			Infra.Requires(ns);
-			Infra.RequiresNonEmptyString(name);
-			Infra.Requires(located);
+        public IPolicyBuilder<TEntity> MultipleElements(string name, Func<TDirector, TEntity, ValueTask> located) => MultipleElements(string.Empty, name, located);
 
-			policy.AddAttribute(ns, name, located, AttributeType.Required);
+        public IPolicyBuilder<TEntity> ValidateElementName(string ns, string name)
+        {
+            Infra.Requires(ns);
+            Infra.RequiresNonEmptyString(name);
 
-			return this;
-		}
+            policy.ElementNamespace = ns;
+            policy.ElementName = name;
 
-		public IPolicyBuilder<TEntity> OptionalAttribute(string ns, string name, Action<TDirector, TEntity> located)
-		{
-			Infra.Requires(ns);
-			Infra.RequiresNonEmptyString(name);
-			Infra.Requires(located);
+            return this;
+        }
 
-			policy.AddAttribute(ns, name, located, AttributeType.Optional);
+        public IPolicyBuilder<TEntity> RequiredAttribute(string ns, string name, Action<TDirector, TEntity> located)
+        {
+            Infra.Requires(ns);
+            Infra.RequiresNonEmptyString(name);
+            Infra.Requires(located);
 
-			return this;
-		}
+            policy.AddAttribute(ns, name, located, AttributeType.Required);
 
-		public IPolicyBuilder<TEntity> OptionalElement(string ns, string name, Func<TDirector, TEntity, ValueTask> located)
-		{
-			Infra.Requires(ns);
-			Infra.RequiresNonEmptyString(name);
-			Infra.Requires(located);
+            return this;
+        }
 
-			policy.AddElement(ns, name, located, ElementType.ZeroToOne);
+        public IPolicyBuilder<TEntity> OptionalAttribute(string ns, string name, Action<TDirector, TEntity> located)
+        {
+            Infra.Requires(ns);
+            Infra.RequiresNonEmptyString(name);
+            Infra.Requires(located);
 
-			return this;
-		}
+            policy.AddAttribute(ns, name, located, AttributeType.Optional);
 
-		public IPolicyBuilder<TEntity> SingleElement(string ns, string name, Func<TDirector, TEntity, ValueTask> located)
-		{
-			Infra.Requires(ns);
-			Infra.RequiresNonEmptyString(name);
-			Infra.Requires(located);
+            return this;
+        }
 
-			UseRawContent(value: false);
-			policy.AddElement(ns, name, located, ElementType.One);
+        public IPolicyBuilder<TEntity> OptionalElement(string ns, string name, Func<TDirector, TEntity, ValueTask> located)
+        {
+            Infra.Requires(ns);
+            Infra.RequiresNonEmptyString(name);
+            Infra.Requires(located);
 
-			return this;
-		}
+            policy.AddElement(ns, name, located, ElementType.ZeroToOne);
 
-		public IPolicyBuilder<TEntity> MultipleElements(string ns, string name, Func<TDirector, TEntity, ValueTask> located)
-		{
-			Infra.Requires(ns);
-			Infra.RequiresNonEmptyString(name);
-			Infra.Requires(located);
+            return this;
+        }
 
-			UseRawContent(value: false);
-			policy.AddElement(ns, name, located, ElementType.ZeroToMany);
+        public IPolicyBuilder<TEntity> SingleElement(string ns, string name, Func<TDirector, TEntity, ValueTask> located)
+        {
+            Infra.Requires(ns);
+            Infra.RequiresNonEmptyString(name);
+            Infra.Requires(located);
 
-			return this;
-		}
+            UseRawContent(value: false);
+            policy.AddElement(ns, name, located, ElementType.One);
 
-		public IPolicyBuilder<TEntity> UnknownElement(Func<TDirector, TEntity, ValueTask> located)
-		{
-			Infra.Requires(located);
+            return this;
+        }
 
-			policy.UnknownElementAction = located;
+        public IPolicyBuilder<TEntity> MultipleElements(string ns, string name, Func<TDirector, TEntity, ValueTask> located)
+        {
+            Infra.Requires(ns);
+            Infra.RequiresNonEmptyString(name);
+            Infra.Requires(located);
 
-			return this;
-		}
+            UseRawContent(value: false);
+            policy.AddElement(ns, name, located, ElementType.ZeroToMany);
 
-		public IPolicyBuilder<TEntity> IgnoreUnknownElements()
-		{
-			policy.IgnoreUnknownElements = true;
+            return this;
+        }
 
-			return this;
-		}
+        public IPolicyBuilder<TEntity> UnknownElement(Func<TDirector, TEntity, ValueTask> located)
+        {
+            Infra.Requires(located);
 
-		public IPolicyBuilder<TEntity> DenyUnknownElements()
-		{
-			policy.IgnoreUnknownElements = false;
+            policy.UnknownElementAction = located;
 
-			return this;
-		}
+            return this;
+        }
 
-		public IPolicyBuilder<TEntity> RawContent(Action<TDirector, TEntity> action)
-		{
-			UseRawContent(value: true);
-			policy.RawContentAction = action;
+        public IPolicyBuilder<TEntity> IgnoreUnknownElements()
+        {
+            policy.IgnoreUnknownElements = true;
 
-			return this;
-		}
+            return this;
+        }
 
-	#endregion
+        public IPolicyBuilder<TEntity> DenyUnknownElements()
+        {
+            policy.IgnoreUnknownElements = false;
 
-		private void UseRawContent(bool value)
-		{
-			if (_rawContent == value)
-			{
-				if (value)
-				{
-					throw new ArgumentException(Resources.Exception_CanNotRegisterRawContentMoreThanOneTime);
-				}
+            return this;
+        }
 
-				return;
-			}
+        public IPolicyBuilder<TEntity> RawContent(Action<TDirector, TEntity> action)
+        {
+            UseRawContent(value: true);
+            policy.RawContentAction = action;
 
-			if (!_rawContent.HasValue)
-			{
-				_rawContent = value;
+            return this;
+        }
 
-				return;
-			}
+    #endregion
 
-			if (value)
-			{
-				throw new ArgumentException(Resources.Exception_CanNotReadRawContentDueToRegisteredElements);
-			}
+        private void UseRawContent(bool value)
+        {
+            if (_rawContent == value)
+            {
+                if (value)
+                {
+                    throw new ArgumentException(Resources.Exception_CanNotRegisterRawContentMoreThanOneTime);
+                }
 
-			throw new ArgumentException(Resources.Exception_CanNotRegisterComponentDueToRegisteredRawContent);
-		}
-	}
+                return;
+            }
 
-	private readonly struct QualifiedName(string ns, string name) : IEquatable<QualifiedName>
-	{
-		public readonly string Name = name;
+            if (!_rawContent.HasValue)
+            {
+                _rawContent = value;
 
-		public readonly string Namespace = ns;
+                return;
+            }
 
-	#region Interface IEquatable<XmlDirector<TDirector>.QualifiedName>
+            if (value)
+            {
+                throw new ArgumentException(Resources.Exception_CanNotReadRawContentDueToRegisteredElements);
+            }
 
-		public bool Equals(QualifiedName other) => ReferenceEquals(Namespace, other.Namespace) && ReferenceEquals(Name, other.Name);
+            throw new ArgumentException(Resources.Exception_CanNotRegisterComponentDueToRegisteredRawContent);
+        }
+    }
 
-	#endregion
+    private readonly struct QualifiedName(string ns, string name) : IEquatable<QualifiedName>
+    {
+        public readonly string Name = name;
 
-		public override bool Equals(object? obj) => obj is QualifiedName other && Equals(other);
+        public readonly string Namespace = ns;
 
-		public override int GetHashCode() => HashCode.Combine(Namespace, Name);
-	}
+    #region Interface IEquatable<XmlDirector<TDirector>.QualifiedName>
+
+        public bool Equals(QualifiedName other) => ReferenceEquals(Namespace, other.Namespace) && ReferenceEquals(Name, other.Name);
+
+    #endregion
+
+        public override bool Equals(object? obj) => obj is QualifiedName other && Equals(other);
+
+        public override int GetHashCode() => HashCode.Combine(Namespace, Name);
+    }
 }

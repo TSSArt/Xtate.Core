@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -20,70 +20,70 @@ namespace Xtate.Core;
 [Obsolete]
 public readonly struct StateMachineOrigin
 {
-	private readonly object? _value;
+    private readonly object? _value;
 
-	public StateMachineOrigin(IStateMachine stateMachine, Uri? baseUri = default)
-	{
-		Infra.Requires(stateMachine);
+    public StateMachineOrigin(IStateMachine stateMachine, Uri? baseUri = default)
+    {
+        Infra.Requires(stateMachine);
 
-		_value = stateMachine;
-		BaseUri = baseUri;
-	}
+        _value = stateMachine;
+        BaseUri = baseUri;
+    }
 
-	public StateMachineOrigin(Uri source, Uri? baseUri = default)
-	{
-		Infra.Requires(source);
+    public StateMachineOrigin(Uri source, Uri? baseUri = default)
+    {
+        Infra.Requires(source);
 
-		_value = source;
-		BaseUri = baseUri;
-	}
+        _value = source;
+        BaseUri = baseUri;
+    }
 
-	public StateMachineOrigin(string scxml, Uri? baseUri = default)
-	{
-		Infra.Requires(scxml);
+    public StateMachineOrigin(string scxml, Uri? baseUri = default)
+    {
+        Infra.Requires(scxml);
 
-		_value = scxml;
-		BaseUri = baseUri;
-	}
+        _value = scxml;
+        BaseUri = baseUri;
+    }
 
-	public StateMachineOriginType Type =>
-		_value switch
-		{
-			string        => StateMachineOriginType.Scxml,
-			Uri           => StateMachineOriginType.Source,
-			IStateMachine => StateMachineOriginType.StateMachine,
-			_             => throw Infra.Unmatched(_value?.GetType())
-		};
+    public StateMachineOriginType Type =>
+        _value switch
+        {
+            string        => StateMachineOriginType.Scxml,
+            Uri           => StateMachineOriginType.Source,
+            IStateMachine => StateMachineOriginType.StateMachine,
+            _             => throw Infra.Unmatched(_value?.GetType())
+        };
 
-	public Uri? BaseUri { get; }
+    public Uri? BaseUri { get; }
 
-	public string AsScxml()
-	{
-		if (_value is string str)
-		{
-			return str;
-		}
+    public string AsScxml()
+    {
+        if (_value is string str)
+        {
+            return str;
+        }
 
-		throw new ArgumentException(Resources.Exception_ValueIsNotSCXML);
-	}
+        throw new ArgumentException(Resources.Exception_ValueIsNotSCXML);
+    }
 
-	public Uri AsSource()
-	{
-		if (_value is Uri uri)
-		{
-			return uri;
-		}
+    public Uri AsSource()
+    {
+        if (_value is Uri uri)
+        {
+            return uri;
+        }
 
-		throw new ArgumentException(Resources.Exception_ValueIsNotSource);
-	}
+        throw new ArgumentException(Resources.Exception_ValueIsNotSource);
+    }
 
-	public IStateMachine AsStateMachine()
-	{
-		if (_value is IStateMachine stateMachine)
-		{
-			return stateMachine;
-		}
+    public IStateMachine AsStateMachine()
+    {
+        if (_value is IStateMachine stateMachine)
+        {
+            return stateMachine;
+        }
 
-		throw new ArgumentException(Resources.Exception_ValueIsNotStateMachine);
-	}
+        throw new ArgumentException(Resources.Exception_ValueIsNotStateMachine);
+    }
 }

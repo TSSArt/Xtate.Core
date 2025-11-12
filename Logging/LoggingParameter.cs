@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,109 +19,109 @@ namespace Xtate.Core;
 
 public readonly struct LoggingParameter(string name, object? value, string? format = default) : ISpanFormattable
 {
-	private const string NsDelimiter = @"::";
+    private const string NsDelimiter = @"::";
 
-	private const string NmDelimiter = @":";
+    private const string NmDelimiter = @":";
 
-	public string Name { get; } = name;
+    public string Name { get; } = name;
 
-	public object? Value { get; } = value;
+    public object? Value { get; } = value;
 
-	public string? Format { get; } = format;
+    public string? Format { get; } = format;
 
-	public string? Namespace { get; init; }
+    public string? Namespace { get; init; }
 
 #region Interface IFormattable
 
-	public string ToString(string? format, IFormatProvider? formatProvider)
-	{
-		var strValue = ValueToString(formatProvider);
+    public string ToString(string? format, IFormatProvider? formatProvider)
+    {
+        var strValue = ValueToString(formatProvider);
 
-		if (string.IsNullOrEmpty(Name))
-		{
-			return strValue;
-		}
+        if (string.IsNullOrEmpty(Name))
+        {
+            return strValue;
+        }
 
-		return string.IsNullOrEmpty(Namespace)
-			? Name + NmDelimiter + ValueToString(formatProvider)
-			: StringExtensions.Concat(Namespace, NsDelimiter, Name, NmDelimiter, ValueToString(formatProvider));
-	}
+        return string.IsNullOrEmpty(Namespace)
+            ? Name + NmDelimiter + ValueToString(formatProvider)
+            : StringExtensions.Concat(Namespace, NsDelimiter, Name, NmDelimiter, ValueToString(formatProvider));
+    }
 
 #endregion
 
 #region Interface ISpanFormattable
 
-	public bool TryFormat(Span<char> destination,
-						  out int charsWritten,
-						  ReadOnlySpan<char> format,
-						  IFormatProvider? formatProvider)
-	{
-		charsWritten = 0;
+    public bool TryFormat(Span<char> destination,
+                          out int charsWritten,
+                          ReadOnlySpan<char> format,
+                          IFormatProvider? formatProvider)
+    {
+        charsWritten = 0;
 
-		if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(Namespace))
-		{
-			if (!Namespace.TryCopyIncremental(ref destination, ref charsWritten))
-			{
-				return false;
-			}
+        if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(Namespace))
+        {
+            if (!Namespace.TryCopyIncremental(ref destination, ref charsWritten))
+            {
+                return false;
+            }
 
-			if (!NsDelimiter.TryCopyIncremental(ref destination, ref charsWritten))
-			{
-				return false;
-			}
-		}
+            if (!NsDelimiter.TryCopyIncremental(ref destination, ref charsWritten))
+            {
+                return false;
+            }
+        }
 
-		if (!string.IsNullOrEmpty(Name))
-		{
-			if (!Name.TryCopyIncremental(ref destination, ref charsWritten))
-			{
-				return false;
-			}
+        if (!string.IsNullOrEmpty(Name))
+        {
+            if (!Name.TryCopyIncremental(ref destination, ref charsWritten))
+            {
+                return false;
+            }
 
-			if (!NmDelimiter.TryCopyIncremental(ref destination, ref charsWritten))
-			{
-				return false;
-			}
-		}
+            if (!NmDelimiter.TryCopyIncremental(ref destination, ref charsWritten))
+            {
+                return false;
+            }
+        }
 
-		if (Value is ISpanFormattable spanFormattable)
-		{
-			if (!spanFormattable.TryFormat(destination, out var valCharsWritten, Format.AsSpan(), formatProvider))
-			{
-				return false;
-			}
+        if (Value is ISpanFormattable spanFormattable)
+        {
+            if (!spanFormattable.TryFormat(destination, out var valCharsWritten, Format.AsSpan(), formatProvider))
+            {
+                return false;
+            }
 
-			charsWritten += valCharsWritten;
-		}
-		else
-		{
-			if (!ValueToString(formatProvider).TryCopyIncremental(ref destination, ref charsWritten))
-			{
-				return false;
-			}
-		}
+            charsWritten += valCharsWritten;
+        }
+        else
+        {
+            if (!ValueToString(formatProvider).TryCopyIncremental(ref destination, ref charsWritten))
+            {
+                return false;
+            }
+        }
 
-		return true;
-	}
+        return true;
+    }
 
 #endregion
 
-	public string FullName() => string.IsNullOrEmpty(Namespace) ? Name : Namespace + NsDelimiter + Name;
+    public string FullName() => string.IsNullOrEmpty(Namespace) ? Name : Namespace + NsDelimiter + Name;
 
-	public string ValueToString(IFormatProvider? formatProvider)
-	{
-		if (Value is IFormattable formattable)
-		{
-			return formattable.ToString(Format, formatProvider);
-		}
+    public string ValueToString(IFormatProvider? formatProvider)
+    {
+        if (Value is IFormattable formattable)
+        {
+            return formattable.ToString(Format, formatProvider);
+        }
 
-		if (Value is IConvertible convertible)
-		{
-			return convertible.ToString(formatProvider);
-		}
+        if (Value is IConvertible convertible)
+        {
+            return convertible.ToString(formatProvider);
+        }
 
-		return Value?.ToString() ?? string.Empty;
-	}
+        return Value?.ToString() ?? string.Empty;
+    }
 
-	public override string ToString() => ToString(format: default, formatProvider: default);
+    public override string ToString() => ToString(format: default, formatProvider: default);
 }

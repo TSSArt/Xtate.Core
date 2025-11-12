@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -15,9 +15,15 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Core;
+using Xtate.IoC;
 
-public interface ILogEntityParser<in TEntity>
+namespace Xtate;
+
+[InstantiatedByIoC]
+public class TraceLoggerModule : Module
 {
-	IEnumerable<(string Name, object Value)> EnumerateProperties(TEntity entity);
+	protected override void AddServices()
+	{
+		Services.AddImplementation<TraceLogWriter<Any>>().For<ILogWriter<Any>>();
+	}
 }

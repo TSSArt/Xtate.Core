@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,39 +21,39 @@ namespace Xtate;
 
 [Serializable]
 public class StateMachineValidationException(ImmutableArray<ErrorItem> validationMessages, SessionId? sessionId = default, StateMachineOrigin origin = default)
-	: XtateException(GetMessage(validationMessages))
+    : XtateException(GetMessage(validationMessages))
 {
-	public SessionId? SessionId { get; } = sessionId;
+    public SessionId? SessionId { get; } = sessionId;
 
-	public StateMachineOrigin Origin { get; } = origin;
+    public StateMachineOrigin Origin { get; } = origin;
 
-	public ImmutableArray<ErrorItem> ValidationMessages { get; } = validationMessages;
+    public ImmutableArray<ErrorItem> ValidationMessages { get; } = validationMessages;
 
-	private static string? GetMessage(ImmutableArray<ErrorItem> validationMessages)
-	{
-		if (validationMessages.IsDefaultOrEmpty)
-		{
-			return null;
-		}
+    private static string? GetMessage(ImmutableArray<ErrorItem> validationMessages)
+    {
+        if (validationMessages.IsDefaultOrEmpty)
+        {
+            return null;
+        }
 
-		if (validationMessages.Length == 1)
-		{
-			return validationMessages[0].ToString();
-		}
+        if (validationMessages.Length == 1)
+        {
+            return validationMessages[0].ToString();
+        }
 
-		var sb = new StringBuilder();
-		var index = 1;
+        var sb = new StringBuilder();
+        var index = 1;
 
-		foreach (var error in validationMessages)
-		{
-			if (index > 1)
-			{
-				sb.AppendLine();
-			}
+        foreach (var error in validationMessages)
+        {
+            if (index > 1)
+            {
+                sb.AppendLine();
+            }
 
-			sb.Append(Res.Format(Resources.Exception_StateMachineValidationExceptionMessage, index ++, validationMessages.Length, error));
-		}
+            sb.Append(Res.Format(Resources.Exception_StateMachineValidationExceptionMessage, index ++, validationMessages.Length, error));
+        }
 
-		return sb.ToString();
-	}
+        return sb.ToString();
+    }
 }

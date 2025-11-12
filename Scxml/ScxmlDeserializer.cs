@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,31 +22,31 @@ namespace Xtate.Scxml;
 
 public class ScxmlDeserializer : IScxmlDeserializer
 {
-	public required Func<XmlReader, ValueTask<ScxmlDirector>> ScxmlDirectorFactory { private get; [UsedImplicitly] init; }
+    public required Func<XmlReader, ValueTask<ScxmlDirector>> ScxmlDirectorFactory { private get; [UsedImplicitly] init; }
 
-	public required Func<XmlReader, ValueTask<XIncludeReader>> XIncludeReaderFactory { private get; [UsedImplicitly] init; }
+    public required Func<XmlReader, ValueTask<XIncludeReader>> XIncludeReaderFactory { private get; [UsedImplicitly] init; }
 
-	public required IStateMachineValidator StateMachineValidator { private get; [UsedImplicitly] init; }
+    public required IStateMachineValidator StateMachineValidator { private get; [UsedImplicitly] init; }
 
-	public required IXIncludeOptions? XIncludeOptions { private get; [UsedImplicitly] init; }
+    public required IXIncludeOptions? XIncludeOptions { private get; [UsedImplicitly] init; }
 
 #region Interface IScxmlDeserializer
 
-	public async ValueTask<IStateMachine> Deserialize(XmlReader xmlReader)
-	{
-		if (XIncludeOptions?.XIncludeAllowed == true)
-		{
-			xmlReader = await XIncludeReaderFactory(xmlReader).ConfigureAwait(false);
-		}
+    public async ValueTask<IStateMachine> Deserialize(XmlReader xmlReader)
+    {
+        if (XIncludeOptions?.XIncludeAllowed == true)
+        {
+            xmlReader = await XIncludeReaderFactory(xmlReader).ConfigureAwait(false);
+        }
 
-		var scxmlDirector = await ScxmlDirectorFactory(xmlReader).ConfigureAwait(false);
+        var scxmlDirector = await ScxmlDirectorFactory(xmlReader).ConfigureAwait(false);
 
-		var stateMachine = await scxmlDirector.ConstructStateMachine().ConfigureAwait(false);
+        var stateMachine = await scxmlDirector.ConstructStateMachine().ConfigureAwait(false);
 
-		StateMachineValidator.Validate(stateMachine);
+        StateMachineValidator.Validate(stateMachine);
 
-		return stateMachine;
-	}
+        return stateMachine;
+    }
 
 #endregion
 }

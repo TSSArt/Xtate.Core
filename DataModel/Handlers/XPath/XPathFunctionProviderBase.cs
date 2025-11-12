@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,11 +19,11 @@ namespace Xtate.DataModel.XPath;
 
 public abstract class XPathFunctionProviderBase<TXPathFunction>(string ns, string name) : IXPathFunctionProvider where TXPathFunction : XPathFunctionBase
 {
-	public required Func<TXPathFunction> XPathFunctionFactory { private get; [UsedImplicitly] init; }
+    public required Func<TXPathFunction> XPathFunctionFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IXPathFunctionProvider
 
-	XPathFunctionBase? IXPathFunctionProvider.TryGetFunction(string nsValue, string nameValue) => ns == nsValue && name == nameValue ? XPathFunctionFactory() : default;
+    XPathFunctionBase? IXPathFunctionProvider.TryGetFunction(string nsValue, string nameValue) => ns == nsValue && name == nameValue ? XPathFunctionFactory() : default;
 
 #endregion
 }

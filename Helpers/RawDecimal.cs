@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,32 +21,32 @@ namespace Xtate.Core;
 
 internal readonly struct RawDecimal(long lo64, long hi64)
 {
-	public readonly long Hi64 = hi64;
+    public readonly long Hi64 = hi64;
 
-	public readonly long Lo64 = lo64;
+    public readonly long Lo64 = lo64;
 
-	public bool DoNotCache => (Hi64 & -4294967296) != 0;
+    public bool DoNotCache => (Hi64 & -4294967296) != 0;
 
-	public static explicit operator RawDecimal(decimal value)
-	{
-		ReadOnlySpan<decimal> buf = [value];
+    public static explicit operator RawDecimal(decimal value)
+    {
+        ReadOnlySpan<decimal> buf = [value];
 
-		return MemoryMarshal.Cast<decimal, RawDecimal>(buf)[0];
-	}
+        return MemoryMarshal.Cast<decimal, RawDecimal>(buf)[0];
+    }
 
-	public static explicit operator decimal(RawDecimal value)
-	{
-		ReadOnlySpan<RawDecimal> buf = [value];
+    public static explicit operator decimal(RawDecimal value)
+    {
+        ReadOnlySpan<RawDecimal> buf = [value];
 
-		return MemoryMarshal.Cast<RawDecimal, decimal>(buf)[0];
-	}
+        return MemoryMarshal.Cast<RawDecimal, decimal>(buf)[0];
+    }
 
-	public static void ResetScale(ref decimal value, out byte scale)
-	{
-		var raw = (RawDecimal) value;
+    public static void ResetScale(ref decimal value, out byte scale)
+    {
+        var raw = (RawDecimal)value;
 
-		scale = (byte) (raw.Hi64 >> 16);
+        scale = (byte)(raw.Hi64 >> 16);
 
-		value = (decimal) new RawDecimal(raw.Lo64, raw.Hi64 & -16711681);
-	}
+        value = (decimal)new RawDecimal(raw.Lo64, raw.Hi64 & -16711681);
+    }
 }

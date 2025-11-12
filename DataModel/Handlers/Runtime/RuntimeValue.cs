@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,40 +21,40 @@ public abstract class RuntimeValue : IValueExpression
 {
 #region Interface IValueExpression
 
-	public string? Expression => null;
+    public string? Expression => null;
 
 #endregion
 
-	public static RuntimeValue GetValue(DataModelValue value) => new ConstantValue(value);
+    public static RuntimeValue GetValue(DataModelValue value) => new ConstantValue(value);
 
-	public static RuntimeValue GetValue(Func<DataModelValue> evaluator)
-	{
-		Infra.Requires(evaluator);
+    public static RuntimeValue GetValue(Func<DataModelValue> evaluator)
+    {
+        Infra.Requires(evaluator);
 
-		return new EvaluatorSync(evaluator);
-	}
+        return new EvaluatorSync(evaluator);
+    }
 
-	public static RuntimeValue GetValue(Func<ValueTask<DataModelValue>> evaluator)
-	{
-		Infra.Requires(evaluator);
+    public static RuntimeValue GetValue(Func<ValueTask<DataModelValue>> evaluator)
+    {
+        Infra.Requires(evaluator);
 
-		return new EvaluatorAsync(evaluator);
-	}
+        return new EvaluatorAsync(evaluator);
+    }
 
-	public abstract ValueTask<DataModelValue> Evaluate();
+    public abstract ValueTask<DataModelValue> Evaluate();
 
-	private sealed class ConstantValue(DataModelValue value) : RuntimeValue
-	{
-		public override ValueTask<DataModelValue> Evaluate() => new(value);
-	}
+    private sealed class ConstantValue(DataModelValue value) : RuntimeValue
+    {
+        public override ValueTask<DataModelValue> Evaluate() => new(value);
+    }
 
-	private sealed class EvaluatorSync(Func<DataModelValue> evaluator) : RuntimeValue
-	{
-		public override ValueTask<DataModelValue> Evaluate() => new(evaluator());
-	}
+    private sealed class EvaluatorSync(Func<DataModelValue> evaluator) : RuntimeValue
+    {
+        public override ValueTask<DataModelValue> Evaluate() => new(evaluator());
+    }
 
-	private sealed class EvaluatorAsync(Func<ValueTask<DataModelValue>> evaluator) : RuntimeValue
-	{
-		public override ValueTask<DataModelValue> Evaluate() => evaluator();
-	}
+    private sealed class EvaluatorAsync(Func<ValueTask<DataModelValue>> evaluator) : RuntimeValue
+    {
+        public override ValueTask<DataModelValue> Evaluate() => evaluator();
+    }
 }

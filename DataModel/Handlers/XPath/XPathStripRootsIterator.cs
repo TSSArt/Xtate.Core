@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,44 +21,44 @@ namespace Xtate.DataModel.XPath;
 
 internal class XPathStripRootsIterator(XPathNodeIterator iterator) : XPathNodeIterator
 {
-	private readonly XPathNodeIterator _iterator = iterator.Clone();
+    private readonly XPathNodeIterator _iterator = iterator.Clone();
 
-	private XPathNavigator? _current;
+    private XPathNavigator? _current;
 
-	private int _position;
+    private int _position;
 
-	public override XPathNavigator? Current => _current;
+    public override XPathNavigator? Current => _current;
 
-	public override int CurrentPosition => _position;
+    public override int CurrentPosition => _position;
 
-	public override XPathNodeIterator Clone() => new XPathStripRootsIterator(_iterator);
+    public override XPathNodeIterator Clone() => new XPathStripRootsIterator(_iterator);
 
-	public override bool MoveNext()
-	{
-		if (_current?.MoveToNext() == true)
-		{
-			_position ++;
+    public override bool MoveNext()
+    {
+        if (_current?.MoveToNext() == true)
+        {
+            _position ++;
 
-			return true;
-		}
+            return true;
+        }
 
-		while (_iterator.MoveNext())
-		{
-			var navigator = _iterator.Current;
+        while (_iterator.MoveNext())
+        {
+            var navigator = _iterator.Current;
 
-			if (navigator?.HasChildren == true)
-			{
-				_current = navigator.Clone();
-				var moveToFirstChild = _current.MoveToFirstChild();
+            if (navigator?.HasChildren == true)
+            {
+                _current = navigator.Clone();
+                var moveToFirstChild = _current.MoveToFirstChild();
 
-				Infra.Assert(moveToFirstChild);
+                Infra.Assert(moveToFirstChild);
 
-				_position ++;
+                _position ++;
 
-				return true;
-			}
-		}
+                return true;
+            }
+        }
 
-		return false;
-	}
+        return false;
+    }
 }

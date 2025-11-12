@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2024 Sergii Artemenko
+﻿// Copyright © 2019-2025 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,31 +19,30 @@ namespace Xtate.Persistence;
 
 internal sealed class PersistedEventSchedulerFactory : IEventSchedulerFactory
 {
-	private readonly IStorageProvider _storageProvider;
+    private readonly IStorageProvider _storageProvider;
 
-	public PersistedEventSchedulerFactory(StateMachineHostOptions options)
-	{
-		Infra.NotNull(options.StorageProvider);
+    public PersistedEventSchedulerFactory(StateMachineHostOptions options)
+    {
+        Infra.NotNull(options.StorageProvider);
 
-		_storageProvider = options.StorageProvider;
-	}
+        _storageProvider = options.StorageProvider;
+    }
 
 #region Interface IEventSchedulerFactory
 
-	public async ValueTask<IEventScheduler> CreateEventScheduler(IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger? logger, CancellationToken token)
-	{
-		var persistedEventScheduler = new PersistedEventScheduler(_storageProvider, hostEventDispatcher, logger!)
-									  {
-										  Logger = null,
-										  EventRouters = null,
-										  TaskMonitor = null,
-										  
-									  };
+    public async ValueTask<IEventScheduler> CreateEventScheduler(IHostEventDispatcher hostEventDispatcher, IEventSchedulerLogger? logger, CancellationToken token)
+    {
+        var persistedEventScheduler = new PersistedEventScheduler(_storageProvider, hostEventDispatcher, logger!)
+                                      {
+                                          Logger = null,
+                                          EventRouters = null,
+                                          TaskMonitor = null
+                                      };
 
-		await persistedEventScheduler.Initialize(token).ConfigureAwait(false);
+        await persistedEventScheduler.Initialize(token).ConfigureAwait(false);
 
-		return persistedEventScheduler;
-	}
+        return persistedEventScheduler;
+    }
 
 #endregion
 }
