@@ -19,6 +19,7 @@ using Xtate.IoC;
 
 namespace Xtate.Core;
 
+[InstantiatedByIoC]
 public class SafeFactory<T> : IAsyncInitialization
 {
     private T? _value;
@@ -45,6 +46,6 @@ public class SafeFactory<T> : IAsyncInitialization
 
     private T? GetValue() => _value;
 
-    [UsedImplicitly]
+    [CalledByIoC]
     public ValueTask<Safe<T>> GetValueFunc() => new(GetValue);
 }

@@ -29,10 +29,13 @@ public class ToolsModule : Module<LoggingModule>
         Services.AddFactory<SafeFactory<Any>>().For<Safe<Any>>();
         Services.AddFactorySync<DeferredFactory<Any>>().For<Deferred<Any>>();
 
-        Services.AddType<ServiceList<Any>>();
-        Services.AddTypeSync<ServiceSyncList<Any>>();
+		Services.AddImplementation<ServiceReadOnlyList<Any>>().For<IReadOnlyList<Any>>().For<IReadOnlyCollection<Any>>();
+		Services.AddImplementationSync<ServiceSyncList<Any>>().For<ISyncList<Any>>().For<ISyncCollection<Any>>();
 
-        Services.AddForwarding(sp => new DisposeToken(sp.DisposeToken));
+		Services.AddForwarding(sp => new DisposeToken(sp.DisposeToken));
         Services.AddSharedType<TaskMonitor>(SharedWithin.Scope);
-    }
+
+        Services.AddImplementation<OptionsImpl<Any>>().For<IOptions<Any>>();
+        Services.AddImplementationSync<OptionsAsyncImpl<Any>>().For<IOptionsAsync<Any>>();
+	}
 }

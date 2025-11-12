@@ -19,180 +19,208 @@ using Xtate.IoC;
 
 namespace Xtate;
 
+[InstantiatedByIoC]
 public class StateMachineScopeManager : IStateMachineScopeManager, IDisposable, IAsyncDisposable
 {
-    private ConcurrentDictionary<SessionId, IServiceScope>? _scopes = new();
+	private ConcurrentDictionary<SessionId, IServiceScope>? _scopes = new();
 
-    public required IServiceScopeFactory ServiceScopeFactory { private get; [UsedImplicitly] init; }
+	public required IServiceScopeFactory ServiceScopeFactory { private get; [UsedImplicitly] init; }
 
-    public required IStateMachineCollection StateMachineCollection { private get; [UsedImplicitly] init; }
+	public required IStateMachineCollection StateMachineCollection { private get; [UsedImplicitly] init; }
 
-    public required Func<SecurityContextType, SecurityContextRegistration> SecurityContextRegistrationFactory { private get; [UsedImplicitly] init; }
+	public required Func<SecurityContextType, SecurityContextRegistration> SecurityContextRegistrationFactory { private get; [UsedImplicitly] init; }
 
-    public required TaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
+	public required TaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
 
 #region Interface IAsyncDisposable
 
-    public async ValueTask DisposeAsync()
-    {
-        await DisposeAsyncCore().ConfigureAwait(false);
+	public async ValueTask DisposeAsync()
+	{
+		await DisposeAsyncCore().ConfigureAwait(false);
 
-        Dispose(false);
+		Dispose(false);
 
-        GC.SuppressFinalize(this);
-    }
+		GC.SuppressFinalize(this);
+	}
 
 #endregion
 
 #region Interface IDisposable
 
-    public void Dispose()
-    {
-        Dispose(true);
+	public void Dispose()
+	{
+		Dispose(true);
 
-        GC.SuppressFinalize(this);
-    }
+		GC.SuppressFinalize(this);
+	}
 
 #endregion
 
 #region Interface IStateMachineScopeManager
 
-    public virtual async ValueTask Start(StateMachineClass stateMachineClass, SecurityContextType securityContextType)
-    {
-        await using var registration = SecurityContextRegistrationFactory(securityContextType).ConfigureAwait(false);
+	public virtual async ValueTask Start(StateMachineClass stateMachineClass, SecurityContextType securityContextType)
+	{
+		await using var registration = SecurityContextRegistrationFactory(securityContextType).ConfigureAwait(false);
 
-        var serviceScope = CreateServiceScope(stateMachineClass);
+		var serviceScope = CreateServiceScope(stateMachineClass);
 
-        IStateMachineRunner? runner = null;
+		IStateMachineRunner? runner = null;
 
-        try
-        {
-            runner = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineRunner>().ConfigureAwait(false);
+		try
+		{
+			runner = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineRunner>().ConfigureAwait(false);
 
-            await Start(serviceScope.ServiceProvider, stateMachineClass.SessionId).ConfigureAwait(false);
-        }
-        finally
-        {
-            if (runner is not null)
-            {
-                WaitAndCleanup(stateMachineClass.SessionId, runner).Forget(TaskMonitor);
-            }
-            else
-            {
-                await Cleanup(stateMachineClass.SessionId).ConfigureAwait(false);
-            }
-        }
-    }
+			await Start(serviceScope.ServiceProvider, stateMachineClass.SessionId).ConfigureAwait(false);
+		}
+		finally
+		{
+			if (runner is not null)
+			{
+				WaitAndCleanup(stateMachineClass.SessionId, runner).Forget(TaskMonitor);
+			}
+			else
+			{
+				await Cleanup(stateMachineClass.SessionId).ConfigureAwait(false);
+			}
+		}
+	}
 
-    public virtual async ValueTask<DataModelValue> Execute(StateMachineClass stateMachineClass, SecurityContextType securityContextType)
-    {
-        await using var registration = SecurityContextRegistrationFactory(securityContextType).ConfigureAwait(false);
+	public virtual async ValueTask<DataModelValue> Execute(StateMachineClass stateMachineClass, SecurityContextType securityContextType)
+	{
+		await using var registration = SecurityContextRegistrationFactory(securityContextType).ConfigureAwait(false);
 
-        var serviceScope = CreateServiceScope(stateMachineClass);
+		var serviceScope = CreateServiceScope(stateMachineClass);
 
-        await using (serviceScope.ConfigureAwait(false))
-        {
-            IStateMachineRunner? runner = null;
+		await using (serviceScope.ConfigureAwait(false))
+		{
+			IStateMachineRunner? runner = null;
 
-            try
-            {
-                runner = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineRunner>().ConfigureAwait(false);
+			try
+			{
+				runner = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineRunner>().ConfigureAwait(false);
 
-                var stateMachineController = await Start(serviceScope.ServiceProvider, stateMachineClass.SessionId).ConfigureAwait(false);
+				var stateMachineController = await Start(serviceScope.ServiceProvider, stateMachineClass.SessionId).ConfigureAwait(false);
 
-                return await stateMachineController.GetResult().ConfigureAwait(false);
-            }
-            finally
-            {
-                if (runner is not null)
-                {
-                    await WaitAndCleanup(stateMachineClass.SessionId, runner).ConfigureAwait(false);
-                }
-                else
-                {
-                    await Cleanup(stateMachineClass.SessionId).ConfigureAwait(false);
-                }
-            }
-        }
-    }
+				return await stateMachineController.GetResult().ConfigureAwait(false);
+			}
+			finally
+			{
+				if (runner is not null)
+				{
+					await WaitAndCleanup(stateMachineClass.SessionId, runner).ConfigureAwait(false);
+				}
+				else
+				{
+					await Cleanup(stateMachineClass.SessionId).ConfigureAwait(false);
+				}
+			}
+		}
+	}
 
-    public virtual ValueTask Terminate(SessionId sessionId) => _scopes?.TryRemove(sessionId, out var serviceScope) == true ? serviceScope.DisposeAsync() : ValueTask.CompletedTask;
+	public virtual ValueTask Destroy(SessionId sessionId) => _scopes?.TryGetValue(sessionId, out var serviceScope) == true ? Destroy(serviceScope) : ValueTask.CompletedTask;
+
+	public virtual ValueTask DestroyAll() => new(Task.WhenAll(DestroyTasks()));
+
+	public virtual ValueTask Terminate(SessionId sessionId) => _scopes?.TryRemove(sessionId, out var serviceScope) == true ? serviceScope.DisposeAsync() : ValueTask.CompletedTask;
 
 #endregion
 
-    private async ValueTask<IStateMachineController> Start(IServiceProvider serviceProvider, SessionId sessionId)
-    {
-        StateMachineCollection.Register(sessionId);
+	private IEnumerable<Task> DestroyTasks()
+	{
+		if (_scopes is not { } scopes)
+		{
+			yield break;
+		}
 
-        var stateMachineController = await serviceProvider.GetRequiredService<IStateMachineController>().ConfigureAwait(false);
+		foreach (var scope in scopes)
+		{
+			if (Destroy(scope.Value) is { IsCompletedSuccessfully: false } valueTask)
+			{
+				yield return valueTask.AsTask();
+			}
+		}
+	}
 
-        StateMachineCollection.SetController(sessionId, stateMachineController);
+	private static async ValueTask Destroy(IServiceScope serviceScope)
+	{
+		var stateMachineController = await serviceScope.ServiceProvider.GetRequiredService<IStateMachineController>().ConfigureAwait(false);
 
-        return stateMachineController;
-    }
+		await stateMachineController.Destroy().ConfigureAwait(false);
+	}
 
-    private IServiceScope CreateServiceScope(StateMachineClass stateMachineClass)
-    {
-        var scopes = _scopes;
-        Infra.EnsureNotDisposed(scopes is not null, this);
+	private async ValueTask<IStateMachineController> Start(IServiceProvider serviceProvider, SessionId sessionId)
+	{
+		StateMachineCollection.Register(sessionId);
 
-        var serviceScope = ServiceScopeFactory.CreateScope(stateMachineClass.AddServices);
+		var stateMachineController = await serviceProvider.GetRequiredService<IStateMachineController>().ConfigureAwait(false);
 
-        if (scopes.TryAdd(stateMachineClass.SessionId, serviceScope))
-        {
-            return serviceScope;
-        }
+		StateMachineCollection.SetController(sessionId, stateMachineController);
 
-        serviceScope.Dispose();
+		return stateMachineController;
+	}
 
-        throw Infra.Fail<Exception>(Resources.Exception_MoreThanOneStateMachineWithSameSessionId);
-    }
+	private IServiceScope CreateServiceScope(StateMachineClass stateMachineClass)
+	{
+		var scopes = _scopes;
+		Infra.EnsureNotDisposed(scopes is not null, this);
 
-    private async ValueTask WaitAndCleanup(SessionId sessionId, IStateMachineRunner runner)
-    {
-        try
-        {
-            await runner.WaitForCompletion().ConfigureAwait(false);
-        }
-        finally
-        {
-            await Cleanup(sessionId).ConfigureAwait(false);
-        }
-    }
+		var serviceScope = ServiceScopeFactory.CreateScope(stateMachineClass.AddServices);
 
-    private async ValueTask Cleanup(SessionId sessionId)
-    {
-        StateMachineCollection.Unregister(sessionId);
+		if (scopes.TryAdd(stateMachineClass.SessionId, serviceScope))
+		{
+			return serviceScope;
+		}
 
-        if (_scopes?.TryRemove(sessionId, out var serviceScope) == true)
-        {
-            await serviceScope.DisposeAsync().ConfigureAwait(false);
-        }
-    }
+		serviceScope.Dispose();
 
-    protected virtual void Dispose(bool disposing)
-    {
-        if (disposing && _scopes is { } scopes)
-        {
-            _scopes = null;
+		throw Infra.Fail<Exception>(Resources.Exception_MoreThanOneStateMachineWithSameSessionId);
+	}
 
-            while (scopes.TryTake(out _, out var serviceScope))
-            {
-                serviceScope.Dispose();
-            }
-        }
-    }
+	private async ValueTask WaitAndCleanup(SessionId sessionId, IStateMachineRunner runner)
+	{
+		try
+		{
+			await runner.WaitForCompletion().ConfigureAwait(false);
+		}
+		finally
+		{
+			await Cleanup(sessionId).ConfigureAwait(false);
+		}
+	}
 
-    protected virtual async ValueTask DisposeAsyncCore()
-    {
-        if (_scopes is { } scopes)
-        {
-            _scopes = null;
+	private async ValueTask Cleanup(SessionId sessionId)
+	{
+		StateMachineCollection.Unregister(sessionId);
 
-            while (scopes.TryTake(out _, out var serviceScope))
-            {
-                await serviceScope.DisposeAsync().ConfigureAwait(false);
-            }
-        }
-    }
+		if (_scopes?.TryRemove(sessionId, out var serviceScope) == true)
+		{
+			await serviceScope.DisposeAsync().ConfigureAwait(false);
+		}
+	}
+
+	protected virtual void Dispose(bool disposing)
+	{
+		if (disposing && _scopes is { } scopes)
+		{
+			_scopes = null;
+
+			while (scopes.TryTake(out _, out var serviceScope))
+			{
+				serviceScope.Dispose();
+			}
+		}
+	}
+
+	protected virtual async ValueTask DisposeAsyncCore()
+	{
+		if (_scopes is { } scopes)
+		{
+			_scopes = null;
+
+			while (scopes.TryTake(out _, out var serviceScope))
+			{
+				await serviceScope.DisposeAsync().ConfigureAwait(false);
+			}
+		}
+	}
 }

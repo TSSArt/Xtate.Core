@@ -30,7 +30,7 @@ internal sealed class StateMachineSingleMacroStepController(
 
     // SecurityContext securityContext,
     //										 DeferredFinalizer finalizer
-) : StateMachineControllerBase(sessionId, options, stateMachine, stateMachineLocation /*, defaultOptions*/)
+) : StateMachineControllerBase()
 {
     private readonly TaskCompletionSource<StateMachineInterpreterState> _doneCompletionSource = new();
 

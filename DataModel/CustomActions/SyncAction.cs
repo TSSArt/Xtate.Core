@@ -22,11 +22,9 @@ namespace Xtate.CustomAction;
 public abstract class SyncAction : ActionBase, IAction
 {
     [field: AllowNull]
-    [field: MaybeNull]
     private Value[] Values => field ??= GetValues().ToArray();
 
     [field: AllowNull]
-    [field: MaybeNull]
     private Location[] Locations => field ??= GetLocations().ToArray();
 
 #region Interface IAction

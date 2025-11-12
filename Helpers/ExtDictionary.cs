@@ -17,7 +17,7 @@
 
 namespace Xtate.Core;
 
-public class ExtDictionary<TKey, TValue>(IEqualityComparer<TKey>? comparer = default) : IReadOnlyCollection<KeyValuePair<TKey, TValue>> where TKey : notnull
+public class ExtDictionary<TKey, TValue>(IEqualityComparer<TKey>? comparer = null) : IReadOnlyCollection<KeyValuePair<TKey, TValue>> where TKey : notnull
 {
     private readonly IEqualityComparer<TKey> _comparer = comparer ?? EqualityComparer<TKey>.Default;
 
@@ -27,9 +27,9 @@ public class ExtDictionary<TKey, TValue>(IEqualityComparer<TKey>? comparer = def
 
     public bool IsEmpty => _dictionary?.IsEmpty ?? true;
 
-    public ICollection<TKey> Keys => _dictionary?.Keys ?? Array.Empty<TKey>();
+    public ICollection<TKey> Keys => _dictionary?.Keys ?? [];
 
-    public ICollection<TValue> Values => _dictionary?.Values ?? Array.Empty<TValue>();
+    public ICollection<TValue> Values => _dictionary?.Values ?? [];
 
     public TValue this[TKey key]
     {
@@ -72,7 +72,7 @@ public class ExtDictionary<TKey, TValue>(IEqualityComparer<TKey>? comparer = def
 
         dictionary = new ConcurrentDictionary<TKey, TValue>(_comparer);
 
-        return Interlocked.CompareExchange(ref _dictionary, dictionary, comparand: default) ?? dictionary;
+        return Interlocked.CompareExchange(ref _dictionary, dictionary, comparand: null) ?? dictionary;
     }
 
     private ConcurrentDictionary<TKey, TaskCompletionSource<(bool Found, TValue Value)>?> GetTcsDictionary()
@@ -84,7 +84,7 @@ public class ExtDictionary<TKey, TValue>(IEqualityComparer<TKey>? comparer = def
 
         dictionary = new ConcurrentDictionary<TKey, TaskCompletionSource<(bool Found, TValue Value)>?>(_comparer);
 
-        return Interlocked.CompareExchange(ref _tcsDictionary, dictionary, comparand: default) ?? dictionary;
+        return Interlocked.CompareExchange(ref _tcsDictionary, dictionary, comparand: null) ?? dictionary;
     }
 
     private void SetTaskCompletionSource(TKey key, TValue value, bool found)
@@ -207,7 +207,7 @@ public class ExtDictionary<TKey, TValue>(IEqualityComparer<TKey>? comparer = def
         }
     }
 
-    public bool TryAddPending(TKey key) => GetTcsDictionary().TryAdd(key, value: default);
+    public bool TryAddPending(TKey key) => GetTcsDictionary().TryAdd(key, value: null);
 
     public TValue GetOrAdd<TArg>(TKey key,
                                  Func<TKey, TArg, TValue> valueFactory,

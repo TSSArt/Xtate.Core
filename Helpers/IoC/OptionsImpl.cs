@@ -15,25 +15,26 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using Xtate.IoC;
+
 namespace Xtate.Core;
 
-public interface ILogWriter
+[InstantiatedByIoC]
+public class OptionsImpl<T> : IOptions<T>, IAsyncInitialization
 {
-    bool IsEnabled(Type source, Level level);
+    private readonly AsyncInit<T> _value;
 
-    ValueTask Write(Type source,
-                    Level level,
-                    int eventId,
-                    string? message,
-                    IEnumerable<LoggingParameter>? parameters = null);
-}
+    public OptionsImpl(IOptionsAsync<T> optionsAsync) => _value = AsyncInit.Run(optionsAsync, c => c.GetValue());
 
-public interface ILogWriter<[UsedImplicitly] TSource>
-{
-    bool IsEnabled(Level level);
+#region Interface IAsyncInitialization
 
-    ValueTask Write(Level level,
-                    int eventId,
-                    string? message,
-                    IEnumerable<LoggingParameter>? parameters = null);
+    public Task Initialization => _value.Task;
+
+#endregion
+
+#region Interface IOptions<T>
+
+    public T Value => _value.Value;
+
+#endregion
 }

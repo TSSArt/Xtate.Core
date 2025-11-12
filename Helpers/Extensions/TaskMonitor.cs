@@ -17,9 +17,10 @@
 
 namespace Xtate.Core;
 
+[InstantiatedByIoC]
 public class TaskMonitor
 {
-    public required ILogger<TaskMonitor> Logger { protected get; [UsedImplicitly] init; }
+    public required ILogger<TaskMonitor> Logger { protected get; [SetByIoC] init; }
 
     public Task WaitAsync(Task task, CancellationToken token) =>
         task.IsCompleted || !token.CanBeCanceled

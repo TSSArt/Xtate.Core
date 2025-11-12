@@ -17,33 +17,15 @@
 
 namespace Xtate.Core;
 
-public class ServiceSyncList<T>(IEnumerable<T> asyncEnumerable) : IReadOnlyList<T>
+public static class ServiceSyncListBuilder
 {
-    private readonly ImmutableArray<T> _array = [..asyncEnumerable];
+	public static ServiceSyncList<T> Create<T>(ReadOnlySpan<T> values) => new([..values]);
+}
 
-#region Interface IEnumerable
+[InstantiatedByIoC]
+public class ServiceSyncList<T> : ReadOnlyList<T>, ISyncList<T>
+{
+	public ServiceSyncList(IEnumerable<T> enumerable) : base([..enumerable]) { }
 
-    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_array).GetEnumerator();
-
-#endregion
-
-#region Interface IEnumerable<T>
-
-    IEnumerator<T> IEnumerable<T>.GetEnumerator() => ((IEnumerable<T>)_array).GetEnumerator();
-
-#endregion
-
-#region Interface IReadOnlyCollection<T>
-
-    public int Count => _array.Length;
-
-#endregion
-
-#region Interface IReadOnlyList<T>
-
-    public T this[int index] => _array[index];
-
-#endregion
-
-    public ImmutableArray<T>.Enumerator GetEnumerator() => _array.GetEnumerator();
+	internal ServiceSyncList(ImmutableArray<T> list) : base(list) { }
 }

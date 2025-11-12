@@ -19,7 +19,7 @@ namespace Xtate.CustomAction;
 
 public class CustomActionFactory
 {
-    public required ServiceSyncList<IActionProvider> ActionProviders { private get; [UsedImplicitly] init; }
+    public required ISyncList<IActionProvider> ActionProviders { private get; [UsedImplicitly] init; }
 
     [UsedImplicitly]
     public IAction GetAction(ICustomAction customAction)
@@ -34,7 +34,7 @@ public class CustomActionFactory
         Infra.NotNull(name);
         Infra.NotNull(xml);
 
-        var actionProviders = ActionProviders.GetEnumerator();
+        using var actionProviders = ActionProviders.GetEnumerator();
 
         while (actionProviders.MoveNext())
         {

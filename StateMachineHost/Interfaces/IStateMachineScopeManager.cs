@@ -23,5 +23,9 @@ public interface IStateMachineScopeManager
 
     ValueTask<DataModelValue> Execute(StateMachineClass stateMachineClass, SecurityContextType securityContextType);
 
-    ValueTask Terminate(SessionId sessionId);
+	ValueTask Destroy(SessionId sessionId);
+	
+	ValueTask DestroyAll();
+
+	ValueTask Terminate(SessionId sessionId);
 }

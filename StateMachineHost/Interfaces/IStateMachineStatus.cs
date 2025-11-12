@@ -23,9 +23,9 @@ public interface IStateMachineStatus
 
     Task WhenAccepted();
 
-    void Completed();
+	void ForceCompleted();
 
-    void Failed(Exception exception);
+    void ForceFailed(Exception exception);
 
-    void Cancelled(CancellationToken token);
+    void ForceCancelled(CancellationToken token);
 }

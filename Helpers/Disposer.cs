@@ -19,7 +19,9 @@ namespace Xtate;
 
 public static class Disposer
 {
-    public static void Dispose<T>(T instance)
+    public static bool IsDisposable<T>([NotNullWhen(true)] T instance) => instance is IDisposable or IAsyncDisposable;
+
+	public static void Dispose<T>(T instance)
     {
         if (instance is IDisposable disposable)
         {
@@ -37,10 +39,10 @@ public static class Disposer
             case IDisposable disposable:
                 disposable.Dispose();
 
-                return default;
+                return ValueTask.CompletedTask;
 
             default:
-                return default;
+                return ValueTask.CompletedTask;
         }
     }
 }

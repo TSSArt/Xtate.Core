@@ -60,11 +60,11 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
     public required IEventQueueReader EventQueueReader { private get; [UsedImplicitly] init; }
 
-    public required ILogger<IStateMachineInterpreter> Logger { private get; [UsedImplicitly] init; }
+    public required ILogger<StateMachineInterpreter> Logger { private get; [UsedImplicitly] init; }
 
     public required IInterpreterModel Model { private get; [UsedImplicitly] init; }
 
-    public required INotifyStateChanged NotifyStateChanged { private get; [UsedImplicitly] init; }
+    public required IReadOnlyCollection<INotifyStateChanged> NotifyStateChanged { private get; [UsedImplicitly] init; }
 
     public required IUnhandledErrorBehaviour UnhandledErrorBehaviour { private get; [UsedImplicitly] init; }
 
@@ -74,7 +74,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
 #region Interface IStateMachineInterpreter
 
-    public virtual async ValueTask<DataModelValue> RunAsync()
+    public virtual async ValueTask<DataModelValue> Run()
     {
         await Interpret().ConfigureAwait(false);
 
@@ -83,9 +83,18 @@ public class StateMachineInterpreter : IStateMachineInterpreter
         return StateMachineContext.DoneData;
     }
 
+	public virtual void TriggerDestroySignal() => TriggerDestroySignal(null);
+
 #endregion
 
-    private void ProcessRemainingInternalQueue()
+	public virtual void TriggerDestroySignal(Exception? innerException)
+	{
+		_stateMachineDestroyedException = new StateMachineDestroyedException(Resources.Exception_StateMachineHasBeenDestroyed, innerException);
+
+		StopWaitingExternalEvents();
+	}
+
+	private void ProcessRemainingInternalQueue()
     {
         var internalQueue = StateMachineContext.InternalQueue;
 
@@ -106,8 +115,11 @@ public class StateMachineInterpreter : IStateMachineInterpreter
     {
         await Logger.Write(Level.Trace, InterpreterStateEventId, $@"Interpreter state has changed to '{state}'").ConfigureAwait(false);
 
-        await NotifyStateChanged.OnChanged(state).ConfigureAwait(false);
-    }
+		foreach (var notifyStateChanged in NotifyStateChanged)
+		{
+			await notifyStateChanged.OnChanged(state).ConfigureAwait(false);
+		}
+	}
 
     protected virtual async ValueTask Interpret()
     {
@@ -148,13 +160,6 @@ public class StateMachineInterpreter : IStateMachineInterpreter
     {
         await ExitInterpreter().ConfigureAwait(false);
         await NotifyInterpreterState(StateMachineInterpreterState.Completed).ConfigureAwait(false);
-    }
-
-    public virtual void TriggerDestroySignal(Exception? innerException = default)
-    {
-        _stateMachineDestroyedException = new StateMachineDestroyedException(Resources.Exception_StateMachineHasBeenDestroyed, innerException);
-
-        StopWaitingExternalEvents();
     }
 
     protected void StopWaitingExternalEvents() => EventQueueReader.Complete();
@@ -260,7 +265,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
     protected virtual async ValueTask<bool> MacrostepIteration()
     {
-        if (await SelectTransitions(incomingEvent: default).ConfigureAwait(false) is { Count: > 0 } transitions)
+        if (await SelectTransitions(incomingEvent: null).ConfigureAwait(false) is { Count: > 0 } transitions)
         {
             return await Microstep(transitions).ConfigureAwait(false);
         }
@@ -529,9 +534,9 @@ public class StateMachineInterpreter : IStateMachineInterpreter
     private List<TransitionNode> RemoveConflictingTransitions(List<TransitionNode> enabledTransitions)
     {
         var filteredTransitions = new List<TransitionNode>();
-        List<TransitionNode>? transitionsToRemove = default;
-        List<TransitionNode>? tr1 = default;
-        List<TransitionNode>? tr2 = default;
+        List<TransitionNode>? transitionsToRemove = null;
+        List<TransitionNode>? tr1 = null;
+        List<TransitionNode>? tr2 = null;
 
         foreach (var t1 in enabledTransitions)
         {
@@ -540,8 +545,8 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
             foreach (var t2 in filteredTransitions)
             {
-                (tr1 ??= [default!])[0] = t1;
-                (tr2 ??= [default!])[0] = t2;
+                (tr1 ??= [null!])[0] = t1;
+                (tr2 ??= [null!])[0] = t2;
 
                 if (HasIntersection(ComputeExitSet(tr1), ComputeExitSet(tr2)))
                 {
@@ -956,7 +961,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
     private static List<StateEntityNode>? GetProperAncestors(StateEntityNode state1, StateEntityNode? state2)
     {
-        List<StateEntityNode>? states = default;
+        List<StateEntityNode>? states = null;
 
         for (var s = state1.Parent; s is not null; s = s.Parent)
         {
@@ -1056,7 +1061,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
     private async ValueTask Error(object source, Exception exception, bool logLoggerErrors = true)
     {
-        SendId? sendId = default;
+        SendId? sendId = null;
 
         var errorType = StateMachineRuntimeError.IsPlatformError(exception)
             ? ErrorType.Platform
@@ -1110,7 +1115,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
     {
         try
         {
-            var entityId = source.Is(out IDebugEntityId? id) ? id.EntityId : default;
+            var entityId = source.Is(out IDebugEntityId? id) ? id.EntityId : null;
 
             var eventId = errorType switch
                           {
@@ -1208,7 +1213,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
         }
     }
 
-    protected virtual async ValueTask InitializeDataModel(DataModelNode dataModel, DataModelList? defaultValues = default)
+    protected virtual async ValueTask InitializeDataModel(DataModelNode dataModel, DataModelList? defaultValues = null)
     {
         foreach (var node in dataModel.Data)
         {
@@ -1311,9 +1316,9 @@ public class StateMachineInterpreter : IStateMachineInterpreter
         {
             if (_data is { } data)
             {
-                ArrayPool<int>.Shared.Return(data);
-
-                _data = default;
+				_data = null;
+                
+				ArrayPool<int>.Shared.Return(data);
             }
         }
 
