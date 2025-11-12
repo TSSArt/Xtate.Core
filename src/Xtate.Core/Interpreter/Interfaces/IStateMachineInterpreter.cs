@@ -19,5 +19,7 @@ namespace Xtate.Core;
 
 public interface IStateMachineInterpreter
 {
-    ValueTask<DataModelValue> RunAsync();
+    ValueTask<DataModelValue> Run();
+		
+	void TriggerDestroySignal();
 }

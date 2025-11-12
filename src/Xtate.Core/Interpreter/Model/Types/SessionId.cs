@@ -47,4 +47,10 @@ public sealed class SessionId : ServiceId, IEquatable<SessionId>
     public static SessionId FromString([Localizable(false)] string value) => new(value);
 
     public static bool IsNullOrEmpty([NotNullWhen(false)] SessionId? sessionId) => sessionId is null || sessionId == Empty;
+
+	[return: NotNullIfNotNull(nameof(sessionId))]
+	public static implicit operator string?(SessionId? sessionId) => sessionId?.ToString();
+
+	[return: NotNullIfNotNull(nameof(value))]
+	public static implicit operator SessionId?(string? value) => value is not null ? FromString(value) : null;
 }

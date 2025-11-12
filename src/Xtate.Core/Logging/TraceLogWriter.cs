@@ -89,4 +89,5 @@ public abstract class TraceLogWriter
     }
 }
 
+[InstantiatedByIoC]
 public class TraceLogWriter<TSource>(IEnumerable<TraceListener> traceListeners) : TraceLogWriter(typeof(TSource).FullName!, traceListeners, SourceLevels.All), ILogWriter<TSource>;

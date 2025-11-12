@@ -17,14 +17,15 @@
 
 namespace Xtate.Core;
 
+[InstantiatedByIoC]
 public class DeferredFactory<T>
 {
     private ValueTask<T>? _valueTask;
 
-    public required Func<ValueTask<T>> Factory { private get; [UsedImplicitly] init; }
+    public required Func<ValueTask<T>> Factory { private get; [SetByIoC] init; }
 
     private ValueTask<T> GetValue() => _valueTask ??= Factory().Preserve();
 
-    [UsedImplicitly]
+    [CalledByIoC]
     public Deferred<T> GetValueFunc() => GetValue;
 }

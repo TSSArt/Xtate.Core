@@ -23,13 +23,13 @@ namespace Xtate.Core;
 [SuppressMessage(category: "ReSharper", checkId: "ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator")]
 public class Logger<TSource> : ILogger<TSource>
 {
-    public required ServiceList<ILogWriter> NonGenericLogWriters { private get; [UsedImplicitly] init; }
+    public required IReadOnlyCollection<ILogWriter> NonGenericLogWriters { private get; [UsedImplicitly] init; }
 
-    public required ServiceList<ILogWriter<TSource>> LogWriters { private get; [UsedImplicitly] init; }
+    public required IReadOnlyCollection<ILogWriter<TSource>> LogWriters { private get; [UsedImplicitly] init; }
 
-    public required ServiceList<ILogEnricher<TSource>> LogEnrichers { private get; [UsedImplicitly] init; }
+    public required IReadOnlyCollection<ILogEnricher<TSource>> LogEnrichers { private get; [UsedImplicitly] init; }
 
-    public required ServiceList<IEntityParserHandler<TSource>> EntityParserHandlers { private get; [UsedImplicitly] init; }
+    public required IReadOnlyCollection<IEntityParserHandler<TSource>> EntityParserHandlers { private get; [UsedImplicitly] init; }
 
 #region Interface ILogger
 
@@ -111,7 +111,7 @@ public class Logger<TSource> : ILogger<TSource>
         {
             if (logWriter.IsEnabled(level))
             {
-                var properties = entity is not ValueTuple ? EnumerateProperties(logWriter, entity) : default;
+                var properties = entity is not ValueTuple ? EnumerateProperties(logWriter, entity) : null;
                 var parameters = EnumerateParameters(logWriter, messageParameters, properties);
 
                 await logWriter.Write(level, eventId, message, parameters).ConfigureAwait(false);
@@ -122,7 +122,7 @@ public class Logger<TSource> : ILogger<TSource>
         {
             if (logWriter.IsEnabled(typeof(TSource), level))
             {
-                var properties = entity is not ValueTuple ? EnumerateProperties(logWriter, typeof(TSource), entity) : default;
+                var properties = entity is not ValueTuple ? EnumerateProperties(logWriter, typeof(TSource), entity) : null;
                 var parameters = EnumerateParameters(logWriter, typeof(TSource), messageParameters, properties);
 
                 await logWriter.Write(typeof(TSource), level, eventId, message, parameters).ConfigureAwait(false);

@@ -17,6 +17,7 @@
 
 namespace Xtate.Core;
 
+[InstantiatedByIoC]
 public class StateMachineStatus : IStateMachineStatus, INotifyStateChanged
 {
     private readonly TaskCompletionSource _acceptedTcs = new();
@@ -27,12 +28,12 @@ public class StateMachineStatus : IStateMachineStatus, INotifyStateChanged
     {
         CurrentState = state;
 
-        if (state == StateMachineInterpreterState.Accepted)
-        {
-            _acceptedTcs.TrySetResult();
-        }
+		if (state == StateMachineInterpreterState.Accepted)
+		{
+			_acceptedTcs.TrySetResult();
+		}
 
-        return default;
+		return ValueTask.CompletedTask;
     }
 
 #endregion
@@ -41,20 +42,20 @@ public class StateMachineStatus : IStateMachineStatus, INotifyStateChanged
 
     public Task WhenAccepted() => _acceptedTcs.Task;
 
-    public void Completed()
+	public void ForceCompleted()
     {
         _acceptedTcs.TrySetResult();
-    }
+	}
 
-    public void Failed(Exception exception)
+    public void ForceFailed(Exception exception)
     {
         _acceptedTcs.TrySetException(exception);
-    }
+	}
 
-    public void Cancelled(CancellationToken token)
+    public void ForceCancelled(CancellationToken token)
     {
         _acceptedTcs.TrySetCanceled(token);
-    }
+	}
 
     public StateMachineInterpreterState CurrentState { get; private set; } = StateMachineInterpreterState.Initializing;
 

@@ -48,8 +48,7 @@ public class StateMachinePersistingInterpreterTest
         var caseSensitivityMock = new Mock<ICaseSensitivity>();
         var stateMachineArgumentsMock = new Mock<IStateMachineArguments>();
         var eventQueueReaderMock = new Mock<IEventQueueReader>();
-        var loggerMock = new Mock<ILogger<IStateMachineInterpreter>>();
-        var notifyStateChangedMock = new Mock<INotifyStateChanged>();
+        var loggerMock = new Mock<ILogger<StateMachineInterpreter>>();
         var unhandledErrorBehaviourMock = new Mock<IUnhandledErrorBehaviour>();
         var invokeControllerMock = new Mock<IInvokeController>();
         var stateMachineSessionId = new Mock<IStateMachineSessionId>();
@@ -71,7 +70,7 @@ public class StateMachinePersistingInterpreterTest
                               Logger = loggerMock.Object,
                               Model = interpreterModel,
                               InterpreterModel = interpreterModel,
-                              NotifyStateChanged = notifyStateChangedMock.Object,
+                              NotifyStateChanged = [],
                               UnhandledErrorBehaviour = unhandledErrorBehaviourMock.Object,
                               StateMachineContext = noStateMachineContext,
                               InvokeController = invokeControllerMock.Object,
@@ -79,7 +78,7 @@ public class StateMachinePersistingInterpreterTest
                               SuspendEventDispatcher = suspendManagerMock.Object,
                               PersistenceOptions = persistenceOptionsMock.Object
                           };
-        await interpreter.RunAsync();
+        await interpreter.Run();
 
         Assert.AreEqual(expected: 11, inMemoryStorage.GetDataSize());
     }

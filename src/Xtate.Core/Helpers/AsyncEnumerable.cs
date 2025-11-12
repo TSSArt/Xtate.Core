@@ -19,18 +19,18 @@ namespace Xtate.Core;
 
 internal static class AsyncEnumerable
 {
-    [SuppressMessage(category: "Style", checkId: "IDE0304:Simplify collection initialization")]
-    public static async ValueTask<ImmutableArray<T>> ToImmutableArrayAsync<T>(this IAsyncEnumerable<T> asyncEnumerable)
-    {
-        var builder = ImmutableArray.CreateBuilder<T>();
+	[SuppressMessage(category: "Style", checkId: "IDE0304:Simplify collection initialization")]
+	public static async ValueTask<ImmutableArray<T>> ToImmutableArrayAsync<T>(this IAsyncEnumerable<T> asyncEnumerable)
+	{
+		var builder = ImmutableArray.CreateBuilder<T>();
 
-        await foreach (var item in asyncEnumerable.ConfigureAwait(false))
-        {
-            builder.Add(item);
-        }
+		await foreach (var item in asyncEnumerable.ConfigureAwait(false))
+		{
+			builder.Add(item);
+		}
 
-        return builder.ToImmutable();
-    }
+		return builder.DrainToImmutable();
+	}
 
     public static async ValueTask AppendCollectionAsync<T>(this IAsyncEnumerable<T> asyncEnumerable, ICollection<T> collection)
     {

@@ -31,7 +31,7 @@ public class AncestorFactory<T> : IAsyncInitialization
 
 #endregion
 
-    [UsedImplicitly]
+    [CalledByIoC]
     public Ancestor<T> GetValueFunc() => GetValue;
 
     private T GetValue() => _task.Result ?? throw MissedServiceException.Create<T>();

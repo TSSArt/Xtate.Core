@@ -119,7 +119,7 @@ public class StateMachineFluentBuilderTest
 
         try
         {
-            await stateMachineInterpreter.RunAsync();
+            await stateMachineInterpreter.Run();
 
             Assert.Fail("StateMachineQueueClosedException should be raised");
         }
@@ -159,7 +159,7 @@ public class StateMachineFluentBuilderTest
         var channel = Channel.CreateUnbounded<IIncomingEvent>();
         channel.Writer.Complete();
 
-        await Assert.ThrowsExceptionAsync<StateMachineDestroyedException>(async () => await stateMachineInterpreter.RunAsync());
+        await Assert.ThrowsExactlyAsync<StateMachineDestroyedException>(async () => await stateMachineInterpreter.Run());
     }
 
     [TestMethod]
@@ -195,6 +195,6 @@ public class StateMachineFluentBuilderTest
         var channel = Channel.CreateUnbounded<IIncomingEvent>();
         channel.Writer.Complete();
 
-        await Assert.ThrowsExceptionAsync<StateMachineDestroyedException>(async () => await stateMachineInterpreter.RunAsync());
+        await Assert.ThrowsExactlyAsync<StateMachineDestroyedException>(async () => await stateMachineInterpreter.Run());
     }
 }

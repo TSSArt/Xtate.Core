@@ -63,24 +63,21 @@ public class ScxmlToDomTest
     }
 
     [TestMethod]
-    [ExpectedException(typeof(StateMachineValidationException))]
     public void RootElementNameFailTest()
-    {
-        GetStateMachine("<no-scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0'/>");
-    }
+	{
+		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachine("<no-scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0'/>"));
+	}
 
     [TestMethod]
-    [ExpectedException(typeof(StateMachineValidationException))]
     public void RootElementVersionFailTest()
     {
-        GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='0.2'/>");
+		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='0.2'/>"));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(XmlException))]
     public void RootElementUnknownAttributesTest()
     {
-        GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' attr0='00' attr0='11' attr1='22' />");
+		Assert.ThrowsExactly<XmlException>(() => GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' attr0='00' attr0='11' attr1='22' />"));
     }
 
     [TestMethod]
@@ -107,32 +104,27 @@ public class ScxmlToDomTest
     }
 
     [TestMethod]
-    [ExpectedException(typeof(StateMachineValidationException))]
     public void RootElementInvalidEmptyBindingTest()
     {
-        GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' binding=''/>");
+		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' binding=''/>"));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(StateMachineValidationException))]
     public void RootElementInvalidWrongNameBindingTest()
     {
-        GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' binding='invalid-binding'/>");
+		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' binding='invalid-binding'/>"));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(StateMachineValidationException))]
     public void RootElementInvalidUpperCaseBindingTest()
     {
-        GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' binding='Late'/>");
+		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' binding='Late'/>"));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(StateMachineValidationException))]
     public void RootElementEmptyNameFailTest()
     {
-        var sm = GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' name=''/>");
-        Assert.AreEqual(expected: "", sm.Name);
+		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' name=''/>"));
     }
 
     [TestMethod]
@@ -143,24 +135,21 @@ public class ScxmlToDomTest
     }
 
     [TestMethod]
-    [ExpectedException(typeof(StateMachineValidationException))]
     public void RootElementEmptyInitialTest()
     {
-        GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' initial=''/>");
+		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' initial=''/>"));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(StateMachineValidationException))]
     public void RootElementSpaceInitialTest()
     {
-        GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' initial=' '/>");
+		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' initial=' '/>"));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(StateMachineValidationException))]
     public void RootElementInitialFailTest()
     {
-        GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' initial=' trg2  trg1 '/>");
+		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' initial=' trg2  trg1 '/>"));
     }
 
     [TestMethod]
@@ -181,10 +170,9 @@ public class ScxmlToDomTest
     }
 
     [TestMethod]
-    [ExpectedException(typeof(StateMachineValidationException))]
     public void IncorrectXmlTest()
     {
-        GetStateMachineWithRoot("<datamodel><data id='a'/><data id='b'></data><data id='c' src='c-src/><data id='d' expr='d-expr'/><data id='e'>e-body</data></datamodel>");
+		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachineWithRoot("<datamodel><data id='a'/><data id='b'></data><data id='c' src='c-src/><data id='d' expr='d-expr'/><data id='e'>e-body</data></datamodel>"));
     }
 
     [TestMethod]
@@ -216,45 +204,39 @@ public class ScxmlToDomTest
     }
 
     [TestMethod]
-    [ExpectedException(typeof(StateMachineValidationException))]
     public void TwoDataModelTest()
     {
-        GetStateMachineXyzDataModel("<datamodel/><datamodel/>");
+		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachineXyzDataModel("<datamodel/><datamodel/>"));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(StateMachineValidationException))]
     public void DataNoIdTest()
     {
-        GetStateMachineXyzDataModel("<datamodel><data></data></datamodel>");
+		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachineXyzDataModel("<datamodel><data></data></datamodel>"));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(StateMachineValidationException))]
     public void DataSrcAndExprFailTest()
     {
-        GetStateMachineXyzDataModel("<datamodel><data id='a' src='domain' expr='some-expr'/></datamodel>");
+		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachineXyzDataModel("<datamodel><data id='a' src='domain' expr='some-expr'/></datamodel>"));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(StateMachineValidationException))]
     public void DataSrcAndBodyFailTest()
     {
-        GetStateMachineXyzDataModel("<datamodel><data id='a' src='domain'>123</data></datamodel>");
+		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachineXyzDataModel("<datamodel><data id='a' src='domain'>123</data></datamodel>"));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(StateMachineValidationException))]
     public void DataBodyAndExprFailTest()
     {
-        GetStateMachineXyzDataModel("<datamodel><data id='a' expr='some-expr'>123</data></datamodel>");
+		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachineXyzDataModel("<datamodel><data id='a' expr='some-expr'>123</data></datamodel>"));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(StateMachineValidationException))]
     public void DataSrcAndBodyAndExprFailTest()
     {
-        GetStateMachineXyzDataModel("<datamodel><data id='a' src='s-src' expr='some-expr'>123</data></datamodel>");
+		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachineXyzDataModel("<datamodel><data id='a' src='s-src' expr='some-expr'>123</data></datamodel>"));
     }
 
     [TestMethod]
@@ -292,17 +274,15 @@ public class ScxmlToDomTest
     }
 
     [TestMethod]
-    [ExpectedException(typeof(StateMachineValidationException))]
     public void GlobalScriptSrcAndBodyFailTest()
     {
-        GetStateMachineXyzDataModel("<script src='s-src'>body</script>");
+		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachineXyzDataModel("<script src='s-src'>body</script>"));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(StateMachineValidationException))]
     public void MultipleGlobalScriptFailTest()
     {
-        GetStateMachineXyzDataModel("<script/><script/>");
+		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachineXyzDataModel("<script/><script/>"));
     }
 
     [TestMethod]
@@ -333,18 +313,16 @@ public class ScxmlToDomTest
     }
 
     [TestMethod]
-    [ExpectedException(typeof(StateMachineValidationException))]
     public void StateIdFailTest()
     {
-        var sm = GetStateMachineWithRoot("<state id='a b'/>");
-        Assert.AreEqual((Identifier)"a", ((IState)sm.States[0]).Id);
+		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachineWithRoot("<state id='a b'/>"));
+        //Assert.AreEqual((Identifier)"a", ((IState)sm.States[0]).Id);
     }
 
     [TestMethod]
-    [ExpectedException(typeof(StateMachineValidationException))]
     public void StateInitialFailForAtomicStateTest()
     {
-        GetStateMachineWithRoot("<state initial='id id2'/>");
+		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachineWithRoot("<state initial='id id2'/>"));
     }
 
     [TestMethod]
@@ -392,10 +370,9 @@ public class ScxmlToDomTest
     [DataRow("onexit")]
     [DataRow("invoke")]
     [DataRow("transition")]
-    [ExpectedException(typeof(StateMachineValidationException))]
     public void UnknownElementTest(string element)
     {
-        GetStateMachineWithRoot($"<{element}/>");
+		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachineWithRoot($"<{element}/>"));
     }
 
     [TestMethod]

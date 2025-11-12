@@ -41,7 +41,7 @@ public class StateMachineRuntimeController : StateMachineControllerBase
                                          //IStateMachineHost stateMachineHost,
                                          TimeSpan? idlePeriod /*,
                                          InterpreterOptions defaultOptions*/)
-        : base(sessionId, options, stateMachine, stateMachineLocation /*, defaultOptions*/)
+        : base()
     {
         _idlePeriod = idlePeriod;
 
@@ -55,7 +55,7 @@ public class StateMachineRuntimeController : StateMachineControllerBase
 
                                          //IStateMachineHost stateMachineHost,
                                          IStateMachineIdlePeriod? idlePeriod)
-        : base(stateMachineSessionId.SessionId, options, stateMachine, stateMachineLocation?.Location /*,  defaultOptions.optionsnew InterpreterOptions()*/)
+        : base()
     {
         _idlePeriod = idlePeriod?.IdlePeriod;
 
@@ -94,13 +94,15 @@ public class StateMachineRuntimeController : StateMachineControllerBase
         }
     }
 
+	//TODO:uncomment
+	/*
     protected override ValueTask DisposeAsyncCore()
     {
         _suspendTokenSource?.Dispose();
         _suspendOnIdleTokenSource?.Dispose();
 
         return base.DisposeAsyncCore();
-    }
+    }*/
 
     protected override CancellationToken GetSuspendToken()
     {

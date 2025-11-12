@@ -15,25 +15,29 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Core;
+using System.Diagnostics;
+using Xtate.IoC;
 
-public interface ILogWriter
+namespace Xtate;
+
+[InstantiatedByIoC]
+public class ConsoleTraceListenerModule : Module<TraceLoggerModule>
 {
-    bool IsEnabled(Type source, Level level);
+	protected override void AddServices()
+	{
+		Services.AddSharedImplementationSync<ConsoleListener>(SharedWithin.Container).For<TraceListener>();
+	}
 
-    ValueTask Write(Type source,
-                    Level level,
-                    int eventId,
-                    string? message,
-                    IEnumerable<LoggingParameter>? parameters = null);
-}
+	[InstantiatedByIoC]
+	private class ConsoleListener : TextWriterTraceListener
+	{
+		public ConsoleListener() => Writer = Console.Out;
 
-public interface ILogWriter<[UsedImplicitly] TSource>
-{
-    bool IsEnabled(Level level);
+		protected override void Dispose(bool disposing)
+		{
+			Writer = null;
 
-    ValueTask Write(Level level,
-                    int eventId,
-                    string? message,
-                    IEnumerable<LoggingParameter>? parameters = null);
+			base.Dispose(disposing);
+		}
+	}
 }

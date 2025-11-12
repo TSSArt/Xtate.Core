@@ -17,23 +17,7 @@
 
 namespace Xtate.Core;
 
-public interface ILogWriter
+public interface IConfigureOptions<in T>
 {
-    bool IsEnabled(Type source, Level level);
-
-    ValueTask Write(Type source,
-                    Level level,
-                    int eventId,
-                    string? message,
-                    IEnumerable<LoggingParameter>? parameters = null);
-}
-
-public interface ILogWriter<[UsedImplicitly] TSource>
-{
-    bool IsEnabled(Level level);
-
-    ValueTask Write(Level level,
-                    int eventId,
-                    string? message,
-                    IEnumerable<LoggingParameter>? parameters = null);
+    ValueTask Configure(T options);
 }

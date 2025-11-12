@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using Xtate.DataModel;
 using Xtate.IoC;
 
 namespace Xtate.Core.Test.DI;
@@ -22,7 +23,7 @@ namespace Xtate.Core.Test.DI;
 [TestClass]
 public class StateMachineInterpreterDiTest
 {
-    [TestMethod]
+	[TestMethod]
     public async Task EmptyRun()
     {
         var services = new ServiceCollection();
@@ -33,7 +34,7 @@ public class StateMachineInterpreterDiTest
 
         var stateMachineInterpreter = await serviceProvider.GetRequiredService<IStateMachineInterpreter>();
 
-        await stateMachineInterpreter.RunAsync();
+        await stateMachineInterpreter.Run();
     }
 
     [TestMethod]
@@ -65,7 +66,7 @@ public class StateMachineInterpreterDiTest
 
         var stateMachineInterpreter = await serviceProvider.GetRequiredService<IStateMachineInterpreter>();
 
-        var dataModelValue = await stateMachineInterpreter.RunAsync();
+        var dataModelValue = await stateMachineInterpreter.Run();
 
         Assert.AreEqual(expected: "qwerty", dataModelValue);
     }

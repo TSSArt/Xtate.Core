@@ -20,185 +20,187 @@ using Xtate.IoC;
 
 namespace Xtate.Core;
 
-public abstract class StateMachineControllerBase : IStateMachineController /*, INotifyStateChanged*/, IAsyncDisposable, IAsyncInitialization
-
+public abstract class StateMachineControllerBase : IStateMachineController, IAsyncInitialization
 {
-    private readonly TaskCompletionSource<DataModelValue> _completedTcs = new();
+	private readonly TaskCompletionSource<DataModelValue> _completedTcs = new();
 
-    private readonly CancellationTokenSource _destroyTokenSource;
+	private readonly AsyncInit _startAsyncInit;
 
-    private readonly DisposingToken _disposingToken = new();
+	protected StateMachineControllerBase() => _startAsyncInit = AsyncInit.Run(Start);
 
-    private readonly AsyncInit _startAsyncInit;
+	public required IStateMachineStatus StateMachineStatus { private get; [SetByIoC] init; }
 
-    protected StateMachineControllerBase(SessionId sessionId,
-                                         IStateMachineOptions? options,
-                                         IStateMachine? stateMachine,
-                                         Uri? stateMachineLocation)
-    {
-        SessionId = sessionId;
-        StateMachineLocation = stateMachineLocation;
+	public required IStateMachineInterpreter StateMachineInterpreter { private get; [SetByIoC] init; }
 
-        _destroyTokenSource = CancellationTokenSource.CreateLinkedTokenSource( /*_defaultOptions.DestroyToken*/token1: default, token2: default);
+	[Obsolete]
+	public required IStateMachineSessionId StateMachineSessionId   { private get; [SetByIoC] init; }
 
-        _startAsyncInit = AsyncInit.Run(Start);
-    }
+	public required TaskMonitor TaskMonitor { private get; [SetByIoC] init; }
 
-    public required IStateMachineStatus StateMachineStatus { private get; [UsedImplicitly] init; }
-
-    public required IStateMachineInterpreter StateMachineInterpreter { private get; [UsedImplicitly] init; }
-
-    public required TaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
-
+	[Obsolete]
     protected abstract Channel<IIncomingEvent> EventChannel { get; }
 
-    public required IEventQueueWriter EventQueueWriter { private get; [UsedImplicitly] init; }
+	public required IEventQueueWriter EventQueueWriter { private get; [SetByIoC] init; }
 
-    public Uri? StateMachineLocation { get; }
+	[Obsolete]
+	public Uri? StateMachineLocation => default;
 
-    public SessionId SessionId { get; }
+	[Obsolete]
+	public SessionId SessionId => StateMachineSessionId.SessionId;
 
-#region Interface IAsyncDisposable
+	#region Interface IAsyncInitialization
 
-    public async ValueTask DisposeAsync()
-    {
-        await DisposeAsyncCore().ConfigureAwait(false);
-
-        GC.SuppressFinalize(this);
-    }
-
-#endregion
-
-#region Interface IAsyncInitialization
-
-    public Task Initialization => _startAsyncInit.Task;
+	public Task Initialization => _startAsyncInit.Task;
 
 #endregion
 
 #region Interface IEventDispatcher
 
-    //public virtual ValueTask Send(IIncomingEvent abc, CancellationToken token) => EventChannel.Writer.WriteAsync(abc, token);
-    public virtual ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token) => EventQueueWriter.WriteAsync(incomingEvent, token);
+	public virtual ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token) => EventQueueWriter.WriteAsync(incomingEvent, token);
 
 #endregion
 
 #region Interface IExternalService
 
-    public ValueTask<DataModelValue> GetResult() => new(_completedTcs.Task);
+	public ValueTask<DataModelValue> GetResult() => new(_completedTcs.Task);
 
 #endregion
 
 #region Interface IStateMachineController
 
-    public ValueTask Destroy()
-    {
-        _destroyTokenSource.Cancel(); //TODO: change to call TriggerDestroySignal and wait till complete
+	public async ValueTask Destroy()
+	{
+		StateMachineInterpreter.TriggerDestroySignal();
 
-        return default;
-    }
+		try
+		{
+			await _completedTcs.Task.ConfigureAwait(false);
+		}
+		catch (StateMachineDestroyedException) { }
+	}
 
 #endregion
 
-    //public Task Wait() => GetResult().AsTask();
+	protected virtual async ValueTask Start()
+	{
+		ExecuteAsync().Forget(TaskMonitor);
 
-    protected virtual async ValueTask Start()
-    {
-        ExecuteAsync().Forget(TaskMonitor);
+		await StateMachineStatus.WhenAccepted().ConfigureAwait(false);
+	}
 
-        await StateMachineStatus.WhenAccepted().ConfigureAwait(false);
-    }
+	[Obsolete]
+	protected virtual void StateChanged(StateMachineInterpreterState state) { }
 
-    protected virtual void StateChanged(StateMachineInterpreterState state) { }
+	[Obsolete]
+	protected virtual CancellationToken GetSuspendToken() => default; //_defaultOptions.SuspendToken;
 
-    protected virtual ValueTask DisposeAsyncCore()
-    {
-        _destroyTokenSource.Dispose();
-        _disposingToken.Dispose();
+	private async ValueTask<DataModelValue> ExecuteAsync()
+	{
+		try
+		{
+			var result = await StateMachineInterpreter.Run().ConfigureAwait(false);
 
-        return default;
-    }
+			StateMachineStatus.ForceCompleted();
 
-    protected virtual CancellationToken GetSuspendToken() => default; //_defaultOptions.SuspendToken;
+			_completedTcs.TrySetResult(result);
 
-    protected virtual ValueTask Initialize() => default;
+			return result;
+		}
+		catch (OperationCanceledException ex)
+		{
+			StateMachineStatus.ForceCancelled(ex.CancellationToken);
 
-    private async ValueTask<DataModelValue> ExecuteAsync()
-    {
-        var initialized = false;
+			_completedTcs.TrySetCanceled(ex.CancellationToken);
 
-        while (true)
-        {
-            try
-            {
-                if (!initialized)
-                {
-                    initialized = true;
+			throw;
+		}
+		catch (Exception ex)
+		{
+			StateMachineStatus.ForceFailed(ex);
 
-                    await Initialize().ConfigureAwait(false);
-                }
+			_completedTcs.TrySetException(ex);
 
-                try
-                {
-                    var result = await StateMachineInterpreter.RunAsync().ConfigureAwait(false);
+			throw;
+		}
+	}
 
-                    StateMachineStatus.Completed();
+	/*
+	private async ValueTask<DataModelValue> ExecuteAsync()
+	{
+		var initialized = false;
 
-                    _completedTcs.TrySetResult(result);
+		while (true)
+		{
+			try
+			{
+				if (!initialized)
+				{
+					initialized = true;
 
-                    return result;
-                }
-                catch (StateMachineSuspendedException) /*when (!_defaultOptions.SuspendToken.IsCancellationRequested) */ { }
+					await Initialize().ConfigureAwait(false);
+				}
 
-                await WaitForResume().ConfigureAwait(false);
-            }
-            catch (OperationCanceledException ex)
-            {
-                StateMachineStatus.Cancelled(ex.CancellationToken);
+				try
+				{
+					var result = await StateMachineInterpreter.Run().ConfigureAwait(false);
 
-                _completedTcs.TrySetCanceled(ex.CancellationToken);
+					StateMachineStatus.ForceCompleted();
 
-                throw;
-            }
-            catch (Exception ex)
-            {
-                StateMachineStatus.Failed(ex);
+					_completedTcs.TrySetResult(result);
 
-                _completedTcs.TrySetException(ex);
+					return result;
+				}
+				catch (StateMachineSuspendedException) /*when (!_defaultOptions.SuspendToken.IsCancellationRequested) *
+				{
+					// ignore
+				}
 
-                throw;
-            }
-        }
-    }
+				await WaitForResume().ConfigureAwait(false);
+			}
+			catch (OperationCanceledException ex)
+			{
+				StateMachineStatus.ForceCancelled(ex.CancellationToken);
 
-    private async ValueTask WaitForResume()
-    {
-        //var anyTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_defaultOptions.StopToken, _defaultOptions.DestroyToken, _defaultOptions.SuspendToken);
-        var anyTokenSource = new CancellationTokenSource();
+				_completedTcs.TrySetCanceled(ex.CancellationToken);
 
-        try
-        {
-            if (await EventChannel.Reader.WaitToReadAsync(anyTokenSource.Token).ConfigureAwait(false))
-            {
-                return;
-            }
+				throw;
+			}
+			catch (Exception ex)
+			{
+				StateMachineStatus.ForceFailed(ex);
 
-            await EventChannel.Reader.ReadAsync(anyTokenSource.Token).ConfigureAwait(false);
-        }
-        /*catch (OperationCanceledException ex) when (ex.CancellationToken == anyTokenSource.Token && _defaultOptions.StopToken.IsCancellationRequested)
-        {
-            throw new OperationCanceledException(Resources.Exception_StateMachineHasBeenTerminated, ex, _defaultOptions.StopToken);
-        }
-        catch (OperationCanceledException ex) when (ex.CancellationToken == anyTokenSource.Token && _defaultOptions.SuspendToken.IsCancellationRequested)
-        {
-            throw new StateMachineSuspendedException(Resources.Exception_StateMachineHasBeenSuspended, ex);
-        }*/
-        catch (ChannelClosedException ex)
-        {
-            throw new StateMachineQueueClosedException(Resources.Exception_StateMachineExternalQueueHasBeenClosed, ex);
-        }
-        finally
-        {
-            anyTokenSource.Dispose();
-        }
-    }
+				_completedTcs.TrySetException(ex);
+
+				throw;
+			}
+		}
+	}
+*/
+   /*
+   	private async ValueTask WaitForResume()
+	{
+		using var anyTokenSource = CancellationTokenSource.CreateLinkedTokenSource(DisposeToken, _destroyCts.Token/*, suspend*);
+
+		try
+		{
+			if (await EventChannel.Reader.WaitToReadAsync(anyTokenSource.Token).ConfigureAwait(false))
+			{
+				return;
+			}
+
+			await EventChannel.Reader.ReadAsync(anyTokenSource.Token).ConfigureAwait(false);
+		}
+		/*catch (OperationCanceledException ex) when (ex.CancellationToken == anyTokenSource.Token && _defaultOptions.StopToken.IsCancellationRequested)
+		{
+			throw new OperationCanceledException(Resources.Exception_StateMachineHasBeenTerminated, ex, _defaultOptions.StopToken);
+		}
+		catch (OperationCanceledException ex) when (ex.CancellationToken == anyTokenSource.Token && _defaultOptions.SuspendToken.IsCancellationRequested)
+		{
+			throw new StateMachineSuspendedException(Resources.Exception_StateMachineHasBeenSuspended, ex);
+		}*
+		catch (ChannelClosedException ex)
+		{
+			throw new StateMachineQueueClosedException(Resources.Exception_StateMachineExternalQueueHasBeenClosed, ex);
+		}
+	}*/
 }

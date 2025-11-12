@@ -147,7 +147,7 @@ public class RegisterClassTest
     [TestMethod]
     public void RuntimeNotInActionTest()
     {
-        Assert.ThrowsException<InvalidOperationException>(() => Runtime.InState("2"));
+        Assert.ThrowsExactly<InvalidOperationException>(() => Runtime.InState("2"));
     }
 
     [TestMethod]
@@ -450,7 +450,7 @@ public class RegisterClassTest
 
         // Act
 
-        var result = await stateMachineInterpreter.RunAsync();
+        var result = await stateMachineInterpreter.Run();
 
         // Assert
 

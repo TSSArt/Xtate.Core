@@ -17,23 +17,30 @@
 
 namespace Xtate.Core;
 
-public interface ILogWriter
+[InstantiatedByIoC]
+public class OptionsAsyncImpl<T> : IOptionsAsync<T>
 {
-    bool IsEnabled(Type source, Level level);
+    private ValueTask<T>? _valueTask;
 
-    ValueTask Write(Type source,
-                    Level level,
-                    int eventId,
-                    string? message,
-                    IEnumerable<LoggingParameter>? parameters = null);
-}
+    public required Func<ValueTask<T>> DefaultInstanceFactory { private get; [SetByIoC] init; }
 
-public interface ILogWriter<[UsedImplicitly] TSource>
-{
-    bool IsEnabled(Level level);
+    public required IAsyncEnumerable<IConfigureOptions<T>> Configurators { private get; [SetByIoC] init; }
 
-    ValueTask Write(Level level,
-                    int eventId,
-                    string? message,
-                    IEnumerable<LoggingParameter>? parameters = null);
+#region Interface IOptionsAsync<T>
+
+    public ValueTask<T> GetValue() => _valueTask ??= Factory().Preserve();
+
+#endregion
+
+    private async ValueTask<T> Factory()
+    {
+        var instance = await DefaultInstanceFactory().ConfigureAwait(false);
+
+        await foreach (var configureOptions in Configurators.ConfigureAwait(false))
+        {
+            await configureOptions.Configure(instance).ConfigureAwait(false);
+        }
+
+        return instance;
+    }
 }
