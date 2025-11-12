@@ -22,7 +22,7 @@ namespace Xtate.Core;
 
 public class ExternalServiceEventRouter : IEventRouter
 {
-    public required ServiceList<IExternalServiceProvider> ExternalServiceProviders { private get; [UsedImplicitly] init; }
+    public required IReadOnlyCollection<IExternalServiceProvider> ExternalServiceProviders { private get; [UsedImplicitly] init; }
 
     public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
 

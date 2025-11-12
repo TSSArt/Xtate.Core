@@ -15,25 +15,4 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Core;
-
-public interface ILogWriter
-{
-    bool IsEnabled(Type source, Level level);
-
-    ValueTask Write(Type source,
-                    Level level,
-                    int eventId,
-                    string? message,
-                    IEnumerable<LoggingParameter>? parameters = null);
-}
-
-public interface ILogWriter<[UsedImplicitly] TSource>
-{
-    bool IsEnabled(Level level);
-
-    ValueTask Write(Level level,
-                    int eventId,
-                    string? message,
-                    IEnumerable<LoggingParameter>? parameters = null);
-}
+[assembly: global::Microsoft.VisualStudio.TestTools.UnitTesting.Parallelize(Scope = global::Microsoft.VisualStudio.TestTools.UnitTesting.ExecutionScope.MethodLevel)]

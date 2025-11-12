@@ -110,7 +110,7 @@ public class InvokeTest
         var stateMachineInterpreter = await serviceProvider.GetRequiredService<IStateMachineInterpreter>();
         var eventQueueWriter = await serviceProvider.GetRequiredService<IEventQueueWriter>();
 
-        var task = stateMachineInterpreter.RunAsync();
+        var task = stateMachineInterpreter.Run();
 
         await eventQueueWriter.WriteAsync(CreateEventObject(name: "fromInvoked", InvokeId.FromString(invokeId: "invoke_id", invokeUniqueId)), token: default);
         await eventQueueWriter.WriteAsync(CreateEventObject("ToF"), token: default);

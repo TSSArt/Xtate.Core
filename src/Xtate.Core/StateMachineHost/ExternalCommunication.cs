@@ -22,7 +22,7 @@ namespace Xtate.Core;
 
 public class ExternalCommunication : IExternalCommunication
 {
-    public required ServiceList<IEventRouter> EventRouters { private get; [UsedImplicitly] init; }
+    public required IReadOnlyCollection<IEventRouter> EventRouters { private get; [UsedImplicitly] init; }
 
     public required IEventScheduler EventScheduler { private get; [UsedImplicitly] init; }
 

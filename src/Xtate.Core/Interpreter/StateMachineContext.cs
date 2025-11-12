@@ -26,16 +26,15 @@ public class StateMachineContext : IStateMachineContext
 
     public required IStateMachine StateMachine { private get; [UsedImplicitly] init; }
 
-    public required ServiceList<IIoProcessor> IoProcessors { private get; [UsedImplicitly] init; }
+    public required IReadOnlyCollection<IIoProcessor> IoProcessors { private get; [UsedImplicitly] init; }
 
-    public required ServiceList<IXDataModelProperty> XDataModelProperties { private get; [UsedImplicitly] init; }
+    public required IReadOnlyCollection<IXDataModelProperty> XDataModelProperties { private get; [UsedImplicitly] init; }
 
     public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
 
 #region Interface IStateMachineContext
-
+    
     [field: AllowNull]
-    [field: MaybeNull]
     public DataModelList DataModel => field ??= CreateDataModel();
 
     public OrderedSet<StateEntityNode> Configuration { get; } = [];

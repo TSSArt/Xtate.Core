@@ -466,7 +466,7 @@ public class DataModelValueTest
         }
         else
         {
-            Assert.ThrowsException<ArgumentException>(value.AsList, M(line));
+            Assert.ThrowsExactly<ArgumentException>(value.AsList, M(line));
         }
     }
 
@@ -488,7 +488,7 @@ public class DataModelValueTest
         }
         else
         {
-            Assert.ThrowsException<ArgumentException>(value.AsNullableList, M(line));
+            Assert.ThrowsExactly<ArgumentException>(value.AsNullableList, M(line));
         }
     }
 
@@ -524,7 +524,7 @@ public class DataModelValueTest
         }
         else
         {
-            Assert.ThrowsException<ArgumentException>(value.AsString, M(line));
+            Assert.ThrowsExactly<ArgumentException>(value.AsString, M(line));
         }
     }
 
@@ -546,7 +546,7 @@ public class DataModelValueTest
         }
         else
         {
-            Assert.ThrowsException<ArgumentException>(value.AsNullableString, M(line));
+            Assert.ThrowsExactly<ArgumentException>(value.AsNullableString, M(line));
         }
     }
 
@@ -582,7 +582,7 @@ public class DataModelValueTest
         }
         else
         {
-            Assert.ThrowsException<ArgumentException>(() => value.AsNumber(), M(line));
+            Assert.ThrowsExactly<ArgumentException>(() => value.AsNumber(), M(line));
         }
     }
 

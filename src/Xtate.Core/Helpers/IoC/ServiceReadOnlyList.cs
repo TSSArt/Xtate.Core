@@ -15,25 +15,22 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using Xtate.IoC;
+
 namespace Xtate.Core;
 
-public interface ILogWriter
+[InstantiatedByIoC]
+public class ServiceReadOnlyList<T> : ReadOnlyList<T>, IAsyncInitialization
 {
-    bool IsEnabled(Type source, Level level);
+	private readonly Task _initTask;
 
-    ValueTask Write(Type source,
-                    Level level,
-                    int eventId,
-                    string? message,
-                    IEnumerable<LoggingParameter>? parameters = null);
-}
+	public ServiceReadOnlyList(IAsyncEnumerable<T> asyncEnumerable) => _initTask = Initialize(asyncEnumerable);
 
-public interface ILogWriter<[UsedImplicitly] TSource>
-{
-    bool IsEnabled(Level level);
+#region Interface IAsyncInitialization
 
-    ValueTask Write(Level level,
-                    int eventId,
-                    string? message,
-                    IEnumerable<LoggingParameter>? parameters = null);
+	Task IAsyncInitialization.Initialization => _initTask;
+
+#endregion
+	
+	private async Task Initialize(IAsyncEnumerable<T> asyncEnumerable) => Items = await asyncEnumerable.ToImmutableArrayAsync().ConfigureAwait(false);
 }

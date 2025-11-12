@@ -27,7 +27,7 @@ public class AncestorTracker : IServiceProviderActions, IServiceProviderDataActi
 
 #region Interface IServiceProviderActions
 
-    public IServiceProviderDataActions? RegisterServices() => null;
+    public IServiceProviderDataActions? RegisterServices(int _) => null;
 
     public IServiceProviderDataActions? ServiceRequesting(TypeKey typeKey) => null;
 

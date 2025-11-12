@@ -61,7 +61,7 @@ public class JsonSerializationTest
         dict["self"] = dict;
 
         // act => assert
-        Assert.ThrowsException<JsonException>(() => DataModelConverter.ToJson(dict));
+        Assert.ThrowsExactly<JsonException>(() => DataModelConverter.ToJson(dict));
     }
 
     [TestMethod]
@@ -71,7 +71,7 @@ public class JsonSerializationTest
         var undefined = default(DataModelValue);
 
         // act => assert
-        Assert.ThrowsException<JsonException>(() => DataModelConverter.ToJson(undefined));
+        Assert.ThrowsExactly<JsonException>(() => DataModelConverter.ToJson(undefined));
     }
 
     [TestMethod]
@@ -96,7 +96,7 @@ public class JsonSerializationTest
         var arr = new DataModelList { undefined };
 
         // act => assert
-        Assert.ThrowsException<JsonException>(() => DataModelConverter.ToJson(arr));
+        Assert.ThrowsExactly<JsonException>(() => DataModelConverter.ToJson(arr));
     }
 
     [TestMethod]
@@ -372,14 +372,14 @@ public class JsonSerializationTest
     public void ReadJsonWithCommentTest()
     {
         // act => assert
-        Assert.ThrowsException<JsonException>(() => DataModelConverter.FromJson("1/*comment*/"));
+        Assert.ThrowsExactly<JsonException>(() => DataModelConverter.FromJson("1/*comment*/"));
     }
 
     [TestMethod]
     public void ReadIncorrectJsonTest()
     {
         // act => assert
-        Assert.ThrowsException<JsonException>(() => DataModelConverter.FromJson("{\"key\":}"));
+        Assert.ThrowsExactly<JsonException>(() => DataModelConverter.FromJson("{\"key\":}"));
     }
 
     [TestMethod]

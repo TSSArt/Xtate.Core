@@ -22,7 +22,7 @@ namespace Xtate.Core;
 [Obsolete]
 public class IoProcessorService
 {
-    public required ServiceList<IEventRouter> IoProcessors { private get; [UsedImplicitly] init; }
+    public required IReadOnlyCollection<IEventRouter> IoProcessors { private get; [UsedImplicitly] init; }
 
     public required ExternalServiceEventRouter ExternalServiceEventRouter { private get; [UsedImplicitly] init; }
 

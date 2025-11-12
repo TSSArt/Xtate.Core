@@ -49,7 +49,7 @@ public class InterpreterTest
         stateMachineContextMock.Setup(ctx => ctx.StatesToInvoke).Returns([]);
         stateMachineContextMock.Setup(ctx => ctx.InternalQueue).Returns(new EntityQueue<IIncomingEvent>());
 
-        var loggerMock = new Mock<ILogger<IStateMachineInterpreter>>();
+        var loggerMock = new Mock<ILogger<StateMachineInterpreter>>();
 
         var stateMachineInterpreter = new StateMachineInterpreter
                                       {
@@ -59,7 +59,7 @@ public class InterpreterTest
                                           EventQueueReader = eventQueueMock.Object,
                                           Logger = loggerMock.Object,
                                           Model = interpreterModelMock.Object,
-                                          NotifyStateChanged = new Mock<INotifyStateChanged>().Object,
+                                          NotifyStateChanged = [],
                                           UnhandledErrorBehaviour = null,
                                           StateMachineArguments = null,
                                           StateMachineRuntimeError = new StateMachineRuntimeError { StateMachineSessionId = new DefaultStateMachineSessionId() },
@@ -67,7 +67,7 @@ public class InterpreterTest
                                       };
 
         // act
-        await stateMachineInterpreter.RunAsync();
+        await stateMachineInterpreter.Run();
 
         // assert
         Assert.IsFalse(false);

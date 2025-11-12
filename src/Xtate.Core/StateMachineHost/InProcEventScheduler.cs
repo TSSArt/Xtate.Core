@@ -27,7 +27,7 @@ public class InProcEventScheduler : IEventScheduler, IDisposable, IAsyncDisposab
 
     private readonly ExtCollection<SendId, ScheduledEvent> _scheduledEvents = [];
 
-    public required ServiceList<IEventRouter> EventRouters { private get; [UsedImplicitly] init; }
+    public required IReadOnlyCollection<IEventRouter> EventRouters { private get; [UsedImplicitly] init; }
 
     public required ILogger<IEventScheduler> Logger { private get; [UsedImplicitly] init; }
 

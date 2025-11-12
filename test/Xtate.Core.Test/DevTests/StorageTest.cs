@@ -508,12 +508,11 @@ public class StorageTest
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void GuidNullStringKeyTest()
     {
         var storage = new InMemoryStorage();
         var bucket = new Bucket(storage);
-        bucket.Add((string)null!, value: "d");
+		Assert.ThrowsExactly<ArgumentNullException>(() => bucket.Add((string) null!, value: "d"));
     }
 
     [TestMethod]

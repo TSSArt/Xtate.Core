@@ -110,7 +110,7 @@ public class TransitionToDiTest
 
         var stateMachineInterpreter = await provider.GetRequiredService<IStateMachineInterpreter>();
 
-        await stateMachineInterpreter.RunAsync();
+        await stateMachineInterpreter.Run();
     }
 
     [TestMethod]
@@ -144,7 +144,7 @@ public class TransitionToDiTest
 
         var stateMachineInterpreter = await provider.GetRequiredService<IStateMachineInterpreter>();
 
-        var result = await stateMachineInterpreter.RunAsync();
+        var result = await stateMachineInterpreter.Run();
 
         Assert.AreEqual(expected: "DONE-DATA", result);
     }

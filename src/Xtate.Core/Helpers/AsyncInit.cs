@@ -55,20 +55,18 @@ public abstract class AsyncInit
 
     private sealed class InitAfter<T, TArg>(TArg arg, Func<TArg, ValueTask<T>> func) : AsyncInit<T>
     {
-        private Task? _task;
-
         public override Task Task
         {
             get
             {
-                if (_task is { } task)
+                if (field is { } task)
                 {
                     return task;
                 }
 
                 lock (this)
                 {
-                    return _task ??= Init();
+                    return field ??= Init();
                 }
             }
         }
@@ -78,20 +76,18 @@ public abstract class AsyncInit
 
     private sealed class InitAfter(Func<ValueTask> func) : AsyncInit
     {
-        private Task? _task;
-
         public override Task Task
         {
             get
             {
-                if (_task is { } task)
+                if (field is { } task)
                 {
                     return task;
                 }
 
                 lock (this)
                 {
-                    return _task ??= Init();
+                    return field ??= Init();
                 }
             }
         }
@@ -101,20 +97,18 @@ public abstract class AsyncInit
 
     private sealed class Wrapper(AsyncInit asyncInit1, AsyncInit asyncInit2) : AsyncInit
     {
-        private Task? _task;
-
         public override Task Task
         {
             get
             {
-                if (_task is { } task)
+                if (field is { } task)
                 {
                     return task;
                 }
 
                 lock (this)
                 {
-                    return _task ??= Init();
+                    return field ??= Init();
                 }
             }
         }

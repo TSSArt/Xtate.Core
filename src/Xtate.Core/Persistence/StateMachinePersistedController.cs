@@ -16,10 +16,11 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Threading.Channels;
+using Xtate.IoC;
 
 namespace Xtate.Persistence;
 
-internal sealed class StateMachinePersistedController : StateMachineRuntimeController, IStorageProvider
+internal class StateMachinePersistedController : StateMachineRuntimeController, IStorageProvider, IAsyncDisposable, IAsyncInitialization
 {
     private const string ControllerStateKey = "cs";
 
@@ -87,7 +88,14 @@ internal sealed class StateMachinePersistedController : StateMachineRuntimeContr
 
 #endregion
 
-    protected override async ValueTask DisposeAsyncCore()
+	public async ValueTask DisposeAsync()
+	{
+		await DisposeAsyncCore().ConfigureAwait(false);
+
+		GC.SuppressFinalize(this);
+	}
+
+	protected virtual async ValueTask DisposeAsyncCore()
     {
         if (_disposed)
         {
@@ -104,14 +112,10 @@ internal sealed class StateMachinePersistedController : StateMachineRuntimeContr
         }
 
         _disposed = true;
-
-        await base.DisposeAsyncCore().ConfigureAwait(false);
     }
 
-    protected override async ValueTask Initialize()
+    public async ValueTask Initialize()
     {
-        await base.Initialize().ConfigureAwait(false);
-
         _storage = await _storageProvider.GetTransactionalStorage(SessionId.Value, ControllerStateKey /*, _stopToken*/).ConfigureAwait(false);
 
         _channelPersistingController.Initialize(new Bucket(_storage).Nested(ExternalEventsKey), bucket => new IncomingEvent(bucket), _storageLock, token => _storage.CheckPoint(level: 0));
