@@ -22,7 +22,7 @@
 		<PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
 	</PropertyGroup>
 
-	<Import Project="Global.Packages.props" />
+	<Import Condition="Exists('Global.Packages.props')" Project="Global.Packages.props" />
 
 	<Import	Condition="Exists($([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../')))"
 		Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
