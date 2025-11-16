@@ -48,7 +48,7 @@ public abstract class StateMachineControllerBase : IStateMachineController, IAsy
 	[Obsolete]
 	public SessionId SessionId => StateMachineSessionId.SessionId;
 
-	#region Interface IAsyncInitialization
+#region Interface IAsyncInitialization
 
 	public Task Initialization => _startAsyncInit.Task;
 

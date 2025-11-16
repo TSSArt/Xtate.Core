@@ -21,11 +21,11 @@ public abstract class ExternalServiceBase : IExternalService, IEventDispatcher
 {
     private readonly CancellationToken? _destroyToken;
 
-    private readonly LazyTask<DataModelValue> _lazyTask = default!;
+    private readonly LazyTask<DataModelValue> _lazyTask = null!;
 
-    private readonly TaskMonitor _taskMonitor = default!;
+    private readonly TaskMonitor _taskMonitor = null!;
 
-    [UsedImplicitly]
+    [SetByIoC]
     public required IExternalServiceSource ExternalServiceSourceLocal
     {
         init
@@ -36,13 +36,13 @@ public abstract class ExternalServiceBase : IExternalService, IEventDispatcher
         }
     }
 
-    [UsedImplicitly]
+    [SetByIoC]
     public required IExternalServiceParameters ExternalServiceParametersLocal
     {
         init => Parameters = value.Parameters;
     }
 
-    [UsedImplicitly]
+    [SetByIoC]
     public required DisposeToken DisposeTokenLocal
     {
         init
@@ -56,7 +56,7 @@ public abstract class ExternalServiceBase : IExternalService, IEventDispatcher
         }
     }
 
-    [UsedImplicitly]
+    [SetByIoC]
     public required TaskMonitor TaskMonitorLocal
     {
         init
@@ -94,5 +94,5 @@ public abstract class ExternalServiceBase : IExternalService, IEventDispatcher
 
     protected abstract ValueTask<DataModelValue> Execute();
 
-    protected virtual ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token) => default;
+    protected virtual ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token) => ValueTask.CompletedTask;
 }
