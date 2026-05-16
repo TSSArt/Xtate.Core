@@ -19,30 +19,43 @@ namespace Xtate;
 
 public static class Disposer
 {
-    public static bool IsDisposable<T>([NotNullWhen(true)] T instance) => instance is IDisposable or IAsyncDisposable;
+	public static bool IsDisposable<T>([NotNullWhen(true)] T instance) => instance is IDisposable or IAsyncDisposable;
 
 	public static void Dispose<T>(T instance)
-    {
-        if (instance is IDisposable disposable)
-        {
-            disposable.Dispose();
-        }
-    }
+	{
+		switch (instance)
+		{
+			case IDisposable disposable:
+				disposable.Dispose();
 
-    public static ValueTask DisposeAsync<T>(T instance)
-    {
-        switch (instance)
-        {
-            case IAsyncDisposable asyncDisposable:
-                return asyncDisposable.DisposeAsync();
+				break;
 
-            case IDisposable disposable:
-                disposable.Dispose();
+			case IAsyncDisposable asyncDisposable:
+				var valueTask = asyncDisposable.DisposeAsync();
 
-                return ValueTask.CompletedTask;
+				if (valueTask.IsFaulted || valueTask.IsCanceled)
+				{
+					valueTask.GetAwaiter().GetResult();
+				}
 
-            default:
-                return ValueTask.CompletedTask;
-        }
-    }
+				break;
+		}
+	}
+
+	public static ValueTask DisposeAsync<T>(T instance)
+	{
+		switch (instance)
+		{
+			case IAsyncDisposable asyncDisposable:
+				return asyncDisposable.DisposeAsync();
+
+			case IDisposable disposable:
+				disposable.Dispose();
+
+				return ValueTask.CompletedTask;
+
+			default:
+				return ValueTask.CompletedTask;
+		}
+	}
 }

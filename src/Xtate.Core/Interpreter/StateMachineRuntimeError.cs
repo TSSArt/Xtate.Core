@@ -17,53 +17,56 @@
 
 namespace Xtate.Core;
 
-public class StateMachineRuntimeError
+public class StateMachineRuntimeError(ScopeObject scopeObject)
 {
-    public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
+	private readonly object _owner = scopeObject.GetForType<Owner>();
 
-    public bool IsPlatformError(Exception exception)
-    {
-        for (var ex = exception; ex is not null; ex = ex.InnerException)
-        {
-            if (ex is PlatformException platformException)
-            {
-                if (StateMachineSessionId.SessionId.Equals(platformException.Token))
-                {
-                    return true;
-                }
+	public bool IsDestroyError(Exception exception) => AsOwnedError<StateMachineDestroyedException>(exception) is not null;
 
-                break;
-            }
-        }
+	public bool IsPlatformError(Exception exception) => AsOwnedError<PlatformException>(exception) is not null;
 
-        return false;
-    }
+	public bool IsCommunicationError(Exception exception, out SendId? sendId)
+	{
+		var communicationException = AsOwnedError<CommunicationException>(exception);
+		
+		sendId = communicationException?.SendId;
 
-    public bool IsCommunicationError(Exception? exception, out SendId? sendId)
-    {
-        for (var ex = exception; ex is not null; ex = ex.InnerException)
-        {
-            if (ex is CommunicationException communicationException)
-            {
-                if (StateMachineSessionId.SessionId.Equals(communicationException.Token))
-                {
-                    sendId = communicationException.SendId;
+		return communicationException is not null;
+	}
 
-                    return true;
-                }
+	private TException? AsOwnedError<TException>(Exception exception) where TException : OwnedXtateException
+	{
+		for (var ex = exception; ex is not null; ex = ex.InnerException)
+		{
+			if (ex is TException ownedXtateException)
+			{
+				if (ownedXtateException.IsOwnedBy(_owner))
+				{
+					return ownedXtateException;
+				}
 
-                break;
-            }
-        }
+				break;
+			}
+		}
 
-        sendId = default;
+		return null;
+	}
 
-        return false;
-    }
+	public CommunicationException NoExternalConnections() => new(Resources.Exception_ExternalConnectionsDoesNotConfiguredForStateMachineInterpreter) { Owner = _owner };
 
-    public CommunicationException NoExternalConnections() => new(Resources.Exception_ExternalConnectionsDoesNotConfiguredForStateMachineInterpreter) { Token = StateMachineSessionId.SessionId };
+	public CommunicationException CommunicationError(Exception innerException, SendId? sendId = null) => new(innerException, sendId) { Owner = _owner };
 
-    public CommunicationException CommunicationError(Exception innerException, SendId? sendId = default) => new(innerException, sendId) { Token = StateMachineSessionId.SessionId };
+	public PlatformException PlatformError(string message) => new(message) { Owner = _owner };
+	
+	public PlatformException PlatformError(Exception innerException) => new(innerException) { Owner = _owner };
 
-    public PlatformException PlatformError(Exception innerException) => new(innerException) { Token = StateMachineSessionId.SessionId };
+	public StateMachineDestroyedException LiveLockError() => new(Resources.Exception_LivelockDetected) { Reason = DestroyReason.LiveLock, Owner = _owner };
+
+	public StateMachineDestroyedException QueueClosedError() => new(Resources.Exception_StateMachineExternalQueueHasBeenClosed) { Reason = DestroyReason.QueueClosed, Owner = _owner };
+
+	public StateMachineDestroyedException DestroySignalError(Exception? innerException) =>
+		new(Resources.Exception_StateMachineHasBeenDestroyed, innerException) { Reason = DestroyReason.DestroySignal, Owner = _owner };
+
+	[UsedImplicitly]
+	private class Owner;
 }

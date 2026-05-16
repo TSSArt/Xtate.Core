@@ -15,34 +15,15 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.IoC;
+using Xtate.Persistence;
 
 namespace Xtate.Core;
 
-public class AncestorFactory<T> : IAsyncInitialization
+public interface IStateMachinePersistenceContext : IStateMachineContext
 {
-    private ValueTask<T> _task;
+	Bucket GetStateBucket();
 
-    public AncestorFactory(AncestorTracker tracker, Func<ValueTask<T>> factory) => _task = tracker.TryCaptureAncestor(typeof(T), this) ? default : factory().Preserve();
+    ValueTask CheckPoint(int level);
 
-#region Interface IAsyncInitialization
-
-    Task IAsyncInitialization.Initialization => _task.IsCompletedSuccessfully ? Task.CompletedTask : _task.AsTask();
-
-#endregion
-
-    [CalledByIoC]
-    public Ancestor<T> GetValueFunc() => GetValue;
-
-    private T GetValue() => _task.Result ?? throw MissedServiceException.Create<T>();
-
-    internal void SetValue(T? instance)
-    {
-        if (instance is null)
-        {
-            throw MissedServiceException.Create<T>();
-        }
-
-        _task = new ValueTask<T>(instance);
-    }
+    ValueTask Shrink();
 }

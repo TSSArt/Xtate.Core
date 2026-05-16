@@ -31,10 +31,10 @@ public sealed class StateMachineNode : StateEntityNode, IStateMachine, IAncestor
 
         _stateMachine = stateMachine;
 
-        Initial = stateMachine.Initial.As<InitialNode>();
-        ScriptEvaluator = stateMachine.Script?.As<ScriptNode>();
-        DataModel = stateMachine.DataModel?.As<DataModelNode>();
-        States = stateMachine.States.AsArrayOf<IStateEntity, StateEntityNode>(true);
+        Initial = stateMachine.Initial.UseAncestor.As<InitialNode>();
+        ScriptEvaluator = stateMachine.Script?.UseAncestor.As<ScriptNode>();
+        DataModel = stateMachine.DataModel?.UseAncestor.As<DataModelNode>();
+        States = stateMachine.States.UseAncestor.ItemsAs<StateEntityNode>(true);
 
         Register(Initial);
         Register(States);

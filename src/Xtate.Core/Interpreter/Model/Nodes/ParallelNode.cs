@@ -28,10 +28,10 @@ public sealed class ParallelNode : StateEntityNode, IParallel, IAncestorProvider
         _parallel = parallel;
 
         var id = parallel.Id ?? new IdentifierNode(Identifier.New());
-        var transitions = parallel.Transitions.AsArrayOf<ITransition, TransitionNode>(true);
-        var invokeList = parallel.Invoke.AsArrayOf<IInvoke, InvokeNode>(true);
-        var states = parallel.States.AsArrayOf<IStateEntity, StateEntityNode>(true);
-        var historyStates = parallel.HistoryStates.AsArrayOf<IHistory, HistoryNode>(true);
+        var transitions = parallel.Transitions.UseAncestor.ItemsAs<TransitionNode>(true);
+        var invokeList = parallel.Invoke.UseAncestor.ItemsAs<InvokeNode>(true);
+        var states = parallel.States.UseAncestor.ItemsAs<StateEntityNode>(true);
+        var historyStates = parallel.HistoryStates.UseAncestor.ItemsAs<HistoryNode>(true);
 
         Register(states);
         Register(historyStates);
@@ -42,9 +42,9 @@ public sealed class ParallelNode : StateEntityNode, IParallel, IAncestorProvider
         HistoryStates = historyStates;
         Transitions = transitions;
         Invoke = invokeList;
-        OnEntry = parallel.OnEntry.AsArrayOf<IOnEntry, OnEntryNode>(true);
-        OnExit = parallel.OnExit.AsArrayOf<IOnExit, OnExitNode>(true);
-        DataModel = parallel.DataModel?.As<DataModelNode>();
+        OnEntry = parallel.OnEntry.UseAncestor.ItemsAs<OnEntryNode>(true);
+        OnExit = parallel.OnExit.UseAncestor.ItemsAs<OnExitNode>(true);
+        DataModel = parallel.DataModel?.UseAncestor.As<DataModelNode>();
     }
 
     public override bool IsAtomicState => false;

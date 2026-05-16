@@ -39,9 +39,9 @@ public sealed partial class StateMachineHost : IStateMachineHost
         if (routerEvent is null) throw new ArgumentNullException(nameof(routerEvent));
 
         if (routerEvent.OriginType is not { } originType)
-        {
-            throw new PlatformException(Resources.Exception_OriginTypeMustBeProvidedInRouterEvent);
-        }
+		{
+			throw new PlatformException(Resources.Exception_OriginTypeMustBeProvidedInRouterEvent) { Owner = null! };
+		}
 
         var ioProcessor = GetIoProcessorById(originType);
 

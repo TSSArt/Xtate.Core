@@ -25,11 +25,11 @@ public class DefaultAssignEvaluator : AssignEvaluator
 
     public DefaultAssignEvaluator(IAssign assign) : base(assign)
     {
-        var valueEvaluator = base.Expression?.As<IObjectEvaluator>() ?? base.InlineContent?.As<IObjectEvaluator>();
+        var valueEvaluator = base.Expression?.UseAncestor.As<IObjectEvaluator>() ?? base.InlineContent?.UseAncestor.As<IObjectEvaluator>();
         Infra.NotNull(valueEvaluator);
         _valueEvaluator = valueEvaluator;
 
-        var locationEvaluator = base.Location?.As<ILocationEvaluator>();
+        var locationEvaluator = base.Location?.UseAncestor.As<ILocationEvaluator>();
         Infra.NotNull(locationEvaluator);
         _locationEvaluator = locationEvaluator;
     }

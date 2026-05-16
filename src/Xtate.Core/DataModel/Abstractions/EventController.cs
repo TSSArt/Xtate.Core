@@ -17,6 +17,7 @@
 
 namespace Xtate.DataModel;
 
+[InstantiatedByIoC]
 public class EventController : IEventController
 {
     private const int SendEventId = 1;
@@ -58,7 +59,7 @@ public class EventController : IEventController
         {
             await ExternalCommunication.Cancel(sendId).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (!StateMachineRuntimeError.IsPlatformError(ex))
         {
             throw StateMachineRuntimeError.CommunicationError(ex, sendId);
         }
@@ -77,7 +78,7 @@ public class EventController : IEventController
         {
             return await ExternalCommunication.TrySend(outgoingEvent).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (!StateMachineRuntimeError.IsPlatformError(ex))
         {
             throw StateMachineRuntimeError.CommunicationError(ex, outgoingEvent.SendId);
         }

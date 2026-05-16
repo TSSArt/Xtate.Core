@@ -30,7 +30,7 @@ public sealed class OnEntryNode : IOnEntry, IStoreSupport, IAncestorProvider, ID
     {
         _onEntry = onEntry;
         documentIdNode.SaveToSlot(out _documentIdSlot);
-        ActionEvaluators = onEntry.Action.AsArrayOf<IExecutableEntity, IExecEvaluator>();
+        ActionEvaluators = onEntry.Action.UseAncestor.ItemsAs<IExecEvaluator>();
     }
 
     public ImmutableArray<IExecEvaluator> ActionEvaluators { get; }

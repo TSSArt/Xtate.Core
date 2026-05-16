@@ -46,15 +46,16 @@ public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId
 
         documentIdNode.SaveToSlot(out _documentIdSlot);
 
-        _typeExpressionEvaluator = invoke.TypeExpression?.As<IStringEvaluator>();
-        _sourceExpressionEvaluator = invoke.SourceExpression?.As<IStringEvaluator>();
-        _contentExpressionEvaluator = invoke.Content?.Expression?.As<IObjectEvaluator>();
-        _contentBodyEvaluator = invoke.Content?.Body?.As<IValueEvaluator>();
-        _idLocationEvaluator = invoke.IdLocation?.As<ILocationEvaluator>();
-        _nameEvaluatorList = invoke.NameList.AsArrayOf<ILocationExpression, ILocationEvaluator>();
-        _parameterList = DataModel.DataConverter.AsParamArray(invoke.Parameters);
+        _typeExpressionEvaluator = invoke.TypeExpression?.UseAncestor.As<IStringEvaluator>();
+        _sourceExpressionEvaluator = invoke.SourceExpression?.UseAncestor.As<IStringEvaluator>();
+        _contentExpressionEvaluator = invoke.Content?.Expression?.UseAncestor.As<IObjectEvaluator>();
+        _contentBodyEvaluator = invoke.Content?.Body?.UseAncestor.As<IValueEvaluator>();
+        _idLocationEvaluator = invoke.IdLocation?.UseAncestor.As<ILocationEvaluator>();
+		_nameEvaluatorList = invoke.NameList.UseAncestor.ItemsAs<ILocationEvaluator>();
+		
+		_parameterList = DataModel.DataConverter.AsParamArray(invoke.Parameters);
 
-        Finalize = invoke.Finalize?.As<FinalizeNode>();
+        Finalize = invoke.Finalize?.UseAncestor.As<FinalizeNode>();
     }
 
     public required Deferred<DataConverter> DataConverter { private get; [UsedImplicitly] init; }

@@ -38,7 +38,6 @@
 
 	<ItemGroup Condition="'$(UseProjectReference)'=='true'">
 		<ProjectReference Include="$(XtateIoCRepoPath)src\Xtate.IoC\Xtate.IoC.csproj" />
-		<ProjectReference Include="$(XtateAnalyzersRepoPath)\src\Xtate.Analyzers\Xtate.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(UseProjectReference)'==''">

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,88 +19,118 @@ using Xtate.IoC;
 
 namespace Xtate.Core;
 
+[InstantiatedByIoC]
+[Obsolete]
 public class AncestorTracker : IServiceProviderActions, IServiceProviderDataActions
 {
-    private readonly AsyncLocal<Container?> _local = new();
-
-    private Container CurrentContainer => _local.Value ??= [];
+	private readonly AsyncLocal<Node?> _node = new();
 
 #region Interface IServiceProviderActions
 
-    public IServiceProviderDataActions? RegisterServices(int _) => null;
+	public IServiceProviderDataActions? RegisterServices(int _) => null;
 
-    public IServiceProviderDataActions? ServiceRequesting(TypeKey typeKey) => null;
+	public IServiceProviderDataActions? Event(ActionsEventType type, ref ActionsContext context)
+	{
+		switch (type)
+		{
+			case ActionsEventType.FactoryCalling:
+				context.UserDataObject = _node.Value = new Node(context.ServiceType, _node.Value);
 
-    public IServiceProviderDataActions? ServiceRequested(TypeKey typeKey) => null;
+				break;
 
-    public IServiceProviderDataActions? FactoryCalling(TypeKey typeKey) => typeKey.IsEmptyArg ? this : null;
+			case ActionsEventType.FactoryCalled:
+				return this;
 
-    public IServiceProviderDataActions? FactoryCalled(TypeKey typeKey) => typeKey.IsEmptyArg ? this : null;
+			case ActionsEventType.FactoryCallRunning:
+			case ActionsEventType.FactoryCallError:
+				RestoreNode(context.UserDataObject);
+
+				break;
+		}
+
+		return null;
+	}
 
 #endregion
 
 #region Interface IServiceProviderDataActions
 
-    [ExcludeFromCodeCoverage]
-    public void RegisterService(ServiceEntry serviceEntry) { }
+	[ExcludeFromCodeCoverage]
+	public void RegisterService(ServiceEntry serviceEntry) { }
 
-    [ExcludeFromCodeCoverage]
-    public void ServiceRequesting<T, TArg>(TArg argument) { }
+	public void Event<T, TArg>(ActionsEventType type, ref DataActionsContext<T, TArg> context)
+	{
+		Infra.Assert(type is ActionsEventType.FactoryCalled);
 
-    [ExcludeFromCodeCoverage]
-    public void ServiceRequested<T, TArg>(T? instance) { }
-
-    public void FactoryCalling<T, TArg>(TArg argument) => CurrentContainer.Add((typeof(T), null));
-
-    public void FactoryCalled<T, TArg>(T? instance)
-    {
-        var container = CurrentContainer;
-
-        for (var i = 0; i < container.Count; i ++)
-        {
-            var (type, ancestor) = container[i];
-
-            if (type == typeof(T))
-            {
-                container[i] = default;
-
-                if (ancestor is AncestorFactory<T> ancestorFactory)
-                {
-                    ancestorFactory.SetValue(instance);
-                }
-            }
-        }
-
-        container.RemoveAll(static p => p.Type is null);
-    }
+		if (RestoreNode(context.UserDataObject).AncestorConsumer is IAncestorConsumer<T> ancestorConsumer)
+		{
+			ancestorConsumer.SetValue(context.Instance);
+		}
+	}
 
 #endregion
 
-    public bool TryCaptureAncestor(Type ancestorType, object ancestorFactory)
-    {
-        var container = CurrentContainer;
+	private Node RestoreNode(object? userDataObject)
+	{
+		var node = (Node) userDataObject!;
+		_node.Value = node.PrevNode;
 
-        for (var i = 0; i < container.Count; i ++)
-        {
-            var (type, ancestor) = container[i];
+		return node;
+	}
 
-            if (type == ancestorType)
-            {
-                if (ancestor is null)
-                {
-                    container[i] = (type, ancestorFactory);
-                }
-                else
-                {
-                    container.Add((type, ancestorFactory));
-                }
+	public bool IsAncestorTypeEquals(int level, Type type)
+	{
+		Infra.RequiresNonNegative(level);
 
-                return true;
-            }
-        }
+		var node = _node.Value;
 
-        return false;
-    }
+		for (; node != null && level > 0; node = node.PrevNode, level --) { }
 
-    private class Container : List<(Type Type, object? Ancestor)>;
+		return node?.AncestorType == type;
+	}
+
+	public void CaptureAncestor<T>(IAncestorConsumer<T> ancestorConsumer)
+	{
+		for (var node = _node.Value; node != null; node = node.PrevNode)
+		{
+			if (node.AncestorType == typeof(T))
+			{
+				while (true)
+				{
+					var preVal = (IAncestorConsumer<T>?) node.AncestorConsumer;
+					var newVal = Combined(preVal, ancestorConsumer);
+
+					if (Interlocked.CompareExchange(ref node.AncestorConsumer, newVal, preVal) == preVal)
+					{
+						return;
+					}
+				}
+			}
+		}
+	}
+
+	private static IAncestorConsumer<T> Combined<T>(IAncestorConsumer<T>? ancestorConsumerRoot, IAncestorConsumer<T> ancestorConsumer) =>
+		ancestorConsumerRoot is null ? ancestorConsumer : new CombinedAncestorConsumer<T>(ancestorConsumerRoot, ancestorConsumer);
+
+	private class Node(Type ancestorType, Node? prevNode)
+	{
+		public readonly Type AncestorType = ancestorType;
+
+		public readonly Node? PrevNode = prevNode;
+
+		public object? AncestorConsumer;
+	}
+
+	private class CombinedAncestorConsumer<T>(IAncestorConsumer<T> ancestorConsumer1, IAncestorConsumer<T> ancestorConsumer2) : IAncestorConsumer<T>
+	{
+	#region Interface IAncestorConsumer<T>
+
+		public void SetValue(T? value)
+		{
+			ancestorConsumer1.SetValue(value);
+			ancestorConsumer2.SetValue(value);
+		}
+
+	#endregion
+	}
 }

@@ -75,12 +75,18 @@ public class StateMachinePersistenceTest
             var partitionStorage = _storage.GetOrAdd(partition ?? "", _ => new ConcurrentDictionary<string, MemoryStream>());
             var memStream = partitionStorage.GetOrAdd(key, _ => new MemoryStream());
 
-            var streamStorage = new StreamStorage(memStream, disposeStream: false)
+			//var newMemStream = memStream;
+			/*var newMemStream = new MemoryStream();
+			var buffer = memStream.ToArray();
+			newMemStream.Write(buffer, 0, buffer.Length);
+			newMemStream.Position = 0;*/
+
+			var streamStorage = new StreamStorage(memStream, disposeStream: false)
                                 {
                                     InMemoryStorageFactory = b => new InMemoryStorage(b),
                                     InMemoryStorageBaselineFactory = memory => new InMemoryStorage(memory.Span)
                                 };
-            await streamStorage.Initialization;
+            await streamStorage.InitializeAsync();
 
             return streamStorage;
         }

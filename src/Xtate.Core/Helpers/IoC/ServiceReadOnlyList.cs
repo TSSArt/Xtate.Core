@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -15,22 +15,12 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.IoC;
-
 namespace Xtate.Core;
 
-[InstantiatedByIoC]
-public class ServiceReadOnlyList<T> : ReadOnlyList<T>, IAsyncInitialization
+public sealed class ServiceReadOnlyList<T> : ReadOnlyList<T>
 {
-	private readonly Task _initTask;
+	private ServiceReadOnlyList(ImmutableArray<T> list) : base(list) { }
 
-	public ServiceReadOnlyList(IAsyncEnumerable<T> asyncEnumerable) => _initTask = Initialize(asyncEnumerable);
-
-#region Interface IAsyncInitialization
-
-	Task IAsyncInitialization.Initialization => _initTask;
-
-#endregion
-	
-	private async Task Initialize(IAsyncEnumerable<T> asyncEnumerable) => Items = await asyncEnumerable.ToImmutableArrayAsync().ConfigureAwait(false);
+	[CalledByIoC]
+	public static async ValueTask<ServiceReadOnlyList<T>> Constructor(IAsyncEnumerable<T> enumerable) => new(await enumerable.ToImmutableArrayAsync().ConfigureAwait(false));
 }

@@ -45,7 +45,7 @@ public sealed class ExternalScriptExpressionNode : IExternalScriptExpression, IE
     {
         _content = content;
 
-        if (_externalScriptExpression.Is<IExternalScriptConsumer>(out var externalScript))
+        if (_externalScriptExpression.UseAncestor.Is<IExternalScriptConsumer>(out var externalScript))
         {
             externalScript.SetContent(content);
         }

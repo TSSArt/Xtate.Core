@@ -168,7 +168,7 @@ internal sealed class ChannelPersistingController<T> : Channel<T>, IDisposable
 
                 var bucket = parent._bucket.Nested(parent._tailIndex ++);
                 parent._bucket.Add(Tail, parent._tailIndex);
-                item.As<IStoreSupport>().Store(bucket);
+                item.UseAncestor.As<IStoreSupport>().Store(bucket);
 
                 await parent._postAction!(token).ConfigureAwait(false);
             }

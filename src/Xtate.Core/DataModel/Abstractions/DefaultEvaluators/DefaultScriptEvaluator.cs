@@ -23,7 +23,7 @@ public class DefaultScriptEvaluator : ScriptEvaluator
 
     public DefaultScriptEvaluator(IScript script) : base(script)
     {
-        var evaluator = base.Content?.As<IExecEvaluator>() ?? base.Source?.As<IExecEvaluator>();
+        var evaluator = base.Content?.UseAncestor.As<IExecEvaluator>() ?? base.Source?.UseAncestor.As<IExecEvaluator>();
         Infra.NotNull(evaluator);
 
         _evaluator = evaluator;

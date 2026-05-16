@@ -73,7 +73,7 @@ public class ExternalServiceCollection : IExternalServiceCollection
             return;
         }
 
-        if (await ExternalServiceGlobalCollection.TryDispatch(invokeId.UniqueId, incomingEvent, token).ConfigureAwait(false))
+		if (await ExternalServiceGlobalCollection.TryDispatch(invokeId.UniqueId, incomingEvent, token).ConfigureAwait(false))
         {
             return;
         }

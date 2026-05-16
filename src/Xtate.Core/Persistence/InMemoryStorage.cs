@@ -381,8 +381,8 @@ public class InMemoryStorage : IStorage
                 return -1;
             }
 
-            return Key.Span.SequenceCompareTo(other.Key.Span);
-        }
+			return Key.Span.SequenceCompareTo(other.Key.Span);
+		}
 
     #endregion
 

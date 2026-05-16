@@ -123,7 +123,7 @@ public class StateMachineFluentBuilderTest
 
             Assert.Fail("StateMachineQueueClosedException should be raised");
         }
-        catch (StateMachineQueueClosedException)
+        catch (StateMachineDestroyedException ex) when(ex.Reason == DestroyReason.QueueClosed)
         {
             // ignore
         }

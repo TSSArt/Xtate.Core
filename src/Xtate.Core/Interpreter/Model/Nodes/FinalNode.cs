@@ -21,7 +21,7 @@ namespace Xtate.Core;
 
 public class FinalNode(DocumentIdNode documentIdNode, IFinal final) : StateEntityNode(documentIdNode), IFinal, IAncestorProvider, IDebugEntityId
 {
-    public DoneDataNode? DoneData { get; } = final.DoneData?.As<DoneDataNode>();
+    public DoneDataNode? DoneData { get; } = final.DoneData?.UseAncestor.As<DoneDataNode>();
 
     public override ImmutableArray<TransitionNode> Transitions => [];
 
@@ -29,9 +29,9 @@ public class FinalNode(DocumentIdNode documentIdNode, IFinal final) : StateEntit
 
     public override ImmutableArray<InvokeNode> Invoke => [];
 
-    public override ImmutableArray<OnEntryNode> OnEntry { get; } = final.OnEntry.AsArrayOf<IOnEntry, OnEntryNode>(true);
+    public override ImmutableArray<OnEntryNode> OnEntry { get; } = final.OnEntry.UseAncestor.ItemsAs<OnEntryNode>(true);
 
-    public override ImmutableArray<OnExitNode> OnExit { get; } = final.OnExit.AsArrayOf<IOnExit, OnExitNode>(true);
+    public override ImmutableArray<OnExitNode> OnExit { get; } = final.OnExit.UseAncestor.ItemsAs<OnExitNode>(true);
 
     public override bool IsAtomicState => true;
 

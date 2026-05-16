@@ -46,7 +46,7 @@ public class ScxmlSerializerWriter(XmlWriter writer) : StateMachineVisitor
             writer.WriteEndAttribute();
         }
 
-        if (entity.Is<IStateMachineOptions>(out var options))
+        if (entity.UseAncestor.Is<IStateMachineOptions>(out var options))
         {
             WriteOptions(options);
         }
@@ -182,7 +182,7 @@ public class ScxmlSerializerWriter(XmlWriter writer) : StateMachineVisitor
             writer.WriteEndAttribute();
         }
 
-        var condition = entity.Condition?.As<IConditionExpression>().Expression;
+        var condition = entity.Condition?.UseAncestor.As<IConditionExpression>().Expression;
 
         if (condition is not null)
         {

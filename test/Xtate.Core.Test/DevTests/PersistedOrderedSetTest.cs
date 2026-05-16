@@ -41,6 +41,11 @@ public class PersistedOrderedSetTest
 
     private InMemoryStorage _storage = default!;
 
+	private class EntityMap(ImmutableDictionary<int, IEntity> map) : IEntityMap
+	{
+		public bool TryGetEntityByDocumentId(int id, [MaybeNullWhen(false)] out IEntity entity) => map.TryGetValue(id, out entity);
+	}
+
     [TestInitialize]
     public void Initialize()
     {
@@ -59,7 +64,7 @@ public class PersistedOrderedSetTest
 
         _sourceSet = [];
         _restoredOrderedSet = [];
-        _orderedSetController = new OrderedSetPersistingController<Node>(_bucket, _sourceSet, _map);
+        _orderedSetController = new OrderedSetPersistingController<Node>(_bucket, _sourceSet, new EntityMap(_map));
     }
 
     [TestCleanup]
@@ -71,9 +76,9 @@ public class PersistedOrderedSetTest
     [TestMethod]
     public void EmptyTest()
     {
-        using var restoredController = new OrderedSetPersistingController<Node>(_bucket, _restoredOrderedSet, _map);
+        using var restoredController = new OrderedSetPersistingController<Node>(_bucket, _restoredOrderedSet, new EntityMap(_map));
 
-        Assert.IsTrue(_restoredOrderedSet.IsEmpty);
+		Assert.IsTrue(_restoredOrderedSet.IsEmpty);
 
         Assert.AreEqual(expected: 0, _storage.GetTransactionLogSize());
     }
@@ -87,7 +92,7 @@ public class PersistedOrderedSetTest
         _sourceSet.Clear();
         Assert.IsTrue(_sourceSet.IsEmpty);
 
-        using var restoredController = new OrderedSetPersistingController<Node>(_bucket, _restoredOrderedSet, _map);
+        using var restoredController = new OrderedSetPersistingController<Node>(_bucket, _restoredOrderedSet, new EntityMap(_map));
 
         Assert.IsTrue(_restoredOrderedSet.IsEmpty);
     }
@@ -101,7 +106,7 @@ public class PersistedOrderedSetTest
 
         Assert.IsFalse(_sourceSet.IsEmpty);
 
-        using var restoredController = new OrderedSetPersistingController<Node>(_bucket, _restoredOrderedSet, _map);
+        using var restoredController = new OrderedSetPersistingController<Node>(_bucket, _restoredOrderedSet, new EntityMap(_map));
 
         Assert.IsTrue(_restoredOrderedSet.IsMember(_node1));
         Assert.IsTrue(_restoredOrderedSet.IsMember(_node2));
@@ -118,7 +123,7 @@ public class PersistedOrderedSetTest
 
         Assert.IsFalse(_sourceSet.IsEmpty);
 
-        using var restoredController = new OrderedSetPersistingController<Node>(_bucket, _restoredOrderedSet, _map);
+        using var restoredController = new OrderedSetPersistingController<Node>(_bucket, _restoredOrderedSet, new EntityMap(_map));
 
         Assert.IsTrue(_restoredOrderedSet.IsMember(_node1));
         Assert.IsFalse(_restoredOrderedSet.IsMember(_node2));
@@ -137,7 +142,7 @@ public class PersistedOrderedSetTest
 
         Assert.IsTrue(_sourceSet.IsEmpty);
 
-        using var restoredController = new OrderedSetPersistingController<Node>(_bucket, _restoredOrderedSet, _map);
+        using var restoredController = new OrderedSetPersistingController<Node>(_bucket, _restoredOrderedSet, new EntityMap(_map));
 
         Assert.IsFalse(_restoredOrderedSet.IsMember(_node1));
         Assert.IsFalse(_restoredOrderedSet.IsMember(_node2));
@@ -155,14 +160,14 @@ public class PersistedOrderedSetTest
 
         Assert.IsFalse(_sourceSet.IsEmpty);
 
-        using var restoredController = new OrderedSetPersistingController<Node>(_bucket, _restoredOrderedSet, _map);
+        using var restoredController = new OrderedSetPersistingController<Node>(_bucket, _restoredOrderedSet, new EntityMap(_map));
 
         Assert.IsFalse(_restoredOrderedSet.IsMember(_node1));
         Assert.IsFalse(_restoredOrderedSet.IsMember(_node2));
         Assert.IsTrue(_restoredOrderedSet.IsMember(_node3));
 
         var restoredSet2 = new OrderedSet<Node>();
-        using var restoredController2 = new OrderedSetPersistingController<Node>(_bucket, restoredSet2, _map);
+        using var restoredController2 = new OrderedSetPersistingController<Node>(_bucket, restoredSet2, new EntityMap(_map));
 
         Assert.IsFalse(restoredSet2.IsMember(_node1));
         Assert.IsFalse(restoredSet2.IsMember(_node2));

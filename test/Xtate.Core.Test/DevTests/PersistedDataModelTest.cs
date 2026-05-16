@@ -16,6 +16,8 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using Xtate.Core;
+using Xtate.DataModel;
+using Xtate.IoProcessor;
 using Xtate.Persistence;
 
 namespace Xtate.Test;
@@ -496,4 +498,49 @@ public class PersistedDataModelTest
         Assert.IsFalse(new Bucket(_storage).Nested("refs").Nested(0).Nested(0).TryGet(Key.Key, out _));
         Console.WriteLine(StorageTest.Dump(_storage, Environment.NewLine, hex: true));
     }
+
+	[TestMethod]
+	public void ListWriteAndReadTest()
+	{
+		var dataModel = new DataModelList(true);
+
+		dataModel.AddInternal(key: @"_name", DataModelValue.Null, DataModelAccess.ReadOnly);
+		dataModel.AddInternal(key: @"_sessionid", SessionId.New(), DataModelAccess.Constant);
+		dataModel.AddInternal(key: @"_event", value: default, DataModelAccess.ReadOnly);
+		dataModel.AddInternal(key: @"_ioprocessors", LazyValue.Create(this, ctx => GetIoProcessors()), DataModelAccess.Constant);
+		dataModel.AddInternal(key: @"_x", LazyValue.Create(this, ctx => GetPlatform()), DataModelAccess.Constant);
+
+		var storage = new InMemoryStorage(false);
+		var bucket = new Bucket(storage);
+		
+		var root1 = new DataModelList();
+		var tracker1 = new DataModelReferenceTracker(bucket.Nested("refs"));
+		var ctrl1 = new DataModelListPersistingController(bucket, tracker1, root1);
+
+		root1["ds"] = dataModel;
+
+		var root2 = DataModelList.Empty;
+		var tracker2 = new DataModelReferenceTracker(bucket.Nested("refs"));
+		var ctrl2 = new DataModelListPersistingController(bucket, tracker2, root2);
+	}
+
+	private DataModelValue GetPlatform()
+	{
+		var list = new DataModelList(DataModelAccess.ReadOnly, true);
+
+		list.AddInternal("property.Name", "property.Value", DataModelAccess.Constant);
+		
+		return list;
+	}
+
+	private DataModelValue GetIoProcessors()
+	{
+		var list = new DataModelList(DataModelAccess.ReadOnly, true);
+
+		var value = new DataModelList(DataModelAccess.ReadOnly, true);
+		value.AddInternal(key: @"location", "io://some", DataModelAccess.Constant);
+		list.AddInternal("ioProcessor", value, DataModelAccess.Constant);
+
+		return list;
+	}
 }

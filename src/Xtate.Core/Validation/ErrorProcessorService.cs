@@ -34,7 +34,7 @@ public class ErrorProcessorService<TSource> : IErrorProcessorService<TSource>
 
         if (LineInfoRequired?.LineInfoRequired ?? false)
         {
-            if (entity.Is<IXmlLineInfo>(out var xmlLineInfo) && xmlLineInfo.HasLineInfo())
+            if (entity.UseAncestor.Is<IXmlLineInfo>(out var xmlLineInfo) && xmlLineInfo.HasLineInfo())
             {
                 ErrorProcessor.AddError(new ErrorItem(typeof(TSource), message, exception, xmlLineInfo.LineNumber, xmlLineInfo.LinePosition));
 

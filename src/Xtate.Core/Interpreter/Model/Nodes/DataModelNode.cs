@@ -29,7 +29,7 @@ public sealed class DataModelNode : IDataModel, IStoreSupport, IAncestorProvider
     {
         documentIdNode.SaveToSlot(out _documentIdSlot);
         _dataModel = dataModel;
-        Data = dataModel.Data.AsArrayOf<IData, DataNode>(true);
+        Data = dataModel.Data.UseAncestor.ItemsAs<DataNode>(true);
     }
 
     public ImmutableArray<DataNode> Data { get; }

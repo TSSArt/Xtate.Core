@@ -18,17 +18,15 @@
 namespace Xtate;
 
 [Serializable]
-public class CommunicationException : XtateException
+public class CommunicationException : OwnedXtateException
 {
-    public CommunicationException() { }
+	public CommunicationException() { }
 
     public CommunicationException(string message) : base(message) { }
 
     public CommunicationException(string message, Exception innerException) : base(message, innerException) { }
 
-    public CommunicationException(Exception innerException, SendId? sendId = default) : base(message: null, innerException) => SendId = sendId;
+    public CommunicationException(Exception innerException, SendId? sendId = null) : base(message: null, innerException) => SendId = sendId;
 
     public SendId? SendId { get; }
-
-    internal object? Token { get; init; }
 }

@@ -19,13 +19,13 @@ namespace Xtate.DataModel.Null;
 
 public class NullDataModelHandler : DataModelHandlerBase
 {
-    public class DefaultProvider() : DataModelHandlerProviderBase<NullDataModelHandler>(default);
+    public class DefaultProvider() : DataModelHandlerProviderBase<NullDataModelHandler>(null);
 
     public class Provider() : DataModelHandlerProviderBase<NullDataModelHandler>(@"null");
 
-    public required IErrorProcessorService<NullDataModelHandler> NullErrorProcessorService { private get; [UsedImplicitly] init; }
+    public required IErrorProcessorService<NullDataModelHandler> NullErrorProcessorService { private get; [SetByIoC] init; }
 
-    public required Func<IConditionExpression, IIdentifier, NullConditionExpressionEvaluator> NullConditionExpressionEvaluatorFactory { private get; [UsedImplicitly] init; }
+    public required Func<IConditionExpression, IIdentifier, NullConditionExpressionEvaluator> NullConditionExpressionEvaluatorFactory { private get; [SetByIoC] init; }
 
     protected override void Visit(ref IForEach forEach) => NullErrorProcessorService.AddError(forEach, Resources.ErrorMessage_ForEachNotSupportedForNull);
 

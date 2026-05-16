@@ -15,8 +15,10 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Core;
+namespace Xtate.Core.Obsolete;
+//TODO: Delete
 
+[Obsolete]
 public abstract class AsyncInit<T> : AsyncInit
 {
     private T? _value;
@@ -26,23 +28,37 @@ public abstract class AsyncInit<T> : AsyncInit
     protected void SetValue(T value) => _value = value;
 }
 
+[Obsolete]
 public abstract class AsyncInit
 {
     public abstract Task Task { get; }
 
     public AsyncInit Then(AsyncInit asyncInit) => new Wrapper(this, asyncInit);
 
-    /// <summary>
-    ///     Runs delegate
-    ///     <param name="init">init</param>
-    ///     after completing constructors and setting up required fields and properties.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <typeparam name="TArg"></typeparam>
-    /// <param name="arg">Argument</param>
-    /// <param name="init">Initialization action</param>
-    /// <returns></returns>
-    public static AsyncInit<T> Run<T, TArg>(TArg arg, Func<TArg, ValueTask<T>> init) => new InitAfter<T, TArg>(arg, init);
+	public AsyncInit RunAfter(Task afterTask) => new TaskWrapper(afterTask, this);
+
+	/// <summary>
+	///     Runs delegate
+	///     <param name="init">init</param>
+	///     after completing constructors and setting up required fields and properties.
+	/// </summary>
+	/// <typeparam name="TArg"></typeparam>
+	/// <param name="arg">Argument</param>
+	/// <param name="init">Initialization action</param>
+	/// <returns></returns>
+	public static AsyncInit Run<TArg>(TArg arg, Func<TArg, ValueTask> init) => new InitAfter<TArg>(arg, init);
+
+	/// <summary>
+	///     Runs delegate
+	///     <param name="init">init</param>
+	///     after completing constructors and setting up required fields and properties.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <typeparam name="TArg"></typeparam>
+	/// <param name="arg">Argument</param>
+	/// <param name="init">Initialization action</param>
+	/// <returns></returns>
+	public static AsyncInit<T> Run<T, TArg>(TArg arg, Func<TArg, ValueTask<T>> init) => new InitAfter<T, TArg>(arg, init);
 
     /// <summary>
     ///     Runs delegate
@@ -52,6 +68,27 @@ public abstract class AsyncInit
     /// <param name="init">Initialization action</param>
     /// <returns></returns>
     public static AsyncInit Run(Func<ValueTask> init) => new InitAfter(init);
+
+    private sealed class InitAfter<TArg>(TArg arg, Func<TArg, ValueTask> func) : AsyncInit
+    {
+        public override Task Task
+        {
+            get
+            {
+                if (field is { } task)
+                {
+                    return task;
+                }
+
+                lock (this)
+                {
+                    return field ??= Init();
+                }
+            }
+        }
+
+        private Task Init() => func(arg).AsTask();
+    }
 
     private sealed class InitAfter<T, TArg>(TArg arg, Func<TArg, ValueTask<T>> func) : AsyncInit<T>
     {
@@ -93,6 +130,31 @@ public abstract class AsyncInit
         }
 
         private Task Init() => func().AsTask();
+    }
+
+    private sealed class TaskWrapper(Task afterTask, AsyncInit asyncInit) : AsyncInit
+    {
+        public override Task Task
+        {
+            get
+            {
+                if (field is { } task)
+                {
+                    return task;
+                }
+
+                lock (this)
+                {
+                    return field ??= Init();
+                }
+            }
+        }
+
+        private async Task Init()
+        {
+            await afterTask.ConfigureAwait(false);
+            await asyncInit.Task.ConfigureAwait(false);
+        }
     }
 
     private sealed class Wrapper(AsyncInit asyncInit1, AsyncInit asyncInit2) : AsyncInit

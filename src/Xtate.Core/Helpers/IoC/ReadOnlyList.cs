@@ -19,19 +19,9 @@ using System.Runtime.InteropServices;
 
 namespace Xtate.Core;
 
-public abstract class ReadOnlyList<T> : IList<T>, IList, IReadOnlyList<T>
+public abstract class ReadOnlyList<T>(ImmutableArray<T> list) : IList<T>, IList, IReadOnlyList<T>
 {
-	private T[] _array = [];
-
-	protected ReadOnlyList() { }
-
-	protected ReadOnlyList(ImmutableArray<T> list) => Items = list;
-
-	protected ImmutableArray<T> Items
-	{
-		get => ImmutableCollectionsMarshal.AsImmutableArray(_array);
-		set => _array = ImmutableCollectionsMarshal.AsArray(value) ?? [];
-	}
+	private readonly T[] _array = ImmutableCollectionsMarshal.AsArray(list) ?? [];
 
 #region Interface ICollection
 
@@ -123,7 +113,7 @@ public abstract class ReadOnlyList<T> : IList<T>, IList, IReadOnlyList<T>
 
 #endregion
 
-	public ImmutableArray<T>.Enumerator GetEnumerator() => Items.GetEnumerator();
+	public ImmutableArray<T>.Enumerator GetEnumerator() => ImmutableCollectionsMarshal.AsImmutableArray(_array).GetEnumerator();
 
 	private static NotSupportedException ReadOnlyCollectionException() => new("This collection is read-only and cannot be modified");
 

@@ -28,21 +28,23 @@ public class DynamicAssembly : IDisposable, IAsyncInitialization, IServiceModule
 
     private readonly Uri _uri;
 
-    private AsyncInit<ImmutableArray<IServiceModule>>? _asyncInitServiceModules;
+    private ImmutableArray<IServiceModule> _serviceModules;
 
     private Context? _context;
 
     public DynamicAssembly(Uri uri)
     {
         _uri = uri;
-        _asyncInitServiceModules = AsyncInit.Run(this, static da => da.LoadAssemblyServiceModules());
     }
 
     public required IResourceLoader ResourceLoader { private get; [UsedImplicitly] init; }
 
 #region Interface IAsyncInitialization
 
-    public Task Initialization => _asyncInitServiceModules?.Task ?? Task.CompletedTask;
+	public virtual async ValueTask InitializeAsync()
+	{
+		_serviceModules = await LoadAssemblyServiceModules().ConfigureAwait(false);
+	}
 
 #endregion
 
@@ -60,9 +62,12 @@ public class DynamicAssembly : IDisposable, IAsyncInitialization, IServiceModule
 
     public void Register(IServiceCollection servicesCollection)
     {
-        var serviceModules = _asyncInitServiceModules?.Value ?? throw new ObjectDisposedException(nameof(DynamicAssembly));
+		if (_serviceModules.IsDefault)
+		{
+			throw new ObjectDisposedException(nameof(DynamicAssembly));
+		}
 
-        foreach (var serviceModule in serviceModules)
+        foreach (var serviceModule in _serviceModules)
         {
             serviceModule.Register(servicesCollection);
         }
@@ -128,7 +133,7 @@ public class DynamicAssembly : IDisposable, IAsyncInitialization, IServiceModule
         {
             _disposingToken.Dispose();
             _context?.Unload();
-            _asyncInitServiceModules = null;
+            _serviceModules = default;
             _context = null;
         }
     }

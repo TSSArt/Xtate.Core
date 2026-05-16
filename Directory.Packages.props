@@ -6,9 +6,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageVersion Include="Xtate.IoC" Version="0.*" />
+		<PackageVersion Include="Xtate.IoC" Version="1.6.0" />
 
-		<PackageVersion Include="System.Threading.Channels" Version="10.0.0" />
+		<PackageVersion Include="System.Threading.Channels" Version="10.0.8" />
 	</ItemGroup>
 
 </Project>

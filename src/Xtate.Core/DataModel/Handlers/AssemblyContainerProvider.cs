@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,56 +19,57 @@ using Xtate.IoC;
 
 namespace Xtate.DataModel;
 
-public class AssemblyContainerProvider : IAsyncInitialization, IAssemblyContainerProvider, IDisposable
+public class AssemblyContainerProvider(Uri uri) : IAsyncInitialization, IAssemblyContainerProvider, IDisposable
 {
-    private readonly AsyncInit<IServiceScope> _asyncInitServiceScope;
+	private readonly AsyncInit<AssemblyContainerProvider, IServiceScope> _serviceScope = new(CreateServiceScopeAsync);
 
-    private readonly Uri _uri;
+	private readonly Uri _uri = uri;
 
-    public AssemblyContainerProvider(Uri uri)
-    {
-        _uri = uri;
-        _asyncInitServiceScope = AsyncInit.Run(this, acp => acp.CreateServiceScope());
-    }
+	public required IServiceScopeFactory ServiceScopeFactory { private get; [UsedImplicitly] init; }
 
-    public required IServiceScopeFactory ServiceScopeFactory { private get; [UsedImplicitly] init; }
-
-    public required Func<Uri, ValueTask<DynamicAssembly>> DynamicAssemblyFactory { private get; [UsedImplicitly] init; }
+	public required Func<Uri, ValueTask<DynamicAssembly>> DynamicAssemblyFactory { private get; [UsedImplicitly] init; }
 
 #region Interface IAssemblyContainerProvider
 
-    public virtual IAsyncEnumerable<IDataModelHandlerProvider> GetDataModelHandlerProviders() => _asyncInitServiceScope.Value.ServiceProvider.GetServices<IDataModelHandlerProvider>();
+	public virtual IAsyncEnumerable<IDataModelHandlerProvider> GetDataModelHandlerProviders() => _serviceScope.Value.ServiceProvider.GetServices<IDataModelHandlerProvider>();
 
 #endregion
 
 #region Interface IAsyncInitialization
 
-    public Task Initialization => _asyncInitServiceScope.Task;
+	public virtual ValueTask InitializeAsync() => AsyncInit.For(this).Run(_serviceScope);
 
 #endregion
 
 #region Interface IDisposable
 
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
+	public void Dispose()
+	{
+		Dispose(true);
+		GC.SuppressFinalize(this);
+	}
 
 #endregion
 
-    private async ValueTask<IServiceScope> CreateServiceScope()
-    {
-        var dynamicAssembly = await DynamicAssemblyFactory(_uri).ConfigureAwait(false);
+	private static async ValueTask<IServiceScope> CreateServiceScopeAsync(AssemblyContainerProvider provider)
+	{
+		var dynamicAssembly = await provider.DynamicAssemblyFactory(provider._uri).ConfigureAwait(false);
 
-        return ServiceScopeFactory.CreateScope(dynamicAssembly.Register);
-    }
+		return provider.ServiceScopeFactory.CreateScope(dynamicAssembly.Register);
+	}
 
-    protected virtual void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            _asyncInitServiceScope.Value.Dispose();
-        }
-    }
+	private async ValueTask<IServiceScope> CreateServiceScope()
+	{
+		var dynamicAssembly = await DynamicAssemblyFactory(_uri).ConfigureAwait(false);
+
+		return ServiceScopeFactory.CreateScope(dynamicAssembly.Register);
+	}
+
+	protected virtual void Dispose(bool disposing)
+	{
+		if (disposing)
+		{
+			_serviceScope.Value.Dispose();
+		}
+	}
 }

@@ -165,7 +165,7 @@ public class InterpreterModelPersistenceTest
         services.AddImplementation<DummyResourceLoader>().For<IResourceLoader>();
         var serviceProvider = services.BuildProvider();
         var model = await serviceProvider.GetRequiredService<IInterpreterModel>();
-        var storeSupport = model.Root.As<IStoreSupport>();
+        var storeSupport = model.Root.UseAncestor.As<IStoreSupport>();
 
         var storage = new InMemoryStorage(false);
         storeSupport.Store(new Bucket(storage));
@@ -184,7 +184,7 @@ public class InterpreterModelPersistenceTest
         services.AddImplementation<DummyResourceLoader>().For<IResourceLoader>();
         var serviceProvider = services.BuildProvider();
         var model = await serviceProvider.GetRequiredService<IInterpreterModel>();
-        var storeSupport = model.Root.As<IStoreSupport>();
+        var storeSupport = model.Root.UseAncestor.As<IStoreSupport>();
 
         byte[] transactionLog;
 
@@ -242,7 +242,7 @@ public class InterpreterModelPersistenceTest
         services.AddConstant<IStorageProvider>(storageProvider);
         var serviceProvider = services.BuildProvider();
         var model = await serviceProvider.GetRequiredService<IInterpreterModel>();
-        var storeSupport = model.Root.As<IStoreSupport>();
+        var storeSupport = model.Root.UseAncestor.As<IStoreSupport>();
 
         byte[] transactionLog;
 

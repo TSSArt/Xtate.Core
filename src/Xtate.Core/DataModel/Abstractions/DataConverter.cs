@@ -172,8 +172,8 @@ public class DataConverter(ICaseSensitivity? caseSensitivity)
     {
         public string Name { get; } = param.Name!;
 
-        public IObjectEvaluator? ExpressionEvaluator { get; } = param.Expression?.As<IObjectEvaluator>();
+        public IObjectEvaluator? ExpressionEvaluator { get; } = param.Expression?.UseAncestor.As<IObjectEvaluator>();
 
-        public ILocationEvaluator? LocationEvaluator { get; } = param.Location?.As<ILocationEvaluator>();
+        public ILocationEvaluator? LocationEvaluator { get; } = param.Location?.UseAncestor.As<ILocationEvaluator>();
     }
 }

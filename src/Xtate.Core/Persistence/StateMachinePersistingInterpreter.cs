@@ -20,41 +20,32 @@ using Xtate.Persistence;
 
 namespace Xtate.Core;
 
-public interface ISuspendEventDispatcher
-{
-    event Action OnSuspend;
-}
-
-public interface IPersistenceOptions
-{
-    PersistenceLevel PersistenceLevel { get; }
-}
-
 public class StateMachinePersistingInterpreter : StateMachineInterpreter
 {
-    private const int KeyIndex = 0;
+	private readonly object _owner = new();
+
+	private const int KeyIndex = 0;
 
     private const int ValueIndex = 1;
 
-    public required IInterpreterModel InterpreterModel { private get; [UsedImplicitly] init; }
+    public required IInterpreterModel InterpreterModel { private get; [SetByIoC] init; }
 
-    public required IStorage StateStorage
-    {
-        [UsedImplicitly]
-        init
-        {
-            _stateBucket = new Bucket(value);
-            _storage = value;
-        }
-    }
+	public required IStateMachinePersistenceContext StateMachinePersistenceContext
+	{
+		private get;
+		[SetByIoC]
+		init
+		{
+			field = value;
+			_stateBucket = value.GetStateBucket();
+		}
+	}
 
-    private bool _suspending;
+	private bool _suspending;
 
     private int _index;
 
     private int _subIndex;
-
-    private readonly IStorage _storage;
 
     private readonly Bucket _stateBucket;
 
@@ -64,7 +55,7 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
         init => value.OnSuspend += Suspend;
     }
 
-    public required IPersistenceOptions PersistenceOptions { private get; [UsedImplicitly] init; }
+    public required IPersistenceOptions PersistenceOptions { private get; [SetByIoC] init; }
 
     private void Suspend()
     {
@@ -76,17 +67,19 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
     protected override async ValueTask ExternalQueueCompleted()
     {
         if (_suspending)
-        {
-            throw new StateMachineSuspendedException(Resources.Exception_StateMachineHasBeenSuspended);
-        }
+		{
+			throw new StateMachineSuspendedException(Resources.Exception_StateMachineHasBeenSuspended) { Owner = _owner };
+		}
 
         await base.ExternalQueueCompleted().ConfigureAwait(false);
     }
 
-    protected override ValueTask HandleMainLoopException(Exception ex) =>
-        _suspending && ex is StateMachineSuspendedException ? NotifyInterpreterState(StateMachineInterpreterState.Suspended) : base.HandleMainLoopException(ex);
+	protected override ValueTask HandleMainLoopException(Exception ex) =>
+		_suspending && ex.GetBaseException() is StateMachineSuspendedException se && se.IsOwnedBy(_owner)
+			? NotifyInterpreterState(StateMachinePersistingInterpreterState.Suspended)
+			: base.HandleMainLoopException(ex);
 
-    private bool Enter(StateBagKey key) => Enter(key, out _, iteration: false);
+	private bool Enter(StateBagKey key) => Enter(key, out _, iteration: false);
 
     private void Exit(StateBagKey key) => Exit(key, out _, iteration: false);
 
@@ -128,7 +121,10 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
         var length = bucket.GetInt32(Bucket.RootKey);
 
         var entityMap = InterpreterModel.EntityMap;
-        result = new List<TransitionNode>(length);
+
+		Infra.NotNull(entityMap);
+
+        result = [with(length)];
 
         for (var i = 0; i < length; i ++)
         {
@@ -270,14 +266,14 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 
     protected virtual async ValueTask CheckPoint(PersistenceLevel level)
     {
-        if (level <= PersistenceOptions.PersistenceLevel && _storage is ITransactionalStorage transactionalStorage)
+        if (level <= PersistenceOptions.PersistenceLevel)
         {
-            await transactionalStorage.CheckPoint((int)level).ConfigureAwait(false);
+			await StateMachinePersistenceContext.CheckPoint((int)level).ConfigureAwait(false);
 
             if (level == PersistenceLevel.StableState)
             {
-                await transactionalStorage.Shrink().ConfigureAwait(false);
-            }
+				await StateMachinePersistenceContext.Shrink().ConfigureAwait(false);
+			}
         }
     }
 

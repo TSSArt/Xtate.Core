@@ -22,7 +22,7 @@ namespace Xtate.Core;
 
 public sealed class FinalizeNode(IFinalize finalize) : IFinalize, IStoreSupport, IAncestorProvider
 {
-    public ImmutableArray<IExecEvaluator> ActionEvaluators { get; } = finalize.Action.AsArrayOf<IExecutableEntity, IExecEvaluator>();
+    public ImmutableArray<IExecEvaluator> ActionEvaluators { get; } = finalize.Action.UseAncestor.ItemsAs<IExecEvaluator>();
 
 #region Interface IAncestorProvider
 

@@ -15,21 +15,23 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Core;
+namespace Xtate;
 
-public interface IPersistenceContext
+[Serializable]
+public class OwnedXtateException : XtateException
 {
-    int GetState(int key);
+	[NonSerialized]
+	private object? _owner;
 
-    int GetState(int key, int subKey);
+	public OwnedXtateException() { }
 
-    void SetState(int key, int value);
+	public OwnedXtateException(string message) : base(message) { }
 
-    void SetState(int key, int subKey, int value);
+	public OwnedXtateException(string message, Exception innerException) : base(message, innerException) { }
 
-    void ClearState(int key);
+	public OwnedXtateException(Exception innerException) : base(message: null, innerException) { }
 
-    ValueTask CheckPoint(int level);
+	public required object Owner { init => _owner = value; }
 
-    ValueTask Shrink();
+	public bool IsOwnedBy(object owner) => ReferenceEquals(_owner, owner);
 }

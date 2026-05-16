@@ -22,7 +22,7 @@ namespace Xtate.Core.Interpreter;
 [TestClass]
 public class InterpreterTest
 {
-    [TestMethod]
+	[TestMethod]
     public async Task StateMachineInterpreterEmptyRun()
     {
         // arrange
@@ -62,8 +62,9 @@ public class InterpreterTest
                                           NotifyStateChanged = [],
                                           UnhandledErrorBehaviour = null,
                                           StateMachineArguments = null,
-                                          StateMachineRuntimeError = new StateMachineRuntimeError { StateMachineSessionId = new DefaultStateMachineSessionId() },
-                                          InvokeController = invokeControllerMock.Object
+                                          StateMachineRuntimeError = new StateMachineRuntimeError(new ScopeObject()),
+                                          InvokeController = invokeControllerMock.Object,
+										  DisposeToken = new DisposeToken()
                                       };
 
         // act

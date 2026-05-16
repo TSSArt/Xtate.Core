@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -15,26 +15,18 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.IoC;
-
 namespace Xtate.Core;
 
-[InstantiatedByIoC]
-public class OptionsImpl<T> : IOptions<T>, IAsyncInitialization
+public sealed class OptionsImpl<T> : IOptions<T>
 {
-    private readonly AsyncInit<T> _value;
-
-    public OptionsImpl(IOptionsAsync<T> optionsAsync) => _value = AsyncInit.Run(optionsAsync, c => c.GetValue());
-
-#region Interface IAsyncInitialization
-
-    public Task Initialization => _value.Task;
-
-#endregion
+	private OptionsImpl(T value) => Value = value;
 
 #region Interface IOptions<T>
 
-    public T Value => _value.Value;
+	public T Value { get; }
 
 #endregion
+
+	[CalledByIoC]
+	public static async ValueTask<OptionsImpl<T>> Constructor(IOptionsAsync<T> optionsAsync) => new(await optionsAsync.GetValue().ConfigureAwait(false));
 }

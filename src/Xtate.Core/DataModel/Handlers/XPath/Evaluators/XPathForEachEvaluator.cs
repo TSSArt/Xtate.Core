@@ -25,11 +25,11 @@ public class XPathForEachEvaluator : DefaultForEachEvaluator
 
     public XPathForEachEvaluator(IForEach forEach) : base(forEach)
     {
-        var itemEvaluator = base.Item?.As<XPathLocationExpressionEvaluator>();
+        var itemEvaluator = base.Item?.UseAncestor.As<XPathLocationExpressionEvaluator>();
         Infra.NotNull(itemEvaluator);
         _itemEvaluator = itemEvaluator;
 
-        _indexEvaluator = base.Index?.As<XPathLocationExpressionEvaluator>();
+        _indexEvaluator = base.Index?.UseAncestor.As<XPathLocationExpressionEvaluator>();
     }
 
     public required Func<ValueTask<XPathEngine>> EngineFactory { private get; [UsedImplicitly] init; }

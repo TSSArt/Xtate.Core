@@ -30,7 +30,7 @@ public sealed class OnExitNode : IOnExit, IStoreSupport, IAncestorProvider, IDoc
     {
         _onExit = onExit;
         documentIdNode.SaveToSlot(out _documentIdSlot);
-        ActionEvaluators = onExit.Action.AsArrayOf<IExecutableEntity, IExecEvaluator>();
+        ActionEvaluators = onExit.Action.UseAncestor.ItemsAs<IExecEvaluator>();
     }
 
     public ImmutableArray<IExecEvaluator> ActionEvaluators { get; }

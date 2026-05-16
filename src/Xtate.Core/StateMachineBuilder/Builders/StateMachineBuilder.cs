@@ -17,6 +17,7 @@
 
 namespace Xtate.Builder;
 
+[InstantiatedByIoC]
 public class StateMachineBuilder : BuilderBase, IStateMachineBuilder
 {
     private BindingType _bindingType;

@@ -19,23 +19,23 @@ namespace Xtate.DataModel;
 
 public class DefaultSendEvaluator(ISend send) : SendEvaluator(send)
 {
-    private readonly IValueEvaluator? _contentBodyEvaluator = send.Content?.Body?.As<IValueEvaluator>();
+    private readonly IValueEvaluator? _contentBodyEvaluator = send.Content?.Body?.UseAncestor.As<IValueEvaluator>();
 
-    private readonly IObjectEvaluator? _contentExpressionEvaluator = send.Content?.Expression?.As<IObjectEvaluator>();
+    private readonly IObjectEvaluator? _contentExpressionEvaluator = send.Content?.Expression?.UseAncestor.As<IObjectEvaluator>();
 
-    private readonly IIntegerEvaluator? _delayExpressionEvaluator = send.DelayExpression?.As<IIntegerEvaluator>();
+    private readonly IIntegerEvaluator? _delayExpressionEvaluator = send.DelayExpression?.UseAncestor.As<IIntegerEvaluator>();
 
-    private readonly IStringEvaluator? _eventExpressionEvaluator = send.EventExpression?.As<IStringEvaluator>();
+    private readonly IStringEvaluator? _eventExpressionEvaluator = send.EventExpression?.UseAncestor.As<IStringEvaluator>();
 
-    private readonly ILocationEvaluator? _idLocationEvaluator = send.IdLocation?.As<ILocationEvaluator>();
+    private readonly ILocationEvaluator? _idLocationEvaluator = send.IdLocation?.UseAncestor.As<ILocationEvaluator>();
 
-    private readonly ImmutableArray<ILocationEvaluator> _nameEvaluatorList = send.NameList.AsArrayOf<ILocationExpression, ILocationEvaluator>();
+    private readonly ImmutableArray<ILocationEvaluator> _nameEvaluatorList = send.NameList.UseAncestor.ItemsAs<ILocationEvaluator>();
 
     private readonly ImmutableArray<DataConverter.Param> _parameterList = DataModel.DataConverter.AsParamArray(send.Parameters);
 
-    private readonly IStringEvaluator? _targetExpressionEvaluator = send.TargetExpression?.As<IStringEvaluator>();
+    private readonly IStringEvaluator? _targetExpressionEvaluator = send.TargetExpression?.UseAncestor.As<IStringEvaluator>();
 
-    private readonly IStringEvaluator? _typeExpressionEvaluator = send.TypeExpression?.As<IStringEvaluator>();
+    private readonly IStringEvaluator? _typeExpressionEvaluator = send.TypeExpression?.UseAncestor.As<IStringEvaluator>();
 
     public required Deferred<DataConverter> DataConverter { private get; [UsedImplicitly] init; }
 

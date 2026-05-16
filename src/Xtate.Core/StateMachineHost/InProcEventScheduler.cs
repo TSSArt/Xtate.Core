@@ -127,9 +127,9 @@ public class InProcEventScheduler : IEventScheduler, IDisposable, IAsyncDisposab
     private async ValueTask DispatchEvent(IRouterEvent routerEvent)
     {
         if (routerEvent.OriginType is not { } originType)
-        {
-            throw new PlatformException(Resources.Exception_OriginTypeMustBeProvidedInRouterEvent);
-        }
+		{
+			throw new PlatformException(Resources.Exception_OriginTypeMustBeProvidedInRouterEvent) { Owner = null! };
+		}
 
         var eventRouter = GetEventRouter(originType);
 

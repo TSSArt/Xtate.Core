@@ -64,5 +64,6 @@ public class StateMachineInterpreterModule : Module<DataModelHandlersModule, Int
         Services.AddSharedImplementation<EventQueue>(SharedWithin.Scope).For<IEventQueueReader>().For<IEventQueueWriter>().For<IEventDispatcher>();
         Services.AddSharedImplementation<StateMachineContext>(SharedWithin.Scope).For<IStateMachineContext>();
         Services.AddSharedImplementation<StateMachineInterpreter>(SharedWithin.Scope).For<IStateMachineInterpreter>();
-    }
+		Services.AddConstant<ImplementationType<IStateMachineInterpreter>>(() => typeof(StateMachineInterpreter));
+	}
 }

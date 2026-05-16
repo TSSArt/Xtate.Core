@@ -17,4 +17,5 @@
 
 namespace Xtate.Core;
 
-public delegate T Ancestor<out T>();
+[Obsolete]
+public delegate T? Ancestor<out T>();
