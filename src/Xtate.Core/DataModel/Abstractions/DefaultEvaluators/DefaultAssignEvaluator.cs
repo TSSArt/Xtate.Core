@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,25 +19,25 @@ namespace Xtate.DataModel;
 
 public class DefaultAssignEvaluator : AssignEvaluator
 {
-    private readonly ILocationEvaluator _locationEvaluator;
+	private readonly ILocationEvaluator _locationEvaluator;
 
-    private readonly IObjectEvaluator _valueEvaluator;
+	private readonly IObjectEvaluator _valueEvaluator;
 
-    public DefaultAssignEvaluator(IAssign assign) : base(assign)
-    {
-        var valueEvaluator = base.Expression?.UseAncestor.As<IObjectEvaluator>() ?? base.InlineContent?.UseAncestor.As<IObjectEvaluator>();
-        Infra.NotNull(valueEvaluator);
-        _valueEvaluator = valueEvaluator;
+	public DefaultAssignEvaluator(IAssign assign) : base(assign)
+	{
+		var valueEvaluator = base.Expression?.UseAncestor.As<IObjectEvaluator>() ?? base.InlineContent?.UseAncestor.As<IObjectEvaluator>();
+		Infra.NotNull(valueEvaluator);
+		_valueEvaluator = valueEvaluator;
 
-        var locationEvaluator = base.Location?.UseAncestor.As<ILocationEvaluator>();
-        Infra.NotNull(locationEvaluator);
-        _locationEvaluator = locationEvaluator;
-    }
+		var locationEvaluator = base.Location?.UseAncestor.As<ILocationEvaluator>();
+		Infra.NotNull(locationEvaluator);
+		_locationEvaluator = locationEvaluator;
+	}
 
-    public override async ValueTask Execute()
-    {
-        var value = await _valueEvaluator.EvaluateObject().ConfigureAwait(false);
+	public override async ValueTask Execute()
+	{
+		var value = await _valueEvaluator.EvaluateObject().ConfigureAwait(false);
 
-        await _locationEvaluator.SetValue(value).ConfigureAwait(false);
-    }
+		await _locationEvaluator.SetValue(value).ConfigureAwait(false);
+	}
 }

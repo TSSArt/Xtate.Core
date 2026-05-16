@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -20,7 +20,7 @@ namespace Xtate.Core;
 [Obsolete]
 public interface ILoadStateMachineLoggerContext //: ILoggerContext
 {
-    public Uri? Uri { get; }
+	Uri? Uri { get; }
 
-    public string? Scxml { get; }
+	string? Scxml { get; }
 }

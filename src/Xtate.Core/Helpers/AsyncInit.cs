@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,19 +21,19 @@ namespace Xtate.Core.Obsolete;
 [Obsolete]
 public abstract class AsyncInit<T> : AsyncInit
 {
-    private T? _value;
+	private T? _value;
 
-    public T Value => Task.Status == TaskStatus.RanToCompletion ? _value! : throw new InvalidOperationException(Resources.ErrorMessage_Not_initialized);
+	public T Value => Task.Status == TaskStatus.RanToCompletion ? _value! : throw new InvalidOperationException(Resources.ErrorMessage_Not_initialized);
 
-    protected void SetValue(T value) => _value = value;
+	protected void SetValue(T value) => _value = value;
 }
 
 [Obsolete]
 public abstract class AsyncInit
 {
-    public abstract Task Task { get; }
+	public abstract Task Task { get; }
 
-    public AsyncInit Then(AsyncInit asyncInit) => new Wrapper(this, asyncInit);
+	public AsyncInit Then(AsyncInit asyncInit) => new Wrapper(this, asyncInit);
 
 	public AsyncInit RunAfter(Task afterTask) => new TaskWrapper(afterTask, this);
 
@@ -60,125 +60,125 @@ public abstract class AsyncInit
 	/// <returns></returns>
 	public static AsyncInit<T> Run<T, TArg>(TArg arg, Func<TArg, ValueTask<T>> init) => new InitAfter<T, TArg>(arg, init);
 
-    /// <summary>
-    ///     Runs delegate
-    ///     <param name="init">init</param>
-    ///     after completing constructors and setting up required fields and properties.
-    /// </summary>
-    /// <param name="init">Initialization action</param>
-    /// <returns></returns>
-    public static AsyncInit Run(Func<ValueTask> init) => new InitAfter(init);
+	/// <summary>
+	///     Runs delegate
+	///     <param name="init">init</param>
+	///     after completing constructors and setting up required fields and properties.
+	/// </summary>
+	/// <param name="init">Initialization action</param>
+	/// <returns></returns>
+	public static AsyncInit Run(Func<ValueTask> init) => new InitAfter(init);
 
-    private sealed class InitAfter<TArg>(TArg arg, Func<TArg, ValueTask> func) : AsyncInit
-    {
-        public override Task Task
-        {
-            get
-            {
-                if (field is { } task)
-                {
-                    return task;
-                }
+	private sealed class InitAfter<TArg>(TArg arg, Func<TArg, ValueTask> func) : AsyncInit
+	{
+		public override Task Task
+		{
+			get
+			{
+				if (field is { } task)
+				{
+					return task;
+				}
 
-                lock (this)
-                {
-                    return field ??= Init();
-                }
-            }
-        }
+				lock (this)
+				{
+					return field ??= Init();
+				}
+			}
+		}
 
-        private Task Init() => func(arg).AsTask();
-    }
+		private Task Init() => func(arg).AsTask();
+	}
 
-    private sealed class InitAfter<T, TArg>(TArg arg, Func<TArg, ValueTask<T>> func) : AsyncInit<T>
-    {
-        public override Task Task
-        {
-            get
-            {
-                if (field is { } task)
-                {
-                    return task;
-                }
+	private sealed class InitAfter<T, TArg>(TArg arg, Func<TArg, ValueTask<T>> func) : AsyncInit<T>
+	{
+		public override Task Task
+		{
+			get
+			{
+				if (field is { } task)
+				{
+					return task;
+				}
 
-                lock (this)
-                {
-                    return field ??= Init();
-                }
-            }
-        }
+				lock (this)
+				{
+					return field ??= Init();
+				}
+			}
+		}
 
-        private async Task Init() => SetValue(await func(arg).ConfigureAwait(false));
-    }
+		private async Task Init() => SetValue(await func(arg).ConfigureAwait(false));
+	}
 
-    private sealed class InitAfter(Func<ValueTask> func) : AsyncInit
-    {
-        public override Task Task
-        {
-            get
-            {
-                if (field is { } task)
-                {
-                    return task;
-                }
+	private sealed class InitAfter(Func<ValueTask> func) : AsyncInit
+	{
+		public override Task Task
+		{
+			get
+			{
+				if (field is { } task)
+				{
+					return task;
+				}
 
-                lock (this)
-                {
-                    return field ??= Init();
-                }
-            }
-        }
+				lock (this)
+				{
+					return field ??= Init();
+				}
+			}
+		}
 
-        private Task Init() => func().AsTask();
-    }
+		private Task Init() => func().AsTask();
+	}
 
-    private sealed class TaskWrapper(Task afterTask, AsyncInit asyncInit) : AsyncInit
-    {
-        public override Task Task
-        {
-            get
-            {
-                if (field is { } task)
-                {
-                    return task;
-                }
+	private sealed class TaskWrapper(Task afterTask, AsyncInit asyncInit) : AsyncInit
+	{
+		public override Task Task
+		{
+			get
+			{
+				if (field is { } task)
+				{
+					return task;
+				}
 
-                lock (this)
-                {
-                    return field ??= Init();
-                }
-            }
-        }
+				lock (this)
+				{
+					return field ??= Init();
+				}
+			}
+		}
 
-        private async Task Init()
-        {
-            await afterTask.ConfigureAwait(false);
-            await asyncInit.Task.ConfigureAwait(false);
-        }
-    }
+		private async Task Init()
+		{
+			await afterTask.ConfigureAwait(false);
+			await asyncInit.Task.ConfigureAwait(false);
+		}
+	}
 
-    private sealed class Wrapper(AsyncInit asyncInit1, AsyncInit asyncInit2) : AsyncInit
-    {
-        public override Task Task
-        {
-            get
-            {
-                if (field is { } task)
-                {
-                    return task;
-                }
+	private sealed class Wrapper(AsyncInit asyncInit1, AsyncInit asyncInit2) : AsyncInit
+	{
+		public override Task Task
+		{
+			get
+			{
+				if (field is { } task)
+				{
+					return task;
+				}
 
-                lock (this)
-                {
-                    return field ??= Init();
-                }
-            }
-        }
+				lock (this)
+				{
+					return field ??= Init();
+				}
+			}
+		}
 
-        private async Task Init()
-        {
-            await asyncInit1.Task.ConfigureAwait(false);
-            await asyncInit2.Task.ConfigureAwait(false);
-        }
-    }
+		private async Task Init()
+		{
+			await asyncInit1.Task.ConfigureAwait(false);
+			await asyncInit2.Task.ConfigureAwait(false);
+		}
+	}
 }

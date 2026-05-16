@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,20 +19,20 @@ namespace Xtate.Core;
 
 public class InterpreterModelGetter
 {
-    public required InterpreterModelBuilder InterpreterModelBuilder { private get; [UsedImplicitly] init; }
+	public required InterpreterModelBuilder InterpreterModelBuilder { private get; [UsedImplicitly] init; }
 
-    public required IErrorProcessor ErrorProcessor { private get; [UsedImplicitly] init; }
+	public required IErrorProcessor ErrorProcessor { private get; [UsedImplicitly] init; }
 
-    [CalledByIoC]
-    public async ValueTask<IInterpreterModel> GetInterpreterModel()
-    {
-        try
-        {
-            return await InterpreterModelBuilder.BuildModel().ConfigureAwait(false);
-        }
-        finally
-        {
-            ErrorProcessor.ThrowIfErrors();
-        }
-    }
+	[CalledByIoC]
+	public async ValueTask<IInterpreterModel> GetInterpreterModel()
+	{
+		try
+		{
+			return await InterpreterModelBuilder.BuildModel().ConfigureAwait(false);
+		}
+		finally
+		{
+			ErrorProcessor.ThrowIfErrors();
+		}
+	}
 }

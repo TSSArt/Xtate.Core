@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,11 +22,11 @@ public class CommunicationException : OwnedXtateException
 {
 	public CommunicationException() { }
 
-    public CommunicationException(string message) : base(message) { }
+	public CommunicationException(string message) : base(message) { }
 
-    public CommunicationException(string message, Exception innerException) : base(message, innerException) { }
+	public CommunicationException(string message, Exception innerException) : base(message, innerException) { }
 
-    public CommunicationException(Exception innerException, SendId? sendId = null) : base(message: null, innerException) => SendId = sendId;
+	public CommunicationException(Exception innerException, SendId? sendId = null) : base(message: null, innerException) => SendId = sendId;
 
-    public SendId? SendId { get; }
+	public SendId? SendId { get; }
 }

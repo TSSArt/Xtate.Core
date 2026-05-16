@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,7 +21,7 @@ public class NoNotifyStateChanged : INotifyStateChanged
 {
 #region Interface INotifyStateChanged
 
-    public ValueTask OnChanged(StateMachineInterpreterState state) => default;
+	public ValueTask OnChanged(StateMachineInterpreterState state) => default;
 
 #endregion
 }

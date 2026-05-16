@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,84 +22,84 @@ namespace Xtate.Core;
 
 public class StateMachineContext : IStateMachineContext
 {
-    public required ICaseSensitivity CaseSensitivity { private get; [UsedImplicitly] init; }
+	public required ICaseSensitivity CaseSensitivity { private get; [UsedImplicitly] init; }
 
-    public required IStateMachine StateMachine { private get; [UsedImplicitly] init; }
+	public required IStateMachine StateMachine { private get; [UsedImplicitly] init; }
 
-    public required IReadOnlyCollection<IIoProcessor> IoProcessors { private get; [UsedImplicitly] init; }
+	public required IReadOnlyCollection<IIoProcessor> IoProcessors { private get; [UsedImplicitly] init; }
 
-    public required IReadOnlyCollection<IXDataModelProperty> XDataModelProperties { private get; [UsedImplicitly] init; }
+	public required IReadOnlyCollection<IXDataModelProperty> XDataModelProperties { private get; [UsedImplicitly] init; }
 
-    public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
+	public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
 
 #region Interface IStateMachineContext
-    
-    [field: AllowNull]
-    public DataModelList DataModel => field ??= CreateDataModel();
 
-    public OrderedSet<StateEntityNode> Configuration { get; } = [];
+	[field: AllowNull]
+	public DataModelList DataModel => field ??= CreateDataModel();
 
-    public KeyList<StateEntityNode> HistoryValue { get; } = [];
+	public OrderedSet<StateEntityNode> Configuration { get; } = [];
 
-    public EntityQueue<IIncomingEvent> InternalQueue { get; } = [];
+	public KeyList<StateEntityNode> HistoryValue { get; } = [];
 
-    public OrderedSet<StateEntityNode> StatesToInvoke { get; } = [];
+	public EntityQueue<IIncomingEvent> InternalQueue { get; } = [];
 
-    public InvokeIdSet ActiveInvokes { get; } = [];
+	public OrderedSet<StateEntityNode> StatesToInvoke { get; } = [];
 
-    public DataModelValue DoneData { get; set; }
+	public InvokeIdSet ActiveInvokes { get; } = [];
+
+	public DataModelValue DoneData { get; set; }
 
 #endregion
 
-    private DataModelList CreateDataModel()
-    {
-        var dataModel = new DataModelList(CaseSensitivity.CaseInsensitive);
+	private DataModelList CreateDataModel()
+	{
+		var dataModel = new DataModelList(CaseSensitivity.CaseInsensitive);
 
-        dataModel.AddInternal(key: @"_name", StateMachine.Name, DataModelAccess.ReadOnly);
-        dataModel.AddInternal(key: @"_sessionid", StateMachineSessionId.SessionId, DataModelAccess.Constant);
-        dataModel.AddInternal(key: @"_event", value: default, DataModelAccess.ReadOnly);
-        dataModel.AddInternal(key: @"_ioprocessors", LazyValue.Create(this, ctx => ctx.GetIoProcessors()), DataModelAccess.Constant);
-        dataModel.AddInternal(key: @"_x", LazyValue.Create(this, ctx => ctx.GetPlatform()), DataModelAccess.Constant);
+		dataModel.AddInternal(key: @"_name", StateMachine.Name, DataModelAccess.ReadOnly);
+		dataModel.AddInternal(key: @"_sessionid", StateMachineSessionId.SessionId, DataModelAccess.Constant);
+		dataModel.AddInternal(key: @"_event", value: default, DataModelAccess.ReadOnly);
+		dataModel.AddInternal(key: @"_ioprocessors", LazyValue.Create(this, ctx => ctx.GetIoProcessors()), DataModelAccess.Constant);
+		dataModel.AddInternal(key: @"_x", LazyValue.Create(this, ctx => ctx.GetPlatform()), DataModelAccess.Constant);
 
-        return dataModel;
-    }
+		return dataModel;
+	}
 
-    private DataModelValue GetPlatform()
-    {
-        if (XDataModelProperties.Count == 0)
-        {
-            return DataModelList.Empty;
-        }
+	private DataModelValue GetPlatform()
+	{
+		if (XDataModelProperties.Count == 0)
+		{
+			return DataModelList.Empty;
+		}
 
-        var list = new DataModelList(DataModelAccess.ReadOnly, CaseSensitivity.CaseInsensitive);
+		var list = new DataModelList(DataModelAccess.ReadOnly, CaseSensitivity.CaseInsensitive);
 
-        foreach (var property in XDataModelProperties)
-        {
-            list.AddInternal(property.Name, property.Value, DataModelAccess.Constant);
-        }
+		foreach (var property in XDataModelProperties)
+		{
+			list.AddInternal(property.Name, property.Value, DataModelAccess.Constant);
+		}
 
-        return list;
-    }
+		return list;
+	}
 
-    private DataModelValue GetIoProcessors()
-    {
-        if (IoProcessors.Count == 0)
-        {
-            return DataModelList.Empty;
-        }
+	private DataModelValue GetIoProcessors()
+	{
+		if (IoProcessors.Count == 0)
+		{
+			return DataModelList.Empty;
+		}
 
-        var caseInsensitive = CaseSensitivity.CaseInsensitive;
+		var caseInsensitive = CaseSensitivity.CaseInsensitive;
 
-        var list = new DataModelList(DataModelAccess.ReadOnly, caseInsensitive);
+		var list = new DataModelList(DataModelAccess.ReadOnly, caseInsensitive);
 
-        foreach (var ioProcessor in IoProcessors)
-        {
-            var value = new DataModelList(DataModelAccess.ReadOnly, caseInsensitive);
-            value.AddInternal(key: @"location", ioProcessor.GetTarget(StateMachineSessionId.SessionId)?.ToString(), DataModelAccess.Constant);
+		foreach (var ioProcessor in IoProcessors)
+		{
+			var value = new DataModelList(DataModelAccess.ReadOnly, caseInsensitive);
+			value.AddInternal(key: @"location", ioProcessor.GetTarget(StateMachineSessionId.SessionId)?.ToString(), DataModelAccess.Constant);
 
-            list.AddInternal(ioProcessor.Id.ToString(), value, DataModelAccess.Constant);
-        }
+			list.AddInternal(ioProcessor.Id.ToString(), value, DataModelAccess.Constant);
+		}
 
-        return list;
-    }
+		return list;
+	}
 }

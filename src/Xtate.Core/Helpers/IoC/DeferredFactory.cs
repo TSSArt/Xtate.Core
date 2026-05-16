@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -20,12 +20,12 @@ namespace Xtate.Core;
 [InstantiatedByIoC]
 public class DeferredFactory<T>
 {
-    private ValueTask<T>? _valueTask;
+	private ValueTask<T>? _valueTask;
 
-    public required Func<ValueTask<T>> Factory { private get; [SetByIoC] init; }
+	public required Func<ValueTask<T>> Factory { private get; [SetByIoC] init; }
 
-    private ValueTask<T> GetValue() => _valueTask ??= Factory().Preserve();
+	private ValueTask<T> GetValue() => _valueTask ??= Factory().Preserve();
 
-    [CalledByIoC]
-    public Deferred<T> GetValueFunc() => GetValue;
+	[CalledByIoC]
+	public Deferred<T> GetValueFunc() => GetValue;
 }

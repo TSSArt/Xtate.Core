@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,23 +21,23 @@ namespace Xtate.Core;
 
 public class LocationChildStateMachine(Uri location) : LocationStateMachine(location), IParentEventDispatcher
 {
-    public new required DataModelValue Arguments
-    {
-        init => base.Arguments = value;
-    }
+	public new required DataModelValue Arguments
+	{
+		init => base.Arguments = value;
+	}
 
-    public required IEventDispatcher? ParentEventDispatcher { private get; [UsedImplicitly] init; }
+	public required IEventDispatcher? ParentEventDispatcher { private get; [UsedImplicitly] init; }
 
 #region Interface IEventDispatcher
 
-    public ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token) => ParentEventDispatcher?.Dispatch(incomingEvent, token) ?? default;
+	public ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token) => ParentEventDispatcher?.Dispatch(incomingEvent, token) ?? default;
 
 #endregion
 
-    public override void AddServices(IServiceCollection services)
-    {
-        base.AddServices(services);
+	public override void AddServices(IServiceCollection services)
+	{
+		base.AddServices(services);
 
-        services.AddConstant<IParentEventDispatcher>(this);
-    }
+		services.AddConstant<IParentEventDispatcher>(this);
+	}
 }

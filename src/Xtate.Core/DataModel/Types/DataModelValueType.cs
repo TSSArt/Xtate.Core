@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,17 +19,17 @@ namespace Xtate;
 
 public enum DataModelValueType
 {
-    Undefined,
+	Undefined,
 
-    Null,
+	Null,
 
-    String,
+	String,
 
-    Boolean,
+	Boolean,
 
-    Number,
+	Number,
 
-    DateTime,
+	DateTime,
 
-    List
+	List
 }

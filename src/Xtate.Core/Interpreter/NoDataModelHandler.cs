@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -23,25 +23,25 @@ public class NoDataModelHandler : IDataModelHandler
 {
 #region Interface IDataModelHandler
 
-    public void Process(ref IExecutableEntity executableEntity) => throw new InvalidOperationException();
+	public void Process(ref IExecutableEntity executableEntity) => throw new InvalidOperationException();
 
-    public void Process(ref IValueExpression valueExpression) => throw new InvalidOperationException();
+	public void Process(ref IValueExpression valueExpression) => throw new InvalidOperationException();
 
-    public void Process(ref ILocationExpression locationExpression) => throw new InvalidOperationException();
+	public void Process(ref ILocationExpression locationExpression) => throw new InvalidOperationException();
 
-    public void Process(ref IConditionExpression conditionExpression) => throw new InvalidOperationException();
+	public void Process(ref IConditionExpression conditionExpression) => throw new InvalidOperationException();
 
-    public void Process(ref IContentBody contentBody) => throw new InvalidOperationException();
+	public void Process(ref IContentBody contentBody) => throw new InvalidOperationException();
 
-    public void Process(ref IInlineContent inlineContent) => throw new InvalidOperationException();
+	public void Process(ref IInlineContent inlineContent) => throw new InvalidOperationException();
 
-    public void Process(ref IExternalDataExpression externalDataExpression) => throw new InvalidOperationException();
+	public void Process(ref IExternalDataExpression externalDataExpression) => throw new InvalidOperationException();
 
-    public string ConvertToText(DataModelValue value) => value.ToString(provider: null);
+	public string ConvertToText(DataModelValue value) => value.ToString(provider: null);
 
-    public bool CaseInsensitive => false;
+	public bool CaseInsensitive => false;
 
-    public ImmutableDictionary<string, string> DataModelVars => ImmutableDictionary<string, string>.Empty;
+	public ImmutableDictionary<string, string> DataModelVars => ImmutableDictionary<string, string>.Empty;
 
 #endregion
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,7 +21,7 @@ public class NoStateMachineLocation : IStateMachineLocation
 {
 #region Interface IStateMachineLocation
 
-    public Uri? Location => default;
+	public Uri? Location => default;
 
 #endregion
 }

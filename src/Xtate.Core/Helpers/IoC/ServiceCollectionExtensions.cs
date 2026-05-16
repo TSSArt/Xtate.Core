@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,33 +19,33 @@ namespace Xtate.IoC;
 
 public static class ServiceCollectionExtensions
 {
-    private class ConfigureSync<T>(Action<T> setOptions) : IConfigureOptions<T>
-    {
-    #region Interface IConfigureOptions<T>
+	extension(IServiceCollection services)
+	{
+		public void Configure<T>(Action<T> setOptions) => services.AddConstant<IConfigureOptions<T>>(new ConfigureSync<T>(setOptions));
 
-        public ValueTask Configure(T options)
-        {
-            setOptions(options);
+		public void Configure<T>(Func<T, ValueTask> setOptions) => services.AddConstant<IConfigureOptions<T>>(new ConfigureAsync<T>(setOptions));
+	}
 
-            return ValueTask.CompletedTask;
-        }
+	private class ConfigureSync<T>(Action<T> setOptions) : IConfigureOptions<T>
+	{
+	#region Interface IConfigureOptions<T>
 
-    #endregion
-    }
+		public ValueTask Configure(T options)
+		{
+			setOptions(options);
 
-    private class ConfigureAsync<T>(Func<T, ValueTask> setOptions) : IConfigureOptions<T>
-    {
-    #region Interface IConfigureOptions<T>
+			return ValueTask.CompletedTask;
+		}
 
-        public ValueTask Configure(T options) => setOptions(options);
+	#endregion
+	}
 
-    #endregion
-    }
+	private class ConfigureAsync<T>(Func<T, ValueTask> setOptions) : IConfigureOptions<T>
+	{
+	#region Interface IConfigureOptions<T>
 
-    extension(IServiceCollection services)
-    {
-        public void Configure<T>(Action<T> setOptions) => services.AddConstant<IConfigureOptions<T>>(new ConfigureSync<T>(setOptions));
+		public ValueTask Configure(T options) => setOptions(options);
 
-        public void Configure<T>(Func<T, ValueTask> setOptions) => services.AddConstant<IConfigureOptions<T>>(new ConfigureAsync<T>(setOptions));
-    }
+	#endregion
+	}
 }

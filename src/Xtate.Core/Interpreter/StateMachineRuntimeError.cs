@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -28,7 +28,7 @@ public class StateMachineRuntimeError(ScopeObject scopeObject)
 	public bool IsCommunicationError(Exception exception, out SendId? sendId)
 	{
 		var communicationException = AsOwnedError<CommunicationException>(exception);
-		
+
 		sendId = communicationException?.SendId;
 
 		return communicationException is not null;
@@ -57,7 +57,7 @@ public class StateMachineRuntimeError(ScopeObject scopeObject)
 	public CommunicationException CommunicationError(Exception innerException, SendId? sendId = null) => new(innerException, sendId) { Owner = _owner };
 
 	public PlatformException PlatformError(string message) => new(message) { Owner = _owner };
-	
+
 	public PlatformException PlatformError(Exception innerException) => new(innerException) { Owner = _owner };
 
 	public StateMachineDestroyedException LiveLockError() => new(Resources.Exception_LivelockDetected) { Reason = DestroyReason.LiveLock, Owner = _owner };

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -24,158 +24,158 @@ namespace Xtate.Core;
 
 public class Resource(Stream stream, ContentType? contentType) : IDisposable, IAsyncDisposable, IXIncludeResource
 {
-    private readonly DisposingToken _disposingToken = new();
+	private readonly DisposingToken _disposingToken = new();
 
-    private byte[]? _bytes;
+	private byte[]? _bytes;
 
-    private string? _content;
+	private string? _content;
 
-    private Stream? _stream = stream ?? throw new ArgumentNullException(nameof(stream));
+	private Stream? _stream = stream ?? throw new ArgumentNullException(nameof(stream));
 
-    public Encoding Encoding => !string.IsNullOrEmpty(ContentType?.CharSet) ? Encoding.GetEncoding(ContentType.CharSet) : Encoding.UTF8;
+	public Encoding Encoding => !string.IsNullOrEmpty(ContentType?.CharSet) ? Encoding.GetEncoding(ContentType.CharSet) : Encoding.UTF8;
 
 #region Interface IAsyncDisposable
 
-    public async ValueTask DisposeAsync()
-    {
-        await DisposeAsyncCore().ConfigureAwait(false);
+	public async ValueTask DisposeAsync()
+	{
+		await DisposeAsyncCore().ConfigureAwait(false);
 
-        Dispose(false);
+		Dispose(false);
 
-        GC.SuppressFinalize(this);
-    }
+		GC.SuppressFinalize(this);
+	}
 
 #endregion
 
 #region Interface IDisposable
 
-    public void Dispose()
-    {
-        Dispose(true);
+	public void Dispose()
+	{
+		Dispose(true);
 
-        GC.SuppressFinalize(this);
-    }
+		GC.SuppressFinalize(this);
+	}
 
 #endregion
 
 #region Interface IXIncludeResource
 
-    ValueTask<Stream> IXIncludeResource.GetStream() => GetStream(doNotCache: true);
+	ValueTask<Stream> IXIncludeResource.GetStream() => GetStream(doNotCache: true);
 
-    public ContentType? ContentType { get; } = contentType;
+	public ContentType? ContentType { get; } = contentType;
 
 #endregion
 
-    protected virtual void Dispose(bool disposing)
-    {
-        if (!disposing)
-        {
-            return;
-        }
+	protected virtual void Dispose(bool disposing)
+	{
+		if (!disposing)
+		{
+			return;
+		}
 
-        if (_stream is not { } stream)
-        {
-            return;
-        }
+		if (_stream is not { } stream)
+		{
+			return;
+		}
 
-        _stream = null;
+		_stream = null;
 
-        _disposingToken.Dispose();
+		_disposingToken.Dispose();
 
-        stream.Dispose();
+		stream.Dispose();
 
-        _bytes = null;
-        _content = null;
-    }
+		_bytes = null;
+		_content = null;
+	}
 
-    protected virtual async ValueTask DisposeAsyncCore()
-    {
-        if (_stream is not { } stream)
-        {
-            return;
-        }
+	protected virtual async ValueTask DisposeAsyncCore()
+	{
+		if (_stream is not { } stream)
+		{
+			return;
+		}
 
-        _stream = null;
+		_stream = null;
 
-        await _disposingToken.DisposeAsync().ConfigureAwait(false);
+		await _disposingToken.DisposeAsync().ConfigureAwait(false);
 
-        await stream.DisposeAsync().ConfigureAwait(false);
+		await stream.DisposeAsync().ConfigureAwait(false);
 
-        _bytes = null;
-        _content = null;
-    }
+		_bytes = null;
+		_content = null;
+	}
 
-    public async ValueTask<string> GetContent()
-    {
-        var stream = _stream;
-        Infra.EnsureNotDisposed(stream is not null, this);
+	public async ValueTask<string> GetContent()
+	{
+		var stream = _stream;
+		Infra.EnsureNotDisposed(stream is not null, this);
 
-        if (_content is not null)
-        {
-            return _content;
-        }
+		if (_content is not null)
+		{
+			return _content;
+		}
 
-        if (_bytes is not null)
-        {
-            using var reader = new StreamReader(new MemoryStream(_bytes), Encoding, detectEncodingFromByteOrderMarks: true);
+		if (_bytes is not null)
+		{
+			using var reader = new StreamReader(new MemoryStream(_bytes), Encoding, detectEncodingFromByteOrderMarks: true);
 
-            return _content = await reader.ReadToEndAsync().ConfigureAwait(false);
-        }
+			return _content = await reader.ReadToEndAsync().ConfigureAwait(false);
+		}
 
-        await using (stream.ConfigureAwait(false))
-        {
-            using var reader = new StreamReader(stream.InjectCancellationToken(_disposingToken.Token), Encoding, detectEncodingFromByteOrderMarks: true);
+		await using (stream.ConfigureAwait(false))
+		{
+			using var reader = new StreamReader(stream.InjectCancellationToken(_disposingToken.Token), Encoding, detectEncodingFromByteOrderMarks: true);
 
-            return _content = await reader.ReadToEndAsync().ConfigureAwait(false);
-        }
-    }
+			return _content = await reader.ReadToEndAsync().ConfigureAwait(false);
+		}
+	}
 
-    public async ValueTask<byte[]> GetBytes()
-    {
-        var stream = _stream;
-        Infra.EnsureNotDisposed(stream is not null, this);
+	public async ValueTask<byte[]> GetBytes()
+	{
+		var stream = _stream;
+		Infra.EnsureNotDisposed(stream is not null, this);
 
-        if (_bytes is not null)
-        {
-            return _bytes;
-        }
+		if (_bytes is not null)
+		{
+			return _bytes;
+		}
 
-        if (_content is not null)
-        {
-            return _bytes = Encoding.GetBytes(_content);
-        }
+		if (_content is not null)
+		{
+			return _bytes = Encoding.GetBytes(_content);
+		}
 
-        await using (stream.ConfigureAwait(false))
-        {
-            return _bytes = await stream.ReadToEndAsync(_disposingToken.Token).ConfigureAwait(false);
-        }
-    }
+		await using (stream.ConfigureAwait(false))
+		{
+			return _bytes = await stream.ReadToEndAsync(_disposingToken.Token).ConfigureAwait(false);
+		}
+	}
 
-    public async ValueTask<Stream> GetStream(bool doNotCache)
-    {
-        var stream = _stream;
-        Infra.EnsureNotDisposed(stream is not null, this);
+	public async ValueTask<Stream> GetStream(bool doNotCache)
+	{
+		var stream = _stream;
+		Infra.EnsureNotDisposed(stream is not null, this);
 
-        if (_bytes is not null)
-        {
-            return new MemoryStream(_bytes, writable: false);
-        }
+		if (_bytes is not null)
+		{
+			return new MemoryStream(_bytes, writable: false);
+		}
 
-        if (_content is not null)
-        {
-            return new MemoryStream(Encoding.GetBytes(_content));
-        }
+		if (_content is not null)
+		{
+			return new MemoryStream(Encoding.GetBytes(_content));
+		}
 
-        if (doNotCache)
-        {
-            return stream;
-        }
+		if (doNotCache)
+		{
+			return stream;
+		}
 
-        await using (stream.ConfigureAwait(false))
-        {
-            _bytes = await stream.ReadToEndAsync(_disposingToken.Token).ConfigureAwait(false);
+		await using (stream.ConfigureAwait(false))
+		{
+			_bytes = await stream.ReadToEndAsync(_disposingToken.Token).ConfigureAwait(false);
 
-            return new MemoryStream(_bytes, writable: false);
-        }
-    }
+			return new MemoryStream(_bytes, writable: false);
+		}
+	}
 }

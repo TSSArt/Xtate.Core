@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,7 +21,7 @@ namespace Xtate.Core;
 
 public interface IInterpreterModel
 {
-    StateMachineNode Root { get; }
+	StateMachineNode Root { get; }
 
-    IEntityMap? EntityMap { get; }
+	IEntityMap? EntityMap { get; }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -18,9 +18,9 @@
 namespace Xtate;
 
 public record InvokeData(
-    InvokeId InvokeId,
-    FullUri Type,
-    Uri? Source,
-    string? RawContent,
-    DataModelValue Content,
-    DataModelValue Parameters);
+	InvokeId InvokeId,
+	FullUri Type,
+	Uri? Source,
+	string? RawContent,
+	DataModelValue Content,
+	DataModelValue Parameters);

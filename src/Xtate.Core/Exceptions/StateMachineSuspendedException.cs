@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -20,9 +20,9 @@ namespace Xtate;
 [Serializable]
 public class StateMachineSuspendedException : OwnedXtateException
 {
-    public StateMachineSuspendedException() { }
+	public StateMachineSuspendedException() { }
 
-    public StateMachineSuspendedException(string? message) : base(message) { }
+	public StateMachineSuspendedException(string? message) : base(message) { }
 
-    public StateMachineSuspendedException(string? message, Exception? innerException) : base(message, innerException) { }
+	public StateMachineSuspendedException(string? message, Exception? innerException) : base(message, innerException) { }
 }

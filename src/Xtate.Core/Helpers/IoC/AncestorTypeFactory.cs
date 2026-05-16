@@ -25,10 +25,7 @@ public class AncestorFactory<T> : IAncestorConsumer<T>
 
 	public AncestorFactory(AncestorTracker tracker) => tracker.CaptureAncestor(this);
 
-	[CalledByIoC]
-	public Ancestor<T> GetValueFunc() => GetValue;
-
-	private T? GetValue() => _instance;
+#region Interface IAncestorConsumer<T>
 
 	void IAncestorConsumer<T>.SetValue(T? instance)
 	{
@@ -39,6 +36,13 @@ public class AncestorFactory<T> : IAncestorConsumer<T>
 
 		_instance = instance;
 	}
+
+#endregion
+
+	[CalledByIoC]
+	public Ancestor<T> GetValueFunc() => GetValue;
+
+	private T? GetValue() => _instance;
 }
 
 public interface IAncestorConsumer<T>

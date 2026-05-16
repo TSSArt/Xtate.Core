@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,21 +19,21 @@ namespace Xtate.Core;
 
 public interface ILogWriter
 {
-    bool IsEnabled(Type source, Level level);
+	bool IsEnabled(Type source, Level level);
 
-    ValueTask Write(Type source,
-                    Level level,
-                    int eventId,
-                    string? message,
-                    IEnumerable<LoggingParameter>? parameters = null);
+	ValueTask Write(Type source,
+					Level level,
+					int eventId,
+					string? message,
+					IEnumerable<LoggingParameter>? parameters = null);
 }
 
 public interface ILogWriter<[UsedImplicitly] TSource>
 {
-    bool IsEnabled(Level level);
+	bool IsEnabled(Level level);
 
-    ValueTask Write(Level level,
-                    int eventId,
-                    string? message,
-                    IEnumerable<LoggingParameter>? parameters = null);
+	ValueTask Write(Level level,
+					int eventId,
+					string? message,
+					IEnumerable<LoggingParameter>? parameters = null);
 }
