@@ -19,11 +19,57 @@ namespace Xtate.Core;
 
 public static class AncestorProviderExtensions
 {
-    public static T As<T>(this object entity) where T : notnull
+	public readonly ref struct Ancestor<TEntity>(TEntity entity) 
+	{
+		public bool Is<T>() => Is<T>(out _);
+
+		public bool Is<T>([NotNullWhen(true)] [MaybeNullWhen(false)] out T value)
+		{
+			switch (entity)
+			{
+				case AncestorContainer { Value: T ancestorValue }:
+					value = ancestorValue;
+
+					return true;
+
+				case T tValue:
+					value = tValue;
+
+					return true;
+
+				case IAncestorProvider provider:
+					return provider.Ancestor.UseAncestor.Is(out value);
+
+				default:
+					value = default!;
+
+					return false;
+			}
+		}
+
+		public T As<T>() where T : notnull
+		{
+			Infra.Requires(entity);
+
+			if (Is<T>(out var result))
+			{
+				return result;
+			}
+
+			throw new InvalidCastException(Res.Format(Resources.Exception_TypeCantBeFound, typeof(T).Name, entity.GetType().Name));
+		}
+	}
+
+	extension<T>(T entity)
+	{
+		public Ancestor<T> UseAncestor => new(entity);
+	}
+
+	public static T As1<T>(this object entity) where T : notnull
     {
         Infra.Requires(entity);
 
-        if (entity.Is<T>(out var result))
+        if (entity.UseAncestor.Is<T>(out var result))
         {
             return result;
         }
@@ -31,49 +77,61 @@ public static class AncestorProviderExtensions
         throw new InvalidCastException(Res.Format(Resources.Exception_TypeCantBeFound, typeof(T).Name, entity.GetType().Name));
     }
 
-    public static bool Is<T>(this object? entity) => entity.Is<T>(out _);
 
-    public static bool Is<T>(this object? entity, [NotNullWhen(true)] [MaybeNullWhen(false)] out T value)
-    {
-        while (true)
-        {
-            switch (entity)
-            {
-                case null:
-                    value = default!;
+    extension(object? entity)
+	{
+		public bool Is1<T>() => entity.Is1<T>(out _);
 
-                    return false;
+		public bool Is1<T>([NotNullWhen(true)] [MaybeNullWhen(false)] out T value)
+		{
+			while (true)
+			{
+				switch (entity)
+				{
+					case null:
+						value = default!;
 
-                case AncestorContainer { Value: T ancestorValue }:
-                    value = ancestorValue;
+						return false;
 
-                    return true;
+					case AncestorContainer { Value: T ancestorValue }:
+						value = ancestorValue;
 
-                case T tValue:
-                    value = tValue;
+						return true;
 
-                    return true;
+					case T tValue:
+						value = tValue;
 
-                case IAncestorProvider provider:
-                    entity = provider.Ancestor;
+						return true;
 
-                    break;
+					case IAncestorProvider provider:
+						entity = provider.Ancestor;
 
-                default:
-                    value = default!;
+						break;
 
-                    return false;
-            }
-        }
-    }
+					default:
+						value = default!;
 
-    public static ImmutableArray<TDestination> AsArrayOf<TSource, TDestination>(this ImmutableArray<TSource> array, bool emptyArrayIfDefault = false) where TDestination : notnull
-    {
-        if (array.IsDefault)
-        {
-            return emptyArrayIfDefault ? [] : default;
-        }
+						return false;
+				}
+			}
+		}
+	}
 
-        return ImmutableArray.CreateRange(array, item => item is not null ? item.As<TDestination>() : default!);
-    }
+	public readonly ref struct AncestorArray<T>(ImmutableArray<T> array) 
+	{
+		public ImmutableArray<TDestination> ItemsAs<TDestination>(bool emptyArrayIfDefault = false) where TDestination : notnull
+		{
+			if (array.IsDefault)
+			{
+				return emptyArrayIfDefault ? [] : default;
+			}
+
+			return ImmutableArray.CreateRange(array, item => item is not null ? item.UseAncestor.As<TDestination>() : default!);
+		}
+	}
+	
+	extension<TSource>(ImmutableArray<TSource> array)
+	{
+		public AncestorArray<TSource> UseAncestor => new(array);
+	}
 }

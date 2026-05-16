@@ -340,7 +340,7 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 
         //var interpreterOptions = CreateInterpreterOptions(location, CreateHostData(location), errorProcessor, parameters);
 
-        stateMachine.Is<IStateMachineOptions>(out var stateMachineOptions);
+        stateMachine.UseAncestor.Is<IStateMachineOptions>(out var stateMachineOptions);
 
         return CreateStateMachineController(sessionId, stateMachine, stateMachineOptions, location /*, interpreterOptions*/);
     }

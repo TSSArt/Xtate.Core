@@ -21,7 +21,7 @@ public class DefaultCancelEvaluator : CancelEvaluator
 {
     private readonly IStringEvaluator? _sendIdExpressionEvaluator;
 
-    public DefaultCancelEvaluator(ICancel cancel) : base(cancel) => _sendIdExpressionEvaluator = base.SendIdExpression?.As<IStringEvaluator>();
+    public DefaultCancelEvaluator(ICancel cancel) : base(cancel) => _sendIdExpressionEvaluator = base.SendIdExpression?.UseAncestor.As<IStringEvaluator>();
 
     public required Deferred<IEventController> EventController { private get; [UsedImplicitly] init; }
 

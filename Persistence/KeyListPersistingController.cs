@@ -31,12 +31,10 @@ internal sealed class KeyListPersistingController<T> : IDisposable where T : cla
 
     private readonly Dictionary<int, int> _records = [];
 
-    public KeyListPersistingController(Bucket bucket, KeyList<T> keyList, ImmutableDictionary<int, IEntity> entityMap)
+    public KeyListPersistingController(Bucket bucket, KeyList<T> keyList, IEntityMap entityMap)
     {
-        if (entityMap is null) throw new ArgumentNullException(nameof(entityMap));
-
         _bucket = bucket;
-        _keyList = keyList ?? throw new ArgumentNullException(nameof(keyList));
+        _keyList = keyList;
 
         while (true)
         {
@@ -52,12 +50,21 @@ internal sealed class KeyListPersistingController<T> : IDisposable where T : cla
             for (var i = 0; i < list.Count; i ++)
             {
                 var itemDocumentId = BinaryPrimitives.ReadInt32LittleEndian(bytes[(i * 4)..].Span);
-                list.Add(entityMap[itemDocumentId].As<T>());
+
+				var result = entityMap.TryGetEntityByDocumentId(itemDocumentId, out var entity);
+				Infra.Assert(result);
+
+                list.Add(entity.UseAncestor.As<T>());
             }
 
-            _records.Add(documentId, _records.Count);
-            keyList.Set(entityMap[documentId], list);
-        }
+			{
+				_records.Add(documentId, _records.Count);
+				var result = entityMap.TryGetEntityByDocumentId(documentId, out var entity);
+				Infra.Assert(result);
+
+				keyList.Set(entity!, list);
+			}
+		}
 
         keyList.Changed += OnChanged;
     }
@@ -83,10 +90,10 @@ internal sealed class KeyListPersistingController<T> : IDisposable where T : cla
 
         for (var i = 0; i < list.Count; i ++)
         {
-            BinaryPrimitives.WriteInt32LittleEndian(span[(i * 4)..], list[i].As<IDocumentId>().DocumentId);
+            BinaryPrimitives.WriteInt32LittleEndian(span[(i * 4)..], list[i].UseAncestor.As<IDocumentId>().DocumentId);
         }
 
-        var documentId = entity.As<IDocumentId>().DocumentId;
+        var documentId = entity.UseAncestor.As<IDocumentId>().DocumentId;
 
         if (!_records.TryGetValue(documentId, out var record))
         {

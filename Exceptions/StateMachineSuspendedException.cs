@@ -18,7 +18,7 @@
 namespace Xtate;
 
 [Serializable]
-public class StateMachineSuspendedException : XtateException
+public class StateMachineSuspendedException : OwnedXtateException
 {
     public StateMachineSuspendedException() { }
 

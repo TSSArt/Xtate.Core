@@ -16,30 +16,27 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using Xtate.DataModel;
+using Xtate.IoC;
 
 namespace Xtate.ExternalService;
 
-public class ExternalServiceRunner : IExternalServiceRunner
+public class ExternalServiceRunner(IExternalServiceInvokeId externalServiceInvokeId) : IExternalServiceRunner
 {
-    private readonly AsyncInit _execute;
+    private readonly AsyncInit<ExternalServiceRunner> _execute = new(runner => runner.Execute());
 
-    private readonly InvokeId _invokeId;
+    private readonly InvokeId _invokeId = externalServiceInvokeId.InvokeId;
 
-    public ExternalServiceRunner(IExternalServiceInvokeId externalServiceInvokeId)
-    {
-        _invokeId = externalServiceInvokeId.InvokeId;
-        _execute = AsyncInit.Run(Execute);
-    }
-
-    public required IExternalService ExternalService { private get; [UsedImplicitly] init; }
+	public required IExternalService ExternalService { private get; [UsedImplicitly] init; }
 
     public required DataConverter DataConverter { private get; [UsedImplicitly] init; }
 
     public required IExternalCommunication ExternalCommunication { private get; [UsedImplicitly] init; }
 
+	public required ILogger<ExternalServiceRunner> Logger { private get; [SetByIoC] init; }
+
 #region Interface IExternalServiceRunner
 
-    public ValueTask WaitForCompletion() => new(_execute.Task);
+    public ValueTask WaitForCompletion() => AsyncInit.For(this).Run(_execute);
 
 #endregion
 
@@ -53,13 +50,26 @@ public class ExternalServiceRunner : IExternalServiceRunner
         }
         catch (Exception ex)
         {
-            var outgoingEvent = CreateEventFromException(ex);
-            var sendStatus = await ExternalCommunication.TrySend(outgoingEvent).ConfigureAwait(false);
-            Infra.Assert(sendStatus == SendStatus.Sent);
+			await HandleExecutionException(ex).ConfigureAwait(false);
         }
     }
 
-    private EventEntity CreateEventFromResult(DataModelValue result) =>
+	protected virtual async ValueTask HandleExecutionException(Exception exception)
+	{
+		try
+		{
+			var outgoingEvent = CreateEventFromException(exception);
+			var sendStatus = await ExternalCommunication.TrySend(outgoingEvent).ConfigureAwait(false);
+			Infra.Assert(sendStatus == SendStatus.Sent);
+		}
+		catch (Exception ex)
+		{
+			await Logger.Write(Level.Error, 1, "Service Execution error.", exception).ConfigureAwait(false);
+			await Logger.Write(Level.Error, 2, "Error on sending error to Parent.", ex).ConfigureAwait(false);
+		}
+	}
+
+	private EventEntity CreateEventFromResult(DataModelValue result) =>
         new() { Name = EventName.GetDoneInvokeName(_invokeId), Data = result, Type = Const.ScxmlIoProcessorId, Target = Const.ParentTarget };
 
     private EventEntity CreateEventFromException(Exception ex) =>

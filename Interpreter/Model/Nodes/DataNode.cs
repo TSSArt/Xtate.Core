@@ -32,9 +32,9 @@ public class DataNode : IData, IStoreSupport, IAncestorProvider, IDocumentId, ID
 
         documentIdNode.SaveToSlot(out _documentIdSlot);
 
-        SourceEvaluator = data.Source?.As<IObjectEvaluator>();
-        ExpressionEvaluator = data.Expression?.As<IObjectEvaluator>();
-        InlineContentEvaluator = data.InlineContent?.As<IObjectEvaluator>();
+        SourceEvaluator = data.Source?.UseAncestor.As<IObjectEvaluator>();
+        ExpressionEvaluator = data.Expression?.UseAncestor.As<IObjectEvaluator>();
+        InlineContentEvaluator = data.InlineContent?.UseAncestor.As<IObjectEvaluator>();
     }
 
     public IObjectEvaluator? SourceEvaluator { get; }

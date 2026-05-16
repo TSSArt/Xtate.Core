@@ -32,7 +32,7 @@ public class XPathLocationExpressionEvaluator : ILocationEvaluator, ILocationExp
         _locationExpression = locationExpression;
         _compiledExpression = compiledExpression;
 
-        if (_locationExpression.Is<XPathLocationExpression>(out var xPathLocationExpression))
+        if (_locationExpression.UseAncestor.Is<XPathLocationExpression>(out var xPathLocationExpression))
         {
             _assignType = xPathLocationExpression.AssignType;
             _attribute = xPathLocationExpression.Attribute;

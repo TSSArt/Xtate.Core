@@ -60,7 +60,7 @@ internal sealed class StateMachineSingleMacroStepController(
 
     protected override void StateChanged(StateMachineInterpreterState state)
     {
-        if (state is StateMachineInterpreterState.Waiting or StateMachineInterpreterState.Completed)
+        if (state == StateMachineInterpreterState.Waiting || state == StateMachineInterpreterState.Completed)
         {
             _doneCompletionSource.TrySetResult(state);
         }

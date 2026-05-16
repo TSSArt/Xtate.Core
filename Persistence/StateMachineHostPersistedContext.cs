@@ -226,7 +226,7 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 
         var (stateMachine, location) = await LoadStateMachine(origin, _baseUri, securityContext, errorProcessor, token).ConfigureAwait(false);
 
-        stateMachine.Is<IStateMachineOptions>(out var options);
+        stateMachine.UseAncestor.Is<IStateMachineOptions>(out var options);
 
         if (!options.IsStateMachinePersistable())
         {

@@ -36,8 +36,8 @@ public sealed class DoneDataNode : IDoneData, IStoreSupport, IAncestorProvider, 
     {
         _doneData = doneData;
         documentIdNode.SaveToSlot(out _documentIdSlot);
-        _contentExpressionEvaluator = doneData.Content?.Expression?.As<IObjectEvaluator>();
-        _contentBodyEvaluator = doneData.Content?.Body?.As<IValueEvaluator>();
+        _contentExpressionEvaluator = doneData.Content?.Expression?.UseAncestor.As<IObjectEvaluator>();
+        _contentBodyEvaluator = doneData.Content?.Body?.UseAncestor.As<IValueEvaluator>();
         _parameterList = DataConverter.AsParamArray(doneData.Parameters);
     }
 

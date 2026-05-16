@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -15,14 +15,33 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate;
+using Xtate.IoC;
 
-[Serializable]
-public class StateMachineQueueClosedException : StateMachineDestroyedException
+namespace Xtate.Core;
+
+public class AncestorFactory<T> : IAncestorConsumer<T>
 {
-    public StateMachineQueueClosedException() { }
+	private T? _instance;
 
-    public StateMachineQueueClosedException(string? message) : base(message) { }
+	public AncestorFactory(AncestorTracker tracker) => tracker.CaptureAncestor(this);
 
-    public StateMachineQueueClosedException(string? message, Exception? innerException) : base(message, innerException) { }
+	[CalledByIoC]
+	public Ancestor<T> GetValueFunc() => GetValue;
+
+	private T? GetValue() => _instance;
+
+	void IAncestorConsumer<T>.SetValue(T? instance)
+	{
+		if (instance is null)
+		{
+			throw MissedServiceException.Create<T>();
+		}
+
+		_instance = instance;
+	}
+}
+
+public interface IAncestorConsumer<T>
+{
+	void SetValue(T? instance);
 }

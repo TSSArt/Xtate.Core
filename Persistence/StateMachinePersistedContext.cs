@@ -15,163 +15,171 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using Xtate.IoC;
+
 namespace Xtate.Persistence;
 
 /*
 public class StateMachinePersistedContextOptions : StateMachineContextOptions, IStateMachinePersistedContextOptions
 {
-    protected StateMachinePersistedContextOptions(IStateMachineInterpreterOptions stateMachineInterpreterOptions,
-                                                  IDataModelHandler dataModelHandler,
-                                                  IAsyncEnumerable<IIoProcessor> ioProcessors,
-                                                  ImmutableDictionary<int, IEntity> entityMap) :
-        base(stateMachineInterpreterOptions, dataModelHandler, ioProcessors) =>
-        EntityMap = entityMap;
+	protected StateMachinePersistedContextOptions(IStateMachineInterpreterOptions stateMachineInterpreterOptions,
+												  IDataModelHandler dataModelHandler,
+												  IAsyncEnumerable<IIoProcessor> ioProcessors,
+												  ImmutableDictionary<int, IEntity> entityMap) :
+		base(stateMachineInterpreterOptions, dataModelHandler, ioProcessors) =>
+		EntityMap = entityMap;
 
 #region Interface IStateMachinePersistedContextOptions
 
-    public ImmutableDictionary<int, IEntity> EntityMap { get; }
+	public ImmutableDictionary<int, IEntity> EntityMap { get; }
 
 #endregion
 }*/
 
-public class StateMachinePersistedContext : StateMachineContext, IPersistenceContext, IAsyncDisposable
+[InstantiatedByIoC]
+public class StateMachinePersistedContext : StateMachineContext, IStateMachinePersistenceContext, IAsyncInitialization, IAsyncDisposable
 {
-    private readonly InvokeIdSetPersistingController _activeInvokesController;
+	private readonly AsyncInit<StateMachinePersistedContext> _init = new(context => context.Init());
 
-    private readonly OrderedSetPersistingController<StateEntityNode> _configurationController;
+	private InvokeIdSetPersistingController? _activeInvokesController;
 
-    private readonly DataModelListPersistingController _dataModelPersistingController;
+	private OrderedSetPersistingController<StateEntityNode>? _configurationController;
 
-    private readonly DataModelReferenceTracker _dataModelReferenceTracker;
+	private DataModelListPersistingController? _dataModelPersistingController;
 
-    private readonly KeyListPersistingController<StateEntityNode> _historyValuePersistingController;
+	private DataModelReferenceTracker? _dataModelReferenceTracker;
 
-    private readonly EntityQueuePersistingController<IIncomingEvent> _internalQueuePersistingController;
+	private KeyListPersistingController<StateEntityNode>? _historyValuePersistingController;
 
-    private readonly Bucket _state;
+	private EntityQueuePersistingController<IIncomingEvent>? _internalQueuePersistingController;
 
-    private readonly OrderedSetPersistingController<StateEntityNode> _statesToInvokeController;
+	private Bucket _stateBucket;
 
-    private readonly ITransactionalStorage _storage;
+	private OrderedSetPersistingController<StateEntityNode>? _statesToInvokeController;
 
-    public StateMachinePersistedContext(IStateMachinePersistedContextOptions options,
-                                        ITransactionalStorage storage,
+	//ILoggerOld logger,
+	//ILoggerContext loggerContext,
+	//public required IExternalServiceManager? externalCommunication { private get; init; }
 
-                                        //ILoggerOld logger,
-                                        //ILoggerContext loggerContext,
-                                        IExternalServiceManager? externalCommunication)
-    {
-        _storage = storage;
-        var bucket = new Bucket(storage);
+	public required IInterpreterModel InterpreterModel { private get; [SetByIoC] init; }
 
-        _configurationController = new OrderedSetPersistingController<StateEntityNode>(bucket.Nested(StorageSection.Configuration), Configuration, options.EntityMap);
-        _statesToInvokeController = new OrderedSetPersistingController<StateEntityNode>(bucket.Nested(StorageSection.StatesToInvoke), StatesToInvoke, options.EntityMap);
-        _activeInvokesController = new InvokeIdSetPersistingController(bucket.Nested(StorageSection.ActiveInvokes), ActiveInvokes);
-        _dataModelReferenceTracker = new DataModelReferenceTracker(bucket.Nested(StorageSection.DataModelReferences));
-        _dataModelPersistingController = new DataModelListPersistingController(bucket.Nested(StorageSection.DataModel), _dataModelReferenceTracker, DataModel);
-        _historyValuePersistingController = new KeyListPersistingController<StateEntityNode>(bucket.Nested(StorageSection.HistoryValue), HistoryValue, options.EntityMap);
-        _internalQueuePersistingController = new EntityQueuePersistingController<IIncomingEvent>(bucket.Nested(StorageSection.InternalQueue), InternalQueue, EventCreator);
-
-        _state = bucket.Nested(StorageSection.StateBag);
-    }
+	public required ITransactionalStorage Storage { private get; [SetByIoC] init; }
 
 #region Interface IAsyncDisposable
 
-    public async ValueTask DisposeAsync()
-    {
-        await DisposeAsyncCore().ConfigureAwait(false);
+	public async ValueTask DisposeAsync()
+	{
+		await DisposeAsyncCore().ConfigureAwait(false);
 
-        Dispose(false);
+		Dispose(false);
 
-        GC.SuppressFinalize(this);
-    }
-
-#endregion
-
-#region Interface IPersistenceContext
-
-    public void ClearState(int key) => _state.RemoveSubtree(key);
-
-    public int GetState(int key) => _state.TryGet(key, out int value) ? value : 0;
-
-    public int GetState(int key, int subKey) => _state.Nested(key).TryGet(subKey, out int value) ? value : 0;
-
-    public void SetState(int key, int value) => _state.Add(key, value);
-
-    public void SetState(int key, int subKey, int value) => _state.Nested(key).Add(subKey, value);
-
-    public ValueTask CheckPoint(int level) => _storage.CheckPoint(level);
-
-    public ValueTask Shrink() => _storage.Shrink();
+		GC.SuppressFinalize(this);
+	}
 
 #endregion
 
-    private static IIncomingEvent EventCreator(Bucket bucket) => new IncomingEvent(bucket);
+#region Interface IAsyncInitialization
 
-    protected virtual async ValueTask DisposeAsyncCore()
-    {
-        await _storage.DisposeAsync().ConfigureAwait(false);
-        DisposeControllers();
-    }
+	public ValueTask InitializeAsync() => AsyncInit.For(this).Run(_init);
 
-    protected virtual void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            _storage.Dispose();
-            DisposeControllers();
-        }
-    }
+#endregion
 
-    private void DisposeControllers()
-    {
-        _internalQueuePersistingController.Dispose();
-        _historyValuePersistingController.Dispose();
-        _dataModelPersistingController.Dispose();
-        _dataModelReferenceTracker.Dispose();
-        _statesToInvokeController.Dispose();
-        _activeInvokesController.Dispose();
-        _configurationController.Dispose();
-    }
+#region Interface IStateMachinePersistenceContext
 
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
+	public Bucket GetStateBucket() => _stateBucket;
 
-    private enum StorageSection
-    {
-        Configuration,
+	public ValueTask CheckPoint(int level) => Storage.CheckPoint(level);
 
-        StatesToInvoke,
+	public ValueTask Shrink() => Storage.Shrink();
 
-        ActiveInvokes,
+#endregion
 
-        DataModel,
+	private ValueTask Init()
+	{
+		var bucket = new Bucket(Storage);
 
-        DataModelReferences,
+		_stateBucket = bucket.Nested(StorageSection.StateBag);
 
-        InternalQueue,
+		var entityMap = InterpreterModel.EntityMap;
+		Infra.NotNull(entityMap);
 
-        HistoryValue,
+		_configurationController = new OrderedSetPersistingController<StateEntityNode>(bucket.Nested(StorageSection.Configuration), Configuration, entityMap);
+		_statesToInvokeController = new OrderedSetPersistingController<StateEntityNode>(bucket.Nested(StorageSection.StatesToInvoke), StatesToInvoke, entityMap);
+		_activeInvokesController = new InvokeIdSetPersistingController(bucket.Nested(StorageSection.ActiveInvokes), ActiveInvokes);
+		_dataModelReferenceTracker = new DataModelReferenceTracker(bucket.Nested(StorageSection.DataModelReferences));
+		_dataModelPersistingController = new DataModelListPersistingController(bucket.Nested(StorageSection.DataModel), _dataModelReferenceTracker, DataModel);
+		_historyValuePersistingController = new KeyListPersistingController<StateEntityNode>(bucket.Nested(StorageSection.HistoryValue), HistoryValue, entityMap);
+		_internalQueuePersistingController = new EntityQueuePersistingController<IIncomingEvent>(bucket.Nested(StorageSection.InternalQueue), InternalQueue, EventCreator);
 
-        StateBag
-    }
+		return ValueTask.CompletedTask;
+	}
 
-    /*
-    public StateMachinePersistedContext(ITransactionalStorage storage, ImmutableDictionary<int, IEntity> entityMap, Parameters parameters) : base(parameters)
-    {
-        _storage = storage;
-        var bucket = new Bucket(storage);
+	private static IIncomingEvent EventCreator(Bucket bucket) => new IncomingEvent(bucket);
 
-        _configurationController = new OrderedSetPersistingController<StateEntityNode>(bucket.Nested(StorageSection.Configuration), Configuration, entityMap);
-        _statesToInvokeController = new OrderedSetPersistingController<StateEntityNode>(bucket.Nested(StorageSection.StatesToInvoke), StatesToInvoke, entityMap);
-        _activeInvokesController = new InvokeIdSetPersistingController(bucket.Nested(StorageSection.ActiveInvokes), ActiveInvokes);
-        _dataModelReferenceTracker = new DataModelReferenceTracker(bucket.Nested(StorageSection.DataModelReferences));
-        _dataModelPersistingController = new DataModelListPersistingController(bucket.Nested(StorageSection.DataModel), _dataModelReferenceTracker, DataModel);
-        _historyValuePersistingController = new KeyListPersistingController<StateEntityNode>(bucket.Nested(StorageSection.HistoryValue), HistoryValue, entityMap);
-        _internalQueuePersistingController = new EntityQueuePersistingController<IIncomingEvent>(bucket.Nested(StorageSection.InternalQueue), InternalQueue, EventCreator);
-        _state = bucket.Nested(StorageSection.StateBag);
-    }*/
+	protected virtual async ValueTask DisposeAsyncCore()
+	{
+		await Storage.DisposeAsync().ConfigureAwait(false);
+		DisposeControllers();
+	}
+
+	protected virtual void Dispose(bool disposing)
+	{
+		if (disposing)
+		{
+			Storage.Dispose();
+			DisposeControllers();
+		}
+	}
+
+	private void DisposeControllers()
+	{
+		_internalQueuePersistingController?.Dispose();
+		_historyValuePersistingController?.Dispose();
+		_dataModelPersistingController?.Dispose();
+		_dataModelReferenceTracker?.Dispose();
+		_statesToInvokeController?.Dispose();
+		_activeInvokesController?.Dispose();
+		_configurationController?.Dispose();
+	}
+
+	public void Dispose()
+	{
+		Dispose(true);
+		GC.SuppressFinalize(this);
+	}
+
+	private enum StorageSection
+	{
+		Configuration,
+
+		StatesToInvoke,
+
+		ActiveInvokes,
+
+		DataModel,
+
+		DataModelReferences,
+
+		InternalQueue,
+
+		HistoryValue,
+
+		StateBag
+	}
+
+	/*
+	public StateMachinePersistedContext(ITransactionalStorage storage, ImmutableDictionary<int, IEntity> entityMap, Parameters parameters) : base(parameters)
+	{
+		_storage = storage;
+		var bucket = new Bucket(storage);
+
+		_configurationController = new OrderedSetPersistingController<StateEntityNode>(bucket.Nested(StorageSection.Configuration), Configuration, entityMap);
+		_statesToInvokeController = new OrderedSetPersistingController<StateEntityNode>(bucket.Nested(StorageSection.StatesToInvoke), StatesToInvoke, entityMap);
+		_activeInvokesController = new InvokeIdSetPersistingController(bucket.Nested(StorageSection.ActiveInvokes), ActiveInvokes);
+		_dataModelReferenceTracker = new DataModelReferenceTracker(bucket.Nested(StorageSection.DataModelReferences));
+		_dataModelPersistingController = new DataModelListPersistingController(bucket.Nested(StorageSection.DataModel), _dataModelReferenceTracker, DataModel);
+		_historyValuePersistingController = new KeyListPersistingController<StateEntityNode>(bucket.Nested(StorageSection.HistoryValue), HistoryValue, entityMap);
+		_internalQueuePersistingController = new EntityQueuePersistingController<IIncomingEvent>(bucket.Nested(StorageSection.InternalQueue), InternalQueue, EventCreator);
+		_state = bucket.Nested(StorageSection.StateBag);
+	}*/
 }

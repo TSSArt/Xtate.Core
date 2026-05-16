@@ -21,7 +21,7 @@ internal static class BucketExtensions
 {
     public static void AddEntity<TKey, TValue>(this in Bucket bucket, TKey key, TValue? entity) where TKey : notnull where TValue : class
     {
-        entity?.As<IStoreSupport>().Store(bucket.Nested(key));
+        entity?.UseAncestor.As<IStoreSupport>().Store(bucket.Nested(key));
     }
 
     public static void AddEntityList<TKey, TValue>(this in Bucket bucket, TKey key, ImmutableArray<TValue> array) where TKey : notnull where TValue : class
@@ -37,7 +37,7 @@ internal static class BucketExtensions
 
         for (var i = 0; i < array.Length; i ++)
         {
-            array[i].As<IStoreSupport>().Store(listStorage.Nested(i));
+            array[i].UseAncestor.As<IStoreSupport>().Store(listStorage.Nested(i));
         }
     }
 

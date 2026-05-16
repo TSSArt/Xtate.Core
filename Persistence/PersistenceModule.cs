@@ -22,7 +22,7 @@ using Xtate.Persistence;
 
 namespace Xtate.Core;
 
-public class PersistenceModule : Module<InterpreterModelBuilderModule, DataModelHandlersModule>
+public class PersistenceModule : Module<StateMachineInterpreterModule, InterpreterModelBuilderModule, DataModelHandlersModule, ToolsModule>
 {
     protected override void AddServices()
     {
@@ -31,24 +31,34 @@ public class PersistenceModule : Module<InterpreterModelBuilderModule, DataModel
         Services.AddImplementation<StreamStorageNoRollback, Stream>().For<ITransactionalStorage>();
         Services.AddImplementation<StreamStorageWithRollback, Stream, int>().For<ITransactionalStorage>();
 
-        //Services.AddDecorator<PersistedStateMachineService>().For<IStateMachineService>();
-        //Services.AddFactory<PersistedDataModelHandlerGetter>().For<IDataModelHandler>(Option.DoNotDispose);
-        //Services.AddImplementation<PersistedStateMachineRunState>().For<IPersistedStateMachineRunState>();
-
-        Services.AddType<InterpreterModelBuilder, IStateMachine, IDataModelHandler>();
+		Services.AddSharedImplementation<SuspendEventDispatcher>(SharedWithin.Container).For<SuspendEventDispatcher>().For<ISuspendEventDispatcher>();
+		Services.AddImplementation<DefaultPersistenceOptions>().For<IPersistenceOptions>();
+        
+		Services.AddType<InterpreterModelBuilder, IStateMachine, IDataModelHandler>();
 
         Services.AddFactory<PersistedInterpreterModelGetter>().For<IInterpreterModel>(SharedWithin.Scope);
-    }
 
-    [UsedImplicitly]
+		Services.AddFactory<DefaultTransactionalStorage>().For<ITransactionalStorage, string>();
+
+		Services.AddForwarding(ForwardTo<IStorage>.From<ITransactionalStorage, string>());
+		
+		Services.ForService<ITransactionalStorage, string>().UseArgValue(@"smd").IfAncestor<PersistedInterpreterModelGetter>();
+		Services.ForService<ITransactionalStorage, string>().UseArgValue(@"ctx").IfAncestor<StateMachinePersistedContext>();
+
+		Services.AddSharedImplementation<StateMachinePersistingInterpreter>(SharedWithin.Scope).For<IStateMachineInterpreter>();
+		Services.AddConstant<ImplementationType<IStateMachineInterpreter>>(() => typeof(StateMachinePersistingInterpreter));
+		Services.AddSharedImplementation<StateMachinePersistedContext>(SharedWithin.Scope).For<IStateMachinePersistenceContext>().For<IStateMachineContext>();
+	}
+
+    [InstantiatedByIoC]
     private class StreamStorageNoRollback(Stream stream) : StreamStorage(stream);
 
-    [UsedImplicitly]
+    [InstantiatedByIoC]
     private class StreamStorageWithRollback(Stream stream, int rollbackLevel) : StreamStorage(stream, rollbackLevel: rollbackLevel);
 
-    [UsedImplicitly]
+    [InstantiatedByIoC]
     private class InMemoryStorageNew(bool writeOnly) : InMemoryStorage(writeOnly);
 
-    [UsedImplicitly]
+    [InstantiatedByIoC]
     private class InMemoryStorageBaseline(ReadOnlyMemory<byte> baseline) : InMemoryStorage(baseline.Span);
 }

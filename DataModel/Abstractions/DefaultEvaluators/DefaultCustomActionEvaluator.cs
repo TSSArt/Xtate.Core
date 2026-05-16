@@ -25,7 +25,7 @@ public class DefaultCustomActionEvaluator : CustomActionEvaluator
 
     public DefaultCustomActionEvaluator(ICustomAction customAction) : base(customAction)
     {
-        if (customAction.Is(out _customActionContainer))
+        if (customAction.UseAncestor.Is(out _customActionContainer))
         {
             _customActionContainer.SetEvaluators(base.Values, base.Locations);
         }

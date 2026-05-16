@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -24,21 +24,19 @@ public abstract class StateMachineControllerBase : IStateMachineController, IAsy
 {
 	private readonly TaskCompletionSource<DataModelValue> _completedTcs = new();
 
-	private readonly AsyncInit _startAsyncInit;
-
-	protected StateMachineControllerBase() => _startAsyncInit = AsyncInit.Run(Start);
+	private readonly AsyncInit<StateMachineControllerBase> _start = new(smc => smc.Start());
 
 	public required IStateMachineStatus StateMachineStatus { private get; [SetByIoC] init; }
 
 	public required IStateMachineInterpreter StateMachineInterpreter { private get; [SetByIoC] init; }
 
 	[Obsolete]
-	public required IStateMachineSessionId StateMachineSessionId   { private get; [SetByIoC] init; }
+	public required IStateMachineSessionId StateMachineSessionId { private get; [SetByIoC] init; }
 
 	public required TaskMonitor TaskMonitor { private get; [SetByIoC] init; }
 
 	[Obsolete]
-    protected abstract Channel<IIncomingEvent> EventChannel { get; }
+	protected abstract Channel<IIncomingEvent> EventChannel { get; }
 
 	public required IEventQueueWriter EventQueueWriter { private get; [SetByIoC] init; }
 
@@ -50,7 +48,7 @@ public abstract class StateMachineControllerBase : IStateMachineController, IAsy
 
 #region Interface IAsyncInitialization
 
-	public Task Initialization => _startAsyncInit.Task;
+	public virtual ValueTask InitializeAsync() => AsyncInit.For(this).Run(_start);
 
 #endregion
 
@@ -62,7 +60,12 @@ public abstract class StateMachineControllerBase : IStateMachineController, IAsy
 
 #region Interface IExternalService
 
-	public ValueTask<DataModelValue> GetResult() => new(_completedTcs.Task);
+	public ValueTask<DataModelValue> GetResult()
+	{
+		_start.EnsureInitialized();
+
+		return new ValueTask<DataModelValue>(_completedTcs.Task);
+	}
 
 #endregion
 
@@ -176,31 +179,31 @@ public abstract class StateMachineControllerBase : IStateMachineController, IAsy
 		}
 	}
 */
-   /*
-   	private async ValueTask WaitForResume()
-	{
-		using var anyTokenSource = CancellationTokenSource.CreateLinkedTokenSource(DisposeToken, _destroyCts.Token/*, suspend*);
+	/*
+	 private async ValueTask WaitForResume()
+	 {
+		 using var anyTokenSource = CancellationTokenSource.CreateLinkedTokenSource(DisposeToken, _destroyCts.Token/*, suspend*);
 
-		try
-		{
-			if (await EventChannel.Reader.WaitToReadAsync(anyTokenSource.Token).ConfigureAwait(false))
-			{
-				return;
-			}
+		 try
+		 {
+			 if (await EventChannel.Reader.WaitToReadAsync(anyTokenSource.Token).ConfigureAwait(false))
+			 {
+				 return;
+			 }
 
-			await EventChannel.Reader.ReadAsync(anyTokenSource.Token).ConfigureAwait(false);
-		}
-		/*catch (OperationCanceledException ex) when (ex.CancellationToken == anyTokenSource.Token && _defaultOptions.StopToken.IsCancellationRequested)
-		{
-			throw new OperationCanceledException(Resources.Exception_StateMachineHasBeenTerminated, ex, _defaultOptions.StopToken);
-		}
-		catch (OperationCanceledException ex) when (ex.CancellationToken == anyTokenSource.Token && _defaultOptions.SuspendToken.IsCancellationRequested)
-		{
-			throw new StateMachineSuspendedException(Resources.Exception_StateMachineHasBeenSuspended, ex);
-		}*
-		catch (ChannelClosedException ex)
-		{
-			throw new StateMachineQueueClosedException(Resources.Exception_StateMachineExternalQueueHasBeenClosed, ex);
-		}
-	}*/
+			 await EventChannel.Reader.ReadAsync(anyTokenSource.Token).ConfigureAwait(false);
+		 }
+		 /*catch (OperationCanceledException ex) when (ex.CancellationToken == anyTokenSource.Token && _defaultOptions.StopToken.IsCancellationRequested)
+		 {
+			 throw new OperationCanceledException(Resources.Exception_StateMachineHasBeenTerminated, ex, _defaultOptions.StopToken);
+		 }
+		 catch (OperationCanceledException ex) when (ex.CancellationToken == anyTokenSource.Token && _defaultOptions.SuspendToken.IsCancellationRequested)
+		 {
+			 throw new StateMachineSuspendedException(Resources.Exception_StateMachineHasBeenSuspended, ex);
+		 }*
+		 catch (ChannelClosedException ex)
+		 {
+			 throw new StateMachineQueueClosedException(Resources.Exception_StateMachineExternalQueueHasBeenClosed, ex);
+		 }
+	 }*/
 }

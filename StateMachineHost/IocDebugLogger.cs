@@ -6,7 +6,7 @@ namespace Xtate.Core;
 public class IocDebugLogger : IServiceProviderActions, IServiceProviderDataActions, IAsyncDisposable
 {
 	private const int Registration = 1;
-	
+
 	private const int Statistics = 2;
 
 	private const int Service = 3;
@@ -42,33 +42,34 @@ public class IocDebugLogger : IServiceProviderActions, IServiceProviderDataActio
 		return this;
 	}
 
-	public IServiceProviderDataActions? ServiceRequesting(TypeKey typeKey)
+	public IServiceProviderDataActions? Event(ActionsEventType type, ref ActionsContext context)
 	{
-		GetLogger().ServiceRequesting(typeKey);
+		// ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
+		switch (type)
+		{
+			case ActionsEventType.ServiceRequesting:
+				var logger = GetLogger();
+				context.UserDataObject = logger;
 
-		return null;
-	}
+				logger.ServiceRequesting(context.TypeKey);
 
-	public IServiceProviderDataActions? FactoryCalling(TypeKey typeKey)
-	{
-		var stat = GetStat(typeKey);
-		stat.FactoryCalling();
+				break;
 
-		GetLogger().FactoryCalling(stat.CallsCount);
+			case ActionsEventType.ServiceRequested:    ((ServiceLogger) context.UserDataObject!).ServiceRequested(); break;
+			case ActionsEventType.ServiceRequestError: ((ServiceLogger) context.UserDataObject!).ServiceRequestError(); break;
 
-		return null;
-	}
+			case ActionsEventType.FactoryCalling:
+				var stat = GetStat(context.TypeKey);
+				context.UserDataObject = stat;
+				stat.FactoryCalling();
 
-	public IServiceProviderDataActions? FactoryCalled(TypeKey typeKey)
-	{
-		GetStat(typeKey).FactoryCalled();
+				GetLogger().FactoryCalling(stat.CallsCount);
 
-		return null;
-	}
+				break;
 
-	public IServiceProviderDataActions? ServiceRequested(TypeKey typeKey)
-	{
-		GetLogger().ServiceRequested();
+			case ActionsEventType.FactoryCalled:    ((Stat) context.UserDataObject!).FactoryCalled(); break;
+			case ActionsEventType.FactoryCallError: ((Stat) context.UserDataObject!).FactoryCallError(); break;
+		}
 
 		return null;
 	}
@@ -109,16 +110,7 @@ public class IocDebugLogger : IServiceProviderActions, IServiceProviderDataActio
 	}
 
 	[ExcludeFromCodeCoverage]
-	public void ServiceRequesting<T, TArg>(TArg argument) => throw new NotSupportedException();
-
-	[ExcludeFromCodeCoverage]
-	public void ServiceRequested<T, TArg>(T? instance) => throw new NotSupportedException();
-
-	[ExcludeFromCodeCoverage]
-	public void FactoryCalling<T, TArg>(TArg argument) => throw new NotSupportedException();
-
-	[ExcludeFromCodeCoverage]
-	public void FactoryCalled<T, TArg>(T? instance) => throw new NotSupportedException();
+	public void Event<T, TArg>(ActionsEventType type, ref DataActionsContext<T, TArg> context) => throw new NotSupportedException();
 
 #endregion
 
@@ -160,6 +152,8 @@ public class IocDebugLogger : IServiceProviderActions, IServiceProviderDataActio
 
 	private class ServiceLogger(Deferred<ILogger<IocDebugLogger>> logger)
 	{
+		private readonly StringBuilder _content = new();
+
 		private bool _factoryCalled;
 
 		private int _level;
@@ -167,8 +161,6 @@ public class IocDebugLogger : IServiceProviderActions, IServiceProviderDataActio
 		private bool _noFactory;
 
 		private int _previousLevel;
-
-		private readonly StringBuilder _content = new ();
 
 		[MethodImpl(MethodImplOptions.Synchronized)]
 		public void ServiceRequesting(TypeKey typeKey)
@@ -199,8 +191,16 @@ public class IocDebugLogger : IServiceProviderActions, IServiceProviderDataActio
 		}
 
 		[MethodImpl(MethodImplOptions.Synchronized)]
-		public void ServiceRequested()
+		public void ServiceRequestError() => ServiceRequested(true);
+
+		[MethodImpl(MethodImplOptions.Synchronized)]
+		public void ServiceRequested(bool isError = false)
 		{
+			if (isError)
+			{
+				_content.Append(@" (ERROR)");
+			}
+
 			if (_noFactory)
 			{
 				_content.AppendLine(@" {CACHED}");
@@ -223,12 +223,12 @@ public class IocDebugLogger : IServiceProviderActions, IServiceProviderDataActio
 
 			if (-- _level == 0)
 			{
-				LogAsync().Forget();
+				Task.Run(LogAsync).Forget();
 			}
 
 			return;
 
-			async ValueTask LogAsync()
+			async Task LogAsync()
 			{
 				var logger1 = await logger().ConfigureAwait(false);
 
@@ -293,5 +293,7 @@ public class IocDebugLogger : IServiceProviderActions, IServiceProviderDataActio
 		}
 
 		public void FactoryCalled() => _deepLevel --;
+
+		public void FactoryCallError() => _deepLevel --;
 	}
 }

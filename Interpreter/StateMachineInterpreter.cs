@@ -50,31 +50,33 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
     private StateMachineDestroyedException? _stateMachineDestroyedException;
 
-    public required StateMachineRuntimeError StateMachineRuntimeError { private get; [UsedImplicitly] init; }
+    public required StateMachineRuntimeError StateMachineRuntimeError { private get; [SetByIoC] init; }
 
-    public required IStateMachineArguments StateMachineArguments { private get; [UsedImplicitly] init; }
+    public required IStateMachineArguments StateMachineArguments { private get; [SetByIoC] init; }
 
-    public required DataConverter DataConverter { private get; [UsedImplicitly] init; }
+    public required DataConverter DataConverter { private get; [SetByIoC] init; }
 
-    public required ICaseSensitivity CaseSensitivity { private get; [UsedImplicitly] init; }
+    public required ICaseSensitivity CaseSensitivity { private get; [SetByIoC] init; }
 
-    public required IEventQueueReader EventQueueReader { private get; [UsedImplicitly] init; }
+    public required IEventQueueReader EventQueueReader { private get; [SetByIoC] init; }
 
-    public required ILogger<StateMachineInterpreter> Logger { private get; [UsedImplicitly] init; }
+    public required ILogger<StateMachineInterpreter> Logger { private get; [SetByIoC] init; }
 
-    public required IInterpreterModel Model { private get; [UsedImplicitly] init; }
+    public required IInterpreterModel Model { private get; [SetByIoC] init; }
 
-    public required IReadOnlyCollection<INotifyStateChanged> NotifyStateChanged { private get; [UsedImplicitly] init; }
+    public required IReadOnlyCollection<INotifyStateChanged> NotifyStateChanged { private get; [SetByIoC] init; }
 
-    public required IUnhandledErrorBehaviour UnhandledErrorBehaviour { private get; [UsedImplicitly] init; }
+    public required IUnhandledErrorBehaviour UnhandledErrorBehaviour { private get; [SetByIoC] init; }
 
-    public required IStateMachineContext StateMachineContext { private get; [UsedImplicitly] init; }
+    public required IStateMachineContext StateMachineContext { private get; [SetByIoC] init; }
 
-    public required IInvokeController InvokeController { private get; [UsedImplicitly] init; }
+    public required IInvokeController InvokeController { private get; [SetByIoC] init; }
 
-#region Interface IStateMachineInterpreter
+	public required DisposeToken DisposeToken { private get; [SetByIoC] init; }
+	
+	#region Interface IStateMachineInterpreter
 
-    public virtual async ValueTask<DataModelValue> Run()
+	public virtual async ValueTask<DataModelValue> Run()
     {
         await Interpret().ConfigureAwait(false);
 
@@ -89,7 +91,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
 	public virtual void TriggerDestroySignal(Exception? innerException)
 	{
-		_stateMachineDestroyedException = new StateMachineDestroyedException(Resources.Exception_StateMachineHasBeenDestroyed, innerException);
+		_stateMachineDestroyedException = StateMachineRuntimeError.DestroySignalError(innerException);
 
 		StopWaitingExternalEvents();
 	}
@@ -128,16 +130,16 @@ public class StateMachineInterpreter : IStateMachineInterpreter
             await EnterSteps().ConfigureAwait(false);
             await MainEventLoop().ConfigureAwait(false);
         }
-        catch (StateMachineDestroyedException)
+        catch (Exception ex) when (StateMachineRuntimeError.IsDestroyError(ex))
         {
             await NotifyInterpreterState(StateMachineInterpreterState.Destroying).ConfigureAwait(false);
             await ExitSteps().ConfigureAwait(false);
 
             throw;
         }
-        catch (Exception ex)
+		catch (Exception ex)
         {
-            await HandleMainLoopException(ex).ConfigureAwait(false);
+			await HandleMainLoopException(ex).ConfigureAwait(false);
 
             throw;
         }
@@ -255,9 +257,9 @@ public class StateMachineInterpreter : IStateMachineInterpreter
         while (await MacrostepIteration().ConfigureAwait(false))
         {
             if (liveLockDetector.IsLiveLockDetected(StateMachineContext.InternalQueue.Count))
-            {
-                throw new StateMachineDestroyedException(Resources.Exception_LivelockDetected);
-            }
+			{
+				throw StateMachineRuntimeError.LiveLockError();
+			}
         }
 
         return _running;
@@ -332,7 +334,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
         StateMachineUnhandledErrorException GetUnhandledErrorException()
         {
-            incomingEvent.Is<Exception>(out var exception);
+            incomingEvent.UseAncestor.Is<Exception>(out var exception);
 
             return new StateMachineUnhandledErrorException(Resources.Exception_UnhandledException, exception);
         }
@@ -426,8 +428,8 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
         await ExternalQueueCompleted().ConfigureAwait(false);
 
-        throw new StateMachineQueueClosedException(Resources.Exception_StateMachineExternalQueueHasBeenClosed);
-    }
+		throw StateMachineRuntimeError.QueueClosedError();
+	}
 
     protected virtual ValueTask ExternalQueueCompleted()
     {
@@ -1057,9 +1059,9 @@ public class StateMachineInterpreter : IStateMachineInterpreter
         }
     }
 
-    private bool IsError(Exception _) => true; // TODO: Is not OperationCanceled or ObjectDisposed when SM terminated?
+	protected virtual bool IsError(Exception ex) => ex is not OperationCanceledException || !DisposeToken.IsCancellationRequested;
 
-    private async ValueTask Error(object source, Exception exception, bool logLoggerErrors = true)
+	private async ValueTask Error(object source, Exception exception, bool logLoggerErrors = true)
     {
         SendId? sendId = null;
 
@@ -1115,7 +1117,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
     {
         try
         {
-            var entityId = source.Is(out IDebugEntityId? id) ? id.EntityId : null;
+            var entityId = source.UseAncestor.Is(out IDebugEntityId? id) ? id.EntityId : null;
 
             var eventId = errorType switch
                           {

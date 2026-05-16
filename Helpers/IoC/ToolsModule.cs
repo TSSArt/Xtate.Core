@@ -26,8 +26,9 @@ public class ToolsModule : Module<LoggingModule>
         Services.AddFactory<AncestorFactory<Any>>().For<Ancestor<Any>>();
         Services.AddSharedImplementationSync<AncestorTracker>(SharedWithin.Scope).For<AncestorTracker>().For<IServiceProviderActions>();
 
-        Services.AddFactory<SafeFactory<Any>>().For<Safe<Any>>();
+		Services.AddFactory<SafeFactory<Any>>().For<Safe<Any>>();
         Services.AddFactorySync<DeferredFactory<Any>>().For<Deferred<Any>>();
+		Services.AddFactory<ImplementationTypeFactory<Any>>().For<ImplementationType<Any>>();
 
 		Services.AddImplementation<ServiceReadOnlyList<Any>>().For<IReadOnlyList<Any>>().For<IReadOnlyCollection<Any>>();
 		Services.AddImplementationSync<ServiceSyncList<Any>>().For<ISyncList<Any>>().For<ISyncCollection<Any>>();
@@ -37,5 +38,7 @@ public class ToolsModule : Module<LoggingModule>
 
         Services.AddImplementation<OptionsImpl<Any>>().For<IOptions<Any>>();
         Services.AddImplementationSync<OptionsAsyncImpl<Any>>().For<IOptionsAsync<Any>>();
+
+		Services.AddSharedTypeSync<ScopeObject>(SharedWithin.Scope);
 	}
 }

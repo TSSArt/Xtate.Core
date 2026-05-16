@@ -17,7 +17,7 @@
 
 namespace Xtate.Core;
 
-internal class AncestorContainer(object value, object? ancestor) : IAncestorProvider
+internal sealed class AncestorContainer(object value, object? ancestor) : IAncestorProvider
 {
     public object Value { get; } = value;
 

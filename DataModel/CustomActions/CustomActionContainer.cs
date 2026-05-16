@@ -86,12 +86,12 @@ public class CustomActionContainer : ICustomAction, IAncestorProvider
     {
         foreach (var value in values)
         {
-            value.As<IActionValue>().SetEvaluator(value.As<IValueEvaluator>());
+            value.UseAncestor.As<IActionValue>().SetEvaluator(value.UseAncestor.As<IValueEvaluator>());
         }
 
         foreach (var location in locations)
         {
-            location.As<IActionLocation>().SetEvaluator(location.As<ILocationEvaluator>());
+            location.UseAncestor.As<IActionLocation>().SetEvaluator(location.UseAncestor.As<ILocationEvaluator>());
         }
     }
 

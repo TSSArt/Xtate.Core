@@ -23,7 +23,7 @@ public class InterpreterModelGetter
 
     public required IErrorProcessor ErrorProcessor { private get; [UsedImplicitly] init; }
 
-    [UsedImplicitly]
+    [CalledByIoC]
     public async ValueTask<IInterpreterModel> GetInterpreterModel()
     {
         try

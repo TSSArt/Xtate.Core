@@ -23,7 +23,7 @@ public class DefaultIfEvaluator : IfEvaluator
 
     public DefaultIfEvaluator(IIf iif) : base(iif)
     {
-        var currentCondition = base.Condition?.As<IBooleanEvaluator>();
+        var currentCondition = base.Condition?.UseAncestor.As<IBooleanEvaluator>();
         Infra.NotNull(currentCondition);
 
         var currentActions = ImmutableArray.CreateBuilder<IExecEvaluator>();
@@ -39,7 +39,7 @@ public class DefaultIfEvaluator : IfEvaluator
                 {
                     case IElseIf elseIf:
                         branchesBuilder.Add((currentCondition, currentActions.ToImmutable()));
-                        currentCondition = elseIf.Condition?.As<IBooleanEvaluator>();
+                        currentCondition = elseIf.Condition?.UseAncestor.As<IBooleanEvaluator>();
                         Infra.NotNull(currentCondition);
                         currentActions.Clear();
 
@@ -53,7 +53,7 @@ public class DefaultIfEvaluator : IfEvaluator
                         break;
 
                     default:
-                        currentActions.Add(op.As<IExecEvaluator>());
+                        currentActions.Add(op.UseAncestor.As<IExecEvaluator>());
 
                         break;
                 }

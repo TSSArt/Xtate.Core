@@ -30,7 +30,7 @@ public sealed class HistoryNode : StateEntityNode, IHistory, IAncestorProvider, 
         _history = history;
 
         Id = history.Id ?? new IdentifierNode(Identifier.New());
-        Transition = history.Transition.As<TransitionNode>();
+        Transition = history.Transition.UseAncestor.As<TransitionNode>();
         Transition.SetSource(this);
     }
 

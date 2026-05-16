@@ -28,7 +28,7 @@ public abstract class ExecutableEntityNode : IExecutableEntity, IExecEvaluator, 
 
     protected ExecutableEntityNode(DocumentIdNode documentIdNode, IExecutableEntity entity)
     {
-        _execEvaluator = entity.As<IExecEvaluator>();
+        _execEvaluator = entity.UseAncestor.As<IExecEvaluator>();
         documentIdNode.SaveToSlot(out _documentIdSlot);
     }
 

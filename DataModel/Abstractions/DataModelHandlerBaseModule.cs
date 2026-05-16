@@ -46,6 +46,7 @@ public class DataModelHandlerBaseModule : Module<CustomActionModule, LoggingModu
         Services.AddType<DataConverter>(Option.IfNotRegistered);
     }
 
+	[InstantiatedByIoC]
     private class Stub : IExternalCommunication
     {
     #region Interface IExternalCommunication

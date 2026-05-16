@@ -21,12 +21,12 @@ namespace Xtate.Core;
 
 public abstract class DataModelHandlerProviderBase<TDataModelHandler>(string? dataModelType) : IDataModelHandlerProvider where TDataModelHandler : class, IDataModelHandler
 {
-    public required Func<ValueTask<TDataModelHandler>> DataModelHandlerFactory { private get; [UsedImplicitly] init; }
+    public required Func<ValueTask<TDataModelHandler>> DataModelHandlerFactory { private get; [SetByIoC] init; }
 
 #region Interface IDataModelHandlerProvider
 
     async ValueTask<IDataModelHandler?> IDataModelHandlerProvider.TryGetDataModelHandler(string? dataModelTypeValue) =>
-        dataModelType == dataModelTypeValue ? await DataModelHandlerFactory().ConfigureAwait(false) : default;
+        dataModelType == dataModelTypeValue ? await DataModelHandlerFactory().ConfigureAwait(false) : null;
 
 #endregion
 }

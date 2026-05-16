@@ -81,7 +81,7 @@ public class XPathDataModelHandler : DataModelHandlerBase
     {
         Infra.NotNull(valueExpression.Expression);
 
-        var xmlNamespacesInfo = valueExpression.Is<IXmlNamespacesInfo>(out var info) ? info : default;
+        var xmlNamespacesInfo = valueExpression.UseAncestor.Is<IXmlNamespacesInfo>(out var info) ? info : null;
         var compiledExpression = XPathCompiledExpressionFactory(valueExpression.Expression, xmlNamespacesInfo);
 
         switch (compiledExpression.ReturnType)
@@ -134,7 +134,7 @@ public class XPathDataModelHandler : DataModelHandlerBase
     {
         Infra.NotNull(conditionExpression.Expression);
 
-        var xmlNamespacesInfo = conditionExpression.Is<IXmlNamespacesInfo>(out var info) ? info : default;
+        var xmlNamespacesInfo = conditionExpression.UseAncestor.Is<IXmlNamespacesInfo>(out var info) ? info : null;
         var compiledExpression = XPathCompiledExpressionFactory(conditionExpression.Expression, xmlNamespacesInfo);
 
         switch (compiledExpression.ReturnType)
@@ -191,7 +191,7 @@ public class XPathDataModelHandler : DataModelHandlerBase
     {
         Infra.NotNull(locationExpression.Expression);
 
-        var xmlNamespacesInfo = locationExpression.Is<IXmlNamespacesInfo>(out var info) ? info : default;
+        var xmlNamespacesInfo = locationExpression.UseAncestor.Is<IXmlNamespacesInfo>(out var info) ? info : null;
         var compiledExpression = XPathCompiledExpressionFactory(locationExpression.Expression, xmlNamespacesInfo);
 
         switch (compiledExpression.ReturnType)
@@ -237,7 +237,7 @@ public class XPathDataModelHandler : DataModelHandlerBase
     {
         base.Visit(ref assign);
 
-        if (!assign.Location.Is<XPathLocationExpression>(out var xPathLocationExpression))
+        if (!assign.Location.UseAncestor.Is<XPathLocationExpression>(out var xPathLocationExpression))
         {
             AddErrorMessage(assign, Resources.Exception_UnexpectedTypeAttributeValue);
         }
@@ -249,5 +249,5 @@ public class XPathDataModelHandler : DataModelHandlerBase
 
     protected override void Visit(ref IScript script) => AddErrorMessage(script, Resources.ErrorMessage_ScriptingNotSupportedInXPATHDataModel);
 
-    private void AddErrorMessage(object entity, string message, Exception? exception = default) => XPathErrorProcessorService.AddError(entity, message, exception);
+    private void AddErrorMessage(object entity, string message, Exception? exception = null) => XPathErrorProcessorService.AddError(entity, message, exception);
 }

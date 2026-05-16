@@ -994,4 +994,10 @@ Exception: {3}</value>
   <data name="Exception_SendIdDoesNotSpecify" xml:space="preserve">
 	  <value>SendId does not specify.</value>
   </data>
+  <data name="Exception_TargetValueIsMissed" xml:space="preserve">
+	  <value>Target value is missed</value>
+  </data>
+  <data name="Exception_InvalidTargetFormat" xml:space="preserve">
+	  <value>Invalid Target format.</value>
+  </data>
 </root>

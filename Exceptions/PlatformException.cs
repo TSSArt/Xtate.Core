@@ -18,15 +18,13 @@
 namespace Xtate;
 
 [Serializable]
-public class PlatformException : XtateException
+public class PlatformException : OwnedXtateException
 {
-    public PlatformException() { }
+	public PlatformException() { }
 
-    public PlatformException(string message) : base(message) { }
+	public PlatformException(string message) : base(message) { }
 
-    public PlatformException(string message, Exception innerException) : base(message, innerException) { }
+	public PlatformException(string message, Exception innerException) : base(message, innerException) { }
 
-    public PlatformException(Exception innerException) : base(message: null, innerException) { }
-
-    internal object? Token { get; init; }
+	public PlatformException(Exception innerException) : base(message: null, innerException) { }
 }

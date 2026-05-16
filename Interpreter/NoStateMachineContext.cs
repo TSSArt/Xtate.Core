@@ -15,10 +15,14 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using Xtate.Persistence;
+
 namespace Xtate.Core;
 
-public class NoStateMachineContext : IStateMachineContext
+public class NoStateMachineContext : IStateMachinePersistenceContext
 {
+	public readonly InMemoryStorage StateStorage = new(false);
+
 #region Interface IStateMachineContext
 
     public EntityQueue<IIncomingEvent> InternalQueue { get; } = [];
@@ -35,5 +39,11 @@ public class NoStateMachineContext : IStateMachineContext
 
     public DataModelValue DoneData { get; set; }
 
-#endregion
+	public Bucket GetStateBucket() => new(StateStorage);
+
+	public ValueTask CheckPoint(int level) => default;
+
+	public ValueTask Shrink() => default;
+
+	#endregion
 }

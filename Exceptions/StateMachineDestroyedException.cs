@@ -17,12 +17,23 @@
 
 namespace Xtate;
 
-[Serializable]
-public class StateMachineDestroyedException : XtateException
+public enum DestroyReason
 {
-    public StateMachineDestroyedException() { }
+	DestroySignal = 1,
 
-    public StateMachineDestroyedException(string? message) : base(message) { }
+	QueueClosed = 2,
 
-    public StateMachineDestroyedException(string? message, Exception? innerException) : base(message, innerException) { }
+	LiveLock = 3
+}
+
+[Serializable]
+public class StateMachineDestroyedException : OwnedXtateException
+{
+	protected StateMachineDestroyedException() { }
+
+	public StateMachineDestroyedException(string? message) : base(message) { }
+
+	public StateMachineDestroyedException(string? message, Exception? innerException) : base(message, innerException) { }
+
+	public required DestroyReason Reason { get; init; }
 }

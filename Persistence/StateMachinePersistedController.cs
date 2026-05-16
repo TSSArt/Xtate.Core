@@ -114,7 +114,7 @@ internal class StateMachinePersistedController : StateMachineRuntimeController, 
         _disposed = true;
     }
 
-    public async ValueTask Initialize()
+    public async ValueTask InitializeAsync()
     {
         _storage = await _storageProvider.GetTransactionalStorage(SessionId.Value, ControllerStateKey /*, _stopToken*/).ConfigureAwait(false);
 

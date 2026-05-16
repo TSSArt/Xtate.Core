@@ -58,7 +58,7 @@ public class InitialNode : StateEntityNode, IInitial, IAncestorProvider, IDebugE
 
         Infra.NotNull(initial.Transition);
 
-        return initial.Transition.As<TransitionNode>();
+        return initial.Transition.UseAncestor.As<TransitionNode>();
     }
 
     protected override void Store(Bucket bucket)

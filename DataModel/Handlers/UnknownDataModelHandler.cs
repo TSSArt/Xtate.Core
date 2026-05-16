@@ -19,7 +19,7 @@ namespace Xtate.DataModel;
 
 public sealed class UnknownDataModelHandler : DataModelHandlerBase
 {
-    public required IErrorProcessorService<UnknownDataModelHandler> UnknownErrorProcessorService { private get; [UsedImplicitly] init; }
+    public required IErrorProcessorService<UnknownDataModelHandler> UnknownErrorProcessorService { private get; [SetByIoC] init; }
 
     protected override void Visit(ref IScript script) => UnknownErrorProcessorService.AddError(script, Resources.Message_UnknownDataModel);
 

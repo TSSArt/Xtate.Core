@@ -204,7 +204,7 @@ public class StateMachineReader
             ? new DoneDataEntity
               {
                   Ancestor = new EntityData(bucket),
-                  Content = RestoreContent(bucket.Nested(Key.Source)),
+                  Content = RestoreContent(bucket.Nested(Key.Content)),
                   Parameters = bucket.RestoreList(Key.Parameters, RestoreParam)
               }
             : null;

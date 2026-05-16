@@ -31,16 +31,16 @@ public class DefaultForEachEvaluator : ForEachEvaluator
 
     public DefaultForEachEvaluator(IForEach forEach) : base(forEach)
     {
-        var arrayEvaluator = base.Array?.As<IArrayEvaluator>();
+        var arrayEvaluator = base.Array?.UseAncestor.As<IArrayEvaluator>();
         Infra.NotNull(arrayEvaluator);
         _arrayEvaluator = arrayEvaluator;
 
-        var itemEvaluator = base.Item?.As<ILocationEvaluator>();
+        var itemEvaluator = base.Item?.UseAncestor.As<ILocationEvaluator>();
         Infra.NotNull(itemEvaluator);
         _itemEvaluator = itemEvaluator;
 
-        _actionEvaluatorList = base.Action.AsArrayOf<IExecutableEntity, IExecEvaluator>(true);
-        _indexEvaluator = base.Index?.As<ILocationEvaluator>();
+        _actionEvaluatorList = base.Action.UseAncestor.ItemsAs<IExecEvaluator>(true);
+        _indexEvaluator = base.Index?.UseAncestor.As<ILocationEvaluator>();
     }
 
     public override async ValueTask Execute()

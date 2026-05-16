@@ -30,7 +30,7 @@ public class XPathXmlParserContextFactory
 
         var namespaceManager = new XmlNamespaceManager(nameTable);
 
-        if (entity.Is<IXmlNamespacesInfo>(out var namespacesInfo))
+        if (entity.UseAncestor.Is<IXmlNamespacesInfo>(out var namespacesInfo))
         {
             foreach (var prefixUri in namespacesInfo.Namespaces)
             {

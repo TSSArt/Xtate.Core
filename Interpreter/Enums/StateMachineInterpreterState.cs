@@ -17,23 +17,33 @@
 
 namespace Xtate.Core;
 
-public enum StateMachineInterpreterState
+public class StateMachineInterpreterState
 {
-    Initializing,
+	private readonly string _displayName;
 
-    Accepted,
+	protected StateMachineInterpreterState(string displayName) => _displayName = displayName;
 
-    Started,
+	public static StateMachineInterpreterState Initializing { get; } = new(nameof(Initializing));
 
-    Completed,
+	public static StateMachineInterpreterState Accepted { get; } = new(nameof(Accepted));
 
-    Waiting,
+	public static StateMachineInterpreterState Started { get; } = new(nameof(Started));
 
-    Destroying,
+	public static StateMachineInterpreterState Completed { get; } = new(nameof(Completed));
 
-    Terminated,
+	public static StateMachineInterpreterState Waiting { get; } = new(nameof(Waiting));
 
-    Suspended,
+	public static StateMachineInterpreterState Destroying { get; } = new(nameof(Destroying));
 
-    Resumed
+	public static StateMachineInterpreterState Terminated { get; } = new(nameof(Terminated));
+
+	public sealed override bool Equals(object? obj) => ReferenceEquals(this, obj);
+
+	public sealed override int GetHashCode() => RuntimeHelpers.GetHashCode(this);
+
+	public static bool operator ==(StateMachineInterpreterState? left, StateMachineInterpreterState? right) => ReferenceEquals(left, right);
+
+	public static bool operator !=(StateMachineInterpreterState? left, StateMachineInterpreterState? right) => !ReferenceEquals(left, right);
+
+	public override string ToString() => _displayName;
 }

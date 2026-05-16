@@ -28,11 +28,11 @@ public class StateNode : StateEntityNode, IState, IAncestorProvider, IDebugEntit
         _state = state;
 
         var id = state.Id ?? new IdentifierNode(Identifier.New());
-        var initial = state.Initial?.As<InitialNode>();
-        var states = state.States.AsArrayOf<IStateEntity, StateEntityNode>(true);
-        var historyStates = state.HistoryStates.AsArrayOf<IHistory, HistoryNode>(true);
-        var transitions = state.Transitions.AsArrayOf<ITransition, TransitionNode>(true);
-        var invokeList = state.Invoke.AsArrayOf<IInvoke, InvokeNode>(true);
+        var initial = state.Initial?.UseAncestor.As<InitialNode>();
+        var states = state.States.UseAncestor.ItemsAs<StateEntityNode>(true);
+        var historyStates = state.HistoryStates.UseAncestor.ItemsAs<HistoryNode>(true);
+        var transitions = state.Transitions.UseAncestor.ItemsAs<TransitionNode>(true);
+        var invokeList = state.Invoke.UseAncestor.ItemsAs<InvokeNode>(true);
 
         Register(initial);
         Register(states);
@@ -45,9 +45,9 @@ public class StateNode : StateEntityNode, IState, IAncestorProvider, IDebugEntit
         HistoryStates = historyStates;
         Transitions = transitions;
         Invoke = invokeList;
-        OnEntry = state.OnEntry.AsArrayOf<IOnEntry, OnEntryNode>(true);
-        OnExit = state.OnExit.AsArrayOf<IOnExit, OnExitNode>(true);
-        DataModel = state.DataModel?.As<DataModelNode>();
+        OnEntry = state.OnEntry.UseAncestor.ItemsAs<OnEntryNode>(true);
+        OnExit = state.OnExit.UseAncestor.ItemsAs<OnExitNode>(true);
+        DataModel = state.DataModel?.UseAncestor.As<DataModelNode>();
     }
 
     public override bool IsAtomicState => true;

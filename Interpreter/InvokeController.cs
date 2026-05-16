@@ -42,7 +42,7 @@ public class InvokeController : IInvokeController
         {
             await ExternalServiceManager.Start(invokeData).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (!StateMachineRuntimeError.IsPlatformError(ex))
         {
             throw StateMachineRuntimeError.CommunicationError(ex);
         }
@@ -56,7 +56,7 @@ public class InvokeController : IInvokeController
         {
             await ExternalServiceManager.Cancel(invokeId).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (!StateMachineRuntimeError.IsPlatformError(ex))
         {
             throw StateMachineRuntimeError.CommunicationError(ex);
         }
@@ -72,7 +72,7 @@ public class InvokeController : IInvokeController
         {
             await ExternalServiceManager.Forward(invokeId, incomingEvent).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (!StateMachineRuntimeError.IsPlatformError(ex))
         {
             throw StateMachineRuntimeError.CommunicationError(ex);
         }

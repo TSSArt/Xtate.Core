@@ -35,8 +35,8 @@ public class TransitionNode : ITransition, IStoreSupport, IAncestorProvider, IDo
         documentIdNode.SaveToSlot(out _documentIdSlot);
 
         TargetState = target;
-        ActionEvaluators = transition.Action.AsArrayOf<IExecutableEntity, IExecEvaluator>(true);
-        ConditionEvaluator = transition.Condition?.As<IBooleanEvaluator>();
+        ActionEvaluators = transition.Action.UseAncestor.ItemsAs<IExecEvaluator>(true);
+        ConditionEvaluator = transition.Condition?.UseAncestor.As<IBooleanEvaluator>();
         Source = default!;
     }
 

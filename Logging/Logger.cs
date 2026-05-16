@@ -27,9 +27,13 @@ public class Logger<TSource> : ILogger<TSource>
 
     public required IReadOnlyCollection<ILogWriter<TSource>> LogWriters { private get; [UsedImplicitly] init; }
 
-    public required IReadOnlyCollection<ILogEnricher<TSource>> LogEnrichers { private get; [UsedImplicitly] init; }
+    public required IAsyncEnumerable<ILogEnricher<TSource>> LogEnrichers { private get; [UsedImplicitly] init; }
 
-    public required IReadOnlyCollection<IEntityParserHandler<TSource>> EntityParserHandlers { private get; [UsedImplicitly] init; }
+    public required IAsyncEnumerable<IEntityParserHandler<TSource>> EntityParserHandlers { private get; [UsedImplicitly] init; }
+
+	private ImmutableArray<ILogEnricher<TSource>> _logEnrichers;
+
+	private ImmutableArray<IEntityParserHandler<TSource>> _entityParserHandlers;
 
 #region Interface ILogger
 
@@ -107,7 +111,17 @@ public class Logger<TSource> : ILogger<TSource>
                                            ImmutableArray<LoggingParameter> messageParameters,
                                            TEntity entity)
     {
-        foreach (var logWriter in LogWriters)
+		if (_logEnrichers.IsDefault)
+		{
+			_logEnrichers = await LogEnrichers.ToImmutableArrayAsync().ConfigureAwait(false);
+		}
+
+		if (_entityParserHandlers.IsDefault)
+		{
+			_entityParserHandlers = await EntityParserHandlers.ToImmutableArrayAsync().ConfigureAwait(false);
+		}
+
+		foreach (var logWriter in LogWriters)
         {
             if (logWriter.IsEnabled(level))
             {
@@ -132,7 +146,7 @@ public class Logger<TSource> : ILogger<TSource>
 
     private IEnumerable<LoggingParameter> EnumerateProperties<TEntity>(ILogWriter<TSource> logWriter, TEntity entity)
     {
-        foreach (var entityParserHandler in EntityParserHandlers)
+        foreach (var entityParserHandler in _entityParserHandlers)
         {
             if (logWriter.IsEnabled(entityParserHandler.Level) && entityParserHandler.EnumerateProperties(entity) is { } enumerable)
             {
@@ -146,7 +160,7 @@ public class Logger<TSource> : ILogger<TSource>
 
     private IEnumerable<LoggingParameter> EnumerateProperties<TEntity>(ILogWriter logWriter, Type source, TEntity entity)
     {
-        foreach (var entityParserHandler in EntityParserHandlers)
+        foreach (var entityParserHandler in _entityParserHandlers)
         {
             if (logWriter.IsEnabled(source, entityParserHandler.Level) && entityParserHandler.EnumerateProperties(entity) is { } enumerable)
             {
@@ -178,7 +192,7 @@ public class Logger<TSource> : ILogger<TSource>
             }
         }
 
-        foreach (var enricher in LogEnrichers)
+        foreach (var enricher in _logEnrichers)
         {
             if (logWriter.IsEnabled(enricher.Level))
             {
@@ -218,7 +232,7 @@ public class Logger<TSource> : ILogger<TSource>
             }
         }
 
-        foreach (var enricher in LogEnrichers)
+        foreach (var enricher in _logEnrichers)
         {
             if (logWriter.IsEnabled(source, enricher.Level))
             {

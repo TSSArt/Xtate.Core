@@ -207,9 +207,9 @@ public class StateMachinePersistingInterpreterBase : StateMachineInterpreter
     protected override ValueTask ExternalQueueCompleted()
     {
         if (_suspending)
-        {
-            throw new StateMachineSuspendedException(Resources.Exception_StateMachineHasBeenSuspended);
-        }
+		{
+			throw new StateMachineSuspendedException(Resources.Exception_StateMachineHasBeenSuspended) { Owner = null };
+		}
 
         return base.ExternalQueueCompleted();
     }

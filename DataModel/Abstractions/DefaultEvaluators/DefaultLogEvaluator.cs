@@ -21,7 +21,7 @@ public class DefaultLogEvaluator : LogEvaluator
 {
     private readonly IObjectEvaluator? _expressionEvaluator;
 
-    public DefaultLogEvaluator(ILog log) : base(log) => _expressionEvaluator = base.Expression?.As<IObjectEvaluator>();
+    public DefaultLogEvaluator(ILog log) : base(log) => _expressionEvaluator = base.Expression?.UseAncestor.As<IObjectEvaluator>();
 
     public required Deferred<ILogController> LogController { private get; [UsedImplicitly] init; }
 

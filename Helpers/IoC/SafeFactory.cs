@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,33 +19,27 @@ using Xtate.IoC;
 
 namespace Xtate.Core;
 
-[InstantiatedByIoC]
-public class SafeFactory<T> : IAsyncInitialization
+public sealed class SafeFactory<T>
 {
-    private T? _value;
+	private readonly T? _value;
 
-    public SafeFactory(Func<ValueTask<T?>> factory) => Initialization = Initialize(this, factory);
+	private SafeFactory(T? value) => _value = value;
 
-#region Interface IAsyncInitialization
+	private T? GetValue() => _value;
 
-    public Task Initialization { get; }
+	[CalledByIoC]
+	public Safe<T> GetValueFunc() => GetValue;
 
-#endregion
-
-    private static async Task Initialize(SafeFactory<T> safeFactory, Func<ValueTask<T?>> factory)
-    {
-        try
-        {
-            safeFactory._value = await factory().ConfigureAwait(false);
-        }
-        catch (DependencyInjectionException ex) when (ex.GetBaseException() is MissedServiceException)
-        {
-            // ignore
-        }
-    }
-
-    private T? GetValue() => _value;
-
-    [CalledByIoC]
-    public ValueTask<Safe<T>> GetValueFunc() => new(GetValue);
+	[CalledByIoC]
+	public static async ValueTask<SafeFactory<T>> Constructor(Func<ValueTask<T?>> factory)
+	{
+		try
+		{
+			return new SafeFactory<T>(await factory().ConfigureAwait(false));
+		}
+		catch (DependencyInjectionException ex) when (ex.GetBaseException() is MissedServiceException)
+		{
+			return new SafeFactory<T>(default);
+		}
+	}
 }
