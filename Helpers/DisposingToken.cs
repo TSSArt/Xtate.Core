@@ -63,7 +63,8 @@ public class DisposingToken : CancellationTokenSource, IAsyncDisposable
 		{
 			if (!IsCancellationRequested)
 			{
-				await CancelAsync().ConfigureAwait(false);
+				var disposingToken = this;
+				await disposingToken.CancelAsync().ConfigureAwait(false);
 			}
 		}
 		catch (ObjectDisposedException)
