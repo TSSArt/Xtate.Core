@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -20,11 +20,11 @@ namespace Xtate.Core;
 
 public static class KeyValuePairExtensions
 {
-    public static void Deconstruct<TKey, TValue>(this KeyValuePair<TKey, TValue> keyValuePair, out TKey key, out TValue value)
-    {
-        key = keyValuePair.Key;
-        value = keyValuePair.Value;
-    }
+	public static void Deconstruct<TKey, TValue>(this KeyValuePair<TKey, TValue> keyValuePair, out TKey key, out TValue value)
+	{
+		key = keyValuePair.Key;
+		value = keyValuePair.Value;
+	}
 }
 
 #endif

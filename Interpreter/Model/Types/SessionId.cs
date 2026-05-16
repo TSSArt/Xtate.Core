@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -22,31 +22,31 @@ namespace Xtate;
 [Serializable]
 public sealed class SessionId : ServiceId, IEquatable<SessionId>
 {
-    private static readonly SessionId Empty = FromString(string.Empty);
+	private static readonly SessionId Empty = FromString(string.Empty);
 
-    private SessionId() { }
+	private SessionId() { }
 
-    private SessionId(string value) : base(value) { }
+	private SessionId(string value) : base(value) { }
 
-    public override string ServiceType => nameof(SessionId);
+	public override string ServiceType => nameof(SessionId);
 
 #region Interface IEquatable<SessionId>
 
-    public bool Equals(SessionId? other) => FastEqualsNoTypeCheck(other);
+	public bool Equals(SessionId? other) => FastEqualsNoTypeCheck(other);
 
 #endregion
 
-    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || (obj is SessionId other && Equals(other));
+	public override bool Equals(object? obj) => ReferenceEquals(this, obj) || (obj is SessionId other && Equals(other));
 
-    public override int GetHashCode() => base.GetHashCode();
+	public override int GetHashCode() => base.GetHashCode();
 
-    protected override string GenerateId() => IdGenerator.NewSessionId(GetHashCode());
+	protected override string GenerateId() => IdGenerator.NewSessionId(GetHashCode());
 
-    public static SessionId New() => new();
+	public static SessionId New() => new();
 
-    public static SessionId FromString([Localizable(false)] string value) => new(value);
+	public static SessionId FromString([Localizable(false)] string value) => new(value);
 
-    public static bool IsNullOrEmpty([NotNullWhen(false)] SessionId? sessionId) => sessionId is null || sessionId == Empty;
+	public static bool IsNullOrEmpty([NotNullWhen(false)] SessionId? sessionId) => sessionId is null || sessionId == Empty;
 
 	[return: NotNullIfNotNull(nameof(sessionId))]
 	public static implicit operator string?(SessionId? sessionId) => sessionId?.ToString();

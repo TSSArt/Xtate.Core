@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,9 +19,9 @@ namespace Xtate.Persistence;
 
 public interface IStorageProvider
 {
-    ValueTask<ITransactionalStorage> GetTransactionalStorage(string? partition, string key);
+	ValueTask<ITransactionalStorage> GetTransactionalStorage(string? partition, string key);
 
-    ValueTask RemoveTransactionalStorage(string? partition, string key);
+	ValueTask RemoveTransactionalStorage(string? partition, string key);
 
-    ValueTask RemoveAllTransactionalStorage(string? partition);
+	ValueTask RemoveAllTransactionalStorage(string? partition);
 }

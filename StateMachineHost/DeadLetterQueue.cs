@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,12 +19,12 @@ namespace Xtate.Core;
 
 public class DeadLetterQueue<TSource> : IDeadLetterQueue<TSource>
 {
-    public required ILogger<IDeadLetterQueue<TSource>> Logger { private get; [UsedImplicitly] init; }
+	public required ILogger<IDeadLetterQueue<TSource>> Logger { private get; [UsedImplicitly] init; }
 
 #region Interface IDeadLetterQueue<TSource>
 
-    public ValueTask Enqueue(ServiceId recipientServiceId, IIncomingEvent incomingEvent) =>
-        Logger.Write(Level.Warning, eventId: 1, $@"Event can't be delivered to {recipientServiceId.ServiceType} [{recipientServiceId}].", incomingEvent);
+	public ValueTask Enqueue(ServiceId recipientServiceId, IIncomingEvent incomingEvent) =>
+		Logger.Write(Level.Warning, eventId: 1, $@"Event can't be delivered to {recipientServiceId.ServiceType} [{recipientServiceId}].", incomingEvent);
 
 #endregion
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,80 +19,80 @@ namespace Xtate.ExternalService;
 
 public abstract class ExternalServiceBase : IExternalService, IEventDispatcher
 {
-    private readonly CancellationToken? _destroyToken;
+	private readonly CancellationToken? _destroyToken;
 
-    private readonly LazyTask<DataModelValue> _lazyTask = null!;
+	private readonly LazyTask<DataModelValue> _lazyTask = null!;
 
-    private readonly TaskMonitor _taskMonitor = null!;
+	private readonly TaskMonitor _taskMonitor = null!;
 
-    [SetByIoC]
-    public required IExternalServiceSource ExternalServiceSourceLocal
-    {
-        init
-        {
-            Source = value.Source;
-            Content = value.Content;
-            RawContent = value.RawContent;
-        }
-    }
+	[SetByIoC]
+	public required IExternalServiceSource ExternalServiceSourceLocal
+	{
+		init
+		{
+			Source = value.Source;
+			Content = value.Content;
+			RawContent = value.RawContent;
+		}
+	}
 
-    [SetByIoC]
-    public required IExternalServiceParameters ExternalServiceParametersLocal
-    {
-        init => Parameters = value.Parameters;
-    }
+	[SetByIoC]
+	public required IExternalServiceParameters ExternalServiceParametersLocal
+	{
+		init => Parameters = value.Parameters;
+	}
 
-    [SetByIoC]
-    public required DisposeToken DisposeTokenLocal
-    {
-        init
-        {
-            _destroyToken = value.Token;
+	[SetByIoC]
+	public required DisposeToken DisposeTokenLocal
+	{
+		init
+		{
+			_destroyToken = value.Token;
 
-            if (_taskMonitor is not null && _lazyTask is null)
-            {
-                _lazyTask = new LazyTask<DataModelValue>(Execute, _taskMonitor, _destroyToken.Value);
-            }
-        }
-    }
+			if (_taskMonitor is not null && _lazyTask is null)
+			{
+				_lazyTask = new LazyTask<DataModelValue>(Execute, _taskMonitor, _destroyToken.Value);
+			}
+		}
+	}
 
-    [SetByIoC]
-    public required TaskMonitor TaskMonitorLocal
-    {
-        init
-        {
-            _taskMonitor = value;
+	[SetByIoC]
+	public required TaskMonitor TaskMonitorLocal
+	{
+		init
+		{
+			_taskMonitor = value;
 
-            if (_destroyToken is not null && _lazyTask is null)
-            {
-                _lazyTask = new LazyTask<DataModelValue>(Execute, _taskMonitor, _destroyToken.Value);
-            }
-        }
-    }
+			if (_destroyToken is not null && _lazyTask is null)
+			{
+				_lazyTask = new LazyTask<DataModelValue>(Execute, _taskMonitor, _destroyToken.Value);
+			}
+		}
+	}
 
-    protected Uri? Source { get; private init; }
+	protected Uri? Source { get; private init; }
 
-    protected string? RawContent { get; private init; }
+	protected string? RawContent { get; private init; }
 
-    protected DataModelValue Content { get; private init; }
+	protected DataModelValue Content { get; private init; }
 
-    protected DataModelValue Parameters { get; private init; }
+	protected DataModelValue Parameters { get; private init; }
 
-    protected CancellationToken DestroyToken => _destroyToken!.Value;
+	protected CancellationToken DestroyToken => _destroyToken!.Value;
 
 #region Interface IEventDispatcher
 
-    ValueTask IEventDispatcher.Dispatch(IIncomingEvent incomingEvent, CancellationToken token) => Dispatch(incomingEvent, token);
+	ValueTask IEventDispatcher.Dispatch(IIncomingEvent incomingEvent, CancellationToken token) => Dispatch(incomingEvent, token);
 
 #endregion
 
 #region Interface IExternalService
 
-    ValueTask<DataModelValue> IExternalService.GetResult() => new(_lazyTask.Task);
+	ValueTask<DataModelValue> IExternalService.GetResult() => new(_lazyTask.Task);
 
 #endregion
 
-    protected abstract ValueTask<DataModelValue> Execute();
+	protected abstract ValueTask<DataModelValue> Execute();
 
-    protected virtual ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token) => ValueTask.CompletedTask;
+	protected virtual ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token) => ValueTask.CompletedTask;
 }

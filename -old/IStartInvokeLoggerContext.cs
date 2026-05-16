@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -20,9 +20,9 @@ namespace Xtate.Core;
 [Obsolete]
 public interface IStartInvokeLoggerContext //: ILoggerContext
 {
-    public SessionId SessionId { get; }
+	SessionId SessionId { get; }
 
-    public Uri Type { get; }
+	Uri Type { get; }
 
-    public Uri? Source { get; }
+	Uri? Source { get; }
 }

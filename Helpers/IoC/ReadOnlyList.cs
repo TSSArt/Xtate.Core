@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -59,11 +59,11 @@ public abstract class ReadOnlyList<T>(ImmutableArray<T> list) : IList<T>, IList,
 
 #region Interface IEnumerable<T>
 
-	IEnumerator<T> IEnumerable<T>.GetEnumerator() => ((IEnumerable<T>)_array).GetEnumerator();
+	IEnumerator<T> IEnumerable<T>.GetEnumerator() => ((IEnumerable<T>) _array).GetEnumerator();
 
-	#endregion
+#endregion
 
-	#region Interface IList
+#region Interface IList
 
 	object? IList.this[int index]
 	{
@@ -121,7 +121,7 @@ public abstract class ReadOnlyList<T>(ImmutableArray<T> list) : IList<T>, IList,
 		value is T val
 			? Array.IndexOf(_array, val)
 			: value == null && default(T) == null
-				? Array.IndexOf(_array, default)
+				? Array.IndexOf(_array, value: default)
 				: -1;
 
 	public ReadOnlySpan<T> AsSpan() => _array.AsSpan();

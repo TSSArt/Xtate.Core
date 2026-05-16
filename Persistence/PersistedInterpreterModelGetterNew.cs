@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,51 +21,51 @@ namespace Xtate.Core;
 
 public class PersistedInterpreterModelGetterNew
 {
-    public required IStorageProvider StorageProvider { private get; [UsedImplicitly] init; }
+	public required IStorageProvider StorageProvider { private get; [UsedImplicitly] init; }
 
-    public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
+	public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
 
-    public required InterpreterModelBuilder InterpreterModelBuilder { private get; [UsedImplicitly] init; }
+	public required InterpreterModelBuilder InterpreterModelBuilder { private get; [UsedImplicitly] init; }
 
-    public required IErrorProcessor ErrorProcessor { private get; [UsedImplicitly] init; }
+	public required IErrorProcessor ErrorProcessor { private get; [UsedImplicitly] init; }
 
-    [UsedImplicitly]
-    public async ValueTask<IInterpreterModel> GetInterpreterModel()
-    {
-        try
-        {
-            return await InterpreterModelBuilder.BuildModel(true).ConfigureAwait(false);
-        }
-        finally
-        {
-            ErrorProcessor.ThrowIfErrors();
-        }
-    }
+	[UsedImplicitly]
+	public async ValueTask<IInterpreterModel> GetInterpreterModel()
+	{
+		try
+		{
+			return await InterpreterModelBuilder.BuildModel(true).ConfigureAwait(false);
+		}
+		finally
+		{
+			ErrorProcessor.ThrowIfErrors();
+		}
+	}
 
-    private async ValueTask SaveInterpreterModel(IInterpreterModel interpreterModel)
-    {
-        var storage = await StorageProvider.GetTransactionalStorage(partition: default, key: @"StateMachineDefinitionStorageKey").ConfigureAwait(false); //TODO:
+	private async ValueTask SaveInterpreterModel(IInterpreterModel interpreterModel)
+	{
+		var storage = await StorageProvider.GetTransactionalStorage(partition: default, key: @"StateMachineDefinitionStorageKey").ConfigureAwait(false); //TODO:
 
-        await using (storage.ConfigureAwait(false))
-        {
-            SaveToStorage(interpreterModel.Root, new Bucket(storage));
+		await using (storage.ConfigureAwait(false))
+		{
+			SaveToStorage(interpreterModel.Root, new Bucket(storage));
 
-            await storage.CheckPoint(0).ConfigureAwait(false);
-        }
-    }
+			await storage.CheckPoint(0).ConfigureAwait(false);
+		}
+	}
 
-    private void SaveToStorage(IStoreSupport root, in Bucket bucket)
-    {
-        var memoryStorage = new InMemoryStorage();
-        root.Store(new Bucket(memoryStorage));
+	private void SaveToStorage(IStoreSupport root, in Bucket bucket)
+	{
+		var memoryStorage = new InMemoryStorage();
+		root.Store(new Bucket(memoryStorage));
 
-        using var ss = new StackSpan<byte>(memoryStorage.GetTransactionLogSize());
-        var span = ss ? ss : stackalloc byte[ss];
+		using var ss = new StackSpan<byte>(memoryStorage.GetTransactionLogSize());
+		var span = ss ? ss : stackalloc byte[ss];
 
-        memoryStorage.WriteTransactionLogToSpan(span);
+		memoryStorage.WriteTransactionLogToSpan(span);
 
-        bucket.Add(Key.Version, value: 1);
-        bucket.AddId(Key.SessionId, StateMachineSessionId.SessionId);
-        bucket.Add(Key.StateMachineDefinition, span);
-    }
+		bucket.Add(Key.Version, value: 1);
+		bucket.AddId(Key.SessionId, StateMachineSessionId.SessionId);
+		bucket.Add(Key.StateMachineDefinition, span);
+	}
 }

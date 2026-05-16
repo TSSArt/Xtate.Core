@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,9 +21,9 @@ public class HostXDataModelProperty : IXDataModelProperty
 {
 #region Interface IXDataModelProperty
 
-    public string Name => @"host";
+	public string Name => @"host";
 
-    public DataModelValue Value => default;
+	public DataModelValue Value => default;
 
 #endregion
 }

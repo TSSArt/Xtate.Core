@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -20,15 +20,15 @@ namespace Xtate.ExternalService;
 [Obsolete]
 public interface IServiceCatalog
 {
-    public delegate ExternalServiceBase Creator();
+	delegate ExternalServiceBase Creator();
 
-    public delegate IExternalService ServiceCreator(Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication);
+	delegate IExternalService ServiceCreator(Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication);
 
-    public delegate ValueTask<IExternalService> ServiceCreatorAsync(Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication);
+	delegate ValueTask<IExternalService> ServiceCreatorAsync(Uri? baseUri, InvokeData invokeData, IServiceCommunication serviceCommunication);
 
-    void Register(string type, Creator creator);
+	void Register(string type, Creator creator);
 
-    void Register(string type, ServiceCreator creator);
+	void Register(string type, ServiceCreator creator);
 
-    void Register(string type, ServiceCreatorAsync creator);
+	void Register(string type, ServiceCreatorAsync creator);
 }

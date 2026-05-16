@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,45 +21,45 @@ namespace Xtate.Core;
 
 public class EventQueue : IEventQueueReader, IEventQueueWriter, IEventDispatcher, IDisposable
 {
-    private readonly Channel<IIncomingEvent> _channel = Channel.CreateUnbounded<IIncomingEvent>();
+	private readonly Channel<IIncomingEvent> _channel = Channel.CreateUnbounded<IIncomingEvent>();
 
 #region Interface IDisposable
 
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
+	public void Dispose()
+	{
+		Dispose(true);
+		GC.SuppressFinalize(this);
+	}
 
 #endregion
 
 #region Interface IEventDispatcher
 
-    public ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token) => WriteAsync(incomingEvent, token);
+	public ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token) => WriteAsync(incomingEvent, token);
 
 #endregion
 
 #region Interface IEventQueueReader
 
-    public bool TryReadEvent([MaybeNullWhen(false)] out IIncomingEvent incomingEvent) => _channel.Reader.TryRead(out incomingEvent);
+	public bool TryReadEvent([MaybeNullWhen(false)] out IIncomingEvent incomingEvent) => _channel.Reader.TryRead(out incomingEvent);
 
-    public ValueTask<bool> WaitToEvent() => _channel.Reader.WaitToReadAsync();
+	public ValueTask<bool> WaitToEvent() => _channel.Reader.WaitToReadAsync();
 
-    public void Complete() => _channel.Writer.TryComplete();
+	public void Complete() => _channel.Writer.TryComplete();
 
 #endregion
 
 #region Interface IEventQueueWriter
 
-    public ValueTask WriteAsync(IIncomingEvent incomingEvent, CancellationToken token) => _channel.Writer.WriteAsync(incomingEvent, token);
+	public ValueTask WriteAsync(IIncomingEvent incomingEvent, CancellationToken token) => _channel.Writer.WriteAsync(incomingEvent, token);
 
 #endregion
 
-    protected virtual void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            _channel.Writer.TryComplete();
-        }
-    }
+	protected virtual void Dispose(bool disposing)
+	{
+		if (disposing)
+		{
+			_channel.Writer.TryComplete();
+		}
+	}
 }

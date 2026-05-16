@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,11 +21,11 @@ namespace Xtate.Core;
 
 public interface IExternalServiceCollection
 {
-    void Register(InvokeId invokeId);
+	void Register(InvokeId invokeId);
 
-    void SetExternalService(InvokeId invokeId, IExternalService externalService);
+	void SetExternalService(InvokeId invokeId, IExternalService externalService);
 
-    void Unregister(InvokeId invokeId);
+	void Unregister(InvokeId invokeId);
 
-    ValueTask Dispatch(InvokeId invokeId, IIncomingEvent incomingEvent, CancellationToken token);
+	ValueTask Dispatch(InvokeId invokeId, IIncomingEvent incomingEvent, CancellationToken token);
 }

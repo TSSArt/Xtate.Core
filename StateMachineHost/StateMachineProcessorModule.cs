@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -24,25 +24,25 @@ namespace Xtate.Core;
 
 public class StateMachineProcessorModule : Module<ExternalServiceModule, EventSchedulerModule, StateMachineInterpreterModule>
 {
-    protected override void AddServices()
-    {
-        Services.AddSharedFactorySync<SecurityContextFactory>(SharedWithin.Container).For<IIoBoundTask>().For<SecurityContextRegistration, SecurityContextType>(Option.DoNotDispose);
+	protected override void AddServices()
+	{
+		Services.AddSharedFactorySync<SecurityContextFactory>(SharedWithin.Container).For<IIoBoundTask>().For<SecurityContextRegistration, SecurityContextType>(Option.DoNotDispose);
 
-        Services.AddType<StateMachineExternalService>();
-        Services.AddImplementation<StateMachineExternalService.Provider>().For<IExternalServiceProvider>();
-        Services.AddImplementation<LocationChildStateMachine, (Uri, DataModelValue)>().For<StateMachineClass>();
-        Services.AddImplementation<ScxmlStringChildStateMachine, (string, Uri?, DataModelValue)>().For<StateMachineClass>();
+		Services.AddType<StateMachineExternalService>();
+		Services.AddImplementation<StateMachineExternalService.Provider>().For<IExternalServiceProvider>();
+		Services.AddImplementation<LocationChildStateMachine, (Uri, DataModelValue)>().For<StateMachineClass>();
+		Services.AddImplementation<ScxmlStringChildStateMachine, (string, Uri?, DataModelValue)>().For<StateMachineClass>();
 
-        Services.AddImplementation<ExternalCommunication>().For<IExternalCommunication>();
+		Services.AddImplementation<ExternalCommunication>().For<IExternalCommunication>();
 
-        Services.AddSharedImplementation<StateMachineScopeManager>(SharedWithin.Container).For<IStateMachineScopeManager>();
-        Services.AddSharedImplementation<StateMachineCollection>(SharedWithin.Container).For<IStateMachineCollection>();
-        Services.AddSharedImplementation<StateMachineRunner>(SharedWithin.Scope).For<IStateMachineRunner>();
-        Services.AddSharedImplementation<StateMachineRuntimeController>(SharedWithin.Scope).For<IStateMachineController>();
-        Services.AddSharedImplementation<StateMachineStatus>(SharedWithin.Scope).For<INotifyStateChanged>().For<IStateMachineStatus>();
+		Services.AddSharedImplementation<StateMachineScopeManager>(SharedWithin.Container).For<IStateMachineScopeManager>();
+		Services.AddSharedImplementation<StateMachineCollection>(SharedWithin.Container).For<IStateMachineCollection>();
+		Services.AddSharedImplementation<StateMachineRunner>(SharedWithin.Scope).For<IStateMachineRunner>();
+		Services.AddSharedImplementation<StateMachineRuntimeController>(SharedWithin.Scope).For<IStateMachineController>();
+		Services.AddSharedImplementation<StateMachineStatus>(SharedWithin.Scope).For<INotifyStateChanged>().For<IStateMachineStatus>();
 
-        Services.AddImplementation<ScxmlIoProcessor>().For<IIoProcessor>().For<IEventRouter>();
+		Services.AddImplementation<ScxmlIoProcessor>().For<IIoProcessor>().For<IEventRouter>();
 
-        Services.AddImplementation<DeadLetterQueue<Any>>().For<IDeadLetterQueue<Any>>();
-    }
+		Services.AddImplementation<DeadLetterQueue<Any>>().For<IDeadLetterQueue<Any>>();
+	}
 }

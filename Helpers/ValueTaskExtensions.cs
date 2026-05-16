@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,11 +21,11 @@ namespace System.Threading.Tasks;
 [UsedImplicitly]
 internal static class ValueTaskExtensions
 {
-    extension(ValueTask)
-    {
-        /// <summary>Gets a task that has already completed successfully.</summary>
-        public static ValueTask CompletedTask => new();
-    }
+	extension(ValueTask)
+	{
+		/// <summary>Gets a task that has already completed successfully.</summary>
+		public static ValueTask CompletedTask => new();
+	}
 }
 
 #endif

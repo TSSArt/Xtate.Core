@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -19,12 +19,12 @@ namespace Xtate.Core;
 
 public interface IStateMachineScopeManager
 {
-    ValueTask Start(StateMachineClass stateMachineClass, SecurityContextType securityContextType);
+	ValueTask Start(StateMachineClass stateMachineClass, SecurityContextType securityContextType);
 
-    ValueTask<DataModelValue> Execute(StateMachineClass stateMachineClass, SecurityContextType securityContextType);
+	ValueTask<DataModelValue> Execute(StateMachineClass stateMachineClass, SecurityContextType securityContextType);
 
 	ValueTask Destroy(SessionId sessionId);
-	
+
 	ValueTask DestroyAll();
 
 	ValueTask Terminate(SessionId sessionId);

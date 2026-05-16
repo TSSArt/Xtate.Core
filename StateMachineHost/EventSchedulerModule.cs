@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,8 +21,8 @@ namespace Xtate.Core;
 
 public class EventSchedulerModule : Module<ToolsModule>
 {
-    protected override void AddServices()
-    {
-        Services.AddImplementation<InProcEventScheduler>().For<IEventScheduler>();
-    }
+	protected override void AddServices()
+	{
+		Services.AddImplementation<InProcEventScheduler>().For<IEventScheduler>();
+	}
 }

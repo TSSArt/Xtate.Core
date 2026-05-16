@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -20,27 +20,27 @@ namespace Xtate.Core;
 [InstantiatedByIoC]
 public class OptionsAsyncImpl<T> : IOptionsAsync<T>
 {
-    private ValueTask<T>? _valueTask;
+	private ValueTask<T>? _valueTask;
 
-    public required Func<ValueTask<T>> DefaultInstanceFactory { private get; [SetByIoC] init; }
+	public required Func<ValueTask<T>> DefaultInstanceFactory { private get; [SetByIoC] init; }
 
-    public required IAsyncEnumerable<IConfigureOptions<T>> Configurators { private get; [SetByIoC] init; }
+	public required IAsyncEnumerable<IConfigureOptions<T>> Configurators { private get; [SetByIoC] init; }
 
 #region Interface IOptionsAsync<T>
 
-    public ValueTask<T> GetValue() => _valueTask ??= Factory().Preserve();
+	public ValueTask<T> GetValue() => _valueTask ??= Factory().Preserve();
 
 #endregion
 
-    private async ValueTask<T> Factory()
-    {
-        var instance = await DefaultInstanceFactory().ConfigureAwait(false);
+	private async ValueTask<T> Factory()
+	{
+		var instance = await DefaultInstanceFactory().ConfigureAwait(false);
 
-        await foreach (var configureOptions in Configurators.ConfigureAwait(false))
-        {
-            await configureOptions.Configure(instance).ConfigureAwait(false);
-        }
+		await foreach (var configureOptions in Configurators.ConfigureAwait(false))
+		{
+			await configureOptions.Configure(instance).ConfigureAwait(false);
+		}
 
-        return instance;
-    }
+		return instance;
+	}
 }

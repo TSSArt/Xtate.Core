@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,48 +21,48 @@ namespace Xtate.Core;
 
 public abstract class StateMachineClass : IStateMachineSessionId, IStateMachineArguments, IStateMachineLocation
 {
-    private readonly DataModelValue _arguments;
+	private readonly DataModelValue _arguments;
 
-    private readonly Uri? _location;
+	private readonly Uri? _location;
 
-    public Uri Location
-    {
-        init => _location = value;
-    }
+	public Uri Location
+	{
+		init => _location = value;
+	}
 
-    public DataModelValue Arguments
-    {
-        init => _arguments = value;
-    }
+	public DataModelValue Arguments
+	{
+		init => _arguments = value;
+	}
 
 #region Interface IStateMachineArguments
 
-    DataModelValue IStateMachineArguments.Arguments => _arguments;
+	DataModelValue IStateMachineArguments.Arguments => _arguments;
 
 #endregion
 
 #region Interface IStateMachineLocation
 
-    Uri? IStateMachineLocation.Location => _location;
+	Uri? IStateMachineLocation.Location => _location;
 
 #endregion
 
 #region Interface IStateMachineSessionId
 
-    [field: AllowNull]
-    [field: MaybeNull]
-    public SessionId SessionId
-    {
-        get => field ??= SessionId.New();
-        init;
-    }
+	[field: AllowNull]
+	[field: MaybeNull]
+	public SessionId SessionId
+	{
+		get => field ??= SessionId.New();
+		init;
+	}
 
 #endregion
 
-    public virtual void AddServices(IServiceCollection services)
-    {
-        services.AddConstant<IStateMachineSessionId>(this);
-        services.AddConstant<IStateMachineArguments>(this);
-        services.AddConstant<IStateMachineLocation>(this);
-    }
+	public virtual void AddServices(IServiceCollection services)
+	{
+		services.AddConstant<IStateMachineSessionId>(this);
+		services.AddConstant<IStateMachineArguments>(this);
+		services.AddConstant<IStateMachineLocation>(this);
+	}
 }

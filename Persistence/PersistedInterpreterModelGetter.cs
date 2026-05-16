@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -25,48 +25,48 @@ public class PersistedInterpreterModelGetter
 {
 	public required Func<IStateMachine, IDataModelHandler, ValueTask<InterpreterModelBuilder>> InterpreterModelBuilderFactory { private get; [UsedImplicitly] init; }
 
-    public required InterpreterModelBuilder InterpreterModelBuilder { private get; [UsedImplicitly] init; }
+	public required InterpreterModelBuilder InterpreterModelBuilder { private get; [UsedImplicitly] init; }
 
-    public required IDataModelHandlerService DataModelHandlerService { private get; [UsedImplicitly] init; }
+	public required IDataModelHandlerService DataModelHandlerService { private get; [UsedImplicitly] init; }
 
-    public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
+	public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
 
-    public required IStateMachine? StateMachine { private get; [UsedImplicitly] init; }
+	public required IStateMachine? StateMachine { private get; [UsedImplicitly] init; }
 
-    public required IErrorProcessor ErrorProcessor { private get; [UsedImplicitly] init; }
+	public required IErrorProcessor ErrorProcessor { private get; [UsedImplicitly] init; }
 
-    public required ITransactionalStorage TransactionalStorage { private get; [UsedImplicitly] init; }
+	public required ITransactionalStorage TransactionalStorage { private get; [UsedImplicitly] init; }
 
-    public required Func<ReadOnlyMemory<byte>, InMemoryStorage> InMemoryStorageFactory { private get; [UsedImplicitly] init; }
+	public required Func<ReadOnlyMemory<byte>, InMemoryStorage> InMemoryStorageFactory { private get; [UsedImplicitly] init; }
 
-    [CalledByIoC]
-    public async ValueTask<IInterpreterModel> GetInterpreterModel()
-    {
-        if (await TryRestoreInterpreterModel().ConfigureAwait(false) is { } interpreterModel)
-        {
-            return interpreterModel;
-        }
+	[CalledByIoC]
+	public async ValueTask<IInterpreterModel> GetInterpreterModel()
+	{
+		if (await TryRestoreInterpreterModel().ConfigureAwait(false) is { } interpreterModel)
+		{
+			return interpreterModel;
+		}
 
-        Infra.NotNull(StateMachine);
+		Infra.NotNull(StateMachine);
 
-        try
-        {
-            interpreterModel = await InterpreterModelBuilder.BuildModel(true).ConfigureAwait(false);
-        }
-        finally
-        {
-            ErrorProcessor.ThrowIfErrors();
-        }
+		try
+		{
+			interpreterModel = await InterpreterModelBuilder.BuildModel(true).ConfigureAwait(false);
+		}
+		finally
+		{
+			ErrorProcessor.ThrowIfErrors();
+		}
 
-        await SaveInterpreterModel(interpreterModel).ConfigureAwait(false);
+		await SaveInterpreterModel(interpreterModel).ConfigureAwait(false);
 
 		await Disposer.DisposeAsync(TransactionalStorage).ConfigureAwait(false);
 
-        return interpreterModel;
-    }
+		return interpreterModel;
+	}
 
-    private async ValueTask<IInterpreterModel?> TryRestoreInterpreterModel()
-    {
+	private async ValueTask<IInterpreterModel?> TryRestoreInterpreterModel()
+	{
 		var bucket = new Bucket(TransactionalStorage);
 
 		if (bucket.TryGet(Key.Version, out int version) && version != 1)
@@ -115,36 +115,36 @@ public class PersistedInterpreterModelGetter
 		{
 			ErrorProcessor.ThrowIfErrors();
 		}
-    }
+	}
 
-    private async ValueTask SaveInterpreterModel(IInterpreterModel interpreterModel)
-    {
+	private async ValueTask SaveInterpreterModel(IInterpreterModel interpreterModel)
+	{
 		SaveToStorage(interpreterModel.Root, new Bucket(TransactionalStorage));
 
 		await TransactionalStorage.CheckPoint(0).ConfigureAwait(false);
 	}
 
-    private void SaveToStorage(IStoreSupport root, in Bucket bucket)
-    {
-        var memoryStorage = new InMemoryStorage();
-        root.Store(new Bucket(memoryStorage));
+	private void SaveToStorage(IStoreSupport root, in Bucket bucket)
+	{
+		var memoryStorage = new InMemoryStorage();
+		root.Store(new Bucket(memoryStorage));
 
-        var transactionLogSize = memoryStorage.GetTransactionLogSize();
-        var buffer = ArrayPool<byte>.Shared.Rent(transactionLogSize);
+		var transactionLogSize = memoryStorage.GetTransactionLogSize();
+		var buffer = ArrayPool<byte>.Shared.Rent(transactionLogSize);
 
-        try
-        {
-            var span = buffer.AsSpan(start: 0, transactionLogSize);
+		try
+		{
+			var span = buffer.AsSpan(start: 0, transactionLogSize);
 
-            memoryStorage.WriteTransactionLogToSpan(span);
+			memoryStorage.WriteTransactionLogToSpan(span);
 
-            bucket.Add(Key.Version, value: 1);
-            bucket.AddId(Key.SessionId, StateMachineSessionId.SessionId);
-            bucket.Add(Key.StateMachineDefinition, span);
-        }
-        finally
-        {
-            ArrayPool<byte>.Shared.Return(buffer);
-        }
-    }
+			bucket.Add(Key.Version, value: 1);
+			bucket.AddId(Key.SessionId, StateMachineSessionId.SessionId);
+			bucket.Add(Key.StateMachineDefinition, span);
+		}
+		finally
+		{
+			ArrayPool<byte>.Shared.Return(buffer);
+		}
+	}
 }

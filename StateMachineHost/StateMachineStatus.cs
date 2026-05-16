@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -20,13 +20,13 @@ namespace Xtate.Core;
 [InstantiatedByIoC]
 public class StateMachineStatus : IStateMachineStatus, INotifyStateChanged
 {
-    private readonly TaskCompletionSource _acceptedTcs = new();
+	private readonly TaskCompletionSource _acceptedTcs = new();
 
 #region Interface INotifyStateChanged
 
-    public virtual ValueTask OnChanged(StateMachineInterpreterState state)
-    {
-        CurrentState = state;
+	public virtual ValueTask OnChanged(StateMachineInterpreterState state)
+	{
+		CurrentState = state;
 
 		if (state == StateMachineInterpreterState.Accepted)
 		{
@@ -34,30 +34,30 @@ public class StateMachineStatus : IStateMachineStatus, INotifyStateChanged
 		}
 
 		return ValueTask.CompletedTask;
-    }
+	}
 
 #endregion
 
 #region Interface IStateMachineStatus
 
-    public Task WhenAccepted() => _acceptedTcs.Task;
+	public Task WhenAccepted() => _acceptedTcs.Task;
 
 	public void ForceCompleted()
-    {
-        _acceptedTcs.TrySetResult();
+	{
+		_acceptedTcs.TrySetResult();
 	}
 
-    public void ForceFailed(Exception exception)
-    {
-        _acceptedTcs.TrySetException(exception);
+	public void ForceFailed(Exception exception)
+	{
+		_acceptedTcs.TrySetException(exception);
 	}
 
-    public void ForceCancelled(CancellationToken token)
-    {
-        _acceptedTcs.TrySetCanceled(token);
+	public void ForceCancelled(CancellationToken token)
+	{
+		_acceptedTcs.TrySetCanceled(token);
 	}
 
-    public StateMachineInterpreterState CurrentState { get; private set; } = StateMachineInterpreterState.Initializing;
+	public StateMachineInterpreterState CurrentState { get; private set; } = StateMachineInterpreterState.Initializing;
 
 #endregion
 }

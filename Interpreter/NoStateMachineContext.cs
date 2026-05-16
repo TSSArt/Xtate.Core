@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -25,19 +25,23 @@ public class NoStateMachineContext : IStateMachinePersistenceContext
 
 #region Interface IStateMachineContext
 
-    public EntityQueue<IIncomingEvent> InternalQueue { get; } = [];
+	public EntityQueue<IIncomingEvent> InternalQueue { get; } = [];
 
-    public DataModelList DataModel => [];
+	public DataModelList DataModel => [];
 
-    public OrderedSet<StateEntityNode> Configuration { get; } = [];
+	public OrderedSet<StateEntityNode> Configuration { get; } = [];
 
-    public OrderedSet<StateEntityNode> StatesToInvoke { get; } = [];
+	public OrderedSet<StateEntityNode> StatesToInvoke { get; } = [];
 
-    public InvokeIdSet ActiveInvokes { get; } = [];
+	public InvokeIdSet ActiveInvokes { get; } = [];
 
-    public KeyList<StateEntityNode> HistoryValue { get; } = [];
+	public KeyList<StateEntityNode> HistoryValue { get; } = [];
 
-    public DataModelValue DoneData { get; set; }
+	public DataModelValue DoneData { get; set; }
+
+#endregion
+
+#region Interface IStateMachinePersistenceContext
 
 	public Bucket GetStateBucket() => new(StateStorage);
 
@@ -45,5 +49,5 @@ public class NoStateMachineContext : IStateMachinePersistenceContext
 
 	public ValueTask Shrink() => default;
 
-	#endregion
+#endregion
 }

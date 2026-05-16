@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -23,16 +23,16 @@ namespace Xtate.Core;
 
 public class ExternalServiceModule : Module
 {
-    protected override void AddServices()
-    {
-        Services.AddImplementation<ExternalServiceManager>().For<IExternalServiceManager>();
-        Services.AddImplementation<ExternalServiceEventRouter>().For<IEventRouter>();
-        Services.AddFactory<ExternalServiceFactory>().For<IExternalService>(SharedWithin.Scope);
-        Services.AddType<ExternalServiceClass, InvokeData>();
+	protected override void AddServices()
+	{
+		Services.AddImplementation<ExternalServiceManager>().For<IExternalServiceManager>();
+		Services.AddImplementation<ExternalServiceEventRouter>().For<IEventRouter>();
+		Services.AddFactory<ExternalServiceFactory>().For<IExternalService>(SharedWithin.Scope);
+		Services.AddType<ExternalServiceClass, InvokeData>();
 
-        Services.AddSharedImplementation<ExternalServiceGlobalCollection>(SharedWithin.Container).For<IExternalServiceGlobalCollection>();
-        Services.AddSharedImplementation<ExternalServiceCollection>(SharedWithin.Scope).For<IExternalServiceCollection>();
-        Services.AddSharedImplementation<ExternalServiceScopeManager>(SharedWithin.Scope).For<IExternalServiceScopeManager>();
-        Services.AddSharedImplementation<ExternalServiceRunner>(SharedWithin.Scope).For<IExternalServiceRunner>();
-    }
+		Services.AddSharedImplementation<ExternalServiceGlobalCollection>(SharedWithin.Container).For<IExternalServiceGlobalCollection>();
+		Services.AddSharedImplementation<ExternalServiceCollection>(SharedWithin.Scope).For<IExternalServiceCollection>();
+		Services.AddSharedImplementation<ExternalServiceScopeManager>(SharedWithin.Scope).For<IExternalServiceScopeManager>();
+		Services.AddSharedImplementation<ExternalServiceRunner>(SharedWithin.Scope).For<IExternalServiceRunner>();
+	}
 }
