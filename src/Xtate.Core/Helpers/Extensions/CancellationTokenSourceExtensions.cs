@@ -20,10 +20,13 @@ namespace Xtate.Core;
 
 public static class CancellationTokenSourceExtensions
 {
-	public static Task CancelAsync(this CancellationTokenSource cancellationTokenSource) =>
-		!cancellationTokenSource.IsCancellationRequested
-			? Task.Run(cancellationTokenSource.Cancel)
-			: Task.CompletedTask;
+	extension(CancellationTokenSource cancellationTokenSource)
+	{
+		public Task CancelAsync() =>
+			!cancellationTokenSource.IsCancellationRequested
+				? Task.Run(cancellationTokenSource.Cancel)
+				: Task.CompletedTask;
+	}
 }
 
 #endif
