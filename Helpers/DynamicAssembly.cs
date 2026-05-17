@@ -22,19 +22,15 @@ using Xtate.IoC;
 
 namespace Xtate.Core;
 
-public class DynamicAssembly : IDisposable, IAsyncInitialization, IServiceModule
+public class DynamicAssembly(Uri uri) : IDisposable, IAsyncInitialization, IServiceModule
 {
 	private readonly DisposingToken _disposingToken = new();
-
-	private readonly Uri _uri;
 
 	private Context? _context;
 
 	private ImmutableArray<IServiceModule> _serviceModules;
 
-	public DynamicAssembly(Uri uri) => _uri = uri;
-
-	public required IResourceLoader ResourceLoader { private get; [UsedImplicitly] init; }
+	public required IResourceLoader ResourceLoader { private get; [SetByIoC] init; }
 
 #region Interface IAsyncInitialization
 
@@ -74,7 +70,7 @@ public class DynamicAssembly : IDisposable, IAsyncInitialization, IServiceModule
 
 	private async ValueTask<ImmutableArray<IServiceModule>> LoadAssemblyServiceModules()
 	{
-		var resource = await ResourceLoader.Request(_uri).ConfigureAwait(false);
+		var resource = await ResourceLoader.Request(uri).ConfigureAwait(false);
 
 		await using (resource.ConfigureAwait(false))
 		{

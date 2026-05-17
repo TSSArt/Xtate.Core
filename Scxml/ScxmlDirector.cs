@@ -97,63 +97,63 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 		FillNameTable(nameTable);
 	}
 
-	public required Func<object?, IStateMachineBuilder> StateMachineBuilderFactory { private get; [UsedImplicitly] init; }
+	public required Func<object?, IStateMachineBuilder> StateMachineBuilderFactory { private get; [SetByIoC] init; }
 
-	public required Func<object?, IStateBuilder> StateBuilderFactory { private get; [UsedImplicitly] init; }
+	public required Func<object?, IStateBuilder> StateBuilderFactory { private get; [SetByIoC] init; }
 
-	public required Func<object?, IParallelBuilder> ParallelBuilderFactory { private get; [UsedImplicitly] init; }
+	public required Func<object?, IParallelBuilder> ParallelBuilderFactory { private get; [SetByIoC] init; }
 
-	public required Func<object?, IHistoryBuilder> HistoryBuilderFactory { private get; [UsedImplicitly] init; }
+	public required Func<object?, IHistoryBuilder> HistoryBuilderFactory { private get; [SetByIoC] init; }
 
-	public required Func<object?, IInitialBuilder> InitialBuilderFactory { private get; [UsedImplicitly] init; }
+	public required Func<object?, IInitialBuilder> InitialBuilderFactory { private get; [SetByIoC] init; }
 
-	public required Func<object?, IFinalBuilder> FinalBuilderFactory { private get; [UsedImplicitly] init; }
+	public required Func<object?, IFinalBuilder> FinalBuilderFactory { private get; [SetByIoC] init; }
 
-	public required Func<object?, ITransitionBuilder> TransitionBuilderFactory { private get; [UsedImplicitly] init; }
+	public required Func<object?, ITransitionBuilder> TransitionBuilderFactory { private get; [SetByIoC] init; }
 
-	public required Func<object?, ILogBuilder> LogBuilderFactory { private get; [UsedImplicitly] init; }
+	public required Func<object?, ILogBuilder> LogBuilderFactory { private get; [SetByIoC] init; }
 
-	public required Func<object?, ISendBuilder> SendBuilderFactory { private get; [UsedImplicitly] init; }
+	public required Func<object?, ISendBuilder> SendBuilderFactory { private get; [SetByIoC] init; }
 
-	public required Func<object?, IParamBuilder> ParamBuilderFactory { private get; [UsedImplicitly] init; }
+	public required Func<object?, IParamBuilder> ParamBuilderFactory { private get; [SetByIoC] init; }
 
-	public required Func<object?, IContentBuilder> ContentBuilderFactory { private get; [UsedImplicitly] init; }
+	public required Func<object?, IContentBuilder> ContentBuilderFactory { private get; [SetByIoC] init; }
 
-	public required Func<object?, IOnEntryBuilder> OnEntryBuilderFactory { private get; [UsedImplicitly] init; }
+	public required Func<object?, IOnEntryBuilder> OnEntryBuilderFactory { private get; [SetByIoC] init; }
 
-	public required Func<object?, IOnExitBuilder> OnExitBuilderFactory { private get; [UsedImplicitly] init; }
+	public required Func<object?, IOnExitBuilder> OnExitBuilderFactory { private get; [SetByIoC] init; }
 
-	public required Func<object?, IInvokeBuilder> InvokeBuilderFactory { private get; [UsedImplicitly] init; }
+	public required Func<object?, IInvokeBuilder> InvokeBuilderFactory { private get; [SetByIoC] init; }
 
-	public required Func<object?, IFinalizeBuilder> FinalizeBuilderFactory { private get; [UsedImplicitly] init; }
+	public required Func<object?, IFinalizeBuilder> FinalizeBuilderFactory { private get; [SetByIoC] init; }
 
-	public required Func<object?, IScriptBuilder> ScriptBuilderFactory { private get; [UsedImplicitly] init; }
+	public required Func<object?, IScriptBuilder> ScriptBuilderFactory { private get; [SetByIoC] init; }
 
-	public required Func<object?, ICustomActionBuilder> CustomActionBuilderFactory { private get; [UsedImplicitly] init; }
+	public required Func<object?, ICustomActionBuilder> CustomActionBuilderFactory { private get; [SetByIoC] init; }
 
-	public required Func<object?, IDataModelBuilder> DataModelBuilderFactory { private get; [UsedImplicitly] init; }
+	public required Func<object?, IDataModelBuilder> DataModelBuilderFactory { private get; [SetByIoC] init; }
 
-	public required Func<object?, IDataBuilder> DataBuilderFactory { private get; [UsedImplicitly] init; }
+	public required Func<object?, IDataBuilder> DataBuilderFactory { private get; [SetByIoC] init; }
 
-	public required Func<object?, IDoneDataBuilder> DoneDataBuilderFactory { private get; [UsedImplicitly] init; }
+	public required Func<object?, IDoneDataBuilder> DoneDataBuilderFactory { private get; [SetByIoC] init; }
 
-	public required Func<object?, IAssignBuilder> AssignBuilderFactory { private get; [UsedImplicitly] init; }
+	public required Func<object?, IAssignBuilder> AssignBuilderFactory { private get; [SetByIoC] init; }
 
-	public required Func<object?, IRaiseBuilder> RaiseBuilderFactory { private get; [UsedImplicitly] init; }
+	public required Func<object?, IRaiseBuilder> RaiseBuilderFactory { private get; [SetByIoC] init; }
 
-	public required Func<object?, ICancelBuilder> CancelBuilderFactory { private get; [UsedImplicitly] init; }
+	public required Func<object?, ICancelBuilder> CancelBuilderFactory { private get; [SetByIoC] init; }
 
-	public required Func<object?, IForEachBuilder> ForEachBuilderFactory { private get; [UsedImplicitly] init; }
+	public required Func<object?, IForEachBuilder> ForEachBuilderFactory { private get; [SetByIoC] init; }
 
-	public required Func<object?, IIfBuilder> IfBuilderFactory { private get; [UsedImplicitly] init; }
+	public required Func<object?, IIfBuilder> IfBuilderFactory { private get; [SetByIoC] init; }
 
-	public required Func<object?, IElseBuilder> ElseBuilderFactory { private get; [UsedImplicitly] init; }
+	public required Func<object?, IElseBuilder> ElseBuilderFactory { private get; [SetByIoC] init; }
 
-	public required Func<object?, IElseIfBuilder> ElseIfBuilderFactory { private get; [UsedImplicitly] init; }
+	public required Func<object?, IElseIfBuilder> ElseIfBuilderFactory { private get; [SetByIoC] init; }
 
-	public required IErrorProcessorService<ScxmlDirector> ErrorProcessorService { private get; [UsedImplicitly] init; }
+	public required IErrorProcessorService<ScxmlDirector> ErrorProcessorService { private get; [SetByIoC] init; }
 
-	public required ILineInfoRequired? LineInfoRequired { private get; [UsedImplicitly] init; }
+	public required ILineInfoRequired? LineInfoRequired { private get; [SetByIoC] init; }
 
 	private static void FillNameTable(XmlNameTable nameTable)
 	{
@@ -431,7 +431,7 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 		return result;
 	}
 
-	private object? CreateXmlLineInfo(object? ancestor = default) =>
+	private object? CreateXmlLineInfo(object? ancestor = null) =>
 		LineInfoRequired?.LineInfoRequired == true && _xmlReader is IXmlLineInfo xmlLineInfo && xmlLineInfo.HasLineInfo()
 			? new XmlLineInfo(xmlLineInfo.LineNumber, xmlLineInfo.LinePosition, ancestor)
 			: ancestor;
@@ -443,7 +443,7 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 			return ancestor;
 		}
 
-		PrefixNamespace[]? namespaces = default;
+		PrefixNamespace[]? namespaces = null;
 
 		var count = 0;
 

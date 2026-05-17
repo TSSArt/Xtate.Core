@@ -36,7 +36,7 @@ public class HttpClientFormUrlEncodedHandler : HttpClientMimeTypeHandler
 	{
 		if (!ContentTypeEquals(contentType, MediaTypeApplicationFormUrlEncoded))
 		{
-			return default;
+			return null;
 		}
 
 		var list = value.AsListOrEmpty();
@@ -58,7 +58,7 @@ public class HttpClientFormUrlEncodedHandler : HttpClientMimeTypeHandler
 
 		if (!ContentTypeEquals(webResponse.ContentType, MediaTypeApplicationFormUrlEncoded))
 		{
-			return default;
+			return null;
 		}
 
 		var stream = webResponse.GetResponseStream();

@@ -24,13 +24,13 @@ public class StateMachineScopeManager : IStateMachineScopeManager, IDisposable, 
 {
 	private ConcurrentDictionary<SessionId, IServiceScope>? _scopes = new();
 
-	public required IServiceScopeFactory ServiceScopeFactory { private get; [UsedImplicitly] init; }
+	public required IServiceScopeFactory ServiceScopeFactory { private get; [SetByIoC] init; }
 
-	public required IStateMachineCollection StateMachineCollection { private get; [UsedImplicitly] init; }
+	public required IStateMachineCollection StateMachineCollection { private get; [SetByIoC] init; }
 
-	public required Func<SecurityContextType, SecurityContextRegistration> SecurityContextRegistrationFactory { private get; [UsedImplicitly] init; }
+	public required Func<SecurityContextType, SecurityContextRegistration> SecurityContextRegistrationFactory { private get; [SetByIoC] init; }
 
-	public required TaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
+	public required TaskMonitor TaskMonitor { private get; [SetByIoC] init; }
 
 #region Interface IAsyncDisposable
 

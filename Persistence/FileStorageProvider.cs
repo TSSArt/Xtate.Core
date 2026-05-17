@@ -31,7 +31,7 @@ public class FileStorageProvider : IStorageProvider
 
 	private readonly string _path;
 
-	public FileStorageProvider(string path, string? extension = default)
+	public FileStorageProvider(string path, string? extension = null)
 	{
 		Infra.Requires(path);
 
@@ -39,7 +39,7 @@ public class FileStorageProvider : IStorageProvider
 		_extension = extension;
 	}
 
-	public required Func<Stream, ValueTask<ITransactionalStorage>> TransactionalStorageFactory { private get; [UsedImplicitly] init; }
+	public required Func<Stream, ValueTask<ITransactionalStorage>> TransactionalStorageFactory { private get; [SetByIoC] init; }
 
 #region Interface IStorageProvider
 

@@ -62,7 +62,7 @@ internal static class SegmentedName
 	public static string? ToString<T>(ImmutableArray<T> segments, string separator) =>
 		segments switch
 		{
-			{ IsDefault: true }      => default,
+			{ IsDefault: true }      => null,
 			{ IsEmpty: true }        => string.Empty,
 			[var t]                  => t?.ToString() ?? string.Empty,
 			[var t1, var t2]         => string.Concat(t1?.ToString(), separator, t2?.ToString()),
@@ -96,7 +96,7 @@ internal static class SegmentedName
 
 			if (t is ISpanFormattable spanFormattable)
 			{
-				if (!spanFormattable.TryFormat(destination, out var written, format: default, provider: default))
+				if (!spanFormattable.TryFormat(destination, out var written, format: default, provider: null))
 				{
 					return false;
 				}

@@ -26,9 +26,9 @@ public partial class DataModelList
 		{
 			Index = index;
 			Value = value;
-			Key = default;
+			Key = null;
 			Access = default;
-			Metadata = default;
+			Metadata = null;
 		}
 
 		internal Entry(int index, string? key, in DataModelValue value)
@@ -37,7 +37,7 @@ public partial class DataModelList
 			Value = value;
 			Key = key;
 			Access = default;
-			Metadata = default;
+			Metadata = null;
 		}
 
 		internal Entry(int index,
@@ -47,7 +47,7 @@ public partial class DataModelList
 		{
 			Index = index;
 			Value = value;
-			Key = default;
+			Key = null;
 			Access = access;
 			Metadata = metadata;
 		}

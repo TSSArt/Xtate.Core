@@ -24,23 +24,23 @@ public class XPathDataModelHandler : DataModelHandlerBase
 {
 	public class Provider() : DataModelHandlerProviderBase<XPathDataModelHandler>(@"xpath");
 
-	public required Func<IForEach, XPathForEachEvaluator> XPathForEachEvaluatorFactory { private get; [UsedImplicitly] init; }
+	public required Func<IForEach, XPathForEachEvaluator> XPathForEachEvaluatorFactory { private get; [SetByIoC] init; }
 
-	public required Func<IContentBody, XPathContentBodyEvaluator> XPathContentBodyEvaluatorFactory { private get; [UsedImplicitly] init; }
+	public required Func<IContentBody, XPathContentBodyEvaluator> XPathContentBodyEvaluatorFactory { private get; [SetByIoC] init; }
 
-	public required Func<IInlineContent, XPathInlineContentEvaluator> XPathInlineContentEvaluatorFactory { private get; [UsedImplicitly] init; }
+	public required Func<IInlineContent, XPathInlineContentEvaluator> XPathInlineContentEvaluatorFactory { private get; [SetByIoC] init; }
 
-	public required Func<IExternalDataExpression, XPathExternalDataExpressionEvaluator> XPathExternalDataExpressionEvaluatorFactory { private get; [UsedImplicitly] init; }
+	public required Func<IExternalDataExpression, XPathExternalDataExpressionEvaluator> XPathExternalDataExpressionEvaluatorFactory { private get; [SetByIoC] init; }
 
-	public required IErrorProcessorService<XPathDataModelHandler> XPathErrorProcessorService { private get; [UsedImplicitly] init; }
+	public required IErrorProcessorService<XPathDataModelHandler> XPathErrorProcessorService { private get; [SetByIoC] init; }
 
-	public required Func<IValueExpression, XPathCompiledExpression, XPathValueExpressionEvaluator> XPathValueExpressionEvaluatorFactory { private get; [UsedImplicitly] init; }
+	public required Func<IValueExpression, XPathCompiledExpression, XPathValueExpressionEvaluator> XPathValueExpressionEvaluatorFactory { private get; [SetByIoC] init; }
 
-	public required Func<IConditionExpression, XPathCompiledExpression, XPathConditionExpressionEvaluator> XPathConditionExpressionEvaluatorFactory { private get; [UsedImplicitly] init; }
+	public required Func<IConditionExpression, XPathCompiledExpression, XPathConditionExpressionEvaluator> XPathConditionExpressionEvaluatorFactory { private get; [SetByIoC] init; }
 
-	public required Func<ILocationExpression, XPathCompiledExpression, XPathLocationExpressionEvaluator> XPathLocationExpressionEvaluatorFactory { private get; [UsedImplicitly] init; }
+	public required Func<ILocationExpression, XPathCompiledExpression, XPathLocationExpressionEvaluator> XPathLocationExpressionEvaluatorFactory { private get; [SetByIoC] init; }
 
-	public required Func<string, IXmlNamespacesInfo?, XPathCompiledExpression> XPathCompiledExpressionFactory { private get; [UsedImplicitly] init; }
+	public required Func<string, IXmlNamespacesInfo?, XPathCompiledExpression> XPathCompiledExpressionFactory { private get; [SetByIoC] init; }
 
 	public override string ConvertToText(DataModelValue value) => XmlConverter.ToXml(value, indent: true);
 

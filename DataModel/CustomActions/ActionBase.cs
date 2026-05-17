@@ -77,10 +77,10 @@ public abstract class ActionBase
 			return Convert.ToInt32(obj?.ToObject());
 		}
 
-		return defaultValue ?? default;
+		return defaultValue ?? 0;
 	}
 
-	protected static async ValueTask<bool> GetBoolean(IValueEvaluator valueEvaluator, bool? defaultValue = default)
+	protected static async ValueTask<bool> GetBoolean(IValueEvaluator valueEvaluator, bool? defaultValue = null)
 	{
 		if (valueEvaluator.UseAncestor.Is<IBooleanEvaluator>(out var booleanEvaluator))
 		{
@@ -94,7 +94,7 @@ public abstract class ActionBase
 			return Convert.ToBoolean(obj?.ToObject());
 		}
 
-		return defaultValue ?? default;
+		return defaultValue ?? false;
 	}
 
 	protected static async ValueTask<DataModelValue> GetObject(IValueEvaluator valueEvaluator, object? defaultValue)

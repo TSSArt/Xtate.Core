@@ -110,7 +110,7 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 				OnError(Resources.ErrorMessage_FailureContentProcessing, ex);
 			}
 
-			_rawContent = default;
+			_rawContent = null;
 
 			return entity;
 		}
@@ -482,7 +482,7 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 				return string.Format(CultureInfo.InvariantCulture, format, string.Join(delimiter, query));
 			}
 
-			private void OnError(string message) => _xmlDirector.OnError(message, exception: default);
+			private void OnError(string message) => _xmlDirector.OnError(message, exception: null);
 		}
 	}
 

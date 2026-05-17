@@ -19,9 +19,9 @@ namespace Xtate.DataModel.Runtime;
 
 public class RuntimeActionExecutor : IExecutableEntity, IExecEvaluator
 {
-	public required RuntimeAction Action { private get; [UsedImplicitly] init; }
+	public required RuntimeAction Action { private get; [SetByIoC] init; }
 
-	public required Func<ValueTask<RuntimeExecutionContext>> RuntimeExecutionContextFactory { private get; [UsedImplicitly] init; }
+	public required Func<ValueTask<RuntimeExecutionContext>> RuntimeExecutionContextFactory { private get; [SetByIoC] init; }
 
 #region Interface IExecEvaluator
 

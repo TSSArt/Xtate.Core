@@ -21,7 +21,7 @@ namespace Xtate.Core;
 
 public class NoExternalConnections : IExternalServiceManager, IExternalCommunication
 {
-	public required StateMachineRuntimeError StateMachineRuntimeError { private get; [UsedImplicitly] init; }
+	public required StateMachineRuntimeError StateMachineRuntimeError { private get; [SetByIoC] init; }
 
 #region Interface IExternalCommunication
 

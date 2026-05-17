@@ -134,7 +134,7 @@ internal sealed class ChannelPersistingController<T> : Channel<T>, IDisposable
 
 	private class ChannelWriter(ChannelPersistingController<T> parent) : ChannelWriter<T>
 	{
-		public override bool TryComplete(Exception? error = default) => parent._baseChannel.Writer.TryComplete(error);
+		public override bool TryComplete(Exception? error = null) => parent._baseChannel.Writer.TryComplete(error);
 
 		public override bool TryWrite(T item) => throw new NotSupportedException(Resources.Exception_UseWriteAsyncInstead);
 

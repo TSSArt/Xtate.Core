@@ -26,7 +26,7 @@ public class LocationChildStateMachine(Uri location) : LocationStateMachine(loca
 		init => base.Arguments = value;
 	}
 
-	public required IEventDispatcher? ParentEventDispatcher { private get; [UsedImplicitly] init; }
+	public required IEventDispatcher? ParentEventDispatcher { private get; [SetByIoC] init; }
 
 #region Interface IEventDispatcher
 

@@ -30,7 +30,7 @@ public partial class DataModelList
 			return entry.Value;
 		}
 
-		set => Set(key, CaseInsensitive, value, metadata: default);
+		set => Set(key, CaseInsensitive, value, metadata: null);
 	}
 
 	public DataModelValue this[[Localizable(false)] string key, bool caseInsensitive]
@@ -42,14 +42,14 @@ public partial class DataModelList
 			return entry.Value;
 		}
 
-		set => Set(key, caseInsensitive, value, metadata: default);
+		set => Set(key, caseInsensitive, value, metadata: null);
 	}
 
 	public void Add([Localizable(false)] string key, DataModelValue value)
 	{
 		if (key is null) throw new ArgumentNullException(nameof(key));
 
-		Add(key, value, metadata: default);
+		Add(key, value, metadata: null);
 	}
 
 	public bool ContainsKey([Localizable(false)] string key) => TryGet(key, CaseInsensitive, out _);
@@ -68,7 +68,7 @@ public partial class DataModelList
 			}
 			else
 			{
-				Set(entry.Index, key: default, value: default, metadata: default);
+				Set(entry.Index, key: null, value: default, metadata: null);
 			}
 
 			return true;
@@ -110,7 +110,7 @@ public partial class DataModelList
 		}
 		else
 		{
-			Set(index, key: default, value: default, metadata: default);
+			Set(index, key: null, value: default, metadata: null);
 		}
 
 		return true;

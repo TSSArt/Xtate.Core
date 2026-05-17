@@ -24,11 +24,11 @@ namespace Xtate.Core;
 
 public class RedirectXmlResolver : ScxmlXmlResolver
 {
-	public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
+	public required DisposeToken DisposeToken { private get; [SetByIoC] init; }
 
-	public required Func<ValueTask<IResourceLoader>> ResourceLoaderFactory { private get; [UsedImplicitly] init; }
+	public required Func<ValueTask<IResourceLoader>> ResourceLoaderFactory { private get; [SetByIoC] init; }
 
-	public required Func<Stream, ContentType?, Resource> ResourceFactory { private get; [UsedImplicitly] init; }
+	public required Func<Stream, ContentType?, Resource> ResourceFactory { private get; [SetByIoC] init; }
 
 	protected override object GetEntity(Uri uri,
 										string? accept,
@@ -58,7 +58,7 @@ public class RedirectXmlResolver : ScxmlXmlResolver
 	{
 		if (string.IsNullOrEmpty(accept) && string.IsNullOrEmpty(acceptLanguage))
 		{
-			return default;
+			return null;
 		}
 
 		var headers = new NameValueCollection(2);

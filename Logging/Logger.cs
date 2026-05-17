@@ -19,21 +19,20 @@ using System.Globalization;
 
 namespace Xtate.Core;
 
-[SuppressMessage(category: "ReSharper", checkId: "ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator")]
-[SuppressMessage(category: "ReSharper", checkId: "ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator")]
+[InstantiatedByIoC]
 public class Logger<TSource> : ILogger<TSource>
 {
 	private ImmutableArray<IEntityParserHandler<TSource>> _entityParserHandlers;
 
 	private ImmutableArray<ILogEnricher<TSource>> _logEnrichers;
 
-	public required IReadOnlyCollection<ILogWriter> NonGenericLogWriters { private get; [UsedImplicitly] init; }
+	public required IReadOnlyCollection<ILogWriter> NonGenericLogWriters { private get; [SetByIoC] init; }
 
-	public required IReadOnlyCollection<ILogWriter<TSource>> LogWriters { private get; [UsedImplicitly] init; }
+	public required IReadOnlyCollection<ILogWriter<TSource>> LogWriters { private get; [SetByIoC] init; }
 
-	public required IAsyncEnumerable<ILogEnricher<TSource>> LogEnrichers { private get; [UsedImplicitly] init; }
+	public required IAsyncEnumerable<ILogEnricher<TSource>> LogEnrichers { private get; [SetByIoC] init; }
 
-	public required IAsyncEnumerable<IEntityParserHandler<TSource>> EntityParserHandlers { private get; [UsedImplicitly] init; }
+	public required IAsyncEnumerable<IEntityParserHandler<TSource>> EntityParserHandlers { private get; [SetByIoC] init; }
 
 #region Interface ILogger
 
@@ -67,7 +66,7 @@ public class Logger<TSource> : ILogger<TSource>
 	public virtual ValueTask Write(Level level, int eventId, string? message) => Write(level, eventId, message, formattedMessage: default, default(ValueTuple));
 
 	public virtual ValueTask Write(Level level, int eventId, [InterpolatedStringHandlerArgument("", "level")] LoggingInterpolatedStringHandler formattedMessage) =>
-		Write(level, eventId, message: default, formattedMessage, default(ValueTuple));
+		Write(level, eventId, message: null, formattedMessage, default(ValueTuple));
 
 	public virtual ValueTask Write<TEntity>(Level level,
 											int eventId,
@@ -80,7 +79,7 @@ public class Logger<TSource> : ILogger<TSource>
 											[InterpolatedStringHandlerArgument("", "level")]
 											LoggingInterpolatedStringHandler formattedMessage,
 											TEntity entity) =>
-		Write(level, eventId, message: default, formattedMessage, entity);
+		Write(level, eventId, message: null, formattedMessage, entity);
 
 #endregion
 
@@ -174,7 +173,7 @@ public class Logger<TSource> : ILogger<TSource>
 
 	private IEnumerable<LoggingParameter> EnumerateParameters(ILogWriter<TSource> logWriter,
 															  ImmutableArray<LoggingParameter> parameters = default,
-															  IEnumerable<LoggingParameter>? entityProperties = default)
+															  IEnumerable<LoggingParameter>? entityProperties = null)
 	{
 		if (!parameters.IsDefaultOrEmpty)
 		{
@@ -196,7 +195,7 @@ public class Logger<TSource> : ILogger<TSource>
 		{
 			if (logWriter.IsEnabled(enricher.Level))
 			{
-				string? ns = default;
+				string? ns = null;
 
 				if (enricher.EnumerateProperties() is { } properties)
 				{
@@ -214,7 +213,7 @@ public class Logger<TSource> : ILogger<TSource>
 	private IEnumerable<LoggingParameter> EnumerateParameters(ILogWriter logWriter,
 															  Type source,
 															  ImmutableArray<LoggingParameter> parameters = default,
-															  IEnumerable<LoggingParameter>? entityProperties = default)
+															  IEnumerable<LoggingParameter>? entityProperties = null)
 	{
 		if (!parameters.IsDefaultOrEmpty)
 		{
@@ -236,7 +235,7 @@ public class Logger<TSource> : ILogger<TSource>
 		{
 			if (logWriter.IsEnabled(source, enricher.Level))
 			{
-				string? ns = default;
+				string? ns = null;
 
 				if (enricher.EnumerateProperties() is { } properties)
 				{

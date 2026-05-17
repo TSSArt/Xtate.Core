@@ -22,13 +22,13 @@ namespace Xtate.Core;
 
 public class ErrorProcessorService<TSource> : IErrorProcessorService<TSource>
 {
-	public required IErrorProcessor ErrorProcessor { private get; [UsedImplicitly] init; }
+	public required IErrorProcessor ErrorProcessor { private get; [SetByIoC] init; }
 
-	public required ILineInfoRequired? LineInfoRequired { private get; [UsedImplicitly] init; }
+	public required ILineInfoRequired? LineInfoRequired { private get; [SetByIoC] init; }
 
 #region Interface IErrorProcessorService<TSource>
 
-	public virtual void AddError(object? entity, string message, Exception? exception = default)
+	public virtual void AddError(object? entity, string message, Exception? exception = null)
 	{
 		Infra.Requires(message);
 

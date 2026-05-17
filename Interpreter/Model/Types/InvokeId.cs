@@ -65,7 +65,7 @@ public class InvokeId : ServiceId, IEquatable<InvokeId>
 
 	public override bool Equals(object? obj) => ReferenceEquals(this, obj) || (obj is InvokeId other && Equals(other));
 
-	public static InvokeId New(IIdentifier stateId, [Localizable(false)] string? invokeId) => invokeId is null ? new UniqueInvokeId(invokeId: default, stateId) : new InvokeId(stateId, invokeId);
+	public static InvokeId New(IIdentifier stateId, [Localizable(false)] string? invokeId) => invokeId is null ? new UniqueInvokeId(invokeId: null, stateId) : new InvokeId(stateId, invokeId);
 
 	public static InvokeId FromString([Localizable(false)] string uniqueInvokeId) => new UniqueInvokeId(uniqueInvokeId);
 

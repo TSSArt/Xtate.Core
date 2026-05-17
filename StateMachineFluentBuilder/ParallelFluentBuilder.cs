@@ -21,28 +21,28 @@ namespace Xtate.Builder;
 
 public class ParallelFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 {
-	public required IParallelBuilder Builder { private get; [UsedImplicitly] init; }
+	public required IParallelBuilder Builder { private get; [SetByIoC] init; }
 
-	public required Action<IParallel> BuiltAction { private get; [UsedImplicitly] init; }
+	public required Action<IParallel> BuiltAction { private get; [SetByIoC] init; }
 
-	public required TOuterBuilder OuterBuilder { private get; [UsedImplicitly] init; }
+	public required TOuterBuilder OuterBuilder { private get; [SetByIoC] init; }
 
 	public required Func<ParallelFluentBuilder<TOuterBuilder>, Action<IState>, StateFluentBuilder<ParallelFluentBuilder<TOuterBuilder>>> StateFluentBuilderFactory
 	{
 		private get;
-		[UsedImplicitly] init;
+		[SetByIoC] init;
 	}
 
 	public required Func<ParallelFluentBuilder<TOuterBuilder>, Action<IParallel>, ParallelFluentBuilder<ParallelFluentBuilder<TOuterBuilder>>> ParallelFluentBuilderFactory
 	{
 		private get;
-		[UsedImplicitly] init;
+		[SetByIoC] init;
 	}
 
 	public required Func<ParallelFluentBuilder<TOuterBuilder>, Action<IHistory>, HistoryFluentBuilder<ParallelFluentBuilder<TOuterBuilder>>> HistoryFluentBuilderFactory
 	{
 		private get;
-		[UsedImplicitly] init;
+		[SetByIoC] init;
 	}
 
 	public required Func<ParallelFluentBuilder<TOuterBuilder>, Action<ITransition>, TransitionFluentBuilder<ParallelFluentBuilder<TOuterBuilder>>> TransitionFluentBuilderFactory { private get; init; }

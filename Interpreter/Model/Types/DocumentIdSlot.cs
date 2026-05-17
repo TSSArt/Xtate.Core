@@ -37,7 +37,7 @@ internal struct DocumentIdSlot(LinkedListNode<int>? node)
 			return -1;
 		}
 
-		_node = default;
+		_node = null;
 		_value = value;
 
 		return value;

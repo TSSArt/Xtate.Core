@@ -17,7 +17,7 @@
 
 namespace Xtate.Core;
 
-public class ExtCollection<TValue1, TValue2>(IEqualityComparer<TValue1>? comparer1 = default, IEqualityComparer<TValue2>? comparer2 = default)
+public class ExtCollection<TValue1, TValue2>(IEqualityComparer<TValue1>? comparer1 = null, IEqualityComparer<TValue2>? comparer2 = null)
 	: IReadOnlyCollection<(TValue1, TValue2)> where TValue1 : notnull where TValue2 : class
 {
 	private readonly IEqualityComparer<TValue1> _comparer1 = comparer1 ?? EqualityComparer<TValue1>.Default;
@@ -76,7 +76,7 @@ public class ExtCollection<TValue1, TValue2>(IEqualityComparer<TValue1>? compare
 
 		dictionary = new ConcurrentDictionary<TValue1, object>(_comparer1);
 
-		return Interlocked.CompareExchange(ref _dictionary, dictionary, comparand: default) ?? dictionary;
+		return Interlocked.CompareExchange(ref _dictionary, dictionary, comparand: null) ?? dictionary;
 	}
 
 	public bool TryRemoveGroup(TValue1 value, [MaybeNullWhen(false)] out IEnumerable<TValue2> values)
@@ -102,7 +102,7 @@ public class ExtCollection<TValue1, TValue2>(IEqualityComparer<TValue1>? compare
 			}
 		}
 
-		values = default;
+		values = null;
 
 		return false;
 	}
@@ -143,7 +143,7 @@ public class ExtCollection<TValue1, TValue2>(IEqualityComparer<TValue1>? compare
 		}
 
 		value1 = default;
-		value2 = default;
+		value2 = null;
 
 		return false;
 	}

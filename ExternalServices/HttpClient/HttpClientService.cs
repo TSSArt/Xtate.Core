@@ -39,7 +39,7 @@ public class HttpClientService(HttpClientServiceOptions options) : ExternalServi
 			? from pair in headers.KeyValues select (Name: pair.Key, Value: pair.Value.AsStringOrDefault())
 			: from item in headers select (Name: item.AsListOrEmpty()["name"].AsStringOrDefault(), Value: item.AsListOrEmpty()["value"].AsStringOrDefault());
 
-		NameValueCollection? collection = default;
+		NameValueCollection? collection = null;
 
 		foreach (var (nm, val) in pairs)
 		{
@@ -54,7 +54,7 @@ public class HttpClientService(HttpClientServiceOptions options) : ExternalServi
 
 	private static List<Cookie>? CreateCookieList(in DataModelValue cookiesValue)
 	{
-		List<Cookie>? list = default;
+		List<Cookie>? list = null;
 
 		foreach (var cookie in cookiesValue.AsListOrEmpty())
 		{
@@ -94,7 +94,7 @@ public class HttpClientService(HttpClientServiceOptions options) : ExternalServi
 			return DataModelList.Empty;
 		}
 
-		DataModelList? list = default;
+		DataModelList? list = null;
 
 		foreach (var cookie in responseCookies)
 		{
@@ -124,7 +124,7 @@ public class HttpClientService(HttpClientServiceOptions options) : ExternalServi
 			return DataModelList.Empty;
 		}
 
-		DataModelList? list = default;
+		DataModelList? list = null;
 
 		for (var i = 0; i < responseHeaders.Count; i ++)
 		{
@@ -190,7 +190,7 @@ public class HttpClientService(HttpClientServiceOptions options) : ExternalServi
 			request.Accept = accept;
 		}
 
-		CookieContainer? cookieContainer = default;
+		CookieContainer? cookieContainer = null;
 
 		if (cookies is not null)
 		{
@@ -209,7 +209,7 @@ public class HttpClientService(HttpClientServiceOptions options) : ExternalServi
 
 		await WriteContent(request, contentType).ConfigureAwait(false);
 
-		string? webExceptionStatus = default;
+		string? webExceptionStatus = null;
 		HttpWebResponse response;
 
 		try
@@ -230,7 +230,7 @@ public class HttpClientService(HttpClientServiceOptions options) : ExternalServi
 
 		using (response)
 		{
-			List<Cookie>? cookieCollection = default;
+			List<Cookie>? cookieCollection = null;
 
 			if (cookieContainer is not null)
 			{
@@ -297,7 +297,7 @@ public class HttpClientService(HttpClientServiceOptions options) : ExternalServi
 	{
 		request.ContentType = contentType;
 
-		HttpContent? httpContent = default;
+		HttpContent? httpContent = null;
 
 		foreach (var handler in options.MimeTypeHandlers)
 		{

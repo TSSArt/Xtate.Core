@@ -19,16 +19,16 @@ namespace Xtate.Builder;
 
 public class InitialFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 {
-	public required IInitialBuilder Builder { private get; [UsedImplicitly] init; }
+	public required IInitialBuilder Builder { private get; [SetByIoC] init; }
 
-	public required Action<IInitial> BuiltAction { private get; [UsedImplicitly] init; }
+	public required Action<IInitial> BuiltAction { private get; [SetByIoC] init; }
 
-	public required TOuterBuilder OuterBuilder { private get; [UsedImplicitly] init; }
+	public required TOuterBuilder OuterBuilder { private get; [SetByIoC] init; }
 
 	public required Func<InitialFluentBuilder<TOuterBuilder>, Action<ITransition>, TransitionFluentBuilder<InitialFluentBuilder<TOuterBuilder>>> TransitionFluentBuilderFactory
 	{
 		private get;
-		[UsedImplicitly] init;
+		[SetByIoC] init;
 	}
 
 	public TOuterBuilder EndInitial()

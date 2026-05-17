@@ -19,16 +19,16 @@ namespace Xtate.Core;
 
 public class SourceStateMachineProvider : IStateMachineProvider
 {
-	public required Func<ValueTask<ScxmlLocationStateMachineGetter>> ScxmlLocationStateMachineGetter { private get; [UsedImplicitly] init; }
+	public required Func<ValueTask<ScxmlLocationStateMachineGetter>> ScxmlLocationStateMachineGetter { private get; [SetByIoC] init; }
 
-	public required IStateMachineLocation? StateMachineLocation { private get; [UsedImplicitly] init; }
+	public required IStateMachineLocation? StateMachineLocation { private get; [SetByIoC] init; }
 
 #region Interface IStateMachineProvider
 
 	public async ValueTask<IStateMachine?> TryGetStateMachine() =>
 		StateMachineLocation is not null
 			? await (await ScxmlLocationStateMachineGetter().ConfigureAwait(false)).GetStateMachine().ConfigureAwait(false)
-			: default;
+			: null;
 
 #endregion
 }

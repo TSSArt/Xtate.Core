@@ -58,7 +58,7 @@ public class ScxmlSerializerWriter(XmlWriter writer) : StateMachineVisitor
 
 	protected override void Build(ref StateMachineEntity properties)
 	{
-		properties.Initial = default;
+		properties.Initial = null;
 
 		base.Build(ref properties);
 	}

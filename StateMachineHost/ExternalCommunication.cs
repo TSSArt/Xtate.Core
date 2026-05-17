@@ -22,11 +22,11 @@ namespace Xtate.Core;
 
 public class ExternalCommunication : IExternalCommunication
 {
-	public required IReadOnlyCollection<IEventRouter> EventRouters { private get; [UsedImplicitly] init; }
+	public required IReadOnlyCollection<IEventRouter> EventRouters { private get; [SetByIoC] init; }
 
-	public required IEventScheduler EventScheduler { private get; [UsedImplicitly] init; }
+	public required IEventScheduler EventScheduler { private get; [SetByIoC] init; }
 
-	public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
+	public required DisposeToken DisposeToken { private get; [SetByIoC] init; }
 
 #region Interface IExternalCommunication
 

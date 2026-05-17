@@ -36,7 +36,7 @@ public class IocDebugLogger : IServiceProviderActions, IServiceProviderDataActio
 
 	private StringBuilder? _registrations;
 
-	public required Deferred<ILogger<IocDebugLogger>> Logger { get; [UsedImplicitly] init; }
+	public required Deferred<ILogger<IocDebugLogger>> Logger { get; [SetByIoC] init; }
 
 #region Interface IAsyncDisposable
 

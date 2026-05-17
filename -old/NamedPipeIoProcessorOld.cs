@@ -75,7 +75,7 @@ public class NamedPipeIoProcessorOld : IoProcessorBase, IDisposable
 		}
 	}
 
-	public required TaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
+	public required TaskMonitor TaskMonitor { private get; [SetByIoC] init; }
 
 #region Interface IDisposable
 
@@ -114,9 +114,9 @@ public class NamedPipeIoProcessorOld : IoProcessorBase, IDisposable
 
 		if (isLoopback && InProcConsumers.TryGetValue(name, out var eventConsumer))
 		{
-			if (await eventConsumer.TryGetEventDispatcher(targetServiceId, token: default).ConfigureAwait(false) is { } eventDispatcher)
+			if (await eventConsumer.TryGetEventDispatcher(targetServiceId, token: CancellationToken.None).ConfigureAwait(false) is { } eventDispatcher)
 			{
-				await eventDispatcher.Dispatch(routerEvent, token: default).ConfigureAwait(false);
+				await eventDispatcher.Dispatch(routerEvent, token: CancellationToken.None).ConfigureAwait(false);
 			}
 			else
 			{
@@ -125,7 +125,7 @@ public class NamedPipeIoProcessorOld : IoProcessorBase, IDisposable
 		}
 		else
 		{
-			await SendEventToPipe(isLoopback ? @"." : host, PipePrefix + name, targetServiceId, routerEvent, token: default).ConfigureAwait(false);
+			await SendEventToPipe(isLoopback ? @"." : host, PipePrefix + name, targetServiceId, routerEvent, token: CancellationToken.None).ConfigureAwait(false);
 		}
 	}
 
@@ -136,7 +136,7 @@ public class NamedPipeIoProcessorOld : IoProcessorBase, IDisposable
 				   SessionId sessionId => new FullUri(_baseUri, SessionIdPrefix + sessionId.Value),
 				   InvokeId invokeId   => new FullUri(_baseUri, InvokeIdPrefix + invokeId.Value),
 				   UriId uriId         => new FullUri(_baseUri, uriId.Uri),
-				   _                   => default
+				   _                   => null
 			   };
 	}
 
@@ -209,7 +209,7 @@ public class NamedPipeIoProcessorOld : IoProcessorBase, IDisposable
 				{
 					if (await _eventConsumer.TryGetEventDispatcher(targetServiceId, _stopTokenSource.Token).ConfigureAwait(false) is { } eventDispatcher)
 					{
-						await eventDispatcher.Dispatch(message, token: default).ConfigureAwait(false);
+						await eventDispatcher.Dispatch(message, token: CancellationToken.None).ConfigureAwait(false);
 					}
 					else
 					{
@@ -243,7 +243,7 @@ public class NamedPipeIoProcessorOld : IoProcessorBase, IDisposable
 			return true;
 		}
 
-		sessionId = default;
+		sessionId = null;
 
 		return false;
 	}
@@ -259,7 +259,7 @@ public class NamedPipeIoProcessorOld : IoProcessorBase, IDisposable
 			return true;
 		}
 
-		invokeId = default;
+		invokeId = null;
 
 		return false;
 	}
@@ -359,7 +359,7 @@ public class NamedPipeIoProcessorOld : IoProcessorBase, IDisposable
 		memoryStream.Seek(size, SeekOrigin.Current);
 	}
 
-	public ValueTask CheckPipeline(CancellationToken token) => SendEventToPipe(server: @".", _pipeName, targetServiceId: default, CheckPipelineEvent, token);
+	public ValueTask CheckPipeline(CancellationToken token) => SendEventToPipe(server: @".", _pipeName, targetServiceId: null, CheckPipelineEvent, token);
 
 	private class EventMessage : IncomingEvent
 	{
@@ -372,7 +372,7 @@ public class NamedPipeIoProcessorOld : IoProcessorBase, IDisposable
 				throw new ArgumentException(Resources.Exception_InvalidTypeInfoValue);
 			}
 
-			TargetServiceId = bucket.TryGetServiceId(Key.Target, out var serviceId) ? serviceId : default;
+			TargetServiceId = bucket.TryGetServiceId(Key.Target, out var serviceId) ? serviceId : null;
 		}
 
 		public ServiceId? TargetServiceId { get; }
@@ -407,8 +407,8 @@ public class NamedPipeIoProcessorOld : IoProcessorBase, IDisposable
 		public ResponseMessage(ErrorType errorType)
 		{
 			ErrorType = errorType;
-			ExceptionMessage = default;
-			ExceptionText = default;
+			ExceptionMessage = null;
+			ExceptionText = null;
 		}
 
 		public ResponseMessage(Exception exception)

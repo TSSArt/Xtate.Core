@@ -25,12 +25,12 @@ public sealed partial class StateMachineHost : IStateMachineHost
 {
 	private ImmutableArray<IEventRouter> _ioProcessors;
 
-	public required DataConverter _dataConverter { private get; [UsedImplicitly] init; }
+	public required DataConverter _dataConverter { private get; [SetByIoC] init; }
 
 	//private ImmutableArray<IServiceFactory> _serviceFactories;
-	public required IAsyncEnumerable<IIoProcessorFactory> _ioProcessorFactories { private get; [UsedImplicitly] init; }
+	public required IAsyncEnumerable<IIoProcessorFactory> _ioProcessorFactories { private get; [SetByIoC] init; }
 
-	public required IAsyncEnumerable<IExternalServiceProvider> ServiceFactories { private get; [UsedImplicitly] init; }
+	public required IAsyncEnumerable<IExternalServiceProvider> ServiceFactories { private get; [SetByIoC] init; }
 
 #region Interface IHostEventDispatcher
 
@@ -91,7 +91,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 												  // SecurityContext securityContext,
 												  CancellationToken token)
 	{
-		InvokeId invokeId = default;
+		InvokeId invokeId = null;
 
 		var context = GetCurrentContext();
 
@@ -256,7 +256,7 @@ public sealed partial class StateMachineHost : IStateMachineHost
 		{
 			foreach (var ioProcessorFactory in factories)
 			{
-				ioProcessors.Add(await ioProcessorFactory.Create(this, token: default /*??*/).ConfigureAwait(false));
+				ioProcessors.Add(await ioProcessorFactory.Create(this, token: CancellationToken.None /*??*/).ConfigureAwait(false));
 			}
 		}
 

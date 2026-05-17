@@ -23,9 +23,9 @@ public class ExternalServiceCollection : IExternalServiceCollection
 {
 	private readonly ExtDictionary<InvokeId, IExternalService> _externalServices = [];
 
-	public required IExternalServiceGlobalCollection ExternalServiceGlobalCollection { private get; [UsedImplicitly] init; }
+	public required IExternalServiceGlobalCollection ExternalServiceGlobalCollection { private get; [SetByIoC] init; }
 
-	public required IDeadLetterQueue<IExternalServiceCollection> DeadLetterQueue { private get; [UsedImplicitly] init; }
+	public required IDeadLetterQueue<IExternalServiceCollection> DeadLetterQueue { private get; [SetByIoC] init; }
 
 #region Interface IExternalServiceCollection
 

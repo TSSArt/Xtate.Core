@@ -21,11 +21,11 @@ namespace Xtate.Core;
 
 public class ExternalServiceManager : IExternalServiceManager
 {
-	public required IExternalServiceCollection ExternalServiceCollection { private get; [UsedImplicitly] init; }
+	public required IExternalServiceCollection ExternalServiceCollection { private get; [SetByIoC] init; }
 
-	public required IExternalServiceScopeManager ExternalServiceScopeManager { private get; [UsedImplicitly] init; }
+	public required IExternalServiceScopeManager ExternalServiceScopeManager { private get; [SetByIoC] init; }
 
-	public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
+	public required DisposeToken DisposeToken { private get; [SetByIoC] init; }
 
 #region Interface IExternalServiceManager
 

@@ -19,7 +19,7 @@ namespace Xtate.Core;
 
 public class StateMachineService : IStateMachineService
 {
-	public required IAsyncEnumerable<IStateMachineProvider> StateMachineProviders { private get; [UsedImplicitly] init; }
+	public required IAsyncEnumerable<IStateMachineProvider> StateMachineProviders { private get; [SetByIoC] init; }
 
 #region Interface IStateMachineService
 
@@ -33,7 +33,7 @@ public class StateMachineService : IStateMachineService
 			}
 		}
 
-		return default;
+		return null;
 	}
 
 #endregion

@@ -69,11 +69,11 @@ internal sealed class TextContentReader(Uri uri, string content) : XmlReader
 
 	public override string GetAttribute(int index) => throw new NotSupportedException();
 
-	public override string? GetAttribute(string name) => default;
+	public override string? GetAttribute(string name) => null;
 
-	public override string? GetAttribute(string name, string? namespaceURI) => default;
+	public override string? GetAttribute(string name, string? namespaceURI) => null;
 
-	public override string? LookupNamespace(string prefix) => default;
+	public override string? LookupNamespace(string prefix) => null;
 
 	public override void MoveToAttribute(int index) { }
 

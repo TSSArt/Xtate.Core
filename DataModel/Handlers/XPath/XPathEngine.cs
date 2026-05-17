@@ -22,7 +22,7 @@ namespace Xtate.DataModel.XPath;
 
 public class XPathEngine(IDataModelController? dataModelController)
 {
-	private readonly DataModelList _root = dataModelController?.DataModel ?? new DataModelList(false);
+	private readonly DataModelList _root = dataModelController?.DataModel ?? [];
 
 	private readonly Stack<DataModelList> _scopeStack = new();
 

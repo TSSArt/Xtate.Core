@@ -38,11 +38,11 @@ public class XPathExpressionContext : XsltContext
 		}
 	}
 
-	public required IEnumerable<IXPathFunctionProvider> FunctionProviders { private get; [UsedImplicitly] init; }
+	public required IEnumerable<IXPathFunctionProvider> FunctionProviders { private get; [SetByIoC] init; }
 
-	public required Func<string, XPathVarDescriptor> XPathVarDescriptorFactory { private get; [UsedImplicitly] init; }
+	public required Func<string, XPathVarDescriptor> XPathVarDescriptorFactory { private get; [SetByIoC] init; }
 
-	public required Func<ValueTask<XPathEngine>> XPathEngineFactory { private get; [UsedImplicitly] init; }
+	public required Func<ValueTask<XPathEngine>> XPathEngineFactory { private get; [SetByIoC] init; }
 
 	public override bool Whitespace => false;
 

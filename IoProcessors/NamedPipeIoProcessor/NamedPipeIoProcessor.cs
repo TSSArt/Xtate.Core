@@ -61,7 +61,7 @@ public class NamedPipeIoProcessor : IoProcessorBase
 		_maxMessageSize = maxMessageSize;
 	}
 
-	public required TaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
+	public required TaskMonitor TaskMonitor { private get; [SetByIoC] init; }
 
 	protected override ValueTask<IRouterEvent> GetRouterEvent(IOutgoingEvent outgoingEvent, CancellationToken token)
 	{
@@ -98,7 +98,7 @@ public class NamedPipeIoProcessor : IoProcessorBase
 		}
 		else
 		{
-			await SendEventToPipe(isLoopback ? @"." : host, PipePrefix + name, targetServiceId, routerEvent, token: default).ConfigureAwait(false);
+			await SendEventToPipe(isLoopback ? @"." : host, PipePrefix + name, targetServiceId, routerEvent, token: CancellationToken.None).ConfigureAwait(false);
 		}
 	}
 
@@ -109,7 +109,7 @@ public class NamedPipeIoProcessor : IoProcessorBase
 				   SessionId sessionId => new FullUri(_baseUri, SessionIdPrefix + sessionId.Value),
 				   InvokeId invokeId   => new FullUri(_baseUri, InvokeIdPrefix + invokeId.Value),
 				   UriId uriId         => new FullUri(_baseUri, uriId.Uri),
-				   _                   => default
+				   _                   => null
 			   };
 	}
 
@@ -170,7 +170,7 @@ public class NamedPipeIoProcessor : IoProcessorBase
 			return true;
 		}
 
-		sessionId = default;
+		sessionId = null;
 
 		return false;
 	}
@@ -186,7 +186,7 @@ public class NamedPipeIoProcessor : IoProcessorBase
 			return true;
 		}
 
-		invokeId = default;
+		invokeId = null;
 
 		return false;
 	}
@@ -286,7 +286,7 @@ public class NamedPipeIoProcessor : IoProcessorBase
 		memoryStream.Seek(size, SeekOrigin.Current);
 	}
 
-	public ValueTask CheckPipeline(CancellationToken token) => SendEventToPipe(server: @".", _pipeName, targetServiceId: default, CheckPipelineEvent, token);
+	public ValueTask CheckPipeline(CancellationToken token) => SendEventToPipe(server: @".", _pipeName, targetServiceId: null, CheckPipelineEvent, token);
 
 	private class EventMessage : IncomingEvent
 	{
@@ -299,7 +299,7 @@ public class NamedPipeIoProcessor : IoProcessorBase
 				throw new ArgumentException(Resources.Exception_InvalidTypeInfoValue);
 			}
 
-			TargetServiceId = bucket.TryGetServiceId(Key.Target, out var serviceId) ? serviceId : default;
+			TargetServiceId = bucket.TryGetServiceId(Key.Target, out var serviceId) ? serviceId : null;
 		}
 
 		public ServiceId? TargetServiceId { get; }
@@ -334,8 +334,8 @@ public class NamedPipeIoProcessor : IoProcessorBase
 		public ResponseMessage(ErrorType errorType)
 		{
 			ErrorType = errorType;
-			ExceptionMessage = default;
-			ExceptionText = default;
+			ExceptionMessage = null;
+			ExceptionText = null;
 		}
 
 		public ResponseMessage(Exception exception)

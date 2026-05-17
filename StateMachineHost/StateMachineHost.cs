@@ -19,5 +19,5 @@ namespace Xtate;
 
 public sealed partial class StateMachineHost : IHostController
 {
-	public required Func<SecurityContextType, SecurityContextRegistration> SecurityContextRegistrationFactory { private get; [UsedImplicitly] init; }
+	public required Func<SecurityContextType, SecurityContextRegistration> SecurityContextRegistrationFactory { private get; [SetByIoC] init; }
 }

@@ -41,7 +41,7 @@ public partial class DataModelList : IDynamicMetaObjectProvider
 
 		private const string SetMetadata = "SetMetadata";
 
-		private static readonly Dynamic Instance = new(default!);
+		private static readonly Dynamic Instance = new(null!);
 
 		private static readonly ConstructorInfo ConstructorInfo = typeof(Dynamic).GetConstructor([typeof(DataModelList)])!;
 
@@ -102,7 +102,7 @@ public partial class DataModelList : IDynamicMetaObjectProvider
 				{
 					list.SetLength(index.ToInt32(CultureInfo.InvariantCulture));
 
-					result = default;
+					result = null;
 
 					return true;
 				}
@@ -118,7 +118,7 @@ public partial class DataModelList : IDynamicMetaObjectProvider
 						list.Add(key, value: default, metadata);
 					}
 
-					result = default;
+					result = null;
 
 					return true;
 				}
@@ -133,17 +133,17 @@ public partial class DataModelList : IDynamicMetaObjectProvider
 					}
 					else
 					{
-						list.Set(entry.Index, key: default, value: default, metadata);
+						list.Set(entry.Index, key: null, value: default, metadata);
 					}
 
-					result = default;
+					result = null;
 
 					return true;
 				}
 
 				default:
 				{
-					result = default;
+					result = null;
 
 					return false;
 				}
@@ -172,7 +172,7 @@ public partial class DataModelList : IDynamicMetaObjectProvider
 
 				default:
 				{
-					result = default;
+					result = null;
 
 					return false;
 				}
@@ -218,7 +218,7 @@ public partial class DataModelList : IDynamicMetaObjectProvider
 				return true;
 			}
 
-			result = default;
+			result = null;
 
 			return false;
 		}

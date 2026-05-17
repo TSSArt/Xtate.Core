@@ -21,34 +21,34 @@ namespace Xtate.Builder;
 
 public class StateFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 {
-	public required IStateBuilder Builder { private get; [UsedImplicitly] init; }
+	public required IStateBuilder Builder { private get; [SetByIoC] init; }
 
-	public required Action<IState> BuiltAction { private get; [UsedImplicitly] init; }
+	public required Action<IState> BuiltAction { private get; [SetByIoC] init; }
 
-	public required TOuterBuilder OuterBuilder { private get; [UsedImplicitly] init; }
+	public required TOuterBuilder OuterBuilder { private get; [SetByIoC] init; }
 
 	public required Func<StateFluentBuilder<TOuterBuilder>, Action<IInitial>, InitialFluentBuilder<StateFluentBuilder<TOuterBuilder>>> InitialFluentBuilderFactory { private get; init; }
 
-	public required Func<StateFluentBuilder<TOuterBuilder>, Action<IState>, StateFluentBuilder<StateFluentBuilder<TOuterBuilder>>> StateFluentBuilderFactory { private get; [UsedImplicitly] init; }
+	public required Func<StateFluentBuilder<TOuterBuilder>, Action<IState>, StateFluentBuilder<StateFluentBuilder<TOuterBuilder>>> StateFluentBuilderFactory { private get; [SetByIoC] init; }
 
 	public required Func<StateFluentBuilder<TOuterBuilder>, Action<IParallel>, ParallelFluentBuilder<StateFluentBuilder<TOuterBuilder>>> ParallelFluentBuilderFactory
 	{
 		private get;
-		[UsedImplicitly] init;
+		[SetByIoC] init;
 	}
 
-	public required Func<StateFluentBuilder<TOuterBuilder>, Action<IFinal>, FinalFluentBuilder<StateFluentBuilder<TOuterBuilder>>> FinalFluentBuilderFactory { private get; [UsedImplicitly] init; }
+	public required Func<StateFluentBuilder<TOuterBuilder>, Action<IFinal>, FinalFluentBuilder<StateFluentBuilder<TOuterBuilder>>> FinalFluentBuilderFactory { private get; [SetByIoC] init; }
 
 	public required Func<StateFluentBuilder<TOuterBuilder>, Action<IHistory>, HistoryFluentBuilder<StateFluentBuilder<TOuterBuilder>>> HistoryFluentBuilderFactory
 	{
 		private get;
-		[UsedImplicitly] init;
+		[SetByIoC] init;
 	}
 
 	public required Func<StateFluentBuilder<TOuterBuilder>, Action<ITransition>, TransitionFluentBuilder<StateFluentBuilder<TOuterBuilder>>> TransitionFluentBuilderFactory
 	{
 		private get;
-		[UsedImplicitly] init;
+		[SetByIoC] init;
 	}
 
 	public TOuterBuilder EndState()

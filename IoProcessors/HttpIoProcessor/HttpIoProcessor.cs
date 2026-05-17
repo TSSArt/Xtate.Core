@@ -35,7 +35,7 @@ internal sealed class HttpIoProcessor(IEventConsumer eventConsumer, Uri baseUri,
 
 	protected override string? GetHeaderValue(HttpListenerContext context, string name) => context.Request.Headers[name];
 
-	protected override IPAddress? GetRemoteAddress(HttpListenerContext context) => context.Request.RemoteEndPoint is { } endPoint ? endPoint.Address : default;
+	protected override IPAddress? GetRemoteAddress(HttpListenerContext context) => context.Request.RemoteEndPoint is { } endPoint ? endPoint.Address : null;
 
 	protected override string? GetQueryString(HttpListenerContext context) => context.Request.Url?.GetComponents(UriComponents.Query, UriFormat.Unescaped);
 

@@ -58,7 +58,7 @@ public readonly struct Target : IReadOnlyList<IIdentifier>, IEquatable<Target>, 
 
 #region Interface IFormattable
 
-	public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
+	public string ToString(string? format, IFormatProvider? formatProvider) => ToString() ?? string.Empty;
 
 #endregion
 
@@ -84,15 +84,19 @@ public readonly struct Target : IReadOnlyList<IIdentifier>, IEquatable<Target>, 
 
 #endregion
 
+#pragma warning disable IDE0028
+
 	public static implicit operator Target(ImmutableArray<IIdentifier> values) => new(values);
 
 	public static Target Create(ReadOnlySpan<IIdentifier> values) => new([.. values]);
+
+#pragma warning restore IDE0028
 
 	public ImmutableArray<IIdentifier>.Enumerator GetEnumerator() => _targets.GetEnumerator();
 
 	public override int GetHashCode() => SegmentedName.GetHashCode(_targets);
 
-	public override string ToString() => SegmentedName.ToString(_targets, Separator);
+	public override string? ToString() => SegmentedName.ToString(_targets, Separator);
 
 	public override bool Equals(object? obj) => obj is EventName other && Equals(other);
 }

@@ -19,9 +19,9 @@ namespace Xtate.DataModel.Runtime;
 
 public class RuntimeValueEvaluator : IValueExpression, IObjectEvaluator
 {
-	public required RuntimeValue Value { private get; [UsedImplicitly] init; }
+	public required RuntimeValue Value { private get; [SetByIoC] init; }
 
-	public required Func<ValueTask<RuntimeExecutionContext>> RuntimeExecutionContextFactory { private get; [UsedImplicitly] init; }
+	public required Func<ValueTask<RuntimeExecutionContext>> RuntimeExecutionContextFactory { private get; [SetByIoC] init; }
 
 #region Interface IObjectEvaluator
 

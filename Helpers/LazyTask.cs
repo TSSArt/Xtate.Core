@@ -33,15 +33,15 @@ public class LazyTask<T>
 	public LazyTask(Func<ValueTask<T>> factory)
 	{
 		_factory = factory;
-		_token = default;
-		_taskMonitor = default;
+		_token = CancellationToken.None;
+		_taskMonitor = null;
 	}
 
 	public LazyTask(Func<ValueTask<T>> factory, TaskMonitor? taskMonitor, CancellationToken token)
 	{
 		_factory = factory;
 		_token = token;
-		_taskMonitor = token.CanBeCanceled ? taskMonitor : default;
+		_taskMonitor = token.CanBeCanceled ? taskMonitor : null;
 	}
 
 	public Task<T> Task
@@ -55,7 +55,7 @@ public class LazyTask<T>
 
 			tcs = new TaskCompletionSource<T>();
 
-			if (Interlocked.CompareExchange(ref _taskCompletionSource, tcs, comparand: default) is { } existedTcs)
+			if (Interlocked.CompareExchange(ref _taskCompletionSource, tcs, comparand: null) is { } existedTcs)
 			{
 				return existedTcs.Task;
 			}

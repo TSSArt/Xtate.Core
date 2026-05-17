@@ -49,10 +49,9 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 
 	private readonly Bucket _stateBucket;
 
-	[UsedImplicitly]
 	public required ISuspendEventDispatcher SuspendEventDispatcher
 	{
-		init => value.OnSuspend += Suspend;
+		[SetByIoC] init => value.OnSuspend += Suspend;
 	}
 
 	public required IPersistenceOptions PersistenceOptions { private get; [SetByIoC] init; }
@@ -573,7 +572,7 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 		Exit(StateBagKey.CancelInvoke);
 	}
 
-	protected override async ValueTask InitializeDataModel(DataModelNode dataModel, DataModelList? defaultValues = default)
+	protected override async ValueTask InitializeDataModel(DataModelNode dataModel, DataModelList? defaultValues = null)
 	{
 		if (Enter(StateBagKey.InitializeDataModel))
 		{

@@ -37,9 +37,9 @@ public class DefaultSendEvaluator(ISend send) : SendEvaluator(send)
 
 	private readonly IStringEvaluator? _typeExpressionEvaluator = send.TypeExpression?.UseAncestor.As<IStringEvaluator>();
 
-	public required Deferred<DataConverter> DataConverter { private get; [UsedImplicitly] init; }
+	public required Deferred<DataConverter> DataConverter { private get; [SetByIoC] init; }
 
-	public required Deferred<IEventController> EventController { private get; [UsedImplicitly] init; }
+	public required Deferred<IEventController> EventController { private get; [SetByIoC] init; }
 
 	public override async ValueTask Execute()
 	{

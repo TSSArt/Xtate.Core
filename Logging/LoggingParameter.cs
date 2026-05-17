@@ -17,7 +17,7 @@
 
 namespace Xtate.Core;
 
-public readonly struct LoggingParameter(string name, object? value, string? format = default) : ISpanFormattable
+public readonly struct LoggingParameter(string name, object? value, string? format = null) : ISpanFormattable
 {
 	private const string NsDelimiter = @"::";
 
@@ -123,5 +123,5 @@ public readonly struct LoggingParameter(string name, object? value, string? form
 		return Value?.ToString() ?? string.Empty;
 	}
 
-	public override string ToString() => ToString(format: default, formatProvider: default);
+	public override string ToString() => ToString(format: null, formatProvider: null);
 }

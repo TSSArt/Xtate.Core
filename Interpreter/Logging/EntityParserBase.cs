@@ -21,7 +21,7 @@ public abstract class EntityParserBase<TSource, TEntity>(Level level = Level.Inf
 {
 #region Interface IEntityParserHandler<TSource>
 
-	IEnumerable<LoggingParameter>? IEntityParserHandler<TSource>.EnumerateProperties<T>(T entity) => entity is TEntity ? EnumerateProperties(ConvertHelper<T, TEntity>.Convert(entity)) : default;
+	IEnumerable<LoggingParameter>? IEntityParserHandler<TSource>.EnumerateProperties<T>(T entity) => entity is TEntity ? EnumerateProperties(ConvertHelper<T, TEntity>.Convert(entity)) : null;
 
 	Level IEntityParserHandler<TSource>.Level => level;
 

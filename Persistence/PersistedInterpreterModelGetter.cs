@@ -23,21 +23,21 @@ namespace Xtate.Core;
 
 public class PersistedInterpreterModelGetter
 {
-	public required Func<IStateMachine, IDataModelHandler, ValueTask<InterpreterModelBuilder>> InterpreterModelBuilderFactory { private get; [UsedImplicitly] init; }
+	public required Func<IStateMachine, IDataModelHandler, ValueTask<InterpreterModelBuilder>> InterpreterModelBuilderFactory { private get; [SetByIoC] init; }
 
-	public required InterpreterModelBuilder InterpreterModelBuilder { private get; [UsedImplicitly] init; }
+	public required InterpreterModelBuilder InterpreterModelBuilder { private get; [SetByIoC] init; }
 
-	public required IDataModelHandlerService DataModelHandlerService { private get; [UsedImplicitly] init; }
+	public required IDataModelHandlerService DataModelHandlerService { private get; [SetByIoC] init; }
 
-	public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
+	public required IStateMachineSessionId StateMachineSessionId { private get; [SetByIoC] init; }
 
-	public required IStateMachine? StateMachine { private get; [UsedImplicitly] init; }
+	public required IStateMachine? StateMachine { private get; [SetByIoC] init; }
 
-	public required IErrorProcessor ErrorProcessor { private get; [UsedImplicitly] init; }
+	public required IErrorProcessor ErrorProcessor { private get; [SetByIoC] init; }
 
-	public required ITransactionalStorage TransactionalStorage { private get; [UsedImplicitly] init; }
+	public required ITransactionalStorage TransactionalStorage { private get; [SetByIoC] init; }
 
-	public required Func<ReadOnlyMemory<byte>, InMemoryStorage> InMemoryStorageFactory { private get; [UsedImplicitly] init; }
+	public required Func<ReadOnlyMemory<byte>, InMemoryStorage> InMemoryStorageFactory { private get; [SetByIoC] init; }
 
 	[CalledByIoC]
 	public async ValueTask<IInterpreterModel> GetInterpreterModel()

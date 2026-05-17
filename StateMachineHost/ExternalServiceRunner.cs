@@ -26,11 +26,11 @@ public class ExternalServiceRunner(IExternalServiceInvokeId externalServiceInvok
 
 	private readonly InvokeId _invokeId = externalServiceInvokeId.InvokeId;
 
-	public required IExternalService ExternalService { private get; [UsedImplicitly] init; }
+	public required IExternalService ExternalService { private get; [SetByIoC] init; }
 
-	public required DataConverter DataConverter { private get; [UsedImplicitly] init; }
+	public required DataConverter DataConverter { private get; [SetByIoC] init; }
 
-	public required IExternalCommunication ExternalCommunication { private get; [UsedImplicitly] init; }
+	public required IExternalCommunication ExternalCommunication { private get; [SetByIoC] init; }
 
 	public required ILogger<ExternalServiceRunner> Logger { private get; [SetByIoC] init; }
 

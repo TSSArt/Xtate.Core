@@ -19,7 +19,7 @@ namespace Xtate.Core;
 
 public class InterpreterVerboseLogEnricher<TSource> : ILogEnricher<TSource>
 {
-	public required Safe<IStateMachineContext> StateMachineContext { private get; [UsedImplicitly] init; }
+	public required Safe<IStateMachineContext> StateMachineContext { private get; [SetByIoC] init; }
 
 #region Interface ILogEnricher<TSource>
 

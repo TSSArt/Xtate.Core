@@ -25,11 +25,11 @@ public class InvokeController : IInvokeController
 
 	private const int EventForwardEventId = 3;
 
-	public required IExternalServiceManager ExternalServiceManager { private get; [UsedImplicitly] init; }
+	public required IExternalServiceManager ExternalServiceManager { private get; [SetByIoC] init; }
 
-	public required ILogger<IInvokeController> Logger { private get; [UsedImplicitly] init; }
+	public required ILogger<IInvokeController> Logger { private get; [SetByIoC] init; }
 
-	public required StateMachineRuntimeError StateMachineRuntimeError { private get; [UsedImplicitly] init; }
+	public required StateMachineRuntimeError StateMachineRuntimeError { private get; [SetByIoC] init; }
 
 #region Interface IInvokeController
 

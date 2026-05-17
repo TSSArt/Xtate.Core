@@ -50,7 +50,7 @@ public readonly struct EventDescriptors : IReadOnlyList<IEventDescriptor>, IEqua
 
 #region Interface IFormattable
 
-	public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
+	public string ToString(string? format, IFormatProvider? formatProvider) => ToString() ?? string.Empty;
 
 #endregion
 
@@ -76,9 +76,13 @@ public readonly struct EventDescriptors : IReadOnlyList<IEventDescriptor>, IEqua
 
 #endregion
 
+#pragma warning disable IDE0028
+
 	public static implicit operator EventDescriptors(ImmutableArray<IEventDescriptor> values) => new(values);
 
 	public static EventDescriptors Create(ReadOnlySpan<IEventDescriptor> values) => new([.. values]);
+
+#pragma warning restore IDE0028
 
 	public ImmutableArray<IEventDescriptor>.Enumerator GetEnumerator() => _eventDescriptors.GetEnumerator();
 
@@ -86,5 +90,5 @@ public readonly struct EventDescriptors : IReadOnlyList<IEventDescriptor>, IEqua
 
 	public override int GetHashCode() => SegmentedName.GetHashCode(_eventDescriptors);
 
-	public override string ToString() => SegmentedName.ToString(_eventDescriptors, Separator);
+	public override string? ToString() => SegmentedName.ToString(_eventDescriptors, Separator);
 }

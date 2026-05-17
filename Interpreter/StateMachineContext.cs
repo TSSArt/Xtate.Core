@@ -22,15 +22,15 @@ namespace Xtate.Core;
 
 public class StateMachineContext : IStateMachineContext
 {
-	public required ICaseSensitivity CaseSensitivity { private get; [UsedImplicitly] init; }
+	public required ICaseSensitivity CaseSensitivity { private get; [SetByIoC] init; }
 
-	public required IStateMachine StateMachine { private get; [UsedImplicitly] init; }
+	public required IStateMachine StateMachine { private get; [SetByIoC] init; }
 
-	public required IReadOnlyCollection<IIoProcessor> IoProcessors { private get; [UsedImplicitly] init; }
+	public required IReadOnlyCollection<IIoProcessor> IoProcessors { private get; [SetByIoC] init; }
 
-	public required IReadOnlyCollection<IXDataModelProperty> XDataModelProperties { private get; [UsedImplicitly] init; }
+	public required IReadOnlyCollection<IXDataModelProperty> XDataModelProperties { private get; [SetByIoC] init; }
 
-	public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
+	public required IStateMachineSessionId StateMachineSessionId { private get; [SetByIoC] init; }
 
 #region Interface IStateMachineContext
 

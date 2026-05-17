@@ -41,7 +41,7 @@ public abstract class StateMachineControllerBase : IStateMachineController, IAsy
 	public required IEventQueueWriter EventQueueWriter { private get; [SetByIoC] init; }
 
 	[Obsolete]
-	public Uri? StateMachineLocation => default;
+	public Uri? StateMachineLocation => null;
 
 	[Obsolete]
 	public SessionId SessionId => StateMachineSessionId.SessionId;
@@ -95,7 +95,7 @@ public abstract class StateMachineControllerBase : IStateMachineController, IAsy
 	protected virtual void StateChanged(StateMachineInterpreterState state) { }
 
 	[Obsolete]
-	protected virtual CancellationToken GetSuspendToken() => default; //_defaultOptions.SuspendToken;
+	protected virtual CancellationToken GetSuspendToken() => CancellationToken.None; //_defaultOptions.SuspendToken;
 
 	private async ValueTask<DataModelValue> ExecuteAsync()
 	{

@@ -40,7 +40,7 @@ public sealed partial class StateMachineHost(StateMachineHostOptions options) : 
 
 		if (_context is { } context)
 		{
-			_context = default;
+			_context = null;
 			await context.DisposeAsync().ConfigureAwait(false);
 		}
 
@@ -62,7 +62,7 @@ public sealed partial class StateMachineHost(StateMachineHostOptions options) : 
 
 		if (_context is { } context)
 		{
-			_context = default;
+			_context = null;
 
 			//TODO:
 			//context.Dispose();
@@ -121,15 +121,15 @@ public sealed partial class StateMachineHost(StateMachineHostOptions options) : 
 		}
 
 		_asyncOperationInProgress = true;
-		_context = default;
+		_context = null;
 
 		try
 		{
 			context.Suspend();
 
-			await context.WaitAllAsync(default).ConfigureAwait(false); //TODO:
+			await context.WaitAllAsync(CancellationToken.None).ConfigureAwait(false); //TODO:
 		}
-		catch (OperationCanceledException ex) when (ex.CancellationToken == default) //TODO:
+		catch (OperationCanceledException ex) when (ex.CancellationToken == CancellationToken.None) //TODO:
 		{
 			context.Stop();
 		}

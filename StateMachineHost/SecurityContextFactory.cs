@@ -17,15 +17,16 @@
 
 namespace Xtate.Core;
 
+[InstantiatedByIoC]
 public sealed class SecurityContextFactory
 {
 	private readonly AsyncLocal<SecurityContext> _securityContext = new();
 
 	private SecurityContext CurrentSecurityContext => _securityContext.Value ?? SecurityContext.FullAccess;
 
-	[UsedImplicitly]
+	[CalledByIoC]
 	public IIoBoundTask GetIIoBoundTask() => CurrentSecurityContext;
 
-	[UsedImplicitly]
+	[CalledByIoC]
 	public SecurityContextRegistration GetRegistration(SecurityContextType securityContextType) => new(_securityContext, securityContextType);
 }

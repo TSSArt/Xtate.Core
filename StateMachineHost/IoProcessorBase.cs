@@ -31,7 +31,7 @@ public abstract class IoProcessorBase : IIoProcessor, IEventRouter
 		_ioProcessorAliasId = ioProcessorAlias;
 	}
 
-	public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
+	public required IStateMachineSessionId StateMachineSessionId { private get; [SetByIoC] init; }
 
 #region Interface IEventRouter
 

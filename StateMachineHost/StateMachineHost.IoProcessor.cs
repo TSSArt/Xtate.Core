@@ -29,7 +29,7 @@ public sealed partial class StateMachineHost : IIoProcessor, IEventConsumer, IEv
 		{
 			SessionId sessionId                                                                 => await GetCurrentContext().FindStateMachineController(sessionId, token).ConfigureAwait(false),
 			InvokeId invokeId when GetCurrentContext().TryGetService(invokeId, out var service) => (IEventDispatcher) service,
-			_                                                                                   => default
+			_                                                                                   => null
 		};
 
 #endregion
@@ -40,7 +40,7 @@ public sealed partial class StateMachineHost : IIoProcessor, IEventConsumer, IEv
 
 	ValueTask<IRouterEvent> IEventRouter.GetRouterEvent(IOutgoingEvent outgoingEvent, CancellationToken token)
 	{
-		ServiceId senderServiceId = default!;
+		ServiceId senderServiceId = null!;
 
 		if (senderServiceId is null) throw new ArgumentNullException(nameof(senderServiceId));
 
@@ -69,7 +69,7 @@ public sealed partial class StateMachineHost : IIoProcessor, IEventConsumer, IEv
 	{
 		Infra.NotNull(routerEvent.TargetServiceId);
 
-		var service = await GetService(routerEvent.TargetServiceId, token: default).ConfigureAwait(false);
+		var service = await GetService(routerEvent.TargetServiceId, token: CancellationToken.None).ConfigureAwait(false);
 
 		//await service.Dispatch(routerEvent).ConfigureAwait(false);
 	}
@@ -103,7 +103,7 @@ public sealed partial class StateMachineHost : IIoProcessor, IEventConsumer, IEv
 		{
 			SessionId sessionId => new FullUri(Const.ScxmlIoProcessorBaseUri, Const.ScxmlIoProcessorSessionIdPrefix + sessionId.Value),
 			InvokeId invokeId   => new FullUri(Const.ScxmlIoProcessorBaseUri, Const.ScxmlIoProcessorInvokeIdPrefix + invokeId.Value),
-			_                   => default
+			_                   => null
 		};
 
 	private static string GetTargetString(FullUri target) => target.IsAbsoluteUri ? target.Fragment : target.OriginalString;
@@ -121,7 +121,7 @@ public sealed partial class StateMachineHost : IIoProcessor, IEventConsumer, IEv
 			return true;
 		}
 
-		sessionId = default;
+		sessionId = null;
 
 		return false;
 	}
@@ -137,7 +137,7 @@ public sealed partial class StateMachineHost : IIoProcessor, IEventConsumer, IEv
 			return true;
 		}
 
-		invokeId = default;
+		invokeId = null;
 
 		return false;
 	}

@@ -19,7 +19,7 @@ namespace Xtate.Core;
 
 public class StateMachineValidator : StateMachineVisitor, IStateMachineValidator
 {
-	public required IErrorProcessorService<StateMachineValidator> ErrorProcessorService { private get; [UsedImplicitly] init; }
+	public required IErrorProcessorService<StateMachineValidator> ErrorProcessorService { private get; [SetByIoC] init; }
 
 #region Interface IStateMachineValidator
 

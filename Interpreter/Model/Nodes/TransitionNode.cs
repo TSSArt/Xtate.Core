@@ -37,7 +37,7 @@ public class TransitionNode : ITransition, IStoreSupport, IAncestorProvider, IDo
 		TargetState = target;
 		ActionEvaluators = transition.Action.UseAncestor.ItemsAs<IExecEvaluator>(true);
 		ConditionEvaluator = transition.Condition?.UseAncestor.As<IBooleanEvaluator>();
-		Source = default!;
+		Source = null!;
 	}
 
 	public ImmutableArray<StateEntityNode> TargetState { get; private set; }

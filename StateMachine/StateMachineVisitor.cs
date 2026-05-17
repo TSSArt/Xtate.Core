@@ -137,7 +137,7 @@ public abstract class StateMachineVisitor(bool trackPath = false)
 			}
 		}
 
-		public ImmutableArray<T>.Builder? ModifiedItems { get; private set; } = default;
+		public ImmutableArray<T>.Builder? ModifiedItems { get; private set; } = null;
 
 		public readonly int Count => ModifiedItems?.Count ?? items.Length;
 

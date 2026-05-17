@@ -132,7 +132,7 @@ public abstract class HttpClientMimeTypeHandler
 													 string? contentType,
 													 DataModelList parameters,
 													 DataModelValue value) =>
-		default;
+		null;
 
 	public virtual ValueTask<DataModelValue?> TryParseResponseAsync(WebResponse webResponse, DataModelList parameters, CancellationToken token) => default;
 }

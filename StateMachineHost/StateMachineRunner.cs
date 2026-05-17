@@ -19,7 +19,7 @@ namespace Xtate.Core;
 
 public class StateMachineRunner : IStateMachineRunner
 {
-	public required IStateMachineController StateMachineController { private get; [UsedImplicitly] init; }
+	public required IStateMachineController StateMachineController { private get; [SetByIoC] init; }
 
 #region Interface IStateMachineRunner
 

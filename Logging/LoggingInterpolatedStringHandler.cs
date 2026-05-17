@@ -62,7 +62,7 @@ public readonly struct LoggingInterpolatedStringHandler
 
 	public void AppendLiteral(string value) => _stringBuilder!.Append(value);
 
-	public void AppendFormatted(object? value, string? format = default, [CallerArgumentExpression(nameof(value))] string? expression = default)
+	public void AppendFormatted(object? value, string? format = null, [CallerArgumentExpression(nameof(value))] string? expression = null)
 	{
 		Span<char> buf = stackalloc char[StackSpan<char>.MaxLengthInStack];
 
@@ -84,9 +84,9 @@ public readonly struct LoggingInterpolatedStringHandler
 
 	public void AppendFormatted(object? value,
 								int alignment,
-								string? format = default,
+								string? format = null,
 								[CallerArgumentExpression(nameof(value))]
-								string? expression = default)
+								string? expression = null)
 	{
 		var start = _stringBuilder!.Length;
 

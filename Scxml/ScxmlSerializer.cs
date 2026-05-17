@@ -21,7 +21,7 @@ namespace Xtate.Scxml;
 
 public class ScxmlSerializer : IScxmlSerializer
 {
-	public required Func<XmlWriter, ValueTask<ScxmlSerializerWriter>> ScxmlSerializerWriterFactory { private get; [UsedImplicitly] init; }
+	public required Func<XmlWriter, ValueTask<ScxmlSerializerWriter>> ScxmlSerializerWriterFactory { private get; [SetByIoC] init; }
 
 #region Interface IScxmlSerializer
 

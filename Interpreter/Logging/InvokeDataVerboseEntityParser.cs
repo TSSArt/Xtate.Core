@@ -21,7 +21,7 @@ namespace Xtate.Core;
 
 public class InvokeDataVerboseEntityParser<TSource>() : EntityParserBase<TSource, InvokeData>(Level.Verbose)
 {
-	public required Safe<IDataModelHandler> DataModelHandler { private get; [UsedImplicitly] init; }
+	public required Safe<IDataModelHandler> DataModelHandler { private get; [SetByIoC] init; }
 
 	protected override IEnumerable<LoggingParameter> EnumerateProperties(InvokeData invokeData)
 	{

@@ -61,9 +61,9 @@ public class StreamStorage : ITransactionalStorage, IAsyncInitialization
 		}
 	}
 
-	public required Func<bool, InMemoryStorage> InMemoryStorageFactory { private get; [UsedImplicitly] init; }
+	public required Func<bool, InMemoryStorage> InMemoryStorageFactory { private get; [SetByIoC] init; }
 
-	public required Func<ReadOnlyMemory<byte>, InMemoryStorage> InMemoryStorageBaselineFactory { private get; [UsedImplicitly] init; }
+	public required Func<ReadOnlyMemory<byte>, InMemoryStorage> InMemoryStorageBaselineFactory { private get; [SetByIoC] init; }
 
 #region Interface IAsyncDisposable
 

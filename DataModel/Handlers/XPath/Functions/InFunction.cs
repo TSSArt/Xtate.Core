@@ -25,7 +25,7 @@ public class InFunction() : XPathFunctionBase(XPathResultType.Boolean, XPathResu
 
 	private IInStateController _inStateController;
 
-	public required Func<ValueTask<IInStateController>> InStateControllerFactory { private get; [UsedImplicitly] init; }
+	public required Func<ValueTask<IInStateController>> InStateControllerFactory { private get; [SetByIoC] init; }
 
 	public override async ValueTask Initialize()
 	{

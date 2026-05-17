@@ -17,12 +17,12 @@
 
 namespace Xtate.ExternalService;
 
-public abstract class ExternalServiceProviderBase<TService>(FullUri uri, FullUri? aliasUri = default) : IExternalServiceProvider, IExternalServiceActivator
+public abstract class ExternalServiceProviderBase<TService>(FullUri uri, FullUri? aliasUri = null) : IExternalServiceProvider, IExternalServiceActivator
 	where TService : IExternalService
 {
-	protected ExternalServiceProviderBase(string type, string? alias = default) : this(new FullUri(type), alias is not null ? new FullUri(alias) : default) { }
+	protected ExternalServiceProviderBase(string type, string? alias = null) : this(new FullUri(type), alias is not null ? new FullUri(alias) : null) { }
 
-	public required Func<ValueTask<TService>> ServiceFactoryFunc { private get; [UsedImplicitly] init; }
+	public required Func<ValueTask<TService>> ServiceFactoryFunc { private get; [SetByIoC] init; }
 
 #region Interface IExternalServiceActivator
 
@@ -32,7 +32,7 @@ public abstract class ExternalServiceProviderBase<TService>(FullUri uri, FullUri
 
 #region Interface IExternalServiceProvider
 
-	IExternalServiceActivator? IExternalServiceProvider.TryGetActivator(FullUri typeUri) => typeUri == uri || (typeUri is not null && typeUri == aliasUri) ? this : default;
+	IExternalServiceActivator? IExternalServiceProvider.TryGetActivator(FullUri typeUri) => typeUri == uri || (typeUri is not null && typeUri == aliasUri) ? this : null;
 
 #endregion
 }

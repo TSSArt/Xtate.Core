@@ -19,16 +19,16 @@ namespace Xtate.Builder;
 
 public class HistoryFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 {
-	public required IHistoryBuilder Builder { private get; [UsedImplicitly] init; }
+	public required IHistoryBuilder Builder { private get; [SetByIoC] init; }
 
-	public required Action<IHistory> BuiltAction { private get; [UsedImplicitly] init; }
+	public required Action<IHistory> BuiltAction { private get; [SetByIoC] init; }
 
-	public required TOuterBuilder OuterBuilder { private get; [UsedImplicitly] init; }
+	public required TOuterBuilder OuterBuilder { private get; [SetByIoC] init; }
 
 	public required Func<HistoryFluentBuilder<TOuterBuilder>, Action<ITransition>, TransitionFluentBuilder<HistoryFluentBuilder<TOuterBuilder>>> TransitionFluentBuilderFactory
 	{
 		private get;
-		[UsedImplicitly] init;
+		[SetByIoC] init;
 	}
 
 	public TOuterBuilder EndHistory()

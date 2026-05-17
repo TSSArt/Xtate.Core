@@ -22,13 +22,13 @@ namespace Xtate.Core;
 
 public class ExternalServiceEventRouter : IEventRouter
 {
-	public required IReadOnlyCollection<IExternalServiceProvider> ExternalServiceProviders { private get; [UsedImplicitly] init; }
+	public required IReadOnlyCollection<IExternalServiceProvider> ExternalServiceProviders { private get; [SetByIoC] init; }
 
-	public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
+	public required IStateMachineSessionId StateMachineSessionId { private get; [SetByIoC] init; }
 
-	public required IExternalServiceCollection ExternalServiceCollection { private get; [UsedImplicitly] init; }
+	public required IExternalServiceCollection ExternalServiceCollection { private get; [SetByIoC] init; }
 
-	public required StateMachineRuntimeError StateMachineRuntimeError { private get; [UsedImplicitly] init; }
+	public required StateMachineRuntimeError StateMachineRuntimeError { private get; [SetByIoC] init; }
 
 #region Interface IEventRouter
 

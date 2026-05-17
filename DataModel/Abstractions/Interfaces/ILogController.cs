@@ -21,5 +21,5 @@ public interface ILogController
 {
 	bool IsEnabled { get; }
 
-	ValueTask Log(string? message = default, DataModelValue arguments = default);
+	ValueTask Log(string? message = null, DataModelValue arguments = default);
 }

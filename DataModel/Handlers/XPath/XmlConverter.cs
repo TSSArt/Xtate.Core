@@ -134,7 +134,7 @@ public static class XmlConverter
 		}
 	}
 
-	public static DataModelValue FromXml(string xml, XmlParserContext? context = default)
+	public static DataModelValue FromXml(string xml, XmlParserContext? context = null)
 	{
 		using var reader = new StringReader(xml);
 		using var xmlReader = XmlReader.Create(reader, DefaultReaderSettings, context);
@@ -142,14 +142,14 @@ public static class XmlConverter
 		return LoadValue(xmlReader);
 	}
 
-	public static DataModelValue FromXmlStream(Stream stream, XmlParserContext? context = default)
+	public static DataModelValue FromXmlStream(Stream stream, XmlParserContext? context = null)
 	{
 		using var xmlReader = XmlReader.Create(stream, DefaultReaderSettings, context);
 
 		return LoadValue(xmlReader);
 	}
 
-	public static async ValueTask<DataModelValue> FromXmlStreamAsync(Stream stream, XmlParserContext? context = default)
+	public static async ValueTask<DataModelValue> FromXmlStreamAsync(Stream stream, XmlParserContext? context = null)
 	{
 		using var xmlReader = XmlReader.Create(stream, DefaultReaderSettings, context);
 
@@ -203,7 +203,7 @@ public static class XmlConverter
 
 	private static async ValueTask<DataModelValue> LoadValueAsync(XmlReader xmlReader)
 	{
-		DataModelList? list = default;
+		DataModelList? list = null;
 
 		do
 		{
@@ -282,7 +282,7 @@ public static class XmlConverter
 
 	private static DataModelValue LoadValue(XmlReader xmlReader)
 	{
-		DataModelList? list = default;
+		DataModelList? list = null;
 
 		do
 		{

@@ -22,7 +22,7 @@ namespace Xtate.DataModel.XPath;
 
 public class XPathXmlParserContextFactory
 {
-	public required INameTableProvider? NameTableProvider { private get; [UsedImplicitly] init; }
+	public required INameTableProvider? NameTableProvider { private get; [SetByIoC] init; }
 
 	public XmlParserContext CreateContext(object entity)
 	{

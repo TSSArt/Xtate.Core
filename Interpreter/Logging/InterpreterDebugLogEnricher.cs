@@ -19,9 +19,9 @@ namespace Xtate.Core;
 
 public class InterpreterDebugLogEnricher<TSource> : ILogEnricher<TSource>
 {
-	public required Safe<IStateMachine> StateMachine { private get; [UsedImplicitly] init; }
+	public required Safe<IStateMachine> StateMachine { private get; [SetByIoC] init; }
 
-	public required Safe<IStateMachineContext> StateMachineContext { private get; [UsedImplicitly] init; }
+	public required Safe<IStateMachineContext> StateMachineContext { private get; [SetByIoC] init; }
 
 #region Interface ILogEnricher<TSource>
 

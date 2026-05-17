@@ -23,11 +23,11 @@ public class ScxmlIoProcessor(IExternalServiceInvokeId? externalServiceInvokeId,
 {
 	private readonly ServiceId _senderServiceId = (ServiceId?) externalServiceInvokeId?.InvokeId ?? stateMachineSessionId.SessionId;
 
-	public required IEventDispatcher? SelfEventDispatcher { private get; [UsedImplicitly] init; }
+	public required IEventDispatcher? SelfEventDispatcher { private get; [SetByIoC] init; }
 
-	public required IParentEventDispatcher? ParentEventDispatcher { private get; [UsedImplicitly] init; }
+	public required IParentEventDispatcher? ParentEventDispatcher { private get; [SetByIoC] init; }
 
-	public required IStateMachineCollection StateMachineCollection { private get; [UsedImplicitly] init; }
+	public required IStateMachineCollection StateMachineCollection { private get; [SetByIoC] init; }
 
 #region Interface IEventRouter
 
@@ -74,7 +74,7 @@ public class ScxmlIoProcessor(IExternalServiceInvokeId? externalServiceInvokeId,
 		{
 			SessionId sessionId => new FullUri(Const.ScxmlIoProcessorBaseUri, Const.ScxmlIoProcessorSessionIdPrefix + sessionId.Value),
 			InvokeId invokeId   => new FullUri(Const.ScxmlIoProcessorBaseUri, Const.ScxmlIoProcessorInvokeIdPrefix + invokeId.Value),
-			_                   => default
+			_                   => null
 		};
 
 	public FullUri Id => Const.ScxmlIoProcessorId;
@@ -85,12 +85,12 @@ public class ScxmlIoProcessor(IExternalServiceInvokeId? externalServiceInvokeId,
 	{
 		if (target is null)
 		{
-			return default;
+			return null;
 		}
 
 		if (IsTargetParent(target))
 		{
-			return default;
+			return null;
 		}
 
 		if (IsTargetSessionId(target, out var targetSessionId))
@@ -119,7 +119,7 @@ public class ScxmlIoProcessor(IExternalServiceInvokeId? externalServiceInvokeId,
 			return true;
 		}
 
-		sessionId = default;
+		sessionId = null;
 
 		return false;
 	}
@@ -135,7 +135,7 @@ public class ScxmlIoProcessor(IExternalServiceInvokeId? externalServiceInvokeId,
 			return true;
 		}
 
-		invokeId = default;
+		invokeId = null;
 
 		return false;
 	}
