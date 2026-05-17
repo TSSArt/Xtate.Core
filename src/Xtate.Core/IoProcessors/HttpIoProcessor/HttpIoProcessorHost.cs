@@ -49,7 +49,7 @@ internal sealed class HttpIoProcessorHost : HttpIoProcessorHostBase<HttpIoProces
 	{
 		foreach (var processor in Processors)
 		{
-			if (await processor.Handle(context, token: default).ConfigureAwait(false))
+			if (await processor.Handle(context, token: CancellationToken.None).ConfigureAwait(false))
 			{
 				context.Response.StatusCode = (int) HttpStatusCode.NoContent;
 				context.Response.Close();

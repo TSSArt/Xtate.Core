@@ -19,7 +19,7 @@ namespace Xtate.DataModel;
 
 public class DefaultRaiseEvaluator(IRaise raise) : RaiseEvaluator(raise)
 {
-	public required Deferred<IEventController> EventController { private get; [UsedImplicitly] init; }
+	public required Deferred<IEventController> EventController { private get; [SetByIoC] init; }
 
 	public override async ValueTask Execute()
 	{

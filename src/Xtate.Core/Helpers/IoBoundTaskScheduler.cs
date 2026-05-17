@@ -57,7 +57,7 @@ public sealed class IoBoundTaskScheduler : TaskScheduler
 
 	private static void RegisterStartNewWorker()
 	{
-		var newHandle = ThreadPool.RegisterWaitForSingleObject(WaitingSemaphore, StartNewWorker, state: default, IndefiniteTimeout, executeOnlyOnce: false);
+		var newHandle = ThreadPool.RegisterWaitForSingleObject(WaitingSemaphore, StartNewWorker, state: null, IndefiniteTimeout, executeOnlyOnce: false);
 
 		if (Interlocked.Exchange(ref _startNewWorkerRegisteredWaitHandle, newHandle) is { } oldHandle)
 		{
@@ -74,7 +74,7 @@ public sealed class IoBoundTaskScheduler : TaskScheduler
 
 	private static void UnregisterStartNewWorker()
 	{
-		if (Interlocked.Exchange(ref _startNewWorkerRegisteredWaitHandle, value: default) is { } oldHandle)
+		if (Interlocked.Exchange(ref _startNewWorkerRegisteredWaitHandle, value: null) is { } oldHandle)
 		{
 			oldHandle.Unregister(WaitingSemaphore);
 		}

@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using System.Threading;
 using Xtate.Core;
 using Xtate.DataModel;
 using Xtate.IoC;
@@ -24,17 +25,17 @@ namespace Xtate.Test;
 [TestClass]
 public class InvokeTest
 {
-    private Mock<IExternalServiceManager> _externalCommunicationMock = default!;
+    private Mock<IExternalServiceManager> _externalCommunicationMock = null!;
 
-    private Mock<IInvokeController> _invokeControllerMock = default!;
+    private Mock<IInvokeController> _invokeControllerMock = null!;
 
-    private Mock<ILogWriter<IEventController>> _loggerMockE = default!;
+    private Mock<ILogWriter<IEventController>> _loggerMockE = null!;
 
-    private Mock<ILogWriter<IStateMachineInterpreter>> _loggerMockI = default!;
+    private Mock<ILogWriter<IStateMachineInterpreter>> _loggerMockI = null!;
 
-    private Mock<ILogWriter<ILogController>> _loggerMockL = default!;
+    private Mock<ILogWriter<ILogController>> _loggerMockL = null!;
 
-    private Mock<ILogWriter<IInvokeController>> _loggerMockV = default!;
+    private Mock<ILogWriter<IInvokeController>> _loggerMockV = null!;
 
     private StateMachineEntity _stateMachine;
 
@@ -82,7 +83,7 @@ public class InvokeTest
         _externalCommunicationMock = new Mock<IExternalServiceManager>();
     }
 
-    private static IncomingEvent CreateEventObject(string name, InvokeId? invokeId = default) =>
+    private static IncomingEvent CreateEventObject(string name, InvokeId? invokeId = null) =>
         new()
         {
             Type = EventType.External,
@@ -112,8 +113,8 @@ public class InvokeTest
 
         var task = stateMachineInterpreter.Run();
 
-        await eventQueueWriter.WriteAsync(CreateEventObject(name: "fromInvoked", InvokeId.FromString(invokeId: "invoke_id", invokeUniqueId)), token: default);
-        await eventQueueWriter.WriteAsync(CreateEventObject("ToF"), token: default);
+        await eventQueueWriter.WriteAsync(CreateEventObject(name: "fromInvoked", InvokeId.FromString(invokeId: "invoke_id", invokeUniqueId)), token: CancellationToken.None);
+        await eventQueueWriter.WriteAsync(CreateEventObject("ToF"), token: CancellationToken.None);
         await task;
 
         _externalCommunicationMock.Verify(l => l.Start(It.IsAny<InvokeData>()));

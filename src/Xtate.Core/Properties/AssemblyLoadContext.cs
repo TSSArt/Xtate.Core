@@ -46,7 +46,7 @@ namespace System.Runtime.Loader
 				return Assembly.Load(segment.Array);
 			}
 
-			return Assembly.Load(stream.ReadToEnd(default));
+			return Assembly.Load(stream.ReadToEnd(CancellationToken.None));
 		}
 	}
 }

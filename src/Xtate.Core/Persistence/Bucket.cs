@@ -293,7 +293,7 @@ public readonly struct Bucket
 
 		public Node(IStorage storage)
 		{
-			Previous = default;
+			Previous = null;
 			Storage = storage;
 		}
 

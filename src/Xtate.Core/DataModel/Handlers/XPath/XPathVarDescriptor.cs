@@ -26,7 +26,7 @@ public class XPathVarDescriptor : IXsltContextVariable
 
 	protected XPathEngine? Engine { get; private set; }
 
-	public required string Name { protected get; [UsedImplicitly] init; }
+	public required string Name { protected get; [SetByIoC] init; }
 
 #region Interface IXsltContextVariable
 
@@ -49,7 +49,7 @@ public class XPathVarDescriptor : IXsltContextVariable
 
 	private class EmptyIterator : XPathNodeIterator
 	{
-		public override XPathNavigator Current => default!;
+		public override XPathNavigator Current => null!;
 
 		public override int CurrentPosition => 0;
 

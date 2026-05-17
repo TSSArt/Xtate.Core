@@ -23,7 +23,7 @@ public class DefaultInlineContentEvaluator(IInlineContent inlineContent) : Inlin
 
 	private Exception? _parseException;
 
-	public required Deferred<ILogger<IInlineContent>> Logger { private get; [UsedImplicitly] init; }
+	public required Deferred<ILogger<IInlineContent>> Logger { private get; [SetByIoC] init; }
 
 	public override async ValueTask<IObject> EvaluateObject()
 	{

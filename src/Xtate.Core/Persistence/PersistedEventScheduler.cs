@@ -34,7 +34,7 @@ internal sealed class PersistedEventScheduler(IStorageProvider storageProvider, 
 
 	private int _scheduledEventRecordId;
 
-	private ITransactionalStorage _storage = default!;
+	private ITransactionalStorage _storage = null!;
 
 	protected async ValueTask<ScheduledEvent> CreateScheduledEvent(IRouterEvent routerEvent, CancellationToken token)
 	{
@@ -170,7 +170,7 @@ internal sealed class PersistedEventScheduler(IStorageProvider storageProvider, 
 
 	#region Interface IAsyncDisposable
 
-		public ValueTask DisposeAsync() => _eventScheduler.DeleteEvent(this, token: default);
+		public ValueTask DisposeAsync() => _eventScheduler.DeleteEvent(this, token: CancellationToken.None);
 
 	#endregion
 

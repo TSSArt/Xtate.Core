@@ -19,5 +19,5 @@ namespace Xtate.Builder;
 
 public abstract class BuilderBase
 {
-	public object? Ancestor { protected get; [UsedImplicitly] init; }
+	public object? Ancestor { protected get; [SetByIoC] init; }
 }

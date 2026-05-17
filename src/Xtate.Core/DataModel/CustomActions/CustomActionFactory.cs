@@ -19,9 +19,9 @@ namespace Xtate.CustomAction;
 
 public class CustomActionFactory
 {
-	public required ISyncList<IActionProvider> ActionProviders { private get; [UsedImplicitly] init; }
+	public required ISyncList<IActionProvider> ActionProviders { private get; [SetByIoC] init; }
 
-	[UsedImplicitly]
+	[CalledByIoC]
 	public IAction GetAction(ICustomAction customAction)
 	{
 		Infra.Requires(customAction);

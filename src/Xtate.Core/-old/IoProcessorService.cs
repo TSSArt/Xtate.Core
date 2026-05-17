@@ -22,11 +22,10 @@ namespace Xtate.Core;
 [Obsolete]
 public class IoProcessorService
 {
-	public required IReadOnlyCollection<IEventRouter> IoProcessors { private get; [UsedImplicitly] init; }
+	public required IReadOnlyCollection<IEventRouter> IoProcessors { private get; [SetByIoC] init; }
 
-	public required ExternalServiceEventRouter ExternalServiceEventRouter { private get; [UsedImplicitly] init; }
+	public required ExternalServiceEventRouter ExternalServiceEventRouter { private get; [SetByIoC] init; }
 
-	[UsedImplicitly]
 	public IEventRouter GetIoProcessor(FullUri? type)
 	{
 		/*	if (ExternalServiceCollection.CanHandle(type))

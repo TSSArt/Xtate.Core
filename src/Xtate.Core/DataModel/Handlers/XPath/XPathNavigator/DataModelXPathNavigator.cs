@@ -346,7 +346,7 @@ public class DataModelXPathNavigator : XPathNavigator
 			return;
 		}
 
-		var includeElement = !clear ? new Element(key: default, Current.DataModelValue) : default;
+		var includeElement = !clear ? new Element(key: null, Current.DataModelValue) : default;
 
 		if (ShouldNormalize(Entries(DataModelList.Empty, excludeIndex: -1, includeElement, valueObject), out var value2))
 		{
@@ -358,12 +358,12 @@ public class DataModelXPathNavigator : XPathNavigator
 
 			if (!clear && !Current.DataModelValue.IsUndefined())
 			{
-				list.Add(key: default, Current.DataModelValue, metadata: default);
+				list.Add(key: null, Current.DataModelValue, metadata: null);
 			}
 
 			AddRange(list, valueObject, last ? list.Count : 0);
 
-			Parent.DataModelValue.AsList().Set(Current.ParentIndex, Current.ParentProperty, list, metadata: default);
+			Parent.DataModelValue.AsList().Set(Current.ParentIndex, Current.ParentProperty, list, metadata: null);
 		}
 	}
 
@@ -394,14 +394,14 @@ public class DataModelXPathNavigator : XPathNavigator
 		{
 			foreach (DataModelXPathNavigator navigator in xPathObject.AsIterator())
 			{
-				var key = navigator.NodeType == XPathNodeType.Element ? navigator.LocalName : default;
+				var key = navigator.NodeType == XPathNodeType.Element ? navigator.LocalName : null;
 
 				yield return new Element(key, navigator.Current.DataModelValue);
 			}
 		}
 		else
 		{
-			yield return new Element(key: default, DataModelValue.FromObject(valueObject));
+			yield return new Element(key: null, DataModelValue.FromObject(valueObject));
 		}
 	}
 
@@ -430,7 +430,7 @@ public class DataModelXPathNavigator : XPathNavigator
 		}
 		else
 		{
-			list.Insert(start, key: default, value, metadata: default);
+			list.Insert(start, key: null, value, metadata: null);
 		}
 	}
 
@@ -443,7 +443,7 @@ public class DataModelXPathNavigator : XPathNavigator
 
 		var list = Parent.DataModelValue.AsList();
 
-		if (ShouldNormalize(Entries(list, Current.ParentIndex, includeElement: default, valueObject: default), out var value))
+		if (ShouldNormalize(Entries(list, Current.ParentIndex, includeElement: default, valueObject: null), out var value))
 		{
 			PopNode();
 
@@ -491,7 +491,7 @@ public class DataModelXPathNavigator : XPathNavigator
 
 		var includeElement = new Element(Current.ParentProperty, value);
 
-		if (ShouldNormalize(Entries(list, Current.ParentIndex, includeElement, valueObject: default), out var value1))
+		if (ShouldNormalize(Entries(list, Current.ParentIndex, includeElement, valueObject: null), out var value1))
 		{
 			PopNode();
 
@@ -540,16 +540,16 @@ public class DataModelXPathNavigator : XPathNavigator
 									 string? namespaceUri,
 									 string? prefix)
 	{
-		metadata.Add(name, value, metadata: default);
+		metadata.Add(name, value, metadata: null);
 
 		if (string.IsNullOrEmpty(namespaceUri) || string.IsNullOrEmpty(prefix))
 		{
-			metadata.Add(name, namespaceUri, metadata: default);
+			metadata.Add(name, namespaceUri, metadata: null);
 		}
 
 		if (string.IsNullOrEmpty(prefix))
 		{
-			metadata.Add(name, prefix, metadata: default);
+			metadata.Add(name, prefix, metadata: null);
 		}
 	}
 
@@ -557,7 +557,7 @@ public class DataModelXPathNavigator : XPathNavigator
 	{
 		if (_pathLength > 0)
 		{
-			Parent.DataModelValue.AsList().Set(Current.ParentIndex, Current.ParentProperty, value, metadata: default);
+			Parent.DataModelValue.AsList().Set(Current.ParentIndex, Current.ParentProperty, value, metadata: null);
 		}
 	}
 
@@ -573,8 +573,8 @@ public class DataModelXPathNavigator : XPathNavigator
 		NodeAdapter adapter,
 		int parentCursor = -1,
 		int parentIndex = -1,
-		string? parentProperty = default,
-		DataModelList? metadata = default)
+		string? parentProperty = null,
+		DataModelList? metadata = null)
 	{
 		public readonly NodeAdapter Adapter = adapter;
 

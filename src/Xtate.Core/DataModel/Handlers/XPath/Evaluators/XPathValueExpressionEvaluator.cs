@@ -20,7 +20,7 @@ namespace Xtate.DataModel.XPath;
 public class XPathValueExpressionEvaluator(IValueExpression valueExpression, XPathCompiledExpression compiledExpression)
 	: IValueExpression, IObjectEvaluator, IStringEvaluator, IIntegerEvaluator, IArrayEvaluator, IAncestorProvider
 {
-	public required Func<ValueTask<XPathEngine>> EngineFactory { private get; [UsedImplicitly] init; }
+	public required Func<ValueTask<XPathEngine>> EngineFactory { private get; [SetByIoC] init; }
 
 #region Interface IAncestorProvider
 

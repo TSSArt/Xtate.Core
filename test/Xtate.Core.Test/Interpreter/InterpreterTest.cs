@@ -60,8 +60,8 @@ public class InterpreterTest
                                           Logger = loggerMock.Object,
                                           Model = interpreterModelMock.Object,
                                           NotifyStateChanged = [],
-                                          UnhandledErrorBehaviour = null,
-                                          StateMachineArguments = null,
+                                          UnhandledErrorBehaviour = null!,
+                                          StateMachineArguments = null!,
                                           StateMachineRuntimeError = new StateMachineRuntimeError(new ScopeObject()),
                                           InvokeController = invokeControllerMock.Object,
 										  DisposeToken = new DisposeToken()

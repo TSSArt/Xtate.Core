@@ -39,7 +39,7 @@ public class StateBuilder : BuilderBase, IStateBuilder
 
 	private ImmutableArray<ITransition>.Builder? _transitions;
 
-	public required IErrorProcessorService<StateBuilder> ErrorProcessorService { private get; [UsedImplicitly] init; }
+	public required IErrorProcessorService<StateBuilder> ErrorProcessorService { private get; [SetByIoC] init; }
 
 #region Interface IStateBuilder
 

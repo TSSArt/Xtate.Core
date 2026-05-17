@@ -19,11 +19,11 @@ namespace Xtate.DataModel;
 
 public class DefaultExternalDataExpressionEvaluator(IExternalDataExpression externalDataExpression) : ExternalDataExpressionEvaluator(externalDataExpression)
 {
-	public required Deferred<DataConverter> DataConverter { private get; [UsedImplicitly] init; }
+	public required Deferred<DataConverter> DataConverter { private get; [SetByIoC] init; }
 
-	public required Deferred<IStateMachineLocation> StateMachineLocation { private get; [UsedImplicitly] init; }
+	public required Deferred<IStateMachineLocation> StateMachineLocation { private get; [SetByIoC] init; }
 
-	public required Deferred<IResourceLoader> ResourceLoader { private get; [UsedImplicitly] init; }
+	public required Deferred<IResourceLoader> ResourceLoader { private get; [SetByIoC] init; }
 
 	public override async ValueTask<IObject> EvaluateObject()
 	{

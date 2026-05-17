@@ -79,13 +79,13 @@ public class StartAction : AsyncAction
 		_trusted = xmlReader.GetAttribute("trusted") is { } trusted && XmlConvert.ToBoolean(trusted);
 	}
 
-	public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
+	public required DisposeToken DisposeToken { private get; [SetByIoC] init; }
 
-	public required Deferred<TaskMonitor> TaskMonitor { private get; [UsedImplicitly] init; }
+	public required Deferred<TaskMonitor> TaskMonitor { private get; [SetByIoC] init; }
 
-	public required Deferred<IStateMachineLocation> StateMachineLocation { private get; [UsedImplicitly] init; }
+	public required Deferred<IStateMachineLocation> StateMachineLocation { private get; [SetByIoC] init; }
 
-	public required Deferred<IStateMachineScopeManager> StateMachineScopeManager { private get; [UsedImplicitly] init; }
+	public required Deferred<IStateMachineScopeManager> StateMachineScopeManager { private get; [SetByIoC] init; }
 
 	protected override IEnumerable<Location> GetLocations()
 	{

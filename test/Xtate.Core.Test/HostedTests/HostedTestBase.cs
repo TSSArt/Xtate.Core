@@ -27,7 +27,7 @@ public abstract class HostedTestBase
 {
     //protected StateMachineHost Host { get; private set; } = default!;
 
-    protected Mock<ILogWriter> LogWriter { get; private set; } = default!;
+    protected Mock<ILogWriter> LogWriter { get; private set; } = null!;
 
     public IStateMachineScopeManager StateMachineScopeManager { get; set; }
 

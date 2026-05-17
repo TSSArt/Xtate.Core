@@ -58,7 +58,7 @@ public class InvokeNode : IInvoke, IStoreSupport, IAncestorProvider, IDocumentId
 		Finalize = invoke.Finalize?.UseAncestor.As<FinalizeNode>();
 	}
 
-	public required Deferred<DataConverter> DataConverter { private get; [UsedImplicitly] init; }
+	public required Deferred<DataConverter> DataConverter { private get; [SetByIoC] init; }
 
 	public InvokeId? CurrentInvokeId { get; set; }
 

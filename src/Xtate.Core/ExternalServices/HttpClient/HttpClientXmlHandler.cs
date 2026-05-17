@@ -60,7 +60,7 @@ public class HttpClientXmlHandler : HttpClientMimeTypeHandler
 													  string? contentType,
 													  DataModelList parameters,
 													  DataModelValue value) =>
-		CanHandle(contentType) ? new HttpClientXmlHandlerHttpContent(value, contentType) : default;
+		CanHandle(contentType) ? new HttpClientXmlHandlerHttpContent(value, contentType) : null;
 
 	public override async ValueTask<DataModelValue?> TryParseResponseAsync(WebResponse webResponse, DataModelList parameters, CancellationToken token)
 	{
@@ -68,7 +68,7 @@ public class HttpClientXmlHandler : HttpClientMimeTypeHandler
 
 		if (!CanHandle(webResponse.ContentType))
 		{
-			return default;
+			return null;
 		}
 
 		var stream = webResponse.GetResponseStream();

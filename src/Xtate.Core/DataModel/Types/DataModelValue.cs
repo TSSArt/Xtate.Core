@@ -25,7 +25,6 @@ namespace Xtate;
 
 [DebuggerTypeProxy(typeof(DebugView))]
 [DebuggerDisplay(value: "{ToObject()} ({Type})")]
-[CollectionBuilder(typeof(DataModelList), nameof(DataModelList.Create))]
 [Serializable]
 public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISpanFormattable, IDynamicMetaObjectProvider, IConvertible, ISerializable
 {
@@ -567,21 +566,21 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 
 	public DataModelValue CloneAsWritable()
 	{
-		Dictionary<object, DataModelList>? map = default;
+		Dictionary<object, DataModelList>? map = null;
 
 		return DeepCloneWithMap(DataModelAccess.Writable, ref map);
 	}
 
 	public DataModelValue CloneAsReadOnly()
 	{
-		Dictionary<object, DataModelList>? map = default;
+		Dictionary<object, DataModelList>? map = null;
 
 		return DeepCloneWithMap(DataModelAccess.ReadOnly, ref map);
 	}
 
 	public DataModelValue AsConstant()
 	{
-		Dictionary<object, DataModelList>? map = default;
+		Dictionary<object, DataModelList>? map = null;
 
 		return DeepCloneWithMap(DataModelAccess.Constant, ref map);
 	}
@@ -618,7 +617,7 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 
 	public static DataModelValue FromObject(object? value)
 	{
-		Dictionary<object, DataModelList>? map = default;
+		Dictionary<object, DataModelList>? map = null;
 
 		return FromObjectWithMap(value, ref map);
 	}
@@ -696,7 +695,7 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 
 		foreach (var propertyInfo in obj.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public))
 		{
-			list.Add(propertyInfo.Name, FromObjectWithMap(propertyInfo.GetValue(obj), ref map), metadata: default);
+			list.Add(propertyInfo.Name, FromObjectWithMap(propertyInfo.GetValue(obj), ref map), metadata: null);
 		}
 
 		result = new DataModelValue(list);
@@ -719,7 +718,7 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 
 		foreach (var (key, obj) in dictionary)
 		{
-			list.Add(key, FromObjectWithMap(obj, ref map), metadata: default);
+			list.Add(key, FromObjectWithMap(obj, ref map), metadata: null);
 		}
 
 		return new DataModelValue(list);
@@ -740,7 +739,7 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 
 		foreach (var (key, str) in dictionary)
 		{
-			list.Add(key, new DataModelValue(str), metadata: default);
+			list.Add(key, new DataModelValue(str), metadata: null);
 		}
 
 		return new DataModelValue(list);
@@ -1006,7 +1005,7 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 				return new DataModelList.Dynamic(list).TryGetMember(binder, out result);
 			}
 
-			result = default;
+			result = null;
 
 			return false;
 		}
@@ -1028,7 +1027,7 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 				return new DataModelList.Dynamic(list).TryGetIndex(binder, indexes, out result);
 			}
 
-			result = default;
+			result = null;
 
 			return false;
 		}
@@ -1094,7 +1093,7 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 				return true;
 			}
 
-			result = default;
+			result = null;
 
 			return false;
 		}

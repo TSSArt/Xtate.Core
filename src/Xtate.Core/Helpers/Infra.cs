@@ -130,7 +130,7 @@ internal static class Infra
 	/// <exception cref="ArgumentOutOfRangeException"></exception>
 	[AssertionMethod]
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void RequiresNonNegative(int parameter, [CallerArgumentExpression(nameof(parameter))] string? parameterName = default)
+	public static void RequiresNonNegative(int parameter, [CallerArgumentExpression(nameof(parameter))] string? parameterName = null)
 	{
 		if (parameter < 0)
 		{
@@ -149,7 +149,7 @@ internal static class Infra
 	/// <exception cref="ArgumentOutOfRangeException"></exception>
 	[AssertionMethod]
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void RequiresPositive(TimeSpan parameter, [CallerArgumentExpression(nameof(parameter))] string? parameterName = default)
+	public static void RequiresPositive(TimeSpan parameter, [CallerArgumentExpression(nameof(parameter))] string? parameterName = null)
 	{
 		if (parameter <= TimeSpan.Zero)
 		{
@@ -174,7 +174,7 @@ internal static class Infra
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void RequiresNonEmptyCollection<T>([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] [NotNull] T[]? parameter,
 													 [CallerArgumentExpression(nameof(parameter))]
-													 string? parameterName = default)
+													 string? parameterName = null)
 	{
 		if (parameter is null)
 		{
@@ -200,7 +200,7 @@ internal static class Infra
 	/// <exception cref="ArgumentException"></exception>
 	[AssertionMethod]
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static void RequiresNonEmptyCollection<T>(ImmutableArray<T> parameter, [CallerArgumentExpression(nameof(parameter))] string? parameterName = default)
+	public static void RequiresNonEmptyCollection<T>(ImmutableArray<T> parameter, [CallerArgumentExpression(nameof(parameter))] string? parameterName = null)
 	{
 		if (parameter.IsDefaultOrEmpty)
 		{
@@ -222,7 +222,7 @@ internal static class Infra
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void RequiresNonEmptyString([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] [NotNull] string? parameter,
 											  [CallerArgumentExpression(nameof(parameter))]
-											  string? parameterName = default)
+											  string? parameterName = null)
 	{
 		if (parameter is not { Length: > 0 })
 		{
@@ -299,7 +299,7 @@ internal static class Infra
 	private static void ThrowObjectDisposed(object? instance) =>
 		throw (instance switch
 			   {
-				   null => new ObjectDisposedException(default),
+				   null => new ObjectDisposedException(null),
 				   _    => new ObjectDisposedException(instance.GetType().FullName)
 			   });
 

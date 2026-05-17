@@ -48,7 +48,7 @@ public partial class DataModelList
 				args.KeyValues[i] = new HashKeyValue(hashKey: default, args.Values[i]);
 			}
 
-			args.Values = default!;
+			args.Values = null!;
 			args.Adapter = KeyValueAdapterInstance;
 
 			return args.KeyValues;
@@ -63,7 +63,7 @@ public partial class DataModelList
 				args.MetaValues[i] = new MetaValue(meta: default, args.Values[i]);
 			}
 
-			args.Values = default!;
+			args.Values = null!;
 			args.Adapter = MetaValueAdapterInstance;
 
 			return args.MetaValues;
@@ -78,7 +78,7 @@ public partial class DataModelList
 				args.KeyMetaValues[i] = new KeyMetaValue(hashKey: default, meta: default, args.Values[i]);
 			}
 
-			args.Values = default!;
+			args.Values = null!;
 			args.Adapter = KeyMetaValueAdapterInstance;
 
 			return args.KeyMetaValues;
@@ -93,7 +93,7 @@ public partial class DataModelList
 				args.KeyMetaValues[i] = new KeyMetaValue(args.KeyValues[i].HashKey, meta: default, args.KeyValues[i].Value);
 			}
 
-			args.KeyValues = default!;
+			args.KeyValues = null!;
 			args.Adapter = KeyMetaValueAdapterInstance;
 
 			return args.KeyMetaValues;
@@ -108,7 +108,7 @@ public partial class DataModelList
 				args.KeyMetaValues[i] = new KeyMetaValue(hashKey: default, args.MetaValues[i].Meta, args.MetaValues[i].Value);
 			}
 
-			args.MetaValues = default!;
+			args.MetaValues = null!;
 			args.Adapter = KeyMetaValueAdapterInstance;
 
 			return args.KeyMetaValues;

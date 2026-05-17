@@ -19,7 +19,7 @@ namespace Xtate.Core;
 
 public class ArgsXDataModelProperty : IXDataModelProperty
 {
-	public required IStateMachineArguments StateMachineArguments { private get; [UsedImplicitly] init; }
+	public required IStateMachineArguments StateMachineArguments { private get; [SetByIoC] init; }
 
 #region Interface IXDataModelProperty
 

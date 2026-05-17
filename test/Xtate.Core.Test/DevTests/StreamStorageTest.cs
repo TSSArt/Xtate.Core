@@ -107,17 +107,17 @@ public class ProxyMemoryStream : MemoryStream
 [TestClass]
 public class StreamStorageTest
 {
-    private IServiceProvider _serviceProvider = default!;
+    private IServiceProvider _serviceProvider = null!;
 
-    private ProxyMemoryStream _stream = default!;
+    private ProxyMemoryStream _stream = null!;
 
-    private Mock<IStreamCapture> _streamCaptureMock = default!;
+    private Mock<IStreamCapture> _streamCaptureMock = null!;
 
-    private Mock<IStreamCapture> _streamCaptureMock2 = default!;
+    private Mock<IStreamCapture> _streamCaptureMock2 = null!;
 
-    private Func<Stream, ValueTask<ITransactionalStorage>> _streamStorageFactory = default!;
+    private Func<Stream, ValueTask<ITransactionalStorage>> _streamStorageFactory = null!;
 
-    private Func<Stream, int, ValueTask<ITransactionalStorage>> _streamStorageRollbackLevelFactory = default!;
+    private Func<Stream, int, ValueTask<ITransactionalStorage>> _streamStorageRollbackLevelFactory = null!;
 
     [TestInitialize]
     public void Initialize()

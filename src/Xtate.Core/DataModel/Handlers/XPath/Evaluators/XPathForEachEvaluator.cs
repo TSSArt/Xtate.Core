@@ -32,7 +32,7 @@ public class XPathForEachEvaluator : DefaultForEachEvaluator
 		_indexEvaluator = base.Index?.UseAncestor.As<XPathLocationExpressionEvaluator>();
 	}
 
-	public required Func<ValueTask<XPathEngine>> EngineFactory { private get; [UsedImplicitly] init; }
+	public required Func<ValueTask<XPathEngine>> EngineFactory { private get; [SetByIoC] init; }
 
 	public override async ValueTask Execute()
 	{

@@ -23,7 +23,7 @@ public class DefaultContentBodyEvaluator(IContentBody contentBody) : ContentBody
 
 	private Exception? _parseException;
 
-	public required Deferred<ILogger<IContentBody>> Logger { private get; [UsedImplicitly] init; }
+	public required Deferred<ILogger<IContentBody>> Logger { private get; [SetByIoC] init; }
 
 	public override async ValueTask<IObject> EvaluateObject()
 	{

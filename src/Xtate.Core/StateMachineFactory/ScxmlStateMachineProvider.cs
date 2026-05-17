@@ -19,16 +19,16 @@ namespace Xtate.Core;
 
 public class ScxmlStateMachineProvider : IStateMachineProvider
 {
-	public required Func<ValueTask<ScxmlReaderStateMachineGetter>> ScxmlReaderStateMachineGetter { private get; [UsedImplicitly] init; }
+	public required Func<ValueTask<ScxmlReaderStateMachineGetter>> ScxmlReaderStateMachineGetter { private get; [SetByIoC] init; }
 
-	public required IScxmlStateMachine? ScxmlStateMachine { private get; [UsedImplicitly] init; }
+	public required IScxmlStateMachine? ScxmlStateMachine { private get; [SetByIoC] init; }
 
 #region Interface IStateMachineProvider
 
 	public async ValueTask<IStateMachine?> TryGetStateMachine() =>
 		ScxmlStateMachine is not null
 			? await (await ScxmlReaderStateMachineGetter().ConfigureAwait(false)).GetStateMachine().ConfigureAwait(false)
-			: default;
+			: null;
 
 #endregion
 }

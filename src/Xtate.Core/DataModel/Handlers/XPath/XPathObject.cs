@@ -101,7 +101,7 @@ public class XPathObject(object value) : IObject
 	{
 		var length = 0;
 		var count = 0;
-		string? result = default;
+		string? result = null;
 
 		foreach (DataModelXPathNavigator navigator in iterator)
 		{
@@ -171,7 +171,7 @@ public class XPathObject(object value) : IObject
 					break;
 
 				case XPathNodeType.Text:
-					list.Add(key: default, navigator.DataModelValue.CloneAsWritable(), metadata: default);
+					list.Add(key: null, navigator.DataModelValue.CloneAsWritable(), metadata: null);
 
 					break;
 

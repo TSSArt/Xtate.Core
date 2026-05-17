@@ -23,15 +23,15 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 {
 	private ExtDictionary<InvokeId, IServiceScope>? _scopes = [];
 
-	public required Func<InvokeData, ValueTask<ExternalServiceClass>> ExternalServiceClassFactory { private get; [UsedImplicitly] init; }
+	public required Func<InvokeData, ValueTask<ExternalServiceClass>> ExternalServiceClassFactory { private get; [SetByIoC] init; }
 
-	public required IServiceScopeFactory ServiceScopeFactory { private get; [UsedImplicitly] init; }
+	public required IServiceScopeFactory ServiceScopeFactory { private get; [SetByIoC] init; }
 
-	public required Func<SecurityContextType, SecurityContextRegistration> SecurityContextRegistrationFactory { private get; [UsedImplicitly] init; }
+	public required Func<SecurityContextType, SecurityContextRegistration> SecurityContextRegistrationFactory { private get; [SetByIoC] init; }
 
-	public required IExternalServiceCollection ExternalServiceCollection { private get; [UsedImplicitly] init; }
+	public required IExternalServiceCollection ExternalServiceCollection { private get; [SetByIoC] init; }
 
-	public required TaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
+	public required TaskMonitor TaskMonitor { private get; [SetByIoC] init; }
 
 #region Interface IAsyncDisposable
 
@@ -62,7 +62,7 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 	{
 		await using var registration = SecurityContextRegistrationFactory(SecurityContextType.InvokedService).ConfigureAwait(false);
 
-		IExternalServiceRunner? runner = default;
+		IExternalServiceRunner? runner = null;
 
 		try
 		{
@@ -144,7 +144,7 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 	{
 		if (disposing && _scopes is { } scopes)
 		{
-			_scopes = default;
+			_scopes = null;
 
 			while (scopes.TryTake(out _, out var serviceScope))
 			{
@@ -157,7 +157,7 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 	{
 		if (_scopes is { } scopes)
 		{
-			_scopes = default;
+			_scopes = null;
 
 			while (scopes.TryTake(out _, out var serviceScope))
 			{

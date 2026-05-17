@@ -19,9 +19,9 @@ namespace Xtate.DataModel.Runtime;
 
 public class RuntimePredicateEvaluator : IConditionExpression, IBooleanEvaluator
 {
-	public required RuntimePredicate Predicate { private get; [UsedImplicitly] init; }
+	public required RuntimePredicate Predicate { private get; [SetByIoC] init; }
 
-	public required Func<ValueTask<RuntimeExecutionContext>> RuntimeExecutionContextFactory { private get; [UsedImplicitly] init; }
+	public required Func<ValueTask<RuntimeExecutionContext>> RuntimeExecutionContextFactory { private get; [SetByIoC] init; }
 
 #region Interface IBooleanEvaluator
 

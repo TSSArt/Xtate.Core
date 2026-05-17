@@ -21,15 +21,17 @@ using System.Net.Mime;
 
 namespace Xtate.Core;
 
+[InstantiatedByIoC]
 public class FileResourceLoader : IResourceLoader
 {
+	[InstantiatedByIoC]
 	public class Provider() : ResourceLoaderProviderBase<FileResourceLoader>(uri => uri.IsFile || uri.IsUnc || !uri.IsAbsoluteUri);
 
 	private const FileOptions OpenFileOptions = FileOptions.Asynchronous | FileOptions.SequentialScan;
 
-	public required IIoBoundTask ExternalResources { private get; [UsedImplicitly] init; }
+	public required IIoBoundTask ExternalResources { private get; [SetByIoC] init; }
 
-	public required Func<Stream, ContentType?, ValueTask<Resource>> ResourceFactory { private get; [UsedImplicitly] init; }
+	public required Func<Stream, ContentType?, ValueTask<Resource>> ResourceFactory { private get; [SetByIoC] init; }
 
 #region Interface IResourceLoader
 
@@ -41,7 +43,7 @@ public class FileResourceLoader : IResourceLoader
 
 		var fileStream = await ExternalResources.Factory.StartNew(() => CreateFileStream(path)).ConfigureAwait(false);
 
-		return await ResourceFactory(fileStream, arg2: default).ConfigureAwait(false);
+		return await ResourceFactory(fileStream, arg2: null).ConfigureAwait(false);
 	}
 
 #endregion

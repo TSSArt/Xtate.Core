@@ -48,11 +48,11 @@ public class DestroyAction : AsyncAction
 		_sessionIdValue = new StringValue(sessionIdExpression, sessionId);
 	}
 
-	public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
+	public required DisposeToken DisposeToken { private get; [SetByIoC] init; }
 
-	public required TaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
+	public required TaskMonitor TaskMonitor { private get; [SetByIoC] init; }
 
-	public required IStateMachineCollection StateMachineCollection { private get; [UsedImplicitly] init; }
+	public required IStateMachineCollection StateMachineCollection { private get; [SetByIoC] init; }
 
 	protected override IEnumerable<Value> GetValues()
 	{

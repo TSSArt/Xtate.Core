@@ -29,7 +29,7 @@ public static class StateMachineGenerator
         using var stringReader = new StringReader(scxml);
         XmlNameTable nt = new NameTable();
         var xmlNamespaceManager = new XmlNamespaceManager(nt);
-        using var xmlReader = XmlReader.Create(stringReader, settings: null, new XmlParserContext(nt, xmlNamespaceManager, xmlLang: default, xmlSpace: default));
+        using var xmlReader = XmlReader.Create(stringReader, settings: null, new XmlParserContext(nt, xmlNamespaceManager, xmlLang: null, xmlSpace: default));
 
         var services = new ServiceCollection();
         services.AddModule<ScxmlModule>();

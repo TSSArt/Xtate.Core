@@ -23,7 +23,7 @@ public class DefaultCancelEvaluator : CancelEvaluator
 
 	public DefaultCancelEvaluator(ICancel cancel) : base(cancel) => _sendIdExpressionEvaluator = base.SendIdExpression?.UseAncestor.As<IStringEvaluator>();
 
-	public required Deferred<IEventController> EventController { private get; [UsedImplicitly] init; }
+	public required Deferred<IEventController> EventController { private get; [SetByIoC] init; }
 
 	public override async ValueTask Execute()
 	{

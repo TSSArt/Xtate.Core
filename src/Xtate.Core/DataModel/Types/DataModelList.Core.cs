@@ -51,7 +51,7 @@ public sealed partial class DataModelList
 
 	private const int AccessReadOnly = (int) DataModelAccess.ReadOnly;
 
-	public static readonly DataModelList Empty = new(DataModelAccess.Constant);
+	public static readonly DataModelList Empty = [with(DataModelAccess.Constant)];
 
 	private static readonly ValueAdapter ValueAdapterInstance = new();
 
@@ -164,13 +164,13 @@ public sealed partial class DataModelList
 		}
 	}
 
-	public ValueEnumerable Values => new(this);
+	public ValueEnumerable Values => [with(this)];
 
-	public KeyValueEnumerable KeyValues => new(this);
+	public KeyValueEnumerable KeyValues => [with(this)];
 
-	public KeyValuePairEnumerable KeyValuePairs => new(this);
+	public KeyValuePairEnumerable KeyValuePairs => [with(this)];
 
-	public EntryEnumerable Entries => new(this);
+	public EntryEnumerable Entries => [with(this)];
 
 #region Interface ICollection<DataModelValue>
 
@@ -187,11 +187,11 @@ public sealed partial class DataModelList
 
 	public DataModelList AsConstant() => DeepClone(DataModelAccess.Constant);
 
-	public ValueByKeyEnumerable ListValues(string key, bool caseInsensitive) => new(this, key, caseInsensitive);
+	public ValueByKeyEnumerable ListValues(string key, bool caseInsensitive) => [with(this, key, caseInsensitive)];
 
-	public KeyValueByKeyEnumerable ListKeyValues(string key, bool caseInsensitive) => new(this, key, caseInsensitive);
+	public KeyValueByKeyEnumerable ListKeyValues(string key, bool caseInsensitive) => [with(this, key, caseInsensitive)];
 
-	public EntryByKeyEnumerable ListEntries(string key, bool caseInsensitive) => new(this, key, caseInsensitive);
+	public EntryByKeyEnumerable ListEntries(string key, bool caseInsensitive) => [with(this, key, caseInsensitive)];
 
 	public DataModelList? GetMetadata() => _metadata;
 
@@ -509,12 +509,12 @@ public sealed partial class DataModelList
 		return SetLengthItems(length, DataModelAccess.Constant, throwOnDeny: false);
 	}
 
-	public bool CanSetMetadata() => SetMetadata(metadata: default, DataModelAccess.Constant, throwOnDeny: false);
+	public bool CanSetMetadata() => SetMetadata(metadata: null, DataModelAccess.Constant, throwOnDeny: false);
 
 	internal bool AddInternal(string? key,
 							  in DataModelValue value,
 							  DataModelAccess access,
-							  DataModelList? metadata = default,
+							  DataModelList? metadata = null,
 							  bool throwOnDeny = true)
 	{
 		CreateArgs(out var args);
@@ -535,7 +535,7 @@ public sealed partial class DataModelList
 								 string? key,
 								 in DataModelValue value,
 								 DataModelAccess access,
-								 DataModelList? metadata = default,
+								 DataModelList? metadata = null,
 								 bool throwOnDeny = true)
 	{
 		Infra.RequiresNonNegative(index);
@@ -567,7 +567,7 @@ public sealed partial class DataModelList
 							  bool caseInsensitive,
 							  in DataModelValue value,
 							  DataModelAccess access,
-							  DataModelList? metadata = default,
+							  DataModelList? metadata = null,
 							  bool throwOnDeny = true)
 	{
 		CreateArgs(out var args);
@@ -582,7 +582,7 @@ public sealed partial class DataModelList
 							  string? key,
 							  in DataModelValue value,
 							  DataModelAccess access,
-							  DataModelList? metadata = default,
+							  DataModelList? metadata = null,
 							  bool throwOnDeny = true)
 	{
 		Infra.RequiresNonNegative(index);
@@ -980,7 +980,7 @@ public sealed partial class DataModelList
 
 	internal DataModelList DeepClone(DataModelAccess targetAccess)
 	{
-		Dictionary<object, DataModelList>? map = default;
+		Dictionary<object, DataModelList>? map = null;
 
 		return DeepCloneWithMap(targetAccess, ref map);
 	}

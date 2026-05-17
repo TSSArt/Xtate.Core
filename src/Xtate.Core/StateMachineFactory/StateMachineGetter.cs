@@ -19,8 +19,8 @@ namespace Xtate.Core;
 
 public class StateMachineGetter
 {
-	public required IStateMachineService StateMachineService { private get; [UsedImplicitly] init; }
+	public required IStateMachineService StateMachineService { private get; [SetByIoC] init; }
 
-	[UsedImplicitly]
+	[CalledByIoC]
 	public ValueTask<IStateMachine?> GetStateMachine() => StateMachineService.GetStateMachine();
 }

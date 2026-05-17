@@ -21,11 +21,11 @@ namespace Xtate.Core;
 
 public class DataModelXDataModelProperty : IXDataModelProperty
 {
-	public required ICaseSensitivity CaseSensitivity { private get; [UsedImplicitly] init; }
+	public required ICaseSensitivity CaseSensitivity { private get; [SetByIoC] init; }
 
-	public required IDataModelHandler DataModelHandler { private get; [UsedImplicitly] init; }
+	public required IDataModelHandler DataModelHandler { private get; [SetByIoC] init; }
 
-	public required Func<Type, IAssemblyTypeInfo> TypeInfoFactory { private get; [UsedImplicitly] init; }
+	public required Func<Type, IAssemblyTypeInfo> TypeInfoFactory { private get; [SetByIoC] init; }
 
 #region Interface IXDataModelProperty
 

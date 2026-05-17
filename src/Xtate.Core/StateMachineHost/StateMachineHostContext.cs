@@ -168,11 +168,11 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 		return default;
 	}
 
-	public virtual async ValueTask InitializeAsync() //TODO: make it asycinitialization
+	public virtual async ValueTask InitializeAsync() //TODO: make it async initialization
 	{
 		var eventSchedulerFactory = _options.EventSchedulerFactory ?? _defaultEventSchedulerFactory;
 
-		_eventScheduler = await eventSchedulerFactory.CreateEventScheduler( /*_stateMachineHost*/ hostEventDispatcher: null, _options.EsLogger, token: default).ConfigureAwait(false);
+		_eventScheduler = await eventSchedulerFactory.CreateEventScheduler( /*_stateMachineHost*/ hostEventDispatcher: null, _options.EsLogger, token: CancellationToken.None).ConfigureAwait(false);
 	}
 
 	public ValueTask ScheduleEvent(IRouterEvent routerEvent, CancellationToken token) =>
@@ -228,8 +228,8 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 			sessionId, stateMachineOptions, stateMachine, stateMachineLocation, /*_stateMachineHost*/
 			_options.SuspendIdlePeriod /*, defaultOptions*/)
 		{
-			EventQueueWriter = default!,
-			StateMachineInterpreter = default,
+			EventQueueWriter = null!,
+			StateMachineInterpreter = null,
 			TaskMonitor = null,
 			StateMachineStatus = null,
 			StateMachineSessionId = null
@@ -316,7 +316,7 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 			case StateMachineOriginType.Source:
 			{
 				location = location.CombineWith(origin.AsSource());
-				var stateMachine = await GetStateMachine(location, scxml: default, securityContext, errorProcessor, token).ConfigureAwait(false);
+				var stateMachine = await GetStateMachine(location, scxml: null, securityContext, errorProcessor, token).ConfigureAwait(false);
 
 				return (stateMachine, location);
 			}
@@ -355,7 +355,7 @@ public class StateMachineHostContext : IStateMachineHostContext, IAsyncDisposabl
 		IErrorProcessor errorProcessor) =>
 
 		//var interpreterOptions = CreateInterpreterOptions(stateMachineLocation, CreateHostData(stateMachineLocation), errorProcessor);
-		CreateStateMachineController(sessionId, stateMachine: default, stateMachineOptions, stateMachineLocation /*, interpreterOptions*/);
+		CreateStateMachineController(sessionId, stateMachine: null, stateMachineOptions, stateMachineLocation /*, interpreterOptions*/);
 
 	private static DataModelList? CreateHostData(Uri? stateMachineLocation)
 	{

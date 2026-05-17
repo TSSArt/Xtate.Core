@@ -81,7 +81,7 @@ internal sealed class DataModelReferenceTracker : IDisposable
 							 _                       => throw Infra.Unmatched(type)
 						 };
 
-		_lists[list] = new Entry { RefCount = default, RefId = refId, Controller = controller };
+		_lists[list] = new Entry { RefCount = null, RefId = refId, Controller = controller };
 		_refIds[refId] = list;
 	}
 

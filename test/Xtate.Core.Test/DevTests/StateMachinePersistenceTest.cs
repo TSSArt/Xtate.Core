@@ -29,9 +29,9 @@ namespace Xtate.Test;
 [TestClass]
 public class StateMachinePersistenceTest
 {
-    private IStateMachine _allStateMachine = default!;
+    private IStateMachine _allStateMachine = null!;
 
-    private Mock<IResourceLoader> _resourceLoaderServiceMock = default!;
+    private Mock<IResourceLoader> _resourceLoaderServiceMock = null!;
 
     [TestInitialize]
     public void Initialize()
@@ -40,7 +40,7 @@ public class StateMachinePersistenceTest
 
         XmlNameTable nt = new NameTable();
         var xmlNamespaceManager = new XmlNamespaceManager(nt);
-        using var xmlReader = XmlReader.Create(stream!, settings: null, new XmlParserContext(nt, xmlNamespaceManager, xmlLang: default, xmlSpace: default));
+        using var xmlReader = XmlReader.Create(stream!, settings: null, new XmlParserContext(nt, xmlNamespaceManager, xmlLang: null, xmlSpace: default));
 
         //var director = serviceLocator.GetService<ScxmlDirector, XmlReader>(xmlReader);
         //var director = new ScxmlDirector(xmlReader, serviceLocator.GetService<IBuilderFactory>(), new ScxmlDirectorOptions(serviceLocator) { NamespaceResolver = xmlNamespaceManager });
@@ -58,7 +58,7 @@ public class StateMachinePersistenceTest
                   .Returns(task);
 
         _resourceLoaderServiceMock = new Mock<IResourceLoader>();
-        _resourceLoaderServiceMock.Setup(e => e.Request(It.IsAny<Uri>(), default)).Returns(task);
+        _resourceLoaderServiceMock.Setup(e => e.Request(It.IsAny<Uri>(), null)).Returns(task);
         _resourceLoaderServiceMock.Setup(e => e.Request(It.IsAny<Uri>(), It.IsAny<NameValueCollection>())).Returns(task);
     }
 

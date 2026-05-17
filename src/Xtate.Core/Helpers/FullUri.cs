@@ -46,7 +46,7 @@ public class FullUri : Uri, IEquatable<FullUri>
 	/// <summary>
 	///     Gets the fragment part of the URI if it is absolute; otherwise, returns <c>null</c>.
 	/// </summary>
-	private string? FragmentSafe => IsAbsoluteUri ? Fragment : default;
+	private string? FragmentSafe => IsAbsoluteUri ? Fragment : null;
 
 #region Interface IEquatable<FullUri>
 
@@ -109,7 +109,7 @@ public class FullUri : Uri, IEquatable<FullUri>
 			return true;
 		}
 
-		result = default;
+		result = null;
 
 		return false;
 	}

@@ -22,15 +22,17 @@ using System.Net.Mime;
 
 namespace Xtate.Core;
 
+[InstantiatedByIoC]
 public class WebResourceLoader : IResourceLoader
 {
+	[InstantiatedByIoC]
 	public class Provider() : ResourceLoaderProviderBase<WebResourceLoader>(uri => uri is { IsAbsoluteUri: true, Scheme: @"http" or @"https" });
 
-	public required DisposeToken DisposeToken { private get; [UsedImplicitly] init; }
+	public required DisposeToken DisposeToken { private get; [SetByIoC] init; }
 
-	public required Func<Stream, ContentType?, Resource> ResourceFactory { private get; [UsedImplicitly] init; }
+	public required Func<Stream, ContentType?, Resource> ResourceFactory { private get; [SetByIoC] init; }
 
-	public required Func<HttpClient> HttpClientFactory { private get; [UsedImplicitly] init; }
+	public required Func<HttpClient> HttpClientFactory { private get; [SetByIoC] init; }
 
 #region Interface IResourceLoader
 

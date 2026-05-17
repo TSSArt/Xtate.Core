@@ -94,7 +94,7 @@ public class StateMachineFluentBuilderTest
     [TestMethod]
     public async Task DataModelTest()
     {
-        IStateMachine stateMachine = default!;
+        IStateMachine stateMachine = null!;
 
         var services = new ServiceCollection();
         services.AddForwarding(_ => stateMachine);
@@ -132,7 +132,7 @@ public class StateMachineFluentBuilderTest
     [TestMethod]
     public async Task LiveLockErrorConditionTest()
     {
-        IStateMachine stateMachine = default!;
+        IStateMachine stateMachine = null!;
 
         var services = new ServiceCollection();
         services.AddForwarding(_ => stateMachine);
@@ -165,7 +165,7 @@ public class StateMachineFluentBuilderTest
     [TestMethod]
     public async Task LiveLockPingPongTest()
     {
-        IStateMachine stateMachine = default!;
+        IStateMachine stateMachine = null!;
 
         var services = new ServiceCollection();
         services.AddForwarding(_ => stateMachine);

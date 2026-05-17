@@ -55,8 +55,6 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 
 	private readonly Uri _baseUri = baseUri ?? throw new ArgumentNullException(nameof(baseUri));
 
-	private readonly string _errorSuffix = errorSuffix;
-
 	private readonly string _path = baseUri.GetComponents(UriComponents.Path, UriFormat.Unescaped);
 
 	private IPEndPoint _ipEndPoint = ipEndPoint;
@@ -88,7 +86,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 	{
 		if (Hosts.TryGetValue(_ipEndPoint, out var host))
 		{
-			var last = await host.RemoveProcessor(this, token: default).ConfigureAwait(false);
+			var last = await host.RemoveProcessor(this, token: CancellationToken.None).ConfigureAwait(false);
 
 			if (last && Hosts.TryRemove(new KeyValuePair<IPEndPoint, THost>(_ipEndPoint, host)))
 			{
@@ -151,7 +149,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 
 		var hostEntry = await Dns.GetHostEntryAsync(uri.DnsSafeHost).ConfigureAwait(false);
 
-		IPAddress? listenAddress = default;
+		IPAddress? listenAddress = null;
 
 		foreach (var address in hostEntry.AddressList)
 		{
@@ -178,7 +176,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 		serviceId switch
 		{
 			SessionId sessionId => new FullUri(_baseUri, sessionId.Value),
-			_                   => default
+			_                   => null
 		};
 
 	protected override ValueTask<IRouterEvent> GetRouterEvent(IOutgoingEvent outgoingEvent, CancellationToken token)
@@ -417,7 +415,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 		return new IncomingEvent
 			   {
 				   Type = EventType.External,
-				   Name = EventName.GetErrorPlatform(ErrorSuffixHeader + _errorSuffix),
+				   Name = EventName.GetErrorPlatform(ErrorSuffixHeader + errorSuffix),
 				   Data = data,
 				   OriginType = id
 			   };
@@ -471,7 +469,7 @@ public abstract class HttpIoProcessorBase<THost, TContext>(
 
 	protected virtual DataModelValue CreateData(string mediaType, string body, out string? eventName)
 	{
-		eventName = default;
+		eventName = null;
 
 		if (mediaType == MediaTypeTextPlain)
 		{

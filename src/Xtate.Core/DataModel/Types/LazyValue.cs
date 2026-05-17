@@ -21,8 +21,6 @@ public abstract class LazyValue : ILazyValue
 {
 	private volatile int _state;
 
-	private DataModelValue _value;
-
 #region Interface ILazyValue
 
 	DataModelValue ILazyValue.Value
@@ -31,17 +29,17 @@ public abstract class LazyValue : ILazyValue
 		{
 			if (_state == 2)
 			{
-				return _value;
+				return field;
 			}
 
 			var newValue = Create();
 
 			if (Interlocked.CompareExchange(ref _state, value: 1, comparand: 0) == 0)
 			{
-				_value = newValue;
+				field = newValue;
 				_state = 2;
 
-				return _value;
+				return field;
 			}
 
 			SpinWait spinWait = default;
@@ -51,7 +49,7 @@ public abstract class LazyValue : ILazyValue
 				spinWait.SpinOnce();
 			}
 
-			return _value;
+			return field;
 		}
 	}
 

@@ -21,7 +21,7 @@ namespace Xtate.Core;
 
 public class OutgoingEventVerboseEntityParser<TSource>() : EntityParserBase<TSource, IOutgoingEvent>(Level.Verbose)
 {
-	public required Safe<IDataModelHandler> DataModelHandler { private get; [UsedImplicitly] init; }
+	public required Safe<IDataModelHandler> DataModelHandler { private get; [SetByIoC] init; }
 
 	protected override IEnumerable<LoggingParameter> EnumerateProperties(IOutgoingEvent outgoingEvent)
 	{

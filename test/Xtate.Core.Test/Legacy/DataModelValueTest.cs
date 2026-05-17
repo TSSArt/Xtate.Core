@@ -24,7 +24,7 @@ public class DataModelValueTest
     public void DataModelListNullTest()
     {
         // arrange
-        DataModelList nullVal = default!;
+        DataModelList nullVal = null!;
 
         // act
         var v = (DataModelValue)nullVal;
@@ -38,7 +38,7 @@ public class DataModelValueTest
     public void DataModelStringNullTest()
     {
         // arrange
-        const string nullVal = default!;
+        const string nullVal = null!;
 
         // act
         var v = (DataModelValue)nullVal;

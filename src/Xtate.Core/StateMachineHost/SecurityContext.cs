@@ -18,7 +18,7 @@
 namespace Xtate.Core;
 
 //TODO: move to IoC
-public sealed class SecurityContext : IIoBoundTask, IAsyncDisposable
+public sealed class SecurityContext : IIoBoundTask
 {
 	private const int IoBoundTaskSchedulerMaximumConcurrencyLevel = 2;
 
@@ -31,47 +31,23 @@ public sealed class SecurityContext : IIoBoundTask, IAsyncDisposable
 																TaskContinuationOptions.HideScheduler |
 																TaskContinuationOptions.LongRunning;
 
-	private readonly SecurityContext? _parent;
-
-	//private          GlobalCache<(object Key, object SubKey), object>? _globalCache;
-	private TaskFactory? _ioBoundTaskFactory;
-
-	private LocalCache<(object Key, object SubKey), object>? _localCache;
-
-	private SecurityContext(SecurityContextType type, SecurityContextPermissions permissions, SecurityContext? parentSecurityContext)
+	private SecurityContext(SecurityContextType type, SecurityContextPermissions permissions)
 	{
 		Type = type;
 		Permissions = permissions;
-		_parent = parentSecurityContext;
 	}
 
 	public SecurityContextType Type { get; }
 
 	public SecurityContextPermissions Permissions { get; }
 
-	public static SecurityContext NoAccess { get; } = new(SecurityContextType.NoAccess, SecurityContextPermissions.None, parentSecurityContext: default);
+	public static SecurityContext NoAccess { get; } = new(SecurityContextType.NoAccess, SecurityContextPermissions.None);
 
-	internal static SecurityContext FullAccess { get; } = new(SecurityContextType.NewTrustedStateMachine, SecurityContextPermissions.Full, parentSecurityContext: default);
-
-#region Interface IAsyncDisposable
-
-	public ValueTask DisposeAsync()
-	{
-		if (_localCache is { } localCache)
-		{
-			_localCache = default;
-
-			return localCache.DisposeAsync();
-		}
-
-		return default;
-	}
-
-#endregion
+	internal static SecurityContext FullAccess { get; } = new(SecurityContextType.NewTrustedStateMachine, SecurityContextPermissions.Full);
 
 #region Interface IIoBoundTask
 
-	public TaskFactory Factory => _ioBoundTaskFactory ??= CreateTaskFactory();
+	public TaskFactory Factory => field ??= CreateTaskFactory();
 
 #endregion
 
@@ -84,19 +60,19 @@ public sealed class SecurityContext : IIoBoundTask, IAsyncDisposable
 			case SecurityContextType.NewTrustedStateMachine:
 				CheckPermissions(SecurityContextPermissions.CreateTrustedStateMachine);
 
-				securityContext = new SecurityContext(type, Permissions, this);
+				securityContext = new SecurityContext(type, Permissions);
 
 				break;
 
 			case SecurityContextType.NewStateMachine:
 				CheckPermissions(SecurityContextPermissions.CreateStateMachine);
 
-				securityContext = new SecurityContext(type, SecurityContextPermissions.RunIoBoundTask, this);
+				securityContext = new SecurityContext(type, SecurityContextPermissions.RunIoBoundTask);
 
 				break;
 
 			case SecurityContextType.InvokedService:
-				securityContext = new SecurityContext(type, Permissions, this);
+				securityContext = new SecurityContext(type, Permissions);
 
 				break;
 
@@ -106,34 +82,14 @@ public sealed class SecurityContext : IIoBoundTask, IAsyncDisposable
 
 		return securityContext;
 	}
-
-	public ValueTask SetValue<T>(object key,
-								 object subKey,
-								 [DisallowNull] T value,
-								 ValueOptions options) =>
-		GetLocalCache().SetValue((key, subKey), value, options);
-
-	public bool TryGetValue<T>(object key, object subKey, [NotNullWhen(true)] out T? value)
-	{
-		if (GetLocalCache().TryGetValue((key, subKey), out var obj))
-		{
-			value = (T) obj;
-
-			return true;
-		}
-
-		value = default;
-
-		return false;
-	}
-
+	
 	private TaskFactory CreateTaskFactory()
 	{
 		var taskScheduler = HasPermissions(SecurityContextPermissions.RunIoBoundTask)
 			? new IoBoundTaskScheduler(IoBoundTaskSchedulerMaximumConcurrencyLevel)
 			: NoAccessTaskScheduler.Instance;
 
-		return new TaskFactory(cancellationToken: default, CreationOptions, ContinuationOptions, taskScheduler);
+		return new TaskFactory(cancellationToken: CancellationToken.None, CreationOptions, ContinuationOptions, taskScheduler);
 	}
 
 	public bool HasPermissions(SecurityContextPermissions permissions) => (Permissions & permissions) == permissions;
@@ -146,45 +102,7 @@ public sealed class SecurityContext : IIoBoundTask, IAsyncDisposable
 		}
 	}
 
-	private LocalCache<(object Key, object SubKey), object> GetLocalCache()
-	{
-		if (_localCache is { } localCache)
-		{
-			return localCache;
-		}
-
-		var root = this;
-
-		while (root._parent is { } parent)
-		{
-			root = parent;
-		}
-
-		/*var globalCache = root._globalCache;
-
-		if (globalCache is null)
-		{
-			//var newGlobalCache = new GlobalCache<(object Key, object SubKey), object>();
-			//globalCache = Interlocked.CompareExchange(ref root._globalCache, newGlobalCache, comparand: null) ?? newGlobalCache;
-		}*/
-
-		//TODO:uncomment
-		return _localCache!; // = globalCache.CreateLocalCache();
-	}
-
-	internal static SecurityContext Create(SecurityContextType type)
-	{
-		var permissions = type switch
-						  {
-							  SecurityContextType.NewTrustedStateMachine => SecurityContextPermissions.Full,
-							  SecurityContextType.NewStateMachine        => SecurityContextPermissions.RunIoBoundTask,
-							  _                                          => throw Infra.Unmatched(type)
-						  };
-
-		return Create(type, permissions);
-	}
-
-	internal static SecurityContext Create(SecurityContextType type, SecurityContextPermissions permissions) => new(type, permissions, parentSecurityContext: default);
+	internal static SecurityContext Create(SecurityContextType type, SecurityContextPermissions permissions) => new(type, permissions);
 
 	private class NoAccessTaskScheduler : TaskScheduler
 	{

@@ -135,7 +135,7 @@ internal static class BucketExtensions
 		bucket.TryGet(key, out string? invokeId);
 		bucket.Nested(key).TryGet(key: 1, out string? uniqueId);
 
-		return invokeId is not null ? uniqueId is not null ? InvokeId.FromString(invokeId, uniqueId) : InvokeId.FromString(invokeId) : default;
+		return invokeId is not null ? uniqueId is not null ? InvokeId.FromString(invokeId, uniqueId) : InvokeId.FromString(invokeId) : null;
 	}
 
 	public static Uri? GetUri<TKey>(this in Bucket bucket, TKey key) where TKey : notnull => bucket.TryGet(key, out Uri? value) ? value : null;
@@ -174,7 +174,7 @@ internal static class BucketExtensions
 		serviceId = serviceBucket.GetSessionId(Key.SessionId)
 					?? serviceBucket.GetInvokeId(Key.InvokeId)
 					?? serviceBucket.GetUriId(Key.UriId)
-					?? (ServiceId?) default;
+					?? (ServiceId?) null;
 
 		return serviceId is not null;
 	}

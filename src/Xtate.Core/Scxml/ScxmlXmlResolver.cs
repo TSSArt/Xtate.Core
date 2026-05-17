@@ -38,10 +38,10 @@ public class ScxmlXmlResolver : XmlResolver, IXIncludeXmlResolver
 
 #endregion
 
-	public sealed override object GetEntity(Uri absoluteUri, string? role, Type? ofObjectToReturn) => GetEntity(absoluteUri, accept: default, acceptLanguage: default, ofObjectToReturn);
+	public sealed override object GetEntity(Uri absoluteUri, string? role, Type? ofObjectToReturn) => GetEntity(absoluteUri, accept: null, acceptLanguage: null, ofObjectToReturn);
 
 	public sealed override Task<object> GetEntityAsync(Uri absoluteUri, string? role, Type? ofObjectToReturn) =>
-		GetEntityAsync(absoluteUri, accept: default, acceptLanguage: default, ofObjectToReturn).AsTask();
+		GetEntityAsync(absoluteUri, accept: null, acceptLanguage: null, ofObjectToReturn).AsTask();
 
 	protected virtual object GetEntity(Uri uri,
 									   string? accept,

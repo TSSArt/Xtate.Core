@@ -19,7 +19,7 @@ namespace Xtate.Core;
 
 public readonly struct DocumentIdNode(LinkedList<int>? list)
 {
-	private readonly LinkedListNode<int>? _node = list?.AddLast(-1) ?? default;
+	private readonly LinkedListNode<int>? _node = list?.AddLast(-1) ?? null;
 
 	public void Discard()
 	{

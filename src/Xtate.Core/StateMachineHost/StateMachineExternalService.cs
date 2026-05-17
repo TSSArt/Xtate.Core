@@ -25,17 +25,17 @@ public class StateMachineExternalService : ExternalServiceBase, IDisposable, IAs
 
 	private SessionId? _sessionId;
 
-	public required IStateMachineScopeManager StateMachineScopeManager { private get; [UsedImplicitly] init; }
+	public required IStateMachineScopeManager StateMachineScopeManager { private get; [SetByIoC] init; }
 
-	public required IStateMachineLocation StateMachineLocation { private get; [UsedImplicitly] init; }
+	public required IStateMachineLocation StateMachineLocation { private get; [SetByIoC] init; }
 
-	public required IStateMachineCollection StateMachineCollection { private get; [UsedImplicitly] init; }
+	public required IStateMachineCollection StateMachineCollection { private get; [SetByIoC] init; }
 
-	public required TaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
+	public required TaskMonitor TaskMonitor { private get; [SetByIoC] init; }
 
-	public required Func<Uri, DataModelValue, StateMachineClass> LocationStateMachineClassFactory { private get; [UsedImplicitly] init; }
+	public required Func<Uri, DataModelValue, StateMachineClass> LocationStateMachineClassFactory { private get; [SetByIoC] init; }
 
-	public required Func<string, Uri?, DataModelValue, StateMachineClass> ScxmlStateMachineClassFactory { private get; [UsedImplicitly] init; }
+	public required Func<string, Uri?, DataModelValue, StateMachineClass> ScxmlStateMachineClassFactory { private get; [SetByIoC] init; }
 
 #region Interface IAsyncDisposable
 
@@ -90,7 +90,7 @@ public class StateMachineExternalService : ExternalServiceBase, IDisposable, IAs
 	{
 		if (disposing && _sessionId is { } sessionId)
 		{
-			_sessionId = default;
+			_sessionId = null;
 
 			StateMachineCollection.Destroy(sessionId).Forget(TaskMonitor);
 		}
@@ -100,7 +100,7 @@ public class StateMachineExternalService : ExternalServiceBase, IDisposable, IAs
 	{
 		if (_sessionId is { } sessionId)
 		{
-			_sessionId = default;
+			_sessionId = null;
 
 			await StateMachineCollection.Destroy(sessionId).ConfigureAwait(false);
 		}

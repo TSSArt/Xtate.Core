@@ -37,7 +37,7 @@ public class XmlBaseReader : DelegatedXmlReader
 		_xmlNs = nameTable.Add(@"http://www.w3.org/XML/1998/namespace");
 	}
 
-	public required XmlResolver XmlResolver { private get; [UsedImplicitly] init; }
+	public required XmlResolver XmlResolver { private get; [SetByIoC] init; }
 
 	public override string BaseURI => _baseUris?.Count > 0 ? _baseUris.Peek().BaseUri.ToString() : base.BaseURI;
 
@@ -79,7 +79,7 @@ public class XmlBaseReader : DelegatedXmlReader
 		}
 
 		depth = 0;
-		baseUri = default;
+		baseUri = null;
 
 		return false;
 	}
@@ -98,7 +98,7 @@ public class XmlBaseReader : DelegatedXmlReader
 
 		MoveToElement();
 
-		return default;
+		return null;
 	}
 
 	private void PostProcessNode()

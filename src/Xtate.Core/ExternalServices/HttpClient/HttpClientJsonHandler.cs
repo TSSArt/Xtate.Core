@@ -38,7 +38,7 @@ public class HttpClientJsonHandler : HttpClientMimeTypeHandler
 													  string? contentType,
 													  DataModelList parameters,
 													  DataModelValue value) =>
-		ContentTypeEquals(contentType, MediaTypeApplicationJson) ? new HttpClientJsonHandlerHttpContent(value, MediaTypeApplicationJson) : default;
+		ContentTypeEquals(contentType, MediaTypeApplicationJson) ? new HttpClientJsonHandlerHttpContent(value, MediaTypeApplicationJson) : null;
 
 	public override async ValueTask<DataModelValue?> TryParseResponseAsync(WebResponse webResponse, DataModelList parameters, CancellationToken token)
 	{
@@ -46,7 +46,7 @@ public class HttpClientJsonHandler : HttpClientMimeTypeHandler
 
 		if (!ContentTypeEquals(webResponse.ContentType, MediaTypeApplicationJson))
 		{
-			return default;
+			return null;
 		}
 
 		var stream = webResponse.GetResponseStream();

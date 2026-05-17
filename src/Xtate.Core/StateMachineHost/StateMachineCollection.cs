@@ -21,7 +21,7 @@ public class StateMachineCollection : IStateMachineCollection
 {
 	private readonly ExtDictionary<SessionId, IStateMachineController> _controllers = [];
 
-	public required IDeadLetterQueue<IStateMachineCollection> DeadLetterQueue { private get; [UsedImplicitly] init; }
+	public required IDeadLetterQueue<IStateMachineCollection> DeadLetterQueue { private get; [SetByIoC] init; }
 
 #region Interface IStateMachineCollection
 

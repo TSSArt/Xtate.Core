@@ -22,7 +22,7 @@ public readonly struct StateMachineOrigin
 {
 	private readonly object? _value;
 
-	public StateMachineOrigin(IStateMachine stateMachine, Uri? baseUri = default)
+	public StateMachineOrigin(IStateMachine stateMachine, Uri? baseUri = null)
 	{
 		Infra.Requires(stateMachine);
 
@@ -30,7 +30,7 @@ public readonly struct StateMachineOrigin
 		BaseUri = baseUri;
 	}
 
-	public StateMachineOrigin(Uri source, Uri? baseUri = default)
+	public StateMachineOrigin(Uri source, Uri? baseUri = null)
 	{
 		Infra.Requires(source);
 
@@ -38,7 +38,7 @@ public readonly struct StateMachineOrigin
 		BaseUri = baseUri;
 	}
 
-	public StateMachineOrigin(string scxml, Uri? baseUri = default)
+	public StateMachineOrigin(string scxml, Uri? baseUri = null)
 	{
 		Infra.Requires(scxml);
 

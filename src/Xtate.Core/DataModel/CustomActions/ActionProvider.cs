@@ -26,11 +26,11 @@ public abstract class ActionProvider<TCustomAction>([Localizable(false)] string 
 {
 	private readonly (string, string) _fqName = (ns, name);
 
-	private readonly NameTable _nameTable = default!;
+	private readonly NameTable _nameTable = null!;
 
-	public required Func<XmlReader, TCustomAction> CustomActionFactory { private get; [UsedImplicitly] init; }
+	public required Func<XmlReader, TCustomAction> CustomActionFactory { private get; [SetByIoC] init; }
 
-	[UsedImplicitly]
+	[SetByIoC]
 	public required INameTableProvider? NameTableProvider
 	{
 		init
@@ -65,7 +65,7 @@ public abstract class ActionProvider<TCustomAction>([Localizable(false)] string 
 
 #region Interface IActionProvider
 
-	public virtual IActionActivator? TryGetActivator(string ns1, string name1) => ns == ns1 && name1 == name ? this : default;
+	public virtual IActionActivator? TryGetActivator(string ns1, string name1) => ns == ns1 && name1 == name ? this : null;
 
 #endregion
 }

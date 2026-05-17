@@ -25,9 +25,9 @@ public class AssemblyContainerProvider(Uri uri) : IAsyncInitialization, IAssembl
 
 	private readonly Uri _uri = uri;
 
-	public required IServiceScopeFactory ServiceScopeFactory { private get; [UsedImplicitly] init; }
+	public required IServiceScopeFactory ServiceScopeFactory { private get; [SetByIoC] init; }
 
-	public required Func<Uri, ValueTask<DynamicAssembly>> DynamicAssemblyFactory { private get; [UsedImplicitly] init; }
+	public required Func<Uri, ValueTask<DynamicAssembly>> DynamicAssemblyFactory { private get; [SetByIoC] init; }
 
 #region Interface IAssemblyContainerProvider
 

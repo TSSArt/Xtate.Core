@@ -85,7 +85,7 @@ internal sealed class StateMachineSingleMacroStepController(
 			{
 				if (_tcs is { } tcs)
 				{
-					_tcs = default;
+					_tcs = null;
 
 					item = tcs.Task.Result;
 

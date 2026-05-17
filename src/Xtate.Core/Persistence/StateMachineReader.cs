@@ -23,7 +23,7 @@ public class StateMachineReader
 {
 	private IEntityMap? _forwardEntities;
 
-	public IStateMachine Build(Bucket bucket, IEntityMap? forwardEntities = default)
+	public IStateMachine Build(Bucket bucket, IEntityMap? forwardEntities = null)
 	{
 		_forwardEntities = forwardEntities;
 

@@ -19,7 +19,7 @@ namespace Xtate.Core;
 
 public class InStateController : IInStateController
 {
-	public required IStateMachineContext StateMachineContext { private get; [UsedImplicitly] init; }
+	public required IStateMachineContext StateMachineContext { private get; [SetByIoC] init; }
 
 #region Interface IInStateController
 

@@ -33,7 +33,7 @@ public sealed class NamedPipeIoProcessorFactory : IIoProcessorFactory
 
 	private readonly string _name;
 
-	public NamedPipeIoProcessorFactory(string name, int? maxMessageSize = default)
+	public NamedPipeIoProcessorFactory(string name, int? maxMessageSize = null)
 	{
 		if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
 
@@ -42,7 +42,7 @@ public sealed class NamedPipeIoProcessorFactory : IIoProcessorFactory
 		_host = HostName;
 	}
 
-	public NamedPipeIoProcessorFactory(string host, string name, int? maxMessageSize = default)
+	public NamedPipeIoProcessorFactory(string host, string name, int? maxMessageSize = null)
 	{
 		if (string.IsNullOrEmpty(host)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(host));
 		if (string.IsNullOrEmpty(name)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(name));
@@ -52,7 +52,7 @@ public sealed class NamedPipeIoProcessorFactory : IIoProcessorFactory
 		_maxMessageSize = maxMessageSize;
 	}
 
-	public required TaskMonitor TaskMonitor { private get; [UsedImplicitly] init; }
+	public required TaskMonitor TaskMonitor { private get; [SetByIoC] init; }
 
 #region Interface IIoProcessorFactory
 

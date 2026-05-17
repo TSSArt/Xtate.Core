@@ -19,9 +19,9 @@ namespace Xtate.Core;
 
 public class PersistedStateMachineService : IStateMachineService
 {
-	public required IPersistedStateMachineRunState RunState { private get; [UsedImplicitly] init; }
+	public required IPersistedStateMachineRunState RunState { private get; [SetByIoC] init; }
 
-	public required IStateMachineService StateMachineService { private get; [UsedImplicitly] init; }
+	public required IStateMachineService StateMachineService { private get; [SetByIoC] init; }
 
 #region Interface IStateMachineService
 

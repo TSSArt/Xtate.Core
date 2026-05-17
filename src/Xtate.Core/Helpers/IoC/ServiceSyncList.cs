@@ -19,7 +19,7 @@ namespace Xtate.Core;
 
 public static class ServiceSyncListBuilder
 {
-	public static ServiceSyncList<T> Create<T>(ReadOnlySpan<T> values) => new([..values]);
+	public static ServiceSyncList<T> Create<T>(ReadOnlySpan<T> values) => [with([..values])];
 }
 
 [InstantiatedByIoC]

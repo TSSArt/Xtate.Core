@@ -22,5 +22,5 @@ public sealed class ServiceReadOnlyList<T> : ReadOnlyList<T>
 	private ServiceReadOnlyList(ImmutableArray<T> list) : base(list) { }
 
 	[CalledByIoC]
-	public static async ValueTask<ServiceReadOnlyList<T>> Constructor(IAsyncEnumerable<T> enumerable) => new(await enumerable.ToImmutableArrayAsync().ConfigureAwait(false));
+	public static async ValueTask<ServiceReadOnlyList<T>> Constructor(IAsyncEnumerable<T> enumerable) => [with(await enumerable.ToImmutableArrayAsync().ConfigureAwait(false))];
 }

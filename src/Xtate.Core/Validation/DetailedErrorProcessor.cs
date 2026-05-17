@@ -30,7 +30,7 @@ public sealed class DetailedErrorProcessor(SessionId? sessionId, StateMachineOri
 	{
 		if (_errors is { } errors)
 		{
-			_errors = default;
+			_errors = null;
 
 			throw new StateMachineValidationException(errors.ToImmutable(), sessionId, origin);
 		}

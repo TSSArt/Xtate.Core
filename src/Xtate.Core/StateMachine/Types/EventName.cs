@@ -77,7 +77,7 @@ public readonly struct EventName : IReadOnlyList<IIdentifier>, IEquatable<EventN
 
 #region Interface IFormattable
 
-	public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
+	public string ToString(string? format, IFormatProvider? formatProvider) => ToString() ?? string.Empty;
 
 #endregion
 
@@ -103,13 +103,17 @@ public readonly struct EventName : IReadOnlyList<IIdentifier>, IEquatable<EventN
 
 #endregion
 
+#pragma warning disable IDE0028
+
 	public static EventName Create(ReadOnlySpan<IIdentifier> values) => new([.. values]);
+
+#pragma warning restore IDE0028
 
 	public ImmutableArray<IIdentifier>.Enumerator GetEnumerator() => _parts.GetEnumerator();
 
 	public override int GetHashCode() => SegmentedName.GetHashCode(_parts);
 
-	public override string ToString() => SegmentedName.ToString(_parts, Separator)!;
+	public override string? ToString() => SegmentedName.ToString(_parts, Separator);
 
 	public override bool Equals(object? obj) => obj is EventName other && Equals(other);
 

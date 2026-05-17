@@ -31,7 +31,7 @@ internal class ItemNodeAdapter : ElementNodeAdapter
 
 	public override bool GetFirstAttribute(in DataModelXPathNavigator.Node node, out DataModelXPathNavigator.Node attributeNode)
 	{
-		attributeNode = new DataModelXPathNavigator.Node(value: default, default!);
+		attributeNode = new DataModelXPathNavigator.Node(value: default, null!);
 
 		return GetNextAttribute(node, ref attributeNode);
 	}
@@ -40,7 +40,7 @@ internal class ItemNodeAdapter : ElementNodeAdapter
 
 	public override bool GetFirstNamespace(in DataModelXPathNavigator.Node node, out DataModelXPathNavigator.Node namespaceNode)
 	{
-		namespaceNode = new DataModelXPathNavigator.Node(value: default, default!);
+		namespaceNode = new DataModelXPathNavigator.Node(value: default, null!);
 
 		return GetNextNamespace(node, ref namespaceNode);
 	}

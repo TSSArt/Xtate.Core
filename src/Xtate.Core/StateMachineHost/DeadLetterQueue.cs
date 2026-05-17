@@ -19,7 +19,7 @@ namespace Xtate.Core;
 
 public class DeadLetterQueue<TSource> : IDeadLetterQueue<TSource>
 {
-	public required ILogger<IDeadLetterQueue<TSource>> Logger { private get; [UsedImplicitly] init; }
+	public required ILogger<IDeadLetterQueue<TSource>> Logger { private get; [SetByIoC] init; }
 
 #region Interface IDeadLetterQueue<TSource>
 

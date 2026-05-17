@@ -25,21 +25,21 @@ public class PersistedOrderedSetTest
 {
     private Bucket _bucket;
 
-    private ImmutableDictionary<int, IEntity> _map = default!;
+    private ImmutableDictionary<int, IEntity> _map = null!;
 
-    private Node _node1 = default!;
+    private Node _node1 = null!;
 
-    private Node _node2 = default!;
+    private Node _node2 = null!;
 
-    private Node _node3 = default!;
+    private Node _node3 = null!;
 
-    private OrderedSetPersistingController<Node> _orderedSetController = default!;
+    private OrderedSetPersistingController<Node> _orderedSetController = null!;
 
-    private OrderedSet<Node> _restoredOrderedSet = default!;
+    private OrderedSet<Node> _restoredOrderedSet = null!;
 
-    private OrderedSet<Node> _sourceSet = default!;
+    private OrderedSet<Node> _sourceSet = null!;
 
-    private InMemoryStorage _storage = default!;
+    private InMemoryStorage _storage = null!;
 
 	private class EntityMap(ImmutableDictionary<int, IEntity> map) : IEntityMap
 	{

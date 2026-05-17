@@ -21,10 +21,10 @@ namespace Xtate.Core;
 
 public class DataModelHandlerGetter
 {
-	public required IDataModelHandlerService DataModelHandlerService { private get; [UsedImplicitly] init; }
+	public required IDataModelHandlerService DataModelHandlerService { private get; [SetByIoC] init; }
 
-	public required IStateMachine StateMachine { private get; [UsedImplicitly] init; }
+	public required IStateMachine StateMachine { private get; [SetByIoC] init; }
 
-	[UsedImplicitly]
+	[CalledByIoC]
 	public ValueTask<IDataModelHandler> GetDataModelHandler() => DataModelHandlerService.GetDataModelHandler(StateMachine.DataModelType);
 }

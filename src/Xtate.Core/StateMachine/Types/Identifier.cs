@@ -54,7 +54,7 @@ public sealed class Identifier : LazyId, IIdentifier, IEquatable<Identifier>
 	{
 		if (string.IsNullOrEmpty(value))
 		{
-			identifier = default;
+			identifier = null;
 
 			return false;
 		}
@@ -63,7 +63,7 @@ public sealed class Identifier : LazyId, IIdentifier, IEquatable<Identifier>
 		{
 			if (char.IsWhiteSpace(ch))
 			{
-				identifier = default;
+				identifier = null;
 
 				return false;
 			}

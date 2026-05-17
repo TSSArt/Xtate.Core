@@ -19,13 +19,14 @@ using System.Collections.Specialized;
 
 namespace Xtate.Core;
 
+[InstantiatedByIoC]
 public class ResourceLoaderService : IResourceLoader
 {
-	public required IAsyncEnumerable<IResourceLoaderProvider> ResourceLoaderProviders { private get; [UsedImplicitly] init; }
+	public required IAsyncEnumerable<IResourceLoaderProvider> ResourceLoaderProviders { private get; [SetByIoC] init; }
 
 #region Interface IResourceLoader
 
-	public virtual async ValueTask<Resource> Request(Uri uri, NameValueCollection? headers = default)
+	public virtual async ValueTask<Resource> Request(Uri uri, NameValueCollection? headers = null)
 	{
 		await foreach (var resourceLoaderProvider in ResourceLoaderProviders.ConfigureAwait(false))
 		{

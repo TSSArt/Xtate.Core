@@ -41,7 +41,7 @@ public sealed class DoneDataNode : IDoneData, IStoreSupport, IAncestorProvider, 
 		_parameterList = DataConverter.AsParamArray(doneData.Parameters);
 	}
 
-	public required Func<ValueTask<DataConverter>> DataConverterFactory { private get; [UsedImplicitly] init; }
+	public required Func<ValueTask<DataConverter>> DataConverterFactory { private get; [SetByIoC] init; }
 
 #region Interface IAncestorProvider
 

@@ -16,16 +16,17 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using Xtate.DataModel.Runtime;
+using Xtate.Persistence;
 
 namespace Xtate.Builder;
 
 public class TransitionFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 {
-	public required ITransitionBuilder Builder { private get; [UsedImplicitly] init; }
+	public required ITransitionBuilder Builder { private get; [SetByIoC] init; }
 
-	public required Action<ITransition> BuiltAction { private get; [UsedImplicitly] init; }
+	public required Action<ITransition> BuiltAction { private get; [SetByIoC] init; }
 
-	public required TOuterBuilder OuterBuilder { private get; [UsedImplicitly] init; }
+	public required TOuterBuilder OuterBuilder { private get; [SetByIoC] init; }
 
 	public TOuterBuilder EndTransition()
 	{

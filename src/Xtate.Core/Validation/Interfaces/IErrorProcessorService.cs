@@ -19,5 +19,5 @@ namespace Xtate.Core;
 
 public interface IErrorProcessorService<[UsedImplicitly] TSource>
 {
-	void AddError(object? entity, string message, Exception? exception = default);
+	void AddError(object? entity, string message, Exception? exception = null);
 }

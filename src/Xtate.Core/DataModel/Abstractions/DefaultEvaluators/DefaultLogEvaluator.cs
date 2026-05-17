@@ -23,7 +23,7 @@ public class DefaultLogEvaluator : LogEvaluator
 
 	public DefaultLogEvaluator(ILog log) : base(log) => _expressionEvaluator = base.Expression?.UseAncestor.As<IObjectEvaluator>();
 
-	public required Deferred<ILogController> LogController { private get; [UsedImplicitly] init; }
+	public required Deferred<ILogController> LogController { private get; [SetByIoC] init; }
 
 	public override async ValueTask Execute()
 	{

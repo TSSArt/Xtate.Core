@@ -271,9 +271,9 @@ public class InMemoryStorage : IStorage
 			throw new InvalidOperationException(Resources.Exception_StorageNotAvailableForReadOperations);
 		}
 
-		IMemoryOwner<byte>? newBaselineOwner = default;
+		IMemoryOwner<byte>? newBaselineOwner = null;
 		var newBaseline = Memory<byte>.Empty;
-		SortedSet<Entry>? newReadModel = default;
+		SortedSet<Entry>? newReadModel = null;
 
 		if (shrink)
 		{
@@ -334,9 +334,9 @@ public class InMemoryStorage : IStorage
 			}
 
 			_owner?.Dispose();
-			_owner = default;
+			_owner = null;
 
-			_buffers = default;
+			_buffers = null;
 			_buffer = Memory<byte>.Empty;
 		}
 		else
@@ -356,7 +356,7 @@ public class InMemoryStorage : IStorage
 				_buffers.Add((_owner, 0));
 			}
 
-			_owner = default;
+			_owner = null;
 			_buffer = Memory<byte>.Empty;
 		}
 	}

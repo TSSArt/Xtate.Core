@@ -24,13 +24,13 @@ public class EventController : IEventController
 
 	private const int CancelEventId = 2;
 
-	public required IExternalCommunication ExternalCommunication { private get; [UsedImplicitly] init; }
+	public required IExternalCommunication ExternalCommunication { private get; [SetByIoC] init; }
 
-	public required ILogger<IEventController> Logger { private get; [UsedImplicitly] init; }
+	public required ILogger<IEventController> Logger { private get; [SetByIoC] init; }
 
-	public required StateMachineRuntimeError StateMachineRuntimeError { private get; [UsedImplicitly] init; }
+	public required StateMachineRuntimeError StateMachineRuntimeError { private get; [SetByIoC] init; }
 
-	public required IStateMachineContext StateMachineContext { private get; [UsedImplicitly] init; }
+	public required IStateMachineContext StateMachineContext { private get; [SetByIoC] init; }
 
 #region Interface IEventController
 

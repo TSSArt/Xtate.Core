@@ -56,11 +56,11 @@ public class XIncludeReader : DelegatedXmlReader
 		_strings = new Strings(nameTable);
 	}
 
-	public required XmlResolver XmlResolver { private get; [UsedImplicitly] init; }
+	public required XmlResolver XmlResolver { private get; [SetByIoC] init; }
 
-	public required IXIncludeXmlResolver XIncludeXmlResolver { private get; [UsedImplicitly] init; }
+	public required IXIncludeXmlResolver XIncludeXmlResolver { private get; [SetByIoC] init; }
 
-	public required IXIncludeOptions? XIncludeOptions { private get; [UsedImplicitly] init; }
+	public required IXIncludeOptions? XIncludeOptions { private get; [SetByIoC] init; }
 
 	public override int Depth
 	{
@@ -170,11 +170,11 @@ public class XIncludeReader : DelegatedXmlReader
 
 	private void ExtractIncludeElementAttributes()
 	{
-		_hrefValue = default;
-		_parseValue = default;
-		_encodingValue = default;
-		_acceptValue = default;
-		_acceptLanguageValue = default;
+		_hrefValue = null;
+		_parseValue = null;
+		_encodingValue = null;
+		_acceptValue = null;
+		_acceptLanguageValue = null;
 
 		for (var ok = InnerReader.MoveToFirstAttribute(); ok; ok = InnerReader.MoveToNextAttribute())
 		{
@@ -268,8 +268,8 @@ public class XIncludeReader : DelegatedXmlReader
 			else
 			{
 				resource = useAsync
-					? await XmlResolver.GetEntityAsync(uri, role: null, ofObjectToReturn: default).ConfigureAwait(false)
-					: XmlResolver.GetEntity(uri, role: null, ofObjectToReturn: default);
+					? await XmlResolver.GetEntityAsync(uri, role: null, ofObjectToReturn: null).ConfigureAwait(false)
+					: XmlResolver.GetEntity(uri, role: null, ofObjectToReturn: null);
 			}
 		}
 		catch (Exception ex)
@@ -416,37 +416,21 @@ public class XIncludeReader : DelegatedXmlReader
 
 	private struct Strings(XmlNameTable nameTable)
 	{
-		private string? _accept;
+		public string Accept => field ??= nameTable.Add(@"accept");
 
-		private string? _acceptLanguage;
+		public string AcceptLanguage => field ??= nameTable.Add(@"accept-language");
 
-		private string? _encoding;
+		public string Encoding => field ??= nameTable.Add(@"encoding");
 
-		private string? _href;
+		public string Href => field ??= nameTable.Add(@"href");
 
-		private string? _include;
+		public string Include => field ??= nameTable.Add(@"include");
 
-		private string? _parse;
+		public string Parse => field ??= nameTable.Add(@"parse");
 
-		private string? _xInclude1Ns;
+		public string XInclude1Ns => field ??= nameTable.Add(@"http://www.w3.org/2001/XInclude");
 
-		private string? _xInclude2Ns;
-
-		public string Accept => _accept ??= nameTable.Add(@"accept");
-
-		public string AcceptLanguage => _acceptLanguage ??= nameTable.Add(@"accept-language");
-
-		public string Encoding => _encoding ??= nameTable.Add(@"encoding");
-
-		public string Href => _href ??= nameTable.Add(@"href");
-
-		public string Include => _include ??= nameTable.Add(@"include");
-
-		public string Parse => _parse ??= nameTable.Add(@"parse");
-
-		public string XInclude1Ns => _xInclude1Ns ??= nameTable.Add(@"http://www.w3.org/2001/XInclude");
-
-		public string XInclude2Ns => _xInclude2Ns ??= nameTable.Add(@"http://www.w3.org/2003/XInclude");
+		public string XInclude2Ns => field ??= nameTable.Add(@"http://www.w3.org/2003/XInclude");
 	}
 
 	private class StreamResource(Stream stream) : IXIncludeResource

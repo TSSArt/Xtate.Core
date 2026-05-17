@@ -47,7 +47,7 @@ public class DefaultIfEvaluator : IfEvaluator
 
 					case IElse:
 						branchesBuilder.Add((currentCondition, currentActions.ToImmutable()));
-						currentCondition = default!;
+						currentCondition = null!;
 						currentActions.Clear();
 
 						break;

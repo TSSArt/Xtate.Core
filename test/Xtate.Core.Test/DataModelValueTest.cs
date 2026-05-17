@@ -19,9 +19,7 @@ namespace Xtate.Core.Test;
 
 public class Record([CallerLineNumber] int lineNumber = 0)
 {
-    private DataModelValue _value;
-
-    public object? ConstructorArg;
+	public object? ConstructorArg;
 
     public string Line = $"#{lineNumber}";
 
@@ -29,17 +27,17 @@ public class Record([CallerLineNumber] int lineNumber = 0)
 
     public DataModelValueType Type;
 
-    public DataModelValue Value
-    {
-        get => _value;
-        set
-        {
-            _value = value;
-            OriginalValue = value;
-        }
-    }
+	public DataModelValue Value
+	{
+		get;
+		set
+		{
+			field = value;
+			OriginalValue = value;
+		}
+	}
 
-    public Record WrapToLazy()
+	public Record WrapToLazy()
     {
         var lazyMock = new Mock<ILazyValue>();
         lazyMock.Setup(l => l.Value).Returns(Value);
@@ -58,13 +56,13 @@ public class Record([CallerLineNumber] int lineNumber = 0)
 [TestClass]
 public class DataModelValueTest
 {
-    private DataModelList _emptyDataModelList = default!;
+    private DataModelList _emptyDataModelList = null!;
 
-    private Mock<ILazyValue> _lazyValueListMock = default!;
+    private Mock<ILazyValue> _lazyValueListMock = null!;
 
-    private Mock<ILazyValue> _lazyValueNullMock = default!;
+    private Mock<ILazyValue> _lazyValueNullMock = null!;
 
-    private Mock<ILazyValue> _lazyValueOfLazyValueNullMock = default!;
+    private Mock<ILazyValue> _lazyValueOfLazyValueNullMock = null!;
 
     private static IEnumerable<Record> SimpleRecords
     {

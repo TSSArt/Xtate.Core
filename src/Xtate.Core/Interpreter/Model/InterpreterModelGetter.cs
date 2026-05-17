@@ -19,9 +19,9 @@ namespace Xtate.Core;
 
 public class InterpreterModelGetter
 {
-	public required InterpreterModelBuilder InterpreterModelBuilder { private get; [UsedImplicitly] init; }
+	public required InterpreterModelBuilder InterpreterModelBuilder { private get; [SetByIoC] init; }
 
-	public required IErrorProcessor ErrorProcessor { private get; [UsedImplicitly] init; }
+	public required IErrorProcessor ErrorProcessor { private get; [SetByIoC] init; }
 
 	[CalledByIoC]
 	public async ValueTask<IInterpreterModel> GetInterpreterModel()

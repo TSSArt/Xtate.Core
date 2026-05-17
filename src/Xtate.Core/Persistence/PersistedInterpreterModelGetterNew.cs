@@ -21,15 +21,15 @@ namespace Xtate.Core;
 
 public class PersistedInterpreterModelGetterNew
 {
-	public required IStorageProvider StorageProvider { private get; [UsedImplicitly] init; }
+	public required IStorageProvider StorageProvider { private get; [SetByIoC] init; }
 
-	public required IStateMachineSessionId StateMachineSessionId { private get; [UsedImplicitly] init; }
+	public required IStateMachineSessionId StateMachineSessionId { private get; [SetByIoC] init; }
 
-	public required InterpreterModelBuilder InterpreterModelBuilder { private get; [UsedImplicitly] init; }
+	public required InterpreterModelBuilder InterpreterModelBuilder { private get; [SetByIoC] init; }
 
-	public required IErrorProcessor ErrorProcessor { private get; [UsedImplicitly] init; }
+	public required IErrorProcessor ErrorProcessor { private get; [SetByIoC] init; }
 
-	[UsedImplicitly]
+	[CalledByIoC]
 	public async ValueTask<IInterpreterModel> GetInterpreterModel()
 	{
 		try
@@ -44,7 +44,7 @@ public class PersistedInterpreterModelGetterNew
 
 	private async ValueTask SaveInterpreterModel(IInterpreterModel interpreterModel)
 	{
-		var storage = await StorageProvider.GetTransactionalStorage(partition: default, key: @"StateMachineDefinitionStorageKey").ConfigureAwait(false); //TODO:
+		var storage = await StorageProvider.GetTransactionalStorage(partition: null, key: @"StateMachineDefinitionStorageKey").ConfigureAwait(false); //TODO:
 
 		await using (storage.ConfigureAwait(false))
 		{

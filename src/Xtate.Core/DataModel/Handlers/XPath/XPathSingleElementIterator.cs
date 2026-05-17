@@ -23,7 +23,7 @@ internal class XPathSingleElementIterator(XPathNavigator navigator) : XPathNodeI
 {
 	private bool _completed;
 
-	public override XPathNavigator? Current => _completed ? navigator : default;
+	public override XPathNavigator? Current => _completed ? navigator : null;
 
 	public override int CurrentPosition => _completed ? 1 : 0;
 

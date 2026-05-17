@@ -21,5 +21,5 @@ namespace Xtate.Core;
 
 public interface IResourceLoader
 {
-	ValueTask<Resource> Request(Uri uri, NameValueCollection? headers = default);
+	ValueTask<Resource> Request(Uri uri, NameValueCollection? headers = null);
 }

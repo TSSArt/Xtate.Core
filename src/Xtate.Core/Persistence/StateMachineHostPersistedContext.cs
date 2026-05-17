@@ -68,12 +68,12 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 		{
 			_storage = await _storageProvider.GetTransactionalStorage(HostPartition, ContextKey).ConfigureAwait(false);
 
-			await LoadStateMachines(default).ConfigureAwait(false);
-			await LoadInvokedServices(default).ConfigureAwait(false);
+			await LoadStateMachines(CancellationToken.None).ConfigureAwait(false);
+			await LoadInvokedServices(CancellationToken.None).ConfigureAwait(false);
 
 			await base.InitializeAsync().ConfigureAwait(false);
 		}
-		catch (OperationCanceledException ex) when (ex.CancellationToken == default) //TODO:
+		catch (OperationCanceledException ex) when (ex.CancellationToken == CancellationToken.None) //TODO:
 		{
 			Stop();
 
@@ -204,8 +204,8 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 				  sessionId, stateMachineOptions, stateMachine, stateMachineLocation /*_stateMachineHost*/,
 				  _storageProvider, _idlePeriod /*, defaultOption*s*/)
 			  {
-				  EventQueueWriter = default!,
-				  StateMachineInterpreter = default,
+				  EventQueueWriter = null!,
+				  StateMachineInterpreter = null,
 				  TaskMonitor = null,
 				  StateMachineStatus = null,
 				  StateMachineSessionId = null
@@ -350,7 +350,7 @@ internal sealed class StateMachineHostPersistedContext : StateMachineHostContext
 					//var finalizer = new DeferredFinalizer();
 					var securityContext = SecurityContext.Create(meta.SecurityContextType, meta.Permissions);
 
-					var controller = AddSavedStateMachine(meta.SessionId, meta.Location, meta, securityContext, default! /*TODO*/);
+					var controller = AddSavedStateMachine(meta.SessionId, meta.Location, meta, securityContext, null! /*TODO*/);
 					AddStateMachineController(meta.SessionId, controller);
 
 					//TODO:

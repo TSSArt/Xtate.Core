@@ -17,7 +17,6 @@
 
 namespace Xtate;
 
-[CollectionBuilder(typeof(DataModelList), nameof(Create))]
 public partial class DataModelList : IList<DataModelValue>
 {
 #region Interface ICollection<DataModelValue>
@@ -34,7 +33,7 @@ public partial class DataModelList : IList<DataModelValue>
 		}
 	}
 
-	public void Add(DataModelValue value) => Add(key: default, value, metadata: default);
+	public void Add(DataModelValue value) => Add(key: null, value, metadata: null);
 
 	public bool Contains(DataModelValue value) => GetIndex(value) >= 0;
 
@@ -72,28 +71,16 @@ public partial class DataModelList : IList<DataModelValue>
 			return entry.Value;
 		}
 
-		set => Set(index, key: default, value, metadata: default);
+		set => Set(index, key: null, value, metadata: null);
 	}
 
 	public int IndexOf(DataModelValue item) => GetIndex(item);
 
-	public void Insert(int index, DataModelValue item) => Insert(index, key: default, item, metadata: default);
+	public void Insert(int index, DataModelValue item) => Insert(index, key: null, item, metadata: null);
 
 	public void RemoveAt(int index) => Remove(index);
 
 #endregion
-
-	public static DataModelList Create(ReadOnlySpan<DataModelValue> values)
-	{
-		var array = new DataModelList();
-
-		foreach (var value in values)
-		{
-			array.Add(value);
-		}
-
-		return array;
-	}
 
 	public ValueEnumerator GetEnumerator() => new(this);
 

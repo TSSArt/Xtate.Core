@@ -43,7 +43,7 @@ public class XPathLocationExpressionEvaluator : ILocationEvaluator, ILocationExp
 		}
 	}
 
-	public required Func<ValueTask<XPathEngine>> EngineFactory { private get; [UsedImplicitly] init; }
+	public required Func<ValueTask<XPathEngine>> EngineFactory { private get; [SetByIoC] init; }
 
 #region Interface IAncestorProvider
 

@@ -27,17 +27,17 @@ public class PersistedDataModelTest
 {
     private Bucket _bucket;
 
-    private DataModelList _dataModelList = default!;
+    private DataModelList _dataModelList = null!;
 
-    private DataModelListPersistingController _listController = default!;
+    private DataModelListPersistingController _listController = null!;
 
-    private DataModelList _restoredDataModelList = default!;
+    private DataModelList _restoredDataModelList = null!;
 
-    private DataModelReferenceTracker _restoredTracker = default!;
+    private DataModelReferenceTracker _restoredTracker = null!;
 
-    private InMemoryStorage _storage = default!;
+    private InMemoryStorage _storage = null!;
 
-    private DataModelReferenceTracker _tracker = default!;
+    private DataModelReferenceTracker _tracker = null!;
 
     [TestInitialize]
     public void Initialize()

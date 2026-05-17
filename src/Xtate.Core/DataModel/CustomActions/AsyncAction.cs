@@ -39,7 +39,7 @@ public abstract class AsyncAction : ActionBase, IAction
 
 	protected abstract class Value(string? expression) : IActionValue
 	{
-		protected IValueEvaluator ValueEvaluator { get; private set; } = default!;
+		protected IValueEvaluator ValueEvaluator { get; private set; } = null!;
 
 	#region Interface IActionValue
 
@@ -85,22 +85,22 @@ public abstract class AsyncAction : ActionBase, IAction
 		public ValueTask<object?[]> GetValue() => GetArray(ValueEvaluator);
 	}
 
-	protected class StringValue(string? expression, string? defaultValue = default) : Value(expression)
+	protected class StringValue(string? expression, string? defaultValue = null) : Value(expression)
 	{
 		public ValueTask<string> GetValue() => GetString(ValueEvaluator, defaultValue);
 	}
 
-	protected class IntegerValue(string? expression, int? defaultValue = default) : Value(expression)
+	protected class IntegerValue(string? expression, int? defaultValue = null) : Value(expression)
 	{
 		public ValueTask<int> GetValue() => GetInteger(ValueEvaluator, defaultValue);
 	}
 
-	protected class BooleanValue(string? expression, bool? defaultValue = default) : Value(expression)
+	protected class BooleanValue(string? expression, bool? defaultValue = null) : Value(expression)
 	{
 		public ValueTask<bool> GetValue() => GetBoolean(ValueEvaluator, defaultValue);
 	}
 
-	protected class ObjectValue(string? expression, object? defaultValue = default) : Value(expression)
+	protected class ObjectValue(string? expression, object? defaultValue = null) : Value(expression)
 	{
 		public ValueTask<DataModelValue> GetValue() => GetObject(ValueEvaluator, defaultValue);
 	}

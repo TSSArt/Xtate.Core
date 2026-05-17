@@ -23,7 +23,7 @@ public class XPathExternalDataExpressionEvaluator(IExternalDataExpression extern
 
 	private const string MediaTypeTextXml = @"text/xml";
 
-	public required XPathXmlParserContextFactory XPathXmlParserContextFactory { private get; [UsedImplicitly] init; }
+	public required XPathXmlParserContextFactory XPathXmlParserContextFactory { private get; [SetByIoC] init; }
 
 	protected override async ValueTask<DataModelValue> ParseToDataModel(Resource resource)
 	{

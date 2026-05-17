@@ -19,11 +19,11 @@ namespace Xtate.ExternalService;
 
 public class ExternalServiceFactory
 {
-	public required IAsyncEnumerable<IExternalServiceProvider> ServiceFactories { private get; [UsedImplicitly] init; }
+	public required IAsyncEnumerable<IExternalServiceProvider> ServiceFactories { private get; [SetByIoC] init; }
 
-	public required IExternalServiceType ExternalServiceType { private get; [UsedImplicitly] init; }
+	public required IExternalServiceType ExternalServiceType { private get; [SetByIoC] init; }
 
-	[UsedImplicitly]
+	[CalledByIoC]
 	public async ValueTask<IExternalService> CreateService()
 	{
 		var serviceActivator = await GetServiceActivator(ExternalServiceType.Type).ConfigureAwait(false);

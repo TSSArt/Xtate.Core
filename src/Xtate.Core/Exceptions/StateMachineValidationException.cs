@@ -20,7 +20,7 @@ using System.Text;
 namespace Xtate;
 
 [Serializable]
-public class StateMachineValidationException(ImmutableArray<ErrorItem> validationMessages, SessionId? sessionId = default, StateMachineOrigin origin = default)
+public class StateMachineValidationException(ImmutableArray<ErrorItem> validationMessages, SessionId? sessionId = null, StateMachineOrigin origin = default)
 	: XtateException(GetMessage(validationMessages))
 {
 	public SessionId? SessionId { get; } = sessionId;

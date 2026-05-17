@@ -19,7 +19,7 @@ namespace Xtate.Core;
 
 public class InterpreterInfoLogEnricher<TSource> : ILogEnricher<TSource>
 {
-	public required Safe<IStateMachineSessionId> StateMachineSessionId { private get; [UsedImplicitly] init; }
+	public required Safe<IStateMachineSessionId> StateMachineSessionId { private get; [SetByIoC] init; }
 
 #region Interface ILogEnricher<TSource>
 
