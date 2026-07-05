@@ -1,0 +1,84 @@
+﻿// Copyright © 2019-2026 Sergii Artemenko
+// 
+// This file is part of the Xtate project. <https://xtate.net/>
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+// 
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+using Xtate.Ancestor;
+using Xtate.Ancestor.Extensions;
+using Xtate.DataModel;
+using Xtate.DataModel.Services;
+using Xtate.DataTypes;
+using Xtate.Interpreter.Internal;
+using Xtate.StateMachine;
+using Xtate.StateMachine.Internal;
+
+namespace Xtate.Interpreter.Model;
+
+public class DoneDataNode : IDoneData, IAncestorProvider, IDocumentId, IDebugEntityId
+{
+	private readonly IValueEvaluator? _contentBodyEvaluator;
+
+	private readonly IObjectEvaluator? _contentExpressionEvaluator;
+
+	private readonly IDoneData _doneData;
+
+	private readonly ImmutableArray<DataConverter.Param> _parameterList;
+
+	private DocumentIdSlot _documentIdSlot;
+
+	public DoneDataNode(DocumentIdNode documentIdNode, IDoneData doneData)
+	{
+		_doneData = doneData;
+		documentIdNode.SaveToSlot(out _documentIdSlot);
+		_contentExpressionEvaluator = doneData.Content?.Expression?.UseAncestor.As<IObjectEvaluator>();
+		_contentBodyEvaluator = doneData.Content?.Body?.UseAncestor.As<IValueEvaluator>();
+		_parameterList = DataConverter.AsParamArray(doneData.Parameters);
+	}
+
+	public required Func<ValueTask<DataConverter>> DataConverterFactory { private get; [SetByIoC] init; }
+
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => _doneData;
+
+#endregion
+
+#region Interface IDebugEntityId
+
+	public FormattableString EntityId => @$"(#{DocumentId})";
+
+#endregion
+
+#region Interface IDocumentId
+
+	public int DocumentId => _documentIdSlot.CreateValue();
+
+#endregion
+
+#region Interface IDoneData
+
+	public IContent? Content => _doneData.Content;
+
+	public ImmutableArray<IParam> Parameters => _doneData.Parameters;
+
+#endregion
+
+	public async ValueTask<DataModelValue> Evaluate()
+	{
+		var dataConverter = await DataConverterFactory().ConfigureAwait(false);
+
+		return await dataConverter.GetData(_contentBodyEvaluator, _contentExpressionEvaluator, nameEvaluatorList: default, _parameterList).ConfigureAwait(false);
+	}
+}

@@ -19,7 +19,7 @@ namespace Xtate {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "18.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -39,7 +39,7 @@ namespace Xtate {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Xtate.Core.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Xtate.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -1587,6 +1587,24 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid Target format..
+        /// </summary>
+        internal static string Exception_InvalidTargetFormat {
+            get {
+                return ResourceManager.GetString("Exception_InvalidTargetFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid timestamp. Actual is {0}. Expected is {1}..
+        /// </summary>
+        internal static string Exception_InvalidTimestampActualExpected {
+            get {
+                return ResourceManager.GetString("Exception_InvalidTimestampActualExpected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid type [{0}]..
         /// </summary>
         internal static string Exception_InvalidType {
@@ -1695,7 +1713,7 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Loading external resources does not supported. Derive class from ScxmlXmlResolver and pass instance of it to ScxmlDirector..
+        ///   Looks up a localized string similar to Loading external resources does not supported..
         /// </summary>
         internal static string Exception_LoadingExternalResourcesDoesNotSupported {
             get {
@@ -1799,6 +1817,15 @@ namespace Xtate {
         internal static string Exception_NamedPipeIoProcessorMessageReadPartially {
             get {
                 return ResourceManager.GetString("Exception_NamedPipeIoProcessorMessageReadPartially", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Message size {0} exceeds the maximum allowed size of {1}.
+        /// </summary>
+        internal static string Exception_NamedPipeIoProcessorMessageSizeExceedsLimit {
+            get {
+                return ResourceManager.GetString("Exception_NamedPipeIoProcessorMessageSizeExceedsLimit", resourceCulture);
             }
         }
         
@@ -2218,6 +2245,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Target value is missed.
+        /// </summary>
+        internal static string Exception_TargetValueIsMissed {
+            get {
+                return ResourceManager.GetString("Exception_TargetValueIsMissed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to There is no any CustomActionProvider registered for processing custom action node: &lt;{0}:{1}&gt;.
         /// </summary>
         internal static string Exception_ThereIsNoAnyCustomActionProviderRegisteredForProcessingCustomActionNode {
@@ -2233,6 +2269,33 @@ namespace Xtate {
         internal static string Exception_ThereIsNoAnyServiceFactoryRegisteredForPprocessingInvokeType {
             get {
                 return ResourceManager.GetString("Exception_ThereIsNoAnyServiceFactoryRegisteredForPprocessingInvokeType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The stream &apos;{0}&apos; is currently being read from or written to..
+        /// </summary>
+        internal static string Exception_TheStreamIsCurrentlyBeingReadFromOrWrittenTo {
+            get {
+                return ResourceManager.GetString("Exception_TheStreamIsCurrentlyBeingReadFromOrWrittenTo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The stream &apos;{0}&apos; is currently being written to..
+        /// </summary>
+        internal static string Exception_TheStreamIsCurrentlyBeingWrittenTo {
+            get {
+                return ResourceManager.GetString("Exception_TheStreamIsCurrentlyBeingWrittenTo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This collection is read-only and cannot be modified..
+        /// </summary>
+        internal static string Exception_ThisCollectionIsReadOnlyAndCannotBeModified {
+            get {
+                return ResourceManager.GetString("Exception_ThisCollectionIsReadOnlyAndCannotBeModified", resourceCulture);
             }
         }
         
@@ -2589,6 +2652,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Value must be between 0 and 60 seconds..
+        /// </summary>
+        internal static string Exception_ValueMustBeBetween0and60Seconds {
+            get {
+                return ResourceManager.GetString("Exception_ValueMustBeBetween0and60Seconds", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Value must be non negative integer..
         /// </summary>
         internal static string Exception_ValueMustBeNonNegativeInteger {
@@ -2639,6 +2711,15 @@ namespace Xtate {
         internal static string Exception_XmlResolverReturnedNull {
             get {
                 return ResourceManager.GetString("Exception_XmlResolverReturnedNull", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred in the background process..
+        /// </summary>
+        internal static string Message_AnErrorOccurredInTheBackgroundProcess {
+            get {
+                return ResourceManager.GetString("Message_AnErrorOccurredInTheBackgroundProcess", resourceCulture);
             }
         }
         

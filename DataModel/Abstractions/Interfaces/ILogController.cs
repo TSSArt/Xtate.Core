@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -15,11 +15,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using Xtate.DataTypes;
+
 namespace Xtate.DataModel;
 
 public interface ILogController
 {
-    bool IsEnabled { get; }
+	bool IsEnabled { get; }
 
-    ValueTask Log(string? message = default, DataModelValue arguments = default);
+	ValueTask Log(string? message, DataModelValue arguments);
 }

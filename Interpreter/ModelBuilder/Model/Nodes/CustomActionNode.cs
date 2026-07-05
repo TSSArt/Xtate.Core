@@ -1,0 +1,54 @@
+﻿// Copyright © 2019-2026 Sergii Artemenko
+// 
+// This file is part of the Xtate project. <https://xtate.net/>
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+// 
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+using Xtate.Ancestor;
+using Xtate.StateMachine;
+
+namespace Xtate.Interpreter.Model;
+
+[InstantiatedByIoC]
+public class CustomActionNode : ExecutableEntityNode, ICustomAction, IAncestorProvider
+{
+	private readonly ICustomAction _customAction;
+
+	public CustomActionNode(DocumentIdNode documentIdNode, ICustomAction customAction) : base(documentIdNode, customAction)
+	{
+		Infra.NotNull(customAction.Xml);
+
+		_customAction = customAction;
+	}
+
+#region Interface IAncestorProvider
+
+	object IAncestorProvider.Ancestor => _customAction;
+
+#endregion
+
+#region Interface ICustomAction
+
+	public string XmlNamespace => _customAction.XmlNamespace!;
+
+	public string XmlName => _customAction.XmlName!;
+
+	public string Xml => _customAction.Xml!;
+
+	public ImmutableArray<ILocationExpression> Locations => _customAction.Locations;
+
+	public ImmutableArray<IValueExpression> Values => _customAction.Values;
+
+#endregion
+}
