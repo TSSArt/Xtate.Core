@@ -17,15 +17,32 @@
 
 using System.IO;
 using System.Xml;
-using Xtate.Builder;
-using Xtate.CustomAction;
+using Xtate.Actions;
+using Xtate.Class;
 using Xtate.DataModel;
-using Xtate.DataModel.Null;
+using Xtate.DataModel.DependencyInjection;
+using Xtate.DataModel.Null.DependencyInjection;
 using Xtate.DataModel.Runtime;
-using Xtate.DataModel.XPath;
+using Xtate.DataModel.Runtime.DependencyInjection;
+using Xtate.DataModel.Services;
+using Xtate.DataModel.XPath.DependencyInjection;
+using Xtate.DataTypes;
+using Xtate.Interpreter;
+using Xtate.Interpreter.DependencyInjection;
+using Xtate.Interpreter.Services;
+using Xtate.IoBoundTask;
+using Xtate.IoBoundTask.Services;
 using Xtate.IoC;
+using Xtate.IoC.DependencyInjection;
+using Xtate.NameTable;
+using Xtate.ResourceLoaders;
 using Xtate.Scxml;
-using Xtate.XInclude;
+using Xtate.Scxml.DependencyInjection;
+using Xtate.StateMachine;
+using Xtate.StateMachine.Builder;
+using Xtate.StateMachine.Builder.DependencyInjection;
+using Xtate.StateMachineFluentBuilder.DependencyInjection;
+using Xtate.StateMachineOptions.DependencyInjection;
 
 namespace Xtate.Core.Test;
 
@@ -75,7 +92,7 @@ public class RegisterClassTest
 
         // Assert
 
-        Assert.AreEqual(expected: "Xtate.DataModel.Null.NullDataModelHandler", typeInfo.FullTypeName);
+        Assert.AreEqual(expected: "Xtate.DataModel.Null.Services.NullDataModelHandler", typeInfo.FullTypeName);
         Assert.IsFalse(caseSensitivity.CaseInsensitive);
     }
 
@@ -108,7 +125,7 @@ public class RegisterClassTest
 
         // Assert
 
-        Assert.AreEqual(expected: "Xtate.DataModel.Runtime.RuntimeDataModelHandler", typeInfo.FullTypeName);
+        Assert.AreEqual(expected: "Xtate.DataModel.Runtime.Services.RuntimeDataModelHandler", typeInfo.FullTypeName);
         Assert.IsFalse(caseSensitivity.CaseInsensitive);
         Assert.IsTrue(val);
     }
@@ -139,7 +156,7 @@ public class RegisterClassTest
 
         // Assert
 
-        Assert.AreEqual(expected: "Xtate.DataModel.XPath.XPathDataModelHandler", typeInfo.FullTypeName);
+        Assert.AreEqual(expected: "Xtate.DataModel.XPath.Services.XPathDataModelHandler", typeInfo.FullTypeName);
         Assert.IsFalse(caseSensitivity.CaseInsensitive);
         Assert.IsTrue(val);
     }
@@ -188,7 +205,7 @@ public class RegisterClassTest
         services.AddModule<StateMachineFluentBuilderModule>();
         var provider = services.BuildProvider();
 
-        var stateMachineBuilder = provider.GetRequiredServiceSync<StateMachineFluentBuilder>();
+        var stateMachineBuilder = provider.GetRequiredServiceSync<StateMachineFluentBuilder.StateMachineFluentBuilder>();
 
         // Act
 
@@ -238,7 +255,10 @@ public class RegisterClassTest
         var services = new ServiceCollection();
         services.AddModule<ScxmlModule>();
         services.AddImplementation<DefaultIoBoundTask>().For<IIoBoundTask>();
-        var provider = services.BuildProvider();
+		var optionsMock = new Mock<IXIncludeOptions>();
+		optionsMock.Setup(options => options.XIncludeAllowed).Returns(true);
+		services.AddConstant(optionsMock.Object);
+		var provider = services.BuildProvider();
 
         var uri = new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Scxml/XInclude/DtdSingleIncludeSource.scxml");
 
@@ -270,10 +290,13 @@ public class RegisterClassTest
     {
         // Arrange
 
+		var mockXIncludeOptions = new Mock<IXIncludeOptions>();
+		mockXIncludeOptions.Setup(s => s.XIncludeAllowed).Returns(true);
+
         var services = new ServiceCollection();
         services.AddModule<ScxmlModule>();
         services.AddImplementation<DefaultIoBoundTask>().For<IIoBoundTask>();
-        services.AddConstant<IXIncludeOptions>(new XIncludeOptions());
+        services.AddConstant<IXIncludeOptions>(mockXIncludeOptions.Object);
         var provider = services.BuildProvider();
 
         var uri = new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Scxml/XInclude/SingleIncludeSource.scxml");
@@ -348,7 +371,7 @@ public class RegisterClassTest
 
         // Assert
 
-        Assert.AreEqual(expected: "Xtate.DataModel.XPath.XPathDataModelHandler", typeInfo.FullTypeName);
+        Assert.AreEqual(expected: "Xtate.DataModel.XPath.Services.XPathDataModelHandler", typeInfo.FullTypeName);
     }
 
     [TestMethod]
@@ -378,7 +401,7 @@ public class RegisterClassTest
 
         var services2 = new ServiceCollection();
         services2.AddModule<InterpreterModelBuilderModule>();
-        services2.AddModule<ToolsModule>();
+        services2.AddModule<IoCModule>();
         services2.AddImplementationSync<MyActionProvider>().For<IActionProvider>();
         services2.AddTypeSync<MyAction, XmlReader>();
         services2.AddConstant(provider.GetRequiredServiceSync<INameTableProvider>());
@@ -409,10 +432,13 @@ public class RegisterClassTest
                            """;
 
         var services = new ServiceCollection();
-        services.AddModule<StateMachineFactoryModule>();
+        services.AddModule<StateMachineOptionsModule>();
+        //services.AddModule<StateMachineFactoryModule>();
         services.AddModule<InterpreterModelBuilderModule>();
-        services.AddConstant<IScxmlStateMachine>(new ScxmlStringStateMachine(xml));
-        var provider = services.BuildProvider();
+		//services.AddConstant<IScxmlStateMachine>(new ScxmlStringStateMachine(xml));
+		var smc = new ScxmlStringStateMachine(xml);
+		smc.AddServices(services);
+		var provider = services.BuildProvider();
 
         var interpreterModelBuilder = await provider.GetRequiredService<InterpreterModelBuilder>();
 
@@ -439,10 +465,12 @@ public class RegisterClassTest
                            """;
 
         var services = new ServiceCollection();
-        services.AddConstant<IScxmlStateMachine>(new ScxmlStringStateMachine(xml));
-        services.AddModule<StateMachineFactoryModule>();
+        //services.AddConstant<IScxmlStateMachine>(new ScxmlStringStateMachine(xml));
+		var smc = new ScxmlStringStateMachine(xml);
+		smc.AddServices(services);
+        //services.AddModule<StateMachineFactoryModule>();
         services.AddModule<StateMachineInterpreterModule>();
-        services.AddImplementation<TraceLogWriter<Any>>().For<ILogWriter<Any>>();
+        //services.AddImplementation<TraceLogWriter<Any>>().For<ILogWriter<Any>>();
 
         var provider = services.BuildProvider();
 

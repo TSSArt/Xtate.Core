@@ -17,9 +17,13 @@
 
 using System.IO;
 using System.Threading;
-using Xtate.Core;
+using Xtate.DataTypes;
 using Xtate.IoC;
 using Xtate.Persistence;
+using Xtate.Persistence.DependencyInjection;
+using Xtate.Persistence.Extensions;
+using Xtate.Persistence.Internal;
+using Xtate.Persistence.Services;
 using IServiceProvider = Xtate.IoC.IServiceProvider;
 
 namespace Xtate.Test;

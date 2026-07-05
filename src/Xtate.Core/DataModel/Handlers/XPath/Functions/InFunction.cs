@@ -16,11 +16,14 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Xml.XPath;
+using Xtate.StateMachine;
 
-namespace Xtate.DataModel.XPath;
+namespace Xtate.DataModel.XPath.Functions;
 
+[InstantiatedByIoC]
 public class InFunction() : XPathFunctionBase(XPathResultType.Boolean, XPathResultType.Any)
 {
+	[InstantiatedByIoC]
 	public class Provider() : XPathFunctionProviderBase<InFunction>(string.Empty, name: @"In");
 
 	private IInStateController _inStateController;

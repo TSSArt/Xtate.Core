@@ -17,6 +17,7 @@
 
 using System.IO;
 using System.Xml;
+using Xtate.StateMachine;
 
 namespace Xtate.Core.Test.StateMachine.Types;
 

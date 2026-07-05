@@ -19,6 +19,8 @@ using System.IO;
 using System.Xml;
 using Xtate.IoC;
 using Xtate.Scxml;
+using Xtate.Scxml.DependencyInjection;
+using Xtate.StateMachine;
 
 namespace Xtate.Test;
 
@@ -27,7 +29,7 @@ public static class StateMachineGenerator
     private static IStateMachine FromScxml(string scxml)
     {
         using var stringReader = new StringReader(scxml);
-        XmlNameTable nt = new NameTable();
+        XmlNameTable nt = new System.Xml.NameTable();
         var xmlNamespaceManager = new XmlNamespaceManager(nt);
         using var xmlReader = XmlReader.Create(stringReader, settings: null, new XmlParserContext(nt, xmlNamespaceManager, xmlLang: null, xmlSpace: default));
 

@@ -16,6 +16,8 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Threading;
+using Xtate.Interpreter;
+using Xtate.Interpreter.Services;
 
 namespace Xtate.Core.Test;
 
@@ -36,7 +38,7 @@ public class EventQueueTest
     {
         var eventQueue = new EventQueue();
         var eventObject = new IncomingEvent();
-        await eventQueue.WriteAsync(eventObject, token: CancellationToken.None);
+        await eventQueue.Dispatch(eventObject, token: CancellationToken.None);
         var result = eventQueue.TryReadEvent(out var evt);
         var result2 = eventQueue.TryReadEvent(out var evt2);
 

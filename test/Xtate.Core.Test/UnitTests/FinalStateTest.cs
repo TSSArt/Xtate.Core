@@ -15,9 +15,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.Builder;
-using Xtate.Core;
+using Xtate.Class;
+using Xtate.DataModel.Runtime;
+using Xtate.DataTypes;
 using Xtate.IoC;
+using Xtate.StateMachineFluentBuilder.DependencyInjection;
+using Xtate.StateMachineHost;
+using Xtate.StateMachineHost.DependencyInjection;
 
 namespace Xtate.Test;
 
@@ -32,7 +36,7 @@ public class FinalStateTest
         services.AddModule<StateMachineFluentBuilderModule>();
         services.AddModule<StateMachineProcessorModule>();
         var serviceProvider = services.BuildProvider();
-        var builder = await serviceProvider.GetRequiredService<StateMachineFluentBuilder>();
+        var builder = await serviceProvider.GetRequiredService<StateMachineFluentBuilder.StateMachineFluentBuilder>();
 
         var stateMachine = builder
                            .BeginFinal()
@@ -61,7 +65,7 @@ public class FinalStateTest
         services.AddModule<StateMachineFluentBuilderModule>();
         services.AddModule<StateMachineProcessorModule>();
         var serviceProvider = services.BuildProvider();
-        var builder = await serviceProvider.GetRequiredService<StateMachineFluentBuilder>();
+        var builder = await serviceProvider.GetRequiredService<StateMachineFluentBuilder.StateMachineFluentBuilder>();
 
         // Arrange
         var stateMachine = builder

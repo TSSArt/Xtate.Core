@@ -16,9 +16,14 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Threading.Channels;
-using Xtate.Builder;
-using Xtate.Core;
+using Xtate.DataModel;
+using Xtate.DataModel.Runtime;
+using Xtate.DataTypes;
+using Xtate.Interpreter;
+using Xtate.Interpreter.DependencyInjection;
 using Xtate.IoC;
+using Xtate.StateMachine;
+using Xtate.StateMachineFluentBuilder.DependencyInjection;
 
 // ReSharper disable AccessToModifiedClosure
 
@@ -27,13 +32,13 @@ namespace Xtate.Test;
 [TestClass]
 public class StateMachineFluentBuilderTest
 {
-    public static ValueTask<StateMachineFluentBuilder> GetStateMachineFluentBuilder()
+    public static ValueTask<StateMachineFluentBuilder.StateMachineFluentBuilder> GetStateMachineFluentBuilder()
     {
         var services = new ServiceCollection();
         services.AddModule<StateMachineFluentBuilderModule>();
         var sp = services.BuildProvider();
 
-        return sp.GetRequiredService<StateMachineFluentBuilder>();
+        return sp.GetRequiredService<StateMachineFluentBuilder.StateMachineFluentBuilder>();
     }
 
     [TestMethod]
@@ -102,7 +107,7 @@ public class StateMachineFluentBuilderTest
         services.AddModule<StateMachineFluentBuilderModule>();
         var serviceProvider = services.BuildProvider();
 
-        var fluentBuilder = await serviceProvider.GetRequiredService<StateMachineFluentBuilder>();
+        var fluentBuilder = await serviceProvider.GetRequiredService<StateMachineFluentBuilder.StateMachineFluentBuilder>();
 
         stateMachine = fluentBuilder
                        .BeginState((Identifier)"S1")
@@ -111,8 +116,8 @@ public class StateMachineFluentBuilderTest
                        .Build();
 
         var stateMachineInterpreter = await serviceProvider.GetRequiredService<IStateMachineInterpreter>();
-        var eventQueueWriter = await serviceProvider.GetRequiredService<IEventQueueWriter>();
-        eventQueueWriter.Complete();
+        var eventQueueReader = await serviceProvider.GetRequiredService<IEventReader>();
+        eventQueueReader.Complete();
 
         var channel = Channel.CreateUnbounded<IIncomingEvent>();
         channel.Writer.Complete();
@@ -140,7 +145,7 @@ public class StateMachineFluentBuilderTest
         services.AddModule<StateMachineFluentBuilderModule>();
         var serviceProvider = services.BuildProvider();
 
-        var fluentBuilder = await serviceProvider.GetRequiredService<StateMachineFluentBuilder>();
+        var fluentBuilder = await serviceProvider.GetRequiredService<StateMachineFluentBuilder.StateMachineFluentBuilder>();
 
         //var builder = FluentBuilderFactory.Create();
 
@@ -153,8 +158,8 @@ public class StateMachineFluentBuilderTest
                        .Build();
 
         var stateMachineInterpreter = await serviceProvider.GetRequiredService<IStateMachineInterpreter>();
-        var eventQueueWriter = await serviceProvider.GetRequiredService<IEventQueueWriter>();
-        eventQueueWriter.Complete();
+        var eventQueueReader = await serviceProvider.GetRequiredService<IEventReader>();
+        eventQueueReader.Complete();
 
         var channel = Channel.CreateUnbounded<IIncomingEvent>();
         channel.Writer.Complete();
@@ -173,7 +178,7 @@ public class StateMachineFluentBuilderTest
         services.AddModule<StateMachineFluentBuilderModule>();
         var serviceProvider = services.BuildProvider();
 
-        var fluentBuilder = await serviceProvider.GetRequiredService<StateMachineFluentBuilder>();
+        var fluentBuilder = await serviceProvider.GetRequiredService<StateMachineFluentBuilder.StateMachineFluentBuilder>();
 
         stateMachine = fluentBuilder
                        .BeginState((Identifier)"S1")
@@ -189,8 +194,8 @@ public class StateMachineFluentBuilderTest
                        .Build();
 
         var stateMachineInterpreter = await serviceProvider.GetRequiredService<IStateMachineInterpreter>();
-        var eventQueueWriter = await serviceProvider.GetRequiredService<IEventQueueWriter>();
-        eventQueueWriter.Complete();
+        var eventQueueReader = await serviceProvider.GetRequiredService<IEventReader>();
+        eventQueueReader.Complete();
 
         var channel = Channel.CreateUnbounded<IIncomingEvent>();
         channel.Writer.Complete();

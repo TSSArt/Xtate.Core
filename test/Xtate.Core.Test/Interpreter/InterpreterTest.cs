@@ -16,6 +16,14 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using Xtate.DataModel;
+using Xtate.DataModel.Services;
+using Xtate.Interpreter;
+using Xtate.Interpreter.Internal;
+using Xtate.Interpreter.Model;
+using Xtate.Interpreter.Services;
+using Xtate.IoC.Tools;
+using Xtate.Logging;
+using Xtate.StateMachine;
 
 namespace Xtate.Core.Interpreter;
 
@@ -27,12 +35,16 @@ public class InterpreterTest
     {
         // arrange
         var linkedList = new LinkedList<int>();
-        var finalNode = new FinalNode(new DocumentIdNode(linkedList), new FinalEntity());
+		var finalNode = new FinalNode(new DocumentIdNode(linkedList), new FinalEntity { Id = Identifier.New() });
         var target = ImmutableArray.Create<StateEntityNode>(finalNode);
-        var transition = new TransitionNode.Empty(new DocumentIdNode(linkedList), target);
-        var stateMachineEntity = new StateMachineEntity
+		var transition = new TransitionNode(new DocumentIdNode(linkedList), new TransitionEntity { Target = [finalNode.Id] });
+		var initial = new InitialNode(new DocumentIdNode(linkedList), new InitialEntity { Transition = transition });
+
+		transition.TryMapTarget(new Dictionary<IIdentifier, StateEntityNode> { { finalNode.Id, finalNode } });
+
+		var stateMachineEntity = new StateMachineEntity
                                  {
-                                     Initial = new InitialNode.Empty(new DocumentIdNode(linkedList), transition),
+                                     Initial = initial,
                                      States = [finalNode]
                                  };
         var root = new StateMachineNode(new DocumentIdNode(linkedList), stateMachineEntity);
@@ -40,7 +52,7 @@ public class InterpreterTest
         var interpreterModelMock = new Mock<IInterpreterModel>();
         interpreterModelMock.Setup(m => m.Root).Returns(root);
 
-        var eventQueueMock = new Mock<IEventQueueReader>();
+        var eventQueueMock = new Mock<IEventReader>();
         var caseSensitivityMock = new Mock<ICaseSensitivity>();
         var invokeControllerMock = new Mock<IInvokeController>();
 
@@ -56,7 +68,7 @@ public class InterpreterTest
                                           StateMachineContext = stateMachineContextMock.Object,
                                           DataConverter = new DataConverter(caseSensitivityMock.Object),
                                           CaseSensitivity = caseSensitivityMock.Object,
-                                          EventQueueReader = eventQueueMock.Object,
+                                          EventReader = eventQueueMock.Object,
                                           Logger = loggerMock.Object,
                                           Model = interpreterModelMock.Object,
                                           NotifyStateChanged = [],

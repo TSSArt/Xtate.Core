@@ -15,7 +15,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using Xtate.Class;
+using Xtate.Interpreter;
 using Xtate.IoC;
+using Xtate.StateMachineHost;
+using Xtate.StateMachineHost.DependencyInjection;
 
 namespace Xtate.Core.Test;
 

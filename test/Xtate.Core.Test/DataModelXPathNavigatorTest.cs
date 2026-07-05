@@ -17,7 +17,9 @@
 
 using System.Xml;
 using System.Xml.XPath;
-using Xtate.DataModel.XPath;
+using Xtate.DataModel.XPath.Internal;
+using Xtate.DataTypes;
+using Xtate.NameTable;
 
 namespace Xtate.Core.Test;
 
@@ -29,7 +31,7 @@ public class DataModelXPathNavigatorTest
     [TestInitialize]
     public void Init()
     {
-        NameTableProvider.Setup(n => n.GetNameTable()).Returns(new NameTable());
+        NameTableProvider.Setup(n => n.GetNameTable()).Returns(new System.Xml.NameTable());
     }
 
     [TestMethod]

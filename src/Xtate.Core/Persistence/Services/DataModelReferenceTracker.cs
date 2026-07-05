@@ -1,0 +1,172 @@
+﻿// Copyright © 2019-2026 Sergii Artemenko
+// 
+// This file is part of the Xtate project. <https://xtate.net/>
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+// 
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+using Xtate.DataTypes;
+using Xtate.Persistence.Internal;
+
+namespace Xtate.Persistence.Services;
+
+public sealed class DataModelReferenceTracker : IDisposable
+{
+	private readonly Bucket _bucket;
+
+	private readonly Dictionary<DataModelList, Entry> _lists = [];
+
+	private readonly Dictionary<int, DataModelList> _refIds = [];
+
+	private bool _disposed;
+
+	private int _nextRefId;
+
+	public DataModelReferenceTracker(in Bucket bucket)
+	{
+		_bucket = bucket;
+		bucket.TryGet(Bucket.RootKey, out _nextRefId);
+	}
+
+#region Interface IDisposable
+
+	public void Dispose()
+	{
+		if (_disposed)
+		{
+			return;
+		}
+
+		foreach (var entry in _lists.Values)
+		{
+			entry.Controller.Dispose();
+		}
+
+		_disposed = true;
+	}
+
+#endregion
+
+	public object GetValue(int refId, DataModelValueType type, DataModelList? baseList)
+	{
+		if (_refIds.TryGetValue(refId, out var list))
+		{
+			Infra.Assert(baseList is null || baseList == list, Resources.Assertion_ObjectsStructureMismatch);
+
+			return list;
+		}
+
+		if (baseList is null)
+		{
+			return GetValue(refId, type);
+		}
+
+		FillList(refId, type, baseList);
+
+		return baseList;
+	}
+
+	private void FillList(int refId, DataModelValueType type, DataModelList list)
+	{
+		var controller = type == DataModelValueType.List ? ListControllerCreator(_bucket.Nested(refId), list) : throw Infra.Unmatched(type);
+
+		_lists[list] = new Entry { RefCount = null, RefId = refId, Controller = controller };
+		_refIds[refId] = list;
+	}
+
+	private DataModelList GetValue(int refId, DataModelValueType type)
+	{
+		var bucket = _bucket.Nested(refId);
+		bucket.TryGet(Key.Access, out DataModelAccess access);
+
+		if (type == DataModelValueType.List)
+		{
+			bucket.TryGet(Key.CaseInsensitive, out bool caseInsensitive);
+			var list = new DataModelList(caseInsensitive);
+			var listController = ListControllerCreator(bucket, list);
+			list.Access = access;
+			_lists[list] = new Entry { RefCount = 0, RefId = refId, Controller = listController };
+			_refIds[refId] = list;
+
+			return list;
+		}
+
+		throw Infra.Unmatched(type);
+	}
+
+	private int GetRefId(DataModelList list, Func<Bucket, DataModelList, DataModelPersistingController> creator, bool incrementReference)
+	{
+		if (!_lists.TryGetValue(list, out var entry))
+		{
+			var refId = _nextRefId ++;
+			_bucket.Add(Bucket.RootKey, _nextRefId);
+			entry.RefCount = incrementReference ? 1 : 0;
+			entry.RefId = refId;
+			_refIds[refId] = list;
+			entry.Controller = creator(_bucket.Nested(refId), list);
+			_lists[list] = entry;
+		}
+		else if (incrementReference)
+		{
+			entry.RefCount ++;
+			_lists[list] = entry;
+		}
+
+		return entry.RefId;
+	}
+
+	public int GetRefId(in DataModelValue value) =>
+		value.Type == DataModelValueType.List ? GetRefId(value.AsList(), ListControllerCreator, incrementReference: false) : throw Infra.Unmatched(value.Type);
+
+	public void AddReference(in DataModelValue value)
+	{
+		if (value.Type == DataModelValueType.List)
+		{
+			GetRefId(value.AsList(), ListControllerCreator, incrementReference: true);
+		}
+	}
+
+	private DataModelPersistingController ListControllerCreator(Bucket bucket, DataModelList list) => new DataModelListPersistingController(bucket, this, list);
+
+	public void RemoveReference(in DataModelValue value)
+	{
+		if (value.Type == DataModelValueType.List)
+		{
+			var list = value.AsList();
+
+			if (_lists.TryGetValue(list, out var entry))
+			{
+				if (-- entry.RefCount == 0)
+				{
+					entry.Controller.Dispose();
+					_bucket.RemoveSubtree(entry.RefId);
+					_lists.Remove(list);
+					_refIds.Remove(entry.RefId);
+				}
+				else
+				{
+					_lists[list] = entry;
+				}
+			}
+		}
+	}
+
+	private struct Entry
+	{
+		public DataModelPersistingController Controller;
+
+		public int? RefCount;
+
+		public int RefId;
+	}
+}

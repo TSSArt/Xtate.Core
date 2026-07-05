@@ -15,8 +15,10 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.Core;
-using Xtate.Persistence;
+using Xtate.Interpreter;
+using Xtate.Interpreter.Internal;
+using Xtate.Persistence.Services;
+using Xtate.StateMachine;
 
 namespace Xtate.Test;
 

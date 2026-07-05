@@ -19,7 +19,7 @@ namespace Xtate.Test;
 
 public static class StateMachineHostOptionsTestBuilder
 {
-    public delegate void StateMachineHostOptionsSetup(StateMachineHostOptions options);
+  /* public delegate void StateMachineHostOptionsSetup(StateMachineHostOptions options);
 
     public static StateMachineHostOptions Create(StateMachineHostOptionsSetup build)
     {
@@ -28,5 +28,5 @@ public static class StateMachineHostOptionsTestBuilder
         build(options);
 
         return options;
-    }
+    }*/
 }

@@ -16,8 +16,10 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Xml;
-using Xtate.Core;
+using Xtate.Class;
 using Xtate.IoC;
+using Xtate.StateMachine;
+using Xtate.StateMachine.Validator;
 
 namespace Xtate.Test;
 
@@ -27,8 +29,10 @@ public class ScxmlToDomTest
     private static IStateMachine GetStateMachine(string scxml)
     {
         var services = new ServiceCollection();
-        services.AddModule<StateMachineFactoryModule>();
-        services.AddConstant<IScxmlStateMachine>(new ScxmlStringStateMachine(scxml));
+        //services.AddModule<StateMachineFactoryModule>();
+        //services.AddConstant<IScxmlStateMachine>(new ScxmlStringStateMachine(scxml));
+		var smc = new ScxmlStringStateMachine(scxml);
+		smc.AddServices(services);
         var serviceProvider = services.BuildProvider();
 
         return serviceProvider.GetRequiredService<IStateMachine>().Result;

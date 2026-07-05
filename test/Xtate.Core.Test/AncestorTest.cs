@@ -1,4 +1,6 @@
 ﻿using Xtate.IoC;
+using Xtate.IoC.DependencyInjection;
+using Xtate.IoC.TransformArgs.DependencyInjection;
 
 namespace Xtate.Core.Test;
 
@@ -8,7 +10,7 @@ public class AncestorTest
 	[TestMethod]
 	public async Task Method2Test()
 	{
-		await using var container = Container.Create<ToolsModule>(s =>
+		await using var container = Container.Create<IoCModule>(s =>
 																  {
 																	  s.AddType<Anc>();
 																	  s.AddType<Child>();
@@ -24,11 +26,11 @@ public class AncestorTest
 	[TestMethod]
 	public async Task Method3Test()
 	{
-		await using var container = Container.Create<ToolsModule>(s =>
-																  {
-																	  s.AddType<Anc2>();
-																	  s.AddType<Child2>();
-																  });
+		await using var container = Container.Create<IoCModule>(s =>
+																{
+																	s.AddType<Anc2>();
+																	s.AddType<Child2>();
+																});
 
 		var anc = await container.GetRequiredService<Anc2>();
 
@@ -43,11 +45,11 @@ public class AncestorTest
 	[TestMethod]
 	public async Task Method4Test()
 	{
-		await using var container = Container.Create<ToolsModule>(s =>
-																  {
-																	  s.AddType<Anc3>();
-																	  s.AddType<Child3>();
-																  });
+		await using var container = Container.Create<IoCModule>(s =>
+																{
+																	s.AddType<Anc3>();
+																	s.AddType<Child3>();
+																});
 
 		var anc = await container.GetRequiredService<Anc3>();
 
@@ -66,16 +68,16 @@ public class AncestorTest
 	[TestMethod]
 	public async Task MethodATest()
 	{
-		await using var container = Container.Create<ToolsModule>(s =>
-																  {
-																	  s.AddType<ConfigFileReader>();
-																	  s.AddType<SettingsFileReader>();
+		await using var container = Container.Create<IoCModule>(s =>
+																{
+																	s.AddType<ConfigFileReader>();
+																	s.AddType<SettingsFileReader>();
 
-																	  s.AddImplementation<FileInstance, string>().For<IFile>();
+																	s.AddImplementation<FileInstance, string>().For<IFile>();
 
-																	  s.ForService<IFile, string>().UseArgValue("Config").IfAncestor<ConfigFileReader>();
-																	  s.ForService<IFile, string>().UseArgValue("Settings").IfAncestor<SettingsFileReader>();
-																  });
+																	s.ForService<IFile, string>().UseArgValue("Config").IfAncestor<ConfigFileReader>();
+																	s.ForService<IFile, string>().UseArgValue("Settings").IfAncestor<SettingsFileReader>();
+																});
 
 		var configFileReader = await container.GetRequiredService<ConfigFileReader>();
 		var settingsFileReader = await container.GetRequiredService<SettingsFileReader>();
@@ -141,18 +143,18 @@ public class AncestorTest
 	[InstantiatedByIoC]
 	public class Child
 	{
-		public required Ancestor<Anc> Ancestor { get; [SetByIoC] init; }
+		public required IoC.AncestorTracker.Ancestor<Anc> Ancestor { get; [SetByIoC] init; }
 	}
 
 	[InstantiatedByIoC]
 	public class Child2
 	{
-		public required Ancestor<Anc2> Ancestor { get; [SetByIoC] init; }
+		public required IoC.AncestorTracker.Ancestor<Anc2> Ancestor { get; [SetByIoC] init; }
 	}
 
 	[InstantiatedByIoC]
 	public class Child3
 	{
-		public required Ancestor<Anc3> Ancestor { get; [SetByIoC] init; }
+		public required IoC.AncestorTracker.Ancestor<Anc3> Ancestor { get; [SetByIoC] init; }
 	}
 }

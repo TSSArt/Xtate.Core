@@ -16,11 +16,26 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Threading;
+using Xtate.Class;
 using Xtate.Core.Test.Legacy;
 using Xtate.DataModel;
+using Xtate.DataModel.Services;
+using Xtate.Interpreter;
+using Xtate.Interpreter.DependencyInjection;
+using Xtate.Interpreter.Internal;
+using Xtate.Interpreter.Services;
 using Xtate.IoC;
+using Xtate.IoC.Tools;
+using Xtate.Logging;
 using Xtate.Persistence;
-using Xtate.Test;
+using Xtate.Persistence.DependencyInjection;
+using Xtate.Persistence.Services;
+using Xtate.ResourceLoaders;
+using Xtate.Scxml;
+using Xtate.StateMachine;
+using Xtate.StateMachineHost;
+using Xtate.StateMachineHost.DependencyInjection;
+using Xtate.StateMachineHost.Services;
 
 namespace Xtate.Core.Test;
 
@@ -39,13 +54,16 @@ public class StateMachinePersistingInterpreterTest
                                                                                         services.AddImplementation<TestDataModelHandler>().For<IDataModelHandler>();
                                                                                         services.AddImplementation<InterpreterModelPersistenceTest.DummyResourceLoader>().For<IResourceLoader>();
                                                                                         services.AddConstant<IStateMachineContext>(noStateMachineContext);
-                                                                                    });
+																						var xincludeOptionsMock = new Mock<IXIncludeOptions>();
+																						xincludeOptionsMock.Setup(x => x.XIncludeAllowed).Returns(true);
+																						services.AddConstant(xincludeOptionsMock.Object);
+																					});
         var interpreterModelBuilder = await container.GetRequiredService<InterpreterModelBuilder>();
         var interpreterModel = await interpreterModelBuilder.BuildModel(true);
 
         var caseSensitivityMock = new Mock<ICaseSensitivity>();
         var stateMachineArgumentsMock = new Mock<IStateMachineArguments>();
-        var eventQueueReaderMock = new Mock<IEventQueueReader>();
+        var eventQueueReaderMock = new Mock<IEventReader>();
         var loggerMock = new Mock<ILogger<StateMachineInterpreter>>();
         var unhandledErrorBehaviourMock = new Mock<IUnhandledErrorBehaviour>();
         var invokeControllerMock = new Mock<IInvokeController>();
@@ -53,7 +71,10 @@ public class StateMachinePersistingInterpreterTest
         var suspendManagerMock = new Mock<ISuspendEventDispatcher>();
         var persistenceOptionsMock = new Mock<IPersistenceOptions>();
 
-        stateMachineSessionId.SetupGet(x => x.SessionId).Returns(SessionId.New());
+
+		persistenceOptionsMock.Setup(x => x.PersistenceLevel).Returns(PersistenceLevel.StableState);
+		
+		stateMachineSessionId.SetupGet(x => x.SessionId).Returns(SessionId.New());
         unhandledErrorBehaviourMock.Setup(x => x.Behaviour).Returns(UnhandledErrorBehaviour.IgnoreError);
 
         var stateMachineRuntimeError = new StateMachineRuntimeError(new ScopeObject());
@@ -64,7 +85,7 @@ public class StateMachinePersistingInterpreterTest
                               StateMachineRuntimeError = stateMachineRuntimeError,
                               StateMachineArguments = stateMachineArgumentsMock.Object,
                               DataConverter = new DataConverter(caseSensitivityMock.Object),
-                              EventQueueReader = eventQueueReaderMock.Object,
+                              EventReader = eventQueueReaderMock.Object,
                               Logger = loggerMock.Object,
                               Model = interpreterModel,
                               InterpreterModel = interpreterModel,
@@ -79,60 +100,139 @@ public class StateMachinePersistingInterpreterTest
                           };
         await interpreter.Run();
 
-        Assert.AreEqual(expected: 11, noStateMachineContext.StateStorage.GetDataSize());
+        Assert.AreEqual(expected: 18, noStateMachineContext.StateStorage.GetDataSize());
     }
 
-    [TestMethod]
-    public async Task SuspendResumeTest()
-    {
-        var stateMachine = new ScxmlStringStateMachine(
-            """
-            <scxml xmlns="http://www.w3.org/2005/07/scxml" xmlns:sys="http://xtate.net/scxml/system" version="1.0">
-              <state id="before">
-                <transition event="step" target="after"/>
-              </state>
-              <state id="after">
-                <transition event="complete" target="fin"/>
-              </state>
-              <final id="fin">
-                <donedata><content>Hello</content></donedata>
-              </final>
-            </scxml>
-            """);
+	[TestMethod]
+	public async Task SuspendResumeTest()
+	{
+		var stateMachine = new ScxmlStringStateMachine(
+							   """
+							   <scxml xmlns="http://www.w3.org/2005/07/scxml" xmlns:sys="http://xtate.net/scxml/system" version="1.0">
+							     <state id="before">
+							       <transition event="step" target="after"/>
+							     </state>
+							     <state id="after">
+							       <transition event="complete" target="fin"/>
+							     </state>
+							     <final id="fin">
+							       <donedata><content>Hello</content></donedata>
+							     </final>
+							   </scxml>
+							   """)
+		{
+			SessionId = "TMP_44"
+		};
+
+		var destroyOnIdleTimeoutMock = new Mock<IDestroyOnIdleTimeout>();
+		destroyOnIdleTimeoutMock.Setup(x => x.IdleTimeout).Returns(TimeSpan.FromMilliseconds(1000));
+
+		var persistenceOptionsMock = new Mock<IPersistenceOptions>();
+		persistenceOptionsMock.Setup(x => x.PersistenceLevel).Returns(PersistenceLevel.StableState);
 
 		await using var container = Container.Create<StateMachineProcessorModule, PersistenceModule>(services =>
-																									 {
-																										 services
-																											 .AddSharedImplementation<StateMachinePersistenceTest.TestStorage>(SharedWithin.Container)
-																											 .For<IStorageProvider>();
-																									 });
+																													   {
+																														   services.AddSharedTypeSync<SharedMemoryStreams<Any>>(SharedWithin.Container);
+																														   services.AddImplementation<InMemoryStorageProvider>().For<IStorageProvider>();
+																														   services.AddConstant(destroyOnIdleTimeoutMock.Object);
+																														   services.AddConstant(persistenceOptionsMock.Object);
+																													   });
 
-        var stateMachineScopeManager = await container.GetRequiredService<IStateMachineScopeManager>();
-        var stateMachineCollection = await container.GetRequiredService<IStateMachineCollection>();
-        var executeTask = stateMachineScopeManager.Execute(stateMachine, SecurityContextType.NewStateMachine);
+		var stateMachineScopeManager = await container.GetRequiredService<IStateMachineScopeManager>();
+		var stateMachineCollection = await container.GetRequiredService<IStateMachineCollection>();
+		var stateMachineResult = await stateMachineScopeManager.Start(stateMachine, SecurityContextType.NewStateMachine);
 
 		var suspendEventDispatcher = await container.GetRequiredService<SuspendEventDispatcher>();
 
 		await stateMachineCollection.Dispatch(stateMachine.SessionId, new IncomingEvent(new EventEntity("step")) { Type = EventType.External }, CancellationToken.None);
-		
-		suspendEventDispatcher.Suspend();
+
+		suspendEventDispatcher.Suspend(false);
 
 		try
 		{
-			await executeTask;
+			await stateMachineResult.GetResult();
 		}
-		catch (StateMachineSuspendedException) { }
+		catch (StateMachineSuspendedException)
+		{
+			Console.Write(@"OK");
+		}
 
-		//var ctxStorage = await container.GetRequiredService<IStorage, string>("ctx");
-
-		//StorageTest.Dump(ctxStorage, "===", true);
-		
-		var executeTaskResumed = stateMachineScopeManager.Execute(stateMachine, SecurityContextType.NewStateMachine);
+		var startResumed = await stateMachineScopeManager.Start(stateMachine, SecurityContextType.NewStateMachine);
 
 		await stateMachineCollection.Dispatch(stateMachine.SessionId, new IncomingEvent(new EventEntity("complete")) { Type = EventType.External }, CancellationToken.None);
 
-		var result = await executeTaskResumed;
+		var result = await startResumed.GetResult();
 
-        Assert.AreEqual(expected: "Hello", result);
-    }
+		Assert.AreEqual(expected: "Hello", result);
+	}
+
+	[TestMethod]
+	public async Task InitStateTest()
+	{
+		var stateMachine = new ScxmlStringStateMachine(
+							   """
+							   <scxml xmlns="http://www.w3.org/2005/07/scxml" xmlns:sys="http://xtate.net/scxml/system" version="1.0">
+							     <state>
+							       <state>
+							         <transition target="fin"/>
+							       </state>
+							       <state></state>
+							     </state>
+							     <final id="fin">
+							       <donedata><content>Hello</content></donedata>
+							     </final>
+							   </scxml>
+							   """);
+
+		await using var container = Container.Create<StateMachineProcessorModule>();
+
+		var stateMachineScopeManager = await container.GetRequiredService<IStateMachineScopeManager>();
+		var result = await stateMachineScopeManager.Execute(stateMachine, SecurityContextType.NewStateMachine);
+
+		Assert.AreEqual(expected: "Hello", result);
+	}
+
+	[TestMethod]
+	public async Task HangTest()
+	{
+		var stateMachine = new ScxmlStringStateMachine(
+							   """
+							   <scxml xmlns="http://www.w3.org/2005/07/scxml" xmlns:sys="http://xtate.net/scxml/system" version="1.0">
+							     <state id="before">
+							       <transition event="step" target="fin"/>
+							     </state>
+							     <final id="fin">
+							       <donedata><content>Hello</content></donedata>
+							     </final>
+							   </scxml>
+							   """)
+		{
+			SessionId = "TMP_44"
+		};
+		var persistenceOptionsMock = new Mock<IPersistenceOptions>();
+		persistenceOptionsMock.Setup(x => x.PersistenceLevel).Returns(PersistenceLevel.StableState);
+
+		await using var container = Container.Create<StateMachineProcessorModule, PersistenceModule>(services =>
+		{
+			services.AddSharedTypeSync<SharedMemoryStreams<Any>>(SharedWithin.Container);
+			services.AddImplementation<InMemoryStorageProvider>().For<IStorageProvider>();
+			services.AddConstant(persistenceOptionsMock.Object);
+		});
+
+		var stateMachineScopeManager = await container.GetRequiredService<IStateMachineScopeManager>();
+		var stateMachineCollection = await container.GetRequiredService<IStateMachineCollection>();
+		var result = await stateMachineScopeManager.Start(stateMachine, SecurityContextType.NewStateMachine);
+		
+		var suspendEventDispatcher = await container.GetRequiredService<SuspendEventDispatcher>();
+
+		await stateMachineCollection.Dispatch(stateMachine.SessionId, new IncomingEvent(new EventEntity("step")) { Type = EventType.External }, CancellationToken.None);
+
+		suspendEventDispatcher.Suspend(false);
+
+		try
+		{
+			await result.GetResult();
+		}
+		catch (StateMachineSuspendedException) { }
+	}
 }

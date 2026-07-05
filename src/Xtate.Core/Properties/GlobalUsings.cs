@@ -29,8 +29,8 @@ global using System.Linq.Expressions;
 global using System.Diagnostics.CodeAnalysis;
 global using System.Runtime.CompilerServices;
 global using JetBrains.Annotations;
-global using Xtate.Core;
 
 // Global aliases
 global using NotNullAttribute = System.Diagnostics.CodeAnalysis.NotNullAttribute;
 global using IServiceProvider = Xtate.IoC.IServiceProvider;
+global using Empty = System.ValueTuple;

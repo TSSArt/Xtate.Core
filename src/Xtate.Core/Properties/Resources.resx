@@ -765,7 +765,7 @@
     <value>{0} Line {1}, Position {2}.</value>
   </data>
   <data name="Exception_LoadingExternalResourcesDoesNotSupported" xml:space="preserve">
-    <value>Loading external resources does not supported. Derive class from ScxmlXmlResolver and pass instance of it to ScxmlDirector.</value>
+    <value>Loading external resources does not supported.</value>
   </data>
   <data name="Exception_LoadingExternalResourcesSynchronouslyDoesNotSupported" xml:space="preserve">
     <value>Loading external resources synchronously does not supported.</value>
@@ -999,5 +999,26 @@ Exception: {3}</value>
   </data>
   <data name="Exception_InvalidTargetFormat" xml:space="preserve">
 	  <value>Invalid Target format.</value>
+  </data>
+  <data name="Exception_InvalidTimestampActualExpected" xml:space="preserve">
+	  <value>Invalid timestamp. Actual is {0}. Expected is {1}.</value>
+  </data>
+  <data name="Message_AnErrorOccurredInTheBackgroundProcess" xml:space="preserve">
+	  <value>An error occurred in the background process.</value>
+  </data>
+  <data name="Exception_TheStreamIsCurrentlyBeingReadFromOrWrittenTo" xml:space="preserve">
+	  <value>The stream '{0}' is currently being read from or written to.</value>
+  </data>
+  <data name="Exception_TheStreamIsCurrentlyBeingWrittenTo" xml:space="preserve">
+	  <value>The stream '{0}' is currently being written to.</value>
+  </data>
+  <data name="Exception_ThisCollectionIsReadOnlyAndCannotBeModified" xml:space="preserve">
+	  <value>This collection is read-only and cannot be modified.</value>
+  </data>
+  <data name="Exception_ValueMustBeBetween0and60Seconds" xml:space="preserve">
+	  <value>Value must be between 0 and 60 seconds.</value>
+  </data>
+  <data name="Exception_NamedPipeIoProcessorMessageSizeExceedsLimit" xml:space="preserve">
+	  <value>Message size {0} exceeds the maximum allowed size of {1}</value>
   </data>
 </root>

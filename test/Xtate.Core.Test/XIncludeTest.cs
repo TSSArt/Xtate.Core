@@ -17,9 +17,14 @@
 
 using System.Text;
 using System.Xml;
+using Xtate.Class;
 using Xtate.IoC;
+using Xtate.ResourceLoaders;
 using Xtate.Scxml;
-using Xtate.XInclude;
+using Xtate.Scxml.DependencyInjection;
+using Xtate.Scxml.Services;
+using Xtate.StateMachineHost;
+using Xtate.StateMachineHost.DependencyInjection;
 
 namespace Xtate.Core.Test;
 
@@ -29,12 +34,18 @@ public class XIncludeTest
     [TestMethod]
     public async Task CreateStateMachineWithXInclude()
     {
-        var services = new ServiceCollection();
-        services.AddModule<StateMachineProcessorModule>();
-        services.AddImplementationSync<XIncludeOptions>().For<IXIncludeOptions>();
+		var mockXIncludeOptions = new Mock<IXIncludeOptions>();
+		mockXIncludeOptions.Setup(s => s.XIncludeAllowed).Returns(true);
 
-        //services.AddConstant<IServiceProviderActions>(new ServiceProviderDebugger(new StreamWriter(File.Create(@"D:\Ser\s1.txt"))));
-        var serviceProvider = services.BuildProvider();
+		
+
+		var services = new ServiceCollection();
+        services.AddModule<StateMachineProcessorModule>();
+		services.AddConstant(mockXIncludeOptions.Object);
+
+
+		//services.AddConstant<IServiceProviderActions>(new ServiceProviderDebugger(new StreamWriter(File.Create(@"D:\Ser\s1.txt"))));
+		var serviceProvider = services.BuildProvider();
 
         //var host = (IHostController) await serviceProvider.GetRequiredService<StateMachineHost>();
         var stateMachineScopeManager = await serviceProvider.GetRequiredService<IStateMachineScopeManager>();
@@ -54,6 +65,9 @@ public class XIncludeTest
 
         var services = new ServiceCollection();
         services.AddModule<ScxmlModule>();
+		var optionsMock = new Mock<IXIncludeOptions>();
+		optionsMock.Setup(options => options.XIncludeAllowed).Returns(true);
+		services.AddConstant(optionsMock.Object);
         var serviceProvider = services.BuildProvider();
 
         var resourceLoaderService = await serviceProvider.GetRequiredService<IResourceLoader>();
@@ -86,6 +100,9 @@ public class XIncludeTest
 
         var services = new ServiceCollection();
         services.AddModule<ScxmlModule>();
+		var optionsMock = new Mock<IXIncludeOptions>();
+		optionsMock.Setup(options => options.XIncludeAllowed).Returns(true);
+		services.AddConstant(optionsMock.Object);
         var serviceProvider = services.BuildProvider();
 
         var resourceLoaderService = await serviceProvider.GetRequiredService<IResourceLoader>();

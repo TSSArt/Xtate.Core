@@ -15,7 +15,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using Xtate.Class;
+using Xtate.Interpreter;
+using Xtate.Interpreter.DependencyInjection;
 using Xtate.IoC;
+using Xtate.StateMachine;
 
 namespace Xtate.Core.Test.Interpreter;
 
@@ -183,11 +187,13 @@ public class TransitionToDiTest
 
         var services = new ServiceCollection();
 
-        services.AddModule<StateMachineFactoryModule>();
+		//services.AddModule<StateMachineFactoryModule>();
 
-        services.AddConstant<IScxmlStateMachine>(new ScxmlStringStateMachine(xml));
+		//services.AddConstant<IScxmlStateMachine>(new ScxmlStringStateMachine(xml));
+		var smc = new ScxmlStringStateMachine(xml);
+		smc.AddServices(services);
 
-        var provider = services.BuildProvider();
+		var provider = services.BuildProvider();
 
         var stateMachine = await provider.GetRequiredService<IStateMachine>();
 

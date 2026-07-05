@@ -16,10 +16,21 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.IO;
-using Xtate.Builder;
+using Xtate.Ancestor.Extensions;
+using Xtate.Class;
 using Xtate.DataModel;
+using Xtate.DataTypes;
+using Xtate.Interpreter;
+using Xtate.Interpreter.DependencyInjection;
 using Xtate.IoC;
 using Xtate.Persistence;
+using Xtate.Persistence.DependencyInjection;
+using Xtate.Persistence.Services;
+using Xtate.ResourceLoaders;
+using Xtate.ResourceLoaders.Resx.Services;
+using Xtate.Scxml;
+using Xtate.StateMachine;
+using Xtate.StateMachineFluentBuilder.DependencyInjection;
 using Xtate.Test;
 
 namespace Xtate.Core.Test.Legacy;
@@ -95,7 +106,7 @@ public class Evaluator : IExternalScriptExpression, IIntegerEvaluator, IStringEv
 
 #region Interface IObjectEvaluator
 
-    ValueTask<IObject> IObjectEvaluator.EvaluateObject() => new(DefaultObject.Null);
+    ValueTask<IObject> IObjectEvaluator.EvaluateObject() => new(DataModelValue.Null);
 
 #endregion
 
@@ -159,10 +170,16 @@ public class InterpreterModelPersistenceTest
     {
         var services = new ServiceCollection();
         services.AddModule<StateMachineInterpreterModule>();
-        services.AddModule<StateMachineFactoryModule>();
-        services.AddConstant<IStateMachineLocation>(new LocationStateMachine(new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Legacy/test.scxml")));
-        services.AddImplementation<TestDataModelHandler>().For<IDataModelHandler>();
+        services.AddModule<PersistenceModule>();
+		//services.AddModule<StateMachineFactoryModule>();
+		//services.AddConstant<IStateMachineLocation>(new LocationStateMachine(new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Legacy/test.scxml")));
+		var smc = new LocationStateMachine("res://Xtate.Core.Test/Xtate.Core.Test/Legacy/test.scxml");
+		smc.AddServices(services);
+		services.AddImplementation<TestDataModelHandler>().For<IDataModelHandler>();
         services.AddImplementation<DummyResourceLoader>().For<IResourceLoader>();
+		var optionsMock = new Mock<IXIncludeOptions>();
+		optionsMock.Setup(x => x.XIncludeAllowed).Returns(true);
+		services.AddConstant(optionsMock.Object);
         var serviceProvider = services.BuildProvider();
         var model = await serviceProvider.GetRequiredService<IInterpreterModel>();
         var storeSupport = model.Root.UseAncestor.As<IStoreSupport>();
@@ -178,11 +195,17 @@ public class InterpreterModelPersistenceTest
     {
         var services = new ServiceCollection();
         services.AddModule<StateMachineInterpreterModule>();
-        services.AddModule<StateMachineFactoryModule>();
-        services.AddConstant<IStateMachineLocation>(new LocationStateMachine(new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Legacy/test.scxml")));
+		services.AddModule<PersistenceModule>();
+		//services.AddModule<StateMachineFactoryModule>();
+		//services.AddConstant<IStateMachineLocation>(new LocationStateMachine(new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Legacy/test.scxml")));
+		var smc = new LocationStateMachine("res://Xtate.Core.Test/Xtate.Core.Test/Legacy/test.scxml");
+        smc.AddServices(services);
         services.AddImplementation<TestDataModelHandler>().For<IDataModelHandler>();
         services.AddImplementation<DummyResourceLoader>().For<IResourceLoader>();
-        var serviceProvider = services.BuildProvider();
+		var optionsMock = new Mock<IXIncludeOptions>();
+		optionsMock.Setup(x => x.XIncludeAllowed).Returns(true);
+		services.AddConstant(optionsMock.Object);
+		var serviceProvider = services.BuildProvider();
         var model = await serviceProvider.GetRequiredService<IInterpreterModel>();
         var storeSupport = model.Root.UseAncestor.As<IStoreSupport>();
 
@@ -206,7 +229,7 @@ public class InterpreterModelPersistenceTest
 
         var services2 = new ServiceCollection();
         services2.AddModule<StateMachineInterpreterModule>();
-        services2.AddModule<StateMachineFactoryModule>();
+        //services2.AddModule<StateMachineFactoryModule>();
         services2.AddConstant(restoredStateMachine);
         services2.AddImplementation<TestDataModelHandler>().For<IDataModelHandler>();
         services2.AddImplementation<DummyResourceLoader>().For<IResourceLoader>();
@@ -221,7 +244,7 @@ public class InterpreterModelPersistenceTest
         var services0 = new ServiceCollection();
         services0.AddModule<StateMachineFluentBuilderModule>();
         var buildProvider = services0.BuildProvider();
-        var fluentBuilder = buildProvider.GetRequiredServiceSync<StateMachineFluentBuilder>();
+        var fluentBuilder = buildProvider.GetRequiredServiceSync<StateMachineFluentBuilder.StateMachineFluentBuilder>();
 
         var stateMachine = fluentBuilder
                            .BeginState((Identifier)"a")
@@ -262,7 +285,7 @@ public class InterpreterModelPersistenceTest
 
         var services2 = new ServiceCollection();
         services2.AddModule<StateMachineInterpreterModule>();
-        services2.AddModule<StateMachineFactoryModule>();
+        //services2.AddModule<StateMachineFactoryModule>();
         services2.AddConstant(restoredStateMachine);
         services2.AddImplementation<TestDataModelHandler>().For<IDataModelHandler>();
         services2.AddImplementation<DummyResourceLoader>().For<IResourceLoader>();

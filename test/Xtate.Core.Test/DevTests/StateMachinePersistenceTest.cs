@@ -20,9 +20,12 @@ using System.IO;
 using System.Net.Mime;
 using System.Reflection;
 using System.Xml;
-using Xtate.Core;
+using Xtate.Class;
 using Xtate.IoC;
 using Xtate.Persistence;
+using Xtate.Persistence.Services;
+using Xtate.ResourceLoaders;
+using Xtate.StateMachine;
 
 namespace Xtate.Test;
 
@@ -38,7 +41,7 @@ public class StateMachinePersistenceTest
     {
         var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Xtate.UnitTest.Resources.All.xml");
 
-        XmlNameTable nt = new NameTable();
+        XmlNameTable nt = new System.Xml.NameTable();
         var xmlNamespaceManager = new XmlNamespaceManager(nt);
         using var xmlReader = XmlReader.Create(stream!, settings: null, new XmlParserContext(nt, xmlNamespaceManager, xmlLang: null, xmlSpace: default));
 
@@ -46,9 +49,11 @@ public class StateMachinePersistenceTest
         //var director = new ScxmlDirector(xmlReader, serviceLocator.GetService<IBuilderFactory>(), new ScxmlDirectorOptions(serviceLocator) { NamespaceResolver = xmlNamespaceManager });
 
         var sc = new ServiceCollection();
-        sc.AddModule<StateMachineFactoryModule>();
-        sc.AddConstant<IStateMachineLocation>(new LocationStateMachine(new Uri("res://Xtate.UnitTest/Xtate.UnitTest/Resources/All.xml")));
-        var sp = sc.BuildProvider();
+        //sc.AddModule<StateMachineFactoryModule>();
+        //sc.AddConstant<IStateMachineLocation>(new LocationStateMachine(new Uri("res://Xtate.UnitTest/Xtate.UnitTest/Resources/All.xml")));
+		var smc = new LocationStateMachine("res://Xtate.UnitTest/Xtate.UnitTest/Resources/All.xml");
+		smc.AddServices(sc);
+		var sp = sc.BuildProvider();
 
         _allStateMachine = sp.GetRequiredService<IStateMachine>().Result;
 

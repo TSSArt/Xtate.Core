@@ -17,7 +17,9 @@
 
 using System.Text;
 using Xtate.Persistence;
-using TypeInfo = Xtate.Persistence.TypeInfo;
+using Xtate.Persistence.Internal;
+using Xtate.Persistence.Services;
+//using TypeInfo = Xtate.Persistence.TypeInfo;
 
 namespace Xtate.Test;
 

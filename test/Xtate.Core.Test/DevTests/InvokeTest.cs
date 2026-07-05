@@ -16,9 +16,13 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Threading;
-using Xtate.Core;
 using Xtate.DataModel;
+using Xtate.Interpreter;
+using Xtate.Interpreter.DependencyInjection;
 using Xtate.IoC;
+using Xtate.Logging;
+using Xtate.Logging.Provider;
+using Xtate.StateMachine;
 
 namespace Xtate.Test;
 
@@ -29,13 +33,13 @@ public class InvokeTest
 
     private Mock<IInvokeController> _invokeControllerMock = null!;
 
-    private Mock<ILogWriter<IEventController>> _loggerMockE = null!;
+    private Mock<ILogProvider<IEventController>> _loggerMockE = null!;
 
-    private Mock<ILogWriter<IStateMachineInterpreter>> _loggerMockI = null!;
+    private Mock<ILogProvider<IStateMachineInterpreter>> _loggerMockI = null!;
 
-    private Mock<ILogWriter<ILogController>> _loggerMockL = null!;
+    private Mock<ILogProvider<ILogController>> _loggerMockL = null!;
 
-    private Mock<ILogWriter<IInvokeController>> _loggerMockV = null!;
+    private Mock<ILogProvider<IInvokeController>> _loggerMockV = null!;
 
     private StateMachineEntity _stateMachine;
 
@@ -67,16 +71,16 @@ public class InvokeTest
                         };
 
         _invokeControllerMock = new Mock<IInvokeController>();
-        _loggerMockL = new Mock<ILogWriter<ILogController>>();
+        _loggerMockL = new Mock<ILogProvider<ILogController>>();
         _loggerMockL.Setup(s => s.IsEnabled(Level.Info)).Returns(true);
         _loggerMockL.Setup(s => s.IsEnabled(Level.Trace)).Returns(true);
-        _loggerMockI = new Mock<ILogWriter<IStateMachineInterpreter>>();
+        _loggerMockI = new Mock<ILogProvider<IStateMachineInterpreter>>();
         _loggerMockI.Setup(s => s.IsEnabled(Level.Info)).Returns(true);
         _loggerMockI.Setup(s => s.IsEnabled(Level.Trace)).Returns(true);
-        _loggerMockE = new Mock<ILogWriter<IEventController>>();
+        _loggerMockE = new Mock<ILogProvider<IEventController>>();
         _loggerMockE.Setup(s => s.IsEnabled(Level.Info)).Returns(true);
         _loggerMockE.Setup(s => s.IsEnabled(Level.Trace)).Returns(true);
-        _loggerMockV = new Mock<ILogWriter<IInvokeController>>();
+        _loggerMockV = new Mock<ILogProvider<IInvokeController>>();
         _loggerMockV.Setup(s => s.IsEnabled(Level.Info)).Returns(true);
         _loggerMockV.Setup(s => s.IsEnabled(Level.Trace)).Returns(true);
 
@@ -109,12 +113,12 @@ public class InvokeTest
 
         var serviceProvider = services.BuildProvider();
         var stateMachineInterpreter = await serviceProvider.GetRequiredService<IStateMachineInterpreter>();
-        var eventQueueWriter = await serviceProvider.GetRequiredService<IEventQueueWriter>();
+        var eventQueueWriter = await serviceProvider.GetRequiredService<IEventDispatcher>();
 
         var task = stateMachineInterpreter.Run();
 
-        await eventQueueWriter.WriteAsync(CreateEventObject(name: "fromInvoked", InvokeId.FromString(invokeId: "invoke_id", invokeUniqueId)), token: CancellationToken.None);
-        await eventQueueWriter.WriteAsync(CreateEventObject("ToF"), token: CancellationToken.None);
+        await eventQueueWriter.Dispatch(CreateEventObject(name: "fromInvoked", InvokeId.FromString(invokeId: "invoke_id", invokeUniqueId)), token: CancellationToken.None);
+        await eventQueueWriter.Dispatch(CreateEventObject("ToF"), token: CancellationToken.None);
         await task;
 
         _externalCommunicationMock.Verify(l => l.Start(It.IsAny<InvokeData>()));

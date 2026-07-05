@@ -15,8 +15,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.Builder;
 using Xtate.IoC;
+using Xtate.StateMachine;
+using Xtate.StateMachine.Builder;
+using Xtate.StateMachineFluentBuilder;
+using Xtate.StateMachineFluentBuilder.DependencyInjection;
 
 namespace Xtate.Core.Test.Interpreter;
 
@@ -31,12 +34,12 @@ public class FluentBuilderTest
 
         var provider = services.BuildProvider();
 
-        var builder = await provider.GetRequiredService<StateMachineFluentBuilder>();
+        var builder = await provider.GetRequiredService<StateMachineFluentBuilder.StateMachineFluentBuilder>();
 
         builder
-            .SetExternalQueueSize(4)
-            .SetPersistenceLevel(PersistenceLevel.Event)
-            .SetSynchronousEventProcessing(true)
+           // .SetExternalQueueSize(4)
+          //  .SetPersistenceLevel(PersistenceLevel.Event)
+          //  .SetSynchronousEventProcessing(true)
             .SetInitial("init")
             .BeginState("init")
             .AddOnEntry(() => { })
@@ -59,7 +62,7 @@ public class FluentBuilderTest
         var builderMock = new Mock<IStateMachineBuilder>();
         builderMock.Setup(m => m.Build()).Returns(() => new StateMachineEntity());
 
-        var fluentBuilder = new StateMachineFluentBuilder
+        var fluentBuilder = new StateMachineFluentBuilder.StateMachineFluentBuilder
                             {
                                 Builder = builderMock.Object,
                                 StateFluentBuilderFactory = null!,

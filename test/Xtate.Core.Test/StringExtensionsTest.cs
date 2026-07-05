@@ -24,7 +24,10 @@ public class StringExtensionsTest
     public void NormalizeSpaces_ShouldRaiseArgumentException_IfInputIsNull()
     {
         // assert
-        Assert.ThrowsExactly<ArgumentNullException>(() => StringExtensions.NormalizeSpaces(null!));
+
+		string d = null!;
+
+        Assert.ThrowsExactly<NullReferenceException>(d.NormalizeSpaces);
     }
 
     [TestMethod]

@@ -1,0 +1,50 @@
+﻿// Copyright © 2019-2026 Sergii Artemenko
+// 
+// This file is part of the Xtate project. <https://xtate.net/>
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+// 
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+using Xtate.Ancestor;
+using Xtate.StateMachine.Internal;
+
+namespace Xtate.StateMachine;
+
+public struct FinalizeEntity : IFinalize, IVisitorEntity<FinalizeEntity, IFinalize>, IAncestorProvider
+{
+	internal object? Ancestor;
+
+#region Interface IAncestorProvider
+
+	readonly object? IAncestorProvider.Ancestor => Ancestor;
+
+#endregion
+
+#region Interface IFinalize
+
+	public ImmutableArray<IExecutableEntity> Action { get; set; }
+
+#endregion
+
+#region Interface IVisitorEntity<FinalizeEntity,IFinalize>
+
+	void IVisitorEntity<FinalizeEntity, IFinalize>.Init(IFinalize source)
+	{
+		Ancestor = source;
+		Action = source.Action;
+	}
+
+	readonly bool IVisitorEntity<FinalizeEntity, IFinalize>.RefEquals(ref FinalizeEntity other) => Action == other.Action;
+
+#endregion
+}
