@@ -35,7 +35,7 @@ public class PersistedEventNode(IOutgoingEvent outgoingEvent) : EventNode(outgoi
 		bucket.Add(Key.Type, Type);
 		bucket.AddId(Key.SendId, SendId);
 		bucket.Add(Key.DelayMs, DelayMs);
-		bucket.Add(Key.Data, Data);
+		bucket.AddDataModelValue(Key.Data, Data);
 	}
 
 #endregion
