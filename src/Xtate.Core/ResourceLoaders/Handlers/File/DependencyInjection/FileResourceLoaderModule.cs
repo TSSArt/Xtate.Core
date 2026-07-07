@@ -22,6 +22,7 @@ using Xtate.ResourceLoaders.File.Services;
 
 namespace Xtate.ResourceLoaders.File.DependencyInjection;
 
+[InstantiatedByIoC]
 public class FileResourceLoaderModule : Module<ResourceModule, IoBoundTaskModule>
 {
 	protected override void AddServices()

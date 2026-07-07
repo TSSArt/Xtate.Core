@@ -21,6 +21,7 @@ using Xtate.IoC;
 
 namespace Xtate.ResourceLoaders.DependencyInjection;
 
+[InstantiatedByIoC]
 public class ResourceModule : Module
 {
 	protected override void AddServices()

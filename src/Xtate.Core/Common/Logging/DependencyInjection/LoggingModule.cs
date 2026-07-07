@@ -20,6 +20,7 @@ using Xtate.Logging.Services;
 
 namespace Xtate.Logging.DependencyInjection;
 
+[InstantiatedByIoC]
 public class LoggingModule : Module
 {
 	protected override void AddServices()

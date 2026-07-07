@@ -27,6 +27,7 @@ using Xtate.Interpreter.Services;
 using Xtate.IoC;
 using Xtate.IoC.Tools;
 using Xtate.Logging;
+using Xtate.Logging.DependencyInjection;
 using Xtate.Persistence;
 using Xtate.Persistence.DependencyInjection;
 using Xtate.Persistence.Services;
@@ -125,18 +126,18 @@ public class StateMachinePersistingInterpreterTest
 		};
 
 		var destroyOnIdleTimeoutMock = new Mock<IDestroyOnIdleTimeout>();
-		destroyOnIdleTimeoutMock.Setup(x => x.IdleTimeout).Returns(TimeSpan.FromMilliseconds(1000));
+		destroyOnIdleTimeoutMock.Setup(x => x.IdleTimeout).Returns(TimeSpan.FromMilliseconds(5000));
 
 		var persistenceOptionsMock = new Mock<IPersistenceOptions>();
 		persistenceOptionsMock.Setup(x => x.PersistenceLevel).Returns(PersistenceLevel.StableState);
 
-		await using var container = Container.Create<StateMachineProcessorModule, PersistenceModule>(services =>
-																													   {
-																														   services.AddSharedTypeSync<SharedMemoryStreams<Any>>(SharedWithin.Container);
-																														   services.AddImplementation<InMemoryStorageProvider>().For<IStorageProvider>();
-																														   services.AddConstant(destroyOnIdleTimeoutMock.Object);
-																														   services.AddConstant(persistenceOptionsMock.Object);
-																													   });
+		await using var container = Container.Create<StateMachineProcessorModule, PersistenceModule, LogToConsoleModule>(services =>
+																														 {
+																															 services.AddSharedTypeSync<SharedMemoryStreams<Any>>(SharedWithin.Container);
+																															 services.AddImplementation<InMemoryStorageProvider>().For<IStorageProvider>();
+																															 services.AddConstant(destroyOnIdleTimeoutMock.Object);
+																															 services.AddConstant(persistenceOptionsMock.Object);
+																														 });
 
 		var stateMachineScopeManager = await container.GetRequiredService<IStateMachineScopeManager>();
 		var stateMachineCollection = await container.GetRequiredService<IStateMachineCollection>();

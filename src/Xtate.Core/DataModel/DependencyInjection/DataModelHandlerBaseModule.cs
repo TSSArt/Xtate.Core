@@ -23,6 +23,7 @@ using Xtate.StateMachine;
 
 namespace Xtate.DataModel.DependencyInjection;
 
+[InstantiatedByIoC]
 public class DataModelHandlerBaseModule : Module<LoggingModule, IoCModule>
 {
 	protected override void AddServices()

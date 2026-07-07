@@ -22,6 +22,7 @@ using Xtate.ResourceLoaders.Resx.Services;
 
 namespace Xtate.ResourceLoaders.Resx.DependencyInjection;
 
+[InstantiatedByIoC]
 public class ResxResourceLoaderModule : Module<ResourceModule, IoBoundTaskModule>
 {
 	protected override void AddServices()

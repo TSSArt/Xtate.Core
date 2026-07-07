@@ -1,10 +1,10 @@
-﻿using Xtate.Persistence;
-using Xtate.Persistence.Extensions;
+﻿using Xtate.Persistence.Extensions;
 using Xtate.Persistence.Internal;
 using Xtate.Persistence.Services;
 using Xtate.StateMachine;
+using Xtate.StateMachineHost;
 
-namespace Xtate.StateMachineHost;
+namespace Xtate.Persistence;
 
 public class PersistedRouterEvent : RouterEvent, IStoreSupport
 {
