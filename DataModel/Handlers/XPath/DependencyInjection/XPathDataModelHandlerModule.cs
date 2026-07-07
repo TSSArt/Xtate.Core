@@ -26,6 +26,7 @@ using Xtate.StateMachine.Validator.DependencyInjection;
 
 namespace Xtate.DataModel.XPath.DependencyInjection;
 
+[InstantiatedByIoC]
 public class XPathDataModelHandlerModule : Module<DataModelHandlerBaseModule, ValidatorModule, NameTableModule>
 {
 	protected override void AddServices()

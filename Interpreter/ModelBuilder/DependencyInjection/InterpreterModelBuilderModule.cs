@@ -25,6 +25,7 @@ using Xtate.StateMachine.Validator.DependencyInjection;
 
 namespace Xtate.Interpreter.DependencyInjection;
 
+[InstantiatedByIoC]
 public class InterpreterModelBuilderModule : Module<ValidatorModule, DataModelHandlersModule, ResourceLoadersModule>
 {
 	protected override void AddServices()

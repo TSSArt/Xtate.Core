@@ -25,6 +25,7 @@ using Xtate.StateMachine.Validator.DependencyInjection;
 
 namespace Xtate.Scxml.DependencyInjection;
 
+[InstantiatedByIoC]
 public class ScxmlModule : Module<StateMachineBuilderModule, ResourceLoadersModule, ValidatorModule, NameTableModule>
 {
 	protected override void AddServices()

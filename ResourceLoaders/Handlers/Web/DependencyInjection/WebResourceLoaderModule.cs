@@ -23,6 +23,7 @@ using Xtate.ResourceLoaders.Web.Services;
 
 namespace Xtate.ResourceLoaders.Web.DependencyInjection;
 
+[InstantiatedByIoC]
 public class WebResourceLoaderModule : Module<ResourceModule, IoCModule, HttpModule>
 {
 	protected override void AddServices()

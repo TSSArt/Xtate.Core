@@ -4,6 +4,7 @@ using Xtate.StateMachineHost.DependencyInjection;
 
 namespace Xtate.IoProcessors.Http.DependencyInjection;
 
+[InstantiatedByIoC]
 public class HttpIoProcessorModule : Module<StateMachineProcessorModule>
 {
 	protected override void AddServices()

@@ -15,22 +15,17 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.DataModel.Null.DependencyInjection;
-using Xtate.DataModel.Runtime.DependencyInjection;
-using Xtate.DataModel.Services;
-using Xtate.DataModel.XPath.DependencyInjection;
 using Xtate.IoC;
-using Xtate.StateMachine.Validator.DependencyInjection;
+using Xtate.Logging.Provider;
+using Xtate.Logging.Services;
 
-namespace Xtate.DataModel.DependencyInjection;
+namespace Xtate.Logging.DependencyInjection;
 
 [InstantiatedByIoC]
-public class DataModelHandlersModule : Module<NullDataModelHandlerModule, RuntimeDataModelHandlerModule, XPathDataModelHandlerModule, ValidatorModule>
+public class LogToConsoleModule : Module
 {
 	protected override void AddServices()
 	{
-		Services.AddType<UnknownDataModelHandler>();
-		Services.AddImplementation<DataModelHandlerService>().For<IDataModelHandlerService>();
-		Services.AddFactory<DataModelHandlerGetter>().For<IDataModelHandler>(SharedWithin.Scope, Option.DoNotDispose);
+		Services.AddImplementation<ConsoleLogProvider<Any>>().For<ILogProvider<Any>>();
 	}
 }

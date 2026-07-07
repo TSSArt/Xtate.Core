@@ -21,6 +21,7 @@ using Xtate.StateMachineHost.Services;
 
 namespace Xtate.StateMachineHost.DependencyInjection;
 
+[InstantiatedByIoC]
 public class EventSchedulerModule : Module<IoCModule>
 {
 	protected override void AddServices()

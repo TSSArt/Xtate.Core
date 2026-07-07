@@ -25,6 +25,7 @@ using Xtate.Logging.Provider;
 
 namespace Xtate.Interpreter.DependencyInjection;
 
+[InstantiatedByIoC]
 public class StateMachineInterpreterModule : Module<InterpreterModelBuilderModule, DataModelHandlersModule, IoCModule>
 {
 	protected override void AddServices()

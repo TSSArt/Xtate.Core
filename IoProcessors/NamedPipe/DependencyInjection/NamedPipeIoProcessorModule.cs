@@ -6,6 +6,7 @@ using Xtate.StateMachineHost.DependencyInjection;
 
 namespace Xtate.IoProcessors.NamedPipe.DependencyInjection;
 
+[InstantiatedByIoC]
 public class NamedPipeIoProcessorModule : Module<StateMachineProcessorModule>
 {
 	protected override void AddServices()

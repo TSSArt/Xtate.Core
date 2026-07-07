@@ -23,6 +23,7 @@ using Xtate.StateMachine.Validator.DependencyInjection;
 
 namespace Xtate.DataModel.Null.DependencyInjection;
 
+[InstantiatedByIoC]
 public class NullDataModelHandlerModule : Module<DataModelHandlerBaseModule, ValidatorModule>
 {
 	protected override void AddServices()
