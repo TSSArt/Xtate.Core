@@ -30,16 +30,8 @@ public class ValueTaskExtensionsTest
 		// Arrange
 		var valueTask = new ValueTask(Task.CompletedTask);
 
-		// Act & Assert
-		try
-		{
-			valueTask.Forget();
-			Assert.IsTrue(true);
-		}
-		catch (Exception ex)
-		{
-			Assert.Fail($"Unexpected exception: {ex.Message}");
-		}
+		// Act; any exception fails the test.
+		valueTask.Forget();
 	}
 
 	[TestMethod]
@@ -49,16 +41,8 @@ public class ValueTaskExtensionsTest
 		// Arrange
 		var valueTask = new ValueTask();
 
-		// Act & Assert
-		try
-		{
-			valueTask.Forget();
-			Assert.IsTrue(true);
-		}
-		catch (Exception ex)
-		{
-			Assert.Fail($"Unexpected exception: {ex.Message}");
-		}
+		// Act; any exception fails the test.
+		valueTask.Forget();
 	}
 
 	[TestMethod]
@@ -84,9 +68,6 @@ public class ValueTaskExtensionsTest
 
 		// Act
 		await valueTask.WaitAsync(cts.Token);
-
-		// Assert
-		Assert.IsTrue(true);
 	}
 
 	[TestMethod]
@@ -98,9 +79,6 @@ public class ValueTaskExtensionsTest
 
 		// Act
 		await valueTask.WaitAsync(cts.Token);
-
-		// Assert
-		Assert.IsTrue(true);
 	}
 
 	[TestMethod]
@@ -114,9 +92,6 @@ public class ValueTaskExtensionsTest
 
 		// Act
 		await valueTask.WaitAsync(cts.Token);
-
-		// Assert
-		Assert.IsTrue(true);
 	}
 
 	[ExcludeFromCodeCoverage]

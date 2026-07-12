@@ -65,11 +65,7 @@ public class EventTypeTest
 	[TestMethod]
 	public void EventType_AllValuesShouldBeDifferent()
 	{
-		// Act & Assert
-		Assert.AreNotEqual(EventType.None, EventType.Platform);
-		Assert.AreNotEqual(EventType.Platform, EventType.Internal);
-		Assert.AreNotEqual(EventType.Internal, EventType.External);
-		Assert.AreNotEqual(EventType.None, EventType.External);
+		Assert.AreEqual(expected: 4, Enum.GetValues(typeof(EventType)).Cast<EventType>().Distinct().Count());
 	}
 
 	[TestMethod]

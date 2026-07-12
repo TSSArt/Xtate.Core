@@ -35,7 +35,7 @@ public abstract class HostedTestBase
 
 	protected Mock<ILogProvider> LogWriter { get; private set; } = null!;
 
-	public IStateMachineScopeManager StateMachineScopeManager { get; set; }
+	public IStateMachineScopeManager StateMachineScopeManager { get; set; } = null!;
 
 	[TestInitialize]
 	public async Task Initialize()

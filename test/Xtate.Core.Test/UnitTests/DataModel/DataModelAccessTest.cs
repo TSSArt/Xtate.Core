@@ -55,10 +55,7 @@ public class DataModelAccessTest
 	[TestMethod]
 	public void DataModelAccess_AllValuesShouldBeDifferent()
 	{
-		// Act & Assert
-		Assert.AreNotEqual(DataModelAccess.Writable, DataModelAccess.ReadOnly);
-		Assert.AreNotEqual(DataModelAccess.ReadOnly, DataModelAccess.Constant);
-		Assert.AreNotEqual(DataModelAccess.Writable, DataModelAccess.Constant);
+		Assert.AreEqual(expected: 3, Enum.GetValues(typeof(DataModelAccess)).Cast<DataModelAccess>().Distinct().Count());
 	}
 
 	[TestMethod]

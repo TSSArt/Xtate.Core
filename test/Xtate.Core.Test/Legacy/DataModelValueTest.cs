@@ -54,7 +54,6 @@ public class DataModelValueTest
 	public void EqualityInequalityTest()
 	{
 		Assert.AreEqual(expected: default, new DataModelValue());
-		Assert.AreEqual(DataModelValue.Null, DataModelValue.Null);
 		Assert.AreNotEqual(DataModelValue.Null, actual: default);
 		Assert.AreNotEqual(notExpected: default, DataModelValue.Null);
 	}

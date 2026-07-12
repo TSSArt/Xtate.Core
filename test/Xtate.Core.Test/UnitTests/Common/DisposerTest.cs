@@ -115,16 +115,8 @@ public class DisposerTest
 		// Arrange
 		var notDisposable = new NotDisposable();
 
-		// Act & Assert
-		try
-		{
-			Disposer.Dispose(notDisposable);
-			Assert.IsTrue(true);
-		}
-		catch (Exception ex)
-		{
-			Assert.Fail($"Unexpected exception: {ex.Message}");
-		}
+		// Act; any exception fails the test.
+		Disposer.Dispose(notDisposable);
 	}
 
 	[TestMethod]
@@ -161,9 +153,6 @@ public class DisposerTest
 
 		// Act
 		await Disposer.DisposeAsync(notDisposable);
-
-		// Assert
-		Assert.IsTrue(true);
 	}
 
 	private class MockDisposable : IDisposable

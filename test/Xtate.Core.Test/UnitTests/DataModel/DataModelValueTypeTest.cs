@@ -95,13 +95,7 @@ public class DataModelValueTypeTest
 	[TestMethod]
 	public void DataModelValueType_AllValuesShouldBeDifferent()
 	{
-		// Act & Assert
-		Assert.AreNotEqual(DataModelValueType.Undefined, DataModelValueType.Null);
-		Assert.AreNotEqual(DataModelValueType.Null, DataModelValueType.String);
-		Assert.AreNotEqual(DataModelValueType.String, DataModelValueType.Boolean);
-		Assert.AreNotEqual(DataModelValueType.Boolean, DataModelValueType.Number);
-		Assert.AreNotEqual(DataModelValueType.Number, DataModelValueType.DateTime);
-		Assert.AreNotEqual(DataModelValueType.DateTime, DataModelValueType.List);
+		Assert.AreEqual(expected: 7, Enum.GetValues(typeof(DataModelValueType)).Cast<DataModelValueType>().Distinct().Count());
 	}
 
 	[TestMethod]

@@ -86,7 +86,7 @@ public class CommunicationAndUtilityCoverageTest
 		Assert.AreEqual(outgoingEvent.DelayMs, routerEvent.DelayMs);
 		Assert.AreEqual(outgoingEvent.Type, routerEvent.TargetType);
 		Assert.AreEqual(outgoingEvent.Target, routerEvent.Target);
-		Assert.AreEqual(outgoingEvent.Name, routerEvent.Name);
+		Assert.AreEqual(outgoingEvent.Name.ToString(), routerEvent.Name.ToString());
 		Assert.AreEqual(outgoingEvent.SendId, routerEvent.SendId);
 		Assert.AreEqual(expected: "payload", routerEvent.Data.AsString());
 		Assert.AreEqual(new FullUri("originType"), routerEvent.OriginType);

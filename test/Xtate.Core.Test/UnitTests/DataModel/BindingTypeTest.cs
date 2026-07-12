@@ -45,8 +45,7 @@ public class BindingTypeTest
 	[TestMethod]
 	public void BindingType_ValuesShouldBeDifferent()
 	{
-		// Act & Assert
-		Assert.AreNotEqual(BindingType.Early, BindingType.Late);
+		Assert.AreEqual(expected: 2, Enum.GetValues(typeof(BindingType)).Cast<BindingType>().Distinct().Count());
 	}
 
 	[TestMethod]

@@ -30,7 +30,6 @@ public class DateTimeExtensionsTest
 		var result = DateTime.UniqueUtcNow;
 
 		// Assert
-		Assert.IsNotNull(result);
 		Assert.AreEqual(DateTimeKind.Utc, result.Kind);
 	}
 

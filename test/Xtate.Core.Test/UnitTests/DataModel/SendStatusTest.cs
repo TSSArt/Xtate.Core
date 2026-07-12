@@ -55,10 +55,7 @@ public class SendStatusTest
 	[TestMethod]
 	public void SendStatus_AllValuesShouldBeDifferent()
 	{
-		// Act & Assert
-		Assert.AreNotEqual(SendStatus.Sent, SendStatus.Scheduled);
-		Assert.AreNotEqual(SendStatus.Sent, SendStatus.ToInternalQueue);
-		Assert.AreNotEqual(SendStatus.Scheduled, SendStatus.ToInternalQueue);
+		Assert.AreEqual(expected: 3, Enum.GetValues(typeof(SendStatus)).Cast<SendStatus>().Distinct().Count());
 	}
 
 	[TestMethod]

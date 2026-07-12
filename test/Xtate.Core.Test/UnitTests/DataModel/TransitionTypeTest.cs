@@ -45,8 +45,7 @@ public class TransitionTypeTest
 	[TestMethod]
 	public void TransitionType_ValuesShouldBeDifferent()
 	{
-		// Act & Assert
-		Assert.AreNotEqual(TransitionType.External, TransitionType.Internal);
+		Assert.AreEqual(expected: 2, Enum.GetValues(typeof(TransitionType)).Cast<TransitionType>().Distinct().Count());
 	}
 
 	[TestMethod]

@@ -45,8 +45,7 @@ public class DataModelDateTimeTypeTest
 	[TestMethod]
 	public void DataModelDateTimeType_ValuesShouldBeDifferent()
 	{
-		// Act & Assert
-		Assert.AreNotEqual(DataModelDateTimeType.DateTime, DataModelDateTimeType.DateTimeOffset);
+		Assert.AreEqual(expected: 2, Enum.GetValues(typeof(DataModelDateTimeType)).Cast<DataModelDateTimeType>().Distinct().Count());
 	}
 
 	[TestMethod]

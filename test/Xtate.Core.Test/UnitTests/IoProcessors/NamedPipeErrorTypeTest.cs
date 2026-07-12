@@ -45,8 +45,7 @@ public class NamedPipeErrorTypeTest
 	[TestMethod]
 	public void NamedPipeErrorType_ValuesShouldBeDifferent()
 	{
-		// Act & Assert
-		Assert.AreNotEqual(NamedPipeErrorType.None, NamedPipeErrorType.Exception);
+		Assert.AreEqual(expected: 2, Enum.GetValues(typeof(NamedPipeErrorType)).Cast<NamedPipeErrorType>().Distinct().Count());
 	}
 
 	[TestMethod]

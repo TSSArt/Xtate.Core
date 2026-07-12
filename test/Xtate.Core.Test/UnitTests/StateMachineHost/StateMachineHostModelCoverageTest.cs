@@ -89,7 +89,7 @@ public class StateMachineHostModelCoverageTest
 		Assert.AreEqual(expected: 25, scheduledEvent.DelayMs);
 		Assert.AreEqual(source.TargetType, scheduledEvent.TargetType);
 		Assert.AreEqual(source.Target, scheduledEvent.Target);
-		Assert.AreEqual(source.Name, scheduledEvent.Name);
+		Assert.AreEqual(source.Name.ToString(), scheduledEvent.Name.ToString());
 		Assert.AreEqual(source.Type, scheduledEvent.Type);
 		Assert.AreEqual(source.SendId, scheduledEvent.SendId);
 		Assert.AreEqual(source.Origin, scheduledEvent.Origin);

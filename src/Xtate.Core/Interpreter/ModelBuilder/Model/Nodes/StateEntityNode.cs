@@ -60,42 +60,26 @@ public abstract class StateEntityNode : IStateEntity, IDocumentId
 
 #endregion
 
-	protected void Register(InitialNode? initialNode)
-	{
-		if (initialNode is not null)
-		{
-			initialNode.Parent = this;
-		}
-	}
+	protected void Register(InitialNode? initialNode) => initialNode?.Parent = this;
 
 	protected void Register(ImmutableArray<StateEntityNode> stateEntityNodes)
 	{
-		if (stateEntityNodes.IsDefaultOrEmpty)
+		if (!stateEntityNodes.IsDefaultOrEmpty)
 		{
-			return;
-		}
-
-		foreach (var stateEntityNode in stateEntityNodes)
-		{
-			if (stateEntityNode is not null)
+			foreach (var stateEntityNode in stateEntityNodes)
 			{
-				stateEntityNode.Parent = this;
+				stateEntityNode?.Parent = this;
 			}
 		}
 	}
 
 	protected void Register(ImmutableArray<HistoryNode> historyNodes)
 	{
-		if (historyNodes.IsDefaultOrEmpty)
+		if (!historyNodes.IsDefaultOrEmpty)
 		{
-			return;
-		}
-
-		foreach (var historyNode in historyNodes)
-		{
-			if (historyNode is not null)
+			foreach (var historyNode in historyNodes)
 			{
-				historyNode.Parent = this;
+				historyNode?.Parent = this;
 			}
 		}
 	}

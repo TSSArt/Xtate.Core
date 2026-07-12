@@ -45,8 +45,7 @@ public class HistoryTypeTest
 	[TestMethod]
 	public void HistoryType_ValuesShouldBeDifferent()
 	{
-		// Act & Assert
-		Assert.AreNotEqual(HistoryType.Shallow, HistoryType.Deep);
+		Assert.AreEqual(expected: 2, Enum.GetValues(typeof(HistoryType)).Cast<HistoryType>().Distinct().Count());
 	}
 
 	[TestMethod]

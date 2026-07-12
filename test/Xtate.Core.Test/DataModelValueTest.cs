@@ -351,7 +351,7 @@ public class DataModelValueTest
 	public static IEnumerable<object[]> RecordsValueOriginalValue() => from r in Records select new object[] { r.Line, r.Value, r.OriginalValue };
 
 	[TestMethod]
-	[DynamicData(nameof(RecordsConstructorArgValueType), DynamicDataSourceType.Method)]
+	[DynamicData(nameof(RecordsConstructorArgValueType))]
 	[ExcludeFromCodeCoverage]
 	public void CtrArg1_ShouldBeEqualToObject(string line,
 											  object ctrArg,
@@ -390,7 +390,7 @@ public class DataModelValueTest
 	}
 
 	[TestMethod]
-	[DynamicData(nameof(RecordsTypeValue), DynamicDataSourceType.Method)]
+	[DynamicData(nameof(RecordsTypeValue))]
 	public void Type_ShouldBeArg1(string line, DataModelValueType type, DataModelValue value)
 	{
 		// assert
@@ -398,7 +398,7 @@ public class DataModelValueTest
 	}
 
 	[TestMethod]
-	[DynamicData(nameof(RecordsTypeValue), DynamicDataSourceType.Method)]
+	[DynamicData(nameof(RecordsTypeValue))]
 	public void IsUndefined_ShouldBeCorrectValue(string line, DataModelValueType type, DataModelValue value)
 	{
 		// assert
@@ -406,7 +406,7 @@ public class DataModelValueTest
 	}
 
 	[TestMethod]
-	[DynamicData(nameof(RecordsTypeValue), DynamicDataSourceType.Method)]
+	[DynamicData(nameof(RecordsTypeValue))]
 	public void IsUndefinedOrNull_ShouldBeCorrectValue(string line, DataModelValueType type, DataModelValue value)
 	{
 		// assert
@@ -414,7 +414,7 @@ public class DataModelValueTest
 	}
 
 	[TestMethod]
-	[DynamicData(nameof(RecordsValueOriginalValue), DynamicDataSourceType.Method)]
+	[DynamicData(nameof(RecordsValueOriginalValue))]
 	public void IEquatableEquals_ValueShouldBeEqualToOriginalValue(string line, DataModelValue value, DataModelValue originalValue)
 	{
 		// assert
@@ -422,7 +422,7 @@ public class DataModelValueTest
 	}
 
 	[TestMethod]
-	[DynamicData(nameof(RecordsValueOriginalValue), DynamicDataSourceType.Method)]
+	[DynamicData(nameof(RecordsValueOriginalValue))]
 	public void Equals_ValueShouldBeEqualToOriginalValue(string line, DataModelValue value, DataModelValue originalValue)
 	{
 		// assert
@@ -430,7 +430,7 @@ public class DataModelValueTest
 	}
 
 	[TestMethod]
-	[DynamicData(nameof(RecordsValueOriginalValue), DynamicDataSourceType.Method)]
+	[DynamicData(nameof(RecordsValueOriginalValue))]
 	public void EqualityOps_ValueShouldBeEqualToOriginalValue(string line, DataModelValue value, DataModelValue originalValue)
 	{
 		if (value.Type == DataModelValueType.Number && value.AsNumber().IsNaN())
@@ -446,7 +446,7 @@ public class DataModelValueTest
 	}
 
 	[TestMethod]
-	[DynamicData(nameof(RecordsValueOriginalValue), DynamicDataSourceType.Method)]
+	[DynamicData(nameof(RecordsValueOriginalValue))]
 	public void GetHashCode_HashCodeShouldMatchWithOriginalHashCode(string line, DataModelValue value, DataModelValue originalValue)
 	{
 		// assert
@@ -454,7 +454,7 @@ public class DataModelValueTest
 	}
 
 	[TestMethod]
-	[DynamicData(nameof(RecordsConstructorArgValueType), DynamicDataSourceType.Method)]
+	[DynamicData(nameof(RecordsConstructorArgValueType))]
 	public void AsList_ShouldReturnCorrectValueOrThrow(string line,
 													   object ctrArg,
 													   DataModelValue value,
@@ -463,7 +463,7 @@ public class DataModelValueTest
 		// assert
 		if (type == DataModelValueType.List)
 		{
-			Assert.AreEqual(ctrArg, value.AsList(), M(line));
+			Assert.AreSame(ctrArg, value.AsList(), M(line));
 		}
 		else
 		{
@@ -472,7 +472,7 @@ public class DataModelValueTest
 	}
 
 	[TestMethod]
-	[DynamicData(nameof(RecordsConstructorArgValueType), DynamicDataSourceType.Method)]
+	[DynamicData(nameof(RecordsConstructorArgValueType))]
 	public void AsNullableList_ShouldReturnCorrectValueOrThrow(string line,
 															   object ctrArg,
 															   DataModelValue value,
@@ -494,7 +494,7 @@ public class DataModelValueTest
 	}
 
 	[TestMethod]
-	[DynamicData(nameof(RecordsConstructorArgValueType), DynamicDataSourceType.Method)]
+	[DynamicData(nameof(RecordsConstructorArgValueType))]
 	public void AsListOrEmpty_ShouldReturnCorrectValue(string line,
 													   object ctrArg,
 													   DataModelValue value,
@@ -503,7 +503,7 @@ public class DataModelValueTest
 		// assert
 		if (type == DataModelValueType.List)
 		{
-			Assert.AreEqual(ctrArg, value.AsListOrEmpty(), M(line));
+			Assert.AreSame(ctrArg, value.AsListOrEmpty(), M(line));
 		}
 		else
 		{
@@ -512,7 +512,7 @@ public class DataModelValueTest
 	}
 
 	[TestMethod]
-	[DynamicData(nameof(RecordsConstructorArgValueType), DynamicDataSourceType.Method)]
+	[DynamicData(nameof(RecordsConstructorArgValueType))]
 	public void AsString_ShouldReturnCorrectValueOrThrow(string line,
 														 object ctrArg,
 														 DataModelValue value,
@@ -530,7 +530,7 @@ public class DataModelValueTest
 	}
 
 	[TestMethod]
-	[DynamicData(nameof(RecordsConstructorArgValueType), DynamicDataSourceType.Method)]
+	[DynamicData(nameof(RecordsConstructorArgValueType))]
 	public void AsNullableString_ShouldReturnCorrectValueOrThrow(string line,
 																 object ctrArg,
 																 DataModelValue value,
@@ -552,7 +552,7 @@ public class DataModelValueTest
 	}
 
 	[TestMethod]
-	[DynamicData(nameof(RecordsConstructorArgValueType), DynamicDataSourceType.Method)]
+	[DynamicData(nameof(RecordsConstructorArgValueType))]
 	public void AsStringOrDefault_ShouldReturnCorrectValue(string line,
 														   object ctrArg,
 														   DataModelValue value,
@@ -570,7 +570,7 @@ public class DataModelValueTest
 	}
 
 	[TestMethod]
-	[DynamicData(nameof(RecordsConstructorArgValueType), DynamicDataSourceType.Method)]
+	[DynamicData(nameof(RecordsConstructorArgValueType))]
 	public void AsNumber_ShouldReturnCorrectValueOrThrow(string line,
 														 object ctrArg,
 														 DataModelValue value,
@@ -588,7 +588,7 @@ public class DataModelValueTest
 	}
 
 	[TestMethod]
-	[DynamicData(nameof(RecordsConstructorArgValueType), DynamicDataSourceType.Method)]
+	[DynamicData(nameof(RecordsConstructorArgValueType))]
 	[ExcludeFromCodeCoverage]
 	public void AsNumberOrDefault_ShouldReturnCorrectValueOrThrow(string line,
 																  object ctrArg,

@@ -83,7 +83,7 @@ public class HttpRequestProcessExceptionTest
 		var exception = new HttpRequestProcessException();
 
 		// Act & Assert
-		Assert.AreEqual(default, exception.StatusCode);
+		Assert.AreEqual(expected: default, exception.StatusCode);
 	}
 
 	[TestMethod]

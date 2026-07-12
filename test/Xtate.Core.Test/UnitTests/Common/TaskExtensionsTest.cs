@@ -30,16 +30,8 @@ public class TaskExtensionsTest
 		// Arrange
 		var task = Task.CompletedTask;
 
-		// Act & Assert
-		try
-		{
-			task.Forget();
-			Assert.IsTrue(true);
-		}
-		catch (Exception ex)
-		{
-			Assert.Fail($"Unexpected exception: {ex.Message}");
-		}
+		// Act; any exception fails the test.
+		task.Forget();
 	}
 
 	[TestMethod]

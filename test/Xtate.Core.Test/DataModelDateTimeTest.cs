@@ -100,7 +100,7 @@ public class DataModelDateTimeTest
 	}
 
 	[TestMethod]
-	[DynamicData(nameof(ToObjectData), DynamicDataSourceType.Method)]
+	[DynamicData(nameof(ToObjectData))]
 	public void ToObject_ShouldReturnArg1Type_IfItRepresentArg2(Type type, DataModelDateTime dataModelDateTime)
 	{
 		// act
@@ -119,7 +119,7 @@ public class DataModelDateTimeTest
 	}
 
 	[TestMethod]
-	[DynamicData(nameof(DateTimeRoundtripValidationSet), DynamicDataSourceType.Method)]
+	[DynamicData(nameof(DateTimeRoundtripValidationSet))]
 	public void DateTime_ShouldRoundtripValue(DateTime dateTime)
 	{
 		// act
@@ -139,7 +139,7 @@ public class DataModelDateTimeTest
 	}
 
 	[TestMethod]
-	[DynamicData(nameof(DateTimeOffsetRoundtripValidationSet), DynamicDataSourceType.Method)]
+	[DynamicData(nameof(DateTimeOffsetRoundtripValidationSet))]
 	public void DateTimeOffset_ShouldRoundtripValue(DateTimeOffset dateTimeOffset)
 	{
 		// act
@@ -469,7 +469,7 @@ public class DataModelDateTimeTest
 	}
 
 	[TestMethod]
-	[DynamicData(nameof(WriteToReadFromData), DynamicDataSourceType.Method)]
+	[DynamicData(nameof(WriteToReadFromData))]
 	public void WriteToReadFrom_ShouldRoundtripValue(DataModelDateTime dateTime)
 	{
 		// arrange

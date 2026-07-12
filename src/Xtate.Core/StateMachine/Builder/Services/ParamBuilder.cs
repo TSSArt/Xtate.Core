@@ -30,7 +30,7 @@ public class ParamBuilder : BuilderBase, IParamBuilder
 
 #region Interface IParamBuilder
 
-	public IParam Build() => new ParamEntity { Ancestor = Ancestor, Name = _name, Expression = _expression, Location = _location };
+	public IParam Build() => new ParamEntity { Ancestor = Ancestor, Name = _name!, Expression = _expression, Location = _location };
 
 	public void SetName(string name)
 	{

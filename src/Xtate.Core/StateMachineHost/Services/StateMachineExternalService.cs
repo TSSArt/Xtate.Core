@@ -84,7 +84,7 @@ public class StateMachineExternalService : ExternalServiceBase, IDisposable, IAs
 			var stateMachineClass = new ScxmlStringChildStateMachine(scxml)
 									{
 										ParentEventDispatcher = this,
-										Location = StateMachineLocation.Location,
+										Location = StateMachineLocation.Location!,
 										Arguments = Parameters
 									};
 

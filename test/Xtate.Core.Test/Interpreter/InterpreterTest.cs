@@ -81,8 +81,5 @@ public class InterpreterTest
 
 		// act
 		await stateMachineInterpreter.Run();
-
-		// assert
-		Assert.IsFalse(false);
 	}
 }

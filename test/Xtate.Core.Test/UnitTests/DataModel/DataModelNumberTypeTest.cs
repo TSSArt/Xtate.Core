@@ -65,10 +65,7 @@ public class DataModelNumberTypeTest
 	[TestMethod]
 	public void DataModelNumberType_AllValuesShouldBeDifferent()
 	{
-		// Act & Assert
-		Assert.AreNotEqual(DataModelNumberType.Int32, DataModelNumberType.Int64);
-		Assert.AreNotEqual(DataModelNumberType.Int64, DataModelNumberType.Double);
-		Assert.AreNotEqual(DataModelNumberType.Double, DataModelNumberType.Decimal);
+		Assert.AreEqual(expected: 4, Enum.GetValues(typeof(DataModelNumberType)).Cast<DataModelNumberType>().Distinct().Count());
 	}
 
 	[TestMethod]

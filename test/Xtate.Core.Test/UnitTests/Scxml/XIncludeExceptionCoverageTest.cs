@@ -59,10 +59,10 @@ public class XIncludeExceptionCoverageTest
 		Assert.AreEqual(expected: "file:///tmp/test.scxml", exception.Location);
 		Assert.AreEqual(expected: 2, exception.LineNumber);
 		Assert.AreEqual(expected: 4, exception.LinePosition);
-		Assert.Contains("include failed", exception.Message);
-		Assert.Contains("file:///tmp/test.scxml", exception.Message);
-		Assert.Contains("2", exception.Message);
-		Assert.Contains("4", exception.Message);
+		Assert.Contains(substring: "include failed", exception.Message);
+		Assert.Contains(substring: "file:///tmp/test.scxml", exception.Message);
+		Assert.Contains(substring: "2", exception.Message);
+		Assert.Contains(substring: "4", exception.Message);
 	}
 
 	[TestMethod]
@@ -76,9 +76,9 @@ public class XIncludeExceptionCoverageTest
 		Assert.AreEqual(string.Empty, lineInfoException.Location);
 		Assert.AreEqual(expected: 1, lineInfoException.LineNumber);
 		Assert.AreEqual(expected: 2, lineInfoException.LinePosition);
-		Assert.Contains("line only", lineInfoException.Message);
-		Assert.Contains("1", lineInfoException.Message);
-		Assert.Contains("2", lineInfoException.Message);
+		Assert.Contains(substring: "line only", lineInfoException.Message);
+		Assert.Contains(substring: "1", lineInfoException.Message);
+		Assert.Contains(substring: "2", lineInfoException.Message);
 
 		using var readerWithoutLineInfo = XmlReader.Create(new StringReader("<root />"), new XmlReaderSettings { IgnoreWhitespace = true }, baseUri: "file:///tmp/no-line.scxml");
 		var locationOnlyException = new XIncludeException(message: "location only", new NonLineInfoXmlReader(readerWithoutLineInfo));
@@ -86,8 +86,8 @@ public class XIncludeExceptionCoverageTest
 		Assert.AreEqual(expected: "file:///tmp/no-line.scxml", locationOnlyException.Location);
 		Assert.IsNull(locationOnlyException.LineNumber);
 		Assert.IsNull(locationOnlyException.LinePosition);
-		Assert.Contains("location only", locationOnlyException.Message);
-		Assert.Contains("file:///tmp/no-line.scxml", locationOnlyException.Message);
+		Assert.Contains(substring: "location only", locationOnlyException.Message);
+		Assert.Contains(substring: "file:///tmp/no-line.scxml", locationOnlyException.Message);
 	}
 
 	private static XmlReader CreateReader(string xml, string baseUri) => XmlReader.Create(new StringReader(xml), new XmlReaderSettings { IgnoreWhitespace = false }, baseUri);

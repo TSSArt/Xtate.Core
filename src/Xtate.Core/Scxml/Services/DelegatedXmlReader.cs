@@ -24,7 +24,8 @@ public abstract class DelegatedXmlReader(XmlReader innerReader) : XmlReader, IXm
 {
 	protected XmlReader InnerReader { get; set; } = innerReader;
 
-	public override string? BaseURI => InnerReader.BaseURI;
+	[SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")]
+	public override string BaseURI => InnerReader.BaseURI;
 
 	public override int AttributeCount => InnerReader.AttributeCount;
 
