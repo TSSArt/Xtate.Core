@@ -196,6 +196,34 @@ public sealed partial class DataModelList
 
 	public DataModelList? GetMetadata() => _metadata;
 
+	public DataModelList? GetMetadata(string key) => TryGet(key, CaseInsensitive, out var entry) ? entry.Metadata : null;
+
+	public DataModelList? GetMetadata(int index) => TryGet(index, out var entry) ? entry.Metadata : null;
+
+	public void SetMetadata(string key, DataModelList? metadata)
+	{
+		if (TryGet(key, CaseInsensitive, out var entry))
+		{
+			Set(entry.Index, entry.Key, entry.Value, metadata);
+		}
+		else
+		{
+			Add(key, value: DataModelValue.Undefined, metadata);
+		}
+	}
+
+	public void SetMetadata(int index, DataModelList? metadata)
+	{
+		if (TryGet(index, out var entry))
+		{
+			Set(entry.Index, entry.Key, entry.Value, metadata);
+		}
+		else
+		{
+			Set(entry.Index, key: null, value: DataModelValue.Undefined, metadata);
+		}
+	}
+
 	public bool TryGet(int index, out Entry entry)
 	{
 		if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_IndexValueMustBeNonNegativeInteger);
@@ -1008,7 +1036,7 @@ public sealed partial class DataModelList
 			return value;
 		}
 
-		var clone = new DataModelList(targetAccess);
+		var clone = new DataModelList(targetAccess, CaseInsensitive);
 
 		map[this] = clone;
 
