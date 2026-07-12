@@ -20,38 +20,42 @@ namespace Xtate.Test.StateMachines.Transitions;
 public class EventlessTransitionMachines : IScxmlTestSource
 {
 	public static readonly string BasicEventlessTransition = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="start">
-		  <state id="start">
-			<transition target="done"/>
-		  </state>
-		  <final id="done"/>
-		</scxml>
-		""";
+															 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="start">
+															   <state id="start">
+															 	<transition target="done"/>
+															   </state>
+															   <final id="done"/>
+															 </scxml>
+															 """;
 
 	public static readonly string EventlessTransitionInCompound = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
-		  <state id="outer" initial="inner">
-			<state id="inner">
-			  <transition target="done"/>
-			</state>
-		  </state>
-		  <final id="done"/>
-		</scxml>
-		""";
+																  <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
+																    <state id="outer" initial="inner">
+																  	<state id="inner">
+																  	  <transition target="done"/>
+																  	</state>
+																    </state>
+																    <final id="done"/>
+																  </scxml>
+																  """;
 
 	public static readonly string EventlessSelfTransition = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="start">
-		  <state id="start">
-			<transition target="done"/>
-		  </state>
-		  <final id="done"/>
-		</scxml>
-		""";
+															<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="start">
+															  <state id="start">
+																<transition target="done"/>
+															  </state>
+															  <final id="done"/>
+															</scxml>
+															""";
+
+#region Interface IScxmlTestSource
 
 	public IEnumerable<ScxmlTestCase> GetTestCases()
 	{
-		yield return new ScxmlTestCase("Transitions/Eventless/BasicEventlessTransition", BasicEventlessTransition);
-		yield return new ScxmlTestCase("Transitions/Eventless/EventlessTransitionInCompound", EventlessTransitionInCompound);
-		yield return new ScxmlTestCase("Transitions/Eventless/EventlessSelfTransition", EventlessSelfTransition);
+		yield return new ScxmlTestCase(Name: "Transitions/Eventless/BasicEventlessTransition", BasicEventlessTransition);
+		yield return new ScxmlTestCase(Name: "Transitions/Eventless/EventlessTransitionInCompound", EventlessTransitionInCompound);
+		yield return new ScxmlTestCase(Name: "Transitions/Eventless/EventlessSelfTransition", EventlessSelfTransition);
 	}
+
+#endregion
 }

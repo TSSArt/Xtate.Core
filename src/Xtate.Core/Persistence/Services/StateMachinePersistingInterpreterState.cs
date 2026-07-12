@@ -21,7 +21,7 @@ namespace Xtate.Persistence.Services;
 
 public class StateMachinePersistingInterpreterState : StateMachineInterpreterState
 {
-	protected StateMachinePersistingInterpreterState(string displayName) : base(displayName) { }
+	private StateMachinePersistingInterpreterState(string displayName) : base(displayName) { }
 
 	public static StateMachinePersistingInterpreterState Resumed { get; } = new(nameof(Resumed));
 

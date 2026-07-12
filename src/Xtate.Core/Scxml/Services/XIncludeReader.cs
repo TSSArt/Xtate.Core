@@ -299,7 +299,7 @@ public class XIncludeReader : DelegatedXmlReader
 
 		if (resource is Stream stream)
 		{
-			return ResourceFactory(stream, null);
+			return ResourceFactory(stream, arg2: null);
 		}
 
 		return (Resource) resource;

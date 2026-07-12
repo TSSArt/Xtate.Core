@@ -1,17 +1,17 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -22,6 +22,7 @@ using Xtate.DataModel.Runtime;
 using Xtate.DataModel.Runtime.Services;
 using Xtate.DataModel.Services;
 using Xtate.DataTypes;
+using Xtate.Interpreter;
 using Xtate.NameTable;
 using Xtate.StateMachine;
 using Xtate.StateMachine.Validator;
@@ -43,13 +44,14 @@ public class RuntimeAndActionProviderCoverageTest
 										  asyncCalls ++;
 
 										  return ValueTask.CompletedTask;
-									  }).DoAction();
+									  })
+						   .DoAction();
 
-		Assert.AreEqual(1, syncCalls);
-		Assert.AreEqual(1, asyncCalls);
+		Assert.AreEqual(expected: 1, syncCalls);
+		Assert.AreEqual(expected: 1, asyncCalls);
 		Assert.IsInstanceOfType(RuntimeAction.GetAction(() => { }), typeof(IExecutableEntity));
-		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage] () => RuntimeAction.GetAction((Action) null!));
-		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage] () => RuntimeAction.GetAction((Func<ValueTask>) null!));
+		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => RuntimeAction.GetAction((Action) null!));
+		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => RuntimeAction.GetAction(null!));
 	}
 
 	[TestMethod]
@@ -61,8 +63,8 @@ public class RuntimeAndActionProviderCoverageTest
 		Assert.IsNull(sync.Expression);
 		Assert.IsTrue(await sync.Evaluate());
 		Assert.IsFalse(await async.Evaluate());
-		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage] () => RuntimePredicate.GetPredicate((Func<bool>) null!));
-		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage] () => RuntimePredicate.GetPredicate((Func<ValueTask<bool>>) null!));
+		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => RuntimePredicate.GetPredicate((Func<bool>) null!));
+		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => RuntimePredicate.GetPredicate((Func<ValueTask<bool>>) null!));
 	}
 
 	[TestMethod]
@@ -73,11 +75,11 @@ public class RuntimeAndActionProviderCoverageTest
 		var async = RuntimeValue.GetValue(() => new ValueTask<DataModelValue>(new DataModelValue("async")));
 
 		Assert.IsNull(constant.Expression);
-		Assert.AreEqual("constant", (await constant.Evaluate()).AsString());
-		Assert.AreEqual("sync", (await sync.Evaluate()).AsString());
-		Assert.AreEqual("async", (await async.Evaluate()).AsString());
-		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage] () => RuntimeValue.GetValue((Func<DataModelValue>) null!));
-		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage] () => RuntimeValue.GetValue((Func<ValueTask<DataModelValue>>) null!));
+		Assert.AreEqual(expected: "constant", (await constant.Evaluate()).AsString());
+		Assert.AreEqual(expected: "sync", (await sync.Evaluate()).AsString());
+		Assert.AreEqual(expected: "async", (await async.Evaluate()).AsString());
+		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => RuntimeValue.GetValue((Func<DataModelValue>) null!));
+		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => RuntimeValue.GetValue((Func<ValueTask<DataModelValue>>) null!));
 	}
 
 	[TestMethod]
@@ -85,7 +87,7 @@ public class RuntimeAndActionProviderCoverageTest
 	{
 		var errorProcessor = new Mock<IErrorProcessorService<RuntimeDataModelHandler>>();
 		var handler = CreateRuntimeHandler(errorProcessor.Object);
-		IConditionExpression conditionExpression = RuntimePredicate.GetPredicate(() => true);
+		var conditionExpression = RuntimePredicate.GetPredicate(() => true);
 		IValueExpression valueExpression = RuntimeValue.GetValue(new DataModelValue("runtime value"));
 		var actionCalls = 0;
 		IExecutableEntity executableEntity = RuntimeAction.GetAction(() => actionCalls ++);
@@ -101,11 +103,11 @@ public class RuntimeAndActionProviderCoverageTest
 		Assert.IsNull(predicateEvaluator.Expression);
 		Assert.IsNull(valueEvaluator.Expression);
 		Assert.IsTrue(await predicateEvaluator.EvaluateBoolean());
-		Assert.AreEqual("runtime value", DataModelValue.FromObject(await valueEvaluator.EvaluateObject()).AsString());
+		Assert.AreEqual(expected: "runtime value", DataModelValue.FromObject(await valueEvaluator.EvaluateObject()).AsString());
 
 		await actionExecutor.Execute();
 
-		Assert.AreEqual(1, actionCalls);
+		Assert.AreEqual(expected: 1, actionCalls);
 
 		IConditionExpression invalidCondition = new ConditionExpressionSource("x > 1");
 		IValueExpression invalidValue = new ValueExpressionSource("value");
@@ -134,6 +136,7 @@ public class RuntimeAndActionProviderCoverageTest
 							["_x"] = new DataModelList { ["args"] = new DataModelValue("runtime arguments") },
 							["value"] = new DataModelValue("runtime data")
 						};
+		var stateMachineArguments = new Mock<IStateMachineArguments>();
 		var dataModelController = new Mock<IDataModelController>();
 		var inStateController = new Mock<IInStateController>();
 		var logController = new Mock<ILogController>();
@@ -142,7 +145,7 @@ public class RuntimeAndActionProviderCoverageTest
 		var outgoingEvent = Mock.Of<IOutgoingEvent>();
 		var sendId = SendId.FromString("send-id")!;
 		var invokeId = InvokeId.FromString("invoke-id");
-		var invokeData = new InvokeData(invokeId, "urn:invoke:type", Source: null, RawContent: null, Content: DataModelValue.Undefined, Parameters: DataModelValue.Undefined);
+		var invokeData = new InvokeData(invokeId, Type: "urn:invoke:type", Source: null, RawContent: null, DataModelValue.Undefined, DataModelValue.Undefined);
 
 		dataModelController.SetupGet(static controller => controller.DataModel).Returns(dataModel);
 		inStateController.Setup(static controller => controller.InState(It.Is<IIdentifier>(id => id.ToString() == "active"))).Returns(true);
@@ -151,29 +154,31 @@ public class RuntimeAndActionProviderCoverageTest
 		eventController.Setup(controller => controller.Cancel(sendId)).Returns(ValueTask.CompletedTask);
 		invokeController.Setup(controller => controller.Start(invokeData)).Returns(ValueTask.CompletedTask);
 		invokeController.Setup(controller => controller.Cancel(invokeId)).Returns(ValueTask.CompletedTask);
+		stateMachineArguments.Setup(x => x.Arguments).Returns("runtime arguments");
 
 		var executor = new RuntimeActionExecutor
 					   {
-						   Action = (RuntimeAction) RuntimeAction.GetAction(async () =>
-																			 {
-																				 Assert.AreSame(dataModel, Runtime.DataModel);
-																				 Assert.AreEqual("runtime arguments", Runtime.Arguments.AsString());
-																				 Assert.IsTrue(Runtime.InState("active"));
+						   Action = RuntimeAction.GetAction(async () =>
+															{
+																Assert.AreSame(dataModel, Runtime.DataModel);
+																Assert.AreEqual(expected: "runtime arguments", Runtime.Arguments.AsString());
+																Assert.IsTrue(Runtime.InState("active"));
 
-																				 await Runtime.Log("message", new DataModelValue("argument"));
-																				 await Runtime.SendEvent(outgoingEvent);
-																				 await Runtime.CancelEvent(sendId);
-																				 await Runtime.StartInvoke(invokeData);
-																				 await Runtime.CancelInvoke(invokeId);
-																			 }),
-						   RuntimeExecutionContextFactory = () => new ValueTask<RuntimeExecutionContext>(new RuntimeExecutionContext
-																										{
-																											InStateController = inStateController.Object,
-																											LogController = logController.Object,
-																											EventController = eventController.Object,
-																											InvokeController = invokeController.Object,
-																											DataModelController = dataModelController.Object
-																										})
+																await Runtime.Log(message: "message", new DataModelValue("argument"));
+																await Runtime.SendEvent(outgoingEvent);
+																await Runtime.CancelEvent(sendId);
+																await Runtime.StartInvoke(invokeData);
+																await Runtime.CancelInvoke(invokeId);
+															}),
+						   RuntimeExecutionContextFactory = () => new ValueTask<RuntimeExecutionContext>(
+																new RuntimeExecutionContext
+																{
+																	InStateController = inStateController.Object,
+																	LogController = logController.Object,
+																	EventController = eventController.Object,
+																	InvokeController = invokeController.Object,
+																	DataModelController = dataModelController.Object
+																})
 					   };
 
 		await executor.Execute();
@@ -191,9 +196,9 @@ public class RuntimeAndActionProviderCoverageTest
 	{
 		var provider = CreateActionProvider();
 
-		Assert.AreSame(provider, provider.TryGetActivator("urn:test", "custom"));
-		Assert.IsNull(provider.TryGetActivator("urn:test", "other"));
-		Assert.IsNull(provider.TryGetActivator("urn:other", "custom"));
+		Assert.AreSame(provider, provider.TryGetActivator(ns1: "urn:test", name1: "custom"));
+		Assert.IsNull(provider.TryGetActivator(ns1: "urn:test", name1: "other"));
+		Assert.IsNull(provider.TryGetActivator(ns1: "urn:other", name1: "custom"));
 	}
 
 	[TestMethod]
@@ -203,9 +208,9 @@ public class RuntimeAndActionProviderCoverageTest
 
 		var action = (TestAction) provider.Activate("<custom xmlns=\"urn:test\" attr=\"value\" />");
 
-		Assert.AreEqual("urn:test", action.NamespaceUri);
-		Assert.AreEqual("custom", action.LocalName);
-		Assert.AreEqual("value", action.AttributeValue);
+		Assert.AreEqual(expected: "urn:test", action.NamespaceUri);
+		Assert.AreEqual(expected: "custom", action.LocalName);
+		Assert.AreEqual(expected: "value", action.AttributeValue);
 	}
 
 	[TestMethod]
@@ -226,9 +231,9 @@ public class RuntimeAndActionProviderCoverageTest
 		var evaluator = new TestContentBodyEvaluator(body, new DataModelValue("object text"));
 
 		Assert.AreSame(body, ((IAncestorProvider) evaluator).Ancestor);
-		Assert.AreEqual("body text", evaluator.Value);
-		Assert.AreEqual("body text", await evaluator.EvaluateString());
-		Assert.AreEqual("object text", DataModelValue.FromObject(await evaluator.EvaluateObject()).AsString());
+		Assert.AreEqual(expected: "body text", evaluator.Value);
+		Assert.AreEqual(expected: "body text", await evaluator.EvaluateString());
+		Assert.AreEqual(expected: "object text", DataModelValue.FromObject(await evaluator.EvaluateObject()).AsString());
 	}
 
 	private static TestActionProvider CreateActionProvider()
@@ -249,15 +254,15 @@ public class RuntimeAndActionProviderCoverageTest
 			   {
 				   RuntimeErrorProcessorService = errorProcessor,
 				   RuntimePredicateEvaluatorFactory = predicate => new RuntimePredicateEvaluator
-																  {
-																	  Predicate = predicate,
-																	  RuntimeExecutionContextFactory = CreateRuntimeExecutionContext
-																  },
+																   {
+																	   Predicate = predicate,
+																	   RuntimeExecutionContextFactory = CreateRuntimeExecutionContext
+																   },
 				   RuntimeValueEvaluatorFactory = value => new RuntimeValueEvaluator
-														  {
-															  Value = value,
-															  RuntimeExecutionContextFactory = CreateRuntimeExecutionContext
-														  },
+														   {
+															   Value = value,
+															   RuntimeExecutionContextFactory = CreateRuntimeExecutionContext
+														   },
 				   RuntimeActionExecutorFactory = action => new RuntimeActionExecutor
 															{
 																Action = action,
@@ -280,7 +285,8 @@ public class RuntimeAndActionProviderCoverageTest
 	}
 
 	private static ValueTask<RuntimeExecutionContext> CreateRuntimeExecutionContext() =>
-		new(new RuntimeExecutionContext
+		new(
+			new RuntimeExecutionContext
 			{
 				InStateController = Mock.Of<IInStateController>(),
 				LogController = Mock.Of<ILogController>(),
@@ -289,7 +295,7 @@ public class RuntimeAndActionProviderCoverageTest
 				DataModelController = Mock.Of<IDataModelController>(static controller => controller.DataModel == new DataModelList())
 			});
 
-	private sealed class TestActionProvider() : ActionProvider<TestAction>("urn:test", "custom");
+	private sealed class TestActionProvider() : ActionProvider<TestAction>(ns: "urn:test", name: "custom");
 
 	private sealed class TestRuntimeDataModelHandler : RuntimeDataModelHandler
 	{
@@ -313,16 +319,24 @@ public class RuntimeAndActionProviderCoverageTest
 
 		public string? AttributeValue { get; }
 
+	#region Interface IAction
+
 		public IEnumerable<IActionValue> GetValues() => [];
 
 		public IEnumerable<IActionLocation> GetLocations() => [];
 
 		public ValueTask Execute() => ValueTask.CompletedTask;
+
+	#endregion
 	}
 
 	private sealed class ContentBodySource : IContentBody
 	{
+	#region Interface IContentBody
+
 		public string? Value { get; init; }
+
+	#endregion
 	}
 
 	private sealed class TestContentBodyEvaluator(IContentBody contentBody, DataModelValue value) : ContentBodyEvaluator(contentBody)
@@ -332,25 +346,41 @@ public class RuntimeAndActionProviderCoverageTest
 
 	private sealed class ConditionExpressionSource(string expression) : IConditionExpression
 	{
+	#region Interface IConditionExpression
+
 		public string? Expression => expression;
+
+	#endregion
 	}
 
 	private sealed class ValueExpressionSource(string expression) : IValueExpression
 	{
+	#region Interface IValueExpression
+
 		public string? Expression => expression;
+
+	#endregion
 	}
 
 	private sealed class ExecutableEntitySource : IExecutableEntity;
 
 	private sealed class ScriptSource : IScript
 	{
+	#region Interface IScript
+
 		public IScriptExpression? Content => null;
 
 		public IExternalScriptExpression? Source => null;
+
+	#endregion
 	}
 
 	private sealed class DataModelSource : IDataModel
 	{
+	#region Interface IDataModel
+
 		public ImmutableArray<IData> Data => [];
+
+	#endregion
 	}
 }

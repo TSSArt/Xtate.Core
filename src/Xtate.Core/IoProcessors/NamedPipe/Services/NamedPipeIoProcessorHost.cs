@@ -28,14 +28,14 @@ public class NamedPipeIoProcessorHost : ResilientIoProcessorHostBase
 
 	protected override async Task ProtectedBackgroundProcess()
 	{
-		if(!NamedPipeController.IsNamedPipeIoProcessorEnabled)
+		if (!NamedPipeController.IsNamedPipeIoProcessorEnabled)
 		{
 			return;
 		}
 
 		while (!Token.IsCancellationRequested)
 		{
-			await NamedPipeController.ReceiveAndProcessEvent(ProcessEvent,  Token).ConfigureAwait(false);
+			await NamedPipeController.ReceiveAndProcessEvent(ProcessEvent, Token).ConfigureAwait(false);
 		}
 	}
 

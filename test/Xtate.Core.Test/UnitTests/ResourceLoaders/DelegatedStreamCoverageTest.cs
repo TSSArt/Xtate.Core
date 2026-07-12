@@ -17,7 +17,6 @@
 
 using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
 using Xtate.ResourceLoaders.Internal;
 
 namespace Xtate.Test.UnitTests.ResourceLoaders;
@@ -35,24 +34,24 @@ public class DelegatedStreamCoverageTest
 		Assert.IsTrue(stream.CanSeek);
 		Assert.IsTrue(stream.CanWrite);
 		Assert.IsTrue(stream.CanTimeout);
-		Assert.AreEqual(4, stream.Length);
+		Assert.AreEqual(expected: 4, stream.Length);
 
 		stream.Position = 1;
-		Assert.AreEqual(1, innerStream.Position);
-		Assert.AreEqual(2, stream.ReadByte());
+		Assert.AreEqual(expected: 1, innerStream.Position);
+		Assert.AreEqual(expected: 2, stream.ReadByte());
 
 		stream.ReadTimeout = 123;
 		stream.WriteTimeout = 456;
-		Assert.AreEqual(123, innerStream.ReadTimeout);
-		Assert.AreEqual(456, innerStream.WriteTimeout);
+		Assert.AreEqual(expected: 123, innerStream.ReadTimeout);
+		Assert.AreEqual(expected: 456, innerStream.WriteTimeout);
 
 		var buffer = new byte[2];
-		Assert.AreEqual(2, stream.Read(buffer, 0, buffer.Length));
+		Assert.AreEqual(expected: 2, stream.Read(buffer, offset: 0, buffer.Length));
 		CollectionAssert.AreEqual(new byte[] { 3, 4 }, buffer);
 
-		Assert.AreEqual(0, stream.Seek(0, SeekOrigin.Begin));
+		Assert.AreEqual(expected: 0, stream.Seek(offset: 0, SeekOrigin.Begin));
 		stream.WriteByte(9);
-		stream.Write([8], 0, 1);
+		stream.Write([8], offset: 0, count: 1);
 		stream.SetLength(3);
 		stream.Flush();
 
@@ -60,12 +59,12 @@ public class DelegatedStreamCoverageTest
 
 		using var copied = new MemoryStream();
 		stream.Position = 0;
-		stream.CopyTo(copied, 16);
+		stream.CopyTo(copied, bufferSize: 16);
 		CollectionAssert.AreEqual(new byte[] { 9, 8, 3 }, copied.ToArray());
 
 		stream.Position = 0;
 		var spanBuffer = new byte[2];
-		Assert.AreEqual(2, stream.Read(spanBuffer.AsSpan()));
+		Assert.AreEqual(expected: 2, stream.Read(spanBuffer.AsSpan()));
 		CollectionAssert.AreEqual(new byte[] { 9, 8 }, spanBuffer);
 
 		stream.Position = 0;
@@ -83,24 +82,24 @@ public class DelegatedStreamCoverageTest
 		using var stream = new TestDelegatedStream(innerStream);
 
 		var beginReadBuffer = new byte[1];
-		var readResult = stream.BeginRead(beginReadBuffer, 0, 1, callback: null, state: null);
-		Assert.AreEqual(1, stream.EndRead(readResult));
+		var readResult = stream.BeginRead(beginReadBuffer, offset: 0, count: 1, callback: null, state: null);
+		Assert.AreEqual(expected: 1, stream.EndRead(readResult));
 		CollectionAssert.AreEqual(new byte[] { 1 }, beginReadBuffer);
 
-		var writeResult = stream.BeginWrite([9], 0, 1, callback: null, state: null);
+		var writeResult = stream.BeginWrite([9], offset: 0, count: 1, callback: null, state: null);
 		stream.EndWrite(writeResult);
 
 		stream.Position = 0;
 		var asyncBuffer = new byte[2];
-		Assert.AreEqual(2, await stream.ReadAsync(asyncBuffer, 0, asyncBuffer.Length, CancellationToken.None));
+		Assert.AreEqual(expected: 2, await stream.ReadAsync(asyncBuffer, offset: 0, asyncBuffer.Length, CancellationToken.None));
 		CollectionAssert.AreEqual(new byte[] { 1, 9 }, asyncBuffer);
 
-		await stream.WriteAsync([5], 0, 1, CancellationToken.None);
+		await stream.WriteAsync([5], offset: 0, count: 1, CancellationToken.None);
 		await stream.FlushAsync(CancellationToken.None);
 
 		stream.Position = 0;
 		var memoryBuffer = new byte[3];
-		Assert.AreEqual(3, await stream.ReadAsync(memoryBuffer.AsMemory(), CancellationToken.None));
+		Assert.AreEqual(expected: 3, await stream.ReadAsync(memoryBuffer.AsMemory(), CancellationToken.None));
 		CollectionAssert.AreEqual(new byte[] { 1, 9, 5 }, memoryBuffer);
 
 		stream.Position = 0;
@@ -108,7 +107,7 @@ public class DelegatedStreamCoverageTest
 
 		using var copied = new MemoryStream();
 		stream.Position = 0;
-		await stream.CopyToAsync(copied, 16, CancellationToken.None);
+		await stream.CopyToAsync(copied, bufferSize: 16, CancellationToken.None);
 		CollectionAssert.AreEqual(new byte[] { 4, 3, 5, 4 }, copied.ToArray());
 	}
 
@@ -116,13 +115,9 @@ public class DelegatedStreamCoverageTest
 
 	private sealed class ProbeStream : MemoryStream
 	{
-		private int _readTimeout;
-
-		private int _writeTimeout;
-
 		public ProbeStream(byte[] bytes)
 		{
-			Write(bytes, 0, bytes.Length);
+			Write(bytes, offset: 0, bytes.Length);
 			Position = 0;
 		}
 
@@ -130,17 +125,9 @@ public class DelegatedStreamCoverageTest
 
 		public bool Disposed { get; private set; }
 
-		public override int ReadTimeout
-		{
-			get => _readTimeout;
-			set => _readTimeout = value;
-		}
+		public override int ReadTimeout { get; set; }
 
-		public override int WriteTimeout
-		{
-			get => _writeTimeout;
-			set => _writeTimeout = value;
-		}
+		public override int WriteTimeout { get; set; }
 
 		protected override void Dispose(bool disposing)
 		{

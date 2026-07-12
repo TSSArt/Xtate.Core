@@ -35,7 +35,7 @@ public class NullConditionExpressionEvaluatorCoverageTest
 						};
 
 		Assert.AreSame(conditionExpression, ((IAncestorProvider) evaluator).Ancestor);
-		Assert.AreEqual("In(target)", evaluator.Expression);
+		Assert.AreEqual(expected: "In(target)", evaluator.Expression);
 		Assert.IsFalse(await ((IBooleanEvaluator) evaluator).EvaluateBoolean());
 	}
 
@@ -46,7 +46,7 @@ public class NullConditionExpressionEvaluatorCoverageTest
 		var controller = new InStateControllerSource(target);
 		var evaluator = new NullConditionExpressionEvaluator(new ConditionExpressionSource(), target)
 						{
-							InStateControllerFactory = () => new ValueTask<IInStateController?>((IInStateController?) controller)
+							InStateControllerFactory = () => new ValueTask<IInStateController?>(controller)
 						};
 
 		Assert.IsTrue(await ((IBooleanEvaluator) evaluator).EvaluateBoolean());
@@ -55,12 +55,18 @@ public class NullConditionExpressionEvaluatorCoverageTest
 
 	private sealed class ConditionExpressionSource : IConditionExpression
 	{
+	#region Interface IConditionExpression
+
 		public string? Expression { get; init; }
+
+	#endregion
 	}
 
 	private sealed class InStateControllerSource(IIdentifier expectedId) : IInStateController
 	{
 		public IIdentifier? LastId { get; private set; }
+
+	#region Interface IInStateController
 
 		public bool InState(IIdentifier id)
 		{
@@ -68,5 +74,7 @@ public class NullConditionExpressionEvaluatorCoverageTest
 
 			return ReferenceEquals(expectedId, id);
 		}
+
+	#endregion
 	}
 }

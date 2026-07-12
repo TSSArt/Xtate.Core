@@ -16,7 +16,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Reflection;
-using Xtate;
+using System.Threading;
 
 namespace Xtate.Test;
 
@@ -53,8 +53,8 @@ public class DateTimeExtensionsTest
 		var third = DateTime.UniqueUtcNow;
 
 		// Assert
-		Assert.IsTrue(first <= second, "First should be less than or equal to second");
-		Assert.IsTrue(second < third, "Second should be less than third");
+		Assert.IsTrue(first <= second, message: "First should be less than or equal to second");
+		Assert.IsTrue(second < third, message: "Second should be less than third");
 	}
 
 	[TestMethod]
@@ -63,26 +63,27 @@ public class DateTimeExtensionsTest
 	{
 		// Arrange
 		var results = new List<DateTime>();
-		var barrier = new System.Threading.Barrier(10);
+		var barrier = new Barrier(10);
 
 		// Act
-		for (int i = 0; i < 10; i++)
+		for (var i = 0; i < 10; i ++)
 		{
 			Task.Run(() =>
-			{
-				barrier.SignalAndWait();
-				lock (results)
-				{
-					results.Add(DateTime.UniqueUtcNow);
-				}
-			});
+					 {
+						 barrier.SignalAndWait();
+
+						 lock (results)
+						 {
+							 results.Add(DateTime.UniqueUtcNow);
+						 }
+					 });
 		}
 
 		// Wait for all tasks
-		System.Threading.Thread.Sleep(100);
+		Thread.Sleep(100);
 
 		// Assert
-		for (int i = 1; i < results.Count; i++)
+		for (var i = 1; i < results.Count; i ++)
 		{
 			Assert.IsTrue(results[i - 1] <= results[i], $"Values not in order: {results[i - 1]} should be <= {results[i]}");
 		}
@@ -99,8 +100,8 @@ public class DateTimeExtensionsTest
 
 		// Assert
 		var after = DateTime.UtcNow;
-		Assert.IsTrue(result >= before, "Result should be >= before");
-		Assert.IsTrue(result <= after.AddSeconds(1), "Result should be <= after + 1 second");
+		Assert.IsTrue(result >= before, message: "Result should be >= before");
+		Assert.IsTrue(result <= after.AddSeconds(1), message: "Result should be <= after + 1 second");
 	}
 
 	[TestMethod]
@@ -110,33 +111,35 @@ public class DateTimeExtensionsTest
 		var times = new List<long>();
 		var tasks = new List<Task>();
 
-		for (int i = 0; i < 5; i++)
+		for (var i = 0; i < 5; i ++)
 		{
-			tasks.Add(Task.Run(() =>
-			{
-				times.Add(DateTime.UniqueUtcNow.Ticks);
-			}));
+			tasks.Add(
+				Task.Run(() =>
+						 {
+							 times.Add(DateTime.UniqueUtcNow.Ticks);
+						 }));
 		}
 
 		Task.WaitAll(tasks.ToArray());
 
 		// Assert
 		times.Sort();
-		for (int i = 1; i < times.Count; i++)
+
+		for (var i = 1; i < times.Count; i ++)
 		{
-			Assert.IsTrue(times[i] >= times[i - 1], "Ticks should be in ascending order");
+			Assert.IsTrue(times[i] >= times[i - 1], message: "Ticks should be in ascending order");
 		}
 	}
 
 	[TestMethod]
 	public void UniqueUtcNow_WhenStoredValueIsAhead_ReturnsNextTick()
 	{
-		var lastValueField = typeof(DateTimeExtensions).GetField("_lastValue", BindingFlags.NonPublic | BindingFlags.Static)!;
+		var lastValueField = typeof(DateTimeExtensions).GetField(name: "_lastValue", BindingFlags.NonPublic | BindingFlags.Static)!;
 		var futureTicks = DateTime.UtcNow.AddHours(1).Ticks;
 
 		try
 		{
-			lastValueField.SetValue(null, futureTicks);
+			lastValueField.SetValue(obj: null, futureTicks);
 
 			var result = DateTime.UniqueUtcNow;
 
@@ -145,7 +148,7 @@ public class DateTimeExtensionsTest
 		}
 		finally
 		{
-			lastValueField.SetValue(null, DateTime.UtcNow.Ticks);
+			lastValueField.SetValue(obj: null, DateTime.UtcNow.Ticks);
 		}
 	}
 }

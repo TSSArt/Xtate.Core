@@ -18,6 +18,9 @@
 using Xtate.DataTypes;
 using Xtate.Interpreter;
 using Xtate.Interpreter.Services;
+using Xtate.Logging;
+using Xtate.Logging.Provider;
+using Xtate.StateMachine;
 
 namespace Xtate.Test.UnitTests.Interpreter;
 
@@ -31,5 +34,57 @@ public class InterpreterServiceCoverageTest
 
 		Assert.AreEqual(DataModelValueType.Undefined, arguments.Arguments.Type);
 		Assert.IsTrue(arguments.Arguments.IsUndefined());
+	}
+
+	[TestMethod]
+	public void OutgoingEventEntityParserEnumeratesPopulatedProperties()
+	{
+		IEntityParserHandler parser = new OutgoingEventEntityParser();
+		var outgoingEvent = new OutgoingEventSource
+							{
+								Name = EventName.FromString("event.name"),
+								SendId = SendId.FromString("send-id"),
+								Type = new FullUri("https://example.test/type"),
+								Target = new FullUri("https://example.test/target"),
+								DelayMs = 250
+							};
+
+		var properties = parser.EnumerateProperties(outgoingEvent)!.ToDictionary(parameter => parameter.Name);
+
+		Assert.AreEqual(Level.Info, parser.Level);
+		Assert.AreEqual(expected: 5, properties.Count);
+		Assert.AreEqual(outgoingEvent.Name.ToString(), properties["EventName"].Value!.ToString());
+		Assert.AreEqual(outgoingEvent.SendId, properties["SendId"].Value);
+		Assert.AreEqual(outgoingEvent.Type, properties["EventType"].Value);
+		Assert.AreEqual(outgoingEvent.Target, properties["Target"].Value);
+		Assert.AreEqual(expected: 250, properties["DelayMs"].Value);
+	}
+
+	[TestMethod]
+	public void OutgoingEventEntityParserOmitsDefaultPropertiesAndRejectsOtherEntities()
+	{
+		IEntityParserHandler parser = new OutgoingEventEntityParser();
+
+		Assert.IsEmpty(parser.EnumerateProperties(new OutgoingEventSource())!);
+		Assert.IsNull(parser.EnumerateProperties("not an outgoing event"));
+	}
+
+	private sealed class OutgoingEventSource : IOutgoingEvent
+	{
+	#region Interface IOutgoingEvent
+
+		public SendId? SendId { get; init; }
+
+		public EventName Name { get; init; }
+
+		public FullUri? Target { get; init; }
+
+		public FullUri? Type { get; init; }
+
+		public int DelayMs { get; init; }
+
+		public DataModelValue Data { get; init; }
+
+	#endregion
 	}
 }

@@ -20,8 +20,8 @@ using Xtate.Test.StateMachines.DataModel;
 using Xtate.Test.StateMachines.History;
 using Xtate.Test.StateMachines.Metadata;
 using Xtate.Test.StateMachines.Parallel;
-using Xtate.Test.StateMachines.XPath;
 using Xtate.Test.StateMachines.Transitions;
+using Xtate.Test.StateMachines.XPath;
 
 namespace Xtate.Test.StateMachines;
 
@@ -39,10 +39,9 @@ namespace Xtate.Test.StateMachines;
 /// </remarks>
 public static class ScxmlTestRegistry
 {
-	private static readonly Lazy<IReadOnlyDictionary<string, ScxmlTestCase>> TestCasesByName = new(
-		() => Sources!
-		      .SelectMany(src => src.GetTestCases())
-		      .ToDictionary(testCase => testCase.Name, StringComparer.Ordinal));
+	private static readonly Lazy<IReadOnlyDictionary<string, ScxmlTestCase>> TestCasesByName = new(() => Sources!
+																										 .SelectMany(src => src.GetTestCases())
+																										 .ToDictionary(testCase => testCase.Name, StringComparer.Ordinal));
 
 	/// <summary>
 	///     Explicit list of all registered test sources.

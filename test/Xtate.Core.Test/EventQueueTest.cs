@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -24,37 +24,37 @@ namespace Xtate.Core.Test;
 [TestClass]
 public class EventQueueTest
 {
-    [TestMethod]
-    public void EmptyQueueTest()
-    {
-        var eventQueue = new EventQueue();
-        var result = eventQueue.TryReadEvent(out _);
+	[TestMethod]
+	public void EmptyQueueTest()
+	{
+		var eventQueue = new EventQueue();
+		var result = eventQueue.TryReadEvent(out _);
 
-        Assert.IsFalse(result);
-    }
+		Assert.IsFalse(result);
+	}
 
-    [TestMethod]
-    public async Task NonEmptyQueueTest()
-    {
-        var eventQueue = new EventQueue();
-        var eventObject = new IncomingEvent();
-        await eventQueue.Dispatch(eventObject, token: CancellationToken.None);
-        var result = eventQueue.TryReadEvent(out var evt);
-        var result2 = eventQueue.TryReadEvent(out var evt2);
+	[TestMethod]
+	public async Task NonEmptyQueueTest()
+	{
+		var eventQueue = new EventQueue();
+		var eventObject = new IncomingEvent();
+		await eventQueue.Dispatch(eventObject, CancellationToken.None);
+		var result = eventQueue.TryReadEvent(out var evt);
+		var result2 = eventQueue.TryReadEvent(out var evt2);
 
-        Assert.IsTrue(result);
-        Assert.IsFalse(result2);
-        Assert.AreSame(eventObject, evt);
-        Assert.IsNull(evt2);
-    }
+		Assert.IsTrue(result);
+		Assert.IsFalse(result2);
+		Assert.AreSame(eventObject, evt);
+		Assert.IsNull(evt2);
+	}
 
-    [TestMethod]
-    public async Task CompleteQueueTest()
-    {
-        var eventQueue = new EventQueue();
-        eventQueue.Complete();
-        var result = await eventQueue.WaitToEvent();
+	[TestMethod]
+	public async Task CompleteQueueTest()
+	{
+		var eventQueue = new EventQueue();
+		eventQueue.Complete();
+		var result = await eventQueue.WaitToEvent();
 
-        Assert.IsFalse(result);
-    }
+		Assert.IsFalse(result);
+	}
 }

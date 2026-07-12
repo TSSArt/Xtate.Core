@@ -15,57 +15,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate;
-
 namespace Xtate.Test;
 
 [TestClass]
 public class DisposerTest
 {
-	private class MockDisposable : IDisposable
-	{
-		public bool IsDisposed { get; private set; }
-
-		public void Dispose()
-		{
-			IsDisposed = true;
-		}
-	}
-
-	private class MockAsyncDisposable : IAsyncDisposable
-	{
-		public bool IsAsyncDisposed { get; private set; }
-
-		public ValueTask DisposeAsync()
-		{
-			IsAsyncDisposed = true;
-			return ValueTask.CompletedTask;
-		}
-	}
-
-	private class BothDisposable : IDisposable, IAsyncDisposable
-	{
-		public bool IsSyncDisposed { get; private set; }
-		public bool IsAsyncDisposed { get; private set; }
-
-		public void Dispose()
-		{
-			IsSyncDisposed = true;
-		}
-
-		[ExcludeFromCodeCoverage]
-		public ValueTask DisposeAsync()
-		{
-			IsAsyncDisposed = true;
-			return ValueTask.CompletedTask;
-		}
-	}
-
-	private class NotDisposable
-	{
-		public string Value { get; set; } = "test";
-	}
-
 	[TestMethod]
 	public void IsDisposable_WithIDisposable_ShouldReturnTrue()
 	{
@@ -210,5 +164,68 @@ public class DisposerTest
 
 		// Assert
 		Assert.IsTrue(true);
+	}
+
+	private class MockDisposable : IDisposable
+	{
+		public bool IsDisposed { get; private set; }
+
+	#region Interface IDisposable
+
+		public void Dispose()
+		{
+			IsDisposed = true;
+		}
+
+	#endregion
+	}
+
+	private class MockAsyncDisposable : IAsyncDisposable
+	{
+		public bool IsAsyncDisposed { get; private set; }
+
+	#region Interface IAsyncDisposable
+
+		public ValueTask DisposeAsync()
+		{
+			IsAsyncDisposed = true;
+
+			return ValueTask.CompletedTask;
+		}
+
+	#endregion
+	}
+
+	private class BothDisposable : IDisposable, IAsyncDisposable
+	{
+		public bool IsSyncDisposed { get; private set; }
+
+		public bool IsAsyncDisposed { get; private set; }
+
+	#region Interface IAsyncDisposable
+
+		[ExcludeFromCodeCoverage]
+		public ValueTask DisposeAsync()
+		{
+			IsAsyncDisposed = true;
+
+			return ValueTask.CompletedTask;
+		}
+
+	#endregion
+
+	#region Interface IDisposable
+
+		public void Dispose()
+		{
+			IsSyncDisposed = true;
+		}
+
+	#endregion
+	}
+
+	private class NotDisposable
+	{
+		public string Value { get; set; } = "test";
 	}
 }

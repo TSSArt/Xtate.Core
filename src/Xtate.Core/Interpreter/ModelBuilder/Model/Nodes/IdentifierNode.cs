@@ -42,7 +42,7 @@ public class IdentifierNode(IIdentifier id) : IIdentifier, IAncestorProvider, ID
 
 #endregion
 
-public override string ToString() => id.ToString() ?? string.Empty;
+	public override string ToString() => id.ToString() ?? string.Empty;
 
 	public override bool Equals(object? obj) => id.Equals(obj);
 

@@ -16,10 +16,8 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.IO;
-using System.Collections.Concurrent;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xtate.Test.UnitTests.Common;
 
@@ -33,10 +31,10 @@ public class PolyfillsCoverageTest
 
 		AssertWrites(value: true, sizeof(byte), BitConverter.GetBytes(true));
 		AssertWrites(value: 'Ж', sizeof(char), BitConverter.GetBytes('Ж'));
-		AssertWrites(value: (short) -1234, sizeof(short), BitConverter.GetBytes((short) -1234));
+		AssertWrites((short) -1234, sizeof(short), BitConverter.GetBytes((short) -1234));
 		AssertWrites(value: 123456789, sizeof(int), BitConverter.GetBytes(123456789));
 		AssertWrites(value: -1234567890123456789L, sizeof(long), BitConverter.GetBytes(-1234567890123456789L));
-		AssertWrites(value: (ushort) 65000, sizeof(ushort), BitConverter.GetBytes((ushort) 65000));
+		AssertWrites((ushort) 65000, sizeof(ushort), BitConverter.GetBytes((ushort) 65000));
 		AssertWrites(value: 4000000000U, sizeof(uint), BitConverter.GetBytes(4000000000U));
 		AssertWrites(value: 18000000000000000000UL, sizeof(ulong), BitConverter.GetBytes(18000000000000000000UL));
 		AssertWrites(value: 123.5F, sizeof(float), BitConverter.GetBytes(123.5F));
@@ -49,7 +47,7 @@ public class PolyfillsCoverageTest
 		using var stream = new MemoryStream(Encoding.UTF8.GetBytes("first line\r\nsecond line"));
 		using var reader = new StreamReader(stream, Encoding.UTF8);
 
-		Assert.AreEqual("first line\r\nsecond line", await reader.ReadToEndAsync(CancellationToken.None));
+		Assert.AreEqual(expected: "first line\r\nsecond line", await reader.ReadToEndAsync(CancellationToken.None));
 
 		using var cancellationTokenSource = new CancellationTokenSource();
 		cancellationTokenSource.Cancel();
@@ -73,12 +71,12 @@ public class PolyfillsCoverageTest
 	{
 		var dictionary = new ConcurrentDictionary<string, int>();
 
-		Assert.AreEqual(5, dictionary.GetOrAdd("value", static (_, arg) => arg, 5));
-		Assert.AreEqual(5, dictionary.GetOrAdd("value", static (_, arg) => arg, 10));
-		Assert.AreEqual(8, dictionary.AddOrUpdate("value", static (_, arg) => arg, static (_, current, arg) => current + arg, 3));
-		Assert.AreEqual(4, dictionary.AddOrUpdate("other", static (_, arg) => arg, static (_, current, arg) => current + arg, 4));
-		Assert.IsFalse(dictionary.TryRemove(new KeyValuePair<string, int>("value", 5)));
-		Assert.IsTrue(dictionary.TryRemove(new KeyValuePair<string, int>("value", 8)));
+		Assert.AreEqual(expected: 5, dictionary.GetOrAdd(key: "value", static (_, arg) => arg, factoryArgument: 5));
+		Assert.AreEqual(expected: 5, dictionary.GetOrAdd(key: "value", static (_, arg) => arg, factoryArgument: 10));
+		Assert.AreEqual(expected: 8, dictionary.AddOrUpdate(key: "value", static (_, arg) => arg, static (_, current, arg) => current + arg, factoryArgument: 3));
+		Assert.AreEqual(expected: 4, dictionary.AddOrUpdate(key: "other", static (_, arg) => arg, static (_, current, arg) => current + arg, factoryArgument: 4));
+		Assert.IsFalse(dictionary.TryRemove(new KeyValuePair<string, int>(key: "value", value: 5)));
+		Assert.IsTrue(dictionary.TryRemove(new KeyValuePair<string, int>(key: "value", value: 8)));
 		Assert.IsFalse(dictionary.ContainsKey("value"));
 	}
 
@@ -96,7 +94,7 @@ public class PolyfillsCoverageTest
 
 		Assert.IsTrue(BitConverter.TryWriteBytes(buffer, value));
 		CollectionAssert.AreEqual(expected, buffer);
-		Assert.IsFalse(BitConverter.TryWriteBytes(buffer.AsSpan(0, size - 1), value));
+		Assert.IsFalse(BitConverter.TryWriteBytes(buffer.AsSpan(start: 0, size - 1), value));
 	}
 
 	private static void AssertWrites(short value, int size, byte[] expected)
@@ -105,7 +103,7 @@ public class PolyfillsCoverageTest
 
 		Assert.IsTrue(BitConverter.TryWriteBytes(buffer, value));
 		CollectionAssert.AreEqual(expected, buffer);
-		Assert.IsFalse(BitConverter.TryWriteBytes(buffer.AsSpan(0, size - 1), value));
+		Assert.IsFalse(BitConverter.TryWriteBytes(buffer.AsSpan(start: 0, size - 1), value));
 	}
 
 	private static void AssertWrites(int value, int size, byte[] expected)
@@ -114,7 +112,7 @@ public class PolyfillsCoverageTest
 
 		Assert.IsTrue(BitConverter.TryWriteBytes(buffer, value));
 		CollectionAssert.AreEqual(expected, buffer);
-		Assert.IsFalse(BitConverter.TryWriteBytes(buffer.AsSpan(0, size - 1), value));
+		Assert.IsFalse(BitConverter.TryWriteBytes(buffer.AsSpan(start: 0, size - 1), value));
 	}
 
 	private static void AssertWrites(long value, int size, byte[] expected)
@@ -123,7 +121,7 @@ public class PolyfillsCoverageTest
 
 		Assert.IsTrue(BitConverter.TryWriteBytes(buffer, value));
 		CollectionAssert.AreEqual(expected, buffer);
-		Assert.IsFalse(BitConverter.TryWriteBytes(buffer.AsSpan(0, size - 1), value));
+		Assert.IsFalse(BitConverter.TryWriteBytes(buffer.AsSpan(start: 0, size - 1), value));
 	}
 
 	private static void AssertWrites(ushort value, int size, byte[] expected)
@@ -132,7 +130,7 @@ public class PolyfillsCoverageTest
 
 		Assert.IsTrue(BitConverter.TryWriteBytes(buffer, value));
 		CollectionAssert.AreEqual(expected, buffer);
-		Assert.IsFalse(BitConverter.TryWriteBytes(buffer.AsSpan(0, size - 1), value));
+		Assert.IsFalse(BitConverter.TryWriteBytes(buffer.AsSpan(start: 0, size - 1), value));
 	}
 
 	private static void AssertWrites(uint value, int size, byte[] expected)
@@ -141,7 +139,7 @@ public class PolyfillsCoverageTest
 
 		Assert.IsTrue(BitConverter.TryWriteBytes(buffer, value));
 		CollectionAssert.AreEqual(expected, buffer);
-		Assert.IsFalse(BitConverter.TryWriteBytes(buffer.AsSpan(0, size - 1), value));
+		Assert.IsFalse(BitConverter.TryWriteBytes(buffer.AsSpan(start: 0, size - 1), value));
 	}
 
 	private static void AssertWrites(ulong value, int size, byte[] expected)
@@ -150,7 +148,7 @@ public class PolyfillsCoverageTest
 
 		Assert.IsTrue(BitConverter.TryWriteBytes(buffer, value));
 		CollectionAssert.AreEqual(expected, buffer);
-		Assert.IsFalse(BitConverter.TryWriteBytes(buffer.AsSpan(0, size - 1), value));
+		Assert.IsFalse(BitConverter.TryWriteBytes(buffer.AsSpan(start: 0, size - 1), value));
 	}
 
 	private static void AssertWrites(float value, int size, byte[] expected)
@@ -159,7 +157,7 @@ public class PolyfillsCoverageTest
 
 		Assert.IsTrue(BitConverter.TryWriteBytes(buffer, value));
 		CollectionAssert.AreEqual(expected, buffer);
-		Assert.IsFalse(BitConverter.TryWriteBytes(buffer.AsSpan(0, size - 1), value));
+		Assert.IsFalse(BitConverter.TryWriteBytes(buffer.AsSpan(start: 0, size - 1), value));
 	}
 
 	private static void AssertWrites(double value, int size, byte[] expected)
@@ -168,6 +166,6 @@ public class PolyfillsCoverageTest
 
 		Assert.IsTrue(BitConverter.TryWriteBytes(buffer, value));
 		CollectionAssert.AreEqual(expected, buffer);
-		Assert.IsFalse(BitConverter.TryWriteBytes(buffer.AsSpan(0, size - 1), value));
+		Assert.IsFalse(BitConverter.TryWriteBytes(buffer.AsSpan(start: 0, size - 1), value));
 	}
 }

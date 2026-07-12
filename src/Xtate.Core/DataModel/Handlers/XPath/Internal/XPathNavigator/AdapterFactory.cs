@@ -75,6 +75,7 @@ internal static class AdapterFactory
 			DataModelValueType.Number                                   => SimpleTypeNodeAdapter,
 			DataModelValueType.Boolean                                  => SimpleTypeNodeAdapter,
 			DataModelValueType.DateTime                                 => SimpleTypeNodeAdapter,
+			DataModelValueType.List                                     => throw GetNotSupportedException(),
 			_                                                           => throw GetNotSupportedException()
 		};
 

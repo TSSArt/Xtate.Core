@@ -48,13 +48,13 @@ public class ExternalServiceProviderBaseCoverageTest
 	public void BuiltInHttpAndSmtpProvidersMatchPrimaryAndAliasUris()
 	{
 		IExternalServiceProvider httpProvider = new HttpClientService.Provider
-											   {
-												   ServiceFactoryFunc = () => new ValueTask<HttpClientService>((HttpClientService) null!)
-											   };
+												{
+													ServiceFactoryFunc = () => new ValueTask<HttpClientService>((HttpClientService) null!)
+												};
 		IExternalServiceProvider smtpProvider = new SmtpClientService.Provider
-											   {
-												   ServiceFactoryFunc = () => new ValueTask<SmtpClientService>((SmtpClientService) null!)
-											   };
+												{
+													ServiceFactoryFunc = () => new ValueTask<SmtpClientService>((SmtpClientService) null!)
+												};
 
 		Assert.IsNotNull(httpProvider.TryGetActivator(new FullUri("http://xtate.net/scxml/service/#HTTPClient")));
 		Assert.IsNotNull(httpProvider.TryGetActivator(new FullUri("http")));
@@ -64,10 +64,14 @@ public class ExternalServiceProviderBaseCoverageTest
 		Assert.IsNull(smtpProvider.TryGetActivator(new FullUri("http")));
 	}
 
-	private sealed class TestExternalServiceProvider() : ExternalServiceProviderBase<TestExternalService>("urn:primary", "urn:alias");
+	private sealed class TestExternalServiceProvider() : ExternalServiceProviderBase<TestExternalService>(type: "urn:primary", alias: "urn:alias");
 
 	private sealed class TestExternalService : IExternalService
 	{
+	#region Interface IExternalService
+
 		public ValueTask<DataModelValue> GetResult() => new(new DataModelValue("result"));
+
+	#endregion
 	}
 }

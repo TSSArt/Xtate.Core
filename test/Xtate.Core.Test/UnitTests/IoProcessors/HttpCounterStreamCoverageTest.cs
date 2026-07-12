@@ -18,7 +18,6 @@
 using System.IO;
 using System.Net;
 using System.Threading;
-using System.Threading.Tasks;
 using Xtate.IoProcessors.Http;
 using Xtate.IoProcessors.Http.Internal;
 
@@ -33,14 +32,14 @@ public class HttpCounterStreamCoverageTest
 		using var readStream = new ObservedCounterStream(new MemoryStream([1, 2, 3]));
 		var buffer = new byte[4];
 
-		Assert.AreEqual(2, readStream.Read(buffer, 0, 2));
-		Assert.AreEqual(3, readStream.ReadByte());
-		Assert.AreEqual(-1, readStream.ReadByte());
+		Assert.AreEqual(expected: 2, readStream.Read(buffer, offset: 0, count: 2));
+		Assert.AreEqual(expected: 3, readStream.ReadByte());
+		Assert.AreEqual(expected: -1, readStream.ReadByte());
 		CollectionAssert.AreEqual(new[] { "pre-read:2", "post-read:2", "pre-read:1", "post-read:1", "pre-read:1", "post-read:0" }, readStream.Events);
 
 		using var writeStream = new ObservedCounterStream(new MemoryStream());
 
-		writeStream.Write([4, 5], 0, 2);
+		writeStream.Write([4, 5], offset: 0, count: 2);
 		writeStream.WriteByte(6);
 
 		CollectionAssert.AreEqual(new[] { "pre-write:2", "post-write:2", "pre-write:1", "post-write:1" }, writeStream.Events);
@@ -52,12 +51,12 @@ public class HttpCounterStreamCoverageTest
 		using var readStream = new ObservedCounterStream(new MemoryStream([1, 2, 3, 4]));
 		var buffer = new byte[3];
 
-		Assert.AreEqual(3, await readStream.ReadAsync(buffer, 0, buffer.Length, CancellationToken.None));
+		Assert.AreEqual(expected: 3, await readStream.ReadAsync(buffer, offset: 0, buffer.Length, CancellationToken.None));
 		CollectionAssert.AreEqual(new[] { "pre-read:3", "post-read:3" }, readStream.Events);
 
 		using var writeStream = new ObservedCounterStream(new MemoryStream());
 
-		await writeStream.WriteAsync([5, 6, 7], 0, 3, CancellationToken.None);
+		await writeStream.WriteAsync([5, 6, 7], offset: 0, count: 3, CancellationToken.None);
 
 		CollectionAssert.AreEqual(new[] { "pre-write:3", "post-write:3" }, writeStream.Events);
 	}
@@ -65,14 +64,14 @@ public class HttpCounterStreamCoverageTest
 	[TestMethod]
 	public void CounterStreamRejectsInvalidPreReadCountMutations()
 	{
-		using var zeroMutation = new MutatingPreReadCounterStream(new MemoryStream([1]), 1);
+		using var zeroMutation = new MutatingPreReadCounterStream(new MemoryStream([1]), mutatedCount: 1);
 
-		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage] () => zeroMutation.Read([], 0, 0));
+		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => zeroMutation.Read([], offset: 0, count: 0));
 
-		using var oversizeMutation = new MutatingPreReadCounterStream(new MemoryStream([1]), 3);
+		using var oversizeMutation = new MutatingPreReadCounterStream(new MemoryStream([1]), mutatedCount: 3);
 		var buffer = new byte[2];
 
-		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage] () => oversizeMutation.Read(buffer, 0, 2));
+		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => oversizeMutation.Read(buffer, offset: 0, count: 2));
 	}
 
 	[TestMethod]
@@ -81,13 +80,13 @@ public class HttpCounterStreamCoverageTest
 		using var stream = new ReadLimitStream(new MemoryStream([1, 2, 3, 4, 5]), maxReadBytes: 3);
 		var buffer = new byte[10];
 
-		Assert.AreEqual(3, stream.Read(buffer, 0, buffer.Length));
+		Assert.AreEqual(expected: 3, stream.Read(buffer, offset: 0, buffer.Length));
 		CollectionAssert.AreEqual(new byte[] { 1, 2, 3 }, buffer.Take(3).ToArray());
 
-		var exception = Assert.ThrowsExactly<HttpRequestProcessException>([ExcludeFromCodeCoverage] () => stream.Read(buffer, 0, 1));
+		var exception = Assert.ThrowsExactly<HttpRequestProcessException>([ExcludeFromCodeCoverage]() => stream.Read(buffer, offset: 0, count: 1));
 
 		Assert.AreEqual(HttpStatusCode.RequestEntityTooLarge, exception.StatusCode);
-		StringAssert.Contains(exception.Message, "Read limit exceeded");
+		StringAssert.Contains(exception.Message, substring: "Read limit exceeded");
 	}
 
 	[TestMethod]
@@ -96,8 +95,8 @@ public class HttpCounterStreamCoverageTest
 		using var stream = new ReadLimitStream(new MemoryStream([1]), maxReadBytes: 1);
 		var buffer = new byte[1];
 
-		Assert.AreEqual(1, stream.Read(buffer, 0, 1));
-		Assert.AreEqual(0, stream.Read(buffer, 0, 0));
+		Assert.AreEqual(expected: 1, stream.Read(buffer, offset: 0, count: 1));
+		Assert.AreEqual(expected: 0, stream.Read(buffer, offset: 0, count: 0));
 	}
 
 	[TestMethod]
@@ -106,9 +105,9 @@ public class HttpCounterStreamCoverageTest
 		using var stream = new ReadLimitStream(new MemoryStream([1, 2, 3, 4]), maxReadBytes: 2);
 		var buffer = new byte[4];
 
-		Assert.AreEqual(2, await stream.ReadAsync(buffer, 0, buffer.Length, CancellationToken.None));
+		Assert.AreEqual(expected: 2, await stream.ReadAsync(buffer, offset: 0, buffer.Length, CancellationToken.None));
 
-		await Assert.ThrowsExactlyAsync<HttpRequestProcessException>(async () => await stream.ReadAsync(buffer, 0, 1, CancellationToken.None));
+		await Assert.ThrowsExactlyAsync<HttpRequestProcessException>(async () => await stream.ReadAsync(buffer, offset: 0, count: 1, CancellationToken.None));
 	}
 
 	[TestMethod]
@@ -116,19 +115,19 @@ public class HttpCounterStreamCoverageTest
 	{
 		using var stream = new WriteLimitStream(maxWriteBytes: 3);
 
-		stream.Write([1, 2], 0, 2);
-		await stream.WriteAsync([3], 0, 1, CancellationToken.None);
+		stream.Write([1, 2], offset: 0, count: 2);
+		await stream.WriteAsync([3], offset: 0, count: 1, CancellationToken.None);
 
-		var exception = Assert.ThrowsExactly<IOException>([ExcludeFromCodeCoverage] () => stream.WriteByte(4));
+		var exception = Assert.ThrowsExactly<IOException>([ExcludeFromCodeCoverage]() => stream.WriteByte(4));
 
-		StringAssert.Contains(exception.Message, "Write limit exceeded");
+		StringAssert.Contains(exception.Message, substring: "Write limit exceeded");
 	}
 
 	private sealed class ObservedCounterStream(Stream stream) : CounterStream(stream)
 	{
-		public string[] Events => _events.ToArray();
-
 		private readonly List<string> _events = [];
+
+		public string[] Events => _events.ToArray();
 
 		protected override void PreRead(ref int count) => _events.Add($"pre-read:{count}");
 

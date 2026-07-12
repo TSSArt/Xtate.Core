@@ -72,8 +72,8 @@ public class TransitionTypeTest
 		var internalStr = TransitionType.Internal.ToString();
 
 		// Assert
-		Assert.AreEqual("External", externalStr);
-		Assert.AreEqual("Internal", internalStr);
+		Assert.AreEqual(expected: "External", externalStr);
+		Assert.AreEqual(expected: "Internal", internalStr);
 	}
 
 	[TestMethod]
@@ -83,7 +83,7 @@ public class TransitionTypeTest
 		var values = Enum.GetValues(typeof(TransitionType));
 
 		// Assert
-		Assert.AreEqual(2, values.Length);
+		Assert.AreEqual(expected: 2, values.Length);
 	}
 
 	[TestMethod]
@@ -93,7 +93,7 @@ public class TransitionTypeTest
 		var names = Enum.GetNames(typeof(TransitionType));
 
 		// Assert
-		Assert.AreEqual(2, names.Length);
+		Assert.AreEqual(expected: 2, names.Length);
 		Assert.IsTrue(names.Contains("External"));
 		Assert.IsTrue(names.Contains("Internal"));
 	}
@@ -120,7 +120,7 @@ public class TransitionTypeTest
 		var internalInt = (int) TransitionType.Internal;
 
 		// Assert
-		Assert.AreEqual(0, externalInt);
-		Assert.AreEqual(1, internalInt);
+		Assert.AreEqual(expected: 0, externalInt);
+		Assert.AreEqual(expected: 1, internalInt);
 	}
 }

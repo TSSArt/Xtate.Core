@@ -19,7 +19,7 @@ namespace Xtate.Logging.Provider;
 
 public abstract class EntityParserBase<TEntity>(Level level = Level.Info) : IEntityParserHandler
 {
-#region Interface IEntityParserHandler<TSource>
+#region Interface IEntityParserHandler
 
 	IEnumerable<LoggingParameter>? IEntityParserHandler.EnumerateProperties<T>(T entity) => entity is TEntity ? EnumerateProperties(ConvertHelper<T, TEntity>.Convert(entity)) : null;
 

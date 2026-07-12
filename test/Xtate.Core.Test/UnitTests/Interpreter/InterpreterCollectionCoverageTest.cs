@@ -15,9 +15,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using System.IO;
 using System.Xml;
 using System.Xml.XPath;
-using System.IO;
 using Xtate.Ancestor;
 using Xtate.Ancestor.Extensions;
 using Xtate.DataModel.XPath.Internal;
@@ -38,7 +38,7 @@ public class InterpreterCollectionCoverageTest
 		queue.Enqueue("first");
 		var value = queue.Dequeue();
 
-		Assert.AreEqual("first", value);
+		Assert.AreEqual(expected: "first", value);
 		CollectionAssert.AreEqual(
 			new[]
 			{
@@ -68,7 +68,7 @@ public class InterpreterCollectionCoverageTest
 		Assert.IsFalse(set.IsMember(2));
 		CollectionAssert.AreEqual(new[] { 1 }, set.ToSortedList(Comparer<int>.Default));
 		CollectionAssert.AreEqual(new[] { 1 }, set.ToFilteredSortedList(static item => item > 0, Comparer<int>.Default));
-		CollectionAssert.AreEqual(new[] { 1 }, set.ToFilteredList(static (item, min) => item >= min, 1));
+		CollectionAssert.AreEqual(new[] { 1 }, set.ToFilteredList(static (item, min) => item >= min, arg: 1));
 		CollectionAssert.AreEqual(
 			new[]
 			{
@@ -78,7 +78,7 @@ public class InterpreterCollectionCoverageTest
 			},
 			events);
 
-		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage] () => set.ToFilteredList<int>(null!, 0));
+		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => set.ToFilteredList(null!, arg: 0));
 
 		set.Clear();
 
@@ -99,7 +99,7 @@ public class InterpreterCollectionCoverageTest
 
 		Assert.IsTrue(defaultResult.IsDefault);
 		Assert.IsFalse(emptyResult.IsDefault);
-		Assert.AreEqual(0, emptyResult.Length);
+		Assert.AreEqual(expected: 0, emptyResult.Length);
 		Assert.AreSame(ancestor, result[0]);
 		Assert.IsNull(result[1]);
 	}
@@ -112,19 +112,19 @@ public class InterpreterCollectionCoverageTest
 		var navigator = document.CreateNavigator().SelectSingleNode("/root/child")!;
 		var iterator = new XPathSingleElementIterator(navigator);
 
-		Assert.AreEqual(0, iterator.CurrentPosition);
+		Assert.AreEqual(expected: 0, iterator.CurrentPosition);
 		Assert.IsNull(iterator.Current);
 		Assert.IsTrue(iterator.MoveNext());
-		Assert.AreEqual(1, iterator.CurrentPosition);
-		Assert.AreEqual("child", iterator.Current!.LocalName);
+		Assert.AreEqual(expected: 1, iterator.CurrentPosition);
+		Assert.AreEqual(expected: "child", iterator.Current!.LocalName);
 		Assert.IsFalse(iterator.MoveNext());
-		Assert.AreEqual(1, iterator.CurrentPosition);
+		Assert.AreEqual(expected: 1, iterator.CurrentPosition);
 
 		var clone = iterator.Clone();
 
-		Assert.AreEqual(0, clone.CurrentPosition);
+		Assert.AreEqual(expected: 0, clone.CurrentPosition);
 		Assert.IsTrue(clone.MoveNext());
-		Assert.AreEqual("child", clone.Current!.LocalName);
+		Assert.AreEqual(expected: "child", clone.Current!.LocalName);
 	}
 
 	private interface ITestAncestor;
@@ -136,6 +136,10 @@ public class InterpreterCollectionCoverageTest
 
 	private sealed class AncestorSource(object ancestor) : IAncestorProvider
 	{
+	#region Interface IAncestorProvider
+
 		public object Ancestor { get; } = ancestor;
+
+	#endregion
 	}
 }

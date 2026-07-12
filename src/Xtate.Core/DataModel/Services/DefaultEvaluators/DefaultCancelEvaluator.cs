@@ -41,6 +41,6 @@ public class DefaultCancelEvaluator : CancelEvaluator
 
 		var eventController = await EventController().ConfigureAwait(false);
 
-		await eventController.Cancel(Xtate.StateMachine.SendId.FromString(sendId)).ConfigureAwait(false);
+		await eventController.Cancel(StateMachine.SendId.FromString(sendId)).ConfigureAwait(false);
 	}
 }

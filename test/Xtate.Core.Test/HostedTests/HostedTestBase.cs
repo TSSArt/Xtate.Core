@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -31,52 +31,52 @@ namespace Xtate.Test.HostedTests;
 
 public abstract class HostedTestBase
 {
-    //protected StateMachineHost Host { get; private set; } = default!;
+	//protected StateMachineHost Host { get; private set; } = default!;
 
-    protected Mock<ILogProvider> LogWriter { get; private set; } = null!;
+	protected Mock<ILogProvider> LogWriter { get; private set; } = null!;
 
-    public IStateMachineScopeManager StateMachineScopeManager { get; set; }
+	public IStateMachineScopeManager StateMachineScopeManager { get; set; }
 
-    [TestInitialize]
-    public async Task Initialize()
-    {
-        LogWriter = new Mock<ILogProvider>();
-        LogWriter.Setup(s => s.IsEnabled(It.IsAny<Type>(), It.IsAny<Level>())).Returns(true);
-        /*
-        Host = new StateMachineHostBuilder()
-               //TODO:
-               //.AddCustomActionFactory(SystemActionFactory.Instance)
-               //.AddResourceLoaderFactory(ResxResourceLoaderFactory.Instance)
-               .SetLogger(Logger.Object)
-               .Build(ServiceLocator.Default);
-        return Host.StartHostAsync();
-        */
-        var sc = new ServiceCollection();
-        sc.AddModule<StateMachineProcessorModule>();
-        sc.AddImplementationSync<StartAction.Provider>().For<IActionProvider>();
-        sc.AddImplementationSync<DestroyAction.Provider>().For<IActionProvider>();
-        sc.AddTypeSync<StartAction, XmlReader>();
-        sc.AddTypeSync<DestroyAction, XmlReader>();
-        sc.AddConstant(LogWriter.Object);
+	[TestInitialize]
+	public async Task Initialize()
+	{
+		LogWriter = new Mock<ILogProvider>();
+		LogWriter.Setup(s => s.IsEnabled(It.IsAny<Type>(), It.IsAny<Level>())).Returns(true);
+		/*
+		Host = new StateMachineHostBuilder()
+			   //TODO:
+			   //.AddCustomActionFactory(SystemActionFactory.Instance)
+			   //.AddResourceLoaderFactory(ResxResourceLoaderFactory.Instance)
+			   .SetLogger(Logger.Object)
+			   .Build(ServiceLocator.Default);
+		return Host.StartHostAsync();
+		*/
+		var sc = new ServiceCollection();
+		sc.AddModule<StateMachineProcessorModule>();
+		sc.AddImplementationSync<StartAction.Provider>().For<IActionProvider>();
+		sc.AddImplementationSync<DestroyAction.Provider>().For<IActionProvider>();
+		sc.AddTypeSync<StartAction, XmlReader>();
+		sc.AddTypeSync<DestroyAction, XmlReader>();
+		sc.AddConstant(LogWriter.Object);
 		var optionsMock = new Mock<IXIncludeOptions>();
 		optionsMock.SetupGet(o => o.XIncludeAllowed).Returns(true);
 		sc.AddConstant(optionsMock.Object);
 		var sp = sc.BuildProvider();
 
-        //Host = await sp.GetRequiredService<StateMachineHost>();
-        StateMachineScopeManager = await sp.GetRequiredService<IStateMachineScopeManager>();
-    }
+		//Host = await sp.GetRequiredService<StateMachineHost>();
+		StateMachineScopeManager = await sp.GetRequiredService<IStateMachineScopeManager>();
+	}
 
-    [TestCleanup]
-    public Task Cleanup() => Task.CompletedTask; //return Host.StopHost().AsTask();
+	[TestCleanup]
+	public Task Cleanup() => Task.CompletedTask; //return Host.StopHost().AsTask();
 
-    protected async Task Execute([PathReference("~/HostedTests/Scxml/")] string scxmlPath)
-    {
-        var name = Assembly.GetExecutingAssembly().GetName().Name;
+	protected async Task Execute([PathReference("~/HostedTests/Scxml/")] string scxmlPath)
+	{
+		var name = Assembly.GetExecutingAssembly().GetName().Name;
 
-        var uri = new Uri($"resx://{name}/{name}/HostedTests/Scxml/" + scxmlPath);
-        var locationStateMachine = new LocationStateMachine(uri);
+		var uri = new Uri($"resx://{name}/{name}/HostedTests/Scxml/" + scxmlPath);
+		var locationStateMachine = new LocationStateMachine(uri);
 
-        await StateMachineScopeManager.Execute(locationStateMachine, SecurityContextType.NewTrustedStateMachine);
-    }
+		await StateMachineScopeManager.Execute(locationStateMachine, SecurityContextType.NewTrustedStateMachine);
+	}
 }

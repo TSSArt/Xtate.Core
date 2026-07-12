@@ -48,7 +48,7 @@ public class PersistenceModule : Module<StateMachineInterpreterModule, Persisten
 		Services.AddFactory<DefaultTransactionalStorage>().For<ITransactionalStorage, string>();
 
 		Services.AddForwarding(Forward<IStorage, string>.To<ITransactionalStorage>());
-		
+
 		Services.ForService<ITransactionalStorage, string>().UseArgValue(@"smd").IfAncestor<PersistedInterpreterModelGetter>();
 		Services.ForService<ITransactionalStorage, string>().UseArgValue(@"ctx").IfAncestor<StateMachinePersistedContext>();
 

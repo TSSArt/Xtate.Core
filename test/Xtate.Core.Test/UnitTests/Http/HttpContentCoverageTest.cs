@@ -30,13 +30,13 @@ public class HttpContentCoverageTest
 	{
 		using var content = new JsonHttpContent(new DataModelValue("hello"));
 
-		Assert.AreEqual("application/json", content.Headers.ContentType?.MediaType);
+		Assert.AreEqual(expected: "application/json", content.Headers.ContentType?.MediaType);
 		Assert.AreEqual(Encoding.UTF8.WebName, content.Headers.ContentType?.CharSet);
 		Assert.IsNull(content.Headers.ContentLength);
 
 		var serialized = await content.ReadAsStringAsync();
 
-		Assert.AreEqual("\"hello\"", serialized);
+		Assert.AreEqual(expected: "\"hello\"", serialized);
 	}
 
 	[TestMethod]
@@ -50,6 +50,6 @@ public class HttpContentCoverageTest
 
 		var serialized = await content.ReadAsStringAsync();
 
-		Assert.AreEqual("hello", serialized);
+		Assert.AreEqual(expected: "hello", serialized);
 	}
 }

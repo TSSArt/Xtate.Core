@@ -16,7 +16,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Threading;
-using Xtate;
 using Xtate.TaskMonitor;
 
 namespace Xtate.Test;
@@ -24,48 +23,6 @@ namespace Xtate.Test;
 [TestClass]
 public class TaskExtensionsTest
 {
-	[ExcludeFromCodeCoverage]
-	private class MockTaskMonitor : ITaskMonitor
-	{
-		public List<Task> ForgottenTasks { get; } = [];
-		public List<(Task task, CancellationToken token)> WaitingTasks { get; } = [];
-
-		public void Forget(Task task)
-		{
-			ForgottenTasks.Add(task);
-		}
-
-		public void Forget(ValueTask valueTask)
-		{
-		}
-
-		public void Forget<TResult>(ValueTask<TResult> valueTask)
-		{
-		}
-
-		public Task WaitAsync(Task task, CancellationToken token)
-		{
-			WaitingTasks.Add((task, token));
-			return task;
-		}
-
-		public Task<TResult> WaitAsync<TResult>(Task<TResult> task, CancellationToken token)
-		{
-			WaitingTasks.Add((task, token));
-			return task;
-		}
-
-		public ValueTask WaitAsync(ValueTask valueTask, CancellationToken token)
-		{
-			return valueTask;
-		}
-		
-		public ValueTask<TResult> WaitAsync<TResult>(ValueTask<TResult> valueTask, CancellationToken token)
-		{
-			return valueTask;
-		}
-	}
-
 	[TestMethod]
 	[ExcludeFromCodeCoverage]
 	public void Forget_OnTask_ShouldNotThrow()
@@ -96,7 +53,7 @@ public class TaskExtensionsTest
 		task.Forget(mockMonitor);
 
 		// Assert
-		Assert.AreEqual(1, mockMonitor.ForgottenTasks.Count);
+		Assert.AreEqual(expected: 1, mockMonitor.ForgottenTasks.Count);
 		Assert.AreSame(task, mockMonitor.ForgottenTasks[0]);
 	}
 
@@ -113,7 +70,7 @@ public class TaskExtensionsTest
 		await result;
 
 		// Assert
-		Assert.AreEqual(1, mockMonitor.WaitingTasks.Count);
+		Assert.AreEqual(expected: 1, mockMonitor.WaitingTasks.Count);
 		Assert.AreSame(task, mockMonitor.WaitingTasks[0].task);
 		Assert.AreEqual(cts.Token, mockMonitor.WaitingTasks[0].token);
 	}
@@ -131,8 +88,8 @@ public class TaskExtensionsTest
 		var value = await result;
 
 		// Assert
-		Assert.AreEqual(42, value);
-		Assert.AreEqual(1, mockMonitor.WaitingTasks.Count);
+		Assert.AreEqual(expected: 42, value);
+		Assert.AreEqual(expected: 1, mockMonitor.WaitingTasks.Count);
 		Assert.AreSame(task, mockMonitor.WaitingTasks[0].task);
 	}
 
@@ -149,5 +106,44 @@ public class TaskExtensionsTest
 
 		// Assert
 		Assert.AreEqual(cts.Token, mockMonitor.WaitingTasks[0].token);
+	}
+
+	[ExcludeFromCodeCoverage]
+	private class MockTaskMonitor : ITaskMonitor
+	{
+		public List<Task> ForgottenTasks { get; } = [];
+
+		public List<(Task task, CancellationToken token)> WaitingTasks { get; } = [];
+
+	#region Interface ITaskMonitor
+
+		public void Forget(Task task)
+		{
+			ForgottenTasks.Add(task);
+		}
+
+		public void Forget(ValueTask valueTask) { }
+
+		public void Forget<TResult>(ValueTask<TResult> valueTask) { }
+
+		public Task WaitAsync(Task task, CancellationToken token)
+		{
+			WaitingTasks.Add((task, token));
+
+			return task;
+		}
+
+		public Task<TResult> WaitAsync<TResult>(Task<TResult> task, CancellationToken token)
+		{
+			WaitingTasks.Add((task, token));
+
+			return task;
+		}
+
+		public ValueTask WaitAsync(ValueTask valueTask, CancellationToken token) => valueTask;
+
+		public ValueTask<TResult> WaitAsync<TResult>(ValueTask<TResult> valueTask, CancellationToken token) => valueTask;
+
+	#endregion
 	}
 }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -36,277 +36,281 @@ using Xtate.Test;
 namespace Xtate.Core.Test.Legacy;
 
 public class Evaluator : IExternalScriptExpression, IIntegerEvaluator, IStringEvaluator, IExecEvaluator, IArrayEvaluator, IObjectEvaluator, IBooleanEvaluator, ILocationEvaluator, IValueExpression,
-                         ILocationExpression, IConditionExpression, IScriptExpression, IExternalDataExpression
+						 ILocationExpression, IConditionExpression, IScriptExpression, IExternalDataExpression
 {
-    public Evaluator(string? expression) => Expression = expression;
+	public Evaluator(string? expression) => Expression = expression;
 
-    public Evaluator(Uri? entityUri) => Uri = entityUri;
+	public Evaluator(Uri? entityUri) => Uri = entityUri;
 
-    private Uri? Uri { get; }
+	private Uri? Uri { get; }
 
-    private string? Expression { get; }
+	private string? Expression { get; }
 
 #region Interface IArrayEvaluator
 
-    ValueTask<IObject[]> IArrayEvaluator.EvaluateArray() => new([]);
+	ValueTask<IObject[]> IArrayEvaluator.EvaluateArray() => new([]);
 
 #endregion
 
 #region Interface IBooleanEvaluator
 
-    ValueTask<bool> IBooleanEvaluator.EvaluateBoolean() => new(false);
+	ValueTask<bool> IBooleanEvaluator.EvaluateBoolean() => new(false);
 
 #endregion
 
 #region Interface IConditionExpression
 
-    string? IConditionExpression.Expression => Expression;
+	string? IConditionExpression.Expression => Expression;
 
 #endregion
 
 #region Interface IExecEvaluator
 
-    ValueTask IExecEvaluator.Execute() => default;
+	ValueTask IExecEvaluator.Execute() => default;
 
 #endregion
 
 #region Interface IExternalDataExpression
 
-    Uri IExternalDataExpression.Uri => Uri!;
+	Uri IExternalDataExpression.Uri => Uri!;
 
 #endregion
 
 #region Interface IExternalScriptExpression
 
-    Uri? IExternalScriptExpression.Uri => Uri;
+	Uri? IExternalScriptExpression.Uri => Uri;
 
 #endregion
 
 #region Interface IIntegerEvaluator
 
-    ValueTask<int> IIntegerEvaluator.EvaluateInteger() => new(0);
+	ValueTask<int> IIntegerEvaluator.EvaluateInteger() => new(0);
 
 #endregion
 
 #region Interface ILocationEvaluator
 
-    ValueTask ILocationEvaluator.SetValue(IObject value) => default;
+	ValueTask ILocationEvaluator.SetValue(IObject value) => default;
 
-    ValueTask<IObject> ILocationEvaluator.GetValue() => new((IObject)null!);
+	ValueTask<IObject> ILocationEvaluator.GetValue() => new((IObject) null!);
 
-    ValueTask<string> ILocationEvaluator.GetName() => new("?");
+	ValueTask<string> ILocationEvaluator.GetName() => new("?");
 
 #endregion
 
 #region Interface ILocationExpression
 
-    string? ILocationExpression.Expression => Expression;
+	string? ILocationExpression.Expression => Expression;
 
 #endregion
 
 #region Interface IObjectEvaluator
 
-    ValueTask<IObject> IObjectEvaluator.EvaluateObject() => new(DataModelValue.Null);
+	ValueTask<IObject> IObjectEvaluator.EvaluateObject() => new(DataModelValue.Null);
 
 #endregion
 
 #region Interface IScriptExpression
 
-    string? IScriptExpression.Expression => Expression;
+	string? IScriptExpression.Expression => Expression;
 
 #endregion
 
 #region Interface IStringEvaluator
 
-    ValueTask<string> IStringEvaluator.EvaluateString() => new("");
+	ValueTask<string> IStringEvaluator.EvaluateString() => new("");
 
 #endregion
 
 #region Interface IValueExpression
 
-    string? IValueExpression.Expression => Expression;
+	string? IValueExpression.Expression => Expression;
 
 #endregion
 }
 
 public class TestDataModelHandler : DataModelHandlerBase
 {
-    protected override void Visit(ref IValueExpression expression)
-    {
-        expression = new Evaluator(expression.Expression);
-    }
+	protected override void Visit(ref IValueExpression expression)
+	{
+		expression = new Evaluator(expression.Expression);
+	}
 
-    protected override void Visit(ref ILocationExpression expression)
-    {
-        expression = new Evaluator(expression.Expression);
-    }
+	protected override void Visit(ref ILocationExpression expression)
+	{
+		expression = new Evaluator(expression.Expression);
+	}
 
-    protected override void Visit(ref IConditionExpression entity)
-    {
-        entity = new Evaluator(entity.Expression);
-    }
+	protected override void Visit(ref IConditionExpression entity)
+	{
+		entity = new Evaluator(entity.Expression);
+	}
 
-    protected override void Visit(ref IScriptExpression entity)
-    {
-        entity = new Evaluator(entity.Expression);
-    }
+	protected override void Visit(ref IScriptExpression entity)
+	{
+		entity = new Evaluator(entity.Expression);
+	}
 
-    protected override void Visit(ref IExternalScriptExpression entity)
-    {
-        entity = new Evaluator(entity.Uri);
-    }
+	protected override void Visit(ref IExternalScriptExpression entity)
+	{
+		entity = new Evaluator(entity.Uri);
+	}
 
-    protected override void Visit(ref IExternalDataExpression entity)
-    {
-        entity = new Evaluator(entity.Uri);
-    }
+	protected override void Visit(ref IExternalDataExpression entity)
+	{
+		entity = new Evaluator(entity.Uri);
+	}
 }
 
 [TestClass]
 public class InterpreterModelPersistenceTest
 {
-    [TestMethod]
-    public async Task SaveInterpreterModelTest()
-    {
-        var services = new ServiceCollection();
-        services.AddModule<StateMachineInterpreterModule>();
-        services.AddModule<PersistenceModule>();
+	[TestMethod]
+	public async Task SaveInterpreterModelTest()
+	{
+		var services = new ServiceCollection();
+		services.AddModule<StateMachineInterpreterModule>();
+		services.AddModule<PersistenceModule>();
+
 		//services.AddModule<StateMachineFactoryModule>();
 		//services.AddConstant<IStateMachineLocation>(new LocationStateMachine(new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Legacy/test.scxml")));
 		var smc = new LocationStateMachine("res://Xtate.Core.Test/Xtate.Core.Test/Legacy/test.scxml");
 		smc.AddServices(services);
 		services.AddImplementation<TestDataModelHandler>().For<IDataModelHandler>();
-        services.AddImplementation<DummyResourceLoader>().For<IResourceLoader>();
-		var optionsMock = new Mock<IXIncludeOptions>();
-		optionsMock.Setup(x => x.XIncludeAllowed).Returns(true);
-		services.AddConstant(optionsMock.Object);
-        var serviceProvider = services.BuildProvider();
-        var model = await serviceProvider.GetRequiredService<IInterpreterModel>();
-        var storeSupport = model.Root.UseAncestor.As<IStoreSupport>();
-
-        var storage = new InMemoryStorage(false);
-        storeSupport.Store(new Bucket(storage));
-
-        new StateMachineReader().Build(new Bucket(storage));
-    }
-
-    [TestMethod]
-    public async Task SaveRestoreInterpreterModelWithStorageRecreateTest()
-    {
-        var services = new ServiceCollection();
-        services.AddModule<StateMachineInterpreterModule>();
-		services.AddModule<PersistenceModule>();
-		//services.AddModule<StateMachineFactoryModule>();
-		//services.AddConstant<IStateMachineLocation>(new LocationStateMachine(new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Legacy/test.scxml")));
-		var smc = new LocationStateMachine("res://Xtate.Core.Test/Xtate.Core.Test/Legacy/test.scxml");
-        smc.AddServices(services);
-        services.AddImplementation<TestDataModelHandler>().For<IDataModelHandler>();
-        services.AddImplementation<DummyResourceLoader>().For<IResourceLoader>();
+		services.AddImplementation<DummyResourceLoader>().For<IResourceLoader>();
 		var optionsMock = new Mock<IXIncludeOptions>();
 		optionsMock.Setup(x => x.XIncludeAllowed).Returns(true);
 		services.AddConstant(optionsMock.Object);
 		var serviceProvider = services.BuildProvider();
-        var model = await serviceProvider.GetRequiredService<IInterpreterModel>();
-        var storeSupport = model.Root.UseAncestor.As<IStoreSupport>();
+		var model = await serviceProvider.GetRequiredService<IInterpreterModel>();
+		var storeSupport = model.Root.UseAncestor.As<IStoreSupport>();
 
-        byte[] transactionLog;
+		var storage = new InMemoryStorage(false);
+		storeSupport.Store(new Bucket(storage));
 
-        using (var storage = new InMemoryStorage(false))
-        {
-            storeSupport.Store(new Bucket(storage));
-            transactionLog = new byte[storage.GetTransactionLogSize()];
-            storage.WriteTransactionLogToSpan(new Span<byte>(transactionLog));
+		new StateMachineReader().Build(new Bucket(storage));
+	}
 
-            Assert.AreEqual(expected: 0, storage.GetTransactionLogSize());
-        }
+	[TestMethod]
+	public async Task SaveRestoreInterpreterModelWithStorageRecreateTest()
+	{
+		var services = new ServiceCollection();
+		services.AddModule<StateMachineInterpreterModule>();
+		services.AddModule<PersistenceModule>();
 
-        IStateMachine restoredStateMachine;
+		//services.AddModule<StateMachineFactoryModule>();
+		//services.AddConstant<IStateMachineLocation>(new LocationStateMachine(new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Legacy/test.scxml")));
+		var smc = new LocationStateMachine("res://Xtate.Core.Test/Xtate.Core.Test/Legacy/test.scxml");
+		smc.AddServices(services);
+		services.AddImplementation<TestDataModelHandler>().For<IDataModelHandler>();
+		services.AddImplementation<DummyResourceLoader>().For<IResourceLoader>();
+		var optionsMock = new Mock<IXIncludeOptions>();
+		optionsMock.Setup(x => x.XIncludeAllowed).Returns(true);
+		services.AddConstant(optionsMock.Object);
+		var serviceProvider = services.BuildProvider();
+		var model = await serviceProvider.GetRequiredService<IInterpreterModel>();
+		var storeSupport = model.Root.UseAncestor.As<IStoreSupport>();
 
-        using (var newStorage = new InMemoryStorage(transactionLog))
-        {
-            restoredStateMachine = new StateMachineReader().Build(new Bucket(newStorage));
-        }
+		byte[] transactionLog;
 
-        var services2 = new ServiceCollection();
-        services2.AddModule<StateMachineInterpreterModule>();
-        //services2.AddModule<StateMachineFactoryModule>();
-        services2.AddConstant(restoredStateMachine);
-        services2.AddImplementation<TestDataModelHandler>().For<IDataModelHandler>();
-        services2.AddImplementation<DummyResourceLoader>().For<IResourceLoader>();
-        var serviceProvider2 = services2.BuildProvider();
-        var model2 = await serviceProvider2.GetRequiredService<IInterpreterModel>();
-        Assert.IsNotNull(model2.Root);
-    }
+		using (var storage = new InMemoryStorage(false))
+		{
+			storeSupport.Store(new Bucket(storage));
+			transactionLog = new byte[storage.GetTransactionLogSize()];
+			storage.WriteTransactionLogToSpan(new Span<byte>(transactionLog));
 
-    [TestMethod]
-    public async Task SaveRestoreInterpreterModelRuntimeModelTest()
-    {
-        var services0 = new ServiceCollection();
-        services0.AddModule<StateMachineFluentBuilderModule>();
-        var buildProvider = services0.BuildProvider();
-        var fluentBuilder = buildProvider.GetRequiredServiceSync<StateMachineFluentBuilder.StateMachineFluentBuilder>();
+			Assert.AreEqual(expected: 0, storage.GetTransactionLogSize());
+		}
 
-        var stateMachine = fluentBuilder
-                           .BeginState((Identifier)"a")
-                           .AddTransition([ExcludeFromCodeCoverage] () => true, (Identifier)"a")
-                           .AddOnEntry([ExcludeFromCodeCoverage] () => Console.WriteLine(@"OnEntry"))
-                           .EndState()
-                           .Build();
+		IStateMachine restoredStateMachine;
 
-        //var writer = new StreamWriter("D:\\Ser\\Projects\\1.log");
-        ////var debugger = new ServiceProviderDebugger(writer);
-        var services = new ServiceCollection();
+		using (var newStorage = new InMemoryStorage(transactionLog))
+		{
+			restoredStateMachine = new StateMachineReader().Build(new Bucket(newStorage));
+		}
 
-        //services.AddConstant<IServiceProviderActions>(debugger);
-        services.AddModule<StateMachineInterpreterModule>();
-        services.AddModule<PersistenceModule>();
-        services.AddConstant(stateMachine);
-        var storageProvider = new StateMachinePersistenceTest.TestStorage();
-        services.AddConstant<IStorageProvider>(storageProvider);
-        var serviceProvider = services.BuildProvider();
-        var model = await serviceProvider.GetRequiredService<IInterpreterModel>();
-        var storeSupport = model.Root.UseAncestor.As<IStoreSupport>();
+		var services2 = new ServiceCollection();
+		services2.AddModule<StateMachineInterpreterModule>();
 
-        byte[] transactionLog;
+		//services2.AddModule<StateMachineFactoryModule>();
+		services2.AddConstant(restoredStateMachine);
+		services2.AddImplementation<TestDataModelHandler>().For<IDataModelHandler>();
+		services2.AddImplementation<DummyResourceLoader>().For<IResourceLoader>();
+		var serviceProvider2 = services2.BuildProvider();
+		var model2 = await serviceProvider2.GetRequiredService<IInterpreterModel>();
+		Assert.IsNotNull(model2.Root);
+	}
 
-        using (var storage = new InMemoryStorage(false))
-        {
-            storeSupport.Store(new Bucket(storage));
-            transactionLog = new byte[storage.GetTransactionLogSize()];
-            storage.WriteTransactionLogToSpan(new Span<byte>(transactionLog));
-        }
+	[TestMethod]
+	public async Task SaveRestoreInterpreterModelRuntimeModelTest()
+	{
+		var services0 = new ServiceCollection();
+		services0.AddModule<StateMachineFluentBuilderModule>();
+		var buildProvider = services0.BuildProvider();
+		var fluentBuilder = buildProvider.GetRequiredServiceSync<StateMachineFluentBuilder.StateMachineFluentBuilder>();
 
-        IStateMachine restoredStateMachine;
+		var stateMachine = fluentBuilder
+						   .BeginState((Identifier) "a")
+						   .AddTransition([ExcludeFromCodeCoverage]() => true, (Identifier) "a")
+						   .AddOnEntry([ExcludeFromCodeCoverage]() => Console.WriteLine(@"OnEntry"))
+						   .EndState()
+						   .Build();
 
-        using (var newStorage = new InMemoryStorage(transactionLog))
-        {
-            restoredStateMachine = new StateMachineReader().Build(new Bucket(newStorage), model.EntityMap);
-        }
+		//var writer = new StreamWriter("D:\\Ser\\Projects\\1.log");
+		////var debugger = new ServiceProviderDebugger(writer);
+		var services = new ServiceCollection();
 
-        var services2 = new ServiceCollection();
-        services2.AddModule<StateMachineInterpreterModule>();
-        //services2.AddModule<StateMachineFactoryModule>();
-        services2.AddConstant(restoredStateMachine);
-        services2.AddImplementation<TestDataModelHandler>().For<IDataModelHandler>();
-        services2.AddImplementation<DummyResourceLoader>().For<IResourceLoader>();
-        var serviceProvider2 = services2.BuildProvider();
-        var model2 = await serviceProvider2.GetRequiredService<IInterpreterModel>();
-        Assert.IsNotNull(model2.Root);
-    }
+		//services.AddConstant<IServiceProviderActions>(debugger);
+		services.AddModule<StateMachineInterpreterModule>();
+		services.AddModule<PersistenceModule>();
+		services.AddConstant(stateMachine);
+		var storageProvider = new StateMachinePersistenceTest.TestStorage();
+		services.AddConstant<IStorageProvider>(storageProvider);
+		var serviceProvider = services.BuildProvider();
+		var model = await serviceProvider.GetRequiredService<IInterpreterModel>();
+		var storeSupport = model.Root.UseAncestor.As<IStoreSupport>();
 
-    [UsedImplicitly]
-    public class DummyResourceLoader : ResxResourceLoader
-    {
-        protected override Stream GetResourceStream(Uri uri)
-        {
-            try
-            {
-                return base.GetResourceStream(uri);
-            }
-            catch
-            {
-                return new MemoryStream();
-            }
-        }
-    }
+		byte[] transactionLog;
+
+		using (var storage = new InMemoryStorage(false))
+		{
+			storeSupport.Store(new Bucket(storage));
+			transactionLog = new byte[storage.GetTransactionLogSize()];
+			storage.WriteTransactionLogToSpan(new Span<byte>(transactionLog));
+		}
+
+		IStateMachine restoredStateMachine;
+
+		using (var newStorage = new InMemoryStorage(transactionLog))
+		{
+			restoredStateMachine = new StateMachineReader().Build(new Bucket(newStorage), model.EntityMap);
+		}
+
+		var services2 = new ServiceCollection();
+		services2.AddModule<StateMachineInterpreterModule>();
+
+		//services2.AddModule<StateMachineFactoryModule>();
+		services2.AddConstant(restoredStateMachine);
+		services2.AddImplementation<TestDataModelHandler>().For<IDataModelHandler>();
+		services2.AddImplementation<DummyResourceLoader>().For<IResourceLoader>();
+		var serviceProvider2 = services2.BuildProvider();
+		var model2 = await serviceProvider2.GetRequiredService<IInterpreterModel>();
+		Assert.IsNotNull(model2.Root);
+	}
+
+	[UsedImplicitly]
+	public class DummyResourceLoader : ResxResourceLoader
+	{
+		protected override Stream GetResourceStream(Uri uri)
+		{
+			try
+			{
+				return base.GetResourceStream(uri);
+			}
+			catch
+			{
+				return new MemoryStream();
+			}
+		}
+	}
 }

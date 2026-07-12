@@ -20,39 +20,43 @@ namespace Xtate.Test.StateMachines.History;
 public class ShallowHistoryMachines : IScxmlTestSource
 {
 	public static readonly string ShallowHistoryRestoresDirectChild = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
-		  <state id="outer" initial="first">
-			<history id="hist" type="shallow">
-			  <transition target="first"/>
-			</history>
-			<state id="first">
-			  <transition target="second"/>
-			</state>
-			<state id="second">
-			  <transition target="done"/>
-			</state>
-		  </state>
-		  <final id="done"/>
-		</scxml>
-		""";
+																	  <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
+																	    <state id="outer" initial="first">
+																	  	<history id="hist" type="shallow">
+																	  	  <transition target="first"/>
+																	  	</history>
+																	  	<state id="first">
+																	  	  <transition target="second"/>
+																	  	</state>
+																	  	<state id="second">
+																	  	  <transition target="done"/>
+																	  	</state>
+																	    </state>
+																	    <final id="done"/>
+																	  </scxml>
+																	  """;
 
 	public static readonly string ShallowHistoryDefaultTransition = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
-		  <state id="outer">
-			<history id="hist" type="shallow">
-			  <transition target="done"/>
-			</history>
-			<state id="child">
-			  <transition target="done"/>
-			</state>
-		  </state>
-		  <final id="done"/>
-		</scxml>
-		""";
+																	<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
+																	  <state id="outer">
+																		<history id="hist" type="shallow">
+																		  <transition target="done"/>
+																		</history>
+																		<state id="child">
+																		  <transition target="done"/>
+																		</state>
+																	  </state>
+																	  <final id="done"/>
+																	</scxml>
+																	""";
+
+#region Interface IScxmlTestSource
 
 	public IEnumerable<ScxmlTestCase> GetTestCases()
 	{
-		yield return new ScxmlTestCase("History/Shallow/ShallowHistoryRestoresDirectChild", ShallowHistoryRestoresDirectChild);
-		yield return new ScxmlTestCase("History/Shallow/ShallowHistoryDefaultTransition", ShallowHistoryDefaultTransition);
+		yield return new ScxmlTestCase(Name: "History/Shallow/ShallowHistoryRestoresDirectChild", ShallowHistoryRestoresDirectChild);
+		yield return new ScxmlTestCase(Name: "History/Shallow/ShallowHistoryDefaultTransition", ShallowHistoryDefaultTransition);
 	}
+
+#endregion
 }

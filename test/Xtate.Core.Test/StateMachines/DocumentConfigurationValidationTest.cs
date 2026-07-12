@@ -46,9 +46,8 @@ public class DocumentConfigurationValidationTest
 		var idle = new Mock<IDestroyOnIdleTimeout>();
 		idle.Setup(x => x.IdleTimeout).Returns(TimeSpan.FromMilliseconds(5000));
 
-		var container = Container.Create<StateMachineProcessorModule>(
-			services =>
-				services.AddConstant(idle.Object));
+		var container = Container.Create<StateMachineProcessorModule>(services =>
+																		  services.AddConstant(idle.Object));
 
 		var stateMachineScopeManager = await container.GetRequiredService<IStateMachineScopeManager>();
 
@@ -58,70 +57,71 @@ public class DocumentConfigurationValidationTest
 	[TestMethod]
 	public async Task RootElementMissingNamespaceIsRejected()
 	{
-		await Assert.ThrowsExactlyAsync<StateMachineValidationException>([ExcludeFromCodeCoverage] () => Parse("<scxml version='1.0'/>"));
+		await Assert.ThrowsExactlyAsync<StateMachineValidationException>([ExcludeFromCodeCoverage]() => Parse("<scxml version='1.0'/>"));
 	}
 
 	[TestMethod]
 	public async Task RootElementMissingVersionIsRejected()
 	{
-		await Assert.ThrowsExactlyAsync<StateMachineValidationException>([ExcludeFromCodeCoverage] () => Parse("<scxml xmlns='http://www.w3.org/2005/07/scxml'/>"));
+		await Assert.ThrowsExactlyAsync<StateMachineValidationException>([ExcludeFromCodeCoverage]() => Parse("<scxml xmlns='http://www.w3.org/2005/07/scxml'/>"));
 	}
 
 	[TestMethod]
 	public async Task RootInitialUnknownTargetIsRejectedDuringExecutionBuild()
 	{
-		await Assert.ThrowsExactlyAsync<DependencyInjectionException>(
-			() => Execute("""
-				<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="missing">
-				  <final id="done"/>
-				</scxml>
-				"""));
+		await Assert.ThrowsExactlyAsync<DependencyInjectionException>(() => Execute(
+																		  """
+																		  <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="missing">
+																		    <final id="done"/>
+																		  </scxml>
+																		  """));
 	}
 
 	[TestMethod]
 	public async Task UnsupportedDataModelFailsPredictablyWhenRuntimeNeedsAHandler()
 	{
-		await Assert.ThrowsExactlyAsync<DependencyInjectionException>(
-			() => Execute("""
-				<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="unsupported" initial="done">
-				  <datamodel>
-					<data id="value" expr="'value'"/>
-				  </datamodel>
-				  <final id="done"/>
-				</scxml>
-				"""));
+		await Assert.ThrowsExactlyAsync<DependencyInjectionException>(() => Execute(
+																		  """
+																		  <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="unsupported" initial="done">
+																		    <datamodel>
+																		  	<data id="value" expr="'value'"/>
+																		    </datamodel>
+																		    <final id="done"/>
+																		  </scxml>
+																		  """));
 	}
 
 	[TestMethod]
 	public async Task ExtensionNamespaceRootElementIsRejectedByCurrentParserPolicy()
 	{
-		await Assert.ThrowsExactlyAsync<StateMachineValidationException>(
-			[ExcludeFromCodeCoverage] () => Parse("""
-												  <scxml xmlns="http://www.w3.org/2005/07/scxml" xmlns:ext="https://xtate.net/test-extension" version="1.0">
-												    <ext:metadata/>
-												  </scxml>
-												  """));
+		await Assert.ThrowsExactlyAsync<StateMachineValidationException>([ExcludeFromCodeCoverage]() => Parse(
+																			 """
+																			 <scxml xmlns="http://www.w3.org/2005/07/scxml" xmlns:ext="https://xtate.net/test-extension" version="1.0">
+																			   <ext:metadata/>
+																			 </scxml>
+																			 """));
 	}
 
 	[TestMethod]
 	public async Task DuplicateStateIdsAreRejectedDuringExecutionBuild()
 	{
-		await Assert.ThrowsExactlyAsync<DependencyInjectionException>(
-			() => Execute("""
-				<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="dup">
-				  <state id="dup">
-					<transition target="done"/>
-				  </state>
-				  <state id="dup"/>
-				  <final id="done"/>
-				</scxml>
-				"""));
+		await Assert.ThrowsExactlyAsync<DependencyInjectionException>(() => Execute(
+																		  """
+																		  <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="dup">
+																		    <state id="dup">
+																		  	<transition target="done"/>
+																		    </state>
+																		    <state id="dup"/>
+																		    <final id="done"/>
+																		  </scxml>
+																		  """));
 	}
 
 	[TestMethod]
 	public void GeneratedStateIdsAllowAnonymousStatesToRun()
 	{
-		Parse("""
+		Parse(
+			"""
 			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
 			  <state/>
 			  <parallel/>

@@ -26,7 +26,7 @@ public class DataModelDynamicCoverageTest
 	public void DataModelListDynamicSupportsExactMemberIndexLengthMetadataAndConversions()
 	{
 		var list = new DataModelList(caseInsensitive: true);
-		dynamic dyn = list.AsDynamic();
+		var dyn = list.AsDynamic();
 
 		dyn.Name = "value";
 		dyn[1] = 42;
@@ -40,9 +40,9 @@ public class DataModelDynamicCoverageTest
 		object fieldMetadata = dyn.GetMetadata("Name");
 		object missingMetadata = dyn.GetMetadata("missing");
 
-		Assert.AreEqual("value", name);
-		Assert.AreEqual(42, list[1].AsNumber().ToInt32());
-		Assert.AreEqual(4, length);
+		Assert.AreEqual(expected: "value", name);
+		Assert.AreEqual(expected: 42, list[1].AsNumber().ToInt32());
+		Assert.AreEqual(expected: 4, length);
 		Assert.AreSame(metadata, fieldMetadata);
 		Assert.IsNull(missingMetadata);
 
@@ -57,13 +57,13 @@ public class DataModelDynamicCoverageTest
 	public void DataModelListDynamicIndexedGetReturnsStoredValue()
 	{
 		var list = new DataModelList();
-		dynamic dyn = list.AsDynamic();
-		
+		var dyn = list.AsDynamic();
+
 		dyn[1] = 42;
 
 		object indexValue = dyn[1];
 
-		Assert.AreEqual(42, indexValue);
+		Assert.AreEqual(expected: 42, indexValue);
 	}
 
 	[TestMethod]
@@ -105,23 +105,23 @@ public class DataModelDynamicCoverageTest
 		object title = dyn.Title;
 		object indexValue = dyn[1];
 
-		Assert.AreEqual("hello", title);
-		Assert.AreEqual(9.5D, indexValue);
-		Assert.AreEqual("hello", list["Title"].AsString());
+		Assert.AreEqual(expected: "hello", title);
+		Assert.AreEqual(expected: 9.5D, indexValue);
+		Assert.AreEqual(expected: "hello", list["Title"].AsString());
 
-		dynamic stringValue = new DataModelValue("text").AsDynamic();
-		dynamic boolValue = new DataModelValue(true).AsDynamic();
-		dynamic numberValue = new DataModelValue(123).AsDynamic();
-		dynamic dateValue = new DataModelValue(new DateTime(2026, 7, 11, 12, 0, 0, DateTimeKind.Utc)).AsDynamic();
+		var stringValue = new DataModelValue("text").AsDynamic();
+		var boolValue = new DataModelValue(true).AsDynamic();
+		var numberValue = new DataModelValue(123).AsDynamic();
+		var dateValue = new DataModelValue(new DateTime(year: 2026, month: 7, day: 11, hour: 12, minute: 0, second: 0, DateTimeKind.Utc)).AsDynamic();
 
 		string convertedString = stringValue;
 		bool convertedBool = boolValue;
 		int convertedInt = numberValue;
 		DateTime convertedDate = dateValue;
 
-		Assert.AreEqual("text", convertedString);
+		Assert.AreEqual(expected: "text", convertedString);
 		Assert.IsTrue(convertedBool);
-		Assert.AreEqual(123, convertedInt);
-		Assert.AreEqual(new DateTime(2026, 7, 11, 12, 0, 0, DateTimeKind.Utc), convertedDate);
+		Assert.AreEqual(expected: 123, convertedInt);
+		Assert.AreEqual(new DateTime(year: 2026, month: 7, day: 11, hour: 12, minute: 0, second: 0, DateTimeKind.Utc), convertedDate);
 	}
 }

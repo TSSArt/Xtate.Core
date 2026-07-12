@@ -19,7 +19,6 @@ using Xtate.Ancestor;
 using Xtate.DataModel;
 using Xtate.DataModel.Services;
 using Xtate.DataTypes;
-using Xtate.Interpreter;
 using Xtate.Interpreter.Model;
 using Xtate.StateMachine;
 using Xtate.StateMachine.Internal;
@@ -40,13 +39,13 @@ public class InterpreterNodeCoverageTest
 		var outgoingEvent = new OutgoingEventSource();
 		var executable = new ExecutableEntitySource();
 		var content = new ContentSource(expression);
-		var param = new ParamSource("param", expression, location);
+		var param = new ParamSource(name: "param", expression, location);
 
 		await AssertAssignNode(new AssignSource(location, expression, inlineContent), documentIds, location, expression, inlineContent);
-		await AssertCancelNode(new CancelSource("send-id", expression), documentIds, expression);
+		await AssertCancelNode(new CancelSource(sendId: "send-id", expression), documentIds, expression);
 		await AssertForEachNode(new ForEachSource(expression, location, location, executable), documentIds, expression, location, executable);
 		await AssertIfNode(new IfSource(condition, executable), documentIds, condition, executable);
-		await AssertLogNode(new LogSource("label", expression), documentIds, expression);
+		await AssertLogNode(new LogSource(label: "label", expression), documentIds, expression);
 		await AssertRaiseNode(new RaiseSource(outgoingEvent), documentIds, outgoingEvent);
 		await AssertSendNode(new SendSource(content, expression, location, param), documentIds, content, expression, location, param);
 		await AssertElseNode(new ElseSource(), documentIds);
@@ -60,11 +59,11 @@ public class InterpreterNodeCoverageTest
 		var expression = new ValueExpressionSource("expression value");
 		var source = new ExternalDataExpressionSource("source value");
 		var inlineContent = new InlineContentSource("inline value");
-		var dataSource = new DataSource("data-id", source, expression, inlineContent);
+		var dataSource = new DataSource(id: "data-id", source, expression, inlineContent);
 		var dataNode = new DataNode(new DocumentIdNode(documentIds), dataSource);
 
 		Assert.AreSame(dataSource, ((IAncestorProvider) dataNode).Ancestor);
-		Assert.AreEqual("data-id", dataNode.Id);
+		Assert.AreEqual(expected: "data-id", dataNode.Id);
 		Assert.AreSame(source, dataNode.Source);
 		Assert.AreSame(expression, dataNode.Expression);
 		Assert.AreSame(inlineContent, dataNode.InlineContent);
@@ -79,13 +78,13 @@ public class InterpreterNodeCoverageTest
 		Assert.AreSame(dataModelSource, ((IAncestorProvider) dataModelNode).Ancestor);
 		Assert.AreSame(dataNode, dataModelNode.Data.Single());
 		Assert.AreSame(dataNode, ((IDataModel) dataModelNode).Data.Single());
-		Assert.AreEqual(-1, dataModelNode.DocumentId);
+		Assert.AreEqual(expected: -1, dataModelNode.DocumentId);
 
-		var param = new ParamSource("param", expression, new LocationExpressionSource("location"));
+		var param = new ParamSource(name: "param", expression, new LocationExpressionSource("location"));
 		var paramNode = new ParamNode(new DocumentIdNode(documentIds), param);
 
 		Assert.AreSame(param, ((IAncestorProvider) paramNode).Ancestor);
-		Assert.AreEqual("param", paramNode.Name);
+		Assert.AreEqual(expected: "param", paramNode.Name);
 		Assert.AreSame(expression, paramNode.Expression);
 		Assert.AreSame(param.Location, paramNode.Location);
 		AssertDebugIdContainsDocumentId(paramNode);
@@ -99,7 +98,7 @@ public class InterpreterNodeCoverageTest
 		Assert.AreSame(doneDataSource, ((IAncestorProvider) doneDataNode).Ancestor);
 		Assert.AreSame(doneDataSource.Content, doneDataNode.Content);
 		Assert.AreSame(param, doneDataNode.Parameters.Single());
-		Assert.AreEqual("expression value", (await doneDataNode.Evaluate()).AsList()["param"].AsString());
+		Assert.AreEqual(expected: "expression value", (await doneDataNode.Evaluate()).AsList()["param"].AsString());
 		AssertDebugIdContainsDocumentId(doneDataNode);
 
 		var action = new ExecutableEntitySource();
@@ -120,10 +119,10 @@ public class InterpreterNodeCoverageTest
 	}
 
 	private static async Task AssertAssignNode(AssignSource source,
-											  LinkedList<int> documentIds,
-											  ILocationExpression location,
-											  IValueExpression expression,
-											  IInlineContent inlineContent)
+											   LinkedList<int> documentIds,
+											   ILocationExpression location,
+											   IValueExpression expression,
+											   IInlineContent inlineContent)
 	{
 		var node = new AssignNode(new DocumentIdNode(documentIds), source);
 
@@ -131,13 +130,13 @@ public class InterpreterNodeCoverageTest
 		Assert.AreSame(location, node.Location);
 		Assert.AreSame(expression, node.Expression);
 		Assert.AreSame(inlineContent, node.InlineContent);
-		Assert.AreEqual("assign-type", node.Type);
-		Assert.AreEqual("assign-attribute", node.Attribute);
+		Assert.AreEqual(expected: "assign-type", node.Type);
+		Assert.AreEqual(expected: "assign-attribute", node.Attribute);
 		AssertDebugIdContainsDocumentId(node);
 
 		await node.Execute();
 
-		Assert.AreEqual(1, source.ExecuteCount);
+		Assert.AreEqual(expected: 1, source.ExecuteCount);
 	}
 
 	private static async Task AssertCancelNode(CancelSource source, LinkedList<int> documentIds, IValueExpression expression)
@@ -145,20 +144,20 @@ public class InterpreterNodeCoverageTest
 		var node = new CancelNode(new DocumentIdNode(documentIds), source);
 
 		Assert.AreSame(source, ((IAncestorProvider) node).Ancestor);
-		Assert.AreEqual("send-id", node.SendId);
+		Assert.AreEqual(expected: "send-id", node.SendId);
 		Assert.AreSame(expression, node.SendIdExpression);
 		AssertDebugIdContainsDocumentId(node);
 
 		await node.Execute();
 
-		Assert.AreEqual(1, source.ExecuteCount);
+		Assert.AreEqual(expected: 1, source.ExecuteCount);
 	}
 
 	private static async Task AssertForEachNode(ForEachSource source,
-											   LinkedList<int> documentIds,
-											   IValueExpression expression,
-											   ILocationExpression location,
-											   IExecutableEntity executable)
+												LinkedList<int> documentIds,
+												IValueExpression expression,
+												ILocationExpression location,
+												IExecutableEntity executable)
 	{
 		var node = new ForEachNode(new DocumentIdNode(documentIds), source);
 
@@ -171,13 +170,13 @@ public class InterpreterNodeCoverageTest
 
 		await node.Execute();
 
-		Assert.AreEqual(1, source.ExecuteCount);
+		Assert.AreEqual(expected: 1, source.ExecuteCount);
 	}
 
 	private static async Task AssertIfNode(IfSource source,
-										  LinkedList<int> documentIds,
-										  IConditionExpression condition,
-										  IExecutableEntity executable)
+										   LinkedList<int> documentIds,
+										   IConditionExpression condition,
+										   IExecutableEntity executable)
 	{
 		var node = new IfNode(new DocumentIdNode(documentIds), source);
 
@@ -188,7 +187,7 @@ public class InterpreterNodeCoverageTest
 
 		await node.Execute();
 
-		Assert.AreEqual(1, source.ExecuteCount);
+		Assert.AreEqual(expected: 1, source.ExecuteCount);
 	}
 
 	private static async Task AssertLogNode(LogSource source, LinkedList<int> documentIds, IValueExpression expression)
@@ -196,13 +195,13 @@ public class InterpreterNodeCoverageTest
 		var node = new LogNode(new DocumentIdNode(documentIds), source);
 
 		Assert.AreSame(source, ((IAncestorProvider) node).Ancestor);
-		Assert.AreEqual("label", node.Label);
+		Assert.AreEqual(expected: "label", node.Label);
 		Assert.AreSame(expression, node.Expression);
 		AssertDebugIdContainsDocumentId(node);
 
 		await node.Execute();
 
-		Assert.AreEqual(1, source.ExecuteCount);
+		Assert.AreEqual(expected: 1, source.ExecuteCount);
 	}
 
 	private static async Task AssertRaiseNode(RaiseSource source, LinkedList<int> documentIds, IOutgoingEvent outgoingEvent)
@@ -215,28 +214,28 @@ public class InterpreterNodeCoverageTest
 
 		await node.Execute();
 
-		Assert.AreEqual(1, source.ExecuteCount);
+		Assert.AreEqual(expected: 1, source.ExecuteCount);
 	}
 
 	private static async Task AssertSendNode(SendSource source,
-											LinkedList<int> documentIds,
-											IContent content,
-											IValueExpression expression,
-											ILocationExpression location,
-											IParam param)
+											 LinkedList<int> documentIds,
+											 IContent content,
+											 IValueExpression expression,
+											 ILocationExpression location,
+											 IParam param)
 	{
 		var node = new SendNode(new DocumentIdNode(documentIds), source);
 
 		Assert.AreSame(source, ((IAncestorProvider) node).Ancestor);
-		Assert.AreEqual("event-name", node.EventName);
+		Assert.AreEqual(expected: "event-name", node.EventName);
 		Assert.AreSame(expression, node.EventExpression);
 		Assert.AreEqual(new FullUri("https://target.test/"), node.Target);
 		Assert.AreSame(expression, node.TargetExpression);
 		Assert.AreEqual(new FullUri("https://type.test/"), node.Type);
 		Assert.AreSame(expression, node.TypeExpression);
-		Assert.AreEqual("send-node-id", node.Id);
+		Assert.AreEqual(expected: "send-node-id", node.Id);
 		Assert.AreSame(location, node.IdLocation);
-		Assert.AreEqual(10, node.DelayMs);
+		Assert.AreEqual(expected: 10, node.DelayMs);
 		Assert.AreSame(expression, node.DelayExpression);
 		Assert.AreSame(location, node.NameList.Single());
 		Assert.AreSame(param, node.Parameters.Single());
@@ -245,7 +244,7 @@ public class InterpreterNodeCoverageTest
 
 		await node.Execute();
 
-		Assert.AreEqual(1, source.ExecuteCount);
+		Assert.AreEqual(expected: 1, source.ExecuteCount);
 	}
 
 	private static async Task AssertElseNode(ElseSource source, LinkedList<int> documentIds)
@@ -257,7 +256,7 @@ public class InterpreterNodeCoverageTest
 
 		await source.Execute();
 
-		Assert.AreEqual(1, source.ExecuteCount);
+		Assert.AreEqual(expected: 1, source.ExecuteCount);
 	}
 
 	private static void AssertElseIfNode(ElseIfSource source, LinkedList<int> documentIds, IConditionExpression condition)
@@ -273,13 +272,15 @@ public class InterpreterNodeCoverageTest
 	{
 		var text = FormattableString.Invariant(node.EntityId);
 
-		Assert.IsTrue(text.Contains("#", StringComparison.Ordinal), text);
-		Assert.IsTrue(text.Contains(")", StringComparison.Ordinal), text);
+		Assert.IsTrue(text.Contains(value: "#", StringComparison.Ordinal), text);
+		Assert.IsTrue(text.Contains(value: ")", StringComparison.Ordinal), text);
 	}
 
 	private abstract class ExecutableSourceBase : IExecEvaluator
 	{
 		public int ExecuteCount { get; private set; }
+
+	#region Interface IExecEvaluator
 
 		public ValueTask Execute()
 		{
@@ -287,55 +288,95 @@ public class InterpreterNodeCoverageTest
 
 			return ValueTask.CompletedTask;
 		}
+
+	#endregion
 	}
 
 	private sealed class ValueExpressionSource(string value) : IValueExpression, IObjectEvaluator
 	{
-		public string? Expression => value;
-
-		public ValueTask<DataModelValue> Evaluate() => new(value);
+	#region Interface IObjectEvaluator
 
 		public ValueTask<IObject> EvaluateObject() => new(new DataModelValue(value));
+
+	#endregion
+
+	#region Interface IValueExpression
+
+		public string? Expression => value;
+
+	#endregion
+
+		public ValueTask<DataModelValue> Evaluate() => new(value);
 	}
 
 	private sealed class LocationExpressionSource(string value) : ILocationExpression, ILocationEvaluator
 	{
-		public string? Expression => value;
+	#region Interface ILocationEvaluator
 
 		public ValueTask SetValue(IObject value) => ValueTask.CompletedTask;
 
 		public ValueTask<IObject> GetValue() => new(new DataModelValue(value));
 
 		public ValueTask<string> GetName() => new(value);
+
+	#endregion
+
+	#region Interface ILocationExpression
+
+		public string? Expression => value;
+
+	#endregion
 	}
 
 	private sealed class InlineContentSource(string value) : IInlineContent, IObjectEvaluator
 	{
+	#region Interface IInlineContent
+
 		public string? Value => value;
 
-		public ValueTask<DataModelValue> Evaluate() => new(value);
+	#endregion
+
+	#region Interface IObjectEvaluator
 
 		public ValueTask<IObject> EvaluateObject() => new(new DataModelValue(value));
+
+	#endregion
+
+		public ValueTask<DataModelValue> Evaluate() => new(value);
 	}
 
 	private sealed class ExternalDataExpressionSource(string value) : IExternalDataExpression, IObjectEvaluator
 	{
+	#region Interface IExternalDataExpression
+
 		public Uri? Uri => new("https://data.test/");
 
-		public ValueTask<DataModelValue> Evaluate() => new(value);
+	#endregion
+
+	#region Interface IObjectEvaluator
 
 		public ValueTask<IObject> EvaluateObject() => new(new DataModelValue(value));
+
+	#endregion
+
+		public ValueTask<DataModelValue> Evaluate() => new(value);
 	}
 
 	private sealed class ConditionExpressionSource(string value) : IConditionExpression
 	{
+	#region Interface IConditionExpression
+
 		public string? Expression => value;
+
+	#endregion
 	}
 
 	private sealed class ExecutableEntitySource : ExecutableSourceBase, IExecutableEntity;
 
 	private sealed class OutgoingEventSource : IOutgoingEvent
 	{
+	#region Interface IOutgoingEvent
+
 		public SendId? SendId => SendId.FromString("send-id");
 
 		public EventName Name => (EventName) "outgoing";
@@ -347,28 +388,41 @@ public class InterpreterNodeCoverageTest
 		public int DelayMs => 10;
 
 		public DataModelValue Data => "event-data";
+
+	#endregion
 	}
 
 	private sealed class ContentSource(IValueExpression expression) : IContent
 	{
+	#region Interface IContent
+
 		public IValueExpression? Expression => expression;
 
 		public IContentBody? Body => null;
+
+	#endregion
 	}
 
 	private sealed class ParamSource(string name, IValueExpression expression, ILocationExpression location) : IParam
 	{
+	#region Interface IParam
+
 		public string Name => name;
 
 		public IValueExpression? Expression => expression;
 
 		public ILocationExpression? Location => location;
+
+	#endregion
 	}
 
-	private sealed class AssignSource(ILocationExpression location,
-									  IValueExpression expression,
-									  IInlineContent inlineContent) : ExecutableSourceBase, IAssign
+	private sealed class AssignSource(
+		ILocationExpression location,
+		IValueExpression expression,
+		IInlineContent inlineContent) : ExecutableSourceBase, IAssign
 	{
+	#region Interface IAssign
+
 		public ILocationExpression? Location => location;
 
 		public IValueExpression? Expression => expression;
@@ -378,20 +432,29 @@ public class InterpreterNodeCoverageTest
 		public string? Type => "assign-type";
 
 		public string? Attribute => "assign-attribute";
+
+	#endregion
 	}
 
 	private sealed class CancelSource(string sendId, IValueExpression expression) : ExecutableSourceBase, ICancel
 	{
+	#region Interface ICancel
+
 		public string? SendId => sendId;
 
 		public IValueExpression? SendIdExpression => expression;
+
+	#endregion
 	}
 
-	private sealed class ForEachSource(IValueExpression array,
-									   ILocationExpression item,
-									   ILocationExpression index,
-									   IExecutableEntity executable) : ExecutableSourceBase, IForEach
+	private sealed class ForEachSource(
+		IValueExpression array,
+		ILocationExpression item,
+		ILocationExpression index,
+		IExecutableEntity executable) : ExecutableSourceBase, IForEach
 	{
+	#region Interface IForEach
+
 		public IValueExpression? Array => array;
 
 		public ILocationExpression? Item => item;
@@ -399,32 +462,49 @@ public class InterpreterNodeCoverageTest
 		public ILocationExpression? Index => index;
 
 		public ImmutableArray<IExecutableEntity> Action => ImmutableArray.Create(executable);
+
+	#endregion
 	}
 
 	private sealed class IfSource(IConditionExpression condition, IExecutableEntity executable) : ExecutableSourceBase, IIf
 	{
+	#region Interface IIf
+
 		public IConditionExpression? Condition => condition;
 
 		public ImmutableArray<IExecutableEntity> Action => ImmutableArray.Create(executable);
+
+	#endregion
 	}
 
 	private sealed class LogSource(string label, IValueExpression expression) : ExecutableSourceBase, ILog
 	{
+	#region Interface ILog
+
 		public string? Label => label;
 
 		public IValueExpression? Expression => expression;
+
+	#endregion
 	}
 
 	private sealed class RaiseSource(IOutgoingEvent outgoingEvent) : ExecutableSourceBase, IRaise
 	{
+	#region Interface IRaise
+
 		public IOutgoingEvent? OutgoingEvent => outgoingEvent;
+
+	#endregion
 	}
 
-	private sealed class SendSource(IContent content,
-									IValueExpression expression,
-									ILocationExpression location,
-									IParam param) : ExecutableSourceBase, ISend
+	private sealed class SendSource(
+		IContent content,
+		IValueExpression expression,
+		ILocationExpression location,
+		IParam param) : ExecutableSourceBase, ISend
 	{
+	#region Interface ISend
+
 		public string? EventName => "event-name";
 
 		public IValueExpression? EventExpression => expression;
@@ -450,20 +530,29 @@ public class InterpreterNodeCoverageTest
 		public ImmutableArray<IParam> Parameters => ImmutableArray.Create(param);
 
 		public IContent? Content => content;
+
+	#endregion
 	}
 
 	private sealed class ElseSource : ExecutableSourceBase, IElse;
 
 	private sealed class ElseIfSource(IConditionExpression condition) : ExecutableSourceBase, IElseIf
 	{
+	#region Interface IElseIf
+
 		public IConditionExpression? Condition => condition;
+
+	#endregion
 	}
 
-	private sealed class DataSource(string id,
-									IExternalDataExpression source,
-									IValueExpression expression,
-									IInlineContent inlineContent) : IData
+	private sealed class DataSource(
+		string id,
+		IExternalDataExpression source,
+		IValueExpression expression,
+		IInlineContent inlineContent) : IData
 	{
+	#region Interface IData
+
 		public string? Id => id;
 
 		public IExternalDataExpression? Source => source;
@@ -471,27 +560,45 @@ public class InterpreterNodeCoverageTest
 		public IValueExpression? Expression => expression;
 
 		public IInlineContent? InlineContent => inlineContent;
+
+	#endregion
 	}
 
 	private sealed class DataModelSource(ImmutableArray<IData> data) : IDataModel
 	{
+	#region Interface IDataModel
+
 		public ImmutableArray<IData> Data => data;
+
+	#endregion
 	}
 
 	private sealed class DoneDataSource(IContent content, ImmutableArray<IParam> parameters) : IDoneData
 	{
+	#region Interface IDoneData
+
 		public IContent? Content => content;
 
 		public ImmutableArray<IParam> Parameters => parameters;
+
+	#endregion
 	}
 
 	private sealed class OnEntrySource(IExecutableEntity executable) : IOnEntry
 	{
+	#region Interface IOnEntry
+
 		public ImmutableArray<IExecutableEntity> Action => ImmutableArray.Create(executable);
+
+	#endregion
 	}
 
 	private sealed class OnExitSource(IExecutableEntity executable) : IOnExit
 	{
+	#region Interface IOnExit
+
 		public ImmutableArray<IExecutableEntity> Action => ImmutableArray.Create(executable);
+
+	#endregion
 	}
 }

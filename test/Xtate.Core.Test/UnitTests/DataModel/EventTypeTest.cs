@@ -97,10 +97,10 @@ public class EventTypeTest
 		var externalStr = EventType.External.ToString();
 
 		// Assert
-		Assert.AreEqual("None", noneStr);
-		Assert.AreEqual("Platform", platformStr);
-		Assert.AreEqual("Internal", internalStr);
-		Assert.AreEqual("External", externalStr);
+		Assert.AreEqual(expected: "None", noneStr);
+		Assert.AreEqual(expected: "Platform", platformStr);
+		Assert.AreEqual(expected: "Internal", internalStr);
+		Assert.AreEqual(expected: "External", externalStr);
 	}
 
 	[TestMethod]
@@ -110,7 +110,7 @@ public class EventTypeTest
 		var values = Enum.GetValues(typeof(EventType));
 
 		// Assert
-		Assert.AreEqual(4, values.Length);
+		Assert.AreEqual(expected: 4, values.Length);
 	}
 
 	[TestMethod]
@@ -120,7 +120,7 @@ public class EventTypeTest
 		var names = Enum.GetNames(typeof(EventType));
 
 		// Assert
-		Assert.AreEqual(4, names.Length);
+		Assert.AreEqual(expected: 4, names.Length);
 		Assert.IsTrue(names.Contains("None"));
 		Assert.IsTrue(names.Contains("Platform"));
 		Assert.IsTrue(names.Contains("Internal"));
@@ -151,10 +151,10 @@ public class EventTypeTest
 		var externalInt = (int) EventType.External;
 
 		// Assert
-		Assert.AreEqual(0, noneInt);
-		Assert.AreEqual(1, platformInt);
-		Assert.AreEqual(2, internalInt);
-		Assert.AreEqual(3, externalInt);
+		Assert.AreEqual(expected: 0, noneInt);
+		Assert.AreEqual(expected: 1, platformInt);
+		Assert.AreEqual(expected: 2, internalInt);
+		Assert.AreEqual(expected: 3, externalInt);
 	}
 
 	[TestMethod]

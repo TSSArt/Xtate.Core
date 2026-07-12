@@ -39,7 +39,7 @@ public class DataModelServiceCoverageTest
 
 		Assert.AreSame(expression, ((IAncestorProvider) evaluator).Ancestor);
 		Assert.AreSame(expression.Uri, evaluator.Uri);
-		Assert.AreEqual("base value", DataModelValue.FromObject(await evaluator.EvaluateObject()).AsString());
+		Assert.AreEqual(expected: "base value", DataModelValue.FromObject(await evaluator.EvaluateObject()).AsString());
 
 		var resourceLoader = new Mock<IResourceLoader>();
 		resourceLoader.Setup(static loader => loader.Request(It.IsAny<Uri>(), It.IsAny<NameValueCollection?>()))
@@ -51,7 +51,7 @@ public class DataModelServiceCoverageTest
 								   ResourceLoader = () => new ValueTask<IResourceLoader>(resourceLoader.Object)
 							   };
 
-		Assert.AreEqual("loaded content", DataModelValue.FromObject(await defaultEvaluator.EvaluateObject()).AsString());
+		Assert.AreEqual(expected: "loaded content", DataModelValue.FromObject(await defaultEvaluator.EvaluateObject()).AsString());
 		resourceLoader.Verify(loader => loader.Request(expression.Uri!, null), Times.Once);
 	}
 
@@ -98,11 +98,12 @@ public class DataModelServiceCoverageTest
 
 		((IDataModelHandler) handler).Process(ref executable);
 
-		errorProcessor.Verify(processor => processor.AddError(
-								  executable,
-								  It.Is<string>(message => !string.IsNullOrEmpty(message)),
-								  null),
-							  Times.Once);
+		errorProcessor.Verify(
+			processor => processor.AddError(
+				executable,
+				It.Is<string>(message => !string.IsNullOrEmpty(message)),
+				null),
+			Times.Once);
 	}
 
 	private static async IAsyncEnumerable<T> ToAsyncEnumerable<T>(params T[] items)
@@ -110,6 +111,7 @@ public class DataModelServiceCoverageTest
 		foreach (var item in items)
 		{
 			yield return item;
+
 			await Task.Yield();
 		}
 	}
@@ -139,7 +141,11 @@ public class DataModelServiceCoverageTest
 
 	private sealed class ExternalDataExpressionSource(Uri uri) : IExternalDataExpression
 	{
+	#region Interface IExternalDataExpression
+
 		public Uri? Uri => uri;
+
+	#endregion
 	}
 
 	private sealed class TestExternalDataExpressionEvaluator(IExternalDataExpression expression, IObject value) : ExternalDataExpressionEvaluator(expression)

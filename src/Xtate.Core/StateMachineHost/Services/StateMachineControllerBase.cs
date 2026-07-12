@@ -15,12 +15,10 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.Threading.Channels;
 using Xtate.DataModel;
 using Xtate.DataTypes;
 using Xtate.Interpreter;
 using Xtate.IoC;
-using Xtate.StateMachine;
 using Xtate.TaskMonitor;
 
 namespace Xtate.StateMachineHost.Services;
@@ -34,13 +32,11 @@ public abstract class StateMachineControllerBase : IStateMachineController, IAsy
 	public required IStateMachineStatus StateMachineStatus { private get; [SetByIoC] init; }
 
 	public required IStateMachineInterpreter StateMachineInterpreter { private get; [SetByIoC] init; }
-	
-	public required ITaskMonitor TaskMonitor { private get; [SetByIoC] init; }
 
+	public required ITaskMonitor TaskMonitor { private get; [SetByIoC] init; }
 
 	public required IEventDispatcher EventDispatcher { private get; [SetByIoC] init; }
 
-	
 #region Interface IAsyncInitialization
 
 	public virtual ValueTask InitializeAsync() => AsyncInit.For(this).Run(_start);
@@ -86,7 +82,6 @@ public abstract class StateMachineControllerBase : IStateMachineController, IAsy
 		await StateMachineStatus.WhenAccepted().ConfigureAwait(false);
 	}
 
-	
 	private async ValueTask<DataModelValue> ExecuteAsync()
 	{
 		try

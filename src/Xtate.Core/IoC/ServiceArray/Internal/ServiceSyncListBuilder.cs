@@ -21,5 +21,5 @@ namespace Xtate.IoC.ServiceArray.Internal;
 
 public static class ServiceSyncListBuilder
 {
-	public static ServiceSyncList<T> Create<T>(ReadOnlySpan<T> values) => [with([..values])];
+	public static ServiceSyncList<T> Create<T>(ReadOnlySpan<T> values) => [with([.. values])];
 }

@@ -100,7 +100,7 @@ public class StateMachineExternalService : ExternalServiceBase, IDisposable, IAs
 										ParentEventDispatcher = this,
 										Arguments = Parameters
 									};
-				
+
 			_sessionId = stateMachineClass.SessionId;
 
 			return StateMachineScopeManager.Execute(stateMachineClass, SecurityContextType.InvokedService);

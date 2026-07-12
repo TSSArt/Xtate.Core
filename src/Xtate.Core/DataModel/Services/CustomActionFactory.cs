@@ -41,7 +41,7 @@ public class CustomActionFactory
 
 		while (actionProviders.MoveNext())
 		{
-			if (actionProviders.Current.TryGetActivator(ns, name) is not { } activator)
+			if (actionProviders.Current!.TryGetActivator(ns, name) is not { } activator)
 			{
 				continue;
 			}

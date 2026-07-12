@@ -100,5 +100,4 @@ public class ParallelNode : StateEntityNode, IParallel, IAncestorProvider, IDebu
 	public override IIdentifier Id => _parallel.Id;
 
 #endregion
-
 }

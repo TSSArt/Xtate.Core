@@ -31,7 +31,7 @@ public class LazyIdCoverageTest
 
 		var value = lazyId.Value;
 
-		Assert.AreEqual(1, lazyId.GenerateCount);
+		Assert.AreEqual(expected: 1, lazyId.GenerateCount);
 		Assert.AreEqual($"generated-{hash:x8}", value);
 		Assert.AreSame(value, lazyId.Value);
 		Assert.AreEqual(value, lazyId.ToString());
@@ -63,23 +63,23 @@ public class LazyIdCoverageTest
 		Assert.IsFalse(left.Equals(otherType));
 		Assert.IsFalse(left.Equals(null));
 		Assert.IsFalse(unmaterialized.Equals(new TestLazyId()));
-		Assert.AreEqual(42, left.GetHashCode());
-		Assert.AreEqual("id-0000002a", left.ToString());
+		Assert.AreEqual(expected: 42, left.GetHashCode());
+		Assert.AreEqual(expected: "id-0000002a", left.ToString());
 	}
 
 	[TestMethod]
 	public void LazyIdParsesTrailingHexHashAndFallsBackWhenItCannot()
 	{
-		Assert.IsTrue(TestLazyId.TryReadHash("prefix-7fffffff", out var lowerHash));
+		Assert.IsTrue(TestLazyId.TryReadHash(id: "prefix-7fffffff", out var lowerHash));
 		Assert.AreEqual(int.MaxValue, lowerHash);
-		Assert.IsTrue(TestLazyId.TryReadHash("prefix-FFFFFFFF", out var upperHash));
-		Assert.AreEqual(-1, upperHash);
-		Assert.IsFalse(TestLazyId.TryReadHash("short", out var shortHash));
-		Assert.AreEqual(0, shortHash);
-		Assert.IsFalse(TestLazyId.TryReadHash("prefix-xxxxxxxz", out var invalidHash));
-		Assert.AreEqual(0, invalidHash);
+		Assert.IsTrue(TestLazyId.TryReadHash(id: "prefix-FFFFFFFF", out var upperHash));
+		Assert.AreEqual(expected: -1, upperHash);
+		Assert.IsFalse(TestLazyId.TryReadHash(id: "short", out var shortHash));
+		Assert.AreEqual(expected: 0, shortHash);
+		Assert.IsFalse(TestLazyId.TryReadHash(id: "prefix-xxxxxxxz", out var invalidHash));
+		Assert.AreEqual(expected: 0, invalidHash);
 		Assert.AreEqual("not-a-hex-tail".GetHashCode(), new TestLazyId("not-a-hex-tail").GetHashCode());
-		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage] () => new TestLazyId(null!));
+		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => new TestLazyId(null!));
 	}
 
 	private sealed class TestLazyId : LazyId

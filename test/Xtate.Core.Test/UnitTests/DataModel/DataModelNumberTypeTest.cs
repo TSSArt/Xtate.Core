@@ -96,10 +96,10 @@ public class DataModelNumberTypeTest
 		var decimalStr = DataModelNumberType.Decimal.ToString();
 
 		// Assert
-		Assert.AreEqual("Int32", int32Str);
-		Assert.AreEqual("Int64", int64Str);
-		Assert.AreEqual("Double", doubleStr);
-		Assert.AreEqual("Decimal", decimalStr);
+		Assert.AreEqual(expected: "Int32", int32Str);
+		Assert.AreEqual(expected: "Int64", int64Str);
+		Assert.AreEqual(expected: "Double", doubleStr);
+		Assert.AreEqual(expected: "Decimal", decimalStr);
 	}
 
 	[TestMethod]
@@ -109,7 +109,7 @@ public class DataModelNumberTypeTest
 		var values = Enum.GetValues(typeof(DataModelNumberType));
 
 		// Assert
-		Assert.AreEqual(4, values.Length);
+		Assert.AreEqual(expected: 4, values.Length);
 	}
 
 	[TestMethod]
@@ -119,7 +119,7 @@ public class DataModelNumberTypeTest
 		var names = Enum.GetNames(typeof(DataModelNumberType));
 
 		// Assert
-		Assert.AreEqual(4, names.Length);
+		Assert.AreEqual(expected: 4, names.Length);
 		Assert.IsTrue(names.Contains("Int32"));
 		Assert.IsTrue(names.Contains("Int64"));
 		Assert.IsTrue(names.Contains("Double"));

@@ -15,7 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.Collections.Immutable;
 using Xtate.Ancestor;
 using Xtate.StateMachine;
 using Xtate.StateMachine.Internal;
@@ -46,7 +45,7 @@ public class StateMachineEntityStructuresCoverageTest
 		Assert.AreSame(source.Source, entity.Source);
 		Assert.AreSame(source.Expression, entity.Expression);
 		Assert.AreSame(source.InlineContent, entity.InlineContent);
-		Assert.AreEqual("data1", ((IDebugEntityId) entity).EntityId.ToString());
+		Assert.AreEqual(expected: "data1", ((IDebugEntityId) entity).EntityId.ToString());
 		Assert.IsTrue(RefEquals<DataEntity, IData>(entity, same));
 		Assert.IsFalse(RefEquals<DataEntity, IData>(entity, different));
 	}
@@ -70,7 +69,7 @@ public class StateMachineEntityStructuresCoverageTest
 		Assert.AreSame(source.Id, entity.Id);
 		Assert.AreEqual(HistoryType.Deep, entity.Type);
 		Assert.AreSame(source.Transition, entity.Transition);
-		Assert.AreEqual("hist", ((IDebugEntityId) entity).EntityId.ToString());
+		Assert.AreEqual(expected: "hist", ((IDebugEntityId) entity).EntityId.ToString());
 		Assert.IsTrue(RefEquals<HistoryEntity, IHistory>(entity, same));
 		Assert.IsFalse(RefEquals<HistoryEntity, IHistory>(entity, different));
 	}
@@ -99,7 +98,7 @@ public class StateMachineEntityStructuresCoverageTest
 		Assert.AreSame(onEntry, entity.OnEntry[0]);
 		Assert.AreSame(onExit, entity.OnExit[0]);
 		Assert.AreSame(doneData, entity.DoneData);
-		Assert.AreEqual("final", ((IDebugEntityId) entity).EntityId.ToString());
+		Assert.AreEqual(expected: "final", ((IDebugEntityId) entity).EntityId.ToString());
 		Assert.IsTrue(RefEquals<FinalEntity, IFinal>(entity, same));
 		Assert.IsFalse(RefEquals<FinalEntity, IFinal>(entity, different));
 	}
@@ -244,7 +243,7 @@ public class StateMachineEntityStructuresCoverageTest
 		var entity = Init<ParamEntity, IParam>(source);
 		var same = Init<ParamEntity, IParam>(source);
 		var different = same;
-		different.Name = string.Copy("param");
+		different.Name = new string("param");
 
 		Assert.AreSame(source, ((IAncestorProvider) entity).Ancestor);
 		Assert.AreSame(source.Name, entity.Name);
@@ -285,7 +284,7 @@ public class StateMachineEntityStructuresCoverageTest
 		var script = Init<ScriptExpression, IScriptExpression>(scriptSource);
 		var sameScript = Init<ScriptExpression, IScriptExpression>(scriptSource);
 		var differentScript = sameScript;
-		differentScript.Expression = string.Copy("script()");
+		differentScript.Expression = new string("script()");
 
 		Assert.AreSame(scriptSource, ((IAncestorProvider) script).Ancestor);
 		Assert.AreSame(scriptSource.Expression, script.Expression);
@@ -341,7 +340,7 @@ public class StateMachineEntityStructuresCoverageTest
 		var send = Init<SendEntity, ISend>(sendSource);
 		var sameSend = Init<SendEntity, ISend>(sendSource);
 		var differentSend = sameSend;
-		differentSend.Id = string.Copy("send");
+		differentSend.Id = new string("send");
 
 		Assert.AreSame(sendSource, ((IAncestorProvider) send).Ancestor);
 		Assert.AreSame(sendSource.Id, send.Id);
@@ -354,10 +353,10 @@ public class StateMachineEntityStructuresCoverageTest
 		Assert.AreSame(type, send.Type);
 		Assert.AreSame(typeExpression, send.TypeExpression);
 		Assert.AreSame(param, send.Parameters[0]);
-		Assert.AreEqual(123, send.DelayMs);
+		Assert.AreEqual(expected: 123, send.DelayMs);
 		Assert.AreSame(delayExpression, send.DelayExpression);
 		Assert.AreSame(nameListItem, send.NameList[0]);
-		Assert.AreEqual("send", ((IDebugEntityId) send).EntityId.ToString());
+		Assert.AreEqual(expected: "send", ((IDebugEntityId) send).EntityId.ToString());
 		Assert.IsTrue(RefEquals<SendEntity, ISend>(send, sameSend));
 		Assert.IsFalse(RefEquals<SendEntity, ISend>(send, differentSend));
 
@@ -366,13 +365,188 @@ public class StateMachineEntityStructuresCoverageTest
 		var cancel = Init<CancelEntity, ICancel>(cancelSource);
 		var sameCancel = Init<CancelEntity, ICancel>(cancelSource);
 		var differentCancel = sameCancel;
-		differentCancel.SendId = string.Copy("send");
+		differentCancel.SendId = new string("send");
 
 		Assert.AreSame(cancelSource, ((IAncestorProvider) cancel).Ancestor);
 		Assert.AreSame(cancelSource.SendId, cancel.SendId);
 		Assert.AreSame(sendIdExpression, cancel.SendIdExpression);
 		Assert.IsTrue(RefEquals<CancelEntity, ICancel>(cancel, sameCancel));
 		Assert.IsFalse(RefEquals<CancelEntity, ICancel>(cancel, differentCancel));
+	}
+
+	[TestMethod]
+	public void StateAndParallelEntitiesCopyAllSourcePropertiesAndCompareReferences()
+	{
+		var id = Identifier.FromString("state");
+		var initial = new InitialSource();
+		var child = new FinalSource { Id = Identifier.FromString("child") };
+		var history = new HistorySource { Id = Identifier.FromString("history") };
+		var transition = new TransitionSource { Type = TransitionType.Internal };
+		var dataModel = new DataModelSource();
+		var onEntry = new OnEntrySource();
+		var onExit = new OnExitSource();
+		var invoke = new InvokeSource();
+		var stateSource = new StateSource
+						  {
+							  Id = id,
+							  Initial = initial,
+							  States = [child],
+							  HistoryStates = [history],
+							  Transitions = [transition],
+							  DataModel = dataModel,
+							  OnEntry = [onEntry],
+							  OnExit = [onExit],
+							  Invoke = [invoke]
+						  };
+		var state = Init<StateEntity, IState>(stateSource);
+		var sameState = Init<StateEntity, IState>(stateSource);
+		var differentState = sameState;
+		differentState.Initial = new InitialSource();
+
+		Assert.AreSame(stateSource, ((IAncestorProvider) state).Ancestor);
+		Assert.AreSame(id, state.Id);
+		Assert.AreSame(initial, state.Initial);
+		Assert.AreSame(child, state.States[0]);
+		Assert.AreSame(history, state.HistoryStates[0]);
+		Assert.AreSame(transition, state.Transitions[0]);
+		Assert.AreSame(dataModel, state.DataModel);
+		Assert.AreSame(onEntry, state.OnEntry[0]);
+		Assert.AreSame(onExit, state.OnExit[0]);
+		Assert.AreSame(invoke, state.Invoke[0]);
+		Assert.AreEqual(expected: "state", ((IDebugEntityId) state).EntityId.ToString());
+		Assert.IsTrue(RefEquals<StateEntity, IState>(state, sameState));
+		Assert.IsFalse(RefEquals<StateEntity, IState>(state, differentState));
+
+		var parallelSource = new ParallelSource
+							 {
+								 Id = id,
+								 States = [child],
+								 HistoryStates = [history],
+								 Transitions = [transition],
+								 DataModel = dataModel,
+								 OnEntry = [onEntry],
+								 OnExit = [onExit],
+								 Invoke = [invoke]
+							 };
+		var parallel = Init<ParallelEntity, IParallel>(parallelSource);
+		var sameParallel = Init<ParallelEntity, IParallel>(parallelSource);
+		var differentParallel = sameParallel;
+		differentParallel.States = [];
+
+		Assert.AreSame(parallelSource, ((IAncestorProvider) parallel).Ancestor);
+		Assert.AreSame(id, parallel.Id);
+		Assert.AreSame(child, parallel.States[0]);
+		Assert.AreSame(history, parallel.HistoryStates[0]);
+		Assert.AreSame(transition, parallel.Transitions[0]);
+		Assert.AreSame(dataModel, parallel.DataModel);
+		Assert.AreSame(onEntry, parallel.OnEntry[0]);
+		Assert.AreSame(onExit, parallel.OnExit[0]);
+		Assert.AreSame(invoke, parallel.Invoke[0]);
+		Assert.AreEqual(expected: "state", ((IDebugEntityId) parallel).EntityId.ToString());
+		Assert.IsTrue(RefEquals<ParallelEntity, IParallel>(parallel, sameParallel));
+		Assert.IsFalse(RefEquals<ParallelEntity, IParallel>(parallel, differentParallel));
+	}
+
+	[TestMethod]
+	public void InvokeEntityCopiesAllSourcePropertiesAndComparesReferences()
+	{
+		var idLocation = new LocationExpressionSource { Expression = "id-location" };
+		var content = new ContentSource();
+		var type = new FullUri("https://example.test/type");
+		var typeExpression = new ValueExpressionSource { Expression = "type" };
+		var sourceUri = new Uri("https://example.test/source");
+		var sourceExpression = new ValueExpressionSource { Expression = "source" };
+		var nameLocation = new LocationExpressionSource { Expression = "name" };
+		var parameter = new ParamSource { Name = "parameter" };
+		var finalize = new FinalizeSource { Action = [sourceExpression] };
+		var source = new InvokeSource
+					 {
+						 Id = "invoke-id",
+						 IdLocation = idLocation,
+						 Content = content,
+						 Type = type,
+						 TypeExpression = typeExpression,
+						 Source = sourceUri,
+						 SourceExpression = sourceExpression,
+						 NameList = [nameLocation],
+						 Parameters = [parameter],
+						 Finalize = finalize,
+						 AutoForward = true
+					 };
+
+		var entity = Init<InvokeEntity, IInvoke>(source);
+		var same = Init<InvokeEntity, IInvoke>(source);
+		var different = same;
+		different.AutoForward = false;
+
+		Assert.AreSame(source, ((IAncestorProvider) entity).Ancestor);
+		Assert.AreSame(source.Id, entity.Id);
+		Assert.AreSame(idLocation, entity.IdLocation);
+		Assert.AreSame(content, entity.Content);
+		Assert.AreSame(type, entity.Type);
+		Assert.AreSame(typeExpression, entity.TypeExpression);
+		Assert.AreSame(sourceUri, entity.Source);
+		Assert.AreSame(sourceExpression, entity.SourceExpression);
+		Assert.AreSame(nameLocation, entity.NameList[0]);
+		Assert.AreSame(parameter, entity.Parameters[0]);
+		Assert.AreSame(finalize, entity.Finalize);
+		Assert.IsTrue(entity.AutoForward);
+		Assert.AreEqual(expected: "invoke-id", ((IDebugEntityId) entity).EntityId.ToString());
+		Assert.IsTrue(RefEquals<InvokeEntity, IInvoke>(entity, same));
+		Assert.IsFalse(RefEquals<InvokeEntity, IInvoke>(entity, different));
+	}
+
+	[TestMethod]
+	public void StateMachineEntityCopiesSourceRejectsNullAndComparesReferences()
+	{
+		var initial = new InitialSource();
+		var child = new FinalSource { Id = Identifier.FromString("child") };
+		var dataModel = new DataModelSource();
+		var script = new ValueExpressionSource { Expression = "script" };
+		var source = new StateMachineSource
+					 {
+						 Name = "machine",
+						 DataModelType = "runtime",
+						 Binding = BindingType.Late,
+						 Initial = initial,
+						 States = [child],
+						 DataModel = dataModel,
+						 Script = script
+					 };
+
+		var entity = Init<StateMachineEntity, IStateMachine>(source);
+		var same = Init<StateMachineEntity, IStateMachine>(source);
+		var different = same;
+		different.Binding = BindingType.Early;
+
+		Assert.AreSame(source, ((IAncestorProvider) entity).Ancestor);
+		Assert.AreSame(source.Name, entity.Name);
+		Assert.AreSame(source.DataModelType, entity.DataModelType);
+		Assert.AreEqual(BindingType.Late, entity.Binding);
+		Assert.AreSame(initial, entity.Initial);
+		Assert.AreSame(child, entity.States[0]);
+		Assert.AreSame(dataModel, entity.DataModel);
+		Assert.AreSame(script, entity.Script);
+		Assert.AreEqual(expected: "machine", ((IDebugEntityId) entity).EntityId.ToString());
+		Assert.IsTrue(RefEquals<StateMachineEntity, IStateMachine>(entity, same));
+		Assert.IsFalse(RefEquals<StateMachineEntity, IStateMachine>(entity, different));
+		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => default(StateMachineEntity).Init(null!));
+	}
+
+	[TestMethod]
+	public void FinalizeEntityCopiesActionsAndComparesReferences()
+	{
+		var action = new ValueExpressionSource { Expression = "action" };
+		var source = new FinalizeSource { Action = [action] };
+		var entity = Init<FinalizeEntity, IFinalize>(source);
+		var same = Init<FinalizeEntity, IFinalize>(source);
+		var different = same;
+		different.Action = [];
+
+		Assert.AreSame(source, ((IAncestorProvider) entity).Ancestor);
+		Assert.AreSame(action, entity.Action[0]);
+		Assert.IsTrue(RefEquals<FinalizeEntity, IFinalize>(entity, same));
+		Assert.IsFalse(RefEquals<FinalizeEntity, IFinalize>(entity, different));
 	}
 
 	private static TEntity Init<TEntity, TInterface>(TInterface source)
@@ -390,6 +564,8 @@ public class StateMachineEntityStructuresCoverageTest
 
 	private sealed class DataSource : IData
 	{
+	#region Interface IData
+
 		public string? Id { get; init; }
 
 		public IExternalDataExpression? Source { get; init; }
@@ -397,30 +573,46 @@ public class StateMachineEntityStructuresCoverageTest
 		public IValueExpression? Expression { get; init; }
 
 		public IInlineContent? InlineContent { get; init; }
+
+	#endregion
 	}
 
 	private sealed class HistorySource : IHistory
 	{
+	#region Interface IHistory
+
 		public IIdentifier? Id { get; init; }
 
 		public HistoryType Type { get; init; }
 
 		public ITransition? Transition { get; init; }
+
+	#endregion
 	}
 
 	private sealed class FinalSource : IFinal
 	{
-		public IIdentifier? Id { get; init; }
+	#region Interface IFinal
 
 		public ImmutableArray<IOnEntry> OnEntry { get; init; }
 
 		public ImmutableArray<IOnExit> OnExit { get; init; }
 
 		public IDoneData? DoneData { get; init; }
+
+	#endregion
+
+	#region Interface IStateEntity
+
+		public IIdentifier? Id { get; init; }
+
+	#endregion
 	}
 
 	private sealed class TransitionSource : ITransition
 	{
+	#region Interface ITransition
+
 		public EventDescriptors EventDescriptors { get; init; }
 
 		public IConditionExpression? Condition { get; init; }
@@ -430,100 +622,168 @@ public class StateMachineEntityStructuresCoverageTest
 		public TransitionType Type { get; init; }
 
 		public ImmutableArray<IExecutableEntity> Action { get; init; }
+
+	#endregion
 	}
 
 	private sealed class ConditionExpressionSource : IConditionExpression
 	{
+	#region Interface IConditionExpression
+
 		public string? Expression { get; init; }
+
+	#endregion
 	}
 
 	private sealed class ValueExpressionSource : IValueExpression
 	{
+	#region Interface IValueExpression
+
 		public string? Expression { get; init; }
+
+	#endregion
 	}
 
 	private sealed class ExternalDataExpressionSource : IExternalDataExpression
 	{
+	#region Interface IExternalDataExpression
+
 		public Uri? Uri { get; init; }
+
+	#endregion
 	}
 
 	private sealed class ExternalScriptExpressionSource : IExternalScriptExpression
 	{
+	#region Interface IExternalScriptExpression
+
 		public Uri? Uri { get; init; }
+
+	#endregion
 	}
 
 	private sealed class ScriptExpressionSource : IScriptExpression
 	{
+	#region Interface IScriptExpression
+
 		public string? Expression { get; init; }
+
+	#endregion
 	}
 
 	private sealed class InlineContentSource : IInlineContent
 	{
+	#region Interface IInlineContent
+
 		public string? Value { get; init; }
+
+	#endregion
 	}
 
 	private sealed class DoneDataSource : IDoneData
 	{
+	#region Interface IDoneData
+
 		public IContent? Content { get; init; }
 
 		public ImmutableArray<IParam> Parameters { get; init; }
+
+	#endregion
 	}
 
 	private sealed class OnEntrySource : IOnEntry
 	{
+	#region Interface IOnEntry
+
 		public ImmutableArray<IExecutableEntity> Action { get; init; }
+
+	#endregion
 	}
 
 	private sealed class OnExitSource : IOnExit
 	{
+	#region Interface IOnExit
+
 		public ImmutableArray<IExecutableEntity> Action { get; init; }
+
+	#endregion
 	}
 
 	private sealed class ContentSource : IContent
 	{
+	#region Interface IContent
+
 		public IValueExpression? Expression { get; init; }
 
 		public IContentBody? Body { get; init; }
+
+	#endregion
 	}
 
 	private sealed class ContentBodySource : IContentBody
 	{
+	#region Interface IContentBody
+
 		public string? Value { get; init; }
+
+	#endregion
 	}
 
 	private sealed class DataModelSource : IDataModel
 	{
+	#region Interface IDataModel
+
 		public ImmutableArray<IData> Data { get; init; }
+
+	#endregion
 	}
 
 	private sealed class ElseIfSource : IElseIf
 	{
+	#region Interface IElseIf
+
 		public IConditionExpression? Condition { get; init; }
+
+	#endregion
 	}
 
 	private sealed class ElseSource : IElse;
 
 	private sealed class InitialSource : IInitial
 	{
+	#region Interface IInitial
+
 		public ITransition? Transition { get; init; }
+
+	#endregion
 	}
 
 	private sealed class ParamSource : IParam
 	{
+	#region Interface IParam
+
 		public string Name { get; init; } = null!;
 
 		public IValueExpression? Expression { get; init; }
 
 		public ILocationExpression? Location { get; init; }
+
+	#endregion
 	}
 
 	private sealed class LocationExpressionSource : ILocationExpression
 	{
+	#region Interface ILocationExpression
+
 		public string? Expression { get; init; }
+
+	#endregion
 	}
 
 	private sealed class SendSource : ISend
 	{
+	#region Interface ISend
+
 		public IContent? Content { get; init; }
 
 		public IValueExpression? DelayExpression { get; init; }
@@ -549,12 +809,133 @@ public class StateMachineEntityStructuresCoverageTest
 		public FullUri? Type { get; init; }
 
 		public IValueExpression? TypeExpression { get; init; }
+
+	#endregion
 	}
 
 	private sealed class CancelSource : ICancel
 	{
+	#region Interface ICancel
+
 		public string? SendId { get; init; }
 
 		public IValueExpression? SendIdExpression { get; init; }
+
+	#endregion
+	}
+
+	private sealed class StateSource : IState
+	{
+	#region Interface IState
+
+		public IInitial? Initial { get; init; }
+
+		public ImmutableArray<IStateEntity> States { get; init; }
+
+		public ImmutableArray<IHistory> HistoryStates { get; init; }
+
+		public ImmutableArray<ITransition> Transitions { get; init; }
+
+		public IDataModel? DataModel { get; init; }
+
+		public ImmutableArray<IOnEntry> OnEntry { get; init; }
+
+		public ImmutableArray<IOnExit> OnExit { get; init; }
+
+		public ImmutableArray<IInvoke> Invoke { get; init; }
+
+	#endregion
+
+	#region Interface IStateEntity
+
+		public IIdentifier? Id { get; init; }
+
+	#endregion
+	}
+
+	private sealed class ParallelSource : IParallel
+	{
+	#region Interface IParallel
+
+		public ImmutableArray<IStateEntity> States { get; init; }
+
+		public ImmutableArray<IHistory> HistoryStates { get; init; }
+
+		public ImmutableArray<ITransition> Transitions { get; init; }
+
+		public IDataModel? DataModel { get; init; }
+
+		public ImmutableArray<IOnEntry> OnEntry { get; init; }
+
+		public ImmutableArray<IOnExit> OnExit { get; init; }
+
+		public ImmutableArray<IInvoke> Invoke { get; init; }
+
+	#endregion
+
+	#region Interface IStateEntity
+
+		public IIdentifier? Id { get; init; }
+
+	#endregion
+	}
+
+	private sealed class InvokeSource : IInvoke
+	{
+	#region Interface IInvoke
+
+		public FullUri? Type { get; init; }
+
+		public IValueExpression? TypeExpression { get; init; }
+
+		public Uri? Source { get; init; }
+
+		public IValueExpression? SourceExpression { get; init; }
+
+		public string? Id { get; init; }
+
+		public ILocationExpression? IdLocation { get; init; }
+
+		public ImmutableArray<ILocationExpression> NameList { get; init; }
+
+		public bool AutoForward { get; init; }
+
+		public ImmutableArray<IParam> Parameters { get; init; }
+
+		public IFinalize? Finalize { get; init; }
+
+		public IContent? Content { get; init; }
+
+	#endregion
+	}
+
+	private sealed class StateMachineSource : IStateMachine
+	{
+	#region Interface IStateMachine
+
+		public string? Name { get; init; }
+
+		public string? DataModelType { get; init; }
+
+		public BindingType Binding { get; init; }
+
+		public IInitial? Initial { get; init; }
+
+		public ImmutableArray<IStateEntity> States { get; init; }
+
+		public IDataModel? DataModel { get; init; }
+
+		public IExecutableEntity? Script { get; init; }
+
+	#endregion
+	}
+
+	private sealed class FinalizeSource : IFinalize
+	{
+	#region Interface IFinalize
+
+		public ImmutableArray<IExecutableEntity> Action { get; init; }
+
+	#endregion
 	}
 }

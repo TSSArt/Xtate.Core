@@ -68,7 +68,7 @@ public partial class DataModelList
 			}
 			else
 			{
-				Set(entry.Index, key: null, value: DataModelValue.Undefined, metadata: null);
+				Set(entry.Index, key: null, DataModelValue.Undefined, metadata: null);
 			}
 
 			return true;
@@ -110,7 +110,7 @@ public partial class DataModelList
 		}
 		else
 		{
-			Set(index, key: null, value: DataModelValue.Undefined, metadata: null);
+			Set(index, key: null, DataModelValue.Undefined, metadata: null);
 		}
 
 		return true;

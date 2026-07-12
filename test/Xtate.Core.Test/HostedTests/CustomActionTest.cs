@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -23,15 +23,15 @@ namespace Xtate.Test.HostedTests;
 [TestClass]
 public class CustomActionTest : HostedTestBase
 {
-    [TestMethod]
-    public async Task StartSystemAction()
-    {
-        // act
-        await Execute("StartSystemAction.scxml");
+	[TestMethod]
+	public async Task StartSystemAction()
+	{
+		// act
+		await Execute("StartSystemAction.scxml");
 
-        //await Host.WaitAllStateMachinesAsync();
+		//await Host.WaitAllStateMachinesAsync();
 
-        // assert
-        LogWriter.Verify(l => l.Write(It.IsAny<Type>(), Level.Info, It.IsAny<int>(), "StartSystemActionChild", It.IsAny<IEnumerable<LoggingParameter>>()));
-    }
+		// assert
+		LogWriter.Verify(l => l.Write(It.IsAny<Type>(), Level.Info, It.IsAny<int>(), "StartSystemActionChild", It.IsAny<IEnumerable<LoggingParameter>>()));
+	}
 }

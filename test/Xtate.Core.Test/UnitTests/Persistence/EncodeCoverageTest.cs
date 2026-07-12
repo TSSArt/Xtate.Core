@@ -25,13 +25,13 @@ public class EncodeCoverageTest
 	[TestMethod]
 	public void EncodingLengthIsSelectedFromUtf8StyleLeadingByte()
 	{
-		Assert.AreEqual(1, Encode.GetLength(0x00));
-		Assert.AreEqual(1, Encode.GetLength(0x7F));
-		Assert.AreEqual(2, Encode.GetLength(0xC2));
-		Assert.AreEqual(3, Encode.GetLength(0xE0));
-		Assert.AreEqual(4, Encode.GetLength(0xF0));
-		Assert.AreEqual(5, Encode.GetLength(0xF8));
-		Assert.AreEqual(6, Encode.GetLength(0xFC));
+		Assert.AreEqual(expected: 1, Encode.GetLength(0x00));
+		Assert.AreEqual(expected: 1, Encode.GetLength(0x7F));
+		Assert.AreEqual(expected: 2, Encode.GetLength(0xC2));
+		Assert.AreEqual(expected: 3, Encode.GetLength(0xE0));
+		Assert.AreEqual(expected: 4, Encode.GetLength(0xF0));
+		Assert.AreEqual(expected: 5, Encode.GetLength(0xF8));
+		Assert.AreEqual(expected: 6, Encode.GetLength(0xFC));
 		Assert.ThrowsExactly<ArgumentException>(() => Encode.GetLength(0x80));
 		Assert.ThrowsExactly<ArgumentException>(() => Encode.GetLength(0xFE));
 	}
@@ -39,18 +39,18 @@ public class EncodeCoverageTest
 	[TestMethod]
 	public void EncodedLengthUsesAllIntegerBoundaries()
 	{
-		Assert.AreEqual(0, Encode.GetEncodedLength(-1));
-		Assert.AreEqual(1, Encode.GetEncodedLength(0x7F));
-		Assert.AreEqual(2, Encode.GetEncodedLength(0x80));
-		Assert.AreEqual(2, Encode.GetEncodedLength(0x7FF));
-		Assert.AreEqual(3, Encode.GetEncodedLength(0x800));
-		Assert.AreEqual(3, Encode.GetEncodedLength(0xFFFF));
-		Assert.AreEqual(4, Encode.GetEncodedLength(0x10000));
-		Assert.AreEqual(4, Encode.GetEncodedLength(0x1FFFFF));
-		Assert.AreEqual(5, Encode.GetEncodedLength(0x200000));
-		Assert.AreEqual(5, Encode.GetEncodedLength(0x3FFFFFF));
-		Assert.AreEqual(6, Encode.GetEncodedLength(0x4000000));
-		Assert.AreEqual(6, Encode.GetEncodedLength(int.MaxValue));
+		Assert.AreEqual(expected: 0, Encode.GetEncodedLength(-1));
+		Assert.AreEqual(expected: 1, Encode.GetEncodedLength(0x7F));
+		Assert.AreEqual(expected: 2, Encode.GetEncodedLength(0x80));
+		Assert.AreEqual(expected: 2, Encode.GetEncodedLength(0x7FF));
+		Assert.AreEqual(expected: 3, Encode.GetEncodedLength(0x800));
+		Assert.AreEqual(expected: 3, Encode.GetEncodedLength(0xFFFF));
+		Assert.AreEqual(expected: 4, Encode.GetEncodedLength(0x10000));
+		Assert.AreEqual(expected: 4, Encode.GetEncodedLength(0x1FFFFF));
+		Assert.AreEqual(expected: 5, Encode.GetEncodedLength(0x200000));
+		Assert.AreEqual(expected: 5, Encode.GetEncodedLength(0x3FFFFFF));
+		Assert.AreEqual(expected: 6, Encode.GetEncodedLength(0x4000000));
+		Assert.AreEqual(expected: 6, Encode.GetEncodedLength(int.MaxValue));
 	}
 
 	[TestMethod]
@@ -77,6 +77,6 @@ public class EncodeCoverageTest
 		Assert.ThrowsExactly<ArgumentException>(() => Encode.Decode([0xF8, 0x80, 0x80, 0x80]));
 		Assert.ThrowsExactly<ArgumentException>(() => Encode.Decode([0xFC, 0x80, 0x80, 0x80, 0x80]));
 		Assert.ThrowsExactly<ArgumentException>(() => Encode.Decode([0xFC, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80]));
-		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => Encode.WriteEncodedValue(new byte[1], -1));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => Encode.WriteEncodedValue(new byte[1], value: -1));
 	}
 }

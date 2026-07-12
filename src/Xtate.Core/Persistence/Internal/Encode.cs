@@ -33,6 +33,7 @@ internal static class Encode
 
 	public static int Decode(ReadOnlySpan<byte> span)
 	{
+#pragma warning disable IDE0066
 		switch (span.Length)
 		{
 			case 1: return span[0] & 0x7F;
@@ -52,6 +53,7 @@ internal static class Encode
 			case 6 when (span[0] & 0xFE) == 0xFC && (span[1] & 0xC0) == 0x80 && (span[2] & 0xC0) == 0x80 && (span[3] & 0xC0) == 0x80 && (span[4] & 0xC0) == 0x80 && (span[5] & 0xC0) == 0x80:
 				return ((span[0] & 0x01) << 30) + ((span[1] & 0x3F) << 24) + ((span[2] & 0x3F) << 18) + ((span[3] & 0x3F) << 12) + ((span[4] & 0x3F) << 6) + (span[5] & 0x3F);
 		}
+#pragma warning restore IDE0066
 
 		throw new ArgumentException(Resources.Exception_IncorrectEncoding, nameof(span));
 	}

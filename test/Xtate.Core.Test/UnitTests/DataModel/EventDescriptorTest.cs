@@ -181,11 +181,11 @@ public class EventDescriptorTest
 
 		// Act
 		var descriptors = new[]
-		{
-			EventDescriptor.FromString(eventName),
-			(EventDescriptor) eventName,
-			EventDescriptor.FromString(eventName)
-		};
+						  {
+							  EventDescriptor.FromString(eventName),
+							  (EventDescriptor) eventName,
+							  EventDescriptor.FromString(eventName)
+						  };
 
 		// Assert
 		Assert.AreEqual(descriptors[0], descriptors[1]);

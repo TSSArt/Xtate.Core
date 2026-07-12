@@ -83,7 +83,7 @@ public class SendStatusTest
 		var values = Enum.GetValues(typeof(SendStatus));
 
 		// Assert
-		Assert.AreEqual(3, values.Length);
+		Assert.AreEqual(expected: 3, values.Length);
 	}
 
 	[TestMethod]
@@ -102,9 +102,9 @@ public class SendStatusTest
 	public void SendStatus_ShouldHaveValidStringRepresentation()
 	{
 		// Act & Assert
-		Assert.AreEqual("Sent", SendStatus.Sent.ToString());
-		Assert.AreEqual("Scheduled", SendStatus.Scheduled.ToString());
-		Assert.AreEqual("ToInternalQueue", SendStatus.ToInternalQueue.ToString());
+		Assert.AreEqual(expected: "Sent", SendStatus.Sent.ToString());
+		Assert.AreEqual(expected: "Scheduled", SendStatus.Scheduled.ToString());
+		Assert.AreEqual(expected: "ToInternalQueue", SendStatus.ToInternalQueue.ToString());
 	}
 
 	[TestMethod]

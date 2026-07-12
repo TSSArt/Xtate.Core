@@ -18,7 +18,6 @@
 using Xtate.Actions;
 using Xtate.DataModel;
 using Xtate.DataTypes;
-using Xtate.StateMachine;
 
 namespace Xtate.Test.UnitTests.Actions;
 
@@ -45,17 +44,17 @@ public class ActionValueCoverageTest
 		await ((IAction) action).Execute();
 
 		CollectionAssert.AreEqual(new object?[] { "left", 7 }, result.Array);
-		Assert.AreEqual("text", result.String);
-		Assert.AreEqual(42, result.Integer);
+		Assert.AreEqual(expected: "text", result.String);
+		Assert.AreEqual(expected: 42, result.Integer);
 		Assert.IsTrue(result.Boolean);
-		Assert.AreEqual("object", result.Object.AsString());
-		Assert.AreEqual("initial", result.LocationBefore.AsString());
-		Assert.AreEqual("updated", result.LocationAfter.AsString());
+		Assert.AreEqual(expected: "object", result.Object.AsString());
+		Assert.AreEqual(expected: "initial", result.LocationBefore.AsString());
+		Assert.AreEqual(expected: "updated", result.LocationAfter.AsString());
 		Assert.IsTrue(action.Executed);
 		CollectionAssert.AreEqual(values, ((IAction) action).GetValues().ToArray());
 		CollectionAssert.AreEqual(locations, ((IAction) action).GetLocations().ToArray());
-		Assert.AreEqual("array", ((IValueExpression) values[0]).Expression);
-		Assert.AreEqual("target", ((ILocationExpression) locations[0]).Expression);
+		Assert.AreEqual(expected: "array", values[0].Expression);
+		Assert.AreEqual(expected: "target", locations[0].Expression);
 	}
 
 	[TestMethod]
@@ -73,13 +72,13 @@ public class ActionValueCoverageTest
 		var defaults = await action.ReadDefaults();
 
 		CollectionAssert.AreEqual(new[] { "a", "b" }, result.Array.Select(static item => Convert.ToString(item)).ToArray());
-		Assert.AreEqual("from object", result.String);
-		Assert.AreEqual(123, result.Integer);
+		Assert.AreEqual(expected: "from object", result.String);
+		Assert.AreEqual(expected: 123, result.Integer);
 		Assert.IsTrue(result.Boolean);
-		Assert.AreEqual("default string", defaults.String);
-		Assert.AreEqual(17, defaults.Integer);
+		Assert.AreEqual(expected: "default string", defaults.String);
+		Assert.AreEqual(expected: 17, defaults.Integer);
 		Assert.IsFalse(defaults.Boolean);
-		Assert.AreEqual("default object", defaults.Object.AsString());
+		Assert.AreEqual(expected: "default object", defaults.Object.AsString());
 	}
 
 	[TestMethod]
@@ -98,23 +97,28 @@ public class ActionValueCoverageTest
 
 		await ((IAction) action).Execute();
 
-		Assert.AreEqual("hello:5:True:2", target.Value.AsString());
-		Assert.AreEqual("hello:5:True:2", action.EvaluatedValue.AsString());
-		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage] () => action.ReadStringAfterReset());
+		Assert.AreEqual(expected: "hello:5:True:2", target.Value.AsString());
+		Assert.AreEqual(expected: "hello:5:True:2", action.EvaluatedValue.AsString());
+		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => action.ReadStringAfterReset());
 		CollectionAssert.AreEqual(values, ((IAction) action).GetValues().ToArray());
 		CollectionAssert.AreEqual(locations, ((IAction) action).GetLocations().ToArray());
-		Assert.AreEqual("array", ((IValueExpression) values[0]).Expression);
-		Assert.AreEqual("target", ((ILocationExpression) locations[0]).Expression);
+		Assert.AreEqual(expected: "array", values[0].Expression);
+		Assert.AreEqual(expected: "target", locations[0].Expression);
 	}
 
 	private sealed class TestAsyncAction : AsyncAction
 	{
 		private readonly ArrayValue _array = new("array");
-		private readonly StringValue _string = new("string", "default string");
-		private readonly IntegerValue _integer = new("integer", 17);
-		private readonly BooleanValue _boolean = new("boolean", false);
-		private readonly ObjectValue _object = new("object", "default object");
+
+		private readonly BooleanValue _boolean = new(expression: "boolean", defaultValue: false);
+
+		private readonly IntegerValue _integer = new(expression: "integer", defaultValue: 17);
+
 		private readonly Location _location = new("target");
+
+		private readonly ObjectValue _object = new(expression: "object", defaultValue: "default object");
+
+		private readonly StringValue _string = new(expression: "string", defaultValue: "default string");
 
 		public bool Executed { get; private set; }
 
@@ -147,10 +151,10 @@ public class ActionValueCoverageTest
 		public async ValueTask<ActionValues> ReadDefaults() =>
 			new(
 				await new ArrayValue(expression: null).GetValue(),
-				await new StringValue(expression: null, "default string").GetValue(),
-				await new IntegerValue(expression: null, 17).GetValue(),
-				await new BooleanValue(expression: null, false).GetValue(),
-				await new ObjectValue(expression: null, "default object").GetValue(),
+				await new StringValue(expression: null, defaultValue: "default string").GetValue(),
+				await new IntegerValue(expression: null, defaultValue: 17).GetValue(),
+				await new BooleanValue(expression: null, defaultValue: false).GetValue(),
+				await new ObjectValue(expression: null, defaultValue: "default object").GetValue(),
 				DataModelValue.Null,
 				DataModelValue.Null);
 	}
@@ -158,10 +162,14 @@ public class ActionValueCoverageTest
 	private sealed class TestSyncAction : SyncAction
 	{
 		private readonly ArrayValue _array = new("array");
+
 		private readonly BooleanValue _boolean = new("boolean");
+
 		private readonly IntegerValue _integer = new("integer");
-		private readonly StringValue _string = new("string");
+
 		private readonly Location _location = new("target");
+
+		private readonly StringValue _string = new("string");
 
 		public DataModelValue EvaluatedValue { get; private set; }
 
@@ -179,42 +187,65 @@ public class ActionValueCoverageTest
 		public string ReadStringAfterReset() => _string.Value;
 	}
 
-	private sealed record ActionValues(object?[] Array,
-									   string String,
-									   int Integer,
-									   bool Boolean,
-									   DataModelValue Object,
-									   DataModelValue LocationBefore,
-									   DataModelValue LocationAfter);
+	private sealed record ActionValues(
+		object?[] Array,
+		string String,
+		int Integer,
+		bool Boolean,
+		DataModelValue Object,
+		DataModelValue LocationBefore,
+		DataModelValue LocationAfter);
 
 	private sealed class TestArrayEvaluator(IObject[] value) : IArrayEvaluator
 	{
+	#region Interface IArrayEvaluator
+
 		public ValueTask<IObject[]> EvaluateArray() => new(value);
+
+	#endregion
 	}
 
 	private sealed class TestStringEvaluator(string value) : IStringEvaluator
 	{
+	#region Interface IStringEvaluator
+
 		public ValueTask<string> EvaluateString() => new(value);
+
+	#endregion
 	}
 
 	private sealed class TestIntegerEvaluator(int value) : IIntegerEvaluator
 	{
+	#region Interface IIntegerEvaluator
+
 		public ValueTask<int> EvaluateInteger() => new(value);
+
+	#endregion
 	}
 
 	private sealed class TestBooleanEvaluator(bool value) : IBooleanEvaluator
 	{
+	#region Interface IBooleanEvaluator
+
 		public ValueTask<bool> EvaluateBoolean() => new(value);
+
+	#endregion
 	}
 
 	private sealed class TestObjectEvaluator(IObject value) : IObjectEvaluator
 	{
+	#region Interface IObjectEvaluator
+
 		public ValueTask<IObject> EvaluateObject() => new(value);
+
+	#endregion
 	}
 
 	private sealed class TestLocationEvaluator(IObject value) : ILocationEvaluator
 	{
 		public DataModelValue Value { get; private set; } = DataModelValue.FromObject(value);
+
+	#region Interface ILocationEvaluator
 
 		public ValueTask SetValue(IObject value)
 		{
@@ -226,5 +257,7 @@ public class ActionValueCoverageTest
 		public ValueTask<IObject> GetValue() => new(Value);
 
 		public ValueTask<string> GetName() => new("target");
+
+	#endregion
 	}
 }

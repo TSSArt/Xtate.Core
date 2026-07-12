@@ -25,25 +25,25 @@ public class QueryStringHelperTest
 	[TestMethod]
 	public void AddQueryStringAppendsFirstParameter()
 	{
-		var uri = QueryStringHelper.AddQueryString("https://xtate.net/callback", "event", "done.invoke");
+		var uri = QueryStringHelper.AddQueryString(uri: "https://xtate.net/callback", name: "event", value: "done.invoke");
 
-		Assert.AreEqual("https://xtate.net/callback?event=done.invoke", uri);
+		Assert.AreEqual(expected: "https://xtate.net/callback?event=done.invoke", uri);
 	}
 
 	[TestMethod]
 	public void AddQueryStringAppendsAdditionalParameterBeforeFragment()
 	{
-		var uri = QueryStringHelper.AddQueryString("https://xtate.net/callback?existing=1#anchor", "event name", "hello world");
+		var uri = QueryStringHelper.AddQueryString(uri: "https://xtate.net/callback?existing=1#anchor", name: "event name", value: "hello world");
 
-		Assert.AreEqual("https://xtate.net/callback?existing=1&event%20name=hello%20world#anchor", uri);
+		Assert.AreEqual(expected: "https://xtate.net/callback?existing=1&event%20name=hello%20world#anchor", uri);
 	}
 
 	[TestMethod]
 	public void ParseQueryReturnsEmptyCollectionForMissingQuery()
 	{
-		Assert.AreEqual(0, QueryStringHelper.ParseQuery(null).Count);
-		Assert.AreEqual(0, QueryStringHelper.ParseQuery(string.Empty).Count);
-		Assert.AreEqual(0, QueryStringHelper.ParseQuery("?").Count);
+		Assert.AreEqual(expected: 0, QueryStringHelper.ParseQuery(null).Count);
+		Assert.AreEqual(expected: 0, QueryStringHelper.ParseQuery(string.Empty).Count);
+		Assert.AreEqual(expected: 0, QueryStringHelper.ParseQuery("?").Count);
 	}
 
 	[TestMethod]
@@ -51,8 +51,8 @@ public class QueryStringHelperTest
 	{
 		var values = QueryStringHelper.ParseQuery("? first=one+two&encoded=a%2Fb&flag&empty=&repeated=1&repeated=2");
 
-		Assert.AreEqual("one two", values["first"]);
-		Assert.AreEqual("a/b", values["encoded"]);
+		Assert.AreEqual(expected: "one two", values["first"]);
+		Assert.AreEqual(expected: "a/b", values["encoded"]);
 		Assert.AreEqual(string.Empty, values["flag"]);
 		Assert.AreEqual(string.Empty, values["empty"]);
 		CollectionAssert.AreEqual(new[] { "1", "2" }, values.GetValues("repeated"));
@@ -63,8 +63,8 @@ public class QueryStringHelperTest
 	{
 		var values = QueryStringHelper.ParseQuery("&&left=1&&right=2&");
 
-		Assert.AreEqual(2, values.Count);
-		Assert.AreEqual("1", values["left"]);
-		Assert.AreEqual("2", values["right"]);
+		Assert.AreEqual(expected: 2, values.Count);
+		Assert.AreEqual(expected: "1", values["left"]);
+		Assert.AreEqual(expected: "2", values["right"]);
 	}
 }

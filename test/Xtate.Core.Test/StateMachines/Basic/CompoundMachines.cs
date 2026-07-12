@@ -20,32 +20,36 @@ namespace Xtate.Test.StateMachines.Basic;
 public class CompoundMachines : IScxmlTestSource
 {
 	public static readonly string NestedCompoundToDone = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
-		  <state id="outer" initial="inner">
-			<state id="inner">
-			  <transition target="done"/>
-			</state>
-		  </state>
-		  <final id="done"/>
-		</scxml>
-		""";
+														 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
+														   <state id="outer" initial="inner">
+														 	<state id="inner">
+														 	  <transition target="done"/>
+														 	</state>
+														   </state>
+														   <final id="done"/>
+														 </scxml>
+														 """;
 
 	public static readonly string CompoundCompletionEventToDone = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
-		  <state id="outer" initial="inner">
-			<state id="inner">
-			  <transition target="innerFinal"/>
-			</state>
-			<final id="innerFinal"/>
-			<transition event="done.state.outer" target="done"/>
-		  </state>
-		  <final id="done"/>
-		</scxml>
-		""";
+																  <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
+																    <state id="outer" initial="inner">
+																  	<state id="inner">
+																  	  <transition target="innerFinal"/>
+																  	</state>
+																  	<final id="innerFinal"/>
+																  	<transition event="done.state.outer" target="done"/>
+																    </state>
+																    <final id="done"/>
+																  </scxml>
+																  """;
+
+#region Interface IScxmlTestSource
 
 	public IEnumerable<ScxmlTestCase> GetTestCases()
 	{
-		yield return new ScxmlTestCase("Basic/Compound/NestedCompoundToDone", NestedCompoundToDone);
-		yield return new ScxmlTestCase("Basic/Compound/CompoundCompletionEventToDone", CompoundCompletionEventToDone);
+		yield return new ScxmlTestCase(Name: "Basic/Compound/NestedCompoundToDone", NestedCompoundToDone);
+		yield return new ScxmlTestCase(Name: "Basic/Compound/CompoundCompletionEventToDone", CompoundCompletionEventToDone);
 	}
+
+#endregion
 }

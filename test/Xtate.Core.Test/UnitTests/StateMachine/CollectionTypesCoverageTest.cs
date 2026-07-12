@@ -15,7 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.Collections.Immutable;
 using Xtate.StateMachine;
 
 namespace Xtate.Test.UnitTests.StateMachine;
@@ -32,12 +31,12 @@ public class CollectionTypesCoverageTest
 		var same = EventDescriptors.Create([first, second]);
 		var different = EventDescriptors.Create([second, first]);
 
-		Assert.AreEqual(2, descriptors.Count);
+		Assert.AreEqual(expected: 2, descriptors.Count);
 		Assert.AreSame(first, descriptors[0]);
 		Assert.AreSame(second, descriptors[1]);
 		CollectionAssert.AreEqual(new[] { "error.*", "done.invoke" }, descriptors.Select(descriptor => descriptor.Value).ToArray());
-		Assert.AreEqual("error.* done.invoke", descriptors.ToString());
-		Assert.AreEqual("error.* done.invoke", ((IFormattable) descriptors).ToString(format: null, formatProvider: null));
+		Assert.AreEqual(expected: "error.* done.invoke", descriptors.ToString());
+		Assert.AreEqual(expected: "error.* done.invoke", descriptors.ToString(format: null, formatProvider: null));
 		Assert.IsTrue(descriptors.Equals(same));
 		Assert.IsTrue(descriptors.Equals((object) same));
 		Assert.AreEqual(same.GetHashCode(), descriptors.GetHashCode());
@@ -46,7 +45,7 @@ public class CollectionTypesCoverageTest
 
 		var destination = new char[32];
 		Assert.IsTrue(descriptors.TryFormat(destination, out var charsWritten, format: default, provider: null));
-		Assert.AreEqual("error.* done.invoke", new string(destination, 0, charsWritten));
+		Assert.AreEqual(expected: "error.* done.invoke", new string(destination, startIndex: 0, charsWritten));
 		Assert.IsFalse(descriptors.TryFormat(new char[4], out _, format: default, provider: null));
 
 		EventDescriptors empty = ImmutableArray<IEventDescriptor>.Empty;
@@ -63,12 +62,12 @@ public class CollectionTypesCoverageTest
 		var same = Target.Create([first, second]);
 		var different = Target.Create([second, first]);
 
-		Assert.AreEqual(2, target.Count);
+		Assert.AreEqual(expected: 2, target.Count);
 		Assert.AreSame(first, target[0]);
 		Assert.AreSame(second, target[1]);
 		CollectionAssert.AreEqual(new[] { "state1", "state2" }, target.Select(identifier => identifier.Value).ToArray());
-		Assert.AreEqual("state1 state2", target.ToString());
-		Assert.AreEqual("state1 state2", ((IFormattable) target).ToString(format: null, formatProvider: null));
+		Assert.AreEqual(expected: "state1 state2", target.ToString());
+		Assert.AreEqual(expected: "state1 state2", target.ToString(format: null, formatProvider: null));
 		Assert.IsTrue(target.Equals(same));
 		Assert.AreEqual(same.GetHashCode(), target.GetHashCode());
 		Assert.IsFalse(target.Equals(different));
@@ -76,7 +75,7 @@ public class CollectionTypesCoverageTest
 
 		var destination = new char[32];
 		Assert.IsTrue(target.TryFormat(destination, out var charsWritten, format: default, provider: null));
-		Assert.AreEqual("state1 state2", new string(destination, 0, charsWritten));
+		Assert.AreEqual(expected: "state1 state2", new string(destination, startIndex: 0, charsWritten));
 		Assert.IsFalse(target.TryFormat(new char[4], out _, format: default, provider: null));
 
 		Target empty = ImmutableArray<IIdentifier>.Empty;

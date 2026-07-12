@@ -16,7 +16,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xtate.Test.UnitTests.Common;
 
@@ -28,19 +27,19 @@ public class LazyTaskCoverageTest
 	{
 		var calls = 0;
 		var lazyTask = new LazyTask<int>(async () =>
-										{
-											await Task.Yield();
-											Interlocked.Increment(ref calls);
+										 {
+											 await Task.Yield();
+											 Interlocked.Increment(ref calls);
 
-											return 42;
-										});
+											 return 42;
+										 });
 
 		var first = lazyTask.Task;
 		var second = lazyTask.Task;
 
 		Assert.AreSame(first, second);
-		Assert.AreEqual(42, await first);
-		Assert.AreEqual(1, calls);
+		Assert.AreEqual(expected: 42, await first);
+		Assert.AreEqual(expected: 1, calls);
 	}
 
 	[TestMethod]
@@ -60,15 +59,16 @@ public class LazyTaskCoverageTest
 		using var cancellationTokenSource = new CancellationTokenSource();
 		var enteredFactory = new TaskCompletionSource();
 		var releaseFactory = new TaskCompletionSource();
-		var lazyTask = new LazyTask<int>(async () =>
-										{
-											enteredFactory.SetResult();
-											await releaseFactory.Task;
+		var lazyTask = new LazyTask<int>(
+			async () =>
+			{
+				enteredFactory.SetResult();
+				await releaseFactory.Task;
 
-											return 42;
-										},
-										taskMonitor: null,
-										cancellationTokenSource.Token);
+				return 42;
+			},
+			taskMonitor: null,
+			cancellationTokenSource.Token);
 
 		var task = lazyTask.Task;
 		await enteredFactory.Task;

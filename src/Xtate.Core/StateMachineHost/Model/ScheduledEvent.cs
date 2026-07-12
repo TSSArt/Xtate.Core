@@ -17,11 +17,9 @@
 
 namespace Xtate.StateMachineHost;
 
-public class ScheduledEvent : RouterEvent
+public class ScheduledEvent(IRouterEvent routerEvent) : RouterEvent(routerEvent)
 {
 	private readonly CancellationTokenSource _cancellationTokenSource = new();
-
-	public ScheduledEvent(IRouterEvent routerEvent) : base(routerEvent) { }
 
 	public CancellationToken CancellationToken => _cancellationTokenSource.Token;
 

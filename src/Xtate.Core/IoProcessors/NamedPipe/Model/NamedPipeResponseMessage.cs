@@ -42,7 +42,6 @@ public readonly struct NamedPipeResponseMessage : IStoreSupport
 		ExceptionText = exception.ToString();
 
 #endif
-
 	}
 
 	public NamedPipeResponseMessage(in Bucket bucket)

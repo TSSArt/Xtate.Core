@@ -33,50 +33,50 @@ public class TransitionMachines : IScxmlTestSource
 	///     the correct branch and terminate.
 	/// </summary>
 	public static readonly string ConditionalTransitionAlwaysTrue = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="null" initial="s1">
-		  <state id="s1">
-			<transition target="done"/>
-		  </state>
-		  <final id="done"/>
-		</scxml>
-		""";
+																	<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="null" initial="s1">
+																	  <state id="s1">
+																		<transition target="done"/>
+																	  </state>
+																	  <final id="done"/>
+																	</scxml>
+																	""";
 
 	/// <summary>
 	///     Compound state: an outer state contains two inner states.
 	///     An eventless transition inside the compound state leads to the global final state.
 	/// </summary>
 	public static readonly string CompoundStateNestedTransition = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
-		  <state id="outer" initial="inner1">
-			<state id="inner1">
-			  <transition target="inner2"/>
-			</state>
-			<state id="inner2">
-			  <transition target="done"/>
-			</state>
-		  </state>
-		  <final id="done"/>
-		</scxml>
-		""";
+																  <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
+																    <state id="outer" initial="inner1">
+																  	<state id="inner1">
+																  	  <transition target="inner2"/>
+																  	</state>
+																  	<state id="inner2">
+																  	  <transition target="done"/>
+																  	</state>
+																    </state>
+																    <final id="done"/>
+																  </scxml>
+																  """;
 
 	/// <summary>
 	///     Parallel state: two orthogonal regions both terminate before the machine
 	///     leaves the parallel state via an eventless transition.
 	/// </summary>
 	public static readonly string ParallelStateBothRegions = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="par">
-		  <parallel id="par">
-			<state id="r1">
-			  <final id="r1final"/>
-			</state>
-			<state id="r2">
-			  <final id="r2final"/>
-			</state>
-			<transition event="done.state.par" target="done" />
-		  </parallel>
-		  <final id="done"/>
-		</scxml>
-		""";
+															 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="par">
+															   <parallel id="par">
+															 	<state id="r1">
+															 	  <final id="r1final"/>
+															 	</state>
+															 	<state id="r2">
+															 	  <final id="r2final"/>
+															 	</state>
+															 	<transition event="done.state.par" target="done" />
+															   </parallel>
+															   <final id="done"/>
+															 </scxml>
+															 """;
 
 	/// <summary>
 	///     Deep history: entering a state with a deep history pseudo-state records
@@ -84,18 +84,18 @@ public class TransitionMachines : IScxmlTestSource
 	///     This test verifies the machine at least runs to completion.
 	/// </summary>
 	public static readonly string DeepHistoryState = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
-		  <state id="outer" initial="inner1">
-			<history id="hist" type="deep">
-			  <transition target="inner1"/>
-			</history>
-			<state id="inner1">
-			  <transition target="done"/>
-			</state>
-		  </state>
-		  <final id="done"/>
-		</scxml>
-		""";
+													 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
+													   <state id="outer" initial="inner1">
+													 	<history id="hist" type="deep">
+													 	  <transition target="inner1"/>
+													 	</history>
+													 	<state id="inner1">
+													 	  <transition target="done"/>
+													 	</state>
+													   </state>
+													   <final id="done"/>
+													 </scxml>
+													 """;
 
 	/// <summary>
 	///     Self-transition: a state has an eventless transition that targets itself,
@@ -103,13 +103,15 @@ public class TransitionMachines : IScxmlTestSource
 	///     Uses the null data model — no guard; machine terminates via outer fallback.
 	/// </summary>
 	public static readonly string TransitionToSelf = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="s1">
-		  <state id="s1">
-			<transition target="done"/>
-		  </state>
-		  <final id="done"/>
-		</scxml>
-		""";
+													 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="s1">
+													   <state id="s1">
+													 	<transition target="done"/>
+													   </state>
+													   <final id="done"/>
+													 </scxml>
+													 """;
+
+#region Interface IScxmlTestSource
 
 	// ─────────────────────────────────────────────
 	// IScxmlTestSource
@@ -118,10 +120,12 @@ public class TransitionMachines : IScxmlTestSource
 	/// <inheritdoc />
 	public IEnumerable<ScxmlTestCase> GetTestCases()
 	{
-		yield return new ScxmlTestCase("Transitions/ConditionalTransitionAlwaysTrue", ConditionalTransitionAlwaysTrue);
-		yield return new ScxmlTestCase("Transitions/CompoundStateNestedTransition",   CompoundStateNestedTransition);
-		yield return new ScxmlTestCase("Transitions/ParallelStateBothRegions",        ParallelStateBothRegions);
-		yield return new ScxmlTestCase("Transitions/DeepHistoryState",                DeepHistoryState);
-		yield return new ScxmlTestCase("Transitions/TransitionToSelf",                TransitionToSelf);
+		yield return new ScxmlTestCase(Name: "Transitions/ConditionalTransitionAlwaysTrue", ConditionalTransitionAlwaysTrue);
+		yield return new ScxmlTestCase(Name: "Transitions/CompoundStateNestedTransition", CompoundStateNestedTransition);
+		yield return new ScxmlTestCase(Name: "Transitions/ParallelStateBothRegions", ParallelStateBothRegions);
+		yield return new ScxmlTestCase(Name: "Transitions/DeepHistoryState", DeepHistoryState);
+		yield return new ScxmlTestCase(Name: "Transitions/TransitionToSelf", TransitionToSelf);
 	}
+
+#endregion
 }

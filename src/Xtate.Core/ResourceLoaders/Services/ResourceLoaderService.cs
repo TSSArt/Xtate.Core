@@ -24,7 +24,7 @@ namespace Xtate.ResourceLoaders.Services;
 public class ResourceLoaderService : IResourceLoader
 {
 	public required IAsyncEnumerable<IResourceLoaderProvider> ResourceLoaderProviders { private get; [SetByIoC] init; }
-	
+
 	public required IStateMachineLocation? StateMachineLocation { private get; [SetByIoC] init; }
 
 #region Interface IResourceLoader
@@ -35,7 +35,7 @@ public class ResourceLoaderService : IResourceLoader
 		{
 			uri = new Uri(baseUri, uri);
 		}
-		
+
 		await foreach (var resourceLoaderProvider in ResourceLoaderProviders.ConfigureAwait(false))
 		{
 			if (await resourceLoaderProvider.TryGetResourceLoader(uri).ConfigureAwait(false) is { } resourceLoader)

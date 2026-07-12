@@ -24,8 +24,5 @@ namespace Xtate.ExternalServices.DependencyInjection;
 [InstantiatedByIoC]
 public class ExternalServicesModule : Module<SmtpClientModule, HttpClientModule>
 {
-	protected override void AddServices()
-	{
-	
-	}
+	protected override void AddServices() { }
 }

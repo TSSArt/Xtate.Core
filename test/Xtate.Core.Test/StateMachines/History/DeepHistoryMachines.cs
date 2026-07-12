@@ -20,41 +20,45 @@ namespace Xtate.Test.StateMachines.History;
 public class DeepHistoryMachines : IScxmlTestSource
 {
 	public static readonly string DeepHistoryRestoresNestedChild = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
-		  <state id="outer" initial="parent">
-			<history id="hist" type="deep">
-			  <transition target="parent"/>
-			</history>
-			<state id="parent" initial="child1">
-			  <state id="child1">
-				<transition target="child2"/>
-			  </state>
-			  <state id="child2">
-				<transition target="done"/>
-			  </state>
-			</state>
-		  </state>
-		  <final id="done"/>
-		</scxml>
-		""";
+																   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
+																     <state id="outer" initial="parent">
+																   	<history id="hist" type="deep">
+																   	  <transition target="parent"/>
+																   	</history>
+																   	<state id="parent" initial="child1">
+																   	  <state id="child1">
+																   		<transition target="child2"/>
+																   	  </state>
+																   	  <state id="child2">
+																   		<transition target="done"/>
+																   	  </state>
+																   	</state>
+																     </state>
+																     <final id="done"/>
+																   </scxml>
+																   """;
 
 	public static readonly string DeepHistoryDefaultTransition = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
-		  <state id="outer">
-			<history id="hist" type="deep">
-			  <transition target="done"/>
-			</history>
-			<state id="child">
-			  <transition target="done"/>
-			</state>
-		  </state>
-		  <final id="done"/>
-		</scxml>
-		""";
+																 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
+																   <state id="outer">
+																 	<history id="hist" type="deep">
+																 	  <transition target="done"/>
+																 	</history>
+																 	<state id="child">
+																 	  <transition target="done"/>
+																 	</state>
+																   </state>
+																   <final id="done"/>
+																 </scxml>
+																 """;
+
+#region Interface IScxmlTestSource
 
 	public IEnumerable<ScxmlTestCase> GetTestCases()
 	{
-		yield return new ScxmlTestCase("History/Deep/DeepHistoryRestoresNestedChild", DeepHistoryRestoresNestedChild);
-		yield return new ScxmlTestCase("History/Deep/DeepHistoryDefaultTransition", DeepHistoryDefaultTransition);
+		yield return new ScxmlTestCase(Name: "History/Deep/DeepHistoryRestoresNestedChild", DeepHistoryRestoresNestedChild);
+		yield return new ScxmlTestCase(Name: "History/Deep/DeepHistoryDefaultTransition", DeepHistoryDefaultTransition);
 	}
+
+#endregion
 }

@@ -1,24 +1,23 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using Xtate.Ancestor;
 using Xtate.DataModel;
 using Xtate.DataModel.Null.Services;
-using Xtate.DataModel.Services;
 using Xtate.StateMachine;
 using Xtate.StateMachine.Validator;
 
@@ -41,7 +40,7 @@ public class NullDataModelHandlerCoverageTest
 
 		var evaluator = (NullConditionExpressionEvaluator) conditionExpression;
 
-		Assert.AreEqual("In(active)", evaluator.Expression);
+		Assert.AreEqual(expected: "In(active)", evaluator.Expression);
 		Assert.IsInstanceOfType<IBooleanEvaluator>(evaluator);
 		Assert.AreSame(source, ((IAncestorProvider) evaluator).Ancestor);
 		Assert.IsTrue(await ((IBooleanEvaluator) evaluator).EvaluateBoolean());
@@ -100,9 +99,9 @@ public class NullDataModelHandlerCoverageTest
 			   {
 				   NullErrorProcessorService = errorProcessor,
 				   NullConditionExpressionEvaluatorFactory = (expression, state) => new NullConditionExpressionEvaluator(expression, state)
-																				  {
-																					  InStateControllerFactory = () => new ValueTask<IInStateController?>(inStateController)
-																				  },
+																					{
+																						InStateControllerFactory = () => new ValueTask<IInStateController?>(inStateController)
+																					},
 				   DefaultLogEvaluatorFactory = _ => null!,
 				   DefaultSendEvaluatorFactory = _ => null!,
 				   DefaultCancelEvaluatorFactory = _ => null!,
@@ -130,21 +129,35 @@ public class NullDataModelHandlerCoverageTest
 
 	private sealed class ConditionExpressionSource(string expression) : IConditionExpression
 	{
+	#region Interface IConditionExpression
+
 		public string? Expression => expression;
+
+	#endregion
 	}
 
 	private sealed class ValueExpressionSource(string expression) : IValueExpression
 	{
+	#region Interface IValueExpression
+
 		public string? Expression => expression;
+
+	#endregion
 	}
 
 	private sealed class LocationExpressionSource(string expression) : ILocationExpression
 	{
+	#region Interface ILocationExpression
+
 		public string? Expression => expression;
+
+	#endregion
 	}
 
 	private sealed class ForEachSource : IForEach
 	{
+	#region Interface IForEach
+
 		public IValueExpression? Array => null;
 
 		public ILocationExpression? Item => null;
@@ -152,24 +165,38 @@ public class NullDataModelHandlerCoverageTest
 		public ILocationExpression? Index => null;
 
 		public ImmutableArray<IExecutableEntity> Action => [];
+
+	#endregion
 	}
 
 	private sealed class ScriptSource : IScript
 	{
+	#region Interface IScript
+
 		public IScriptExpression? Content => null;
 
 		public IExternalScriptExpression? Source => null;
+
+	#endregion
 	}
 
 	private sealed class DataModelSource : IDataModel
 	{
+	#region Interface IDataModel
+
 		public ImmutableArray<IData> Data => [];
+
+	#endregion
 	}
 
 	private sealed class DoneDataSource : IDoneData
 	{
+	#region Interface IDoneData
+
 		public IContent? Content => null;
 
 		public ImmutableArray<IParam> Parameters => [];
+
+	#endregion
 	}
 }

@@ -72,8 +72,8 @@ public class HistoryTypeTest
 		var deepStr = HistoryType.Deep.ToString();
 
 		// Assert
-		Assert.AreEqual("Shallow", shallowStr);
-		Assert.AreEqual("Deep", deepStr);
+		Assert.AreEqual(expected: "Shallow", shallowStr);
+		Assert.AreEqual(expected: "Deep", deepStr);
 	}
 
 	[TestMethod]
@@ -83,7 +83,7 @@ public class HistoryTypeTest
 		var values = Enum.GetValues(typeof(HistoryType));
 
 		// Assert
-		Assert.AreEqual(2, values.Length);
+		Assert.AreEqual(expected: 2, values.Length);
 	}
 
 	[TestMethod]
@@ -93,7 +93,7 @@ public class HistoryTypeTest
 		var names = Enum.GetNames(typeof(HistoryType));
 
 		// Assert
-		Assert.AreEqual(2, names.Length);
+		Assert.AreEqual(expected: 2, names.Length);
 		Assert.IsTrue(names.Contains("Shallow"));
 		Assert.IsTrue(names.Contains("Deep"));
 	}
@@ -120,7 +120,7 @@ public class HistoryTypeTest
 		var deepInt = (int) HistoryType.Deep;
 
 		// Assert
-		Assert.AreEqual(0, shallowInt);
-		Assert.AreEqual(1, deepInt);
+		Assert.AreEqual(expected: 0, shallowInt);
+		Assert.AreEqual(expected: 1, deepInt);
 	}
 }

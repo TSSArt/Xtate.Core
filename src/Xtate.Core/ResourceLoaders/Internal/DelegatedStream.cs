@@ -15,9 +15,12 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.Buffers;
 using System.IO;
+#if !NETCOREAPP2_1_OR_GREATER && !NETSTANDARD2_1
+using System.Buffers;
 using System.Runtime.InteropServices;
+
+#endif
 
 namespace Xtate.ResourceLoaders.Internal;
 

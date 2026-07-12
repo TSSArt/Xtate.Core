@@ -20,43 +20,47 @@ namespace Xtate.Test.StateMachines.Basic;
 public class InitialMachines : IScxmlTestSource
 {
 	public static readonly string RootInitialAttribute = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="start">
-		  <state id="start">
-			<transition target="done"/>
-		  </state>
-		  <final id="done"/>
-		</scxml>
-		""";
+														 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="start">
+														   <state id="start">
+														 	<transition target="done"/>
+														   </state>
+														   <final id="done"/>
+														 </scxml>
+														 """;
 
 	public static readonly string DefaultInitialChild = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
-		  <state id="parent" initial="child1">
-			<state id="child1">
-			  <transition target="done"/>
-			</state>
-			<state id="child2"/>
-		  </state>
-		  <final id="done"/>
-		</scxml>
-		""";
+														<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+														  <state id="parent" initial="child1">
+															<state id="child1">
+															  <transition target="done"/>
+															</state>
+															<state id="child2"/>
+														  </state>
+														  <final id="done"/>
+														</scxml>
+														""";
 
 	public static readonly string RootNameAndDatamodel = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" name="RootName" datamodel="null" initial="done">
-		  <final id="done"/>
-		</scxml>
-		""";
+														 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" name="RootName" datamodel="null" initial="done">
+														   <final id="done"/>
+														 </scxml>
+														 """;
 
 	public static readonly string RootBindingEarly = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" binding="early" initial="done">
-		  <final id="done"/>
-		</scxml>
-		""";
+													 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" binding="early" initial="done">
+													   <final id="done"/>
+													 </scxml>
+													 """;
+
+#region Interface IScxmlTestSource
 
 	public IEnumerable<ScxmlTestCase> GetTestCases()
 	{
-		yield return new ScxmlTestCase("Basic/Initial/RootInitialAttribute", RootInitialAttribute);
-		yield return new ScxmlTestCase("Basic/Initial/DefaultInitialChild", DefaultInitialChild);
-		yield return new ScxmlTestCase("Basic/Initial/RootNameAndDatamodel", RootNameAndDatamodel);
-		yield return new ScxmlTestCase("Basic/Initial/RootBindingEarly", RootBindingEarly);
+		yield return new ScxmlTestCase(Name: "Basic/Initial/RootInitialAttribute", RootInitialAttribute);
+		yield return new ScxmlTestCase(Name: "Basic/Initial/DefaultInitialChild", DefaultInitialChild);
+		yield return new ScxmlTestCase(Name: "Basic/Initial/RootNameAndDatamodel", RootNameAndDatamodel);
+		yield return new ScxmlTestCase(Name: "Basic/Initial/RootBindingEarly", RootBindingEarly);
 	}
+
+#endregion
 }

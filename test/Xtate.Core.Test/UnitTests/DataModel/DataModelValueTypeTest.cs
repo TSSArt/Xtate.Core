@@ -128,9 +128,9 @@ public class DataModelValueTypeTest
 		var stringStr = DataModelValueType.String.ToString();
 
 		// Assert
-		Assert.AreEqual("Undefined", undefinedStr);
-		Assert.AreEqual("Null", nullStr);
-		Assert.AreEqual("String", stringStr);
+		Assert.AreEqual(expected: "Undefined", undefinedStr);
+		Assert.AreEqual(expected: "Null", nullStr);
+		Assert.AreEqual(expected: "String", stringStr);
 	}
 
 	[TestMethod]
@@ -140,7 +140,7 @@ public class DataModelValueTypeTest
 		var values = Enum.GetValues(typeof(DataModelValueType));
 
 		// Assert
-		Assert.AreEqual(7, values.Length);
+		Assert.AreEqual(expected: 7, values.Length);
 	}
 
 	[TestMethod]
@@ -150,7 +150,7 @@ public class DataModelValueTypeTest
 		var names = Enum.GetNames(typeof(DataModelValueType));
 
 		// Assert
-		Assert.AreEqual(7, names.Length);
+		Assert.AreEqual(expected: 7, names.Length);
 		Assert.IsTrue(names.Contains("Undefined"));
 		Assert.IsTrue(names.Contains("Null"));
 		Assert.IsTrue(names.Contains("String"));

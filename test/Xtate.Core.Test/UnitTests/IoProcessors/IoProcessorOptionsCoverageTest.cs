@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using System.Threading;
 using Xtate.IoProcessors.Http;
 using Xtate.IoProcessors.NamedPipe;
 
@@ -34,9 +35,9 @@ public class IoProcessorOptionsCoverageTest
 						  Timeout = TimeSpan.FromSeconds(5)
 					  };
 
-		Assert.AreEqual("http://localhost:8080/", options.ListenUrl);
-		Assert.AreEqual("https://example.test/base/", options.PublicBaseUrl);
-		Assert.AreEqual(1024, options.MaxMessageSize);
+		Assert.AreEqual(expected: "http://localhost:8080/", options.ListenUrl);
+		Assert.AreEqual(expected: "https://example.test/base/", options.PublicBaseUrl);
+		Assert.AreEqual(expected: 1024, options.MaxMessageSize);
 		Assert.AreEqual(TimeSpan.FromSeconds(5), options.Timeout);
 	}
 
@@ -45,14 +46,14 @@ public class IoProcessorOptionsCoverageTest
 	{
 		var options = new HttpIoProcessorOptions();
 
-		Assert.AreEqual("http://notexist.invalid/", options.PublicBaseUrl);
-		Assert.AreEqual(0, options.MaxMessageSize);
-		Assert.AreEqual(System.Threading.Timeout.InfiniteTimeSpan, options.Timeout);
+		Assert.AreEqual(expected: "http://notexist.invalid/", options.PublicBaseUrl);
+		Assert.AreEqual(expected: 0, options.MaxMessageSize);
+		Assert.AreEqual(Timeout.InfiniteTimeSpan, options.Timeout);
 
 		Assert.ThrowsExactly<InvalidOperationException>(() => options.ListenUrl = null);
 		Assert.ThrowsExactly<InvalidOperationException>(() => options.PublicBaseUrl = null!);
 		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => options.MaxMessageSize = -1);
-		Assert.ThrowsExactly<ArgumentException>(() => options.Timeout = System.Threading.Timeout.InfiniteTimeSpan - TimeSpan.FromMilliseconds(1));
+		Assert.ThrowsExactly<ArgumentException>(() => options.Timeout = Timeout.InfiniteTimeSpan - TimeSpan.FromMilliseconds(1));
 	}
 
 	[TestMethod]
@@ -66,9 +67,9 @@ public class IoProcessorOptionsCoverageTest
 						  Timeout = TimeSpan.FromSeconds(10)
 					  };
 
-		Assert.AreEqual("localhost", options.Host);
-		Assert.AreEqual("PipeName123", options.Name);
-		Assert.AreEqual(2048, options.MaxMessageSize);
+		Assert.AreEqual(expected: "localhost", options.Host);
+		Assert.AreEqual(expected: "PipeName123", options.Name);
+		Assert.AreEqual(expected: 2048, options.MaxMessageSize);
 		Assert.AreEqual(TimeSpan.FromSeconds(10), options.Timeout);
 	}
 
@@ -77,10 +78,10 @@ public class IoProcessorOptionsCoverageTest
 	{
 		var options = new NamedPipeIoProcessorOptions();
 
-		Assert.AreEqual(".", options.Host);
+		Assert.AreEqual(expected: ".", options.Host);
 		Assert.IsNull(options.Name);
-		Assert.AreEqual(0, options.MaxMessageSize);
-		Assert.AreEqual(System.Threading.Timeout.InfiniteTimeSpan, options.Timeout);
+		Assert.AreEqual(expected: 0, options.MaxMessageSize);
+		Assert.AreEqual(Timeout.InfiniteTimeSpan, options.Timeout);
 
 		Assert.ThrowsExactly<ArgumentException>(() => options.Host = string.Empty);
 		Assert.ThrowsExactly<ArgumentException>(() => options.Name = string.Empty);
@@ -88,6 +89,6 @@ public class IoProcessorOptionsCoverageTest
 		Assert.ThrowsExactly<ArgumentException>(() => options.Name = "..");
 		Assert.ThrowsExactly<ArgumentException>(() => options.Name = "contains space");
 		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => options.MaxMessageSize = -1);
-		Assert.ThrowsExactly<ArgumentException>(() => options.Timeout = System.Threading.Timeout.InfiniteTimeSpan - TimeSpan.FromMilliseconds(1));
+		Assert.ThrowsExactly<ArgumentException>(() => options.Timeout = Timeout.InfiniteTimeSpan - TimeSpan.FromMilliseconds(1));
 	}
 }

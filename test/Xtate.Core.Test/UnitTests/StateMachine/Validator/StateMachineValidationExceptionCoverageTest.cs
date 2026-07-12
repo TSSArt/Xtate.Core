@@ -15,7 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.Collections.Immutable;
 using Xtate.StateMachine;
 using Xtate.StateMachine.Validator;
 
@@ -31,39 +30,39 @@ public class StateMachineValidationExceptionCoverageTest
 		var exception = new StateMachineValidationException(ImmutableArray<ErrorItem>.Empty, sessionId);
 
 		Assert.AreSame(sessionId, exception.SessionId);
-		Assert.AreEqual(0, exception.ValidationMessages.Length);
+		Assert.AreEqual(expected: 0, exception.ValidationMessages.Length);
 		StringAssert.Contains(exception.Message, nameof(StateMachineValidationException));
 	}
 
 	[TestMethod]
 	public void SingleValidationMessageUsesErrorItemText()
 	{
-		var error = new ErrorItem(typeof(StateMachineValidationExceptionCoverageTest), "single error", new InvalidOperationException("boom"), lineNumber: 3, linePosition: 7);
+		var error = new ErrorItem(typeof(StateMachineValidationExceptionCoverageTest), message: "single error", new InvalidOperationException("boom"), lineNumber: 3, linePosition: 7);
 		var exception = new StateMachineValidationException([error]);
 
 		Assert.IsNull(exception.SessionId);
 		Assert.AreSame(error, exception.ValidationMessages[0]);
-		StringAssert.Contains(exception.Message, "Error");
+		StringAssert.Contains(exception.Message, substring: "Error");
 		StringAssert.Contains(exception.Message, nameof(StateMachineValidationExceptionCoverageTest));
-		StringAssert.Contains(exception.Message, "Ln: 3");
-		StringAssert.Contains(exception.Message, "Col: 7");
-		StringAssert.Contains(exception.Message, "single error");
-		StringAssert.Contains(exception.Message, "Exception ==>");
+		StringAssert.Contains(exception.Message, substring: "Ln: 3");
+		StringAssert.Contains(exception.Message, substring: "Col: 7");
+		StringAssert.Contains(exception.Message, substring: "single error");
+		StringAssert.Contains(exception.Message, substring: "Exception ==>");
 	}
 
 	[TestMethod]
 	public void MultipleValidationMessagesAreNumberedAndSeparatedByLines()
 	{
-		var first = new ErrorItem(typeof(string), "first error", exception: null);
-		var second = new ErrorItem(typeof(int), "second error", exception: null, lineNumber: 5, linePosition: 9);
+		var first = new ErrorItem(typeof(string), message: "first error", exception: null);
+		var second = new ErrorItem(typeof(int), message: "second error", exception: null, lineNumber: 5, linePosition: 9);
 
 		var exception = new StateMachineValidationException([first, second]);
 
-		Assert.AreEqual(2, exception.ValidationMessages.Length);
-		StringAssert.Contains(exception.Message, "1");
-		StringAssert.Contains(exception.Message, "2");
-		StringAssert.Contains(exception.Message, "first error");
-		StringAssert.Contains(exception.Message, "second error");
+		Assert.AreEqual(expected: 2, exception.ValidationMessages.Length);
+		StringAssert.Contains(exception.Message, substring: "1");
+		StringAssert.Contains(exception.Message, substring: "2");
+		StringAssert.Contains(exception.Message, substring: "first error");
+		StringAssert.Contains(exception.Message, substring: "second error");
 		StringAssert.Contains(exception.Message, Environment.NewLine);
 	}
 }

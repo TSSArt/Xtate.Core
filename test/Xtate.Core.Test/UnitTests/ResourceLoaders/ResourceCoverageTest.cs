@@ -19,7 +19,6 @@ using System.IO;
 using System.Net.Mime;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using Xtate.ResourceLoaders;
 using Xtate.ResourceLoaders.Extensions;
 using Xtate.ResourceLoaders.Internal;
@@ -55,7 +54,7 @@ public class ResourceCoverageTest
 
 		CollectionAssert.AreEqual(bytes, await resource.GetBytes());
 		Assert.AreEqual(Encoding.UTF8, resource.Encoding);
-		Assert.AreEqual("cached text", await resource.GetContent());
+		Assert.AreEqual(expected: "cached text", await resource.GetContent());
 
 		using var stream = await resource.GetStream(doNotCache: true);
 
@@ -72,7 +71,7 @@ public class ResourceCoverageTest
 		var stream = await resource.GetStream(doNotCache: true);
 
 		Assert.AreSame(source, stream);
-		Assert.AreEqual(1, stream.ReadByte());
+		Assert.AreEqual(expected: 1, stream.ReadByte());
 	}
 
 	[TestMethod]
@@ -85,7 +84,7 @@ public class ResourceCoverageTest
 		await Assert.ThrowsExactlyAsync<ObjectDisposedException>(async () => await resource.GetBytes());
 		await Assert.ThrowsExactlyAsync<ObjectDisposedException>(async () => await resource.GetContent());
 		await Assert.ThrowsExactlyAsync<ObjectDisposedException>(async () => await resource.GetStream(doNotCache: false));
-		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage] () => _ = new Resource(null!, contentType: null));
+		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => _ = new Resource(null!, contentType: null));
 	}
 
 	[TestMethod]
@@ -98,7 +97,7 @@ public class ResourceCoverageTest
 		using var cancellationTokenSource = new CancellationTokenSource();
 		cancellationTokenSource.Cancel();
 
-		Assert.ThrowsExactly<OperationCanceledException>([ExcludeFromCodeCoverage] () => new NonSeekableStream([1]).ReadToEnd(cancellationTokenSource.Token));
+		Assert.ThrowsExactly<OperationCanceledException>([ExcludeFromCodeCoverage]() => new NonSeekableStream([1]).ReadToEnd(cancellationTokenSource.Token));
 		await Assert.ThrowsExactlyAsync<TaskCanceledException>([ExcludeFromCodeCoverage] async () => await new TokenObservingStream([1]).ReadToEndAsync(cancellationTokenSource.Token));
 	}
 
@@ -110,7 +109,7 @@ public class ResourceCoverageTest
 
 		var externallyCanceledStream = new InjectedCancellationStream(new TokenObservingStream([1]), externalCancellation.Token);
 
-		await Assert.ThrowsExactlyAsync<TaskCanceledException>(async () => await externallyCanceledStream.ReadAsync(new byte[1], 0, 1, CancellationToken.None));
+		await Assert.ThrowsExactlyAsync<TaskCanceledException>(async () => await externallyCanceledStream.ReadAsync(new byte[1], offset: 0, count: 1, CancellationToken.None));
 
 		using var perCallCancellation = new CancellationTokenSource();
 		perCallCancellation.Cancel();
@@ -118,7 +117,7 @@ public class ResourceCoverageTest
 		var linkedTokenInnerStream = new TokenObservingStream([1]);
 		var linkedStream = new InjectedCancellationStream(linkedTokenInnerStream, CancellationToken.None);
 
-		await Assert.ThrowsExactlyAsync<TaskCanceledException>(async () => await linkedStream.WriteAsync([1], 0, 1, perCallCancellation.Token));
+		await Assert.ThrowsExactlyAsync<TaskCanceledException>(async () => await linkedStream.WriteAsync([1], offset: 0, count: 1, perCallCancellation.Token));
 		Assert.IsTrue(linkedTokenInnerStream.LastWriteToken.IsCancellationRequested);
 	}
 
@@ -132,13 +131,17 @@ public class ResourceCoverageTest
 		public CancellationToken LastWriteToken { get; private set; }
 
 		[ExcludeFromCodeCoverage]
-		public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-		{
-			return cancellationToken.IsCancellationRequested ? Task.FromCanceled<int>(cancellationToken) : base.ReadAsync(buffer, offset, count, cancellationToken);
-		}
+		public override Task<int> ReadAsync(byte[] buffer,
+											int offset,
+											int count,
+											CancellationToken cancellationToken) =>
+			cancellationToken.IsCancellationRequested ? Task.FromCanceled<int>(cancellationToken) : base.ReadAsync(buffer, offset, count, cancellationToken);
 
 		[ExcludeFromCodeCoverage]
-		public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+		public override Task WriteAsync(byte[] buffer,
+										int offset,
+										int count,
+										CancellationToken cancellationToken)
 		{
 			LastWriteToken = cancellationToken;
 

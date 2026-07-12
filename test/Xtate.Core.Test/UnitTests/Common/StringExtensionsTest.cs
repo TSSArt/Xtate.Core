@@ -15,8 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate;
-
 namespace Xtate.Test;
 
 [TestClass]
@@ -45,7 +43,7 @@ public class StringExtensionsTest
 		var result = input.NormalizeSpaces();
 
 		// Assert
-		Assert.AreEqual("", result);
+		Assert.AreEqual(expected: "", result);
 	}
 
 	[TestMethod]
@@ -72,7 +70,7 @@ public class StringExtensionsTest
 		var result = input.NormalizeSpaces();
 
 		// Assert
-		Assert.AreEqual("hello", result);
+		Assert.AreEqual(expected: "hello", result);
 	}
 
 	[TestMethod]
@@ -85,7 +83,7 @@ public class StringExtensionsTest
 		var result = input.NormalizeSpaces();
 
 		// Assert
-		Assert.AreEqual("hello", result);
+		Assert.AreEqual(expected: "hello", result);
 	}
 
 	[TestMethod]
@@ -98,7 +96,7 @@ public class StringExtensionsTest
 		var result = input.NormalizeSpaces();
 
 		// Assert
-		Assert.AreEqual("hello world", result);
+		Assert.AreEqual(expected: "hello world", result);
 	}
 
 	[TestMethod]
@@ -111,7 +109,7 @@ public class StringExtensionsTest
 		var result = input.NormalizeSpaces();
 
 		// Assert
-		Assert.AreEqual("hello world", result);
+		Assert.AreEqual(expected: "hello world", result);
 	}
 
 	[TestMethod]
@@ -124,7 +122,7 @@ public class StringExtensionsTest
 		var result = input.NormalizeSpaces();
 
 		// Assert
-		Assert.AreEqual("hello world foo", result);
+		Assert.AreEqual(expected: "hello world foo", result);
 	}
 
 	[TestMethod]
@@ -137,7 +135,7 @@ public class StringExtensionsTest
 		var result = input.NormalizeSpaces();
 
 		// Assert
-		Assert.AreEqual("", result);
+		Assert.AreEqual(expected: "", result);
 	}
 
 	[TestMethod]
@@ -150,7 +148,7 @@ public class StringExtensionsTest
 		var result = input.NormalizeSpaces();
 
 		// Assert
-		Assert.AreEqual("The quick brown fox jumps", result);
+		Assert.AreEqual(expected: "The quick brown fox jumps", result);
 	}
 
 	[TestMethod]

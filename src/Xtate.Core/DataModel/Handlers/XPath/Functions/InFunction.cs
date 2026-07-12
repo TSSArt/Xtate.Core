@@ -26,7 +26,7 @@ public class InFunction() : XPathFunctionBase(XPathResultType.Boolean, XPathResu
 	[InstantiatedByIoC]
 	public class Provider() : XPathFunctionProviderBase<InFunction>(string.Empty, name: @"In");
 
-	private IInStateController _inStateController;
+	private IInStateController? _inStateController;
 
 	public required Func<ValueTask<IInStateController>> InStateControllerFactory { private get; [SetByIoC] init; }
 
@@ -53,7 +53,7 @@ public class InFunction() : XPathFunctionBase(XPathResultType.Boolean, XPathResu
 
 			do
 			{
-				if (!InState(iterator.Current?.Value))
+				if (!InState(iterator.Current!.Value))
 				{
 					return false;
 				}
@@ -66,5 +66,10 @@ public class InFunction() : XPathFunctionBase(XPathResultType.Boolean, XPathResu
 		return false;
 	}
 
-	private bool InState(string stateId) => !string.IsNullOrEmpty(stateId) && _inStateController.InState((Identifier) stateId);
+	private bool InState(string stateId)
+	{
+		Infra.NotNull(_inStateController);
+
+		return !string.IsNullOrEmpty(stateId) && _inStateController.InState((Identifier) stateId);
+	}
 }

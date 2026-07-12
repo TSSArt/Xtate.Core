@@ -9,8 +9,8 @@ Use this file to track unit-test coverage progress. Mark a class as covered only
 
 - Baseline classes requiring coverage: 461
 - Covered: 0
-- In progress / tests added, coverage not yet verified: 184
-- Not started: 277
+- In progress / tests added, coverage not yet verified: 204
+- Not started: 257
 - Remaining not fully verified: 461
 
 ## Legend
@@ -72,11 +72,11 @@ Use this file to track unit-test coverage progress. Mark a class as covered only
 | [~] | `Xtate.ResourceLoaders.Extensions.StreamExtensions` | 2.7 | 2.99 | 36 | 0 | 65 | 3 | `ResourceCoverageTest` added; rerun coverage to verify. |
 | [ ] | `Xtate.Persistence.Services.SharedMemoryStreams<TKey>` | 20 | 23.61 | 36 | 0 | 55 | 7 |  |
 | [ ] | `Xtate.Actions.System.StartAction` | 50.62 | 60.45 | 36 | 8 | 53 | 6 |  |
-| [ ] | `Xtate.IoProcessors.NamedPipe.NamedPipeEventMessage` | 0 | 0 | 36 | 0 | 52 | 3 |  |
+| [~] | `Xtate.IoProcessors.NamedPipe.NamedPipeEventMessage` | 0 | 0 | 36 | 0 | 52 | 3 | Round-trip, event-field, invalid metadata, and ignored InvokeId regression coverage added in `PersistedEventCoverageTest`. |
 | [~] | `Xtate.DataTypes.DataModelList.KeyValueByKeyEnumerator` | 0 | 0 | 36 | 0 | 34 | 5 | `DataModelListCoverageTest` added; rerun coverage to verify. |
 | [ ] | `Xtate.Persistence.Services.KeyListPersistingController<T>` | 31 | 21.79 | 34 | 1 | 61 | 3 |  |
 | [~] | `Xtate.Persistence.Internal.Encode` | 50.74 | 31.62 | 33 | 1 | 80 | 5 | `EncodeCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.Persistence.PersistedRouterEvent` | 0 | 0 | 33 | 0 | 66 | 2 |  |
+| [~] | `Xtate.Persistence.PersistedRouterEvent` | 0 | 0 | 33 | 0 | 66 | 2 | Round-trip, optional target, invalid metadata, and ignored target-key regression coverage added in `PersistedEventCoverageTest`. |
 | [ ] | `Xtate.Actions.System.DestroyAction` | 0 | 0 | 32 | 0 | 55 | 4 |  |
 | [ ] | `Xtate.StateMachineHost.Services.ExternalServiceCollection` | 3.03 | 6.25 | 32 | 0 | 45 | 5 |  |
 | [ ] | `Xtate.IoProcessors.Http.Services.HttpIoProcessorHost` | 0 | 0 | 32 | 0 | 44 | 6 |  |
@@ -88,7 +88,7 @@ Use this file to track unit-test coverage progress. Mark a class as covered only
 | [ ] | `Xtate.Persistence.Services.DataModelListPersistingController` | 87.7 | 86.38 | 30 | 2 | 41 | 11 |  |
 | [~] | `Xtate.DataTypes.DataModelList.ValueByKeyEnumerator` | 0 | 0 | 30 | 0 | 36 | 6 | `DataModelListCoverageTest` added; rerun coverage to verify. |
 | [ ] | `Xtate.IoProcessors.IoProcessorHostBase` | 0 | 0 | 29 | 0 | 50 | 7 |  |
-| [ ] | `Xtate.IoProcessors.NamedPipe.NamedPipeResponseMessage` | 0 | 0 | 29 | 0 | 44 | 4 |  |
+| [~] | `Xtate.IoProcessors.NamedPipe.NamedPipeResponseMessage` | 0 | 0 | 29 | 0 | 44 | 4 | Success/exception round-trips, optional fields, and invalid metadata covered in `PersistedEventCoverageTest`. |
 | [ ] | `Xtate.Persistence.Services.StreamStorage` | 85.45 | 87.97 | 29 | 6 | 35 | 17 |  |
 | [~] | `Xtate.ExternalServices.ExternalServiceBase` | 0 | 0 | 27 | 0 | 42 | 8 | `CommunicationAndUtilityCoverageTest` added for IoC-set source/parameters/token/task monitor, lazy result, and dispatch paths; rerun coverage to verify. |
 | [ ] | `Xtate.Persistence.Services.StateMachineReader` | 62.19 | 81.78 | 26 | 249 | 133 | 43 |  |
@@ -104,13 +104,13 @@ Use this file to track unit-test coverage progress. Mark a class as covered only
 | [ ] | `Xtate.StateMachineHost.Services.ExternalServiceGlobalCollection` | 4 | 10.71 | 24 | 0 | 25 | 5 |  |
 | [ ] | `Xtate.ResourceLoaders.Web.Services.WebResourceLoader` | 0 | 0 | 23 | 0 | 58 | 2 |  |
 | [ ] | `Xtate.StateMachineHost.Services.ExternalServiceFactory` | 0 | 0 | 23 | 0 | 44 | 2 |  |
-| [ ] | `Xtate.Persistence.PersistedIncomingEvent` | 0 | 0 | 23 | 0 | 41 | 2 |  |
+| [~] | `Xtate.Persistence.PersistedIncomingEvent` | 0 | 0 | 23 | 0 | 41 | 2 | Event-field round-trip, invalid metadata, and ignored InvokeId regression coverage added in `PersistedEventCoverageTest`. |
 | [~] | `Xtate.StateMachineHost.RouterEvent` | 0 | 0 | 23 | 0 | 27 | 3 | `CommunicationAndUtilityCoverageTest` added for outgoing-event copy and routing fields; rerun coverage to verify. |
 | [ ] | `Xtate.StateMachine.Services.StateMachineVisitor` | 96.62 | 92.49 | 22 | 20 | 72 | 148 |  |
 | [ ] | `Xtate.StateMachine.Services.StateMachineVisitor.TrackList<T>` | 52.13 | 46.74 | 22 | 1 | 49 | 11 |  |
 | [ ] | `Xtate.DataModel.XPath.Services.XPathForEachEvaluator` | 0 | 0 | 22 | 0 | 38 | 2 |  |
 | [~] | `Xtate.StateMachine.Internal.SegmentedName` | 60.32 | 72.65 | 22 | 6 | 32 | 5 | `SegmentedNameCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.Interpreter.Services.OutgoingEventEntityParser` | 0 | 0 | 22 | 0 | 28 | 1 |  |
+| [~] | `Xtate.Interpreter.Services.OutgoingEventEntityParser` | 0 | 0 | 22 | 0 | 28 | 1 | Populated/default property enumeration, handler level, and incompatible entity behavior covered in `InterpreterServiceCoverageTest`. |
 | [ ] | `Xtate.Scxml.Services.XmlDirector.PolicyBuilder<TDirector, TEntity>` | 75.28 | 69.66 | 22 | 0 | 27 | 19 |  |
 | [ ] | `Xtate.IoBoundTask.Services.IoBoundTaskScheduler` | 81.25 | 80.31 | 22 | 1 | 25 | 13 |  |
 | [ ] | `Xtate.Scxml.Services.DelegatedXmlReader` | 54.35 | 50.35 | 21 | 0 | 70 | 45 |  |
@@ -137,7 +137,7 @@ Use this file to track unit-test coverage progress. Mark a class as covered only
 | [~] | `Xtate.FullUri` | 16.67 | 13.33 | 15 | 0 | 39 | 11 | `FullUriCoverageTest` added; rerun coverage to verify. |
 | [ ] | `Xtate.StateMachineFluentBuilder.StateMachineFluentBuilder` | 61.54 | 61.45 | 15 | 0 | 32 | 15 |  |
 | [~] | `Xtate.DataModel.Services.DataConverter` | 78.71 | 84.54 | 15 | 13 | 30 | 11 | `DataConverterAndForEachCoverageTest` added for content, params, resource, event, and exception conversion paths; rerun coverage to verify. |
-| [ ] | `Xtate.StateMachine.InvokeEntity` | 44.44 | 59.38 | 15 | 0 | 26 | 4 |  |
+| [~] | `Xtate.StateMachine.InvokeEntity` | 44.44 | 59.38 | 15 | 0 | 26 | 4 | All source properties, ancestor/debug identity, and matching/differing reference comparisons covered in `StateMachineEntityStructuresCoverageTest`. |
 | [ ] | `Xtate.DataModel.XPath.Internal.NodeAdapter` | 42.59 | 38.46 | 15 | 1 | 16 | 15 |  |
 | [~] | `Xtate.DataTypes.DataModelList.EntryByKeyEnumerator` | 56.94 | 57.69 | 15 | 1 | 11 | 6 | `DataModelListCoverageTest` added; rerun coverage to verify. |
 | [ ] | `Xtate.StateMachineFluentBuilder.FinalFluentBuilder<TOuterBuilder>` | 57.58 | 50 | 14 | 0 | 30 | 13 |  |
@@ -148,8 +148,8 @@ Use this file to track unit-test coverage progress. Mark a class as covered only
 | [ ] | `Xtate.StateMachineHost.Services.IoProcessorBase` | 25 | 34.62 | 13 | 1 | 34 | 14 |  |
 | [~] | `Xtate.DataModel.Services.DefaultExternalDataExpressionEvaluator` | 0 | 0 | 13 | 0 | 31 | 3 | `DataModelServiceCoverageTest` added for resource-loader and data-converter evaluation path; rerun coverage to verify. |
 | [ ] | `Xtate.IoProcessors.Http.Services.HttpIoProcessor` | 0 | 0 | 13 | 0 | 27 | 4 |  |
-| [ ] | `Xtate.StateMachine.StateEntity` | 43.48 | 62.07 | 13 | 0 | 22 | 4 |  |
-| [ ] | `Xtate.StateMachine.ParallelEntity` | 38.1 | 60.38 | 13 | 0 | 21 | 4 |  |
+| [~] | `Xtate.StateMachine.StateEntity` | 43.48 | 62.07 | 13 | 0 | 22 | 4 | All source properties, ancestor/debug identity, and matching/differing reference comparisons covered in `StateMachineEntityStructuresCoverageTest`. |
+| [~] | `Xtate.StateMachine.ParallelEntity` | 38.1 | 60.38 | 13 | 0 | 21 | 4 | All source properties, ancestor/debug identity, and matching/differing reference comparisons covered in `StateMachineEntityStructuresCoverageTest`. |
 | [ ] | `Xtate.StateMachineHost.Services.StateMachineCollection` | 58.06 | 54.76 | 13 | 0 | 19 | 6 |  |
 | [~] | `Xtate.StateMachine.Validator.StateMachineValidationException` | 40.91 | 39.29 | 13 | 0 | 17 | 2 | `StateMachineValidationExceptionCoverageTest` added; rerun coverage to verify. |
 | [ ] | `Xtate.StateMachineHost.Services.StateMachineDestroyOnIdle.StateTracker` | 58.06 | 73.81 | 13 | 0 | 11 | 6 |  |
@@ -158,15 +158,15 @@ Use this file to track unit-test coverage progress. Mark a class as covered only
 | [ ] | `Xtate.StateMachineHost.Services.ExternalEventDispatcher` | 0 | 0 | 12 | 0 | 26 | 1 |  |
 | [ ] | `Xtate.Scxml.Services.XmlDirector<TDirector>` | 73.88 | 73.63 | 12 | 11 | 24 | 14 |  |
 | [ ] | `Xtate.IoC.TransformArgs.Services.ServiceFactoryNewArgsSync<T, TArg, TNewArg>` | 0 | 0 | 12 | 0 | 21 | 1 |  |
-| [ ] | `Xtate.Logging.Provider.LoggingParameter` | 78.07 | 79.78 | 12 | 1 | 18 | 6 |  |
+| [~] | `Xtate.Logging.Provider.LoggingParameter` | 78.07 | 79.78 | 12 | 1 | 18 | 6 | Namespace/name/value formatting, span formatting, fallback values, and insufficient-buffer branches covered in `LoggingParameterCoverageTest`. |
 | [~] | `Xtate.Http.JsonHttpContent` | 0 | 0 | 12 | 0 | 16 | 5 | `HttpContentCoverageTest` added; rerun coverage to verify. |
 | [~] | `Xtate.Http.XmlHttpContent` | 0 | 0 | 12 | 0 | 16 | 5 | `HttpContentCoverageTest` added; rerun coverage to verify. |
 | [ ] | `Xtate.StateMachineHost.Services.StateMachineControllerBase` | 67.57 | 73.77 | 12 | 0 | 16 | 8 |  |
-| [ ] | `Xtate.Interpreter.Services.EventEntityParser` | 47.83 | 61.29 | 12 | 0 | 12 | 1 |  |
+| [~] | `Xtate.Interpreter.Services.EventEntityParser` | 47.83 | 61.29 | 12 | 0 | 12 | 1 | All populated event properties, optional omissions, level, and incompatible entity behavior covered in `EntityParserCoverageTest`. |
 | [~] | `Xtate.DataModel.Null.Services.NullDataModelHandler` | 45.45 | 38.78 | 11 | 2 | 30 | 7 | `NullDataModelHandlerCoverageTest` added for valid In-state expression handling and unsupported value/location/foreach/script/data-model/donedata errors; rerun coverage to verify. |
 | [ ] | `Xtate.Scxml.Services.XmlDirector.Policy.ValidationContext<TDirector, TEntity>` | 80.41 | 83.54 | 11 | 7 | 27 | 8 |  |
 | [~] | `Xtate.StateMachine.LazyId` | 80.33 | 76.92 | 11 | 2 | 21 | 15 | `LazyIdCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.StateMachine.StateMachineEntity` | 42.11 | 54.35 | 11 | 0 | 21 | 4 |  |
+| [~] | `Xtate.StateMachine.StateMachineEntity` | 42.11 | 54.35 | 11 | 0 | 21 | 4 | Source copy, null guard, ancestor/debug identity, and matching/differing reference comparisons covered in `StateMachineEntityStructuresCoverageTest`. |
 | [~] | `Xtate.DataModel.Runtime.Services.RuntimeDataModelHandler` | 62.07 | 42.86 | 11 | 0 | 20 | 5 | `RuntimeAndActionProviderCoverageTest` added for runtime predicate/value/action wrapping and unsupported script/data-model/entity errors; rerun coverage to verify. |
 | [~] | `Xtate.StateMachine.Validator.Services.DetailedErrorProcessor` | 0 | 0 | 11 | 0 | 13 | 3 | `DetailedErrorProcessorCoverageTest` added; rerun coverage to verify. |
 | [ ] | `Xtate.DataModel.XPath.Services.XPathExternalDataExpressionEvaluator` | 0 | 0 | 10 | 0 | 29 | 2 |  |
@@ -175,7 +175,7 @@ Use this file to track unit-test coverage progress. Mark a class as covered only
 | [ ] | `Xtate.ResourceLoaders.File.Services.FileResourceLoader` | 0 | 0 | 10 | 0 | 24 | 3 |  |
 | [ ] | `Xtate.IoProcessors.NamedPipe.Services.NamedPipeIoProcessorHost` | 0 | 0 | 10 | 0 | 21 | 2 |  |
 | [ ] | `Xtate.Persistence.Services.Bucket.DateTimeOffsetValueConverter<TValue>` | 0 | 0 | 10 | 0 | 17 | 3 |  |
-| [ ] | `Xtate.Interpreter.IncomingEvent` | 44.44 | 42.86 | 10 | 0 | 16 | 4 |  |
+| [~] | `Xtate.Interpreter.IncomingEvent` | 44.44 | 42.86 | 10 | 0 | 16 | 4 | Incoming- and outgoing-event copy constructors, copied/default properties, data, and ancestor behavior covered in `EntityParserCoverageTest`. |
 | [ ] | `Xtate.Persistence.PersistedCustomActionNode` | 0 | 0 | 10 | 0 | 16 | 2 |  |
 | [~] | `Xtate.DataTypes.DataModelList.KeyValue` | 30.77 | 3.7 | 9 | 0 | 26 | 7 | `DataModelListCoverageTest` added; rerun coverage to verify. |
 | [ ] | `Xtate.IoC.TransformArgs.Internal.ServiceSelectorAsync<T, TArg>` | 18.18 | 16.13 | 9 | 0 | 26 | 11 |  |
@@ -193,7 +193,7 @@ Use this file to track unit-test coverage progress. Mark a class as covered only
 | [~] | `Xtate.DataModel.Null.Services.NullConditionExpressionEvaluator` | 11.11 | 14.29 | 8 | 0 | 12 | 4 | `NullConditionExpressionEvaluatorCoverageTest` added; rerun coverage to verify. |
 | [~] | `Xtate.StateMachine.DataEntity` | 38.46 | 55.56 | 8 | 0 | 12 | 4 | `StateMachineEntityStructuresCoverageTest` added; rerun coverage to verify. |
 | [~] | `Xtate.StateMachine.HistoryEntity` | 27.27 | 50 | 8 | 0 | 11 | 4 | `StateMachineEntityStructuresCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.Interpreter.Services.InvokeDataEntityParser` | 0 | 0 | 8 | 0 | 10 | 1 |  |
+| [~] | `Xtate.Interpreter.Services.InvokeDataEntityParser` | 0 | 0 | 8 | 0 | 10 | 1 | Invoke type and present/absent source branches covered in `EntityParserCoverageTest`. |
 | [ ] | `Xtate.IoC.TransformArgs.Internal.TransformArgs<T, TArg, TNewArg>` | 69.23 | 62.5 | 8 | 0 | 9 | 2 |  |
 | [~] | `Xtate.DataTypes.DataModelList.KeyValueByKeyEnumerable` | 0 | 0 | 8 | 0 | 7 | 4 | `DataModelListCoverageTest` added; rerun coverage to verify. |
 | [~] | `Xtate.DataTypes.DataModelList.ValueByKeyEnumerable` | 0 | 0 | 8 | 0 | 7 | 4 | `DataModelListCoverageTest` added; rerun coverage to verify. |
@@ -233,10 +233,10 @@ Use this file to track unit-test coverage progress. Mark a class as covered only
 | [ ] | `Xtate.DataModel.DataModelHandlerBase` | 91.67 | 91.49 | 6 | 0 | 8 | 35 |  |
 | [~] | `Xtate.StateMachine.ParamEntity` | 40 | 63.16 | 6 | 0 | 7 | 3 | `StateMachineEntityStructuresCoverageTest` extended; rerun coverage to verify. |
 | [~] | `Xtate.DataTypes.DataModelList.KeyValuePairEnumerator` | 72.73 | 76 | 6 | 0 | 6 | 5 | `DataModelListCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.Interpreter.Services.DataModelValueEntityParser` | 0 | 0 | 6 | 0 | 6 | 1 |  |
+| [~] | `Xtate.Interpreter.Services.DataModelValueEntityParser` | 0 | 0 | 6 | 0 | 6 | 1 | Defined, undefined, and incompatible value behavior covered in `EntityParserCoverageTest`. |
 | [~] | `Xtate.StateMachine.DoneDataEntity` | 25 | 60 | 6 | 0 | 6 | 3 | `StateMachineEntityStructuresCoverageTest` extended; rerun coverage to verify. |
-| [ ] | `Xtate.Interpreter.Services.InvokeIdEntityParser` | 0 | 0 | 6 | 0 | 5 | 1 |  |
-| [ ] | `Xtate.Interpreter.Services.SendIdEntityParser` | 0 | 0 | 6 | 0 | 5 | 1 |  |
+| [~] | `Xtate.Interpreter.Services.InvokeIdEntityParser` | 0 | 0 | 6 | 0 | 5 | 1 | Present and null identifier behavior covered in `EntityParserCoverageTest`. |
+| [~] | `Xtate.Interpreter.Services.SendIdEntityParser` | 0 | 0 | 6 | 0 | 5 | 1 | Present and null identifier behavior covered in `EntityParserCoverageTest`. |
 | [ ] | `JetBrains.Annotations.ContractAnnotationAttribute` | 0 | 0 | 6 | 0 | 4 | 2 |  |
 | [~] | `Xtate.StateMachine.Identifier` | 79.69 | 93.88 | 6 | 1 | 3 | 10 | `TokenAndLazyValueCoverageTest` added; rerun coverage to verify. |
 | [~] | `Xtate.DisposingToken` | 82.35 | 94.29 | 6 | 0 | 2 | 4 | `TokenAndLazyValueCoverageTest` added; rerun coverage to verify. |
@@ -294,7 +294,7 @@ Use this file to track unit-test coverage progress. Mark a class as covered only
 | [~] | `Xtate.DataModel.Runtime.RuntimePredicate` | 55.56 | 55.56 | 4 | 0 | 4 | 3 | `RuntimeAndActionProviderCoverageTest` added for sync/async predicate wrappers and null delegate guards; rerun coverage to verify. |
 | [~] | `Xtate.DataModel.Runtime.RuntimeValue` | 60 | 63.64 | 4 | 0 | 4 | 4 | `RuntimeAndActionProviderCoverageTest` added for constant/sync/async value wrappers and null delegate guards; rerun coverage to verify. |
 | [ ] | `Xtate.Logging.Services.ConsoleLogProvider.ConsoleTraceListener<TSource>` | 33.33 | 66.67 | 4 | 0 | 3 | 3 |  |
-| [ ] | `Xtate.StateMachine.FinalizeEntity` | 33.33 | 62.5 | 4 | 0 | 3 | 3 |  |
+| [~] | `Xtate.StateMachine.FinalizeEntity` | 33.33 | 62.5 | 4 | 0 | 3 | 3 | Action copy, ancestor, and matching/differing reference comparisons covered in `StateMachineEntityStructuresCoverageTest`. |
 | [ ] | `Xtate.Persistence.Services.Bucket` | 94.12 | 90.37 | 3 | 8 | 18 | 15 |  |
 | [ ] | `Xtate.StateMachineHost.Services.ExternalServiceManager` | 0 | 0 | 3 | 0 | 15 | 3 |  |
 | [ ] | `Xtate.ValueTaskExtensions` | 62.5 | 56.25 | 3 | 0 | 14 | 8 |  |
@@ -315,17 +315,17 @@ Use this file to track unit-test coverage progress. Mark a class as covered only
 | [~] | `Xtate.DataModel.Services.ExternalDataExpressionEvaluator` | 0 | 0 | 3 | 0 | 5 | 3 | `DataModelServiceCoverageTest` added for ancestor, URI, and object evaluation path; rerun coverage to verify. |
 | [ ] | `Xtate.StackSpan<T>` | 83.33 | 79.17 | 3 | 1 | 5 | 9 |  |
 | [ ] | `Xtate.Disposer` | 81.58 | 86.67 | 3 | 1 | 4 | 3 |  |
-| [ ] | `Xtate.Interpreter.StateMachineInterpreterState` | 78.57 | 76.47 | 3 | 0 | 4 | 7 |  |
+| [~] | `Xtate.Interpreter.StateMachineInterpreterState` | 78.57 | 76.47 | 3 | 0 | 4 | 7 | Display name, identity equality, operators, unrelated objects, and identity hash code covered in `EntityParserCoverageTest`. |
 | [ ] | `Xtate.IoC.Tools.Services.SafeFactory` | 57.14 | 60 | 3 | 0 | 4 | 1 |  |
 | [ ] | `Xtate.Logging.Services.Logger<TSource>` | 90.32 | 90.91 | 3 | 0 | 4 | 7 |  |
 | [ ] | `Xtate.Ancestor.AncestorContainer` | 0 | 0 | 3 | 0 | 3 | 2 |  |
 | [ ] | `Xtate.DataModel.XPath.Internal.XmlnsXmlNodeAdapter` | 0 | 0 | 3 | 0 | 3 | 3 |  |
 | [ ] | `Xtate.DataModel.XPath.Services.XPathVarDescriptor` | 66.67 | 82.35 | 3 | 0 | 3 | 6 |  |
 | [ ] | `Xtate.DataModel.XPath.Services.XPathVarDescriptor.EmptyIterator` | 25 | 25 | 3 | 0 | 3 | 4 |  |
-| [ ] | `Xtate.Interpreter.Services.InterpreterStateParser` | 0 | 0 | 3 | 0 | 3 | 1 |  |
+| [~] | `Xtate.Interpreter.Services.InterpreterStateParser` | 0 | 0 | 3 | 0 | 3 | 1 | State property, info level, and incompatible entity behavior covered in `EntityParserCoverageTest`. |
 | [ ] | `Xtate.IoProcessors.Http.DependencyInjection.HttpIoProcessorModule` | 0 | 0 | 3 | 0 | 3 | 1 |  |
 | [ ] | `Xtate.Interpreter.Model.ExternalScriptExpressionNode` | 78.57 | 85.71 | 3 | 0 | 2 | 4 |  |
-| [ ] | `Xtate.StateMachineHost.StateMachineStatus` | 85 | 90.48 | 3 | 0 | 2 | 6 |  |
+| [~] | `Xtate.StateMachineHost.StateMachineStatus` | 85 | 90.48 | 3 | 0 | 2 | 6 | Initial/state-change/accepted completion plus forced completion, failure, and cancellation covered in `StateMachineHostModelCoverageTest`. |
 | [ ] | `Xtate.DataTypes.Extensions.IConvertibleExtensions` | 46.88 | 46.88 | 2 | 13 | 17 | 16 |  |
 | [ ] | `Xtate.ResourceLoaders.Web.Services.WebResourceLoader.Provider` | 0 | 0 | 2 | 0 | 17 | 2 |  |
 | [~] | `Xtate.ExternalServices.ExternalServiceProviderBase<TService>` | 33.33 | 12.5 | 2 | 0 | 14 | 3 | `ExternalServiceProviderBaseCoverageTest` exercises generic provider matching and service creation; rerun coverage to verify. |

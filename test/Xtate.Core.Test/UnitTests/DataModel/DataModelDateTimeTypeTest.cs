@@ -72,8 +72,8 @@ public class DataModelDateTimeTypeTest
 		var dateTimeOffsetStr = DataModelDateTimeType.DateTimeOffset.ToString();
 
 		// Assert
-		Assert.AreEqual("DateTime", dateTimeStr);
-		Assert.AreEqual("DateTimeOffset", dateTimeOffsetStr);
+		Assert.AreEqual(expected: "DateTime", dateTimeStr);
+		Assert.AreEqual(expected: "DateTimeOffset", dateTimeOffsetStr);
 	}
 
 	[TestMethod]
@@ -83,7 +83,7 @@ public class DataModelDateTimeTypeTest
 		var values = Enum.GetValues(typeof(DataModelDateTimeType));
 
 		// Assert
-		Assert.AreEqual(2, values.Length);
+		Assert.AreEqual(expected: 2, values.Length);
 	}
 
 	[TestMethod]
@@ -93,7 +93,7 @@ public class DataModelDateTimeTypeTest
 		var names = Enum.GetNames(typeof(DataModelDateTimeType));
 
 		// Assert
-		Assert.AreEqual(2, names.Length);
+		Assert.AreEqual(expected: 2, names.Length);
 		Assert.IsTrue(names.Contains("DateTime"));
 		Assert.IsTrue(names.Contains("DateTimeOffset"));
 	}
@@ -120,7 +120,7 @@ public class DataModelDateTimeTypeTest
 		var dateTimeOffsetInt = (int) DataModelDateTimeType.DateTimeOffset;
 
 		// Assert
-		Assert.AreEqual(0, dateTimeInt);
-		Assert.AreEqual(1, dateTimeOffsetInt);
+		Assert.AreEqual(expected: 0, dateTimeInt);
+		Assert.AreEqual(expected: 1, dateTimeOffsetInt);
 	}
 }

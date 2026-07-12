@@ -15,8 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate;
-
 namespace Xtate.Test;
 
 [TestClass]
@@ -104,7 +102,7 @@ public class XtateExceptionTest
 		}
 		catch (XtateException ex)
 		{
-			Assert.AreEqual("Test exception", ex.Message);
+			Assert.AreEqual(expected: "Test exception", ex.Message);
 		}
 	}
 
@@ -121,7 +119,7 @@ public class XtateExceptionTest
 		}
 		catch (XtateException ex)
 		{
-			Assert.AreEqual("Test error", ex.Message);
+			Assert.AreEqual(expected: "Test error", ex.Message);
 			Assert.IsNotNull(ex.StackTrace);
 		}
 	}

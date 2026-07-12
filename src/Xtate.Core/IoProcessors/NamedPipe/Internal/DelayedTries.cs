@@ -55,8 +55,8 @@ public class DelayedTries
 		if (delay > TimeSpan.Zero)
 		{
 			_currentTimeout += _currentTimeout;
-			
-			if(_currentTimeout > MaxDelay)
+
+			if (_currentTimeout > MaxDelay)
 			{
 				_currentTimeout = MaxDelay;
 			}

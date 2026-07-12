@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.Collections.Specialized;
 using System.IO;
+using System.Collections.Specialized;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
@@ -170,7 +170,7 @@ public class HttpClientService(HttpClientServiceOptions options) : ExternalServi
 			   };
 	}
 
-	private static HttpContent CreateDefaultContent(in DataModelValue content) => new StringContent(content.ToObject()?.ToString() ?? string.Empty, Encoding.UTF8);
+	private static StringContent CreateDefaultContent(in DataModelValue content) => new (content.ToObject()?.ToString() ?? string.Empty, Encoding.UTF8);
 
 	private async ValueTask<Response> DoRequest(string method,
 												bool autoRedirect,

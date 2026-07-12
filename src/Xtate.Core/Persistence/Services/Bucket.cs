@@ -52,7 +52,7 @@ public readonly struct Bucket
 		return storage;
 	}
 
-	private void CreateNewEntry(Span<byte> bytes, out Bucket bucket)
+	private void CreateNewEntry(ReadOnlySpan<byte> bytes, out Bucket bucket)
 	{
 		var size = GetSize(_block);
 
@@ -487,17 +487,10 @@ public readonly struct Bucket
 
 	private class StringKeyConverter<TString> : KeyConverterBase<TString, string> where TString : notnull
 	{
-		protected override int GetLength(string key)
-		{
-			if (key is null) throw new ArgumentNullException(nameof(key));
-
-			return Encoding.UTF8.GetByteCount(key) + 2;
-		}
+		protected override int GetLength(string key) => Encoding.UTF8.GetByteCount(key) + 2;
 
 		protected override void Write(string key, Span<byte> bytes)
 		{
-			if (key is null) throw new ArgumentNullException(nameof(key));
-
 			bytes[0] = 7;
 			var lastByteIndex = bytes.Length - 1;
 			bytes[lastByteIndex] = 0xFF;
@@ -684,7 +677,7 @@ public readonly struct Bucket
 #if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
 			return Encoding.UTF8.GetString(bytes);
 #else
-			return Encoding.UTF8.GetString(bytes.ToArray());
+			return Encoding.UTF8.GetString([.. bytes]);
 #endif
 		}
 	}

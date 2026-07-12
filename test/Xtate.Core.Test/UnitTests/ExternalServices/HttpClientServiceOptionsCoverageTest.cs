@@ -52,7 +52,7 @@ public class HttpClientServiceOptionsCoverageTest
 		options.MimeTypeHandlers.Add(customHandler);
 
 		CollectionAssert.AreEqual(new HttpClientMimeTypeHandler[] { customHandler }, options.MimeTypeHandlers);
-		Assert.AreEqual(3, secondOptions.MimeTypeHandlers.Count);
+		Assert.AreEqual(expected: 3, secondOptions.MimeTypeHandlers.Count);
 	}
 
 	private sealed class CustomMimeTypeHandler : HttpClientMimeTypeHandler;

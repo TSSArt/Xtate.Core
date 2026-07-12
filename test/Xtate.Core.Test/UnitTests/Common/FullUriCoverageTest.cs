@@ -34,7 +34,7 @@ public class FullUriCoverageTest
 		Assert.AreEqual(first.GetHashCode(), same.GetHashCode());
 		Assert.IsFalse(first.Equals(differentFragment));
 		Assert.IsTrue(first != differentFragment);
-		Assert.IsFalse(first.Equals((object) plainUri));
+		Assert.IsFalse(first.Equals(plainUri));
 		Assert.IsFalse(first.Equals(null));
 	}
 
@@ -42,30 +42,30 @@ public class FullUriCoverageTest
 	public void ConstructorsAndImplicitConversionPreserveResolvedUri()
 	{
 		var baseUri = new Uri("https://example.test/root/");
-		var fromString = new FullUri(baseUri, "child#fragment");
-		var fromUri = new FullUri(baseUri, new Uri("other#fragment", UriKind.Relative));
+		var fromString = new FullUri(baseUri, relativeUri: "child#fragment");
+		var fromUri = new FullUri(baseUri, new Uri(uriString: "other#fragment", UriKind.Relative));
 		FullUri implicitUri = "relative/path#fragment";
 
-		Assert.AreEqual("https://example.test/root/child#fragment", fromString.AbsoluteUri);
-		Assert.AreEqual("https://example.test/root/other#fragment", fromUri.AbsoluteUri);
+		Assert.AreEqual(expected: "https://example.test/root/child#fragment", fromString.AbsoluteUri);
+		Assert.AreEqual(expected: "https://example.test/root/other#fragment", fromUri.AbsoluteUri);
 		Assert.IsFalse(implicitUri.IsAbsoluteUri);
-		Assert.AreEqual("relative/path#fragment", implicitUri.OriginalString);
+		Assert.AreEqual(expected: "relative/path#fragment", implicitUri.OriginalString);
 	}
 
 	[TestMethod]
 	public void TryCreateReturnsFullUriForAbsoluteAndRelativeInput()
 	{
-		Assert.IsTrue(FullUri.TryCreate("https://example.test/path#fragment", out var absolute));
+		Assert.IsTrue(FullUri.TryCreate(uriString: "https://example.test/path#fragment", out var absolute));
 		Assert.IsNotNull(absolute);
 		Assert.IsTrue(absolute.IsAbsoluteUri);
-		Assert.AreEqual("#fragment", absolute.Fragment);
+		Assert.AreEqual(expected: "#fragment", absolute.Fragment);
 
-		Assert.IsTrue(FullUri.TryCreate("relative/path#fragment", out var relative));
+		Assert.IsTrue(FullUri.TryCreate(uriString: "relative/path#fragment", out var relative));
 		Assert.IsNotNull(relative);
 		Assert.IsFalse(relative.IsAbsoluteUri);
-		Assert.AreEqual("relative/path#fragment", relative.OriginalString);
+		Assert.AreEqual(expected: "relative/path#fragment", relative.OriginalString);
 
-		Assert.IsFalse(FullUri.TryCreate(null, out var missing));
+		Assert.IsFalse(FullUri.TryCreate(uriString: null, out var missing));
 		Assert.IsNull(missing);
 	}
 }

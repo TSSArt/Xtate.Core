@@ -26,7 +26,7 @@ internal static class ConcurrentDictionaryExtensions
 			key = default;
 			value = default;
 
-			while (!concurrentDictionary.IsEmpty) 
+			while (!concurrentDictionary.IsEmpty)
 			{
 				using var enumerator = concurrentDictionary.GetEnumerator();
 

@@ -19,7 +19,6 @@ using Xtate.Ancestor;
 using Xtate.DataModel;
 using Xtate.DataModel.Services;
 using Xtate.DataTypes;
-using Xtate.IoC.Tools;
 using Xtate.StateMachine;
 
 namespace Xtate.Test.UnitTests.DataModel;
@@ -37,13 +36,13 @@ public class EvaluatorBaseCoverageTest
 		var condition = new ConditionExpressionSource("condition");
 		var outgoingEvent = new OutgoingEventSource();
 		var content = new ContentSource(valueExpression);
-		var param = new ParamSource("param", valueExpression, locationExpression);
+		var param = new ParamSource(name: "param", valueExpression, locationExpression);
 
 		await AssertAssignEvaluator(new AssignSource(locationExpression, valueExpression, inlineContent), locationExpression, valueExpression, inlineContent);
-		await AssertCancelEvaluator(new CancelSource("send-id", valueExpression), valueExpression);
+		await AssertCancelEvaluator(new CancelSource(sendId: "send-id", valueExpression), valueExpression);
 		await AssertCustomActionEvaluator(new CustomActionSource(locationExpression, valueExpression), locationExpression, valueExpression);
 		await AssertIfEvaluator(new IfSource(condition, ImmutableArray.Create<IExecutableEntity>(executable)), condition, executable);
-		await AssertLogEvaluator(new LogSource("label", valueExpression), valueExpression);
+		await AssertLogEvaluator(new LogSource(label: "label", valueExpression), valueExpression);
 		await AssertRaiseEvaluator(new RaiseSource(outgoingEvent), outgoingEvent);
 		await AssertSendEvaluator(new SendSource(content, valueExpression, locationExpression, param), content, valueExpression, locationExpression, param);
 	}
@@ -53,35 +52,35 @@ public class EvaluatorBaseCoverageTest
 	{
 		var expression = new ValueExpressionSource("logged data");
 		var enabledController = new CapturingLogController(isEnabled: true);
-		var enabledEvaluator = new DefaultLogEvaluator(new LogSource("label", expression))
+		var enabledEvaluator = new DefaultLogEvaluator(new LogSource(label: "label", expression))
 							   {
 								   LogController = () => new ValueTask<ILogController>(enabledController)
 							   };
 
 		await enabledEvaluator.Execute();
 
-		Assert.AreEqual(1, enabledController.LogCount);
-		Assert.AreEqual("label", enabledController.LastMessage);
-		Assert.AreEqual("logged data", enabledController.LastArguments.AsString());
-		Assert.AreEqual(1, expression.EvaluateObjectCount);
+		Assert.AreEqual(expected: 1, enabledController.LogCount);
+		Assert.AreEqual(expected: "label", enabledController.LastMessage);
+		Assert.AreEqual(expected: "logged data", enabledController.LastArguments.AsString());
+		Assert.AreEqual(expected: 1, expression.EvaluateObjectCount);
 
 		var disabledExpression = new ValueExpressionSource("not logged");
 		var disabledController = new CapturingLogController(isEnabled: false);
-		var disabledEvaluator = new DefaultLogEvaluator(new LogSource("disabled", disabledExpression))
-								 {
-									 LogController = () => new ValueTask<ILogController>(disabledController)
-								 };
+		var disabledEvaluator = new DefaultLogEvaluator(new LogSource(label: "disabled", disabledExpression))
+								{
+									LogController = () => new ValueTask<ILogController>(disabledController)
+								};
 
 		await disabledEvaluator.Execute();
 
-		Assert.AreEqual(0, disabledController.LogCount);
-		Assert.AreEqual(0, disabledExpression.EvaluateObjectCount);
+		Assert.AreEqual(expected: 0, disabledController.LogCount);
+		Assert.AreEqual(expected: 0, disabledExpression.EvaluateObjectCount);
 	}
 
 	private static async Task AssertAssignEvaluator(AssignSource source,
-												   ILocationExpression location,
-												   IValueExpression expression,
-												   IInlineContent inlineContent)
+													ILocationExpression location,
+													IValueExpression expression,
+													IInlineContent inlineContent)
 	{
 		var evaluator = new TestAssignEvaluator(source);
 
@@ -89,12 +88,12 @@ public class EvaluatorBaseCoverageTest
 		Assert.AreSame(location, evaluator.Location);
 		Assert.AreSame(expression, evaluator.Expression);
 		Assert.AreSame(inlineContent, evaluator.InlineContent);
-		Assert.AreEqual("assign-type", evaluator.Type);
-		Assert.AreEqual("assign-attribute", evaluator.Attribute);
+		Assert.AreEqual(expected: "assign-type", evaluator.Type);
+		Assert.AreEqual(expected: "assign-attribute", evaluator.Attribute);
 
 		await evaluator.Execute();
 
-		Assert.AreEqual(1, evaluator.ExecuteCount);
+		Assert.AreEqual(expected: 1, evaluator.ExecuteCount);
 	}
 
 	private static async Task AssertCancelEvaluator(CancelSource source, IValueExpression expression)
@@ -102,30 +101,30 @@ public class EvaluatorBaseCoverageTest
 		var evaluator = new TestCancelEvaluator(source);
 
 		Assert.AreSame(source, ((IAncestorProvider) evaluator).Ancestor);
-		Assert.AreEqual("send-id", evaluator.SendId);
+		Assert.AreEqual(expected: "send-id", evaluator.SendId);
 		Assert.AreSame(expression, evaluator.SendIdExpression);
 
 		await evaluator.Execute();
 
-		Assert.AreEqual(1, evaluator.ExecuteCount);
+		Assert.AreEqual(expected: 1, evaluator.ExecuteCount);
 	}
 
 	private static async Task AssertCustomActionEvaluator(CustomActionSource source,
-														 ILocationExpression location,
-														 IValueExpression expression)
+														  ILocationExpression location,
+														  IValueExpression expression)
 	{
 		var evaluator = new TestCustomActionEvaluator(source);
 
 		Assert.AreSame(source, ((IAncestorProvider) evaluator).Ancestor);
-		Assert.AreEqual("urn:test", evaluator.XmlNamespace);
-		Assert.AreEqual("custom", evaluator.XmlName);
-		Assert.AreEqual("<custom />", evaluator.Xml);
+		Assert.AreEqual(expected: "urn:test", evaluator.XmlNamespace);
+		Assert.AreEqual(expected: "custom", evaluator.XmlName);
+		Assert.AreEqual(expected: "<custom />", evaluator.Xml);
 		Assert.AreSame(location, evaluator.Locations.Single());
 		Assert.AreSame(expression, evaluator.Values.Single());
 
 		await evaluator.Execute();
 
-		Assert.AreEqual(1, evaluator.ExecuteCount);
+		Assert.AreEqual(expected: 1, evaluator.ExecuteCount);
 	}
 
 	private static async Task AssertIfEvaluator(IfSource source, IConditionExpression condition, IExecutableEntity executable)
@@ -138,7 +137,7 @@ public class EvaluatorBaseCoverageTest
 
 		await evaluator.Execute();
 
-		Assert.AreEqual(1, evaluator.ExecuteCount);
+		Assert.AreEqual(expected: 1, evaluator.ExecuteCount);
 	}
 
 	private static async Task AssertLogEvaluator(LogSource source, IValueExpression expression)
@@ -146,12 +145,12 @@ public class EvaluatorBaseCoverageTest
 		var evaluator = new TestLogEvaluator(source);
 
 		Assert.AreSame(source, ((IAncestorProvider) evaluator).Ancestor);
-		Assert.AreEqual("label", evaluator.Label);
+		Assert.AreEqual(expected: "label", evaluator.Label);
 		Assert.AreSame(expression, evaluator.Expression);
 
 		await evaluator.Execute();
 
-		Assert.AreEqual(1, evaluator.ExecuteCount);
+		Assert.AreEqual(expected: 1, evaluator.ExecuteCount);
 	}
 
 	private static async Task AssertRaiseEvaluator(RaiseSource source, IOutgoingEvent outgoingEvent)
@@ -163,35 +162,35 @@ public class EvaluatorBaseCoverageTest
 
 		await evaluator.Execute();
 
-		Assert.AreEqual(1, evaluator.ExecuteCount);
+		Assert.AreEqual(expected: 1, evaluator.ExecuteCount);
 	}
 
 	private static async Task AssertSendEvaluator(SendSource source,
-												 IContent content,
-												 IValueExpression valueExpression,
-												 ILocationExpression locationExpression,
-												 IParam param)
+												  IContent content,
+												  IValueExpression valueExpression,
+												  ILocationExpression locationExpression,
+												  IParam param)
 	{
 		var evaluator = new TestSendEvaluator(source);
 
 		Assert.AreSame(source, ((IAncestorProvider) evaluator).Ancestor);
 		Assert.AreSame(content, evaluator.Content);
-		Assert.AreEqual("event-name", evaluator.EventName);
+		Assert.AreEqual(expected: "event-name", evaluator.EventName);
 		Assert.AreSame(valueExpression, evaluator.EventExpression);
 		Assert.AreEqual(new FullUri("https://target.test/"), evaluator.Target);
 		Assert.AreSame(valueExpression, evaluator.TargetExpression);
 		Assert.AreEqual(new FullUri("https://type.test/"), evaluator.Type);
 		Assert.AreSame(valueExpression, evaluator.TypeExpression);
-		Assert.AreEqual("id", evaluator.Id);
+		Assert.AreEqual(expected: "id", evaluator.Id);
 		Assert.AreSame(locationExpression, evaluator.IdLocation);
-		Assert.AreEqual(42, evaluator.DelayMs);
+		Assert.AreEqual(expected: 42, evaluator.DelayMs);
 		Assert.AreSame(valueExpression, evaluator.DelayExpression);
 		Assert.AreSame(locationExpression, evaluator.NameList.Single());
 		Assert.AreSame(param, evaluator.Parameters.Single());
 
 		await evaluator.Execute();
 
-		Assert.AreEqual(1, evaluator.ExecuteCount);
+		Assert.AreEqual(expected: 1, evaluator.ExecuteCount);
 	}
 
 	private sealed class TestAssignEvaluator(IAssign assign) : AssignEvaluator(assign)
@@ -286,7 +285,7 @@ public class EvaluatorBaseCoverageTest
 
 		public DataModelValue LastArguments { get; private set; }
 
-		public bool IsEnabled => isEnabled;
+	#region Interface ILogController
 
 		public ValueTask Log(string? message, DataModelValue arguments)
 		{
@@ -296,43 +295,69 @@ public class EvaluatorBaseCoverageTest
 
 			return ValueTask.CompletedTask;
 		}
+
+		public bool IsEnabled => isEnabled;
+
+	#endregion
 	}
 
 	private sealed class ValueExpressionSource(string value) : IValueExpression, IObjectEvaluator
 	{
 		public int EvaluateObjectCount { get; private set; }
 
-		public string? Expression => value;
-
-		public ValueTask<DataModelValue> Evaluate() => new(value);
+	#region Interface IObjectEvaluator
 
 		public ValueTask<IObject> EvaluateObject()
 		{
 			EvaluateObjectCount ++;
 
-			return new(new DataModelValue(value));
+			return new ValueTask<IObject>(new DataModelValue(value));
 		}
+
+	#endregion
+
+	#region Interface IValueExpression
+
+		public string? Expression => value;
+
+	#endregion
+
+		public ValueTask<DataModelValue> Evaluate() => new(value);
 	}
 
 	private sealed class LocationExpressionSource(string expression) : ILocationExpression
 	{
+	#region Interface ILocationExpression
+
 		public string? Expression => expression;
+
+	#endregion
 	}
 
 	private sealed class InlineContentSource(string value) : IInlineContent
 	{
+	#region Interface IInlineContent
+
 		public string? Value => value;
+
+	#endregion
 	}
 
 	private sealed class ExecutableEntitySource : IExecutableEntity;
 
 	private sealed class ConditionExpressionSource(string expression) : IConditionExpression
 	{
+	#region Interface IConditionExpression
+
 		public string? Expression => expression;
+
+	#endregion
 	}
 
 	private sealed class OutgoingEventSource : IOutgoingEvent
 	{
+	#region Interface IOutgoingEvent
+
 		public SendId? SendId => SendId.FromString("send-id");
 
 		public EventName Name => (EventName) "outgoing";
@@ -344,28 +369,41 @@ public class EvaluatorBaseCoverageTest
 		public int DelayMs => 42;
 
 		public DataModelValue Data => "data";
+
+	#endregion
 	}
 
 	private sealed class ContentSource(IValueExpression expression) : IContent
 	{
+	#region Interface IContent
+
 		public IValueExpression? Expression => expression;
 
 		public IContentBody? Body => null;
+
+	#endregion
 	}
 
 	private sealed class ParamSource(string name, IValueExpression expression, ILocationExpression location) : IParam
 	{
+	#region Interface IParam
+
 		public string Name => name;
 
 		public IValueExpression? Expression => expression;
 
 		public ILocationExpression? Location => location;
+
+	#endregion
 	}
 
-	private sealed class AssignSource(ILocationExpression location,
-									  IValueExpression expression,
-									  IInlineContent inlineContent) : IAssign
+	private sealed class AssignSource(
+		ILocationExpression location,
+		IValueExpression expression,
+		IInlineContent inlineContent) : IAssign
 	{
+	#region Interface IAssign
+
 		public ILocationExpression? Location => location;
 
 		public IValueExpression? Expression => expression;
@@ -375,17 +413,25 @@ public class EvaluatorBaseCoverageTest
 		public string? Type => "assign-type";
 
 		public string? Attribute => "assign-attribute";
+
+	#endregion
 	}
 
 	private sealed class CancelSource(string sendId, IValueExpression sendIdExpression) : ICancel
 	{
+	#region Interface ICancel
+
 		public string? SendId => sendId;
 
 		public IValueExpression? SendIdExpression => sendIdExpression;
+
+	#endregion
 	}
 
 	private sealed class CustomActionSource(ILocationExpression location, IValueExpression value) : ICustomAction
 	{
+	#region Interface ICustomAction
+
 		public string? XmlNamespace => "urn:test";
 
 		public string? XmlName => "custom";
@@ -395,32 +441,49 @@ public class EvaluatorBaseCoverageTest
 		public ImmutableArray<ILocationExpression> Locations => ImmutableArray.Create(location);
 
 		public ImmutableArray<IValueExpression> Values => ImmutableArray.Create(value);
+
+	#endregion
 	}
 
 	private sealed class IfSource(IConditionExpression condition, ImmutableArray<IExecutableEntity> action) : IIf
 	{
+	#region Interface IIf
+
 		public IConditionExpression? Condition => condition;
 
 		public ImmutableArray<IExecutableEntity> Action => action;
+
+	#endregion
 	}
 
 	private sealed class LogSource(string label, IValueExpression expression) : ILog
 	{
+	#region Interface ILog
+
 		public string? Label => label;
 
 		public IValueExpression? Expression => expression;
+
+	#endregion
 	}
 
 	private sealed class RaiseSource(IOutgoingEvent outgoingEvent) : IRaise
 	{
+	#region Interface IRaise
+
 		public IOutgoingEvent? OutgoingEvent => outgoingEvent;
+
+	#endregion
 	}
 
-	private sealed class SendSource(IContent content,
-									IValueExpression expression,
-									ILocationExpression location,
-									IParam param) : ISend
+	private sealed class SendSource(
+		IContent content,
+		IValueExpression expression,
+		ILocationExpression location,
+		IParam param) : ISend
 	{
+	#region Interface ISend
+
 		public string? EventName => "event-name";
 
 		public IValueExpression? EventExpression => expression;
@@ -446,5 +509,7 @@ public class EvaluatorBaseCoverageTest
 		public ImmutableArray<IParam> Parameters => ImmutableArray.Create(param);
 
 		public IContent? Content => content;
+
+	#endregion
 	}
 }

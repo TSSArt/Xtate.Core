@@ -54,7 +54,7 @@ internal sealed class OrderedSetPersistingController<T> : IDisposable where T : 
 				break;
 			}
 
-			if (operation == Added || operation == Deleted)
+			if (operation is Added or Deleted)
 			{
 				var result = entityMap.TryGetEntityByDocumentId(documentId, out var entity);
 				Infra.Assert(result);

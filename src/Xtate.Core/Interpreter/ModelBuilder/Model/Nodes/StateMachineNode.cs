@@ -81,5 +81,4 @@ public class StateMachineNode : StateEntityNode, IStateMachine, IAncestorProvide
 	ImmutableArray<IStateEntity> IStateMachine.States => ImmutableArray<IStateEntity>.CastUp(States);
 
 #endregion
-
 }

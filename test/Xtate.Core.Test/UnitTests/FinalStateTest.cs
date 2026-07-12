@@ -1,4 +1,4 @@
-// Copyright © 2019-2025 Sergii Artemenko
+// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -28,69 +28,69 @@ namespace Xtate.Test;
 [TestClass]
 public class FinalStateTest
 {
-    [TestMethod]
-    public async Task Final_state_with_number_as_done_data_Should_return_same_value()
-    {
-        // Arrange
-        var services = new ServiceCollection();
-        services.AddModule<StateMachineFluentBuilderModule>();
-        services.AddModule<StateMachineProcessorModule>();
-        var serviceProvider = services.BuildProvider();
-        var builder = await serviceProvider.GetRequiredService<StateMachineFluentBuilder.StateMachineFluentBuilder>();
+	[TestMethod]
+	public async Task Final_state_with_number_as_done_data_Should_return_same_value()
+	{
+		// Arrange
+		var services = new ServiceCollection();
+		services.AddModule<StateMachineFluentBuilderModule>();
+		services.AddModule<StateMachineProcessorModule>();
+		var serviceProvider = services.BuildProvider();
+		var builder = await serviceProvider.GetRequiredService<StateMachineFluentBuilder.StateMachineFluentBuilder>();
 
-        var stateMachine = builder
-                           .BeginFinal()
-                           .SetDoneData(22)
-                           .EndFinal()
-                           .Build();
+		var stateMachine = builder
+						   .BeginFinal()
+						   .SetDoneData(22)
+						   .EndFinal()
+						   .Build();
 
-        //var stateMachineHost = (IHostController) await serviceProvider.GetRequiredService<StateMachineHost>();
-        var stateMachineScopeManager = await serviceProvider.GetRequiredService<IStateMachineScopeManager>();
+		//var stateMachineHost = (IHostController) await serviceProvider.GetRequiredService<StateMachineHost>();
+		var stateMachineScopeManager = await serviceProvider.GetRequiredService<IStateMachineScopeManager>();
 
-        //await using var stateMachineHost = new StateMachineHost(new StateMachineHostOptions());
+		//await using var stateMachineHost = new StateMachineHost(new StateMachineHostOptions());
 
-        //await stateMachineHost.StartHost();
+		//await stateMachineHost.StartHost();
 
-        // Act
-        var result = await stateMachineScopeManager.Execute(new RuntimeStateMachine(stateMachine), SecurityContextType.NewStateMachine);
+		// Act
+		var result = await stateMachineScopeManager.Execute(new RuntimeStateMachine(stateMachine), SecurityContextType.NewStateMachine);
 
-        //Assert
-        Assert.AreEqual(expected: 22, result.AsNumber());
-    }
+		//Assert
+		Assert.AreEqual(expected: 22, result.AsNumber());
+	}
 
-    [TestMethod]
-    public async Task Input_argument_Should_be_passed_as_return_value()
-    {
-        var services = new ServiceCollection();
-        services.AddModule<StateMachineFluentBuilderModule>();
-        services.AddModule<StateMachineProcessorModule>();
-        var serviceProvider = services.BuildProvider();
-        var builder = await serviceProvider.GetRequiredService<StateMachineFluentBuilder.StateMachineFluentBuilder>();
+	[TestMethod]
+	public async Task Input_argument_Should_be_passed_as_return_value()
+	{
+		var services = new ServiceCollection();
+		services.AddModule<StateMachineFluentBuilderModule>();
+		services.AddModule<StateMachineProcessorModule>();
+		var serviceProvider = services.BuildProvider();
+		var builder = await serviceProvider.GetRequiredService<StateMachineFluentBuilder.StateMachineFluentBuilder>();
 
-        // Arrange
-        var stateMachine = builder
-                           .BeginFinal()
-                           .SetDoneData(() =>
-                                        {
-                                            var val = Runtime.DataModel["_x"].AsListOrEmpty()["args"].AsNumber();
+		// Arrange
+		var stateMachine = builder
+						   .BeginFinal()
+						   .SetDoneData(() =>
+										{
+											var val = Runtime.DataModel["_x"].AsListOrEmpty()["args"].AsNumber();
 
-                                            return new DataModelValue(val);
-                                        })
-                           .EndFinal()
-                           .Build();
+											return new DataModelValue(val);
+										})
+						   .EndFinal()
+						   .Build();
 
-        //var stateMachineHost = (IHostController) await serviceProvider.GetRequiredService<StateMachineHost>();
-        var smc = new RuntimeStateMachine(stateMachine) { Arguments = 33 };
-        var stateMachineScopeManager = await serviceProvider.GetRequiredService<IStateMachineScopeManager>();
+		//var stateMachineHost = (IHostController) await serviceProvider.GetRequiredService<StateMachineHost>();
+		var smc = new RuntimeStateMachine(stateMachine) { Arguments = 33 };
+		var stateMachineScopeManager = await serviceProvider.GetRequiredService<IStateMachineScopeManager>();
 
-        //await using var stateMachineHost = new StateMachineHost(new StateMachineHostOptions());
+		//await using var stateMachineHost = new StateMachineHost(new StateMachineHostOptions());
 
-        //await stateMachineHost.StartHost();
+		//await stateMachineHost.StartHost();
 
-        // Act
-        var result = await stateMachineScopeManager.Execute(smc, SecurityContextType.NewStateMachine);
+		// Act
+		var result = await stateMachineScopeManager.Execute(smc, SecurityContextType.NewStateMachine);
 
-        //Assert
-        Assert.AreEqual(expected: 33, result.AsNumber());
-    }
+		//Assert
+		Assert.AreEqual(expected: 33, result.AsNumber());
+	}
 }

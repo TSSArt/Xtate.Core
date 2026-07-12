@@ -22,7 +22,7 @@ using Xtate.StateMachineHost.Services;
 namespace Xtate.IoProcessors.NamedPipe.Services;
 
 [InstantiatedByIoC]
-public class NamedPipeIoProcessor() : IoProcessorBase(@"http://www.w3.org/TR/scxml/#NamedPipeEventProcessor", @"net.pipe")
+public class NamedPipeIoProcessor() : IoProcessorBase(ioProcessorId: @"http://www.w3.org/TR/scxml/#NamedPipeEventProcessor", ioProcessorAlias: @"net.pipe")
 {
 	public required NamedPipeController NamedPipeController { private get; [SetByIoC] init; }
 
@@ -32,7 +32,7 @@ public class NamedPipeIoProcessor() : IoProcessorBase(@"http://www.w3.org/TR/scx
 	{
 		Infra.Assert(routerEvent.DelayMs == 0);
 
-		if (routerEvent.Target is not {} target )
+		if (routerEvent.Target is not { } target)
 		{
 			throw new ProcessorException(Resources.Exception_TargetIsNotDefined);
 		}

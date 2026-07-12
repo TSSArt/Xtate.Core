@@ -46,9 +46,8 @@ public class StatesValidationTest
 		var idle = new Mock<IDestroyOnIdleTimeout>();
 		idle.Setup(x => x.IdleTimeout).Returns(TimeSpan.FromMilliseconds(5000));
 
-		var container = Container.Create<StateMachineProcessorModule>(
-			services =>
-				services.AddConstant(idle.Object));
+		var container = Container.Create<StateMachineProcessorModule>(services =>
+																		  services.AddConstant(idle.Object));
 
 		var stateMachineScopeManager = await container.GetRequiredService<IStateMachineScopeManager>();
 
@@ -58,89 +57,89 @@ public class StatesValidationTest
 	[TestMethod]
 	public async Task InitialChildWithMultipleTransitionsIsRejected()
 	{
-		await Assert.ThrowsExactlyAsync<StateMachineValidationException>(
-			() => Parse("""
-				<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
-				  <state id="outer">
-					<initial>
-					  <transition target="first"/>
-					  <transition target="second"/>
-					</initial>
-					<state id="first"/>
-					<state id="second"/>
-				  </state>
-				</scxml>
-				"""));
+		await Assert.ThrowsExactlyAsync<StateMachineValidationException>(() => Parse(
+																			 """
+																			 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+																			   <state id="outer">
+																			 	<initial>
+																			 	  <transition target="first"/>
+																			 	  <transition target="second"/>
+																			 	</initial>
+																			 	<state id="first"/>
+																			 	<state id="second"/>
+																			   </state>
+																			 </scxml>
+																			 """));
 	}
 
 	[TestMethod]
 	public async Task InitialAttributeOnAtomicStateIsRejected()
 	{
-		await Assert.ThrowsExactlyAsync<StateMachineValidationException>(
-			() => Parse("""
-				<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
-				  <state id="atomic" initial="missing"/>
-				</scxml>
-				"""));
+		await Assert.ThrowsExactlyAsync<StateMachineValidationException>(() => Parse(
+																			 """
+																			 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+																			   <state id="atomic" initial="missing"/>
+																			 </scxml>
+																			 """));
 	}
 
 	[TestMethod]
 	public async Task IllegalChildUnderFinalIsRejected()
 	{
-		await Assert.ThrowsExactlyAsync<StateMachineValidationException>(
-			() => Parse("""
-				<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
-				  <final id="done">
-					<transition target="other"/>
-				  </final>
-				  <final id="other"/>
-				</scxml>
-				"""));
+		await Assert.ThrowsExactlyAsync<StateMachineValidationException>(() => Parse(
+																			 """
+																			 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+																			   <final id="done">
+																			 	<transition target="other"/>
+																			   </final>
+																			   <final id="other"/>
+																			 </scxml>
+																			 """));
 	}
 
 	[TestMethod]
 	public async Task UnknownHistoryTypeIsRejected()
 	{
-		await Assert.ThrowsExactlyAsync<StateMachineValidationException>(
-			() => Parse("""
-				<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
-				  <state id="outer">
-					<history id="hist" type="full">
-					  <transition target="child"/>
-					</history>
-					<state id="child"/>
-				  </state>
-				</scxml>
-				"""));
+		await Assert.ThrowsExactlyAsync<StateMachineValidationException>(() => Parse(
+																			 """
+																			 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+																			   <state id="outer">
+																			 	<history id="hist" type="full">
+																			 	  <transition target="child"/>
+																			 	</history>
+																			 	<state id="child"/>
+																			   </state>
+																			 </scxml>
+																			 """));
 	}
 
 	[TestMethod]
 	public async Task HistoryAtRootIsRejected()
 	{
-		await Assert.ThrowsExactlyAsync<StateMachineValidationException>(
-			() => Parse("""
-				<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
-				  <history id="hist">
-					<transition target="done"/>
-				  </history>
-				  <final id="done"/>
-				</scxml>
-				"""));
+		await Assert.ThrowsExactlyAsync<StateMachineValidationException>(() => Parse(
+																			 """
+																			 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+																			   <history id="hist">
+																			 	<transition target="done"/>
+																			   </history>
+																			   <final id="done"/>
+																			 </scxml>
+																			 """));
 	}
 
 	[TestMethod]
 	public async Task HistoryTransitionToUnknownTargetIsRejectedDuringExecutionBuild()
 	{
-		await Assert.ThrowsExactlyAsync<DependencyInjectionException>(
-			() => Execute("""
-				<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
-				  <state id="outer">
-					<history id="hist">
-					  <transition target="missing"/>
-					</history>
-					<transition target="hist"/>
-				  </state>
-				</scxml>
-				"""));
+		await Assert.ThrowsExactlyAsync<DependencyInjectionException>(() => Execute(
+																		  """
+																		  <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
+																		    <state id="outer">
+																		  	<history id="hist">
+																		  	  <transition target="missing"/>
+																		  	</history>
+																		  	<transition target="hist"/>
+																		    </state>
+																		  </scxml>
+																		  """));
 	}
 }

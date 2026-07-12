@@ -77,25 +77,34 @@ internal abstract class MetaObjectBase(Expression expression, object value) : Dy
 	private const string SetMetadata = "SetMetadata";
 
 	private static readonly PropertyInfo ItemKeyProperty;
-	private static readonly PropertyInfo ItemKeyCaseProperty;
-	private static readonly PropertyInfo ItemIndexProperty;
-	private static readonly MethodInfo   ToObjectMethod;
-	private static readonly MethodInfo   SetLengthMethod;
-	private static readonly MethodInfo   GetMetadataMethod;
-	private static readonly PropertyInfo CountProperty;
-	private static readonly MethodInfo   GetMetadataKeyMethod;
-	private static readonly MethodInfo   GetMetadataIndexMethod;
-	private static readonly MethodInfo   SetMetadataKeyMethod;
-	private static readonly MethodInfo   SetMetadataIndexMethod;
 
+	private static readonly PropertyInfo ItemKeyCaseProperty;
+
+	private static readonly PropertyInfo ItemIndexProperty;
+
+	private static readonly MethodInfo ToObjectMethod;
+
+	private static readonly MethodInfo SetLengthMethod;
+
+	private static readonly MethodInfo GetMetadataMethod;
+
+	private static readonly PropertyInfo CountProperty;
+
+	private static readonly MethodInfo GetMetadataKeyMethod;
+
+	private static readonly MethodInfo GetMetadataIndexMethod;
+
+	private static readonly MethodInfo SetMetadataKeyMethod;
+
+	private static readonly MethodInfo SetMetadataIndexMethod;
 
 	static MetaObjectBase()
 	{
 		var listType = typeof(DataModelList);
-		
-		ItemKeyProperty = listType.GetProperty(@"Item", [typeof(string)])!;
-		ItemKeyCaseProperty = listType.GetProperty(@"Item", [typeof(string), typeof(bool)])!;
-		ItemIndexProperty = listType.GetProperty(@"Item", [typeof(int)])!;
+
+		ItemKeyProperty = listType.GetProperty(name: @"Item", [typeof(string)])!;
+		ItemKeyCaseProperty = listType.GetProperty(name: @"Item", [typeof(string), typeof(bool)])!;
+		ItemIndexProperty = listType.GetProperty(name: @"Item", [typeof(int)])!;
 		CountProperty = listType.GetProperty(nameof(DataModelList.Count))!;
 		SetLengthMethod = listType.GetMethod(nameof(DataModelList.SetLength), [typeof(int)])!;
 		GetMetadataMethod = listType.GetMethod(nameof(DataModelList.GetMetadata), [])!;
@@ -207,7 +216,7 @@ internal abstract class MetaObjectBase(Expression expression, object value) : Dy
 	public override DynamicMetaObject BindInvokeMember(InvokeMemberBinder binder, DynamicMetaObject[] args)
 	{
 		var list = CastToList(Expression);
-		
+
 		Expression? result = null;
 
 		if (args.Length == 0 && IsName(GetLength))
@@ -217,10 +226,10 @@ internal abstract class MetaObjectBase(Expression expression, object value) : Dy
 		else if (args.Length == 1 && IsName(SetLength))
 		{
 			var len = args[0].Expression;
-			
+
 			result = Expression.Call(list, SetLengthMethod, len.Type == typeof(int) ? len : Expression.Convert(len, typeof(int)));
 		}
-		else if (args.Length == 0 && IsName(GetMetadata)) 
+		else if (args.Length == 0 && IsName(GetMetadata))
 		{
 			result = Expression.Call(list, GetMetadataMethod);
 		}
@@ -259,7 +268,7 @@ internal abstract class MetaObjectBase(Expression expression, object value) : Dy
 				result = Expression.Call(list, SetMetadataIndexMethod, Expression.Convert(arg, typeof(int)), metadata);
 			}
 		}
-		
+
 		if (result is not null)
 		{
 			return new DynamicMetaObject(CastResult(result, binder.ReturnType), SameTypeRestriction());
@@ -269,7 +278,7 @@ internal abstract class MetaObjectBase(Expression expression, object value) : Dy
 
 		bool IsName(string name) => string.Equals(binder.Name, name, binder.IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
 	}
-	
+
 	protected abstract BindingRestrictions SameTypeRestriction();
 
 	private DynamicMetaObject ThrowWrongIndexCount()
@@ -285,5 +294,4 @@ internal abstract class MetaObjectBase(Expression expression, object value) : Dy
 
 		return new DynamicMetaObject(Expression.Throw(exception, typeof(object)), SameTypeRestriction());
 	}
-
 }

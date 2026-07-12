@@ -83,7 +83,7 @@ public class HttpRequestProcessExceptionTest
 		var exception = new HttpRequestProcessException();
 
 		// Act & Assert
-		Assert.AreEqual(default(HttpStatusCode), exception.StatusCode);
+		Assert.AreEqual(default, exception.StatusCode);
 	}
 
 	[TestMethod]
@@ -130,23 +130,23 @@ public class HttpRequestProcessExceptionTest
 	{
 		// Arrange
 		var statusCodes = new[]
-		{
-			HttpStatusCode.OK,
-			HttpStatusCode.Created,
-			HttpStatusCode.Accepted,
-			HttpStatusCode.NoContent,
-			HttpStatusCode.MovedPermanently,
-			HttpStatusCode.Found,
-			HttpStatusCode.NotModified,
-			HttpStatusCode.BadRequest,
-			HttpStatusCode.Unauthorized,
-			HttpStatusCode.Forbidden,
-			HttpStatusCode.NotFound,
-			HttpStatusCode.Conflict,
-			HttpStatusCode.InternalServerError,
-			HttpStatusCode.NotImplemented,
-			HttpStatusCode.ServiceUnavailable
-		};
+						  {
+							  HttpStatusCode.OK,
+							  HttpStatusCode.Created,
+							  HttpStatusCode.Accepted,
+							  HttpStatusCode.NoContent,
+							  HttpStatusCode.MovedPermanently,
+							  HttpStatusCode.Found,
+							  HttpStatusCode.NotModified,
+							  HttpStatusCode.BadRequest,
+							  HttpStatusCode.Unauthorized,
+							  HttpStatusCode.Forbidden,
+							  HttpStatusCode.NotFound,
+							  HttpStatusCode.Conflict,
+							  HttpStatusCode.InternalServerError,
+							  HttpStatusCode.NotImplemented,
+							  HttpStatusCode.ServiceUnavailable
+						  };
 
 		// Act & Assert
 		foreach (var statusCode in statusCodes)
@@ -170,7 +170,7 @@ public class HttpRequestProcessExceptionTest
 		}
 		catch (HttpRequestProcessException ex)
 		{
-			Assert.AreEqual("Test exception", ex.Message);
+			Assert.AreEqual(expected: "Test exception", ex.Message);
 		}
 	}
 
@@ -179,7 +179,7 @@ public class HttpRequestProcessExceptionTest
 	{
 		// Arrange
 		var innerException = new TimeoutException("Request timeout");
-		var exception = new HttpRequestProcessException("HTTP processing failed", innerException);
+		var exception = new HttpRequestProcessException(message: "HTTP processing failed", innerException);
 
 		// Act & Assert
 		try
@@ -188,7 +188,7 @@ public class HttpRequestProcessExceptionTest
 		}
 		catch (XtateException ex)
 		{
-			Assert.AreEqual("HTTP processing failed", ex.Message);
+			Assert.AreEqual(expected: "HTTP processing failed", ex.Message);
 			Assert.IsInstanceOfType(ex.InnerException, typeof(TimeoutException));
 		}
 	}

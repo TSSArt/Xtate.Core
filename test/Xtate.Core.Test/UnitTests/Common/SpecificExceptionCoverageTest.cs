@@ -33,7 +33,7 @@ public class SpecificExceptionCoverageTest
 		var defaultException = new CommunicationException { Owner = owner };
 		var messageException = new CommunicationException("communication failed") { Owner = owner };
 		var innerException = new InvalidOperationException("inner");
-		var messageAndInnerException = new CommunicationException("wrapped", innerException) { Owner = owner };
+		var messageAndInnerException = new CommunicationException(message: "wrapped", innerException) { Owner = owner };
 		var sendId = SendId.FromString("send-1");
 		var innerAndSendIdException = new CommunicationException(innerException, sendId) { Owner = owner };
 
@@ -42,8 +42,8 @@ public class SpecificExceptionCoverageTest
 		Assert.IsNotNull(defaultException.Message);
 		Assert.IsNull(defaultException.InnerException);
 		Assert.IsNull(defaultException.SendId);
-		Assert.AreEqual("communication failed", messageException.Message);
-		Assert.AreEqual("wrapped", messageAndInnerException.Message);
+		Assert.AreEqual(expected: "communication failed", messageException.Message);
+		Assert.AreEqual(expected: "wrapped", messageAndInnerException.Message);
 		Assert.AreSame(innerException, messageAndInnerException.InnerException);
 		Assert.AreSame(innerException, innerAndSendIdException.InnerException);
 		Assert.AreSame(sendId, innerAndSendIdException.SendId);
@@ -56,15 +56,15 @@ public class SpecificExceptionCoverageTest
 		var defaultException = new PlatformException { Owner = owner };
 		var messageException = new PlatformException("platform failed") { Owner = owner };
 		var innerException = new InvalidOperationException("inner");
-		var messageAndInnerException = new PlatformException("wrapped", innerException) { Owner = owner };
+		var messageAndInnerException = new PlatformException(message: "wrapped", innerException) { Owner = owner };
 		var innerOnlyException = new PlatformException(innerException) { Owner = owner };
 
 		Assert.IsInstanceOfType(defaultException, typeof(OwnedXtateException));
 		Assert.IsTrue(defaultException.IsOwnedBy(owner));
 		Assert.IsNotNull(defaultException.Message);
 		Assert.IsNull(defaultException.InnerException);
-		Assert.AreEqual("platform failed", messageException.Message);
-		Assert.AreEqual("wrapped", messageAndInnerException.Message);
+		Assert.AreEqual(expected: "platform failed", messageException.Message);
+		Assert.AreEqual(expected: "wrapped", messageAndInnerException.Message);
 		Assert.AreSame(innerException, messageAndInnerException.InnerException);
 		Assert.AreSame(innerException, innerOnlyException.InnerException);
 	}
@@ -79,7 +79,7 @@ public class SpecificExceptionCoverageTest
 								   Reason = DestroyReason.QueueClosed
 							   };
 		var innerException = new InvalidOperationException("inner");
-		var messageAndInnerException = new StateMachineDestroyedException("wrapped", innerException)
+		var messageAndInnerException = new StateMachineDestroyedException(message: "wrapped", innerException)
 									   {
 										   Owner = owner,
 										   Reason = DestroyReason.LiveLock
@@ -87,9 +87,9 @@ public class SpecificExceptionCoverageTest
 
 		Assert.IsInstanceOfType(messageException, typeof(OwnedXtateException));
 		Assert.IsTrue(messageException.IsOwnedBy(owner));
-		Assert.AreEqual("destroyed", messageException.Message);
+		Assert.AreEqual(expected: "destroyed", messageException.Message);
 		Assert.AreEqual(DestroyReason.QueueClosed, messageException.Reason);
-		Assert.AreEqual("wrapped", messageAndInnerException.Message);
+		Assert.AreEqual(expected: "wrapped", messageAndInnerException.Message);
 		Assert.AreSame(innerException, messageAndInnerException.InnerException);
 		Assert.AreEqual(DestroyReason.LiveLock, messageAndInnerException.Reason);
 	}
@@ -101,7 +101,7 @@ public class SpecificExceptionCoverageTest
 		var defaultException = new OwnedXtateException { Owner = owner };
 		var messageException = new OwnedXtateException("owned") { Owner = owner };
 		var innerException = new InvalidOperationException("inner");
-		var messageAndInnerException = new OwnedXtateException("wrapped", innerException) { Owner = owner };
+		var messageAndInnerException = new OwnedXtateException(message: "wrapped", innerException) { Owner = owner };
 		var innerOnlyException = new OwnedXtateException(innerException) { Owner = owner };
 
 		Assert.IsInstanceOfType(defaultException, typeof(XtateException));
@@ -109,8 +109,8 @@ public class SpecificExceptionCoverageTest
 		Assert.IsFalse(defaultException.IsOwnedBy(new object()));
 		Assert.IsNotNull(defaultException.Message);
 		Assert.IsNull(defaultException.InnerException);
-		Assert.AreEqual("owned", messageException.Message);
-		Assert.AreEqual("wrapped", messageAndInnerException.Message);
+		Assert.AreEqual(expected: "owned", messageException.Message);
+		Assert.AreEqual(expected: "wrapped", messageAndInnerException.Message);
 		Assert.AreSame(innerException, messageAndInnerException.InnerException);
 		Assert.AreSame(innerException, innerOnlyException.InnerException);
 	}
@@ -121,13 +121,13 @@ public class SpecificExceptionCoverageTest
 		var defaultException = new XPathDataModelException();
 		var messageException = new XPathDataModelException("xpath failed");
 		var innerException = new InvalidOperationException("inner");
-		var messageAndInnerException = new XPathDataModelException("wrapped", innerException);
+		var messageAndInnerException = new XPathDataModelException(message: "wrapped", innerException);
 
 		Assert.IsInstanceOfType(defaultException, typeof(XtateException));
 		Assert.IsNotNull(defaultException.Message);
 		Assert.IsNull(defaultException.InnerException);
-		Assert.AreEqual("xpath failed", messageException.Message);
-		Assert.AreEqual("wrapped", messageAndInnerException.Message);
+		Assert.AreEqual(expected: "xpath failed", messageException.Message);
+		Assert.AreEqual(expected: "wrapped", messageAndInnerException.Message);
 		Assert.AreSame(innerException, messageAndInnerException.InnerException);
 	}
 
@@ -138,14 +138,14 @@ public class SpecificExceptionCoverageTest
 		var messageException = new PersistenceException("persistence failed");
 		var nullMessageException = new PersistenceException(message: null);
 		var innerException = new InvalidOperationException("inner");
-		var messageAndInnerException = new PersistenceException("wrapped", innerException);
+		var messageAndInnerException = new PersistenceException(message: "wrapped", innerException);
 
 		Assert.IsInstanceOfType(defaultException, typeof(XtateException));
 		Assert.IsNotNull(defaultException.Message);
 		Assert.IsNull(defaultException.InnerException);
-		Assert.AreEqual("persistence failed", messageException.Message);
+		Assert.AreEqual(expected: "persistence failed", messageException.Message);
 		Assert.IsNotNull(nullMessageException.Message);
-		Assert.AreEqual("wrapped", messageAndInnerException.Message);
+		Assert.AreEqual(expected: "wrapped", messageAndInnerException.Message);
 		Assert.AreSame(innerException, messageAndInnerException.InnerException);
 	}
 
@@ -156,14 +156,14 @@ public class SpecificExceptionCoverageTest
 		var messageException = new StateMachineSecurityException("security failed");
 		var nullMessageException = new StateMachineSecurityException(message: null);
 		var innerException = new InvalidOperationException("inner");
-		var messageAndInnerException = new StateMachineSecurityException("wrapped", innerException);
+		var messageAndInnerException = new StateMachineSecurityException(message: "wrapped", innerException);
 
 		Assert.IsInstanceOfType(defaultException, typeof(XtateException));
 		Assert.IsNotNull(defaultException.Message);
 		Assert.IsNull(defaultException.InnerException);
-		Assert.AreEqual("security failed", messageException.Message);
+		Assert.AreEqual(expected: "security failed", messageException.Message);
 		Assert.IsNotNull(nullMessageException.Message);
-		Assert.AreEqual("wrapped", messageAndInnerException.Message);
+		Assert.AreEqual(expected: "wrapped", messageAndInnerException.Message);
 		Assert.AreSame(innerException, messageAndInnerException.InnerException);
 	}
 
@@ -173,13 +173,13 @@ public class SpecificExceptionCoverageTest
 		var defaultException = new StateMachineUnhandledErrorException();
 		var messageException = new StateMachineUnhandledErrorException("unhandled");
 		var innerException = new InvalidOperationException("inner");
-		var messageAndInnerException = new StateMachineUnhandledErrorException("wrapped", innerException);
+		var messageAndInnerException = new StateMachineUnhandledErrorException(message: "wrapped", innerException);
 
 		Assert.IsInstanceOfType(defaultException, typeof(XtateException));
 		Assert.IsNotNull(defaultException.Message);
 		Assert.IsNull(defaultException.InnerException);
-		Assert.AreEqual("unhandled", messageException.Message);
-		Assert.AreEqual("wrapped", messageAndInnerException.Message);
+		Assert.AreEqual(expected: "unhandled", messageException.Message);
+		Assert.AreEqual(expected: "wrapped", messageAndInnerException.Message);
 		Assert.AreSame(innerException, messageAndInnerException.InnerException);
 	}
 
@@ -190,14 +190,14 @@ public class SpecificExceptionCoverageTest
 		var defaultException = new StateMachineSuspendedException { Owner = owner };
 		var messageException = new StateMachineSuspendedException("suspended") { Owner = owner };
 		var innerException = new InvalidOperationException("inner");
-		var messageAndInnerException = new StateMachineSuspendedException("wrapped", innerException) { Owner = owner };
+		var messageAndInnerException = new StateMachineSuspendedException(message: "wrapped", innerException) { Owner = owner };
 
 		Assert.IsInstanceOfType(defaultException, typeof(OwnedXtateException));
 		Assert.IsTrue(defaultException.IsOwnedBy(owner));
 		Assert.IsNotNull(defaultException.Message);
 		Assert.IsNull(defaultException.InnerException);
-		Assert.AreEqual("suspended", messageException.Message);
-		Assert.AreEqual("wrapped", messageAndInnerException.Message);
+		Assert.AreEqual(expected: "suspended", messageException.Message);
+		Assert.AreEqual(expected: "wrapped", messageAndInnerException.Message);
 		Assert.AreSame(innerException, messageAndInnerException.InnerException);
 	}
 }

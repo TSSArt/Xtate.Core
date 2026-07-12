@@ -23,7 +23,7 @@ public class OptionsAsyncImpl<T> : IOptionsAsync<T>
 	private ValueTask<T>? _valueTask;
 
 	public required IAsyncEnumerable<IConfigureOptions<T>> Configurators { private get; [SetByIoC] init; }
-	
+
 	public required IAsyncEnumerable<IPostConfigureOptions<T>> PostConfigurators { private get; [SetByIoC] init; }
 
 #region Interface IOptionsAsync<T>

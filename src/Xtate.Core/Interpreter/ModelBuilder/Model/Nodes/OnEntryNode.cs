@@ -63,5 +63,4 @@ public class OnEntryNode : IOnEntry, IAncestorProvider, IDocumentId, IDebugEntit
 	public ImmutableArray<IExecutableEntity> Action => _onEntry.Action;
 
 #endregion
-
 }

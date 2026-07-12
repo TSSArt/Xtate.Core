@@ -25,8 +25,7 @@ public class LazyTask<T>
 
 	private readonly ITaskMonitor? _taskMonitor;
 
-	[SuppressMessage(category: "ReSharper", checkId: "FieldCanBeMadeReadOnly.Local")]
-	private readonly CancellationToken _token;
+	private CancellationToken _token;
 
 	private CancellationTokenRegistration _cancellationTokenRegistration;
 
@@ -64,13 +63,15 @@ public class LazyTask<T>
 
 			_cancellationTokenRegistration = _token.Register(static s => ((LazyTask<T>) s!).TokenCancelled(), this, useSynchronizationContext: false);
 
+			var valueTask = Execute();
+
 			if (_taskMonitor is not null)
 			{
-				Execute().Forget(_taskMonitor);
+				valueTask.Forget(_taskMonitor);
 			}
 			else
 			{
-				Execute().Forget();
+				valueTask.Forget();
 			}
 
 			return tcs.Task;

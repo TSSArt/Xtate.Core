@@ -18,6 +18,7 @@
 using System.Collections;
 using System.Threading;
 using System.Xml;
+using Xtate.Ancestor;
 using Xtate.DataModel;
 using Xtate.DataModel.Services;
 using Xtate.DataTypes;
@@ -69,7 +70,7 @@ public class CommunicationAndUtilityCoverageTest
 		scheduler.Verify(static s => s.CancelEvent(It.IsAny<SendId>(), It.IsAny<CancellationToken>()), Times.Once);
 
 		var invalidEvent = CreateOutgoingEvent(type: "unknown", target: "external", delayMs: 0);
-		Assert.ThrowsExactly<ProcessorException>([ExcludeFromCodeCoverage] () => communication.TrySend(invalidEvent).AsTask().GetAwaiter().GetResult());
+		Assert.ThrowsExactly<ProcessorException>([ExcludeFromCodeCoverage]() => communication.TrySend(invalidEvent).AsTask().GetAwaiter().GetResult());
 	}
 
 	[TestMethod]
@@ -87,7 +88,7 @@ public class CommunicationAndUtilityCoverageTest
 		Assert.AreEqual(outgoingEvent.Target, routerEvent.Target);
 		Assert.AreEqual(outgoingEvent.Name, routerEvent.Name);
 		Assert.AreEqual(outgoingEvent.SendId, routerEvent.SendId);
-		Assert.AreEqual("payload", routerEvent.Data.AsString());
+		Assert.AreEqual(expected: "payload", routerEvent.Data.AsString());
 		Assert.AreEqual(new FullUri("originType"), routerEvent.OriginType);
 		Assert.AreEqual(new FullUri("origin"), routerEvent.Origin);
 	}
@@ -103,15 +104,15 @@ public class CommunicationAndUtilityCoverageTest
 		var contentDefaultEvaluator = new DefaultScriptEvaluator(contentScript);
 		var sourceDefaultEvaluator = new DefaultScriptEvaluator(sourceOnlyScript);
 
-		Assert.AreSame(contentScript, ((Xtate.Ancestor.IAncestorProvider) contentDefaultEvaluator).Ancestor);
+		Assert.AreSame(contentScript, ((IAncestorProvider) contentDefaultEvaluator).Ancestor);
 		Assert.AreSame(contentEvaluator, contentDefaultEvaluator.Content);
 		Assert.AreSame(sourceEvaluator, contentDefaultEvaluator.Source);
 
 		await contentDefaultEvaluator.Execute();
 		await sourceDefaultEvaluator.Execute();
 
-		Assert.AreEqual(1, contentEvaluator.ExecuteCount);
-		Assert.AreEqual(1, sourceEvaluator.ExecuteCount);
+		Assert.AreEqual(expected: 1, contentEvaluator.ExecuteCount);
+		Assert.AreEqual(expected: 1, sourceEvaluator.ExecuteCount);
 	}
 
 	[TestMethod]
@@ -120,7 +121,7 @@ public class CommunicationAndUtilityCoverageTest
 		using var disposingToken = new DisposingToken();
 		var service = new TestExternalService
 					  {
-						  ExternalServiceSourceBase = new TestExternalServiceSource(new Uri("urn:test"), "raw", new DataModelValue("content")),
+						  ExternalServiceSourceBase = new TestExternalServiceSource(new Uri("urn:test"), rawContent: "raw", new DataModelValue("content")),
 						  ExternalServiceParametersBase = new TestExternalServiceParameters(new DataModelValue("parameters")),
 						  TaskMonitorBase = new PassThroughTaskMonitor(),
 						  DisposeTokenBase = new DisposeToken(disposingToken.Token)
@@ -130,37 +131,37 @@ public class CommunicationAndUtilityCoverageTest
 		var second = await ((IExternalService) service).GetResult();
 		await ((IEventDispatcher) service).Dispatch(new IncomingEvent { Name = (EventName) "event" }, CancellationToken.None);
 
-		Assert.AreEqual("urn:test:raw:content:parameters", first.AsString());
+		Assert.AreEqual(expected: "urn:test:raw:content:parameters", first.AsString());
 		Assert.AreEqual(first, second);
-		Assert.AreEqual(1, service.ExecuteCount);
-		Assert.AreEqual("event", service.LastDispatchedEventName);
+		Assert.AreEqual(expected: 1, service.ExecuteCount);
+		Assert.AreEqual(expected: "event", service.LastDispatchedEventName);
 	}
 
 	[TestMethod]
 	public void TextContentReaderExposesSingleTextNodeAndEmptyXmlSurface()
 	{
-		using var reader = new TextContentReader(new Uri("urn:text"), "body");
+		using var reader = new TextContentReader(new Uri("urn:text"), content: "body");
 
 		Assert.AreEqual(ReadState.Initial, reader.ReadState);
-		Assert.AreEqual("urn:text", reader.BaseURI);
-		Assert.AreEqual(0, reader.AttributeCount);
+		Assert.AreEqual(expected: "urn:text", reader.BaseURI);
+		Assert.AreEqual(expected: 0, reader.AttributeCount);
 		Assert.AreEqual(XmlNodeType.None, reader.NodeType);
 		Assert.IsFalse(reader.HasValue);
 		Assert.AreEqual(string.Empty, reader.Value);
 		Assert.IsTrue(reader.Read());
 		Assert.AreEqual(ReadState.Interactive, reader.ReadState);
 		Assert.AreEqual(XmlNodeType.Text, reader.NodeType);
-		Assert.AreEqual(1, reader.Depth);
+		Assert.AreEqual(expected: 1, reader.Depth);
 		Assert.IsTrue(reader.HasValue);
-		Assert.AreEqual("body", reader.Value);
-		Assert.AreEqual("body", reader.ReadString());
-		Assert.AreEqual("body", reader.ReadInnerXml());
-		Assert.AreEqual("body", reader.ReadOuterXml());
+		Assert.AreEqual(expected: "body", reader.Value);
+		Assert.AreEqual(expected: "body", reader.ReadString());
+		Assert.AreEqual(expected: "body", reader.ReadInnerXml());
+		Assert.AreEqual(expected: "body", reader.ReadOuterXml());
 		Assert.IsNull(reader.GetAttribute("missing"));
-		Assert.IsNull(reader.GetAttribute("missing", namespaceURI: null));
+		Assert.IsNull(reader.GetAttribute(name: "missing", namespaceURI: null));
 		Assert.IsNull(reader.LookupNamespace("prefix"));
 		Assert.IsFalse(reader.MoveToAttribute("missing"));
-		Assert.IsFalse(reader.MoveToAttribute("missing", namespaceURI: null));
+		Assert.IsFalse(reader.MoveToAttribute(name: "missing", namespaceURI: null));
 		Assert.IsFalse(reader.MoveToElement());
 		Assert.IsFalse(reader.MoveToFirstAttribute());
 		Assert.IsFalse(reader.MoveToNextAttribute());
@@ -168,8 +169,8 @@ public class CommunicationAndUtilityCoverageTest
 		Assert.IsFalse(reader.Read());
 		Assert.IsTrue(reader.EOF);
 		Assert.AreEqual(string.Empty, reader.Value);
-		Assert.ThrowsExactly<NotSupportedException>([ExcludeFromCodeCoverage] () => _ = reader.NameTable);
-		Assert.ThrowsExactly<NotSupportedException>([ExcludeFromCodeCoverage] () => reader.GetAttribute(0));
+		Assert.ThrowsExactly<NotSupportedException>([ExcludeFromCodeCoverage]() => _ = reader.NameTable);
+		Assert.ThrowsExactly<NotSupportedException>([ExcludeFromCodeCoverage]() => reader.GetAttribute(0));
 
 		reader.Close();
 
@@ -185,45 +186,45 @@ public class CommunicationAndUtilityCoverageTest
 		IList nonGenericList = list;
 		ICollection nonGenericCollection = list;
 
-		Assert.AreEqual(3, list.Count);
-		Assert.AreEqual("one", list[0]);
+		Assert.AreEqual(expected: 3, list.Count);
+		Assert.AreEqual(expected: "one", list[0]);
 		Assert.IsTrue(genericCollection.IsReadOnly);
 		Assert.IsTrue(nonGenericCollection.IsSynchronized);
 		Assert.IsTrue(nonGenericList.IsReadOnly);
 		Assert.IsTrue(nonGenericList.IsFixedSize);
 		Assert.IsTrue(list.Contains("three"));
 		Assert.IsFalse(list.Contains("missing"));
-		Assert.AreEqual(1, list.IndexOf(null));
-		Assert.AreEqual(2, nonGenericList.IndexOf("three"));
-		Assert.AreEqual(1, nonGenericList.IndexOf(null));
-		Assert.AreEqual(-1, nonGenericList.IndexOf(42));
+		Assert.AreEqual(expected: 1, list.IndexOf(null));
+		Assert.AreEqual(expected: 2, nonGenericList.IndexOf("three"));
+		Assert.AreEqual(expected: 1, nonGenericList.IndexOf(null));
+		Assert.AreEqual(expected: -1, nonGenericList.IndexOf(42));
 		Assert.IsTrue(nonGenericList.Contains(null));
-		Assert.AreEqual("one", nonGenericList[0]);
-		CollectionAssert.AreEqual(new string?[] { "one", null, "three" }, list.ToArray());
+		Assert.AreEqual(expected: "one", nonGenericList[0]);
+		CollectionAssert.AreEqual(new[] { "one", null, "three" }, list.ToArray());
 
 		var genericCopy = new string?[3];
 		var nonGenericCopy = new object?[3];
-		list.CopyTo(genericCopy, 0);
-		nonGenericCollection.CopyTo(nonGenericCopy, 0);
+		list.CopyTo(genericCopy, index: 0);
+		nonGenericCollection.CopyTo(nonGenericCopy, index: 0);
 
-		CollectionAssert.AreEqual(new string?[] { "one", null, "three" }, genericCopy);
+		CollectionAssert.AreEqual(new[] { "one", null, "three" }, genericCopy);
 		CollectionAssert.AreEqual(new object?[] { "one", null, "three" }, nonGenericCopy);
-		Assert.AreEqual("one", list.AsSpan()[0]);
-		Assert.AreEqual(3, list.AsMemory().Length);
+		Assert.AreEqual(expected: "one", list.AsSpan()[0]);
+		Assert.AreEqual(expected: 3, list.AsMemory().Length);
 
-		Assert.ThrowsExactly<NotSupportedException>([ExcludeFromCodeCoverage] () => _ = nonGenericCollection.SyncRoot);
-		Assert.ThrowsExactly<NotSupportedException>([ExcludeFromCodeCoverage] () => genericCollection.Add("new"));
-		Assert.ThrowsExactly<NotSupportedException>([ExcludeFromCodeCoverage] () => genericCollection.Clear());
-		Assert.ThrowsExactly<NotSupportedException>([ExcludeFromCodeCoverage] () => genericCollection.Remove("one"));
-		Assert.ThrowsExactly<NotSupportedException>([ExcludeFromCodeCoverage] () => genericList[0] = "new");
-		Assert.ThrowsExactly<NotSupportedException>([ExcludeFromCodeCoverage] () => genericList.Insert(0, "new"));
-		Assert.ThrowsExactly<NotSupportedException>([ExcludeFromCodeCoverage] () => genericList.RemoveAt(0));
-		Assert.ThrowsExactly<NotSupportedException>([ExcludeFromCodeCoverage] () => nonGenericList[0] = "new");
-		Assert.ThrowsExactly<NotSupportedException>([ExcludeFromCodeCoverage] () => nonGenericList.Add("new"));
-		Assert.ThrowsExactly<NotSupportedException>([ExcludeFromCodeCoverage] () => nonGenericList.Clear());
-		Assert.ThrowsExactly<NotSupportedException>([ExcludeFromCodeCoverage] () => nonGenericList.Insert(0, "new"));
-		Assert.ThrowsExactly<NotSupportedException>([ExcludeFromCodeCoverage] () => nonGenericList.Remove("one"));
-		Assert.ThrowsExactly<NotSupportedException>([ExcludeFromCodeCoverage] () => nonGenericList.RemoveAt(0));
+		Assert.ThrowsExactly<NotSupportedException>([ExcludeFromCodeCoverage]() => _ = nonGenericCollection.SyncRoot);
+		Assert.ThrowsExactly<NotSupportedException>([ExcludeFromCodeCoverage]() => genericCollection.Add("new"));
+		Assert.ThrowsExactly<NotSupportedException>([ExcludeFromCodeCoverage]() => genericCollection.Clear());
+		Assert.ThrowsExactly<NotSupportedException>([ExcludeFromCodeCoverage]() => genericCollection.Remove("one"));
+		Assert.ThrowsExactly<NotSupportedException>([ExcludeFromCodeCoverage]() => genericList[0] = "new");
+		Assert.ThrowsExactly<NotSupportedException>([ExcludeFromCodeCoverage]() => genericList.Insert(index: 0, item: "new"));
+		Assert.ThrowsExactly<NotSupportedException>([ExcludeFromCodeCoverage]() => genericList.RemoveAt(0));
+		Assert.ThrowsExactly<NotSupportedException>([ExcludeFromCodeCoverage]() => nonGenericList[0] = "new");
+		Assert.ThrowsExactly<NotSupportedException>([ExcludeFromCodeCoverage]() => nonGenericList.Add("new"));
+		Assert.ThrowsExactly<NotSupportedException>([ExcludeFromCodeCoverage]() => nonGenericList.Clear());
+		Assert.ThrowsExactly<NotSupportedException>([ExcludeFromCodeCoverage]() => nonGenericList.Insert(index: 0, value: "new"));
+		Assert.ThrowsExactly<NotSupportedException>([ExcludeFromCodeCoverage]() => nonGenericList.Remove("one"));
+		Assert.ThrowsExactly<NotSupportedException>([ExcludeFromCodeCoverage]() => nonGenericList.RemoveAt(0));
 	}
 
 	private static IOutgoingEvent CreateOutgoingEvent(string type = "processor", string target = "target", int delayMs = 0) =>
@@ -239,6 +240,8 @@ public class CommunicationAndUtilityCoverageTest
 
 	private sealed class OutgoingEventSource : IOutgoingEvent
 	{
+	#region Interface IOutgoingEvent
+
 		public SendId? SendId { get; init; }
 
 		public EventName Name { get; init; }
@@ -250,22 +253,26 @@ public class CommunicationAndUtilityCoverageTest
 		public int DelayMs { get; init; }
 
 		public DataModelValue Data { get; init; }
+
+	#endregion
 	}
 
 	private sealed class ScriptSource : IScript
 	{
+	#region Interface IScript
+
 		public IScriptExpression? Content { get; init; }
 
 		public IExternalScriptExpression? Source { get; init; }
+
+	#endregion
 	}
 
 	private sealed class ScriptPart(string value) : IScriptExpression, IExternalScriptExpression, IExecEvaluator
 	{
 		public int ExecuteCount { get; private set; }
 
-		public string? Expression => value;
-
-		public Uri? Uri => new("urn:" + value);
+	#region Interface IExecEvaluator
 
 		public ValueTask Execute()
 		{
@@ -273,6 +280,20 @@ public class CommunicationAndUtilityCoverageTest
 
 			return ValueTask.CompletedTask;
 		}
+
+	#endregion
+
+	#region Interface IExternalScriptExpression
+
+		public Uri? Uri => new("urn:" + value);
+
+	#endregion
+
+	#region Interface IScriptExpression
+
+		public string? Expression => value;
+
+	#endregion
 	}
 
 	private sealed class TestExternalService : ExternalServiceBase
@@ -285,7 +306,7 @@ public class CommunicationAndUtilityCoverageTest
 		{
 			ExecuteCount ++;
 
-			return new(new DataModelValue($"{Source}:{RawContent}:{Content.AsString()}:{Parameters.AsString()}"));
+			return new ValueTask<DataModelValue>(new DataModelValue($"{Source}:{RawContent}:{Content.AsString()}:{Parameters.AsString()}"));
 		}
 
 		protected override ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token)
@@ -298,20 +319,30 @@ public class CommunicationAndUtilityCoverageTest
 
 	private sealed class TestExternalServiceSource(Uri source, string rawContent, DataModelValue content) : IExternalServiceSource
 	{
+	#region Interface IExternalServiceSource
+
 		public Uri? Source { get; } = source;
 
 		public string? RawContent { get; } = rawContent;
 
 		public DataModelValue Content { get; } = content;
+
+	#endregion
 	}
 
 	private sealed class TestExternalServiceParameters(DataModelValue parameters) : IExternalServiceParameters
 	{
+	#region Interface IExternalServiceParameters
+
 		public DataModelValue Parameters { get; } = parameters;
+
+	#endregion
 	}
 
 	private sealed class PassThroughTaskMonitor : ITaskMonitor
 	{
+	#region Interface ITaskMonitor
+
 		public Task WaitAsync(Task task, CancellationToken token) => task;
 
 		public Task<TResult> WaitAsync<TResult>(Task<TResult> task, CancellationToken token) => task;
@@ -325,5 +356,7 @@ public class CommunicationAndUtilityCoverageTest
 		public void Forget(ValueTask valueTask) { }
 
 		public void Forget<TResult>(ValueTask<TResult> valueTask) { }
+
+	#endregion
 	}
 }

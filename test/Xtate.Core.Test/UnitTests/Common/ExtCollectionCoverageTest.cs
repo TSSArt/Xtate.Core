@@ -36,29 +36,29 @@ public class ExtCollectionCoverageTest
 
 		var added = await pendingAdd;
 		Assert.IsTrue(added.Found);
-		Assert.AreEqual(1, added.Value);
-		Assert.IsTrue(dictionary.TryGetValue("alpha", out var current));
-		Assert.AreEqual(1, current);
+		Assert.AreEqual(expected: 1, added.Value);
+		Assert.IsTrue(dictionary.TryGetValue(key: "alpha", out var current));
+		Assert.AreEqual(expected: 1, current);
 
 		Assert.IsTrue(dictionary.TryAddPending("beta"));
 		var pendingAddOrUpdate = dictionary.TryGetValueAsync("BETA").AsTask();
-		Assert.AreEqual(3, dictionary.AddOrUpdate("beta", static (_, arg) => arg, static (_, value, arg) => value + arg, 3));
+		Assert.AreEqual(expected: 3, dictionary.AddOrUpdate(key: "beta", static (_, arg) => arg, static (_, value, arg) => value + arg, factoryArgument: 3));
 
 		var addedByAddOrUpdate = await pendingAddOrUpdate;
 		Assert.IsTrue(addedByAddOrUpdate.Found);
-		Assert.AreEqual(3, addedByAddOrUpdate.Value);
-		Assert.AreEqual(3, dictionary.AddOrUpdate("ALPHA", static (_, arg) => arg, static (_, value, arg) => value + arg, 2));
+		Assert.AreEqual(expected: 3, addedByAddOrUpdate.Value);
+		Assert.AreEqual(expected: 3, dictionary.AddOrUpdate(key: "ALPHA", static (_, arg) => arg, static (_, value, arg) => value + arg, factoryArgument: 2));
 
 		Assert.IsTrue(dictionary.TryAddPending("alpha"));
 		var pendingRemove = dictionary.TryGetValueAsync("missing").AsTask();
-		Assert.IsTrue(dictionary.TryRemovePair("alpha", 3));
+		Assert.IsTrue(dictionary.TryRemovePair(key: "alpha", value: 3));
 		Assert.IsFalse(dictionary.IsEmpty);
-		Assert.IsFalse(dictionary.TryRemove("missing", out _));
+		Assert.IsFalse(dictionary.TryRemove(key: "missing", out _));
 
 		var removed = await pendingRemove;
 		Assert.IsFalse(removed.Found);
-		Assert.AreEqual(0, removed.Value);
-		Assert.IsTrue(dictionary.TryRemove("beta", out _));
+		Assert.AreEqual(expected: 0, removed.Value);
+		Assert.IsTrue(dictionary.TryRemove(key: "beta", out _));
 		Assert.IsTrue(dictionary.IsEmpty);
 	}
 
@@ -67,23 +67,23 @@ public class ExtCollectionCoverageTest
 	{
 		var dictionary = new ExtDictionary<string, int>();
 
-		Assert.AreEqual(10, dictionary.GetOrAdd("one", static (_, arg) => arg, 10));
-		Assert.AreEqual(10, dictionary.GetOrAdd("one", static (_, arg) => arg, 20));
-		Assert.AreEqual(15, dictionary.UpdateOrRemove("one", static (_, value, _) => value < 0, static (_, value, arg) => value + arg, 5));
-		Assert.AreEqual(1, dictionary.Count);
+		Assert.AreEqual(expected: 10, dictionary.GetOrAdd(key: "one", static (_, arg) => arg, factoryArgument: 10));
+		Assert.AreEqual(expected: 10, dictionary.GetOrAdd(key: "one", static (_, arg) => arg, factoryArgument: 20));
+		Assert.AreEqual(expected: 15, dictionary.UpdateOrRemove(key: "one", static (_, value, _) => value < 0, static (_, value, arg) => value + arg, factoryArgument: 5));
+		Assert.AreEqual(expected: 1, dictionary.Count);
 		CollectionAssert.AreEqual(new[] { "one" }, dictionary.Keys.ToArray());
 		CollectionAssert.AreEqual(new[] { 15 }, dictionary.Values.ToArray());
 		CollectionAssert.AreEqual(new[] { "one=15" }, dictionary.Select(pair => $"{pair.Key}={pair.Value}").ToArray());
 
-		Assert.AreEqual(0, dictionary.UpdateOrRemove("one", static (_, value, arg) => value == arg, static (_, value, _) => value, 15));
-		Assert.IsFalse(dictionary.TryGetValue("one", out _));
+		Assert.AreEqual(expected: 0, dictionary.UpdateOrRemove(key: "one", static (_, value, arg) => value == arg, static (_, value, _) => value, factoryArgument: 15));
+		Assert.IsFalse(dictionary.TryGetValue(key: "one", out _));
 
-		dictionary.TryAdd("take", 99);
+		dictionary.TryAdd(key: "take", value: 99);
 		Assert.IsTrue(dictionary.TryTake(out var key, out var value));
-		Assert.AreEqual("take", key);
-		Assert.AreEqual(99, value);
+		Assert.AreEqual(expected: "take", key);
+		Assert.AreEqual(expected: 99, value);
 		Assert.IsFalse(dictionary.TryTake(out _, out _));
-		Assert.ThrowsExactly<KeyNotFoundException>([ExcludeFromCodeCoverage] () => _ = dictionary["missing"]);
+		Assert.ThrowsExactly<KeyNotFoundException>([ExcludeFromCodeCoverage]() => _ = dictionary["missing"]);
 	}
 
 	[TestMethod]
@@ -91,26 +91,26 @@ public class ExtCollectionCoverageTest
 	{
 		var collection = new ExtCollection<string, string>(StringComparer.OrdinalIgnoreCase, StringComparer.OrdinalIgnoreCase);
 
-		collection.Add("group", "one");
-		collection.Add("GROUP", "two");
-		collection.Add("other", "three");
+		collection.Add(value1: "group", value2: "one");
+		collection.Add(value1: "GROUP", value2: "two");
+		collection.Add(value1: "other", value2: "three");
 
-		Assert.AreEqual(3, collection.Count);
+		Assert.AreEqual(expected: 3, collection.Count);
 		CollectionAssert.AreEquivalent(new[] { "group=one", "group=two", "other=three" }, collection.Select(pair => $"{pair.Item1}={pair.Item2}").ToArray());
 
-		Assert.IsTrue(collection.Remove("group", "TWO"));
-		Assert.AreEqual(2, collection.Count);
-		Assert.IsFalse(collection.Remove("group", "missing"));
+		Assert.IsTrue(collection.Remove(value1: "group", value2: "TWO"));
+		Assert.AreEqual(expected: 2, collection.Count);
+		Assert.IsFalse(collection.Remove(value1: "group", value2: "missing"));
 
-		Assert.IsTrue(collection.TryRemoveGroup("GROUP", out var groupValues));
+		Assert.IsTrue(collection.TryRemoveGroup(value: "GROUP", out var groupValues));
 		CollectionAssert.AreEqual(new[] { "one" }, groupValues.ToArray());
-		Assert.AreEqual(1, collection.Count);
-		Assert.IsFalse(collection.TryRemoveGroup("missing", out _));
+		Assert.AreEqual(expected: 1, collection.Count);
+		Assert.IsFalse(collection.TryRemoveGroup(value: "missing", out _));
 
 		Assert.IsTrue(collection.TryTake(out var key, out var value));
-		Assert.AreEqual("other", key);
-		Assert.AreEqual("three", value);
-		Assert.AreEqual(0, collection.Count);
+		Assert.AreEqual(expected: "other", key);
+		Assert.AreEqual(expected: "three", value);
+		Assert.AreEqual(expected: 0, collection.Count);
 		Assert.IsFalse(collection.TryTake(out _, out _));
 	}
 }

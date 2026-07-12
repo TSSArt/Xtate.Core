@@ -16,7 +16,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Threading;
-using Xtate;
 using Xtate.TaskMonitor;
 
 namespace Xtate.Test;
@@ -24,45 +23,6 @@ namespace Xtate.Test;
 [TestClass]
 public class ValueTaskExtensionsTest
 {
-	[ExcludeFromCodeCoverage]
-	private class MockTaskMonitor : ITaskMonitor
-	{
-		public List<ValueTask> ForgottenValueTasks { get; } = [];
-
-		public void Forget(Task task)
-		{
-		}
-
-		public void Forget(ValueTask valueTask)
-		{
-			ForgottenValueTasks.Add(valueTask);
-		}
-
-		public void Forget<TResult>(ValueTask<TResult> valueTask)
-		{
-		}
-
-		public Task WaitAsync(Task task, CancellationToken token)
-		{
-			return task;
-		}
-
-		public Task<TResult> WaitAsync<TResult>(Task<TResult> task, CancellationToken token)
-		{
-			return task;
-		}
-
-		public ValueTask WaitAsync(ValueTask valueTask, CancellationToken token)
-		{
-			return valueTask;
-		}
-
-		public ValueTask<TResult> WaitAsync<TResult>(ValueTask<TResult> valueTask, CancellationToken token)
-		{
-			return valueTask;
-		}
-	}
-
 	[TestMethod]
 	[ExcludeFromCodeCoverage]
 	public void Forget_OnValueTask_ShouldNotThrow()
@@ -112,7 +72,7 @@ public class ValueTaskExtensionsTest
 		valueTask.Forget(mockMonitor);
 
 		// Assert
-		Assert.AreEqual(1, mockMonitor.ForgottenValueTasks.Count);
+		Assert.AreEqual(expected: 1, mockMonitor.ForgottenValueTasks.Count);
 	}
 
 	[TestMethod]
@@ -157,5 +117,32 @@ public class ValueTaskExtensionsTest
 
 		// Assert
 		Assert.IsTrue(true);
+	}
+
+	[ExcludeFromCodeCoverage]
+	private class MockTaskMonitor : ITaskMonitor
+	{
+		public List<ValueTask> ForgottenValueTasks { get; } = [];
+
+	#region Interface ITaskMonitor
+
+		public void Forget(Task task) { }
+
+		public void Forget(ValueTask valueTask)
+		{
+			ForgottenValueTasks.Add(valueTask);
+		}
+
+		public void Forget<TResult>(ValueTask<TResult> valueTask) { }
+
+		public Task WaitAsync(Task task, CancellationToken token) => task;
+
+		public Task<TResult> WaitAsync<TResult>(Task<TResult> task, CancellationToken token) => task;
+
+		public ValueTask WaitAsync(ValueTask valueTask, CancellationToken token) => valueTask;
+
+		public ValueTask<TResult> WaitAsync<TResult>(ValueTask<TResult> valueTask, CancellationToken token) => valueTask;
+
+	#endregion
 	}
 }

@@ -1,6 +1,6 @@
 // Copyright © 2019-2026 Sergii Artemenko
 // 
-// This file is part of the Xtate project. <https://xtate.net/>.
+// This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -24,19 +24,23 @@ namespace Xtate.Test.StateMachines.XPath;
 public class XPathMachines : IScxmlTestSource
 {
 	public static readonly string XPathRaiseOnEntry = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="xpath" initial="first">
-		  <state id="first">
-			<onentry>
-			  <raise event="go"/>
-			</onentry>
-			<transition event="go" target="done"/>
-		  </state>
-		  <final id="done"/>
-		</scxml>
-		""";
+													  <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="xpath" initial="first">
+													    <state id="first">
+													  	<onentry>
+													  	  <raise event="go"/>
+													  	</onentry>
+													  	<transition event="go" target="done"/>
+													    </state>
+													    <final id="done"/>
+													  </scxml>
+													  """;
+
+#region Interface IScxmlTestSource
 
 	public IEnumerable<ScxmlTestCase> GetTestCases()
 	{
-		yield return new ScxmlTestCase("XPath/XPathRaiseOnEntry",     XPathRaiseOnEntry);
+		yield return new ScxmlTestCase(Name: "XPath/XPathRaiseOnEntry", XPathRaiseOnEntry);
 	}
+
+#endregion
 }

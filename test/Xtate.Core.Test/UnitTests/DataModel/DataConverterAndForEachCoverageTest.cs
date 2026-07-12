@@ -45,9 +45,9 @@ public class DataConverterAndForEachCoverageTest
 		var stringBodyResult = await converter.GetContent(new StringOnlyEvaluator("plain text"), contentExpressionEvaluator: null);
 		var undefinedResult = await converter.GetContent(contentBodyEvaluator: null, contentExpressionEvaluator: null);
 
-		Assert.AreEqual("expression object", expressionResult.AsString());
-		Assert.AreEqual("body object", objectBodyResult.AsString());
-		Assert.AreEqual("plain text", stringBodyResult.AsString());
+		Assert.AreEqual(expected: "expression object", expressionResult.AsString());
+		Assert.AreEqual(expected: "body object", objectBodyResult.AsString());
+		Assert.AreEqual(expected: "plain text", stringBodyResult.AsString());
 		Assert.IsTrue(undefinedResult.IsUndefined());
 	}
 
@@ -55,13 +55,13 @@ public class DataConverterAndForEachCoverageTest
 	public async Task DataConverterBuildsParameterObjectFromNameEvaluatorsAndParamAncestors()
 	{
 		var converter = new DataConverter(new CaseSensitivitySource(caseInsensitive: true));
-		var nameEvaluator = new LocationExpressionSource("DirectName", new DataModelValue("direct value"));
+		var nameEvaluator = new LocationExpressionSource(name: "DirectName", new DataModelValue("direct value"));
 		var expression = new ValueExpressionSource { ObjectValue = new DataModelValue("expression value") };
-		var location = new LocationExpressionSource("location-source", new DataModelValue("location value"));
+		var location = new LocationExpressionSource(name: "location-source", new DataModelValue("location value"));
 		var parameters = DataConverter.AsParamArray(
 			ImmutableArray.Create<IParam>(
-				new ParamSource("ExpressionParam", expression, location: null),
-				new ParamSource("LocationParam", expression: null, location)));
+				new ParamSource(name: "ExpressionParam", expression, location: null),
+				new ParamSource(name: "LocationParam", expression: null, location)));
 
 		var value = await converter.GetData(
 			contentBodyEvaluator: null,
@@ -71,9 +71,9 @@ public class DataConverterAndForEachCoverageTest
 		var list = value.AsList();
 
 		Assert.IsTrue(list.CaseInsensitive);
-		Assert.AreEqual("direct value", list["directname"].AsString());
-		Assert.AreEqual("expression value", list["expressionparam"].AsString());
-		Assert.AreEqual("location value", list["locationparam"].AsString());
+		Assert.AreEqual(expected: "direct value", list["directname"].AsString());
+		Assert.AreEqual(expected: "expression value", list["expressionparam"].AsString());
+		Assert.AreEqual(expected: "location value", list["locationparam"].AsString());
 		Assert.IsTrue(DataConverter.AsParamArray(default).IsDefault);
 	}
 
@@ -83,34 +83,35 @@ public class DataConverterAndForEachCoverageTest
 		var converter = new DataConverter(new CaseSensitivitySource(caseInsensitive: true));
 		await using var resource = new Resource(new MemoryStream(Encoding.UTF8.GetBytes("resource text")), contentType: null);
 
-		Assert.AreEqual("resource text", (await converter.FromContent(resource)).AsString());
+		Assert.AreEqual(expected: "resource text", (await converter.FromContent(resource)).AsString());
 
 		var eventData = new DataModelList { { "payload", "value" } };
-		var eventValue = converter.FromEvent(new IncomingEvent
-											 {
-												 Name = (EventName) "event.name",
-												 Type = EventType.External,
-												 SendId = SendId.FromString("send-1"),
-												 Origin = new FullUri("https://origin.test/"),
-												 OriginType = new FullUri("https://type.test/"),
-												 InvokeId = InvokeId.FromString("invoke-1"),
-												 Data = eventData
-											 });
+		var eventValue = converter.FromEvent(
+			new IncomingEvent
+			{
+				Name = (EventName) "event.name",
+				Type = EventType.External,
+				SendId = SendId.FromString("send-1"),
+				Origin = new FullUri("https://origin.test/"),
+				OriginType = new FullUri("https://type.test/"),
+				InvokeId = InvokeId.FromString("invoke-1"),
+				Data = eventData
+			});
 		var eventList = eventValue.AsList();
 
-		Assert.AreEqual("event.name", eventList["NAME"].AsString());
-		Assert.AreEqual("external", eventList["type"].AsString());
-		Assert.AreEqual("send-1", eventList["sendid"].AsString());
-		Assert.AreEqual("https://origin.test/", eventList["origin"].AsString());
-		Assert.AreEqual("https://type.test/", eventList["origintype"].AsString());
-		Assert.AreEqual("invoke-1", eventList["invokeid"].AsString());
-		Assert.AreEqual("value", eventList["data"].AsList()["payload"].AsString());
-		Assert.AreEqual("platform", converter.FromEvent(new IncomingEvent { Name = (EventName) "platform", Type = EventType.Platform }).AsList()["type"].AsString());
-		Assert.AreEqual("internal", converter.FromEvent(new IncomingEvent { Name = (EventName) "internal", Type = EventType.Internal }).AsList()["type"].AsString());
+		Assert.AreEqual(expected: "event.name", eventList["NAME"].AsString());
+		Assert.AreEqual(expected: "external", eventList["type"].AsString());
+		Assert.AreEqual(expected: "send-1", eventList["sendid"].AsString());
+		Assert.AreEqual(expected: "https://origin.test/", eventList["origin"].AsString());
+		Assert.AreEqual(expected: "https://type.test/", eventList["origintype"].AsString());
+		Assert.AreEqual(expected: "invoke-1", eventList["invokeid"].AsString());
+		Assert.AreEqual(expected: "value", eventList["data"].AsList()["payload"].AsString());
+		Assert.AreEqual(expected: "platform", converter.FromEvent(new IncomingEvent { Name = (EventName) "platform", Type = EventType.Platform }).AsList()["type"].AsString());
+		Assert.AreEqual(expected: "internal", converter.FromEvent(new IncomingEvent { Name = (EventName) "internal", Type = EventType.Internal }).AsList()["type"].AsString());
 
 		var exceptionList = converter.FromException(new InvalidOperationException("boom")).AsList();
 
-		Assert.AreEqual("boom", exceptionList["MESSAGE"].AsString());
+		Assert.AreEqual(expected: "boom", exceptionList["MESSAGE"].AsString());
 		Assert.AreEqual(nameof(InvalidOperationException), exceptionList["typename"].AsString());
 		Assert.IsTrue(exceptionList.ContainsKey("TYPEFULLNAME"));
 		Assert.IsTrue(exceptionList.ContainsKey("text"));
@@ -121,12 +122,12 @@ public class DataConverterAndForEachCoverageTest
 	{
 		var arrayExpression = new ValueExpressionSource
 							  {
-								  ArrayValue = Enumerable.Range(0, 257)
+								  ArrayValue = Enumerable.Range(start: 0, count: 257)
 														 .Select(static index => (IObject) new DataModelValue($"item-{index}"))
 														 .ToArray()
 							  };
-		var itemLocation = new LocationExpressionSource("item", DataModelValue.Undefined);
-		var indexLocation = new LocationExpressionSource("index", DataModelValue.Undefined);
+		var itemLocation = new LocationExpressionSource(name: "item", DataModelValue.Undefined);
+		var indexLocation = new LocationExpressionSource(name: "index", DataModelValue.Undefined);
 		var action = new ExecutableEntitySource();
 		var forEach = new ForEachSource(arrayExpression, itemLocation, indexLocation, ImmutableArray.Create<IExecutableEntity>(action));
 		var evaluator = new DefaultForEachEvaluator(forEach);
@@ -139,60 +140,84 @@ public class DataConverterAndForEachCoverageTest
 
 		await evaluator.Execute();
 
-		Assert.AreEqual(257, action.ExecuteCount);
-		Assert.AreEqual(257, itemLocation.SetValues.Count);
-		Assert.AreEqual(257, indexLocation.SetValues.Count);
-		Assert.AreEqual("item-0", DataModelValue.FromObject(itemLocation.SetValues[0].ToObject()).AsString());
-		Assert.AreEqual("item-256", DataModelValue.FromObject(itemLocation.SetValues[256].ToObject()).AsString());
-		Assert.AreEqual(0, indexLocation.SetValues[0].ToObject());
-		Assert.AreEqual(255, indexLocation.SetValues[255].ToObject());
-		Assert.AreEqual(256, indexLocation.SetValues[256].ToObject());
+		Assert.AreEqual(expected: 257, action.ExecuteCount);
+		Assert.AreEqual(expected: 257, itemLocation.SetValues.Count);
+		Assert.AreEqual(expected: 257, indexLocation.SetValues.Count);
+		Assert.AreEqual(expected: "item-0", DataModelValue.FromObject(itemLocation.SetValues[0].ToObject()).AsString());
+		Assert.AreEqual(expected: "item-256", DataModelValue.FromObject(itemLocation.SetValues[256].ToObject()).AsString());
+		Assert.AreEqual(expected: 0, indexLocation.SetValues[0].ToObject());
+		Assert.AreEqual(expected: 255, indexLocation.SetValues[255].ToObject());
+		Assert.AreEqual(expected: 256, indexLocation.SetValues[256].ToObject());
 	}
 
 	[TestMethod]
 	public async Task DefaultForEachEvaluatorAllowsMissingIndexAndEmptyActions()
 	{
 		var arrayExpression = new ValueExpressionSource { ArrayValue = [new DataModelValue("only item")] };
-		var itemLocation = new LocationExpressionSource("item", DataModelValue.Undefined);
-		var forEach = new ForEachSource(arrayExpression, itemLocation, index: null, action: []);
+		var itemLocation = new LocationExpressionSource(name: "item", DataModelValue.Undefined);
+		var forEach = new ForEachSource(arrayExpression, itemLocation, index: null, []);
 		var evaluator = new DefaultForEachEvaluator(forEach);
 
 		await evaluator.Execute();
 
 		Assert.IsNull(evaluator.Index);
-		Assert.AreEqual(1, itemLocation.SetValues.Count);
-		Assert.AreEqual("only item", DataModelValue.FromObject(itemLocation.SetValues.Single().ToObject()).AsString());
+		Assert.AreEqual(expected: 1, itemLocation.SetValues.Count);
+		Assert.AreEqual(expected: "only item", DataModelValue.FromObject(itemLocation.SetValues.Single().ToObject()).AsString());
 	}
 
 	private sealed class CaseSensitivitySource(bool caseInsensitive) : ICaseSensitivity
 	{
+	#region Interface ICaseSensitivity
+
 		public bool CaseInsensitive => caseInsensitive;
+
+	#endregion
 	}
 
 	private sealed class ValueExpressionSource : IValueExpression, IValueEvaluator, IObjectEvaluator, IArrayEvaluator, IStringEvaluator
 	{
-		public string? Expression { get; init; }
-
 		public DataModelValue ObjectValue { get; init; } = DataModelValue.Undefined;
 
 		public IObject[] ArrayValue { get; init; } = [];
 
 		public string StringValue { get; init; } = string.Empty;
 
-		public ValueTask<DataModelValue> Evaluate() => new(ObjectValue);
-
-		public ValueTask<IObject> EvaluateObject() => new(ObjectValue);
+	#region Interface IArrayEvaluator
 
 		public ValueTask<IObject[]> EvaluateArray() => new(ArrayValue);
 
+	#endregion
+
+	#region Interface IObjectEvaluator
+
+		public ValueTask<IObject> EvaluateObject() => new(ObjectValue);
+
+	#endregion
+
+	#region Interface IStringEvaluator
+
 		public ValueTask<string> EvaluateString() => new(StringValue);
+
+	#endregion
+
+	#region Interface IValueExpression
+
+		public string? Expression { get; init; }
+
+	#endregion
+
+		public ValueTask<DataModelValue> Evaluate() => new(ObjectValue);
 	}
 
 	private sealed class StringOnlyEvaluator(string value) : IValueEvaluator, IStringEvaluator
 	{
-		public ValueTask<DataModelValue> Evaluate() => new(value);
+	#region Interface IStringEvaluator
 
 		public ValueTask<string> EvaluateString() => new(value);
+
+	#endregion
+
+		public ValueTask<DataModelValue> Evaluate() => new(value);
 	}
 
 	private sealed class LocationExpressionSource(string name, IObject value) : ILocationExpression, ILocationEvaluator
@@ -201,7 +226,7 @@ public class DataConverterAndForEachCoverageTest
 
 		public List<IObject> SetValues { get; } = [];
 
-		public string? Expression => name;
+	#region Interface ILocationEvaluator
 
 		public ValueTask SetValue(IObject value)
 		{
@@ -214,11 +239,21 @@ public class DataConverterAndForEachCoverageTest
 		public ValueTask<IObject> GetValue() => new(_value);
 
 		public ValueTask<string> GetName() => new(name);
+
+	#endregion
+
+	#region Interface ILocationExpression
+
+		public string? Expression => name;
+
+	#endregion
 	}
 
 	private sealed class ExecutableEntitySource : IExecutableEntity, IExecEvaluator
 	{
 		public int ExecuteCount { get; private set; }
+
+	#region Interface IExecEvaluator
 
 		public ValueTask Execute()
 		{
@@ -226,22 +261,31 @@ public class DataConverterAndForEachCoverageTest
 
 			return ValueTask.CompletedTask;
 		}
+
+	#endregion
 	}
 
 	private sealed class ParamSource(string name, IValueExpression? expression, ILocationExpression? location) : IParam
 	{
+	#region Interface IParam
+
 		public string Name => name;
 
 		public IValueExpression? Expression => expression;
 
 		public ILocationExpression? Location => location;
+
+	#endregion
 	}
 
-	private sealed class ForEachSource(IValueExpression array,
-									   ILocationExpression item,
-									   ILocationExpression? index,
-									   ImmutableArray<IExecutableEntity> action) : IForEach
+	private sealed class ForEachSource(
+		IValueExpression array,
+		ILocationExpression item,
+		ILocationExpression? index,
+		ImmutableArray<IExecutableEntity> action) : IForEach
 	{
+	#region Interface IForEach
+
 		public IValueExpression? Array => array;
 
 		public ILocationExpression? Item => item;
@@ -249,5 +293,7 @@ public class DataConverterAndForEachCoverageTest
 		public ILocationExpression? Index => index;
 
 		public ImmutableArray<IExecutableEntity> Action => action;
+
+	#endregion
 	}
 }

@@ -37,9 +37,11 @@ public class PersistedIncomingEvent : IncomingEvent, IStoreSupport
 		SendId = bucket.GetSendId(Key.SendId);
 		Origin = bucket.GetFullUri(Key.Origin);
 		OriginType = bucket.GetFullUri(Key.OriginType);
-		InvokeId = bucket.GetInvokeId(Key.InvokeUniqueId);
+		InvokeId = bucket.GetInvokeId(Key.InvokeId);
 		Data = bucket.GetDataModelValue(Key.Data);
 	}
+
+#region Interface IStoreSupport
 
 	void IStoreSupport.Store(Bucket bucket)
 	{
@@ -52,4 +54,6 @@ public class PersistedIncomingEvent : IncomingEvent, IStoreSupport
 		bucket.AddId(Key.InvokeId, InvokeId);
 		bucket.AddDataModelValue(Key.Data, Data);
 	}
+
+#endregion
 }

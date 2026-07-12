@@ -1,6 +1,6 @@
 // Copyright © 2019-2026 Sergii Artemenko
 // 
-// This file is part of the Xtate project. <https://xtate.net/>.
+// This file is part of the Xtate project. <https://xtate.net/>
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
@@ -24,55 +24,59 @@ namespace Xtate.Test.StateMachines.Metadata;
 public class MetadataMachines : IScxmlTestSource
 {
 	public static readonly string NamedStateMachine = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" name="NamedStateMachine" initial="done">
-		  <final id="done"/>
-		</scxml>
-		""";
+													  <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" name="NamedStateMachine" initial="done">
+													    <final id="done"/>
+													  </scxml>
+													  """;
 
 	public static readonly string BindingEarlyStateMachine = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" binding="early" initial="done">
-		  <final id="done"/>
-		</scxml>
-		""";
+															 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" binding="early" initial="done">
+															   <final id="done"/>
+															 </scxml>
+															 """;
 
 	public static readonly string NullDataModelNamedStateMachine = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" name="NullDataModel" datamodel="null" initial="done">
-		  <final id="done"/>
-		</scxml>
-		""";
+																   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" name="NullDataModel" datamodel="null" initial="done">
+																     <final id="done"/>
+																   </scxml>
+																   """;
 
 	public static readonly string OnEntryOnExitMetadataStateMachine = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" name="OnEntryOnExitMetadata" initial="start">
-		  <state id="start">
-			<onentry>
-			  <log label="enter"/>
-			</onentry>
-			<onexit>
-			  <log label="exit"/>
-			</onexit>
-			<transition target="done"/>
-		  </state>
-		  <final id="done"/>
-		</scxml>
-		""";
+																	  <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" name="OnEntryOnExitMetadata" initial="start">
+																	    <state id="start">
+																	  	<onentry>
+																	  	  <log label="enter"/>
+																	  	</onentry>
+																	  	<onexit>
+																	  	  <log label="exit"/>
+																	  	</onexit>
+																	  	<transition target="done"/>
+																	    </state>
+																	    <final id="done"/>
+																	  </scxml>
+																	  """;
 
 	public static readonly string CompoundWithExplicitInitial = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
-		  <state id="outer" initial="inner">
-			<state id="inner">
-			  <transition target="done"/>
-			</state>
-		  </state>
-		  <final id="done"/>
-		</scxml>
-		""";
+																<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
+																  <state id="outer" initial="inner">
+																	<state id="inner">
+																	  <transition target="done"/>
+																	</state>
+																  </state>
+																  <final id="done"/>
+																</scxml>
+																""";
+
+#region Interface IScxmlTestSource
 
 	public IEnumerable<ScxmlTestCase> GetTestCases()
 	{
-		yield return new ScxmlTestCase("Metadata/NamedStateMachine",             NamedStateMachine);
-		yield return new ScxmlTestCase("Metadata/BindingEarlyStateMachine",      BindingEarlyStateMachine);
-		yield return new ScxmlTestCase("Metadata/NullDataModelNamedStateMachine", NullDataModelNamedStateMachine);
-		yield return new ScxmlTestCase("Metadata/OnEntryOnExitMetadataStateMachine", OnEntryOnExitMetadataStateMachine);
-		yield return new ScxmlTestCase("Metadata/CompoundWithExplicitInitial",    CompoundWithExplicitInitial);
+		yield return new ScxmlTestCase(Name: "Metadata/NamedStateMachine", NamedStateMachine);
+		yield return new ScxmlTestCase(Name: "Metadata/BindingEarlyStateMachine", BindingEarlyStateMachine);
+		yield return new ScxmlTestCase(Name: "Metadata/NullDataModelNamedStateMachine", NullDataModelNamedStateMachine);
+		yield return new ScxmlTestCase(Name: "Metadata/OnEntryOnExitMetadataStateMachine", OnEntryOnExitMetadataStateMachine);
+		yield return new ScxmlTestCase(Name: "Metadata/CompoundWithExplicitInitial", CompoundWithExplicitInitial);
 	}
+
+#endregion
 }

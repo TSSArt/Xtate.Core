@@ -20,56 +20,60 @@ namespace Xtate.Test.StateMachines.Basic;
 public class OnEntryOnExitMachines : IScxmlTestSource
 {
 	public static readonly string SimpleOnEntry = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="start">
-		  <state id="start">
-			<onentry>
-			  <log label="start-entry"/>
-			</onentry>
-			<transition target="done"/>
-		  </state>
-		  <final id="done"/>
-		</scxml>
-		""";
+												  <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="start">
+												    <state id="start">
+												  	<onentry>
+												  	  <log label="start-entry"/>
+												  	</onentry>
+												  	<transition target="done"/>
+												    </state>
+												    <final id="done"/>
+												  </scxml>
+												  """;
 
 	public static readonly string SimpleOnExit = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="start">
-		  <state id="start">
-			<onexit>
-			  <log label="start-exit"/>
-			</onexit>
-			<transition target="done"/>
-		  </state>
-		  <final id="done"/>
-		</scxml>
-		""";
+												 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="start">
+												   <state id="start">
+												 	<onexit>
+												 	  <log label="start-exit"/>
+												 	</onexit>
+												 	<transition target="done"/>
+												   </state>
+												   <final id="done"/>
+												 </scxml>
+												 """;
 
 	public static readonly string ParentChildEntryExitOrder = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="parent">
-		  <state id="parent" initial="child">
-			<onentry>
-			  <log label="parent-entry"/>
-			</onentry>
-			<onexit>
-			  <log label="parent-exit"/>
-			</onexit>
-			<state id="child">
-			  <onentry>
-				<log label="child-entry"/>
-			  </onentry>
-			  <onexit>
-				<log label="child-exit"/>
-			  </onexit>
-			  <transition target="done"/>
-			</state>
-		  </state>
-		  <final id="done"/>
-		</scxml>
-		""";
+															  <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="parent">
+															    <state id="parent" initial="child">
+															  	<onentry>
+															  	  <log label="parent-entry"/>
+															  	</onentry>
+															  	<onexit>
+															  	  <log label="parent-exit"/>
+															  	</onexit>
+															  	<state id="child">
+															  	  <onentry>
+															  		<log label="child-entry"/>
+															  	  </onentry>
+															  	  <onexit>
+															  		<log label="child-exit"/>
+															  	  </onexit>
+															  	  <transition target="done"/>
+															  	</state>
+															    </state>
+															    <final id="done"/>
+															  </scxml>
+															  """;
+
+#region Interface IScxmlTestSource
 
 	public IEnumerable<ScxmlTestCase> GetTestCases()
 	{
-		yield return new ScxmlTestCase("Basic/OnEntryOnExit/SimpleOnEntry", SimpleOnEntry);
-		yield return new ScxmlTestCase("Basic/OnEntryOnExit/SimpleOnExit", SimpleOnExit);
-		yield return new ScxmlTestCase("Basic/OnEntryOnExit/ParentChildEntryExitOrder", ParentChildEntryExitOrder);
+		yield return new ScxmlTestCase(Name: "Basic/OnEntryOnExit/SimpleOnEntry", SimpleOnEntry);
+		yield return new ScxmlTestCase(Name: "Basic/OnEntryOnExit/SimpleOnExit", SimpleOnExit);
+		yield return new ScxmlTestCase(Name: "Basic/OnEntryOnExit/ParentChildEntryExitOrder", ParentChildEntryExitOrder);
 	}
+
+#endregion
 }

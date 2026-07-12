@@ -43,5 +43,4 @@ public class ExternalDataExpressionNode : IExternalDataExpression, IAncestorProv
 	public Uri Uri => _externalDataExpression.Uri!;
 
 #endregion
-
 }

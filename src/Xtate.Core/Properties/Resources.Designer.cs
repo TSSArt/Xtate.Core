@@ -1389,11 +1389,11 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to External Service with provided InvokeId does not exists..
+        ///   Looks up a localized string similar to External Service with provided InvokeId does not exist..
         /// </summary>
-        internal static string Exception_ExternalServiceWithProvidedInvokeIdDoesNotExists {
+        internal static string Exception_ExternalServiceWithProvidedInvokeIdDoesNotExist {
             get {
-                return ResourceManager.GetString("Exception_ExternalServiceWithProvidedInvokeIdDoesNotExists", resourceCulture);
+                return ResourceManager.GetString("Exception_ExternalServiceWithProvidedInvokeIdDoesNotExist", resourceCulture);
             }
         }
         

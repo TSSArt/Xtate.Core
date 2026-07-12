@@ -43,5 +43,4 @@ public class ScriptExpressionNode : IScriptExpression, IAncestorProvider
 	public string Expression => _scriptExpression.Expression!;
 
 #endregion
-
 }

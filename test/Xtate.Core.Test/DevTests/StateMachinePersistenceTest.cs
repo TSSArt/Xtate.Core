@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -15,17 +15,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.Collections.Specialized;
 using System.IO;
-using System.Net.Mime;
-using System.Reflection;
-using System.Xml;
-using Xtate.Class;
-using Xtate.IoC;
 using Xtate.Persistence;
 using Xtate.Persistence.Services;
-using Xtate.ResourceLoaders;
-using Xtate.StateMachine;
 
 namespace Xtate.Test;
 
@@ -33,18 +25,18 @@ namespace Xtate.Test;
 public class StateMachinePersistenceTest
 {
 	[ExcludeFromCodeCoverage]
-    public class TestStorage : IStorageProvider
-    {
-        private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, MemoryStream>> _storage = new();
+	public class TestStorage : IStorageProvider
+	{
+		private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, MemoryStream>> _storage = new();
 
-    #region Interface IStorageProvider
+	#region Interface IStorageProvider
 
-        public async ValueTask<ITransactionalStorage> GetTransactionalStorage(string? partition, string key)
-        {
-            if (string.IsNullOrEmpty(key)) throw new ArgumentException(message: @"Value cannot be null or empty.", nameof(key));
+		public async ValueTask<ITransactionalStorage> GetTransactionalStorage(string? partition, string key)
+		{
+			if (string.IsNullOrEmpty(key)) throw new ArgumentException(message: @"Value cannot be null or empty.", nameof(key));
 
-            var partitionStorage = _storage.GetOrAdd(partition ?? "", _ => new ConcurrentDictionary<string, MemoryStream>());
-            var memStream = partitionStorage.GetOrAdd(key, _ => new MemoryStream());
+			var partitionStorage = _storage.GetOrAdd(partition ?? "", _ => new ConcurrentDictionary<string, MemoryStream>());
+			var memStream = partitionStorage.GetOrAdd(key, _ => new MemoryStream());
 
 			//var newMemStream = memStream;
 			/*var newMemStream = new MemoryStream();
@@ -53,32 +45,32 @@ public class StateMachinePersistenceTest
 			newMemStream.Position = 0;*/
 
 			var streamStorage = new StreamStorage(memStream, disposeStream: false)
-                                {
-                                    InMemoryStorageFactory = b => new InMemoryStorage(b),
-                                    InMemoryStorageBaselineFactory = memory => new InMemoryStorage(memory.Span)
-                                };
-            await streamStorage.InitializeAsync();
+								{
+									InMemoryStorageFactory = b => new InMemoryStorage(b),
+									InMemoryStorageBaselineFactory = memory => new InMemoryStorage(memory.Span)
+								};
+			await streamStorage.InitializeAsync();
 
-            return streamStorage;
-        }
+			return streamStorage;
+		}
 
-        public ValueTask RemoveTransactionalStorage(string? partition, string key)
-        {
-            if (string.IsNullOrEmpty(key)) throw new ArgumentException(message: @"Value cannot be null or empty.", nameof(key));
+		public ValueTask RemoveTransactionalStorage(string? partition, string key)
+		{
+			if (string.IsNullOrEmpty(key)) throw new ArgumentException(message: @"Value cannot be null or empty.", nameof(key));
 
-            var partitionStorage = _storage.GetOrAdd(partition ?? "", _ => new ConcurrentDictionary<string, MemoryStream>());
-            partitionStorage.TryRemove(key, out _);
+			var partitionStorage = _storage.GetOrAdd(partition ?? "", _ => new ConcurrentDictionary<string, MemoryStream>());
+			partitionStorage.TryRemove(key, out _);
 
-            return default;
-        }
+			return default;
+		}
 
-        public ValueTask RemoveAllTransactionalStorage(string? partition)
-        {
-            _storage.TryRemove(partition ?? "", out _);
+		public ValueTask RemoveAllTransactionalStorage(string? partition)
+		{
+			_storage.TryRemove(partition ?? "", out _);
 
-            return default;
-        }
+			return default;
+		}
 
-    #endregion
-    }
+	#endregion
+	}
 }

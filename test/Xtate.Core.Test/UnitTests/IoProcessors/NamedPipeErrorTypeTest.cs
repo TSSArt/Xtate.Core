@@ -72,8 +72,8 @@ public class NamedPipeErrorTypeTest
 		var exceptionStr = NamedPipeErrorType.Exception.ToString();
 
 		// Assert
-		Assert.AreEqual("None", noneStr);
-		Assert.AreEqual("Exception", exceptionStr);
+		Assert.AreEqual(expected: "None", noneStr);
+		Assert.AreEqual(expected: "Exception", exceptionStr);
 	}
 
 	[TestMethod]
@@ -83,7 +83,7 @@ public class NamedPipeErrorTypeTest
 		var values = Enum.GetValues(typeof(NamedPipeErrorType));
 
 		// Assert
-		Assert.AreEqual(2, values.Length);
+		Assert.AreEqual(expected: 2, values.Length);
 	}
 
 	[TestMethod]
@@ -93,7 +93,7 @@ public class NamedPipeErrorTypeTest
 		var names = Enum.GetNames(typeof(NamedPipeErrorType));
 
 		// Assert
-		Assert.AreEqual(2, names.Length);
+		Assert.AreEqual(expected: 2, names.Length);
 		Assert.IsTrue(names.Contains("None"));
 		Assert.IsTrue(names.Contains("Exception"));
 	}
@@ -120,7 +120,7 @@ public class NamedPipeErrorTypeTest
 		var exceptionInt = (int) NamedPipeErrorType.Exception;
 
 		// Assert
-		Assert.AreEqual(0, noneInt);
-		Assert.AreEqual(1, exceptionInt);
+		Assert.AreEqual(expected: 0, noneInt);
+		Assert.AreEqual(expected: 1, exceptionInt);
 	}
 }

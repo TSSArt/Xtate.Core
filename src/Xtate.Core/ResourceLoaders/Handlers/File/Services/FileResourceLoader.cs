@@ -26,7 +26,7 @@ namespace Xtate.ResourceLoaders.File.Services;
 public class FileResourceLoader : IResourceLoader
 {
 	[InstantiatedByIoC]
-	public class Provider() : ResourceLoaderProviderBase<FileResourceLoader>(uri => !uri.IsAbsoluteUri ||  uri.IsFile || uri.IsUnc);
+	public class Provider() : ResourceLoaderProviderBase<FileResourceLoader>(uri => !uri.IsAbsoluteUri || uri.IsFile || uri.IsUnc);
 
 	private const FileOptions OpenFileOptions = FileOptions.Asynchronous | FileOptions.SequentialScan;
 

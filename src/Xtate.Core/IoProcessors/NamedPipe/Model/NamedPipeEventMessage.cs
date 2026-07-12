@@ -33,21 +33,7 @@ public class NamedPipeEventMessage : IncomingEvent, IStoreSupport
 		TargetServiceId = targetServiceId;
 	}
 
-	void IStoreSupport.Store(Bucket bucket)
-	{
-		bucket.Add(Key.Id, Timestamp);
-		bucket.AddServiceId(Key.Target, TargetServiceId);
-		bucket.Add(Key.TypeInfo, TypeInfo.Message);
-		bucket.AddEventName(Key.Name, Name);
-		bucket.Add(Key.Type, Type);
-		bucket.AddId(Key.SendId, SendId);
-		bucket.Add(Key.Origin, Origin);
-		bucket.Add(Key.OriginType, OriginType);
-		bucket.AddId(Key.InvokeId, InvokeId);
-		bucket.AddDataModelValue(Key.Data, Data);
-	}
-
-	public NamedPipeEventMessage(in Bucket bucket) 
+	public NamedPipeEventMessage(in Bucket bucket)
 	{
 		if (!bucket.TryGet(Key.TypeInfo, out TypeInfo storedTypeInfo)
 			|| storedTypeInfo != TypeInfo.Message
@@ -65,11 +51,29 @@ public class NamedPipeEventMessage : IncomingEvent, IStoreSupport
 		SendId = bucket.GetSendId(Key.SendId);
 		Origin = bucket.GetFullUri(Key.Origin);
 		OriginType = bucket.GetFullUri(Key.OriginType);
-		InvokeId = bucket.GetInvokeId(Key.InvokeUniqueId);
+		InvokeId = bucket.GetInvokeId(Key.InvokeId);
 		Data = bucket.GetDataModelValue(Key.Data);
 	}
 
 	public DateTime Timestamp { get; }
 
 	public ServiceId TargetServiceId { get; }
+
+#region Interface IStoreSupport
+
+	void IStoreSupport.Store(Bucket bucket)
+	{
+		bucket.Add(Key.Id, Timestamp);
+		bucket.AddServiceId(Key.Target, TargetServiceId);
+		bucket.Add(Key.TypeInfo, TypeInfo.Message);
+		bucket.AddEventName(Key.Name, Name);
+		bucket.Add(Key.Type, Type);
+		bucket.AddId(Key.SendId, SendId);
+		bucket.Add(Key.Origin, Origin);
+		bucket.Add(Key.OriginType, OriginType);
+		bucket.AddId(Key.InvokeId, InvokeId);
+		bucket.AddDataModelValue(Key.Data, Data);
+	}
+
+#endregion
 }

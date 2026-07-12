@@ -20,48 +20,52 @@ namespace Xtate.Test.StateMachines.DataModel;
 public class NullAndXPathMachines : IScxmlTestSource
 {
 	public static readonly string NullDataModelSimpleTransition = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="null" initial="start">
-		  <state id="start">
-			<transition target="done"/>
-		  </state>
-		  <final id="done"/>
-		</scxml>
-		""";
+																  <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="null" initial="start">
+																    <state id="start">
+																  	<transition target="done"/>
+																    </state>
+																    <final id="done"/>
+																  </scxml>
+																  """;
 
 	public static readonly string XPathFinalContent = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="xpath" initial="start">
-		  <datamodel>
-			<data id="value" expr="'assigned'"/>
-		  </datamodel>
-		  <state id="start">
-			<transition target="done"/>
-		  </state>
-		  <final id="done">
-			<donedata>
-			  <content>assigned</content>
-			</donedata>
-		  </final>
-		</scxml>
-		""";
+													  <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="xpath" initial="start">
+													    <datamodel>
+													  	<data id="value" expr="'assigned'"/>
+													    </datamodel>
+													    <state id="start">
+													  	<transition target="done"/>
+													    </state>
+													    <final id="done">
+													  	<donedata>
+													  	  <content>assigned</content>
+													  	</donedata>
+													    </final>
+													  </scxml>
+													  """;
 
 	public static readonly string XPathConditionUsesData = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="xpath" initial="check">
-		  <datamodel>
-			<data id="flag" expr="true()"/>
-		  </datamodel>
-		  <state id="check">
-			<transition cond="$flag = true()" target="done"/>
-			<transition target="fallback"/>
-		  </state>
-		  <final id="fallback"/>
-		  <final id="done"/>
-		</scxml>
-		""";
+														   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="xpath" initial="check">
+														     <datamodel>
+														   	<data id="flag" expr="true()"/>
+														     </datamodel>
+														     <state id="check">
+														   	<transition cond="$flag = true()" target="done"/>
+														   	<transition target="fallback"/>
+														     </state>
+														     <final id="fallback"/>
+														     <final id="done"/>
+														   </scxml>
+														   """;
+
+#region Interface IScxmlTestSource
 
 	public IEnumerable<ScxmlTestCase> GetTestCases()
 	{
-		yield return new ScxmlTestCase("DataModel/Null/NullDataModelSimpleTransition", NullDataModelSimpleTransition);
-		yield return new ScxmlTestCase("DataModel/XPath/XPathFinalContent", XPathFinalContent, ExpectedFinalData: "assigned");
-		yield return new ScxmlTestCase("DataModel/XPath/XPathConditionUsesData", XPathConditionUsesData);
+		yield return new ScxmlTestCase(Name: "DataModel/Null/NullDataModelSimpleTransition", NullDataModelSimpleTransition);
+		yield return new ScxmlTestCase(Name: "DataModel/XPath/XPathFinalContent", XPathFinalContent, ExpectedFinalData: "assigned");
+		yield return new ScxmlTestCase(Name: "DataModel/XPath/XPathConditionUsesData", XPathConditionUsesData);
 	}
+
+#endregion
 }

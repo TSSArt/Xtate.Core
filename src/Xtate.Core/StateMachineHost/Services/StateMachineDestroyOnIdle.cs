@@ -28,13 +28,13 @@ public interface IDestroyOnIdleTimeout
 [InstantiatedByIoC]
 public class StateMachineDestroyOnIdle
 {
+	private IStateMachineInterpreter? _stateMachineInterpreter;
+
 	public required ILogger<StateMachineDestroyOnIdle> Logger { private get; [SetByIoC] init; }
 
 	public required Func<ValueTask<IStateMachineInterpreter>> StateMachineInterpreterFactory { private get; [SetByIoC] init; }
 
 	public required IDestroyOnIdleTimeout? DestroyOnIdleTimeout { private get; [SetByIoC] init; }
-
-	private IStateMachineInterpreter? _stateMachineInterpreter;
 
 	public ValueTask<INotifyStateChanged?> Factory()
 	{
@@ -68,7 +68,7 @@ public class StateMachineDestroyOnIdle
 		{
 			owner._stateMachineInterpreter ??= await owner.StateMachineInterpreterFactory().ConfigureAwait(false);
 
-			if (state == StateMachineInterpreterState.Waiting)	
+			if (state == StateMachineInterpreterState.Waiting)
 			{
 				_destroyTimer.Change(owner.DestroyOnIdleTimeout.IdleTimeout, Timeout.InfiniteTimeSpan);
 			}

@@ -58,7 +58,8 @@ public class ScxmlSerializerWriterTest
 	[TestMethod]
 	public void SerializeWritesRootAttributesStatesTransitionsExecutableContentAndDoneData()
 	{
-		var xml = Serialize("""
+		var xml = Serialize(
+			"""
 			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="xpath" initial="start">
 			  <datamodel>
 				<data id="value" expr="'initial'"/>
@@ -84,29 +85,30 @@ public class ScxmlSerializerWriterTest
 			</scxml>
 			""");
 
-		StringAssert.Contains(xml, "<scxml");
-		StringAssert.Contains(xml, "version=\"1.0\"");
-		StringAssert.Contains(xml, "datamodel=\"xpath\"");
-		StringAssert.Contains(xml, "initial=\"start\"");
-		StringAssert.Contains(xml, "<datamodel");
-		StringAssert.Contains(xml, "<data id=\"value\" expr=\"'initial'\"");
-		StringAssert.Contains(xml, "<script>1 + 1</script>");
-		StringAssert.Contains(xml, "<state id=\"start\"");
-		StringAssert.Contains(xml, "<onentry>");
-		StringAssert.Contains(xml, "<log label=\"enter\" expr=\"$value\"");
-		StringAssert.Contains(xml, "<raise event=\"go.next\"");
-		StringAssert.Contains(xml, "<assign location=\"value\" expr=\"'changed'\"");
-		StringAssert.Contains(xml, "<transition type=\"internal\" event=\"go.next other.event\" cond=\"true()\" target=\"done\"");
-		StringAssert.Contains(xml, "<final id=\"done\"");
-		StringAssert.Contains(xml, "<donedata>");
-		StringAssert.Contains(xml, "<content expr=\"$value\"");
-		StringAssert.Contains(xml, "<param name=\"p\" expr=\"$value\"");
+		StringAssert.Contains(xml, substring: "<scxml");
+		StringAssert.Contains(xml, substring: "version=\"1.0\"");
+		StringAssert.Contains(xml, substring: "datamodel=\"xpath\"");
+		StringAssert.Contains(xml, substring: "initial=\"start\"");
+		StringAssert.Contains(xml, substring: "<datamodel");
+		StringAssert.Contains(xml, substring: "<data id=\"value\" expr=\"'initial'\"");
+		StringAssert.Contains(xml, substring: "<script>1 + 1</script>");
+		StringAssert.Contains(xml, substring: "<state id=\"start\"");
+		StringAssert.Contains(xml, substring: "<onentry>");
+		StringAssert.Contains(xml, substring: "<log label=\"enter\" expr=\"$value\"");
+		StringAssert.Contains(xml, substring: "<raise event=\"go.next\"");
+		StringAssert.Contains(xml, substring: "<assign location=\"value\" expr=\"'changed'\"");
+		StringAssert.Contains(xml, substring: "<transition type=\"internal\" event=\"go.next other.event\" cond=\"true()\" target=\"done\"");
+		StringAssert.Contains(xml, substring: "<final id=\"done\"");
+		StringAssert.Contains(xml, substring: "<donedata>");
+		StringAssert.Contains(xml, substring: "<content expr=\"$value\"");
+		StringAssert.Contains(xml, substring: "<param name=\"p\" expr=\"$value\"");
 	}
 
 	[TestMethod]
 	public void SerializeWritesParallelHistorySendCancelInvokeFinalizeAndInlineContent()
 	{
-		var xml = Serialize("""
+		var xml = Serialize(
+			"""
 			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="xpath" initial="outer">
 			  <state id="outer" initial="work">
 				<history id="hist" type="deep">
@@ -146,14 +148,14 @@ public class ScxmlSerializerWriterTest
 			</scxml>
 			""");
 
-		StringAssert.Contains(xml, "<history id=\"hist\" type=\"deep\"");
-		StringAssert.Contains(xml, "<send event=\"notify\" target=\"#_internal\" type=\"scxml\" id=\"send1\" delay=\"10ms\"");
-		StringAssert.Contains(xml, "<param name=\"payload\" expr=\"'value'\"");
-		StringAssert.Contains(xml, "<cancel sendid=\"send1\"");
-		StringAssert.Contains(xml, "<invoke type=\"scxml\" src=\"child.scxml\" id=\"child\" autoforward=\"true\"");
-		StringAssert.Contains(xml, "<finalize>");
-		StringAssert.Contains(xml, "<parallel id=\"parallel\"");
-		StringAssert.Contains(xml, "<initial>");
-		StringAssert.Contains(xml, "<content><payload xmlns=\"\">ok</payload></content>");
+		StringAssert.Contains(xml, substring: "<history id=\"hist\" type=\"deep\"");
+		StringAssert.Contains(xml, substring: "<send event=\"notify\" target=\"#_internal\" type=\"scxml\" id=\"send1\" delay=\"10ms\"");
+		StringAssert.Contains(xml, substring: "<param name=\"payload\" expr=\"'value'\"");
+		StringAssert.Contains(xml, substring: "<cancel sendid=\"send1\"");
+		StringAssert.Contains(xml, substring: "<invoke type=\"scxml\" src=\"child.scxml\" id=\"child\" autoforward=\"true\"");
+		StringAssert.Contains(xml, substring: "<finalize>");
+		StringAssert.Contains(xml, substring: "<parallel id=\"parallel\"");
+		StringAssert.Contains(xml, substring: "<initial>");
+		StringAssert.Contains(xml, substring: "<content><payload xmlns=\"\">ok</payload></content>");
 	}
 }

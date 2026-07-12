@@ -85,9 +85,9 @@ public class DataModelAccessTest
 		var constantStr = DataModelAccess.Constant.ToString();
 
 		// Assert
-		Assert.AreEqual("Writable", writableStr);
-		Assert.AreEqual("ReadOnly", readOnlyStr);
-		Assert.AreEqual("Constant", constantStr);
+		Assert.AreEqual(expected: "Writable", writableStr);
+		Assert.AreEqual(expected: "ReadOnly", readOnlyStr);
+		Assert.AreEqual(expected: "Constant", constantStr);
 	}
 
 	[TestMethod]
@@ -97,7 +97,7 @@ public class DataModelAccessTest
 		var values = Enum.GetValues(typeof(DataModelAccess));
 
 		// Assert
-		Assert.AreEqual(3, values.Length);
+		Assert.AreEqual(expected: 3, values.Length);
 	}
 
 	[TestMethod]
@@ -107,7 +107,7 @@ public class DataModelAccessTest
 		var names = Enum.GetNames(typeof(DataModelAccess));
 
 		// Assert
-		Assert.AreEqual(3, names.Length);
+		Assert.AreEqual(expected: 3, names.Length);
 		Assert.IsTrue(names.Contains("Writable"));
 		Assert.IsTrue(names.Contains("ReadOnly"));
 		Assert.IsTrue(names.Contains("Constant"));
@@ -136,8 +136,8 @@ public class DataModelAccessTest
 		var constantInt = (int) DataModelAccess.Constant;
 
 		// Assert
-		Assert.AreEqual(0, writableInt);
-		Assert.AreEqual(1, readOnlyInt);
-		Assert.AreEqual(2, constantInt);
+		Assert.AreEqual(expected: 0, writableInt);
+		Assert.AreEqual(expected: 1, readOnlyInt);
+		Assert.AreEqual(expected: 2, constantInt);
 	}
 }

@@ -55,7 +55,8 @@ public class ScxmlPlanParserUnitTest
 	[TestMethod]
 	public async Task RootContentModelAcceptsTopLevelDatamodelScriptStatesParallelFinalAndComments()
 	{
-		var stateMachine = await Parse("""
+		var stateMachine = await Parse(
+			"""
 			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="xpath" initial="start">
 			  <!-- top-level comment is ignored by the SCXML reader -->
 			  <datamodel>
@@ -70,13 +71,14 @@ public class ScxmlPlanParserUnitTest
 
 		Assert.IsNotNull(stateMachine.DataModel);
 		Assert.IsNotNull(stateMachine.Script);
-		Assert.AreEqual(3, stateMachine.States.Length);
+		Assert.AreEqual(expected: 3, stateMachine.States.Length);
 	}
 
 	[TestMethod]
 	public async Task DataElementsAcceptExpressionInlineContentEmptyValueAndSourceForms()
 	{
-		var stateMachine = await Parse("""
+		var stateMachine = await Parse(
+			"""
 			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="xpath">
 			  <datamodel>
 				<data id="exprValue" expr="'expr'"/>
@@ -87,13 +89,14 @@ public class ScxmlPlanParserUnitTest
 			</scxml>
 			""");
 
-		Assert.AreEqual(4, stateMachine.DataModel!.Data.Length);
+		Assert.AreEqual(expected: 4, stateMachine.DataModel!.Data.Length);
 	}
 
 	[TestMethod]
 	public async Task ExecutableLogFormsAreAccepted()
 	{
-		await Parse("""
+		await Parse(
+			"""
 			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="xpath" initial="start">
 			  <state id="start">
 				<onentry>
@@ -112,7 +115,8 @@ public class ScxmlPlanParserUnitTest
 	[TestMethod]
 	public async Task ScriptFormsAreAccepted()
 	{
-		var stateMachine = await Parse("""
+		var stateMachine = await Parse(
+			"""
 			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="xpath" initial="start">
 			  <script>1 + 1</script>
 			  <state id="start">
@@ -131,7 +135,8 @@ public class ScxmlPlanParserUnitTest
 	[TestMethod]
 	public async Task XmlReaderAcceptsEntityReferenceCDataCommentAndProcessingInstruction()
 	{
-		var stateMachine = await Parse("""
+		var stateMachine = await Parse(
+			"""
 			<?xml version="1.0"?>
 			<?xtate-test processing-instruction?>
 			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="done">
@@ -144,13 +149,14 @@ public class ScxmlPlanParserUnitTest
 			</scxml>
 			""");
 
-		Assert.AreEqual("done", stateMachine.Initial!.Transition!.Target[0].ToString());
+		Assert.AreEqual(expected: "done", stateMachine.Initial!.Transition!.Target[0].ToString());
 	}
 
 	[TestMethod]
 	public async Task DoneDataAcceptsContentExpressionInlineXmlWithNamespacesAndParameters()
 	{
-		var stateMachine = await Parse("""
+		var stateMachine = await Parse(
+			"""
 			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="xpath">
 			  <final id="contentExpr">
 				<donedata>
@@ -171,14 +177,14 @@ public class ScxmlPlanParserUnitTest
 			</scxml>
 			""");
 
-		var contentExprFinal = FindState<IFinal>(stateMachine, "contentExpr");
-		var contentBodyFinal = FindState<IFinal>(stateMachine, "contentBody");
-		var paramsFinal = FindState<IFinal>(stateMachine, "params");
+		var contentExprFinal = FindState<IFinal>(stateMachine, id: "contentExpr");
+		var contentBodyFinal = FindState<IFinal>(stateMachine, id: "contentBody");
+		var paramsFinal = FindState<IFinal>(stateMachine, id: "params");
 
 		Assert.IsNotNull(contentExprFinal.DoneData!.Content!.Expression);
 		Assert.IsNotNull(contentBodyFinal.DoneData!.Content!.Body);
-		StringAssert.Contains(contentBodyFinal.DoneData.Content.Body.Value!, "urn:xtate:test");
-		Assert.AreEqual(2, paramsFinal.DoneData!.Parameters.Length);
+		StringAssert.Contains(contentBodyFinal.DoneData.Content.Body.Value!, substring: "urn:xtate:test");
+		Assert.AreEqual(expected: 2, paramsFinal.DoneData!.Parameters.Length);
 		Assert.IsNotNull(paramsFinal.DoneData.Parameters[0].Expression);
 		Assert.IsNotNull(paramsFinal.DoneData.Parameters[1].Location);
 	}
@@ -186,40 +192,40 @@ public class ScxmlPlanParserUnitTest
 	[TestMethod]
 	public async Task TransitionWithEmptyEventDescriptorIsRejected()
 	{
-		await Assert.ThrowsExactlyAsync<StateMachineValidationException>(
-			() => Parse("""
-				<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="start">
-				  <state id="start">
-					<transition event="" target="done"/>
-				  </state>
-				  <final id="done"/>
-				</scxml>
-				"""));
+		await Assert.ThrowsExactlyAsync<StateMachineValidationException>(() => Parse(
+																			 """
+																			 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="start">
+																			   <state id="start">
+																			 	<transition event="" target="done"/>
+																			   </state>
+																			   <final id="done"/>
+																			 </scxml>
+																			 """));
 	}
 
 	[TestMethod]
 	public async Task ParamWithoutNameOrWithBothExpressionAndLocationIsRejected()
 	{
-		await Assert.ThrowsExactlyAsync<StateMachineValidationException>(
-			() => Parse("""
-				<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
-				  <final id="done">
-					<donedata>
-					  <param expr="'value'"/>
-					</donedata>
-				  </final>
-				</scxml>
-				"""));
+		await Assert.ThrowsExactlyAsync<StateMachineValidationException>(() => Parse(
+																			 """
+																			 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+																			   <final id="done">
+																			 	<donedata>
+																			 	  <param expr="'value'"/>
+																			 	</donedata>
+																			   </final>
+																			 </scxml>
+																			 """));
 
-		await Assert.ThrowsExactlyAsync<StateMachineValidationException>(
-			() => Parse("""
-				<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
-				  <final id="done">
-					<donedata>
-					  <param name="conflicting" expr="'value'" location="value"/>
-					</donedata>
-				  </final>
-				</scxml>
-				"""));
+		await Assert.ThrowsExactlyAsync<StateMachineValidationException>(() => Parse(
+																			 """
+																			 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+																			   <final id="done">
+																			 	<donedata>
+																			 	  <param name="conflicting" expr="'value'" location="value"/>
+																			 	</donedata>
+																			   </final>
+																			 </scxml>
+																			 """));
 	}
 }

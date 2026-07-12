@@ -16,7 +16,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Threading;
-using System.Threading.Tasks;
 using Xtate.IoProcessors.NamedPipe.Internal;
 
 namespace Xtate.Test.UnitTests.IoProcessors;
@@ -55,15 +54,15 @@ public class DelayedTriesCoverageTest
 	public void DelayOptionsRejectNonPositiveValues()
 	{
 		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => _ = new DelayedTries
-																{
-																	MinDelay = TimeSpan.Zero,
-																	MaxDelay = TimeSpan.FromMilliseconds(1)
-																});
+																	{
+																		MinDelay = TimeSpan.Zero,
+																		MaxDelay = TimeSpan.FromMilliseconds(1)
+																	});
 
 		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => _ = new DelayedTries
-																{
-																	MinDelay = TimeSpan.FromMilliseconds(1),
-																	MaxDelay = TimeSpan.Zero
-																});
+																	{
+																		MinDelay = TimeSpan.FromMilliseconds(1),
+																		MaxDelay = TimeSpan.Zero
+																	});
 	}
 }

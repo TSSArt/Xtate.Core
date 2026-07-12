@@ -27,16 +27,16 @@ public class EventNameCoverageTest
 	{
 		var eventName = (EventName) "error.platform.io";
 
-		Assert.AreEqual(3, eventName.Count);
-		Assert.AreEqual("error", eventName[0].Value);
-		Assert.AreEqual("platform", eventName[1].Value);
-		Assert.AreEqual("io", eventName[2].Value);
+		Assert.AreEqual(expected: 3, eventName.Count);
+		Assert.AreEqual(expected: "error", eventName[0].Value);
+		Assert.AreEqual(expected: "platform", eventName[1].Value);
+		Assert.AreEqual(expected: "io", eventName[2].Value);
 		CollectionAssert.AreEqual(new[] { "error", "platform", "io" }, eventName.Select(part => part.Value).ToArray());
-		Assert.AreEqual("error.platform.io", ((IFormattable) eventName).ToString(format: null, formatProvider: null));
+		Assert.AreEqual(expected: "error.platform.io", eventName.ToString(format: null, formatProvider: null));
 
 		var destination = new char[32];
 		Assert.IsTrue(eventName.TryFormat(destination, out var charsWritten, format: default, provider: null));
-		Assert.AreEqual("error.platform.io", new string(destination, 0, charsWritten));
+		Assert.AreEqual(expected: "error.platform.io", new string(destination, startIndex: 0, charsWritten));
 		Assert.IsFalse(eventName.TryFormat(new char[4], out _, format: default, provider: null));
 	}
 
@@ -65,9 +65,9 @@ public class EventNameCoverageTest
 		var destination = new char[8];
 
 		Assert.IsTrue(eventName.IsDefault);
-		Assert.AreEqual(string.Empty, ((IFormattable) eventName).ToString(format: null, formatProvider: null));
+		Assert.AreEqual(string.Empty, eventName.ToString(format: null, formatProvider: null));
 		Assert.IsTrue(eventName.TryFormat(destination, out var charsWritten, format: default, provider: null));
-		Assert.AreEqual(0, charsWritten);
+		Assert.AreEqual(expected: 0, charsWritten);
 		Assert.IsFalse(eventName.IsMatchedToEventDescriptor("error"));
 	}
 }

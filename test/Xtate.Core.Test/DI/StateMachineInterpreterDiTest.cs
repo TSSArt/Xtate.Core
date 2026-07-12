@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -26,50 +26,50 @@ namespace Xtate.Core.Test.DI;
 public class StateMachineInterpreterDiTest
 {
 	[TestMethod]
-    public async Task EmptyRun()
-    {
-        var services = new ServiceCollection();
-        services.AddTransient<IStateMachine>(_ => new StateMachineEntity { States = [new FinalEntity()] });
-        services.AddModule<StateMachineInterpreterModule>();
+	public async Task EmptyRun()
+	{
+		var services = new ServiceCollection();
+		services.AddTransient<IStateMachine>(_ => new StateMachineEntity { States = [new FinalEntity()] });
+		services.AddModule<StateMachineInterpreterModule>();
 
-        var serviceProvider = services.BuildProvider();
+		var serviceProvider = services.BuildProvider();
 
-        var stateMachineInterpreter = await serviceProvider.GetRequiredService<IStateMachineInterpreter>();
+		var stateMachineInterpreter = await serviceProvider.GetRequiredService<IStateMachineInterpreter>();
 
-        await stateMachineInterpreter.Run();
-    }
+		await stateMachineInterpreter.Run();
+	}
 
-    [TestMethod]
-    public async Task XpathDataModelRun()
-    {
-        var services = new ServiceCollection();
-        var stateMachineEntity = new StateMachineEntity
-                                 {
-                                     DataModelType = "xpath",
-                                     States =
-                                     [
-                                         new FinalEntity
-                                         {
-                                             DoneData = new DoneDataEntity
-                                                        {
-                                                            Content = new ContentEntity
-                                                                      {
-                                                                          Body = new ContentBody { Value = "qwerty" }
-                                                                      }
-                                                        }
-                                         }
-                                     ]
-                                 };
+	[TestMethod]
+	public async Task XpathDataModelRun()
+	{
+		var services = new ServiceCollection();
+		var stateMachineEntity = new StateMachineEntity
+								 {
+									 DataModelType = "xpath",
+									 States =
+									 [
+										 new FinalEntity
+										 {
+											 DoneData = new DoneDataEntity
+														{
+															Content = new ContentEntity
+																	  {
+																		  Body = new ContentBody { Value = "qwerty" }
+																	  }
+														}
+										 }
+									 ]
+								 };
 
-        services.AddTransient<IStateMachine>(_ => stateMachineEntity);
-        services.AddModule<StateMachineInterpreterModule>();
+		services.AddTransient<IStateMachine>(_ => stateMachineEntity);
+		services.AddModule<StateMachineInterpreterModule>();
 
-        var serviceProvider = services.BuildProvider();
+		var serviceProvider = services.BuildProvider();
 
-        var stateMachineInterpreter = await serviceProvider.GetRequiredService<IStateMachineInterpreter>();
+		var stateMachineInterpreter = await serviceProvider.GetRequiredService<IStateMachineInterpreter>();
 
-        var dataModelValue = await stateMachineInterpreter.Run();
+		var dataModelValue = await stateMachineInterpreter.Run();
 
-        Assert.AreEqual(expected: "qwerty", dataModelValue);
-    }
+		Assert.AreEqual(expected: "qwerty", dataModelValue);
+	}
 }

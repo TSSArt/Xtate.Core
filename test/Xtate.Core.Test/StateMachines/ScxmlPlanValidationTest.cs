@@ -46,9 +46,8 @@ public class ScxmlPlanValidationTest
 		var idle = new Mock<IDestroyOnIdleTimeout>();
 		idle.Setup(x => x.IdleTimeout).Returns(TimeSpan.FromMilliseconds(5000));
 
-		var container = Container.Create<StateMachineProcessorModule>(
-			services =>
-				services.AddConstant(idle.Object));
+		var container = Container.Create<StateMachineProcessorModule>(services =>
+																		  services.AddConstant(idle.Object));
 
 		var stateMachineScopeManager = await container.GetRequiredService<IStateMachineScopeManager>();
 
@@ -58,108 +57,108 @@ public class ScxmlPlanValidationTest
 	[TestMethod]
 	public async Task TransitionToUnknownTargetIsRejectedDuringExecutionBuild()
 	{
-		await Assert.ThrowsExactlyAsync<DependencyInjectionException>(
-			() => Execute("""
-				<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="start">
-				  <state id="start">
-					<transition target="missing"/>
-				  </state>
-				</scxml>
-				"""));
+		await Assert.ThrowsExactlyAsync<DependencyInjectionException>(() => Execute(
+																		  """
+																		  <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="start">
+																		    <state id="start">
+																		  	<transition target="missing"/>
+																		    </state>
+																		  </scxml>
+																		  """));
 	}
 
 	[TestMethod]
 	public void ExecutableContentDirectlyUnderStateIsRejected()
 	{
-		Assert.ThrowsExactlyAsync<StateMachineValidationException>(
-			() => Parse("""
-				<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
-				  <state id="start">
-					<assign location="$x" expr="'bad'"/>
-				  </state>
-				</scxml>
-				"""));
+		Assert.ThrowsExactlyAsync<StateMachineValidationException>(() => Parse(
+																	   """
+																	   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+																	     <state id="start">
+																	   	<assign location="$x" expr="'bad'"/>
+																	     </state>
+																	   </scxml>
+																	   """));
 	}
 
 	[TestMethod]
 	public void MutuallyExclusiveDataInitializersAreRejected()
 	{
-		Assert.ThrowsExactlyAsync<StateMachineValidationException>(
-			() => Parse("""
-				<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="xpath">
-				  <datamodel>
-					<data id="value" src="memory://value" expr="'value'"/>
-				  </datamodel>
-				</scxml>
-				"""));
+		Assert.ThrowsExactlyAsync<StateMachineValidationException>(() => Parse(
+																	   """
+																	   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="xpath">
+																	     <datamodel>
+																	   	<data id="value" src="memory://value" expr="'value'"/>
+																	     </datamodel>
+																	   </scxml>
+																	   """));
 	}
 
 	[TestMethod]
 	public async Task NullDataModelRejectsDataManipulationDuringExecutionBuild()
 	{
-		await Assert.ThrowsExactlyAsync<DependencyInjectionException>(
-			() => Execute("""
-				<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="null" initial="start">
-				  <state id="start">
-					<onentry>
-					  <assign location="$value" expr="'bad'"/>
-					</onentry>
-					<transition target="done"/>
-				  </state>
-				  <final id="done"/>
-				</scxml>
-				"""));
+		await Assert.ThrowsExactlyAsync<DependencyInjectionException>(() => Execute(
+																		  """
+																		  <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="null" initial="start">
+																		    <state id="start">
+																		  	<onentry>
+																		  	  <assign location="$value" expr="'bad'"/>
+																		  	</onentry>
+																		  	<transition target="done"/>
+																		    </state>
+																		    <final id="done"/>
+																		  </scxml>
+																		  """));
 	}
 
 	[TestMethod]
 	public void MutuallyExclusiveSendEventFormsAreRejected()
 	{
-		Assert.ThrowsExactlyAsync<StateMachineValidationException>(
-			() => Parse("""
-				<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="xpath" initial="start">
-				  <state id="start">
-					<onentry>
-					  <send event="literal" eventexpr="'expr'"/>
-					</onentry>
-				  </state>
-				</scxml>
-				"""));
+		Assert.ThrowsExactlyAsync<StateMachineValidationException>(() => Parse(
+																	   """
+																	   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="xpath" initial="start">
+																	     <state id="start">
+																	   	<onentry>
+																	   	  <send event="literal" eventexpr="'expr'"/>
+																	   	</onentry>
+																	     </state>
+																	   </scxml>
+																	   """));
 	}
 
 	[TestMethod]
 	public void InvokeWithMutuallyExclusiveSourceFormsIsRejected()
 	{
-		Assert.ThrowsExactlyAsync<StateMachineValidationException>(
-			() => Parse("""
-				<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="xpath">
-				  <state id="start">
-					<invoke src="machine.scxml" srcexpr="'machine.scxml'"/>
-				  </state>
-				</scxml>
-				"""));
+		Assert.ThrowsExactlyAsync<StateMachineValidationException>(() => Parse(
+																	   """
+																	   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="xpath">
+																	     <state id="start">
+																	   	<invoke src="machine.scxml" srcexpr="'machine.scxml'"/>
+																	     </state>
+																	   </scxml>
+																	   """));
 	}
 
 	[TestMethod]
 	public void FinalizeOutsideInvokeIsRejected()
 	{
-		Assert.ThrowsExactlyAsync<StateMachineValidationException>(
-			() => Parse("""
-				<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
-				  <state id="start">
-					<finalize/>
-				  </state>
-				</scxml>
-				"""));
+		Assert.ThrowsExactlyAsync<StateMachineValidationException>(() => Parse(
+																	   """
+																	   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+																	     <state id="start">
+																	   	<finalize/>
+																	     </state>
+																	   </scxml>
+																	   """));
 	}
 
 	[TestMethod]
 	public void MalformedXmlIsRejected()
 	{
-		Assert.ThrowsExactlyAsync<StateMachineValidationException>(
-			() => Parse("""
-				<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
-				  <state id="start">
-				</scxml>
-				"""));
+		Assert.ThrowsExactlyAsync<StateMachineValidationException>(() => Parse(
+																	   """
+																	   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+																	     <state id="start">
+																	   </scxml>
+																	   """));
 	}
 }

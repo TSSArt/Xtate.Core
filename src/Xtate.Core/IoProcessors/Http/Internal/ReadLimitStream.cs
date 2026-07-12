@@ -38,7 +38,7 @@ internal class ReadLimitStream(Stream stream, long maxReadBytes) : CounterStream
 
 		if (count > maxReadBytes - _totalCount)
 		{
-			count = (int)(maxReadBytes - _totalCount);
+			count = (int) (maxReadBytes - _totalCount);
 		}
 	}
 

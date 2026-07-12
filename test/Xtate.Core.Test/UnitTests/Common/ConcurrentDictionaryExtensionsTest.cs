@@ -15,9 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.Collections.Concurrent;
 using System.Threading;
-using Xtate;
 
 namespace Xtate.Test;
 
@@ -36,7 +34,7 @@ public class ConcurrentDictionaryExtensionsTest
 		// Assert
 		Assert.IsFalse(result);
 		Assert.IsNull(key);
-		Assert.AreEqual(0, value);
+		Assert.AreEqual(expected: 0, value);
 	}
 
 	[TestMethod]
@@ -44,15 +42,15 @@ public class ConcurrentDictionaryExtensionsTest
 	{
 		// Arrange
 		var dict = new ConcurrentDictionary<string, int>();
-		dict.TryAdd("key1", 1);
+		dict.TryAdd(key: "key1", value: 1);
 
 		// Act
 		var result = dict.TryTake(out var key, out var value);
 
 		// Assert
 		Assert.IsTrue(result);
-		Assert.AreEqual("key1", key);
-		Assert.AreEqual(1, value);
+		Assert.AreEqual(expected: "key1", key);
+		Assert.AreEqual(expected: 1, value);
 	}
 
 	[TestMethod]
@@ -60,7 +58,7 @@ public class ConcurrentDictionaryExtensionsTest
 	{
 		// Arrange
 		var dict = new ConcurrentDictionary<string, int>();
-		dict.TryAdd("key1", 1);
+		dict.TryAdd(key: "key1", value: 1);
 
 		// Act
 		dict.TryTake(out _, out _);
@@ -74,8 +72,8 @@ public class ConcurrentDictionaryExtensionsTest
 	{
 		// Arrange
 		var dict = new ConcurrentDictionary<string, int>();
-		dict.TryAdd("key1", 1);
-		dict.TryAdd("key2", 2);
+		dict.TryAdd(key: "key1", value: 1);
+		dict.TryAdd(key: "key2", value: 2);
 
 		// Act
 		var result = dict.TryTake(out var key, out var value);
@@ -91,7 +89,7 @@ public class ConcurrentDictionaryExtensionsTest
 	{
 		// Arrange
 		var dict = new ConcurrentDictionary<string, int>();
-		dict.TryAdd("key1", 1);
+		dict.TryAdd(key: "key1", value: 1);
 
 		// Act
 		dict.TryTake(out _, out _);
@@ -106,15 +104,15 @@ public class ConcurrentDictionaryExtensionsTest
 	{
 		// Arrange
 		var dict = new ConcurrentDictionary<int, string>();
-		dict.TryAdd(1, "value1");
+		dict.TryAdd(key: 1, value: "value1");
 
 		// Act
 		var result = dict.TryTake(out var key, out var value);
 
 		// Assert
 		Assert.IsTrue(result);
-		Assert.AreEqual(1, key);
-		Assert.AreEqual("value1", value);
+		Assert.AreEqual(expected: 1, key);
+		Assert.AreEqual(expected: "value1", value);
 	}
 
 	[TestMethod]
@@ -125,7 +123,7 @@ public class ConcurrentDictionaryExtensionsTest
 		var tasks = new List<Task>();
 
 		// Add items
-		for (int i = 0; i < 10; i++)
+		for (var i = 0; i < 10; i ++)
 		{
 			dict.TryAdd(i, $"value{i}");
 		}
@@ -133,21 +131,22 @@ public class ConcurrentDictionaryExtensionsTest
 		var removedCount = 0;
 
 		// Act - Remove items concurrently
-		for (int i = 0; i < 10; i++)
+		for (var i = 0; i < 10; i ++)
 		{
-			tasks.Add(Task.Run(() =>
-			{
-				if (dict.TryTake(out _, out _))
-				{
-					Interlocked.Increment(ref removedCount);
-				}
-			}));
+			tasks.Add(
+				Task.Run(() =>
+						 {
+							 if (dict.TryTake(out _, out _))
+							 {
+								 Interlocked.Increment(ref removedCount);
+							 }
+						 }));
 		}
 
 		Task.WaitAll(tasks.ToArray());
 
 		// Assert
-		Assert.AreEqual(10, removedCount);
+		Assert.AreEqual(expected: 10, removedCount);
 		Assert.IsTrue(dict.IsEmpty);
 	}
 }

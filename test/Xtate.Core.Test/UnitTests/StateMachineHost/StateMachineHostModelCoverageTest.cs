@@ -15,8 +15,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.DataModel;
+using System.Threading;
 using Xtate.DataTypes;
+using Xtate.Interpreter;
 using Xtate.StateMachine;
 using Xtate.StateMachineHost;
 
@@ -25,6 +26,42 @@ namespace Xtate.Test.UnitTests.StateMachineHost;
 [TestClass]
 public class StateMachineHostModelCoverageTest
 {
+	[TestMethod]
+	public async Task StateMachineStatusCompletesWhenAcceptedOrForced()
+	{
+		var accepted = new StateMachineStatus();
+		Assert.AreSame(StateMachineInterpreterState.Initializing, accepted.CurrentState);
+		Assert.IsFalse(accepted.WhenAccepted().IsCompleted);
+
+		await accepted.OnChanged(StateMachineInterpreterState.Started);
+		Assert.AreSame(StateMachineInterpreterState.Started, accepted.CurrentState);
+		Assert.IsFalse(accepted.WhenAccepted().IsCompleted);
+
+		await accepted.OnChanged(StateMachineInterpreterState.Accepted);
+		await accepted.WhenAccepted();
+
+		var forced = new StateMachineStatus();
+		forced.ForceCompleted();
+		await forced.WhenAccepted();
+	}
+
+	[TestMethod]
+	public async Task StateMachineStatusCanBeForcedToFailOrCancel()
+	{
+		var failed = new StateMachineStatus();
+		var failure = new InvalidOperationException("status failure");
+		failed.ForceFailed(failure);
+		var thrown = await Assert.ThrowsExactlyAsync<InvalidOperationException>([ExcludeFromCodeCoverage] async () => await failed.WhenAccepted());
+		Assert.AreSame(failure, thrown);
+
+		using var cancellationSource = new CancellationTokenSource();
+		cancellationSource.Cancel();
+		var cancelled = new StateMachineStatus();
+		cancelled.ForceCancelled(cancellationSource.Token);
+		var cancellation = await Assert.ThrowsExactlyAsync<TaskCanceledException>([ExcludeFromCodeCoverage] async () => await cancelled.WhenAccepted());
+		Assert.AreEqual(cancellationSource.Token, cancellation.CancellationToken);
+	}
+
 	[TestMethod]
 	public async Task ScheduledEventCopiesRouterEventAndExposesCancelableToken()
 	{
@@ -49,7 +86,7 @@ public class StateMachineHostModelCoverageTest
 
 		Assert.AreSame(sender, scheduledEvent.SenderServiceId);
 		Assert.AreSame(source.IoProcessorData, scheduledEvent.IoProcessorData);
-		Assert.AreEqual(25, scheduledEvent.DelayMs);
+		Assert.AreEqual(expected: 25, scheduledEvent.DelayMs);
 		Assert.AreEqual(source.TargetType, scheduledEvent.TargetType);
 		Assert.AreEqual(source.Target, scheduledEvent.Target);
 		Assert.AreEqual(source.Name, scheduledEvent.Name);
@@ -72,15 +109,7 @@ public class StateMachineHostModelCoverageTest
 
 	private sealed class RouterEventSource : IRouterEvent
 	{
-		public ServiceId SenderServiceId { get; init; } = null!;
-
-		public DataModelList? IoProcessorData { get; init; }
-
-		public int DelayMs { get; init; }
-
-		public FullUri? TargetType { get; init; }
-
-		public FullUri? Target { get; init; }
+	#region Interface IIncomingEvent
 
 		public FullUri? OriginType { get; init; }
 
@@ -95,5 +124,21 @@ public class StateMachineHostModelCoverageTest
 		public DataModelValue Data { get; init; }
 
 		public FullUri? Origin { get; init; }
+
+	#endregion
+
+	#region Interface IRouterEvent
+
+		public ServiceId SenderServiceId { get; init; } = null!;
+
+		public DataModelList? IoProcessorData { get; init; }
+
+		public int DelayMs { get; init; }
+
+		public FullUri? TargetType { get; init; }
+
+		public FullUri? Target { get; init; }
+
+	#endregion
 	}
 }

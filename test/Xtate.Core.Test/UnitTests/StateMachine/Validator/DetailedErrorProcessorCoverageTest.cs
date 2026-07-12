@@ -36,8 +36,8 @@ public class DetailedErrorProcessorCoverageTest
 	public void ThrowIfErrorsAggregatesAddedErrorsAndClearsInternalBuilder()
 	{
 		var sessionId = SessionId.FromString("session");
-		var first = new ErrorItem(typeof(DetailedErrorProcessorCoverageTest), "first", exception: null);
-		var second = new ErrorItem(typeof(string), "second", exception: null);
+		var first = new ErrorItem(typeof(DetailedErrorProcessorCoverageTest), message: "first", exception: null);
+		var second = new ErrorItem(typeof(string), message: "second", exception: null);
 		var processor = new DetailedErrorProcessor(sessionId);
 		var errorProcessor = (IErrorProcessor) processor;
 
@@ -47,11 +47,11 @@ public class DetailedErrorProcessorCoverageTest
 		var exception = Assert.ThrowsExactly<StateMachineValidationException>(processor.ThrowIfErrors);
 
 		Assert.AreSame(sessionId, exception.SessionId);
-		Assert.AreEqual(2, exception.ValidationMessages.Length);
+		Assert.AreEqual(expected: 2, exception.ValidationMessages.Length);
 		Assert.AreSame(first, exception.ValidationMessages[0]);
 		Assert.AreSame(second, exception.ValidationMessages[1]);
 
 		processor.ThrowIfErrors();
-		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage] () => errorProcessor.AddError(null!));
+		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => errorProcessor.AddError(null!));
 	}
 }

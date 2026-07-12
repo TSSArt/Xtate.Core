@@ -72,8 +72,8 @@ public class BindingTypeTest
 		var lateStr = BindingType.Late.ToString();
 
 		// Assert
-		Assert.AreEqual("Early", earlyStr);
-		Assert.AreEqual("Late", lateStr);
+		Assert.AreEqual(expected: "Early", earlyStr);
+		Assert.AreEqual(expected: "Late", lateStr);
 	}
 
 	[TestMethod]
@@ -83,7 +83,7 @@ public class BindingTypeTest
 		var values = Enum.GetValues(typeof(BindingType));
 
 		// Assert
-		Assert.AreEqual(2, values.Length);
+		Assert.AreEqual(expected: 2, values.Length);
 	}
 
 	[TestMethod]
@@ -93,7 +93,7 @@ public class BindingTypeTest
 		var names = Enum.GetNames(typeof(BindingType));
 
 		// Assert
-		Assert.AreEqual(2, names.Length);
+		Assert.AreEqual(expected: 2, names.Length);
 		Assert.IsTrue(names.Contains("Early"));
 		Assert.IsTrue(names.Contains("Late"));
 	}
@@ -120,7 +120,7 @@ public class BindingTypeTest
 		var lateInt = (int) BindingType.Late;
 
 		// Assert
-		Assert.AreEqual(0, earlyInt);
-		Assert.AreEqual(1, lateInt);
+		Assert.AreEqual(expected: 0, earlyInt);
+		Assert.AreEqual(expected: 1, lateInt);
 	}
 }

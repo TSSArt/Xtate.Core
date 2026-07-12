@@ -40,9 +40,9 @@ public class XPathEvaluatorCoverageTest
 
 		Assert.AreEqual(XPathResultType.String, function.ReturnType);
 		CollectionAssert.AreEqual(new[] { XPathResultType.Number, XPathResultType.Boolean }, function.ArgTypes);
-		Assert.AreEqual(2, function.Minargs);
-		Assert.AreEqual(2, function.Maxargs);
-		Assert.AreEqual("42:True", function.Invoke(null!, [42D, true], null!));
+		Assert.AreEqual(expected: 2, function.Minargs);
+		Assert.AreEqual(expected: 2, function.Maxargs);
+		Assert.AreEqual(expected: "42:True", function.Invoke(null!, [42D, true], null!));
 		CollectionAssert.AreEqual(new object[] { 42D, true }, function.LastArgs);
 	}
 
@@ -56,9 +56,9 @@ public class XPathEvaluatorCoverageTest
 					   };
 		IXPathFunctionProvider functionProvider = provider;
 
-		Assert.AreSame(function, functionProvider.TryGetFunction("urn:test", "fn"));
-		Assert.IsNull(functionProvider.TryGetFunction("urn:test", "other"));
-		Assert.IsNull(functionProvider.TryGetFunction("urn:other", "fn"));
+		Assert.AreSame(function, functionProvider.TryGetFunction(ns: "urn:test", name: "fn"));
+		Assert.IsNull(functionProvider.TryGetFunction(ns: "urn:test", name: "other"));
+		Assert.IsNull(functionProvider.TryGetFunction(ns: "urn:other", name: "fn"));
 	}
 
 	[TestMethod]
@@ -68,9 +68,9 @@ public class XPathEvaluatorCoverageTest
 		var evaluator = new TestInlineContentEvaluator(inlineContent, new DataModelValue("object text"));
 
 		Assert.AreSame(inlineContent, ((IAncestorProvider) evaluator).Ancestor);
-		Assert.AreEqual("inline text", evaluator.Value);
-		Assert.AreEqual("inline text", await evaluator.EvaluateString());
-		Assert.AreEqual("object text", DataModelValue.FromObject(await evaluator.EvaluateObject()).AsString());
+		Assert.AreEqual(expected: "inline text", evaluator.Value);
+		Assert.AreEqual(expected: "inline text", await evaluator.EvaluateString());
+		Assert.AreEqual(expected: "object text", DataModelValue.FromObject(await evaluator.EvaluateObject()).AsString());
 	}
 
 	[TestMethod]
@@ -82,8 +82,8 @@ public class XPathEvaluatorCoverageTest
 							XPathXmlParserContextFactory = CreateParserContextFactory()
 						};
 
-		Assert.AreEqual("<value>text</value>", evaluator.Value);
-		Assert.AreEqual("<value>text</value>", await evaluator.EvaluateString());
+		Assert.AreEqual(expected: "<value>text</value>", evaluator.Value);
+		Assert.AreEqual(expected: "<value>text</value>", await evaluator.EvaluateString());
 
 		var first = await evaluator.EvaluateObject();
 		var second = await evaluator.EvaluateObject();
@@ -101,8 +101,8 @@ public class XPathEvaluatorCoverageTest
 							XPathXmlParserContextFactory = CreateParserContextFactory()
 						};
 
-		Assert.AreEqual("<body>text</body>", evaluator.Value);
-		Assert.AreEqual("<body>text</body>", await evaluator.EvaluateString());
+		Assert.AreEqual(expected: "<body>text</body>", evaluator.Value);
+		Assert.AreEqual(expected: "<body>text</body>", await evaluator.EvaluateString());
 
 		var first = await evaluator.EvaluateObject();
 		var second = await evaluator.EvaluateObject();
@@ -135,20 +135,28 @@ public class XPathEvaluatorCoverageTest
 		{
 			LastArgs = args;
 
-			return string.Join(":", args);
+			return string.Join(separator: ":", args);
 		}
 	}
 
-	private sealed class TestXPathFunctionProvider() : XPathFunctionProviderBase<TestXPathFunction>("urn:test", "fn");
+	private sealed class TestXPathFunctionProvider() : XPathFunctionProviderBase<TestXPathFunction>(ns: "urn:test", name: "fn");
 
 	private sealed class InlineContentSource : IInlineContent
 	{
+	#region Interface IInlineContent
+
 		public string? Value { get; init; }
+
+	#endregion
 	}
 
 	private sealed class ContentBodySource : IContentBody
 	{
+	#region Interface IContentBody
+
 		public string? Value { get; init; }
+
+	#endregion
 	}
 
 	private sealed class TestInlineContentEvaluator(IInlineContent inlineContent, DataModelValue value) : InlineContentEvaluator(inlineContent)

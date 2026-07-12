@@ -1,4 +1,22 @@
-﻿using Xtate.IoC;
+﻿// Copyright © 2019-2026 Sergii Artemenko
+// 
+// This file is part of the Xtate project. <https://xtate.net/>
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+// 
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+using Xtate.IoC;
+using Xtate.IoC.AncestorTracker;
 using Xtate.IoC.DependencyInjection;
 using Xtate.IoC.TransformArgs.DependencyInjection;
 
@@ -11,10 +29,10 @@ public class AncestorTest
 	public async Task Method2Test()
 	{
 		await using var container = Container.Create<IoCModule>(s =>
-																  {
-																	  s.AddType<Anc>();
-																	  s.AddType<Child>();
-																  });
+																{
+																	s.AddType<Anc>();
+																	s.AddType<Child>();
+																});
 
 		var anc = await container.GetRequiredService<Anc>();
 
@@ -143,18 +161,18 @@ public class AncestorTest
 	[InstantiatedByIoC]
 	public class Child
 	{
-		public required IoC.AncestorTracker.Ancestor<Anc> Ancestor { get; [SetByIoC] init; }
+		public required Ancestor<Anc> Ancestor { get; [SetByIoC] init; }
 	}
 
 	[InstantiatedByIoC]
 	public class Child2
 	{
-		public required IoC.AncestorTracker.Ancestor<Anc2> Ancestor { get; [SetByIoC] init; }
+		public required Ancestor<Anc2> Ancestor { get; [SetByIoC] init; }
 	}
 
 	[InstantiatedByIoC]
 	public class Child3
 	{
-		public required IoC.AncestorTracker.Ancestor<Anc3> Ancestor { get; [SetByIoC] init; }
+		public required Ancestor<Anc3> Ancestor { get; [SetByIoC] init; }
 	}
 }

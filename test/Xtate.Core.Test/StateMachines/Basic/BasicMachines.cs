@@ -32,69 +32,71 @@ public class BasicMachines : IScxmlTestSource
 	///     The simplest possible state machine: one final state reached immediately.
 	/// </summary>
 	public static readonly string SingleFinalState = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="done">
-		  <final id="done"/>
-		</scxml>
-		""";
+													 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="done">
+													   <final id="done"/>
+													 </scxml>
+													 """;
 
 	/// <summary>
 	///     Two states with an eventless transition leading to a final state.
 	/// </summary>
 	public static readonly string TwoStatesEventlessTransition = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="s1">
-		  <state id="s1">
-			<transition target="done"/>
-		  </state>
-		  <final id="done"/>
-		</scxml>
-		""";
+																 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="s1">
+																   <state id="s1">
+																 	<transition target="done"/>
+																   </state>
+																   <final id="done"/>
+																 </scxml>
+																 """;
 
 	/// <summary>
 	///     Three sequential states joined by eventless transitions.
 	/// </summary>
 	public static readonly string ThreeSequentialStates = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="s1">
-		  <state id="s1">
-			<transition target="s2"/>
-		  </state>
-		  <state id="s2">
-			<transition target="done"/>
-		  </state>
-		  <final id="done"/>
-		</scxml>
-		""";
+														  <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="s1">
+														    <state id="s1">
+														  	<transition target="s2"/>
+														    </state>
+														    <state id="s2">
+														  	<transition target="done"/>
+														    </state>
+														    <final id="done"/>
+														  </scxml>
+														  """;
 
 	/// <summary>
 	///     Verifies that <c>&lt;onentry&gt;</c> and <c>&lt;onexit&gt;</c> blocks are
 	///     executed in the expected order as the machine passes through states.
 	/// </summary>
 	public static readonly string OnEntryOnExit = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="s1">
-		  <state id="s1">
-			<onentry>
-			  <log label="entering s1"/>
-			</onentry>
-			<onexit>
-			  <log label="exiting s1"/>
-			</onexit>
-			<transition target="done"/>
-		  </state>
-		  <final id="done"/>
-		</scxml>
-		""";
+												  <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="s1">
+												    <state id="s1">
+												  	<onentry>
+												  	  <log label="entering s1"/>
+												  	</onentry>
+												  	<onexit>
+												  	  <log label="exiting s1"/>
+												  	</onexit>
+												  	<transition target="done"/>
+												    </state>
+												    <final id="done"/>
+												  </scxml>
+												  """;
 
 	/// <summary>
 	///     A final state that carries a string value in its done-data content.
 	/// </summary>
 	public static readonly string FinalStateWithDoneData = """
-		<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="done">
-		  <final id="done">
-			<donedata>
-			  <content>hello</content>
-			</donedata>
-		  </final>
-		</scxml>
-		""";
+														   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="done">
+														     <final id="done">
+														   	<donedata>
+														   	  <content>hello</content>
+														   	</donedata>
+														     </final>
+														   </scxml>
+														   """;
+
+#region Interface IScxmlTestSource
 
 	// ─────────────────────────────────────────────
 	// IScxmlTestSource
@@ -103,10 +105,12 @@ public class BasicMachines : IScxmlTestSource
 	/// <inheritdoc />
 	public IEnumerable<ScxmlTestCase> GetTestCases()
 	{
-		yield return new ScxmlTestCase("Basic/SingleFinalState",               SingleFinalState);
-		yield return new ScxmlTestCase("Basic/TwoStatesEventlessTransition",   TwoStatesEventlessTransition);
-		yield return new ScxmlTestCase("Basic/ThreeSequentialStates",          ThreeSequentialStates);
-		yield return new ScxmlTestCase("Basic/OnEntryOnExit",                  OnEntryOnExit);
-		yield return new ScxmlTestCase("Basic/FinalStateWithDoneData",         FinalStateWithDoneData, ExpectedFinalData: "hello");
+		yield return new ScxmlTestCase(Name: "Basic/SingleFinalState", SingleFinalState);
+		yield return new ScxmlTestCase(Name: "Basic/TwoStatesEventlessTransition", TwoStatesEventlessTransition);
+		yield return new ScxmlTestCase(Name: "Basic/ThreeSequentialStates", ThreeSequentialStates);
+		yield return new ScxmlTestCase(Name: "Basic/OnEntryOnExit", OnEntryOnExit);
+		yield return new ScxmlTestCase(Name: "Basic/FinalStateWithDoneData", FinalStateWithDoneData, ExpectedFinalData: "hello");
 	}
+
+#endregion
 }

@@ -42,7 +42,7 @@ public class DataConverter(ICaseSensitivity? caseSensitivity)
 		return GetParameters(nameEvaluatorList, parameterList);
 	}
 
-	[SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
+	[SuppressMessage(category: "ReSharper", checkId: "MemberCanBeMadeStatic.Global")]
 	public async ValueTask<DataModelValue> GetContent(IValueEvaluator? contentBodyEvaluator, IObjectEvaluator? contentExpressionEvaluator)
 	{
 		if (contentExpressionEvaluator is not null)
@@ -110,7 +110,7 @@ public class DataConverter(ICaseSensitivity? caseSensitivity)
 		return attributes;
 	}
 
-	[SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
+	[SuppressMessage(category: "ReSharper", checkId: "MemberCanBeMadeStatic.Global")]
 	public async ValueTask<DataModelValue> FromContent(Resource resource)
 	{
 		Infra.Requires(resource);

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2025 Sergii Artemenko
+﻿// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -26,89 +26,90 @@ namespace Xtate.Core.Test.Interpreter;
 [TestClass]
 public class FluentBuilderTest
 {
-    [TestMethod]
-    public async Task BasicTest()
-    {
-        var services = new ServiceCollection();
-        services.AddModule<StateMachineFluentBuilderModule>();
+	[TestMethod]
+	public async Task BasicTest()
+	{
+		var services = new ServiceCollection();
+		services.AddModule<StateMachineFluentBuilderModule>();
 
-        var provider = services.BuildProvider();
+		var provider = services.BuildProvider();
 
-        var builder = await provider.GetRequiredService<StateMachineFluentBuilder.StateMachineFluentBuilder>();
+		var builder = await provider.GetRequiredService<StateMachineFluentBuilder.StateMachineFluentBuilder>();
 
-        builder
-           // .SetExternalQueueSize(4)
-          //  .SetPersistenceLevel(PersistenceLevel.Event)
-          //  .SetSynchronousEventProcessing(true)
-            .SetInitial("init")
-            .BeginState("init")
-            .AddOnEntry([ExcludeFromCodeCoverage]() => { })
-            .AddOnExit([ExcludeFromCodeCoverage] () => { })
-            .BeginParallel("parallel")
-            .BeginState("a1")
-            .EndState()
-            .BeginState("a2")
-            .EndState()
-            .EndParallel()
-            .EndState()
-            .Build();
-    }
+		builder
 
-    [TestMethod]
-    public void StateMachineFluentBuilderTest()
-    {
-        // Arrange 
+			// .SetExternalQueueSize(4)
+			//  .SetPersistenceLevel(PersistenceLevel.Event)
+			//  .SetSynchronousEventProcessing(true)
+			.SetInitial("init")
+			.BeginState("init")
+			.AddOnEntry([ExcludeFromCodeCoverage]() => { })
+			.AddOnExit([ExcludeFromCodeCoverage]() => { })
+			.BeginParallel("parallel")
+			.BeginState("a1")
+			.EndState()
+			.BeginState("a2")
+			.EndState()
+			.EndParallel()
+			.EndState()
+			.Build();
+	}
 
-        var builderMock = new Mock<IStateMachineBuilder>();
-        builderMock.Setup(m => m.Build()).Returns(() => new StateMachineEntity());
+	[TestMethod]
+	public void StateMachineFluentBuilderTest()
+	{
+		// Arrange 
 
-        var fluentBuilder = new StateMachineFluentBuilder.StateMachineFluentBuilder
-                            {
-                                Builder = builderMock.Object,
-                                StateFluentBuilderFactory = null!,
-                                ParallelFluentBuilderFactory = null!,
-                                FinalFluentBuilderFactory = null!
-                            };
+		var builderMock = new Mock<IStateMachineBuilder>();
+		builderMock.Setup(m => m.Build()).Returns(() => new StateMachineEntity());
 
-        // Act
+		var fluentBuilder = new StateMachineFluentBuilder.StateMachineFluentBuilder
+							{
+								Builder = builderMock.Object,
+								StateFluentBuilderFactory = null!,
+								ParallelFluentBuilderFactory = null!,
+								FinalFluentBuilderFactory = null!
+							};
 
-        var stateMachine = fluentBuilder.Build();
+		// Act
 
-        // Assert
+		var stateMachine = fluentBuilder.Build();
 
-        Assert.IsNotNull(stateMachine);
-    }
+		// Assert
 
-    [TestMethod]
-    public void StateFluentBuilderTest()
-    {
-        // Arrange 
+		Assert.IsNotNull(stateMachine);
+	}
 
-        var builderMock = new Mock<IStateBuilder>();
-        builderMock.Setup(m => m.Build()).Returns(() => new StateEntity());
+	[TestMethod]
+	public void StateFluentBuilderTest()
+	{
+		// Arrange 
 
-        var outerBuilder = new object();
+		var builderMock = new Mock<IStateBuilder>();
+		builderMock.Setup(m => m.Build()).Returns(() => new StateEntity());
 
-        var fluentBuilder = new StateFluentBuilder<object>
-                            {
-                                Builder = builderMock.Object,
-                                BuiltAction = builderMock.Object.AddState,
-                                OuterBuilder = outerBuilder,
-                                InitialFluentBuilderFactory = null!,
-                                StateFluentBuilderFactory = null!,
-                                ParallelFluentBuilderFactory = null!,
-                                FinalFluentBuilderFactory = null!,
-                                HistoryFluentBuilderFactory = null!,
-                                TransitionFluentBuilderFactory = null!
-                            };
+		var outerBuilder = new object();
 
-        // Act
+		var fluentBuilder = new StateFluentBuilder<object>
+							{
+								Builder = builderMock.Object,
+								BuiltAction = builderMock.Object.AddState,
+								OuterBuilder = outerBuilder,
+								InitialFluentBuilderFactory = null!,
+								StateFluentBuilderFactory = null!,
+								ParallelFluentBuilderFactory = null!,
+								FinalFluentBuilderFactory = null!,
+								HistoryFluentBuilderFactory = null!,
+								TransitionFluentBuilderFactory = null!
+							};
 
-        var endState = fluentBuilder.EndState();
+		// Act
 
-        // Assert
+		var endState = fluentBuilder.EndState();
 
-        Assert.AreSame(outerBuilder, endState);
-        builderMock.Verify(m => m.AddState(It.IsNotNull<IState>()), Times.Once);
-    }
+		// Assert
+
+		Assert.AreSame(outerBuilder, endState);
+		builderMock.Verify(m => m.AddState(It.IsNotNull<IState>()), Times.Once);
+	}
 }

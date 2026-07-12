@@ -1,4 +1,4 @@
-// Copyright © 2019-2025 Sergii Artemenko
+// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -43,66 +43,65 @@ namespace Xtate.Core.Test;
 [TestClass]
 public class StateMachinePersistingInterpreterTest
 {
-    [TestMethod]
-    public async Task TestInterpreterRunAsync()
-    {
-        var stateMachine = new LocationStateMachine(new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Legacy/test.scxml"));
-        var noStateMachineContext = new NoStateMachineContext();
+	[TestMethod]
+	public async Task TestInterpreterRunAsync()
+	{
+		var stateMachine = new LocationStateMachine(new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Legacy/test.scxml"));
+		var noStateMachineContext = new NoStateMachineContext();
 
-        await using var container = Container.Create<InterpreterModelBuilderModule>(services =>
-                                                                                    {
-                                                                                        stateMachine.AddServices(services);
-                                                                                        services.AddImplementation<TestDataModelHandler>().For<IDataModelHandler>();
-                                                                                        services.AddImplementation<InterpreterModelPersistenceTest.DummyResourceLoader>().For<IResourceLoader>();
-                                                                                        services.AddConstant<IStateMachineContext>(noStateMachineContext);
+		await using var container = Container.Create<InterpreterModelBuilderModule>(services =>
+																					{
+																						stateMachine.AddServices(services);
+																						services.AddImplementation<TestDataModelHandler>().For<IDataModelHandler>();
+																						services.AddImplementation<InterpreterModelPersistenceTest.DummyResourceLoader>().For<IResourceLoader>();
+																						services.AddConstant<IStateMachineContext>(noStateMachineContext);
 																						var xincludeOptionsMock = new Mock<IXIncludeOptions>();
 																						xincludeOptionsMock.Setup(x => x.XIncludeAllowed).Returns(true);
 																						services.AddConstant(xincludeOptionsMock.Object);
 																					});
-        var interpreterModelBuilder = await container.GetRequiredService<InterpreterModelBuilder>();
-        var interpreterModel = await interpreterModelBuilder.BuildModel(true);
+		var interpreterModelBuilder = await container.GetRequiredService<InterpreterModelBuilder>();
+		var interpreterModel = await interpreterModelBuilder.BuildModel(true);
 
-        var caseSensitivityMock = new Mock<ICaseSensitivity>();
-        var stateMachineArgumentsMock = new Mock<IStateMachineArguments>();
-        var eventQueueReaderMock = new Mock<IEventReader>();
-        var loggerMock = new Mock<ILogger<StateMachineInterpreter>>();
-        var unhandledErrorBehaviourMock = new Mock<IUnhandledErrorBehaviour>();
-        var invokeControllerMock = new Mock<IInvokeController>();
-        var stateMachineSessionId = new Mock<IStateMachineSessionId>();
-        var suspendManagerMock = new Mock<ISuspendEventDispatcher>();
-        var persistenceOptionsMock = new Mock<IPersistenceOptions>();
-
+		var caseSensitivityMock = new Mock<ICaseSensitivity>();
+		var stateMachineArgumentsMock = new Mock<IStateMachineArguments>();
+		var eventQueueReaderMock = new Mock<IEventReader>();
+		var loggerMock = new Mock<ILogger<StateMachineInterpreter>>();
+		var unhandledErrorBehaviourMock = new Mock<IUnhandledErrorBehaviour>();
+		var invokeControllerMock = new Mock<IInvokeController>();
+		var stateMachineSessionId = new Mock<IStateMachineSessionId>();
+		var suspendManagerMock = new Mock<ISuspendEventDispatcher>();
+		var persistenceOptionsMock = new Mock<IPersistenceOptions>();
 
 		persistenceOptionsMock.Setup(x => x.PersistenceLevel).Returns(PersistenceLevel.StableState);
-		
+
 		stateMachineSessionId.SetupGet(x => x.SessionId).Returns(SessionId.New());
-        unhandledErrorBehaviourMock.Setup(x => x.Behaviour).Returns(UnhandledErrorBehaviour.IgnoreError);
+		unhandledErrorBehaviourMock.Setup(x => x.Behaviour).Returns(UnhandledErrorBehaviour.IgnoreError);
 
-        var stateMachineRuntimeError = new StateMachineRuntimeError(new ScopeObject());
+		var stateMachineRuntimeError = new StateMachineRuntimeError(new ScopeObject());
 
-        var interpreter = new StateMachinePersistingInterpreter
-                          {
-                              CaseSensitivity = caseSensitivityMock.Object,
-                              StateMachineRuntimeError = stateMachineRuntimeError,
-                              StateMachineArguments = stateMachineArgumentsMock.Object,
-                              DataConverter = new DataConverter(caseSensitivityMock.Object),
-                              EventReader = eventQueueReaderMock.Object,
-                              Logger = loggerMock.Object,
-                              Model = interpreterModel,
-                              InterpreterModel = interpreterModel,
-                              NotifyStateChanged = [],
-                              UnhandledErrorBehaviour = unhandledErrorBehaviourMock.Object,
-                              StateMachineContext = noStateMachineContext,
-                              InvokeController = invokeControllerMock.Object,
-                              SuspendEventDispatcher = suspendManagerMock.Object,
-                              PersistenceOptions = persistenceOptionsMock.Object,
+		var interpreter = new StateMachinePersistingInterpreter
+						  {
+							  CaseSensitivity = caseSensitivityMock.Object,
+							  StateMachineRuntimeError = stateMachineRuntimeError,
+							  StateMachineArguments = stateMachineArgumentsMock.Object,
+							  DataConverter = new DataConverter(caseSensitivityMock.Object),
+							  EventReader = eventQueueReaderMock.Object,
+							  Logger = loggerMock.Object,
+							  Model = interpreterModel,
+							  InterpreterModel = interpreterModel,
+							  NotifyStateChanged = [],
+							  UnhandledErrorBehaviour = unhandledErrorBehaviourMock.Object,
+							  StateMachineContext = noStateMachineContext,
+							  InvokeController = invokeControllerMock.Object,
+							  SuspendEventDispatcher = suspendManagerMock.Object,
+							  PersistenceOptions = persistenceOptionsMock.Object,
 							  DisposeToken = new DisposeToken(),
 							  StateMachinePersistenceContext = noStateMachineContext
-                          };
-        await interpreter.Run();
+						  };
+		await interpreter.Run();
 
-        Assert.AreEqual(expected: 18, noStateMachineContext.StateStorage.GetDataSize());
-    }
+		Assert.AreEqual(expected: 18, noStateMachineContext.StateStorage.GetDataSize());
+	}
 
 	[TestMethod]
 	public async Task SuspendResumeTest()
@@ -121,9 +120,9 @@ public class StateMachinePersistingInterpreterTest
 							     </final>
 							   </scxml>
 							   """)
-		{
-			SessionId = "TMP_44"
-		};
+						   {
+							   SessionId = "TMP_44"
+						   };
 
 		var destroyOnIdleTimeoutMock = new Mock<IDestroyOnIdleTimeout>();
 		destroyOnIdleTimeoutMock.Setup(x => x.IdleTimeout).Returns(TimeSpan.FromMilliseconds(10000));
@@ -133,8 +132,10 @@ public class StateMachinePersistingInterpreterTest
 
 		await using var container = Container.Create<StateMachineProcessorModule, PersistenceModule, LogToConsoleModule>(services =>
 																														 {
-																															 services.AddSharedTypeSync<SharedMemoryStreams<Any>>(SharedWithin.Container);
-																															 services.AddImplementation<InMemoryStorageProvider>().For<IStorageProvider>();
+																															 services.AddSharedTypeSync<SharedMemoryStreams<Any>>(
+																																 SharedWithin.Container);
+																															 services.AddImplementation<InMemoryStorageProvider>()
+																																 .For<IStorageProvider>();
 																															 services.AddConstant(destroyOnIdleTimeoutMock.Object);
 																															 services.AddConstant(persistenceOptionsMock.Object);
 																														 });
@@ -149,7 +150,7 @@ public class StateMachinePersistingInterpreterTest
 
 		suspendEventDispatcher.Suspend(false);
 
-		await Assert.ThrowsExactlyAsync<StateMachineSuspendedException>(async() => await stateMachineResult.GetResult());
+		await Assert.ThrowsExactlyAsync<StateMachineSuspendedException>(async () => await stateMachineResult.GetResult());
 
 		var startResumed = await stateMachineScopeManager.Start(stateMachine, SecurityContextType.NewStateMachine);
 
@@ -164,19 +165,19 @@ public class StateMachinePersistingInterpreterTest
 	public async Task InitStateTest()
 	{
 		var stateMachine = new ScxmlStringStateMachine(
-							   """
-							   <scxml xmlns="http://www.w3.org/2005/07/scxml" xmlns:sys="http://xtate.net/scxml/system" version="1.0">
-							     <state>
-							       <state>
-							         <transition target="fin"/>
-							       </state>
-							       <state></state>
-							     </state>
-							     <final id="fin">
-							       <donedata><content>Hello</content></donedata>
-							     </final>
-							   </scxml>
-							   """);
+			"""
+			<scxml xmlns="http://www.w3.org/2005/07/scxml" xmlns:sys="http://xtate.net/scxml/system" version="1.0">
+			  <state>
+			    <state>
+			      <transition target="fin"/>
+			    </state>
+			    <state></state>
+			  </state>
+			  <final id="fin">
+			    <donedata><content>Hello</content></donedata>
+			  </final>
+			</scxml>
+			""");
 
 		await using var container = Container.Create<StateMachineProcessorModule>();
 
@@ -200,23 +201,23 @@ public class StateMachinePersistingInterpreterTest
 							     </final>
 							   </scxml>
 							   """)
-		{
-			SessionId = "TMP_44"
-		};
+						   {
+							   SessionId = "TMP_44"
+						   };
 		var persistenceOptionsMock = new Mock<IPersistenceOptions>();
 		persistenceOptionsMock.Setup(x => x.PersistenceLevel).Returns(PersistenceLevel.StableState);
 
 		await using var container = Container.Create<StateMachineProcessorModule, PersistenceModule>(services =>
-		{
-			services.AddSharedTypeSync<SharedMemoryStreams<Any>>(SharedWithin.Container);
-			services.AddImplementation<InMemoryStorageProvider>().For<IStorageProvider>();
-			services.AddConstant(persistenceOptionsMock.Object);
-		});
+																									 {
+																										 services.AddSharedTypeSync<SharedMemoryStreams<Any>>(SharedWithin.Container);
+																										 services.AddImplementation<InMemoryStorageProvider>().For<IStorageProvider>();
+																										 services.AddConstant(persistenceOptionsMock.Object);
+																									 });
 
 		var stateMachineScopeManager = await container.GetRequiredService<IStateMachineScopeManager>();
 		var stateMachineCollection = await container.GetRequiredService<IStateMachineCollection>();
 		var result = await stateMachineScopeManager.Start(stateMachine, SecurityContextType.NewStateMachine);
-		
+
 		var suspendEventDispatcher = await container.GetRequiredService<SuspendEventDispatcher>();
 
 		await stateMachineCollection.Dispatch(stateMachine.SessionId, new IncomingEvent(new EventEntity("step")) { Type = EventType.External }, CancellationToken.None);

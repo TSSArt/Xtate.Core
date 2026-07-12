@@ -39,13 +39,13 @@ public class EventDescriptorNode(IEventDescriptor eventDescriptor) : IEventDescr
 
 #region Interface IEventDescriptor
 
-	public bool IsEventMatch(IIncomingEvent incomingEvent) => incomingEvent.Name.IsMatchedToEventDescriptor(eventDescriptor.Value);
-
 	public string Value => eventDescriptor.Value;
 
 #endregion
 
-public override bool Equals(object? obj) => eventDescriptor.Equals(obj);
+	public bool IsEventMatch(IIncomingEvent incomingEvent) => incomingEvent.Name.IsMatchedToEventDescriptor(eventDescriptor.Value);
+
+	public override bool Equals(object? obj) => eventDescriptor.Equals(obj);
 
 	public override int GetHashCode() => eventDescriptor.GetHashCode();
 

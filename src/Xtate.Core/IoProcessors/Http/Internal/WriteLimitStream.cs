@@ -25,7 +25,7 @@ internal class WriteLimitStream(long maxWriteBytes) : CounterStream(Null)
 
 	protected override void PreWrite(int count)
 	{
-		if(count > maxWriteBytes - _totalCount)
+		if (count > maxWriteBytes - _totalCount)
 		{
 			throw new IOException($"Write limit exceeded: {_totalCount + count} > {maxWriteBytes} bytes");
 		}
