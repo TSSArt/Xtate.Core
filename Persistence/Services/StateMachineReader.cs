@@ -78,7 +78,7 @@ public class StateMachineReader
 			? new StateMachineEntity
 			  {
 				  Ancestor = new EntityData(bucket),
-				  Name = bucket.GetString(Key.Name),
+				  Name = bucket.GetString(Key.Name)!,
 				  DataModelType = bucket.GetString(Key.DataModelType),
 				  Binding = bucket.GetEnum(Key.Binding).As<BindingType>(),
 				  Script = RestoreScript(bucket.Nested(Key.Script)),
@@ -482,7 +482,7 @@ public class StateMachineReader
 			? new ParamEntity
 			  {
 				  Ancestor = new EntityData(bucket),
-				  Name = bucket.GetString(Key.Name),
+				  Name = bucket.GetString(Key.Name)!,
 				  Expression = RestoreValueExpression(bucket.Nested(Key.Expression)),
 				  Location = RestoreLocationExpression(bucket.Nested(Key.Location))
 			  }

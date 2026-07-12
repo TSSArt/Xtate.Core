@@ -70,7 +70,7 @@ public class StateMachineDestroyOnIdle
 
 			if (state == StateMachineInterpreterState.Waiting)
 			{
-				_destroyTimer.Change(owner.DestroyOnIdleTimeout.IdleTimeout, Timeout.InfiniteTimeSpan);
+				_destroyTimer.Change(owner.DestroyOnIdleTimeout!.IdleTimeout, Timeout.InfiniteTimeSpan);
 			}
 
 			if (state == StateMachineInterpreterState.Proceed)

@@ -104,7 +104,7 @@ public class StateNode : StateEntityNode, IState, IAncestorProvider, IDebugEntit
 
 #region Interface IStateEntity
 
-	public override IIdentifier Id => _state.Id;
+	public override IIdentifier Id => _state.Id!;
 
 #endregion
 }

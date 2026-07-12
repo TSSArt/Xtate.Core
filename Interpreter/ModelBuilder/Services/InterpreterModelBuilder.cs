@@ -27,7 +27,7 @@ namespace Xtate.Interpreter.Services;
 
 public class InterpreterModelBuilder : StateMachineVisitor
 {
-	private readonly Dictionary<IIdentifier, StateEntityNode> _idMap = new();
+	private readonly Dictionary<IIdentifier, StateEntityNode> _idMap = [];
 
 	private readonly List<TransitionNode> _targetMap = [];
 

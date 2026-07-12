@@ -116,11 +116,9 @@ public static class BucketExtensions
 
 		public EnumGetter<TKey> GetEnum<TKey>(TKey key) where TKey : notnull => new(bucket, key);
 
-		public int GetInt32<TKey>(TKey key) where TKey : notnull =>
-			bucket.TryGet(key, out int value) ? value : throw new KeyNotFoundException(Res.Format(Resources.Exception_KeyNotFound, key));
+		public int GetInt32<TKey>(TKey key) where TKey : notnull => bucket.TryGet(key, out int value) ? value : throw new KeyNotFoundException(Res.Format(Resources.Exception_KeyNotFound, key));
 
-		public bool GetBoolean<TKey>(TKey key) where TKey : notnull =>
-			bucket.TryGet(key, out bool value) ? value : throw new KeyNotFoundException(Res.Format(Resources.Exception_KeyNotFound, key));
+		public bool GetBoolean<TKey>(TKey key) where TKey : notnull => bucket.TryGet(key, out bool value) ? value : throw new KeyNotFoundException(Res.Format(Resources.Exception_KeyNotFound, key));
 
 		public string? GetString<TKey>(TKey key) where TKey : notnull => bucket.TryGet(key, out string? value) ? value : null;
 
@@ -226,7 +224,7 @@ public static class BucketExtensions
 			switch (type)
 			{
 				case DataModelValueType.Undefined:
-				case DataModelValueType.Null: 
+				case DataModelValueType.Null:
 					break;
 
 				case DataModelValueType.String:

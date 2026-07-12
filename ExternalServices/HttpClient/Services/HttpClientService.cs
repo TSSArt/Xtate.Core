@@ -170,7 +170,7 @@ public class HttpClientService(HttpClientServiceOptions options) : ExternalServi
 			   };
 	}
 
-	private static StringContent CreateDefaultContent(in DataModelValue content) => new (content.ToObject()?.ToString() ?? string.Empty, Encoding.UTF8);
+	private static StringContent CreateDefaultContent(in DataModelValue content) => new(content.ToObject()?.ToString() ?? string.Empty, Encoding.UTF8);
 
 	private async ValueTask<Response> DoRequest(string method,
 												bool autoRedirect,

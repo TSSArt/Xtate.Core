@@ -106,7 +106,7 @@ public class NamedPipeController(IOptions<NamedPipeIoProcessorOptions> options)
 		return false;
 	}
 
-	private static bool NameEquals(string name1, string name2) => string.Equals(name1, name2, StringComparison.OrdinalIgnoreCase);
+	private static bool NameEquals(string name1, string? name2) => string.Equals(name1, name2, StringComparison.OrdinalIgnoreCase);
 
 	private static bool HostEquals(FullUri uri, string host) => uri.Host == host || string.Compare(uri.Host, host, StringComparison.OrdinalIgnoreCase) == 0 || uri.IdnHost == IdnMapping.GetAscii(host);
 
@@ -116,7 +116,7 @@ public class NamedPipeController(IOptions<NamedPipeIoProcessorOptions> options)
 									 IIncomingEvent incomingEvent,
 									 CancellationToken token)
 	{
-		var pipeStream = new NamedPipeClientStream(host ?? @".", GetPipeName(name ?? _options.Name), PipeDirection.InOut, DefaultPipeOptions);
+		var pipeStream = new NamedPipeClientStream(host ?? @".", GetPipeName(name ?? _options.Name!), PipeDirection.InOut, DefaultPipeOptions);
 
 		await using (pipeStream.ConfigureAwait(false))
 		{
@@ -153,7 +153,7 @@ public class NamedPipeController(IOptions<NamedPipeIoProcessorOptions> options)
 
 	public async ValueTask ReceiveAndProcessEvent(Func<NamedPipeEventMessage, ValueTask> processEvent, CancellationToken token)
 	{
-		var pipeStream = new NamedPipeServerStream(GetPipeName(_options.Name), PipeDirection.InOut, NamedPipeServerStream.MaxAllowedServerInstances, PipeTransmissionMode.Byte, DefaultPipeOptions);
+		var pipeStream = new NamedPipeServerStream(GetPipeName(_options.Name!), PipeDirection.InOut, NamedPipeServerStream.MaxAllowedServerInstances, PipeTransmissionMode.Byte, DefaultPipeOptions);
 
 		await using (pipeStream.ConfigureAwait(false))
 		{

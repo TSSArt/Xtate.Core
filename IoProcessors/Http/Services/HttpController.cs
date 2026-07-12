@@ -15,12 +15,12 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.Buffers;
 using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Mime;
 using System.Text;
+using System.Text.RegularExpressions;
 using Xtate.DataModel.Services;
 using Xtate.DataTypes;
 using Xtate.Http;
@@ -36,21 +36,25 @@ public class HttpController
 {
 	private const string EventNameParameterName = @"_scxmleventname";
 
-	private const string ContentLength = "Content-Length";
+	private const string ContentLength = @"Content-Length";
 
-	private const string MediaTypeApplicationFormUrlEncoded = "application/x-www-form-urlencoded";
+	private const string MediaTypeApplicationFormUrlEncoded = @"application/x-www-form-urlencoded";
 
-	private const string MediaTypeApplicationJson = "application/json";
+	private const string MediaTypeApplicationJson = @"application/json";
 
-	private const string DefaultContentType = "text/plain; charset=utf-8";
+	private const string DefaultContentType = @"text/plain; charset=utf-8";
 
 	private const string SessionPrefix = @"session/";
 
 	private const string InvokePrefix = @"invoke/";
 
-	private static readonly FullUri HttpIoProcessorOriginType = new("http://www.w3.org/TR/scxml/#BasicHTTPEventProcessor");
+	private const string Origin = @"Origin";
 
-	private static readonly ArrayPool<char> CharArrayPool = ArrayPool<char>.Create(maxArrayLength: 4096, maxArraysPerBucket: 16);
+	private const string ScxmlSendid = @"SCXML-SendId";
+
+	private const string ScxmlInvokeid = @"SCXML-InvokeId";
+
+	private static readonly FullUri HttpIoProcessorOriginType = new(@"http://www.w3.org/TR/scxml/#BasicHTTPEventProcessor");
 
 	private readonly Uri _base;
 
@@ -138,7 +142,7 @@ public class HttpController
 		if (content is not null && _options.MaxMessageSize > 0)
 		{
 			var writeLimitStream = new WriteLimitStream(_options.MaxMessageSize);
-			await content.CopyToAsync(writeLimitStream).ConfigureAwait(false);
+			await content.CopyToAsync(writeLimitStream, token).ConfigureAwait(false);
 		}
 
 		var targetUri = target.ToString();
@@ -157,24 +161,24 @@ public class HttpController
 
 		if (GetSenderTarget(routerEvent.SenderServiceId) is { } origin)
 		{
-			httpRequestMessage.Headers.Add(name: "Origin", origin.ToString());
+			httpRequestMessage.Headers.Add(Origin, origin.ToString());
 		}
 
 		if (routerEvent.SendId is { } sendId)
 		{
-			httpRequestMessage.Headers.Add(name: "SCXML-SendId", sendId.ToString());
+			httpRequestMessage.Headers.Add(ScxmlSendid, sendId.ToString());
 		}
 
 		if (routerEvent.InvokeId is { } invokeId)
 		{
-			httpRequestMessage.Headers.Add(name: "SCXML-InvokeId", invokeId.ToString());
+			httpRequestMessage.Headers.Add(ScxmlInvokeid, invokeId.ToString());
 		}
 
 		using var httpResponseMessage = await httpClient.SendAsync(httpRequestMessage, token).ConfigureAwait(false);
 		httpResponseMessage.EnsureSuccessStatusCode();
 	}
 
-	private Uri GetSenderTarget(ServiceId senderId) =>
+	private FullUri GetSenderTarget(ServiceId senderId) =>
 		senderId switch
 		{
 			SessionId sessionId => ToSessionTarget(sessionId),
@@ -237,14 +241,14 @@ public class HttpController
 	{
 		if (!eventName.IsDefault)
 		{
-			yield return new KeyValuePair<string, string>(EventNameParameterName, eventName.ToString());
+			yield return new KeyValuePair<string, string>(EventNameParameterName, eventName.ToString()!);
 		}
 
 		if (dataModelList is not null)
 		{
 			foreach (var (key, value) in dataModelList.KeyValues)
 			{
-				yield return new KeyValuePair<string, string>(key, value.AsStringOrDefault() ?? string.Empty);
+				yield return new KeyValuePair<string, string>(key!, value.AsStringOrDefault() ?? string.Empty);
 			}
 		}
 	}
@@ -264,17 +268,24 @@ public class HttpController
 								   Name = EventName.FromString(eventName),
 								   Type = EventType.External,
 								   Data = data,
-								   Origin = request.Headers["Origin"],
+								   Origin = request.Headers[Origin] is { } origin ? new FullUri(origin) : null,
 								   OriginType = HttpIoProcessorOriginType,
-								   InvokeId = request.Headers["SCXML-InvokeId"] is { } invokeId ? InvokeId.FromString(invokeId) : null,
-								   SendId = request.Headers["SCXML-SendId"] is { } sendId ? SendId.FromString(sendId) : null
+								   InvokeId = request.Headers[ScxmlInvokeid] is { } invokeId ? InvokeId.FromString(invokeId) : null,
+								   SendId = request.Headers[ScxmlSendid] is { } sendId ? SendId.FromString(sendId) : null
 							   };
 
-			if (TryMatchTarget(request.Url, out var targetServiceId)) { }
+			Infra.NotNull(request.Url);
 
-			await ExternalEventDispatcher.Dispatch(targetServiceId, eventMessage, token).ConfigureAwait(false);
+			if(TryMatchTarget(request.Url, out var targetServiceId))
+			{
+				await ExternalEventDispatcher.Dispatch(targetServiceId, eventMessage, token).ConfigureAwait(false);
 
-			context.Response.StatusCode = (int) HttpStatusCode.OK;
+				context.Response.StatusCode = (int) HttpStatusCode.OK;
+			}
+			else
+			{
+				Infra.Fail();
+			}
 		}
 		catch (HttpRequestProcessException ex)
 		{

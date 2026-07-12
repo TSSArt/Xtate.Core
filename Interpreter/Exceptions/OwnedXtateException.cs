@@ -25,7 +25,7 @@ public class OwnedXtateException : XtateException
 
 	public OwnedXtateException(string? message) : base(message) { }
 
-	public OwnedXtateException(string? message, Exception innerException) : base(message, innerException) { }
+	public OwnedXtateException(string? message, Exception? innerException) : base(message, innerException) { }
 
 	public OwnedXtateException(Exception innerException) : base(message: null, innerException) { }
 
