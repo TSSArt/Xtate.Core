@@ -26,7 +26,6 @@ using Xtate.DataTypes;
 using Xtate.Http;
 using Xtate.Interpreter;
 using Xtate.IoC.Options;
-
 using Xtate.IoProcessors.Http.Internal;
 using Xtate.StateMachine;
 using Xtate.StateMachineHost;
@@ -49,7 +48,7 @@ public class HttpController
 
 	private const string InvokePrefix = @"invoke/";
 
-	private static readonly FullUri HttpIoProcessorOriginType = new ("http://www.w3.org/TR/scxml/#BasicHTTPEventProcessor") ;
+	private static readonly FullUri HttpIoProcessorOriginType = new("http://www.w3.org/TR/scxml/#BasicHTTPEventProcessor");
 
 	private static readonly ArrayPool<char> CharArrayPool = ArrayPool<char>.Create(maxArrayLength: 4096, maxArraysPerBucket: 16);
 
@@ -61,8 +60,6 @@ public class HttpController
 
 	private readonly Uri _sessionBase;
 
-	public required IExternalEventDispatcher<HttpIoProcessor> ExternalEventDispatcher { private get; [SetByIoC] init; }
-
 	public HttpController(IOptions<HttpIoProcessorOptions> options)
 	{
 		_options = options.Value;
@@ -71,6 +68,8 @@ public class HttpController
 		_sessionBase = new Uri(_base, SessionPrefix);
 		_invokeBase = new Uri(_base, InvokePrefix);
 	}
+
+	public required IExternalEventDispatcher<HttpIoProcessor> ExternalEventDispatcher { private get; [SetByIoC] init; }
 
 	public required Func<HttpClient> HttpClientFactory { private get; [SetByIoC] init; }
 
@@ -171,7 +170,6 @@ public class HttpController
 			httpRequestMessage.Headers.Add(name: "SCXML-InvokeId", invokeId.ToString());
 		}
 
-
 		using var httpResponseMessage = await httpClient.SendAsync(httpRequestMessage, token).ConfigureAwait(false);
 		httpResponseMessage.EnsureSuccessStatusCode();
 	}
@@ -251,7 +249,6 @@ public class HttpController
 		}
 	}
 
-
 	public async ValueTask ReceiveAndProcessEvent(HttpListener httpListener, CancellationToken token)
 	{
 		var context = await httpListener.GetContextAsync().ConfigureAwait(false);
@@ -269,14 +266,11 @@ public class HttpController
 								   Data = data,
 								   Origin = request.Headers["Origin"],
 								   OriginType = HttpIoProcessorOriginType,
-								   InvokeId = request.Headers["SCXML-InvokeId"] is {} invokeId ? InvokeId.FromString(invokeId) : null,
-								   SendId = request.Headers["SCXML-SendId"] is {} sendId ? SendId.FromString(sendId) : null
-			};
+								   InvokeId = request.Headers["SCXML-InvokeId"] is { } invokeId ? InvokeId.FromString(invokeId) : null,
+								   SendId = request.Headers["SCXML-SendId"] is { } sendId ? SendId.FromString(sendId) : null
+							   };
 
-			if (TryMatchTarget(request.Url, out var targetServiceId))
-			{
-
-			}
+			if (TryMatchTarget(request.Url, out var targetServiceId)) { }
 
 			await ExternalEventDispatcher.Dispatch(targetServiceId, eventMessage, token).ConfigureAwait(false);
 
@@ -361,7 +355,6 @@ public class HttpController
 				case MediaTypeNames.Text.Xml:
 				{
 					data = await DataModelConverter.FromXmlAsync(stream, token).ConfigureAwait(false);
-
 
 					break;
 				}

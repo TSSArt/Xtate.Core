@@ -43,7 +43,7 @@ public class StateMachineHostNew : IStateMachineHostNew
 
 	protected virtual async ValueTask Stop()
 	{
-		while (_ioProcessorHosts.Count >0)
+		while (_ioProcessorHosts.Count > 0)
 		{
 			await _ioProcessorHosts.Pop().Stop().ConfigureAwait(false);
 		}

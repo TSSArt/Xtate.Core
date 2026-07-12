@@ -467,22 +467,21 @@ public static class XmlConverter
 					metadata.Add(xmlReader.LocalName);
 					metadata.Add(xmlReader.Value);
 					metadata.Add(xmlReader.Prefix);
-					metadata.Add(xmlReader.NamespaceURI);
 				}
 				else if (xmlReader.LocalName != XPathMetadata.Xmlns)
 				{
 					metadata.Add(xmlReader.LocalName);
 					metadata.Add(xmlReader.Value);
 					metadata.Add(string.Empty);
-					metadata.Add(xmlReader.NamespaceURI);
 				}
 				else
 				{
 					metadata.Add(string.Empty);
 					metadata.Add(xmlReader.Value);
 					metadata.Add(string.Empty);
-					metadata.Add(xmlReader.NamespaceURI);
 				}
+
+				metadata.Add(xmlReader.NamespaceURI);
 			}
 
 			xmlReader.MoveToElement();

@@ -52,5 +52,4 @@ public class ElseNode : IElse, IAncestorProvider, IDocumentId, IDebugEntityId
 	public int DocumentId => _documentIdSlot.CreateValue();
 
 #endregion
-
 }

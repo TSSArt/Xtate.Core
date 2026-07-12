@@ -60,7 +60,7 @@ public class InvokeNode : IInvoke, IAncestorProvider, IDocumentId, IDebugEntityI
 		_idLocationEvaluator = invoke.IdLocation?.UseAncestor.As<ILocationEvaluator>();
 		_nameEvaluatorList = invoke.NameList.UseAncestor.ItemsAs<ILocationEvaluator>();
 
-		_parameterList = Xtate.DataModel.Services.DataConverter.AsParamArray(invoke.Parameters);
+		_parameterList = DataModel.Services.DataConverter.AsParamArray(invoke.Parameters);
 
 		Finalize = invoke.Finalize?.UseAncestor.As<FinalizeNode>();
 	}

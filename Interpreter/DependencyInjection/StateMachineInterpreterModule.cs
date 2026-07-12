@@ -60,7 +60,7 @@ public class StateMachineInterpreterModule : Module<InterpreterModelBuilderModul
 		Services.AddImplementation<HostXDataModelProperty>().For<IXDataModelProperty>();
 
 		Services.AddType<StateMachineRuntimeError>(Option.IfNotRegistered);
-		
+
 		Services.AddImplementation<InStateController>().For<IInStateController>();
 		Services.AddImplementation<DataModelController>().For<IDataModelController>();
 		Services.AddImplementation<InvokeController>().For<IInvokeController>();
@@ -70,7 +70,7 @@ public class StateMachineInterpreterModule : Module<InterpreterModelBuilderModul
 		Services.AddFactory<InterpreterModelGetter>().For<IInterpreterModel>(SharedWithin.Scope);
 		Services.AddSharedImplementation<EventQueue>(SharedWithin.Scope).For<IEventReader>().For<IEventDispatcher>();
 		Services.AddSharedImplementation<StateMachineContext>(SharedWithin.Scope).For<IStateMachineContext>();
-		
+
 		Services.AddSharedImplementation<StateMachineInterpreter>(SharedWithin.Scope).For<IStateMachineInterpreter>();
 	}
 }

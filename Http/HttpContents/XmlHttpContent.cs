@@ -41,18 +41,18 @@ public class XmlHttpContent : HttpContent
 
 	protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context) => DataModelConverter.ToXmlAsync(stream, _value);
 
+	protected override bool TryComputeLength(out long length)
+	{
+		length = 0;
+
+		return false;
+	}
+
 #if NET5_0_OR_GREATER
 
-	protected override void SerializeToStream(Stream stream, TransportContext? context, CancellationToken cancellationToken) => DataModelConverter.ToXml(stream, _value, DefaultXmlOptions);
+	protected override void SerializeToStream(Stream stream, TransportContext? context, CancellationToken cancellationToken) => DataModelConverter.ToXml(stream, _value);
 
 	protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context, CancellationToken token) => DataModelConverter.ToXmlAsync(stream, _value, DefaultXmlOptions, token);
 
 #endif
-
-	protected override bool TryComputeLength(out long length)
-	{
-		length = 0;	
-
-		return false;
-	}
 }

@@ -208,7 +208,7 @@ public sealed partial class DataModelList
 		}
 		else
 		{
-			Add(key, value: DataModelValue.Undefined, metadata);
+			Add(key, DataModelValue.Undefined, metadata);
 		}
 	}
 
@@ -220,7 +220,7 @@ public sealed partial class DataModelList
 		}
 		else
 		{
-			Set(entry.Index, key: null, value: DataModelValue.Undefined, metadata);
+			Set(entry.Index, key: null, DataModelValue.Undefined, metadata);
 		}
 	}
 

@@ -21,7 +21,7 @@ using Xtate.DataTypes;
 
 namespace Xtate.DataModel.XPath.Internal;
 
-public class DataModelXPathNavigator : System.Xml.XPath.XPathNavigator
+public class DataModelXPathNavigator : XPathNavigator
 {
 	private const int PathFieldCount = 6;
 
@@ -204,14 +204,14 @@ public class DataModelXPathNavigator : System.Xml.XPath.XPathNavigator
 			return false;
 		}
 
-		Current = new Node(value: DataModelValue.Undefined, AdapterFactory.XmlnsXmlNodeAdapter);
+		Current = new Node(DataModelValue.Undefined, AdapterFactory.XmlnsXmlNodeAdapter);
 
 		return true;
 	}
 
-	public override System.Xml.XPath.XPathNavigator Clone() => new DataModelXPathNavigator(this);
+	public override XPathNavigator Clone() => new DataModelXPathNavigator(this);
 
-	public override bool IsSamePosition(System.Xml.XPath.XPathNavigator other)
+	public override bool IsSamePosition(XPathNavigator other)
 	{
 		if (other is not DataModelXPathNavigator navigator)
 		{
@@ -234,7 +234,7 @@ public class DataModelXPathNavigator : System.Xml.XPath.XPathNavigator
 		return true;
 	}
 
-	public override bool MoveTo(System.Xml.XPath.XPathNavigator other)
+	public override bool MoveTo(XPathNavigator other)
 	{
 		if (other is not DataModelXPathNavigator navigator)
 		{

@@ -26,14 +26,14 @@ public partial class DataModelList : IDynamicMetaObjectProvider
 {
 #region Interface IDynamicMetaObjectProvider
 
-//	DynamicMetaObject IDynamicMetaObjectProvider.GetMetaObject(Expression parameter) => new MetaObject(parameter, this, Dynamic.CreateMetaObject);
+	//	DynamicMetaObject IDynamicMetaObjectProvider.GetMetaObject(Expression parameter) => new MetaObject(parameter, this, Dynamic.CreateMetaObject);
 	DynamicMetaObject IDynamicMetaObjectProvider.GetMetaObject(Expression parameter) => new DataModelListMetaObject(parameter, this);
 
-	#endregion
+#endregion
 
 	public dynamic AsDynamic() => this;
 
-	[Obsolete]//TODO: Remove this class in future versions, use MetaObject2 instead.
+	[Obsolete] //TODO: Remove this class in future versions, use MetaObject2 instead.
 	internal class Dynamic1(DataModelList list) : DynamicObject
 	{
 		private const string GetLength = "GetLength";
@@ -118,7 +118,7 @@ public partial class DataModelList : IDynamicMetaObjectProvider
 					}
 					else
 					{
-						list.Add(key, value: DataModelValue.Undefined, metadata);
+						list.Add(key, DataModelValue.Undefined, metadata);
 					}
 
 					result = null;
@@ -136,7 +136,7 @@ public partial class DataModelList : IDynamicMetaObjectProvider
 					}
 					else
 					{
-						list.Set(entry.Index, key: null, value: DataModelValue.Undefined, metadata);
+						list.Set(entry.Index, key: null, DataModelValue.Undefined, metadata);
 					}
 
 					result = null;

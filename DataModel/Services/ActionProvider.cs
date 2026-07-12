@@ -51,7 +51,7 @@ public abstract class ActionProvider<TCustomAction>([Localizable(false)] string 
 		using var stringReader = new StringReader(xml);
 
 		var nsManager = new XmlNamespaceManager(_nameTable);
-		var context = new XmlParserContext(_nameTable, nsManager, xmlLang: null, xmlSpace: XmlSpace.None);
+		var context = new XmlParserContext(_nameTable, nsManager, xmlLang: null, XmlSpace.None);
 
 		using var xmlReader = XmlReader.Create(stringReader, settings: null, context);
 

@@ -130,15 +130,15 @@ public class StateMachineScopeManager : IStateMachineScopeManager, IDisposable, 
 		try
 		{
 			var result = await controller.GetResult().ConfigureAwait(false);
-			
+
 			await Cleanup(sessionId).ConfigureAwait(false);
-			
+
 			resultTcs.SetResult(result);
 		}
 		catch (Exception ex)
 		{
 			await Cleanup(sessionId).ConfigureAwait(false);
-			
+
 			resultTcs.SetException(ex);
 		}
 	}

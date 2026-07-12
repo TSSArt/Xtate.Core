@@ -64,5 +64,4 @@ public class InitialNode : StateEntityNode, IInitial, IAncestorProvider, IDebugE
 
 		return initial.Transition.UseAncestor.As<TransitionNode>();
 	}
-
 }

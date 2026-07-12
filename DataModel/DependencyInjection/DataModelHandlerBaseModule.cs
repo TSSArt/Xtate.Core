@@ -40,7 +40,7 @@ public class DataModelHandlerBaseModule : Module<LoggingModule, IoCModule>
 		Services.AddTypeSync<DefaultRaiseEvaluator, IRaise>();
 		Services.AddTypeSync<DefaultScriptEvaluator, IScript>();
 		Services.AddTypeSync<DefaultSendEvaluator, ISend>();
-		
+
 		Services.AddTypeSync<CustomActionContainer, ICustomAction>();
 		Services.AddSharedFactorySync<CustomActionFactory>(SharedWithin.Scope).For<IAction, ICustomAction>(Option.DoNotDispose);
 

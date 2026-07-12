@@ -21,7 +21,6 @@ using Xtate.Persistence.Internal;
 using Xtate.Persistence.Services;
 using Xtate.StateMachine;
 
-
 namespace Xtate.Persistence;
 
 [InstantiatedByIoC]

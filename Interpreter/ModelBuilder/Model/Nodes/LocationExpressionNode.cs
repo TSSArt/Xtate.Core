@@ -43,5 +43,4 @@ public class LocationExpressionNode : ILocationExpression, IAncestorProvider
 	public string Expression => _locationExpression.Expression!;
 
 #endregion
-
 }

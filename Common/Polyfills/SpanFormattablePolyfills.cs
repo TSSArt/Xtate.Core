@@ -15,9 +15,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate;
-
 #if !NETSTANDARD2_1 && !NETCOREAPP2_1_OR_GREATER
+
+using Xtate;
 
 // ReSharper disable once CheckNamespace
 namespace System;

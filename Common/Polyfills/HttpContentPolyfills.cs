@@ -15,10 +15,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#if !NET5_0_OR_GREATER
 using System.IO;
 using Xtate.ResourceLoaders.Extensions;
-
-#if !NET5_0_OR_GREATER
 
 namespace System.Net.Http;
 

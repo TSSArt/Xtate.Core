@@ -21,7 +21,6 @@ using System.Net.Http;
 using System.Text;
 using Xtate.DataModel.Services;
 using Xtate.DataTypes;
-
 using Xtate.IoProcessors.Http.Internal;
 using Xtate.ResourceLoaders.Extensions;
 

@@ -165,7 +165,7 @@ public class XPathEngine(IDataModelController? dataModelController)
 		}
 	}
 
-	[SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
+	[SuppressMessage(category: "ReSharper", checkId: "MemberCanBeMadeStatic.Global")]
 	public string GetName(XPathCompiledExpression compiledExpression)
 	{
 		Infra.Requires(compiledExpression);

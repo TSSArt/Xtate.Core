@@ -36,13 +36,14 @@ public class RedirectXmlResolver : XmlResolver, IExternalEntityGetter
 
 	public required Func<ValueTask<IXIncludeOptions?>> XIncludeOptionsFactory { private get; [SetByIoC] init; }
 
-	#region Interface IExternalEntityGetter
+#region Interface IExternalEntityGetter
 
-	public override bool SupportsType(Uri absoluteUri, Type type) => type == typeof(Resource) || base.SupportsType(absoluteUri, type);
+	public override bool SupportsType(Uri absoluteUri, Type? type) => type == typeof(Resource) || base.SupportsType(absoluteUri, type);
 
-	public virtual object? GetEntity(Uri absoluteUri, NameValueCollection? headers, Type? ofObjectToReturn) => throw new NotSupportedException(Resources.Exception_LoadingExternalResourcesSynchronouslyDoesNotSupported);
+	public virtual object GetEntity(Uri absoluteUri, NameValueCollection? headers, Type? ofObjectToReturn) =>
+		throw new NotSupportedException(Resources.Exception_LoadingExternalResourcesSynchronouslyDoesNotSupported);
 
-	public virtual async ValueTask<object?> GetEntityAsync(Uri absoluteUri, NameValueCollection? headers, Type? ofObjectToReturn)
+	public virtual async ValueTask<object> GetEntityAsync(Uri absoluteUri, NameValueCollection? headers, Type? ofObjectToReturn)
 	{
 		if (ofObjectToReturn is not null && ofObjectToReturn != typeof(Stream) && ofObjectToReturn != typeof(Resource))
 		{
@@ -66,7 +67,7 @@ public class RedirectXmlResolver : XmlResolver, IExternalEntityGetter
 
 #endregion
 
-	public sealed override object? GetEntity(Uri absoluteUri, string role, Type ofObjectToReturn) => GetEntity(absoluteUri, headers: null, ofObjectToReturn);
+	public sealed override object GetEntity(Uri absoluteUri, string? role, Type? ofObjectToReturn) => GetEntity(absoluteUri, headers: null, ofObjectToReturn);
 
-	public sealed override Task<object?> GetEntityAsync(Uri absoluteUri, string role, Type ofObjectToReturn) => GetEntityAsync(absoluteUri, headers: null, ofObjectToReturn).AsTask();
+	public sealed override Task<object> GetEntityAsync(Uri absoluteUri, string? role, Type? ofObjectToReturn) => GetEntityAsync(absoluteUri, headers: null, ofObjectToReturn).AsTask();
 }

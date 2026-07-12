@@ -45,5 +45,4 @@ public class EventNode(IOutgoingEvent outgoingEvent) : IOutgoingEvent, IAncestor
 	public int DelayMs => outgoingEvent.DelayMs;
 
 #endregion
-
 }

@@ -27,8 +27,8 @@ namespace Xtate.Http;
 
 public class JsonHttpContent : HttpContent
 {
-	private const string MediaTypeApplicationJson = "application/json"; 
-	
+	private const string MediaTypeApplicationJson = "application/json";
+
 	private const DataModelConverter.JsonOptions DefaultJsonOptions = DataModelConverter.JsonOptions.UndefinedToSkipOrNull;
 
 	private readonly DataModelValue _value;
@@ -42,19 +42,18 @@ public class JsonHttpContent : HttpContent
 
 	protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context) => DataModelConverter.ToJsonAsync(stream, _value, DefaultJsonOptions);
 
-#if NET5_0_OR_GREATER
-
-	protected override void SerializeToStream(Stream stream, TransportContext? context, CancellationToken cancellationToken) => DataModelConverter.ToJson(stream, _value, DefaultJsonOptions);
-
-	protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context, CancellationToken token) =>
-		DataModelConverter.ToJsonAsync(stream, _value, DefaultJsonOptions, token);
-
-#endif
-
 	protected override bool TryComputeLength(out long length)
 	{
 		length = 0;
 
 		return false;
 	}
+
+#if NET5_0_OR_GREATER
+
+	protected override void SerializeToStream(Stream stream, TransportContext? context, CancellationToken cancellationToken) => DataModelConverter.ToJson(stream, _value, DefaultJsonOptions);
+
+	protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context, CancellationToken token) => DataModelConverter.ToJsonAsync(stream, _value, DefaultJsonOptions, token);
+
+#endif
 }
