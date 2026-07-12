@@ -126,7 +126,7 @@ public class StateMachinePersistingInterpreterTest
 		};
 
 		var destroyOnIdleTimeoutMock = new Mock<IDestroyOnIdleTimeout>();
-		destroyOnIdleTimeoutMock.Setup(x => x.IdleTimeout).Returns(TimeSpan.FromMilliseconds(5000));
+		destroyOnIdleTimeoutMock.Setup(x => x.IdleTimeout).Returns(TimeSpan.FromMilliseconds(10000));
 
 		var persistenceOptionsMock = new Mock<IPersistenceOptions>();
 		persistenceOptionsMock.Setup(x => x.PersistenceLevel).Returns(PersistenceLevel.StableState);
@@ -149,14 +149,7 @@ public class StateMachinePersistingInterpreterTest
 
 		suspendEventDispatcher.Suspend(false);
 
-		try
-		{
-			await stateMachineResult.GetResult();
-		}
-		catch (StateMachineSuspendedException)
-		{
-			Console.Write(@"OK");
-		}
+		await Assert.ThrowsExactlyAsync<StateMachineSuspendedException>(async() => await stateMachineResult.GetResult());
 
 		var startResumed = await stateMachineScopeManager.Start(stateMachine, SecurityContextType.NewStateMachine);
 
@@ -230,10 +223,6 @@ public class StateMachinePersistingInterpreterTest
 
 		suspendEventDispatcher.Suspend(false);
 
-		try
-		{
-			await result.GetResult();
-		}
-		catch (StateMachineSuspendedException) { }
+		await result.GetResult();
 	}
 }

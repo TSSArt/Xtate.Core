@@ -17,7 +17,7 @@
 
 using Xtate.StateMachine;
 
-namespace Xtate.Tests;
+namespace Xtate.Test;
 
 [TestClass]
 public class InvokeIdTests

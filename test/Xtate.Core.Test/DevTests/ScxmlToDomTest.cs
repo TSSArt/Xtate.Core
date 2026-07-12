@@ -69,19 +69,19 @@ public class ScxmlToDomTest
     [TestMethod]
     public void RootElementNameFailTest()
 	{
-		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachine("<no-scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0'/>"));
+		Assert.ThrowsExactly<StateMachineValidationException>([ExcludeFromCodeCoverage]() => GetStateMachine("<no-scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0'/>"));
 	}
 
     [TestMethod]
     public void RootElementVersionFailTest()
     {
-		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='0.2'/>"));
+		Assert.ThrowsExactly<StateMachineValidationException>([ExcludeFromCodeCoverage]() => GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='0.2'/>"));
     }
 
     [TestMethod]
     public void RootElementUnknownAttributesTest()
     {
-		Assert.ThrowsExactly<XmlException>(() => GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' attr0='00' attr0='11' attr1='22' />"));
+		Assert.ThrowsExactly<XmlException>([ExcludeFromCodeCoverage] () => GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' attr0='00' attr0='11' attr1='22' />"));
     }
 
     [TestMethod]
@@ -110,25 +110,25 @@ public class ScxmlToDomTest
     [TestMethod]
     public void RootElementInvalidEmptyBindingTest()
     {
-		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' binding=''/>"));
+		Assert.ThrowsExactly<StateMachineValidationException>([ExcludeFromCodeCoverage] () => GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' binding=''/>"));
     }
 
     [TestMethod]
     public void RootElementInvalidWrongNameBindingTest()
     {
-		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' binding='invalid-binding'/>"));
+		Assert.ThrowsExactly<StateMachineValidationException>([ExcludeFromCodeCoverage] () => GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' binding='invalid-binding'/>"));
     }
 
     [TestMethod]
     public void RootElementInvalidUpperCaseBindingTest()
     {
-		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' binding='Late'/>"));
+		Assert.ThrowsExactly<StateMachineValidationException>([ExcludeFromCodeCoverage] () => GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' binding='Late'/>"));
     }
 
     [TestMethod]
     public void RootElementEmptyNameFailTest()
     {
-		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' name=''/>"));
+		Assert.ThrowsExactly<StateMachineValidationException>([ExcludeFromCodeCoverage] () => GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' name=''/>"));
     }
 
     [TestMethod]
@@ -141,19 +141,19 @@ public class ScxmlToDomTest
     [TestMethod]
     public void RootElementEmptyInitialTest()
     {
-		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' initial=''/>"));
+		Assert.ThrowsExactly<StateMachineValidationException>([ExcludeFromCodeCoverage] () => GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' initial=''/>"));
     }
 
     [TestMethod]
     public void RootElementSpaceInitialTest()
     {
-		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' initial=' '/>"));
+		Assert.ThrowsExactly<StateMachineValidationException>([ExcludeFromCodeCoverage] () => GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' initial=' '/>"));
     }
 
     [TestMethod]
     public void RootElementInitialFailTest()
     {
-		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' initial=' trg2  trg1 '/>"));
+		Assert.ThrowsExactly<StateMachineValidationException>([ExcludeFromCodeCoverage] () => GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' initial=' trg2  trg1 '/>"));
     }
 
     [TestMethod]
@@ -176,7 +176,7 @@ public class ScxmlToDomTest
     [TestMethod]
     public void IncorrectXmlTest()
     {
-		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachineWithRoot("<datamodel><data id='a'/><data id='b'></data><data id='c' src='c-src/><data id='d' expr='d-expr'/><data id='e'>e-body</data></datamodel>"));
+		Assert.ThrowsExactly<StateMachineValidationException>([ExcludeFromCodeCoverage] () => GetStateMachineWithRoot("<datamodel><data id='a'/><data id='b'></data><data id='c' src='c-src/><data id='d' expr='d-expr'/><data id='e'>e-body</data></datamodel>"));
     }
 
     [TestMethod]
@@ -192,7 +192,7 @@ public class ScxmlToDomTest
 
         Assert.AreEqual(expected: "b", sm.DataModel.Data[1].Id);
         Assert.IsNull(sm.DataModel.Data[1].Source);
-        Assert.AreEqual(expected: "", sm.DataModel.Data[1].InlineContent?.Value);
+        Assert.AreEqual(expected: "", sm.DataModel.Data[1].InlineContent!.Value);
 
         Assert.AreEqual(expected: "c", sm.DataModel.Data[2].Id);
         Assert.AreEqual(expected: "c-src", sm.DataModel.Data[2].Source!.Uri!.ToString());
@@ -204,43 +204,43 @@ public class ScxmlToDomTest
 
         Assert.AreEqual(expected: "e", sm.DataModel.Data[4].Id);
         Assert.IsNull(sm.DataModel.Data[4].Source);
-        Assert.AreEqual(expected: "e-body", sm.DataModel.Data[4].InlineContent?.Value);
+        Assert.AreEqual(expected: "e-body", sm.DataModel.Data[4].InlineContent!.Value);
     }
 
     [TestMethod]
     public void TwoDataModelTest()
     {
-		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachineXyzDataModel("<datamodel/><datamodel/>"));
+		Assert.ThrowsExactly<StateMachineValidationException>([ExcludeFromCodeCoverage]() => GetStateMachineXyzDataModel("<datamodel/><datamodel/>"));
     }
 
     [TestMethod]
     public void DataNoIdTest()
     {
-		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachineXyzDataModel("<datamodel><data></data></datamodel>"));
+		Assert.ThrowsExactly<StateMachineValidationException>([ExcludeFromCodeCoverage]() => GetStateMachineXyzDataModel("<datamodel><data></data></datamodel>"));
     }
 
     [TestMethod]
     public void DataSrcAndExprFailTest()
     {
-		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachineXyzDataModel("<datamodel><data id='a' src='domain' expr='some-expr'/></datamodel>"));
+		Assert.ThrowsExactly<StateMachineValidationException>([ExcludeFromCodeCoverage]() => GetStateMachineXyzDataModel("<datamodel><data id='a' src='domain' expr='some-expr'/></datamodel>"));
     }
 
     [TestMethod]
     public void DataSrcAndBodyFailTest()
     {
-		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachineXyzDataModel("<datamodel><data id='a' src='domain'>123</data></datamodel>"));
+		Assert.ThrowsExactly<StateMachineValidationException>([ExcludeFromCodeCoverage]() => GetStateMachineXyzDataModel("<datamodel><data id='a' src='domain'>123</data></datamodel>"));
     }
 
     [TestMethod]
     public void DataBodyAndExprFailTest()
     {
-		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachineXyzDataModel("<datamodel><data id='a' expr='some-expr'>123</data></datamodel>"));
+		Assert.ThrowsExactly<StateMachineValidationException>([ExcludeFromCodeCoverage]() => GetStateMachineXyzDataModel("<datamodel><data id='a' expr='some-expr'>123</data></datamodel>"));
     }
 
     [TestMethod]
     public void DataSrcAndBodyAndExprFailTest()
     {
-		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachineXyzDataModel("<datamodel><data id='a' src='s-src' expr='some-expr'>123</data></datamodel>"));
+		Assert.ThrowsExactly<StateMachineValidationException>([ExcludeFromCodeCoverage]() => GetStateMachineXyzDataModel("<datamodel><data id='a' src='s-src' expr='some-expr'>123</data></datamodel>"));
     }
 
     [TestMethod]
@@ -280,13 +280,13 @@ public class ScxmlToDomTest
     [TestMethod]
     public void GlobalScriptSrcAndBodyFailTest()
     {
-		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachineXyzDataModel("<script src='s-src'>body</script>"));
+		Assert.ThrowsExactly<StateMachineValidationException>([ExcludeFromCodeCoverage]() => GetStateMachineXyzDataModel("<script src='s-src'>body</script>"));
     }
 
     [TestMethod]
     public void MultipleGlobalScriptFailTest()
     {
-		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachineXyzDataModel("<script/><script/>"));
+		Assert.ThrowsExactly<StateMachineValidationException>([ExcludeFromCodeCoverage]() => GetStateMachineXyzDataModel("<script/><script/>"));
     }
 
     [TestMethod]
@@ -319,14 +319,14 @@ public class ScxmlToDomTest
     [TestMethod]
     public void StateIdFailTest()
     {
-		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachineWithRoot("<state id='a b'/>"));
+		Assert.ThrowsExactly<StateMachineValidationException>([ExcludeFromCodeCoverage]() => GetStateMachineWithRoot("<state id='a b'/>"));
         //Assert.AreEqual((Identifier)"a", ((IState)sm.States[0]).Id);
     }
 
     [TestMethod]
     public void StateInitialFailForAtomicStateTest()
     {
-		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachineWithRoot("<state initial='id id2'/>"));
+		Assert.ThrowsExactly<StateMachineValidationException>([ExcludeFromCodeCoverage]() => GetStateMachineWithRoot("<state initial='id id2'/>"));
     }
 
     [TestMethod]
@@ -376,7 +376,7 @@ public class ScxmlToDomTest
     [DataRow("transition")]
     public void UnknownElementTest(string element)
     {
-		Assert.ThrowsExactly<StateMachineValidationException>(() => GetStateMachineWithRoot($"<{element}/>"));
+		Assert.ThrowsExactly<StateMachineValidationException>([ExcludeFromCodeCoverage]() => GetStateMachineWithRoot($"<{element}/>"));
     }
 
     [TestMethod]

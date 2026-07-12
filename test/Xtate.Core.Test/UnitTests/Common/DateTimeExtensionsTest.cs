@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using System.Reflection;
 using Xtate;
 
 namespace Xtate.Test;
@@ -57,6 +58,7 @@ public class DateTimeExtensionsTest
 	}
 
 	[TestMethod]
+	[ExcludeFromCodeCoverage]
 	public void UniqueUtcNow_WithConcurrentCalls_ShouldReturnUniqueValuesInOrder()
 	{
 		// Arrange
@@ -123,6 +125,27 @@ public class DateTimeExtensionsTest
 		for (int i = 1; i < times.Count; i++)
 		{
 			Assert.IsTrue(times[i] >= times[i - 1], "Ticks should be in ascending order");
+		}
+	}
+
+	[TestMethod]
+	public void UniqueUtcNow_WhenStoredValueIsAhead_ReturnsNextTick()
+	{
+		var lastValueField = typeof(DateTimeExtensions).GetField("_lastValue", BindingFlags.NonPublic | BindingFlags.Static)!;
+		var futureTicks = DateTime.UtcNow.AddHours(1).Ticks;
+
+		try
+		{
+			lastValueField.SetValue(null, futureTicks);
+
+			var result = DateTime.UniqueUtcNow;
+
+			Assert.AreEqual(DateTimeKind.Utc, result.Kind);
+			Assert.AreEqual(futureTicks + 1, result.Ticks);
+		}
+		finally
+		{
+			lastValueField.SetValue(null, DateTime.UtcNow.Ticks);
 		}
 	}
 }

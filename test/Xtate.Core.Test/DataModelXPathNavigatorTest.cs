@@ -287,18 +287,9 @@ public class DataModelXPathNavigatorTest
         var navigatorHasAttributes = navigator.HasAttributes;
         var moveToFirstAttribute = navigator.MoveToFirstAttribute();
 
-        if (moveToFirstAttribute)
-        {
-            navigator.MoveToParent();
-        }
-
         var moveToFirstNamespace = navigator.MoveToFirstNamespace(XPathNamespaceScope.ExcludeXml);
         navigator.MoveToNextNamespace(XPathNamespaceScope.ExcludeXml);
 
-        if (moveToFirstNamespace)
-        {
-            navigator.MoveToParent();
-        }
 #pragma warning restore IDE0059
     }
 }

@@ -99,5 +99,5 @@ public readonly struct Target : IReadOnlyList<IIdentifier>, IEquatable<Target>, 
 
 	public override string? ToString() => SegmentedName.ToString(_targets, Separator);
 
-	public override bool Equals(object? obj) => obj is EventName other && Equals(other);
+	public override bool Equals(object? obj) => obj is Target other && Equals(other);
 }

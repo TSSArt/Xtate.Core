@@ -29,18 +29,6 @@ namespace Xtate.Test.StateMachines;
 /// </param>
 public record ScxmlTestCase(string Name, string Scxml, string? ExpectedFinalData = null)
 {
-	/// <summary>Produces a one-element <c>object[]</c> suitable for MSTest <c>[DynamicData]</c>.</summary>
-	public object[] ToTestRow() => [this];
-
 	/// <inheritdoc />
 	public override string ToString() => Name;
-}
-
-/// <summary>
-///     Implemented by every static machine-collection class to expose its test cases
-///     to <see cref="ScxmlTestRegistry" />.
-/// </summary>
-public interface IScxmlTestSource
-{
-	IEnumerable<ScxmlTestCase> GetTestCases();
 }

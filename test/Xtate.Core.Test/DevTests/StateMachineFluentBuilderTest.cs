@@ -122,16 +122,7 @@ public class StateMachineFluentBuilderTest
         var channel = Channel.CreateUnbounded<IIncomingEvent>();
         channel.Writer.Complete();
 
-        try
-        {
-            await stateMachineInterpreter.Run();
-
-            Assert.Fail("StateMachineQueueClosedException should be raised");
-        }
-        catch (StateMachineDestroyedException ex) when(ex.Reason == DestroyReason.QueueClosed)
-        {
-            // ignore
-        }
+		await Assert.ThrowsExactlyAsync<StateMachineDestroyedException>(async () => await stateMachineInterpreter.Run());
     }
 
     [TestMethod]

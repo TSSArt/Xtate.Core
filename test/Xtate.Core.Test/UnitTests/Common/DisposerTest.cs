@@ -53,6 +53,7 @@ public class DisposerTest
 			IsSyncDisposed = true;
 		}
 
+		[ExcludeFromCodeCoverage]
 		public ValueTask DisposeAsync()
 		{
 			IsAsyncDisposed = true;
@@ -154,6 +155,7 @@ public class DisposerTest
 	}
 
 	[TestMethod]
+	[ExcludeFromCodeCoverage]
 	public void Dispose_WithNonDisposable_ShouldNotThrow()
 	{
 		// Arrange

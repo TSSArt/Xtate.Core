@@ -24,6 +24,7 @@ using Xtate.Persistence.Services;
 namespace Xtate.Test;
 
 [TestClass]
+[ExcludeFromCodeCoverage]
 public class StorageTest
 {
     public static string Dump(IStorage storage, string delimiter = "", bool hex = false)
@@ -84,6 +85,7 @@ public class StorageTest
         return count;
     }
 
+	[ExcludeFromCodeCoverage]
     private static int GetLength(byte value)
     {
         if ((value & 0x80) == 0x00) return 1;
@@ -96,7 +98,8 @@ public class StorageTest
         throw new ArgumentException("Incorrect key encoding");
     }
 
-    private static int DecodeLength(ReadOnlySpan<byte> key)
+	[ExcludeFromCodeCoverage]
+	private static int DecodeLength(ReadOnlySpan<byte> key)
     {
         return key.Length switch
                {
@@ -113,7 +116,8 @@ public class StorageTest
                };
     }
 
-    private static void AppendKey(StringBuilder sb, byte[] key)
+	[ExcludeFromCodeCoverage]
+	private static void AppendKey(StringBuilder sb, byte[] key)
     {
         for (var i = 0; i < key.Length;)
         {
@@ -130,7 +134,8 @@ public class StorageTest
         }
     }
 
-    private static int GetBytesLength(byte[] key, int start)
+	[ExcludeFromCodeCoverage]
+	private static int GetBytesLength(byte[] key, int start)
     {
         for (var i = start; i < key.Length; i ++)
         {

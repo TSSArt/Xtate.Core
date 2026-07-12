@@ -24,6 +24,7 @@ namespace Xtate.Test;
 [TestClass]
 public class TaskExtensionsTest
 {
+	[ExcludeFromCodeCoverage]
 	private class MockTaskMonitor : ITaskMonitor
 	{
 		public List<Task> ForgottenTasks { get; } = [];
@@ -58,7 +59,7 @@ public class TaskExtensionsTest
 		{
 			return valueTask;
 		}
-
+		
 		public ValueTask<TResult> WaitAsync<TResult>(ValueTask<TResult> valueTask, CancellationToken token)
 		{
 			return valueTask;
@@ -66,6 +67,7 @@ public class TaskExtensionsTest
 	}
 
 	[TestMethod]
+	[ExcludeFromCodeCoverage]
 	public void Forget_OnTask_ShouldNotThrow()
 	{
 		// Arrange

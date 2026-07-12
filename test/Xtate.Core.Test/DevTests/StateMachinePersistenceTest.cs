@@ -32,41 +32,7 @@ namespace Xtate.Test;
 [TestClass]
 public class StateMachinePersistenceTest
 {
-    private IStateMachine _allStateMachine = null!;
-
-    private Mock<IResourceLoader> _resourceLoaderServiceMock = null!;
-
-    [TestInitialize]
-    public void Initialize()
-    {
-        var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Xtate.UnitTest.Resources.All.xml");
-
-        XmlNameTable nt = new System.Xml.NameTable();
-        var xmlNamespaceManager = new XmlNamespaceManager(nt);
-        using var xmlReader = XmlReader.Create(stream!, settings: null, new XmlParserContext(nt, xmlNamespaceManager, xmlLang: null, xmlSpace: default));
-
-        //var director = serviceLocator.GetService<ScxmlDirector, XmlReader>(xmlReader);
-        //var director = new ScxmlDirector(xmlReader, serviceLocator.GetService<IBuilderFactory>(), new ScxmlDirectorOptions(serviceLocator) { NamespaceResolver = xmlNamespaceManager });
-
-        var sc = new ServiceCollection();
-        //sc.AddModule<StateMachineFactoryModule>();
-        //sc.AddConstant<IStateMachineLocation>(new LocationStateMachine(new Uri("res://Xtate.UnitTest/Xtate.UnitTest/Resources/All.xml")));
-		var smc = new LocationStateMachine("res://Xtate.UnitTest/Xtate.UnitTest/Resources/All.xml");
-		smc.AddServices(sc);
-		var sp = sc.BuildProvider();
-
-        _allStateMachine = sp.GetRequiredService<IStateMachine>().Result;
-
-        var task = new ValueTask<Resource>(new Resource(new MemoryStream("'content'"u8.ToArray()), new ContentType()));
-        var loaderMock = new Mock<IResourceLoader>();
-        loaderMock.Setup(e => e.Request(It.IsAny<Uri>(), It.IsAny<NameValueCollection>()))
-                  .Returns(task);
-
-        _resourceLoaderServiceMock = new Mock<IResourceLoader>();
-        _resourceLoaderServiceMock.Setup(e => e.Request(It.IsAny<Uri>(), null)).Returns(task);
-        _resourceLoaderServiceMock.Setup(e => e.Request(It.IsAny<Uri>(), It.IsAny<NameValueCollection>())).Returns(task);
-    }
-
+	[ExcludeFromCodeCoverage]
     public class TestStorage : IStorageProvider
     {
         private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, MemoryStream>> _storage = new();

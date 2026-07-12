@@ -65,6 +65,7 @@ public class ProxyMemoryStream : MemoryStream
         return base.FlushAsync(cancellationToken);
     }
 
+	[ExcludeFromCodeCoverage]
     public override async Task<int> ReadAsync(byte[] buffer,
                                               int offset,
                                               int count,
@@ -81,7 +82,8 @@ public class ProxyMemoryStream : MemoryStream
         return result;
     }
 
-    public override Task WriteAsync(byte[] buffer,
+	[ExcludeFromCodeCoverage]
+	public override Task WriteAsync(byte[] buffer,
                                     int offset,
                                     int count,
                                     CancellationToken cancellationToken)
@@ -109,6 +111,7 @@ public class ProxyMemoryStream : MemoryStream
 }
 
 [TestClass]
+[ExcludeFromCodeCoverage]
 public class StreamStorageTest
 {
     private IServiceProvider _serviceProvider = null!;
@@ -275,7 +278,7 @@ public class StreamStorageTest
         await using var streamStorage2 = await _streamStorageFactory(proxyMemoryStream);
         Assert.AreEqual(expected: 18, proxyMemoryStream.Length);
         var bucket2 = new Bucket(streamStorage2);
-        Assert.AreEqual(expected: "v1", bucket2.TryGet(key: "k", out string? value) ? value : null);
+        Assert.AreEqual(expected: "v1", bucket2.GetString("k"));
     }
 
     [TestMethod]
@@ -302,7 +305,7 @@ public class StreamStorageTest
         await using var streamStorage2 = await _streamStorageFactory(proxyMemoryStream);
         Assert.AreEqual(expected: 9, proxyMemoryStream.Length);
         var bucket2 = new Bucket(streamStorage2);
-        Assert.AreEqual(expected: "v1", bucket2.TryGet(key: "k", out string? value) ? value : null);
+        Assert.AreEqual(expected: "v1", bucket2.GetString("k"));
     }
 
     [TestMethod]
@@ -329,7 +332,7 @@ public class StreamStorageTest
         await using var streamStorage2 = await _streamStorageFactory(proxyMemoryStream);
         Assert.AreEqual(expected: 9, proxyMemoryStream.Length);
         var bucket2 = new Bucket(streamStorage2);
-        Assert.AreEqual(expected: "v1", bucket2.TryGet(key: "k", out string? value) ? value : null);
+        Assert.AreEqual(expected: "v1", bucket2.GetString("k"));
     }
 
     [TestMethod]
@@ -351,7 +354,7 @@ public class StreamStorageTest
         await using var streamStorage2 = await _streamStorageFactory(proxyMemoryStream);
         Assert.AreEqual(expected: 9, proxyMemoryStream.Length);
         var bucket2 = new Bucket(streamStorage2);
-        Assert.AreEqual(expected: "v1", bucket2.TryGet(key: "k", out string? value) ? value : null);
+        Assert.AreEqual(expected: "v1", bucket2.GetString("k"));
     }
 
     [TestMethod]
@@ -378,7 +381,7 @@ public class StreamStorageTest
         var proxyMemoryStream = new ProxyMemoryStream(_streamCaptureMock2.Object, _stream);
         await using var streamStorage2 = await _streamStorageFactory(proxyMemoryStream);
         var bucket2 = new Bucket(streamStorage2);
-        Assert.AreEqual(s, bucket2.TryGet(key: "k", out string? value) ? value : null);
+        Assert.AreEqual(s, bucket2.GetString("k"));
     }
 
     [TestMethod]
@@ -394,7 +397,7 @@ public class StreamStorageTest
 
         await using var streamStorage2 = await _streamStorageFactory(new ProxyMemoryStream(_streamCaptureMock2.Object, _stream));
         var bucket2 = new Bucket(streamStorage2);
-        Assert.AreEqual(expected: "v1", bucket2.TryGet(key: "k", out string? value) ? value : null);
+        Assert.AreEqual(expected: "v1", bucket2.GetString("k"));
     }
 
     [TestMethod]
@@ -410,7 +413,7 @@ public class StreamStorageTest
 
         await using var streamStorage2 = await _streamStorageRollbackLevelFactory(new ProxyMemoryStream(_streamCaptureMock2.Object, _stream), arg2: 0);
         var bucket2 = new Bucket(streamStorage2);
-        Assert.AreEqual(expected: "v0", bucket2.TryGet(key: "k", out string? value) ? value : null);
+        Assert.AreEqual(expected: "v0", bucket2.GetString("k"));
     }
 
     [TestMethod]
@@ -427,7 +430,7 @@ public class StreamStorageTest
 
         await using var streamStorage2 = await _streamStorageRollbackLevelFactory(new ProxyMemoryStream(_streamCaptureMock2.Object, _stream), arg2: 0);
         var bucket2 = new Bucket(streamStorage2);
-        Assert.AreEqual(expected: "v2", bucket2.TryGet(key: "k", out string? value) ? value : null);
+        Assert.AreEqual(expected: "v2", bucket2.GetString("k"));
     }
 
     [TestMethod]

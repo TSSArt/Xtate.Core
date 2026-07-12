@@ -248,8 +248,8 @@ public class InterpreterModelPersistenceTest
 
         var stateMachine = fluentBuilder
                            .BeginState((Identifier)"a")
-                           .AddTransition(() => true, (Identifier)"a")
-                           .AddOnEntry(() => Console.WriteLine(@"OnEntry"))
+                           .AddTransition([ExcludeFromCodeCoverage] () => true, (Identifier)"a")
+                           .AddOnEntry([ExcludeFromCodeCoverage] () => Console.WriteLine(@"OnEntry"))
                            .EndState()
                            .Build();
 

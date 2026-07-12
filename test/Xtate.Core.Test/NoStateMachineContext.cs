@@ -50,8 +50,10 @@ public class NoStateMachineContext : IStateMachinePersistenceContext
 
 	public Bucket GetStateBucket() => new(StateStorage);
 
+	[ExcludeFromCodeCoverage]
 	public ValueTask CheckPoint(int level) => default;
 
+	[ExcludeFromCodeCoverage]
 	public ValueTask Shrink() => default;
 
 #endregion

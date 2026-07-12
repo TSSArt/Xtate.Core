@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2026 Sergii Artemenko
+// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -15,11 +15,21 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.StateMachine;
+using Xtate.DataTypes;
+using Xtate.Interpreter;
+using Xtate.Interpreter.Services;
 
-namespace Xtate.Core;
+namespace Xtate.Test.UnitTests.Interpreter;
 
-public interface IStateMachineService
+[TestClass]
+public class InterpreterServiceCoverageTest
 {
-	ValueTask<IStateMachine?> GetStateMachine();
+	[TestMethod]
+	public void NoStateMachineArgumentsReturnsUndefinedDataModelValue()
+	{
+		IStateMachineArguments arguments = new NoStateMachineArguments();
+
+		Assert.AreEqual(DataModelValueType.Undefined, arguments.Arguments.Type);
+		Assert.IsTrue(arguments.Arguments.IsUndefined());
+	}
 }

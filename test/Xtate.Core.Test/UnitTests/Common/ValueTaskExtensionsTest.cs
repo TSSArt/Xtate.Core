@@ -24,6 +24,7 @@ namespace Xtate.Test;
 [TestClass]
 public class ValueTaskExtensionsTest
 {
+	[ExcludeFromCodeCoverage]
 	private class MockTaskMonitor : ITaskMonitor
 	{
 		public List<ValueTask> ForgottenValueTasks { get; } = [];
@@ -63,6 +64,7 @@ public class ValueTaskExtensionsTest
 	}
 
 	[TestMethod]
+	[ExcludeFromCodeCoverage]
 	public void Forget_OnValueTask_ShouldNotThrow()
 	{
 		// Arrange
@@ -81,6 +83,7 @@ public class ValueTaskExtensionsTest
 	}
 
 	[TestMethod]
+	[ExcludeFromCodeCoverage]
 	public void Forget_OnCompletedValueTask_ShouldNotThrow()
 	{
 		// Arrange

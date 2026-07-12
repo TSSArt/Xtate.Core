@@ -27,8 +27,7 @@ namespace Xtate.Test.StateMachines;
 
 /// <summary>
 ///     Central registry that aggregates every <see cref="IScxmlTestSource" /> and provides
-///     the flat <c>object[]</c> rows consumed by <c>[DynamicData]</c> in
-///     <see cref="ScxmlTestRunner" />.
+///     lookup by stable test-case name for <see cref="ScxmlTestRunner" />.
 /// </summary>
 /// <remarks>
 ///     To add a new collection of machines:
@@ -40,6 +39,11 @@ namespace Xtate.Test.StateMachines;
 /// </remarks>
 public static class ScxmlTestRegistry
 {
+	private static readonly Lazy<IReadOnlyDictionary<string, ScxmlTestCase>> TestCasesByName = new(
+		() => Sources!
+		      .SelectMany(src => src.GetTestCases())
+		      .ToDictionary(testCase => testCase.Name, StringComparer.Ordinal));
+
 	/// <summary>
 	///     Explicit list of all registered test sources.
 	///     Add one entry per <c>*Machines</c> class when you create new machine files.
@@ -48,7 +52,9 @@ public static class ScxmlTestRegistry
 	[
 		new BasicMachines(),
 		new InitialMachines(),
+		new DocumentConfigurationMachines(),
 		new CompoundMachines(),
+		new StateElementMachines(),
 		new OnEntryOnExitMachines(),
 		new EventlessTransitionMachines(),
 		new ParallelMachines(),
@@ -57,14 +63,12 @@ public static class ScxmlTestRegistry
 		new NullAndXPathMachines(),
 		new MetadataMachines(),
 		new XPathMachines(),
+		new ExecutableContentMachines(),
+		new EventDescriptorMachines(),
+		new TransitionSelectionMachines(),
 		new TransitionMachines(),
 		new DataModelMachines()
 	];
 
-	/// <summary>
-	///     Returns every registered test case as an <c>object[]</c> row so that
-	///     MSTest <c>[DynamicData]</c> can enumerate them.
-	/// </summary>
-	public static IEnumerable<object[]> GetAllTestRows() =>
-		Sources.SelectMany(src => src.GetTestCases()).Select(tc => tc.ToTestRow());
+	public static IEnumerable<ScxmlTestCase> GetTestCases() => TestCasesByName.Value.Values;
 }

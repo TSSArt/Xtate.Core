@@ -320,7 +320,8 @@ public class PersistedDataModelTest
 
         using var controller = new DataModelListPersistingController(_bucket, _restoredTracker, _restoredDataModelList);
 
-        Assert.IsTrue(_restoredDataModelList["a"].AsList().TryGet(key: "t", caseInsensitive: false, out var entry) && entry.Access == DataModelAccess.ReadOnly);
+		Assert.IsTrue(_restoredDataModelList["a"].AsList().TryGet(key: "t", caseInsensitive: false, out var entry));
+		Assert.IsTrue(entry.Access == DataModelAccess.ReadOnly);
         Assert.AreEqual(expected: false, _restoredDataModelList["a"].AsList().CanSet(key: "t", caseInsensitive: false));
         Assert.AreEqual(expected: true, _restoredDataModelList.CanSet(key: "a", caseInsensitive: false));
         Console.WriteLine(StorageTest.Dump(_storage, Environment.NewLine, hex: true));
@@ -339,7 +340,8 @@ public class PersistedDataModelTest
 
         using var controller = new DataModelListPersistingController(_bucket, _restoredTracker, _restoredDataModelList);
 
-        Assert.IsTrue(_restoredDataModelList["a"].AsList().TryGet(key: "t", caseInsensitive: false, out var entry) && entry.Access == DataModelAccess.Writable);
+        Assert.IsTrue(_restoredDataModelList["a"].AsList().TryGet(key: "t", caseInsensitive: false, out var entry));
+        Assert.IsTrue(entry.Access == DataModelAccess.Writable);
         Assert.AreEqual(expected: false, _restoredDataModelList["a"].AsList().CanSet(key: "t", caseInsensitive: false));
         Assert.AreEqual(expected: true, _restoredDataModelList.CanSet(key: "a", caseInsensitive: false));
         Console.WriteLine(StorageTest.Dump(_storage, Environment.NewLine, hex: true));
@@ -358,7 +360,8 @@ public class PersistedDataModelTest
 
         using var controller = new DataModelListPersistingController(_bucket, _restoredTracker, _restoredDataModelList);
 
-        Assert.IsTrue(_restoredDataModelList["a"].AsList().TryGet(index: 0, out var entry) && entry.Access == DataModelAccess.Writable);
+        Assert.IsTrue(_restoredDataModelList["a"].AsList().TryGet(index: 0, out var entry));
+        Assert.IsTrue(entry.Access == DataModelAccess.Writable);
         Assert.AreEqual(expected: false, _restoredDataModelList["a"].AsList().CanSet(index: 0));
         Assert.AreEqual(expected: true, _restoredDataModelList.CanSet(key: "a", caseInsensitive: false));
         Console.WriteLine(StorageTest.Dump(_storage, Environment.NewLine, hex: true));
@@ -376,7 +379,8 @@ public class PersistedDataModelTest
 
         using var controller = new DataModelListPersistingController(_bucket, _restoredTracker, _restoredDataModelList);
 
-        Assert.IsTrue(_restoredDataModelList["a"].AsList().TryGet(key: "t", caseInsensitive: false, out var entry) && entry.Access == DataModelAccess.Writable);
+        Assert.IsTrue(_restoredDataModelList["a"].AsList().TryGet(key: "t", caseInsensitive: false, out var entry));
+        Assert.IsTrue(entry.Access == DataModelAccess.Writable);
         Assert.AreEqual(expected: true, _restoredDataModelList["a"].AsList().CanSet(key: "t", caseInsensitive: false));
         Assert.AreEqual(expected: false, _restoredDataModelList.CanSet(key: "a", caseInsensitive: false));
         Console.WriteLine(StorageTest.Dump(_storage, Environment.NewLine, hex: true));

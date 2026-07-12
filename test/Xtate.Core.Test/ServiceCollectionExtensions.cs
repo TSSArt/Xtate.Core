@@ -29,15 +29,4 @@ public static class ServiceCollectionExtensions
 
         return mock;
     }
-
-    public static Mock<T> AddMock<T>(this IServiceCollection services, Action<Mock<T>> configureMock) where T : class
-    {
-        var mock = new Mock<T>();
-
-        configureMock(mock);
-
-        services.AddForwarding(_ => mock.Object);
-
-        return mock;
-    }
 }

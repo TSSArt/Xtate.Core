@@ -332,7 +332,7 @@ public readonly struct DataModelNumber : IConvertible, ISpanFormattable, IEquata
 
 	private static long GetInt64(ReadOnlySpan<byte> bytes)
 	{
-		var value = (long) bytes[^1];
+		var value = (long) (sbyte) bytes[^1];
 
 		for (var i = bytes.Length - 2; i >= 0; i --)
 		{

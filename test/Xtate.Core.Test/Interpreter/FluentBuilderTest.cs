@@ -42,8 +42,8 @@ public class FluentBuilderTest
           //  .SetSynchronousEventProcessing(true)
             .SetInitial("init")
             .BeginState("init")
-            .AddOnEntry(() => { })
-            .AddOnExit(() => { })
+            .AddOnEntry([ExcludeFromCodeCoverage]() => { })
+            .AddOnExit([ExcludeFromCodeCoverage] () => { })
             .BeginParallel("parallel")
             .BeginState("a1")
             .EndState()
@@ -110,14 +110,5 @@ public class FluentBuilderTest
 
         Assert.AreSame(outerBuilder, endState);
         builderMock.Verify(m => m.AddState(It.IsNotNull<IState>()), Times.Once);
-    }
-
-    public class TOuterBuilder : IStub
-    {
-    #region Interface IStub
-
-        public bool IsMatch(Type type) => true;
-
-    #endregion
     }
 }

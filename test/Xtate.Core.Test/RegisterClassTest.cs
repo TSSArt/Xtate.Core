@@ -164,7 +164,7 @@ public class RegisterClassTest
     [TestMethod]
     public void RuntimeNotInActionTest()
     {
-        Assert.ThrowsExactly<InvalidOperationException>(() => Runtime.InState("2"));
+        Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage] () => Runtime.InState("2"));
     }
 
     [TestMethod]
@@ -193,7 +193,7 @@ public class RegisterClassTest
         Assert.IsNotNull(stateMachine);
         Assert.AreEqual(expected: "runtime", stateMachine.DataModelType);
         Assert.AreEqual(expected: 1, stateMachine.States.Length);
-        Assert.AreEqual(expected: "test", ((IState)stateMachine.States[0]).Id?.Value);
+        Assert.AreEqual(expected: "test", ((IState)stateMachine.States[0]).Id!.Value);
     }
 
     [TestMethod]
@@ -216,7 +216,7 @@ public class RegisterClassTest
         Assert.IsNotNull(stateMachine);
         Assert.AreEqual(expected: "runtime", stateMachine.DataModelType);
         Assert.AreEqual(expected: 1, stateMachine.States.Length);
-        Assert.AreEqual(expected: "test", ((IState)stateMachine.States[0]).Id?.Value);
+        Assert.AreEqual(expected: "test", ((IState)stateMachine.States[0]).Id!.Value);
     }
 
     [TestMethod]
@@ -244,7 +244,7 @@ public class RegisterClassTest
         Assert.IsNotNull(stateMachine);
         Assert.AreEqual(expected: "xpath", stateMachine.DataModelType);
         Assert.AreEqual(expected: 1, stateMachine.States.Length);
-        Assert.AreEqual(expected: "test", ((IState)stateMachine.States[0]).Id?.Value);
+        Assert.AreEqual(expected: "test", ((IState)stateMachine.States[0]).Id!.Value);
     }
 
     [TestMethod]
@@ -280,9 +280,9 @@ public class RegisterClassTest
         Assert.IsNotNull(stateMachine);
         Assert.IsNull(stateMachine.DataModelType);
         Assert.AreEqual(expected: 3, stateMachine.States.Length);
-        Assert.AreEqual(expected: "state0", ((IState)stateMachine.States[0]).Id?.Value);
-        Assert.AreEqual(expected: "state1", ((IState)stateMachine.States[1]).Id?.Value);
-        Assert.AreEqual(expected: "fin", ((IFinal)stateMachine.States[2]).Id?.Value);
+        Assert.AreEqual(expected: "state0", ((IState)stateMachine.States[0]).Id!.Value);
+        Assert.AreEqual(expected: "state1", ((IState)stateMachine.States[1]).Id!.Value);
+        Assert.AreEqual(expected: "fin", ((IFinal)stateMachine.States[2]).Id!.Value);
     }
 
     [TestMethod]
@@ -319,9 +319,9 @@ public class RegisterClassTest
         Assert.IsNotNull(stateMachine);
         Assert.IsNull(stateMachine.DataModelType);
         Assert.AreEqual(expected: 3, stateMachine.States.Length);
-        Assert.AreEqual(expected: "state0", ((IState)stateMachine.States[0]).Id?.Value);
-        Assert.AreEqual(expected: "state1", ((IState)stateMachine.States[1]).Id?.Value);
-        Assert.AreEqual(expected: "fin", ((IFinal)stateMachine.States[2]).Id?.Value);
+        Assert.AreEqual(expected: "state0", ((IState)stateMachine.States[0]).Id!.Value);
+        Assert.AreEqual(expected: "state1", ((IState)stateMachine.States[1]).Id!.Value);
+        Assert.AreEqual(expected: "fin", ((IFinal)stateMachine.States[2]).Id!.Value);
     }
 
     [TestMethod]

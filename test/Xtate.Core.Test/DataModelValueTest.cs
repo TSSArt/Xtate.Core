@@ -352,6 +352,7 @@ public class DataModelValueTest
 
     [TestMethod]
     [DynamicData(nameof(RecordsConstructorArgValueType), DynamicDataSourceType.Method)]
+	[ExcludeFromCodeCoverage]
     public void CtrArg1_ShouldBeEqualToObject(string line,
                                               object ctrArg,
                                               DataModelValue value,
@@ -582,13 +583,14 @@ public class DataModelValueTest
         }
         else
         {
-            Assert.ThrowsExactly<ArgumentException>(() => value.AsNumber(), M(line));
+            Assert.ThrowsExactly<ArgumentException>([ExcludeFromCodeCoverage] () => value.AsNumber(), M(line));
         }
     }
 
     [TestMethod]
     [DynamicData(nameof(RecordsConstructorArgValueType), DynamicDataSourceType.Method)]
-    public void AsNumberOrDefault_ShouldReturnCorrectValueOrThrow(string line,
+	[ExcludeFromCodeCoverage]
+	public void AsNumberOrDefault_ShouldReturnCorrectValueOrThrow(string line,
                                                                   object ctrArg,
                                                                   DataModelValue value,
                                                                   DataModelValueType type)
