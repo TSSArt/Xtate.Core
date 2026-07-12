@@ -20,6 +20,7 @@ using Xtate.StateMachine.Validator.Services;
 
 namespace Xtate.StateMachine.Validator.DependencyInjection;
 
+[InstantiatedByIoC]
 public class ValidatorModule : Module
 {
 	protected override void AddServices()

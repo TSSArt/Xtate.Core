@@ -21,6 +21,7 @@ using Xtate.StateMachineHost;
 
 namespace Xtate.ExternalServices.SmtpClient.DependencyInjection;
 
+[InstantiatedByIoC]
 public class SmtpClientModule : Module
 {
 	protected override void AddServices()

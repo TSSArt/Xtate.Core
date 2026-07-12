@@ -25,6 +25,7 @@ using Xtate.TaskMonitor.DependencyInjection;
 
 namespace Xtate.StateMachineHost.DependencyInjection;
 
+[InstantiatedByIoC]
 public class StateMachineProcessorModule : Module<ExternalServiceModule, EventSchedulerModule, StateMachineInterpreterModule, TaskMonitorModule>
 {
 	protected override void AddServices()

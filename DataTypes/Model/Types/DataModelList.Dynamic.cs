@@ -26,13 +26,15 @@ public partial class DataModelList : IDynamicMetaObjectProvider
 {
 #region Interface IDynamicMetaObjectProvider
 
-	DynamicMetaObject IDynamicMetaObjectProvider.GetMetaObject(Expression parameter) => new MetaObject(parameter, this, Dynamic.CreateMetaObject);
+//	DynamicMetaObject IDynamicMetaObjectProvider.GetMetaObject(Expression parameter) => new MetaObject(parameter, this, Dynamic.CreateMetaObject);
+	DynamicMetaObject IDynamicMetaObjectProvider.GetMetaObject(Expression parameter) => new DataModelListMetaObject(parameter, this);
 
-#endregion
+	#endregion
 
 	public dynamic AsDynamic() => this;
 
-	internal class Dynamic(DataModelList list) : DynamicObject
+	[Obsolete]//TODO: Remove this class in future versions, use MetaObject2 instead.
+	internal class Dynamic1(DataModelList list) : DynamicObject
 	{
 		private const string GetLength = "GetLength";
 
@@ -42,9 +44,9 @@ public partial class DataModelList : IDynamicMetaObjectProvider
 
 		private const string SetMetadata = "SetMetadata";
 
-		private static readonly Dynamic Instance = new(null!);
+		private static readonly Dynamic1 Instance = new(null!);
 
-		private static readonly ConstructorInfo ConstructorInfo = typeof(Dynamic).GetConstructor([typeof(DataModelList)])!;
+		private static readonly ConstructorInfo ConstructorInfo = typeof(Dynamic1).GetConstructor([typeof(DataModelList)])!;
 
 		public static DynamicMetaObject CreateMetaObject(Expression expression)
 		{

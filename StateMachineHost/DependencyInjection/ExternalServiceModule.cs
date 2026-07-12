@@ -22,6 +22,7 @@ using Xtate.StateMachineHost.Services;
 
 namespace Xtate.StateMachineHost.DependencyInjection;
 
+[InstantiatedByIoC]
 public class ExternalServiceModule : Module
 {
 	protected override void AddServices()

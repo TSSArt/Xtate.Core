@@ -17,7 +17,6 @@
 
 using System.Diagnostics;
 using System.Dynamic;
-using System.Globalization;
 using System.Reflection;
 using System.Runtime.Serialization;
 using Xtate.DataTypes.Extensions;
@@ -41,12 +40,6 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 
 	private readonly object? _value;
 
-	private DataModelValue(SerializationInfo info, StreamingContext context)
-	{
-		_int64 = (long) info.GetValue(name: @"L", typeof(long))!;
-		_value = info.GetValue(name: @"V", typeof(object));
-	}
-
 	public DataModelValue(DataModelList? value)
 	{
 		_value = value ?? NullValue;
@@ -60,25 +53,47 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 	}
 
 	public DataModelValue(int value) => _value = NumberValue.GetNumberValue(value, out _int64);
+	
+	public DataModelValue(int? value) => _value = value.HasValue ? NumberValue.GetNumberValue(value.Value, out _int64) : NullValue;
 
 	public DataModelValue(long value) => _value = NumberValue.GetNumberValue(value, out _int64);
+	
+	public DataModelValue(long? value) => _value = value.HasValue ? NumberValue.GetNumberValue(value.Value, out _int64) : NullValue;
 
 	public DataModelValue(double value) => _value = NumberValue.GetNumberValue(value, out _int64);
+	
+	public DataModelValue(double? value) => _value = value.HasValue ? NumberValue.GetNumberValue(value.Value, out _int64) : NullValue;
 
 	public DataModelValue(decimal value) => _value = NumberValue.GetNumberValue(value, out _int64);
+	
+	public DataModelValue(decimal? value) => _value = value.HasValue ? NumberValue.GetNumberValue(value.Value, out _int64) : NullValue;
 
 	public DataModelValue(DataModelNumber value) => _value = NumberValue.GetNumberValue(value, out _int64);
+	
+	public DataModelValue(DataModelNumber? value) => _value = value.HasValue ? NumberValue.GetNumberValue(value.Value, out _int64) : NullValue;
 
 	public DataModelValue(DateTimeOffset value) => _value = DateTimeValue.GetDateTimeValue(value, out _int64);
+	
+	public DataModelValue(DateTimeOffset? value) => _value = value.HasValue ? DateTimeValue.GetDateTimeValue(value.Value, out _int64) : NullValue;
 
 	public DataModelValue(DateTime value) => _value = DateTimeValue.GetDateTimeValue(value, out _int64);
+	
+	public DataModelValue(DateTime? value) => _value = value.HasValue ? DateTimeValue.GetDateTimeValue(value.Value, out _int64) : NullValue;
 
 	public DataModelValue(DataModelDateTime value) => _value = DateTimeValue.GetDateTimeValue(value, out _int64);
+	
+	public DataModelValue(DataModelDateTime? value) => _value = value.HasValue ? DateTimeValue.GetDateTimeValue(value.Value, out _int64) : NullValue;
 
 	public DataModelValue(bool value)
 	{
 		_value = BooleanValue;
 		_int64 = value ? 1 : 0;
+	}
+
+	public DataModelValue(bool? value)
+	{
+		_value = value.HasValue ? BooleanValue : NullValue;
+		_int64 = value.HasValue && value.Value ? 1 : 0;
 	}
 
 	public DataModelValue(ILazyValue? lazyValue)
@@ -267,7 +282,7 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 
 #region Interface IDynamicMetaObjectProvider
 
-	DynamicMetaObject IDynamicMetaObjectProvider.GetMetaObject(Expression parameter) => new MetaObject(parameter, this, Dynamic.CreateMetaObject);
+	DynamicMetaObject IDynamicMetaObjectProvider.GetMetaObject(Expression parameter) => new DataModelValueMetaObject(parameter, this);
 
 #endregion
 
@@ -302,16 +317,17 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 #region Interface IFormattable
 
 	public string ToString(string? format, IFormatProvider? formatProvider) =>
-		Type switch
+		_value switch
 		{
-			DataModelValueType.Undefined => string.Empty,
-			DataModelValueType.Null      => string.Empty,
-			DataModelValueType.String    => AsString(),
-			DataModelValueType.Number    => AsNumber().ToString(format, formatProvider),
-			DataModelValueType.DateTime  => AsDateTime().ToString(format, formatProvider),
-			DataModelValueType.Boolean   => AsBoolean().ToString(),
-			DataModelValueType.List      => AsList().ToString(format, formatProvider),
-			_                            => throw Infra.Unmatched(Type)
+			null                                 => string.Empty,
+			{ } value when value == NullValue    => string.Empty,
+			{ } value when value == BooleanValue => (_int64 != 0).ToString(),
+			string str                           => str,
+			NumberValue value                    => value.GetDataModelNumber(_int64).ToString(format, formatProvider),
+			DateTimeValue value                  => value.GetDataModelDateTime(_int64).ToString(format, formatProvider),
+			DataModelList list                   => list.ToString(format, formatProvider),
+			ILazyValue lazyValue                 => lazyValue.Value.ToString(format, formatProvider),
+			_                                    => throw Infra.Unmatched(_value?.GetType())
 		};
 
 #endregion
@@ -373,22 +389,77 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 	public static implicit operator DataModelValue(string? value) => new(value);
 
 	public static implicit operator DataModelValue(int value) => new(value);
+	
+	public static implicit operator DataModelValue(int? value) => new(value);
 
 	public static implicit operator DataModelValue(long value) => new(value);
+	
+	public static implicit operator DataModelValue(long? value) => new(value);
 
 	public static implicit operator DataModelValue(double value) => new(value);
+	
+	public static implicit operator DataModelValue(double? value) => new(value);
 
 	public static implicit operator DataModelValue(decimal value) => new(value);
+	
+	public static implicit operator DataModelValue(decimal? value) => new(value);
 
 	public static implicit operator DataModelValue(DataModelNumber value) => new(value);
+	
+	public static implicit operator DataModelValue(DataModelNumber? value) => new(value);
 
 	public static implicit operator DataModelValue(DataModelDateTime value) => new(value);
+	
+	public static implicit operator DataModelValue(DataModelDateTime? value) => new(value);
 
 	public static implicit operator DataModelValue(DateTimeOffset value) => new(value);
+	
+	public static implicit operator DataModelValue(DateTimeOffset? value) => new(value);		
 
 	public static implicit operator DataModelValue(DateTime value) => new(value);
+	
+	public static implicit operator DataModelValue(DateTime? value) => new(value);
 
 	public static implicit operator DataModelValue(bool value) => new(value);
+	
+	public static implicit operator DataModelValue(bool? value) => new(value);
+
+
+	public static explicit operator DataModelList?(DataModelValue value) => value.AsNullableList();
+
+	public static explicit operator string?(DataModelValue value) => value.AsNullableString();
+
+	public static explicit operator int(DataModelValue value) => value.AsNumber().ToInt32();
+	
+	public static explicit operator int?(DataModelValue value) => value.AsNullableNumber()?.ToInt32();
+	
+	public static explicit operator long(DataModelValue value) => value.AsNumber().ToInt64();
+
+	public static explicit operator long?(DataModelValue value) => value.AsNullableNumber()?.ToInt64();
+	
+	public static explicit operator double(DataModelValue value) => value.AsNumber().ToDouble();
+
+	public static explicit operator double?(DataModelValue value) => value.AsNullableNumber()?.ToDouble();
+	
+	public static explicit operator DataModelNumber(DataModelValue value) => value.AsNumber();
+
+	public static explicit operator DataModelNumber?(DataModelValue value) => value.AsNullableNumber();
+
+	public static explicit operator DataModelDateTime(DataModelValue value) => value.AsDateTime();
+
+	public static explicit operator DataModelDateTime?(DataModelValue value) => value.AsNullableDateTime();
+
+	public static explicit operator DateTimeOffset(DataModelValue value) => value.AsDateTime().ToDateTimeOffset();
+
+	public static explicit operator DateTimeOffset?(DataModelValue value) => value.AsNullableDateTime()?.ToDateTimeOffset();
+
+	public static explicit operator DateTime(DataModelValue value) => value.AsDateTime().ToDateTime();
+
+	public static explicit operator DateTime?(DataModelValue value) => value.AsNullableDateTime()?.ToDateTime();
+
+	public static explicit operator bool(DataModelValue value) => value.AsBoolean();
+
+	public static explicit operator bool?(DataModelValue value) => value.AsNullableBoolean();
 
 	public static DataModelValue FromDataModelList(DataModelList? value) => value;
 
@@ -396,21 +467,39 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 
 	public static DataModelValue FromInt32(int value) => value;
 
+	public static DataModelValue FromInt32(int? value) => value;
+
 	public static DataModelValue FromInt64(long value) => value;
+	
+	public static DataModelValue FromInt64(long? value) => value;
 
 	public static DataModelValue FromDouble(double value) => value;
+	
+	public static DataModelValue FromDouble(double? value) => value;
 
 	public static DataModelValue FromDecimal(decimal value) => value;
+	
+	public static DataModelValue FromDecimal(decimal? value) => value;
 
 	public static DataModelValue FromDataModelNumber(DataModelNumber value) => value;
+	
+	public static DataModelValue FromDataModelNumber(DataModelNumber? value) => value;
 
 	public static DataModelValue FromDataModelDateTime(DataModelDateTime value) => value;
+	
+	public static DataModelValue FromDataModelDateTime(DataModelDateTime? value) => value;
 
 	public static DataModelValue FromDateTimeOffset(DateTimeOffset value) => value;
+	
+	public static DataModelValue FromDateTimeOffset(DateTimeOffset? value) => value;
 
 	public static DataModelValue FromDateTime(DateTime value) => value;
 
+	public static DataModelValue FromDateTime(DateTime? value) => value;
+
 	public static DataModelValue FromBoolean(bool value) => value;
+
+	public static DataModelValue FromBoolean(bool? value) => value;
 
 	public bool IsUndefinedOrNull() => _value is null || _value == NullValue || (_value is ILazyValue value && value.Value.IsUndefinedOrNull());
 
@@ -485,6 +574,15 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 			_                  => throw new ArgumentException(Resources.Exception_DataModelValueIsNotNumber)
 		};
 
+	public DataModelNumber? AsNullableNumber() =>
+		_value switch
+		{
+			NumberValue value                 => value.GetDataModelNumber(_int64),
+			{ } value when value == NullValue => null,
+			ILazyValue lazyVal                => lazyVal.Value.AsNullableNumber(),
+			_                                 => throw new ArgumentException(Resources.Exception_DataModelValueIsNotNumber)
+		};
+
 	public DataModelNumber? AsNumberOrDefault() =>
 		_value switch
 		{
@@ -501,6 +599,15 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 				? lazyValue.Value.AsBoolean()
 				: throw new ArgumentException(Resources.Exception_DataModelValueIsNotBoolean);
 
+	public bool? AsNullableBoolean() =>
+		_value == BooleanValue
+			? _int64 != 0
+			: _value == NullValue
+				? null
+				: _value is ILazyValue lazyValue
+					? lazyValue.Value.AsNullableBoolean()
+					: throw new ArgumentException(Resources.Exception_DataModelValueIsNotBoolean);
+
 	public bool? AsBooleanOrDefault() =>
 		_value == BooleanValue
 			? _int64 != 0
@@ -514,6 +621,15 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 			DateTimeValue value => value.GetDataModelDateTime(_int64),
 			ILazyValue lazyVal  => lazyVal.Value.AsDateTime(),
 			_                   => throw new ArgumentException(Resources.Exception_DataModelValueIsNotDateTime)
+		};
+
+	public DataModelDateTime? AsNullableDateTime() =>
+		_value switch
+		{
+			DateTimeValue value               => value.GetDataModelDateTime(_int64),
+			{ } value when value == NullValue => null,
+			ILazyValue lazyVal                => lazyVal.Value.AsNullableDateTime(),
+			_                                 => throw new ArgumentException(Resources.Exception_DataModelValueIsNotDateTime)
 		};
 
 	public DataModelDateTime? AsDateTimeOrDefault() =>
@@ -901,7 +1017,7 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 
 	private sealed class DateTimeValue
 	{
-		private const int Base = 120000; // should be multiple of CacheGranularity and great then Boundary
+		private const int Base = 120000; // should be multiple of CacheGranularity and greater than Boundary
 
 		private const int CacheGranularity = 15;
 
@@ -980,121 +1096,5 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 		[UsedImplicitly]
 		[DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
 		public object? Value => _value.ToObject();
-	}
-
-	internal class Dynamic(DataModelValue value) : DynamicObject
-	{
-		private static readonly Dynamic Instance = new(Undefined);
-
-		private static readonly ConstructorInfo ConstructorInfo = typeof(Dynamic).GetConstructor([typeof(DataModelValue)])!;
-
-		private readonly DataModelValue _value = value;
-
-		public static DynamicMetaObject CreateMetaObject(Expression expression)
-		{
-			var newExpression = Expression.New(ConstructorInfo, Expression.Convert(expression, typeof(DataModelValue)));
-
-			return Instance.GetMetaObject(newExpression);
-		}
-
-		public override bool TryGetMember(GetMemberBinder binder, out object? result)
-		{
-			if (_value._value is DataModelList list)
-			{
-				return new DataModelList.Dynamic(list).TryGetMember(binder, out result);
-			}
-
-			result = null;
-
-			return false;
-		}
-
-		public override bool TrySetMember(SetMemberBinder binder, object? value)
-		{
-			if (_value._value is DataModelList list)
-			{
-				return new DataModelList.Dynamic(list).TrySetMember(binder, value);
-			}
-
-			return false;
-		}
-
-		public override bool TryGetIndex(GetIndexBinder binder, object[] indexes, out object? result)
-		{
-			if (_value._value is DataModelList list)
-			{
-				return new DataModelList.Dynamic(list).TryGetIndex(binder, indexes, out result);
-			}
-
-			result = null;
-
-			return false;
-		}
-
-		public override bool TrySetIndex(SetIndexBinder binder, object[] indexes, object? value)
-		{
-			if (_value._value is DataModelList list)
-			{
-				return new DataModelList.Dynamic(list).TrySetIndex(binder, indexes, value);
-			}
-
-			return false;
-		}
-
-		public override bool TryConvert(ConvertBinder binder, out object? result)
-		{
-			var typeCode = System.Type.GetTypeCode(binder.Type);
-
-			switch (typeCode)
-			{
-				case TypeCode.Boolean:
-					result = _value.AsBoolean();
-
-					return true;
-
-				case TypeCode.DateTime:
-					result = _value.AsDateTime().ToDateTime();
-
-					return true;
-
-				case TypeCode.String:
-					result = _value.AsString();
-
-					return true;
-
-				case TypeCode.Byte:
-				case TypeCode.Decimal:
-				case TypeCode.Double:
-				case TypeCode.Int16:
-				case TypeCode.Int32:
-				case TypeCode.Int64:
-				case TypeCode.SByte:
-				case TypeCode.Single:
-				case TypeCode.UInt16:
-				case TypeCode.UInt32:
-				case TypeCode.UInt64:
-					result = Convert.ChangeType(_value.AsNumber(), typeCode, NumberFormatInfo.InvariantInfo);
-
-					return true;
-			}
-
-			if (binder.Type == typeof(DateTimeOffset))
-			{
-				result = _value.AsDateTime().ToDateTimeOffset();
-
-				return true;
-			}
-
-			if (binder.Type == typeof(DataModelList))
-			{
-				result = _value.AsList();
-
-				return true;
-			}
-
-			result = null;
-
-			return false;
-		}
 	}
 }

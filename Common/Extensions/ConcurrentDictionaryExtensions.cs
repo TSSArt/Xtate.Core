@@ -26,31 +26,24 @@ internal static class ConcurrentDictionaryExtensions
 			key = default;
 			value = default;
 
-			if (concurrentDictionary.IsEmpty)
+			while (!concurrentDictionary.IsEmpty) 
 			{
-				return false;
+				using var enumerator = concurrentDictionary.GetEnumerator();
+
+				if (enumerator.MoveNext())
+				{
+					var firstKey = enumerator.Current.Key;
+
+					if (concurrentDictionary.TryRemove(firstKey, out value))
+					{
+						key = firstKey;
+
+						return true;
+					}
+				}
 			}
 
-			var enumerator = concurrentDictionary.GetEnumerator();
-
-			if (!enumerator.MoveNext())
-			{
-				enumerator.Dispose();
-
-				return false;
-			}
-
-			var firstKey = enumerator.Current.Key;
-			enumerator.Dispose();
-
-			if (!concurrentDictionary.TryRemove(firstKey, out value))
-			{
-				return false;
-			}
-
-			key = firstKey;
-
-			return true;
+			return false;
 		}
 	}
 }

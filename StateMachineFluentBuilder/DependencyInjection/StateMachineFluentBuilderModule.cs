@@ -21,6 +21,7 @@ using Xtate.StateMachine.Builder.DependencyInjection;
 
 namespace Xtate.StateMachineFluentBuilder.DependencyInjection;
 
+[InstantiatedByIoC]
 public class StateMachineFluentBuilderModule : Module<StateMachineBuilderModule>
 {
 	protected override void AddServices()

@@ -219,6 +219,11 @@ public readonly struct EventName : IReadOnlyList<IIdentifier>, IEquatable<EventN
 
 	public bool IsMatchedToEventDescriptor(string eventDescriptor)
 	{
+		if (_parts.IsDefault)
+		{
+			return false;
+		}
+
 		var descriptor = eventDescriptor.AsSpan();
 
 		if (descriptor is ['*'])

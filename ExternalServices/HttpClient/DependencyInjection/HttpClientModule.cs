@@ -21,6 +21,7 @@ using Xtate.StateMachineHost;
 
 namespace Xtate.ExternalServices.HttpClient.DependencyInjection;
 
+[InstantiatedByIoC]
 public class HttpClientModule : Module
 {
 	protected override void AddServices()
