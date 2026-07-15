@@ -91,7 +91,19 @@ public class InterpreterModelStateWrapperCoverageTest
 		Assert.AreSame(transition, node.Transition);
 		Assert.AreSame(node, transition.Source);
 		Assert.AreSame(transitionSource, ((IInitial) node).Transition);
+		Assert.AreSame(transitionSource, typeof(IInitial).GetProperty(nameof(IInitial.Transition))!.GetValue(node));
 		Assert.AreEqual("(#22)", node.EntityId.ToString(CultureInfo.InvariantCulture));
+	}
+
+	[TestMethod]
+	public void SyntheticInitialNodeRejectsSourceTransitionAccess()
+	{
+		var transitionSource = CreateEmptyTransitionSource();
+		var transition = new TransitionNode(new DocumentIdNode(list: null), transitionSource);
+		transitionSource.Ancestor = transition;
+		IInitial initial = new TestInitialNode(new DocumentIdNode(list: null), transition);
+
+		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage] () => _ = initial.Transition);
 	}
 
 	[TestMethod]
@@ -266,6 +278,7 @@ public class InterpreterModelStateWrapperCoverageTest
 		Assert.IsNull(node.Script);
 		Assert.IsNull(node.ScriptEvaluator);
 		Assert.IsNull(node.DataModel);
+		Assert.IsNull(typeof(IStateMachine).GetProperty(nameof(IStateMachine.DataModel))!.GetValue(node));
 		Assert.AreSame(initial, node.Initial);
 		Assert.AreSame(node, initial.Parent);
 		Assert.AreSame(node, child.Parent);
@@ -405,6 +418,9 @@ public class InterpreterModelStateWrapperCoverageTest
 
 	private sealed class TestStateNode(IIdentifier id) : StateEntityNode(new DocumentIdNode(list: null))
 	{
+		[ExcludeFromCodeCoverage]
 		public override IIdentifier Id => id;
 	}
+
+	private sealed class TestInitialNode(DocumentIdNode documentIdNode, TransitionNode transition) : InitialNode(documentIdNode, transition);
 }

@@ -55,6 +55,10 @@ public class InterpreterUtilityCoverageTest
 		Assert.AreEqual(InvokeIdSet.ChangedAction.Remove, changes[2].Action);
 		Assert.AreSame(second.UniqueId, set.Single());
 		Assert.AreEqual(expected: 1, ((IEnumerable) set).Cast<object>().Count());
+		var interfaceMap = typeof(InvokeIdSet).GetInterfaceMap(typeof(IEnumerable));
+		var enumerator = (IEnumerator) interfaceMap.TargetMethods.Single().Invoke(set, parameters: null)!;
+		Assert.IsTrue(enumerator.MoveNext());
+		Assert.AreSame(second.UniqueId, enumerator.Current);
 	}
 
 	[TestMethod]

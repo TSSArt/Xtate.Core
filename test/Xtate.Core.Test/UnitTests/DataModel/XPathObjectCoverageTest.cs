@@ -98,4 +98,33 @@ public class XPathObjectCoverageTest
 		result["first"] = "changed";
 		Assert.AreEqual(expected: "changed", result["first"].AsString());
 	}
+
+	[TestMethod]
+	public void NavigatorCoversIdentitySiblingAttributeMutationAndUnsupportedIdOperations()
+	{
+		var list = new DataModelList { "first", "second" };
+		var navigator = new DataModelXPathNavigator(list);
+
+		Assert.AreEqual(string.Empty, navigator.BaseURI);
+		Assert.IsFalse(navigator.MoveToId("missing"));
+		Assert.IsFalse(navigator.MoveToNext());
+		Assert.IsFalse(navigator.MoveToPrevious());
+		Assert.IsFalse(navigator.MoveToNextAttribute());
+		navigator.SetValue("ignored-at-root");
+		Assert.AreEqual("first", list[0].AsString());
+
+		Assert.IsTrue(navigator.MoveToFirstChild());
+		navigator.SetValue("changed");
+		Assert.AreEqual("changed", list[0].AsString());
+		Assert.IsTrue(navigator.MoveToNext());
+		Assert.AreEqual("second", navigator.Value);
+		Assert.IsTrue(navigator.MoveToPrevious());
+		Assert.AreEqual("changed", navigator.Value);
+
+		var xmlData = XmlConverter.FromXml("<root first='1' second='2'/>");
+		var element = new DataModelXPathNavigator(xmlData).SelectSingleNode("root")!;
+		Assert.IsTrue(element.MoveToFirstAttribute());
+		Assert.IsTrue(element.MoveToNextAttribute());
+		Assert.IsFalse(element.MoveToNextAttribute());
+	}
 }

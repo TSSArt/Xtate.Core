@@ -153,6 +153,7 @@ public class StateMachineExternalServiceCoverageTest
 		public DataModelValue Parameters { get; } = parameters;
 	}
 
+	[ExcludeFromCodeCoverage]
 	private sealed class PassThroughTaskMonitor : ITaskMonitor
 	{
 		public Task WaitAsync(Task task, CancellationToken token) => task;

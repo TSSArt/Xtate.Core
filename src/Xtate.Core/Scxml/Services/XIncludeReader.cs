@@ -349,8 +349,8 @@ public class XIncludeReader : DelegatedXmlReader
 		var resource = await LoadAcquiredData(uri, useAsync).ConfigureAwait(false);
 
 		var content = IsXml(resource)
-			? await ReadStreamAsXml(resource).ConfigureAwait(false)
-			: await ReadStreamAsText(resource).ConfigureAwait(false);
+			? await ReadStreamAsXml(resource, useAsync).ConfigureAwait(false)
+			: await ReadStreamAsText(resource, useAsync).ConfigureAwait(false);
 
 		PushInnerReader(new TextContentReader(uri, content));
 
@@ -359,7 +359,7 @@ public class XIncludeReader : DelegatedXmlReader
 
 	[SuppressMessage(category: "ReSharper", checkId: "MethodHasAsyncOverload")]
 	[SuppressMessage(category: "ReSharper", checkId: "UseAwaitUsing")]
-	private static async ValueTask<string> ReadStreamAsXml(Resource resource)
+	private static async ValueTask<string> ReadStreamAsXml(Resource resource, bool useAsync)
 	{
 		var stream = await resource.GetStream(true).ConfigureAwait(false);
 
@@ -371,9 +371,19 @@ public class XIncludeReader : DelegatedXmlReader
 
 			using (var xmlWriter = XmlWriter.Create(stringBuilder))
 			{
-				while (await xmlReader.ReadAsync().ConfigureAwait(false))
+				if (useAsync)
 				{
-					xmlWriter.WriteNode(xmlReader, defattr: false);
+					while (await xmlReader.ReadAsync().ConfigureAwait(false))
+					{
+						xmlWriter.WriteNode(xmlReader, defattr: false);
+					}
+				}
+				else
+				{
+					while (xmlReader.Read())
+					{
+						xmlWriter.WriteNode(xmlReader, defattr: false);
+					}
 				}
 			}
 
@@ -381,7 +391,7 @@ public class XIncludeReader : DelegatedXmlReader
 		}
 	}
 
-	private async ValueTask<string> ReadStreamAsText(Resource resource)
+	private async ValueTask<string> ReadStreamAsText(Resource resource, bool useAsync)
 	{
 		var stream = await resource.GetStream(true).ConfigureAwait(false);
 
@@ -389,7 +399,9 @@ public class XIncludeReader : DelegatedXmlReader
 		{
 			using var streamReader = new StreamReader(stream, GetEncoding(resource), detectEncodingFromByteOrderMarks: true);
 
-			return await streamReader.ReadToEndAsync().ConfigureAwait(false);
+			return useAsync
+				? await streamReader.ReadToEndAsync().ConfigureAwait(false)
+				: streamReader.ReadToEnd();
 		}
 	}
 

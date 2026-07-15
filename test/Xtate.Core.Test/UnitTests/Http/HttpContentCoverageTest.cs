@@ -17,6 +17,8 @@
 
 using System.Net.Mime;
 using System.Text;
+using System.IO;
+using System.Threading;
 using Xtate.DataTypes;
 using Xtate.Http;
 
@@ -28,28 +30,56 @@ public class HttpContentCoverageTest
 	[TestMethod]
 	public async Task JsonHttpContentSetsHeadersAndSerializesDataModelValue()
 	{
-		using var content = new JsonHttpContent(new DataModelValue("hello"));
+		using var content = new TestJsonHttpContent(new DataModelValue("hello"));
 
-		Assert.AreEqual(expected: "application/json", content.Headers.ContentType?.MediaType);
-		Assert.AreEqual(Encoding.UTF8.WebName, content.Headers.ContentType?.CharSet);
+		Assert.AreEqual(expected: "application/json", content.Headers.ContentType!.MediaType);
+		Assert.AreEqual(Encoding.UTF8.WebName, content.Headers.ContentType!.CharSet);
 		Assert.IsNull(content.Headers.ContentLength);
 
 		var serialized = await content.ReadAsStringAsync();
 
 		Assert.AreEqual(expected: "\"hello\"", serialized);
+
+		await using var legacyStream = new MemoryStream();
+		await content.SerializeLegacy(legacyStream);
+		Assert.AreEqual(expected: "\"hello\"", Encoding.UTF8.GetString(legacyStream.ToArray()));
+		await using var syncStream = new MemoryStream();
+		content.SerializeSync(syncStream, CancellationToken.None);
+		Assert.AreEqual(expected: "\"hello\"", Encoding.UTF8.GetString(syncStream.ToArray()));
 	}
 
 	[TestMethod]
 	public async Task XmlHttpContentSetsHeadersAndSerializesDataModelValue()
 	{
-		using var content = new XmlHttpContent(new DataModelValue("hello"));
+		using var content = new TestXmlHttpContent(new DataModelValue("hello"));
 
-		Assert.AreEqual(MediaTypeNames.Text.Xml, content.Headers.ContentType?.MediaType);
-		Assert.AreEqual(Encoding.UTF8.WebName, content.Headers.ContentType?.CharSet);
+		Assert.AreEqual(MediaTypeNames.Text.Xml, content.Headers.ContentType!.MediaType);
+		Assert.AreEqual(Encoding.UTF8.WebName, content.Headers.ContentType!.CharSet);
 		Assert.IsNull(content.Headers.ContentLength);
 
 		var serialized = await content.ReadAsStringAsync();
 
 		Assert.AreEqual(expected: "hello", serialized);
+
+		await using var legacyStream = new MemoryStream();
+		await content.SerializeLegacy(legacyStream);
+		Assert.AreEqual(expected: "hello", Encoding.UTF8.GetString(legacyStream.ToArray()).TrimStart('\uFEFF'));
+		await using var syncStream = new MemoryStream();
+		content.SerializeSync(syncStream, CancellationToken.None);
+		Assert.AreEqual(expected: "hello", Encoding.UTF8.GetString(syncStream.ToArray()).TrimStart('\uFEFF'));
+	}
+
+	private sealed class TestJsonHttpContent(DataModelValue value) : JsonHttpContent(value)
+	{
+		public Task SerializeLegacy(Stream stream) => SerializeToStreamAsync(stream, context: null);
+
+		public void SerializeSync(Stream stream, CancellationToken token) => SerializeToStream(stream, context: null, token);
+	}
+
+	private sealed class TestXmlHttpContent(DataModelValue value) : XmlHttpContent(value)
+	{
+		public Task SerializeLegacy(Stream stream) => SerializeToStreamAsync(stream, context: null);
+
+		public void SerializeSync(Stream stream, CancellationToken token) => SerializeToStream(stream, context: null, token);
 	}
 }

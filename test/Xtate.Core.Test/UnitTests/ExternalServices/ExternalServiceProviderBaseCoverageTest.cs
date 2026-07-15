@@ -42,6 +42,13 @@ public class ExternalServiceProviderBaseCoverageTest
 		Assert.AreSame(provider, aliasActivator);
 		Assert.IsNull(serviceProvider.TryGetActivator(new FullUri("urn:other")));
 		Assert.AreSame(service, await primaryActivator!.Create());
+
+		IExternalServiceProvider noAlias = new NoAliasExternalServiceProvider
+										   {
+											   ServiceFactoryFunc = () => new ValueTask<TestExternalService>(service)
+										   };
+		Assert.IsNotNull(noAlias.TryGetActivator(new FullUri("urn:no-alias")));
+		Assert.IsNull(noAlias.TryGetActivator(new FullUri("urn:alias")));
 	}
 
 	[TestMethod]
@@ -65,6 +72,8 @@ public class ExternalServiceProviderBaseCoverageTest
 	}
 
 	private sealed class TestExternalServiceProvider() : ExternalServiceProviderBase<TestExternalService>(type: "urn:primary", alias: "urn:alias");
+
+	private sealed class NoAliasExternalServiceProvider() : ExternalServiceProviderBase<TestExternalService>(type: "urn:no-alias");
 
 	private sealed class TestExternalService : IExternalService
 	{

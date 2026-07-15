@@ -69,6 +69,41 @@ public class PersistedCustomActionNodeCoverageTest
 		Assert.IsFalse(bucket.TryGet(Key.ValueList, out int _));
 	}
 
+	[TestMethod]
+	public void StateMachineReaderRestoresCustomActionAndItsExpressionLists()
+	{
+		var source = new CustomActionSource
+					 {
+						 XmlNamespace = "urn:test-actions",
+						 XmlName = "action",
+						 Xml = "<action xmlns='urn:test-actions'/>",
+						 Locations = [new PersistedLocationExpressionNode(new LocationExpression { Expression = "target" })],
+						 Values = [new PersistedValueExpressionNode(new ValueExpression { Expression = "value" })]
+					 };
+		var documentIds = new LinkedList<int>();
+		var node = new PersistedCustomActionNode(new DocumentIdNode(documentIds), source);
+		documentIds.First!.Value = 43;
+		var bucket = new Bucket(new InMemoryStorage(writeOnly: false));
+		((IStoreSupport) node).Store(bucket);
+		var restore = typeof(StateMachineReader).GetMethod("RestoreCustomAction", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!;
+
+		var restored = (ICustomAction?) restore.Invoke(obj: null, [bucket]);
+
+		Assert.IsNotNull(restored);
+		var restoredNotNull = restored!;
+		Assert.AreEqual("urn:test-actions", restoredNotNull.XmlNamespace);
+		Assert.AreEqual("action", restoredNotNull.XmlName);
+		Assert.AreEqual("<action xmlns='urn:test-actions'/>", restoredNotNull.Xml);
+		Assert.AreEqual("target", restoredNotNull.Locations.Single().Expression);
+		Assert.AreEqual("value", restoredNotNull.Values.Single().Expression);
+		var persistedDocument = ((IAncestorProvider) restoredNotNull).Ancestor as IPersistedDocumentId;
+		Assert.IsNotNull(persistedDocument);
+		Assert.AreEqual(43, persistedDocument.DocumentId);
+
+		var emptyBucket = new Bucket(new InMemoryStorage(writeOnly: false));
+		Assert.IsNull(restore.Invoke(obj: null, [emptyBucket]));
+	}
+
 	private sealed class CustomActionSource : ICustomAction, IExecEvaluator
 	{
 		public int ExecuteCount { get; private set; }

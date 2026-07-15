@@ -62,6 +62,42 @@ public class HttpCounterStreamCoverageTest
 	}
 
 	[TestMethod]
+	public void CounterStreamBaseHooksAndSpanOperationsAreNoOpsAroundDelegatedAccess()
+	{
+		using var readStream = new CounterStream(new MemoryStream([1, 2]));
+		Span<byte> buffer = stackalloc byte[2];
+
+		Assert.AreEqual(expected: 2, readStream.Read(buffer));
+		Assert.AreEqual(expected: 0, readStream.Read(Span<byte>.Empty));
+
+		using var destination = new MemoryStream();
+		using var writeStream = new CounterStream(destination);
+		ReadOnlySpan<byte> content = [3, 4];
+
+		writeStream.Write(content);
+
+		CollectionAssert.AreEqual(new byte[] { 3, 4 }, destination.ToArray());
+	}
+
+	[TestMethod]
+	public async Task CounterStreamMemoryAsyncOperationsInvokeHooks()
+	{
+		using var readStream = new ObservedCounterStream(new MemoryStream([1, 2]));
+		var buffer = new byte[2];
+
+		Assert.AreEqual(expected: 2, await readStream.ReadAsync(buffer.AsMemory(), CancellationToken.None));
+		CollectionAssert.AreEqual(new[] { "pre-read:2", "post-read:2" }, readStream.Events);
+
+		using var destination = new MemoryStream();
+		using var writeStream = new ObservedCounterStream(destination);
+
+		await writeStream.WriteAsync(new ReadOnlyMemory<byte>([3, 4]), CancellationToken.None);
+
+		CollectionAssert.AreEqual(new[] { "pre-write:2", "post-write:2" }, writeStream.Events);
+		CollectionAssert.AreEqual(new byte[] { 3, 4 }, destination.ToArray());
+	}
+
+	[TestMethod]
 	public void CounterStreamRejectsInvalidPreReadCountMutations()
 	{
 		using var zeroMutation = new MutatingPreReadCounterStream(new MemoryStream([1]), mutatedCount: 1);
@@ -72,6 +108,10 @@ public class HttpCounterStreamCoverageTest
 		var buffer = new byte[2];
 
 		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => oversizeMutation.Read(buffer, offset: 0, count: 2));
+
+		using var emptyMutation = new MutatingPreReadCounterStream(new MemoryStream([1]), mutatedCount: 0);
+
+		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => emptyMutation.Read(buffer, offset: 0, count: 1));
 	}
 
 	[TestMethod]
@@ -107,7 +147,7 @@ public class HttpCounterStreamCoverageTest
 
 		Assert.AreEqual(expected: 2, await stream.ReadAsync(buffer, offset: 0, buffer.Length, CancellationToken.None));
 
-		await Assert.ThrowsExactlyAsync<HttpRequestProcessException>(async () => await stream.ReadAsync(buffer, offset: 0, count: 1, CancellationToken.None));
+		await Assert.ThrowsExactlyAsync<HttpRequestProcessException>([ExcludeFromCodeCoverage] async () => await stream.ReadAsync(buffer, offset: 0, count: 1, CancellationToken.None));
 	}
 
 	[TestMethod]

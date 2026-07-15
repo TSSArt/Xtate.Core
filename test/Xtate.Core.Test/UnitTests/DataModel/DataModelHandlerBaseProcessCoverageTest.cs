@@ -62,6 +62,17 @@ public class DataModelHandlerBaseProcessCoverageTest
 		Assert.IsEmpty(contract.DataModelVars);
 	}
 
+	[TestMethod]
+	public void BaseHandlerUsesDefaultExternalDataExpressionFactory()
+	{
+		var handler = CreateBaseExternalHandler();
+		IExternalDataExpression externalData = new ExternalDataSource();
+
+		((IDataModelHandler) handler).Process(ref externalData);
+
+		Assert.IsInstanceOfType<DefaultExternalDataExpressionEvaluator>(externalData);
+	}
+
 	private static TestHandler CreateHandler() =>
 		new()
 		{
@@ -79,6 +90,30 @@ public class DataModelHandlerBaseProcessCoverageTest
 			DefaultExternalDataExpressionEvaluatorFactory = null!,
 			CustomActionContainerFactory = null!
 		};
+
+	private static BaseExternalHandler CreateBaseExternalHandler() =>
+		new()
+		{
+			DefaultLogEvaluatorFactory = null!,
+			DefaultSendEvaluatorFactory = null!,
+			DefaultCancelEvaluatorFactory = null!,
+			DefaultIfEvaluatorFactory = null!,
+			DefaultRaiseEvaluatorFactory = null!,
+			DefaultForEachEvaluatorFactory = null!,
+			DefaultAssignEvaluatorFactory = null!,
+			DefaultScriptEvaluatorFactory = null!,
+			DefaultCustomActionEvaluatorFactory = null!,
+			DefaultContentBodyEvaluatorFactory = null!,
+			DefaultInlineContentEvaluatorFactory = null!,
+			DefaultExternalDataExpressionEvaluatorFactory = source => new DefaultExternalDataExpressionEvaluator(source)
+																									  {
+																										  DataConverter = null!,
+																										  ResourceLoader = null!
+																									  },
+			CustomActionContainerFactory = null!
+		};
+
+	private sealed class BaseExternalHandler : DataModelHandlerBase;
 
 	private sealed class TestHandler : DataModelHandlerBase
 	{

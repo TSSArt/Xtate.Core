@@ -113,4 +113,8 @@ internal sealed class TextContentReader(Uri uri, string content) : XmlReader
 				return false;
 		}
 	}
+
+	public override Task<bool> ReadAsync() => Task.FromResult(Read());
+
+	public override Task<string> GetValueAsync() => Task.FromResult(Value);
 }

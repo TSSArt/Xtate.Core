@@ -166,7 +166,7 @@ public class BuilderCoverageTest
 
 		Assert.AreSame(ancestor, ((IAncestorProvider) parallel).Ancestor);
 		Assert.AreSame(id, parallel.Id);
-		Assert.AreSequenceEqual(new IStateEntity[] { state, parallelChild }, parallel.States);
+		Assert.AreSequenceEqual([state, parallelChild], parallel.States);
 		Assert.AreSame(history, parallel.HistoryStates.Single());
 		Assert.AreSame(transition, parallel.Transitions.Single());
 		Assert.AreSame(onEntry, parallel.OnEntry.Single());
@@ -189,8 +189,8 @@ public class BuilderCoverageTest
 		var builder = new ParallelBuilder();
 
 		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => builder.SetId(null!));
-		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => builder.AddState(null!));
 		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => builder.AddParallel(null!));
+		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => builder.AddState(null!));
 		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => builder.AddHistory(null!));
 		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => builder.AddTransition(null!));
 		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => builder.AddOnEntry(null!));

@@ -106,6 +106,11 @@ public class XPathEvaluatorCoverageTest
 		Assert.AreSame(inlineContent, ((IAncestorProvider) evaluator).Ancestor);
 		Assert.AreEqual(expected: "inline text", evaluator.Value);
 		Assert.AreEqual(expected: "inline text", await evaluator.EvaluateString());
+		var reflected = (ValueTask<string>) typeof(InlineContentEvaluator).GetMethod(nameof(InlineContentEvaluator.EvaluateString))!.Invoke(evaluator, parameters: null)!;
+		Assert.AreEqual(expected: "inline text", await reflected);
+		var empty = new TestInlineContentEvaluator(new InlineContentSource { Value = null }, DataModelValue.Null);
+		var reflectedEmpty = (ValueTask<string>) typeof(InlineContentEvaluator).GetMethod(nameof(InlineContentEvaluator.EvaluateString))!.Invoke(empty, parameters: null)!;
+		Assert.AreEqual(string.Empty, await reflectedEmpty);
 		Assert.AreEqual(expected: "object text", DataModelValue.FromObject(await evaluator.EvaluateObject()).AsString());
 	}
 
@@ -126,6 +131,13 @@ public class XPathEvaluatorCoverageTest
 
 		Assert.IsNotNull(first.ToObject());
 		Assert.IsNotNull(second.ToObject());
+
+		var empty = new XPathInlineContentEvaluator(new InlineContentSource())
+					{
+						Logger = CreateLogger<IInlineContent>(),
+						XPathXmlParserContextFactory = CreateParserContextFactory()
+					};
+		Assert.AreEqual(DataModelValueType.Null, DataModelValue.FromObject(await empty.EvaluateObject()).Type);
 	}
 
 	[TestMethod]
@@ -145,6 +157,13 @@ public class XPathEvaluatorCoverageTest
 
 		Assert.IsNotNull(first.ToObject());
 		Assert.IsNotNull(second.ToObject());
+
+		var empty = new XPathContentBodyEvaluator(new ContentBodySource())
+					{
+						Logger = CreateLogger<IContentBody>(),
+						XPathXmlParserContextFactory = CreateParserContextFactory()
+					};
+		Assert.AreEqual(DataModelValueType.Null, DataModelValue.FromObject(await empty.EvaluateObject()).Type);
 	}
 
 	private static Deferred<ILogger<TSource>> CreateLogger<TSource>()

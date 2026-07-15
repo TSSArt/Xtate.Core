@@ -16,6 +16,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using Xtate.StateMachine;
+using System.Collections;
 
 namespace Xtate.Test.UnitTests.StateMachine;
 
@@ -69,5 +70,47 @@ public class EventNameCoverageTest
 		Assert.IsTrue(eventName.TryFormat(destination, out var charsWritten, format: default, provider: null));
 		Assert.AreEqual(expected: 0, charsWritten);
 		Assert.IsFalse(eventName.IsMatchedToEventDescriptor("error"));
+	}
+
+	[TestMethod]
+	public void EnumeratorsEqualityAndErrorClassificationCoverTypedAndObjectSurfaces()
+	{
+		var eventName = EventName.FromString("error.platform");
+		var same = EventName.FromString("error.platform");
+		var different = EventName.FromString("done.state");
+		var concreteValues = new List<string>();
+		var enumerator = eventName.GetEnumerator();
+		var nonGenericValues = new List<string>();
+		var nonGenericEnumerator = ((IEnumerable) eventName).GetEnumerator();
+
+		while (enumerator.MoveNext())
+		{
+			concreteValues.Add(enumerator.Current.Value);
+		}
+
+		CollectionAssert.AreEqual(new[] { "error", "platform" }, concreteValues);
+
+		while (nonGenericEnumerator.MoveNext())
+		{
+			nonGenericValues.Add(((IIdentifier) nonGenericEnumerator.Current).Value);
+		}
+
+		CollectionAssert.AreEqual(new[] { "error", "platform" }, nonGenericValues);
+		CollectionAssert.AreEqual(new[] { "error", "platform" }, ((IEnumerable) eventName).Cast<IIdentifier>().Select(item => item.Value).ToArray());
+		Assert.IsTrue(eventName.Equals((object) same));
+		Assert.IsFalse(eventName.Equals((object) different));
+		Assert.IsFalse(eventName.Equals("error.platform"));
+		Assert.IsFalse(eventName.Equals(obj: null));
+		Assert.IsTrue(eventName.IsError());
+		Assert.IsFalse(different.IsError());
+		Assert.IsFalse(EventName.FromString(string.Empty).IsError());
+	}
+
+	[TestMethod]
+	public void NullPlatformSuffixProducesDefaultEventName()
+	{
+		var eventName = EventName.GetErrorPlatform(suffix: null!);
+
+		Assert.IsTrue(eventName.IsDefault);
 	}
 }

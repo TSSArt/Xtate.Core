@@ -19,6 +19,7 @@ using System.IO;
 using System.Threading;
 using Xtate.Persistence;
 using Xtate.Persistence.Services;
+using System.Reflection;
 
 namespace Xtate.Test.UnitTests.Persistence;
 
@@ -69,12 +70,20 @@ public class SharedMemoryStreamsCoverageTest
 
 		stream.SetLength(3);
 		Assert.AreEqual(3, stream.Length);
+		stream.GetType().GetMethod("Dispose", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(stream, [false]);
+		Assert.IsTrue(stream.CanRead);
 	}
 
 	[TestMethod]
 	public void SharedMemoryStreamsEnforcesReaderWriterExclusionAndDeletion()
 	{
 		var streams = new SharedMemoryStreams<string>();
+		var missingReader = streams.OpenRead("missing");
+		Assert.AreEqual(expected: 0, missingReader.Length);
+		missingReader.GetType().GetMethod("Dispose", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(missingReader, [false]);
+		Assert.IsTrue(missingReader.CanRead);
+		missingReader.Dispose();
+		Assert.IsTrue(streams.Delete("missing"));
 		var writer = streams.OpenWrite("key");
 		writer.Write([1, 2, 3], offset: 0, count: 3);
 

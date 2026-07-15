@@ -205,8 +205,10 @@ public class SystemActionCoverageTest
 			return ValueTask.CompletedTask;
 		}
 
+		[ExcludeFromCodeCoverage]
 		public ValueTask<IObject> GetValue() => new(Value ?? DataModelValue.Undefined);
 
+		[ExcludeFromCodeCoverage]
 		public ValueTask<string> GetName() => new("result");
 	}
 }

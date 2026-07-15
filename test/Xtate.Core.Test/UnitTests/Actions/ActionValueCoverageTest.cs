@@ -25,6 +25,16 @@ namespace Xtate.Test.UnitTests.Actions;
 public class ActionValueCoverageTest
 {
 	[TestMethod]
+	public async Task EmptyAsyncActionUsesBaseEmptyValueAndLocationCollections()
+	{
+		IAction action = new EmptyAsyncAction();
+
+		Assert.AreEqual(expected: 0, action.GetValues().Count());
+		Assert.AreEqual(expected: 0, action.GetLocations().Count());
+		await action.Execute();
+	}
+
+	[TestMethod]
 	public async Task AsyncActionExposesValuesLocationsAndUsesTypedEvaluators()
 	{
 		var action = new TestAsyncAction();
@@ -88,6 +98,8 @@ public class ActionValueCoverageTest
 		var values = ((IAction) action).GetValues().ToArray();
 		var locations = ((IAction) action).GetLocations().ToArray();
 		var target = new TestLocationEvaluator(DataModelValue.Null);
+		Assert.AreEqual(DataModelValueType.Null, (await action.ReadLocation()).Type);
+		await action.WriteLocation(new DataModelValue("ignored"));
 
 		values[0].SetEvaluator(new TestArrayEvaluator([new DataModelValue("left"), new DataModelValue("right")]));
 		values[1].SetEvaluator(new TestBooleanEvaluator(true));
@@ -98,12 +110,25 @@ public class ActionValueCoverageTest
 		await ((IAction) action).Execute();
 
 		Assert.AreEqual(expected: "hello:5:True:2", target.Value.AsString());
+		Assert.AreEqual(expected: "hello:5:True:2", (await action.ReadLocation()).AsString());
 		Assert.AreEqual(expected: "hello:5:True:2", action.EvaluatedValue.AsString());
 		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => action.ReadStringAfterReset());
 		CollectionAssert.AreEqual(values, ((IAction) action).GetValues().ToArray());
 		CollectionAssert.AreEqual(locations, ((IAction) action).GetLocations().ToArray());
 		Assert.AreEqual(expected: "array", values[0].Expression);
 		Assert.AreEqual(expected: "target", locations[0].Expression);
+	}
+
+	[TestMethod]
+	public async Task SyncActionDefaultCollectionsAreEmptyAndExecuteWithoutAssignments()
+	{
+		var action = new EmptySyncAction();
+
+		Assert.AreEqual(expected: 0, ((IAction) action).GetValues().Count());
+		Assert.AreEqual(expected: 0, ((IAction) action).GetLocations().Count());
+		await ((IAction) action).Execute();
+
+		Assert.IsTrue(action.Evaluated);
 	}
 
 	private sealed class TestAsyncAction : AsyncAction
@@ -159,6 +184,11 @@ public class ActionValueCoverageTest
 				DataModelValue.Null);
 	}
 
+	private sealed class EmptyAsyncAction : AsyncAction
+	{
+		protected override ValueTask Execute() => ValueTask.CompletedTask;
+	}
+
 	private sealed class TestSyncAction : SyncAction
 	{
 		private readonly ArrayValue _array = new("array");
@@ -184,7 +214,24 @@ public class ActionValueCoverageTest
 			return EvaluatedValue;
 		}
 
+		[ExcludeFromCodeCoverage]
 		public string ReadStringAfterReset() => _string.Value;
+
+		public ValueTask<DataModelValue> ReadLocation() => _location.GetValue();
+
+		public ValueTask WriteLocation(DataModelValue value) => _location.SetValue(value);
+	}
+
+	private sealed class EmptySyncAction : SyncAction
+	{
+		public bool Evaluated { get; private set; }
+
+		protected override DataModelValue Evaluate()
+		{
+			Evaluated = true;
+
+			return DataModelValue.Null;
+		}
 	}
 
 	private sealed record ActionValues(

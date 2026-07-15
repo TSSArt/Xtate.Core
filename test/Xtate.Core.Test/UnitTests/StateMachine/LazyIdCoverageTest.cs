@@ -103,6 +103,7 @@ public class LazyIdCoverageTest
 
 	private sealed class OtherLazyId(string id) : LazyId(id)
 	{
+		[ExcludeFromCodeCoverage]
 		protected override string GenerateId() => $"other-{GetHashCode():x8}";
 	}
 }

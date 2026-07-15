@@ -24,6 +24,7 @@ using Xtate.DataModel.Services;
 using Xtate.DataTypes;
 using Xtate.ExternalServices;
 using Xtate.Interpreter;
+using Xtate.IoC.ServiceArray.Internal;
 using Xtate.IoC.ServiceArray.Services;
 using Xtate.IoC.Tools;
 using Xtate.Scxml.Internal;
@@ -135,6 +136,16 @@ public class CommunicationAndUtilityCoverageTest
 		Assert.AreEqual(first, second);
 		Assert.AreEqual(expected: 1, service.ExecuteCount);
 		Assert.AreEqual(expected: "event", service.LastDispatchedEventName);
+
+		var defaultDispatchService = new DefaultDispatchExternalService
+								 {
+									 ExternalServiceSourceBase = new TestExternalServiceSource(new Uri("urn:default"), rawContent: "raw", DataModelValue.Null),
+									 ExternalServiceParametersBase = new TestExternalServiceParameters(DataModelValue.Null),
+									 DisposeTokenBase = new DisposeToken(disposingToken.Token),
+									 TaskMonitorBase = new PassThroughTaskMonitor()
+								 };
+		await ((IEventDispatcher) defaultDispatchService).Dispatch(new IncomingEvent(), CancellationToken.None);
+		Assert.AreEqual(DataModelValueType.Null, (await ((IExternalService) defaultDispatchService).GetResult()).Type);
 	}
 
 	[TestMethod]
@@ -188,6 +199,7 @@ public class CommunicationAndUtilityCoverageTest
 
 		Assert.AreEqual(expected: 3, list.Count);
 		Assert.AreEqual(expected: "one", list[0]);
+		Assert.AreEqual(expected: "one", genericList[0]);
 		Assert.IsTrue(genericCollection.IsReadOnly);
 		Assert.IsTrue(nonGenericCollection.IsSynchronized);
 		Assert.IsTrue(nonGenericList.IsReadOnly);
@@ -201,6 +213,13 @@ public class CommunicationAndUtilityCoverageTest
 		Assert.IsTrue(nonGenericList.Contains(null));
 		Assert.AreEqual(expected: "one", nonGenericList[0]);
 		CollectionAssert.AreEqual(new[] { "one", null, "three" }, list.ToArray());
+		var directEnumerator = list.GetEnumerator();
+		Assert.IsTrue(directEnumerator.MoveNext());
+		Assert.AreEqual("one", directEnumerator.Current);
+		var nonGenericEnumerator = ((IEnumerable) list).GetEnumerator();
+		Assert.IsTrue(nonGenericEnumerator.MoveNext());
+		Assert.AreEqual("one", nonGenericEnumerator.Current);
+		Assert.AreEqual(expected: 0, new TestReadOnlyList<string>(default).Count);
 
 		var genericCopy = new string?[3];
 		var nonGenericCopy = new object?[3];
@@ -237,6 +256,8 @@ public class CommunicationAndUtilityCoverageTest
 			DelayMs = delayMs,
 			Data = new DataModelValue("payload")
 		};
+
+	private sealed class TestReadOnlyList<T>(ImmutableArray<T> values) : ReadOnlyList<T>(values);
 
 	private sealed class OutgoingEventSource : IOutgoingEvent
 	{
@@ -317,6 +338,11 @@ public class CommunicationAndUtilityCoverageTest
 		}
 	}
 
+	private sealed class DefaultDispatchExternalService : ExternalServiceBase
+	{
+		protected override ValueTask<DataModelValue> Execute() => new(DataModelValue.Null);
+	}
+
 	private sealed class TestExternalServiceSource(Uri source, string rawContent, DataModelValue content) : IExternalServiceSource
 	{
 	#region Interface IExternalServiceSource
@@ -339,6 +365,7 @@ public class CommunicationAndUtilityCoverageTest
 	#endregion
 	}
 
+	[ExcludeFromCodeCoverage]
 	private sealed class PassThroughTaskMonitor : ITaskMonitor
 	{
 	#region Interface ITaskMonitor

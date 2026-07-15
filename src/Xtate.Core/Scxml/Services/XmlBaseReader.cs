@@ -90,9 +90,11 @@ public class XmlBaseReader : DelegatedXmlReader
 		{
 			if (ReferenceEquals(NamespaceURI, _xmlNs) && ReferenceEquals(LocalName, _baseName))
 			{
+				var value = Value;
+
 				MoveToElement();
 
-				return Value;
+				return value;
 			}
 		}
 

@@ -19,6 +19,7 @@ using Xtate.DataModel;
 using Xtate.Interpreter;
 using Xtate.Persistence;
 using Xtate.Persistence.Extensions;
+using Xtate.Persistence.Internal;
 using Xtate.Persistence.Services;
 using Xtate.StateMachine;
 
@@ -63,6 +64,23 @@ public class StateMachinePersistedContextCoverageTest
 
 		Assert.AreEqual(expected: 0, storage.DisposeCount);
 		Assert.AreEqual(expected: 1, storage.DisposeAsyncCount);
+	}
+
+	[TestMethod]
+	public void EventCreatorRestoresPersistedIncomingEvent()
+	{
+		var bucket = new Bucket(new InMemoryStorage(writeOnly: false));
+		bucket.Add(Key.TypeInfo, TypeInfo.EventObject);
+		bucket.AddEventName(Key.Name, EventName.FromString("persisted.event"));
+		bucket.Add(Key.Type, EventType.External);
+
+		var restored = typeof(StateMachinePersistedContext)
+			.GetMethod("EventCreator", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!
+			.Invoke(obj: null, [bucket]);
+
+		var incomingEvent = Assert.IsInstanceOfType<PersistedIncomingEvent>(restored);
+		Assert.AreEqual("persisted.event", incomingEvent.Name.ToString());
+		Assert.AreEqual(EventType.External, incomingEvent.Type);
 	}
 
 	private static StateMachinePersistedContext CreateContext(ITransactionalStorage storage)

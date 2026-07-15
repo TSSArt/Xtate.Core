@@ -52,7 +52,13 @@ public class XIncludeExceptionCoverageTest
 	{
 		using var reader = CreateReader(xml: "<root>\r\n  <child />\r\n</root>", baseUri: "file:///tmp/test.scxml");
 
-		while (reader.Read() && reader is not { NodeType: XmlNodeType.Element, LocalName: "child" }) { }
+		while (reader.Read())
+		{
+			if (reader is { NodeType: XmlNodeType.Element, LocalName: "child" })
+			{
+				break;
+			}
+		}
 
 		var exception = new XIncludeException(message: "include failed", reader);
 

@@ -21,6 +21,7 @@ using Xtate.NameTable;
 using Xtate.Scxml;
 using Xtate.Scxml.Services;
 using Xtate.StateMachine.Validator;
+using System.Reflection;
 
 namespace Xtate.Test.UnitTests.Scxml;
 
@@ -49,6 +50,30 @@ public class ScxmlGetterInfrastructureCoverageTest
 		Assert.AreSame(nameTable, context.NameTable);
 		Assert.AreEqual("https://example.test/machine.scxml", context.BaseURI);
 		Assert.AreEqual(XmlSpace.None, context.XmlSpace);
+		Assert.AreEqual("https://example.test/machine.scxml", typeof(ScxmlLocationStateMachineGetter).GetProperty("Location", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(getter));
+	}
+
+	[TestMethod]
+	public void LocationGetterRejectsMissingLocation()
+	{
+		var getter = new TestLocationGetter
+					 {
+						 XmlResolver = new XmlUrlResolver(),
+						 StateMachineLocation = Mock.Of<IStateMachineLocation>(),
+						 ScxmlDeserializer = Mock.Of<IScxmlDeserializer>(),
+						 NameTableProvider = Mock.Of<INameTableProvider>(),
+						 StateMachineValidator = Mock.Of<IStateMachineValidator>()
+					 };
+
+		try
+		{
+			_ = typeof(ScxmlLocationStateMachineGetter).GetProperty("Location", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(getter);
+			Assert.Fail("A missing location did not fail.");
+		}
+		catch (TargetInvocationException exception)
+		{
+			Assert.IsNotNull(exception.InnerException);
+		}
 	}
 
 	[TestMethod]

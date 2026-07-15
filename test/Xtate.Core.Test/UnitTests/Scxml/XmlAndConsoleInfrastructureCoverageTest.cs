@@ -127,6 +127,7 @@ public class XmlAndConsoleInfrastructureCoverageTest
 
 	private sealed record XIncludeOptions(bool XIncludeAllowed) : IXIncludeOptions
 	{
+		[ExcludeFromCodeCoverage]
 		public int MaxNestingLevel => 10;
 	}
 

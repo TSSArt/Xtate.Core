@@ -81,9 +81,9 @@ public class ResourceCoverageTest
 
 		resource.Dispose();
 
-		await Assert.ThrowsExactlyAsync<ObjectDisposedException>(async () => await resource.GetBytes());
-		await Assert.ThrowsExactlyAsync<ObjectDisposedException>(async () => await resource.GetContent());
-		await Assert.ThrowsExactlyAsync<ObjectDisposedException>(async () => await resource.GetStream(doNotCache: false));
+		await Assert.ThrowsExactlyAsync<ObjectDisposedException>([ExcludeFromCodeCoverage] async () => await resource.GetBytes());
+		await Assert.ThrowsExactlyAsync<ObjectDisposedException>([ExcludeFromCodeCoverage] async () => await resource.GetContent());
+		await Assert.ThrowsExactlyAsync<ObjectDisposedException>([ExcludeFromCodeCoverage] async () => await resource.GetStream(doNotCache: false));
 		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => _ = new Resource(null!, contentType: null));
 	}
 
@@ -109,7 +109,7 @@ public class ResourceCoverageTest
 
 		var externallyCanceledStream = new InjectedCancellationStream(new TokenObservingStream([1]), externalCancellation.Token);
 
-		await Assert.ThrowsExactlyAsync<TaskCanceledException>(async () => await externallyCanceledStream.ReadAsync(new byte[1], offset: 0, count: 1, CancellationToken.None));
+		await Assert.ThrowsExactlyAsync<TaskCanceledException>([ExcludeFromCodeCoverage] async () => await externallyCanceledStream.ReadAsync(new byte[1], offset: 0, count: 1, CancellationToken.None));
 
 		using var perCallCancellation = new CancellationTokenSource();
 		perCallCancellation.Cancel();
@@ -117,7 +117,7 @@ public class ResourceCoverageTest
 		var linkedTokenInnerStream = new TokenObservingStream([1]);
 		var linkedStream = new InjectedCancellationStream(linkedTokenInnerStream, CancellationToken.None);
 
-		await Assert.ThrowsExactlyAsync<TaskCanceledException>(async () => await linkedStream.WriteAsync([1], offset: 0, count: 1, perCallCancellation.Token));
+		await Assert.ThrowsExactlyAsync<TaskCanceledException>([ExcludeFromCodeCoverage] async () => await linkedStream.WriteAsync([1], offset: 0, count: 1, perCallCancellation.Token));
 		Assert.IsTrue(linkedTokenInnerStream.LastWriteToken.IsCancellationRequested);
 	}
 

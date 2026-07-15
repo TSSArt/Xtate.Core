@@ -67,4 +67,14 @@ public class QueryStringHelperTest
 		Assert.AreEqual(expected: "1", values["left"]);
 		Assert.AreEqual(expected: "2", values["right"]);
 	}
+
+	[TestMethod]
+	public void ParseQueryNoEqualSign()
+	{
+		var values = QueryStringHelper.ParseQuery("&left&right");
+
+		Assert.AreEqual(expected: 2, values.Count);
+		Assert.AreEqual(expected: "", values["left"]);
+		Assert.AreEqual(expected: "", values["right"]);
+	}
 }

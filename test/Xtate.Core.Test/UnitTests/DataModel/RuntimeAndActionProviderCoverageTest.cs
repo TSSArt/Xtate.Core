@@ -162,6 +162,7 @@ public class RuntimeAndActionProviderCoverageTest
 															{
 																Assert.AreSame(dataModel, Runtime.DataModel);
 																Assert.AreEqual(expected: "runtime arguments", Runtime.Arguments.AsString());
+																Assert.AreEqual(expected: "runtime arguments", ((DataModelValue) typeof(Runtime).GetProperty(nameof(Runtime.Arguments))!.GetValue(obj: null)!).AsString());
 																Assert.IsTrue(Runtime.InState("active"));
 
 																await Runtime.Log(message: "message", new DataModelValue("argument"));
@@ -182,6 +183,25 @@ public class RuntimeAndActionProviderCoverageTest
 					   };
 
 		await executor.Execute();
+
+		var emptyDataModelController = new Mock<IDataModelController>();
+		emptyDataModelController.SetupGet(static controller => controller.DataModel).Returns(new DataModelList());
+		var emptyArgumentsExecutor = new RuntimeActionExecutor
+								 {
+									 Action = RuntimeAction.GetAction(() => Assert.AreEqual(
+										 DataModelValueType.Undefined,
+										 ((DataModelValue) typeof(Runtime).GetProperty(nameof(Runtime.Arguments))!.GetValue(obj: null)!).Type)),
+									 RuntimeExecutionContextFactory = () => new ValueTask<RuntimeExecutionContext>(
+										 new RuntimeExecutionContext
+										 {
+											 InStateController = inStateController.Object,
+											 LogController = logController.Object,
+											 EventController = eventController.Object,
+											 InvokeController = invokeController.Object,
+											 DataModelController = emptyDataModelController.Object
+										 })
+								 };
+		await emptyArgumentsExecutor.Execute();
 
 		inStateController.Verify(static controller => controller.InState(It.Is<IIdentifier>(id => id.ToString() == "active")), Times.Once);
 		logController.Verify(static controller => controller.Log("message", It.Is<DataModelValue>(value => value.AsString() == "argument")), Times.Once);
@@ -233,6 +253,11 @@ public class RuntimeAndActionProviderCoverageTest
 		Assert.AreSame(body, ((IAncestorProvider) evaluator).Ancestor);
 		Assert.AreEqual(expected: "body text", evaluator.Value);
 		Assert.AreEqual(expected: "body text", await evaluator.EvaluateString());
+		var reflected = (ValueTask<string>) typeof(ContentBodyEvaluator).GetMethod(nameof(ContentBodyEvaluator.EvaluateString))!.Invoke(evaluator, parameters: null)!;
+		Assert.AreEqual(expected: "body text", await reflected);
+		var empty = new TestContentBodyEvaluator(new ContentBodySource { Value = null }, DataModelValue.Null);
+		var reflectedEmpty = (ValueTask<string>) typeof(ContentBodyEvaluator).GetMethod(nameof(ContentBodyEvaluator.EvaluateString))!.Invoke(empty, parameters: null)!;
+		Assert.AreEqual(string.Empty, await reflectedEmpty);
 		Assert.AreEqual(expected: "object text", DataModelValue.FromObject(await evaluator.EvaluateObject()).AsString());
 	}
 

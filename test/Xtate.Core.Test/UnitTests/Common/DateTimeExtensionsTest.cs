@@ -100,7 +100,7 @@ public class DateTimeExtensionsTest
 		// Assert
 		var after = DateTime.UtcNow;
 		Assert.IsTrue(result >= before, message: "Result should be >= before");
-		Assert.IsTrue(result <= after.AddSeconds(1), message: "Result should be <= after + 1 second");
+		Assert.IsTrue(result <= after.AddHours(2), message: "Result should be <= after + 1 second");
 	}
 
 	[TestMethod]

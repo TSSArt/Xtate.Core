@@ -17,6 +17,7 @@
 
 using System.Collections.Specialized;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using Xtate.Ancestor;
 using Xtate.DataModel;
@@ -104,6 +105,46 @@ public class DataModelServiceCoverageTest
 				It.Is<string>(message => !string.IsNullOrEmpty(message)),
 				null),
 			Times.Once);
+	}
+
+	[TestMethod]
+	public void UnknownDataModelHandlerReportsScriptProcessingError()
+	{
+		var errorProcessor = new Mock<IErrorProcessorService<UnknownDataModelHandler>>();
+		var handler = CreateUnknownHandler(errorProcessor.Object);
+		IScript script = Mock.Of<IScript>();
+
+		InvokeVisit(handler, script);
+
+		errorProcessor.Verify(
+			processor => processor.AddError(
+				script,
+				It.Is<string>(message => !string.IsNullOrEmpty(message)),
+				null),
+			Times.Once);
+	}
+
+	[TestMethod]
+	public void UnknownDataModelHandlerReportsDataModelProcessingError()
+	{
+		var errorProcessor = new Mock<IErrorProcessorService<UnknownDataModelHandler>>();
+		var handler = CreateUnknownHandler(errorProcessor.Object);
+		IDataModel dataModel = Mock.Of<IDataModel>();
+
+		InvokeVisit(handler, dataModel);
+
+		errorProcessor.Verify(
+			processor => processor.AddError(dataModel, It.Is<string>(message => !string.IsNullOrEmpty(message)), null),
+			Times.Once);
+	}
+
+	private static void InvokeVisit<T>(UnknownDataModelHandler handler, T entity)
+	{
+		var method = typeof(UnknownDataModelHandler).GetMethod(
+			"Visit", BindingFlags.Instance | BindingFlags.NonPublic, binder: null, [typeof(T).MakeByRefType()], modifiers: null)!;
+		object?[] arguments = [entity];
+
+		method.Invoke(handler, arguments);
 	}
 
 	private static async IAsyncEnumerable<T> ToAsyncEnumerable<T>(params T[] items)

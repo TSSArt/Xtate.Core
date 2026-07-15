@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using System.Reflection;
 using Xtate.DataTypes;
 
 namespace Xtate.Test.UnitTests.DataModel;
@@ -56,6 +57,42 @@ public class DataModelValueNestedCoverageTest
 
 	[TestMethod]
 	public void NumberAndDateTimeNestedValuesCoverRepresentationsWithinCurrentHashBehavior() => AssertNumberAndDateTimeNestedValues(assertCrossRepresentationHash: false);
+
+	[TestMethod]
+	public void NestedMarkerNumberAndDateTimeObjectsImplementObjectEqualityAndHashing()
+	{
+		var nullMarker = GetNestedValue(DataModelValue.Null)!;
+		var markerType = nullMarker.GetType();
+		var anotherNullMarker = Activator.CreateInstance(
+			markerType, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, binder: null, [DataModelValueType.Null], culture: null)!;
+		var booleanMarker = Activator.CreateInstance(
+			markerType, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, binder: null, [DataModelValueType.Boolean], culture: null)!;
+
+		Assert.IsTrue(nullMarker.Equals(nullMarker));
+		Assert.IsTrue(nullMarker.Equals(anotherNullMarker));
+		Assert.IsFalse(nullMarker.Equals(booleanMarker));
+		Assert.IsFalse(nullMarker.Equals("marker"));
+		Assert.AreEqual(nullMarker.GetHashCode(), anotherNullMarker.GetHashCode());
+
+		var intNumber = GetNestedValue(new DataModelValue(1))!;
+		var anotherIntNumber = GetNestedValue(new DataModelValue(2))!;
+		var longNumber = GetNestedValue(new DataModelValue(1L))!;
+
+		Assert.IsTrue(intNumber.Equals(anotherIntNumber));
+		Assert.IsFalse(intNumber.Equals(longNumber));
+		Assert.IsFalse(intNumber.Equals("number"));
+		Assert.AreEqual(intNumber.GetHashCode(), anotherIntNumber.GetHashCode());
+		Assert.IsFalse(new DataModelValue(1).Equals(new DataModelValue("1")));
+
+		var firstDate = GetNestedValue(new DataModelValue(new DateTimeOffset(2026, 1, 2, 3, 4, 5, TimeSpan.FromHours(1))))!;
+		var sameDateKind = GetNestedValue(new DataModelValue(new DateTimeOffset(2027, 2, 3, 4, 5, 6, TimeSpan.FromHours(1))))!;
+		var differentDateKind = GetNestedValue(new DataModelValue(new DateTimeOffset(2026, 1, 2, 3, 4, 5, TimeSpan.FromHours(2))))!;
+
+		Assert.IsTrue(firstDate.Equals(sameDateKind));
+		Assert.IsFalse(firstDate.Equals(differentDateKind));
+		Assert.IsFalse(firstDate.Equals("date"));
+		Assert.AreEqual(firstDate.GetHashCode(), sameDateKind.GetHashCode());
+	}
 
 	private static void AssertNumberAndDateTimeNestedValues(bool assertCrossRepresentationHash)
 	{
@@ -110,4 +147,7 @@ public class DataModelValueNestedCoverageTest
 
 	#endregion
 	}
+
+	private static object? GetNestedValue(DataModelValue value) =>
+		typeof(DataModelValue).GetField("_value", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(value);
 }

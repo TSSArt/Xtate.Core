@@ -76,7 +76,7 @@ public class ResourceLoaderHandlersCoverageTest
 		var loader = new TestFileResourceLoader
 					 {
 						 ExternalResources = Mock.Of<IIoBoundTask>(),
-						 ResourceFactory = (stream, contentType) => new ValueTask<Resource>(new Resource(stream, contentType))
+						 ResourceFactory = [ExcludeFromCodeCoverage] (stream, contentType) => new ValueTask<Resource>(new Resource(stream, contentType))
 					 };
 
 		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage] () => loader.Open(null!));
@@ -140,8 +140,8 @@ public class ResourceLoaderHandlersCoverageTest
 		var loader = new WebResourceLoader
 					 {
 						 DisposeToken = default,
-						 HttpClientFactory = () => new HttpClient(),
-						 ResourceFactory = (stream, contentType) => new Resource(stream, contentType)
+						 HttpClientFactory = [ExcludeFromCodeCoverage] () => new HttpClient(),
+						 ResourceFactory = [ExcludeFromCodeCoverage] (stream, contentType) => new Resource(stream, contentType)
 					 };
 		IResourceLoaderProvider provider = new WebResourceLoader.Provider { ResourceLoaderFactory = () => new ValueTask<WebResourceLoader>(loader) };
 
@@ -199,7 +199,7 @@ public class ResourceLoaderHandlersCoverageTest
 		var loader = new TestResxResourceLoader
 					 {
 						 IoBoundTask = Mock.Of<IIoBoundTask>(),
-						 ResourceFactory = static (stream, contentType) => new Resource(stream, contentType)
+						 ResourceFactory = [ExcludeFromCodeCoverage] static (stream, contentType) => new Resource(stream, contentType)
 					 };
 		IResourceLoaderProvider provider = new ResxResourceLoader.Provider
 										   {
@@ -212,6 +212,7 @@ public class ResourceLoaderHandlersCoverageTest
 		Assert.IsNull(await provider.TryGetResourceLoader(new Uri("relative", UriKind.Relative)));
 	}
 
+	[ExcludeFromCodeCoverage]
 	private static async IAsyncEnumerable<T> ToAsyncEnumerable<T>(params T[] values)
 	{
 		await Task.Yield();
@@ -236,6 +237,7 @@ public class ResourceLoaderHandlersCoverageTest
 
 	private sealed class TestFileResourceLoader : FileResourceLoader
 	{
+		[ExcludeFromCodeCoverage]
 		public FileStream Open(string path) => CreateFileStream(path);
 	}
 

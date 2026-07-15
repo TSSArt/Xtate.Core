@@ -537,7 +537,7 @@ public class ScxmlSerializerWriter(XmlWriter writer) : StateMachineVisitor
 
 		if (entity.SourceExpression?.Expression is { } sourceExpression)
 		{
-			writer.WriteAttributeString(localName: "eventexpr", sourceExpression);
+			writer.WriteAttributeString(localName: "srcexpr", sourceExpression);
 		}
 
 		if (entity.Id is { } id)

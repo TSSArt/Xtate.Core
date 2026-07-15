@@ -166,4 +166,5 @@ public class DataModelDynamicCoverageTest
 		Assert.ThrowsExactly<ArgumentException>([ExcludeFromCodeCoverage]() => dyn[0, 1] = 3);
 		Assert.ThrowsExactly<MissingMethodException>([ExcludeFromCodeCoverage]() => dyn.UnknownMethod());
 	}
+
 }

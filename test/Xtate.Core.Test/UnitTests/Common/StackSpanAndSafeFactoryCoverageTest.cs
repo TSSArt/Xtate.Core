@@ -31,6 +31,7 @@ public class StackSpanAndSafeFactoryCoverageTest
 		Assert.IsFalse(small ? true : false);
 		Assert.AreEqual(StackSpan<int>.MaxLengthInStack, (int) small);
 		small.Dispose();
+		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage] () => ConvertSmallStackSpanToSpan());
 
 		var requestedLength = StackSpan<int>.MaxLengthInStack + 1;
 		var large = new StackSpan<int>(requestedLength);
@@ -47,6 +48,14 @@ public class StackSpanAndSafeFactoryCoverageTest
 
 		large.Dispose();
 		large.Dispose();
+	}
+
+	private static void ConvertSmallStackSpanToSpan()
+	{
+		var stackSpan = new StackSpan<int>(length: 1);
+		Span<int> span = stackSpan;
+
+		_ = span;
 	}
 
 	[TestMethod]

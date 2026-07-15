@@ -54,6 +54,45 @@ public class StateMachineDestroyOnIdleCoverageTest
 		((IDisposable) secondTracker).Dispose();
 	}
 
+	[TestMethod]
+	public async Task ZeroIdleTimeoutTriggersInterpreterDestroySignal()
+	{
+		var destroyed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+		var interpreter = new Mock<IStateMachineInterpreter>();
+		interpreter.Setup(static item => item.TriggerDestroySignal()).Callback(destroyed.SetResult);
+		var service = CreateService(TimeSpan.Zero, interpreter.Object, Mock.Of<ILogger<StateMachineDestroyOnIdle>>());
+		var tracker = await service.Factory();
+		Assert.IsNotNull(tracker);
+
+		await tracker.OnChanged(StateMachineInterpreterState.Waiting);
+		await destroyed.Task.WaitAsync(TimeSpan.FromSeconds(5));
+		await ((IAsyncDisposable) tracker).DisposeAsync();
+
+		interpreter.Verify(static item => item.TriggerDestroySignal(), Times.Once);
+	}
+
+	[TestMethod]
+	public async Task DestroySignalFailureIsLoggedByTimerCallback()
+	{
+		var logged = new TaskCompletionSource<Exception>(TaskCreationOptions.RunContinuationsAsynchronously);
+		var failure = new InvalidOperationException("destroy failed");
+		var interpreter = new Mock<IStateMachineInterpreter>();
+		interpreter.Setup(static item => item.TriggerDestroySignal()).Throws(failure);
+		var logger = new Mock<ILogger<StateMachineDestroyOnIdle>>();
+		logger.Setup(item => item.Write(Level.Error, 1, It.IsAny<string>(), It.IsAny<Exception>()))
+			  .Callback<Level, int, string?, Exception>((_, _, _, exception) => logged.TrySetResult(exception))
+			  .Returns(ValueTask.CompletedTask);
+		var service = CreateService(TimeSpan.Zero, interpreter.Object, logger.Object);
+		var tracker = await service.Factory();
+		Assert.IsNotNull(tracker);
+
+		await tracker.OnChanged(StateMachineInterpreterState.Waiting);
+		var loggedException = await logged.Task.WaitAsync(TimeSpan.FromSeconds(5));
+		await ((IAsyncDisposable) tracker).DisposeAsync();
+
+		Assert.AreSame(failure, loggedException);
+	}
+
 	private static StateMachineDestroyOnIdle CreateService(TimeSpan? timeout, out InvocationCounter interpreterFactoryCalls)
 	{
 		interpreterFactoryCalls = new InvocationCounter();
@@ -71,6 +110,17 @@ public class StateMachineDestroyOnIdleCoverageTest
 												}
 			   };
 	}
+
+	private static StateMachineDestroyOnIdle CreateService(
+		TimeSpan timeout,
+		IStateMachineInterpreter interpreter,
+		ILogger<StateMachineDestroyOnIdle> logger) =>
+		new()
+		{
+			Logger = logger,
+			DestroyOnIdleTimeout = new DestroyOnIdleTimeout(timeout),
+			StateMachineInterpreterFactory = () => new ValueTask<IStateMachineInterpreter>(interpreter)
+		};
 
 	private sealed record DestroyOnIdleTimeout(TimeSpan IdleTimeout) : IDestroyOnIdleTimeout;
 

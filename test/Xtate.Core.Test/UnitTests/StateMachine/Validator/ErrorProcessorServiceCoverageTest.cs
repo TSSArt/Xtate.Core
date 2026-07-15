@@ -53,6 +53,7 @@ public class ErrorProcessorServiceCoverageTest
 
 		public void AddError(ErrorItem errorItem) => Items.Add(errorItem);
 
+		[ExcludeFromCodeCoverage]
 		public void ThrowIfErrors() { }
 	}
 

@@ -155,6 +155,7 @@ public class ExternalServiceScopeManagerCoverageTest
 	private static InvokeData CreateInvokeData(InvokeId invokeId) =>
 		new(invokeId, new FullUri("urn:service"), Source: null, RawContent: null, DataModelValue.Undefined, DataModelValue.Undefined);
 
+	[ExcludeFromCodeCoverage]
 	private sealed class CapturingTaskMonitor : ITaskMonitor
 	{
 		public List<Task> ForgottenTasks { get; } = [];

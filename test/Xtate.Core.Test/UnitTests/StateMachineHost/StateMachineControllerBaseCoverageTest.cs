@@ -132,6 +132,7 @@ public class StateMachineControllerBaseCoverageTest
 
 	private sealed class TestStateMachineController : StateMachineControllerBase;
 
+	[ExcludeFromCodeCoverage]
 	private sealed class CapturingTaskMonitor : ITaskMonitor
 	{
 		public List<Task> Tasks { get; } = [];

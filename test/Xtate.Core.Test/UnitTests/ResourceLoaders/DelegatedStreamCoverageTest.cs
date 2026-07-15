@@ -42,6 +42,8 @@ public class DelegatedStreamCoverageTest
 
 		stream.ReadTimeout = 123;
 		stream.WriteTimeout = 456;
+		Assert.AreEqual(expected: 123, stream.ReadTimeout);
+		Assert.AreEqual(expected: 456, stream.WriteTimeout);
 		Assert.AreEqual(expected: 123, innerStream.ReadTimeout);
 		Assert.AreEqual(expected: 456, innerStream.WriteTimeout);
 
@@ -72,6 +74,17 @@ public class DelegatedStreamCoverageTest
 		CollectionAssert.AreEqual(new byte[] { 7, 6, 3 }, innerStream.ToArray());
 
 		await stream.DisposeAsync();
+		Assert.IsTrue(innerStream.Disposed);
+	}
+
+	[TestMethod]
+	public void DelegatedStreamSynchronousDisposeClosesInnerStream()
+	{
+		var innerStream = new ProbeStream([1]);
+		var stream = new TestDelegatedStream(innerStream);
+
+		stream.DisposeCore(disposing: true);
+
 		Assert.IsTrue(innerStream.Disposed);
 	}
 
@@ -111,7 +124,10 @@ public class DelegatedStreamCoverageTest
 		CollectionAssert.AreEqual(new byte[] { 4, 3, 5, 4 }, copied.ToArray());
 	}
 
-	private sealed class TestDelegatedStream(Stream innerStream) : DelegatedStream(innerStream);
+	private sealed class TestDelegatedStream(Stream innerStream) : DelegatedStream(innerStream)
+	{
+		public void DisposeCore(bool disposing) => base.Dispose(disposing);
+	}
 
 	private sealed class ProbeStream : MemoryStream
 	{

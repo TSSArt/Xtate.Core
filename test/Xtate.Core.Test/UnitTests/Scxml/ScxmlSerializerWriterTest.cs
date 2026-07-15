@@ -158,4 +158,73 @@ public class ScxmlSerializerWriterTest
 		StringAssert.Contains(xml, substring: "<initial>");
 		StringAssert.Contains(xml, substring: "<content><payload xmlns=\"\">ok</payload></content>");
 	}
+
+	[TestMethod]
+	public void SerializeWritesConditionalLoopsExpressionFormsOnExitAndInvokeParameters()
+	{
+		var xml = Serialize(
+			"""
+			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="xpath" initial="active" name="coverage" binding="late">
+			  <datamodel><data id="external" src="data.xml"/></datamodel>
+			  <script src="script.js"/>
+			  <state id="active">
+				<onentry>
+				  <if cond="true()">
+					<log label="if"/>
+					<elseif cond="false()"/>
+					<log label="elseif"/>
+					<else/>
+					<log label="else"/>
+				  </if>
+				  <foreach array="$items" item="item" index="index">
+					<assign location="current" expr="$item" type="replaceattr" attr="value"/>
+				  </foreach>
+				  <send eventexpr="'dynamic.event'" targetexpr="'#_internal'" typeexpr="'scxml'" idlocation="sendId" delayexpr="100" namelist="item index">
+				  </send>
+				  <send target="#_internal"><content expr="$item"/></send>
+				  <send event="delayed" delay="2s"/>
+				  <cancel sendidexpr="$sendId"/>
+				</onentry>
+				<onexit>
+				  <raise event="leaving"/>
+				</onexit>
+				<invoke typeexpr="'scxml'" srcexpr="'child.scxml'" idlocation="invokeId" namelist="item index" autoforward="false">
+				  <finalize><assign location="done" expr="true()"/></finalize>
+				</invoke>
+				<invoke type="scxml" src="parameters.scxml" id="parameterInvoke">
+				  <param name="literal" expr="$item"/>
+				  <param name="located" location="current"/>
+				</invoke>
+				<invoke type="scxml"><content expr="$item"/></invoke>
+				<transition target="done"/>
+			  </state>
+			  <final id="done"/>
+			</scxml>
+			""");
+
+		StringAssert.Contains(xml, substring: "<if cond=\"true()\"");
+		StringAssert.Contains(xml, substring: "<data id=\"external\" src=\"data.xml\"");
+		StringAssert.Contains(xml, substring: "<script src=\"script.js\"");
+		StringAssert.Contains(xml, substring: "<elseif cond=\"false()\"");
+		StringAssert.Contains(xml, substring: "<else");
+		StringAssert.Contains(xml, substring: "<foreach array=\"$items\" item=\"item\" index=\"index\"");
+		StringAssert.Contains(xml, substring: "<send eventexpr=\"'dynamic.event'\" targetexpr=\"'#_internal'\" typeexpr=\"'scxml'\" idlocation=\"sendId\" delayexpr=\"100\" namelist=\"item index\"");
+		StringAssert.Contains(xml, substring: "<cancel sendidexpr=\"$sendId\"");
+		StringAssert.Contains(xml, substring: "<onexit>");
+		StringAssert.Contains(xml, substring: "<invoke typeexpr=\"'scxml'\" srcexpr=\"'child.scxml'\" idlocation=\"invokeId\" namelist=\"item index\"");
+		StringAssert.Contains(xml, substring: "<finalize>");
+	}
+
+	[TestMethod]
+	public void SerializeShouldWriteInvokeSourceExpressionAsSrcExpr()
+	{
+		var xml = Serialize(
+			"""
+			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+			  <state id="state"><invoke typeexpr="'scxml'" srcexpr="'child.scxml'"/></state>
+			</scxml>
+			""");
+
+		StringAssert.Contains(xml, substring: "srcexpr=\"'child.scxml'\"");
+	}
 }

@@ -176,6 +176,214 @@ public class FluentBuilderCoverageTest
 		builder.Verify(static b => b.SetTransition(It.IsAny<ITransition>()), Times.Exactly(3));
 	}
 
+	[TestMethod]
+	public void StateBuilderCoversConfigurationNestedBuildersTransitionsAndEnd()
+	{
+		var builder = new Mock<IStateBuilder>();
+		var builtState = Mock.Of<IState>();
+		builder.Setup(static b => b.Build()).Returns(builtState);
+		var initialBuilder = BuilderMock<IInitialBuilder, IInitial>();
+		var stateBuilder = BuilderMock<IStateBuilder, IState>();
+		var parallelBuilder = BuilderMock<IParallelBuilder, IParallel>();
+		var finalBuilder = BuilderMock<IFinalBuilder, IFinal>();
+		var historyBuilder = BuilderMock<IHistoryBuilder, IHistory>();
+		var transitionBuilder = BuilderMock<ITransitionBuilder, ITransition>();
+		var outer = new object();
+		IState? captured = null;
+		var fluent = new StateFluentBuilder<object>
+					 {
+						 Builder = builder.Object,
+						 BuiltAction = value => captured = value,
+						 OuterBuilder = outer,
+						 InitialFluentBuilderFactory = (state, built) => CreateInitialBuilder(state, built, initialBuilder.Object, transitionBuilder.Object),
+						 StateFluentBuilderFactory = (state, built) => CreateNestedStateBuilder(state, built, stateBuilder.Object),
+						 ParallelFluentBuilderFactory = (state, built) => CreateNestedParallelBuilder(state, built, parallelBuilder.Object),
+						 FinalFluentBuilderFactory = (state, built) => CreateFinalBuilder(state, built, finalBuilder.Object),
+						 HistoryFluentBuilderFactory = (state, built) => CreateHistoryBuilder(state, built, historyBuilder.Object, transitionBuilder.Object),
+						 TransitionFluentBuilderFactory = (state, built) => CreateTransitionBuilder(state, built, transitionBuilder.Object)
+					 };
+		var id = Identifier.FromString("id");
+		var eventDescriptor = EventDescriptor.FromString("event");
+
+		Assert.AreSame(fluent, fluent.SetId("state"));
+		Assert.AreSame(fluent, fluent.SetId(id));
+		Assert.AreSame(fluent, fluent.SetInitial("one", "two"));
+		Assert.AreSame(fluent, fluent.SetInitial(id));
+		Assert.AreSame(fluent, fluent.SetInitial(ImmutableArray.Create("three")));
+		Assert.AreSame(fluent, fluent.SetInitial(ImmutableArray.Create<IIdentifier>(id)));
+		Assert.AreSame(fluent, fluent.AddOnEntry([ExcludeFromCodeCoverage] static () => { }));
+		Assert.AreSame(fluent, fluent.AddOnEntry([ExcludeFromCodeCoverage] static () => ValueTask.CompletedTask));
+		Assert.AreSame(fluent, fluent.AddOnExit([ExcludeFromCodeCoverage] static () => { }));
+		Assert.AreSame(fluent, fluent.AddOnExit([ExcludeFromCodeCoverage] static () => ValueTask.CompletedTask));
+		Assert.AreSame(fluent, fluent.BeginInitial().EndInitial());
+		Assert.AreSame(fluent, fluent.BeginState().EndState());
+		Assert.AreSame(fluent, fluent.BeginState("child").EndState());
+		Assert.AreSame(fluent, fluent.BeginState(id).EndState());
+		Assert.AreSame(fluent, fluent.BeginParallel().EndParallel());
+		Assert.AreSame(fluent, fluent.BeginParallel("parallel").EndParallel());
+		Assert.AreSame(fluent, fluent.BeginParallel(id).EndParallel());
+		Assert.AreSame(fluent, fluent.BeginFinal().EndFinal());
+		Assert.AreSame(fluent, fluent.BeginFinal("final").EndFinal());
+		Assert.AreSame(fluent, fluent.BeginFinal(id).EndFinal());
+		Assert.AreSame(fluent, fluent.BeginHistory().EndHistory());
+		Assert.AreSame(fluent, fluent.BeginHistory("history").EndHistory());
+		Assert.AreSame(fluent, fluent.BeginHistory(id).EndHistory());
+		Assert.AreSame(fluent, fluent.BeginTransition().EndTransition());
+		Assert.AreSame(fluent, fluent.AddTransition(eventDescriptor, "target"));
+		Assert.AreSame(fluent, fluent.AddTransition(eventDescriptor, id));
+		Assert.AreSame(fluent, fluent.AddTransition([ExcludeFromCodeCoverage] static () => true, "target"));
+		Assert.AreSame(fluent, fluent.AddTransition([ExcludeFromCodeCoverage] static () => true, id));
+		Assert.AreSame(outer, fluent.EndState());
+		Assert.AreSame(builtState, captured);
+	}
+
+	[TestMethod]
+	public void ParallelBuilderCoversConfigurationNestedBuildersTransitionsAndEnd()
+	{
+		var builder = BuilderMock<IParallelBuilder, IParallel>();
+		var stateBuilder = BuilderMock<IStateBuilder, IState>();
+		var parallelBuilder = BuilderMock<IParallelBuilder, IParallel>();
+		var historyBuilder = BuilderMock<IHistoryBuilder, IHistory>();
+		var transitionBuilder = BuilderMock<ITransitionBuilder, ITransition>();
+		var outer = new object();
+		IParallel? captured = null;
+		var fluent = new ParallelFluentBuilder<object>
+					 {
+						 Builder = builder.Object,
+						 BuiltAction = value => captured = value,
+						 OuterBuilder = outer,
+						 StateFluentBuilderFactory = (parallel, built) => CreateNestedStateBuilder(parallel, built, stateBuilder.Object),
+						 ParallelFluentBuilderFactory = (parallel, built) => CreateNestedParallelBuilder(parallel, built, parallelBuilder.Object),
+						 HistoryFluentBuilderFactory = (parallel, built) => CreateHistoryBuilder(parallel, built, historyBuilder.Object, transitionBuilder.Object),
+						 TransitionFluentBuilderFactory = (parallel, built) => CreateTransitionBuilder(parallel, built, transitionBuilder.Object)
+					 };
+		var id = Identifier.FromString("id");
+		var eventDescriptor = EventDescriptor.FromString("event");
+
+		Assert.AreSame(fluent, fluent.SetId("parallel"));
+		Assert.AreSame(fluent, fluent.SetId(id));
+		Assert.AreSame(fluent, fluent.AddOnEntry([ExcludeFromCodeCoverage] static () => { }));
+		Assert.AreSame(fluent, fluent.AddOnEntry([ExcludeFromCodeCoverage] static () => ValueTask.CompletedTask));
+		Assert.AreSame(fluent, fluent.AddOnExit([ExcludeFromCodeCoverage] static () => { }));
+		Assert.AreSame(fluent, fluent.AddOnExit([ExcludeFromCodeCoverage] static () => ValueTask.CompletedTask));
+		Assert.AreSame(fluent, fluent.BeginState().EndState());
+		Assert.AreSame(fluent, fluent.BeginState("child").EndState());
+		Assert.AreSame(fluent, fluent.BeginState(id).EndState());
+		Assert.AreSame(fluent, fluent.BeginParallel().EndParallel());
+		Assert.AreSame(fluent, fluent.BeginParallel("child").EndParallel());
+		Assert.AreSame(fluent, fluent.BeginParallel(id).EndParallel());
+		Assert.AreSame(fluent, fluent.BeginHistory().EndHistory());
+		Assert.AreSame(fluent, fluent.BeginHistory("history").EndHistory());
+		Assert.AreSame(fluent, fluent.BeginHistory(id).EndHistory());
+		Assert.AreSame(fluent, fluent.BeginTransition().EndTransition());
+		Assert.AreSame(fluent, fluent.AddTransition(eventDescriptor, "target"));
+		Assert.AreSame(fluent, fluent.AddTransition(eventDescriptor, id));
+		Assert.AreSame(fluent, fluent.AddTransition([ExcludeFromCodeCoverage] static () => true, "target"));
+		Assert.AreSame(fluent, fluent.AddTransition([ExcludeFromCodeCoverage] static () => true, id));
+		Assert.AreSame(outer, fluent.EndParallel());
+		Assert.AreSame(builder.Object.Build(), captured);
+	}
+
+	[TestMethod]
+	public void TransitionBuilderCoversEventsConditionsTargetsTypeActionsAndEnd()
+	{
+		var builder = BuilderMock<ITransitionBuilder, ITransition>();
+		var outer = new object();
+		ITransition? captured = null;
+		var fluent = CreateTransitionBuilder(outer, value => captured = value, builder.Object);
+		var eventDescriptor = EventDescriptor.FromString("event");
+		var id = Identifier.FromString("id");
+
+		Assert.AreSame(fluent, fluent.SetEvent("event.one", "event.two"));
+		Assert.AreSame(fluent, fluent.SetEvent(eventDescriptor));
+		Assert.AreSame(fluent, fluent.SetEvent(ImmutableArray.Create<IEventDescriptor>(eventDescriptor)));
+		Assert.AreSame(fluent, fluent.SetCondition([ExcludeFromCodeCoverage] static () => true));
+		Assert.AreSame(fluent, fluent.SetCondition([ExcludeFromCodeCoverage] static () => new ValueTask<bool>(true)));
+		Assert.AreSame(fluent, fluent.SetTarget("one", "two"));
+		Assert.AreSame(fluent, fluent.SetTarget(id));
+		Assert.AreSame(fluent, fluent.SetTarget(ImmutableArray.Create("three")));
+		Assert.AreSame(fluent, fluent.SetTarget(ImmutableArray.Create<IIdentifier>(id)));
+		Assert.AreSame(fluent, fluent.SetType(TransitionType.Internal));
+		Assert.AreSame(fluent, fluent.AddOnTransition([ExcludeFromCodeCoverage] static () => { }));
+		Assert.AreSame(fluent, fluent.AddOnTransition([ExcludeFromCodeCoverage] static () => ValueTask.CompletedTask));
+		Assert.AreSame(outer, fluent.EndTransition());
+		Assert.AreSame(builder.Object.Build(), captured);
+	}
+
+	private static Mock<TBuilder> BuilderMock<TBuilder, TEntity>() where TBuilder : class where TEntity : class
+	{
+		var builder = new Mock<TBuilder>();
+		var entity = Mock.Of<TEntity>();
+
+		switch ((object) builder)
+		{
+			case Mock<IInitialBuilder> initial:
+				initial.Setup(static value => value.Build()).Returns((IInitial) (object) entity);
+				break;
+			case Mock<IStateBuilder> state:
+				state.Setup(static value => value.Build()).Returns((IState) (object) entity);
+				break;
+			case Mock<IParallelBuilder> parallel:
+				parallel.Setup(static value => value.Build()).Returns((IParallel) (object) entity);
+				break;
+			case Mock<IFinalBuilder> final:
+				final.Setup(static value => value.Build()).Returns((IFinal) (object) entity);
+				break;
+			case Mock<IHistoryBuilder> history:
+				history.Setup(static value => value.Build()).Returns((IHistory) (object) entity);
+				break;
+			case Mock<ITransitionBuilder> transition:
+				transition.Setup(static value => value.Build()).Returns((ITransition) (object) entity);
+				break;
+		}
+
+		return builder;
+	}
+
+	private static InitialFluentBuilder<TOuter> CreateInitialBuilder<TOuter>(TOuter outer, Action<IInitial> built, IInitialBuilder builder, ITransitionBuilder transitionBuilder)
+		where TOuter : notnull => new()
+		{
+			Builder = builder,
+			BuiltAction = built,
+			OuterBuilder = outer,
+			TransitionFluentBuilderFactory = (initial, transitionBuilt) => CreateTransitionBuilder(initial, transitionBuilt, transitionBuilder)
+		};
+
+	private static HistoryFluentBuilder<TOuter> CreateHistoryBuilder<TOuter>(TOuter outer, Action<IHistory> built, IHistoryBuilder builder, ITransitionBuilder transitionBuilder)
+		where TOuter : notnull => new()
+		{
+			Builder = builder,
+			BuiltAction = built,
+			OuterBuilder = outer,
+			TransitionFluentBuilderFactory = (history, transitionBuilt) => CreateTransitionBuilder(history, transitionBuilt, transitionBuilder)
+		};
+
+	private static StateFluentBuilder<TOuter> CreateNestedStateBuilder<TOuter>(TOuter outer, Action<IState> built, IStateBuilder builder) where TOuter : notnull =>
+		new()
+		{
+			Builder = builder,
+			BuiltAction = built,
+			OuterBuilder = outer,
+			InitialFluentBuilderFactory = null!,
+			StateFluentBuilderFactory = null!,
+			ParallelFluentBuilderFactory = null!,
+			FinalFluentBuilderFactory = null!,
+			HistoryFluentBuilderFactory = null!,
+			TransitionFluentBuilderFactory = null!
+		};
+
+	private static ParallelFluentBuilder<TOuter> CreateNestedParallelBuilder<TOuter>(TOuter outer, Action<IParallel> built, IParallelBuilder builder) where TOuter : notnull =>
+		new()
+		{
+			Builder = builder,
+			BuiltAction = built,
+			OuterBuilder = outer,
+			StateFluentBuilderFactory = null!,
+			ParallelFluentBuilderFactory = null!,
+			HistoryFluentBuilderFactory = null!,
+			TransitionFluentBuilderFactory = null!
+		};
+
 	private static StateFluentBuilder<StateMachineFluentBuilder.StateMachineFluentBuilder> CreateStateBuilder(
 		StateMachineFluentBuilder.StateMachineFluentBuilder outer, Action<IState> built, IStateBuilder builder) =>
 		new()
@@ -204,8 +412,8 @@ public class FluentBuilderCoverageTest
 			TransitionFluentBuilderFactory = null!
 		};
 
-	private static FinalFluentBuilder<StateMachineFluentBuilder.StateMachineFluentBuilder> CreateFinalBuilder(
-		StateMachineFluentBuilder.StateMachineFluentBuilder outer, Action<IFinal> built, IFinalBuilder builder) =>
+	private static FinalFluentBuilder<TOuter> CreateFinalBuilder<TOuter>(
+		TOuter outer, Action<IFinal> built, IFinalBuilder builder) where TOuter : notnull =>
 		new()
 		{
 			Builder = builder,

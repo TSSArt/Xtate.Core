@@ -16,6 +16,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Xml.XPath;
+using System.Reflection;
 using Xtate.DataModel.XPath.Internal;
 using Xtate.DataTypes;
 
@@ -85,6 +86,45 @@ public class XPathNodeAdapterCoverageTest
 		Assert.AreEqual("prefix", node.GetLocalName());
 		Assert.AreEqual("prefix", node.GetName());
 		Assert.AreEqual("urn:test", node.GetValue());
+		Assert.AreEqual("prefix", typeof(NamespaceNodeAdapter).GetMethod(nameof(NamespaceNodeAdapter.GetLocalName))!.Invoke(adapter, [node]));
+
+		try
+		{
+			var missingPropertyNode = new DataModelXPathNavigator.Node(new DataModelValue("urn:test"), adapter);
+			_ = typeof(NamespaceNodeAdapter).GetMethod(nameof(NamespaceNodeAdapter.GetLocalName))!.Invoke(adapter, [missingPropertyNode]);
+			Assert.Fail("A missing namespace parent property did not throw.");
+		}
+		catch (TargetInvocationException exception)
+		{
+			Assert.IsInstanceOfType<InvalidOperationException>(exception.InnerException);
+		}
+	}
+
+	[TestMethod]
+	public void AttributeNodeAdapterUsesParentPropertyMetadataAndStringValue()
+	{
+		var adapter = new AttributeNodeAdapter();
+		var metadata = new DataModelList { "local", "stored-value", "prefix", "urn:test" };
+		var node = new DataModelXPathNavigator.Node(new DataModelValue("attribute-value"), adapter, parentIndex: 0, parentProperty: "attribute", metadata: metadata);
+
+		Assert.AreEqual(XPathNodeType.Attribute, typeof(AttributeNodeAdapter).GetMethod(nameof(AttributeNodeAdapter.GetNodeType))!.Invoke(adapter, parameters: null));
+		Assert.AreEqual("attribute", typeof(AttributeNodeAdapter).GetMethod(nameof(AttributeNodeAdapter.GetLocalName))!.Invoke(adapter, [node]));
+		Assert.AreEqual("prefix:attribute", node.GetName());
+		Assert.AreEqual("prefix", node.GetPrefix());
+		Assert.AreEqual("urn:test", node.GetNamespaceUri());
+		Assert.AreEqual("attribute-value", node.GetValue());
+
+		var missingPropertyNode = new DataModelXPathNavigator.Node(new DataModelValue("value"), adapter);
+
+		try
+		{
+			_ = typeof(AttributeNodeAdapter).GetMethod(nameof(AttributeNodeAdapter.GetLocalName))!.Invoke(adapter, [missingPropertyNode]);
+			Assert.Fail("A missing parent property did not throw.");
+		}
+		catch (TargetInvocationException exception)
+		{
+			Assert.IsInstanceOfType<InvalidOperationException>(exception.InnerException);
+		}
 	}
 
 	[TestMethod]
@@ -136,6 +176,15 @@ public class XPathNodeAdapterCoverageTest
 		{
 			Assert.IsTrue(items.TryGet(index, out var entry));
 			Assert.AreEqual(expectedTypes[index], AdapterFactory.GetItemAdapter(entry).GetType());
+		}
+
+		try
+		{
+			_ = AdapterFactory.GetSimpleTypeAdapter(new DataModelValue(new DataModelList()));
+			Assert.Fail("A list cannot use a simple-type adapter.");
+		}
+		catch (NotSupportedException)
+		{
 		}
 	}
 
@@ -189,6 +238,23 @@ public class XPathNodeAdapterCoverageTest
 		var empty = new DataModelXPathNavigator.Node(new DataModelValue([]), new ListNodeAdapter());
 		Assert.IsTrue(empty.IsEmptyElement());
 		Assert.IsFalse(empty.GetFirstChild(out _));
+	}
+
+	[TestMethod]
+	public void ListItemAdapterNavigatesNestedChildrenBackwardToStart()
+	{
+		var nested = new DataModelList { ["one"] = "first", ["two"] = "second" };
+		var outer = new DataModelList { ["nested"] = nested };
+		var parent = new DataModelXPathNavigator.Node(new DataModelValue(outer), new ListNodeAdapter());
+		Assert.IsTrue(parent.GetFirstChild(out var nestedNode));
+		Assert.IsInstanceOfType<ListItemNodeAdapter>(nestedNode.Adapter);
+		Assert.IsTrue(nestedNode.GetFirstChild(out var child));
+		Assert.IsTrue(nestedNode.GetNextChild(ref child));
+		Assert.AreEqual("two", child.GetLocalName());
+
+		Assert.IsTrue(nestedNode.GetPreviousChild(ref child));
+		Assert.AreEqual("one", child.GetLocalName());
+		Assert.IsFalse(nestedNode.GetPreviousChild(ref child));
 	}
 
 	[TestMethod]

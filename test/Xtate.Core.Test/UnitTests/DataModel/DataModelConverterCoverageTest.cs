@@ -170,13 +170,13 @@ public class DataModelConverterCoverageTest
 		[
 			DataModelValue.Undefined,
 			DataModelValue.Null,
-			new DataModelValue("text"),
-			new DataModelValue(42),
-			new DataModelValue(4_000_000_000L),
-			new DataModelValue(1.25d),
-			new DataModelValue(true),
-			new DataModelValue(new DateTime(2026, 1, 2, 3, 4, 5, DateTimeKind.Utc)),
-			new DataModelValue(new DateTimeOffset(2026, 1, 2, 3, 4, 5, TimeSpan.FromHours(2)))
+			new("text"),
+			new(42),
+			new(4_000_000_000L),
+			new(1.25d),
+			new(true),
+			new(new DateTime(2026, 1, 2, 3, 4, 5, DateTimeKind.Utc)),
+			new(new DateTimeOffset(2026, 1, 2, 3, 4, 5, TimeSpan.FromHours(2)))
 		];
 
 		foreach (var value in values)

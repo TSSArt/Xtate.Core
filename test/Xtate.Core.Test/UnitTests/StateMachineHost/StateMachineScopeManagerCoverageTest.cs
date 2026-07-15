@@ -187,6 +187,7 @@ public class StateMachineScopeManagerCoverageTest
 			   };
 	}
 
+	[ExcludeFromCodeCoverage]
 	private sealed class CapturingTaskMonitor : ITaskMonitor
 	{
 		public List<Task> ForgottenTasks { get; } = [];

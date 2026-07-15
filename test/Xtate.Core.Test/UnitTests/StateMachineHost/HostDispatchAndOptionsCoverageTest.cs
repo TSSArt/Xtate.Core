@@ -216,6 +216,7 @@ public class HostDispatchAndOptionsCoverageTest
 
 	public sealed class TestSource;
 
+	[ExcludeFromCodeCoverage]
 	private sealed class OtherServiceId(string id) : ServiceId(id)
 	{
 		public override string ServiceType => "other";

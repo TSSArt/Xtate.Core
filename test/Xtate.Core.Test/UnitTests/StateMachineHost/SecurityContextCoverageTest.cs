@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using System.Reflection;
 using Xtate.StateMachineHost;
 using Xtate.StateMachineHost.Exceptions;
 using Xtate.StateMachineHost.Services;
@@ -61,11 +62,14 @@ public class SecurityContextCoverageTest
 	public void NoAccessContextReportsAndEnforcesMissingPermissions()
 	{
 		var context = SecurityContext.NoAccess;
+		var created = SecurityContext.Create(SecurityContextType.InvokedService, SecurityContextPermissions.RunIoBoundTask);
 
 		Assert.AreEqual(SecurityContextType.NoAccess, context.Type);
 		Assert.AreEqual(SecurityContextPermissions.None, context.Permissions);
 		Assert.IsTrue(context.HasPermissions(SecurityContextPermissions.None));
 		Assert.IsFalse(context.HasPermissions(SecurityContextPermissions.RunIoBoundTask));
+		Assert.AreEqual(SecurityContextType.InvokedService, created.Type);
+		Assert.AreEqual(SecurityContextPermissions.RunIoBoundTask, created.Permissions);
 		Assert.ThrowsExactly<StateMachineSecurityException>(
 			[ExcludeFromCodeCoverage] () => context.CheckPermissions(SecurityContextPermissions.RunIoBoundTask));
 	}
@@ -89,5 +93,29 @@ public class SecurityContextCoverageTest
 		Assert.IsTrue(
 			captured is StateMachineSecurityException || captured.InnerException is StateMachineSecurityException,
 			$"Expected a security exception directly or as the inner exception, but received {captured.GetType().FullName}.");
+	}
+
+	[TestMethod]
+	public void NoAccessTaskSchedulerRejectsInspectionQueueingAndInlineExecution()
+	{
+		var scheduler = SecurityContext.NoAccess.Factory.Scheduler!;
+		var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+
+		AssertSchedulerCallThrows(scheduler.GetType().GetMethod("GetScheduledTasks", flags)!, scheduler, parameters: null);
+		AssertSchedulerCallThrows(scheduler.GetType().GetMethod("QueueTask", flags)!, scheduler, [Task.CompletedTask]);
+		AssertSchedulerCallThrows(scheduler.GetType().GetMethod("TryExecuteTaskInline", flags)!, scheduler, [Task.CompletedTask, false]);
+	}
+
+	private static void AssertSchedulerCallThrows(MethodInfo method, TaskScheduler scheduler, object?[]? parameters)
+	{
+		try
+		{
+			_ = method.Invoke(scheduler, parameters);
+			Assert.Fail($"{method.Name} did not deny access.");
+		}
+		catch (TargetInvocationException exception)
+		{
+			Assert.AreEqual(typeof(StateMachineSecurityException), exception.InnerException?.GetType());
+		}
 	}
 }

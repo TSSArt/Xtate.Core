@@ -72,6 +72,7 @@ public class SpecificExceptionCoverageTest
 	[TestMethod]
 	public void StateMachineDestroyedExceptionConstructorsPreserveMessageInnerExceptionOwnerAndReason()
 	{
+		var defaultException = (StateMachineDestroyedException) Activator.CreateInstance(typeof(StateMachineDestroyedException), nonPublic: true)!;
 		var owner = new object();
 		var messageException = new StateMachineDestroyedException("destroyed")
 							   {
@@ -86,6 +87,7 @@ public class SpecificExceptionCoverageTest
 									   };
 
 		Assert.IsInstanceOfType(messageException, typeof(OwnedXtateException));
+		Assert.IsNotNull(defaultException.Message);
 		Assert.IsTrue(messageException.IsOwnedBy(owner));
 		Assert.AreEqual(expected: "destroyed", messageException.Message);
 		Assert.AreEqual(DestroyReason.QueueClosed, messageException.Reason);

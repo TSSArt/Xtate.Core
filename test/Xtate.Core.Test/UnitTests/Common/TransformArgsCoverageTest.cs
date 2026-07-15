@@ -20,6 +20,7 @@ using Xtate.IoC.DependencyInjection;
 using Xtate.IoC.TransformArgs.DependencyInjection;
 using Xtate.IoC.TransformArgs.Internal;
 using Xtate.IoC.TransformArgs.Services;
+using System.Reflection;
 
 namespace Xtate.Test.UnitTests.Common;
 
@@ -145,6 +146,46 @@ public class TransformArgsCoverageTest
 
 		Assert.IsGreaterThan(0, services.Count());
 	}
+
+	[TestMethod]
+	public async Task SelectorTransformsMapEverySupportedArgumentShape()
+	{
+		var services = new ServiceCollection();
+		var sync = services.ForServiceSync<Result, int>();
+		var asyncSelector = services.ForService<Result, int>();
+
+		Assert.AreEqual(7, Invoke(sync.UseArgValue(7), newArg: null));
+		Assert.AreEqual(8, Invoke(sync.UseArgFactory(static () => 8), newArg: null));
+		Assert.AreEqual(3, Invoke(sync.TransformArgs<string>(static value => value.Length), "abc"));
+		Assert.AreEqual(3, Invoke(sync.TransformArgs<string, bool>(static (value, flag) => flag ? value.Length : 0), ("abc", true)));
+		Assert.AreEqual(5, Invoke(sync.TransformArgs<string, bool, int>(static (value, flag, add) => flag ? value.Length + add : 0), ("abc", true, 2)));
+		Assert.AreEqual(10, Invoke(sync.TransformArgs<string, bool, int, int>(static (value, flag, add, multiply) => flag ? (value.Length + add) * multiply : 0), ("abc", true, 2, 2)));
+
+		Assert.AreEqual(9, await InvokeAsync(asyncSelector.UseArgValue(9), newArg: null));
+		Assert.AreEqual(10, await InvokeAsync(asyncSelector.UseArgFactory(static () => 10), newArg: null));
+		Assert.AreEqual(11, await InvokeAsync(asyncSelector.UseArgFactory(static () => new ValueTask<int>(11)), newArg: null));
+		Assert.AreEqual(3, await InvokeAsync(asyncSelector.TransformArgs<string>(static value => value.Length), "abc"));
+		Assert.AreEqual(4, await InvokeAsync(asyncSelector.TransformArgs<string>(static value => new ValueTask<int>(value.Length)), "four"));
+		Assert.AreEqual(3, await InvokeAsync(asyncSelector.TransformArgs<string, bool>(static (value, flag) => flag ? value.Length : 0), ("abc", true)));
+		Assert.AreEqual(4, await InvokeAsync(asyncSelector.TransformArgs<string, bool>(static (value, flag) => new ValueTask<int>(flag ? value.Length : 0)), ("four", true)));
+		Assert.AreEqual(5, await InvokeAsync(asyncSelector.TransformArgs<string, bool, int>(static (value, flag, add) => flag ? value.Length + add : 0), ("abc", true, 2)));
+		Assert.AreEqual(6, await InvokeAsync(asyncSelector.TransformArgs<string, bool, int>(static (value, flag, add) => new ValueTask<int>(flag ? value.Length + add : 0)), ("four", true, 2)));
+		Assert.AreEqual(10, await InvokeAsync(asyncSelector.TransformArgs<string, bool, int, int>(static (value, flag, add, multiply) => flag ? (value.Length + add) * multiply : 0), ("abc", true, 2, 2)));
+		Assert.AreEqual(12, await InvokeAsync(asyncSelector.TransformArgs<string, bool, int, int>(static (value, flag, add, multiply) => new ValueTask<int>(flag ? (value.Length + add) * multiply : 0)), ("four", true, 2, 2)));
+	}
+
+	private static TArg Invoke<T, TArg, TNewArg>(TransformArgs<T, TArg, TNewArg> transformArgs, object? newArg) where T : notnull =>
+		(TArg) GetTransform(transformArgs).DynamicInvoke(newArg)!;
+
+	private static async ValueTask<TArg> InvokeAsync<T, TArg, TNewArg>(TransformArgs<T, TArg, TNewArg> transformArgs, object? newArg) where T : notnull
+	{
+		var value = GetTransform(transformArgs).DynamicInvoke(newArg);
+
+		return value is ValueTask<TArg> valueTask ? await valueTask : (TArg) value!;
+	}
+
+	private static Delegate GetTransform<T, TArg, TNewArg>(TransformArgs<T, TArg, TNewArg> transformArgs) where T : notnull =>
+		(Delegate) typeof(TransformArgs<T, TArg, TNewArg>).GetField("_transform", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(transformArgs)!;
 
 	private sealed record Result(int Value);
 

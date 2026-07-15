@@ -15,6 +15,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using System.Collections;
+using System.Reflection;
+
 namespace Xtate.Test.UnitTests.Common;
 
 [TestClass]
@@ -87,6 +90,53 @@ public class ExtCollectionCoverageTest
 	}
 
 	[TestMethod]
+	public void ExtDictionaryReflectionCoversPropertyIndexerAndEnumerationEntryPoints()
+	{
+		var emptyDictionary = new ExtDictionary<string, int>();
+		var emptyType = emptyDictionary.GetType();
+
+		Assert.AreEqual(expected: 0, emptyType.GetProperty(nameof(emptyDictionary.Count))!.GetValue(emptyDictionary));
+		Assert.AreEqual(expected: 0, ((ICollection<string>) emptyType.GetProperty(nameof(emptyDictionary.Keys))!.GetValue(emptyDictionary)!).Count);
+		Assert.AreEqual(expected: 0, ((ICollection<int>) emptyType.GetProperty(nameof(emptyDictionary.Values))!.GetValue(emptyDictionary)!).Count);
+		Assert.IsFalse(((IEnumerator<KeyValuePair<string, int>>) emptyType.GetMethod(nameof(emptyDictionary.GetEnumerator))!.Invoke(emptyDictionary, parameters: null)!).MoveNext());
+
+		AssertIndexerThrows<KeyNotFoundException>(emptyType, emptyDictionary, "missing");
+		AssertIndexerThrows<KeyNotFoundException>(emptyType, emptyDictionary, null);
+
+		var dictionary = new ExtDictionary<string, int> { ["one"] = 1 };
+		var type = dictionary.GetType();
+
+		Assert.AreEqual(expected: 1, type.GetProperty(nameof(dictionary.Count))!.GetValue(dictionary));
+		Assert.AreEqual(expected: 1, ((ICollection<string>) type.GetProperty(nameof(dictionary.Keys))!.GetValue(dictionary)!).Count);
+		Assert.AreEqual(expected: 1, ((ICollection<int>) type.GetProperty(nameof(dictionary.Values))!.GetValue(dictionary)!).Count);
+		Assert.AreEqual(expected: 1, type.GetProperty("Item")!.GetValue(dictionary, ["one"]));
+
+		var genericEnumerator = (IEnumerator<KeyValuePair<string, int>>) type.GetMethod(nameof(dictionary.GetEnumerator))!.Invoke(dictionary, parameters: null)!;
+		Assert.IsTrue(genericEnumerator.MoveNext());
+		Assert.AreEqual("one", genericEnumerator.Current.Key);
+
+		var interfaceMap = type.GetInterfaceMap(typeof(IEnumerable));
+		var nonGenericEnumerator = (IEnumerator) interfaceMap.TargetMethods.Single().Invoke(dictionary, parameters: null)!;
+		Assert.IsTrue(nonGenericEnumerator.MoveNext());
+		Assert.AreEqual("one", ((KeyValuePair<string, int>) nonGenericEnumerator.Current).Key);
+
+		AssertIndexerThrows<KeyNotFoundException>(type, dictionary, "missing");
+	}
+
+	private static void AssertIndexerThrows<TException>(Type type, object dictionary, object? key) where TException : Exception
+	{
+		try
+		{
+			_ = type.GetProperty("Item")!.GetValue(dictionary, [key]);
+			Assert.Fail("A missing key did not throw.");
+		}
+		catch (TargetInvocationException exception)
+		{
+			Assert.AreEqual(typeof(TException), exception.InnerException?.GetType());
+		}
+	}
+
+	[TestMethod]
 	public void ExtCollectionSupportsGroupedValuesRemoveTakeAndEnumeration()
 	{
 		var collection = new ExtCollection<string, string>(StringComparer.OrdinalIgnoreCase, StringComparer.OrdinalIgnoreCase);
@@ -97,6 +147,10 @@ public class ExtCollectionCoverageTest
 
 		Assert.AreEqual(expected: 3, collection.Count);
 		CollectionAssert.AreEquivalent(new[] { "group=one", "group=two", "other=three" }, collection.Select(pair => $"{pair.Item1}={pair.Item2}").ToArray());
+		var interfaceMap = collection.GetType().GetInterfaceMap(typeof(IEnumerable));
+		var nonGenericEnumerator = (IEnumerator) interfaceMap.TargetMethods.Single().Invoke(collection, parameters: null)!;
+		Assert.IsTrue(nonGenericEnumerator.MoveNext());
+		Assert.IsInstanceOfType<ValueTuple<string, string>>(nonGenericEnumerator.Current);
 
 		Assert.IsTrue(collection.Remove(value1: "group", value2: "TWO"));
 		Assert.AreEqual(expected: 2, collection.Count);

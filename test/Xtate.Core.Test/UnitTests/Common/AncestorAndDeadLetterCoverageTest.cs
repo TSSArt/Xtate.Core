@@ -61,6 +61,16 @@ public class AncestorAndDeadLetterCoverageTest
 		var missing = new Ancestor<string>("text");
 		Assert.IsFalse(missing.Is<IDisposable>(out var missingResult));
 		Assert.IsNull(missingResult);
+		Assert.IsTrue(IsAncestor<object>(value));
+		Assert.IsFalse(IsAncestor<IDisposable>("text"));
+	}
+
+	[MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+	private static bool IsAncestor<T>(object value)
+	{
+		var ancestor = new Ancestor<object>(value);
+
+		return ancestor.Is<T>();
 	}
 
 	[TestMethod]
@@ -74,6 +84,12 @@ public class AncestorAndDeadLetterCoverageTest
 		await queue.Enqueue(SessionId.FromString("recipient"), incomingEvent);
 
 		logger.Verify(static l => l.IsEnabled(Level.Warning), Times.Once);
+
+		var enabledLogger = new Mock<ILogger<IDeadLetterQueue<TestSource>>>();
+		enabledLogger.Setup(static l => l.IsEnabled(Level.Warning)).Returns(true);
+		var enabledQueue = new DeadLetterQueue<TestSource> { Logger = enabledLogger.Object };
+		await enabledQueue.Enqueue(InvokeId.FromString("invoke"), incomingEvent);
+		Assert.AreEqual(expected: 1, enabledLogger.Invocations.Count(static invocation => invocation.Method.Name == nameof(ILogger<IDeadLetterQueue<TestSource>>.Write)));
 	}
 
 	public sealed class TestSource;

@@ -339,6 +339,15 @@ public class IoProcessorAndHostCoverageTest
 		var router = (IEventRouter) processor;
 		Assert.AreEqual(controller.ToSessionTarget(sessionId), ((IIoProcessor) processor).Target);
 		Assert.IsTrue(router.CanHandle(new FullUri("net.pipe")));
+		var invokeId = InvokeId.FromString("source-invoke");
+		var invokedProcessor = new NamedPipeIoProcessor
+						   {
+							   NamedPipeController = controller,
+							   InternalEventDispatcher = internalDispatcher.Object,
+							   InvokeIdBase = Mock.Of<IExternalServiceInvokeId>(source => source.InvokeId == invokeId),
+							   SessionIdBase = Mock.Of<IStateMachineSessionId>(source => source.SessionId == sessionId)
+						   };
+		Assert.AreEqual(controller.ToInvokeTarget(invokeId), ((IIoProcessor) invokedProcessor).Target);
 
 		var localEvent = CreateRouterEvent(controller.ToInvokeTarget(InvokeId.FromString("target")), sessionId);
 		await router.Dispatch(localEvent, CancellationToken.None);

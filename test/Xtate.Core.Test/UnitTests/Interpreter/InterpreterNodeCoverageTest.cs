@@ -158,6 +158,7 @@ public class InterpreterNodeCoverageTest
 		Assert.AreSame(invokeSource.Parameters.Single(), node.Parameters.Single());
 		Assert.AreSame(invokeSource.Content, node.Content);
 		Assert.IsNull(node.Finalize);
+		Assert.IsNull(typeof(IInvoke).GetProperty(nameof(IInvoke.Finalize))!.GetValue(node));
 		Assert.AreSame(invokeId, idLocation.LastSetValue);
 		Assert.AreSame(invokeId, data.InvokeId);
 		Assert.AreEqual(new FullUri("urn:dynamic-type"), data.Type);
@@ -356,13 +357,15 @@ public class InterpreterNodeCoverageTest
 
 		public string? Expression => value;
 
-	#endregion
+		#endregion
 
+		[ExcludeFromCodeCoverage]
 		public ValueTask<DataModelValue> Evaluate() => new(value);
 	}
 
 	private sealed class StringExpressionSource(string value) : IValueExpression, IStringEvaluator
 	{
+		[ExcludeFromCodeCoverage]
 		public string? Expression => value;
 
 		public ValueTask<string> EvaluateString() => new(value);
@@ -384,10 +387,11 @@ public class InterpreterNodeCoverageTest
 
 		public ValueTask<string> GetName() => new(value);
 
-	#endregion
+		#endregion
 
-	#region Interface ILocationExpression
+		#region Interface ILocationExpression
 
+		[ExcludeFromCodeCoverage]
 		public string? Expression => value;
 
 	#endregion
@@ -405,8 +409,9 @@ public class InterpreterNodeCoverageTest
 
 		public ValueTask<IObject> EvaluateObject() => new(new DataModelValue(value));
 
-	#endregion
+		#endregion
 
+		[ExcludeFromCodeCoverage]
 		public ValueTask<DataModelValue> Evaluate() => new(value);
 	}
 
@@ -422,8 +427,9 @@ public class InterpreterNodeCoverageTest
 
 		public ValueTask<IObject> EvaluateObject() => new(new DataModelValue(value));
 
-	#endregion
+		#endregion
 
+		[ExcludeFromCodeCoverage]
 		public ValueTask<DataModelValue> Evaluate() => new(value);
 	}
 
@@ -438,6 +444,7 @@ public class InterpreterNodeCoverageTest
 
 	private sealed class ExecutableEntitySource : ExecutableSourceBase, IExecutableEntity;
 
+	[ExcludeFromCodeCoverage]
 	private sealed class OutgoingEventSource : IOutgoingEvent
 	{
 	#region Interface IOutgoingEvent

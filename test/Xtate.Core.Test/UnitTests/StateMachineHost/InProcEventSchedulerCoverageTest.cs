@@ -151,6 +151,7 @@ public class InProcEventSchedulerCoverageTest
 		return routerEvent.Object;
 	}
 
+	[ExcludeFromCodeCoverage]
 	private sealed class CapturingTaskMonitor : ITaskMonitor
 	{
 		public List<Task> Tasks { get; } = [];
