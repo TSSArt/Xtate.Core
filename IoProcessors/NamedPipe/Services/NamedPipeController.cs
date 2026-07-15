@@ -270,7 +270,7 @@ public class NamedPipeController(IOptions<NamedPipeIoProcessorOptions> options)
 
 	private async ValueTask SendMessage<T>(T message, PipeStream pipeStream, CancellationToken token) where T : IStoreSupport
 	{
-		using var inMemoryStorage = new InMemoryStorage();
+		using var inMemoryStorage = new InMemoryStorage(writeOnly: false);
 		var bucket = new Bucket(inMemoryStorage);
 		message.Store(bucket);
 

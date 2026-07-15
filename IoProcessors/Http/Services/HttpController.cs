@@ -189,13 +189,13 @@ public class HttpController
 	private static HttpContent? GetContent(IRouterEvent routerEvent, out bool eventNameInContent)
 	{
 		var data = routerEvent.Data;
-		eventNameInContent = !routerEvent.Name.IsDefault;
+		eventNameInContent = false;
 
 		switch (data.Type)
 		{
 			case DataModelValueType.Undefined:
 			case DataModelValueType.Null:
-				return eventNameInContent ? new FormUrlEncodedContent(GetParameters(routerEvent.Name, dataModelList: null)) : null;
+				return null;
 
 			case DataModelValueType.String:
 				return new StringContent(data.AsString(), Encoding.UTF8, MediaTypeNames.Text.Plain);

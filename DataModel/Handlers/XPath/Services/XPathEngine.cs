@@ -94,9 +94,36 @@ public class XPathEngine(IDataModelController? dataModelController)
 			return;
 		}
 
+		DataModelXPathNavigator? firstNavigator = null;
+		List<DataModelXPathNavigator>? otherNavigators = null;
+
 		foreach (DataModelXPathNavigator navigator in iterator)
 		{
-			Assign(navigator, assignType, attributeName, rightValue);
+			if (firstNavigator is null)
+			{
+				firstNavigator = navigator;
+			}
+			else if(otherNavigators is null)
+			{
+				otherNavigators = [navigator];
+			}
+			else
+			{
+				otherNavigators.Add(navigator);
+			}
+		}
+
+		if (firstNavigator is not null)
+		{
+			Assign(firstNavigator, assignType, attributeName, rightValue);
+		}
+
+		if (otherNavigators is not null)
+		{
+			foreach (var navigator in otherNavigators)
+			{
+				Assign(navigator, assignType, attributeName, rightValue);
+			}
 		}
 	}
 

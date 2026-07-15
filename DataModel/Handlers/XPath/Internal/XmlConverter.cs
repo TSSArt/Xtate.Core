@@ -45,7 +45,7 @@ public static class XmlConverter
 
 	private const string UndefinedTypeValue = @"undefined";
 
-	private static readonly XmlReaderSettings DefaultReaderSettings = new() { ConformanceLevel = ConformanceLevel.Auto };
+	private static readonly XmlReaderSettings DefaultReaderSettings = new() { ConformanceLevel = ConformanceLevel.Auto, Async = true};
 
 	public static string ToXml(in DataModelValue value, bool indent)
 	{
