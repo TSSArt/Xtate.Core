@@ -113,4 +113,24 @@ public class ExtCollectionCoverageTest
 		Assert.AreEqual(expected: 0, collection.Count);
 		Assert.IsFalse(collection.TryTake(out _, out _));
 	}
+
+	[TestMethod]
+	public void ExtCollectionTakesGroupedValuesAndRemovesFromLargerGroup()
+	{
+		var collection = new ExtCollection<int, string>();
+
+		collection.Add(value1: 1, value2: "one");
+		collection.Add(value1: 1, value2: "two");
+		collection.Add(value1: 1, value2: "three");
+
+		Assert.IsTrue(collection.Remove(value1: 1, value2: "two"));
+		Assert.AreEqual(expected: 2, collection.Count);
+		Assert.IsTrue(collection.TryTake(out var firstKey, out var firstValue));
+		Assert.AreEqual(expected: 1, firstKey);
+		Assert.AreEqual(expected: "one", firstValue);
+		Assert.IsTrue(collection.TryTake(out var secondKey, out var secondValue));
+		Assert.AreEqual(expected: 1, secondKey);
+		Assert.AreEqual(expected: "three", secondValue);
+		Assert.IsFalse(collection.TryTake(out _, out _));
+	}
 }

@@ -473,6 +473,7 @@ public class StorageTest
 		var storage = new InMemoryStorage(false);
 		var bucket = new Bucket(storage);
 
+		// ReSharper disable once StringLiteralTypo
 		const string s = "aeiouçéüß";
 		bucket.Add(s, s);
 		var flag = bucket.TryGet(s, out string? value);

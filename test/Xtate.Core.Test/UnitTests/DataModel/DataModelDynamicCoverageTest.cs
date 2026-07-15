@@ -124,4 +124,46 @@ public class DataModelDynamicCoverageTest
 		Assert.AreEqual(expected: 123, convertedInt);
 		Assert.AreEqual(new DateTime(year: 2026, month: 7, day: 11, hour: 12, minute: 0, second: 0, DateTimeKind.Utc), convertedDate);
 	}
+
+	[TestMethod]
+	public void DynamicListConvertsNumericIndexesAndSupportsAllMetadataOverloads()
+	{
+		var list = new DataModelList { "zero", "one" };
+		dynamic dyn = list;
+		var rootMetadata = new DataModelList { ["scope"] = "root" };
+		var indexMetadata = new DataModelList { ["scope"] = "index" };
+		var keyMetadata = new DataModelList { ["scope"] = "key" };
+
+		dyn.SetLength((short) 3);
+		dyn[(short) 2] = "two";
+		dyn.SetMetadata((short) 1, indexMetadata);
+		dyn.SetMetadata("named", keyMetadata);
+		list.SetMetadata(rootMetadata);
+
+		object convertedIndex = dyn[(short) 2];
+		object length = dyn.GetLength();
+		object metadataByConvertedIndex = dyn.GetMetadata((short) 1);
+		object metadataByIntIndex = dyn.GetMetadata(1);
+		object metadataByKey = dyn.GetMetadata("named");
+		object allMetadata = dyn.GetMetadata();
+
+		Assert.AreEqual("two", convertedIndex);
+		Assert.AreEqual(expected: 4, length);
+		Assert.AreSame(indexMetadata, metadataByConvertedIndex);
+		Assert.AreSame(indexMetadata, metadataByIntIndex);
+		Assert.AreSame(keyMetadata, metadataByKey);
+		Assert.AreSame(rootMetadata, allMetadata);
+		Assert.AreEqual("one", list[1].AsString());
+		Assert.IsTrue(list.ContainsKey("named"));
+	}
+
+	[TestMethod]
+	public void DynamicListReportsWrongIndexCountAndUnknownMethod()
+	{
+		dynamic dyn = new DataModelList { 1, 2 };
+
+		Assert.ThrowsExactly<ArgumentException>([ExcludeFromCodeCoverage]() => _ = dyn[0, 1]);
+		Assert.ThrowsExactly<ArgumentException>([ExcludeFromCodeCoverage]() => dyn[0, 1] = 3);
+		Assert.ThrowsExactly<MissingMethodException>([ExcludeFromCodeCoverage]() => dyn.UnknownMethod());
+	}
 }

@@ -9,8 +9,8 @@ Use this file to track unit-test coverage progress. Mark a class as covered only
 
 - Baseline classes requiring coverage: 461
 - Covered: 0
-- In progress / tests added, coverage not yet verified: 204
-- Not started: 257
+- In progress / tests added, coverage not yet verified: 427
+- Not started: 34
 - Remaining not fully verified: 461
 
 ## Legend
@@ -24,13 +24,13 @@ Use this file to track unit-test coverage progress. Mark a class as covered only
 | Status | Class | Line % | Block % | Uncovered lines | Partial lines | Uncovered blocks | Functions | Notes |
 |---|---|---:|---:|---:|---:|---:|---:|---|
 | [~] | `Xtate.Scxml.Services.ScxmlSerializerWriter` | 3.81 | 4.03 | 391 | 1 | 500 | 38 | `ScxmlSerializerWriterTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.ExternalServices.HttpClient.Services.HttpClientService` | 0 | 0 | 209 | 0 | 411 | 15 |  |
-| [ ] | `Xtate.IoProcessors.Http.Services.HttpController` | 0 | 0 | 196 | 0 | 352 | 13 |  |
+| [~] | `Xtate.ExternalServices.HttpClient.Services.HttpClientService` | 0 | 0 | 209 | 0 | 411 | 15 | `HttpClientServiceCoverageTest` covers handler preparation/selection/parsing, object and array headers, cookies, custom/default request bodies, successful/protocol-error/no-response results, response projection, and empty collections. An ignored regression documents that the default GET method unconditionally writes a prohibited request body; rerun coverage to verify. |
+| [~] | `Xtate.IoProcessors.Http.Services.HttpController` | 0 | 0 | 196 | 0 | 352 | 13 | `IoProcessorAndHostCoverageTest` covers target construction/matching and mismatch branches, local/remote routing, empty/string/form/scalar/list payloads, routing headers, limits, and HTTP failures. Ignored regressions document lost string-payload event names and size-limit exception mismatch; rerun coverage to verify. |
 | [~] | `Xtate.DataTypes.DataModelValue` | 59.27 | 51.29 | 182 | 36 | 395 | 98 | `DataModelDynamicCoverageTest` added for dynamic scalar/list conversion paths; rerun coverage to verify. |
 | [~] | `Xtate.DataTypes.DataModelList` | 75.48 | 70.54 | 182 | 21 | 251 | 110 | `DataModelListCoverageTest` added; rerun coverage to verify. Includes ignored clone/case-insensitive preservation probe for current product gap. |
-| [ ] | `Xtate.DataModel.XPath.Internal.DataModelXPathNavigator` | 49.41 | 54.6 | 167 | 8 | 217 | 49 |  |
-| [ ] | `Xtate.IoProcessors.NamedPipe.Services.NamedPipeController` | 0 | 0 | 161 | 0 | 339 | 16 |  |
-| [ ] | `Xtate.DataModel.XPath.Internal.XmlConverter` | 42.93 | 31.73 | 158 | 31 | 327 | 29 |  |
+| [~] | `Xtate.DataModel.XPath.Internal.DataModelXPathNavigator` | 49.41 | 54.6 | 167 | 8 | 217 | 49 | Existing `DataModelXPathNavigatorTest` and `XPathNodeAdapterCoverageTest` provide 22 passing navigation/evaluation/mutation/attribute/namespace tests; `DataModelConverterCoverageTest` adds serialization traversal. Rerun coverage to verify. |
+| [~] | `Xtate.IoProcessors.NamedPipe.Services.NamedPipeController` | 0 | 0 | 161 | 0 | 339 | 16 | `IoProcessorAndHostCoverageTest` covers enablement, session/invoke targets, local/remote parsing, invalid scheme/path/fragment branches, and the send/receive regression. Ignored regression documents write-transaction serialization failure; rerun coverage to verify. |
+| [~] | `Xtate.DataModel.XPath.Internal.XmlConverter` | 42.93 | 31.73 | 158 | 31 | 327 | 29 | `DataModelConverterCoverageTest` covers sync/async writing, string/byte/stream parsing, typed scalars, metadata, empty elements, key/name/namespace/prefix mapping, string/buffer/span helpers, and type values. Ignored regressions document async reader configuration; rerun coverage to verify. |
 | [ ] | `Xtate.Interpreter.Services.StateMachineInterpreter` | 80.59 | 81.66 | 152 | 24 | 302 | 73 |  |
 | [ ] | `Xtate.StateMachine.Validator.Services.StateMachineValidator` | 53.21 | 65.33 | 130 | 2 | 173 | 25 |  |
 | [ ] | `Xtate.Scxml.Services.XIncludeReader` | 50.41 | 50.12 | 116 | 8 | 216 | 22 |  |
@@ -40,128 +40,128 @@ Use this file to track unit-test coverage progress. Mark a class as covered only
 | [~] | `Xtate.ExtDictionary<TKey, TValue>` | 37.41 | 31.96 | 88 | 3 | 132 | 24 | `ExtCollectionCoverageTest` added; rerun coverage to verify. |
 | [~] | `Xtate.ResourceLoaders.Internal.DelegatedStream` | 12.5 | 14.97 | 84 | 0 | 142 | 44 | `DelegatedStreamCoverageTest` added; rerun coverage to verify. |
 | [~] | `Xtate.ExtCollection<TValue1, TValue2>` | 9.34 | 11.54 | 82 | 1 | 92 | 9 | `ExtCollectionCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.TaskMonitor.Services.TaskMonitor` | 33.33 | 35.71 | 72 | 8 | 117 | 14 |  |
-| [ ] | `Xtate.StateMachineHost.Services.InProcEventScheduler` | 18.24 | 16.78 | 69 | 1 | 119 | 13 |  |
+| [~] | `Xtate.TaskMonitor.Services.TaskMonitor` | 33.33 | 35.71 | 72 | 8 | 117 | 14 | `TaskMonitorCoverageTest` covers all Task/ValueTask generic/non-generic wait shapes, immediate/pre-cancelled/active-cancel paths, detached completion monitoring, Forget success/failure/cancellation, and callback routing; rerun coverage to verify. |
+| [~] | `Xtate.StateMachineHost.Services.InProcEventScheduler` | 18.24 | 16.78 | 69 | 1 | 119 | 13 | `InProcEventSchedulerCoverageTest` covers matching-router dispatch, missing origin/type failures, enabled/disabled error logging, grouped and unknown cancellation, empty send IDs, automatic removal, and sync/async disposal; rerun coverage to verify. |
 | [~] | `Xtate.IoProcessors.Http.Internal.QueryStringHelper` | 0 | 0 | 67 | 0 | 72 | 3 | `QueryStringHelperTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.StateMachineHost.Services.ExternalServiceScopeManager` | 19.14 | 16.15 | 65 | 1 | 109 | 11 |  |
-| [ ] | `Xtate.ExternalServices.HttpClient.Internal.HttpClientMimeTypeHandler` | 0 | 0 | 65 | 0 | 86 | 6 |  |
+| [~] | `Xtate.StateMachineHost.Services.ExternalServiceScopeManager` | 19.14 | 16.15 | 65 | 1 | 109 | 11 | `ExternalServiceScopeManagerCoverageTest` covers class/scope creation, registration, service/runner resolution, completion cleanup, cancellation/no-op cancellation, factory failure cleanup, disposed guards, and sync/async disposal; rerun coverage to verify. |
+| [~] | `Xtate.ExternalServices.HttpClient.Internal.HttpClientMimeTypeHandler` | 0 | 0 | 65 | 0 | 86 | 6 | `HttpMimeTypeHandlerCoverageTest` covers content-type normalization, empty/mismatch cases, Accept initialization/deduplication/append, invalid input, and virtual defaults. Ignored regression documents delimiter-driven infinite loop; rerun coverage to verify. |
 | [~] | `Xtate.BitConverterPolyfills` | 0 | 0 | 60 | 0 | 63 | 10 | `PolyfillsCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.Persistence.Services.SharedMemoryStreams.ReadWriteMemoryStream<TKey>` | 34.78 | 43.88 | 58 | 4 | 55 | 24 |  |
+| [~] | `Xtate.Persistence.Services.SharedMemoryStreams.ReadWriteMemoryStream<TKey>` | 34.78 | 43.88 | 58 | 4 | 55 | 24 | Sync/async read, write, seek, flush, copy, length/position, capability, disposal, and closed-operation branches covered in `SharedMemoryStreamsCoverageTest`. |
 | [ ] | `Xtate.DataModel.XPath.Services.XPathDataModelHandler` | 53.63 | 57.47 | 57 | 1 | 74 | 15 |  |
-| [ ] | `Xtate.DataModel.Services.DataModelConverter` | 26.92 | 30.94 | 56 | 2 | 96 | 22 |  |
+| [~] | `Xtate.DataModel.Services.DataModelConverter` | 26.92 | 30.94 | 56 | 2 | 96 | 22 | `DataModelConverterCoverageTest` covers array/object metadata and heuristics, every JSON/XML public overload, UTF-8/non-UTF-8 resources, indented output, typed round trips, and cancellation-injected stream paths. Two ignored tests document broken async XML reading; rerun coverage to verify. |
 | [~] | `Xtate.DataTypes.DataModelValue.Dynamic` | 0 | 0 | 56 | 0 | 67 | 8 | `DataModelDynamicCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.Http.Services.HttpClientFactory` | 0 | 0 | 56 | 0 | 62 | 6 |  |
-| [ ] | `Xtate.StateMachineHost.Services.StateMachineExternalService` | 0 | 0 | 53 | 0 | 73 | 6 |  |
-| [ ] | `Xtate.DataModel.XPath.Internal.XPathObject` | 46.19 | 25.16 | 52 | 9 | 116 | 10 |  |
+| [~] | `Xtate.Http.Services.HttpClientFactory` | 0 | 0 | 56 | 0 | 62 | 6 | `HttpClientFactoryCoverageTest` covers defaults/custom timing, initial and reused handler selection, distinct clients, factory disposal, repeated disposal, active-entry clearing, and disposed access; rerun coverage to verify. |
+| [~] | `Xtate.StateMachineHost.Services.StateMachineExternalService` | 0 | 0 | 53 | 0 | 73 | 6 | `StateMachineExternalServiceCoverageTest` covers raw/content/source child creation, argument/location forwarding, dispatch before/after startup, sync/async idempotent disposal, missing-source failure, and provider aliases; rerun coverage to verify. |
+| [~] | `Xtate.DataModel.XPath.Internal.XPathObject` | 46.19 | 25.16 | 52 | 9 | 116 | 10 | `XPathObjectCoverageTest` covers scalar types/conversions, invalid construction/casts, empty/single/multiple text node sets, iterator cloning, concatenation, and element/metadata conversion to writable lists; rerun coverage to verify. |
 | [~] | `Xtate.IoProcessors.Http.Internal.CounterStream` | 0 | 0 | 52 | 0 | 90 | 17 | `HttpCounterStreamCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.StateMachineFluentBuilder.TransitionFluentBuilder<TOuterBuilder>` | 21.54 | 23.08 | 51 | 0 | 70 | 15 |  |
-| [ ] | `Xtate.Persistence.Extensions.BucketExtensions` | 63.06 | 60.7 | 47 | 5 | 90 | 24 |  |
+| [~] | `Xtate.StateMachineFluentBuilder.TransitionFluentBuilder<TOuterBuilder>` | 21.54 | 23.08 | 51 | 0 | 70 | 15 | `FluentBuilderCoverageTest` plus existing fluent tests exercise target overloads, end callbacks, events/conditions/actions, and transition construction; rerun coverage to verify. |
+| [~] | `Xtate.Persistence.Extensions.BucketExtensions` | 63.06 | 60.7 | 47 | 5 | 90 | 24 | `BucketExtensionsCoverageTest` covers null/default/nonempty entity storage and restoration, invalid restored items, all identifier/event/URI/enum/required getters, absent values, service-ID selection, and every supported persisted data-model value including lists; rerun coverage to verify. |
 | [~] | `Xtate.Scxml.Internal.TextContentReader` | 0 | 0 | 47 | 0 | 64 | 38 | `CommunicationAndUtilityCoverageTest` added for single-text-node reader state, XML surface, and unsupported members; rerun coverage to verify. |
-| [ ] | `Xtate.ExternalServices.HttpClient.Internal.HttpClientFormUrlEncodedHandler` | 0 | 0 | 46 | 0 | 88 | 8 |  |
-| [ ] | `Xtate.DataModel.XPath.Services.XPathEngine` | 51.61 | 59.52 | 44 | 2 | 51 | 11 |  |
+| [~] | `Xtate.ExternalServices.HttpClient.Internal.HttpClientFormUrlEncodedHandler` | 0 | 0 | 46 | 0 | 88 | 8 | `HttpMimeTypeHandlerCoverageTest` covers media matching, object/array form generation, invalid entries, mismatched responses, repeated values, decoding, and empty-key skipping; rerun coverage to verify. |
+| [~] | `Xtate.DataModel.XPath.Services.XPathEngine` | 51.61 | 59.52 | 44 | 2 | 51 | 11 | `XPathEngineEvaluatorCoverageTest` covers root/scoped variable creation and precedence, missing variables, declaration/name lookup, scalar/node-set evaluation, root stripping, non-node assignment, and all assignment-mode specifications. Ignored regression documents live-iterator mutation non-termination; rerun coverage to verify. |
 | [~] | `Xtate.Actions.ActionBase` | 16.67 | 13.04 | 43 | 4 | 100 | 6 | `ActionValueCoverageTest` added for array/string/integer/boolean/object helper paths and defaults; rerun coverage to verify. |
-| [ ] | `Xtate.Logging.Services.Logger` | 61.4 | 62.93 | 43 | 2 | 76 | 5 |  |
-| [ ] | `Xtate.StateMachineFluentBuilder.StateFluentBuilder<TOuterBuilder>` | 35.38 | 31.82 | 42 | 0 | 105 | 31 |  |
-| [ ] | `Xtate.Persistence.Services.InvokeIdSetPersistingController` | 28.45 | 28.57 | 41 | 1 | 40 | 3 |  |
+| [~] | `Xtate.Logging.Services.Logger` | 61.4 | 62.93 | 43 | 2 | 76 | 5 | `LoggerCoverageTest` covers generic/non-generic writes, provider filtering, lazy parser/enricher loading, entity/no-entity paths, null parsers, namespaces, interpolated/plain messages, and disabled formatting; rerun coverage to verify. |
+| [~] | `Xtate.StateMachineFluentBuilder.StateFluentBuilder<TOuterBuilder>` | 35.38 | 31.82 | 42 | 0 | 105 | 31 | `FluentBuilderCoverageTest` plus existing fluent tests exercise IDs, end callbacks, nested states/parallels/finals, initial values, actions, and transitions; rerun coverage to verify. |
+| [~] | `Xtate.Persistence.Services.InvokeIdSetPersistingController` | 28.45 | 28.57 | 41 | 1 | 40 | 3 | `PersistenceCollectionControllerCoverageTest` covers add/restore, non-final and final removal, clear, and empty restore. Ignored regression documents unsupported generic InvokeId conversion during compaction after persisted removal; rerun coverage to verify. |
 | [~] | `Xtate.LazyTask<T>` | 0 | 0 | 39 | 0 | 37 | 5 | `LazyTaskCoverageTest` added; rerun coverage to verify. |
 | [ ] | `Xtate.StateMachineHost.Services.StateMachineScopeManager` | 69.29 | 65.4 | 38 | 2 | 73 | 17 |  |
-| [ ] | `Xtate.StateMachineHost.Services.ScxmlIoProcessor` | 5 | 7.79 | 38 | 0 | 71 | 9 |  |
+| [~] | `Xtate.StateMachineHost.Services.ScxmlIoProcessor` | 5 | 7.79 | 38 | 0 | 71 | 9 | `ExternalServiceInfrastructureCoverageTest` covers primary/alias/default handling, internal targets, state/invoke origins, self/parent/session/invoke dispatch, both parent forms, and invalid targets; rerun coverage to verify. |
 | [~] | `Xtate.ResourceLoaders.Resource` | 52.44 | 50.91 | 38 | 2 | 54 | 9 | `ResourceCoverageTest` added; rerun coverage to verify. |
 | [ ] | `Xtate.Scxml.Services.ScxmlDirector` | 93.31 | 95.9 | 36 | 7 | 73 | 231 |  |
 | [~] | `Xtate.IoC.ServiceArray.Internal.ReadOnlyList<T>` | 8.75 | 9.21 | 36 | 1 | 69 | 35 | `CommunicationAndUtilityCoverageTest` added via `ServiceSyncList<T>` for read-only list/collection/span/mutation paths; rerun coverage to verify. |
 | [~] | `Xtate.ResourceLoaders.Extensions.StreamExtensions` | 2.7 | 2.99 | 36 | 0 | 65 | 3 | `ResourceCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.Persistence.Services.SharedMemoryStreams<TKey>` | 20 | 23.61 | 36 | 0 | 55 | 7 |  |
-| [ ] | `Xtate.Actions.System.StartAction` | 50.62 | 60.45 | 36 | 8 | 53 | 6 |  |
+| [~] | `Xtate.Persistence.Services.SharedMemoryStreams<TKey>` | 20 | 23.61 | 36 | 0 | 55 | 7 | Reader/writer exclusion, concurrent readers, deletion, selective delete-all, stream lifecycle, and missing-key behavior covered in `SharedMemoryStreamsCoverageTest`. |
+| [~] | `Xtate.Actions.System.StartAction` | 50.62 | 60.45 | 36 | 8 | 53 | 6 | `SystemActionCoverageTest` covers validation combinations, value/location descriptors, literal/generated sessions, URI resolution, trusted/untrusted routing, scope start, session assignment, and execution errors. Ignored regression documents lost sessionIdLocation expression; rerun coverage to verify. |
 | [~] | `Xtate.IoProcessors.NamedPipe.NamedPipeEventMessage` | 0 | 0 | 36 | 0 | 52 | 3 | Round-trip, event-field, invalid metadata, and ignored InvokeId regression coverage added in `PersistedEventCoverageTest`. |
 | [~] | `Xtate.DataTypes.DataModelList.KeyValueByKeyEnumerator` | 0 | 0 | 36 | 0 | 34 | 5 | `DataModelListCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.Persistence.Services.KeyListPersistingController<T>` | 31 | 21.79 | 34 | 1 | 61 | 3 |  |
+| [~] | `Xtate.Persistence.Services.KeyListPersistingController<T>` | 31 | 21.79 | 34 | 1 | 61 | 3 | `PersistenceCollectionControllerCoverageTest` covers empty initialization, first record creation, document-ID serialization, and stable-record update; rerun coverage to verify. |
 | [~] | `Xtate.Persistence.Internal.Encode` | 50.74 | 31.62 | 33 | 1 | 80 | 5 | `EncodeCoverageTest` added; rerun coverage to verify. |
 | [~] | `Xtate.Persistence.PersistedRouterEvent` | 0 | 0 | 33 | 0 | 66 | 2 | Round-trip, optional target, invalid metadata, and ignored target-key regression coverage added in `PersistedEventCoverageTest`. |
-| [ ] | `Xtate.Actions.System.DestroyAction` | 0 | 0 | 32 | 0 | 55 | 4 |  |
-| [ ] | `Xtate.StateMachineHost.Services.ExternalServiceCollection` | 3.03 | 6.25 | 32 | 0 | 45 | 5 |  |
-| [ ] | `Xtate.IoProcessors.Http.Services.HttpIoProcessorHost` | 0 | 0 | 32 | 0 | 44 | 6 |  |
-| [ ] | `Xtate.StateMachineHost.Services.ExternalServiceClass` | 0 | 0 | 32 | 0 | 43 | 9 |  |
+| [~] | `Xtate.Actions.System.DestroyAction` | 0 | 0 | 32 | 0 | 55 | 4 | `SystemActionCoverageTest` covers missing/empty/conflicting validation, value/location descriptors, literal session parsing, collection destruction, task monitoring, and execution-time empty-session rejection; rerun coverage to verify. |
+| [~] | `Xtate.StateMachineHost.Services.ExternalServiceCollection` | 3.03 | 6.25 | 32 | 0 | 45 | 5 | `ExternalServiceInfrastructureCoverageTest` covers pending registration, local dispatch/wrapping, global mirroring/fallback, non-dispatcher handling, unregister, and dead letters; rerun coverage to verify. |
+| [~] | `Xtate.IoProcessors.Http.Services.HttpIoProcessorHost` | 0 | 0 | 32 | 0 | 44 | 6 | `IoProcessorAndHostCoverageTest` covers listener-prefix setup, cancelled processing-loop start/stop, disposal, and listener cleanup without opening a network listener; rerun coverage to verify. |
+| [~] | `Xtate.StateMachineHost.Services.ExternalServiceClass` | 0 | 0 | 32 | 0 | 43 | 9 | `ExternalServiceExecutionCoverageTest` covers all forwarded invoke context, parent-event metadata, cached origin, and all IoC forwarding registrations; rerun coverage to verify. |
 | [~] | `Xtate.Scxml.XIncludeException` | 0 | 0 | 31 | 0 | 62 | 6 | `XIncludeExceptionCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.ExternalServices.SmtpClient.Services.SmtpClientService` | 0 | 0 | 30 | 0 | 82 | 1 |  |
+| [~] | `Xtate.ExternalServices.SmtpClient.Services.SmtpClientService` | 0 | 0 | 30 | 0 | 82 | 1 | `SmtpClientServiceCoverageTest` covers authenticated international HTML delivery, default optional settings with plain text, server/port/from/to/body/subject configuration, credentials, SSL flag, timeout, delivery-format parsing, successful results, and invalid option failures against a loopback SMTP server; rerun coverage to verify. |
 | [~] | `Xtate.ResourceLoaders.Internal.InjectedCancellationStream` | 18.42 | 16.67 | 30 | 2 | 80 | 14 | `ResourceCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.StateMachineHost.Services.ExternalServiceRunner` | 0 | 0 | 30 | 0 | 68 | 7 |  |
-| [ ] | `Xtate.Persistence.Services.DataModelListPersistingController` | 87.7 | 86.38 | 30 | 2 | 41 | 11 |  |
+| [~] | `Xtate.StateMachineHost.Services.ExternalServiceRunner` | 0 | 0 | 30 | 0 | 68 | 7 | `ExternalServiceExecutionCoverageTest` covers idempotent completion, done/error events, result/exception conversion, invalid send statuses, secondary failure handling, and both error logs; rerun coverage to verify. |
+| [~] | `Xtate.Persistence.Services.DataModelListPersistingController` | 87.7 | 86.38 | 30 | 2 | 41 | 11 | `DataModelListPersistingControllerCoverageTest` covers constructor validation and recording/restoration of append, case-sensitive/case-insensitive key sets, indexed sets/inserts/removals, length changes, metadata, nested list references, and disposal; persisted-context/reference-tracker tests add initialization and shrink paths. Rerun coverage to verify. |
 | [~] | `Xtate.DataTypes.DataModelList.ValueByKeyEnumerator` | 0 | 0 | 30 | 0 | 36 | 6 | `DataModelListCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.IoProcessors.IoProcessorHostBase` | 0 | 0 | 29 | 0 | 50 | 7 |  |
+| [~] | `Xtate.IoProcessors.IoProcessorHostBase` | 0 | 0 | 29 | 0 | 50 | 7 | `IoProcessorAndHostCoverageTest` covers initial/stopped tokens, idempotent start, stop-before-start, cancellation, background monitoring, and restart with a fresh token; rerun coverage to verify. |
 | [~] | `Xtate.IoProcessors.NamedPipe.NamedPipeResponseMessage` | 0 | 0 | 29 | 0 | 44 | 4 | Success/exception round-trips, optional fields, and invalid metadata covered in `PersistedEventCoverageTest`. |
 | [ ] | `Xtate.Persistence.Services.StreamStorage` | 85.45 | 87.97 | 29 | 6 | 35 | 17 |  |
 | [~] | `Xtate.ExternalServices.ExternalServiceBase` | 0 | 0 | 27 | 0 | 42 | 8 | `CommunicationAndUtilityCoverageTest` added for IoC-set source/parameters/token/task monitor, lazy result, and dispatch paths; rerun coverage to verify. |
 | [ ] | `Xtate.Persistence.Services.StateMachineReader` | 62.19 | 81.78 | 26 | 249 | 133 | 43 |  |
 | [~] | `Xtate.StateMachineHost.Services.ExternalCommunication` | 0 | 0 | 26 | 0 | 55 | 4 | `CommunicationAndUtilityCoverageTest` added for internal routing, immediate dispatch, delayed scheduling, cancel, and invalid type paths; rerun coverage to verify. |
-| [ ] | `Xtate.IoProcessors.ResilientIoProcessorHostBase` | 0 | 0 | 26 | 0 | 39 | 1 |  |
-| [ ] | `Xtate.StateMachineFluentBuilder.ParallelFluentBuilder<TOuterBuilder>` | 30.56 | 20.59 | 25 | 0 | 81 | 23 |  |
+| [~] | `Xtate.IoProcessors.ResilientIoProcessorHostBase` | 0 | 0 | 26 | 0 | 39 | 1 | `IoProcessorAndHostCoverageTest` covers protected-process success, logged failure, delayed retry, retry success, and cancellation treated as normal shutdown; rerun coverage to verify. |
+| [~] | `Xtate.StateMachineFluentBuilder.ParallelFluentBuilder<TOuterBuilder>` | 30.56 | 20.59 | 25 | 0 | 81 | 23 | `FluentBuilderCoverageTest` plus existing fluent tests exercise IDs, end callbacks, nested parallel/state construction, actions, histories, and transitions; rerun coverage to verify. |
 | [~] | `Xtate.IoProcessors.NamedPipe.NamedPipeIoProcessorOptions` | 0 | 0 | 25 | 0 | 35 | 5 | `IoProcessorOptionsCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.LazyTask` | 0 | 0 | 25 | 0 | 24 | 2 |  |
+| [~] | `Xtate.LazyTask` | 0 | 0 | 25 | 0 | 24 | 2 | `LazyTaskCoverageTest` covers shared initialization, success, exception, token cancellation, and factory cancellation paths; rerun coverage to verify. |
 | [ ] | `System.HashCode` | 21.21 | 21.33 | 24 | 4 | 59 | 7 |  |
-| [ ] | `Xtate.StateMachineHost.Services.ExternalServiceEventRouter` | 0 | 0 | 24 | 0 | 51 | 5 |  |
-| [ ] | `Xtate.ExternalServices.HttpClient.Internal.HttpClientXmlHandler` | 0 | 0 | 24 | 0 | 50 | 6 |  |
+| [~] | `Xtate.StateMachineHost.Services.ExternalServiceEventRouter` | 0 | 0 | 24 | 0 | 51 | 5 | `ExternalServiceInfrastructureCoverageTest` covers provider matching, router-event construction, invoke-target dispatch, and missing/empty/malformed target errors; rerun coverage to verify. |
+| [~] | `Xtate.ExternalServices.HttpClient.Internal.HttpClientXmlHandler` | 0 | 0 | 24 | 0 | 50 | 6 | `HttpMimeTypeHandlerCoverageTest` covers Accept preparation, null/standard/structured media matching, XML content serialization, response mismatch, and response parsing; rerun coverage to verify. |
 | [~] | `Xtate.IoProcessors.NamedPipe.Internal.DelayedTries` | 0 | 0 | 24 | 0 | 26 | 4 | `DelayedTriesCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.StateMachineHost.Services.ExternalServiceGlobalCollection` | 4 | 10.71 | 24 | 0 | 25 | 5 |  |
-| [ ] | `Xtate.ResourceLoaders.Web.Services.WebResourceLoader` | 0 | 0 | 23 | 0 | 58 | 2 |  |
-| [ ] | `Xtate.StateMachineHost.Services.ExternalServiceFactory` | 0 | 0 | 23 | 0 | 44 | 2 |  |
+| [~] | `Xtate.StateMachineHost.Services.ExternalServiceGlobalCollection` | 4 | 10.71 | 24 | 0 | 25 | 5 | `ExternalServiceInfrastructureCoverageTest` covers misses, pending waits released by set/remove, wrapped and native events, non-dispatcher services, and unregister; rerun coverage to verify. |
+| [~] | `Xtate.ResourceLoaders.Web.Services.WebResourceLoader` | 0 | 0 | 23 | 0 | 58 | 2 | In-memory HTTP requests, header forwarding, content type present/absent, stream/resource creation, and cancellation token forwarding covered in `ResourceLoaderHandlersCoverageTest`. |
+| [~] | `Xtate.StateMachineHost.Services.ExternalServiceFactory` | 0 | 0 | 23 | 0 | 44 | 2 | `ExternalServiceInfrastructureCoverageTest` covers skipped providers, activation, enumeration, and missing/duplicate provider errors; rerun coverage to verify. |
 | [~] | `Xtate.Persistence.PersistedIncomingEvent` | 0 | 0 | 23 | 0 | 41 | 2 | Event-field round-trip, invalid metadata, and ignored InvokeId regression coverage added in `PersistedEventCoverageTest`. |
 | [~] | `Xtate.StateMachineHost.RouterEvent` | 0 | 0 | 23 | 0 | 27 | 3 | `CommunicationAndUtilityCoverageTest` added for outgoing-event copy and routing fields; rerun coverage to verify. |
 | [ ] | `Xtate.StateMachine.Services.StateMachineVisitor` | 96.62 | 92.49 | 22 | 20 | 72 | 148 |  |
 | [ ] | `Xtate.StateMachine.Services.StateMachineVisitor.TrackList<T>` | 52.13 | 46.74 | 22 | 1 | 49 | 11 |  |
-| [ ] | `Xtate.DataModel.XPath.Services.XPathForEachEvaluator` | 0 | 0 | 22 | 0 | 38 | 2 |  |
+| [~] | `Xtate.DataModel.XPath.Services.XPathForEachEvaluator` | 0 | 0 | 22 | 0 | 38 | 2 | `XPathEngineEvaluatorCoverageTest` covers optional index handling, item/index declarations, empty-array execution, scope entry/exit, and retains a non-empty regression test ignored because location assignment does not terminate; rerun coverage to verify. |
 | [~] | `Xtate.StateMachine.Internal.SegmentedName` | 60.32 | 72.65 | 22 | 6 | 32 | 5 | `SegmentedNameCoverageTest` added; rerun coverage to verify. |
 | [~] | `Xtate.Interpreter.Services.OutgoingEventEntityParser` | 0 | 0 | 22 | 0 | 28 | 1 | Populated/default property enumeration, handler level, and incompatible entity behavior covered in `InterpreterServiceCoverageTest`. |
 | [ ] | `Xtate.Scxml.Services.XmlDirector.PolicyBuilder<TDirector, TEntity>` | 75.28 | 69.66 | 22 | 0 | 27 | 19 |  |
-| [ ] | `Xtate.IoBoundTask.Services.IoBoundTaskScheduler` | 81.25 | 80.31 | 22 | 1 | 25 | 13 |  |
+| [~] | `Xtate.IoBoundTask.Services.IoBoundTaskScheduler` | 81.25 | 80.31 | 22 | 1 | 25 | 13 | `IoBoundTaskSchedulerCoverageTest` covers validation, queue/semaphore initialization, concurrency backpressure, worker publication/reuse, scheduled-task exposure, no-inline behavior, completion, and keep-alive range guards; rerun coverage to verify. |
 | [ ] | `Xtate.Scxml.Services.DelegatedXmlReader` | 54.35 | 50.35 | 21 | 0 | 70 | 45 |  |
-| [ ] | `Xtate.DataModel.XPath.Services.XPathValueExpressionEvaluator` | 25 | 23.81 | 21 | 0 | 48 | 7 |  |
-| [ ] | `Xtate.Persistence.Services.EntityQueuePersistingController<T>` | 33.82 | 33.33 | 21 | 3 | 26 | 3 |  |
+| [~] | `Xtate.DataModel.XPath.Services.XPathValueExpressionEvaluator` | 25 | 23.81 | 21 | 0 | 48 | 7 | `XPathEngineEvaluatorCoverageTest` covers ancestor/expression forwarding, string/integer/object node-set evaluation, array materialization, and per-node values. Ignored regression documents empty `ToObject` result after root stripping; rerun coverage to verify. |
+| [~] | `Xtate.Persistence.Services.EntityQueuePersistingController<T>` | 33.82 | 33.33 | 21 | 3 | 26 | 3 | `PersistenceCollectionControllerCoverageTest` covers enqueue storage, head advancement, entity restoration, multi-item dequeue, final clear, and empty restoration; rerun coverage to verify. |
 | [~] | `Xtate.IoProcessors.Http.HttpIoProcessorOptions` | 0 | 0 | 21 | 0 | 18 | 5 | `IoProcessorOptionsCoverageTest` added; rerun coverage to verify. |
 | [ ] | `Xtate.Scxml.Services.XmlBaseReader` | 64.52 | 63.92 | 20 | 4 | 35 | 8 |  |
-| [ ] | `Xtate.ExtCollection` | 0 | 0 | 20 | 0 | 34 | 3 |  |
+| [~] | `Xtate.ExtCollection` | 0 | 0 | 20 | 0 | 34 | 3 | `ExtCollectionCoverageTest` covers grouped add, enumeration, removal, group removal, and singleton/grouped take paths; rerun coverage to verify. |
 | [~] | `Xtate.StateMachine.EventName` | 81.58 | 83.78 | 19 | 4 | 30 | 28 | `EventNameCoverageTest` added; rerun coverage to verify. Includes ignored default descriptor matching probe for current default ImmutableArray behavior. |
 | [ ] | `Xtate.Scxml.Services.XmlDirector` | 75 | 83.33 | 19 | 0 | 17 | 5 |  |
 | [~] | `Xtate.DataModel.Services.DefaultForEachEvaluator` | 41.18 | 39.71 | 18 | 4 | 41 | 5 | `DataConverterAndForEachCoverageTest` added for array iteration, item/index location assignment, action execution, and no-index path; rerun coverage to verify. |
-| [ ] | `Xtate.Interpreter.Services.InvokeDataVerboseEntityParser` | 5.26 | 5 | 18 | 0 | 38 | 3 |  |
-| [ ] | `Xtate.StateMachineFluentBuilder.HistoryFluentBuilder<TOuterBuilder>` | 0 | 0 | 18 | 0 | 32 | 7 |  |
+| [~] | `Xtate.Interpreter.Services.InvokeDataVerboseEntityParser` | 5.26 | 5 | 18 | 0 | 38 | 3 | `InterpreterUtilityCoverageTest` covers empty, raw content, content, parameters, handler conversion, fallback conversion, property names, and verbose level; rerun coverage to verify. |
+| [~] | `Xtate.StateMachineFluentBuilder.HistoryFluentBuilder<TOuterBuilder>` | 0 | 0 | 18 | 0 | 32 | 7 | `FluentBuilderCoverageTest` added for both ID overloads, type, transition factory/direct target overloads, end callback, and build forwarding; rerun coverage to verify. |
 | [~] | `System.Collections.Concurrent.ConcurrentDictionaryPolyfills` | 0 | 0 | 18 | 0 | 23 | 3 | `PolyfillsCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.Interpreter.Services.EventController` | 51.35 | 41.98 | 17 | 2 | 47 | 4 |  |
-| [ ] | `Xtate.Interpreter.Services.InvokeController` | 43.33 | 48.05 | 17 | 0 | 40 | 3 |  |
-| [ ] | `Xtate.Persistence.Services.SharedMemoryStreams.ReadOnlyMemoryStream<TKey>` | 0 | 0 | 17 | 0 | 27 | 2 |  |
-| [ ] | `Xtate.IoProcessors.NamedPipe.Services.NamedPipeIoProcessor` | 0 | 0 | 16 | 0 | 34 | 4 |  |
-| [ ] | `Xtate.StateMachineHost.Services.StateMachineHostNew` | 0 | 0 | 16 | 0 | 32 | 5 |  |
+| [~] | `Xtate.Interpreter.Services.EventController` | 51.35 | 41.98 | 17 | 2 | 47 | 4 | `EventAndInvokeControllerCoverageTest` covers explicit/selected internal events, delay rejection, sent/scheduled paths, queue wrapping, cancellation, communication wrapping with send IDs, and platform-error preservation; rerun coverage to verify. |
+| [~] | `Xtate.Interpreter.Services.InvokeController` | 43.33 | 48.05 | 17 | 0 | 40 | 3 | `EventAndInvokeControllerCoverageTest` covers start/cancel/forward success, trace writes, ordinary failure wrapping, and owned platform-error preservation for every operation; rerun coverage to verify. |
+| [~] | `Xtate.Persistence.Services.SharedMemoryStreams.ReadOnlyMemoryStream<TKey>` | 0 | 0 | 17 | 0 | 27 | 2 | Multiple concurrent readers, content/position behavior, write capability, single/double disposal, and writer/delete exclusion covered in `SharedMemoryStreamsCoverageTest`. |
+| [~] | `Xtate.IoProcessors.NamedPipe.Services.NamedPipeIoProcessor` | 0 | 0 | 16 | 0 | 34 | 4 | `IoProcessorAndHostCoverageTest` covers ID/alias handling, target construction, local invoke routing, delayed/missing/invalid target failures, and controller forwarding; rerun coverage to verify. |
+| [~] | `Xtate.StateMachineHost.Services.StateMachineHostNew` | 0 | 0 | 16 | 0 | 32 | 5 | `ExternalServiceExecutionCoverageTest` covers async enumeration, start order, reverse stop order, and repeated empty stop; rerun coverage to verify. |
 | [~] | `System.IO.StreamReaderPolyfills` | 0 | 0 | 16 | 0 | 26 | 1 | `PolyfillsCoverageTest` added; rerun coverage to verify. |
 | [~] | `Xtate.IoProcessors.Http.Internal.ReadLimitStream` | 0 | 0 | 16 | 0 | 19 | 3 | `HttpCounterStreamCoverageTest` added; rerun coverage to verify. |
 | [~] | `Xtate.DataTypes.DataModelList.AdapterBase` | 66 | 66.67 | 16 | 2 | 10 | 5 | `DataModelListCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.DataModel.XPath.Services.XPathLocationExpression` | 38.46 | 50 | 16 | 0 | 8 | 4 |  |
+| [~] | `Xtate.DataModel.XPath.Services.XPathLocationExpression` | 38.46 | 50 | 16 | 0 | 8 | 4 | Source/ancestor/property forwarding plus every recognized assign type and unknown-value rejection covered in `XPathEvaluatorCoverageTest`. |
 | [~] | `Xtate.FullUri` | 16.67 | 13.33 | 15 | 0 | 39 | 11 | `FullUriCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.StateMachineFluentBuilder.StateMachineFluentBuilder` | 61.54 | 61.45 | 15 | 0 | 32 | 15 |  |
+| [~] | `Xtate.StateMachineFluentBuilder.StateMachineFluentBuilder` | 61.54 | 61.45 | 15 | 0 | 32 | 15 | `FluentBuilderCoverageTest` added for all initial overloads, all nested builder variants/IDs, runtime data-model selection, build, and child attachment; rerun coverage to verify. |
 | [~] | `Xtate.DataModel.Services.DataConverter` | 78.71 | 84.54 | 15 | 13 | 30 | 11 | `DataConverterAndForEachCoverageTest` added for content, params, resource, event, and exception conversion paths; rerun coverage to verify. |
 | [~] | `Xtate.StateMachine.InvokeEntity` | 44.44 | 59.38 | 15 | 0 | 26 | 4 | All source properties, ancestor/debug identity, and matching/differing reference comparisons covered in `StateMachineEntityStructuresCoverageTest`. |
-| [ ] | `Xtate.DataModel.XPath.Internal.NodeAdapter` | 42.59 | 38.46 | 15 | 1 | 16 | 15 |  |
+| [~] | `Xtate.DataModel.XPath.Internal.NodeAdapter` | 42.59 | 38.46 | 15 | 1 | 16 | 15 | `XPathNodeAdapterCoverageTest` added for all default value, name, navigation, attribute, and namespace paths; rerun coverage to verify. |
 | [~] | `Xtate.DataTypes.DataModelList.EntryByKeyEnumerator` | 56.94 | 57.69 | 15 | 1 | 11 | 6 | `DataModelListCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.StateMachineFluentBuilder.FinalFluentBuilder<TOuterBuilder>` | 57.58 | 50 | 14 | 0 | 30 | 13 |  |
-| [ ] | `Xtate.DataTypes.Internal.MetaObject` | 0 | 0 | 14 | 0 | 27 | 13 |  |
-| [ ] | `Xtate.ExternalServices.HttpClient.Internal.HttpClientJsonHandler` | 0 | 0 | 14 | 0 | 24 | 5 |  |
-| [ ] | `Xtate.Logging.Internal.LoggingInterpolatedStringHandler` | 70 | 73.58 | 14 | 2 | 14 | 5 |  |
-| [ ] | `Xtate.DataTypes.DataModelList.MetaValueAdapter` | 39.13 | 45.45 | 14 | 0 | 12 | 9 |  |
-| [ ] | `Xtate.StateMachineHost.Services.IoProcessorBase` | 25 | 34.62 | 13 | 1 | 34 | 14 |  |
+| [~] | `Xtate.StateMachineFluentBuilder.FinalFluentBuilder<TOuterBuilder>` | 57.58 | 50 | 14 | 0 | 30 | 13 | `FluentBuilderCoverageTest` added for ID, constant/sync/async done data, sync/async entry/exit actions, content/done-data construction, and end callback; rerun coverage to verify. |
+| [~] | `Xtate.DataTypes.Internal.MetaObject` | 0 | 0 | 14 | 0 | 27 | 13 | `DataModelDynamicCoverageTest` covers member/index get/set, converted numeric indexes, length and every metadata overload, list/value conversions, wrong index count, and missing method errors; rerun coverage to verify. |
+| [~] | `Xtate.ExternalServices.HttpClient.Internal.HttpClientJsonHandler` | 0 | 0 | 14 | 0 | 24 | 5 | `HttpMimeTypeHandlerCoverageTest` covers Accept preparation/deduplication, media matching, JSON serialization, response mismatch, and JSON parsing; rerun coverage to verify. |
+| [~] | `Xtate.Logging.Internal.LoggingInterpolatedStringHandler` | 70 | 73.58 | 14 | 2 | 14 | 5 | `LoggerCoverageTest` covers enabled/disabled and literal-only construction, literal append, span/formattable/plain values, formats, caller expressions, positive/negative alignment, padding, and parameter extraction; rerun coverage to verify. |
+| [~] | `Xtate.DataTypes.DataModelList.MetaValueAdapter` | 39.13 | 45.45 | 14 | 0 | 12 | 9 | `DataModelDynamicCoverageTest` forces indexed metadata storage, converted access, resize, value preservation, and transition to keyed metadata storage; rerun coverage to verify. |
+| [~] | `Xtate.StateMachineHost.Services.IoProcessorBase` | 25 | 34.62 | 13 | 1 | 34 | 14 | `ExternalServiceInfrastructureCoverageTest` covers IDs, alias matching, state-machine and invoke target construction/caching, router-event sender/origin selection, and explicit router forwarding; rerun coverage to verify. |
 | [~] | `Xtate.DataModel.Services.DefaultExternalDataExpressionEvaluator` | 0 | 0 | 13 | 0 | 31 | 3 | `DataModelServiceCoverageTest` added for resource-loader and data-converter evaluation path; rerun coverage to verify. |
-| [ ] | `Xtate.IoProcessors.Http.Services.HttpIoProcessor` | 0 | 0 | 13 | 0 | 27 | 4 |  |
+| [~] | `Xtate.IoProcessors.Http.Services.HttpIoProcessor` | 0 | 0 | 13 | 0 | 27 | 4 | `IoProcessorAndHostCoverageTest` covers ID/alias handling, state/invoke target construction, local dispatch, remote send, and delayed/missing target failures. Ignored regression documents lost named string events; rerun coverage to verify. |
 | [~] | `Xtate.StateMachine.StateEntity` | 43.48 | 62.07 | 13 | 0 | 22 | 4 | All source properties, ancestor/debug identity, and matching/differing reference comparisons covered in `StateMachineEntityStructuresCoverageTest`. |
 | [~] | `Xtate.StateMachine.ParallelEntity` | 38.1 | 60.38 | 13 | 0 | 21 | 4 | All source properties, ancestor/debug identity, and matching/differing reference comparisons covered in `StateMachineEntityStructuresCoverageTest`. |
-| [ ] | `Xtate.StateMachineHost.Services.StateMachineCollection` | 58.06 | 54.76 | 13 | 0 | 19 | 6 |  |
+| [~] | `Xtate.StateMachineHost.Services.StateMachineCollection` | 58.06 | 54.76 | 13 | 0 | 19 | 6 | `HostDispatchAndOptionsCoverageTest` added for registration/controller assignment, copied/existing event dispatch, destroy, unregister, missing-session dead letters, and missing destroy; rerun coverage to verify. |
 | [~] | `Xtate.StateMachine.Validator.StateMachineValidationException` | 40.91 | 39.29 | 13 | 0 | 17 | 2 | `StateMachineValidationExceptionCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.StateMachineHost.Services.StateMachineDestroyOnIdle.StateTracker` | 58.06 | 73.81 | 13 | 0 | 11 | 6 |  |
-| [ ] | `Xtate.Http.Services.HttpClientFactory.HandlerEntry` | 0 | 0 | 12 | 0 | 33 | 4 |  |
-| [ ] | `Xtate.DataModel.XPath.Services.XPathLocationExpressionEvaluator` | 61.29 | 45.83 | 12 | 0 | 26 | 7 |  |
-| [ ] | `Xtate.StateMachineHost.Services.ExternalEventDispatcher` | 0 | 0 | 12 | 0 | 26 | 1 |  |
+| [~] | `Xtate.StateMachineHost.Services.StateMachineDestroyOnIdle.StateTracker` | 58.06 | 73.81 | 13 | 0 | 11 | 6 | `StateMachineDestroyOnIdleCoverageTest` exercises construction, interpreter caching, waiting/proceed timer changes, and synchronous/asynchronous disposal; rerun coverage to verify. |
+| [~] | `Xtate.Http.Services.HttpClientFactory.HandlerEntry` | 0 | 0 | 12 | 0 | 33 | 4 | `HttpClientFactoryCoverageTest` covers handler construction, modern-target expiry/disposal state, handler reuse, and disposal through the owning factory; rerun coverage to verify. |
+| [~] | `Xtate.DataModel.XPath.Services.XPathLocationExpressionEvaluator` | 61.29 | 45.83 | 12 | 0 | 26 | 7 | `XPathEngineEvaluatorCoverageTest` covers default/explicit assignment selection, ancestor/expression forwarding, get/name operations, and scoped declaration. Ignored regression documents non-terminating SetValue through live iterator mutation; rerun coverage to verify. |
+| [~] | `Xtate.StateMachineHost.Services.ExternalEventDispatcher` | 0 | 0 | 12 | 0 | 26 | 1 | `HostDispatchAndOptionsCoverageTest` added for session, handled/unhandled unique invoke, and unknown service dispatch branches; rerun coverage to verify. |
 | [ ] | `Xtate.Scxml.Services.XmlDirector<TDirector>` | 73.88 | 73.63 | 12 | 11 | 24 | 14 |  |
-| [ ] | `Xtate.IoC.TransformArgs.Services.ServiceFactoryNewArgsSync<T, TArg, TNewArg>` | 0 | 0 | 12 | 0 | 21 | 1 |  |
+| [~] | `Xtate.IoC.TransformArgs.Services.ServiceFactoryNewArgsSync<T, TArg, TNewArg>` | 0 | 0 | 12 | 0 | 21 | 1 | `TransformArgsCoverageTest` covers skipped/synchronous/asynchronous-only/missing transformers, service creation, and both dependency-injection failures; rerun coverage to verify. |
 | [~] | `Xtate.Logging.Provider.LoggingParameter` | 78.07 | 79.78 | 12 | 1 | 18 | 6 | Namespace/name/value formatting, span formatting, fallback values, and insufficient-buffer branches covered in `LoggingParameterCoverageTest`. |
 | [~] | `Xtate.Http.JsonHttpContent` | 0 | 0 | 12 | 0 | 16 | 5 | `HttpContentCoverageTest` added; rerun coverage to verify. |
 | [~] | `Xtate.Http.XmlHttpContent` | 0 | 0 | 12 | 0 | 16 | 5 | `HttpContentCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.StateMachineHost.Services.StateMachineControllerBase` | 67.57 | 73.77 | 12 | 0 | 16 | 8 |  |
+| [~] | `Xtate.StateMachineHost.Services.StateMachineControllerBase` | 67.57 | 73.77 | 12 | 0 | 16 | 8 | `StateMachineControllerBaseCoverageTest` covers initialization/idempotence, result completion, dispatch forwarding, pre-initialization guard, completed/failed/cancelled interpreter runs, status forcing, destroy signaling, and destroyed-completion absorption; rerun coverage to verify. |
 | [~] | `Xtate.Interpreter.Services.EventEntityParser` | 47.83 | 61.29 | 12 | 0 | 12 | 1 | All populated event properties, optional omissions, level, and incompatible entity behavior covered in `EntityParserCoverageTest`. |
 | [~] | `Xtate.DataModel.Null.Services.NullDataModelHandler` | 45.45 | 38.78 | 11 | 2 | 30 | 7 | `NullDataModelHandlerCoverageTest` added for valid In-state expression handling and unsupported value/location/foreach/script/data-model/donedata errors; rerun coverage to verify. |
 | [ ] | `Xtate.Scxml.Services.XmlDirector.Policy.ValidationContext<TDirector, TEntity>` | 80.41 | 83.54 | 11 | 7 | 27 | 8 |  |
@@ -169,68 +169,68 @@ Use this file to track unit-test coverage progress. Mark a class as covered only
 | [~] | `Xtate.StateMachine.StateMachineEntity` | 42.11 | 54.35 | 11 | 0 | 21 | 4 | Source copy, null guard, ancestor/debug identity, and matching/differing reference comparisons covered in `StateMachineEntityStructuresCoverageTest`. |
 | [~] | `Xtate.DataModel.Runtime.Services.RuntimeDataModelHandler` | 62.07 | 42.86 | 11 | 0 | 20 | 5 | `RuntimeAndActionProviderCoverageTest` added for runtime predicate/value/action wrapping and unsupported script/data-model/entity errors; rerun coverage to verify. |
 | [~] | `Xtate.StateMachine.Validator.Services.DetailedErrorProcessor` | 0 | 0 | 11 | 0 | 13 | 3 | `DetailedErrorProcessorCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.DataModel.XPath.Services.XPathExternalDataExpressionEvaluator` | 0 | 0 | 10 | 0 | 29 | 2 |  |
-| [ ] | `Xtate.Interpreter.Model.StateNode` | 69.7 | 57.81 | 10 | 0 | 27 | 13 |  |
-| [ ] | `Xtate.Interpreter.Model.StateEntityNode` | 80.19 | 67.11 | 10 | 1 | 25 | 17 |  |
-| [ ] | `Xtate.ResourceLoaders.File.Services.FileResourceLoader` | 0 | 0 | 10 | 0 | 24 | 3 |  |
-| [ ] | `Xtate.IoProcessors.NamedPipe.Services.NamedPipeIoProcessorHost` | 0 | 0 | 10 | 0 | 21 | 2 |  |
-| [ ] | `Xtate.Persistence.Services.Bucket.DateTimeOffsetValueConverter<TValue>` | 0 | 0 | 10 | 0 | 17 | 3 |  |
+| [~] | `Xtate.DataModel.XPath.Services.XPathExternalDataExpressionEvaluator` | 0 | 0 | 10 | 0 | 29 | 2 | `XPathEngineEvaluatorCoverageTest` covers unsupported media errors and application/xml/text/xml selection/context paths. XML success remains ignored under the async XmlReader configuration regression; rerun coverage to verify. |
+| [~] | `Xtate.Interpreter.Model.StateNode` | 69.7 | 57.81 | 10 | 0 | 27 | 13 | `InterpreterModelStateWrapperCoverageTest` covers atomic semantics, source/interface forwarding, collections, identity, and debug ID; rerun coverage to verify. |
+| [~] | `Xtate.Interpreter.Model.StateEntityNode` | 80.19 | 67.11 | 10 | 1 | 25 | 17 | `InterpreterModelStateWrapperCoverageTest` covers parent registration and state-node base behavior; comparer coverage is tracked separately; rerun coverage to verify. |
+| [~] | `Xtate.ResourceLoaders.File.Services.FileResourceLoader` | 0 | 0 | 10 | 0 | 24 | 3 | Relative/absolute file requests, resource creation, ignored headers, and null path guard covered in `ResourceLoaderHandlersCoverageTest`; repository-root path assumption retained as ignored documentation. |
+| [~] | `Xtate.IoProcessors.NamedPipe.Services.NamedPipeIoProcessorHost` | 0 | 0 | 10 | 0 | 21 | 2 | `IoProcessorAndHostCoverageTest` covers disabled-controller early return and already-cancelled enabled-loop behavior; end-to-end processing is retained ignored under the controller serialization regression. Rerun coverage to verify. |
+| [~] | `Xtate.Persistence.Services.Bucket.DateTimeOffsetValueConverter<TValue>` | 0 | 0 | 10 | 0 | 17 | 3 | `BucketConverterCoverageTest` added for ticks/offset serialization and round-trip conversion; rerun coverage to verify. |
 | [~] | `Xtate.Interpreter.IncomingEvent` | 44.44 | 42.86 | 10 | 0 | 16 | 4 | Incoming- and outgoing-event copy constructors, copied/default properties, data, and ancestor behavior covered in `EntityParserCoverageTest`. |
-| [ ] | `Xtate.Persistence.PersistedCustomActionNode` | 0 | 0 | 10 | 0 | 16 | 2 |  |
+| [~] | `Xtate.Persistence.PersistedCustomActionNode` | 0 | 0 | 10 | 0 | 16 | 2 | `PersistedCustomActionNodeCoverageTest` added for forwarding, execution, document ID caching, and persistence fields; rerun coverage to verify. |
 | [~] | `Xtate.DataTypes.DataModelList.KeyValue` | 30.77 | 3.7 | 9 | 0 | 26 | 7 | `DataModelListCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.IoC.TransformArgs.Internal.ServiceSelectorAsync<T, TArg>` | 18.18 | 16.13 | 9 | 0 | 26 | 11 |  |
-| [ ] | `Xtate.Interpreter.Model.ParallelNode` | 68.97 | 55.36 | 9 | 0 | 25 | 12 |  |
-| [ ] | `Xtate.IoC.TransformArgs.DependencyInjection.IServiceCollectionExtensions` | 10 | 10 | 9 | 0 | 18 | 10 |  |
-| [ ] | `Xtate.Persistence.Services.StateMachinePersistedContext` | 75 | 85.05 | 9 | 7 | 16 | 13 |  |
+| [~] | `Xtate.IoC.TransformArgs.Internal.ServiceSelectorAsync<T, TArg>` | 18.18 | 16.13 | 9 | 0 | 26 | 11 | `TransformArgsCoverageTest` covers value, sync/async factory, and one- through four-argument sync/async transformations; rerun coverage to verify. |
+| [~] | `Xtate.Interpreter.Model.ParallelNode` | 68.97 | 55.36 | 9 | 0 | 25 | 12 | `InterpreterModelStateWrapperCoverageTest` covers parallel semantics, collection/interface forwarding, child registration, identity, and debug ID; rerun coverage to verify. |
+| [~] | `Xtate.IoC.TransformArgs.DependencyInjection.IServiceCollectionExtensions` | 10 | 10 | 9 | 0 | 18 | 10 | `TransformArgsCoverageTest` invokes every synchronous and asynchronous zero- through four-argument service-selector overload; rerun coverage to verify. |
+| [~] | `Xtate.Persistence.Services.StateMachinePersistedContext` | 75 | 85.05 | 9 | 7 | 16 | 13 | `StateMachinePersistedContextCoverageTest` covers idempotent initialization, controller creation, state bucket/data model/active invoke use, checkpoint and shrink delegation, and synchronous/asynchronous disposal paths; rerun coverage to verify. |
 | [~] | `Xtate.StateMachine.FinalEntity` | 30.77 | 55.17 | 9 | 0 | 13 | 4 | `StateMachineEntityStructuresCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.Persistence.Services.InMemoryStorageProvider` | 30.77 | 42.86 | 9 | 0 | 12 | 4 |  |
+| [~] | `Xtate.Persistence.Services.InMemoryStorageProvider` | 30.77 | 42.86 | 9 | 0 | 12 | 4 | Partitioned storage creation/factory stream forwarding, single removal, and partition-wide removal covered in `SharedMemoryStreamsCoverageTest`. |
 | [~] | `Xtate.StateMachine.TransitionEntity` | 35.71 | 66.67 | 9 | 0 | 12 | 3 | `StateMachineEntityStructuresCoverageTest` added; rerun coverage to verify. |
 | [~] | `Xtate.StateMachineHost.ScheduledEvent` | 0 | 0 | 9 | 0 | 12 | 5 | `StateMachineHostModelCoverageTest` added; rerun coverage to verify. |
 | [~] | `Xtate.Actions.AsyncAction.Location` | 0 | 0 | 8 | 0 | 20 | 5 | `ActionValueCoverageTest` added for evaluator binding, get, set, and expression paths; rerun coverage to verify. |
-| [ ] | `Xtate.Interpreter.Services.OutgoingEventVerboseEntityParser` | 11.11 | 9.09 | 8 | 0 | 20 | 3 |  |
-| [ ] | `Xtate.IoC.TransformArgs.Internal.ServiceSelectorAsync` | 11.11 | 5.88 | 8 | 0 | 16 | 9 |  |
-| [ ] | `Xtate.StateMachineHost.Services.LocationChildStateMachine` | 0 | 0 | 8 | 0 | 15 | 5 |  |
+| [~] | `Xtate.Interpreter.Services.OutgoingEventVerboseEntityParser` | 11.11 | 9.09 | 8 | 0 | 20 | 3 | `InterpreterUtilityCoverageTest` added for undefined data, handler conversion, fallback conversion, property names, and verbose level; rerun coverage to verify. |
+| [~] | `Xtate.IoC.TransformArgs.Internal.ServiceSelectorAsync` | 11.11 | 5.88 | 8 | 0 | 16 | 9 | `TransformArgsCoverageTest` exercises generated closures for value/factory and tuple-based async selector overloads; rerun coverage to verify. |
+| [~] | `Xtate.StateMachineHost.Services.LocationChildStateMachine` | 0 | 0 | 8 | 0 | 15 | 5 | `HostDispatchAndOptionsCoverageTest` added for string/URI relative constructors, location resolution, absent/present parent forwarding, and DI forwarding registration; rerun coverage to verify. |
 | [~] | `Xtate.DataModel.Null.Services.NullConditionExpressionEvaluator` | 11.11 | 14.29 | 8 | 0 | 12 | 4 | `NullConditionExpressionEvaluatorCoverageTest` added; rerun coverage to verify. |
 | [~] | `Xtate.StateMachine.DataEntity` | 38.46 | 55.56 | 8 | 0 | 12 | 4 | `StateMachineEntityStructuresCoverageTest` added; rerun coverage to verify. |
 | [~] | `Xtate.StateMachine.HistoryEntity` | 27.27 | 50 | 8 | 0 | 11 | 4 | `StateMachineEntityStructuresCoverageTest` added; rerun coverage to verify. |
 | [~] | `Xtate.Interpreter.Services.InvokeDataEntityParser` | 0 | 0 | 8 | 0 | 10 | 1 | Invoke type and present/absent source branches covered in `EntityParserCoverageTest`. |
-| [ ] | `Xtate.IoC.TransformArgs.Internal.TransformArgs<T, TArg, TNewArg>` | 69.23 | 62.5 | 8 | 0 | 9 | 2 |  |
+| [~] | `Xtate.IoC.TransformArgs.Internal.TransformArgs<T, TArg, TNewArg>` | 69.23 | 62.5 | 8 | 0 | 9 | 2 | `TransformArgsCoverageTest` covers sync/async factory registration, duplicate registration checks, and sync/async ancestor-conditioned transformer registration; rerun coverage to verify. |
 | [~] | `Xtate.DataTypes.DataModelList.KeyValueByKeyEnumerable` | 0 | 0 | 8 | 0 | 7 | 4 | `DataModelListCoverageTest` added; rerun coverage to verify. |
 | [~] | `Xtate.DataTypes.DataModelList.ValueByKeyEnumerable` | 0 | 0 | 8 | 0 | 7 | 4 | `DataModelListCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.StateMachine.Builder.Services.AssignBuilder` | 68 | 76.47 | 8 | 0 | 4 | 6 |  |
+| [~] | `Xtate.StateMachine.Builder.Services.AssignBuilder` | 68 | 76.47 | 8 | 0 | 4 | 6 | Populated/default builds, ancestor forwarding, and all null setter guards covered in `BuilderCoverageTest`. |
 | [~] | `Xtate.IoC.Tools.DisposeToken` | 22.22 | 12 | 7 | 0 | 22 | 9 | `TokenAndLazyValueCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.StateMachineFluentBuilder.InitialFluentBuilder<TOuterBuilder>` | 0 | 0 | 7 | 0 | 19 | 4 |  |
-| [ ] | `Xtate.DataModel.XPath.Services.XPathExpressionContext` | 87.3 | 83.49 | 7 | 2 | 18 | 9 |  |
+| [~] | `Xtate.StateMachineFluentBuilder.InitialFluentBuilder<TOuterBuilder>` | 0 | 0 | 7 | 0 | 19 | 4 | `FluentBuilderCoverageTest` added for direct transition factory, string/identifier target overloads, transition assignment, end callback, and build forwarding; rerun coverage to verify. |
+| [~] | `Xtate.DataModel.XPath.Services.XPathExpressionContext` | 87.3 | 83.49 | 7 | 2 | 18 | 9 | `XPathEngineEvaluatorCoverageTest` plus `XPathVariableCoverageTest` cover namespace setup/lookup, whitespace/document comparison, variable/function resolution and failures, descriptor collection, one-time initialization, and no-descriptor fast path; rerun coverage to verify. |
 | [~] | `Xtate.StateMachine.EventDescriptors` | 53.12 | 50 | 7 | 1 | 18 | 16 | `CollectionTypesCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.Interpreter.Internal.InvokeIdSet` | 63.64 | 57.89 | 7 | 2 | 16 | 7 |  |
+| [~] | `Xtate.Interpreter.Internal.InvokeIdSet` | 63.64 | 57.89 | 7 | 2 | 16 | 7 | `InterpreterUtilityCoverageTest` added for unique-ID canonicalization, duplicate add/remove suppression, change events, containment, count, and both enumerators; rerun coverage to verify. |
 | [~] | `Xtate.DataTypes.DataModelList.KeyEnumerator` | 0 | 0 | 7 | 0 | 15 | 7 | `DataModelListCoverageTest` added; rerun coverage to verify. |
 | [~] | `Xtate.IoProcessors.Http.Internal.WriteLimitStream` | 0 | 0 | 7 | 0 | 14 | 3 | `HttpCounterStreamCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.DataModel.XPath.Internal.ItemNodeAdapter` | 82.79 | 83.33 | 7 | 7 | 13 | 10 |  |
+| [~] | `Xtate.DataModel.XPath.Internal.ItemNodeAdapter` | 82.79 | 83.33 | 7 | 7 | 13 | 10 | `XPathNodeAdapterCoverageTest` added for keyed names, metadata prefix/namespace, attributes, namespaces, type attributes, and child behavior; rerun coverage to verify. |
 | [~] | `Xtate.ExternalServices.HttpClient.Internal.HttpClientServiceOptions` | 0 | 0 | 7 | 0 | 13 | 2 | `HttpClientServiceOptionsCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.DataModel.Services.CustomActionContainer` | 78.75 | 84 | 7 | 3 | 12 | 7 |  |
-| [ ] | `Xtate.DataModel.XPath.Internal.ListItemNodeAdapter` | 50 | 50 | 7 | 0 | 12 | 2 |  |
-| [ ] | `Xtate.DataModel.XPath.Internal.ListNodeAdapter` | 50 | 50 | 7 | 0 | 12 | 2 |  |
-| [ ] | `Xtate.StateMachineHost.Services.ScxmlStringChildStateMachine` | 0 | 0 | 7 | 0 | 12 | 4 |  |
+| [~] | `Xtate.DataModel.Services.CustomActionContainer` | 78.75 | 84 | 7 | 3 | 12 | 7 | `CustomActionCoverageTest` added for expression filtering, metadata forwarding, evaluator assignment, ancestor, and execution; rerun coverage to verify. |
+| [~] | `Xtate.DataModel.XPath.Internal.ListItemNodeAdapter` | 50 | 50 | 7 | 0 | 12 | 2 | `XPathNodeAdapterCoverageTest` added for nested-list child traversal, termination, names, and text aggregation; rerun coverage to verify. |
+| [~] | `Xtate.DataModel.XPath.Internal.ListNodeAdapter` | 50 | 50 | 7 | 0 | 12 | 2 | `XPathNodeAdapterCoverageTest` added for forward/backward traversal, empty/nonempty state, and aggregate value/buffer writing; rerun coverage to verify. |
+| [~] | `Xtate.StateMachineHost.Services.ScxmlStringChildStateMachine` | 0 | 0 | 7 | 0 | 12 | 4 | `HostDispatchAndOptionsCoverageTest` added for absent/present parent forwarding and forwarding-service registration/resolution; rerun coverage to verify. |
 | [~] | `Xtate.DataTypes.LazyValue` | 65 | 61.9 | 7 | 0 | 8 | 4 | `TokenAndLazyValueCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.DataTypes.DataModelDateTime` | 90.29 | 82.8 | 6 | 21 | 43 | 61 |  |
+| [~] | `Xtate.DataTypes.DataModelDateTime` | 90.29 | 82.8 | 6 | 21 | 43 | 61 | Existing `DataModelDateTimeCoverageTest` plus `BucketConverterCoverageTest` exercise conversion and persistence serialization; rerun coverage to verify. |
 | [~] | `Xtate.DataTypes.DataModelList.Entry` | 82.86 | 11.9 | 6 | 0 | 37 | 11 | `DataModelListCoverageTest` added; rerun coverage to verify. |
 | [~] | `Xtate.DataModel.Runtime.Runtime` | 62.5 | 41.67 | 6 | 0 | 28 | 11 | `RuntimeAndActionProviderCoverageTest` added for current-context data, arguments, in-state, log, event, and invoke facade calls; rerun coverage to verify. |
 | [ ] | `System.SpanFormattablePolyfills` | 0 | 0 | 6 | 0 | 23 | 6 |  |
-| [ ] | `Xtate.Interpreter.Model.InvokeNode` | 80.49 | 79.28 | 6 | 4 | 23 | 16 |  |
-| [ ] | `Xtate.IoC.TransformArgs.Internal.ServiceSelectorSync<T, TArg>` | 0 | 0 | 6 | 0 | 17 | 6 |  |
-| [ ] | `Xtate.Persistence.Services.InMemoryStorage` | 96.65 | 95.45 | 6 | 4 | 17 | 22 |  |
+| [~] | `Xtate.Interpreter.Model.InvokeNode` | 80.49 | 79.28 | 6 | 4 | 23 | 16 | `InterpreterNodeCoverageTest` covers expression-based type/source, ID assignment, content/parameter conversion, interface forwarding, document/debug IDs, and current invoke ID; rerun coverage to verify. |
+| [~] | `Xtate.IoC.TransformArgs.Internal.ServiceSelectorSync<T, TArg>` | 0 | 0 | 6 | 0 | 17 | 6 | `TransformArgsCoverageTest` covers value/factory and one- through four-argument synchronous transformations; rerun coverage to verify. |
+| [~] | `Xtate.Persistence.Services.InMemoryStorage` | 96.65 | 95.45 | 6 | 4 | 17 | 22 | Existing `StorageTest` plus bucket tests exercise read/write, removal, prefix removal, nested keys, raw data, and disposal; rerun coverage to verify. |
 | [~] | `Xtate.StateMachine.Target` | 59.38 | 55.56 | 6 | 1 | 16 | 16 | `CollectionTypesCoverageTest` added; rerun coverage to verify. Includes ignored boxed equality probe for current `Target.Equals(object?)` type-check behavior. |
 | [~] | `Xtate.DataModel.Services.DefaultContentBodyEvaluator` | 63.89 | 55.17 | 6 | 1 | 13 | 3 | `XPathEvaluatorCoverageTest` added for successful XML content-body evaluation/cache path; rerun coverage to verify. |
 | [~] | `Xtate.DataModel.Services.DefaultInlineContentEvaluator` | 63.89 | 55.17 | 6 | 1 | 13 | 3 | `XPathEvaluatorCoverageTest` added for successful XML inline-content evaluation/cache path; rerun coverage to verify. |
-| [ ] | `Xtate.Scxml.Services.RedirectXmlResolver` | 63.89 | 80.3 | 6 | 1 | 13 | 5 |  |
-| [ ] | `Xtate.IoC.Options.Services.OptionsAsyncImpl` | 41.67 | 58.62 | 6 | 2 | 12 | 1 |  |
-| [ ] | `Xtate.Persistence.Services.Bucket.KeyHelper<T>` | 64.71 | 61.29 | 6 | 0 | 12 | 2 |  |
-| [ ] | `Xtate.StateMachineHost.Services.SecurityContext` | 77.94 | 72.09 | 6 | 3 | 12 | 8 |  |
-| [ ] | `Xtate.DataModel.XPath.Services.XPathXmlParserContextFactory` | 45.83 | 50 | 6 | 1 | 11 | 1 |  |
-| [ ] | `Xtate.Interpreter.Model.CustomActionNode` | 45.45 | 26.67 | 6 | 0 | 11 | 7 |  |
-| [ ] | `Xtate.IAsyncEnumerableExtensions` | 57.14 | 56.52 | 6 | 0 | 10 | 2 |  |
-| [ ] | `Xtate.StateMachineHost.Services.InternalEventDispatcher<TSource>` | 0 | 0 | 6 | 0 | 10 | 1 |  |
-| [ ] | `Xtate.DataModel.DataModelHandlerBase` | 91.67 | 91.49 | 6 | 0 | 8 | 35 |  |
+| [~] | `Xtate.Scxml.Services.RedirectXmlResolver` | 63.89 | 80.3 | 6 | 1 | 13 | 5 | `XmlAndConsoleInfrastructureCoverageTest` added for supported types, stream/resource loading, headers/content types, sealed overloads, cancellation wrapping, and all rejection paths; rerun coverage to verify. |
+| [~] | `Xtate.IoC.Options.Services.OptionsAsyncImpl` | 41.67 | 58.62 | 6 | 2 | 12 | 1 | `OptionsCoverageTest` exercises the asynchronous factory/state-machine path, ordered configuration, and cached result; rerun coverage to verify. |
+| [~] | `Xtate.Persistence.Services.Bucket.KeyHelper<T>` | 64.71 | 61.29 | 6 | 0 | 12 | 2 | `BucketConverterCoverageTest` added for integral, enum, UTF-8 string, long nested, and unsupported keys; rerun coverage to verify. |
+| [~] | `Xtate.StateMachineHost.Services.SecurityContext` | 77.94 | 72.09 | 6 | 3 | 12 | 8 | `SecurityContextCoverageTest` added for full/no-access contexts, nested context types, permissions, task-factory caching, enforcement, and restoration; rerun coverage to verify. |
+| [~] | `Xtate.DataModel.XPath.Services.XPathXmlParserContextFactory` | 45.83 | 50 | 6 | 1 | 11 | 1 | `XmlAndConsoleInfrastructureCoverageTest` added for provided/fallback name tables and present/absent ancestor namespaces; rerun coverage to verify. |
+| [~] | `Xtate.Interpreter.Model.CustomActionNode` | 45.45 | 26.67 | 6 | 0 | 11 | 7 | `PersistedCustomActionNodeCoverageTest` added for forwarded action properties and evaluator execution; rerun coverage to verify. |
+| [~] | `Xtate.IAsyncEnumerableExtensions` | 57.14 | 56.52 | 6 | 0 | 10 | 2 | `AsyncEnumerableAndValueTaskCoverageTest` added for nonempty/empty immutable collection and append paths; rerun coverage to verify. |
+| [~] | `Xtate.StateMachineHost.Services.InternalEventDispatcher<TSource>` | 0 | 0 | 6 | 0 | 10 | 1 | `HostDispatchAndOptionsCoverageTest` added for session, invoke, and unknown-service routing; rerun coverage to verify. |
+| [~] | `Xtate.DataModel.DataModelHandlerBase` | 91.67 | 91.49 | 6 | 0 | 8 | 35 | `DataModelHandlerBaseProcessCoverageTest` covers all seven public Process overloads, executable/content evaluator dispatch, text conversion, case sensitivity, and default variables; rerun coverage to verify. |
 | [~] | `Xtate.StateMachine.ParamEntity` | 40 | 63.16 | 6 | 0 | 7 | 3 | `StateMachineEntityStructuresCoverageTest` extended; rerun coverage to verify. |
 | [~] | `Xtate.DataTypes.DataModelList.KeyValuePairEnumerator` | 72.73 | 76 | 6 | 0 | 6 | 5 | `DataModelListCoverageTest` added; rerun coverage to verify. |
 | [~] | `Xtate.Interpreter.Services.DataModelValueEntityParser` | 0 | 0 | 6 | 0 | 6 | 1 | Defined, undefined, and incompatible value behavior covered in `EntityParserCoverageTest`. |
@@ -240,103 +240,103 @@ Use this file to track unit-test coverage progress. Mark a class as covered only
 | [ ] | `JetBrains.Annotations.ContractAnnotationAttribute` | 0 | 0 | 6 | 0 | 4 | 2 |  |
 | [~] | `Xtate.StateMachine.Identifier` | 79.69 | 93.88 | 6 | 1 | 3 | 10 | `TokenAndLazyValueCoverageTest` added; rerun coverage to verify. |
 | [~] | `Xtate.DisposingToken` | 82.35 | 94.29 | 6 | 0 | 2 | 4 | `TokenAndLazyValueCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.DataTypes.DataModelValue.NumberValue` | 88.18 | 67.12 | 5 | 3 | 24 | 12 |  |
-| [ ] | `Xtate.Interpreter.Services.EventVerboseEntityParser` | 44.44 | 27.27 | 5 | 0 | 16 | 3 |  |
-| [ ] | `Xtate.Interpreter.Internal.StateMachineRuntimeError` | 80.36 | 71.15 | 5 | 1 | 15 | 12 |  |
-| [ ] | `Xtate.Interpreter.Services.NoExternalConnections` | 0 | 0 | 5 | 0 | 15 | 5 |  |
+| [~] | `Xtate.DataTypes.DataModelValue.NumberValue` | 88.18 | 67.12 | 5 | 3 | 24 | 12 | `DataModelValueNestedCoverageTest` added for Int32/Int64/Double/Decimal representations, cached/noncached decimals, equality, and hashing; includes ignored cross-representation hash-contract defect. |
+| [~] | `Xtate.Interpreter.Services.EventVerboseEntityParser` | 44.44 | 27.27 | 5 | 0 | 16 | 3 | `InterpreterLoggingAndConnectionsCoverageTest` added for undefined data, handler conversion, fallback conversion, property names, and level; rerun coverage to verify. |
+| [~] | `Xtate.Interpreter.Internal.StateMachineRuntimeError` | 80.36 | 71.15 | 5 | 1 | 15 | 12 | `InterpreterContextAndErrorCoverageTest` added for all error factories, nested classification, send IDs, destroy reasons, and cross-scope rejection; rerun coverage to verify. |
+| [~] | `Xtate.Interpreter.Services.NoExternalConnections` | 0 | 0 | 5 | 0 | 15 | 5 | `InterpreterLoggingAndConnectionsCoverageTest` added for all send, cancel, start, and forward rejection paths; rerun coverage to verify. |
 | [ ] | `System.Threading.Tasks.ValueTaskPolyfills` | 16.67 | 6.67 | 5 | 0 | 14 | 6 |  |
-| [ ] | `Xtate.Interpreter.Model.FinalNode` | 64.29 | 59.38 | 5 | 0 | 13 | 11 |  |
-| [ ] | `Xtate.Persistence.Services.Bucket.UnsupportedConverter<T>` | 0 | 0 | 5 | 0 | 13 | 5 |  |
-| [ ] | `Xtate.Interpreter.Model.StateMachineNode` | 76.19 | 73.33 | 5 | 0 | 12 | 10 |  |
-| [ ] | `Xtate.StateMachine.Validator.Services.ErrorProcessorService<TSource>` | 50 | 63.64 | 5 | 2 | 12 | 1 |  |
-| [ ] | `Xtate.IoProcessors.NamedPipe.DependencyInjection.NamedPipeIoProcessorModule` | 0 | 0 | 5 | 0 | 10 | 1 |  |
-| [ ] | `Xtate.IoC.TransformArgs.Internal.ServiceSelectorSync` | 0 | 0 | 5 | 0 | 9 | 5 |  |
-| [ ] | `Xtate.DataModel.Services.CustomActionFactory` | 78.26 | 75 | 5 | 0 | 8 | 1 |  |
-| [ ] | `Xtate.IoC.TransformArgs.Internal.ArgsTransformerAsync<T, TArg, TNewArg>` | 0 | 0 | 5 | 0 | 8 | 5 |  |
-| [ ] | `Xtate.IoC.TransformArgs.Services.ServiceFactoryNewArgsAsync<T, TArg, TNewArg>` | 54.17 | 61.9 | 5 | 1 | 8 | 1 |  |
-| [ ] | `Xtate.DataModel.XPath.Functions.InFunction` | 70.83 | 84.78 | 5 | 4 | 7 | 4 |  |
-| [ ] | `Xtate.IoC.Options.Internal.ConfigureSync<T>` | 0 | 0 | 5 | 0 | 6 | 2 |  |
+| [~] | `Xtate.Interpreter.Model.FinalNode` | 64.29 | 59.38 | 5 | 0 | 13 | 11 | `InterpreterModelStateWrapperCoverageTest` added for identity, ancestor/debug ID, atomic state, done data, and all empty final-state collections; rerun coverage to verify. |
+| [~] | `Xtate.Persistence.Services.Bucket.UnsupportedConverter<T>` | 0 | 0 | 5 | 0 | 13 | 5 | `BucketConverterCoverageTest` retains expected unsupported key and value failures with coverage-excluded assertion callbacks; rerun coverage to verify. |
+| [~] | `Xtate.Interpreter.Model.StateMachineNode` | 76.19 | 73.33 | 5 | 0 | 12 | 10 | `InterpreterModelStateWrapperCoverageTest` covers configuration/interface forwarding, initial/root registration, empty optional nodes, and debug ID; rerun coverage to verify. |
+| [~] | `Xtate.StateMachine.Validator.Services.ErrorProcessorService<TSource>` | 50 | 63.64 | 5 | 2 | 12 | 1 | `ErrorProcessorServiceCoverageTest` covers entity line information, XML-exception line fallback, locationless fallback, exception forwarding, and source typing; rerun coverage to verify. |
+| [~] | `Xtate.IoProcessors.NamedPipe.DependencyInjection.NamedPipeIoProcessorModule` | 0 | 0 | 5 | 0 | 10 | 1 | `DependencyInjectionModuleCoverageTest` added for registration and provider construction; rerun coverage to verify. |
+| [~] | `Xtate.IoC.TransformArgs.Internal.ServiceSelectorSync` | 0 | 0 | 5 | 0 | 9 | 5 | `TransformArgsCoverageTest` exercises generated closures for value/factory and tuple-based synchronous selector overloads; rerun coverage to verify. |
+| [~] | `Xtate.DataModel.Services.CustomActionFactory` | 78.26 | 75 | 5 | 0 | 8 | 1 | `CustomActionCoverageTest` added for provider fallthrough, matching activation, namespace/name/XML propagation, and result return; rerun coverage to verify. |
+| [~] | `Xtate.IoC.TransformArgs.Internal.ArgsTransformerAsync<T, TArg, TNewArg>` | 0 | 0 | 5 | 0 | 8 | 5 | `TransformArgsCoverageTest` covers capability reporting, asynchronous transformation, and unsupported synchronous transformation; rerun coverage to verify. |
+| [~] | `Xtate.IoC.TransformArgs.Services.ServiceFactoryNewArgsAsync<T, TArg, TNewArg>` | 54.17 | 61.9 | 5 | 1 | 8 | 1 | `TransformArgsCoverageTest` covers synchronous and asynchronous transformer selection, skipped transformers, async service creation, and missing-transformer failure; rerun coverage to verify. |
+| [~] | `Xtate.DataModel.XPath.Functions.InFunction` | 70.83 | 84.78 | 5 | 4 | 7 | 4 | `XPathFunctionAndIteratorCoverageTest` added for initialization, matching/nonmatching/empty strings, invalid arguments, and empty/all/mixed node sets; rerun coverage to verify. |
+| [~] | `Xtate.IoC.Options.Internal.ConfigureSync<T>` | 0 | 0 | 5 | 0 | 6 | 2 | `OptionsCoverageTest` added for delegate mutation and completed task behavior; rerun coverage to verify. |
 | [~] | `Xtate.CancellationTokenRegistrationExtensions` | 0 | 0 | 5 | 0 | 5 | 2 | `TokenAndLazyValueCoverageTest` added; rerun coverage to verify. |
 | [~] | `Xtate.DataTypes.DataModelList.KeyValueEnumerator` | 81.48 | 78.26 | 5 | 0 | 5 | 5 | `DataModelListCoverageTest` added; rerun coverage to verify. |
 | [~] | `Xtate.StateMachine.ContentEntity` | 37.5 | 64.29 | 5 | 0 | 5 | 3 | `StateMachineEntityStructuresCoverageTest` extended; rerun coverage to verify. |
-| [ ] | `Xtate.DataModel.XPath.Internal.XPathStripRootsIterator` | 76.09 | 84.62 | 5 | 1 | 4 | 5 |  |
+| [~] | `Xtate.DataModel.XPath.Internal.XPathStripRootsIterator` | 76.09 | 84.62 | 5 | 1 | 4 | 5 | `XPathFunctionAndIteratorCoverageTest` added for child/sibling traversal across empty roots, position/current state, termination, and independent cloning; rerun coverage to verify. |
 | [~] | `Xtate.StateMachine.DataModelEntity` | 16.67 | 50 | 5 | 0 | 4 | 3 | `StateMachineEntityStructuresCoverageTest` extended; rerun coverage to verify. |
 | [~] | `Xtate.StateMachine.ElseIfEntity` | 16.67 | 42.86 | 5 | 0 | 4 | 3 | `StateMachineEntityStructuresCoverageTest` extended; rerun coverage to verify. |
 | [~] | `Xtate.StateMachine.InitialEntity` | 16.67 | 42.86 | 5 | 0 | 4 | 3 | `StateMachineEntityStructuresCoverageTest` extended; rerun coverage to verify. |
 | [~] | `Xtate.StateMachine.OnEntryEntity` | 16.67 | 50 | 5 | 0 | 4 | 3 | `StateMachineEntityStructuresCoverageTest` extended; rerun coverage to verify. |
 | [~] | `Xtate.StateMachine.OnExitEntity` | 16.67 | 50 | 5 | 0 | 4 | 3 | `StateMachineEntityStructuresCoverageTest` extended; rerun coverage to verify. |
 | [~] | `Xtate.DataTypes.DataModelList.EntryEnumerator` | 81.48 | 81.25 | 5 | 0 | 3 | 6 | `DataModelListCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.Scxml.Services.ScxmlDirector.XmlLineInfo` | 0 | 0 | 5 | 0 | 3 | 2 |  |
-| [ ] | `Xtate.Scxml.Services.XIncludeReader.Strings` | 50 | 50 | 4 | 0 | 16 | 8 |  |
+| [~] | `Xtate.Scxml.Services.ScxmlDirector.XmlLineInfo` | 0 | 0 | 5 | 0 | 3 | 2 | `ScxmlDirectorNestedCoverageTest` covers line-info availability, line/column values, and ancestor forwarding; rerun coverage to verify. |
+| [~] | `Xtate.Scxml.Services.XIncludeReader.Strings` | 50 | 50 | 4 | 0 | 16 | 8 | `ScxmlDirectorNestedCoverageTest` covers all attribute and namespace getters, name-table interning, and repeated cached access; rerun coverage to verify. |
 | [~] | `Xtate.StateMachine.SendId` | 43.75 | 36 | 4 | 1 | 16 | 8 | `TokenAndLazyValueCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.DataModel.Services.DataModelConverter.JsonValueConverter` | 89.29 | 82.28 | 4 | 1 | 14 | 3 |  |
-| [ ] | `Xtate.Ancestor.Ancestor<TEntity>` | 77.78 | 54.17 | 4 | 0 | 11 | 3 |  |
-| [ ] | `Xtate.Interpreter.Model.EventDescriptorNode` | 43.75 | 42.11 | 4 | 1 | 11 | 8 |  |
+| [~] | `Xtate.DataModel.Services.DataModelConverter.JsonValueConverter` | 89.29 | 82.28 | 4 | 1 | 14 | 3 | Existing `JsonSerializationTest` plus `DataModelConverterCoverageTest` cover every scalar/list token, date/time variants, undefined modes, invalid tokens, streams, spans, bytes, and indentation; rerun coverage to verify. |
+| [~] | `Xtate.Ancestor.Ancestor<TEntity>` | 77.78 | 54.17 | 4 | 0 | 11 | 3 | `AncestorAndDeadLetterCoverageTest` added for direct, container, recursive provider, typed `As`, and missing ancestor paths; rerun coverage to verify. |
+| [~] | `Xtate.Interpreter.Model.EventDescriptorNode` | 43.75 | 42.11 | 4 | 1 | 11 | 8 | `InterpreterModelLeafNodeCoverageTest` added for forwarding, debug ID, equality, hashing, and positive/negative event matching; rerun coverage to verify. |
 | [~] | `Xtate.Actions.SyncAction.Location` | 43.75 | 50 | 4 | 1 | 10 | 5 | `ActionValueCoverageTest` added for evaluator binding, set, and expression paths; rerun coverage to verify. |
-| [ ] | `Xtate.Interpreter.Internal.KeyList<T>` | 50 | 41.18 | 4 | 1 | 10 | 6 |  |
-| [ ] | `Xtate.IoC.TransformArgs.Services.ServiceFactoryNewArgsAsync` | 0 | 0 | 4 | 0 | 10 | 1 |  |
-| [ ] | `Xtate.StateMachineHost.Services.SecurityContext.NoAccessTaskScheduler` | 20 | 18.18 | 4 | 0 | 9 | 5 |  |
+| [~] | `Xtate.Interpreter.Internal.KeyList<T>` | 50 | 41.18 | 4 | 1 | 10 | 6 | `InterpreterContextAndErrorCoverageTest` added for insert/replace events, lookup success/failure, and all enumeration paths; rerun coverage to verify. |
+| [~] | `Xtate.IoC.TransformArgs.Services.ServiceFactoryNewArgsAsync` | 0 | 0 | 4 | 0 | 10 | 1 | `TransformArgsCoverageTest` executes the asynchronous transformer/service-factory continuation path; rerun coverage to verify. |
+| [~] | `Xtate.StateMachineHost.Services.SecurityContext.NoAccessTaskScheduler` | 20 | 18.18 | 4 | 0 | 9 | 5 | `SecurityContextCoverageTest` added for no-access scheduler creation and queued-work rejection with the expected security exception; rerun coverage to verify. |
 | [~] | `Xtate.Interpreter.CommunicationException` | 0 | 0 | 4 | 0 | 8 | 4 | `SpecificExceptionCoverageTest` added; rerun coverage to verify. |
 | [~] | `Xtate.Interpreter.PlatformException` | 0 | 0 | 4 | 0 | 8 | 4 | `SpecificExceptionCoverageTest` added; rerun coverage to verify. |
 | [ ] | `Xtate.Interpreter.Services.InterpreterModelBuilder` | 98.56 | 98.29 | 4 | 3 | 8 | 54 |  |
-| [ ] | `Xtate.StateMachineOptions.Services.StateMachineOptionsProvider` | 42.86 | 38.46 | 4 | 0 | 8 | 6 |  |
+| [~] | `Xtate.StateMachineOptions.Services.StateMachineOptionsProvider` | 42.86 | 38.46 | 4 | 0 | 8 | 6 | `HostDispatchAndOptionsCoverageTest` added for persistence, error behavior, idle timeout, and all XInclude options; rerun coverage to verify. |
 | [~] | `Xtate.DataModel.Services.DefaultLogEvaluator` | 71.43 | 76.67 | 4 | 0 | 7 | 2 | `EvaluatorBaseCoverageTest` added for enabled and disabled log-controller paths plus expression evaluation; rerun coverage to verify. |
 | [~] | `Xtate.DataTypes.DataModelList.KeyEnumerable` | 0 | 0 | 4 | 0 | 7 | 4 | `DataModelListCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.ExternalServices.HttpClient.DependencyInjection.HttpClientModule` | 0 | 0 | 4 | 0 | 6 | 1 |  |
-| [ ] | `Xtate.ExternalServices.SmtpClient.DependencyInjection.SmtpClientModule` | 0 | 0 | 4 | 0 | 6 | 1 |  |
-| [ ] | `Xtate.Persistence.Services.PersistedInterpreterModelGetter` | 94.03 | 95.08 | 4 | 0 | 6 | 4 |  |
+| [~] | `Xtate.ExternalServices.HttpClient.DependencyInjection.HttpClientModule` | 0 | 0 | 4 | 0 | 6 | 1 | `DependencyInjectionModuleCoverageTest` registers the aggregate external-services module and constructs its provider; rerun coverage to verify. |
+| [~] | `Xtate.ExternalServices.SmtpClient.DependencyInjection.SmtpClientModule` | 0 | 0 | 4 | 0 | 6 | 1 | `DependencyInjectionModuleCoverageTest` registers the aggregate external-services module and constructs its provider; rerun coverage to verify. |
+| [~] | `Xtate.Persistence.Services.PersistedInterpreterModelGetter` | 94.03 | 95.08 | 4 | 0 | 6 | 4 | `PersistedInterpreterModelGetterCoverageTest` covers unsupported-version rejection, persisted/provided session mismatch, and the missing-definition requirement for a provided state machine; rerun coverage to verify. |
 | [ ] | `System.Xml.XmlWriterPolyfills` | 0 | 0 | 4 | 0 | 5 | 2 |  |
-| [ ] | `Xtate.DataModel.XPath.Internal.ElementNodeAdapter` | 88.46 | 89.58 | 4 | 1 | 5 | 7 |  |
-| [ ] | `Xtate.DataModel.XPath.Internal.TypeAttributeNodeAdapter` | 0 | 0 | 4 | 0 | 5 | 4 |  |
-| [ ] | `Xtate.Interpreter.Services.StateMachineContext` | 89.29 | 94.51 | 4 | 1 | 5 | 7 |  |
-| [ ] | `Xtate.Persistence.Services.SuspendEventDispatcher` | 50 | 58.33 | 4 | 1 | 5 | 3 |  |
+| [~] | `Xtate.DataModel.XPath.Internal.ElementNodeAdapter` | 88.46 | 89.58 | 4 | 1 | 5 | 7 | `XPathNodeAdapterCoverageTest` added for element type/name, first-child, empty state, aggregate value, buffer sizing, and span writing; rerun coverage to verify. |
+| [~] | `Xtate.DataModel.XPath.Internal.TypeAttributeNodeAdapter` | 0 | 0 | 4 | 0 | 5 | 4 | `XPathNodeAdapterCoverageTest` added for node type, names, namespace, and value; rerun coverage to verify. |
+| [~] | `Xtate.Interpreter.Services.StateMachineContext` | 89.29 | 94.51 | 4 | 1 | 5 | 7 | `InterpreterContextAndErrorCoverageTest` added for lazy/cached system data, populated/empty platform and IO processor data, case sensitivity, and runtime collections; rerun coverage to verify. |
+| [~] | `Xtate.Persistence.Services.SuspendEventDispatcher` | 50 | 58.33 | 4 | 1 | 5 | 3 | `SuspendEventDispatcherCoverageTest` added for add/remove event accessors, invocation, optional flag setting, and persistent flag state; rerun coverage to verify. |
 | [~] | `Xtate.DataModel.Runtime.RuntimeAction` | 50 | 50 | 4 | 0 | 4 | 2 | `RuntimeAndActionProviderCoverageTest` added for sync/async delegate wrappers and null delegate guards; rerun coverage to verify. |
 | [~] | `Xtate.DataModel.Runtime.RuntimePredicate` | 55.56 | 55.56 | 4 | 0 | 4 | 3 | `RuntimeAndActionProviderCoverageTest` added for sync/async predicate wrappers and null delegate guards; rerun coverage to verify. |
 | [~] | `Xtate.DataModel.Runtime.RuntimeValue` | 60 | 63.64 | 4 | 0 | 4 | 4 | `RuntimeAndActionProviderCoverageTest` added for constant/sync/async value wrappers and null delegate guards; rerun coverage to verify. |
-| [ ] | `Xtate.Logging.Services.ConsoleLogProvider.ConsoleTraceListener<TSource>` | 33.33 | 66.67 | 4 | 0 | 3 | 3 |  |
+| [~] | `Xtate.Logging.Services.ConsoleLogProvider.ConsoleTraceListener<TSource>` | 33.33 | 66.67 | 4 | 0 | 3 | 3 | `XmlAndConsoleInfrastructureCoverageTest` creates an isolated private listener instance and verifies console writer initialization and disposal cleanup; rerun coverage to verify. |
 | [~] | `Xtate.StateMachine.FinalizeEntity` | 33.33 | 62.5 | 4 | 0 | 3 | 3 | Action copy, ancestor, and matching/differing reference comparisons covered in `StateMachineEntityStructuresCoverageTest`. |
-| [ ] | `Xtate.Persistence.Services.Bucket` | 94.12 | 90.37 | 3 | 8 | 18 | 15 |  |
-| [ ] | `Xtate.StateMachineHost.Services.ExternalServiceManager` | 0 | 0 | 3 | 0 | 15 | 3 |  |
-| [ ] | `Xtate.ValueTaskExtensions` | 62.5 | 56.25 | 3 | 0 | 14 | 8 |  |
+| [~] | `Xtate.Persistence.Services.Bucket` | 94.12 | 90.37 | 3 | 8 | 18 | 15 | `BucketConverterCoverageTest` added for primitive/model round trips, raw values, nested long keys, removal/subtrees, nulls, enums, and unsupported types; includes ignored UInt32 boundary defect; rerun coverage to verify. |
+| [~] | `Xtate.StateMachineHost.Services.ExternalServiceManager` | 0 | 0 | 3 | 0 | 15 | 3 | `HostDispatchAndOptionsCoverageTest` added for event forwarding, invoke start/cancel, and dispose-token propagation; rerun coverage to verify. |
+| [~] | `Xtate.ValueTaskExtensions` | 62.5 | 56.25 | 3 | 0 | 14 | 8 | `AsyncEnumerableAndValueTaskCoverageTest` added for generic/non-generic completed, pending, cancellation-aware, monitor, and forget paths; rerun coverage to verify. |
 | [~] | `Xtate.DataModel.Services.UnknownDataModelHandler` | 0 | 0 | 3 | 0 | 12 | 3 | `DataModelServiceCoverageTest` added for unknown executable processing error path; rerun coverage to verify. |
-| [ ] | `Xtate.Persistence.Services.DataModelReferenceTracker` | 93.48 | 89.74 | 3 | 6 | 12 | 10 |  |
-| [ ] | `Xtate.Interpreter.Model.InitialNode` | 78.57 | 60 | 3 | 0 | 10 | 6 |  |
-| [ ] | `Xtate.Class.LocationStateMachine` | 76.67 | 65.38 | 3 | 1 | 9 | 5 |  |
-| [ ] | `Xtate.Interpreter.Services.InterpreterDebugLogEnricher` | 75 | 80 | 3 | 2 | 8 | 1 |  |
-| [ ] | `Xtate.IoC.TransformArgs.Internal.TransformArgs` | 50 | 50 | 3 | 0 | 8 | 2 |  |
+| [~] | `Xtate.Persistence.Services.DataModelReferenceTracker` | 93.48 | 89.74 | 3 | 6 | 12 | 10 | `DataModelReferenceTrackerCoverageTest` covers new/cached/restored/supplied list references, case sensitivity and values, reference increment/decrement/removal, repeated disposal, structure mismatch, scalar no-ops, and unsupported types; rerun coverage to verify. |
+| [~] | `Xtate.Interpreter.Model.InitialNode` | 78.57 | 60 | 3 | 0 | 10 | 6 | `InterpreterModelStateWrapperCoverageTest` added for transition lookup, source registration, ancestor/interface forwarding, document ID, and debug ID; rerun coverage to verify. |
+| [~] | `Xtate.Class.LocationStateMachine` | 76.67 | 65.38 | 3 | 1 | 9 | 5 | Absolute string/URI, base-relative combinations, null-base absolute handling, and relative URI rejection covered in `StateMachineClassCoverageTest`. |
+| [~] | `Xtate.Interpreter.Services.InterpreterDebugLogEnricher` | 75 | 80 | 3 | 2 | 8 | 1 | `InterpreterLoggingAndConnectionsCoverageTest` added for named/unnamed machines and populated/empty active configurations; rerun coverage to verify. |
+| [~] | `Xtate.IoC.TransformArgs.Internal.TransformArgs` | 50 | 50 | 3 | 0 | 8 | 2 | `TransformArgsCoverageTest` exercises generated ancestor-selection delegates for synchronous and asynchronous transforms; rerun coverage to verify. |
 | [~] | `Xtate.DataTypes.DataModelList.ValueEnumerator` | 83.33 | 70.83 | 3 | 1 | 7 | 6 | `DataModelListCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.Interpreter.Model.HistoryNode` | 75 | 65 | 3 | 0 | 7 | 6 |  |
-| [ ] | `Xtate.Persistence.Services.Bucket.DateTimeValueConverter<TValue>` | 0 | 0 | 3 | 0 | 7 | 3 |  |
-| [ ] | `Xtate.Persistence.Services.Bucket.DoubleValueConverter<TValue>` | 0 | 0 | 3 | 0 | 7 | 3 |  |
+| [~] | `Xtate.Interpreter.Model.HistoryNode` | 75 | 65 | 3 | 0 | 7 | 6 | `InterpreterModelStateWrapperCoverageTest` added for identity/type/transition forwarding, source registration, ancestor, document ID, and debug ID; rerun coverage to verify. |
+| [~] | `Xtate.Persistence.Services.Bucket.DateTimeValueConverter<TValue>` | 0 | 0 | 3 | 0 | 7 | 3 | `BucketConverterCoverageTest` added for binary DateTime round-trip conversion; rerun coverage to verify. |
+| [~] | `Xtate.Persistence.Services.Bucket.DoubleValueConverter<TValue>` | 0 | 0 | 3 | 0 | 7 | 3 | `BucketConverterCoverageTest` added for exact double bit round-trip conversion; rerun coverage to verify. |
 | [ ] | `System.Threading.Tasks.TaskCompletionSource` | 57.14 | 57.14 | 3 | 0 | 6 | 7 |  |
 | [~] | `Xtate.DataModel.XPath.XPathDataModelException` | 0 | 0 | 3 | 0 | 6 | 3 | `SpecificExceptionCoverageTest` added; rerun coverage to verify. |
 | [~] | `Xtate.Persistence.PersistenceException` | 0 | 0 | 3 | 0 | 6 | 3 | `SpecificExceptionCoverageTest` added; rerun coverage to verify. |
 | [~] | `Xtate.StateMachineHost.Exceptions.StateMachineSecurityException` | 0 | 0 | 3 | 0 | 6 | 3 | `SpecificExceptionCoverageTest` added; rerun coverage to verify. |
 | [~] | `Xtate.DataModel.Services.ExternalDataExpressionEvaluator` | 0 | 0 | 3 | 0 | 5 | 3 | `DataModelServiceCoverageTest` added for ancestor, URI, and object evaluation path; rerun coverage to verify. |
-| [ ] | `Xtate.StackSpan<T>` | 83.33 | 79.17 | 3 | 1 | 5 | 9 |  |
-| [ ] | `Xtate.Disposer` | 81.58 | 86.67 | 3 | 1 | 4 | 3 |  |
+| [~] | `Xtate.StackSpan<T>` | 83.33 | 79.17 | 3 | 1 | 5 | 9 | `StackSpanAndSafeFactoryCoverageTest` added for stack signaling, pooled spans, conversions, mutation, and repeated disposal; rerun coverage to verify. |
+| [~] | `Xtate.Disposer` | 81.58 | 86.67 | 3 | 1 | 4 | 3 | Existing `DisposerTest` covers sync, async, dual-interface, null, and non-disposable paths; rerun coverage to verify. |
 | [~] | `Xtate.Interpreter.StateMachineInterpreterState` | 78.57 | 76.47 | 3 | 0 | 4 | 7 | Display name, identity equality, operators, unrelated objects, and identity hash code covered in `EntityParserCoverageTest`. |
-| [ ] | `Xtate.IoC.Tools.Services.SafeFactory` | 57.14 | 60 | 3 | 0 | 4 | 1 |  |
-| [ ] | `Xtate.Logging.Services.Logger<TSource>` | 90.32 | 90.91 | 3 | 0 | 4 | 7 |  |
-| [ ] | `Xtate.Ancestor.AncestorContainer` | 0 | 0 | 3 | 0 | 3 | 2 |  |
-| [ ] | `Xtate.DataModel.XPath.Internal.XmlnsXmlNodeAdapter` | 0 | 0 | 3 | 0 | 3 | 3 |  |
-| [ ] | `Xtate.DataModel.XPath.Services.XPathVarDescriptor` | 66.67 | 82.35 | 3 | 0 | 3 | 6 |  |
-| [ ] | `Xtate.DataModel.XPath.Services.XPathVarDescriptor.EmptyIterator` | 25 | 25 | 3 | 0 | 3 | 4 |  |
+| [~] | `Xtate.IoC.Tools.Services.SafeFactory` | 57.14 | 60 | 3 | 0 | 4 | 1 | `StackSpanAndSafeFactoryCoverageTest` added for resolved and null values plus returned safe delegates; rerun coverage to verify. |
+| [~] | `Xtate.Logging.Services.Logger<TSource>` | 90.32 | 90.91 | 3 | 0 | 4 | 7 | `LoggerCoverageTest` added for generic-first/non-generic fallback enablement, disabled levels, short-circuiting, and invariant formatting; rerun coverage to verify. |
+| [~] | `Xtate.Ancestor.AncestorContainer` | 0 | 0 | 3 | 0 | 3 | 2 | `AncestorAndDeadLetterCoverageTest` added for value, ancestor, and null-ancestor access; rerun coverage to verify. |
+| [~] | `Xtate.DataModel.XPath.Internal.XmlnsXmlNodeAdapter` | 0 | 0 | 3 | 0 | 3 | 3 | `XPathNodeAdapterCoverageTest` added for the built-in XML namespace node; rerun coverage to verify. |
+| [~] | `Xtate.DataModel.XPath.Services.XPathVarDescriptor` | 66.67 | 82.35 | 3 | 0 | 3 | 6 | `XPathVariableCoverageTest` added for metadata, uninitialized fallback, initialization, and engine delegation; rerun coverage to verify. |
+| [~] | `Xtate.DataModel.XPath.Services.XPathVarDescriptor.EmptyIterator` | 25 | 25 | 3 | 0 | 3 | 4 | `XPathVariableCoverageTest` added for current value, position, clone, and movement behavior; rerun coverage to verify. |
 | [~] | `Xtate.Interpreter.Services.InterpreterStateParser` | 0 | 0 | 3 | 0 | 3 | 1 | State property, info level, and incompatible entity behavior covered in `EntityParserCoverageTest`. |
-| [ ] | `Xtate.IoProcessors.Http.DependencyInjection.HttpIoProcessorModule` | 0 | 0 | 3 | 0 | 3 | 1 |  |
-| [ ] | `Xtate.Interpreter.Model.ExternalScriptExpressionNode` | 78.57 | 85.71 | 3 | 0 | 2 | 4 |  |
+| [~] | `Xtate.IoProcessors.Http.DependencyInjection.HttpIoProcessorModule` | 0 | 0 | 3 | 0 | 3 | 1 | `DependencyInjectionModuleCoverageTest` added for registration and provider construction; rerun coverage to verify. |
+| [~] | `Xtate.Interpreter.Model.ExternalScriptExpressionNode` | 78.57 | 85.71 | 3 | 0 | 2 | 4 | `InterpreterModelLeafNodeCoverageTest` added for URI forwarding, content storage, and consumer propagation; rerun coverage to verify. |
 | [~] | `Xtate.StateMachineHost.StateMachineStatus` | 85 | 90.48 | 3 | 0 | 2 | 6 | Initial/state-change/accepted completion plus forced completion, failure, and cancellation covered in `StateMachineHostModelCoverageTest`. |
 | [ ] | `Xtate.DataTypes.Extensions.IConvertibleExtensions` | 46.88 | 46.88 | 2 | 13 | 17 | 16 |  |
-| [ ] | `Xtate.ResourceLoaders.Web.Services.WebResourceLoader.Provider` | 0 | 0 | 2 | 0 | 17 | 2 |  |
+| [~] | `Xtate.ResourceLoaders.Web.Services.WebResourceLoader.Provider` | 0 | 0 | 2 | 0 | 17 | 2 | Absolute HTTP/HTTPS matches and FTP/relative rejection covered in `ResourceLoaderHandlersCoverageTest`. |
 | [~] | `Xtate.ExternalServices.ExternalServiceProviderBase<TService>` | 33.33 | 12.5 | 2 | 0 | 14 | 3 | `ExternalServiceProviderBaseCoverageTest` exercises generic provider matching and service creation; rerun coverage to verify. |
 | [ ] | `Xtate.Scxml.Services.XmlDirector.Policy.ValidationContext` | 57.14 | 57.69 | 2 | 2 | 11 | 7 |  |
-| [ ] | `Xtate.DataTypes.DataModelValue.Marker` | 60 | 30.77 | 2 | 0 | 9 | 4 |  |
+| [~] | `Xtate.DataTypes.DataModelValue.Marker` | 60 | 30.77 | 2 | 0 | 9 | 4 | `DataModelValueNestedCoverageTest` added for undefined/null reference, typed equality, inequality, and stable hash paths; rerun coverage to verify. |
 | [~] | `Xtate.StateMachine.SessionId` | 73.08 | 76.92 | 2 | 3 | 9 | 13 | `TokenAndLazyValueCoverageTest` added for explicit/generated/null/equality paths; rerun coverage to verify. |
 | [~] | `Xtate.DataModel.XPath.Internal.XPathSingleElementIterator` | 72.22 | 46.67 | 2 | 1 | 8 | 5 | `InterpreterCollectionCoverageTest` added for current/current-position/move-next/clone paths; rerun coverage to verify. |
-| [ ] | `Xtate.DataModel.XPath.Internal.DataModelXPathNavigator.Node` | 90.48 | 79.41 | 2 | 0 | 7 | 16 |  |
+| [~] | `Xtate.DataModel.XPath.Internal.DataModelXPathNavigator.Node` | 90.48 | 79.41 | 2 | 0 | 7 | 16 | `XPathNodeAdapterCoverageTest` exercises all node delegation methods across default, list, item, attribute, namespace, and type adapters; rerun coverage to verify. |
 | [~] | `Xtate.DataTypes.DataModelList.ValueAdapter` | 91.3 | 77.42 | 2 | 0 | 7 | 9 | `DataModelListCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.DataModel.Services.DataModelConverter.JsonListConverter` | 97.13 | 93.81 | 2 | 1 | 6 | 7 |  |
-| [ ] | `Xtate.IoC.Options.DependencyInjection.IServiceCollectionExtensions` | 0 | 0 | 2 | 0 | 6 | 2 |  |
+| [~] | `Xtate.DataModel.Services.DataModelConverter.JsonListConverter` | 97.13 | 93.81 | 2 | 1 | 6 | 7 | Existing `JsonSerializationTest` plus `DataModelConverterCoverageTest` cover object/array reading and writing, forced empty shapes, keyed/unkeyed heuristics, undefined skip/null/error modes, empty keys, and indentation; rerun coverage to verify. |
+| [~] | `Xtate.IoC.Options.DependencyInjection.IServiceCollectionExtensions` | 0 | 0 | 2 | 0 | 6 | 2 | `OptionsCoverageTest` added for synchronous and asynchronous configurator registrations and resolution; rerun coverage to verify. |
 | [~] | `Xtate.Actions.AsyncAction.ArrayValue` | 0 | 0 | 2 | 0 | 5 | 2 | `ActionValueCoverageTest` added for array evaluator and object fallback paths; rerun coverage to verify. |
 | [~] | `Xtate.Actions.AsyncAction.BooleanValue` | 0 | 0 | 2 | 0 | 5 | 2 | `ActionValueCoverageTest` added for boolean evaluator, object fallback, and default paths; rerun coverage to verify. |
 | [~] | `Xtate.Actions.AsyncAction.IntegerValue` | 0 | 0 | 2 | 0 | 5 | 2 | `ActionValueCoverageTest` added for integer evaluator, object fallback, and default paths; rerun coverage to verify. |
@@ -351,7 +351,7 @@ Use this file to track unit-test coverage progress. Mark a class as covered only
 | [~] | `Xtate.Interpreter.Model.SendNode` | 87.5 | 84.85 | 2 | 0 | 5 | 16 | `InterpreterNodeCoverageTest` added for ancestor/property forwarding, delegated execution, document id, and debug id; rerun coverage to verify. |
 | [~] | `Xtate.Actions.AsyncAction` | 60 | 60 | 2 | 0 | 4 | 5 | `ActionValueCoverageTest` added for IAction facade over values, locations, and execute; rerun coverage to verify. |
 | [~] | `Xtate.Actions.SyncAction` | 90.91 | 90.91 | 2 | 0 | 4 | 8 | `ActionValueCoverageTest` added for IAction facade, value evaluation, location output, and reset flow; rerun coverage to verify. |
-| [ ] | `Xtate.Class.ScxmlStreamStateMachine` | 0 | 0 | 2 | 0 | 4 | 2 |  |
+| [~] | `Xtate.Class.ScxmlStreamStateMachine` | 0 | 0 | 2 | 0 | 4 | 2 | Protected reader creation and supplied-stream reading covered in `StateMachineClassCoverageTest`. |
 | [~] | `Xtate.DataModel.Runtime.RuntimeAction.ActionAsync` | 0 | 0 | 2 | 0 | 4 | 2 | `RuntimeAndActionProviderCoverageTest` added; rerun coverage to verify. |
 | [~] | `Xtate.DataModel.Runtime.RuntimePredicate.EvaluatorAsync` | 0 | 0 | 2 | 0 | 4 | 2 | `RuntimeAndActionProviderCoverageTest` added; rerun coverage to verify. |
 | [~] | `Xtate.DataModel.Runtime.RuntimeValue.EvaluatorAsync` | 0 | 0 | 2 | 0 | 4 | 2 | `RuntimeAndActionProviderCoverageTest` added; rerun coverage to verify. |
@@ -373,28 +373,28 @@ Use this file to track unit-test coverage progress. Mark a class as covered only
 | [~] | `Xtate.Interpreter.Model.OnEntryNode` | 80 | 71.43 | 2 | 0 | 4 | 5 | `InterpreterNodeCoverageTest` added for ancestor/action forwarding, action evaluator capture, document id, and debug id; rerun coverage to verify. |
 | [~] | `Xtate.Interpreter.Model.OnExitNode` | 80 | 71.43 | 2 | 0 | 4 | 5 | `InterpreterNodeCoverageTest` added for ancestor/action forwarding, action evaluator capture, document id, and debug id; rerun coverage to verify. |
 | [~] | `Xtate.Interpreter.Model.RaiseNode` | 50 | 50 | 2 | 0 | 4 | 4 | `InterpreterNodeCoverageTest` added for ancestor/property forwarding, delegated execution, document id, and debug id; rerun coverage to verify. |
-| [ ] | `Xtate.Interpreter.Model.TransitionNode` | 94.12 | 92.98 | 2 | 0 | 4 | 13 |  |
+| [~] | `Xtate.Interpreter.Model.TransitionNode` | 94.12 | 92.98 | 2 | 0 | 4 | 13 | `InterpreterModelStateWrapperCoverageTest` added for all forwarded members/evaluators, partial/complete target mapping, source assignment, document/debug IDs, and deconstruction; rerun coverage to verify. |
 | [~] | `Xtate.Interpreter.OwnedXtateException` | 66.67 | 60 | 2 | 0 | 4 | 6 | `SpecificExceptionCoverageTest` extended; rerun coverage to verify. |
 | [~] | `Xtate.Interpreter.StateMachineUnhandledErrorException` | 33.33 | 33.33 | 2 | 0 | 4 | 3 | `SpecificExceptionCoverageTest` extended; rerun coverage to verify. |
-| [ ] | `Xtate.IoC.Options.Internal.ConfigureAsync<T>` | 0 | 0 | 2 | 0 | 4 | 2 |  |
-| [ ] | `Xtate.IoC.TransformArgs.Internal.ArgsTransformerSync<T, TArg, TNewArg>` | 60 | 55.56 | 2 | 0 | 4 | 5 |  |
-| [ ] | `Xtate.Persistence.Services.Bucket.EnumIndexKeyConverter<TKey>` | 96.88 | 91.11 | 2 | 0 | 4 | 4 |  |
+| [~] | `Xtate.IoC.Options.Internal.ConfigureAsync<T>` | 0 | 0 | 2 | 0 | 4 | 2 | `OptionsCoverageTest` added for asynchronous delegate invocation and mutation; rerun coverage to verify. |
+| [~] | `Xtate.IoC.TransformArgs.Internal.ArgsTransformerSync<T, TArg, TNewArg>` | 60 | 55.56 | 2 | 0 | 4 | 5 | `TransformArgsCoverageTest` covers capability reporting and both synchronous and asynchronous transformation entry points; rerun coverage to verify. |
+| [~] | `Xtate.Persistence.Services.Bucket.EnumIndexKeyConverter<TKey>` | 96.88 | 91.11 | 2 | 0 | 4 | 4 | `BucketConverterCoverageTest` added for enum and integral keys across one- through seven-byte encodings; rerun coverage to verify. |
 | [~] | `Xtate.Persistence.StateMachineSuspendedException` | 33.33 | 33.33 | 2 | 0 | 4 | 3 | `SpecificExceptionCoverageTest` extended; rerun coverage to verify. |
 | [~] | `Xtate.StateMachine.Internal.IdGenerator` | 66.67 | 69.23 | 2 | 0 | 4 | 6 | `SmallHelperCoverageTest` extended; rerun coverage to verify. |
 | [~] | `Xtate.DataModel.Services.DefaultForEachEvaluator.IndexObject` | 0 | 0 | 2 | 0 | 3 | 2 | `DataConverterAndForEachCoverageTest` added for cached and uncached foreach index objects; rerun coverage to verify. |
 | [~] | `Xtate.Interpreter.Model.DataModelNode` | 77.78 | 72.73 | 2 | 0 | 3 | 4 | `InterpreterNodeCoverageTest` added for ancestor/data forwarding, compiled data node list, and document id; rerun coverage to verify. |
-| [ ] | `Xtate.Interpreter.Services.InStateController` | 72.22 | 80 | 2 | 1 | 3 | 1 |  |
+| [~] | `Xtate.Interpreter.Services.InStateController` | 72.22 | 80 | 2 | 1 | 3 | 1 | `InterpreterModelLeafNodeCoverageTest` added for configured and unconfigured state identifiers; rerun coverage to verify. |
 | [ ] | `Xtate.StateMachine.Services.StateMachineVisitor.VisitListData<T>` | 80.77 | 81.25 | 2 | 1 | 3 | 2 |  |
-| [ ] | `Xtate.ConcurrentDictionaryExtensions` | 87.5 | 87.5 | 2 | 0 | 2 | 1 |  |
-| [ ] | `Xtate.IoC.AncestorTracker.Services.AncestorFactory<T>` | 77.78 | 80 | 2 | 0 | 2 | 4 |  |
+| [~] | `Xtate.ConcurrentDictionaryExtensions` | 87.5 | 87.5 | 2 | 0 | 2 | 1 | Existing `ConcurrentDictionaryExtensionsTest` covers empty, populated, repeated, and concurrent removal paths; rerun coverage to verify. |
+| [~] | `Xtate.IoC.AncestorTracker.Services.AncestorFactory<T>` | 77.78 | 80 | 2 | 0 | 2 | 4 | `FactoryUtilitiesCoverageTest` added for initial value, captured value, delegate access, and null capture rejection; rerun coverage to verify. |
 | [~] | `Xtate.StateMachine.ElseEntity` | 33.33 | 33.33 | 2 | 0 | 2 | 3 | `StateMachineEntityStructuresCoverageTest` extended; rerun coverage to verify. |
-| [ ] | `Xtate.ExternalServices.DependencyInjection.ExternalServicesModule` | 0 | 0 | 2 | 0 | 1 | 1 |  |
+| [~] | `Xtate.ExternalServices.DependencyInjection.ExternalServicesModule` | 0 | 0 | 2 | 0 | 1 | 1 | `DependencyInjectionModuleCoverageTest` added for aggregate HTTP/SMTP registration and provider construction; rerun coverage to verify. |
 | [~] | `Xtate.Interpreter.Internal.DocumentIdSlot` | 85.71 | 87.5 | 2 | 0 | 1 | 2 | `SmallHelperCoverageTest` added; rerun coverage to verify. |
 | [ ] | `Xtate.Interpreter.Services.StateMachineInterpreter.LiveLockDetector` | 92.86 | 94.44 | 2 | 0 | 1 | 3 |  |
 | [~] | `Xtate.SpanFormattableExtensions` | 93.1 | 96.15 | 2 | 0 | 1 | 3 | `SmallHelperCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.DataModel.XPath.Internal.AdapterFactory` | 81.4 | 61.22 | 1 | 14 | 19 | 5 |  |
-| [ ] | `Xtate.StateMachineHost.Services.DeadLetterQueue<TSource>` | 0 | 0 | 1 | 0 | 12 | 1 |  |
-| [ ] | `Xtate.DataTypes.DataModelValue.DateTimeValue` | 94.59 | 80 | 1 | 2 | 10 | 9 |  |
+| [~] | `Xtate.DataModel.XPath.Internal.AdapterFactory` | 81.4 | 61.22 | 1 | 14 | 19 | 5 | `XPathNodeAdapterCoverageTest` added for all supported default, item, and simple-type mappings; rerun coverage to verify. |
+| [~] | `Xtate.StateMachineHost.Services.DeadLetterQueue<TSource>` | 0 | 0 | 1 | 0 | 12 | 1 | `AncestorAndDeadLetterCoverageTest` added for the warning-log enqueue path; rerun coverage to verify. |
+| [~] | `Xtate.DataTypes.DataModelValue.DateTimeValue` | 94.59 | 80 | 1 | 2 | 10 | 9 | `DataModelValueNestedCoverageTest` added for DateTime, cached standard offset, noncached minute offset, reconstruction, equality, and hashing; rerun coverage to verify. |
 | [ ] | `Xtate.Scxml.Services.XmlDirector.QualifiedName<TDirector>` | 70 | 50 | 1 | 1 | 6 | 4 |  |
 | [~] | `Xtate.Actions.AsyncAction.Value` | 75 | 37.5 | 1 | 0 | 5 | 3 | `ActionValueCoverageTest` added for evaluator binding and expression paths; rerun coverage to verify. |
 | [~] | `Xtate.Actions.SyncAction.Value` | 75 | 37.5 | 1 | 0 | 5 | 3 | `ActionValueCoverageTest` added for evaluator binding and expression paths; rerun coverage to verify. |
@@ -402,30 +402,30 @@ Use this file to track unit-test coverage progress. Mark a class as covered only
 | [~] | `Xtate.DataModel.Services.InlineContentEvaluator` | 75 | 50 | 1 | 0 | 5 | 4 | `XPathEvaluatorCoverageTest` added for ancestor, string, value, and object evaluation paths; rerun coverage to verify. |
 | [~] | `Xtate.ExternalServices.ExternalServiceProviderBase` | 0 | 0 | 1 | 0 | 5 | 1 | `ExternalServiceProviderBaseCoverageTest` added; rerun coverage to verify. |
 | [~] | `Xtate.Forward` | 0 | 0 | 1 | 0 | 4 | 1 | `SmallHelperCoverageTest` added for missing-service forwarding path; rerun coverage to verify. |
-| [ ] | `Xtate.Interpreter.Model.CompoundNode` | 85.71 | 63.64 | 1 | 0 | 4 | 4 |  |
-| [ ] | `Xtate.IoC.ServiceArray.Internal.ServiceSyncListBuilder` | 0 | 0 | 1 | 0 | 4 | 1 |  |
-| [ ] | `Xtate.ResourceLoaders.Resx.Services.ResxResourceLoader` | 90.91 | 83.33 | 1 | 0 | 4 | 4 |  |
-| [ ] | `Xtate.ResourceLoaders.Services.ResourceLoaderService` | 92.31 | 86.21 | 1 | 0 | 4 | 1 |  |
+| [~] | `Xtate.Interpreter.Model.CompoundNode` | 85.71 | 63.64 | 1 | 0 | 4 | 4 | `InterpreterModelStateWrapperCoverageTest` covers required initial mapping, initial/child registration, non-atomic semantics, and debug ID; rerun coverage to verify. |
+| [~] | `Xtate.IoC.ServiceArray.Internal.ServiceSyncListBuilder` | 0 | 0 | 1 | 0 | 4 | 1 | `CustomActionCoverageTest` constructs and enumerates a sync service list through the collection builder; rerun coverage to verify. |
+| [~] | `Xtate.ResourceLoaders.Resx.Services.ResxResourceLoader` | 90.91 | 83.33 | 1 | 0 | 4 | 4 | `ResourceLoaderHandlersCoverageTest` added for asynchronous stream resolution, resource creation, content access, and URI forwarding; rerun coverage to verify. |
+| [~] | `Xtate.ResourceLoaders.Services.ResourceLoaderService` | 92.31 | 86.21 | 1 | 0 | 4 | 1 | `ResourceLoaderHandlersCoverageTest` added for relative URI resolution, provider fallthrough, matching provider selection, header forwarding, and resource return; rerun coverage to verify. |
 | [ ] | `System.Net.Http.HttpContentPolyfills` | 0 | 0 | 1 | 0 | 3 | 1 |  |
 | [ ] | `System.Xml.XmlWriterPolyfills.ConfiguredAwaitable` | 0 | 0 | 1 | 0 | 3 | 1 |  |
 | [~] | `Xtate.CancellationTokenRegistrationExtensions.ConfiguredAwaitable` | 0 | 0 | 1 | 0 | 3 | 1 | `TokenAndLazyValueCoverageTest` added; rerun coverage to verify. |
-| [ ] | `Xtate.DataTypes.DataModelList.KeyMetaValueAdapter` | 93.48 | 84.21 | 1 | 1 | 3 | 9 |  |
-| [ ] | `Xtate.Interpreter.Model.IdentifierNode` | 78.57 | 80 | 1 | 1 | 3 | 7 |  |
-| [ ] | `Xtate.IoC.AncestorTracker.Services.AncestorTracker` | 95.45 | 95 | 1 | 2 | 3 | 7 |  |
-| [ ] | `Xtate.Persistence.Services.SharedMemoryStreams` | 50 | 50 | 1 | 0 | 3 | 2 |  |
+| [~] | `Xtate.DataTypes.DataModelList.KeyMetaValueAdapter` | 93.48 | 84.21 | 1 | 1 | 3 | 9 | `DataModelDynamicCoverageTest` covers combined keyed/indexed metadata, entry lookup, value preservation, and metadata retrieval after adapter transition; rerun coverage to verify. |
+| [~] | `Xtate.Interpreter.Model.IdentifierNode` | 78.57 | 80 | 1 | 1 | 3 | 7 | `InterpreterModelLeafNodeCoverageTest` added for identity, debug ID, equality, hashing, and string conversion; rerun coverage to verify. |
+| [~] | `Xtate.IoC.AncestorTracker.Services.AncestorTracker` | 95.45 | 95 | 1 | 2 | 3 | 7 | `FactoryUtilitiesCoverageTest` added for no-active-node capture and ancestor type lookup; rerun coverage to verify. |
+| [~] | `Xtate.Persistence.Services.SharedMemoryStreams` | 50 | 50 | 1 | 0 | 3 | 2 | Existing `SharedMemoryStreamsCoverageTest` exercises add/update factories, state transitions, reader/writer exclusion, and deletion helpers; rerun coverage to verify. |
 | [~] | `Xtate.StateMachine.InvokeId` | 90 | 92.5 | 1 | 2 | 3 | 12 | `TokenAndLazyValueCoverageTest` extended; rerun coverage to verify. |
 | [~] | `Xtate.StateMachine.SendEntity` | 96.77 | 96.15 | 1 | 0 | 3 | 4 | `StateMachineEntityStructuresCoverageTest` extended; rerun coverage to verify. |
-| [ ] | `Xtate.DataModel.XPath.Internal.AttributeNodeAdapter` | 70 | 80 | 1 | 1 | 2 | 5 |  |
-| [ ] | `Xtate.DataModel.XPath.Internal.NamespaceNodeAdapter` | 50 | 66.67 | 1 | 1 | 2 | 3 |  |
-| [ ] | `Xtate.DataModel.XPath.Internal.XPathMetadata` | 83.33 | 81.82 | 1 | 1 | 2 | 1 |  |
-| [ ] | `Xtate.DataModel.XPath.Services.XPathCompiledExpression` | 92.31 | 85.71 | 1 | 0 | 2 | 4 |  |
+| [~] | `Xtate.DataModel.XPath.Internal.AttributeNodeAdapter` | 70 | 80 | 1 | 1 | 2 | 5 | `XPathNodeAdapterCoverageTest` added for local/prefixed names, namespace, and value from metadata; rerun coverage to verify. |
+| [~] | `Xtate.DataModel.XPath.Internal.NamespaceNodeAdapter` | 50 | 66.67 | 1 | 1 | 2 | 3 | `XPathNodeAdapterCoverageTest` added for namespace local name and value behavior; rerun coverage to verify. |
+| [~] | `Xtate.DataModel.XPath.Internal.XPathMetadata` | 83.33 | 81.82 | 1 | 1 | 2 | 1 | `XPathNodeAdapterCoverageTest` added for null, present, and missing metadata values; rerun coverage to verify. |
+| [~] | `Xtate.DataModel.XPath.Services.XPathCompiledExpression` | 92.31 | 85.71 | 1 | 0 | 2 | 4 | `XPathVariableCoverageTest` added for compilation metadata, context initialization, and cached expression access; rerun coverage to verify. |
 | [~] | `Xtate.ExternalServices.HttpClient.Services.HttpClientService.Provider` | 0 | 0 | 1 | 0 | 2 | 1 | `ExternalServiceProviderBaseCoverageTest` extended; rerun coverage to verify. |
 | [~] | `Xtate.ExternalServices.SmtpClient.Services.SmtpClientService.Provider` | 0 | 0 | 1 | 0 | 2 | 1 | `ExternalServiceProviderBaseCoverageTest` extended; rerun coverage to verify. |
 | [~] | `Xtate.Interpreter.StateMachineDestroyedException` | 66.67 | 66.67 | 1 | 0 | 2 | 3 | `SpecificExceptionCoverageTest` extended; rerun coverage to verify. |
-| [ ] | `Xtate.Persistence.Services.Bucket.KeyConverterBase<TKey, TInternal>` | 66.67 | 75 | 1 | 0 | 2 | 3 |  |
-| [ ] | `Xtate.Persistence.Services.OrderedSetPersistingController<T>` | 98.51 | 97.3 | 1 | 0 | 2 | 3 |  |
-| [ ] | `Xtate.StateMachineFluentBuilder.StateFluentBuilder` | 0 | 0 | 1 | 0 | 2 | 1 |  |
-| [ ] | `Xtate.StateMachineFluentBuilder.TransitionFluentBuilder` | 0 | 0 | 1 | 0 | 2 | 1 |  |
+| [~] | `Xtate.Persistence.Services.Bucket.KeyConverterBase<TKey, TInternal>` | 66.67 | 75 | 1 | 0 | 2 | 3 | `BucketConverterCoverageTest` exercises converted key length/write paths across numeric, enum, and string key types; rerun coverage to verify. |
+| [~] | `Xtate.Persistence.Services.OrderedSetPersistingController<T>` | 98.51 | 97.3 | 1 | 0 | 2 | 3 | `PersistenceCollectionControllerCoverageTest` covers initial compaction, add/restore, non-final/final delete, explicit clear, and empty restoration; rerun coverage to verify. |
+| [~] | `Xtate.StateMachineFluentBuilder.StateFluentBuilder` | 0 | 0 | 1 | 0 | 2 | 1 | Existing `FluentBuilderTest` and `StateMachineFluentBuilderTest` instantiate and exercise state fluent builders; rerun coverage to verify. |
+| [~] | `Xtate.StateMachineFluentBuilder.TransitionFluentBuilder` | 0 | 0 | 1 | 0 | 2 | 1 | Existing fluent-builder tests create, configure, and end transitions; rerun coverage to verify. |
 | [~] | `Xtate.DataModel.Services.AssignEvaluator` | 85.71 | 92.31 | 1 | 0 | 1 | 7 | `EvaluatorBaseCoverageTest` added for ancestor/property forwarding and execute override path; rerun coverage to verify. |
 | [~] | `Xtate.DataModel.Services.CancelEvaluator` | 75 | 85.71 | 1 | 0 | 1 | 4 | `EvaluatorBaseCoverageTest` added for ancestor/property forwarding and execute override path; rerun coverage to verify. |
 | [~] | `Xtate.DataModel.Services.CustomActionEvaluator` | 85.71 | 92.31 | 1 | 0 | 1 | 7 | `EvaluatorBaseCoverageTest` added for ancestor/property forwarding and execute override path; rerun coverage to verify. |
@@ -435,35 +435,35 @@ Use this file to track unit-test coverage progress. Mark a class as covered only
 | [~] | `Xtate.DataModel.Services.RaiseEvaluator` | 66.67 | 80 | 1 | 0 | 1 | 3 | `EvaluatorBaseCoverageTest` added for ancestor/property forwarding and execute override path; rerun coverage to verify. |
 | [~] | `Xtate.DataModel.Services.ScriptEvaluator` | 75 | 85.71 | 1 | 0 | 1 | 4 | `CommunicationAndUtilityCoverageTest` added via `DefaultScriptEvaluator` for ancestor/content/source exposure; rerun coverage to verify. |
 | [~] | `Xtate.DataModel.Services.SendEvaluator` | 93.33 | 96.55 | 1 | 0 | 1 | 15 | `EvaluatorBaseCoverageTest` added for ancestor/property forwarding and execute override path; rerun coverage to verify. |
-| [ ] | `Xtate.DataTypes.DataModelValue.ObjectContainer` | 66.67 | 91.67 | 1 | 0 | 1 | 3 |  |
+| [~] | `Xtate.DataTypes.DataModelValue.ObjectContainer` | 66.67 | 91.67 | 1 | 0 | 1 | 3 | `DataModelValueNestedCoverageTest` added for source access, lazy conversion, value caching, and single source invocation; rerun coverage to verify. |
 | [~] | `Xtate.DateTimeExtensions` | 90 | 91.67 | 1 | 0 | 1 | 1 | `DateTimeExtensionsTest` extended for stored-value-ahead branch; rerun coverage to verify. |
-| [ ] | `Xtate.Interpreter.Model.ScriptNode` | 75 | 85.71 | 1 | 0 | 1 | 4 |  |
+| [~] | `Xtate.Interpreter.Model.ScriptNode` | 75 | 85.71 | 1 | 0 | 1 | 4 | `InterpreterModelLeafNodeCoverageTest` added for script members, ancestor, document ID, and execution; rerun coverage to verify. |
 | [~] | `Xtate.Interpreter.Services.NoStateMachineArguments` | 0 | 0 | 1 | 0 | 1 | 1 | `InterpreterServiceCoverageTest` added; rerun coverage to verify. |
 | [~] | `Xtate.StateMachine.ExternalDataExpression` | 83.33 | 85.71 | 1 | 0 | 1 | 3 | `StateMachineEntityStructuresCoverageTest` extended; rerun coverage to verify. |
 | [~] | `Xtate.StateMachine.ExternalScriptExpression` | 83.33 | 85.71 | 1 | 0 | 1 | 3 | `StateMachineEntityStructuresCoverageTest` extended; rerun coverage to verify. |
 | [~] | `Xtate.StateMachine.ScriptExpression` | 83.33 | 85.71 | 1 | 0 | 1 | 3 | `StateMachineEntityStructuresCoverageTest` extended; rerun coverage to verify. |
-| [ ] | `Xtate.Persistence.Services.Bucket.ValueHelper<T>` | 80.43 | 66.04 | 0 | 9 | 18 | 2 |  |
-| [ ] | `Xtate.Logging.Services.TraceLogProvider` | 95.35 | 90.77 | 0 | 4 | 6 | 7 |  |
+| [~] | `Xtate.Persistence.Services.Bucket.ValueHelper<T>` | 80.43 | 66.04 | 0 | 9 | 18 | 2 | `BucketConverterCoverageTest` exercises numeric, Boolean, string, date/time, URI, FullUri, and data-model converter selection plus unsupported values; rerun coverage to verify. |
+| [~] | `Xtate.Logging.Services.TraceLogProvider` | 95.35 | 90.77 | 0 | 4 | 6 | 7 | `LoggerCoverageTest` added for all level mappings and null, cached short, and uncached long parameter formatting; rerun coverage to verify. |
 | [ ] | `System.Threading.Tasks.TaskPolyfills` | 58.33 | 88.57 | 0 | 10 | 4 | 4 |  |
 | [~] | `Xtate.Interpreter.Internal.EntityQueue<T>` | 87.5 | 69.23 | 0 | 2 | 4 | 2 | `InterpreterCollectionCoverageTest` added for enqueue/dequeue events; rerun coverage to verify. |
 | [~] | `Xtate.Interpreter.Services.AssemblyTypeInfo` | 62.5 | 76.47 | 0 | 3 | 4 | 1 | `SmallHelperCoverageTest` extended; rerun coverage to verify. |
-| [ ] | `Xtate.Persistence.Extensions.BucketExtensions.EnumGetter<TKey>` | 50 | 42.86 | 0 | 1 | 4 | 1 |  |
-| [ ] | `Xtate.Persistence.Services.Bucket.ValueConverterBase<TValue, TInternal>` | 88.89 | 75 | 0 | 2 | 4 | 3 |  |
+| [~] | `Xtate.Persistence.Extensions.BucketExtensions.EnumGetter<TKey>` | 50 | 42.86 | 0 | 1 | 4 | 1 | `BucketConverterCoverageTest` added for stored enum retrieval through `GetEnum().As<TEnum>()`; rerun coverage to verify. |
+| [~] | `Xtate.Persistence.Services.Bucket.ValueConverterBase<TValue, TInternal>` | 88.89 | 75 | 0 | 2 | 4 | 3 | `BucketConverterCoverageTest` exercises converted length, write, and read paths for all supported persisted value families; rerun coverage to verify. |
 | [~] | `Xtate.Actions.SyncAction.TypedValue<T>` | 83.33 | 70 | 0 | 1 | 3 | 3 | `ActionValueCoverageTest` added for evaluate, value access, and reset exception paths; rerun coverage to verify. |
-| [ ] | `Xtate.DataModel.Services.DefaultIfEvaluator` | 96.25 | 95.65 | 0 | 3 | 3 | 2 |  |
-| [ ] | `Xtate.DataModel.Services.DefaultSendEvaluator` | 97.14 | 97.27 | 0 | 2 | 3 | 2 |  |
-| [ ] | `Xtate.Interpreter.Model.StateEntityNode.DocumentOrderComparer` | 81.25 | 83.33 | 0 | 3 | 3 | 3 |  |
+| [~] | `Xtate.DataModel.Services.DefaultIfEvaluator` | 96.25 | 95.65 | 0 | 3 | 3 | 2 | `DefaultEvaluatorCoverageTest` covers false initial, true else-if, else, empty action, selected action, and early-return branches; rerun coverage to verify. |
+| [~] | `Xtate.DataModel.Services.DefaultSendEvaluator` | 97.14 | 97.27 | 0 | 2 | 3 | 2 | `DefaultEvaluatorCoverageTest` covers expression and static fallbacks for name/type/target/delay, fixed/generated IDs, ID assignment, raw content/data conversion, and dispatch; rerun coverage to verify. |
+| [~] | `Xtate.Interpreter.Model.StateEntityNode.DocumentOrderComparer` | 81.25 | 83.33 | 0 | 3 | 3 | 3 | `InterpreterModelLeafNodeCoverageTest` added for entry/exit direction, equality, and collection ordering; rerun coverage to verify. |
 | [ ] | `System.Threading.CancellationTokenSourcePolyfills` | 50 | 71.43 | 0 | 1 | 2 | 1 |  |
-| [ ] | `Xtate.DataModel.Services.DefaultAssignEvaluator` | 92.31 | 93.1 | 0 | 2 | 2 | 2 |  |
-| [ ] | `Xtate.DataModel.Services.DefaultCustomActionEvaluator` | 93.75 | 85.71 | 0 | 1 | 2 | 2 |  |
+| [~] | `Xtate.DataModel.Services.DefaultAssignEvaluator` | 92.31 | 93.1 | 0 | 2 | 2 | 2 | `DefaultEvaluatorCoverageTest` covers expression precedence, inline-content fallback, assignment, and entity forwarding; rerun coverage to verify. |
+| [~] | `Xtate.DataModel.Services.DefaultCustomActionEvaluator` | 93.75 | 85.71 | 0 | 1 | 2 | 2 | `DefaultEvaluatorCoverageTest` covers entity forwarding and the no-container completion path; rerun coverage to verify. |
 | [~] | `Xtate.DataModel.XPath.Services.XPathContentBodyEvaluator` | 75 | 81.82 | 0 | 1 | 2 | 2 | `XPathEvaluatorCoverageTest` added for XPath XML parsing path; rerun coverage to verify. |
 | [~] | `Xtate.DataModel.XPath.Services.XPathInlineContentEvaluator` | 75 | 81.82 | 0 | 1 | 2 | 2 | `XPathEvaluatorCoverageTest` added for XPath XML parsing path; rerun coverage to verify. |
 | [~] | `Xtate.Interpreter.Internal.OrderedSet<T>` | 98.84 | 96.3 | 0 | 1 | 2 | 9 | `InterpreterCollectionCoverageTest` added for add/add-if-not-exists/delete/clear/filter/sort paths; rerun coverage to verify. |
-| [ ] | `Xtate.Persistence.Services.Bucket.StringKeyConverter<TString>` | 96.15 | 90.91 | 0 | 1 | 2 | 2 |  |
-| [ ] | `Xtate.ResourceLoaders.Resx.Services.ResxResourceLoader.Provider` | 75 | 88.24 | 0 | 1 | 2 | 2 |  |
-| [ ] | `Xtate.Scxml.Services.ScxmlLocationStateMachineGetter` | 97.37 | 94.74 | 0 | 1 | 2 | 5 |  |
-| [ ] | `Xtate.Scxml.Services.ScxmlReaderStateMachineGetter` | 97.37 | 95 | 0 | 1 | 2 | 4 |  |
-| [ ] | `Xtate.StateMachine.Builder.Services.ParallelBuilder` | 98.81 | 97.3 | 0 | 1 | 2 | 10 |  |
+| [~] | `Xtate.Persistence.Services.Bucket.StringKeyConverter<TString>` | 96.15 | 90.91 | 0 | 1 | 2 | 2 | `BucketConverterCoverageTest` added for ASCII, Unicode, and long nested string key encoding; rerun coverage to verify. |
+| [~] | `Xtate.ResourceLoaders.Resx.Services.ResxResourceLoader.Provider` | 75 | 88.24 | 0 | 1 | 2 | 2 | `ResourceLoaderHandlersCoverageTest` added for absolute res/resx matches and HTTP/relative rejection; rerun coverage to verify. |
+| [~] | `Xtate.Scxml.Services.ScxmlLocationStateMachineGetter` | 97.37 | 94.74 | 0 | 1 | 2 | 5 | `ScxmlGetterInfrastructureCoverageTest` added for async/DTD settings and located parser-context construction; rerun coverage to verify. |
+| [~] | `Xtate.Scxml.Services.ScxmlReaderStateMachineGetter` | 97.37 | 95 | 0 | 1 | 2 | 4 | `ScxmlGetterInfrastructureCoverageTest` added for async/close-input/DTD settings and empty/located base URI contexts; rerun coverage to verify. |
+| [~] | `Xtate.StateMachine.Builder.Services.ParallelBuilder` | 98.81 | 97.3 | 0 | 1 | 2 | 10 | Populated/default collections, state/parallel children, ancestor/properties, and all null guards covered in `BuilderCoverageTest`. |
 | [ ] | `Xtate.StateMachine.Services.StateMachineVisitor.VisitData<TEntity, TIEntity>` | 97.22 | 87.5 | 0 | 1 | 2 | 2 |  |
 | [~] | `Xtate.Ancestor.AncestorArray` | 50 | 80 | 0 | 1 | 1 | 1 | `InterpreterCollectionCoverageTest` added for default, empty-default, null item, and ancestor mapping paths; rerun coverage to verify. |
 | [~] | `Xtate.DataModel.Services.ActionProvider<TCustomAction>` | 97.22 | 97.14 | 0 | 1 | 1 | 4 | `RuntimeAndActionProviderCoverageTest` added; rerun coverage to verify. |
@@ -471,16 +471,16 @@ Use this file to track unit-test coverage progress. Mark a class as covered only
 | [~] | `Xtate.DataModel.Services.ContentBodyEvaluator` | 87.5 | 90 | 0 | 1 | 1 | 4 | `RuntimeAndActionProviderCoverageTest` added; rerun coverage to verify. |
 | [~] | `Xtate.DataModel.Services.DefaultScriptEvaluator` | 92.86 | 93.75 | 0 | 1 | 1 | 2 | `CommunicationAndUtilityCoverageTest` added for content-preferred and source-only evaluator execution; rerun coverage to verify. |
 | [~] | `Xtate.DataModel.XPath.XPathFunctionProviderBase<TXPathFunction>` | 75 | 90 | 0 | 1 | 1 | 2 | `XPathEvaluatorCoverageTest` added for matching and non-matching function lookup; rerun coverage to verify. |
-| [ ] | `Xtate.Interpreter.Services.InterpreterInfoLogEnricher` | 92.86 | 90.91 | 0 | 1 | 1 | 1 |  |
-| [ ] | `Xtate.Interpreter.Services.InterpreterModelBuilder.EntityMap` | 90 | 85.71 | 0 | 1 | 1 | 2 |  |
-| [ ] | `Xtate.IoC.Options.Services.OptionsAsyncImpl<T>` | 50 | 88.89 | 0 | 1 | 1 | 1 |  |
-| [ ] | `Xtate.IoC.Tools.Services.DeferredFactory<T>` | 75 | 91.67 | 0 | 1 | 1 | 2 |  |
-| [ ] | `Xtate.Persistence.Services.InMemoryStorage.Entry` | 96.67 | 94.12 | 0 | 1 | 1 | 3 |  |
-| [ ] | `Xtate.ResourceLoaders.File.Services.FileResourceLoader.Provider` | 75 | 92.31 | 0 | 1 | 1 | 2 |  |
-| [ ] | `Xtate.StateMachine.Builder.Services.FinalizeBuilder` | 90 | 91.67 | 0 | 1 | 1 | 2 |  |
-| [ ] | `Xtate.StateMachine.Builder.Services.ForEachBuilder` | 97.06 | 95.24 | 0 | 1 | 1 | 5 |  |
-| [ ] | `Xtate.StateMachine.Builder.Services.IfBuilder` | 94.44 | 93.33 | 0 | 1 | 1 | 3 |  |
+| [~] | `Xtate.Interpreter.Services.InterpreterInfoLogEnricher` | 92.86 | 90.91 | 0 | 1 | 1 | 1 | `InterpreterLoggingAndConnectionsCoverageTest` added for absent and nonempty session ID properties plus metadata; rerun coverage to verify. |
+| [~] | `Xtate.Interpreter.Services.InterpreterModelBuilder.EntityMap` | 90 | 85.71 | 0 | 1 | 1 | 2 | `InterpreterModelBuilderEntityMapCoverageTest` covers populated, null, and upper-out-of-range document-ID slots plus out-parameter behavior; rerun coverage to verify. |
+| [~] | `Xtate.IoC.Options.Services.OptionsAsyncImpl<T>` | 50 | 88.89 | 0 | 1 | 1 | 1 | `OptionsCoverageTest` added for ordered configure/post-configure execution and cached instance reuse; rerun coverage to verify. |
+| [~] | `Xtate.IoC.Tools.Services.DeferredFactory<T>` | 75 | 91.67 | 0 | 1 | 1 | 2 | `FactoryUtilitiesCoverageTest` added for deferred delegate access, result preservation, and single factory invocation; rerun coverage to verify. |
+| [~] | `Xtate.Persistence.Services.InMemoryStorage.Entry` | 96.67 | 94.12 | 0 | 1 | 1 | 3 | Existing storage tests plus bucket coverage exercise ordering, lookup, replacement, removal, prefix deletion, and deconstruction; rerun coverage to verify. |
+| [~] | `Xtate.ResourceLoaders.File.Services.FileResourceLoader.Provider` | 75 | 92.31 | 0 | 1 | 1 | 2 | Relative, local file, and UNC matches plus web URI rejection covered in `ResourceLoaderHandlersCoverageTest`. |
+| [~] | `Xtate.StateMachine.Builder.Services.FinalizeBuilder` | 90 | 91.67 | 0 | 1 | 1 | 2 | Populated/default actions, ancestor forwarding, and null guard covered in `BuilderCoverageTest`. |
+| [~] | `Xtate.StateMachine.Builder.Services.ForEachBuilder` | 97.06 | 95.24 | 0 | 1 | 1 | 5 | Populated/default builds, ancestor forwarding, and all null guards covered in `BuilderCoverageTest`. |
+| [~] | `Xtate.StateMachine.Builder.Services.IfBuilder` | 94.44 | 93.33 | 0 | 1 | 1 | 3 | Populated/default builds, ancestor forwarding, and condition/action null guards covered in `BuilderCoverageTest`. |
 | [~] | `Xtate.StateMachine.CancelEntity` | 87.5 | 92.86 | 0 | 2 | 1 | 3 | `StateMachineEntityStructuresCoverageTest` extended; rerun coverage to verify. |
-| [ ] | `Xtate.StateMachine.EventDescriptor` | 92.86 | 96.15 | 0 | 1 | 1 | 7 |  |
-| [ ] | `Xtate.StateMachineHost.Services.SecurityContextFactory` | 87.5 | 90.91 | 0 | 1 | 1 | 4 |  |
-| [ ] | `Xtate.StateMachineHost.Services.StateMachineDestroyOnIdle` | 90 | 94.44 | 0 | 1 | 1 | 1 |  |
+| [~] | `Xtate.StateMachine.EventDescriptor` | 92.86 | 96.15 | 0 | 1 | 1 | 7 | `InterpreterModelLeafNodeCoverageTest` added for explicit conversion, value/string access, typed/object/null equality, and hashing; rerun coverage to verify. |
+| [~] | `Xtate.StateMachineHost.Services.SecurityContextFactory` | 87.5 | 90.91 | 0 | 1 | 1 | 4 | `SecurityContextCoverageTest` added for default, nested, and restored context retrieval; rerun coverage to verify. |
+| [~] | `Xtate.StateMachineHost.Services.StateMachineDestroyOnIdle` | 90 | 94.44 | 0 | 1 | 1 | 1 | `StateMachineDestroyOnIdleCoverageTest` added for disabled/finite tracking, timer arm/cancel, interpreter caching, and sync/async disposal; rerun coverage to verify. |

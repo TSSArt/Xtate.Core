@@ -81,7 +81,7 @@ public class StartAction : AsyncAction
 
 		if (sessionIdLocation is not null)
 		{
-			_sessionIdLocation = new Location(sessionIdExpression);
+			_sessionIdLocation = new Location(sessionIdLocation);
 		}
 
 		_trusted = xmlReader.GetAttribute("trusted") is { } trusted && XmlConvert.ToBoolean(trusted);

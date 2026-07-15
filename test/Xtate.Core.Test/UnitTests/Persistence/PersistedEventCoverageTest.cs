@@ -154,8 +154,6 @@ public class PersistedEventCoverageTest
 	}
 
 	[TestMethod]
-
-	//[Ignore("Persisted event writers store InvokeId under Key.InvokeId, while readers use Key.InvokeUniqueId; enable after the persistence keys are made symmetrical.")]
 	public void PersistedEventsRoundTripInvokeId()
 	{
 		// Regression coverage is intentionally retained: all three persisted event readers currently lose InvokeId during a store/read round-trip.
@@ -170,8 +168,6 @@ public class PersistedEventCoverageTest
 	}
 
 	[TestMethod]
-
-	//[Ignore("PersistedRouterEvent.Store writes Target to Key.TargetType instead of Key.Target; enable after distinct keys are used.")]
 	public void PersistedRouterEventRoundTripsTargetUris()
 	{
 		// Regression coverage is intentionally retained: writing Target currently overwrites TargetType and leaves Target absent.

@@ -39,7 +39,7 @@ public class XPathDataModelTest
     </about>
   </data>
   <!--data id='employees' src='http://example.com/employees.xml'/-->
-  <data id='defaultdata'/>
+  <data id='default_data'/>
 </datamodel>
 <state id='currentBehavior'/>
 <final id='newBehavior'/>

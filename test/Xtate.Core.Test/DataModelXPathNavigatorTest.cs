@@ -26,12 +26,12 @@ namespace Xtate.Core.Test;
 [TestClass]
 public class DataModelXPathNavigatorTest
 {
-	private readonly Mock<INameTableProvider> NameTableProvider = new();
+	private readonly Mock<INameTableProvider> _nameTableProvider = new();
 
 	[TestInitialize]
 	public void Init()
 	{
-		NameTableProvider.Setup(n => n.GetNameTable()).Returns(new System.Xml.NameTable());
+		_nameTableProvider.Setup(n => n.GetNameTable()).Returns(new System.Xml.NameTable());
 	}
 
 	[TestMethod]
@@ -195,21 +195,21 @@ public class DataModelXPathNavigatorTest
 		// arrange
 		var list = new DataModelList { new DataModelList { ["key1"] = "val1" }, new DataModelList { ["key2"] = "val2" } };
 		var root = new DataModelList { ["root"] = list };
-		/*			list.Add("", "empty");
-					list.Add(":#$%", "symbol");
+					list.Add("", "empty.");
+					list.Add(":#$%", "symbol.");
 					list.Add("b", true);
 					list.Add("n", 1.5);
-					list.Add("dttm", DateTime.UtcNow);
+					list.Add("dttm", new DateTime(2026,1,1));
 					list.Add("nl", DataModelValue.Null);
 					list.Add("undef", default);
-					list.Add(null, default, default);*/
+					list.Add(null, default, null);
 		var nav = new DataModelXPathNavigator(root);
 
 		// act
-		_ = (XPathNodeIterator?) nav.Evaluate("/root/node()");
+		var xml = (XPathNodeIterator?) nav.Evaluate("/root/node()");
 
 		// assert
-		//Assert.AreEqual(expected: "e", xml);
+		Assert.AreEqual(expected: "val1val2empty.symbol.true1.52026-01-01T00:00:00", xml!.Current!.Value);
 	}
 
 	[TestMethod]
@@ -271,15 +271,15 @@ public class DataModelXPathNavigatorTest
 		var navigator = new DataModelXPathNavigator(t);
 
 		var s1 = navigator.MoveToFirstChild();
-		var s1a = navigator.MoveToFirstChild();
+		var s1A = navigator.MoveToFirstChild();
 		var navigatorIsEmptyElement = navigator.IsEmptyElement;
-		var s2q = navigator.MoveToFirstAttribute();
-		var s2qs = navigator.MoveToNextAttribute();
-		var s2qw = navigator.MoveToParent();
-		var as2q = navigator.MoveToFirstNamespace(XPathNamespaceScope.Local);
-		var as2qs = navigator.MoveToNextNamespace(XPathNamespaceScope.Local);
-		var as2qa = navigator.MoveToNextNamespace(XPathNamespaceScope.Local);
-		var as2qw = navigator.MoveToParent();
+		var s2Q = navigator.MoveToFirstAttribute();
+		var s2Qs = navigator.MoveToNextAttribute();
+		var s2Qw = navigator.MoveToParent();
+		var as2Q = navigator.MoveToFirstNamespace(XPathNamespaceScope.Local);
+		var as2Qs = navigator.MoveToNextNamespace(XPathNamespaceScope.Local);
+		var as2Qa = navigator.MoveToNextNamespace(XPathNamespaceScope.Local);
+		var as2Qw = navigator.MoveToParent();
 
 		var s2 = navigator.MoveToNext();
 		var s3 = navigator.MoveToParent();

@@ -19,6 +19,7 @@ using System.Xml.XPath;
 using Xtate.Ancestor;
 using Xtate.DataModel.Services;
 using Xtate.DataModel.XPath;
+using Xtate.DataModel.XPath.Internal;
 using Xtate.DataModel.XPath.Services;
 using Xtate.DataTypes;
 using Xtate.IoC.Tools;
@@ -31,6 +32,41 @@ namespace Xtate.Test.UnitTests.DataModel;
 [TestClass]
 public class XPathEvaluatorCoverageTest
 {
+	[TestMethod]
+	public void XPathLocationExpressionForwardsSourceAndParsesEveryAssignType()
+	{
+		var source = new LocationExpressionSource { Expression = "/root/value" };
+		var expression = new XPathLocationExpression(source, XPathAssignType.AddAttribute, "status");
+
+		Assert.AreSame(source, ((IAncestorProvider) expression).Ancestor);
+		Assert.AreEqual("/root/value", expression.Expression);
+		Assert.AreEqual(XPathAssignType.AddAttribute, expression.AssignType);
+		Assert.AreEqual("status", expression.Attribute);
+
+		(string? Input, XPathAssignType Expected)[] mappings =
+		[
+			(null, XPathAssignType.ReplaceChildren),
+			(string.Empty, XPathAssignType.ReplaceChildren),
+			("replacechildren", XPathAssignType.ReplaceChildren),
+			("firstchild", XPathAssignType.FirstChild),
+			("lastchild", XPathAssignType.LastChild),
+			("previoussibling", XPathAssignType.PreviousSibling),
+			("nextsibling", XPathAssignType.NextSibling),
+			("replace", XPathAssignType.Replace),
+			("delete", XPathAssignType.Delete),
+			("addattribute", XPathAssignType.AddAttribute)
+		];
+
+		foreach (var (input, expected) in mappings)
+		{
+			Assert.IsTrue(XPathLocationExpression.TryParseAssignType(input, out var actual), $"Input '{input ?? "<null>"}' should be recognized.");
+			Assert.AreEqual(expected, actual);
+		}
+
+		Assert.IsFalse(XPathLocationExpression.TryParseAssignType("unsupported", out var unknown));
+		Assert.AreEqual(XPathAssignType.Unknown, unknown);
+	}
+
 	[TestMethod]
 	public async Task XPathFunctionBaseExposesArgumentMetadataInitializationAndInvokeAdapter()
 	{
@@ -157,6 +193,11 @@ public class XPathEvaluatorCoverageTest
 		public string? Value { get; init; }
 
 	#endregion
+	}
+
+	private sealed class LocationExpressionSource : ILocationExpression
+	{
+		public string? Expression { get; init; }
 	}
 
 	private sealed class TestInlineContentEvaluator(IInlineContent inlineContent, DataModelValue value) : InlineContentEvaluator(inlineContent)

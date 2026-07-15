@@ -118,6 +118,58 @@ public class InterpreterNodeCoverageTest
 		AssertDebugIdContainsDocumentId(onExitNode);
 	}
 
+	[TestMethod]
+	public async Task InvokeNodeEvaluatesExpressionsAssignsIdAndBuildsContentAndParameters()
+	{
+		var typeExpression = new StringExpressionSource("urn:dynamic-type");
+		var sourceExpression = new StringExpressionSource("relative/source");
+		var idLocation = new LocationExpressionSource("invokeId");
+		var nameLocation = new LocationExpressionSource("namedValue");
+		var contentExpression = new ValueExpressionSource("content-value");
+		var parameterExpression = new ValueExpressionSource("parameter-value");
+		var invokeSource = new InvokeSource(
+			typeExpression,
+			sourceExpression,
+			idLocation,
+			nameLocation,
+			new ContentSource(contentExpression),
+			new ParamSource("parameter", parameterExpression, idLocation));
+		var documentIds = new LinkedList<int>();
+		var node = new InvokeNode(new DocumentIdNode(documentIds), invokeSource)
+				   {
+					   DataConverter = static () => new ValueTask<DataConverter>(new DataConverter(caseSensitivity: null))
+				   };
+		documentIds.First!.Value = 29;
+		var invokeId = InvokeId.FromString("invoke-id", "unique-invoke-id");
+
+		var data = await node.CreateInvokeData(invokeId);
+
+		Assert.AreSame(invokeSource, ((IAncestorProvider) node).Ancestor);
+		Assert.AreEqual(expected: 29, node.DocumentId);
+		Assert.AreEqual("invoke(#29)", ((IDebugEntityId) node).EntityId.ToString());
+		Assert.AreEqual("invoke", node.Id);
+		Assert.AreEqual(new FullUri("urn:static-type"), node.Type);
+		Assert.AreSame(typeExpression, node.TypeExpression);
+		Assert.AreEqual(new Uri("static/source", UriKind.Relative), node.Source);
+		Assert.AreSame(sourceExpression, node.SourceExpression);
+		Assert.AreSame(idLocation, node.IdLocation);
+		Assert.IsTrue(node.AutoForward);
+		Assert.AreSame(nameLocation, node.NameList.Single());
+		Assert.AreSame(invokeSource.Parameters.Single(), node.Parameters.Single());
+		Assert.AreSame(invokeSource.Content, node.Content);
+		Assert.IsNull(node.Finalize);
+		Assert.AreSame(invokeId, idLocation.LastSetValue);
+		Assert.AreSame(invokeId, data.InvokeId);
+		Assert.AreEqual(new FullUri("urn:dynamic-type"), data.Type);
+		Assert.AreEqual(new Uri("relative/source", UriKind.Relative), data.Source);
+		Assert.IsNull(data.RawContent);
+		Assert.AreEqual("content-value", data.Content.AsString());
+		Assert.AreEqual("namedValue", data.Parameters.AsList()["namedValue"].AsString());
+		Assert.AreEqual("parameter-value", data.Parameters.AsList()["parameter"].AsString());
+		node.CurrentInvokeId = invokeId;
+		Assert.AreSame(invokeId, node.CurrentInvokeId);
+	}
+
 	private static async Task AssertAssignNode(AssignSource source,
 											   LinkedList<int> documentIds,
 											   ILocationExpression location,
@@ -309,11 +361,24 @@ public class InterpreterNodeCoverageTest
 		public ValueTask<DataModelValue> Evaluate() => new(value);
 	}
 
+	private sealed class StringExpressionSource(string value) : IValueExpression, IStringEvaluator
+	{
+		public string? Expression => value;
+
+		public ValueTask<string> EvaluateString() => new(value);
+	}
+
 	private sealed class LocationExpressionSource(string value) : ILocationExpression, ILocationEvaluator
 	{
+		public IObject? LastSetValue { get; private set; }
+
 	#region Interface ILocationEvaluator
 
-		public ValueTask SetValue(IObject value) => ValueTask.CompletedTask;
+		public ValueTask SetValue(IObject value)
+		{
+			LastSetValue = value;
+			return ValueTask.CompletedTask;
+		}
 
 		public ValueTask<IObject> GetValue() => new(new DataModelValue(value));
 
@@ -414,6 +479,37 @@ public class InterpreterNodeCoverageTest
 		public ILocationExpression? Location => location;
 
 	#endregion
+	}
+
+	private sealed class InvokeSource(
+		IValueExpression typeExpression,
+		IValueExpression sourceExpression,
+		ILocationExpression idLocation,
+		ILocationExpression nameLocation,
+		IContent content,
+		IParam parameter) : IInvoke
+	{
+		public FullUri? Type => new("urn:static-type");
+
+		public IValueExpression? TypeExpression => typeExpression;
+
+		public Uri? Source => new("static/source", UriKind.Relative);
+
+		public IValueExpression? SourceExpression => sourceExpression;
+
+		public string? Id => "invoke";
+
+		public ILocationExpression? IdLocation => idLocation;
+
+		public ImmutableArray<ILocationExpression> NameList => ImmutableArray.Create(nameLocation);
+
+		public bool AutoForward => true;
+
+		public ImmutableArray<IParam> Parameters => ImmutableArray.Create(parameter);
+
+		public IFinalize? Finalize => null;
+
+		public IContent? Content => content;
 	}
 
 	private sealed class AssignSource(

@@ -48,7 +48,7 @@ public class LazyTaskCoverageTest
 		var expected = new InvalidOperationException("factory failed");
 		var lazyTask = new LazyTask<int>(() => throw expected);
 
-		var actual = await Assert.ThrowsExactlyAsync<InvalidOperationException>(async () => await lazyTask.Task);
+		var actual = await Assert.ThrowsExactlyAsync<InvalidOperationException>([ExcludeFromCodeCoverage] async () => await lazyTask.Task);
 
 		Assert.AreSame(expected, actual);
 	}
@@ -76,7 +76,7 @@ public class LazyTaskCoverageTest
 		cancellationTokenSource.Cancel();
 		releaseFactory.SetResult();
 
-		await Assert.ThrowsExactlyAsync<TaskCanceledException>(async () => await task);
+		await Assert.ThrowsExactlyAsync<TaskCanceledException>([ExcludeFromCodeCoverage] async () => await task);
 		Assert.IsTrue(task.IsCanceled);
 	}
 
@@ -86,7 +86,7 @@ public class LazyTaskCoverageTest
 		using var cancellationTokenSource = new CancellationTokenSource();
 		var lazyTask = new LazyTask<int>(() => throw new OperationCanceledException(cancellationTokenSource.Token));
 
-		await Assert.ThrowsExactlyAsync<TaskCanceledException>(async () => await lazyTask.Task);
+		await Assert.ThrowsExactlyAsync<TaskCanceledException>([ExcludeFromCodeCoverage] async () => await lazyTask.Task);
 		Assert.IsTrue(lazyTask.Task.IsCanceled);
 	}
 }

@@ -572,7 +572,7 @@ public readonly struct Bucket
 
 		protected override int Get(ReadOnlySpan<byte> bytes)
 		{
-			var value = (int) bytes[^1];
+			var value = (int) (sbyte) bytes[^1];
 
 			for (var i = bytes.Length - 2; i >= 0; i --)
 			{
