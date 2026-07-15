@@ -32,6 +32,10 @@ public class PersistedRouterEvent : RouterEvent, IStoreSupport
 			throw new ArgumentException(Resources.Exception_InvalidTypeInfoValue);
 		}
 
+		var senderServiceId = bucket.GetServiceId(Key.SenderServiceId);
+		Infra.NotNull(senderServiceId);
+
+		SenderServiceId = senderServiceId;
 		Name = bucket.GetEventName(Key.Name);
 		Type = bucket.GetEnum(Key.Type).As<EventType>();
 		SendId = bucket.GetSendId(Key.SendId);
@@ -39,7 +43,6 @@ public class PersistedRouterEvent : RouterEvent, IStoreSupport
 		OriginType = bucket.GetFullUri(Key.OriginType);
 		InvokeId = bucket.GetInvokeId(Key.InvokeId);
 		Data = bucket.GetDataModelValue(Key.Data);
-		SenderServiceId = bucket.GetServiceId(Key.SenderServiceId) ?? throw Infra.Fail<Exception>();
 		IoProcessorData = bucket.GetDataModelValue(Key.RouterEventData).AsNullableList();
 		DelayMs = bucket.GetInt32(Key.DelayMs);
 		TargetType = bucket.GetFullUri(Key.TargetType);

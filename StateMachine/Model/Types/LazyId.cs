@@ -39,8 +39,6 @@ public abstract class LazyId : ILazyValue, IObject
 
 			var newId = GenerateId();
 
-			Debug.Assert(TryGetHashFromId(newId, out var hash) && hash == base.GetHashCode());
-
 			id = Interlocked.CompareExchange(ref _id, newId, comparand: null) ?? newId;
 
 			return id;

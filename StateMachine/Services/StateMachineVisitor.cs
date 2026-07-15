@@ -32,25 +32,25 @@ public abstract class StateMachineVisitor(bool trackPath = false)
 			return entry.obj.GetType().Name;
 		}
 
-		return ((Type) entry.obj).Name;
+		return @$"{((Type) entry.obj).Name}[..]";
 	}
 
-	private void Enter<T>(T entity) where T : notnull => _path?.Push((entity, []));
+	private void Enter<T>(T entity) where T : notnull => _path?.Push((entity, default));
 
-	private void Enter<T>(ImmutableArray<T> array) where T : notnull => _path?.Push((typeof(ImmutableArray<T>), array.CastArray<object?>()));
+	private void Enter<T>(ImmutableArray<T> array) where T : notnull => _path?.Push((typeof(T), array.CastArray<object?>()));
 
 	private void Exit() => _path?.Pop();
 
 	protected void SetRootPath(object root)
 	{
-		if (root is null) throw new ArgumentNullException(nameof(root));
+		Infra.Requires(root);
 
 		if (_path?.Count > 0)
 		{
 			throw new InvalidOperationException(message: Resources.Exception_RootPathCanBeSetOnlyBeforeVisiting);
 		}
 
-		_path?.Push((root, []));
+		_path?.Push((root, default));
 	}
 
 	private ref struct VisitData<TEntity, TIEntity> where TEntity : struct, IVisitorEntity<TEntity, TIEntity>, TIEntity
